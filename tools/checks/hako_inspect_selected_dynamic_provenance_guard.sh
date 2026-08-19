@@ -24,6 +24,7 @@ cc -I"$ROOT/plugins/nyash-json-plugin/c/yyjson" \
   "$ROOT/plugins/nyash-json-plugin/c/yyjson/yyjson.c" -ldl
 
 PYTHONPATH="$ROOT/tools/hako_check" python3 -m unittest \
+  tools.hako_check.tests.test_inspect_provenance_dispositions \
   tools.hako_check.tests.test_inspect_provenance_model \
   tools.hako_check.tests.test_inspect_selected_dynamic_provenance
 
@@ -60,12 +61,22 @@ fi
 
 python3 - "$TEMP_DIR/bundle" <<'PY'
 import json
+import hashlib
 import pathlib
 import sys
 
 bundle = pathlib.Path(sys.argv[1])
 identity = json.loads((bundle / "identity.json").read_text())
 provenance = json.loads((bundle / "lowering.provenance.json").read_text())
+payloads = {
+    "producer.json", "source.full.hako", "mir.raw.json",
+    "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
+    "lowering.provenance.json", "summary.md",
+}
+assert set(identity["artifacts"]) == payloads
+assert {path.name for path in bundle.iterdir()} == payloads | {"identity.json"}
+for name, row in identity["artifacts"].items():
+    assert hashlib.sha256((bundle / name).read_bytes()).hexdigest() == row["sha256"]
 assert identity["mappings"] == {
     "source_to_mir": "exact",
     "mir_to_llvm": "issuer_exact_lowered_pre_opt",

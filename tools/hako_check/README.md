@@ -65,6 +65,10 @@ Selected lowering provenance V0
   owner. Labels, adjacency, counts, and the renderer never infer ownership.
 - `merged`, `deleted`, and `introduced` are not latent compatibility forms. An
   actual issuer requires a separate relation-schema Decision before use.
+- The selected-Dynamic bundle identity seals exactly seven payloads: producer
+  manifest, source, MIR, lowered-pre-opt LLVM, raw origins, normalized
+  provenance, and summary. `identity.json` is issued last as the atomic root
+  receipt and is intentionally not recursively self-hashed.
 
 Diagnostics schema (typed)
 - Map fields:

@@ -6,18 +6,18 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Seal every published selected-Dynamic bundle sibling under one
-write-last identity; do not leave summary or producer lineage outside the seal.
-Source authority + canonical issuer: The validated producer manifest and staged
-source/MIR/lowered-LLVM/origin/provenance artifacts are the sole identity input.
-Non-authority: Filename, directory order, summary prose, newest bundle, CLI
-success, and an unsealed producer path issue no candidate identity.
-Fail-fast boundary: Build summary and copied producer manifest before identity;
-digest drift, missing/extra claimed sibling, or validation failure publishes 0.
-Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-D0` fixes
-the exact artifact inventory and write-last order before implementation.
-Non-claims: No provenance/machine relation, object/ASM addition, compiler
-behavior, keeper, measurement, production, fallback, retry, or performance.
+Decision: Design one origin-footprint view that combines exact MIR→lowered-LLVM
+cohorts with independent final selected-symbol ASM totals without false arrows.
+Source authority + canonical issuer: The sealed candidate, issuer provenance,
+and an exact same-emission object/symbol artifact are the only inputs.
+Non-authority: Counts, deltas, labels, addresses, adjacency, C comparison, and
+timings may not issue LLVM→machine correspondence or a performance owner.
+Fail-fast boundary: Artifact digests/selectors, unique relation ownership, and
+unique ASM symbol must co-seal; mapping gaps remain explicit or report is 0.
+Smallest next slice: `HAKO-INSPECT-ORIGIN-FOOTPRINT-D0` fixes the artifact seam,
+boundary vocabulary, and report contract before adding another payload.
+Non-claims: No exact machine origin, optimization advice, keeper, measurement,
+promotion, production, fallback, retry, or compiler behavior change.
 
 ## Decision
 
@@ -361,11 +361,26 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   reject. Thirty-three inspect tests, both reusable inspect guards, the real
   selected-Dynamic 64-row bundle, and the S6C structural canary are green; both
   C issuers and their event bytes are unchanged.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-D0` (**selected design row**):
-  determine the one published sibling inventory and write order. Current
-  identity is issued before `summary.md`, and the validated producer manifest
-  is not copied into the bundle, so neither is digest-bound. Do not patch this
-  by trusting filenames or recursively hashing identity itself.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-D0` (**accepted BoxShape**):
+  the payload inventory is exactly `producer.json`, `source.full.hako`,
+  `mir.raw.json`, `llvm.lowered-pre-opt.ir`, `lowering.origins.tsv`,
+  `lowering.provenance.json`, and `summary.md`. All seven are written before
+  `identity.json` and appear in its artifact digest table. `identity.json` is
+  the root receipt, not a recursively self-hashed payload. After writing it,
+  local inventory must equal seven payloads plus the receipt before atomic
+  directory rename; missing, extra, foreign, or tampered siblings publish 0.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-I0` (**landed BoxShape**):
+  reorder only the existing ingress transaction, copy the already validated
+  producer manifest, seal the summary, and add exact-inventory/tamper tests.
+  Provenance rows, compiler driver, selectors, mappings, and publication route
+  remain unchanged. The local inventory is exactly seven payloads plus the
+  write-last root receipt; producer/summary tamper and extra sibling reject.
+  Thirty-five inspect tests and the 17-test public real-bundle guard are green.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-D0` (**selected design row**): specify the
+  smallest honest view for MIR/assembly comparison. Exact MIR→lowered-pre-opt
+  LLVM origin groups may show LLVM shape counts; final ASM may show only unique
+  selected-symbol totals until a backend-issued address relation exists. Name
+  how the same-emission object joins the seal; never infer arrows from objdump.
 - `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
   BoxCount**): the first real full-source provenance canary exposed an invalid
   pre-opt module. C1 expands the loop backedge through

@@ -72,6 +72,16 @@ def validate_producer(producer: Path) -> dict[str, Any]:
     return manifest
 
 
+def validate_product_inventory(staging: Path, identity: dict[str, Any]) -> None:
+    artifacts = identity.get("artifacts")
+    if not isinstance(artifacts, dict):
+        raise SystemExit("selected Dynamic identity artifact table missing")
+    expected = set(artifacts) | {"identity.json"}
+    actual = {path.name for path in staging.iterdir() if path.is_file()}
+    if actual != expected or any(path.is_dir() for path in staging.iterdir()):
+        raise SystemExit("selected Dynamic published inventory mismatch")
+
+
 def seal_product(
     *, producer: Path, lowered: Path, raw: Path, out: Path,
 ) -> dict[str, Any]:
@@ -82,6 +92,7 @@ def seal_product(
     staging = Path(tempfile.mkdtemp(prefix=f".{out.name}.", dir=out.parent))
     try:
         for source, name in (
+            (producer / "producer.json", "producer.json"),
             (producer / "source.full.hako", "source.full.hako"),
             (producer / "real.json", "mir.raw.json"),
             (lowered, "llvm.lowered-pre-opt.ir"),
@@ -92,6 +103,8 @@ def seal_product(
             raise SystemExit("selected Dynamic staged source digest mismatch")
         if manifest.get("mir_json_sha256") != _sha256(staging / "mir.raw.json"):
             raise SystemExit("selected Dynamic staged MIR digest mismatch")
+        if _load(staging / "producer.json") != manifest:
+            raise SystemExit("selected Dynamic staged producer manifest mismatch")
         provenance = build_provenance(
             raw_path=staging / "lowering.origins.tsv",
             mir_path=staging / "mir.raw.json",
@@ -105,6 +118,20 @@ def seal_product(
             staging / "lowering.provenance.json",
             json.dumps(provenance, indent=2, sort_keys=True) + "\n",
         )
+        coverage = provenance["coverage"]
+        summary = "\n".join([
+            "# Selected Dynamic Lowering Provenance", "",
+            "- MIR → lowered LLVM: issuer_exact",
+            "- lowered LLVM → final LLVM: unavailable",
+            "- LLVM → ASM: unavailable",
+            "- observation only: 1", "- keeper selection: 0",
+            "- measurement authority: 0", "",
+            "| layer | blocks | edges |", "|---|---:|---:|",
+            f"| MIR | {coverage['mir_blocks']} | {coverage['mir_edges']} |",
+            f"| lowered LLVM | {coverage['llvm_blocks']} | {coverage['llvm_edges']} |",
+            "",
+        ])
+        _write_atomic(staging / "summary.md", summary)
         identity = build_identity_contract(
             out_dir=staging,
             source_file=Path("source.full.hako"),
@@ -117,8 +144,9 @@ def seal_product(
                 ),
             },
             artifact_names=[
-                "source.full.hako", "mir.raw.json", "llvm.lowered-pre-opt.ir",
-                "lowering.origins.tsv", "lowering.provenance.json",
+                "producer.json", "source.full.hako", "mir.raw.json",
+                "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
+                "lowering.provenance.json", "summary.md",
             ],
             mappings={
                 "source_to_mir": "exact",
@@ -136,20 +164,7 @@ def seal_product(
             json.dumps(identity, indent=2, sort_keys=True) + "\n",
         )
         validate_identity_contract(staging, identity)
-        coverage = provenance["coverage"]
-        summary = "\n".join([
-            "# Selected Dynamic Lowering Provenance", "",
-            "- MIR → lowered LLVM: issuer_exact",
-            "- lowered LLVM → final LLVM: unavailable",
-            "- LLVM → ASM: unavailable",
-            "- observation only: 1", "- keeper selection: 0",
-            "- measurement authority: 0", "",
-            "| layer | blocks | edges |", "|---|---:|---:|",
-            f"| MIR | {coverage['mir_blocks']} | {coverage['mir_edges']} |",
-            f"| lowered LLVM | {coverage['llvm_blocks']} | {coverage['llvm_edges']} |",
-            "",
-        ])
-        _write_atomic(staging / "summary.md", summary)
+        validate_product_inventory(staging, identity)
         os.replace(staging, out)
         return identity
     finally:

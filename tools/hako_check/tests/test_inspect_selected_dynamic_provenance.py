@@ -12,7 +12,10 @@ from pathlib import Path
 TOOLS = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(TOOLS))
 
-from inspect_selected_dynamic_provenance import FUNCTION, seal_product, validate_producer
+from inspect_scope_identity import validate_identity_contract
+from inspect_selected_dynamic_provenance import (
+    FUNCTION, seal_product, validate_producer, validate_product_inventory,
+)
 
 
 def digest(path: Path) -> str:
@@ -90,6 +93,46 @@ class SelectedDynamicProvenanceIngressTests(unittest.TestCase):
                 "lowered_pre_opt",
             )
             self.assertFalse(identity["shape_ready"])
+            self.assertEqual(
+                set(identity["artifacts"]),
+                {
+                    "producer.json", "source.full.hako", "mir.raw.json",
+                    "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
+                    "lowering.provenance.json", "summary.md",
+                },
+            )
+            self.assertEqual(
+                {path.name for path in (root / "bundle").iterdir()},
+                set(identity["artifacts"]) | {"identity.json"},
+            )
+
+    def test_summary_and_producer_are_inside_identity_seal(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            root = Path(raw_root)
+            producer, llvm, raw = self.fixture(root)
+            identity = seal_product(
+                producer=producer, lowered=llvm, raw=raw, out=root / "bundle",
+            )
+            for name in ("summary.md", "producer.json"):
+                artifact = root / "bundle" / name
+                original = artifact.read_bytes()
+                artifact.write_bytes(original + b"tampered\n")
+                with self.subTest(name=name), self.assertRaisesRegex(
+                    SystemExit, "artifact digest mismatch"
+                ):
+                    validate_identity_contract(root / "bundle", identity)
+                artifact.write_bytes(original)
+
+    def test_extra_published_sibling_rejects(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            root = Path(raw_root)
+            producer, llvm, raw = self.fixture(root)
+            identity = seal_product(
+                producer=producer, lowered=llvm, raw=raw, out=root / "bundle",
+            )
+            (root / "bundle" / "foreign.txt").write_text("foreign")
+            with self.assertRaisesRegex(SystemExit, "published inventory mismatch"):
+                validate_product_inventory(root / "bundle", identity)
 
     def test_foreign_producer_digest_rejects_before_publication(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
