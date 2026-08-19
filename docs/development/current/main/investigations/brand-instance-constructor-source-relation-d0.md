@@ -585,13 +585,16 @@ accepted D0. The completed rows remain in the receipts above and in
    expressions, while a bare root `FunctionCall` is an explicit Deferred
    responsibility. There is no accepted Complete-Script Brand shape to
    consume; do not invent an empty projection or fallback.
-4. **`BRAND-DEFERRED-SCRIPT-OWNER-ISSUANCE-D0`** — next design audit. Deferred
-   Script must first name a retained source/body owner before any Brand
-   consumer can exist. Compatibility, RawLegacy, and nested/Main remain later
-   separate rows; caller-zero is not evidence of absence.
-5. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
+4. **`BRAND-DEFERRED-SCRIPT-OWNER-ISSUANCE-D0`** — audited and closed as
+   `NoSafeSlice`: the resolver returns `Deferred` before issuing any Script
+   owner, so a Brand consumer cannot be added without a new semantic source
+   product. Compatibility, RawLegacy, and nested/Main remain separate rows.
+5. **`SCRIPT-DIRECT-STATIC-CALL-TARGET-D0`** — accepted as the next production
+   frontier design. Its bounded I0 may issue only an exact Script caller/site
+   target catalog; Recipe and physical retirement remain later rows.
+6. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
    MethodCall/`Brand.unwrap`; do not combine it with constructor consumer work.
-6. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
+7. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
    FunctionCall admission has an exact `Constructor|NonBrand|Unavailable`
    disposition. Until then, `CompilationContext::is_brand_declared` remains a
    compatibility authority on the relationless lanes.
@@ -672,3 +675,44 @@ record `NoSafeSlice` and leave Deferred compatibility-only.
 Non-claims: no Compatibility/RawLegacy/nested/Main repair, no consumer code,
 no new semantic receipt, no unwrap/nominal Brand value, and no production or
 runtime switch.
+
+### BRAND-DEFERRED-SCRIPT-OWNER-ISSUANCE-D0 closeout
+
+Decision: `NoSafeSlice`; do not create a Deferred-Script Brand owner by
+relabeling the existing runtime responsibility.
+Source authority + canonical issuer: the current Script resolver's shadow
+profile is the only issuer, and it returns `Deferred` before `issue_owner()`
+when a residual responsibility is present. No retained source/body owner or
+complete deferred semantic forest exists at this boundary.
+Non-authority: `ResolveScriptOutcomeV1::Deferred`, the ordinal residual
+registry, raw AST/name, compatibility mode, and `brand_decls` cannot issue a
+source relation or prove child-site coverage.
+Fail-fast boundary: any missing owner/site or deferred residual rejects before
+exact Brand consumption; no empty owner, partial Script relation, raw fallback,
+or global probe retirement is permitted.
+Smallest next slice: return to the production frontier with
+`SCRIPT-DIRECT-STATIC-CALL-TARGET-D0`; audit a separate exact Script caller/site
+target issuer before any Recipe or physical change.
+Non-claims: no Deferred owner implementation, no Compatibility/RawLegacy
+repair, no Script Brand consumer, no unwrap, and no runtime/production switch.
+
+### SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
+
+Decision: Accept one BoxCount prerequisite: issue an AST-free exact Script
+caller/site-to-static-target catalog, without issuing a Recipe or lowering.
+Source authority + canonical issuer: the retained Script source occurrence and
+its resolver traversal must co-issue a new Script owner/site, exact receiver
+and argument sites, and the existing canonical static callee key before
+Recipe construction.
+Non-authority: callable-owner keys, receiver/name/arity lookup, spans, `using`
+spelling, Deferred status, raw success, and the module result-publication owner
+cannot mint a Script target.
+Fail-fast boundary: missing/duplicate/foreign caller or site, alias/local
+collision, overload mismatch, dynamic/instance receiver, nested-owner drift,
+or unknown result/arity rejects before child effects and never falls back to
+raw lowering.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-TARGET-I0` — implement only
+the source-owned Script target catalog and completeness/negative guards; leave
+Recipe, physical call/result publication, and old-route retirement unopened.
+Non-claims: no Deferred owner repair, callable-key reuse, by-name fallback,
+Recipe/Join issuance, physical switch, backend optimization, or promotion.
