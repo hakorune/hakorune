@@ -6,28 +6,29 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Issue one observation envelope beside `real.json` at the existing
-caller-zero S6C test export, then let one dedicated ingress transaction produce
-the final LLVM module, object, disassembly, and V1 seal. Source kind is
-`caller_zero_semantic_program`, never guessed `.hako`.
+Decision: Bind the exact bytes of
+`apps/tests/scan_with_init_typed_ok_min.hako` to the returned `MirFunction`
+inside the existing producer, then publish those carried bytes and strict JSON
+as one private observation cohort.
 Source authority + canonical issuer: The existing caller-zero S6C compiler
-test owns the installed source/Facts/Recipe cohort, verified unpublished
-`MirFunction`, and strict JSON serialization. That test is the sole envelope
-issuer; the dedicated ingress owns only one observation transaction and the
-path-independent artifact seal.
+test parses and transforms those exact `include_str!` bytes, owns the installed
+source/Facts/Recipe cohort, verified unpublished `MirFunction`, and strict JSON
+serialization. The test export is the sole observation-envelope issuer.
 Non-authority: Test names, filenames, manual copies, current target paths,
-`ny_main`, ValueId, assembly similarity, and C/reference artifacts cannot issue
-the missing source/candidate relation.
-Fail-fast boundary: The envelope and JSON must mutually bind one transaction
-ID and SHA-256; the existing structural driver must consume those exact bytes
-once and emit one nonempty final module and object; disassembly is regenerated
-from that object. Foreign/stale transaction, digest, selector, module, object,
+separately reopened source paths, ordinals, nonces, `ny_main`, ValueId,
+assembly similarity, and C/reference artifacts cannot issue source/candidate
+lineage. The path is diagnostic; carried bytes and digests are binding.
+Fail-fast boundary: Producer-copied source and JSON must match the write-last
+producer manifest; the existing structural driver consumes those exact JSON
+bytes once and emits one nonempty final module and object; disassembly is
+regenerated from that object. Foreign/stale digest, selector, module, object,
 projected meso artifact, or mapping downgrade issues no V1 seal.
 Smallest next slice: `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0` adds one
-test-only pure envelope child, one tiny producer call, and one dedicated Python
-adapter that owns a private transaction, reuses the structural driver, accepts
-the object as the caller-zero machine carrier, and writes the V1 seal last.
-Non-claims: No `.hako` relation, semantic `Verified*`/`Prepared*` receipt,
+test-only carrier for `{source_path, source_bytes, function}`, one tiny producer
+call, and one dedicated Python adapter that owns a private transaction, reuses
+the structural driver, accepts the object machine carrier, and writes the V1
+seal last.
+Non-claims: No new semantic `Verified*`/`Prepared*` receipt,
 Facts/Recipe issuance, compiler/backend behavior, C/reference owner,
 measurement, residual owner, keeper, promotion, or production change.
 
@@ -275,9 +276,9 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   command help, and pointer guard are green.
 - `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0` (**accepted**): the canonical seam
   is the existing `pinned_text_real_candidate_json_preserves_carrier_lineage`
-  export after verified function serialization. It co-issues an observation
-  envelope with source kind `caller_zero_semantic_program`; target directories,
-  test names, ordinals, and historical perf artifacts remain non-authority.
+  export after verified function serialization. Its carrier retains the exact
+  parsed fixture bytes with the function; reopened paths, target directories,
+  test names, ordinals, nonces, and historical perf artifacts are non-authority.
 - `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0` (**selected BoxCount**): add the
   test-only envelope and one dedicated private-transaction adapter over the
   existing structural driver. Accept one exact object carrier into V1 without
