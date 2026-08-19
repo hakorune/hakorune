@@ -48,6 +48,11 @@ static int hako_llvmc_ptfc_verify_final_module_v1(
     const char* function_symbol,
     char** err_out);
 
+/* Compile-time test instrumentation only.  Production has no evidence sink. */
+#ifndef HAKO_LLVMC_PTFC_FINAL_MODULE_EVIDENCE_V1
+#define HAKO_LLVMC_PTFC_FINAL_MODULE_EVIDENCE_V1(session, module, err_out) (0)
+#endif
+
 struct HakoPtfbTargetMachineSession {
   void* handle;
   void* target;
@@ -303,6 +308,11 @@ static int hako_llvmc_ptfb_session_emit_owned_buffer(
           selected_candidate,
           selected_function_symbol,
           err_out) != 0) {
+    remove(tmp_path);
+    goto cleanup;
+  }
+  if (selected_candidate &&
+      HAKO_LLVMC_PTFC_FINAL_MODULE_EVIDENCE_V1(session, module, err_out) != 0) {
     remove(tmp_path);
     goto cleanup;
   }
