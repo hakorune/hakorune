@@ -22,10 +22,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Name one resolver-owned source-site identity for canonical explicit externcall before target and argument effects."
-work_mode = "design_stop"
-current_execution_row = "FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0"
-current_blocker_token = "Canonical externcall is still recognized by a raw MIRBuilder name branch rather than a resolver-issued exact source-site identity."
+current_design_stop = "none"
+work_mode = "fast"
+current_execution_row = "FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0"
+current_blocker_token = "Implement the accepted dedicated ExplicitExternCall source shape, resolver relation, and exact consumer while retiring the raw Builder name branch."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -89,15 +89,15 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-d0.md"
+current_execution_design = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-i0.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "function-call-explicit-externcall-source-identity-d0"
-latest_card_path = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-d0.md"
-latest_card_summary = "A universal special registry closed NoSafeSlice; explicit externcall is the first separately-owned source identity to design."
-next_design_card = "FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0"
-next_design_card_path = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-d0.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card = "function-call-explicit-externcall-source-identity-i0"
+latest_card_path = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-i0.md"
+latest_card_summary = "Externcall source identity D0 accepted one dedicated ExplicitExternCall source shape and site-keyed resolver relation; bounded BoxCount I0 is selected."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0"
+next_execution_card_path = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-i0.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -108,6 +108,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0 accepted one BoxCount. Canonical externcall gets a dedicated AST shape and site-keyed resolver relation; generic parenthesized externcall remains an ordinary shadowable FunctionCall. Malformed/foreign rows reject before child effects, and the I0 retires the raw name branch.",
   "2026-08-20: FUNCTION-CALL-SPECIAL-NAMESPACE-SOURCE-REGISTRY-D0 closed NoSafeSlice. weak reject, explicit externcall, Brand namespace, TypeOp, Math, scoped FastMem, and str normalization have distinct authorities; the raw precedence test is legacy behavior, not one language namespace. FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0 is selected first.",
   "2026-08-20: FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0 closed NoSafeSlice. Lexical records prove binding identity but not callable-value membership, and raw special branches have no exhaustive registry issuer. Existing VerifiedCallableIndexV1 remains the sole FreeStatic authority; FUNCTION-CALL-SPECIAL-NAMESPACE-SOURCE-REGISTRY-D0 is selected before its Script handoff.",
   "2026-08-20: FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0 landed behavior-neutrally. The production owner is 329 lines and its unchanged five tests live in a 443-line child; focused tests, inventory parity, rustfmt, diff, and pointer guard are green. The reusable MirBuilder guard's selected-normal-lifecycle red reproduces on parent ada2373fb2 and is classified baseline debt. Lexical callee classification D0 is selected.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0 closed NoSafeSlice. Raw ordinary calls resolve the callee after argument lowering, and arguments may mutate variable_map or fail first; moving target selection earlier is not behavior-preserving. FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0 is selected design-only.",
   "2026-08-20: SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0 closed NoSafeSlice. Ordinary preflight retains only name and AST arguments; exact target, same-module recovery, header, and tail resolution remain later Builder-owned decisions. Script FunctionCall stays typed Deferred with no new receipt or edge. RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0 is selected design-only.",
   "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0 landed one observation BoxCount. A 150-line owner validates the exact ten-payload Hako bundle and explicit unique C symbol, then atomically writes a separate summary plus write-last comparison root. Fifty-one inspect tests and both reusable guards are green; no exact C-source consumer exists, so observation UX returns to the Script production frontier.",
-  "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0 accepted one observation BoxCount. The exact ten-payload Hako identity stays unchanged; explicit C assembly plus one exact unique symbol may feed only a separate derived report with independent totals and correspondence unavailable. C build, symbol fallback, equivalence, timing, mapping, keeper, and promotion authority remain prohibited. The bounded I0 is selected.",
 ]

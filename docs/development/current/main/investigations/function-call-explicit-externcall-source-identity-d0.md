@@ -1,43 +1,51 @@
 # FunctionCall Explicit Externcall Source Identity D0
 
-Status: selected design stop
+Status: accepted
 Scope: one canonical explicit `externcall` source-site identity
 Parent: `function-call-special-namespace-source-registry-d0.md`
 Row: `FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0`
 
-## Current execution brief
+## Final decision
 
-Decision: Design one resolver-owned source-site identity for canonical explicit
-`externcall` before its target and ordinary arguments are evaluated.
-Source authority + canonical issuer: The language registry/profile plus exact
-`FunctionCall` source site and its first string-literal target operand are inputs;
-resolver canonicalization must issue the identity once.
-Non-authority: Raw name comparison, Builder preflight success, MIR extern symbol,
-return-type heuristic, AST adjacency after resolution, tests, C, and ASM.
-Fail-fast boundary: Wrong spelling/profile, absent or non-string target, foreign
-site, or ambiguous ownership rejects before lowering remaining arguments and
-before Builder/MIR effect; it must not fall through to FreeStatic or Ordinary.
-Smallest next slice: Decide the grammar row/normalized source shape, exact
-site-keyed product placement, target-literal ownership, and one bounded I0 that
-replaces only the raw `externcall` classifier branch.
-Non-claims: No FFI target validation, return-type redesign, lexical/FreeStatic
-classification, other special routes, new syntax, fallback, or production switch.
+Decision: Add one dedicated `ASTNode::ExplicitExternCall { target, arguments }`
+for canonical `externcall "symbol"(args)`; generic `externcall("symbol", args)`
+remains an ordinary, shadowable `FunctionCall`.
+Source authority + canonical issuer: The language grammar/profile row and exact
+parser token sequence issue the source shape; resolver canonicalization co-seals
+its exact site, decoded target symbol, and ordered argument relations once.
+Non-authority: Ordinary FunctionCall name/first argument, runtime `StringBox`,
+raw literal extraction, Builder preflight, MIR symbol/type hints, tests, C, ASM.
+Fail-fast boundary: Canonical-looking malformed target/parentheses and
+missing/foreign/duplicate resolved relations reject before argument traversal and
+Builder/MIR effects, with no Ordinary/FreeStatic fallback.
+Smallest next slice: `FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0`
+lands the grammar row, dedicated AST/source relation, exact consumer, and raw
+branch retirement as one bounded BoxCount.
+Non-claims: No FFI symbol authorization, return-type redesign, other special
+forms, lexical/value calls, general direct-call cutover, or compat retirement.
 
-## Questions to close
+## Accepted syntax and product
 
-1. Should canonical parsing normalize this spelling to a dedicated AST shape, or
-   may the resolver issue a site-keyed special identity over existing FunctionCall?
-2. Which product already owns the exact call site without cloning arguments?
-3. Is `StringBox("...")` a canonical target spelling or only legacy extraction?
-4. Does malformed `externcall` reject in parser/resolver or remain a stable
-   pre-effect semantic diagnostic?
-5. Which raw branch and tests become caller-zero in the future I0?
+- Canonical spelling: `externcall "symbol"(args)`.
+- `externcall("symbol", args)` is an ordinary identifier call and may resolve to a
+  lexical/direct callable named `externcall`; it is not compatibility syntax.
+- `StringBox` construction is not a target spelling for the dedicated form.
+- `ExplicitExternCall` stores decoded target text separately from its ordered
+  runtime arguments, so target extraction is not an argument effect.
+- The existing resolved product gains one site-keyed explicit-extern relation;
+  no parallel `Verified*`/`Prepared*` receipt and no ordinary-call enum pollution.
 
-## Future I0 acceptance
+## I0 acceptance
 
-- One exact source site receives one explicit-extern identity.
-- The target spelling and ordered remaining arguments retain source ownership.
-- Malformed target cases reject before child effects.
-- A FreeStatic declaration named `externcall` cannot shadow the explicit form.
-- The selected raw name classifier branch becomes caller-zero without fallback.
-- Resolver and raw route files remain below the 760-line split threshold.
+- each canonical site receives exactly one identity and direct decoded symbol;
+- generic parenthesized calls remain ordinary and shadowable;
+- missing/non-string/duplicate/foreign/spoofed forms reject before child effects;
+- Brand/local/FreeStatic declarations named `externcall` do not shadow the
+  dedicated form but may own the generic ordinary form;
+- remaining arguments resolve/lower exactly once from left to right;
+- the raw `ExplicitExtern` classifier branch becomes caller-zero with no fallback;
+- classic and TokenCursor parsers issue the same dedicated shape;
+- verifier logic lives in a focused child rather than growing the 743-line owner.
+
+Classification: `BoxCount`. One dedicated normalized source shape is added and
+the accidental raw-name interpretation of generic FunctionCall is removed.
