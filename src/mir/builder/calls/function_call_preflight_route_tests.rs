@@ -108,7 +108,7 @@ fn direct_function_preflight_priority_is_total() {
         PreparedRawFunctionPreflightV1::prepare(&builder, "weak".to_string(), vec![integer(1)]);
     assert!(matches!(
         weak.route,
-        PreparedRawFunctionPreflightRouteV1::WeakReject
+        PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
     ));
 
     let generic_externcall = PreparedRawFunctionPreflightV1::prepare(
@@ -350,6 +350,13 @@ fn selected_math_and_ordinary_str_keep_child_and_completion_order() {
         vec![integer(1)],
     );
     let _ = lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, ordinary);
+    assert_eq!(port.events, vec!["child", "header"]);
+
+    port.events.clear();
+    let forged_weak =
+        PreparedRawFunctionPreflightV1::prepare(&builder, "weak".to_string(), vec![integer(1)]);
+    let _ =
+        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, forged_weak);
     assert_eq!(port.events, vec!["child", "header"]);
 }
 

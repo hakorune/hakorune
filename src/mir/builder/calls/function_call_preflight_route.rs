@@ -17,7 +17,6 @@ pub(in crate::mir::builder) struct PreparedRawFunctionPreflightV1 {
 }
 
 enum PreparedRawFunctionPreflightRouteV1 {
-    WeakReject,
     Brand(PreparedRawBrandConstructorV1),
     TypeOp {
         operand: ASTNode,
@@ -99,9 +98,7 @@ impl PreparedRawFunctionPreflightV1 {
         name: String,
         arguments: Vec<ASTNode>,
     ) -> Self {
-        let route = if name == "weak" {
-            PreparedRawFunctionPreflightRouteV1::WeakReject
-        } else if builder.comp_ctx.is_brand_declared(&name) {
+        let route = if builder.comp_ctx.is_brand_declared(&name) {
             PreparedRawFunctionPreflightRouteV1::Brand(PreparedRawBrandConstructorV1::prepare(
                 arguments,
             ))
@@ -185,18 +182,6 @@ where
 {
     replay_function_call_trace(builder, &prepared.name);
     match prepared.route {
-        PreparedRawFunctionPreflightRouteV1::WeakReject => {
-            let ring0 = crate::runtime::get_global_ring0();
-            ring0
-                .log
-                .error("[Phase285W-0.1] Rejecting weak(...) function call");
-            Err(
-                "Invalid syntax: weak(...). Use unary operator: weak <expr>\n\
-                 Help: Change 'weak(obj)' to 'weak obj' (unary operator, no parentheses)\n\
-                 SSOT: docs/reference/language/lifecycle.md"
-                    .to_string(),
-            )
-        }
         PreparedRawFunctionPreflightRouteV1::Brand(brand) => {
             lower_prepared_raw_brand_constructor_with_port_v1(builder, port, prepared.name, brand)
         }

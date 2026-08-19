@@ -8,7 +8,10 @@ rg -q 'row_id = "weak_unary_expr"' grammar/language-v1-registry.toml
 rg -q 'row_id = "weak_paren_expr"' grammar/language-v1-registry.toml
 rg -q 'TokenType::WEAK => \{' crates/hakorune_frontend_parser/src/parser/expr_cursor/precedence.rs
 rg -q 'parser/weak_paren_call_rejected' crates/hakorune_frontend_parser/src/parser/expr_cursor/precedence.rs
-rg -q 'PreparedRawFunctionPreflightRouteV1::WeakReject' src/mir/builder/calls/function_call_preflight_route.rs
+if rg -q 'WeakReject|Rejecting weak|Invalid syntax: weak' src/mir/builder/calls/function_call_preflight_route.rs; then
+  echo '[parser-weak-tokencursor-parity-guard] duplicate raw weak rejection remains' >&2
+  exit 1
+fi
 
 strict_cohort="$(sed -n '/12.7 Strict mode/,/if is_extended/p' crates/hakorune_frontend_parser/src/tokenizer/lex_ident.rs)"
 if grep -q 'TokenType::WEAK' <<<"$strict_cohort"; then

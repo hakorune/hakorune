@@ -1,6 +1,6 @@
 # FunctionCall weak Parentheses Raw Reject Retirement R0
 
-Status: selected
+Status: landed
 Parent: `function-call-weak-paren-raw-reject-retirement-d0.md`
 Row: `FUNCTION-CALL-WEAK-PAREN-RAW-REJECT-RETIREMENT-R0`
 Classification: BoxShape
@@ -30,3 +30,10 @@ work.
   not acquire a replacement weak-specific check.
 - `WeakReject` has zero production/test occurrences after retirement.
 - `Call { callee, arguments }` and Program JSON v0 remain unchanged.
+
+## Landed receipt
+
+The raw enum, name classifier, error/log arm, and priority assertion are gone.
+A focused forged-AST test proves the ordinary path still lowers its child before
+header lookup. The source grammar matrix, strict-on classic/TokenCursor guard,
+and raw preflight focused tests are green.
