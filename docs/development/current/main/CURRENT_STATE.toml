@@ -21,10 +21,10 @@ any further residual-performance attribution.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The lowering-shape D0 is accepted: current V0 observation bundles do not bind MIR/LLVM/executable/assembly lineage strongly enough for a shape report. Land one V1 bundle identity seal before any renderer; do not infer selectors or provenance from ValueId, adjacency, labels, or fallback symbol names."
+current_design_stop = "The identity prerequisite is landed. The selected shape renderer may recount only facts from one validated V1 bundle at exact source-to-MIR, block MIR-to-LLVM, and symbol LLVM-to-assembly quality; it must print correspondence/keeper/measurement authority as unclaimed and reject all inferred or fallback selectors."
 work_mode = "fast"
-current_execution_row = "HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0"
-current_blocker_token = "Add exactly one V1 same-candidate identity product to the existing inspect bundle: artifact digests, explicit unique MIR/LLVM/assembly selectors, copied executable binding, derived candidate seal, last-write publication, focused negatives, and guard coverage. Do not add shape counts, C build/measurement, compiler provenance, or backend behavior."
+current_execution_row = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0"
+current_blocker_token = "Add one pure shape parser and thin inspect-shape renderer over a validated shape-ready V1 seal. Report independent MIR/LLVM/selected-symbol ASM counts and an optional separately digest-bound C symbol; reject below-floor mapping, tamper, missing/duplicate selectors, and fallback. Do not infer correspondence, build C, measure, select a keeper, or edit compiler/backend behavior."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -45,11 +45,11 @@ source or lifecycle meaning. Selected Dynamic remains the sole production arm.
 The residual-performance owner remains unissued. MeasurementBatch V3 closed
 development_keeper on WSL but has no native promotion authority; promotion and
 production cutover stay parked. The hako_check inspect owner split is landed:
-the CLI/effect owner is 692 lines, its pure metadata/report child is 245 lines,
-and one reusable guard runs the five focused tests while enforcing the 760-line
-boundary. The current design stop selects the smallest normalized lowering-
-bundle identity seal without inferring MIR-to-assembly meaning or choosing an
-optimization. The shape renderer remains parked until that seal is green.
+the CLI/effect owner is 745 lines, its pure metadata/report and V1 identity
+children are 245 and 172 lines, and one reusable guard runs seven focused tests
+while enforcing the 760-line boundary. The selected row adds the smallest
+normalized lowering-shape renderer without inferring MIR-to-assembly meaning
+or choosing an optimization.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -62,10 +62,10 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "The lowering-shape D0 found a concrete identity gap: V0 does not bind MIR/LLVM/executable/assembly bytes or exact selectors. The selected I0 adds one last-written V1 candidate seal; shape counts, compiler provenance, C measurement, keeper selection, and production remain closed."
+latest_card_summary = "V1 bundle identity is landed at 745/245/172 lines with seven focused tests: copied source/MIR/LLVM/executable/assembly digests, explicit unique selectors, derived seal, exact source-emission mapping, and last-written identity are green. The selected shape report remains observation-only."
 next_design_card = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0"
 next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-next_execution_card = "HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0"
+next_execution_card = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0"
 next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -77,6 +77,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0 landed one V1 observation product. The issuer copies and hashes source/MIR/LLVM/executable/assembly, requires explicit unique MIR/LLVM/ASM selectors for backend-ready bundles, derives a path-independent candidate seal, regenerates disassembly from the bound executable, and writes identity.json last. Entry/model/identity owners are 745/245/172 lines; seven focused tests and both reusable/pointer guards are green. Shape counts and compiler behavior are unchanged.",
   "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0 accepted one prerequisite. Current V0 bundles lack digest-bound MIR/LLVM/executable/assembly lineage and exact selectors, so a renderer would overclaim same-candidate identity. The selected BoxCount adds one V1 seal written last; shape counts, C reference tooling, provenance, keeper selection, and production remain parked.",
   "2026-08-19: HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0 landed behavior-neutrally. The prior 916-line owner is now a 692-line CLI/effect facade plus one 245-line pure metadata/report child; five focused tests, py_compile, the reusable owner guard, and current pointer guard are green. CLI, schemas, artifact bytes, mapping claims, compiler/backend, and keeper selection are unchanged.",
   "2026-08-19: The exact ordinal-zero MeasurementBatch V3 WSL run closed Complete/development_keeper: batch 18120db0..., terminal da729ae9...50ee, both sealed sessions Complete/development_green, 80 cases x 51 retained pairs per session, diagnostic raw 0, and temporary residue 0. This is development evidence only; native promotion authority, residual owner, backend change, and production remain closed.",
@@ -87,6 +88,5 @@ landed_tail = [
   "2026-08-19: Performance MeasurementBatch D0 accepted. The one-shot rule was retired as a category error: protocol and each batch stay immutable, but interrupted or confirmatory measurement proceeds through a new append-only batch ID linked to the prior terminal receipt. Same-batch resume, completed-sample replacement, pooling, and best-run selection remain forbidden; compiler/source/MIR/backend and thresholds are unchanged.",
   "2026-08-19: WSL paired-wall-clock DEV R0 closed terminal NoSafeSlice. The sole session-0 invocation traversed part of the canonical case census but ended without its atomic receipt; session 1 and aggregation were not opened. Partial observations issue no development keeper, ratio, owner, native evidence, or backend change, and this sealed plan is not rerun.",
   "2026-08-19: Clean-pair R0 closed verified NoSafeSlice at 18 rejected/0 accepted. Robust paired wall-clock D0/I0 and harness I1 landed evidence-only: explicit C mode consumes sealed 51-slot schedules, emits raw block/order rows, sessions 0/1 reverse AB excess, and one development-only aggregator retains all pairs. Native promotion and compiler/source/MIR/backend remain unchanged.",
-  "2026-08-19: Native separate-arm PMU foundation and integrity I1 landed evidence-only: direct arm processes and fixed PMU groups remain, while one private frozen binary, full manifest/commit binding, exact corpus constants, getrusage plus single-CPU affinity, balanced cross-run ordering, timeout, and interval/classifier matrices close the audit gaps. The first native JSON is provisional and must be replaced by R0; compiler/source/MIR/ABI, C reference, corpus, and 1.15 threshold remain unchanged.",
-  "2026-08-19: Meso equal-alignment control landed as evidence-only: outlined Hako and independent C symbols are both 64-byte aligned, normalized linked-body hashes are recorded, calls/trampolines remain zero, and corpus/oracle/51-pair/30ms/1.15 threshold are unchanged. The uncontended result remains red at mixed/4KiB/first p50 1.170296, so promotion stays closed and further lowering is NoSafeSlice pending a hardware-counter owner audit."
+  "2026-08-19: Native separate-arm PMU foundation and integrity I1 landed evidence-only: direct arm processes and fixed PMU groups remain, while one private frozen binary, full manifest/commit binding, exact corpus constants, getrusage plus single-CPU affinity, balanced cross-run ordering, timeout, and interval/classifier matrices close the audit gaps. The first native JSON is provisional and must be replaced by R0; compiler/source/MIR/ABI, C reference, corpus, and 1.15 threshold remain unchanged."
 ]

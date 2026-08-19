@@ -6,29 +6,27 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Version the inspect bundle around one sealed same-candidate identity
-before adding a lowering-shape report. A V1 seal binds the available source,
-MIR, LLVM, executable, and assembly bytes plus explicit exact selectors;
-`inspect shape` remains parked behind that seal.
-Source authority + canonical issuer: Source bytes, emitted MIR JSON, final LLVM
-IR, trace-produced executable, and its disassembly own their respective facts.
-The bundle issuer copies those bytes, recomputes their SHA-256 digests, validates
-explicit selectors, and atomically issues one canonical candidate seal last.
-Non-authority: Temporary paths, filenames, ValueId, adjacency, labels,
-fallback symbol guesses, counts, C artifacts, timings, and the V0 manifest do
-not issue artifact lineage, provenance, keeper selection, or promotion.
-Fail-fast boundary: Before the V1 seal is published, every claimed artifact
-must exist and match its digest, each claimed MIR/LLVM function and assembly
-symbol must be unique, the executable must bind the disassembly, and mapping
-quality must be explicit. Missing, ambiguous, foreign, or tampered inputs issue
-no V1 seal; requested-symbol fallback is forbidden.
-Smallest next slice: `HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0` adds the V1 identity
-model and last-written seal, exact selectors, executable copy and digests,
-focused positive/negative tests, and the reusable guard. It adds no shape
-counts.
-Non-claims: No shape renderer, C wrapper, MIR-edge-to-assembly correspondence,
-compiler provenance, compiler/backend edit, keeper, benchmark verdict,
-promotion, or production change.
+Decision: Add one observation-only `hako_check inspect shape` renderer that
+consumes a valid V1 identity seal and displays independent normalized MIR,
+LLVM, assembly, and optional external-C columns. It draws no cross-layer
+correspondence edges.
+Source authority + canonical issuer: The V1 bundle seal owns candidate and
+artifact identity; each sealed artifact owns its local vocabulary. The pure
+shape parser only recounts those facts, and the CLI renders its one report.
+Non-authority: ValueId, adjacency, labels, count similarity, deltas, C source,
+timings, and report output do not issue provenance, cost attribution, keeper
+selection, measurement authority, or promotion.
+Fail-fast boundary: Validate the V1 seal and every digest first, require one
+unique sealed MIR/LLVM function and assembly symbol at the exact/block/symbol
+mapping floor, and reject missing, duplicate, foreign, tampered, fallback, or
+below-floor inputs before report publication. Optional C requires its own exact
+digest and unique explicit symbol.
+Smallest next slice: `HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0` adds a new pure
+shape child, focused parser/negative tests, and a thin `inspect shape` dispatch
+that keeps the 745-line entry below 760. It does not build C or edit compiler
+artifacts.
+Non-claims: No MIR-edge-to-assembly mapping, compiler provenance, optimization
+suggestion, C build/benchmark, keeper, promotion, or production change.
 
 ## Decision
 
@@ -241,12 +239,13 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
 - `HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0` (**accepted**): the current bundle
   cannot yet support the report because V0 lacks MIR/LLVM/executable/assembly
   digests and exact selectors. Symbol/name fallback cannot issue lineage.
-- `HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0` (**selected BoxCount**): add one V1
+- `HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0` (**landed BoxCount**): one V1
   bundle seal, explicit selectors, executable copy, artifact digests, a derived
-  candidate identity, fail-fast negatives, and guard coverage. The seal is the
-  only new accepted product; report vocabulary and compiler behavior stay
+  candidate identity, fail-fast negatives, and guard coverage are live. The
+  entry/model/identity owners are 745/245/172 lines; seven focused tests and the
+  reusable guard are green. Report vocabulary and compiler behavior stay
   unchanged.
-- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0` (**parked behind identity seal**): one
+- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0` (**selected BoxCount**): one
   evidence-only report shows MIR blocks/edges/PHIs/calls, LLVM
   blocks/branches/calls/loads, and selected-symbol assembly
   instructions/branches/calls beside an externally supplied C artifact. A thin
