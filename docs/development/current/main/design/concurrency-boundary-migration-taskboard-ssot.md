@@ -189,6 +189,16 @@ compatibility retirement must not share a commit.
 | 14 | `CONC-CO-EXIT-TRANSACTION-D0/I0` | Replace the `co`-specific early-exit AST scan with the common scope-exit transaction. | no second cleanup/exit ledger |
 | 15 | `CONC-SYNCBOX-EFFECT0` | Replace the wait-like AST scan with verified callable effects. | no lock-order or runtime widening |
 
+Parked public trackers (opening them never changes `CURRENT_STATE.toml`):
+
+| Issue | Row | Dependency |
+| --- | --- | --- |
+| [#8](https://github.com/hakorune/hakorune/issues/8) | `CONC-AWAIT-SUSPEND-D0/I0` | suspension owner before #12 |
+| [#9](https://github.com/hakorune/hakorune/issues/9) | `CONC-NOWAIT-EXPR-D0/I0/R0` | source/binding migration; scheduler-neutral |
+| [#10](https://github.com/hakorune/hakorune/issues/10) | `CONC-THREAD-SAFETY-D0/I0` | Send/Share/ThreadRoot before #11 |
+| [#11](https://github.com/hakorune/hakorune/issues/11) | `CONC-WORKER-ROUTE-D0/I0` | requires #10; responsive route also needs #8 |
+| [#12](https://github.com/hakorune/hakorune/issues/12) | `CONC-CONTINUATION-AFFINITY-D0/I0` | requires #8; UI/executor resume owner |
+
 `source_keyword` and old `ASTNode::Nowait { variable, ... }` deletion are
 conditional final rows: they open only after their Compat2025 inputs have no
 remaining contract. Home ownership grammar remains owned by the Home taskboard.
