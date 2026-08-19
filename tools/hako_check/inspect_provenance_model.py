@@ -10,10 +10,11 @@ from typing import Any
 
 from inspect_shape_model import extract_llvm_function
 from inspect_scope_identity import require_unique_mir_function
+from inspect_provenance_dispositions import validate_disposition_closure
 
 
 PROVENANCE_CONTRACT = "hako-lowering-provenance-v0"
-DISPOSITIONS = {"preserved", "split", "merged", "deleted", "introduced"}
+DISPOSITIONS = {"preserved", "split"}
 MIR_EDGES = {
     "jump": (("target", "target"),),
     "branch": (("then", "then"), ("else", "else")),
@@ -49,19 +50,11 @@ def parse_raw_events(
         if identity in seen:
             raise SystemExit(f"provenance raw row {line_no} is duplicated")
         seen.add(identity)
-        if disposition == "introduced":
-            if (block_id, instruction_id, arm, target_id) != (-1, -1, "none", -1):
-                raise SystemExit(f"provenance raw row {line_no} introduced source mismatch")
-            if not llvm_from:
-                raise SystemExit(f"provenance raw row {line_no} introduced endpoint mismatch")
-        elif disposition == "deleted":
-            if block_id < 0 or llvm_from or llvm_to:
-                raise SystemExit(f"provenance raw row {line_no} deleted endpoint mismatch")
-        elif block_id < 0 or not llvm_from:
+        if block_id < 0 or not llvm_from:
             raise SystemExit(f"provenance raw row {line_no} endpoint mismatch")
         if entity == "block" and llvm_to:
             raise SystemExit(f"provenance raw row {line_no} block endpoint mismatch")
-        if entity == "edge" and disposition not in {"deleted"} and not llvm_to:
+        if entity == "edge" and not llvm_to:
             raise SystemExit(f"provenance raw row {line_no} edge endpoint mismatch")
         rows.append(
             {
@@ -83,10 +76,13 @@ def parse_raw_events(
     return rows
 
 
-def _mir_census(mir: dict[str, Any], function_name: str) -> tuple[set[int], set[tuple[int, int, str, int]]]:
+def _mir_census(
+    mir: dict[str, Any], function_name: str,
+) -> tuple[set[int], set[tuple[int, int]], set[tuple[int, int, str, int]]]:
     require_unique_mir_function(mir, function_name)
     function = next(row for row in mir["functions"] if row.get("name") == function_name)
     blocks: set[int] = set()
+    sites: set[tuple[int, int]] = set()
     edges: set[tuple[int, int, str, int]] = set()
     for block in function.get("blocks", []):
         bid = block.get("id")
@@ -94,13 +90,14 @@ def _mir_census(mir: dict[str, Any], function_name: str) -> tuple[set[int], set[
             raise SystemExit("provenance MIR block identity mismatch")
         blocks.add(bid)
         for ii, instruction in enumerate(block.get("instructions", [])):
+            sites.add((bid, ii))
             op = str(instruction.get("op", "")).lower()
             for arm, field in MIR_EDGES.get(op, ()):
                 target = instruction.get(field)
                 if not isinstance(target, int) or isinstance(target, bool):
                     raise SystemExit("provenance MIR edge target mismatch")
                 edges.add((bid, ii, arm, target))
-    return blocks, edges
+    return blocks, sites, edges
 
 
 def _llvm_census(text: str, function_name: str) -> tuple[set[str], set[tuple[str, str]]]:
@@ -138,60 +135,12 @@ def build_provenance(
     mir = json.loads(mir_path.read_text(encoding="utf-8"))
     llvm_text = llvm_path.read_text(encoding="utf-8", errors="replace")
     rows = parse_raw_events(raw_path, issuer=issuer)
-    mir_blocks, mir_edges = _mir_census(mir, mir_function)
+    mir_blocks, mir_sites, mir_edges = _mir_census(mir, mir_function)
     llvm_blocks, llvm_edges = _llvm_census(llvm_text, llvm_function)
-    row_mir_blocks = {
-        row["mir"]["block"] for row in rows
-        if row["entity"] == "block" and row["disposition"] != "introduced"
-    }
-    row_mir_edges = {
-        (m["block"], m["instruction"], m["arm"], m["target"])
-        for row in rows
-        if row["entity"] == "edge"
-        and row["disposition"] != "introduced"
-        and (m := row["mir"])["arm"] != "none"
-    }
-    row_llvm_blocks = {
-        row["llvm"]["from"] for row in rows
-        if row["entity"] == "block" and row["disposition"] != "deleted"
-    }
-    row_llvm_edges = {
-        (row["llvm"]["from"], row["llvm"]["to"])
-        for row in rows if row["entity"] == "edge" and row["disposition"] != "deleted"
-    }
-    logical_mir_edge_rows = [
-        (m["block"], m["instruction"], m["arm"], m["target"])
-        for row in rows
-        if row["entity"] == "edge"
-        and row["disposition"] != "introduced"
-        and (m := row["mir"])["arm"] != "none"
-    ]
-    llvm_block_rows = [
-        row["llvm"]["from"] for row in rows
-        if row["entity"] == "block" and row["disposition"] != "deleted"
-    ]
-    llvm_edge_rows = [
-        (row["llvm"]["from"], row["llvm"]["to"])
-        for row in rows if row["entity"] == "edge" and row["disposition"] != "deleted"
-    ]
-    if (len(logical_mir_edge_rows) != len(set(logical_mir_edge_rows)) or
-            len(llvm_block_rows) != len(set(llvm_block_rows)) or
-            len(llvm_edge_rows) != len(set(llvm_edge_rows))):
-        raise SystemExit("provenance relation ownership is duplicated")
-    if row_mir_blocks != mir_blocks or row_mir_edges != mir_edges:
-        raise SystemExit("provenance MIR coverage mismatch")
-    if row_llvm_blocks != llvm_blocks or row_llvm_edges != llvm_edges:
-        raise SystemExit(f"provenance {llvm_boundary} LLVM coverage mismatch")
-    for row in rows:
-        if (row["disposition"] != "introduced" and
-                row["mir"]["block"] not in mir_blocks):
-            raise SystemExit("provenance row has a dangling MIR block")
-        if row["disposition"] != "deleted" and (
-            row["llvm"]["from"] not in llvm_blocks or (
-                row["entity"] == "edge" and row["llvm"]["to"] not in llvm_blocks
-            )
-        ):
-            raise SystemExit("provenance row has a dangling LLVM endpoint")
+    validate_disposition_closure(
+        rows, issuer=issuer, mir_blocks=mir_blocks, mir_sites=mir_sites,
+        mir_edges=mir_edges, llvm_blocks=llvm_blocks, llvm_edges=llvm_edges,
+    )
     return {
         "output_contract": PROVENANCE_CONTRACT,
         "candidate_input": {

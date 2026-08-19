@@ -6,18 +6,18 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Audit the provenance disposition vocabulary before admitting another
-consumer; the landed UX remains a renderer and may not relax relation ownership.
-Source authority + canonical issuer: MIR and lowered-LLVM emitters remain the
-sole endpoint issuers; one disposition-aware validator owns relation closure.
-Non-authority: Labels, adjacency, counts, CLI output, ASM, timings, and duplicate
-endpoint coincidence may not infer split, merge, deletion, or introduction.
-Fail-fast boundary: Contradictory disposition, uncovered endpoint, malformed
-empty side, or unowned overlap rejects before bundle publication.
-Smallest next slice: `HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0` fixes the
-exact split/merged/deleted/introduced ownership law before any implementation.
-Non-claims: No new consumer, machine mapping, keeper, measurement, production,
-fallback, retry, or performance claim.
+Decision: Seal every published selected-Dynamic bundle sibling under one
+write-last identity; do not leave summary or producer lineage outside the seal.
+Source authority + canonical issuer: The validated producer manifest and staged
+source/MIR/lowered-LLVM/origin/provenance artifacts are the sole identity input.
+Non-authority: Filename, directory order, summary prose, newest bundle, CLI
+success, and an unsealed producer path issue no candidate identity.
+Fail-fast boundary: Build summary and copied producer manifest before identity;
+digest drift, missing/extra claimed sibling, or validation failure publishes 0.
+Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-D0` fixes
+the exact artifact inventory and write-last order before implementation.
+Non-claims: No provenance/machine relation, object/ASM addition, compiler
+behavior, keeper, measurement, production, fallback, retry, or performance.
 
 ## Decision
 
@@ -344,12 +344,28 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   compilation, and internal values are appended last as defense in depth. The
   753-line generic inspect router is unchanged; eleven focused tests plus the
   public positive and two override negatives are green.
-- `HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0` (**selected design row**):
-  name the exact endpoint-ownership law for preserved, split, merged, deleted,
-  and introduced rows. Do not let blanket endpoint uniqueness make a declared
-  many-to-one merge impossible, and do not let malformed empty-side rows hide
-  uncovered MIR or LLVM entities. This row is design-only until one exhaustive
-  positive/negative matrix and one bounded validator slice are accepted.
+- `HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0` (**accepted BoxShape**): V0
+  keeps only the two dispositions emitted by both real consumers. A preserved
+  block/edge is canonical 1:1. A split cohort is keyed only by
+  `(issuer,bid,ii,reason_kind,entity)`, contains at least two typed LLVM
+  endpoints, and may use `arm=none` only for physical internal edges; non-none
+  arms alone cover canonical MIR edges. Every canonical MIR block/edge and
+  every LLVM block/edge has exactly one owner. `merged`, `deleted`, and
+  `introduced` retire rather than pretending an unsupported relation graph;
+  an actual issuer requires a later relation-ID/schema D0.
+- `HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-I0` (**landed BoxShape**): the
+  108-line pure child validates issuer/reason compatibility, canonical
+  preserved owners, instruction-origin split cohorts, and exact endpoint
+  ownership. Unsupported latent dispositions, foreign reason/issuer, singleton
+  or dangling cohorts, internal preserved edges, and duplicate LLVM ownership
+  reject. Thirty-three inspect tests, both reusable inspect guards, the real
+  selected-Dynamic 64-row bundle, and the S6C structural canary are green; both
+  C issuers and their event bytes are unchanged.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-D0` (**selected design row**):
+  determine the one published sibling inventory and write order. Current
+  identity is issued before `summary.md`, and the validated producer manifest
+  is not copied into the bundle, so neither is digest-bound. Do not patch this
+  by trusting filenames or recursively hashing identity itself.
 - `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
   BoxCount**): the first real full-source provenance canary exposed an invalid
   pre-opt module. C1 expands the loop backedge through

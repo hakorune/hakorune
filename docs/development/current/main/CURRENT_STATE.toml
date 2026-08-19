@@ -22,10 +22,10 @@ lowered LLVM writer; optimizer and machine correspondence remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Define disposition-aware endpoint ownership before changing the shared provenance validator: split and merged cardinalities, deleted/introduced empty sides, overlap, and exhaustive coverage must have one law."
+current_design_stop = "Fix the selected-Dynamic published artifact inventory and write-last identity order before changing its bundle ingress; summary and producer lineage are currently outside the candidate seal."
 work_mode = "design_stop"
-current_execution_row = "HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0"
-current_blocker_token = "The shared model names merged/deleted dispositions, but its blanket endpoint uniqueness and empty-side checks do not yet constitute one exhaustive ownership law. No validator implementation until the D0 matrix is accepted."
+current_execution_row = "HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-D0"
+current_blocker_token = "Name the exact sealed sibling set and atomic ordering. Identity may not recursively hash itself, trust filenames, or leave summary/producer lineage unsealed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -74,7 +74,9 @@ their own blocks and edges. The pre-opt product closes MIR 10/10 and lowered
 LLVM 32/32 through 64 uniquely-owned rows; post-opt LLVM and ASM remain
 unavailable. Its thin hako_check command surface is landed without changing the
 753-line generic router; reserved root/driver overrides reject before build.
-The next row is design-only and closes disposition-aware endpoint ownership.
+The V0 disposition closure is landed: one pure child accepts only real
+preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
+stops at D0 because summary and producer lineage are outside the current seal.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -87,8 +89,8 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "Selected-Dynamic provenance and its thin hako_check UX are landed. The shared disposition vocabulary now stops at D0 until split/merged/deleted/introduced endpoint ownership has one exhaustive law."
-next_design_card = "HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0"
+latest_card_summary = "Provenance V0 preserved/split closure is landed without C issuer changes. Selected-Dynamic bundle identity stops at D0 until summary and producer lineage join one write-last seal."
+next_design_card = "HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-D0"
 next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -102,6 +104,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-I0 landed behavior-neutrally. A 108-line pure child narrows V0 to the real preserved/split issuer forms, validates reason/site/cohort and exact MIR/LLVM ownership, and rejects latent merged/deleted/introduced vocabulary. Thirty-three inspect tests, both inspect guards, selected-Dynamic 64-row evidence, and the S6C structural canary are green; C event bytes are unchanged. Bundle identity D0 is selected next.",
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0 landed behavior-neutrally. One dedicated hako_check child builds the private driver and invokes the existing atomic ingress; the 753-line generic router and evidence boundary are unchanged. Reserved repo-root/driver overrides reject before compilation and fixed internal values are appended last. Eleven focused tests plus the public positive and two override negatives are green. HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0 is selected design-only next.",
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0 landed one caller-zero observation BoxCount. Exact ParserScanLoopBox source drives both parsing and publication; the collector moves one completed skip_while draft without cloning. The generic active walker and actual C1 CallOut/End emitters issue 64 uniquely-owned rows covering MIR 10 blocks/10 edges and lowered-pre-opt LLVM 32 blocks/32 edges. Digest/duplicate/coverage drift and journal failure publish no bundle or temporary LLVM. Post-opt LLVM, ASM, keeper, measurement, and production remain unavailable/unclaimed. The thin UX row is selected next.",
   "2026-08-20: SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-I0 landed one physical BoxCount. A compile-local `(MIR pred, successor) -> actual LLVM tail` inventory is issued before output, co-checked by C1 emission, and consumed by the existing PHI writer. The focused fixture now covers CallOut-normal and End-backedge PHIs plus a dangling-target negative; the reusable physicalizer smoke and real full-source LLVM18 object canary are green. Provenance semantics and production selection are unchanged, and provenance I0 resumes.",
@@ -112,6 +115,5 @@ landed_tail = [
   "2026-08-19: HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0 accepted the honest observation boundary. The generic active walker plus C1 emitter may issue exact MIR-to-pre-opt-lowered-LLVM origins; external opt/llc output and ASM remain unmapped because optimizer origin is not carried. The optional legacy CAPI ModuleRef, post-hoc scans, and predicted 32/32 census are non-authority. One caller-zero lowered-LLVM provenance BoxCount is selected next.",
   "2026-08-19: HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0 landed behavior-neutrally. The former 759-line generic owner is a 575-line parent plus the exact unchanged 185-line active walker child; extracted-range and child SHA match, parent/current preprocessed C hashes match, and focused selected Dynamic plus S6C smokes are green. No journal/schema/route/compiler output changed. The broad Dynamic authority guard is classified parent-baseline-red at fdb04a6cdd.",
   "2026-08-19: HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0 landed observation-only. A default-off selected-lowerer journal emits 53 block/edge origin rows; the pure validator exhaustively closes MIR 8/8 and final LLVM 22/31, the ingress digest-binds the sidecar, and shape groups origins while LLVM-to-ASM exactness stays unavailable. Twenty-two focused inspect tests plus structural, selected-preflight, owner, and pointer guards are green; compiler output, keeper, performance, and production are unchanged.",
-  "2026-08-19: HAKO-INSPECT-LLVM-FUNCTION-SLICE-I0 landed observation-only. The pure LLVM selector now uses horizontal leading whitespace and no longer consumes a preceding newline as an implicit block/instruction. Real S6C final LLVM reports 22 blocks/31 edges/82 instructions; 18 focused tests and reusable/pointer guards are green. Compiler/backend output and provenance claims are unchanged.",
-  "2026-08-19: HAKO-INSPECT-MIR-CFG-COUNT-I0 landed observation-only. The pure shape model now counts canonical normal successors for Branch, Jump, CheckedCallOut, and Residence Enter with malformed-carrier rejection and duplicate-target deduplication. The real S6C seal reports MIR 8 blocks/8 edges/5 branches/24 instructions; 17 focused tests and reusable/pointer guards are green. Compiler/backend output and correspondence claims are unchanged."
+  "2026-08-19: HAKO-INSPECT-LLVM-FUNCTION-SLICE-I0 landed observation-only. The pure LLVM selector now uses horizontal leading whitespace and no longer consumes a preceding newline as an implicit block/instruction. Real S6C final LLVM reports 22 blocks/31 edges/82 instructions; 18 focused tests and reusable/pointer guards are green. Compiler/backend output and provenance claims are unchanged."
 ]

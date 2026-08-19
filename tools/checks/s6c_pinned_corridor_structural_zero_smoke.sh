@@ -41,7 +41,22 @@ if [[ -e "$TEMP_DIR/capture-fail.o" ]] ||
 fi
 
 "$TEMP_DIR/structural-driver" \
-  "$TEMP_DIR/real.json" "$TEMP_DIR/real.o" "$TEMP_DIR/final.ll"
+  "$TEMP_DIR/real.json" "$TEMP_DIR/real.o" "$TEMP_DIR/final.ll" \
+  "$TEMP_DIR/origins.tsv"
+PYTHONPATH="$ROOT_DIR/tools/hako_check" python3 - "$TEMP_DIR" <<'PY'
+import sys
+from pathlib import Path
+from inspect_provenance_model import build_provenance
+
+root = Path(sys.argv[1])
+report = build_provenance(
+    raw_path=root / "origins.tsv", mir_path=root / "real.json",
+    llvm_path=root / "final.ll", mir_function="Main.find_ok/2",
+    llvm_function="ny_main", issuer="selected_pinned_text_lowerer",
+)
+if len(report["relations"]) != 53:
+    raise SystemExit("S6C provenance relation census mismatch")
+PY
 objcopy --redefine-sym 'ny_main=hako_s6c_candidate' \
   "$TEMP_DIR/real.o" "$TEMP_DIR/candidate.o"
 

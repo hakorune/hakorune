@@ -77,7 +77,7 @@ class InspectProvenanceModelTest(unittest.TestCase):
             mir, llvm, raw = self._artifacts(Path(tmp))
             rows = raw.read_text(encoding="utf-8").splitlines()
             raw.write_text("\n".join(rows[:-1]) + "\n", encoding="utf-8")
-            with self.assertRaisesRegex(SystemExit, "MIR coverage mismatch"):
+            with self.assertRaisesRegex(SystemExit, "MIR edge ownership mismatch"):
                 build_provenance(
                     raw_path=raw, mir_path=mir, llvm_path=llvm,
                     mir_function="Main.f/0", llvm_function="f",
@@ -88,7 +88,7 @@ class InspectProvenanceModelTest(unittest.TestCase):
             mir, llvm, raw = self._artifacts(Path(tmp))
             text = raw.read_text(encoding="utf-8").replace("bb0\tbb1", "bb0\tforeign")
             raw.write_text(text, encoding="utf-8")
-            with self.assertRaisesRegex(SystemExit, "final LLVM coverage mismatch"):
+            with self.assertRaisesRegex(SystemExit, "LLVM edge ownership mismatch"):
                 build_provenance(
                     raw_path=raw, mir_path=mir, llvm_path=llvm,
                     mir_function="Main.f/0", llvm_function="f",
@@ -119,8 +119,7 @@ class InspectProvenanceModelTest(unittest.TestCase):
             raw.write_text(
                 raw.read_text(encoding="utf-8")
                 .replace("then\t1", "normal\t1")
-                .replace("else\t2", "fault\t2")
-                .replace("\tbranch\n", "\tchecked_callout\n"),
+                .replace("else\t2", "fault\t2"),
                 encoding="utf-8",
             )
             report = build_provenance(
@@ -144,22 +143,26 @@ class InspectProvenanceModelTest(unittest.TestCase):
             raw.write_text(first + "\n" + first + "\n", encoding="utf-8")
             with self.assertRaisesRegex(SystemExit, "duplicated"):
                 parse_raw_events(raw)
-            raw.write_text(
-                "block\t0\t-1\tnone\t-1\tbb0\t\tdeleted\tbad\n",
-                encoding="utf-8",
-            )
-            with self.assertRaisesRegex(SystemExit, "deleted endpoint mismatch"):
-                parse_raw_events(raw)
+            for disposition in ("merged", "deleted", "introduced"):
+                raw.write_text(
+                    f"block\t0\t-1\tnone\t-1\tbb0\t\t{disposition}\tbad\n",
+                    encoding="utf-8",
+                )
+                with self.subTest(disposition=disposition), self.assertRaisesRegex(
+                    SystemExit, "vocabulary mismatch"
+                ):
+                    parse_raw_events(raw)
 
     def test_conflicting_target_ownership_rejects(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             mir, llvm, raw = self._artifacts(Path(tmp))
             raw.write_text(
                 raw.read_text(encoding="utf-8")
-                + "block\t0\t0\tnone\t-1\tbb0\t\tsplit\tsecond_owner\n",
+                + "block\t0\t0\tnone\t-1\tbb0\t\tsplit\tutf8_width_at\n"
+                + "block\t0\t0\tnone\t-1\tbb1\t\tsplit\tutf8_width_at\n",
                 encoding="utf-8",
             )
-            with self.assertRaisesRegex(SystemExit, "ownership is duplicated"):
+            with self.assertRaisesRegex(SystemExit, "LLVM block ownership mismatch"):
                 build_provenance(
                     raw_path=raw, mir_path=mir, llvm_path=llvm,
                     mir_function="Main.f/0", llvm_function="f",

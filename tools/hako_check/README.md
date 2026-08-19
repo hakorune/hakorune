@@ -29,6 +29,7 @@ Canonical helpers
 - `bash tools/hako_check.sh boxcall-contract`
 - `bash tools/hako_check.sh optimizer-schedule`
 - `bash tools/hako_check.sh semantic-refresh-inventory`
+- `bash tools/hako_check.sh inspect selected-dynamic-provenance --out <bundle>`
 - archived top-level compatibility shim:
   `tools/archive/manual-smokes/hako_check_deadcode_smoke.sh`
 
@@ -54,6 +55,16 @@ Execution lane
 - `hako_check` no longer treats explicit `--backend vm` as its canonical runtime.
 - The CLI/scripts should run through the normal `hakorune` ingress (mainline/default route) and keep backend choice out of the tool surface unless a dedicated product-lane proof is being debugged.
 - Product/native LLVM proof is a separate concern. Keep `hako_check` docs/tests focused on the analyzer contract first; do not re-pin legacy VM just to make the wrapper run.
+
+Selected lowering provenance V0
+- The only dispositions are issuer-emitted `preserved` and `split`.
+- `preserved` owns one canonical MIR block/edge and one LLVM endpoint.
+- `split` is one lowerer-issued instruction-origin cohort with at least two
+  typed LLVM endpoints; `arm=none` denotes only its physical internal edges.
+- Every canonical MIR block/edge and lowered-LLVM block/edge has exactly one
+  owner. Labels, adjacency, counts, and the renderer never infer ownership.
+- `merged`, `deleted`, and `introduced` are not latent compatibility forms. An
+  actual issuer requires a separate relation-schema Decision before use.
 
 Diagnostics schema (typed)
 - Map fields:
