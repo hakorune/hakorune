@@ -94,6 +94,13 @@ facts with the emitted MIR JSON topology (including exact landing incoming
 edges) before object emission; JSON is transport and does not become a second
 CFG or cleanup authority.
 
+When C1 splits one MIR edge into validation/trap blocks, its physical CFG
+projection also issues the exact LLVM predecessor label keyed by the original
+MIR predecessor and successor. PHI lowering consumes that edge-keyed row; it
+does not infer labels from naming conventions or reuse one tail label for all
+successors of a block. The projection is closed before LLVM output and any
+missing, duplicate, dangling, or emission-drift row rejects the candidate.
+
 Wire failures are backend contract violations, not semantic Faults: C1 traps
 on nonzero transport status, unknown status/tag/disposition, Suspended,
 malformed reserved/lease fields, an I6 EndAuthorized host-handle payload of

@@ -315,6 +315,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       yyjson_val* blocks = active_function->blocks;
       size_t generic_pure_block_count = active_function->block_count;
       hako_llvmc_entry_rune_selection selection = active_function->selection;
+      struct HakoLlvmcC1PredecessorProjectionV1 c1_predecessor_projection;
       memset(&ptfc_candidate, 0, sizeof(ptfc_candidate));
       memset(&ptfc_draft, 0, sizeof(ptfc_draft));
       if (ptfb_contract_bound && ptfc_metadata) {
@@ -335,6 +336,14 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (program.selected_dynamic) {
         /* The selected helper's function name is canonical; never emit a launch alias. */
         selection.symbol = NULL;
+      }
+      if (!hako_llvmc_c1_prepare_predecessor_projection_v1(
+              fn0, fn_metadata, program.selected_dynamic,
+              &c1_predecessor_projection)) {
+        yyjson_doc_free(d);
+        return set_err_owned(
+            err_out,
+            "selected Dynamic C1 physical predecessor projection is inconsistent");
       }
       if (!ptfc_selected &&
           (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||

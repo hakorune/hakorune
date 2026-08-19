@@ -311,6 +311,14 @@
           char* buf,
           size_t buf_len) {
         if (!buf || buf_len == 0) return "%bb0";
+        {
+          const char* c1_label = hako_llvmc_c1_predecessor_lookup_v1(
+              &c1_predecessor_projection, pred, successor);
+          if (c1_label) {
+            snprintf(buf, buf_len, "%%%s", c1_label);
+            return buf;
+          }
+        }
         if (ptfc_selected && pred == ptfc_candidate.scalar_branch_block) {
           if (successor == ptfc_candidate.scalar_branch_then) {
             snprintf(
@@ -514,6 +522,13 @@
       }
 
       #include "hako_llvmc_ffi_pure_compile_generic_active_walk.inc"
+      if (!hako_llvmc_c1_predecessor_projection_complete_v1(
+              &c1_predecessor_projection)) {
+        note_pure_unsupported_shape(
+            -1, 0, "checked_callout", "c1_predecessor_emission_drift", NULL);
+        yyjson_doc_free(d);
+        goto GEN_ABORT;
+      }
       fprintf(f, "}\n");
       if (!ptfc_selected) hako_llvmc_emit_entry_alias_if_needed(f, &selection);
       if (ptfc_selected) {

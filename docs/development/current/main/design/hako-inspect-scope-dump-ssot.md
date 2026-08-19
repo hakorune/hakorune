@@ -6,20 +6,20 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Repair C1 PHI predecessor projection before resuming provenance; this
-is one backend BoxShape and adds no accepted semantic shape.
-Source authority + canonical issuer: Canonical MIR edges remain source input;
-the C1 physical CFG preflight/emitter alone issues each exact `(pred, successor)
--> physical tail` row, and the existing PHI writer only consumes it.
-Non-authority: Provenance hooks, label-format inference, post-hoc LLVM scans,
-ValueIds, optimizer diagnostics, and a one-label-per-block table.
-Fail-fast boundary: Before writer output, reject missing, duplicate, conflicting,
-dangling, or emission-drift edge-tail rows; a projected edge may never fall back
-to `%bb<pred>`.
-Smallest next slice: `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-I0` adds
-the exact edge-tail inventory and closes the real LLVM18 verify/opt canary.
-Non-claims: No source/MIR meaning, new semantic receipt, provenance product,
-post-opt/machine map, production widening, fallback, retry, or performance claim.
+Decision: Resume selected-Dynamic provenance at the honest pre-optimizer LLVM
+boundary after landing the C1 physical predecessor prerequisite.
+Source authority + canonical issuer: The source-backed sealed
+`ParserScanLoopBox.skip_while/4` candidate owns MIR identity. The generic active
+walker and C1 emitter alone issue the lowered LLVM regions they emit.
+Non-authority: The optional legacy CAPI route, external `opt` output, helper
+names, synthetic C1 JSON, labels, ValueIds, and post-hoc scans.
+Fail-fast boundary: One caller-zero transaction binds exact source/no-clone MIR
+JSON/lowered-LLVM bytes, one profile-local issuer, duplicate-free rows, and
+total pre-opt block/edge coverage. Missing or foreign material publishes zero.
+Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0`
+adds that observation product and pure validator closure.
+Non-claims: No MIR→post-opt LLVM, LLVM→machine map, generic provenance,
+production, keeper, promotion, fallback, retry, or performance claim.
 
 ## Decision
 
@@ -330,8 +330,8 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   become authority. Therefore the exact product stops at the pre-opt lowered
   LLVM bytes emitted by the generic walker plus C1 owner. Post-opt LLVM and ASM
   remain unmapped rather than receiving inferred origins.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**parked behind
-  C1 predecessor repair**): carry the real `parser_scan_loop_box.hako` source and same
+- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**selected
+  BoxCount**): carry the real `parser_scan_loop_box.hako` source and same
   verified no-clone candidate into one caller-zero observation transaction;
   add one profile-local C1 journal and capture the writer's lowered LLVM bytes
   exactly once before external optimization. Extend the pure validator with
@@ -341,8 +341,8 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   Acceptance uses observed total coverage, never a predicted LLVM count. The
   report must state `MIR -> lowered LLVM: issuer_exact`, `lowered -> final LLVM:
   unavailable`, and `LLVM -> ASM: unavailable`.
-- `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted backend
-  BoxShape**): the first real full-source provenance canary exposed an invalid
+- `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
+  BoxCount**): the first real full-source provenance canary exposed an invalid
   pre-opt module. C1 expands the loop backedge through
   `c1_end_continue_4_2` and the second normal landing through
   `c1_validate_normal_1_6_1`, but PHIs still name `%bb4` and `%bb6` as their
@@ -351,15 +351,17 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   issues an exact edge-tail inventory keyed by `(MIR pred, MIR successor)`;
   emission co-checks it and the existing PHI writer consumes it. Provenance,
   label formatting, and post-hoc LLVM scans may not issue correctness.
-- `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-I0` (**selected BoxShape**):
+- `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-I0` (**landed BoxCount**):
   add the pre-effect edge-tail inventory without growing the 575-line generic
   parent. Positive acceptance requires `%r4` from
   `%c1_end_continue_4_2`, `%r15` from
   `%c1_validate_normal_1_6_1`, exact normal/fault/end rows, and LLVM18
   parse/verify plus external opt green. Missing, duplicate, conflicting,
   dangling, late, or emitter-drift rows reject before output; a projected edge
-  has no `%bb<pred>` fallback. Source/MIR, C1 meaning, provenance, production,
-  retry, and performance stay unchanged.
+  has no `%bb<pred>` fallback. The focused fixture covers the CallOut-normal
+  and End-backedge PHIs plus dangling-target rejection; the real full-source
+  candidate passes LLVM18 verification and emits an ELF object. Source/MIR,
+  C1 meaning, provenance, production, retry, and performance stay unchanged.
 - `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0` (**accepted
   BoxCount design**): preserve one package owner but make header availability
   row-local. An annotated exact-I64 callable with its own complete parameter

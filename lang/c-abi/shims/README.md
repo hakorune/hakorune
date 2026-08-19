@@ -39,6 +39,14 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   cutpoints are cross-checked against the emitted MIR JSON before any object
   is produced. JSON and C remain consumers; neither rebuilds a site plan or
   predecessor/cleanup authority.
+- `hako_llvmc_ffi_checked_callout_predecessor_projection.inc` is the
+  compile-local physical edge projection for C1-expanded control flow. Before
+  LLVM output it maps each affected `(MIR predecessor, MIR successor)` to the
+  exact normal, fault, or End continuation label issued by the C1 emitter.
+  The existing PHI writer only consumes these rows; missing, duplicate,
+  conflicting, dangling, or unconsumed rows reject instead of falling back to
+  `%bb<pred>`. A block-only tail row is insufficient because one CallOut has
+  distinct Normal and Fault physical tails.
 - C1's wire checks are fail-stop projections of the shared CallSlot contract:
   I6 EndAuthorized host handles must carry a non-zero payload, I7
   ImmediateI64 may carry zero, and semantic Fault codes must be in the fixed

@@ -1,6 +1,8 @@
           #include "hako_llvmc_ffi_pinned_text_selected_dispatch.inc"
           if (strcmp(op, "checked_callout")==0) {
-            if (hako_llvmc_c1_emit_callout(f, fn_metadata, ins, bid, ii) < 0) {
+            if (!hako_llvmc_c1_predecessor_note_emission_v1(
+                    &c1_predecessor_projection, bid, (long long)ii, 2) ||
+                hako_llvmc_c1_emit_callout(f, fn_metadata, ins, bid, ii) < 0) {
               note_pure_unsupported_shape(
                   bid, ii, op, "checked_callout_projection_mismatch", NULL);
               yyjson_doc_free(d);
@@ -25,7 +27,12 @@
             continue;
           }
           if (strcmp(op, "checked_callout_end")==0) {
-            if (hako_llvmc_c1_emit_end(f, ins, bid, ii) < 0) {
+            size_t c1_end_rows = hako_llvmc_c1_predecessor_site_row_count_v1(
+                &c1_predecessor_projection, bid, (long long)ii);
+            if (!hako_llvmc_c1_predecessor_note_emission_v1(
+                    &c1_predecessor_projection, bid, (long long)ii,
+                    c1_end_rows) ||
+                hako_llvmc_c1_emit_end(f, ins, bid, ii) < 0) {
               note_pure_unsupported_shape(
                   bid, ii, op, "checked_callout_end_mismatch", NULL);
               yyjson_doc_free(d);
