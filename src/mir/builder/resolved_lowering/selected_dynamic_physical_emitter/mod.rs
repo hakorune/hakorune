@@ -14,6 +14,8 @@ mod i64_const;
 mod i8_i9_control;
 mod inner_return_then;
 mod lifecycle_terminal;
+#[cfg(test)]
+mod observation_fixture;
 mod operation_cursor;
 mod profile_close;
 mod targets;

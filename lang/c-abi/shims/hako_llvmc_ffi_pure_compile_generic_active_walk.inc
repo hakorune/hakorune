@@ -3,6 +3,9 @@
         if (!read_generic_pure_block_view(bi, &block)) continue;
         yyjson_val* b = block.block;
         long long bid = block.id;
+        char c1_current_llvm_label[96] = {0};
+        int c1_provenance_selected =
+            program.selected_dynamic && HAKO_LLVMC_C1_PROVENANCE_ENABLED_V1;
         if (active_combined_region_emitted &&
             (bid == active_combined_region.header_block ||
              bid == active_combined_region.edit_block ||
@@ -131,6 +134,19 @@
           continue;
         }
         #include "hako_llvmc_ffi_pinned_text_provenance_block_dispatch.inc"
+        if (c1_provenance_selected) {
+          if (snprintf(
+                  c1_current_llvm_label, sizeof(c1_current_llvm_label),
+                  "bb%lld", bid) <= 0 ||
+              hako_llvmc_c1_provenance_block_v1(
+                  bid, -1, c1_current_llvm_label,
+                  "preserved", "base_block") != 0) {
+            note_pure_unsupported_shape(
+                bid, 0, "block", "selected_dynamic_provenance_failed", NULL);
+            yyjson_doc_free(d);
+            goto GEN_ABORT;
+          }
+        }
         // phi first
         for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(bid, phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
         if (bi == 0) {

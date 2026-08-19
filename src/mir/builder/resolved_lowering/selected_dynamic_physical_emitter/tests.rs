@@ -9,8 +9,7 @@ use crate::parser::{NyashParser, ParserBuildConfig};
 
 #[test]
 fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_session() {
-    let source =
-        include_str!("../../../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
+    let source = observation_fixture::SOURCE;
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
         source,
         ParserBuildConfig::default(),
@@ -386,6 +385,14 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         })
     })
     .expect("selected loan");
+    if let Some(path) = std::env::var_os("HAKO_INSPECT_SELECTED_DYNAMIC_PRODUCER_DIR") {
+        let (_shell, collector, _root) = invocation.into_state().into_parts();
+        let helper = collector
+            .into_single_observation_draft(observation_fixture::FUNCTION)
+            .expect("one selected Dynamic observation draft");
+        observation_fixture::publish(std::path::Path::new(&path), helper)
+            .expect("publish selected Dynamic observation cohort");
+    }
 }
 
 #[test]

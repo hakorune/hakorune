@@ -445,8 +445,84 @@ static int hako_llvmc_c1_format_end_predecessor_label_v1(
   return written > 0 && (size_t)written < output_size;
 }
 
+struct HakoLlvmcC1CallOutEmissionLabelsV1 {
+  char trap_transport[96];
+  char decode[96];
+  char check_fault[96];
+  char trap_status[96];
+  char normal_predecessor[96];
+  char trap_normal[96];
+  char fault_predecessor[96];
+  char trap_fault[96];
+  char normal_target[48];
+  char fault_target[48];
+};
+
+static int hako_llvmc_c1_prepare_callout_emission_labels_v1(
+    struct HakoLlvmcC1CallOutEmissionLabelsV1* labels,
+    long long site, long long block_id, size_t instruction_index,
+    long long normal, long long fault) {
+  if (!labels) return 0;
+#define HAKO_C1_LABEL(field, pattern, first, second, third) \
+  if (snprintf(labels->field, sizeof(labels->field), pattern, \
+               first, second, third) <= 0) return 0
+  HAKO_C1_LABEL(trap_transport, "c1_trap_transport_%lld_%lld_%zu", site, block_id, instruction_index);
+  HAKO_C1_LABEL(decode, "c1_decode_%lld_%lld_%zu", site, block_id, instruction_index);
+  HAKO_C1_LABEL(check_fault, "c1_check_fault_%lld_%lld_%zu", site, block_id, instruction_index);
+  HAKO_C1_LABEL(trap_status, "c1_trap_status_%lld_%lld_%zu", site, block_id, instruction_index);
+  HAKO_C1_LABEL(trap_normal, "c1_trap_normal_%lld_%lld_%zu", site, block_id, instruction_index);
+  HAKO_C1_LABEL(trap_fault, "c1_trap_fault_%lld_%lld_%zu", site, block_id, instruction_index);
+#undef HAKO_C1_LABEL
+  return hako_llvmc_c1_format_predecessor_label_v1(
+             labels->normal_predecessor, sizeof(labels->normal_predecessor),
+             "c1_validate_normal", site, block_id, instruction_index) &&
+         hako_llvmc_c1_format_predecessor_label_v1(
+             labels->fault_predecessor, sizeof(labels->fault_predecessor),
+             "c1_validate_fault", site, block_id, instruction_index) &&
+         snprintf(labels->normal_target, sizeof(labels->normal_target),
+                  "bb%lld", normal) > 0 &&
+         snprintf(labels->fault_target, sizeof(labels->fault_target),
+                  "bb%lld", fault) > 0;
+}
+
+static int hako_llvmc_c1_journal_callout_emission_v1(
+    const struct HakoLlvmcC1CallOutEmissionLabelsV1* labels,
+    const char* source, long long block_id, long long instruction_index,
+    long long normal, long long fault) {
+  const char* blocks[] = {
+      labels->trap_transport, labels->decode, labels->check_fault,
+      labels->trap_status, labels->normal_predecessor, labels->trap_normal,
+      labels->fault_predecessor, labels->trap_fault};
+  const char* edges[][2] = {
+      {source, labels->decode}, {source, labels->trap_transport},
+      {labels->decode, labels->normal_predecessor},
+      {labels->decode, labels->check_fault},
+      {labels->check_fault, labels->fault_predecessor},
+      {labels->check_fault, labels->trap_status},
+      {labels->normal_predecessor, labels->trap_normal},
+      {labels->fault_predecessor, labels->trap_fault}};
+  for (size_t i = 0; i < sizeof(blocks) / sizeof(blocks[0]); i++) {
+    if (hako_llvmc_c1_provenance_block_v1(
+            block_id, instruction_index, blocks[i], "split", "checked_callout") != 0) return 0;
+  }
+  for (size_t i = 0; i < sizeof(edges) / sizeof(edges[0]); i++) {
+    if (hako_llvmc_c1_provenance_internal_edge_v1(
+            block_id, instruction_index, edges[i][0], edges[i][1],
+            "split", "checked_callout") != 0) return 0;
+  }
+  return hako_llvmc_c1_provenance_mir_edge_v1(
+             block_id, instruction_index, "normal", normal,
+             labels->normal_predecessor, labels->normal_target,
+             "split", "checked_callout") == 0 &&
+         hako_llvmc_c1_provenance_mir_edge_v1(
+             block_id, instruction_index, "fault", fault,
+             labels->fault_predecessor, labels->fault_target,
+             "split", "checked_callout") == 0;
+}
+
 static int hako_llvmc_c1_emit_callout(
-    FILE* f, yyjson_val* metadata, yyjson_val* ins, long long block_id, size_t instruction_index) {
+    FILE* f, yyjson_val* metadata, yyjson_val* ins, long long block_id,
+    size_t instruction_index, const char* source_label) {
   int ok = 0;
   long long site = hako_llvmc_c1_int(ins, "site_id", &ok);
   long long receiver = hako_llvmc_c1_int(ins, "receiver", &ok);
@@ -457,16 +533,13 @@ static int hako_llvmc_c1_emit_callout(
   long long entry;
   const char* symbol;
   size_t argc;
-  char normal_predecessor[96];
-  char fault_predecessor[96];
+  struct HakoLlvmcC1CallOutEmissionLabelsV1 labels;
   if (!f || !call || !ok || site < 0 || site > 1 || normal == fault ||
       !(args && yyjson_is_arr(args)) || !hako_llvmc_c1_validate_call_row(call, site) ||
-      !hako_llvmc_c1_format_predecessor_label_v1(
-          normal_predecessor, sizeof(normal_predecessor), "c1_validate_normal",
-          site, block_id, instruction_index) ||
-      !hako_llvmc_c1_format_predecessor_label_v1(
-          fault_predecessor, sizeof(fault_predecessor), "c1_validate_fault",
-          site, block_id, instruction_index)) return -1;
+      (HAKO_LLVMC_C1_PROVENANCE_ENABLED_V1 &&
+       (!source_label || !source_label[0])) ||
+      !hako_llvmc_c1_prepare_callout_emission_labels_v1(
+          &labels, site, block_id, instruction_index, normal, fault)) return -1;
   entry = hako_llvmc_c1_int(call, "entry_id", &ok);
   symbol = entry == HAKO_TEXT_SCAN_ENTRY_SUBSTRING ? HAKO_TEXT_SCAN_SYMBOL_SUBSTRING
                                                     : HAKO_TEXT_SCAN_SYMBOL_INDEX_OF;
@@ -491,24 +564,24 @@ static int hako_llvmc_c1_emit_callout(
   fprintf(f, ", ptr %%c1_out_%lld)\n", site);
   fprintf(f, "  %%c1_transport_ok_%lld_%lld_%zu = icmp eq i32 %%c1_transport_%lld_%lld_%zu, 0\n",
           site, block_id, instruction_index, site, block_id, instruction_index);
-  fprintf(f, "  br i1 %%c1_transport_ok_%lld_%lld_%zu, label %%c1_decode_%lld_%lld_%zu, label %%c1_trap_transport_%lld_%lld_%zu\n",
-          site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
-  fprintf(f, "c1_trap_transport_%lld_%lld_%zu:\n  call void @llvm.trap()\n  unreachable\n",
-          site, block_id, instruction_index);
-  fprintf(f, "c1_decode_%lld_%lld_%zu:\n", site, block_id, instruction_index);
+  fprintf(f, "  br i1 %%c1_transport_ok_%lld_%lld_%zu, label %%%s, label %%%s\n",
+          site, block_id, instruction_index, labels.decode, labels.trap_transport);
+  fprintf(f, "%s:\n  call void @llvm.trap()\n  unreachable\n", labels.trap_transport);
+  fprintf(f, "%s:\n", labels.decode);
   fprintf(f, "  %%c1_status_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_status_ptr\n",
           site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_normal_%lld_%lld_%zu = icmp eq i32 %%c1_status_%lld_%lld_%zu, %u\n",
           site, block_id, instruction_index, site, block_id, instruction_index, HAKO_DYNAMIC_V2_STATUS_NORMAL);
   fprintf(f, "  %%c1_fault_%lld_%lld_%zu = icmp eq i32 %%c1_status_%lld_%lld_%zu, %u\n",
           site, block_id, instruction_index, site, block_id, instruction_index, HAKO_DYNAMIC_V2_STATUS_FAULT);
-  fprintf(f, "  br i1 %%c1_normal_%lld_%lld_%zu, label %%%s, label %%c1_check_fault_%lld_%lld_%zu\n",
-          site, block_id, instruction_index, normal_predecessor, site, block_id, instruction_index);
-  fprintf(f, "c1_check_fault_%lld_%lld_%zu:\n  br i1 %%c1_fault_%lld_%lld_%zu, label %%%s, label %%c1_trap_status_%lld_%lld_%zu\n",
-          site, block_id, instruction_index, site, block_id, instruction_index, fault_predecessor, site, block_id, instruction_index);
-  fprintf(f, "c1_trap_status_%lld_%lld_%zu:\n  call void @llvm.trap()\n  unreachable\n",
-          site, block_id, instruction_index);
-  fprintf(f, "%s:\n", normal_predecessor);
+  fprintf(f, "  br i1 %%c1_normal_%lld_%lld_%zu, label %%%s, label %%%s\n",
+          site, block_id, instruction_index,
+          labels.normal_predecessor, labels.check_fault);
+  fprintf(f, "%s:\n  br i1 %%c1_fault_%lld_%lld_%zu, label %%%s, label %%%s\n",
+          labels.check_fault, site, block_id, instruction_index,
+          labels.fault_predecessor, labels.trap_status);
+  fprintf(f, "%s:\n  call void @llvm.trap()\n  unreachable\n", labels.trap_status);
+  fprintf(f, "%s:\n", labels.normal_predecessor);
   fprintf(f, "  %%c1_tag_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_tag_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_disp_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_disp_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_fault_code_norm_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_fault_ptr\n", site, block_id, instruction_index, site);
@@ -536,9 +609,10 @@ static int hako_llvmc_c1_emit_callout(
   fprintf(f, "  %%c1_norm_ok5_%lld_%lld_%zu = and i1 %%c1_norm_ok4_%lld_%lld_%zu, %%c1_reserved_zero_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
   fprintf(f, "  %%c1_norm_ok6_%lld_%lld_%zu = and i1 %%c1_norm_ok5_%lld_%lld_%zu, %%c1_continuation_zero_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
   fprintf(f, "  %%c1_norm_ok7_%lld_%lld_%zu = and i1 %%c1_norm_ok6_%lld_%lld_%zu, %%c1_value_ok_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
-  fprintf(f, "  br i1 %%c1_norm_ok7_%lld_%lld_%zu, label %%bb%lld, label %%c1_trap_normal_%lld_%lld_%zu\n", site, block_id, instruction_index, normal, site, block_id, instruction_index);
-  fprintf(f, "c1_trap_normal_%lld_%lld_%zu:\n  call void @llvm.trap()\n  unreachable\n", site, block_id, instruction_index);
-  fprintf(f, "%s:\n", fault_predecessor);
+  fprintf(f, "  br i1 %%c1_norm_ok7_%lld_%lld_%zu, label %%%s, label %%%s\n",
+          site, block_id, instruction_index, labels.normal_target, labels.trap_normal);
+  fprintf(f, "%s:\n  call void @llvm.trap()\n  unreachable\n", labels.trap_normal);
+  fprintf(f, "%s:\n", labels.fault_predecessor);
   fprintf(f, "  %%c1_fault_code_%lld_%lld_%zu = load i32, ptr %%c1_out_%lld_fault_ptr\n", site, block_id, instruction_index, site);
   fprintf(f, "  %%c1_fault_code_low_%lld_%lld_%zu = icmp uge i32 %%c1_fault_code_%lld_%lld_%zu, %u\n", site, block_id, instruction_index, site, block_id, instruction_index, HAKO_DYNAMIC_V2_FAULT_INVALID_RECEIVER);
   fprintf(f, "  %%c1_fault_code_high_%lld_%lld_%zu = icmp ule i32 %%c1_fault_code_%lld_%lld_%zu, %u\n", site, block_id, instruction_index, site, block_id, instruction_index, HAKO_DYNAMIC_V2_FAULT_INVALID_RESULT);
@@ -564,9 +638,12 @@ static int hako_llvmc_c1_emit_callout(
   fprintf(f, "  %%c1_fault_shape5_%lld_%lld_%zu = and i1 %%c1_fault_shape4_%lld_%lld_%zu, %%c1_fault_lease_ok_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
   fprintf(f, "  %%c1_fault_shape6_%lld_%lld_%zu = and i1 %%c1_fault_shape5_%lld_%lld_%zu, %%c1_fault_continuation_ok_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
   fprintf(f, "  %%c1_fault_ready_%lld_%lld_%zu = and i1 %%c1_fault_code_ok_%lld_%lld_%zu, %%c1_fault_shape6_%lld_%lld_%zu\n", site, block_id, instruction_index, site, block_id, instruction_index, site, block_id, instruction_index);
-  fprintf(f, "  br i1 %%c1_fault_ready_%lld_%lld_%zu, label %%bb%lld, label %%c1_trap_fault_%lld_%lld_%zu\n", site, block_id, instruction_index, fault, site, block_id, instruction_index);
-  fprintf(f, "c1_trap_fault_%lld_%lld_%zu:\n  call void @llvm.trap()\n  unreachable\n", site, block_id, instruction_index);
-  return 0;
+  fprintf(f, "  br i1 %%c1_fault_ready_%lld_%lld_%zu, label %%%s, label %%%s\n",
+          site, block_id, instruction_index, labels.fault_target, labels.trap_fault);
+  fprintf(f, "%s:\n  call void @llvm.trap()\n  unreachable\n", labels.trap_fault);
+  return hako_llvmc_c1_journal_callout_emission_v1(
+             &labels, source_label, block_id, (long long)instruction_index,
+             normal, fault) ? 0 : -1;
 }
 
 static int hako_llvmc_c1_emit_normal_result(FILE* f, yyjson_val* metadata, yyjson_val* ins) {
@@ -579,19 +656,40 @@ static int hako_llvmc_c1_emit_normal_result(FILE* f, yyjson_val* metadata, yyjso
   return site == 0 ? 1 : 2;
 }
 
-static int hako_llvmc_c1_emit_end(FILE* f, yyjson_val* ins, long long block_id, size_t instruction_index) {
+static int hako_llvmc_c1_emit_end(
+    FILE* f, yyjson_val* ins, long long block_id, size_t instruction_index,
+    char* source_label, size_t source_label_size) {
   int ok = 0;
   long long site = hako_llvmc_c1_int(ins, "site_id", &ok);
   long long lease_slot = hako_llvmc_c1_int(ins, "lease_slot", &ok);
   char predecessor[96];
-  if (!f || !ok || site != 0 || lease_slot != 0 ||
+  char trap[96];
+  if (!f || !ok || site != 0 || lease_slot != 0 || !source_label ||
+      source_label_size == 0 ||
+      (HAKO_LLVMC_C1_PROVENANCE_ENABLED_V1 && !source_label[0]) ||
       !hako_llvmc_c1_format_end_predecessor_label_v1(
-          predecessor, sizeof(predecessor), block_id, instruction_index)) return -1;
+          predecessor, sizeof(predecessor), block_id, instruction_index) ||
+      snprintf(trap, sizeof(trap), "c1_trap_end_%lld_%zu",
+               block_id, instruction_index) <= 0) return -1;
   fprintf(f, "  %%c1_end_token_%lld_%zu = load i64, ptr %%c1_out_0_lease_ptr\n", block_id, instruction_index);
   fprintf(f, "  %%c1_end_status_%lld_%zu = call i32 @\"nyrt_dynamic_v2_lease_consume_end_authorized_v1\"(i64 %%c1_end_token_%lld_%zu)\n", block_id, instruction_index, block_id, instruction_index);
   fprintf(f, "  %%c1_end_ok_%lld_%zu = icmp eq i32 %%c1_end_status_%lld_%zu, 0\n", block_id, instruction_index, block_id, instruction_index);
-  fprintf(f, "  br i1 %%c1_end_ok_%lld_%zu, label %%%s, label %%c1_trap_end_%lld_%zu\n", block_id, instruction_index, predecessor, block_id, instruction_index);
-  fprintf(f, "c1_trap_end_%lld_%zu:\n  call void @llvm.trap()\n  unreachable\n", block_id, instruction_index);
+  fprintf(f, "  br i1 %%c1_end_ok_%lld_%zu, label %%%s, label %%%s\n",
+          block_id, instruction_index, predecessor, trap);
+  fprintf(f, "%s:\n  call void @llvm.trap()\n  unreachable\n", trap);
   fprintf(f, "%s:\n", predecessor);
+  if (hako_llvmc_c1_provenance_block_v1(
+          block_id, (long long)instruction_index, predecessor,
+          "split", "checked_callout_end") != 0 ||
+      hako_llvmc_c1_provenance_block_v1(
+          block_id, (long long)instruction_index, trap,
+          "split", "checked_callout_end") != 0 ||
+      hako_llvmc_c1_provenance_internal_edge_v1(
+          block_id, (long long)instruction_index, source_label, predecessor,
+          "split", "checked_callout_end") != 0 ||
+      hako_llvmc_c1_provenance_internal_edge_v1(
+          block_id, (long long)instruction_index, source_label, trap,
+          "split", "checked_callout_end") != 0) return -1;
+  if (snprintf(source_label, source_label_size, "%s", predecessor) <= 0) return -1;
   return 0;
 }

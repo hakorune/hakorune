@@ -1,4 +1,4 @@
-"""Validate issuer-emitted MIR-to-final-LLVM block and edge origins."""
+"""Validate issuer-emitted MIR-to-declared-LLVM-boundary block/edge origins."""
 
 from __future__ import annotations
 
@@ -17,6 +17,7 @@ DISPOSITIONS = {"preserved", "split", "merged", "deleted", "introduced"}
 MIR_EDGES = {
     "jump": (("target", "target"),),
     "branch": (("then", "then"), ("else", "else")),
+    "checked_callout": (("normal", "normal"), ("fault", "fault")),
     "pinned_text_residence_enter": (("normal", "normal"), ("trap", "trap")),
 }
 LABEL = re.compile(r"^([A-Za-z$._][-A-Za-z$._0-9]*):\s*(?:;.*)?$")
@@ -26,8 +27,13 @@ def _sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def parse_raw_events(path: Path) -> list[dict[str, Any]]:
+def parse_raw_events(
+    path: Path, *, issuer: str = "selected_pinned_text_lowerer",
+) -> list[dict[str, Any]]:
+    if not issuer:
+        raise SystemExit("provenance issuer is missing")
     rows: list[dict[str, Any]] = []
+    seen: set[tuple[Any, ...]] = set()
     for line_no, raw in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         fields = raw.split("\t")
         if len(fields) != 9:
@@ -39,8 +45,24 @@ def parse_raw_events(path: Path) -> list[dict[str, Any]]:
             block_id, instruction_id, target_id = int(block), int(instruction), int(target)
         except ValueError as error:
             raise SystemExit(f"provenance raw row {line_no} integer mismatch") from error
-        if not llvm_from or (entity == "block" and llvm_to):
+        identity = tuple(fields)
+        if identity in seen:
+            raise SystemExit(f"provenance raw row {line_no} is duplicated")
+        seen.add(identity)
+        if disposition == "introduced":
+            if (block_id, instruction_id, arm, target_id) != (-1, -1, "none", -1):
+                raise SystemExit(f"provenance raw row {line_no} introduced source mismatch")
+            if not llvm_from:
+                raise SystemExit(f"provenance raw row {line_no} introduced endpoint mismatch")
+        elif disposition == "deleted":
+            if block_id < 0 or llvm_from or llvm_to:
+                raise SystemExit(f"provenance raw row {line_no} deleted endpoint mismatch")
+        elif block_id < 0 or not llvm_from:
             raise SystemExit(f"provenance raw row {line_no} endpoint mismatch")
+        if entity == "block" and llvm_to:
+            raise SystemExit(f"provenance raw row {line_no} block endpoint mismatch")
+        if entity == "edge" and disposition not in {"deleted"} and not llvm_to:
+            raise SystemExit(f"provenance raw row {line_no} edge endpoint mismatch")
         rows.append(
             {
                 "entity": entity,
@@ -53,7 +75,7 @@ def parse_raw_events(path: Path) -> list[dict[str, Any]]:
                 "llvm": {"from": llvm_from, "to": llvm_to},
                 "disposition": disposition,
                 "reason_kind": reason,
-                "issuer": "selected_pinned_text_lowerer",
+                "issuer": issuer,
             }
         )
     if not rows:
@@ -108,31 +130,66 @@ def _llvm_census(text: str, function_name: str) -> tuple[set[str], set[tuple[str
 def build_provenance(
     *, raw_path: Path, mir_path: Path, llvm_path: Path,
     mir_function: str, llvm_function: str,
+    issuer: str = "selected_pinned_text_lowerer",
+    llvm_boundary: str = "final",
 ) -> dict[str, Any]:
+    if llvm_boundary not in {"lowered_pre_opt", "final"}:
+        raise SystemExit("provenance LLVM boundary mismatch")
     mir = json.loads(mir_path.read_text(encoding="utf-8"))
     llvm_text = llvm_path.read_text(encoding="utf-8", errors="replace")
-    rows = parse_raw_events(raw_path)
+    rows = parse_raw_events(raw_path, issuer=issuer)
     mir_blocks, mir_edges = _mir_census(mir, mir_function)
     llvm_blocks, llvm_edges = _llvm_census(llvm_text, llvm_function)
-    row_mir_blocks = {row["mir"]["block"] for row in rows if row["entity"] == "block"}
+    row_mir_blocks = {
+        row["mir"]["block"] for row in rows
+        if row["entity"] == "block" and row["disposition"] != "introduced"
+    }
     row_mir_edges = {
         (m["block"], m["instruction"], m["arm"], m["target"])
-        for row in rows if row["entity"] == "edge" and (m := row["mir"])["arm"] != "none"
+        for row in rows
+        if row["entity"] == "edge"
+        and row["disposition"] != "introduced"
+        and (m := row["mir"])["arm"] != "none"
     }
-    row_llvm_blocks = {row["llvm"]["from"] for row in rows if row["entity"] == "block"}
+    row_llvm_blocks = {
+        row["llvm"]["from"] for row in rows
+        if row["entity"] == "block" and row["disposition"] != "deleted"
+    }
     row_llvm_edges = {
         (row["llvm"]["from"], row["llvm"]["to"])
-        for row in rows if row["entity"] == "edge"
+        for row in rows if row["entity"] == "edge" and row["disposition"] != "deleted"
     }
+    logical_mir_edge_rows = [
+        (m["block"], m["instruction"], m["arm"], m["target"])
+        for row in rows
+        if row["entity"] == "edge"
+        and row["disposition"] != "introduced"
+        and (m := row["mir"])["arm"] != "none"
+    ]
+    llvm_block_rows = [
+        row["llvm"]["from"] for row in rows
+        if row["entity"] == "block" and row["disposition"] != "deleted"
+    ]
+    llvm_edge_rows = [
+        (row["llvm"]["from"], row["llvm"]["to"])
+        for row in rows if row["entity"] == "edge" and row["disposition"] != "deleted"
+    ]
+    if (len(logical_mir_edge_rows) != len(set(logical_mir_edge_rows)) or
+            len(llvm_block_rows) != len(set(llvm_block_rows)) or
+            len(llvm_edge_rows) != len(set(llvm_edge_rows))):
+        raise SystemExit("provenance relation ownership is duplicated")
     if row_mir_blocks != mir_blocks or row_mir_edges != mir_edges:
         raise SystemExit("provenance MIR coverage mismatch")
     if row_llvm_blocks != llvm_blocks or row_llvm_edges != llvm_edges:
-        raise SystemExit("provenance final LLVM coverage mismatch")
+        raise SystemExit(f"provenance {llvm_boundary} LLVM coverage mismatch")
     for row in rows:
-        if row["mir"]["block"] not in mir_blocks:
+        if (row["disposition"] != "introduced" and
+                row["mir"]["block"] not in mir_blocks):
             raise SystemExit("provenance row has a dangling MIR block")
-        if row["llvm"]["from"] not in llvm_blocks or (
-            row["entity"] == "edge" and row["llvm"]["to"] not in llvm_blocks
+        if row["disposition"] != "deleted" and (
+            row["llvm"]["from"] not in llvm_blocks or (
+                row["entity"] == "edge" and row["llvm"]["to"] not in llvm_blocks
+            )
         ):
             raise SystemExit("provenance row has a dangling LLVM endpoint")
     return {
@@ -142,6 +199,8 @@ def build_provenance(
             "llvm_sha256": _sha256(llvm_path),
             "mir_function": mir_function,
             "llvm_function": llvm_function,
+            "llvm_boundary": llvm_boundary,
+            "issuer": issuer,
         },
         "coverage": {
             "mir_blocks": len(mir_blocks), "mir_edges": len(mir_edges),

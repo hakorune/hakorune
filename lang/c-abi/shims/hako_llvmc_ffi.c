@@ -38,6 +38,7 @@
 #include "hako_llvmc_ffi_array_micro_seed.inc"
 #include "hako_llvmc_ffi_user_box_micro_seed.inc"
 #include "hako_llvmc_ffi_route.inc"
+#include "hako_llvmc_ffi_selected_dynamic_lowering_provenance.inc"
 #include "hako_llvmc_ffi_checked_callout_lowering.inc"
 #include "hako_llvmc_ffi_checked_callout_predecessor_projection.inc"
 #include "hako_llvmc_ffi_dynamic_v2_artifact_descriptor.inc"

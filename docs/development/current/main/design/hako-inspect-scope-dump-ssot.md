@@ -6,20 +6,18 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Resume selected-Dynamic provenance at the honest pre-optimizer LLVM
-boundary after landing the C1 physical predecessor prerequisite.
-Source authority + canonical issuer: The source-backed sealed
-`ParserScanLoopBox.skip_while/4` candidate owns MIR identity. The generic active
-walker and C1 emitter alone issue the lowered LLVM regions they emit.
-Non-authority: The optional legacy CAPI route, external `opt` output, helper
-names, synthetic C1 JSON, labels, ValueIds, and post-hoc scans.
-Fail-fast boundary: One caller-zero transaction binds exact source/no-clone MIR
-JSON/lowered-LLVM bytes, one profile-local issuer, duplicate-free rows, and
-total pre-opt block/edge coverage. Missing or foreign material publishes zero.
-Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0`
-adds that observation product and pure validator closure.
-Non-claims: No MIR→post-opt LLVM, LLVM→machine map, generic provenance,
-production, keeper, promotion, fallback, retry, or performance claim.
+Decision: Expose the landed selected-Dynamic lowered-provenance product through
+one thin hako_check command without changing its evidence boundary.
+Source authority + canonical issuer: The landed atomic ingress and its exact
+source/no-clone MIR plus emitter-issued lowered-LLVM sidecar remain sole owners.
+Non-authority: CLI spelling, wrapper temporary paths, compiler names, displayed
+counts, final LLVM, ASM, timings, and command success issue no new meaning.
+Fail-fast boundary: The command delegates once to the existing ingress; driver
+build or ingress failure publishes no output directory or partial artifact.
+Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0` adds one
+dedicated child dispatch while leaving the 753-line generic router unchanged.
+Non-claims: No new provenance relation, final-LLVM/ASM mapping, keeper,
+measurement, production, fallback, retry, or performance claim.
 
 ## Decision
 
@@ -330,17 +328,20 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   become authority. Therefore the exact product stops at the pre-opt lowered
   LLVM bytes emitted by the generic walker plus C1 owner. Post-opt LLVM and ASM
   remain unmapped rather than receiving inferred origins.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**selected
-  BoxCount**): carry the real `parser_scan_loop_box.hako` source and same
-  verified no-clone candidate into one caller-zero observation transaction;
-  add one profile-local C1 journal and capture the writer's lowered LLVM bytes
-  exactly once before external optimization. Extend the pure validator with
-  `checked_callout` normal/fault edges, explicit issuer selection, pre-set
-  duplicate rejection, and strict deleted/introduced endpoint rules. Preserve
-  the C1 current LLVM label across `checked_callout_end`; do not guess `bbN`.
-  Acceptance uses observed total coverage, never a predicted LLVM count. The
-  report must state `MIR -> lowered LLVM: issuer_exact`, `lowered -> final LLVM:
-  unavailable`, and `LLVM -> ASM: unavailable`.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**landed
+  caller-zero BoxCount**): one exact source constant drives parsing and
+  publication; the collector moves the sole completed draft without cloning.
+  The generic active walker and actual C1 CallOut/End emitters issue 64 unique
+  rows covering MIR 10 blocks/10 edges and lowered-pre-opt LLVM 32 blocks/32
+  edges. Staged source/MIR digests are rechecked, conflicting ownership and
+  incomplete coverage reject, and forced journal failure leaves neither named
+  output nor `/tmp/hako_pure_gen_<pid>.ll`. Post-opt and machine mapping remain
+  unavailable.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0` (**selected BoxShape**):
+  route `hako_check inspect selected-dynamic-provenance --out ...` directly to
+  one dedicated child which builds the private driver and invokes the landed
+  atomic ingress. Do not edit the 753-line generic inspect router or add a
+  second validator/renderer.
 - `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
   BoxCount**): the first real full-source provenance canary exposed an invalid
   pre-opt module. C1 expands the loop backedge through

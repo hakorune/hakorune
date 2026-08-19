@@ -561,6 +561,14 @@
       }
       HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
 
+      if (program.selected_dynamic &&
+          HAKO_LLVMC_C1_LOWERED_LLVM_EVIDENCE_V1(llpath, err_out) != 0) {
+        remove(llpath);
+        free_owned_str_consts();
+        yyjson_doc_free(d);
+        return -1;
+      }
+
       int rc = -1;
       if (ptfb_contract_bound) {
         rc = hako_llvmc_ptfb_session_emit_object(
@@ -583,6 +591,8 @@
       if (rc == 0) return 0;
     GEN_ABORT:;
       if (f) HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
+      if (llpath[0]) remove(llpath);
+      free_owned_str_consts();
       hako_llvmc_ptfb_session_close(&ptfb_session);
       // fall through to pattern lowers
     GEN_END: ;

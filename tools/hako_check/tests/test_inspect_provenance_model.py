@@ -70,6 +70,7 @@ class InspectProvenanceModelTest(unittest.TestCase):
                 {"mir_blocks": 3, "mir_edges": 2, "llvm_blocks": 3, "llvm_edges": 2},
             )
             self.assertEqual(report["asm"]["correspondence"], "unavailable")
+            self.assertEqual(report["candidate_input"]["llvm_boundary"], "final")
 
     def test_missing_mir_edge_and_unissued_llvm_edge_reject(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -105,6 +106,64 @@ class InspectProvenanceModelTest(unittest.TestCase):
             path.write_text("too\tfew\n", encoding="utf-8")
             with self.assertRaisesRegex(SystemExit, "9 fields"):
                 parse_raw_events(path)
+
+    def test_checked_callout_edges_and_explicit_lowered_issuer(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            mir, llvm, raw = self._artifacts(root)
+            value = json.loads(mir.read_text(encoding="utf-8"))
+            value["functions"][0]["blocks"][0]["instructions"][0] = {
+                "op": "checked_callout", "normal": 1, "fault": 2,
+            }
+            mir.write_text(json.dumps(value), encoding="utf-8")
+            raw.write_text(
+                raw.read_text(encoding="utf-8")
+                .replace("then\t1", "normal\t1")
+                .replace("else\t2", "fault\t2")
+                .replace("\tbranch\n", "\tchecked_callout\n"),
+                encoding="utf-8",
+            )
+            report = build_provenance(
+                raw_path=raw, mir_path=mir, llvm_path=llvm,
+                mir_function="Main.f/0", llvm_function="f",
+                issuer="selected_dynamic_c1_lowerer",
+                llvm_boundary="lowered_pre_opt",
+            )
+            self.assertEqual(
+                {row["issuer"] for row in report["relations"]},
+                {"selected_dynamic_c1_lowerer"},
+            )
+            self.assertEqual(
+                report["candidate_input"]["llvm_boundary"], "lowered_pre_opt",
+            )
+
+    def test_duplicate_and_endpoint_disposition_drift_reject(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            _mir, _llvm, raw = self._artifacts(Path(tmp))
+            first = raw.read_text(encoding="utf-8").splitlines()[0]
+            raw.write_text(first + "\n" + first + "\n", encoding="utf-8")
+            with self.assertRaisesRegex(SystemExit, "duplicated"):
+                parse_raw_events(raw)
+            raw.write_text(
+                "block\t0\t-1\tnone\t-1\tbb0\t\tdeleted\tbad\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(SystemExit, "deleted endpoint mismatch"):
+                parse_raw_events(raw)
+
+    def test_conflicting_target_ownership_rejects(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            mir, llvm, raw = self._artifacts(Path(tmp))
+            raw.write_text(
+                raw.read_text(encoding="utf-8")
+                + "block\t0\t0\tnone\t-1\tbb0\t\tsplit\tsecond_owner\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(SystemExit, "ownership is duplicated"):
+                build_provenance(
+                    raw_path=raw, mir_path=mir, llvm_path=llvm,
+                    mir_function="Main.f/0", llvm_function="f",
+                )
 
 
 if __name__ == "__main__":
