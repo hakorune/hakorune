@@ -7,12 +7,13 @@ BENCH="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_bench.c"
 REFERENCE="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_reference.c"
 VALIDATOR="$ROOT_DIR/tools/perf/s6c_pinned_corridor_meso_bench.py"
 PAIRED_PLAN="$ROOT_DIR/tools/perf/s6c_paired_wallclock_plan.py"
+PAIRED_BATCH="$ROOT_DIR/tools/perf/s6c_paired_wallclock_batch.py"
 PAIRED_HARNESS="$ROOT_DIR/tools/perf/s6c_paired_wallclock_harness.py"
 SMOKE="$ROOT_DIR/tools/checks/s6c_pinned_corridor_meso_bench_smoke.sh"
 COUNTER_GUARD="$ROOT_DIR/tools/checks/s6c_native_hwcounter_guard.sh"
 guard_require_command "$TAG" rg
 guard_require_files "$TAG" "$BENCH" "$REFERENCE" "$VALIDATOR" "$PAIRED_PLAN" \
-  "$PAIRED_HARNESS" "$SMOKE" "$COUNTER_GUARD"
+  "$PAIRED_BATCH" "$PAIRED_HARNESS" "$SMOKE" "$COUNTER_GUARD"
 count_fixed() {
   local needle="$1"
   shift
@@ -37,6 +38,11 @@ for needle in 'PAIR_COUNT = 51' 'BLOCK_COUNT = 3' 'BLOCK_SIZE = 17' \
   [[ "$(count_fixed "$needle" "$PAIRED_PLAN")" -ge 1 ]] || \
     guard_fail "$TAG" "paired wall-clock contract missing: $needle"
 done
+for needle in MANIFEST_SCHEMA incomplete_predecessor confirmatory_development \
+  retain_all_completed_pairs_no_replacement native_promotion_authority; do
+  [[ "$(count_fixed "$needle" "$PAIRED_BATCH")" -ge 1 ]] || \
+    guard_fail "$TAG" "paired batch contract missing: $needle"
+done
 for needle in --robust-case 'strlen(argv[5]) != 51' 'sample / 17' 'sample % 17'; do
   [[ "$(count_fixed "$needle" "$BENCH")" -ge 1 ]] || \
     guard_fail "$TAG" "robust C harness contract missing: $needle"
@@ -52,11 +58,13 @@ done
 if rg -n 'memcmp|builtin|fallback|retry|hako_text_formal|ny_main' "$REFERENCE"; then
   guard_fail "$TAG" "C reference must be direct ptr/len scan only"
 fi
-for file in "$BENCH" "$REFERENCE" "$VALIDATOR" "$PAIRED_PLAN" "$PAIRED_HARNESS" "$SMOKE"; do
+for file in "$BENCH" "$REFERENCE" "$VALIDATOR" "$PAIRED_PLAN" "$PAIRED_BATCH" \
+  "$PAIRED_HARNESS" "$SMOKE"; do
   lines="$(wc -l <"$file" | tr -d '[:space:]')"
   (( lines < 760 )) || guard_fail "$TAG" "source reached 760-line split trigger: $file=$lines"
 done
 python3 "$PAIRED_PLAN"
+python3 "$PAIRED_BATCH"
 python3 "$PAIRED_HARNESS" --self-test
 bash "$COUNTER_GUARD"
 echo "[$TAG] ok (fixed 80-case paired meso evidence; Residence outside timed region)"

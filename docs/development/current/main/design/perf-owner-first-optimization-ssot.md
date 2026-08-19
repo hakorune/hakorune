@@ -373,6 +373,10 @@ protocol / candidate / corpus / threshold
 partial rowsはterminal receiptへ参照せず、性能比を発行しない。V1 plan/receiptは
 historical auditとしてimmutableに残し、V2へnormalizeしない。
 
+Pure V2 model owner:
+`tools/perf/s6c_paired_wallclock_batch.py`。filesystemやsubprocessは持たず、
+manifest、same-candidate lineage、session terminal、batch terminalだけを発行する。
+
 ## Doc Placement
 
 ### `AGENTS.md`

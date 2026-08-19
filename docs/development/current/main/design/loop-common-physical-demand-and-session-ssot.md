@@ -25,10 +25,10 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** MeasurementBatch V2 needs one pure manifest/lineage/
-  terminal-state owner before another WSL or native execution may open.
-- **Next ordered task:** `S6C-MESO-WALLCLOCK-BATCH-PLAN-I0`; schema and pure
-  transitions only, with no filesystem, runner, measurement, or compiler edit.
+- **Current blocker:** the pure MeasurementBatch V2 owner is landed; the old
+  direct V1 CLI still bypasses append-only batch storage and terminal closure.
+- **Next ordered task:** `S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1`; one store/
+  harness owner and atomic V1 direct-CLI retirement, without measurement.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -321,19 +321,18 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Decision: Retire one-shot measurement and use immutable append-only linked
-batches; same-batch retry and result-based selection remain forbidden.
-Source authority + canonical issuer: `BatchManifestV2` binds exact candidate,
-environment, fixed slots/order, predecessor receipt, and threshold before
-effect; `BatchValidatorV2` alone issues the terminal batch state.
-Non-authority: newest/best batch, partial rows, stderr, old V1 receipts, WSL
-green, assembly, and manually paired sessions issue no owner or promotion.
-Fail-fast boundary: overwrite, same-batch resume, completed-sample replacement,
-cross-batch pooling, identity/oracle/order drift, and best-run selection reject.
-Smallest next slice: `S6C-MESO-WALLCLOCK-BATCH-PLAN-I0` implements only pure
-manifest IDs, lineage, terminal states, validation, and counterexample tests.
-Non-claims: No filesystem/subprocess/C/compiler/backend change, measurement,
-native authority, threshold/corpus change, owner, promotion, or production.
+Decision: Keep the landed pure V2 model and replace the direct V1 harness with
+one append-only batch directory and terminal owner.
+Source authority + canonical issuer: The issued V2 manifest owns exact slots;
+the harness may only project those slots and `close_batch` issues the terminal.
+Non-authority: filenames, partial CSV, newest/best directory, V1 receipts,
+process exit alone, and manual session pairing issue no batch outcome.
+Fail-fast boundary: exclusive create, no overwrite/resume, exact child digests,
+and terminal-once closure; abandoned issued manifests close `Incomplete`.
+Smallest next slice: `S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1` adds the store,
+manifest/session/terminal CLI, orphan close, negatives, and retires V1 direct CLI.
+Non-claims: No C/compiler/backend change, actual measurement, native authority,
+threshold/corpus change, owner, promotion, fallback, or production.
 
 ### Closed object-observer design
 
@@ -624,8 +623,8 @@ Ordered task ladder:
     requires a new explicit Decision. PC/owner work remains unauthorized.
 11. `PERF-MEASUREMENT-BATCH-D0`: accepted. Immutable V2 batches may repeat only
     as linked successor IDs; same-batch retry and best-run selection stay closed.
-12. `S6C-MESO-WALLCLOCK-BATCH-PLAN-I0`: pure manifest, lineage, terminal-state
-    model and self-tests; no filesystem or process effects.
+12. `S6C-MESO-WALLCLOCK-BATCH-PLAN-I0`: landed pure manifest, lineage,
+    terminal-state model, cohort binding, and counterexample self-tests.
 13. `S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1`: append-only batch directory,
     terminal receipts, orphan close, V1 direct CLI retirement, reusable guard.
 14. `S6C-MESO-WALLCLOCK-WSL-BATCH-R0`: one explicit two-session development

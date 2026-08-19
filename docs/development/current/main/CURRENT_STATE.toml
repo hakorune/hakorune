@@ -17,10 +17,10 @@ belong to the later promotion evidence gate.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Resolved: one-shot measurement is retired. Immutable append-only MeasurementBatch V2 separates empirical repetition from compiler retry; old V1 batches remain terminal history."
+current_design_stop = "Resolved: MeasurementBatch V2 pure manifest, same-candidate lineage, fixed session-plan projection, and terminal state model are landed. Append-only storage/harness integration is the selected next BoxShape."
 work_mode = "fast"
-current_execution_row = "S6C-MESO-WALLCLOCK-BATCH-PLAN-I0"
-current_blocker_token = "Implement only the pure V2 batch manifest/lineage/terminal state model and self-tests. No filesystem, subprocess, C/compiler/backend edit, WSL run, native authority, owner selection, or promotion."
+current_execution_row = "S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1"
+current_blocker_token = "Integrate one append-only batch directory and terminal receipt owner, close abandoned issued manifests as Incomplete, and retire the direct V1 session/aggregate CLI atomically. No C/compiler/backend edit, measurement run, native authority, owner selection, or promotion."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -52,10 +52,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "MeasurementBatch D0 accepted: immutable batches are repeatable through linked successor IDs, while same-batch resume, sample replacement, overwrite, pooling, and best-run selection remain forbidden. Pure V2 batch-plan I0 is selected."
-next_design_card = "S6C-MESO-WALLCLOCK-BATCH-PLAN-I0"
+latest_card_summary = "MeasurementBatch plan I0 landed pure: exact candidate/session projections, linked successor IDs, Complete/Incomplete/IntegrityInvalid terminals, and V1/duplicate/cross-batch/tamper negatives are guarded. Append-only harness I1 is selected."
+next_design_card = "S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "S6C-MESO-WALLCLOCK-BATCH-PLAN-I0"
+next_execution_card = "S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -67,6 +67,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: S6C MeasurementBatch plan I0 landed pure: one V2 manifest seals the exact WSL candidate, CPU, canonical cases, two fixed session-plan digests, same-candidate predecessor lineage, and threshold. Complete/Incomplete/IntegrityInvalid session and batch terminals reject V1, duplicate, cross-batch, tampered, mismatched-repeat, changed-candidate, and partial-evidence inputs; native authority remains false.",
   "2026-08-19: Performance MeasurementBatch D0 accepted. The one-shot rule was retired as a category error: protocol and each batch stay immutable, but interrupted or confirmatory measurement proceeds through a new append-only batch ID linked to the prior terminal receipt. Same-batch resume, completed-sample replacement, pooling, and best-run selection remain forbidden; compiler/source/MIR/backend and thresholds are unchanged.",
   "2026-08-19: WSL paired-wall-clock DEV R0 closed terminal NoSafeSlice. The sole session-0 invocation traversed part of the canonical case census but ended without its atomic receipt; session 1 and aggregation were not opened. Partial observations issue no development keeper, ratio, owner, native evidence, or backend change, and this sealed plan is not rerun.",
   "2026-08-19: Clean-pair R0 closed verified NoSafeSlice at 18 rejected/0 accepted. Robust paired wall-clock D0/I0 and harness I1 landed evidence-only: explicit C mode consumes sealed 51-slot schedules, emits raw block/order rows, sessions 0/1 reverse AB excess, and one development-only aggregator retains all pairs. Native promotion and compiler/source/MIR/backend remain unchanged.",
@@ -77,6 +78,5 @@ landed_tail = [
   "2026-08-19: S6C meso outline parity R0 landed offline: one outer Live Residence lends the same Subject/Needle backing to the unchanged nested whole candidate and digest-verified outline; both match an independent code-point oracle for empty, UTF-8 widths 1..4, mixed, first/middle/last/miss, and alias cases. A corrupted outline Return is red; no timer, threshold, production caller, fallback, or promotion was added.",
   "2026-08-19: S6C meso shell-outline I0 landed offline: the closure-verified real function loses only the exact 25-instruction Residence/lane shell and two shell blocks; the short-circuit 20-block/92-instruction/35-edge/5-PHI/2-Return scan graph matches digest 0b219d8ea107. Entry/root/lane/removed-PHI/scan/Finish-order drift rejects without partial LLVM or manifest publication; no production helper, optimizer, receipt, fallback, benchmark, or promotion was added.",
   "2026-08-19: Pinned-corridor exact benchmark R0 landed offline: the exact real scalar plan is projected by the sole production emitter into a separate Residence-acquired evidence callable. An initial unchanged-threshold red exposed eager post-mismatch byte loads; a bounded backend BoxShape short-circuited later reads. The unchanged 51-pair gate is green at ASCII max p50 1.061, mixed max p50 1.078, and all-case max p95 1.113; compiler meaning and production remain unchanged.",
-  "2026-08-19: Pinned-corridor structural-zero R0 landed offline: a compile-time-only hook borrows the same final-closure ModuleRef immediately before sole emit, and final IR plus linked assembly show entry-only allocation/root projection, exact align-1 byte reads, only Enter/Finish/Trap calls, and zero EH/noalias/wide/indirect/helper calls. Capture and structural negatives publish no evidence/object; compiler authority and production remain unchanged.",
-  "2026-08-19: Pinned-corridor link/run correctness R0 landed offline: the exact real object links with a default-off test-only NyRT wire issuer and matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar, alias, match/miss, zero/stale/foreign/non-Text/retirement-pending, and both normal Residence exits. Production ABI, selector, benchmark, fallback, and retry remain unchanged."
+  "2026-08-19: Pinned-corridor structural-zero R0 landed offline: a compile-time-only hook borrows the same final-closure ModuleRef immediately before sole emit, and final IR plus linked assembly show entry-only allocation/root projection, exact align-1 byte reads, only Enter/Finish/Trap calls, and zero EH/noalias/wide/indirect/helper calls. Capture and structural negatives publish no evidence/object; compiler authority and production remain unchanged."
 ]
