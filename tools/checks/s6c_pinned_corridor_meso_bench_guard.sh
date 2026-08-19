@@ -31,26 +31,33 @@ done
 for needle in taskset clang-18 -O3 -fno-lto promotion-test-support address_mod_64 body_sha256; do
   [[ "$(count_fixed "$needle" "$SMOKE")" -ge 1 ]] || guard_fail "$TAG" "smoke control missing: $needle"
 done
+for needle in robust-valid.csv 'post-warm calibration' 30000000 60000000; do
+  [[ "$(count_fixed "$needle" "$SMOKE")" -ge 1 ]] || \
+    guard_fail "$TAG" "calibration smoke contract missing: $needle"
+done
 for needle in 1.15 nearest_rank promotion-evidence-only gated_4k_plus_max_p50 alignment-manifest; do
   [[ "$(count_fixed "$needle" "$VALIDATOR")" -ge 1 ]] || guard_fail "$TAG" "validator contract missing: $needle"
 done
 for needle in 'PAIR_COUNT = 51' 'BLOCK_COUNT = 3' 'BLOCK_SIZE = 17' \
   retain_all_no_retry_no_outlier_removal development-evidence-only \
-  p95_diagnostic order_strata_p50 block_p50; do
+  p95_diagnostic order_strata_p50 block_p50 ShortMeasuredArm \
+  calibration_target_arm_ns; do
   [[ "$(count_fixed "$needle" "$PAIRED_PLAN")" -ge 1 ]] || \
     guard_fail "$TAG" "paired wall-clock contract missing: $needle"
 done
 for needle in MANIFEST_SCHEMA incomplete_predecessor confirmatory_development \
-  retain_all_completed_pairs_no_replacement native_promotion_authority; do
+  retain_all_completed_pairs_no_replacement native_promotion_authority \
+  diagnostic_raw_csv_sha256 wallclock-batch-v3; do
   [[ "$(count_fixed "$needle" "$PAIRED_BATCH")" -ge 1 ]] || \
     guard_fail "$TAG" "paired batch contract missing: $needle"
 done
-for needle in --robust-case 'strlen(argv[5]) != 51' 'sample / 17' 'sample % 17'; do
+for needle in --robust-case 'argc == 8' 'strlen(argv[5]) != 51' 'sample / 17' \
+  'sample % 17' sample_minimum_ns calibration_target_ns; do
   [[ "$(count_fixed "$needle" "$BENCH")" -ge 1 ]] || \
     guard_fail "$TAG" "robust C harness contract missing: $needle"
 done
 for needle in orders_text parse_case_output taskset wsl_development create_command \
-  run_command close-abandoned same_batch_resume_forbidden; do
+  run_command close-abandoned same_batch_resume_forbidden short_measured_arm; do
   [[ "$(count_fixed "$needle" "$PAIRED_HARNESS")" -ge 1 ]] || \
     guard_fail "$TAG" "paired harness contract missing: $needle"
 done
@@ -58,7 +65,7 @@ if rg -n -- '--session-index|--aggregate-reports|native_final' "$PAIRED_HARNESS"
   guard_fail "$TAG" "retired direct V1/native CLI remains in paired harness"
 fi
 for needle in create_once exclusive_batch close_abandoned terminal.json \
-  meso-bench.frozen controller_interrupted; do
+  meso-bench.frozen controller_interrupted diagnostic.raw.csv; do
   [[ "$(count_fixed "$needle" "$PAIRED_STORE")" -ge 1 ]] || \
     guard_fail "$TAG" "append-only batch store contract missing: $needle"
 done

@@ -332,7 +332,7 @@ append-onlyに積む。
 
 ```text
 protocol / candidate / corpus / threshold
-  -> BatchManifestV2
+  -> BatchManifestV3
        fixed environment role
        fixed session slots and order
        prior terminal receipt digest
@@ -370,8 +370,8 @@ protocol / candidate / corpus / threshold
 渡す。WSL greenや過去V1 receiptはnative authorityへ昇格しない。
 
 各session内では全sampleをretainし、既存のAB/BA、block、p50 gateを維持する。
-partial rowsはterminal receiptへ参照せず、性能比を発行しない。V1 plan/receiptは
-historical auditとしてimmutableに残し、V2へnormalizeしない。
+partial rowsはterminal receiptへ参照せず、性能比を発行しない。旧V1/V2
+plan/receiptはhistorical auditとしてimmutableに残し、V3へnormalizeしない。
 
 Calibrationはsample eligibilityとは別に封印する。warmup後のcalibration targetは
 sample minimumより厳しくなければならず、target到達後のiterationsを全sampleで固定する。
@@ -379,7 +379,7 @@ sample minimumより厳しくなければならず、target到達後のiteration
 同batch内で取り直さない。Complete以外のraw observationはdigest-bound diagnosticとして
 保存できるが、ratio/classification consumerへ渡る物理経路を持たない。
 
-Pure V2 model owner:
+Pure V3 model owner:
 `tools/perf/s6c_paired_wallclock_batch.py`。filesystemやsubprocessは持たず、
 manifest、same-candidate lineage、session terminal、batch terminalだけを発行する。
 Append-only projection ownerは

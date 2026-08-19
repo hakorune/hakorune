@@ -25,12 +25,10 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the first V2 WSL batch closed `IntegrityInvalid` because
-  pre-warm calibration used the same 30 ms boundary later required of every
-  warmed sample and did not retain the failing raw observation.
-- **Next ordered task:** `S6C-MESO-WALLCLOCK-BATCH-CALIBRATION-REPAIR-I2`;
-  version the plan/receipts, calibrate post-warm to 60 ms, map short arms to
-  `Incomplete`, and bind ineligible diagnostic raw by digest.
+- **Current blocker:** the versioned post-warm calibration repair is landed;
+  no V3 WSL development batch has yet consumed the clean repaired candidate.
+- **Next ordered task:** `S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0`; build one exact
+  fixture, issue one ordinal-zero batch, and run its two sealed sessions once.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -323,21 +321,19 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Decision: Replace the V1 wall-clock acquisition contract with versioned
-post-warm calibration: retain the 30 ms sample minimum and target 60 ms during
-calibration.
-Source authority + canonical issuer: One sealed session plan owns both timing
-bounds; the harness alone issues the session terminal from parsed observations.
-Non-authority: Calibration probes, ineligible raw, exception text, the old V2
-invalid batch, partial ratios, and WSL results issue no compiler or promotion
-authority.
-Fail-fast boundary: Identity/order/oracle/schema drift is IntegrityInvalid;
-process loss, timeout, or a later short arm is Incomplete. Only Complete raw
-enters classification.
-Smallest next slice: `S6C-MESO-WALLCLOCK-BATCH-CALIBRATION-REPAIR-I2` versions
-the plan/batch receipts, typed failure mapping, and diagnostic persistence.
-Non-claims: No same-batch retry, sample replacement, threshold/corpus change,
-native evidence, MIR/backend edit, owner attribution, promotion, or production.
+Decision: Run one ordinal-zero V3 WSL development batch from the clean repaired
+candidate and preserve its Complete, Incomplete, or IntegrityInvalid terminal.
+Source authority + canonical issuer: The V3 manifest alone projects two plan-v2
+sessions with the sealed 30 ms floor and post-warm 60 ms calibration target.
+Non-authority: Calibration probes, diagnostic raw, the old V2 invalid batch,
+partial ratios, newest/best batch, assembly, and WSL green issue no native or
+compiler authority.
+Fail-fast boundary: Source/binary/alignment drift rejects before manifest;
+after issuance both fixed sessions close once and only Complete raw classifies.
+Smallest next slice: `S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0` builds, creates, runs,
+and records one exact V3 batch without predecessor or same-batch retry.
+Non-claims: No native evidence, owner/BoxShape, threshold/corpus/C/compiler/
+backend change, promotion, fallback, or production.
 
 ### Closed object-observer design
 
@@ -428,7 +424,7 @@ kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 | 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | **Landed.** The real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text/retirement-pending, match/miss, and lifecycle cases. Input generations come only from a default-off test issuer in the allocation transaction. |
 | 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | **Landed.** A compile-time-only hook borrows the same closure-verified ModuleRef before sole emit; final IR and linked assembly show only lifecycle calls, entry-only allocation/root projection, exact align-1 byte reads, and zero EH/noalias/wide read/indirect or helper call. Machine layout counts remain non-authority. |
 | 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | **Landed.** The exact real plan is projected by the sole production leaf emitter into a separate evidence callable. The first unchanged-threshold run exposed eager post-mismatch loads; `LLVM-PINNED-TEXT-SCALAR-EQ-SHORT-CIRCUIT-I0` made bytes 2..4 reachable only after prior equality. The unchanged 51-pair gate is green (ASCII max p50 1.061, mixed max p50 1.078, all-case max p95 1.113 versus 1.10/1.15/1.30). |
-| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Red; evidence repair selected.** The first V2 wall-clock batch was terminally ineligible because its calibration contract could admit warmed samples below the sealed minimum. It issues no ratio or backend owner. |
+| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Red; V3 development measurement selected.** Calibration repair is landed and green; the first V2 invalid batch remains historical and issues no ratio or backend owner. |
 | 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | **Parked.** Requires green native-final 8d evidence first. |
 | 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | **Parked.** Missing/red leaf evidence forbids a verdict. |
 | 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | **Parked.** Selected Dynamic remains production. |
@@ -635,14 +631,16 @@ Ordered task ladder:
 14. `S6C-MESO-WALLCLOCK-WSL-BATCH-R0`: terminal IntegrityInvalid at batch
     `68411a6e...`; all 80 case outputs parsed, but the exact short arm is
     unrecoverable because diagnostic raw was not published. No result issued.
-15. `S6C-MESO-WALLCLOCK-BATCH-CALIBRATION-REPAIR-I2`: selected versioned
+15. `S6C-MESO-WALLCLOCK-BATCH-CALIBRATION-REPAIR-I2`: landed plan-v2/batch-v3
     post-warm 60 ms calibration, typed Incomplete, and diagnostic raw binding.
-16. `S6C-MESO-WALLCLOCK-NATIVE-BATCH-D0/I2/R0`: separate future Decision;
+16. `S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0`: selected one ordinal-zero batch with
+    no V2 predecessor; both fixed sessions are consumed once.
+17. `S6C-MESO-WALLCLOCK-NATIVE-BATCH-D0/I2/R0`: separate future Decision;
     WSL/history cannot issue native promotion authority.
-17. `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0`: only a complete native red batch
+18. `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0`: only a complete native red batch
     may select one attribution method; wall-clock or assembly alone cannot.
 
-V2 terminal states are `Complete`, `Incomplete`, and `IntegrityInvalid` after
+V3 terminal states are `Complete`, `Incomplete`, and `IntegrityInvalid` after
 manifest issuance; bad inputs before issuance are `PreflightRejected` and do
 not create a batch. A successor batch binds the predecessor terminal digest and
 repeat reason. Complete red is never silently replaced; all batch history is

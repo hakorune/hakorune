@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Append-only filesystem owner for S6C MeasurementBatch V2 receipts."""
+"""Append-only filesystem owner for S6C MeasurementBatch V3 receipts."""
 
 from __future__ import annotations
 
@@ -81,6 +81,10 @@ def raw_path(directory: Path, slot: int) -> Path:
     return directory / f"session-{slot}.raw.csv"
 
 
+def diagnostic_raw_path(directory: Path, slot: int) -> Path:
+    return directory / f"session-{slot}.diagnostic.raw.csv"
+
+
 def create_batch(
         root: Path, manifest: dict[str, object], *, frozen_binary: bytes,
         alignment_payload: str) -> Path:
@@ -145,13 +149,39 @@ def publish_complete_session(
 
 def publish_ineligible_session(
         directory: Path, manifest: dict[str, object], *, slot: int,
-        terminal_state: str, reason: str) -> dict[str, object]:
+        terminal_state: str, reason: str,
+        diagnostic_raw_csv: str | None = None) -> dict[str, object]:
     if (directory / TERMINAL_NAME).exists() or session_path(directory, slot).exists():
         raise StoreError("terminal batch/session cannot be reopened")
+    diagnostic_digest = None
+    if diagnostic_raw_csv is not None:
+        diagnostic_digest = hashlib.sha256(diagnostic_raw_csv.encode()).hexdigest()
+        path = diagnostic_raw_path(directory, slot)
+        if path.exists():
+            if hashlib.sha256(path.read_bytes()).hexdigest() != diagnostic_digest:
+                raise StoreError("diagnostic raw payload drift")
+        else:
+            create_once(path, diagnostic_raw_csv)
     receipt = issue_session_terminal(
-        manifest, slot=slot, terminal_state=terminal_state, reason=reason)
+        manifest, slot=slot, terminal_state=terminal_state, reason=reason,
+        diagnostic_raw_csv_sha256=diagnostic_digest)
     create_once(session_path(directory, slot), _json(receipt))
     return receipt
+
+
+def _verify_session_payload(
+        directory: Path, slot: int, receipt: dict[str, object]) -> None:
+    expected = (
+        (raw_path(directory, slot), receipt.get("raw_csv_sha256")),
+        (diagnostic_raw_path(directory, slot),
+         receipt.get("diagnostic_raw_csv_sha256")),
+    )
+    for path, digest in expected:
+        if digest is None:
+            if path.exists():
+                raise StoreError(f"unbound session payload: {path.name}")
+        elif not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            raise StoreError(f"session payload digest drift: {path.name}")
 
 
 def close(directory: Path) -> dict[str, object]:
@@ -159,6 +189,8 @@ def close(directory: Path) -> dict[str, object]:
         raise StoreError("terminal batch cannot be reopened")
     manifest = load_manifest(directory)
     receipts = [read_json(session_path(directory, slot)) for slot in SESSION_SLOTS]
+    for slot, receipt in zip(SESSION_SLOTS, receipts):
+        _verify_session_payload(directory, slot, receipt)
     terminal = close_batch(manifest, receipts)
     create_once(directory / TERMINAL_NAME, _json(terminal))
     return terminal
@@ -171,9 +203,18 @@ def close_abandoned(directory: Path, reason: str) -> dict[str, object]:
         manifest = load_manifest(directory)
         for slot in SESSION_SLOTS:
             if not session_path(directory, slot).exists():
+                diagnostic_path = diagnostic_raw_path(directory, slot)
+                complete_path = raw_path(directory, slot)
+                if complete_path.exists():
+                    if diagnostic_path.exists():
+                        raise StoreError("ambiguous orphan raw payloads")
+                    os.rename(complete_path, diagnostic_path)
+                    _fsync_directory(directory)
                 publish_ineligible_session(
                     directory, manifest, slot=slot, terminal_state="Incomplete",
-                    reason=reason)
+                    reason=reason,
+                    diagnostic_raw_csv=diagnostic_path.read_text()
+                    if diagnostic_path.exists() else None)
         return close(directory)
 
 
@@ -220,12 +261,30 @@ def self_test() -> None:
             **identity, predecessor=terminal, repeat_reason="confirmatory_development")
         abandoned = create_batch(
             root, successor, frozen_binary=binary, alignment_payload=alignment)
-        create_once(raw_path(abandoned, 0), "partial,diagnostic,only\n")
+        create_once(diagnostic_raw_path(abandoned, 0), "partial,diagnostic,only\n")
         abandoned_terminal = close_abandoned(abandoned, "controller_interrupted")
         assert abandoned_terminal["terminal_state"] == "Incomplete"
         assert all(session_path(abandoned, slot).exists() for slot in SESSION_SLOTS)
-        assert raw_path(abandoned, 0).read_text() == "partial,diagnostic,only\n"
+        assert diagnostic_raw_path(abandoned, 0).read_text() == "partial,diagnostic,only\n"
+        receipt = read_json(session_path(abandoned, 0))
+        assert receipt["diagnostic_raw_csv_sha256"] == hashlib.sha256(
+            b"partial,diagnostic,only\n").hexdigest()
+        _expect_error(lambda: publish_ineligible_session(
+            abandoned, manifest, slot=0, terminal_state="Incomplete",
+            reason="again", diagnostic_raw_csv="changed\n"))
         assert not any(abandoned.glob("*.tmp"))
+
+        recovered_manifest = issue_manifest(
+            **identity, predecessor=abandoned_terminal,
+            repeat_reason="incomplete_predecessor")
+        recovered = create_batch(
+            root, recovered_manifest, frozen_binary=binary,
+            alignment_payload=alignment)
+        create_once(raw_path(recovered, 0), "orphan-complete-raw\n")
+        recovered_terminal = close_abandoned(recovered, "controller_interrupted")
+        assert recovered_terminal["terminal_state"] == "Incomplete"
+        assert not raw_path(recovered, 0).exists()
+        assert diagnostic_raw_path(recovered, 0).read_text() == "orphan-complete-raw\n"
 
 
 if __name__ == "__main__":

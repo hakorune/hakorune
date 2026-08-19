@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create, run, or terminally close one S6C MeasurementBatch V2."""
+"""Create, run, or terminally close one S6C MeasurementBatch V3."""
 
 from __future__ import annotations
 
@@ -21,13 +21,17 @@ from s6c_paired_wallclock_batch_store import (
     publish_ineligible_session, read_json, self_test as store_self_test,
     session_path,
 )
-from s6c_paired_wallclock_plan import CANONICAL_CASES, seal_plan, validate_session
+from s6c_paired_wallclock_plan import (
+    CANONICAL_CASES, InvalidSession, ShortMeasuredArm, seal_plan,
+    validate_session,
+)
 
 
 FIELDS = (
     "case", "slot", "block", "block_slot", "order", "attempt", "oracle_equal",
-    "family", "size", "position", "sample", "iterations", "hako_ns", "c_ns",
-    "sink", "scalars", "width1", "width2", "width3", "width4",
+    "family", "size", "position", "sample", "iterations", "sample_minimum_ns",
+    "calibration_target_ns", "hako_ns", "c_ns", "sink", "scalars", "width1",
+    "width2", "width3", "width4",
 )
 SYMBOLS = {"hako_s6c_meso", "hako_s6c_c_meso"}
 ABANDON_REASONS = ("controller_interrupted", "host_shutdown", "tool_transport_lost")
@@ -38,7 +42,15 @@ class HarnessError(RuntimeError):
 
 
 class AcquisitionIncomplete(HarnessError):
-    pass
+    def __init__(self, reason: str, diagnostic_raw_csv: str = "") -> None:
+        super().__init__(reason)
+        self.diagnostic_raw_csv = diagnostic_raw_csv
+
+
+class AcquisitionIntegrityInvalid(HarnessError):
+    def __init__(self, reason: str, diagnostic_raw_csv: str = "") -> None:
+        super().__init__(reason)
+        self.diagnostic_raw_csv = diagnostic_raw_csv
 
 
 def sha256(path: Path) -> str:
@@ -49,7 +61,8 @@ def orders_text(plan: dict[str, object], case: str) -> str:
     return "".join("A" if order == "AB" else "B" for order in plan["schedules"][case])
 
 
-def parse_case_output(text: str, expected_case: str) -> list[dict[str, object]]:
+def parse_case_output(
+        text: str, expected_case: str, plan: dict[str, object]) -> list[dict[str, object]]:
     reader = csv.DictReader(text.splitlines())
     if tuple(reader.fieldnames or ()) != FIELDS:
         raise HarnessError("robust_case_csv_header_drift")
@@ -62,7 +75,11 @@ def parse_case_output(text: str, expected_case: str) -> list[dict[str, object]]:
         shape = tuple(int(row[name]) for name in (
             "scalars", "width1", "width2", "width3", "width4"))
         iterations, sink = int(row["iterations"]), int(row["sink"])
+        sample_minimum_ns = int(row["sample_minimum_ns"])
+        calibration_target_ns = int(row["calibration_target_ns"])
         if int(row["sample"]) != slot or iterations <= 0 or sink == 0 or \
+                sample_minimum_ns != plan["minimum_arm_ns"] or \
+                calibration_target_ns != plan["calibration_target_arm_ns"] or \
                 sum((width + 1) * shape[width + 1] for width in range(4)) != size or \
                 sum(shape[1:]) != shape[0]:
             raise HarnessError("sample_iteration_sink_or_utf8_shape_drift")
@@ -84,15 +101,41 @@ def run_session(binary: Path, plan: dict[str, object], cpu: int) -> tuple[list[d
     rows, raw_parts = [], []
     for case in plan["cases"]:
         family, size, position = case.split("/")
-        process = subprocess.run(
-            ["taskset", "-c", str(cpu), str(binary), "--robust-case",
-             family, size, position, orders_text(plan, case)],
-            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=900)
-        if process.returncode:
-            raise AcquisitionIncomplete("case_process_rejected")
-        rows.extend(parse_case_output(process.stdout, case))
+        command = ["taskset", "-c", str(cpu), str(binary), "--robust-case",
+                   family, size, position, orders_text(plan, case),
+                   str(plan["minimum_arm_ns"]),
+                   str(plan["calibration_target_arm_ns"])]
+        try:
+            process = subprocess.run(
+                command, text=True, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, timeout=900)
+        except subprocess.TimeoutExpired as error:
+            partial = error.stdout or ""
+            if isinstance(partial, bytes):
+                partial = partial.decode(errors="replace")
+            raise AcquisitionIncomplete(
+                "session_timeout", "".join(raw_parts) + partial) from error
         raw_parts.append(process.stdout)
+        if process.returncode:
+            raise AcquisitionIncomplete("case_process_rejected", "".join(raw_parts))
+        try:
+            rows.extend(parse_case_output(process.stdout, case, plan))
+        except (HarnessError, KeyError, ValueError) as error:
+            reason = str(error) if isinstance(error, HarnessError) else \
+                "case_observation_schema_drift"
+            raise AcquisitionIntegrityInvalid(reason, "".join(raw_parts)) from error
     return rows, "".join(raw_parts)
+
+
+def validate_acquisition(
+        plan: dict[str, object], rows: list[dict[str, object]],
+        raw_csv: str) -> str:
+    try:
+        return str(validate_session(plan, rows)["outcome"])
+    except ShortMeasuredArm as error:
+        raise AcquisitionIncomplete("short_measured_arm", raw_csv) from error
+    except InvalidSession as error:
+        raise AcquisitionIntegrityInvalid("session_validation_failed", raw_csv) from error
 
 
 def validate_source(commit: str) -> None:
@@ -182,17 +225,23 @@ def run_command(args: argparse.Namespace) -> int:
             try:
                 plan = plan_for(manifest, slot)
                 rows, raw_csv = run_session(binary, plan, manifest["environment"]["cpu"])
-                outcome = validate_session(plan, rows)["outcome"]
+                outcome = validate_acquisition(plan, rows, raw_csv)
                 if sha256(binary) != manifest["candidate"]["binary_sha256"]:
                     raise HarnessError("frozen_binary_drift")
                 publish_complete_session(
                     args.batch_dir, manifest, slot=slot, outcome=outcome, raw_csv=raw_csv)
-            except (AcquisitionIncomplete, subprocess.TimeoutExpired) as error:
-                reason = str(error) if isinstance(error, AcquisitionIncomplete) else "session_timeout"
+            except AcquisitionIncomplete as error:
                 publish_ineligible_session(
                     args.batch_dir, manifest, slot=slot,
-                    terminal_state="Incomplete", reason=reason)
-            except (HarnessError, ValueError, KeyError) as error:
+                    terminal_state="Incomplete", reason=str(error),
+                    diagnostic_raw_csv=error.diagnostic_raw_csv or None)
+            except AcquisitionIntegrityInvalid as error:
+                publish_ineligible_session(
+                    args.batch_dir, manifest, slot=slot,
+                    terminal_state="IntegrityInvalid", reason=str(error),
+                    diagnostic_raw_csv=error.diagnostic_raw_csv or None)
+                integrity_failed = True
+            except (HarnessError, InvalidSession, KeyError) as error:
                 if isinstance(error, HarnessError):
                     reason = str(error)
                 elif isinstance(error, KeyError):
@@ -215,12 +264,21 @@ def self_test() -> None:
                      environment_class="wsl_development")
     header = ",".join(FIELDS) + "\n"
     body = [f"mixed/4096/first,{slot},{slot // 17},{slot % 17},{order},1,true,"
-            f"mixed,4096,first,{slot},1,40000000,40000000,1,1642,415,409,409,409\n"
+            f"mixed,4096,first,{slot},1,{plan['minimum_arm_ns']},"
+            f"{plan['calibration_target_arm_ns']},40000000,40000000,1,"
+            "1642,415,409,409,409\n"
             for slot, order in enumerate(plan["schedules"]["mixed/4096/first"])]
-    assert validate_session(plan, parse_case_output(
-        header + "".join(body), "mixed/4096/first"))["outcome"] == "development_green"
+    parsed = parse_case_output(header + "".join(body), "mixed/4096/first", plan)
+    assert validate_acquisition(plan, parsed, header + "".join(body)) == "development_green"
+    parsed[0]["hako_ns"] = plan["minimum_arm_ns"] - 1
     try:
-        parse_case_output(header + "".join(body[:-1]), "mixed/4096/first")
+        validate_acquisition(plan, parsed, header + "".join(body))
+    except AcquisitionIncomplete as error:
+        assert str(error) == "short_measured_arm" and error.diagnostic_raw_csv
+    else:
+        raise AssertionError("short arm did not close Incomplete")
+    try:
+        parse_case_output(header + "".join(body[:-1]), "mixed/4096/first", plan)
     except HarnessError:
         pass
     else:

@@ -33,6 +33,7 @@ extern int64_t hako_s6c_c_meso(const uint8_t*, uint64_t, const uint8_t*, uint64_
 static const uint64_t SIZES[] = {32, 256, 4096, 1048576};
 static const char* FAMILIES[] = {"ascii", "width2", "width3", "width4", "mixed"};
 static const char* POSITIONS[] = {"first", "middle", "last", "miss"};
+static const uint64_t DEFAULT_SAMPLE_MINIMUM_NS = UINT64_C(30000000);
 
 typedef int64_t (*MesoArmFn)(const uint8_t*, uint64_t, const uint8_t*, uint64_t);
 
@@ -332,7 +333,8 @@ static uint64_t measure(int hako, const MesoFrameV1* frame, uint64_t iterations,
 }
 
 static int run_case(
-    const char* family, uint64_t size, const char* position, const char* robust_orders) {
+    const char* family, uint64_t size, const char* position, const char* robust_orders,
+    uint64_t sample_minimum_ns, uint64_t calibration_target_ns) {
   MesoInputV1 input = build_input(family, size, position);
   MesoFrameV1 frame;
   HakoPromotionTestWireV1 subject = hako_promotion_test_issue_text_wire_v1(input.subject);
@@ -349,13 +351,20 @@ static int run_case(
   for (;;) {
     hako_ns = measure(1, &frame, iterations, &sink);
     c_ns = measure(0, &frame, iterations, &sink);
-    if (hako_ns >= 30000000 && c_ns >= 30000000) break;
+    if (hako_ns >= sample_minimum_ns && c_ns >= sample_minimum_ns) break;
     if (iterations > UINT64_MAX / 2) return 0;
     iterations *= 2;
   }
   for (unsigned warmup = 0; warmup < 10; warmup++) {
     (void)measure(warmup & 1, &frame, iterations, &sink);
     (void)measure(!(warmup & 1), &frame, iterations, &sink);
+  }
+  for (;;) {
+    hako_ns = measure(1, &frame, iterations, &sink);
+    c_ns = measure(0, &frame, iterations, &sink);
+    if (hako_ns >= calibration_target_ns && c_ns >= calibration_target_ns) break;
+    if (iterations > UINT64_MAX / 2) return 0;
+    iterations *= 2;
   }
   for (unsigned sample = 0; sample < 51; sample++) {
     int hako_first = robust_orders ? robust_orders[sample] == 'A' : !(sample & 1);
@@ -366,15 +375,25 @@ static int run_case(
       c_ns = measure(0, &frame, iterations, &sink);
       hako_ns = measure(1, &frame, iterations, &sink);
     }
-    if (robust_orders)
+    if (robust_orders) {
       printf("%s/%" PRIu64 "/%s,%u,%u,%u,%s,1,true,",
              family, size, position, sample, sample / 17, sample % 17,
              hako_first ? "AB" : "BA");
-    printf("%s,%" PRIu64 ",%s,%u,%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
-           ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 "\n",
-           family, size, position, sample, iterations, hako_ns, c_ns, sink,
-           input.scalars, input.histogram[0], input.histogram[1],
-           input.histogram[2], input.histogram[3]);
+      printf("%s,%" PRIu64 ",%s,%u,%" PRIu64 ",%" PRIu64 ",%" PRIu64
+             ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+             ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 "\n",
+             family, size, position, sample, iterations, sample_minimum_ns,
+             calibration_target_ns, hako_ns, c_ns, sink, input.scalars,
+             input.histogram[0], input.histogram[1], input.histogram[2],
+             input.histogram[3]);
+    } else {
+      printf("%s,%" PRIu64 ",%s,%u,%" PRIu64 ",%" PRIu64 ",%" PRIu64
+             ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+             ",%" PRIu64 "\n",
+             family, size, position, sample, iterations, hako_ns, c_ns, sink,
+             input.scalars, input.histogram[0], input.histogram[1],
+             input.histogram[2], input.histogram[3]);
+    }
   }
   hako_text_formal_residence_finish_or_abort_v1(&frame.header);
   hako_promotion_test_drop_wire_v1(subject);
@@ -515,22 +534,30 @@ static int run_counter_preflight(void) {
 int main(int argc, char** argv) {
   if (argc == 2 && !strcmp(argv[1], "--counter-preflight"))
     return run_counter_preflight() ? 0 : 1;
-  if (argc == 6 && !strcmp(argv[1], "--robust-case")) {
-    char* end = NULL;
-    uint64_t size;
+  if (argc == 8 && !strcmp(argv[1], "--robust-case")) {
+    char *end = NULL, *minimum_end = NULL, *target_end = NULL;
+    uint64_t size, sample_minimum_ns, calibration_target_ns;
     int family_ok = 0, position_ok = 0, size_ok = 0;
     for (size_t index = 0; index < 5; index++) family_ok |= !strcmp(argv[2], FAMILIES[index]);
     for (size_t index = 0; index < 4; index++) position_ok |= !strcmp(argv[4], POSITIONS[index]);
     errno = 0;
     size = strtoull(argv[3], &end, 10);
+    sample_minimum_ns = strtoull(argv[6], &minimum_end, 10);
+    calibration_target_ns = strtoull(argv[7], &target_end, 10);
     for (size_t index = 0; index < 4; index++) size_ok |= size == SIZES[index];
-    if (!family_ok || !position_ok || !size_ok || errno || !end || *end || strlen(argv[5]) != 51)
+    if (!family_ok || !position_ok || !size_ok || argv[6][0] == '-' ||
+        argv[7][0] == '-' || errno || !end || *end ||
+        !minimum_end || *minimum_end || !target_end || *target_end ||
+        !sample_minimum_ns || calibration_target_ns <= sample_minimum_ns ||
+        strlen(argv[5]) != 51)
       return 2;
     for (size_t index = 0; index < 51; index++)
       if (argv[5][index] != 'A' && argv[5][index] != 'B') return 2;
     puts("case,slot,block,block_slot,order,attempt,oracle_equal,family,size,position,"
-         "sample,iterations,hako_ns,c_ns,sink,scalars,width1,width2,width3,width4");
-    return run_case(argv[2], size, argv[4], argv[5]) ? 0 : 1;
+         "sample,iterations,sample_minimum_ns,calibration_target_ns,hako_ns,c_ns,"
+         "sink,scalars,width1,width2,width3,width4");
+    return run_case(argv[2], size, argv[4], argv[5], sample_minimum_ns,
+                    calibration_target_ns) ? 0 : 1;
   }
   if (argc != 1) {
     const char *arm = NULL, *case_name = NULL, *iterations_text = NULL;
@@ -554,6 +581,7 @@ int main(int argc, char** argv) {
   for (size_t family = 0; family < 5; family++)
     for (size_t size = 0; size < 4; size++)
       for (size_t position = 0; position < 4; position++)
-        if (!run_case(FAMILIES[family], SIZES[size], POSITIONS[position], NULL)) return 1;
+        if (!run_case(FAMILIES[family], SIZES[size], POSITIONS[position], NULL,
+                      DEFAULT_SAMPLE_MINIMUM_NS, DEFAULT_SAMPLE_MINIMUM_NS)) return 1;
   return 0;
 }

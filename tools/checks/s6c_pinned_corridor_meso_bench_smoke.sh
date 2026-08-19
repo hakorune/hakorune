@@ -33,10 +33,30 @@ CARGO_BUILD_JOBS=4 cargo build --manifest-path "$ROOT_DIR/Cargo.toml" --profile 
 "$CLANG_CMD" -O3 -fno-lto -c "$REFERENCE" -o "$TEMP_DIR/reference.o"
 "$CLANG_CMD" -O3 -fno-lto -no-pie "$BENCH" "$TEMP_DIR/reference.o" "$TEMP_DIR/meso.o" \
   -L"$ROOT_DIR/target/quick" -lnyash_kernel -lpthread -ldl -lm -o "$TEMP_DIR/meso-bench"
-if "$TEMP_DIR/meso-bench" --robust-case mixed 4096 first short \
+if "$TEMP_DIR/meso-bench" --robust-case mixed 4096 first short 30000000 60000000 \
     >"$TEMP_DIR/robust-short.stdout" 2>"$TEMP_DIR/robust-short.stderr"; then
   echo "[$TAG] ERROR: short robust schedule accepted" >&2; exit 1
 fi
+ROBUST_ORDERS="$(python3 - <<'PY'
+print('AB' * 25 + 'A')
+PY
+)"
+taskset -c "$(python3 - <<'PY'
+allowed = open('/proc/self/status').read().split('Cpus_allowed_list:\t', 1)[1].splitlines()[0]
+print(allowed.split(',', 1)[0].split('-', 1)[0])
+PY
+)" "$TEMP_DIR/meso-bench" --robust-case ascii 32 first "$ROBUST_ORDERS" \
+  30000000 60000000 >"$TEMP_DIR/robust-valid.csv"
+python3 - "$TEMP_DIR/robust-valid.csv" <<'PY'
+import csv, sys
+rows = list(csv.DictReader(open(sys.argv[1])))
+if len(rows) != 51:
+    raise SystemExit('post-warm calibration: expected 51 samples')
+if any(int(row['sample_minimum_ns']) != 30_000_000 or
+       int(row['calibration_target_ns']) != 60_000_000 or
+       min(int(row['hako_ns']), int(row['c_ns'])) < 30_000_000 for row in rows):
+    raise SystemExit('post-warm calibration: timing contract drift')
+PY
 python3 - "$TEMP_DIR/meso-bench" "$TEMP_DIR/alignment.json" <<'PY'
 import hashlib, json, pathlib, re, subprocess, sys
 binary, output = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
@@ -83,7 +103,8 @@ python3 "$VALIDATOR" --csv "$TEMP_DIR/meso.csv" --outline-manifest "$TEMP_DIR/ou
   --report "$TEMP_DIR/evidence.json" \
   --commit "$(git -C "$ROOT_DIR" rev-parse HEAD)" --cpu "$CPU_ID" --toolchain "$TOOLCHAIN"
 expect_reject() {
-  local name="$1" csv="$2" manifest="$3" report="$TEMP_DIR/$name.json"
+  local name="$1" csv="$2" manifest="$3"
+  local report="$TEMP_DIR/$name.json"
   if python3 "$VALIDATOR" --csv "$csv" --outline-manifest "$manifest" \
       --binary "$TEMP_DIR/meso-bench" --alignment-manifest "$TEMP_DIR/alignment.json" \
       --report "$report" --commit negative \

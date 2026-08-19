@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pure append-only MeasurementBatch V2 model for S6C wall-clock evidence."""
+"""Pure append-only MeasurementBatch V3 model for S6C wall-clock evidence."""
 
 from __future__ import annotations
 
@@ -10,10 +10,10 @@ from typing import Callable
 from s6c_paired_wallclock_plan import CANONICAL_CASES, seal_plan
 
 
-MANIFEST_SCHEMA = "s6c-meso-wallclock-batch-manifest-v2"
-SESSION_SCHEMA = "s6c-meso-wallclock-session-terminal-v2"
-TERMINAL_SCHEMA = "s6c-meso-wallclock-batch-terminal-v2"
-PROTOCOL = "s6c-meso-wallclock-batch-v2"
+MANIFEST_SCHEMA = "s6c-meso-wallclock-batch-manifest-v3"
+SESSION_SCHEMA = "s6c-meso-wallclock-session-terminal-v3"
+TERMINAL_SCHEMA = "s6c-meso-wallclock-batch-terminal-v3"
+PROTOCOL = "s6c-meso-wallclock-batch-v3"
 SESSION_SLOTS = (0, 1)
 COMPLETE_OUTCOMES = {
     "development_green", "development_red", "development_inconclusive",
@@ -143,16 +143,20 @@ def validate_manifest(manifest: dict[str, object]) -> None:
 def issue_session_terminal(
         manifest: dict[str, object], *, slot: int, terminal_state: str,
         outcome: str | None = None, raw_csv_sha256: str | None = None,
+        diagnostic_raw_csv_sha256: str | None = None,
         reason: str | None = None) -> dict[str, object]:
     """Issue one terminal receipt; partial rows never enter this product."""
     _require_manifest(manifest)
     if slot not in SESSION_SLOTS:
         raise InvalidBatch("foreign session slot")
     if terminal_state == "Complete":
-        if outcome not in COMPLETE_OUTCOMES or not _is_hex(raw_csv_sha256, 64) or reason:
+        if outcome not in COMPLETE_OUTCOMES or not _is_hex(raw_csv_sha256, 64) or \
+                diagnostic_raw_csv_sha256 is not None or reason:
             raise InvalidBatch("complete session payload drift")
     elif terminal_state in {"Incomplete", "IntegrityInvalid"}:
-        if outcome is not None or raw_csv_sha256 is not None or not reason:
+        if outcome is not None or raw_csv_sha256 is not None or not reason or \
+                diagnostic_raw_csv_sha256 is not None and not _is_hex(
+                    diagnostic_raw_csv_sha256, 64):
             raise InvalidBatch("ineligible session carried evidence")
     else:
         raise InvalidBatch("unknown session terminal state")
@@ -165,6 +169,7 @@ def issue_session_terminal(
         "terminal_state": terminal_state,
         "outcome": outcome,
         "raw_csv_sha256": raw_csv_sha256,
+        "diagnostic_raw_csv_sha256": diagnostic_raw_csv_sha256,
         "reason": reason,
     }
     return _seal(body, "receipt_sha256")
@@ -179,6 +184,20 @@ def _require_session(manifest: dict[str, object], receipt: dict[str, object]) ->
             receipt.get("candidate_sha256") != manifest["candidate_sha256"] or \
             receipt.get("session_plan_sha256") != manifest["session_plan_sha256"][slot]:
         raise InvalidBatch("session receipt cohort drift")
+    state = receipt.get("terminal_state")
+    if state == "Complete":
+        if receipt.get("outcome") not in COMPLETE_OUTCOMES or \
+                not _is_hex(receipt.get("raw_csv_sha256"), 64) or \
+                receipt.get("diagnostic_raw_csv_sha256") is not None or \
+                receipt.get("reason") is not None:
+            raise InvalidBatch("complete session receipt payload drift")
+    elif state in {"Incomplete", "IntegrityInvalid"}:
+        diagnostic = receipt.get("diagnostic_raw_csv_sha256")
+        if receipt.get("outcome") is not None or receipt.get("raw_csv_sha256") is not None or \
+                not receipt.get("reason") or diagnostic is not None and not _is_hex(diagnostic, 64):
+            raise InvalidBatch("ineligible session receipt payload drift")
+    else:
+        raise InvalidBatch("unknown session receipt state")
 
 
 def close_batch(
@@ -271,7 +290,8 @@ def self_test() -> None:
 
     incomplete_receipts = [
         issue_session_terminal(first, slot=0, terminal_state="Incomplete",
-                               reason="controller_interrupted"), green[1],
+                               reason="short_measured_arm",
+                               diagnostic_raw_csv_sha256="9" * 64), green[1],
     ]
     incomplete = close_batch(first, incomplete_receipts)
     assert not incomplete["evidence_eligible"] and incomplete["classification"] is None
@@ -289,7 +309,7 @@ def self_test() -> None:
     assert close_batch(successor, mixed)["classification"] == "development_inconclusive"
 
     foreign = json.loads(json.dumps(green[0]))
-    foreign["schema"] = "s6c-meso-paired-wallclock-receipt-v1"
+    foreign["schema"] = "s6c-meso-wallclock-session-terminal-v2"
     tampered = json.loads(json.dumps(first))
     tampered["candidate"]["binary_sha256"] = "e" * 64
     changed_identity = {**identity, "binary_sha256": "e" * 64}
@@ -309,6 +329,10 @@ def self_test() -> None:
         lambda: close_batch(successor, green),
         lambda: issue_session_terminal(first, slot=0, terminal_state="Complete",
                                        outcome="development_green"),
+        lambda: issue_session_terminal(first, slot=0, terminal_state="Incomplete",
+                                       reason="short", raw_csv_sha256="a" * 64),
+        lambda: issue_session_terminal(first, slot=0, terminal_state="Incomplete",
+                                       reason="short", diagnostic_raw_csv_sha256="bad"),
     ):
         _expect_invalid(action)
 
