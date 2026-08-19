@@ -6,27 +6,26 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Add one observation-only `hako_check inspect shape` renderer that
-consumes a valid V1 identity seal and displays independent normalized MIR,
-LLVM, assembly, and optional external-C columns. It draws no cross-layer
-correspondence edges.
-Source authority + canonical issuer: The V1 bundle seal owns candidate and
-artifact identity; each sealed artifact owns its local vocabulary. The pure
-shape parser only recounts those facts, and the CLI renders its one report.
-Non-authority: ValueId, adjacency, labels, count similarity, deltas, C source,
-timings, and report output do not issue provenance, cost attribution, keeper
-selection, measurement authority, or promotion.
-Fail-fast boundary: Validate the V1 seal and every digest first, require one
-unique sealed MIR/LLVM function and assembly symbol at the exact/block/symbol
-mapping floor, and reject missing, duplicate, foreign, tampered, fallback, or
-below-floor inputs before report publication. Optional C requires its own exact
-digest and unique explicit symbol.
-Smallest next slice: `HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0` adds a new pure
-shape child, focused parser/negative tests, and a thin `inspect shape` dispatch
-that keeps the 745-line entry below 760. It does not build C or edit compiler
-artifacts.
-Non-claims: No MIR-edge-to-assembly mapping, compiler provenance, optimization
-suggestion, C build/benchmark, keeper, promotion, or production change.
+Decision: Open one design stop for the real S6C observation ingress. The
+source-less compiler-test `real.json` must not be attached to an arbitrary
+`.hako` file merely to satisfy the V1 source-to-MIR mapping floor.
+Source authority + canonical issuer: The existing caller-zero S6C compiler
+test, its emitted strict MIR JSON, selected final LLVM module, executable, and
+disassembly own their facts. The D0 must name the one issuer that can bind that
+cohort into an inspect identity without inventing source lineage.
+Non-authority: Test names, filenames, manual copies, current target paths,
+`ny_main`, ValueId, assembly similarity, and C/reference artifacts cannot issue
+the missing source/candidate relation.
+Fail-fast boundary: Require one exact producer transaction and artifact cohort
+before a seal; reject manual JSON/source pairing, stale or foreign final IR,
+separately rebuilt executable/assembly, fallback selectors, and any downgrade
+that silently calls source-to-MIR exact.
+Smallest next slice: `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0` performs a
+read-only producer/caller census and accepts one six-line brief before code or
+a real canary run.
+Non-claims: No new semantic receipt, compiler/backend behavior, synthetic
+source, C wrapper, measurement, residual owner, keeper, promotion, or
+production change during the design stop.
 
 ## Decision
 
@@ -112,6 +111,20 @@ bash tools/hako_check.sh inspect route \
   --emit mir,asm,report
 ```
 
+Sealed lowering-shape comparison:
+
+```bash
+bash tools/hako_check.sh inspect shape \
+  --bundle target/hako-inspect/loop \
+  --c-asm target/hako-inspect/reference/c-loop.objdump.txt \
+  --c-symbol c_loop \
+  --out target/hako-inspect/loop-shape
+```
+
+`--c-asm` and `--c-symbol` are optional but must appear together. `hako_check`
+does not build the C reference; it validates its exact symbol, records its
+digest, and labels it `external_reference_only`.
+
 Mark-focused selector:
 
 ```bash
@@ -153,6 +166,9 @@ The selected V1 slice adds one seal written only after validation:
 target/hako-inspect/<region_id>/
   executable.bin              # when backend artifacts were requested
   identity.json               # hako-inspect-bundle-identity-v1, written last
+  shape/shape.json            # hako-lowering-shape-report-v0
+  shape/report.kv
+  shape/summary.md
 ```
 
 `identity.json` binds the digest of every available artifact. A backend-ready
@@ -245,11 +261,21 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   entry/model/identity owners are 745/245/172 lines; seven focused tests and the
   reusable guard are green. Report vocabulary and compiler behavior stay
   unchanged.
-- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0` (**selected BoxCount**): one
+- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0` (**landed BoxCount**): one
   evidence-only report shows MIR blocks/edges/PHIs/calls, LLVM
   blocks/branches/calls/loads, and selected-symbol assembly
   instructions/branches/calls beside an externally supplied C artifact. A thin
   `tools/perf` wrapper may build the reference; hako_check remains the renderer.
+  The entry/model/identity/shape-cli/shape-model owners are
+  753/245/172/107/207 lines. Eleven focused tests, the reusable owner guard,
+  command help, and pointer guard are green.
+- `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0` (**selected design stop**): audit
+  the source-less compiler-test real-candidate producer and choose the smallest
+  honest V1 issuance seam. Do not pair `real.json` with guessed source or relax
+  the shape mapping floor.
+- `HAKO-INSPECT-S6C-SHAPE-CANARY-R0` (**parked behind ingress D0**): produce
+  one real sealed S6C bundle and render its MIR/LLVM/ASM counts beside the
+  existing independent C assembly artifact.
 - `HAKO-INSPECT-PROVENANCE-D0` (**conditional**): open only if block/symbol
   quality cannot identify the residual owner. Any exact MIR-edge-to-assembly
   mapping must be compiler/backend-emitted sidecar evidence; no ValueId,

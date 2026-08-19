@@ -21,10 +21,10 @@ any further residual-performance attribution.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The identity prerequisite is landed. The selected shape renderer may recount only facts from one validated V1 bundle at exact source-to-MIR, block MIR-to-LLVM, and symbol LLVM-to-assembly quality; it must print correspondence/keeper/measurement authority as unclaimed and reject all inferred or fallback selectors."
-work_mode = "fast"
-current_execution_row = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0"
-current_blocker_token = "Add one pure shape parser and thin inspect-shape renderer over a validated shape-ready V1 seal. Report independent MIR/LLVM/selected-symbol ASM counts and an optional separately digest-bound C symbol; reject below-floor mapping, tamper, missing/duplicate selectors, and fallback. Do not infer correspondence, build C, measure, select a keeper, or edit compiler/backend behavior."
+current_design_stop = "The generic V1 shape renderer is landed. The real S6C candidate is emitted by a caller-zero compiler test without an inspect-owned .hako source relation, so its observation ingress must be selected before a canary; never pair real.json with guessed source or weaken the exact/block/symbol floor."
+work_mode = "design_stop"
+current_execution_row = "HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0"
+current_blocker_token = "Audit the real S6C JSON producer, selected final-module/object drivers, source/Facts/Recipe cohort, and existing inspect V1 issuer. Name one honest same-transaction identity seam, fail-fast foreign/stale counterexample, and one bounded next slice before code or canary execution."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -45,11 +45,10 @@ source or lifecycle meaning. Selected Dynamic remains the sole production arm.
 The residual-performance owner remains unissued. MeasurementBatch V3 closed
 development_keeper on WSL but has no native promotion authority; promotion and
 production cutover stay parked. The hako_check inspect owner split is landed:
-the CLI/effect owner is 745 lines, its pure metadata/report and V1 identity
-children are 245 and 172 lines, and one reusable guard runs seven focused tests
-while enforcing the 760-line boundary. The selected row adds the smallest
-normalized lowering-shape renderer without inferring MIR-to-assembly meaning
-or choosing an optimization.
+the inspect entry, metadata, identity, shape CLI, and shape model owners are
+753/245/172/107/207 lines. Eleven focused tests and the reusable guard are
+green. The current design stop selects an honest real-S6C observation ingress;
+the source-less test candidate is not silently attached to guessed source.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -62,10 +61,10 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "V1 bundle identity is landed at 745/245/172 lines with seven focused tests: copied source/MIR/LLVM/executable/assembly digests, explicit unique selectors, derived seal, exact source-emission mapping, and last-written identity are green. The selected shape report remains observation-only."
-next_design_card = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0"
+latest_card_summary = "The observation-only shape renderer is landed at 753/245/172/107/207 lines with eleven tests. It validates one V1 seal and reports independent MIR/LLVM/Hako ASM/optional C ASM counts with correspondence, keeper, and measurement authority unclaimed. Real S6C ingress now stops on its missing inspect-owned source relation."
+next_design_card = "HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0"
 next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-next_execution_card = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0"
+next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -77,6 +76,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0 landed one observation renderer. A validated shape-ready V1 seal feeds independent MIR/LLVM/Hako ASM and optional digest-bound C ASM counts; correspondence, keeper selection, and measurement authority remain explicitly unclaimed. Owners are 753/245/172/107/207 lines; eleven focused tests, command help, owner guard, and pointer guard are green. Compiler/backend and production are unchanged.",
   "2026-08-19: HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0 landed one V1 observation product. The issuer copies and hashes source/MIR/LLVM/executable/assembly, requires explicit unique MIR/LLVM/ASM selectors for backend-ready bundles, derives a path-independent candidate seal, regenerates disassembly from the bound executable, and writes identity.json last. Entry/model/identity owners are 745/245/172 lines; seven focused tests and both reusable/pointer guards are green. Shape counts and compiler behavior are unchanged.",
   "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0 accepted one prerequisite. Current V0 bundles lack digest-bound MIR/LLVM/executable/assembly lineage and exact selectors, so a renderer would overclaim same-candidate identity. The selected BoxCount adds one V1 seal written last; shape counts, C reference tooling, provenance, keeper selection, and production remain parked.",
   "2026-08-19: HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0 landed behavior-neutrally. The prior 916-line owner is now a 692-line CLI/effect facade plus one 245-line pure metadata/report child; five focused tests, py_compile, the reusable owner guard, and current pointer guard are green. CLI, schemas, artifact bytes, mapping claims, compiler/backend, and keeper selection are unchanged.",
@@ -87,6 +87,5 @@ landed_tail = [
   "2026-08-19: S6C MeasurementBatch plan I0 landed pure: one V2 manifest seals the exact WSL candidate, CPU, canonical cases, two fixed session-plan digests, same-candidate predecessor lineage, and threshold. Complete/Incomplete/IntegrityInvalid session and batch terminals reject V1, duplicate, cross-batch, tampered, mismatched-repeat, changed-candidate, and partial-evidence inputs; native authority remains false.",
   "2026-08-19: Performance MeasurementBatch D0 accepted. The one-shot rule was retired as a category error: protocol and each batch stay immutable, but interrupted or confirmatory measurement proceeds through a new append-only batch ID linked to the prior terminal receipt. Same-batch resume, completed-sample replacement, pooling, and best-run selection remain forbidden; compiler/source/MIR/backend and thresholds are unchanged.",
   "2026-08-19: WSL paired-wall-clock DEV R0 closed terminal NoSafeSlice. The sole session-0 invocation traversed part of the canonical case census but ended without its atomic receipt; session 1 and aggregation were not opened. Partial observations issue no development keeper, ratio, owner, native evidence, or backend change, and this sealed plan is not rerun.",
-  "2026-08-19: Clean-pair R0 closed verified NoSafeSlice at 18 rejected/0 accepted. Robust paired wall-clock D0/I0 and harness I1 landed evidence-only: explicit C mode consumes sealed 51-slot schedules, emits raw block/order rows, sessions 0/1 reverse AB excess, and one development-only aggregator retains all pairs. Native promotion and compiler/source/MIR/backend remain unchanged.",
-  "2026-08-19: Native separate-arm PMU foundation and integrity I1 landed evidence-only: direct arm processes and fixed PMU groups remain, while one private frozen binary, full manifest/commit binding, exact corpus constants, getrusage plus single-CPU affinity, balanced cross-run ordering, timeout, and interval/classifier matrices close the audit gaps. The first native JSON is provisional and must be replaced by R0; compiler/source/MIR/ABI, C reference, corpus, and 1.15 threshold remain unchanged."
+  "2026-08-19: Clean-pair R0 closed verified NoSafeSlice at 18 rejected/0 accepted. Robust paired wall-clock D0/I0 and harness I1 landed evidence-only: explicit C mode consumes sealed 51-slot schedules, emits raw block/order rows, sessions 0/1 reverse AB excess, and one development-only aggregator retains all pairs. Native promotion and compiler/source/MIR/backend remain unchanged."
 ]

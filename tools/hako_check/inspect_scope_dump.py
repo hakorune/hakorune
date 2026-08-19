@@ -33,6 +33,7 @@ from inspect_scope_identity import (
     require_unique_llvm_function,
     require_unique_mir_function,
 )
+from inspect_shape import run_shape
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -731,6 +732,13 @@ def build_parser() -> argparse.ArgumentParser:
     diff.add_argument("--after", type=Path, required=True)
     diff.add_argument("--out", type=Path)
     diff.set_defaults(func=bundle_diff)
+
+    shape = sub.add_parser("shape", help="Render sealed MIR/LLVM/ASM shape counts")
+    shape.add_argument("--bundle", type=Path, required=True)
+    shape.add_argument("--c-asm", type=Path)
+    shape.add_argument("--c-symbol")
+    shape.add_argument("--out", type=Path)
+    shape.set_defaults(func=run_shape)
 
     return parser
 
