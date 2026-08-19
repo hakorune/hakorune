@@ -9,6 +9,11 @@
 #define HAKO_PTFC_FINISH_DECL_V1 \
   "declare void @hako_text_formal_residence_finish_or_abort_v1(ptr) nounwind\n"
 
+/* Compile-time benchmark instrumentation only.  Production captures no plan. */
+#ifndef HAKO_LLVMC_PTFC_EXACT_LEAF_EVIDENCE_PLAN_V1
+#define HAKO_LLVMC_PTFC_EXACT_LEAF_EVIDENCE_PLAN_V1(plan) (0)
+#endif
+
 _Static_assert(NYRT_TEXT_RESIDENCE_ENTER_NOUNWIND_V1 == 1,
                "selected Enter projection requires the runtime no-unwind ABI");
 _Static_assert(NYRT_TEXT_RESIDENCE_FINISH_OR_ABORT_NOUNWIND_V1 == 1,
@@ -199,6 +204,9 @@ static int hako_llvmc_ptfc_emit_selected_leaf(
       fprintf(out, "  %%ptfc_lbase_%d_%lld = getelementptr i8, ptr %%ptfc_subject_ptr, i64 %%r%lld\n",
               width, dst, plan->byte_offset);
       for (int byte = 0; byte < width; byte++) {
+        if (byte > 0) {
+          fprintf(out, "ptfc_eq_w%d_b%d_%lld:\n", width, byte, dst);
+        }
         fprintf(out, "  %%ptfc_lptr_%d_%d_%lld = getelementptr i8, ptr %%ptfc_lbase_%d_%lld, i64 %d\n",
                 width, byte, dst, width, dst, byte);
         fprintf(out, "  %%ptfc_rptr_%d_%d_%lld = getelementptr i8, ptr %%ptfc_needle_ptr, i64 %d\n",
@@ -209,23 +217,23 @@ static int hako_llvmc_ptfc_emit_selected_leaf(
                 width, byte, dst, width, byte, dst);
         fprintf(out, "  %%ptfc_c%d_%d_%lld = icmp eq i8 %%ptfc_l%d_%d_%lld, %%ptfc_r%d_%d_%lld\n",
                 width, byte, dst, width, byte, dst, width, byte, dst);
-      }
-      if (width == 1) {
-        fprintf(out, "  br label %%ptfc_eq_merge_%lld\n", dst);
-      } else {
-        fprintf(out, "  %%ptfc_all%d_1_%lld = and i1 %%ptfc_c%d_0_%lld, %%ptfc_c%d_1_%lld\n",
-                width, dst, width, dst, width, dst);
-        for (int byte = 2; byte < width; byte++) {
-          fprintf(out, "  %%ptfc_all%d_%d_%lld = and i1 %%ptfc_all%d_%d_%lld, %%ptfc_c%d_%d_%lld\n",
-                  width, byte, dst, width, byte - 1, dst,
-                  width, byte, dst);
+        if (byte + 1 < width) {
+          fprintf(
+              out,
+              "  br i1 %%ptfc_c%d_%d_%lld, label %%ptfc_eq_w%d_b%d_%lld, label %%ptfc_eq_false_%lld\n",
+              width, byte, dst, width, byte + 1, dst, dst);
+        } else {
+          fprintf(
+              out,
+              "  br i1 %%ptfc_c%d_%d_%lld, label %%ptfc_eq_true_%lld, label %%ptfc_eq_false_%lld\n",
+              width, byte, dst, dst, dst);
         }
-        fprintf(out, "  br label %%ptfc_eq_merge_%lld\n", dst);
       }
     }
     fprintf(out, "ptfc_eq_false_%lld:\n  br label %%ptfc_eq_merge_%lld\n", dst, dst);
-    fprintf(out, "ptfc_eq_merge_%lld:\n  %%r%lld = phi i1 [ false, %%ptfc_eq_false_%lld ], [ %%ptfc_c1_0_%lld, %%ptfc_eq_w1_%lld ], [ %%ptfc_all2_1_%lld, %%ptfc_eq_w2_%lld ], [ %%ptfc_all3_2_%lld, %%ptfc_eq_w3_%lld ], [ %%ptfc_all4_3_%lld, %%ptfc_eq_w4_%lld ]\n",
-            dst, dst, dst, dst, dst, dst, dst, dst, dst, dst, dst);
+    fprintf(out, "ptfc_eq_true_%lld:\n  br label %%ptfc_eq_merge_%lld\n", dst, dst);
+    fprintf(out, "ptfc_eq_merge_%lld:\n  %%r%lld = phi i1 [ false, %%ptfc_eq_false_%lld ], [ true, %%ptfc_eq_true_%lld ]\n",
+            dst, dst, dst, dst);
     return 1;
   }
   return 0;
@@ -242,6 +250,9 @@ static int hako_llvmc_ptfc_try_emit_selected_op(
   if (!strcmp(op, "pinned_text_op")) {
     if (!hako_llvmc_ptfc_nonnegative(instruction, "plan", &plan_index) ||
         plan_index < 0 || plan_index >= candidate->carrier.plan_count ||
+        (candidate->plans[plan_index].kind == HAKO_PTFC_ACCESS_SCALAR_EQ_TEXT &&
+         HAKO_LLVMC_PTFC_EXACT_LEAF_EVIDENCE_PLAN_V1(
+             &candidate->plans[plan_index]) != 0) ||
         !hako_llvmc_ptfc_emit_selected_leaf(out, &candidate->plans[plan_index])) {
       return -1;
     }

@@ -423,8 +423,8 @@ benchmarks, C code, pointers, handles, and the report issue no compiler meaning.
 Fail-fast boundary: One commit/target/LLVM18/config must pass the correctness
 corpus, IR plus final-linked structural-zero, and fixed comparable performance
 thresholds; any drift stops before production without fallback or retry.
-Smallest next slice: S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0 links and runs
-the real candidate against an independent source-equivalent oracle only.
+Smallest next slice: S6C-PINNED-CORRIDOR-MESO-BENCH-R0 measures the S6C scan
+body without Residence Enter/Finish across fixed lengths and match positions.
 Non-claims: No production caller, old-V9 or eq_hh retirement, generic fastpath,
 kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 ```
@@ -440,7 +440,7 @@ kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 | 7 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0` | bounded route | **Landed.** A private child checks the same parsed `LLVMModuleRef` with `LLVMVerifyModule`, exact selected lifecycle/call attributes, and target/layout immediately before the existing sole emit; no pass or module mutation follows closure, and failure publishes no object. |
 | 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | **Landed.** The real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text/retirement-pending, match/miss, and lifecycle cases. Input generations come only from a default-off test issuer in the allocation transaction. |
 | 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | **Landed.** A compile-time-only hook borrows the same closure-verified ModuleRef before sole emit; final IR and linked assembly show only lifecycle calls, entry-only allocation/root projection, exact align-1 byte reads, and zero EH/noalias/wide read/indirect or helper call. Machine layout counts remain non-authority. |
-| 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | Residence-acquired leaf cases compare against an inline same-representation C kernel: ASCII p50 <=1.10, mixed p50 <=1.15, p95 <=1.30. |
+| 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | **Landed.** The exact real plan is projected by the sole production leaf emitter into a separate evidence callable. The first unchanged-threshold run exposed eager post-mismatch loads; `LLVM-PINNED-TEXT-SCALAR-EQ-SHORT-CIRCUIT-I0` made bytes 2..4 reachable only after prior equality. The unchanged 51-pair gate is green (ASCII max p50 1.061, mixed max p50 1.078, all-case max p95 1.113 versus 1.10/1.15/1.30). |
 | 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | S6C scan excluding Enter/Finish covers widths, positions, misses, and 32B..1MiB; 4KiB+ p50 C ratio <=1.15. |
 | 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | ABI+Enter+projection+loop+Finish+Return reports short-input cost and break-even; 4KiB+ p50 <=1.20, p95 <=1.30, and current-route delta separately. |
 | 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | One test/perf-only aggregate consumes exact commit/toolchain/environment/corpus evidence from 8a-e and measures nothing itself; any missing or red leaf means no promotion. |

@@ -280,6 +280,9 @@ Current partitions:
   - consumes the versioned runtime header's no-unwind Enter/Finish contract;
     it emits `nounwind` declarations but never marks Finish `noreturn`,
     `readonly`, `readnone`, `nofree`, or `speculatable`
+  - scalar equality keeps exact align-1 width-1..4 reads and short-circuits
+    after the first mismatch; a default-no-op test hook may lend the accepted
+    real scalar plan to a separate evidence callable through this same emitter
 - `hako_llvmc_ffi_pinned_text_final_module_closure.inc`
   - selected-only, read-only consumer of the already-preflighted candidate and
     the same parsed `LLVMModuleRef`; runs `LLVMVerifyModule`, checks exact
