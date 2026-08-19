@@ -141,8 +141,8 @@ where
                 builder,
                 self.port,
                 &statement,
-                constructor_sources.as_ref(),
-                constructor_batch.as_ref(),
+                constructor_sources,
+                constructor_batch,
             ),
             NormalScriptRuntimeStatementAdmissionV1::NonPlainInstanceFullLifecycle {
                 constructor_sources,
@@ -151,8 +151,8 @@ where
                 builder,
                 self.port,
                 &statement,
-                constructor_sources.as_ref(),
-                constructor_batch.as_ref(),
+                constructor_sources,
+                constructor_batch,
             ),
         }
     }

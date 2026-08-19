@@ -116,6 +116,25 @@ pub(in crate::mir::builder) trait RootCallableCapturePortV1:
         Err("[freeze:contract][mir/instance-constructor-admission/raw-port]".to_owned())
     }
 
+    /// Selected-normal constructors must carry the work-plan-issued linear
+    /// demand ticket into the installed semantic-package adapter. Raw and
+    /// compatibility ports intentionally reject this typed surface.
+    #[allow(clippy::too_many_arguments)]
+    fn lower_normal_instance_constructor_with_demand(
+        &mut self,
+        _builder: &mut super::MirBuilder,
+        _source_key: &super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1,
+        _ticket: super::normal_instance_constructor_admission::InstanceConstructorDemandTicketV1,
+        _params: Vec<String>,
+        _param_decls: Vec<ParamDecl>,
+        _return_type_name: Option<String>,
+        _body: Vec<ASTNode>,
+        _uses: Vec<String>,
+        _attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][mir/instance-constructor-demand/raw-port]".to_owned())
+    }
+
     #[allow(clippy::too_many_arguments)]
     fn lower_cataloged_static_box_method(
         &mut self,

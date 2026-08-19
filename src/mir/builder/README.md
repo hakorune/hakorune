@@ -115,6 +115,17 @@ Builder effects, rejecting duplicate, foreign, swapped, or missing roles. It
 does not select a constructor or replace the later semantic package loan; the
 raw Brand consumer remains parked for that separate cutover.
 
+### Instance-constructor semantic loan consumer (I0)
+
+Selected-normal constructor work now moves one non-Clone demand ticket through
+the capture surface. The installed semantic package loans the matching
+constructor forest by `ConstructorSourceIdV1` only, and the adapter installs a
+request-local callable semantic scope around the existing raw body lowering.
+Immediate and permitted Script-runtime roles may borrow the same immutable
+forest, but each physical ticket is consumed exactly once and completion checks
+manifest exhaustion. Compatibility, RawLegacy, bare/unlocated calls, and the
+legacy `is_brand_declared` route remain outside this consumer row.
+
 ## Reading Order
 
 1. `src/mir/README.md`

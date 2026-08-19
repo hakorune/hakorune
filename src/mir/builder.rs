@@ -105,6 +105,8 @@ mod instance_box_method_batch;
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 mod nested_box_method_source;
 mod normal_instance_constructor_admission;
+mod normal_instance_constructor_demand_loan;
+mod normal_instance_constructor_semantic_scope;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
 mod normal_script_instance_box_transfer;
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer

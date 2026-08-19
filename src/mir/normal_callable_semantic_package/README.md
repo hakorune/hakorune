@@ -257,3 +257,15 @@ resolver owns surrounding expressions without entering the transferred Box.
 Missing, foreign, or extra method/constructor coverage rejects before Builder
 effects. Runtime Box lowering is unchanged, and this row neither consumes Brand
 relations physically nor removes the legacy raw name probe.
+
+## Instance-constructor semantic loan consumer I0 (2026-08-20)
+
+Selected-normal constructor lowering now consumes the work-plan-issued
+`(ConstructorSourceIdV1, InstanceConstructorDemandRoleV1)` ticket by value.
+The installed package loans the matching resolver forest by source ID only;
+the same immutable forest may serve the immediate and one permitted Script
+runtime role. The adapter installs a request-local callable semantic scope
+around the existing raw constructor body and restores the enclosing scope
+afterwards. Manifest exhaustion is checked together with ordinary package
+completion. Compatibility, RawLegacy, unlocated calls, and raw
+`is_brand_declared` routing remain outside this row.

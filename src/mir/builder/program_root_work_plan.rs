@@ -3,8 +3,8 @@ use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_instance_constructor_admission::{
-    InstanceConstructorDemandManifestBuilderV1, InstanceConstructorDemandRoleV1,
-    InstanceConstructorDemandTicketV1, VerifiedInstanceConstructorPhysicalDemandManifestV1,
+    InstanceConstructorDemandExpectationV1, InstanceConstructorDemandManifestBuilderV1,
+    InstanceConstructorDemandRoleV1, VerifiedInstanceConstructorPhysicalDemandManifestV1,
 };
 use super::normal_instance_constructor_admission::{
     NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
@@ -288,7 +288,7 @@ impl PreparedProgramRootWorkPlanV1 {
             ProgramRootWorkPlanAdmissionV1::RawCompatibility => None,
             ProgramRootWorkPlanAdmissionV1::SelectedNormal => Some(demand_manifest.finish()),
         };
-        let actual_tickets = collect_constructor_demand_tickets(&immediate, &runtime);
+        let actual_tickets = collect_constructor_demand_expectations(&immediate, &runtime);
         if let Some(manifest) = constructor_demand_manifest.as_ref() {
             manifest.validate_exact(&actual_tickets)?;
         }
@@ -319,20 +319,20 @@ impl PreparedProgramRootWorkPlanV1 {
     }
 }
 
-fn collect_constructor_demand_tickets(
+fn collect_constructor_demand_expectations(
     immediate: &[PreparedProgramRootImmediateWorkV1],
     runtime: &PreparedProgramRootRuntimeWorkV1,
-) -> Vec<InstanceConstructorDemandTicketV1> {
+) -> Vec<InstanceConstructorDemandExpectationV1> {
     let mut tickets = Vec::new();
     for work in immediate {
         if let PreparedProgramRootImmediateWorkV1::InstanceBox(work) = work {
             if let Some(sources) = work.normal_constructor_sources.as_ref() {
-                tickets.extend(sources.demand_tickets());
+                tickets.extend(sources.demand_expectations());
             }
         }
     }
     if let PreparedProgramRootRuntimeWorkV1::SelectedNormal(work) = runtime {
-        tickets.extend(work.constructor_demand_tickets());
+        tickets.extend(work.constructor_demand_expectations());
     }
     tickets
 }
@@ -412,7 +412,7 @@ impl PreparedProgramRootInstanceBoxWorkV1 {
                 self.constructors,
             );
         match self.normal_constructor_sources {
-            Some(sources) => lifecycle.lower_normal_root_with_port_v1(builder, callables, &sources),
+            Some(sources) => lifecycle.lower_normal_root_with_port_v1(builder, callables, sources),
             None => lifecycle.lower_root_with_port_v1(builder, callables),
         }
     }
@@ -584,7 +584,7 @@ fn classify_statement(
                         fields: fields.clone(),
                         field_decls: field_decls.clone(),
                         constructors,
-                        normal_constructor_sources: normal_constructor_sources.clone(),
+                        normal_constructor_sources,
                         init_fields: init_fields.clone(),
                         weak_fields: weak_fields.clone(),
                     },

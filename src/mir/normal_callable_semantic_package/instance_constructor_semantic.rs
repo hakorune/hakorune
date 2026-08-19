@@ -2,6 +2,8 @@
 
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
+use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
+use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
     ResolveOwnerForestErrorV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
@@ -17,6 +19,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     ResolverDeferred,
     MissingRoot,
     RootProfileMismatch,
+    SourceProjection(String),
 }
 
 #[derive(Debug)]
@@ -26,6 +29,7 @@ pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     box_name: Box<str>,
     key: Box<str>,
     forest: VerifiedSemanticOwnerForestV1,
+    projection: VerifiedSourceProjectionV1,
 }
 
 #[derive(Debug)]
@@ -59,6 +63,49 @@ impl VerifiedInstanceConstructorSemanticRowV1 {
     pub(crate) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
         &self.forest
     }
+
+    pub(crate) fn lowering_input<'a>(
+        &'a self,
+        source: &'a ASTNode,
+    ) -> Result<ResolvedFunctionLoweringInputV1<'a>, String> {
+        let ASTNode::Program { statements, .. } = source else {
+            return Err("[freeze:contract][mir/instance-constructor-semantic/program]".to_owned());
+        };
+        let Some(ASTNode::BoxDeclaration {
+            name, constructors, ..
+        }) = statements.get(self.final_box_ordinal as usize)
+        else {
+            return Err("[freeze:contract][mir/instance-constructor-semantic/box]".to_owned());
+        };
+        if name != self.box_name.as_ref() {
+            return Err("[freeze:contract][mir/instance-constructor-semantic/box-name]".to_owned());
+        }
+        let Some(function) = constructors.get(self.key.as_ref()) else {
+            return Err("[freeze:contract][mir/instance-constructor-semantic/key]".to_owned());
+        };
+        let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+            function,
+            &self.forest,
+            &self.projection,
+        )
+        .map_err(|error| {
+            format!("[freeze:contract][mir/instance-constructor-semantic/input] {error:?}")
+        })?;
+        let [root] = self.forest.roots() else {
+            return Err("[freeze:contract][mir/instance-constructor-semantic/root]".to_owned());
+        };
+        if !std::ptr::eq(
+            self.projection
+                .owner_root(source, *root)
+                .map_err(|error| error.to_string())?,
+            function,
+        ) {
+            return Err(
+                "[freeze:contract][mir/instance-constructor-semantic/root-identity]".to_owned(),
+            );
+        }
+        Ok(input)
+    }
 }
 
 pub(crate) fn issue_instance_constructor_semantic_batch_v1(
@@ -84,6 +131,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     syntax.final_box_ordinal(),
                     Box::<str>::from(syntax.box_name()),
                     Box::<str>::from(syntax.key()),
+                    syntax.declaration(),
                     view,
                 ));
                 views.push(view);
@@ -106,7 +154,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
             }
             let mut rows = Vec::with_capacity(forests.len());
-            for ((source_id, final_box_ordinal, box_name, key, view), forest) in
+            for ((source_id, final_box_ordinal, box_name, key, declaration, view), forest) in
                 candidates.into_iter().zip(forests)
             {
                 let [root] = forest.roots() else {
@@ -125,12 +173,21 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 {
                     return Err(InstanceConstructorSemanticBatchIssueV1::RootProfileMismatch);
                 }
+                let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+                    declaration,
+                    &forest,
+                    view.root_profile(),
+                )
+                .map_err(|error| {
+                    InstanceConstructorSemanticBatchIssueV1::SourceProjection(error.to_string())
+                })?;
                 rows.push(VerifiedInstanceConstructorSemanticRowV1 {
                     source_id,
                     final_box_ordinal,
                     box_name,
                     key,
                     forest,
+                    projection,
                 });
             }
             Ok(VerifiedInstanceConstructorSemanticBatchV1 {

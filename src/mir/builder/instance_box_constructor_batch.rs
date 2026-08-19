@@ -138,7 +138,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
         self,
         builder: &mut MirBuilder,
         port: &mut Port,
-        sources: &NormalInstanceConstructorSourceBatchV1,
+        sources: NormalInstanceConstructorSourceBatchV1,
     ) -> Result<(), String>
     where
         Port: RootCallableCapturePortV1,
@@ -150,7 +150,12 @@ impl PreparedInstanceBoxConstructorBatchV1 {
         if constructors.len() != sources.sources().len() {
             return Err("[freeze:contract][mir/instance-constructor-admission/count]".to_owned());
         }
-        for (constructor, source_key) in constructors.into_vec().into_iter().zip(sources.sources())
+        let ticketed_sources = sources.into_ticketed_sources()?;
+        if constructors.len() != ticketed_sources.len() {
+            return Err("[freeze:contract][mir/instance-constructor-admission/count]".to_owned());
+        }
+        for (constructor, (source_key, ticket)) in
+            constructors.into_vec().into_iter().zip(ticketed_sources)
         {
             if constructor.parser_constructor_key != source_key.parser_constructor_key()
                 || owner != source_key.box_name()
@@ -159,9 +164,10 @@ impl PreparedInstanceBoxConstructorBatchV1 {
                     "[freeze:contract][mir/instance-constructor-admission/source-drift]".to_owned(),
                 );
             }
-            port.lower_normal_instance_constructor(
+            port.lower_normal_instance_constructor_with_demand(
                 builder,
-                source_key,
+                &source_key,
+                ticket,
                 constructor.params,
                 constructor.param_decls,
                 constructor.return_type_name,

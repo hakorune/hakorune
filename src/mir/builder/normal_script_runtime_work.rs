@@ -289,8 +289,8 @@ pub(super) fn lower_instance_runtime_prefix_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statement: &ASTNode,
-    constructor_sources: Option<&NormalInstanceConstructorSourceBatchV1>,
-    constructor_batch: Option<&PreparedInstanceBoxConstructorBatchV1>,
+    constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
+    constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
 ) -> Result<ValueId, String>
 where
     Port: RootCallableCapturePortV1,
@@ -322,7 +322,7 @@ where
         field_decls,
         init_fields,
         weak_fields,
-        constructor_batch.clone(),
+        constructor_batch,
     )
     .lower_normal_runtime_prefix_with_port_v1(builder, port, constructor_sources)?;
     emit_void(builder)
@@ -332,8 +332,8 @@ pub(super) fn lower_nonplain_instance_runtime_lifecycle_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     statement: &ASTNode,
-    constructor_sources: Option<&NormalInstanceConstructorSourceBatchV1>,
-    constructor_batch: Option<&PreparedInstanceBoxConstructorBatchV1>,
+    constructor_sources: Option<NormalInstanceConstructorSourceBatchV1>,
+    constructor_batch: Option<PreparedInstanceBoxConstructorBatchV1>,
 ) -> Result<ValueId, String>
 where
     Port: RootCallableCapturePortV1,
@@ -367,7 +367,7 @@ where
         field_decls,
         init_fields,
         weak_fields,
-        constructor_batch.clone(),
+        constructor_batch,
     )
     .lower_normal_root_with_port_v1(builder, port, constructor_sources)?;
     emit_void(builder)

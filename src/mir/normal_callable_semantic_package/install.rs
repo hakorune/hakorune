@@ -318,7 +318,7 @@ pub(crate) struct PreparedNormalCallableSemanticPackageInstallV1<'context> {
 /// slot.  It records selected-key consumption and must be completed before
 /// the outer lowering transaction can close.
 pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
-    installed: &'package InstalledNormalCallableSemanticPackageV1,
+    pub(super) installed: &'package InstalledNormalCallableSemanticPackageV1,
     consumed: BTreeSet<SelectedNormalCallableKeyV1>,
     s6c_child_consumed: bool,
 }

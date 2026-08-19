@@ -17,6 +17,8 @@ use super::callable_declaration_catalog::{
 use super::main_expansion::VerifiedMainStaticChildV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
+use super::normal_instance_constructor_demand_loan::InstanceConstructorDemandConsumptionV1;
+use super::normal_instance_constructor_semantic_scope::with_constructor_semantic_scope;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
@@ -38,6 +40,7 @@ pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
     inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
     package: NormalCallableSemanticPackagePortV1<'package>,
     target_capability: Option<&'target PinnedTextCompileTargetCapabilityV1>,
+    constructor_demand: InstanceConstructorDemandConsumptionV1,
 }
 
 impl<'package, 'loan, 'port, 'collector, 'target>
@@ -47,15 +50,18 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
         package: NormalCallableSemanticPackagePortV1<'package>,
         target_capability: Option<&'target PinnedTextCompileTargetCapabilityV1>,
+        constructor_manifest: Option<super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalDemandManifestV1>,
     ) -> Self {
         Self {
             inner,
             package,
             target_capability,
+            constructor_demand: InstanceConstructorDemandConsumptionV1::new(constructor_manifest),
         }
     }
 
     pub(super) fn complete(self) -> Result<(), String> {
+        self.constructor_demand.complete()?;
         self.package.complete().map_err(package_issue)
     }
 
@@ -381,6 +387,46 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 attrs,
             )
             .map_err(|error| error.to_string())
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn lower_normal_instance_constructor_with_demand(
+        &mut self,
+        builder: &mut MirBuilder,
+        source_key: &super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1,
+        ticket: super::normal_instance_constructor_admission::InstanceConstructorDemandTicketV1,
+        params: Vec<String>,
+        param_decls: Vec<ParamDecl>,
+        return_type_name: Option<String>,
+        body: Vec<ASTNode>,
+        uses: Vec<String>,
+        attrs: DeclarationAttrs,
+    ) -> Result<(), String> {
+        if !ticket.source_id().same_as(source_key.source_id()) {
+            return Err(
+                "[freeze:contract][mir/instance-constructor-demand/source-id-drift]".to_owned(),
+            );
+        }
+        let source_id = ticket.source_id().clone();
+        self.constructor_demand.consume(ticket)?;
+        let inner = &mut *self.inner;
+        self.package
+            .with_instance_constructor_lowering_input(&source_id, |input| {
+                with_constructor_semantic_scope(inner, input, |inner| {
+                    inner
+                        .lower_normal_instance_constructor_v1(
+                            builder,
+                            source_key,
+                            params,
+                            param_decls,
+                            return_type_name,
+                            body,
+                            uses,
+                            attrs,
+                        )
+                        .map_err(|error| error.to_string())
+                })
+            })?
     }
 
     #[allow(clippy::too_many_arguments)]

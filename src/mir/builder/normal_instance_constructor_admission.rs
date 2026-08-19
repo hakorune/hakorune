@@ -17,8 +17,9 @@ use crate::parser::ConstructorSourceIdV1;
 #[path = "normal_instance_constructor_demand_manifest.rs"]
 mod demand_manifest;
 pub(super) use demand_manifest::{
-    InstanceConstructorDemandManifestBuilderV1, InstanceConstructorDemandRoleV1,
-    InstanceConstructorDemandTicketV1, VerifiedInstanceConstructorPhysicalDemandManifestV1,
+    InstanceConstructorDemandExpectationV1, InstanceConstructorDemandManifestBuilderV1,
+    InstanceConstructorDemandRoleV1, InstanceConstructorDemandTicketV1,
+    VerifiedInstanceConstructorPhysicalDemandManifestV1,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -178,10 +179,12 @@ impl NormalInstanceConstructorSourceKeyV1 {
 /// One immutable source occurrence for every constructor row that survived the
 /// parser's constructor-map normalization.  Cloning this receipt transports
 /// the same source identity to Script runtime work; it does not issue another
-/// source occurrence.
-#[derive(Clone, Debug)]
+/// source occurrence. Physical demand tickets are move-only and are consumed
+/// by the selected-normal adapter.
+#[derive(Debug)]
 pub(in crate::mir::builder) struct NormalInstanceConstructorSourceBatchV1 {
     sources: Box<[NormalInstanceConstructorSourceKeyV1]>,
+    tickets: Box<[InstanceConstructorDemandTicketV1]>,
     role: InstanceConstructorDemandRoleV1,
 }
 
@@ -203,8 +206,13 @@ impl NormalInstanceConstructorSourceBatchV1 {
                 row.key.as_ref(),
             ));
         }
+        let tickets = sources
+            .iter()
+            .map(|source| InstanceConstructorDemandTicketV1::issue(source.source_id(), role))
+            .collect();
         Ok(Self {
             sources: sources.into_boxed_slice(),
+            tickets,
             role,
         })
     }
@@ -217,11 +225,41 @@ impl NormalInstanceConstructorSourceBatchV1 {
         self.role
     }
 
-    pub(in crate::mir::builder) fn demand_tickets(&self) -> Vec<InstanceConstructorDemandTicketV1> {
+    pub(in crate::mir::builder) fn demand_expectations(
+        &self,
+    ) -> Vec<InstanceConstructorDemandExpectationV1> {
         self.sources
             .iter()
-            .map(|source| InstanceConstructorDemandTicketV1::new(source.source_id(), self.role))
+            .map(|source| {
+                InstanceConstructorDemandExpectationV1::new(source.source_id(), self.role)
+            })
             .collect()
+    }
+
+    pub(in crate::mir::builder) fn into_ticketed_sources(
+        self,
+    ) -> Result<
+        Vec<(
+            NormalInstanceConstructorSourceKeyV1,
+            InstanceConstructorDemandTicketV1,
+        )>,
+        String,
+    > {
+        let Self {
+            sources,
+            tickets,
+            role: _,
+        } = self;
+        if sources.len() != tickets.len() {
+            return Err(
+                "[freeze:contract][mir/instance-constructor-demand/source-ticket-count]".to_owned(),
+            );
+        }
+        Ok(sources
+            .into_vec()
+            .into_iter()
+            .zip(tickets.into_vec())
+            .collect())
     }
 
     #[cfg(test)]
@@ -231,19 +269,25 @@ impl NormalInstanceConstructorSourceBatchV1 {
         parser_constructor_keys: impl IntoIterator<Item = String>,
         role: InstanceConstructorDemandRoleV1,
     ) -> Self {
+        let sources = parser_constructor_keys
+            .into_iter()
+            .enumerate()
+            .map(|(ordinal, key)| {
+                NormalInstanceConstructorSourceKeyV1::from_physical_source(
+                    ConstructorSourceIdV1::test_new(ordinal as u32),
+                    statement_index,
+                    box_name,
+                    &key,
+                )
+            })
+            .collect::<Vec<_>>();
+        let tickets = sources
+            .iter()
+            .map(|source| InstanceConstructorDemandTicketV1::issue(source.source_id(), role))
+            .collect();
         Self {
-            sources: parser_constructor_keys
-                .into_iter()
-                .enumerate()
-                .map(|(ordinal, key)| {
-                    NormalInstanceConstructorSourceKeyV1::from_physical_source(
-                        ConstructorSourceIdV1::test_new(ordinal as u32),
-                        statement_index,
-                        box_name,
-                        &key,
-                    )
-                })
-                .collect(),
+            sources: sources.into_boxed_slice(),
+            tickets,
             role,
         }
     }
@@ -418,7 +462,7 @@ mod tests {
         );
 
         let manifest = builder.finish();
-        let swapped = vec![InstanceConstructorDemandTicketV1::new(
+        let swapped = vec![InstanceConstructorDemandExpectationV1::new(
             &ConstructorSourceIdV1::test_new(0),
             InstanceConstructorDemandRoleV1::ScriptRuntimePrefix,
         )];

@@ -446,7 +446,12 @@ fn package_adapter_selected_dynamic_production_branch_uses_same_candidate_collec
             );
         let package_port = installed.begin_lowering(&context).expect("loan");
         let mut adapter = crate::mir::builder::normal_callable_semantic_loan_port::
-            NormalCallableSemanticPackagePortAdapterV1::new(&mut raw_port, package_port, None);
+            NormalCallableSemanticPackagePortAdapterV1::new(
+                &mut raw_port,
+                package_port,
+                None,
+                None,
+            );
         use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;
         adapter
             .lower_cataloged_static_box_method(

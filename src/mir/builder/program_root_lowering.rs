@@ -239,6 +239,8 @@ impl MirBuilder {
     ) -> Result<ValueId, String> {
         match callable_mode {
             NormalCallableSemanticPackageMode::Installed(package) => {
+                let mut work = work;
+                let constructor_manifest = work.constructor_demand_manifest.take();
                 let package_port = package.begin_lowering(&self.comp_ctx).map_err(|error| {
                     format!("[freeze:contract][mir/callable-semantic-package/open] {error:?}")
                 })?;
@@ -246,6 +248,7 @@ impl MirBuilder {
                     port,
                     package_port,
                     target_capability,
+                    constructor_manifest,
                 );
                 let result = self.lower_prepared_program_root_with_callable_port_v1(
                     work,

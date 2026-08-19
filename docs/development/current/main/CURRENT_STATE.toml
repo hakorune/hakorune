@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "INSTANCE-CONSTRUCTOR-SEMANTIC-CONSUMER-D0"
+current_design_stop = "BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D3"
 work_mode = "design_stop"
-current_execution_row = "INSTANCE-CONSTRUCTOR-SEMANTIC-CONSUMER-D0"
-current_blocker_token = "The exact physical-demand manifest is landed; name the single semantic loan consumer across every admitted constructor family before raw Brand cutover."
+current_execution_row = "BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D3"
+current_blocker_token = "Selected-normal constructor semantic loans are closed; remaining Compatibility, Deferred, RawLegacy, and unlocated admissions still need their own authority before any global raw Brand retirement."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -78,8 +78,7 @@ preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the
 same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent
-ASM totals. The external C report is landed without changing the Hako seal, and
-observation UX returns to the Script ExistingRootLower production frontier.
+ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRootLower production frontier.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -92,8 +91,8 @@ current_execution_design = "docs/development/current/main/investigations/brand-i
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "brand-instance-constructor-source-relation-d0"
 latest_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
-latest_card_summary = "Instance-Box transfer, constructor semantic ownership, and exact immediate/runtime demand-role manifest are landed; the next design stop names the semantic loan consumer before raw Brand cutover."
-next_design_card = "INSTANCE-CONSTRUCTOR-SEMANTIC-CONSUMER-D0"
+latest_card_summary = "Selected-normal instance-constructor semantic loan consumer I0 is landed and verified; global raw Brand retirement remains parked behind relationless admissions."
+next_design_card = "BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D3"
 next_design_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
 next_execution_card = "none"
 next_execution_card_path = ""
@@ -107,6 +106,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0 landed one selected-normal BoxShape. App, plain-runtime, and nonplain-runtime constructor tickets now borrow the package-issued forest by exact ConstructorSourceId, consume each role once, scope the existing raw body, and require manifest plus package completion; Compatibility/RawLegacy and global raw Brand retirement remain parked.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-PHYSICAL-DEMAND-MANIFEST-I0 landed one BoxShape. The selected-normal work plan issues exact ImmediateDeclaration/ScriptRuntimePrefix/ScriptRuntimeFullLifecycle tickets keyed by parser ConstructorSourceId and validates the complete immediate/runtime set before Builder effects; semantic loan and raw Brand consumption remain unopened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-PHYSICAL-SOURCE-TRANSFER-P0 landed one BoxShape. The installed parser-issued ConstructorSourceId is validated against final Box/name/key/function rows and carried unchanged into both immediate and Script-runtime physical demands; raw Brand consumption remains unopened.",
   "2026-08-20: SCRIPT-INSTANCE-BOX-TRANSFERRED-BOUNDARY-I0 landed one BoxCount. Exact installed method plus parser-constructor semantic coverage now issues one transferred Script boundary; surrounding Script resolves without entering the Box, and physical Brand consumption remains unopened.",

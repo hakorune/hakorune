@@ -92,7 +92,7 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
         self,
         builder: &mut MirBuilder,
         port: &mut Port,
-        constructor_sources: &NormalInstanceConstructorSourceBatchV1,
+        constructor_sources: NormalInstanceConstructorSourceBatchV1,
     ) -> Result<(), String>
     where
         Port: RootCallableCapturePortV1,
@@ -134,7 +134,7 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
         self,
         builder: &mut MirBuilder,
         port: &mut Port,
-        constructor_sources: &NormalInstanceConstructorSourceBatchV1,
+        constructor_sources: NormalInstanceConstructorSourceBatchV1,
     ) -> Result<(), String>
     where
         Port: RootCallableCapturePortV1,

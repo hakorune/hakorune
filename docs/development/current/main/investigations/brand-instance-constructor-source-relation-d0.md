@@ -232,12 +232,33 @@ diff check, and all touched line-count fences are green.
 
 ## INSTANCE-CONSTRUCTOR-SEMANTIC-CONSUMER-D0
 
-Decision: Audit one exact physical loan from the landed constructor semantic row to every immediate/runtime constructor demand; do not switch the raw consumer yet.
-Source authority + canonical issuer: Parser `ConstructorSourceIdV1` and its package-owned resolved forest remain the sole occurrence/owner authority; the constructor port may only borrow that exact row.
-Non-authority: `NormalInstanceConstructorSourceKeyV1`, Box/key spelling, demand order, symbols, AST lookup, and `is_brand_declared` cannot pair a physical demand to semantics.
-Fail-fast boundary: Immediate and runtime duplicate demands must borrow the same source row; missing, foreign, duplicated, or mismatched source identity rejects before constructor child lowering without raw fallback.
-Smallest next slice: Read-only census of `NormalInstanceConstructorSourceBatchV1` through `RootCallableCapturePortV1::lower_normal_instance_constructor`, then one bounded consumer brief or `NoSafeSlice`.
-Non-claims: No consumer cutover, raw-probe deletion, Compatibility/RawLegacy repair, unwrap activation, nominal Brand representation, runtime, or backend change.
+Decision: Accept one behavior-preserving BoxShape consumer: every selected-normal constructor demand must use one move-only physical ticket to borrow its existing semantic row; raw Brand routing stays unchanged.
+Source authority + canonical issuer: `ConstructorSourceIdV1` selects the resolver-issued `VerifiedInstanceConstructorSemanticRowV1`; the work-plan `VerifiedInstanceConstructorPhysicalDemandManifestV1` is the sole issuer of demand role/cardinality.
+Non-authority: `NormalInstanceConstructorSourceKeyV1`, box/key/name, batch order, repeated lookup, `CompilationContext::brand_decls`, and raw `is_brand_declared` cannot select or reissue a semantic row.
+Fail-fast boundary: consume exactly one expected `(source_id, role)` ticket, loan one matching forest, install/restore its request-local semantic scope before body effects, and reject missing/foreign/duplicate/swapped tickets or rows with no raw fallback.
+Smallest next slice: `INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0` — pass the non-Clone ticket through a focused capture trait, add adapter-owned manifest exhaustion, exact source-ID loan, and constructor scope around the existing raw body lowering.
+Non-claims: No raw Brand-probe deletion, Compatibility/RawLegacy/Deferred closure, bare or unlocated `FunctionCall` coverage, unwrap activation, nominal Brand representation, runtime ABI, or backend change.
+
+Consumer contract:
+
+- App selected-normal instance Box consumes `ImmediateDeclaration` exactly once.
+- Non-app plain consumes `ImmediateDeclaration` plus `ScriptRuntimePrefix` exactly once;
+  non-plain uses `ScriptRuntimeFullLifecycle` instead. Both roles borrow the same
+  immutable semantic forest and never reissue it.
+- Zero-constructor manifests complete with zero consumption. A missing, foreign,
+  duplicate, already-consumed, or role-swapped ticket rejects before constructor
+  observation/body effects. Compatibility and RawLegacy never receive typed tickets.
+- Adapter completion requires both demand-manifest exhaustion and the existing
+  callable-package completion. The enclosing Script/callable semantic scope must
+  be restored after each constructor demand.
+
+### D0 closeout
+
+Accepted. Worker audits agree that the exact selected-normal admissions are App
+Immediate, plain Immediate+Prefix, and non-plain Immediate+FullLifecycle; raw and
+Compatibility lanes issue no typed ticket. The next execution row is the bounded
+consumer I0 above. Global raw Brand retirement remains blocked until all
+relationless admissions (including bare/unlocated calls) have their own authority.
 
 ## INSTANCE-CONSTRUCTOR-PHYSICAL-SOURCE-TRANSFER-P0
 
@@ -343,3 +364,67 @@ fallback. The focused transfer and admission tests, reusable guard, formatter,
 quick check, pointer guard, diff check, README, and line-count fences are
 green. The semantic package loan and raw Brand consumer remain unopened; the
 next row is the consumer design stop.
+
+## INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0
+
+Decision: Accept one selected-normal BoxShape consumer: physical constructor
+work borrows the existing semantic owner through the exact demand ticket; the
+raw Brand name probe remains unchanged.
+Source authority + canonical issuer: `ConstructorSourceIdV1` selects the
+package-issued `VerifiedInstanceConstructorSemanticRowV1`; the physical
+demand manifest alone issues role/cardinality tickets.
+Non-authority: Box/key/name, batch order, repeated lookup, AST rematching,
+`CompilationContext::brand_decls`, and `is_brand_declared` cannot select or
+reissue a semantic row.
+Fail-fast boundary: a non-Clone ticket is consumed once, the matching forest
+scope is installed before constructor observation/body effects, and missing,
+foreign, duplicate, swapped, or unconsumed tickets reject with no raw fallback.
+Smallest next slice: thread the ticket through the existing capture trait,
+loan the exact row by source ID in a package child, scope the existing raw body,
+and require manifest exhaustion plus package completion.
+Non-claims: No global raw Brand retirement, Compatibility/RawLegacy/Deferred
+closure, bare/unlocated FunctionCall coverage, unwrap, nominal Brand typing,
+runtime ABI, or backend change.
+
+Acceptance:
+
+- App uses only `ImmediateDeclaration`; plain Script uses Immediate+Prefix;
+  non-plain uses Immediate+FullLifecycle. Each role is consumed exactly once,
+  while repeated roles borrow the same immutable forest.
+- Missing/foreign/duplicate/reused/swapped tickets, source-key drift, and
+  missing semantic rows reject before body effects. Empty manifests complete.
+- Adapter completion requires demand-manifest exhaustion and existing package
+  completion. Compatibility/RawLegacy cannot receive typed tickets.
+- Focused admission, transfer, and demand-loan tests plus the reusable guard,
+  formatter, quick check, pointer guard, and line-count fences are green.
+
+### I0 closeout
+
+Implemented and closed on 2026-08-20. `cargo check --profile quick`, the
+focused constructor admission/transfer/demand-loan tests, formatter, pointer
+guard, diff check, and `script_instance_box_transfer_guard.sh` are green. The
+existing broad semantic-package and MIR Brand-constructor suites still report
+the known pre-I0 `ConstructorSourceMissing`/`cohort-missing` baseline because
+their fixtures do not provide the landed constructor semantic cohort; this
+slice does not widen those fixtures or reinterpret the red. No raw Brand probe,
+Compatibility/RawLegacy path, or production selector was changed.
+
+The executable I0 is complete. The next state is design-stop for the remaining
+relationless admissions; no automatic raw-Brand cutover or rerun is authorized.
+
+## BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D3
+
+Decision: Keep global raw-Brand retirement at design-stop after the selected-
+normal constructor loan closes; remaining admissions need their own source
+authority before any consumer deletion.
+Source authority + canonical issuer: the next bounded row must name the exact
+Compatibility, Deferred, RawLegacy, nested/Main, or unlocated admission and its
+source-owned relation issuer; this card does not invent one.
+Non-authority: caller-zero guesses, raw names, AST rematching, assembly, local
+green, or the completed selected-normal ticket ledger cannot close the gap.
+Fail-fast boundary: no fallback to `is_brand_declared`, no partial retirement,
+and no new semantic receipt until one remaining family is fully covered.
+Smallest next slice: a fresh worker premise audit selecting exactly one
+relationless admission family, or `NoSafeSlice` if its issuer is not nameable.
+Non-claims: no raw cutover, Compatibility/Deferred/RawLegacy behavior change,
+unwrap, nominal Brand typing, promotion, or production switch.
