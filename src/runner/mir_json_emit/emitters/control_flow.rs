@@ -57,8 +57,19 @@ pub(crate) fn emit_checked_callout_end(
     json!({"op":"checked_callout_end", "site_id": site_id.as_u32(), "lease_slot": lease_slot.as_u32()})
 }
 
-pub(crate) fn emit_terminator(term: &MirInstruction) -> Result<serde_json::Value, String> {
-    if !crate::mir::contracts::backend_core_ops::is_supported_mir_json_terminator(term) {
+pub(crate) fn emit_terminator(
+    term: &MirInstruction,
+    pinned_text_residence_transport: bool,
+) -> Result<serde_json::Value, String> {
+    let pinned_text_residence_terminator = pinned_text_residence_transport
+        && matches!(
+            term,
+            MirInstruction::PinnedTextResidenceEnter { .. }
+                | MirInstruction::PinnedTextResidenceTrap { .. }
+        );
+    if !crate::mir::contracts::backend_core_ops::is_supported_mir_json_terminator(term)
+        && !pinned_text_residence_terminator
+    {
         return Err(format!(
             "MIR JSON emit contract violation: unsupported terminator {}",
             crate::mir::contracts::backend_core_ops::instruction_tag(term)
@@ -90,6 +101,18 @@ pub(crate) fn emit_terminator(term: &MirInstruction) -> Result<serde_json::Value
             effects,
         )),
         MirInstruction::CheckedCallOutFault { site_id } => Ok(emit_checked_callout_fault(site_id)),
+        MirInstruction::PinnedTextResidenceEnter {
+            plan,
+            normal_landing,
+            trap_landing,
+        } => Ok(super::basic::emit_pinned_text_residence_enter(
+            plan,
+            normal_landing,
+            trap_landing,
+        )),
+        MirInstruction::PinnedTextResidenceTrap { plan } => {
+            Ok(super::basic::emit_pinned_text_residence_trap(plan))
+        }
         _ => unreachable!("pre-checked by backend_core_ops allowlist"),
     }
 }

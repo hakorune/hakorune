@@ -250,6 +250,20 @@ pub(crate) fn emit_pinned_text_residence_finish(
     })
 }
 
+pub(crate) fn emit_pinned_text_residence_trap(
+    plan: &crate::mir::pinned_text_residence_lifecycle::PinnedTextResidencePlanIdV1,
+) -> serde_json::Value {
+    let owner = plan.owner();
+    json!({
+        "op": "pinned_text_residence_trap",
+        "owner": {
+            "compilation_brand": owner.compilation_brand(),
+            "slot": owner.slot(),
+        },
+        "plan_stamp": plan.plan_stamp(),
+    })
+}
+
 pub(crate) fn emit_debug(value: &ValueId, message: &str) -> serde_json::Value {
     json!({
         "op":"debug",

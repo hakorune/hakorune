@@ -4,6 +4,10 @@ use crate::mir::builder::CompilationContext;
 use crate::mir::compiler::common_v2_physical_function_entry_input::issue_common_v2_physical_function_entry_input;
 use crate::mir::compiler::common_v2_physical_function_skeleton::reserve_common_v2_physical_function_skeleton;
 use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1;
+use crate::mir::compiler::pinned_text_residence_backend_projection::{
+    install_pinned_text_residence_backend_carrier_v1,
+    verify_pinned_text_residence_backend_carrier_v1, PinnedTextResidenceBackendCarrierInstallV1,
+};
 use crate::mir::compiler::target_capability::{
     PinnedTextCompileTargetCapabilityIssuerV1, PinnedTextCompileTargetProfileV1,
 };
@@ -12,7 +16,7 @@ use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic
 use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
 use crate::mir::pinned_text_residence_lifecycle::PreparedPinnedTextResidenceLifecycleV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
-use crate::mir::{MirBuilder, MirInstruction};
+use crate::mir::{BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirModule};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
 use super::{
@@ -408,9 +412,8 @@ fn draftseal_ingress_discards_outer_on_tail_callback_failure() {
     port.complete().expect("selected child coverage");
 }
 
-#[test]
-fn pinned_text_ingress_finalizes_frame_from_function_owned_plan_table() {
-    let (installed, context) = installed_port(1505);
+fn build_pinned_text_real_candidate(ordinal: u32) -> MirFunction {
+    let (installed, context) = installed_port(ordinal);
     let mut port = installed.begin_lowering(&context).expect("same catalog");
     let live = MirBuilder::new();
     let config = BuilderInvocationConfigV1::snapshot_for_canonical(&live, None);
@@ -423,6 +426,7 @@ fn pinned_text_ingress_finalizes_frame_from_function_owned_plan_table() {
         .install_pinned_text_target_capability(Some(target))
         .expect("target install");
 
+    let mut candidate = None;
     port.with_s6c_common_v2_pre_session(|loan| {
         let prepared =
             issue_common_v2_physical_function_entry_input(loan).expect("physical entry input");
@@ -491,18 +495,230 @@ fn pinned_text_ingress_finalizes_frame_from_function_owned_plan_table() {
                 )
             })
             .expect("physical ingress DraftSeal");
-        assert!(!function.blocks.is_empty());
-        assert!(!function.signature.name.is_empty());
-        let frame = function
-            .metadata
-            .pinned_text_backend_frame_contract
-            .expect("function-owned pinned-Text frame");
-        assert_eq!(frame.plan_count(), 3);
-        assert_ne!(frame.plan_stamp(), 0);
         assert_eq!(session.brand(), ModuleInvocationBrandV1::legacy_test());
         assert!(session.builder().function_state.current_function.is_none());
         assert!(session.builder().function_state.current_block.is_none());
+        candidate = Some(function);
     })
     .expect("one S6C callback");
     port.complete().expect("selected child coverage");
+    candidate.expect("one unpublished pinned-Text candidate")
+}
+
+fn emit_real_candidate_json(function: MirFunction) -> Result<String, String> {
+    let mut module = MirModule::new("pinned_text_real_candidate".to_owned());
+    module
+        .try_add_function(function)
+        .map_err(|error| error.to_string())?;
+    crate::runner::mir_json_emit::emit_mir_json_string_for_unpublished_candidate(&module)
+}
+
+fn count_json_op(value: &serde_json::Value, expected: &str) -> usize {
+    match value {
+        serde_json::Value::Array(values) => values
+            .iter()
+            .map(|value| count_json_op(value, expected))
+            .sum(),
+        serde_json::Value::Object(values) => {
+            usize::from(values.get("op").and_then(|value| value.as_str()) == Some(expected))
+                + values
+                    .values()
+                    .map(|value| count_json_op(value, expected))
+                    .sum::<usize>()
+        }
+        _ => 0,
+    }
+}
+
+fn append_block(function: &mut MirFunction, terminator: MirInstruction) {
+    let next = function
+        .blocks
+        .keys()
+        .map(|block| block.as_u32())
+        .max()
+        .unwrap_or(0)
+        .saturating_add(1);
+    let id = BasicBlockId::new(next);
+    let mut block = BasicBlock::new(id);
+    block.terminator = Some(terminator);
+    function.blocks.insert(id, block);
+}
+
+#[test]
+fn pinned_text_real_candidate_json_preserves_carrier_lineage() {
+    let function = build_pinned_text_real_candidate(1505);
+    assert!(!function.blocks.is_empty());
+    assert!(!function.signature.name.is_empty());
+    let frame = function
+        .metadata
+        .pinned_text_backend_frame_contract
+        .as_ref()
+        .expect("function-owned pinned-Text frame");
+    assert_eq!(frame.plan_count(), 3);
+    assert_ne!(frame.plan_stamp(), 0);
+    verify_pinned_text_residence_backend_carrier_v1(
+        function
+            .metadata
+            .pinned_text_residence_backend_carrier
+            .as_ref()
+            .expect("source-bound lifecycle carrier"),
+        &function,
+    )
+    .expect("same detached candidate");
+
+    let encoded = emit_real_candidate_json(function).expect("strict candidate JSON");
+    let json: serde_json::Value = serde_json::from_str(&encoded).expect("JSON value");
+    let metadata = &json["functions"][0]["metadata"];
+    assert!(metadata.get("pinned_text_residence_carrier_v1").is_some());
+    assert_eq!(count_json_op(&json, "pinned_text_op"), 3);
+    assert_eq!(count_json_op(&json, "pinned_text_residence_enter"), 1);
+    assert_eq!(count_json_op(&json, "pinned_text_residence_trap"), 1);
+    assert_eq!(count_json_op(&json, "pinned_text_residence_finish"), 2);
+    assert_eq!(count_json_op(&json, "ret"), 2);
+}
+
+#[test]
+fn pinned_text_real_candidate_json_rejects_lifecycle_drift() {
+    let function = build_pinned_text_real_candidate(1506);
+
+    let mut missing = function.clone();
+    missing.metadata.pinned_text_residence_backend_carrier = None;
+    assert!(emit_real_candidate_json(missing).is_err());
+
+    let mut foreign = function.clone();
+    foreign.metadata.pinned_text_residence_backend_carrier = build_pinned_text_real_candidate(1507)
+        .metadata
+        .pinned_text_residence_backend_carrier
+        .take();
+    assert!(emit_real_candidate_json(foreign).is_err());
+
+    let mut trap_finish = function.clone();
+    let (trap_block, residence) = trap_finish
+        .blocks
+        .values()
+        .find_map(|block| match block.terminator.as_ref() {
+            Some(MirInstruction::PinnedTextResidenceEnter { trap_landing, .. }) => {
+                let residence = trap_finish.blocks.values().find_map(|block| {
+                    block
+                        .instructions
+                        .iter()
+                        .find_map(|instruction| match instruction {
+                            MirInstruction::PinnedTextResidenceFinish { residence } => {
+                                Some(*residence)
+                            }
+                            _ => None,
+                        })
+                })?;
+                Some((*trap_landing, residence))
+            }
+            _ => None,
+        })
+        .expect("Enter and Finish sites");
+    trap_finish
+        .get_block_mut(trap_block)
+        .expect("trap block")
+        .instructions
+        .push(MirInstruction::PinnedTextResidenceFinish { residence });
+    assert!(emit_real_candidate_json(trap_finish).is_err());
+
+    let mut missing_finish = function.clone();
+    let exit = missing_finish
+        .blocks
+        .iter()
+        .find_map(|(block_id, block)| {
+            block
+                .instructions
+                .iter()
+                .any(|instruction| {
+                    matches!(
+                        instruction,
+                        MirInstruction::PinnedTextResidenceFinish { .. }
+                    )
+                })
+                .then_some(*block_id)
+        })
+        .expect("Finish block");
+    missing_finish
+        .get_block_mut(exit)
+        .expect("Finish block")
+        .instructions
+        .retain(|instruction| {
+            !matches!(
+                instruction,
+                MirInstruction::PinnedTextResidenceFinish { .. }
+            )
+        });
+    assert!(emit_real_candidate_json(missing_finish).is_err());
+
+    let enter = function
+        .blocks
+        .values()
+        .find_map(|block| match block.terminator.as_ref() {
+            Some(instruction @ MirInstruction::PinnedTextResidenceEnter { .. }) => {
+                Some(instruction.clone())
+            }
+            _ => None,
+        })
+        .expect("Enter terminator");
+    let mut duplicate_enter = function.clone();
+    append_block(&mut duplicate_enter, enter);
+    assert!(emit_real_candidate_json(duplicate_enter).is_err());
+
+    let mut non_entry_enter = function.clone();
+    non_entry_enter.entry_block = *non_entry_enter
+        .blocks
+        .keys()
+        .find(|block| **block != function.entry_block)
+        .expect("non-entry block");
+    assert!(emit_real_candidate_json(non_entry_enter).is_err());
+
+    let trap = function
+        .blocks
+        .values()
+        .find_map(|block| match block.terminator.as_ref() {
+            Some(instruction @ MirInstruction::PinnedTextResidenceTrap { .. }) => {
+                Some(instruction.clone())
+            }
+            _ => None,
+        })
+        .expect("Trap terminator");
+    let mut duplicate_trap = function.clone();
+    append_block(&mut duplicate_trap, trap);
+    assert!(emit_real_candidate_json(duplicate_trap).is_err());
+
+    let return_value = function
+        .blocks
+        .values()
+        .find_map(|block| match block.terminator.as_ref() {
+            Some(MirInstruction::Return { value: Some(value) }) => Some(*value),
+            _ => None,
+        })
+        .expect("explicit value Return");
+    let mut extra_return = function.clone();
+    append_block(
+        &mut extra_return,
+        MirInstruction::Return {
+            value: Some(return_value),
+        },
+    );
+    assert!(emit_real_candidate_json(extra_return).is_err());
+
+    let mut finish_without_value_return = function.clone();
+    finish_without_value_return
+        .get_block_mut(exit)
+        .expect("Finish block")
+        .terminator = Some(MirInstruction::Return { value: None });
+    assert!(emit_real_candidate_json(finish_without_value_return).is_err());
+
+    let carrier = function
+        .metadata
+        .pinned_text_residence_backend_carrier
+        .as_ref()
+        .expect("installed carrier")
+        .clone();
+    let mut duplicate = function;
+    assert_eq!(
+        install_pinned_text_residence_backend_carrier_v1(carrier, &mut duplicate),
+        Err(PinnedTextResidenceBackendCarrierInstallV1::AlreadyInstalled)
+    );
 }

@@ -13,7 +13,9 @@ use crate::mir::compiler::pinned_text_backend_frame::{
 use crate::mir::normal_callable_semantic_package::{
     PhysicalCallableLaneRoleV1, PhysicalCallableSignatureRowRefV1,
 };
-use crate::mir::pinned_text_residence_lifecycle::PinnedTextResidencePlanIdV1;
+use crate::mir::pinned_text_residence_lifecycle::{
+    PinnedTextResidencePlanIdV1, PreparedPinnedTextResidenceLifecycleV1,
+};
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
 
 pub(crate) const PINNED_TEXT_RESIDENCE_BACKEND_CARRIER_CONTRACT_ID_V1: &str =
@@ -88,10 +90,81 @@ pub(crate) struct PinnedTextResidenceBackendCarrierV1 {
     roots: Box<[PinnedTextResidenceBackendRootRowV1]>,
 }
 
+pub(super) struct PinnedTextResidenceBackendCarrierProjectionViewV1<'carrier> {
+    pub(super) owner: FunctionOwnerIdV1,
+    pub(super) invocation_ordinal: u64,
+    pub(super) target_profile_id: &'carrier str,
+    pub(super) target_triple: &'carrier str,
+    pub(super) target_data_layout: &'carrier str,
+    pub(super) residence_abi_revision: &'carrier str,
+    pub(super) plan: PinnedTextResidencePlanIdV1,
+    pub(super) enter_source: BasicBlockId,
+    pub(super) normal_landing: BasicBlockId,
+    pub(super) trap_landing: BasicBlockId,
+    pub(super) finish_blocks: &'carrier [BasicBlockId],
+    pub(super) normal_exit_count: u32,
+}
+
+/// Move-only lineage retained before the canonical Enter consumes its
+/// lifecycle carrier.  It keeps the package-owned signature beside the exact
+/// physical placement, so DraftSeal can add the authoritative exit set
+/// without reconstructing plan or block identity from MIR.
+#[derive(Debug)]
+pub(crate) struct PinnedTextResidenceBackendCarrierLineageV1<'loan> {
+    signature: PhysicalCallableSignatureRowRefV1<'loan>,
+    plan: PinnedTextResidencePlanIdV1,
+    enter_source: BasicBlockId,
+    normal_landing: BasicBlockId,
+    trap_landing: BasicBlockId,
+}
+
+impl<'loan> PinnedTextResidenceBackendCarrierLineageV1<'loan> {
+    pub(crate) fn from_lifecycle(
+        signature: PhysicalCallableSignatureRowRefV1<'loan>,
+        enter_source: BasicBlockId,
+        lifecycle: &PreparedPinnedTextResidenceLifecycleV1,
+    ) -> Result<Self, PinnedTextResidenceBackendCarrierIssueV1> {
+        if signature.owner() != lifecycle.plan().owner() {
+            return Err(PinnedTextResidenceBackendCarrierIssueV1::OwnerMismatch);
+        }
+        if enter_source == lifecycle.normal_landing()
+            || enter_source == lifecycle.trap_landing()
+        {
+            return Err(PinnedTextResidenceBackendCarrierIssueV1::LandingBlocksMustDiffer);
+        }
+        Ok(Self {
+            signature,
+            plan: lifecycle.plan(),
+            enter_source,
+            normal_landing: lifecycle.normal_landing(),
+            trap_landing: lifecycle.trap_landing(),
+        })
+    }
+
+    pub(crate) fn issue(
+        self,
+        frame: PinnedTextBackendFrameBorrowV1<'_>,
+        finish_blocks: Box<[BasicBlockId]>,
+        normal_exit_count: u32,
+    ) -> Result<PinnedTextResidenceBackendCarrierV1, PinnedTextResidenceBackendCarrierIssueV1>
+    {
+        PinnedTextResidenceBackendCarrierV1::issue(
+            self.signature,
+            frame,
+            self.plan,
+            self.enter_source,
+            self.normal_landing,
+            self.trap_landing,
+            finish_blocks,
+            normal_exit_count,
+        )
+    }
+}
+
 impl PinnedTextResidenceBackendCarrierV1 {
     /// Issue one carrier from the package-owned signature and the existing
     /// frame/lifecycle products.  No lane or root relation is inferred.
-    pub(crate) fn issue(
+    fn issue(
         signature: PhysicalCallableSignatureRowRefV1<'_>,
         frame: PinnedTextBackendFrameBorrowV1<'_>,
         plan: PinnedTextResidencePlanIdV1,
@@ -221,6 +294,46 @@ impl PinnedTextResidenceBackendCarrierV1 {
             normal_exit_count,
             roots: roots.into_boxed_slice(),
         })
+    }
+
+    #[cfg(test)]
+    pub(crate) fn issue_for_test(
+        signature: PhysicalCallableSignatureRowRefV1<'_>,
+        frame: PinnedTextBackendFrameBorrowV1<'_>,
+        plan: PinnedTextResidencePlanIdV1,
+        enter_source: BasicBlockId,
+        normal_landing: BasicBlockId,
+        trap_landing: BasicBlockId,
+        finish_blocks: Box<[BasicBlockId]>,
+        normal_exit_count: u32,
+    ) -> Result<Self, PinnedTextResidenceBackendCarrierIssueV1> {
+        Self::issue(
+            signature,
+            frame,
+            plan,
+            enter_source,
+            normal_landing,
+            trap_landing,
+            finish_blocks,
+            normal_exit_count,
+        )
+    }
+
+    pub(super) fn projection_view(&self) -> PinnedTextResidenceBackendCarrierProjectionViewV1<'_> {
+        PinnedTextResidenceBackendCarrierProjectionViewV1 {
+            owner: self.owner,
+            invocation_ordinal: self.invocation_ordinal,
+            target_profile_id: self.target_profile_id,
+            target_triple: self.target_triple,
+            target_data_layout: self.target_data_layout,
+            residence_abi_revision: self.residence_abi_revision,
+            plan: self.plan,
+            enter_source: self.enter_source,
+            normal_landing: self.normal_landing,
+            trap_landing: self.trap_landing,
+            finish_blocks: &self.finish_blocks,
+            normal_exit_count: self.normal_exit_count,
+        }
     }
 
     pub(crate) fn to_transport_json(&self) -> serde_json::Value {

@@ -160,7 +160,7 @@ fn residence_backend_carrier_exports_source_issued_root_mapping() {
     )
     .expect("lifecycle carrier");
     let carrier = crate::mir::compiler::pinned_text_residence_backend_carrier::
-        PinnedTextResidenceBackendCarrierV1::issue(
+        PinnedTextResidenceBackendCarrierV1::issue_for_test(
             row,
             frame.borrow(),
             lifecycle.plan(),
@@ -209,7 +209,7 @@ fn residence_backend_carrier_rejects_finish_on_trap_before_transport() {
     )
     .expect("lifecycle carrier");
     let result = crate::mir::compiler::pinned_text_residence_backend_carrier::
-        PinnedTextResidenceBackendCarrierV1::issue(
+        PinnedTextResidenceBackendCarrierV1::issue_for_test(
             row,
             frame.borrow(),
             lifecycle.plan(),

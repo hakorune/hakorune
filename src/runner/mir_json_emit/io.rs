@@ -22,6 +22,17 @@ pub fn emit_mir_json_string_for_harness_bin(
     serialize_mir_json_root(&root)
 }
 
+/// Caller-zero export for a final unpublished candidate. Unlike the harness
+/// path, this does not refresh or clone the module, so affine carrier metadata
+/// and its exact CFG image remain one lineage.
+#[cfg(test)]
+pub(crate) fn emit_mir_json_string_for_unpublished_candidate(
+    module: &crate::mir::MirModule,
+) -> Result<String, String> {
+    let root = build_mir_json_root(module)?;
+    serialize_mir_json_root(&root)
+}
+
 /// Export an already sealed selected Dynamic candidate without cloning it.
 /// The ordinary harness exporter deliberately clones/refreshes and therefore
 /// scrubs linear candidate metadata; W6's site-id handoff must consume the

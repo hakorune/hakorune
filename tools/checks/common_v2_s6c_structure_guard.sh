@@ -28,6 +28,7 @@ files=(
   "$ROOT_DIR/src/mir/pinned_text_access_plan.rs"
   "$ROOT_DIR/src/mir/pinned_text_residence_lifecycle.rs"
   "$ROOT_DIR/src/mir/compiler/pinned_text_residence_backend_carrier.rs"
+  "$ROOT_DIR/src/mir/compiler/pinned_text_residence_backend_projection.rs"
   "$ROOT_DIR/src/mir/builder/pinned_text_invocation_binding.rs"
   "$ROOT_DIR/src/mir/builder/module_invocation_session.rs"
   "$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
@@ -145,9 +146,22 @@ guard_expect_fixed_in_file "$TAG" 'finish_every_explicit_normal_return' "$backen
   "backend transport must carry the explicit normal-exit Finish obligation"
 guard_expect_fixed_in_file "$TAG" 'source_binding' "$backend_carrier" \
   "backend transport must retain source-issued root provenance"
+guard_expect_fixed_in_file "$TAG" 'PinnedTextResidenceBackendCarrierLineageV1' "$backend_carrier" \
+  "real candidate transport must retain one affine source/lifecycle lineage"
+guard_expect_fixed_in_file "$TAG" 'issue_for_test' "$backend_carrier" \
+  "the direct carrier constructor must remain test-only"
+direct_carrier_issue_count="$(rg -n 'PinnedTextResidenceBackendCarrierV1::issue\(' "$ROOT_DIR/src" | wc -l | tr -d '[:space:]')"
+if [[ "$direct_carrier_issue_count" != "1" ]]; then
+  guard_fail "$TAG" "production carrier construction must have exactly one lineage-owned call: count=$direct_carrier_issue_count"
+fi
 if rg -n '^[^/].*(Arc<|RawPointer|ValueId|\*const|\*mut|MirInstruction|StringBox|eq_hh)' "$backend_carrier"; then
   guard_fail "$TAG" "backend carrier transport must not expose runtime/raw/MIR/legacy authorities"
 fi
+backend_projection="$ROOT_DIR/src/mir/compiler/pinned_text_residence_backend_projection.rs"
+guard_expect_fixed_in_file "$TAG" 'verify_pinned_text_residence_backend_carrier_v1' "$backend_projection" \
+  "one projection seam must validate the carrier against the detached function"
+guard_expect_fixed_in_file "$TAG" 'install_pinned_text_residence_backend_carrier_v1' "$backend_projection" \
+  "one projection seam must own final carrier installation"
 c_frame="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_backend_frame.inc"
 guard_expect_fixed_in_file "$TAG" 'pinned_text_residence_enter' "$c_frame" \
   "C frame census must recognize the landed Residence Enter transport op"
@@ -167,12 +181,20 @@ if rg -n 'hako_llvmc_ptfb_session|compile_json|fallback|retry|nyash\.string\.eq_
 fi
 metadata_json="$ROOT_DIR/src/runner/mir_json_emit/metadata.rs"
 emitters="$ROOT_DIR/src/runner/mir_json_emit/emitters/basic.rs"
+json_root="$ROOT_DIR/src/runner/mir_json_emit/root.rs"
+json_io="$ROOT_DIR/src/runner/mir_json_emit/io.rs"
 guard_expect_fixed_in_file "$TAG" 'pinned_text_residence_carrier_v1' "$metadata_json" \
   "MIR JSON must project the versioned carrier without rebuilding it"
 guard_expect_fixed_in_file "$TAG" 'pinned_text_residence_enter' "$emitters" \
   "MIR JSON must retain the explicit Residence Enter transport op"
 guard_expect_fixed_in_file "$TAG" 'pinned_text_residence_finish' "$emitters" \
   "MIR JSON must retain the explicit Residence Finish transport op"
+guard_expect_fixed_in_file "$TAG" 'verify_projected_function' "$json_root" \
+  "strict JSON must validate the carrier against the exact detached function"
+guard_expect_fixed_in_file "$TAG" 'pinned_text_residence_transport' "$json_root" \
+  "lifecycle JSON op admission must remain carrier-gated"
+guard_expect_fixed_in_file "$TAG" 'emit_mir_json_string_for_unpublished_candidate' "$json_io" \
+  "caller-zero evidence must use the no-refresh unpublished candidate exporter"
 
 cfg_session="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_cfg/session.rs"
 guard_expect_fixed_in_file "$TAG" 'emit_pinned_text_residence_enter' "$cfg_session" \

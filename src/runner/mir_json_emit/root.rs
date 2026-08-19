@@ -55,6 +55,11 @@ pub(super) fn build_mir_json_root(
     let mut export_functions = Vec::new();
     for (name, f) in ordered_harness_functions(module) {
         let control_edge_args = VerifiedExactNoneControlEdgeArgsV1::verify(f);
+        if let Some(carrier) = f.metadata.pinned_text_residence_backend_carrier.as_ref() {
+            carrier
+                .verify_projected_function(f)
+                .map_err(|error| format!("pinned Text Residence carrier drift: {error:?}"))?;
+        }
         crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(f)?;
         crate::mir::type_contracts::return_exit::validate_return_exit_contract(f)?;
         crate::mir::type_contracts::local_slot::validate_local_slot_contracts(f)?;
@@ -76,6 +81,8 @@ pub(super) fn build_mir_json_root(
                 f,
                 &boxed_sum_abi_plans,
             );
+        let pinned_text_residence_transport =
+            f.metadata.pinned_text_residence_backend_carrier.is_some();
         let mut blocks = Vec::new();
         let mut export_blocks = Vec::new();
         let mut instruction_count = 0usize;
@@ -94,13 +101,16 @@ pub(super) fn build_mir_json_root(
                 emitters::emit_non_phi_instructions(
                     f,
                     bb,
+                    pinned_text_residence_transport,
                     &boxed_sum_abi_plans,
                     &boxed_sum_site_plans,
                     &mut insts,
                 )?;
 
                 // Phase 131-13: Terminator emitted inline (no delayed copies)
-                if let Some(term) = emitters::emit_terminator(&bb.terminator)? {
+                if let Some(term) =
+                    emitters::emit_terminator(&bb.terminator, pinned_text_residence_transport)?
+                {
                     insts.push(term);
                 }
                 instruction_count += insts.len();

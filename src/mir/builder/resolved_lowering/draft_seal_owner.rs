@@ -20,6 +20,8 @@ use crate::mir::{BasicBlockId, MirBuilder, MirFunction};
 #[cfg(test)]
 use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorrowV1;
 #[cfg(test)]
+use crate::mir::compiler::pinned_text_residence_backend_carrier::PinnedTextResidenceBackendCarrierLineageV1;
+#[cfg(test)]
 use crate::mir::pinned_text_residence_lifecycle::PinnedTextResidenceFinishCapabilityV1;
 
 use super::completion_consumption::ReadyFunctionCompletionV1;
@@ -247,6 +249,7 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         mut self,
         outer_site: &SourceStmtSiteV1,
         finish: PinnedTextResidenceFinishCapabilityV1,
+        backend_carrier_lineage: PinnedTextResidenceBackendCarrierLineageV1<'_>,
     ) -> Result<PreparedFunctionDraftSealV1<'builder>, RejectedFunctionDraftSealV1<'builder>> {
         let ready = self
             .ready
@@ -296,6 +299,53 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
                         ),
                     ))?;
                 let plans = &function.metadata.pinned_text_access_plans;
+                let mut finish_blocks = Vec::new();
+                exit_set
+                    .try_for_each_exit(|exit| match exit {
+                        PreparedFunctionExitV1::ExplicitValue { block, .. } => {
+                            finish_blocks.push(block);
+                            Ok(())
+                        }
+                        PreparedFunctionExitV1::ExplicitUnit { .. }
+                        | PreparedFunctionExitV1::ImplicitUnit { .. } => {
+                            Err("pinned-Text backend carrier requires explicit value exits"
+                                .to_owned())
+                        }
+                    })
+                    .map_err(|error| {
+                        (
+                            FunctionDraftSealStageV1::Exit,
+                            FunctionDraftSealErrorV1::Projection(
+                                FunctionDraftSealProjectionErrorV1::PinnedTextResidence(error),
+                            ),
+                        )
+                    })?;
+                let normal_exit_count = u32::try_from(finish_blocks.len()).map_err(|_| {
+                    (
+                        FunctionDraftSealStageV1::Exit,
+                        FunctionDraftSealErrorV1::Projection(
+                            FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                                "pinned-Text normal exit count exceeds u32".to_owned(),
+                            ),
+                        ),
+                    )
+                })?;
+                let backend_carrier = backend_carrier_lineage
+                    .issue(
+                        frame_contract.borrow(),
+                        finish_blocks.into_boxed_slice(),
+                        normal_exit_count,
+                    )
+                    .map_err(|error| {
+                        (
+                            FunctionDraftSealStageV1::Exit,
+                            FunctionDraftSealErrorV1::Projection(
+                                FunctionDraftSealProjectionErrorV1::PinnedTextResidence(format!(
+                                    "{error:?}"
+                                )),
+                            ),
+                        )
+                    })?;
                 let frame_for_admission: PinnedTextBackendFrameBorrowV1<'_> =
                     frame_contract.borrow();
                 let consumer =
@@ -333,7 +383,14 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
                                 ),
                             )
                         })?;
-                prepare_plan_from_projection(builder, projection, None)
+                prepare_plan_from_projection(builder, projection, None)?
+                    .install_pinned_text_residence_backend_carrier(backend_carrier)
+                    .map_err(|error| {
+                        (
+                            FunctionDraftSealStageV1::Metadata,
+                            FunctionDraftSealErrorV1::Projection(error),
+                        )
+                    })
             })(
             );
             result

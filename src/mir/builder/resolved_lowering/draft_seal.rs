@@ -529,6 +529,27 @@ impl PreparedFunctionStaleFactsV1 {
 }
 
 impl PreparedFunctionDraftSealPlanV1 {
+    /// Install the source-bound pinned-Text carrier only after the detached
+    /// candidate has passed DraftSeal verification. The live function never
+    /// receives this transport metadata, and duplicate installation rejects
+    /// before commit.
+    #[cfg(test)]
+    pub(super) fn install_pinned_text_residence_backend_carrier(
+        mut self,
+        carrier: crate::mir::compiler::pinned_text_residence_backend_carrier::PinnedTextResidenceBackendCarrierV1,
+    ) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
+        crate::mir::compiler::pinned_text_residence_backend_projection::install_pinned_text_residence_backend_carrier_v1(
+            carrier,
+            &mut self.metadata.projection.function,
+        )
+        .map_err(|error| {
+                FunctionDraftSealProjectionErrorV1::MetadataContractFailed(format!(
+                    "pinned-Text Residence backend carrier install rejected: {error:?}"
+                ))
+            })?;
+        Ok(self)
+    }
+
     /// Install selected Dynamic candidate metadata on the detached final
     /// projection only.  The live FunctionMetadata was intentionally cloned
     /// before this move, so clone-scrubbing remains a one-way publication

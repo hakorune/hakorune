@@ -4980,7 +4980,7 @@ guard; and `git diff --check` are green. The next bounded row is
 `S6C-PINNED-CURSOR-CFG-I0`; V10, Completion/Return, publication, production,
 performance promotion, fallback/retry, and `eq_hh` retirement remain closed.
 
-### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-REAL-CANDIDATE-TRANSPORT-D0 (2026-08-19; design stop)
+### TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-REAL-CANDIDATE-TRANSPORT-D0 (2026-08-19; accepted)
 
 Decision: keep `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-TARGET-MACHINE-I0-B`
 closed. The caller-zero Rust ingress now produces a real unpublished
@@ -5053,3 +5053,56 @@ Non-claims: no target-machine success, object/production publication,
 post-transform `nounwind`/`noreturn` observer, non-selected backend parity,
 new frame/backing, `Arc<str>` migration, performance promotion, or `eq_hh`
 retirement.
+
+### TEXT-FORMAL-PINNED-RESIDENCE-REAL-CANDIDATE-JSON-CARRIER-LINEAGE-I0 (2026-08-19; landed caller-zero)
+
+Decision: the exact source-backed unpublished `MirFunction` now retains one
+move-only carrier lineage across Enter consumption, adds the authoritative
+`PreparedFunctionExitSetV1` only at DraftSeal, installs the resulting carrier
+once on the detached candidate, and emits strict MIR JSON without refresh or
+synthetic-fixture promotion. The direct carrier constructor is test-only;
+production construction has one lineage-owned call.
+
+Source authority + canonical issuer: the installed S6C package signature,
+function-owned plan table/frame, canonical Enter/Trap writer, exact exit set,
+and detached Finish -> existing Return projection remain the sole issuers. The
+carrier is pure transport; a separate 135-line projection seam alone compares
+it with MIR and owns final installation.
+
+Fail-fast evidence: same-candidate JSON is green with exactly 3 `PinnedTextOp`,
+1 entry-owned Enter, 1 Trap, 2 Finish, and 2 Return rows. Missing/foreign
+carrier, duplicate/non-entry Enter, duplicate Trap, Trap Finish, missing exit
+Finish, extra value Return, non-value Finish exit, and duplicate installation
+reject before JSON.
+The reusable structure guard keeps the pure carrier free of MIR/runtime/legacy
+authority and all touched source files below 800 lines.
+
+Focused evidence: `pinned_text_real_candidate_json` 2/2,
+`residence_backend_carrier` 2/2, pinned-text plan census 1/1,
+`cargo check --profile quick --lib`, fmt, pointer guard, structure guard, and
+`git diff --check` are green.
+
+### TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LOWERING-D0 (next design stop)
+
+Decision: do not append lifecycle cases to the existing 826-line generic C
+dispatch and do not open the TargetMachine observer yet.
+
+Source authority + canonical issuer: the landed real-candidate strict JSON and
+its carrier/frame metadata are the only input. The selected contract-bound C
+route is the only prospective consumer.
+
+Non-authority: the synthetic textual fixture, hand-written JSON, op-name scan,
+compat replay, non-selected backend, TargetMachine success alone, fallback,
+retry, and benchmark results.
+
+Fail-fast boundary: validate carrier/frame/op/block/Return parity before IR
+output or session open; any unknown or drifted lifecycle shape publishes no
+temporary artifact.
+
+Smallest next slices: (1) behavior-neutral generic-dispatch module split below
+760 lines, (2) selected `PinnedTextOp` plus Enter/Trap/Finish lowering from the
+exact JSON, (3) LLVM18 parse/layout and post-transform lifecycle/no-unwind
+observer, then only later (4) object publication and one production switch.
+
+Non-claims: no C lowering, TargetMachine candidate, observer, object,
+production, performance, fallback/retry, or `eq_hh` retirement is open now.

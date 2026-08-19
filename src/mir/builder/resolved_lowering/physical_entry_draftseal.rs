@@ -8,6 +8,7 @@ use crate::mir::builder::pinned_text_invocation_binding::PreparedPinnedTextPhysi
 use crate::mir::builder::InvocationBranded;
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::common_v2_physical_function_skeleton::PreparedPhysicalEntrySessionInputV1;
+use crate::mir::compiler::pinned_text_residence_backend_carrier::PinnedTextResidenceBackendCarrierLineageV1;
 use crate::mir::normal_callable_semantic_package::S6CCommonV2PreSessionLoanRefV1;
 use crate::mir::pinned_text_residence_lifecycle::PreparedPinnedTextResidenceLifecycleV1;
 use crate::mir::MirFunction;
@@ -129,6 +130,7 @@ pub(in crate::mir::builder) fn with_common_v2_s6c_pinned_text_physical_entry_dra
                 Some(builder.open_resolved_function_draft_seal_session_v1(&function_name));
             let result = (|| {
                 let mut finish_capability = None;
+                let mut backend_carrier_lineage = None;
                 let ready = with_common_v2_canonical_session_branded_finish(
                     admission,
                     invocation_brand,
@@ -190,6 +192,14 @@ pub(in crate::mir::builder) fn with_common_v2_s6c_pinned_text_physical_entry_dra
                             )
                             .map_err(|error| format!("{error:?}"))?
                         };
+                        backend_carrier_lineage = Some(
+                            PinnedTextResidenceBackendCarrierLineageV1::from_lifecycle(
+                                loan.callable().signature(),
+                                function_entry,
+                                &carrier,
+                            )
+                            .map_err(|error| format!("{error:?}"))?,
+                        );
                         common.select_block(draft, function_entry)?;
                         finish_capability =
                             Some(common.emit_pinned_text_residence_enter(draft, carrier)?);
@@ -202,13 +212,20 @@ pub(in crate::mir::builder) fn with_common_v2_s6c_pinned_text_physical_entry_dra
                 let finish = finish_capability
                     .take()
                     .ok_or_else(|| "Residence Enter did not issue Finish capability".to_owned())?;
+                let backend_carrier_lineage = backend_carrier_lineage.take().ok_or_else(|| {
+                    "Residence Enter did not retain backend carrier lineage".to_owned()
+                })?;
 
                 let open = ready.open(
                     outer
                         .take()
                         .expect("S6C draft owner moves into DraftSeal exactly once"),
                 );
-                let prepared = match open.prepare_exact_two_with_pinned_text(&tail_site, finish) {
+                let prepared = match open.prepare_exact_two_with_pinned_text(
+                    &tail_site,
+                    finish,
+                    backend_carrier_lineage,
+                ) {
                     Ok(prepared) => prepared,
                     Err(rejected) => {
                         let detail = format!("{:?}", rejected.error());
