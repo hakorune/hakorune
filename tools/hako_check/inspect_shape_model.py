@@ -26,9 +26,29 @@ COUNT_KEYS = (
     "instructions",
 )
 
+MIR_SUCCESSOR_FIELDS = {
+    "branch": ("then", "else"),
+    "jump": ("target",),
+    "checked_callout": ("normal", "fault"),
+    "pinned_text_residence_enter": ("normal", "trap"),
+}
+
 
 def _zero_counts() -> dict[str, int | None]:
     return {key: 0 for key in COUNT_KEYS}
+
+
+def _mir_successor_count(instruction: dict[str, Any], op: str) -> int:
+    fields = MIR_SUCCESSOR_FIELDS.get(op)
+    if fields is None:
+        return 0
+    successors: set[int] = set()
+    for field in fields:
+        value = instruction.get(field)
+        if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+            raise SystemExit(f"shape MIR {op} successor is invalid: {field}")
+        successors.add(value)
+    return len(successors)
 
 
 def mir_shape(mir: dict[str, Any], function_name: str) -> dict[str, int | None]:
@@ -62,12 +82,9 @@ def mir_shape(mir: dict[str, Any], function_name: str) -> dict[str, int | None]:
                 counts["loads"] += 1
             if op == "store":
                 counts["stores"] += 1
-            if op == "branch":
+            if op in MIR_SUCCESSOR_FIELDS:
                 counts["branches"] += 1
-                counts["edges"] += 2
-            elif op == "jump":
-                counts["branches"] += 1
-                counts["edges"] += 1
+                counts["edges"] += _mir_successor_count(instruction, op)
             if op in {"ret", "return"}:
                 counts["returns"] += 1
     return counts

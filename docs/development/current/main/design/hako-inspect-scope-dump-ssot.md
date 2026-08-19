@@ -6,9 +6,9 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Adopt one selected-candidate MIR→LLVM origin sidecar, but keep
-LLVM→optimized-machine correspondence unavailable. Before that BoxCount, fix
-the current MIR CFG counter which omits the two Residence Enter edges.
+Decision: Add one selected-candidate MIR→LLVM origin sidecar while keeping
+LLVM→optimized-machine correspondence unavailable. The prerequisite MIR CFG
+counter now follows canonical terminator successors and reports all eight edges.
 Source authority + canonical issuer: `MirFunction` blocks and terminators own
 the eight S6C CFG edges. The selected pinned-Text textual lowerer is the sole
 MIR-site/edge→LLVM-region relation issuer because it simultaneously consumes
@@ -21,10 +21,10 @@ local MIR and final-LLVM blocks/edges as preserved, split, merged, deleted, or
 introduced and bind exact MIR/final-LLVM digests. Missing, duplicate, dangling,
 foreign, stale, inferred, or ambiguous rows reject before rendering. ASM stays
 symbol-only; requesting exact machine attribution rejects.
-Smallest next slice: `HAKO-INSPECT-MIR-CFG-COUNT-I0` is one observation-only
-BoxShape: make the pure MIR counter follow the canonical terminator successor
-vocabulary, proving this canary has eight—not six—CFG edges. The subsequent
-`HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` remains a separate BoxCount.
+Smallest next slice: `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` is one caller-zero
+BoxCount. A compile-time observation sink receives block/edge relations from
+the selected dispatch/lowerer; a new private model validates coverage; the
+existing ingress only digest-binds the write-last sidecar into the V1 seal.
 Non-claims: No LLVM→machine map, debug-info ABI, generic backend provenance,
 semantic receipt, source syntax, optimization recommendation, keeper,
 measurement, residual owner, promotion, or production change.
@@ -292,11 +292,11 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   represents preserved/split/merged/deleted/introduced sets. LLVM→machine
   remains unavailable because optimization may fold, merge, delete, or create
   instructions without a carried machine origin.
-- `HAKO-INSPECT-MIR-CFG-COUNT-I0` (**selected BoxShape**): teach only the pure
+- `HAKO-INSPECT-MIR-CFG-COUNT-I0` (**landed BoxShape**): teach only the pure
   shape model that `checked_callout` and `pinned_text_residence_enter` each own
   two canonical successors. Add exact positive/negative counters and update the
-  canary to MIR `8 blocks / 8 edges / 24 instructions`; no sidecar yet.
-- `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` (**parked next BoxCount**): add a
+  canary to MIR `8 blocks / 8 edges / 5 branches / 24 instructions`; no sidecar.
+- `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` (**selected BoxCount**): add a
   compile-time observation sink in the selected dispatch/lowerer plus a new
   private relation model/validator. Direct `bbN`, WidthAt/ScalarEq internal
   regions, consumed direct-continuation branch arms, and lifecycle edges must

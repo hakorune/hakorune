@@ -157,3 +157,67 @@ class InspectShapeTest(unittest.TestCase):
             )
         with self.assertRaisesRegex(SystemExit, "assembly symbol must be unique"):
             asm_shape("0001 <f>:\n0002 <f>:\n", "f")
+
+    def test_mir_shape_counts_all_canonical_normal_successors(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {
+                                    "op": "pinned_text_residence_enter",
+                                    "normal": 1,
+                                    "trap": 2,
+                                }
+                            ],
+                        },
+                        {
+                            "id": 1,
+                            "instructions": [
+                                {
+                                    "op": "checked_callout",
+                                    "normal": 3,
+                                    "fault": 4,
+                                }
+                            ],
+                        },
+                        {"id": 2, "instructions": [{"op": "ret", "value": 0}]},
+                        {"id": 3, "instructions": [{"op": "jump", "target": 2}]},
+                        {
+                            "id": 4,
+                            "instructions": [
+                                {"op": "branch", "cond": 1, "then": 2, "else": 2}
+                            ],
+                        },
+                    ],
+                }
+            ]
+        }
+        shape = mir_shape(mir, "main")
+        self.assertEqual(shape["branches"], 4)
+        self.assertEqual(shape["edges"], 6)
+
+    def test_mir_shape_rejects_malformed_successor_carrier(self) -> None:
+        mir = {
+            "functions": [
+                {
+                    "name": "main",
+                    "blocks": [
+                        {
+                            "id": 0,
+                            "instructions": [
+                                {
+                                    "op": "pinned_text_residence_enter",
+                                    "normal": 1,
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ]
+        }
+        with self.assertRaisesRegex(SystemExit, "successor is invalid: trap"):
+            mir_shape(mir, "main")
