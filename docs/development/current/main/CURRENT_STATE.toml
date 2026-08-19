@@ -19,13 +19,13 @@ development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 current_design_stop = "none; the promotion-only final-IR shell outline is accepted and any scan CFG/value synthesis remains NoSafeSlice"
 work_mode = "fast"
-current_execution_row = "S6C-PINNED-CORRIDOR-MESO-OUTLINE-PARITY-R0"
-current_blocker_token = "Link the unchanged real candidate and digest-verified outline, lend both the same Residence-acquired Subject/Needle roots, and require identical first-code-point index or -1 for empty, UTF-8 widths 1..4, mixed, first/middle/last/miss, and alias cases; no benchmark, fallback, or production caller."
+current_execution_row = "S6C-PINNED-CORRIDOR-MESO-BENCH-R0"
+current_blocker_token = "Measure the digest-verified outline against an independent noinline C scan for exact byte sizes 32/256/4096/1048576, ASCII/UTF-8 widths 2/3/4/mixed, and first/middle/last/miss; use one Live Residence per case, fixed paired controls, and require every 4KiB+ case p50 ratio <=1.15 without compiler or production authority."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C pinned Text corridor meso outline parity"
+active_lane = "S6C pinned Text corridor meso benchmark evidence"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -50,10 +50,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The promotion-only outline now subtracts exactly 25 shell instructions and two blocks while preserving the current scan graph by digest. The next cell compares the unchanged real candidate and outlined helper on the same Residence-acquired roots before timing exists."
+latest_card_summary = "The unchanged whole candidate, digest-verified outline, and independent oracle now agree on the same Live Residence roots across the full bounded parity corpus. The next row measures only the outlined scan body against a separate C reference."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "S6C-PINNED-CORRIDOR-MESO-OUTLINE-PARITY-R0"
+next_execution_card = "S6C-PINNED-CORRIDOR-MESO-BENCH-R0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -65,6 +65,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: S6C meso outline parity R0 landed offline: one outer Live Residence lends the same Subject/Needle backing to the unchanged nested whole candidate and digest-verified outline; both match an independent code-point oracle for empty, UTF-8 widths 1..4, mixed, first/middle/last/miss, and alias cases. A corrupted outline Return is red; no timer, threshold, production caller, fallback, or promotion was added.",
   "2026-08-19: S6C meso shell-outline I0 landed offline: the closure-verified real function loses only the exact 25-instruction Residence/lane shell and two shell blocks; the short-circuit 20-block/92-instruction/35-edge/5-PHI/2-Return scan graph matches digest 0b219d8ea107. Entry/root/lane/removed-PHI/scan/Finish-order drift rejects without partial LLVM or manifest publication; no production helper, optimizer, receipt, fallback, benchmark, or promotion was added.",
   "2026-08-19: Pinned-corridor exact benchmark R0 landed offline: the exact real scalar plan is projected by the sole production emitter into a separate Residence-acquired evidence callable. An initial unchanged-threshold red exposed eager post-mismatch byte loads; a bounded backend BoxShape short-circuited later reads. The unchanged 51-pair gate is green at ASCII max p50 1.061, mixed max p50 1.078, and all-case max p95 1.113; compiler meaning and production remain unchanged.",
   "2026-08-19: Pinned-corridor structural-zero R0 landed offline: a compile-time-only hook borrows the same final-closure ModuleRef immediately before sole emit, and final IR plus linked assembly show entry-only allocation/root projection, exact align-1 byte reads, only Enter/Finish/Trap calls, and zero EH/noalias/wide/indirect/helper calls. Capture and structural negatives publish no evidence/object; compiler authority and production remain unchanged.",
@@ -75,6 +76,5 @@ landed_tail = [
   "2026-08-19: Selected-C TargetMachine I0 landed caller-zero: verified private LLVM bytes move once through `LLVMCreateMemoryBufferWithMemoryRangeCopy` into the existing LLVM18 parse/module/object owner; real JSON emits a nonempty test object, invalid IR and unwritable output clean up, and named `.ll`, fallback, retry, observer, production, and performance remain zero.",
   "2026-08-19: Selected-C textual lowering I0 landed caller-zero: the exact preflighted candidate lowers 3 PinnedText leaves plus Enter/Trap/2 Finish into one tmpfile-owned LLVM draft, verifies structural zero and Finish-before-Return, discards it on every path, and returns a stable target-closed tag; TargetMachine, observer, production, fallback/retry, and performance remain closed.",
   "2026-08-19: Real-candidate JSON carrier-lineage I0 landed caller-zero: the exact detached MirFunction installs one source-issued carrier through a separate projection seam and emits strict JSON without refresh/synthetic promotion; same-cohort 3 PinnedTextOp/1 Enter/1 Trap/2 Finish/2 Return is green, while missing/foreign/duplicate carrier, duplicate/non-entry lifecycle sites, Trap Finish, and exit-set drift reject. Selected C lowering, target-machine, observer, production, fallback, and performance remain closed.",
-  "2026-08-19: Trap-terminal I0 landed caller-zero: `PinnedTextResidenceTrap` is the explicit successorless fail-stop for the Enter trap landing, co-written and sealed only by the canonical CFG owner with the same plan provenance; foreign owner, non-empty/terminated/predecessored trap, and rejoin edges reject before/after mutation as appropriate. Runtime/backend lowering and detached Finish projection remain closed.",
-  "2026-08-19: Caller-zero frame-timing I0 is landed: the pre-DraftSeal ingress is plan-less and affine, the retained S6C loan is the signature adapter, and the existing frame issuer finalizes exactly once from the canonical function-owned plan table after three leaf rows. Empty/zero-stamp/preinstalled frames reject; focused frame/DraftSeal test, cargo check, fmt, pointer, and structure guard are green. Explicit trap terminal, detached Finish/Return projection, backend, and production remain closed."
+  "2026-08-19: Trap-terminal I0 landed caller-zero: `PinnedTextResidenceTrap` is the explicit successorless fail-stop for the Enter trap landing, co-written and sealed only by the canonical CFG owner with the same plan provenance; foreign owner, non-empty/terminated/predecessored trap, and rejoin edges reject before/after mutation as appropriate. Runtime/backend lowering and detached Finish projection remain closed."
 ]
