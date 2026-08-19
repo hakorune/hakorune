@@ -6,26 +6,30 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Open one design stop for the real S6C observation ingress. The
-source-less compiler-test `real.json` must not be attached to an arbitrary
-`.hako` file merely to satisfy the V1 source-to-MIR mapping floor.
+Decision: Issue one observation envelope beside `real.json` at the existing
+caller-zero S6C test export, then let one dedicated ingress transaction produce
+the final LLVM module, object, disassembly, and V1 seal. Source kind is
+`caller_zero_semantic_program`, never guessed `.hako`.
 Source authority + canonical issuer: The existing caller-zero S6C compiler
-test, its emitted strict MIR JSON, selected final LLVM module, executable, and
-disassembly own their facts. The D0 must name the one issuer that can bind that
-cohort into an inspect identity without inventing source lineage.
+test owns the installed source/Facts/Recipe cohort, verified unpublished
+`MirFunction`, and strict JSON serialization. That test is the sole envelope
+issuer; the dedicated ingress owns only one observation transaction and the
+path-independent artifact seal.
 Non-authority: Test names, filenames, manual copies, current target paths,
 `ny_main`, ValueId, assembly similarity, and C/reference artifacts cannot issue
 the missing source/candidate relation.
-Fail-fast boundary: Require one exact producer transaction and artifact cohort
-before a seal; reject manual JSON/source pairing, stale or foreign final IR,
-separately rebuilt executable/assembly, fallback selectors, and any downgrade
-that silently calls source-to-MIR exact.
-Smallest next slice: `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0` performs a
-read-only producer/caller census and accepts one six-line brief before code or
-a real canary run.
-Non-claims: No new semantic receipt, compiler/backend behavior, synthetic
-source, C wrapper, measurement, residual owner, keeper, promotion, or
-production change during the design stop.
+Fail-fast boundary: The envelope and JSON must mutually bind one transaction
+ID and SHA-256; the existing structural driver must consume those exact bytes
+once and emit one nonempty final module and object; disassembly is regenerated
+from that object. Foreign/stale transaction, digest, selector, module, object,
+projected meso artifact, or mapping downgrade issues no V1 seal.
+Smallest next slice: `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0` adds one
+test-only pure envelope child, one tiny producer call, and one dedicated Python
+adapter that owns a private transaction, reuses the structural driver, accepts
+the object as the caller-zero machine carrier, and writes the V1 seal last.
+Non-claims: No `.hako` relation, semantic `Verified*`/`Prepared*` receipt,
+Facts/Recipe issuance, compiler/backend behavior, C/reference owner,
+measurement, residual owner, keeper, promotion, or production change.
 
 ## Decision
 
@@ -269,10 +273,15 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   The entry/model/identity/shape-cli/shape-model owners are
   753/245/172/107/207 lines. Eleven focused tests, the reusable owner guard,
   command help, and pointer guard are green.
-- `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0` (**selected design stop**): audit
-  the source-less compiler-test real-candidate producer and choose the smallest
-  honest V1 issuance seam. Do not pair `real.json` with guessed source or relax
-  the shape mapping floor.
+- `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0` (**accepted**): the canonical seam
+  is the existing `pinned_text_real_candidate_json_preserves_carrier_lineage`
+  export after verified function serialization. It co-issues an observation
+  envelope with source kind `caller_zero_semantic_program`; target directories,
+  test names, ordinals, and historical perf artifacts remain non-authority.
+- `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0` (**selected BoxCount**): add the
+  test-only envelope and one dedicated private-transaction adapter over the
+  existing structural driver. Accept one exact object carrier into V1 without
+  editing the 753-line generic inspect entry or the 754-line trace script.
 - `HAKO-INSPECT-S6C-SHAPE-CANARY-R0` (**parked behind ingress D0**): produce
   one real sealed S6C bundle and render its MIR/LLVM/ASM counts beside the
   existing independent C assembly artifact.
