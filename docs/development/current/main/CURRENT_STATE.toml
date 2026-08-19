@@ -17,15 +17,15 @@ belong to the later promotion evidence gate.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "WSL DEV R0 closed terminal NoSafeSlice: the sole session-0 invocation exited during the canonical case census without an atomic receipt. Session 1 and aggregation were not opened; rerun and partial-value recovery are forbidden."
+current_design_stop = "Residual-performance evidence is parked after terminal WSL NoSafeSlice. Reentry requires a new exact-build owner-attribution premise and an accepted D0; correctness and structural closure remain landed."
 work_mode = "design_stop"
-current_execution_row = "S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0"
-current_blocker_token = "Terminal NoSafeSlice: session 0 produced no atomic receipt, so session 1, aggregation, native-final, performance-owner selection, and backend changes are unauthorized. A future row requires a new explicit Decision; do not rerun this plan."
+current_execution_row = "none"
+current_blocker_token = "Performance lane parked: no complete owner-attribution receipt exists. Reopen only through accepted S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0 after a new external premise; no WSL rerun, partial recovery, backend edit, promotion, or lane bypass."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C pinned Text residual-performance owner audit"
+active_lane = "S6C pinned Text residual-performance evidence parked"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -38,6 +38,9 @@ The versioned runtime header and selected declarations now agree that Enter and
 Finish are no-unwind, while successful Finish remains returnable. Object and
 disassembly observation is parked inside promotion evidence and cannot re-issue
 source or lifecycle meaning. Selected Dynamic remains the sole production arm.
+The residual-performance owner is unissued after terminal WSL NoSafeSlice;
+correctness and structural closure remain landed, while performance reentry,
+promotion, and production cutover are parked.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -50,9 +53,9 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "WSL DEV R0 closed terminal NoSafeSlice: its sole session-0 invocation ended during the canonical case census without an atomic receipt. Session 1 and aggregation were not opened; no partial value, keeper, native claim, owner, or backend change was issued."
-next_design_card = "S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0"
-next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+latest_card_summary = "Residual-performance evidence is parked. WSL DEV R0 issued no atomic receipt; a future exact-build owner-attribution reentry requires a new external premise and accepted D0. No executable row is selected."
+next_design_card = "none"
+next_design_card_path = "none"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

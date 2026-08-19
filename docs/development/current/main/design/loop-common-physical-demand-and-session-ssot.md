@@ -25,11 +25,10 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** WSL DEV R0 closed terminal `NoSafeSlice`. Its sole
-  session-0 invocation ended during the canonical case census without an
-  atomic receipt; session 1 and aggregation were not opened.
-- **Next ordered task:** none. A future performance row requires a new explicit
-  Decision; this sealed plan is not rerun and partial observations stay inert.
+- **Current blocker:** residual-performance evidence is parked after terminal
+  WSL `NoSafeSlice`; no complete owner-attribution receipt exists.
+- **Next ordered task:** none. `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0` is a
+  parked reopen condition, not implementation permission.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -322,17 +321,19 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Decision: Close WSL DEV R0 terminal NoSafeSlice; do not rerun its sealed plan.
-Source authority + canonical issuer: The sealed session-0 plan and its atomic
-receipt boundary alone own development eligibility; no receipt was issued.
-Non-authority: Partial case execution, process lifetime, stderr absence, old
-PMU values, assembly, and benchmark rows issue no ratio, keeper, or owner.
-Fail-fast boundary: Missing session-0 receipt forbids session 1, aggregation,
-native-final, partial recovery, retry, performance-owner selection, and edits.
-Smallest next slice: None. A new external premise and explicit Decision are
-required before another performance row can be selected.
-Non-claims: No WSL verdict, native evidence, BoxShape, promotion, production,
-fallback, threshold/corpus change, or compiler/source/MIR/backend change.
+Decision: Park performance evidence; existing correctness and structural
+closure cannot issue a residual owner or promotion verdict.
+Source authority + canonical issuer: A future reentry requires one sealed
+exact-build attribution plan and its complete collector receipt; current state
+alone selects whether that parked D0 may open.
+Non-authority: Assembly branch counts, partial WSL cases, old PMU ratios,
+process lifetime, exact green, and structural-zero issue no owner or BoxShape.
+Fail-fast boundary: Closed WSL plans, partial recovery, same-plan rerun,
+backend guessing, 8e/8f, production, and cleanup-lane bypass remain forbidden.
+Smallest next slice: None. Park `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0` until a
+new external premise can select exactly one complete attribution method.
+Non-claims: No performance owner, WSL/native verdict, BoxShape, promotion,
+production cutover, fallback, or MIRBuilder completion is claimed.
 
 ### Closed object-observer design
 
@@ -621,6 +622,19 @@ Ordered task ladder:
    authorized.
 10. `S6C-MESO-PAIRED-WALLCLOCK-NATIVE-FINAL-R0`: not opened; future selection
     requires a new explicit Decision. PC/owner work remains unauthorized.
+11. `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0`: parked. A new external premise
+    must select exactly one exact-build, complete-receipt attribution method;
+    no evidence I0, compiler edit, rerun, or promotion is pre-authorized.
+
+Reentry accepts only one full commit/binary/build-id and exact Hako/C symbol
+cohort, one fixed corpus/oracle/environment, one bounded arm-separated
+acquisition, one complete terminal receipt, and one predeclared classifier.
+Partial or rejected observations cannot enter it. PC sampling and retain-all
+native acquisition are mutually exclusive candidates; a future D0 selects one.
+
+Assembly remains negative structural evidence only. It proves absence of
+forbidden calls, EH, wide reads, or helper boundaries; instruction or branch
+counts alone cannot name a hot transition or authorize a lowering edit.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the
