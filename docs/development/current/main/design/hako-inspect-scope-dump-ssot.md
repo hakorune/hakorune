@@ -6,18 +6,20 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Design an optional independent C-reference column for origin-footprint
-without claiming C/Hako semantic equivalence or machine-origin correspondence.
-Source authority + canonical issuer: The sealed Hako bundle remains sole Hako
-authority; an explicit C artifact digest and exact unique symbol own only C totals.
-Non-authority: C source/name, count delta, faster result, labels, addresses,
-adjacency, and visual similarity issue no mapping, owner, or keeper decision.
-Fail-fast boundary: C artifact and exact symbol must be explicit and unique;
-missing/ambiguous/tampered input or inferred symbol fallback produces no report.
-Smallest next slice: `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0` fixes the
-external artifact contract and whether it belongs inside or beside the seal.
-Non-claims: No C semantic oracle, timing, winner, optimization advice, machine
-origin, compiler behavior, promotion, production, fallback, or retry.
+Decision: Emit C reference only as a separate derived origin-footprint report;
+never add an optional C payload to the sealed Hako bundle inventory.
+Source authority + canonical issuer: The exact ten-payload Hako identity remains
+sole Hako authority; explicit C assembly digest plus one exact unique C symbol
+issue only an external-reference shape column.
+Non-authority: C source/build, inferred symbol, textual diff, labels, addresses,
+count delta, timing, and the comparison report issue no mapping or keeper truth.
+Fail-fast boundary: Validate the complete Hako bundle and footprint first, then
+require an explicit regular C artifact and exact unique symbol; any drift,
+ambiguity, fallback, malformed input, or existing output publishes no report.
+Smallest next slice: `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0` adds one
+thin dedicated command and atomically writes an observation-only derived report.
+Non-claims: No C build/equivalence, machine-origin mapping, optimization advice,
+measurement, promotion, production, bundle reseal, fallback, or retry.
 
 ## Decision
 
@@ -395,10 +397,21 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   lowered-LLVM blocks/edges/instructions/calls/branches and an independent ASM
   total with origin attribution unavailable. Thirty-nine inspect tests and the
   21-test real public guard are green. No C comparison or timing in this slice.
-- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0` (**selected design row**):
-  determine whether an explicit external C assembly+symbol is a sealed optional
-  payload or a separate derived comparison report. Never build C inside the
-  provenance issuer or reuse the old symbol-guess/120-line snippet helper.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0` (**accepted observation
+  BoxCount**): keep the exact ten-payload Hako bundle unchanged. An explicit
+  external C assembly digest and exact unique symbol may feed only a separate
+  derived report. The report renders independent Hako/C aggregate ASM columns
+  with correspondence unavailable; it cannot issue equivalence, mapping,
+  measurement, keeper, or promotion meaning. C building, default symbol
+  selection, first-match fallback, and clipped textual diff are non-authority.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0` (**selected observation
+  BoxCount**): add a dedicated thin command outside the 753-line generic router.
+  Validate the complete sealed Hako bundle and rebuild-check its footprint,
+  require `--c-asm` and `--c-symbol`, select exactly one symbol, and atomically
+  publish a separate comparison directory. Positive proves independent totals
+  and unchanged Hako bundle bytes. Missing, non-file, absent/duplicate symbol,
+  tampered/missing/extra Hako payload, malformed footprint, pre-existing output,
+  or authority/correspondence claim publishes neither output nor temporary.
 - `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
   BoxCount**): the first real full-source provenance canary exposed an invalid
   pre-opt module. C1 expands the loop backedge through

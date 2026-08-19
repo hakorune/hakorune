@@ -22,10 +22,10 @@ lowered LLVM writer; optimizer and machine correspondence remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Design the optional independent C-reference artifact boundary for origin-footprint without making C source or shape deltas a semantic, mapping, keeper, or performance authority."
-work_mode = "design_stop"
-current_execution_row = "HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0"
-current_blocker_token = "Choose sealed optional payload versus separate derived report, require explicit artifact digest and exact unique C symbol, and prohibit symbol fallback or semantic-equivalence claims."
+current_design_stop = "none; the external C-reference boundary is accepted as a separate derived observation report and the bounded I0 is selected"
+work_mode = "fast"
+current_execution_row = "HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0"
+current_blocker_token = "Implement only the separate external-reference report; do not reseal the Hako bundle, build C, infer symbols, claim correspondence, or add measurement authority."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -78,8 +78,7 @@ The V0 disposition closure is landed: one pure child accepts only real
 preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the
-same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent
-ASM totals. Optional C reference stops at a separate D0.
+same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent ASM totals. Optional C comparison is selected only as a separate derived report.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -92,11 +91,11 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "Origin-footprint seals ten payloads and renders exact MIR-to-lowered-LLVM cohort shape beside independent ASM totals. Optional explicit C-reference comparison stops at D0."
-next_design_card = "HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0"
-next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card_summary = "Origin-footprint keeps its exact ten-payload Hako seal. The accepted external C-reference I0 may emit only a separate digest-bound observation report with explicit exact symbol selection."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0"
+next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -107,6 +106,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0 accepted one observation BoxCount. The exact ten-payload Hako identity stays unchanged; explicit C assembly plus one exact unique symbol may feed only a separate derived report with independent totals and correspondence unavailable. C build, symbol fallback, equivalence, timing, mapping, keeper, and promotion authority remain prohibited. The bounded I0 is selected.",
   "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-I0 landed one caller-zero observation BoxCount. The existing driver transaction now seals same-emission object and exact ParserScanLoopBox.skip_while/4 disassembly with an origin-footprint payload. Issuer-exact MIR origins expose lowered-LLVM block/edge/instruction/call/branch shape; ASM exposes only 144/47/5/1 symbol totals and origin attribution remains unavailable. Thirty-nine inspect tests and the 21-test public guard are green. Optional C-reference D0 is selected next.",
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-I0 landed behavior-neutrally. Producer lineage and summary are written before identity and join source/MIR/lowered LLVM/origins/provenance in its seven-payload digest table; identity is the non-recursive root receipt issued last. Exact seven-plus-receipt inventory, producer/summary tamper, extra sibling, and partial-publication negatives are green. Origin-footprint D0 is selected next.",
   "2026-08-20: HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-I0 landed behavior-neutrally. A 108-line pure child narrows V0 to the real preserved/split issuer forms, validates reason/site/cohort and exact MIR/LLVM ownership, and rejects latent merged/deleted/introduced vocabulary. Thirty-three inspect tests, both inspect guards, selected-Dynamic 64-row evidence, and the S6C structural canary are green; C event bytes are unchanged. Bundle identity D0 is selected next.",
