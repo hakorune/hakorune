@@ -6,27 +6,28 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Open `HAKO-INSPECT-PROVENANCE-D0`: the real S6C canary proves that
-sealed layer counts are useful, but the current block/symbol mapping cannot say
-which MIR edge expanded into which LLVM/assembly region.
-Source authority + canonical issuer: The existing source-backed S6C producer,
-canonical MIR/CFG writer, selected LLVM lowerer, and exact object emitter remain
-the only issuers. Any stronger mapping must be emitted by those owners while
-they still hold the relation, then co-sealed into the observation bundle.
-Non-authority: ValueId or label equality, textual adjacency, block numbering,
-symbol names, instruction counts, disassembly similarity, C code, and timing
-cannot issue cross-layer correspondence or an optimization owner.
-Fail-fast boundary: A proposed sidecar must bind the existing candidate seal,
-preserve many-to-one/deleted/split relations explicitly, and reject missing,
-foreign, stale, ambiguous, or inferred edges before rendering. No guessed
-mapping is better than a false exact mapping.
-Smallest next slice: `HAKO-INSPECT-PROVENANCE-D0` is a read-only census and
-six-line design of the smallest compiler/backend-emitted sidecar. No code or
-fixture change is authorized until one canonical issuer and one bounded I0 are
-named.
-Non-claims: No generic optimizer, semantic receipt, source syntax, C-reference
-owner, keeper selection, measurement, residual owner, promotion, or production
-change.
+Decision: Adopt one selected-candidate MIR→LLVM origin sidecar, but keep
+LLVM→optimized-machine correspondence unavailable. Before that BoxCount, fix
+the current MIR CFG counter which omits the two Residence Enter edges.
+Source authority + canonical issuer: `MirFunction` blocks and terminators own
+the eight S6C CFG edges. The selected pinned-Text textual lowerer is the sole
+MIR-site/edge→LLVM-region relation issuer because it simultaneously consumes
+the validated MIR site and emits every direct or introduced LLVM region.
+Non-authority: ValueId, equal numeric block IDs, `%bbN`/`.LBB` labels, textual
+adjacency, instruction counts, object addresses, disassembly similarity, C
+code, and timing cannot issue correspondence or an optimization owner.
+Fail-fast boundary: The sealed sidecar must exhaustively classify candidate-
+local MIR and final-LLVM blocks/edges as preserved, split, merged, deleted, or
+introduced and bind exact MIR/final-LLVM digests. Missing, duplicate, dangling,
+foreign, stale, inferred, or ambiguous rows reject before rendering. ASM stays
+symbol-only; requesting exact machine attribution rejects.
+Smallest next slice: `HAKO-INSPECT-MIR-CFG-COUNT-I0` is one observation-only
+BoxShape: make the pure MIR counter follow the canonical terminator successor
+vocabulary, proving this canary has eight—not six—CFG edges. The subsequent
+`HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` remains a separate BoxCount.
+Non-claims: No LLVM→machine map, debug-info ABI, generic backend provenance,
+semantic receipt, source syntax, optimization recommendation, keeper,
+measurement, residual owner, promotion, or production change.
 
 ## Decision
 
@@ -282,15 +283,28 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   publication; the 753-line generic inspect entry and 754-line trace script
   remain untouched.
 - `HAKO-INSPECT-S6C-SHAPE-CANARY-R0` (**landed observation row**): one real
-  seal `ec9289ed...c8ad` reports MIR `8 blocks / 6 edges / 24 instructions`,
-  LLVM `23 / 31 / 83`, and selected-symbol assembly `69 instructions / 13
-  branches / 3 calls / 2 returns`. The report explicitly issues no
-  correspondence, keeper, or measurement authority.
-- `HAKO-INSPECT-PROVENANCE-D0` (**selected design row**): block/symbol quality
-  cannot identify which MIR edge owns the observed expansion. Audit the
-  canonical MIR/LLVM/object seams and name the smallest compiler/backend-emitted
-  sidecar; no ValueId, adjacency, label, symbol-name, or count reconstruction is
-  allowed.
+  seal `ec9289ed...c8ad` reports MIR `8 blocks / 6 normalized edges / 24
+  instructions`, LLVM `23 / 31 / 83`, and selected-symbol assembly `69
+  instructions / 13 branches / 3 calls / 2 returns`. Audit found the MIR edge
+  metric omitted Residence Enter normal/trap; canonical CFG edge count is eight.
+- `HAKO-INSPECT-PROVENANCE-D0` (**accepted**): first provenance product is an
+  issuer-emitted, candidate-local MIR→final-LLVM block/edge relation. It natively
+  represents preserved/split/merged/deleted/introduced sets. LLVM→machine
+  remains unavailable because optimization may fold, merge, delete, or create
+  instructions without a carried machine origin.
+- `HAKO-INSPECT-MIR-CFG-COUNT-I0` (**selected BoxShape**): teach only the pure
+  shape model that `checked_callout` and `pinned_text_residence_enter` each own
+  two canonical successors. Add exact positive/negative counters and update the
+  canary to MIR `8 blocks / 8 edges / 24 instructions`; no sidecar yet.
+- `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` (**parked next BoxCount**): add a
+  compile-time observation sink in the selected dispatch/lowerer plus a new
+  private relation model/validator. Direct `bbN`, WidthAt/ScalarEq internal
+  regions, consumed direct-continuation branch arms, and lifecycle edges must
+  be issued while lowering; the ingress only digest-binds and renders them.
+  Do not grow the 759-line generic lowerer or 753-line generic inspect entry.
+- `HAKO-INSPECT-LLVM-ASM-D0` (**conditional NoSafeSlice**): open only if exact
+  machine attribution remains necessary. LLVM18 block-name assembly comments
+  are useful diagnostics but are not exact object-address provenance.
 
 ## Non-Goals
 
