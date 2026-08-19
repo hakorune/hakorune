@@ -17,10 +17,10 @@ belong to the later promotion evidence gate.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Resolved: clean-pair R0 closed NoSafeSlice. Retain-all paired wall-clock D0/I0 and explicit harness I1 landed; WSL sessions are development-only and same-plan PMU rerun stays forbidden."
-work_mode = "fast"
+current_design_stop = "WSL DEV R0 closed terminal NoSafeSlice: the sole session-0 invocation exited during the canonical case census without an atomic receipt. Session 1 and aggregation were not opened; rerun and partial-value recovery are forbidden."
+work_mode = "design_stop"
 current_execution_row = "S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0"
-current_blocker_token = "Run sealed WSL development sessions 0 and 1 exactly once each, aggregate every retained pair, and publish only a development verdict; no retry, filtering, native claim, or compiler change."
+current_blocker_token = "Terminal NoSafeSlice: session 0 produced no atomic receipt, so session 1, aggregation, native-final, performance-owner selection, and backend changes are unauthorized. A future row requires a new explicit Decision; do not rerun this plan."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -50,11 +50,11 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Robust paired wall-clock harness I1 landed: an explicit C mode consumes each sealed 51-slot schedule, emits block/order/raw rows, Python validates every pair, session 0/1 reverse AB excess, and one development-only aggregator forbids native promotion. WSL DEV R0 is next."
+latest_card_summary = "WSL DEV R0 closed terminal NoSafeSlice: its sole session-0 invocation ended during the canonical case census without an atomic receipt. Session 1 and aggregation were not opened; no partial value, keeper, native claim, owner, or backend change was issued."
 next_design_card = "S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0"
-next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -65,6 +65,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: WSL paired-wall-clock DEV R0 closed terminal NoSafeSlice. The sole session-0 invocation traversed part of the canonical case census but ended without its atomic receipt; session 1 and aggregation were not opened. Partial observations issue no development keeper, ratio, owner, native evidence, or backend change, and this sealed plan is not rerun.",
   "2026-08-19: Clean-pair R0 closed verified NoSafeSlice at 18 rejected/0 accepted. Robust paired wall-clock D0/I0 and harness I1 landed evidence-only: explicit C mode consumes sealed 51-slot schedules, emits raw block/order rows, sessions 0/1 reverse AB excess, and one development-only aggregator retains all pairs. Native promotion and compiler/source/MIR/backend remain unchanged.",
   "2026-08-19: Native separate-arm PMU foundation and integrity I1 landed evidence-only: direct arm processes and fixed PMU groups remain, while one private frozen binary, full manifest/commit binding, exact corpus constants, getrusage plus single-CPU affinity, balanced cross-run ordering, timeout, and interval/classifier matrices close the audit gaps. The first native JSON is provisional and must be replaced by R0; compiler/source/MIR/ABI, C reference, corpus, and 1.15 threshold remain unchanged.",
   "2026-08-19: Meso equal-alignment control landed as evidence-only: outlined Hako and independent C symbols are both 64-byte aligned, normalized linked-body hashes are recorded, calls/trampolines remain zero, and corpus/oracle/51-pair/30ms/1.15 threshold are unchanged. The uncontended result remains red at mixed/4KiB/first p50 1.170296, so promotion stays closed and further lowering is NoSafeSlice pending a hardware-counter owner audit.",
@@ -75,6 +76,5 @@ landed_tail = [
   "2026-08-19: Pinned-corridor exact benchmark R0 landed offline: the exact real scalar plan is projected by the sole production emitter into a separate Residence-acquired evidence callable. An initial unchanged-threshold red exposed eager post-mismatch byte loads; a bounded backend BoxShape short-circuited later reads. The unchanged 51-pair gate is green at ASCII max p50 1.061, mixed max p50 1.078, and all-case max p95 1.113; compiler meaning and production remain unchanged.",
   "2026-08-19: Pinned-corridor structural-zero R0 landed offline: a compile-time-only hook borrows the same final-closure ModuleRef immediately before sole emit, and final IR plus linked assembly show entry-only allocation/root projection, exact align-1 byte reads, only Enter/Finish/Trap calls, and zero EH/noalias/wide/indirect/helper calls. Capture and structural negatives publish no evidence/object; compiler authority and production remain unchanged.",
   "2026-08-19: Pinned-corridor link/run correctness R0 landed offline: the exact real object links with a default-off test-only NyRT wire issuer and matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar, alias, match/miss, zero/stale/foreign/non-Text/retirement-pending, and both normal Residence exits. Production ABI, selector, benchmark, fallback, and retry remain unchanged.",
-  "2026-08-19: Final-module closure I0 landed caller-zero: the same parsed LLVMModuleRef passes LLVMVerifyModule, exact target/layout, lifecycle declaration attributes, 1 Enter/1 Trap/2 Finish-to-Return, and zero EH/extra-call checks immediately before the sole trusted emit. Missing nounwind, missing Finish, extra call, and valid-EH drift reject without object or temporary publication; no pass, module mutation, object reader, semantic receipt, fallback, or retry was added.",
-  "2026-08-19: Runtime-call contract I0 landed caller-zero: the existing Rust export plus versioned C header own Enter/Finish no-unwind behavior, selected LLVM emits exact `nounwind` declarations, successful Finish remains returnable, and readonly/readnone/nofree/speculatable drift rejects. Focused positive, ordering/effect negatives, ABI/preflight guards, and the real-candidate TargetMachine smoke are green; no receipt, frame, token, object reader, production edge, fallback, or retry was added."
+  "2026-08-19: Final-module closure I0 landed caller-zero: the same parsed LLVMModuleRef passes LLVMVerifyModule, exact target/layout, lifecycle declaration attributes, 1 Enter/1 Trap/2 Finish-to-Return, and zero EH/extra-call checks immediately before the sole trusted emit. Missing nounwind, missing Finish, extra call, and valid-EH drift reject without object or temporary publication; no pass, module mutation, object reader, semantic receipt, fallback, or retry was added."
 ]

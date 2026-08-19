@@ -25,11 +25,11 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** meso evidence remains red. The sole native clean-pair R0
-  closed `NoSafeSlice` with 18/18 scheduler-rejected pairs and zero accepted;
-  rejected values issued no ratio, PC attribution, or residual owner.
-- **Next ordered task:** `S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0` runs exactly
-  two sealed development sessions; it cannot authorize native promotion.
+- **Current blocker:** WSL DEV R0 closed terminal `NoSafeSlice`. Its sole
+  session-0 invocation ended during the canonical case census without an
+  atomic receipt; session 1 and aggregation were not opened.
+- **Next ordered task:** none. A future performance row requires a new explicit
+  Decision; this sealed plan is not rerun and partial observations stay inert.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -322,34 +322,17 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Row: `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0`
-Kind: one bounded selected-backend route; no new semantic receipt.
-
-Change:
-  Add one private child that consumes the already-preflighted selected
-  lifecycle expectation and checks the same parsed `LLVMModuleRef` after exact
-  target/layout installation. Run `LLVMVerifyModule`, close exact lifecycle
-  declarations/calls/Trap/Return attributes, then invoke the existing sole
-  `LLVMTargetMachineEmitToFile` without an intervening pass or mutation.
-
-Contract:
-  Rust carrier/preflight owns expected sites; the versioned runtime header owns
-  call effects; the final-module child only validates their physical projection.
-  It does not rescan JSON, infer meaning from symbol counts, run a pass, emit a
-  second object, or create a post-codegen receipt. File ingress remains unchanged.
-
-Done:
-  Positive real-candidate closure reaches one nonempty test object. Invalid
-  module, target/layout, lifecycle count/site/order/attribute, EH construct, or
-  late mutation rejects before emission with object/temporary count zero.
-  Prescan is unchanged, generic owner remains below 760 lines, and the final
-  closure lives in a private child below the split trigger.
-
-Stop:
-  If the preflighted expectation cannot reach the parsed module without a
-  second ledger/JSON scan, or if any pass/module mutation must follow closure,
-  return to design. Object readers, runtime changes, new semantic receipts,
-  fallback/retry, production edges, and unrelated backend parity stay closed.
+Decision: Close WSL DEV R0 terminal NoSafeSlice; do not rerun its sealed plan.
+Source authority + canonical issuer: The sealed session-0 plan and its atomic
+receipt boundary alone own development eligibility; no receipt was issued.
+Non-authority: Partial case execution, process lifetime, stderr absence, old
+PMU values, assembly, and benchmark rows issue no ratio, keeper, or owner.
+Fail-fast boundary: Missing session-0 receipt forbids session 1, aggregation,
+native-final, partial recovery, retry, performance-owner selection, and edits.
+Smallest next slice: None. A new external premise and explicit Decision are
+required before another performance row can be selected.
+Non-claims: No WSL verdict, native evidence, BoxShape, promotion, production,
+fallback, threshold/corpus change, or compiler/source/MIR/backend change.
 
 ### Closed object-observer design
 
@@ -633,10 +616,11 @@ Ordered task ladder:
 6. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-R0`: terminal NoSafeSlice; closed.
 7. `S6C-MESO-PAIRED-WALLCLOCK-ROBUST-D0/I0`: accepted/landed plan owner only.
 8. `S6C-MESO-PAIRED-WALLCLOCK-HARNESS-I1`: landed explicit order/raw-row path.
-9. `S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0`: run session 0/1 once; development
-   keeper only, with no best-session selection or retry.
-10. `S6C-MESO-PAIRED-WALLCLOCK-NATIVE-FINAL-R0`: three native sessions; only
-    this may feed 8f. PC/owner work requires a separate future Decision.
+9. `S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0`: terminal NoSafeSlice; session 0
+   issued no receipt, so session 1/aggregation were not opened and no rerun is
+   authorized.
+10. `S6C-MESO-PAIRED-WALLCLOCK-NATIVE-FINAL-R0`: not opened; future selection
+    requires a new explicit Decision. PC/owner work remains unauthorized.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the
