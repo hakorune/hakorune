@@ -1,14 +1,15 @@
 # FunctionCall Callee Binding and Evaluation Order D0
 
-Status: selected design stop  
+Status: accepted design
 Scope: bare `FunctionCall` callee binding, argument evaluation, and first error  
 Parent: `../workstreams/mirbuilder-inplace-replacement-current.md`  
 Row: `FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0`
 
 ## Current execution brief
 
-Decision: Define when a bare `FunctionCall` binds its callee relative to ordered
-argument evaluation, and which source-semantic owner issues the exact target.
+Decision: `FunctionCall` denotes direct FreeStatic or explicit special syntax;
+`Call` denotes a callee-value invocation. The callee is fixed before arguments,
+which are evaluated exactly once left-to-right.
 Source authority + canonical issuer: The exact source call occurrence, lexical
 binding environment, callable index, special-call vocabulary, and source language
 evaluation-order decision must co-seal one target/evaluation contract.
@@ -16,8 +17,8 @@ Non-authority: Builder `variable_map`, current module/static box snapshots,
 name/arity, catalog/header alone, MIR order, tail lookup, tests, C, and ASM.
 Fail-fast boundary: No lowering change until callee binding, argument effects,
 target precedence, and first-error behavior have one source-level meaning.
-Smallest next slice: Decide the semantic contract and its issuer only; then name
-one behavior migration series, beginning with a separate preflight-owner test split.
+Smallest next slice: `FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0`
+classifies every caller that depends on local/current-static/recovery/tail behavior.
 Non-claims: No Script activation, new receipt/Recipe, raw route change, diagnostic
 change, tail retirement, production switch, fallback, or retry.
 
@@ -60,6 +61,18 @@ Before semantic implementation, extract the inline tests from the 790-line
 `function_call_preflight_route.rs` into a child test module as a behavior-neutral
 BoxShape. The semantic migration then uses separate bounded commits and keeps all
 source files below 760 lines, with 800 as an absolute stop.
+
+## Accepted authority
+
+For direct FreeStatic calls, the existing `VerifiedCallableIndexV1` issues the
+only target through the exact source-site `ResolvedDirectCallTargetV1`. Builder
+state, post-argument lookup, bare recovery, and tail resolution are legacy
+compatibility mechanisms and may not issue canonical meaning. Value calls first
+evaluate their callee expression and then evaluate arguments left-to-right.
+
+The durable language Decision is
+`docs/reference/language/function-call-evaluation.md`. No implementation route is
+opened by this D0; compatibility callers must be counted before migration.
 
 ## Stop condition
 

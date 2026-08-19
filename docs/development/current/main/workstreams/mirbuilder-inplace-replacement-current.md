@@ -250,9 +250,14 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 selected design stop
+  FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0
+  -> classify every local/current-static/builtin/extern/recovery/tail caller and
+     first-error dependency before selecting one canonical migration.
+
+accepted design
   FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0
-  -> define source-semantic callee binding, ordered argument effects, exact target
-     issuer, and first-error order before changing raw or Script lowering.
+  -> FunctionCall is direct FreeStatic/explicit special; Call evaluates one callee
+     value first; arguments evaluate once left-to-right after target selection.
 
 closed NoSafeSlice
   RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0
