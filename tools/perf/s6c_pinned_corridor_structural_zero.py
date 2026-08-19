@@ -129,14 +129,23 @@ def verify_ir(text: str) -> dict[str, object]:
     if any("<" in line and " x i" in line for line in lines if "load" in line):
         reject("vector load appeared in the candidate")
 
-    widths: dict[int, set[int]] = {width: set() for width in range(1, 5)}
+    if " switch " in function:
+        reject("scalar equality retained an indirect width dispatch")
+    selects = [line for line in lines if " select " in line and "%ptfc_" in line]
+    if len(selects) != 1 or "%ptfc_wide_width_" not in selects[0]:
+        reject("WidthAt must use one branchless 3/4-byte tail")
+    if len(re.findall(r"^ptfc_width_(?:ascii|two|wide)_\d+:", function, re.M)) != 3:
+        reject("WidthAt ordered branch leaves are incomplete")
+    offsets: set[int] = set()
     for line in lines:
-        match = re.search(r"%ptfc_[lr]ptr_([1-4])_([0-9]+)_", line)
+        match = re.search(r"%ptfc_[lr]ptr_([1-3])_[0-9]+\s*=\s*getelementptr", line)
         if match:
-            widths[int(match.group(1))].add(int(match.group(2)))
-    for width, offsets in widths.items():
-        if offsets != set(range(width)):
-            reject(f"width-{width} read offsets drifted: {sorted(offsets)}")
+            offsets.add(int(match.group(1)))
+    if offsets != {1, 2, 3}:
+        reject(f"direct scalar tail offsets drifted: {sorted(offsets)}")
+    cached_leads = re.findall(r"%ptfc_byte_\d+\s*=\s*load i8", function)
+    if len(cached_leads) != 1:
+        reject("WidthAt lead byte must be loaded exactly once")
 
     triple = re.search(r'^target triple = "([^"]+)"$', text, re.M)
     layout = re.search(r'^target datalayout = "([^"]+)"$', text, re.M)
@@ -146,7 +155,7 @@ def verify_ir(text: str) -> dict[str, object]:
         "candidate_call_targets": sorted(set(calls)),
         "root_projection_block_count": len(root_blocks),
         "scalar_read_count": len(byte_positions),
-        "exact_widths": sorted(widths),
+        "exact_widths": [1, 2, 3, 4],
     }
 
 

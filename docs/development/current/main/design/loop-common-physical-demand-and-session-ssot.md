@@ -441,7 +441,7 @@ kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 | 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | **Landed.** The real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text/retirement-pending, match/miss, and lifecycle cases. Input generations come only from a default-off test issuer in the allocation transaction. |
 | 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | **Landed.** A compile-time-only hook borrows the same closure-verified ModuleRef before sole emit; final IR and linked assembly show only lifecycle calls, entry-only allocation/root projection, exact align-1 byte reads, and zero EH/noalias/wide read/indirect or helper call. Machine layout counts remain non-authority. |
 | 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | **Landed.** The exact real plan is projected by the sole production leaf emitter into a separate evidence callable. The first unchanged-threshold run exposed eager post-mismatch loads; `LLVM-PINNED-TEXT-SCALAR-EQ-SHORT-CIRCUIT-I0` made bytes 2..4 reachable only after prior equality. The unchanged 51-pair gate is green (ASCII max p50 1.061, mixed max p50 1.078, all-case max p95 1.113 versus 1.10/1.15/1.30). |
-| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Measured red; promotion remains closed.** Exact shell subtraction and parity are green, but the unchanged 80-case/51-pair gate reports max 4KiB+ p50 C ratio 3.856. `LLVM-PINNED-TEXT-SCALAR-EQ-LEAD-REUSE-LADDER-I0` is the sole bounded repair before rerunning the unchanged gate. |
+| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Measured red; promotion remains closed.** The selected scan schedule reduced the uncontended max from 3.856 to 1.239, with the remaining worst case `width4/1MiB/first`. `PINNED-TEXT-SCALAR-EQ-DIRECT-BRANCH-BOXSHAPE-R0` is the sole bounded repair before rerunning the unchanged gate. |
 | 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | ABI+Enter+projection+loop+Finish+Return reports short-input cost and break-even; 4KiB+ p50 <=1.20, p95 <=1.30, and current-route delta separately. |
 | 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | One test/perf-only aggregate consumes exact commit/toolchain/environment/corpus evidence from 8a-e and measures nothing itself; any missing or red leaf means no promotion. |
 | 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
@@ -462,8 +462,9 @@ Non-authority: Leaf plans, ValueIds, labels, C code, timings, outlined helper,
 assembly, and evidence reports cannot issue CFG or compiler meaning.
 Fail-fast boundary: Remove exactly the old signature, 13-instruction Enter
 block, 2-instruction Trap block, 8 root-projection instructions, and two
-Finish calls. Preserve 20 blocks, 92 instructions, 35 edges, 5 PHIs, and two
-Returns by normalized graph digest; any synthesis or drift is NoSafeSlice.
+Finish calls. The current selected schedule preserves 21 blocks, 59
+instructions, 31 edges, 6 PHIs, and two Returns by normalized graph digest;
+any synthesis or drift is NoSafeSlice.
 Smallest next slice: S6C-PINNED-CORRIDOR-FINAL-IR-SHELL-OUTLINE-I0 implements
 only the offline projector, digest parity, mutation negatives, and cleanup.
 Non-claims: No optimizer, receipt, runtime ABI, production, fallback/retry,
@@ -486,9 +487,14 @@ The remaining 8d order is deliberately split:
    and require identical first-code-point index or `-1` for empty, widths 1–4,
    mixed, first/middle/last/miss, and alias cases.
 2. **Measured red** `S6C-PINNED-CORRIDOR-MESO-BENCH-R0`: the fixed corpus and
-   unchanged oracle produced max 4KiB+ p50 ratio 3.856, so 8e stays closed.
-3. **Current** `LLVM-PINNED-TEXT-SCALAR-EQ-LEAD-REUSE-LADDER-I0`: repair only
-   the selected physical leaf schedule below, then rerun the same meso gate.
+   unchanged oracle first produced max 3.856. The selected scan schedule
+   reduced the uncontended result to 1.239 at `width4/1MiB/first`; 8e stays closed.
+3. **Schedule prerequisite implemented, not yet landed**
+   `LLVM-PINNED-TEXT-SCAN-SHORT-CIRCUIT-SCHEDULE-I0`: ordered ASCII/2-byte
+   WidthAt, branchless 3/4 tail, cached lead, and direct equality ladder are
+   correctness/exact/structural/parity green.
+4. **Current** `PINNED-TEXT-SCALAR-EQ-DIRECT-BRANCH-BOXSHAPE-R0`: consume the
+   strict scalar equality plus its sole adjacent Branch as one projection.
 
 ### Accepted scalar-equality schedule repair
 
@@ -504,21 +510,43 @@ block labels, and the outlined helper issue no source or compiler meaning.
 Fail-fast boundary: Accept only that preflighted same-cohort plan relation;
 width N reads exactly N bytes, later reads require prior equality, and switch,
 indirect branch, helper, overread, noalias, and extra call stay zero.
-Smallest next slice: LLVM-PINNED-TEXT-SCALAR-EQ-LEAD-REUSE-LADDER-I0 changes
-the selected leaf emitter and focused structural evidence, then reruns exact,
-link/run, structural-zero, and the unchanged meso benchmark.
+Smallest next slice: LLVM-PINNED-TEXT-SCAN-SHORT-CIRCUIT-SCHEDULE-I0 changes
+only the selected leaf schedule and focused structural evidence, then reruns
+exact, link/run, structural-zero, and the unchanged meso benchmark.
 Non-claims: No LLVM pass pipeline, MIR/source/Facts/Recipe/ABI/frame change,
 production switch, fallback/retry, threshold relaxation, or C-oracle rewrite.
 ```
 
-The real same-session object has no loop-carried stack spill. Its remaining
-gap is local: one indirect width dispatch, a second byte-0 load in every width
-arm, and a Bool join/rebranch. The independent C reference reuses the lead byte
-and advances through direct length/byte checks. The repair is therefore a
-BoxShape inside the already selected physical emitter, not a new optimizer,
-receipt, fastpath authority, or language feature. If the cached lead byte
-cannot be tied to the existing WidthAt plan without name guessing, stop with
-`NoSafeSlice` and introduce only an emitter-local physical context.
+The real same-session object has no loop-carried stack spill. The landed-shape
+candidate now has no indirect width dispatch or duplicate lead load; the
+uncontended remaining red is the one-scalar success path, where true/false are
+materialized through a Bool PHI and immediately branched again.
+
+### Accepted direct-Branch projection
+
+```text
+Decision: Project the selected scalar equality's true/false terminals directly
+to its sole adjacent Branch targets; suppress exactly that generic Branch.
+Source authority + canonical issuer: Source/Facts/Recipe/Join already co-seal
+V9 -> TextEq(V10) -> If(V10), and the canonical cursor CFG remains the sole MIR
+Branch issuer. Selected preflight consumes only that strict physical projection.
+Non-authority: JSON adjacency, ValueIds, plan index, assembly, timings, and the
+outlined helper cannot issue source, CFG, or exit meaning.
+Fail-fast boundary: Before LLVM effect, census every function use of equality
+dst; require exactly one same-block terminal Branch condition, exact targets,
+existing blocks, plan relation, and lifecycle/exit parity. Otherwise reject.
+Smallest next slice: PINNED-TEXT-SCALAR-EQ-DIRECT-BRANCH-BOXSHAPE-R0 adds the
+preflight census and one exactly-once selected Branch consumer, then reruns all
+focused gates and the unchanged meso benchmark.
+Non-claims: No MIR vocabulary, source/Recipe, DraftSeal, Residence, generic
+peephole, production selector, C oracle, threshold, fallback, or retry change.
+```
+
+Generic `emit_branch` remains the normal owner. Only the preflighted selected
+pair may bypass Bool materialization. Extra/copy/PHI/Return/call use,
+non-adjacent or non-terminal Branch, foreign targets, and duplicate/missing
+consumption reject before publication. If exhaustive use census cannot be
+closed without inferred semantics, this row is `NoSafeSlice`.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the

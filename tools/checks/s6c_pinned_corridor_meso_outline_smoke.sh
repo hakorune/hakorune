@@ -10,7 +10,7 @@ CC_CMD="${CC:-cc}"
 CLANG_CMD="${CLANG_18:-clang-18}"
 PROJECTOR="$ROOT_DIR/tools/perf/s6c_pinned_corridor_meso_outline.py"
 DRIVER="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_structural_zero_driver.c"
-EXPECTED_SCAN="0b219d8ea1075ffced58eecfa96d92c08b5d2febeb210ee9551d2a3c97bfaa28"
+EXPECTED_SCAN="91b4bcc1aba8f08be7a31a046731f62636029133498751bf41795e97a1d371a3"
 
 "$CC_CMD" -I"$ROOT_DIR/plugins/nyash-json-plugin/c/yyjson" \
   -o "$TEMP_DIR/structural-driver" "$DRIVER" \
@@ -78,7 +78,7 @@ python3 - "$TEMP_DIR/meso.json" <<'PY'
 import json, sys
 data = json.load(open(sys.argv[1]))
 assert data['removed'] == {'blocks': 2, 'instructions': 25}
-assert data['retained'] == {'blocks': 20, 'edges': 35, 'instructions': 92, 'phis': 5, 'returns': 2}
+assert data['retained'] == {'blocks': 21, 'edges': 31, 'instructions': 59, 'phis': 6, 'returns': 2}
 print('[s6c-pinned-corridor-meso-outline-smoke] ok '
       f"(scan graph {data['retained_graph_sha256'][:12]}; evidence-only)")
 PY

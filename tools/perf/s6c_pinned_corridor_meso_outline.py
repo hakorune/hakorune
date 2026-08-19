@@ -34,7 +34,7 @@ ROOT_PROJECTION = (
     "%ptfc_needle_len = load i64, ptr %ptfc_needle_len_addr, align 8",
 )
 FINISH = "call void @hako_text_formal_residence_finish_or_abort_v1(ptr %ptfc_frame)"
-EXPECTED_COUNTS = {"blocks": 20, "instructions": 92, "edges": 35, "phis": 5, "returns": 2}
+EXPECTED_COUNTS = {"blocks": 21, "instructions": 59, "edges": 31, "phis": 6, "returns": 2}
 
 
 def reject(message: str) -> None:

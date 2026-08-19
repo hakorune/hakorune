@@ -177,16 +177,25 @@ static int hako_llvmc_ptfc_emit_selected_leaf(
             plan->dst, plan->dst);
     fprintf(out, "  %%ptfc_ascii_%lld = icmp ult i8 %%ptfc_byte_%lld, -128\n",
             plan->dst, plan->dst);
+    fprintf(out, "  br i1 %%ptfc_ascii_%lld, label %%ptfc_width_ascii_%lld, label %%ptfc_width_non_ascii_%lld\n",
+            plan->dst, plan->dst, plan->dst);
+    fprintf(out, "ptfc_width_ascii_%lld:\n  br label %%ptfc_width_merge_%lld\n",
+            plan->dst, plan->dst);
+    fprintf(out, "ptfc_width_non_ascii_%lld:\n", plan->dst);
     fprintf(out, "  %%ptfc_two_%lld = icmp ult i8 %%ptfc_byte_%lld, -32\n",
             plan->dst, plan->dst);
+    fprintf(out, "  br i1 %%ptfc_two_%lld, label %%ptfc_width_two_%lld, label %%ptfc_width_wide_%lld\n",
+            plan->dst, plan->dst, plan->dst);
+    fprintf(out, "ptfc_width_two_%lld:\n  br label %%ptfc_width_merge_%lld\n",
+            plan->dst, plan->dst);
+    fprintf(out, "ptfc_width_wide_%lld:\n", plan->dst);
     fprintf(out, "  %%ptfc_three_%lld = icmp ult i8 %%ptfc_byte_%lld, -16\n",
             plan->dst, plan->dst);
-    fprintf(out, "  %%ptfc_wide_%lld = select i1 %%ptfc_three_%lld, i64 3, i64 4\n",
+    fprintf(out, "  %%ptfc_wide_width_%lld = select i1 %%ptfc_three_%lld, i64 3, i64 4\n",
             plan->dst, plan->dst);
-    fprintf(out, "  %%ptfc_non_ascii_%lld = select i1 %%ptfc_two_%lld, i64 2, i64 %%ptfc_wide_%lld\n",
-            plan->dst, plan->dst, plan->dst);
-    fprintf(out, "  %%r%lld = select i1 %%ptfc_ascii_%lld, i64 1, i64 %%ptfc_non_ascii_%lld\n",
-            plan->dst, plan->dst, plan->dst);
+    fprintf(out, "  br label %%ptfc_width_merge_%lld\n", plan->dst);
+    fprintf(out, "ptfc_width_merge_%lld:\n  %%r%lld = phi i64 [ 1, %%ptfc_width_ascii_%lld ], [ 2, %%ptfc_width_two_%lld ], [ %%ptfc_wide_width_%lld, %%ptfc_width_wide_%lld ]\n",
+            plan->dst, plan->dst, plan->dst, plan->dst, plan->dst, plan->dst);
     return 1;
   }
   if (plan->kind == HAKO_PTFC_ACCESS_SCALAR_EQ_TEXT) {
@@ -194,40 +203,38 @@ static int hako_llvmc_ptfc_emit_selected_leaf(
     fputs("  ; ptfc leaf utf8_scalar_slice_eq_whole_text\n", out);
     fprintf(out, "  %%ptfc_len_eq_%lld = icmp eq i64 %%r%lld, %%ptfc_needle_len\n",
             dst, plan->width);
-    fprintf(out, "  br i1 %%ptfc_len_eq_%lld, label %%ptfc_eq_width_%lld, label %%ptfc_eq_false_%lld\n",
+    fprintf(out, "  br i1 %%ptfc_len_eq_%lld, label %%ptfc_eq_lead_%lld, label %%ptfc_eq_false_%lld\n",
             dst, dst, dst);
-    fprintf(out, "ptfc_eq_width_%lld:\n", dst);
-    fprintf(out, "  switch i64 %%r%lld, label %%ptfc_eq_false_%lld [ i64 1, label %%ptfc_eq_w1_%lld i64 2, label %%ptfc_eq_w2_%lld i64 3, label %%ptfc_eq_w3_%lld i64 4, label %%ptfc_eq_w4_%lld ]\n",
-            plan->width, dst, dst, dst, dst, dst);
-    for (int width = 1; width <= 4; width++) {
-      fprintf(out, "ptfc_eq_w%d_%lld:\n", width, dst);
-      fprintf(out, "  %%ptfc_lbase_%d_%lld = getelementptr i8, ptr %%ptfc_subject_ptr, i64 %%r%lld\n",
-              width, dst, plan->byte_offset);
-      for (int byte = 0; byte < width; byte++) {
-        if (byte > 0) {
-          fprintf(out, "ptfc_eq_w%d_b%d_%lld:\n", width, byte, dst);
-        }
-        fprintf(out, "  %%ptfc_lptr_%d_%d_%lld = getelementptr i8, ptr %%ptfc_lbase_%d_%lld, i64 %d\n",
-                width, byte, dst, width, dst, byte);
-        fprintf(out, "  %%ptfc_rptr_%d_%d_%lld = getelementptr i8, ptr %%ptfc_needle_ptr, i64 %d\n",
-                width, byte, dst, byte);
-        fprintf(out, "  %%ptfc_l%d_%d_%lld = load i8, ptr %%ptfc_lptr_%d_%d_%lld, align 1\n",
-                width, byte, dst, width, byte, dst);
-        fprintf(out, "  %%ptfc_r%d_%d_%lld = load i8, ptr %%ptfc_rptr_%d_%d_%lld, align 1\n",
-                width, byte, dst, width, byte, dst);
-        fprintf(out, "  %%ptfc_c%d_%d_%lld = icmp eq i8 %%ptfc_l%d_%d_%lld, %%ptfc_r%d_%d_%lld\n",
-                width, byte, dst, width, byte, dst, width, byte, dst);
-        if (byte + 1 < width) {
-          fprintf(
-              out,
-              "  br i1 %%ptfc_c%d_%d_%lld, label %%ptfc_eq_w%d_b%d_%lld, label %%ptfc_eq_false_%lld\n",
-              width, byte, dst, width, byte + 1, dst, dst);
-        } else {
-          fprintf(
-              out,
-              "  br i1 %%ptfc_c%d_%d_%lld, label %%ptfc_eq_true_%lld, label %%ptfc_eq_false_%lld\n",
-              width, byte, dst, dst, dst);
-        }
+    fprintf(out, "ptfc_eq_lead_%lld:\n", dst);
+    fprintf(out, "  %%ptfc_rptr_0_%lld = getelementptr i8, ptr %%ptfc_needle_ptr, i64 0\n", dst);
+    fprintf(out, "  %%ptfc_r0_%lld = load i8, ptr %%ptfc_rptr_0_%lld, align 1\n", dst, dst);
+    fprintf(out, "  %%ptfc_c0_%lld = icmp eq i8 %%ptfc_byte_%lld, %%ptfc_r0_%lld\n",
+            dst, plan->width, dst);
+    fprintf(out, "  br i1 %%ptfc_c0_%lld, label %%ptfc_eq_after_b0_%lld, label %%ptfc_eq_false_%lld\n",
+            dst, dst, dst);
+    for (int byte = 1; byte < 4; byte++) {
+      fprintf(out, "ptfc_eq_after_b%d_%lld:\n", byte - 1, dst);
+      fprintf(out, "  %%ptfc_done_%d_%lld = icmp eq i64 %%r%lld, %d\n",
+              byte, dst, plan->width, byte);
+      fprintf(out, "  br i1 %%ptfc_done_%d_%lld, label %%ptfc_eq_true_%lld, label %%ptfc_eq_b%d_%lld\n",
+              byte, dst, dst, byte, dst);
+      fprintf(out, "ptfc_eq_b%d_%lld:\n", byte, dst);
+      fprintf(out, "  %%ptfc_lptr_%d_%lld = getelementptr i8, ptr %%ptfc_byte_ptr_%lld, i64 %d\n",
+              byte, dst, plan->width, byte);
+      fprintf(out, "  %%ptfc_rptr_%d_%lld = getelementptr i8, ptr %%ptfc_needle_ptr, i64 %d\n",
+              byte, dst, byte);
+      fprintf(out, "  %%ptfc_l%d_%lld = load i8, ptr %%ptfc_lptr_%d_%lld, align 1\n",
+              byte, dst, byte, dst);
+      fprintf(out, "  %%ptfc_r%d_%lld = load i8, ptr %%ptfc_rptr_%d_%lld, align 1\n",
+              byte, dst, byte, dst);
+      fprintf(out, "  %%ptfc_c%d_%lld = icmp eq i8 %%ptfc_l%d_%lld, %%ptfc_r%d_%lld\n",
+              byte, dst, byte, dst, byte, dst);
+      if (byte < 3) {
+        fprintf(out, "  br i1 %%ptfc_c%d_%lld, label %%ptfc_eq_after_b%d_%lld, label %%ptfc_eq_false_%lld\n",
+                byte, dst, byte, dst, dst);
+      } else {
+        fprintf(out, "  br i1 %%ptfc_c%d_%lld, label %%ptfc_eq_true_%lld, label %%ptfc_eq_false_%lld\n",
+                byte, dst, dst, dst);
       }
     }
     fprintf(out, "ptfc_eq_false_%lld:\n  br label %%ptfc_eq_merge_%lld\n", dst, dst);

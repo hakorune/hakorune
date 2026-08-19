@@ -8,6 +8,7 @@ import json
 import math
 import os
 from pathlib import Path
+import re
 import statistics
 import sys
 
@@ -39,17 +40,42 @@ def validate_ir(path: Path) -> dict[str, int]:
         fail("exact leaf IR contains a forbidden operation")
     if text.count("define i1 @hako_s6c_exact_leaf(") != 1:
         fail("exact leaf IR must contain one evidence callable")
-    for width in range(1, 5):
-        for byte in range(width):
-            load = f"%ptfc_l{width}_{byte}_"
-            if text.count(load) != 2:
-                fail(f"width {width} byte {byte} load/compare census drift")
-            if byte:
-                label = f"label %ptfc_eq_w{width}_b{byte}_"
-                predecessor = f"%ptfc_c{width}_{byte - 1}_"
-                lines = [line for line in text.splitlines() if label in line]
-                if len(lines) != 1 or predecessor not in lines[0] or "br i1" not in lines[0]:
-                    fail(f"width {width} byte {byte} is not equality-short-circuited")
+    if " switch " in text:
+        fail("exact leaf IR must not dispatch equality through a width switch")
+    cached = re.findall(r"%(ptfc_byte_(\d+)) = load i8, ptr %ptfc_byte_ptr_\2, align 1", text)
+    if len(cached) != 1:
+        fail("exact leaf IR must contain one cached WidthAt lead-byte load")
+    width_id = cached[0][1]
+    lead_compare = re.findall(
+        rf"%ptfc_c0_(\d+) = icmp eq i8 %ptfc_byte_{width_id}, %ptfc_r0_\1",
+        text,
+    )
+    if len(lead_compare) != 1:
+        fail("scalar equality must consume the cached WidthAt lead byte once")
+    dst = lead_compare[0]
+    lead_lines = [
+        line for line in text.splitlines()
+        if f"label %ptfc_eq_after_b0_{dst}" in line
+    ]
+    if len(lead_lines) != 1 or f"%ptfc_c0_{dst}" not in lead_lines[0] or "br i1" not in lead_lines[0]:
+        fail("byte 1 must remain behind the cached lead-byte equality")
+    for byte in range(1, 4):
+        if text.count(f"%ptfc_l{byte}_{dst}") != 2:
+            fail(f"byte {byte} load/compare census drift")
+        label = f"label %ptfc_eq_b{byte}_{dst}"
+        lines = [line for line in text.splitlines() if label in line]
+        done_value = f"%ptfc_done_{byte}_{dst}"
+        if len(lines) != 1 or done_value not in lines[0] or "br i1" not in lines[0]:
+            fail(f"byte {byte} is not width-short-circuited")
+        done = f"%ptfc_done_{byte}_{dst} = icmp eq i64 %r{width_id}, {byte}"
+        if text.count(done) != 1:
+            fail(f"width {byte} direct-ladder stop is missing")
+        if byte > 1:
+            predecessor = f"%ptfc_c{byte - 1}_{dst}"
+            after = f"label %ptfc_eq_after_b{byte - 1}_{dst}"
+            prior_lines = [line for line in text.splitlines() if after in line]
+            if len(prior_lines) != 1 or predecessor not in prior_lines[0] or "br i1" not in prior_lines[0]:
+                fail(f"byte {byte} is not equality-short-circuited")
     return {"align1_loads": text.count("load i8, ptr"), "calls": text.count(" call ")}
 
 

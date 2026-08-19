@@ -97,7 +97,7 @@ for r in red:
     if r['case'] == 'w1-equal': r['hako_ns'] = str(int(r['c_ns']) * 2)
 write('threshold-red.csv', red)
 ir = (root / 'exact-leaf.ll').read_text()
-(root / 'eager.ll').write_text(ir.replace('br i1 %ptfc_c4_0_', 'br i1 %ptfc_c4_1_', 1))
+(root / 'eager.ll').write_text(ir.replace('br i1 %ptfc_c0_', 'br i1 %ptfc_c1_', 1))
 PY
 
 expect_reject missing-case "$TEMP_DIR/missing-case.csv" "$TEMP_DIR/exact-leaf.ll"

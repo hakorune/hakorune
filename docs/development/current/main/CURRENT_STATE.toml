@@ -17,15 +17,15 @@ belong to the later promotion evidence gate.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none; the promotion-only final-IR shell outline is accepted and any scan CFG/value synthesis remains NoSafeSlice"
+current_design_stop = "none; the strict scalar-equality-to-sole-Branch projection is accepted, while any generic peephole, inferred use, or second CFG authority remains NoSafeSlice"
 work_mode = "fast"
-current_execution_row = "LLVM-PINNED-TEXT-SCALAR-EQ-LEAD-REUSE-LADDER-I0"
-current_blocker_token = "The unchanged meso gate is red at max 4KiB+ p50 ratio 3.856. Replace the selected scalar-equality leaf's width jump table and duplicate byte-0 loads with one same-cohort WidthAt lead-byte reuse plus a direct 1-to-4 short-circuit ladder; keep the C oracle and 1.15 threshold unchanged, then rerun exact, structural, link/run, and meso evidence."
+current_execution_row = "PINNED-TEXT-SCALAR-EQ-DIRECT-BRANCH-BOXSHAPE-R0"
+current_blocker_token = "The bounded scan schedule removed eager WidthAt work, the width switch, duplicate lead loads, and the 3/4-byte branch, but the uncontended unchanged gate remains red at width4/1MiB/first p50 1.239. Preflight the scalar equality result's exhaustive sole use as the adjacent terminal Branch, project its true/false leaves directly to the existing Branch targets, and suppress exactly that generic Branch without changing MIR or source authority."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C pinned Text scalar-equality physical schedule repair"
+active_lane = "S6C pinned Text scalar-equality direct-Branch projection"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -50,10 +50,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The unchanged meso gate exposed a real selected-backend schedule deficit. The bounded repair reuses the already-related WidthAt lead byte and removes the scalar-equality width jump table without changing source meaning, ABI, oracle, threshold, or production selection."
+latest_card_summary = "The selected scan schedule is structurally closed, but the uncontended meso gate remains red only on the first-match fixed path. The next bounded BoxShape consumes the already-co-sealed scalar equality plus sole adjacent Branch as one strict backend projection, eliminating Bool PHI and rebranch without changing MIR authority."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "LLVM-PINNED-TEXT-SCALAR-EQ-LEAD-REUSE-LADDER-I0"
+next_execution_card = "PINNED-TEXT-SCALAR-EQ-DIRECT-BRANCH-BOXSHAPE-R0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -65,6 +65,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: Selected pinned-Text scan schedule prerequisite landed caller-zero: WidthAt exits early for ASCII/2-byte and uses one branchless 3/4 tail; scalar equality reuses the cached lead byte and uses a direct short-circuit byte ladder. Exact, link/run, structural-zero, and outline parity are green at graph 21 blocks/59 instructions/31 edges/6 PHIs/2 Returns, digest 91b4bcc1aba8. The uncontended unchanged meso gate remains red at width4/1MiB/first p50 1.239, so promotion stays closed and direct-continuation preflight is next.",
   "2026-08-19: S6C meso outline parity R0 landed offline: one outer Live Residence lends the same Subject/Needle backing to the unchanged nested whole candidate and digest-verified outline; both match an independent code-point oracle for empty, UTF-8 widths 1..4, mixed, first/middle/last/miss, and alias cases. A corrupted outline Return is red; no timer, threshold, production caller, fallback, or promotion was added.",
   "2026-08-19: S6C meso shell-outline I0 landed offline: the closure-verified real function loses only the exact 25-instruction Residence/lane shell and two shell blocks; the short-circuit 20-block/92-instruction/35-edge/5-PHI/2-Return scan graph matches digest 0b219d8ea107. Entry/root/lane/removed-PHI/scan/Finish-order drift rejects without partial LLVM or manifest publication; no production helper, optimizer, receipt, fallback, benchmark, or promotion was added.",
   "2026-08-19: Pinned-corridor exact benchmark R0 landed offline: the exact real scalar plan is projected by the sole production emitter into a separate Residence-acquired evidence callable. An initial unchanged-threshold red exposed eager post-mismatch byte loads; a bounded backend BoxShape short-circuited later reads. The unchanged 51-pair gate is green at ASCII max p50 1.061, mixed max p50 1.078, and all-case max p95 1.113; compiler meaning and production remain unchanged.",
@@ -75,6 +76,5 @@ landed_tail = [
   "2026-08-19: Object-observer D0 closed after five-way premise audit: the failed probe mistook the mandatory unnamed ELF null section for an empty iterator; the real object exposes 11 sections, lifecycle relocations, and complete X86 decode through LLVM18. No compiler object gate is selected because relocation/ret layout is LLVM-transform-dependent; final ModuleRef verification is the correctness boundary and object/assembly checks move to promotion evidence.",
   "2026-08-19: Selected-C TargetMachine I0 landed caller-zero: verified private LLVM bytes move once through `LLVMCreateMemoryBufferWithMemoryRangeCopy` into the existing LLVM18 parse/module/object owner; real JSON emits a nonempty test object, invalid IR and unwritable output clean up, and named `.ll`, fallback, retry, observer, production, and performance remain zero.",
   "2026-08-19: Selected-C textual lowering I0 landed caller-zero: the exact preflighted candidate lowers 3 PinnedText leaves plus Enter/Trap/2 Finish into one tmpfile-owned LLVM draft, verifies structural zero and Finish-before-Return, discards it on every path, and returns a stable target-closed tag; TargetMachine, observer, production, fallback/retry, and performance remain closed.",
-  "2026-08-19: Real-candidate JSON carrier-lineage I0 landed caller-zero: the exact detached MirFunction installs one source-issued carrier through a separate projection seam and emits strict JSON without refresh/synthetic promotion; same-cohort 3 PinnedTextOp/1 Enter/1 Trap/2 Finish/2 Return is green, while missing/foreign/duplicate carrier, duplicate/non-entry lifecycle sites, Trap Finish, and exit-set drift reject. Selected C lowering, target-machine, observer, production, fallback, and performance remain closed.",
-  "2026-08-19: Trap-terminal I0 landed caller-zero: `PinnedTextResidenceTrap` is the explicit successorless fail-stop for the Enter trap landing, co-written and sealed only by the canonical CFG owner with the same plan provenance; foreign owner, non-empty/terminated/predecessored trap, and rejoin edges reject before/after mutation as appropriate. Runtime/backend lowering and detached Finish projection remain closed."
+  "2026-08-19: Real-candidate JSON carrier-lineage I0 landed caller-zero: the exact detached MirFunction installs one source-issued carrier through a separate projection seam and emits strict JSON without refresh/synthetic promotion; same-cohort 3 PinnedTextOp/1 Enter/1 Trap/2 Finish/2 Return is green, while missing/foreign/duplicate carrier, duplicate/non-entry lifecycle sites, Trap Finish, and exit-set drift reject. Selected C lowering, target-machine, observer, production, fallback, and performance remain closed."
 ]

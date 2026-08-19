@@ -76,6 +76,14 @@ static int hako_emit_exact_leaf_evidence_v1(
       "i64 %%r%lld, ptr %%ptfc_needle_ptr, i64 %%ptfc_needle_len) {\nentry:\n",
       plan->byte_offset,
       plan->width);
+  fprintf(
+      draft,
+      "  %%ptfc_byte_ptr_%lld = getelementptr i8, ptr %%ptfc_subject_ptr, i64 %%r%lld\n"
+      "  %%ptfc_byte_%lld = load i8, ptr %%ptfc_byte_ptr_%lld, align 1\n",
+      plan->width,
+      plan->byte_offset,
+      plan->width,
+      plan->width);
   if (!hako_llvmc_ptfc_emit_selected_leaf(draft, plan)) {
     set_err_owned(err_out, "production exact-leaf emitter rejected captured plan");
     goto cleanup;
