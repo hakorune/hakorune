@@ -186,3 +186,35 @@ Non-authority: Builder names, compatibility lineage, raw AST shape, checked-in c
 Fail-fast boundary: A family with incomplete owner/site coverage, guessed compatibility identity, or fallback to the raw probe remains `NoSafeSlice` before child effects.
 Smallest next slice: Read-only census of Deferred, Compatibility, nested-method/Main, and RawLegacy entrypoints, followed by one bounded six-line implementation brief.
 Non-claims: No consumer cutover, unwrap activation, nominal Brand value, runtime/backend change, fallback, or production probe retirement.
+
+### D3 accepted decision
+
+Decision: Accept one BoxCount: `InstancePrefixCompatibility | NonPlainInstanceFullLifecycle` becomes an exact transferred Script boundary only when installed method and constructor semantic coverage co-seal the whole Box subtree.
+Source authority + canonical issuer: `ScriptRootSemanticDecisionV1` owns the Program-item disposition; installed callable and constructor batches prove transferred coverage; the existing Script resolver remains sole owner/site relation issuer outside that subtree.
+Non-authority: Deferred status, statement ordinal, AST name/span, raw success, `brand_decls`, constructor key, and `Option::None` cannot issue a transferred boundary or partial Script owner.
+Fail-fast boundary: Missing/foreign method or constructor coverage, callable Compatibility, nested raw member, another unresolved deferred statement, or a later Script-ledger descent into the transferred subtree rejects before Builder effects.
+Smallest next slice: `SCRIPT-INSTANCE-BOX-TRANSFERRED-BOUNDARY-I0` adds one verified transfer witness and one resolver-consumed boundary arm; no physical Brand consumer changes.
+Non-claims: No partial Script owner, Brand-only side traversal, callable Compatibility/RawLegacy repair, nested/static-Main issuance, raw-probe cutover, unwrap activation, runtime, or backend change.
+
+### Selected implementation row
+
+Row: `SCRIPT-INSTANCE-BOX-TRANSFERRED-BOUNDARY-I0`
+Classification: one BoxCount
+
+Change:
+  Co-seal one instance-Box Program occurrence with the installed ordinary-method
+  semantic rows and parser-issued constructor semantic rows. Project that exact
+  occurrence as a transferred boundary into Script root construction, so the
+  Script resolver owns all surrounding expressions but never re-enters the Box.
+
+Done:
+  Exact one-Box and mixed Script positives seal one Script owner; transferred
+  Box expressions are absent from the Script inventory. Missing/duplicate/
+  foreign method or constructor rows, Compatibility package, second unresolved
+  deferred item, and subtree re-entry all reject. Focused tests, guard, README,
+  pointer guard, and every touched source below 760 are green.
+
+Stop:
+  Return to design if coverage requires name/key reconstruction, a partial
+  Script product, a second Brand traversal, or growth of a 760-line owner. Do
+  not consume `is_brand_declared` or widen Compatibility in this row.
