@@ -57,7 +57,6 @@ impl VerifiedCallableCompletionSeedV1 {
 #[derive(Debug)]
 pub(super) struct VerifiedCallableCompletionSeedCohortV1 {
     rows: Vec<VerifiedCallableCompletionSeedV1>,
-    missing_parameter_contract: bool,
 }
 
 impl VerifiedCallableCompletionSeedCohortV1 {
@@ -75,10 +74,6 @@ impl VerifiedCallableCompletionSeedCohortV1 {
 
     pub(super) fn into_rows(self) -> Vec<VerifiedCallableCompletionSeedV1> {
         self.rows
-    }
-
-    pub(super) const fn missing_parameter_contract(&self) -> bool {
-        self.missing_parameter_contract
     }
 
     pub(super) fn peek_main_child_result(
@@ -100,7 +95,6 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
     parameter_contracts: &[OwnedCallableParameterContractDeclarationV1],
 ) -> Result<VerifiedCallableCompletionSeedCohortV1, CallablePhysicalHeaderIssueV1> {
     let mut rows = Vec::new();
-    let mut missing_parameter_contract = false;
     for selected_key in selected.keys() {
         if !matches!(
             selected_key,
@@ -119,7 +113,6 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
             .iter()
             .filter(|row| row.batch_slot == batch_slot);
         let Some(contract) = contracts.next() else {
-            missing_parameter_contract = true;
             continue;
         };
         if contracts.next().is_some() {
@@ -173,8 +166,5 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
         });
     }
     rows.sort_by_key(|row| row.batch_slot);
-    Ok(VerifiedCallableCompletionSeedCohortV1 {
-        rows,
-        missing_parameter_contract,
-    })
+    Ok(VerifiedCallableCompletionSeedCohortV1 { rows })
 }

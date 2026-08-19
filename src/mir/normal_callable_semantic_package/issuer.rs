@@ -126,12 +126,8 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
         }
     };
-    let missing_parameter_contract = completion_seeds.missing_parameter_contract();
-    let physical_header = issue_callable_physical_header_from_seeds_v1(
-        completion_seeds.into_rows(),
-        missing_parameter_contract,
-    )
-    .map_err(NormalCallableSemanticPackageIssueV1::PhysicalHeader)?;
+    let physical_header =
+        issue_callable_physical_header_from_seeds_v1(completion_seeds.into_rows());
     let mut candidate = None;
     for declaration in batch.declarations() {
         // The resolved batch row is the sole declaration-mode authority.  The

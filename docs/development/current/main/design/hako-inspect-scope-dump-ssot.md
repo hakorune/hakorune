@@ -6,21 +6,20 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Stop the selected-Dynamic provenance I0. The unchanged mixed package
-cannot issue the selected A-prime header because header availability is still
-package-wide all-or-none.
-Source authority + canonical issuer: Final source, each callable's parameter
-contract, and `verify_function_completion_v1` feed the package issuer; only
-that issuer may issue a complete physical-header row.
-Non-authority: Dynamic catalog headers, method name/arity, MIR, test keys,
-source slicing, or adding annotations to sibling methods cannot repair it.
-Fail-fast boundary: Preserve `PackagePhysicalHeader` rejection before Builder
-or provenance effects. Missing row-local authority publishes no artifact.
-Smallest next slice: `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0`
-designs one package-owned inventory whose eligible rows remain available even
-when unannotated siblings have no row.
-Non-claims: No A-prime weakening, source edit, provenance implementation,
-production switch, fallback, retry, post-opt map, or machine map.
+Decision: Resume selected-Dynamic provenance at the honest pre-optimizer LLVM
+boundary now that the row-sparse header prerequisite is landed.
+Source authority + canonical issuer: The source-backed sealed
+`ParserScanLoopBox.skip_while/4` candidate owns MIR identity. The generic active
+walker and C1 emitter alone issue the lowered LLVM regions they emit.
+Non-authority: The optional legacy CAPI route, external `opt` output, helper
+names, synthetic C1 JSON, labels, ValueIds, and post-hoc scans.
+Fail-fast boundary: One caller-zero transaction binds exact source/no-clone MIR
+JSON/lowered-LLVM bytes, one profile-local issuer, duplicate-free rows, and
+total pre-opt block/edge coverage. Missing or foreign material publishes zero.
+Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0`
+adds that observation product and pure validator closure.
+Non-claims: No MIR→post-opt LLVM, LLVM→machine map, generic provenance,
+production, keeper, promotion, fallback, retry, or performance claim.
 
 ## Decision
 
@@ -331,8 +330,8 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   become authority. Therefore the exact product stops at the pre-opt lowered
   LLVM bytes emitted by the generic walker plus C1 owner. Post-opt LLVM and ASM
   remain unmapped rather than receiving inferred origins.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**blocked
-  NoSafeSlice**): carry the real `parser_scan_loop_box.hako` source and same
+- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**selected
+  BoxCount**): carry the real `parser_scan_loop_box.hako` source and same
   verified no-clone candidate into one caller-zero observation transaction;
   add one profile-local C1 journal and capture the writer's lowered LLVM bytes
   exactly once before external optimization. Extend the pure validator with
@@ -341,9 +340,8 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   the C1 current LLVM label across `checked_callout_end`; do not guess `bbN`.
   Acceptance uses observed total coverage, never a predicted LLVM count. The
   report must state `MIR -> lowered LLVM: issuer_exact`, `lowered -> final LLVM:
-  unavailable`, and `LLVM -> ASM: unavailable`. Do not resume this row until
-  the row-sparse physical-header prerequisite lands.
-- `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0` (**selected
+  unavailable`, and `LLVM -> ASM: unavailable`.
+- `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0` (**accepted
   BoxCount design**): preserve one package owner but make header availability
   row-local. An annotated exact-I64 callable with its own complete parameter
   contract and verified value Completion may issue one row; unannotated
@@ -351,6 +349,25 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   annotations remain rejected. The unchanged full parser scan source must lend
   exactly the `skip_while` row with two Completion sites and no rows for its
   three unannotated siblings. A-prime's header requirement remains unchanged.
+  The final product is one always-present, possibly empty sparse cohort; only
+  `cohort.row(batch_slot)` returns `Option`. Package-wide
+  `missing_parameter_contract`, `missing_result_annotation`, and the outer
+  `Option<Cohort>` are retired together so no second availability authority
+  remains. S6C seed consumption remains prior and affine.
+- `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-I0` (**landed
+  BoxCount**): implement the accepted product shape in completion seed,
+  physical header, package model/issuer/install, and focused tests. Positive:
+  unchanged full parser scan source lends exactly one exact-I64 `skip_while`
+  row with two explicit Completion sites and the existing A-prime demand
+  succeeds. Negative: unannotated single/mixed rows lend no header; unsupported
+  explicit annotations and malformed covered rows still reject. No source,
+  Dynamic catalog header, A-prime validator, Builder, or provenance changes.
+  The package owns one always-present cohort, package-wide missing bits are
+  gone, and only row lookup remains optional. All 35 package tests plus two
+  selected-emitter tests are green. The reusable complete-batch guard's new
+  sparse-cohort assertions are green, but the whole guard remains classified
+  parent-baseline-red at `e3adb2de8e` on its unchanged selected-mapping
+  vocabulary regex.
 - `HAKO-INSPECT-LLVM-ASM-D0` (**conditional NoSafeSlice**): open only if exact
   machine attribution remains necessary. LLVM18 block-name assembly comments
   are useful diagnostics but are not exact object-address provenance.

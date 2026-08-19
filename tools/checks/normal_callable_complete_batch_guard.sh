@@ -15,6 +15,9 @@ CONTRACT_TESTS="$CONTRACT_DIR/tests.rs"
 PACKAGE_ISSUER="$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs"
 PACKAGE_MODEL="$ROOT_DIR/src/mir/normal_callable_semantic_package/model.rs"
 PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+PACKAGE_COMPLETION_SEED="$ROOT_DIR/src/mir/normal_callable_semantic_package/completion_seed.rs"
+PACKAGE_PHYSICAL_HEADER="$ROOT_DIR/src/mir/normal_callable_semantic_package/physical_header.rs"
+PACKAGE_PHYSICAL_HEADER_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/physical_header_tests.rs"
 SELECTED_MAPPING="$ROOT_DIR/src/mir/normal_callable_semantic_package/selected_mapping.rs"
 SOURCE_CATALOG="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/source_backed.rs"
 INVOCATION_CLEANUP="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/invocation_cleanup.rs"
@@ -35,7 +38,8 @@ guard_require_command "$TAG" wc
 guard_require_files "$TAG" \
   "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$CONTRACT_ISSUER" \
   "$CONTRACT_MODEL" "$CONTRACT_TESTS" \
-  "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$SELECTED_MAPPING" \
+  "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$PACKAGE_COMPLETION_SEED" \
+  "$PACKAGE_PHYSICAL_HEADER" "$PACKAGE_PHYSICAL_HEADER_TESTS" "$SELECTED_MAPPING" \
   "$SOURCE_CATALOG" "$INVOCATION_CLEANUP" "$BATCH_TESTS" "$PACKAGE_TESTS" \
   "$PARSER_TESTS" \
   "$DYNAMIC_TARGET" "$DYNAMIC_CALLS" "$DYNAMIC_COSEAL" "$DYNAMIC_SEMANTIC" \
@@ -81,6 +85,18 @@ guard_expect_fixed_in_file "$TAG" \
 reject_fixed_in_file \
   "with_callable_parameter_syntax" "$BATCH_ISSUER" \
   "parameter catalog must not define semantic batch membership"
+reject_fixed_in_file \
+  "missing_parameter_contract" "$PACKAGE_COMPLETION_SEED" \
+  "physical-header availability must not use a package-wide missing-contract bit"
+reject_fixed_in_file \
+  "missing_result_annotation" "$PACKAGE_PHYSICAL_HEADER" \
+  "physical-header availability must not use a package-wide missing-result bit"
+reject_fixed_in_file \
+  "Option<super::physical_header::VerifiedCallablePhysicalHeaderCohortV1>" "$PACKAGE_MODEL" \
+  "the package must always own one sparse physical-header cohort"
+guard_expect_fixed_in_file "$TAG" \
+  "mixed_package_lends_only_the_eligible_physical_header_row" "$PACKAGE_PHYSICAL_HEADER_TESTS" \
+  "mixed packages must prove that missing siblings cannot erase an eligible header row"
 guard_expect_fixed_in_file "$TAG" \
   "let Some(source_parameters) = row.parameters() else" "$CONTRACT_ISSUER" \
   "parameter contract must skip unprojected callable rows without inference"

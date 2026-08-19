@@ -59,7 +59,7 @@ pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     physical_signature: VerifiedCallablePhysicalSignatureCohortV1,
     s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
     s6c_storage_header: Option<VerifiedS6CStorageHeaderProjectionV1>,
-    physical_header: Option<VerifiedCallablePhysicalHeaderCohortV1>,
+    physical_header: VerifiedCallablePhysicalHeaderCohortV1,
     dynamic: NormalCallableDynamicProjectionV1,
     dynamic_physical_header: RefCell<Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>>,
 }
@@ -445,11 +445,7 @@ impl InstalledNormalCallableSemanticPackageV1 {
             }
             SelectedNormalCallableKeyV1::TopLevel(_) => None,
         };
-        let physical_header = self
-            .physical_header
-            .as_ref()
-            .and_then(|cohort| cohort.row(batch_slot))
-            .map(|row| row.borrow());
+        let physical_header = self.physical_header.row(batch_slot).map(|row| row.borrow());
         let block_expr_expectation = self
             .batch
             .block_expr_expectation(batch_slot)

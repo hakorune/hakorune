@@ -109,15 +109,17 @@ Canonical-session consumers remain later mechanical projections.
 
 ## Source/header transport (2026-08-15)
 
-The package also has a caller-zero, Builder-free source/header cohort. When
-the selected cataloged rows have both the existing formal parameter contracts
+The package also has one caller-zero, Builder-free sparse source/header cohort.
+Each selected cataloged row that has its own complete formal parameter contract
 and an explicit source result annotation accepted by the current scalar
-bootstrap (`i64`), the package-local issuer co-seals those rows with
-`verify_function_completion_v1`. The cohort is moved through install and is
-lent as an `Option<CallablePhysicalHeaderRefV1>` on the selected lowering
-view. A package without that explicit source/header admission remains valid
-for its ordinary semantic route and lends `None`; it is not inferred from a
-body, MIR, ResultCatalog, or fixture expectation.
+bootstrap (`i64`) is co-sealed with `verify_function_completion_v1`. Missing or
+unannotated sibling rows are absent from the cohort and cannot erase an
+eligible row. The cohort itself is always present and moves through install;
+only row lookup is optional and is lent as an
+`Option<CallablePhysicalHeaderRefV1>` on the selected lowering view. A callable
+without that explicit row admission remains valid for its ordinary semantic
+route and lends `None`; it is not inferred from a body, MIR, ResultCatalog, or
+fixture expectation.
 
 This row does not define a Text handle ABI or runtime wire. In particular,
 `StringBox`/ExactText physical parameters, TextEq residence, Builder IDs, and

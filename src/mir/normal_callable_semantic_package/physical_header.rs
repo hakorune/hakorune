@@ -106,13 +106,10 @@ impl CallablePhysicalHeaderRefV1<'_> {
 
 pub(super) fn issue_callable_physical_header_from_seeds_v1(
     seeds: Vec<super::completion_seed::VerifiedCallableCompletionSeedV1>,
-    missing_parameter_contract: bool,
-) -> Result<Option<VerifiedCallablePhysicalHeaderCohortV1>, CallablePhysicalHeaderIssueV1> {
+) -> VerifiedCallablePhysicalHeaderCohortV1 {
     let mut rows = Vec::new();
-    let mut missing_result_annotation = false;
     for seed in seeds {
         let Some(result) = seed.result() else {
-            missing_result_annotation = true;
             continue;
         };
         let batch_slot = seed.batch_slot();
@@ -123,11 +120,8 @@ pub(super) fn issue_callable_physical_header_from_seeds_v1(
             completion: seed.take_completion(),
         });
     }
-    if missing_parameter_contract || missing_result_annotation {
-        return Ok(None);
-    }
     rows.sort_by_key(|row| row.batch_slot);
-    Ok(Some(VerifiedCallablePhysicalHeaderCohortV1 {
+    VerifiedCallablePhysicalHeaderCohortV1 {
         rows: rows.into_boxed_slice(),
-    }))
+    }
 }

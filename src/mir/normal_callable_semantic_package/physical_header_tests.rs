@@ -85,6 +85,42 @@ fn absent_result_annotation_keeps_ordinary_package_without_physical_header() {
 }
 
 #[test]
+fn mixed_package_lends_only_the_eligible_physical_header_row() {
+    let package = issue(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ))
+    .expect("mixed parser scan package");
+    let selected_keys = package.selected.keys().cloned().collect::<Vec<_>>();
+    assert_eq!(selected_keys.len(), 4);
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+    for key in selected_keys {
+        let SelectedNormalCallableKeyV1::Cataloged(source_key) = &key else {
+            panic!("parser scan rows must stay cataloged")
+        };
+        let method = source_key.name();
+        let expected_header = method == "skip_while";
+        port.with_selected_lowering_input(&key, |input| {
+            let header = input.physical_header();
+            assert_eq!(header.is_some(), expected_header, "{method}");
+            if let Some(header) = header {
+                assert_eq!(
+                    header.result(),
+                    crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1::I64
+                );
+                assert!(header.completion_returns_value());
+                assert_eq!(header.completion_explicit_site_count(), 2);
+            }
+        })
+        .expect("selected row loan");
+    }
+}
+
+#[test]
 fn non_i64_result_annotation_is_not_reclassified_as_a_physical_header() {
     let issue = issue("static box Api { run(value: i64): i32 { return value } }");
     assert!(matches!(
