@@ -25,10 +25,13 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the versioned post-warm calibration repair is landed;
-  no V3 WSL development batch has yet consumed the clean repaired candidate.
-- **Next ordered task:** `S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0`; build one exact
-  fixture, issue one ordinal-zero batch, and run its two sealed sessions once.
+- **Current evidence:** the exact ordinal-zero V3 WSL batch closed
+  `Complete/development_keeper`; both sealed sessions are Complete, no
+  diagnostic raw or temporary residue exists, and native promotion authority
+  remains false.
+- **Next ordered task:** none in this card. The current pointer hands off to the
+  read-only hako_check inspect observation-UX card before any new residual
+  owner attribution.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -321,17 +324,18 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Decision: Run one ordinal-zero V3 WSL development batch from the clean repaired
-candidate and preserve its Complete, Incomplete, or IntegrityInvalid terminal.
-Source authority + canonical issuer: The V3 manifest alone projects two plan-v2
-sessions with the sealed 30 ms floor and post-warm 60 ms calibration target.
-Non-authority: Calibration probes, diagnostic raw, the old V2 invalid batch,
-partial ratios, newest/best batch, assembly, and WSL green issue no native or
-compiler authority.
-Fail-fast boundary: Source/binary/alignment drift rejects before manifest;
-after issuance both fixed sessions close once and only Complete raw classifies.
-Smallest next slice: `S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0` builds, creates, runs,
-and records one exact V3 batch without predecessor or same-batch retry.
+Decision: Accept the sole ordinal-zero V3 WSL batch as
+`Complete/development_keeper` and close this development measurement row.
+Source authority + canonical issuer: Batch `18120db0...aff9` and terminal
+`da729ae9...50ee` alone own its two Complete session receipts and development
+classification.
+Non-authority: WSL green, raw timings, assembly, old V1/V2 receipts, and newest
+or best batches issue no native, residual-owner, compiler, or production claim.
+Fail-fast boundary: The reconstructed V3 terminal must equal the stored
+terminal and every bound raw/binary/alignment digest; any drift would void the
+closeout rather than select another run.
+Smallest next slice: None in this card. Preserve this terminal and hand off to
+the separately bounded observation-UX row.
 Non-claims: No native evidence, owner/BoxShape, threshold/corpus/C/compiler/
 backend change, promotion, fallback, or production.
 
@@ -424,7 +428,7 @@ kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 | 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | **Landed.** The real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text/retirement-pending, match/miss, and lifecycle cases. Input generations come only from a default-off test issuer in the allocation transaction. |
 | 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | **Landed.** A compile-time-only hook borrows the same closure-verified ModuleRef before sole emit; final IR and linked assembly show only lifecycle calls, entry-only allocation/root projection, exact align-1 byte reads, and zero EH/noalias/wide read/indirect or helper call. Machine layout counts remain non-authority. |
 | 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | **Landed.** The exact real plan is projected by the sole production leaf emitter into a separate evidence callable. The first unchanged-threshold run exposed eager post-mismatch loads; `LLVM-PINNED-TEXT-SCALAR-EQ-SHORT-CIRCUIT-I0` made bytes 2..4 reachable only after prior equality. The unchanged 51-pair gate is green (ASCII max p50 1.061, mixed max p50 1.078, all-case max p95 1.113 versus 1.10/1.15/1.30). |
-| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Red; V3 development measurement selected.** Calibration repair is landed and green; the first V2 invalid batch remains historical and issues no ratio or backend owner. |
+| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Development keeper; native gate still open.** The exact V3 WSL batch closed Complete/development_keeper with both sessions Complete and no diagnostic raw. WSL cannot issue native promotion authority or a residual backend owner. |
 | 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | **Parked.** Requires green native-final 8d evidence first. |
 | 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | **Parked.** Missing/red leaf evidence forbids a verdict. |
 | 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | **Parked.** Selected Dynamic remains production. |
@@ -633,8 +637,9 @@ Ordered task ladder:
     unrecoverable because diagnostic raw was not published. No result issued.
 15. `S6C-MESO-WALLCLOCK-BATCH-CALIBRATION-REPAIR-I2`: landed plan-v2/batch-v3
     post-warm 60 ms calibration, typed Incomplete, and diagnostic raw binding.
-16. `S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0`: selected one ordinal-zero batch with
-    no V2 predecessor; both fixed sessions are consumed once.
+16. `S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0`: closed Complete/development_keeper;
+    one ordinal-zero batch with no V2 predecessor consumed both fixed sessions
+    once, terminal `da729ae9...50ee`, native authority false.
 17. `S6C-MESO-WALLCLOCK-NATIVE-BATCH-D0/I2/R0`: separate future Decision;
     WSL/history cannot issue native promotion authority.
 18. `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0`: only a complete native red batch

@@ -4,6 +4,28 @@ Status: SSOT
 Scope: source anchors, `hako_check inspect`, MIR / LLVM IR / assembly dump
 boundaries, and AI-readable inspect artifacts.
 
+## Current execution brief
+
+Decision: Keep `hako_check inspect` as the read-only artifact facade and keep
+C/reference construction and measurement under `tools/perf`; do not create a
+second optimizer or performance authority.
+Source authority + canonical issuer: The exact source hash, emitted MIR JSON,
+final LLVM artifact, executable symbol, and compiler-emitted mapping metadata
+own their respective facts. Inspect only packages and renders them.
+Non-authority: ValueId, MIR adjacency, labels, helper/symbol names, instruction
+counts, assembly diffs, C code, and timing ratios cannot issue source meaning,
+route selection, a keeper, or promotion.
+Fail-fast boundary: Candidate/function/symbol hashes and requested artifacts
+must agree, and every relation must retain its explicit
+`exact|block|function|symbol|missing` quality. Missing provenance is reported;
+it is never guessed.
+Smallest next slice: `HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0` splits the existing
+916-line Python owner below the 760-line boundary without changing CLI,
+schemas, artifact bytes, mapping claims, or behavior.
+Non-claims: No comparison report, C orchestration, provenance emission,
+compiler/backend edit, keeper selection, benchmark verdict, or production
+change in the split row.
+
 ## Decision
 
 Scope-wide MIR / LLVM IR / assembly dump is a tool query, not a `.hako`
@@ -163,13 +185,25 @@ exact assembly slice when the backend can only provide symbol-level evidence.
 
 ## Task Ladder
 
-- `INSPECT-000`: SSOT and restart pointers.
-- `INSPECT-001`: `inspect scope --span ... --emit mir,mir-json,report`.
-- `INSPECT-002`: stable bundle format with `manifest.json` and `report.kv`.
-- `INSPECT-003`: optional `// hako:inspect begin/end <id>` comment anchors.
-- `INSPECT-004`: LLVM IR / assembly artifacts with explicit mapping quality.
-- `INSPECT-005`: `inspect route` for selected-route evidence.
-- `INSPECT-006`: `inspect diff` for before/after artifact comparison.
+- `INSPECT-000` through `INSPECT-006`: landed source/MIR/backend bundle,
+  route/mark queries, and report-key diff surface.
+- `HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0` (**selected BoxShape**): split the
+  916-line `inspect_scope_dump.py` into a thin CLI owner plus focused selector,
+  artifact, and report/diff children. Existing tests are the parity authority;
+  every source file stays below 760 lines and the 800-line hard stop.
+- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0` (**next design**): fix the smallest
+  normalized MIR/LLVM/assembly vocabulary, same-candidate identity, optional C
+  reference input, mapping-quality floor, and one S6C counterexample. The D0
+  must not add compiler provenance or infer an edge from IDs/names.
+- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0` (**parked behind D0**): one
+  evidence-only report shows MIR blocks/edges/PHIs/calls, LLVM
+  blocks/branches/calls/loads, and selected-symbol assembly
+  instructions/branches/calls beside an externally supplied C artifact. A thin
+  `tools/perf` wrapper may build the reference; hako_check remains the renderer.
+- `HAKO-INSPECT-PROVENANCE-D0` (**conditional**): open only if block/symbol
+  quality cannot identify the residual owner. Any exact MIR-edge-to-assembly
+  mapping must be compiler/backend-emitted sidecar evidence; no ValueId,
+  adjacency, label, or symbol-name reconstruction is allowed.
 
 ## Non-Goals
 

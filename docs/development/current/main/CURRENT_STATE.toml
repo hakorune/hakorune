@@ -12,20 +12,24 @@ a compiler authority. The runtime-owned Enter/Finish ABI now projects exact
 no-unwind declarations into selected LLVM without a new receipt or runtime
 object. The final compiler-owned lifecycle closure now verifies the same parsed
 LLVM module before one trusted LLVM18 emission; object/assembly checks
-belong to the later promotion evidence gate.
+belong to the later promotion evidence gate. The exact ordinal-zero V3 WSL
+batch closed Complete/development_keeper with both fixed sessions Complete;
+it remains development-only and issues no native promotion authority. The next
+bounded row improves the existing read-only hako_check inspect surface before
+any further residual-performance attribution.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Resolved and landed: MeasurementBatch V3 keeps the 30 ms sample floor, calibrates both arms post-warmup to 60 ms, maps a later short arm to Incomplete, and preserves ineligible raw only as digest-bound diagnostics."
+current_design_stop = "Resolved: hako_check inspect remains a read-only artifact facade, tools/perf owns C/reference measurement, and exact MIR-to-assembly provenance may be added only by a later explicit Decision rather than ValueId, adjacency, or symbol-name inference."
 work_mode = "fast"
-current_execution_row = "S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0"
-current_blocker_token = "After committing the clean calibration repair, build one exact V3 fixture, issue one ordinal-zero V3 WSL batch with no predecessor, run both fixed sessions once, and preserve its terminal result. Do not recover batch 68411a6e, replace samples, select a best batch, change threshold/corpus, claim native authority, or edit compiler/backend production."
+current_execution_row = "HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0"
+current_blocker_token = "Split the existing 916-line tools/hako_check/inspect_scope_dump.py into one thin CLI owner plus focused selector, artifact, and report children without changing commands, schemas, mapping-quality claims, artifact bytes, fallback behavior, or tests. Every source file must remain below 760 lines; stop before shape comparison, C reference orchestration, provenance emission, compiler/backend edits, or keeper selection."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C pinned Text repeatable measurement-batch foundation"
+active_lane = "S6C pinned Text optimization observation UX"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -38,8 +42,12 @@ The versioned runtime header and selected declarations now agree that Enter and
 Finish are no-unwind, while successful Finish remains returnable. Object and
 disassembly observation is parked inside promotion evidence and cannot re-issue
 source or lifecycle meaning. Selected Dynamic remains the sole production arm.
-The residual-performance owner remains unissued. MeasurementBatch V3 is now
-the selected evidence foundation; promotion and production cutover stay parked.
+The residual-performance owner remains unissued. MeasurementBatch V3 closed
+development_keeper on WSL but has no native promotion authority; promotion and
+production cutover stay parked. The selected tool-only row reuses the existing
+hako_check inspect bundle surface and first restores its source ownership below
+the 760-line split boundary. It does not infer MIR-to-assembly meaning or choose
+an optimization.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -48,15 +56,15 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+current_execution_design = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "loop-common-physical-demand-and-session-ssot"
-latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "MeasurementBatch calibration repair I2 landed evidence-only: V2/V3 schema separation, post-warm 60 ms target over a retained 30 ms floor, typed short-arm Incomplete, digest-bound diagnostic raw, abandoned raw recovery, and old-receipt rejection are guarded. One clean ordinal-zero V3 WSL batch is selected."
-next_design_card = "S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0"
-next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "S6C-MESO-WALLCLOCK-WSL-BATCH-V3-R0"
-next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
+latest_card = "hako-inspect-scope-dump-ssot"
+latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
+latest_card_summary = "The exact V3 WSL batch closed Complete/development_keeper with terminal da729ae9...50ee and no native authority. The existing hako_check inspect surface already bundles MIR, LLVM, and assembly; its 916-line owner must be split behavior-neutrally before adding a normalized lowering-shape report."
+next_design_card = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0"
+next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
+next_execution_card = "HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0"
+next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -67,6 +75,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: The exact ordinal-zero MeasurementBatch V3 WSL run closed Complete/development_keeper: batch 18120db0..., terminal da729ae9...50ee, both sealed sessions Complete/development_green, 80 cases x 51 retained pairs per session, diagnostic raw 0, and temporary residue 0. This is development evidence only; native promotion authority, residual owner, backend change, and production remain closed.",
   "2026-08-19: S6C wall-clock calibration repair I2 landed evidence-only. Plan v2/batch v3 seals a 30 ms floor plus post-warm 60 ms target; short arms close Incomplete, identity/schema drift remains IntegrityInvalid, ineligible raw is a separately named digest-bound diagnostic, and abandoned raw is recovered without becoming evidence. Pure self-tests, reusable guard, and the real 80-case plus robust calibration smoke are green; compiler/MIR/backend, corpus, threshold, and production are unchanged.",
   "2026-08-19: The first exact MeasurementBatch V2 WSL run closed terminal IntegrityInvalid (batch 68411a6e..., terminal 842bdfe6...) after all 80 case CSVs parsed. The contract calibrated before warmup at the same 30 ms later used as a per-sample minimum and discarded the failing raw row, so it issues no ratio or candidate claim. A versioned post-warm 60 ms calibration plus typed Incomplete/diagnostic-raw repair is selected; the old invalid batch is not a predecessor.",
   "2026-08-19: S6C MeasurementBatch harness I1 landed evidence-only: one append-only directory owns the V2 manifest, frozen binary, full-commit alignment receipt, raw diagnostics, session terminals, and terminal-once batch receipt under an exclusive lock. Abandoned issued batches close Incomplete, partial raw data stays ineligible, source/binary drift and overwrite reject, direct V1 session/aggregate CLI and latent native role are retired.",
@@ -77,6 +86,5 @@ landed_tail = [
   "2026-08-19: Native separate-arm PMU foundation and integrity I1 landed evidence-only: direct arm processes and fixed PMU groups remain, while one private frozen binary, full manifest/commit binding, exact corpus constants, getrusage plus single-CPU affinity, balanced cross-run ordering, timeout, and interval/classifier matrices close the audit gaps. The first native JSON is provisional and must be replaced by R0; compiler/source/MIR/ABI, C reference, corpus, and 1.15 threshold remain unchanged.",
   "2026-08-19: Meso equal-alignment control landed as evidence-only: outlined Hako and independent C symbols are both 64-byte aligned, normalized linked-body hashes are recorded, calls/trampolines remain zero, and corpus/oracle/51-pair/30ms/1.15 threshold are unchanged. The uncontended result remains red at mixed/4KiB/first p50 1.170296, so promotion stays closed and further lowering is NoSafeSlice pending a hardware-counter owner audit.",
   "2026-08-19: Selected scalar equality direct continuation landed caller-zero: exhaustive preflight fixes plan2 dst to one adjacent terminal Branch use, true/false tails target the existing successors directly, successor PHIs use the actual edge-specific predecessors, and the generic Branch is consumed once. The scan graph is 20 blocks/57 instructions/29 edges/5 PHIs/2 Returns with digest ea07b0aa8b57. Link/run, structural, exact, outline, and parity are green; unchanged meso improved to width3/4KiB/first p50 1.174594 but remains red, so promotion stays closed pending equal-alignment control.",
-  "2026-08-19: Selected pinned-Text scan schedule prerequisite landed caller-zero: WidthAt exits early for ASCII/2-byte and uses one branchless 3/4 tail; scalar equality reuses the cached lead byte and uses a direct short-circuit byte ladder. Exact, link/run, structural-zero, and outline parity are green at graph 21 blocks/59 instructions/31 edges/6 PHIs/2 Returns, digest 91b4bcc1aba8. The uncontended unchanged meso gate remains red at width4/1MiB/first p50 1.239, so promotion stays closed and direct-continuation preflight is next.",
-  "2026-08-19: S6C meso outline parity R0 landed offline: one outer Live Residence lends the same Subject/Needle backing to the unchanged nested whole candidate and digest-verified outline; both match an independent code-point oracle for empty, UTF-8 widths 1..4, mixed, first/middle/last/miss, and alias cases. A corrupted outline Return is red; no timer, threshold, production caller, fallback, or promotion was added."
+  "2026-08-19: Selected pinned-Text scan schedule prerequisite landed caller-zero: WidthAt exits early for ASCII/2-byte and uses one branchless 3/4 tail; scalar equality reuses the cached lead byte and uses a direct short-circuit byte ladder. Exact, link/run, structural-zero, and outline parity are green at graph 21 blocks/59 instructions/31 edges/6 PHIs/2 Returns, digest 91b4bcc1aba8. The uncontended unchanged meso gate remains red at width4/1MiB/first p50 1.239, so promotion stays closed and direct-continuation preflight is next."
 ]
