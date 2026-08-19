@@ -1,6 +1,6 @@
 # Brand Constructor Active Admission Census D1
 
-Status: selected
+Status: closed
 Parent: `brand-constructor-consumer-cutover-d0.md`
 Row: `BRAND-CONSTRUCTOR-ACTIVE-ADMISSION-CENSUS-D1`
 Classification: Design stop
@@ -33,3 +33,26 @@ The row exits only with one exhaustive table and either:
   disposition projection P0; or
 - one exact missing admission selected as a separate BoxCount, while the raw
   probe remains unchanged.
+
+## Census result
+
+| Admission | Exact Brand relation at lowering | Active exact site | Disposition |
+| --- | --- | --- | --- |
+| Complete Script semantic source | yes | yes for already-located expressions | relation-backed |
+| installed cataloged/top-level callable package | yes | yes for already-located expressions | relation-backed |
+| selected Dynamic callable through the installed package | yes | yes | relation-backed |
+| Deferred Script | no verified semantic product | no semantic ledger | blocking |
+| callable-package Compatibility | no callable semantic ledger | lineage only | blocking |
+| instance-constructor body | no Brand projection | lineage only | blocking |
+| raw Main/legacy top-level/cataloged body | no verified Brand projection | lineage or compatibility site only | blocking |
+| nested Box method | no verified Brand projection | nested lineage only | blocking |
+| `RawLegacyChildLoweringPortV1` | none | none | blocking |
+
+Additionally, a bare `FunctionCall` statement remains an unlocated
+`CallObject` row even when its owner has a verified relation. Relation-backed
+does not yet mean consumer-ready for that site.
+
+Therefore the raw probe cannot retire. The next behavior-neutral row projects a
+total exact-site `Constructor | NonBrand` disposition into the two already
+verified lowering states. Relation-less admissions remain explicit blockers
+and require separately accepted semantic coverage before cutover.
