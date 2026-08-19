@@ -441,7 +441,7 @@ kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 | 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | **Landed.** The real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text/retirement-pending, match/miss, and lifecycle cases. Input generations come only from a default-off test issuer in the allocation transaction. |
 | 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | **Landed.** A compile-time-only hook borrows the same closure-verified ModuleRef before sole emit; final IR and linked assembly show only lifecycle calls, entry-only allocation/root projection, exact align-1 byte reads, and zero EH/noalias/wide read/indirect or helper call. Machine layout counts remain non-authority. |
 | 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | **Landed.** The exact real plan is projected by the sole production leaf emitter into a separate evidence callable. The first unchanged-threshold run exposed eager post-mismatch loads; `LLVM-PINNED-TEXT-SCALAR-EQ-SHORT-CIRCUIT-I0` made bytes 2..4 reachable only after prior equality. The unchanged 51-pair gate is green (ASCII max p50 1.061, mixed max p50 1.078, all-case max p95 1.113 versus 1.10/1.15/1.30). |
-| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Outline and parity landed.** Exact shell subtraction preserves the short-circuit graph at digest `0b219d8ea107...`; the unchanged whole candidate, outline, and independent oracle agree on the same Live Residence roots across empty, widths 1–4, mixed, positions/miss, and alias. Now measure 32B..1MiB with 4KiB+ p50 C ratio <=1.15. |
+| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Measured red; promotion remains closed.** Exact shell subtraction and parity are green, but the unchanged 80-case/51-pair gate reports max 4KiB+ p50 C ratio 3.856. `LLVM-PINNED-TEXT-SCALAR-EQ-LEAD-REUSE-LADDER-I0` is the sole bounded repair before rerunning the unchanged gate. |
 | 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | ABI+Enter+projection+loop+Finish+Return reports short-input cost and break-even; 4KiB+ p50 <=1.20, p95 <=1.30, and current-route delta separately. |
 | 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | One test/perf-only aggregate consumes exact commit/toolchain/environment/corpus evidence from 8a-e and measures nothing itself; any missing or red leaf means no promotion. |
 | 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
@@ -485,8 +485,40 @@ The remaining 8d order is deliberately split:
    candidate and outlined helper, lend both the same Residence-acquired roots,
    and require identical first-code-point index or `-1` for empty, widths 1–4,
    mixed, first/middle/last/miss, and alias cases.
-2. **Current** `S6C-PINNED-CORRIDOR-MESO-BENCH-R0`: after parity, measure the outlined
-   body against the independent C scan with the fixed corpus and thresholds.
+2. **Measured red** `S6C-PINNED-CORRIDOR-MESO-BENCH-R0`: the fixed corpus and
+   unchanged oracle produced max 4KiB+ p50 ratio 3.856, so 8e stays closed.
+3. **Current** `LLVM-PINNED-TEXT-SCALAR-EQ-LEAD-REUSE-LADDER-I0`: repair only
+   the selected physical leaf schedule below, then rerun the same meso gate.
+
+### Accepted scalar-equality schedule repair
+
+```text
+Decision: Replace the selected scalar-equality width switch and duplicated
+byte-0 arms with one cached WidthAt lead-byte compare and a direct 1-to-4
+short-circuit ladder.
+Source authority + canonical issuer: Existing selected preflight already
+co-seals equality.byte_offset == WidthAt.byte_offset and equality.width ==
+WidthAt.dst; the sole selected leaf emitter consumes that relation.
+Non-authority: Assembly counts, C scheduling, benchmark ratios, SSA spelling,
+block labels, and the outlined helper issue no source or compiler meaning.
+Fail-fast boundary: Accept only that preflighted same-cohort plan relation;
+width N reads exactly N bytes, later reads require prior equality, and switch,
+indirect branch, helper, overread, noalias, and extra call stay zero.
+Smallest next slice: LLVM-PINNED-TEXT-SCALAR-EQ-LEAD-REUSE-LADDER-I0 changes
+the selected leaf emitter and focused structural evidence, then reruns exact,
+link/run, structural-zero, and the unchanged meso benchmark.
+Non-claims: No LLVM pass pipeline, MIR/source/Facts/Recipe/ABI/frame change,
+production switch, fallback/retry, threshold relaxation, or C-oracle rewrite.
+```
+
+The real same-session object has no loop-carried stack spill. Its remaining
+gap is local: one indirect width dispatch, a second byte-0 load in every width
+arm, and a Bool join/rebranch. The independent C reference reuses the lead byte
+and advances through direct length/byte checks. The repair is therefore a
+BoxShape inside the already selected physical emitter, not a new optimizer,
+receipt, fastpath authority, or language feature. If the cached lead byte
+cannot be tied to the existing WidthAt plan without name guessing, stop with
+`NoSafeSlice` and introduce only an emitter-local physical context.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the
