@@ -238,3 +238,37 @@ Non-authority: `NormalInstanceConstructorSourceKeyV1`, Box/key spelling, demand 
 Fail-fast boundary: Immediate and runtime duplicate demands must borrow the same source row; missing, foreign, duplicated, or mismatched source identity rejects before constructor child lowering without raw fallback.
 Smallest next slice: Read-only census of `NormalInstanceConstructorSourceBatchV1` through `RootCallableCapturePortV1::lower_normal_instance_constructor`, then one bounded consumer brief or `NoSafeSlice`.
 Non-claims: No consumer cutover, raw-probe deletion, Compatibility/RawLegacy repair, unwrap activation, nominal Brand representation, runtime, or backend change.
+
+## INSTANCE-CONSTRUCTOR-PHYSICAL-SOURCE-TRANSFER-P0
+
+Decision: Accept one behavior-preserving BoxShape prerequisite: carry the
+parser-issued constructor source ID from the installed semantic package into
+every SelectedNormal immediate/runtime physical demand.
+Source authority + canonical issuer: `ConstructorSourceIdV1` and the installed
+`VerifiedInstanceConstructorSemanticBatchV1` rows issued by the parser-backed
+resolver package; the work plan may only project and validate those rows.
+Non-authority: sorted AST constructor maps, `(statement, box, key)`, demand
+ordinal, physical symbol/arity, lineage, and `CompilationContext` name maps.
+Fail-fast boundary: before either physical demand is emitted, every prepared
+constructor must bind exactly one source ID with matching final Box ordinal,
+Box/key, and function declaration; missing/duplicate/foreign/swapped rows
+reject, with no legacy identity reconstruction or fallback.
+Smallest next slice: add a focused source-ID transfer cohort and make the
+immediate plus Script-runtime batches clone that opaque identity; leave the
+package consumer and raw Brand probe unchanged until the transfer is green.
+Non-claims: no semantic reissuance, consumer switch, raw-probe retirement,
+Compatibility/RawLegacy closure, unwrap activation, nominal Brand value,
+runtime representation, or backend change.
+
+Acceptance:
+
+- direct, selected-gate, overloaded, and generated `birth/0` rows preserve the
+  parser `ConstructorSourceIdV1` through work-plan preparation;
+- app immediate and non-app immediate/runtime duplicate demands carry the same
+  source ID while remaining separate physical admissions;
+- missing, duplicate, foreign, swapped, non-function, Box/key/ordinal drift,
+  and old name/key-only construction reject before constructor body effects;
+- the package remains the sole semantic owner and Compatibility/RawLegacy keep
+  their existing untyped lane;
+- focused tests, a reusable guard, formatter, pointer guard, and quick check
+  are green, with every touched source below 760 lines.
