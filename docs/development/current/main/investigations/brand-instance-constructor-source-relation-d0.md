@@ -218,3 +218,23 @@ Stop:
   Return to design if coverage requires name/key reconstruction, a partial
   Script product, a second Brand traversal, or growth of a 760-line owner. Do
   not consume `is_brand_declared` or widen Compatibility in this row.
+
+### I0 closeout
+
+Landed. One 218-line owner now compares the package-issued callable source
+inventory and parser-issued constructor semantic rows against each exact
+instance-Box Program ordinal before Builder creation. The Script root window
+records `InstanceBoxSemanticOwner`; the resolver skips that subtree while
+retaining all surrounding Script expressions. A foreign constructor and
+incomplete method coverage reject, and the legacy raw Brand probe remains.
+The two focused tests, reusable guard, quick check, pointer guard, formatting,
+diff check, and all touched line-count fences are green.
+
+## INSTANCE-CONSTRUCTOR-SEMANTIC-CONSUMER-D0
+
+Decision: Audit one exact physical loan from the landed constructor semantic row to every immediate/runtime constructor demand; do not switch the raw consumer yet.
+Source authority + canonical issuer: Parser `ConstructorSourceIdV1` and its package-owned resolved forest remain the sole occurrence/owner authority; the constructor port may only borrow that exact row.
+Non-authority: `NormalInstanceConstructorSourceKeyV1`, Box/key spelling, demand order, symbols, AST lookup, and `is_brand_declared` cannot pair a physical demand to semantics.
+Fail-fast boundary: Immediate and runtime duplicate demands must borrow the same source row; missing, foreign, duplicated, or mismatched source identity rejects before constructor child lowering without raw fallback.
+Smallest next slice: Read-only census of `NormalInstanceConstructorSourceBatchV1` through `RootCallableCapturePortV1::lower_normal_instance_constructor`, then one bounded consumer brief or `NoSafeSlice`.
+Non-claims: No consumer cutover, raw-probe deletion, Compatibility/RawLegacy repair, unwrap activation, nominal Brand representation, runtime, or backend change.

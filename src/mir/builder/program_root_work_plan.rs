@@ -3,6 +3,7 @@ use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
+use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
@@ -169,6 +170,22 @@ impl PreparedProgramRootWorkPlanV1 {
         work_plan_admission: ProgramRootWorkPlanAdmissionV1,
         selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
     ) -> Self {
+        Self::prepare_with_instance_box_transfers(
+            statements,
+            is_app_mode,
+            work_plan_admission,
+            selected_callable_sources,
+            None,
+        )
+    }
+
+    pub(super) fn prepare_with_instance_box_transfers(
+        statements: Vec<ASTNode>,
+        is_app_mode: bool,
+        work_plan_admission: ProgramRootWorkPlanAdmissionV1,
+        selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
+        instance_box_transfers: Option<&VerifiedScriptInstanceBoxTransferCohortV1>,
+    ) -> Self {
         assert_eq!(
             selected_callable_sources.is_some(),
             work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal,
@@ -187,11 +204,16 @@ impl PreparedProgramRootWorkPlanV1 {
                 == ProgramRootWorkPlanAdmissionV1::SelectedNormal)
                 .then(|| classify_normal_script_program_item_v1(&statement));
             if let Some(window) = &mut script_window {
-                let occurrence = SelectedScriptProgramOccurrenceV1::new(
+                let mut occurrence = SelectedScriptProgramOccurrenceV1::new(
                     statement_index,
                     &statement,
                     normal_script_kind.expect("selected Script runtime classifier"),
                 );
+                if instance_box_transfers
+                    .is_some_and(|transfers| transfers.contains(statement_index))
+                {
+                    occurrence = occurrence.with_instance_box_transfer();
+                }
                 window
                     .record_selected_work_item(&statement, occurrence)
                     .expect("selected Script demand-window source contract");

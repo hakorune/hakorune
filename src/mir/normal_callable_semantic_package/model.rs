@@ -83,6 +83,12 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         &self.batch
     }
 
+    pub(crate) fn selected_callable_sources(
+        &self,
+    ) -> &crate::mir::builder::VerifiedSelectedNormalCallableSourceInventoryV1 {
+        self.catalog.catalog().selected_source_inventory()
+    }
+
     #[cfg(test)]
     pub(crate) fn parameter_declaration_count(&self) -> usize {
         self.parameter_contracts.len()

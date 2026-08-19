@@ -109,6 +109,7 @@ pub(crate) enum ScriptTransferredBoundaryV1 {
     ProgramEnumDeclaration,
     TopLevelCallable,
     ProgramRecordDeclaration,
+    InstanceBoxSemanticOwner,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

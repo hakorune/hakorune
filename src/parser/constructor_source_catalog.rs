@@ -57,6 +57,7 @@ pub(crate) enum FinalConstructorSemanticSyntaxLoanErrorV1 {
 #[derive(Debug)]
 pub(crate) struct FinalConstructorSemanticSyntaxRowRefV1<'source> {
     source_id: &'source ConstructorSourceIdV1,
+    final_box_ordinal: u32,
     box_name: &'source str,
     key: &'source str,
     declaration: &'source ASTNode,
@@ -76,6 +77,10 @@ impl FinalConstructorSemanticSyntaxLoanV1<'_> {
 impl FinalConstructorSemanticSyntaxRowRefV1<'_> {
     pub(crate) fn source_id(&self) -> &ConstructorSourceIdV1 {
         self.source_id
+    }
+
+    pub(crate) const fn final_box_ordinal(&self) -> u32 {
+        self.final_box_ordinal
     }
 
     pub(crate) fn box_name(&self) -> &str {
@@ -187,6 +192,7 @@ impl ParserConstructorSourceCatalogV1 {
                 .ok_or(FinalConstructorSemanticSyntaxLoanErrorV1::ConstructorMissing)?;
             rows.push(FinalConstructorSemanticSyntaxRowRefV1 {
                 source_id: &row.source_id,
+                final_box_ordinal: row.final_box_ordinal,
                 box_name: name,
                 key: row.relation.key(),
                 declaration,

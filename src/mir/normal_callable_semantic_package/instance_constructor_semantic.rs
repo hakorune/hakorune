@@ -22,6 +22,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedInstanceConstructorSemanticRowV1 {
     source_id: ConstructorSourceIdV1,
+    final_box_ordinal: u32,
     box_name: Box<str>,
     key: Box<str>,
     forest: VerifiedSemanticOwnerForestV1,
@@ -41,6 +42,10 @@ impl VerifiedInstanceConstructorSemanticBatchV1 {
 impl VerifiedInstanceConstructorSemanticRowV1 {
     pub(crate) fn source_id(&self) -> &ConstructorSourceIdV1 {
         &self.source_id
+    }
+
+    pub(crate) const fn final_box_ordinal(&self) -> u32 {
+        self.final_box_ordinal
     }
 
     pub(crate) fn box_name(&self) -> &str {
@@ -76,6 +81,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 );
                 candidates.push((
                     syntax.source_id().clone(),
+                    syntax.final_box_ordinal(),
                     Box::<str>::from(syntax.box_name()),
                     Box::<str>::from(syntax.key()),
                     view,
@@ -100,7 +106,9 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
             }
             let mut rows = Vec::with_capacity(forests.len());
-            for ((source_id, box_name, key, view), forest) in candidates.into_iter().zip(forests) {
+            for ((source_id, final_box_ordinal, box_name, key, view), forest) in
+                candidates.into_iter().zip(forests)
+            {
                 let [root] = forest.roots() else {
                     return Err(InstanceConstructorSemanticBatchIssueV1::MissingRoot);
                 };
@@ -119,6 +127,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                 }
                 rows.push(VerifiedInstanceConstructorSemanticRowV1 {
                     source_id,
+                    final_box_ordinal,
                     box_name,
                     key,
                     forest,

@@ -50,7 +50,8 @@ pub(crate) use callable_declaration_catalog::{
     SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1,
     SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
     SourceBackedCallableCatalogIssueV1, VerifiedSameModuleCallableDeclarationCatalogV1,
-    VerifiedSameModuleCallableDeclarationV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
+    VerifiedSameModuleCallableDeclarationV1, VerifiedSelectedNormalCallableSourceInventoryV1,
+    VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 #[cfg(test)]
 pub(crate) use main_expansion::with_test_main_static_children;
@@ -105,6 +106,7 @@ mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 mod nested_box_method_source;
 mod normal_instance_constructor_admission;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
+mod normal_script_instance_box_transfer;
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract

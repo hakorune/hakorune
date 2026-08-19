@@ -53,6 +53,11 @@ impl ScriptRootSemanticDecisionV1 {
                 Semantic::Transferred(ScriptTransferredBoundaryV1::TopLevelCallable),
                 Runtime::None,
             )
+        } else if occurrence.transfers_instance_box() {
+            (
+                Semantic::Transferred(ScriptTransferredBoundaryV1::InstanceBoxSemanticOwner),
+                Runtime::RetainedExistingTerminal,
+            )
         } else {
             match admission {
                 Admission::DirectStaticConstRuntimeCompletion => (
@@ -233,6 +238,15 @@ fn validate_source_boundary(
         ScriptRootSemanticDispositionV1::Transferred(
             ScriptTransferredBoundaryV1::ProgramRecordDeclaration,
         ) => is_program_record_declaration(statement),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::InstanceBoxSemanticOwner,
+        ) => matches!(
+            statement,
+            ASTNode::BoxDeclaration {
+                is_static: false,
+                ..
+            }
+        ),
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
         ) => {

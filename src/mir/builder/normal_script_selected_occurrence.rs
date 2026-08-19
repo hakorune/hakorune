@@ -19,6 +19,7 @@ pub(super) struct SelectedScriptProgramOccurrenceV1 {
 enum SelectedScriptProgramTransferV1 {
     None,
     TopLevelCallable,
+    InstanceBox,
 }
 
 impl SelectedScriptProgramOccurrenceV1 {
@@ -50,6 +51,15 @@ impl SelectedScriptProgramOccurrenceV1 {
             self.transfer,
             SelectedScriptProgramTransferV1::TopLevelCallable
         )
+    }
+
+    pub(super) fn with_instance_box_transfer(mut self) -> Self {
+        self.transfer = SelectedScriptProgramTransferV1::InstanceBox;
+        self
+    }
+
+    pub(super) const fn transfers_instance_box(self) -> bool {
+        matches!(self.transfer, SelectedScriptProgramTransferV1::InstanceBox)
     }
 }
 

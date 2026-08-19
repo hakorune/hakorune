@@ -8,6 +8,7 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
+use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_lowering::{
@@ -294,6 +295,25 @@ impl ModuleBuilderInvocationSessionV1 {
             }
             compatibility => (None, Some(compatibility)),
         };
+        let instance_box_transfers = match (preflight_is_app_mode, semantic_package.as_ref()) {
+            (true, _) => None,
+            (false, Some(package)) => Some(match VerifiedScriptInstanceBoxTransferCohortV1::issue(
+                package.source_ast(),
+                package,
+            ) {
+                Ok(cohort) => cohort,
+                Err(error) => {
+                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                        session: self,
+                        _source: None,
+                        error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                            format!("[mir/script-instance-box-transfer/issue] {error:?}").into(),
+                        ),
+                    })
+                }
+            }),
+            (false, None) => None,
+        };
         let brand = self.brand();
         let import_rows = self
             .config()
@@ -386,11 +406,12 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/static-result-owner/catalog] {error}").into(),
                             )
                         })?;
-                let work = PreparedProgramRootWorkPlanV1::prepare(
+                let work = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers(
                     lowering_statements,
                     expansion.is_app_mode(),
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                     Some(declarations.selected_source_inventory()),
+                    instance_box_transfers.as_ref(),
                 );
                 let work = work.into_parts();
                 let script_source = match work.script_root_admission.as_ref() {

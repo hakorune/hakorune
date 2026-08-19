@@ -243,3 +243,17 @@ non-Clone batch and carries them through installation unchanged. Missing or
 changed syntax, deferred resolution, root/profile drift, and cardinality drift
 reject before Builder effects. This row does not consume the batch physically,
 activate Brand unwrap, or remove the legacy `is_brand_declared` probe.
+
+## Script instance-Box transferred boundary I0 (2026-08-20)
+
+For non-app selected Script, an instance Box is transparent to the Script
+resolver only after one pre-Builder census proves that every retained method is
+owned by the callable semantic package and every constructor is owned by the
+parser-issued constructor semantic batch. Exact Program ordinals select the
+cohort; Box names and constructor keys only validate issued placement.
+
+The root demand window records `InstanceBoxSemanticOwner`, so the Script
+resolver owns surrounding expressions without entering the transferred Box.
+Missing, foreign, or extra method/constructor coverage rejects before Builder
+effects. Runtime Box lowering is unchanged, and this row neither consumes Brand
+relations physically nor removes the legacy raw name probe.

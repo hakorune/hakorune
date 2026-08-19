@@ -31,7 +31,7 @@ pub(crate) use recovery::{
 };
 pub(crate) use selected_role::SelectedCallableConsumptionRoleV1;
 pub(crate) use selected_source_inventory::SelectedNormalCallableKeyV1;
-pub(in crate::mir::builder) use selected_source_inventory::{
+pub(crate) use selected_source_inventory::{
     SelectedCallableSemanticBlockerV1, SelectedNormalCallableSourceSiteV1,
     SelectedTopLevelFunctionKeyV1, VerifiedSelectedNormalCallableSourceInventoryV1,
 };
