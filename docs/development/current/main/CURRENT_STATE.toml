@@ -21,10 +21,10 @@ any further residual-performance attribution.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Select one observation-only lowering-shape report contract: exact same-candidate identity, the smallest MIR/LLVM/assembly vocabulary, optional external C artifact boundary, mapping-quality floor, and S6C counterexample. Do not infer provenance from ValueId, adjacency, labels, or symbol names, and do not edit code before one bounded I0 is accepted."
-work_mode = "design_stop"
-current_execution_row = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0"
-current_blocker_token = "Audit the existing hako_check inspect bundle, MIR method-shape adapter, trace bundle, and C/AOT asm diff owners; decide whether one normalized report can remain a pure artifact consumer at current block/symbol mapping quality. Name exact inputs, output schema, fail-fast identity checks, counterexample, and non-claims before selecting implementation."
+current_design_stop = "The lowering-shape D0 is accepted: current V0 observation bundles do not bind MIR/LLVM/executable/assembly lineage strongly enough for a shape report. Land one V1 bundle identity seal before any renderer; do not infer selectors or provenance from ValueId, adjacency, labels, or fallback symbol names."
+work_mode = "fast"
+current_execution_row = "HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0"
+current_blocker_token = "Add exactly one V1 same-candidate identity product to the existing inspect bundle: artifact digests, explicit unique MIR/LLVM/assembly selectors, copied executable binding, derived candidate seal, last-write publication, focused negatives, and guard coverage. Do not add shape counts, C build/measurement, compiler provenance, or backend behavior."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -48,8 +48,8 @@ production cutover stay parked. The hako_check inspect owner split is landed:
 the CLI/effect owner is 692 lines, its pure metadata/report child is 245 lines,
 and one reusable guard runs the five focused tests while enforcing the 760-line
 boundary. The current design stop selects the smallest normalized lowering-
-shape report without inferring MIR-to-assembly meaning or choosing an
-optimization.
+bundle identity seal without inferring MIR-to-assembly meaning or choosing an
+optimization. The shape renderer remains parked until that seal is green.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -62,10 +62,10 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "The hako_check inspect owner split is green at 692/245 lines with one reusable guard and unchanged five-test behavior. A design stop now selects the normalized same-candidate MIR/LLVM/assembly report boundary; compiler provenance, C measurement, keeper selection, and production remain closed."
-next_design_card = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0"
+latest_card_summary = "The lowering-shape D0 found a concrete identity gap: V0 does not bind MIR/LLVM/executable/assembly bytes or exact selectors. The selected I0 adds one last-written V1 candidate seal; shape counts, compiler provenance, C measurement, keeper selection, and production remain closed."
+next_design_card = "HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0"
 next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-next_execution_card = "none (design stop)"
+next_execution_card = "HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0"
 next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -77,6 +77,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0 accepted one prerequisite. Current V0 bundles lack digest-bound MIR/LLVM/executable/assembly lineage and exact selectors, so a renderer would overclaim same-candidate identity. The selected BoxCount adds one V1 seal written last; shape counts, C reference tooling, provenance, keeper selection, and production remain parked.",
   "2026-08-19: HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0 landed behavior-neutrally. The prior 916-line owner is now a 692-line CLI/effect facade plus one 245-line pure metadata/report child; five focused tests, py_compile, the reusable owner guard, and current pointer guard are green. CLI, schemas, artifact bytes, mapping claims, compiler/backend, and keeper selection are unchanged.",
   "2026-08-19: The exact ordinal-zero MeasurementBatch V3 WSL run closed Complete/development_keeper: batch 18120db0..., terminal da729ae9...50ee, both sealed sessions Complete/development_green, 80 cases x 51 retained pairs per session, diagnostic raw 0, and temporary residue 0. This is development evidence only; native promotion authority, residual owner, backend change, and production remain closed.",
   "2026-08-19: S6C wall-clock calibration repair I2 landed evidence-only. Plan v2/batch v3 seals a 30 ms floor plus post-warm 60 ms target; short arms close Incomplete, identity/schema drift remains IntegrityInvalid, ineligible raw is a separately named digest-bound diagnostic, and abandoned raw is recovered without becoming evidence. Pure self-tests, reusable guard, and the real 80-case plus robust calibration smoke are green; compiler/MIR/backend, corpus, threshold, and production are unchanged.",
@@ -87,6 +88,5 @@ landed_tail = [
   "2026-08-19: WSL paired-wall-clock DEV R0 closed terminal NoSafeSlice. The sole session-0 invocation traversed part of the canonical case census but ended without its atomic receipt; session 1 and aggregation were not opened. Partial observations issue no development keeper, ratio, owner, native evidence, or backend change, and this sealed plan is not rerun.",
   "2026-08-19: Clean-pair R0 closed verified NoSafeSlice at 18 rejected/0 accepted. Robust paired wall-clock D0/I0 and harness I1 landed evidence-only: explicit C mode consumes sealed 51-slot schedules, emits raw block/order rows, sessions 0/1 reverse AB excess, and one development-only aggregator retains all pairs. Native promotion and compiler/source/MIR/backend remain unchanged.",
   "2026-08-19: Native separate-arm PMU foundation and integrity I1 landed evidence-only: direct arm processes and fixed PMU groups remain, while one private frozen binary, full manifest/commit binding, exact corpus constants, getrusage plus single-CPU affinity, balanced cross-run ordering, timeout, and interval/classifier matrices close the audit gaps. The first native JSON is provisional and must be replaced by R0; compiler/source/MIR/ABI, C reference, corpus, and 1.15 threshold remain unchanged.",
-  "2026-08-19: Meso equal-alignment control landed as evidence-only: outlined Hako and independent C symbols are both 64-byte aligned, normalized linked-body hashes are recorded, calls/trampolines remain zero, and corpus/oracle/51-pair/30ms/1.15 threshold are unchanged. The uncontended result remains red at mixed/4KiB/first p50 1.170296, so promotion stays closed and further lowering is NoSafeSlice pending a hardware-counter owner audit.",
-  "2026-08-19: Selected scalar equality direct continuation landed caller-zero: exhaustive preflight fixes plan2 dst to one adjacent terminal Branch use, true/false tails target the existing successors directly, successor PHIs use the actual edge-specific predecessors, and the generic Branch is consumed once. The scan graph is 20 blocks/57 instructions/29 edges/5 PHIs/2 Returns with digest ea07b0aa8b57. Link/run, structural, exact, outline, and parity are green; unchanged meso improved to width3/4KiB/first p50 1.174594 but remains red, so promotion stays closed pending equal-alignment control."
+  "2026-08-19: Meso equal-alignment control landed as evidence-only: outlined Hako and independent C symbols are both 64-byte aligned, normalized linked-body hashes are recorded, calls/trampolines remain zero, and corpus/oracle/51-pair/30ms/1.15 threshold are unchanged. The uncontended result remains red at mixed/4KiB/first p50 1.170296, so promotion stays closed and further lowering is NoSafeSlice pending a hardware-counter owner audit."
 ]
