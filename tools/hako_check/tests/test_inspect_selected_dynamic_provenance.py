@@ -23,7 +23,7 @@ def digest(path: Path) -> str:
 
 
 class SelectedDynamicProvenanceIngressTests(unittest.TestCase):
-    def fixture(self, root: Path) -> tuple[Path, Path, Path]:
+    def fixture(self, root: Path) -> tuple[Path, Path, Path, Path, Path]:
         producer = root / "producer"
         producer.mkdir()
         source = producer / "source.full.hako"
@@ -63,14 +63,24 @@ class SelectedDynamicProvenanceIngressTests(unittest.TestCase):
             "block\t1\t-1\tnone\t-1\tbb1\t\tpreserved\tbase_block\n",
             encoding="utf-8",
         )
-        return producer, llvm, raw
+        object_path = root / "real.o"
+        object_path.write_bytes(b"same-emission-object")
+        asm = root / "real.asm"
+        asm.write_text(
+            "0000000000000010 <ParserScanLoopBox.skip_while/4>:\n"
+            "  10:\t48 89 c0             \tmov    %rax,%rax\n"
+            "  13:\tc3                   \tret\n",
+            encoding="utf-8",
+        )
+        return producer, llvm, raw, object_path, asm
 
     def test_seals_exact_lowered_boundary_without_machine_claim(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
             root = Path(raw_root)
-            producer, llvm, raw = self.fixture(root)
+            producer, llvm, raw, object_path, asm = self.fixture(root)
             identity = seal_product(
-                producer=producer, lowered=llvm, raw=raw, out=root / "bundle",
+                producer=producer, lowered=llvm, raw=raw,
+                object_path=object_path, asm_path=asm, out=root / "bundle",
             )
             self.assertEqual(
                 identity["mappings"],
@@ -98,9 +108,23 @@ class SelectedDynamicProvenanceIngressTests(unittest.TestCase):
                 {
                     "producer.json", "source.full.hako", "mir.raw.json",
                     "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
-                    "lowering.provenance.json", "summary.md",
+                    "lowering.provenance.json", "object.bin", "asm.s",
+                    "origin-footprint.json", "summary.md",
                 },
             )
+            footprint = json.loads(
+                (root / "bundle/origin-footprint.json").read_text()
+            )
+            self.assertEqual(footprint["llvm_boundary"], "lowered_pre_opt")
+            self.assertEqual(
+                footprint["lowered_llvm_to_machine"], "unavailable"
+            )
+            self.assertEqual(footprint["asm"]["symbol"], FUNCTION)
+            self.assertEqual(
+                footprint["asm"]["origin_attribution"], "unavailable"
+            )
+            self.assertEqual(footprint["asm"]["shape"]["instructions"], 2)
+            self.assertEqual(footprint["asm"]["shape"]["returns"], 1)
             self.assertEqual(
                 {path.name for path in (root / "bundle").iterdir()},
                 set(identity["artifacts"]) | {"identity.json"},
@@ -109,11 +133,15 @@ class SelectedDynamicProvenanceIngressTests(unittest.TestCase):
     def test_summary_and_producer_are_inside_identity_seal(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
             root = Path(raw_root)
-            producer, llvm, raw = self.fixture(root)
+            producer, llvm, raw, object_path, asm = self.fixture(root)
             identity = seal_product(
-                producer=producer, lowered=llvm, raw=raw, out=root / "bundle",
+                producer=producer, lowered=llvm, raw=raw,
+                object_path=object_path, asm_path=asm, out=root / "bundle",
             )
-            for name in ("summary.md", "producer.json"):
+            for name in (
+                "summary.md", "producer.json", "object.bin", "asm.s",
+                "origin-footprint.json",
+            ):
                 artifact = root / "bundle" / name
                 original = artifact.read_bytes()
                 artifact.write_bytes(original + b"tampered\n")
@@ -123,12 +151,28 @@ class SelectedDynamicProvenanceIngressTests(unittest.TestCase):
                     validate_identity_contract(root / "bundle", identity)
                 artifact.write_bytes(original)
 
+    def test_missing_or_duplicate_selected_symbol_rejects(self) -> None:
+        with tempfile.TemporaryDirectory() as raw_root:
+            root = Path(raw_root)
+            producer, llvm, raw, object_path, asm = self.fixture(root)
+            original = asm.read_text()
+            for text in ("no symbol\n", original + original):
+                asm.write_text(text)
+                with self.assertRaisesRegex(SystemExit, "must be unique"):
+                    seal_product(
+                        producer=producer, lowered=llvm, raw=raw,
+                        object_path=object_path, asm_path=asm,
+                        out=root / "bundle",
+                    )
+                self.assertFalse((root / "bundle").exists())
+
     def test_extra_published_sibling_rejects(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
             root = Path(raw_root)
-            producer, llvm, raw = self.fixture(root)
+            producer, llvm, raw, object_path, asm = self.fixture(root)
             identity = seal_product(
-                producer=producer, lowered=llvm, raw=raw, out=root / "bundle",
+                producer=producer, lowered=llvm, raw=raw,
+                object_path=object_path, asm_path=asm, out=root / "bundle",
             )
             (root / "bundle" / "foreign.txt").write_text("foreign")
             with self.assertRaisesRegex(SystemExit, "published inventory mismatch"):
@@ -137,23 +181,25 @@ class SelectedDynamicProvenanceIngressTests(unittest.TestCase):
     def test_foreign_producer_digest_rejects_before_publication(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
             root = Path(raw_root)
-            producer, llvm, raw = self.fixture(root)
+            producer, llvm, raw, object_path, asm = self.fixture(root)
             (producer / "source.full.hako").write_text("foreign\n")
             with self.assertRaises(SystemExit):
                 seal_product(
-                    producer=producer, lowered=llvm, raw=raw, out=root / "bundle",
+                    producer=producer, lowered=llvm, raw=raw,
+                    object_path=object_path, asm_path=asm, out=root / "bundle",
                 )
             self.assertFalse((root / "bundle").exists())
 
     def test_duplicate_origin_rejects_and_removes_staging(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
             root = Path(raw_root)
-            producer, llvm, raw = self.fixture(root)
+            producer, llvm, raw, object_path, asm = self.fixture(root)
             first = raw.read_text().splitlines()[0]
             raw.write_text(raw.read_text() + first + "\n")
             with self.assertRaises(SystemExit):
                 seal_product(
-                    producer=producer, lowered=llvm, raw=raw, out=root / "bundle",
+                    producer=producer, lowered=llvm, raw=raw,
+                    object_path=object_path, asm_path=asm, out=root / "bundle",
                 )
             self.assertFalse((root / "bundle").exists())
             self.assertEqual(list(root.glob(".bundle.*")), [])
@@ -161,7 +207,7 @@ class SelectedDynamicProvenanceIngressTests(unittest.TestCase):
     def test_launch_kind_is_mandatory(self) -> None:
         with tempfile.TemporaryDirectory() as raw_root:
             root = Path(raw_root)
-            producer, _llvm, _raw = self.fixture(root)
+            producer, _llvm, _raw, _object, _asm = self.fixture(root)
             manifest = json.loads((producer / "producer.json").read_text())
             manifest["launch_kind"] = "semantic_authority"
             (producer / "producer.json").write_text(json.dumps(manifest))

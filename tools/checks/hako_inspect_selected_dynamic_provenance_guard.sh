@@ -24,6 +24,7 @@ cc -I"$ROOT/plugins/nyash-json-plugin/c/yyjson" \
   "$ROOT/plugins/nyash-json-plugin/c/yyjson/yyjson.c" -ldl
 
 PYTHONPATH="$ROOT/tools/hako_check" python3 -m unittest \
+  tools.hako_check.tests.test_inspect_origin_footprint \
   tools.hako_check.tests.test_inspect_provenance_dispositions \
   tools.hako_check.tests.test_inspect_provenance_model \
   tools.hako_check.tests.test_inspect_selected_dynamic_provenance
@@ -68,10 +69,12 @@ import sys
 bundle = pathlib.Path(sys.argv[1])
 identity = json.loads((bundle / "identity.json").read_text())
 provenance = json.loads((bundle / "lowering.provenance.json").read_text())
+footprint = json.loads((bundle / "origin-footprint.json").read_text())
 payloads = {
     "producer.json", "source.full.hako", "mir.raw.json",
     "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
-    "lowering.provenance.json", "summary.md",
+    "lowering.provenance.json", "object.bin", "asm.s",
+    "origin-footprint.json", "summary.md",
 }
 assert set(identity["artifacts"]) == payloads
 assert {path.name for path in bundle.iterdir()} == payloads | {"identity.json"}
@@ -93,6 +96,12 @@ assert provenance["coverage"] == {
     "llvm_edges": 32,
 }
 assert len(provenance["relations"]) == 64
+assert footprint["llvm_boundary"] == "lowered_pre_opt"
+assert footprint["mir_llvm_correspondence"] == "issuer_exact"
+assert footprint["lowered_llvm_to_machine"] == "unavailable"
+assert footprint["asm"]["symbol"] == "ParserScanLoopBox.skip_while/4"
+assert footprint["asm"]["origin_attribution"] == "unavailable"
+assert footprint["asm"]["shape"]["instructions"] > 0
 summary = (bundle / "summary.md").read_text()
 assert "MIR → lowered LLVM: issuer_exact" in summary
 assert "lowered LLVM → final LLVM: unavailable" in summary

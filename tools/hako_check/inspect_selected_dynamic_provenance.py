@@ -14,6 +14,9 @@ from pathlib import Path
 from typing import Any
 
 from inspect_provenance_model import build_provenance
+from inspect_origin_footprint import (
+    build_origin_footprint, render_origin_footprint_markdown,
+)
 from inspect_scope_identity import (
     build_identity_contract,
     require_unique_mir_function,
@@ -83,7 +86,8 @@ def validate_product_inventory(staging: Path, identity: dict[str, Any]) -> None:
 
 
 def seal_product(
-    *, producer: Path, lowered: Path, raw: Path, out: Path,
+    *, producer: Path, lowered: Path, raw: Path, object_path: Path,
+    asm_path: Path, out: Path,
 ) -> dict[str, Any]:
     manifest = validate_producer(producer)
     if out.exists():
@@ -97,6 +101,8 @@ def seal_product(
             (producer / "real.json", "mir.raw.json"),
             (lowered, "llvm.lowered-pre-opt.ir"),
             (raw, "lowering.origins.tsv"),
+            (object_path, "object.bin"),
+            (asm_path, "asm.s"),
         ):
             shutil.copyfile(source, staging / name)
         if manifest.get("source_sha256") != _sha256(staging / "source.full.hako"):
@@ -118,6 +124,20 @@ def seal_product(
             staging / "lowering.provenance.json",
             json.dumps(provenance, indent=2, sort_keys=True) + "\n",
         )
+        footprint = build_origin_footprint(
+            provenance=provenance,
+            llvm_text=(staging / "llvm.lowered-pre-opt.ir").read_text(
+                encoding="utf-8", errors="replace"
+            ),
+            asm_text=(staging / "asm.s").read_text(
+                encoding="utf-8", errors="replace"
+            ),
+            asm_symbol=FUNCTION,
+        )
+        _write_atomic(
+            staging / "origin-footprint.json",
+            json.dumps(footprint, indent=2, sort_keys=True) + "\n",
+        )
         coverage = provenance["coverage"]
         summary = "\n".join([
             "# Selected Dynamic Lowering Provenance", "",
@@ -130,7 +150,7 @@ def seal_product(
             f"| MIR | {coverage['mir_blocks']} | {coverage['mir_edges']} |",
             f"| lowered LLVM | {coverage['llvm_blocks']} | {coverage['llvm_edges']} |",
             "",
-        ])
+        ]) + "\n" + render_origin_footprint_markdown(footprint)
         _write_atomic(staging / "summary.md", summary)
         identity = build_identity_contract(
             out_dir=staging,
@@ -146,7 +166,8 @@ def seal_product(
             artifact_names=[
                 "producer.json", "source.full.hako", "mir.raw.json",
                 "llvm.lowered-pre-opt.ir", "lowering.origins.tsv",
-                "lowering.provenance.json", "summary.md",
+                "lowering.provenance.json", "object.bin", "asm.s",
+                "origin-footprint.json", "summary.md",
             ],
             mappings={
                 "source_to_mir": "exact",
@@ -156,7 +177,7 @@ def seal_product(
             },
             mir_function=FUNCTION,
             llvm_function="",
-            asm_symbol="",
+            asm_symbol=FUNCTION,
         )
         identity["producer_contract"] = manifest["output_contract"]
         _write_atomic(
@@ -178,6 +199,13 @@ def _run(command: list[str], *, cwd: Path, env: dict[str, str] | None = None) ->
         raise SystemExit("selected Dynamic provenance command failed\n" + result.stderr)
 
 
+def _capture(command: list[str], *, cwd: Path) -> str:
+    result = subprocess.run(command, cwd=cwd, text=True, capture_output=True)
+    if result.returncode:
+        raise SystemExit("selected Dynamic provenance command failed\n" + result.stderr)
+    return result.stdout
+
+
 def run(args: argparse.Namespace) -> int:
     root = args.repo_root.resolve()
     with tempfile.TemporaryDirectory(prefix="hako_selected_dynamic_provenance.") as raw_tmp:
@@ -195,9 +223,17 @@ def run(args: argparse.Namespace) -> int:
             str(temporary / "real.o"), str(temporary / "lowered.ll"),
             str(temporary / "origins.tsv"),
         ], cwd=root)
+        (temporary / "asm.s").write_text(
+            _capture([
+                os.environ.get("OBJDUMP", "objdump"), "-d",
+                f"--disassemble={FUNCTION}", str(temporary / "real.o"),
+            ], cwd=root),
+            encoding="utf-8",
+        )
         identity = seal_product(
             producer=producer, lowered=temporary / "lowered.ll",
-            raw=temporary / "origins.tsv", out=args.out.resolve(),
+            raw=temporary / "origins.tsv", object_path=temporary / "real.o",
+            asm_path=temporary / "asm.s", out=args.out.resolve(),
         )
     print(identity["candidate_seal"])
     return 0

@@ -6,18 +6,18 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Design one origin-footprint view that combines exact MIR→lowered-LLVM
-cohorts with independent final selected-symbol ASM totals without false arrows.
-Source authority + canonical issuer: The sealed candidate, issuer provenance,
-and an exact same-emission object/symbol artifact are the only inputs.
-Non-authority: Counts, deltas, labels, addresses, adjacency, C comparison, and
-timings may not issue LLVM→machine correspondence or a performance owner.
-Fail-fast boundary: Artifact digests/selectors, unique relation ownership, and
-unique ASM symbol must co-seal; mapping gaps remain explicit or report is 0.
-Smallest next slice: `HAKO-INSPECT-ORIGIN-FOOTPRINT-D0` fixes the artifact seam,
-boundary vocabulary, and report contract before adding another payload.
-Non-claims: No exact machine origin, optimization advice, keeper, measurement,
-promotion, production, fallback, retry, or compiler behavior change.
+Decision: Design an optional independent C-reference column for origin-footprint
+without claiming C/Hako semantic equivalence or machine-origin correspondence.
+Source authority + canonical issuer: The sealed Hako bundle remains sole Hako
+authority; an explicit C artifact digest and exact unique symbol own only C totals.
+Non-authority: C source/name, count delta, faster result, labels, addresses,
+adjacency, and visual similarity issue no mapping, owner, or keeper decision.
+Fail-fast boundary: C artifact and exact symbol must be explicit and unique;
+missing/ambiguous/tampered input or inferred symbol fallback produces no report.
+Smallest next slice: `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0` fixes the
+external artifact contract and whether it belongs inside or beside the seal.
+Non-claims: No C semantic oracle, timing, winner, optimization advice, machine
+origin, compiler behavior, promotion, production, fallback, or retry.
 
 ## Decision
 
@@ -376,11 +376,29 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   remain unchanged. The local inventory is exactly seven payloads plus the
   write-last root receipt; producer/summary tamper and extra sibling reject.
   Thirty-five inspect tests and the 17-test public real-bundle guard are green.
-- `HAKO-INSPECT-ORIGIN-FOOTPRINT-D0` (**selected design row**): specify the
-  smallest honest view for MIR/assembly comparison. Exact MIR→lowered-pre-opt
-  LLVM origin groups may show LLVM shape counts; final ASM may show only unique
-  selected-symbol totals until a backend-issued address relation exists. Name
-  how the same-emission object joins the seal; never infer arrows from objdump.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-D0` (**accepted observation BoxCount**): the
+  existing private driver already emits `real.o` beside lowered LLVM/origins in
+  one invocation. Its exact unique object function is
+  `ParserScanLoopBox.skip_while/4` (separate from `ny_main`). Add `object.bin`,
+  exact-symbol `asm.s`, and `origin-footprint.json` to the sealed payloads.
+  Footprint groups lowered-LLVM block/edge/instruction counts only by the
+  issuer-emitted MIR origin cohort. ASM reports selected-symbol aggregate
+  instructions/branches/calls/returns with `origin_attribution=unavailable`.
+  `lowered_pre_opt→machine=unavailable` is mandatory; objdump labels, addresses,
+  order, and shape similarity may not create correspondence.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-I0` (**landed observation BoxCount**): add a
+  pure model/renderer below 300 lines, pass the same-invocation object into the
+  existing ingress, disassemble only the exact symbol, and extend the identity
+  inventory from seven to ten payloads. Missing/duplicate symbol, foreign or
+  tampered object/assembly, uncovered relation, false machine attribution, and
+  partial output reject. The 148-line model renders MIR-origin rows for exact
+  lowered-LLVM blocks/edges/instructions/calls/branches and an independent ASM
+  total with origin attribution unavailable. Thirty-nine inspect tests and the
+  21-test real public guard are green. No C comparison or timing in this slice.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0` (**selected design row**):
+  determine whether an explicit external C assembly+symbol is a sealed optional
+  payload or a separate derived comparison report. Never build C inside the
+  provenance issuer or reuse the old symbol-guess/120-line snippet helper.
 - `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
   BoxCount**): the first real full-source provenance canary exposed an invalid
   pre-opt module. C1 expands the loop backedge through
