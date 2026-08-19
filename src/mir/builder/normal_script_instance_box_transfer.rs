@@ -6,7 +6,9 @@ use crate::ast::ASTNode;
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 
 use super::callable_declaration_catalog::SelectedNormalCallableSourceSiteV1;
-use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
+use super::normal_instance_constructor_admission::{
+    InstanceConstructorDemandRoleV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
+};
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
@@ -279,10 +281,21 @@ box Holder {
             .sources()[0]
             .source_id()
             .clone();
+        assert_eq!(
+            immediate
+                .normal_constructor_sources()
+                .expect("immediate role")
+                .role(),
+            InstanceConstructorDemandRoleV1::ImmediateDeclaration
+        );
         let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
             panic!("expected selected runtime")
         };
         let (runtime_sources, _) = runtime.constructor_admission_at(0).expect("runtime source");
+        assert_eq!(
+            runtime_sources.role(),
+            InstanceConstructorDemandRoleV1::ScriptRuntimePrefix
+        );
         assert!(runtime_sources.sources()[0]
             .source_id()
             .same_as(&immediate_id));

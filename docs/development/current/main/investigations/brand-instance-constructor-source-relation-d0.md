@@ -285,3 +285,61 @@ transfer suite, reusable `script_instance_box_transfer_guard.sh`, quick check,
 formatter, pointer guard, diff check, and line-count fence are green. The raw
 Brand consumer is unchanged; the next row is the previously identified
 consumer design stop, not an automatic cutover.
+
+## INSTANCE-CONSTRUCTOR-PHYSICAL-DEMAND-MANIFEST-I0
+
+Decision: Accept one behavior-preserving BoxShape prerequisite: issue an
+explicit physical-demand manifest before constructor lowering, with exactly
+the roles `ImmediateDeclaration`, `ScriptRuntimePrefix`, and
+`ScriptRuntimeFullLifecycle`.
+Source authority + canonical issuer: package-issued `ConstructorSourceIdV1`,
+root app/script disposition, `VerifiedScriptInstanceBoxTransferCohortV1`, and
+the existing Prefix/Full classification; the single work-plan pass that
+classifies the Program and splits immediate/runtime work is the issuer.
+Non-authority: lower-time AST rematching, `is_app_mode` rereads, clone count,
+`Option` presence, constructor keys/symbols, collector state, and runtime
+terminal choice cannot issue a role.
+Fail-fast boundary: each source row gets exactly one immediate ticket; only
+non-app Prefix/Full rows get the matching second ticket. Missing/duplicate/
+foreign/swapped role tickets, app runtime tickets, or work-item coverage drift
+reject before Builder effects and never fall back to raw lowering.
+Smallest next slice: `INSTANCE-CONSTRUCTOR-PHYSICAL-DEMAND-MANIFEST-I0`
+adds a source-ID keyed move-only role ticket/manifest to the existing physical
+batches; package semantic loan and raw consumer cutover remain later.
+Non-claims: no physical-demand reduction, semantic forest reissuance, package
+consumer activation, raw-key retirement, Compatibility/RawLegacy change, Brand
+probe retirement, MIR/ABI, runtime, or backend change.
+
+Manifest contract:
+
+- app mode: every constructor row gets `ImmediateDeclaration` only;
+- non-app Prefix: `ImmediateDeclaration` plus `ScriptRuntimePrefix`;
+- non-app Full: `ImmediateDeclaration` plus `ScriptRuntimeFullLifecycle`;
+- no constructors and Compatibility rows issue no tickets;
+- the complete ticket set is checked against work-plan placement before output.
+
+Acceptance:
+
+- direct, overloaded, and generated `birth/0` rows receive the same role
+  rules and retain their parser source IDs;
+- each selected physical batch owns only its assigned ticket, while immediate
+  and runtime tickets for one source remain distinct roles;
+- missing/duplicate/foreign/swapped IDs or roles, Prefix/Full mismatch, app
+  runtime demand, and ticket/work-item count drift reject before body effects;
+- no role is inferred from clone count, `Option`, symbol, key, or lower-time
+  AST matching; raw Brand consumer and semantic package loan stay untouched;
+- focused positive/negative tests, reusable guard, formatter, pointer guard,
+  quick check, and all touched source line counts remain green/below 760.
+
+### I0 closeout
+
+Landed. The selected-normal work-plan pass now issues one opaque
+`ConstructorSourceIdV1` ticket per `ImmediateDeclaration` and, only for the
+matching non-app Script admission, one `ScriptRuntimePrefix` or
+`ScriptRuntimeFullLifecycle` ticket. A non-Clone manifest compares the complete
+ticket set with the prepared immediate/runtime work before Builder effects;
+duplicate, foreign, swapped, missing, and app-runtime tickets reject without
+fallback. The focused transfer and admission tests, reusable guard, formatter,
+quick check, pointer guard, diff check, README, and line-count fences are
+green. The semantic package loan and raw Brand consumer remain unopened; the
+next row is the consumer design stop.

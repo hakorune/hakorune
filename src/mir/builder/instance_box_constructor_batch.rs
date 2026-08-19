@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::module_lifecycle::RootCallableCapturePortV1;
+use super::normal_instance_constructor_admission::InstanceConstructorDemandRoleV1;
 use super::normal_instance_constructor_admission::{
     NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
 };
@@ -80,6 +81,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
         &self,
         statement_index: usize,
         cohort: &VerifiedInstanceConstructorPhysicalSourceCohortV1,
+        role: InstanceConstructorDemandRoleV1,
     ) -> Result<NormalInstanceConstructorSourceBatchV1, String> {
         NormalInstanceConstructorSourceBatchV1::from_physical_cohort(
             statement_index,
@@ -88,6 +90,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
                 .iter()
                 .map(|constructor| constructor.parser_constructor_key.clone()),
             cohort,
+            role,
         )
     }
 
@@ -95,6 +98,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
     pub(super) fn normal_sources_for_test(
         &self,
         statement_index: usize,
+        role: InstanceConstructorDemandRoleV1,
     ) -> NormalInstanceConstructorSourceBatchV1 {
         NormalInstanceConstructorSourceBatchV1::for_test(
             statement_index,
@@ -102,6 +106,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
             self.constructors
                 .iter()
                 .map(|constructor| constructor.parser_constructor_key.clone()),
+            role,
         )
     }
 

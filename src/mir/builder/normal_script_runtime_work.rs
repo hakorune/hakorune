@@ -1,5 +1,8 @@
 //! Selected-normal Script runtime descent: one Program classification, ordered existing terminals.
 
+#[path = "normal_script_runtime_demand_manifest.rs"]
+mod demand_manifest;
+
 #[cfg(test)]
 use super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;

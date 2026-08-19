@@ -14,6 +14,13 @@ use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemantic
 use crate::mir::MirBuilder;
 use crate::parser::ConstructorSourceIdV1;
 
+#[path = "normal_instance_constructor_demand_manifest.rs"]
+mod demand_manifest;
+pub(super) use demand_manifest::{
+    InstanceConstructorDemandManifestBuilderV1, InstanceConstructorDemandRoleV1,
+    InstanceConstructorDemandTicketV1, VerifiedInstanceConstructorPhysicalDemandManifestV1,
+};
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct VerifiedInstanceConstructorPhysicalSourceCohortV1 {
     rows: Box<[VerifiedInstanceConstructorPhysicalSourceRowV1]>,
@@ -175,6 +182,7 @@ impl NormalInstanceConstructorSourceKeyV1 {
 #[derive(Clone, Debug)]
 pub(in crate::mir::builder) struct NormalInstanceConstructorSourceBatchV1 {
     sources: Box<[NormalInstanceConstructorSourceKeyV1]>,
+    role: InstanceConstructorDemandRoleV1,
 }
 
 impl NormalInstanceConstructorSourceBatchV1 {
@@ -183,6 +191,7 @@ impl NormalInstanceConstructorSourceBatchV1 {
         box_name: &str,
         parser_constructor_keys: impl IntoIterator<Item = String>,
         cohort: &VerifiedInstanceConstructorPhysicalSourceCohortV1,
+        role: InstanceConstructorDemandRoleV1,
     ) -> Result<Self, String> {
         let mut sources = Vec::new();
         for key in parser_constructor_keys {
@@ -196,6 +205,7 @@ impl NormalInstanceConstructorSourceBatchV1 {
         }
         Ok(Self {
             sources: sources.into_boxed_slice(),
+            role,
         })
     }
 
@@ -203,11 +213,23 @@ impl NormalInstanceConstructorSourceBatchV1 {
         &self.sources
     }
 
+    pub(in crate::mir::builder) const fn role(&self) -> InstanceConstructorDemandRoleV1 {
+        self.role
+    }
+
+    pub(in crate::mir::builder) fn demand_tickets(&self) -> Vec<InstanceConstructorDemandTicketV1> {
+        self.sources
+            .iter()
+            .map(|source| InstanceConstructorDemandTicketV1::new(source.source_id(), self.role))
+            .collect()
+    }
+
     #[cfg(test)]
     pub(super) fn for_test(
         statement_index: usize,
         box_name: &str,
         parser_constructor_keys: impl IntoIterator<Item = String>,
+        role: InstanceConstructorDemandRoleV1,
     ) -> Self {
         Self {
             sources: parser_constructor_keys
@@ -222,6 +244,7 @@ impl NormalInstanceConstructorSourceBatchV1 {
                     )
                 })
                 .collect(),
+            role,
         }
     }
 }
@@ -375,5 +398,35 @@ mod tests {
         );
         assert_eq!(symbol, "Page.birth/0");
         assert_eq!(arity, 1);
+    }
+
+    #[test]
+    fn physical_demand_manifest_rejects_duplicate_or_swapped_role_ticket() {
+        let batch = NormalInstanceConstructorSourceBatchV1::for_test(
+            7,
+            "Page",
+            ["birth/0".to_owned()],
+            InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+        );
+        let mut builder = InstanceConstructorDemandManifestBuilderV1::default();
+        builder.issue_batch(&batch).expect("first role ticket");
+        assert_eq!(
+            builder
+                .issue_batch(&batch)
+                .expect_err("duplicate role ticket"),
+            "[freeze:contract][mir/instance-constructor-demand/duplicate-ticket]"
+        );
+
+        let manifest = builder.finish();
+        let swapped = vec![InstanceConstructorDemandTicketV1::new(
+            &ConstructorSourceIdV1::test_new(0),
+            InstanceConstructorDemandRoleV1::ScriptRuntimePrefix,
+        )];
+        assert_eq!(
+            manifest
+                .validate_exact(&swapped)
+                .expect_err("swapped role must not satisfy manifest"),
+            "[freeze:contract][mir/instance-constructor-demand/coverage]"
+        );
     }
 }

@@ -104,6 +104,17 @@ creates its own physical admission. Sorted constructor-map keys and
 `CompilationContext::is_brand_declared` consumer remains intentionally
 unchanged until the later constructor-consumer cutover.
 
+### Instance-constructor physical demand manifest (I0)
+
+The selected-normal work plan now issues an explicit role ticket for every
+physical constructor demand. `ImmediateDeclaration` is required once for each
+source row; non-app Script `Prefix` and `FullLifecycle` rows receive their
+matching runtime ticket, while app and compatibility work receive no runtime
+ticket. The manifest validates the complete immediate/runtime ticket set before
+Builder effects, rejecting duplicate, foreign, swapped, or missing roles. It
+does not select a constructor or replace the later semantic package loan; the
+raw Brand consumer remains parked for that separate cutover.
+
 ## Reading Order
 
 1. `src/mir/README.md`

@@ -24,7 +24,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 current_design_stop = "INSTANCE-CONSTRUCTOR-SEMANTIC-CONSUMER-D0"
 work_mode = "design_stop"
 current_execution_row = "INSTANCE-CONSTRUCTOR-SEMANTIC-CONSUMER-D0"
-current_blocker_token = "Physical demands now carry parser-issued ConstructorSourceId; exact consumer loan/cutover remains a design stop across all admissions."
+current_blocker_token = "The exact physical-demand manifest is landed; name the single semantic loan consumer across every admitted constructor family before raw Brand cutover."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -92,7 +92,7 @@ current_execution_design = "docs/development/current/main/investigations/brand-i
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "brand-instance-constructor-source-relation-d0"
 latest_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
-latest_card_summary = "Instance-Box transfer and constructor semantic ownership are landed; immediate and Script-runtime physical demands now carry the same opaque ConstructorSourceId, while consumer cutover remains unopened."
+latest_card_summary = "Instance-Box transfer, constructor semantic ownership, and exact immediate/runtime demand-role manifest are landed; the next design stop names the semantic loan consumer before raw Brand cutover."
 next_design_card = "INSTANCE-CONSTRUCTOR-SEMANTIC-CONSUMER-D0"
 next_design_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
 next_execution_card = "none"
@@ -107,6 +107,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: INSTANCE-CONSTRUCTOR-PHYSICAL-DEMAND-MANIFEST-I0 landed one BoxShape. The selected-normal work plan issues exact ImmediateDeclaration/ScriptRuntimePrefix/ScriptRuntimeFullLifecycle tickets keyed by parser ConstructorSourceId and validates the complete immediate/runtime set before Builder effects; semantic loan and raw Brand consumption remain unopened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-PHYSICAL-SOURCE-TRANSFER-P0 landed one BoxShape. The installed parser-issued ConstructorSourceId is validated against final Box/name/key/function rows and carried unchanged into both immediate and Script-runtime physical demands; raw Brand consumption remains unopened.",
   "2026-08-20: SCRIPT-INSTANCE-BOX-TRANSFERRED-BOUNDARY-I0 landed one BoxCount. Exact installed method plus parser-constructor semantic coverage now issues one transferred Script boundary; surrounding Script resolves without entering the Box, and physical Brand consumption remains unopened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: BRAND-CONSTRUCTOR-ACTIVE-ADMISSION-CENSUS-D1 closed. Complete Script and installed callable packages are relation-backed, but Deferred, Compatibility, instance-constructor, nested/Main, and RawLegacy admissions remain name-only; bare call statements are unlocated. Atomic probe retirement remains blocked while total projection P0 proceeds for exact owners.",
   "2026-08-20: RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0 landed behavior-neutrally. Exact path/temporal transport is 655 lines and the finite statement classifier is a 197-line child; bare calls remain CallObject, while 3 focused and 13 existing transport tests plus the reusable guard are green.",
   "2026-08-20: BRAND-CONSTRUCTOR-CONSUMER-CUTOVER-D0 closed NoSafeSlice. Exact callable/Complete Script can project the landed relation, but Compatibility, Deferred, constructor, nested/Main, and RawLegacy admissions remain name-only; bare call statements are also unlocated. Transport split, admission census, and total disposition projection now precede atomic raw-probe retirement.",
-  "2026-08-20: BRAND-CONSTRUCTOR-SOURCE-RELATION-I0 landed one BoxCount. The same effective catalog now issues exact owner/site Constructor and Unwrap rows before child traversal for callable and Script owners; recognized constructors no longer enter generic direct-call resolution, while physical raw consumption remains a separate cutover.",
 ]

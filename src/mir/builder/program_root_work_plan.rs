@@ -3,6 +3,10 @@ use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::normal_instance_constructor_admission::{
+    InstanceConstructorDemandManifestBuilderV1, InstanceConstructorDemandRoleV1,
+    InstanceConstructorDemandTicketV1, VerifiedInstanceConstructorPhysicalDemandManifestV1,
+};
+use super::normal_instance_constructor_admission::{
     NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
 };
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
@@ -27,6 +31,7 @@ pub(super) struct PreparedProgramRootWorkPlanV1 {
     runtime: PreparedProgramRootRuntimeWorkV1,
     terminal: ProgramRootTerminalScheduleV1,
     script_root_admission: Option<PreparedScriptRootAdmissionV1>,
+    constructor_demand_manifest: Option<VerifiedInstanceConstructorPhysicalDemandManifestV1>,
     _seal: PreparedProgramRootWorkPlanSealV1,
 }
 #[derive(Debug)]
@@ -43,6 +48,8 @@ pub(super) struct PreparedProgramRootWorkPlanPartsV1 {
     pub(super) runtime: PreparedProgramRootRuntimeWorkV1,
     pub(super) terminal: ProgramRootTerminalScheduleV1,
     pub(super) script_root_admission: Option<PreparedScriptRootAdmissionV1>,
+    pub(super) constructor_demand_manifest:
+        Option<VerifiedInstanceConstructorPhysicalDemandManifestV1>,
 }
 #[derive(Debug)]
 pub(super) enum PreparedProgramRootImmediateWorkV1 {
@@ -221,6 +228,7 @@ impl PreparedProgramRootWorkPlanV1 {
         let mut immediate = Vec::new();
         let mut deferred_static = Vec::new();
         let mut runtime_statements = Vec::new();
+        let mut demand_manifest = InstanceConstructorDemandManifestBuilderV1::default();
         let mut script_window = (!is_app_mode
             && work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal)
             .then(|| {
@@ -254,6 +262,9 @@ impl PreparedProgramRootWorkPlanV1 {
                 selected_callable_sources,
                 constructor_source_cohort,
             );
+            if work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal {
+                issue_manifest_for_disposition(&mut demand_manifest, &disposition)?;
+            }
             match disposition {
                 ProgramRootStatementDispositionV1::ImmediateAndRuntime { work, runtime } => {
                     immediate.push(work);
@@ -271,13 +282,20 @@ impl PreparedProgramRootWorkPlanV1 {
                 }
             }
         }
+        let runtime =
+            PreparedProgramRootRuntimeWorkV1::prepare(runtime_statements, work_plan_admission);
+        let constructor_demand_manifest = match work_plan_admission {
+            ProgramRootWorkPlanAdmissionV1::RawCompatibility => None,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal => Some(demand_manifest.finish()),
+        };
+        let actual_tickets = collect_constructor_demand_tickets(&immediate, &runtime);
+        if let Some(manifest) = constructor_demand_manifest.as_ref() {
+            manifest.validate_exact(&actual_tickets)?;
+        }
         Ok(Self {
             immediate: immediate.into_boxed_slice(),
             deferred_static: deferred_static.into_boxed_slice(),
-            runtime: PreparedProgramRootRuntimeWorkV1::prepare(
-                runtime_statements,
-                work_plan_admission,
-            ),
+            runtime,
             terminal: if is_app_mode {
                 ProgramRootTerminalScheduleV1::VerifiedAppMain
             } else {
@@ -285,6 +303,7 @@ impl PreparedProgramRootWorkPlanV1 {
             },
             script_root_admission: script_window
                 .map(|window| window.seal().expect("selected Script demand window")),
+            constructor_demand_manifest,
             _seal: PreparedProgramRootWorkPlanSealV1,
         })
     }
@@ -295,9 +314,59 @@ impl PreparedProgramRootWorkPlanV1 {
             runtime: self.runtime,
             terminal: self.terminal,
             script_root_admission: self.script_root_admission,
+            constructor_demand_manifest: self.constructor_demand_manifest,
         }
     }
 }
+
+fn collect_constructor_demand_tickets(
+    immediate: &[PreparedProgramRootImmediateWorkV1],
+    runtime: &PreparedProgramRootRuntimeWorkV1,
+) -> Vec<InstanceConstructorDemandTicketV1> {
+    let mut tickets = Vec::new();
+    for work in immediate {
+        if let PreparedProgramRootImmediateWorkV1::InstanceBox(work) = work {
+            if let Some(sources) = work.normal_constructor_sources.as_ref() {
+                tickets.extend(sources.demand_tickets());
+            }
+        }
+    }
+    if let PreparedProgramRootRuntimeWorkV1::SelectedNormal(work) = runtime {
+        tickets.extend(work.constructor_demand_tickets());
+    }
+    tickets
+}
+
+fn issue_manifest_for_disposition(
+    manifest: &mut InstanceConstructorDemandManifestBuilderV1,
+    disposition: &ProgramRootStatementDispositionV1,
+) -> Result<(), String> {
+    let mut issue_work = |work: &PreparedProgramRootImmediateWorkV1| {
+        if let PreparedProgramRootImmediateWorkV1::InstanceBox(work) = work {
+            if let Some(sources) = work.normal_constructor_sources.as_ref() {
+                manifest.issue_batch(sources)?;
+            }
+        }
+        Ok::<_, String>(())
+    };
+    match disposition {
+        ProgramRootStatementDispositionV1::ImmediateAndRuntime { work, runtime } => {
+            issue_work(work)?;
+            if let Some(sources) = runtime.constructor_sources.as_ref() {
+                manifest.issue_batch(sources)?;
+            }
+        }
+        ProgramRootStatementDispositionV1::ImmediateOnly(work) => issue_work(work)?,
+        ProgramRootStatementDispositionV1::DeferredAndRuntime { runtime, .. }
+        | ProgramRootStatementDispositionV1::RuntimeOnly(runtime) => {
+            if let Some(sources) = runtime.constructor_sources.as_ref() {
+                manifest.issue_batch(sources)?;
+            }
+        }
+    }
+    Ok(())
+}
+
 impl PreparedProgramRootImmediateWorkV1 {
     pub(super) fn lower_with_port_v1<Port>(
         self,
@@ -459,10 +528,17 @@ fn classify_statement(
                 ProgramRootWorkPlanAdmissionV1::SelectedNormal => {
                     Some(match constructor_source_cohort {
                         Some(cohort) => constructors
-                            .normal_sources(statement_index, cohort)
+                            .normal_sources(
+                                statement_index,
+                                cohort,
+                                InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+                            )
                             .expect("validated constructor source cohort"),
                         #[cfg(test)]
-                        None => constructors.normal_sources_for_test(statement_index),
+                        None => constructors.normal_sources_for_test(
+                            statement_index,
+                            InstanceConstructorDemandRoleV1::ImmediateDeclaration,
+                        ),
                         #[cfg(not(test))]
                         None => unreachable!("SelectedNormal source cohort validated above"),
                     })
@@ -481,6 +557,25 @@ fn classify_statement(
                             | NormalScriptProgramItemAdmissionV1::NonPlainInstanceFullLifecycle
                     )
                 );
+            let runtime_role = match normal_script_kind {
+                Some(NormalScriptProgramItemAdmissionV1::InstancePrefixCompatibility) => {
+                    Some(InstanceConstructorDemandRoleV1::ScriptRuntimePrefix)
+                }
+                Some(NormalScriptProgramItemAdmissionV1::NonPlainInstanceFullLifecycle) => {
+                    Some(InstanceConstructorDemandRoleV1::ScriptRuntimeFullLifecycle)
+                }
+                _ => None,
+            };
+            let runtime_constructor_sources =
+                runtime_role.map(|role| match constructor_source_cohort {
+                    Some(cohort) => constructors
+                        .normal_sources(statement_index, cohort, role)
+                        .expect("validated constructor source cohort"),
+                    #[cfg(test)]
+                    None => constructors.normal_sources_for_test(statement_index, role),
+                    #[cfg(not(test))]
+                    None => unreachable!("SelectedNormal source cohort validated above"),
+                });
             ProgramRootStatementDispositionV1::ImmediateAndRuntime {
                 work: PreparedProgramRootImmediateWorkV1::InstanceBox(
                     PreparedProgramRootInstanceBoxWorkV1 {
@@ -499,7 +594,7 @@ fn classify_statement(
                     statement,
                     normal_script_kind,
                     constructor_sources: if selected_runtime_instance_demand {
-                        normal_constructor_sources
+                        runtime_constructor_sources
                     } else {
                         None
                     },
