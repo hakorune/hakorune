@@ -613,7 +613,8 @@ Ordered task ladder:
 1. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0`: freeze the protocol above.
 2. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-I0`: on native Linux only, add the
    evidence-only arm selector and raw non-multiplexed report.
-3. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: only for a twice-reproduced event,
+3. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: only for an event reproduced in
+   three independent runs,
    map samples to one exact linked symbol/PC region.
 4. `S6C-MESO-RESIDUAL-OWNER-R0`: open one backend BoxShape only when A0 names
    one owner; otherwise retain the performance `NoSafeSlice`.
