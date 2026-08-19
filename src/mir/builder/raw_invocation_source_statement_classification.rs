@@ -74,6 +74,10 @@ pub(super) fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedP
     }
 }
 
+pub(super) fn is_bare_function_call_statement(statement: &ASTNode) -> bool {
+    matches!(statement, ASTNode::FunctionCall { .. })
+}
+
 pub(super) fn is_located_scalar_statement(statement: &ASTNode) -> bool {
     matches!(
         statement,
@@ -122,6 +126,11 @@ pub(super) fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> 
 mod tests {
     use super::*;
     use crate::ast::{LiteralValue, Span};
+    use crate::mir::builder::raw_invocation_source_transport::{
+        RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
+    };
+    use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
+    use crate::mir::resolved_semantics::ExprChildRoleV1;
 
     fn integer(value: i64) -> ASTNode {
         ASTNode::Literal {
@@ -155,6 +164,8 @@ mod tests {
             reason_for_non_box_statement(&method),
             RawUnlocatedPortalV1::CallObject
         );
+        assert!(is_bare_function_call_statement(&function));
+        assert!(!is_bare_function_call_statement(&method));
         assert!(!is_located_scalar_statement(&function));
         assert!(!is_located_control_or_diagnostic_terminal(&method));
     }
@@ -193,5 +204,74 @@ mod tests {
             span: Span::unknown(),
         };
         assert!(is_located_control_or_diagnostic_terminal(&conditional));
+    }
+
+    #[test]
+    fn installed_callable_bare_call_keeps_exact_body_site() {
+        let function = ASTNode::FunctionCall {
+            name: "BlockId".to_owned(),
+            arguments: vec![integer(1)],
+            span: Span::unknown(),
+        };
+        let root = RawInvocationRootLineageV1::Cataloged(
+            CanonicalSameModuleCallableKeyV1::test_static_box_method("Api", "run", 1),
+        );
+        let (_, context) = RawInvocationSourceContextV1::from_transport(
+            RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root),
+        );
+        let (_, child) = RawInvocationSourceContextV1::from_transport(
+            context.body_statement(function.clone(), 4),
+        );
+        assert!(matches!(
+            child,
+            RawInvocationSourceContextV1::Located { .. }
+        ));
+        assert_eq!(
+            child.site().expect("call site").segments(),
+            &[crate::mir::resolved_semantics::SourcePathSegmentV1::Body(4)]
+        );
+        let operand = child
+            .child_expression(&function, ExprChildRoleV1::CallArgument(0))
+            .expect("call operand site");
+        assert_eq!(
+            operand.site().expect("operand site").segments(),
+            &[
+                crate::mir::resolved_semantics::SourcePathSegmentV1::Body(4),
+                crate::mir::resolved_semantics::SourcePathSegmentV1::Argument(0),
+            ]
+        );
+    }
+
+    #[test]
+    fn raw_and_script_roots_keep_bare_calls_unlocated() {
+        let function = ASTNode::FunctionCall {
+            name: "BlockId".to_owned(),
+            arguments: vec![integer(1)],
+            span: Span::unknown(),
+        };
+        let roots = [
+            RawInvocationRootLineageV1::Main(RawSourceLocatorV1::for_test(
+                0,
+                "Main",
+                "main",
+                "Main.main/0",
+                0,
+            )),
+            RawInvocationRootLineageV1::ScriptRoot,
+        ];
+        for root in roots {
+            let (_, context) = RawInvocationSourceContextV1::from_transport(
+                RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root),
+            );
+            let (_, child) = RawInvocationSourceContextV1::from_transport(
+                context.body_statement(function.clone(), 4),
+            );
+            assert!(matches!(
+                child,
+                RawInvocationSourceContextV1::UnlocatedCompatibility(
+                    RawUnlocatedPortalV1::CallObject
+                )
+            ));
+        }
     }
 }

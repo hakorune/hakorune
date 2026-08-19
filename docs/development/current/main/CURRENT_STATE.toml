@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D3"
+current_design_stop = "BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0"
 work_mode = "design_stop"
-current_execution_row = "BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D3"
-current_blocker_token = "Selected-normal constructor semantic loans are closed; remaining Compatibility, Deferred, RawLegacy, and unlocated admissions still need their own authority before any global raw Brand retirement."
+current_execution_row = "BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0"
+current_blocker_token = "Design the exact installed-callable Brand disposition query before raw FunctionCall preflight; Compatibility, Deferred, RawLegacy, nested/Main, and unlocated paths remain non-authoritative."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -91,8 +91,8 @@ current_execution_design = "docs/development/current/main/investigations/brand-i
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "brand-instance-constructor-source-relation-d0"
 latest_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
-latest_card_summary = "Selected-normal instance-constructor semantic loan consumer I0 is landed and verified; global raw Brand retirement remains parked behind relationless admissions."
-next_design_card = "BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D3"
+latest_card_summary = "Bare FunctionCall Body(i) source locations are preserved for installed callable owners; the next design stop is the exact relation consumer before preflight."
+next_design_card = "BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0"
 next_design_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
 next_execution_card = "none"
 next_execution_card_path = ""
@@ -113,8 +113,8 @@ landed_tail = [
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: PARSER-BOX-CONSTRUCTOR-SOURCE-INVENTORY-I0 landed one BoxCount. The parser now seals direct/gated order and generated birth trigger provenance before map overwrite, rejects duplicate keys, and revalidates exact final AST coverage; Brand semantic issuance remains unopened.",
   "2026-08-20: BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D2 closed. Caller-zero retirement is unsound for production-capable admissions; instance constructors are the first bounded parser-keyed issuance family, while nested methods have five checked-in natural Brand calls and Deferred/Compatibility/RawLegacy remain separate NoSafeSlice families.",
-  "2026-08-20: BRAND-CONSTRUCTOR-RELATION-PROJECTION-P0 landed behavior-neutrally. Callable and Complete Script lowering states now retain one exact-site Constructor/NonBrand projection derived from their verified owner; missing/foreign coverage rejects, raw consumption remains zero, and the focused guard is green.",
-  "2026-08-20: BRAND-CONSTRUCTOR-ACTIVE-ADMISSION-CENSUS-D1 closed. Complete Script and installed callable packages are relation-backed, but Deferred, Compatibility, instance-constructor, nested/Main, and RawLegacy admissions remain name-only; bare call statements are unlocated. Atomic probe retirement remains blocked while total projection P0 proceeds for exact owners.",
+  "2026-08-20: BRAND-CONSTRUCTOR-RELATION-PROJECTION-P0 landed behavior-neutrally and ACTIVE-ADMISSION-CENSUS-D1 closed. Callable/Complete Script states retain exact-site Constructor/NonBrand projection with foreign coverage rejection; Deferred, Compatibility, instance-constructor, nested/Main, and RawLegacy remain name-only, bare calls are unlocated, and raw consumption stays zero.",
   "2026-08-20: RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0 landed behavior-neutrally. Exact path/temporal transport is 655 lines and the finite statement classifier is a 197-line child; bare calls remain CallObject, while 3 focused and 13 existing transport tests plus the reusable guard are green.",
   "2026-08-20: BRAND-CONSTRUCTOR-CONSUMER-CUTOVER-D0 closed NoSafeSlice. Exact callable/Complete Script can project the landed relation, but Compatibility, Deferred, constructor, nested/Main, and RawLegacy admissions remain name-only; bare call statements are also unlocated. Transport split, admission census, and total disposition projection now precede atomic raw-probe retirement.",
+  "2026-08-20: EXACT-CALLABLE-BARE-FUNCTION-CALL-LOCATION-P0 landed one behavior-neutral BoxShape. Installed Cataloged/TopLevel/InstanceConstructor roots preserve bare FunctionCall statements as exact Body(i) sites with CallArgument paths; raw/script compatibility roots and MethodCall/Call/extern rows remain CallObject, and Brand consumption stays unopened.",
 ]

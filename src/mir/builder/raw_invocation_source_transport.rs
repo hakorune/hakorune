@@ -22,9 +22,9 @@ use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::raw_invocation_source_item_site::body_item_site;
 use super::raw_invocation_source_statement_classification::{
-    is_located_control_or_diagnostic_terminal, is_located_lambda_statement,
-    is_located_scalar_statement, is_located_zero_child_runtime_completion,
-    reason_for_non_box_statement,
+    is_bare_function_call_statement, is_located_control_or_diagnostic_terminal,
+    is_located_lambda_statement, is_located_scalar_statement,
+    is_located_zero_child_runtime_completion, reason_for_non_box_statement,
 };
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
@@ -52,6 +52,13 @@ pub(in crate::mir::builder) enum RawUnlocatedPortalV1 {
 }
 
 impl RawInvocationRootLineageV1 {
+    fn allows_bare_function_call_location(&self) -> bool {
+        matches!(
+            self,
+            Self::Cataloged(_) | Self::TopLevel(_) | Self::InstanceConstructor(_)
+        )
+    }
+
     pub(in crate::mir::builder) fn nested_box_method(
         parent_site: SourceNodeSiteV1,
         method_key: String,
@@ -277,6 +284,8 @@ impl RawInvocationSourceContextV1 {
                     && !is_located_scalar_statement(&statement)
                     && !is_located_zero_child_runtime_completion(&statement)
                     && !is_located_lambda_statement(&statement)
+                    && !(root.allows_bare_function_call_location()
+                        && is_bare_function_call_statement(&statement))
                 {
                     let reason = reason_for_non_box_statement(&statement);
                     return RawInvocationSourceTransportV1::unlocated(statement, reason);
@@ -403,6 +412,8 @@ impl RawInvocationSourceContextV1 {
             && !is_located_scalar_statement(statement)
             && !is_located_zero_child_runtime_completion(statement)
             && !is_located_lambda_statement(statement)
+            && !(root.allows_bare_function_call_location()
+                && is_bare_function_call_statement(statement))
         {
             return Err(format!(
                 "[freeze:contract][raw-invocation/statement-source-role] kind={}",

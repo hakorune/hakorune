@@ -428,3 +428,82 @@ Smallest next slice: a fresh worker premise audit selecting exactly one
 relationless admission family, or `NoSafeSlice` if its issuer is not nameable.
 Non-claims: no raw cutover, Compatibility/Deferred/RawLegacy behavior change,
 unwrap, nominal Brand typing, promotion, or production switch.
+
+## EXACT-CALLABLE-BARE-FUNCTION-CALL-LOCATION-P0
+
+Decision: Accept one behavior-neutral BoxShape prerequisite: preserve exact
+`Body(i)` source sites for bare `FunctionCall` statements in installed,
+source-backed callable owners only; do not consume Brand relations yet.
+Source authority + canonical issuer: the existing resolver-owned expression
+inventory and owner forest issue the site; raw source transport only carries
+that already-issued site into `Body(i)` and never derives one from a name/span.
+Non-authority: AST spelling/span, statement ordinal alone, lineage strings,
+`CallObject`, compatibility success, and `is_brand_declared` cannot issue it.
+Fail-fast boundary: a semantic-backed owner must preserve one exact body site and
+its child path before argument effects; missing/foreign/site drift rejects.
+Raw-only, Compatibility, Deferred, nested/Main, and unlocated-only paths gain
+no semantic authority or fallback from this slice.
+Smallest next slice: move bare `FunctionCall` out of the finite unlocated
+statement classifier only where the installed owner can prove `Body(i)`, add
+transport witnesses/guard, and leave preflight/Brand consumption unchanged.
+Non-claims: no relation issuance, raw Brand-probe deletion, Compatibility or
+Deferred repair, nested/Main closure, `Call`/`MethodCall` widening, unwrap,
+nominal Brand, runtime, backend, or production switch.
+
+Acceptance:
+
+- Installed callable bare calls preserve `FunctionBody -> Body(i)` and the
+  exact `CallArgument(0)` child path; ordinary nested expressions remain stable.
+- The transport keeps only the exact `Body(i)`/`CallArgument(0)` path; the
+  later installed-owner consumer must reject missing/foreign owner, duplicate
+  site, or path drift before argument effects. Raw-only and compatibility ports
+  remain `CallObject` and cannot claim a site.
+- Main, nested Box, Deferred, and unlocated-only families are explicit
+  nonclaims; no name/key/lineage fallback is added.
+- Focused transport tests, reusable guard, formatter, pointer guard, and line
+  count fences are green before the later callable Brand consumer I0 opens.
+
+### P0 closeout receipt
+
+`EXACT-CALLABLE-BARE-FUNCTION-CALL-LOCATION-P0` is landed as one
+behavior-neutral BoxShape. Installed `Cataloged`, `TopLevel`, and
+`InstanceConstructor` roots now carry a bare `FunctionCall` as the exact
+`FunctionBody -> Body(i)` site, and the existing child-role transport carries
+`CallArgument(n)` from that site. Raw `Main`/`ScriptRoot`, nested compatibility,
+`MethodCall`, indirect `Call`, and explicit extern rows remain `CallObject`.
+The raw Brand preflight still owns the old name probe; no relation was issued
+or consumed in this slice.
+
+Focused command:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick -p nyash-rust raw_invocation_source_statement_classification --lib
+```
+
+Result: 5 tests passed. The reusable
+`tools/checks/exact_callable_bare_function_call_location_guard.sh`, formatter,
+pointer guard, existing constructor-transfer guard, line fences, and diff
+check are green. The later consumer must still query the installed owner
+relation before preflight; this row does not authorize a fallback or raw-probe
+retirement.
+
+## BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0
+
+Decision: Open one design-stop BoxShape: let only an installed, source-backed
+callable consume its exact `Constructor|NonBrand` relation before raw
+FunctionCall preflight; keep all other admissions on their existing paths.
+Source authority + canonical issuer: the verified callable owner forest and
+its exact-site Brand projection issue the disposition; the source transport
+only supplies the current site and never relooks up a name.
+Non-authority: `CompilationContext::is_brand_declared`, AST names/spans,
+`CallObject`, Compatibility/Deferred/RawLegacy/nested/Main roots, and child
+ValueIds cannot issue or repair a missing relation.
+Fail-fast boundary: the installed callable port must prove owner, current
+site, relation kind/name, arity, and `CallArgument(0)` before child descent;
+missing/foreign/duplicate/site drift rejects with no raw fallback.
+Smallest next slice: a focused read-only design for the port/query seam and
+preflight handoff; do not delete the legacy probe until every selected-normal
+callable body has an exact disposition and the other admissions have an
+explicit nonclaim.
+Non-claims: no Script/Deferred/Compatibility/RawLegacy/nested/Main repair,
+no unwrap, nominal Brand value, runtime/backend change, or production switch.

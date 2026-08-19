@@ -60,6 +60,18 @@ bare `FunctionCall` and `MethodCall` remain `CallObject` compatibility rows.
 Future exact-site activation must change the classifier child explicitly and
 must not reintroduce AST classification into the transport owner.
 
+### Exact callable bare-call location (P0)
+
+For an installed, source-backed callable root (`Cataloged`, `TopLevel`, or
+`InstanceConstructor`), a bare `FunctionCall` statement is carried as the
+resolver-issued `FunctionBody -> Body(i)` site, and its argument descent uses
+the existing `CallArgument(n)` path. This is transport only: the statement
+classifier does not issue a Brand relation and the later consumer remains the
+owner of missing/foreign/site-drift rejection. `MethodCall`, indirect `Call`,
+explicit extern calls, raw `Main`/`ScriptRoot`, nested compatibility, and other
+unlocated rows remain `CallObject`; no name, span, or lineage fallback is
+introduced.
+
 ### Ordered Box-method compatibility edge (R5-S1)
 
 The deferred non-Main static-Box Program path consumes the AST-owned
