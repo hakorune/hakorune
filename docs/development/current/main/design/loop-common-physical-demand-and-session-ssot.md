@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Date: 2026-08-19
-Decision: accepted post-Recipe physical demand/session boundary; selected C lifecycle lowering remains design-stop
+Decision: accepted post-Recipe physical demand/session boundary; selected C dispatcher split is the active execution row
 Scope: common Loop physical demand, one unpublished function session, DraftSeal handoff, and S6C TextEq physical corridor
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -27,9 +27,9 @@ Related:
   rows. This is not a production caller.
 - **Current blocker:** the selected contract-bound C route does not yet consume
   those exact lifecycle rows. Its generic op dispatch is already 826 lines, so
-  it must be split before any selected lifecycle lowering is added.
+  the existing `call` / `mir_call` arms must first move unchanged to one child.
 - **Next ordered task:**
-  `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LOWERING-D0`.
+  `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0`.
 - **Production stop line:** TargetMachine observation, object publication,
   production selection, fallback/retry, performance promotion, and
   `nyash.string.eq_hh` retirement remain closed.
@@ -321,38 +321,61 @@ lifetime, or fast-route admission:
 - synthetic textual LLVM fixture or C symbol name;
 - backend success, object emission, or benchmark victory.
 
-## Current design stop
+## Current execution brief
 
-Row: `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LOWERING-D0`
+Row: `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0`
 
-Decision: keep TargetMachine and production closed. First select one bounded C
-consumer and split the over-budget generic dispatch before adding lifecycle
-cases.
+Decision: perform one behavior-neutral BoxShape. Extract only the existing
+`call` and `mir_call` arms from the 826-line generic dispatch into one textual
+child include; do not change the accepted operation set.
 
-Source authority + canonical issuer: the landed real-candidate strict JSON,
-its carrier/frame metadata, and the selected contract-bound C route are the
-only prospective chain.
+Source authority + canonical issuer: the existing generic dispatch remains
+the sole dispatch owner, and the existing MIR-call dispatch seam remains the
+sole call-lowering owner. The child only shares the parent's lexical context.
 
-Non-authority: synthetic carrier fixture, hand-written JSON, op-name scan,
-compat replay, non-selected backend, TargetMachine success alone, fallback,
-retry, and benchmark results.
+Non-authority: the child include does not issue source meaning, add an opcode,
+select a backend, or own lifecycle validation. Synthetic fixtures and op-name
+scans remain non-authority.
 
-Fail-fast boundary: carrier/frame/op/block/Return parity must be complete
-before IR output or session open. Unknown or drifted lifecycle shape publishes
-no temporary artifact.
+Fail-fast boundary: preserve the exact `continue`, document cleanup,
+`GEN_ABORT`, and final `unknown_op` order. Any textual or control-flow drift is
+a failed BoxShape.
 
-Smallest next slice: census the selected C dispatcher seams and choose one
-behavior-neutral submodule extraction below 760 lines. Do not add an opcode in
-the same BoxShape commit.
+Smallest next slice: create
+`hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch_calls.inc`, move the
+two existing arms once, keep the parent include site unchanged, and guard both
+files below 760 lines.
 
-Non-claims: no selected C lowering, TargetMachine candidate, observer, object,
-production, performance, fallback/retry, or `eq_hh` retirement is open.
+Non-claims: no lifecycle lowering, accepted-op change, TargetMachine candidate,
+observer, object, production, performance, fallback/retry, or `eq_hh`
+retirement is open.
+
+### Accepted selected C consumer boundary
+
+After the split lands, the next BoxCount stays on the existing selected route:
+
+```text
+hako_llvmc_compile_json_pure_first
+  -> compile_json_via_pure_first_lane
+  -> compile_json_compat_pure
+  -> carrier-bound strict preflight
+  -> generic lowering
+  -> retained LLVM18 target-machine session
+```
+
+The preflight consumes one Rust-issued frame/carrier cohort before prescan,
+session open, or IR-file publication. It validates the exact root mapping,
+plan stamp, target/ABI, 3 `PinnedTextOp`, 1 Enter, 1 Trap, and 2
+Finish-immediately-before-Return sites. C never re-issues Subject/Needle, V9,
+cursor, source binding, or exit meaning. Missing, extra, foreign, stale, moved,
+or unknown lifecycle rows reject without compat replay, synthetic-fixture
+promotion, fallback, retry, `.ll`, or object publication.
 
 ## Ordered remaining tasks
 
 | order | bounded task | kind | exit condition |
 | ---: | --- | --- | --- |
-| 1 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0` | BoxShape | Existing 826-line generic dispatch is split into named children below 760 lines with byte-for-byte behavior parity; lifecycle opcode support remains 0. |
+| 1 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0` | BoxShape | Existing `call` / `mir_call` arms move once to one child; parent and child are below 760 lines with behavior parity and lifecycle opcode support remains 0. |
 | 2 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LOWERING-I0` | BoxCount | The selected child consumes the exact carrier-bound JSON and lowers `PinnedTextOp` plus Enter/Trap/Finish; missing/drifted rows reject before IR/session output. |
 | 3 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-I0` | bounded observer | LLVM18 parses the exact module, applies target/layout, and the sole post-transform observer proves Enter/Trap/Finish/Return parity, no EH/unwind carrier, and no hot-loop lifecycle call. |
 | 4 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, IR/assembly structural-zero, exact/meso/whole-call, and C comparison gates pass. |
@@ -381,7 +404,7 @@ Exact prose and superseded stops are historical. The durable result is:
 | exact-two Finish -> existing Return detached projection | landed caller-zero |
 | real candidate source-issued carrier lineage | landed caller-zero |
 | carrier-gated no-refresh strict MIR JSON | landed caller-zero at `44e4df38a0` |
-| selected C lifecycle lowerer | design stop |
+| selected C lifecycle lowerer | accepted next BoxCount; blocked by the active dispatch split |
 | TargetMachine observer / object / production | closed |
 
 The current production selector remains selected-Dynamic. Generic G0 and S6C
@@ -408,7 +431,7 @@ performance.
 ## Documentation and history boundary
 
 This stable path remains the current authority. It now contains only durable
-contract, live design stop, bounded queue, and compact landed status.
+contract, live execution brief, bounded queue, and compact landed status.
 
 The former append-only D0/I0 consultation and closeout body is indexed by the
 [historical ledger](archive/loop-common-physical-demand-and-session-history-2026-08-18.md).

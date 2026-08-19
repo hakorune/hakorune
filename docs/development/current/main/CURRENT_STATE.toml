@@ -23,15 +23,15 @@ reaches its target-machine boundary yet. The caller-zero ExactTwo ingress now ma
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "unresolved: selected C lifecycle lowering needs one bounded owner and a behavior-neutral split of the existing 826-line generic dispatch before any op case or target-machine route is added"
-work_mode = "design_stop"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LOWERING-D0"
-current_blocker_token = "Real-candidate strict JSON is landed caller-zero. Select the exact C consumer and fail-fast carrier/frame/op parity boundary, then split the over-budget generic dispatch below 760 lines before adding PinnedTextOp or Enter/Trap/Finish lowering. Synthetic fixture promotion, observer, object publication, production, fallback, retry, and performance remain closed."
+current_design_stop = "accepted: the existing pure-first contract-bound C route is the sole selected consumer; first extract only call/mir_call from the 826-line generic dispatch without changing behavior"
+work_mode = "fast"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0"
+current_blocker_token = "Behavior-neutral BoxShape only: move the existing call/mir_call arms once into a textual child include, preserve cleanup/GEN_ABORT/unknown-op order, and keep both parent and child below 760 lines. PinnedTextOp and Enter/Trap/Finish lowering remain closed until this row lands."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence selected C lifecycle lowering design stop"
+active_lane = "S6C Text Residence selected C generic-dispatch BoxShape"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -75,8 +75,8 @@ function-owned plan table, co-writes Enter/Trap before canonical-session close,
 seals the deferred E1/cursor graph, and proves the detached Finish -> Return
 projection. The real-candidate JSON cell is now landed caller-zero: one carrier lineage is installed on the exact detached candidate and strict JSON emits 3
 PinnedTextOp, 1 Enter, 1 Trap, 2 Finish, and 2 Return rows without refresh or
-synthetic-fixture promotion. The next design stop must split the 826-line C
-dispatch and select one strict consumer before lowering. Target-machine,
+synthetic-fixture promotion. The selected C owner is accepted; the active fast
+row extracts call/mir_call from the 826-line dispatch before lowering. Target-machine,
 observer, production, fallback, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
@@ -90,10 +90,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C source corridor through ExactTwo lifecycle ingress and real-candidate strict JSON is landed caller-zero. The exact detached function owns one carrier lineage and emits 3 PinnedTextOp, 1 Enter, 1 Trap, 2 Finish, and 2 Return rows; missing/foreign/duplicate carrier, duplicate/non-entry lifecycle sites, Trap Finish, and exit-set drift reject. Selected C lowering is the next design stop; target-machine routing, observer, production, fallback, and performance remain closed."
-next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LOWERING-D0"
+latest_card_summary = "The S6C source corridor through ExactTwo lifecycle ingress and real-candidate strict JSON is landed caller-zero. The selected C owner is fixed to the existing contract-bound pure-first route. The active fast row only extracts call/mir_call from the 826-line generic dispatch; lifecycle lowering, target-machine observation, production, fallback, and performance remain closed."
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "none"
+next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
