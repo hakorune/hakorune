@@ -25,12 +25,11 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the same parsed LLVM module now passes final lifecycle,
-  target, and layout closure immediately before the sole trusted emit. The
-  promotion evidence owner, comparable measurement strata, and production
-  admission are not yet sealed.
-- **Next ordered task:** `S6C-PINNED-CORRIDOR-PROMOTION-R0` design closure;
-  its first executable cell will be link/run correctness only.
+- **Current blocker:** meso evidence remains red. The sole native clean-pair R0
+  closed `NoSafeSlice` with 18/18 scheduler-rejected pairs and zero accepted;
+  rejected values issued no ratio, PC attribution, or residual owner.
+- **Next ordered task:** `S6C-MESO-PAIRED-WALLCLOCK-HARNESS-I1` connects the
+  landed retain-all plan to the existing evidence runner without measuring.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -441,10 +440,10 @@ kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 | 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | **Landed.** The real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text/retirement-pending, match/miss, and lifecycle cases. Input generations come only from a default-off test issuer in the allocation transaction. |
 | 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | **Landed.** A compile-time-only hook borrows the same closure-verified ModuleRef before sole emit; final IR and linked assembly show only lifecycle calls, entry-only allocation/root projection, exact align-1 byte reads, and zero EH/noalias/wide read/indirect or helper call. Machine layout counts remain non-authority. |
 | 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | **Landed.** The exact real plan is projected by the sole production leaf emitter into a separate evidence callable. The first unchanged-threshold run exposed eager post-mismatch loads; `LLVM-PINNED-TEXT-SCALAR-EQ-SHORT-CIRCUIT-I0` made bytes 2..4 reachable only after prior equality. The unchanged 51-pair gate is green (ASCII max p50 1.061, mixed max p50 1.078, all-case max p95 1.113 versus 1.10/1.15/1.30). |
-| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Measured red; promotion remains closed.** The selected scan schedule reduced the uncontended max from 3.856 to 1.239, with the remaining worst case `width4/1MiB/first`. `PINNED-TEXT-SCALAR-EQ-DIRECT-BRANCH-BOXSHAPE-R0` is the sole bounded repair before rerunning the unchanged gate. |
-| 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | ABI+Enter+projection+loop+Finish+Return reports short-input cost and break-even; 4KiB+ p50 <=1.20, p95 <=1.30, and current-route delta separately. |
-| 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | One test/perf-only aggregate consumes exact commit/toolchain/environment/corpus evidence from 8a-e and measures nothing itself; any missing or red leaf means no promotion. |
-| 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
+| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Red; residual PMU audit closed NoSafeSlice.** The sole clean-pair R0 accepted 0/18. Retain-all paired wall-clock replaces the impractical zero-switch evidence protocol; no backend owner is inferred. |
+| 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | **Parked.** Requires green native-final 8d evidence first. |
+| 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | **Parked.** Missing/red leaf evidence forbids a verdict. |
+| 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | **Parked.** Selected Dynamic remains production. |
 | 10 | `EQ-HH-RETIREMENT-R0` | independent cleanup | Generic C/Python `nyash.string.eq_hh` caller census reaches zero independently. |
 
 Tasks 6 and 7 are separate: runtime call effects must be owned before the final
@@ -577,25 +576,22 @@ MIR/source/production change, fallback, or promotion verdict.
 If the equal-alignment run stays red, preserve the red result and return to a
 hardware-counter/linked-layout design audit. Do not guess another LLVM schedule.
 
-### Accepted clean-pair acquisition D0
+### Closed clean-pair R0 and robust wall-clock D0
 
 ```text
-Decision: Adopt bounded complete-pair eligibility sampling; only scheduler
-contamination may refill one predeclared accepted slot, never a fatal failure.
-Source authority + canonical issuer: One hashed acquisition plan fixes binary,
-corpus, CPU, events, 3x51 accepted slots, 68 attempts per block, ordering,
-eligibility, interval, and classifier; the outer collector is the sole issuer
-of AcceptedPair or SchedulerRejectedPair from two complete arm observations.
-Non-authority: One arm, a partial pair, rejected PMU counts, attempt count,
-stderr, old JSON, timing wins, and PC profiles issue no ratio or owner.
-Fail-fast boundary: Scheduler metadata alone may reject a whole completed pair;
-fatal identity/corpus/oracle/PMU/output drift stops the invocation immediately.
-Rejected IDs cannot enter ratios; 18 rejects, attempt 69, order drift, or an
-incomplete ledger closes a non-evidence NoSafeSlice terminal receipt.
-Smallest next slice: S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-I2 changes only
-the C raw observation, private acquisition ledger, terminal receipt, and gates.
-Non-claims: No causal PC owner, backend BoxShape, threshold/corpus/oracle change,
-production switch, fallback, promotion verdict, or generic profiler authority.
+Decision: Close the sole clean-pair R0 NoSafeSlice and replace zero-switch
+eligibility with retain-all balanced paired wall-clock evidence.
+Source authority + canonical issuer: One sealed plan fixes 51 pairs as 3x17,
+restricted AB/BA order, binary/corpus/environment, and the unchanged 1.15 gate;
+the validator alone issues a session outcome from every pair.
+Non-authority: context switches, outlier rules, best runs, WSL green, p95, PMU,
+assembly, and rejected old observations issue no promotion or compiler meaning.
+Fail-fast boundary: missing/duplicate/retried/short/order/identity/oracle drift
+rejects atomically; scheduler delay remains in its original paired sample.
+Smallest next slice: `S6C-MESO-PAIRED-WALLCLOCK-HARNESS-I1` connects the sealed
+schedule to the C runner; it performs no WSL/native measurement.
+Non-claims: No outlier deletion, threshold/C/corpus change, native verdict,
+owner/BoxShape, whole-call evidence, promotion, production, or fallback.
 ```
 
 The first native report (`601f45fe...afc59c`) found stable Hako/C ratios near
@@ -621,9 +617,10 @@ The terminal artifact is issued only after commit/binary/corpus/oracle preflight
 has produced the acquisition plan. Accepted and bounded NoSafeSlice outcomes
 use one schema with `evidence_eligible`; failures before plan issuance publish
 nothing rather than fabricating a receipt. The 243-line private acquisition
-owner keeps the collector and C observer below 760 lines; self-tests cover clean,
-17-rejection, 18th-rejection, fatal, missing-arm, interval/classifier, identity,
-and atomic-publication negatives. Native R0 remains one explicit invocation.
+owner keeps the collector and C observer below 760 lines. The verified receipt
+SHA is `b0118063...af0ec1`, plan `19b8af1d...fac2`: 18 unique complete pairs,
+all ineligible, accepted IDs empty, and no partial artifact. Same-plan rerun and
+PC attribution stay closed. The 196-line robust plan/validator I0 is landed.
 
 Ordered task ladder:
 
@@ -632,13 +629,12 @@ Ordered task ladder:
 3. `S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-R0`: accepted NoSafeSlice; no JSON.
 4. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-D0`: accepted as above.
 5. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-I2`: landed evidence-only.
-6. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-R0`: run once on native Linux.
-7. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: if R0 reproduces one driver, collect
-   7+ AB/BA arm-separated branch profiles for the exact build-id and normalize
-   raw IPs to symbol-relative offsets. A single branch region must own >=70% of
-   the Hako excess in >=5/7 pairs; otherwise return `NoSafeSlice`.
-8. `S6C-MESO-RESIDUAL-OWNER-D0`: open one backend BoxShape only when A0 names
-   one owner; otherwise retain the performance `NoSafeSlice`.
+6. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-R0`: terminal NoSafeSlice; closed.
+7. `S6C-MESO-PAIRED-WALLCLOCK-ROBUST-D0/I0`: accepted/landed plan owner only.
+8. `S6C-MESO-PAIRED-WALLCLOCK-HARNESS-I1`: connect sealed order and raw rows.
+9. `S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0`: development keeper only.
+10. `S6C-MESO-PAIRED-WALLCLOCK-NATIVE-FINAL-R0`: three native sessions; only
+    this may feed 8f. PC/owner work requires a separate future Decision.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the
