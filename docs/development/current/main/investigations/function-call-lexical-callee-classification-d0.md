@@ -1,46 +1,42 @@
 # FunctionCall Lexical Callee Classification D0
 
-Status: selected design stop
+Status: closed NoSafeSlice
 Scope: one source-site classification before argument effects
 Parent: `function-call-direct-vs-value-call-compat-census-d0.md`
 Row: `FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0`
 
-## Current execution brief
+## Final decision
 
-Decision: Design one resolver-owned classification of an identifier call as
-explicit special, direct FreeStatic, or lexical callee value before arguments.
-Source authority + canonical issuer: The exact source call site, lexical binding
-ledger, special-form registry, and existing `VerifiedCallableIndexV1` are inputs;
-the resolver must issue one classification without Builder state.
-Non-authority: AST kind alone, name/arity, `variable_map`, current-static/module,
-raw recovery, tail lookup, `ValueId`, MIR, tests, C, and ASM.
-Fail-fast boundary: Missing/ambiguous/conflicting namespace membership rejects
-before arguments and before any classification product or Builder effect.
-Smallest next slice: Name the classification enum, namespace precedence, source
-issuer, and one bounded first cohort; no implementation is authorized yet.
-Non-claims: No parser rewrite, arbitrary callable types, Script activation,
-Builder retirement, diagnostic migration, production switch, fallback, or retry.
+Decision: The general lexical/direct/special classifier is NoSafeSlice: current
+lexical records prove binding identity but not callable-value membership, and
+current special forms are raw preflight string branches rather than one registry.
+Source authority + canonical issuer: `ResolvedLexicalRefV1` remains binding
+authority and `VerifiedCallableIndexV1 -> ResolvedDirectCallTargetV1` remains the
+sole direct FreeStatic authority; neither may issue the missing other meaning.
+Non-authority: AST `FunctionCall`, binding kind, name/arity, `variable_map`, raw
+preflight success, recovery/tail lookup, `ValueId`, MIR, tests, C, and ASM.
+Fail-fast boundary: Do not issue a three-way classification until callable-value
+membership and explicit-special identity each have a source owner; no defaults.
+Smallest next slice: Design one source/context-owned registry for the existing
+special namespace before a bounded Script FreeStatic callable-index handoff.
+Non-claims: No general classifier, namespace precedence, parser rewrite, callable
+type system, special registry, Builder retirement, production switch, or retry.
 
-## Questions to close
+## Census result
 
-1. Which existing lexical binding product can prove callable-value membership?
-2. Does a lexical value shadow an exact FreeStatic row, and how is ambiguity rejected?
-3. Which explicit special forms are parser/resolver vocabulary rather than names?
-4. How are builtin/extern/current-static legacy forms classified or parked?
-5. Can one source-site product retain ordered arguments without cloning the AST?
-6. What first cohort reaches Lower without any late target lookup?
+- `ResolvedBindingRecordV1` carries diagnostic name, binding kind, scope, and
+  origin. `ResolvedLexicalRefV1` carries `BindingRefV1`/`UpvarRefV1`; neither
+  carries a callable-value semantic class.
+- `VerifiedCallableIndexV1` already resolves exact FreeStatic source calls and
+  the canonicalizer issues `ResolvedDirectCallTargetV1` without Builder state.
+- Function-owner resolution has callable-index entry points, while Script forest
+  resolution currently has only declaration views and seals no direct targets.
+- raw special handling is distributed across name-shaped preflight branches;
+  grammar/registry rows do not currently issue one exhaustive special identity.
 
-## Acceptance for a future I0
+## Handoff
 
-- One exact source call site receives exactly one classification.
-- FreeStatic carries the existing `ResolvedDirectCallTargetV1`, not a copied header.
-- Lexical callee value carries a source binding identity, never a `ValueId`.
-- Explicit special forms come from an owned registry/grammar row, not string fallback.
-- Arguments remain ordered source children and are lowered only after classification.
-- Missing/duplicate/foreign/conflicting rows reject before effect.
-- The selected cohort deletes its exact late lookup edge in the same migration.
-
-## Stop condition
-
-If callable-value membership or special-form identity has no source issuer, select
-that missing issuer D0. Do not infer either from raw Builder success.
+The next card is `FUNCTION-CALL-SPECIAL-NAMESPACE-SOURCE-REGISTRY-D0`.
+FreeStatic handoff follows only after special exclusion no longer depends on raw
+string branches. Lexical callable values remain parked until their own source
+membership issuer exists.
