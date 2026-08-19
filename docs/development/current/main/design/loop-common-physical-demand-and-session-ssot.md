@@ -27,9 +27,10 @@ Related:
   rows. This is not a production caller.
 - **Current blocker:** the selected C route emits a real caller-zero object;
   its only post-codegen observation point is the emitted temporary object before
-  rename, and that one private observer is not yet implemented.
+  rename, but LLVM18 C Object section iteration is unavailable for a valid
+  candidate, so no observer consumer is yet accepted.
 - **Next ordered task:**
-  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-I0`.
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0`.
 - **Production stop line:** observer issuance, production selection,
   fallback/retry, performance promotion, and
   `nyash.string.eq_hh` retirement remain closed.
@@ -323,35 +324,35 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Row: `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-I0`
+Row: `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0`
 
 Decision: LLVM18 exposes no post-codegen `ModuleRef` before
 `LLVMTargetMachineEmitToFile`; its same-candidate temporary object, after a
 successful emit and before the session's sole rename, is the one physical
-evidence boundary. The observer uses the already-loaded LLVM18 in-process
-Object and Disassembler APIs, never a second pass or emission.
+evidence boundary. The first in-process LLVM C Object candidate produced no
+section iterator for a valid emitted object, so the consumer itself remains
+`NoSafeSlice`; never substitute an external tool, second pass, or emission.
 
 Source authority + canonical issuer: the Rust-issued frame/carrier lineage and
 `HakoPtfSelectedCandidateView` own expected lifecycle sites. The retained
-session issues the temporary object once; the private observer reads precisely
-that file once before its existing rename publication step.
+session issues the temporary object once. A future accepted observer must read
+precisely that file once before its existing rename publication step.
 
 Non-authority: `llvm-objdump`/`readobj` subprocesses, textual LLVM, a
 pre-codegen `ModuleRef`, a cloned pass pipeline, synthetic fixtures, renamed
 objects, and object success alone do not issue physical closure.
 
-Fail-fast boundary: only the selected bytes ingress enables the observer.
-After emit, it opens the temporary ELF through an LLVM memory buffer and binary
-iterator; missing API, decode, or structural mismatch releases all observer
-state, removes the temporary, and publishes nothing. File ingress remains
+Fail-fast boundary: only the selected bytes ingress may enable a future
+observer. The current LLVM C Object section iterator is unavailable even for a
+valid temporary; missing API, empty iteration, decode, or structural mismatch
+must remove the temporary and publish nothing. File ingress remains
 observer-none and unchanged.
 
-Smallest next slice: add one private target-session child between
-`emit_to_file -> file_exists` and `rename`. It verifies exactly one Enter
-relocation, two Finish relocations, `ud2` Trap, two `ret` exits, no
-EH/personality/unwind carrier, and no lifecycle relocation inside a
-disassembler-derived backward-branch interval. Keep the selected route
-caller-zero and add positive plus reject/cleanup tests.
+Smallest next slice: audit only the actual LLVM18 library's Object/MC surface
+against one valid emitted temporary. Accept one same-process iterator only if
+it exposes stable `.text` relocation and instruction access; otherwise remain
+at `NoSafeSlice`. A generic `.eh_frame` section is not an unwind claim—only
+personality or unwind references would be rejectable evidence.
 
 Non-claims: no LLVM IR `nounwind`/`noreturn` attribute proof, semantic parity,
 link/run, production cutover, fallback/retry, performance promotion, or
@@ -387,7 +388,7 @@ promotion, fallback, retry, `.ll`, or object publication.
 | 3 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TEXTUAL-LOWERING-I0` | BoxCount | **Landed.** One private draft lowers the three leaves plus Enter/Trap/Finish, passes its verifier, is discarded, and returns the stable target-closed tag. |
 | 4 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0` | bounded route | **Landed.** Verified owned bytes reach the retained LLVM18 target/layout session and one test-owned object; failures remove every temporary. |
 | 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-D0` | design stop | **Landed.** LLVM18 exposes no post-codegen module hook without a second pass/emission; the emitted temporary object before existing rename is the sole same-candidate physical evidence boundary. |
-| 6 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-I0` | bounded route | One private LLVM18 Object/Disassembler observer consumes only the selected temporary object before rename; structural mismatch removes it and publishes nothing. |
+| 6 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0` | design stop | The first LLVM C Object consumer returns an empty section iterator for a valid temporary. Audit one alternate same-process LLVM18 Object/MC surface, or retain `NoSafeSlice`; external observers are non-authority. |
 | 7 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, IR/assembly structural-zero, exact/meso/whole-call, and C comparison gates pass. |
 | 8 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
 | 9 | `EQ-HH-RETIREMENT-R0` | independent cleanup | Generic C/Python `nyash.string.eq_hh` caller census reaches zero independently. |
@@ -419,7 +420,7 @@ Exact prose and superseded stops are historical. The durable result is:
 | selected C carrier-bound preflight | landed effect-free BoxCount |
 | selected C textual lifecycle lowerer | landed caller-zero BoxCount |
 | selected C TargetMachine handoff | landed caller-zero bounded route |
-| post-emit temporary-object observer | accepted D0; private caller-zero I0 active |
+| post-emit temporary-object observer | physical boundary accepted; object consumer remains active `NoSafeSlice` |
 | production | closed |
 
 The current production selector remains selected-Dynamic. Generic G0 and S6C
