@@ -685,17 +685,30 @@
       fprintf(f, "}\n");
       if (!ptfc_selected) hako_llvmc_emit_entry_alias_if_needed(f, &selection);
       if (ptfc_selected) {
-        if (hako_llvmc_ptfc_verify_and_discard_selected_llvm(
-                &ptfc_draft, err_out) != 0) {
+        struct HakoPtfSelectedLlvmBytes ptfc_bytes;
+        int ptfc_rc = -1;
+        if (hako_llvmc_ptfc_verify_and_take_selected_llvm(
+                &ptfc_draft, &ptfc_bytes, err_out) != 0) {
           f = NULL;
           free_owned_str_consts();
           yyjson_doc_free(d);
           return -1;
         }
         f = NULL;
+        if (hako_llvmc_ptfb_session_open(
+                &ptfb_session, &ptfb_census, err_out) == 0) {
+          ptfc_rc = hako_llvmc_ptfb_session_emit_object_from_bytes(
+              &ptfb_session,
+              ptfc_bytes.data,
+              ptfc_bytes.size,
+              obj_out,
+              err_out);
+        }
+        hako_llvmc_ptfc_release_selected_llvm_bytes(&ptfc_bytes);
+        hako_llvmc_ptfb_session_close(&ptfb_session);
         free_owned_str_consts();
         yyjson_doc_free(d);
-        return set_err_owned(err_out, HAKO_PTFC_TEXTUAL_CLOSED_TAG);
+        return ptfc_rc == 0 ? 0 : -1;
       }
       HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
 

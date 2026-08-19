@@ -275,8 +275,12 @@ Current partitions:
     parameter, root, plan, and lifecycle cohort
 - `hako_llvmc_ffi_pinned_text_selected_lowering.inc`
   - caller-zero private textual projection for the three pinned-Text leaves
-    and Enter/Trap/Finish; owns one `tmpfile()` draft, verifies it, discards it,
-    and stops before LLVM parsing, TargetMachine, object, or fallback
+    and Enter/Trap/Finish; owns one `tmpfile()` draft, verifies it, closes the
+    stream, and moves the resulting bytes once to the retained LLVM18 session
+- `hako_llvmc_ffi_pinned_text_target_machine_session.inc`
+  - sole contract-bound LLVM parse/module/object owner; file and selected
+    memory-buffer ingress converge before parse and share temporary-object
+    cleanup plus atomic rename
 - `hako_llvmc_ffi_pinned_text_selected_dispatch.inc`
   - one small hook from the existing generic operation writer; it does not
     duplicate PHI, arithmetic, compare, branch, or Return lowering

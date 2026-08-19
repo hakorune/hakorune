@@ -111,8 +111,9 @@ allowlists are being updated.
 - StaticDataLoad
 - Store
 - MemOp
-- PinnedTextOp (carrier-bound caller-zero textual projection exists; LLVM
-  parse, TargetMachine/object, and production backend remain closed)
+- PinnedTextOp (carrier-bound caller-zero textual projection and LLVM18
+  memory-buffer object emission exist; post-transform observation and
+  production selection remain closed)
 - UnaryOp
 - BinOp
 - Compare

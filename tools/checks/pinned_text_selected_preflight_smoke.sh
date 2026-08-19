@@ -42,7 +42,7 @@ library.hako_mem_free.argtypes = [ctypes.c_void_p]
 base = json.loads((directory / "real.json").read_text())
 
 
-def invoke(name, value):
+def invoke(name, value, allow_output=False):
     source = directory / f"{name}.json"
     output = directory / f"{name}.o"
     source.write_text(json.dumps(value, separators=(",", ":")))
@@ -51,14 +51,26 @@ def invoke(name, value):
     message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
     if error.value:
         library.hako_mem_free(error)
-    if output.exists():
+    if output.exists() and not allow_output:
         raise SystemExit(f"{name}: preflight path published an object")
     return rc, message
 
 
-rc, message = invoke("valid", base)
-if rc == 0 or "[freeze:contract][ptfc/textual-lowering-verified-target-closed]" not in message:
-    raise SystemExit(f"valid: did not verify the private target-closed draft: {message}")
+rc, message = invoke("valid", base, allow_output=True)
+valid_output = directory / "valid.o"
+if rc != 0 or message or not valid_output.is_file() or valid_output.stat().st_size == 0:
+    raise SystemExit(f"valid: TargetMachine memory handoff failed: {message}")
+
+unwritable = directory / "missing" / "selected.o"
+error = ctypes.c_void_p()
+source = directory / "unwritable.json"
+source.write_text(json.dumps(base, separators=(",", ":")))
+rc = compile_json(str(source).encode(), str(unwritable).encode(), ctypes.byref(error))
+message = ctypes.string_at(error.value).decode(errors="replace") if error.value else ""
+if error.value:
+    library.hako_mem_free(error)
+if rc == 0 or unwritable.exists() or not message:
+    raise SystemExit(f"unwritable: output failure was not contained: {message}")
 
 
 def reject(name, mutate, expected="pinned Text selected"):
@@ -179,9 +191,12 @@ reject(
 leftovers = list(pathlib.Path("/tmp").glob(f"hako_pure_gen_{os.getpid()}.ll"))
 if leftovers:
     raise SystemExit(f"preflight left temporary LLVM: {leftovers}")
+object_temps = list(directory.rglob("*.ptfb-tm-*.tmp"))
+if object_temps:
+    raise SystemExit(f"TargetMachine left temporary objects: {object_temps}")
 
 print(
     "[pinned-text-selected-preflight-smoke] ok "
-    "(real carrier verifies/discards private LLVM; pre/post-draft drift rejects)"
+    "(real carrier reaches TargetMachine from memory; drift/output failures clean up)"
 )
 PY

@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Date: 2026-08-19
-Decision: accepted post-Recipe physical demand/session boundary; selected C TargetMachine handoff is the active execution row
+Decision: accepted post-Recipe physical demand/session boundary; post-transform observer boundary is the active design stop
 Scope: common Loop physical demand, one unpublished function session, DraftSeal handoff, and S6C TextEq physical corridor
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -25,13 +25,12 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the selected C route produces verified private LLVM
-  bytes but has not yet handed them to the existing LLVM18 TargetMachine
-  session without a named `.ll` file.
+- **Current blocker:** the selected C route emits a real caller-zero object,
+  but no sole same-candidate post-transform lifecycle observer is sealed.
 - **Next ordered task:**
-  `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0`.
-- **Production stop line:** TargetMachine observation, object publication,
-  production selection, fallback/retry, performance promotion, and
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-D0`.
+- **Production stop line:** observer issuance, production selection,
+  fallback/retry, performance promotion, and
   `nyash.string.eq_hh` retirement remain closed.
 
 The exact active row, mode, and blocker are selected only by
@@ -323,27 +322,28 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Row: `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0`
+Row: `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-D0`
 
-Decision: move verified private LLVM bytes once into the existing LLVM18
-TargetMachine session and publish only one test-owned object.
+Decision: remain at `NoSafeSlice` until one same-candidate post-transform
+inspection point can be named without duplicating LLVM pass/emission ownership.
 
-Source authority + canonical issuer: the Rust frame/carrier lineage and strict
-JSON issue `HakoPtfSelectedCandidateView`; the existing LLVM18 session alone
-owns target/layout validation and object realization.
+Source authority + canonical issuer: the Rust frame/carrier lineage and
+`HakoPtfSelectedCandidateView` own expected lifecycle sites; only the retained
+LLVM18 session may issue physical closure from the same parsed module.
 
-Non-authority: the textual verifier, tmpfile, `obj_out`, synthetic fixture,
-named `.ll`, parse success, and object success cannot issue candidate meaning.
+Non-authority: textual counts, tmpfile bytes, metadata alone, object success,
+assembly, synthetic fixtures, and a second parser/pass pipeline are not an
+observer issuer.
 
-Fail-fast boundary: preflight and textual verification complete before session
-open. Then owned bytes enter one memory-buffer parse/emit owner; every failure
-discards bytes, session, and temporary object exactly once without fallback.
+Fail-fast boundary: any future observer must run inside the retained session on
+the exact unpublished module after the selected transform point and before
+temporary-object rename; mismatch discards module/object with no retry.
 
-Smallest next slice: change the verifier to return owned bytes after closing
-the tmpfile, add memory-buffer ingress to the retained session, and switch only
-the selected final branch from the closed tag to open/emit/close.
+Smallest next slice: audit the LLVM18 C API/pass boundary and choose either one
+inspectable in-session module hook or continued `NoSafeSlice`; do not create a
+`Verified*` result from pre-transform text.
 
-Non-claims: no post-transform observer, `nounwind`/`noreturn` proof, link/run,
+Non-claims: no observer implementation, `nounwind`/`noreturn` proof, link/run,
 production cutover, fallback/retry, performance, or `eq_hh` retirement is open.
 
 ### Accepted selected C consumer boundary
@@ -374,15 +374,16 @@ promotion, fallback, retry, `.ll`, or object publication.
 | 1 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0` | BoxShape | **Landed.** Existing `call` / `mir_call` arms live once in a 114-line child; the parent remains below the 760-line split trigger and lifecycle opcode support remains 0. |
 | 2 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-PREFLIGHT-I0` | BoxCount | **Landed.** One real module passes exact frame/carrier/parameter/root/plan/op/site parity before effect; drift rejects without `.ll`, object, replay, or fallback. |
 | 3 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TEXTUAL-LOWERING-I0` | BoxCount | **Landed.** One private draft lowers the three leaves plus Enter/Trap/Finish, passes its verifier, is discarded, and returns the stable target-closed tag. |
-| 4 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0` | bounded route | **Active.** Only verified owned bytes reach the retained LLVM18 target/layout session and one test-owned temporary object; failure removes every temporary. |
-| 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-I0` | bounded observer | The sole post-transform observer proves Enter/Trap/Finish/Return parity, no EH/unwind carrier, and no hot-loop lifecycle call. |
+| 4 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0` | bounded route | **Landed.** Verified owned bytes reach the retained LLVM18 target/layout session and one test-owned object; failures remove every temporary. |
+| 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-D0` | design stop | Name the sole same-candidate post-transform inspection point or remain `NoSafeSlice`; pre-transform text/object success cannot issue closure. |
 | 6 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, IR/assembly structural-zero, exact/meso/whole-call, and C comparison gates pass. |
 | 7 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
 | 8 | `EQ-HH-RETIREMENT-R0` | independent cleanup | Generic C/Python `nyash.string.eq_hh` caller census reaches zero independently. |
 
 Tasks 1 and 2 are separate: the source-file split cannot change accepted ops,
-and the lowering BoxCount cannot be appended to an over-budget owner. Tasks 3
-through 6 remain closed until their predecessor is landed.
+and the lowering BoxCount cannot be appended to an over-budget owner. Observer,
+promotion, and production remain serial; none may infer closure from object
+success.
 
 ## Compact landed ledger
 
@@ -405,8 +406,9 @@ Exact prose and superseded stops are historical. The durable result is:
 | selected C generic dispatch call-family split | landed behavior-neutral BoxShape |
 | selected C carrier-bound preflight | landed effect-free BoxCount |
 | selected C textual lifecycle lowerer | landed caller-zero BoxCount |
-| selected C TargetMachine handoff | accepted active bounded route |
-| post-transform observer / production | closed |
+| selected C TargetMachine handoff | landed caller-zero bounded route |
+| post-transform observer | active `NoSafeSlice` design stop |
+| production | closed |
 
 The current production selector remains selected-Dynamic. Generic G0 and S6C
 lifecycle candidates are caller-zero evidence until an explicit cutover row.
@@ -427,14 +429,15 @@ The latest landed real-candidate JSON slice has:
 - `pure_compile_generic_dispatch_split_guard.sh` green at parent 714 / child 114;
 - selected carrier-bound preflight guard and runtime-generated JSON smoke green;
 - selected private textual lowerer verifier and ordering negative green;
+- selected LLVM18 memory ingress emits a nonempty object; invalid IR and
+  unwritable-output negatives leave no temporary artifact;
 - byte-for-byte extraction comparison against the pre-split parent green;
 - checked-callout physicalizer and pure-first route preflight green;
 - same-module static-helper row guard is baseline-red because its tracked
   proof-app script lacks the executable bit both before and after this split.
 
-Local green proves only the named caller-zero slice. It does not prove the C
-selected consumer, TargetMachine observation, production selection, or C-speed
-performance.
+Local green proves only the named caller-zero slice. It does not prove the
+post-transform observer, production selection, or C-speed performance.
 
 ## Documentation and history boundary
 

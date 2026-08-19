@@ -2,9 +2,6 @@
 #ifndef HAKO_LLVM_C_PINNED_TEXT_SELECTED_LOWERING_INC
 #define HAKO_LLVM_C_PINNED_TEXT_SELECTED_LOWERING_INC
 
-#define HAKO_PTFC_TEXTUAL_CLOSED_TAG \
-    "[freeze:contract][ptfc/textual-lowering-verified-target-closed]"
-
 struct HakoPtfSelectedLlvmDraft {
   FILE* stream;
   unsigned int enter_count;
@@ -12,6 +9,19 @@ struct HakoPtfSelectedLlvmDraft {
   unsigned int finish_count;
   unsigned int leaf_count;
 };
+
+struct HakoPtfSelectedLlvmBytes {
+  char* data;
+  size_t size;
+};
+
+static void hako_llvmc_ptfc_release_selected_llvm_bytes(
+    struct HakoPtfSelectedLlvmBytes* bytes) {
+  if (!bytes) return;
+  free(bytes->data);
+  bytes->data = NULL;
+  bytes->size = 0;
+}
 
 static int hako_llvmc_ptfc_open_selected_draft(
     struct HakoPtfSelectedLlvmDraft* draft,
@@ -43,12 +53,15 @@ static size_t hako_llvmc_ptfc_count_text(const char* text, const char* needle) {
   return count;
 }
 
-static int hako_llvmc_ptfc_verify_and_discard_selected_llvm(
+static int hako_llvmc_ptfc_verify_and_take_selected_llvm(
     struct HakoPtfSelectedLlvmDraft* draft,
+    struct HakoPtfSelectedLlvmBytes* bytes,
     char** err_out) {
   char* text = NULL;
   long size = 0;
   int valid = 0;
+  if (!bytes) return set_err_owned(err_out, "missing pinned Text LLVM byte owner");
+  memset(bytes, 0, sizeof(*bytes));
   if (!draft || !draft->stream || fflush(draft->stream) != 0 ||
       fseek(draft->stream, 0, SEEK_END) != 0 ||
       (size = ftell(draft->stream)) < 0 ||
@@ -82,11 +95,13 @@ static int hako_llvmc_ptfc_verify_and_discard_selected_llvm(
           "call void @hako_text_formal_residence_finish_or_abort_v1(ptr %ptfc_frame)\n  ret i64") == 2 &&
       !strstr(text, "memcmp") && !strstr(text, " invoke ") &&
       !strstr(text, "landingpad") && !strstr(text, "callbr");
-  free(text);
   hako_llvmc_ptfc_discard_selected_draft(draft);
   if (!valid) {
+    free(text);
     return set_err_owned(err_out, "private pinned Text LLVM verification failed");
   }
+  bytes->data = text;
+  bytes->size = (size_t)size;
   return 0;
 }
 
@@ -110,7 +125,6 @@ static int hako_llvmc_ptfc_emit_selected_entry_header(
 static void hako_llvmc_ptfc_emit_selected_declarations(FILE* out) {
   fputs("declare i32 @hako_text_formal_residence_enter_v1(ptr, i32, ptr, i32)\n", out);
   fputs("declare void @hako_text_formal_residence_finish_or_abort_v1(ptr)\n", out);
-  fputs("declare void @llvm.trap()\n", out);
 }
 
 static int hako_llvmc_ptfc_emit_selected_leaf(

@@ -3,32 +3,32 @@ status = """
 The caller-zero S6C TextEq route has one source-issued Subject/Needle Residence,
 one derived V9 scalar slice, canonical source-index SSA, private byte cursor,
 one lifecycle carrier, and one DraftSeal Return owner. Strict real-candidate
-JSON now passes selected-C preflight and lowers into a private textual LLVM
-draft which is verified and discarded. The next row may hand those verified
-bytes to the existing LLVM18 TargetMachine session; observer, production,
-fallback/retry, performance, and eq_hh retirement remain closed.
+JSON now passes selected-C preflight, lowers into a private textual LLVM draft,
+and reaches one test-owned object through the existing LLVM18 session's memory
+ingress. The exact post-transform observer boundary is not yet sealed;
+production, fallback/retry, performance, and eq_hh retirement remain closed.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "accepted: verified selected-C LLVM bytes hand off once to the existing LLVM18 TargetMachine memory ingress and publish only one test-owned object"
-work_mode = "fast"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0"
-current_blocker_token = "Move verified private LLVM bytes into the existing LLVM18 TargetMachine session without named .ll or duplicated parse/emit ownership; publish only the test-owned object. Observer, production, fallback, retry, and performance remain closed."
+current_design_stop = "NoSafeSlice: the sole same-candidate post-transform inspection point and its exact lifecycle obligation input must be named before an observer issuer is implemented"
+work_mode = "design_stop"
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-D0"
+current_blocker_token = "Determine whether the retained LLVM18 session exposes one inspectable post-transform module before object emission without duplicating the pass/emission owner; otherwise keep the observer closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence selected C TargetMachine handoff"
+active_lane = "S6C Text Residence post-transform observer design"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
 Finish-before-Return detached projection, strict MIR JSON, selected-C preflight,
-and private textual lowering. The private draft owner closes every success and
-failure path exactly once; focused C build, positive/negative smoke, format,
-and structure gates are green. The active row changes only the final handoff
-from verified bytes to the retained TargetMachine session. Selected Dynamic
-remains the sole production arm.
+private textual lowering, and one LLVM18 memory-buffer TargetMachine handoff.
+Real JSON emits a nonempty test-owned object; invalid IR and unwritable output
+leave no object, named `.ll`, or TargetMachine temporary. The next observer is
+a design stop because object emission is not itself lifecycle-proof authority.
+Selected Dynamic remains the sole production arm.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -41,10 +41,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Selected-C textual lowering is landed caller-zero: real strict JSON produces one verified private LLVM draft and discards it. The active row hands owned verified bytes to the existing LLVM18 TargetMachine memory ingress and emits only a test-owned object."
-next_design_card = "none"
+latest_card_summary = "Selected-C TargetMachine handoff is landed caller-zero through one memory-buffer ingress and shared parse/emit owner. The active D0 must name a genuine same-candidate post-transform observer before any Verified closure is issued."
+next_design_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-D0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -56,16 +56,16 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: Selected-C TargetMachine I0 landed caller-zero: verified private LLVM bytes move once through `LLVMCreateMemoryBufferWithMemoryRangeCopy` into the existing LLVM18 parse/module/object owner; real JSON emits a nonempty test object, invalid IR and unwritable output clean up, and named `.ll`, fallback, retry, observer, production, and performance remain zero.",
   "2026-08-19: Selected-C textual lowering I0 landed caller-zero: the exact preflighted candidate lowers 3 PinnedText leaves plus Enter/Trap/2 Finish into one tmpfile-owned LLVM draft, verifies structural zero and Finish-before-Return, discards it on every path, and returns a stable target-closed tag; TargetMachine, observer, production, fallback/retry, and performance remain closed.",
   "2026-08-19: Real-candidate JSON carrier-lineage I0 landed caller-zero: the exact detached MirFunction installs one source-issued carrier through a separate projection seam and emits strict JSON without refresh/synthetic promotion; same-cohort 3 PinnedTextOp/1 Enter/1 Trap/2 Finish/2 Return is green, while missing/foreign/duplicate carrier, duplicate/non-entry lifecycle sites, Trap Finish, and exit-set drift reject. Selected C lowering, target-machine, observer, production, fallback, and performance remain closed.",
   "2026-08-19: Trap-terminal I0 landed caller-zero: `PinnedTextResidenceTrap` is the explicit successorless fail-stop for the Enter trap landing, co-written and sealed only by the canonical CFG owner with the same plan provenance; foreign owner, non-empty/terminated/predecessored trap, and rejoin edges reject before/after mutation as appropriate. Runtime/backend lowering and detached Finish projection remain closed.",
   "2026-08-19: Caller-zero frame-timing I0 is landed: the pre-DraftSeal ingress is plan-less and affine, the retained S6C loan is the signature adapter, and the existing frame issuer finalizes exactly once from the canonical function-owned plan table after three leaf rows. Empty/zero-stamp/preinstalled frames reject; focused frame/DraftSeal test, cargo check, fmt, pointer, and structure guard are green. Explicit trap terminal, detached Finish/Return projection, backend, and production remain closed.",
   "2026-08-19: Caller-zero E0/E1 physical entry co-seal is landed: E0 contains Residence Enter only, E1 is the same-cohort sidecar/seed/cursor execution entry, duplicate boundary issuance rejects, and the focused S6C cursor module is 5/5 green; backend candidate, observer, and production remain closed.",
-  "2026-08-19: Caller-zero C lowering fixture consumes strict pinned_text_residence_carrier@1 JSON and emits textual LLVM Enter/normal-trap/success-only Finish shape; missing carrier, cohort drift, and trap Finish reject before output publication. Target-machine observer and production remain closed.",
   "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover.",
   "2026-08-18: Exact concrete StringBox Residence canary now downcasts by runtime type, rejects StringBox-name spoofs before pinning, blocks slot reuse while pinned, and records the mutable-reachability census as a release gate.",
   "2026-08-18: S6C base-root admission co-seals the landed source corridor with the existing ExactText sidecar: root 0 is Subject and root 1 is Needle by binding plus logical ordinal, with green 3/3 focused tests; the effect-free cursor/preheader plan and scalar-equality leaf capability are now landed, without ValueId/MIR/Bool/CFG/runtime/production behavior.",
   "2026-08-19: Finish-or-abort ABI I0 landed caller-zero: the old public status symbol retired, one void wrapper returns only on status 0 and fail-stops on every nonzero status, the Rust status core is module-private, and focused tests/cargo check/fmt/ABI guard are green; lifecycle MIR/backend/production remain closed.",
   "2026-08-19: Lifecycle-carrier and DraftSeal consumer I0s are closed caller-zero: the affine Enter/Finish carrier no longer binds one normal landing, canonical SSA tracks per-exit Finish placement, the new Single/ExactTwo consumer enforces operand -> Finish -> existing Return with late-error discard, 5+2 focused tests, cargo check, fmt, pointer, and structure guards are green; backend/production remain closed.",
-  "2026-08-19: Detached Finish consumer ownership and ExactTwo ingress I0 landed caller-zero: the pinned consumer owns the validated exact exit set plus Finish as one affine lineage; the function-owned plan table finalizes the frame, canonical E0/E1 co-writes Enter/Trap and cursor reachability, and the detached projection proves operand -> Finish -> existing Return. Six cursor tests, three writer tests, ingress positive/negative coverage, cargo check, fmt, pointer, structure, and ABI guards are green; target-machine routing, observer, production, fallback, and performance remain closed."
+  "2026-08-19: Detached Finish consumer ownership and ExactTwo ingress I0 landed caller-zero: the pinned consumer owns the exact exit set plus Finish, and the detached projection proves operand -> Finish -> existing Return."
 ]

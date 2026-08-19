@@ -8,6 +8,7 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 PURE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
 PREFLIGHT="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_selected_preflight.inc"
 LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_selected_lowering.inc"
+TARGET_SESSION="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_target_machine_session.inc"
 GENERIC="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc"
 DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc"
 SELECTED_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_selected_dispatch.inc"
@@ -19,7 +20,7 @@ VERIFIER_TEST="$ROOT_DIR/lang/c-abi/tests/pinned_text_selected_verifier_test.c"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$PURE" "$PREFLIGHT" "$LOWERING" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST" "$SMOKE" "$VERIFIER_TEST"
+guard_require_files "$TAG" "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST" "$SMOKE" "$VERIFIER_TEST"
 
 count_fixed() {
   local needle="$1"
@@ -42,8 +43,8 @@ fi
 if [[ "$(count_fixed 'pinned_text_residence_trap' "$FRAME")" != "1" ]]; then
   guard_fail "$TAG" "module census must recognize the explicit Residence Trap"
 fi
-if [[ "$(count_fixed '[freeze:contract][ptfc/textual-lowering-verified-target-closed]' "$LOWERING" "$SMOKE")" != "2" ]]; then
-  guard_fail "$TAG" "textual lowering must stop at one stable target-closed tag"
+if [[ "$(count_fixed '[freeze:contract][ptfc/textual-lowering-verified-target-closed]' "$LOWERING" "$SMOKE")" != "0" ]]; then
+  guard_fail "$TAG" "landed TargetMachine handoff must retire the textual closed tag"
 fi
 if [[ "$(count_fixed 'HAKO_PINNED_TEXT_REAL_CANDIDATE_JSON_OUT' "$RUST_TEST" "$SMOKE")" != "2" ]]; then
   guard_fail "$TAG" "smoke must consume one runtime-generated real-candidate witness"
@@ -59,26 +60,36 @@ if rg -n 'fopen|EMIT\(|ptfb_session_(open|emit_object)|emit_pinned_text_residenc
   guard_fail "$TAG" "effect-free preflight must not emit IR, open a session, or reuse the fixture"
 fi
 if rg -n 'fopen|ptfb_session_(open|emit_object)|emit_pinned_text_residence_carrier_fixture|memcmp\(' "$LOWERING"; then
-  guard_fail "$TAG" "selected textual lowerer must stay private, exact-width, and target-closed"
+  guard_fail "$TAG" "selected textual lowerer must stay private, exact-width, and session-free"
 fi
 if [[ "$(count_fixed 'tmpfile()' "$LOWERING")" != "1" ]] ||
-   [[ "$(count_fixed 'hako_llvmc_ptfc_verify_and_discard_selected_llvm(' "$LOWERING" "$GENERIC")" != "2" ]]; then
-  guard_fail "$TAG" "one tmpfile owner and one private verify/discard consumer are required"
+   [[ "$(count_fixed 'hako_llvmc_ptfc_verify_and_take_selected_llvm(' "$LOWERING" "$GENERIC")" != "2" ]]; then
+  guard_fail "$TAG" "one tmpfile owner and one private verify/take consumer are required"
+fi
+if [[ "$(count_fixed 'LLVMCreateMemoryBufferWithMemoryRangeCopy' "$TARGET_SESSION")" != "1" ]] ||
+   [[ "$(count_fixed 'hako_llvmc_ptfb_session_emit_object_from_bytes(' "$TARGET_SESSION" "$GENERIC")" != "2" ]]; then
+  guard_fail "$TAG" "verified bytes must enter the sole TargetMachine session once"
+fi
+if [[ "$(count_fixed 'typedef void (*hako_ptfb_set_target_fn)(void*, const char*);' "$TARGET_SESSION")" != "1" ]]; then
+  guard_fail "$TAG" "LLVMSetTarget binding must retain the LLVM18 void signature"
+fi
+if rg -n '/proc/self/fd|hako_pure_gen_' "$LOWERING" "$TARGET_SESSION"; then
+  guard_fail "$TAG" "selected memory ingress must not recreate a named LLVM path"
 fi
 if [[ "$(count_fixed '#include "hako_llvmc_ffi_pinned_text_selected_dispatch.inc"' "$DISPATCH")" != "1" ]] ||
    [[ "$(count_fixed 'hako_llvmc_ptfc_try_emit_selected_op(' "$SELECTED_DISPATCH")" != "1" ]]; then
   guard_fail "$TAG" "generic op dispatch must delegate through one selected child include"
 fi
 if [[ "$(count_fixed 'pinned_text_selected_verifier_test.c' "$SMOKE")" != "1" ]] ||
-   [[ "$(count_fixed 'hako_llvmc_ptfc_verify_and_discard_selected_llvm(' "$VERIFIER_TEST")" != "1" ]]; then
+   [[ "$(count_fixed 'hako_llvmc_ptfc_verify_and_take_selected_llvm(' "$VERIFIER_TEST")" != "1" ]]; then
   guard_fail "$TAG" "private verifier ordering negative must stay in one test translation unit"
 fi
 
-for file in "$PURE" "$PREFLIGHT" "$LOWERING" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST"; do
+for file in "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 760 )); then
     guard_fail "$TAG" "selected preflight source reached the 760-line split trigger: ${file#"$ROOT_DIR/"}=$lines"
   fi
 done
 
-echo "[$TAG] ok (strict preflight + private textual lowering; target machine closed)"
+echo "[$TAG] ok (strict preflight + private textual lowering + TargetMachine memory ingress)"

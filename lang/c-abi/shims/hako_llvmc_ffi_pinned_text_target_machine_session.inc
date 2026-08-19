@@ -32,10 +32,12 @@ typedef char* (*hako_ptfb_copy_target_data_layout_fn)(void*);
 typedef void* (*hako_ptfb_context_create_fn)(void);
 typedef int (*hako_ptfb_create_memory_buffer_with_contents_of_file_fn)(
     const char*, void**, char**);
+typedef void* (*hako_ptfb_create_memory_buffer_with_memory_range_copy_fn)(
+    const char*, size_t, const char*);
 typedef int (*hako_ptfb_parse_ir_in_context_fn)(void*, void*, void**, char**);
-typedef int (*hako_ptfb_set_target_fn)(void*, const char*);
+typedef void (*hako_ptfb_set_target_fn)(void*, const char*);
 typedef void (*hako_ptfb_set_data_layout_fn)(void*, const char*);
-typedef int (*hako_ptfb_emit_to_file_fn)(void*, void*, char*, int, char**);
+typedef int (*hako_ptfb_emit_to_file_fn)(void*, void*, const char*, int, char**);
 
 struct HakoPtfbTargetMachineSession {
   void* handle;
@@ -51,6 +53,7 @@ struct HakoPtfbTargetMachineSession {
   hako_ptfb_dispose_module_fn dispose_module;
   hako_ptfb_context_create_fn context_create;
   hako_ptfb_create_memory_buffer_with_contents_of_file_fn create_buffer;
+  hako_ptfb_create_memory_buffer_with_memory_range_copy_fn create_buffer_copy;
   hako_ptfb_parse_ir_in_context_fn parse_ir;
   hako_ptfb_set_target_fn set_target;
   hako_ptfb_set_data_layout_fn set_data_layout;
@@ -137,6 +140,10 @@ static int hako_llvmc_ptfb_session_open(
   session->create_buffer = (hako_ptfb_create_memory_buffer_with_contents_of_file_fn)
       hako_llvmc_ptfb_session_symbol(
           session->handle, "LLVMCreateMemoryBufferWithContentsOfFile");
+  session->create_buffer_copy =
+      (hako_ptfb_create_memory_buffer_with_memory_range_copy_fn)
+          hako_llvmc_ptfb_session_symbol(
+              session->handle, "LLVMCreateMemoryBufferWithMemoryRangeCopy");
   session->parse_ir = (hako_ptfb_parse_ir_in_context_fn)
       hako_llvmc_ptfb_session_symbol(session->handle, "LLVMParseIRInContext");
   session->set_target = (hako_ptfb_set_target_fn)
@@ -168,7 +175,8 @@ static int hako_llvmc_ptfb_session_open(
   if (!session->dispose_message || !session->dispose_machine ||
       !session->dispose_target_data || !session->dispose_memory_buffer ||
       !session->context_dispose || !session->dispose_module ||
-      !session->context_create || !session->create_buffer || !session->parse_ir ||
+      !session->context_create || !session->create_buffer ||
+      !session->create_buffer_copy || !session->parse_ir ||
       !session->set_target || !session->set_data_layout || !session->emit_to_file ||
       !get_version || !get_target_from_triple || !create_machine ||
       !get_machine_triple || !create_target_data || !copy_target_data ||
@@ -238,35 +246,37 @@ static const char* hako_llvmc_ptfb_session_data_layout(
   return session && session->data_layout[0] ? session->data_layout : HAKO_PTFB_DATA_LAYOUT;
 }
 
-static int hako_llvmc_ptfb_session_emit_object(
+static int hako_llvmc_ptfb_session_emit_owned_buffer(
     struct HakoPtfbTargetMachineSession* session,
-    const char* llpath,
+    void* buffer,
     const char* obj_out,
     char** err_out) {
 #if defined(_WIN32)
   (void)session;
-  (void)llpath;
+  (void)buffer;
   (void)obj_out;
   return set_err_owned(err_out, "contract-bound LLVM C API is unavailable on Windows");
 #else
   char tmp_path[1024];
   int n;
   void* context = NULL;
-  void* buffer = NULL;
   void* module = NULL;
   char* diagnostic = NULL;
   int result = -1;
-  if (!(session && session->active && llpath && obj_out && obj_out[0])) {
+  if (!(session && session->active && buffer && obj_out && obj_out[0])) {
+    if (buffer && session && session->dispose_memory_buffer) {
+      session->dispose_memory_buffer(buffer);
+    }
     return set_err_owned(err_out, "inactive contract TargetMachine session");
   }
   n = snprintf(tmp_path, sizeof(tmp_path), "%s.ptfb-tm-%ld.tmp", obj_out, (long)getpid());
   if (n <= 0 || (size_t)n >= sizeof(tmp_path)) {
+    session->dispose_memory_buffer(buffer);
     return set_err_owned(err_out, "contract object temporary path is too long");
   }
   remove(tmp_path);
   context = session->context_create();
   if (!context) goto fail;
-  if (session->create_buffer(llpath, &buffer, &diagnostic) != 0 || !buffer) goto fail;
   {
     int parse_failed = session->parse_ir(context, buffer, &module, &diagnostic);
     /* LLVMParseIRInContext consumes the memory buffer on both outcomes. */
@@ -283,12 +293,14 @@ static int hako_llvmc_ptfb_session_emit_object(
   result = 0;
   goto cleanup;
 fail:
+  set_err_owned(
+      err_out,
+      diagnostic ? diagnostic : "contract TargetMachine object emission failed");
   if (diagnostic && session->dispose_message) {
     session->dispose_message(diagnostic);
     diagnostic = NULL;
   }
   remove(tmp_path);
-  set_err_owned(err_out, "contract TargetMachine object emission failed");
 cleanup:
   if (diagnostic && session->dispose_message) session->dispose_message(diagnostic);
   if (buffer && session->dispose_memory_buffer) session->dispose_memory_buffer(buffer);
@@ -296,6 +308,50 @@ cleanup:
   if (context && session->context_dispose) session->context_dispose(context);
   return result;
 #endif
+}
+
+static int hako_llvmc_ptfb_session_emit_object(
+    struct HakoPtfbTargetMachineSession* session,
+    const char* llpath,
+    const char* obj_out,
+    char** err_out) {
+#if defined(_WIN32)
+  (void)session;
+  (void)llpath;
+  (void)obj_out;
+  return set_err_owned(err_out, "contract-bound LLVM C API is unavailable on Windows");
+#else
+  void* buffer = NULL;
+  char* diagnostic = NULL;
+  if (!(session && session->active && llpath && obj_out && obj_out[0])) {
+    return set_err_owned(err_out, "inactive contract TargetMachine session");
+  }
+  if (session->create_buffer(llpath, &buffer, &diagnostic) != 0 || !buffer) {
+    if (buffer && session->dispose_memory_buffer) session->dispose_memory_buffer(buffer);
+    if (diagnostic && session->dispose_message) session->dispose_message(diagnostic);
+    return set_err_owned(err_out, "contract LLVM input file could not be read");
+  }
+  if (diagnostic && session->dispose_message) session->dispose_message(diagnostic);
+  return hako_llvmc_ptfb_session_emit_owned_buffer(session, buffer, obj_out, err_out);
+#endif
+}
+
+static int hako_llvmc_ptfb_session_emit_object_from_bytes(
+    struct HakoPtfbTargetMachineSession* session,
+    const char* bytes,
+    size_t byte_count,
+    const char* obj_out,
+    char** err_out) {
+  void* buffer = NULL;
+  if (!(session && session->active && bytes && byte_count && obj_out && obj_out[0])) {
+    return set_err_owned(err_out, "inactive contract TargetMachine byte ingress");
+  }
+  buffer = session->create_buffer_copy(
+      bytes, byte_count, "hako-pinned-text-selected.ll");
+  if (!buffer) {
+    return set_err_owned(err_out, "contract LLVM byte buffer creation failed");
+  }
+  return hako_llvmc_ptfb_session_emit_owned_buffer(session, buffer, obj_out, err_out);
 }
 
 #endif
