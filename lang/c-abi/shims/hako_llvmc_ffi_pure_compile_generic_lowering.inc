@@ -701,6 +701,8 @@
               &ptfb_session,
               ptfc_bytes.data,
               ptfc_bytes.size,
+              &ptfc_candidate,
+              hako_llvmc_effective_entry_symbol(&selection),
               obj_out,
               err_out);
         }

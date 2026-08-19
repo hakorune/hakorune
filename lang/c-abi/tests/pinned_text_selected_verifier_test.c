@@ -45,6 +45,7 @@ static int write_contract_fixture(
 int main(void) {
   struct HakoPtfSelectedLlvmDraft draft;
   struct HakoPtfSelectedLlvmBytes bytes;
+  struct HakoPtfSelectedCandidateView invalid_candidate;
   struct HakoPtfbModuleCensus census;
   struct HakoPtfbTargetMachineSession session;
   char object_path[256];
@@ -102,6 +103,7 @@ int main(void) {
   error = NULL;
 
   memset(&census, 0, sizeof(census));
+  memset(&invalid_candidate, 0, sizeof(invalid_candidate));
   census.contract_count = 1;
   if (hako_llvmc_ptfb_session_open(&session, &census, &error) != 0) {
     free(error);
@@ -124,6 +126,8 @@ int main(void) {
           &session,
           "not llvm ir",
           strlen("not llvm ir"),
+          &invalid_candidate,
+          "ny_main",
           object_path,
           &error) == 0) {
     hako_llvmc_ptfb_session_close(&session);

@@ -39,6 +39,15 @@ typedef void (*hako_ptfb_set_target_fn)(void*, const char*);
 typedef void (*hako_ptfb_set_data_layout_fn)(void*, const char*);
 typedef int (*hako_ptfb_emit_to_file_fn)(void*, void*, const char*, int, char**);
 
+struct HakoPtfbTargetMachineSession;
+struct HakoPtfSelectedCandidateView;
+static int hako_llvmc_ptfc_verify_final_module_v1(
+    struct HakoPtfbTargetMachineSession* session,
+    void* module,
+    const struct HakoPtfSelectedCandidateView* candidate,
+    const char* function_symbol,
+    char** err_out);
+
 struct HakoPtfbTargetMachineSession {
   void* handle;
   void* target;
@@ -249,6 +258,8 @@ static const char* hako_llvmc_ptfb_session_data_layout(
 static int hako_llvmc_ptfb_session_emit_owned_buffer(
     struct HakoPtfbTargetMachineSession* session,
     void* buffer,
+    const struct HakoPtfSelectedCandidateView* selected_candidate,
+    const char* selected_function_symbol,
     const char* obj_out,
     char** err_out) {
 #if defined(_WIN32)
@@ -285,6 +296,16 @@ static int hako_llvmc_ptfb_session_emit_owned_buffer(
   }
   session->set_target(module, hako_llvmc_ptfb_session_triple(session));
   session->set_data_layout(module, hako_llvmc_ptfb_session_data_layout(session));
+  if (selected_candidate &&
+      hako_llvmc_ptfc_verify_final_module_v1(
+          session,
+          module,
+          selected_candidate,
+          selected_function_symbol,
+          err_out) != 0) {
+    remove(tmp_path);
+    goto cleanup;
+  }
   if (session->emit_to_file(
           session->machine, module, tmp_path, /*LLVMObjectFile*/ 1, &diagnostic) != 0) {
     goto fail;
@@ -332,7 +353,8 @@ static int hako_llvmc_ptfb_session_emit_object(
     return set_err_owned(err_out, "contract LLVM input file could not be read");
   }
   if (diagnostic && session->dispose_message) session->dispose_message(diagnostic);
-  return hako_llvmc_ptfb_session_emit_owned_buffer(session, buffer, obj_out, err_out);
+  return hako_llvmc_ptfb_session_emit_owned_buffer(
+      session, buffer, NULL, NULL, obj_out, err_out);
 #endif
 }
 
@@ -340,10 +362,14 @@ static int hako_llvmc_ptfb_session_emit_object_from_bytes(
     struct HakoPtfbTargetMachineSession* session,
     const char* bytes,
     size_t byte_count,
+    const struct HakoPtfSelectedCandidateView* selected_candidate,
+    const char* selected_function_symbol,
     const char* obj_out,
     char** err_out) {
   void* buffer = NULL;
-  if (!(session && session->active && bytes && byte_count && obj_out && obj_out[0])) {
+  if (!(session && session->active && bytes && byte_count &&
+        selected_candidate && selected_function_symbol && selected_function_symbol[0] &&
+        obj_out && obj_out[0])) {
     return set_err_owned(err_out, "inactive contract TargetMachine byte ingress");
   }
   buffer = session->create_buffer_copy(
@@ -351,7 +377,13 @@ static int hako_llvmc_ptfb_session_emit_object_from_bytes(
   if (!buffer) {
     return set_err_owned(err_out, "contract LLVM byte buffer creation failed");
   }
-  return hako_llvmc_ptfb_session_emit_owned_buffer(session, buffer, obj_out, err_out);
+  return hako_llvmc_ptfb_session_emit_owned_buffer(
+      session,
+      buffer,
+      selected_candidate,
+      selected_function_symbol,
+      obj_out,
+      err_out);
 }
 
 #endif

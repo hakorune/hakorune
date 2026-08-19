@@ -104,6 +104,7 @@ static int hako_llvmc_read_generic_pure_program_view(
 
 #include "hako_llvmc_ffi_pinned_text_selected_preflight.inc"
 #include "hako_llvmc_ffi_pinned_text_selected_lowering.inc"
+#include "hako_llvmc_ffi_pinned_text_final_module_closure.inc"
 
 static int hako_llvmc_read_exact_seed_backend_route_tag(
     const char* json_in,

@@ -9,6 +9,7 @@ PURE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc"
 PREFLIGHT="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_selected_preflight.inc"
 LOWERING="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_selected_lowering.inc"
 TARGET_SESSION="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_target_machine_session.inc"
+FINAL_CLOSURE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_final_module_closure.inc"
 GENERIC="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering.inc"
 DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc"
 SELECTED_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_selected_dispatch.inc"
@@ -17,10 +18,11 @@ FRAME="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_backend_frame.inc"
 RUST_TEST="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs"
 SMOKE="$ROOT_DIR/tools/checks/pinned_text_selected_preflight_smoke.sh"
 VERIFIER_TEST="$ROOT_DIR/lang/c-abi/tests/pinned_text_selected_verifier_test.c"
+FINAL_CLOSURE_TEST="$ROOT_DIR/lang/c-abi/tests/pinned_text_final_module_closure_test.c"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST" "$SMOKE" "$VERIFIER_TEST"
+guard_require_files "$TAG" "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$FINAL_CLOSURE" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST" "$SMOKE" "$VERIFIER_TEST" "$FINAL_CLOSURE_TEST"
 
 count_fixed() {
   local needle="$1"
@@ -70,6 +72,19 @@ if [[ "$(count_fixed 'LLVMCreateMemoryBufferWithMemoryRangeCopy' "$TARGET_SESSIO
    [[ "$(count_fixed 'hako_llvmc_ptfb_session_emit_object_from_bytes(' "$TARGET_SESSION" "$GENERIC")" != "2" ]]; then
   guard_fail "$TAG" "verified bytes must enter the sole TargetMachine session once"
 fi
+if [[ "$(count_fixed '#include "hako_llvmc_ffi_pinned_text_final_module_closure.inc"' "$PURE")" != "1" ]] ||
+   [[ "$(count_fixed 'hako_llvmc_ptfc_verify_final_module_v1(' "$TARGET_SESSION" "$FINAL_CLOSURE")" != "3" ]]; then
+  guard_fail "$TAG" "one private final-module closure must consume the selected module"
+fi
+if [[ "$(count_fixed 'LLVMVerifyModule' "$FINAL_CLOSURE")" != "1" ]] ||
+   rg -n 'LLVMRunPasses|LLVMCreateBinary|LLVMObjectFile|LLVMCreateDisasm' "$FINAL_CLOSURE"; then
+  guard_fail "$TAG" "final closure must verify the parsed module without a pass or object observer"
+fi
+closure_line="$(rg -n -m1 'if \(selected_candidate &&' "$TARGET_SESSION" | cut -d: -f1)"
+emit_line="$(rg -n -m1 'if \(session->emit_to_file\(' "$TARGET_SESSION" | cut -d: -f1)"
+if [[ -z "$closure_line" || -z "$emit_line" || "$closure_line" -ge "$emit_line" ]]; then
+  guard_fail "$TAG" "final module closure must be immediately upstream of the sole emit"
+fi
 if [[ "$(count_fixed 'typedef void (*hako_ptfb_set_target_fn)(void*, const char*);' "$TARGET_SESSION")" != "1" ]]; then
   guard_fail "$TAG" "LLVMSetTarget binding must retain the LLVM18 void signature"
 fi
@@ -84,8 +99,15 @@ if [[ "$(count_fixed 'pinned_text_selected_verifier_test.c' "$SMOKE")" != "1" ]]
    [[ "$(count_fixed 'hako_llvmc_ptfc_verify_and_take_selected_llvm(' "$VERIFIER_TEST")" != "3" ]]; then
   guard_fail "$TAG" "private verifier positive plus ordering/effect negatives must stay in one test translation unit"
 fi
+if [[ "$(count_fixed 'pinned_text_final_module_closure_test.c' "$SMOKE")" != "1" ]] ||
+   [[ "$(count_fixed 'missing_nounwind' "$FINAL_CLOSURE_TEST")" != "5" ]] ||
+   [[ "$(count_fixed 'missing_finish' "$FINAL_CLOSURE_TEST")" != "5" ]] ||
+   [[ "$(count_fixed 'extra_call' "$FINAL_CLOSURE_TEST")" != "5" ]] ||
+   [[ "$(count_fixed 'eh_module' "$FINAL_CLOSURE_TEST")" != "7" ]]; then
+  guard_fail "$TAG" "final-module positive and attribute/Finish/call/EH negatives must remain focused"
+fi
 
-for file in "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST"; do
+for file in "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$FINAL_CLOSURE" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 760 )); then
     guard_fail "$TAG" "selected preflight source reached the 760-line split trigger: ${file#"$ROOT_DIR/"}=$lines"

@@ -10,22 +10,22 @@ mandatory unnamed ELF null section as an empty iterator. LLVM18 Object and
 Disassembler APIs work on the real object, but machine-shape inspection is not
 a compiler authority. The runtime-owned Enter/Finish ABI now projects exact
 no-unwind declarations into selected LLVM without a new receipt or runtime
-object. The final compiler-owned lifecycle closure is selected on the same
-parsed LLVM module before one trusted LLVM18 emission; object/assembly checks
+object. The final compiler-owned lifecycle closure now verifies the same parsed
+LLVM module before one trusted LLVM18 emission; object/assembly checks
 belong to the later promotion evidence gate.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none; runtime call-contract I0 is landed and the same-module final closure is selected"
-work_mode = "fast"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0"
-current_blocker_token = "Verify the same selected LLVMModuleRef after target/layout and immediately before the sole emit; consume the preflighted lifecycle expectation without a second JSON scan, pass, emission, semantic receipt, or object observer."
+current_design_stop = "S6C pinned-corridor promotion evidence ownership, measurement strata, C-reference comparability, and production admission remain unsealed"
+work_mode = "design_stop"
+current_execution_row = "S6C-PINNED-CORRIDOR-PROMOTION-R0"
+current_blocker_token = "Name one promotion evidence owner and bounded gate for correctness, structural-zero, exact/meso/whole-call, and C comparison without allowing object shape or benchmark success to re-issue compiler semantics."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence final LLVM module closure"
+active_lane = "S6C pinned Text corridor promotion evidence design"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -33,7 +33,7 @@ Finish-before-Return detached projection, strict MIR JSON, selected-C preflight,
 private textual lowering, and one LLVM18 memory-buffer TargetMachine handoff.
 Real JSON emits a nonempty test-owned object; invalid IR and unwritable output
 leave no object, named `.ll`, or TargetMachine temporary. Production
-correctness will close on that same parsed LLVM module before its sole emission.
+correctness now closes on that same parsed LLVM module before its sole emission.
 The versioned runtime header and selected declarations now agree that Enter and
 Finish are no-unwind, while successful Finish remains returnable. Object and
 disassembly observation is parked inside promotion evidence and cannot re-issue
@@ -50,10 +50,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The existing Enter/Finish runtime ABI now owns an exact no-unwind projection consumed by selected LLVM, with successful Finish still returnable and movable/read-only attributes forbidden. The next bounded row verifies the same parsed LLVM module immediately before its sole emission."
-next_design_card = "none"
+latest_card_summary = "The same parsed LLVM module now passes one final lifecycle/target/layout closure immediately before the sole trusted emit. The next design row must name one promotion evidence owner and measurement gate without making object shape or benchmark success a semantic authority."
+next_design_card = "S6C-PINNED-CORRIDOR-PROMOTION-R0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -65,6 +65,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: Final-module closure I0 landed caller-zero: the same parsed LLVMModuleRef passes LLVMVerifyModule, exact target/layout, lifecycle declaration attributes, 1 Enter/1 Trap/2 Finish-to-Return, and zero EH/extra-call checks immediately before the sole trusted emit. Missing nounwind, missing Finish, extra call, and valid-EH drift reject without object or temporary publication; no pass, module mutation, object reader, semantic receipt, fallback, or retry was added.",
   "2026-08-19: Runtime-call contract I0 landed caller-zero: the existing Rust export plus versioned C header own Enter/Finish no-unwind behavior, selected LLVM emits exact `nounwind` declarations, successful Finish remains returnable, and readonly/readnone/nofree/speculatable drift rejects. Focused positive, ordering/effect negatives, ABI/preflight guards, and the real-candidate TargetMachine smoke are green; no receipt, frame, token, object reader, production edge, fallback, or retry was added.",
   "2026-08-19: Object-observer D0 closed after five-way premise audit: the failed probe mistook the mandatory unnamed ELF null section for an empty iterator; the real object exposes 11 sections, lifecycle relocations, and complete X86 decode through LLVM18. No compiler object gate is selected because relocation/ret layout is LLVM-transform-dependent; final ModuleRef verification is the correctness boundary and object/assembly checks move to promotion evidence.",
   "2026-08-19: Selected-C TargetMachine I0 landed caller-zero: verified private LLVM bytes move once through `LLVMCreateMemoryBufferWithMemoryRangeCopy` into the existing LLVM18 parse/module/object owner; real JSON emits a nonempty test object, invalid IR and unwritable output clean up, and named `.ll`, fallback, retry, observer, production, and performance remain zero.",
@@ -75,6 +76,5 @@ landed_tail = [
   "2026-08-19: Caller-zero E0/E1 physical entry co-seal is landed: E0 contains Residence Enter only, E1 is the same-cohort sidecar/seed/cursor execution entry, duplicate boundary issuance rejects, and the focused S6C cursor module is 5/5 green; backend candidate, observer, and production remain closed.",
   "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover.",
   "2026-08-18: Exact concrete StringBox Residence canary now downcasts by runtime type, rejects StringBox-name spoofs before pinning, blocks slot reuse while pinned, and records the mutable-reachability census as a release gate.",
-  "2026-08-18: S6C base-root admission co-seals the landed source corridor with the existing ExactText sidecar: root 0 is Subject and root 1 is Needle by binding plus logical ordinal, with green 3/3 focused tests; the effect-free cursor/preheader plan and scalar-equality leaf capability are now landed, without ValueId/MIR/Bool/CFG/runtime/production behavior.",
-  "2026-08-19: Finish-or-abort ABI I0 landed caller-zero: the old public status symbol retired, one void wrapper returns only on status 0 and fail-stops on every nonzero status, the Rust status core is module-private, and focused tests/cargo check/fmt/ABI guard are green; lifecycle MIR/backend/production remain closed."
+  "2026-08-18: S6C base-root admission co-seals the landed source corridor with the existing ExactText sidecar: root 0 is Subject and root 1 is Needle by binding plus logical ordinal, with green 3/3 focused tests; the effect-free cursor/preheader plan and scalar-equality leaf capability are now landed, without ValueId/MIR/Bool/CFG/runtime/production behavior."
 ]

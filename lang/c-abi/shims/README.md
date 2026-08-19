@@ -280,10 +280,19 @@ Current partitions:
   - consumes the versioned runtime header's no-unwind Enter/Finish contract;
     it emits `nounwind` declarations but never marks Finish `noreturn`,
     `readonly`, `readnone`, `nofree`, or `speculatable`
+- `hako_llvmc_ffi_pinned_text_final_module_closure.inc`
+  - selected-only, read-only consumer of the already-preflighted candidate and
+    the same parsed `LLVMModuleRef`; runs `LLVMVerifyModule`, checks exact
+    target/layout, runtime call attributes, lifecycle calls, Finish/Return,
+    terminal Trap, and zero EH before the sole object emission
+  - owns no JSON scan, pass, module mutation, semantic receipt, object reader,
+    fallback, or retry
 - `hako_llvmc_ffi_pinned_text_target_machine_session.inc`
   - sole contract-bound LLVM parse/module/object owner; file and selected
     memory-buffer ingress converge before parse and share temporary-object
     cleanup plus atomic rename
+  - selected memory ingress lends its candidate to final-module closure after
+    target/layout installation; file ingress passes no closure and is unchanged
 - `hako_llvmc_ffi_pinned_text_selected_dispatch.inc`
   - one small hook from the existing generic operation writer; it does not
     duplicate PHI, arithmetic, compare, branch, or Return lowering

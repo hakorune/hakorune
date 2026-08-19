@@ -414,7 +414,7 @@ promotion, fallback, retry, `.ll`, or object publication.
 | 4 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0` | bounded route | **Landed.** Verified owned bytes reach the retained LLVM18 target/layout session and one test-owned object; failures remove every temporary. |
 | 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0` | design stop | **Closed.** The probe failure was an ELF null-section false negative. LLVM18 Object/Disassembler works, but no compile-path observer is selected; machine evidence belongs to promotion. |
 | 6 | `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0` | BoxCount | **Landed.** Existing Enter/Finish signatures and no-unwind/fail-stop effects are one runtime-owned ABI projection consumed by selected LLVM; successful Finish stays returnable and no new receipt/runtime object exists. |
-| 7 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0` | bounded route | A private child checks the same parsed `LLVMModuleRef` with `LLVMVerifyModule`, exact selected lifecycle/call attributes, and target/layout immediately before the existing sole emit; no pass or module mutation may follow closure, and failure publishes no object. |
+| 7 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0` | bounded route | **Landed.** A private child checks the same parsed `LLVMModuleRef` with `LLVMVerifyModule`, exact selected lifecycle/call attributes, and target/layout immediately before the existing sole emit; no pass or module mutation follows closure, and failure publishes no object. |
 | 8 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, link/run, IR/final-assembly structural-zero, exact/meso/whole-call, and C comparison gates pass; object tools are evidence only. |
 | 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
 | 10 | `EQ-HH-RETIREMENT-R0` | independent cleanup | Generic C/Python `nyash.string.eq_hh` caller census reaches zero independently. |
@@ -447,7 +447,7 @@ Exact prose and superseded stops are historical. The durable result is:
 | selected C TargetMachine handoff | landed caller-zero bounded route |
 | post-emit temporary-object observer | probe false negative corrected; compile-path observer intentionally absent |
 | runtime Enter/Finish call-effect contract | landed caller-zero BoxCount |
-| final LLVM module closure | same-module verifier pending |
+| final LLVM module closure | landed caller-zero immediately before sole trusted emit |
 | production | closed |
 
 The current production selector remains selected-Dynamic. Generic G0 and S6C

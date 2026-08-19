@@ -15,6 +15,14 @@ bash "$ROOT_DIR/tools/build_hako_llvmc_ffi.sh" >/dev/null
   "$ROOT_DIR/lang/c-abi/shims/hako_json_v1.c" \
   "$ROOT_DIR/plugins/nyash-json-plugin/c/yyjson/yyjson.c"
 "$TEMP_DIR/verifier-negative"
+"${CC:-cc}" \
+  -I"$ROOT_DIR/plugins/nyash-json-plugin/c/yyjson" \
+  -o "$TEMP_DIR/final-module-closure" \
+  "$ROOT_DIR/lang/c-abi/tests/pinned_text_final_module_closure_test.c" \
+  "$ROOT_DIR/lang/c-abi/shims/hako_aot.c" \
+  "$ROOT_DIR/lang/c-abi/shims/hako_json_v1.c" \
+  "$ROOT_DIR/plugins/nyash-json-plugin/c/yyjson/yyjson.c"
+"$TEMP_DIR/final-module-closure"
 if ! HAKO_PINNED_TEXT_REAL_CANDIDATE_JSON_OUT="$TEMP_DIR/real.json" \
      CARGO_BUILD_JOBS=4 \
        cargo test --manifest-path "$ROOT_DIR/Cargo.toml" --profile quick --lib -q \
