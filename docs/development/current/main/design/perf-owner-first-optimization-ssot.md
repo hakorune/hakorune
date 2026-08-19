@@ -373,6 +373,12 @@ protocol / candidate / corpus / threshold
 partial rowsはterminal receiptへ参照せず、性能比を発行しない。V1 plan/receiptは
 historical auditとしてimmutableに残し、V2へnormalizeしない。
 
+Calibrationはsample eligibilityとは別に封印する。warmup後のcalibration targetは
+sample minimumより厳しくなければならず、target到達後のiterationsを全sampleで固定する。
+取得済みarmがsample minimumを下回った場合はidentity破損ではなく`Incomplete`であり、
+同batch内で取り直さない。Complete以外のraw observationはdigest-bound diagnosticとして
+保存できるが、ratio/classification consumerへ渡る物理経路を持たない。
+
 Pure V2 model owner:
 `tools/perf/s6c_paired_wallclock_batch.py`。filesystemやsubprocessは持たず、
 manifest、same-candidate lineage、session terminal、batch terminalだけを発行する。
