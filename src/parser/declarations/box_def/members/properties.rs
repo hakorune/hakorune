@@ -19,6 +19,9 @@ fn prepare_and_commit(
 ) -> Result<(), ParseError> {
     let batch = PreparedGeneratedPropertyMethodBatchV1::prepare(kind, name, body, diagnostic_span)?;
     if let Some(property_name) = batch.commit(sink)? {
+        sink.record_generated_birth_trigger_at_current(
+            crate::parser::source_authority::GeneratedBirthTriggerKindV1::BirthOnceProperty,
+        );
         birth_once_props.push(property_name);
     }
     Ok(())

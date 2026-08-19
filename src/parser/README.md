@@ -310,6 +310,14 @@ input, or fallback marker. Final AST placement is coverage metadata; parser
 source paths/sites remain identity and inventory ordinals never become source
 identity.
 
+Box constructor membership is sealed by the same parser source transaction,
+before the public constructor map can overwrite or reorder it. Direct
+`init`/`pack`/`birth` rows retain their written or selected-gate member site;
+an initializer-generated `birth/0` row instead retains the exact field or
+`birth once` trigger sites. Final source sealing requires exact key and
+function-shape coverage against the selected AST map. Builder key sorting,
+constructor names, and physical demand counts are not source authority.
+
 The same private `PreparedBuildGateDecisionSetV1` (implementation name may
 change) must feed AST prune, explain-report projection, and top-level ordinary
 source-path rebase. Fuel is configured once at parser construction; metadata

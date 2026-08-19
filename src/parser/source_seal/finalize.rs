@@ -13,6 +13,7 @@ impl PreparedBoxSourceSealV1 {
     fn validate_against(
         &self,
         final_inventory: &BoxMethodInventoryV1,
+        final_constructors: &std::collections::HashMap<String, ASTNode>,
     ) -> Result<(), SourceSealFinalizationErrorV1> {
         let prepared_entries = self.inventory.clone().into_selected_declaration_order();
         let final_entries = final_inventory.clone().into_selected_declaration_order();
@@ -50,7 +51,12 @@ impl PreparedBoxSourceSealV1 {
             self,
             final_inventory,
         )
-        .map_err(SourceSealFinalizationErrorV1::GeneratedDelegateCoverage)
+        .map_err(SourceSealFinalizationErrorV1::GeneratedDelegateCoverage)?;
+        super::super::source_authority::constructor_source::validate_constructor_rows(
+            &self.constructor_relations,
+            final_constructors,
+        )
+        .map_err(|_| SourceSealFinalizationErrorV1::ConstructorCoverageMismatch)
     }
 
     /// Consume the prepared payload only after the postpass has produced the
@@ -58,8 +64,9 @@ impl PreparedBoxSourceSealV1 {
     pub(in crate::parser) fn finalize_against(
         self,
         final_inventory: &BoxMethodInventoryV1,
+        final_constructors: &std::collections::HashMap<String, ASTNode>,
     ) -> Result<ParserBoxSourceSealV1, SourceSealFinalizationErrorV1> {
-        self.validate_against(final_inventory)?;
+        self.validate_against(final_inventory, final_constructors)?;
 
         Ok(ParserBoxSourceSealV1 {
             prepared: PreparedBoxSourceSealV1 {
@@ -71,6 +78,7 @@ impl PreparedBoxSourceSealV1 {
                 member_gate_selection_receipts: self.member_gate_selection_receipts,
                 generated_property_callable_rows: Box::new([]),
                 generated_delegate_source_relations: self.generated_delegate_source_relations,
+                constructor_relations: self.constructor_relations,
             },
         })
     }
@@ -255,14 +263,13 @@ fn finalize_program(
             &prepared,
         )
         .map_err(SourceSealFinalizationErrorV1::InitialCallableProgramSource)?;
-    let final_inventories =
-        ordinary_final_inventories(initial_callable_source.ast(), prepared.len())?;
+    let final_boxes = ordinary_final_boxes(initial_callable_source.ast(), prepared.len())?;
     let source_seals = prepared
         .into_iter()
         .enumerate()
         .map(|(prepared_index, prepared)| {
             let final_index = coverage.prepared_to_final[prepared_index];
-            prepared.finalize_against(final_inventories[final_index])
+            prepared.finalize_against(final_boxes[final_index].0, final_boxes[final_index].1)
         })
         .collect::<Result<Vec<_>, _>>()?
         .into_boxed_slice();
@@ -281,17 +288,24 @@ fn validate_ordinary_source_seals(
     prepared: &[PreparedBoxSourceSealV1],
     coverage: &FinalizerCoveragePlanV1,
 ) -> Result<(), SourceSealFinalizationErrorV1> {
-    let final_inventories = ordinary_final_inventories(ast, prepared.len())?;
+    let final_boxes = ordinary_final_boxes(ast, prepared.len())?;
     for (prepared_index, seal) in prepared.iter().enumerate() {
-        seal.validate_against(final_inventories[coverage.prepared_to_final[prepared_index]])?;
+        let final_box = final_boxes[coverage.prepared_to_final[prepared_index]];
+        seal.validate_against(final_box.0, final_box.1)?;
     }
     Ok(())
 }
 
-fn ordinary_final_inventories(
+fn ordinary_final_boxes(
     ast: &ASTNode,
     prepared_count: usize,
-) -> Result<Vec<&BoxMethodInventoryV1>, SourceSealFinalizationErrorV1> {
+) -> Result<
+    Vec<(
+        &BoxMethodInventoryV1,
+        &std::collections::HashMap<String, ASTNode>,
+    )>,
+    SourceSealFinalizationErrorV1,
+> {
     let ASTNode::Program { statements, .. } = ast else {
         return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
             prepared: prepared_count,
@@ -304,29 +318,30 @@ fn ordinary_final_inventories(
     {
         return Err(SourceSealFinalizationErrorV1::TopLevelBuildGateUnsupported);
     }
-    let mut final_inventories = Vec::new();
+    let mut final_boxes = Vec::new();
     for (ordinal, statement) in statements.iter().enumerate() {
         match statement {
             ASTNode::BoxDeclaration {
                 methods,
+                constructors,
                 is_interface: false,
                 is_record: false,
                 is_static: false,
                 ..
-            } => final_inventories.push(methods),
+            } => final_boxes.push((methods, constructors)),
             ASTNode::BoxDeclaration { .. } => {
                 return Err(SourceSealFinalizationErrorV1::UnsupportedTopLevelBoxKind { ordinal });
             }
             _ => {}
         }
     }
-    if final_inventories.len() != prepared_count {
+    if final_boxes.len() != prepared_count {
         return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
             prepared: prepared_count,
-            final_ast: final_inventories.len(),
+            final_ast: final_boxes.len(),
         });
     }
-    Ok(final_inventories)
+    Ok(final_boxes)
 }
 
 pub(in crate::parser) fn map_error(
@@ -377,6 +392,9 @@ pub(in crate::parser) fn map_error(
         ),
         SourceSealFinalizationErrorV1::GeneratedDelegateCoverage(error) => {
             format!("R6-S3B-D generated delegate relation coverage is invalid: {error:?}")
+        }
+        SourceSealFinalizationErrorV1::ConstructorCoverageMismatch => {
+            "parser constructor source inventory does not match final AST constructors".to_owned()
         }
         SourceSealFinalizationErrorV1::InitialCallableProgramSource(error) => {
             format!("initial callable Program source co-seal rejected: {error:?}")

@@ -35,6 +35,8 @@ impl OpenBoxMethodSourceTransactionV1 {
         let mut entries = selected.inventory.into_selected_declaration_order();
         let mut relations = selected.method_relations;
         let mut declarations = selected.delegate_source_declarations;
+        let mut constructor_relations = selected.constructor_relations;
+        let mut generated_birth_triggers = selected.generated_birth_triggers;
         let selected_receipts = selected.member_gate_selection_receipts;
         if entries.len() != relations.len() {
             return Err(ParseError::BuildCfg {
@@ -43,6 +45,34 @@ impl OpenBoxMethodSourceTransactionV1 {
             });
         }
         let gate_ordinal = gate_site.box_member_ordinal();
+        for relation in &mut constructor_relations {
+            let branch_ordinal =
+                relation
+                    .source_member_ordinal()
+                    .ok_or_else(|| ParseError::BuildCfg {
+                        message: "generated constructor cannot originate inside a selected gate"
+                            .to_owned(),
+                        line: 0,
+                    })?;
+            relation.prepend_selected_gate(gate_ordinal, branch_ordinal);
+            if self
+                .constructor_relations
+                .iter()
+                .any(|existing| existing.key() == relation.key())
+            {
+                return Err(ParseError::BuildCfg {
+                    message: format!(
+                        "selected gate duplicates constructor source key `{}`",
+                        relation.key()
+                    ),
+                    line: 0,
+                });
+            }
+        }
+        for trigger in &mut generated_birth_triggers {
+            let branch_ordinal = trigger.source_site().source_member_ordinal();
+            trigger.prepend_selected_gate(gate_ordinal, branch_ordinal);
+        }
         let mut rebased = Vec::with_capacity(relations.len());
         for (entry, relation) in entries.iter_mut().zip(relations.iter_mut()) {
             if entry.site() != relation.inventory_ordinal() || entry.name() != relation.name() {
@@ -94,6 +124,9 @@ impl OpenBoxMethodSourceTransactionV1 {
             });
         }
         self.delegate_source_declarations.extend(declarations);
+        self.constructor_relations.extend(constructor_relations);
+        self.generated_birth_triggers
+            .extend(generated_birth_triggers);
         self.member_gate_selection_receipts
             .extend(selected_receipts);
         self.member_gate_selection_receipts.extend(receipt);

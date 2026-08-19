@@ -918,6 +918,11 @@ postfix_cleanup    := primary_expr 'cleanup' block
 Semantics (summary)
 - stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
 - stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order. Initializer expressions are evaluated for each construction, so `field: ArrayBox = new ArrayBox()` creates a per-instance value rather than a shared static default.
+- constructor overload identity is the normalized `init|pack|birth/arity` key.
+  Two selected declarations with the same key are rejected before either can
+  overwrite the other. Generated `birth/0` is source-backed by the stored-field
+  or `birth once` initializer sites that require its prologue; it is not a
+  source occurrence reconstructed later from the constructor map.
 - weak: a stored, non-owning relation; it is not a Property kind.
 - field declaration syntax admits neither `=>` nor a block body. Computation is
   an ordinary method and therefore requires `()` at the call site.

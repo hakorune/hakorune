@@ -50,6 +50,7 @@ pub(in crate::parser) enum SourceSealFinalizationErrorV1 {
         final_index: usize,
     },
     GeneratedDelegateCoverage(GeneratedDelegateCoverageErrorV1),
+    ConstructorCoverageMismatch,
     InitialCallableProgramSource(
         super::super::initial_callable_program_source::InitialCallableProgramSourceRejectV1,
     ),
@@ -68,6 +69,8 @@ pub(in crate::parser) struct PreparedBoxSourceSealV1 {
         Box<[PreparedGeneratedCallableSourceV1]>,
     pub(in crate::parser) generated_delegate_source_relations:
         Box<[GeneratedDelegateSourceRelationV1]>,
+    pub(in crate::parser) constructor_relations:
+        Box<[super::super::source_authority::ConstructorSourceRelationV1]>,
 }
 
 impl PreparedBoxSourceSealV1 {
@@ -97,6 +100,12 @@ impl PreparedBoxSourceSealV1 {
         &self,
     ) -> &[MemberGateSelectionReceiptV1] {
         &self.member_gate_selection_receipts
+    }
+
+    pub(in crate::parser) fn constructor_relations(
+        &self,
+    ) -> &[super::super::source_authority::ConstructorSourceRelationV1] {
+        &self.constructor_relations
     }
 }
 
@@ -163,6 +172,12 @@ impl ParserBoxSourceSealV1 {
         &self,
     ) -> &[GeneratedDelegateSourceRelationV1] {
         &self.prepared.generated_delegate_source_relations
+    }
+
+    pub(in crate::parser) fn constructor_relations(
+        &self,
+    ) -> &[super::super::source_authority::ConstructorSourceRelationV1] {
+        &self.prepared.constructor_relations
     }
 }
 

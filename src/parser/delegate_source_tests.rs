@@ -24,7 +24,9 @@ fn transaction_records_one_delegate_source_row_per_expose() {
         .expect("parser delegate source rows should be recorded");
     transaction.finish_member().unwrap();
 
-    let prepared = transaction.finish().unwrap();
+    let prepared = transaction
+        .finish(&std::collections::HashMap::new())
+        .unwrap();
     let rows = prepared.delegate_source_declarations();
     assert_eq!(rows.len(), 2);
     assert_eq!(rows[0].expose_ordinal(), 0);
@@ -62,7 +64,9 @@ fn selected_gate_rebases_delegate_source_member_path() {
             crate::ast::BoxMemberGateSiteV1::from_box_member_ordinal(3),
         )
         .unwrap();
-    let prepared = destination.finish().unwrap();
+    let prepared = destination
+        .finish(&std::collections::HashMap::new())
+        .unwrap();
     let row = &prepared.delegate_source_declarations()[0];
     assert_eq!(row.source_site().source_member_ordinal(), 0);
     assert!(matches!(
