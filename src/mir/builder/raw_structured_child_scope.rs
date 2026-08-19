@@ -50,6 +50,10 @@ impl<'port, Port> RawStructuredChildScopePortV1<'port, Port> {
         self.child
     }
 
+    pub(super) fn child_mut(&mut self) -> &mut Port {
+        self.child
+    }
+
     pub(in crate::mir::builder) fn new(
         child: &'port mut Port,
         expressions: Vec<PreparedRawChildSourceV1>,

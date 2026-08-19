@@ -72,6 +72,20 @@ explicit extern calls, raw `Main`/`ScriptRoot`, nested compatibility, and other
 unlocated rows remain `CallObject`; no name, span, or lineage fallback is
 introduced.
 
+### Installed callable Brand consumer (I0)
+
+Installed, source-backed callable roots now ask the resolver-issued callable
+ledger for a `Constructor|NonBrand` disposition at the transported
+`SourceNodeSiteV1` before direct `FunctionCall` preflight. The private query
+port validates the call name and `CallArgument(0)` site, and the exact
+constructor lowers its operand under the existing argument source scope. An
+exact `NonBrand` route never re-probes `CompilationContext::is_brand_declared`;
+it proceeds through the existing TypeOp, Math, FastMem, and ordinary routes.
+Relationless Compatibility, Deferred, RawLegacy, nested/Main, and other
+unlocated paths deliberately retain their compatibility behavior and are not
+treated as exact consumers. MethodCall/unwrap, global legacy-map retirement,
+and Script semantic consumption remain separate rows.
+
 ### Ordered Box-method compatibility edge (R5-S1)
 
 The deferred non-Main static-Box Program path consumes the AST-owned

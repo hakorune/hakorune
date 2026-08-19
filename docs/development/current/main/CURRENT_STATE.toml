@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0"
-work_mode = "design_stop"
+current_design_stop = ""
+work_mode = "closeout"
 current_execution_row = "BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0"
-current_blocker_token = "Design the exact installed-callable Brand disposition query before raw FunctionCall preflight; Compatibility, Deferred, RawLegacy, nested/Main, and unlocated paths remain non-authoritative."
+current_blocker_token = "Verify the installed-callable Brand disposition consumer and guards; relationless Compatibility, Deferred, RawLegacy, nested/Main, and unlocated paths remain non-authoritative. The legacy externcall child-count red reproduces on parent dc81a64dc7 and is baseline debt."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -91,9 +91,9 @@ current_execution_design = "docs/development/current/main/investigations/brand-i
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "brand-instance-constructor-source-relation-d0"
 latest_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
-latest_card_summary = "Bare FunctionCall Body(i) source locations are preserved for installed callable owners; the next design stop is the exact relation consumer before preflight."
-next_design_card = "BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0"
-next_design_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
+latest_card_summary = "Installed callable FunctionCall preflight now consumes exact Constructor/NonBrand dispositions; relationless lanes remain unchanged, and the legacy externcall red is parent-reproduced baseline debt."
+next_design_card = "none"
+next_design_card_path = ""
 next_execution_card = "none"
 next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -106,6 +106,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0 landed one selected-normal BoxShape. App, plain-runtime, and nonplain-runtime constructor tickets now borrow the package-issued forest by exact ConstructorSourceId, consume each role once, scope the existing raw body, and require manifest plus package completion; Compatibility/RawLegacy and global raw Brand retirement remain parked.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-PHYSICAL-DEMAND-MANIFEST-I0 landed one BoxShape. The selected-normal work plan issues exact ImmediateDeclaration/ScriptRuntimePrefix/ScriptRuntimeFullLifecycle tickets keyed by parser ConstructorSourceId and validates the complete immediate/runtime set before Builder effects; semantic loan and raw Brand consumption remain unopened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-PHYSICAL-SOURCE-TRANSFER-P0 landed one BoxShape. The installed parser-issued ConstructorSourceId is validated against final Box/name/key/function rows and carried unchanged into both immediate and Script-runtime physical demands; raw Brand consumption remains unopened.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: BRAND-CONSTRUCTOR-RELATION-PROJECTION-P0 landed behavior-neutrally and ACTIVE-ADMISSION-CENSUS-D1 closed. Callable/Complete Script states retain exact-site Constructor/NonBrand projection with foreign coverage rejection; Deferred, Compatibility, instance-constructor, nested/Main, and RawLegacy remain name-only, bare calls are unlocated, and raw consumption stays zero.",
   "2026-08-20: RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0 landed behavior-neutrally. Exact path/temporal transport is 655 lines and the finite statement classifier is a 197-line child; bare calls remain CallObject, while 3 focused and 13 existing transport tests plus the reusable guard are green.",
   "2026-08-20: BRAND-CONSTRUCTOR-CONSUMER-CUTOVER-D0 closed NoSafeSlice. Exact callable/Complete Script can project the landed relation, but Compatibility, Deferred, constructor, nested/Main, and RawLegacy admissions remain name-only; bare call statements are also unlocated. Transport split, admission census, and total disposition projection now precede atomic raw-probe retirement.",
-  "2026-08-20: EXACT-CALLABLE-BARE-FUNCTION-CALL-LOCATION-P0 landed one behavior-neutral BoxShape. Installed Cataloged/TopLevel/InstanceConstructor roots preserve bare FunctionCall statements as exact Body(i) sites with CallArgument paths; raw/script compatibility roots and MethodCall/Call/extern rows remain CallObject, and Brand consumption stays unopened.",
 ]

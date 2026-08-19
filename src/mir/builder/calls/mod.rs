@@ -27,7 +27,11 @@ mod call_argument_descent_tests;
 pub mod call_target;
 pub mod call_unified;
 pub mod extern_calls;
+mod function_call_brand_source_demand;
 mod function_call_preflight_route;
+pub(in crate::mir::builder) use function_call_brand_source_demand::{
+    BrandConstructorSourcePortV1, RawBrandCallAuthorityV1,
+};
 pub mod function_lowering;
 pub(in crate::mir::builder) use function_call_preflight_route::{
     lower_prepared_raw_explicit_extern_call_with_port_v1,

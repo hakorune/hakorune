@@ -507,3 +507,72 @@ callable body has an exact disposition and the other admissions have an
 explicit nonclaim.
 Non-claims: no Script/Deferred/Compatibility/RawLegacy/nested/Main repair,
 no unwrap, nominal Brand value, runtime/backend change, or production switch.
+
+### Installed callable consumer I0 — accepted implementation brief
+
+Decision: Implement one bounded BoxShape: only installed, source-backed
+callable roots consume their exact `Constructor|NonBrand` relation before raw
+`FunctionCall` preflight; relationless compatibility lanes retain their old
+behavior and are not treated as exact consumers.
+Source authority + canonical issuer: the active callable semantic ledger and
+its exact transported `SourceNodeSiteV1`; the sibling query port owns no new
+semantic rows and only projects the existing resolver-issued disposition.
+Non-authority: `CompilationContext::is_brand_declared`, AST names/spans,
+lineage/root names, argument count alone, physical ValueIds, and absent ledgers.
+Fail-fast boundary: exact callable site, owner, call name, arity, and verified
+`CallArgument(0)` operand site must match before child descent; query errors
+never become Relationless/raw fallback. Exact NonBrand bypasses the mutable
+Brand map and continues TypeOp → Math → FastMem → ordinary handling.
+Smallest next slice: add a private `FunctionCall` Brand source-demand port,
+thread its three-way result into raw dispatch/preflight, and lower an exact
+constructor operand under the existing child-source scope. Keep
+`recursive_child_lowering.rs` (794 lines) untouched.
+Non-claims: no Complete Script/Deferred/Compatibility/RawLegacy/nested/Main
+repair, no global raw-probe retirement, no MethodCall/unwrap, nominal Brand
+typing, runtime/ABI/backend, or production route switch.
+
+Implementation acceptance:
+
+- TopLevel, Cataloged static/instance, App Main, and ticketed constructor
+  scopes query exact Constructor/NonBrand; nested lambda owner sites remain
+  exact through the existing callable ledger.
+- Exact Constructor preserves pre-effect arity rejection and lowers only the
+  verified operand once; exact NonBrand never calls `is_brand_declared`.
+- Missing/foreign site, owner/name drift, operand-site drift, duplicate
+  projection, and query error reject before child effects. Relationless
+  Compatibility/Deferred/RawLegacy/nested/Main paths retain the old route.
+- The new InstalledNonBrand route test, consumer guard, relation projection
+  guard, callable-location guard, formatter, pointer guard, and line fences
+  are green. The broader legacy route test still has one pre-existing red:
+  `rejecting_routes_precede_children_and_typeop_uses_one_child` observes one
+  child for the old `externcall` fixture. The exact parent commit
+  `dc81a64dc7` reproduces the same 4-pass/1-fail result, so this is recorded as
+  baseline debt and is not attributed to this I0.
+
+### Follow-up TODO ledger (do not mix into this I0)
+
+1. **S6C-C-PARITY-NORTH-STAR-D0** — after this I0 closes, update the perf
+   owner SSOT to distinguish the unchanged `1.15` promotion ceiling from the
+   formal `1.00` Hako/C point target. Treat any `1.03` upper-confidence claim
+   as a new design proposal only; do not change a gate or reuse old evidence.
+2. **S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0** — remains parked until a new
+   explicitly accepted clean-pair/native batch supplies eligible ratios; the
+   prior NoSafeSlice receipt is not a backend owner.
+3. **Brand relationless lanes** — open separate D0s for Complete Script,
+   Deferred/Compatibility/RawLegacy, nested/Main, and MethodCall/unwrap before
+   any global `is_brand_declared` retirement. This I0 claims none of them.
+4. **hako_check inspect provenance** — after the current production frontier
+   closeout, land MIR→LLVM issuer-emitted block/edge sidecar UX; keep
+   LLVM→ASM exact correspondence explicitly unavailable until a real backend
+   address issuer exists.
+
+### I0 closeout
+
+`BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0` is landed as one bounded
+BoxShape. The installed callable path now consumes the resolver-issued exact
+disposition; relationless lanes and the mutable-map compatibility behavior are
+unchanged. The new consumer test and guards are green. The five-test legacy
+preflight suite remains 4-pass/1-fail on the old `externcall` child-count
+assertion, and the same failure reproduces on parent `dc81a64dc7`; it is
+baseline debt, not an I0 regression. No follow-up TODO is opened in this
+closeout; the numbered ledger above is the explicit handoff.

@@ -224,6 +224,25 @@ fn direct_function_preflight_priority_is_total() {
 }
 
 #[test]
+fn installed_non_brand_never_reprobes_legacy_brand_map() {
+    let mut builder = MirBuilder::new();
+    builder
+        .comp_ctx
+        .register_brand_decl("sin".to_string(), "Integer".to_string());
+
+    let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "sin".to_string(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand,
+    );
+    assert!(matches!(
+        prepared.route,
+        PreparedRawFunctionPreflightRouteV1::Math { .. }
+    ));
+}
+
+#[test]
 fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
     let mut builder = MirBuilder::new();
     builder.enter_function_for_test("direct_preflight_order/0".to_string());

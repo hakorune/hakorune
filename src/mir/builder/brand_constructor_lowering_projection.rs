@@ -148,6 +148,10 @@ impl BrandConstructorLoweringProjectionV1 {
             None => BrandConstructorDispositionRefV1::NonBrand,
         })
     }
+
+    pub(super) fn constructor_count(&self) -> usize {
+        self.constructors.len()
+    }
 }
 
 #[cfg(test)]

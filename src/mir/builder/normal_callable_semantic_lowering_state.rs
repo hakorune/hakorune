@@ -41,6 +41,7 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_variables: BTreeSet<SourceNodeSiteV1>,
     consumed_assignments: BTreeSet<SourceNodeSiteV1>,
     consumed_direct_lambdas: BTreeSet<SourceNodeSiteV1>,
+    consumed_brand_constructors: BTreeSet<SourceNodeSiteV1>,
 }
 
 #[derive(Debug)]
@@ -215,6 +216,7 @@ impl CallableSemanticLoweringState {
             consumed_variables: BTreeSet::new(),
             consumed_assignments: BTreeSet::new(),
             consumed_direct_lambdas: BTreeSet::new(),
+            consumed_brand_constructors: BTreeSet::new(),
         })
     }
 
@@ -230,6 +232,23 @@ impl CallableSemanticLoweringState {
         super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
     > {
         self.brand_constructors.disposition(site)
+    }
+
+    pub(super) fn take_brand_constructor(
+        &mut self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<
+        Option<super::brand_constructor_lowering_projection::ProjectedBrandConstructorV1>,
+        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
+    > {
+        let row = match self.brand_constructors.disposition(site)? {
+            super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1::NonBrand => return Ok(None),
+            super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1::Constructor(row) => row.clone(),
+        };
+        if !self.consumed_brand_constructors.insert(site.clone()) {
+            return Err(super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1::DuplicateConstructorSite(site.clone()));
+        }
+        Ok(Some(row))
     }
 
     pub(super) fn loop_binding_source_projection(
@@ -472,6 +491,7 @@ impl CallableSemanticLoweringState {
             || self.consumed_variables.len() != self.variables.len()
             || self.consumed_assignments.len() != self.assignments.len()
             || self.consumed_direct_lambdas.len() != self.direct_lambda_captures.len()
+            || self.consumed_brand_constructors.len() != self.brand_constructors.constructor_count()
         {
             return Err(format!(
                 "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{}",

@@ -25,9 +25,9 @@ pub(in crate::mir::builder) use self::nonmain_static_box_lifecycle::PreparedRawN
 use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{
     lower_prepared_raw_explicit_extern_call_with_port_v1,
-    lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
-    PreparedRawExplicitExternCallV1, PreparedRawFromCallV1, PreparedRawFunctionPreflightV1,
-    RawLegacyMethodCallInputV1,
+    lower_prepared_raw_function_preflight_with_port_v1, BrandConstructorSourcePortV1,
+    MethodCallDescentPortV1, PreparedRawExplicitExternCallV1, PreparedRawFromCallV1,
+    PreparedRawFunctionPreflightV1, RawLegacyMethodCallInputV1,
 };
 use super::enum_match_source_demand::EnumMatchSourceDemandPortV1;
 use super::enum_variant_source_demand::EnumVariantSourceDemandPortV1;
@@ -92,6 +92,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + RawLambdaCaptureDemandPortV1
     + QMarkPropagationSourceDemandPortV1
     + ExplicitExternSourcePortV1
+    + BrandConstructorSourcePortV1
 {
 }
 
@@ -138,6 +139,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + RawLambdaCaptureDemandPortV1
         + QMarkPropagationSourceDemandPortV1
         + ExplicitExternSourcePortV1
+        + BrandConstructorSourcePortV1
 {
 }
 
@@ -331,10 +333,18 @@ impl super::MirBuilder {
                 self.lower_prepared_raw_index_read_with_port_v1(port, prepared)
             }
 
-            ASTNode::FunctionCall {
-                name, arguments, ..
+            ref node @ ASTNode::FunctionCall {
+                ref name,
+                ref arguments,
+                ..
             } => {
-                let prepared = PreparedRawFunctionPreflightV1::prepare(self, name, arguments);
+                let authority = port.brand_call_authority_v1(node)?;
+                let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+                    self,
+                    name.clone(),
+                    arguments.clone(),
+                    authority,
+                );
                 lower_prepared_raw_function_preflight_with_port_v1(self, port, prepared)
             }
 

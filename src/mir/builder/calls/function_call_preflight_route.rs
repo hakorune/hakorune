@@ -51,15 +51,22 @@ pub(in crate::mir::builder) enum PreparedRawExplicitExternCallV1 {
 }
 
 enum PreparedRawBrandConstructorV1 {
-    ArityMismatch { actual: usize },
-    Ready { argument: ASTNode },
+    ArityMismatch {
+        actual: usize,
+        exact_source: bool,
+    },
+    Ready {
+        argument: ASTNode,
+        exact_source: bool,
+    },
 }
 
 impl PreparedRawBrandConstructorV1 {
-    fn prepare(arguments: Vec<ASTNode>) -> Self {
+    fn prepare(arguments: Vec<ASTNode>, exact_source: bool) -> Self {
         if arguments.len() != 1 {
             return Self::ArityMismatch {
                 actual: arguments.len(),
+                exact_source,
             };
         }
         Self::Ready {
@@ -67,6 +74,7 @@ impl PreparedRawBrandConstructorV1 {
                 .into_iter()
                 .next()
                 .expect("exact-one Brand constructor retains one argument"),
+            exact_source,
         }
     }
 }
@@ -98,48 +106,83 @@ impl PreparedRawFunctionPreflightV1 {
         name: String,
         arguments: Vec<ASTNode>,
     ) -> Self {
-        let route = if builder.comp_ctx.is_brand_declared(&name) {
-            PreparedRawFunctionPreflightRouteV1::Brand(PreparedRawBrandConstructorV1::prepare(
-                arguments,
-            ))
-        } else if let Some((raw_type_name, op)) = prepare_typeop_route(&name, arguments.as_slice())
-        {
-            let mut arguments = arguments.into_iter();
-            let operand = arguments
-                .next()
-                .expect("TypeOp route requires exactly two arguments");
-            PreparedRawFunctionPreflightRouteV1::TypeOp {
-                operand,
-                raw_type_name,
-                op,
+        Self::prepare_with_brand_authority(
+            builder,
+            name,
+            arguments,
+            super::RawBrandCallAuthorityV1::RelationlessCompatibility,
+        )
+    }
+
+    pub(in crate::mir::builder) fn prepare_with_brand_authority(
+        builder: &MirBuilder,
+        name: String,
+        arguments: Vec<ASTNode>,
+        authority: super::RawBrandCallAuthorityV1,
+    ) -> Self {
+        let route = match authority {
+            super::RawBrandCallAuthorityV1::InstalledConstructor(_row) => {
+                PreparedRawFunctionPreflightRouteV1::Brand(PreparedRawBrandConstructorV1::prepare(
+                    arguments, true,
+                ))
             }
-        } else if super::special_handlers::is_math_function(&name) {
-            PreparedRawFunctionPreflightRouteV1::Math {
-                arguments: super::special_method_handlers::prepare_raw_math_arguments_v1(arguments),
+            super::RawBrandCallAuthorityV1::InstalledNonBrand => {
+                prepare_non_brand_route(builder, &name, arguments)
             }
-        } else if let Some(region) = builder.current_fastmem_region() {
-            if name.starts_with("mem.") {
-                let intrinsic =
-                    crate::mir::builder::fastmem::calls::PreparedFastMemIntrinsicV1::prepare(
-                        &name,
-                        arguments.len(),
-                    );
-                PreparedRawFunctionPreflightRouteV1::FastMem {
-                    region,
-                    arguments,
-                    intrinsic,
+            super::RawBrandCallAuthorityV1::RelationlessCompatibility => {
+                if builder.comp_ctx.is_brand_declared(&name) {
+                    PreparedRawFunctionPreflightRouteV1::Brand(
+                        PreparedRawBrandConstructorV1::prepare(arguments, false),
+                    )
+                } else {
+                    prepare_non_brand_route(builder, &name, arguments)
                 }
-            } else {
-                PreparedRawFunctionPreflightRouteV1::Ordinary {
-                    completion: prepare_ordinary_function_completion_v1(&name, arguments),
-                }
-            }
-        } else {
-            PreparedRawFunctionPreflightRouteV1::Ordinary {
-                completion: prepare_ordinary_function_completion_v1(&name, arguments),
             }
         };
         Self { name, route }
+    }
+}
+
+fn prepare_non_brand_route(
+    builder: &MirBuilder,
+    name: &str,
+    arguments: Vec<ASTNode>,
+) -> PreparedRawFunctionPreflightRouteV1 {
+    if let Some((raw_type_name, op)) = prepare_typeop_route(name, arguments.as_slice()) {
+        let mut arguments = arguments.into_iter();
+        let operand = arguments
+            .next()
+            .expect("TypeOp route requires exactly two arguments");
+        PreparedRawFunctionPreflightRouteV1::TypeOp {
+            operand,
+            raw_type_name,
+            op,
+        }
+    } else if super::special_handlers::is_math_function(name) {
+        PreparedRawFunctionPreflightRouteV1::Math {
+            arguments: super::special_method_handlers::prepare_raw_math_arguments_v1(arguments),
+        }
+    } else if let Some(region) = builder.current_fastmem_region() {
+        if name.starts_with("mem.") {
+            let intrinsic =
+                crate::mir::builder::fastmem::calls::PreparedFastMemIntrinsicV1::prepare(
+                    name,
+                    arguments.len(),
+                );
+            PreparedRawFunctionPreflightRouteV1::FastMem {
+                region,
+                arguments,
+                intrinsic,
+            }
+        } else {
+            PreparedRawFunctionPreflightRouteV1::Ordinary {
+                completion: prepare_ordinary_function_completion_v1(name, arguments),
+            }
+        }
+    } else {
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: prepare_ordinary_function_completion_v1(name, arguments),
+        }
     }
 }
 
@@ -226,15 +269,26 @@ fn lower_prepared_raw_brand_constructor_with_port_v1<Port>(
 where
     Port: RawAstChildLoweringPortV1,
 {
-    let argument = match prepared {
-        PreparedRawBrandConstructorV1::ArityMismatch { actual } => {
+    let (argument, exact_source) = match prepared {
+        PreparedRawBrandConstructorV1::ArityMismatch {
+            actual,
+            exact_source: _,
+        } => {
             return Err(format!(
                 "[brand/constructor-arity] {} expects exactly one value, got {}",
                 name, actual
             ));
         }
-        PreparedRawBrandConstructorV1::Ready { argument } => argument,
+        PreparedRawBrandConstructorV1::Ready {
+            argument,
+            exact_source,
+        } => (argument, exact_source),
     };
+    if exact_source {
+        return port.with_call_argument_source_v1(0, |port| {
+            drive_legacy_expression_v1(builder, port, argument)
+        });
+    }
     drive_legacy_expression_v1(builder, port, argument)
 }
 
