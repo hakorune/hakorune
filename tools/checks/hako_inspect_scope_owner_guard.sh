@@ -11,19 +11,24 @@ IDENTITY="$ROOT_DIR/tools/hako_check/inspect_scope_identity.py"
 SHAPE_MODEL="$ROOT_DIR/tools/hako_check/inspect_shape_model.py"
 SHAPE_CLI="$ROOT_DIR/tools/hako_check/inspect_shape.py"
 S6C_INGRESS="$ROOT_DIR/tools/hako_check/inspect_s6c_ingress.py"
+PROVENANCE_MODEL="$ROOT_DIR/tools/hako_check/inspect_provenance_model.py"
 TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_scope_dump.py"
 SHAPE_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_shape.py"
 S6C_INGRESS_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_s6c_ingress.py"
+PROVENANCE_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_provenance_model.py"
+PROVENANCE_ISSUER="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pinned_text_lowering_provenance.inc"
 S6C_FIXTURE="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_observation_fixture.rs"
 S6C_CURSOR_TEST="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs"
 
 guard_require_command "$TAG" rg
 guard_require_files "$TAG" "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" \
-  "$SHAPE_CLI" "$S6C_INGRESS" "$TEST" "$SHAPE_TEST" "$S6C_INGRESS_TEST" \
+  "$SHAPE_CLI" "$S6C_INGRESS" "$PROVENANCE_MODEL" "$TEST" "$SHAPE_TEST" \
+  "$S6C_INGRESS_TEST" "$PROVENANCE_TEST" "$PROVENANCE_ISSUER" \
   "$S6C_FIXTURE" "$S6C_CURSOR_TEST"
 
 for file in "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" "$SHAPE_CLI" \
-  "$S6C_INGRESS" "$S6C_FIXTURE" "$S6C_CURSOR_TEST"; do
+  "$S6C_INGRESS" "$PROVENANCE_MODEL" "$PROVENANCE_ISSUER" \
+  "$S6C_FIXTURE" "$S6C_CURSOR_TEST"; do
   lines="$(wc -l <"$file" | tr -d '[:space:]')"
   (( lines < 760 )) || \
     guard_fail "$TAG" "source reached 760-line split trigger: $file=$lines"
@@ -56,11 +61,12 @@ for symbol in bundle_report_rows format_report manifest_contract \
   fi
 done
 
-if rg -n '^(import os|import subprocess|import tempfile|EMIT_ROUTE|TRACE_BUNDLE|def emit_mir_json\(|def emit_llvm_asm_bundle\()' "$MODEL" "$IDENTITY" "$SHAPE_MODEL"; then
+if rg -n '^(import os|import subprocess|import tempfile|EMIT_ROUTE|TRACE_BUNDLE|def emit_mir_json\(|def emit_llvm_asm_bundle\()' "$MODEL" "$IDENTITY" "$SHAPE_MODEL" "$PROVENANCE_MODEL"; then
   guard_fail "$TAG" "model acquired effect-bearing responsibility"
 fi
 
 python3 -m unittest tools.hako_check.tests.test_inspect_scope_dump \
   tools.hako_check.tests.test_inspect_shape \
-  tools.hako_check.tests.test_inspect_s6c_ingress >/dev/null
-echo "[$TAG] ok (thin inspect entry + sealed S6C ingress + pure models)"
+  tools.hako_check.tests.test_inspect_s6c_ingress \
+  tools.hako_check.tests.test_inspect_provenance_model >/dev/null
+echo "[$TAG] ok (thin inspect entry + issuer-sealed MIR-to-LLVM provenance)"

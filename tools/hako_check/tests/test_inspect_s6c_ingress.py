@@ -66,6 +66,14 @@ class InspectS6CIngressTest(unittest.TestCase):
         )
         return final_llvm, object_file, disassembly
 
+    def _provenance(self, root: Path) -> Path:
+        path = root / "provenance.tsv"
+        path.write_text(
+            "block\t0\t-1\tnone\t-1\tentry\t\tpreserved\tbase_block\n",
+            encoding="utf-8",
+        )
+        return path
+
     def test_ingress_seals_exact_source_json_and_object(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -77,19 +85,23 @@ class InspectS6CIngressTest(unittest.TestCase):
                 final_llvm=final_llvm,
                 object_file=object_file,
                 disassembly=disassembly,
+                provenance_raw=self._provenance(root),
                 llvm_function="ny_main",
                 asm_symbol="ny_main",
                 out=out,
             )
             self.assertTrue(identity["shape_ready"])
             self.assertIn("object.bin", identity["artifacts"])
-            self.assertEqual(identity["mappings"]["source_to_mir"], "exact")
+            self.assertEqual(identity["mappings"]["mir_to_llvm"], "issuer_exact")
             validate_identity_contract(out, identity)
             report = build_shape_report(
                 identity=identity,
                 mir=json.loads((out / "mir.raw.json").read_text(encoding="utf-8")),
                 llvm_text=(out / "llvm.ir").read_text(encoding="utf-8"),
                 asm_text=(out / "asm.s").read_text(encoding="utf-8"),
+                provenance=json.loads(
+                    (out / "lowering.provenance.json").read_text(encoding="utf-8")
+                ),
             )
             self.assertEqual(report["layers"]["mir"]["returns"], 1)
             self.assertEqual(report["layers"]["llvm"]["returns"], 1)
@@ -110,6 +122,7 @@ class InspectS6CIngressTest(unittest.TestCase):
                     final_llvm=final_llvm,
                     object_file=object_file,
                     disassembly=disassembly,
+                    provenance_raw=self._provenance(root),
                     llvm_function="ny_main",
                     asm_symbol="ny_main",
                     out=out,
@@ -145,6 +158,7 @@ class InspectS6CIngressTest(unittest.TestCase):
                     final_llvm=final_llvm,
                     object_file=object_file,
                     disassembly=disassembly,
+                    provenance_raw=self._provenance(root),
                     llvm_function="ny_main",
                     asm_symbol="ny_main",
                     out=out,

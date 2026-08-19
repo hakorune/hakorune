@@ -20,6 +20,7 @@ from inspect_scope_identity import (
     require_unique_mir_function,
     validate_identity_contract,
 )
+from inspect_provenance_model import build_provenance
 
 
 PRODUCER_CONTRACT = "hako-inspect-s6c-producer-v1"
@@ -82,6 +83,7 @@ def seal_ingress(
     final_llvm: Path,
     object_file: Path,
     disassembly: Path,
+    provenance_raw: Path,
     llvm_function: str,
     asm_symbol: str,
     out: Path,
@@ -104,6 +106,14 @@ def seal_ingress(
         (disassembly, "asm.s"),
     ):
         shutil.copyfile(source, out / name)
+    provenance = build_provenance(
+        raw_path=provenance_raw,
+        mir_path=out / "mir.raw.json",
+        llvm_path=out / "llvm.ir",
+        mir_function=str(manifest["mir_function"]),
+        llvm_function=llvm_function,
+    )
+    _write_json_atomic(out / "lowering.provenance.json", provenance)
     identity = build_identity_contract(
         out_dir=out,
         source_file=out / "source.full.hako",
@@ -119,10 +129,11 @@ def seal_ingress(
             "llvm.ir",
             "object.bin",
             "asm.s",
+            "lowering.provenance.json",
         ],
         mappings={
             "source_to_mir": "exact",
-            "mir_to_llvm": "block",
+            "mir_to_llvm": "issuer_exact",
             "llvm_to_asm": "symbol",
         },
         mir_function=str(manifest["mir_function"]),
@@ -175,8 +186,12 @@ def run_ingress(args: argparse.Namespace) -> int:
         final_llvm = tmp / "final.ll"
         object_file = tmp / "final.o"
         disassembly = tmp / "objdump.txt"
+        provenance_raw = tmp / "lowering.provenance.tsv"
         _run(
-            [str(driver), str(producer / "real.json"), str(object_file), str(final_llvm)],
+            [
+                str(driver), str(producer / "real.json"), str(object_file),
+                str(final_llvm), str(provenance_raw),
+            ],
             cwd=root,
         )
         objdump = subprocess.run(
@@ -193,6 +208,7 @@ def run_ingress(args: argparse.Namespace) -> int:
             final_llvm=final_llvm,
             object_file=object_file,
             disassembly=disassembly,
+            provenance_raw=provenance_raw,
             llvm_function=args.llvm_function,
             asm_symbol=args.asm_symbol,
             out=Path(args.out),

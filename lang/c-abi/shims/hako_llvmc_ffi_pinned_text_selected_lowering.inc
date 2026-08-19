@@ -9,6 +9,8 @@
 #define HAKO_PTFC_FINISH_DECL_V1 \
   "declare void @hako_text_formal_residence_finish_or_abort_v1(ptr) nounwind\n"
 
+#include "hako_llvmc_ffi_pinned_text_lowering_provenance.inc"
+
 /* Compile-time benchmark instrumentation only.  Production captures no plan. */
 #ifndef HAKO_LLVMC_PTFC_EXACT_LEAF_EVIDENCE_PLAN_V1
 #define HAKO_LLVMC_PTFC_EXACT_LEAF_EVIDENCE_PLAN_V1(plan) (0)
@@ -259,6 +261,8 @@ static int hako_llvmc_ptfc_try_emit_selected_op(
     FILE* out,
     yyjson_val* instruction,
     const char* op,
+    long long bid,
+    long long ii,
     const struct HakoPtfSelectedCandidateView* candidate,
     struct HakoPtfSelectedLlvmDraft* draft) {
   long long plan_index = 0;
@@ -279,6 +283,8 @@ static int hako_llvmc_ptfc_try_emit_selected_op(
       return -1;
     }
     draft->leaf_count++;
+    if (hako_llvmc_ptfc_provenance_emitted_op_v1(
+            bid, ii, op, instruction, candidate) != 0) return -1;
     return 1;
   }
   if (!strcmp(op, "branch")) {
@@ -314,6 +320,8 @@ static int hako_llvmc_ptfc_try_emit_selected_op(
     fprintf(out, "  br i1 %%ptfc_enter_ok, label %%bb%lld, label %%bb%lld\n",
             candidate->carrier.normal_landing, candidate->carrier.trap_landing);
     draft->enter_count++;
+    if (hako_llvmc_ptfc_provenance_emitted_op_v1(
+            bid, ii, op, instruction, candidate) != 0) return -1;
     return 1;
   }
   if (!strcmp(op, "pinned_text_residence_trap")) {

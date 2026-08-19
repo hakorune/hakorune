@@ -302,6 +302,13 @@ Current partitions:
 - `hako_llvmc_ffi_pinned_text_selected_dispatch.inc`
   - one small hook from the existing generic operation writer; it does not
     duplicate PHI, arithmetic, compare, branch, or Return lowering
+- `hako_llvmc_ffi_pinned_text_lowering_provenance.inc`
+  - default-off, compile-time-only MIR-to-final-LLVM block/edge origin journal
+    for the selected pinned-Text projection
+  - records relations at the actual emission site; labels, ValueIds, textual
+    adjacency, disassembly, and counts never reconstruct missing origins
+  - exact machine attribution remains unavailable and is not inferred from the
+    selected assembly symbol
 
 Rules:
 

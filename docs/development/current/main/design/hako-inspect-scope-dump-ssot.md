@@ -6,28 +6,22 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Add one selected-candidate MIR→LLVM origin sidecar while keeping
-LLVM→optimized-machine correspondence unavailable. Both pure census
-prerequisites are now correct: MIR 8/8/24 and final LLVM 22/31/82.
-Source authority + canonical issuer: `MirFunction` blocks and terminators own
-the eight S6C CFG edges. The selected pinned-Text textual lowerer is the sole
-MIR-site/edge→LLVM-region relation issuer because it simultaneously consumes
-the validated MIR site and emits every direct or introduced LLVM region.
-Non-authority: ValueId, equal numeric block IDs, `%bbN`/`.LBB` labels, textual
-adjacency, instruction counts, object addresses, disassembly similarity, C
-code, and timing cannot issue correspondence or an optimization owner.
-Fail-fast boundary: The sealed sidecar must exhaustively classify candidate-
-local MIR and final-LLVM blocks/edges as preserved, split, merged, deleted, or
-introduced and bind exact MIR/final-LLVM digests. Missing, duplicate, dangling,
-foreign, stale, inferred, or ambiguous rows reject before rendering. ASM stays
-symbol-only; requesting exact machine attribution rejects.
-Smallest next slice: `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` is one caller-zero
-BoxCount. A compile-time observation sink receives block/edge relations from
-the selected dispatch/lowerer; a new private model validates coverage; the
-existing ingress only digest-binds the write-last sidecar into the V1 seal.
-Non-claims: No LLVM→machine map, debug-info ABI, generic backend provenance,
-semantic receipt, source syntax, optimization recommendation, keeper,
-measurement, residual owner, promotion, or production change.
+Decision: Keep the landed S6C journal profile-local; generalize only after one
+second simple loop names its existing emission-site owner.
+Source authority + canonical issuer: Each candidate's canonical MIR CFG and
+the lowerer that simultaneously consumes its MIR site and emits final LLVM are
+the only possible relation issuer; the pure V0 validator only co-seals rows.
+Non-authority: The S6C selected lowerer, label equality, ValueIds, adjacency,
+counts, disassembly, C code, and timing cannot issue a generic relation.
+Fail-fast boundary: The second candidate must issue exhaustive MIR/final-LLVM
+block and edge relations before sealing. Any post-hoc reconstruction, missing
+owner, or requested exact machine attribution remains `NoSafeSlice`.
+Smallest next slice: `HAKO-INSPECT-PROVENANCE-GENERALIZATION-D0` selects one
+second simple-loop consumer and audits its existing emission owner; code and
+fixtures remain closed until one bounded reuse seam is accepted.
+Non-claims: No generic compiler provenance framework, LLVM→machine map,
+semantic receipt, source syntax, optimizer advice, keeper, measurement,
+promotion, or production change.
 
 ## Decision
 
@@ -246,6 +240,13 @@ while no assembly branch has a sound one-to-one MIR-edge identity. The report
 must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
 `measurement_authority=0`.
 
+For the selected S6C canary, `lowering.provenance.json` raises only the
+MIR→LLVM floor to `issuer_exact`. Its rows are emitted at the selected lowering
+site and exhaustively cover the sealed candidate's 8 MIR blocks/8 edges and 22
+final LLVM blocks/31 edges. The renderer groups those rows by MIR origin while
+keeping `LLVM→ASM correspondence: unavailable`; it never reconstructs an edge
+from equal labels, adjacency, ValueIds, counts, or disassembly.
+
 ## Task Ladder
 
 - `INSPECT-000` through `INSPECT-006`: landed source/MIR/backend bundle,
@@ -282,11 +283,10 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   disassembly into one V1 seal. Foreign/stale/projected artifacts reject before
   publication; the 753-line generic inspect entry and 754-line trace script
   remain untouched.
-- `HAKO-INSPECT-S6C-SHAPE-CANARY-R0` (**landed observation row**): one real
-  seal `ec9289ed...c8ad` reports MIR `8 blocks / 6 normalized edges / 24
-  instructions`, LLVM `23 / 31 / 83`, and selected-symbol assembly `69
-  instructions / 13 branches / 3 calls / 2 returns`. Audit found the MIR edge
-  metric omitted Residence Enter normal/trap; canonical CFG edge count is eight.
+- `HAKO-INSPECT-S6C-SHAPE-CANARY-R0` (**landed observation row**): the first
+  seal exposed two counter defects subsequently repaired. The current census is
+  MIR `8 blocks / 8 edges / 24 instructions`, final LLVM `22 / 31 / 82`, and
+  selected-symbol assembly `69 instructions / 13 branches / 3 calls / 2 returns`.
 - `HAKO-INSPECT-PROVENANCE-D0` (**accepted**): first provenance product is an
   issuer-emitted, candidate-local MIR→final-LLVM block/edge relation. It natively
   represents preserved/split/merged/deleted/introduced sets. LLVM→machine
@@ -300,12 +300,15 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   multiline-consuming `^\s*define` selector with horizontal whitespace only.
   Reject ambiguous/missing functions as before and prove leading blank lines do
   not create an implicit LLVM block or instruction.
-- `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` (**selected BoxCount**): add a
+- `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` (**landed BoxCount**): one
   compile-time observation sink in the selected dispatch/lowerer plus a new
   private relation model/validator. Direct `bbN`, WidthAt/ScalarEq internal
   regions, consumed direct-continuation branch arms, and lifecycle edges must
-  be issued while lowering; the ingress only digest-binds and renders them.
-  Do not grow the 759-line generic lowerer or 753-line generic inspect entry.
+  be issued while lowering; the ingress only validates, digest-binds, and
+  renders them. The real canary closes 8/8 and 22/31 through 53 rows, the
+  generic lowerer remains 759 lines, the generic inspect entry remains 753,
+  and ASM exactness is explicitly unavailable. Twenty-two focused inspect
+  tests plus structural/preflight/pointer guards are green.
 - `HAKO-INSPECT-LLVM-ASM-D0` (**conditional NoSafeSlice**): open only if exact
   machine attribution remains necessary. LLVM18 block-name assembly comments
   are useful diagnostics but are not exact object-address provenance.

@@ -2,17 +2,40 @@
 
 static const char* hako_ptfc_evidence_path_v1 = NULL;
 static unsigned int hako_ptfc_evidence_count_v1 = 0;
+static FILE* hako_ptfc_provenance_stream_v1 = NULL;
 
 static int hako_ptfc_capture_final_module_v1(
     void* raw_session,
     void* module,
     char** err_out);
+static int hako_ptfc_capture_provenance_v1(
+    const char* entity, long long mir_block, long long mir_instruction,
+    const char* mir_arm, long long mir_target, const char* llvm_from,
+    const char* llvm_to, const char* disposition, const char* reason);
 
 #define HAKO_LLVMC_PTFC_FINAL_MODULE_EVIDENCE_V1(session, module, err_out) \
   hako_ptfc_capture_final_module_v1((session), (module), (err_out))
+#define HAKO_LLVMC_PTFC_PROVENANCE_EVENT_V1(                            \
+    entity, mir_block, mir_instruction, mir_arm, mir_target, llvm_from,  \
+    llvm_to, disposition, reason)                                       \
+  hako_ptfc_capture_provenance_v1(                                      \
+      (entity), (mir_block), (mir_instruction), (mir_arm), (mir_target),\
+      (llvm_from), (llvm_to), (disposition), (reason))
 #include "../shims/hako_llvmc_ffi.c"
 
 typedef char* (*hako_ptfc_print_module_to_string_fn)(void*);
+
+static int hako_ptfc_capture_provenance_v1(
+    const char* entity, long long mir_block, long long mir_instruction,
+    const char* mir_arm, long long mir_target, const char* llvm_from,
+    const char* llvm_to, const char* disposition, const char* reason) {
+  if (!hako_ptfc_provenance_stream_v1) return 0;
+  return fprintf(
+      hako_ptfc_provenance_stream_v1,
+      "%s\t%lld\t%lld\t%s\t%lld\t%s\t%s\t%s\t%s\n",
+      entity, mir_block, mir_instruction, mir_arm, mir_target,
+      llvm_from, llvm_to, disposition, reason) < 0 ? -1 : 0;
+}
 
 static int hako_ptfc_capture_final_module_v1(
     void* raw_session,
@@ -56,16 +79,25 @@ static int hako_ptfc_capture_final_module_v1(
 int main(int argc, char** argv) {
   char* error = NULL;
   int rc;
-  if (argc != 4) return 2;
+  if (argc != 4 && argc != 5) return 2;
   hako_ptfc_evidence_path_v1 = argv[3];
+  if (argc == 5) {
+    remove(argv[4]);
+    hako_ptfc_provenance_stream_v1 = fopen(argv[4], "wb");
+    if (!hako_ptfc_provenance_stream_v1) return 2;
+  }
   remove(argv[2]);
   remove(argv[3]);
   rc = hako_llvmc_compile_json_pure_first(argv[1], argv[2], &error);
+  if (hako_ptfc_provenance_stream_v1 &&
+      fclose(hako_ptfc_provenance_stream_v1) != 0) rc = 1;
+  hako_ptfc_provenance_stream_v1 = NULL;
   if (rc != 0 || error || hako_ptfc_evidence_count_v1 != 1) {
     fprintf(stderr, "%s\n", error ? error : "structural evidence compile failed");
     free(error);
     remove(argv[2]);
     remove(argv[3]);
+    if (argc == 5) remove(argv[4]);
     return 1;
   }
   return 0;

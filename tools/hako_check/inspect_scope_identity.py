@@ -84,11 +84,9 @@ def build_identity_contract(
     }
     shape_ready = (
         bool(mir_function and llvm_function and asm_symbol)
-        and mappings == {
-            "source_to_mir": "exact",
-            "mir_to_llvm": "block",
-            "llvm_to_asm": "symbol",
-        }
+        and mappings.get("source_to_mir") == "exact"
+        and mappings.get("mir_to_llvm") in {"block", "issuer_exact"}
+        and mappings.get("llvm_to_asm") == "symbol"
         and "llvm.ir" in artifacts
         and "asm.s" in artifacts
         and any(name in artifacts for name in ("executable.bin", "object.bin"))

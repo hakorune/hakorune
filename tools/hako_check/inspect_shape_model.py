@@ -184,17 +184,26 @@ def build_shape_report(
     mir: dict[str, Any],
     llvm_text: str,
     asm_text: str,
+    provenance: dict[str, Any] | None = None,
     external_c: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if identity.get("shape_ready") is not True:
         raise SystemExit("shape report requires a shape-ready V1 identity")
+    mapping_quality = identity.get("mappings")
     required_mappings = {
         "source_to_mir": "exact",
-        "mir_to_llvm": "block",
+        "mir_to_llvm": "issuer_exact" if provenance is not None else "block",
         "llvm_to_asm": "symbol",
     }
-    if identity.get("mappings") != required_mappings:
+    if mapping_quality != required_mappings:
         raise SystemExit("shape report mapping floor not satisfied")
+    if provenance is not None:
+        if provenance.get("output_contract") != "hako-lowering-provenance-v0":
+            raise SystemExit("shape provenance contract mismatch")
+        if provenance.get("asm") != {
+            "quality": "symbol", "correspondence": "unavailable"
+        }:
+            raise SystemExit("shape provenance overclaims ASM correspondence")
     selectors = identity.get("selectors")
     if not isinstance(selectors, dict):
         raise SystemExit("shape report selector table missing")
@@ -202,7 +211,9 @@ def build_shape_report(
         "output_contract": SHAPE_CONTRACT,
         "candidate_seal": identity.get("candidate_seal"),
         "observation_only": True,
-        "cross_layer_correspondence": "unclaimed",
+        "cross_layer_correspondence": (
+            "mir_llvm_issuer_exact" if provenance is not None else "unclaimed"
+        ),
         "keeper_selection": False,
         "measurement_authority": False,
         "mapping_quality": required_mappings,
@@ -213,6 +224,8 @@ def build_shape_report(
         },
         "summary": "ok",
     }
+    if provenance is not None:
+        report["provenance"] = provenance
     if external_c is not None:
         c_shape = external_c.get("shape")
         if not isinstance(c_shape, dict):

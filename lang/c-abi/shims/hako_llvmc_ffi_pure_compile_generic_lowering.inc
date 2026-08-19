@@ -645,7 +645,7 @@
           active_string_dead_text_region_emitted = 1;
           continue;
         }
-        emit_block_label(bid);
+        #include "hako_llvmc_ffi_pinned_text_provenance_block_dispatch.inc"
         // phi first
         for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(bid, phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
         if (bi == 0) {

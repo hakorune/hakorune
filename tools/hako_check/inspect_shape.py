@@ -42,7 +42,7 @@ def _report_kv(report: dict[str, Any]) -> str:
         f"output_contract={report['output_contract']}",
         f"candidate_seal={report['candidate_seal']}",
         "observation_only=1",
-        "cross_layer_correspondence=unclaimed",
+        f"cross_layer_correspondence={report['cross_layer_correspondence']}",
         "keeper_selection=0",
         "measurement_authority=0",
     ]
@@ -66,11 +66,38 @@ def _summary(report: dict[str, Any]) -> str:
     rows.extend(
         [
             "",
-            "- cross-layer correspondence: unclaimed",
+            f"- MIR to LLVM correspondence: {report['cross_layer_correspondence']}",
+            "- LLVM to ASM correspondence: unavailable",
             "- keeper selection: 0",
             "- measurement authority: 0",
         ]
     )
+    provenance = report.get("provenance")
+    if isinstance(provenance, dict):
+        grouped: dict[tuple[int, int, str, str], dict[str, set[str]]] = {}
+        for relation in provenance.get("relations", []):
+            mir = relation["mir"]
+            llvm = relation["llvm"]
+            key = (
+                mir["block"], mir["instruction"],
+                relation["disposition"], relation["reason_kind"],
+            )
+            bucket = grouped.setdefault(key, {"blocks": set(), "edges": set()})
+            if relation["entity"] == "block":
+                bucket["blocks"].add(llvm["from"])
+            else:
+                bucket["edges"].add(f"{llvm['from']}→{llvm['to']}")
+        rows.extend([
+            "", "## MIR → final LLVM origins", "",
+            "| MIR origin | disposition | LLVM regions | reason |",
+            "|---|---|---|---|",
+        ])
+        for (block, instruction, disposition, reason), targets in sorted(grouped.items()):
+            origin = f"bb{block}" + (f"/i{instruction}" if instruction >= 0 else "")
+            regions = sorted(targets["blocks"] | targets["edges"])
+            rows.append(
+                f"| {origin} | {disposition} | {', '.join(regions)} | {reason} |"
+            )
     return "\n".join(rows) + "\n"
 
 
@@ -97,6 +124,11 @@ def run_shape(args: argparse.Namespace) -> int:
         mir=_load_object(bundle / "mir.raw.json"),
         llvm_text=(bundle / "llvm.ir").read_text(encoding="utf-8", errors="replace"),
         asm_text=(bundle / "asm.s").read_text(encoding="utf-8", errors="replace"),
+        provenance=(
+            _load_object(bundle / "lowering.provenance.json")
+            if (bundle / "lowering.provenance.json").is_file()
+            else None
+        ),
         external_c=external_c,
     )
     out = Path(args.out) if args.out else bundle / "shape"
