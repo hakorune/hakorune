@@ -462,7 +462,7 @@ Non-authority: Leaf plans, ValueIds, labels, C code, timings, outlined helper,
 assembly, and evidence reports cannot issue CFG or compiler meaning.
 Fail-fast boundary: Remove exactly the old signature, 13-instruction Enter
 block, 2-instruction Trap block, 8 root-projection instructions, and two
-Finish calls. Preserve 13 blocks, 91 instructions, 18 edges, 5 PHIs, and two
+Finish calls. Preserve 20 blocks, 92 instructions, 35 edges, 5 PHIs, and two
 Returns by normalized graph digest; any synthesis or drift is NoSafeSlice.
 Smallest next slice: S6C-PINNED-CORRIDOR-FINAL-IR-SHELL-OUTLINE-I0 implements
 only the offline projector, digest parity, mutation negatives, and cleanup.
