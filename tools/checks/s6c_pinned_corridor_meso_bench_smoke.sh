@@ -33,6 +33,10 @@ CARGO_BUILD_JOBS=4 cargo build --manifest-path "$ROOT_DIR/Cargo.toml" --profile 
 "$CLANG_CMD" -O3 -fno-lto -c "$REFERENCE" -o "$TEMP_DIR/reference.o"
 "$CLANG_CMD" -O3 -fno-lto -no-pie "$BENCH" "$TEMP_DIR/reference.o" "$TEMP_DIR/meso.o" \
   -L"$ROOT_DIR/target/quick" -lnyash_kernel -lpthread -ldl -lm -o "$TEMP_DIR/meso-bench"
+if "$TEMP_DIR/meso-bench" --robust-case mixed 4096 first short \
+    >"$TEMP_DIR/robust-short.stdout" 2>"$TEMP_DIR/robust-short.stderr"; then
+  echo "[$TAG] ERROR: short robust schedule accepted" >&2; exit 1
+fi
 python3 - "$TEMP_DIR/meso-bench" "$TEMP_DIR/alignment.json" <<'PY'
 import hashlib, json, pathlib, re, subprocess, sys
 binary, output = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])

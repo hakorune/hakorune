@@ -331,7 +331,8 @@ static uint64_t measure(int hako, const MesoFrameV1* frame, uint64_t iterations,
   return now_ns() - start;
 }
 
-static int run_case(const char* family, uint64_t size, const char* position) {
+static int run_case(
+    const char* family, uint64_t size, const char* position, const char* robust_orders) {
   MesoInputV1 input = build_input(family, size, position);
   MesoFrameV1 frame;
   HakoPromotionTestWireV1 subject = hako_promotion_test_issue_text_wire_v1(input.subject);
@@ -357,17 +358,23 @@ static int run_case(const char* family, uint64_t size, const char* position) {
     (void)measure(!(warmup & 1), &frame, iterations, &sink);
   }
   for (unsigned sample = 0; sample < 51; sample++) {
-    if (!(sample & 1)) {
+    int hako_first = robust_orders ? robust_orders[sample] == 'A' : !(sample & 1);
+    if (hako_first) {
       hako_ns = measure(1, &frame, iterations, &sink);
       c_ns = measure(0, &frame, iterations, &sink);
     } else {
       c_ns = measure(0, &frame, iterations, &sink);
       hako_ns = measure(1, &frame, iterations, &sink);
     }
+    if (robust_orders)
+      printf("%s/%" PRIu64 "/%s,%u,%u,%u,%s,1,true,",
+             family, size, position, sample, sample / 17, sample % 17,
+             hako_first ? "AB" : "BA");
     printf("%s,%" PRIu64 ",%s,%u,%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
            ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 "\n",
-           family, size, position, sample, iterations, hako_ns, c_ns, sink, input.scalars,
-           input.histogram[0], input.histogram[1], input.histogram[2], input.histogram[3]);
+           family, size, position, sample, iterations, hako_ns, c_ns, sink,
+           input.scalars, input.histogram[0], input.histogram[1],
+           input.histogram[2], input.histogram[3]);
   }
   hako_text_formal_residence_finish_or_abort_v1(&frame.header);
   hako_promotion_test_drop_wire_v1(subject);
@@ -508,6 +515,23 @@ static int run_counter_preflight(void) {
 int main(int argc, char** argv) {
   if (argc == 2 && !strcmp(argv[1], "--counter-preflight"))
     return run_counter_preflight() ? 0 : 1;
+  if (argc == 6 && !strcmp(argv[1], "--robust-case")) {
+    char* end = NULL;
+    uint64_t size;
+    int family_ok = 0, position_ok = 0, size_ok = 0;
+    for (size_t index = 0; index < 5; index++) family_ok |= !strcmp(argv[2], FAMILIES[index]);
+    for (size_t index = 0; index < 4; index++) position_ok |= !strcmp(argv[4], POSITIONS[index]);
+    errno = 0;
+    size = strtoull(argv[3], &end, 10);
+    for (size_t index = 0; index < 4; index++) size_ok |= size == SIZES[index];
+    if (!family_ok || !position_ok || !size_ok || errno || !end || *end || strlen(argv[5]) != 51)
+      return 2;
+    for (size_t index = 0; index < 51; index++)
+      if (argv[5][index] != 'A' && argv[5][index] != 'B') return 2;
+    puts("case,slot,block,block_slot,order,attempt,oracle_equal,family,size,position,"
+         "sample,iterations,hako_ns,c_ns,sink,scalars,width1,width2,width3,width4");
+    return run_case(argv[2], size, argv[4], argv[5]) ? 0 : 1;
+  }
   if (argc != 1) {
     const char *arm = NULL, *case_name = NULL, *iterations_text = NULL;
     char* end = NULL;
@@ -530,6 +554,6 @@ int main(int argc, char** argv) {
   for (size_t family = 0; family < 5; family++)
     for (size_t size = 0; size < 4; size++)
       for (size_t position = 0; position < 4; position++)
-        if (!run_case(FAMILIES[family], SIZES[size], POSITIONS[position])) return 1;
+        if (!run_case(FAMILIES[family], SIZES[size], POSITIONS[position], NULL)) return 1;
   return 0;
 }

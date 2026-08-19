@@ -28,8 +28,8 @@ Related:
 - **Current blocker:** meso evidence remains red. The sole native clean-pair R0
   closed `NoSafeSlice` with 18/18 scheduler-rejected pairs and zero accepted;
   rejected values issued no ratio, PC attribution, or residual owner.
-- **Next ordered task:** `S6C-MESO-PAIRED-WALLCLOCK-HARNESS-I1` connects the
-  landed retain-all plan to the existing evidence runner without measuring.
+- **Next ordered task:** `S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0` runs exactly
+  two sealed development sessions; it cannot authorize native promotion.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -588,8 +588,8 @@ Non-authority: context switches, outlier rules, best runs, WSL green, p95, PMU,
 assembly, and rejected old observations issue no promotion or compiler meaning.
 Fail-fast boundary: missing/duplicate/retried/short/order/identity/oracle drift
 rejects atomically; scheduler delay remains in its original paired sample.
-Smallest next slice: `S6C-MESO-PAIRED-WALLCLOCK-HARNESS-I1` connects the sealed
-schedule to the C runner; it performs no WSL/native measurement.
+Smallest next slice: `S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0` runs session 0/1
+once each and aggregates them without pooling or selecting a best session.
 Non-claims: No outlier deletion, threshold/C/corpus change, native verdict,
 owner/BoxShape, whole-call evidence, promotion, production, or fallback.
 ```
@@ -620,7 +620,8 @@ nothing rather than fabricating a receipt. The 243-line private acquisition
 owner keeps the collector and C observer below 760 lines. The verified receipt
 SHA is `b0118063...af0ec1`, plan `19b8af1d...fac2`: 18 unique complete pairs,
 all ineligible, accepted IDs empty, and no partial artifact. Same-plan rerun and
-PC attribution stay closed. The 196-line robust plan/validator I0 is landed.
+PC attribution stay closed. Plan/validator I0 and explicit C/Python harness I1
+are landed; default legacy CSV remains unchanged and native-final is unopened.
 
 Ordered task ladder:
 
@@ -631,8 +632,9 @@ Ordered task ladder:
 5. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-I2`: landed evidence-only.
 6. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-R0`: terminal NoSafeSlice; closed.
 7. `S6C-MESO-PAIRED-WALLCLOCK-ROBUST-D0/I0`: accepted/landed plan owner only.
-8. `S6C-MESO-PAIRED-WALLCLOCK-HARNESS-I1`: connect sealed order and raw rows.
-9. `S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0`: development keeper only.
+8. `S6C-MESO-PAIRED-WALLCLOCK-HARNESS-I1`: landed explicit order/raw-row path.
+9. `S6C-MESO-PAIRED-WALLCLOCK-WSL-DEV-R0`: run session 0/1 once; development
+   keeper only, with no best-session selection or retry.
 10. `S6C-MESO-PAIRED-WALLCLOCK-NATIVE-FINAL-R0`: three native sessions; only
     this may feed 8f. PC/owner work requires a separate future Decision.
 

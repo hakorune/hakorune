@@ -15,6 +15,11 @@ PAIR_COUNT = 51
 BLOCK_COUNT = 3
 BLOCK_SIZE = 17
 THRESHOLD = 1.15
+FAMILIES = ("ascii", "width2", "width3", "width4", "mixed")
+SIZES = (32, 256, 4096, 1048576)
+POSITIONS = ("first", "middle", "last", "miss")
+CANONICAL_CASES = tuple(f"{family}/{size}/{position}" for family in FAMILIES
+                        for size in SIZES for position in POSITIONS)
 
 
 class InvalidSession(ValueError):
@@ -25,30 +30,31 @@ def _canonical(value: object) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
 
 
-def _block_orders(binary_sha256: str, case: str, block: int) -> list[str]:
-    ab_count = 9 if block % 2 == 0 else 8
+def _block_orders(binary_sha256: str, case: str, block: int, session_index: int) -> list[str]:
+    ab_count = 9 if (block + session_index) % 2 == 0 else 8
     ranked = sorted(range(BLOCK_SIZE), key=lambda slot: hashlib.sha256(
-        f"{PROTOCOL}:{binary_sha256}:{case}:{block}:{slot}".encode()).digest())
+        f"{PROTOCOL}:{binary_sha256}:{case}:{session_index}:{block}:{slot}".encode()).digest())
     ab_slots = set(ranked[:ab_count])
     return ["AB" if slot in ab_slots else "BA" for slot in range(BLOCK_SIZE)]
 
 
 def seal_plan(
         *, commit: str, binary_sha256: str, cases: Iterable[str],
-        environment_class: str) -> dict[str, object]:
+        environment_class: str, session_index: int = 0) -> dict[str, object]:
     if environment_class not in {"wsl_development", "native_final"}:
         raise InvalidSession("unknown environment authority class")
     case_list = sorted(set(cases))
-    if not case_list or len(binary_sha256) != 64 or len(commit) != 40:
+    if not case_list or len(binary_sha256) != 64 or len(commit) != 40 or session_index not in (0, 1, 2):
         raise InvalidSession("plan identity/case census is incomplete")
     schedules = {case: [order for block in range(BLOCK_COUNT)
-                        for order in _block_orders(binary_sha256, case, block)]
+                        for order in _block_orders(binary_sha256, case, block, session_index)]
                  for case in case_list}
     plan = {
         "schema": PROTOCOL,
         "commit": commit,
         "binary_sha256": binary_sha256,
         "environment_class": environment_class,
+        "session_index": session_index,
         "cases": case_list,
         "pair_count": PAIR_COUNT,
         "blocks": BLOCK_COUNT,
@@ -138,7 +144,33 @@ def validate_session(plan: dict[str, object], rows: list[dict[str, object]]) -> 
             "plan_sha256": plan["plan_sha256"], "authority":
             "development-evidence-only" if prefix == "development" else "promotion-evidence-input",
             "outcome": f"{prefix}_{outcome}", "cases": case_stats,
-            "all_pairs_retained": True, "pair_count_per_case": PAIR_COUNT}
+            "session_index": plan["session_index"], "all_pairs_retained": True,
+            "pair_count_per_case": PAIR_COUNT}
+
+
+def aggregate_development(receipts: list[dict[str, object]]) -> dict[str, object]:
+    if len(receipts) != 2 or {row["plan"]["session_index"] for row in receipts} != {0, 1}:
+        raise InvalidSession("development keeper requires exact fresh sessions 0 and 1")
+    identity_keys = ("commit", "binary_sha256", "environment_class", "cases",
+                     "minimum_arm_ns", "threshold_4k_plus_p50", "sample_policy")
+    if any(receipts[0]["plan"][key] != receipts[1]["plan"][key] for key in identity_keys):
+        raise InvalidSession("development session identity drift")
+    if any(row.get("schema") != "s6c-meso-paired-wallclock-receipt-v1" or
+           row["plan"]["environment_class"] != "wsl_development" or
+           row["session"]["plan_sha256"] != row["plan"]["plan_sha256"]
+           for row in receipts):
+        raise InvalidSession("foreign development receipt")
+    outcomes = [row["session"]["outcome"] for row in receipts]
+    if outcomes == ["development_green", "development_green"]:
+        outcome = "development_keeper"
+    elif outcomes == ["development_red", "development_red"]:
+        outcome = "development_red"
+    else:
+        outcome = "development_inconclusive"
+    return {"schema": "s6c-meso-paired-wallclock-development-verdict-v1",
+            "authority": "development-evidence-only", "outcome": outcome,
+            "session_plan_sha256": [row["plan"]["plan_sha256"] for row in receipts],
+            "native_promotion_authority": False}
 
 
 def _rows(plan: dict[str, object], ratios: dict[int, float] | None = None) -> list[dict[str, object]]:
@@ -189,6 +221,25 @@ def self_test() -> None:
         pass
     else:
         raise AssertionError("missing pair accepted")
+    second = seal_plan(commit="a" * 40, binary_sha256="b" * 64,
+                       cases=["mixed/4096/first"], environment_class="wsl_development",
+                       session_index=1)
+    assert second["schedules"]["mixed/4096/first"].count("AB") == 25
+    receipts = [{"schema": "s6c-meso-paired-wallclock-receipt-v1", "plan": item,
+                 "session": validate_session(item, _rows(item))} for item in (plan, second)]
+    assert aggregate_development(receipts)["outcome"] == "development_keeper"
+    mixed = json.loads(json.dumps(receipts))
+    mixed[1]["session"]["outcome"] = "development_red"
+    assert aggregate_development(mixed)["outcome"] == "development_inconclusive"
+    foreign = json.loads(json.dumps(receipts))
+    foreign[1]["plan"]["binary_sha256"] = "c" * 64
+    for invalid in ([receipts[0], receipts[0]], foreign):
+        try:
+            aggregate_development(invalid)
+        except InvalidSession:
+            pass
+        else:
+            raise AssertionError("foreign/duplicate development sessions accepted")
 
 
 if __name__ == "__main__":
