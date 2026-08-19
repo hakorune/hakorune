@@ -250,9 +250,19 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 selected design stop
+  FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0
+  -> name one resolver-issued explicit-special/direct-FreeStatic/lexical-value
+     classification before arguments and select one bounded first cohort.
+
+landed BoxShape
+  FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0
+  -> production owner 790 -> 329 lines; five unchanged tests live in a 443-line
+     child. Focused tests are green; reusable guard red is parent baseline debt.
+
+accepted census
   FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0
-  -> classify every local/current-static/builtin/extern/recovery/tail caller and
-     first-error dependency before selecting one canonical migration.
+  -> AST kind cannot distinguish identifier-value from FreeStatic; late target
+     resolution has one main chain, two recovery consumers, and two tail variants.
 
 accepted design
   FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0

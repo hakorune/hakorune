@@ -22,10 +22,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Classify all active dependencies on post-argument bare-name resolution before selecting one canonical FunctionCall migration."
+current_design_stop = "Name one resolver-owned source-site classification for explicit special, direct FreeStatic, and lexical callee value before ordered argument effects."
 work_mode = "design_stop"
-current_execution_row = "FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0"
-current_blocker_token = "Canonical callee-before-arguments semantics is accepted; local/current-static/recovery/tail compatibility callers and diagnostic dependencies are not yet fully classified."
+current_execution_row = "FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0"
+current_blocker_token = "AST FunctionCall cannot distinguish lexical callable value from FreeStatic; callable-value and special-form source issuers must be named before implementation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -89,13 +89,13 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/function-call-direct-vs-value-call-compat-census-d0.md"
+current_execution_design = "docs/development/current/main/investigations/function-call-lexical-callee-classification-d0.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "function-call-direct-vs-value-call-compat-census-d0"
-latest_card_path = "docs/development/current/main/investigations/function-call-direct-vs-value-call-compat-census-d0.md"
-latest_card_summary = "Canonical FunctionCall target-before-arguments semantics is accepted; census every legacy post-argument target and diagnostic dependency before migration."
-next_design_card = "FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0"
-next_design_card_path = "docs/development/current/main/investigations/function-call-direct-vs-value-call-compat-census-d0.md"
+latest_card = "function-call-lexical-callee-classification-d0"
+latest_card_path = "docs/development/current/main/investigations/function-call-lexical-callee-classification-d0.md"
+latest_card_summary = "Preflight owner test split landed at 329/462 lines; design the resolver-owned lexical/direct/special call classification before arguments."
+next_design_card = "FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0"
+next_design_card_path = "docs/development/current/main/investigations/function-call-lexical-callee-classification-d0.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -108,6 +108,8 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0 landed behavior-neutrally. The production owner is 329 lines and its unchanged five tests live in a 443-line child; focused tests, inventory parity, rustfmt, diff, and pointer guard are green. The reusable MirBuilder guard's selected-normal-lifecycle red reproduces on parent ada2373fb2 and is classified baseline debt. Lexical callee classification D0 is selected.",
+  "2026-08-20: FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0 accepted. Parser identifier calls remain FunctionCall, Call already lowers callee-before-arguments, late raw resolution has one main chain, unique-static recovery has two consumers, and tail resolution has two variants behind one env selector. The 790-line preflight test split is selected behavior-neutrally before resolver classifier design.",
   "2026-08-20: FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0 accepted the language target. FunctionCall is direct FreeStatic or explicit special syntax, Call evaluates a callee value, and arguments run once left-to-right after target selection. VerifiedCallableIndexV1 to ResolvedDirectCallTargetV1 remains the sole FreeStatic issuer; legacy Builder lookup is non-authority. Compatibility census D0 is selected.",
   "2026-08-20: RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0 closed NoSafeSlice. Raw ordinary calls resolve the callee after argument lowering, and arguments may mutate variable_map or fail first; moving target selection earlier is not behavior-preserving. FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0 is selected design-only.",
   "2026-08-20: SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0 closed NoSafeSlice. Ordinary preflight retains only name and AST arguments; exact target, same-module recovery, header, and tail resolution remain later Builder-owned decisions. Script FunctionCall stays typed Deferred with no new receipt or edge. RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0 is selected design-only.",
@@ -115,6 +117,4 @@ landed_tail = [
   "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0 accepted one observation BoxCount. The exact ten-payload Hako identity stays unchanged; explicit C assembly plus one exact unique symbol may feed only a separate derived report with independent totals and correspondence unavailable. C build, symbol fallback, equivalence, timing, mapping, keeper, and promotion authority remain prohibited. The bounded I0 is selected.",
   "2026-08-20: HAKO-INSPECT-ORIGIN-FOOTPRINT-I0 landed one caller-zero observation BoxCount. The existing driver transaction now seals same-emission object and exact ParserScanLoopBox.skip_while/4 disassembly with an origin-footprint payload. Issuer-exact MIR origins expose lowered-LLVM block/edge/instruction/call/branch shape; ASM exposes only 144/47/5/1 symbol totals and origin attribution remains unavailable. Thirty-nine inspect tests and the 21-test public guard are green. Optional C-reference D0 is selected next.",
   "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-I0 landed behavior-neutrally. Producer lineage and summary are written before identity and join source/MIR/lowered LLVM/origins/provenance in its seven-payload digest table; identity is the non-recursive root receipt issued last. Exact seven-plus-receipt inventory, producer/summary tamper, extra sibling, and partial-publication negatives are green. Origin-footprint D0 is selected next.",
-  "2026-08-20: HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-I0 landed behavior-neutrally. A 108-line pure child narrows V0 to the real preserved/split issuer forms, validates reason/site/cohort and exact MIR/LLVM ownership, and rejects latent merged/deleted/introduced vocabulary. Thirty-three inspect tests, both inspect guards, selected-Dynamic 64-row evidence, and the S6C structural canary are green; C event bytes are unchanged. Bundle identity D0 is selected next.",
-  "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0 landed behavior-neutrally. One dedicated hako_check child builds the private driver and invokes the existing atomic ingress; the 753-line generic router and evidence boundary are unchanged. Reserved repo-root/driver overrides reject before compilation and fixed internal values are appended last. Eleven focused tests plus the public positive and two override negatives are green. HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0 is selected design-only next.",
 ]

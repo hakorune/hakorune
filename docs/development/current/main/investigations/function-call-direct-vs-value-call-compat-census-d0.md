@@ -1,6 +1,6 @@
 # FunctionCall Direct versus Value Call Compatibility Census D0
 
-Status: selected design stop
+Status: accepted census
 Scope: legacy bare-call target and first-error behavior census
 Parent: `../workstreams/mirbuilder-inplace-replacement-current.md`
 Row: `FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0`
@@ -16,9 +16,8 @@ Non-authority: Regex count alone, method names, `ValueId`, Builder snapshots,
 green tests, C, ASM, and perf cannot classify a canonical target.
 Fail-fast boundary: Unknown ownership, unobserved diagnostics, dynamic env-only
 tail behavior, or a caller lacking an exact source witness remains unclassified.
-Smallest next slice: Count and classify local callable, current-static, builtin/
-extern, unique-static recovery, tail resolver, parenthesized callee, and failing-
-argument cases; then select one bounded migration or prerequisite.
+Smallest next slice: `FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0` extracts the
+790-line owner's inline tests behavior-neutrally before semantic implementation.
 Non-claims: No parser/resolver/Builder change, Script activation, receipt/Recipe,
 compat retirement, production switch, fallback, or retry.
 
@@ -61,3 +60,30 @@ shape, and owning migration row. Archive/comment-only matches are separate.
 If the census cannot distinguish canonical FreeStatic from legacy callable-value
 or recovery behavior at exact source sites, select the missing parser/resolver
 source issuer D0. Do not infer membership from a successful raw call.
+
+## Census result
+
+```text
+raw FunctionCall preflight external production caller: 1
+post-argument resolve_call_target chain:              1
+unique-static recovery production consumers:          2
+tail resolver variants:                               2
+tail resolver env selectors:                          1
+Call(callee,args) callee-before-args lowerer:           1
+```
+
+The parser converts an identifier followed by `(...)` to `FunctionCall`, even
+when grouping leaves the callee as a Variable. `Call` is emitted only for a
+non-Variable callee expression. Therefore AST kind alone cannot distinguish an
+exact FreeStatic call from a lexical callable-value call.
+
+The ordinary raw route lowers arguments before `resolve_call_target`. That late
+chain checks builtin, current-static, local `variable_map`, extern, unique-static
+recovery, and optional tail resolution. `CallMaterializerBox` contains a second
+unique-static recovery consumer. These are compatibility implementation edges,
+not the accepted resolver authority.
+
+The next semantic prerequisite after the split is a resolver-owned lexical
+callee classification D0. It must classify the exact source site as explicit
+special, direct FreeStatic, or callee value before any Builder effect. This
+census does not authorize that product yet.
