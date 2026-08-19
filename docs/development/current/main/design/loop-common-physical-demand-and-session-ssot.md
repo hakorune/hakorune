@@ -577,76 +577,44 @@ MIR/source/production change, fallback, or promotion verdict.
 If the equal-alignment run stays red, preserve the red result and return to a
 hardware-counter/linked-layout design audit. Do not guess another LLVM schedule.
 
-### Current separate-arm hardware-counter design stop
+### Current native hardware-counter evidence closure
 
 ```text
-Decision: Current WSL2 counter attribution is NoSafeSlice; design one native
-Linux separate-arm evidence protocol before another lowering change.
-Source authority + canonical issuer: The exact equal-aligned Hako/C symbols and
-existing mixed/4096/first input issue workload identity; an external paired
-collector may issue evidence only after validating both arm processes.
-Non-authority: Mixed-process aggregate counters, virtual-PMU IPC, perf sample
-ratios, standalone objects, and one timing ratio cannot name a backend owner.
-Fail-fast boundary: Require identical iterations/input/build IDs, pinned CPU,
-AB/BA ordering, >=30ms arms, >=31 pairs, enabled==running, zero lost samples,
-hypervisor flag zero, and separate non-multiplexed counts. Use two fixed epochs:
-cycles/instructions/branches/branch-misses, then cycles/frontend-stalls/L1I/iTLB.
-Smallest next slice: S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0 fixes the protocol;
-native Linux I0 may add `--arm hako|c` and an evidence-only collector later.
-Non-claims: No current-WSL attribution, lowering/threshold/corpus/oracle change,
-production switch, fallback, promotion, or generic profiler authority.
+Decision: Keep the native separate-arm collector, but do not open PC attribution
+until one integrity-repaired native rerun replaces the provisional report.
+Source authority + canonical issuer: One frozen binary identity and the fixed
+mixed/4096/first corpus issue direct Hako/C samples; the collector alone issues
+paired intervals and a reproduced candidate classification.
+Non-authority: Case text, arm-equal fingerprints, arbitrary commit text,
+symbols-only manifests, filtered software-counter zeroes, ratios, and report
+labels cannot issue compiler meaning or select a lowering.
+Fail-fast boundary: Before collection bind commit, SHA, build-id, symbols, and
+canonical corpus; per epoch require exact single-CPU affinity, zero getrusage
+context switches, exact PMU IDs, enabled==running, >=30ms, and no partial output.
+Smallest next slice: S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-R0 reruns the repaired
+collector on native Linux; only a green replacement report may open A0.
+Non-claims: No causal PC owner, backend BoxShape, threshold/corpus/oracle change,
+production switch, fallback, promotion verdict, or generic profiler authority.
 ```
 
-Only a counter delta reproduced in three independent runs may open an attribution row using
-`perf record -e cycles:u` and exact symbol/build-id matching. If no single PC
-region owns the delta, the performance route remains `NoSafeSlice`; counters
-must never be proportionally assigned from the existing mixed-arm process.
-
-The native consumer uses `PERF_FORMAT_GROUP`, exact event IDs, total enabled
-and running time, `exclude_kernel=1`, and `exclude_hv=1`. Raw events and event
-fallback are forbidden. A classification must reproduce in three independent
-runs with its paired 95% interval excluding 1 and its direction matching the
-cycle delta before PC attribution may open.
-
-### Native separate-arm hardware-counter I0
-
-```text
-Decision: Add one evidence-only arm mode and native collector; keep compiler,
-source, MIR, ABI, C reference, corpus, and the 1.15 threshold unchanged.
-Source authority + canonical issuer: The equal-aligned linked Hako/C symbols
-and mixed/4096/first builder issue one workload; each process proves parity
-before the collector enables either fixed user-space PMU group.
-Non-authority: Counter values, event IDs, timing, disassembly, body hashes, and
-the JSON report issue no compiler meaning and cannot select production.
-Fail-fast boundary: Reject WSL/VM/container, affinity drift, unsupported or
-missing events, ID drift, enabled/running inequality, lost samples,
-context-switch/migration, arm/input/result/iteration drift, or partial output.
-Smallest next slice: Only a classification reproduced across all three 51-pair
-AB/BA runs with paired 95% intervals excluding 1 and cycle-direction parity
-may open S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0.
-Non-claims: No raw-event fallback, scaling, retry, lowering change, threshold
-relaxation, production switch, promotion verdict, or generic profiler owner.
-```
-
-The harness options are exactly `--arm hako|c`, `--case
-mixed/4096/first`, and `--iterations N`. Hako and C execute in distinct
-CPU-pinned processes from the same binary. Residence acquisition, parity, and
-Finish remain outside both counter intervals. The primary group is
-cycles/instructions/branches/branch-misses; the frontend group is
-cycles/frontend-stalls/L1I/iTLB. Both use generic perf encodings with
-`PERF_FORMAT_GROUP|ID|TOTAL_TIME_ENABLED|TOTAL_TIME_RUNNING`, kernel and
-hypervisor exclusion, exact IDs, and no raw fallback.
+The first native report (`601f45fe...afc59c`) found stable Hako/C ratios near
+cycles 1.143, instructions 0.960, and branches 1.125 across 3x51 pairs. It is
+provisional: its scheduling software events were user-filtered, manifest
+identity was incomplete, and both arms could share a drifted corpus. The I1
+repair replaces those premises with `getrusage`, exact affinity, a private
+frozen binary, full manifest/commit binding, fixed 4096-byte/1642-scalar corpus
+and classifier matrices. The old JSON cannot authorize A0.
 
 Ordered task ladder:
 
-1. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0`: freeze the protocol above.
-2. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-I0`: **Landed evidence-only.** Native Linux
-   runs the exact arm selector in separate pinned processes and atomically
-   publishes only complete 3x51 fixed-group evidence.
-3. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: only for an event reproduced in
-   three independent runs,
-   map samples to one exact linked symbol/PC region.
-4. `S6C-MESO-RESIDUAL-OWNER-R0`: open one backend BoxShape only when A0 names
+1. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0/I0`: landed evidence foundation.
+2. `S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-I1`: landed repair; no compiler path.
+3. `S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-R0`: native rerun and replacement JSON.
+4. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: if R0 reproduces one driver, collect
+   7+ AB/BA arm-separated branch profiles for the exact build-id and normalize
+   raw IPs to symbol-relative offsets. A single branch region must own >=70% of
+   the Hako excess in >=5/7 pairs; otherwise return `NoSafeSlice`.
+5. `S6C-MESO-RESIDUAL-OWNER-D0`: open one backend BoxShape only when A0 names
    one owner; otherwise retain the performance `NoSafeSlice`.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned

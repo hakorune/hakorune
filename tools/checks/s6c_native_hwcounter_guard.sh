@@ -17,7 +17,7 @@ expect() {
 }
 for needle in '--arm' '--case' '--iterations' 'PERF_FORMAT_GROUP' 'PERF_FORMAT_ID' \
   'PERF_FORMAT_TOTAL_TIME_ENABLED' 'PERF_FORMAT_TOTAL_TIME_RUNNING' 'exclude_kernel = 1' \
-  'exclude_hv = 1' 'PERF_COUNT_SW_CONTEXT_SWITCHES' 'PERF_COUNT_SW_CPU_MIGRATIONS'; do
+  'exclude_hv = 1' 'getrusage(RUSAGE_SELF' 'sched_getcpu()' 'width_histogram'; do
   expect "$BENCH" "$needle"
 done
 for event in cycles:u instructions:u branches:u branch-misses:u stalled-cycles-frontend:u \
@@ -27,12 +27,14 @@ for event in cycles:u instructions:u branches:u branch-misses:u stalled-cycles-f
 done
 for needle in 'PAIR_COUNT = 51' 'RUN_COUNT = 3' 'mixed/4096/first' \
   'paired-log-ratio-t95' 'physical instruction schedule candidate' 'branch layout candidate' \
-  'frontend placement candidate' 'os.replace' 'NoSafeSlice'; do
+  'frontend placement candidate' 'CANONICAL_FINGERPRINT' 'aggregate_classifications' \
+  'freeze_binary' 'validate_source_commit' 'os.replace' 'NoSafeSlice'; do
   expect "$COLLECTOR" "$needle"
 done
 for negative in 'wrong arm' 'wrong case' 'iteration drift' 'result mismatch' 'event ID drift' \
-  'missing event' 'multiplex/time scaling' 'hypervisor negative' 'migration/context-switch' \
-  'partial report publication'; do
+  'missing event' 'multiplex/time scaling' 'hypervisor negative' 'affinity/context-switch' \
+  'corpus fingerprint drift' 'corpus shape drift' 'classification matrix drift' \
+  'corrupt manifest identity' 'partial report publication'; do
   expect "$COLLECTOR" "$negative"
 done
 if rg -n 'PERF_TYPE_RAW|raw_event_fallback[^\n]*True' "$BENCH" "$COLLECTOR"; then

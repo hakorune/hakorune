@@ -9,6 +9,7 @@ import math
 import os
 from pathlib import Path
 import re
+import shutil
 import statistics
 import subprocess
 import sys
@@ -16,6 +17,15 @@ import tempfile
 
 
 CASE = "mixed/4096/first"
+CANONICAL_FINGERPRINT = "e1e113d20440f2a4"
+CANONICAL_CORPUS = {
+    "subject_byte_len": 4096,
+    "needle_byte_len": 1,
+    "scalars": 1642,
+    "width_histogram": [415, 409, 409, 409],
+    "input_fingerprint": CANONICAL_FINGERPRINT,
+    "result": 0,
+}
 PAIR_COUNT = 51
 RUN_COUNT = 3
 MIN_ELAPSED_NS = 30_000_000
@@ -127,15 +137,39 @@ def symbol_evidence(binary: Path) -> tuple[str, dict[str, dict[str, object]]]:
     return build_match.group(1), symbols
 
 
-def validate_alignment_manifest(path: Path, symbols: dict[str, dict[str, object]]) -> None:
+def validate_alignment_manifest(
+        path: Path, binary_sha256: str, build_id: str,
+        symbols: dict[str, dict[str, object]]) -> None:
     try:
         manifest = json.loads(path.read_text())
     except (OSError, json.JSONDecodeError) as error:
         raise NoSafeSlice(f"alignment manifest unreadable: {error}") from error
     if manifest.get("schema") != "s6c-pinned-corridor-meso-alignment-evidence-v1":
         raise NoSafeSlice("alignment manifest schema drift")
-    if manifest.get("symbols") != symbols:
+    if manifest.get("binary_sha256") != binary_sha256 or manifest.get("build_id") != build_id or \
+            manifest.get("symbols") != symbols:
         raise NoSafeSlice("alignment manifest does not match measured binary")
+
+
+def validate_source_commit(commit: str) -> Path:
+    if not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise NoSafeSlice("commit must be one full lowercase SHA")
+    root = Path(__file__).resolve().parents[2]
+    if command("git", "-C", str(root), "rev-parse", "HEAD") != commit:
+        raise NoSafeSlice("commit does not match repository HEAD")
+    for args in (("diff", "--quiet"), ("diff", "--cached", "--quiet")):
+        if subprocess.run(["git", "-C", str(root), *args]).returncode:
+            raise NoSafeSlice("tracked repository state is dirty")
+    return root
+
+
+def freeze_binary(binary: Path, directory: Path) -> Path:
+    frozen = directory / "meso-bench.frozen"
+    shutil.copyfile(binary, frozen)
+    frozen.chmod(0o500)
+    if sha256(frozen) != sha256(binary):
+        raise NoSafeSlice("frozen binary copy drift")
+    return frozen
 
 
 def validate_sample(sample: dict[str, object], arm: str, iterations: int, cpu: int) -> None:
@@ -145,6 +179,9 @@ def validate_sample(sample: dict[str, object], arm: str, iterations: int, cpu: i
     for key, value in expected.items():
         if sample.get(key) != value:
             raise NoSafeSlice(f"{key} drift: expected {value}, got {sample.get(key)}")
+    for key, value in CANONICAL_CORPUS.items():
+        if sample.get(key) != value:
+            raise NoSafeSlice(f"canonical corpus {key} drift: expected {value}, got {sample.get(key)}")
     if sample.get("result") != sample.get("parity_result"):
         raise NoSafeSlice("result mismatch")
     if not isinstance(sample.get("input_fingerprint"), str) or len(sample["input_fingerprint"]) != 16:
@@ -155,9 +192,16 @@ def validate_sample(sample: dict[str, object], arm: str, iterations: int, cpu: i
             raise NoSafeSlice(f"{epoch} missing/excess event")
         if group.get("time_enabled") != group.get("time_running") or not group.get("time_enabled"):
             raise NoSafeSlice(f"{epoch} multiplex/time scaling")
-        for zero_field in ("lost_samples", "context_switches", "migrations"):
+        for zero_field in ("lost_samples", "voluntary_context_switches",
+                           "involuntary_context_switches"):
             if group.get(zero_field) != 0:
                 raise NoSafeSlice(f"{epoch} {zero_field} is nonzero")
+        for count_field in ("affinity_count_before", "affinity_count_after"):
+            if group.get(count_field) != 1:
+                raise NoSafeSlice(f"{epoch} {count_field} drift")
+        for cpu_field in ("affinity_cpu_before", "affinity_cpu_after"):
+            if group.get(cpu_field) != cpu:
+                raise NoSafeSlice(f"{epoch} {cpu_field} drift")
         if not isinstance(group.get("elapsed_ns"), int) or group["elapsed_ns"] < MIN_ELAPSED_NS:
             raise NoSafeSlice(f"{epoch} call loop shorter than 30ms")
         events = group.get("events")
@@ -175,11 +219,16 @@ def validate_sample(sample: dict[str, object], arm: str, iterations: int, cpu: i
 
 
 def run_arm(binary: Path, arm: str, iterations: int, cpu: int) -> dict[str, object]:
-    process = subprocess.run(
-        ["taskset", "-c", str(cpu), str(binary), "--arm", arm, "--case", CASE,
-         "--iterations", str(iterations)],
-        text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    )
+    if iterations <= 0:
+        raise NoSafeSlice("iterations must be positive")
+    try:
+        process = subprocess.run(
+            ["taskset", "-c", str(cpu), str(binary), "--arm", arm, "--case", CASE,
+             "--iterations", str(iterations)],
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300,
+        )
+    except subprocess.TimeoutExpired as error:
+        raise NoSafeSlice(f"{arm} process timed out") from error
     if process.returncode:
         detail = process.stderr.strip() or f"exit {process.returncode}"
         raise NoSafeSlice(f"{arm} process rejected: {detail}")
@@ -273,13 +322,30 @@ def classify(summary: dict[str, dict[str, object]]) -> dict[str, object]:
     return {"name": "NoSafeSlice", "drivers": [], "direction": 0}
 
 
+def aggregate_classifications(classes: list[dict[str, object]]) -> dict[str, object]:
+    if len(classes) != RUN_COUNT:
+        raise NoSafeSlice("classification run count drift")
+    names = {row["name"] for row in classes}
+    directions = {row["direction"] for row in classes}
+    shared_drivers = set(classes[0]["drivers"]).intersection(
+        *(set(row["drivers"]) for row in classes[1:]))
+    if len(names) == 1 and "NoSafeSlice" not in names and len(directions) == 1 and shared_drivers:
+        return {"name": classes[0]["name"], "direction": classes[0]["direction"],
+                "reproduced_runs": RUN_COUNT, "drivers": sorted(shared_drivers),
+                "pc_attribution_candidate": True,
+                "next_task": "S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0"}
+    return {"name": "NoSafeSlice", "direction": 0, "reproduced_runs": 0,
+            "drivers": [], "pc_attribution_candidate": False,
+            "next_task": "NoSafeSlice"}
+
+
 def collect(binary: Path, iterations: int, cpu: int) -> tuple[list[dict[str, object]], dict[str, object]]:
     runs = []
     for run_index in range(RUN_COUNT):
         pairs = []
         ratio_sets = {f"{epoch}/{name}": [] for epoch, names in EPOCHS.items() for name in names}
         for pair_index in range(PAIR_COUNT):
-            order = ("hako", "c") if pair_index % 2 == 0 else ("c", "hako")
+            order = ("hako", "c") if (pair_index + run_index) % 2 == 0 else ("c", "hako")
             samples = {arm: run_arm(binary, arm, iterations, cpu) for arm in order}
             paired = paired_ratios(samples["hako"], samples["c"], iterations)
             for name, value in paired["ratios"].items():
@@ -289,20 +355,7 @@ def collect(binary: Path, iterations: int, cpu: int) -> tuple[list[dict[str, obj
         summary = {name: interval(values) for name, values in ratio_sets.items()}
         runs.append({"run": run_index, "pairs": pairs, "summary": summary,
                      "classification": classify(summary)})
-    classes = [run["classification"] for run in runs]
-    names = {row["name"] for row in classes}
-    directions = {row["direction"] for row in classes}
-    shared_drivers = set(classes[0]["drivers"]).intersection(*(set(row["drivers"]) for row in classes[1:]))
-    if len(names) == 1 and "NoSafeSlice" not in names and len(directions) == 1 and shared_drivers:
-        final = {"name": classes[0]["name"], "direction": classes[0]["direction"],
-                 "reproduced_runs": RUN_COUNT, "drivers": sorted(shared_drivers),
-                 "pc_attribution_candidate": True,
-                 "next_task": "S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0"}
-    else:
-        final = {"name": "NoSafeSlice", "direction": 0, "reproduced_runs": 0,
-                 "drivers": [], "pc_attribution_candidate": False,
-                 "next_task": "NoSafeSlice"}
-    return runs, final
+    return runs, aggregate_classifications([run["classification"] for run in runs])
 
 
 def atomic_publish(path: Path, build) -> None:
@@ -319,8 +372,8 @@ def atomic_publish(path: Path, build) -> None:
 
 def valid_fixture() -> dict[str, object]:
     sample = {"schema": "s6c-meso-separate-arm-sample-v1", "arm": "hako", "case": CASE,
-              "iterations": 10, "cpu": 2, "affinity_count": 1, "input_fingerprint": "0" * 16,
-              "result": 0, "parity_result": 0, "sink": 1}
+              "iterations": 10, "cpu": 2, "affinity_count": 1,
+              **copy.deepcopy(CANONICAL_CORPUS), "parity_result": 0, "sink": 1}
     next_id = 1
     for epoch, names in EPOCHS.items():
         events = []
@@ -328,7 +381,10 @@ def valid_fixture() -> dict[str, object]:
             events.append({"name": name, "expected_id": next_id, "read_id": next_id, "count": 100})
             next_id += 1
         sample[epoch] = {"group_event_count": 4, "time_enabled": 40, "time_running": 40,
-                         "lost_samples": 0, "context_switches": 0, "migrations": 0,
+                         "lost_samples": 0, "voluntary_context_switches": 0,
+                         "involuntary_context_switches": 0, "affinity_cpu_before": 2,
+                         "affinity_cpu_after": 2, "affinity_count_before": 1,
+                         "affinity_count_after": 1,
                          "elapsed_ns": MIN_ELAPSED_NS, "events": events}
     return sample
 
@@ -341,10 +397,13 @@ def self_test() -> None:
         "wrong case": lambda row: row.update(case="mixed/4096/miss"),
         "iteration drift": lambda row: row.update(iterations=11),
         "result mismatch": lambda row: row.update(parity_result=1),
+        "corpus fingerprint drift": lambda row: row.update(input_fingerprint="0" * 16),
+        "corpus shape drift": lambda row: row.update(scalars=1641),
         "event ID drift": lambda row: row["primary"]["events"][0].update(read_id=99),
         "missing event": lambda row: row["primary"].update(events=row["primary"]["events"][:-1]),
         "multiplex/time scaling": lambda row: row["primary"].update(time_running=39),
-        "migration/context-switch": lambda row: row["frontend"].update(context_switches=1),
+        "affinity/context-switch": lambda row: row["frontend"].update(
+            involuntary_context_switches=1),
     }
     for name, mutate in negatives.items():
         row = copy.deepcopy(base)
@@ -356,7 +415,61 @@ def self_test() -> None:
         raise AssertionError(f"negative accepted: {name}")
     if not virtualization_reason("Linux", "Hypervisor vendor: KVM", "0::/", "kvm"):
         raise AssertionError("hypervisor negative accepted")
+    above = interval([1.2] * PAIR_COUNT)
+    below = interval([0.8] * PAIR_COUNT)
+    equal = interval([1.0] * PAIR_COUNT)
+    crossing = interval(([0.8, 1.2] * 25) + [1.0])
+    missing = interval(([1.2] * (PAIR_COUNT - 1)) + [None])
+    if direction(above) != 1 or direction(below) != -1 or direction(equal) != 0 or \
+            direction(crossing) != 0 or missing["estimable"]:
+        raise AssertionError("paired interval matrix drift")
+    try:
+        interval([1.2] * (PAIR_COUNT - 1))
+    except NoSafeSlice:
+        pass
+    else:
+        raise AssertionError("short paired interval accepted")
+    base = {f"{epoch}/{name}": crossing for epoch, names in EPOCHS.items() for name in names}
+    schedule = dict(base)
+    schedule["primary/cycles:u"] = above
+    schedule["frontend/cycles:u"] = above
+    schedule["primary/branches:u"] = above
+    schedule["primary/instructions:u"] = below
+    classified = classify(schedule)
+    if classified["name"] != "physical instruction schedule candidate" or \
+            classified["drivers"] != ["primary/branches:u"]:
+        raise AssertionError("schedule classification matrix drift")
+    accepted = aggregate_classifications([classified, classified, classified])
+    if not accepted["pc_attribution_candidate"]:
+        raise AssertionError("three-run classification aggregation drift")
+    rejected = aggregate_classifications([classified, classified,
+        {"name": "NoSafeSlice", "drivers": [], "direction": 0}])
+    if rejected["pc_attribution_candidate"]:
+        raise AssertionError("mixed classification aggregate accepted")
+    driver_drift = dict(classified)
+    driver_drift["drivers"] = ["primary/instructions:u"]
+    rejected = aggregate_classifications([classified, classified, driver_drift])
+    if rejected["pc_attribution_candidate"]:
+        raise AssertionError("empty shared-driver aggregate accepted")
     with tempfile.TemporaryDirectory() as directory:
+        manifest = Path(directory) / "alignment.json"
+        manifest.write_text(json.dumps({
+            "schema": "s6c-pinned-corridor-meso-alignment-evidence-v1",
+            "binary_sha256": "a" * 64, "build_id": "b" * 40,
+            "symbols": {"hako": {"address": 64}},
+        }))
+        validate_alignment_manifest(
+            manifest, "a" * 64, "b" * 40, {"hako": {"address": 64}})
+        corrupt = json.loads(manifest.read_text())
+        corrupt["binary_sha256"] = "c" * 64
+        manifest.write_text(json.dumps(corrupt))
+        try:
+            validate_alignment_manifest(
+                manifest, "a" * 64, "b" * 40, {"hako": {"address": 64}})
+        except NoSafeSlice:
+            pass
+        else:
+            raise AssertionError("corrupt manifest identity accepted")
         report = Path(directory) / "evidence.json"
         try:
             atomic_publish(report, lambda: (_ for _ in ()).throw(NoSafeSlice("partial")))
@@ -401,12 +514,22 @@ def main() -> int:
                 args.binary, args.alignment_manifest, args.cpu, args.iterations, args.clang)):
             parser.error("probe requires binary, alignment manifest, cpu, iterations, clang")
         try:
+            if args.iterations <= 0:
+                raise NoSafeSlice("iterations must be positive")
             environment(args.cpu, args.clang)
-            _, symbols = symbol_evidence(args.binary)
-            validate_alignment_manifest(args.alignment_manifest, symbols)
-            hako = run_arm(args.binary, "hako", args.iterations, args.cpu)
-            c_arm = run_arm(args.binary, "c", args.iterations, args.cpu)
-            paired = paired_ratios(hako, c_arm, args.iterations)
+            binary_sha = sha256(args.binary)
+            build_id, symbols = symbol_evidence(args.binary)
+            validate_alignment_manifest(
+                args.alignment_manifest, binary_sha, build_id, symbols)
+            with tempfile.TemporaryDirectory(prefix="hako-s6c-counter-frozen.") as directory:
+                frozen = freeze_binary(args.binary, Path(directory))
+                frozen_build_id, frozen_symbols = symbol_evidence(frozen)
+                if (sha256(frozen), frozen_build_id, frozen_symbols) != \
+                        (binary_sha, build_id, symbols):
+                    raise NoSafeSlice("frozen probe identity drift")
+                hako = run_arm(frozen, "hako", args.iterations, args.cpu)
+                c_arm = run_arm(frozen, "c", args.iterations, args.cpu)
+                paired = paired_ratios(hako, c_arm, args.iterations)
             print(json.dumps({"hako": hako, "c": c_arm, **paired}, sort_keys=True))
             return 0
         except (NoSafeSlice, OSError, ValueError, KeyError, json.JSONDecodeError) as error:
@@ -417,12 +540,19 @@ def main() -> int:
     if any(value is None for value in required):
         parser.error("collection requires binary, alignment manifest, report, commit, cpu, iterations, clang")
     try:
+        if args.iterations <= 0:
+            raise NoSafeSlice("iterations must be positive")
+        validate_source_commit(args.commit)
         host = environment(args.cpu, args.clang)
+        binary_sha = sha256(args.binary)
         build_id, symbols = symbol_evidence(args.binary)
-        validate_alignment_manifest(args.alignment_manifest, symbols)
+        validate_alignment_manifest(args.alignment_manifest, binary_sha, build_id, symbols)
 
-        def build_report() -> dict[str, object]:
-            runs, classification = collect(args.binary, args.iterations, args.cpu)
+        def build_report(frozen: Path) -> dict[str, object]:
+            runs, classification = collect(frozen, args.iterations, args.cpu)
+            final_build_id, final_symbols = symbol_evidence(frozen)
+            if (sha256(frozen), final_build_id, final_symbols) != (binary_sha, build_id, symbols):
+                raise NoSafeSlice("frozen binary identity drift during collection")
             fingerprints = {pair[arm]["input_fingerprint"] for run in runs for pair in run["pairs"]
                             for arm in ("hako", "c")}
             if len(fingerprints) != 1:
@@ -434,7 +564,7 @@ def main() -> int:
                 "environment": host,
                 "affinity": {"cpu": args.cpu, "method": "taskset separate process",
                              "allowed_at_collection": sorted(os.sched_getaffinity(0))},
-                "binary": {"path": str(args.binary.resolve()), "sha256": sha256(args.binary),
+                "binary": {"path": str(args.binary.resolve()), "sha256": binary_sha,
                            "build_id": build_id},
                 "symbols": symbols,
                 "workload": {"corpus": CASE, "iterations": args.iterations,
@@ -450,7 +580,13 @@ def main() -> int:
                             else "NoSafeSlice",
             }
 
-        atomic_publish(args.report, build_report)
+        with tempfile.TemporaryDirectory(prefix="hako-s6c-counter-frozen.") as directory:
+            frozen = freeze_binary(args.binary, Path(directory))
+            frozen_build_id, frozen_symbols = symbol_evidence(frozen)
+            if (sha256(frozen), frozen_build_id, frozen_symbols) != \
+                    (binary_sha, build_id, symbols):
+                raise NoSafeSlice("frozen collection identity drift")
+            atomic_publish(args.report, lambda: build_report(frozen))
         print(f"[s6c-native-hwcounter] ok: {args.report}")
         return 0
     except (NoSafeSlice, OSError, ValueError, KeyError, json.JSONDecodeError) as error:

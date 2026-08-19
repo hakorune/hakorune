@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/resource.h>
 #include <sys/syscall.h>
 #include <time.h>
 #include <unistd.h>
@@ -63,8 +64,12 @@ typedef struct EpochResultV1 {
   CounterGroupV1 group;
   CounterReadV1 read;
   uint64_t elapsed_ns;
-  uint64_t context_switches;
-  uint64_t migrations;
+  uint64_t voluntary_context_switches;
+  uint64_t involuntary_context_switches;
+  int affinity_cpu_before;
+  int affinity_cpu_after;
+  int affinity_count_before;
+  int affinity_count_after;
   uint64_t sink;
 } EpochResultV1;
 
@@ -132,18 +137,6 @@ static void close_group(CounterGroupV1* group) {
   }
 }
 
-static int open_software_counter(uint64_t config) {
-  struct perf_event_attr attr;
-  memset(&attr, 0, sizeof(attr));
-  attr.type = PERF_TYPE_SOFTWARE;
-  attr.size = sizeof(attr);
-  attr.config = config;
-  attr.disabled = 1;
-  attr.exclude_kernel = 1;
-  attr.exclude_hv = 1;
-  return perf_open(&attr, -1);
-}
-
 static uint64_t run_hako_loop(const MesoFrameV1* frame, uint64_t iterations) {
   int64_t sum = 0;
   for (uint64_t index = 0; index < iterations; index++)
@@ -160,34 +153,38 @@ static uint64_t run_c_loop(const MesoFrameV1* frame, uint64_t iterations) {
   return (uint64_t)sum + 1;
 }
 
+static int read_single_cpu_affinity(int* cpu, int* count) {
+  cpu_set_t affinity;
+  CPU_ZERO(&affinity);
+  if (sched_getaffinity(0, sizeof(affinity), &affinity) != 0) return 0;
+  *count = CPU_COUNT(&affinity);
+  *cpu = sched_getcpu();
+  return *count == 1 && *cpu >= 0 && CPU_ISSET(*cpu, &affinity);
+}
+
 static int measure_epoch(
     int hako, const MesoFrameV1* frame, uint64_t iterations,
     const CounterSpecV1 specs[4], EpochResultV1* out) {
-  int context_fd = -1, migration_fd = -1;
+  struct rusage before, after;
   uint64_t start, expected_size = sizeof(CounterReadV1);
   memset(out, 0, sizeof(*out));
   out->specs = specs;
   if (!open_group(specs, &out->group)) goto fail;
-  context_fd = open_software_counter(PERF_COUNT_SW_CONTEXT_SWITCHES);
-  migration_fd = open_software_counter(PERF_COUNT_SW_CPU_MIGRATIONS);
-  if (context_fd < 0 || migration_fd < 0) {
-    fprintf(stderr, "NoSafeSlice: scheduling counters unavailable: %s\n", strerror(errno));
-    goto fail;
-  }
-  if (ioctl(context_fd, PERF_EVENT_IOC_RESET, 0) || ioctl(migration_fd, PERF_EVENT_IOC_RESET, 0) ||
-      ioctl(out->group.fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP) ||
-      ioctl(context_fd, PERF_EVENT_IOC_ENABLE, 0) || ioctl(migration_fd, PERF_EVENT_IOC_ENABLE, 0))
+  if (getrusage(RUSAGE_SELF, &before) != 0 ||
+      !read_single_cpu_affinity(&out->affinity_cpu_before, &out->affinity_count_before) ||
+      ioctl(out->group.fds[0], PERF_EVENT_IOC_RESET, PERF_IOC_FLAG_GROUP))
     goto ioctl_fail;
   start = now_ns();
   if (ioctl(out->group.fds[0], PERF_EVENT_IOC_ENABLE, PERF_IOC_FLAG_GROUP)) goto ioctl_fail;
   out->sink = hako ? run_hako_loop(frame, iterations) : run_c_loop(frame, iterations);
   if (ioctl(out->group.fds[0], PERF_EVENT_IOC_DISABLE, PERF_IOC_FLAG_GROUP)) goto ioctl_fail;
   out->elapsed_ns = now_ns() - start;
-  if (ioctl(context_fd, PERF_EVENT_IOC_DISABLE, 0) || ioctl(migration_fd, PERF_EVENT_IOC_DISABLE, 0))
-    goto ioctl_fail;
+  if (!read_single_cpu_affinity(&out->affinity_cpu_after, &out->affinity_count_after) ||
+      getrusage(RUSAGE_SELF, &after) != 0) goto ioctl_fail;
+  out->voluntary_context_switches = (uint64_t)(after.ru_nvcsw - before.ru_nvcsw);
+  out->involuntary_context_switches = (uint64_t)(after.ru_nivcsw - before.ru_nivcsw);
   if (read(out->group.fds[0], &out->read, sizeof(out->read)) != (ssize_t)expected_size ||
-      read(context_fd, &out->context_switches, sizeof(uint64_t)) != (ssize_t)sizeof(uint64_t) ||
-      read(migration_fd, &out->migrations, sizeof(uint64_t)) != (ssize_t)sizeof(uint64_t)) {
+      after.ru_nvcsw < before.ru_nvcsw || after.ru_nivcsw < before.ru_nivcsw) {
     fprintf(stderr, "NoSafeSlice: incomplete PMU read\n");
     goto fail;
   }
@@ -202,18 +199,16 @@ static int measure_epoch(
       goto fail;
     }
   }
-  if (out->context_switches || out->migrations) {
-    fprintf(stderr, "NoSafeSlice: context-switch/migration detected\n");
+  if (out->voluntary_context_switches || out->involuntary_context_switches ||
+      out->affinity_cpu_before != out->affinity_cpu_after ||
+      out->affinity_count_before != 1 || out->affinity_count_after != 1) {
+    fprintf(stderr, "NoSafeSlice: context-switch/affinity drift detected\n");
     goto fail;
   }
-  close(context_fd);
-  close(migration_fd);
   return 1;
 ioctl_fail:
   fprintf(stderr, "NoSafeSlice: PMU ioctl failed: %s\n", strerror(errno));
 fail:
-  if (context_fd >= 0) close(context_fd);
-  if (migration_fd >= 0) close(migration_fd);
   close_group(&out->group);
   return 0;
 }
@@ -228,10 +223,16 @@ static uint64_t fnv1a(const uint8_t* bytes, uint64_t length, uint64_t hash) {
 
 static void print_epoch(const char* name, const EpochResultV1* epoch) {
   printf("\"%s\":{\"group_event_count\":4,\"time_enabled\":%" PRIu64
-         ",\"time_running\":%" PRIu64 ",\"lost_samples\":0,\"context_switches\":%" PRIu64
-         ",\"migrations\":%" PRIu64 ",\"elapsed_ns\":%" PRIu64 ",\"events\":[",
-         name, epoch->read.time_enabled, epoch->read.time_running, epoch->context_switches,
-         epoch->migrations, epoch->elapsed_ns);
+         ",\"time_running\":%" PRIu64 ",\"lost_samples\":0,"
+         "\"voluntary_context_switches\":%" PRIu64
+         ",\"involuntary_context_switches\":%" PRIu64
+         ",\"affinity_cpu_before\":%d,\"affinity_cpu_after\":%d,"
+         "\"affinity_count_before\":%d,\"affinity_count_after\":%d,"
+         "\"elapsed_ns\":%" PRIu64 ",\"events\":[",
+         name, epoch->read.time_enabled, epoch->read.time_running,
+         epoch->voluntary_context_switches, epoch->involuntary_context_switches,
+         epoch->affinity_cpu_before, epoch->affinity_cpu_after,
+         epoch->affinity_count_before, epoch->affinity_count_after, epoch->elapsed_ns);
   for (int index = 0; index < 4; index++) {
     printf("%s{\"name\":\"%s\",\"expected_id\":%" PRIu64
            ",\"read_id\":%" PRIu64 ",\"count\":%" PRIu64 "}",
@@ -422,8 +423,14 @@ static int run_counter_arm(const char* arm, const char* case_name, uint64_t iter
   printf("{\"schema\":\"s6c-meso-separate-arm-sample-v1\",\"arm\":\"%s\","
          "\"case\":\"%s\",\"iterations\":%" PRIu64 ",\"cpu\":%d,"
          "\"affinity_count\":%d,\"input_fingerprint\":\"%016" PRIx64 "\","
+         "\"subject_byte_len\":%" PRIu64 ",\"needle_byte_len\":%" PRIu64 ","
+         "\"scalars\":%" PRIu64 ",\"width_histogram\":[%" PRIu64 ",%" PRIu64
+         ",%" PRIu64 ",%" PRIu64 "],"
          "\"result\":%" PRId64 ",\"parity_result\":%" PRId64 ",\"sink\":%" PRIu64 ",",
-         arm, case_name, iterations, cpu, affinity_count, fingerprint, hako_result, c_result,
+         arm, case_name, iterations, cpu, affinity_count, fingerprint,
+         frame.roots[0].byte_len, frame.roots[1].byte_len, input.scalars,
+         input.histogram[0], input.histogram[1], input.histogram[2], input.histogram[3],
+         hako_result, c_result,
          primary.sink ^ frontend.sink);
   print_epoch("primary", &primary);
   printf(",");
@@ -447,6 +454,7 @@ int main(int argc, char** argv) {
       else return 2;
     }
     if (!arm || !case_name || !iterations_text) return 2;
+    if (iterations_text[0] == '-') return 2;
     errno = 0;
     iterations = strtoull(iterations_text, &end, 10);
     if (errno || !end || *end) return 2;

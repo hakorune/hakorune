@@ -1040,7 +1040,9 @@ outside both groups, and the default 80-case meso benchmark remains unchanged.
 `tools/perf/s6c_native_hwcounter_collect.py` launches the same binary as
 separate pinned Hako/C processes in 3 independent runs of 51 alternating AB/BA
 pairs. It rejects virtual hosts, unsupported/missing events, event-ID drift,
-multiplexing, lost samples, context switches, migrations, or workload drift,
-and publishes JSON through one temporary-file rename only after full closure.
+multiplexing, lost samples, getrusage context switches, affinity drift, or
+workload drift. It executes one private frozen binary after binding its SHA,
+build-id, symbols, source commit, and canonical corpus, then publishes JSON
+through one temporary-file rename only after full closure.
 Raw PMU events and fallback are forbidden. This evidence can name only a later
 PC-attribution candidate; it cannot change this compiler boundary.
