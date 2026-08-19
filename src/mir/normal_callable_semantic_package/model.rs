@@ -34,6 +34,8 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
 pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
+    pub(super) instance_constructors:
+        super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     pub(super) parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
     pub(super) physical_signature:
@@ -68,6 +70,12 @@ pub(crate) enum NormalCallableDynamicProjectionRefV1<'package> {
 impl VerifiedNormalCallableSemanticPackageV1 {
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.batch.source_ast()
+    }
+
+    pub(crate) fn instance_constructors(
+        &self,
+    ) -> &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1 {
+        &self.instance_constructors
     }
 
     #[cfg(test)]

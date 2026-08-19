@@ -8,6 +8,7 @@
 mod completion_seed;
 mod dynamic_admission;
 mod install;
+mod instance_constructor_semantic;
 mod issuer;
 mod model;
 mod physical_header;

@@ -28,6 +28,7 @@ mod callable_source_anchor;
 pub(crate) use callable_source_anchor::CallableDeclarationIdentityV1;
 pub(crate) use initial_callable_program_source::InitialCallableFinalSlotV1;
 mod common;
+mod constructor_source_catalog;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
@@ -52,6 +53,7 @@ mod items;
 mod lifecycle;
 pub(crate) mod log;
 mod normal_callable_program_source;
+pub(crate) use constructor_source_catalog::ConstructorSourceIdV1;
 pub(crate) use normal_callable_program_source::{
     issue_final_callable_program_source_v1, CallableMethodSourceObservationV1,
     FinalCallableDeclarationModeV1, FinalCallableProgramSourceRejectV1,

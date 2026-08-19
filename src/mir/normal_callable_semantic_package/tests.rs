@@ -55,6 +55,57 @@ fn issue(
     issue_normal_callable_semantic_package_v1(&mut resolver, final_source(source))
 }
 
+fn issue_with_brand_catalog(
+    source: &str,
+) -> Result<super::VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    let source = final_source(source);
+    let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(
+        source.ast(),
+    )
+    .expect("brand catalog");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(93).unwrap();
+    super::issue_normal_callable_semantic_package_with_brand_catalog_v1(
+        &mut resolver,
+        source,
+        Some(&catalog),
+    )
+}
+
+#[test]
+fn instance_constructor_semantics_keep_parser_identity_and_nested_brand_relations() {
+    let package = issue_with_brand_catalog(
+        r#"
+brand Id: i64
+
+box Holder {
+    init(value) {
+        local direct = Id(value)
+        local nested = fn(x) { Id(x) }
+    }
+    pack(other) {
+        local second = Id(other)
+    }
+}
+"#,
+    )
+    .expect("constructor semantic package");
+
+    let rows = package.instance_constructors().rows();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].box_name(), "Holder");
+    assert_eq!(rows[0].key(), "init/1");
+    assert!(rows[0].source_id().same_as(rows[0].source_id()));
+    assert_eq!(rows[0].forest().owner_count(), 2);
+    assert_eq!(rows[1].key(), "pack/1");
+    assert_eq!(
+        rows.iter()
+            .flat_map(|row| row.forest().owners())
+            .map(|(_, owner)| owner.brand_call_relations().count())
+            .sum::<usize>(),
+        3
+    );
+}
+
 #[test]
 fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() {
     let package = issue(include_str!(

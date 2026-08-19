@@ -269,15 +269,30 @@ fn finalize_program(
         .enumerate()
         .map(|(prepared_index, prepared)| {
             let final_index = coverage.prepared_to_final[prepared_index];
-            prepared.finalize_against(final_boxes[final_index].0, final_boxes[final_index].1)
+            prepared.finalize_against(final_boxes[final_index].1, final_boxes[final_index].2)
         })
         .collect::<Result<Vec<_>, _>>()?
         .into_boxed_slice();
+    let final_box_ordinals = coverage
+        .prepared_to_final
+        .iter()
+        .map(|final_index| final_boxes[*final_index].0)
+        .collect::<Vec<_>>();
+    let constructor_source =
+        super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1::issue(
+            initial_callable_source.ast(),
+            &source_seals,
+            &final_box_ordinals,
+        )
+        .map_err(SourceSealFinalizationErrorV1::ConstructorSourceCatalog)?;
+    drop(final_boxes);
+    let initial_callable_source =
+        initial_callable_source.attach_constructor_source(constructor_source);
 
     Ok(ParsedProgramWithSourceV1 {
         initial_callable_source,
         source_seals,
-        final_box_ordinals: coverage.prepared_to_final.into_boxed_slice(),
+        final_box_ordinals: final_box_ordinals.into_boxed_slice(),
         generated_delegate_source_relations,
         metadata,
     })
@@ -291,7 +306,7 @@ fn validate_ordinary_source_seals(
     let final_boxes = ordinary_final_boxes(ast, prepared.len())?;
     for (prepared_index, seal) in prepared.iter().enumerate() {
         let final_box = final_boxes[coverage.prepared_to_final[prepared_index]];
-        seal.validate_against(final_box.0, final_box.1)?;
+        seal.validate_against(final_box.1, final_box.2)?;
     }
     Ok(())
 }
@@ -301,6 +316,7 @@ fn ordinary_final_boxes(
     prepared_count: usize,
 ) -> Result<
     Vec<(
+        usize,
         &BoxMethodInventoryV1,
         &std::collections::HashMap<String, ASTNode>,
     )>,
@@ -328,7 +344,7 @@ fn ordinary_final_boxes(
                 is_record: false,
                 is_static: false,
                 ..
-            } => final_boxes.push((methods, constructors)),
+            } => final_boxes.push((ordinal, methods, constructors)),
             ASTNode::BoxDeclaration { .. } => {
                 return Err(SourceSealFinalizationErrorV1::UnsupportedTopLevelBoxKind { ordinal });
             }
@@ -395,6 +411,9 @@ pub(in crate::parser) fn map_error(
         }
         SourceSealFinalizationErrorV1::ConstructorCoverageMismatch => {
             "parser constructor source inventory does not match final AST constructors".to_owned()
+        }
+        SourceSealFinalizationErrorV1::ConstructorSourceCatalog(error) => {
+            format!("parser constructor source catalog rejected: {error:?}")
         }
         SourceSealFinalizationErrorV1::InitialCallableProgramSource(error) => {
             format!("initial callable Program source co-seal rejected: {error:?}")

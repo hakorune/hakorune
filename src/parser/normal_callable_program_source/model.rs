@@ -44,6 +44,7 @@ pub(in crate::parser) enum NormalCallableParameterSourceRejectV1 {
     DuplicateDirectMethod,
     UnexpectedDirectMethod,
     SyntaxMismatch,
+    ConstructorSourceMissing,
 }
 
 #[derive(Debug)]
@@ -61,6 +62,9 @@ impl PreparedNormalCallableProgramSourceV1 {
             validate_direct_parameter_coverage(initial.callable_rows(), catalog)?;
             borrow_callable_declaration_syntax_v1(initial.ast(), catalog)
                 .map_err(|_| NormalCallableParameterSourceRejectV1::SyntaxMismatch)?;
+        }
+        if initial.constructor_source_is_missing() {
+            return Err(NormalCallableParameterSourceRejectV1::ConstructorSourceMissing);
         }
         Ok(Self {
             initial,
@@ -83,9 +87,16 @@ impl PreparedNormalCallableProgramSourceV1 {
         Box<[PreparedCallableSourceV1]>,
         Box<[InitialCallableFinalSlotV1]>,
         ParserCallableParameterSourceDispositionV1,
+        super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     ) {
-        let (ast, sources, slots) = self.initial.into_transform_parts();
-        (ast, sources, slots, self.parameter_source)
+        let (ast, sources, slots, constructor_source) = self.initial.into_transform_parts();
+        (
+            ast,
+            sources,
+            slots,
+            self.parameter_source,
+            constructor_source.expect("constructor source checked at issue"),
+        )
     }
 }
 
@@ -104,6 +115,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
     parameter_source: ParserCallableParameterSourceDispositionV1,
+    constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     _lineage: ExactCallablePreservingTransformReceiptV1,
 }
 
@@ -116,12 +128,14 @@ impl VerifiedFinalCallableProgramSourceV1 {
         sources: Box<[PreparedCallableSourceV1]>,
         slots: Box<[InitialCallableFinalSlotV1]>,
         parameter_source: ParserCallableParameterSourceDispositionV1,
+        constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     ) -> Self {
         Self {
             ast,
             sources,
             slots,
             parameter_source,
+            constructor_source,
             _lineage: ExactCallablePreservingTransformReceiptV1,
         }
     }
@@ -170,6 +184,19 @@ impl VerifiedFinalCallableProgramSourceV1 {
             &self.slots,
             &self.parameter_source,
         )?;
+        Ok(callback(loan))
+    }
+
+    pub(crate) fn with_constructor_semantic_syntax<R>(
+        &self,
+        callback: impl for<'source> FnOnce(
+            super::super::constructor_source_catalog::FinalConstructorSemanticSyntaxLoanV1<'source>,
+        ) -> R,
+    ) -> Result<
+        R,
+        super::super::constructor_source_catalog::FinalConstructorSemanticSyntaxLoanErrorV1,
+    > {
+        let loan = self.constructor_source.syntax_loan(&self.ast)?;
         Ok(callback(loan))
     }
 }

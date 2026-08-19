@@ -159,3 +159,30 @@ Stop:
   callable-catalog widening, physical demand reissues an owner, or any owner
   reaches 760 without a responsibility split. Do not consume or delete the raw
   Brand probe in this row.
+
+## I0 closeout receipt
+
+`INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0` is landed. One parser-branded,
+non-Clone constructor catalog now survives Initial, Prepared, and final
+callable source; the exact final transform rejects constructor-body drift.
+The package invokes the existing Brand-aware resolver before consuming the
+final source and retains one owner forest per constructor, including nested
+lambda owners. A leading non-Box program item exposed and closed an ordinal
+transport bug: final Box identity now carries the actual program statement
+ordinal rather than its index inside the filtered Box list.
+
+The focused test covers two constructor rows, one nested lambda, and three
+Brand relations. The reusable guard, formatter, quick check, pointer guard,
+line-count fence, and diff check are green. Physical consumption remains zero;
+the legacy raw Brand name probe is intentionally unchanged. Remaining
+Deferred/Compatibility/nested-method/Main/RawLegacy admissions return to a
+fresh design census rather than receiving an empty or guessed cohort.
+
+## BRAND-CONSTRUCTOR-REMAINING-ADMISSION-D3
+
+Decision: Audit the remaining relationless admissions and select exactly one source-backed family; global raw-probe retirement stays closed.
+Source authority + canonical issuer: Each admitted source family must retain its own parser/resolver owner plus exact `SourceExprSiteV1`; the existing Brand catalog remains declaration authority.
+Non-authority: Builder names, compatibility lineage, raw AST shape, checked-in caller count, empty cohorts, and `is_brand_declared` cannot issue missing relations.
+Fail-fast boundary: A family with incomplete owner/site coverage, guessed compatibility identity, or fallback to the raw probe remains `NoSafeSlice` before child effects.
+Smallest next slice: Read-only census of Deferred, Compatibility, nested-method/Main, and RawLegacy entrypoints, followed by one bounded six-line implementation brief.
+Non-claims: No consumer cutover, unwrap activation, nominal Brand value, runtime/backend change, fallback, or production probe retirement.

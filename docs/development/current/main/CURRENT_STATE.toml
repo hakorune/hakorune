@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0"
-current_blocker_token = "Carry the parser constructor cohort through final callable source and issue one resolver-owned semantic batch; raw consumption stays zero."
+current_design_stop = "Choose the next exact source-backed Brand relation issuance family among the remaining Deferred/Compatibility/nested-method/Main/RawLegacy admissions; no raw probe cutover yet."
+work_mode = "design_stop"
+current_execution_row = "BRAND-CONSTRUCTOR-REMAINING-ADMISSION-D3"
+current_blocker_token = "Instance constructors now own exact semantic forests; remaining relationless admissions need one bounded source authority before any global raw Brand probe retirement."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -92,11 +92,11 @@ current_execution_design = "docs/development/current/main/investigations/brand-i
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "brand-instance-constructor-source-relation-d0"
 latest_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
-latest_card_summary = "D1 selects one BoxCount: carry exact parser constructor rows through final source and issue one resolver-owned constructor semantic batch."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0"
-next_execution_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
+latest_card_summary = "Instance constructor semantic ownership is landed; D3 must select one remaining relationless admission family without fallback or raw-name reconstruction."
+next_design_card = "BRAND-CONSTRUCTOR-REMAINING-ADMISSION-D3"
+next_design_card_path = "docs/development/current/main/investigations/brand-instance-constructor-source-relation-d0.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -107,6 +107,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: PARSER-BOX-CONSTRUCTOR-SOURCE-INVENTORY-I0 landed one BoxCount. The parser now seals direct/gated order and generated birth trigger provenance before map overwrite, rejects duplicate keys, and revalidates exact final AST coverage; Brand semantic issuance remains unopened.",
   "2026-08-20: BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D2 closed. Caller-zero retirement is unsound for production-capable admissions; instance constructors are the first bounded parser-keyed issuance family, while nested methods have five checked-in natural Brand calls and Deferred/Compatibility/RawLegacy remain separate NoSafeSlice families.",
   "2026-08-20: BRAND-CONSTRUCTOR-RELATION-PROJECTION-P0 landed behavior-neutrally. Callable and Complete Script lowering states now retain one exact-site Constructor/NonBrand projection derived from their verified owner; missing/foreign coverage rejects, raw consumption remains zero, and the focused guard is green.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: BRAND-CONSTRUCTOR-SOURCE-RELATION-I0 landed one BoxCount. The same effective catalog now issues exact owner/site Constructor and Unwrap rows before child traversal for callable and Script owners; recognized constructors no longer enter generic direct-call resolution, while physical raw consumption remains a separate cutover.",
   "2026-08-20: BRAND-CONSTRUCTOR-SOURCE-RELATION-D0 accepted one BoxCount. The shared resolver traversal will issue owner/site-keyed Constructor and Unwrap rows from the same effective Brand catalog before child effects; raw consumer cutover and unwrap physical activation remain separate rows.",
   "2026-08-20: BRAND-PROGRAM-DECLARATION-CATALOG-I0 landed one BoxCount. One neutral AST-free catalog now owns ordered Brand rows and duplicate rejection for Stage1 and selected-normal; Stage1's private map issuer is deleted, and the remaining Builder map is catalog-derived compatibility state only.",
-  "2026-08-20: NORMAL-DEFAULT-BRAND-CATALOG-LIFECYCLE-SPLIT-P0 landed behavior-neutrally. The production owner is 501 lines and the unchanged test child is 269; five tests are green, while the same three semantic reds reproduce on parent 998940a569 and remain classified baseline debt.",
 ]

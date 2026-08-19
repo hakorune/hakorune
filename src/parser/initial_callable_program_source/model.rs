@@ -51,6 +51,8 @@ pub(crate) struct VerifiedInitialCallableProgramSourceV1 {
     ast: ASTNode,
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
+    constructor_source:
+        Option<super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1>,
 }
 
 impl VerifiedInitialCallableProgramSourceV1 {
@@ -65,11 +67,25 @@ impl VerifiedInitialCallableProgramSourceV1 {
             ast,
             sources: sources.into_boxed_slice(),
             slots: slots.into_boxed_slice(),
+            constructor_source: None,
         }
+    }
+
+    pub(in crate::parser) fn attach_constructor_source(
+        mut self,
+        source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
+    ) -> Self {
+        debug_assert!(self.constructor_source.is_none());
+        self.constructor_source = Some(source);
+        self
     }
 
     pub(crate) fn ast(&self) -> &ASTNode {
         &self.ast
+    }
+
+    pub(in crate::parser) fn constructor_source_is_missing(&self) -> bool {
+        self.constructor_source.is_none()
     }
 
     pub(in crate::parser) fn callable_rows(&self) -> &[PreparedCallableSourceV1] {
@@ -86,8 +102,9 @@ impl VerifiedInitialCallableProgramSourceV1 {
         ASTNode,
         Box<[PreparedCallableSourceV1]>,
         Box<[InitialCallableFinalSlotV1]>,
+        Option<super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1>,
     ) {
-        (self.ast, self.sources, self.slots)
+        (self.ast, self.sources, self.slots, self.constructor_source)
     }
 
     /// Lend exact callable syntax without allowing an AST reference to escape.

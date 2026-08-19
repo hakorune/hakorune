@@ -228,3 +228,18 @@ operation/physical-demand bridge is a separate design stop; it must either be
 co-sealed in that bridge or be retained by an existing private semantic
 product. No package API, public selected key, batch slot, owner number, or
 standalone ingress relation may be added for that purpose.
+
+## Instance constructor semantic owner I0 (2026-08-20)
+
+The final parser callable source now retains one non-Clone constructor source
+catalog whose opaque `ConstructorSourceIdV1` comes from the parser transaction.
+Final Box ordinals and normalized constructor keys validate placement only;
+Builder work ordering and `(box name, key)` never reissue occurrence identity.
+
+Before the ordinary callable batch consumes the final source, the existing
+Brand-aware resolver issues one complete owner forest for every constructor
+root and all nested lambdas. The semantic package retains those forests as one
+non-Clone batch and carries them through installation unchanged. Missing or
+changed syntax, deferred resolution, root/profile drift, and cardinality drift
+reject before Builder effects. This row does not consume the batch physically,
+activate Brand unwrap, or remove the legacy `is_brand_declared` probe.

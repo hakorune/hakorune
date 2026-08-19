@@ -54,6 +54,8 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
 pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    instance_constructors:
+        super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     selected: VerifiedSelectedCallableBatchMapV1,
     parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
     physical_signature: VerifiedCallablePhysicalSignatureCohortV1,
@@ -341,6 +343,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
         let VerifiedNormalCallableSemanticPackageV1 {
             catalog,
             batch,
+            instance_constructors,
             selected,
             parameter_contracts,
             physical_signature,
@@ -356,6 +359,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
         InstalledNormalCallableSemanticPackageV1 {
             catalog_brand,
             batch,
+            instance_constructors,
             selected,
             parameter_contracts,
             physical_signature,
@@ -371,6 +375,12 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 impl InstalledNormalCallableSemanticPackageV1 {
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.batch.source_ast()
+    }
+
+    pub(crate) fn instance_constructors(
+        &self,
+    ) -> &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1 {
+        &self.instance_constructors
     }
 
     pub(crate) fn installed_in(&self, context: &CompilationContext) -> bool {

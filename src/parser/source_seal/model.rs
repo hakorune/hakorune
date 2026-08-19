@@ -51,6 +51,9 @@ pub(in crate::parser) enum SourceSealFinalizationErrorV1 {
     },
     GeneratedDelegateCoverage(GeneratedDelegateCoverageErrorV1),
     ConstructorCoverageMismatch,
+    ConstructorSourceCatalog(
+        super::super::constructor_source_catalog::ConstructorSourceCatalogIssueErrorV1,
+    ),
     InitialCallableProgramSource(
         super::super::initial_callable_program_source::InitialCallableProgramSourceRejectV1,
     ),

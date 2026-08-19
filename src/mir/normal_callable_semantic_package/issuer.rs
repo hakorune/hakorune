@@ -30,6 +30,9 @@ use super::dynamic_admission::{
     admit_dynamic_callable_v1, issue_dynamic_parameter_contract_v2,
     DynamicCallableAdmissionIssueV1, DynamicCallableAdmissionV1,
 };
+use super::instance_constructor_semantic::{
+    issue_instance_constructor_semantic_batch_v1, InstanceConstructorSemanticBatchIssueV1,
+};
 use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
     OwnedCallableParameterContractV1, VerifiedNormalCallableSemanticPackageV1,
@@ -50,6 +53,7 @@ use super::selected_mapping::{
 pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     SourceBackedCatalog(SourceBackedCallableCatalogIssueV1),
     Batch(ResolvedCallableSemanticBatchIssueV1),
+    InstanceConstructors(InstanceConstructorSemanticBatchIssueV1),
     SelectedMapping(SelectedCallableBatchMapIssueV1),
     ParameterContract(CallableParameterContractIssueV1),
     PhysicalHeader(CallablePhysicalHeaderIssueV1),
@@ -85,6 +89,9 @@ pub(crate) fn issue_normal_callable_semantic_package_with_brand_catalog_v1(
     source: VerifiedFinalCallableProgramSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    let instance_constructors =
+        issue_instance_constructor_semantic_batch_v1(resolver, &source, brand_catalog)
+            .map_err(NormalCallableSemanticPackageIssueV1::InstanceConstructors)?;
     let catalog = issue_source_backed_same_module_callable_catalog_v1(&source)
         .map_err(NormalCallableSemanticPackageIssueV1::SourceBackedCatalog)?;
     let batch = issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
@@ -251,6 +258,7 @@ pub(crate) fn issue_normal_callable_semantic_package_with_brand_catalog_v1(
     Ok(VerifiedNormalCallableSemanticPackageV1 {
         catalog,
         batch,
+        instance_constructors,
         selected,
         parameter_contracts,
         physical_signature,
