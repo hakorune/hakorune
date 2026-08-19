@@ -25,10 +25,10 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** residual-performance evidence is parked after terminal
-  WSL `NoSafeSlice`; no complete owner-attribution receipt exists.
-- **Next ordered task:** none. `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0` is a
-  parked reopen condition, not implementation permission.
+- **Current blocker:** MeasurementBatch V2 needs one pure manifest/lineage/
+  terminal-state owner before another WSL or native execution may open.
+- **Next ordered task:** `S6C-MESO-WALLCLOCK-BATCH-PLAN-I0`; schema and pure
+  transitions only, with no filesystem, runner, measurement, or compiler edit.
 - **Production stop line:** promotion, production selection, fallback/retry,
   and `nyash.string.eq_hh` retirement remain closed.
 
@@ -321,19 +321,19 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Decision: Park performance evidence; existing correctness and structural
-closure cannot issue a residual owner or promotion verdict.
-Source authority + canonical issuer: A future reentry requires one sealed
-exact-build attribution plan and its complete collector receipt; current state
-alone selects whether that parked D0 may open.
-Non-authority: Assembly branch counts, partial WSL cases, old PMU ratios,
-process lifetime, exact green, and structural-zero issue no owner or BoxShape.
-Fail-fast boundary: Closed WSL plans, partial recovery, same-plan rerun,
-backend guessing, 8e/8f, production, and cleanup-lane bypass remain forbidden.
-Smallest next slice: None. Park `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0` until a
-new external premise can select exactly one complete attribution method.
-Non-claims: No performance owner, WSL/native verdict, BoxShape, promotion,
-production cutover, fallback, or MIRBuilder completion is claimed.
+Decision: Retire one-shot measurement and use immutable append-only linked
+batches; same-batch retry and result-based selection remain forbidden.
+Source authority + canonical issuer: `BatchManifestV2` binds exact candidate,
+environment, fixed slots/order, predecessor receipt, and threshold before
+effect; `BatchValidatorV2` alone issues the terminal batch state.
+Non-authority: newest/best batch, partial rows, stderr, old V1 receipts, WSL
+green, assembly, and manually paired sessions issue no owner or promotion.
+Fail-fast boundary: overwrite, same-batch resume, completed-sample replacement,
+cross-batch pooling, identity/oracle/order drift, and best-run selection reject.
+Smallest next slice: `S6C-MESO-WALLCLOCK-BATCH-PLAN-I0` implements only pure
+manifest IDs, lineage, terminal states, validation, and counterexample tests.
+Non-claims: No filesystem/subprocess/C/compiler/backend change, measurement,
+native authority, threshold/corpus change, owner, promotion, or production.
 
 ### Closed object-observer design
 
@@ -622,15 +622,24 @@ Ordered task ladder:
    authorized.
 10. `S6C-MESO-PAIRED-WALLCLOCK-NATIVE-FINAL-R0`: not opened; future selection
     requires a new explicit Decision. PC/owner work remains unauthorized.
-11. `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0`: parked. A new external premise
-    must select exactly one exact-build, complete-receipt attribution method;
-    no evidence I0, compiler edit, rerun, or promotion is pre-authorized.
+11. `PERF-MEASUREMENT-BATCH-D0`: accepted. Immutable V2 batches may repeat only
+    as linked successor IDs; same-batch retry and best-run selection stay closed.
+12. `S6C-MESO-WALLCLOCK-BATCH-PLAN-I0`: pure manifest, lineage, terminal-state
+    model and self-tests; no filesystem or process effects.
+13. `S6C-MESO-WALLCLOCK-BATCH-HARNESS-I1`: append-only batch directory,
+    terminal receipts, orphan close, V1 direct CLI retirement, reusable guard.
+14. `S6C-MESO-WALLCLOCK-WSL-BATCH-R0`: one explicit two-session development
+    batch; complete green/red/inconclusive or terminal incomplete is preserved.
+15. `S6C-MESO-WALLCLOCK-NATIVE-BATCH-D0/I2/R0`: separate future Decision;
+    WSL/history cannot issue native promotion authority.
+16. `S6C-MESO-OWNER-ATTRIBUTION-REENTRY-D0`: only a complete native red batch
+    may select one attribution method; wall-clock or assembly alone cannot.
 
-Reentry accepts only one full commit/binary/build-id and exact Hako/C symbol
-cohort, one fixed corpus/oracle/environment, one bounded arm-separated
-acquisition, one complete terminal receipt, and one predeclared classifier.
-Partial or rejected observations cannot enter it. PC sampling and retain-all
-native acquisition are mutually exclusive candidates; a future D0 selects one.
+V2 terminal states are `Complete`, `Incomplete`, and `IntegrityInvalid` after
+manifest issuance; bad inputs before issuance are `PreflightRejected` and do
+not create a batch. A successor batch binds the predecessor terminal digest and
+repeat reason. Complete red is never silently replaced; all batch history is
+retained and no statistics are pooled across batches.
 
 Assembly remains negative structural evidence only. It proves absence of
 forbidden calls, EH, wide reads, or helper boundaries; instruction or branch

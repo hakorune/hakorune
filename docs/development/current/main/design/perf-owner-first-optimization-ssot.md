@@ -324,6 +324,55 @@ remote-free lane の実務判定は、まず source `me.*` と MIR `field_get/se
 - active boundary counter が 0 の seam をまだ触ろうとしている
 - helper 名だけで owner を説明している
 
+## Measurement Batch and Repetition Law
+
+Compiler transactionのfallback禁止と、empirical measurementの反復可能性を
+混同しない。性能測定は一回限りではなく、事前封印されたimmutable batchを
+append-onlyに積む。
+
+```text
+protocol / candidate / corpus / threshold
+  -> BatchManifestV2
+       fixed environment role
+       fixed session slots and order
+       prior terminal receipt digest
+  -> exact session executions
+  -> one terminal batch receipt
+```
+
+同一batchはresume、overwrite、sample replacementをしない。effect後の中断は
+`Incomplete`、identity/oracle/schema driftは`IntegrityInvalid`、全slot完了は
+`Complete`として一度だけ閉じる。中断後の再測定は、旧terminal receiptを参照する
+新しいbatch IDとして開始する。これはcompiler retryでもsame-batch retryでもない。
+
+固定するもの:
+
+- full commit、binary SHA/build-id、symbol body、toolchain;
+- environment role、CPU contract、corpus、oracle、threshold;
+- session census、case/order schedule、統計、terminal taxonomy;
+- predecessor batch digestとrepeat reason。
+
+許可する反復:
+
+- `PreflightRejected`はeffect前なので、入力を直してbatchを発行し直せる;
+- `Incomplete`はlinked successor batchを明示発行できる;
+- `Complete`後の確認測定も別batchとして全履歴を残せる。
+
+禁止する反復:
+
+- 完了sample、red case、汚染armだけの取り直し;
+- batchのresume、receipt overwrite/delete、別batch間のpairing/pooling;
+- latest/best/green batchだけの選別;
+- 結果を見た後のsession数、threshold、corpus、order変更。
+
+`wsl_development`はkeeper/red/inconclusiveの開発証拠だけを発行する。
+`native_promotion`は別Decisionで開き、事前指定されたbatch集合だけをpromotionへ
+渡す。WSL greenや過去V1 receiptはnative authorityへ昇格しない。
+
+各session内では全sampleをretainし、既存のAB/BA、block、p50 gateを維持する。
+partial rowsはterminal receiptへ参照せず、性能比を発行しない。V1 plan/receiptは
+historical auditとしてimmutableに残し、V2へnormalizeしない。
+
 ## Doc Placement
 
 ### `AGENTS.md`
