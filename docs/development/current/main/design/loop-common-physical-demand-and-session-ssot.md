@@ -577,22 +577,23 @@ MIR/source/production change, fallback, or promotion verdict.
 If the equal-alignment run stays red, preserve the red result and return to a
 hardware-counter/linked-layout design audit. Do not guess another LLVM schedule.
 
-### Current native scheduler-noise design stop
+### Accepted clean-pair acquisition D0
 
 ```text
-Decision: Accept the integrity R0 NoSafeSlice; do not rerun the unchanged
-zero-context-switch protocol or select a backend optimization from it.
-Source authority + canonical issuer: One frozen binary identity and the fixed
-mixed/4096/first corpus issue direct Hako/C samples; the collector alone issues
-paired evidence only from a complete Hako/C pair whose four epochs are clean.
-Non-authority: A contaminated arm, partial pair, retry count, stderr, old JSON,
-or one clean arm cannot issue a ratio, classification, or backend owner.
-Fail-fast boundary: Predeclare 68 attempts for 51 accepted pairs per run; any
-context switch or affinity drift discards and records the whole pair. Failure
-to obtain 51, rejection rate above 25%, or missing reject provenance publishes
-no report. Accepted-pair order remains AB/BA and every PMU/identity gate remains.
-Smallest next slice: S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-D0 fixes this
-bounded evidence-only policy before any collector or native rerun change.
+Decision: Adopt bounded complete-pair eligibility sampling; only scheduler
+contamination may refill one predeclared accepted slot, never a fatal failure.
+Source authority + canonical issuer: One hashed acquisition plan fixes binary,
+corpus, CPU, events, 3x51 accepted slots, 68 attempts per block, ordering,
+eligibility, interval, and classifier; the outer collector is the sole issuer
+of AcceptedPair or SchedulerRejectedPair from two complete arm observations.
+Non-authority: One arm, a partial pair, rejected PMU counts, attempt count,
+stderr, old JSON, timing wins, and PC profiles issue no ratio or owner.
+Fail-fast boundary: Scheduler metadata alone may reject a whole completed pair;
+fatal identity/corpus/oracle/PMU/output drift stops the invocation immediately.
+Rejected IDs cannot enter ratios; 18 rejects, attempt 69, order drift, or an
+incomplete ledger closes a non-evidence NoSafeSlice terminal receipt.
+Smallest next slice: S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-I2 changes only
+the C raw observation, private acquisition ledger, terminal receipt, and gates.
 Non-claims: No causal PC owner, backend BoxShape, threshold/corpus/oracle change,
 production switch, fallback, promotion verdict, or generic profiler authority.
 ```
@@ -608,18 +609,35 @@ and classifier matrices. The old JSON cannot authorize A0. Integrity R0 at
 affinity drift (binary `fda6e59a...c269db`, build-id `0547a55c...4cec0`); this
 is the accepted current result, not permission for an unbounded retry.
 
+I2 fixes each block's accepted order before measurement: block 0/2 start AB,
+block 1 starts BA, for total AB=77 and BA=76. A contaminated first arm never
+skips the second; both epochs and an arm-envelope `getrusage`/affinity census are
+recorded. The same slot/order is retried, and arms from different attempts can
+never pair. One chronological attempt ledger is the SSOT; block summaries hold
+only accepted/rejected attempt IDs. Ratios consume exactly 51 accepted IDs per
+block, preserve df=50 log-ratio t95, and never pool all 153 observations.
+
+The terminal artifact is issued only after commit/binary/corpus/PMU preflight
+has produced the acquisition plan. Accepted and bounded NoSafeSlice outcomes
+use one schema with `evidence_eligible`; failures before plan issuance publish
+nothing rather than fabricating a receipt. I2 uses a private acquisition child
+instead of growing the 600-line collector toward the 760-line split boundary.
+Positive/negative gates cover 0 and 17 rejections, the 18th rejection, missing
+opposite arm, cross-attempt pairing, rejected-ID ratio injection, fatal retry,
+AB/BA drift, order-stratum direction reversal, and atomic terminal closure.
+
 Ordered task ladder:
 
 1. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0/I0`: landed evidence foundation.
 2. `S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-I1`: landed repair; no compiler path.
 3. `S6C-MESO-HWCOUNTER-EVIDENCE-INTEGRITY-R0`: accepted NoSafeSlice; no JSON.
-4. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-D0/I2/R0`: freeze, implement, and
-   run bounded scheduler-noise rejection while preserving all integrity gates.
-5. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: if R0 reproduces one driver, collect
+4. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-D0`: accepted as above.
+5. `S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-I2/R0`: implement and run once.
+6. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: if R0 reproduces one driver, collect
    7+ AB/BA arm-separated branch profiles for the exact build-id and normalize
    raw IPs to symbol-relative offsets. A single branch region must own >=70% of
    the Hako excess in >=5/7 pairs; otherwise return `NoSafeSlice`.
-6. `S6C-MESO-RESIDUAL-OWNER-D0`: open one backend BoxShape only when A0 names
+7. `S6C-MESO-RESIDUAL-OWNER-D0`: open one backend BoxShape only when A0 names
    one owner; otherwise retain the performance `NoSafeSlice`.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
