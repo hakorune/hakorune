@@ -50,6 +50,16 @@ An internal candidate connection with production callers at zero is not I0.
 Stage-B-specific source routes must not be connected here; only their
 source-neutral reusable parts may enter a named production replacement cell.
 
+### Raw invocation source transport classifier
+
+`raw_invocation_source_transport.rs` owns exact path construction and temporal
+source scopes. Its private
+`raw_invocation_source_statement_classification.rs` child owns only the finite
+statement located/compatibility classification. The split is behavior-neutral:
+bare `FunctionCall` and `MethodCall` remain `CallObject` compatibility rows.
+Future exact-site activation must change the classifier child explicitly and
+must not reintroduce AST classification into the transport owner.
+
 ### Ordered Box-method compatibility edge (R5-S1)
 
 The deferred non-Main static-Box Program path consumes the AST-owned

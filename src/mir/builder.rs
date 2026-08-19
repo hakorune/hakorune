@@ -355,6 +355,7 @@ mod qmark_source_demand;
 mod raw_expression_recursion_guard;
 mod raw_invocation_body;
 mod raw_invocation_source_item_site;
+mod raw_invocation_source_statement_classification;
 mod raw_invocation_source_transport;
 mod raw_static_result_publication;
 mod raw_structured_child_scope;

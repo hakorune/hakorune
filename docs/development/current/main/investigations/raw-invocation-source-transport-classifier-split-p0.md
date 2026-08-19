@@ -1,6 +1,6 @@
 # Raw Invocation Source Transport Classifier Split P0
 
-Status: selected
+Status: landed
 Parent: `brand-constructor-consumer-cutover-d0.md`
 Row: `RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0`
 Classification: BoxShape
@@ -34,3 +34,14 @@ runtime behavior, or other admission change.
 - Exact child/body path construction and temporal scope restoration are
   unchanged.
 - Focused positive/negative tests and a reusable guard are green.
+
+## Landed evidence
+
+- `raw_invocation_source_transport.rs` is 655 lines; the extracted private
+  classifier child is 197 lines.
+- Bare `FunctionCall` and `MethodCall` remain `CallObject` compatibility rows.
+  Scalar, control, lambda, and zero-child classifications are unchanged.
+- Three focused classifier tests, thirteen existing source-transport tests,
+  and `raw_invocation_source_transport_classifier_split_guard.sh` are green.
+- This row creates room only. It issues no Brand disposition and changes no
+  active source path.

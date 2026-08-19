@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0"
-current_blocker_token = "Extract the behavior-neutral statement classifier before adding any exact Brand site coverage."
+current_design_stop = "Census every relation-less raw FunctionCall admission before selecting Brand disposition projection or a missing semantic admission."
+work_mode = "design_stop"
+current_execution_row = "BRAND-CONSTRUCTOR-ACTIVE-ADMISSION-CENSUS-D1"
+current_blocker_token = "Atomic Brand probe retirement remains blocked until Compatibility, Deferred, constructor, nested/Main, and RawLegacy admissions are exhaustively classified."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -88,15 +88,15 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/raw-invocation-source-transport-classifier-split-p0.md"
+current_execution_design = "docs/development/current/main/investigations/brand-constructor-active-admission-census-d1.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "raw-invocation-source-transport-classifier-split-p0"
-latest_card_path = "docs/development/current/main/investigations/raw-invocation-source-transport-classifier-split-p0.md"
-latest_card_summary = "The accepted BoxShape extracts the 760-line transport classifier without changing any located or compatibility disposition."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0"
-next_execution_card_path = "docs/development/current/main/investigations/raw-invocation-source-transport-classifier-split-p0.md"
+latest_card = "brand-constructor-active-admission-census-d1"
+latest_card_path = "docs/development/current/main/investigations/brand-constructor-active-admission-census-d1.md"
+latest_card_summary = "The classifier split is landed; D1 now classifies every relation-less production admission before any total Brand disposition or cutover."
+next_design_card = "BRAND-CONSTRUCTOR-ACTIVE-ADMISSION-CENSUS-D1"
+next_design_card_path = "docs/development/current/main/investigations/brand-constructor-active-admission-census-d1.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -107,6 +107,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: RAW-INVOCATION-SOURCE-TRANSPORT-CLASSIFIER-SPLIT-P0 landed behavior-neutrally. Exact path/temporal transport is 655 lines and the finite statement classifier is a 197-line child; bare calls remain CallObject, while 3 focused and 13 existing transport tests plus the reusable guard are green.",
   "2026-08-20: BRAND-CONSTRUCTOR-CONSUMER-CUTOVER-D0 closed NoSafeSlice. Exact callable/Complete Script can project the landed relation, but Compatibility, Deferred, constructor, nested/Main, and RawLegacy admissions remain name-only; bare call statements are also unlocated. Transport split, admission census, and total disposition projection now precede atomic raw-probe retirement.",
   "2026-08-20: BRAND-CONSTRUCTOR-SOURCE-RELATION-I0 landed one BoxCount. The same effective catalog now issues exact owner/site Constructor and Unwrap rows before child traversal for callable and Script owners; recognized constructors no longer enter generic direct-call resolution, while physical raw consumption remains a separate cutover.",
   "2026-08-20: BRAND-CONSTRUCTOR-SOURCE-RELATION-D0 accepted one BoxCount. The shared resolver traversal will issue owner/site-keyed Constructor and Unwrap rows from the same effective Brand catalog before child effects; raw consumer cutover and unwrap physical activation remain separate rows.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: FUNCTION-CALL-BRAND-CONSTRUCTOR-NAMESPACE-D0 closed NoSafeSlice. Stage1 and MIRBuilder own separate declaration maps, resolver has no Brand site relation, and current MIR erases branded result identity. Namespace/result D1 is selected before catalog work.",
   "2026-08-20: FUNCTION-CALL-WEAK-PAREN-RAW-REJECT-RETIREMENT-D0 found two prerequisites. TokenCursor rejects canonical weak expr, while strict-12.7 downgrades WEAK and admits weak(); parity, compatibility retirement, then raw deletion are ordered as separate rows.",
   "2026-08-20: FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0 landed one BoxCount. Canonical externcall has a dedicated AST and site-keyed resolver symbol consumed before arguments; generic externcall(...) remains ordinary, and the raw name classifier is retired. Focused guards and compile gates are green.",
-  "2026-08-20: FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0 accepted one BoxCount. Canonical externcall gets a dedicated AST shape and site-keyed resolver relation; generic parenthesized externcall remains an ordinary shadowable FunctionCall. Malformed/foreign rows reject before child effects, and the I0 retires the raw name branch.",
 ]

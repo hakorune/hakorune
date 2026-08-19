@@ -21,6 +21,11 @@ use super::normal_instance_constructor_admission::NormalInstanceConstructorSourc
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::raw_invocation_source_item_site::body_item_site;
+use super::raw_invocation_source_statement_classification::{
+    is_located_control_or_diagnostic_terminal, is_located_lambda_statement,
+    is_located_scalar_statement, is_located_zero_child_runtime_completion,
+    reason_for_non_box_statement,
+};
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
@@ -411,116 +416,6 @@ impl RawInvocationSourceContextV1 {
             body_kind: None,
         })
     }
-}
-fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
-    match statement {
-        ASTNode::Break { .. }
-        | ASTNode::Continue { .. }
-        | ASTNode::UsingStatement { .. }
-        | ASTNode::ImportStatement { .. }
-        | ASTNode::BuildGate { .. }
-        | ASTNode::Nowait { .. }
-        | ASTNode::AwaitExpression { .. }
-        | ASTNode::QMarkPropagate { .. }
-        | ASTNode::ArrayLiteral { .. }
-        | ASTNode::MapLiteral { .. }
-        | ASTNode::RecordLiteral { .. }
-        | ASTNode::RecordUpdate { .. }
-        | ASTNode::Arrow { .. }
-        | ASTNode::Throw { .. }
-        | ASTNode::FunctionDeclaration { .. }
-        | ASTNode::EnumDeclaration { .. }
-        | ASTNode::BrandDeclaration { .. }
-        | ASTNode::TypeAliasDeclaration { .. }
-        | ASTNode::GlobalVar { .. }
-        | ASTNode::StaticConstTable { .. }
-        | ASTNode::Literal { .. }
-        | ASTNode::Variable { .. }
-        | ASTNode::UnaryOp { .. }
-        | ASTNode::BinaryOp { .. }
-        | ASTNode::CheckExpr { .. }
-        | ASTNode::MethodCall { .. }
-        | ASTNode::FieldAccess { .. }
-        | ASTNode::Index { .. }
-        | ASTNode::New { .. }
-        | ASTNode::This { .. }
-        | ASTNode::Me { .. }
-        | ASTNode::FromCall { .. }
-        | ASTNode::ThisField { .. }
-        | ASTNode::MeField { .. }
-        | ASTNode::Outbox { .. }
-        | ASTNode::FunctionCall { .. }
-        | ASTNode::ExplicitExternCall { .. }
-        | ASTNode::Call { .. } => RawUnlocatedPortalV1::CallObject,
-
-        ASTNode::Lambda { .. }
-        | ASTNode::Program { .. }
-        | ASTNode::BoxDeclaration { .. }
-        | ASTNode::Assignment { .. }
-        | ASTNode::CompoundAssignment { .. }
-        | ASTNode::Return { .. }
-        | ASTNode::Release { .. }
-        | ASTNode::Local { .. }
-        | ASTNode::Print { .. }
-        | ASTNode::GroupedAssignmentExpr { .. }
-        | ASTNode::If { .. }
-        | ASTNode::Loop { .. }
-        | ASTNode::TaskScope { .. }
-        | ASTNode::FastMemRegion { .. }
-        | ASTNode::BlockExpr { .. }
-        | ASTNode::ScopeBox { .. }
-        | ASTNode::LoopRange { .. }
-        | ASTNode::ContextScope { .. }
-        | ASTNode::MatchExpr { .. }
-        | ASTNode::EnumMatchExpr { .. }
-        | ASTNode::TryCatch { .. } => {
-            unreachable!("[freeze:contract][raw-invocation/direct-box-classifier]")
-        }
-    }
-}
-
-fn is_located_scalar_statement(statement: &ASTNode) -> bool {
-    matches!(
-        statement,
-        ASTNode::Assignment { .. }
-            | ASTNode::CompoundAssignment { .. }
-            | ASTNode::GroupedAssignmentExpr { .. }
-            | ASTNode::Print { .. }
-            | ASTNode::Return { .. }
-            | ASTNode::Local { .. }
-            | ASTNode::Nowait { .. }
-    )
-}
-
-fn is_located_zero_child_runtime_completion(statement: &ASTNode) -> bool {
-    matches!(statement, ASTNode::StaticConstTable { .. })
-}
-
-fn is_located_lambda_statement(statement: &ASTNode) -> bool {
-    matches!(statement, ASTNode::Lambda { .. })
-}
-
-fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
-    if super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(
-        statement,
-    ) {
-        return true;
-    }
-    matches!(
-        statement,
-        ASTNode::Program { .. }
-            | ASTNode::If { .. }
-            | ASTNode::Loop { .. }
-            | ASTNode::TaskScope { .. }
-            | ASTNode::FastMemRegion { .. }
-            | ASTNode::ScopeBox { .. }
-            | ASTNode::BlockExpr { .. }
-            | ASTNode::LoopRange { .. }
-            | ASTNode::ContextScope { .. }
-            | ASTNode::MatchExpr { .. }
-            | ASTNode::EnumMatchExpr { .. }
-            | ASTNode::TryCatch { .. }
-    )
 }
 
 /// Temporal source scope used only by the selected invocation port.
