@@ -567,6 +567,9 @@ fn pinned_text_real_candidate_json_preserves_carrier_lineage() {
     .expect("same detached candidate");
 
     let encoded = emit_real_candidate_json(function).expect("strict candidate JSON");
+    if let Some(path) = std::env::var_os("HAKO_PINNED_TEXT_REAL_CANDIDATE_JSON_OUT") {
+        std::fs::write(path, &encoded).expect("write requested real-candidate JSON witness");
+    }
     let json: serde_json::Value = serde_json::from_str(&encoded).expect("JSON value");
     let metadata = &json["functions"][0]["metadata"];
     assert!(metadata.get("pinned_text_residence_carrier_v1").is_some());

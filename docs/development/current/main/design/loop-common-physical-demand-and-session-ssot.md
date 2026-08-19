@@ -1,7 +1,7 @@
 ---
 Status: SSOT
 Date: 2026-08-19
-Decision: accepted post-Recipe physical demand/session boundary; selected C dispatcher split is the active execution row
+Decision: accepted post-Recipe physical demand/session boundary; selected C textual lowering is the active execution row
 Scope: common Loop physical demand, one unpublished function session, DraftSeal handoff, and S6C TextEq physical corridor
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -25,11 +25,11 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the selected contract-bound C route does not yet consume
-  those exact lifecycle rows. The generic dispatch split is landed; the next
-  cell must validate one exact carrier-bearing module before any C-side effect.
+- **Current blocker:** the selected contract-bound C route now validates the
+  exact lifecycle cohort before effect, then stops explicitly. It does not yet
+  lower those rows into one privately owned textual LLVM draft.
 - **Next ordered task:**
-  `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-PREFLIGHT-I0`.
+  `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TEXTUAL-LOWERING-I0`.
 - **Production stop line:** TargetMachine observation, object publication,
   production selection, fallback/retry, performance promotion, and
   `nyash.string.eq_hh` retirement remain closed.
@@ -323,29 +323,31 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Row: `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-PREFLIGHT-I0`
+Row: `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TEXTUAL-LOWERING-I0`
 
-Decision: add one private carrier-bound C preflight for the exact caller-zero
-module shape. It validates transport coherence only and emits no LLVM IR.
+Decision: consume the preflighted real candidate through one private ephemeral
+LLVM draft, verify it in the same cell, discard it, and return a stable
+target-closed rejection.
 
-Source authority + canonical issuer: the Rust-issued strict JSON frame,
-carrier, physical parameters, root map, access-plan census, and canonical
-Enter/Trap/Finish/Return sites are the only authority. C is a strict consumer.
+Source authority + canonical issuer: runtime-generated strict JSON and the
+already-issued `HakoPtfSelectedCandidateView` are the sole input. The C
+lowerer is a projection consumer and reuses the existing generic CFG writer.
 
-Non-authority: the synthetic fixture, hand-written JSON, op-name/count scans,
-pattern emitters, compat replay, and TargetMachine success cannot admit or
+Non-authority: the synthetic fixture, `obj_out`, TargetMachine, public or named
+`.ll`, hand-written positive JSON, and isolated string counts cannot admit or
 reconstruct the candidate.
 
-Fail-fast boundary: validate the complete frame/carrier/function cohort after
-the generic program view is read but before pattern emission, prescan, session
-open, or IR-file creation. Every mismatch publishes no temporary artifact.
+Fail-fast boundary: preflight failure occurs before draft creation. Every later
+failure converges on the one draft owner's `fclose`/discard path; named `.ll`,
+TargetMachine session, object, fallback, and retry remain unreachable.
 
-Smallest next slice: add one private non-authoritative preflight child and
-positive/negative tests over runtime-generated real strict JSON. Do not lower
-`PinnedTextOp`, Enter, Trap, or Finish in the same cell.
+Smallest next slice: lower only the three `PinnedTextOp` leaves plus Enter,
+Trap, and Finish in one private child. Reuse existing PHI/binop/compare/branch/
+Return lowering, then verify and discard the private draft.
 
-Non-claims: no lifecycle LLVM lowering, TargetMachine candidate, observer,
-object, production, performance, fallback/retry, or `eq_hh` retirement is open.
+Non-claims: no LLVM parse, TargetMachine/object, post-transform observer,
+`nounwind`/`noreturn`, production, performance, fallback/retry, or `eq_hh`
+retirement is open.
 
 ### Accepted selected C consumer boundary
 
@@ -373,8 +375,8 @@ promotion, fallback, retry, `.ll`, or object publication.
 | order | bounded task | kind | exit condition |
 | ---: | --- | --- | --- |
 | 1 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0` | BoxShape | **Landed.** Existing `call` / `mir_call` arms live once in a 114-line child; the parent is 713 lines and lifecycle opcode support remains 0. |
-| 2 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-PREFLIGHT-I0` | BoxCount | One carrier-bearing real module passes complete frame/carrier/parameter/root/plan/op/site parity before any C-side effect; all drift rejects without `.ll`, object, replay, or fallback. |
-| 3 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LIFECYCLE-LOWERING-I0` | BoxCount | The selected child lowers the already-validated `PinnedTextOp` plus Enter/Trap/Finish directly; unknown or unvalidated rows reject. |
+| 2 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-PREFLIGHT-I0` | BoxCount | **Landed.** One real module passes exact frame/carrier/parameter/root/plan/op/site parity before effect; drift rejects without `.ll`, object, replay, or fallback. |
+| 3 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TEXTUAL-LOWERING-I0` | BoxCount | One private ephemeral draft lowers the validated three leaves plus Enter/Trap/Finish, passes its private verifier, is discarded, and returns the stable target-closed tag. |
 | 4 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0` | bounded route | Only validated IR reaches the retained LLVM18 target/layout session and one test-owned temporary object; failure removes every temporary. |
 | 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBSERVER-I0` | bounded observer | The sole post-transform observer proves Enter/Trap/Finish/Return parity, no EH/unwind carrier, and no hot-loop lifecycle call. |
 | 6 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, IR/assembly structural-zero, exact/meso/whole-call, and C comparison gates pass. |
@@ -404,8 +406,8 @@ Exact prose and superseded stops are historical. The durable result is:
 | real candidate source-issued carrier lineage | landed caller-zero |
 | carrier-gated no-refresh strict MIR JSON | landed caller-zero at `44e4df38a0` |
 | selected C generic dispatch call-family split | landed behavior-neutral BoxShape |
-| selected C carrier-bound preflight | active BoxCount |
-| selected C lifecycle lowerer | accepted; blocked by the active preflight |
+| selected C carrier-bound preflight | landed effect-free BoxCount |
+| selected C textual lifecycle lowerer | accepted active BoxCount |
 | TargetMachine observer / object / production | closed |
 
 The current production selector remains selected-Dynamic. Generic G0 and S6C
@@ -425,6 +427,7 @@ The latest landed real-candidate JSON slice has:
 - `text_formal_residence_finish_or_abort_abi_guard.sh` green;
 - `pinned_text_residence_carrier_lowering_smoke.sh` green.
 - `pure_compile_generic_dispatch_split_guard.sh` green at parent 713 / child 114;
+- selected carrier-bound preflight guard and runtime-generated JSON smoke green;
 - byte-for-byte extraction comparison against the pre-split parent green;
 - checked-callout physicalizer and pure-first route preflight green;
 - same-module static-helper row guard is baseline-red because its tracked

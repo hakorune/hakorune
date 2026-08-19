@@ -102,6 +102,8 @@ static int hako_llvmc_read_generic_pure_program_view(
 }
 /* inc-codegen-view-owner: generic_pure_view end */
 
+#include "hako_llvmc_ffi_pinned_text_selected_preflight.inc"
+
 static int hako_llvmc_read_exact_seed_backend_route_tag(
     const char* json_in,
     char* tag_out,
@@ -289,6 +291,7 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (!d) break;
       yyjson_val* root = yyjson_doc_get_root(d);
       hako_llvmc_generic_pure_program_view program;
+      struct HakoPtfSelectedCandidateView ptfc_candidate;
       if (!hako_llvmc_read_generic_pure_program_view(root, &program)) {
         if (hako_llvmc_route_trace_enabled()) {
           hako_llvmc_emit_route_trace(
@@ -303,9 +306,29 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       hako_llvmc_generic_pure_function_view* active_function = &program.entry;
       yyjson_val* fn0 = active_function->fn;
       yyjson_val* fn_metadata = active_function->metadata;
+      yyjson_val* ptfc_metadata = fn_metadata
+          ? yyjson_obj_get(fn_metadata, "pinned_text_residence_carrier_v1") : NULL;
       yyjson_val* blocks = active_function->blocks;
       size_t generic_pure_block_count = active_function->block_count;
       hako_llvmc_entry_rune_selection selection = active_function->selection;
+      memset(&ptfc_candidate, 0, sizeof(ptfc_candidate));
+      if (ptfb_contract_bound && ptfc_metadata) {
+        if (hako_llvmc_ptfc_preflight_selected_candidate(
+                &program, &ptfc_candidate, err_out) != 0) {
+          yyjson_doc_free(d);
+          return -1;
+        }
+        yyjson_doc_free(d);
+        return set_err_owned(
+            err_out,
+            "pinned Text selected preflight passed; lifecycle lowering remains closed");
+      }
+      if (ptfb_contract_bound && ptfb_census.pinned_text_op_count > 0) {
+        yyjson_doc_free(d);
+        return set_err_owned(
+            err_out,
+            "pinned Text selected frame/carrier metadata is missing");
+      }
       if (program.selected_dynamic) {
         /* The selected helper's function name is canonical; never emit a launch alias. */
         selection.symbol = NULL;

@@ -260,6 +260,7 @@ static int hako_llvmc_ptfb_function_has_pinned_text_op(yyjson_val* function) {
                    !strcmp(name, "pinned_text_enter") ||
                    !strcmp(name, "pinned_text_finish") ||
                    !strcmp(name, "pinned_text_residence_enter") ||
+                   !strcmp(name, "pinned_text_residence_trap") ||
                    !strcmp(name, "pinned_text_residence_finish"))) {
         return 1;
       }
@@ -289,6 +290,7 @@ static int hako_llvmc_collect_pinned_text_module_census(
     yyjson_val* function = yyjson_arr_get(functions, i);
     yyjson_val* metadata = function ? yyjson_obj_get(function, "metadata") : NULL;
     yyjson_val* contract = metadata ? yyjson_obj_get(metadata, "pinned_text_backend_frame_v1") : NULL;
+    yyjson_val* carrier = metadata ? yyjson_obj_get(metadata, "pinned_text_residence_carrier_v1") : NULL;
     int has_pinned_text_op = hako_llvmc_ptfb_function_has_pinned_text_op(function);
     if (has_pinned_text_op) census->pinned_text_op_count++;
     if (!contract) {
@@ -297,6 +299,12 @@ static int hako_llvmc_collect_pinned_text_module_census(
         return set_err_owned(
             err_out,
             "PinnedTextOp requires a pinned Text backend-frame contract");
+      }
+      if (carrier) {
+        yyjson_doc_free(document);
+        return set_err_owned(
+            err_out,
+            "pinned Text residence carrier requires a backend-frame contract");
       }
       continue;
     }

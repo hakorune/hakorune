@@ -15,11 +15,12 @@
 #define HAKO_PTF_RESIDENCE_FINISH_OBLIGATION \
     "finish_every_explicit_normal_return"
 
-struct HakoPtfCarrierFixture {
+struct HakoPtfCarrierView {
   long long compilation_brand;
   long long owner_slot;
   long long invocation_ordinal;
   long long plan_stamp;
+  long long plan_count;
   long long frame_size;
   long long root_count;
   long long physical_callable_lane_count;
@@ -96,7 +97,7 @@ static int hako_llvmc_ptfc_owner_matches(
 static int hako_llvmc_ptfc_parse_carrier(
     yyjson_val* frame,
     yyjson_val* carrier,
-    struct HakoPtfCarrierFixture* out,
+    struct HakoPtfCarrierView* out,
     char** err_out) {
   static const char* const carrier_keys[] = {
       "contract_id", "schema_revision", "frame_contract", "owner",
@@ -119,6 +120,7 @@ static int hako_llvmc_ptfc_parse_carrier(
   long long schema = 0;
   long long frame_schema = 0;
   long long frame_plan_stamp = 0;
+  long long frame_plan_count = 0;
   long long invocation = 0;
   long long plan_stamp = 0;
   long long normal_exit_count = 0;
@@ -175,7 +177,9 @@ static int hako_llvmc_ptfc_parse_carrier(
   }
   if (!hako_llvmc_ptfc_nonnegative(frame, "exact_text_root_count", &frame_roots) ||
       !hako_llvmc_ptfc_nonnegative(frame, "physical_callable_lane_count", &physical_lanes) ||
-      frame_roots <= 0 || frame_roots > 128 || physical_lanes <= 0 || physical_lanes > 1024) {
+      !hako_llvmc_ptfc_nonnegative(frame, "plan_count", &frame_plan_count) ||
+      frame_roots <= 0 || frame_roots > 128 || physical_lanes <= 0 ||
+      physical_lanes > 1024 || frame_plan_count <= 0 || frame_plan_count > 128) {
     return set_err_owned(err_out, "pinned Text residence carrier frame census mismatch");
   }
   {
@@ -258,6 +262,7 @@ static int hako_llvmc_ptfc_parse_carrier(
   out->owner_slot = owner_slot;
   out->invocation_ordinal = invocation;
   out->plan_stamp = plan_stamp;
+  out->plan_count = frame_plan_count;
   out->frame_size = frame_size;
   out->root_count = frame_roots;
   out->physical_callable_lane_count = physical_lanes;
@@ -279,7 +284,7 @@ static void hako_llvmc_ptfc_emit_i64_args(
 
 static int hako_llvmc_ptfc_emit_fixture(
     const char* ll_out,
-    const struct HakoPtfCarrierFixture* carrier,
+    const struct HakoPtfCarrierView* carrier,
     char** err_out) {
   FILE* out;
   if (!ll_out || !carrier) return set_err_owned(err_out, "missing pinned Text carrier fixture output");
@@ -332,7 +337,7 @@ int hako_llvmc_emit_pinned_text_residence_carrier_fixture(
   yyjson_val* metadata;
   yyjson_val* frame;
   yyjson_val* carrier;
-  struct HakoPtfCarrierFixture fixture;
+  struct HakoPtfCarrierView fixture;
   if (!json_in || !ll_out) return set_err_owned(err_out, "missing pinned Text carrier fixture path");
   document = yyjson_read_file(json_in, 0, NULL, &read_error);
   if (!document) return set_err_owned(err_out, "cannot read pinned Text carrier fixture JSON");
