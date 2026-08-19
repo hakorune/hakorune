@@ -223,6 +223,30 @@ positive_fixture_ids = ["delegate_exposes_compat"]
 negative_fixture_ids = ["delegate_exposes_missing_block"]
 
 [[rows]]
+row_id = "brand_declaration"
+family = "brand"
+spelling_id = "brand_declaration"
+production = "brand identifier colon type-ref"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "BrandDeclaration"
+semantic_owner = "brand"
+stable_reject_tag = "parser/brand_declaration_invalid"
+positive_fixture_ids = ["brand_declaration_canonical"]
+negative_fixture_ids = ["brand_declaration_missing_colon_canonical_reject"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "BrandDeclaration"
+semantic_owner = "brand"
+stable_reject_tag = "parser/brand_declaration_invalid"
+positive_fixture_ids = ["brand_declaration_compat"]
+negative_fixture_ids = ["brand_declaration_missing_type_compat_reject"]
+
+[[rows]]
 row_id = "record_declaration"
 family = "record"
 spelling_id = "record_declaration"

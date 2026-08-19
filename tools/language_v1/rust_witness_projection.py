@@ -287,6 +287,31 @@ def _record_declaration(program: dict[str, Any]) -> dict[str, Any]:
     )
 
 
+def _brand_declaration(program: dict[str, Any]) -> dict[str, Any]:
+    statements = program.get("statements")
+    if not isinstance(statements, list):
+        raise RustProjectionError("Brand declaration statements are missing")
+    declarations = [
+        statement
+        for statement in statements
+        if isinstance(statement, dict) and statement.get("kind") == "BrandDeclaration"
+    ]
+    if len(declarations) != 1:
+        raise RustProjectionError("Brand declaration witness requires one declaration")
+    declaration = declarations[0]
+    name = declaration.get("name")
+    underlying_type = declaration.get("underlying_type")
+    if not isinstance(name, str) or not isinstance(underlying_type, str):
+        raise RustProjectionError("Brand declaration metadata is incomplete")
+    return _node(
+        "BrandDeclaration",
+        children=[
+            _node("Identifier", value=name),
+            _node("TypeRef", value=underlying_type),
+        ],
+    )
+
+
 def _weak_field(program: dict[str, Any], row_id: str) -> dict[str, Any]:
     statement = _single_statement(program)
     if statement.get("kind") != "BoxDeclaration":
@@ -411,6 +436,8 @@ def project_rust_normalized_form(row_id: str, program: Any) -> dict[str, Any]:
         return _delegate(program)
     if row_id == "record_declaration":
         return _record_declaration(program)
+    if row_id == "brand_declaration":
+        return _brand_declaration(program)
     if row_id in {
         "weak_stored_field",
         "weak_visibility_field",

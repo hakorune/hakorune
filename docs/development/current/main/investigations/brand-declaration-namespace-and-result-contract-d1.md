@@ -37,9 +37,10 @@ representation cannot issue Brand meaning.
 Fail-fast boundary: Duplicate declarations reject before resolution; exact
 membership and arity exclude FreeStatic/special rows before arguments, and
 foreign/missing relations never fall back.
-Smallest next slice: `BRAND-GRAMMAR-DECLARATION-REGISTRY-R0` registers only the
-Brand declaration spelling and two-profile witnesses; contextual constructor
-and unwrap remain semantic relations, not duplicate grammar rows.
+Smallest next slice: `BRAND-GRAMMAR-DECLARATION-CAPSULE-I0` registers only the
+Brand declaration spelling and adds the missing metadata-only Hako witness
+capsule; contextual constructor and unwrap remain semantic relations, not
+duplicate grammar rows.
 Non-claims: No catalog/site product, MIR opcode/type, conversion checker,
 Program-JSON bridge, raw cutover, runtime wrapper, or production switch.
 

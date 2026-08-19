@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "BRAND-GRAMMAR-DECLARATION-REGISTRY-R0"
-current_blocker_token = "Synchronize the existing Brand declaration capsule into the grammar registry/corpus without adding constructor semantics."
+current_design_stop = "Select the sole AST-free Brand declaration catalog owner and lending seam; do not copy Stage1 or CompilationContext maps."
+work_mode = "design_stop"
+current_execution_row = "BRAND-PROGRAM-DECLARATION-CATALOG-D0"
+current_blocker_token = "The declaration grammar capsule is landed; Brand membership still has two mutable-map authorities and no shared program catalog."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -88,15 +88,15 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/brand-grammar-declaration-registry-r0.md"
+current_execution_design = "docs/development/current/main/investigations/brand-program-declaration-catalog-d0.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "brand-grammar-declaration-registry-r0"
-latest_card_path = "docs/development/current/main/investigations/brand-grammar-declaration-registry-r0.md"
-latest_card_summary = "Brand namespace/result D1 is accepted; the first bounded row closes only the existing declaration grammar registry and corpus witnesses."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "BRAND-GRAMMAR-DECLARATION-REGISTRY-R0"
-next_execution_card_path = "docs/development/current/main/investigations/brand-grammar-declaration-registry-r0.md"
+latest_card = "brand-program-declaration-catalog-d0"
+latest_card_path = "docs/development/current/main/investigations/brand-program-declaration-catalog-d0.md"
+latest_card_summary = "Brand declaration grammar is registered; the next design stop selects one shared AST-free program catalog before any constructor-site or raw-route work."
+next_design_card = "BRAND-PROGRAM-DECLARATION-CATALOG-D0"
+next_design_card_path = "docs/development/current/main/investigations/brand-program-declaration-catalog-d0.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -107,6 +107,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: BRAND-GRAMMAR-DECLARATION-CAPSULE-I0 landed one BoxCount. Both profiles register BrandDeclaration, Rust positive/negative witnesses and the focused guard are green, and the Hako witness remains metadata-only. The full Hako adapter MissingTransientType red reproduces unchanged on parent cb3a7cd50d as baseline debt.",
   "2026-08-20: FUNCTION-CALL-BRAND-CONSTRUCTOR-NAMESPACE-D0 closed NoSafeSlice. Stage1 and MIRBuilder own separate declaration maps, resolver has no Brand site relation, and current MIR erases branded result identity. Namespace/result D1 is selected before catalog work.",
   "2026-08-20: FUNCTION-CALL-WEAK-PAREN-RAW-REJECT-RETIREMENT-D0 found two prerequisites. TokenCursor rejects canonical weak expr, while strict-12.7 downgrades WEAK and admits weak(); parity, compatibility retirement, then raw deletion are ordered as separate rows.",
   "2026-08-20: FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0 landed one BoxCount. Canonical externcall has a dedicated AST and site-keyed resolver symbol consumed before arguments; generic externcall(...) remains ordinary, and the raw name classifier is retired. Focused guards and compile gates are green.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0 landed behavior-neutrally. The production owner is 329 lines and its unchanged five tests live in a 443-line child; focused tests, inventory parity, rustfmt, diff, and pointer guard are green. The reusable MirBuilder guard's selected-normal-lifecycle red reproduces on parent ada2373fb2 and is classified baseline debt. Lexical callee classification D0 is selected.",
   "2026-08-20: FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0 accepted. Parser identifier calls remain FunctionCall, Call already lowers callee-before-arguments, late raw resolution has one main chain, unique-static recovery has two consumers, and tail resolution has two variants behind one env selector. The 790-line preflight test split is selected behavior-neutrally before resolver classifier design.",
   "2026-08-20: FUNCTION-CALL-WEAK-PAREN-RAW-REJECT-RETIREMENT-R0 landed behavior-neutrally for source. The duplicate raw enum/classifier/error arm is gone; forged non-source weak FunctionCall follows ordinary child-then-header transport, while both parser paths retain pre-child rejection.",
-  "2026-08-20: FUNCTION-CALL-WEAK-STRICT127-KEYWORD-RETIREMENT-R0 landed one compatibility retirement. Strict-12.7 no longer downgrades WEAK; both parsers retain the two-profile grammar contract while seven sibling downgrades, shifts, and raw WeakReject remain unchanged.",
 ]
