@@ -19,10 +19,11 @@ use super::path::ShadowSourcePathV0;
 use super::product::{
     ShadowAncestorCaptureAccessV0, ShadowAncestorCaptureEventV0, ShadowAssignmentTargetV0,
     ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0, ShadowDirectCallUseV0,
-    ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0, ShadowMethodCallObservationV0,
-    ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowRegionKindV0,
-    ShadowRegionRecordV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
-    ShadowScopeKindV0, ShadowScopeRecordV0,
+    ShadowExitOriginV0, ShadowExitRecordV0, ShadowExplicitExternCallV0, ShadowLexicalRefV0,
+    ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
+    ShadowQualifiedReceiverDispositionV0, ShadowRegionKindV0, ShadowRegionRecordV0,
+    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
+    ShadowScopeRecordV0,
 };
 use super::root_traversal::ShadowRootTraversalInputV1;
 use super::traversal_profile::ShadowTraversalProfileV1;
@@ -63,6 +64,7 @@ pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
     array_initialized_locals: BTreeSet<ShadowBindingOrdinalV0>,
     ancestor_capture_events: Vec<ShadowAncestorCaptureEventV0>,
     direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
+    explicit_extern_calls: BTreeMap<SourceExprSiteV1, ShadowExplicitExternCallV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     statement_sites: BTreeSet<SourceStmtSiteV1>,
     expression_sites: BTreeSet<SourceExprSiteV1>,
@@ -213,6 +215,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             array_initialized_locals: BTreeSet::new(),
             ancestor_capture_events: Vec::new(),
             direct_calls: BTreeMap::new(),
+            explicit_extern_calls: BTreeMap::new(),
             resolved_exits: BTreeMap::new(),
             statement_sites: BTreeSet::new(),
             expression_sites: BTreeSet::new(),
@@ -256,6 +259,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 assignment_targets: self.assignment_targets,
                 ancestor_capture_events: self.ancestor_capture_events.into_boxed_slice(),
                 direct_calls: self.direct_calls,
+                explicit_extern_calls: self.explicit_extern_calls,
                 resolved_exits: self.resolved_exits,
                 statement_sites: self.statement_sites,
                 expression_sites: self.expression_sites,
@@ -463,6 +467,24 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         };
         if self.direct_calls.insert(site.clone(), record).is_some() {
             return Err(ShadowResolveErrorV0::DuplicateDirectCallSite { site });
+        }
+        Ok(())
+    }
+
+    pub(super) fn record_explicit_extern_call(
+        &mut self,
+        site: SourceExprSiteV1,
+        symbol: &str,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let record = ShadowExplicitExternCallV0 {
+            symbol: symbol.into(),
+        };
+        if self
+            .explicit_extern_calls
+            .insert(site.clone(), record)
+            .is_some()
+        {
+            return Err(ShadowResolveErrorV0::DuplicateExplicitExternCallSite { site });
         }
         Ok(())
     }

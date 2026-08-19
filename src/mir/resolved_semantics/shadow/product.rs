@@ -167,6 +167,11 @@ pub(crate) struct ShadowDirectCallUseV0 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ShadowExplicitExternCallV0 {
+    pub(crate) symbol: Box<str>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowResolveErrorV0 {
     ExpectedFunctionDeclaration,
     SameScopeRedeclaration {
@@ -205,6 +210,9 @@ pub(crate) enum ShadowResolveErrorV0 {
         site: SourceStmtSiteV1,
     },
     DuplicateDirectCallSite {
+        site: SourceExprSiteV1,
+    },
+    DuplicateExplicitExternCallSite {
         site: SourceExprSiteV1,
     },
     DuplicateRecordLiteralDemand {
@@ -261,6 +269,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     pub(crate) ancestor_capture_events: Box<[ShadowAncestorCaptureEventV0]>,
     pub(crate) direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
+    pub(crate) explicit_extern_calls: BTreeMap<SourceExprSiteV1, ShadowExplicitExternCallV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     pub(crate) statement_sites: BTreeSet<SourceStmtSiteV1>,
     pub(crate) expression_sites: BTreeSet<SourceExprSiteV1>,

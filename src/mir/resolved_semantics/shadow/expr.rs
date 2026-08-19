@@ -201,6 +201,16 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 self.record_direct_call(path.expr(), name, arguments.len())?;
                 self.resolve_arguments(expr, arguments, path)
             }
+            ASTNode::ExplicitExternCall {
+                target, arguments, ..
+            } => {
+                self.record_effect(
+                    path.expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Call,
+                );
+                self.record_explicit_extern_call(path.expr(), target)?;
+                self.resolve_arguments(expr, arguments, path)
+            }
             ASTNode::FromCall {
                 parent,
                 method,

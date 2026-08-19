@@ -35,8 +35,8 @@ pub(super) use owner_boundary::ShadowLambdaSyntaxV0;
 pub(super) use product::{
     ShadowAncestorCaptureAccessV0, ShadowAssignmentTargetV0, ShadowBindingKindV0,
     ShadowControlExitV0, ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0,
-    ShadowLexicalRefV0, ShadowRegionKindV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
-    ShadowScopeKindV0,
+    ShadowExplicitExternCallV0, ShadowLexicalRefV0, ShadowRegionKindV0, ShadowResolvedFunctionV0,
+    ShadowResolvedOwnerV0, ShadowScopeKindV0,
 };
 pub(in crate::mir) use product::{ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0};
 pub(in crate::mir) use product::{ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0};

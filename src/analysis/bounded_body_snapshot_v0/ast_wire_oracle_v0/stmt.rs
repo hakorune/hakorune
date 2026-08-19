@@ -161,7 +161,8 @@ impl AstWireOracleV0 {
             | ASTNode::Local { .. }
             | ASTNode::ScopeBox { .. }
             | ASTNode::Outbox { .. }
-            | ASTNode::Call { .. } => Self::unsupported(
+            | ASTNode::Call { .. }
+            | ASTNode::ExplicitExternCall { .. } => Self::unsupported(
                 path,
                 statement.node_type(),
                 "unsupported.source_wire_projection",

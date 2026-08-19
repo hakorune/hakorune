@@ -248,6 +248,39 @@ impl ExprParserWithCursor {
                 continue;
             }
 
+            if let ASTNode::Variable { name, .. } = &expr {
+                if name == "externcall" {
+                    if let TokenType::STRING(target) = &cursor.current().token_type {
+                        if !matches!(cursor.peek_nth_token(1), TokenType::LPAREN) {
+                            return Err(ParseError::UnexpectedToken {
+                                found: cursor.peek_nth_token(1).clone(),
+                                expected: "[parser/explicit_externcall_shape] '(' after target"
+                                    .to_owned(),
+                                line: cursor.current().line,
+                            });
+                        } else {
+                            let target = target.clone();
+                            cursor.advance();
+                            cursor.consume(TokenType::LPAREN)?;
+                            let mut arguments = Vec::new();
+                            while !cursor.match_token(&TokenType::RPAREN) && !cursor.is_at_end() {
+                                arguments.push(Self::parse_expression(cursor)?);
+                                if cursor.match_token(&TokenType::COMMA) {
+                                    cursor.advance();
+                                }
+                            }
+                            cursor.consume(TokenType::RPAREN)?;
+                            expr = ASTNode::ExplicitExternCall {
+                                target,
+                                arguments,
+                                span: Span::unknown(),
+                            };
+                            continue;
+                        }
+                    }
+                }
+            }
+
             if cursor.match_token(&TokenType::LPAREN) {
                 cursor.advance();
                 let mut args: Vec<ASTNode> = Vec::new();

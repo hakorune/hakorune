@@ -30,7 +30,9 @@ pub mod extern_calls;
 mod function_call_preflight_route;
 pub mod function_lowering;
 pub(in crate::mir::builder) use function_call_preflight_route::{
-    lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightV1,
+    lower_prepared_raw_explicit_extern_call_with_port_v1,
+    lower_prepared_raw_function_preflight_with_port_v1, PreparedRawExplicitExternCallV1,
+    PreparedRawFunctionPreflightV1,
 };
 mod function_session; // Closure-scoped function transaction and cleanup owner
 pub(in crate::mir::builder) mod instance_method_draft_preparation;

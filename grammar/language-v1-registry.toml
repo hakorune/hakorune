@@ -439,6 +439,14 @@ canonical = { status = "canonical", normalization_mode = "canonical_shape", norm
 compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ReleaseStatement", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/release_exact_root_required", positive_fixture_ids = ["release_statement_compat"], negative_fixture_ids = ["release_projected_root_compat_reject", "release_receiver_root_compat_reject"] }
 
 [[rows]]
+row_id = "explicit_externcall"
+family = "call"
+spelling_id = "explicit_externcall"
+production = "externcall string-literal call-arguments"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ExplicitExternCall", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/explicit_externcall_shape", positive_fixture_ids = ["explicit_externcall_canonical"], negative_fixture_ids = ["explicit_externcall_missing_paren_canonical_reject"] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ExplicitExternCall", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/explicit_externcall_shape", positive_fixture_ids = ["explicit_externcall_compat"], negative_fixture_ids = ["explicit_externcall_missing_paren_compat_reject"] }
+
+[[rows]]
 row_id = "for_loop"
 family = "loop"
 spelling_id = "for_loop"

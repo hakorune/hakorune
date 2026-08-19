@@ -18,6 +18,14 @@ only `ShadowResolvedFunctionV0` for tests and deterministic inspection. It
 cannot populate the canonical draft, allocate `BindingId`, plan control flow,
 or lower MIR.
 
+## Explicit externcall source identity
+
+Canonical `externcall "symbol"(args)` is a dedicated source expression. The
+resolver seals its decoded symbol by exact expression site; ordinary
+`externcall("symbol", args)` remains a shadowable `FunctionCall`. Lowering may
+consume only the site-keyed row and must not recover this meaning from a
+function name or from argument zero.
+
 ## Generic G0 S0B source-type inventory
 
 `generic_g0/` is the sole AST-free issuer for the Generic G0 S0B source-type

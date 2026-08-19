@@ -1,7 +1,6 @@
 use super::{
-    lower_prepared_raw_function_preflight_with_port_v1, PreparedRawExplicitExternCallV1,
-    PreparedRawFunctionPreflightRouteV1, PreparedRawFunctionPreflightV1,
-    PreparedRawOrdinaryFunctionCompletionV1,
+    lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightRouteV1,
+    PreparedRawFunctionPreflightV1, PreparedRawOrdinaryFunctionCompletionV1,
 };
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::recursive_child_lowering::{
@@ -9,7 +8,7 @@ use crate::mir::builder::recursive_child_lowering::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::instruction::FastMemRegionId;
-use crate::mir::{MirInstruction, MirType, TypeOpKind, ValueId};
+use crate::mir::{MirInstruction, TypeOpKind, ValueId};
 
 #[derive(Default)]
 struct RecordingPortV1 {
@@ -112,14 +111,14 @@ fn direct_function_preflight_priority_is_total() {
         PreparedRawFunctionPreflightRouteV1::WeakReject
     ));
 
-    let explicit = PreparedRawFunctionPreflightV1::prepare(
+    let generic_externcall = PreparedRawFunctionPreflightV1::prepare(
         &builder,
         "externcall".to_string(),
         vec![integer(1)],
     );
     assert!(matches!(
-        explicit.route,
-        PreparedRawFunctionPreflightRouteV1::ExplicitExtern(_)
+        generic_externcall.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary { .. }
     ));
 
     let brand =
@@ -306,67 +305,6 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
             .unwrap_err();
     assert!(error.contains("[fastmem/arity] call=mem.addr expected=1 actual=2"));
     assert_eq!(port.expression_count, 4);
-}
-
-#[test]
-fn explicit_extern_preflight_defers_rejection_and_preserves_stringbox_target() {
-    assert!(matches!(
-        PreparedRawExplicitExternCallV1::prepare(Vec::new()),
-        PreparedRawExplicitExternCallV1::MissingTarget
-    ));
-    assert!(matches!(
-        PreparedRawExplicitExternCallV1::prepare(vec![integer(1)]),
-        PreparedRawExplicitExternCallV1::TargetMustBeString
-    ));
-
-    let mut builder = MirBuilder::new();
-    builder.enter_function_for_test("direct_extern_preflight/0".to_string());
-    let mut port = RecordingPortV1::default();
-    for arguments in [Vec::new(), vec![integer(1), integer(2)]] {
-        let prepared =
-            PreparedRawFunctionPreflightV1::prepare(&builder, "externcall".to_string(), arguments);
-        assert!(lower_prepared_raw_function_preflight_with_port_v1(
-            &mut builder,
-            &mut port,
-            prepared,
-        )
-        .is_err());
-        assert_eq!(port.expression_count, 0);
-    }
-
-    let target = new_box(
-        "StringBox",
-        vec![literal(LiteralValue::String("hako_mem_alloc".to_string()))],
-    );
-    let prepared = PreparedRawFunctionPreflightV1::prepare(
-        &builder,
-        "externcall".to_string(),
-        vec![target, integer(7)],
-    );
-    let value =
-        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
-            .unwrap();
-    assert_eq!(port.expression_count, 1);
-    assert_eq!(
-        builder.function_state.type_ctx.value_types.get(&value),
-        Some(&MirType::Integer)
-    );
-    assert!(builder
-        .function_state
-        .current_function
-        .as_ref()
-        .unwrap()
-        .blocks
-        .values()
-        .flat_map(|block| block.all_instructions())
-        .any(|instruction| matches!(
-            instruction,
-            MirInstruction::Call {
-                dst: Some(dst),
-                callee: Some(crate::mir::Callee::Extern(_)),
-                ..
-            } if *dst == value
-        )));
 }
 
 #[test]

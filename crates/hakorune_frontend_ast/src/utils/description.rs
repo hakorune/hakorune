@@ -248,6 +248,9 @@ impl ASTNode {
             } => {
                 format!("FunctionCall({}, {} args)", name, arguments.len())
             }
+            ASTNode::ExplicitExternCall {
+                target, arguments, ..
+            } => format!("ExplicitExternCall({}, {} args)", target, arguments.len()),
             ASTNode::Call { .. } => "Call".to_string(),
             ASTNode::Nowait { variable, .. } => {
                 format!("Nowait({})", variable)

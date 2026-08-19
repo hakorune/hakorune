@@ -72,6 +72,7 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
     let exit_site = stmt(3);
 
     ResolvedFunctionDataV1 {
+        explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {

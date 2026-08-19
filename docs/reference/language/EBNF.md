@@ -81,6 +81,7 @@ Accepted ownership grammar and implementation status:
 target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
 target_share_expr    := IDENT("share") HTRIVIA non_group_postfix_expr
 release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)
+explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_list? ')'
 ```
 
 `HTRIVIA` excludes line terminators. Release I0 narrows `HSPACE` to spaces and

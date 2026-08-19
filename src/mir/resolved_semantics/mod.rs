@@ -27,6 +27,7 @@ mod direct_call;
 mod direct_call_verifier;
 mod enum_match_demand;
 mod enum_variant_demand;
+mod explicit_extern_call;
 mod expression_source;
 mod function_root;
 mod function_view;
@@ -129,6 +130,7 @@ pub(crate) use enum_match_demand::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1,
 };
 pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1};
+pub(crate) use explicit_extern_call::ResolvedExplicitExternCallV1;
 pub(crate) use expression_source::{
     ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1, ResolvedInitializerRelationV1,
     ResolvedLiteralSourceV1, ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,

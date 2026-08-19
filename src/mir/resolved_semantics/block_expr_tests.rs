@@ -135,6 +135,7 @@ fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
     let blockexpr_origin = blockexpr_root();
 
     ResolvedFunctionDataV1 {
+        explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {

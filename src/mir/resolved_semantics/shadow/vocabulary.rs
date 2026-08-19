@@ -52,6 +52,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::New { .. }
         | ASTNode::Me { .. }
         | ASTNode::FunctionCall { .. }
+        | ASTNode::ExplicitExternCall { .. }
         | ASTNode::AwaitExpression { .. }
         | ASTNode::ArrayLiteral { .. }
         | ASTNode::MapLiteral { .. }
@@ -119,6 +120,7 @@ pub(super) const SHADOW_ACCEPTED_EXPRESSIONS_V0: &[&str] = &[
     "FieldAccess",
     "Index",
     "FunctionCall",
+    "ExplicitExternCall",
     "New",
     "AwaitExpression",
     "ArrayLiteral",

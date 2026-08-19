@@ -96,6 +96,10 @@ impl ScriptSemanticLoweringState {
         self.projection().has_qmark_propagation_receipt_at(site)
     }
 
+    pub(super) fn explicit_extern_symbol(&self, site: &SourceNodeSiteV1) -> Option<&str> {
+        self.projection().explicit_extern_symbol_at(site)
+    }
+
     pub(super) fn record(&mut self, binding: BindingRefV1, value: ValueId) -> Result<(), String> {
         if self.variable_values.insert(binding, value).is_some() {
             return Err("[freeze:contract][script-lexical/duplicate-value]".to_owned());

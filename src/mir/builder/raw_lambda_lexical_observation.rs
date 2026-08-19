@@ -441,9 +441,9 @@ impl RawLambdaLexicalObserverV1 {
                     kind: node.node_type(),
                 })
             }
-            ASTNode::FromCall { arguments, .. } | ASTNode::FunctionCall { arguments, .. } => {
-                self.observe_arguments(arguments)
-            }
+            ASTNode::FromCall { arguments, .. }
+            | ASTNode::FunctionCall { arguments, .. }
+            | ASTNode::ExplicitExternCall { arguments, .. } => self.observe_arguments(arguments),
             ASTNode::Local {
                 variables,
                 initial_values,

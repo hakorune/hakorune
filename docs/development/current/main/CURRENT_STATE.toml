@@ -1,4 +1,3 @@
-# Current-state pointer only; history lives in the archive index and git.
 status = """
 The caller-zero S6C TextEq route has one source-issued Subject/Needle Residence,
 one derived V9 scalar slice, canonical source-index SSA, private byte cursor,
@@ -22,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0"
-current_blocker_token = "Implement the accepted dedicated ExplicitExternCall source shape, resolver relation, and exact consumer while retiring the raw Builder name branch."
+current_design_stop = "Decide whether the obsolete raw weak(...) FunctionCall rejection can be retired under the grammar-owned unary weak authority."
+work_mode = "design_stop"
+current_execution_row = "FUNCTION-CALL-WEAK-PAREN-RAW-REJECT-RETIREMENT-D0"
+current_blocker_token = "Name the exact grammar/source authority and generic-call disposition before deleting the raw weak name branch."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -89,15 +88,15 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-i0.md"
+current_execution_design = "docs/development/current/main/investigations/function-call-weak-paren-raw-reject-retirement-d0.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "function-call-explicit-externcall-source-identity-i0"
-latest_card_path = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-i0.md"
-latest_card_summary = "Externcall source identity D0 accepted one dedicated ExplicitExternCall source shape and site-keyed resolver relation; bounded BoxCount I0 is selected."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0"
-next_execution_card_path = "docs/development/current/main/investigations/function-call-explicit-externcall-source-identity-i0.md"
+latest_card = "function-call-weak-paren-raw-reject-retirement-d0"
+latest_card_path = "docs/development/current/main/investigations/function-call-weak-paren-raw-reject-retirement-d0.md"
+latest_card_summary = "Explicit externcall source identity I0 landed; the next serial row audits retirement of the grammar-rejected raw weak(...) name branch."
+next_design_card = "FUNCTION-CALL-WEAK-PAREN-RAW-REJECT-RETIREMENT-D0"
+next_design_card_path = "docs/development/current/main/investigations/function-call-weak-paren-raw-reject-retirement-d0.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -108,6 +107,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0 landed one BoxCount. Canonical externcall has a dedicated AST and site-keyed resolver symbol consumed before arguments; generic externcall(...) remains ordinary, and the raw name classifier is retired. Focused guards and compile gates are green.",
   "2026-08-20: FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0 accepted one BoxCount. Canonical externcall gets a dedicated AST shape and site-keyed resolver relation; generic parenthesized externcall remains an ordinary shadowable FunctionCall. Malformed/foreign rows reject before child effects, and the I0 retires the raw name branch.",
   "2026-08-20: FUNCTION-CALL-SPECIAL-NAMESPACE-SOURCE-REGISTRY-D0 closed NoSafeSlice. weak reject, explicit externcall, Brand namespace, TypeOp, Math, scoped FastMem, and str normalization have distinct authorities; the raw precedence test is legacy behavior, not one language namespace. FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0 is selected first.",
   "2026-08-20: FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0 closed NoSafeSlice. Lexical records prove binding identity but not callable-value membership, and raw special branches have no exhaustive registry issuer. Existing VerifiedCallableIndexV1 remains the sole FreeStatic authority; FUNCTION-CALL-SPECIAL-NAMESPACE-SOURCE-REGISTRY-D0 is selected before its Script handoff.",

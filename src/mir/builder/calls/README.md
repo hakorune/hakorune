@@ -14,6 +14,12 @@ admission by name.
 Function-form `mem.*` calls are a separate existing route and are outside the
 source-MethodCall policy.
 
+Canonical explicit extern calls enter as `ExplicitExternCall` and borrow the
+resolver-sealed symbol for the current source site before lowering arguments.
+`function_call_preflight_route.rs` no longer classifies an ordinary
+`FunctionCall` named `externcall`; the generic parenthesized spelling remains
+ordinary and shadowable.
+
 `call_argument_descent.rs` owns one behavior-neutral argument boundary:
 moved-state preflight happens before effects, then each associated argument
 input is checked and lowered exactly once in source order. Its selected raw

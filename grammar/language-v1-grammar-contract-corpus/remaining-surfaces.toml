@@ -233,3 +233,38 @@ source = "new User()"
 accepted = true
 normalized_form = { kind = "NewBoxExpression", children = [{ kind = "TypeRef", value = "User", children = [] }, { kind = "Arguments", children = [] }] }
 stable_reject_tag = ""
+[[fixtures]]
+fixture_id = "explicit_externcall_canonical"
+row_id = "explicit_externcall"
+profile = "Canonical"
+source = "externcall \"env.get\"()"
+accepted = true
+normalized_form = { kind = "ExplicitExternCall", value = "env.get", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "explicit_externcall_compat"
+row_id = "explicit_externcall"
+profile = "Compat2025"
+source = "externcall \"env.get\"()"
+accepted = true
+normalized_form = { kind = "ExplicitExternCall", value = "env.get", children = [] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "explicit_externcall_missing_paren_canonical_reject"
+row_id = "explicit_externcall"
+profile = "Canonical"
+source = "externcall \"env.get\""
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/explicit_externcall_shape"
+
+[[fixtures]]
+fixture_id = "explicit_externcall_missing_paren_compat_reject"
+row_id = "explicit_externcall"
+profile = "Compat2025"
+source = "externcall \"env.get\""
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/explicit_externcall_shape"

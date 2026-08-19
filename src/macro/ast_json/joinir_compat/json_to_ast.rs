@@ -269,6 +269,16 @@ pub(crate) fn json_to_ast(v: &Value) -> Option<ASTNode> {
                 .collect(),
             span: Span::unknown(),
         },
+        "ExplicitExternCall" => ASTNode::ExplicitExternCall {
+            target: v.get("target")?.as_str()?.to_string(),
+            arguments: v
+                .get("arguments")?
+                .as_array()?
+                .iter()
+                .filter_map(json_to_ast)
+                .collect(),
+            span: Span::unknown(),
+        },
         "Array" => ASTNode::ArrayLiteral {
             elements: v
                 .get("elements")?

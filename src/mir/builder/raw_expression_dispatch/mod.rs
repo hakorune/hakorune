@@ -3,6 +3,7 @@
 //! RAWPORT0 keeps exactly one AST match tree here. Every remaining caller
 //! supplies its child port directly; do not add a second matcher or facade.
 mod block_expr;
+mod explicit_extern_source_port;
 mod input_view;
 mod nonmain_static_box_lifecycle;
 mod statement_surface;
@@ -19,11 +20,14 @@ pub(in crate::mir::builder) fn unsupported_raw_ast_node_error_v1(ast: &ASTNode) 
 }
 
 use self::block_expr::{lower_prepared_raw_block_expr_with_port_v1, PreparedRawBlockExprV1};
+use self::explicit_extern_source_port::ExplicitExternSourcePortV1;
 pub(in crate::mir::builder) use self::nonmain_static_box_lifecycle::PreparedRawNonMainStaticBoxLifecycleV1;
 use super::builder_build::PreparedRawNewExpressionV1;
 use super::calls::{
+    lower_prepared_raw_explicit_extern_call_with_port_v1,
     lower_prepared_raw_function_preflight_with_port_v1, MethodCallDescentPortV1,
-    PreparedRawFromCallV1, PreparedRawFunctionPreflightV1, RawLegacyMethodCallInputV1,
+    PreparedRawExplicitExternCallV1, PreparedRawFromCallV1, PreparedRawFunctionPreflightV1,
+    RawLegacyMethodCallInputV1,
 };
 use super::enum_match_source_demand::EnumMatchSourceDemandPortV1;
 use super::enum_variant_source_demand::EnumVariantSourceDemandPortV1;
@@ -87,6 +91,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + EnumMatchSourceDemandPortV1
     + RawLambdaCaptureDemandPortV1
     + QMarkPropagationSourceDemandPortV1
+    + ExplicitExternSourcePortV1
 {
 }
 
@@ -132,6 +137,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + EnumMatchSourceDemandPortV1
         + RawLambdaCaptureDemandPortV1
         + QMarkPropagationSourceDemandPortV1
+        + ExplicitExternSourcePortV1
 {
 }
 
@@ -330,6 +336,17 @@ impl super::MirBuilder {
             } => {
                 let prepared = PreparedRawFunctionPreflightV1::prepare(self, name, arguments);
                 lower_prepared_raw_function_preflight_with_port_v1(self, port, prepared)
+            }
+
+            ASTNode::ExplicitExternCall {
+                target, arguments, ..
+            } => {
+                let resolved = port.resolved_explicit_extern_symbol_v1()?.ok_or_else(|| {
+                    "[freeze:contract][explicit-extern/missing-resolved-relation]".to_owned()
+                })?;
+                let prepared =
+                    PreparedRawExplicitExternCallV1::prepare(target, resolved, arguments)?;
+                lower_prepared_raw_explicit_extern_call_with_port_v1(self, port, prepared)
             }
 
             ASTNode::Call {

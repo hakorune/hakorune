@@ -18,6 +18,7 @@ pub(crate) fn is_statement_expression_surface_v1(node: &ASTNode) -> bool {
             | ASTNode::UnaryOp { .. }
             | ASTNode::MethodCall { .. }
             | ASTNode::FunctionCall { .. }
+            | ASTNode::ExplicitExternCall { .. }
             | ASTNode::Call { .. }
             | ASTNode::New { .. }
             | ASTNode::ArrayLiteral { .. }
@@ -213,6 +214,7 @@ impl ExprChildRoleV1 {
             }
             (Self::CallArgument(index), ASTNode::MethodCall { arguments, .. })
             | (Self::CallArgument(index), ASTNode::FunctionCall { arguments, .. })
+            | (Self::CallArgument(index), ASTNode::ExplicitExternCall { arguments, .. })
             | (Self::CallArgument(index), ASTNode::FromCall { arguments, .. })
             | (Self::CallArgument(index), ASTNode::Call { arguments, .. })
             | (Self::CallArgument(index), ASTNode::New { arguments, .. }) => (

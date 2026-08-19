@@ -1,6 +1,6 @@
 # FunctionCall Explicit Externcall Source Identity I0
 
-Status: selected implementation
+Status: landed
 Parent: `function-call-explicit-externcall-source-identity-d0.md`
 Row: `FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-I0`
 Classification: BoxCount
@@ -31,3 +31,16 @@ generic-call retirement, StringBox target, or broad production cutover.
 
 Every commit must leave files below 760 lines; split before touching an owner near
 that boundary. No new semantic `Verified*` or `Prepared*` product is authorized.
+
+## Landed receipt
+
+- Both parser paths issue `ExplicitExternCall`; generic parentheses remain
+  `FunctionCall`.
+- The resolver and source inventory own one site-keyed decoded symbol row.
+- The raw consumer requires that row and rejects source/relation drift before
+  argument lowering. The old raw `name == "externcall"` classifier is gone.
+- Grammar registry, corpus, EBNF, AST JSON transport, owner READMEs, focused
+  parser/resolver/preflight tests, and the reusable guard are synchronized.
+- `cargo check --profile quick --workspace`, library test compilation, focused
+  guard, pointer guard, formatting, and diff checks are green. The broader
+  grammar-substrate guard remains a pre-existing naming-charter baseline red.

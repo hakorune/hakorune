@@ -28,6 +28,7 @@ pub(super) struct VerifiedScriptLoweringProjectionV1 {
     enum_variant_demands: Box<[(SourceNodeSiteV1, EnumVariantAdmissionV1)]>,
     enum_match_scrutinee_receipts: Box<[SourceNodeSiteV1]>,
     qmark_propagation_receipts: Box<[SourceNodeSiteV1]>,
+    explicit_extern_calls: Box<[(SourceNodeSiteV1, Box<str>)]>,
 }
 
 impl VerifiedScriptLoweringProjectionV1 {
@@ -44,6 +45,12 @@ impl VerifiedScriptLoweringProjectionV1 {
             .semantic_owner(*root)
             .ok_or_else(|| freeze("root-owner"))?;
         let owner_id = *root;
+
+        let function = owner.as_function().ok_or_else(|| freeze("root-function"))?;
+        let explicit_extern_calls = function
+            .explicit_extern_calls()
+            .map(|(site, call)| (site.node().clone(), call.symbol().into()))
+            .collect();
 
         let mut locals = BTreeMap::new();
         let mut nowaits = BTreeMap::new();
@@ -177,7 +184,14 @@ impl VerifiedScriptLoweringProjectionV1 {
             enum_variant_demands: enum_variant_demands.into_iter().collect(),
             enum_match_scrutinee_receipts: enum_match_scrutinee_receipts.into_iter().collect(),
             qmark_propagation_receipts: qmark_propagation_receipts.into_iter().collect(),
+            explicit_extern_calls,
         })
+    }
+
+    pub(super) fn explicit_extern_symbol_at(&self, site: &SourceNodeSiteV1) -> Option<&str> {
+        self.explicit_extern_calls
+            .iter()
+            .find_map(|(candidate, symbol)| (candidate == site).then_some(symbol.as_ref()))
     }
 
     pub(super) fn local_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {

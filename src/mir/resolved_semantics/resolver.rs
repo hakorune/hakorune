@@ -516,6 +516,16 @@ fn canonicalize_draft(
             .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?,
         None => BTreeMap::new(),
     };
+    let explicit_extern_calls = draft
+        .explicit_extern_calls
+        .into_iter()
+        .map(|(site, call)| {
+            (
+                site,
+                super::ResolvedExplicitExternCallV1::from_source(call.symbol),
+            )
+        })
+        .collect();
 
     let mut seen_capture_bindings = std::collections::BTreeSet::new();
     let mut ordered_capture_demands = Vec::new();
@@ -552,6 +562,7 @@ fn canonicalize_draft(
         variable_uses,
         assignment_targets,
         direct_call_targets,
+        explicit_extern_calls,
         method_calls,
         expression_source,
         resolved_exits,

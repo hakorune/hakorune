@@ -450,6 +450,7 @@ fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
         | ASTNode::MeField { .. }
         | ASTNode::Outbox { .. }
         | ASTNode::FunctionCall { .. }
+        | ASTNode::ExplicitExternCall { .. }
         | ASTNode::Call { .. } => RawUnlocatedPortalV1::CallObject,
 
         ASTNode::Lambda { .. }

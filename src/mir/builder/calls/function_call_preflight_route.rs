@@ -18,7 +18,6 @@ pub(in crate::mir::builder) struct PreparedRawFunctionPreflightV1 {
 
 enum PreparedRawFunctionPreflightRouteV1 {
     WeakReject,
-    ExplicitExtern(PreparedRawExplicitExternCallV1),
     Brand(PreparedRawBrandConstructorV1),
     TypeOp {
         operand: ASTNode,
@@ -43,9 +42,7 @@ pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
     Resolved { arguments: Vec<ASTNode> },
 }
 
-enum PreparedRawExplicitExternCallV1 {
-    MissingTarget,
-    TargetMustBeString,
+pub(in crate::mir::builder) enum PreparedRawExplicitExternCallV1 {
     Ready {
         iface_name: String,
         method_name: String,
@@ -76,22 +73,23 @@ impl PreparedRawBrandConstructorV1 {
 }
 
 impl PreparedRawExplicitExternCallV1 {
-    fn prepare(arguments: Vec<ASTNode>) -> Self {
-        let Some(target) = arguments.first() else {
-            return Self::MissingTarget;
-        };
-        let Some(extern_name) = super::special_handlers::extract_string_literal(target) else {
-            return Self::TargetMustBeString;
-        };
-        let return_type = super::extern_calls::explicit_extern_return_type(&extern_name);
+    pub(in crate::mir::builder) fn prepare(
+        source_target: String,
+        resolved_target: Box<str>,
+        arguments: Vec<ASTNode>,
+    ) -> Result<Self, String> {
+        if source_target != resolved_target.as_ref() {
+            return Err("[freeze:contract][explicit-extern/source-relation-drift]".to_owned());
+        }
+        let return_type = super::extern_calls::explicit_extern_return_type(&resolved_target);
         let (iface_name, method_name) =
-            super::extern_calls::split_explicit_extern_name(&extern_name);
-        Self::Ready {
+            super::extern_calls::split_explicit_extern_name(&resolved_target);
+        Ok(Self::Ready {
             iface_name,
             method_name,
             return_type,
-            arguments: arguments.into_iter().skip(1).collect(),
-        }
+            arguments,
+        })
     }
 }
 
@@ -103,10 +101,6 @@ impl PreparedRawFunctionPreflightV1 {
     ) -> Self {
         let route = if name == "weak" {
             PreparedRawFunctionPreflightRouteV1::WeakReject
-        } else if name == "externcall" {
-            PreparedRawFunctionPreflightRouteV1::ExplicitExtern(
-                PreparedRawExplicitExternCallV1::prepare(arguments),
-            )
         } else if builder.comp_ctx.is_brand_declared(&name) {
             PreparedRawFunctionPreflightRouteV1::Brand(PreparedRawBrandConstructorV1::prepare(
                 arguments,
@@ -203,9 +197,6 @@ where
                     .to_string(),
             )
         }
-        PreparedRawFunctionPreflightRouteV1::ExplicitExtern(explicit) => {
-            lower_prepared_raw_explicit_extern_call_with_port_v1(builder, port, explicit)
-        }
         PreparedRawFunctionPreflightRouteV1::Brand(brand) => {
             lower_prepared_raw_brand_constructor_with_port_v1(builder, port, prepared.name, brand)
         }
@@ -262,7 +253,7 @@ where
     drive_legacy_expression_v1(builder, port, argument)
 }
 
-fn lower_prepared_raw_explicit_extern_call_with_port_v1<Port>(
+pub(in crate::mir::builder) fn lower_prepared_raw_explicit_extern_call_with_port_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     prepared: PreparedRawExplicitExternCallV1,
@@ -271,16 +262,6 @@ where
     Port: RawAstChildLoweringPortV1,
 {
     let (iface_name, method_name, return_type, arguments) = match prepared {
-        PreparedRawExplicitExternCallV1::MissingTarget => {
-            return Err(
-                "externcall requires a target string literal: externcall \"name\"(...)".to_string(),
-            )
-        }
-        PreparedRawExplicitExternCallV1::TargetMustBeString => {
-            return Err(
-                "externcall target must be a string literal: externcall \"name\"(...)".to_string(),
-            )
-        }
         PreparedRawExplicitExternCallV1::Ready {
             iface_name,
             method_name,
@@ -322,6 +303,27 @@ fn replay_function_call_trace(builder: &MirBuilder, name: &str) {
         builder.comp_ctx.current_static_box.as_deref().unwrap_or(""),
         current_function
     ));
+}
+
+#[cfg(test)]
+mod explicit_source_identity_tests {
+    use super::PreparedRawExplicitExternCallV1;
+
+    #[test]
+    fn exact_resolver_symbol_is_required_before_argument_lowering() {
+        assert!(PreparedRawExplicitExternCallV1::prepare(
+            "env.get".to_owned(),
+            Box::<str>::from("env.set"),
+            Vec::new(),
+        )
+        .is_err());
+        assert!(PreparedRawExplicitExternCallV1::prepare(
+            "env.get".to_owned(),
+            Box::<str>::from("env.get"),
+            Vec::new(),
+        )
+        .is_ok());
+    }
 }
 
 #[cfg(test)]

@@ -202,6 +202,7 @@ fn if_data(owner: FunctionOwnerIdV1, with_else: bool) -> ResolvedFunctionDataV1 
     }
 
     ResolvedFunctionDataV1 {
+        explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {

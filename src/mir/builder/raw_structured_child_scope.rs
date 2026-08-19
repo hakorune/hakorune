@@ -46,6 +46,10 @@ pub(in crate::mir::builder) struct RawStructuredChildScopePortV1<'port, Port> {
 }
 
 impl<'port, Port> RawStructuredChildScopePortV1<'port, Port> {
+    pub(super) fn child(&self) -> &Port {
+        self.child
+    }
+
     pub(in crate::mir::builder) fn new(
         child: &'port mut Port,
         expressions: Vec<PreparedRawChildSourceV1>,

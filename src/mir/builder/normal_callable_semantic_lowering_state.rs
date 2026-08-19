@@ -30,6 +30,7 @@ pub(super) struct CallableSemanticLoweringState {
     locals: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
     variables: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     assignments: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
+    explicit_extern_calls: BTreeMap<SourceNodeSiteV1, Box<str>>,
     direct_lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     values: BTreeMap<BindingRefV1, ValueId>,
     dynamic_origins: CallableDynamicOriginLoweringStateV1,
@@ -141,6 +142,10 @@ impl CallableSemanticLoweringState {
         }
 
         let mut assignments = BTreeMap::new();
+        let explicit_extern_calls = owner
+            .explicit_extern_calls()
+            .map(|(site, call)| (site.node().clone(), call.symbol().into()))
+            .collect();
         for (site, target) in owner.assignment_targets() {
             let ResolvedAssignmentTargetV1::BindingRebind(binding) = target else {
                 continue;
@@ -192,6 +197,7 @@ impl CallableSemanticLoweringState {
             locals,
             variables,
             assignments,
+            explicit_extern_calls,
             direct_lambda_captures,
             values: BTreeMap::new(),
             dynamic_origins,
@@ -201,6 +207,10 @@ impl CallableSemanticLoweringState {
             consumed_assignments: BTreeSet::new(),
             consumed_direct_lambdas: BTreeSet::new(),
         })
+    }
+
+    pub(super) fn explicit_extern_symbol(&self, site: &SourceNodeSiteV1) -> Option<&str> {
+        self.explicit_extern_calls.get(site).map(Box::as_ref)
     }
 
     pub(super) fn loop_binding_source_projection(

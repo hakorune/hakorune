@@ -32,6 +32,7 @@ fn data(body_segment: SourcePathSegmentV1) -> ResolvedFunctionDataV1 {
     let body_region = RegionId::new(owner, 1);
     let body_origin = root_site(body_segment.clone());
     ResolvedFunctionDataV1 {
+        explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: match body_segment {

@@ -39,6 +39,8 @@ pub(crate) mod env;
 // depth_tracking.rs was a legacy depth counter for Smart advance.
 // Phase 15.5: removed in favor of TokenCursor-centric newline handling.
 pub mod entry_sugar; // helper to parse with sugar level
+#[cfg(test)]
+mod explicit_externcall_source_tests;
 mod expr;
 mod expr_cursor; // TokenCursorを使用した式パーサー（実験的）
 mod expressions;

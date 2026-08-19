@@ -139,6 +139,7 @@ fn collect_index_validation_requirements(
         .variable_uses
         .keys()
         .chain(data.direct_call_targets.keys())
+        .chain(data.explicit_extern_calls.keys())
     {
         draft.record_expression(site.clone());
     }
