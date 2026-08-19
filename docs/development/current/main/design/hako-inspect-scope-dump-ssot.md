@@ -6,22 +6,22 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Keep the landed S6C journal profile-local; generalize only after one
-second simple loop names its existing emission-site owner.
-Source authority + canonical issuer: Each candidate's canonical MIR CFG and
-the lowerer that simultaneously consumes its MIR site and emits final LLVM are
-the only possible relation issuer; the pure V0 validator only co-seals rows.
-Non-authority: The S6C selected lowerer, label equality, ValueIds, adjacency,
-counts, disassembly, C code, and timing cannot issue a generic relation.
-Fail-fast boundary: The second candidate must issue exhaustive MIR/final-LLVM
-block and edge relations before sealing. Any post-hoc reconstruction, missing
-owner, or requested exact machine attribution remains `NoSafeSlice`.
-Smallest next slice: `HAKO-INSPECT-PROVENANCE-GENERALIZATION-D0` selects one
-second simple-loop consumer and audits its existing emission owner; code and
-fixtures remain closed until one bounded reuse seam is accepted.
-Non-claims: No generic compiler provenance framework, LLVM→machine map,
-semantic receipt, source syntax, optimizer advice, keeper, measurement,
-promotion, or production change.
+Decision: Use source-backed selected Dynamic `ParserScanLoopBox.skip_while/4`
+as the second consumer, but split its 759-line generic active walker before any
+new provenance BoxCount.
+Source authority + canonical issuer: The sealed selected-Dynamic MIR/candidate
+identity owns the logical CFG. The active-function lowering transaction owns
+the journal: its generic walker emits base CFG and its C1 leaf emits every
+checked-callout split/introduced CFG at the original `(block, instruction)`.
+Non-authority: The S6C journal, helper name alone, synthetic smoke, same-module
+emitter, labels, ValueIds, adjacency, counts, post-hoc LLVM, and disassembly.
+Fail-fast boundary: The later journal must bind exact candidate/MIR/final-LLVM
+digests and exhaustively cover every block/edge. Missing C1 internal/tail edge,
+duplicate/foreign row, or missing final-module capture publishes nothing.
+Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0` extracts
+`generic_lowering.inc` lines 516–700 unchanged into one private child include.
+Non-claims: No journal/schema change, generic provenance, `CompletionNotValue`
+repair, LLVM→machine map, compiler output, production, keeper, or performance.
 
 ## Decision
 
@@ -309,6 +309,25 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   generic lowerer remains 759 lines, the generic inspect entry remains 753,
   and ASM exactness is explicitly unavailable. Twenty-two focused inspect
   tests plus structural/preflight/pointer guards are green.
+- `HAKO-INSPECT-PROVENANCE-GENERALIZATION-D0` (**accepted**): the second
+  consumer is the source-backed selected Dynamic
+  `ParserScanLoopBox.skip_while/4`. Selected admission promotes that helper to
+  `program.entry`, so its real owner is the generic active walker plus the C1
+  checked-callout emitter—not the same-module body emitter. Ordinary simple
+  loop fixtures currently stop earlier at `PhysicalHeader::CompletionNotValue`
+  and cannot be used as provenance consumers without mixing another BoxCount.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0` (**selected BoxShape**): move
+  the existing lines 516–700 active block/instruction walk verbatim from the
+  759-line generic lowering owner into one private child include. Parent and
+  child must remain below 760, while emitted LLVM bytes, object bytes, symbols,
+  failure tags, routes, and accepted shapes remain identical. No journal or
+  schema is added in this row.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-I0` (**ordered follow-up,
+  unopened**): after the split, add one profile-local C1 journal and exact final
+  module capture; extend the pure validator with checked-callout normal/fault,
+  a bound issuer, and explicit duplicate rejection. The expected MIR census is
+  10 blocks/10 edges; the predicted LLVM 32/32 is not an acceptance constant
+  until the real final module is observed.
 - `HAKO-INSPECT-LLVM-ASM-D0` (**conditional NoSafeSlice**): open only if exact
   machine attribution remains necessary. LLVM18 block-name assembly comments
   are useful diagnostics but are not exact object-address provenance.

@@ -15,16 +15,16 @@ LLVM module before one trusted LLVM18 emission; object/assembly checks
 belong to the later promotion evidence gate. The exact ordinal-zero V3 WSL
 batch closed Complete/development_keeper with both fixed sessions Complete;
 it remains development-only and issues no native promotion authority. The next
-bounded row designs how the landed S6C-only MIR-to-LLVM origin journal may be
-reused by a second simple loop without creating a generic lowering authority.
+bounded row behavior-neutrally splits the selected Dynamic generic active walk
+before a second profile-local MIR-to-LLVM journal is allowed.
 """
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The S6C-only issuer journal is landed and exact machine mapping remains unavailable. Before widening the UX, name how a second simple loop lends emission-site origins without turning the S6C selected lowerer, labels, or post-hoc artifact scans into generic authority."
-work_mode = "design_stop"
-current_execution_row = "HAKO-INSPECT-PROVENANCE-GENERALIZATION-D0"
-current_blocker_token = "Choose one second simple-loop consumer and its existing MIR-to-LLVM emission owner. Reuse the pure relation validator and bundle schema only if that owner can issue exhaustive block/edge origins at emission time. Do not infer relations from labels/ValueIds/adjacency, add exact machine mapping, or change compiler output."
+current_design_stop = "HAKO-INSPECT-PROVENANCE-GENERALIZATION-D0 selected source-backed ParserScanLoopBox.skip_while/4 and corrected its owner to the generic active walker plus C1 callout emitter. The 759-line walker must split before provenance grows."
+work_mode = "fast"
+current_execution_row = "HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0"
+current_blocker_token = "Extract generic_lowering.inc lines 516-700 verbatim into one private active-walk child include. Keep parent/child below 760 and prove selected Dynamic LLVM/object/symbol/failure-tag parity. Add no provenance event, schema, route, acceptance shape, CompletionNotValue repair, or machine mapping."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -69,11 +69,11 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "S6C MIR-to-final-LLVM provenance is landed: 53 issuer rows cover MIR 8/8 and final LLVM 22/31, the V1 seal digest-binds the sidecar, and ASM correspondence remains unavailable. Generalization requires a new owner-selection D0."
-next_design_card = "HAKO-INSPECT-PROVENANCE-GENERALIZATION-D0"
+latest_card_summary = "Generalization D0 selected source-backed selected Dynamic skip_while/4. Its real owner is the 759-line generic active walker plus C1 emitter; a behavior-neutral walker split is required before the profile-local journal BoxCount."
+next_design_card = "HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0"
 next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0"
+next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
