@@ -6,25 +6,24 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Keep `hako_check inspect` as the read-only artifact facade and keep
-C/reference construction and measurement under `tools/perf`; do not create a
-second optimizer or performance authority.
+Decision: Open one design stop to select an observation-only normalized
+MIR/LLVM/assembly shape report; `hako_check inspect` remains a renderer and
+`tools/perf` remains the C/reference and measurement owner.
 Source authority + canonical issuer: The exact source hash, emitted MIR JSON,
 final LLVM artifact, executable symbol, and compiler-emitted mapping metadata
-own their respective facts. Inspect only packages and renders them.
+own their respective facts. The D0 may only join already-issued artifacts from
+one candidate.
 Non-authority: ValueId, MIR adjacency, labels, helper/symbol names, instruction
 counts, assembly diffs, C code, and timing ratios cannot issue source meaning,
-route selection, a keeper, or promotion.
-Fail-fast boundary: Candidate/function/symbol hashes and requested artifacts
-must agree, and every relation must retain its explicit
-`exact|block|function|symbol|missing` quality. Missing provenance is reported;
-it is never guessed.
-Smallest next slice: `HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0` splits the existing
-916-line Python owner below the 760-line boundary without changing CLI,
-schemas, artifact bytes, mapping claims, or behavior.
-Non-claims: No comparison report, C orchestration, provenance emission,
+route selection, a keeper, provenance, or promotion.
+Fail-fast boundary: The D0 must name candidate/function/symbol identity,
+artifact digests, mapping-quality floor, optional external C input, and a
+counterexample where symbol-level similarity cannot justify an exact edge.
+Smallest next slice: `HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0` performs a
+read-only owner/contract census and accepts one six-line brief before any code.
+Non-claims: No report implementation, C build/measurement, provenance emission,
 compiler/backend edit, keeper selection, benchmark verdict, or production
-change in the split row.
+change during the design stop.
 
 ## Decision
 
@@ -187,11 +186,11 @@ exact assembly slice when the backend can only provide symbol-level evidence.
 
 - `INSPECT-000` through `INSPECT-006`: landed source/MIR/backend bundle,
   route/mark queries, and report-key diff surface.
-- `HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0` (**selected BoxShape**): split the
-  916-line `inspect_scope_dump.py` into a thin CLI owner plus focused selector,
-  artifact, and report/diff children. Existing tests are the parity authority;
-  every source file stays below 760 lines and the 800-line hard stop.
-- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0` (**next design**): fix the smallest
+- `HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0` (**landed BoxShape**): the former
+  916-line owner is a 692-line CLI/effect facade plus one 245-line pure
+  metadata/report child. The reusable guard runs all five focused tests,
+  rejects duplicate/effect-bearing model ownership, and enforces 760 lines.
+- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0` (**selected design stop**): fix the smallest
   normalized MIR/LLVM/assembly vocabulary, same-candidate identity, optional C
   reference input, mapping-quality floor, and one S6C counterexample. The D0
   must not add compiler provenance or infer an edge from IDs/names.
