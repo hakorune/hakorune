@@ -5020,11 +5020,14 @@ fallback or retry is allowed.
 Smallest next slice: split the work into two one-owner cells, without opening
 the target-machine observer or production:
 
-1. `TEXT-FORMAL-PINNED-RESIDENCE-REAL-CANDIDATE-JSON-I0` — consume the actual
-   caller-zero `MirFunction`, install the existing carrier on that same
-   detached function, build a `MirModule`, and emit strict JSON. Add positive
-   same-cohort round-trip evidence and negatives for missing/foreign carrier,
-   trap Finish, and duplicate installation. No synthetic fixture promotion.
+1. `TEXT-FORMAL-PINNED-RESIDENCE-REAL-CANDIDATE-JSON-CARRIER-LINEAGE-I0` —
+   consume the actual caller-zero `MirFunction`, install the existing carrier
+   on that same detached function, build a `MirModule`, and emit strict JSON.
+   The carrier's signature/frame/plan inputs must be consumed inside the same
+   source/cohort handoff; owner equality after the fact is not enough. Add
+   positive same-cohort round-trip evidence and negatives for missing/foreign
+   carrier, trap Finish, exit mismatch, and duplicate installation. No
+   synthetic fixture promotion.
 2. `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-LOWERING-D0/I0` — after cell 1,
    add the minimum selected-path consumers for the existing `PinnedTextOp`
    and Enter/Trap/Finish physical rows. Split the current generic dispatch
@@ -5032,6 +5035,15 @@ the target-machine observer or production:
    stop. Route only the exact JSON through the existing LLVM 18 session;
    target-machine parse/layout and temporary artifact are the later acceptance
    boundary, not a new backend route.
+
+Current evidence for the stop is concrete: the real caller-zero path currently
+ends at a `MirFunction`; the carrier issuer has only test callers; the general
+MIR JSON allowlist rejects the lifecycle terminators; and the selected generic
+C dispatch has no cases for `PinnedTextOp`, `PinnedTextResidenceEnter`,
+`PinnedTextResidenceTrap`, or `PinnedTextResidenceFinish`. The dispatch include
+is already 826 lines, so lifecycle cases must follow a responsibility split,
+not be appended to the over-budget file. The existing carrier fixture remains
+an inspection/negative control and never proves this path.
 
 Acceptance is caller-zero only: one real candidate, one carrier lineage, one
 strict JSON document, no lifecycle operation in the hot loop, no object
