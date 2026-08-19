@@ -1,6 +1,6 @@
 # Brand Constructor Relation-less Admission D2
 
-Status: selected
+Status: closed — first bounded family selected
 Parent: `brand-constructor-active-admission-census-d1.md`
 Row: `BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D2`
 Classification: Design stop
@@ -29,6 +29,13 @@ special-call registry.
 
 ## Exit
 
-The D2 must select one bounded BoxCount issuance or one caller-zero retirement.
-If the remaining families cannot be ordered without a shared new authority,
-stop as `NoSafeSlice` and do not consume the P0 projection.
+The D2 selected `BRAND-INSTANCE-CONSTRUCTOR-SOURCE-RELATION-D0` as the first
+bounded BoxCount issuance.  Instance constructors already have a finite
+parser-owned source batch and one production lowering edge, so they can prove
+the semantic-product shape without widening the deliberately ordinary-callable
+catalog.  Nested methods have the checked-in natural callers and follow as a
+separate family; Deferred, Compatibility, and RawLegacy remain `NoSafeSlice`.
+
+Global `is_brand_declared` retirement remains forbidden.  The landed
+Constructor/NonBrand projection stays unconsumed until every production
+admission has an exact disposition or an explicit caller-zero retirement.
