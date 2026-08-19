@@ -8,6 +8,7 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
+use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
@@ -314,6 +315,25 @@ impl ModuleBuilderInvocationSessionV1 {
             }),
             (false, None) => None,
         };
+        let constructor_source_cohort = if let Some(package) = semantic_package.as_ref() {
+            match VerifiedInstanceConstructorPhysicalSourceCohortV1::issue(
+                package.source_ast(),
+                package,
+            ) {
+                Ok(cohort) => Some(cohort),
+                Err(error) => {
+                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                        session: self,
+                        _source: None,
+                        error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                            format!("[mir/instance-constructor-source/issue] {error:?}").into(),
+                        ),
+                    })
+                }
+            }
+        } else {
+            None
+        };
         let brand = self.brand();
         let import_rows = self
             .config()
@@ -406,13 +426,17 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/static-result-owner/catalog] {error}").into(),
                             )
                         })?;
-                let work = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers(
+                let work = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers_and_constructor_sources(
                     lowering_statements,
                     expansion.is_app_mode(),
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                     Some(declarations.selected_source_inventory()),
                     instance_box_transfers.as_ref(),
-                );
+                    constructor_source_cohort.as_ref(),
+                )
+                .map_err(|error| {
+                    NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())
+                })?;
                 let work = work.into_parts();
                 let script_source = match work.script_root_admission.as_ref() {
                     None => None,

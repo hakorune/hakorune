@@ -6,6 +6,7 @@ use crate::ast::ASTNode;
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 
 use super::callable_declaration_catalog::SelectedNormalCallableSourceSiteV1;
+use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
@@ -110,7 +111,9 @@ impl VerifiedScriptInstanceBoxTransferCohortV1 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::builder::normal_instance_constructor_admission::InstanceConstructorPhysicalSourceIssueV1;
     use crate::mir::builder::program_root_work_plan::{
+        PreparedProgramRootImmediateWorkV1, PreparedProgramRootRuntimeWorkV1,
         PreparedProgramRootWorkPlanV1, ProgramRootWorkPlanAdmissionV1,
     };
     use crate::mir::resolved_semantics::{
@@ -149,16 +152,23 @@ box Holder {
         let cohort =
             VerifiedScriptInstanceBoxTransferCohortV1::issue(package.source_ast(), &package)
                 .expect("exact transfer cohort");
+        let constructor_source_cohort = VerifiedInstanceConstructorPhysicalSourceCohortV1::issue(
+            package.source_ast(),
+            &package,
+        )
+        .expect("exact constructor source cohort");
         let ASTNode::Program { statements, .. } = package.source_ast().clone() else {
             panic!("Program source")
         };
-        let plan = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers(
+        let plan = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers_and_constructor_sources(
             statements,
             false,
             ProgramRootWorkPlanAdmissionV1::SelectedNormal,
             Some(package.selected_callable_sources()),
             Some(&cohort),
-        );
+            Some(&constructor_source_cohort),
+        )
+        .expect("physical source transfer");
         assert!(matches!(
             plan.into_parts()
                 .script_root_admission
@@ -213,6 +223,106 @@ box Holder {
             VerifiedScriptInstanceBoxTransferCohortV1::issue(&foreign_source, &package)
                 .expect_err("foreign constructor is not an installed semantic owner"),
             ScriptInstanceBoxTransferIssueV1::ConstructorCoverage
+        );
+    }
+
+    #[test]
+    fn physical_constructor_demands_retain_one_parser_source_id() {
+        let source = r#"
+box Holder {
+    init(value) { return value }
+}
+"#;
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            source,
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .expect("callable source");
+        let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            crate::r#macro::transform_normal_callable_program_v1(parsed)
+                .expect("exact callable transform")
+        });
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("fixture must stay source-backed")
+        };
+        let mut resolver = FunctionSemanticResolverSessionV1::new(144).unwrap();
+        let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1(
+            &mut resolver,
+            source,
+        )
+        .expect("semantic package");
+        let physical = VerifiedInstanceConstructorPhysicalSourceCohortV1::issue(
+            package.source_ast(),
+            &package,
+        )
+        .expect("physical source cohort");
+        let ASTNode::Program { statements, .. } = package.source_ast().clone() else {
+            panic!("Program source")
+        };
+        let plan = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers_and_constructor_sources(
+            statements,
+            false,
+            ProgramRootWorkPlanAdmissionV1::SelectedNormal,
+            Some(package.selected_callable_sources()),
+            None,
+            Some(&physical),
+        )
+        .expect("physical source transfer");
+        let parts = plan.into_parts();
+        let PreparedProgramRootImmediateWorkV1::InstanceBox(immediate) = &parts.immediate[0] else {
+            panic!("expected immediate instance Box")
+        };
+        let immediate_id = immediate
+            .normal_constructor_sources()
+            .expect("immediate source")
+            .sources()[0]
+            .source_id()
+            .clone();
+        let PreparedProgramRootRuntimeWorkV1::SelectedNormal(runtime) = &parts.runtime else {
+            panic!("expected selected runtime")
+        };
+        let (runtime_sources, _) = runtime.constructor_admission_at(0).expect("runtime source");
+        assert!(runtime_sources.sources()[0]
+            .source_id()
+            .same_as(&immediate_id));
+    }
+
+    #[test]
+    fn physical_constructor_cohort_rejects_foreign_constructor_row() {
+        let source = r#"box Holder { init(value) { return value } }"#;
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            source,
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .expect("callable source");
+        let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+            crate::r#macro::transform_normal_callable_program_v1(parsed)
+                .expect("exact callable transform")
+        });
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("fixture must stay source-backed")
+        };
+        let mut resolver = FunctionSemanticResolverSessionV1::new(145).unwrap();
+        let package = crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1(
+            &mut resolver,
+            source,
+        )
+        .expect("semantic package");
+        let mut foreign = package.source_ast().clone();
+        let ASTNode::Program { statements, .. } = &mut foreign else {
+            panic!("Program source")
+        };
+        let ASTNode::BoxDeclaration { constructors, .. } = &mut statements[0] else {
+            panic!("Box source")
+        };
+        let declaration = constructors.remove("init/1").expect("constructor");
+        constructors.insert("foreign/1".to_owned(), declaration);
+        assert_eq!(
+            VerifiedInstanceConstructorPhysicalSourceCohortV1::issue(&foreign, &package)
+                .expect_err("foreign constructor must reject"),
+            InstanceConstructorPhysicalSourceIssueV1::ForeignRow
         );
     }
 }

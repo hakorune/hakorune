@@ -272,3 +272,16 @@ Acceptance:
   their existing untyped lane;
 - focused tests, a reusable guard, formatter, pointer guard, and quick check
   are green, with every touched source below 760 lines.
+
+### P0 closeout
+
+Landed. `VerifiedInstanceConstructorPhysicalSourceCohortV1` now projects the
+installed parser-backed semantic rows and validates final Program
+Box/name/key/function coverage before SelectedNormal work preparation. The
+immediate and Script-runtime constructor batches carry the same opaque
+`ConstructorSourceIdV1`; they remain separate physical admissions. Missing or
+foreign cohort rows fail before work-plan publication. The focused four-test
+transfer suite, reusable `script_instance_box_transfer_guard.sh`, quick check,
+formatter, pointer guard, diff check, and line-count fence are green. The raw
+Brand consumer is unchanged; the next row is the previously identified
+consumer design stop, not an automatic cutover.

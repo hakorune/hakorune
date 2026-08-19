@@ -91,6 +91,19 @@ ordering; they are not source-order reconstruction and remain outside this
 transport cleanup. Runtime `CoreBoxDecl` projection, legacy JSON, and test
 fixture maps remain separately classified.
 
+### Instance-constructor physical source transfer (P0)
+
+The parser-issued `ConstructorSourceIdV1` carried by the installed normal
+callable semantic package is the sole source identity for selected-normal
+instance constructors. `VerifiedInstanceConstructorPhysicalSourceCohortV1`
+validates the final Program Box ordinal/name/key against those package rows
+before physical work is prepared. Immediate work and the Script-runtime
+duplicate demand both carry that same opaque source ID; each demand still
+creates its own physical admission. Sorted constructor-map keys and
+`(statement, box, key)` coordinates are placement checks only, and the legacy
+`CompilationContext::is_brand_declared` consumer remains intentionally
+unchanged until the later constructor-consumer cutover.
+
 ## Reading Order
 
 1. `src/mir/README.md`

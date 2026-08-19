@@ -10,22 +10,141 @@ use super::module_draft_collector::FunctionDraftKeyV1;
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use super::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
+use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 use crate::mir::MirBuilder;
+use crate::parser::ConstructorSourceIdV1;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct VerifiedInstanceConstructorPhysicalSourceCohortV1 {
+    rows: Box<[VerifiedInstanceConstructorPhysicalSourceRowV1]>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct VerifiedInstanceConstructorPhysicalSourceRowV1 {
+    source_id: ConstructorSourceIdV1,
+    final_box_ordinal: u32,
+    box_name: Box<str>,
+    key: Box<str>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum InstanceConstructorPhysicalSourceIssueV1 {
+    ProgramMissing,
+    ForeignRow,
+    DuplicateSourceId,
+}
+
+impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
+    pub(super) fn issue(
+        source: &ASTNode,
+        package: &VerifiedNormalCallableSemanticPackageV1,
+    ) -> Result<Self, InstanceConstructorPhysicalSourceIssueV1> {
+        let ASTNode::Program { statements, .. } = source else {
+            return Err(InstanceConstructorPhysicalSourceIssueV1::ProgramMissing);
+        };
+        let mut rows = Vec::with_capacity(package.instance_constructors().rows().len());
+        for semantic in package.instance_constructors().rows() {
+            if rows
+                .iter()
+                .any(|row: &VerifiedInstanceConstructorPhysicalSourceRowV1| {
+                    row.source_id.same_as(semantic.source_id())
+                })
+            {
+                return Err(InstanceConstructorPhysicalSourceIssueV1::DuplicateSourceId);
+            }
+            let Some(ASTNode::BoxDeclaration {
+                name, constructors, ..
+            }) = statements.get(semantic.final_box_ordinal() as usize)
+            else {
+                return Err(InstanceConstructorPhysicalSourceIssueV1::ForeignRow);
+            };
+            if name != semantic.box_name() || !constructors.contains_key(semantic.key()) {
+                return Err(InstanceConstructorPhysicalSourceIssueV1::ForeignRow);
+            }
+            let Some(ASTNode::FunctionDeclaration { .. }) = constructors.get(semantic.key()) else {
+                return Err(InstanceConstructorPhysicalSourceIssueV1::ForeignRow);
+            };
+            rows.push(VerifiedInstanceConstructorPhysicalSourceRowV1 {
+                source_id: semantic.source_id().clone(),
+                final_box_ordinal: semantic.final_box_ordinal(),
+                box_name: semantic.box_name().into(),
+                key: semantic.key().into(),
+            });
+        }
+        Ok(Self {
+            rows: rows.into_boxed_slice(),
+        })
+    }
+
+    fn row_for(
+        &self,
+        statement_index: usize,
+        box_name: &str,
+        key: &str,
+    ) -> Result<&VerifiedInstanceConstructorPhysicalSourceRowV1, String> {
+        let ordinal = u32::try_from(statement_index)
+            .map_err(|_| "[freeze:contract][mir/instance-constructor-source/ordinal]".to_owned())?;
+        let mut matches = self.rows.iter().filter(|row| {
+            row.final_box_ordinal == ordinal
+                && row.box_name.as_ref() == box_name
+                && row.key.as_ref() == key
+        });
+        let row = matches.next().ok_or_else(|| {
+            "[freeze:contract][mir/instance-constructor-source/missing]".to_owned()
+        })?;
+        if matches.next().is_some() {
+            return Err("[freeze:contract][mir/instance-constructor-source/duplicate]".to_owned());
+        }
+        Ok(row)
+    }
+
+    pub(super) fn validate_program(&self, statements: &[ASTNode]) -> Result<(), String> {
+        let mut expected = 0usize;
+        for (statement_index, statement) in statements.iter().enumerate() {
+            let ASTNode::BoxDeclaration {
+                is_static: false,
+                name,
+                constructors,
+                ..
+            } = statement
+            else {
+                continue;
+            };
+            for (key, declaration) in constructors {
+                if !matches!(declaration, ASTNode::FunctionDeclaration { .. }) {
+                    return Err(
+                        "[freeze:contract][mir/instance-constructor-source/non-function]"
+                            .to_owned(),
+                    );
+                }
+                self.row_for(statement_index, name, key)?;
+                expected += 1;
+            }
+        }
+        if expected != self.rows.len() {
+            return Err("[freeze:contract][mir/instance-constructor-source/count]".to_owned());
+        }
+        Ok(())
+    }
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) struct NormalInstanceConstructorSourceKeyV1 {
+    source_id: ConstructorSourceIdV1,
     statement_index: usize,
     box_name: Box<str>,
     parser_constructor_key: Box<str>,
 }
 
 impl NormalInstanceConstructorSourceKeyV1 {
-    pub(in crate::mir::builder) fn new(
+    fn from_physical_source(
+        source_id: ConstructorSourceIdV1,
         statement_index: usize,
-        box_name: impl Into<Box<str>>,
-        parser_constructor_key: impl Into<Box<str>>,
+        box_name: &str,
+        parser_constructor_key: &str,
     ) -> Self {
         Self {
+            source_id,
             statement_index,
             box_name: box_name.into(),
             parser_constructor_key: parser_constructor_key.into(),
@@ -43,6 +162,10 @@ impl NormalInstanceConstructorSourceKeyV1 {
     pub(in crate::mir::builder) fn parser_constructor_key(&self) -> &str {
         &self.parser_constructor_key
     }
+
+    pub(in crate::mir::builder) fn source_id(&self) -> &ConstructorSourceIdV1 {
+        &self.source_id
+    }
 }
 
 /// One immutable source occurrence for every constructor row that survived the
@@ -55,27 +178,51 @@ pub(in crate::mir::builder) struct NormalInstanceConstructorSourceBatchV1 {
 }
 
 impl NormalInstanceConstructorSourceBatchV1 {
-    pub(in crate::mir::builder) fn new(
+    pub(in crate::mir::builder) fn from_physical_cohort(
         statement_index: usize,
         box_name: &str,
-        parser_constructor_keys: Vec<String>,
-    ) -> Self {
-        Self {
-            sources: parser_constructor_keys
-                .into_iter()
-                .map(|key| {
-                    NormalInstanceConstructorSourceKeyV1::new(
-                        statement_index,
-                        box_name.to_owned(),
-                        key,
-                    )
-                })
-                .collect(),
+        parser_constructor_keys: impl IntoIterator<Item = String>,
+        cohort: &VerifiedInstanceConstructorPhysicalSourceCohortV1,
+    ) -> Result<Self, String> {
+        let mut sources = Vec::new();
+        for key in parser_constructor_keys {
+            let row = cohort.row_for(statement_index, box_name, &key)?;
+            sources.push(NormalInstanceConstructorSourceKeyV1::from_physical_source(
+                row.source_id.clone(),
+                statement_index,
+                row.box_name.as_ref(),
+                row.key.as_ref(),
+            ));
         }
+        Ok(Self {
+            sources: sources.into_boxed_slice(),
+        })
     }
 
     pub(in crate::mir::builder) fn sources(&self) -> &[NormalInstanceConstructorSourceKeyV1] {
         &self.sources
+    }
+
+    #[cfg(test)]
+    pub(super) fn for_test(
+        statement_index: usize,
+        box_name: &str,
+        parser_constructor_keys: impl IntoIterator<Item = String>,
+    ) -> Self {
+        Self {
+            sources: parser_constructor_keys
+                .into_iter()
+                .enumerate()
+                .map(|(ordinal, key)| {
+                    NormalInstanceConstructorSourceKeyV1::from_physical_source(
+                        ConstructorSourceIdV1::test_new(ordinal as u32),
+                        statement_index,
+                        box_name,
+                        &key,
+                    )
+                })
+                .collect(),
+        }
     }
 }
 
@@ -207,13 +354,17 @@ mod tests {
 
     #[test]
     fn one_source_occurrence_materializes_two_legacy_demands() {
-        let sources =
-            NormalInstanceConstructorSourceBatchV1::new(7, "Page", vec!["birth/0".to_owned()]);
-        let first =
-            NormalInstanceConstructorDraftAdmissionV1::seal(sources.sources()[0].clone(), 0);
-        let second =
-            NormalInstanceConstructorDraftAdmissionV1::seal(sources.sources()[0].clone(), 0);
+        let source_id = ConstructorSourceIdV1::test_new(0);
+        let source_key = NormalInstanceConstructorSourceKeyV1::from_physical_source(
+            source_id.clone(),
+            7,
+            "Page",
+            "birth/0",
+        );
+        let first = NormalInstanceConstructorDraftAdmissionV1::seal(source_key.clone(), 0);
+        let second = NormalInstanceConstructorDraftAdmissionV1::seal(source_key, 0);
 
+        assert!(first.source_key().source_id().same_as(&source_id));
         assert_eq!(first.source_key().statement_index(), 7);
         assert_eq!(first.physical_symbol(), "Page.birth/0");
         assert_eq!(second.physical_arity(), 1);

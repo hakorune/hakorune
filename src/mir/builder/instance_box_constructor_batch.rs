@@ -9,7 +9,9 @@ use std::collections::HashMap;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::module_lifecycle::RootCallableCapturePortV1;
-use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
+use super::normal_instance_constructor_admission::{
+    NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
+};
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::MirBuilder;
 
@@ -77,14 +79,29 @@ impl PreparedInstanceBoxConstructorBatchV1 {
     pub(super) fn normal_sources(
         &self,
         statement_index: usize,
-    ) -> NormalInstanceConstructorSourceBatchV1 {
-        NormalInstanceConstructorSourceBatchV1::new(
+        cohort: &VerifiedInstanceConstructorPhysicalSourceCohortV1,
+    ) -> Result<NormalInstanceConstructorSourceBatchV1, String> {
+        NormalInstanceConstructorSourceBatchV1::from_physical_cohort(
             statement_index,
             &self.owner,
             self.constructors
                 .iter()
-                .map(|constructor| constructor.parser_constructor_key.clone())
-                .collect(),
+                .map(|constructor| constructor.parser_constructor_key.clone()),
+            cohort,
+        )
+    }
+
+    #[cfg(test)]
+    pub(super) fn normal_sources_for_test(
+        &self,
+        statement_index: usize,
+    ) -> NormalInstanceConstructorSourceBatchV1 {
+        NormalInstanceConstructorSourceBatchV1::for_test(
+            statement_index,
+            &self.owner,
+            self.constructors
+                .iter()
+                .map(|constructor| constructor.parser_constructor_key.clone()),
         )
     }
 

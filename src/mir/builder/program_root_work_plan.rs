@@ -2,7 +2,9 @@ use super::callable_declaration_catalog::VerifiedSelectedNormalCallableSourceInv
 use super::instance_box_constructor_batch::PreparedInstanceBoxConstructorBatchV1;
 use super::instance_box_declaration_lifecycle::PreparedInstanceBoxDeclarationLifecycleV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
-use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
+use super::normal_instance_constructor_admission::{
+    NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
+};
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
@@ -186,11 +188,36 @@ impl PreparedProgramRootWorkPlanV1 {
         selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
         instance_box_transfers: Option<&VerifiedScriptInstanceBoxTransferCohortV1>,
     ) -> Self {
+        Self::prepare_with_instance_box_transfers_and_constructor_sources(
+            statements,
+            is_app_mode,
+            work_plan_admission,
+            selected_callable_sources,
+            instance_box_transfers,
+            None,
+        )
+        .expect("constructor source transfer must be supplied for production SelectedNormal")
+    }
+
+    pub(super) fn prepare_with_instance_box_transfers_and_constructor_sources(
+        statements: Vec<ASTNode>,
+        is_app_mode: bool,
+        work_plan_admission: ProgramRootWorkPlanAdmissionV1,
+        selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
+        instance_box_transfers: Option<&VerifiedScriptInstanceBoxTransferCohortV1>,
+        constructor_source_cohort: Option<&VerifiedInstanceConstructorPhysicalSourceCohortV1>,
+    ) -> Result<Self, String> {
         assert_eq!(
             selected_callable_sources.is_some(),
             work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal,
             "selected callable inventory must match work-plan admission",
         );
+        if work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal {
+            let cohort = constructor_source_cohort.ok_or_else(|| {
+                "[freeze:contract][mir/instance-constructor-source/cohort-missing]".to_owned()
+            })?;
+            cohort.validate_program(&statements)?;
+        }
         let mut immediate = Vec::new();
         let mut deferred_static = Vec::new();
         let mut runtime_statements = Vec::new();
@@ -225,6 +252,7 @@ impl PreparedProgramRootWorkPlanV1 {
                 work_plan_admission,
                 normal_script_kind,
                 selected_callable_sources,
+                constructor_source_cohort,
             );
             match disposition {
                 ProgramRootStatementDispositionV1::ImmediateAndRuntime { work, runtime } => {
@@ -243,7 +271,7 @@ impl PreparedProgramRootWorkPlanV1 {
                 }
             }
         }
-        Self {
+        Ok(Self {
             immediate: immediate.into_boxed_slice(),
             deferred_static: deferred_static.into_boxed_slice(),
             runtime: PreparedProgramRootRuntimeWorkV1::prepare(
@@ -258,7 +286,7 @@ impl PreparedProgramRootWorkPlanV1 {
             script_root_admission: script_window
                 .map(|window| window.seal().expect("selected Script demand window")),
             _seal: PreparedProgramRootWorkPlanSealV1,
-        }
+        })
     }
     pub(super) fn into_parts(self) -> PreparedProgramRootWorkPlanPartsV1 {
         PreparedProgramRootWorkPlanPartsV1 {
@@ -285,6 +313,16 @@ impl PreparedProgramRootImmediateWorkV1 {
         }
     }
 }
+
+impl PreparedProgramRootInstanceBoxWorkV1 {
+    #[cfg(test)]
+    pub(super) fn normal_constructor_sources(
+        &self,
+    ) -> Option<&NormalInstanceConstructorSourceBatchV1> {
+        self.normal_constructor_sources.as_ref()
+    }
+}
+
 impl PreparedProgramRootInstanceBoxWorkV1 {
     fn lower_with_port_v1<Port>(
         self,
@@ -401,6 +439,7 @@ fn classify_statement(
     work_plan_admission: ProgramRootWorkPlanAdmissionV1,
     normal_script_kind: Option<NormalScriptProgramItemAdmissionV1>,
     selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
+    constructor_source_cohort: Option<&VerifiedInstanceConstructorPhysicalSourceCohortV1>,
 ) -> ProgramRootStatementDispositionV1 {
     match &statement {
         ASTNode::BoxDeclaration {
@@ -418,7 +457,15 @@ fn classify_statement(
             let normal_constructor_sources = match work_plan_admission {
                 ProgramRootWorkPlanAdmissionV1::RawCompatibility => None,
                 ProgramRootWorkPlanAdmissionV1::SelectedNormal => {
-                    Some(constructors.normal_sources(statement_index))
+                    Some(match constructor_source_cohort {
+                        Some(cohort) => constructors
+                            .normal_sources(statement_index, cohort)
+                            .expect("validated constructor source cohort"),
+                        #[cfg(test)]
+                        None => constructors.normal_sources_for_test(statement_index),
+                        #[cfg(not(test))]
+                        None => unreachable!("SelectedNormal source cohort validated above"),
+                    })
                 }
             };
             let runtime_constructor_batch = if is_app_mode {

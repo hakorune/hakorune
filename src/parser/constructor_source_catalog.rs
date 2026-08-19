@@ -21,6 +21,14 @@ impl ConstructorSourceIdV1 {
     pub(crate) fn same_as(&self, other: &Self) -> bool {
         self == other
     }
+
+    #[cfg(test)]
+    pub(crate) fn test_new(catalog_ordinal: u32) -> Self {
+        Self {
+            parser_brand: super::source_authority::ParserInvocationBrandV1::issue(),
+            catalog_ordinal,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
