@@ -22,10 +22,10 @@ lowered LLVM writer; optimizer and machine correspondence remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none; selected Dynamic exact provenance stops at the same profile-local writer's pre-opt lowered LLVM bytes. Post-opt LLVM and machine mapping remain unavailable."
-work_mode = "fast"
-current_execution_row = "HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0"
-current_blocker_token = "Implement one caller-zero real-source/no-clone-candidate observation transaction. The generic active walker plus C1 emitter issue duplicate-free MIR-to-lowered-LLVM rows; capture pre-opt bytes before external optimization and reject missing/foreign/incomplete coverage. Do not infer post-opt or machine origins."
+current_design_stop = "The selected Dynamic provenance I0 is NoSafeSlice before Builder effect. The mixed ParserScanLoopBox package loses the valid annotated skip_while physical-header row because header issuance is package-wide all-or-none. Design row-local availability inside the one package-owned header inventory without weakening A-prime."
+work_mode = "design_stop"
+current_execution_row = "NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0"
+current_blocker_token = "Name the row-local admission contract for one package-owned physical-header cohort. Exact-I64 annotation plus that callable's complete parameter contract and verified value Completion issue one row; unannotated siblings issue no row and cannot erase it. Preserve unsupported-annotation rejection and A-prime's mandatory header check."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -58,6 +58,10 @@ final LLVM blocks/31 edges; shape groups them by MIR origin while ASM
 attribution remains unavailable. The pure MIR counter reports
 8 blocks/8 edges/5 branches/24 instructions and final LLVM reports
 22 blocks/31 edges/82 instructions.
+The selected Dynamic provenance implementation is parked before effect:
+package-wide all-or-none physical-header issuance erases the annotated
+skip_while row when unannotated siblings are present. Row-sparse cohort design
+is the sole current task; A-prime remains strict.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -70,11 +74,11 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "Selected Dynamic provenance D0 accepted the profile-local pre-opt lowered LLVM writer as the exact boundary. Optional legacy CAPI, external post-opt CFG, and ASM remain non-authoritative and unmapped."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0"
-next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
+latest_card_summary = "Selected Dynamic provenance stopped NoSafeSlice before effect because mixed-package all-or-none header issuance erases the valid skip_while row. The sole next design is a package-owned row-sparse physical-header cohort; A-prime remains strict."
+next_design_card = "NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0"
+next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -85,6 +89,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0 stopped NoSafeSlice before effect. The unchanged mixed ParserScanLoopBox source has one annotated exact-I64 skip_while row, but package-wide all-or-none header issuance erases it when three siblings lack result annotations; existing A-prime/package focused tests reproduce PackagePhysicalHeader. Source slicing, synthetic headers, test keys, and sibling annotation edits are non-authority. NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0 is the sole next design row; provenance remains parked.",
   "2026-08-19: HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0 accepted the honest observation boundary. The generic active walker plus C1 emitter may issue exact MIR-to-pre-opt-lowered-LLVM origins; external opt/llc output and ASM remain unmapped because optimizer origin is not carried. The optional legacy CAPI ModuleRef, post-hoc scans, and predicted 32/32 census are non-authority. One caller-zero lowered-LLVM provenance BoxCount is selected next.",
   "2026-08-19: HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0 landed behavior-neutrally. The former 759-line generic owner is a 575-line parent plus the exact unchanged 185-line active walker child; extracted-range and child SHA match, parent/current preprocessed C hashes match, and focused selected Dynamic plus S6C smokes are green. No journal/schema/route/compiler output changed. The broad Dynamic authority guard is classified parent-baseline-red at fdb04a6cdd.",
   "2026-08-19: HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0 landed observation-only. A default-off selected-lowerer journal emits 53 block/edge origin rows; the pure validator exhaustively closes MIR 8/8 and final LLVM 22/31, the ingress digest-binds the sidecar, and shape groups origins while LLVM-to-ASM exactness stays unavailable. Twenty-two focused inspect tests plus structural, selected-preflight, owner, and pointer guards are green; compiler output, keeper, performance, and production are unchanged.",
@@ -95,6 +100,5 @@ landed_tail = [
   "2026-08-19: HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0 accepted one caller-zero seam. The verified real-candidate JSON test co-issues a caller_zero_semantic_program observation envelope; one private adapter transaction alone may bind it to the existing final LLVM/object capture and object-derived disassembly. Guessed .hako, historical directory pairing, meso projection, fallback selectors, semantic receipts, and compiler behavior remain closed.",
   "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0 landed one observation renderer. A validated shape-ready V1 seal feeds independent MIR/LLVM/Hako ASM and optional digest-bound C ASM counts; correspondence, keeper selection, and measurement authority remain explicitly unclaimed. Owners are 753/245/172/107/207 lines; eleven focused tests, command help, owner guard, and pointer guard are green. Compiler/backend and production are unchanged.",
   "2026-08-19: HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0 landed one V1 observation product. The issuer copies and hashes source/MIR/LLVM/executable/assembly, requires explicit unique MIR/LLVM/ASM selectors for backend-ready bundles, derives a path-independent candidate seal, regenerates disassembly from the bound executable, and writes identity.json last. Entry/model/identity owners are 745/245/172 lines; seven focused tests and both reusable/pointer guards are green. Shape counts and compiler behavior are unchanged.",
-  "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0 accepted one prerequisite. Current V0 bundles lack digest-bound MIR/LLVM/executable/assembly lineage and exact selectors, so a renderer would overclaim same-candidate identity. The selected BoxCount adds one V1 seal written last; shape counts, C reference tooling, provenance, keeper selection, and production remain parked.",
-  "2026-08-19: HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0 landed behavior-neutrally. The prior 916-line owner is now a 692-line CLI/effect facade plus one 245-line pure metadata/report child; five focused tests, py_compile, the reusable owner guard, and current pointer guard are green. CLI, schemas, artifact bytes, mapping claims, compiler/backend, and keeper selection are unchanged."
+  "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0 accepted one prerequisite. Current V0 bundles lack digest-bound MIR/LLVM/executable/assembly lineage and exact selectors, so a renderer would overclaim same-candidate identity. The selected BoxCount adds one V1 seal written last; shape counts, C reference tooling, provenance, keeper selection, and production remain parked."
 ]

@@ -6,21 +6,21 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Map selected-Dynamic MIR exactly only to the pre-optimizer lowered
-LLVM emitted by the same profile-local transaction. Post-opt LLVM and assembly
-remain explicitly unmapped.
-Source authority + canonical issuer: The source-backed sealed
-`ParserScanLoopBox.skip_while/4` candidate owns MIR identity. The generic active
-walker and C1 emitter alone issue the lowered LLVM regions they emit.
-Non-authority: The optional legacy CAPI route, external `opt` output, helper
-names, synthetic C1 JSON, labels, ValueIds, post-hoc scans, and predicted 32/32.
-Fail-fast boundary: One caller-zero transaction binds exact source/no-clone MIR
-JSON/lowered-LLVM bytes, a profile-local issuer, duplicate-free rows, and total
-pre-opt block/edge coverage. Missing or foreign material publishes nothing.
-Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0`
-adds that one observation product and the required pure validator closure.
-Non-claims: No MIR→post-opt LLVM, LLVM→machine map, generic provenance,
-`CompletionNotValue` repair, production, keeper, promotion, or performance.
+Decision: Stop the selected-Dynamic provenance I0. The unchanged mixed package
+cannot issue the selected A-prime header because header availability is still
+package-wide all-or-none.
+Source authority + canonical issuer: Final source, each callable's parameter
+contract, and `verify_function_completion_v1` feed the package issuer; only
+that issuer may issue a complete physical-header row.
+Non-authority: Dynamic catalog headers, method name/arity, MIR, test keys,
+source slicing, or adding annotations to sibling methods cannot repair it.
+Fail-fast boundary: Preserve `PackagePhysicalHeader` rejection before Builder
+or provenance effects. Missing row-local authority publishes no artifact.
+Smallest next slice: `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0`
+designs one package-owned inventory whose eligible rows remain available even
+when unannotated siblings have no row.
+Non-claims: No A-prime weakening, source edit, provenance implementation,
+production switch, fallback, retry, post-opt map, or machine map.
 
 ## Decision
 
@@ -331,8 +331,8 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   become authority. Therefore the exact product stops at the pre-opt lowered
   LLVM bytes emitted by the generic walker plus C1 owner. Post-opt LLVM and ASM
   remain unmapped rather than receiving inferred origins.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**selected
-  BoxCount**): carry the real `parser_scan_loop_box.hako` source and same
+- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**blocked
+  NoSafeSlice**): carry the real `parser_scan_loop_box.hako` source and same
   verified no-clone candidate into one caller-zero observation transaction;
   add one profile-local C1 journal and capture the writer's lowered LLVM bytes
   exactly once before external optimization. Extend the pure validator with
@@ -341,7 +341,16 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   the C1 current LLVM label across `checked_callout_end`; do not guess `bbN`.
   Acceptance uses observed total coverage, never a predicted LLVM count. The
   report must state `MIR -> lowered LLVM: issuer_exact`, `lowered -> final LLVM:
-  unavailable`, and `LLVM -> ASM: unavailable`.
+  unavailable`, and `LLVM -> ASM: unavailable`. Do not resume this row until
+  the row-sparse physical-header prerequisite lands.
+- `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0` (**selected
+  BoxCount design**): preserve one package owner but make header availability
+  row-local. An annotated exact-I64 callable with its own complete parameter
+  contract and verified value Completion may issue one row; unannotated
+  siblings issue no row and may not erase eligible rows. Unsupported explicit
+  annotations remain rejected. The unchanged full parser scan source must lend
+  exactly the `skip_while` row with two Completion sites and no rows for its
+  three unannotated siblings. A-prime's header requirement remains unchanged.
 - `HAKO-INSPECT-LLVM-ASM-D0` (**conditional NoSafeSlice**): open only if exact
   machine attribution remains necessary. LLVM18 block-name assembly comments
   are useful diagnostics but are not exact object-address provenance.
