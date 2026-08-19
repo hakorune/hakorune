@@ -92,6 +92,7 @@ def main() -> int:
     parser.add_argument("--csv", required=True, type=Path)
     parser.add_argument("--outline-manifest", required=True, type=Path)
     parser.add_argument("--binary", required=True, type=Path)
+    parser.add_argument("--alignment-manifest", required=True, type=Path)
     parser.add_argument("--report", required=True, type=Path)
     parser.add_argument("--commit", required=True)
     parser.add_argument("--cpu", required=True)
@@ -102,6 +103,15 @@ def main() -> int:
         outline = json.loads(args.outline_manifest.read_text())
         if outline.get("schema") != "s6c-pinned-corridor-meso-outline-evidence-v1":
             fail("outline evidence schema drift")
+        alignment = json.loads(args.alignment_manifest.read_text())
+        if alignment.get("schema") != "s6c-pinned-corridor-meso-alignment-evidence-v1":
+            fail("alignment evidence schema drift")
+        symbols = alignment.get("symbols", {})
+        if set(symbols) != {"hako_s6c_meso", "hako_s6c_c_meso"} or any(
+            row.get("address_mod_64") != 0 or not row.get("body_sha256")
+            for row in symbols.values()
+        ):
+            fail("equal 64-byte function alignment is not closed")
         raw, stats = read_samples(args.csv)
         report = {
             "schema": "s6c-pinned-corridor-meso-bench-evidence-v1",
@@ -110,8 +120,10 @@ def main() -> int:
             "environment": {"cpu": args.cpu, "toolchain": args.toolchain, "kernel": os.uname().release},
             "thresholds": {"gated_sizes_min_bytes": 4096, "max_case_p50": 1.15},
             "outline_graph_sha256": outline["retained_graph_sha256"],
+            "alignment": symbols,
             "digests": {"csv_sha256": digest(args.csv), "binary_sha256": digest(args.binary),
-                        "outline_manifest_sha256": digest(args.outline_manifest)},
+                        "outline_manifest_sha256": digest(args.outline_manifest),
+                        "alignment_manifest_sha256": digest(args.alignment_manifest)},
             **stats,
             "samples": raw,
         }

@@ -14,7 +14,7 @@ import sys
 OLD_HEADER = "define i64 @ny_main(i64 %r0, i64 %r1, i64 %r2, i64 %r3) {"
 NEW_HEADER = (
     "define i64 @hako_s6c_meso(ptr %ptfc_subject_ptr, i64 %ptfc_subject_len, "
-    "ptr %ptfc_needle_ptr, i64 %ptfc_needle_len) {"
+    "ptr %ptfc_needle_ptr, i64 %ptfc_needle_len) align 64 {"
 )
 REMOVED_BLOCKS = ("bb0", "bb2")
 ROOT_PREFIXES = (

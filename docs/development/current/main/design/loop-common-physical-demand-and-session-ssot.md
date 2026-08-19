@@ -497,9 +497,11 @@ The remaining 8d order is deliberately split:
    scalar equality consumes its sole adjacent Branch directly. The retained
    graph is 20 blocks/57 instructions/29 edges/5 PHIs/2 Returns, digest
    `ea07b0aa8b57`; the unchanged meso worst improved to 1.174594 but remains red.
-5. **Current** `S6C-PINNED-CORRIDOR-MESO-ALIGNMENT-CONTROL-R0`: equalize the
-   candidate and C function alignment before attributing the one-scalar
-   first-match residual to backend scheduling.
+5. **Measured red** `S6C-PINNED-CORRIDOR-MESO-ALIGNMENT-CONTROL-R0`: both
+   functions are 64-byte aligned and body hashes recorded, but the unchanged
+   gate remains red at `mixed/4KiB/first = 1.170296`.
+6. **Design stop** `S6C-PINNED-CORRIDOR-MESO-HARDWARE-COUNTER-D0`: name one
+   counter-backed physical owner before any further lowering change.
 
 ### Accepted scalar-equality schedule repair
 
@@ -573,6 +575,24 @@ MIR/source/production change, fallback, or promotion verdict.
 
 If the equal-alignment run stays red, preserve the red result and return to a
 hardware-counter/linked-layout design audit. Do not guess another LLVM schedule.
+
+### Current hardware-counter design stop
+
+```text
+Decision: Keep promotion closed and add no lowering until measured hardware
+events name one bounded residual owner.
+Source authority + canonical issuer: The equal-aligned linked candidate/C pair
+and a single pinned perf-counter session may issue evidence only.
+Non-authority: A ratio, assembly size, symbol address, NOP, or guessed branch
+shape cannot select an optimizer or compiler meaning.
+Fail-fast boundary: Require comparable counters for the same mixed/4KiB/first
+paired workload and attribute drift to one exact linked instruction region;
+unavailable/noisy/contradictory counters remain NoSafeSlice.
+Smallest next slice: S6C-PINNED-CORRIDOR-MESO-HARDWARE-COUNTER-D0 is read-only
+premise audit and design consultation; no harness or compiler edit yet.
+Non-claims: No backend optimization, threshold/corpus/oracle change, production
+switch, fallback, promotion, or general perf policy.
+```
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the

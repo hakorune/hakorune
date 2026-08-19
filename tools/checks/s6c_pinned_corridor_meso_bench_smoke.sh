@@ -33,6 +33,40 @@ CARGO_BUILD_JOBS=4 cargo build --manifest-path "$ROOT_DIR/Cargo.toml" --profile 
 "$CLANG_CMD" -O3 -fno-lto -c "$REFERENCE" -o "$TEMP_DIR/reference.o"
 "$CLANG_CMD" -O3 -fno-lto -no-pie "$BENCH" "$TEMP_DIR/reference.o" "$TEMP_DIR/meso.o" \
   -L"$ROOT_DIR/target/quick" -lnyash_kernel -lpthread -ldl -lm -o "$TEMP_DIR/meso-bench"
+python3 - "$TEMP_DIR/meso-bench" "$TEMP_DIR/alignment.json" <<'PY'
+import hashlib, json, pathlib, re, subprocess, sys
+binary, output = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+symbols = {}
+nm = subprocess.check_output(["nm", "-n", str(binary)], text=True)
+for name in ("hako_s6c_meso", "hako_s6c_c_meso"):
+    matches = re.findall(rf"^([0-9a-fA-F]+)\s+[Tt]\s+{name}$", nm, re.M)
+    if len(matches) != 1:
+        raise SystemExit(f"alignment control: missing/duplicate symbol {name}")
+    address = int(matches[0], 16)
+    disassembly = subprocess.check_output(
+        ["objdump", "-d", "--no-show-raw-insn", f"--disassemble={name}", str(binary)],
+        text=True,
+    )
+    body = []
+    for line in disassembly.splitlines():
+        match = re.match(r"^\s*[0-9a-f]+:\s+(.+)$", line)
+        if match:
+            body.append(re.sub(r"\b[0-9a-f]+\s+<[^>]+>", "TARGET", match.group(1)))
+    if not body or any(re.search(r"\bcallq?\b", row) for row in body):
+        raise SystemExit(f"alignment control: empty body or trampoline/call in {name}")
+    normalized = "\n".join(body).encode()
+    symbols[name] = {
+        "address": address,
+        "address_mod_64": address % 64,
+        "body_sha256": hashlib.sha256(normalized).hexdigest(),
+    }
+if any(row["address_mod_64"] for row in symbols.values()):
+    raise SystemExit(f"alignment control: symbols are not both 64-byte aligned: {symbols}")
+output.write_text(json.dumps({
+    "schema": "s6c-pinned-corridor-meso-alignment-evidence-v1",
+    "symbols": symbols,
+}, indent=2, sort_keys=True) + "\n")
+PY
 CPU_ID="$(python3 - <<'PY'
 allowed = open('/proc/self/status').read().split('Cpus_allowed_list:\t', 1)[1].splitlines()[0]
 print(allowed.split(',', 1)[0].split('-', 1)[0])
@@ -41,12 +75,14 @@ PY
 TOOLCHAIN="$($CLANG_CMD --version | head -1)"
 taskset -c "$CPU_ID" "$TEMP_DIR/meso-bench" >"$TEMP_DIR/meso.csv"
 python3 "$VALIDATOR" --csv "$TEMP_DIR/meso.csv" --outline-manifest "$TEMP_DIR/outline.json" \
-  --binary "$TEMP_DIR/meso-bench" --report "$TEMP_DIR/evidence.json" \
+  --binary "$TEMP_DIR/meso-bench" --alignment-manifest "$TEMP_DIR/alignment.json" \
+  --report "$TEMP_DIR/evidence.json" \
   --commit "$(git -C "$ROOT_DIR" rev-parse HEAD)" --cpu "$CPU_ID" --toolchain "$TOOLCHAIN"
 expect_reject() {
   local name="$1" csv="$2" manifest="$3" report="$TEMP_DIR/$name.json"
   if python3 "$VALIDATOR" --csv "$csv" --outline-manifest "$manifest" \
-      --binary "$TEMP_DIR/meso-bench" --report "$report" --commit negative \
+      --binary "$TEMP_DIR/meso-bench" --alignment-manifest "$TEMP_DIR/alignment.json" \
+      --report "$report" --commit negative \
       --cpu "$CPU_ID" --toolchain "$TOOLCHAIN" >"$TEMP_DIR/$name.stdout" 2>"$TEMP_DIR/$name.stderr"; then
     echo "[$TAG] ERROR: $name negative was accepted" >&2; exit 1
   fi
@@ -71,12 +107,21 @@ for r in red:
 write('threshold-red.csv', red)
 manifest = json.loads((root / 'outline.json').read_text()); manifest['schema'] = 'foreign-outline'
 (root / 'foreign-outline.json').write_text(json.dumps(manifest))
+alignment = json.loads((root / 'alignment.json').read_text())
+alignment['symbols']['hako_s6c_meso']['address_mod_64'] = 1
+(root / 'foreign-alignment.json').write_text(json.dumps(alignment))
 PY
 expect_reject missing-case "$TEMP_DIR/missing-case.csv" "$TEMP_DIR/outline.json"
 expect_reject short-arm "$TEMP_DIR/short-arm.csv" "$TEMP_DIR/outline.json"
 expect_reject shape-drift "$TEMP_DIR/shape-drift.csv" "$TEMP_DIR/outline.json"
 expect_reject threshold-red "$TEMP_DIR/threshold-red.csv" "$TEMP_DIR/outline.json"
 expect_reject foreign-outline "$TEMP_DIR/meso.csv" "$TEMP_DIR/foreign-outline.json"
+if python3 "$VALIDATOR" --csv "$TEMP_DIR/meso.csv" --outline-manifest "$TEMP_DIR/outline.json" \
+    --binary "$TEMP_DIR/meso-bench" --alignment-manifest "$TEMP_DIR/foreign-alignment.json" \
+    --report "$TEMP_DIR/foreign-alignment-report.json" --commit negative \
+    --cpu "$CPU_ID" --toolchain "$TOOLCHAIN" >/dev/null 2>&1; then
+  echo "[$TAG] ERROR: foreign alignment negative was accepted" >&2; exit 1
+fi
 python3 - "$TEMP_DIR/evidence.json" <<'PY'
 import json, sys
 summary = json.load(open(sys.argv[1]))['summary']

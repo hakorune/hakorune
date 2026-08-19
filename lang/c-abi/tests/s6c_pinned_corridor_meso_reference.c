@@ -1,7 +1,7 @@
 #include <stdint.h>
 
 #if defined(__GNUC__) || defined(__clang__)
-#define HAKO_NOINLINE __attribute__((noinline))
+#define HAKO_NOINLINE __attribute__((noinline, aligned(64)))
 #else
 #define HAKO_NOINLINE
 #endif
