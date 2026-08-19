@@ -360,7 +360,13 @@ impl ModuleBuilderInvocationSessionV1 {
                     _ => unreachable!("root expansion retained a Program"),
                 };
                 let declaration_facts =
-                    PreparedNormalProgramDeclarationFactsV1::collect(source_ast);
+                    PreparedNormalProgramDeclarationFactsV1::collect(source_ast).map_err(
+                        |error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::CatalogSeal(
+                                error.to_string().into(),
+                            )
+                        },
+                    )?;
                 let declarations =
                     builder
                         .comp_ctx

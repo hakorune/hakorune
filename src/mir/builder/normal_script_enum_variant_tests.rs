@@ -49,7 +49,8 @@ fn enum_variant_receipt_is_complete_and_projects_its_argument() {
     let program = source();
     let prepared = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
     let view = ScriptSyntaxViewV1::from_program(prepared.source_ast()).expect("Script view");
-    let facts = PreparedNormalProgramDeclarationFactsV1::collect(prepared.source_ast());
+    let facts = PreparedNormalProgramDeclarationFactsV1::collect(prepared.source_ast())
+        .expect("declaration facts");
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
     let outcome = facts.with_record_schema_demand_view(|records| {
         facts.with_enum_variant_demand_view(|variants| {
@@ -137,7 +138,8 @@ fn ordinary_from_call_stays_deferred() {
         ScriptRootRuntimeDispositionV1::RetainedExistingTerminal,
     );
     let window = VerifiedScriptRootDemandWindowV1::seal(vec![entry], 1).expect("window");
-    let facts = PreparedNormalProgramDeclarationFactsV1::collect(prepared.source_ast());
+    let facts = PreparedNormalProgramDeclarationFactsV1::collect(prepared.source_ast())
+        .expect("declaration facts");
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");
     let outcome = facts.with_record_schema_demand_view(|records| {
         facts.with_enum_variant_demand_view(|variants| {

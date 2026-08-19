@@ -1,3 +1,4 @@
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::{ASTNode, ParamDecl};
 use std::collections::BTreeMap;
 
@@ -15,7 +16,7 @@ impl BrandEnv {
     fn from_params(
         params: &[String],
         param_decls: &[ParamDecl],
-        brands: &BTreeMap<String, String>,
+        brands: &VerifiedBrandProgramDeclarationCatalogV1,
     ) -> Self {
         let mut vars = BTreeMap::new();
         for decl in ParamDecl::with_name_fallback(param_decls, params).iter() {
@@ -38,7 +39,7 @@ impl BrandEnv {
 
 pub(super) fn check_brand_mismatches(
     ast: &ASTNode,
-    brands: &BTreeMap<String, String>,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
 ) -> Result<(), String> {
     if brands.is_empty() {
         return Ok(());
@@ -87,7 +88,7 @@ pub(super) fn check_brand_mismatches(
 
 fn collect_signatures(
     ast: &ASTNode,
-    brands: &BTreeMap<String, String>,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
 ) -> BTreeMap<String, FunctionSig> {
     let mut sigs = BTreeMap::new();
     let ASTNode::Program { statements, .. } = ast else {
@@ -132,7 +133,7 @@ fn collect_signatures(
 fn function_sig(
     params: &[String],
     param_decls: &[ParamDecl],
-    brands: &BTreeMap<String, String>,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
 ) -> FunctionSig {
     FunctionSig {
         params: ParamDecl::with_name_fallback(param_decls, params)
@@ -142,10 +143,13 @@ fn function_sig(
     }
 }
 
-fn brand_type(type_name: Option<&str>, brands: &BTreeMap<String, String>) -> Option<String> {
+fn brand_type(
+    type_name: Option<&str>,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
+) -> Option<String> {
     let type_name = type_name?;
     brands
-        .contains_key(type_name)
+        .contains_name(type_name)
         .then(|| type_name.to_string())
 }
 
@@ -155,7 +159,7 @@ fn check_body(
     current_fn: &str,
     env: &mut BrandEnv,
     sigs: &BTreeMap<String, FunctionSig>,
-    brands: &BTreeMap<String, String>,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
 ) -> Result<(), String> {
     for statement in body {
         check_statement(statement, current_box, current_fn, env, sigs, brands)?;
@@ -169,7 +173,7 @@ fn check_statement(
     current_fn: &str,
     env: &mut BrandEnv,
     sigs: &BTreeMap<String, FunctionSig>,
-    brands: &BTreeMap<String, String>,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
 ) -> Result<(), String> {
     match statement {
         ASTNode::Local {
@@ -262,7 +266,7 @@ fn check_expr(
     current_fn: &str,
     env: &BrandEnv,
     sigs: &BTreeMap<String, FunctionSig>,
-    brands: &BTreeMap<String, String>,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
 ) -> Result<Option<String>, String> {
     match expr {
         ASTNode::Variable { name, .. } => Ok(env.get(name)),
@@ -272,7 +276,7 @@ fn check_expr(
             for argument in arguments {
                 check_expr(argument, current_box, current_fn, env, sigs, brands)?;
             }
-            if brands.contains_key(name) {
+            if brands.contains_name(name) {
                 return Ok(Some(name.clone()));
             }
             if let Some(sig) = sigs.get(name) {
@@ -299,7 +303,7 @@ fn check_expr(
                 check_expr(argument, current_box, current_fn, env, sigs, brands)?;
             }
             if let Some(static_receiver) = static_path_from_expr(object) {
-                if brands.contains_key(&static_receiver) && method == "unwrap" {
+                if brands.contains_name(&static_receiver) && method == "unwrap" {
                     return Ok(None);
                 }
                 let key = format!("{}.{}", static_receiver, method);
@@ -438,7 +442,7 @@ fn check_call_args(
     current_fn: &str,
     env: &BrandEnv,
     sigs: &BTreeMap<String, FunctionSig>,
-    brands: &BTreeMap<String, String>,
+    brands: &VerifiedBrandProgramDeclarationCatalogV1,
 ) -> Result<(), String> {
     for (index, expected) in sig.params.iter().enumerate() {
         let Some(expected_brand) = expected else {

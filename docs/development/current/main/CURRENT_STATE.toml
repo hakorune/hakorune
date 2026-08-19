@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "none"
-work_mode = "fast"
-current_execution_row = "BRAND-PROGRAM-DECLARATION-CATALOG-I0"
-current_blocker_token = "Issue one neutral Brand catalog and switch Stage1 plus selected-normal collection together; do not leave a private name-map issuer."
+current_design_stop = "Name one exact catalog-backed constructor/unwrap source relation before child effects; raw name matching and resolver misses are non-authority."
+work_mode = "design_stop"
+current_execution_row = "BRAND-CONSTRUCTOR-SOURCE-RELATION-D0"
+current_blocker_token = "The neutral catalog is landed, but no exact resolved source-site relation yet connects Brand membership to constructor and unwrap consumers."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -88,15 +88,15 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/brand-program-declaration-catalog-i0.md"
+current_execution_design = "docs/development/current/main/investigations/brand-constructor-source-relation-d0.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "brand-program-declaration-catalog-i0"
-latest_card_path = "docs/development/current/main/investigations/brand-program-declaration-catalog-i0.md"
-latest_card_summary = "The lifecycle split is landed; one BoxCount now introduces the shared Brand catalog and retires Stage1's private declaration map issuer."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "BRAND-PROGRAM-DECLARATION-CATALOG-I0"
-next_execution_card_path = "docs/development/current/main/investigations/brand-program-declaration-catalog-i0.md"
+latest_card = "brand-constructor-source-relation-d0"
+latest_card_path = "docs/development/current/main/investigations/brand-constructor-source-relation-d0.md"
+latest_card_summary = "The shared Brand catalog is landed; design now names one exact resolved constructor/unwrap site relation before raw consumer cutover."
+next_design_card = "BRAND-CONSTRUCTOR-SOURCE-RELATION-D0"
+next_design_card_path = "docs/development/current/main/investigations/brand-constructor-source-relation-d0.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -107,6 +107,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: BRAND-PROGRAM-DECLARATION-CATALOG-I0 landed one BoxCount. One neutral AST-free catalog now owns ordered Brand rows and duplicate rejection for Stage1 and selected-normal; Stage1's private map issuer is deleted, and the remaining Builder map is catalog-derived compatibility state only.",
   "2026-08-20: NORMAL-DEFAULT-BRAND-CATALOG-LIFECYCLE-SPLIT-P0 landed behavior-neutrally. The production owner is 501 lines and the unchanged test child is 269; five tests are green, while the same three semantic reds reproduce on parent 998940a569 and remain classified baseline debt.",
   "2026-08-20: BRAND-GRAMMAR-DECLARATION-CAPSULE-I0 landed one BoxCount. Both profiles register BrandDeclaration, Rust positive/negative witnesses and the focused guard are green, and the Hako witness remains metadata-only. The full Hako adapter MissingTransientType red reproduces unchanged on parent cb3a7cd50d as baseline debt.",
   "2026-08-20: FUNCTION-CALL-BRAND-CONSTRUCTOR-NAMESPACE-D0 closed NoSafeSlice. Stage1 and MIRBuilder own separate declaration maps, resolver has no Brand site relation, and current MIR erases branded result identity. Namespace/result D1 is selected before catalog work.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: FUNCTION-CALL-SPECIAL-NAMESPACE-SOURCE-REGISTRY-D0 closed NoSafeSlice. weak reject, explicit externcall, Brand namespace, TypeOp, Math, scoped FastMem, and str normalization have distinct authorities; the raw precedence test is legacy behavior, not one language namespace. FUNCTION-CALL-EXPLICIT-EXTERNCALL-SOURCE-IDENTITY-D0 is selected first.",
   "2026-08-20: FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0 closed NoSafeSlice. Lexical records prove binding identity but not callable-value membership, and raw special branches have no exhaustive registry issuer. Existing VerifiedCallableIndexV1 remains the sole FreeStatic authority; FUNCTION-CALL-SPECIAL-NAMESPACE-SOURCE-REGISTRY-D0 is selected before its Script handoff.",
   "2026-08-20: FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0 landed behavior-neutrally. The production owner is 329 lines and its unchanged five tests live in a 443-line child; focused tests, inventory parity, rustfmt, diff, and pointer guard are green. The reusable MirBuilder guard's selected-normal-lifecycle red reproduces on parent ada2373fb2 and is classified baseline debt. Lexical callee classification D0 is selected.",
-  "2026-08-20: FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0 accepted. Parser identifier calls remain FunctionCall, Call already lowers callee-before-arguments, late raw resolution has one main chain, unique-static recovery has two consumers, and tail resolution has two variants behind one env selector. The 790-line preflight test split is selected behavior-neutrally before resolver classifier design.",
 ]

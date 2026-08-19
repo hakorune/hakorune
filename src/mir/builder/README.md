@@ -99,6 +99,10 @@ Builder core owns:
 - lexical scope / binding / local state through Context owners.
 - source span / diagnostic provenance.
 - actual MIR block assembly after a route has been selected.
+- normal-program declaration facts own the same neutral, AST-free Brand catalog
+  consumed by Stage1. Duplicate effective Brand names reject before resolver or
+  Builder effects; `CompilationContext.brand_decls` is only a temporary
+  catalog-derived compatibility cache for the remaining raw call consumer.
 - `record_values.rs` owns record preflight, exactly-once field evaluation, and
   `RecordFieldContractCheck` / `RecordValuePublish` emission. Declaration and
   schema policy stays in `mir/type_contracts/record_value.rs`; VM, JSON, and

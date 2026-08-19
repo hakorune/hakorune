@@ -363,7 +363,9 @@ impl MirBuilder {
         snapshot: &ASTNode,
         is_app_mode: bool,
     ) -> Result<(), String> {
-        PreparedNormalProgramDeclarationFactsV1::collect(snapshot).install_into(&mut self.comp_ctx);
+        PreparedNormalProgramDeclarationFactsV1::collect(snapshot)
+            .map_err(|error| error.to_string())?
+            .install_into(&mut self.comp_ctx);
         self.prepare_program_root_static_lowering_state_v1(snapshot, is_app_mode)
     }
 

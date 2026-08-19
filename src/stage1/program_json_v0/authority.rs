@@ -1,3 +1,6 @@
+use crate::analysis::brand_program_declaration_catalog::{
+    issue_brand_program_declaration_catalog_v1, VerifiedBrandProgramDeclarationCatalogV1,
+};
 use crate::ast::{ASTNode, EnumVariantDecl, FieldDecl};
 use crate::parser::NyashParser;
 use std::collections::{BTreeMap, BTreeSet};
@@ -66,11 +69,12 @@ fn ast_to_program_json_v0_with_imports(
     reject_sync_box_decls(ast)?;
     generic_arity_checker::check_generic_arities(ast)?;
     packed_array_eligibility_checker::check_packed_array_eligibility(ast)?;
-    let brand_decl_index = collect_brand_decl_index(ast);
-    brand_checker::check_brand_mismatches(ast, &brand_decl_index)?;
+    let brand_catalog =
+        issue_brand_program_declaration_catalog_v1(ast).map_err(|error| error.to_string())?;
+    brand_checker::check_brand_mismatches(ast, &brand_catalog)?;
     let lowering_context = ProgramJsonV0LoweringContext::with_known_enums_brands_and_records(
         collect_enum_decl_index(ast),
-        brand_decl_index,
+        brand_catalog,
         collect_record_decl_index(ast),
         collect_source_enum_decl_names(ast),
     );
@@ -115,7 +119,7 @@ fn ast_to_program_json_v0_with_imports(
             serde_json::Value::Array(enum_decls),
         );
     }
-    let brand_decls = collect_brand_decls(ast);
+    let brand_decls = collect_brand_decls(lowering_context.brand_catalog());
     if !brand_decls.is_empty() {
         let object = program
             .as_object_mut()
@@ -331,27 +335,6 @@ fn collect_source_enum_decl_names(ast: &ASTNode) -> BTreeSet<String> {
         .collect()
 }
 
-fn collect_brand_decl_index(ast: &ASTNode) -> BTreeMap<String, String> {
-    let ASTNode::Program { statements, .. } = ast else {
-        return BTreeMap::new();
-    };
-
-    statements
-        .iter()
-        .filter_map(|statement| {
-            let ASTNode::BrandDeclaration {
-                name,
-                underlying_type_name,
-                ..
-            } = statement
-            else {
-                return None;
-            };
-            Some((name.clone(), underlying_type_name.clone()))
-        })
-        .collect()
-}
-
 fn collect_enum_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
     let ASTNode::Program { statements, .. } = ast else {
         return Vec::new();
@@ -385,26 +368,17 @@ fn collect_enum_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
         .collect()
 }
 
-fn collect_brand_decls(ast: &ASTNode) -> Vec<serde_json::Value> {
-    let ASTNode::Program { statements, .. } = ast else {
-        return Vec::new();
-    };
-
-    statements
+fn collect_brand_decls(
+    catalog: &VerifiedBrandProgramDeclarationCatalogV1,
+) -> Vec<serde_json::Value> {
+    catalog
+        .rows()
         .iter()
-        .filter_map(|statement| {
-            let ASTNode::BrandDeclaration {
-                name,
-                underlying_type_name,
-                ..
-            } = statement
-            else {
-                return None;
-            };
-            Some(serde_json::json!({
-                "name": name,
-                "underlying_type": underlying_type_name,
-            }))
+        .map(|declaration| {
+            serde_json::json!({
+                "name": declaration.name(),
+                "underlying_type": declaration.underlying_type(),
+            })
         })
         .collect()
 }

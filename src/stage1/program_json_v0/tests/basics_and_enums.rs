@@ -206,6 +206,24 @@ return PageId.unwrap(page)
 }
 
 #[test]
+fn source_to_program_json_v0_rejects_duplicate_brand_before_lowering() {
+    let source = r#"
+brand PageId: i64
+brand PageId: u64
+
+static box Main {
+  main() {
+return 0
+  }
+}
+"#;
+
+    let error = source_to_program_json_v0_strict(source).expect_err("duplicate Brand must reject");
+    assert!(error.contains("[brand/duplicate-declaration]"), "{error}");
+    assert!(error.contains("name=PageId first=0 duplicate=1"), "{error}");
+}
+
+#[test]
 fn source_to_program_json_v0_rejects_brand_constructor_arity() {
     let source = r#"
 brand PageId: i64

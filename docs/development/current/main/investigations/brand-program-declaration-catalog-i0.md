@@ -1,6 +1,6 @@
 # Brand Program Declaration Catalog I0
 
-Status: selected
+Status: complete
 Parent: `brand-program-declaration-catalog-d0.md`
 Row: `BRAND-PROGRAM-DECLARATION-CATALOG-I0`
 Classification: BoxCount
@@ -37,3 +37,17 @@ value, raw consumer cutover, cache retirement, runtime/ABI, or backend work.
 - `CompilationContext.brand_decls`, while still needed by the raw consumer, is
   populated only from the sealed catalog and documented as compatibility cache.
 - Every touched source stays below 760 lines; 800 is a hard stop.
+
+## Closeout evidence
+
+- The neutral catalog owns ordered AST-free rows, lookup, and the stable
+  duplicate rejection; both Stage1 and selected-normal feed the same draft/seal
+  model from their already-effective Program.
+- Stage1's `collect_brand_decl_index` and AST-rescanned Brand JSON projection
+  are deleted. Its checker, lowering context, and JSON inventory consume the
+  sealed catalog.
+- Selected-normal declaration facts own and expose the same catalog until the
+  move into root installation. The remaining mutable map is populated only by
+  consuming catalog rows and is documented as compatibility state.
+- Focused catalog, duplicate, existing Stage1 Brand, compile, formatting, and
+  reusable guard checks are green. Production files remain below 760 lines.
