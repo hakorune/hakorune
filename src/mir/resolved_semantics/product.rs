@@ -312,6 +312,10 @@ impl VerifiedResolvedFunctionV1 {
         self.core.data.brand_call_relations.iter()
     }
 
+    pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.core.source_sites.expression_sites()
+    }
+
     pub(crate) fn explicit_extern_call(
         &self,
         site: &SourceExprSiteV1,
@@ -455,6 +459,10 @@ impl VerifiedResolvedScriptV1 {
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedBrandCallSourceRelationV1)> {
         self.core.data.brand_call_relations.iter()
+    }
+
+    pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.core.source_sites.expression_sites()
     }
 
     pub(crate) fn record_literal_demands(&self) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {

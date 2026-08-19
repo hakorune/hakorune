@@ -100,6 +100,16 @@ impl ScriptSemanticLoweringState {
         self.projection().explicit_extern_symbol_at(site)
     }
 
+    pub(super) fn brand_constructor_disposition(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<
+        super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1<'_>,
+        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
+    > {
+        self.projection().brand_constructor_disposition_at(site)
+    }
+
     pub(super) fn record(&mut self, binding: BindingRefV1, value: ValueId) -> Result<(), String> {
         if self.variable_values.insert(binding, value).is_some() {
             return Err("[freeze:contract][script-lexical/duplicate-value]".to_owned());

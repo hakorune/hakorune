@@ -12,6 +12,7 @@ pub(crate) use calls::CallTarget;
 use hakorune_mir_builder::CoreContext;
 mod array_element_write;
 mod assignment_lowering;
+mod brand_constructor_lowering_projection;
 mod builder_build;
 mod builder_debug;
 mod builder_emit;

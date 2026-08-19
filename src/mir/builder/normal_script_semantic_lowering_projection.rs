@@ -29,6 +29,8 @@ pub(super) struct VerifiedScriptLoweringProjectionV1 {
     enum_match_scrutinee_receipts: Box<[SourceNodeSiteV1]>,
     qmark_propagation_receipts: Box<[SourceNodeSiteV1]>,
     explicit_extern_calls: Box<[(SourceNodeSiteV1, Box<str>)]>,
+    brand_constructors:
+        super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1,
 }
 
 impl VerifiedScriptLoweringProjectionV1 {
@@ -47,6 +49,12 @@ impl VerifiedScriptLoweringProjectionV1 {
         let owner_id = *root;
 
         let function = owner.as_function().ok_or_else(|| freeze("root-function"))?;
+        let brand_constructors = super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1::from_verified_owner(
+            owner_id,
+            function.expression_sites(),
+            function.brand_call_relations(),
+        )
+        .map_err(|error| format!("{} {error:?}", freeze("brand-projection")))?;
         let explicit_extern_calls = function
             .explicit_extern_calls()
             .map(|(site, call)| (site.node().clone(), call.symbol().into()))
@@ -185,7 +193,18 @@ impl VerifiedScriptLoweringProjectionV1 {
             enum_match_scrutinee_receipts: enum_match_scrutinee_receipts.into_iter().collect(),
             qmark_propagation_receipts: qmark_propagation_receipts.into_iter().collect(),
             explicit_extern_calls,
+            brand_constructors,
         })
+    }
+
+    pub(super) fn brand_constructor_disposition_at(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<
+        super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1<'_>,
+        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
+    > {
+        self.brand_constructors.disposition(site)
     }
 
     pub(super) fn explicit_extern_symbol_at(&self, site: &SourceNodeSiteV1) -> Option<&str> {

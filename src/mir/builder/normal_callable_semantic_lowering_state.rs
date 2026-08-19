@@ -31,6 +31,8 @@ pub(super) struct CallableSemanticLoweringState {
     variables: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     assignments: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     explicit_extern_calls: BTreeMap<SourceNodeSiteV1, Box<str>>,
+    brand_constructors:
+        super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1,
     direct_lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     values: BTreeMap<BindingRefV1, ValueId>,
     dynamic_origins: CallableDynamicOriginLoweringStateV1,
@@ -80,6 +82,12 @@ impl CallableSemanticLoweringState {
         };
         let owner = forest.owner(*root).ok_or_else(|| freeze("root-owner"))?;
         let owner_id = owner.owner();
+        let brand_constructors = super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1::from_verified_owner(
+            owner_id,
+            input.function().expression_sites(),
+            input.function().brand_call_relations(),
+        )
+        .map_err(|error| format!("[freeze:contract][callable-brand-projection] {error:?}"))?;
         if dynamic_origins.owner() != owner_id {
             return Err(freeze("dynamic-origin-owner"));
         }
@@ -198,6 +206,7 @@ impl CallableSemanticLoweringState {
             variables,
             assignments,
             explicit_extern_calls,
+            brand_constructors,
             direct_lambda_captures,
             values: BTreeMap::new(),
             dynamic_origins,
@@ -211,6 +220,16 @@ impl CallableSemanticLoweringState {
 
     pub(super) fn explicit_extern_symbol(&self, site: &SourceNodeSiteV1) -> Option<&str> {
         self.explicit_extern_calls.get(site).map(Box::as_ref)
+    }
+
+    pub(super) fn brand_constructor_disposition(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<
+        super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1<'_>,
+        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
+    > {
+        self.brand_constructors.disposition(site)
     }
 
     pub(super) fn loop_binding_source_projection(

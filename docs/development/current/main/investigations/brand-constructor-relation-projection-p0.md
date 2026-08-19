@@ -1,6 +1,6 @@
 # Brand Constructor Relation Projection P0
 
-Status: selected
+Status: landed
 Parent: `brand-constructor-active-admission-census-d1.md`
 Row: `BRAND-CONSTRUCTOR-RELATION-PROJECTION-P0`
 Classification: BoxShape
@@ -40,3 +40,15 @@ Brand value/type, runtime, or backend.
   unchanged in this P0.
 - Focused tests, reusable guard, compile check, and the 760/800 boundaries are
   green.
+
+## Landed evidence
+
+- One 238-line request-local projection copies only exact expression-site
+  coverage and verified Constructor rows from the same resolved owner.
+- Exact covered sites return Constructor or NonBrand; absent, foreign, and
+  relation-outside-inventory rows reject.
+- Callable and Complete Script lowering states build and retain the projection.
+  No raw port or preflight reads it yet, and `is_brand_declared` is unchanged.
+- Two focused positive/negative tests, `cargo check --profile quick --lib`, and
+  `brand_constructor_relation_projection_guard.sh` are green.
+- Touched production owners remain below 760 lines.

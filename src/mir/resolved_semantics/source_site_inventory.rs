@@ -75,6 +75,10 @@ impl VerifiedResolvedSourceSiteInventoryV1 {
     pub fn contains_expression(&self, site: &SourceExprSiteV1) -> bool {
         self.expressions.contains(site)
     }
+
+    pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.expressions.iter()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
