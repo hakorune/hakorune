@@ -27,10 +27,21 @@ PYTHONPATH="$ROOT/tools/hako_check" python3 -m unittest \
   tools.hako_check.tests.test_inspect_provenance_model \
   tools.hako_check.tests.test_inspect_selected_dynamic_provenance
 
-CARGO_BUILD_JOBS=4 PYTHONPATH="$ROOT/tools/hako_check" python3 \
-  "$ROOT/tools/hako_check/inspect_selected_dynamic_provenance.py" \
-  --repo-root "$ROOT" --driver "$TEMP_DIR/driver" \
-  --out "$TEMP_DIR/bundle" >"$TEMP_DIR/seal.out"
+CARGO_BUILD_JOBS=4 bash "$ROOT/tools/hako_check.sh" \
+  inspect selected-dynamic-provenance --out "$TEMP_DIR/bundle" \
+  >"$TEMP_DIR/seal.out"
+
+for reserved in --repo-root --driver; do
+  set +e
+  bash "$ROOT/tools/hako_check.sh" inspect selected-dynamic-provenance \
+    "$reserved" /tmp/foreign --out "$TEMP_DIR/reserved-${reserved#--}" \
+    >"$TEMP_DIR/reserved.out" 2>"$TEMP_DIR/reserved.err"
+  reserved_status=$?
+  set -e
+  test "$reserved_status" -eq 2
+  test ! -e "$TEMP_DIR/reserved-${reserved#--}"
+  grep -q "reserved option: $reserved" "$TEMP_DIR/reserved.err"
+done
 
 set +e
 "$TEMP_DIR/driver" "$TEMP_DIR/bundle/mir.raw.json" \

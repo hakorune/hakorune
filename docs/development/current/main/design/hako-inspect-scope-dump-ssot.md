@@ -6,18 +6,18 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Expose the landed selected-Dynamic lowered-provenance product through
-one thin hako_check command without changing its evidence boundary.
-Source authority + canonical issuer: The landed atomic ingress and its exact
-source/no-clone MIR plus emitter-issued lowered-LLVM sidecar remain sole owners.
-Non-authority: CLI spelling, wrapper temporary paths, compiler names, displayed
-counts, final LLVM, ASM, timings, and command success issue no new meaning.
-Fail-fast boundary: The command delegates once to the existing ingress; driver
-build or ingress failure publishes no output directory or partial artifact.
-Smallest next slice: `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0` adds one
-dedicated child dispatch while leaving the 753-line generic router unchanged.
-Non-claims: No new provenance relation, final-LLVM/ASM mapping, keeper,
-measurement, production, fallback, retry, or performance claim.
+Decision: Audit the provenance disposition vocabulary before admitting another
+consumer; the landed UX remains a renderer and may not relax relation ownership.
+Source authority + canonical issuer: MIR and lowered-LLVM emitters remain the
+sole endpoint issuers; one disposition-aware validator owns relation closure.
+Non-authority: Labels, adjacency, counts, CLI output, ASM, timings, and duplicate
+endpoint coincidence may not infer split, merge, deletion, or introduction.
+Fail-fast boundary: Contradictory disposition, uncovered endpoint, malformed
+empty side, or unowned overlap rejects before bundle publication.
+Smallest next slice: `HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0` fixes the
+exact split/merged/deleted/introduced ownership law before any implementation.
+Non-claims: No new consumer, machine mapping, keeper, measurement, production,
+fallback, retry, or performance claim.
 
 ## Decision
 
@@ -337,11 +337,19 @@ from equal labels, adjacency, ValueIds, counts, or disassembly.
   incomplete coverage reject, and forced journal failure leaves neither named
   output nor `/tmp/hako_pure_gen_<pid>.ll`. Post-opt and machine mapping remain
   unavailable.
-- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0` (**selected BoxShape**):
+- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0` (**landed BoxShape**):
   route `hako_check inspect selected-dynamic-provenance --out ...` directly to
   one dedicated child which builds the private driver and invokes the landed
-  atomic ingress. Do not edit the 753-line generic inspect router or add a
-  second validator/renderer.
+  atomic ingress. Reserved `--repo-root` and `--driver` overrides reject before
+  compilation, and internal values are appended last as defense in depth. The
+  753-line generic inspect router is unchanged; eleven focused tests plus the
+  public positive and two override negatives are green.
+- `HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0` (**selected design row**):
+  name the exact endpoint-ownership law for preserved, split, merged, deleted,
+  and introduced rows. Do not let blanket endpoint uniqueness make a declared
+  many-to-one merge impossible, and do not let malformed empty-side rows hide
+  uncovered MIR or LLVM entities. This row is design-only until one exhaustive
+  positive/negative matrix and one bounded validator slice are accepted.
 - `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
   BoxCount**): the first real full-source provenance canary exposed an invalid
   pre-opt module. C1 expands the loop backedge through
