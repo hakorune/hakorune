@@ -94,7 +94,7 @@ def extract_llvm_function(text: str, function_name: str) -> str:
     require_unique_llvm_function(text, function_name)
     escaped = re.escape(function_name)
     header = re.compile(
-        rf'^\s*define\b[^@]*@(?:"{escaped}"|{escaped})\s*\(', re.MULTILINE
+        rf'^[ \t]*define\b[^@]*@(?:"{escaped}"|{escaped})\s*\(', re.MULTILINE
     ).search(text)
     if header is None:
         raise SystemExit(f"shape LLVM function header missing: {function_name}")

@@ -110,6 +110,8 @@ class InspectShapeTest(unittest.TestCase):
             self.assertEqual(report["candidate_seal"], identity["candidate_seal"])
             self.assertEqual(report["layers"]["mir"]["blocks"], 3)
             self.assertEqual(report["layers"]["mir"]["edges"], 3)
+            self.assertEqual(report["layers"]["llvm"]["blocks"], 3)
+            self.assertEqual(report["layers"]["llvm"]["instructions"], 7)
             self.assertEqual(report["layers"]["llvm"]["calls"], 1)
             self.assertEqual(report["layers"]["llvm"]["loads"], 1)
             self.assertEqual(report["layers"]["asm"]["branches"], 1)
@@ -221,3 +223,12 @@ class InspectShapeTest(unittest.TestCase):
         }
         with self.assertRaisesRegex(SystemExit, "successor is invalid: trap"):
             mir_shape(mir, "main")
+
+    def test_llvm_shape_does_not_count_leading_newline_as_implicit_block(self) -> None:
+        shape = llvm_shape(
+            "\n\ndefine i64 @f() {\nentry:\n  ret i64 0\n}\n",
+            "f",
+        )
+        self.assertEqual(shape["blocks"], 1)
+        self.assertEqual(shape["instructions"], 1)
+        self.assertEqual(shape["returns"], 1)

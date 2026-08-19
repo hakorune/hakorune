@@ -7,8 +7,8 @@ boundaries, and AI-readable inspect artifacts.
 ## Current execution brief
 
 Decision: Add one selected-candidate MIR→LLVM origin sidecar while keeping
-LLVM→optimized-machine correspondence unavailable. The prerequisite MIR CFG
-counter now follows canonical terminator successors and reports all eight edges.
+LLVM→optimized-machine correspondence unavailable. Both pure census
+prerequisites are now correct: MIR 8/8/24 and final LLVM 22/31/82.
 Source authority + canonical issuer: `MirFunction` blocks and terminators own
 the eight S6C CFG edges. The selected pinned-Text textual lowerer is the sole
 MIR-site/edge→LLVM-region relation issuer because it simultaneously consumes
@@ -296,6 +296,10 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   shape model that `checked_callout` and `pinned_text_residence_enter` each own
   two canonical successors. Add exact positive/negative counters and update the
   canary to MIR `8 blocks / 8 edges / 5 branches / 24 instructions`; no sidecar.
+- `HAKO-INSPECT-LLVM-FUNCTION-SLICE-I0` (**landed BoxShape**): replace the
+  multiline-consuming `^\s*define` selector with horizontal whitespace only.
+  Reject ambiguous/missing functions as before and prove leading blank lines do
+  not create an implicit LLVM block or instruction.
 - `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` (**selected BoxCount**): add a
   compile-time observation sink in the selected dispatch/lowerer plus a new
   private relation model/validator. Direct `bbN`, WidthAt/ScalarEq internal

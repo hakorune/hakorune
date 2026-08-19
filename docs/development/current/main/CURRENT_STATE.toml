@@ -21,10 +21,10 @@ any further residual-performance attribution.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "HAKO-INSPECT-PROVENANCE-D0 accepted candidate-local MIR-to-final-LLVM relations from the selected lowerer and explicitly left LLVM-to-machine exactness unavailable. The prerequisite pure counter now observes all eight canonical S6C CFG edges."
+current_design_stop = "HAKO-INSPECT-PROVENANCE-D0 accepted candidate-local MIR-to-final-LLVM relations and left machine exactness unavailable. Both pure census prerequisites now match canonical S6C: MIR 8/8/24 and final LLVM 22/31/82."
 work_mode = "fast"
 current_execution_row = "HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0"
-current_blocker_token = "Add one compile-time-only selected-lowerer observation sink and a new private MIR-to-final-LLVM relation model/validator. Cover all 8 MIR blocks/8 edges and 23 LLVM blocks/31 edges with preserved/split/merged/deleted/introduced rows, bind the raw sidecar digest in the existing S6C ingress, and render ASM attribution unavailable. Do not grow the 753-line inspect entry or 759-line generic lowerer, add machine provenance, or change compiler/backend output."
+current_blocker_token = "Add one compile-time-only selected-lowerer observation sink and a new private MIR-to-final-LLVM relation model/validator. Cover all 8 MIR blocks/8 edges and 22 LLVM blocks/31 edges with preserved/split/merged/deleted/introduced rows, bind the raw sidecar digest in the existing S6C ingress, and render ASM attribution unavailable. Do not grow the 753-line inspect entry or 759-line generic lowerer, add machine provenance, or change compiler/backend output."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -52,7 +52,8 @@ fixture bytes, strict JSON, final LLVM, object, and object-derived disassembly
 share one V1 seal. The report exposes independent layer counts but no
 correspondence or keeper authority. Provenance D0 selected MIR-to-final-LLVM
 issuer rows and rejected exact machine mapping. The pure MIR counter now reports
-8 blocks/8 edges/5 branches/24 instructions; the selected row adds the separate
+8 blocks/8 edges/5 branches/24 instructions and final LLVM reports
+22 blocks/31 edges/82 instructions. The selected row adds the separate
 issuer-emitted sidecar.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
@@ -66,7 +67,7 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "The MIR CFG vocabulary prerequisite landed: CheckedCallOut and Residence Enter contribute their two canonical successors, and real S6C reports 8 blocks/8 edges/5 branches/24 instructions. The selected BoxCount now adds only issuer-emitted MIR-to-final-LLVM relation sets; machine exactness stays unavailable."
+latest_card_summary = "Both observation censuses are corrected: real S6C is MIR 8 blocks/8 edges/5 branches/24 instructions and final LLVM 22 blocks/31 edges/82 instructions. The selected BoxCount now adds issuer-emitted MIR-to-final-LLVM relation sets only."
 next_design_card = "HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0"
 next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 next_execution_card = "HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0"
@@ -81,6 +82,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: HAKO-INSPECT-LLVM-FUNCTION-SLICE-I0 landed observation-only. The pure LLVM selector now uses horizontal leading whitespace and no longer consumes a preceding newline as an implicit block/instruction. Real S6C final LLVM reports 22 blocks/31 edges/82 instructions; 18 focused tests and reusable/pointer guards are green. Compiler/backend output and provenance claims are unchanged.",
   "2026-08-19: HAKO-INSPECT-MIR-CFG-COUNT-I0 landed observation-only. The pure shape model now counts canonical normal successors for Branch, Jump, CheckedCallOut, and Residence Enter with malformed-carrier rejection and duplicate-target deduplication. The real S6C seal reports MIR 8 blocks/8 edges/5 branches/24 instructions; 17 focused tests and reusable/pointer guards are green. Compiler/backend output and correspondence claims are unchanged.",
   "2026-08-19: HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0 and the first shape canary landed caller-zero. Exact scan fixture bytes and returned MIR travel through a write-last producer manifest, existing selected-C structural driver, final LLVM/object/object-derived disassembly, and one V1 seal ec9289ed...c8ad. The report shows MIR 8/6/24, LLVM 23/31/83, and ASM 69 instructions/13 branches/3 calls/2 returns while correspondence, keeper, measurement, compiler behavior, and production remain unchanged.",
   "2026-08-19: S6C observation-ingress D0 was corrected after producer audit: installed_port parses exact include_str bytes from scan_with_init_typed_ok_min.hako, so those carried bytes—not caller-zero labeling alone—bind source_to_mir=exact. A nonce adds no authority; source/JSON/final-module/object/disassembly digests inside one private transaction are sufficient. The selected I0 and all non-claims remain bounded.",
@@ -91,6 +93,5 @@ landed_tail = [
   "2026-08-19: HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0 landed behavior-neutrally. The prior 916-line owner is now a 692-line CLI/effect facade plus one 245-line pure metadata/report child; five focused tests, py_compile, the reusable owner guard, and current pointer guard are green. CLI, schemas, artifact bytes, mapping claims, compiler/backend, and keeper selection are unchanged.",
   "2026-08-19: The exact ordinal-zero MeasurementBatch V3 WSL run closed Complete/development_keeper: batch 18120db0..., terminal da729ae9...50ee, both sealed sessions Complete/development_green, 80 cases x 51 retained pairs per session, diagnostic raw 0, and temporary residue 0. This is development evidence only; native promotion authority, residual owner, backend change, and production remain closed.",
   "2026-08-19: S6C wall-clock calibration repair I2 landed evidence-only. Plan v2/batch v3 seals a 30 ms floor plus post-warm 60 ms target; short arms close Incomplete, identity/schema drift remains IntegrityInvalid, ineligible raw is a separately named digest-bound diagnostic, and abandoned raw is recovered without becoming evidence. Pure self-tests, reusable guard, and the real 80-case plus robust calibration smoke are green; compiler/MIR/backend, corpus, threshold, and production are unchanged.",
-  "2026-08-19: The first exact MeasurementBatch V2 WSL run closed terminal IntegrityInvalid (batch 68411a6e..., terminal 842bdfe6...) after all 80 case CSVs parsed. The contract calibrated before warmup at the same 30 ms later used as a per-sample minimum and discarded the failing raw row, so it issues no ratio or candidate claim. A versioned post-warm 60 ms calibration plus typed Incomplete/diagnostic-raw repair is selected; the old invalid batch is not a predecessor.",
-  "2026-08-19: S6C MeasurementBatch harness I1 landed evidence-only: one append-only directory owns the V2 manifest, frozen binary, full-commit alignment receipt, raw diagnostics, session terminals, and terminal-once batch receipt under an exclusive lock. Abandoned issued batches close Incomplete, partial raw data stays ineligible, source/binary drift and overwrite reject, direct V1 session/aggregate CLI and latent native role are retired."
+  "2026-08-19: The first exact MeasurementBatch V2 WSL run closed terminal IntegrityInvalid (batch 68411a6e..., terminal 842bdfe6...) after all 80 case CSVs parsed. The contract calibrated before warmup at the same 30 ms later used as a per-sample minimum and discarded the failing raw row, so it issues no ratio or candidate claim. A versioned post-warm 60 ms calibration plus typed Incomplete/diagnostic-raw repair is selected; the old invalid batch is not a predecessor."
 ]
