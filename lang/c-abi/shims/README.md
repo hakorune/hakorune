@@ -277,6 +277,9 @@ Current partitions:
   - caller-zero private textual projection for the three pinned-Text leaves
     and Enter/Trap/Finish; owns one `tmpfile()` draft, verifies it, closes the
     stream, and moves the resulting bytes once to the retained LLVM18 session
+  - consumes the versioned runtime header's no-unwind Enter/Finish contract;
+    it emits `nounwind` declarations but never marks Finish `noreturn`,
+    `readonly`, `readnone`, `nofree`, or `speculatable`
 - `hako_llvmc_ffi_pinned_text_target_machine_session.inc`
   - sole contract-bound LLVM parse/module/object owner; file and selected
     memory-buffer ingress converge before parse and share temporary-object

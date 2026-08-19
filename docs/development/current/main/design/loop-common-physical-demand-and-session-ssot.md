@@ -25,12 +25,11 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the selected C route emits a real caller-zero object,
-  but its Enter/Finish no-unwind call contract is not yet explicit in the
-  selected LLVM declarations. Post-codegen object inspection is promotion
-  evidence, not a compiler acceptance authority.
+- **Current blocker:** the selected C route emits a real caller-zero object and
+  its runtime call effects are closed, but the same parsed LLVM module is not
+  yet verified as the final lifecycle projection immediately before emission.
 - **Next ordered task:**
-  `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0`.
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0`.
 - **Production stop line:** final-module closure, production selection,
   fallback/retry, performance promotion, and
   `nyash.string.eq_hh` retirement remain closed.
@@ -324,32 +323,34 @@ lifetime, or fast-route admission:
 
 ## Current execution brief
 
-Row: `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0`
-Kind: one bounded call-effect BoxCount; no new semantic receipt.
+Row: `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0`
+Kind: one bounded selected-backend route; no new semantic receipt.
 
 Change:
-  Make the existing runtime-owned ABI explicit once: Enter returns an exhaustive
-  status and does not unwind; Finish returns `void` on success, aborts on every
-  nonzero internal status, and does not unwind. Project that contract into the
-  selected LLVM declarations and delete their unannotated forms.
+  Add one private child that consumes the already-preflighted selected
+  lifecycle expectation and checks the same parsed `LLVMModuleRef` after exact
+  target/layout installation. Run `LLVMVerifyModule`, close exact lifecycle
+  declarations/calls/Trap/Return attributes, then invoke the existing sole
+  `LLVMTargetMachineEmitToFile` without an intervening pass or mutation.
 
 Contract:
-  The Rust runtime implementation/export owns behavior and
-  `include/nyrt_text_formal_residence_v1.h` is its C projection. The selected
-  lowerer consumes the fixed signature/effect contract; it does not infer it
-  from a symbol name. Finish is not globally `noreturn`, and neither call is
-  `readonly`, `readnone`, `nofree`, or `speculatable`.
+  Rust carrier/preflight owns expected sites; the versioned runtime header owns
+  call effects; the final-module child only validates their physical projection.
+  It does not rescan JSON, infer meaning from symbol counts, run a pass, emit a
+  second object, or create a post-codegen receipt. File ingress remains unchanged.
 
 Done:
-  The ABI guard and focused selected-lowering test prove exact signatures,
-  `nounwind`, terminal nonzero Finish behavior, and absence of the forbidden
-  attributes. All touched source stays below 760 lines and the real candidate
-  remains caller-zero.
+  Positive real-candidate closure reaches one nonempty test object. Invalid
+  module, target/layout, lifecycle count/site/order/attribute, EH construct, or
+  late mutation rejects before emission with object/temporary count zero.
+  Prescan is unchanged, generic owner remains below 760 lines, and the final
+  closure lives in a private child below the split trigger.
 
 Stop:
-  Any reachable unwind/catch path, signature ambiguity, new runtime token/frame,
-  new semantic `Verified*`/`Prepared*` receipt, object reader, fallback, retry,
-  production edge, or unrelated backend parity returns this row to design.
+  If the preflighted expectation cannot reach the parsed module without a
+  second ledger/JSON scan, or if any pass/module mutation must follow closure,
+  return to design. Object readers, runtime changes, new semantic receipts,
+  fallback/retry, production edges, and unrelated backend parity stay closed.
 
 ### Closed object-observer design
 
@@ -412,7 +413,7 @@ promotion, fallback, retry, `.ll`, or object publication.
 | 3 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TEXTUAL-LOWERING-I0` | BoxCount | **Landed.** One private draft lowers the three leaves plus Enter/Trap/Finish, passes its verifier, is discarded, and returns the stable target-closed tag. |
 | 4 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-TARGET-MACHINE-I0` | bounded route | **Landed.** Verified owned bytes reach the retained LLVM18 target/layout session and one test-owned object; failures remove every temporary. |
 | 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0` | design stop | **Closed.** The probe failure was an ELF null-section false negative. LLVM18 Object/Disassembler works, but no compile-path observer is selected; machine evidence belongs to promotion. |
-| 6 | `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0` | BoxCount | Existing Enter/Finish signatures and no-unwind/fail-stop effects become one runtime-owned ABI projection consumed by selected LLVM; no new receipt or runtime object. |
+| 6 | `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0` | BoxCount | **Landed.** Existing Enter/Finish signatures and no-unwind/fail-stop effects are one runtime-owned ABI projection consumed by selected LLVM; successful Finish stays returnable and no new receipt/runtime object exists. |
 | 7 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0` | bounded route | A private child checks the same parsed `LLVMModuleRef` with `LLVMVerifyModule`, exact selected lifecycle/call attributes, and target/layout immediately before the existing sole emit; no pass or module mutation may follow closure, and failure publishes no object. |
 | 8 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, link/run, IR/final-assembly structural-zero, exact/meso/whole-call, and C comparison gates pass; object tools are evidence only. |
 | 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
@@ -445,7 +446,8 @@ Exact prose and superseded stops are historical. The durable result is:
 | selected C textual lifecycle lowerer | landed caller-zero BoxCount |
 | selected C TargetMachine handoff | landed caller-zero bounded route |
 | post-emit temporary-object observer | probe false negative corrected; compile-path observer intentionally absent |
-| final LLVM module closure | call-effect contract then same-module verifier pending |
+| runtime Enter/Finish call-effect contract | landed caller-zero BoxCount |
+| final LLVM module closure | same-module verifier pending |
 | production | closed |
 
 The current production selector remains selected-Dynamic. Generic G0 and S6C
@@ -467,6 +469,9 @@ The latest landed real-candidate JSON slice has:
 - `pure_compile_generic_dispatch_split_guard.sh` green at parent 714 / child 114;
 - selected carrier-bound preflight guard and runtime-generated JSON smoke green;
 - selected private textual lowerer verifier and ordering negative green;
+- selected runtime-call `nounwind` positive and forbidden-effect negative green;
+- `text_formal_residence_finish_or_abort_abi_guard.sh` and selected preflight
+  guard cover the versioned header-to-LLVM projection;
 - selected LLVM18 memory ingress emits a nonempty object; invalid IR and
   unwritable-output negatives leave no temporary artifact;
 - byte-for-byte extraction comparison against the pre-split parent green;

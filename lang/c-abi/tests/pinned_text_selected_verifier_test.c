@@ -1,5 +1,47 @@
 #include "../shims/hako_llvmc_ffi.c"
 
+static int write_contract_fixture(
+    struct HakoPtfSelectedLlvmDraft* draft,
+    int ordered_returns,
+    const char* enter_declaration,
+    char** error) {
+  if (hako_llvmc_ptfc_open_selected_draft(draft, error) != 0) return -1;
+  draft->enter_count = 1;
+  draft->trap_count = 1;
+  draft->finish_count = 2;
+  draft->leaf_count = 3;
+  if (enter_declaration) {
+    fputs(enter_declaration, draft->stream);
+    fputs(HAKO_PTFC_FINISH_DECL_V1, draft->stream);
+  } else {
+    hako_llvmc_ptfc_emit_selected_declarations(draft->stream);
+  }
+  fputs(
+      "store i64 %r0\nstore i64 %r1\nstore i64 %r2\nstore i64 %r3\n"
+      "%ptfc_frame = alloca i8\n"
+      "call i32 @hako_text_formal_residence_enter_v1\n"
+      "br i1 %ptfc_enter_ok\n"
+      "call void @llvm.trap()\n  unreachable\n"
+      "; ptfc leaf a\n; ptfc leaf b\n; ptfc leaf c\n",
+      draft->stream);
+  if (ordered_returns) {
+    fputs(
+        "call void @hako_text_formal_residence_finish_or_abort_v1(ptr %ptfc_frame)\n"
+        "  ret i64 0\n"
+        "call void @hako_text_formal_residence_finish_or_abort_v1(ptr %ptfc_frame)\n"
+        "  ret i64 1\n",
+        draft->stream);
+  } else {
+    fputs(
+        "ret i64 0\n"
+        "call void @hako_text_formal_residence_finish_or_abort_v1(ptr %ptfc_frame)\n"
+        "call void @hako_text_formal_residence_finish_or_abort_v1(ptr %ptfc_frame)\n"
+        "ret i64 1\n",
+        draft->stream);
+  }
+  return 0;
+}
+
 int main(void) {
   struct HakoPtfSelectedLlvmDraft draft;
   struct HakoPtfSelectedLlvmBytes bytes;
@@ -9,33 +51,52 @@ int main(void) {
   char temporary_path[320];
   char* error = NULL;
 
-  if (hako_llvmc_ptfc_open_selected_draft(&draft, &error) != 0) return 1;
-  draft.enter_count = 1;
-  draft.trap_count = 1;
-  draft.finish_count = 2;
-  draft.leaf_count = 3;
-  fputs(
-      "store i64 %r0\nstore i64 %r1\nstore i64 %r2\nstore i64 %r3\n"
-      "%ptfc_frame = alloca i8\n"
-      "call i32 @hako_text_formal_residence_enter_v1\n"
-      "br i1 %ptfc_enter_ok\n"
-      "call void @llvm.trap()\n  unreachable\n"
-      "; ptfc leaf a\n; ptfc leaf b\n; ptfc leaf c\n"
-      "ret i64 0\n"
-      "call void @hako_text_formal_residence_finish_or_abort_v1(ptr %ptfc_frame)\n"
-      "call void @hako_text_formal_residence_finish_or_abort_v1(ptr %ptfc_frame)\n"
-      "ret i64 1\n",
-      draft.stream);
+  if (write_contract_fixture(&draft, 1, NULL, &error) != 0) return 1;
+  if (hako_llvmc_ptfc_verify_and_take_selected_llvm(
+          &draft, &bytes, &error) != 0) {
+    free(error);
+    return 2;
+  }
+  if (!strstr(bytes.data, HAKO_PTFC_ENTER_DECL_V1) ||
+      !strstr(bytes.data, HAKO_PTFC_FINISH_DECL_V1) ||
+      strstr(bytes.data, " readonly") || strstr(bytes.data, " readnone") ||
+      strstr(bytes.data, " nofree") || strstr(bytes.data, " speculatable")) {
+    hako_llvmc_ptfc_release_selected_llvm_bytes(&bytes);
+    return 3;
+  }
+  hako_llvmc_ptfc_release_selected_llvm_bytes(&bytes);
+
+  if (write_contract_fixture(&draft, 0, NULL, &error) != 0) return 4;
   if (hako_llvmc_ptfc_verify_and_take_selected_llvm(
           &draft, &bytes, &error) == 0) {
     hako_llvmc_ptfc_release_selected_llvm_bytes(&bytes);
     free(error);
-    return 2;
+    return 5;
   }
   if (draft.stream != NULL || bytes.data != NULL || bytes.size != 0 || !error ||
       !strstr(error, "private pinned Text LLVM verification failed")) {
     free(error);
-    return 3;
+    return 6;
+  }
+  free(error);
+  error = NULL;
+
+  if (write_contract_fixture(
+          &draft,
+          1,
+          "declare i32 @hako_text_formal_residence_enter_v1(ptr, i32, ptr, i32) nounwind readonly\n",
+          &error) != 0) {
+    return 7;
+  }
+  if (hako_llvmc_ptfc_verify_and_take_selected_llvm(
+          &draft, &bytes, &error) == 0) {
+    hako_llvmc_ptfc_release_selected_llvm_bytes(&bytes);
+    free(error);
+    return 8;
+  }
+  if (!error || !strstr(error, "private pinned Text LLVM verification failed")) {
+    free(error);
+    return 9;
   }
   free(error);
   error = NULL;
@@ -44,7 +105,7 @@ int main(void) {
   census.contract_count = 1;
   if (hako_llvmc_ptfb_session_open(&session, &census, &error) != 0) {
     free(error);
-    return 4;
+    return 10;
   }
   snprintf(
       object_path,
@@ -66,7 +127,7 @@ int main(void) {
           object_path,
           &error) == 0) {
     hako_llvmc_ptfb_session_close(&session);
-    return 5;
+    return 11;
   }
   hako_llvmc_ptfb_session_close(&session);
   if (!error || hako_llvmc_file_exists(object_path) ||
@@ -74,7 +135,7 @@ int main(void) {
     free(error);
     remove(object_path);
     remove(temporary_path);
-    return 6;
+    return 12;
   }
   free(error);
   remove(object_path);

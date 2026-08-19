@@ -2,6 +2,20 @@
 #ifndef HAKO_LLVM_C_PINNED_TEXT_SELECTED_LOWERING_INC
 #define HAKO_LLVM_C_PINNED_TEXT_SELECTED_LOWERING_INC
 
+#include "../../../include/nyrt_text_formal_residence_v1.h"
+
+#define HAKO_PTFC_ENTER_DECL_V1 \
+  "declare i32 @hako_text_formal_residence_enter_v1(ptr, i32, ptr, i32) nounwind\n"
+#define HAKO_PTFC_FINISH_DECL_V1 \
+  "declare void @hako_text_formal_residence_finish_or_abort_v1(ptr) nounwind\n"
+
+_Static_assert(NYRT_TEXT_RESIDENCE_ENTER_NOUNWIND_V1 == 1,
+               "selected Enter projection requires the runtime no-unwind ABI");
+_Static_assert(NYRT_TEXT_RESIDENCE_FINISH_OR_ABORT_NOUNWIND_V1 == 1,
+               "selected Finish projection requires the runtime no-unwind ABI");
+_Static_assert(NYRT_TEXT_RESIDENCE_FINISH_OR_ABORT_NORETURN_V1 == 0,
+               "Finish returns after successful residence release");
+
 struct HakoPtfSelectedLlvmDraft {
   FILE* stream;
   unsigned int enter_count;
@@ -78,6 +92,12 @@ static int hako_llvmc_ptfc_verify_and_take_selected_llvm(
   text[size] = '\0';
   valid = draft->enter_count == 1 && draft->trap_count == 1 &&
       draft->finish_count == 2 && draft->leaf_count == 3 &&
+      hako_llvmc_ptfc_count_text(text, HAKO_PTFC_ENTER_DECL_V1) == 1 &&
+      hako_llvmc_ptfc_count_text(text, HAKO_PTFC_FINISH_DECL_V1) == 1 &&
+      hako_llvmc_ptfc_count_text(
+          text, "declare i32 @hako_text_formal_residence_enter_v1(") == 1 &&
+      hako_llvmc_ptfc_count_text(
+          text, "declare void @hako_text_formal_residence_finish_or_abort_v1(") == 1 &&
       hako_llvmc_ptfc_count_text(
           text, "call i32 @hako_text_formal_residence_enter_v1") == 1 &&
       hako_llvmc_ptfc_count_text(
@@ -123,8 +143,8 @@ static int hako_llvmc_ptfc_emit_selected_entry_header(
 }
 
 static void hako_llvmc_ptfc_emit_selected_declarations(FILE* out) {
-  fputs("declare i32 @hako_text_formal_residence_enter_v1(ptr, i32, ptr, i32)\n", out);
-  fputs("declare void @hako_text_formal_residence_finish_or_abort_v1(ptr)\n", out);
+  fputs(HAKO_PTFC_ENTER_DECL_V1, out);
+  fputs(HAKO_PTFC_FINISH_DECL_V1, out);
 }
 
 static int hako_llvmc_ptfc_emit_selected_leaf(

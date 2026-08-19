@@ -29,10 +29,12 @@ Treat them as public symbol-family exports, not as ownership boundaries.
   caller or a second provider registry.
 - `text_formal.rs` owns the fixed pair validator plus the private
   caller-zero residence-frame `enter`/`finish_or_abort` projections declared in
-  `include/nyrt_text_formal_residence_v1.h`. Finish returns only after status
-  zero; every nonzero status terminates inside the runtime. The frame is a
-  runtime transport surface only; it does not own Text semantics, source
-  origin, or route selection.
+  `include/nyrt_text_formal_residence_v1.h`. Both entries are no-unwind C
+  boundaries. Enter returns its exhaustive status; Finish returns `void` only
+  after status zero and every nonzero status terminates inside the runtime.
+  Finish itself is therefore not globally `noreturn`. The frame is a runtime
+  transport surface only; it does not own Text semantics, source origin, or
+  route selection.
 - Fresh text results receive their handle and slot-generation identity in one
   root host-handle owner transition before lease-token admission; the strict
   export never performs a raw-handle rollback or relookup.

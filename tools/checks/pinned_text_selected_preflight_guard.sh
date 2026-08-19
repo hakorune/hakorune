@@ -81,8 +81,8 @@ if [[ "$(count_fixed '#include "hako_llvmc_ffi_pinned_text_selected_dispatch.inc
   guard_fail "$TAG" "generic op dispatch must delegate through one selected child include"
 fi
 if [[ "$(count_fixed 'pinned_text_selected_verifier_test.c' "$SMOKE")" != "1" ]] ||
-   [[ "$(count_fixed 'hako_llvmc_ptfc_verify_and_take_selected_llvm(' "$VERIFIER_TEST")" != "1" ]]; then
-  guard_fail "$TAG" "private verifier ordering negative must stay in one test translation unit"
+   [[ "$(count_fixed 'hako_llvmc_ptfc_verify_and_take_selected_llvm(' "$VERIFIER_TEST")" != "3" ]]; then
+  guard_fail "$TAG" "private verifier positive plus ordering/effect negatives must stay in one test translation unit"
 fi
 
 for file in "$PURE" "$PREFLIGHT" "$LOWERING" "$TARGET_SESSION" "$GENERIC" "$DISPATCH" "$SELECTED_DISPATCH" "$CARRIER" "$FRAME" "$RUST_TEST"; do
