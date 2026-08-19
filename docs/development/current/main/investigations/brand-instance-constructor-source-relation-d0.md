@@ -549,22 +549,59 @@ Implementation acceptance:
   `dc81a64dc7` reproduces the same 4-pass/1-fail result, so this is recorded as
   baseline debt and is not attributed to this I0.
 
-### Follow-up TODO ledger (do not mix into this I0)
+### Follow-up TODO ledger (ordered; do not reopen landed rows)
 
-1. **S6C-C-PARITY-NORTH-STAR-D0** — landed as docs-only policy. The perf owner
-   SSOT now distinguishes the unchanged `1.15` promotion ceiling from the
-   formal `1.00` Hako/C point target. Any `1.03` upper-confidence claim remains
-   a separate design proposal; no gate or old evidence was changed.
-2. **S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0** — remains parked until a new
-   explicitly accepted clean-pair/native batch supplies eligible ratios; the
-   prior NoSafeSlice receipt is not a backend owner.
-3. **Brand relationless lanes** — open separate D0s for Complete Script,
-   Deferred/Compatibility/RawLegacy, nested/Main, and MethodCall/unwrap before
-   any global `is_brand_declared` retirement. This I0 claims none of them.
-4. **hako_check inspect provenance** — after the current production frontier
-   closeout, land MIR→LLVM issuer-emitted block/edge sidecar UX; keep
-   LLVM→ASM exact correspondence explicitly unavailable until a real backend
-   address issuer exists.
+The list below is the durable handoff. “Parked” means the row is remembered but
+must not be run by inference; it needs the stated external premise or a new
+accepted D0. The completed rows remain in the receipts above and in
+`CURRENT_STATE.toml`'s landed tail.
+
+#### Done
+
+- **S6C-C-PARITY-NORTH-STAR-D0** — docs-only policy landed. Existing `1.15`
+  promotion gates remain unchanged; `Hako/C <= 1.00` is the long-term point
+  target, not a current measurement claim. A future `1.03` confidence margin
+  requires its own D0.
+- **Brand source/consumer chain through selected-normal** — parser constructor
+  inventory, source transfer, demand manifest, semantic owner/loan, exact bare
+  callable location, and installed-callable consumer are all landed. No global
+  raw-name retirement was implied.
+
+#### Parked evidence
+
+1. **`S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`** — blocked until a new immutable
+   native batch produces eligible clean pairs. The prior `NoSafeSlice` receipt
+   (0 accepted pairs) is final for that plan; no rerun, subset, ratio repair,
+   assembly guess, or backend owner is allowed.
+2. **`HAKO-INSPECT-MIR-LLVM-BLOCK-ORIGIN-SIDECAR-I0`** — after the production
+   frontier, provide issuer-emitted MIR→LLVM block/edge UX. LLVM→ASM exact
+   correspondence stays explicitly unavailable without a real backend address
+   issuer.
+
+#### Next design order (one row at a time)
+
+3. **`BRAND-COMPLETE-SCRIPT-CONSUMER-D0`** — first audit whether a Complete
+   Script product has total exact-site coverage. If FunctionCall sites are
+   Deferred, unlocated, or missing an owner, record `NoSafeSlice`; do not invent
+   a partial Script relation or fallback.
+4. **`BRAND-RELATIONLESS-ADMISSIONS-D0`** — separately audit
+   Deferred/Compatibility/RawLegacy and nested/Main admissions. Each family
+   needs its own source issuer, owner/site coverage, and fail-fast boundary;
+   caller-zero is not evidence of absence.
+5. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
+   MethodCall/`Brand.unwrap`; do not combine it with constructor consumer work.
+6. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
+   FunctionCall admission has an exact `Constructor|NonBrand|Unavailable`
+   disposition. Until then, `CompilationContext::is_brand_declared` remains a
+   compatibility authority on the relationless lanes.
+
+#### Explicit non-goals
+
+No threshold relaxation, WSL/native promotion claim, SIMD guess, C-reference
+rewrite, production selector change, unwrap activation, or broad legacy-suite
+reenactment is implied by this ledger. The known `externcall` 4-pass/1-fail
+baseline remains recorded separately and is not silently converted into a new
+task.
 
 ### I0 closeout
 
