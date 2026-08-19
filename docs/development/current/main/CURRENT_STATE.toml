@@ -1,5 +1,4 @@
-# Current-state pointer only. Historical task paths and landed prose live in
-# the archive index and git history; this file selects the live lane.
+# Current-state pointer only; history lives in the archive index and git.
 status = """
 The final S6C TextEq corridor reuses the existing subject/needle ExactText
 Residence roots and represents V9 only as a derived UTF-8 scalar slice.
@@ -23,15 +22,15 @@ reaches its target-machine boundary yet. The caller-zero ExactTwo ingress now ma
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "accepted: the existing pure-first contract-bound C route is the sole selected consumer; first extract only call/mir_call from the 826-line generic dispatch without changing behavior"
+current_design_stop = "accepted: the existing pure-first contract-bound C route is the sole selected consumer; its first effect-free cell is one exact carrier-bound module preflight"
 work_mode = "fast"
-current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0"
-current_blocker_token = "Behavior-neutral BoxShape only: move the existing call/mir_call arms once into a textual child include, preserve cleanup/GEN_ABORT/unknown-op order, and keep both parent and child below 760 lines. PinnedTextOp and Enter/Trap/Finish lowering remain closed until this row lands."
+current_execution_row = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-PREFLIGHT-I0"
+current_blocker_token = "Validate one runtime-generated carrier-bearing module after generic program-view read and before pattern emission, prescan, session open, or IR-file creation. This cell emits no lifecycle LLVM; synthetic fixture, compat replay, fallback, retry, object, and production remain closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C Text Residence selected C generic-dispatch BoxShape"
+active_lane = "S6C Text Residence selected C carrier-bound preflight"
 active_lane_status = """
 The source/Facts/Recipe/Join/Completion corridor and caller-zero correctness
 route remain closed substrate. The fast route uses the existing subject and
@@ -75,8 +74,9 @@ function-owned plan table, co-writes Enter/Trap before canonical-session close,
 seals the deferred E1/cursor graph, and proves the detached Finish -> Return
 projection. The real-candidate JSON cell is now landed caller-zero: one carrier lineage is installed on the exact detached candidate and strict JSON emits 3
 PinnedTextOp, 1 Enter, 1 Trap, 2 Finish, and 2 Return rows without refresh or
-synthetic-fixture promotion. The selected C owner is accepted; the active fast
-row extracts call/mir_call from the 826-line dispatch before lowering. Target-machine,
+synthetic-fixture promotion. The behavior-neutral C split is landed with one
+713-line parent and one 114-line call-family child. The active fast row adds the
+exact carrier-bound preflight before any lifecycle lowering. Target-machine,
 observer, production, fallback, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
@@ -90,10 +90,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "The S6C source corridor through ExactTwo lifecycle ingress and real-candidate strict JSON is landed caller-zero. The selected C owner is fixed to the existing contract-bound pure-first route. The active fast row only extracts call/mir_call from the 826-line generic dispatch; lifecycle lowering, target-machine observation, production, fallback, and performance remain closed."
+latest_card_summary = "The selected C pure-first owner is fixed and its generic dispatch split is landed behavior-neutral: call/mir_call live once in a 114-line child and the parent is 713 lines. The active fast row adds one exact carrier-bound module preflight before pattern emission, prescan, session open, or IR-file creation; lifecycle lowering and later gates remain closed."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0"
+next_execution_card = "TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-PREFLIGHT-I0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
