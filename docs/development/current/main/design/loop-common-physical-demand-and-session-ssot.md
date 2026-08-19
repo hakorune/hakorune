@@ -500,8 +500,9 @@ The remaining 8d order is deliberately split:
 5. **Measured red** `S6C-PINNED-CORRIDOR-MESO-ALIGNMENT-CONTROL-R0`: both
    functions are 64-byte aligned and body hashes recorded, but the unchanged
    gate remains red at `mixed/4KiB/first = 1.170296`.
-6. **Design stop** `S6C-PINNED-CORRIDOR-MESO-HARDWARE-COUNTER-D0`: name one
-   counter-backed physical owner before any further lowering change.
+6. **Design stop** `S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0`: the current WSL2
+   virtual PMU and mixed-arm process cannot issue owner evidence. A native
+   Linux separate-arm protocol is required before any further lowering change.
 
 ### Accepted scalar-equality schedule repair
 
@@ -576,23 +577,46 @@ MIR/source/production change, fallback, or promotion verdict.
 If the equal-alignment run stays red, preserve the red result and return to a
 hardware-counter/linked-layout design audit. Do not guess another LLVM schedule.
 
-### Current hardware-counter design stop
+### Current separate-arm hardware-counter design stop
 
 ```text
-Decision: Keep promotion closed and add no lowering until measured hardware
-events name one bounded residual owner.
-Source authority + canonical issuer: The equal-aligned linked candidate/C pair
-and a single pinned perf-counter session may issue evidence only.
-Non-authority: A ratio, assembly size, symbol address, NOP, or guessed branch
-shape cannot select an optimizer or compiler meaning.
-Fail-fast boundary: Require comparable counters for the same mixed/4KiB/first
-paired workload and attribute drift to one exact linked instruction region;
-unavailable/noisy/contradictory counters remain NoSafeSlice.
-Smallest next slice: S6C-PINNED-CORRIDOR-MESO-HARDWARE-COUNTER-D0 is read-only
-premise audit and design consultation; no harness or compiler edit yet.
-Non-claims: No backend optimization, threshold/corpus/oracle change, production
-switch, fallback, promotion, or general perf policy.
+Decision: Current WSL2 counter attribution is NoSafeSlice; design one native
+Linux separate-arm evidence protocol before another lowering change.
+Source authority + canonical issuer: The exact equal-aligned Hako/C symbols and
+existing mixed/4096/first input issue workload identity; an external paired
+collector may issue evidence only after validating both arm processes.
+Non-authority: Mixed-process aggregate counters, virtual-PMU IPC, perf sample
+ratios, standalone objects, and one timing ratio cannot name a backend owner.
+Fail-fast boundary: Require identical iterations/input/build IDs, pinned CPU,
+AB/BA ordering, >=30ms arms, >=31 pairs, enabled==running, zero lost samples,
+hypervisor flag zero, and separate non-multiplexed counts. Use two fixed epochs:
+cycles/instructions/branches/branch-misses, then cycles/frontend-stalls/L1I/iTLB.
+Smallest next slice: S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0 fixes the protocol;
+native Linux I0 may add `--arm hako|c` and an evidence-only collector later.
+Non-claims: No current-WSL attribution, lowering/threshold/corpus/oracle change,
+production switch, fallback, promotion, or generic profiler authority.
 ```
+
+Only a counter delta reproduced in three independent runs may open an attribution row using
+`perf record -e cycles:u` and exact symbol/build-id matching. If no single PC
+region owns the delta, the performance route remains `NoSafeSlice`; counters
+must never be proportionally assigned from the existing mixed-arm process.
+
+The native consumer uses `PERF_FORMAT_GROUP`, exact event IDs, total enabled
+and running time, `exclude_kernel=1`, and `exclude_hv=1`. Raw events and event
+fallback are forbidden. A classification must reproduce in three independent
+runs with its paired 95% interval excluding 1 and its direction matching the
+cycle delta before PC attribution may open.
+
+Ordered task ladder:
+
+1. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0`: freeze the protocol above.
+2. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-I0`: on native Linux only, add the
+   evidence-only arm selector and raw non-multiplexed report.
+3. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: only for a twice-reproduced event,
+   map samples to one exact linked symbol/PC region.
+4. `S6C-MESO-RESIDUAL-OWNER-R0`: open one backend BoxShape only when A0 names
+   one owner; otherwise retain the performance `NoSafeSlice`.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the
