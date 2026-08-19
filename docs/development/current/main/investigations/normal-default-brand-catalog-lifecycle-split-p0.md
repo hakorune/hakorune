@@ -1,6 +1,6 @@
 # Normal Default Brand Catalog Lifecycle Split P0
 
-Status: selected
+Status: landed
 Parent: `brand-program-declaration-catalog-d0.md`
 Row: `NORMAL-DEFAULT-BRAND-CATALOG-LIFECYCLE-SPLIT-P0`
 Classification: BoxShape
@@ -28,3 +28,16 @@ loan, constructor relation, raw-route retirement, or production switch.
 - Production portion of the parent is unchanged.
 - Existing lifecycle tests run with the same names and outcomes.
 - Pointer guard, rustfmt, diff check, and a reusable structural guard are green.
+
+## Baseline classification
+
+The full eight-test module has five green tests and three existing semantic
+reds. The same three names and diagnostics reproduce on parent `998940a569`:
+
+- `verified_expansion_disposition_reaches_script_and_app_root_lowering`
+- `source_backed_selected_callable_uses_the_installed_package_port`
+- `parser_scan_package_reaches_the_existing_physical_blocker_without_fallback`
+
+The reusable split guard compiles the complete module and runs the five green
+tests while explicitly skipping only these classified baseline debts. It does
+not claim that the semantic reds are repaired by this BoxShape.
