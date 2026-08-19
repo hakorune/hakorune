@@ -270,6 +270,16 @@ Current partitions:
 - `hako_llvmc_ffi_pure_compile.inc`
   - `compile_json_compat_pure(...)`, generic walk orchestration, and the remaining exported link surface
   - now partitioned further into `hako_llvmc_ffi_pure_compile_generic_lowering.inc` and `hako_llvmc_ffi_pure_compile_minimal_paths.inc`
+- `hako_llvmc_ffi_pinned_text_selected_preflight.inc`
+  - effect-free exact consumer of the Rust-issued pinned-Text frame/carrier,
+    parameter, root, plan, and lifecycle cohort
+- `hako_llvmc_ffi_pinned_text_selected_lowering.inc`
+  - caller-zero private textual projection for the three pinned-Text leaves
+    and Enter/Trap/Finish; owns one `tmpfile()` draft, verifies it, discards it,
+    and stops before LLVM parsing, TargetMachine, object, or fallback
+- `hako_llvmc_ffi_pinned_text_selected_dispatch.inc`
+  - one small hook from the existing generic operation writer; it does not
+    duplicate PHI, arithmetic, compare, branch, or Return lowering
 
 Rules:
 

@@ -111,7 +111,8 @@ allowlists are being updated.
 - StaticDataLoad
 - Store
 - MemOp
-- PinnedTextOp (MIR JSON transport-only; backend closed)
+- PinnedTextOp (carrier-bound caller-zero textual projection exists; LLVM
+  parse, TargetMachine/object, and production backend remain closed)
 - UnaryOp
 - BinOp
 - Compare

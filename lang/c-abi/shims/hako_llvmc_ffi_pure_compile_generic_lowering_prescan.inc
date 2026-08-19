@@ -619,7 +619,7 @@
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
-      if (ptfb_contract_bound &&
+      if (ptfb_contract_bound && !ptfc_selected &&
           hako_llvmc_ptfb_session_open(&ptfb_session, &ptfb_census, err_out) != 0) {
         yyjson_doc_free(d);
         goto GEN_ABORT;
@@ -747,7 +747,7 @@
       hako_llvmc_c1_emit_declarations(f, fn_metadata);
       fprintf(f, "\n");
       if (emit_module_function_leaf_definitions(f) < 0) {
-        fclose(f);
+        HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }

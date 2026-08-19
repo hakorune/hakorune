@@ -1,6 +1,6 @@
       #include "hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc"
       if (!generic_capacity_ok()) {
-        fclose(f);
+        HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
@@ -455,12 +455,12 @@
             "static_data_plan",
             "unsupported_static_data_plan",
             NULL);
-        fclose(f);
+        HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       if (emit_same_module_function_definitions(f) < 0) {
-        fclose(f);
+        HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
@@ -641,7 +641,7 @@
                 "typed_object_layout",
                 "typed_object_layout_registration_failed",
                 NULL);
-            fclose(f);
+            HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
             yyjson_doc_free(d);
             goto GEN_ABORT;
           }
@@ -652,7 +652,7 @@
                 "boxed_sum_abi_layout",
                 "boxed_sum_abi_layout_registration_failed",
                 NULL);
-            fclose(f);
+            HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
             yyjson_doc_free(d);
             goto GEN_ABORT;
           }
@@ -683,8 +683,21 @@
         }
       }
       fprintf(f, "}\n");
-      hako_llvmc_emit_entry_alias_if_needed(f, &selection);
-      fclose(f);
+      if (!ptfc_selected) hako_llvmc_emit_entry_alias_if_needed(f, &selection);
+      if (ptfc_selected) {
+        if (hako_llvmc_ptfc_verify_and_discard_selected_llvm(
+                &ptfc_draft, err_out) != 0) {
+          f = NULL;
+          free_owned_str_consts();
+          yyjson_doc_free(d);
+          return -1;
+        }
+        f = NULL;
+        free_owned_str_consts();
+        yyjson_doc_free(d);
+        return set_err_owned(err_out, HAKO_PTFC_TEXTUAL_CLOSED_TAG);
+      }
+      HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
 
       int rc = -1;
       if (ptfb_contract_bound) {
@@ -707,7 +720,9 @@
       }
       if (rc == 0) return 0;
     GEN_ABORT:;
+      if (f) HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
       hako_llvmc_ptfb_session_close(&ptfb_session);
       // fall through to pattern lowers
     GEN_END: ;
+      #undef HAKO_LLVMC_CLOSE_GENERIC_OUTPUT
     } while(0);

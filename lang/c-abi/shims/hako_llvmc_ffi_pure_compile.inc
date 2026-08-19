@@ -103,6 +103,7 @@ static int hako_llvmc_read_generic_pure_program_view(
 /* inc-codegen-view-owner: generic_pure_view end */
 
 #include "hako_llvmc_ffi_pinned_text_selected_preflight.inc"
+#include "hako_llvmc_ffi_pinned_text_selected_lowering.inc"
 
 static int hako_llvmc_read_exact_seed_backend_route_tag(
     const char* json_in,
@@ -292,6 +293,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       yyjson_val* root = yyjson_doc_get_root(d);
       hako_llvmc_generic_pure_program_view program;
       struct HakoPtfSelectedCandidateView ptfc_candidate;
+      struct HakoPtfSelectedLlvmDraft ptfc_draft;
+      int ptfc_selected = 0;
       if (!hako_llvmc_read_generic_pure_program_view(root, &program)) {
         if (hako_llvmc_route_trace_enabled()) {
           hako_llvmc_emit_route_trace(
@@ -312,18 +315,17 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       size_t generic_pure_block_count = active_function->block_count;
       hako_llvmc_entry_rune_selection selection = active_function->selection;
       memset(&ptfc_candidate, 0, sizeof(ptfc_candidate));
+      memset(&ptfc_draft, 0, sizeof(ptfc_draft));
       if (ptfb_contract_bound && ptfc_metadata) {
         if (hako_llvmc_ptfc_preflight_selected_candidate(
                 &program, &ptfc_candidate, err_out) != 0) {
           yyjson_doc_free(d);
           return -1;
         }
-        yyjson_doc_free(d);
-        return set_err_owned(
-            err_out,
-            "pinned Text selected preflight passed; lifecycle lowering remains closed");
+        ptfc_selected = 1;
       }
-      if (ptfb_contract_bound && ptfb_census.pinned_text_op_count > 0) {
+      if (ptfb_contract_bound && !ptfc_selected &&
+          ptfb_census.pinned_text_op_count > 0) {
         yyjson_doc_free(d);
         return set_err_owned(
             err_out,
@@ -333,8 +335,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
         /* The selected helper's function name is canonical; never emit a launch alias. */
         selection.symbol = NULL;
       }
-      if (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
-          hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0) {
+      if (!ptfc_selected &&
+          (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
+           hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0)) {
         if (ptfb_contract_bound) {
           yyjson_doc_free(d);
           return set_err_owned(
@@ -501,6 +504,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_mir_call_prepass.inc"
       #include "hako_llvmc_ffi_mir_call_shell.inc"
       #define HAKO_LLVM_READONLY_ATTRS " nounwind readonly willreturn"
+      char llpath[1024] = {0};
+      FILE* f = NULL;
       auto int should_skip_string_const_box_for_known_len_use(
           size_t ii,
           size_t ilen,

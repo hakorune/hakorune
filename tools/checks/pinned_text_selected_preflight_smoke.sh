@@ -7,11 +7,22 @@ TEMP_DIR="$(mktemp -d /tmp/hako-pinned-text-preflight.XXXXXX)"
 trap 'rm -rf -- "$TEMP_DIR"' EXIT
 
 bash "$ROOT_DIR/tools/build_hako_llvmc_ffi.sh" >/dev/null
-HAKO_PINNED_TEXT_REAL_CANDIDATE_JSON_OUT="$TEMP_DIR/real.json" \
-CARGO_BUILD_JOBS=4 \
-  cargo test --manifest-path "$ROOT_DIR/Cargo.toml" --profile quick --lib -q \
-    mir::builder::resolved_lowering::common_v2_s6c_cursor_cfg_tests::pinned_text_real_candidate_json_preserves_carrier_lineage \
-    -- --exact >/dev/null
+"${CC:-cc}" \
+  -I"$ROOT_DIR/plugins/nyash-json-plugin/c/yyjson" \
+  -o "$TEMP_DIR/verifier-negative" \
+  "$ROOT_DIR/lang/c-abi/tests/pinned_text_selected_verifier_test.c" \
+  "$ROOT_DIR/lang/c-abi/shims/hako_aot.c" \
+  "$ROOT_DIR/lang/c-abi/shims/hako_json_v1.c" \
+  "$ROOT_DIR/plugins/nyash-json-plugin/c/yyjson/yyjson.c"
+"$TEMP_DIR/verifier-negative"
+if ! HAKO_PINNED_TEXT_REAL_CANDIDATE_JSON_OUT="$TEMP_DIR/real.json" \
+     CARGO_BUILD_JOBS=4 \
+       cargo test --manifest-path "$ROOT_DIR/Cargo.toml" --profile quick --lib -q \
+         mir::builder::resolved_lowering::common_v2_s6c_cursor_cfg_tests::pinned_text_real_candidate_json_preserves_carrier_lineage \
+         -- --exact >"$TEMP_DIR/cargo.stdout" 2>"$TEMP_DIR/cargo.stderr"; then
+  sed -n '1,240p' "$TEMP_DIR/cargo.stderr" >&2
+  exit 1
+fi
 
 unset HAKO_BACKEND_COMPAT_REPLAY HAKO_CAPI_PURE
 ROOT_DIR="$ROOT_DIR" TEMP_DIR="$TEMP_DIR" python3 - <<'PY'
@@ -46,8 +57,8 @@ def invoke(name, value):
 
 
 rc, message = invoke("valid", base)
-if rc == 0 or "selected preflight passed; lifecycle lowering remains closed" not in message:
-    raise SystemExit(f"valid: did not pass preflight into the still-closed lowerer: {message}")
+if rc == 0 or "[freeze:contract][ptfc/textual-lowering-verified-target-closed]" not in message:
+    raise SystemExit(f"valid: did not verify the private target-closed draft: {message}")
 
 
 def reject(name, mutate, expected="pinned Text selected"):
@@ -127,6 +138,13 @@ reject(
     ),
 )
 reject(
+    "unknown-ordinary-op-after-preflight",
+    lambda value: function(value)["blocks"][1]["instructions"].insert(
+        0, {"op": "future_ordinary"}
+    ),
+    "contract-bound module cannot use compatibility replay",
+)
+reject(
     "missing-return-value",
     lambda value: function(value)["blocks"][5]["instructions"][-1].pop("value"),
     "Return coverage mismatch",
@@ -164,6 +182,6 @@ if leftovers:
 
 print(
     "[pinned-text-selected-preflight-smoke] ok "
-    "(real carrier passes; owner/param/trap/finish/plan/op/module drift rejects)"
+    "(real carrier verifies/discards private LLVM; pre/post-draft drift rejects)"
 )
 PY

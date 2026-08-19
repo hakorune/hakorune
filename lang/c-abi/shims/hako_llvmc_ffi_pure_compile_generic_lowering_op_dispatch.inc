@@ -1,3 +1,4 @@
+          #include "hako_llvmc_ffi_pinned_text_selected_dispatch.inc"
           if (strcmp(op, "checked_callout")==0) {
             if (hako_llvmc_c1_emit_callout(f, fn_metadata, ins, bid, ii) < 0) {
               note_pure_unsupported_shape(
