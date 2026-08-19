@@ -10,14 +10,20 @@ MODEL="$ROOT_DIR/tools/hako_check/inspect_scope_model.py"
 IDENTITY="$ROOT_DIR/tools/hako_check/inspect_scope_identity.py"
 SHAPE_MODEL="$ROOT_DIR/tools/hako_check/inspect_shape_model.py"
 SHAPE_CLI="$ROOT_DIR/tools/hako_check/inspect_shape.py"
+S6C_INGRESS="$ROOT_DIR/tools/hako_check/inspect_s6c_ingress.py"
 TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_scope_dump.py"
 SHAPE_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_shape.py"
+S6C_INGRESS_TEST="$ROOT_DIR/tools/hako_check/tests/test_inspect_s6c_ingress.py"
+S6C_FIXTURE="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_observation_fixture.rs"
+S6C_CURSOR_TEST="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg_tests.rs"
 
 guard_require_command "$TAG" rg
 guard_require_files "$TAG" "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" \
-  "$SHAPE_CLI" "$TEST" "$SHAPE_TEST"
+  "$SHAPE_CLI" "$S6C_INGRESS" "$TEST" "$SHAPE_TEST" "$S6C_INGRESS_TEST" \
+  "$S6C_FIXTURE" "$S6C_CURSOR_TEST"
 
-for file in "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" "$SHAPE_CLI"; do
+for file in "$ENTRY" "$MODEL" "$IDENTITY" "$SHAPE_MODEL" "$SHAPE_CLI" \
+  "$S6C_INGRESS" "$S6C_FIXTURE" "$S6C_CURSOR_TEST"; do
   lines="$(wc -l <"$file" | tr -d '[:space:]')"
   (( lines < 760 )) || \
     guard_fail "$TAG" "source reached 760-line split trigger: $file=$lines"
@@ -55,5 +61,6 @@ if rg -n '^(import os|import subprocess|import tempfile|EMIT_ROUTE|TRACE_BUNDLE|
 fi
 
 python3 -m unittest tools.hako_check.tests.test_inspect_scope_dump \
-  tools.hako_check.tests.test_inspect_shape >/dev/null
-echo "[$TAG] ok (thin inspect entry + pure metadata/identity/shape models)"
+  tools.hako_check.tests.test_inspect_shape \
+  tools.hako_check.tests.test_inspect_s6c_ingress >/dev/null
+echo "[$TAG] ok (thin inspect entry + sealed S6C ingress + pure models)"

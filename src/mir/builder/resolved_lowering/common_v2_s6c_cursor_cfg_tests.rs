@@ -19,6 +19,9 @@ use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::{BasicBlock, BasicBlockId, MirBuilder, MirFunction, MirInstruction, MirModule};
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
+use super::common_v2_s6c_observation_fixture::{
+    publish_observation_cohort, PinnedTextRealObservationCandidate, S6C_SOURCE,
+};
 use super::{
     with_common_v2_physical_entry_session_with_s6c_loan,
     with_common_v2_s6c_physical_entry_draft_seal,
@@ -49,13 +52,9 @@ fn installed_port(
     CompilationContext,
 ) {
     let mut resolver = FunctionSemanticResolverSessionV1::new(ordinal).expect("resolver");
-    let package = issue_normal_callable_semantic_package_v1(
-        &mut resolver,
-        final_source(include_str!(
-            "../../../../apps/tests/scan_with_init_typed_ok_min.hako"
-        )),
-    )
-    .expect("same-cohort package");
+    let package =
+        issue_normal_callable_semantic_package_v1(&mut resolver, final_source(S6C_SOURCE))
+            .expect("same-cohort package");
     let mut context = CompilationContext::new();
     let installed = package
         .prepare_install(&mut context)
@@ -412,7 +411,7 @@ fn draftseal_ingress_discards_outer_on_tail_callback_failure() {
     port.complete().expect("selected child coverage");
 }
 
-fn build_pinned_text_real_candidate(ordinal: u32) -> MirFunction {
+fn build_pinned_text_real_candidate(ordinal: u32) -> PinnedTextRealObservationCandidate {
     let (installed, context) = installed_port(ordinal);
     let mut port = installed.begin_lowering(&context).expect("same catalog");
     let live = MirBuilder::new();
@@ -502,7 +501,9 @@ fn build_pinned_text_real_candidate(ordinal: u32) -> MirFunction {
     })
     .expect("one S6C callback");
     port.complete().expect("selected child coverage");
-    candidate.expect("one unpublished pinned-Text candidate")
+    PinnedTextRealObservationCandidate::new(
+        candidate.expect("one unpublished pinned-Text candidate"),
+    )
 }
 
 fn emit_real_candidate_json(function: MirFunction) -> Result<String, String> {
@@ -546,7 +547,8 @@ fn append_block(function: &mut MirFunction, terminator: MirInstruction) {
 
 #[test]
 fn pinned_text_real_candidate_json_preserves_carrier_lineage() {
-    let function = build_pinned_text_real_candidate(1505);
+    let candidate = build_pinned_text_real_candidate(1505);
+    let function = candidate.function();
     assert!(!function.blocks.is_empty());
     assert!(!function.signature.name.is_empty());
     let frame = function
@@ -566,9 +568,21 @@ fn pinned_text_real_candidate_json_preserves_carrier_lineage() {
     )
     .expect("same detached candidate");
 
+    let function_name = function.signature.name.clone();
+    let (source_path, source_bytes, function) = candidate.into_parts();
     let encoded = emit_real_candidate_json(function).expect("strict candidate JSON");
     if let Some(path) = std::env::var_os("HAKO_PINNED_TEXT_REAL_CANDIDATE_JSON_OUT") {
         std::fs::write(path, &encoded).expect("write requested real-candidate JSON witness");
+    }
+    if let Some(path) = std::env::var_os("HAKO_INSPECT_S6C_PRODUCER_DIR") {
+        publish_observation_cohort(
+            std::path::Path::new(&path),
+            source_path,
+            source_bytes,
+            &function_name,
+            &encoded,
+        )
+        .expect("publish requested S6C observation cohort");
     }
     let json: serde_json::Value = serde_json::from_str(&encoded).expect("JSON value");
     let metadata = &json["functions"][0]["metadata"];
@@ -582,14 +596,15 @@ fn pinned_text_real_candidate_json_preserves_carrier_lineage() {
 
 #[test]
 fn pinned_text_real_candidate_json_rejects_lifecycle_drift() {
-    let function = build_pinned_text_real_candidate(1506);
+    let (_, _, function) = build_pinned_text_real_candidate(1506).into_parts();
 
     let mut missing = function.clone();
     missing.metadata.pinned_text_residence_backend_carrier = None;
     assert!(emit_real_candidate_json(missing).is_err());
 
     let mut foreign = function.clone();
-    foreign.metadata.pinned_text_residence_backend_carrier = build_pinned_text_real_candidate(1507)
+    let (_, _, mut foreign_function) = build_pinned_text_real_candidate(1507).into_parts();
+    foreign.metadata.pinned_text_residence_backend_carrier = foreign_function
         .metadata
         .pinned_text_residence_backend_carrier
         .take();

@@ -89,7 +89,9 @@ def build_identity_contract(
             "mir_to_llvm": "block",
             "llvm_to_asm": "symbol",
         }
-        and all(name in artifacts for name in ("llvm.ir", "executable.bin", "asm.s"))
+        and "llvm.ir" in artifacts
+        and "asm.s" in artifacts
+        and any(name in artifacts for name in ("executable.bin", "object.bin"))
     )
     payload: dict[str, Any] = {
         "output_contract": IDENTITY_CONTRACT,

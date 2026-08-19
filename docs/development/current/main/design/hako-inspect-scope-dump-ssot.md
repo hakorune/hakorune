@@ -6,31 +6,27 @@ boundaries, and AI-readable inspect artifacts.
 
 ## Current execution brief
 
-Decision: Bind the exact bytes of
-`apps/tests/scan_with_init_typed_ok_min.hako` to the returned `MirFunction`
-inside the existing producer, then publish those carried bytes and strict JSON
-as one private observation cohort.
-Source authority + canonical issuer: The existing caller-zero S6C compiler
-test parses and transforms those exact `include_str!` bytes, owns the installed
-source/Facts/Recipe cohort, verified unpublished `MirFunction`, and strict JSON
-serialization. The test export is the sole observation-envelope issuer.
-Non-authority: Test names, filenames, manual copies, current target paths,
-separately reopened source paths, ordinals, nonces, `ny_main`, ValueId,
-assembly similarity, and C/reference artifacts cannot issue source/candidate
-lineage. The path is diagnostic; carried bytes and digests are binding.
-Fail-fast boundary: Producer-copied source and JSON must match the write-last
-producer manifest; the existing structural driver consumes those exact JSON
-bytes once and emits one nonempty final module and object; disassembly is
-regenerated from that object. Foreign/stale digest, selector, module, object,
-projected meso artifact, or mapping downgrade issues no V1 seal.
-Smallest next slice: `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0` adds one
-test-only carrier for `{source_path, source_bytes, function}`, one tiny producer
-call, and one dedicated Python adapter that owns a private transaction, reuses
-the structural driver, accepts the object machine carrier, and writes the V1
-seal last.
-Non-claims: No new semantic `Verified*`/`Prepared*` receipt,
-Facts/Recipe issuance, compiler/backend behavior, C/reference owner,
-measurement, residual owner, keeper, promotion, or production change.
+Decision: Open `HAKO-INSPECT-PROVENANCE-D0`: the real S6C canary proves that
+sealed layer counts are useful, but the current block/symbol mapping cannot say
+which MIR edge expanded into which LLVM/assembly region.
+Source authority + canonical issuer: The existing source-backed S6C producer,
+canonical MIR/CFG writer, selected LLVM lowerer, and exact object emitter remain
+the only issuers. Any stronger mapping must be emitted by those owners while
+they still hold the relation, then co-sealed into the observation bundle.
+Non-authority: ValueId or label equality, textual adjacency, block numbering,
+symbol names, instruction counts, disassembly similarity, C code, and timing
+cannot issue cross-layer correspondence or an optimization owner.
+Fail-fast boundary: A proposed sidecar must bind the existing candidate seal,
+preserve many-to-one/deleted/split relations explicitly, and reject missing,
+foreign, stale, ambiguous, or inferred edges before rendering. No guessed
+mapping is better than a false exact mapping.
+Smallest next slice: `HAKO-INSPECT-PROVENANCE-D0` is a read-only census and
+six-line design of the smallest compiler/backend-emitted sidecar. No code or
+fixture change is authorized until one canonical issuer and one bounded I0 are
+named.
+Non-claims: No generic optimizer, semantic receipt, source syntax, C-reference
+owner, keeper selection, measurement, residual owner, promotion, or production
+change.
 
 ## Decision
 
@@ -279,17 +275,22 @@ must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
   export after verified function serialization. Its carrier retains the exact
   parsed fixture bytes with the function; reopened paths, target directories,
   test names, ordinals, nonces, and historical perf artifacts are non-authority.
-- `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0` (**selected BoxCount**): add the
-  test-only envelope and one dedicated private-transaction adapter over the
-  existing structural driver. Accept one exact object carrier into V1 without
-  editing the 753-line generic inspect entry or the 754-line trace script.
-- `HAKO-INSPECT-S6C-SHAPE-CANARY-R0` (**parked behind ingress D0**): produce
-  one real sealed S6C bundle and render its MIR/LLVM/ASM counts beside the
-  existing independent C assembly artifact.
-- `HAKO-INSPECT-PROVENANCE-D0` (**conditional**): open only if block/symbol
-  quality cannot identify the residual owner. Any exact MIR-edge-to-assembly
-  mapping must be compiler/backend-emitted sidecar evidence; no ValueId,
-  adjacency, label, or symbol-name reconstruction is allowed.
+- `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0` (**landed BoxCount**): the
+  test-only envelope and dedicated private-transaction adapter carry exact
+  source bytes, strict JSON, final LLVM, the object carrier, and object-derived
+  disassembly into one V1 seal. Foreign/stale/projected artifacts reject before
+  publication; the 753-line generic inspect entry and 754-line trace script
+  remain untouched.
+- `HAKO-INSPECT-S6C-SHAPE-CANARY-R0` (**landed observation row**): one real
+  seal `ec9289ed...c8ad` reports MIR `8 blocks / 6 edges / 24 instructions`,
+  LLVM `23 / 31 / 83`, and selected-symbol assembly `69 instructions / 13
+  branches / 3 calls / 2 returns`. The report explicitly issues no
+  correspondence, keeper, or measurement authority.
+- `HAKO-INSPECT-PROVENANCE-D0` (**selected design row**): block/symbol quality
+  cannot identify which MIR edge owns the observed expansion. Audit the
+  canonical MIR/LLVM/object seams and name the smallest compiler/backend-emitted
+  sidecar; no ValueId, adjacency, label, symbol-name, or count reconstruction is
+  allowed.
 
 ## Non-Goals
 

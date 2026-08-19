@@ -21,10 +21,10 @@ any further residual-performance attribution.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "The corrected S6C ingress D0 binds the exact include_str bytes of apps/tests/scan_with_init_typed_ok_min.hako to the returned MirFunction inside the existing source-backed producer. Reopened paths and nonces are not lineage authority; carried bytes, strict JSON, private one-shot driver outputs, and digests are."
-work_mode = "fast"
-current_execution_row = "HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0"
-current_blocker_token = "Add one test-only carrier for exact source path/bytes plus returned function, a write-last producer manifest binding source and strict JSON digests, and one dedicated private adapter for final LLVM/object/object-derived disassembly and V1 exact/block/symbol mapping. Reject reopened/foreign/stale/projected artifacts before identity publication; do not touch generic inspect entry or trace script."
+current_design_stop = "The real S6C canary exposes MIR/LLVM/ASM shape under one exact seal, but block/symbol quality cannot assign expanded LLVM/assembly regions to a MIR edge. Stronger correspondence must be emitted by the canonical owners, never inferred from IDs, labels, adjacency, counts, or disassembly similarity."
+work_mode = "design_stop"
+current_execution_row = "HAKO-INSPECT-PROVENANCE-D0"
+current_blocker_token = "Read-only audit the canonical MIR CFG writer, selected LLVM lowerer, and object emission seams; name one smallest sidecar issuer that represents split/merged/deleted relations and binds the existing candidate seal. Code, fixture, fallback, keeper, and production changes remain closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -47,9 +47,11 @@ development_keeper on WSL but has no native promotion authority; promotion and
 production cutover stay parked. The hako_check inspect owner split is landed:
 the inspect entry, metadata, identity, shape CLI, and shape model owners are
 753/245/172/107/207 lines. Eleven focused tests and the reusable guard are
-green. The selected row adds one honest real-S6C observation ingress; the
-source-less test candidate remains explicitly caller-zero and is never attached
-to guessed `.hako` source.
+green. The real S6C ingress and first shape canary are landed. Exact carried
+fixture bytes, strict JSON, final LLVM, object, and object-derived disassembly
+share one V1 seal. The report exposes independent layer counts but no
+correspondence or keeper authority. The next row is design-only provenance
+census.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -62,10 +64,10 @@ current_execution_design = "docs/development/current/main/design/hako-inspect-sc
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "hako-inspect-scope-dump-ssot"
 latest_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-latest_card_summary = "The corrected S6C ingress D0 selects the existing source-backed test export as sole issuer: exact scan_with_init_typed_ok_min.hako bytes travel with the returned function into a producer manifest, then one private final LLVM/object/disassembly/V1 consumer. Reopened paths, nonce freshness, and historical pairing are forbidden authorities."
-next_design_card = "HAKO-INSPECT-S6C-SHAPE-CANARY-R0"
+latest_card_summary = "The source-backed S6C ingress and canary are closed under one V1 seal. MIR 8/6/24, LLVM 23/31/83, and selected assembly 69 instructions expose a useful shape delta, but correspondence remains unclaimed; the next design row audits an owner-emitted provenance sidecar."
+next_design_card = "HAKO-INSPECT-PROVENANCE-D0"
 next_design_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
-next_execution_card = "HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/design/hako-inspect-scope-dump-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -77,6 +79,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0 and the first shape canary landed caller-zero. Exact scan fixture bytes and returned MIR travel through a write-last producer manifest, existing selected-C structural driver, final LLVM/object/object-derived disassembly, and one V1 seal ec9289ed...c8ad. The report shows MIR 8/6/24, LLVM 23/31/83, and ASM 69 instructions/13 branches/3 calls/2 returns while correspondence, keeper, measurement, compiler behavior, and production remain unchanged.",
   "2026-08-19: S6C observation-ingress D0 was corrected after producer audit: installed_port parses exact include_str bytes from scan_with_init_typed_ok_min.hako, so those carried bytes—not caller-zero labeling alone—bind source_to_mir=exact. A nonce adds no authority; source/JSON/final-module/object/disassembly digests inside one private transaction are sufficient. The selected I0 and all non-claims remain bounded.",
   "2026-08-19: HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0 accepted one caller-zero seam. The verified real-candidate JSON test co-issues a caller_zero_semantic_program observation envelope; one private adapter transaction alone may bind it to the existing final LLVM/object capture and object-derived disassembly. Guessed .hako, historical directory pairing, meso projection, fallback selectors, semantic receipts, and compiler behavior remain closed.",
   "2026-08-19: HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0 landed one observation renderer. A validated shape-ready V1 seal feeds independent MIR/LLVM/Hako ASM and optional digest-bound C ASM counts; correspondence, keeper selection, and measurement authority remain explicitly unclaimed. Owners are 753/245/172/107/207 lines; eleven focused tests, command help, owner guard, and pointer guard are green. Compiler/backend and production are unchanged.",
@@ -87,6 +90,5 @@ landed_tail = [
   "2026-08-19: S6C wall-clock calibration repair I2 landed evidence-only. Plan v2/batch v3 seals a 30 ms floor plus post-warm 60 ms target; short arms close Incomplete, identity/schema drift remains IntegrityInvalid, ineligible raw is a separately named digest-bound diagnostic, and abandoned raw is recovered without becoming evidence. Pure self-tests, reusable guard, and the real 80-case plus robust calibration smoke are green; compiler/MIR/backend, corpus, threshold, and production are unchanged.",
   "2026-08-19: The first exact MeasurementBatch V2 WSL run closed terminal IntegrityInvalid (batch 68411a6e..., terminal 842bdfe6...) after all 80 case CSVs parsed. The contract calibrated before warmup at the same 30 ms later used as a per-sample minimum and discarded the failing raw row, so it issues no ratio or candidate claim. A versioned post-warm 60 ms calibration plus typed Incomplete/diagnostic-raw repair is selected; the old invalid batch is not a predecessor.",
   "2026-08-19: S6C MeasurementBatch harness I1 landed evidence-only: one append-only directory owns the V2 manifest, frozen binary, full-commit alignment receipt, raw diagnostics, session terminals, and terminal-once batch receipt under an exclusive lock. Abandoned issued batches close Incomplete, partial raw data stays ineligible, source/binary drift and overwrite reject, direct V1 session/aggregate CLI and latent native role are retired.",
-  "2026-08-19: S6C MeasurementBatch plan I0 landed pure: one V2 manifest seals the exact WSL candidate, CPU, canonical cases, two fixed session-plan digests, same-candidate predecessor lineage, and threshold. Complete/Incomplete/IntegrityInvalid session and batch terminals reject V1, duplicate, cross-batch, tampered, mismatched-repeat, changed-candidate, and partial-evidence inputs; native authority remains false.",
-  "2026-08-19: Performance MeasurementBatch D0 accepted. The one-shot rule was retired as a category error: protocol and each batch stay immutable, but interrupted or confirmatory measurement proceeds through a new append-only batch ID linked to the prior terminal receipt. Same-batch resume, completed-sample replacement, pooling, and best-run selection remain forbidden; compiler/source/MIR/backend and thresholds are unchanged."
+  "2026-08-19: S6C MeasurementBatch plan I0 landed pure: one V2 manifest seals the exact WSL candidate, CPU, canonical cases, two fixed session-plan digests, same-candidate predecessor lineage, and threshold. Complete/Incomplete/IntegrityInvalid session and batch terminals reject V1, duplicate, cross-batch, tampered, mismatched-repeat, changed-candidate, and partial-evidence inputs; native authority remains false."
 ]

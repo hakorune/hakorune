@@ -10,6 +10,8 @@ pub(in crate::mir::builder) mod canonical_cfg;
 mod canonical_ssa;
 mod common_v2_after_block_allocation;
 mod common_v2_if_continuation_target;
+#[cfg(test)]
+mod common_v2_s6c_observation_fixture;
 mod common_v2_s6c_substring_callout_admission;
 #[allow(dead_code)]
 mod common_v2_s6c_text_content_root_admission;
