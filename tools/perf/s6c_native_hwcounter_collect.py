@@ -15,6 +15,11 @@ import subprocess
 import sys
 import tempfile
 
+from s6c_native_hwcounter_acquisition import (
+    FatalPairObservation, acquire, seal_plan,
+    self_test as acquisition_self_test,
+)
+
 
 CASE = "mixed/4096/first"
 CANONICAL_FINGERPRINT = "e1e113d20440f2a4"
@@ -173,7 +178,7 @@ def freeze_binary(binary: Path, directory: Path) -> Path:
 
 
 def validate_sample(sample: dict[str, object], arm: str, iterations: int, cpu: int) -> None:
-    if sample.get("schema") != "s6c-meso-separate-arm-sample-v1":
+    if sample.get("schema") != "s6c-meso-arm-observation-v2":
         raise NoSafeSlice("sample schema drift")
     expected = {"arm": arm, "case": CASE, "iterations": iterations, "cpu": cpu, "affinity_count": 1}
     for key, value in expected.items():
@@ -186,22 +191,27 @@ def validate_sample(sample: dict[str, object], arm: str, iterations: int, cpu: i
         raise NoSafeSlice("result mismatch")
     if not isinstance(sample.get("input_fingerprint"), str) or len(sample["input_fingerprint"]) != 16:
         raise NoSafeSlice("input fingerprint missing")
-    for epoch, names in EPOCHS.items():
+    scopes = {"arm_envelope": None, **EPOCHS}
+    for epoch, names in scopes.items():
         group = sample.get(epoch)
-        if not isinstance(group, dict) or group.get("group_event_count") != len(names):
+        if not isinstance(group, dict) or (names is not None and
+                group.get("group_event_count") != len(names)):
             raise NoSafeSlice(f"{epoch} missing/excess event")
+        for counter in ("voluntary_context_switches", "involuntary_context_switches"):
+            if not isinstance(group.get(counter), int) or group[counter] < 0:
+                raise NoSafeSlice(f"{epoch} {counter} invalid")
+        for count_field in ("affinity_count_before", "affinity_count_after"):
+            if not isinstance(group.get(count_field), int) or group[count_field] < 0:
+                raise NoSafeSlice(f"{epoch} {count_field} invalid")
+        for cpu_field in ("affinity_cpu_before", "affinity_cpu_after"):
+            if not isinstance(group.get(cpu_field), int):
+                raise NoSafeSlice(f"{epoch} {cpu_field} invalid")
+        if names is None:
+            continue
         if group.get("time_enabled") != group.get("time_running") or not group.get("time_enabled"):
             raise NoSafeSlice(f"{epoch} multiplex/time scaling")
-        for zero_field in ("lost_samples", "voluntary_context_switches",
-                           "involuntary_context_switches"):
-            if group.get(zero_field) != 0:
-                raise NoSafeSlice(f"{epoch} {zero_field} is nonzero")
-        for count_field in ("affinity_count_before", "affinity_count_after"):
-            if group.get(count_field) != 1:
-                raise NoSafeSlice(f"{epoch} {count_field} drift")
-        for cpu_field in ("affinity_cpu_before", "affinity_cpu_after"):
-            if group.get(cpu_field) != cpu:
-                raise NoSafeSlice(f"{epoch} {cpu_field} drift")
+        if group.get("lost_samples") != 0:
+            raise NoSafeSlice(f"{epoch} lost samples")
         if not isinstance(group.get("elapsed_ns"), int) or group["elapsed_ns"] < MIN_ELAPSED_NS:
             raise NoSafeSlice(f"{epoch} call loop shorter than 30ms")
         events = group.get("events")
@@ -228,19 +238,50 @@ def run_arm(binary: Path, arm: str, iterations: int, cpu: int) -> dict[str, obje
             text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300,
         )
     except subprocess.TimeoutExpired as error:
-        raise NoSafeSlice(f"{arm} process timed out") from error
+        raise FatalPairObservation(f"{arm}.process_timeout", str(error)) from error
     if process.returncode:
         detail = process.stderr.strip() or f"exit {process.returncode}"
-        raise NoSafeSlice(f"{arm} process rejected: {detail}")
+        raise FatalPairObservation(f"{arm}.process_rejected", detail,
+                                   {arm: {"process": {"returncode": process.returncode,
+                                    "stderr_sha256": hashlib.sha256(process.stderr.encode()).hexdigest()}}})
     lines = process.stdout.splitlines()
     if len(lines) != 1:
-        raise NoSafeSlice(f"{arm} process did not emit exactly one atomic sample")
+        raise FatalPairObservation(f"{arm}.output_count", "expected exactly one JSON line")
     try:
         sample = json.loads(lines[0])
     except json.JSONDecodeError as error:
-        raise NoSafeSlice(f"{arm} sample JSON invalid: {error}") from error
-    validate_sample(sample, arm, iterations, cpu)
-    return sample
+        raise FatalPairObservation(f"{arm}.json_invalid", str(error)) from error
+    try:
+        validate_sample(sample, arm, iterations, cpu)
+    except NoSafeSlice as error:
+        raise FatalPairObservation(f"{arm}.integrity_invalid", str(error),
+                                   {arm: {"sample": sample}}) from error
+    return {"sample": sample, "process": {"returncode": process.returncode,
+            "stdout_sha256": hashlib.sha256(process.stdout.encode()).hexdigest(),
+            "stderr_sha256": hashlib.sha256(process.stderr.encode()).hexdigest()}}
+
+
+def run_preflight(binary: Path, cpu: int) -> dict[str, object]:
+    try:
+        process = subprocess.run(
+            ["taskset", "-c", str(cpu), str(binary), "--counter-preflight"],
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+    except subprocess.TimeoutExpired as error:
+        raise NoSafeSlice("counter preflight timed out before plan issuance") from error
+    if process.returncode or len(process.stdout.splitlines()) != 1:
+        raise NoSafeSlice("counter preflight failed before plan issuance")
+    try:
+        row = json.loads(process.stdout)
+    except json.JSONDecodeError as error:
+        raise NoSafeSlice("counter preflight JSON invalid") from error
+    if row.get("schema") != "s6c-meso-counter-preflight-v1" or row.get("case") != CASE:
+        raise NoSafeSlice("counter preflight schema/case drift")
+    for key, value in CANONICAL_CORPUS.items():
+        if row.get(key) != value:
+            raise NoSafeSlice(f"counter preflight {key} drift")
+    if row.get("result") != row.get("parity_result"):
+        raise NoSafeSlice("counter preflight oracle mismatch")
+    return row
 
 
 def event_counts(sample: dict[str, object]) -> dict[str, int]:
@@ -339,23 +380,54 @@ def aggregate_classifications(classes: list[dict[str, object]]) -> dict[str, obj
             "next_task": "NoSafeSlice"}
 
 
-def collect(binary: Path, iterations: int, cpu: int) -> tuple[list[dict[str, object]], dict[str, object]]:
-    runs = []
-    for run_index in range(RUN_COUNT):
-        pairs = []
+def collect(binary: Path, iterations: int, cpu: int, plan: dict[str, object]):
+    def complete_pair(order: tuple[str, str]) -> dict[str, dict[str, object]]:
+        arms = {}
+        try:
+            for arm in order:
+                arms[arm] = run_arm(binary, arm, iterations, cpu)
+        except FatalPairObservation as error:
+            raise FatalPairObservation(error.code, error.detail, {**arms, **error.arms}) from error
+        return arms
+
+    acquisition = acquire(plan, cpu, complete_pair)
+    if acquisition["terminal_outcome"] != "accepted":
+        return acquisition, [], {"name": "NoSafeSlice", "direction": 0,
+            "reproduced_runs": 0, "drivers": [], "pc_attribution_candidate": False,
+            "next_task": "NoSafeSlice"}
+    by_id = {row["attempt_id"]: row for row in acquisition["attempts"]}
+    blocks = []
+    for block in acquisition["blocks"]:
         ratio_sets = {f"{epoch}/{name}": [] for epoch, names in EPOCHS.items() for name in names}
-        for pair_index in range(PAIR_COUNT):
-            order = ("hako", "c") if (pair_index + run_index) % 2 == 0 else ("c", "hako")
-            samples = {arm: run_arm(binary, arm, iterations, cpu) for arm in order}
-            paired = paired_ratios(samples["hako"], samples["c"], iterations)
+        strata = {order: {name: [] for name in ratio_sets} for order in ("AB", "BA")}
+        for attempt_id in block["accepted_attempt_ids"]:
+            attempt = by_id[attempt_id]
+            if not attempt["analysis_eligible"] or attempt["disposition"] != "accepted":
+                raise NoSafeSlice("rejected attempt entered ratio input")
+            paired = paired_ratios(attempt["arms"]["hako"]["sample"],
+                                   attempt["arms"]["c"]["sample"], iterations)
+            order = "AB" if attempt["order"] == ["hako", "c"] else "BA"
             for name, value in paired["ratios"].items():
                 ratio_sets[name].append(value)
-            pairs.append({"pair": pair_index, "order": list(order), "hako": samples["hako"],
-                          "c": samples["c"], **paired})
+                strata[order][name].append(value)
         summary = {name: interval(values) for name, values in ratio_sets.items()}
-        runs.append({"run": run_index, "pairs": pairs, "summary": summary,
-                     "classification": classify(summary)})
-    return runs, aggregate_classifications([run["classification"] for run in runs])
+        order_strata = {order: {name: math.exp(statistics.mean(math.log(value)
+            for value in values)) if values and all(value is not None and value > 0
+            for value in values) else None for name, values in rows.items()}
+            for order, rows in strata.items()}
+        blocks.append({"block": block["block"], "summary": summary,
+                       "order_strata": order_strata, "classification": classify(summary)})
+    classification = aggregate_classifications([row["classification"] for row in blocks])
+    for driver in classification.get("drivers", []):
+        for block in blocks:
+            values = [block["order_strata"][order][driver] for order in ("AB", "BA")]
+            if any(value is None or (value > 1) - (value < 1) != classification["direction"]
+                   for value in values):
+                classification = {"name": "NoSafeSlice", "direction": 0,
+                    "reproduced_runs": 0, "drivers": [], "pc_attribution_candidate": False,
+                    "next_task": "NoSafeSlice", "reason": "order_stratum_direction_reversal"}
+                break
+    return acquisition, blocks, classification
 
 
 def atomic_publish(path: Path, build) -> None:
@@ -371,9 +443,12 @@ def atomic_publish(path: Path, build) -> None:
 
 
 def valid_fixture() -> dict[str, object]:
-    sample = {"schema": "s6c-meso-separate-arm-sample-v1", "arm": "hako", "case": CASE,
+    sample = {"schema": "s6c-meso-arm-observation-v2", "arm": "hako", "case": CASE,
               "iterations": 10, "cpu": 2, "affinity_count": 1,
               **copy.deepcopy(CANONICAL_CORPUS), "parity_result": 0, "sink": 1}
+    sample["arm_envelope"] = {"voluntary_context_switches": 0,
+        "involuntary_context_switches": 0, "affinity_cpu_before": 2,
+        "affinity_cpu_after": 2, "affinity_count_before": 1, "affinity_count_after": 1}
     next_id = 1
     for epoch, names in EPOCHS.items():
         events = []
@@ -390,6 +465,7 @@ def valid_fixture() -> dict[str, object]:
 
 
 def self_test() -> None:
+    acquisition_self_test()
     base = valid_fixture()
     validate_sample(base, "hako", 10, 2)
     negatives = {
@@ -402,8 +478,8 @@ def self_test() -> None:
         "event ID drift": lambda row: row["primary"]["events"][0].update(read_id=99),
         "missing event": lambda row: row["primary"].update(events=row["primary"]["events"][:-1]),
         "multiplex/time scaling": lambda row: row["primary"].update(time_running=39),
-        "affinity/context-switch": lambda row: row["frontend"].update(
-            involuntary_context_switches=1),
+        "invalid scheduling counter": lambda row: row["frontend"].update(
+            involuntary_context_switches=-1),
     }
     for name, mutate in negatives.items():
         row = copy.deepcopy(base)
@@ -529,10 +605,11 @@ def main() -> int:
                     raise NoSafeSlice("frozen probe identity drift")
                 hako = run_arm(frozen, "hako", args.iterations, args.cpu)
                 c_arm = run_arm(frozen, "c", args.iterations, args.cpu)
-                paired = paired_ratios(hako, c_arm, args.iterations)
+                paired = paired_ratios(hako["sample"], c_arm["sample"], args.iterations)
             print(json.dumps({"hako": hako, "c": c_arm, **paired}, sort_keys=True))
             return 0
-        except (NoSafeSlice, OSError, ValueError, KeyError, json.JSONDecodeError) as error:
+        except (NoSafeSlice, FatalPairObservation, OSError, ValueError, KeyError,
+                json.JSONDecodeError) as error:
             print(f"[s6c-native-hwcounter] NoSafeSlice: {error}", file=sys.stderr)
             return 1
     required = (args.binary, args.alignment_manifest, args.report, args.commit,
@@ -549,17 +626,39 @@ def main() -> int:
         validate_alignment_manifest(args.alignment_manifest, binary_sha, build_id, symbols)
 
         def build_report(frozen: Path) -> dict[str, object]:
-            runs, classification = collect(frozen, args.iterations, args.cpu)
-            final_build_id, final_symbols = symbol_evidence(frozen)
-            if (sha256(frozen), final_build_id, final_symbols) != (binary_sha, build_id, symbols):
-                raise NoSafeSlice("frozen binary identity drift during collection")
-            fingerprints = {pair[arm]["input_fingerprint"] for run in runs for pair in run["pairs"]
-                            for arm in ("hako", "c")}
-            if len(fingerprints) != 1:
-                raise NoSafeSlice("input fingerprint drift across samples")
+            preflight = run_preflight(frozen, args.cpu)
+            plan = seal_plan({
+                "source_commit": args.commit,
+                "collector_protocol": "s6c-native-hwcounter-collector-v2",
+                "binary_sha256": binary_sha, "build_id": build_id, "symbols": symbols,
+                "canonical_corpus": CANONICAL_CORPUS, "case": CASE,
+                "preflight": preflight,
+                "cpu": args.cpu, "iterations": args.iterations,
+                "epochs": {key: list(value) for key, value in EPOCHS.items()},
+                "minimum_epoch_ns": MIN_ELAPSED_NS,
+                "interval_method": "paired-log-ratio-t95-df50",
+                "classifier_version": "s6c-meso-counter-classifier-v1",
+            })
+            acquisition, blocks, classification = collect(
+                frozen, args.iterations, args.cpu, plan)
+            try:
+                final_identity = (sha256(frozen), *symbol_evidence(frozen))
+            except (NoSafeSlice, OSError, ValueError):
+                final_identity = None
+            if final_identity != (binary_sha, build_id, symbols):
+                acquisition["terminal_outcome"] = "NoSafeSlice"
+                acquisition["evidence_eligible"] = False
+                acquisition["terminal_reason"] = "frozen_binary_identity_drift"
+                blocks, classification = [], {"name": "NoSafeSlice", "direction": 0,
+                    "drivers": [], "pc_attribution_candidate": False, "next_task": "NoSafeSlice"}
+            eligible = acquisition["terminal_outcome"] == "accepted" and \
+                classification["pc_attribution_candidate"]
+            terminal_outcome = "accepted" if eligible else "NoSafeSlice"
             return {
-                "schema": "s6c-meso-native-hwcounter-evidence-v1",
+                "schema": "s6c-meso-native-hwcounter-acquisition-receipt-v2",
                 "authority": "promotion-evidence-only",
+                "terminal_outcome": terminal_outcome,
+                "evidence_eligible": eligible,
                 "commit": args.commit,
                 "environment": host,
                 "affinity": {"cpu": args.cpu, "method": "taskset separate process",
@@ -568,16 +667,18 @@ def main() -> int:
                            "build_id": build_id},
                 "symbols": symbols,
                 "workload": {"corpus": CASE, "iterations": args.iterations,
-                             "input_fingerprint": next(iter(fingerprints)), "paired_runs": RUN_COUNT,
-                             "pairs_per_run": PAIR_COUNT, "unchanged_meso_threshold": 1.15},
+                             "input_fingerprint": CANONICAL_FINGERPRINT,
+                             "acquisition_blocks": RUN_COUNT,
+                             "accepted_pairs_per_block": PAIR_COUNT,
+                             "unchanged_meso_threshold": 1.15},
                 "counter_contract": {"epochs": {key: list(value) for key, value in EPOCHS.items()},
                                      "exclude_kernel": True, "exclude_hv": True,
                                      "raw_event_fallback": False, "read_format": ["GROUP", "ID",
                                      "TOTAL_TIME_ENABLED", "TOTAL_TIME_RUNNING"]},
-                "runs": runs,
+                "acquisition": acquisition,
+                "blocks": blocks,
                 "classification": classification,
-                "decision": "PC attribution candidate" if classification["pc_attribution_candidate"]
-                            else "NoSafeSlice",
+                "decision": "PC attribution candidate" if eligible else "NoSafeSlice",
             }
 
         with tempfile.TemporaryDirectory(prefix="hako-s6c-counter-frozen.") as directory:
@@ -587,6 +688,10 @@ def main() -> int:
                     (binary_sha, build_id, symbols):
                 raise NoSafeSlice("frozen collection identity drift")
             atomic_publish(args.report, lambda: build_report(frozen))
+        receipt = json.loads(args.report.read_text())
+        if receipt["terminal_outcome"] != "accepted" or not receipt["evidence_eligible"]:
+            print(f"[s6c-native-hwcounter] NoSafeSlice receipt: {args.report}", file=sys.stderr)
+            return 1
         print(f"[s6c-native-hwcounter] ok: {args.report}")
         return 0
     except (NoSafeSlice, OSError, ValueError, KeyError, json.JSONDecodeError) as error:

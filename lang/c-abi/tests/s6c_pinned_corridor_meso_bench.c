@@ -73,6 +73,15 @@ typedef struct EpochResultV1 {
   uint64_t sink;
 } EpochResultV1;
 
+typedef struct ArmEnvelopeV1 {
+  uint64_t voluntary_context_switches;
+  uint64_t involuntary_context_switches;
+  int affinity_cpu_before;
+  int affinity_cpu_after;
+  int affinity_count_before;
+  int affinity_count_after;
+} ArmEnvelopeV1;
+
 #define CACHE_EVENT(cache, operation, result) \
   ((uint64_t)(cache) | ((uint64_t)(operation) << 8) | ((uint64_t)(result) << 16))
 
@@ -199,12 +208,6 @@ static int measure_epoch(
       goto fail;
     }
   }
-  if (out->voluntary_context_switches || out->involuntary_context_switches ||
-      out->affinity_cpu_before != out->affinity_cpu_after ||
-      out->affinity_count_before != 1 || out->affinity_count_after != 1) {
-    fprintf(stderr, "NoSafeSlice: context-switch/affinity drift detected\n");
-    goto fail;
-  }
   return 1;
 ioctl_fail:
   fprintf(stderr, "NoSafeSlice: PMU ioctl failed: %s\n", strerror(errno));
@@ -240,6 +243,16 @@ static void print_epoch(const char* name, const EpochResultV1* epoch) {
            epoch->read.values[index].id, epoch->read.values[index].value);
   }
   printf("]}");
+}
+
+static void print_arm_envelope(const ArmEnvelopeV1* envelope) {
+  printf("\"arm_envelope\":{\"voluntary_context_switches\":%" PRIu64
+         ",\"involuntary_context_switches\":%" PRIu64
+         ",\"affinity_cpu_before\":%d,\"affinity_cpu_after\":%d,"
+         "\"affinity_count_before\":%d,\"affinity_count_after\":%d}",
+         envelope->voluntary_context_switches, envelope->involuntary_context_switches,
+         envelope->affinity_cpu_before, envelope->affinity_cpu_after,
+         envelope->affinity_count_before, envelope->affinity_count_after);
 }
 
 static void append_scalar(MesoInputV1* out, uint64_t* offset, const uint8_t* bytes, uint64_t width) {
@@ -369,6 +382,8 @@ static int run_counter_arm(const char* arm, const char* case_name, uint64_t iter
   HakoPromotionTestWireV1 subject, needle;
   NyrtTextFormalBorrowV1 pairs[2];
   EpochResultV1 primary, frontend;
+  ArmEnvelopeV1 envelope;
+  struct rusage arm_before, arm_after;
   cpu_set_t affinity;
   int affinity_count, cpu, hako = !strcmp(arm, "hako");
   int64_t hako_result, c_result;
@@ -414,13 +429,21 @@ static int run_counter_arm(const char* arm, const char* case_name, uint64_t iter
   }
   fingerprint = fnv1a(frame.roots[0].ptr, frame.roots[0].byte_len, fingerprint);
   fingerprint = fnv1a(frame.roots[1].ptr, frame.roots[1].byte_len, fingerprint);
+  memset(&envelope, 0, sizeof(envelope));
+  if (getrusage(RUSAGE_SELF, &arm_before) != 0 ||
+      !read_single_cpu_affinity(&envelope.affinity_cpu_before, &envelope.affinity_count_before))
+    return 0;
   if (!measure_epoch(hako, &frame, iterations, PRIMARY_EVENTS, &primary) ||
       !measure_epoch(hako, &frame, iterations, FRONTEND_EVENTS, &frontend)) return 0;
-  hako_text_formal_residence_finish_or_abort_v1(&frame.header);
-  hako_promotion_test_drop_wire_v1(subject);
-  hako_promotion_test_drop_wire_v1(needle);
-  free(input.subject);
-  printf("{\"schema\":\"s6c-meso-separate-arm-sample-v1\",\"arm\":\"%s\","
+  if (!read_single_cpu_affinity(&envelope.affinity_cpu_after, &envelope.affinity_count_after) ||
+      getrusage(RUSAGE_SELF, &arm_after) != 0 ||
+      arm_after.ru_nvcsw < arm_before.ru_nvcsw || arm_after.ru_nivcsw < arm_before.ru_nivcsw) {
+    fprintf(stderr, "NoSafeSlice: incomplete arm scheduling observation\n");
+    return 0;
+  }
+  envelope.voluntary_context_switches = (uint64_t)(arm_after.ru_nvcsw - arm_before.ru_nvcsw);
+  envelope.involuntary_context_switches = (uint64_t)(arm_after.ru_nivcsw - arm_before.ru_nivcsw);
+  printf("{\"schema\":\"s6c-meso-arm-observation-v2\",\"arm\":\"%s\","
          "\"case\":\"%s\",\"iterations\":%" PRIu64 ",\"cpu\":%d,"
          "\"affinity_count\":%d,\"input_fingerprint\":\"%016" PRIx64 "\","
          "\"subject_byte_len\":%" PRIu64 ",\"needle_byte_len\":%" PRIu64 ","
@@ -432,16 +455,59 @@ static int run_counter_arm(const char* arm, const char* case_name, uint64_t iter
          input.histogram[0], input.histogram[1], input.histogram[2], input.histogram[3],
          hako_result, c_result,
          primary.sink ^ frontend.sink);
+  print_arm_envelope(&envelope);
+  printf(",");
   print_epoch("primary", &primary);
   printf(",");
   print_epoch("frontend", &frontend);
   printf("}\n");
+  hako_text_formal_residence_finish_or_abort_v1(&frame.header);
+  hako_promotion_test_drop_wire_v1(subject);
+  hako_promotion_test_drop_wire_v1(needle);
+  free(input.subject);
   close_group(&primary.group);
   close_group(&frontend.group);
   return 1;
 }
 
+static int run_counter_preflight(void) {
+  MesoInputV1 input = build_input("mixed", 4096, "first");
+  MesoFrameV1 frame;
+  HakoPromotionTestWireV1 subject = hako_promotion_test_issue_text_wire_v1(input.subject);
+  HakoPromotionTestWireV1 needle = hako_promotion_test_issue_text_wire_v1(input.needle);
+  NyrtTextFormalBorrowV1 pairs[2] = {
+    {subject.slot, subject.generation}, {needle.slot, needle.generation}
+  };
+  uint64_t fingerprint = UINT64_C(14695981039346656037);
+  int64_t hako_result, c_result;
+  memset(&frame, 0, sizeof(frame));
+  if (!subject.slot || !needle.slot || hako_text_formal_residence_enter_v1(
+      pairs, 2, &frame.header, (uint32_t)sizeof(frame)) != NYRT_TEXT_RESIDENCE_VALID_V1)
+    return 0;
+  hako_result = hako_s6c_meso(frame.roots[0].ptr, frame.roots[0].byte_len,
+                              frame.roots[1].ptr, frame.roots[1].byte_len);
+  c_result = hako_s6c_c_meso(frame.roots[0].ptr, frame.roots[0].byte_len,
+                             frame.roots[1].ptr, frame.roots[1].byte_len);
+  fingerprint = fnv1a(frame.roots[0].ptr, frame.roots[0].byte_len, fingerprint);
+  fingerprint = fnv1a(frame.roots[1].ptr, frame.roots[1].byte_len, fingerprint);
+  printf("{\"schema\":\"s6c-meso-counter-preflight-v1\",\"case\":\"mixed/4096/first\","
+         "\"input_fingerprint\":\"%016" PRIx64 "\",\"subject_byte_len\":%" PRIu64
+         ",\"needle_byte_len\":%" PRIu64 ",\"scalars\":%" PRIu64
+         ",\"width_histogram\":[%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64
+         "],\"result\":%" PRId64 ",\"parity_result\":%" PRId64 "}\n",
+         fingerprint, frame.roots[0].byte_len, frame.roots[1].byte_len, input.scalars,
+         input.histogram[0], input.histogram[1], input.histogram[2], input.histogram[3],
+         hako_result, c_result);
+  hako_text_formal_residence_finish_or_abort_v1(&frame.header);
+  hako_promotion_test_drop_wire_v1(subject);
+  hako_promotion_test_drop_wire_v1(needle);
+  free(input.subject);
+  return hako_result == c_result;
+}
+
 int main(int argc, char** argv) {
+  if (argc == 2 && !strcmp(argv[1], "--counter-preflight"))
+    return run_counter_preflight() ? 0 : 1;
   if (argc != 1) {
     const char *arm = NULL, *case_name = NULL, *iterations_text = NULL;
     char* end = NULL;

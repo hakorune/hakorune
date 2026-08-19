@@ -17,10 +17,10 @@ belong to the later promotion evidence gate.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "Resolved for I2: bounded complete-pair eligibility sampling is accepted; scheduler contamination alone may refill one fixed slot, while every fatal integrity failure stops the invocation and rejected IDs cannot reach analysis."
+current_design_stop = "Resolved and implemented: bounded complete-pair eligibility sampling now distinguishes scheduler rejection from fatal integrity failure, preserves one chronological ledger, and feeds ratios only from accepted IDs."
 work_mode = "fast"
-current_execution_row = "S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-I2"
-current_blocker_token = "Implement one evidence-only path: complete structured arm observations, one 3x51 accepted-slot plan with max 68 attempts per block, whole-pair scheduler rejection, fatal immediate stop, one chronological ledger, accepted-ID-only ratios, and an atomic terminal receipt after plan issuance."
+current_execution_row = "S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-R0"
+current_blocker_token = "Run the landed clean-pair collector exactly once on the approved native Linux host; accept only its atomic terminal receipt and do not auto-repeat a NoSafeSlice outcome."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -50,10 +50,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Clean-pair D0 is accepted: fixed accepted slots own AB/BA order, scheduler contamination records and replaces only a complete pair within 68 attempts, fatal integrity stops immediately, and only accepted IDs reach block-local t95. I2 remains evidence-only."
-next_design_card = "S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-I2"
+latest_card_summary = "Clean-pair I2 landed evidence-only: ArmObservationV2 records complete scheduling/PMU data, one bounded owner replaces only whole scheduler-contaminated pairs, fatal drift stops, and terminal receipts keep rejected IDs outside block-local t95. Native R0 is next."
+next_design_card = "S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-R0"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-I2"
+next_execution_card = "S6C-MESO-HWCOUNTER-CLEAN-PAIR-ACQUISITION-R0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -65,6 +65,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: Clean-pair acquisition I2 landed evidence-only: C emits complete ArmObservationV2 records, a private bounded owner fixes 3x51 accepted AB/BA slots with max 68 attempts, only scheduler contamination replaces a whole pair, fatal drift stops, and one atomic terminal receipt keeps rejected attempts outside paired t95. Compiler/source/MIR/backend and thresholds remain unchanged; native R0 is one explicit run.",
   "2026-08-19: Native separate-arm PMU foundation and integrity I1 landed evidence-only: direct arm processes and fixed PMU groups remain, while one private frozen binary, full manifest/commit binding, exact corpus constants, getrusage plus single-CPU affinity, balanced cross-run ordering, timeout, and interval/classifier matrices close the audit gaps. The first native JSON is provisional and must be replaced by R0; compiler/source/MIR/ABI, C reference, corpus, and 1.15 threshold remain unchanged.",
   "2026-08-19: Meso equal-alignment control landed as evidence-only: outlined Hako and independent C symbols are both 64-byte aligned, normalized linked-body hashes are recorded, calls/trampolines remain zero, and corpus/oracle/51-pair/30ms/1.15 threshold are unchanged. The uncontended result remains red at mixed/4KiB/first p50 1.170296, so promotion stays closed and further lowering is NoSafeSlice pending a hardware-counter owner audit.",
   "2026-08-19: Selected scalar equality direct continuation landed caller-zero: exhaustive preflight fixes plan2 dst to one adjacent terminal Branch use, true/false tails target the existing successors directly, successor PHIs use the actual edge-specific predecessors, and the generic Branch is consumed once. The scan graph is 20 blocks/57 instructions/29 edges/5 PHIs/2 Returns with digest ea07b0aa8b57. Link/run, structural, exact, outline, and parity are green; unchanged meso improved to width3/4KiB/first p50 1.174594 but remains red, so promotion stays closed pending equal-alignment control.",
@@ -75,6 +76,5 @@ landed_tail = [
   "2026-08-19: Pinned-corridor structural-zero R0 landed offline: a compile-time-only hook borrows the same final-closure ModuleRef immediately before sole emit, and final IR plus linked assembly show entry-only allocation/root projection, exact align-1 byte reads, only Enter/Finish/Trap calls, and zero EH/noalias/wide/indirect/helper calls. Capture and structural negatives publish no evidence/object; compiler authority and production remain unchanged.",
   "2026-08-19: Pinned-corridor link/run correctness R0 landed offline: the exact real object links with a default-off test-only NyRT wire issuer and matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar, alias, match/miss, zero/stale/foreign/non-Text/retirement-pending, and both normal Residence exits. Production ABI, selector, benchmark, fallback, and retry remain unchanged.",
   "2026-08-19: Final-module closure I0 landed caller-zero: the same parsed LLVMModuleRef passes LLVMVerifyModule, exact target/layout, lifecycle declaration attributes, 1 Enter/1 Trap/2 Finish-to-Return, and zero EH/extra-call checks immediately before the sole trusted emit. Missing nounwind, missing Finish, extra call, and valid-EH drift reject without object or temporary publication; no pass, module mutation, object reader, semantic receipt, fallback, or retry was added.",
-  "2026-08-19: Runtime-call contract I0 landed caller-zero: the existing Rust export plus versioned C header own Enter/Finish no-unwind behavior, selected LLVM emits exact `nounwind` declarations, successful Finish remains returnable, and readonly/readnone/nofree/speculatable drift rejects. Focused positive, ordering/effect negatives, ABI/preflight guards, and the real-candidate TargetMachine smoke are green; no receipt, frame, token, object reader, production edge, fallback, or retry was added.",
-  "2026-08-19: Object-observer D0 closed after five-way premise audit: the failed probe mistook the mandatory unnamed ELF null section for an empty iterator; the real object exposes 11 sections, lifecycle relocations, and complete X86 decode through LLVM18. No compiler object gate is selected because relocation/ret layout is LLVM-transform-dependent; final ModuleRef verification is the correctness boundary and object/assembly checks move to promotion evidence."
+  "2026-08-19: Runtime-call contract I0 landed caller-zero: the existing Rust export plus versioned C header own Enter/Finish no-unwind behavior, selected LLVM emits exact `nounwind` declarations, successful Finish remains returnable, and readonly/readnone/nofree/speculatable drift rejects. Focused positive, ordering/effect negatives, ABI/preflight guards, and the real-candidate TargetMachine smoke are green; no receipt, frame, token, object reader, production edge, fallback, or retry was added."
 ]

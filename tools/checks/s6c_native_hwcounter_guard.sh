@@ -6,10 +6,11 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 BENCH="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_bench.c"
 REFERENCE="$ROOT_DIR/lang/c-abi/tests/s6c_pinned_corridor_meso_reference.c"
 COLLECTOR="$ROOT_DIR/tools/perf/s6c_native_hwcounter_collect.py"
+ACQUISITION="$ROOT_DIR/tools/perf/s6c_native_hwcounter_acquisition.py"
 BUILDER="$ROOT_DIR/tools/perf/build_s6c_native_hwcounter_fixture.sh"
 SMOKE="$ROOT_DIR/tools/checks/s6c_native_hwcounter_smoke.sh"
 guard_require_command "$TAG" rg
-guard_require_files "$TAG" "$BENCH" "$REFERENCE" "$COLLECTOR" "$BUILDER" "$SMOKE"
+guard_require_files "$TAG" "$BENCH" "$REFERENCE" "$COLLECTOR" "$ACQUISITION" "$BUILDER" "$SMOKE"
 
 expect() {
   local file="$1" needle="$2"
@@ -31,8 +32,13 @@ for needle in 'PAIR_COUNT = 51' 'RUN_COUNT = 3' 'mixed/4096/first' \
   'freeze_binary' 'validate_source_commit' 'os.replace' 'NoSafeSlice'; do
   expect "$COLLECTOR" "$needle"
 done
+for needle in 'ACCEPTED_PER_BLOCK = 51' 'MAX_ATTEMPTS_PER_BLOCK = 68' \
+  'MAX_REJECTIONS_PER_BLOCK = 17' 'scheduler_rejected' 'analysis_eligible' \
+  'accepted_attempt_ids' 'arm_envelope' 'FatalPairObservation'; do
+  expect "$ACQUISITION" "$needle"
+done
 for negative in 'wrong arm' 'wrong case' 'iteration drift' 'result mismatch' 'event ID drift' \
-  'missing event' 'multiplex/time scaling' 'hypervisor negative' 'affinity/context-switch' \
+  'missing event' 'multiplex/time scaling' 'hypervisor negative' 'invalid scheduling counter' \
   'corpus fingerprint drift' 'corpus shape drift' 'classification matrix drift' \
   'corrupt manifest identity' 'partial report publication'; do
   expect "$COLLECTOR" "$negative"
@@ -43,7 +49,7 @@ fi
 [[ "$(sha256sum "$REFERENCE" | awk '{print $1}')" == \
   35f043f24430a3dc904b7d7363e82b54c64420185b52e954416b63bf8413c49f ]] || \
   guard_fail "$TAG" "C reference changed"
-for file in "$BENCH" "$COLLECTOR" "$BUILDER" "$SMOKE"; do
+for file in "$BENCH" "$COLLECTOR" "$ACQUISITION" "$BUILDER" "$SMOKE"; do
   lines="$(wc -l <"$file" | tr -d '[:space:]')"
   (( lines < 760 )) || guard_fail "$TAG" "source reached 760-line split trigger: $file=$lines"
   (( lines < 800 )) || guard_fail "$TAG" "source reached 800-line hard stop: $file=$lines"

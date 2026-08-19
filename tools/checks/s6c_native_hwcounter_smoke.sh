@@ -29,8 +29,10 @@ python3 "$COLLECTOR" --probe --binary "$BIN" --alignment-manifest "$ALIGNMENT" \
 python3 - "$TEMP_DIR/probe.json" <<'PY'
 import json, sys
 row = json.load(open(sys.argv[1]))
-assert row['hako']['arm'] == 'hako' and row['c']['arm'] == 'c'
-assert row['hako']['input_fingerprint'] == row['c']['input_fingerprint']
-assert row['hako']['result'] == row['c']['result']
+hako, c = row['hako']['sample'], row['c']['sample']
+assert hako['arm'] == 'hako' and c['arm'] == 'c'
+assert hako['input_fingerprint'] == c['input_fingerprint']
+assert hako['result'] == c['result']
+assert 'arm_envelope' in hako and 'arm_envelope' in c
 PY
 echo "[$TAG] ok (positive native pair plus contract negatives)"
