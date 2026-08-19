@@ -25,14 +25,14 @@ Related:
   source-issued Residence carrier and emits strict no-refresh MIR JSON with
   3 `PinnedTextOp`, 1 entry-owned Enter, 1 Trap, 2 Finish, and 2 value Return
   rows. This is not a production caller.
-- **Current blocker:** the selected C route emits a real caller-zero object and
-  its runtime call effects are closed, but the same parsed LLVM module is not
-  yet verified as the final lifecycle projection immediately before emission.
-- **Next ordered task:**
-  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0`.
-- **Production stop line:** final-module closure, production selection,
-  fallback/retry, performance promotion, and
-  `nyash.string.eq_hh` retirement remain closed.
+- **Current blocker:** the same parsed LLVM module now passes final lifecycle,
+  target, and layout closure immediately before the sole trusted emit. The
+  promotion evidence owner, comparable measurement strata, and production
+  admission are not yet sealed.
+- **Next ordered task:** `S6C-PINNED-CORRIDOR-PROMOTION-R0` design closure;
+  its first executable cell will be link/run correctness only.
+- **Production stop line:** promotion, production selection, fallback/retry,
+  and `nyash.string.eq_hh` retirement remain closed.
 
 The exact active row, mode, and blocker are selected only by
 `CURRENT_STATE.toml`. This file owns the durable physical/session contract and
@@ -406,6 +406,29 @@ promotion, fallback, retry, `.ll`, or object publication.
 
 ## Ordered remaining tasks
 
+Promotion has one verdict but six bounded evidence cells. The compiler never
+reads that verdict: source/Facts/Recipe/Join and the final parsed LLVM module
+remain the semantic and physical authorities. Object shape, disassembly, C
+code, and benchmark wins may stop promotion but cannot issue or reclassify
+meaning.
+
+```text
+Decision: Keep one promotion verdict and split evidence production into
+correctness, structural-zero, exact, meso, whole-call, then aggregation only.
+Source authority + canonical issuer: Existing source/Facts/Recipe/Join carrier
+and final parsed LLVMModuleRef remain authoritative; the gate consumes evidence
+from the exact candidate/commit only.
+Non-authority: JSON/op counts, reloc/ret counts, object sections, disassembly,
+benchmarks, C code, pointers, handles, and the report issue no compiler meaning.
+Fail-fast boundary: One commit/target/LLVM18/config must pass the correctness
+corpus, IR plus final-linked structural-zero, and fixed comparable performance
+thresholds; any drift stops before production without fallback or retry.
+Smallest next slice: S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0 links and runs
+the real candidate against an independent source-equivalent oracle only.
+Non-claims: No production caller, old-V9 or eq_hh retirement, generic fastpath,
+kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
+```
+
 | order | bounded task | kind | exit condition |
 | ---: | --- | --- | --- |
 | 1 | `TEXT-FORMAL-PINNED-RESIDENCE-SELECTED-C-DISPATCH-SPLIT-R0` | BoxShape | **Landed.** Existing `call` / `mir_call` arms live once in a 114-line child; the parent remains below the 760-line split trigger and lifecycle opcode support remains 0. |
@@ -415,13 +438,24 @@ promotion, fallback, retry, `.ll`, or object publication.
 | 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0` | design stop | **Closed.** The probe failure was an ELF null-section false negative. LLVM18 Object/Disassembler works, but no compile-path observer is selected; machine evidence belongs to promotion. |
 | 6 | `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0` | BoxCount | **Landed.** Existing Enter/Finish signatures and no-unwind/fail-stop effects are one runtime-owned ABI projection consumed by selected LLVM; successful Finish stays returnable and no new receipt/runtime object exists. |
 | 7 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0` | bounded route | **Landed.** A private child checks the same parsed `LLVMModuleRef` with `LLVMVerifyModule`, exact selected lifecycle/call attributes, and target/layout immediately before the existing sole emit; no pass or module mutation follows closure, and failure publishes no object. |
-| 8 | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | evidence gate | Unicode, alias, stale/foreign, exit/lifetime, link/run, IR/final-assembly structural-zero, exact/meso/whole-call, and C comparison gates pass; object tools are evidence only. |
+| 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | Real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text, match/miss, and lifecycle cases. |
+| 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | Final IR and linked assembly show no hot-loop call/lock/allocation/registry/lease/handle/publication/helper, no EH/noalias/overread; exact section/reloc/ret counts are not authority. |
+| 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | Residence-acquired leaf cases compare against an inline same-representation C kernel: ASCII p50 <=1.10, mixed p50 <=1.15, p95 <=1.30. |
+| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | S6C scan excluding Enter/Finish covers widths, positions, misses, and 32B..1MiB; 4KiB+ p50 C ratio <=1.15. |
+| 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | ABI+Enter+projection+loop+Finish+Return reports short-input cost and break-even; 4KiB+ p50 <=1.20, p95 <=1.30, and current-route delta separately. |
+| 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | One test/perf-only aggregate consumes exact commit/toolchain/environment/corpus evidence from 8a-e and measures nothing itself; any missing or red leaf means no promotion. |
 | 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
 | 10 | `EQ-HH-RETIREMENT-R0` | independent cleanup | Generic C/Python `nyash.string.eq_hh` caller census reaches zero independently. |
 
 Tasks 6 and 7 are separate: runtime call effects must be owned before the final
 module can verify their projection. Module closure, promotion, and production
 remain serial; none may infer semantics from object success.
+
+The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
+extern/C provider, nowait/task sharing path is part of the
+proof obligation for the theorem that no in-scope path can mutate pinned bytes.
+The current census finds no sanctioned path; an unclassified external unsafe provider remains
+a stop, never permission to assume immutability.
 
 ## Compact landed ledger
 
