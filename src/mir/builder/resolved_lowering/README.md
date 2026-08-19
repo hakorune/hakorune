@@ -1028,3 +1028,19 @@ fixture discards the whole outer transaction. This is caller-zero evidence only:
 Residence finish, runtime/backend lowering, production selection,
 fallback/retry, performance promotion, and `nyash.string.eq_hh` retirement
 remain closed.
+
+## S6C native separate-arm PMU evidence (2026-08-19)
+
+The meso evidence binary has an optional native-only mode with exact `--arm
+hako|c`, `--case mixed/4096/first`, and `--iterations N` selectors. It verifies
+Hako/C parity before opening counters, then measures only the selected call
+loop in two fixed generic perf groups. Residence acquisition and Finish remain
+outside both groups, and the default 80-case meso benchmark remains unchanged.
+
+`tools/perf/s6c_native_hwcounter_collect.py` launches the same binary as
+separate pinned Hako/C processes in 3 independent runs of 51 alternating AB/BA
+pairs. It rejects virtual hosts, unsupported/missing events, event-ID drift,
+multiplexing, lost samples, context switches, migrations, or workload drift,
+and publishes JSON through one temporary-file rename only after full closure.
+Raw PMU events and fallback are forbidden. This evidence can name only a later
+PC-attribution candidate; it cannot change this compiler boundary.
