@@ -441,7 +441,7 @@ kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 | 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | **Landed.** The real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text/retirement-pending, match/miss, and lifecycle cases. Input generations come only from a default-off test issuer in the allocation transaction. |
 | 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | **Landed.** A compile-time-only hook borrows the same closure-verified ModuleRef before sole emit; final IR and linked assembly show only lifecycle calls, entry-only allocation/root projection, exact align-1 byte reads, and zero EH/noalias/wide read/indirect or helper call. Machine layout counts remain non-authority. |
 | 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | **Landed.** The exact real plan is projected by the sole production leaf emitter into a separate evidence callable. The first unchanged-threshold run exposed eager post-mismatch loads; `LLVM-PINNED-TEXT-SCALAR-EQ-SHORT-CIRCUIT-I0` made bytes 2..4 reachable only after prior equality. The unchanged 51-pair gate is green (ASCII max p50 1.061, mixed max p50 1.078, all-case max p95 1.113 versus 1.10/1.15/1.30). |
-| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Design stop: `MaterializationRelationMissing`.** Whole-call timing includes Enter/Finish, while rebuilding a scan from leaf plans creates a second CFG authority. Resolve `S6C-PINNED-CORRIDOR-MESO-PROJECTION-D0` first; then cover widths, positions, misses, and 32B..1MiB with 4KiB+ p50 C ratio <=1.15. |
+| 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | **Projection Decision accepted.** First close `S6C-PINNED-CORRIDOR-FINAL-IR-SHELL-OUTLINE-I0`, then outline parity, then measure widths, positions, misses, and 32B..1MiB with 4KiB+ p50 C ratio <=1.15. |
 | 8e | `S6C-PINNED-CORRIDOR-WHOLE-CALL-BENCH-R0` | evidence | ABI+Enter+projection+loop+Finish+Return reports short-input cost and break-even; 4KiB+ p50 <=1.20, p95 <=1.30, and current-route delta separately. |
 | 8f | `S6C-PINNED-CORRIDOR-PROMOTION-R0` | verdict | One test/perf-only aggregate consumes exact commit/toolchain/environment/corpus evidence from 8a-e and measures nothing itself; any missing or red leaf means no promotion. |
 | 9 | `S6C-PINNED-CORRIDOR-PRODUCTION-I0` | production cutover | One named production edge switches before effect; old S6C V9 CallOut fast edge retires atomically; fallback/retry stays zero. |
@@ -451,23 +451,33 @@ Tasks 6 and 7 are separate: runtime call effects must be owned before the final
 module can verify their projection. Module closure, promotion, and production
 remain serial; none may infer semantics from object success.
 
-### Accepted question for `S6C-PINNED-CORRIDOR-MESO-PROJECTION-D0`
+### Accepted `S6C-PINNED-CORRIDOR-MESO-PROJECTION-D0`
 
 ```text
-Decision: Select whether meso evidence may mechanically outline the closed
-real function, or must wait for a canonical physical scan-body issuer.
+Decision: Use a promotion-only final-IR outline. Delete only the exact
+Residence/lane shell; do not add a canonical scan-body issuer for evidence.
 Source authority + canonical issuer: The source/Facts/Recipe/Join chain and
 closure-verified final ModuleRef are the only current scan issuers.
 Non-authority: Leaf plans, ValueIds, labels, C code, timings, outlined helper,
 assembly, and evidence reports cannot issue CFG or compiler meaning.
-Fail-fast boundary: Any projection must remove only the exact Residence/lane
-shell and preserve every scan instruction, edge, PHI, and Return by digest;
-if it must synthesize one of them, the result is NoSafeSlice.
-Smallest next slice: Decide and guard one meso projection boundary before any
-runner, benchmark corpus, threshold result, or helper object is implemented.
+Fail-fast boundary: Remove exactly the old signature, 13-instruction Enter
+block, 2-instruction Trap block, 8 root-projection instructions, and two
+Finish calls. Preserve 13 blocks, 91 instructions, 18 edges, 5 PHIs, and two
+Returns by normalized graph digest; any synthesis or drift is NoSafeSlice.
+Smallest next slice: S6C-PINNED-CORRIDOR-FINAL-IR-SHELL-OUTLINE-I0 implements
+only the offline projector, digest parity, mutation negatives, and cleanup.
 Non-claims: No optimizer, receipt, runtime ABI, production, fallback/retry,
 whole-call result, generic fusion, or promotion verdict.
 ```
+
+The helper entry is the existing normal landing. Its four test-only formals
+use the existing root SSA names, so retained scan operands are not rewritten.
+The outlined object remains production caller zero. If shell/body interleave,
+a retained value depends on lane/frame/status state, a removed block supplies
+a retained PHI incoming, or any LLVM cleanup pass is required, stop rather
+than rebuilding from the three leaf plans. A canonical physical scan-body
+issuer is reserved for a future genuine production consumer, not introduced
+for one evidence row.
 
 The StringBox admission premise remains a release gate: every `as_any_mut` caller, `Arc` uniqueness/recovery path, sanctioned
 extern/C provider, nowait/task sharing path is part of the
