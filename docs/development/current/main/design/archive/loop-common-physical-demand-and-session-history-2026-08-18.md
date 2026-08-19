@@ -178,6 +178,49 @@ row.
 ### G0 I1 D1 review closeout (2026-08-08; Decision: accepted)
 ### Common Predicate/carrier I0 closeout (2026-08-08; Decision: accepted)
 
+## 2026-08-19 recompaction
+
+The current-owner file grew again from its compacted form to 5,108 lines by
+accumulating the 2026-08-18/19 S6C, Residence, DraftSeal, and backend design
+stops. The source snapshot for this second compaction is commit `44e4df38a0`.
+Exact text remains recoverable with:
+
+```text
+git show 44e4df38a0:docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md
+```
+
+No historical body was copied into this ledger. The live authority was
+rewritten as durable contract plus one active brief and compact task table.
+
+| Source slice at recompaction | Historical contents | Current treatment |
+| --- | --- | --- |
+| 4–55 | repeated frontmatter activation chronology | removed; current state is in `CURRENT_STATE.toml` |
+| 229–1,874 | S6C corridor, Residence lifecycle, DraftSeal consumer, ABI, carrier, Trap, and detached Finish D0/I0 prose | compact landed ledger plus durable lifecycle law |
+| 2,470–2,616 | old R0 audit, production census, and admission discussion | Git history only; no active selection authority |
+| 2,689–2,722 | per-row implementation/documentation instructions | replaced by the repository-wide current-doc policy |
+| 2,730–3,283 | Generic/Return/Branch/Return-read/shared-segment chronology | compact authority graph and landed row |
+| 3,284–3,958 | TextEq/V9/ExactText residence consultations and closeouts | compact S6C source/representation/lifetime law |
+| 3,959–4,982 | V9 MIR, portable TextEq, TextRef, wire/lease/StringBox and legacy verdict chronology | compact fast-corridor and explicit non-authority sections |
+| 4,983–5,108 | real-candidate JSON carrier lineage and selected-C design stop | retained as the active six-line brief and ordered remaining tasks |
+
+Grouped heading index for the second compaction:
+
+- S6C scalar-scan corridor source, base-root, cursor, predicate/index, and
+  scalar-equality rows;
+- Text Formal Residence authority, materializer, DraftSeal ingress/consumer,
+  finish-or-abort ABI, lifecycle carrier, Trap terminal, and detached Finish
+  rows;
+- Generic G0 Return source/Recipe/Join, Return-read, Branch emission, and
+  shared-segment rows;
+- TextEq Substring V9 target/callout/residence/ExactText ingress, V9 runtime
+  producer, TextRef bridge/scope, wire ingress, StringBox reachability, and
+  C-speed/legacy verdict rows;
+- real-candidate carrier materialization/transport/JSON and synthetic textual
+  C lowering fixture rows.
+
+These groups are navigation evidence only. Current task selection must use
+`CURRENT_STATE.toml` and the compact current-owner brief.
+
 ## Retention and restart rule
 
 - Keep this ledger for traceability; do not append new execution receipts here.

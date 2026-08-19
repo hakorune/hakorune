@@ -1,16 +1,16 @@
 {
   "counts": {
-    "checks": 3645,
+    "checks": 3659,
     "design_direct": 869,
-    "docs": 12979,
-    "docs_development_archive": 2791,
-    "docs_development_current": 8760,
+    "docs": 13023,
+    "docs_development_archive": 2792,
+    "docs_development_current": 8803,
     "main_direct": 168,
     "phase_296x_archive": 2315,
     "phase_296x_direct": 1039,
     "private": 0,
-    "src": 4291,
-    "tools": 7262
+    "src": 4490,
+    "tools": 7280
   },
   "design_registry": {
     "authority_registry_decided": true,
@@ -852,11 +852,11 @@
     "registry_mode": "warning",
     "seed_reference_counts": {
       "AGENTS.md": 8,
-      "docs/development/current/main/CURRENT_STATE.toml": 12,
+      "docs/development/current/main/CURRENT_STATE.toml": 6,
       "docs/development/current/main/DOCS_LAYOUT.md": 67,
       "docs/development/current/main/design/README.md": 132
     },
-    "seed_union_count": 176,
+    "seed_union_count": 175,
     "status_counts": {
       "active_like": 133,
       "closed": 20,
@@ -943,13 +943,13 @@
     ],
     "unregistered_baseline": 77,
     "unregistered_count": 77,
-    "unseeded_count": 693,
+    "unseeded_count": 694,
     "violations": []
   },
   "document_reachability": {
     "ambiguous_basename_count": 15,
     "archived_in_place_count": 1394,
-    "document_count": 8760,
+    "document_count": 8803,
     "nested_archive_first_batch": {
       "archive_target_collision_count": 0,
       "cluster_count": 1369,
@@ -1163,16 +1163,22 @@
     },
     "partial_phase_unreachable": {
       "archive_target_collision_count": 0,
-      "cluster_count": 1,
+      "cluster_count": 2,
       "clusters": [
         {
           "documents": [
             "docs/development/current/main/phases/phase-293x/293x-309-ASTCLEAN-016-MIR-BUILDER-CALL-RESOLUTION-DUPLICATE-HELPER-PRUNE.md"
           ],
           "file_count": 1
+        },
+        {
+          "documents": [
+            "docs/development/current/main/phases/phase-293x/293x-CONC-SOURCE-PARALLEL-001-SOURCE-PARALLEL-SURFACE-FREEZE.md"
+          ],
+          "file_count": 1
         }
       ],
-      "file_count": 1,
+      "file_count": 2,
       "phase_count": 1,
       "reachable_incoming_edge_count": 0
     },
@@ -1587,9 +1593,9 @@
       },
       {
         "phase": "phase-293x",
-        "reachable_files": 877,
+        "reachable_files": 876,
         "total_files": 878,
-        "unreachable_files": 1,
+        "unreachable_files": 2,
         "whole_phase_unreachable": false
       },
       {
@@ -1929,18 +1935,18 @@
         "whole_phase_unreachable": false
       }
     ],
-    "reachable_count": 5500,
-    "root_count": 3852,
+    "reachable_count": 5345,
+    "root_count": 3855,
     "root_policy": "active-entry+phase296x-direct+design-authority+reference+src-tools",
     "root_seed_counts": {
       "active_phase_296x_direct": 1039,
       "current_pointer": 5,
       "design_authority": 271,
       "fixed_current_entry": 4,
-      "reference_src_tools": 3217
+      "reference_src_tools": 3222
     },
-    "unreachable_count": 3260,
-    "unreachable_pending_count": 1866,
+    "unreachable_count": 3458,
+    "unreachable_pending_count": 2064,
     "whole_phase_unreachable": [],
     "whole_phase_unreachable_count": 0,
     "whole_phase_unreachable_files": 0

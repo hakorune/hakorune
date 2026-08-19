@@ -184,6 +184,10 @@ Scope: `docs/development/current/` 以下の「置き場所ルール」と、SSO
     existing fresh unpublished function/session, private entry/index receipts,
     whole-candidate discard, and one typed function-finish terminal before
     DraftSeal without a second SSA/CFG/PHI/Return/publication authority
+  - keep only durable contract, one active brief, bounded task order, and a
+    compact landed ledger; append-only D0/I0 prose belongs to the linked
+    `design/archive/loop-common-physical-demand-and-session-history-2026-08-18.md`
+    heading index and Git history
 - `design/joinir-target-lowerer-thinning-ssot.md`
   - JoinIR target-specific lowerer thinning order; keeps shared seams,
     LowerOnly observation, and route-specific behavior separated
