@@ -5,44 +5,48 @@ Parent: `brand-constructor-relationless-admission-d2.md`
 Row: `BRAND-INSTANCE-CONSTRUCTOR-SOURCE-RELATION-D0`
 Classification: Design stop; candidate implementation is one BoxCount
 
-## Execution brief
+## D1 execution brief
 
-Decision: Select instance-constructor bodies as the first relation-less family;
-issue one move-only AST-free semantic batch rather than inferring Brand
-membership in raw lowering.
-Source authority + canonical issuer: The parser-owned constructor-map
-occurrence identified by `NormalInstanceConstructorSourceKeyV1`, the effective
-Brand catalog, and `FunctionSemanticResolverSessionV1` jointly issue one
-owner/site product per constructor source occurrence.
-Non-authority: Constructor lineage/key alone, normalized method names,
-duplicate physical demands, AST spelling, `brand_decls`, raw success, and the
-ordinary callable catalog cannot issue Brand membership.
-Fail-fast boundary: Before Builder entry require exact constructor
-count/key/source-shape and exactly one semantic row; missing, duplicate,
-foreign, or re-paired rows reject before body or argument effects, with no name
-fallback.
-Smallest next slice: Design the bounded batch/loan seam from
-`PreparedInstanceBoxConstructorBatchV1` through the resolver to the sole
-`lower_normal_instance_constructor_v1` edge; the same source product may serve
-multiple physical demands but must never be reissued.
-Non-claims: No raw-probe deletion or consumer cutover, nested method, Deferred
-Script, callable Compatibility, RawLegacy, unwrap activation, nominal Brand
-typing, runtime, backend, or callable-catalog widening.
+Decision: Issue one instance-constructor semantic owner batch by carrying the
+landed parser constructor cohort through final callable-source sealing; do not
+pair it from Builder keys.
+Source authority + canonical issuer: `ParserBoxSourceSealV1` constructor rows
+and their parser invocation/Box paths are occurrence authority;
+`FunctionSemanticResolverSessionV1` is the sole constructor-root and nested
+lambda owner/Brand-relation issuer.
+Non-authority: Final AST lookup, sorted constructor maps,
+`NormalInstanceConstructorSourceKeyV1`, symbols, arity, physical-demand order,
+callable anchors, and `CompilationContext::brand_decls` issue no occurrence or
+semantic identity.
+Fail-fast boundary: Final-source sealing rejects parser brand, Box path,
+constructor body/key/origin/trigger drift; semantic package issuance rejects
+missing, duplicate, foreign, or incomplete owner rows before Builder creation,
+without Compatibility or name fallback.
+Smallest next slice: `INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0` carries one
+AST-free constructor cohort through Prepared/Final callable source, validates
+the final transform, issues one non-Clone semantic batch, and exposes its
+read-only package loan at the constructor port boundary.
+Non-claims: No raw-probe deletion/consumption, accepted syntax change,
+Compatibility/Deferred/nested-method/Main/RawLegacy repair, unwrap physical
+activation, nominal Brand value typing, runtime/backend, or production route
+switch.
 
 ## Required mapping
 
 ```text
-parser constructor-map source occurrence
-  -> NormalInstanceConstructorSourceKeyV1
+ParserBoxSourceSealV1 constructor occurrence
+  -> parser-issued opaque constructor source catalog
+  -> Prepared/VerifiedFinalCallableProgramSourceV1
+  -> transform-time exact constructor closure
   -> effective Brand catalog loan
   -> resolver-owned owner/SourceExprSite Brand relation batch
-  -> exact source-keyed loan around lower_normal_instance_constructor_v1
-  -> existing physical constructor demands
+  -> NormalCallableSemanticPackage read-only loan
+  -> later exact physical consumer cutover
 ```
 
-The Script prefix and full-lifecycle demand may borrow the same issued row.
-They are not separate semantic owners.  Nested lambdas remain inside the same
-constructor owner and must retain exact expression sites.
+The immediate, Script prefix, and full-lifecycle demands may later borrow the
+same issued row. They are not separate semantic owners. Nested lambdas remain
+inside the same constructor owner forest and retain exact expression sites.
 
 ## Acceptance for the later I0
 
@@ -78,7 +82,7 @@ member order, overwritten duplicate rows, selected-gate provenance, or a
 synthetic `birth/0` source.  Instance-constructor semantic issuance therefore
 remains `NoSafeSlice` until the parser owns a total constructor inventory.
 
-## Selected implementation row
+## Landed parser prerequisite
 
 Row: `PARSER-BOX-CONSTRUCTOR-SOURCE-INVENTORY-I0`
 Classification: one BoxCount
@@ -121,7 +125,37 @@ The focused 12-test guard, 5 finalizer tests, 3 delegate-source tests, formatter
 pointer guard, and diff check are green. The main source owner is 749 lines and
 the constructor child is 222 lines.
 
-No Brand relation or physical consumer changed. The next design row is
-`BRAND-INSTANCE-CONSTRUCTOR-SOURCE-RELATION-D1`: replace the invalid
-Builder-reconstructed occurrence premise with the landed parser inventory and
-name the exact one-owner loan into constructor-body semantic resolution.
+No Brand relation or physical consumer changed. D1 now replaces the invalid
+Builder-reconstructed premise with the landed parser inventory.
+
+## Selected implementation row
+
+Row: `INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0`
+Classification: one BoxCount
+
+Change:
+  Move one parser-branded AST-free constructor cohort through Initial,
+  Prepared, and VerifiedFinal callable source. Revalidate exact Box/path,
+  key, function body, Direct/Generated origin, and trigger coverage after the
+  callable-preserving transform. The existing semantic resolver issues one
+  constructor-root plus nested-lambda owner forest and Brand relation batch.
+
+Contract:
+  Parser rows remain sole occurrence authority and the resolver remains sole
+  semantic issuer. The final package owns one non-Clone batch and exposes only
+  a read-only exact-source loan. Compatibility has no empty/default cohort.
+  Duplicate physical demands never resolve or issue the semantic owner again.
+
+Done:
+  Zero/one/many direct, gated, and generated constructors retain exact lineage;
+  constructor-only macro mutation, Box relocation, missing/foreign rows,
+  body/key/origin/trigger drift, duplicate owners, and incomplete nested-lambda
+  coverage reject before Builder. One reusable Brand-source guard and owner
+  README/reference receipt are green; every touched source remains below 760.
+
+Stop:
+  Return to design if final transform cannot prove constructor-body identity,
+  Compatibility would need a guessed empty cohort, semantic issuance requires
+  callable-catalog widening, physical demand reissues an owner, or any owner
+  reaches 760 without a responsibility split. Do not consume or delete the raw
+  Brand probe in this row.
