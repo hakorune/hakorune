@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 use std::sync::Arc;
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::{
     SourceNavigationErrorV1, VerifiedSourceProjectionV1,
@@ -40,6 +41,14 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
 pub(crate) fn issue_resolved_callable_semantic_batch_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: VerifiedFinalCallableProgramSourceV1,
+) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
+    issue_resolved_callable_semantic_batch_with_brand_catalog_v1(resolver, source, None)
+}
+
+pub(crate) fn issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: VerifiedFinalCallableProgramSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
     let rows = source
         .with_callable_semantic_syntax(|loan| {
@@ -85,7 +94,10 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
             }
 
             let (forests, mut body_shapes) = match resolver
-                .resolve_selected_callable_forests_with_body_shapes(&views)
+                .resolve_selected_callable_forests_with_body_shapes_and_brand_catalog(
+                    &views,
+                    brand_catalog,
+                )
                 .map_err(ResolvedCallableSemanticBatchIssueV1::Resolver)?
             {
                 ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {

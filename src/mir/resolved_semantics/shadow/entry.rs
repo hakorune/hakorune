@@ -2,6 +2,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
     EnumMatchDemandV1, EnumVariantDemandV1, FunctionOriginV1, FunctionSyntaxViewV1,
@@ -65,6 +66,29 @@ pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_with_profile
     )
 }
 
+pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_with_profile_and_brand_catalog_v1<
+    'ast,
+    'catalog,
+>(
+    view: FunctionSyntaxViewV1<'ast>,
+    ancestor_names: BTreeSet<Box<str>>,
+    traversal_profile: ShadowTraversalProfileV1,
+    brand_catalog: &'catalog VerifiedBrandProgramDeclarationCatalogV1,
+) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
+    let input = ShadowRootTraversalInputV1::dense_with_profile(view, traversal_profile)
+        .with_brand_catalog(brand_catalog);
+    let root_profile = input.root_profile();
+    traverse_shadow_root_v1(
+        input,
+        ShadowLambdaModeV0::Inventory,
+        ancestor_names,
+        BTreeSet::new(),
+        ShadowMethodCallObservationModeV0::Disabled,
+        true,
+    )
+    .map(|resolver| resolver.finish_owner(root_profile))
+}
+
 pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
     view: ScriptSyntaxViewV1<'ast>,
     window: &'ast VerifiedScriptRootDemandWindowV1,
@@ -105,6 +129,37 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'a
         enum_variants,
         enum_matches,
     );
+    let profile = input.root_profile();
+    traverse_shadow_root_v1(
+        input,
+        ShadowLambdaModeV0::Inventory,
+        BTreeSet::new(),
+        BTreeSet::new(),
+        ShadowMethodCallObservationModeV0::Disabled,
+        false,
+    )
+    .map(|resolver| resolver.finish_owner(profile))
+}
+
+pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_with_brand_catalog_v1<
+    'ast,
+    'catalog,
+>(
+    view: ScriptSyntaxViewV1<'ast>,
+    window: &'ast VerifiedScriptRootDemandWindowV1,
+    record_schemas: &dyn RecordSchemaDemandV1,
+    enum_variants: &dyn EnumVariantDemandV1,
+    enum_matches: &dyn EnumMatchDemandV1,
+    brand_catalog: &'catalog VerifiedBrandProgramDeclarationCatalogV1,
+) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
+    let input = ShadowRootTraversalInputV1::sparse_script(
+        view,
+        window,
+        record_schemas,
+        enum_variants,
+        enum_matches,
+    )
+    .with_brand_catalog(brand_catalog);
     let profile = input.root_profile();
     traverse_shadow_root_v1(
         input,

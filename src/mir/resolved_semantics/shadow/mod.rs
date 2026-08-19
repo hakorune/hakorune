@@ -27,8 +27,9 @@ pub(in crate::mir) use entry::{
 };
 pub(super) use entry::{
     resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0,
+    resolve_owner_shadow_view_with_profile_and_brand_catalog_v1,
     resolve_owner_shadow_view_with_profile_v0, resolve_script_owner_shadow_view_v0,
-    resolve_script_shadow_view_v0,
+    resolve_script_owner_shadow_view_with_brand_catalog_v1, resolve_script_shadow_view_v0,
 };
 pub(super) use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 pub(super) use owner_boundary::ShadowLambdaSyntaxV0;

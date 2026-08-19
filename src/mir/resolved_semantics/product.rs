@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use hakorune_mir_core::BindingId;
 
 use super::body_shape::VerifiedResolvedMethodCallSourceV1;
+use super::brand_source_relation::VerifiedBrandCallSourceRelationV1;
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::enum_variant_demand::EnumVariantAdmissionV1;
 use super::explicit_extern_call::ResolvedExplicitExternCallV1;
@@ -43,6 +44,7 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
     pub(crate) direct_call_targets: BTreeMap<SourceExprSiteV1, ResolvedDirectCallTargetV1>,
+    pub(crate) brand_call_relations: BTreeMap<SourceExprSiteV1, VerifiedBrandCallSourceRelationV1>,
     pub(crate) explicit_extern_calls: BTreeMap<SourceExprSiteV1, ResolvedExplicitExternCallV1>,
     pub(crate) method_calls: BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
     pub(crate) expression_source: ResolvedExpressionSourceInventoryV1,
@@ -297,6 +299,19 @@ impl VerifiedResolvedFunctionV1 {
             .map(|(site, target)| (site, *target))
     }
 
+    pub(crate) fn brand_call_relation(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedBrandCallSourceRelationV1> {
+        self.core.data.brand_call_relations.get(site)
+    }
+
+    pub(crate) fn brand_call_relations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedBrandCallSourceRelationV1)> {
+        self.core.data.brand_call_relations.iter()
+    }
+
     pub(crate) fn explicit_extern_call(
         &self,
         site: &SourceExprSiteV1,
@@ -427,6 +442,19 @@ impl VerifiedResolvedScriptV1 {
 
     pub(crate) fn declaration_binding(&self, site: &SourceBindingSiteV1) -> Option<BindingRefV1> {
         self.core.data.declarations.get(site).copied()
+    }
+
+    pub(crate) fn brand_call_relation(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedBrandCallSourceRelationV1> {
+        self.core.data.brand_call_relations.get(site)
+    }
+
+    pub(crate) fn brand_call_relations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedBrandCallSourceRelationV1)> {
+        self.core.data.brand_call_relations.iter()
     }
 
     pub(crate) fn record_literal_demands(&self) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {

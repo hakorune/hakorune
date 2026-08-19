@@ -135,6 +135,7 @@ fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
     let blockexpr_origin = blockexpr_root();
 
     ResolvedFunctionDataV1 {
+        brand_call_relations: BTreeMap::new(),
         explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,

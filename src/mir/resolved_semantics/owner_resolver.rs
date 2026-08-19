@@ -1,5 +1,6 @@
 //! Recursive owner-forest construction for non-capturing nested functions.
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::callable_index::VerifiedCallableIndexV1;
@@ -81,10 +82,19 @@ impl FunctionSemanticResolverSessionV1 {
         roots: &[FunctionSyntaxViewV1<'_>],
     ) -> Result<ResolveSelectedCallableForestsWithBodyShapesOutcomeV1, ResolveOwnerForestErrorV1>
     {
+        self.resolve_selected_callable_forests_with_body_shapes_and_brand_catalog(roots, None)
+    }
+
+    pub(crate) fn resolve_selected_callable_forests_with_body_shapes_and_brand_catalog(
+        &mut self,
+        roots: &[FunctionSyntaxViewV1<'_>],
+        brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    ) -> Result<ResolveSelectedCallableForestsWithBodyShapesOutcomeV1, ResolveOwnerForestErrorV1>
+    {
         let mut trees = Vec::with_capacity(roots.len());
         let mut deferred = false;
         for root in roots {
-            match construct_selected_callable_owner_tree_v1(*root) {
+            match construct_selected_callable_owner_tree_v1(*root, brand_catalog) {
                 Ok(tree) => trees.push(tree),
                 Err(error) => deferred |= selected_callable_source_deferral(error)?,
             }
@@ -126,6 +136,7 @@ impl FunctionSemanticResolverSessionV1 {
         record_schemas: &dyn RecordSchemaDemandV1,
         enum_variants: &dyn EnumVariantDemandV1,
         enum_matches: &dyn EnumMatchDemandV1,
+        brand_catalog: &VerifiedBrandProgramDeclarationCatalogV1,
     ) -> Result<ResolveScriptForestOutcomeV1, ResolveOwnerForestErrorV1> {
         let tree = match construct_script_owner_tree_v1(
             view,
@@ -133,6 +144,7 @@ impl FunctionSemanticResolverSessionV1 {
             record_schemas,
             enum_variants,
             enum_matches,
+            brand_catalog,
         ) {
             Ok(tree) => tree,
             Err(error) if error.is_script_source_deferral() => {

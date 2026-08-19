@@ -10,6 +10,9 @@ use super::body_shape::{
     ResolvedFunctionBodyShapeProductV1, ResolvedMethodCallSourceIssueV1,
     VerifiedResolvedBodyShapeInventoryV1,
 };
+use super::brand_source_relation::{
+    seal_brand_call_source_relations_v1, BrandCallSourceRelationSealErrorV1,
+};
 use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::expression_source::seal_shadow_expression_source_v1;
@@ -56,6 +59,7 @@ pub(crate) enum ResolveFunctionErrorV1 {
     MethodCallSource(ResolvedMethodCallSourceIssueV1),
     Verification(ResolvedFunctionVerificationErrorV1),
     CallableLookup(CallableLookupErrorV1),
+    BrandSourceRelation(BrandCallSourceRelationSealErrorV1),
 }
 
 /// One resolver session per compilation input.
@@ -516,6 +520,12 @@ fn canonicalize_draft(
             .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?,
         None => BTreeMap::new(),
     };
+    let brand_call_relations = seal_brand_call_source_relations_v1(
+        owner,
+        std::mem::take(&mut draft.brand_calls),
+        &draft.expression_sites,
+    )
+    .map_err(ResolveFunctionErrorV1::BrandSourceRelation)?;
     let explicit_extern_calls = draft
         .explicit_extern_calls
         .into_iter()
@@ -562,6 +572,7 @@ fn canonicalize_draft(
         variable_uses,
         assignment_targets,
         direct_call_targets,
+        brand_call_relations,
         explicit_extern_calls,
         method_calls,
         expression_source,

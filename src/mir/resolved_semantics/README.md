@@ -992,3 +992,25 @@ to state the bounded `Less -> Bool` and `Add(exact I64) -> Dynamic` relations,
 but it may not infer Dynamic from `MirType::Unknown`, emitted opcodes, variable
 names, or an I64 Recipe operation. Calls, locals, exits, physical values, and
 PHI remain owned by their separate later stages.
+
+## Brand constructor and unwrap source relations
+
+`VerifiedBrandCallSourceRelationV1` is the sole resolved source-site product
+for explicit Brand construction and unwrap. The shared shadow traversal borrows
+the effective `VerifiedBrandProgramDeclarationCatalogV1` while it still owns
+the exact owner-local `SourceExprSiteV1`; it records the declaration identity,
+Brand name and underlying type, relation kind, and exact `Argument(0)` site.
+Unwrap additionally records the exact receiver site.
+
+Recognized constructor sites never enter the ordinary direct-call ledger.
+Exact `Variable(BrandName).unwrap(value)` is namespace-owned even when an equal
+lexical spelling exists; another selector on a declared Brand rejects before
+receiver or argument traversal. Canonicalization only owner-brands and verifies
+the already-issued rows. It never reconstructs Brand meaning from names,
+FreeStatic misses, AST spans, mutable Builder maps, Stage1 JSON, or MIR values.
+
+This relation is issued for selected callable and Script owners from the same
+catalog loan. Physical constructor consumption, unwrap activation, nominal MIR
+Brand identity, mismatch verification, and legacy cache retirement are later
+rows; the current raw `is_brand_declared` consumer intentionally remains until
+the constructor cutover.

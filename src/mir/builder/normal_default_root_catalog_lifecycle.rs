@@ -24,7 +24,8 @@ use crate::mir::callable_result_representation::{
     VerifiedSameModuleCallableResultCatalogV1, VerifiedStaticCallResultPublicationOwnerV1,
 };
 use crate::mir::normal_callable_semantic_package::{
-    issue_normal_callable_semantic_package_v1, InstalledNormalCallableSemanticPackageV1,
+    issue_normal_callable_semantic_package_with_brand_catalog_v1,
+    InstalledNormalCallableSemanticPackageV1,
 };
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptForestOutcomeV1, ScriptSyntaxViewV1,
@@ -240,6 +241,20 @@ impl ModuleBuilderInvocationSessionV1 {
         let preflight_is_app_mode = preflight_expansion.is_app_mode();
         drop(preflight_expansion);
 
+        let declaration_facts =
+            match PreparedNormalProgramDeclarationFactsV1::collect(source.source_ast()) {
+                Ok(facts) => facts,
+                Err(error) => {
+                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                        session: self,
+                        _source: Some(source),
+                        error: NormalDefaultRootCatalogLifecycleErrorV1::CatalogSeal(
+                            error.to_string().into(),
+                        ),
+                    })
+                }
+            };
+
         let mut resolver = match FunctionSemanticResolverSessionV1::new(0) {
             Ok(resolver) => resolver,
             Err(error) => {
@@ -257,21 +272,24 @@ impl ModuleBuilderInvocationSessionV1 {
                 source: PreparedNormalDefaultProgramSourceV1::Callable(callable),
                 ..
             } => {
-                let package =
-                    match issue_normal_callable_semantic_package_v1(&mut resolver, callable) {
-                        Ok(package) => package,
-                        Err(error) => {
-                            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
-                                session: self,
-                                _source: None,
-                                error:
-                                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                                        format!("[mir/callable-semantic-package/issue] {error:?}")
-                                            .into(),
-                                    ),
-                            })
-                        }
-                    };
+                let package = match declaration_facts.with_brand_catalog(|catalog| {
+                    issue_normal_callable_semantic_package_with_brand_catalog_v1(
+                        &mut resolver,
+                        callable,
+                        Some(catalog),
+                    )
+                }) {
+                    Ok(package) => package,
+                    Err(error) => {
+                        return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                            session: self,
+                            _source: None,
+                            error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                                format!("[mir/callable-semantic-package/issue] {error:?}").into(),
+                            ),
+                        })
+                    }
+                };
                 (Some(package), None)
             }
             compatibility => (None, Some(compatibility)),
@@ -359,14 +377,6 @@ impl ModuleBuilderInvocationSessionV1 {
                     ASTNode::Program { statements, .. } => statements,
                     _ => unreachable!("root expansion retained a Program"),
                 };
-                let declaration_facts =
-                    PreparedNormalProgramDeclarationFactsV1::collect(source_ast).map_err(
-                        |error| {
-                            NormalDefaultRootCatalogLifecycleErrorV1::CatalogSeal(
-                                error.to_string().into(),
-                            )
-                        },
-                    )?;
                 let declarations =
                     builder
                         .comp_ctx
@@ -397,13 +407,16 @@ impl ModuleBuilderInvocationSessionV1 {
                             declaration_facts.with_record_schema_demand_view(|record_schemas| {
                                 declaration_facts.with_enum_variant_demand_view(|enum_variants| {
                                     declaration_facts.with_enum_match_demand_view(|enum_matches| {
-                                        resolver.resolve_script_forest_with_declaration_views(
-                                            view,
-                                            window,
-                                            record_schemas,
-                                            enum_variants,
-                                            enum_matches,
-                                        )
+                                        declaration_facts.with_brand_catalog(|brand_catalog| {
+                                            resolver.resolve_script_forest_with_declaration_views(
+                                                view,
+                                                window,
+                                                record_schemas,
+                                                enum_variants,
+                                                enum_matches,
+                                                brand_catalog,
+                                            )
+                                        })
                                     })
                                 })
                             });

@@ -1,6 +1,6 @@
 # Brand Constructor Source Relation I0
 
-Status: selected
+Status: landed
 Parent: `brand-constructor-source-relation-d0.md`
 Row: `BRAND-CONSTRUCTOR-SOURCE-RELATION-I0`
 Classification: BoxCount
@@ -60,3 +60,25 @@ Negative:
 
 Focused tests and a reusable guard must cover relation inventory, effect order,
 collision exclusion, both owner families, catalog lifetime, and caller census.
+
+## Landed evidence
+
+- `VerifiedBrandCallSourceRelationV1` is keyed by the resolver-owned function
+  owner and exact `SourceExprSiteV1`; it retains the catalog declaration ID,
+  underlying type, relation kind, receiver site when required, and the exact
+  `Argument(0)` operand site.
+- Callable and Script shadow traversal borrow the same effective Brand catalog
+  before child descent. Recognized constructors are absent from the ordinary
+  direct-call ledger; exact Brand `unwrap` is absent from generic method
+  resolution.
+- Declaration facts are collected once after gate pruning, lent before callable
+  and Script resolution, then moved unchanged into the existing root install.
+- `cargo check --profile quick --lib` is green.
+- The three focused relation tests and
+  `tools/checks/brand_constructor_source_relation_guard.sh` are green.
+- The broader `normal_default_root_catalog_lifecycle` suite remains 5 green / 3
+  red. The identical three failures reproduce on parent `2b48087466` and are
+  classified as known baseline debt; they are not caused by this relation row.
+- Production owners remain below the 760-line split trigger. Physical raw
+  consumption still uses the explicitly retained compatibility probe and is
+  the subject of a separate BoxShape cutover row.

@@ -1,3 +1,4 @@
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::mir::builder::{
     issue_source_backed_same_module_callable_catalog_v1,
     CatalogedBoxMethodPhysicalHeaderProjectionV1, SourceBackedCallableCatalogIssueV1,
@@ -7,8 +8,8 @@ use crate::mir::callable_parameter_contract::{
 };
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::callable_semantic_batch::{
-    issue_resolved_callable_semantic_batch_v1, ResolvedCallableSemanticBatchIssueV1,
-    ResolvedCallableSemanticBatchLoanErrorV1,
+    issue_resolved_callable_semantic_batch_with_brand_catalog_v1,
+    ResolvedCallableSemanticBatchIssueV1, ResolvedCallableSemanticBatchLoanErrorV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
@@ -76,10 +77,22 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: VerifiedFinalCallableProgramSourceV1,
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    issue_normal_callable_semantic_package_with_brand_catalog_v1(resolver, source, None)
+}
+
+pub(crate) fn issue_normal_callable_semantic_package_with_brand_catalog_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: VerifiedFinalCallableProgramSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
     let catalog = issue_source_backed_same_module_callable_catalog_v1(&source)
         .map_err(NormalCallableSemanticPackageIssueV1::SourceBackedCatalog)?;
-    let batch = issue_resolved_callable_semantic_batch_v1(resolver, source)
-        .map_err(NormalCallableSemanticPackageIssueV1::Batch)?;
+    let batch = issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
+        resolver,
+        source,
+        brand_catalog,
+    )
+    .map_err(NormalCallableSemanticPackageIssueV1::Batch)?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(NormalCallableSemanticPackageIssueV1::SelectedMapping)?;
     let parameter_contracts = {

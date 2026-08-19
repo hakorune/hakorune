@@ -4,6 +4,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use crate::mir::resolved_semantics::body_shape::ShadowBodyShapeDraftV0;
+use crate::mir::resolved_semantics::brand_source_relation::BrandCallSourceRelationDraftV1;
 use crate::mir::resolved_semantics::expression_source::ShadowExpressionSourceDraftV1;
 use crate::mir::resolved_semantics::source_site::{
     ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
@@ -212,6 +213,21 @@ pub(crate) enum ShadowResolveErrorV0 {
     DuplicateDirectCallSite {
         site: SourceExprSiteV1,
     },
+    DuplicateBrandCallSite {
+        site: SourceExprSiteV1,
+    },
+    BrandConstructorArity {
+        site: SourceExprSiteV1,
+        actual: usize,
+    },
+    BrandUnwrapArity {
+        site: SourceExprSiteV1,
+        actual: usize,
+    },
+    UnsupportedBrandStaticMethod {
+        site: SourceExprSiteV1,
+        method: Box<str>,
+    },
     DuplicateExplicitExternCallSite {
         site: SourceExprSiteV1,
     },
@@ -269,6 +285,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     pub(crate) ancestor_capture_events: Box<[ShadowAncestorCaptureEventV0]>,
     pub(crate) direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
+    pub(crate) brand_calls: BTreeMap<SourceExprSiteV1, BrandCallSourceRelationDraftV1>,
     pub(crate) explicit_extern_calls: BTreeMap<SourceExprSiteV1, ShadowExplicitExternCallV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     pub(crate) statement_sites: BTreeSet<SourceStmtSiteV1>,

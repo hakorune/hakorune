@@ -1,7 +1,11 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::body_shape::ShadowBodyShapeDraftV0;
+use crate::mir::resolved_semantics::brand_source_relation::{
+    BrandCallSourceRelationDraftV1, BrandCallSourceRelationKindV1,
+};
 use crate::mir::resolved_semantics::expression_source::ShadowExpressionSourceDraftV1;
 use crate::mir::resolved_semantics::function_view::ReceiverPolicyV1;
 use crate::mir::resolved_semantics::source_site::{
@@ -64,6 +68,7 @@ pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
     array_initialized_locals: BTreeSet<ShadowBindingOrdinalV0>,
     ancestor_capture_events: Vec<ShadowAncestorCaptureEventV0>,
     direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
+    brand_calls: BTreeMap<SourceExprSiteV1, BrandCallSourceRelationDraftV1>,
     explicit_extern_calls: BTreeMap<SourceExprSiteV1, ShadowExplicitExternCallV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     statement_sites: BTreeSet<SourceStmtSiteV1>,
@@ -82,6 +87,7 @@ pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
     pub(super) record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
     pub(super) enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
     pub(super) enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
+    pub(super) brand_catalog: Option<&'schema VerifiedBrandProgramDeclarationCatalogV1>,
     pub(super) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     pub(super) enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
     pub(super) enum_match_demands: BTreeSet<SourceExprSiteV1>,
@@ -111,6 +117,7 @@ pub(super) fn traverse_shadow_root_v1<'ast, 'schema>(
         input.record_schema_demand(),
         input.enum_variant_demand(),
         input.enum_match_demand(),
+        input.brand_catalog(),
     );
     if receiver_policy == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
@@ -152,6 +159,20 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         self.traversal_profile.allows_expression(expression)
     }
 
+    pub(super) fn is_catalog_brand_expression(&self, expression: &ASTNode) -> bool {
+        let Some(catalog) = self.brand_catalog else {
+            return false;
+        };
+        match expression {
+            ASTNode::FunctionCall { name, .. } => catalog.contains_name(name),
+            ASTNode::MethodCall { object, .. } => match object.as_ref() {
+                ASTNode::Variable { name, .. } => catalog.contains_name(name),
+                _ => false,
+            },
+            _ => false,
+        }
+    }
+
     pub(super) const fn is_script_lexical_core(&self) -> bool {
         matches!(
             self.traversal_profile,
@@ -170,6 +191,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
         enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
         enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
+        brand_catalog: Option<&'schema VerifiedBrandProgramDeclarationCatalogV1>,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
@@ -215,6 +237,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             array_initialized_locals: BTreeSet::new(),
             ancestor_capture_events: Vec::new(),
             direct_calls: BTreeMap::new(),
+            brand_calls: BTreeMap::new(),
             explicit_extern_calls: BTreeMap::new(),
             resolved_exits: BTreeMap::new(),
             statement_sites: BTreeSet::new(),
@@ -232,6 +255,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             record_schema_demand,
             enum_variant_demand,
             enum_match_demand,
+            brand_catalog,
             record_literal_demands: BTreeMap::new(),
             enum_variant_demands: BTreeMap::new(),
             enum_match_demands: BTreeSet::new(),
@@ -259,6 +283,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 assignment_targets: self.assignment_targets,
                 ancestor_capture_events: self.ancestor_capture_events.into_boxed_slice(),
                 direct_calls: self.direct_calls,
+                brand_calls: self.brand_calls,
                 explicit_extern_calls: self.explicit_extern_calls,
                 resolved_exits: self.resolved_exits,
                 statement_sites: self.statement_sites,
@@ -469,6 +494,38 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             return Err(ShadowResolveErrorV0::DuplicateDirectCallSite { site });
         }
         Ok(())
+    }
+
+    pub(super) fn record_brand_call(
+        &mut self,
+        site: SourceExprSiteV1,
+        record: BrandCallSourceRelationDraftV1,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        if self.brand_calls.insert(site.clone(), record).is_some() {
+            return Err(ShadowResolveErrorV0::DuplicateBrandCallSite { site });
+        }
+        Ok(())
+    }
+
+    pub(super) fn brand_call_draft(
+        &self,
+        name: &str,
+        kind: BrandCallSourceRelationKindV1,
+        call_site: SourceExprSiteV1,
+        receiver_site: Option<SourceExprSiteV1>,
+        operand_site: SourceExprSiteV1,
+    ) -> Option<BrandCallSourceRelationDraftV1> {
+        self.brand_catalog
+            .and_then(|catalog| catalog.declaration(name))
+            .map(|declaration| {
+                BrandCallSourceRelationDraftV1::from_catalog_row(
+                    kind,
+                    declaration,
+                    call_site,
+                    receiver_site,
+                    operand_site,
+                )
+            })
     }
 
     pub(super) fn record_explicit_extern_call(

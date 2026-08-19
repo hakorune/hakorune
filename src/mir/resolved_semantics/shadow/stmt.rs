@@ -68,7 +68,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        if !self.allows_statement(statement) {
+        if !self.allows_statement(statement) && !self.is_catalog_brand_expression(statement) {
             return Err(ShadowResolveErrorV0::UnsupportedStatement {
                 kind: statement.node_type(),
                 site: path.stmt(),

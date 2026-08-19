@@ -103,6 +103,7 @@ fn loop_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
     let body_origin = node(vec![SourcePathSegmentV1::FunctionBody]);
 
     ResolvedFunctionDataV1 {
+        brand_call_relations: BTreeMap::new(),
         explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,

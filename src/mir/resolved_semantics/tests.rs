@@ -73,6 +73,7 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
 
     ResolvedFunctionDataV1 {
         explicit_extern_calls: BTreeMap::new(),
+        brand_call_relations: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {

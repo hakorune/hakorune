@@ -37,7 +37,9 @@ pub(crate) use install::{
     SelectedCallableSemanticRefV1, SelectedCatalogedCallableLoweringInputV1,
 };
 pub(crate) use issuer::{
-    issue_normal_callable_semantic_package_v1, NormalCallableSemanticPackageIssueV1,
+    issue_normal_callable_semantic_package_v1,
+    issue_normal_callable_semantic_package_with_brand_catalog_v1,
+    NormalCallableSemanticPackageIssueV1,
 };
 pub(crate) use model::{
     NormalCallableDynamicProjectionRefV1, VerifiedNormalCallableSemanticPackageV1,

@@ -11,6 +11,9 @@ mod block_expr_expectation;
 mod body_effect_control_coverage;
 mod body_shape;
 mod body_shape_resolver;
+mod brand_source_relation;
+#[cfg(test)]
+mod brand_source_relation_tests;
 mod callable_catalog;
 mod callable_catalog_candidate;
 mod callable_catalog_resolution_source;
@@ -81,6 +84,9 @@ pub(crate) use body_shape::{
     ResolvedMethodCallArgumentSourceV1, ResolvedMethodCallReceiverSourceV1,
     ResolvedMethodCallSourceIssueV1, VerifiedResolvedBodyShapeInventoryV1,
     VerifiedResolvedMethodCallSourceV1,
+};
+pub(crate) use brand_source_relation::{
+    BrandCallSourceRelationKindV1, VerifiedBrandCallSourceRelationV1,
 };
 pub(crate) use callable_catalog::{
     CallableCatalogOwnerSealErrorV1, CallableCatalogSealOutcomeV1,
