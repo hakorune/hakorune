@@ -1,23 +1,23 @@
 # Script Ordinary Direct Call Preflight Receipt D0
 
-Status: selected design stop  
+Status: closed `NoSafeSlice`
 Scope: one ordinary same-module exact-I64 static `FunctionCall` shape  
 Parent: `../workstreams/mirbuilder-inplace-replacement-current.md`
 
 ## Current execution brief
 
-Decision: Decide only whether the existing raw ordinary-call preflight decision
-can become the single affine authority consumed by Script admission.
-Source authority + canonical issuer: One real Script `FunctionCall` occurrence
-and the normal callable catalog own target/arguments; the existing
-`PreparedRawFunctionPreflightV1` currently owns special-versus-ordinary call kind.
+Decision: `NoSafeSlice`; the existing raw ordinary-call preflight decision
+cannot become the single affine authority consumed by Script admission.
+Source authority + canonical issuer: Script admission owns the source occurrence,
+the raw preflight owns only special-versus-ordinary call kind, and later raw
+target/recovery/header owners remain separate; no single pre-effect issuer exists.
 Non-authority: Stale OPEN labels, name lookup, catalog/header alone, Main-only
 trivial-call receipts, Builder state, Dynamic/S6C observation, C/ASM, and perf.
 Fail-fast boundary: Before Builder effect, co-seal exact target, ordered arguments,
 arity, exact-I64 result/header, ordinary decision, and cohort; otherwise retain
 the current typed Deferred/R4 path without fallback or a second classifier.
-Smallest next slice: `SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0` names
-the receipt owner and one-way transfer seam only. No implementation is authorized.
+Smallest next slice: `RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0` decides
+whether every raw `FunctionCall` decision can move into one pre-effect owner.
 Non-claims: No general FunctionCall, method/special call, weak/extern/Brand/TypeOp/
 Math/FastMem, S6C production, Script sunset, production switch, fallback, or retry.
 
@@ -67,3 +67,12 @@ close `NoSafeSlice` and keep the current Deferred edge.
 If the raw preflight decision cannot be transported without reclassification,
 name lookup, a second header authority, or Builder-derived inference, close this
 D0 as `NoSafeSlice`. Do not create a proof-only receipt or widen Script admission.
+
+## Closed finding
+
+`PreparedRawFunctionPreflightV1::Ordinary` retains only the source name and AST
+arguments. Exact target selection, same-module recovery, header lookup, and tail
+resolution still occur later, after argument lowering, against Builder-owned
+state. Moving only the ordinary tag would therefore create a second classifier
+without moving its target authority. Script `FunctionCall` remains typed
+`Deferred`; no receipt or production edge was added.

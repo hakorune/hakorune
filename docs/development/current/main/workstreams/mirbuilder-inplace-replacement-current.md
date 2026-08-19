@@ -250,11 +250,15 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 selected design stop
+  RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0
+  -> decide whether the complete raw FunctionCall classifier/target/header
+     precedence can move before effect as one behavior-preserving owner.
+     Script activation remains a later, separate BoxCount.
+
+closed NoSafeSlice
   SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0
-  -> decide whether the existing raw ordinary-call preflight decision can move
-     into one source-bound Script admission lineage without reclassification.
-     No I0 is authorized until exact target, ordered arguments, arity, exact-I64
-     result/header, ordinary decision, and cohort close before Builder effect.
+  -> ordinary retains only name plus AST arguments; target/recovery/header/tail
+     decisions remain later and Builder-owned, so no affine Script transfer exists.
 
 R2bi RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
   closed Accept-corrected
