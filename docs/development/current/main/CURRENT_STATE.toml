@@ -19,13 +19,13 @@ development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 current_design_stop = "none; one promotion verdict and six bounded evidence cells are accepted"
 work_mode = "fast"
-current_execution_row = "S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0"
-current_blocker_token = "Link and run the exact real candidate against one independent code-point oracle and close Unicode, alias, stale/foreign/non-Text, match/miss, and Residence lifecycle behavior without disassembly, benchmark, selector, fallback, or retry."
+current_execution_row = "S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0"
+current_blocker_token = "Observe the exact candidate's final IR and linked assembly as promotion evidence only; require zero hot-loop call/lock/allocation/registry/lease/handle/publication/helper, no EH/noalias/overread, and never infer source meaning or natural loops from machine layout."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "S6C pinned Text corridor link/run correctness evidence"
+active_lane = "S6C pinned Text corridor structural-zero evidence"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -50,10 +50,10 @@ current_execution_design = "docs/development/current/main/design/loop-common-phy
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "loop-common-physical-demand-and-session-ssot"
 latest_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-latest_card_summary = "Promotion remains one verdict but evidence production is split into correctness, structural-zero, exact, meso, whole-call, and aggregation-only cells. The first bounded row links and runs the real candidate against an independent code-point oracle."
+latest_card_summary = "The exact real candidate now links to feature-gated NyRT and matches an independent code-point oracle across Unicode, alias, invalid-wire, both normal exits, and retirement-pending cases. The next bounded row observes final IR and linked assembly structural zero without becoming compiler authority."
 next_design_card = "none"
 next_design_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-next_execution_card = "S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0"
+next_execution_card = "S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0"
 next_execution_card_path = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -65,6 +65,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-19: Pinned-corridor link/run correctness R0 landed offline: the exact real object links with a default-off test-only NyRT wire issuer and matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar, alias, match/miss, zero/stale/foreign/non-Text/retirement-pending, and both normal Residence exits. Production ABI, selector, benchmark, fallback, and retry remain unchanged.",
   "2026-08-19: Final-module closure I0 landed caller-zero: the same parsed LLVMModuleRef passes LLVMVerifyModule, exact target/layout, lifecycle declaration attributes, 1 Enter/1 Trap/2 Finish-to-Return, and zero EH/extra-call checks immediately before the sole trusted emit. Missing nounwind, missing Finish, extra call, and valid-EH drift reject without object or temporary publication; no pass, module mutation, object reader, semantic receipt, fallback, or retry was added.",
   "2026-08-19: Runtime-call contract I0 landed caller-zero: the existing Rust export plus versioned C header own Enter/Finish no-unwind behavior, selected LLVM emits exact `nounwind` declarations, successful Finish remains returnable, and readonly/readnone/nofree/speculatable drift rejects. Focused positive, ordering/effect negatives, ABI/preflight guards, and the real-candidate TargetMachine smoke are green; no receipt, frame, token, object reader, production edge, fallback, or retry was added.",
   "2026-08-19: Object-observer D0 closed after five-way premise audit: the failed probe mistook the mandatory unnamed ELF null section for an empty iterator; the real object exposes 11 sections, lifecycle relocations, and complete X86 decode through LLVM18. No compiler object gate is selected because relocation/ret layout is LLVM-transform-dependent; final ModuleRef verification is the correctness boundary and object/assembly checks move to promotion evidence.",
@@ -75,6 +76,5 @@ landed_tail = [
   "2026-08-19: Caller-zero frame-timing I0 is landed: the pre-DraftSeal ingress is plan-less and affine, the retained S6C loan is the signature adapter, and the existing frame issuer finalizes exactly once from the canonical function-owned plan table after three leaf rows. Empty/zero-stamp/preinstalled frames reject; focused frame/DraftSeal test, cargo check, fmt, pointer, and structure guard are green. Explicit trap terminal, detached Finish/Return projection, backend, and production remain closed.",
   "2026-08-19: Caller-zero E0/E1 physical entry co-seal is landed: E0 contains Residence Enter only, E1 is the same-cohort sidecar/seed/cursor execution entry, duplicate boundary issuance rejects, and the focused S6C cursor module is 5/5 green; backend candidate, observer, and production remain closed.",
   "2026-08-18: nyash.string.eq_hh remains active generic C/Python compatibility production, is not S6C TextEq authority, and cannot retire before its independent caller-zero cutover.",
-  "2026-08-18: Exact concrete StringBox Residence canary now downcasts by runtime type, rejects StringBox-name spoofs before pinning, blocks slot reuse while pinned, and records the mutable-reachability census as a release gate.",
-  "2026-08-18: S6C base-root admission co-seals the landed source corridor with the existing ExactText sidecar: root 0 is Subject and root 1 is Needle by binding plus logical ordinal, with green 3/3 focused tests; the effect-free cursor/preheader plan and scalar-equality leaf capability are now landed, without ValueId/MIR/Bool/CFG/runtime/production behavior."
+  "2026-08-18: Exact concrete StringBox Residence canary now downcasts by runtime type, rejects StringBox-name spoofs before pinning, blocks slot reuse while pinned, and records the mutable-reachability census as a release gate."
 ]

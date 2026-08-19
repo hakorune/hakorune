@@ -7,6 +7,7 @@ edition = "2021"
 default = []
 perf-observe = ["nyash-rust/perf-observe"]
 perf-trace = []
+promotion-test-support = ["nyash-rust/promotion-test-support"]
 
 [lib]
 name = "nyash_kernel"

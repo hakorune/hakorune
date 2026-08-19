@@ -25,6 +25,12 @@ pub extern "C" fn nyrt_dynamic_v2_lease_consume_end_authorized_v1(lease_token: u
         Err(nyash_rust::runtime::dynamic_v2_lease::LeaseConsumeRejectV1::StaleHandleIdentity) => {
             CONSUME_STALE_HANDLE_IDENTITY
         }
+        // This token-only ABI passes no expected handle, so the Rust owner
+        // cannot currently produce this variant. Keep the exhaustive identity
+        // projection stable if that internal implementation changes.
+        Err(nyash_rust::runtime::dynamic_v2_lease::LeaseConsumeRejectV1::TokenHandleMismatch) => {
+            CONSUME_STALE_HANDLE_IDENTITY
+        }
     }
 }
 

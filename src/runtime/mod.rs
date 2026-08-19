@@ -47,6 +47,8 @@ pub mod plugin_ffi_common;
 pub mod plugin_host; // Phase 91: PluginHost skeleton
 pub mod plugin_loader_unified;
 pub mod plugin_loader_v2;
+#[cfg(feature = "promotion-test-support")]
+pub mod promotion_test_support;
 pub mod provider_lock;
 pub mod provider_verify;
 pub mod ring0; // Phase 88: Ring0Context - OS API 抽象化レイヤー

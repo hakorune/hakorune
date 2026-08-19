@@ -80,6 +80,14 @@ enum HandlePayload {
     StableText(String),
 }
 
+#[cfg(feature = "promotion-test-support")]
+pub(crate) fn issue_promotion_non_text_wire_v1() -> (u64, u64) {
+    use crate::box_trait::IntegerBox;
+
+    let object: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(0));
+    reg().alloc_payload_with_generation(HandlePayload::StableBox(object))
+}
+
 impl HandlePayload {
     #[inline(always)]
     fn stable_box_ref(&self) -> Option<&Arc<dyn NyashBox>> {

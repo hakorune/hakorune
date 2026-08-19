@@ -438,7 +438,7 @@ kernel syntax, new semantic receipt, fallback/retry, or C-speed claim.
 | 5 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-OBJECT-OBSERVER-D0` | design stop | **Closed.** The probe failure was an ELF null-section false negative. LLVM18 Object/Disassembler works, but no compile-path observer is selected; machine evidence belongs to promotion. |
 | 6 | `TEXT-FORMAL-PINNED-RESIDENCE-RUNTIME-CALL-CONTRACT-I0` | BoxCount | **Landed.** Existing Enter/Finish signatures and no-unwind/fail-stop effects are one runtime-owned ABI projection consumed by selected LLVM; successful Finish stays returnable and no new receipt/runtime object exists. |
 | 7 | `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FINAL-MODULE-CLOSURE-I0` | bounded route | **Landed.** A private child checks the same parsed `LLVMModuleRef` with `LLVMVerifyModule`, exact selected lifecycle/call attributes, and target/layout immediately before the existing sole emit; no pass or module mutation follows closure, and failure publishes no object. |
-| 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | Real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text, match/miss, and lifecycle cases. |
+| 8a | `S6C-PINNED-CORRIDOR-LINK-RUN-CORRECTNESS-R0` | evidence | **Landed.** The real linked candidate matches an independent code-point oracle for empty, ASCII, UTF-8 2/3/4-byte, mixed, combining, multi-scalar needle, alias, stale/foreign/non-Text/retirement-pending, match/miss, and lifecycle cases. Input generations come only from a default-off test issuer in the allocation transaction. |
 | 8b | `S6C-PINNED-CORRIDOR-STRUCTURAL-ZERO-R0` | evidence | Final IR and linked assembly show no hot-loop call/lock/allocation/registry/lease/handle/publication/helper, no EH/noalias/overread; exact section/reloc/ret counts are not authority. |
 | 8c | `S6C-PINNED-CORRIDOR-EXACT-BENCH-R0` | evidence | Residence-acquired leaf cases compare against an inline same-representation C kernel: ASCII p50 <=1.10, mixed p50 <=1.15, p95 <=1.30. |
 | 8d | `S6C-PINNED-CORRIDOR-MESO-BENCH-R0` | evidence | S6C scan excluding Enter/Finish covers widths, positions, misses, and 32B..1MiB; 4KiB+ p50 C ratio <=1.15. |
@@ -482,6 +482,7 @@ Exact prose and superseded stops are historical. The durable result is:
 | post-emit temporary-object observer | probe false negative corrected; compile-path observer intentionally absent |
 | runtime Enter/Finish call-effect contract | landed caller-zero BoxCount |
 | final LLVM module closure | landed caller-zero immediately before sole trusted emit |
+| real candidate link/run correctness | landed offline evidence; production ABI unchanged |
 | production | closed |
 
 The current production selector remains selected-Dynamic. Generic G0 and S6C

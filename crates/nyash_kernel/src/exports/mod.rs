@@ -14,6 +14,8 @@ pub(crate) mod instance;
 pub(crate) mod mem;
 pub(crate) mod osvm;
 pub(crate) mod primitive;
+#[cfg(feature = "promotion-test-support")]
+pub(crate) mod promotion_test_support;
 pub(crate) mod runtime;
 pub(crate) mod stage1;
 pub(crate) mod string;
@@ -51,6 +53,8 @@ pub use instance::*;
 pub use mem::*;
 pub use osvm::*;
 pub use primitive::*;
+#[cfg(feature = "promotion-test-support")]
+pub use promotion_test_support::*;
 pub use runtime::*;
 pub use stage1::*;
 pub use string::*;

@@ -35,6 +35,11 @@ Treat them as public symbol-family exports, not as ownership boundaries.
   Finish itself is therefore not globally `noreturn`. The frame is a runtime
   transport surface only; it does not own Text semantics, source origin, or
   route selection.
+- `promotion_test_support.rs` is compiled only with the default-off
+  `promotion-test-support` feature. It issues text/non-Text test wires with
+  their generation inside the registry allocation transaction so offline
+  link/run evidence never guesses a generation from a raw handle. Its symbols
+  are absent from production headers, shims, and default NyRT builds.
 - Fresh text results receive their handle and slot-generation identity in one
   root host-handle owner transition before lease-token admission; the strict
   export never performs a raw-handle rollback or relookup.
