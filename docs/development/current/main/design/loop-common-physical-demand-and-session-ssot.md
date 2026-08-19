@@ -608,11 +608,41 @@ fallback are forbidden. A classification must reproduce in three independent
 runs with its paired 95% interval excluding 1 and its direction matching the
 cycle delta before PC attribution may open.
 
+### Native separate-arm hardware-counter I0
+
+```text
+Decision: Add one evidence-only arm mode and native collector; keep compiler,
+source, MIR, ABI, C reference, corpus, and the 1.15 threshold unchanged.
+Source authority + canonical issuer: The equal-aligned linked Hako/C symbols
+and mixed/4096/first builder issue one workload; each process proves parity
+before the collector enables either fixed user-space PMU group.
+Non-authority: Counter values, event IDs, timing, disassembly, body hashes, and
+the JSON report issue no compiler meaning and cannot select production.
+Fail-fast boundary: Reject WSL/VM/container, affinity drift, unsupported or
+missing events, ID drift, enabled/running inequality, lost samples,
+context-switch/migration, arm/input/result/iteration drift, or partial output.
+Smallest next slice: Only a classification reproduced across all three 51-pair
+AB/BA runs with paired 95% intervals excluding 1 and cycle-direction parity
+may open S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0.
+Non-claims: No raw-event fallback, scaling, retry, lowering change, threshold
+relaxation, production switch, promotion verdict, or generic profiler owner.
+```
+
+The harness options are exactly `--arm hako|c`, `--case
+mixed/4096/first`, and `--iterations N`. Hako and C execute in distinct
+CPU-pinned processes from the same binary. Residence acquisition, parity, and
+Finish remain outside both counter intervals. The primary group is
+cycles/instructions/branches/branch-misses; the frontend group is
+cycles/frontend-stalls/L1I/iTLB. Both use generic perf encodings with
+`PERF_FORMAT_GROUP|ID|TOTAL_TIME_ENABLED|TOTAL_TIME_RUNNING`, kernel and
+hypervisor exclusion, exact IDs, and no raw fallback.
+
 Ordered task ladder:
 
 1. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-D0`: freeze the protocol above.
-2. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-I0`: on native Linux only, add the
-   evidence-only arm selector and raw non-multiplexed report.
+2. `S6C-MESO-HWCOUNTER-SEPARATE-ARM-I0`: **Landed evidence-only.** Native Linux
+   runs the exact arm selector in separate pinned processes and atomically
+   publishes only complete 3x51 fixed-group evidence.
 3. `S6C-MESO-HWCOUNTER-PC-ATTRIBUTION-A0`: only for an event reproduced in
    three independent runs,
    map samples to one exact linked symbol/PC region.
