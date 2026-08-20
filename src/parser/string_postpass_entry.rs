@@ -21,6 +21,15 @@ pub(super) fn parse(
     Ok(completed.into_ast())
 }
 
+pub(crate) fn parse_postpass(
+    input: String,
+    fuel: Option<usize>,
+    build_config: ParserBuildConfig,
+) -> Result<super::postpass_envelope::CompletedParserPostpassV1, ParseError> {
+    let mut parser = parser_from_string(input, fuel, build_config)?;
+    parser.parse_postpass_s0()
+}
+
 pub(super) fn parse_normal_callable_program(
     input: String,
     fuel: Option<usize>,

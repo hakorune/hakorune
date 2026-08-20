@@ -64,14 +64,16 @@ impl PreparedNormalFileSourceV1 {
     pub(crate) fn prepare_source_plan_request(self) -> PreparedNormalFileSourcePlanRequestV1 {
         let Self {
             source_file,
-            ast,
-            profile,
-            receipt,
+            parser_source_handoff,
             _seal: PreparedNormalFileSourceSealV1,
         } = self;
         let display_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
+        let (postpass, profile, receipt) = parser_source_handoff.into_parts();
         PreparedNormalFileSourcePlanRequestV1 {
-            input: PreparedNormalSourcePlanInputV1::new(ast, display_identity),
+            input: PreparedNormalSourcePlanInputV1::from_parser_postpass(
+                postpass,
+                display_identity,
+            ),
             profile,
             receipt,
             _seal: PreparedNormalFileSourcePlanRequestSealV1,
@@ -160,6 +162,11 @@ impl ClassifiedNormalFileSourcePlanV1 {
     #[cfg(test)]
     pub(crate) fn is_canonical_core_profile_for_test(&self) -> bool {
         self.profile.is_canonical_core()
+    }
+
+    #[cfg(test)]
+    fn retains_parser_postpass(&self) -> bool {
+        self.plan.has_parser_postpass()
     }
 }
 

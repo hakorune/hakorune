@@ -61,7 +61,7 @@ pub(crate) use normal_callable_program_source::{
     ParsedNormalCallableProgramV1, VerifiedFinalCallableProgramSourceV1,
 };
 mod postpass_compatibility;
-mod postpass_envelope;
+pub(crate) mod postpass_envelope;
 mod postpass_open;
 mod release_source;
 mod runes;
@@ -77,7 +77,7 @@ mod source_seal_finalizer;
 mod source_session_tests;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
 mod statements; // Now uses modular structure in statements/
-mod string_postpass_entry;
+pub(crate) mod string_postpass_entry;
 pub mod sugar; // Phase 12.7-B: desugar pass (basic)
 pub mod sugar_gate; // thread-local gate for sugar parsing (tests/docs)
                     // mod errors;

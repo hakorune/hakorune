@@ -84,7 +84,7 @@ impl ParserBoxPostpassCoverageV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct CompletedParserPostpassV1 {
+pub(crate) struct CompletedParserPostpassV1 {
     program: CompletedParserProgramV1,
     metadata: ParserMetadata,
     explain: Option<BuildGateExplainReport>,
@@ -101,7 +101,7 @@ enum CompletedParserProgramV1 {
 }
 
 impl CompletedParserPostpassV1 {
-    pub(super) fn ast(&self) -> &ASTNode {
+    pub(crate) fn ast(&self) -> &ASTNode {
         match &self.program {
             CompletedParserProgramV1::Initial(program) => program.ast(),
             CompletedParserProgramV1::Compatibility { ast, .. } => ast,
@@ -195,7 +195,7 @@ impl CompletedParserPostpassV1 {
         })
     }
 
-    pub(super) fn into_ast(self) -> ASTNode {
+    pub(crate) fn into_ast(self) -> ASTNode {
         match self.program {
             CompletedParserProgramV1::Initial(program) => program.into_ast(),
             CompletedParserProgramV1::Compatibility { ast, .. } => ast,

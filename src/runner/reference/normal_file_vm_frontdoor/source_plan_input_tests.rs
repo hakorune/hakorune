@@ -1,7 +1,7 @@
 use super::*;
 use crate::mir::normal_source_plan::{
-    NormalSourcePlanErrorV1, NormalSourcePlanStageV1, SealedNormalScalarRootV1,
-    SealedNormalSourcePlanV1,
+    NormalSourcePlanClassifierV1, NormalSourcePlanErrorV1, NormalSourcePlanStageV1,
+    PreparedNormalSourcePlanInputV1, SealedNormalScalarRootV1, SealedNormalSourcePlanV1,
 };
 use std::path::{Path, PathBuf};
 use tempfile::tempdir;
@@ -18,6 +18,22 @@ fn write_source(dir: &Path, name: &str, source: &str) -> PathBuf {
     let path = dir.join(name);
     std::fs::write(&path, source).expect("write source-plan fixture");
     path
+}
+
+#[test]
+fn ast_only_source_plan_fixture_is_not_parser_backed() {
+    let ast = crate::parser::NyashParser::parse_from_string_with_build_config(
+        "42",
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .expect("AST-only fixture parse");
+    let input = PreparedNormalSourcePlanInputV1::new(ast, "ast-only-fixture");
+    assert!(!input.has_parser_postpass());
+    let plan = NormalSourcePlanClassifierV1::seal(input).expect("AST-only fixture plan");
+    assert!(matches!(
+        plan,
+        SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(_))
+    ));
 }
 
 fn classify(
@@ -62,6 +78,13 @@ fn parsed_empty_and_scalar_sources_become_script_plans_once() {
             classified.plan(),
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(_))
         ));
+        assert!(classified.retains_parser_postpass());
+        let SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) =
+            classified.plan()
+        else {
+            panic!("expected Script source plan");
+        };
+        assert!(script.parser_postpass().is_some());
         assert_eq!(classified.receipt_counts(), (1, 1));
         assert!(classified.retained_source_identity().ends_with(name));
     }
@@ -84,6 +107,13 @@ fn canonical_core_profile_reaches_the_same_one_read_one_parse_source_plan_bounda
         classified.plan(),
         SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(_))
     ));
+    assert!(classified.retains_parser_postpass());
+    let SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) =
+        classified.plan()
+    else {
+        panic!("expected Script source plan");
+    };
+    assert!(script.parser_postpass().is_some());
     assert_eq!(classified.receipt_counts(), (1, 1));
     assert!(classified.is_canonical_core_profile_for_test());
 }
