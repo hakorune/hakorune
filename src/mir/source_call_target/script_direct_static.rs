@@ -67,9 +67,7 @@ impl VerifiedScriptDirectStaticCallTargetV1 {
         &self.site
     }
 
-    pub(crate) const fn target(
-        &self,
-    ) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+    pub(crate) const fn target(&self) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
         &self.target
     }
 }
@@ -77,12 +75,23 @@ impl VerifiedScriptDirectStaticCallTargetV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ScriptDirectStaticCallTargetErrorV1 {
     ProgramRequired,
-    WindowSourceCardinalityMismatch { window: usize, program: usize },
+    WindowSourceCardinalityMismatch {
+        window: usize,
+        program: usize,
+    },
     MethodObservation(ShadowResolveErrorV0),
-    SiteProjectionMismatch { site: SourceExprSiteV1 },
-    ReceiverSiteMismatch { site: SourceExprSiteV1 },
-    DuplicateSite { site: SourceExprSiteV1 },
-    ReceiverNameRequired { site: SourceExprSiteV1 },
+    SiteProjectionMismatch {
+        site: SourceExprSiteV1,
+    },
+    ReceiverSiteMismatch {
+        site: SourceExprSiteV1,
+    },
+    DuplicateSite {
+        site: SourceExprSiteV1,
+    },
+    ReceiverNameRequired {
+        site: SourceExprSiteV1,
+    },
     TargetOutsideCatalog {
         site: SourceExprSiteV1,
         owner: Box<str>,
@@ -94,6 +103,10 @@ pub(crate) enum ScriptDirectStaticCallTargetErrorV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedScriptDirectStaticCallTargetInventoryV1 {
     owner: ScriptStaticCallSourceOwnerIdV1,
+    source_identity: usize,
+    window_identity: usize,
+    declarations_identity: usize,
+    imports_identity: usize,
     sites: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallSiteV1>,
     targets: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallTargetV1>,
     noncandidate_count: usize,
@@ -135,9 +148,7 @@ impl VerifiedScriptDirectStaticCallTargetInventoryV1 {
                 ..
             })) = project_source_node_v1(source_ast, site.node())
             else {
-                return Err(ScriptDirectStaticCallTargetErrorV1::SiteProjectionMismatch {
-                    site,
-                });
+                return Err(ScriptDirectStaticCallTargetErrorV1::SiteProjectionMismatch { site });
             };
             let expected_receiver_site = SourcePathV1::from_node(site.node())
                 .child(SourcePathSegmentV1::Receiver)
@@ -215,6 +226,10 @@ impl VerifiedScriptDirectStaticCallTargetInventoryV1 {
 
         Ok(Self {
             owner,
+            source_identity: source_ast as *const _ as usize,
+            window_identity: window as *const _ as usize,
+            declarations_identity: declarations as *const _ as usize,
+            imports_identity: imports as *const _ as usize,
             sites,
             targets,
             noncandidate_count,
@@ -223,6 +238,19 @@ impl VerifiedScriptDirectStaticCallTargetInventoryV1 {
 
     pub(crate) const fn owner(&self) -> ScriptStaticCallSourceOwnerIdV1 {
         self.owner
+    }
+
+    pub(crate) fn is_branded_by(
+        &self,
+        source_ast: &ASTNode,
+        window: &VerifiedScriptRootDemandWindowV1,
+        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+        imports: &VerifiedStaticImportAliasViewV1<'_>,
+    ) -> bool {
+        self.source_identity == source_ast as *const _ as usize
+            && self.window_identity == window as *const _ as usize
+            && self.declarations_identity == declarations as *const _ as usize
+            && self.imports_identity == imports as *const _ as usize
     }
 
     pub(crate) fn site(
@@ -237,6 +265,12 @@ impl VerifiedScriptDirectStaticCallTargetInventoryV1 {
         site: &SourceExprSiteV1,
     ) -> Option<&VerifiedScriptDirectStaticCallTargetV1> {
         self.targets.get(site)
+    }
+
+    pub(crate) fn target_rows(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedScriptDirectStaticCallTargetV1)> {
+        self.targets.iter()
     }
 
     pub(crate) fn observed_len(&self) -> usize {

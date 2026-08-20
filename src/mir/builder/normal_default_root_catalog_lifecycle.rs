@@ -9,6 +9,7 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
+use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
@@ -465,7 +466,7 @@ impl ModuleBuilderInvocationSessionV1 {
                             )
                         })?;
                 }
-                let script_source = match work.script_root_admission.as_ref() {
+                let mut script_source = match work.script_root_admission.as_ref() {
                     None => None,
                     Some(admission) => {
                         let window = admission.window();
@@ -530,6 +531,43 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/static-result-owner/results] {error:?}").into(),
                             )
                         })?;
+                if let Some(source) = script_source.as_mut() {
+                    let bundle = work
+                        .script_root_admission
+                        .as_mut()
+                        .ok_or_else(|| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                "[mir/script-static-result/bundle] missing Script admission".into(),
+                            )
+                        })?
+                        .with_taken_script_direct_static_targets(|window, target_inventory| {
+                            VerifiedScriptDirectStaticResultBundleV1::issue(
+                                source,
+                                window,
+                                &target_inventory,
+                                declarations,
+                                &imports,
+                                &results,
+                            )
+                        })
+                        .ok_or_else(|| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                "[mir/script-static-result/bundle] missing target inventory".into(),
+                            )
+                        })?
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-result/bundle] {error:?}").into(),
+                            )
+                        })?;
+                    source
+                        .attach_direct_static_result_bundle(bundle)
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-result/attach] {error}").into(),
+                            )
+                        })?;
+                }
                 let static_result_publication_owner =
                     VerifiedStaticCallResultPublicationOwnerV1::issue(
                         declarations,

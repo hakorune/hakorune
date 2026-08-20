@@ -592,14 +592,13 @@ accepted D0. The completed rows remain in the receipts above and in
 5. **`SCRIPT-DIRECT-STATIC-CALL-TARGET-D0/I0`** — landed as a source-only
    production-frontier observation. It issues an exact Script caller/site
    target catalog; Recipe and physical retirement remain later rows.
-6. **`SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`** — audited: the canonical
-   resolver rows can co-seal Script owner/site/receiver/ordered arguments/result
-   with the target, but Recipe still needs a Script-specific result owner.
-   Do not implement Facts or Recipe until that owner is designed.
-7. **`SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0`** — current design
-   stop: co-seal the resolver Script view, target inventory, and
-   declaration/result catalog brands before any Script result owner or Facts
-   I0. No AST re-pairing or synthetic callable key is allowed.
+6. **`SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`** — closed by the bounded
+   result-owner/Facts I0 below. The resolver forest root and exact method-call
+   rows now co-seal with the target and callee-result representation; Recipe
+   still needs its own Script owner design.
+7. **`SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0/I0`** — landed as a
+   forest-root Facts bundle. No AST re-pairing or synthetic callable key was
+   added; Recipe/Join/physical consumers remain unopened.
 8. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
    MethodCall/`Brand.unwrap`; do not combine it with constructor consumer work.
 9. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
@@ -620,9 +619,10 @@ accepted D0. The completed rows remain in the receipts above and in
 - **Observation UX:** after the production frontier, land the issuer-emitted
   MIR→LLVM block/edge sidecar. LLVM→ASM exact mapping remains unavailable until
   a real backend address issuer exists; external C shape stays observation-only.
-- **Compiler order:** current `SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`
-  precedes any Script Recipe/physical work; never widen the scalar Recipe or
-  synthesize a callable caller. Then select Recipe R1 and physical R2 separately.
+- **Compiler order:** `SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-FACTS-I0` is
+  closed; the next row is the explicit `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0`
+  design. Never widen the scalar Recipe or synthesize a callable caller; select
+  Recipe R1 and physical R2 separately.
 - **Brand order:** `BRAND-METHODCALL-UNWRAP-D0` is independent; raw-name probe
   retirement waits for exact dispositions across every production admission.
 
@@ -758,5 +758,16 @@ publication, physical lowering, fallback, or production switch was added.
 `NoSafeSlice`: the existing scalar-only `RawScriptBodyRecipeV1` and
 callable-keyed result owner cannot consume ScriptRoot direct-static rows. The
 target inventory is not a semantic caller/result authority and is not exposed
-to a production Recipe consumer. The next design row is
-`SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`.
+to a production Recipe consumer. This row is now the next explicit design
+stop after the landed result-owner/Facts bundle; no Recipe/Join/physical work
+has been selected.
+
+### SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-FACTS-I0 closeout
+
+The Script result bundle is landed as one bounded Facts product. It is keyed by
+the forest-root `FunctionOwnerIdV1` and exact `SourceExprSiteV1`, validates the
+same Program/window/declaration/import brands, and attaches to Complete Script
+semantic source. The focused bundle tests and the existing source-projection
+regression are green. Deferred, Compatibility, RawLegacy, Recipe, Join,
+result publication, physical lowering, and raw-edge retirement remain
+non-claims and TODOs for their own design rows.

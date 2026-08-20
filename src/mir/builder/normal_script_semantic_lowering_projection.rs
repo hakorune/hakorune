@@ -48,23 +48,28 @@ impl VerifiedScriptLoweringProjectionV1 {
             .ok_or_else(|| freeze("root-owner"))?;
         let owner_id = *root;
 
-        let function = owner.as_function().ok_or_else(|| freeze("root-function"))?;
         let brand_constructors = super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1::from_verified_owner(
             owner_id,
-            function.expression_sites(),
-            function.brand_call_relations(),
+            owner.core().expression_sites(),
+            owner.core().data().brand_call_relations.iter(),
         )
         .map_err(|error| format!("{} {error:?}", freeze("brand-projection")))?;
-        let explicit_extern_calls = function
-            .explicit_extern_calls()
+        let explicit_extern_calls = owner
+            .core()
+            .data()
+            .explicit_extern_calls
+            .iter()
             .map(|(site, call)| (site.node().clone(), call.symbol().into()))
             .collect();
 
         let mut locals = BTreeMap::new();
         let mut nowaits = BTreeMap::new();
-        for site in owner.declaration_sites() {
+        for site in owner.core().data().declarations.keys() {
             let binding = owner
-                .declaration_binding(site)
+                .core()
+                .data()
+                .declarations
+                .get(site)
                 .ok_or_else(|| freeze("missing-declaration-binding"))?;
             if binding.owner() != owner_id {
                 return Err(freeze("foreign-declaration-binding"));
@@ -75,14 +80,14 @@ impl VerifiedScriptLoweringProjectionV1 {
                 _ => None,
             };
             if let Some((facts, statement)) = destination {
-                if facts.insert(statement.node().clone(), binding).is_some() {
+                if facts.insert(statement.node().clone(), *binding).is_some() {
                     return Err(freeze("duplicate-declaration-site"));
                 }
             }
         }
 
         let mut variables = BTreeMap::new();
-        for (site, reference) in owner.variable_refs() {
+        for (site, reference) in &owner.core().data().variable_uses {
             let ResolvedLexicalRefV1::Local(binding) = reference else {
                 continue;
             };
@@ -95,7 +100,7 @@ impl VerifiedScriptLoweringProjectionV1 {
         }
 
         let mut assignments = BTreeMap::new();
-        for (site, target) in owner.assignment_targets() {
+        for (site, target) in &owner.core().data().assignment_targets {
             let ResolvedAssignmentTargetV1::BindingRebind(binding) = target else {
                 continue;
             };

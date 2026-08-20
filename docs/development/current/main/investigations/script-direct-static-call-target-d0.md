@@ -1,7 +1,7 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
-Status: I0 complete; the observation-only implementation row is closed. Recipe
-and physical rows remain unopened.
+Status: target I0 and result-owner/Facts I0 are complete and closed. Recipe,
+Join, result publication, and physical rows remain unopened.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -278,7 +278,7 @@ type proof, physical call, raw edge retirement, production switch, threshold,
 or performance claim. No guessed owner, empty catalog, or AST re-pairing is
 allowed while the source bundle is unspecified.
 
-### SCRIPT-RESULT-BUNDLE-D0 design stop
+### SCRIPT-RESULT-BUNDLE-D0 design stop (closed)
 
 Decision: `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0` is not yet an
 implementation row. It is a `BoxCount` candidate, because admitting a Script
@@ -343,3 +343,51 @@ owner/Facts consumer boundary. Only after this closes may
 
 Non-claims: no result owner/receipt, Facts/Recipe/Join implementation,
 physical handoff, raw retirement, production switch, or performance evidence.
+
+### RESULT-OWNER-FACTS-I0 closeout receipt
+
+Decision: close `SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-FACTS-I0` as one
+bounded Facts product. The Script result bundle is now attached to the
+Complete Script semantic source; Recipe, Join, result publication, and
+physical lowering remain unopened.
+
+Source authority + canonical issuer: the resolver's forest-root
+`FunctionOwnerIdV1` and exact `VerifiedResolvedScriptV1::method_calls()` rows
+issue source sites. The target inventory supplies only the already-sealed
+callee target, and the result catalog supplies only callee representation and
+required argument ordinals. `VerifiedScriptDirectStaticResultBundleV1::issue`
+co-seals those inputs and carries the bundle into
+`VerifiedScriptSemanticSourceV1`.
+
+Non-authority: `ScriptStaticCallSourceOwnerIdV1::ROOT`, AST/name/arity
+re-pairing, callable-key conversion, raw success, `ValueId`, Recipe key,
+assembly, timing, and Deferred/Compatibility/RawLegacy routes.
+
+Fail-fast boundary: target inventory provenance must match the exact retained
+Program/window/declaration/import views; the forest must have one Script root;
+resolver rows, target rows, receiver/argument/result sites, namespace/arity,
+and callee representation must match by exact site. Missing, foreign,
+duplicate, drifted, unavailable, or Deferred inputs reject before Builder
+effects. No empty-row fallback is issued for a missing semantic source.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` design only. Define
+the Script Recipe/Join/result-publication owner from this bundle before any
+physical consumer is opened.
+
+Evidence: `normal_script_direct_static_result_bundle.rs` is 271 lines and the
+focused sibling test file is 148 lines. The positive Complete Script fixture
+closes an empty static-target inventory and checks forest-root/source identity;
+the foreign-program inventory is rejected. `normal_script_semantic_lowering_projection.rs`
+now consumes the shared owner-core facts for Script as well as Function, which
+closes the existing Script projection guard without creating a second source
+authority. Gates used:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick -p nyash-rust
+CARGO_BUILD_JOBS=4 cargo test --profile quick -p nyash-rust --lib normal_script_direct_static_result_bundle -- --test-threads=1
+CARGO_BUILD_JOBS=4 cargo test --profile quick -p nyash-rust --lib literal_program_seals_one_shared_script_owner_and_projection -- --test-threads=1
+```
+
+Non-claims: no nonempty Script static Recipe, result publication, physical
+call, raw-edge retirement, production switch, performance result, or C parity
+claim is made by this closeout.

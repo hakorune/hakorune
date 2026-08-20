@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SemanticAuthorityMissing: Script result-owner input bundle lacks one issuer for resolver view, target inventory, and catalog provenance."
+current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0"
 work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0"
-current_blocker_token = "Design one source-bound Script result bundle and Script MethodCall query before issuing any owner, Facts, Recipe, or physical work."
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0"
+current_blocker_token = "The forest-root Script result-owner/Facts bundle is landed; design its Script Recipe/Join owner before any Recipe, physical lowering, or raw retirement."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -91,8 +91,8 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "Bundle audit fixed the required Script root owner, resolver query, target provenance, and catalog brands; implementation remains closed until this bundle contract is accepted."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0"
+latest_card_summary = "Result-owner/Facts I0 is closed with a forest-root Script bundle; the next design stop is Script Recipe/Join, with physical work closed."
+next_design_card = "SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
 next_execution_card = "none"
 next_execution_card_path = ""
@@ -106,7 +106,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0 audited. The bundle issuer is fixed to forest-root FunctionOwnerIdV1 plus exact-site rows; target provenance/complete iterator and Script method query are required before the BoxCount owner/Facts I0.",
+  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-FACTS-I0 landed one bounded Facts product. The forest-root Script owner and exact method-call rows co-seal with the retained target/result catalogs; Script projection now consumes shared owner-core facts. Recipe/Join/physical work remain closed and the next design stop is SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-TARGET-I0 landed one source-only observation product. Exact Script caller/receiver/argument sites and canonical static targets are retained in the selected-normal work plan; six focused tests and the reusable guard are green. Recipe/Join/physical consumers remain closed; SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0 closed NoSafeSlice and FACTS-COSEAL-D0 is the next design stop.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",

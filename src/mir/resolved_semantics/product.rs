@@ -76,6 +76,10 @@ impl VerifiedResolvedOwnerCoreV1 {
     pub(crate) const fn normalized_graph(&self) -> &NormalizedResolvedFunctionGraphV1 {
         &self.normalized
     }
+
+    pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.source_sites.expression_sites()
+    }
 }
 
 /// Immutable declared-function/Lambda authority. The public wrapper remains
@@ -442,6 +446,12 @@ impl VerifiedResolvedScriptV1 {
 
     pub(crate) const fn core(&self) -> &VerifiedResolvedOwnerCoreV1 {
         &self.core
+    }
+
+    pub(crate) fn method_calls(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedResolvedMethodCallSourceV1)> {
+        self.core.data.method_calls.iter()
     }
 
     pub(crate) fn declaration_binding(&self, site: &SourceBindingSiteV1) -> Option<BindingRefV1> {

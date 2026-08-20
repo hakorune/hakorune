@@ -7,6 +7,7 @@
 //! carrier can manufacture the Complete loan.
 
 use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
+use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDemandReceiptPackV1;
 #[cfg(test)]
 use super::normal_script_operational_demand_receipt_pack::ScriptQMarkPropagationTargetV1;
@@ -31,6 +32,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     boundaries: ScriptBoundaryReceiptPackV1,
     demands: ScriptOperationalDemandReceiptPackV1,
     lowering_projection: VerifiedScriptLoweringProjectionV1,
+    direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -89,7 +91,24 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             boundaries,
             demands,
             lowering_projection,
+            direct_static_result_bundle: None,
         })
+    }
+
+    pub(super) fn attach_direct_static_result_bundle(
+        &mut self,
+        bundle: VerifiedScriptDirectStaticResultBundleV1,
+    ) -> Result<(), &'static str> {
+        if self.direct_static_result_bundle.replace(bundle).is_some() {
+            return Err("duplicate Script direct-static result bundle");
+        }
+        Ok(())
+    }
+
+    pub(super) fn direct_static_result_bundle(
+        &self,
+    ) -> Option<&VerifiedScriptDirectStaticResultBundleV1> {
+        self.direct_static_result_bundle.as_ref()
     }
 
     pub(super) fn source(&self) -> &crate::ast::ASTNode {

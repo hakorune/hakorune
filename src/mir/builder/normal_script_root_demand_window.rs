@@ -36,10 +36,25 @@ impl PreparedScriptRootAdmissionV1 {
         &mut self,
         inventory: VerifiedScriptDirectStaticCallTargetInventoryV1,
     ) -> Result<(), ScriptRootStaticTargetAttachmentErrorV1> {
-        if self.script_direct_static_targets.replace(inventory).is_some() {
+        if self
+            .script_direct_static_targets
+            .replace(inventory)
+            .is_some()
+        {
             return Err(ScriptRootStaticTargetAttachmentErrorV1::Duplicate);
         }
         Ok(())
+    }
+
+    pub(super) fn with_taken_script_direct_static_targets<R>(
+        &mut self,
+        f: impl FnOnce(
+            &VerifiedScriptRootDemandWindowV1,
+            VerifiedScriptDirectStaticCallTargetInventoryV1,
+        ) -> R,
+    ) -> Option<R> {
+        let target_inventory = self.script_direct_static_targets.take()?;
+        Some(f(&self.window, target_inventory))
     }
 
     #[cfg(test)]
