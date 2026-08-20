@@ -617,6 +617,32 @@ route selection and before receiver/argument descent, then continues through
 the existing route unchanged. This BoxShape P0 emits no Call, publication,
 Return/signature, fallback, retry, canonical transport, or production claim.
 
+## Script direct-static physical bridge I0
+
+The selected-normal ScriptRoot bridge now consumes the claimed
+`ScriptDirectStaticClaimedRowV1` only at the `StaticReceiver` route head, after
+typeop/reserved routing and before receiver or argument effects. `Absent` keeps
+the existing static route unchanged; a matching row is an atomic handoff whose
+canonical target and ordered argument sites come from the Join row, not from
+AST names or ordinals. The bridge reuses the existing ordered argument driver
+once and accepts only `CompletedUnifiedValueCallEmissionV1` from the existing
+receipt-required generic Call terminal.
+
+`PreparedScriptDirectStaticResultPublicationV1` is a Script-only physical
+sibling: it accepts the already-issued `ExactI64` representation and publishes
+`MirType::Integer` to the receipt destination exactly once. It does not reuse
+the callable publication owner, emit Return/signature, or infer completion from
+`ValueId`/`MirType`. The claim is completed only after Call and publication
+succeed; the enclosing semantic scope finishes once, and any later error
+discards the isolated candidate without rollback, retry, or ordinary fallback.
+
+This I0 is a bounded selected-normal BoxShape only. Compatibility, Deferred,
+RawLegacy, `StaticThis`, canonical Script transport, raw retirement, and
+production cutover remain explicitly closed. The physical bridge and its
+publication sibling stay below the 760-line split trigger; the reusable
+`script_direct_static_target_guard.sh` checks the single receipt/publication
+path and the no-fallback boundary.
+
 ## Loop PHI observer boundary (M6-B)
 
 `LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical

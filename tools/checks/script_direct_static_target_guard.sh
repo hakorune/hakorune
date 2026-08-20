@@ -38,7 +38,10 @@ CLAIM_LEDGER=src/mir/builder/normal_script_direct_static_claim_ledger.rs
 CLAIM_LEDGER_TESTS=src/mir/builder/normal_script_direct_static_claim_ledger_tests.rs
 CLAIM_PORT=src/mir/builder/recursive_child_lowering_port.rs
 CLAIM_PORT_TESTS=src/mir/builder/recursive_child_lowering_port_tests.rs
+CLAIM_TRANSPORT=src/mir/builder/normal_script_direct_static_claim_transport.rs
 MEMBER_ROUTE=src/mir/builder/calls/member_route.rs
+PHYSICAL_BRIDGE=src/mir/builder/calls/script_direct_static_physical_bridge.rs
+PHYSICAL_PUBLICATION=src/mir/builder/normal_script_direct_static_physical_publication.rs
 RAW_DISPATCH=src/mir/builder/raw_expression_dispatch/mod.rs
 RAW_STRUCTURED=src/mir/builder/raw_structured_child_scope.rs
 RAW_INVOCATION=src/mir/builder/raw_invocation_source_transport.rs
@@ -105,15 +108,25 @@ require_text "$CLAIM_PORT" "script_direct_static_claim_ingress_v1"
 require_text "$CLAIM_PORT" "ScriptDirectStaticClaimIngressV1::Unavailable"
 require_text "$CLAIM_PORT_TESTS" "default_claim_ingress_is_non_consuming_and_unavailable"
 require_text "$MEMBER_ROUTE" "build_member_method_call_with_claim_ingress_v1"
-require_text "$MEMBER_ROUTE" "RecursiveChildLoweringPortV1::script_direct_static_claim_ingress_v1"
+require_text "$MEMBER_ROUTE" "take_script_direct_static_claim_v1"
 require_text "$RAW_DISPATCH" "build_method_call_from_input_with_claim_ingress_v1"
 require_text "$RAW_STRUCTURED" "script_direct_static_claim_ingress_v1"
-require_text "$RAW_INVOCATION" "script-direct-static/claim-ingress-source-context"
+require_text "$CLAIM_TRANSPORT" "script-direct-static/claim-ingress-source-context"
+require_text "$RAW_INVOCATION" "complete_script_direct_static_claim_inner_v1"
+require_text "$CLAIM_TRANSPORT" "take_script_direct_static_claim_inner_v1"
+require_text "$PHYSICAL_BRIDGE" "lower_claimed_script_direct_static_v1"
+require_text "$PHYSICAL_BRIDGE" "emit_static_global_value_terminal_with_receipt_v1"
+require_text "$PHYSICAL_BRIDGE" "PreparedScriptDirectStaticResultPublicationV1"
+require_text "$PHYSICAL_PUBLICATION" "VerifiedCallableResultRepresentationV1::ExactI64"
+require_text "$PHYSICAL_PUBLICATION" "MirType::Integer"
 require_text "$ROOT_TRAVERSAL" "record_statement_shape"
 require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
 require_text "$BUILDER_README" "source/Facts-only"
 require_text "$BUILDER_README" "ScriptDirectStaticClaimLedgerV1"
 require_text "$BUILDER_README" "there is no rollback"
+require_text "$BUILDER_README" "Script direct-static physical bridge I0"
+require_text "$BUILDER_README" "PreparedScriptDirectStaticResultPublicationV1"
+require_text "$BUILDER_README" "CompletedUnifiedValueCallEmissionV1"
 require_text "$CARD" "SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0"
 require_text "$CARD" "source-only continuation rows"
 require_text "$CARD" "result publication, and physical lowering"
@@ -123,7 +136,7 @@ require_text "$SOURCE_TESTS" "exact_static_callable_set_survives_one_transform"
 require_text "$SOURCE_TESTS" "ordinary_constructor_source_catalog_survives_normal_source_transform"
 require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_initial_source_lane"
 
-for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$MEMBER_ROUTE" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
@@ -182,6 +195,28 @@ if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$CONTINUAT
   exit 1
 fi
 
+if rg -n "ASTNode|source_name|ordinal|ScriptPhysicalExit|finalize_module|rollback|reinsert|put_back" "$PHYSICAL_BRIDGE"; then
+  echo "[script-direct-static-target] physical bridge reconstructed source or crossed the exit/publication boundary" >&2
+  exit 1
+fi
+
+if rg -n "ASTNode|source_name|ordinal|ScriptPhysicalExit|finalize_module|rollback|reinsert|put_back|callable.*publication" "$PHYSICAL_PUBLICATION"; then
+  echo "[script-direct-static-target] Script publication sibling crossed its narrow boundary" >&2
+  exit 1
+fi
+
+if rg -n "raw name|target.*lookup|name.*lookup|rollback|reinsert|put_back|MirInstruction|MirType|ValueId|ScriptPhysicalExit" "$CLAIM_TRANSPORT"; then
+  echo "[script-direct-static-target] claim transport crossed source/physical ownership" >&2
+  exit 1
+fi
+
+if rg -n "with_script_semantic_source_v1|finish_direct_static_claims" "$RAW_INVOCATION"; then
+  :
+else
+  echo "[script-direct-static-target] Script semantic scope has no success-only claim finish" >&2
+  exit 1
+fi
+
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::source_call_target::script_direct_static_tests --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
@@ -194,6 +229,8 @@ CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_join_handoff --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_semantic_lowering_state::direct_static_claim_ledger::tests --lib
+CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
+  mir::builder::calls::script_direct_static_physical_bridge --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   normal_script_source_continuation_tests --lib
 

@@ -4,13 +4,15 @@
 //! selected plan without re-probing receiver shape.
 
 use super::super::me_call_header_observation::MethodCallLoweringPortV1;
+use super::super::normal_script_semantic_lowering_state::ScriptDirectStaticClaimTakeV1;
+use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::super::{MirBuilder, ValueId};
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
     lower_method_call_receiver_v1, AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1,
 };
-use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::receiver_binding::ReceiverNormalizationPlan;
+use super::script_direct_static_physical_bridge::lower_claimed_script_direct_static_v1;
 use crate::ast::ASTNode;
 
 pub(in crate::mir::builder) enum MemberCallRoutePlan {
@@ -69,20 +71,22 @@ impl MirBuilder {
 
         match route_plan {
             MemberCallRoutePlan::StaticReceiver { box_name } => {
-                let (method, arguments, argument_count) = {
+                let claim = {
                     let syntax = port.method_call_syntax(input)?;
-                    (
-                        syntax.method().to_owned(),
+                    port.take_script_direct_static_claim_v1(
+                        &box_name,
+                        syntax.method(),
+                        syntax.receiver(),
                         syntax.arguments(),
-                        syntax.arguments().len(),
-                    )
+                    )?
                 };
-                let _ = RecursiveChildLoweringPortV1::script_direct_static_claim_ingress_v1(
-                    port,
-                    &box_name,
-                    &method,
-                    argument_count,
-                )?;
+                if let ScriptDirectStaticClaimTakeV1::Claimed(claimed) = claim {
+                    return lower_claimed_script_direct_static_v1(self, port, input, claimed);
+                }
+                let (method, arguments) = {
+                    let syntax = port.method_call_syntax(input)?;
+                    (syntax.method().to_owned(), syntax.arguments())
+                };
                 let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
                 self.handle_static_method_call_with_descent(
                     &box_name,

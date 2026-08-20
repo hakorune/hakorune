@@ -101,6 +101,7 @@ mod reserved_method_route; // shared reserved-route policy adapter + selected di
 #[cfg(test)]
 mod reserved_method_route_tests;
 pub mod resolver; // Phase 25.1d: Callee resolution (CallTarget → Callee)
+mod script_direct_static_physical_bridge;
 pub mod skeleton_builder; // Step 5: Function/method skeleton creation
 pub mod special_method_handlers; // Special method handlers (TypeOp, math, str normalization)
 pub mod static_resolution; // Step 3: Static method resolution and unresolved-call recovery

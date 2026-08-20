@@ -8,9 +8,10 @@ shared predicate with focused tests and a green reusable guard. Four read-only
 audits closed the physical-bridge D0 boundary, and the claim-lifecycle P0
 design plus carrier I0 are closed. The structural ingress P0 is also closed:
 the recursive child trait now lives in a focused child without growing the
-794-line owner. The current frontier is the selected-normal physical-bridge D0;
-canonical transport, fallback, raw retirement, and production switch remain
-closed.
+794-line owner. The selected-normal physical-bridge D0 was accepted as a
+bounded design boundary, and its physical-bridge I0 is now landed and in
+closeout. Canonical transport, fallback, raw retirement, and production switch
+remain closed.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -26,20 +27,19 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   stopped at `ConstructorSourceMissing`. I0 now gives every
   compatibility-compatible initial source an explicit empty-or-complete
   constructor cohort. Mixed outer and unsupported cohorts retain compatibility
-  status and do not gain a physical Script route. The typeop route premise is
-  now closed by one shared pure policy; the next question is the missing
-  selected-normal claim lifecycle, not source admission.
+status and do not gain a physical Script route. The typeop route premise and
+selected-normal claim lifecycle are closed; the physical bridge is now a
+receipt-backed selected-normal BoxShape, not a source-admission change.
 - 760 lines is the source split/design trigger and 800 is the hard stop.
   `owner_forest.rs`, `recursive_child_lowering.rs`, package install, and the
   751-line Script runtime owner are no-growth owners.
 
 ## Current six-line brief
 
-Decision: keep `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` at design stop.
-The source shape, semantic Facts, and landed claim carrier remain unchanged;
-the next physical consumer must prove a selected-normal ScriptRoot capability
-take, success-only candidate discard, and one existing generic Call receipt
-before any ExactI64 publication.
+Decision: close `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-I0` as one
+selected-normal BoxShape. The source shape, semantic Facts, and landed claim
+carrier remain unchanged; the bridge uses one existing generic Call receipt and
+one Script ExactI64 publication, with no alternate route.
 
 Source authority + canonical issuer: `VerifiedScriptDirectStaticResultBundleV1`
 issues site membership and `VerifiedScriptDirectStaticJoinHandoffV1` issues the
@@ -50,23 +50,94 @@ Non-authority: immutable getters, AST/name/ordinal, Join miss interpreted as
 Absent, callable-key conversion, `ValueId`/`MirType`, generic Call receipt,
 `ScriptPhysicalExitCommitV1`, compatibility/deferred lowering, and fallback.
 
-Fail-fast boundary: claim ingress must stay before receiver/argument descent;
-selected rows may only finish as completed or candidate-discarded error, never
-fallback/retry. The carrier's Bundle/Join miss, duplicate-site, and pending
-finish rules remain authoritative; physical finish is unopened until D0 is
-accepted.
+Fail-fast boundary: claim ingress stays at the head of
+`MemberCallRoutePlan::StaticReceiver`, after effect-free typeop/reserved route
+selection and before receiver/argument descent. A selected row may only finish
+as completed or candidate-discarded error, never fallback/retry. The enclosing
+invocation scope calls `finish()` exactly once only after Call receipt and
+ExactI64 publication succeed; any later error drops the isolated candidate.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` — design
-the capability take, isolated candidate/discard boundary, existing generic
-Call receipt handoff, and Script ExactI64 publication sibling. Keep canonical
-transport, compatibility/deferred/raw fallback, raw retirement, production
-switch, and performance closed until that contract is accepted.
+Smallest next slice: closeout only — preserve the focused gate, structural
+guard, README, active card, and CURRENT_STATE receipt. No new implementation
+row is opened; canonical transport, compatibility/deferred/raw fallback, raw
+retirement, production switch, and performance stay closed.
 
 Non-claims: no source admission, new semantic `Verified*` receipt, Recipe/Join
-redesign, physical Call/publication implementation, callable owner extension,
-Return/signature writer, canonical transport, compatibility/deferred/raw
-consumer, Box/ABI change, raw retirement, production switch, performance
-measurement, or C-parity result.
+redesign, callable owner extension, Return/signature writer, canonical
+transport, compatibility/deferred/raw consumer, Box/ABI change, raw
+retirement, production switch, performance measurement, or C-parity result.
+
+## PHYSICAL-BRIDGE-D0 acceptance receipt
+
+The four read-only audits agree that the capability gap is closed without a
+new source authority. The source-to-effect sentence is:
+
+```text
+Bundle -> Recipe -> JoinHandoff -> claim ledger take
+  -> StaticReceiver pre-descent boundary
+  -> existing ordered argument driver
+  -> existing receipt-required generic Call
+  -> Script ExactI64 publication sibling
+  -> existing selected-normal completion owner
+```
+
+Acceptance is fixed as follows:
+
+- The claim observes the active ScriptRoot site and validates target namespace,
+  owner/name/arity, receiver site, ordered argument sites, and `ExactI64` from
+  the handoff. AST spelling is a drift check only; the canonical target is
+  projected from the claimed handoff.
+- `Absent` leaves the ledger and Builder unchanged and retains the existing
+  route. A present row that drifts, has a duplicate claim, or has unsupported
+  representation is an error before receiver/argument effects.
+- The selected path lowers arguments left-to-right once, calls
+  `emit_static_global_value_terminal_with_receipt_v1` once, and accepts only
+  `CompletedUnifiedValueCallEmissionV1`. Legacy, rewrite, BoxCall, missing
+  destination, or disabled-unified routes are errors with no fallback.
+- A new Script-only physical publication sibling accepts that receipt and
+  writes `MirType::Integer` exactly once before finalization. It does not write
+  Return/signature and does not reuse the callable-keyed publication owner.
+- `complete(claimed)` and ledger `finish()` happen only after Call and
+  publication succeed. Any claim/argument/emitter/publication/finish error
+  propagates to the enclosing isolated invocation, whose rejected session is
+  discarded; no rollback, retry, partial publication, or ordinary fallback is
+  permitted.
+- Compatibility, Deferred, RawLegacy, `StaticThis`, typeop, and reserved routes
+  remain outside this capability. No canonical Script transport or production
+  caller switch is implied.
+
+The design stop is closed as a bounded BoxShape. Implementation is authorized
+only for `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-I0` and its focused
+positive/negative/structural gates.
+
+## PHYSICAL-BRIDGE-I0 closeout receipt
+
+The selected-normal physical consumer is now wired without changing source
+admission or the canonical/compatibility lanes:
+
+- `StaticReceiver` takes the exact ScriptRoot claim before receiver/argument
+  effects. `Absent` preserves the existing route; a claimed row is never
+  returned to ordinary lowering.
+- The bridge projects the handoff target, uses the existing ordered argument
+  driver once, and accepts only the existing receipt-required generic Call
+  terminal. Alternate/legacy/rewrite routes are rejected.
+- The Script-only publication sibling accepts only `ExactI64` and writes
+  `MirType::Integer` once to the receipt destination. It does not write
+  Return/signature or reuse callable publication authority.
+- Claim completion occurs after Call and publication; the semantic scope
+  finishes once on success. Any error propagates to isolated-candidate discard
+  without rollback, retry, or fallback.
+- The source transport remains 707 lines; the recursive implementation owner
+  remains 711 lines; claim transport is a separate 128-line child. Focused
+  physical-publication tests, ledger tests, member-route descent tests,
+  `cargo check --profile quick -p nyash-rust --lib`, and
+  `script_direct_static_target_guard.sh` are green with the existing warning
+  baseline.
+
+This closes only the selected-normal physical bridge BoxShape. Canonical Script
+transport, compatibility/Deferred/RawLegacy consumers, raw retirement,
+production cutover, Return/exit-owner unification, and performance evidence
+remain non-claims and are not opened by this receipt.
 
 ## CLAIM-INGRESS-P0 closeout receipt
 

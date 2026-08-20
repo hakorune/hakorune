@@ -188,7 +188,7 @@ impl MirBuilder {
                             port,
                             target_capability,
                         )
-                    })?,
+                    }),
                 NormalScriptRootLoweringMode::Deferred => port.with_source_transport_v1(
                     RawInvocationSourceTransportV1::script_root(()),
                     |port, ()| {

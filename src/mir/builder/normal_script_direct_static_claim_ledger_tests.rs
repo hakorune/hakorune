@@ -137,6 +137,9 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
     let claimed = match ledger.take(&call_site).expect("first take") {
         ScriptDirectStaticClaimTakeV1::Claimed(claimed) => claimed,
         ScriptDirectStaticClaimTakeV1::Absent => panic!("candidate row must be present"),
+        ScriptDirectStaticClaimTakeV1::Unavailable => {
+            panic!("direct ledger must not report unavailable")
+        }
     };
     assert_eq!(claimed.site(), &call_site);
     assert_eq!(

@@ -70,6 +70,7 @@ impl ScriptDirectStaticClaimedRowV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ScriptDirectStaticClaimTakeV1 {
+    Unavailable,
     Absent,
     Claimed(ScriptDirectStaticClaimedRowV1),
 }

@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
-current_blocker_token = "Design only the selected-normal ScriptRoot physical consumer: capability take boundary, success-only candidate discard, existing generic Call receipt, and Script ExactI64 publication sibling. Do not implement bridge code, canonical transport, fallback, raw retirement, or production switch before the D0 contract is accepted."
+current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-I0"
+work_mode = "closeout"
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-I0"
+current_blocker_token = "Selected-normal physical bridge I0 is implemented and focused gates are green; closeout records the exact claim -> generic receipt -> Script ExactI64 publication -> success-only finish. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -76,7 +76,7 @@ SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 is landed: every
 compatibility-compatible initial source carries one parser-owned empty-or-
 complete constructor catalog, while mixed outer and unsupported cohorts retain
 compatibility status. TYPEOP-DISJOINT-I0 is also closed: Builder routing and the
-Script target issuer share one pure predicate. PHYSICAL-BRIDGE-D0 fixed the StaticReceiver boundary; CLAIM-LIFECYCLE-P0 and its carrier I0 close the Bundle/Join claim owner, completed-site tombstones, and finish contract. CLAIM-INGRESS-P0 is closed: the recursive child contract is split into a 708-line owner plus a 123-line port, with RawInvocation/RawStructured capability delegation and no physical effect. The next design stop is PHYSICAL-BRIDGE-D0; canonical transport, fallback, raw retirement, production switch, and performance remain closed.
+Script target issuer share one pure predicate. PHYSICAL-BRIDGE-D0 fixed the StaticReceiver boundary; CLAIM-LIFECYCLE-P0 and its carrier I0 close the Bundle/Join claim owner, completed-site tombstones, and finish contract. CLAIM-INGRESS-P0 is closed: the recursive child contract is split into a 708-line owner plus a 123-line port, with RawInvocation/RawStructured capability delegation and no physical effect. PHYSICAL-BRIDGE-I0 is landed: the selected-normal bridge takes the exact claim, emits one receipt-required generic Call, publishes Script ExactI64 once, and finishes only after success. Closeout is the only remaining work. Canonical transport, fallback, raw retirement, production switch, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -89,9 +89,9 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "CLAIM-INGRESS-P0 is closed: recursive child contract split, default non-consuming hook, and RawInvocation/RawStructured delegation are green. PHYSICAL-BRIDGE-D0 is the next design stop; no physical Call/publication is open."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
-next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
+latest_card_summary = "PHYSICAL-BRIDGE-I0 landed as a selected-normal BoxShape: exact StaticReceiver claim, existing generic Call receipt, Script ExactI64 publication, and success-only finish. Focused gates are green; closeout only, with no fallback or production switch."
+next_design_card = "none"
+next_design_card_path = "none"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -104,7 +104,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-20: SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0 landed one BoxShape. A pure source-method typeop policy is now shared by Builder routing and the Script direct-static target issuer; one-string is/as calls are explicit noncandidates while ordinary is/as arguments remain candidates. Policy/target tests, cargo check, and the reusable guard are green; no parser, Recipe/Join, physical bridge, fallback, or production switch changed. Next is the physical-bridge D0 design stop.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 landed parser-owned empty-or-complete constructor catalogs for compatibility-compatible initial sources. Static-only, top-level-only, mixed, ordinary-constructor, and unsupported-cohort tests plus the reusable guard are green; PRE-DESCENT-P0 then closed NoSafeSlice on the legal is/as typeop overlap, TYPEOP-DISJOINT-P0 fixed the shared-policy design, and TYPEOP-DISJOINT-I0 is now the sole fast row; bridge code stays closed.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
@@ -115,5 +114,6 @@ landed_tail = [
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-JOIN-I0 landed one source/Facts BoxCount. The exact Recipe/result-owner handoff preserves FinalSequence and RootReturn rows, rejects foreign/missing/duplicate/drifted rows, and is transported through Script lowering input/state. CLAIM-LIFECYCLE-I0 then closed the Bundle/Join move-only carrier with completed-site tombstones and read-only consumer views; PHYSICAL-BRIDGE-D0 is the current design stop, with physical Call/publication, canonical transport, raw retirement, production switch, performance, and C-parity parked.",
-  "2026-08-20: SCRIPT-DIRECT-STATIC-CLAIM-INGRESS-P0 landed one behavior-neutral BoxShape. The recursive child contract moved to a 123-line focused port, RawInvocation/RawStructured delegation is green, and StaticReceiver probes before descent without physical effect. Next is the PHYSICAL-BRIDGE-D0 design stop; no fallback, raw retirement, production switch, or performance claim.",
+  "2026-08-20: SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-D0 accepted one bounded BoxShape after four read-only audits. The selected-normal I0 may now connect exact claim -> ordered descent -> existing generic Call receipt -> Script ExactI64 publication -> success-only finish; failed candidates are discarded with no fallback. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed.",
+  "2026-08-20: SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0 landed one selected-normal BoxShape. StaticReceiver now takes the exact ScriptRoot claim before effects, the bridge uses the existing ordered driver and receipt-required generic Call once, the Script sibling publishes ExactI64 as MirType::Integer once, and the scope finishes only after success. The source transport stayed below 760 lines after a claim child split; focused tests, cargo check, and the reusable guard are green. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed.",
 ]

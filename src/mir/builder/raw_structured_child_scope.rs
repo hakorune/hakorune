@@ -12,6 +12,9 @@ use crate::mir::{MirBuilder, ValueId};
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 
 use super::enum_match_source_demand::EnumMatchSourceDemandPortV1;
+use super::normal_script_semantic_lowering_state::{
+    ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
+};
 use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
@@ -161,6 +164,24 @@ where
     ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
         self.child
             .script_direct_static_claim_ingress_v1(box_name, method, argument_count)
+    }
+
+    fn take_script_direct_static_claim_v1(
+        &mut self,
+        box_name: &str,
+        method: &str,
+        receiver: &ASTNode,
+        arguments: &[ASTNode],
+    ) -> Result<ScriptDirectStaticClaimTakeV1, String> {
+        self.child
+            .take_script_direct_static_claim_v1(box_name, method, receiver, arguments)
+    }
+
+    fn complete_script_direct_static_claim_v1(
+        &mut self,
+        claimed: ScriptDirectStaticClaimedRowV1,
+    ) -> Result<(), String> {
+        self.child.complete_script_direct_static_claim_v1(claimed)
     }
 
     fn try_emit_source_bound_static_call_result_v1(

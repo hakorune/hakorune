@@ -19,6 +19,9 @@ use crate::mir::ValueId;
 use super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
+use super::normal_script_semantic_lowering_state::{
+    ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
+};
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::raw_invocation_source_item_site::body_item_site;
 use super::raw_invocation_source_statement_classification::{
@@ -211,7 +214,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
         &mut self,
         source: VerifiedScriptSemanticSourceV1<'_>,
-        execute: impl FnOnce(&mut Self) -> R,
+        execute: impl FnOnce(&mut Self) -> Result<R, String>,
     ) -> Result<R, String> {
         let [root] = source.forest().roots() else {
             return Err("[freeze:contract][mir/script-semantic/root-cardinality]".to_owned());
@@ -232,13 +235,24 @@ impl RawInvocationChildPortV1<'_, '_> {
         let state = Rc::new(RefCell::new(ScriptSemanticLoweringState::new(
             source.into_lowering_input(),
         )?));
+        let finish_state = Rc::clone(&state);
         let parent = std::mem::replace(&mut self.semantic_ledger, Some(state));
         let result = self.with_source_transport_v1(
             RawInvocationSourceTransportV1::script_semantic_root(()),
             |port, ()| execute(port),
         );
+        let result = match result {
+            Ok(value) => finish_state
+                .try_borrow_mut()
+                .map_err(|_| {
+                    "[freeze:contract][script-direct-static/claim-finish-borrow]".to_owned()
+                })?
+                .finish_direct_static_claims()
+                .map(|()| value),
+            Err(error) => Err(error),
+        };
         self.semantic_ledger = parent;
-        Ok(result)
+        result
     }
 }
 
@@ -473,22 +487,24 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         _method: &str,
         _argument_count: usize,
     ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
-        if self.semantic_ledger.is_none() {
-            return Ok(ScriptDirectStaticClaimIngressV1::Unavailable);
-        }
-        let Some(context) = self.current_source_context_v1() else {
-            return Err(
-                "[freeze:contract][script-direct-static/claim-ingress-source-context]"
-                    .to_owned(),
-            );
-        };
-        match context {
-            RawInvocationSourceContextV1::Located {
-                root: RawInvocationRootLineageV1::ScriptRoot,
-                ..
-            } => Ok(ScriptDirectStaticClaimIngressV1::Available),
-            _ => Ok(ScriptDirectStaticClaimIngressV1::Unavailable),
-        }
+        self.script_direct_static_claim_ingress_inner_v1(_box_name, _method, _argument_count)
+    }
+
+    fn take_script_direct_static_claim_v1(
+        &mut self,
+        box_name: &str,
+        method: &str,
+        _receiver: &ASTNode,
+        arguments: &[ASTNode],
+    ) -> Result<ScriptDirectStaticClaimTakeV1, String> {
+        self.take_script_direct_static_claim_inner_v1(box_name, method, _receiver, arguments)
+    }
+
+    fn complete_script_direct_static_claim_v1(
+        &mut self,
+        claimed: ScriptDirectStaticClaimedRowV1,
+    ) -> Result<(), String> {
+        self.complete_script_direct_static_claim_inner_v1(claimed)
     }
 
     fn try_emit_source_bound_static_call_result_v1(

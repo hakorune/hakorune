@@ -9,6 +9,9 @@ use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::control_flow::cleanup::CleanupExitPolicyV1;
+use super::normal_script_semantic_lowering_state::{
+    ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
+};
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -49,6 +52,30 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
         _argument_count: usize,
     ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
         Ok(ScriptDirectStaticClaimIngressV1::Unavailable)
+    }
+
+    /// Take the already-issued Script direct-static row before any receiver or
+    /// argument effect.  The default is deliberately unavailable; physical
+    /// policy lives in the dedicated bridge, not in this recursive port.
+    fn take_script_direct_static_claim_v1(
+        &mut self,
+        _box_name: &str,
+        _method: &str,
+        _receiver: &ASTNode,
+        _arguments: &[ASTNode],
+    ) -> Result<ScriptDirectStaticClaimTakeV1, String> {
+        Ok(ScriptDirectStaticClaimTakeV1::Unavailable)
+    }
+
+    /// Complete one claimed row after the physical Call and its result
+    /// publication have succeeded.  Compatibility ports never receive a
+    /// claimed row, so their default is a hard boundary rather than a
+    /// fallback path.
+    fn complete_script_direct_static_claim_v1(
+        &mut self,
+        _claimed: ScriptDirectStaticClaimedRowV1,
+    ) -> Result<(), String> {
+        Err("[freeze:contract][script-direct-static/claim-consumer-unavailable]".to_owned())
     }
 
     /// Optional source-bound static-call terminal.  The default keeps all
@@ -115,9 +142,9 @@ pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
 
 pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
     RecursiveChildLoweringPortV1<
-        BodyInput = Vec<ASTNode>,
-        StatementInput = ASTNode,
-        ExpressionInput = ASTNode,
-    >
+    BodyInput = Vec<ASTNode>,
+    StatementInput = ASTNode,
+    ExpressionInput = ASTNode,
+>
 {
 }

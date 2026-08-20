@@ -291,6 +291,7 @@ pub(in crate::mir) use normal_cataloged_box_method_admission::{
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
 mod normal_script_boundary_receipt_pack; // Script retained boundary receipts
 mod normal_script_direct_static_join_handoff; // Script source/Facts Recipe handoff
+mod normal_script_direct_static_physical_publication; // Script ExactI64 physical publication
 mod normal_script_direct_static_recipe; // Dedicated Script direct-static Recipe producer
 mod normal_script_direct_static_result_bundle; // Script source/result Facts bundle
 mod normal_script_direct_static_result_publication_owner; // Script source/Facts result owner
