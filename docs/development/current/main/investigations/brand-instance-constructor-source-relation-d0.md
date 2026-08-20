@@ -596,10 +596,10 @@ accepted D0. The completed rows remain in the receipts above and in
    resolver rows can co-seal Script owner/site/receiver/ordered arguments/result
    with the target, but Recipe still needs a Script-specific result owner.
    Do not implement Facts or Recipe until that owner is designed.
-7. **`SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`** — current design
-   stop: define one source-bound Script result/publication owner keyed by the
-   Script owner plus exact site; never convert ScriptRoot into a synthetic
-   callable caller key.
+7. **`SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0`** — current design
+   stop: co-seal the resolver Script view, target inventory, and
+   declaration/result catalog brands before any Script result owner or Facts
+   I0. No AST re-pairing or synthetic callable key is allowed.
 8. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
    MethodCall/`Brand.unwrap`; do not combine it with constructor consumer work.
 9. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production

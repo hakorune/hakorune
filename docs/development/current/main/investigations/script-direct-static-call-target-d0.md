@@ -235,3 +235,80 @@ Recipe work. Do not widen the callable owner or touch lowering.
 
 Non-claims: no Facts I0, Recipe/Join, physical handoff, raw retirement,
 production switch, threshold change, or performance conclusion.
+
+### SCRIPT-RESULT-ISSUER-D0 design decision
+
+Decision: keep the callable-keyed result owner Callable-only and define a
+separate Script owner before any Script Facts or Recipe implementation. This
+design is source-bound but is not itself a physical lowering permission.
+
+Source authority + canonical issuer: a future sibling issuer receives the
+Complete Script resolver forest, the already-issued target inventory, the
+declaration/import-branded target catalog, and the callable result catalog as
+a representation provider. It iterates the resolver's
+`VerifiedResolvedMethodCallSourceV1` rows, validates the exact target row once,
+and issues one owner keyed by
+`(ScriptStaticCallSourceOwnerIdV1, SourceExprSiteV1)`. Each handoff retains
+the Script owner/site, receiver site, ordered argument sites, result site,
+canonical callee key, and only the provider-issued result representation.
+The handoff contains no Recipe key, ValueId, MIR type, or physical block.
+
+Non-authority: `CanonicalSameModuleCallableKeyV1` as a Script caller,
+`RawInvocationRootLineageV1::ScriptRoot`, AST/name/arity re-resolution,
+`BodyEffectShapeV1`, `ScriptRootReturnExitAdmissionV1`,
+`ScriptSemanticLoweringState`, and the callable result catalog's caller rows.
+The result catalog may provide callee representation only; it cannot mint a
+Script caller, source site, or argument relation.
+
+Fail-fast boundary: issue only for a Complete Script forest. Missing or
+duplicate resolver/target rows, foreign owner or catalog branding, receiver/
+argument/result-site drift, target declaration/import drift, unavailable
+callee representation, nested-owner crossing, or a callable-owner handoff
+attempt rejects before Builder effects. Deferred/Compatibility paths receive
+no empty owner and never fall back to name lookup.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0`.
+Fix one source bundle that co-seals the resolver Script view, target inventory,
+and declaration/result catalog brands before implementing the owner. The
+owner/Facts I0 remains closed until that bundle has an exact issuer and
+consumer.
+
+Non-claims: no Script Recipe admission, result publication to MIR, argument
+type proof, physical call, raw edge retirement, production switch, threshold,
+or performance claim. No guessed owner, empty catalog, or AST re-pairing is
+allowed while the source bundle is unspecified.
+
+### SCRIPT-RESULT-BUNDLE-D0 design stop
+
+Decision: `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0` is not yet an
+implementation row. It is a `BoxCount` candidate, because admitting a Script
+direct-static result demand would add a new source-to-result shape. First fix
+the source bundle and its provenance; do not add a `Verified*` owner from
+separately branded inputs.
+
+Source authority + canonical issuer: the resolver's
+`resolve_script_forest_with_declaration_views` must expose a Script-specific
+method-call view containing exact owner/site, receiver, ordered argument sites,
+and result site. The target inventory issues the canonical callee target, while
+the declaration/whole-source result catalogs provide only their already-sealed
+representation data. A single bundle issuer must co-seal these inputs and
+their admission/window/catalog brands before the owner is issued.
+
+Non-authority: the target inventory's AST walk by itself, `ScriptStaticCallSourceOwnerIdV1`,
+`CallableSemanticSourceLedgerView::as_function`, synthetic callable keys,
+AST/name/arity re-resolution, `RawInvocationRootLineageV1::ScriptRoot`,
+`EffectMask`, `FunctionSignature`, `ValueId`, Join, and raw success.
+
+Fail-fast boundary: no Script method query, missing/foreign/duplicate bundle
+brand, target/resolver site drift, receiver or argument coverage gap, result
+catalog drift, Deferred forest, nested-owner crossing, or unavailable callee
+representation may reach Builder effects. The target inventory cannot be
+treated as a second semantic issuer or silently paired by name.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0`
+design only. Specify the bundle owner, Script query, exact brands, and the
+owner/Facts consumer boundary. Only after this closes may
+`SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-FACTS-I0` be selected.
+
+Non-claims: no result owner/receipt, Facts/Recipe/Join implementation,
+physical handoff, raw retirement, production switch, or performance evidence.
