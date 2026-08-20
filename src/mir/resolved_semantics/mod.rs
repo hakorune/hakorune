@@ -261,6 +261,7 @@ pub(crate) use resolver_core_method_callable_contract::{
 pub(crate) use script_view::ScriptSyntaxViewV1;
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
+    observe_script_method_calls_shadow_view_v0,
     ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
     ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };

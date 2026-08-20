@@ -33,7 +33,8 @@ use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptForestOutcomeV1, ScriptSyntaxViewV1,
 };
 use crate::mir::source_call_target::{
-    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
+    VerifiedScriptDirectStaticCallTargetInventoryV1, VerifiedStaticImportAliasViewV1,
+    VerifiedWholeSourceStaticCallTargetInventoryV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -437,7 +438,33 @@ impl ModuleBuilderInvocationSessionV1 {
                 .map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())
                 })?;
-                let work = work.into_parts();
+                let mut work = work.into_parts();
+                let imports = VerifiedStaticImportAliasViewV1::seal(declarations, import_rows)
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                            format!("[mir/static-result-owner/imports] {error:?}").into(),
+                        )
+                    })?;
+                if let Some(admission) = work.script_root_admission.as_mut() {
+                    let inventory = VerifiedScriptDirectStaticCallTargetInventoryV1::issue(
+                        source_ast,
+                        admission.window(),
+                        declarations,
+                        &imports,
+                    )
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            format!("[mir/script-static-target/issue] {error:?}").into(),
+                        )
+                    })?;
+                    admission
+                        .attach_script_direct_static_targets(inventory)
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-target/attach] {error:?}").into(),
+                            )
+                        })?;
+                }
                 let script_source = match work.script_root_admission.as_ref() {
                     None => None,
                     Some(admission) => {
@@ -484,12 +511,6 @@ impl ModuleBuilderInvocationSessionV1 {
                         }
                     }
                 };
-                let imports = VerifiedStaticImportAliasViewV1::seal(declarations, import_rows)
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                            format!("[mir/static-result-owner/imports] {error:?}").into(),
-                        )
-                    })?;
                 let inventory =
                     VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
                         .map_err(|error| {

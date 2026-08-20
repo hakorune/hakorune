@@ -236,3 +236,21 @@ pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
     )?
     .finish_method_call_observations()
 }
+
+/// Observation-only Script traversal for the later direct-static target
+/// catalog.  It reuses the shared resolver/path issuer but does not publish a
+/// Script owner or widen the Script lexical acceptance profile.
+pub(in crate::mir) fn observe_script_method_calls_shadow_view_v0(
+    view: ScriptSyntaxViewV1<'_>,
+    window: &VerifiedScriptRootDemandWindowV1,
+) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0> {
+    traverse_shadow_root_v1(
+        ShadowRootTraversalInputV1::sparse_script_static_target_observation(view, window),
+        ShadowLambdaModeV0::Reject,
+        BTreeSet::new(),
+        BTreeSet::new(),
+        ShadowMethodCallObservationModeV0::All,
+        true,
+    )?
+    .finish_method_call_observations()
+}

@@ -24,6 +24,7 @@ mod vocabulary;
 use entry::resolve_function_shadow_v0;
 pub(in crate::mir) use entry::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
+    observe_script_method_calls_shadow_view_v0,
 };
 pub(super) use entry::{
     resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0,

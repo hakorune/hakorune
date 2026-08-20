@@ -1,6 +1,7 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
-Status: design accepted; implementation row is bounded and not yet started.
+Status: I0 complete; the observation-only implementation row is closed. Recipe
+and physical rows remain unopened.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -93,6 +94,25 @@ Guard: whitelist only this new source-call child, Script admission retention,
 lifecycle wiring, focused tests, and owner documentation. Reject edits to
 Recipe, Join, physicalizer, method handlers, backend, and fallback paths.
 
+## I0 closeout receipt
+
+- Implementation: `script_direct_static.rs` issues the source-owned Script
+  caller/site inventory; `normal_script_root_demand_window.rs` retains it; the
+  normal default lifecycle issues it beside the existing import/target seals.
+- Observation: the shared resolver traversal covers only the sealed Script
+  ProgramBody window. Static qualified calls retain exact call/receiver/
+  argument sites and the existing canonical callee key; bound, dynamic,
+  reserved, and non-static receivers are explicit noncandidates.
+- Focused gate: `CARGO_BUILD_JOBS=4 cargo test --profile quick -p nyash-rust
+  --lib script_direct_static -- --test-threads=1` — 6 passed, 0 failed.
+- Reusable guard: `tools/checks/script_direct_static_target_guard.sh` pins the
+  source/admission boundary, the Recipe/Join/physical non-claims, and the
+  760-line split trigger.
+- Boundary: no Recipe, Join, result-publication, physical call lowering,
+  Deferred repair, Compatibility/RawLegacy merge, fallback, or performance
+  claim was added. The next row must be selected explicitly before consuming
+  this inventory.
+
 ## Later rows (not opened)
 
 1. `SCRIPT-DIRECT-STATIC-CALL-RECIPE-R1`: consume the target catalog into one
@@ -101,3 +121,26 @@ Recipe, Join, physicalizer, method handlers, backend, and fallback paths.
    result-publication owner, then retire only the selected raw Script edge.
 3. Brand relationless lanes and `MethodCall/Brand.unwrap` remain independent;
    this row does not weaken their stop conditions.
+
+## Next design stop (not opened)
+
+`SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` is the next design-only row. The I0
+inventory is retained as an input, but no Recipe owner, argument/value relation,
+result publication, or physical call route has been selected yet.
+
+Decision: audit one Script Facts/Recipe consumer for the retained target rows;
+do not open Recipe construction in this closeout.
+
+Source authority + canonical issuer: the existing Script semantic owner and
+Recipe/Join contracts must co-seal the exact caller/site/argument relation.
+
+Non-authority: target inventory alone, AST/name/arity lookup, static result
+catalogs, raw success, assembly, timing, or a callable caller key.
+
+Fail-fast boundary: missing Script owner, site/argument drift, incomplete
+coverage, foreign target, or result-owner mismatch remains `NoSafeSlice`.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` worker audit only.
+
+Non-claims: no Recipe/Join/physical implementation, fallback, promotion, or
+production switch is authorized by the completed I0.

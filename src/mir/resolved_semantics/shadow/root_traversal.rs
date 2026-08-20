@@ -41,6 +41,10 @@ enum ShadowRootItemsV1<'ast> {
         view: ScriptSyntaxViewV1<'ast>,
         window: &'ast VerifiedScriptRootDemandWindowV1,
     },
+    ScriptStaticTargetObservation {
+        view: ScriptSyntaxViewV1<'ast>,
+        window: &'ast VerifiedScriptRootDemandWindowV1,
+    },
 }
 
 impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
@@ -84,6 +88,25 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             enum_variant_demand: Some(enum_variant_demand),
             enum_match_demand: Some(enum_match_demand),
             record_schema_demand: Some(record_schema_demand),
+            brand_catalog: None,
+        }
+    }
+
+    pub(super) fn sparse_script_static_target_observation(
+        view: ScriptSyntaxViewV1<'ast>,
+        window: &'ast VerifiedScriptRootDemandWindowV1,
+    ) -> Self {
+        Self {
+            params: &[],
+            items: ShadowRootItemsV1::ScriptStaticTargetObservation { view, window },
+            // `me` is observed as a current-owner noncandidate.  This is an
+            // observation policy only; it does not issue a Script owner.
+            receiver_policy: ReceiverPolicyV1::StaticCurrentOwner,
+            root_profile: view.root_profile(),
+            traversal_profile: ShadowTraversalProfileV1::FullFunctionV1,
+            enum_variant_demand: None,
+            enum_match_demand: None,
+            record_schema_demand: None,
             brand_catalog: None,
         }
     }
@@ -141,6 +164,9 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
                 ..
             } => ShadowSourcePathV0::lambda_body(),
             ShadowRootItemsV1::SparseScript { .. } => ShadowSourcePathV0::program_body(),
+            ShadowRootItemsV1::ScriptStaticTargetObservation { .. } => {
+                ShadowSourcePathV0::program_body()
+            }
         }
     }
 
@@ -209,6 +235,38 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
                         | ScriptRootSemanticDispositionV1::Transferred(_)
                         | ScriptRootSemanticDispositionV1::Diagnostic(_) => continue,
                     }
+                }
+                Ok(())
+            }
+            ShadowRootItemsV1::ScriptStaticTargetObservation { view, window } => {
+                for entry in window.entries() {
+                    let [SourcePathSegmentV1::ProgramBodyRoot, SourcePathSegmentV1::ProgramBody(index)] =
+                        entry.site().node().segments()
+                    else {
+                        return Err(super::product::ShadowResolveErrorV0::UnsupportedStatement {
+                            kind: "invalid Script static-target demand site",
+                            site: entry.site().clone(),
+                        });
+                    };
+                    let index = *index as usize;
+                    let Some(statement) = view.body().get(index) else {
+                        return Err(super::product::ShadowResolveErrorV0::UnsupportedStatement {
+                            kind: "missing Script static-target demand statement",
+                            site: entry.site().clone(),
+                        });
+                    };
+                    if matches!(
+                        entry.semantic(),
+                        ScriptRootSemanticDispositionV1::Transparent(_)
+                            | ScriptRootSemanticDispositionV1::Transferred(_)
+                            | ScriptRootSemanticDispositionV1::Diagnostic(_)
+                    ) {
+                        continue;
+                    }
+                    let path = ShadowSourcePathV0::program_body()
+                        .child(SourcePathSegmentV1::ProgramBody(index as u32));
+                    resolver.record_statement_site(path.stmt());
+                    resolver.resolve_stmt(statement, &path)?;
                 }
                 Ok(())
             }
