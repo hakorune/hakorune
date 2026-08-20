@@ -37,6 +37,10 @@ impl ParserCallableParameterSourceCatalogV1 {
         self.brand.same_as(&other.brand)
     }
 
+    pub(super) fn parser_brand(&self) -> &ParserInvocationBrandV1 {
+        &self.brand
+    }
+
     pub(in crate::parser) fn same_parser_brand(&self, brand: &ParserInvocationBrandV1) -> bool {
         self.brand.same_as(brand)
     }

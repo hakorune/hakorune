@@ -112,6 +112,10 @@ impl CompletedParserPostpassV1 {
         }
     }
 
+    pub(in crate::parser) fn program_cohort_for_admission(&self) -> ParserPostpassProgramCohortV1 {
+        self.box_coverage.program_cohort
+    }
+
     pub(super) fn from_source_product(
         product: ParsedProgramWithSourceV1,
         explain: Option<BuildGateExplainReport>,

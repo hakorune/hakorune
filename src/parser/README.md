@@ -4,6 +4,14 @@ The parser owns source syntax, ordered source coordinates, and parser-private
 transport products. It does not resolve callable targets, issue semantic
 contracts, build Recipe/CallSlot products, or emit MIR/runtime routes.
 
+The canonical pure-Script admission is a parser-only, non-Clone cohort
+witness. It is issued from the same postpass plus complete parameter-source
+product after an exhaustive top-level shape check; `NoBoxDeclarations` and
+`is_source_backed()` are not sufficient. The following parser-input handoff
+owns ProgramBody/declaration/config rows, while resolver and physical owners
+remain downstream. Compatibility, unresolved shapes, and missing parser
+authority stay typed stops rather than empty source success.
+
 ## Shared Box-member source cursor
 
 `source_member_cursor.rs` is the parser-private owner of one Box declaration's

@@ -1,3 +1,6 @@
+use super::canonical_script_source_admission::{
+    issue_canonical_script_cohort, CanonicalScriptCohortDispositionV1,
+};
 use super::catalog::{
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
 };
@@ -29,6 +32,7 @@ pub(crate) enum ParserCallableSourceRetentionErrorV1 {
 pub(crate) struct ParsedProgramWithCallableParameterSourceV1 {
     completed: CompletedParserPostpassV1,
     parameter_source: ParserCallableParameterSourceDispositionV1,
+    canonical_script_admission: CanonicalScriptCohortDispositionV1,
 }
 
 impl NyashParser {
@@ -49,10 +53,17 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         completed: CompletedParserPostpassV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,
     ) -> Self {
+        let canonical_script_admission =
+            issue_canonical_script_cohort(&completed, &parameter_source);
         Self {
             completed,
             parameter_source,
+            canonical_script_admission,
         }
+    }
+
+    pub(crate) fn canonical_script_admission(&self) -> &CanonicalScriptCohortDispositionV1 {
+        &self.canonical_script_admission
     }
 
     /// Move the atomic parser result into the retained source owner used by
@@ -77,7 +88,16 @@ impl ParsedProgramWithCallableParameterSourceV1 {
     /// source-backed consumers. The catalog is dropped only on the explicit
     /// compatibility branch; it is never projected as an empty source fact.
     pub(crate) fn into_source_disposition(self) -> ParserCallableSourceDispositionV1 {
-        if self.completed.is_source_backed() {
+        // Preserve the pre-existing source-backed disposition for the
+        // already-sealed callable cohort.  The old boolean is deliberately
+        // not consulted by the admission issuer above; it is only a
+        // compatibility-preserving projection here.
+        let is_canonical_source = self.completed.is_source_backed()
+            || matches!(
+                self.canonical_script_admission,
+                CanonicalScriptCohortDispositionV1::CanonicalScriptCohortAdmitted(_)
+            );
+        if is_canonical_source {
             ParserCallableSourceDispositionV1::SourceBacked(self)
         } else {
             ParserCallableSourceDispositionV1::Compatibility(self.completed)
@@ -106,6 +126,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         let Self {
             completed,
             parameter_source,
+            canonical_script_admission: _,
         } = self;
         let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source else {
             return Err(ParserCallableSyntaxLoanErrorV1::ParameterSourceUnavailable);
@@ -149,6 +170,7 @@ impl ParserCallableSourceDispositionV1 {
                 let ParsedProgramWithCallableParameterSourceV1 {
                     completed,
                     parameter_source,
+                    canonical_script_admission: _,
                 } = product;
                 completed.into_normal_callable_program(parameter_source)
             }

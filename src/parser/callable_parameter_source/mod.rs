@@ -4,6 +4,7 @@
 //! complete sibling source catalog. It issues `Ordinary` syntax only; `Take`,
 //! Home demand, resolver binding, Recipe, and MIR remain closed.
 
+mod canonical_script_source_admission;
 mod catalog;
 mod issuer;
 mod model;
