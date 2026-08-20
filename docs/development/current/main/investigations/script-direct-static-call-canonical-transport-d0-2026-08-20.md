@@ -126,3 +126,31 @@ Keep this row at design stop if any one of the following is unresolved:
 
 Until these are closed, no I0 implementation, fixture, backend change, or
 performance run is authorized.
+
+## Worker audit disposition
+
+The read-only transport audit at this commit confirms that the missing edge
+is real, not merely a naming gap:
+
+```text
+issuer:
+  builder/normal_script_direct_static_join_handoff/physical_input.rs:119-184
+consumer:
+  builder/script_physical_exit/direct_static_entry_kernel.rs:22-95
+canonical request:
+  compiler/canonical_core_dispatch.rs:86-118 (plan/admission/receipt only)
+canonical Script consumer:
+  compiler/canonical_core_dispatch.rs:513-550 (RawScriptBodyRecipeV1 only)
+frontdoor:
+  runner/reference/normal_file_vm_frontdoor/source_plan_input.rs:113-141
+semantic lifecycle:
+  builder/normal_default_root_catalog_lifecycle.rs:537-623
+  (attaches Join/Recipe products to selected Script source only)
+```
+
+Therefore the current decision is `NoSafeSlice` for
+`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-TRANSPORT-I0`. The next design action is
+to name one lifecycle caller and a move-only carrier that crosses the
+canonical request without AST re-resolution or a second physical-input
+issuer. Until that design is accepted, the selected-normal bridge and the
+canonical `RawScriptBodyRecipeV1` route remain separate and unchanged.
