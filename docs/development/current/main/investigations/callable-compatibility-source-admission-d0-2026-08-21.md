@@ -1,22 +1,22 @@
 ---
-Status: accepted design — transport-only P0 candidate identified; package admission remains closed
+Status: accepted design stop — transport P0 closed; cohort state census remains NoSafeSlice
 Date: 2026-08-21
-Decision: CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0
+Decision: CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0
 Parent: docs/development/current/main/investigations/mirbuilder-compatibility-seam-final-ratchet-d0-2026-08-21.md
 ProductionCaller: existing parser/macro, MIR, LLVM, Wasm, public-AST, JSON, VM, and REPL compatibility entrances; no new caller
-ReplacementCell: preserve one typed compatibility origin without pretending it is a semantic package
-Classification: design stop; source-reason transport only, no new accepted callable shape
-Execution row: CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0
+ReplacementCell: select one source-backed compatibility cohort only after its issuer and consumer are proven
+Classification: design stop; all compatibility cohorts remain explicit AST compatibility, no new accepted callable shape
+Execution row: CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0
 ---
 
-# CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0
+# CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0
 
 ## Six-line brief
 
-Decision: Enumerate every callable source admission at the compatibility
-boundary and preserve the distinction between parser-issued SourceBacked,
-typed parser/macro Compatibility, source-free Unavailable, explicit Neither,
-and Rejected; do not let an AST-only request silently become a semantic package.
+Decision: Keep every compatibility reason on the explicit AST lane until one
+cohort has a source-product issuer, one named semantic consumer, and complete
+negative coverage; do not let an AST-only request silently become a semantic
+package.
 
 Source authority + canonical issuer: the parser postpass and
 `NormalCallableTransformOutcomeV1` issue the SourceBacked/Compatibility origin
@@ -32,14 +32,14 @@ target.
 Fail-fast boundary: immediately after parser/macro materialization and before
 semantic-package issuance, Builder effects, child argument descent, or
 physical publication. Missing/foreign/ambiguous source origin is `Rejected`;
-source-free inputs remain `Unavailable` or explicit `Neither`, never inferred
+all currently unsupported cohorts remain `TypedCompatibility`, never inferred
 SourceBacked.
 
-Smallest next slice: `CALLABLE-COMPATIBILITY-SOURCE-TRANSPORT-P0`, a
-transport-only BoxShape candidate. It may carry the already-issued macro
-reason and parser lineage together to the existing compatibility owner, but it
-must not admit a new cohort, issue semantic facts, or switch a production
-caller. A later cohort admission would be a separate BoxCount D0.
+Smallest next slice: close the rolling card as
+`CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0` with one finite cohort/caller/
+authority table and no code. Only after a source-product issuer and named
+consumer exist may a cohort-specific I0 be selected; the transport-only P0 is
+already closed.
 
 Non-claims: no parser grammar change, no new accepted callable shape, no Brand
 cutover, no FunctionCall classifier, no raw retirement, no AST reparse, no
@@ -172,10 +172,31 @@ This D0 is accepted with the transport-only boundary above:
   caller, positive/negative evidence, a focused gate, a reusable guard, and
   the old compatibility edge it retires.
 
-The transport-only P0 remains `NoSafeSlice` until its single carrier and full
-move path are proven. Remain `NoSafeSlice` if retaining the reason requires AST re-scan, if a
-source-free entrance cannot be distinguished from `Neither`, if multiple
-cohorts would share one guessed package, or if compatibility success is the
-only evidence for source identity. The existing general classification-
-completeness rule in `agent-current-entry-contract-ssot.md` is the governing
-review checklist; this card supplies the row-specific finite table.
+## Cohort admission audit — NoSafeSlice
+
+The transport P0 is closed, but no current compatibility cohort is eligible
+for semantic-package admission:
+
+| cohort family | current issuer/evidence | admission result | missing boundary |
+|---|---|---|---|
+| `TypedCompatibility(Parser(...))` | parser postpass compatibility rows; no source seal and parameter disposition is `SelectedBuildGateUnsupported` | remain AST compatibility | parser-backed callable source product and one consumer |
+| `TypedCompatibility(DefaultDeriveWouldGenerateCallable)` | macro decision after `initial.into_ast()` | remain AST compatibility | macro-after source-anchor issuer; registered/default policy co-seal |
+| `TypedCompatibility(RegisteredMacroBox)` | environment/registry-dependent macro decision after AST move | remain AST compatibility | stable source membership and deterministic semantic issuer |
+| `SourceBacked` | parser final source plus normal transform | existing installed package | none; not a compatibility cohort |
+| `Unavailable` / `Neither` | source-free or outside callable lane | no package claim | no source authority by contract |
+| `Rejected` / `Discarded` | validator or isolated candidate/session owner | typed freeze or whole-candidate discard | no retry, recovery, or raw fallback |
+
+The parser compatibility families (`InterfaceBox`, `RecordBox`, `MixedProgram`,
+`TopLevelBuildGate`, `NoBoxDeclarations`, `NonProgram`, and
+`UnsupportedCallableSource`) are not interchangeable. The existing parser
+admission rejects source-seal issuance for the unsupported families, and the
+macro reasons do not reissue callable anchors after the AST is moved. A
+successful compatibility compile, AST/name/ordinal pairing, parser lineage,
+or `NormalCallableCompatibilityOriginV1` is not a semantic issuer.
+
+Therefore the current development state is `NoSafeSlice`, not a hidden
+implementation row. The current task is the finite state/caller census only;
+it must close the missing issuer/consumer boundary before any `Verified*`,
+`Prepared*`, semantic package, fallback retirement, or production switch is
+opened. The general classification-completeness rule in
+`agent-current-entry-contract-ssot.md` remains the review authority.

@@ -20,9 +20,9 @@ date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 work_mode = "design_stop"
-current_execution_row = "CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0"
+current_execution_row = "CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0"
 current_design_stop = "docs/development/current/main/investigations/callable-compatibility-source-admission-d0-2026-08-21.md"
-current_blocker_token = "Design stop: choose one finite compatibility cohort and its source authority before any admission code; transport P0 is closed, and no semantic package, fallback retirement, physical cutover, or production switch is allowed."
+current_blocker_token = "Design stop: all current compatibility cohorts lack a source-product issuer or named semantic consumer; close the finite state/caller census before any admission code, semantic package, fallback retirement, physical cutover, or production switch."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -73,7 +73,7 @@ root receipt and exact inventory validation. Origin-footprint I0 now seals the s
 The selected-normal Script direct-static bridge has closed its ingress fail-fast follow-up: ledger-backed unlocated or foreign source context now stops before child effects; only exact ScriptRoot no-row remains an ordinary-route `Absent`. The static-result publication finite state table and pre-descent seam are accepted, and its transport-only Cataloged lineage witness P0 is now closed with focused tests and an exhaustive guard. The typed publication ingress P0 is implemented and verified with explicit owner-backed missing/foreign/source-loss errors; no canonical consumer or production claim is open.
 	SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 and TYPEOP-DISJOINT-I0 are landed; PHYSICAL-BRIDGE-I0 is also landed with green focused evidence. The selected bridge takes one exact claim, emits one generic Call, publishes ExactI64 once, and finishes only after success. Scalar operand Recipe D0 and the canonical physical-input D0 are closed; the selected fast row implements the Join-plus-operand input and detached helper. The I0 focused suites and canonical physical-input guard are green; no source admission or production caller is connected.
 Canonical source-digest I0 and parser callable-source handoff I0 (0359ac0af3) are closed with one total parser disposition and no replay/second issuer; Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed. ME-CALL-ARITY-FAILFAST-P0 is complete.
-MIR-ROOT-APP-MODE-UNDECIDED-P0 is complete: both audited non-Main static-Box entrypoints distinguish App, non-App, and undecided mode before effects. The legacy normal-callable Deferred enum is caller-zero outside tests and remains parked without a consumer. The compatibility source-admission census is accepted; the reason+lineage transport P0 is implementation-complete with one non-Clone AST/reason/lineage carrier, focused evidence, and a reusable guard. Its compatibility-only route remains unchanged; cohort admission, semantic package, fallback, physical route, and production switch stay closed while the admission D0 is the current design stop.
+MIR-ROOT-APP-MODE-UNDECIDED-P0 is complete: both audited non-Main static-Box entrypoints distinguish App, non-App, and undecided mode before effects. The legacy normal-callable Deferred enum is caller-zero outside tests and remains parked without a consumer. The compatibility source-admission census is accepted; the reason+lineage transport P0 is implementation-complete with one non-Clone AST/reason/lineage carrier, focused evidence, and a reusable guard. Its compatibility-only route remains unchanged; all cohorts remain explicit compatibility while the cohort state census is the current design stop.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -86,8 +86,8 @@ current_execution_design = "docs/development/current/main/investigations/callabl
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "callable-compatibility-source-admission-d0"
 latest_card_path = "docs/development/current/main/investigations/callable-compatibility-source-admission-d0-2026-08-21.md"
-latest_card_summary = "Accepted design stop: finite SourceBacked/TypedCompatibility/Unavailable/Neither/Rejected table is fixed; transport P0 is closed, but no cohort or semantic package is selected."
-next_design_card = "CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0"
+latest_card_summary = "Accepted design stop: finite SourceBacked/TypedCompatibility/Unavailable/Neither/Rejected table and caller census are fixed; transport P0 is closed, but no cohort or semantic package is selected."
+next_design_card = "CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0"
 next_design_card_path = "docs/development/current/main/investigations/callable-compatibility-source-admission-d0-2026-08-21.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
