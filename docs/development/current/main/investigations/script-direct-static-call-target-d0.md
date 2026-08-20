@@ -1,10 +1,12 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
 Status: target/Facts/continuation/Recipe/Join and
-`SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` are landed. The current design stop
-is `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`: prove exact ScriptRoot sites and
-non-intersection with earlier routes before opening the physical bridge. No
-bridge, route, lowering, or fallback implementation is open.
+`SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` are landed. The previous design stop
+`SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` is now closed as `NoSafeSlice`: exact
+ScriptRoot site transport is present, but the target inventory can still
+intersect the earlier typeop route. The current design stop is
+`SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0`; no bridge, route, lowering, or
+fallback implementation is open.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -28,31 +30,38 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current six-line brief
 
-Decision: close `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` and open the design
-stop `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`; the selected-normal ScriptRoot
-bridge remains closed.
+Decision: close `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` as `NoSafeSlice` and open
+the design stop `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0`; the selected-normal
+ScriptRoot bridge remains closed.
 
 Source authority + canonical issuer: the existing source-bound Script semantic
-handoff and selected-normal ingress are the observation authority for this P0;
-no new semantic receipt is issued. The landed parser finalizer remains the
-sole constructor-catalog issuer and is only a prerequisite witness here.
+handoff, selected-normal ingress, parser identifier grammar, and the actual
+Builder route order are read-only witnesses; no new semantic receipt is
+issued. The landed parser finalizer remains the sole constructor-catalog issuer
+and is only a prerequisite witness here.
 
 Non-authority: compatibility AST transport, `ConstructorSourceMissing` text,
 `cohort-missing` work-plan checks, constructor key sorting, static target
-inventory, box/method names, and the physical bridge.
+inventory alone, method spelling, reserved-route classification alone, and the
+physical bridge.
 
-Fail-fast boundary: before receiver/argument descent or MIR effects, reject
-missing/foreign source context, site drift, or any typeop/reserved/static-this
-intersection. Never map a missing observation to `Absent` or enter bridge code.
+Fail-fast boundary: before receiver/argument descent or MIR effects, classify
+the exact candidate against typeop/reserved/StaticThis/non-static routes. The
+current issuer does not make that classification total: a legal static method
+named `is` or `as` with one string argument can be admitted by the target
+inventory while `build_method_call_from_input_v1` selects typeop first. Never
+map this overlap to `Absent` or enter bridge code.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` only. Prove exact
-FinalSequence/RootReturn and argument sites on the real selected-normal ingress,
-and prove non-intersection with typeop/reserved/static-this routes. No code or
-fixture change is authorized until that proof is closed.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0` only. Define a
+single source-target/typeop contract and an explicit effect-free noncandidate
+rule for `is/as` calls that are typeop-shaped, while preserving ordinary
+`is/as` methods whose arguments are not typeop-shaped. No route, lowering,
+fixture, or bridge code is authorized until that proof is closed.
 
 Non-claims: no bridge/claim/publication implementation, route change, source
-fallback, raw retirement, canonical Script exit, Box/ABI change, mixed-cohort
-admission, production switch, or performance/C-parity result.
+admission, source fallback, raw retirement, canonical Script exit, Box/ABI
+change, mixed-cohort admission, production switch, or performance/C-parity
+result.
 
 ## Historical target-I0 contract
 
@@ -574,27 +583,37 @@ I0 sections above remain evidence and are not executable rows.
    and RootReturn destinations, and rejects foreign, missing, duplicate, or
    drifted rows. It is carried through Script lowering input/state without
    issuing physical meaning.
-9. **OPEN — `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`.** Prove exact terminal and
-   argument sites, pre-member route nonintersection, total bundle-issued
-   Candidate/Absent disposition, and a finite Script-scope completion seam.
-   Production code and source admission remain unchanged.
-10. **BLOCKED — `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0`.** Only after P0 is
-   green, move the exact Candidate once at the `StaticReceiver` arm head, reuse
-   the existing ordered argument driver and unified Call receipt, publish
-   `ExactI64`, and require successful Script-ledger exhaustion. This remains a
-   selected-normal-only BoxShape.
-11. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-D0`.** Name
+9. **CLOSED — `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` -> `NoSafeSlice`.** The
+   selected-normal ingress and joined handoff preserve exact call, receiver,
+   ordered argument, and `FinalSequence`/`RootReturn` sites. However, the
+   parser accepts `is`/`as` as ordinary identifiers, while
+   `build_method_call_from_input_v1` selects the one-string-argument typeop
+   route before `MemberCallRoutePlan::StaticReceiver`; the target issuer only
+   excludes reserved routes. A legal static `is/as` method can therefore be
+   both a target-inventory candidate and an earlier typeop. The bridge is not
+   authorized.
+10. **OPEN — `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0`.** Define one
+   source-target/typeop contract and an effect-free typed noncandidate rule for
+   typeop-shaped `is/as` calls, while preserving ordinary static methods with
+   non-typeop arguments. Prove the negative witness before receiver/argument
+   effects; do not repair this with method-name fallback or AST reconstruction.
+11. **BLOCKED — `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0`.** Only after the
+   typeop-disjoint P0 is green, move the exact Candidate once at the
+   `StaticReceiver` arm head, reuse the existing ordered argument driver and
+   unified Call receipt, publish `ExactI64`, and require successful Script-ledger
+   exhaustion. This remains a selected-normal-only BoxShape.
+12. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-D0`.** Name
    one complete AST-free argument/terminal input for the detached canonical
    Script session. The scalar `RawScriptBodyRecipeV1`, AST lookup, and the
    selected-normal ledger cannot fill this gap by inference.
-12. **PARKED — canonical physical/exit integration.** Only after (11) closes may
-   the detached candidate reuse the same Call/result kernel and delegate the
-   final Return/signature write to `ScriptPhysicalExitCommitV1`.
-13. **PARKED — raw retirement/production.** Retire the old Script edge only when
-   every admitted Script family has an exact Recipe/result owner and the new
-   path is selected. Deferred, Compatibility, RawLegacy, and nested families
-   remain explicit non-claims until separately closed.
-14. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
+13. **PARKED — canonical physical/exit integration.** Only after (12) closes
+   may the detached candidate reuse the same Call/result kernel and delegate
+   the final Return/signature write to `ScriptPhysicalExitCommitV1`.
+14. **PARKED — raw retirement/production.** Retire the old Script edge only
+   when every admitted Script family has an exact Recipe/result owner and the
+   new path is selected. Deferred, Compatibility, RawLegacy, and nested
+   families remain explicit non-claims until separately closed.
+15. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
    `Hako/C <= 1.00` as the long-term same-corridor point target; a possible
    upper-95% `<= 1.03` claim requires a new predeclared batch/D0. No WSL/native
    rerun, PMU attribution, threshold change, SIMD work, or backend BoxShape is
@@ -912,18 +931,19 @@ Non-claims and stop:
   AST reconstruction, mixed-cohort widening, or growth of a file to 760/800,
   stop and split the owner before editing.
 
-### `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` execution brief (current design stop)
+### `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` execution brief (closed `NoSafeSlice`)
 
 Parent: `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0`; design/census only. The
 source-admission implementation is closed and the physical bridge remains
 unopened.
 
 Decision:
-  Prove that the real selected-normal ScriptRoot ingress preserves exact
-  `FinalSequence`/`RootReturn` source sites and ordered argument child sites,
-  and that the handoff domain cannot intersect typeop, reserved, `StaticThis`,
-  or other earlier route arms. Do not modify source admission, route selection,
-  lowering, or physical emission in this row.
+  The real selected-normal ScriptRoot ingress and joined handoff preserve exact
+  `FinalSequence`/`RootReturn` source sites and ordered argument child sites.
+  The route non-intersection premise is not closed: a legal static `is/as`
+  method with one string argument can also be selected by the earlier typeop
+  arm. Close this row as `NoSafeSlice`; do not modify source admission, route
+  selection, lowering, or physical emission here.
 
 Source authority:
   Existing source-bound Script semantic products, the installed selected-normal
@@ -935,19 +955,60 @@ Acceptance:
   A real static direct call in FinalSequence and a direct root Return each show
   one exact ScriptRoot/body or ReturnValue site before receiver/argument effects;
   each argument site is ordered and cardinality-exact; callable-package and
-  direct Script ingress agree; absent rows remain ordinary-route observations;
-  typeop/reserved/StaticThis/non-static receivers are explicit non-intersections.
-  Missing/foreign/unlocated/site-drift inputs stop before effects and never
-  become `Absent`. Focused observation evidence is recorded in this card only.
+  direct Script ingress agree. Reserved, StaticThis, and bound/dynamic receivers
+  are explicit noncandidates. The typeop negative fails, because the current
+  issuer does not exclude the legal `is/as` one-string shape. Missing/foreign/
+  unlocated/site-drift inputs stop before effects and never become `Absent`.
+  Focused observation evidence is recorded in this card only.
 
-Stop:
-  If any site is reconstructed by name/ordinal, if a pre-descent route has
-  already emitted an effect, if source admission must change again, or if the
-  route domains overlap without an effect-free classifier, return to design
-  stop and open a separate bounded prerequisite. Do not start physical bridge
-  I0 from a local green test alone.
+Closeout:
+  The source-site premise is green, but the route domains overlap without an
+  effect-free classifier. `is` and `as` are not tokenizer keywords and static
+  member declarations/calls accept ordinary identifiers; `build_method_call_
+  from_input_v1` checks `is_typeop_method` before member planning, while
+  `script_direct_static.rs` only filters reserved routes. Do not start the
+  physical bridge from a local green test alone.
 
-### `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0` (blocked by source admission and pre-descent P0)
+### `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0` execution brief (current design stop)
+
+Parent: `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`; design/census only. No source
+admission or bridge code is authorized.
+
+Decision:
+  Establish one source-target/typeop contract before any receiver or argument
+  effect. Typeop-shaped `is/as` calls must be explicit noncandidates for the
+  direct-static target inventory; ordinary static `is/as` methods with
+  non-typeop arguments must remain eligible.
+
+Source authority + canonical issuer:
+  The parser's identifier grammar and the existing `is_typeop_method` route
+  predicate are the syntax/route witnesses. A later source target issuer may
+  project only that typed disposition; it must not infer it from names alone.
+
+Non-authority:
+  declaration-catalog presence, reserved-route classification, AST text or
+  ordinal, `ValueId`/`MirType`, and a physical bridge cannot decide whether a
+  candidate is typeop-shaped.
+
+Fail-fast boundary:
+  Before receiver descent, argument descent, or MIR effects, the exact source
+  row must be classified as `TypeOpNonCandidate` or `DirectStaticCandidate`.
+  Missing/foreign/drifted observation is an error, never `Absent`; no ordinary
+  fallback or retry is allowed after a typeop overlap is observed.
+
+Smallest next slice:
+  `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0` design proof plus focused negative
+  witness for `Helpers.is("Integer")`/`Helpers.as("Integer")`, positive witness
+  for an ordinary `is/as` method with non-typeop arguments, and reserved,
+  StaticThis, bound, dynamic, and alias cases. Only after this closes may the
+  physical bridge row be reconsidered.
+
+Non-claims:
+  no parser grammar change, source admission, route implementation, Recipe/
+  Join consumption, claim/publication, physical Call, Return/signature write,
+  fallback, raw retirement, production switch, or performance result.
+
+### `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0` (blocked by typeop-disjoint P0)
 
 Change:
   At the ordinary `StaticReceiver` arm head, classify by exact bundle site and
