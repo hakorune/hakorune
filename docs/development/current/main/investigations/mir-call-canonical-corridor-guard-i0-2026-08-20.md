@@ -1,5 +1,5 @@
 ---
-Status: Active fast row
+Status: Closed fast row
 Date: 2026-08-20
 Decision: MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0
 Parent: docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md
@@ -68,3 +68,18 @@ Reuse the existing selected Dynamic tests in `src/runner/product/llvm/mod.rs`:
 If the guard cannot distinguish the selected production branch from the
 compatibility `ny_llvmc_emit_*` projections, stop and return `NoSafeSlice`
 instead of broadening the match or inferring a route from names.
+
+## Closeout evidence
+
+```text
+guard: bash tools/checks/mir_call_canonical_corridor_guard.sh (pass)
+focused tests: CARGO_BUILD_JOBS=4 cargo test --profile quick --lib selected_legacy_callsite_scan (2 passed)
+source changes: none; Call/JSON-v0/compatibility/backend routes unchanged
+line limits: guard and touched documentation remain below 760/800
+```
+
+The selected corridor is now mechanically pinned, but this does not retire
+the 25 legacy-target mentions from the D0 census. JSON-v0/VM compatibility,
+raw/compatibility lanes, canonical Script transport, and the `Option<Callee>`
+retirement remain separate prerequisites. No next execution row is opened by
+this guard-only closeout.
