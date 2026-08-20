@@ -71,21 +71,24 @@ The input owner must expose every routing outcome explicitly. No optional
 payload, wildcard, `unwrap_or(default)`, or compatibility label may merge
 these rows.
 
-| state | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
-|---|---|---|---|---|
-| `NotApplicable` | canonical frontdoor proves non-Script, non-canonical-profile, or outside direct-static scope | no input observation and no A effect | caller-owned non-Script dispatch | never fabricate `NonCandidate` or enter Script raw by absence |
-| `CompatibilitySource` | parser/source handoff explicitly marks a compatibility cohort | preserve typed compatibility origin; do not issue canonical input | existing compatibility owner or parked design stop | never become `SourceAuthorityUnavailable`, `NonCandidate`, or A success |
-| `Deferred` | Script resolver/source admission returns `ResolveScriptForestOutcomeV1::Deferred` | preserve the deferred reason; no partial input observation | explicit deferred owner or `NoSafeSlice` | never become empty input, `NonCandidate`, or raw success |
-| `SourceAuthorityUnavailable` | parser lineage/profile/one-shot receipt or canonical Script source is absent or mismatched before observation | typed stop before input package/Recipe/entry effects | `NoSafeSlice` until the issuer/identity is closed | no default identity, AST rescan, or raw fallback |
-| `ObservationIncomplete` | source authority exists, but retained window/forest/catalog coverage cannot be observed totally once | typed stop before input package and child effects | `NoSafeSlice` until coverage is total | never round to `NonCandidate`, compatibility, or raw success |
-| `InputAuthorityReady` | one compiler child validates the complete window and co-seals all required source-bound inputs | issue one move-only input envelope; no physical effect | future A consumes it exactly once | no second issuer, selected-normal copy, or by-name re-pairing |
-| `IntegrityInvalid` | complete input observation finds duplicate, foreign, stale, missing, mixed, or contradictory rows | typed reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `NonCandidate`, compatibility, or raw fallback |
-| `Transported` | future C-to-B handoff consumes the ready envelope exactly once | no replay or second source interpretation | detached canonical consumer terminal | no clone, replay, or return to source/raw |
+| state | phase | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
+|---|---|---|---|---|---|
+| ingress | `NotApplicable` | canonical frontdoor proves non-Script, non-canonical-profile, or outside direct-static scope | no input observation and no A effect | caller-owned non-Script dispatch | never fabricate `NonCandidate` or enter Script raw by absence |
+| ingress | `CompatibilitySource` | parser/source handoff explicitly marks a compatibility cohort | preserve typed compatibility origin; do not issue canonical input | existing compatibility owner or parked design stop | never become `SourceAuthorityUnavailable`, `NonCandidate`, or A success |
+| ingress | `Deferred` | Script resolver/source admission returns `ResolveScriptForestOutcomeV1::Deferred` | preserve the deferred reason; no partial input observation | explicit deferred owner or `NoSafeSlice` | never become empty input, `NonCandidate`, or raw success |
+| ingress | `SourceAuthorityUnavailable` | parser lineage/profile/one-shot receipt or canonical Script source is absent or mismatched before observation | typed stop before input package/Recipe/entry effects | `NoSafeSlice` until the issuer/identity is closed | no default identity, AST rescan, or raw fallback |
+| ingress | `ObservationIncomplete` | source authority exists, but retained window/forest/catalog coverage cannot be observed totally once | typed stop before input package and child effects | `NoSafeSlice` until coverage is total | never round to `NonCandidate`, compatibility, or raw success |
+| ingress | `NonCandidate` | one issuer completes the retained-window observation and proves every row explicitly outside direct-static scope | no A input package or physical effect | continue only through the canonical non-direct-static source owner | missing coverage is not absence; never enter raw or compatibility by default |
+| ingress | `InputAuthorityReady` | one compiler child validates the complete window and co-seals all required source-bound inputs | issue one move-only input envelope; no physical effect | future A consumes it exactly once | no second issuer, selected-normal copy, or by-name re-pairing |
+| ingress | `IntegrityInvalid` | complete input observation finds duplicate, foreign, stale, missing, mixed, or contradictory rows | typed reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `NonCandidate`, compatibility, or raw fallback |
+| C-to-B | `Transported` | future C-to-B handoff consumes the ready envelope exactly once | no replay or second source interpretation | detached canonical consumer terminal | no clone, replay, or return to source/raw |
 
-`NoSafeSlice` is a development stop, not a runtime disposition. `InputAuthorityReady`
-is a complete source-input package, not a physical permission and not the final
-direct-static disposition. `Transported` belongs to the future C-to-B phase;
-it is not a second source issuer.
+`NoSafeSlice` is a development stop, not a runtime disposition. `NonCandidate`
+requires complete, integrity-clean observation; it is not a synonym for a
+missing or partial input. `InputAuthorityReady` is a complete source-input
+package, not a physical permission and not the final direct-static
+disposition. `Transported` belongs to the future C-to-B phase, not to the A
+issuer, and is not a second source issuer.
 
 ## Exhaustive transitions
 
@@ -93,7 +96,7 @@ it is not a second source issuer.
 Script input
   -> NotApplicable | CompatibilitySource | Deferred
   -> SourceAuthorityUnavailable | ObservationIncomplete
-  -> [after complete observation] InputAuthorityReady | IntegrityInvalid
+  -> [after complete observation] NonCandidate | InputAuthorityReady | IntegrityInvalid
 InputAuthorityReady -> A source package | IntegrityInvalid   (future A only)
 A source package -> C disposition -> B transport               (future only)
 Transported       -> detached terminal only; no replay
@@ -101,9 +104,12 @@ Transported       -> detached terminal only; no replay
 
 `SourceAuthorityUnavailable` means observation cannot begin. 
 `ObservationIncomplete` means identity is present but total coverage cannot be
-issued. `IntegrityInvalid` is reserved for a complete observation whose known
-rows fail validation. `CompatibilitySource` is a typed non-canonical lane and
-must never be silently treated as missing canonical authority.
+issued. `NonCandidate` means complete observation found zero direct-static
+rows, and continues through the canonical non-direct-static owner only.
+`IntegrityInvalid` is reserved for a complete observation whose known rows
+fail validation. `CompatibilitySource` is a typed non-canonical lane and must
+never be silently treated as missing canonical authority. `Transported` is a
+future C-to-B state, not an A outcome.
 
 ## Required input envelope
 
@@ -174,6 +180,9 @@ the canonical path by pointer or name.
 - all required source products are co-sealed as one package; partial optional
   pieces cannot be paired, and a non-final terminal candidate is
   `IntegrityInvalid`, not `NonCandidate`;
+- a complete, integrity-clean zero-candidate observation is the explicit
+  `NonCandidate` state and continues only through the canonical non-direct-
+  static owner;
 - `CompatibilitySource`, `Deferred`, `SourceAuthorityUnavailable`,
   `ObservationIncomplete`, `InputAuthorityReady`, and `IntegrityInvalid`
   remain distinct through the future A/C/B request;
