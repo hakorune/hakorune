@@ -103,6 +103,27 @@ one issuance, but the retained rows must carry one source identity and exact
 coverage. `FunctionOwnerIdV1` is not a source key; names, paths, ordinals,
 filenames, and digest equality cannot re-pair rows later.
 
+## Phase boundary and transition ownership
+
+The parser handoff and A are adjacent phases, not two names for one issuer.
+The transition is finite and one-way:
+
+| phase | owned states | sole issuer / consumer | allowed transition |
+|---|---|---|---|
+| identity-I0 | `CanonicalSourceBacked`, `NotApplicable`, `CompatibilitySource`, `Deferred` | parser frontdoor and typed source disposition | only `CanonicalSourceBacked` may enter parser-input observation |
+| parser-input | `SourceAuthorityUnavailable`, `ObservationIncomplete`, `HandoffReady`, `IntegrityInvalid` | `CanonicalScriptSourceInputHandoffV1` | `HandoffReady` moves once to A; the other rows stop or remain in their typed owner |
+| A observation | `NonCandidate`, private `InputAuthorityReady`, later `DirectStaticSourceReady` | future `CanonicalScriptDirectStaticSourceOnlyIssuerV1` | A may issue semantic resolver/target/result/proof/terminal meaning exactly once |
+| C/B future | typed disposition, `Transported` | future canonical disposition and transport owners | C consumes A once; B transports the typed result only |
+
+`CanonicalSourceBacked` is an upstream identity state, not parser-input
+readiness. `HandoffReady` is the only public parser product and never means
+that a direct-static candidate exists. `NonCandidate` is A's complete,
+integrity-clean zero-candidate result and cannot be issued by the parser
+handoff. `Transported` is a C-to-B lifecycle state and cannot be returned to
+the parser or used to reissue source meaning. A missing/partial parser row is
+therefore never converted into `NonCandidate`, compatibility success, or an
+empty A input.
+
 ## Exhaustive handoff state table
 
 | state | phase | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
