@@ -78,11 +78,11 @@ pub(in crate::mir) fn lower_direct_static_physical_input_v1(
         emission,
     ) {
         Ok(publication) => publication,
-        Err(error) => return Err((session, error)),
+        Err(error) => return Err((session, error.to_string())),
     };
     let value = match publication.commit(session.builder_mut()) {
         Ok(value) => value,
-        Err(error) => return Err((session, error)),
+        Err(error) => return Err((session, error.to_string())),
     };
 
     // The source terminal is validated by the Join/Recipe products before any

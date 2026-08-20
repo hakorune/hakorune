@@ -42,6 +42,7 @@ CLAIM_TRANSPORT=src/mir/builder/normal_script_direct_static_claim_transport.rs
 MEMBER_ROUTE=src/mir/builder/calls/member_route.rs
 PHYSICAL_BRIDGE=src/mir/builder/calls/script_direct_static_physical_bridge.rs
 PHYSICAL_PUBLICATION=src/mir/builder/normal_script_direct_static_physical_publication.rs
+PHYSICAL_KERNEL=src/mir/builder/script_physical_exit/direct_static_entry_kernel.rs
 RAW_DISPATCH=src/mir/builder/raw_expression_dispatch/mod.rs
 RAW_STRUCTURED=src/mir/builder/raw_structured_child_scope.rs
 RAW_INVOCATION=src/mir/builder/raw_invocation_source_transport.rs
@@ -123,8 +124,16 @@ require_text "$CLAIM_TRANSPORT" "take_script_direct_static_claim_inner_v1"
 require_text "$PHYSICAL_BRIDGE" "lower_claimed_script_direct_static_v1"
 require_text "$PHYSICAL_BRIDGE" "emit_static_global_value_terminal_with_receipt_v1"
 require_text "$PHYSICAL_BRIDGE" "PreparedScriptDirectStaticResultPublicationV1"
+require_text "$PHYSICAL_BRIDGE" "ScriptDirectStaticPhysicalBridgeErrorV1"
+require_text "$PHYSICAL_BRIDGE" "CallReceipt(UnifiedValueCallReceiptErrorV1)"
+require_text "$PHYSICAL_BRIDGE" "TargetMismatch"
+require_text "$PHYSICAL_BRIDGE" "ArgumentDescent(String)"
 require_text "$PHYSICAL_PUBLICATION" "VerifiedCallableResultRepresentationV1::ExactI64"
 require_text "$PHYSICAL_PUBLICATION" "MirType::Integer"
+require_text "$PHYSICAL_PUBLICATION" "ScriptDirectStaticPublicationErrorV1"
+require_text "$PHYSICAL_PUBLICATION" "RepresentationMismatch"
+require_text "$PHYSICAL_PUBLICATION" "DuplicatePublication"
+require_text "$PHYSICAL_KERNEL" "error.to_string()"
 require_text "$ROOT_TRAVERSAL" "record_statement_shape"
 require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
 require_text "$BUILDER_README" "source/Facts-only"
@@ -144,7 +153,7 @@ require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_ini
 require_text "$FAILFAST_CARD" "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-P0"
 require_text "$FAILFAST_CARD" "UnlocatedCompatibility"
 
-for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$PHYSICAL_KERNEL" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2

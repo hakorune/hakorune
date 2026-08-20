@@ -133,6 +133,7 @@ impl MirBuilder {
                         match claim {
                             ScriptDirectStaticClaimTakeV1::Claimed(claimed) => {
                                 lower_claimed_script_direct_static_v1(self, port, input, claimed)
+                                    .map_err(|error| error.to_string())
                             }
                             ScriptDirectStaticClaimTakeV1::Absent => {
                                 let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
