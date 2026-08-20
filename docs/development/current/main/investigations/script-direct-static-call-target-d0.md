@@ -1,42 +1,54 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
-Status: target I0 and result-owner/Facts I0 are complete and closed. Recipe,
-Join, result publication, and physical rows remain unopened.
+Status: target I0 and result-owner/Facts I0 are complete and closed. The current
+design stop is Recipe/continuation ownership; Recipe, Join, result publication,
+and physical rows remain unopened.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
 
-- `1.15` remains the current performance acceptance ceiling; this row is not a
-  performance or backend task.
+- `1.15` remains the current performance acceptance ceiling and `1.00` remains
+  the long-term C-parity point target; this row is not a performance or backend
+  task.
 - Deferred Script owner repair is `NoSafeSlice`; this row does not relabel it.
-- The target catalog is a source product only. Recipe, Join, result publication,
-  and physical call lowering stay closed until a later row.
+- The target/result bundle is a Facts product only. Recipe, source continuation,
+  result publication, and physical call lowering stay closed until their owners
+  are named in this design stop.
 - Every touched Rust source must stay below 760 lines; `owner_forest.rs`,
   `recursive_child_lowering.rs`, and package install are no-growth owners.
 
 ## Six-line brief
 
-Decision: Accept one BoxCount prerequisite: issue an AST-free exact Script
-caller/site-to-static-target catalog, without issuing a Recipe or lowering.
+Decision: Keep `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` in design stop until one
+dedicated Script Recipe producer, source-level continuation owner, and
+Script-specific result-publication owner are named; do not reuse the scalar
+Recipe or callable result owner.
 
-Source authority + canonical issuer: the retained Script ProgramBody occurrence
-and its resolver traversal co-issue a Script-specific caller owner, exact call /
-receiver / argument sites, and the existing canonical static callee key.
+Source authority + canonical issuer: the retained Complete Script semantic
+source and its resolver-issued method rows, together with the landed exact
+target/result Facts bundle, are the only inputs. A dedicated Script Recipe
+producer alone may issue Recipe keys and rows.
 
-Non-authority: callable-owner keys, receiver/name/arity lookup, spans, `using`
-spelling, Deferred status, raw success, and module result-publication ownership.
+Non-authority: scalar `RawScriptBodyRecipeV1`, AST re-projection, callable-owner
+keys, receiver/name/arity lookup, spans, `using` spelling, Deferred status, raw
+success, `ValueId`, MIR/ASM, and callable result-publication ownership.
 
-Fail-fast boundary: duplicate/foreign caller or site, alias/local collision,
-overload mismatch, dynamic/instance receiver, nested-owner drift, or unknown
-target/arity rejects before child effects and never falls back to raw lowering.
+Fail-fast boundary: bundle/source/forest/window/owner drift, missing or reordered
+argument/result sites, missing parent/terminal continuation, unsupported result
+representation, Deferred/Compatibility/RawLegacy input, duplicate Recipe key,
+or absent Script result owner rejects before Builder effects; no AST/name or raw
+fallback is allowed.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-TARGET-I0` adds only the source
-catalog, admission retention, and focused positive/negative guards.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`, only after this D0
+closes the source-level continuation and Script result-publication contracts;
+implement it in a dedicated sibling and leave scalar Recipe/Join/physical code
+unchanged.
 
 Non-claims: no Deferred owner repair, callable-key reuse, by-name fallback,
-Recipe/Join issuance, physical switch, backend optimization, or promotion.
+physical JoinSig inference, raw-edge retirement, backend optimization,
+promotion, or C-parity claim.
 
-## I0 contract
+## Historical target-I0 contract
 
 ### Source product
 
@@ -391,3 +403,41 @@ CARGO_BUILD_JOBS=4 cargo test --profile quick -p nyash-rust --lib literal_progra
 Non-claims: no nonempty Script static Recipe, result publication, physical
 call, raw-edge retirement, production switch, performance result, or C parity
 claim is made by this closeout.
+
+## Current TODO ledger (2026-08-20)
+
+This is the single short list for the remaining work. Historical target/Facts
+I0 sections above remain evidence and are not executable rows.
+
+1. **OPEN — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` (design stop).** Name one
+   source-level parent/continuation relation for each exact MethodCall result,
+   including the root Return/terminal case. Prove that it comes from the
+   resolver-owned Script source product; do not reconstruct it from AST order,
+   names, or physical blocks.
+2. **OPEN — Script result-publication owner design.** Define a ScriptRoot
+   result destination/representation handoff that is distinct from the
+   callable-only publication owner. Missing owner, unsupported representation,
+   or Deferred input is `NoSafeSlice`, not an empty/default row.
+3. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`.** Start only after (1) and
+   (2) close. Add a dedicated Recipe producer/transport sibling, one source
+   row per Facts row, and focused positive/negative/foreign-drift tests. Keep
+   `RawScriptBodyRecipeV1`, `normal_source_plan::script_recipe`, and the
+   existing scalar path unchanged.
+4. **PARKED — Join/physical/result handoff.** After Recipe I0, open separate
+   owner cards for source Join/continuation, Script result publication, and
+   physical lowering. Never turn a physical `JoinSig`, `ValueId`, or block
+   label into source meaning.
+5. **PARKED — raw retirement/production.** Retire the old Script edge only when
+   every admitted Script family has an exact Recipe/result owner and the new
+   path is selected. Deferred, Compatibility, RawLegacy, and nested families
+   remain explicit non-claims until separately closed.
+6. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
+   `Hako/C <= 1.00` as the long-term same-corridor point target; a possible
+   upper-95% `<= 1.03` claim requires a new predeclared batch/D0. No WSL/native
+   rerun, PMU attribution, threshold change, SIMD work, or backend BoxShape is
+   authorized by this card.
+
+**Next executable row:** none while `CURRENT_STATE.toml.work_mode` is
+`design_stop`; the next row becomes `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0` only
+after the D0 contracts above are accepted and the pointer is explicitly moved
+to `fast`.
