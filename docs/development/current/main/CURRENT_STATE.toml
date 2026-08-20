@@ -20,10 +20,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "closeout"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-I0"
-current_design_stop = "none"
-current_blocker_token = "Transport-only parser callable source handoff I0 is closed at 0359ac0af3; no next execution card is open. Physical consumer, source admission, raw retirement, production switch, and performance remain separately gated."
+work_mode = "design_stop"
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-D0"
+current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-D0"
+current_blocker_token = "The selected-normal Script direct-static bridge is landed, but ledger-backed UnlocatedCompatibility/foreign source context can still fall through the ordinary static route. Open a bounded BoxShape fail-fast P0 before any canonical or production consumer; no source admission, reparse, fallback, or physical owner change is authorized."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -71,6 +71,7 @@ The V0 disposition closure is landed: one pure child accepts only real
 preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
+The selected-normal Script direct-static bridge still has a bounded ingress fail-fast follow-up: ledger-backed unlocated or foreign source context must stop before child effects; only exact ScriptRoot no-row may remain an ordinary-route `Absent`.
 SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 and TYPEOP-DISJOINT-I0 are landed; PHYSICAL-BRIDGE-I0 is also landed with green focused evidence. The selected bridge takes one exact claim, emits one generic Call, publishes ExactI64 once,
 and finishes only after success. Scalar operand Recipe D0 and the canonical
 physical-input D0 are closed; the selected fast row implements the
@@ -85,13 +86,13 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/script-direct-static-call-parser-callable-source-handoff-i0-2026-08-20.md"
+current_execution_design = "docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "script-direct-static-call-parser-callable-source-handoff-i0"
-latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-parser-callable-source-handoff-i0-2026-08-20.md"
-latest_card_summary = "Transport-only I0 closed at 0359ac0af3: one parser callable source handoff retains total disposition and digest/profile lineage for selected-normal and canonical; no Builder consumer or next execution card."
-next_design_card = "none"
-next_design_card_path = "none"
+latest_card = "script-direct-static-call-claim-ingress-failfast-d0"
+latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md"
+latest_card_summary = "Design stop: the landed selected-normal bridge must distinguish no-ledger Unavailable, exact ScriptRoot Absent, Claimed, and ledger-backed source-loss Error before child effects; canonical/source admission/production remain closed."
+next_design_card = "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-D0"
+next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
