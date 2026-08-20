@@ -1,5 +1,5 @@
 ---
-Status: Active design stop
+Status: parked — depends on source-only A design stop
 Date: 2026-08-20
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-DISPOSITION-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-transport-d0-2026-08-20.md
@@ -34,9 +34,10 @@ owner/site, complete body coverage, target/key/cardinality, ordered operands,
 terminal, and representation. Candidate-mixed, missing, duplicate, foreign,
 stale, or physical-input failures are `IntegrityInvalid`, never `NonCandidate`.
 
-Smallest next slice: design the single `DirectStatic | NonCandidate |
-IntegrityInvalid` owner and its A-to-C-to-B handoff. A later I0 may add one
-move-only carrier to `CanonicalCoreSourcePlanCompileRequestV1`.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0`
+must first define a Builder-free source producer and its shared A handoff.
+Only after that design closes may C define the single `DirectStatic |
+NonCandidate | IntegrityInvalid` owner and B add a move-only carrier.
 
 Non-claims: no source admission change, canonical production switch, detached
 Call/publication/Return change, raw fallback or retirement, JSON-v0/VM change,
@@ -190,10 +191,11 @@ Negative:
 ## Remaining issuer and caller stop
 
 The digest/profile identity contract is implemented and closed by commits
-`376ee016b2` and `b99275e802`. The remaining D0 questions are the single
-source-owned issuer and the real A-to-C-to-B caller. They must consume the
-identity and existing observation issuers exactly once without invoking a
-second resolver, AST scan, physical-input issuer, or Raw fallback.
+`376ee016b2` and `b99275e802`. The remaining work is split: first define the
+Builder-free source-only A producer in
+`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0`, then define C and the
+real A-to-C-to-B caller. None may invoke a second resolver, AST scan,
+physical-input issuer, or Raw fallback.
 
 ## NoSafeSlice conditions
 
