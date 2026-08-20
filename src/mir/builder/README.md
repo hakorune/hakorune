@@ -530,10 +530,13 @@ projects only already-issued parent relations and terminal statements.
 Transparent, transferred, and diagnostic root entries are explicit boundaries
 and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
 transports this continuation together with the existing lowering projection and
-direct-static Facts bundle. It issues no Recipe key, Join signature, ValueId,
-result-publication ABI, physical block, fallback, or production switch. The
-Script result-publication owner remains a separate design stop before Recipe
-work.
+direct-static Facts bundle. The source/Facts-only
+`VerifiedScriptDirectStaticResultPublicationOwnerV1` co-seals the existing
+target/representation rows with the resolver-issued continuation and keeps the
+ScriptRoot owner distinct from the callable-only publication owner. It issues
+no Recipe key, Join signature, ValueId, MIR type, result-publication ABI,
+physical block, fallback, or production switch; Recipe and physical result
+publication remain later design rows.
 
 ## Loop PHI observer boundary (M6-B)
 

@@ -10,6 +10,7 @@ use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCa
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
+use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
@@ -560,11 +561,29 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/script-static-result/bundle] {error:?}").into(),
                             )
                         })?;
+                    let publication_owner =
+                        VerifiedScriptDirectStaticResultPublicationOwnerV1::issue(
+                            source,
+                            &bundle,
+                            source.continuation(),
+                        )
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-result/owner] {error:?}").into(),
+                            )
+                        })?;
                     source
                         .attach_direct_static_result_bundle(bundle)
                         .map_err(|error| {
                             NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                                 format!("[mir/script-static-result/attach] {error}").into(),
+                            )
+                        })?;
+                    source
+                        .attach_direct_static_result_publication_owner(publication_owner)
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-result/owner-attach] {error}").into(),
                             )
                         })?;
                 }

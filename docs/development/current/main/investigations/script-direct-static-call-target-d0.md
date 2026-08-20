@@ -1,8 +1,8 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
-Status: target I0, result-owner/Facts I0, continuation D0, and continuation I0
-are closed. The ScriptRoot result-publication owner D0 is accepted as the next
-design-stop task; Recipe, Join, and physical rows remain unopened.
+Status: target I0, result-owner/Facts I0, continuation D0, continuation I0,
+and ScriptRoot result-owner I0 are closed. Recipe D0 is the current design
+stop; Join, physical, and raw retirement rows remain unopened.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -11,8 +11,8 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   the formal long-term C-parity point target; a possible upper-95% `<= 1.03`
   claim is a separate future D0. This row is not a performance or backend task.
 - Deferred Script owner repair is `NoSafeSlice`; this row does not relabel it.
-- The target/result bundle and source continuation are Facts/source products
-  only. Recipe, result publication, and physical call lowering stay closed
+- The target/result bundle, source continuation, and ScriptRoot result owner are
+  Facts/source products only. Recipe and physical call lowering stay closed
   until their owners are named in this design stop.
 - Every touched Rust source must stay below 760 lines; `owner_forest.rs`,
   `recursive_child_lowering.rs`, and package install are no-growth owners.
@@ -541,17 +541,16 @@ I0 sections above remain evidence and are not executable rows.
    continuation validates the root/window boundary and projects exact rows.
    Transparent/diagnostic entries remain explicit non-shape boundaries. The
    focused continuation tests pass 2/2, and the reusable guard is green.
-4. **SELECTED — `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`.** Define a ScriptRoot
-   result destination/representation handoff that is distinct from the
-   callable-only publication owner. The worker-audited D0 is now accepted as
-   the active design-stop task; implementation remains unopened. Missing owner,
-   unsupported representation, or Deferred input is `NoSafeSlice`, not an
-   empty/default row.
-5. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`.** Start only after (4)
-   closes. Add a dedicated Recipe producer/transport sibling, one source
-   row per Facts row, and focused positive/negative/foreign-drift tests. Keep
-   `RawScriptBodyRecipeV1`, `normal_source_plan::script_recipe`, and the
-   existing scalar path unchanged.
+4. **CLOSED — `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0`.** The
+   source/Facts-only ScriptRoot owner now co-seals the existing target/result
+   bundle with the resolver-issued continuation by exact Script owner and
+   `SourceExprSiteV1`. Missing/foreign source, owner, or continuation rows
+   reject before any Recipe or physical effect; the focused owner tests and
+   reusable guard are green.
+5. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0`.** Define the dedicated
+   Script Recipe producer/transport sibling before implementation. It must
+   consume one source row per owner row and keep `RawScriptBodyRecipeV1`,
+   `normal_source_plan::script_recipe`, and the existing scalar path unchanged.
 6. **PARKED — Join/physical/result handoff.** After Recipe I0, open separate
    owner cards for source Join/continuation, Script result publication, and
    physical lowering. Never turn a physical `JoinSig`, `ValueId`, or block
@@ -595,9 +594,38 @@ for later rows.
 
 Non-claims: no Recipe/Join/physical implementation, raw-edge retirement,
 production switch, performance result, C-parity claim, or widening of the
-callable result owner. This D0 is documented and accepted; I0 is not started.
+callable result owner. This D0 is documented and accepted; I0 is bounded to
+source/Facts co-sealing only.
 
-**Current next design stop:** `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`.
-When explicitly reopened, the next execution row is the I0 above; until then
-the current card remains in design-stop/closeout and no code or rerun is
-authorized.
+**Closed execution row:** `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0`.
+The I0 published no Recipe key, physical value, or fallback. The next row is
+the explicit Recipe design stop below.
+
+## SCRIPT-RESULT-ISSUER-I0 closeout (2026-08-20)
+
+Decision: close the source/Facts-only ScriptRoot result-publication owner as
+one bounded BoxCount. The owner consumes no Recipe, Join, ValueId, MIR type,
+physical block, result ABI, fallback, or performance authority.
+
+Source authority + canonical issuer: the existing Complete Script semantic
+forest supplies the unique ScriptRoot owner; `VerifiedScriptDirectStaticResultBundleV1`
+supplies target/representation and `VerifiedScriptSourceContinuationV1` supplies
+the exact destination/parent/terminal rows. The new sibling
+`VerifiedScriptDirectStaticResultPublicationOwnerV1` co-seals those products.
+
+Fail-fast boundary: Script-root cardinality/product, source identity, owner,
+continuation owner, exact call site, missing/duplicate/foreign rows all reject
+before Recipe or physical work. No callable-key conversion or empty/default
+owner is permitted.
+
+Evidence: `cargo test --profile quick -p nyash-rust --lib
+normal_script_direct_static_result_publication_owner`; the source/Facts
+continuation/bundle guards; and the current-state pointer guard must all be
+green. The positive fixture is a complete empty Script window (zero direct
+static rows); the negative fixture pairs a bundle from a foreign source and
+requires `BundleSourceMismatch`. Nonempty static-row coverage remains owned by
+the existing bundle/continuation tests and is not claimed by this owner test.
+
+Next design stop: `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0`. Define one Script
+Recipe producer from this owner only after a separate design audit; do not
+start Recipe/Join/physical/result publication or performance work here.

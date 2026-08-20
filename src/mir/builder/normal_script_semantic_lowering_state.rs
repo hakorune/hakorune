@@ -7,6 +7,7 @@ use crate::mir::resolved_semantics::{BindingRefV1, SourceNodeSiteV1};
 use crate::mir::ValueId;
 
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
+use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
 use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
@@ -16,16 +17,24 @@ pub(super) struct ScriptSemanticLoweringState {
     projection: VerifiedScriptLoweringProjectionV1,
     continuation: VerifiedScriptSourceContinuationV1,
     direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
+    direct_static_result_publication_owner:
+        Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
 impl ScriptSemanticLoweringState {
     pub(super) fn new(input: VerifiedScriptSemanticLoweringInputV1) -> Self {
-        let (projection, continuation, direct_static_result_bundle) = input.into_parts();
+        let (
+            projection,
+            continuation,
+            direct_static_result_bundle,
+            direct_static_result_publication_owner,
+        ) = input.into_parts();
         Self {
             projection,
             continuation,
             direct_static_result_bundle,
+            direct_static_result_publication_owner,
             variable_values: BTreeMap::new(),
             materialized_outboxes: BTreeSet::new(),
         }
@@ -43,6 +52,12 @@ impl ScriptSemanticLoweringState {
         &self,
     ) -> Option<&VerifiedScriptDirectStaticResultBundleV1> {
         self.direct_static_result_bundle.as_ref()
+    }
+
+    pub(super) fn direct_static_result_publication_owner(
+        &self,
+    ) -> Option<&VerifiedScriptDirectStaticResultPublicationOwnerV1> {
+        self.direct_static_result_publication_owner.as_ref()
     }
 
     pub(super) fn lambda_captures(

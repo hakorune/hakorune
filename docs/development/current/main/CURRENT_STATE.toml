@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0"
+current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0"
 work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0"
-current_blocker_token = "Define the separate ScriptRoot result-publication owner from the landed bundle plus continuation; Recipe, physical publication, and performance remain parked until this design stop is explicitly accepted for I0."
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0"
+current_blocker_token = "Define one Script-owned Recipe producer from the co-sealed result-publication owner; physical publication, raw retirement, and performance remain parked."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -78,7 +78,7 @@ preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the
 same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent
-ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 now retains the resolver body-shape owner through lowering input; Script result publication remains the next design stop.
+ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 now retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 now co-seals bundle and continuation Facts; Recipe/Join/physical publication remains the next design stop.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -91,8 +91,8 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "Source-continuation I0 is landed and green; the separate ScriptRoot result-publication owner D0 is the active design stop, while Recipe/physical/result work and performance remain parked in the active TODO ledger."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0"
+latest_card_summary = "Script result-publication owner source/Facts I0 is landed and green; the next design stop defines its Script Recipe producer while physical/result work and performance remain parked."
+next_design_card = "SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -106,7 +106,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0 accepted the separate ScriptRoot result-publication owner design. Resolver continuation owns destination, the existing bundle owns target/representation, and no callable-key conversion, default owner, Recipe, physical value, or performance claim is allowed; I0 remains unopened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0 landed one resolver-issued BoxCount source product. Complete Script now retains the same body-shape owner through the semantic lowering input; transparent/diagnostic boundaries remain explicit nonclaims. Focused continuation tests and the reusable guard are green; Script result publication, Recipe, Join, physical lowering, and performance remain parked.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-FACTS-I0 landed one bounded Facts product. The forest-root Script owner and exact method-call rows co-seal with the retained target/result catalogs; Script projection now consumes shared owner-core facts. Recipe/Join/physical work remain closed and the next design stop is SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-TARGET-I0 landed one source-only observation product. Exact Script caller/receiver/argument sites and canonical static targets are retained in the selected-normal work plan; six focused tests and the reusable guard are green. Recipe/Join/physical consumers remain closed; SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0 closed NoSafeSlice and FACTS-COSEAL-D0 is the next design stop.",
@@ -117,4 +116,5 @@ landed_tail = [
   "2026-08-20: INSTANCE-CONSTRUCTOR-PHYSICAL-SOURCE-TRANSFER-P0 landed one BoxShape. The installed parser-issued ConstructorSourceId is validated against final Box/name/key/function rows and carried unchanged into both immediate and Script-runtime physical demands; raw Brand consumption remains unopened.",
   "2026-08-20: SCRIPT-INSTANCE-BOX-TRANSFERRED-BOUNDARY-I0 landed one BoxCount. Exact installed method plus parser-constructor semantic coverage now issues one transferred Script boundary; surrounding Script resolves without entering the Box, and physical Brand consumption remains unopened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
+  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
 ]

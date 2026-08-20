@@ -23,6 +23,8 @@ SEMANTIC_SOURCE=src/mir/builder/normal_script_semantic_source.rs
 CONTINUATION=src/mir/builder/normal_script_source_continuation.rs
 CONTINUATION_TESTS=src/mir/builder/normal_script_source_continuation_tests.rs
 LOWERING_INPUT=src/mir/builder/normal_script_semantic_lowering_input.rs
+RESULT_OWNER=src/mir/builder/normal_script_direct_static_result_publication_owner.rs
+RESULT_OWNER_TESTS=src/mir/builder/normal_script_direct_static_result_publication_owner_tests.rs
 ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
 BUILDER_README=src/mir/builder/README.md
 CARD=docs/development/current/main/investigations/script-direct-static-call-target-d0.md
@@ -38,14 +40,19 @@ require_text "$SEMANTIC_SOURCE" "attach_direct_static_result_bundle"
 require_text "$CONTINUATION" "VerifiedScriptSourceContinuationV1"
 require_text "$CONTINUATION" "validate_statement_window"
 require_text "$LOWERING_INPUT" "VerifiedScriptSemanticLoweringInputV1"
+require_text "$RESULT_OWNER" "VerifiedScriptDirectStaticResultPublicationOwnerV1"
+require_text "$RESULT_OWNER" "BundleSourceMismatch"
+require_text "$RESULT_OWNER" "ContinuationMissing"
+require_text "$RESULT_OWNER_TESTS" "owner_accepts_a_complete_script_source_bundle"
+require_text "$RESULT_OWNER_TESTS" "owner_rejects_a_bundle_from_a_foreign_source"
 require_text "$ROOT_TRAVERSAL" "record_statement_shape"
 require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
-require_text "$BUILDER_README" "Script result-publication owner remains a separate design stop"
+require_text "$BUILDER_README" "source/Facts-only"
 require_text "$CARD" "SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0"
 require_text "$CARD" "source-only continuation rows"
 require_text "$CARD" "result publication, and physical lowering"
 
-for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$ROOT_TRAVERSAL" "$BUILDER_README"; do
+for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
@@ -55,6 +62,11 @@ done
 
 if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$MODULE"; then
   echo "[script-direct-static-target] observation module crossed the Recipe/physical boundary" >&2
+  exit 1
+fi
+
+if rg -n "crate::.*(JoinSig|ValueId|MirType)|raw_root_body_recipe::|fn lower_.*physical|fn emit_.*call" "$RESULT_OWNER"; then
+  echo "[script-direct-static-target] result owner crossed the source/Facts boundary" >&2
   exit 1
 fi
 
