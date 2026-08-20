@@ -1,12 +1,12 @@
 ---
-Status: accepted tooling slice — cohort state census remains NoSafeSlice
+Status: accepted design stop — tooling guard landed; cohort state census remains NoSafeSlice
 Date: 2026-08-21
-Decision: ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P1
+Decision: CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0
 Parent: docs/development/current/main/investigations/mirbuilder-compatibility-seam-final-ratchet-d0-2026-08-21.md
 ProductionCaller: existing parser/macro, MIR, LLVM, Wasm, public-AST, JSON, VM, and REPL compatibility entrances; no new caller
-ReplacementCell: validate the current routing card's finite state table; cohort admission remains closed
-Classification: BoxShape tooling; no accepted source shape, semantic receipt, or production route change
-Execution row: ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P1
+ReplacementCell: select one source-backed compatibility cohort only after its issuer and named consumer are proven; otherwise retain the typed compatibility route
+Classification: design stop; no new accepted source shape, semantic receipt, or production route change
+Execution row: CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0
 ---
 
 # ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P1
@@ -16,8 +16,8 @@ Execution row: ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P1
 Decision: Keep every compatibility reason on the explicit AST lane until one
 cohort has a source-product issuer, one named semantic consumer, and complete
 negative coverage; do not let an AST-only request silently become a semantic
-package. Add one reusable guard that checks this card's finite classification
-table without interpreting or rewriting its state vocabulary.
+package. The reusable classification-completeness guard is already landed;
+the census must now close one cohort or retain `NoSafeSlice`.
 
 Source authority + canonical issuer: the parser postpass and
 `NormalCallableTransformOutcomeV1` issue the SourceBacked/Compatibility origin
@@ -36,11 +36,12 @@ physical publication. Missing/foreign/ambiguous source origin is `Rejected`;
 all currently unsupported cohorts remain `TypedCompatibility`, never inferred
 SourceBacked.
 
-Smallest next slice: `ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P1`, a
-current-card-only reusable check for the state/outcome, authority/issuer,
-pre-effect, terminal/continuation, and fallback columns plus a neutral state
-and explicit `NoSafeSlice`. It must not select a cohort or inspect historical
-cards. The transport-only P0 is already closed.
+Smallest next slice: `CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0`, a
+read-only finite census that either names one cohort's source issuer and
+production consumer or records the missing boundary as `NoSafeSlice`. It must
+not admit a cohort, issue a semantic package, or inspect historical cards as
+authority. The transport P0 and classification-completeness tooling slice are
+already closed.
 
 Non-claims: no parser grammar change, no new accepted callable shape, no Brand
 cutover, no FunctionCall classifier, no raw retirement, no AST reparse, no
