@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0"
-current_blocker_token = "PRE-DESCENT-P0 proved exact ScriptRoot sites but found a legal static is/as one-string call can also enter the earlier typeop route. Define one effect-free typeop-disjoint disposition before any bridge code; no route, lowering, fallback, or physical implementation is authorized."
+current_design_stop = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0"
+work_mode = "fast"
+current_execution_row = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0"
+current_blocker_token = "Implement only the shared pure typeop policy and its two consumers: Builder typeop routing plus Script target inventory. Keep parser/source admission, Recipe/Join consumption, physical bridge, fallback, and production switch closed; every changed Rust file stays below 760 lines."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -79,7 +79,7 @@ SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 is landed: every
 compatibility-compatible initial source carries one parser-owned empty-or-
 complete constructor catalog, while mixed outer and unsupported cohorts retain
 compatibility status. The physical bridge remains parked behind
-SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0; no route/lowering/fallback or performance claim is open.
+SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0; no physical bridge, fallback, production switch, or performance claim is open.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -92,11 +92,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "PRE-DESCENT-P0 closed NoSafeSlice after exact ScriptRoot sites were confirmed but a legal is/as one-string static method remained eligible in the target inventory while the earlier typeop route owned it. The next design stop is TYPEOP-DISJOINT-P0; bridge code remains closed."
-next_design_card = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0"
-next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card_summary = "TYPEOP-DISJOINT-P0 fixed one pure shared-policy design: Builder typeop routing and Script target inventory must consume the same typed predicate. TYPEOP-DISJOINT-I0 is the sole fast row; bridge, fallback, and production switch remain closed."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0"
+next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -107,7 +107,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-20: SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 landed parser-owned empty-or-complete constructor catalogs for compatibility-compatible initial sources. Static-only, top-level-only, mixed, ordinary-constructor, and unsupported-cohort tests plus the reusable guard are green; PRE-DESCENT-P0 then closed NoSafeSlice on the legal is/as typeop overlap, and TYPEOP-DISJOINT-P0 is now the design stop; bridge code stays closed.",
+  "2026-08-20: SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 landed parser-owned empty-or-complete constructor catalogs for compatibility-compatible initial sources. Static-only, top-level-only, mixed, ordinary-constructor, and unsupported-cohort tests plus the reusable guard are green; PRE-DESCENT-P0 then closed NoSafeSlice on the legal is/as typeop overlap, TYPEOP-DISJOINT-P0 fixed the shared-policy design, and TYPEOP-DISJOINT-I0 is now the sole fast row; bridge code stays closed.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0 landed one selected-normal BoxShape. App, plain-runtime, and nonplain-runtime constructor tickets now borrow the package-issued forest by exact ConstructorSourceId, consume each role once, scope the existing raw body, and require manifest plus package completion; Compatibility/RawLegacy and global raw Brand retirement remain parked.",
