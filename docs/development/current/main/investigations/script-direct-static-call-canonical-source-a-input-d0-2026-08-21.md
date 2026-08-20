@@ -127,6 +127,15 @@ only while the compiler child validates and co-seals the owned envelope. A
 filename, pointer, path, name, ordinal, or digest equality cannot pair any
 two rows after issuance.
 
+The envelope is one all-or-none source package. The five independent optional
+pieces currently present in selected lowering input (bundle, publication
+owner, Recipe, Join, and required-argument proof) are not a canonical input
+authority and may not be combined opportunistically. A missing piece is
+`ObservationIncomplete` before issuance; a present-but-foreign, stale, or
+contradictory piece is `IntegrityInvalid`. In particular, a target row that is
+observed but fails the final Sequence/root-Return terminal relation is
+`IntegrityInvalid`, never `NonCandidate` or `ObservationIncomplete`.
+
 ## A/C/B owner boundary
 
 ```text
@@ -162,6 +171,9 @@ the canonical path by pointer or name.
   required proof, and terminal/source rows have one lifetime and one issuer;
 - `InputAuthorityReady` contains no AST, `ValueId`, MIR/Builder physical
   fact, or Recipe key;
+- all required source products are co-sealed as one package; partial optional
+  pieces cannot be paired, and a non-final terminal candidate is
+  `IntegrityInvalid`, not `NonCandidate`;
 - `CompatibilitySource`, `Deferred`, `SourceAuthorityUnavailable`,
   `ObservationIncomplete`, `InputAuthorityReady`, and `IntegrityInvalid`
   remain distinct through the future A/C/B request;
