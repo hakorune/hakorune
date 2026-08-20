@@ -52,6 +52,14 @@ canonical path is `canonical_core_dispatch::compile_script` →
 `OpenScriptPhysicalEntryV1`, which still consumes only `RawScriptBodyRecipeV1`.
 No production caller currently invokes the new physical-input consumer.
 
+The input is also narrower than the existing selected-normal claim route:
+`PhysicalInput::issue` succeeds only when every argument belongs to the
+resolver-issued integer literal/unary/binary cohort. The broader claim ledger
+already lowers other exact-I64 calls through the ordered child driver. A
+transport plan must therefore carry a source-issued, pairwise-disjoint cohort
+selection; it may not let the canonical consumer and the claim ledger both
+observe the same row or treat an unsupported scalar tree as an absent row.
+
 ## D0 done / stop
 
 Done requires one source-backed carrier owner, one canonical consumer, exact
@@ -59,4 +67,6 @@ identity/cardinality checks before effects, and a named old-edge disposition;
 the design must prove that raw recipe and physical input cannot both be used.
 If the semantic source cannot reach `compile_script` without re-parsing,
 re-resolving, or inventing a second authority, record `NoSafeSlice` and leave
-the current physical-input row closed.
+the current physical-input row closed. The same stop applies when scalar-cohort
+partition, canonical caller identity, or raw-recipe/input exclusivity cannot be
+proven before the first physical effect.
