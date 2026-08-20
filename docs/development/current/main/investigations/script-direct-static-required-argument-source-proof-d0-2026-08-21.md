@@ -1,6 +1,7 @@
 ---
 Status: accepted design stop — ScriptRoot has a callee requirement but no
 source-bound caller representation proof
+Result: NoSafeSlice for source-proof I0; next work is issuer design only
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-SOURCE-PROOF-D0
 Parent: docs/development/current/main/investigations/script-direct-static-required-argument-consumer-d0-2026-08-21.md
@@ -61,8 +62,10 @@ future proof issuer must return exactly one state per Script direct-static row.
 |---|---|---|---|---|
 | `ExactI64Empty` | callee ExactI64 disposition with an empty ordinal set | no required-argument proof is needed | existing exact row may continue only under its current contract | no inferred requirement set |
 | `ExactI64RequiredProofReady` | future Script proof issuer co-seals callee ordinals, exact Script site/arguments, and scalar integer evidence | validate every required ordinal against its source argument row | future physical consumer only; this D0 publishes nothing | no callable-key or MIR inference |
+| `ExactI64RequiredDetachedScalar` | scalar literal/unary/binary candidate plus detached test-only kernel | no production effect; required ordinals remain unconsumed | test-only evidence; remains blocked for I0 | never promote by adding a caller |
 | `RequiredArgumentRepresentationUnavailable` | exact callee ordinal set exists but Script source proof is absent/unsupported | stop before child effects and before selected physical claim | typed unselected/reject decision must be named by the later I0 | no ordinary/raw retry, no empty list |
-| `ExactNominalBox` | callee result disposition | do not enter ExactI64 proof | existing non-Exact terminal | never coerce to integer |
+| `BindingOrNestedCallUnresolved` | caller argument is a variable, initializer flow, field/index, or nested/static call with no source representation issuer | stop before effects; do not treat syntax or a future MIR value as proof | separate representation-issuer design required | no declared-type/name/ValueId/MirType inference |
+| `ExactNominalBoxSelected` | callee result disposition is `ExactNominalBox`, even if the bundle currently stores an empty ordinal slice | do not enter ExactI64 proof | explicit non-Exact terminal; projection repair remains parked | never coerce nominal/no-requirement into integer/empty |
 | `Unavailable` | result catalog disposition or missing target result | no Script direct-static claim | explicit unavailable terminal | no default ExactI64 |
 | `Absent` (`NoCandidate`) | Script result bundle has no row at the exact site | no required-argument effect | existing no-row route | never fabricate a source row |
 | `SourceMismatch` | Script owner/site/target/ordinal identity validation | reject before effects | typed freeze | no AST/name re-pairing |
@@ -94,6 +97,10 @@ the callee ordinal authority. Its `issue` operation is currently used only to
 assemble the detached candidate `VerifiedScriptDirectStaticPhysicalInputV1`;
 the detached kernel has no production caller and does not read required
 ordinals. It must not be promoted by name or by wiring a new caller alone.
+The current production Script projection has no equivalent fact for variables,
+local-initializer flow, fields, indexes, or nested/static-call results; those
+shapes are therefore `BindingOrNestedCallUnresolved`, not an empty requirement
+set.
 
 The callable result source gate is not reusable as-is. Its
 `CallProofContextV1` starts with a `CanonicalSameModuleCallableKeyV1`, callable
@@ -128,8 +135,8 @@ accepting those shapes.
 ## Acceptance for this design stop
 
 - one source issuer and one future physical consumer are named;
-- empty, required-ready, unavailable, absent, nominal, mismatch, detached,
-  and consumer-ready states are exhaustive and non-overlapping;
+- empty, required-ready, detached, unavailable, absent, nominal, unresolved,
+  mismatch, and consumer-ready states are exhaustive and non-overlapping;
 - literal and recursive integer scalar arguments have exact site/ordinal
   coverage; variables, nested calls, fields, indexes, unsupported/typed
   literals have an explicit state;
@@ -167,6 +174,28 @@ Remain at this design stop if any of these hold:
 - The callee-required ordinal list and caller-propagated list remain separate.
 - No implementation, fixture, semantic receipt, fallback, production switch,
   or performance claim is authorized by this D0.
+
+## Representation-issuer audit (2026-08-21)
+
+The worker census found no production ScriptRoot caller representation issuer
+that can close the required-ordinal proof. `ResolvedExpressionSourceInventoryV1`
+records syntax/literal payloads and initializer sites, while
+`ResolvedBindingRecordV1` records binding identity/scope/origin; neither issues
+an integer representation or value-flow fact. `VerifiedResolvedMethodCallSourceV1`
+owns receiver, selector, arity, and ordered argument sites only. The callable
+`CallProofContextV1` is not reusable because it requires a callable owner key
+and callable result catalog; inventing a Script caller key would be a second
+authority.
+
+The only narrow representation witness is the resolver-issued scalar
+`Literal | Unary | Binary` recipe, but its current production path stops at a
+detached physical-input candidate and a test-only kernel. It does not consume
+`required_callee_i64_arguments`. Therefore `SOURCE-PROOF-I0` is **NoSafeSlice**:
+the next bounded design must name the Script source representation issuer and
+transport it to the selected consumer before any implementation is opened.
+Variables, local-initializer flow, fields/indexes, nested calls, and static-call
+results remain explicitly unresolved rather than being accepted by empty-list,
+declared-type, MIR-type, or successful-emission inference.
 
 ## Classification audit follow-up (2026-08-21)
 
