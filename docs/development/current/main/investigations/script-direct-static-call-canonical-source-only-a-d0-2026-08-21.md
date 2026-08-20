@@ -1,8 +1,9 @@
 ---
-Status: Active design stop
+Status: Parked — canonical input-authority prerequisite selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-disposition-d0-2026-08-20.md
+NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-input-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: one Builder-free canonical Script source-only disposition issuer
 Classification: BoxCount (design only; implementation remains closed)
@@ -44,6 +45,11 @@ this docs-only contract: fix source identity, catalog/result ownership,
 temporary forest lifetime, AST-free output, and the A-to-B/C handoff before
 any carrier or canonical consumer implementation.
 
+This A design is parked at the input boundary. The parser/source identity
+handoff is now closed; the next bounded design stop is
+`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-INPUT-D0`, which defines the
+complete canonical semantic input envelope before A can be implemented.
+
 Non-claims: no physical input/carrier, Call/publication/Return, canonical
 production switch, raw/compat retirement, source-admission change, ABI,
 backend, or performance claim.
@@ -58,6 +64,7 @@ continuation, and one fallback policy. `None`, wildcard arms, and
 | state | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
 |---|---|---|---|---|
 | `NotApplicable` | canonical family classifier proves the input is outside Script direct-static scope | no Script A effect and no source scan | caller-owned non-Script dispatch | never fabricate `NonCandidate` or route Script raw by absence |
+| `CompatibilitySource` | parser/source handoff explicitly marks a compatibility cohort | preserve typed compatibility origin; no A observation or physical effect | existing compatibility owner or design stop | never become `SourceAuthorityUnavailable`, `NonCandidate`, or A success |
 | `Deferred` | Script resolver/source admission reports `ResolveScriptForestOutcomeV1::Deferred` | preserve the deferred reason; no candidate observation or physical effect | explicit deferred owner or design stop | never become `NonCandidate`, `DirectStatic`, or raw success |
 | `SourceAuthorityUnavailable` | A cannot acquire parser postpass, stable identity, profile, complete window, or resolver/catalog authority | typed design stop before Recipe/entry effects | `NoSafeSlice` until the missing issuer/identity is closed | no empty catalog, default identity, AST rescan, or raw fallback |
 | `ObservationIncomplete` | A has a source identity but cannot observe the entire retained Script window/forest/catalog exactly once | typed design stop before any A product or Recipe/entry effect | `NoSafeSlice` until coverage is made total | never round to `NonCandidate`, `Deferred`, compatibility, or raw success |
@@ -81,7 +88,7 @@ The finite transition relation is:
 
 ```text
 Script input
-  -> NotApplicable | Deferred | SourceAuthorityUnavailable | ObservationIncomplete
+  -> NotApplicable | CompatibilitySource | Deferred | SourceAuthorityUnavailable | ObservationIncomplete
   -> [after complete observation] NonCandidate | DirectStaticSourceReady | IntegrityInvalid
 DirectStaticSourceReady -> Transported | IntegrityInvalid   (future C/B only)
 Transported              -> detached terminal only; no replay
@@ -201,34 +208,32 @@ identity or complete catalog/result ownership cannot be co-sealed without
 `normal_default_root_catalog_lifecycle`, `comp_ctx`, pointer comparison, or
 AST re-resolution, remain `NoSafeSlice`.
 
-## Current identity audit (2026-08-21)
+## Identity closure and remaining input gap (2026-08-21)
 
-The source identity gap is observable in the current owners and is therefore
-an active `SourceAuthorityUnavailable` witness, not a reason to add a carrier:
+The parser/source identity gap described by the original A stop is closed by
+`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-IDENTITY-I0`. The source plan now
+borrows and validates the parser-issued lineage, digest, canonical profile,
+UTF-8 length, and one-read/one-parse receipt before classification; it does
+not re-read or re-parse the source.
 
-- `src/parser/normal_callable_program_source/model.rs:33-104` issues
-  `NormalParserSourceLineageV1` from source identity, bytes digest, grammar
-  profile, UTF-8 length, and the one-read/one-parse receipt. This is the only
-  current strong identity candidate.
-- `src/mir/compiler/normal_source_plan/product.rs:24-52` stores a separate
-  `NormalSourceIdentityV1` containing only a display name. The same product's
-  parser-backed input exposes AST and postpass (`:55-83`), but no lineage
-  accessor or co-sealed digest/profile identity.
-- `src/mir/compiler/canonical_core_dispatch.rs:33-73` issues
-  `NormalSourcePlanReceiptV1` with source identity and digest independently of
-  parser lineage. `CanonicalCoreSourcePlanCompileRequestV1` then carries plan,
-  admission, and that receipt (`:92-130`), not one shared source identity.
-- `src/runner/reference/normal_file_vm_frontdoor/source_plan_input.rs:113-141`
-  moves the parser handoff into source planning but projects its display name
-  separately. A canonical A cannot join these owners by filename, display
-  string, pointer, statement ordinal, or digest equality alone.
+The remaining gap is semantic input ownership, not identity transport:
 
-The first implementation prerequisite is therefore a source-only identity
-handoff that co-seals the parser lineage and canonical receipt once, exposes a
-stable source/window identity to A, and rejects missing/foreign/mismatched
-lineage before `prepare_script_recipe()`. It must not issue a second parser or
-resolver product. Until that handoff and the catalog/result issuer are named,
-`DirectStaticSourceReady` is a design vocabulary only and no I0 is authorized.
+- `src/mir/compiler/canonical_core_dispatch.rs:526-546` reaches
+  `prepare_script_recipe()` and `OpenScriptPhysicalEntryV1` without a complete
+  source-only demand/window input;
+- `src/mir/builder/normal_default_root_catalog_lifecycle.rs:456-665` can issue
+  selected-normal target/result/Recipe/Join products, but those products are
+  Builder-owned and retain temporary pointer identity;
+- `src/mir/builder/normal_script_semantic_source.rs` retains the selected
+  forest and direct-static siblings, but it is not a canonical source-only
+  issuer;
+- `src/mir/source_call_target/script_direct_static.rs` is an observation
+  inventory, not a complete A input package.
+
+Therefore the next card must name one complete input owner and lifetime before
+`DirectStaticSourceReady` can become more than design vocabulary. No selected
+Builder product may be copied into canonical A by pointer, path, name, ordinal,
+or digest-only equality.
 
 ## Acceptance for this design stop
 
@@ -242,7 +247,8 @@ resolver product. Until that handoff and the catalog/result issuer are named,
 - target, result, Recipe, Join, and required-proof inputs are co-sealed once;
 - A's output contains no AST, `ValueId`, Builder ordinal, physical block, or
   guessed empty row;
-- `Deferred`, `SourceAuthorityUnavailable`, `ObservationIncomplete`,
+- `CompatibilitySource`, `Deferred`, `SourceAuthorityUnavailable`,
+  `ObservationIncomplete`,
   `NonCandidate`, and `IntegrityInvalid` remain distinct through the future
   request;
 - a future carrier has one named consumer and one retirement/cutover edge;
