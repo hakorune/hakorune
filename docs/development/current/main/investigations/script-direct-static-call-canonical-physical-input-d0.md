@@ -119,3 +119,40 @@ CANONICAL-PHYSICAL-INPUT-D0
 MIR Call dual-representation retirement, metadata consumer census, builder
 root-tail cleanup, main integration, and branch protection remain separate
 ordered lanes.
+
+## D0 audit closeout — canonical input is not yet issuable
+
+Four read-only audits plus a focused transport follow-up inspected the actual
+owners. The result is a bounded `NoSafeSlice`, not permission to add an empty
+or guessed input:
+
+- `VerifiedScriptSemanticSourceV1`, the Result Bundle, and the Join Handoff
+  retain exact source/owner/target/terminal/argument **sites**, but they do not
+  retain a canonical physical operand recipe for each argument.
+- `normal_script_semantic_lowering_input.rs` and
+  `ScriptSemanticLoweringState` carry site/target/terminal projections only;
+  the selected bridge can lower live `MethodCallInput` arguments, but that
+  request-local port cannot be moved into the detached session.
+- `RawScriptBodyRecipeV1`, `normal_source_plan::script_recipe`, and the shared
+  recipe projection accept scalar expression vocabulary only; adding an ad-hoc
+  MethodCall or AST payload there would create a second authority.
+- `OpenScriptPhysicalEntrySessionV1` consumes only `RawScriptBodyRecipeV1`,
+  while callable static-result publication is Cataloged/callable-keyed and
+  `ScriptPhysicalExitCommitV1` owns final Return/signature commit only.
+
+Therefore the proposed canonical input still lacks a named, source-backed
+producer for the ordered argument operand recipes and a single detached
+consumer. The D0 remains design-only and closes with these rules:
+
+```text
+existing Script semantic source + Bundle/Join/continuation
+  -> one future AST-free direct-static physical input producer
+  -> one detached-session direct-static kernel
+```
+
+No `Verified*`/`Prepared*` semantic receipt, `RawScriptBodyRecipe` extension,
+AST clone/reparse, callable-key conversion, ValueId/MirType inference, claim
+ledger promotion, physical effect, fallback, or retry is authorized until the
+missing operand-recipe issuer is separately designed and accepted. The
+selected-normal bridge, compatibility/deferred/raw lanes, production switch,
+exit integration, and MIR Call cleanup remain unchanged and parked.
