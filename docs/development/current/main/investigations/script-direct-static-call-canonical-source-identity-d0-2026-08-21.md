@@ -17,11 +17,12 @@ parser lineage with the existing canonical source-plan receipt. Do not issue a
 new semantic candidate, Resolver product, Recipe, Join, carrier, or physical
 effect in this row.
 
-Source authority + canonical issuer: `NormalParserSourceLineageV1` is the
-parser-owned identity issuer; `CanonicalParserSourceHandoffV1` is the existing
-front-door co-seal boundary. The future handoff validates it against the
-canonical `NormalSourcePlanReceiptV1` once and lends the same source/window
-identity to Source-only A.
+Source authority + canonical issuer: the one-read/one-parse source receipt
+and parser-backed postpass are the source authority. The existing
+`CanonicalParserSourceHandoffV1::new` is the sole identity issuer: it creates
+the parser-owned `NormalParserSourceLineageV1` once and co-seals it with the
+front-door receipt. The future handoff validates that same product against
+`NormalSourcePlanReceiptV1` once and lends the source/window identity to A.
 
 Non-authority: display names, paths, filenames, AST addresses, statement
 ordinals, pointer identity, digest equality without lineage, compatibility
@@ -85,8 +86,8 @@ and extend the table before implementation evidence is accepted.
 ## Ownership and proposed implementation seam
 
 ```text
-CanonicalParserSourceHandoffV1
-  owns the parser-issued lineage and front-door receipt once.
+CanonicalParserSourceHandoffV1::new
+  is the sole front-door issuer of the parser-owned lineage plus receipt.
 
 PreparedNormalSourcePlanInputV1 / SealedNormalScriptSourceV1
   retain the same non-Clone handoff and expose a read-only identity loan;
@@ -114,10 +115,11 @@ alone is not a proof of source identity.
 
 ## Evidence and current gap
 
-- `src/parser/normal_callable_program_source/model.rs:33-104` issues and
-  validates `NormalParserSourceLineageV1`.
+- `src/parser/normal_callable_program_source/model.rs:33-104` defines and
+  validates the parser-owned `NormalParserSourceLineageV1` shape; it must not
+  be re-issued by a later source-plan or A consumer.
 - `src/runner/reference/normal_file_vm_frontdoor/parser_source_handoff.rs:20-64`
-  creates that lineage at the one-shot parser handoff.
+  creates that lineage exactly once in `CanonicalParserSourceHandoffV1::new`.
 - `src/mir/compiler/normal_source_plan/product.rs:24-83` retains a separate
   display identity and exposes AST/postpass, but not the parser lineage.
 - `src/mir/compiler/canonical_core_dispatch.rs:33-73` owns the canonical
