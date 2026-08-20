@@ -118,6 +118,24 @@ Smallest next slice:
 Non-claims:
 ```
 
+### Classification-completeness check
+
+Every routing, claim, publication, admission, or lifecycle design card must
+also include a finite state table before implementation. The table must name
+every outcome, including the state that is neither selected nor rejected (for
+example `Unavailable`, `Absent`, `Unresolved`, or `NoCandidate`), and bind
+each outcome to its authority, pre-effect behavior, allowed terminal, and
+fallback policy. A wildcard arm, `Option::None`, `unwrap_or(default)`, or
+generic compatibility label may not silently merge two distinct states.
+
+Use `LoopFamilyRowDispositionV1`'s four-way
+`Candidate | Declined | Unresolved | Rejected` matrix as the reference
+pattern, but choose the vocabulary owned by the current row. Reviewers must
+check that every state is issued by one named owner, every negative witness
+maps to exactly one state, and every state transition is exhaustive before a
+focused gate is treated as evidence. If the table cannot be made finite and
+authority-backed, remain at `NoSafeSlice` rather than inventing a default.
+
 The design stop ends only after the selected slice and its explicit non-claims
 are accepted in the owning card/SSOT. If a schema or operation vocabulary is
 missing, record `NoSafeSlice` as a development state; do not force it into
