@@ -47,7 +47,8 @@ change, SIMD/optimizer work, or performance measurement.
 
 | Priority | Task | Classification | Evidence / owner | Current disposition |
 |---|---|---|---|---|
-| P0 | `SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0` | BoxShape candidate | `raw_static_result_publication.rs` + StaticReceiver/me route heads | next card; design stop until pre-descent seam is proven |
+| P0 | `SCRIPT-STATIC-RESULT-PUBLICATION-SOURCE-LINEAGE-WITNESS-P0` | BoxShape prerequisite | `raw_invocation_source_transport.rs` + `RawInvocationRootLineageV1` | selected before publication ingress; preserve Cataloged witness before source collapse |
+| P0 | `SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0` | BoxShape candidate | `raw_static_result_publication.rs` + StaticReceiver/me route heads | depends on the lineage-witness row; no physical implementation yet |
 | P1 | `ME-CALL-ARITY-FAILFAST-D0` | classification design stop; likely BoxCount if default acceptance changes | `method_call_handlers.rs` + `builder_me_call_arity_strict` | separate row; strict default and pre-effect timing must be decided |
 | P1 | `MIR-ROOT-APP-MODE-UNDECIDED-FAILFAST-D0` | BoxShape candidate | `nonmain_static_box_lifecycle.rs` `root_is_app_mode.unwrap_or(false)` | separate row; freeze `None` before registration |
 | D0 | `CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0` | BoxCount only if new source shape is admitted | existing `brand-constructor-consumer-cutover-d0.md` tracker | do not duplicate; census callers and source authority first |

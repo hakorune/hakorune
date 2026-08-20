@@ -33,10 +33,12 @@ Fail-fast boundary: immediately after the effect-free `StaticReceiver` or
 `None` handling is too late because the current terminal receives lowered
 `ValueId`s.
 
-Smallest next slice: `SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0`.
-Add a typed owner/source ingress and an exhaustive StaticReceiver/me connection;
-prove the pre-descent seam first. If the seam cannot be reached without
-source-admission widening, stop as `NoSafeSlice` and open a transport D0.
+Smallest next slice: `SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0`,
+after the prerequisite `SCRIPT-STATIC-RESULT-PUBLICATION-SOURCE-LINEAGE-WITNESS-P0`.
+The prerequisite must preserve Cataloged lineage when transport produces an
+unlocated context; only then may this row add the typed owner/source ingress
+and exhaustive StaticReceiver/me connection. If the witness cannot be carried
+without source-admission widening, remain at `NoSafeSlice`.
 
 Non-claims: ScriptRoot admission, canonical Script cutover, claim-ledger
 changes, callable Compatibility retirement, raw retirement, ABI/backend,
@@ -132,6 +134,10 @@ Negative:
   emitter, or Script publication owner is introduced.
 
 ## P0 implementation boundary and guard
+
+This card is not executable until the source-lineage-witness prerequisite is
+green. `UnlocatedCompatibility` with a preserved Cataloged witness must reach
+this ingress as `Error`, not as `Unavailable` or `Absent`.
 
 The P0 may touch only a new publication-ingress child, thin forwarding in the
 existing source/structured ports, the StaticReceiver and `me` route heads,
