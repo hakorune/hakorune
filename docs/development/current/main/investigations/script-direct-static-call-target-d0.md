@@ -4,7 +4,8 @@ Status: target/Facts/continuation/Recipe/Join are landed. The physical bridge
 is conditionally accepted, but I0 is blocked behind one effect-free premise
 proof. The sole executable row is `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`;
 source admission, physical emission, canonical Script exit transport, and raw
-retirement remain unchanged.
+retirement remain unchanged. P0 must also close total disposition and the
+move-only/success-exhaustion lifecycle before implementation.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -18,7 +19,8 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   source products; the terminal contract admits only a bare final Sequence call
   or a direct Return value. P0 must prove the live selected-normal transport
   reaches their exact sites and that no joined row is consumed by an earlier
-  typeop/reserved route before the bridge may consume them.
+  typeop/reserved route before the bridge may consume them. The retained result
+  bundle, not a handoff lookup miss, must issue total Candidate/Absent status.
 - 760 lines is the source split/design trigger and 800 is the hard stop.
   `owner_forest.rs`, `recursive_child_lowering.rs`, package install, and the
   751-line Script runtime owner are no-growth owners.
@@ -27,21 +29,21 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
 
 Decision: hold the physical bridge I0. First run one production-code-neutral
 P0 proving exact selected-normal Script sites and non-intersection with every
-route that executes before `MemberCallRoutePlan::StaticReceiver`.
+route that executes before `MemberCallRoutePlan::StaticReceiver`, then prove
+the existing products admit one total, linearly completable claim lifecycle.
 
-Source authority + canonical issuer: the landed source/Facts/Recipe/Join chain
-and `VerifiedScriptDirectStaticJoinHandoffV1` remain the only source authority;
-`RawInvocationSourceContextV1` transports its exact site. P0 issues no new
-semantic or physical product.
+Source authority + canonical issuer: the landed result bundle issues total
+Candidate/Absent membership; the Recipe/Join handoff owns each Candidate's
+exact payload; `RawInvocationSourceContextV1` transports the site. P0 issues no
+new semantic or physical product.
 
 Non-authority: public-main topology, AST names/ordinals, observed route strings,
 unit-only synthetic contexts, bare `ValueId`/`MirType`, raw success,
 `ScriptPhysicalExit`, assembly, timing, and C-parity ratios.
 
-Fail-fast boundary: P0 fails if either terminal lacks the exact active site, if
-argument child sites drift, or if any joined row can enter typeop, reserved,
-`StaticThis`, or another earlier route. Failure opens only the named admission
-or route-preflight prerequisite; it never falls through to bridge I0.
+Fail-fast boundary: P0 fails on site/argument drift, earlier-route overlap,
+Candidate without its exact Recipe/Join row, handoff-miss-as-Absent, or absence
+of a move-once and success-only exhaustion seam. It never falls through to I0.
 
 Smallest next slice: `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` only. Add focused
 proof witnesses and extend the existing reusable guard; production source,
@@ -571,15 +573,15 @@ I0 sections above remain evidence and are not executable rows.
    and RootReturn destinations, and rejects foreign, missing, duplicate, or
    drifted rows. It is carried through Script lowering input/state without
    issuing physical meaning.
-9. **OPEN — `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`.** Prove on the local branch
-   that FinalSequence and RootReturn retain their exact active Script sites and
-   ordered argument sites, and that joined rows cannot be captured by typeop,
-   reserved, `StaticThis`, or another pre-member route. Production code and
-   source admission remain unchanged.
+9. **OPEN — `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`.** Prove exact terminal and
+   argument sites, pre-member route nonintersection, total bundle-issued
+   Candidate/Absent disposition, and a finite Script-scope completion seam.
+   Production code and source admission remain unchanged.
 10. **BLOCKED — `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0`.** Only after P0 is
-   green, atomically claim at the `StaticReceiver` arm head, reuse the existing
-   ordered argument driver and unified Call receipt, and publish `ExactI64`
-   through a Script sibling. This remains a selected-normal-only BoxShape.
+   green, move the exact Candidate once at the `StaticReceiver` arm head, reuse
+   the existing ordered argument driver and unified Call receipt, publish
+   `ExactI64`, and require successful Script-ledger exhaustion. This remains a
+   selected-normal-only BoxShape.
 11. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-D0`.** Name
    one complete AST-free argument/terminal input for the detached canonical
    Script session. The scalar `RawScriptBodyRecipeV1`, AST lookup, and the
@@ -883,49 +885,62 @@ Contract:
   `Argument(i)` site in order. Census every selected-normal ingress carrying
   the Script semantic ledger. Prove that no joined row is issued to or consumed
   by typeop, FastMem/`__mir__`/`__repl`/ReservedFail, `StaticThis`, or another
-  route executed before the ordinary `StaticReceiver` arm.
+  route executed before the ordinary `StaticReceiver` arm. At the exact site,
+  result-bundle absence is the only `Absent`; bundle Candidate plus the exact
+  Recipe/Join row is claimable; Candidate plus missing/drifted row is `Err`.
+  Census the sole Script scope boundary and prove a success-only finish can
+  detect unconsumed/duplicate Candidate rows without replacing the main error.
 
 Done:
   Real selected-normal FinalSequence and RootReturn witnesses match one exact
   joined row before effects; the adversarial route matrix has zero joined rows;
-  no receiver/argument/MIR event occurs during the proof query; focused tests,
-  the reusable Script guard, and current pointer guard are green. Pure helper
-  construction without the production ingress does not satisfy this row.
+  Candidate/Absent/Mismatch are total from the retained products; the one Script
+  scope boundary and all success exits are enumerated; no receiver/argument/MIR
+  event occurs during the query. Focused tests, reusable guard, and pointer guard
+  are green. Pure helper construction without production ingress is insufficient.
 
 Stop:
   Missing exact location opens only
   `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0`. Any earlier-route overlap opens
-  only `SCRIPT-DIRECT-STATIC-ROUTE-PREFLIGHT-P0`. Either result leaves bridge
-  I0 blocked; no default row, `Absent` coercion, fallback, or combined repair.
+  only `SCRIPT-DIRECT-STATIC-ROUTE-PREFLIGHT-P0`. If total disposition or safe
+  success-only completion cannot reuse the retained products and existing scope,
+  open only `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0`. Every result leaves I0
+  blocked; no default row, `Absent` coercion, fallback, or combined repair.
 
 ### `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0` (blocked by P0)
 
 Change:
-  At the ordinary `StaticReceiver` arm head, atomically return
-  `Absent | Claimed | Err`; a claim is non-Clone/non-reinsertable. Reuse the
-  existing ordered argument driver and unified generic Call receipt once, then
-  publish ExactI64 through a Script-only sibling. Selected failure discards the
-  unpublished invocation and cannot return to the ordinary handler.
+  At the ordinary `StaticReceiver` arm head, classify by exact bundle site and
+  atomically move the matching Recipe/Join row into `Absent | Claimed | Err`.
+  Remove `Clone` from the claimable row and expose no reinsert/rollback path.
+  Reuse the ordered argument driver and unified generic Call receipt once, then
+  publish ExactI64 through a Script-only sibling. On successful Script scope
+  exit, consume the state and verify no Candidate row remains. Selected failure
+  discards the invocation and cannot return to the ordinary handler.
 
 Contract:
-  `VerifiedScriptDirectStaticJoinHandoffV1` supplies target, ordered sites,
-  representation, and FinalSequence/RootReturn witness. AST text is drift-only.
-  The bridge writes no Return/signature; selected-normal keeps its existing
-  completion owners. `ScriptPhysicalExitCommitV1` remains canonical/raw-only.
+  `VerifiedScriptDirectStaticResultBundleV1` alone issues Candidate/Absent;
+  `VerifiedScriptDirectStaticJoinHandoffV1` supplies the exact Candidate target,
+  ordered sites, representation, and terminal witness. Handoff lookup failure
+  never means Absent; AST text is drift-only. The bridge writes no Return or
+  signature and selected-normal keeps its existing completion owners.
 
 Done:
   Both terminal forms claim before effects, arguments lower left-to-right once,
   exactly one generic Call receipt is issued, and its destination is published
-  as Integer before finalization. Noncandidate MIR is unchanged. Foreign/drift,
-  duplicate claim/publication, alternate receipt, shortcut escape, and every
-  post-claim failure reject without rollback/retry; a fresh compile proves
-  candidate isolation.
+  as Integer before finalization. Absent does not mutate the ledger; Candidate
+  without its handoff rejects; each handoff row is moved exactly once; every
+  successful Script scope exhausts the Candidate set. Foreign/drift, duplicate
+  claim/publication, alternate receipt, shortcut escape, and post-claim failure
+  reject without rollback/retry; a fresh compile proves candidate isolation.
 
 Stop:
   Do not grow `recursive_child_lowering.rs` (794), the 751/753-line owners, or
   add a second MethodCall matcher/argument driver. Keep every changed Rust file
-  below 800 and split by owner at 760. Source admission, canonical Script input,
-  Box/ABI, raw retirement, production cutover, and performance remain separate.
+  below 800 and split by owner at 760. If move-out or success-only finish needs
+  a second authority, a generic transport redesign, or growth in a no-growth
+  owner, stop at `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0`. Source admission,
+  canonical Script input, Box/ABI, raw retirement, cutover, and perf stay separate.
 
 ### Ordered continuation
 
