@@ -15,13 +15,14 @@ Decision: Define one source-owned canonical Script disposition that combines
 the existing direct-static observation and exact physical-input facts. Do not
 implement or connect the canonical caller in this D0.
 
-Source authority + canonical issuer: `NormalFileSourceReceiptV1` must issue
-one UTF-8 source-bytes digest plus canonical profile/seal at `read_once`; the
-same identity moves unchanged through `NormalSourcePlanReceiptV1` and
-`CanonicalCoreSourcePlanCompileRequestV1`. A single future issuer at the
-retained canonical Script source boundary then co-seals that identity,
-observation, Facts/Recipe/Join inputs, and physical-input result. Existing
-target inventory and result-bundle issuers are inputs to that owner, not
+Source authority + canonical issuer: the landed
+`CanonicalSourceBytesDigestV1` is issued once by `read_once` and moves
+unchanged through `NormalSourcePlanReceiptV1` and
+`CanonicalCoreSourcePlanCompileRequestV1`. The future
+`CanonicalScriptDirectStaticDispositionV1` is the one C issuer: it must be
+called from a source-backed A boundary that can lend the retained target,
+Facts/Recipe/Join, and physical-input products, then co-seal them once.
+Existing target inventory and result-bundle issuers are inputs to C, not
 competing disposition authorities.
 
 Non-authority: `noncandidate_count`, AST pointers, path/display strings,
@@ -63,7 +64,8 @@ can validate the physical rows, but it must be consumed by the same owner that
 issued the source disposition; calling it independently at the canonical
 entry would create a second physical-input authority.
 
-The source identity gap is now resolved as a design decision:
+The front-door identity issuer and transport are now resolved and implemented;
+the cross-domain identity join is still part of this design stop:
 
 ```text
 selected semantic Facts: AST-owned identity
@@ -71,11 +73,12 @@ canonical front door: display/path receipt identity
 ```
 
 A filename, display path, or pointer address cannot join these products. The
-front door must issue an explicit source-bytes digest plus canonical
-profile/seal at `read_once`, then carry it through the source plan, disposition,
-request, and detached entry. No identity may be reconstructed from AST names
-or statement ordinals. A missing or changed digest/profile is
-`IntegrityInvalid`, never a new source or a raw fallback.
+front door now issues the explicit source-bytes digest at `read_once` and
+carries it through the source plan and request, while selected Facts still
+carry their own source-backed AST identity. The future A-to-C caller must
+co-seal the digest/profile with that retained source context; C may not infer
+equality from names, pointers, or statement ordinals. A missing or changed
+digest/profile is `IntegrityInvalid`, never a new source or a raw fallback.
 
 ## Required disposition shape (design only)
 
@@ -108,13 +111,15 @@ selected from an explicitly issued `NonCandidate` disposition.
 
 ```text
 A  retained source/Facts/Recipe/Join producer
-   observes one canonical Script source and lends all exact inputs
+   must be invoked once for the canonical retained Script source and lend all
+   exact inputs; current selected-normal A is not yet a canonical caller
 
 C  CanonicalScriptDirectStaticDispositionV1 (design owner)
    co-seals identity + observation + physical input exactly once
 
 B  CanonicalCoreSourcePlanCompileRequestV1
-   transports the move-only disposition and performs no re-resolution
+   must transport a required move-only Script disposition and perform no
+   re-resolution; its current request carries only plan/admission/receipt
 
 detached entry kernel
    consumes DirectStatic only; existing Call/publication/exit owner
@@ -123,13 +128,48 @@ detached entry kernel
 The selected-normal Builder bridge remains a separate route until an explicit
 production cutover. It may not issue a second canonical disposition for the
 same production call. The canonical request must consume a typed Script
-decision, not an optional carrier that silently falls back.
+decision, not an optional carrier that silently falls back. If A cannot be
+called from the canonical front door without reconstructing Facts or
+re-resolving the AST, the row remains `NoSafeSlice` and no carrier is opened.
+
+## Current caller gap and design boundary
+
+The exact current paths are:
+
+```text
+normal_default_root_catalog_lifecycle.rs:453-623
+  issues selected-normal target/result/Recipe/Join products (A)
+
+canonical_core_dispatch.rs:94-130
+  consumes only plan/admission/receipt (B input)
+
+canonical_core_dispatch.rs:526-560
+  still prepares RawScriptBodyRecipeV1 directly
+
+normal_file_canonical_core_vm.rs:29-64
+  is only an explicit reference caller, not the canonical production handoff
+```
+
+Therefore the next design decision is not “add a field and pass it through.”
+It is to name one source-backed caller that invokes A before `compile_script`,
+then lets C consume A's already-issued products. A canonical-side AST scan,
+pointer/path join, or selected-normal product copy is forbidden. The typed
+request shape should make Script input required (`DirectStatic`, explicit
+`NonCandidate`, or terminal `IntegrityInvalid`) rather than an `Option` whose
+absence silently selects Raw.
+
+Worker consensus (2026-08-20): four read-only audits independently found the
+same boundary. The digest I0 is closed; C is designable but its A-to-C-to-B
+caller is absent; existing physical kernels remain non-authority; builder.rs
+cleanup and physical bridge work stay parked.
 
 ## Acceptance matrix for the later I0
 
 Positive:
 
 - one source disposition issuer emits exactly one decision and one identity;
+- the canonical front door invokes that issuer exactly once for the retained
+  Script source and moves the same digest/profile into it;
 - complete direct-static candidate moves once with unchanged owner, sites,
   keys, operands, terminal, and representation;
 - complete zero-candidate observation emits `NonCandidate` and keeps the raw
@@ -147,18 +187,19 @@ Negative:
 - selected-normal, Deferred, Compatibility, or RawLegacy product presented as
   canonical Script disposition.
 
-## Remaining issuer stop
+## Remaining issuer and caller stop
 
-The digest/profile identity contract is accepted as the next I0 prerequisite;
-it is not yet implemented. The only remaining D0 question is the single
-source-owned issuer that consumes this identity and emits exactly one of the
-three dispositions above without invoking the two existing observation
-issuers a second time.
+The digest/profile identity contract is implemented and closed by commits
+`376ee016b2` and `b99275e802`. The remaining D0 questions are the single
+source-owned issuer and the real A-to-C-to-B caller. They must consume the
+identity and existing observation issuers exactly once without invoking a
+second resolver, AST scan, physical-input issuer, or Raw fallback.
 
 ## NoSafeSlice conditions
 
 Keep this row at design stop if the issuer cannot see all retained Script rows,
-if source identity requires pointer/name/path inference, if existing input
-issuers cannot be co-sealed without a second authority, or if the canonical
-request must reparse/re-resolve the AST. Do not open the carrier I0 until these
-conditions are closed and the source identity contract is accepted.
+if the canonical front door has no real A caller, if source identity requires
+pointer/name/path inference, if existing input issuers cannot be co-sealed
+without a second authority, or if the canonical request must reparse/re-resolve
+the AST. Do not open the carrier I0 until the issuer and caller contract is
+closed; the digest prerequisite alone is insufficient.
