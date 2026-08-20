@@ -1,5 +1,5 @@
 ---
-Status: accepted design stop — tooling guard landed; cohort state census remains NoSafeSlice
+Status: closed design stop — finite cohort census complete; all compatibility admission remains NoSafeSlice
 Date: 2026-08-21
 Decision: CALLABLE-COMPATIBILITY-COHORT-STATE-CENSUS-D0
 Parent: docs/development/current/main/investigations/mirbuilder-compatibility-seam-final-ratchet-d0-2026-08-21.md
@@ -200,12 +200,25 @@ macro reasons do not reissue callable anchors after the AST is moved. A
 successful compatibility compile, AST/name/ordinal pairing, parser lineage,
 or `NormalCallableCompatibilityOriginV1` is not a semantic issuer.
 
-Therefore the current development state is `NoSafeSlice`, not a hidden
-implementation row. The current task is the finite state/caller census only;
-it must close the missing issuer/consumer boundary before any `Verified*`,
-`Prepared*`, semantic package, fallback retirement, or production switch is
-opened. The general classification-completeness rule in
+Therefore this cohort census closes as `NoSafeSlice`, not a hidden
+implementation row. No compatibility admission, `Verified*`, `Prepared*`,
+semantic package, fallback retirement, or production switch is opened. The
+general classification-completeness rule in
 `agent-current-entry-contract-ssot.md` remains the review authority.
+
+## D0 closeout and independent next row
+
+The finite caller/cohort census is complete. The parser compatibility families
+have no source-seal/callable-anchor issuer, and the macro compatibility reasons
+have no stable post-AST source membership. The existing compatibility route is
+therefore retained as a typed old edge; treating its declaration catalogs or
+successful raw lowering as a semantic consumer would create a second authority.
+
+This card does not open a compatibility implementation task. The next
+independent design stop is
+`SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-CONSUMER-D0`, which audits a carried
+source requirement with no named physical consumer. Its card is the only
+authority for that next row; compatibility admission remains parked here.
 
 ## Accepted tooling slice — ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P1
 
