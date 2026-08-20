@@ -6,9 +6,16 @@ Parent: docs/development/current/main/investigations/script-direct-static-call-c
 ProductionCaller: none; design only
 ReplacementCell: parser-owned AST-free source input handoff for canonical A
 Classification: BoxCount (design only; implementation remains closed)
+Prerequisite: docs/development/current/main/investigations/script-direct-static-call-canonical-script-source-admission-p0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-PARSER-INPUT-HANDOFF-D0
+
+This handoff D0 is parked behind the explicit pure-Script source admission
+P0. `NoBoxDeclarations` is still a compatibility cohort; this card may not
+reinterpret it as a source-backed empty Script window. Only the typed
+`CanonicalScriptSourceBacked` admission from the prerequisite may enter the
+handoff design below.
 
 ## Six-line brief
 
