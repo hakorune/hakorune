@@ -1,11 +1,10 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
 Status: target/Facts/continuation/Recipe/Join are landed. The physical bridge
-is conditionally accepted, but I0 is blocked behind one effect-free premise
-proof. The sole executable row is `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`;
-source admission, physical emission, canonical Script exit transport, and raw
-retirement remain unchanged. P0 must also close total disposition and the
-move-only/success-exhaustion lifecycle before implementation.
+is blocked because the only real static-box ScriptRoot probe is rejected before
+the selected-normal source product is issued. The next row is the bounded
+source-admission premise `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0`; no bridge,
+route, lowering, or source-shape implementation is open in this card.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -16,42 +15,44 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
 - Deferred Script owner repair is `NoSafeSlice`; this row does not relabel it.
 - The target/result bundle, source continuation, and ScriptRoot result owner are
   Facts/source products. Recipe I0 and its Join handoff are now transported
-  source products; the terminal contract admits only a bare final Sequence call
-  or a direct Return value. P0 must prove the live selected-normal transport
-  reaches their exact sites and that no joined row is consumed by an earlier
-  typeop/reserved route before the bridge may consume them. The retained result
-  bundle, not a handoff lookup miss, must issue total Candidate/Absent status.
+  source products, but a local `static box Helper { value() { return 7 } }`
+  direct-static probe currently enters the compatibility parser arm and stops
+  at `ConstructorSourceMissing`; the older `for_mir_mode` route reaches the
+  selected-normal work-plan `cohort-missing` guard. This is source admission
+  debt, not bridge evidence. P0 must decide whether static-only boxes enter the
+  source-backed lane with a parser-issued empty constructor cohort, or remain a
+  documented non-claim with another exact source-backed fixture.
 - 760 lines is the source split/design trigger and 800 is the hard stop.
   `owner_forest.rs`, `recursive_child_lowering.rs`, package install, and the
   751-line Script runtime owner are no-growth owners.
 
 ## Current six-line brief
 
-Decision: hold the physical bridge I0. First run one production-code-neutral
-P0 proving exact selected-normal Script sites and non-intersection with every
-route that executes before `MemberCallRoutePlan::StaticReceiver`, then prove
-the existing products admit one total, linearly completable claim lifecycle.
+Decision: stop the pre-descent proof and open `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0`.
+The selected-normal ScriptRoot bridge cannot be evaluated until a real static
+source either reaches the source-backed lane or is explicitly ruled out.
 
-Source authority + canonical issuer: the landed result bundle issues total
-Candidate/Absent membership; the Recipe/Join handoff owns each Candidate's
-exact payload; `RawInvocationSourceContextV1` transports the site. P0 issues no
-new semantic or physical product.
+Source authority + canonical issuer: the parser postpass finalizer and its
+`ParserConstructorSourceCatalogV1` co-seal the retained Program/source seals;
+the normal callable source transport carries that product into selected-normal
+root admission. Builder target/bundle products only consume it.
 
-Non-authority: public-main topology, AST names/ordinals, observed route strings,
-unit-only synthetic contexts, bare `ValueId`/`MirType`, raw success,
-`ScriptPhysicalExit`, assembly, timing, and C-parity ratios.
+Non-authority: compatibility AST transport, `ConstructorSourceMissing` text,
+`cohort-missing` work-plan checks, constructor key sorting, static target
+inventory, box/method names, synthetic empty cohorts, and the physical bridge.
 
-Fail-fast boundary: P0 fails on site/argument drift, earlier-route overlap,
-Candidate without its exact Recipe/Join row, handoff-miss-as-Absent, or absence
-of a move-once and success-only exhaustion seam. It never falls through to I0.
+Fail-fast boundary: before Script target/bundle/Recipe/Join issuance, reject
+missing/foreign/duplicate source seals or constructor rows. Never turn a
+compatibility result into source-backed by name, and never map admission errors
+to `Absent`.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` only. Add focused
-proof witnesses and extend the existing reusable guard; production source,
-admission, routing, lowering, and MIR emission remain byte-for-byte unchanged.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0` design/census
+only. Specify one canonical empty-or-complete constructor cohort and prove the
+static-only, constructor-bearing, and mixed cases before opening an I0.
 
-Non-claims: no bridge/claim/publication implementation, source-shape widening,
-canonical-core or `ScriptPhysicalExit` integration, Box result, ABI/JoinSig
-change, raw retirement, production switch, or performance claim.
+Non-claims: no bridge/claim/publication implementation, route change, source
+fallback, raw retirement, canonical Script exit, Box/ABI change, production
+switch, or performance/C-parity result.
 
 ## Historical target-I0 contract
 
@@ -868,44 +869,51 @@ descent. The target issuer already excludes non-Ordinary reserved decisions;
 P0 must close the remaining typeop and source-location premises on the actual
 selected-normal ingress before I0 may edit this seam.
 
-### `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` execution brief (current)
+### `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0` execution brief (current)
 
-Parent: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0`; BoxShape premise proof;
-old authority: none; accepted-source and production-code delta: zero.
+Parent: `SCRIPT-DIRECT-STATIC-CALL-TARGET-D0`; BoxCount premise design stop;
+accepted-source and production-code delta: zero until the admission contract is
+approved.
 
-Change:
-  Add focused witnesses using the existing source/Facts/Recipe/Join products
-  and extend `script_direct_static_target_guard.sh`. Do not edit source
-  admission, route classification, lowering, MIR emission, or publication.
+Observed boundary:
+  `static box Helper { value() { return 7 } }` is classified by the normal
+  callable parser as a compatibility cohort. The callable-aware path therefore
+  returns `ConstructorSourceMissing`; the compatibility `for_mir_mode` path
+  reaches selected-normal work-plan admission and returns
+  `mir/instance-constructor-source/cohort-missing`. Neither error may be
+  treated as a Script result-bundle `Absent` or as bridge evidence.
 
-Contract:
-  FinalSequence must reach
-  `ProgramBodyRoot/ProgramBody(n)` and RootReturn must reach
-  `ProgramBodyRoot/ProgramBody(n)/Value`; each argument must match the joined
-  `Argument(i)` site in order. Census every selected-normal ingress carrying
-  the Script semantic ledger. Prove that no joined row is issued to or consumed
-  by typeop, FastMem/`__mir__`/`__repl`/ReservedFail, `StaticThis`, or another
-  route executed before the ordinary `StaticReceiver` arm. At the exact site,
-  result-bundle absence is the only `Absent`; bundle Candidate plus the exact
-  Recipe/Join row is claimable; Candidate plus missing/drifted row is `Err`.
-  Census the sole Script scope boundary and prove a success-only finish can
-  detect unconsumed/duplicate Candidate rows without replacing the main error.
+Decision to settle:
+  Decide whether static-only boxes with zero instance constructors are an
+  accepted selected-normal source shape. If yes, the parser finalizer must
+  issue one canonical empty `ParserConstructorSourceCatalogV1` together with
+  source seals and the final callable source. If no, the card must name an
+  independently source-backed ScriptRoot direct-static fixture; compatibility
+  success is not a substitute.
 
-Done:
-  Real selected-normal FinalSequence and RootReturn witnesses match one exact
-  joined row before effects; the adversarial route matrix has zero joined rows;
-  Candidate/Absent/Mismatch are total from the retained products; the one Script
-  scope boundary and all success exits are enumerated; no receiver/argument/MIR
-  event occurs during the query. Focused tests, reusable guard, and pointer guard
-  are green. Pure helper construction without production ingress is insufficient.
+Authority contract:
+  The parser postpass finalizer owns source seals, final box placement, and the
+  empty-or-complete constructor catalog. The initial/final callable source
+  transports that same non-Clone product. Builder constructor batches, static
+  target inventories, box/method names, and AST reconstruction are validators
+  only; they cannot mint an empty cohort or recover a missing row.
 
-Stop:
-  Missing exact location opens only
-  `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0`. Any earlier-route overlap opens
-  only `SCRIPT-DIRECT-STATIC-ROUTE-PREFLIGHT-P0`. If total disposition or safe
-  success-only completion cannot reuse the retained products and existing scope,
-  open only `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0`. Every result leaves I0
-  blocked; no default row, `Absent` coercion, fallback, or combined repair.
+Required census and acceptance:
+  static-only zero-constructor, constructor-bearing, static-plus-constructor,
+  and selected-gate cases must each have one explicit source-backed or
+  compatibility disposition. A source-backed positive must reach transform and
+  `for_mir_mode_callable_source`; constructor rows retain parser-issued IDs and
+  do not cross-pair with static method rows. Missing/foreign/duplicate seals,
+  rows, placements, or transformed declarations reject before target/bundle
+  issuance. No constructor semantics, Recipe/Join, route, lowering, or physical
+  code changes are allowed in P0.
+
+Stop and branch:
+  If the parser cannot co-seal a total empty-or-complete catalog without
+  reconstructing AST identity, open a dedicated constructor-source design stop;
+  if policy rejects static-only source-backed admission, record that non-claim
+  and stop rather than widening the bridge. Do not add a compatibility fallback,
+  synthetic default, source-name pairing, or combined bridge repair.
 
 ### `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0` (blocked by P0)
 
@@ -945,7 +953,8 @@ Stop:
 ### Ordered continuation
 
 ```text
-PRE-DESCENT-P0
+SOURCE-ADMISSION-P0
+  -> PRE-DESCENT-P0
   -> PHYSICAL-BRIDGE-I0
   -> CANONICAL-PHYSICAL-INPUT-D0
   -> canonical physical consumer
@@ -953,3 +962,5 @@ PRE-DESCENT-P0
 ```
 
 Only the final retirement row may claim one production Script physical owner.
+The source-admission row is a BoxCount prerequisite; it does not authorize a
+bridge implementation or a production route by itself.

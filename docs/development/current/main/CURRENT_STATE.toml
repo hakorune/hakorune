@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0"
-work_mode = "fast"
-current_execution_row = "SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0"
-current_blocker_token = "Before bridge I0, prove on the local selected-normal production ingress that FinalSequence/RootReturn and ordered arguments retain exact joined Script sites; no joined row intersects an earlier route; the retained result bundle is the total Absent/Candidate authority; and one candidate can later be moved once and exhausted on successful Script scope completion. Production source/admission/routing/lowering changes are forbidden in P0."
+current_design_stop = "SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0"
+work_mode = "design_stop"
+current_execution_row = "SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0"
+current_blocker_token = "The real static-box ScriptRoot direct-static probe is rejected before selected-normal source issuance: callable-aware parsing reports ConstructorSourceMissing and the compatibility route reaches cohort-missing. Before bridge P0/I0, define one parser-owned empty-or-complete constructor catalog and decide whether static-only boxes are an accepted source-backed shape. Do not coerce admission failure into Script Absent or change bridge/routing/lowering."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -38,21 +38,17 @@ private textual lowering, and one LLVM18 memory-buffer TargetMachine handoff.
 Real JSON emits a nonempty test-owned object; invalid IR and unwritable output
 leave no object, named `.ll`, or TargetMachine temporary. Production
 correctness now closes on that same parsed LLVM module before its sole emission.
-The versioned runtime header and selected declarations now agree that Enter and
-Finish are no-unwind, while successful Finish remains returnable. Object and
-disassembly observation is parked inside promotion evidence and cannot re-issue
-source or lifecycle meaning. Selected Dynamic remains the sole production arm.
-The residual-performance owner remains unissued. MeasurementBatch V3 closed
-development_keeper on WSL but has no native promotion authority; promotion and
-production cutover stay parked. The hako_check inspect owner split is landed:
+The versioned runtime header and selected declarations agree that Enter/Finish
+are no-unwind; object/disassembly observation is promotion-only and Selected
+Dynamic remains the sole production arm. The residual-performance owner remains
+unissued; WSL MeasurementBatch V3 has no native promotion authority. The
+hako_check inspect owner split is landed:
 the inspect entry, metadata, identity, shape CLI, and shape model owners are
 753/245/172/107/207 lines. Eleven focused tests and the reusable guard are
-green. The real S6C ingress and first shape canary are landed. Exact carried
-fixture bytes, strict JSON, final LLVM, object, and object-derived disassembly
-share one V1 seal. The report exposes independent layer counts but no
+green. The real S6C ingress and first shape canary are landed. Exact fixture
+bytes, strict JSON, final LLVM, object, and disassembly share one V1 seal; the report exposes independent layer counts but no
 correspondence or keeper authority. Provenance D0 selected MIR-to-final-LLVM
-issuer rows and rejected exact machine mapping. The landed S6C journal now
-digest-binds 53 emission-site rows covering all 8 MIR blocks/8 edges and 22
+issuer rows and rejected exact machine mapping. The landed S6C journal now digest-binds 53 emission-site rows covering 8 MIR blocks/8 edges and 22
 final LLVM blocks/31 edges; shape groups them by MIR origin while ASM
 attribution remains unavailable. The pure MIR counter reports
 8 blocks/8 edges/5 branches/24 instructions and final LLVM reports
@@ -79,7 +75,11 @@ identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the
 same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent
 ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
-The selected-normal physical bridge is conditionally accepted but waits on one production-code-neutral P0 proving exact live Script sites and non-intersection with typeop/reserved/StaticThis before the ordinary StaticReceiver arm. Source admission, bridge implementation, canonical ScriptPhysicalExit transport, raw retirement, performance, and C-parity remain unchanged or parked.
+The selected-normal physical bridge is stopped at
+SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0: static-box ScriptRoot reaches
+ConstructorSourceMissing/cohort-missing before target/bundle issuance. Source
+routing/lowering, ScriptPhysicalExit, raw retirement, performance, and C-parity
+remain unchanged or parked.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -92,11 +92,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "Physical-bridge D0 is conditionally accepted. PRE-DESCENT-P0 must prove exact terminal/argument sites, earlier-route nonintersection, total bundle Candidate/Absent disposition, and a safe move-only plus success-exhaustion seam without production-code changes; bridge I0 remains blocked."
-next_design_card = "SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0"
+latest_card_summary = "PRE-DESCENT-P0 stopped at a real source-admission boundary: static-box ScriptRoot direct-static input is compatibility-only and reports ConstructorSourceMissing/cohort-missing before selected-normal products. SOURCE-ADMISSION-P0 must define parser-owned empty-or-complete constructor coverage; bridge I0 remains blocked."
+next_design_card = "SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-next_execution_card = "SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0"
-next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
