@@ -11,8 +11,10 @@ use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStatic
 use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDemandReceiptPackV1;
 #[cfg(test)]
 use super::normal_script_operational_demand_receipt_pack::ScriptQMarkPropagationTargetV1;
+use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
 use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
+use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, SemanticOwnerForestDraftV1, SourceNodeSiteV1, VerifiedResolvedScriptV1,
@@ -32,6 +34,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     boundaries: ScriptBoundaryReceiptPackV1,
     demands: ScriptOperationalDemandReceiptPackV1,
     lowering_projection: VerifiedScriptLoweringProjectionV1,
+    continuation: VerifiedScriptSourceContinuationV1,
     direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
 }
 
@@ -76,6 +79,8 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             })?;
         let boundaries = ScriptBoundaryReceiptPackV1::seal(source, product, window)?;
         let demands = ScriptOperationalDemandReceiptPackV1::seal(source, product, window)?;
+        let continuation = VerifiedScriptSourceContinuationV1::issue(&forest, window)
+            .map_err(|error| format!("[mir/script-semantic/continuation] {error:?}"))?;
         let core = ScriptSemanticSourceCoreV1::seal(
             source,
             forest,
@@ -91,6 +96,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             boundaries,
             demands,
             lowering_projection,
+            continuation,
             direct_static_result_bundle: None,
         })
     }
@@ -109,6 +115,10 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         &self,
     ) -> Option<&VerifiedScriptDirectStaticResultBundleV1> {
         self.direct_static_result_bundle.as_ref()
+    }
+
+    pub(super) fn continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
+        &self.continuation
     }
 
     pub(super) fn source(&self) -> &crate::ast::ASTNode {
@@ -233,8 +243,12 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         self.lowering_projection.variable_binding_at(site)
     }
 
-    pub(super) fn into_lowering_projection(self) -> VerifiedScriptLoweringProjectionV1 {
-        self.lowering_projection
+    pub(super) fn into_lowering_input(self) -> VerifiedScriptSemanticLoweringInputV1 {
+        VerifiedScriptSemanticLoweringInputV1::new(
+            self.lowering_projection,
+            self.continuation,
+            self.direct_static_result_bundle,
+        )
     }
 }
 

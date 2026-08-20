@@ -229,7 +229,7 @@ impl RawInvocationChildPortV1<'_, '_> {
             return Err("[freeze:contract][mir/script-semantic/source-proof]".to_owned());
         }
         let state = Rc::new(RefCell::new(ScriptSemanticLoweringState::new(
-            source.into_lowering_projection(),
+            source.into_lowering_input(),
         )));
         let parent = std::mem::replace(&mut self.semantic_ledger, Some(state));
         let result = self.with_source_transport_v1(

@@ -1,9 +1,8 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
-Status: target I0, result-owner/Facts I0, and the continuation design stop are
-closed. `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0` is the current
-bounded implementation row; Recipe, Join, result publication, and physical
-rows remain unopened.
+Status: target I0, result-owner/Facts I0, continuation D0, and continuation I0
+are closed. The next design stop is the ScriptRoot result-publication owner;
+Recipe, Join, and physical rows remain unopened.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -12,9 +11,9 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   the long-term C-parity point target; this row is not a performance or backend
   task.
 - Deferred Script owner repair is `NoSafeSlice`; this row does not relabel it.
-- The target/result bundle is a Facts product only. Recipe, source continuation,
-  result publication, and physical call lowering stay closed until their owners
-  are named in this design stop.
+- The target/result bundle and source continuation are Facts/source products
+  only. Recipe, result publication, and physical call lowering stay closed
+  until their owners are named in this design stop.
 - Every touched Rust source must stay below 760 lines; `owner_forest.rs`,
   `recursive_child_lowering.rs`, and package install are no-growth owners.
 
@@ -498,6 +497,31 @@ guard.
 Non-claims: no Recipe key, Script result-publication owner, ValueId, physical
 call, raw retirement, production switch, performance result, or C-parity claim.
 
+### SOURCE-CONTINUATION-I0 closeout receipt
+
+- The Script resolver product now retains the exact `VerifiedBodyShape` issued
+  by the same shadow seal; the old forest handoff no longer drops it.
+- `normal_script_source_continuation.rs` validates the root owner and canonical
+  Script demand window, then projects only resolver-issued parent relations and
+  terminal Return/sequence rows. It does not scan AST or mint Recipe/Join data.
+- `record_statement_shape` is called only for `Resolved` Script demands. The
+  validator therefore accepts explicit transparent/diagnostic/transferred
+  boundaries without pretending they have semantic body rows.
+- `VerifiedScriptSemanticLoweringInputV1` carries the lowering projection,
+  continuation, and existing direct-static result bundle together so the
+  source products cannot be silently dropped at the transport seam.
+- Focused gate: `CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p
+  nyash-rust --lib normal_script_source_continuation_tests` — 2 passed, 0
+  failed.
+- Reusable guard: `bash tools/checks/script_direct_static_target_guard.sh` —
+  green. `bash tools/checks/current_state_pointer_guard.sh` — green.
+- Owner documentation: `src/mir/builder/README.md` records the continuation
+  boundary and keeps Script result publication as the next design stop.
+- The broader `normal_script_semantic_source` filter has no continuation
+  boundary failures after this slice; its remaining
+  `mir/instance-constructor-source/cohort-missing` failures are pre-existing
+  baseline debt and are not reclassified by this I0.
+
 ## Current TODO ledger (2026-08-20)
 
 This is the single short list for the remaining work. Historical target/Facts
@@ -511,16 +535,18 @@ I0 sections above remain evidence and are not executable rows.
    resolver-issued body-shape retention boundary is accepted: preserve the
    existing owner/shape pair and validate a root continuation sibling. No
    Recipe or physical meaning is issued by this design.
-3. **OPEN — `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0`.** Carry the
-   existing Script body-shape map through the forest/source handoff and issue
-   exact source-only continuation rows in a new sibling. Reject foreign,
-   partial, duplicate, or nested-crossing shapes before Builder effects.
+3. **CLOSED — `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0`.** The same
+   resolver-issued body-shape owner is retained in the Script product and
+   carried through `VerifiedScriptSemanticLoweringInputV1`; the sibling
+   continuation validates the root/window boundary and projects exact rows.
+   Transparent/diagnostic entries remain explicit non-shape boundaries. The
+   focused continuation tests pass 2/2, and the reusable guard is green.
 4. **OPEN — Script result-publication owner design.** Define a ScriptRoot
    result destination/representation handoff that is distinct from the
    callable-only publication owner. Missing owner, unsupported representation,
    or Deferred input is `NoSafeSlice`, not an empty/default row.
-5. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`.** Start only after (3)
-   and (4) close. Add a dedicated Recipe producer/transport sibling, one source
+5. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`.** Start only after (4)
+   closes. Add a dedicated Recipe producer/transport sibling, one source
    row per Facts row, and focused positive/negative/foreign-drift tests. Keep
    `RawScriptBodyRecipeV1`, `normal_source_plan::script_recipe`, and the
    existing scalar path unchanged.
@@ -538,6 +564,6 @@ I0 sections above remain evidence and are not executable rows.
    rerun, PMU attribution, threshold change, SIMD work, or backend BoxShape is
    authorized by this card.
 
-**Next executable row:** `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0`.
-Recipe I0 remains closed until this prerequisite and the Script
-result-publication owner are accepted.
+**Next design stop:** `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`.
+The continuation I0 is closed; Recipe I0 remains closed until the Script
+result-publication owner is accepted.

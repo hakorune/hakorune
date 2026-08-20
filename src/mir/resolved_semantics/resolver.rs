@@ -83,7 +83,6 @@ pub(super) struct SealedScriptConstructionV1 {
     pub(super) binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     pub(super) scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
     pub(super) ordered_capture_demands: Box<[OrderedCaptureDemandV1]>,
-    pub(super) body_shape: VerifiedResolvedBodyShapeInventoryV1,
 }
 
 #[derive(Debug, Clone)]
@@ -211,6 +210,7 @@ impl FunctionSemanticResolverSessionV1 {
         let product = VerifiedResolvedScriptV1::from_canonical_data(
             canonical.data,
             canonical.source_sites,
+            canonical.body_shape,
             record_literal_demands,
             enum_variant_demands,
             enum_match_demands,
@@ -223,7 +223,6 @@ impl FunctionSemanticResolverSessionV1 {
             binding_refs: canonical.binding_refs,
             scope_ids: canonical.scope_ids,
             ordered_capture_demands: canonical.ordered_capture_demands,
-            body_shape: canonical.body_shape,
         })
     }
 

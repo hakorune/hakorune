@@ -215,6 +215,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
                                     },
                                 );
                             }
+                            resolver.record_statement_shape(statement, entry.site().clone());
                             dispatch_resolved_script_root_statement(
                                 resolver,
                                 statement,

@@ -362,7 +362,6 @@ impl FunctionSemanticResolverSessionV1 {
             binding_refs,
             scope_ids,
             ordered_capture_demands,
-            body_shape: _,
         } = self
             .seal_script_owner_with_maps(owner, origin, function)
             .map_err(ResolveOwnerForestErrorV1::Function)?;

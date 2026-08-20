@@ -520,6 +520,21 @@ Prep rule:
   static receiver / env method / this-me normalization は `calls/*` の classifier
   helper で決め、`build.rs` から重複判定しない
 
+## Complete Script source continuation I0
+
+`VerifiedScriptSourceContinuationV1` is the narrow source-only continuation
+product for a Complete Script root. The resolver's existing shadow seal issues
+the `VerifiedBodyShape` and the Script product retains that same owner/shape
+pair; the continuation sibling validates the canonical demand window and
+projects only already-issued parent relations and terminal statements.
+Transparent, transferred, and diagnostic root entries are explicit boundaries
+and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
+transports this continuation together with the existing lowering projection and
+direct-static Facts bundle. It issues no Recipe key, Join signature, ValueId,
+result-publication ABI, physical block, fallback, or production switch. The
+Script result-publication owner remains a separate design stop before Recipe
+work.
+
 ## Loop PHI observer boundary (M6-B)
 
 `LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical

@@ -3,7 +3,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
-use super::body_shape::VerifiedResolvedMethodCallSourceV1;
+use super::body_shape::{VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedMethodCallSourceV1};
 use super::brand_source_relation::VerifiedBrandCallSourceRelationV1;
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::enum_variant_demand::EnumVariantAdmissionV1;
@@ -94,6 +94,7 @@ pub struct VerifiedResolvedFunctionV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedResolvedScriptV1 {
     core: VerifiedResolvedOwnerCoreV1,
+    body_shape: VerifiedResolvedBodyShapeInventoryV1,
     record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
     enum_match_demands: BTreeSet<SourceExprSiteV1>,
@@ -428,6 +429,7 @@ impl VerifiedResolvedScriptV1 {
     pub(crate) fn from_canonical_data(
         data: ResolvedFunctionDataV1,
         source_sites: ResolvedSourceSiteInventoryDraftV1,
+        body_shape: VerifiedResolvedBodyShapeInventoryV1,
         record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
         enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
         enum_match_demands: BTreeSet<SourceExprSiteV1>,
@@ -436,6 +438,7 @@ impl VerifiedResolvedScriptV1 {
     ) -> Result<Self, ResolvedFunctionVerificationErrorV1> {
         Ok(Self {
             core: seal_owner_core(data, source_sites)?,
+            body_shape,
             record_literal_demands,
             enum_variant_demands,
             enum_match_demands,
@@ -446,6 +449,10 @@ impl VerifiedResolvedScriptV1 {
 
     pub(crate) const fn core(&self) -> &VerifiedResolvedOwnerCoreV1 {
         &self.core
+    }
+
+    pub(crate) const fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
+        &self.body_shape
     }
 
     pub(crate) fn method_calls(

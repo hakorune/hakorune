@@ -28,6 +28,18 @@ pub(crate) enum BodyStatementShapeV1 {
     },
 }
 
+impl BodyStatementShapeV1 {
+    pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
+        match self {
+            Self::SequenceItem { site } | Self::Return { site, .. } => site,
+        }
+    }
+
+    pub(crate) const fn is_return(&self) -> bool {
+        matches!(self, Self::Return { .. })
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BodyExpressionShapeV1 {
     Variable {
@@ -96,6 +108,20 @@ pub(crate) struct BodyShapeRelationV1 {
     pub(crate) parent: SourceNodeSiteV1,
     pub(crate) role: SourcePathSegmentV1,
     pub(crate) child: SourceExprSiteV1,
+}
+
+impl BodyShapeRelationV1 {
+    pub(crate) fn parent(&self) -> &SourceNodeSiteV1 {
+        &self.parent
+    }
+
+    pub(crate) fn role(&self) -> &SourcePathSegmentV1 {
+        &self.role
+    }
+
+    pub(crate) fn child(&self) -> &SourceExprSiteV1 {
+        &self.child
+    }
 }
 
 #[derive(Debug, Default, Clone)]

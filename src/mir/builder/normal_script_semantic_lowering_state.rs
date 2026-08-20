@@ -6,18 +6,26 @@ use crate::mir::builder::stmts::variable_stmt::OutboxBindingValueV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceNodeSiteV1};
 use crate::mir::ValueId;
 
+use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
+use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
+use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
 
 #[derive(Debug)]
 pub(super) struct ScriptSemanticLoweringState {
     projection: VerifiedScriptLoweringProjectionV1,
+    continuation: VerifiedScriptSourceContinuationV1,
+    direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
 impl ScriptSemanticLoweringState {
-    pub(super) fn new(projection: VerifiedScriptLoweringProjectionV1) -> Self {
+    pub(super) fn new(input: VerifiedScriptSemanticLoweringInputV1) -> Self {
+        let (projection, continuation, direct_static_result_bundle) = input.into_parts();
         Self {
             projection,
+            continuation,
+            direct_static_result_bundle,
             variable_values: BTreeMap::new(),
             materialized_outboxes: BTreeSet::new(),
         }
@@ -25,6 +33,16 @@ impl ScriptSemanticLoweringState {
 
     fn projection(&self) -> &VerifiedScriptLoweringProjectionV1 {
         &self.projection
+    }
+
+    pub(super) fn source_continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
+        &self.continuation
+    }
+
+    pub(super) fn direct_static_result_bundle(
+        &self,
+    ) -> Option<&VerifiedScriptDirectStaticResultBundleV1> {
+        self.direct_static_result_bundle.as_ref()
     }
 
     pub(super) fn lambda_captures(

@@ -20,6 +20,11 @@ BUNDLE_TESTS=src/mir/builder/normal_script_direct_static_result_bundle_tests.rs
 ADMISSION=src/mir/builder/normal_script_root_demand_window.rs
 LIFECYCLE=src/mir/builder/normal_default_root_catalog_lifecycle.rs
 SEMANTIC_SOURCE=src/mir/builder/normal_script_semantic_source.rs
+CONTINUATION=src/mir/builder/normal_script_source_continuation.rs
+CONTINUATION_TESTS=src/mir/builder/normal_script_source_continuation_tests.rs
+LOWERING_INPUT=src/mir/builder/normal_script_semantic_lowering_input.rs
+ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
+BUILDER_README=src/mir/builder/README.md
 CARD=docs/development/current/main/investigations/script-direct-static-call-target-d0.md
 
 require_text "$MODULE" "VerifiedScriptDirectStaticCallTargetInventoryV1"
@@ -30,10 +35,17 @@ require_text "$LIFECYCLE" "VerifiedScriptDirectStaticCallTargetInventoryV1::issu
 require_text "$BUNDLE" "VerifiedScriptDirectStaticResultBundleV1"
 require_text "$BUNDLE" "TargetInventoryBrandMismatch"
 require_text "$SEMANTIC_SOURCE" "attach_direct_static_result_bundle"
-require_text "$CARD" "SCRIPT-DIRECT-STATIC-CALL-TARGET-I0"
-require_text "$CARD" "The target catalog is a source product only."
+require_text "$CONTINUATION" "VerifiedScriptSourceContinuationV1"
+require_text "$CONTINUATION" "validate_statement_window"
+require_text "$LOWERING_INPUT" "VerifiedScriptSemanticLoweringInputV1"
+require_text "$ROOT_TRAVERSAL" "record_statement_shape"
+require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
+require_text "$BUILDER_README" "Script result-publication owner remains a separate design stop"
+require_text "$CARD" "SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0"
+require_text "$CARD" "source-only continuation rows"
+require_text "$CARD" "result publication, and physical lowering"
 
-for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE"; do
+for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$ROOT_TRAVERSAL" "$BUILDER_README"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
@@ -46,9 +58,16 @@ if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$MODULE"; 
   exit 1
 fi
 
+if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$CONTINUATION" "$LOWERING_INPUT"; then
+  echo "[script-direct-static-target] continuation crossed the Recipe/physical boundary" >&2
+  exit 1
+fi
+
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::source_call_target::script_direct_static_tests --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_result_bundle --lib
+CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
+  normal_script_source_continuation_tests --lib
 
 echo "[script-direct-static-target] OK"
