@@ -15,15 +15,14 @@ belong to the later promotion evidence gate. The exact ordinal-zero V3 WSL
 batch closed Complete/development_keeper with both fixed sessions Complete;
 it remains development-only and issues no native promotion authority. The
 selected Dynamic generic active walk is now a 575-line parent plus unchanged
-185-line child. Its observation UX closes at a separate explicit-artifact C shape report; optimizer, C equivalence, and machine origin remain unavailable.
-"""
+185-line child. Its observation UX closes at a separate explicit-artifact C shape report; optimizer, C equivalence, and machine origin remain unavailable."""
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-D0"
-current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-D0"
-current_blocker_token = "The selected-normal Script direct-static bridge is landed, but ledger-backed UnlocatedCompatibility/foreign source context can still fall through the ordinary static route. Open a bounded BoxShape fail-fast P0 before any canonical or production consumer; no source admission, reparse, fallback, or physical owner change is authorized."
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-CANONICAL-DISPOSITION-D0"
+current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0"
+current_blocker_token = "P0 is closed; canonical Script direct-static source-only A still needs one retained source/Facts/Recipe/Join issuer and stable source identity before any canonical consumer is opened."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -71,7 +70,7 @@ The V0 disposition closure is landed: one pure child accepts only real
 preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
-The selected-normal Script direct-static bridge still has a bounded ingress fail-fast follow-up: ledger-backed unlocated or foreign source context must stop before child effects; only exact ScriptRoot no-row may remain an ordinary-route `Absent`.
+The selected-normal Script direct-static bridge has closed its ingress fail-fast follow-up: ledger-backed unlocated or foreign source context now stops before child effects; only exact ScriptRoot no-row remains an ordinary-route `Absent`. The next row is the separately parked canonical source-only design audit; no canonical consumer or production claim is open.
 SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 and TYPEOP-DISJOINT-I0 are landed; PHYSICAL-BRIDGE-I0 is also landed with green focused evidence. The selected bridge takes one exact claim, emits one generic Call, publishes ExactI64 once,
 and finishes only after success. Scalar operand Recipe D0 and the canonical
 physical-input D0 are closed; the selected fast row implements the
@@ -88,11 +87,11 @@ mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mi
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 current_execution_design = "docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "script-direct-static-call-claim-ingress-failfast-d0"
-latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md"
-latest_card_summary = "Design stop: the landed selected-normal bridge must distinguish no-ledger Unavailable, exact ScriptRoot Absent, Claimed, and ledger-backed source-loss Error before child effects; canonical/source admission/production remain closed."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-D0"
-next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md"
+latest_card = "script-direct-static-call-canonical-disposition-d0"
+latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-canonical-disposition-d0-2026-08-20.md"
+latest_card_summary = "P0 ingress fail-fast is closed; canonical source-only A remains a design stop until one retained source/Facts/Recipe/Join issuer and stable source identity are proven."
+next_design_card = "SCRIPT-DIRECT-STATIC-CALL-CANONICAL-DISPOSITION-D0"
+next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-canonical-disposition-d0-2026-08-20.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -105,8 +104,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-20: MIR-CALL-LEGACY-TARGET-CENSUS-D0 closed the first Call retirement prerequisite. The pinned 25-mention census classifies 3 JSON-v0 compatibility producers, 1 canonicalizer input, 2 selected-boundary reject/analysis consumers, 3 contract/comment references, and 16 test fixtures; selected-native guard scope is named and no Call field or fallback changed.",
-  "2026-08-20: SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 landed parser-owned empty-or-complete constructor catalogs for compatibility-compatible initial sources. Static-only, top-level-only, mixed, ordinary-constructor, and unsupported-cohort tests plus the reusable guard are green; PRE-DESCENT-P0 then closed NoSafeSlice on the legal is/as typeop overlap, TYPEOP-DISJOINT-P0 fixed the shared-policy design, and TYPEOP-DISJOINT-I0 is now the sole fast row; bridge code stays closed.",
+  "2026-08-20: MIR-CALL-LEGACY-TARGET-CENSUS-D0 closed the first Call retirement prerequisite with a pinned 25-mention census and no Call field/fallback change; SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 then landed parser-owned empty-or-complete constructor catalogs, with typeop PRE-DESCENT/TYPEOP-DISJOINT closure and a green reusable guard; bridge code stayed closed.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0 landed one selected-normal BoxShape. App, plain-runtime, and nonplain-runtime constructor tickets now borrow the package-issued forest by exact ConstructorSourceId, consume each role once, scope the existing raw body, and require manifest plus package completion; Compatibility/RawLegacy and global raw Brand retirement remain parked.",
@@ -117,4 +115,5 @@ landed_tail = [
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0 landed one selected-normal BoxShape. StaticReceiver now takes the exact ScriptRoot claim before effects, the bridge uses the existing ordered driver and receipt-required generic Call once, the Script sibling publishes ExactI64 as MirType::Integer once, and the scope finishes only after success. The source transport stayed below 760 lines after a claim child split; focused tests, cargo check, and the reusable guard are green. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed.",
   "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-I0 is implementation-complete. One non-Clone parser callable-source handoff retains the total disposition plus digest/profile/read-parse lineage through canonical source planning; selected-normal attaches only the lineage projection. Focused parser/source-plan/selected-gate tests, cargo check, diff check, and reusable guard are green. Six broad normal_callable failures reproduce on parent befd674ae4 as baseline Dynamic/instance-constructor debt; no Builder consumer, physical Call, production switch, raw retirement, or performance claim opened.",
+  "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-P0 closed one selected-normal BoxShape. Ledger-backed missing, unlocated, and foreign source context now hard-stop before child effects; exact ScriptRoot no-row remains the only ordinary-route Absent, while ledger-free compatibility remains Unavailable. Claim validation now peeks before the linear in-flight transition and the member route exhaustively matches outcomes. Focused tests, cargo check, diff check, pointer guard, and script-direct-static reusable guard are green; canonical transport, production switch, raw retirement, and performance remain closed.",
 ]

@@ -6,6 +6,7 @@ use crate::mir::builder::stmts::variable_stmt::OutboxBindingValueV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceNodeSiteV1};
 use crate::mir::ValueId;
 
+use super::normal_script_direct_static_join_handoff::VerifiedScriptDirectStaticJoinRowV1;
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
@@ -164,6 +165,24 @@ impl ScriptSemanticLoweringState {
         ledger
             .take(site)
             .map_err(|error| format!("[freeze:contract][script-direct-static/claim] {error:?}"))
+    }
+
+    pub(super) fn validate_direct_static_claim(
+        &self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+        validate: impl FnOnce(&VerifiedScriptDirectStaticJoinRowV1) -> Result<(), String>,
+    ) -> Result<bool, String> {
+        let Some(ledger) = self.direct_static_claim_ledger.as_ref() else {
+            return Err("[freeze:contract][script-direct-static/claim-finished]".to_owned());
+        };
+        let row = ledger.peek(site).map_err(|error| {
+            format!("[freeze:contract][script-direct-static/claim-peek] {error:?}")
+        })?;
+        let Some(row) = row else {
+            return Ok(false);
+        };
+        validate(row)?;
+        Ok(true)
     }
 
     pub(super) fn complete_direct_static_claim(

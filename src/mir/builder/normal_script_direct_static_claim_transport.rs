@@ -18,6 +18,32 @@ use super::super::raw_invocation_source_transport::{
 use super::super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 use super::RawInvocationChildPortV1;
 
+fn classify_script_direct_static_claim_ingress_v1(
+    ledger_installed: bool,
+    context: Option<&RawInvocationSourceContextV1>,
+) -> Result<ScriptDirectStaticClaimIngressV1, String> {
+    if !ledger_installed {
+        return Ok(ScriptDirectStaticClaimIngressV1::Unavailable);
+    }
+    let Some(context) = context else {
+        return Err(
+            "[freeze:contract][script-direct-static/claim-ingress-source-context]".to_owned(),
+        );
+    };
+    match context {
+        RawInvocationSourceContextV1::Located {
+            root: RawInvocationRootLineageV1::ScriptRoot,
+            ..
+        } => Ok(ScriptDirectStaticClaimIngressV1::Available),
+        RawInvocationSourceContextV1::Located { .. } => {
+            Err("[freeze:contract][script-direct-static/claim-ingress-foreign-lineage]".to_owned())
+        }
+        RawInvocationSourceContextV1::UnlocatedCompatibility(_) => Err(
+            "[freeze:contract][script-direct-static/claim-ingress-source-location-lost]".to_owned(),
+        ),
+    }
+}
+
 impl RawInvocationChildPortV1<'_, '_> {
     pub(in crate::mir::builder) fn script_direct_static_claim_ingress_inner_v1(
         &mut self,
@@ -25,21 +51,11 @@ impl RawInvocationChildPortV1<'_, '_> {
         _method: &str,
         _argument_count: usize,
     ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
-        if self.semantic_ledger.is_none() {
-            return Ok(ScriptDirectStaticClaimIngressV1::Unavailable);
-        }
-        let Some(context) = self.current_source_context_v1() else {
-            return Err(
-                "[freeze:contract][script-direct-static/claim-ingress-source-context]".to_owned(),
-            );
-        };
-        match context {
-            RawInvocationSourceContextV1::Located {
-                root: RawInvocationRootLineageV1::ScriptRoot,
-                ..
-            } => Ok(ScriptDirectStaticClaimIngressV1::Available),
-            _ => Ok(ScriptDirectStaticClaimIngressV1::Unavailable),
-        }
+        let context = self.current_source_context_v1();
+        classify_script_direct_static_claim_ingress_v1(
+            self.semantic_ledger.is_some(),
+            context.as_ref(),
+        )
     }
 
     pub(in crate::mir::builder) fn take_script_direct_static_claim_inner_v1(
@@ -52,32 +68,21 @@ impl RawInvocationChildPortV1<'_, '_> {
         let Some(ledger) = self.semantic_ledger.clone() else {
             return Ok(ScriptDirectStaticClaimTakeV1::Unavailable);
         };
-        let Some(RawInvocationSourceContextV1::Located {
+        let Some(context) = self.current_source_context_v1() else {
+            return Err("[freeze:contract][script-direct-static/claim-source-context]".to_owned());
+        };
+        let RawInvocationSourceContextV1::Located {
             root: RawInvocationRootLineageV1::ScriptRoot,
             site,
             ..
-        }) = self.current_source_context_v1()
+        } = context
         else {
-            let Some(context) = self.current_source_context_v1() else {
-                return Err(
-                    "[freeze:contract][script-direct-static/claim-source-context]".to_owned(),
-                );
-            };
-            return match context {
-                RawInvocationSourceContextV1::Located { .. }
-                | RawInvocationSourceContextV1::UnlocatedCompatibility(_) => {
-                    Ok(ScriptDirectStaticClaimTakeV1::Unavailable)
-                }
-            };
+            return Err(
+                "[freeze:contract][script-direct-static/claim-source-location-lost]".to_owned(),
+            );
         };
 
         let call_site = SourceExprSiteV1::from_node(site.clone());
-        let take = ledger.borrow_mut().take_direct_static_claim(&call_site)?;
-        let ScriptDirectStaticClaimTakeV1::Claimed(claimed) = take else {
-            return Ok(take);
-        };
-
-        let target = claimed.target();
         let expected_receiver = SourceExprSiteV1::from_node(
             SourcePathV1::from_node(&site)
                 .child(SourcePathSegmentV1::Receiver)
@@ -97,20 +102,42 @@ impl RawInvocationChildPortV1<'_, '_> {
         let expected_arity = u32::try_from(arguments.len()).map_err(|_| {
             "[freeze:contract][script-direct-static/claim-arity-overflow]".to_owned()
         })?;
-        if target.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
-            || target.owner() != box_name
-            || target.name() != method
-            || target.arity() != expected_arity
-            || claimed.row().receiver_site() != &expected_receiver
-            || claimed.argument_sites() != expected_arguments.as_slice()
-            || !matches!(
-                claimed.representation(),
-                VerifiedCallableResultRepresentationV1::ExactI64
-            )
-        {
-            return Err("[freeze:contract][script-direct-static/claim-source-drift]".to_owned());
+        let pending = ledger
+            .borrow()
+            .validate_direct_static_claim(&call_site, |row| {
+                let target = row.target();
+                if target.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod
+                    || target.owner() != box_name
+                    || target.name() != method
+                    || target.arity() != expected_arity
+                    || row.receiver_site() != &expected_receiver
+                    || row.argument_sites() != expected_arguments.as_slice()
+                    || !matches!(
+                        row.representation(),
+                        VerifiedCallableResultRepresentationV1::ExactI64
+                    )
+                {
+                    return Err(
+                        "[freeze:contract][script-direct-static/claim-source-drift]".to_owned()
+                    );
+                }
+                Ok(())
+            })?;
+        if !pending {
+            return Ok(ScriptDirectStaticClaimTakeV1::Absent);
         }
-        Ok(ScriptDirectStaticClaimTakeV1::Claimed(claimed))
+        let take = ledger.borrow_mut().take_direct_static_claim(&call_site)?;
+        match take {
+            ScriptDirectStaticClaimTakeV1::Claimed(claimed) => {
+                Ok(ScriptDirectStaticClaimTakeV1::Claimed(claimed))
+            }
+            ScriptDirectStaticClaimTakeV1::Absent => {
+                Err("[freeze:contract][script-direct-static/claim-state-drift]".to_owned())
+            }
+            ScriptDirectStaticClaimTakeV1::Unavailable => {
+                Err("[freeze:contract][script-direct-static/claim-consumer-unavailable]".to_owned())
+            }
+        }
     }
 
     pub(in crate::mir::builder) fn complete_script_direct_static_claim_inner_v1(
@@ -124,5 +151,63 @@ impl RawInvocationChildPortV1<'_, '_> {
         };
         let result = ledger.borrow_mut().complete_direct_static_claim(claimed);
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::builder::raw_invocation_source_transport::RawUnlocatedPortalV1;
+    use crate::mir::builder::RawSourceLocatorV1;
+
+    fn located(root: RawInvocationRootLineageV1) -> RawInvocationSourceContextV1 {
+        RawInvocationSourceContextV1::Located {
+            root,
+            site: SourcePathV1::program_body().node(),
+            body_kind: None,
+        }
+    }
+
+    #[test]
+    fn no_ledger_is_unavailable_without_source_context() {
+        assert_eq!(
+            classify_script_direct_static_claim_ingress_v1(false, None),
+            Ok(ScriptDirectStaticClaimIngressV1::Unavailable)
+        );
+    }
+
+    #[test]
+    fn ledger_accepts_only_script_root_context() {
+        assert_eq!(
+            classify_script_direct_static_claim_ingress_v1(
+                true,
+                Some(&located(RawInvocationRootLineageV1::ScriptRoot)),
+            ),
+            Ok(ScriptDirectStaticClaimIngressV1::Available)
+        );
+    }
+
+    #[test]
+    fn ledger_rejects_unlocated_context_before_descent() {
+        let context =
+            RawInvocationSourceContextV1::UnlocatedCompatibility(RawUnlocatedPortalV1::CallObject);
+        assert_eq!(
+            classify_script_direct_static_claim_ingress_v1(true, Some(&context)),
+            Err(
+                "[freeze:contract][script-direct-static/claim-ingress-source-location-lost]"
+                    .to_owned()
+            )
+        );
+    }
+
+    #[test]
+    fn ledger_rejects_foreign_lineage_before_descent() {
+        let context = located(RawInvocationRootLineageV1::Main(
+            RawSourceLocatorV1::for_test(0, "Main", "main", "Main.main/0", 0),
+        ));
+        assert_eq!(
+            classify_script_direct_static_claim_ingress_v1(true, Some(&context)),
+            Err("[freeze:contract][script-direct-static/claim-ingress-foreign-lineage]".to_owned())
+        );
     }
 }

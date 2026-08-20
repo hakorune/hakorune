@@ -172,6 +172,16 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
 }
 
 #[test]
+fn peek_validates_without_entering_in_flight() {
+    let (bundle, handoff, call_site) = non_empty_products();
+    let ledger = ScriptDirectStaticClaimLedgerV1::issue(Some(bundle), Some(handoff))
+        .expect("co-sealed claim ledger");
+    assert!(ledger.peek(&call_site).expect("pending row peek").is_some());
+    assert_eq!(ledger.pending_len(), 1);
+    assert_eq!(ledger.in_flight_len(), 0);
+}
+
+#[test]
 fn partial_source_products_are_rejected_before_claiming() {
     let (bundle, _, _) = non_empty_products();
     assert_eq!(

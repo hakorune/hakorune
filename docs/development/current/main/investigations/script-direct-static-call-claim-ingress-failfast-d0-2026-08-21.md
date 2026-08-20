@@ -1,5 +1,5 @@
 ---
-Status: Design stop — P0 selected; no implementation yet
+Status: P0 closed
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-parser-callable-source-handoff-i0-2026-08-20.md
@@ -167,3 +167,32 @@ validation requires rollback, or if compatibility behavior needs a guessed
 non-candidate row. After P0 is green, reopen the separately parked
 `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0` as a source-authority
 design only; do not connect the canonical caller or claim production parity.
+
+## P0 implementation receipt
+
+The ingress now classifies the transport before the claim operation. A
+ledger-free compatibility/test port is the only `Unavailable` case. With a
+ledger installed, missing context, `UnlocatedCompatibility`, and foreign
+lineage are stable freeze errors; an exact `ScriptRoot` reaches the checked
+`Absent`/`Claimed` decision. The observed target, owner, arity, receiver site,
+argument sites, and `ExactI64` representation are validated through a
+read-only ledger peek before the row moves to `in_flight`. The member route
+uses an exhaustive match, so a claimed/error outcome cannot fall through to
+the ordinary static handler.
+
+Evidence on the active branch:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --lib -q                         PASS
+cargo test ... peek_validates_without_entering_in_flight       PASS (1)
+cargo test ... ledger_rejects_unlocated_context_before_descent  PASS (1)
+bash tools/checks/script_direct_static_target_guard.sh          PASS
+git diff --check                                                PASS
+bash tools/checks/current_state_pointer_guard.sh                PASS
+```
+
+The touched Rust owners remain below the split trigger (`member_route.rs`
+204, claim transport 213, claim ledger 223, semantic lowering state 269), and
+no parser/source admission, canonical Script transport, physical bridge,
+production caller, raw retirement, or performance claim changed. The next
+ordered row is the separately parked canonical source-only design audit.

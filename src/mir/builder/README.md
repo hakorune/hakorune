@@ -616,6 +616,12 @@ ports retain `Unavailable`. `StaticReceiver` probes this capability after
 route selection and before receiver/argument descent, then continues through
 the existing route unchanged. This BoxShape P0 emits no Call, publication,
 Return/signature, fallback, retry, canonical transport, or production claim.
+When a semantic ledger is installed, missing source context, unlocated
+compatibility context, and foreign lineage are fail-fast contract errors before
+child effects; only a ledger-free port may report `Unavailable`. A located
+ScriptRoot with no matching row remains the sole `Absent` case and preserves
+the existing static route. The ingress validates the row before moving it to
+`in_flight`, so validation failure cannot require rollback or reinsert.
 
 ## Script direct-static physical bridge I0
 

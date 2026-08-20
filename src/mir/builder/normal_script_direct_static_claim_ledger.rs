@@ -160,6 +160,25 @@ impl ScriptDirectStaticClaimLedgerV1 {
         ))
     }
 
+    /// Inspect a pending row without changing the linear claim state.
+    ///
+    /// The transport validates the observed route against this borrowed row
+    /// first, then calls `take`.  A failed observation therefore cannot leave
+    /// a candidate in `in_flight`, and no state-restoration operation is
+    /// needed.
+    pub(super) fn peek(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Result<Option<&VerifiedScriptDirectStaticJoinRowV1>, ScriptDirectStaticClaimLedgerIssueV1>
+    {
+        if self.completed.contains(site) || self.in_flight.contains(site) {
+            return Err(ScriptDirectStaticClaimLedgerIssueV1::DuplicateClaim(
+                site.clone(),
+            ));
+        }
+        Ok(self.pending.get(site))
+    }
+
     pub(super) fn complete(
         &mut self,
         claimed: ScriptDirectStaticClaimedRowV1,

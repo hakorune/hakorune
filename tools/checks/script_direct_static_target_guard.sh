@@ -48,6 +48,7 @@ RAW_INVOCATION=src/mir/builder/raw_invocation_source_transport.rs
 ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
 BUILDER_README=src/mir/builder/README.md
 CARD=docs/development/current/main/investigations/script-direct-static-call-target-d0.md
+FAILFAST_CARD=docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md
 SOURCE_FINALIZER=src/parser/source_seal/finalize.rs
 SOURCE_TESTS=src/parser/normal_callable_program_source/tests.rs
 
@@ -112,6 +113,11 @@ require_text "$MEMBER_ROUTE" "take_script_direct_static_claim_v1"
 require_text "$RAW_DISPATCH" "build_method_call_from_input_with_claim_ingress_v1"
 require_text "$RAW_STRUCTURED" "script_direct_static_claim_ingress_v1"
 require_text "$CLAIM_TRANSPORT" "script-direct-static/claim-ingress-source-context"
+require_text "$CLAIM_TRANSPORT" "classify_script_direct_static_claim_ingress_v1"
+require_text "$CLAIM_TRANSPORT" "claim-ingress-source-location-lost"
+require_text "$CLAIM_TRANSPORT" "claim-ingress-foreign-lineage"
+require_text "$CLAIM_LEDGER" "pub(super) fn peek"
+require_text "$CLAIM_LEDGER_TESTS" "peek_validates_without_entering_in_flight"
 require_text "$RAW_INVOCATION" "complete_script_direct_static_claim_inner_v1"
 require_text "$CLAIM_TRANSPORT" "take_script_direct_static_claim_inner_v1"
 require_text "$PHYSICAL_BRIDGE" "lower_claimed_script_direct_static_v1"
@@ -135,6 +141,8 @@ require_text "$SOURCE_FINALIZER" "attach_constructor_source"
 require_text "$SOURCE_TESTS" "exact_static_callable_set_survives_one_transform"
 require_text "$SOURCE_TESTS" "ordinary_constructor_source_catalog_survives_normal_source_transform"
 require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_initial_source_lane"
+require_text "$FAILFAST_CARD" "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-P0"
+require_text "$FAILFAST_CARD" "UnlocatedCompatibility"
 
 for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
@@ -214,6 +222,16 @@ if rg -n "with_script_semantic_source_v1|finish_direct_static_claims" "$RAW_INVO
   :
 else
   echo "[script-direct-static-target] Script semantic scope has no success-only claim finish" >&2
+  exit 1
+fi
+
+if rg -n "if let ScriptDirectStaticClaimTakeV1::Claimed|if let .*Claimed" "$MEMBER_ROUTE"; then
+  echo "[script-direct-static-target] member route must exhaustively match claim outcomes" >&2
+  exit 1
+fi
+
+if ! rg -q "claim-ingress-source-location-lost|claim-ingress-foreign-lineage" "$CLAIM_TRANSPORT"; then
+  echo "[script-direct-static-target] ledger-backed source loss has no explicit fail-fast error" >&2
   exit 1
 fi
 

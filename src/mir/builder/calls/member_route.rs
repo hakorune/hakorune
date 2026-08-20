@@ -6,6 +6,7 @@
 use super::super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::super::normal_script_semantic_lowering_state::ScriptDirectStaticClaimTakeV1;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 use super::super::{MirBuilder, ValueId};
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
@@ -71,29 +72,54 @@ impl MirBuilder {
 
         match route_plan {
             MemberCallRoutePlan::StaticReceiver { box_name } => {
-                let claim = {
-                    let syntax = port.method_call_syntax(input)?;
-                    port.take_script_direct_static_claim_v1(
-                        &box_name,
-                        syntax.method(),
-                        syntax.receiver(),
-                        syntax.arguments(),
-                    )?
-                };
-                if let ScriptDirectStaticClaimTakeV1::Claimed(claimed) = claim {
-                    return lower_claimed_script_direct_static_v1(self, port, input, claimed);
-                }
                 let (method, arguments) = {
                     let syntax = port.method_call_syntax(input)?;
                     (syntax.method().to_owned(), syntax.arguments())
                 };
-                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
-                self.handle_static_method_call_with_descent(
+                match port.script_direct_static_claim_ingress_v1(
                     &box_name,
                     &method,
-                    arguments,
-                    &mut descent,
-                )
+                    arguments.len(),
+                )? {
+                    ScriptDirectStaticClaimIngressV1::Unavailable => {
+                        let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                        self.handle_static_method_call_with_descent(
+                            &box_name,
+                            &method,
+                            arguments,
+                            &mut descent,
+                        )
+                    }
+                    ScriptDirectStaticClaimIngressV1::Available => {
+                        let claim = {
+                            let syntax = port.method_call_syntax(input)?;
+                            port.take_script_direct_static_claim_v1(
+                                &box_name,
+                                &method,
+                                syntax.receiver(),
+                                syntax.arguments(),
+                            )?
+                        };
+                        match claim {
+                            ScriptDirectStaticClaimTakeV1::Claimed(claimed) => {
+                                lower_claimed_script_direct_static_v1(self, port, input, claimed)
+                            }
+                            ScriptDirectStaticClaimTakeV1::Absent => {
+                                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                                self.handle_static_method_call_with_descent(
+                                    &box_name,
+                                    &method,
+                                    arguments,
+                                    &mut descent,
+                                )
+                            }
+                            ScriptDirectStaticClaimTakeV1::Unavailable => Err(
+                                "[freeze:contract][script-direct-static/claim-ingress-state]"
+                                    .to_owned(),
+                            ),
+                        }
+                    }
+                }
             }
             route_plan => self.execute_prepared_member_call_route_v1(port, input, route_plan),
         }
