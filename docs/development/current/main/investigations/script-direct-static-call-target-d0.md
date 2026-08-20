@@ -434,6 +434,38 @@ callable result owner, physical lowering, and raw retirement unchanged.
 Non-claims: no Recipe-I0, Script physical call, Join/ABI publication, raw-edge
 retirement, production switch, performance result, or C-parity claim.
 
+### SOURCE-CONTINUATION-D0 design brief
+
+Decision: design one resolver-issued, AST-free Script continuation product
+before reopening Recipe. This is a new source shape (`BoxCount`), not a
+physical Join refactor.
+
+Source authority + canonical issuer: the existing Script shadow traversal and
+`seal_script_owner_with_maps` jointly own `BodyShapeRelationV1`, Return exit
+records, and the exact Script owner. The new product must be co-sealed at that
+boundary with the same forest root; it may not reissue MethodCall rows.
+
+Non-authority: AST order or a second AST walk, `VerifiedScriptRootDemandWindowV1`
+ordinal alone, source-site inventory without parent relations, `ValueId`,
+`JoinSig`, MIR blocks, raw lineage, or the callable result-publication owner.
+
+Fail-fast boundary: every retained Script statement/expression and every
+parent/receiver/argument/Return relation must be covered exactly once; owner,
+forest root, window, and terminal Return must agree. Nested-owner crossing,
+missing relation, duplicate relation, partial body shape, Deferred input, or
+missing Script result destination rejects before Builder effects.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0`
+implements a focused sibling that retains the already-issued Script body shape
+through the semantic source/forest handoff. It must remain below 760 lines and
+leave `body_shape.rs`/`normal_script_runtime_work.rs`/`raw_invocation_source_transport.rs`
+as no-growth owners where possible; scalar Recipe code stays unchanged.
+
+Non-claims: no Recipe key, direct-static lowering, Script physical result,
+raw-edge retirement, production switch, performance measurement, or C-parity
+claim. Recipe I0 remains parked until this product and the Script
+result-publication owner are both accepted.
+
 ## Current TODO ledger (2026-08-20)
 
 This is the single short list for the remaining work. Historical target/Facts
