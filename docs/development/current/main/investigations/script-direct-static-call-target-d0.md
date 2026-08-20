@@ -32,31 +32,33 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current six-line brief
 
-Decision: close the physical-bridge D0 boundary, but stop before I0 because
-the current state has no named one-shot claim issuer or success/discard finish
-authority. This is `NoSafeSlice`, not an ordinary missing implementation.
+Decision: close `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0` and open its
+operational I0. The source shape and semantic Facts remain unchanged; this is
+an execution-local BoxShape that gives the existing Bundle/Join rows one
+one-shot consumer without emitting physical Call MIR.
 
-Source authority + canonical issuer: the existing
-`VerifiedScriptDirectStaticJoinHandoffV1` is the only source input. A separate
-claim-lifecycle design must name the owner that atomically consumes its row and
-closes the selected-normal Script scope; it may not infer a claim from AST,
-`ValueId`, `MirType`, or raw success.
+Source authority + canonical issuer: `VerifiedScriptDirectStaticResultBundleV1`
+issues site membership and `VerifiedScriptDirectStaticJoinHandoffV1` issues the
+complete row. `ScriptDirectStaticClaimLedgerV1` co-seals those existing rows at
+Script state construction and is the only operational claim issuer.
 
-Non-authority: immutable state accessors, `box_name`/method text, callable-key
-conversion, post-descent terminal hooks, callable/Cataloged publication,
-`ScriptPhysicalExitCommitV1` for Call/publication, and fallback/rollback.
+Non-authority: immutable getters, AST/name/ordinal, Join miss interpreted as
+Absent, callable-key conversion, `ValueId`/`MirType`, generic Call receipt,
+`ScriptPhysicalExitCommitV1`, compatibility/deferred lowering, and fallback.
 
-Fail-fast boundary: the eventual claim belongs at the ordinary
-`StaticReceiver` arm head, before `AssociatedMethodCallArgumentsV1`, receiver/
-argument descent, or MIR effects. Until its owner and finish contract are
-closed, no physical effect or new semantic receipt is authorized.
+Fail-fast boundary: Bundle miss returns an unchanged `Absent`; Bundle hit must
+find the same-site Join row or return `Err`. `Claimed` moves a non-Clone token
+before receiver/argument descent. Scope `finish` requires zero pending and
+zero in-flight rows before restoring the parent ledger; post-claim failure
+discards the isolated invocation, with no rollback/retry/ordinary escape.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0` — design the
-move-only claim token, isolated invocation discard, candidate exhaustion, and
-fresh-scope isolation without emitting a Call or publishing a type.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0` — add the
+operational ledger sibling, state carrier, exact-site claim capability, and
+success-only finish/exhaustion checks. Keep physical Call, ExactI64
+publication, Return/signature, and canonical transport closed.
 
-Non-claims: no physical bridge, ExactI64 publication, parser/source admission,
-Recipe/Join redesign, canonical transport, callable owner extension, Box/ABI
+Non-claims: no new semantic `Verified*` receipt, parser/source admission,
+Recipe/Join redesign, physical bridge, callable owner extension, Box/ABI
 change, raw retirement, production switch, performance measurement, or
 C-parity result.
 
@@ -1096,7 +1098,7 @@ Stop:
   Source admission, canonical Script input, Box/ABI, raw retirement, cutover,
   and perf stay separate.
 
-### `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0` (current design stop)
+### `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0` (closed design)
 
 Decision:
   Do not start the physical bridge until the existing source products have one
@@ -1138,6 +1140,46 @@ Acceptance:
   before receiver/argument descent; successful scope has zero candidates;
   compatibility/deferred lanes issue no claim; fresh scopes cannot observe a
   prior claim. Physical Call/publication remain unclaimed until this row closes.
+
+### `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0` execution brief (open)
+
+Classification: BoxShape. The ledger is operational state over already-issued
+source products; it does not add a language shape or semantic authority.
+
+Owner and transport:
+  Add one focused sibling, `ScriptDirectStaticClaimLedgerV1`, and seed it once
+  while constructing `ScriptSemanticLoweringState` from the existing Bundle and
+  Join. A Bundle/Join partial pair, identity mismatch, cardinality mismatch,
+  duplicate site, or foreign row fails before the Script scope executes. An
+  empty pair is a valid empty ledger for a Complete Script with no candidates.
+  Reuse the existing `Rc<RefCell<ScriptSemanticLoweringState>>`; do not add a
+  second source transport or grow the 794-line recursive port.
+
+Claim contract:
+  `take(site)` returns `Absent`, `Claimed(non-Clone token)`, or `Err`. The token
+  carries the already-sealed Join row and has no clone, reinsert, rollback, or
+  retry API. `complete(token)` clears the in-flight marker only after the future
+  physical consumer succeeds; P0/I0 does not emit that consumer yet.
+
+Finish/discard:
+  `finish()` is called exactly once before `with_script_semantic_source_v1`
+  restores its parent ledger and requires pending=0 and in-flight=0. A lowering
+  error skips finish and discards the isolated invocation; it never returns to
+  the ordinary route. A fresh scope constructs a fresh ledger and cannot see a
+  prior claim.
+
+Acceptance:
+  positive same-site Bundle+Join claim, empty Complete Script, absent site,
+  missing/foreign/drift/duplicate rows, duplicate take, uncompleted token,
+  pending row at finish, post-claim error, compatibility/deferred no-ledger,
+  and fresh-scope isolation. No Call, ExactI64, Return, or publication effect
+  is allowed in this I0; the later physical bridge consumes only completed
+  claim tokens.
+
+Stop:
+  If exact-site capability cannot reach the StaticReceiver arm without a
+  second matcher/transport, if finish can be bypassed, or if a claim must be
+  cloned/reinserted, stop at this row and do not open the physical bridge.
 
 ### `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-I0` execution brief (parked behind P0)
 

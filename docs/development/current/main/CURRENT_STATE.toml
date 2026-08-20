@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0"
-current_blocker_token = "Design the missing ScriptRoot one-shot claim authority before physical I0: exact site take, success/discard lifecycle, candidate exhaustion, and no fallback or rollback. Keep physical Call, publication, canonical transport, raw retirement, and production switch closed."
+current_design_stop = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0 closed"
+work_mode = "fast"
+current_execution_row = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0"
+current_blocker_token = "Implement only the operational ScriptRoot claim lifecycle: Bundle/Join co-seal, move-only exact-site take, scope finish/exhaustion, and discard-only failure. Keep physical Call, publication, canonical transport, raw retirement, and production switch closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -76,8 +76,7 @@ SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 is landed: every
 compatibility-compatible initial source carries one parser-owned empty-or-
 complete constructor catalog, while mixed outer and unsupported cohorts retain
 compatibility status. TYPEOP-DISJOINT-I0 is also closed: Builder routing and the
-Script target issuer share one pure predicate. PHYSICAL-BRIDGE-D0 fixed the StaticReceiver boundary, but one-shot claim issuer/finish authority is missing.
-CLAIM-LIFECYCLE-P0 is the sole design row; physical Call/publication, canonical transport, fallback, raw retirement, production switch, and performance remain closed.
+Script target issuer share one pure predicate. PHYSICAL-BRIDGE-D0 fixed the StaticReceiver boundary; CLAIM-LIFECYCLE-P0 now fixes the Bundle/Join claim owner and finish contract. Its I0 is the sole fast row; physical Call/publication, canonical transport, fallback, raw retirement, production switch, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -90,11 +89,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "PHYSICAL-BRIDGE-D0 fixed the selected-normal StaticReceiver boundary, but the one-shot claim issuer/finish authority is missing. Next design stop is CLAIM-LIFECYCLE-P0; physical Call/publication, canonical transport, fallback, raw retirement, production switch, and performance remain closed."
-next_design_card = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0"
-next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card_summary = "CLAIM-LIFECYCLE-P0 is closed: Bundle/Join co-seal, move-only exact-site claim, scope finish/exhaustion, and discard-only failure are fixed. Its operational I0 is open; physical Call/publication, canonical transport, fallback, raw retirement, production switch, and performance remain closed."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0"
+next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -115,5 +114,5 @@ landed_tail = [
   "2026-08-20: SCRIPT-INSTANCE-BOX-TRANSFERRED-BOUNDARY-I0 landed one BoxCount. Exact installed method plus parser-constructor semantic coverage now issues one transferred Script boundary; surrounding Script resolves without entering the Box, and physical Brand consumption remains unopened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
-  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-JOIN-I0 landed one source/Facts BoxCount. The exact Recipe/result-owner handoff preserves FinalSequence and RootReturn rows, rejects foreign/missing/duplicate/drifted rows, and is transported through Script lowering input/state. Four read-only audits closed the PHYSICAL-BRIDGE-D0 boundary, but one transport audit found no existing one-shot claim issuer/finish authority. CLAIM-LIFECYCLE-P0 is now the design stop; physical Call/publication, canonical transport, raw retirement, production switch, performance, and C-parity remain parked.",
+  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-JOIN-I0 landed one source/Facts BoxCount. The exact Recipe/result-owner handoff preserves FinalSequence and RootReturn rows, rejects foreign/missing/duplicate/drifted rows, and is transported through Script lowering input/state. Four audits closed the PHYSICAL-BRIDGE-D0 boundary; CLAIM-LIFECYCLE-P0 then fixed the Bundle/Join move-only claim and scope finish contract. Its operational I0 is open; physical Call/publication, canonical transport, raw retirement, production switch, performance, and C-parity remain parked.",
 ]
