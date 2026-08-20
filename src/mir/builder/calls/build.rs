@@ -25,6 +25,7 @@ use super::debug_method_routing::*;
 use super::static_resolution::BareStaticRecoveryEmissionV1;
 use super::CallTarget;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
 use crate::mir::builder::calls::drive_call_arguments_v1;
@@ -149,7 +150,9 @@ impl MirBuilder {
         input: &Port::MethodCallInput,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallLoweringPortV1 + RecursiveChildLoweringPortV1,
+        Port: MethodCallLoweringPortV1
+            + RecursiveChildLoweringPortV1
+            + StaticResultPublicationIngressPortV1,
     {
         self.build_method_call_from_input_with_route_v1(port, input, |builder, port, input| {
             builder.build_member_method_call_with_claim_ingress_v1(port, input)

@@ -7,6 +7,9 @@ use super::super::me_call_header_observation::MethodCallLoweringPortV1;
 use super::super::normal_script_semantic_lowering_state::ScriptDirectStaticClaimTakeV1;
 use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
+use super::super::static_result_publication_ingress::{
+    StaticResultPublicationIngressPortV1, StaticResultPublicationIngressV1,
+};
 use super::super::{MirBuilder, ValueId};
 use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
@@ -14,6 +17,7 @@ use super::method_call_descent::{
 };
 use super::receiver_binding::ReceiverNormalizationPlan;
 use super::script_direct_static_physical_bridge::lower_claimed_script_direct_static_v1;
+use super::lower_selected_static_result_publication_v1;
 use crate::ast::ASTNode;
 
 pub(in crate::mir::builder) enum MemberCallRoutePlan {
@@ -63,7 +67,9 @@ impl MirBuilder {
         input: &Port::MethodCallInput,
     ) -> Result<ValueId, String>
     where
-        Port: MethodCallLoweringPortV1 + RecursiveChildLoweringPortV1,
+        Port: MethodCallLoweringPortV1
+            + RecursiveChildLoweringPortV1
+            + StaticResultPublicationIngressPortV1,
     {
         let route_plan = {
             let syntax = port.method_call_syntax(input)?;
@@ -82,13 +88,37 @@ impl MirBuilder {
                     arguments.len(),
                 )? {
                     ScriptDirectStaticClaimIngressV1::Unavailable => {
-                        let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
-                        self.handle_static_method_call_with_descent(
+                        let declarations = self.comp_ctx.callable_declaration_catalog().ok();
+                        match port.take_static_result_publication_ingress_v1(
+                            declarations,
                             &box_name,
                             &method,
-                            arguments,
-                            &mut descent,
-                        )
+                            arguments.len(),
+                        ) {
+                            Err(error) => Err(error.to_string()),
+                            Ok(StaticResultPublicationIngressV1::Selected(handoff)) => {
+                                let mut descent =
+                                    AssociatedMethodCallArgumentsV1::new(port, input);
+                                lower_selected_static_result_publication_v1(
+                                    self,
+                                    &mut descent,
+                                    handoff,
+                                )
+                            }
+                            Ok(
+                                StaticResultPublicationIngressV1::Unavailable
+                                | StaticResultPublicationIngressV1::Absent,
+                            ) => {
+                                let mut descent =
+                                    AssociatedMethodCallArgumentsV1::new(port, input);
+                                self.handle_static_method_call_with_descent(
+                                    &box_name,
+                                    &method,
+                                    arguments,
+                                    &mut descent,
+                                )
+                            }
+                        }
                     }
                     ScriptDirectStaticClaimIngressV1::Available => {
                         let claim = {
@@ -120,6 +150,21 @@ impl MirBuilder {
                         }
                     }
                 }
+            }
+            MemberCallRoutePlan::ReceiverNormalized {
+                plan: ReceiverNormalizationPlan::MeCall,
+            } => {
+                let (method, arguments) = {
+                    let syntax = port.method_call_syntax(input)?;
+                    (syntax.method().to_owned(), syntax.arguments())
+                };
+                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                self.handle_me_method_call_with_publication_ingress(
+                    &method,
+                    arguments,
+                    &mut descent,
+                )?
+                .ok_or_else(|| format!("[member-call-route] unresolved me receiver for {method}"))
             }
             route_plan => self.execute_prepared_member_call_route_v1(port, input, route_plan),
         }

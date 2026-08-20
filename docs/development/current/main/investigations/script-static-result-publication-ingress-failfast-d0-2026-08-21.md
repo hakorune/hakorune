@@ -1,11 +1,11 @@
 ---
-Status: accepted design stop — implementation not started
+Status: bounded P0 implementation complete — selected-normal only
 Date: 2026-08-21
 Decision: SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-D0
 Parent: docs/development/current/main/investigations/mirbuilder-compatibility-seam-final-ratchet-d0-2026-08-21.md
 ProductionCaller: existing Cataloged callable/static and me terminal owners; no new switch
 ReplacementCell: distinguish publication capability absence, exact row absence, and source loss
-Classification: BoxShape candidate; pre-descent seam proof required before implementation
+Classification: BoxShape; source-lineage witness and pre-descent seam proof closed
 Execution row: SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0
 ---
 
@@ -125,6 +125,9 @@ Negative:
 
 - owner-backed `UnlocatedCompatibility` has zero argument effects, Call
   receipts, publication, and legacy terminal executions;
+- owner-backed missing source context and non-Cataloged lineage are distinct
+  typed errors (`SourceContextMissing` / `ForeignLineage`), never the
+  compatibility `Unavailable` state;
 - owner-backed missing context and foreign lineage freeze before descent;
 - declaration/catalog/target/owner drift has no ordinary fallback;
 - emitter or publication failure discards the isolated candidate and cannot
@@ -155,6 +158,60 @@ second Call emitter/publication owner                          = 0
 source/AST target re-resolution                                 = 0
 source/check files >= 800 lines                                 = 0
 ```
+
+The prerequisite is now closed by commit `629ece8290`: transport preserves
+`expected_lineage` through source-loss, child, and reborrow paths, and its
+guard pins the finite state vocabulary. The P0 ownership split is therefore:
+
+```text
+new publication-ingress child
+  -> classify capability + RawInvocationSourceContextV1
+  -> exact Cataloged only: existing collector take()
+  -> Unselected = Absent; Selected = move to the existing bridge
+
+RawInvocationChildPortV1 / RawStructuredChildScopePortV1
+  -> thin forwarding only
+
+StaticReceiver route head
+  -> after Script claim ingress, before receiver/argument descent
+
+me route head
+  -> after effect-free prepare, before execute/lower_all
+```
+
+`raw_invocation_source_transport.rs`, the old terminal owner, and the generic
+recursive port remain semantic no-growth owners in this row. Both route heads
+now own `Absent | Selected | Error`; compatibility ports remain `Unavailable`
+and never source-backed success, and the old late terminal hook is retired.
+
+## P0 evidence
+
+The implementation is now closed at the accepted boundary. A new
+`static_result_publication_ingress.rs` classifies source context before any
+child effect: genuine compatibility remains `Unavailable`, exact Cataloged
+no-row is `Absent`, one handoff is `Selected`, and a preserved Cataloged
+lineage that lost its node is `SourceLocationLost`. The StaticReceiver and
+lowered static `me` route heads use exhaustive matches and the selected path
+reuses the existing ordered argument driver, generic Call receipt emitter,
+and `PreparedStaticCallResultPublicationV1` exactly once. The old
+late-terminal `Option<ValueId>` publication hook and its duplicate module are
+retired; no second AST matcher, Call emitter, target resolver, or publication
+owner was added.
+
+Focused evidence:
+
+```text
+cargo test --profile quick -p nyash-rust static_result_publication_ingress --lib  = 3 passed
+cargo test --profile quick -p nyash-rust member_route --lib                         = 13 passed
+cargo check --profile quick -p nyash-rust                                               = PASS
+tools/checks/script_static_result_publication_ingress_guard.sh                         = PASS
+```
+
+The guard also pins the finite outcome vocabulary, source-loss error, no
+late-terminal hook, transport/source-file line limits, and the absence of a
+second AST matcher. This is a selected-normal BoxShape closure only; no
+canonical Script consumer, production switch, Compatibility/Deferred/RawLegacy
+retirement, ABI, or performance claim is opened.
 
 ## Stop line and ordered follow-ups
 

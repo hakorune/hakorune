@@ -19,10 +19,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-D0"
-current_design_stop = "SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-D0"
-current_blocker_token = "The source-lineage witness P0 is closed; publication ingress must classify preserved source loss as Error before opening physical publication."
+work_mode = "closeout"
+current_execution_row = "SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0"
+current_design_stop = "none"
+current_blocker_token = "Publication-ingress P0 is implemented and verified; closeout is limited to evidence, owner docs, commit, and pointer synchronization."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -70,7 +70,7 @@ The V0 disposition closure is landed: one pure child accepts only real
 preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
-The selected-normal Script direct-static bridge has closed its ingress fail-fast follow-up: ledger-backed unlocated or foreign source context now stops before child effects; only exact ScriptRoot no-row remains an ordinary-route `Absent`. The static-result publication finite state table is accepted, and its transport-only Cataloged lineage witness P0 is now closed with focused tests and an exhaustive guard. The next design stop is the typed publication ingress; no canonical consumer or production claim is open.
+The selected-normal Script direct-static bridge has closed its ingress fail-fast follow-up: ledger-backed unlocated or foreign source context now stops before child effects; only exact ScriptRoot no-row remains an ordinary-route `Absent`. The static-result publication finite state table and pre-descent seam are accepted, and its transport-only Cataloged lineage witness P0 is now closed with focused tests and an exhaustive guard. The typed publication ingress P0 is implemented and verified with explicit owner-backed missing/foreign/source-loss errors; no canonical consumer or production claim is open.
 SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 and TYPEOP-DISJOINT-I0 are landed; PHYSICAL-BRIDGE-I0 is also landed with green focused evidence. The selected bridge takes one exact claim, emits one generic Call, publishes ExactI64 once,
 and finishes only after success. Scalar operand Recipe D0 and the canonical
 physical-input D0 are closed; the selected fast row implements the
@@ -89,9 +89,9 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-static-result-publication-ingress-failfast-d0"
 latest_card_path = "docs/development/current/main/investigations/script-static-result-publication-ingress-failfast-d0-2026-08-21.md"
-latest_card_summary = "The source-lineage witness P0 is closed; the next design stop owns typed Unavailable/Absent/Selected/Error publication ingress."
-next_design_card = "SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-D0"
-next_design_card_path = "docs/development/current/main/investigations/script-static-result-publication-ingress-failfast-d0-2026-08-21.md"
+latest_card_summary = "Publication ingress P0 is implemented and verified; its closeout records typed Unavailable/Absent/Selected/Error plus owner-backed source-context errors before descent."
+next_design_card = "none"
+next_design_card_path = "none"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -104,7 +104,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-20: MIR-CALL-LEGACY-TARGET-CENSUS-D0 closed the first Call retirement prerequisite with a pinned 25-mention census and no Call field/fallback change; SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 then landed parser-owned empty-or-complete constructor catalogs, with typeop PRE-DESCENT/TYPEOP-DISJOINT closure and a green reusable guard; bridge code stayed closed.",
+  "2026-08-21: SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0 landed one selected-normal BoxShape. Cataloged publication ingress now distinguishes Unavailable, Absent, Selected, and typed Error before descent; owner-backed missing context, source loss, and foreign lineage cannot fall through to the compatibility terminal. StaticReceiver and lowered-me routes use the existing ordered driver, unified Call receipt, and publication owner; focused tests, cargo check, pointer guard, diff check, and reusable guard are green. Canonical/production cutover and compatibility retirement remain closed.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0 landed one selected-normal BoxShape. App, plain-runtime, and nonplain-runtime constructor tickets now borrow the package-issued forest by exact ConstructorSourceId, consume each role once, scope the existing raw body, and require manifest plus package completion; Compatibility/RawLegacy and global raw Brand retirement remain parked.",

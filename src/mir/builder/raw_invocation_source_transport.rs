@@ -555,24 +555,6 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
         self.complete_script_direct_static_claim_inner_v1(claimed)
     }
 
-    fn try_emit_source_bound_static_call_result_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        owner: &str,
-        method: &str,
-        checked_source_arity: u32,
-        arguments: &[ValueId],
-    ) -> Result<Option<ValueId>, String> {
-        super::raw_static_result_publication::try_emit_source_bound_static_call_result_v1(
-            self,
-            builder,
-            owner,
-            method,
-            checked_source_arity,
-            arguments,
-        )
-    }
-
     fn cleanup_exit_policy_v1(&self) -> super::control_flow::cleanup::CleanupExitPolicyV1 {
         self.cleanup_exit_policy
     }

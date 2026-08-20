@@ -45,6 +45,7 @@ use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_lambda_capture_lifecycle::RawLambdaCaptureDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
+use super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
     RawLoopChildEntryPortV1, RecursiveChildLoweringPortV1,
@@ -93,6 +94,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + QMarkPropagationSourceDemandPortV1
     + ExplicitExternSourcePortV1
     + BrandConstructorSourcePortV1
+    + StaticResultPublicationIngressPortV1
 {
 }
 
@@ -140,6 +142,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + QMarkPropagationSourceDemandPortV1
         + ExplicitExternSourcePortV1
         + BrandConstructorSourcePortV1
+        + StaticResultPublicationIngressPortV1
 {
 }
 

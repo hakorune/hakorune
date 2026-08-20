@@ -372,7 +372,7 @@ mod raw_invocation_body;
 mod raw_invocation_source_item_site;
 mod raw_invocation_source_statement_classification;
 mod raw_invocation_source_transport;
-mod raw_static_result_publication;
+mod static_result_publication_ingress;
 mod raw_structured_child_scope;
 mod record_literal_source_demand;
 mod recursive_child_lowering_port;

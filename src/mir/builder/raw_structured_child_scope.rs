@@ -22,6 +22,10 @@ use super::recursive_child_lowering::{
     RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
 };
 use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
+use super::static_result_publication_ingress::{
+    StaticResultPublicationIngressErrorV1, StaticResultPublicationIngressPortV1,
+    StaticResultPublicationIngressV1,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum PreparedRawChildSourceV1 {
@@ -184,23 +188,6 @@ where
         self.child.complete_script_direct_static_claim_v1(claimed)
     }
 
-    fn try_emit_source_bound_static_call_result_v1(
-        &mut self,
-        builder: &mut MirBuilder,
-        owner: &str,
-        method: &str,
-        checked_source_arity: u32,
-        arguments: &[ValueId],
-    ) -> Result<Option<ValueId>, String> {
-        self.child.try_emit_source_bound_static_call_result_v1(
-            builder,
-            owner,
-            method,
-            checked_source_arity,
-            arguments,
-        )
-    }
-
     fn lower_body(
         &mut self,
         builder: &mut MirBuilder,
@@ -252,6 +239,29 @@ where
                 })
             }
         }
+    }
+}
+
+impl<Port> StaticResultPublicationIngressPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: StaticResultPublicationIngressPortV1,
+{
+    fn take_static_result_publication_ingress_v1(
+        &mut self,
+        declarations: Option<
+            &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
+        >,
+        owner: &str,
+        method: &str,
+        argument_count: usize,
+    ) -> Result<StaticResultPublicationIngressV1, StaticResultPublicationIngressErrorV1> {
+        self.child
+            .take_static_result_publication_ingress_v1(
+                declarations,
+                owner,
+                method,
+                argument_count,
+            )
     }
 }
 

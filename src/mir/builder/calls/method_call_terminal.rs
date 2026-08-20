@@ -118,15 +118,6 @@ where
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        if let Some(value) = self.try_emit_source_bound_static_call_result_v1(
-            builder,
-            owner,
-            method,
-            checked_source_arity,
-            &arguments,
-        )? {
-            return Ok(value);
-        }
         self.with_function_headers(|lookup| {
             emit_global_value_terminal_with_lookup_v1(
                 builder,
@@ -148,15 +139,6 @@ where
         checked_source_arity: u32,
         arguments: Vec<ValueId>,
     ) -> Result<ValueId, String> {
-        if let Some(value) = self.try_emit_source_bound_static_call_result_v1(
-            builder,
-            owner,
-            method,
-            checked_source_arity,
-            &arguments,
-        )? {
-            return Ok(value);
-        }
         self.with_function_headers(|lookup| {
             let (value, target) = emit_global_value_terminal_with_lookup_v1(
                 builder,

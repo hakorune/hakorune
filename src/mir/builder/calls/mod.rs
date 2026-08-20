@@ -89,6 +89,8 @@ pub(in crate::mir::builder) use method_call_terminal::{
 pub(in crate::mir::builder) use method_call_terminal::{
     StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
+pub(in crate::mir::builder) use static_result_publication_physical_bridge::
+    lower_selected_static_result_publication_v1;
 #[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]
@@ -102,6 +104,7 @@ mod reserved_method_route; // shared reserved-route policy adapter + selected di
 mod reserved_method_route_tests;
 pub mod resolver; // Phase 25.1d: Callee resolution (CallTarget → Callee)
 mod script_direct_static_physical_bridge;
+mod static_result_publication_physical_bridge;
 pub mod skeleton_builder; // Step 5: Function/method skeleton creation
 pub mod special_method_handlers; // Special method handlers (TypeOp, math, str normalization)
 pub mod static_resolution; // Step 3: Static method resolution and unresolved-call recovery

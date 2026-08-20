@@ -214,12 +214,12 @@ impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
 /// collector-backed production route and the direct compatibility facade
 /// mechanically distinct.
 pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
-    pub(super) module_port: &'port mut ModuleLoweringPortV1<'collector>,
-    pub(super) active_source: Option<RawInvocationSourceContextV1>,
-    pub(super) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
-    pub(super) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
-    pub(super) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
-    pub(super) cleanup_exit_policy: CleanupExitPolicyV1,
+    pub(in crate::mir::builder) module_port: &'port mut ModuleLoweringPortV1<'collector>,
+    pub(in crate::mir::builder) active_source: Option<RawInvocationSourceContextV1>,
+    pub(in crate::mir::builder) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
+    pub(in crate::mir::builder) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
+    pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
+    pub(in crate::mir::builder) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
 }
 

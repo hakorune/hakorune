@@ -10,11 +10,15 @@ use crate::mir::builder::calls::{
     AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
     MethodCallValueTerminalPortV1, StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
+use crate::mir::builder::calls::lower_selected_static_result_publication_v1;
 use crate::mir::builder::me_call_header_observation::{
     prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MethodCallLoweringPortV1,
     PreparedMeReceiverV1,
 };
 use crate::mir::builder::{MirBuilder, ValueId};
+use crate::mir::builder::static_result_publication_ingress::{
+    StaticResultPublicationIngressPortV1, StaticResultPublicationIngressV1,
+};
 use crate::mir::TypeOpKind;
 
 use super::record_helper_args::{
@@ -153,6 +157,51 @@ impl MeCallPolicyBox {
         Port: MethodCallLoweringPortV1,
     {
         let prepared = Self::prepare(builder, method, arguments, descent)?;
+        Self::execute(builder, method, arguments, descent, prepared)
+    }
+
+    fn resolve_me_call_with_publication_ingress<Port>(
+        builder: &mut MirBuilder,
+        method: &str,
+        arguments: &[ASTNode],
+        descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: MethodCallLoweringPortV1 + StaticResultPublicationIngressPortV1,
+    {
+        let prepared = Self::prepare(builder, method, arguments, descent)?;
+        let publication_owner = match &prepared {
+            PreparedMeCallExecutionV1::LoweredGlobal { owner, prepared }
+                if matches!(prepared.receiver(), PreparedMeReceiverV1::Static) =>
+            {
+                Some(owner.as_str())
+            }
+            PreparedMeCallExecutionV1::StaticFallback { owner } => Some(owner.as_str()),
+            _ => None,
+        };
+        if let Some(owner) = publication_owner {
+            let declarations = builder.comp_ctx.callable_declaration_catalog().ok();
+            let decision = {
+                let port = descent.terminal_port();
+                port.take_static_result_publication_ingress_v1(
+                    declarations,
+                    owner,
+                    method,
+                    arguments.len(),
+                )
+            };
+            match decision {
+                Err(error) => return Err(error.to_string()),
+                Ok(StaticResultPublicationIngressV1::Selected(handoff)) => {
+                    return lower_selected_static_result_publication_v1(builder, descent, handoff)
+                        .map(Some)
+                }
+                Ok(
+                    StaticResultPublicationIngressV1::Unavailable
+                    | StaticResultPublicationIngressV1::Absent,
+                ) => {}
+            }
+        }
         Self::execute(builder, method, arguments, descent, prepared)
     }
 
@@ -505,6 +554,20 @@ impl MirBuilder {
         Port: MethodCallLoweringPortV1,
     {
         MeCallPolicyBox::resolve_me_call(self, method, arguments, descent)
+    }
+
+    pub(in crate::mir::builder) fn handle_me_method_call_with_publication_ingress<Port>(
+        &mut self,
+        method: &str,
+        arguments: &[ASTNode],
+        descent: &mut AssociatedMethodCallArgumentsV1<'_, '_, Port>,
+    ) -> Result<Option<ValueId>, String>
+    where
+        Port: MethodCallLoweringPortV1 + StaticResultPublicationIngressPortV1,
+    {
+        MeCallPolicyBox::resolve_me_call_with_publication_ingress(
+            self, method, arguments, descent,
+        )
     }
 
     pub(in crate::mir::builder) fn handle_standard_method_call_with_descent<Completion>(
