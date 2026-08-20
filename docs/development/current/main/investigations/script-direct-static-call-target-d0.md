@@ -1,10 +1,11 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
-Status: target/Facts/continuation/Recipe/Join are landed. The physical bridge
-is blocked because the only real static-box ScriptRoot probe is rejected before
-the selected-normal source product is issued. The next row is the bounded
-source-admission premise `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0`; no bridge,
-route, lowering, or source-shape implementation is open in this card.
+Status: target/Facts/continuation/Recipe/Join are landed. The accepted next
+implementation is the bounded source-admission row
+`SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0`: compatibility-compatible initial
+sources gain one parser-owned empty-or-complete constructor catalog. The
+physical bridge remains blocked; no bridge, route, lowering, or fallback
+implementation is open.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -16,43 +17,45 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
 - The target/result bundle, source continuation, and ScriptRoot result owner are
   Facts/source products. Recipe I0 and its Join handoff are now transported
   source products, but a local `static box Helper { value() { return 7 } }`
-  direct-static probe currently enters the compatibility parser arm and stops
-  at `ConstructorSourceMissing`; the older `for_mir_mode` route reaches the
-  selected-normal work-plan `cohort-missing` guard. This is source admission
-  debt, not bridge evidence. P0 must decide whether static-only boxes enter the
-  source-backed lane with a parser-issued empty constructor cohort, or remain a
-  documented non-claim with another exact source-backed fixture.
+  direct-static input previously entered the compatibility parser arm and
+  stopped at `ConstructorSourceMissing`. The accepted I0 fixes only this
+  parser handoff: every compatibility-compatible initial source carries an
+  explicit empty-or-complete constructor cohort. Mixed outer and unsupported
+  cohorts retain compatibility status and do not gain a physical Script route.
 - 760 lines is the source split/design trigger and 800 is the hard stop.
   `owner_forest.rs`, `recursive_child_lowering.rs`, package install, and the
   751-line Script runtime owner are no-growth owners.
 
 ## Current six-line brief
 
-Decision: stop the pre-descent proof and open `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0`.
-The selected-normal ScriptRoot bridge cannot be evaluated until a real static
-source either reaches the source-backed lane or is explicitly ruled out.
+Decision: accept `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` as the only fast row.
+The selected-normal ScriptRoot bridge remains closed until a real static source
+reaches the source-backed lane through one parser-owned catalog.
 
-Source authority + canonical issuer: the parser postpass finalizer and its
-`ParserConstructorSourceCatalogV1` co-seal the retained Program/source seals;
-the normal callable source transport carries that product into selected-normal
-root admission. Builder target/bundle products only consume it.
+Source authority + canonical issuer: the parser postpass finalizer issues
+`ParserConstructorSourceCatalogV1` together with retained non-static source
+seals and final box placement; the initial/final callable source transports
+that same product into selected-normal root admission. Static-only and
+top-level-only initial sources receive the canonical empty catalog. Builder
+products only consume it.
 
 Non-authority: compatibility AST transport, `ConstructorSourceMissing` text,
 `cohort-missing` work-plan checks, constructor key sorting, static target
-inventory, box/method names, synthetic empty cohorts, and the physical bridge.
+inventory, box/method names, and the physical bridge.
 
 Fail-fast boundary: before Script target/bundle/Recipe/Join issuance, reject
-missing/foreign/duplicate source seals or constructor rows. Never turn a
-compatibility result into source-backed by name, and never map admission errors
-to `Absent`.
+missing/foreign/duplicate source seals, placements, or constructor rows. Never
+turn a compatibility result into source-backed by name, and never map
+admission errors to `Absent`.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0` design/census
-only. Specify one canonical empty-or-complete constructor cohort and prove the
-static-only, constructor-bearing, and mixed cases before opening an I0.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` only. Attach the
+catalog in the parser source product, preserve mixed/unsupported compatibility
+status, and prove static-only, top-level-only, mixed, constructor-bearing, and
+selected-normal ingress cases.
 
 Non-claims: no bridge/claim/publication implementation, route change, source
-fallback, raw retirement, canonical Script exit, Box/ABI change, production
-switch, or performance/C-parity result.
+fallback, raw retirement, canonical Script exit, Box/ABI change, mixed-cohort
+admission, production switch, or performance/C-parity result.
 
 ## Historical target-I0 contract
 
@@ -869,53 +872,50 @@ descent. The target issuer already excludes non-Ordinary reserved decisions;
 P0 must close the remaining typeop and source-location premises on the actual
 selected-normal ingress before I0 may edit this seam.
 
-### `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-P0` execution brief (current)
+### `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` execution brief (current)
 
-Parent: `SCRIPT-DIRECT-STATIC-CALL-TARGET-D0`; BoxCount premise design stop;
-accepted-source and production-code delta: zero until the admission contract is
-approved.
+Parent: `SCRIPT-DIRECT-STATIC-CALL-TARGET-D0`; accepted BoxCount boundary;
+source/admission implementation only.
 
-Observed boundary:
-  `static box Helper { value() { return 7 } }` is classified by the normal
-  callable parser as a compatibility cohort. The callable-aware path therefore
-  returns `ConstructorSourceMissing`; the compatibility `for_mir_mode` path
-  reaches selected-normal work-plan admission and returns
-  `mir/instance-constructor-source/cohort-missing`. Neither error may be
-  treated as a Script result-bundle `Absent` or as bridge evidence.
-
-Decision to settle:
-  Decide whether static-only boxes with zero instance constructors are an
-  accepted selected-normal source shape. If yes, the parser finalizer must
-  issue one canonical empty `ParserConstructorSourceCatalogV1` together with
-  source seals and the final callable source. If no, the card must name an
-  independently source-backed ScriptRoot direct-static fixture; compatibility
-  success is not a substitute.
+Change:
+  Extend the compatibility arm that is already admitted to the initial
+  callable lane. Reuse the existing source-seal finalizer and constructor
+  catalog issuer for retained non-static boxes, allowing zero constructor rows
+  as one canonical empty catalog for static-only, top-level-only, and mixed
+  inputs. Attach that non-Clone catalog to the initial callable source before
+  the existing `PreparedNormalCallableProgramSourceV1::issue` check. Preserve
+  the outer mixed compatibility envelope; interface, record, build-gate, and
+  unsupported cohorts remain compatibility-only.
 
 Authority contract:
-  The parser postpass finalizer owns source seals, final box placement, and the
-  empty-or-complete constructor catalog. The initial/final callable source
-  transports that same non-Clone product. Builder constructor batches, static
-  target inventories, box/method names, and AST reconstruction are validators
-  only; they cannot mint an empty cohort or recover a missing row.
+  `ParserBoxSourceSealV1`, final non-static box placement, and
+  `ParserConstructorSourceCatalogV1` are issued by the parser postpass
+  finalizer. Initial/final callable source transports the same product, or the
+  canonical empty product when no retained constructor-capable box exists.
+  Static target inventories and Builder constructor batches validate rows only;
+  they do not create or infer an empty catalog.
 
-Required census and acceptance:
-  static-only zero-constructor, constructor-bearing, static-plus-constructor,
-  and selected-gate cases must each have one explicit source-backed or
-  compatibility disposition. A source-backed positive must reach transform and
-  `for_mir_mode_callable_source`; constructor rows retain parser-issued IDs and
-  do not cross-pair with static method rows. Missing/foreign/duplicate seals,
-  rows, placements, or transformed declarations reject before target/bundle
-  issuance. No constructor semantics, Recipe/Join, route, lowering, or physical
-  code changes are allowed in P0.
+Acceptance:
+  `static box Helper { value() { return 7 } }` and its direct root-return form,
+  top-level-only input, and mixed ordinary+static input parse as SourceBacked,
+  transform unchanged, and reach `for_mir_mode_callable_source`. Zero
+  constructor cohorts produce an empty catalog; ordinary constructor-bearing
+  boxes preserve parser IDs; selected gates preserve retained rows; mixed
+  ordinary+static keeps its outer compatibility envelope.
+  Source seal/placement/catalog drift, duplicate/foreign rows, or transformed
+  declarations reject before target/bundle issuance. Existing ordinary-box
+  source tests remain unchanged. The reusable
+  `script_direct_static_target_guard.sh` also pins the finalizer seam and the
+  source-admission positive/negative tests.
 
-Stop and branch:
-  If the parser cannot co-seal a total empty-or-complete catalog without
-  reconstructing AST identity, open a dedicated constructor-source design stop;
-  if policy rejects static-only source-backed admission, record that non-claim
-  and stop rather than widening the bridge. Do not add a compatibility fallback,
-  synthetic default, source-name pairing, or combined bridge repair.
+Non-claims and stop:
+  No bridge/claim/publication, route/lowering, compatibility fallback, raw
+  retirement, constructor semantic change, Recipe/Join change, Script exit,
+  Box/ABI change, or performance claim. If supporting static source requires
+  AST reconstruction, mixed-cohort widening, or growth of a file to 760/800,
+  stop and split the owner before editing.
 
-### `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0` (blocked by P0)
+### `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0` (blocked by source admission and pre-descent P0)
 
 Change:
   At the ordinary `StaticReceiver` arm head, classify by exact bundle site and
@@ -953,7 +953,7 @@ Stop:
 ### Ordered continuation
 
 ```text
-SOURCE-ADMISSION-P0
+SOURCE-ADMISSION-I0
   -> PRE-DESCENT-P0
   -> PHYSICAL-BRIDGE-I0
   -> CANONICAL-PHYSICAL-INPUT-D0

@@ -54,6 +54,52 @@ fn exact_static_callable_set_survives_one_transform() {
         .expect("exact parameter syntax")
         .expect("direct method parameter source");
     assert_eq!(parameter_count, 4);
+    let constructor_count = final_source
+        .with_constructor_semantic_syntax(|loan| loan.rows().len())
+        .expect("static-only source must carry an empty constructor catalog");
+    assert_eq!(constructor_count, 0);
+}
+
+#[test]
+fn mixed_compatibility_source_carries_constructor_catalog_without_widening_cohort() {
+    let final_source = transform(
+        parse("box Plain { run() { return 1 } }\nstatic box Utility { ping() { return 2 } }"),
+        |_| {},
+    )
+    .expect("mixed source-backed callable source");
+    assert_eq!(final_source.callable_count(), 2);
+    let constructor_count = final_source
+        .with_constructor_semantic_syntax(|loan| loan.rows().len())
+        .expect("mixed source must carry the parser-owned catalog");
+    assert_eq!(constructor_count, 0);
+}
+
+#[test]
+fn ordinary_constructor_source_catalog_survives_normal_source_transform() {
+    let final_source = transform(
+        parse("box Page { init(a) {} pack(b) {} birth() {} }"),
+        |_| {},
+    )
+    .expect("ordinary constructor source");
+    let keys = final_source
+        .with_constructor_semantic_syntax(|loan| {
+            loan.rows()
+                .iter()
+                .map(|row| row.key().to_owned())
+                .collect::<Vec<_>>()
+        })
+        .expect("constructor semantic syntax loan");
+    assert_eq!(keys, ["init/1", "pack/1", "birth/0"]);
+}
+
+#[test]
+fn unsupported_compatibility_cohorts_do_not_enter_initial_source_lane() {
+    for source in ["interface box Api { run() }", "record Data { value: i64 }"] {
+        assert!(matches!(
+            parse(source),
+            ParsedNormalCallableProgramV1::Compatibility { .. }
+        ));
+    }
 }
 
 #[test]

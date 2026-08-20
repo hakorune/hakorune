@@ -33,6 +33,8 @@ LOWERING_STATE=src/mir/builder/normal_script_semantic_lowering_state.rs
 ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
 BUILDER_README=src/mir/builder/README.md
 CARD=docs/development/current/main/investigations/script-direct-static-call-target-d0.md
+SOURCE_FINALIZER=src/parser/source_seal/finalize.rs
+SOURCE_TESTS=src/parser/normal_callable_program_source/tests.rs
 
 require_text "$MODULE" "VerifiedScriptDirectStaticCallTargetInventoryV1"
 require_text "$MODULE" "observe_script_method_calls_shadow_view_v0"
@@ -74,8 +76,13 @@ require_text "$BUILDER_README" "source/Facts-only"
 require_text "$CARD" "SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0"
 require_text "$CARD" "source-only continuation rows"
 require_text "$CARD" "result publication, and physical lowering"
+require_text "$SOURCE_FINALIZER" "finalize_compatibility_source"
+require_text "$SOURCE_FINALIZER" "attach_constructor_source"
+require_text "$SOURCE_TESTS" "exact_static_callable_set_survives_one_transform"
+require_text "$SOURCE_TESTS" "ordinary_constructor_source_catalog_survives_normal_source_transform"
+require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_initial_source_lane"
 
-for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README"; do
+for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
