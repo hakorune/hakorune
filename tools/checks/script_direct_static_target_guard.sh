@@ -27,6 +27,8 @@ RESULT_OWNER=src/mir/builder/normal_script_direct_static_result_publication_owne
 RESULT_OWNER_TESTS=src/mir/builder/normal_script_direct_static_result_publication_owner_tests.rs
 RECIPE=src/mir/builder/normal_script_direct_static_recipe.rs
 RECIPE_TESTS=src/mir/builder/normal_script_direct_static_recipe_tests.rs
+JOIN_HANDOFF=src/mir/builder/normal_script_direct_static_join_handoff.rs
+JOIN_HANDOFF_TESTS=src/mir/builder/normal_script_direct_static_join_handoff_tests.rs
 LOWERING_STATE=src/mir/builder/normal_script_semantic_lowering_state.rs
 ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
 BUILDER_README=src/mir/builder/README.md
@@ -58,6 +60,13 @@ require_text "$RECIPE_TESTS" "terminal_shape_accepts_bare_final_sequence_call"
 require_text "$RECIPE_TESTS" "terminal_shape_rejects_final_local_value_as_sequence_result"
 require_text "$RECIPE_TESTS" "terminal_shape_accepts_direct_root_return_value"
 require_text "$RECIPE_TESTS" "terminal_shape_rejects_nested_return_call"
+require_text "$JOIN_HANDOFF" "VerifiedScriptDirectStaticJoinHandoffV1"
+require_text "$JOIN_HANDOFF" "SourceIdentityMismatch"
+require_text "$JOIN_HANDOFF" "PublicationRowMissing"
+require_text "$JOIN_HANDOFF" "RecipeRowMissing"
+require_text "$JOIN_HANDOFF_TESTS" "empty_recipe_emits_empty_join_handoff"
+require_text "$JOIN_HANDOFF_TESTS" "join_handoff_rejects_a_foreign_source_owner"
+require_text "$JOIN_HANDOFF_TESTS" "non_empty_recipe_row_is_carried_by_recipe_key"
 require_text "$LOWERING_STATE" "direct_static_recipe"
 require_text "$ROOT_TRAVERSAL" "record_statement_shape"
 require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
@@ -66,7 +75,7 @@ require_text "$CARD" "SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0"
 require_text "$CARD" "source-only continuation rows"
 require_text "$CARD" "result publication, and physical lowering"
 
-for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README"; do
+for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
@@ -89,6 +98,11 @@ if rg -n "crate::.*(JoinSig|ValueId|MirType)|raw_root_body_recipe::|fn lower_.*p
   exit 1
 fi
 
+if rg -n "raw_root_body_recipe|JoinSig|ValueId|MirType|lower_.*physical|emit_.*call" "$JOIN_HANDOFF"; then
+  echo "[script-direct-static-target] Join handoff crossed the source/Facts boundary" >&2
+  exit 1
+fi
+
 if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$CONTINUATION" "$LOWERING_INPUT"; then
   echo "[script-direct-static-target] continuation crossed the Recipe/physical boundary" >&2
   exit 1
@@ -100,6 +114,8 @@ CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_result_bundle --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_recipe --lib
+CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
+  mir::builder::normal_script_direct_static_join_handoff --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   normal_script_source_continuation_tests --lib
 

@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-JOIN-D0"
+current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-CONSUMER-D0"
 work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-JOIN-D0"
-current_blocker_token = "Define one source-owned Script Recipe-to-result/Join handoff after the corrected terminal relation boundary; physical/raw retirement/performance remain parked."
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-CONSUMER-D0"
+current_blocker_token = "Name one existing canonical Script physical result/exit owner for the joined Recipe/result rows; do not infer a JoinSig, raw retirement, or performance owner."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -78,7 +78,7 @@ preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the
 same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent
-ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The next design stop is the source-owned Script Recipe-to-result/Join handoff; physical publication, raw retirement, and performance remain parked.
+ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. The next design stop is a separate audit to name one canonical physical result/exit consumer; physical publication, raw retirement, performance, and C-parity remain parked.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -91,11 +91,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "Recipe terminal correction I0 is closed: only bare final Sequence or direct root Return calls are admitted. The next design stop is the source-owned Join handoff; physical, raw retirement, and performance remain parked."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-JOIN-D0"
+latest_card_summary = "Join-I0 is closed as a source/Facts handoff: exact Recipe/result-owner rows preserve Sequence/Return destinations; the next design stop is identifying one canonical physical consumer."
+next_design_card = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-CONSUMER-D0"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "none-until-Decision"
+next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-20: SCRIPT-INSTANCE-BOX-TRANSFERRED-BOUNDARY-I0 landed one BoxCount. Exact installed method plus parser-constructor semantic coverage now issues one transferred Script boundary; surrounding Script resolves without entering the Box, and physical Brand consumption remains unopened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
-  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0 plus RECIPE-TERMINAL-I0 landed one dedicated source/Facts BoxCount and closed its terminal boundary. Bare final Sequence calls require the statement node with zero parents; direct root Returns require exactly one Value parent. Focused 5/5 tests and the reusable guard are green; Join/physical/raw retirement/performance remain parked. Lifecycle retains the known instance-constructor cohort-missing baseline red.",
+  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-JOIN-I0 landed one source/Facts BoxCount. The exact Recipe/result-owner handoff preserves FinalSequence and RootReturn rows, rejects foreign/missing/duplicate/drifted rows, and is transported through Script lowering input/state. Focused Join 3/3 plus the reusable guard are green; physical consumer, raw retirement, performance, and C-parity remain parked.",
 ]

@@ -48,6 +48,33 @@ pub(super) struct VerifiedScriptDirectStaticResultPublicationDemandV1 {
 }
 
 impl VerifiedScriptDirectStaticResultPublicationDemandV1 {
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        source_owner: FunctionOwnerIdV1,
+        call_site: SourceExprSiteV1,
+        receiver_site: SourceExprSiteV1,
+        argument_sites: Box<[SourceExprSiteV1]>,
+        result_site: SourceExprSiteV1,
+        parent_relations: Box<[BodyShapeRelationV1]>,
+        terminal: ScriptSourceContinuationTerminalV1,
+        target: CanonicalSameModuleCallableKeyV1,
+        representation: VerifiedCallableResultRepresentationV1,
+        required_callee_i64_arguments: Box<[u32]>,
+    ) -> Self {
+        Self {
+            source_owner,
+            call_site,
+            receiver_site,
+            argument_sites,
+            result_site,
+            parent_relations,
+            terminal,
+            target,
+            representation,
+            required_callee_i64_arguments,
+        }
+    }
+
     pub(super) const fn source_owner(&self) -> FunctionOwnerIdV1 {
         self.source_owner
     }
@@ -97,6 +124,19 @@ pub(super) struct VerifiedScriptDirectStaticResultPublicationOwnerV1 {
 }
 
 impl VerifiedScriptDirectStaticResultPublicationOwnerV1 {
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        source_owner: FunctionOwnerIdV1,
+        source_identity: usize,
+        rows: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticResultPublicationDemandV1>,
+    ) -> Self {
+        Self {
+            source_owner,
+            source_identity,
+            rows,
+        }
+    }
+
     pub(super) fn issue(
         source: &VerifiedScriptSemanticSourceV1<'_>,
         bundle: &VerifiedScriptDirectStaticResultBundleV1,

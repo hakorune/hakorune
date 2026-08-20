@@ -557,6 +557,19 @@ physical block, route selection, raw retirement, or production switch is
 performed in this I0. The focused guard and empty Complete Script fixture cover
 the source/Facts boundary; non-empty physical consumption is a later row.
 
+## Script direct-static Recipe-to-result handoff I0
+
+`VerifiedScriptDirectStaticJoinHandoffV1` is the source/Facts bridge between
+the dedicated Script Recipe and its already-issued result-publication owner.
+It verifies source identity, owner, key/site, target, representation, ordered
+arguments, terminal destination, and parent relations one-to-one, then carries
+one immutable row per Recipe key through `VerifiedScriptSemanticLoweringInputV1`
+and `ScriptSemanticLoweringState`. It does not create a JoinSig or physical
+value/block, reclassify AST, infer a destination, or retire the raw route. Empty
+Recipe/owner pairs remain explicitly empty; foreign, duplicate, missing, or
+drifted rows fail before physical work. The focused handoff tests and reusable
+Script direct-static guard own this boundary.
+
 ## Loop PHI observer boundary (M6-B)
 
 `LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical

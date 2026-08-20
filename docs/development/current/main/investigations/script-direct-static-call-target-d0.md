@@ -2,8 +2,8 @@
 
 Status: target I0, result-owner/Facts I0, continuation D0, continuation I0,
 ScriptRoot result-owner I0, Recipe D0, Recipe I0, and Recipe-terminal I0 are
-closed. Join is the current design stop; physical and raw retirement remain
-closed.
+closed. Join-I0 is closed as a source/Facts handoff; the current design stop is
+the physical-consumer audit, while physical and raw retirement remain closed.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -13,40 +13,35 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   claim is a separate future D0. This row is not a performance or backend task.
 - Deferred Script owner repair is `NoSafeSlice`; this row does not relabel it.
 - The target/result bundle, source continuation, and ScriptRoot result owner are
-  Facts/source products. Recipe I0 now has its own narrow producer and the
-  terminal contract admits only a bare final Sequence call or a direct Return
-  value. Join/result handoff and physical call lowering remain closed.
+  Facts/source products. Recipe I0 and its Join handoff are now transported
+  source products; the terminal contract admits only a bare final Sequence call
+  or a direct Return value. Physical call lowering remains closed pending the
+  current owner audit.
 - Every touched Rust source must stay below 760 lines; `owner_forest.rs`,
   `recursive_child_lowering.rs`, and package install are no-growth owners.
 
-## Six-line brief
+## Current six-line brief
 
-Decision: Close one bounded source/Facts correction: the dedicated Script
-Recipe producer now distinguishes a bare final Sequence expression from a
-direct root Return value and rejects value-bearing non-result statements.
+Decision: keep the source/Facts Recipe-to-result handoff closed and open only a
+design audit for one canonical physical Script result/exit consumer.
 
-Source authority + canonical issuer: the resolver's existing
-`ShadowBodyShapeDraftV0`/Script owner seal issues terminal and parent
-relations; the dedicated Recipe producer alone issues Recipe keys after the
-terminal-shape check.
+Source authority + canonical issuer: the joined Recipe/result-publication rows
+are the sole semantic input; a named existing Script physical owner must issue
+the later physical projection.
 
-Non-authority: scalar `RawScriptBodyRecipeV1`, AST re-projection, callable-owner
-keys, receiver/name/arity lookup, spans, `using` spelling, Deferred status, raw
-success, `ValueId`, MIR/ASM, and callable result-publication ownership.
+Non-authority: AST/statement ordinals, Recipe keys alone, `ValueId`/`MirType`,
+raw Script success, loop JoinSig vocabulary, assembly, timing, and C-parity
+ratios cannot select a physical owner.
 
-Fail-fast boundary: a final Sequence must be the call's own statement node with
-zero parents; a root Return must have exactly one direct `Value` parent. Final
-local/assignment/print/nested/control-flow calls, foreign/duplicate relations,
-and non-final terminals reject before Recipe publication; no fallback is used.
+Fail-fast boundary: missing/non-final/foreign/duplicate rows, terminal drift,
+or a result/exit owner that cannot consume both FinalSequence and RootReturn
+forms is `NoSafeSlice` before physical effects; no inferred fallback is allowed.
 
-Smallest next slice: reopen `SCRIPT-DIRECT-STATIC-CALL-JOIN-I0` as a separate
-source-only handoff consuming the corrected Recipe plus the co-sealed
-continuation/result-owner rows. Scalar Recipe, JoinSig, physical code, and raw
-retirement stay unchanged until that row is designed and accepted.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-CONSUMER-D0`, a
+read-only owner/Join audit. Do not edit code, fixtures, raw retirement, or perf.
 
-Non-claims: no physical JoinSig/value/block, result ABI, Deferred owner repair,
-callable-key reuse, by-name fallback, raw-edge retirement, backend
-optimization, promotion, or C-parity claim.
+Non-claims: no physical implementation, ABI/result publication switch, backend
+parity, raw-edge retirement, promotion, or C-parity claim is opened here.
 
 ## Historical target-I0 contract
 
@@ -556,17 +551,23 @@ I0 sections above remain evidence and are not executable rows.
    Complete Script lowering input/state. Focused Recipe/owner/bundle/continuation
    tests and the reusable guard are green; the broader lifecycle suite still
    reproduces the known `mir/instance-constructor-source/cohort-missing` baseline.
-7. **CLOSED DESIGN / ACTIVE I0 — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-TERMINAL`.**
+7. **CLOSED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-TERMINAL-I0`.**
    The Join audit found a boundary defect: a bare final expression statement
    has no parent `Value` relation, while a final local or assignment does. I0
    admits only a call equal to the terminal Sequence statement (zero parents),
    or a direct root Return value (exactly one `Value` parent); nested/local/
-   assignment/control flow rejects before Recipe. Join remains the next row.
-8. **PARKED — raw retirement/production.** Retire the old Script edge only when
+   assignment/control flow rejects before Recipe. The focused Recipe suite and
+   guard are green.
+8. **CLOSED — `SCRIPT-DIRECT-STATIC-CALL-JOIN-I0`.** The new source/Facts
+   handoff consumes exact Recipe and result-owner rows, preserves FinalSequence
+   and RootReturn destinations, and rejects foreign, missing, duplicate, or
+   drifted rows. It is carried through Script lowering input/state without
+   issuing physical meaning.
+9. **PARKED — raw retirement/production.** Retire the old Script edge only when
    every admitted Script family has an exact Recipe/result owner and the new
    path is selected. Deferred, Compatibility, RawLegacy, and nested families
    remain explicit non-claims until separately closed.
-9. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
+10. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
    `Hako/C <= 1.00` as the long-term same-corridor point target; a possible
    upper-95% `<= 1.03` claim requires a new predeclared batch/D0. No WSL/native
    rerun, PMU attribution, threshold change, SIMD work, or backend BoxShape is
@@ -682,13 +683,36 @@ Non-claims: no general call expression Recipe, local/assignment/print support,
 nested or control-flow support, JoinSig, physical result publication,
 ValueId/MIR type, raw retirement, production switch, performance, or C parity.
 
-## JOIN-D0 design stop (2026-08-20, superseded)
+## JOIN-D0 design brief (2026-08-20, closed by JOIN-I0)
 
-The read-only Join census confirmed that no existing Script Join issuer is
-safe to reuse; a future sibling must consume Recipe plus the co-sealed
-continuation/result owner. It also exposed the terminal relation defect below.
-No JoinSig, physical publication, route switch, retirement, or performance work
-is authorized until the terminal correction closes.
+Decision: accept `SCRIPT-DIRECT-STATIC-CALL-JOIN-I0` as one source/Facts-only
+BoxCount. A Script-specific handoff consumes the corrected Recipe and preserves
+both `FinalSequence` and `RootReturn` destinations without reclassification.
+
+Source authority + canonical issuer: `VerifiedScriptSourceContinuationV1` owns
+terminal/parent facts; `VerifiedScriptDirectStaticResultPublicationOwnerV1`
+owns target/representation; `VerifiedScriptDirectStaticRecipeV1` alone issues
+Recipe keys. The new sibling consumes those exact rows and issues one handoff
+row per Recipe key.
+
+Non-authority: Loop `JoinSig`, scalar Recipe, AST/ordinal inference, callable
+keys, `ValueId`, `MirType`, ABI, raw lineage, physical labels, and any
+post-hoc destination reconstruction.
+
+Fail-fast boundary: source identity/owner, Recipe key/site, target,
+representation, argument sites, terminal, and parent relations must match
+one-to-one. Sequence requires statement-node equality plus zero parents;
+Return requires final ReturnExit plus exactly one direct Value parent. Missing,
+foreign, duplicate, non-final, or drifted rows reject before any physical
+effect; zero rows produce an empty handoff.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-JOIN-I0` — add one focused
+sibling under 300 lines, transport it through Script lowering input/state, and
+add positive/negative tests plus the reusable guard. Do not touch JoinSig,
+physical entry/exit, raw retirement, or performance.
+
+Non-claims: no physical blocks/values, result ABI, production switch, raw
+retirement, backend optimization, measurement, or C-parity claim.
 
 ## RECIPE-TERMINAL-D0 design brief (2026-08-20)
 
@@ -739,3 +763,34 @@ Non-claims: no physical Recipe consumption, JoinSig, ValueId/MIR type, result
 ABI, raw-edge retirement, production switch, performance result, or C-parity
 claim. The active pointer is now the `SCRIPT-DIRECT-STATIC-CALL-JOIN-D0`
 design stop; no Join implementation was opened.
+
+## JOIN-I0 closeout (2026-08-20)
+
+Decision: close `SCRIPT-DIRECT-STATIC-CALL-JOIN-I0` as one source/Facts
+BoxCount. The handoff verifies exact source identity/owner, Recipe key/site,
+target, representation, ordered arguments, terminal, and parent relations.
+
+Evidence: `cargo check --profile quick` passed; the focused Join module passed
+3/3 (empty handoff, foreign-source rejection, and a non-empty Recipe row). The
+reusable Script direct static guard now covers the new sibling and test module.
+The broader lifecycle red remains the known instance-constructor cohort-missing
+baseline.
+
+Next: return to design stop for a separately authorized physical consumer row;
+the Join handoff is transported but intentionally unconsumed.
+
+## SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-CONSUMER-D0 design stop (2026-08-20)
+
+Decision: no physical consumer is selected yet; the next row must identify one
+existing canonical Script result/exit owner before any JoinSig or MIR value work.
+Source authority + canonical issuer: the joined Script Recipe/result handoff is
+the only source input; the existing Script physical owner must be named before
+implementation, not inferred from labels or lowering state.
+Non-authority: `ScriptPhysicalExit`, Loop JoinSig, AST/ordinal, ValueId/MirType,
+raw call success, assembly, and performance ratios cannot issue a destination.
+Fail-fast boundary: missing owner, non-final destination, duplicate/foreign key,
+or inability to preserve existing Return/Sequence exit semantics is NoSafeSlice.
+Smallest next slice: a read-only owner/Join audit; no code, fixture, raw
+retirement, production switch, or perf rerun until that design closes.
+Non-claims: no physical implementation, ABI/result publication, backend change,
+promotion, or C-parity claim.

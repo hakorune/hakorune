@@ -33,6 +33,11 @@ pub(super) enum ScriptDirectStaticRecipeIssueV1 {
 pub(super) struct ScriptDirectStaticRecipeKeyV1(u32);
 
 impl ScriptDirectStaticRecipeKeyV1 {
+    #[cfg(test)]
+    pub(super) const fn from_ordinal_for_test(ordinal: u32) -> Self {
+        Self(ordinal)
+    }
+
     pub(super) const fn ordinal(self) -> u32 {
         self.0
     }
@@ -60,6 +65,35 @@ pub(super) struct VerifiedScriptDirectStaticRecipeDemandV1 {
 }
 
 impl VerifiedScriptDirectStaticRecipeDemandV1 {
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        key: ScriptDirectStaticRecipeKeyV1,
+        source_owner: FunctionOwnerIdV1,
+        call_site: SourceExprSiteV1,
+        receiver_site: SourceExprSiteV1,
+        argument_sites: Box<[SourceExprSiteV1]>,
+        result_site: SourceExprSiteV1,
+        parent_relations: Box<[BodyShapeRelationV1]>,
+        destination: ScriptDirectStaticRecipeDestinationV1,
+        target: CanonicalSameModuleCallableKeyV1,
+        representation: VerifiedCallableResultRepresentationV1,
+        required_callee_i64_arguments: Box<[u32]>,
+    ) -> Self {
+        Self {
+            key,
+            source_owner,
+            call_site,
+            receiver_site,
+            argument_sites,
+            result_site,
+            parent_relations,
+            destination,
+            target,
+            representation,
+            required_callee_i64_arguments,
+        }
+    }
+
     pub(super) const fn key(&self) -> ScriptDirectStaticRecipeKeyV1 {
         self.key
     }
@@ -113,6 +147,19 @@ pub(super) struct VerifiedScriptDirectStaticRecipeV1 {
 }
 
 impl VerifiedScriptDirectStaticRecipeV1 {
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        source_owner: FunctionOwnerIdV1,
+        source_identity: usize,
+        rows: BTreeMap<ScriptDirectStaticRecipeKeyV1, VerifiedScriptDirectStaticRecipeDemandV1>,
+    ) -> Self {
+        Self {
+            source_owner,
+            source_identity,
+            rows,
+        }
+    }
+
     pub(super) fn issue(
         owner: &VerifiedScriptDirectStaticResultPublicationOwnerV1,
         window: &VerifiedScriptRootDemandWindowV1,
@@ -263,9 +310,7 @@ fn validate_terminal_relation(
             }
             if parent_relations.len() != 1 {
                 return Err(
-                    ScriptDirectStaticRecipeIssueV1::DuplicateFinalValueRelation(
-                        call_site.clone(),
-                    ),
+                    ScriptDirectStaticRecipeIssueV1::DuplicateFinalValueRelation(call_site.clone()),
                 );
             }
             let relation = &parent_relations[0];

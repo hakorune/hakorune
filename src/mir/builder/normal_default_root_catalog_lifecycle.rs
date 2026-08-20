@@ -9,6 +9,7 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
+use super::normal_script_direct_static_join_handoff::VerifiedScriptDirectStaticJoinHandoffV1;
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
@@ -585,6 +586,15 @@ impl ModuleBuilderInvocationSessionV1 {
                             format!("[mir/script-static-result/recipe] {error:?}").into(),
                         )
                     })?;
+                    let join_handoff = VerifiedScriptDirectStaticJoinHandoffV1::issue(
+                        &recipe,
+                        &publication_owner,
+                    )
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            format!("[mir/script-static-result/join] {error:?}").into(),
+                        )
+                    })?;
                     source
                         .attach_direct_static_result_bundle(bundle)
                         .map_err(|error| {
@@ -604,6 +614,13 @@ impl ModuleBuilderInvocationSessionV1 {
                             format!("[mir/script-static-result/recipe-attach] {error}").into(),
                         )
                     })?;
+                    source
+                        .attach_direct_static_join_handoff(join_handoff)
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-result/join-attach] {error}").into(),
+                            )
+                        })?;
                 }
                 let static_result_publication_owner =
                     VerifiedStaticCallResultPublicationOwnerV1::issue(

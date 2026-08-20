@@ -4,10 +4,9 @@ use crate::mir::builder::normal_script_direct_static_result_bundle::VerifiedScri
 use crate::mir::builder::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::resolved_semantics::{
-    BodyShapeRelationV1,
-    FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptRootResolvedDemandV1,
-    ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptSyntaxViewV1,
-    SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
+    BodyShapeRelationV1, FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1,
+    ScriptRootResolvedDemandV1, ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1,
+    ScriptSyntaxViewV1, SourcePathSegmentV1, SourcePathV1, VerifiedScriptRootDemandEntryV1,
     VerifiedScriptRootDemandWindowV1,
 };
 use crate::mir::source_call_target::{

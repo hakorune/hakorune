@@ -6,6 +6,7 @@ use crate::mir::builder::stmts::variable_stmt::OutboxBindingValueV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceNodeSiteV1};
 use crate::mir::ValueId;
 
+use super::normal_script_direct_static_join_handoff::VerifiedScriptDirectStaticJoinHandoffV1;
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
@@ -21,6 +22,7 @@ pub(super) struct ScriptSemanticLoweringState {
     direct_static_result_publication_owner:
         Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
     direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
+    direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
@@ -32,6 +34,7 @@ impl ScriptSemanticLoweringState {
             direct_static_result_bundle,
             direct_static_result_publication_owner,
             direct_static_recipe,
+            direct_static_join_handoff,
         ) = input.into_parts();
         Self {
             projection,
@@ -39,6 +42,7 @@ impl ScriptSemanticLoweringState {
             direct_static_result_bundle,
             direct_static_result_publication_owner,
             direct_static_recipe,
+            direct_static_join_handoff,
             variable_values: BTreeMap::new(),
             materialized_outboxes: BTreeSet::new(),
         }
@@ -66,6 +70,12 @@ impl ScriptSemanticLoweringState {
 
     pub(super) fn direct_static_recipe(&self) -> Option<&VerifiedScriptDirectStaticRecipeV1> {
         self.direct_static_recipe.as_ref()
+    }
+
+    pub(super) fn direct_static_join_handoff(
+        &self,
+    ) -> Option<&VerifiedScriptDirectStaticJoinHandoffV1> {
+        self.direct_static_join_handoff.as_ref()
     }
 
     pub(super) fn lambda_captures(
