@@ -11,9 +11,8 @@ use super::product::{
     VerifiedTrivialCanonicalOwnerV1,
 };
 use super::{
-    analyze_trivial_canonical_owner_v1,
-    analyze_trivial_canonical_owner_with_finite_direct_calls_v1, TrivialCanonicalOwnerAnalysisV1,
-    TrivialProfileConsumptionV1,
+    analyze_trivial_canonical_with_mode_v1, TrivialCanonicalAnalysisModeV1,
+    TrivialCanonicalOwnerAnalysisV1, TrivialProfileConsumptionV1,
 };
 
 fn variable(name: &str) -> ASTNode {
@@ -82,14 +81,24 @@ fn analyze(
         let completion = verify_function_completion_v1(input).unwrap();
         let if_control =
             verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
-        analyze_trivial_canonical_owner_with_finite_direct_calls_v1(input, &completion, &if_control)
+        analyze_trivial_canonical_with_mode_v1(
+            input,
+            &completion,
+            &if_control,
+            TrivialCanonicalAnalysisModeV1::OrdinaryFiniteDirectCalls,
+        )
     } else {
         let unit = VerifiedResolvedSourceUnitV1::resolve_function(root).unwrap();
         let input = unit.root_function_input().unwrap();
         let completion = verify_function_completion_v1(input).unwrap();
         let if_control =
             verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
-        analyze_trivial_canonical_owner_v1(input, &completion, &if_control)
+        analyze_trivial_canonical_with_mode_v1(
+            input,
+            &completion,
+            &if_control,
+            TrivialCanonicalAnalysisModeV1::OrdinaryClosed,
+        )
     }
 }
 

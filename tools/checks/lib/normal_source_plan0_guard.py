@@ -488,7 +488,9 @@ def main() -> int:
     ):
         require(main_function_plan, fragment, f"Main F1 plan boundary {fragment}")
     for fragment in (
-        "analyze_trivial_canonical_main_owner_v1",
+        "analyze_trivial_canonical_with_mode_v1",
+        "TrivialCanonicalAnalysisModeV1::NormalMainClosed",
+        "TrivialCanonicalAnalysisModeV1::NormalMainFiniteDirectCalls",
         "CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily",
         "CanonicalFunctionRolePolicyV1::NormalMain0",
         "name == \"main\"",
@@ -507,7 +509,7 @@ def main() -> int:
         require(value_profile_analyzer, fragment, f"role-scoped value profile {fragment}")
     require(
         value_profile_mod,
-        "pub(crate) fn analyze_trivial_canonical_main_owner_v1(",
+        "pub(crate) fn analyze_trivial_canonical_with_mode_v1(",
         "sole Main value-profile facade",
     )
 

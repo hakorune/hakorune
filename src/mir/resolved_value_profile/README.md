@@ -98,10 +98,13 @@ consumption API returns the whole row so Lower cannot pair target and ABI from
 separate authorities.
 
 The finite analyzer records nested calls in execution postorder (argument calls
-before their enclosing call) and uses checked cardinality. Only two admission
-modes remain: body-only `Forbidden` and callable-Program `FiniteOneOrMore`.
+before their enclosing call) and uses checked cardinality. Its internal
+`TrivialCanonicalAnalysisModeV1` is an exhaustive four-quadrant vocabulary:
+ordinary/main role crossed with closed/finite-direct-call policy. The mode maps
+to the two existing policy dimensions; it adds no source or semantic shape.
 There is no exact-one analyzer or retry path. Non-VM execution remains rejected
-before effects.
+before effects, and callers must use the single mode entry rather than
+reconstructing policy pairs.
 
 SSA-I1-T consumes an admitted profile exactly once in the dedicated trivial
 Binding-SSA lowerer. A non-admitted profile selects the whole-unit A+ route

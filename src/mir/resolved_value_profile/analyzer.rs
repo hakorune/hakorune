@@ -5,7 +5,6 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::ast::ASTNode;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::located::{LocatedBodyV1, LocatedExprV1, LocatedStmtV1};
-use crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1;
 use crate::mir::compiler::source_view::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::exact_trivial_return_abi::ExactTrivialReturnAbiV1;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;
@@ -13,6 +12,7 @@ use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceBindingSiteV1, SourceStmtSiteV1};
 
 use super::analyzer_policy::{DirectCallPolicyV1, ReturnPolicyV1, RootProfilePolicyV1};
+use super::analyzer_mode::TrivialCanonicalAnalysisModeV1;
 use super::coverage::{
     verify_terminal_completion_co_seal_v1, ResolvedFactCoverageDraftV1, TrivialProfileDraftV1,
 };
@@ -39,61 +39,36 @@ mod branch;
 #[path = "analyzer_support.rs"]
 mod support;
 
-pub(super) fn analyze_trivial_canonical_owner_impl_v1(
+pub(super) fn analyze_trivial_canonical_with_mode_impl_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     completion: &VerifiedFunctionCompletionV1,
     if_control: &VerifiedResolvedFunctionIfControlV1,
+    mode: TrivialCanonicalAnalysisModeV1,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
+    let (direct_call_policy, root_profile_policy) = match mode {
+        TrivialCanonicalAnalysisModeV1::OrdinaryClosed => (
+            DirectCallPolicyV1::Forbidden,
+            RootProfilePolicyV1::OrdinaryFirstFamily,
+        ),
+        TrivialCanonicalAnalysisModeV1::OrdinaryFiniteDirectCalls => (
+            DirectCallPolicyV1::FiniteOneOrMore,
+            RootProfilePolicyV1::OrdinaryFirstFamily,
+        ),
+        TrivialCanonicalAnalysisModeV1::NormalMainClosed { role: _ } => (
+            DirectCallPolicyV1::Forbidden,
+            RootProfilePolicyV1::NormalMain0,
+        ),
+        TrivialCanonicalAnalysisModeV1::NormalMainFiniteDirectCalls { role: _ } => (
+            DirectCallPolicyV1::FiniteOneOrMore,
+            RootProfilePolicyV1::NormalMain0,
+        ),
+    };
     analyze_with_policy(
         input,
         completion,
         if_control,
-        DirectCallPolicyV1::Forbidden,
-        RootProfilePolicyV1::OrdinaryFirstFamily,
-    )
-}
-
-pub(super) fn analyze_trivial_canonical_main_owner_impl_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    completion: &VerifiedFunctionCompletionV1,
-    if_control: &VerifiedResolvedFunctionIfControlV1,
-    _role: VerifiedNormalMainRoleV1,
-) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    analyze_with_policy(
-        input,
-        completion,
-        if_control,
-        DirectCallPolicyV1::Forbidden,
-        RootProfilePolicyV1::NormalMain0,
-    )
-}
-
-pub(super) fn analyze_trivial_canonical_main_owner_with_finite_direct_calls_impl_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    completion: &VerifiedFunctionCompletionV1,
-    if_control: &VerifiedResolvedFunctionIfControlV1,
-    _role: VerifiedNormalMainRoleV1,
-) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    analyze_with_policy(
-        input,
-        completion,
-        if_control,
-        DirectCallPolicyV1::FiniteOneOrMore,
-        RootProfilePolicyV1::NormalMain0,
-    )
-}
-
-pub(super) fn analyze_trivial_canonical_owner_with_finite_direct_calls_impl_v1(
-    input: ResolvedFunctionLoweringInputV1<'_>,
-    completion: &VerifiedFunctionCompletionV1,
-    if_control: &VerifiedResolvedFunctionIfControlV1,
-) -> Result<TrivialCanonicalOwnerAnalysisV1, TrivialProfileContractErrorV1> {
-    analyze_with_policy(
-        input,
-        completion,
-        if_control,
-        DirectCallPolicyV1::FiniteOneOrMore,
-        RootProfilePolicyV1::OrdinaryFirstFamily,
+        direct_call_policy,
+        root_profile_policy,
     )
 }
 

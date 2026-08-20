@@ -1,5 +1,5 @@
 ---
-Status: Active fast row
+Status: Closed fast row
 Date: 2026-08-20
 Decision: MIRBUILDER-CLEANUP-T2-S1-ANALYZER-MODE-I0
 Parent: docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md
@@ -45,9 +45,37 @@ normal-main finite-direct-call quadrant             = unchanged
 role/policy mapping                                 = exhaustive
 route/Recipe/SSA/PHI diff                            = 0
 analyzer source files >= 800 lines                  = 0
-focused tests + profile guard + cargo check --lib   = green
+focused tests + analyzer-mode guard + cargo check --lib = green
 ```
 
 The old entry names remain historical evidence only; no compatibility alias is
 permitted after the migration. The analyzer mode is an internal policy value,
 not a new language or MIR authority.
+
+The existing V2 profile receipt remains a known baseline-red historical guard
+(stale seam/manifest/caller census); this row uses the dedicated analyzer-mode
+guard and does not alter that unrelated receipt.
+
+## Closeout evidence
+
+- `cargo test -q --manifest-path Cargo.toml --lib mir::resolved_value_profile`:
+  46 passed, 0 failed.
+- `CARGO_BUILD_JOBS=4 cargo check -q --lib`: passed. The existing warning
+  inventory remains baseline noise; no new warning policy is claimed here.
+- `tools/checks/trivial_canonical_analyzer_mode_guard.sh`: passed.
+- `tools/checks/lib/resolved_callable_p0c_f.py .`: passed.
+- `tools/checks/current_state_pointer_guard.sh` and `git diff --check`: passed.
+- Changed Rust/check files remain below the 800-line hard stop; the analyzer
+  and focused test owner remain below the 760-line split trigger.
+- `normal_source_plan0_guard.py` and `resolved_binding_ssa_i1_t.py` still show
+  their pre-existing module/manifest baseline reds; this row does not rewrite
+  those unrelated receipts. The stale V2 profile guard remains historical and
+  unchanged as recorded above.
+
+## Closeout boundary
+
+This closes one behavior-neutral analyzer cleanup row only. It does not claim
+canonical Script transport, production cutover, raw retirement, or a
+performance result. The next row must be selected explicitly after the parked
+canonical-transport NoSafeSlice is revisited or another bounded cleanup row is
+accepted.
