@@ -6,7 +6,7 @@ Parent: docs/development/current/main/investigations/script-direct-static-call-c
 ProductionCaller: none; design only
 ReplacementCell: parser-owned AST-free source input handoff for canonical A
 Classification: BoxCount (design only; implementation remains closed)
-Prerequisite: docs/development/current/main/investigations/script-direct-static-call-canonical-script-source-admission-p0-2026-08-21.md
+Prerequisite: docs/development/current/main/investigations/script-direct-static-call-canonical-script-source-admission-p0-2026-08-21.md; landed admission I0 is docs/development/current/main/investigations/script-direct-static-call-canonical-script-source-admission-i0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-PARSER-INPUT-HANDOFF-D0
@@ -25,11 +25,14 @@ Script A with complete source coverage and source declaration/config views.
 This D0 does not issue resolver, target, Recipe, Join, physical, or
 production meaning.
 
-Source authority + canonical issuer: the already-sealed
-`CanonicalParserSourceHandoffV1` / `CompletedParserPostpassV1` and the same
-front-door source/config receipt are authoritative. A new parser sibling,
-`CanonicalScriptSourceInputHandoffV1`, is the only issuer of this parser
-input product; it is not a direct-static disposition issuer.
+Source authority + canonical issuer: the same-invocation typed
+`CanonicalScriptCohortAdmissionV1`, the already-issued
+`CanonicalParserSourceHandoffV1` identity/receipt, and the parser-owned
+postpass/parameter syntax borrowed during one issuance are the inputs. A new
+parser sibling, `CanonicalScriptSourceInputHandoffV1`, is the sole issuer of
+the co-sealed AST-free parser input product; the existing front-door handoff
+does not issue its rows and this sibling is not a direct-static disposition
+issuer.
 
 Non-authority: `ASTNode` rescans, `NormalSourcePlanClassifierV1`,
 `CanonicalCoreSourcePlanCompileRequestV1`, `MirBuilder`/`comp_ctx`, selected
@@ -37,9 +40,9 @@ Builder declaration facts, resolver/target inventories, `RawScriptBodyRecipeV1`,
 pointer/path/name/ordinal/digest joins, `ValueId`, `MirType`, and compatibility
 success cannot issue or complete this handoff.
 
-Fail-fast boundary: after the parser cohort admission and front-door identity
-I0 have issued `CanonicalScriptCohortAdmitted` plus `CanonicalSourceBacked`,
-before canonical `prepare_script_recipe()`, resolver
+Fail-fast boundary: after the landed parser admission and front-door identity
+I0 have issued `CanonicalScriptCohortAdmitted` plus `CanonicalSourceBacked` in
+one co-seal, before canonical `prepare_script_recipe()`, resolver
 forest construction, Builder install, or child effects. Missing source
 coverage, declaration/import/Brand snapshot, or identity/cohort agreement
 stops before A can observe the source.
@@ -127,15 +130,19 @@ filenames, and digest equality cannot re-pair rows later.
 ## Phase boundary and transition ownership
 
 The parser handoff and A are adjacent phases, not two names for one issuer.
-The transition is finite and one-way:
+The transition is finite and one-way. The phase table and the exhaustive state
+table below intentionally use the same state vocabulary; no private A state is
+silently folded into a parser outcome:
 
 | phase | owned states | sole issuer / consumer | allowed transition |
 |---|---|---|---|
-| cohort admission | `CanonicalScriptCohortAdmitted`, `CohortUnresolved`, `CompatibilitySource`, `Deferred` | parser-only cohort issuer | only `CanonicalScriptCohortAdmitted` may reach front-door identity co-seal |
-| identity-I0 | `CanonicalSourceBacked`, `NotApplicable`, `CompatibilitySource`, `Deferred` | parser frontdoor and typed source disposition | only `CanonicalSourceBacked` plus the cohort admission may enter parser-input observation |
-| parser-input | `SourceAuthorityUnavailable`, `ObservationIncomplete`, `HandoffReady`, `HandoffConsumed`, `IntegrityInvalid` | `CanonicalScriptSourceInputHandoffV1` | `HandoffReady` moves once to `HandoffConsumed`; the other rows stop or remain in their typed owner |
-| A observation | `NonCandidate`, private `InputAuthorityReady`, later `DirectStaticSourceReady` | future `CanonicalScriptDirectStaticSourceOnlyIssuerV1` | A may issue semantic resolver/target/result/proof/terminal meaning exactly once |
-| C/B future | typed disposition, `DispositionTransported` | future canonical disposition and transport owners | C consumes A once; B transports the typed result only |
+| cohort admission | `CanonicalScriptCohortAdmitted`, `CohortUnresolved` | parser-only cohort issuer | only `CanonicalScriptCohortAdmitted` may reach front-door identity co-seal |
+| upstream ingress | `NotApplicable`, `CompatibilitySource`, `Deferred`, `SourceAuthorityUnavailable` | parser/frontdoor typed disposition | these rows stop or remain in their named upstream owner; none is reissued as a parser handoff |
+| identity-I0 | `CanonicalSourceBacked` | parser frontdoor and typed source disposition | only `CanonicalSourceBacked` plus the cohort admission may enter parser-input observation |
+| parser-input | `ObservationIncomplete`, `HandoffReady`, `HandoffConsumed`, `IntegrityInvalid` | `CanonicalScriptSourceInputHandoffV1` and its named A consumer | `HandoffReady` moves once to `HandoffConsumed`; incomplete/invalid rows stop |
+| A observation | `AInputAuthorityReady`, `DirectStaticSourceReady`, `NonCandidate` | future `CanonicalScriptDirectStaticSourceOnlyIssuerV1` | A may issue semantic resolver/target/result/proof/terminal meaning exactly once |
+| A transport | `AInputTransported` | future A input owner | move once into A; no parser replay |
+| C/B future | `DispositionTransported` | future canonical disposition and transport owners | C consumes A once; B transports the typed result only |
 
 `CanonicalScriptCohortAdmitted` is a parser cohort state, not identity or
 parser-input readiness. `CanonicalSourceBacked` is an upstream identity state,
@@ -143,7 +150,8 @@ not parser-input readiness, and it cannot enter this handoff without the
 cohort admission in the same co-seal. `HandoffReady` is the only public parser
 product and never means that a direct-static candidate exists. `NonCandidate`
 is A's complete, integrity-clean zero-candidate result and cannot be issued by
-the parser handoff. `HandoffConsumed`, `AInputTransported`, and
+the parser handoff. `AInputAuthorityReady` and `DirectStaticSourceReady` are
+private A observations, while `HandoffConsumed`, `AInputTransported`, and
 `DispositionTransported` are later lifecycle states and cannot be returned to
 the parser or used to reissue source meaning. A missing/partial parser row is
 therefore never converted into `NonCandidate`, compatibility success, or an
@@ -165,6 +173,8 @@ empty A input.
 | `HandoffConsumed` | A ingress | the named A consumer takes `HandoffReady` once | no parser replay or second source interpretation | A observation begins or ends in its own state | no return to parser, compatibility, or raw route |
 | `IntegrityInvalid` | handoff verification | complete observation finds duplicate, foreign, stale, cohort, cardinality, or source drift | typed reject before A/resolver/child effects | terminal source candidate discard | no retry, repair-by-AST, compatibility, or raw fallback |
 | `NonCandidate` | A-only continuation | A later proves complete direct-static observation has zero candidates | no direct-static package; parser handoff remains source input | canonical non-direct-static owner | parser never issues this state or treats missing rows as it |
+| `AInputAuthorityReady` | A observation | A verifies the consumed handoff and may inspect semantic input | continue to `DirectStaticSourceReady` or `NonCandidate` | parser never issues this state; no raw/compat fallback |
+| `DirectStaticSourceReady` | A observation | A has complete resolver/target/result/proof/terminal input for a candidate | named C/B consumer takes it once | parser never issues this state; no AST re-resolution |
 | `AInputTransported` | future A transport | future A input owner moves the consumed handoff once | no replay or second source interpretation | detached A input terminal | no clone, return to parser, or raw path |
 | `DispositionTransported` | future C/B | future B moves a C disposition once | no source re-observation | detached physical consumer terminal | never reuse as parser or A state |
 
@@ -183,7 +193,7 @@ of `NonCandidate`.
   canonical import/config snapshot, and source lineage under one identity;
 - resolver, target/result, Recipe/Join, proof, terminal, physical, and
   performance meaning remain with future A/C/B owners;
-- all ten phase-qualified states have one owner, pre-effect behavior,
+- every listed phase-qualified state has one owner, pre-effect behavior,
   continuation, and fallback policy;
 - `HandoffReady` is non-Clone and contains no AST/pointer/ValueId/MIR/Builder
   physical fact or Recipe key;
@@ -209,3 +219,13 @@ Remain at this D0 if any condition holds:
 
 Until these are closed, A issuer implementation remains unavailable and no
 canonical physical or production claim is allowed.
+
+## D0 review receipt (read-only)
+
+The worker review found no implementation authorization in this design stop.
+It required the phase table and exhaustive state table to share one vocabulary,
+made the parser-input sibling the sole row issuer, and added the private A
+states rather than silently treating them as parser outcomes. The generic
+classification-completeness guard and current-state pointer guard remain the
+review gates. Code, fixtures, source admission, fallback, physical consumers,
+and production callers remain closed.
