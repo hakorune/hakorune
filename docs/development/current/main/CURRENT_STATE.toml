@@ -20,9 +20,9 @@ date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-INPUT-D0"
-current_design_stop = "Parser identity is closed; canonical Source-only A still lacks one complete source-backed Script window/resolver/catalog input envelope before any A implementation."
-current_blocker_token = "Design stop: no Source-only A code, carrier, physical consumer, fallback, or production switch until the complete input authority and finite A/C/B boundary are accepted."
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0"
+current_design_stop = "Parser identity and A-input contract are closed; the canonical Source-only A issuer still lacks a source-backed handoff that can issue the complete window/resolver/catalog package without Builder state."
+current_blocker_token = "Design stop: no A issuer code, carrier, physical consumer, fallback, or production switch until one parser-backed issuer and its finite phase states are accepted."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -73,7 +73,8 @@ root receipt and exact inventory validation. Origin-footprint I0 now seals the s
 The selected-normal Script direct-static bridge has closed its ingress fail-fast follow-up: ledger-backed unlocated or foreign source context now stops before child effects; only exact ScriptRoot no-row remains an ordinary-route `Absent`. The static-result publication finite state table and pre-descent seam are accepted, and its transport-only Cataloged lineage witness P0 is now closed with focused tests and an exhaustive guard. The typed publication ingress P0 is implemented and verified with explicit owner-backed missing/foreign/source-loss errors; no canonical consumer or production claim is open.
 	SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 and TYPEOP-DISJOINT-I0 are landed; PHYSICAL-BRIDGE-I0 is also landed with green focused evidence. The selected bridge takes one exact claim, emits one generic Call, publishes ExactI64 once, and finishes only after success. Scalar operand Recipe D0 and the canonical physical-input D0 are closed; the selected fast row implements the Join-plus-operand input and detached helper. The I0 focused suites and canonical physical-input guard are green; no source admission or production caller is connected.
 Canonical source-digest I0 and parser callable-source handoff I0 (0359ac0af3) are closed with one total parser disposition and no replay/second issuer; Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed. ME-CALL-ARITY-FAILFAST-P0 is complete.
-	MIR-ROOT-APP-MODE-UNDECIDED-P0 is complete: both audited non-Main static-Box entrypoints distinguish App, non-App, and undecided mode before effects. The legacy normal-callable Deferred enum is caller-zero outside tests and remains parked without a consumer. The compatibility source-admission census is accepted; the reason+lineage transport P0 is implementation-complete with one non-Clone AST/reason/lineage carrier, focused evidence, and a reusable guard. Its compatibility-only route remains unchanged; all cohorts remain explicit compatibility while P1A typed-error preservation is landed. The canonical Script identity transport I0 is now closed with focused evidence and an exhaustive identity-state guard. Source-only A is parked behind the canonical source-input D0: complete Script window/resolver/catalog authority must be named before any A implementation; compatibility, Deferred, raw retirement, production switch, and performance remain closed.
+	MIR-ROOT-APP-MODE-UNDECIDED-P0 is complete: both audited non-Main static-Box entrypoints distinguish App, non-App, and undecided mode before effects. The legacy normal-callable Deferred enum is caller-zero outside tests and remains parked without a consumer. The compatibility source-admission census is accepted; the reason+lineage transport P0 is implementation-complete with one non-Clone AST/reason/lineage carrier, focused evidence, and a reusable guard. Its compatibility-only route remains unchanged; all cohorts remain explicit compatibility while P1A typed-error preservation is landed. The canonical Script identity transport I0 is now closed with focused evidence and an exhaustive identity-state guard.
+	The A-input contract D0 is closed; Source-only A is now parked behind the canonical source-only issuer D0, which must name a parser-backed complete window/resolver/catalog handoff without Builder state. Compatibility, Deferred, raw retirement, production switch, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -82,13 +83,13 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-input-d0-2026-08-21.md"
+current_execution_design = "docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-issuer-d0-2026-08-21.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "script-direct-static-call-canonical-source-a-input-d0"
-latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-input-d0-2026-08-21.md"
-latest_card_summary = "Parser identity I0 is closed; the next design stop defines one complete canonical Script window/resolver/catalog input envelope for Source-only A, with no physical or production route open."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-INPUT-D0"
-next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-input-d0-2026-08-21.md"
+latest_card = "script-direct-static-call-canonical-source-a-issuer-d0"
+latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-issuer-d0-2026-08-21.md"
+latest_card_summary = "The A-input contract is closed; the next design stop fixes one parser-backed canonical Source-only A issuer and its complete window/resolver/catalog handoff, with no physical or production route open."
+next_design_card = "SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0"
+next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-issuer-d0-2026-08-21.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

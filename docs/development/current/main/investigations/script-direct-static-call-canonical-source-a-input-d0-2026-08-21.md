@@ -1,11 +1,12 @@
 ---
-Status: Active design stop
+Status: Accepted design stop — next issuer D0 selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-INPUT-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-only-a-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: one complete Builder-free input envelope for canonical Script source-only A
 Classification: BoxCount (design only; implementation remains closed)
+NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-issuer-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-INPUT-D0
