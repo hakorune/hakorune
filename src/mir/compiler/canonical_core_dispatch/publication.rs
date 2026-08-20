@@ -561,6 +561,7 @@ fn project_script_result(
 mod tests {
     use super::*;
     use crate::mir::builder::{completed_for_main_physical, MirBuilder};
+    use crate::mir::CanonicalSourceBytesDigestV1;
 
     #[test]
     fn callable_candidate_projects_only_its_retained_evidence() {
@@ -583,6 +584,7 @@ mod tests {
             admission: VerifiedCanonicalCoreSourcePlanAdmissionV1::seal_from_frontdoor_profile(),
             receipt: NormalSourcePlanReceiptV1::one_read_one_parse(
                 "callable-publication-test".into(),
+                CanonicalSourceBytesDigestV1::from_utf8_bytes(b"callable-publication-test"),
                 0,
                 1,
                 1,

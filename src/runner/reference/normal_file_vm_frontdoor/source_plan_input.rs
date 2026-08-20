@@ -130,6 +130,7 @@ impl ClassifiedNormalFileSourcePlanV1 {
         } = self;
         let receipt = NormalSourcePlanReceiptV1::one_read_one_parse(
             receipt.source_identity,
+            receipt.source_digest,
             receipt.utf8_len,
             receipt.read_count,
             receipt.parse_count,
@@ -149,6 +150,11 @@ impl ClassifiedNormalFileSourcePlanV1 {
     #[cfg(test)]
     fn retained_source_identity(&self) -> &str {
         &self.receipt.source_identity
+    }
+
+    #[cfg(test)]
+    fn source_digest(&self) -> crate::mir::CanonicalSourceBytesDigestV1 {
+        self.receipt.source_digest
     }
 
     #[cfg(test)]

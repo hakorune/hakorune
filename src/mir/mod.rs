@@ -77,6 +77,7 @@ pub(crate) use compiler::canonical_core_dispatch::{
     CanonicalCoreInvocationFailureReportV1, CanonicalCoreSourcePlanCompileRequestV1,
     NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
+pub(crate) use compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;
 pub(crate) use compiler::normal_source_plan;
 pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
 #[cfg(feature = "vm-reference")]

@@ -89,6 +89,30 @@ fn canonical_core_profile_reaches_the_same_one_read_one_parse_source_plan_bounda
 }
 
 #[test]
+fn source_digest_is_issued_once_and_moves_into_canonical_request() {
+    let dir = tempdir().expect("tempdir");
+    let path = write_source(dir.path(), "digest.hako", "42");
+    let loaded = canonical_core_request(path.clone())
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read");
+    std::fs::write(&path, "43").expect("rewrite after read");
+    let classified = loaded
+        .parse_once()
+        .expect("parse retained bytes")
+        .prepare_source_plan_request()
+        .classify()
+        .expect("source plan");
+    let expected = crate::mir::CanonicalSourceBytesDigestV1::from_utf8_bytes(b"42");
+    assert_eq!(classified.source_digest(), expected);
+    let request = classified
+        .into_canonical_core_compile_request()
+        .expect("canonical handoff");
+    assert_eq!(request.source_digest(), expected);
+}
+
+#[test]
 fn canonical_core_dispatch_script_handoff_moves_only_the_sealed_plan_and_receipt() {
     let dir = tempdir().expect("tempdir");
     let request = classify_canonical_core(dir.path(), "handoff.hako", "42")

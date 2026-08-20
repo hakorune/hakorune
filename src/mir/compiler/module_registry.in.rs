@@ -39,6 +39,8 @@ pub(crate) mod callable_single_loop_syntax_facts;
 #[allow(dead_code)]
 pub(crate) mod canonical_core_dispatch;
 #[allow(dead_code)]
+pub(crate) mod canonical_source_identity;
+#[allow(dead_code)]
 mod canonical_drain_manifest;
 #[allow(dead_code)]
 pub(in crate::mir) mod canonical_finalization;

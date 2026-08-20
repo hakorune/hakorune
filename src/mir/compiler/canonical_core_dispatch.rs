@@ -27,12 +27,14 @@ use crate::mir::compiler::source_entry_vm_reference::{
     RawVmReferenceRunReportV1, VmReferenceProcessOutcomeV1,
 };
 
+use super::canonical_source_identity::CanonicalSourceBytesDigestV1;
 use super::MirCompiler;
 
 /// A compiler-neutral receipt for the front door's one read and one parse.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct NormalSourcePlanReceiptV1 {
     source_identity: Box<str>,
+    source_digest: CanonicalSourceBytesDigestV1,
     utf8_len: usize,
     read_count: u8,
     parse_count: u8,
@@ -45,17 +47,23 @@ struct NormalSourcePlanReceiptSealV1;
 impl NormalSourcePlanReceiptV1 {
     pub(crate) fn one_read_one_parse(
         source_identity: Box<str>,
+        source_digest: CanonicalSourceBytesDigestV1,
         utf8_len: usize,
         read_count: u8,
         parse_count: u8,
     ) -> Self {
         Self {
             source_identity,
+            source_digest,
             utf8_len,
             read_count,
             parse_count,
             _seal: NormalSourcePlanReceiptSealV1,
         }
+    }
+
+    pub(crate) const fn source_digest(&self) -> CanonicalSourceBytesDigestV1 {
+        self.source_digest
     }
 
     #[cfg(test)]
@@ -105,6 +113,11 @@ impl CanonicalCoreSourcePlanCompileRequestV1 {
             receipt,
             _seal: CanonicalCoreSourcePlanCompileRequestSealV1,
         }
+    }
+
+    #[cfg(test)]
+    pub(crate) const fn source_digest(&self) -> CanonicalSourceBytesDigestV1 {
+        self.receipt.source_digest()
     }
 
     fn into_parts(

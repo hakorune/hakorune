@@ -5,7 +5,9 @@
 //! a CLI route, or widen the normal/default runner.
 
 use crate::ast::ASTNode;
-use crate::mir::{RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1};
+use crate::mir::{
+    CanonicalSourceBytesDigestV1, RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1,
+};
 use hakorune_frontend_parser::parser::{GrammarProfile, ParserBuildConfig};
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
@@ -184,6 +186,7 @@ pub(crate) struct PreparedNormalFileRequestV1 {
 #[derive(Debug)]
 pub(crate) struct NormalFileSourceReceiptV1 {
     source_identity: Box<str>,
+    source_digest: CanonicalSourceBytesDigestV1,
     utf8_len: usize,
     read_count: u8,
     parse_count: u8,
@@ -282,6 +285,7 @@ impl PreparedNormalFileRequestV1 {
         };
         let receipt = NormalFileSourceReceiptV1 {
             source_identity: source_file.to_string_lossy().into_owned().into_boxed_str(),
+            source_digest: CanonicalSourceBytesDigestV1::from_utf8_bytes(source_text.as_bytes()),
             utf8_len: source_text.len(),
             read_count: 1,
             parse_count: 0,
