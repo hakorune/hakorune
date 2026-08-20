@@ -1,5 +1,5 @@
 ---
-Status: Active design stop
+Status: closed — design contract
 Date: 2026-08-20
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PARSER-SOURCE-HANDOFF-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-disposition-d0-2026-08-20.md
@@ -152,3 +152,28 @@ disposition C, or request carrier B until this parser boundary is closed.
 - `src/parser/mod.rs:288-321`
 - `src/parser/normal_callable_program_source/model.rs:112-140`
 - `src/parser/source_resolver_handoff.rs:180-220`
+
+## Design closeout / next slice
+
+The read-only audits agree on one bounded implementation contract. The
+canonical frontdoor must call the parser postpass exactly once and retain its
+`CompletedParserPostpassV1` product; the frontdoor may co-seal only the
+already-issued profile, read receipt, and source digest. The carrier is
+transport-only and does not create a second parser or resolver authority.
+
+The next row is therefore:
+
+```text
+SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PARSER-SOURCE-HANDOFF-I0
+```
+
+It may change only the one-shot parser handoff and the existing source-plan
+input carrier. It must leave source-only A, disposition C, request carrier B,
+resolver issuance, Recipe/Join/physical work, Builder routes, and production
+callers closed. A/no-Box compatibility rows remain explicit parser coverage;
+they are not silently promoted to complete semantic Facts by this transport.
+
+Acceptance is the I0 card's positive/negative matrix plus its line-count and
+pointer guards. No parser re-run, AST reconstruction, name/path pairing,
+carrier clone/replay, compatibility fallback, or new semantic receipt is
+allowed.
