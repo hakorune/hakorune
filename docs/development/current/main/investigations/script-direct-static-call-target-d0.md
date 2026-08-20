@@ -1,13 +1,13 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
 Status: target/Facts/continuation/Recipe/Join and
-`SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` are landed. The previous design stop
-`SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` is now closed as `NoSafeSlice`: exact
-ScriptRoot site transport is present, but the target inventory can still
-intersect the earlier typeop route. The current design stop is
-`SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0`; the P0 design is closed and this
-one BoxShape implementation is now the only open row. The physical bridge,
-fallback, and production switch remain closed.
+`SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` are landed. The previous design
+stop `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` closed as `NoSafeSlice` on the
+typeop overlap; `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0` fixed the shared
+predicate design and its I0 implementation is now closed with focused tests and
+the reusable guard green. The next design stop is
+`SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0`; no bridge, fallback, or
+production switch is open.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -23,20 +23,22 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   stopped at `ConstructorSourceMissing`. I0 now gives every
   compatibility-compatible initial source an explicit empty-or-complete
   constructor cohort. Mixed outer and unsupported cohorts retain compatibility
-  status and do not gain a physical Script route. The next question is only
-  pre-descent site/route authority.
+  status and do not gain a physical Script route. The typeop route premise is
+  now closed by one shared pure policy; the next question is the selected-
+  normal physical claim/publication boundary, not source admission.
 - 760 lines is the source split/design trigger and 800 is the hard stop.
   `owner_forest.rs`, `recursive_child_lowering.rs`, package install, and the
   751-line Script runtime owner are no-growth owners.
 
 ## Current six-line brief
 
-Decision: close `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0` and open the bounded
-`SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` BoxShape; the selected-normal
-ScriptRoot physical bridge remains closed.
+Decision: close `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` as a bounded
+BoxShape and return to a design stop for the selected-normal ScriptRoot
+physical bridge.
 
 Source authority + canonical issuer: one pure
-`SourceMethodTypeOpV1` predicate in `src/mir/policies` is the route authority;
+`SourceMethodTypeOpDispositionV1` predicate in
+`src/mir/policies/source_method_typeop_route.rs` is the route authority;
 Builder typeop routing and the Script target issuer both delegate to it. The
 existing parser finalizer remains the constructor-catalog issuer; no new
 semantic receipt or source shape is introduced.
@@ -50,14 +52,15 @@ descent. Typeop-shaped `is/as` is an explicit noncandidate, reserved routes
 remain noncandidates, and only an exact ordinary qualified target is retained.
 No missing or mismatched row becomes `Absent`, and no fallback is added.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` only. Add the
-policy sibling, delegate the existing Builder helper and Script issuer to it,
-add positive/negative tests and the reusable guard, and leave the physical
-bridge untouched.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` design
+audit only. Specify the selected-normal claim/publication boundary before any
+physical implementation; keep source admission, Recipe/Join consumers,
+canonical transport, fallback, and production switch closed.
 
-Non-claims: no new parser/source admission, physical bridge, claim/publication,
-Recipe/Join consumption, source fallback, raw retirement, canonical Script
-exit, Box/ABI change, production switch, or performance/C-parity result.
+Non-claims: no parser/source admission, physical bridge implementation,
+claim/publication, Recipe/Join consumption, source fallback, raw retirement,
+canonical Script exit, Box/ABI change, production switch, or performance/
+C-parity result.
 
 ## Historical target-I0 contract
 
@@ -594,15 +597,17 @@ I0 sections above remain evidence and are not executable rows.
    the existing StringBox form) as noncandidate, while ordinary `is/as` with
    other arguments remains eligible. Builder and the Script target issuer will
    consume the same predicate; no physical meaning is issued here.
-11. **OPEN — `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0`.** Add the policy
-   sibling, make `special_handlers` a thin adapter, make the Script target
-   issuer consume the policy, and add focused positive/negative tests plus the
-   guard. Do not touch parser/source admission, Recipe/Join, or physical code.
-12. **BLOCKED — `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0`.** Only after the
-   typeop-disjoint I0 is green, move the exact Candidate once at the
-   `StaticReceiver` arm head, reuse the existing ordered argument driver and
-   unified Call receipt, publish `ExactI64`, and require successful Script-ledger
-   exhaustion. This remains a selected-normal-only BoxShape.
+11. **CLOSED — `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0`.** One pure typed
+   policy now owns the `is/as` route predicate. Builder typeop routing and the
+   Script target inventory delegate to it; typeop-shaped one-string calls are
+   explicit noncandidates while ordinary `is/as` arguments remain eligible.
+   The focused policy/target tests and reusable guard are green. No parser,
+   Recipe/Join, physical, fallback, or production code changed.
+12. **NEXT DESIGN STOP — `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0`.**
+   Before implementation, specify the selected-normal claim/publication
+   boundary at the ordinary `StaticReceiver` arm head, exact terminal witness,
+   unified Call receipt, Script ExactI64 publication, failure discard, and
+   ledger exhaustion. Canonical transport and raw retirement remain parked.
 13. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-D0`.** Name
    one complete AST-free argument/terminal input for the detached canonical
    Script session. The scalar `RawScriptBodyRecipeV1`, AST lookup, and the
@@ -1009,7 +1014,7 @@ Non-claims:
   Join consumption, claim/publication, physical Call, Return/signature write,
   fallback, raw retirement, production switch, or performance result.
 
-### `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` execution brief (current fast row)
+### `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` execution brief (closed 2026-08-20)
 
 Parent: `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0`; one behavior-preserving
 BoxShape implementation. The physical bridge remains blocked.
@@ -1022,7 +1027,7 @@ Decision:
 
 Source authority + canonical issuer:
   `src/mir/policies/source_method_typeop_route.rs` issues the typed
-  `TypeOpNonCandidate { Is|As, type_name }` or `Ordinary` disposition. The
+  `TypeOp { kind: Is|As, type_name }` or `Ordinary` disposition. The
   existing `special_handlers::is_typeop_method` becomes a thin adapter, and
   `script_direct_static.rs` consumes the same policy before reserved-route and
   catalog checks.
@@ -1038,11 +1043,12 @@ Fail-fast boundary:
   `is/as` with non-typeop arguments follows the unchanged declaration lookup.
   Missing/foreign/drifted rows still reject and never become `Absent`.
 
-Smallest next slice:
-  Add the policy module and focused tests, delegate the Builder helper and
-  Script issuer, update `script_direct_static_target_guard.sh`, run the focused
-  source-target/policy gate, and leave Recipe/Join/bridge/source admission
-  untouched. Keep every changed Rust file below 760 lines.
+Closeout:
+  The policy module and focused tests landed; the Builder helper and Script
+  issuer delegate to the same disposition, and the reusable target guard now
+  checks the policy boundary plus both focused test families. Every changed
+  Rust file stayed below 760 lines. No parser/source admission, Recipe/Join,
+  physical bridge, fallback, or production switch changed.
 
 Acceptance:
   `Helpers.is("Integer")` and `Helpers.as("Integer")` are explicit
@@ -1056,7 +1062,7 @@ Non-claims:
   claim/publication, physical Call, Return/signature write, raw retirement,
   production switch, or performance result.
 
-### `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0` (blocked by typeop-disjoint I0)
+### `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` (next design stop)
 
 Change:
   At the ordinary `StaticReceiver` arm head, classify by exact bundle site and

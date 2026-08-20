@@ -14,6 +14,9 @@ use crate::mir::policies::source_method_reserved_route::{
     classify_source_method_reserved_route_v1, SourceMethodReservedRouteContextV1,
     SourceMethodReservedRouteDecisionV1,
 };
+use crate::mir::policies::source_method_typeop_route::{
+    classify_source_method_typeop_route_v1, SourceMethodTypeOpDispositionV1,
+};
 use crate::mir::resolved_semantics::{
     observe_script_method_calls_shadow_view_v0, project_source_node_v1, ProjectedSourceNodeV1,
     ScriptSyntaxViewV1, ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0,
@@ -189,6 +192,13 @@ impl VerifiedScriptDirectStaticCallTargetInventoryV1 {
             let ASTNode::Variable { name, .. } = object.as_ref() else {
                 return Err(ScriptDirectStaticCallTargetErrorV1::ReceiverNameRequired { site });
             };
+            if !matches!(
+                classify_source_method_typeop_route_v1(method, arguments),
+                SourceMethodTypeOpDispositionV1::Ordinary
+            ) {
+                noncandidate_count += 1;
+                continue;
+            }
             if !matches!(
                 classify_source_method_reserved_route_v1(
                     SourceMethodReservedRouteContextV1::Ordinary,

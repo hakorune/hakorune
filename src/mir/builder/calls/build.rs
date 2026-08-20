@@ -35,6 +35,9 @@ use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
 };
 use crate::mir::policies::call_name_classification::classify_call_name_v1;
+use crate::mir::policies::source_method_typeop_route::{
+    classify_source_method_typeop_route_v1, SourceMethodTypeOpDispositionV1,
+};
 
 pub(in crate::mir::builder) struct PreparedRawFromCallV1 {
     route: PreparedRawFromCallRouteV1,
@@ -136,8 +139,12 @@ impl MirBuilder {
     {
         let typeop = {
             let syntax = port.method_call_syntax(input)?;
-            super::special_handlers::is_typeop_method(syntax.method(), syntax.arguments())
-                .map(|type_name| (syntax.method().to_string(), type_name))
+            match classify_source_method_typeop_route_v1(syntax.method(), syntax.arguments()) {
+                SourceMethodTypeOpDispositionV1::TypeOp { kind, type_name } => {
+                    Some((kind.spelling().to_owned(), type_name.to_string()))
+                }
+                SourceMethodTypeOpDispositionV1::Ordinary => None,
+            }
         };
         if let Some((method, type_name)) = typeop {
             let object_value =

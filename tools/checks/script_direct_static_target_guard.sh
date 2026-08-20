@@ -15,6 +15,10 @@ require_text() {
 
 MODULE=src/mir/source_call_target/script_direct_static.rs
 TESTS=src/mir/source_call_target/script_direct_static_tests.rs
+TYPEOP_POLICY=src/mir/policies/source_method_typeop_route.rs
+TYPEOP_TESTS=src/mir/policies/source_method_typeop_route_tests.rs
+SPECIAL_HANDLERS=src/mir/builder/calls/special_handlers.rs
+CALL_BUILD=src/mir/builder/calls/build.rs
 BUNDLE=src/mir/builder/normal_script_direct_static_result_bundle.rs
 BUNDLE_TESTS=src/mir/builder/normal_script_direct_static_result_bundle_tests.rs
 ADMISSION=src/mir/builder/normal_script_root_demand_window.rs
@@ -38,6 +42,13 @@ SOURCE_TESTS=src/parser/normal_callable_program_source/tests.rs
 
 require_text "$MODULE" "VerifiedScriptDirectStaticCallTargetInventoryV1"
 require_text "$MODULE" "observe_script_method_calls_shadow_view_v0"
+require_text "$MODULE" "classify_source_method_typeop_route_v1"
+require_text "$TYPEOP_POLICY" "SourceMethodTypeOpDispositionV1"
+require_text "$TYPEOP_POLICY" "classify_source_method_typeop_route_v1"
+require_text "$TYPEOP_POLICY" "SourceMethodTypeOpKindV1"
+require_text "$TYPEOP_TESTS" "direct_string_typeops_are_typed_non_candidates"
+require_text "$SPECIAL_HANDLERS" "classify_source_method_typeop_route_v1"
+require_text "$CALL_BUILD" "SourceMethodTypeOpDispositionV1"
 require_text "$MODULE" "TargetOutsideCatalog"
 require_text "$ADMISSION" "attach_script_direct_static_targets"
 require_text "$LIFECYCLE" "VerifiedScriptDirectStaticCallTargetInventoryV1::issue"
@@ -82,7 +93,7 @@ require_text "$SOURCE_TESTS" "exact_static_callable_set_survives_one_transform"
 require_text "$SOURCE_TESTS" "ordinary_constructor_source_catalog_survives_normal_source_transform"
 require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_initial_source_lane"
 
-for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
@@ -92,6 +103,11 @@ done
 
 if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$MODULE"; then
   echo "[script-direct-static-target] observation module crossed the Recipe/physical boundary" >&2
+  exit 1
+fi
+
+if rg -n 'method == "is"|method == "as"' "$SPECIAL_HANDLERS" "$CALL_BUILD" "$MODULE"; then
+  echo "[script-direct-static-target] typeop method spelling was duplicated outside the shared policy" >&2
   exit 1
 fi
 
@@ -117,6 +133,8 @@ fi
 
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::source_call_target::script_direct_static_tests --lib
+CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
+  mir::policies::source_method_typeop_route_tests --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_result_bundle --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \

@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0"
-work_mode = "fast"
-current_execution_row = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0"
-current_blocker_token = "Implement only the shared pure typeop policy and its two consumers: Builder typeop routing plus Script target inventory. Keep parser/source admission, Recipe/Join consumption, physical bridge, fallback, and production switch closed; every changed Rust file stays below 760 lines."
+current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
+work_mode = "design_stop"
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
+current_blocker_token = "Design only the selected-normal ScriptRoot physical bridge: exact StaticReceiver pre-descent claim, unified Call receipt, Script ExactI64 publication, failure discard, and ledger exhaustion. Keep canonical transport, fallback, raw retirement, and production switch closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -46,8 +46,7 @@ hako_check inspect owner split is landed:
 the inspect entry, metadata, identity, shape CLI, and shape model owners are
 753/245/172/107/207 lines. Eleven focused tests and the reusable guard are
 green. The real S6C ingress and first shape canary are landed. Exact fixture
-bytes, strict JSON, final LLVM, object, and disassembly share one V1 seal; the report exposes independent layer counts but no
-correspondence or keeper authority. Provenance D0 selected MIR-to-final-LLVM
+bytes, strict JSON, final LLVM, object, and disassembly share one V1 seal; the report exposes independent layer counts but no correspondence or keeper authority. Provenance D0 selected MIR-to-final-LLVM
 issuer rows and rejected exact machine mapping. The landed S6C journal now digest-binds 53 emission-site rows covering 8 MIR blocks/8 edges and 22
 final LLVM blocks/31 edges; shape groups them by MIR origin while ASM
 attribution remains unavailable. The pure MIR counter reports
@@ -72,14 +71,14 @@ unavailable. Its thin hako_check command surface is landed without changing the
 The V0 disposition closure is landed: one pure child accepts only real
 preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
-root receipt and exact inventory validation. Origin-footprint I0 now seals the
-same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent
-ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
+root receipt and exact inventory validation. Origin-footprint I0 now seals the same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
 SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 is landed: every
 compatibility-compatible initial source carries one parser-owned empty-or-
 complete constructor catalog, while mixed outer and unsupported cohorts retain
-compatibility status. The physical bridge remains parked behind
-SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0; no physical bridge, fallback, production switch, or performance claim is open.
+compatibility status. TYPEOP-DISJOINT-I0 is also closed: Builder routing and the
+Script target issuer share one pure predicate. The selected-normal physical
+bridge now has its own design stop; no physical bridge implementation,
+fallback, production switch, or performance claim is open.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -92,11 +91,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "TYPEOP-DISJOINT-P0 fixed one pure shared-policy design: Builder typeop routing and Script target inventory must consume the same typed predicate. TYPEOP-DISJOINT-I0 is the sole fast row; bridge, fallback, and production switch remain closed."
-next_design_card = "none"
-next_design_card_path = "none"
-next_execution_card = "SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0"
-next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
+latest_card_summary = "TYPEOP-DISJOINT-I0 closed one BoxShape: Builder typeop routing and Script target inventory now consume the same pure typed predicate; focused tests and the reusable guard are green. Next is a design-only physical bridge audit; fallback and production switch remain closed."
+next_design_card = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
+next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -107,6 +106,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0 landed one BoxShape. A pure source-method typeop policy is now shared by Builder routing and the Script direct-static target issuer; one-string is/as calls are explicit noncandidates while ordinary is/as arguments remain candidates. Policy/target tests, cargo check, and the reusable guard are green; no parser, Recipe/Join, physical bridge, fallback, or production switch changed. Next is the physical-bridge D0 design stop.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 landed parser-owned empty-or-complete constructor catalogs for compatibility-compatible initial sources. Static-only, top-level-only, mixed, ordinary-constructor, and unsupported-cohort tests plus the reusable guard are green; PRE-DESCENT-P0 then closed NoSafeSlice on the legal is/as typeop overlap, TYPEOP-DISJOINT-P0 fixed the shared-policy design, and TYPEOP-DISJOINT-I0 is now the sole fast row; bridge code stays closed.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",

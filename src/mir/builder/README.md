@@ -538,6 +538,17 @@ no Recipe key, Join signature, ValueId, MIR type, result-publication ABI,
 physical block, fallback, or production switch; Recipe and physical result
 publication remain later design rows.
 
+## Shared Script MethodCall typeop policy I0
+
+`src/mir/policies/source_method_typeop_route.rs` is the sole pure predicate for
+the source-shaped `is`/`as` type-operation route. `calls/special_handlers.rs`
+and `calls/build.rs` consume it as thin Builder adapters, while the Script
+direct-static target inventory consumes the same disposition before admitting
+a target. A method with exactly one direct string (or the existing
+`StringBox` string shape) is a typeop noncandidate; other `is`/`as` arguments
+remain ordinary static-call candidates. This slice changes no parser/source
+admission, Recipe/Join, physical bridge, fallback, or production switch.
+
 ## Script direct-static Recipe I0
 
 `VerifiedScriptDirectStaticRecipeV1` is a dedicated Script Recipe producer for

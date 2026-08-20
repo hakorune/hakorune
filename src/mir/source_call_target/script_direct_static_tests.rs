@@ -13,6 +13,19 @@ use super::{
 };
 
 fn return_call(receiver: &str, method: &str, arity: usize) -> ASTNode {
+    return_call_with_arguments(
+        receiver,
+        method,
+        (0..arity)
+            .map(|_| ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            })
+            .collect(),
+    )
+}
+
+fn return_call_with_arguments(receiver: &str, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
     ASTNode::Return {
         value: Some(Box::new(ASTNode::MethodCall {
             object: Box::new(ASTNode::Variable {
@@ -20,12 +33,7 @@ fn return_call(receiver: &str, method: &str, arity: usize) -> ASTNode {
                 span: Span::unknown(),
             }),
             method: method.to_owned(),
-            arguments: (0..arity)
-                .map(|_| ASTNode::Literal {
-                    value: LiteralValue::Integer(1),
-                    span: Span::unknown(),
-                })
-                .collect(),
+            arguments,
             span: Span::unknown(),
         })),
         span: Span::unknown(),
@@ -33,10 +41,24 @@ fn return_call(receiver: &str, method: &str, arity: usize) -> ASTNode {
 }
 
 fn root_with_statements(statements: Vec<ASTNode>) -> ASTNode {
+    let mut root = NyashParser::parse_from_string("static box Helpers { run(x) { return x } }")
+        .expect("static declaration fixture");
+    let ASTNode::Program {
+        statements: existing,
+        ..
+    } = &mut root
+    else {
+        panic!("parser returned Program");
+    };
+    existing.extend(statements);
+    root
+}
+
+fn root_with_typeop_named_methods(statements: Vec<ASTNode>) -> ASTNode {
     let mut root = NyashParser::parse_from_string(
-        "static box Helpers { run(x) { return x } }",
+        "static box Helpers { is(value) { return value } as(value) { return value } }",
     )
-    .expect("static declaration fixture");
+    .expect("static is/as declaration fixture");
     let ASTNode::Program {
         statements: existing,
         ..
@@ -84,12 +106,11 @@ fn window_for(root: &ASTNode) -> VerifiedScriptRootDemandWindowV1 {
 fn issue(
     root: &ASTNode,
     aliases: impl IntoIterator<Item = (String, String)>,
-) -> Result<VerifiedScriptDirectStaticCallTargetInventoryV1, ScriptDirectStaticCallTargetErrorV1>
-{
+) -> Result<VerifiedScriptDirectStaticCallTargetInventoryV1, ScriptDirectStaticCallTargetErrorV1> {
     let declarations = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(root)
         .expect("declaration catalog");
-    let imports = VerifiedStaticImportAliasViewV1::seal(&declarations, aliases)
-        .expect("alias view");
+    let imports =
+        VerifiedStaticImportAliasViewV1::seal(&declarations, aliases).expect("alias view");
     VerifiedScriptDirectStaticCallTargetInventoryV1::issue(
         root,
         &window_for(root),
@@ -189,6 +210,58 @@ fn unknown_qualified_target_rejects_before_catalog_publication() {
         issue(&root, []),
         Err(ScriptDirectStaticCallTargetErrorV1::TargetOutsideCatalog { .. })
     ));
+}
+
+#[test]
+fn typeop_shaped_is_as_calls_are_explicit_noncandidates() {
+    let root = root_with_typeop_named_methods(vec![
+        return_call_with_arguments(
+            "Helpers",
+            "is",
+            vec![ASTNode::Literal {
+                value: LiteralValue::String("Integer".into()),
+                span: Span::unknown(),
+            }],
+        ),
+        return_call_with_arguments(
+            "Helpers",
+            "as",
+            vec![ASTNode::Literal {
+                value: LiteralValue::String("Integer".into()),
+                span: Span::unknown(),
+            }],
+        ),
+    ]);
+    let inventory = issue(&root, []).unwrap();
+    assert_eq!(inventory.observed_len(), 2);
+    assert_eq!(inventory.target_len(), 0);
+    assert_eq!(inventory.noncandidate_len(), 2);
+}
+
+#[test]
+fn ordinary_is_as_arguments_remain_static_target_candidates() {
+    let root = root_with_typeop_named_methods(vec![
+        return_call_with_arguments(
+            "Helpers",
+            "is",
+            vec![ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            }],
+        ),
+        return_call_with_arguments(
+            "Helpers",
+            "as",
+            vec![ASTNode::Literal {
+                value: LiteralValue::Integer(2),
+                span: Span::unknown(),
+            }],
+        ),
+    ]);
+    let inventory = issue(&root, []).unwrap();
+    assert_eq!(inventory.observed_len(), 2);
+    assert_eq!(inventory.target_len(), 2);
+    assert_eq!(inventory.noncandidate_len(), 0);
 }
 
 #[test]
