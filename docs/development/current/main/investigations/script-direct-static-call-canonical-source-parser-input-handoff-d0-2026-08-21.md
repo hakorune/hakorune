@@ -1,5 +1,5 @@
 ---
-Status: Active design stop
+Status: Accepted design stop — parser handoff I0 selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-PARSER-INPUT-HANDOFF-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-issuer-d0-2026-08-21.md
@@ -7,6 +7,7 @@ ProductionCaller: none; design only
 ReplacementCell: parser-owned AST-free source input handoff for canonical A
 Classification: BoxCount (design only; implementation remains closed)
 Prerequisite: docs/development/current/main/investigations/script-direct-static-call-canonical-script-source-admission-p0-2026-08-21.md; landed admission I0 is docs/development/current/main/investigations/script-direct-static-call-canonical-script-source-admission-i0-2026-08-21.md
+NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-parser-input-handoff-i0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-PARSER-INPUT-HANDOFF-D0
@@ -47,10 +48,10 @@ forest construction, Builder install, or child effects. Missing source
 coverage, declaration/import/Brand snapshot, or identity/cohort agreement
 stops before A can observe the source.
 
-Smallest next slice: docs-only parser handoff design. Fix the owned rows,
-coverage proof, lifetime, finite states, A boundary, and sibling placement.
-No parser code, source admission, AST rewrite, carrier, fallback, physical
-consumer, or production switch is authorized by this D0.
+Smallest next slice: the selected parser-input handoff I0. It adds only the
+parser rows sibling, frontdoor carrier sibling, and thin move-only wiring fixed
+in the I0 card. No A issuer, source-shape expansion, fallback, physical
+consumer, or production switch is authorized.
 
 Non-claims: no grammar change, no new direct-static acceptance, no resolver
 forest or target/result semantics, no Recipe/Join/publication/Return, no
@@ -222,10 +223,11 @@ canonical physical or production claim is allowed.
 
 ## D0 review receipt (read-only)
 
-The worker review found no implementation authorization in this design stop.
-It required the phase table and exhaustive state table to share one vocabulary,
-made the parser-input sibling the sole row issuer, and added the private A
-states rather than silently treating them as parser outcomes. The generic
-classification-completeness guard and current-state pointer guard remain the
-review gates. Code, fixtures, source admission, fallback, physical consumers,
-and production callers remain closed.
+The worker review found the mapping sufficient for one bounded I0, but no
+authorization for A or physical work. It required the phase table and
+exhaustive state table to share one vocabulary, made the parser-input sibling
+the sole row issuer, and added the private A states rather than silently
+treating them as parser outcomes. The generic classification-completeness
+guard and current-state pointer guard remain the review gates. The selected I0
+card fixes the two new sibling owners and their line budgets; source-shape
+expansion, A, physical, fallback, and production callers remain closed.
