@@ -19,10 +19,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "closeout"
-current_execution_row = "MIR-ROOT-APP-MODE-UNDECIDED-P0"
-current_design_stop = ""
-current_blocker_token = "Classify root-mode P0 evidence, commit/push the owner docs and guard, then leave compatibility/deferred retirement parked for a separately selected D0."
+work_mode = "design_stop"
+current_execution_row = "NORMAL-CALLABLE-SEMANTIC-ADMISSION-DEFERRED-D0"
+current_design_stop = "docs/development/current/main/investigations/normal-callable-semantic-admission-deferred-d0-2026-08-21.md"
+current_blocker_token = "Enumerate Complete/Deferred/Compatibility/Neither/Rejected, name one authority-backed Deferred destination, and reject implicit empty/default/fallback states before any implementation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -77,7 +77,7 @@ physical-input D0 are closed; the selected fast row implements the
 Join-plus-operand input and detached helper. The I0 focused suites and canonical
 physical-input guard are green; no source admission or production caller is connected.
 Canonical source-digest I0 and parser callable-source handoff I0 (0359ac0af3) are closed with one total parser disposition and no replay/second issuer; Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed. ME-CALL-ARITY-FAILFAST-P0 is complete.
-MIR-ROOT-APP-MODE-UNDECIDED-P0 is complete: both audited non-Main static-Box entrypoints distinguish App, non-App, and undecided mode before effects. Compatibility admission, Deferred Script, and raw retirement remain parked; no next production row is selected until closeout evidence is committed.
+MIR-ROOT-APP-MODE-UNDECIDED-P0 is complete: both audited non-Main static-Box entrypoints distinguish App, non-App, and undecided mode before effects. Compatibility admission, Deferred Script, and raw retirement remain parked. The next row is the design-only normal-callable Deferred admission census; no implementation or production switch is open.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -86,13 +86,13 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/mir-root-app-mode-undecided-failfast-d0-2026-08-21.md"
+current_execution_design = "docs/development/current/main/investigations/normal-callable-semantic-admission-deferred-d0-2026-08-21.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "mir-root-app-mode-undecided-failfast-d0"
-latest_card_path = "docs/development/current/main/investigations/mir-root-app-mode-undecided-failfast-d0-2026-08-21.md"
-latest_card_summary = "Root app-mode P0 complete: Some(true/false) remain explicit and None freezes before registration/descent; compatibility owners stay parked."
-next_design_card = "none"
-next_design_card_path = "none"
+latest_card = "normal-callable-semantic-admission-deferred-d0"
+latest_card_path = "docs/development/current/main/investigations/normal-callable-semantic-admission-deferred-d0-2026-08-21.md"
+latest_card_summary = "Design stop: normal callable admission must distinguish Complete, Deferred, parser Compatibility, explicit Neither/NoCandidate, and Rejected before effects; no implicit fallback or empty package."
+next_design_card = "NORMAL-CALLABLE-SEMANTIC-ADMISSION-DEFERRED-D0"
+next_design_card_path = "docs/development/current/main/investigations/normal-callable-semantic-admission-deferred-d0-2026-08-21.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
