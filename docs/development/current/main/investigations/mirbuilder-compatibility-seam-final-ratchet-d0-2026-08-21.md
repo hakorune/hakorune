@@ -1,5 +1,5 @@
 ---
-Status: accepted design map — first row is publication ingress P0
+Status: accepted design map — audit reconciliation complete; remaining rows parked
 Date: 2026-08-21
 Decision: MIRBUILDER-COMPATIBILITY-SEAM-FINAL-RATCHET-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md
@@ -34,10 +34,11 @@ child effects or physical publication. A terminal-level error is insufficient
 when the terminal receives already-lowered values. No fallback, retry, empty
 product, or guessed NonCandidate is allowed.
 
-Smallest next slice: `SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0`,
-under its own card. It is the next implementation row because the publication
-owner has the same source-loss hole as the recently closed claim ingress but a
-different owner and pre-descent seam.
+Smallest next slice: follow the live pointer's
+`SCRIPT-DIRECT-STATIC-SOURCE-IDENTITY-I0`. This map is a parked dependency
+map, not a second execution queue. Its previously listed P0 rows are now
+closed in their own cards; the remaining Compatibility admission and typed
+error debt stay separately gated.
 
 Non-claims: no builder.rs cleanup sweep, Call representation rewrite, canonical
 Script cutover, Compatibility semantic admission, raw retirement, ABI/backend
@@ -47,13 +48,14 @@ change, SIMD/optimizer work, or performance measurement.
 
 | Priority | Task | Classification | Evidence / owner | Current disposition |
 |---|---|---|---|---|
-| P0 | `SCRIPT-STATIC-RESULT-PUBLICATION-SOURCE-LINEAGE-WITNESS-P0` | BoxShape prerequisite | `raw_invocation_source_transport.rs` + `RawInvocationRootLineageV1` | selected before publication ingress; preserve Cataloged witness before source collapse |
-| P0 | `SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0` | BoxShape candidate | `raw_static_result_publication.rs` + StaticReceiver/me route heads | depends on the lineage-witness row; no physical implementation yet |
-| P1 | `ME-CALL-ARITY-FAILFAST-D0` | classification design stop; likely BoxCount if default acceptance changes | `method_call_handlers.rs` + `builder_me_call_arity_strict` | separate row; strict default and pre-effect timing must be decided |
-| P1 | `MIR-ROOT-APP-MODE-UNDECIDED-FAILFAST-D0` | BoxShape candidate | `nonmain_static_box_lifecycle.rs` `root_is_app_mode.unwrap_or(false)` | separate row; freeze `None` before registration |
-| D0 | `CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0` | BoxCount only if new source shape is admitted | existing `brand-constructor-consumer-cutover-d0.md` tracker | do not duplicate; census callers and source authority first |
-| D0 | `NORMAL-CALLABLE-SEMANTIC-ADMISSION-DEFERRED-D0` | docs/design stop | `normal_callable_semantic_source.rs` Deferred | define destination and no-fallback contract before code |
-| P1 | `MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1` | behavior-neutral refactor series | bridge/publication/loan/manifest String boundaries | census first; preserve typed variants |
+| P0 | `SCRIPT-STATIC-RESULT-PUBLICATION-SOURCE-LINEAGE-WITNESS-P0` | BoxShape | `RawInvocationRootLineageV1` transport | **closed**; Cataloged witness survives source loss and no longer collapses to `None` |
+| P0 | `SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0` | BoxShape | publication ingress + StaticReceiver/me heads | **closed**; `Unavailable | Absent | Selected | Error` is exhaustive before effects |
+| P1 | `ME-CALL-ARITY-FAILFAST-D0` | BoxShape | header observation + `builder_me_call_arity_strict` | **closed**; strict default is on, explicit `=0` is the only compatibility override |
+| P1 | `MIR-ROOT-APP-MODE-UNDECIDED-FAILFAST-D0` | BoxShape | `root_is_app_mode` lifecycle seam | **closed**; `None` freezes before registration/descent |
+| D0 | `CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0` | NoSafeSlice until issuer/consumer | existing compatibility cohort tracker | **parked**; transport P0 is closed, semantic admission/raw retirement are not authorized |
+| D0 | `NORMAL-CALLABLE-SEMANTIC-ADMISSION-DEFERRED-D0` | docs/design stop | `normal_callable_semantic_source.rs` Deferred | **closed as caller-zero park**; Deferred never becomes Compatibility/None/empty Complete |
+| P1 | `MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1A` | BoxShape | bridge/publication outer diagnostic boundary | **closed**; typed variants survive until one existing String boundary |
+| P1 | `MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B` | design stop | claim/Brand/manifest/loan `Result<_, String>` boundaries | **parked next**; preserve 11-variant ledger and manifest/loan state tables, no common-port rewrite |
 | D0 | `SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-CONSUMER-D0` | design stop | `required_callee_i64_arguments` in publication demand | name one consumer; never infer from physical values |
 | D0 | `SCRIPT-DIRECT-STATIC-PHYSICAL-DELEGATION-DOC0` | docs-only | Recipe/Join → bridge → emitter → publication → exit | align wording, no new authority |
 
@@ -62,6 +64,33 @@ The publication card is intentionally separate from the closed
 but the production owner, handoff API, and pre-descent route are different.
 Compatibility callable remains an explicit old route, not an untyped silent
 fallback; its retirement is already tracked by the Brand cutover cards.
+
+## 2026-08-21 review reconciliation
+
+The latest boundary audit did not find a new untracked P0 in the current
+branch. Two reported holes were already closed and must stay closed by their
+guards:
+
+| audited boundary | current finite states | result | next action |
+|---|---|---|---|
+| static-result publication | `Unavailable`, `Absent`, `Selected`, `Error` | closed; owner-backed `UnlocatedCompatibility` is a typed pre-effect reject | no duplicate task; preserve `script_static_result_publication_ingress_guard.sh` |
+| `me` lowered-global arity | `NotApplicable`, `Inline`, `LoweredGlobalMatch`, `LoweredGlobalMismatchStrict`, `LoweredGlobalMismatchCompat`, `HeaderMissing`, `Standard`, `StaticFallback` | closed; unset strict flag rejects before effects, explicit `=0` remains typed compatibility | no default relaxation or ABI change |
+| undecided root mode | `App`, `NonApp`, `Undecided` | closed; `None` cannot authorize lifecycle work | keep `mir_root_app_mode_failfast_guard.sh` |
+| Compatibility callable | `SourceBacked`, `TypedCompatibility`, `Unavailable`, `Neither`, `Deferred`, `Rejected`, `Discarded` | transport closed; semantic package/physical consumer and old-edge retirement remain `NoSafeSlice` | continue existing `CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0` |
+| typed error boundary | `TypedError`, `OuterDiagnostic`, `Unavailable`, `Absent`, `Completed`, `NoSafeSlice` | P1A closed; claim/Brand/manifest/loan conversions remain debt | park `MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B` |
+
+The repository-wide design rule is now explicit in
+`agent-current-entry-contract-ssot.md` and enforced by
+`tools/checks/routing_classification_completeness_guard.sh`: every routing,
+claim, publication, admission, or lifecycle card must enumerate the selected,
+neutral/neither-selected-nor-rejected, deferred/unresolved, rejected, and
+terminal states, with one authority, a pre-effect boundary, and a fallback
+policy for each. `None`, wildcard, `unwrap_or(default)`, and a generic
+Compatibility label cannot be used as the missing row.
+
+This reconciliation is documentation-only. It does not reopen canonical
+Script, source-only A, Compatibility admission, raw retirement, Call
+representation, ABI, optimizer, or performance work.
 
 ## Shared acceptance law
 

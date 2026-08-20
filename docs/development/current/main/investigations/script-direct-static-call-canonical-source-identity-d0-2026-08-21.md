@@ -1,5 +1,5 @@
 ---
-Status: Active design stop
+Status: closed — design receipt
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-SOURCE-IDENTITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-only-a-d0-2026-08-21.md
@@ -163,3 +163,13 @@ Remain at design stop if any of these holds:
    identity responsibility.
 
 Until these are closed, only documentation and read-only audits are allowed.
+
+## Design closeout
+
+The read-only review accepted the finite table and fixed the issuer wording:
+`CanonicalParserSourceHandoffV1::new` is the sole operation that creates and
+co-seals `NormalParserSourceLineageV1` with the front-door receipt. The next
+bounded row is `SCRIPT-DIRECT-STATIC-SOURCE-IDENTITY-I0`, which only preserves
+and validates that existing product through source planning. Source-only A,
+Recipe/Join, physical transport, production switch, and raw retirement remain
+separate tasks.
