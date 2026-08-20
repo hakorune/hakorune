@@ -79,16 +79,16 @@ these rows.
 | ingress | `SourceAuthorityUnavailable` | parser lineage/profile/one-shot receipt or canonical Script source is absent or mismatched before observation | typed stop before input package/Recipe/entry effects | `NoSafeSlice` until the issuer/identity is closed | no default identity, AST rescan, or raw fallback |
 | ingress | `ObservationIncomplete` | source authority exists, but retained window/forest/catalog coverage cannot be observed totally once | typed stop before input package and child effects | `NoSafeSlice` until coverage is total | never round to `NonCandidate`, compatibility, or raw success |
 | ingress | `NonCandidate` | one issuer completes the retained-window observation and proves every row explicitly outside direct-static scope | no A input package or physical effect | continue only through the canonical non-direct-static source owner | missing coverage is not absence; never enter raw or compatibility by default |
-| ingress | `InputAuthorityReady` | one compiler child validates the complete window and co-seals all required source-bound inputs | issue one move-only input envelope; no physical effect | future A consumes it exactly once | no second issuer, selected-normal copy, or by-name re-pairing |
+| ingress | `InputAuthorityReady` | the single A issuer has validated the complete window and co-sealed all required source-bound inputs; this is private readiness, not a second issuer | continue inside that issuer toward one A package; no physical effect | future `DirectStaticSourceReady` is the only semantic package that leaves A | no public carrier, second issuer, selected-normal copy, or by-name re-pairing |
 | ingress | `IntegrityInvalid` | complete input observation finds duplicate, foreign, stale, missing, mixed, or contradictory rows | typed reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `NonCandidate`, compatibility, or raw fallback |
 | C-to-B | `Transported` | future C-to-B handoff consumes the ready envelope exactly once | no replay or second source interpretation | detached canonical consumer terminal | no clone, replay, or return to source/raw |
 
 `NoSafeSlice` is a development stop, not a runtime disposition. `NonCandidate`
 requires complete, integrity-clean observation; it is not a synonym for a
-missing or partial input. `InputAuthorityReady` is a complete source-input
-package, not a physical permission and not the final direct-static
-disposition. `Transported` belongs to the future C-to-B phase, not to the A
-issuer, and is not a second source issuer.
+missing or partial input. `InputAuthorityReady` is private readiness inside
+the sole A issuer, not a public source package, physical permission, or final
+direct-static disposition. `Transported` belongs to the future C-to-B phase,
+not to the A issuer, and is not a second source issuer.
 
 ## Exhaustive transitions
 
@@ -97,7 +97,7 @@ Script input
   -> NotApplicable | CompatibilitySource | Deferred
   -> SourceAuthorityUnavailable | ObservationIncomplete
   -> [after complete observation] NonCandidate | InputAuthorityReady | IntegrityInvalid
-InputAuthorityReady -> A source package | IntegrityInvalid   (future A only)
+InputAuthorityReady -> DirectStaticSourceReady | IntegrityInvalid (inside A only)
 A source package -> C disposition -> B transport               (future only)
 Transported       -> detached terminal only; no replay
 ```
@@ -174,10 +174,12 @@ semantic growth belongs in a new sibling owner below the 760/800-line limits.
 
 ```text
 Input D0 / A ingress
-  one compiler child validates and issues InputAuthorityReady once
+  one A issuer validates its complete source input and reaches private
+  InputAuthorityReady; no separate semantic input issuer is published
 
 A  CanonicalScriptDirectStaticSourceOnlyIssuerV1
-  consumes the ready envelope and issues the AST-free source package once
+  is the sole issuer; it moves from private InputAuthorityReady to one
+  AST-free DirectStaticSourceReady package
 
 C  CanonicalScriptDirectStaticDispositionV1
   is the sole disposition owner; it consumes A's package and issues no
@@ -206,8 +208,8 @@ the canonical path by pointer or name.
 - the issuer contract names explicit noncandidate reasons and verifies the
   complete target/window cardinality before issuing `NonCandidate` or
   `InputAuthorityReady`;
-- `InputAuthorityReady` contains no AST, `ValueId`, MIR/Builder physical
-  fact, or Recipe key;
+- private `InputAuthorityReady` contains no AST, `ValueId`, MIR/Builder
+  physical fact, or Recipe key and is never a second public authority;
 - all required source products are co-sealed as one package; partial optional
   pieces cannot be paired, and a non-final terminal candidate is
   `IntegrityInvalid`, not `NonCandidate`;
