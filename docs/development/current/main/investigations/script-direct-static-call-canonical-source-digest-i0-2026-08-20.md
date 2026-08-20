@@ -1,5 +1,5 @@
 ---
-Status: Active fast
+Status: closed — implementation receipt
 Date: 2026-08-20
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-DIGEST-I0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-disposition-d0-2026-08-20.md
@@ -55,3 +55,29 @@ field in the plan/request, or any new source read. This row does not make the
 canonical route a production compiler consumer and does not open the pending
 three-state disposition I0.
 
+## Landed receipt
+
+Commit: `376ee016b2` (`feat: carry canonical source digest through plan`)
+
+The UTF-8 bytes digest is issued once by `PreparedNormalFileRequestV1::read_once`
+and moved through `NormalFileSourceReceiptV1`,
+`NormalSourcePlanReceiptV1`, and `CanonicalCoreSourcePlanCompileRequestV1`.
+The source-plan test rewrites the file after `read_once` and still observes the
+digest of the retained bytes, proving that parsing/classification do not reread
+or rehash the source.
+
+Evidence:
+
+```text
+cargo check --lib                                                   PASS
+cargo test --lib canonical_source_identity -- --nocapture          2 passed
+cargo test --lib source_plan_input::tests:: -- --nocapture         16 passed
+bash tools/checks/script_direct_static_canonical_source_digest_guard.sh PASS
+bash tools/checks/current_state_pointer_guard.sh                    PASS
+git diff --check                                                     PASS
+```
+
+`cargo fmt --all -- --check` still reports pre-existing formatting differences
+outside this row; the new identity module and changed dispatch file pass
+individual rustfmt checks. No source admission, route selection, physical Call,
+publication, Return, fallback, or production switch changed.
