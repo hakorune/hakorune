@@ -97,6 +97,13 @@ ValueId, MIR block, physical instruction, Builder ordinal, AST pointer
 direct-static disposition, performance, or fallback permission
 ```
 
+The declaration/Brand/import/config rows here are parser-owned syntax and
+source-coordinate views only (`DeclarationSyntax`, `BrandSyntax`, and
+`ImportConfigSyntax`). They are not the resolved semantic forest or target
+meaning. A consumes this handoff once and issues the resolved forest,
+direct-static target/result rows, required proof, and terminal relation; A
+does not reissue parser identity or re-scan the AST to recreate these rows.
+
 The handoff is non-Clone and move-only across the canonical source-plan
 boundary. A temporary borrow of parser-owned postpass data is allowed during
 one issuance, but the retained rows must carry one source identity and exact
