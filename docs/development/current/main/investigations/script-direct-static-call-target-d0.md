@@ -294,6 +294,25 @@ the declaration/whole-source result catalogs provide only their already-sealed
 representation data. A single bundle issuer must co-seal these inputs and
 their admission/window/catalog brands before the owner is issued.
 
+The canonical issuer is named
+`VerifiedScriptDirectStaticCallResultBundleV1::issue`. Its source owner is the
+unique `FunctionOwnerIdV1` of the Script root in the sealed semantic forest;
+the fixed `ScriptStaticCallSourceOwnerIdV1::ROOT` is only a target-observation
+coordinate and is not caller authority. The issuer consumes the Complete
+Script forest, the same Program/window admission, the target inventory, the
+declaration/import catalog brand, and the callable result catalog. It emits
+owned rows containing the Script owner, exact call/receiver/ordered argument
+sites, result site, canonical callee key, callee representation, and provider
+required-argument ordinals. It stores no AST, Recipe key, ValueId, MIR type,
+JoinSig, or physical block.
+
+The target inventory must either carry exact Program/window/declaration/import
+identity and a complete iterator, or be generated inside this issuer. A
+`VerifiedResolvedScriptV1::method_calls()` query is a read-only resolver view;
+it is not a second issuer. Bundle validation pairs rows by exact site only:
+target rows supply the target, resolver rows supply all source sites, and the
+result catalog supplies only the callee representation.
+
 Non-authority: the target inventory's AST walk by itself, `ScriptStaticCallSourceOwnerIdV1`,
 `CallableSemanticSourceLedgerView::as_function`, synthetic callable keys,
 AST/name/arity re-resolution, `RawInvocationRootLineageV1::ScriptRoot`,
@@ -304,6 +323,18 @@ brand, target/resolver site drift, receiver or argument coverage gap, result
 catalog drift, Deferred forest, nested-owner crossing, or unavailable callee
 representation may reach Builder effects. The target inventory cannot be
 treated as a second semantic issuer or silently paired by name.
+
+Acceptance matrix: zero static rows yields one Complete empty bundle; a
+qualified same-module or imported-alias row yields one exact demand; two call
+sites to one target remain two rows; ExactI64 and ExactNominalBox dispositions
+are retained; noncandidate instance/dynamic/reserved calls stay outside the
+static subset; a call in a root Return leaves Return ownership with the
+existing resolver. Foreign forest/window/program/catalog, fixed-ROOT versus
+forest-owner mismatch, missing/duplicate/ordered argument rows, receiver or
+result-site drift, target arity/namespace drift, unavailable or recursive
+callee result, Deferred Script, and synthetic callable-key conversion all
+reject before effects. Duplicate take and wrong target reject; no partial or
+raw fallback is published.
 
 Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-BUNDLE-D0`
 design only. Specify the bundle owner, Script query, exact brands, and the
