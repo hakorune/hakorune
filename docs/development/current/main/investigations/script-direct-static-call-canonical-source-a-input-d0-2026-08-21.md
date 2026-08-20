@@ -1,21 +1,21 @@
 ---
-Status: Accepted design stop — next issuer D0 selected
+Status: Closed — carrier D0 selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-INPUT-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-only-a-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: one complete Builder-free input envelope for canonical Script source-only A
 Classification: BoxCount (design only; implementation remains closed)
-NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-issuer-d0-2026-08-21.md
+NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-carrier-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-INPUT-D0
 
 ## Six-line brief
 
-Decision: Define the complete canonical input envelope that a future
-Builder-free Script direct-static source-only A must receive. This D0 does not
-issue A, C, B, Recipe, Join, physical, or production effects.
+Decision: Close the semantic input contract and split the missing transport into
+one carrier D0. The carrier moves parser-backed input to the future A boundary;
+it does not issue A, C, B, Recipe, Join, physical, or production effects.
 
 Source authority + canonical issuer: the parser-backed
 `SealedNormalScriptSourceV1` and its already-sealed parser lineage are the
@@ -37,10 +37,10 @@ resolver forest, target/result catalogs, required-argument proof, and exact
 source rows. Missing, partial, foreign, or contradictory input stops before
 Recipe/entry/child effects.
 
-Smallest next slice: this docs-only D0 names the one input owner, lifetime,
-complete input set, finite state table, and A/C/B boundary. No carrier,
-source admission change, code, fixture, or canonical request mutation is
-authorized until this input contract is accepted.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-CARRIER-D0`
+fixes the one move-only parser/frontdoor-to-compiler lifetime and its
+phase-qualified states. A semantic issuer remains closed until that carrier
+is accepted.
 
 Non-claims: no A/C/B implementation, Recipe/Join issuance, physical Call or
 publication, Return/signature, canonical production switch, raw or
@@ -66,6 +66,49 @@ retain temporary pointer identity, and are not a canonical source authority.
 This D0 therefore defines the input boundary before any attempt to move or
 reuse those products.
 
+## Audit correction: source rows are pre-A input, not an A package
+
+The landed parser handoff is a valid AST-free syntax/coverage input, but it is
+not yet the complete A package. It currently contains:
+
+```text
+ProgramBody ordinal/kind rows
+declaration and Brand syntax snapshots
+explicit NoImports configuration
+parser brand plus one-read/one-parse lineage/receipt
+```
+
+It does not contain the resolver forest, target/result catalog, ordered
+semantic sites, required-argument proof, or final Sequence/root-Return
+relation. Those are future A-issued facts. The two layers must not be joined
+later by statement ordinal, pointer, name, path, or digest equality.
+
+The current code also drops `script_input` at
+`source_plan_input.rs::into_canonical_core_compile_request()` because the
+canonical request has no A consumer. That is an intentional current
+non-claim, but it is a real transport boundary. A future carrier must replace
+that named discard; an A implementation may not be added directly at
+`compile_script()` while the input has already been dropped.
+
+### Upstream parser and handoff state inventory
+
+These states are issued before A observation and are not A dispositions:
+
+| state | phase | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
+|---|---|---|---|---|---|
+| `CanonicalScriptCohortAdmitted` | parser admission | parser cohort issuer with complete parameter source | allow one row scan | `HandoffReady` if rows seal | never infer from `is_source_backed()` |
+| `CohortUnresolved` | parser admission | parser cohort issuer lacks a canonical pure-Script decision | no rows or A effect | typed stop/compatibility owner | never empty-success or A candidate |
+| `AdmissionMissing` | parser admission | selected build-gate/unsupported parameter source | no rows or A effect | explicit non-canonical owner | never `HandoffReady` |
+| `CompatibilitySource` | upstream | parser/source admission | preserve compatibility origin | compatibility owner or stop | never canonical A |
+| `Deferred` | upstream | source/resolver admission | preserve deferred reason | deferred owner or stop | never `NonCandidate` |
+| `SourceAuthorityUnavailable` | upstream | lineage/profile/receipt preflight | stop before carrier | `NoSafeSlice` | no default identity or rescan |
+| `HandoffReady` | parser/frontdoor transport | parser rows plus profile/receipt co-seal | move once; no semantic A effect | carrier takes it or explicit `DiscardedBeforeA` | no `script_input: _` drop |
+| `DiscardedBeforeA` | transport terminal | named no-A rejection/discard owner | candidate is not published | terminal discard | never call it `HandoffConsumed` |
+
+`HandoffConsumed` is reserved for a real named A consumer. The existing enum
+variant is transport vocabulary, not proof that A ran. `DispositionTransported`
+belongs to the future C-to-B lifecycle and is not a parser or A outcome.
+
 ## Exhaustive input-envelope state table
 
 The input owner must expose every routing outcome explicitly. No optional
@@ -81,7 +124,7 @@ these rows.
 | ingress | `ObservationIncomplete` | source authority exists, but retained window/forest/catalog coverage cannot be observed totally once | typed stop before input package and child effects | `NoSafeSlice` until coverage is total | never round to `NonCandidate`, compatibility, or raw success |
 | ingress | `NonCandidate` | one issuer completes the retained-window observation and proves every row explicitly outside direct-static scope | no A input package or physical effect | continue only through the canonical non-direct-static source owner | missing coverage is not absence; never enter raw or compatibility by default |
 | ingress | `InputAuthorityReady` | the single A issuer has validated the complete window and co-sealed all required source-bound inputs; this is private readiness, not a second issuer | continue inside that issuer toward one A package; no physical effect | future `DirectStaticSourceReady` is the only semantic package that leaves A | no public carrier, second issuer, selected-normal copy, or by-name re-pairing |
-| ingress | `IntegrityInvalid` | complete input observation finds duplicate, foreign, stale, missing, mixed, or contradictory rows | typed reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `NonCandidate`, compatibility, or raw fallback |
+| ingress | `IntegrityInvalid` | complete input observation finds duplicate, foreign, stale, or contradictory rows | typed reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `NonCandidate`, compatibility, or raw fallback |
 | C-to-B | `Transported` | future C-to-B handoff consumes the ready envelope exactly once | no replay or second source interpretation | detached canonical consumer terminal | no clone, replay, or return to source/raw |
 
 `NoSafeSlice` is a development stop, not a runtime disposition. `NonCandidate`
@@ -108,7 +151,8 @@ Transported       -> detached terminal only; no replay
 issued. `NonCandidate` means complete observation found zero direct-static
 rows, and continues through the canonical non-direct-static owner only.
 `IntegrityInvalid` is reserved for a complete observation whose known rows
-fail validation. `CompatibilitySource` is a typed non-canonical lane and must
+fail validation. Missing expected rows or a coverage gap is
+`ObservationIncomplete`, not `IntegrityInvalid`. `CompatibilitySource` is a typed non-canonical lane and must
 never be silently treated as missing canonical authority. `Transported` is a
 future C-to-B state, not an A outcome.
 
@@ -221,7 +265,7 @@ the canonical path by pointer or name.
   `ObservationIncomplete`, `InputAuthorityReady`, and `IntegrityInvalid`
   remain distinct through the future A/C/B request;
 - the future A consumer and C/B retirement edge are named;
-- no code, fixture, source admission, carrier, Recipe/Join, physical Call,
+- no code, fixture, source admission, Recipe/Join, physical Call,
   publication, production switch, fallback, or performance run is opened.
 
 ## NoSafeSlice conditions

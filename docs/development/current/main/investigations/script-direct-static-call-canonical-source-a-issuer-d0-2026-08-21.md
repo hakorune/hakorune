@@ -6,7 +6,7 @@ Parent: docs/development/current/main/investigations/script-direct-static-call-c
 ProductionCaller: none; design only
 ReplacementCell: one canonical source-only A issuer before Script Recipe/entry
 Classification: BoxCount (design only; implementation remains closed)
-NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-parser-input-handoff-d0-2026-08-21.md
+NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-carrier-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0
