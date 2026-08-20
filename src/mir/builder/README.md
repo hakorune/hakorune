@@ -587,12 +587,16 @@ Script direct-static guard own this boundary.
 the already-issued Bundle and Join. It validates source identity, owner,
 cardinality, and exact site coverage once while constructing
 `ScriptSemanticLoweringState`; it does not issue a new semantic fact. A
-`take(site)` returns an unchanged `Absent`, a non-`Clone` claimed Join row, or
-a fail-fast error. The claimed row can only be completed by consuming its token;
-there is no rollback, reinsertion, retry, or name-based fallback. `finish()`
-consumes the ledger and rejects pending or in-flight rows. The future physical
-bridge owns invoking that finish around a real Call consumer; this carrier-only
-I0 deliberately does not fabricate a consumer merely to force exhaustion.
+`take(site)` returns an unchanged `Absent` only for a site that has never been
+issued by the Bundle. A pending row becomes a non-`Clone` claimed Join row;
+an in-flight or completed site is a fail-fast `DuplicateClaim`. The claimed
+row can only be completed by consuming its token; there is no rollback,
+reinsertion, retry, or name-based fallback. The token exposes only read-only
+target/argument/representation views for the future physical consumer;
+it does not re-issue semantic facts. `finish()` consumes the ledger and
+rejects pending or in-flight rows. The future physical bridge owns invoking
+that finish around a real Call consumer; this carrier-only I0 deliberately
+does not fabricate a consumer merely to force exhaustion.
 
 Compatibility, Deferred, and RawLegacy paths do not acquire this ledger. The
 claim carrier emits no Call, ExactI64 publication, Return/signature, canonical

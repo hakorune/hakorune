@@ -35,12 +35,36 @@ pub(in crate::mir::builder) struct ScriptDirectStaticClaimedRowV1 {
 }
 
 impl ScriptDirectStaticClaimedRowV1 {
-    pub(super) const fn row(&self) -> &VerifiedScriptDirectStaticJoinRowV1 {
+    /// Read-only handoff view for the future physical consumer.
+    ///
+    /// The row is still owned by this non-Clone claim token.  Exposing a
+    /// reference does not transfer, duplicate, or re-issue the semantic row.
+    pub(in crate::mir::builder) const fn row(&self) -> &VerifiedScriptDirectStaticJoinRowV1 {
         &self.row
     }
 
-    pub(super) const fn site(&self) -> &SourceExprSiteV1 {
+    pub(in crate::mir::builder) const fn site(&self) -> &SourceExprSiteV1 {
         self.row.call_site()
+    }
+
+    pub(in crate::mir::builder) const fn target(
+        &self,
+    ) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+        self.row.target()
+    }
+
+    pub(in crate::mir::builder) fn argument_sites(&self) -> &[SourceExprSiteV1] {
+        self.row.argument_sites()
+    }
+
+    pub(in crate::mir::builder) const fn representation(
+        &self,
+    ) -> &crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1 {
+        self.row.representation()
+    }
+
+    pub(in crate::mir::builder) fn required_callee_i64_arguments(&self) -> &[u32] {
+        self.row.required_callee_i64_arguments()
     }
 }
 
@@ -54,6 +78,7 @@ pub(in crate::mir::builder) enum ScriptDirectStaticClaimTakeV1 {
 pub(in crate::mir::builder) struct ScriptDirectStaticClaimLedgerV1 {
     pending: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticJoinRowV1>,
     in_flight: BTreeSet<SourceExprSiteV1>,
+    completed: BTreeSet<SourceExprSiteV1>,
 }
 
 impl ScriptDirectStaticClaimLedgerV1 {
@@ -102,6 +127,7 @@ impl ScriptDirectStaticClaimLedgerV1 {
         Ok(Self {
             pending,
             in_flight: BTreeSet::new(),
+            completed: BTreeSet::new(),
         })
     }
 
@@ -109,6 +135,7 @@ impl ScriptDirectStaticClaimLedgerV1 {
         Self {
             pending: BTreeMap::new(),
             in_flight: BTreeSet::new(),
+            completed: BTreeSet::new(),
         }
     }
 
@@ -116,7 +143,7 @@ impl ScriptDirectStaticClaimLedgerV1 {
         &mut self,
         site: &SourceExprSiteV1,
     ) -> Result<ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimLedgerIssueV1> {
-        if self.in_flight.contains(site) {
+        if self.completed.contains(site) || self.in_flight.contains(site) {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::DuplicateClaim(
                 site.clone(),
             ));
@@ -138,6 +165,9 @@ impl ScriptDirectStaticClaimLedgerV1 {
     ) -> Result<(), ScriptDirectStaticClaimLedgerIssueV1> {
         let site = claimed.site().clone();
         if !self.in_flight.remove(&site) {
+            return Err(ScriptDirectStaticClaimLedgerIssueV1::UnknownClaimState);
+        }
+        if !self.completed.insert(site) {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::UnknownClaimState);
         }
         Ok(())

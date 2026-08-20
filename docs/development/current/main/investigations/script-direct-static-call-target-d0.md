@@ -6,9 +6,10 @@ stop `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` closed as `NoSafeSlice` on the
 typeop overlap; `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` then closed the
 shared predicate with focused tests and a green reusable guard. Four read-only
 audits closed the physical-bridge D0 boundary, and the claim-lifecycle P0
-design is now closed. Its operational ledger I0 is the current row; physical
-Call/publication, canonical transport, fallback, raw retirement, and
-production switch remain closed.
+design is now closed. Its operational claim carrier I0 is closed; the next
+frontier is the physical-bridge D0 design stop. Physical Call/publication,
+canonical transport, fallback, raw retirement, and production switch remain
+closed.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -33,10 +34,10 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current six-line brief
 
-Decision: close `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0` and open its
-operational I0. The source shape and semantic Facts remain unchanged; this is
-an execution-local BoxShape that gives the existing Bundle/Join rows one
-one-shot consumer without emitting physical Call MIR.
+Decision: close `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0`. The source shape and
+semantic Facts remain unchanged; this execution-local BoxShape gives the
+existing Bundle/Join rows one one-shot carrier without emitting physical Call
+MIR. Open the physical-bridge D0 design stop next.
 
 Source authority + canonical issuer: `VerifiedScriptDirectStaticResultBundleV1`
 issues site membership and `VerifiedScriptDirectStaticJoinHandoffV1` issues the
@@ -49,18 +50,19 @@ Absent, callable-key conversion, `ValueId`/`MirType`, generic Call receipt,
 
 Fail-fast boundary: Bundle miss returns an unchanged `Absent`; Bundle hit must
 find the same-site Join row or return `Err`. `Claimed` moves a non-Clone token
-before receiver/argument descent. The operational `finish` consumes the scope
+before receiver/argument descent. In-flight or completed sites return
+`DuplicateClaim`, never `Absent`. The operational `finish` consumes the scope
 and requires zero pending and zero in-flight rows; the future physical bridge,
 not this carrier-only row, owns calling it around a real candidate. No current
 I0 path fabricates a consumer merely to force exhaustion; post-claim failure
 remains discard-only, with no rollback/retry/ordinary escape.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0` — add the
-operational ledger sibling, state carrier, exact-site claim capability, and
-move-only finish/exhaustion API. Its production carrier is seeded and rejects
-partial Bundle/Join products; scope invocation is deliberately deferred to the
-physical bridge so no fake consumer is introduced. Keep physical Call,
-ExactI64 publication, Return/signature, and canonical transport closed.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` — design
+the selected-normal StaticReceiver capability and success-only scope finish
+before any physical consumer code. The carrier is seeded, rejects partial
+Bundle/Join products, tombstones completed sites, and exposes only read-only
+consumer views. Keep physical Call, ExactI64 publication, Return/signature,
+and canonical transport closed until that D0 is accepted.
 
 Non-claims: no new semantic `Verified*` receipt, parser/source admission,
 Recipe/Join redesign, physical bridge, callable owner extension, Box/ABI
@@ -1146,7 +1148,7 @@ Acceptance:
   compatibility/deferred lanes issue no claim; fresh scopes cannot observe a
   prior claim. Physical Call/publication remain unclaimed until this row closes.
 
-### `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0` execution brief (open)
+### `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0` execution brief (closed)
 
 Classification: BoxShape. The ledger is operational state over already-issued
 source products; it does not add a language shape or semantic authority.
@@ -1163,9 +1165,10 @@ Owner and transport:
 Claim contract:
   `take(site)` returns `Absent`, `Claimed(non-Clone token)`, or `Err`. The token
   carries the already-sealed Join row and has no clone, reinsert, rollback, or
-  retry API. `complete(token)` clears the in-flight marker only after the future
-  physical consumer succeeds; this carrier I0 exposes that operation but does
-  not invent a physical consumer to call it.
+  retry API. `complete(token)` moves the site to a completed tombstone; a later
+  take of that site is `DuplicateClaim`, not an ordinary-route `Absent`. The
+  token exposes read-only target, ordered argument, representation, and
+  required-callee views to a future physical consumer without re-issuing facts.
 
 Finish/discard:
   `finish()` is a consuming operation that requires pending=0 and in-flight=0;
@@ -1174,23 +1177,24 @@ Finish/discard:
   does not call it for non-empty candidates because doing so would fabricate a
   consumer. A lowering error in the future bridge skips finish and discards the
   isolated invocation; it never returns to the ordinary route. A fresh scope
-  constructs a fresh ledger and cannot see a prior claim.
+  constructs a fresh ledger and cannot see a prior claim; completed tombstones
+  are scope-local and never become semantic source data.
 
 Acceptance:
   positive same-site Bundle+Join claim, empty Complete Script, absent site,
   missing/foreign/drift/duplicate rows, duplicate take, uncompleted token,
   pending row at finish, partial products, and fresh-scope isolation. The
   production state seeds the ledger and rejects malformed pairs; the unit
-  ledger proves claim/complete/finish semantics. No Call, ExactI64, Return, or
-  publication effect is allowed in this I0; the later physical bridge consumes
-  only completed claim tokens.
+  ledger proves claim/complete/finish semantics, including the completed-site
+  duplicate guard. No Call, ExactI64, Return, or publication effect is allowed
+  in this I0; the later physical bridge consumes only completed claim tokens.
 
 Stop:
   If exact-site capability cannot reach the StaticReceiver arm without a
   second matcher/transport, if finish can be bypassed, or if a claim must be
   cloned/reinserted, stop at this row and do not open the physical bridge.
 
-### `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-I0` execution brief (parked behind P0)
+### `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` design brief (current stop)
 
 Classification: BoxShape. The accepted source shape and existing Script
 completion contract do not change; this row adds the missing selected-normal
@@ -1251,7 +1255,8 @@ Non-claims:
 ```text
 SOURCE-ADMISSION-I0
   -> PRE-DESCENT-P0
-  -> PHYSICAL-BRIDGE-I0
+  -> CLAIM-LIFECYCLE-I0
+  -> PHYSICAL-BRIDGE-D0
   -> CANONICAL-PHYSICAL-INPUT-D0
   -> canonical physical consumer
   -> production cutover + raw/compat caller-zero retirement

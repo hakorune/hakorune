@@ -139,6 +139,16 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
         ScriptDirectStaticClaimTakeV1::Absent => panic!("candidate row must be present"),
     };
     assert_eq!(claimed.site(), &call_site);
+    assert_eq!(
+        claimed.target(),
+        &CanonicalSameModuleCallableKeyV1::test_static_box_method("Helpers", "run", 1)
+    );
+    assert_eq!(claimed.argument_sites().len(), 1);
+    assert_eq!(
+        claimed.representation(),
+        &VerifiedCallableResultRepresentationV1::ExactI64
+    );
+    assert!(claimed.required_callee_i64_arguments().is_empty());
     assert_eq!(ledger.pending_len(), 0);
     assert_eq!(ledger.in_flight_len(), 1);
     assert_eq!(
@@ -149,6 +159,12 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
     );
     ledger.complete(claimed).expect("complete claim");
     assert_eq!(ledger.in_flight_len(), 0);
+    assert_eq!(
+        ledger.take(&call_site),
+        Err(ScriptDirectStaticClaimLedgerIssueV1::DuplicateClaim(
+            call_site.clone(),
+        ))
+    );
     ledger.finish().expect("all claims exhausted");
 }
 
