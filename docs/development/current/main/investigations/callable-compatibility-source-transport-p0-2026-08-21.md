@@ -132,3 +132,16 @@ issuer a second authority, if the aggregate must be reconstructed from AST,
 if any compatibility entrance requires a guessed default, or if transport
 would implicitly admit a new cohort. A later cohort/package activation is a
 separate task and must not be folded into this P0.
+
+## Non-blocking follow-up
+
+`ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P1` is a docs/tooling follow-up,
+not a prerequisite for this transport P0. It may later check only the active
+card for a finite outcome table with `state`, `authority/issuer`,
+`pre-effect`, `terminal/continuation`, and `fallback` columns, plus an explicit
+neutral outcome (`Unavailable`, `Absent`, `Unresolved`, or the row's equivalent)
+and a `NoSafeSlice` stop line. It must accept row-owned vocabulary rather than
+guessing `Candidate`/`Rejected`, and must not inspect or rewrite historical
+closed cards. Until that optional guard is opened, the tracked
+`agent-current-entry-contract-ssot.md` classification-completeness rule and
+the table in this card are the review authority.
