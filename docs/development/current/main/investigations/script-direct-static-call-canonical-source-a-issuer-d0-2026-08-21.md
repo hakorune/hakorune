@@ -72,10 +72,20 @@ handoff cannot provide a required source-backed row, this card remains
 `NoSafeSlice` and opens a parser-handoff prerequisite rather than inventing a
 default or borrowing `comp_ctx`.
 
+## Upstream identity boundary
+
+`CanonicalSourceBacked` is an upstream identity-I0 state issued by
+`CanonicalParserSourceHandoffV1`; it is not an A disposition and is never
+reissued by A. Only that state may enter A observation. `ASTOnly`, typed
+compatibility, and source-free upstream states remain outside A and map to
+the explicit ingress rows below; no AST scan or default conversion may turn
+them into `CanonicalSourceBacked`.
+
 ## Exhaustive issuer state table
 
 | state | phase | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
 |---|---|---|---|---|---|
+| `CanonicalSourceBacked` | upstream handoff | `CanonicalParserSourceHandoffV1` issues the parser-backed identity-I0 disposition | pass the exact lineage/receipt to A; no A or physical effect yet | A observation may begin | A never reissues it; other upstream states cannot default into it |
 | `NotApplicable` | ingress | canonical family/profile classifier proves non-Script or outside direct-static scope | no A observation or physical effect | caller-owned non-Script or non-direct-static source owner | never fabricate `NonCandidate` or enter raw Script by absence |
 | `CompatibilitySource` | ingress | parser handoff marks a compatibility cohort | preserve typed compatibility origin; do not issue A | explicit compatibility owner or parked stop | never become authority loss, `NonCandidate`, or A success |
 | `Deferred` | ingress | resolver/source admission returns `Deferred` | preserve the reason; no partial A observation | deferred owner or `NoSafeSlice` | never become empty input, `NonCandidate`, or raw success |
@@ -87,6 +97,7 @@ default or borrowing `comp_ctx`.
 | `IntegrityInvalid` | A verification | complete observation finds duplicate, foreign, stale, mixed, missing, or contradictory rows | typed reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `NonCandidate`, compatibility, or raw fallback |
 | `Transported` | C-to-B future phase | B consumes `DirectStaticSourceReady` once | no replay or second source interpretation | detached canonical consumer terminal | no clone, return to A, or raw path |
 
+`CanonicalSourceBacked` is an upstream admission state, not an A state.
 `InputAuthorityReady` is private A-internal readiness, not a second issuer.
 `Transported` is a future B state, not an A disposition. A complete zero-row
 observation is `NonCandidate`; a row found but failing final Sequence/root
@@ -148,6 +159,8 @@ receipt by pointer/name is not a kernel.
 ## Acceptance for this design stop
 
 - one named sibling issuer and one parser-backed source authority are fixed;
+- the upstream `CanonicalSourceBacked` identity state is consumed, not
+  reissued, and all other upstream states map to explicit ingress outcomes;
 - the canonical callpoint is before `prepare_script_recipe()` and remains
   thin; the 748/719-line existing owners receive no semantic growth;
 - all ten states above have one owner, pre-effect behavior, continuation, and
