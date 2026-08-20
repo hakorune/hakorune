@@ -1,5 +1,5 @@
 ---
-Status: Active design stop
+Status: Closed design; GUARD-I0 selected
 Date: 2026-08-20
 Decision: MIR-CALL-LEGACY-TARGET-CENSUS-D0
 Parent: docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
@@ -118,3 +118,21 @@ Return to `NoSafeSlice` and do not open GUARD-I0 implementation if:
 
 The smallest successful outcome is a complete, pinned census and a named
 GUARD-I0 design. It is not a production cutover.
+
+## D0 closeout
+
+The source census is complete at the pinned worktree HEAD: 25 literal
+mentions, with 3 JSON-v0 compatibility producers, 1 canonicalizer input, 2
+production reject/analysis consumers, 3 non-executable contract/comment
+references, and 16 test-only fixtures/assertions. No selected-native producer
+outside the canonicalizer input and no unreachable production row were found.
+
+The next bounded row is therefore:
+
+```text
+MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0
+```
+
+It may add only an observation/structural guard for the selected native
+corridor. It must not edit `MirInstruction::Call`, JSON-v0, compatibility
+loaders, optimizer semantics, backend lowering, or any production caller.

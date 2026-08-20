@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "MIR-CALL-LEGACY-TARGET-CENSUS-D0: all remaining callee=None rows must be classified before any guard or retirement row."
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-LEGACY-TARGET-CENSUS-D0"
-current_blocker_token = "Canonical Script transport remains intentionally parked after its NoSafeSlice audit; the selected next row is a read-only Call target census."
+current_design_stop = "none"
+work_mode = "fast"
+current_execution_row = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0"
+current_blocker_token = "Canonical Script transport remains intentionally parked; the selected bounded row is a selected-Dynamic-only Call corridor guard."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -86,15 +86,15 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
+current_execution_design = "docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "mir-call-legacy-target-census-d0-2026-08-20"
-latest_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
-latest_card_summary = "Design stop: classify every remaining callee=None producer/consumer before canonical-corridor guarding or legacy target retirement."
-next_design_card = "MIR-CALL-LEGACY-TARGET-CENSUS-D0"
-next_design_card_path = "docs/development/current/main/investigations/mir-call-legacy-target-census-d0-2026-08-20.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card = "mir-call-canonical-corridor-guard-i0-2026-08-20"
+latest_card_path = "docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md"
+latest_card_summary = "Fast row: guard the selected Dynamic native Call corridor after late canonicalization; compatibility rows remain separate."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0"
+next_execution_card_path = "docs/development/current/main/investigations/mir-call-canonical-corridor-guard-i0-2026-08-20.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -105,6 +105,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: MIR-CALL-LEGACY-TARGET-CENSUS-D0 closed the first Call retirement prerequisite. The pinned 25-mention census classifies 3 JSON-v0 compatibility producers, 1 canonicalizer input, 2 selected-boundary reject/analysis consumers, 3 contract/comment references, and 16 test fixtures; selected-native guard scope is named and no Call field or fallback changed.",
   "2026-08-20: MIRBUILDER-CLEANUP-T2-S1-ANALYZER-MODE-I0 closed one behavior-neutral BoxShape. Four trivial-canonical policy wrappers are replaced by one exhaustive internal mode; focused profile tests (46), cargo check, analyzer-mode guard, callable guard, diff check, and pointer guard are green. Existing normal-source/SSA/V2 receipt reds remain classified baseline and unchanged; no route, Recipe, production, canonical-transport, or performance claim was made.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 landed parser-owned empty-or-complete constructor catalogs for compatibility-compatible initial sources. Static-only, top-level-only, mixed, ordinary-constructor, and unsupported-cohort tests plus the reusable guard are green; PRE-DESCENT-P0 then closed NoSafeSlice on the legal is/as typeop overlap, TYPEOP-DISJOINT-P0 fixed the shared-policy design, and TYPEOP-DISJOINT-I0 is now the sole fast row; bridge code stays closed.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0 landed one selected-normal BoxShape. StaticReceiver now takes the exact ScriptRoot claim before effects, the bridge uses the existing ordered driver and receipt-required generic Call once, the Script sibling publishes ExactI64 as MirType::Integer once, and the scope finishes only after success. The source transport stayed below 760 lines after a claim child split; focused tests, cargo check, and the reusable guard are green. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed.",
-  "2026-08-20: SCRIPT-STATIC-SCALAR-OPERAND-RECIPE-D0 closed design-only after a resolver/source audit; SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-I0 then landed the AST-free Join-plus-operand input and detached session helper. Focused scalar/physical-input/kernel tests, the canonical physical-input guard, diff check, and pointer guard are green; canonical transport, fallback, raw retirement, production switch, and performance remain closed.",
 ]
