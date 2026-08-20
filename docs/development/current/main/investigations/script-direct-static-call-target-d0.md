@@ -1218,6 +1218,15 @@ Implementation boundary:
   error. `Absent` leaves the ledger untouched and uses the existing route;
   `Claimed` owns the candidate and cannot return to that route.
 
+Capability and scope boundary:
+  Deliver the active `ScriptRoot` source site through one thin selected-normal
+  capability; do not redesign the blanket method-call traits, add a second AST
+  matcher, or grow the recursive child port. The scope must call `finish()`
+  exactly once only after the candidate Call/publication completes. A claim or
+  physical failure discards the isolated invocation without finish, rollback,
+  retry, or ordinary fallback. Compatibility, Deferred, RawLegacy, StaticThis,
+  and reserved/typeop routes never receive this capability.
+
 Authority contract:
   The Join handoff supplies canonical target, exact source/receiver/argument
   sites, `ExactI64`, and `FinalSequence|RootReturn`. The claim sibling validates
