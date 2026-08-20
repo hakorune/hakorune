@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-STATIC-SCALAR-OPERAND-RECIPE-D0"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-STATIC-SCALAR-OPERAND-RECIPE-D0"
-current_blocker_token = "Canonical detached input remains blocked until one source-backed scalar operand Recipe is defined. The next D0 is design-only: resolver-issued literal/unary/binary facts must bind exact Join argument sites without AST, ValueId, MirType, fallback, or partial publication."
+current_design_stop = "none"
+work_mode = "closeout"
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-I0"
+current_blocker_token = "The canonical physical-input I0 is implemented and verified. Closeout is limited to evidence/docs/commit/push; canonical transport, source admission, fallback, raw retirement, production switch, and performance remain closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -72,11 +72,12 @@ The V0 disposition closure is landed: one pure child accepts only real
 preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
-SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 is landed: every
-compatibility-compatible initial source carries one parser-owned empty-or-
-complete constructor catalog, while mixed outer and unsupported cohorts retain
-compatibility status. TYPEOP-DISJOINT-I0 is also closed: Builder routing and the
-Script target issuer share one pure predicate. PHYSICAL-BRIDGE-D0 fixed the StaticReceiver boundary; CLAIM-LIFECYCLE-P0 and its carrier I0 close the Bundle/Join claim owner, completed-site tombstones, and finish contract. CLAIM-INGRESS-P0 is closed: the recursive child contract is split into a 708-line owner plus a 123-line port, with RawInvocation/RawStructured capability delegation and no physical effect. PHYSICAL-BRIDGE-I0 is landed and its closeout evidence is green: the selected-normal bridge takes the exact claim, emits one receipt-required generic Call, publishes Script ExactI64 once, and finishes only after success. The canonical detached-input D0 closed NoSafeSlice on missing ordered operand recipes; the next design stop is the bounded scalar operand Recipe cohort. Canonical transport, fallback, raw retirement, production switch, and performance remain closed.
+SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 and TYPEOP-DISJOINT-I0 are landed; PHYSICAL-BRIDGE-I0 is also landed with green focused evidence. The selected bridge takes one exact claim, emits one generic Call, publishes ExactI64 once,
+and finishes only after success. Scalar operand Recipe D0 and the canonical
+physical-input D0 are closed; the selected fast row implements the
+Join-plus-operand input and detached helper. The I0 focused suites and canonical
+physical-input guard are green; no source admission or production caller is connected.
+Canonical transport, fallback, raw retirement, production switch, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -85,13 +86,13 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/script-static-scalar-operand-recipe-d0.md"
+current_execution_design = "docs/development/current/main/investigations/script-direct-static-call-canonical-physical-input-i0.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "script-static-scalar-operand-recipe-d0"
-latest_card_path = "docs/development/current/main/investigations/script-static-scalar-operand-recipe-d0.md"
-latest_card_summary = "Canonical detached-input D0 closed NoSafeSlice on missing ordered operand recipes. The sole next design row narrows this to resolver-issued integer literal/unary/binary scalar operands; no implementation or production switch is authorized."
-next_design_card = "SCRIPT-STATIC-SCALAR-OPERAND-RECIPE-D0"
-next_design_card_path = "docs/development/current/main/investigations/script-static-scalar-operand-recipe-d0.md"
+latest_card = "script-direct-static-call-canonical-physical-input-i0"
+latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-canonical-physical-input-i0.md"
+latest_card_summary = "The canonical physical-input D0 is accepted; fast row I0 implements one AST-free Join-plus-operand input and one direct-static helper through the existing Script session."
+next_design_card = "none"
+next_design_card_path = "none"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -114,6 +115,6 @@ landed_tail = [
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-JOIN-I0 landed one source/Facts BoxCount. The exact Recipe/result-owner handoff preserves FinalSequence and RootReturn rows, rejects foreign/missing/duplicate/drifted rows, and is transported through Script lowering input/state. CLAIM-LIFECYCLE-I0 then closed the Bundle/Join move-only carrier with completed-site tombstones and read-only consumer views; PHYSICAL-BRIDGE-D0 is the current design stop, with physical Call/publication, canonical transport, raw retirement, production switch, performance, and C-parity parked.",
-  "2026-08-20: SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-D0 accepted one bounded BoxShape after four read-only audits. The selected-normal I0 may now connect exact claim -> ordered descent -> existing generic Call receipt -> Script ExactI64 publication -> success-only finish; failed candidates are discarded with no fallback. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0 landed one selected-normal BoxShape. StaticReceiver now takes the exact ScriptRoot claim before effects, the bridge uses the existing ordered driver and receipt-required generic Call once, the Script sibling publishes ExactI64 as MirType::Integer once, and the scope finishes only after success. The source transport stayed below 760 lines after a claim child split; focused tests, cargo check, and the reusable guard are green. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed.",
+  "2026-08-20: SCRIPT-STATIC-SCALAR-OPERAND-RECIPE-D0 closed design-only after a resolver/source audit; SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-I0 then landed the AST-free Join-plus-operand input and detached session helper. Focused scalar/physical-input/kernel tests, the canonical physical-input guard, diff check, and pointer guard are green; canonical transport, fallback, raw retirement, production switch, and performance remain closed.",
 ]

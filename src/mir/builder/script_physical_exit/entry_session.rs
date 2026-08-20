@@ -122,6 +122,16 @@ impl OpenScriptPhysicalEntrySessionV1 {
                 ))
             }
         };
+        self.complete_lowered_terminal_v1(terminal)
+    }
+
+    /// Complete a terminal that was lowered by a detached, source-bound
+    /// sibling.  The session still owns the only exit preparation, Return /
+    /// signature commit, verifier pass, and private finish operation.
+    pub(in crate::mir) fn complete_lowered_terminal_v1(
+        mut self,
+        terminal: super::LoweredScriptTerminalV1,
+    ) -> Result<CompletedScriptPhysicalFunctionV1, (Self, ScriptPhysicalEntrySessionErrorV1)> {
         let prepared = match PreparedScriptPhysicalExitCoreV1::prepare(
             &self.candidate,
             terminal,

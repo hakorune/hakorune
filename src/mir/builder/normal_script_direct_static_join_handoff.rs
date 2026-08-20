@@ -45,6 +45,35 @@ pub(super) struct VerifiedScriptDirectStaticJoinRowV1 {
 }
 
 impl VerifiedScriptDirectStaticJoinRowV1 {
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        key: ScriptDirectStaticRecipeKeyV1,
+        source_owner: FunctionOwnerIdV1,
+        call_site: SourceExprSiteV1,
+        receiver_site: SourceExprSiteV1,
+        argument_sites: Box<[SourceExprSiteV1]>,
+        result_site: SourceExprSiteV1,
+        parent_relations: Box<[BodyShapeRelationV1]>,
+        destination: ScriptDirectStaticRecipeDestinationV1,
+        target: CanonicalSameModuleCallableKeyV1,
+        representation: VerifiedCallableResultRepresentationV1,
+        required_callee_i64_arguments: Box<[u32]>,
+    ) -> Self {
+        Self {
+            key,
+            source_owner,
+            call_site,
+            receiver_site,
+            argument_sites,
+            result_site,
+            parent_relations,
+            destination,
+            target,
+            representation,
+            required_callee_i64_arguments,
+        }
+    }
+
     pub(super) const fn key(&self) -> ScriptDirectStaticRecipeKeyV1 {
         self.key
     }
@@ -98,6 +127,19 @@ pub(super) struct VerifiedScriptDirectStaticJoinHandoffV1 {
 }
 
 impl VerifiedScriptDirectStaticJoinHandoffV1 {
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        source_owner: FunctionOwnerIdV1,
+        source_identity: usize,
+        rows: BTreeMap<ScriptDirectStaticRecipeKeyV1, VerifiedScriptDirectStaticJoinRowV1>,
+    ) -> Self {
+        Self {
+            source_owner,
+            source_identity,
+            rows,
+        }
+    }
+
     pub(super) fn issue(
         recipe: &VerifiedScriptDirectStaticRecipeV1,
         publication_owner: &VerifiedScriptDirectStaticResultPublicationOwnerV1,
@@ -243,3 +285,18 @@ fn destination_matches(
 #[cfg(test)]
 #[path = "normal_script_direct_static_join_handoff_tests.rs"]
 mod tests;
+
+mod physical_input;
+mod scalar_operand_recipe;
+
+pub(in crate::mir) use physical_input::{
+    VerifiedScriptDirectStaticPhysicalInputIssueV1,
+    VerifiedScriptDirectStaticPhysicalInputRowV1,
+    VerifiedScriptDirectStaticPhysicalInputV1,
+};
+pub(in crate::mir) use scalar_operand_recipe::{
+    ScalarBinaryOperatorV1, ScalarOperandRecipeArgumentV1,
+    ScalarOperandRecipeNodeV1, ScalarUnaryOperatorV1,
+    VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
+    VerifiedScriptDirectStaticScalarOperandRecipeV1,
+};

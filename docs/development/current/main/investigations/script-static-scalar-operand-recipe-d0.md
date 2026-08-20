@@ -117,11 +117,79 @@ callable-key authority, or `ValueId`/`MirType` inference, close this D0 as
   admission, selected-normal lowering, compatibility/Deferred behavior, or
   production caller counts.
 
+## D0 audit closeout
+
+The four read-only audits closed the authority question. The Script root can
+reach the resolver-owned expression inventory without reopening the AST:
+
+```text
+VerifiedScriptSemanticSourceV1::forest()
+  -> Script root semantic owner
+  -> VerifiedResolvedScriptV1::core().data()
+  -> expression_source + method_calls
+```
+
+The existing method-call rows provide the ordered `(ordinal, site)` argument
+relations, and the existing Join row provides the same sites together with
+target, representation, and terminal. The producer therefore has one
+source-backed input boundary; it must not use the retained `source()` AST.
+
+The implementation-facing source view may add only read-only accessors for
+the Script product and `ResolvedExpressionSourceInventoryV1::binary(site)`.
+Those accessors issue no new meaning. The new sibling producer is the sole
+issuer of the operand recipe:
+
+```text
+VerifiedScriptDirectStaticScalarOperandRecipeV1::issue(
+  existing Join row,
+  Script resolver source view,
+) -> Result<AST-free scalar operand recipe>
+```
+
+The recipe reuses the existing `ScriptDirectStaticRecipeKeyV1`; it issues no
+new callable key, physical ID, or source identity. Each argument row stores
+its existing ordinal/site and one recursive tree:
+
+```text
+ScalarLiteral(i64)
+ScalarUnary { site, operator, operand }
+ScalarBinary { site, operator, left, right }
+```
+
+The first accepted operator cohort is deliberately small and integer-only:
+unary `Minus | BitNot` and binary `Add | Subtract | Multiply | BitAnd |
+BitOr | BitXor`. Comparisons, logical operators, `Weak`, shifts, division,
+modulo, typed-integer payloads, variables, calls, fields, indexes, blocks,
+await/qmark, and unknown literal payloads remain rejected until a separate
+source-backed contract exists. This avoids silently assigning physical or
+effect semantics in the Recipe issuer.
+
+The future detached consumer is a separate direct-static kernel, not an
+extension of `RawScriptBodyRecipeV1`:
+
+```text
+JoinHandoff
+  + ScalarOperandRecipe[0..N)      (same key/owner/site/cardinality)
+  -> VerifiedScriptDirectStaticPhysicalInputV1
+  -> OpenScriptDirectStaticPhysicalEntrySessionV1
+```
+
+That kernel must materialize operands left-to-right, delegate Call emission to
+the existing unified receipt issuer, publish the already-verified ExactI64
+result once, and preserve `FinalSequence | RootReturn` for the existing exit
+owner. It may not reread the AST, infer from `ValueId`/`MirType`, widen the
+generic Script Recipe, or retry another route. Any failure discards the whole
+candidate with no partial row/publication.
+
+This closes `SCRIPT-STATIC-SCALAR-OPERAND-RECIPE-D0` as design-only. No code,
+fixture, physical effect, production switch, raw retirement, or performance
+claim is authorized by this closeout.
+
 ## Future order (not authorized here)
 
 ```text
 SCRIPT-STATIC-SCALAR-OPERAND-RECIPE-D0
-  -> canonical physical input D0 refresh
+  -> SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-D0
   -> canonical consumer I0
   -> production cutover
   -> raw/compat caller-zero and old-edge retirement

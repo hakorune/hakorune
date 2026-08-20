@@ -1,11 +1,12 @@
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-D0
 
 Status: design stop; selected-normal physical bridge is closed, but the
-canonical detached Script physical input has no named source-backed issuer.
-No code, fixture, route switch, or semantic receipt is authorized by this
-card.
+canonical detached Script physical input has no implemented source-backed
+consumer. The scalar operand Recipe authority is now designed; this card
+defines the next detached input contract. No code, fixture, route switch, or
+semantic receipt is authorized by this card.
 
-Parent: `script-direct-static-call-target-d0.md`
+Parent: `script-static-scalar-operand-recipe-d0.md`
 
 ## Current six-line brief
 
@@ -15,16 +16,17 @@ meaning into a detached canonical session; it must not reuse the selected
 claim ledger or widen the scalar Script recipe.
 
 Source authority + canonical issuer: the existing
-`VerifiedScriptDirectStaticResultBundleV1` and
-`VerifiedScriptDirectStaticJoinHandoffV1` remain semantic authority. This D0
-must name one source-backed producer that co-seals source identity, exact
-call/receiver/ordered-argument sites, canonical target, `ExactI64`, and
-`FinalSequence | RootReturn` before any detached physical effect.
+`VerifiedScriptDirectStaticJoinHandoffV1` owns call/target/terminal,
+representation, and ordered argument sites; the dedicated scalar operand
+Recipe owns each argument tree. A single physical-input producer must co-seal
+those two products by the existing Recipe key, owner, source identity, and
+site/cardinality contract. It is the only issuer of the detached input.
 
-Non-authority: `RawScriptBodyRecipeV1`, AST/name/ordinal rescans, callable-key
-conversion, selected `ScriptDirectStaticClaimLedgerV1`, `ValueId`/`MirType`,
-generic Call receipts, `ScriptPhysicalExitCommitV1`, backend markers, and raw or
-compatibility publication cannot issue the canonical input.
+Non-authority: `RawScriptBodyRecipeV1`, retained AST/name/ordinal rescans,
+callable-key conversion, selected `ScriptDirectStaticClaimLedgerV1`,
+`ValueId`/`MirType`, generic Call receipts, `ScriptPhysicalExitCommitV1`,
+backend markers, detached-session defaults, and raw or compatibility
+publication cannot issue or repair the canonical input.
 
 Fail-fast boundary: missing, foreign, duplicate, reordered, or drifted source
 payload; absent terminal/exit relation; unsupported representation; or a
@@ -32,11 +34,11 @@ producer-to-handoff path that cannot preserve the exact sites must stop before
 physical allocation/effects as `NoSafeSlice`. No fallback, retry, or inferred
 empty row is permitted.
 
-Smallest next slice: design the single AST-free canonical input contract, its
-one producer, its one detached-session handoff, and its one intended consumer.
-Keep source admission, existing Facts/Recipe/Join, selected-normal bridge, and
-all physical emission unchanged. If no existing issuer can satisfy the whole
-contract, close this D0 as `NoSafeSlice` without creating a `Verified*` receipt.
+Smallest next slice: finish the physical-input design by naming the detached
+consumer kernel and its source-backed scalar materialization/Call-receipt/
+publication handoff. Keep source admission, existing Facts/Recipe/Join,
+selected-normal lowering, and all physical emission unchanged. Only after this
+card is accepted may a separate physical-input implementation row open.
 
 Non-claims: no canonical consumer implementation, Script exit/Return or ABI
 integration, production switch, raw/compatibility/Deferred retirement, MIR
@@ -58,8 +60,8 @@ That path is not the canonical detached owner. The existing scalar
 MethodCall with ordered argument sites. The callable-keyed static-result owner
 accepts cataloged callers, not `ScriptRoot`. `ScriptPhysicalExitCommitV1` owns
 final Return/signature commit only; it cannot infer a Call target or argument
-payload. The selected claim ledger is session-local and cannot become a second
-semantic source.
+payload. The selected claim ledger is session-local and cannot become a
+second semantic source.
 
 The production old edge therefore remains intentionally live:
 
@@ -110,8 +112,9 @@ product and one fail-fast boundary. A missing answer is development
 ## Future order (not authorized here)
 
 ```text
-CANONICAL-PHYSICAL-INPUT-D0
-  -> canonical physical consumer I0
+SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PHYSICAL-INPUT-D0
+  -> canonical physical input I0
+  -> canonical consumer I0
   -> one production cutover
   -> raw/compat caller-zero and old-edge retirement
 ```
@@ -120,39 +123,168 @@ MIR Call dual-representation retirement, metadata consumer census, builder
 root-tail cleanup, main integration, and branch protection remain separate
 ordered lanes.
 
-## D0 audit closeout — canonical input is not yet issuable
+## D0 audit closeout — scalar operand issuer is now named
 
 Four read-only audits plus a focused transport follow-up inspected the actual
-owners. The result is a bounded `NoSafeSlice`, not permission to add an empty
-or guessed input:
-
-- `VerifiedScriptSemanticSourceV1`, the Result Bundle, and the Join Handoff
-  retain exact source/owner/target/terminal/argument **sites**, but they do not
-  retain a canonical physical operand recipe for each argument.
-- `normal_script_semantic_lowering_input.rs` and
-  `ScriptSemanticLoweringState` carry site/target/terminal projections only;
-  the selected bridge can lower live `MethodCallInput` arguments, but that
-  request-local port cannot be moved into the detached session.
-- `RawScriptBodyRecipeV1`, `normal_source_plan::script_recipe`, and the shared
-  recipe projection accept scalar expression vocabulary only; adding an ad-hoc
-  MethodCall or AST payload there would create a second authority.
-- `OpenScriptPhysicalEntrySessionV1` consumes only `RawScriptBodyRecipeV1`,
-  while callable static-result publication is Cataloged/callable-keyed and
-  `ScriptPhysicalExitCommitV1` owns final Return/signature commit only.
-
-Therefore the proposed canonical input still lacks a named, source-backed
-producer for the ordered argument operand recipes and a single detached
-consumer. The D0 remains design-only and closes with these rules:
+owners. The initial `NoSafeSlice` was specifically the missing ordered operand
+recipe, not a missing resolver source. The Script root can reach the resolver
+facts without reopening the AST:
 
 ```text
-existing Script semantic source + Bundle/Join/continuation
-  -> one future AST-free direct-static physical input producer
-  -> one detached-session direct-static kernel
+VerifiedScriptSemanticSourceV1::forest()
+  -> Script root semantic owner
+  -> VerifiedResolvedScriptV1::core().data()
+  -> expression_source + method_calls
 ```
 
-No `Verified*`/`Prepared*` semantic receipt, `RawScriptBodyRecipe` extension,
-AST clone/reparse, callable-key conversion, ValueId/MirType inference, claim
-ledger promotion, physical effect, fallback, or retry is authorized until the
-missing operand-recipe issuer is separately designed and accepted. The
-selected-normal bridge, compatibility/deferred/raw lanes, production switch,
-exit integration, and MIR Call cleanup remain unchanged and parked.
+`VerifiedResolvedMethodCallSourceV1::arguments()` supplies ordered
+`(ordinal, SourceExprSiteV1)` rows, and the existing Join supplies the same
+sites plus target, representation, and terminal. A future dedicated producer
+can therefore co-seal one complete scalar operand recipe from existing
+source/Facts/Join products. It must not use the retained `source()` AST.
+
+The only missing accessor work is mechanical and belongs to the later
+implementation row: a Script-specific read-only view and
+`ResolvedExpressionSourceInventoryV1::binary(site)`. These accessors issue no
+new meaning. The producer is the sole issuer of the new AST-free tree:
+
+```text
+VerifiedScriptDirectStaticScalarOperandRecipeV1::issue(
+  existing Join row,
+  Script resolver source view,
+) -> Result<AST-free scalar operand recipe>
+```
+
+It reuses the existing `ScriptDirectStaticRecipeKeyV1`; it issues no new
+callable key, physical ID, or source identity. Each argument row stores its
+existing ordinal/site and one recursive tree:
+
+```text
+ScalarLiteral(i64)
+ScalarUnary { site, operator, operand }
+ScalarBinary { site, operator, left, right }
+```
+
+The first cohort is deliberately integer-only: unary `Minus | BitNot` and
+binary `Add | Subtract | Multiply | BitAnd | BitOr | BitXor`. Comparisons,
+logical operators, `Weak`, shifts, division, modulo, typed-integer payloads,
+variables, calls, fields, indexes, blocks, await/qmark, and unknown literal
+payloads remain rejected until a separate source-backed contract exists.
+
+This closes the scalar operand D0 as design-only. It does not authorize a
+`Verified*`/`Prepared*` implementation receipt, a `RawScriptBodyRecipe`
+extension, AST clone/reparse, callable-key conversion, `ValueId`/`MirType`
+inference, claim-ledger promotion, physical effect, fallback, retry,
+production switch, exit integration, or performance claim. The current
+canonical physical-input D0 is the sole next design row.
+
+## Canonical input contract to close in this card
+
+The future AST-free input is conceptually:
+
+```text
+VerifiedScriptDirectStaticPhysicalInputV1 {
+  source_identity
+  source_owner
+  existing ScriptDirectStaticRecipeKeyV1
+  call_site / receiver_site / result_site
+  existing FinalSequence | RootReturn terminal
+  existing canonical static target
+  existing ExactI64 representation
+  ordered ScalarOperandRecipe[0..N)
+}
+```
+
+The producer must compare the scalar Recipe row against the Join row rather
+than reconstructing either side. The key is borrowed from the existing Recipe
+producer; this D0 may not issue a second key or pair rows by names, statement
+ordinals, or argument count alone.
+
+The detached direct-static kernel is a sibling helper of the existing Script
+physical entry, not a second session and not a widening of
+`RawScriptBodyRecipeV1`:
+
+```text
+VerifiedScriptDirectStaticPhysicalInputV1
+  -> existing OpenScriptPhysicalEntrySessionV1
+       -> direct_static_entry_kernel.rs
+  -> scalar operands materialized left-to-right
+  -> existing unified generic Call receipt issuer
+  -> Script ExactI64 publication sibling
+  -> typed FinalSequence | RootReturn handoff to the existing exit owner
+```
+
+The consumer may use the existing scalar instruction-lowering kernel, but it
+must not create a second operator meaning or Call receipt producer. The Call
+target comes only from the input's canonical target. The Script publication
+sibling writes the already-verified `ExactI64` result once; it does not infer
+from a `ValueId` or wait for `finalize_module()` to repair a missing type.
+`OpenScriptPhysicalEntrySessionV1` remains the sole candidate `open`/`finish`
+owner. A narrow parent-owned finalization seam may accept only
+`LoweredScriptTerminalV1::Value { value }`, prepare/commit the existing
+`PreparedScriptPhysicalExitCoreV1`/`ScriptPhysicalExitCommitV1`, verify, and
+finish the same session. The source `FinalSequence | RootReturn` is validated
+before effects and retained as a typed witness until that adapter; it is never
+reconstructed from a `ValueId` or used to create a second Return writer.
+
+After the input is claimed, the only outcomes are `Completed` or candidate
+discard. Argument failure, Call-receipt failure, publication failure, or
+completion-handoff failure must not retry, rollback, reinsert, or enter the
+legacy Script route.
+
+The source-to-exit conversion is fixed and deliberately narrow:
+
+```text
+Join terminal: FinalSequence | RootReturn
+  + completed ExactI64 Call ValueId
+  -> LoweredScriptTerminalV1::Value { value }
+  -> PreparedScriptPhysicalExitCoreV1
+  -> ScriptPhysicalExitCommitV1
+  -> existing OpenScriptPhysicalEntrySessionV1::finish
+```
+
+Both accepted terminal variants carry a value for this cohort. The terminal
+variant is checked against the Join row before operand descent; it does not
+select a second exit owner. If the existing entry session cannot expose this
+one borrowed finalization seam without duplicating candidate verification or
+finish ownership, the physical-input I0 remains `NoSafeSlice`.
+
+The card closes only when the producer and detached consumer are named with
+exact future file owners, the same input/Join/operand identity and cardinality
+are checked before effects, and the `Literal(7)` plus recursive accepted
+integer-expression positives and all foreign/unsupported/drift negatives are
+specified. If the consumer would need AST, MIR inference, generic Recipe
+widening, a second Call receipt, partial publication, or rollback, this card
+remains `NoSafeSlice`.
+
+## Future owner map (design contract only)
+
+The eventual implementation row must stay within these sibling owners:
+
+```text
+src/mir/builder/normal_script_direct_static_join_handoff/scalar_operand_recipe.rs
+  - Script resolver source view + one scalar operand Recipe issuer
+
+src/mir/builder/normal_script_direct_static_join_handoff/physical_input.rs
+  - Join row + scalar Recipe co-seal; no AST or physical effect
+
+src/mir/builder/script_physical_exit/direct_static_entry_kernel.rs
+  - helper only; receives the already-open session, delegates scalar lowering,
+    the existing unified Call receipt, and the existing Script publication
+    owner; it never opens or finishes a session
+
+src/mir/builder/script_physical_exit/entry_session.rs
+  - sole open/finish owner; adds only the narrow terminal-finalization seam
+    used by the helper
+
+focused tests/guard siblings
+  - identity/cardinality, left-to-right operands, failure discard, and line
+    count/second-authority checks
+```
+
+The first module may add only the Script-specific product accessors and the
+`binary(site)` lookup needed by the producer. The second module may only
+compose already-issued rows. The detached session must not add a second
+`ASTNode` matcher or a second Call emitter. If any owner would cross the 760
+line split trigger, split that responsibility before implementation; never
+compress code or move authority into a facade to satisfy the line budget.

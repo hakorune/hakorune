@@ -461,6 +461,12 @@ impl VerifiedResolvedScriptV1 {
         self.core.data.method_calls.iter()
     }
 
+    pub(crate) const fn expression_source(
+        &self,
+    ) -> &ResolvedExpressionSourceInventoryV1 {
+        &self.core.data.expression_source
+    }
+
     pub(crate) fn declaration_binding(&self, site: &SourceBindingSiteV1) -> Option<BindingRefV1> {
         self.core.data.declarations.get(site).copied()
     }

@@ -51,6 +51,19 @@ pub(crate) struct ResolvedUnaryExpressionSourceV1 {
 }
 
 impl ResolvedUnaryExpressionSourceV1 {
+    #[cfg(test)]
+    pub(crate) fn from_parts_for_test(
+        site: SourceExprSiteV1,
+        operator: ResolvedUnaryOperatorV1,
+        operand: SourceExprSiteV1,
+    ) -> Self {
+        Self {
+            site,
+            operator,
+            operand,
+        }
+    }
+
     pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
         &self.site
     }
@@ -87,6 +100,21 @@ pub(crate) struct ResolvedBinaryExpressionSourceV1 {
 }
 
 impl ResolvedBinaryExpressionSourceV1 {
+    #[cfg(test)]
+    pub(crate) fn from_parts_for_test(
+        site: SourceExprSiteV1,
+        operator: ResolvedBinaryOperatorV1,
+        lhs: SourceExprSiteV1,
+        rhs: SourceExprSiteV1,
+    ) -> Self {
+        Self {
+            site,
+            operator,
+            lhs,
+            rhs,
+        }
+    }
+
     pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
         &self.site
     }
@@ -139,8 +167,35 @@ pub(crate) struct ResolvedExpressionSourceInventoryV1 {
 }
 
 impl ResolvedExpressionSourceInventoryV1 {
+    #[cfg(test)]
+    pub(crate) fn from_parts_for_test(
+        binaries: impl IntoIterator<Item = ResolvedBinaryExpressionSourceV1>,
+        unaries: impl IntoIterator<Item = ResolvedUnaryExpressionSourceV1>,
+        literals: impl IntoIterator<Item = (SourceExprSiteV1, ResolvedLiteralSourceV1)>,
+    ) -> Self {
+        Self {
+            binaries: binaries
+                .into_iter()
+                .map(|row| (row.site.clone(), row))
+                .collect(),
+            unaries: unaries
+                .into_iter()
+                .map(|row| (row.site.clone(), row))
+                .collect(),
+            literals: literals.into_iter().collect(),
+            initializers: BTreeMap::new(),
+        }
+    }
+
     pub(crate) fn binaries(&self) -> impl Iterator<Item = &ResolvedBinaryExpressionSourceV1> {
         self.binaries.values()
+    }
+
+    pub(crate) fn binary(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&ResolvedBinaryExpressionSourceV1> {
+        self.binaries.get(site)
     }
 
     pub(crate) fn literal(&self, site: &SourceExprSiteV1) -> Option<&ResolvedLiteralSourceV1> {

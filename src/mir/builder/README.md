@@ -643,6 +643,30 @@ publication sibling stay below the 760-line split trigger; the reusable
 `script_direct_static_target_guard.sh` checks the single receipt/publication
 path and the no-fallback boundary.
 
+## Script direct-static canonical physical input I0
+
+`VerifiedScriptDirectStaticPhysicalInputV1` is the narrow AST-free input for a
+future canonical Script physical consumer. It is composed only from the
+already-issued Join rows and a resolver-owned scalar operand Recipe; it does
+not re-open source, infer a target from names/ordinals, allocate physical
+identities, or publish a second semantic fact. Unsupported literals,
+operators, calls, variables, fields, comparisons, and typed payloads fail
+before physical work.
+
+`direct_static_entry_kernel.rs` is a detached helper only. It lowers the
+ordered scalar trees, invokes the existing receipt-required generic Call
+emitter exactly once, projects the already-sealed `ExactI64` result through
+the Script publication sibling, and hands the value terminal to
+`OpenScriptPhysicalEntrySessionV1::complete_lowered_terminal_v1`. The session
+remains the sole candidate, verifier, Return/signature, and finish owner.
+
+This I0 is not connected to source admission or production routing. The
+selected-normal bridge, canonical Script transport, compatibility/Deferred/
+RawLegacy paths, raw retirement, and performance evidence remain separate
+rows. The focused physical-input and detached-session tests plus
+`script_direct_static_canonical_physical_input_guard.sh` own this boundary;
+`builder.rs` remains pre-existing migration debt and is not grown.
+
 ## Loop PHI observer boundary (M6-B)
 
 `LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical
