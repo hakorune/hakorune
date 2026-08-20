@@ -57,6 +57,29 @@ pub(super) struct VerifiedScriptDirectStaticResultDemandV1 {
 }
 
 impl VerifiedScriptDirectStaticResultDemandV1 {
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        source_owner: FunctionOwnerIdV1,
+        site: SourceExprSiteV1,
+        receiver_site: SourceExprSiteV1,
+        argument_sites: Box<[SourceExprSiteV1]>,
+        result_site: SourceExprSiteV1,
+        target: CanonicalSameModuleCallableKeyV1,
+        representation: VerifiedCallableResultRepresentationV1,
+        required_callee_i64_arguments: Box<[u32]>,
+    ) -> Self {
+        Self {
+            source_owner,
+            site,
+            receiver_site,
+            argument_sites,
+            result_site,
+            target,
+            representation,
+            required_callee_i64_arguments,
+        }
+    }
+
     pub(super) const fn source_owner(&self) -> FunctionOwnerIdV1 {
         self.source_owner
     }
@@ -98,6 +121,19 @@ pub(super) struct VerifiedScriptDirectStaticResultBundleV1 {
 }
 
 impl VerifiedScriptDirectStaticResultBundleV1 {
+    #[cfg(test)]
+    pub(super) fn from_parts_for_test(
+        source_owner: FunctionOwnerIdV1,
+        source_identity: usize,
+        rows: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticResultDemandV1>,
+    ) -> Self {
+        Self {
+            source_owner,
+            source_identity,
+            rows,
+        }
+    }
+
     pub(super) fn issue(
         source: &VerifiedScriptSemanticSourceV1<'_>,
         window: &VerifiedScriptRootDemandWindowV1,

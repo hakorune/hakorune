@@ -192,6 +192,12 @@ impl VerifiedScriptDirectStaticJoinHandoffV1 {
         self.rows.iter()
     }
 
+    pub(super) fn into_site_rows(
+        self,
+    ) -> impl Iterator<Item = VerifiedScriptDirectStaticJoinRowV1> {
+        self.rows.into_values()
+    }
+
     pub(super) fn len(&self) -> usize {
         self.rows.len()
     }

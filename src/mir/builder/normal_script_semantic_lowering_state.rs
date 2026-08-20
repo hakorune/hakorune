@@ -6,9 +6,7 @@ use crate::mir::builder::stmts::variable_stmt::OutboxBindingValueV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceNodeSiteV1};
 use crate::mir::ValueId;
 
-use super::normal_script_direct_static_join_handoff::VerifiedScriptDirectStaticJoinHandoffV1;
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
-use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
@@ -18,16 +16,15 @@ use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1
 pub(super) struct ScriptSemanticLoweringState {
     projection: VerifiedScriptLoweringProjectionV1,
     continuation: VerifiedScriptSourceContinuationV1,
-    direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
     direct_static_result_publication_owner:
         Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
     direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
-    direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
+    direct_static_claim_ledger: Option<direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1>,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
 impl ScriptSemanticLoweringState {
-    pub(super) fn new(input: VerifiedScriptSemanticLoweringInputV1) -> Self {
+    pub(super) fn new(input: VerifiedScriptSemanticLoweringInputV1) -> Result<Self, String> {
         let (
             projection,
             continuation,
@@ -36,16 +33,24 @@ impl ScriptSemanticLoweringState {
             direct_static_recipe,
             direct_static_join_handoff,
         ) = input.into_parts();
-        Self {
+        let direct_static_claim_ledger =
+            direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1::issue(
+                direct_static_result_bundle,
+                direct_static_join_handoff,
+            )
+            .map(Some)
+            .map_err(|error| {
+                format!("[freeze:contract][script-direct-static/claim-ledger] {error:?}")
+            })?;
+        Ok(Self {
             projection,
             continuation,
-            direct_static_result_bundle,
             direct_static_result_publication_owner,
             direct_static_recipe,
-            direct_static_join_handoff,
+            direct_static_claim_ledger,
             variable_values: BTreeMap::new(),
             materialized_outboxes: BTreeSet::new(),
-        }
+        })
     }
 
     fn projection(&self) -> &VerifiedScriptLoweringProjectionV1 {
@@ -56,12 +61,6 @@ impl ScriptSemanticLoweringState {
         &self.continuation
     }
 
-    pub(super) fn direct_static_result_bundle(
-        &self,
-    ) -> Option<&VerifiedScriptDirectStaticResultBundleV1> {
-        self.direct_static_result_bundle.as_ref()
-    }
-
     pub(super) fn direct_static_result_publication_owner(
         &self,
     ) -> Option<&VerifiedScriptDirectStaticResultPublicationOwnerV1> {
@@ -70,12 +69,6 @@ impl ScriptSemanticLoweringState {
 
     pub(super) fn direct_static_recipe(&self) -> Option<&VerifiedScriptDirectStaticRecipeV1> {
         self.direct_static_recipe.as_ref()
-    }
-
-    pub(super) fn direct_static_join_handoff(
-        &self,
-    ) -> Option<&VerifiedScriptDirectStaticJoinHandoffV1> {
-        self.direct_static_join_handoff.as_ref()
     }
 
     pub(super) fn lambda_captures(
@@ -161,6 +154,39 @@ impl ScriptSemanticLoweringState {
         self.projection().brand_constructor_disposition_at(site)
     }
 
+    pub(super) fn take_direct_static_claim(
+        &mut self,
+        site: &crate::mir::resolved_semantics::SourceExprSiteV1,
+    ) -> Result<direct_static_claim_ledger::ScriptDirectStaticClaimTakeV1, String> {
+        let Some(ledger) = self.direct_static_claim_ledger.as_mut() else {
+            return Err("[freeze:contract][script-direct-static/claim-finished]".to_owned());
+        };
+        ledger
+            .take(site)
+            .map_err(|error| format!("[freeze:contract][script-direct-static/claim] {error:?}"))
+    }
+
+    pub(super) fn complete_direct_static_claim(
+        &mut self,
+        claimed: direct_static_claim_ledger::ScriptDirectStaticClaimedRowV1,
+    ) -> Result<(), String> {
+        let Some(ledger) = self.direct_static_claim_ledger.as_mut() else {
+            return Err("[freeze:contract][script-direct-static/claim-finished]".to_owned());
+        };
+        ledger.complete(claimed).map_err(|error| {
+            format!("[freeze:contract][script-direct-static/claim-complete] {error:?}")
+        })
+    }
+
+    pub(super) fn finish_direct_static_claims(&mut self) -> Result<(), String> {
+        let Some(ledger) = self.direct_static_claim_ledger.take() else {
+            return Err("[freeze:contract][script-direct-static/claim-finished]".to_owned());
+        };
+        ledger.finish().map_err(|error| {
+            format!("[freeze:contract][script-direct-static/claim-finish] {error:?}")
+        })
+    }
+
     pub(super) fn record(&mut self, binding: BindingRefV1, value: ValueId) -> Result<(), String> {
         if self.variable_values.insert(binding, value).is_some() {
             return Err("[freeze:contract][script-lexical/duplicate-value]".to_owned());
@@ -215,3 +241,10 @@ impl ScriptSemanticLoweringState {
 
 #[path = "normal_script_binding_materialization.rs"]
 mod binding_materialization;
+#[path = "normal_script_direct_static_claim_ledger.rs"]
+mod direct_static_claim_ledger;
+
+pub(in crate::mir::builder) use direct_static_claim_ledger::{
+    ScriptDirectStaticClaimLedgerIssueV1, ScriptDirectStaticClaimLedgerV1,
+    ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
+};

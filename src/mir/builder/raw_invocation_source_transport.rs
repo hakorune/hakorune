@@ -230,7 +230,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         }
         let state = Rc::new(RefCell::new(ScriptSemanticLoweringState::new(
             source.into_lowering_input(),
-        )));
+        )?));
         let parent = std::mem::replace(&mut self.semantic_ledger, Some(state));
         let result = self.with_source_transport_v1(
             RawInvocationSourceTransportV1::script_semantic_root(()),

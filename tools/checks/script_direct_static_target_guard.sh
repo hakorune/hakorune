@@ -34,6 +34,8 @@ RECIPE_TESTS=src/mir/builder/normal_script_direct_static_recipe_tests.rs
 JOIN_HANDOFF=src/mir/builder/normal_script_direct_static_join_handoff.rs
 JOIN_HANDOFF_TESTS=src/mir/builder/normal_script_direct_static_join_handoff_tests.rs
 LOWERING_STATE=src/mir/builder/normal_script_semantic_lowering_state.rs
+CLAIM_LEDGER=src/mir/builder/normal_script_direct_static_claim_ledger.rs
+CLAIM_LEDGER_TESTS=src/mir/builder/normal_script_direct_static_claim_ledger_tests.rs
 ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
 BUILDER_README=src/mir/builder/README.md
 CARD=docs/development/current/main/investigations/script-direct-static-call-target-d0.md
@@ -81,9 +83,22 @@ require_text "$JOIN_HANDOFF_TESTS" "empty_recipe_emits_empty_join_handoff"
 require_text "$JOIN_HANDOFF_TESTS" "join_handoff_rejects_a_foreign_source_owner"
 require_text "$JOIN_HANDOFF_TESTS" "non_empty_recipe_row_is_carried_by_recipe_key"
 require_text "$LOWERING_STATE" "direct_static_recipe"
+require_text "$LOWERING_STATE" "direct_static_claim_ledger"
+require_text "$LOWERING_STATE" "take_direct_static_claim"
+require_text "$LOWERING_STATE" "complete_direct_static_claim"
+require_text "$LOWERING_STATE" "finish_direct_static_claims"
+require_text "$CLAIM_LEDGER" "ScriptDirectStaticClaimLedgerV1"
+require_text "$CLAIM_LEDGER" "PartialSourceProducts"
+require_text "$CLAIM_LEDGER" "DuplicateClaim"
+require_text "$CLAIM_LEDGER" "PendingRows"
+require_text "$CLAIM_LEDGER_TESTS" "complete_pair_is_claimed_once_and_finishes_exhausted"
+require_text "$CLAIM_LEDGER_TESTS" "partial_source_products_are_rejected_before_claiming"
+require_text "$CLAIM_LEDGER_TESTS" "finish_rejects_unclaimed_rows_without_mutating_the_source_products"
 require_text "$ROOT_TRAVERSAL" "record_statement_shape"
 require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
 require_text "$BUILDER_README" "source/Facts-only"
+require_text "$BUILDER_README" "ScriptDirectStaticClaimLedgerV1"
+require_text "$BUILDER_README" "there is no rollback"
 require_text "$CARD" "SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0"
 require_text "$CARD" "source-only continuation rows"
 require_text "$CARD" "result publication, and physical lowering"
@@ -93,13 +108,29 @@ require_text "$SOURCE_TESTS" "exact_static_callable_set_survives_one_transform"
 require_text "$SOURCE_TESTS" "ordinary_constructor_source_catalog_survives_normal_source_transform"
 require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_initial_source_lane"
 
-for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
     exit 1
   fi
 done
+
+TOKEN_HEADER="$(rg -B 2 -n "struct ScriptDirectStaticClaimedRowV1" "$CLAIM_LEDGER" || true)"
+if printf '%s\n' "$TOKEN_HEADER" | rg -n "Clone"; then
+  echo "[script-direct-static-target] claim token became Clone" >&2
+  exit 1
+fi
+
+if rg -n "rollback|reinsert|put_back|emit_.*call|lower_.*physical|MirType|ValueId|ScriptPhysicalExit" "$CLAIM_LEDGER"; then
+  echo "[script-direct-static-target] claim ledger crossed the operational-only boundary" >&2
+  exit 1
+fi
+
+if rg -n "emit_.*call|MirType|ValueId|ScriptPhysicalExit|raw_invocation_source_transport" "$CLAIM_LEDGER_TESTS"; then
+  echo "[script-direct-static-target] claim ledger tests crossed the physical boundary" >&2
+  exit 1
+fi
 
 if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$MODULE"; then
   echo "[script-direct-static-target] observation module crossed the Recipe/physical boundary" >&2
@@ -141,6 +172,8 @@ CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_recipe --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_join_handoff --lib
+CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
+  mir::builder::normal_script_semantic_lowering_state::direct_static_claim_ledger::tests --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   normal_script_source_continuation_tests --lib
 

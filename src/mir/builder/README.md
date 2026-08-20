@@ -581,6 +581,25 @@ Recipe/owner pairs remain explicitly empty; foreign, duplicate, missing, or
 drifted rows fail before physical work. The focused handoff tests and reusable
 Script direct-static guard own this boundary.
 
+## Script direct-static claim carrier I0
+
+`ScriptDirectStaticClaimLedgerV1` is an operational, scope-local carrier over
+the already-issued Bundle and Join. It validates source identity, owner,
+cardinality, and exact site coverage once while constructing
+`ScriptSemanticLoweringState`; it does not issue a new semantic fact. A
+`take(site)` returns an unchanged `Absent`, a non-`Clone` claimed Join row, or
+a fail-fast error. The claimed row can only be completed by consuming its token;
+there is no rollback, reinsertion, retry, or name-based fallback. `finish()`
+consumes the ledger and rejects pending or in-flight rows. The future physical
+bridge owns invoking that finish around a real Call consumer; this carrier-only
+I0 deliberately does not fabricate a consumer merely to force exhaustion.
+
+Compatibility, Deferred, and RawLegacy paths do not acquire this ledger. The
+claim carrier emits no Call, ExactI64 publication, Return/signature, canonical
+transport, performance evidence, or production switch. The focused ledger
+tests and `script_direct_static_target_guard.sh` enforce the operational-only
+boundary and the 760-line split trigger.
+
 ## Loop PHI observer boundary (M6-B)
 
 `LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical

@@ -5,9 +5,10 @@ Status: target/Facts/continuation/Recipe/Join and
 stop `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` closed as `NoSafeSlice` on the
 typeop overlap; `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` then closed the
 shared predicate with focused tests and a green reusable guard. Four read-only
-audits close the physical-bridge D0 boundary, but the claim lifecycle is still
-the design stop before physical I0; canonical transport, fallback, raw
-retirement, and production switch remain closed.
+audits closed the physical-bridge D0 boundary, and the claim-lifecycle P0
+design is now closed. Its operational ledger I0 is the current row; physical
+Call/publication, canonical transport, fallback, raw retirement, and
+production switch remain closed.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -48,14 +49,18 @@ Absent, callable-key conversion, `ValueId`/`MirType`, generic Call receipt,
 
 Fail-fast boundary: Bundle miss returns an unchanged `Absent`; Bundle hit must
 find the same-site Join row or return `Err`. `Claimed` moves a non-Clone token
-before receiver/argument descent. Scope `finish` requires zero pending and
-zero in-flight rows before restoring the parent ledger; post-claim failure
-discards the isolated invocation, with no rollback/retry/ordinary escape.
+before receiver/argument descent. The operational `finish` consumes the scope
+and requires zero pending and zero in-flight rows; the future physical bridge,
+not this carrier-only row, owns calling it around a real candidate. No current
+I0 path fabricates a consumer merely to force exhaustion; post-claim failure
+remains discard-only, with no rollback/retry/ordinary escape.
 
 Smallest next slice: `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0` — add the
 operational ledger sibling, state carrier, exact-site claim capability, and
-success-only finish/exhaustion checks. Keep physical Call, ExactI64
-publication, Return/signature, and canonical transport closed.
+move-only finish/exhaustion API. Its production carrier is seeded and rejects
+partial Bundle/Join products; scope invocation is deliberately deferred to the
+physical bridge so no fake consumer is introduced. Keep physical Call,
+ExactI64 publication, Return/signature, and canonical transport closed.
 
 Non-claims: no new semantic `Verified*` receipt, parser/source admission,
 Recipe/Join redesign, physical bridge, callable owner extension, Box/ABI
@@ -1159,22 +1164,26 @@ Claim contract:
   `take(site)` returns `Absent`, `Claimed(non-Clone token)`, or `Err`. The token
   carries the already-sealed Join row and has no clone, reinsert, rollback, or
   retry API. `complete(token)` clears the in-flight marker only after the future
-  physical consumer succeeds; P0/I0 does not emit that consumer yet.
+  physical consumer succeeds; this carrier I0 exposes that operation but does
+  not invent a physical consumer to call it.
 
 Finish/discard:
-  `finish()` is called exactly once before `with_script_semantic_source_v1`
-  restores its parent ledger and requires pending=0 and in-flight=0. A lowering
-  error skips finish and discards the isolated invocation; it never returns to
-  the ordinary route. A fresh scope constructs a fresh ledger and cannot see a
-  prior claim.
+  `finish()` is a consuming operation that requires pending=0 and in-flight=0;
+  the physical bridge will call it exactly once before
+  `with_script_semantic_source_v1` restores its parent ledger. This carrier I0
+  does not call it for non-empty candidates because doing so would fabricate a
+  consumer. A lowering error in the future bridge skips finish and discards the
+  isolated invocation; it never returns to the ordinary route. A fresh scope
+  constructs a fresh ledger and cannot see a prior claim.
 
 Acceptance:
   positive same-site Bundle+Join claim, empty Complete Script, absent site,
   missing/foreign/drift/duplicate rows, duplicate take, uncompleted token,
-  pending row at finish, post-claim error, compatibility/deferred no-ledger,
-  and fresh-scope isolation. No Call, ExactI64, Return, or publication effect
-  is allowed in this I0; the later physical bridge consumes only completed
-  claim tokens.
+  pending row at finish, partial products, and fresh-scope isolation. The
+  production state seeds the ledger and rejects malformed pairs; the unit
+  ledger proves claim/complete/finish semantics. No Call, ExactI64, Return, or
+  publication effect is allowed in this I0; the later physical bridge consumes
+  only completed claim tokens.
 
 Stop:
   If exact-site capability cannot reach the StaticReceiver arm without a
