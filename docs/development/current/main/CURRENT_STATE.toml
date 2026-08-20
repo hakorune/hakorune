@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-PRE-DESCENT-PHYSICAL-BRIDGE-I0"
+current_design_stop = "SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0"
 work_mode = "fast"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PRE-DESCENT-PHYSICAL-BRIDGE-I0"
-current_blocker_token = "Implement the accepted selected-normal ScriptRoot BoxShape: claim the exact joined row before child effects, reuse the sole ordered argument driver and unified Call receipt, and publish ExactI64 through a Script-only sibling. Canonical ScriptPhysicalExit transport remains a later D0."
+current_execution_row = "SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0"
+current_blocker_token = "Before bridge I0, prove on the local selected-normal production ingress that FinalSequence/RootReturn and ordered arguments retain the exact joined Script sites and that no joined row intersects typeop, reserved, StaticThis, or another route executed before the ordinary StaticReceiver arm. Production source/admission/routing/lowering changes are forbidden in P0."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -78,7 +78,8 @@ preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
 identity I0 is landed: seven payloads are digest-bound before one write-last
 root receipt and exact inventory validation. Origin-footprint I0 now seals the
 same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent
-ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice. The accepted selected-normal BoxShape stops at a pre-descent Call plus ExactI64 publication; selected-normal retains its current finalizer/Return owners, while canonical ScriptPhysicalExit transport, raw retirement, performance, and C-parity remain parked.
+ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
+The selected-normal physical bridge is conditionally accepted but waits on one production-code-neutral P0 proving exact live Script sites and non-intersection with typeop/reserved/StaticThis before the ordinary StaticReceiver arm. Source admission, bridge implementation, canonical ScriptPhysicalExit transport, raw retirement, performance, and C-parity remain unchanged or parked.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -91,10 +92,10 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "Physical-bridge D0 is accepted as one selected-normal BoxShape. The sole executable row claims an exact ScriptRoot row before descent, reuses the unified Call receipt, and publishes ExactI64 once; canonical ScriptPhysicalExit integration remains parked."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-PRE-DESCENT-PHYSICAL-BRIDGE-I0"
+latest_card_summary = "Physical-bridge D0 is conditionally accepted. The sole executable row is PRE-DESCENT-P0: prove exact FinalSequence/RootReturn/argument sites and zero overlap with earlier typeop/reserved/StaticThis routes without production-code changes; bridge I0 remains blocked."
+next_design_card = "SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-next_execution_card = "SCRIPT-DIRECT-STATIC-CALL-PRE-DESCENT-PHYSICAL-BRIDGE-I0"
+next_execution_card = "SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0"
 next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -106,7 +107,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-FACTS-I0 landed one bounded Facts product. The forest-root Script owner and exact method-call rows co-seal with the retained target/result catalogs; Script projection now consumes shared owner-core facts. Recipe/Join/physical work remain closed and the next design stop is SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-TARGET-I0 landed one source-only observation product. Exact Script caller/receiver/argument sites and canonical static targets are retained in the selected-normal work plan; six focused tests and the reusable guard are green. Recipe/Join/physical consumers remain closed; SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0 closed NoSafeSlice and FACTS-COSEAL-D0 is the next design stop.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
