@@ -1,11 +1,10 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
-Status: target/Facts/continuation/Recipe/Join are landed. The accepted next
-implementation is the bounded source-admission row
-`SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0`: compatibility-compatible initial
-sources gain one parser-owned empty-or-complete constructor catalog. The
-physical bridge remains blocked; no bridge, route, lowering, or fallback
-implementation is open.
+Status: target/Facts/continuation/Recipe/Join and
+`SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` are landed. The current design stop
+is `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`: prove exact ScriptRoot sites and
+non-intersection with earlier routes before opening the physical bridge. No
+bridge, route, lowering, or fallback implementation is open.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -18,40 +17,38 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   Facts/source products. Recipe I0 and its Join handoff are now transported
   source products, but a local `static box Helper { value() { return 7 } }`
   direct-static input previously entered the compatibility parser arm and
-  stopped at `ConstructorSourceMissing`. The accepted I0 fixes only this
-  parser handoff: every compatibility-compatible initial source carries an
-  explicit empty-or-complete constructor cohort. Mixed outer and unsupported
-  cohorts retain compatibility status and do not gain a physical Script route.
+  stopped at `ConstructorSourceMissing`. I0 now gives every
+  compatibility-compatible initial source an explicit empty-or-complete
+  constructor cohort. Mixed outer and unsupported cohorts retain compatibility
+  status and do not gain a physical Script route. The next question is only
+  pre-descent site/route authority.
 - 760 lines is the source split/design trigger and 800 is the hard stop.
   `owner_forest.rs`, `recursive_child_lowering.rs`, package install, and the
   751-line Script runtime owner are no-growth owners.
 
 ## Current six-line brief
 
-Decision: accept `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` as the only fast row.
-The selected-normal ScriptRoot bridge remains closed until a real static source
-reaches the source-backed lane through one parser-owned catalog.
+Decision: close `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` and open the design
+stop `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0`; the selected-normal ScriptRoot
+bridge remains closed.
 
-Source authority + canonical issuer: the parser postpass finalizer issues
-`ParserConstructorSourceCatalogV1` together with retained non-static source
-seals and final box placement; the initial/final callable source transports
-that same product into selected-normal root admission. Static-only and
-top-level-only initial sources receive the canonical empty catalog. Builder
-products only consume it.
+Source authority + canonical issuer: the existing source-bound Script semantic
+handoff and selected-normal ingress are the observation authority for this P0;
+no new semantic receipt is issued. The landed parser finalizer remains the
+sole constructor-catalog issuer and is only a prerequisite witness here.
 
 Non-authority: compatibility AST transport, `ConstructorSourceMissing` text,
 `cohort-missing` work-plan checks, constructor key sorting, static target
 inventory, box/method names, and the physical bridge.
 
-Fail-fast boundary: before Script target/bundle/Recipe/Join issuance, reject
-missing/foreign/duplicate source seals, placements, or constructor rows. Never
-turn a compatibility result into source-backed by name, and never map
-admission errors to `Absent`.
+Fail-fast boundary: before receiver/argument descent or MIR effects, reject
+missing/foreign source context, site drift, or any typeop/reserved/static-this
+intersection. Never map a missing observation to `Absent` or enter bridge code.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` only. Attach the
-catalog in the parser source product, preserve mixed/unsupported compatibility
-status, and prove static-only, top-level-only, mixed, constructor-bearing, and
-selected-normal ingress cases.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` only. Prove exact
+FinalSequence/RootReturn and argument sites on the real selected-normal ingress,
+and prove non-intersection with typeop/reserved/static-this routes. No code or
+fixture change is authorized until that proof is closed.
 
 Non-claims: no bridge/claim/publication implementation, route change, source
 fallback, raw retirement, canonical Script exit, Box/ABI change, mixed-cohort
@@ -872,7 +869,7 @@ descent. The target issuer already excludes non-Ordinary reserved decisions;
 P0 must close the remaining typeop and source-location premises on the actual
 selected-normal ingress before I0 may edit this seam.
 
-### `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` execution brief (current)
+### `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` execution brief (landed)
 
 Parent: `SCRIPT-DIRECT-STATIC-CALL-TARGET-D0`; accepted BoxCount boundary;
 source/admission implementation only.
@@ -914,6 +911,41 @@ Non-claims and stop:
   Box/ABI change, or performance claim. If supporting static source requires
   AST reconstruction, mixed-cohort widening, or growth of a file to 760/800,
   stop and split the owner before editing.
+
+### `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` execution brief (current design stop)
+
+Parent: `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0`; design/census only. The
+source-admission implementation is closed and the physical bridge remains
+unopened.
+
+Decision:
+  Prove that the real selected-normal ScriptRoot ingress preserves exact
+  `FinalSequence`/`RootReturn` source sites and ordered argument child sites,
+  and that the handoff domain cannot intersect typeop, reserved, `StaticThis`,
+  or other earlier route arms. Do not modify source admission, route selection,
+  lowering, or physical emission in this row.
+
+Source authority:
+  Existing source-bound Script semantic products, the installed selected-normal
+  ingress, and the existing `MemberCallRoutePlan::StaticReceiver` observation
+  are read-only witnesses. P0 must not mint a new `Verified*`/`Prepared*`
+  receipt, infer a site from AST names/ordinals, or repair a missing relation.
+
+Acceptance:
+  A real static direct call in FinalSequence and a direct root Return each show
+  one exact ScriptRoot/body or ReturnValue site before receiver/argument effects;
+  each argument site is ordered and cardinality-exact; callable-package and
+  direct Script ingress agree; absent rows remain ordinary-route observations;
+  typeop/reserved/StaticThis/non-static receivers are explicit non-intersections.
+  Missing/foreign/unlocated/site-drift inputs stop before effects and never
+  become `Absent`. Focused observation evidence is recorded in this card only.
+
+Stop:
+  If any site is reconstructed by name/ordinal, if a pre-descent route has
+  already emitted an effect, if source admission must change again, or if the
+  route domains overlap without an effect-free classifier, return to design
+  stop and open a separate bounded prerequisite. Do not start physical bridge
+  I0 from a local green test alone.
 
 ### `SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0` (blocked by source admission and pre-descent P0)
 
