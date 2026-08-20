@@ -1,5 +1,5 @@
 ---
-Status: accepted design stop — source requirement is carried, physical consumer is not issued
+Status: accepted design stop — source requirement is carried, no production physical consumer is issued
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-CONSUMER-D0
 Parent: docs/development/current/main/investigations/mirbuilder-compatibility-seam-final-ratchet-d0-2026-08-21.md
@@ -57,6 +57,7 @@ could act. `NoSafeSlice` is a development stop, not a source disposition.
 | `Unavailable` | result catalog disposition or missing target result | no bridge claim or child-side physical assertion | explicit unselected/compatibility terminal | no empty requirement set |
 | `Absent` (`NoCandidate`) | Script result bundle has no exact row at the site | no required-argument effect | existing no-row route | never fabricate a source row |
 | `SourceMismatch` | Bundle/Recipe/Join identity and ordinal validation | reject before physical claim/effects | typed freeze | no AST/name re-pairing |
+| `DetachedCandidateOnly` | `VerifiedScriptDirectStaticPhysicalInputV1::issue` plus the detached `direct_static_entry_kernel` test helper | no production effect; review evidence only | test-only terminal; never a production claim | cannot stand in for a required-ordinal consumer |
 | `ConsumerReady` | future source-bound argument representation owner | validate exact source ordinals before its physical effect | separate future I0 only | no current consumer is implied |
 
 Negative witnesses must map to exactly one row above. In particular,
@@ -91,6 +92,13 @@ The physical census found no production consumer of the carried field:
   Call, and publishes ExactI64. It does not validate required ordinals.
 - `calls/static_result_publication_physical_bridge.rs` destructures the
   required list as `_required_i64_arguments`; it is therefore not a consumer.
+- `VerifiedScriptDirectStaticPhysicalInputV1::issue` does co-seal the Join with
+  `VerifiedScriptDirectStaticScalarOperandRecipeV1`, and
+  `script_physical_exit/direct_static_entry_kernel.rs` can lower that input,
+  but the repository census finds no production caller for the kernel (only
+  its own focused unit test). The helper also never reads
+  `required_callee_i64_arguments`; its presence is therefore a candidate-only
+  physical path, not the missing required-ordinal consumer.
 - `ValueId`/`MirType` after argument descent are physical observations, not a
   source issuer for an argument representation contract.
 - `VerifiedCallableResultActivationSourceSiteV1` and the older activation
@@ -121,11 +129,21 @@ This row remains a design stop when any of the following is true:
    Compatibility/Deferred/RawLegacy, or change ABI/Call representation.
 7. Any implementation would grow a 760-line owner toward the 800-line hard
    stop rather than split by responsibility.
+8. The only apparent physical-input/kernel path is test-only or drops the
+   required ordinal set; it cannot be promoted by wiring a caller or by
+   treating scalar operand lowering as proof of the callee contract.
 
 The next implementation card, if ever opened, must name the exact source
 argument representation owner, the physical consumer, its finite state table,
 and the old non-consuming edge it retires. Until then this card is accepted
 as `NoSafeSlice`, not as a hidden requirement to add a default check.
+
+The existing scalar operand Recipe is a useful candidate input for that future
+row, but it only proves an AST-free integer expression tree at each argument
+site. A future consumer must still co-seal the required ordinal set with those
+argument trees and validate that every required ordinal selects an exact
+integer representation before the physical Call. Operand-tree lowering alone
+is not that proof.
 
 ## Review receipt
 
@@ -133,6 +151,8 @@ as `NoSafeSlice`, not as a hidden requirement to add a default check.
   identity-mismatch outcomes;
 - source and caller-required ordinal authorities are explicitly distinct;
 - `rg` census shows no current physical consumer of the carried field;
+- the existing physical-input/detached-kernel pair is explicitly classified
+  as `DetachedCandidateOnly`, not production evidence;
 - no compiler, fixture, semantic receipt, fallback, or production route was
   changed by this D0;
 - the reusable classification-completeness guard is the focused review gate;
