@@ -9,6 +9,7 @@ use super::extern_calls::EnvMethodSpec;
 use super::method_call_descent::{
     lower_method_call_receiver_v1, AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1,
 };
+use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
 use super::receiver_binding::ReceiverNormalizationPlan;
 use crate::ast::ASTNode;
 
@@ -51,6 +52,47 @@ impl MirBuilder {
         };
 
         self.execute_prepared_member_call_route_v1(port, input, route_plan)
+    }
+
+    pub(in crate::mir::builder) fn build_member_method_call_with_claim_ingress_v1<Port>(
+        &mut self,
+        port: &mut Port,
+        input: &Port::MethodCallInput,
+    ) -> Result<ValueId, String>
+    where
+        Port: MethodCallLoweringPortV1 + RecursiveChildLoweringPortV1,
+    {
+        let route_plan = {
+            let syntax = port.method_call_syntax(input)?;
+            self.plan_member_call_route(syntax.receiver(), syntax.method())?
+        };
+
+        match route_plan {
+            MemberCallRoutePlan::StaticReceiver { box_name } => {
+                let (method, arguments, argument_count) = {
+                    let syntax = port.method_call_syntax(input)?;
+                    (
+                        syntax.method().to_owned(),
+                        syntax.arguments(),
+                        syntax.arguments().len(),
+                    )
+                };
+                let _ = RecursiveChildLoweringPortV1::script_direct_static_claim_ingress_v1(
+                    port,
+                    &box_name,
+                    &method,
+                    argument_count,
+                )?;
+                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
+                self.handle_static_method_call_with_descent(
+                    &box_name,
+                    &method,
+                    arguments,
+                    &mut descent,
+                )
+            }
+            route_plan => self.execute_prepared_member_call_route_v1(port, input, route_plan),
+        }
     }
 
     /// Executes exactly one existing member-route plan without re-planning.

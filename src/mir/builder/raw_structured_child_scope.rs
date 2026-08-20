@@ -18,6 +18,7 @@ use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
     RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
 };
+use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum PreparedRawChildSourceV1 {
@@ -151,6 +152,16 @@ where
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
+
+    fn script_direct_static_claim_ingress_v1(
+        &mut self,
+        box_name: &str,
+        method: &str,
+        argument_count: usize,
+    ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
+        self.child
+            .script_direct_static_claim_ingress_v1(box_name, method, argument_count)
+    }
 
     fn try_emit_source_bound_static_call_result_v1(
         &mut self,

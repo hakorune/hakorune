@@ -36,6 +36,12 @@ JOIN_HANDOFF_TESTS=src/mir/builder/normal_script_direct_static_join_handoff_test
 LOWERING_STATE=src/mir/builder/normal_script_semantic_lowering_state.rs
 CLAIM_LEDGER=src/mir/builder/normal_script_direct_static_claim_ledger.rs
 CLAIM_LEDGER_TESTS=src/mir/builder/normal_script_direct_static_claim_ledger_tests.rs
+CLAIM_PORT=src/mir/builder/recursive_child_lowering_port.rs
+CLAIM_PORT_TESTS=src/mir/builder/recursive_child_lowering_port_tests.rs
+MEMBER_ROUTE=src/mir/builder/calls/member_route.rs
+RAW_DISPATCH=src/mir/builder/raw_expression_dispatch/mod.rs
+RAW_STRUCTURED=src/mir/builder/raw_structured_child_scope.rs
+RAW_INVOCATION=src/mir/builder/raw_invocation_source_transport.rs
 ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
 BUILDER_README=src/mir/builder/README.md
 CARD=docs/development/current/main/investigations/script-direct-static-call-target-d0.md
@@ -95,6 +101,14 @@ require_text "$CLAIM_LEDGER" "PendingRows"
 require_text "$CLAIM_LEDGER_TESTS" "complete_pair_is_claimed_once_and_finishes_exhausted"
 require_text "$CLAIM_LEDGER_TESTS" "partial_source_products_are_rejected_before_claiming"
 require_text "$CLAIM_LEDGER_TESTS" "finish_rejects_unclaimed_rows_without_mutating_the_source_products"
+require_text "$CLAIM_PORT" "script_direct_static_claim_ingress_v1"
+require_text "$CLAIM_PORT" "ScriptDirectStaticClaimIngressV1::Unavailable"
+require_text "$CLAIM_PORT_TESTS" "default_claim_ingress_is_non_consuming_and_unavailable"
+require_text "$MEMBER_ROUTE" "build_member_method_call_with_claim_ingress_v1"
+require_text "$MEMBER_ROUTE" "RecursiveChildLoweringPortV1::script_direct_static_claim_ingress_v1"
+require_text "$RAW_DISPATCH" "build_method_call_from_input_with_claim_ingress_v1"
+require_text "$RAW_STRUCTURED" "script_direct_static_claim_ingress_v1"
+require_text "$RAW_INVOCATION" "script-direct-static/claim-ingress-source-context"
 require_text "$ROOT_TRAVERSAL" "record_statement_shape"
 require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
 require_text "$BUILDER_README" "source/Facts-only"
@@ -109,13 +123,18 @@ require_text "$SOURCE_TESTS" "exact_static_callable_set_survives_one_transform"
 require_text "$SOURCE_TESTS" "ordinary_constructor_source_catalog_survives_normal_source_transform"
 require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_initial_source_lane"
 
-for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$MEMBER_ROUTE" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
     exit 1
   fi
 done
+
+if rg -n "MirInstruction|MirType|ScriptPhysicalExit|finish_direct_static_claims|raw_root_body_recipe" "$CLAIM_PORT"; then
+  echo "[script-direct-static-target] claim port crossed the physical/finish boundary" >&2
+  exit 1
+fi
 
 TOKEN_HEADER="$(rg -B 2 -n "struct ScriptDirectStaticClaimedRowV1" "$CLAIM_LEDGER" || true)"
 if printf '%s\n' "$TOKEN_HEADER" | rg -n "Clone"; then

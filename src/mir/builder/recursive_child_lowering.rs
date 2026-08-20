@@ -3,7 +3,6 @@
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
-use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
 use crate::mir::{MirBuilder, ValueId};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -33,6 +32,10 @@ use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
+pub(in crate::mir::builder) use super::recursive_child_lowering_port::{
+    RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
+
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
     function_name: &str,
     params: Vec<String>,
@@ -44,95 +47,6 @@ pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
     )
 }
 
-pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
-    type BodyInput;
-    type StatementInput;
-    type ExpressionInput;
-
-    fn lower_body(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::BodyInput,
-    ) -> Result<ValueId, String>;
-
-    fn lower_statement(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::StatementInput,
-    ) -> Result<ValueId, String>;
-
-    fn lower_expression(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::ExpressionInput,
-    ) -> Result<ValueId, String>;
-
-    /// Optional source-bound static-call terminal.  The default keeps all
-    /// compatibility/test ports on the ordinary terminal; the live raw
-    /// invocation overrides this only after exact source identity and target
-    /// proof have been sealed.
-    fn try_emit_source_bound_static_call_result_v1(
-        &mut self,
-        _builder: &mut MirBuilder,
-        _owner: &str,
-        _method: &str,
-        _checked_source_arity: u32,
-        _arguments: &[ValueId],
-    ) -> Result<Option<ValueId>, String> {
-        Ok(None)
-    }
-
-    /// Isolated test-only ports deny cleanup exits unless they explicitly
-    /// provide an operation policy. Production ports must override this.
-    fn cleanup_exit_policy_v1(&self) -> CleanupExitPolicyV1 {
-        CleanupExitPolicyV1::default()
-    }
-
-    fn prepare_expression_child_source_v1(
-        &self,
-        _parent: &ASTNode,
-        _role: ExprChildRoleV1,
-    ) -> Result<PreparedRawChildSourceV1, String> {
-        Ok(PreparedRawChildSourceV1::Preserve)
-    }
-    fn prepare_body_child_source_v1(
-        &self,
-        _parent: &ASTNode,
-        _role: BodyChildRoleV1,
-    ) -> Result<PreparedRawChildSourceV1, String> {
-        Ok(PreparedRawChildSourceV1::Preserve)
-    }
-    fn prepare_body_statement_source_v1(
-        &self,
-        _statement: &ASTNode,
-        _index: usize,
-    ) -> Result<PreparedRawChildSourceV1, String> {
-        Ok(PreparedRawChildSourceV1::Preserve)
-    }
-    fn with_prepared_child_source_v1<R>(
-        &mut self,
-        _source: PreparedRawChildSourceV1,
-        execute: impl FnOnce(&mut Self) -> R,
-    ) -> R {
-        execute(self)
-    }
-
-    fn with_call_argument_source_v1<R>(
-        &mut self,
-        _index: usize,
-        execute: impl FnOnce(&mut Self) -> R,
-    ) -> R {
-        execute(self)
-    }
-}
-pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
-    RecursiveChildLoweringPortV1<
-    BodyInput = Vec<ASTNode>,
-    StatementInput = ASTNode,
-    ExpressionInput = ASTNode,
->
-{
-}
 pub(in crate::mir::builder) trait RawFunctionHeaderLookupPortV1 {
     fn with_function_headers<R>(
         &mut self,

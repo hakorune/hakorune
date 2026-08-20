@@ -250,7 +250,7 @@ impl super::MirBuilder {
                     m.arguments,
                     receiver_source,
                 );
-                self.build_method_call_from_input_v1(port, &input)
+                self.build_method_call_from_input_with_claim_ingress_v1(port, &input)
             }
 
             node @ ASTNode::FromCall { .. } => {

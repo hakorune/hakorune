@@ -6,8 +6,9 @@ stop `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` closed as `NoSafeSlice` on the
 typeop overlap; `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` then closed the
 shared predicate with focused tests and a green reusable guard. Four read-only
 audits closed the physical-bridge D0 boundary, and the claim-lifecycle P0
-design is now closed. Its operational claim carrier I0 is closed; the next
-frontier is the physical-bridge D0 design stop. Physical Call/publication,
+design plus carrier I0 are closed. The structural ingress P0 is also closed:
+the recursive child trait now lives in a focused child without growing the
+794-line owner. The current frontier is the selected-normal physical-bridge D0;
 canonical transport, fallback, raw retirement, and production switch remain
 closed.
 Parent: `brand-instance-constructor-source-relation-d0.md`
@@ -34,10 +35,11 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current six-line brief
 
-Decision: close `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-I0`. The source shape and
-semantic Facts remain unchanged; this execution-local BoxShape gives the
-existing Bundle/Join rows one one-shot carrier without emitting physical Call
-MIR. Open the physical-bridge D0 design stop next.
+Decision: keep `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` at design stop.
+The source shape, semantic Facts, and landed claim carrier remain unchanged;
+the next physical consumer must prove a selected-normal ScriptRoot capability
+take, success-only candidate discard, and one existing generic Call receipt
+before any ExactI64 publication.
 
 Source authority + canonical issuer: `VerifiedScriptDirectStaticResultBundleV1`
 issues site membership and `VerifiedScriptDirectStaticJoinHandoffV1` issues the
@@ -48,26 +50,43 @@ Non-authority: immutable getters, AST/name/ordinal, Join miss interpreted as
 Absent, callable-key conversion, `ValueId`/`MirType`, generic Call receipt,
 `ScriptPhysicalExitCommitV1`, compatibility/deferred lowering, and fallback.
 
-Fail-fast boundary: Bundle miss returns an unchanged `Absent`; Bundle hit must
-find the same-site Join row or return `Err`. `Claimed` moves a non-Clone token
-before receiver/argument descent. In-flight or completed sites return
-`DuplicateClaim`, never `Absent`. The operational `finish` consumes the scope
-and requires zero pending and zero in-flight rows; the future physical bridge,
-not this carrier-only row, owns calling it around a real candidate. No current
-I0 path fabricates a consumer merely to force exhaustion; post-claim failure
-remains discard-only, with no rollback/retry/ordinary escape.
+Fail-fast boundary: claim ingress must stay before receiver/argument descent;
+selected rows may only finish as completed or candidate-discarded error, never
+fallback/retry. The carrier's Bundle/Join miss, duplicate-site, and pending
+finish rules remain authoritative; physical finish is unopened until D0 is
+accepted.
 
 Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` — design
-the selected-normal StaticReceiver capability and success-only scope finish
-before any physical consumer code. The carrier is seeded, rejects partial
-Bundle/Join products, tombstones completed sites, and exposes only read-only
-consumer views. Keep physical Call, ExactI64 publication, Return/signature,
-and canonical transport closed until that D0 is accepted.
+the capability take, isolated candidate/discard boundary, existing generic
+Call receipt handoff, and Script ExactI64 publication sibling. Keep canonical
+transport, compatibility/deferred/raw fallback, raw retirement, production
+switch, and performance closed until that contract is accepted.
 
-Non-claims: no new semantic `Verified*` receipt, parser/source admission,
-Recipe/Join redesign, physical bridge, callable owner extension, Box/ABI
-change, raw retirement, production switch, performance measurement, or
-C-parity result.
+Non-claims: no source admission, new semantic `Verified*` receipt, Recipe/Join
+redesign, physical Call/publication implementation, callable owner extension,
+Return/signature writer, canonical transport, compatibility/deferred/raw
+consumer, Box/ABI change, raw retirement, production switch, performance
+measurement, or C-parity result.
+
+## CLAIM-INGRESS-P0 closeout receipt
+
+- `recursive_child_lowering.rs` stayed implementation-only and shrank from 794
+  to 708 lines; `recursive_child_lowering_port.rs` owns the focused contract
+  and default hook at 123 lines.
+- `RawInvocationChildPortV1` reports `Available` only for an active
+  ScriptRoot semantic scope; `RawStructuredChildScopePortV1` delegates the
+  same hook, and legacy/test ports remain `Unavailable` without consumption.
+- `StaticReceiver` calls the hook after typeop/reserved route selection and
+  before receiver/argument descent; the existing route and MIR output remain
+  unchanged for both `Absent` and `Available` probes.
+- Focused gate: `cargo test --profile quick -p nyash-rust --lib
+  recursive_child_lowering_port -- --test-threads=1` — 2 passed, 0
+  failed. Reusable `script_direct_static_target_guard.sh` — OK; pointer guard
+  — OK; `cargo check --profile quick -p nyash-rust --lib` — OK with existing
+  warning baseline.
+- No physical Call/publication, source admission, canonical transport,
+  fallback/retry, raw retirement, production switch, or performance evidence
+  was added. The next explicit row is a new physical-bridge D0 design stop.
 
 ## Historical target-I0 contract
 

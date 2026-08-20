@@ -374,7 +374,10 @@ mod raw_invocation_source_transport;
 mod raw_static_result_publication;
 mod raw_structured_child_scope;
 mod record_literal_source_demand;
+mod recursive_child_lowering_port;
 mod recursive_child_lowering;
+#[cfg(test)]
+mod recursive_child_lowering_port_tests;
 #[cfg(test)]
 mod recursive_child_lowering_rawport_header_tests;
 #[cfg(test)]

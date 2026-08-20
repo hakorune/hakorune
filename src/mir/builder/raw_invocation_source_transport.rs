@@ -31,6 +31,7 @@ use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
     RecursiveChildLoweringPortV1,
 };
+use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -465,6 +466,30 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type BodyInput = Vec<ASTNode>;
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
+
+    fn script_direct_static_claim_ingress_v1(
+        &mut self,
+        _box_name: &str,
+        _method: &str,
+        _argument_count: usize,
+    ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
+        if self.semantic_ledger.is_none() {
+            return Ok(ScriptDirectStaticClaimIngressV1::Unavailable);
+        }
+        let Some(context) = self.current_source_context_v1() else {
+            return Err(
+                "[freeze:contract][script-direct-static/claim-ingress-source-context]"
+                    .to_owned(),
+            );
+        };
+        match context {
+            RawInvocationSourceContextV1::Located {
+                root: RawInvocationRootLineageV1::ScriptRoot,
+                ..
+            } => Ok(ScriptDirectStaticClaimIngressV1::Available),
+            _ => Ok(ScriptDirectStaticClaimIngressV1::Unavailable),
+        }
+    }
 
     fn try_emit_source_bound_static_call_result_v1(
         &mut self,

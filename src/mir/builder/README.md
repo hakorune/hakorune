@@ -604,6 +604,19 @@ transport, performance evidence, or production switch. The focused ledger
 tests and `script_direct_static_target_guard.sh` enforce the operational-only
 boundary and the 760-line split trigger.
 
+## Script direct-static claim ingress P0
+
+`recursive_child_lowering_port.rs` now owns the small recursive-child contract
+and its default, non-consuming `script_direct_static_claim_ingress_v1` hook;
+the former 794-line lowering owner is now a 708-line implementation-only
+module. The raw
+invocation overrides the hook only for an active ScriptRoot semantic scope,
+while `RawStructuredChildScopePortV1` delegates to its child and legacy/test
+ports retain `Unavailable`. `StaticReceiver` probes this capability after
+route selection and before receiver/argument descent, then continues through
+the existing route unchanged. This BoxShape P0 emits no Call, publication,
+Return/signature, fallback, retry, canonical transport, or production claim.
+
 ## Loop PHI observer boundary (M6-B)
 
 `LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical
