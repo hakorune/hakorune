@@ -23,7 +23,7 @@ mod callable_contract_syntax;
 mod callable_gate_projection;
 #[cfg(test)]
 mod callable_gate_projection_tests;
-mod callable_parameter_source;
+pub(crate) mod callable_parameter_source;
 mod callable_source_anchor;
 pub(crate) use callable_source_anchor::CallableDeclarationIdentityV1;
 pub(crate) use initial_callable_program_source::InitialCallableFinalSlotV1;

@@ -139,6 +139,7 @@ fn ast_only_source_plan_request_has_no_canonical_lineage_authority() {
     .expect("AST-only fixture parse");
     let request = PreparedNormalFileSourcePlanRequestV1 {
         input: PreparedNormalSourcePlanInputV1::new(ast, "ast-only-fixture"),
+        script_input: CanonicalScriptSourceInputDispositionV1::SourceAuthorityUnavailable,
         profile: SealedNormalEntryProfileV1::file_no_import_vm_reference(),
         receipt: NormalFileSourceReceiptV1 {
             source_identity: "ast-only-fixture".into(),
@@ -655,4 +656,45 @@ fn parse_and_using_rejections_never_issue_source_plan_requests() {
         using_rejected.stage(),
         super::super::NormalFileSourceStageV1::SourceProfile
     );
+}
+
+#[test]
+fn canonical_pure_script_retains_one_ast_free_source_input_handoff() {
+    let dir = tempdir().expect("tempdir");
+    let classified = canonical_core_request(write_source(dir.path(), "pure.hako", "42\n"))
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read")
+        .parse_once()
+        .expect("one canonical parse")
+        .prepare_source_plan_request()
+        .classify()
+        .expect("pure Script source plan");
+    let super::CanonicalScriptSourceInputDispositionV1::HandoffReady(handoff) =
+        classified.script_input()
+    else {
+        panic!("canonical pure Script must retain a ready input handoff");
+    };
+    assert_eq!(handoff.rows().statement_count(), 1);
+    assert_eq!(handoff.rows().body_rows().len(), 1);
+    assert_eq!(handoff.receipt_counts(), (1, 1));
+    assert_eq!(handoff.utf8_len(), 3);
+}
+
+#[test]
+fn compatibility_script_input_is_typed_and_never_empty_ready() {
+    let dir = tempdir().expect("tempdir");
+    let request = canonical_core_request(write_source(dir.path(), "boxed.hako", "box Plain {}\n"))
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read")
+        .parse_once()
+        .expect("one canonical parse")
+        .prepare_source_plan_request();
+    assert!(matches!(
+        request.script_input,
+        super::CanonicalScriptSourceInputDispositionV1::CompatibilitySource
+    ));
 }

@@ -4,6 +4,7 @@
 //! classifier. It retains the sealed entry profile and read/parse receipt,
 //! but does not inspect the profile or connect a compiler/runtime route.
 
+use super::script_source_input::CanonicalScriptSourceInputDispositionV1;
 use super::{
     NormalFileSourceReceiptV1, PreparedNormalFileSourceSealV1, PreparedNormalFileSourceV1,
     SealedNormalEntryProfileV1,
@@ -22,6 +23,7 @@ use hakorune_frontend_parser::parser::GrammarProfile;
 #[derive(Debug)]
 pub(crate) struct PreparedNormalFileSourcePlanRequestV1 {
     input: PreparedNormalSourcePlanInputV1,
+    script_input: CanonicalScriptSourceInputDispositionV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
     _seal: PreparedNormalFileSourcePlanRequestSealV1,
@@ -33,6 +35,7 @@ struct PreparedNormalFileSourcePlanRequestSealV1;
 #[derive(Debug)]
 pub(crate) struct ClassifiedNormalFileSourcePlanV1 {
     plan: SealedNormalSourcePlanV1,
+    script_input: CanonicalScriptSourceInputDispositionV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
     _seal: ClassifiedNormalFileSourcePlanSealV1,
@@ -44,6 +47,7 @@ struct ClassifiedNormalFileSourcePlanSealV1;
 #[derive(Debug)]
 pub(crate) struct RejectedNormalFileSourcePlanningV1 {
     rejected: RejectedNormalSourcePlanV1,
+    script_input: CanonicalScriptSourceInputDispositionV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
 }
@@ -70,12 +74,13 @@ impl PreparedNormalFileSourceV1 {
             _seal: PreparedNormalFileSourceSealV1,
         } = self;
         let display_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
-        let (callable_source, profile, receipt) = parser_source_handoff.into_parts();
+        let (callable_source, script_input, profile, receipt) = parser_source_handoff.into_parts();
         PreparedNormalFileSourcePlanRequestV1 {
             input: PreparedNormalSourcePlanInputV1::from_parser_callable_source(
                 callable_source,
                 display_identity,
             ),
+            script_input,
             profile,
             receipt,
             _seal: PreparedNormalFileSourcePlanRequestSealV1,
@@ -89,6 +94,7 @@ impl PreparedNormalFileSourcePlanRequestV1 {
     ) -> Result<ClassifiedNormalFileSourcePlanV1, RejectedNormalFileSourcePlanningV1> {
         let Self {
             input,
+            script_input,
             profile,
             receipt,
             _seal: _,
@@ -96,6 +102,7 @@ impl PreparedNormalFileSourcePlanRequestV1 {
         if let Err(error) = validate_parser_identity(&input, &receipt) {
             return Err(RejectedNormalFileSourcePlanningV1 {
                 rejected: RejectedNormalSourcePlanV1::new(input, error),
+                script_input,
                 profile,
                 receipt,
             });
@@ -103,12 +110,14 @@ impl PreparedNormalFileSourcePlanRequestV1 {
         match NormalSourcePlanClassifierV1::seal(input) {
             Ok(plan) => Ok(ClassifiedNormalFileSourcePlanV1 {
                 plan,
+                script_input,
                 profile,
                 receipt,
                 _seal: ClassifiedNormalFileSourcePlanSealV1,
             }),
             Err(rejected) => Err(RejectedNormalFileSourcePlanningV1 {
                 rejected,
+                script_input,
                 profile,
                 receipt,
             }),
@@ -169,6 +178,10 @@ impl ClassifiedNormalFileSourcePlanV1 {
         &self.plan
     }
 
+    pub(crate) fn script_input(&self) -> &CanonicalScriptSourceInputDispositionV1 {
+        &self.script_input
+    }
+
     /// Move a canonical-core classified plan into the compiler without
     /// inspecting whether it is Script, Main, or a callable module.
     pub(crate) fn into_canonical_core_compile_request(
@@ -183,10 +196,15 @@ impl ClassifiedNormalFileSourcePlanV1 {
         }
         let Self {
             plan,
+            script_input,
             profile: _,
             receipt,
             _seal: _,
         } = self;
+        // This pre-existing compiler request is intentionally not an A
+        // consumer.  Dispose of the parser-only transport at this named
+        // boundary rather than silently treating it as a ready semantic row.
+        script_input.discard_before_a_consumer();
         let receipt = NormalSourcePlanReceiptV1::one_read_one_parse(
             receipt.source_identity,
             receipt.source_digest,
@@ -249,6 +267,7 @@ impl RejectedNormalFileSourcePlanningV1 {
     pub(crate) fn discard(self) {
         let Self {
             rejected,
+            script_input: _,
             profile: _,
             receipt: _,
         } = self;

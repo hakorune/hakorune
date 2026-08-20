@@ -13,6 +13,7 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
 mod parser_source_handoff;
+mod script_source_input;
 mod source_plan_input;
 
 pub(crate) use parser_source_handoff::CanonicalParserSourceHandoffV1;
@@ -313,31 +314,32 @@ impl LoadedNormalFileSourceV1 {
             _seal: _,
         } = self;
         receipt.parse_count = 1;
-        let product = match crate::parser::string_postpass_entry::parse_with_callable_parameter_source(
-            source_text.as_ref().to_owned(),
-            Some(100_000),
-            ParserBuildConfig {
-                grammar_profile: GrammarProfile::Canonical,
-                ..Default::default()
-            },
-        ) {
-            Ok(product) => product,
-            Err(error) => {
-                return Err(RejectedNormalFileSourceV1::Parse {
-                    loaded: LoadedNormalFileSourceV1 {
-                        source_file,
-                        source_text,
-                        profile,
-                        receipt,
-                        _seal: LoadedNormalFileSourceSealV1,
-                    },
-                    error: NormalFileParseErrorV1 {
-                        detail: format!("{error:?}").into_boxed_str(),
-                    },
-                });
-            }
-        };
-        let disposition = product.into_source_disposition();
+        let product =
+            match crate::parser::string_postpass_entry::parse_with_callable_parameter_source(
+                source_text.as_ref().to_owned(),
+                Some(100_000),
+                ParserBuildConfig {
+                    grammar_profile: GrammarProfile::Canonical,
+                    ..Default::default()
+                },
+            ) {
+                Ok(product) => product,
+                Err(error) => {
+                    return Err(RejectedNormalFileSourceV1::Parse {
+                        loaded: LoadedNormalFileSourceV1 {
+                            source_file,
+                            source_text,
+                            profile,
+                            receipt,
+                            _seal: LoadedNormalFileSourceSealV1,
+                        },
+                        error: NormalFileParseErrorV1 {
+                            detail: format!("{error:?}").into_boxed_str(),
+                        },
+                    });
+                }
+            };
+        let (disposition, script_rows) = product.into_source_disposition_with_script_rows();
         if let Some(error) = find_no_import_violation(disposition.ast()) {
             return Err(RejectedNormalFileSourceV1::SourceProfile {
                 loaded: LoadedNormalFileSourceV1 {
@@ -354,6 +356,7 @@ impl LoadedNormalFileSourceV1 {
             source_file,
             parser_source_handoff: CanonicalParserSourceHandoffV1::new(
                 disposition,
+                script_rows,
                 profile,
                 receipt,
             ),
@@ -381,7 +384,7 @@ impl PreparedNormalFileSourceV1 {
                 error: NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference,
             });
         }
-        let (callable_source, profile, receipt) = parser_source_handoff.into_parts();
+        let (callable_source, _script_input, profile, receipt) = parser_source_handoff.into_parts();
         match profile.into_raw_downstream() {
             Ok(downstream) => {
                 let source_identity = source_file.to_string_lossy().into_owned().into_boxed_str();

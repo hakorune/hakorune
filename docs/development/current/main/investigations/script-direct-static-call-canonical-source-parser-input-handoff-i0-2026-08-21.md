@@ -1,5 +1,5 @@
 ---
-Status: Active implementation
+Status: Closed — implementation complete
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-PARSER-INPUT-HANDOFF-I0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-parser-input-handoff-d0-2026-08-21.md
@@ -105,6 +105,24 @@ their semantic meaning remains with A.
 
 ## Exhaustive phase/state table
 
+The parser-row table below is downstream of a separate admission table.  These
+upstream states are listed here so `CanonicalScriptCohortAdmitted` is never
+read as `HandoffReady`, and so a future C/B transport state is not renamed into
+the parser consumer state.
+
+| upstream state | issuer / authority | pre-effect behavior | terminal / continuation | fallback |
+|---|---|---|---|---|
+| `CanonicalScriptCohortAdmitted` | same-invocation parser cohort admission | permit row observation only after identity co-seal | parser rows issuer | never enter from `NoBoxDeclarations` alone |
+| `CohortUnresolved` | parser exhaustive shape table | stop before identity/rows | `NoSafeSlice` or named compatibility owner | never become empty/ready |
+| `CompatibilitySource` | parser/postpass compatibility disposition | preserve origin; no canonical rows | compatibility owner or park | never promote by success |
+| `Deferred` | upstream admission | preserve reason; no partial rows | deferred owner or `NoSafeSlice` | no empty/raw fallback |
+| `SourceAuthorityUnavailable` | parser brand/parameter source/identity preflight | stop before row issuance | `NoSafeSlice` | no AST or Builder repair |
+| `DispositionTransported` | future C/B transport owner | no source re-observation | detached consumer terminal | never reuse as parser/A state |
+
+Only `CanonicalScriptCohortAdmitted` may feed the parser-row issuer.  The
+remaining upstream states are preserved or stopped; none is a synonym for an
+empty Script window.
+
 | state | issuer / authority | pre-effect behavior | terminal / continuation | fallback |
 |---|---|---|---|---|
 | `NotApplicable` | parser/frontdoor proves non-Script root | no rows or carrier | caller-owned lane | never fabricate empty Script |
@@ -116,15 +134,24 @@ their semantic meaning remains with A.
 | `IntegrityInvalid` | duplicate, gap, foreign brand, stale selector, cohort drift, or receipt mismatch | reject before carrier publication | discard terminal | no repair/retry/fallback |
 | `HandoffReady` | parser rows issuer + frontdoor co-seal | publish one non-Clone carrier | one named A consumer takes it once | no clone/reparse/re-pair |
 | `HandoffConsumed` | named A consumer takes `HandoffReady` | no parser replay | A observation owns next state | no return to parser/raw |
+| `DispositionTransported` | future C/B transport owner | no source re-observation | detached consumer terminal | never reuse as parser/A state |
 | `AInputAuthorityReady` | future A issuer verifies consumed input | not emitted by this I0 | A may issue semantic rows | parser never fabricates it |
 | `DirectStaticSourceReady` | future A issuer completes target/result/proof/terminal | not emitted by this I0 | named C/B consumer | no AST re-resolution |
 | `NonCandidate` | future A complete observation finds zero candidates | not emitted by this I0 | canonical non-direct-static owner | missing rows are not this state |
 
+`DispositionTransported` in the downstream table is a preserved future C/B
+state, not a parser issuer or an alias for `HandoffConsumed`.
 `AInputAuthorityReady`, `DirectStaticSourceReady`, and `NonCandidate` are
 listed so the parser carrier cannot accidentally claim A meaning. They are
 future states with named owners, not enum defaults in this I0. `HandoffReady`
 is the only public product emitted here; `HandoffConsumed` is a linear
 consumer transition and cannot be reissued.
+
+The row model is split from the issuer so the finite AST-shape match remains
+explicit while both source owners stay below their responsibility boundary.
+The issuer has no wildcard arm and the carrier has no `Option::None`,
+`unwrap_or(default)`, or compatibility fallback that could merge a missing
+state with a valid empty Script.
 
 ## Exact implementation split and line budget
 
@@ -132,6 +159,7 @@ New owners:
 
 ```text
 src/parser/callable_parameter_source/script_source_rows.rs       < 350 lines
+src/parser/callable_parameter_source/script_source_rows_model.rs < 760 lines
 src/runner/reference/normal_file_vm_frontdoor/script_source_input.rs < 220 lines
 focused tests / guard                                             separate files
 ```
@@ -213,3 +241,20 @@ new design stop, not an adapter or a guessed default.
 
 No A issuer, direct-static candidate, Recipe/Join, physical Call, production
 switch, raw retirement, or performance claim is opened by this card.
+
+## Closeout receipt
+
+- parser rows issuer and model are split below the card budgets; the AST match
+  is exhaustive and does not use a wildcard/default routing arm;
+- frontdoor co-seals one parser-branded, AST-free input with canonical profile,
+  source identity/digest, UTF-8 length, and one-read/one-parse receipt;
+- compatibility, deferred, unresolved, missing-authority, incomplete,
+  integrity-invalid, noncandidate, handoff-consumed, and future C/B transport
+  states remain distinct; the legacy compiler request has an explicit
+  `discard_before_a_consumer` terminal because no A consumer is open;
+- focused evidence: `cargo test -q
+  parser::callable_parameter_source::script_source_rows --lib`, `cargo test -q
+  source_plan_input --lib`, `cargo check -q`, routing completeness guard,
+  parser handoff guard, pointer guard, and `git diff --check` all pass;
+- no A/Recipe/Join/physical/production caller was connected. The next row is
+  the separately named Source-only A design stop.

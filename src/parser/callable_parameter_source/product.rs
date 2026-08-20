@@ -5,6 +5,9 @@ use super::catalog::{
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
 };
 use super::retained::RetainedParserCallableSemanticSourceV1;
+use super::script_source_rows::{
+    issue_canonical_script_source_rows, CanonicalScriptSourceRowsDispositionV1,
+};
 use super::syntax_loan::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableSyntaxLoanErrorV1,
@@ -33,6 +36,7 @@ pub(crate) struct ParsedProgramWithCallableParameterSourceV1 {
     completed: CompletedParserPostpassV1,
     parameter_source: ParserCallableParameterSourceDispositionV1,
     canonical_script_admission: CanonicalScriptCohortDispositionV1,
+    canonical_script_source_rows: CanonicalScriptSourceRowsDispositionV1,
 }
 
 impl NyashParser {
@@ -55,10 +59,19 @@ impl ParsedProgramWithCallableParameterSourceV1 {
     ) -> Self {
         let canonical_script_admission =
             issue_canonical_script_cohort(&completed, &parameter_source);
+        let canonical_script_source_rows = match &parameter_source {
+            ParserCallableParameterSourceDispositionV1::Complete(catalog) => {
+                issue_canonical_script_source_rows(&completed, catalog, &canonical_script_admission)
+            }
+            ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported => {
+                CanonicalScriptSourceRowsDispositionV1::AdmissionMissing
+            }
+        };
         Self {
             completed,
             parameter_source,
             canonical_script_admission,
+            canonical_script_source_rows,
         }
     }
 
@@ -88,19 +101,51 @@ impl ParsedProgramWithCallableParameterSourceV1 {
     /// source-backed consumers. The catalog is dropped only on the explicit
     /// compatibility branch; it is never projected as an empty source fact.
     pub(crate) fn into_source_disposition(self) -> ParserCallableSourceDispositionV1 {
+        self.into_source_disposition_with_script_rows().0
+    }
+
+    /// Move the callable disposition and the same-invocation Script rows
+    /// together.  The front door uses this pair to prevent a second parser
+    /// scan or cross-invocation re-pairing.
+    pub(crate) fn into_source_disposition_with_script_rows(
+        self,
+    ) -> (
+        ParserCallableSourceDispositionV1,
+        CanonicalScriptSourceRowsDispositionV1,
+    ) {
+        let Self {
+            completed,
+            parameter_source,
+            canonical_script_admission,
+            canonical_script_source_rows,
+        } = self;
         // Preserve the pre-existing source-backed disposition for the
         // already-sealed callable cohort.  The old boolean is deliberately
         // not consulted by the admission issuer above; it is only a
         // compatibility-preserving projection here.
-        let is_canonical_source = self.completed.is_source_backed()
+        let is_canonical_source = completed.is_source_backed()
             || matches!(
-                self.canonical_script_admission,
+                &canonical_script_admission,
                 CanonicalScriptCohortDispositionV1::CanonicalScriptCohortAdmitted(_)
             );
         if is_canonical_source {
-            ParserCallableSourceDispositionV1::SourceBacked(self)
+            (
+                ParserCallableSourceDispositionV1::SourceBacked(
+                    ParsedProgramWithCallableParameterSourceV1 {
+                        completed,
+                        parameter_source,
+                        canonical_script_admission,
+                        canonical_script_source_rows:
+                            CanonicalScriptSourceRowsDispositionV1::HandoffConsumed,
+                    },
+                ),
+                canonical_script_source_rows,
+            )
         } else {
-            ParserCallableSourceDispositionV1::Compatibility(self.completed)
+            (
+                ParserCallableSourceDispositionV1::Compatibility(completed),
+                canonical_script_source_rows,
+            )
         }
     }
 
@@ -127,6 +172,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             completed,
             parameter_source,
             canonical_script_admission: _,
+            canonical_script_source_rows: _,
         } = self;
         let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source else {
             return Err(ParserCallableSyntaxLoanErrorV1::ParameterSourceUnavailable);
@@ -171,6 +217,7 @@ impl ParserCallableSourceDispositionV1 {
                     completed,
                     parameter_source,
                     canonical_script_admission: _,
+                    canonical_script_source_rows: _,
                 } = product;
                 completed.into_normal_callable_program(parameter_source)
             }

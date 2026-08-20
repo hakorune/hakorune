@@ -11,6 +11,8 @@ mod model;
 mod parse_product;
 mod product;
 mod retained;
+mod script_source_rows;
+mod script_source_rows_model;
 mod session;
 mod syntax_loan;
 
@@ -23,6 +25,12 @@ pub(in crate::parser) use model::{
     ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
 };
 pub(in crate::parser) use parse_product::ParsedCallableParameterListV1;
+pub(crate) use script_source_rows::{
+    CanonicalScriptSourceRowsDispositionV1, CanonicalScriptSourceRowsV1,
+};
+#[cfg(test)]
+#[path = "script_source_rows_tests.rs"]
+mod script_source_rows_tests;
 pub(crate) use product::{
     ParsedProgramWithCallableParameterSourceV1, ParserCallableSourceDispositionV1,
 };

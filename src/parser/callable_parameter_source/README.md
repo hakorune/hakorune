@@ -70,6 +70,18 @@ parameter-contract path. It retires when the contract becomes a borrowed project
 of `VerifiedResolvedCallableSemanticBatchV1`; new semantic owners must use the
 retained source instead of consuming and independently resolving the catalog.
 
+The admitted no-import pure-Script cohort has a separate parser-only row owner:
+`script_source_rows.rs` issues one exhaustive `ProgramBody`/declaration/Brand
+syntax snapshot and `script_source_rows_model.rs` contains only its AST-free
+payload types.  The front door co-seals those rows with the existing source
+identity/profile/read-parse receipt in
+`normal_file_vm_frontdoor/script_source_input.rs`.  `HandoffReady` is the only
+published row product; compatibility, deferred, unavailable, incomplete, and
+invalid states remain typed and never become an empty catalog.  The rows are
+transported through source-plan classification only.  The canonical compiler
+request still has no A consumer in this I0, so it must not reconstruct or
+silently promote the parser rows; a later A slice owns that boundary.
+
 `normal_source_plan::NormalParserCallableSourceHandoffV1` is the next
 Builder-free carrier. It co-seals this parser product with one source
 digest/profile/read-parse lineage and stays non-Clone; selected-gate or other

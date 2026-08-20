@@ -4,13 +4,18 @@
 //! already-issued product with the front-door profile and source receipt, and
 //! provides one move-only handoff into source-plan classification.
 
+use super::script_source_input::{
+    co_seal_script_source_input, CanonicalScriptSourceInputDispositionV1,
+};
 use super::{NormalFileSourceReceiptV1, SealedNormalEntryProfileV1};
 use crate::mir::normal_source_plan::NormalParserCallableSourceHandoffV1;
+use crate::parser::callable_parameter_source::CanonicalScriptSourceRowsDispositionV1;
 use crate::parser::{NormalParserSourceLineageV1, ParserCallableSourceDispositionV1};
 
 #[derive(Debug)]
 pub(crate) struct CanonicalParserSourceHandoffV1 {
     callable_source: NormalParserCallableSourceHandoffV1,
+    script_input: CanonicalScriptSourceInputDispositionV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
     _seal: CanonicalParserSourceHandoffSealV1,
@@ -22,6 +27,7 @@ struct CanonicalParserSourceHandoffSealV1;
 impl CanonicalParserSourceHandoffV1 {
     pub(super) fn new(
         disposition: ParserCallableSourceDispositionV1,
+        script_rows: CanonicalScriptSourceRowsDispositionV1,
         profile: SealedNormalEntryProfileV1,
         receipt: NormalFileSourceReceiptV1,
     ) -> Self {
@@ -36,6 +42,7 @@ impl CanonicalParserSourceHandoffV1 {
         .expect("sealed normal-file receipt must be one-read/one-parse");
         Self {
             callable_source: NormalParserCallableSourceHandoffV1::new(disposition, lineage),
+            script_input: co_seal_script_source_input(script_rows, &profile, &receipt),
             profile,
             receipt,
             _seal: CanonicalParserSourceHandoffSealV1,
@@ -58,9 +65,19 @@ impl CanonicalParserSourceHandoffV1 {
         self,
     ) -> (
         NormalParserCallableSourceHandoffV1,
+        CanonicalScriptSourceInputDispositionV1,
         SealedNormalEntryProfileV1,
         NormalFileSourceReceiptV1,
     ) {
-        (self.callable_source, self.profile, self.receipt)
+        (
+            self.callable_source,
+            self.script_input,
+            self.profile,
+            self.receipt,
+        )
+    }
+
+    pub(super) fn script_input(&self) -> &CanonicalScriptSourceInputDispositionV1 {
+        &self.script_input
     }
 }

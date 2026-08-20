@@ -48,6 +48,10 @@ impl CanonicalScriptCohortAdmissionV1 {
     pub(crate) fn same_parser_source(&self, other: &Self) -> bool {
         self.parser_brand.same_as(&other.parser_brand)
     }
+
+    pub(super) fn parser_brand(&self) -> &ParserInvocationBrandV1 {
+        &self.parser_brand
+    }
 }
 
 pub(super) fn issue_canonical_script_cohort(
