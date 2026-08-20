@@ -24,6 +24,7 @@ pub(super) enum ScriptDirectStaticRecipeIssueV1 {
     NonFinalTerminal(SourceStmtSiteV1),
     MissingFinalValueRelation(SourceExprSiteV1),
     DuplicateFinalValueRelation(SourceExprSiteV1),
+    TerminalRelationMismatch(SourceExprSiteV1),
 }
 
 /// A producer-local key.  It is not a source site, callable key, or physical
@@ -143,30 +144,12 @@ impl VerifiedScriptDirectStaticRecipeV1 {
                 ));
             }
 
-            let matching = demand
-                .parent_relations()
-                .iter()
-                .filter(|relation| {
-                    relation.parent() == statement.node()
-                        && relation.role() == &SourcePathSegmentV1::Value
-                        && relation.child() == demand.call_site()
-                })
-                .count();
-            match matching {
-                0 => {
-                    return Err(ScriptDirectStaticRecipeIssueV1::MissingFinalValueRelation(
-                        demand.call_site().clone(),
-                    ))
-                }
-                1 => {}
-                _ => {
-                    return Err(
-                        ScriptDirectStaticRecipeIssueV1::DuplicateFinalValueRelation(
-                            demand.call_site().clone(),
-                        ),
-                    )
-                }
-            }
+            validate_terminal_relation(
+                &terminal,
+                &statement,
+                demand.call_site(),
+                demand.parent_relations(),
+            )?;
 
             let key = ScriptDirectStaticRecipeKeyV1(
                 u32::try_from(ordinal).expect("Script Recipe row count fits u32"),
@@ -236,6 +219,67 @@ impl VerifiedScriptDirectStaticRecipeV1 {
 
     pub(super) fn len(&self) -> usize {
         self.rows.len()
+    }
+}
+
+/// Validate the only terminal shapes this Recipe is allowed to consume.
+///
+/// A bare final expression is itself the Sequence statement node and therefore
+/// has no parent relation.  A root Return owns the value through exactly one
+/// `Value` relation.  In particular, a final Local/Assignment, a nested call,
+/// or a control/value wrapper must not be mistaken for a Script result merely
+/// because it has a `Value`-shaped parent relation.
+fn validate_terminal_relation(
+    terminal: &ScriptSourceContinuationTerminalV1,
+    statement: &SourceStmtSiteV1,
+    call_site: &SourceExprSiteV1,
+    parent_relations: &[BodyShapeRelationV1],
+) -> Result<(), ScriptDirectStaticRecipeIssueV1> {
+    let terminal_statement = match terminal {
+        ScriptSourceContinuationTerminalV1::Sequence(statement)
+        | ScriptSourceContinuationTerminalV1::Return(statement) => statement,
+    };
+    if terminal_statement != statement {
+        return Err(ScriptDirectStaticRecipeIssueV1::TerminalRelationMismatch(
+            call_site.clone(),
+        ));
+    }
+
+    match terminal {
+        ScriptSourceContinuationTerminalV1::Sequence(_) => {
+            if call_site.node() == statement.node() && parent_relations.is_empty() {
+                Ok(())
+            } else {
+                Err(ScriptDirectStaticRecipeIssueV1::TerminalRelationMismatch(
+                    call_site.clone(),
+                ))
+            }
+        }
+        ScriptSourceContinuationTerminalV1::Return(_) => {
+            if parent_relations.is_empty() {
+                return Err(ScriptDirectStaticRecipeIssueV1::MissingFinalValueRelation(
+                    call_site.clone(),
+                ));
+            }
+            if parent_relations.len() != 1 {
+                return Err(
+                    ScriptDirectStaticRecipeIssueV1::DuplicateFinalValueRelation(
+                        call_site.clone(),
+                    ),
+                );
+            }
+            let relation = &parent_relations[0];
+            if relation.parent() == statement.node()
+                && relation.role() == &SourcePathSegmentV1::Value
+                && relation.child() == call_site
+            {
+                Ok(())
+            } else {
+                Err(ScriptDirectStaticRecipeIssueV1::TerminalRelationMismatch(
+                    call_site.clone(),
+                ))
+            }
+        }
     }
 }
 
