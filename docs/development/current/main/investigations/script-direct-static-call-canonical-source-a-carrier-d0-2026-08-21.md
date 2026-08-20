@@ -1,5 +1,5 @@
 ---
-Status: Accepted design stop — implementation remains closed
+Status: Closed — carrier I0 selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-CARRIER-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-input-d0-2026-08-21.md
@@ -198,4 +198,3 @@ Remain at this D0 if any condition holds:
 
 Until these are closed, A issuer implementation and canonical physical
 consumer remain design-only.
-
