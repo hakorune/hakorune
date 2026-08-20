@@ -1,11 +1,12 @@
 ---
-Status: Active design stop
+Status: Accepted design stop — parser handoff D0 selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-input-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: one canonical source-only A issuer before Script Recipe/entry
 Classification: BoxCount (design only; implementation remains closed)
+NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-parser-input-handoff-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0
