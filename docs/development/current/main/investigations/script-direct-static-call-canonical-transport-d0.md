@@ -1,5 +1,5 @@
 ---
-Status: Active design stop
+Status: Closed NoSafeSlice / parked (2026-08-20)
 Date: 2026-08-20
 Exception: New T2 transport/lifetime boundary between existing semantic and canonical physical owners.
 ParentCurrentCard: docs/development/current/main/investigations/script-direct-static-call-canonical-physical-input-i0.md
@@ -70,3 +70,12 @@ re-resolving, or inventing a second authority, record `NoSafeSlice` and leave
 the current physical-input row closed. The same stop applies when scalar-cohort
 partition, canonical caller identity, or raw-recipe/input exclusivity cannot be
 proven before the first physical effect.
+
+## Closeout
+
+The semantic Script source and the canonical detached `compile_script` path do
+not share a source-backed carrier or caller identity. The landed physical input
+therefore remains test-owned and detached. No source admission, re-resolution,
+fallback, or production switch was added. Reopen only after a separate
+Program-owned source inventory and one move-only producer-to-canonical-consumer
+handshake are closed.
