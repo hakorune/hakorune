@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-19"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SemanticAuthorityMissing: Script target inventory has no co-sealed Script Facts/caller/result owner that can feed Recipe safely."
+current_design_stop = "SemanticAuthorityMissing: resolver rows can co-seal Script Facts, but a Script-specific result/publication owner is still missing before Recipe."
 work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0"
-current_blocker_token = "Recipe D0 is NoSafeSlice; audit one AST-free Script Facts co-seal for semantic source, target, caller, arguments, and result before any Recipe or physical work."
+current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-D0"
+current_blocker_token = "Facts co-seal audit is complete; design one source-bound Script result/publication owner before opening Facts I0 or any Recipe/physical work."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -91,8 +91,8 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "Script direct-static target I0 is complete; Recipe D0 is NoSafeSlice because target rows lack a co-sealed Script Facts/caller/result owner."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0"
+latest_card_summary = "Target I0 and Facts co-seal audit are complete; resolver rows are usable, but Script result/publication ownership is still NoSafeSlice before Facts I0 or Recipe."
+next_design_card = "SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-D0"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
 next_execution_card = "none"
 next_execution_card_path = ""
@@ -106,6 +106,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0 audit closed. Existing resolver MethodCall rows are the canonical Script Facts input and can co-seal owner/site/receiver/ordered arguments/result with the target; the callable-keyed result owner cannot accept ScriptRoot, so RESULT-OWNER-D0 is the sole next design stop and no code/Recipe work opened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-TARGET-I0 landed one source-only observation product. Exact Script caller/receiver/argument sites and canonical static targets are retained in the selected-normal work plan; six focused tests and the reusable guard are green. Recipe/Join/physical consumers remain closed; SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0 closed NoSafeSlice and FACTS-COSEAL-D0 is the next design stop.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
@@ -116,5 +117,4 @@ landed_tail = [
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: PARSER-BOX-CONSTRUCTOR-SOURCE-INVENTORY-I0 landed one BoxCount. The parser now seals direct/gated order and generated birth trigger provenance before map overwrite, rejects duplicate keys, and revalidates exact final AST coverage; Brand semantic issuance remains unopened.",
   "2026-08-20: BRAND-CONSTRUCTOR-RELATIONLESS-ADMISSION-D2 closed. Caller-zero retirement is unsound for production-capable admissions; instance constructors are the first bounded parser-keyed issuance family, while nested methods have five checked-in natural Brand calls and Deferred/Compatibility/RawLegacy remain separate NoSafeSlice families.",
-  "2026-08-20: BRAND-CONSTRUCTOR-RELATION-PROJECTION-P0 landed behavior-neutrally and ACTIVE-ADMISSION-CENSUS-D1 closed. Callable/Complete Script states retain exact-site Constructor/NonBrand projection with foreign coverage rejection; Deferred, Compatibility, instance-constructor, nested/Main, and RawLegacy remain name-only, bare calls are unlocated, and raw consumption stays zero.",
 ]

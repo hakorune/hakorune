@@ -592,12 +592,16 @@ accepted D0. The completed rows remain in the receipts above and in
 5. **`SCRIPT-DIRECT-STATIC-CALL-TARGET-D0/I0`** — landed as a source-only
    production-frontier observation. It issues an exact Script caller/site
    target catalog; Recipe and physical retirement remain later rows.
-6. **`SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`** — current design stop after
-   target I0. Select one AST-free Script Facts/caller/result co-seal before any
-   Recipe consumer; the target inventory alone is not a Recipe authority.
-7. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
+6. **`SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`** — audited: the canonical
+   resolver rows can co-seal Script owner/site/receiver/ordered arguments/result
+   with the target, but Recipe still needs a Script-specific result owner.
+   Do not implement Facts or Recipe until that owner is designed.
+7. **`SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-D0`** — current design stop:
+   define the source-bound Script result/publication owner without converting
+   ScriptRoot into a synthetic callable caller key.
+8. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
    MethodCall/`Brand.unwrap`; do not combine it with constructor consumer work.
-8. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
+9. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
    FunctionCall admission has an exact `Constructor|NonBrand|Unavailable`
    disposition. Until then, `CompilationContext::is_brand_declared` remains a
    compatibility authority on the relationless lanes.

@@ -174,3 +174,33 @@ fallback, promotion, or production switch is authorized by the completed I0.
 - This audit closes the Recipe row without code changes and selects only the
   next design consultation. The existing I0 guard and six focused tests remain
   the evidence for the observation product.
+
+### FACTS-COSEAL-D0 design conclusion
+
+Decision: keep the target inventory observation-only and select the resolver's
+existing `VerifiedResolvedMethodCallSourceV1` as the sole Script Facts input.
+The Facts product may co-seal Script owner/site, receiver, ordered argument
+sites, result site, and the exact canonical target, but no Recipe key or
+physical value.
+
+Source authority + canonical issuer: `resolve_script_forest_with_declaration_views`
+and its `VerifiedResolvedScriptV1` product issue the semantic rows; the Facts
+child validates the I0 target row against those rows once. AST re-scan, names,
+arity, and the `ScriptStaticCallSourceOwnerIdV1` alone cannot issue meaning.
+
+Non-authority: the scalar-only `RawScriptBodyRecipeV1`, callable-keyed static
+result owner, `ScriptRoot` raw success, synthetic callable keys, assembly,
+timing, and Deferred/Compatibility routes.
+
+Fail-fast boundary: no Complete Script forest, foreign owner, target/receiver/
+argument/result-site drift, missing or duplicate row, or nested-owner crossing
+may publish Facts. ScriptRoot must not be passed to the existing callable
+result-publication owner.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-D0` design only —
+name a Script-specific source/result/publication owner first. After that design
+closes, a separate Facts I0 may be considered; Recipe and physical R1/R2 stay
+closed.
+
+Non-claims: no Facts receipt implementation, Recipe/Join, result handoff,
+physical lowering, raw-edge retirement, production switch, or C parity.
