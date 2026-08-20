@@ -602,6 +602,25 @@ accepted D0. The completed rows remain in the receipts above and in
    disposition. Until then, `CompilationContext::is_brand_declared` remains a
    compatibility authority on the relationless lanes.
 
+#### Remembered TODO map (not opened)
+
+- **Performance evidence:** open a new immutable native batch only after the
+  batch protocol is explicitly accepted; the old zero-accepted receipt stays
+  terminal. WSL is development evidence only. A0/PC attribution starts only
+  from eligible native pairs.
+- **Performance target:** keep the current `1.15` promotion ceiling unchanged;
+  after one attributed generic owner is closed, measure the same corridor
+  toward the formal `Hako/C <= 1.00` point target. A possible upper-95%
+  `<= 1.03` C-class claim needs its own D0 and is not a hidden gate.
+- **Observation UX:** after the production frontier, land the issuer-emitted
+  MIR→LLVM block/edge sidecar. LLVM→ASM exact mapping remains unavailable until
+  a real backend address issuer exists; external C shape stays observation-only.
+- **Compiler order:** current `SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`
+  precedes any Script Recipe/physical work; never widen the scalar Recipe or
+  synthesize a callable caller. Then select Recipe R1 and physical R2 separately.
+- **Brand order:** `BRAND-METHODCALL-UNWRAP-D0` is independent; raw-name probe
+  retirement waits for exact dispositions across every production admission.
+
 #### Explicit non-goals
 
 No threshold relaxation, WSL/native promotion claim, SIMD guess, C-reference
