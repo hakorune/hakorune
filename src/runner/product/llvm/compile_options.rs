@@ -57,7 +57,8 @@ pub struct CompileOptionsBox;
 
 impl CompileOptionsBox {
     pub(crate) fn compile_normal_callable(
-        outcome: nyash_rust::r#macro::NormalCallableTransformOutcomeV1,
+        outcome: crate::runner::modes::common_util::normal_callable::
+            NormalCallableMaterializationOutcomeV1,
         filename: Option<&str>,
         imports: HashMap<String, String>,
         options: LlvmCompileOptions,

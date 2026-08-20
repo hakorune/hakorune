@@ -41,21 +41,21 @@ impl Drop for EnvVarRestore {
 
 impl MirCompilerBox {
     pub(crate) fn compile_normal_callable(
-        outcome: crate::r#macro::NormalCallableTransformOutcomeV1,
+        outcome: crate::runner::modes::common_util::normal_callable::
+            NormalCallableMaterializationOutcomeV1,
         filename: Option<&str>,
         imports: HashMap<String, String>,
         options: LlvmCompileOptions,
     ) -> Result<MirCompileResult, String> {
         let target_capability = options.issue_pinned_text_target_capability()?;
         let request = match outcome {
-            crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) => {
+            crate::runner::modes::common_util::normal_callable::
+                NormalCallableMaterializationOutcomeV1::SourceBacked(source) => {
                 NormalCompileRequestV1::for_llvm_callable_source(source, filename, imports)
             }
-            crate::r#macro::NormalCallableTransformOutcomeV1::Compatibility {
-                ast,
-                reason: _reason,
-            } => NormalCompileRequestV1::for_llvm_source(ast, filename, imports)
-                .map_err(|error| format!("MIR compilation error: {error}"))?,
+            crate::runner::modes::common_util::normal_callable::
+                NormalCallableMaterializationOutcomeV1::Compatibility(origin) =>
+                NormalCompileRequestV1::for_llvm_compatibility(origin, filename, imports),
         };
         Self::compile_request(
             request.with_compile_target_capability(target_capability),

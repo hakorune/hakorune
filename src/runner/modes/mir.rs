@@ -57,27 +57,30 @@ impl NyashRunner {
                 eprintln!("❌ MIR source lineage error: {:?}", rejected);
                 process::exit(1);
             }
+            Err(
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::CompatibilityOrigin(rejected),
+            ) => {
+                eprintln!("❌ MIR compatibility origin error: {}", rejected);
+                process::exit(1);
+            }
         };
         let request = match transformed {
-            crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) => {
+            crate::runner::modes::common_util::normal_callable::
+                NormalCallableMaterializationOutcomeV1::SourceBacked(source) => {
                 NormalCompileRequestV1::for_mir_mode_callable_source(
                     source,
                     Some(filename),
                     prepared.imports,
                 )
             }
-            crate::r#macro::NormalCallableTransformOutcomeV1::Compatibility {
-                ast,
-                reason: _reason,
-            } => {
-                match NormalCompileRequestV1::for_mir_mode(ast, Some(filename), prepared.imports) {
-                    Ok(request) => request,
-                    Err(rejected) => {
-                        eprintln!("❌ MIR compilation error: {}", rejected);
-                        process::exit(1);
-                    }
-                }
-            }
+            crate::runner::modes::common_util::normal_callable::
+                NormalCallableMaterializationOutcomeV1::Compatibility(origin) =>
+                NormalCompileRequestV1::for_mir_mode_compatibility(
+                    origin,
+                    Some(filename),
+                    prepared.imports,
+                ),
         };
         let mut mir_compiler = MirCompiler::with_options(!self.config.no_optimize);
         let compile_result = match mir_compiler.compile_normal(request) {

@@ -255,6 +255,21 @@ impl NormalCompileRequestV1 {
         )
     }
 
+    pub(crate) fn for_mir_mode_compatibility(
+        origin: super::normal_source_plan::NormalCallableCompatibilityOriginV1,
+        source_file: Option<&str>,
+        imports: HashMap<String, String>,
+    ) -> Self {
+        Self::from_prepared(
+            PreparedNormalDefaultProgramRootV1::from_compatibility_origin(origin),
+            source_file,
+            imports,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalPreparedSourceCallerV1::MirMode,
+            ),
+        )
+    }
+
     pub(crate) fn for_llvm_callable_source(
         source: VerifiedFinalCallableProgramSourceV1,
         source_file: Option<&str>,
@@ -262,6 +277,21 @@ impl NormalCompileRequestV1 {
     ) -> Self {
         Self::from_prepared(
             PreparedNormalDefaultProgramRootV1::from_callable_source(source),
+            source_file,
+            imports,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalPreparedSourceCallerV1::LlvmSourceCompiler,
+            ),
+        )
+    }
+
+    pub(crate) fn for_llvm_compatibility(
+        origin: super::normal_source_plan::NormalCallableCompatibilityOriginV1,
+        source_file: Option<&str>,
+        imports: HashMap<String, String>,
+    ) -> Self {
+        Self::from_prepared(
+            PreparedNormalDefaultProgramRootV1::from_compatibility_origin(origin),
             source_file,
             imports,
             NormalCompileAdmissionV1::PreparedSourceWithImports(

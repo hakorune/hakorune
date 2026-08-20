@@ -4,11 +4,14 @@
 //! remains an explicit AST lane; its legacy normalization is applied exactly
 //! once here and never touches a `VerifiedFinalCallableProgramSourceV1`.
 
-use crate::mir::normal_source_plan::NormalParserCallableSourceHandoffV1;
+use crate::mir::normal_source_plan::{
+    NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
+    NormalParserCallableSourceHandoffV1,
+};
 use crate::mir::CanonicalSourceBytesDigestV1;
 use crate::parser::{
     NormalParserSourceLineageErrorV1, NormalParserSourceLineageV1, NyashParser, ParseError,
-    ParserBuildConfig,
+    ParserBuildConfig, VerifiedFinalCallableProgramSourceV1,
 };
 use crate::r#macro::{
     transform_normal_callable_program_v1, NormalCallableTransformOutcomeV1,
@@ -20,6 +23,13 @@ pub(crate) enum NormalCallableMaterializationErrorV1 {
     Parse(ParseError),
     SourceLineage(NormalParserSourceLineageErrorV1),
     Transform(NormalCallableTransformRejectV1),
+    CompatibilityOrigin(NormalCallableCompatibilityOriginErrorV1),
+}
+
+#[derive(Debug)]
+pub(crate) enum NormalCallableMaterializationOutcomeV1 {
+    SourceBacked(VerifiedFinalCallableProgramSourceV1),
+    Compatibility(NormalCallableCompatibilityOriginV1),
 }
 
 /// Parse and classify one normal-callable source exactly once.
@@ -30,7 +40,7 @@ pub(crate) enum NormalCallableMaterializationErrorV1 {
 pub(crate) fn materialize_normal_callable_program_v1(
     input: impl Into<String>,
     build_config: ParserBuildConfig,
-) -> Result<NormalCallableTransformOutcomeV1, NormalCallableMaterializationErrorV1> {
+) -> Result<NormalCallableMaterializationOutcomeV1, NormalCallableMaterializationErrorV1> {
     materialize_normal_callable_program_with_identity_v1(input, build_config, "<selected-normal>")
 }
 
@@ -38,7 +48,7 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
     input: impl Into<String>,
     build_config: ParserBuildConfig,
     source_identity: impl Into<Box<str>>,
-) -> Result<NormalCallableTransformOutcomeV1, NormalCallableMaterializationErrorV1> {
+) -> Result<NormalCallableMaterializationOutcomeV1, NormalCallableMaterializationErrorV1> {
     let input = input.into();
     let source_digest = CanonicalSourceBytesDigestV1::from_utf8_bytes(input.as_bytes());
     let source_lineage = NormalParserSourceLineageV1::issue(
@@ -62,23 +72,26 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
         .map_err(NormalCallableMaterializationErrorV1::Transform)?;
     Ok(match transformed {
         NormalCallableTransformOutcomeV1::SourceBacked(source) => {
-            NormalCallableTransformOutcomeV1::SourceBacked(
+            NormalCallableMaterializationOutcomeV1::SourceBacked(
                 source.with_source_lineage(source_lineage),
             )
         }
         NormalCallableTransformOutcomeV1::Compatibility { ast, reason } => {
-            NormalCallableTransformOutcomeV1::Compatibility {
-                ast: super::super::macro_child::normalize_core_pass(&ast),
-                reason,
-            }
+            let ast = super::super::macro_child::normalize_core_pass(&ast);
+            let origin = NormalCallableCompatibilityOriginV1::issue(ast, reason, source_lineage)
+                .map_err(NormalCallableMaterializationErrorV1::CompatibilityOrigin)?;
+            NormalCallableMaterializationOutcomeV1::Compatibility(origin)
         }
     })
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{materialize_normal_callable_program_v1, NormalCallableMaterializationErrorV1};
-    use crate::r#macro::NormalCallableTransformOutcomeV1;
+    use super::{
+        materialize_normal_callable_program_v1, NormalCallableMaterializationErrorV1,
+        NormalCallableMaterializationOutcomeV1,
+    };
+    use crate::r#macro::NormalCallableTransformCompatibilityV1;
 
     #[test]
     fn exact_callable_source_stays_source_backed_without_compat_normalization() {
@@ -87,7 +100,7 @@ mod tests {
             crate::parser::ParserBuildConfig::default(),
         )
         .expect("exact callable source");
-        let NormalCallableTransformOutcomeV1::SourceBacked(source) = outcome else {
+        let NormalCallableMaterializationOutcomeV1::SourceBacked(source) = outcome else {
             panic!("exact callable source must stay source-backed")
         };
         let lineage = source.source_lineage().expect("parser lineage");
@@ -97,15 +110,24 @@ mod tests {
 
     #[test]
     fn compatibility_source_stays_on_the_explicit_ast_lane() {
-        let outcome = materialize_normal_callable_program_v1(
-            "box Node { value: i64 run() { return me.value } }",
-            crate::parser::ParserBuildConfig::default(),
-        )
-        .expect("compatibility source");
-        assert!(matches!(
-            outcome,
-            NormalCallableTransformOutcomeV1::Compatibility { .. }
-        ));
+        crate::test_support::with_env_vars(
+            &[
+                ("NYASH_MACRO_DISABLE", Some("0")),
+                ("NYASH_MACRO_ENABLE", Some("1")),
+            ],
+            || {
+                let outcome = materialize_normal_callable_program_v1(
+                    "box Node { value: i64 run() { return me.value } }",
+                    crate::parser::ParserBuildConfig::default(),
+                )
+                .expect("compatibility source");
+                assert!(matches!(
+                    outcome,
+                    NormalCallableMaterializationOutcomeV1::Compatibility(origin)
+                        if matches!(origin.reason(), NormalCallableTransformCompatibilityV1::DefaultDeriveWouldGenerateCallable)
+                ));
+            },
+        );
     }
 
     #[test]

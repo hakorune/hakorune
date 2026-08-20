@@ -1,5 +1,5 @@
 ---
-Status: fast — transport carrier implementation in progress
+Status: bounded P0 implementation complete — transport only
 Date: 2026-08-21
 Decision: CALLABLE-COMPATIBILITY-SOURCE-TRANSPORT-P0
 Parent: docs/development/current/main/investigations/callable-compatibility-source-admission-d0-2026-08-21.md
@@ -145,3 +145,32 @@ guessing `Candidate`/`Rejected`, and must not inspect or rewrite historical
 closed cards. Until that optional guard is opened, the tracked
 `agent-current-entry-contract-ssot.md` classification-completeness rule and
 the table in this card are the review authority.
+
+## P0 implementation receipt
+
+The compatibility materializer now co-seals one non-`Clone`
+`NormalCallableCompatibilityOriginV1` containing the transformed `ASTNode`,
+`NormalCallableTransformCompatibilityV1`, and
+`NormalParserSourceLineageV1`. The request and prepared root move that carrier
+as an explicit `TypedCompatibility` state; the existing compatibility lifecycle
+still owns it, while SourceBacked, source-free AST/JSON/VM/REPL, and no-candidate
+paths remain separate. No resolver, Brand/FunctionCall target, Recipe, Join,
+physical Call, fallback, or retry was added.
+
+Evidence:
+
+- `cargo check --profile quick -p nyash-rust` — passed (existing warning baseline only)
+- carrier positive/negative tests — 2 passed
+- compatibility materializer positive/parse-reject tests — passed
+- request/prepared-root transport test — passed
+- `bash tools/checks/callable_compatibility_source_transport_guard.sh` — passed
+- `git diff --check` — passed
+
+The broad `cargo test ... compatibility` census remains red only at the
+pre-existing legacy comparison
+`mir::compiler::legacy_candidate_session_tests::normal_pipeline_matches_legacy_compatibility_for_general_module`
+(`[freeze:contract][mir/instance-constructor-source/cohort-missing]`); 38 compatibility tests pass
+and this transport row does not change that legacy `compile_with_source` path.
+That failure is recorded as baseline debt, not as a transport acceptance
+failure. Cohort admission, semantic package issuance, compatibility fallback
+retirement, and physical cutover remain separate rows.

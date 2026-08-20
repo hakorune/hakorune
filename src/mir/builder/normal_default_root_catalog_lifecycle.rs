@@ -33,6 +33,7 @@ use crate::mir::normal_callable_semantic_package::{
     issue_normal_callable_semantic_package_with_brand_catalog_v1,
     InstalledNormalCallableSemanticPackageV1,
 };
+use crate::mir::normal_source_plan::NormalCallableCompatibilityOriginV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptForestOutcomeV1, ScriptSyntaxViewV1,
 };
@@ -117,6 +118,7 @@ struct PreparedNormalDefaultProgramRootSealV1;
 #[derive(Debug)]
 enum PreparedNormalDefaultProgramSourceV1 {
     Callable(VerifiedFinalCallableProgramSourceV1),
+    TypedCompatibility(NormalCallableCompatibilityOriginV1),
     Compatibility(ASTNode),
 }
 
@@ -140,9 +142,19 @@ impl PreparedNormalDefaultProgramRootV1 {
         }
     }
 
+    pub(in crate::mir) fn from_compatibility_origin(
+        origin: NormalCallableCompatibilityOriginV1,
+    ) -> Self {
+        Self {
+            source: PreparedNormalDefaultProgramSourceV1::TypedCompatibility(origin),
+            _seal: PreparedNormalDefaultProgramRootSealV1,
+        }
+    }
+
     pub(super) fn source_ast(&self) -> &ASTNode {
         match &self.source {
             PreparedNormalDefaultProgramSourceV1::Callable(source) => source.ast(),
+            PreparedNormalDefaultProgramSourceV1::TypedCompatibility(origin) => origin.ast(),
             PreparedNormalDefaultProgramSourceV1::Compatibility(ast) => ast,
         }
     }
@@ -158,6 +170,13 @@ impl PreparedNormalDefaultProgramRootV1 {
         matches!(
             &self.source,
             PreparedNormalDefaultProgramSourceV1::Callable(_)
+        )
+    }
+
+    pub(in crate::mir) fn is_typed_compatibility(&self) -> bool {
+        matches!(
+            &self.source,
+            PreparedNormalDefaultProgramSourceV1::TypedCompatibility(_)
         )
     }
 }

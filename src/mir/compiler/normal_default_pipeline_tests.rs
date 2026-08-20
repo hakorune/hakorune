@@ -84,6 +84,50 @@ fn llvm_callable_source_request_keeps_llvm_caller_identity() {
 }
 
 #[test]
+fn compatibility_origin_moves_through_request_and_prepared_root() {
+    crate::test_support::with_env_vars(
+        &[
+            ("NYASH_MACRO_DISABLE", Some("0")),
+            ("NYASH_MACRO_ENABLE", Some("1")),
+        ],
+        || {
+            let origin = match crate::runner::modes::common_util::normal_callable::materialize_normal_callable_program_with_identity_v1(
+                    "box Node { value: i64 run() { return me.value } }",
+                    crate::parser::ParserBuildConfig::default(),
+                    "compat.hako",
+                )
+                .expect("compatibility materialization")
+            {
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationOutcomeV1::Compatibility(origin) => origin,
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationOutcomeV1::SourceBacked(_) => {
+                    panic!("compatibility source must not become SourceBacked")
+                }
+            };
+            assert_eq!(origin.lineage().source_identity(), "compat.hako");
+
+            let request = NormalCompileRequestV1::for_mir_mode_compatibility(
+                origin,
+                Some("compat.hako"),
+                HashMap::new(),
+            );
+            let (program, source, imports, admission, _, _) = request.into_parts();
+            assert_eq!(source.source_file(), Some("compat.hako"));
+            assert!(imports.is_empty());
+            assert_eq!(
+                admission,
+                NormalCompileAdmissionV1::PreparedSourceWithImports(
+                    NormalPreparedSourceCallerV1::MirMode
+                )
+            );
+            assert!(!program.is_callable_source_backed());
+            assert!(program.is_typed_compatibility());
+        },
+    );
+}
+
+#[test]
 fn llvm_request_transports_one_invocation_target_capability_without_reissuing_it() {
     let profile = crate::mir::compiler::target_capability::PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1;
     let capability = crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityIssuerV1::issue(
