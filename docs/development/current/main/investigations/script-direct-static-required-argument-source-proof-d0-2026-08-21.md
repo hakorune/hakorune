@@ -132,6 +132,36 @@ accepting those shapes.
 5. Keep ScriptRoot owner identity; do not convert it to a callable key or use
    `ValueId`/`MirType` as a source proof.
 
+## Narrow next-issuer design (required ordinals only)
+
+The existing detached `ScalarOperandRecipe` covers every argument in a Join
+row. It must not be promoted as the required-ordinal proof: doing so would
+reject or accept non-required arguments for an unrelated reason and would make
+the detached kernel look like a consumer. The bounded next design is a
+required-only sibling:
+
+```text
+VerifiedResolvedScriptV1::expression_source + method-call argument sites
+  + VerifiedScriptDirectStaticJoinHandoffV1::required_callee_i64_arguments
+  -> VerifiedScriptDirectStaticRequiredArgumentProofV1::issue
+  -> selected-normal ScriptSemanticLoweringState (future consumer)
+```
+
+The future issuer co-seals only each required ordinal, its exact `Argument(n)`
+site, and a resolver-inventory-backed recursive integer tree. Non-required
+arguments remain owned by the existing ordered lowering driver and are not
+reclassified by this proof. The issuer must preserve the Join source owner and
+identity, reject duplicate/foreign/ordinal-drifted rows, and never read the
+retained AST or Builder type tables.
+
+This is a new semantic representation product, so its first implementation
+would be `BoxCount` and must have an explicit acceptance decision. A scalar
+literal/unary/binary proof may later be accepted as one narrow cohort; variables,
+local flow, fields/indexes, nested calls, and static-call results remain a
+separate BoxCount design rather than silently entering this row. The only
+named future physical consumer remains the selected-normal bridge, before its
+claim/effect boundary; the detached kernel stays `DetachedCandidateOnly`.
+
 ## Acceptance for this design stop
 
 - one source issuer and one future physical consumer are named;
