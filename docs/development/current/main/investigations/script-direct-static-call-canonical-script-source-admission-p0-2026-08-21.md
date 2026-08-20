@@ -116,7 +116,7 @@ listed here is `CohortUnresolved`, never pure Script by default.
 | top-level shape | cohort disposition | requirement / next owner |
 |---|---|---|
 | `FunctionDeclaration` and ordinary executable Script items | `PureScriptSyntax` | allowed in the cohort; parser handoff later issues body/coordinate rows |
-| `UsingStatement` / `ImportStatement` | `PureScriptSyntax` | allowed only with explicit syntax/config rows in parser handoff; no name inference |
+| `UsingStatement` / `ImportStatement` | `CohortUnresolved` | the current canonical normal-file profile rejects the no-import surface before handoff; a future import cohort needs its own source-profile row |
 | `BrandDeclaration` / `TypeAliasDeclaration` | `PureScriptSyntax` | allowed only with explicit declaration syntax rows; A later owns resolved meaning |
 | `EnumDeclaration` / `GlobalVar` / `StaticConstTable` | `PureScriptSyntax` | allowed only with explicit syntax/coverage rows; no empty-catalog shortcut |
 | `BoxDeclaration` (ordinary, static, record, interface, sync, or any Box) | `CompatibilitySource` | existing Box/compatibility owner; never pure Script |
@@ -126,9 +126,12 @@ listed here is `CohortUnresolved`, never pure Script by default.
 
 `PureScriptSyntax` is only a cohort label. It does not prove complete
 ProgramBody, declaration, Brand, import/config, or source identity coverage;
-those rows are issued by the parser input handoff D0. `Using`/`Import` and
-the declaration variants remain explicitly listed so future parser changes
-cannot silently widen the cohort.
+those rows are issued by the parser input handoff D0. In the current canonical
+normal-file profile, the explicit no-import rule means the admitted cohort's
+import/config view is an explicit empty proof; non-empty `Using`/`Import` is
+`CohortUnresolved`, not a silent pure-Script expansion. The declaration
+variants remain explicitly listed so future parser changes cannot silently
+widen the cohort.
 
 ## Exhaustive admission state table
 
@@ -143,14 +146,15 @@ cannot silently widen the cohort.
 | `CanonicalScriptCohortAdmitted` | the future parser-only `CanonicalScriptCohortAdmissionV1` co-seals the pure-Script cohort, parameter-source completeness, and one parser brand | issue one non-Clone cohort admission; no identity/A/Recipe/physical effect | parser input handoff D0 consumes once and adds identity/coverage | no clone, reparse, AST/name pairing, or compatibility fallback |
 | `IntegrityInvalid` | complete observation finds duplicate, foreign, stale, mixed-cohort, cardinality, or source/config drift | typed reject before parser handoff, resolver, Builder, and child effects | terminal source candidate discard | no retry, repair-by-AST, compatibility, or raw fallback |
 | `NonCandidate` (A-only) | future A issuer completes semantic observation and proves zero direct-static candidates | no direct-static package or physical effect | canonical non-direct-static owner | this P0/parser issuer never emits it |
-| `Transported` (future C/B) | future parser-handoff consumer moves the typed admission/semantic result once | no replay or second source interpretation | detached consumer terminal | this P0 never emits or reuses it |
+| `DispositionTransported` (future C/B) | future C/B consumer moves a typed disposition once | no replay or second source interpretation | detached consumer terminal | this P0 never emits or reuses it |
 
 `CanonicalScriptCohortAdmitted` is the only public pure-Script cohort admission
 from this row. It is not the canonical identity state and not `HandoffReady`.
 `NoBoxDeclarations` remains `CompatibilitySource` until the new cohort issuer
 proves the exhaustive pure-Script shape rule. `NonCandidate` belongs to A, and
-`Transported` belongs to a future consumer; neither may be used to hide a
-missing parser row. Every routing arm must match this table exhaustively.
+`DispositionTransported` belongs to a future C/B consumer; neither may be used
+to hide a missing parser row. Every routing arm must match this table
+exhaustively.
 
 ## Ownership and phase boundary
 

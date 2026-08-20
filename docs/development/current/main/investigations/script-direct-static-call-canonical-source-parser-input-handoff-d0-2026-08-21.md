@@ -112,6 +112,11 @@ source-coordinate views only (`DeclarationSyntax`, `BrandSyntax`, and
 meaning. A consumes this handoff once and issues the resolved forest,
 direct-static target/result rows, required proof, and terminal relation; A
 does not reissue parser identity or re-scan the AST to recreate these rows.
+For the current canonical normal-file profile, a non-empty `Using`/`Import`
+surface is rejected upstream by the explicit no-import profile; the admitted
+handoff therefore carries an explicit empty import/config proof. A future
+import-capable cohort requires a separate source-profile admission row and may
+not widen this handoff by default.
 
 The handoff is non-Clone and move-only across the canonical source-plan
 boundary. A temporary borrow of parser-owned postpass data is allowed during
@@ -128,16 +133,18 @@ The transition is finite and one-way:
 |---|---|---|---|
 | cohort admission | `CanonicalScriptCohortAdmitted`, `CohortUnresolved`, `CompatibilitySource`, `Deferred` | parser-only cohort issuer | only `CanonicalScriptCohortAdmitted` may reach front-door identity co-seal |
 | identity-I0 | `CanonicalSourceBacked`, `NotApplicable`, `CompatibilitySource`, `Deferred` | parser frontdoor and typed source disposition | only `CanonicalSourceBacked` plus the cohort admission may enter parser-input observation |
-| parser-input | `SourceAuthorityUnavailable`, `ObservationIncomplete`, `HandoffReady`, `IntegrityInvalid` | `CanonicalScriptSourceInputHandoffV1` | `HandoffReady` moves once to A; the other rows stop or remain in their typed owner |
+| parser-input | `SourceAuthorityUnavailable`, `ObservationIncomplete`, `HandoffReady`, `HandoffConsumed`, `IntegrityInvalid` | `CanonicalScriptSourceInputHandoffV1` | `HandoffReady` moves once to `HandoffConsumed`; the other rows stop or remain in their typed owner |
 | A observation | `NonCandidate`, private `InputAuthorityReady`, later `DirectStaticSourceReady` | future `CanonicalScriptDirectStaticSourceOnlyIssuerV1` | A may issue semantic resolver/target/result/proof/terminal meaning exactly once |
-| C/B future | typed disposition, `Transported` | future canonical disposition and transport owners | C consumes A once; B transports the typed result only |
+| C/B future | typed disposition, `DispositionTransported` | future canonical disposition and transport owners | C consumes A once; B transports the typed result only |
 
 `CanonicalScriptCohortAdmitted` is a parser cohort state, not identity or
 parser-input readiness. `CanonicalSourceBacked` is an upstream identity state,
-not parser-input readiness. `HandoffReady` is the only public parser product and never means
-that a direct-static candidate exists. `NonCandidate` is A's complete,
-integrity-clean zero-candidate result and cannot be issued by the parser
-handoff. `Transported` is a C-to-B lifecycle state and cannot be returned to
+not parser-input readiness, and it cannot enter this handoff without the
+cohort admission in the same co-seal. `HandoffReady` is the only public parser
+product and never means that a direct-static candidate exists. `NonCandidate`
+is A's complete, integrity-clean zero-candidate result and cannot be issued by
+the parser handoff. `HandoffConsumed`, `AInputTransported`, and
+`DispositionTransported` are later lifecycle states and cannot be returned to
 the parser or used to reissue source meaning. A missing/partial parser row is
 therefore never converted into `NonCandidate`, compatibility success, or an
 empty A input.
@@ -146,22 +153,27 @@ empty A input.
 
 | state | phase | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
 |---|---|---|---|---|---|
-| `CanonicalSourceBacked` | upstream | `CanonicalParserSourceHandoffV1` issues identity-I0 | pass exact source receipt to handoff; no A/physical effect | handoff observation may begin | never reissue from AST or default profile |
+| `CanonicalScriptCohortAdmitted` | upstream cohort | parser-only `CanonicalScriptCohortAdmissionV1` | retain typed cohort; do not observe rows or effects | must co-seal with `CanonicalSourceBacked` before parser-input observation | never enter from `NoBoxDeclarations`, empty catalog, or AST shape |
+| `CohortUnresolved` | upstream cohort | parser shape table | typed stop before identity/handoff rows and effects | `NoSafeSlice` or separately named compatibility owner | never become `CanonicalSourceBacked`, empty, or `NonCandidate` |
+| `CanonicalSourceBacked` | upstream | `CanonicalParserSourceHandoffV1` issues identity-I0 | pass exact source receipt only when paired with `CanonicalScriptCohortAdmitted`; no A/physical effect | handoff observation may begin after co-seal | identity alone cannot enter; never reissue from AST or default profile |
 | `NotApplicable` | parser ingress | parser/frontdoor proves non-Script or outside canonical source cohort | no Script rows are observed | caller-owned family dispatch | never fabricate an empty canonical handoff |
 | `CompatibilitySource` | parser ingress | postpass/parser disposition marks compatibility | preserve typed compatibility origin; no canonical rows | compatibility owner or parked stop | never become source-backed or A success |
 | `Deferred` | upstream admission | source/resolver admission marks Deferred before handoff | preserve reason; no partial handoff | deferred owner or `NoSafeSlice` | never become empty coverage or raw success |
 | `SourceAuthorityUnavailable` | handoff preflight | identity, parser receipt, source cohort, or config snapshot is absent/foreign | typed stop before row issuance | `NoSafeSlice` until authority exists | no AST rescan, default config, or Builder fallback |
 | `ObservationIncomplete` | handoff observation | authority exists but window/coverage/declaration/config rows cannot be totalized once | typed stop before A/resolver/Recipe effects | `NoSafeSlice` until coverage is total | never round to `NonCandidate` or empty handoff |
-| `HandoffReady` | handoff terminal | one parser sibling co-seals every required source row and coverage proof | issue one move-only parser handoff; no semantic A disposition | future A consumes exactly once | no clone, second parser pass, or name re-pairing |
+| `HandoffReady` | handoff terminal | one parser sibling co-seals every required source row, identity, and coverage proof | issue one move-only parser handoff; no semantic A disposition | one A consumer moves it to `HandoffConsumed` | no clone, second parser pass, or name re-pairing |
+| `HandoffConsumed` | A ingress | the named A consumer takes `HandoffReady` once | no parser replay or second source interpretation | A observation begins or ends in its own state | no return to parser, compatibility, or raw route |
 | `IntegrityInvalid` | handoff verification | complete observation finds duplicate, foreign, stale, cohort, cardinality, or source drift | typed reject before A/resolver/child effects | terminal source candidate discard | no retry, repair-by-AST, compatibility, or raw fallback |
 | `NonCandidate` | A-only continuation | A later proves complete direct-static observation has zero candidates | no direct-static package; parser handoff remains source input | canonical non-direct-static owner | parser never issues this state or treats missing rows as it |
-| `Transported` | future A/B handoff | future consumer moves `HandoffReady` once | no replay or second source interpretation | detached A input terminal | no clone, return to parser, or raw path |
+| `AInputTransported` | future A transport | future A input owner moves the consumed handoff once | no replay or second source interpretation | detached A input terminal | no clone, return to parser, or raw path |
+| `DispositionTransported` | future C/B | future B moves a C disposition once | no source re-observation | detached physical consumer terminal | never reuse as parser or A state |
 
-`HandoffReady` is the only public parser product. `NonCandidate` belongs to
-the later A observation, not this issuer. `Transported` is a future consumer
-state, not a second parser issuer. A complete zero direct-static candidate is
-not known at this layer; empty or partial parser coverage is never evidence of
-`NonCandidate`.
+`HandoffReady` is the only public parser product. `HandoffConsumed` belongs to
+the named A consumer; `AInputTransported` and `DispositionTransported` are
+future lifecycle states, not parser issuers. `NonCandidate` belongs to the
+later A observation, not this issuer. A complete zero direct-static candidate
+is not known at this layer; empty or partial parser coverage is never evidence
+of `NonCandidate`.
 
 ## Acceptance for this design stop
 
