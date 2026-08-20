@@ -12,6 +12,13 @@ use crate::mir::builder::raw_expression_dispatch::static_box_state::ActiveRawSta
 use crate::mir::builder::recursive_child_lowering::RawBoxMethodChildPortV1;
 use crate::mir::{MirBuilder, ValueId};
 
+fn prepared_root_app_mode_v1(builder: &MirBuilder) -> Result<bool, String> {
+    match builder.root_is_app_mode {
+        Some(is_app_mode) => Ok(is_app_mode),
+        None => Err("[freeze:contract][mir/root-app-mode/undecided]".to_owned()),
+    }
+}
+
 pub(in crate::mir::builder) struct PreparedRawNonMainStaticBoxLifecycleV1 {
     name: String,
     methods: PreparedNonMainStaticBoxMethodBatchV1,
@@ -33,7 +40,7 @@ impl PreparedRawNonMainStaticBoxLifecycleV1 {
     where
         Port: RawBoxMethodChildPortV1,
     {
-        if builder.root_is_app_mode.unwrap_or(false) {
+        if prepared_root_app_mode_v1(builder)? {
             return crate::mir::builder::emission::constant::emit_void(builder);
         }
 
@@ -64,7 +71,7 @@ impl PreparedRawNonMainStaticBoxLifecycleV1 {
     where
         Port: RootCallableCapturePortV1,
     {
-        if builder.root_is_app_mode.unwrap_or(false) {
+        if prepared_root_app_mode_v1(builder)? {
             return crate::mir::builder::emission::constant::emit_void(builder);
         }
 

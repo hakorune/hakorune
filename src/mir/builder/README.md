@@ -721,6 +721,16 @@ rows. The focused physical-input and detached-session tests plus
 `script_direct_static_canonical_physical_input_guard.sh` own this boundary;
 `builder.rs` remains pre-existing migration debt and is not grown.
 
+## Root app-mode boundary P0
+
+`PreparedRawNonMainStaticBoxLifecycleV1` consumes only the mode prepared by
+`VerifiedRawRootExpansionV1`: `Some(true)` is the App no-op, `Some(false)` is
+the existing registration/transaction path, and `None` freezes before Box
+registration or method descent. It never infers mode from names or uses
+`unwrap_or(false)`; deferred-static and other compatibility owners remain
+outside this boundary. The finite state table and fail-fast evidence live in
+`mir-root-app-mode-undecided-failfast-d0-2026-08-21.md`.
+
 ## Loop PHI observer boundary (M6-B)
 
 `LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical

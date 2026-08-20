@@ -1,5 +1,5 @@
 ---
-Status: open design stop — complete root-mode state/caller audit
+Status: bounded P0 implementation complete — explicit root-mode boundary
 Date: 2026-08-21
 Decision: MIR-ROOT-APP-MODE-UNDECIDED-FAILFAST-D0
 Parent: docs/development/current/main/investigations/mirbuilder-compatibility-seam-final-ratchet-d0-2026-08-21.md
@@ -31,10 +31,10 @@ before `register_user_box`, `ActiveRawStaticBoxCompilationStateV1::begin`, or
 any method-body descent. A missing/foreign/conflicting mode must produce one
 stable freeze error and no partial registration.
 
-Smallest next slice: `MIR-ROOT-APP-MODE-UNDECIDED-P0` only if the caller census
-proves `None` is a lifecycle contract violation (or gives it an explicit typed
-compatibility disposition); otherwise open a separate source/lifecycle admission
-D0. No mode issuer or production switch is created in this design stop.
+Smallest next slice: `MIR-ROOT-APP-MODE-UNDECIDED-P0`. The complete caller
+census proves that production callers enter after root preparation has issued
+`Some(true)` or `Some(false)`; no production caller intentionally uses `None`.
+No mode issuer or production switch is created in this design stop.
 
 Non-claims: no App-mode semantic change, root admission redesign, compatibility
 callable retirement, Script Deferred repair, static-Box method migration, ABI or
@@ -70,6 +70,45 @@ than silently collapsing them into `AppMode` or `NonAppMode`.
 - Keep the owner and any new test child below the 760-line split trigger and
   800-line hard stop.
 
+## Completed caller/state audit
+
+- The two production callers are the raw expression-dispatch branch
+  (`raw_expression_dispatch/mod.rs:486-508` → `lower_with_port_v1`) and the
+  selected-normal Script runtime branch
+  (`normal_script_runtime_block_port.rs:129` →
+  `normal_script_runtime_work.rs:232-250` → `lower_normal_with_port_v1`).
+- Both callers are reached only after root preparation records
+  `VerifiedRawRootExpansionV1::is_app_mode()` in `MirBuilder`. Script uses
+  `Some(false)` and App uses `Some(true)`; no production caller requires an
+  unset mode. `ProgramDeferredStaticBoxLifecycleV1` is a separate owner and is
+  intentionally outside this P0.
+- The only unset-mode callers are the raw lifecycle test fixture at
+  `raw_expression_dispatch/tests.rs:192,213`, which will be made explicit
+  `Some(false)`, plus the new negative test that must prove the freeze path.
+- The setter has one production preparation site and each root session creates
+  a fresh `MirBuilder`; conflicting rebind is not reachable in the selected
+  source contract. `ModeConflict` is therefore a named non-claim of P0, not an
+  overwrite policy. A future multi-bind owner must open a separate D0.
+- `SourceDrift` is rejected by the caller pattern before this lifecycle and is
+  not re-inferred from AST names here. No source admission change is needed.
+
+## Accepted P0 boundary
+
+`None` is a lifecycle contract error, not a compatibility disposition. The
+consumer must match the prepared mode before registration, transaction, or
+method descent:
+
+```text
+Some(true)  -> Void, no registration/descent
+Some(false) -> existing registration/transaction/method order
+None        -> [freeze:contract][mir/root-app-mode/undecided], zero effects
+```
+
+The raw fixture is updated to seed `Some(false)` explicitly; no default or
+retry remains. P0 is BoxShape-only and does not touch the deferred-static owner,
+source admission, App semantics, or any compatibility caller outside the two
+audited entries.
+
 ## Candidate acceptance for the later P0
 
 - `Some(true)` preserves the current Void/no-registration behavior.
@@ -84,3 +123,23 @@ than silently collapsing them into `AppMode` or `NonAppMode`.
 The row remains `NoSafeSlice` if a production compatibility caller requires an
 unset mode but no source-owned compatibility disposition can be named. A local
 green test or an AST-derived default cannot open the implementation row.
+
+## P0 implementation receipt
+
+`PreparedRawNonMainStaticBoxLifecycleV1` now matches the prepared mode before
+registration, transaction creation, or method descent. `Some(true)` preserves
+the App Void/no-registration path, `Some(false)` preserves the existing raw and
+selected-normal registration/transaction order, and `None` returns
+`[freeze:contract][mir/root-app-mode/undecided]` with zero lifecycle effects.
+The raw test fixture now seeds `Some(false)` explicitly; focused negatives cover
+both lifecycle entrypoints and assert no user-Box registration or function
+publication. The deferred-static owner and all other compatibility owners were
+not widened.
+
+Evidence:
+
+- `cargo test --profile quick -p nyash-rust raw_nonmain_static_box --lib` — 4 passed
+- `cargo test --profile quick -p nyash-rust normal_nonmain_static_box_undecided_mode_freezes_before_registration --lib` — 1 passed
+- `cargo check --profile quick -p nyash-rust` — passed
+- `bash tools/checks/mir_root_app_mode_failfast_guard.sh` — passed
+- `bash tools/checks/current_state_pointer_guard.sh` — passed
