@@ -589,12 +589,15 @@ accepted D0. The completed rows remain in the receipts above and in
    `NoSafeSlice`: the resolver returns `Deferred` before issuing any Script
    owner, so a Brand consumer cannot be added without a new semantic source
    product. Compatibility, RawLegacy, and nested/Main remain separate rows.
-5. **`SCRIPT-DIRECT-STATIC-CALL-TARGET-D0`** — accepted as the next production
-   frontier design. Its bounded I0 may issue only an exact Script caller/site
+5. **`SCRIPT-DIRECT-STATIC-CALL-TARGET-D0/I0`** — landed as a source-only
+   production-frontier observation. It issues an exact Script caller/site
    target catalog; Recipe and physical retirement remain later rows.
-6. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
+6. **`SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`** — current design stop after
+   target I0. Select one AST-free Script Facts/caller/result co-seal before any
+   Recipe consumer; the target inventory alone is not a Recipe authority.
+7. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
    MethodCall/`Brand.unwrap`; do not combine it with constructor consumer work.
-7. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
+8. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
    FunctionCall admission has an exact `Constructor|NonBrand|Unavailable`
    disposition. Until then, `CompilationContext::is_brand_declared` remains a
    compatibility authority on the relationless lanes.
@@ -716,3 +719,20 @@ the source-owned Script target catalog and completeness/negative guards; leave
 Recipe, physical call/result publication, and old-route retirement unopened.
 Non-claims: no Deferred owner repair, callable-key reuse, by-name fallback,
 Recipe/Join issuance, physical switch, backend optimization, or promotion.
+
+### SCRIPT-DIRECT-STATIC-CALL-TARGET-I0 closeout
+
+The source-owned Script direct-static target inventory is landed and pushed.
+It retains exact caller/receiver/argument sites and the existing canonical
+callee key, while bound/dynamic/reserved receivers remain explicit
+noncandidates. Six focused tests and a reusable guard are green. The inventory
+is retained in the selected-normal work plan only; no Recipe, result
+publication, physical lowering, fallback, or production switch was added.
+
+### SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0 closeout
+
+`NoSafeSlice`: the existing scalar-only `RawScriptBodyRecipeV1` and
+callable-keyed result owner cannot consume ScriptRoot direct-static rows. The
+target inventory is not a semantic caller/result authority and is not exposed
+to a production Recipe consumer. The next design row is
+`SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0`.

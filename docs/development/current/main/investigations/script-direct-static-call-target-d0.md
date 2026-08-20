@@ -124,23 +124,53 @@ Recipe, Join, physicalizer, method handlers, backend, and fallback paths.
 
 ## Next design stop (not opened)
 
-`SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` is the next design-only row. The I0
-inventory is retained as an input, but no Recipe owner, argument/value relation,
-result publication, or physical call route has been selected yet.
+`SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` is closed as `NoSafeSlice`: the I0
+inventory is retained inside the Builder work plan but has no production Recipe
+consumer, and the existing scalar Recipe/result owners cannot receive it.
 
-Decision: audit one Script Facts/Recipe consumer for the retained target rows;
-do not open Recipe construction in this closeout.
+Decision: select one preceding Facts co-seal design before any Recipe
+construction; do not add an accessor-only bridge or synthetic callable caller.
 
-Source authority + canonical issuer: the existing Script semantic owner and
-Recipe/Join contracts must co-seal the exact caller/site/argument relation.
+Source authority + canonical issuer: the parser-retained Program plus
+`FunctionSemanticResolverSessionV1` must co-seal one AST-free Script semantic
+source, target rows, caller owner, ordered argument sites, and result site.
 
-Non-authority: target inventory alone, AST/name/arity lookup, static result
-catalogs, raw success, assembly, timing, or a callable caller key.
+Non-authority: target inventory alone, AST/name/arity lookup, scalar-only
+`RawScriptBodyRecipeV1`, callable-keyed result publication, raw success,
+assembly, timing, or a synthetic callable caller key.
 
-Fail-fast boundary: missing Script owner, site/argument drift, incomplete
-coverage, foreign target, or result-owner mismatch remains `NoSafeSlice`.
+Fail-fast boundary: missing Script owner, target/semantic site drift,
+incomplete argument/result coverage, foreign target, or result-owner mismatch
+remains `NoSafeSlice` before Builder effects.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` worker audit only.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-FACTS-COSEAL-D0` design audit
+only; choose the one Facts owner and its exact transport before implementation.
 
-Non-claims: no Recipe/Join/physical implementation, fallback, promotion, or
-production switch is authorized by the completed I0.
+Non-claims: no Recipe/Join/physical implementation, scalar Recipe widening,
+fallback, promotion, or production switch is authorized by the completed I0.
+
+### FACTS-COSEAL-D0 audit receipt
+
+- The target inventory is issued at
+  `normal_default_root_catalog_lifecycle.rs:448-466` and retained through
+  `PreparedProgramRootWorkPlanPartsV1`, but `program_root_lowering.rs` does not
+  consume it.
+- `VerifiedScriptSemanticSourceV1` owns resolver forests and lowering
+  projections, but not target rows, caller identity, argument/value relations,
+  or result publication. Its existing product is the only plausible semantic
+  co-seal point; no name/key re-pairing is allowed.
+- `normal_source_plan::script_recipe.rs` consumes the separate
+  scalar-only `RawScriptBodyRecipeV1`; it is not the selected Script target
+  consumer. MethodCall/argument/result Recipe widening is a later design, not
+  an implementation permission here.
+- Existing static result publication is keyed by
+  `(CanonicalSameModuleCallableKeyV1, SourceExprSiteV1)` and
+  `RawInvocationRootLineageV1::Cataloged`; ScriptRoot has no valid caller
+  mapping. A synthetic callable key is forbidden.
+- Positive design witnesses must co-seal same-module and alias targets,
+  ordered arguments, result site, and zero-call completeness. Negatives must
+  reject foreign catalog/window, owner/site drift, argument gaps, nested-owner
+  crossing, and missing result ownership before effects.
+- This audit closes the Recipe row without code changes and selects only the
+  next design consultation. The existing I0 guard and six focused tests remain
+  the evidence for the observation product.
