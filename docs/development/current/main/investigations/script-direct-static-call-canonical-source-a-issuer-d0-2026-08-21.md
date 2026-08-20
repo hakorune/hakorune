@@ -141,15 +141,28 @@ physical instruction, or Recipe key may cross the A package boundary.
 ## A/C/B ownership
 
 ```text
-A issuer
-  one source observation, one private readiness, one DirectStaticSourceReady
+A = source-observation/package phase
+  one parser-backed observation, one private readiness, one
+  DirectStaticSourceReady package
 
-C disposition
-  consumes A package once and is the sole canonical disposition owner
+C = canonical-disposition phase
+  consumes A's package once and is the sole owner of the direct-static
+  semantic disposition; C does not re-observe parser source
 
-B transport
-  carries C's typed decision only; it does not observe source or reissue it
+B = typed-transport phase
+  carries C's typed decision only; B does not observe source or reissue A/C
+  meaning
 ```
+
+These are phase roles, not competing issuers. `CanonicalSourceBacked` is the
+upstream identity-I0 state consumed by A; it is not an A disposition. A
+missing or unconfirmed source/window/config authority is
+`SourceAuthorityUnavailable` or `ObservationIncomplete` before complete
+observation. Only after the retained window and all required rows are
+complete may a duplicate, foreign, stale, or cardinality mismatch become
+`IntegrityInvalid`. `Transported` belongs to the future C-to-B lifecycle and
+is not an A state. A/C/B may not collapse any of these states into an empty
+candidate or compatibility success.
 
 The issuer must not call selected `normal_default_root_catalog_lifecycle`,
 install into `comp_ctx`, or borrow selected Builder products as canonical
