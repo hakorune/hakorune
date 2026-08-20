@@ -142,6 +142,34 @@ contradictory piece is `IntegrityInvalid`. In particular, a target row that is
 observed but fails the final Sequence/root-Return terminal relation is
 `IntegrityInvalid`, never `NonCandidate` or `ObservationIncomplete`.
 
+## Future issuer contract (design only)
+
+The future `CanonicalScriptDirectStaticSourceOnlyIssuerV1` must perform one
+source-backed issuance in this order, without calling the selected Builder
+lifecycle:
+
+1. validate parser lineage, profile, digest, UTF-8 length, and one-read/
+   one-parse receipt;
+2. issue the complete retained `ProgramBody` window and its coverage receipt;
+3. co-seal declaration facts, the Brand catalog, and the canonical static
+   import/config snapshot under that same source identity;
+4. issue one resolver forest from those views and the window;
+5. issue a target inventory whose rows include explicit noncandidate reasons;
+6. co-seal target/result rows, ordered receiver/argument/result sites, and the
+   required-callee-argument proof;
+7. issue and verify the final-Sequence/root-Return terminal relation;
+8. co-seal the existing source facts needed by Bundle, Publication, Recipe,
+   Join, and proof as one all-or-none package;
+9. move one AST-free input envelope to the future A issuer.
+
+`FunctionOwnerIdV1` is an invocation-local forest brand, not source identity.
+The source package must not use it, AST pointers, names, paths, ordinals, or
+digest equality as a later join key. Existing
+`normal_default_root_catalog_lifecycle`, `MirBuilder`, `comp_ctx`, and the
+selected direct-static products may be audited for behavior but are not this
+issuer. `canonical_core_dispatch.rs` and the Builder lifecycle remain thin;
+semantic growth belongs in a new sibling owner below the 760/800-line limits.
+
 ## A/C/B owner boundary
 
 ```text
@@ -175,6 +203,9 @@ the canonical path by pointer or name.
 - one complete retained Script window and its coverage receipt are named;
 - declaration/import/brand views, resolver forest, target/result catalogs,
   required proof, and terminal/source rows have one lifetime and one issuer;
+- the issuer contract names explicit noncandidate reasons and verifies the
+  complete target/window cardinality before issuing `NonCandidate` or
+  `InputAuthorityReady`;
 - `InputAuthorityReady` contains no AST, `ValueId`, MIR/Builder physical
   fact, or Recipe key;
 - all required source products are co-sealed as one package; partial optional
