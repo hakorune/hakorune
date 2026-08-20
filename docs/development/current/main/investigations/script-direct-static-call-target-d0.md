@@ -1,9 +1,10 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
 Status: target I0, result-owner/Facts I0, continuation D0, continuation I0,
-ScriptRoot result-owner I0, Recipe D0, Recipe I0, and Recipe-terminal I0 are
-closed. Join-I0 is closed as a source/Facts handoff; the current design stop is
-the physical-consumer audit, while physical and raw retirement remain closed.
+ScriptRoot result-owner I0, Recipe D0, Recipe I0, Recipe-terminal I0, and the
+physical-consumer owner audit are closed. Join-I0 is a source/Facts handoff;
+the current design stop is the Script-specific physical bridge, while physical
+and raw retirement remain closed.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -37,8 +38,9 @@ Fail-fast boundary: missing/non-final/foreign/duplicate rows, terminal drift,
 or a result/exit owner that cannot consume both FinalSequence and RootReturn
 forms is `NoSafeSlice` before physical effects; no inferred fallback is allowed.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-CONSUMER-D0`, a
-read-only owner/Join audit. Do not edit code, fixtures, raw retirement, or perf.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0`, a design
+slice for a Script-specific consumer/publication sibling. Do not implement
+code, widen scalar Recipes, edit fixtures, retire raw paths, or run perf.
 
 Non-claims: no physical implementation, ABI/result publication switch, backend
 parity, raw-edge retirement, promotion, or C-parity claim is opened here.
@@ -794,3 +796,62 @@ Smallest next slice: a read-only owner/Join audit; no code, fixture, raw
 retirement, production switch, or perf rerun until that design closes.
 Non-claims: no physical implementation, ABI/result publication, backend change,
 promotion, or C-parity claim.
+
+### Physical-consumer audit closeout
+
+Decision: close this owner-selection audit as `NoSafeSlice` for direct reuse.
+No existing owner consumes the joined Script rows end-to-end. `ScriptPhysicalExitCommitV1`
+is the sole final Return/signature writer, but it does not own static-call emission
+or result publication. `PreparedStaticCallResultPublicationV1` and
+`raw_static_result_publication.rs` are callable-keyed/Cataloged-only, while
+`OpenScriptPhysicalEntrySessionV1` accepts only the scalar `RawScriptBodyRecipeV1`.
+
+Source authority + canonical issuer: `VerifiedScriptDirectStaticJoinHandoffV1`
+remains the only source input. A future Script-specific physical bridge must
+co-seal the joined target/representation/ordered arguments with one physical
+call receipt and then delegate the final Value/Return write to
+`ScriptPhysicalExitCommitV1`.
+
+Non-authority: callable-key conversion, AST/ordinal or ValueId/MirType matching,
+Loop JoinSig vocabulary, raw success, disassembly, timing, and C ratios cannot
+select a Script physical owner.
+
+Fail-fast boundary: missing/foreign/duplicate joined rows, target/arity/argument
+or representation drift, unsupported result representation, non-final terminal,
+missing physical receipt, or duplicate Return/publication must reject before any
+physical effect. No scalar Recipe widening, callable-key fallback, or raw retry.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0`, a design
+slice for a new focused Script physical-consumer/publication sibling. First
+scope is `ExactI64` plus both `FinalSequence` and `RootReturn`; implementation
+must remain separate from `ScriptPhysicalExit`, callable publication, raw
+static publication, and the oversized runtime/transport owners.
+
+Non-claims: no bridge implementation, Box result support, ABI change, raw
+retirement, production switch, performance rerun, PC owner, or C-parity claim.
+
+## SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0 design stop (2026-08-20)
+
+Decision: design one focused Script physical bridge; do not extend an existing
+owner beyond its authority boundary.
+
+Source authority + canonical issuer: the joined Script handoff issues exact
+target, representation, ordered arguments, and `FinalSequence`/`RootReturn`.
+The new bridge must co-seal those rows with one physical call receipt and
+delegate final Return/signature mutation to `ScriptPhysicalExitCommitV1`.
+
+Non-authority: callable-keyed publication, `RawScriptBodyRecipeV1`, raw
+Script success, AST/ordinal, `ValueId`/`MirType`, JoinSig labels, assembly,
+timing, and C-parity ratios.
+
+Fail-fast boundary: missing/foreign/duplicate rows, target/arity/argument or
+representation drift, unsupported result type, non-final destination, missing
+receipt, or duplicate publication/Return rejects before physical effects.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-I0` only after
+this design closes; start with `ExactI64` for both destinations in a new sibling
+under the 760-line rule. Keep callable publication, `ScriptPhysicalExit`, raw
+static publication, runtime transport, and raw retirement separate.
+
+Non-claims: no code or fixture implementation is authorized yet; no Box result
+support, ABI change, production switch, perf rerun, PC owner, or C-parity claim.
