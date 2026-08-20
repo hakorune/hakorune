@@ -25,6 +25,9 @@ CONTINUATION_TESTS=src/mir/builder/normal_script_source_continuation_tests.rs
 LOWERING_INPUT=src/mir/builder/normal_script_semantic_lowering_input.rs
 RESULT_OWNER=src/mir/builder/normal_script_direct_static_result_publication_owner.rs
 RESULT_OWNER_TESTS=src/mir/builder/normal_script_direct_static_result_publication_owner_tests.rs
+RECIPE=src/mir/builder/normal_script_direct_static_recipe.rs
+RECIPE_TESTS=src/mir/builder/normal_script_direct_static_recipe_tests.rs
+LOWERING_STATE=src/mir/builder/normal_script_semantic_lowering_state.rs
 ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
 BUILDER_README=src/mir/builder/README.md
 CARD=docs/development/current/main/investigations/script-direct-static-call-target-d0.md
@@ -45,6 +48,12 @@ require_text "$RESULT_OWNER" "BundleSourceMismatch"
 require_text "$RESULT_OWNER" "ContinuationMissing"
 require_text "$RESULT_OWNER_TESTS" "owner_accepts_a_complete_script_source_bundle"
 require_text "$RESULT_OWNER_TESTS" "owner_rejects_a_bundle_from_a_foreign_source"
+require_text "$RECIPE" "VerifiedScriptDirectStaticRecipeV1"
+require_text "$RECIPE" "FinalSequence"
+require_text "$RECIPE" "RootReturn"
+require_text "$RECIPE" "MissingFinalValueRelation"
+require_text "$RECIPE_TESTS" "complete_empty_owner_emits_a_valid_empty_recipe"
+require_text "$LOWERING_STATE" "direct_static_recipe"
 require_text "$ROOT_TRAVERSAL" "record_statement_shape"
 require_text "$BUILDER_README" "VerifiedScriptSourceContinuationV1"
 require_text "$BUILDER_README" "source/Facts-only"
@@ -52,7 +61,7 @@ require_text "$CARD" "SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0"
 require_text "$CARD" "source-only continuation rows"
 require_text "$CARD" "result publication, and physical lowering"
 
-for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README"; do
+for file in "$MODULE" "$TESTS" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
@@ -62,6 +71,11 @@ done
 
 if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$MODULE"; then
   echo "[script-direct-static-target] observation module crossed the Recipe/physical boundary" >&2
+  exit 1
+fi
+
+if rg -n "raw_root_body_recipe|normal_source_plan|JoinSig|ValueId|MirType|lower_.*physical|emit_.*call" "$RECIPE"; then
+  echo "[script-direct-static-target] dedicated Recipe crossed the scalar/physical boundary" >&2
   exit 1
 fi
 
@@ -79,6 +93,8 @@ CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::source_call_target::script_direct_static_tests --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_result_bundle --lib
+CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
+  mir::builder::normal_script_direct_static_recipe --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   normal_script_source_continuation_tests --lib
 

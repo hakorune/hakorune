@@ -538,6 +538,25 @@ no Recipe key, Join signature, ValueId, MIR type, result-publication ABI,
 physical block, fallback, or production switch; Recipe and physical result
 publication remain later design rows.
 
+## Script direct-static Recipe I0
+
+`VerifiedScriptDirectStaticRecipeV1` is a dedicated Script Recipe producer for
+the co-sealed `VerifiedScriptDirectStaticResultPublicationOwnerV1`. It issues
+an opaque Recipe-local key and retains the owner/site, ordered argument,
+target, result representation, and continuation relations without re-reading
+AST or re-resolving names. The first accepted shape is deliberately narrow:
+the call must be the value of the final Sequence statement or the value of the
+root Return statement. Local initializers, assignments, print/discarded calls,
+control-flow/nested owners, Deferred, Compatibility, and RawLegacy remain
+outside this Recipe and are rejected rather than represented by an empty row.
+
+The producer is separate from `RawScriptBodyRecipeV1` and the Loop Recipe
+vocabulary. The Recipe is transported through the existing Complete Script
+semantic source/lowering input/state only; no JoinSig, ValueId, MIR type,
+physical block, route selection, raw retirement, or production switch is
+performed in this I0. The focused guard and empty Complete Script fixture cover
+the source/Facts boundary; non-empty physical consumption is a later row.
+
 ## Loop PHI observer boundary (M6-B)
 
 `LoopPhiMaterializerV1` under `control_flow/plan` is a caller-zero mechanical

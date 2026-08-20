@@ -6,6 +6,7 @@ use crate::mir::builder::stmts::variable_stmt::OutboxBindingValueV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceNodeSiteV1};
 use crate::mir::ValueId;
 
+use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
@@ -19,6 +20,7 @@ pub(super) struct ScriptSemanticLoweringState {
     direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
     direct_static_result_publication_owner:
         Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
+    direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
@@ -29,12 +31,14 @@ impl ScriptSemanticLoweringState {
             continuation,
             direct_static_result_bundle,
             direct_static_result_publication_owner,
+            direct_static_recipe,
         ) = input.into_parts();
         Self {
             projection,
             continuation,
             direct_static_result_bundle,
             direct_static_result_publication_owner,
+            direct_static_recipe,
             variable_values: BTreeMap::new(),
             materialized_outboxes: BTreeSet::new(),
         }
@@ -58,6 +62,10 @@ impl ScriptSemanticLoweringState {
         &self,
     ) -> Option<&VerifiedScriptDirectStaticResultPublicationOwnerV1> {
         self.direct_static_result_publication_owner.as_ref()
+    }
+
+    pub(super) fn direct_static_recipe(&self) -> Option<&VerifiedScriptDirectStaticRecipeV1> {
+        self.direct_static_recipe.as_ref()
     }
 
     pub(super) fn lambda_captures(

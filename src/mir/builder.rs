@@ -292,6 +292,7 @@ mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifec
 mod normal_script_boundary_receipt_pack; // Script retained boundary receipts
 mod normal_script_direct_static_result_bundle; // Script source/result Facts bundle
 mod normal_script_direct_static_result_publication_owner; // Script source/Facts result owner
+mod normal_script_direct_static_recipe; // Dedicated Script direct-static Recipe producer
 mod normal_script_operational_demand_receipt_pack; // Script structured demand receipts
 mod normal_script_semantic_lowering_input; // Retained Script source products into lowering
 mod normal_script_semantic_lowering_projection; // Immutable Script lowering projection

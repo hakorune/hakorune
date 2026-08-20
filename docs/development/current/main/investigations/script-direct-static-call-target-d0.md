@@ -1,8 +1,8 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
 Status: target I0, result-owner/Facts I0, continuation D0, continuation I0,
-and ScriptRoot result-owner I0 are closed. Recipe D0 is the current design
-stop; Join, physical, and raw retirement rows remain unopened.
+ScriptRoot result-owner I0, and Recipe D0 are closed. Recipe I0 is the current
+bounded implementation row; Join, physical, and raw retirement remain closed.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -12,8 +12,8 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   claim is a separate future D0. This row is not a performance or backend task.
 - Deferred Script owner repair is `NoSafeSlice`; this row does not relabel it.
 - The target/result bundle, source continuation, and ScriptRoot result owner are
-  Facts/source products only. Recipe and physical call lowering stay closed
-  until their owners are named in this design stop.
+  Facts/source products. Recipe I0 now has its own narrow producer and transport;
+  Join/result handoff and physical call lowering remain closed.
 - Every touched Rust source must stay below 760 lines; `owner_forest.rs`,
   `recursive_child_lowering.rs`, and package install are no-growth owners.
 
@@ -547,19 +547,28 @@ I0 sections above remain evidence and are not executable rows.
    `SourceExprSiteV1`. Missing/foreign source, owner, or continuation rows
    reject before any Recipe or physical effect; the focused owner tests and
    reusable guard are green.
-5. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0`.** Define the dedicated
-   Script Recipe producer/transport sibling before implementation. It must
-   consume one source row per owner row and keep `RawScriptBodyRecipeV1`,
-   `normal_source_plan::script_recipe`, and the existing scalar path unchanged.
-6. **PARKED — Join/physical/result handoff.** After Recipe I0, open separate
-   owner cards for source Join/continuation, Script result publication, and
-   physical lowering. Never turn a physical `JoinSig`, `ValueId`, or block
-   label into source meaning.
-7. **PARKED — raw retirement/production.** Retire the old Script edge only when
+5. **CLOSED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0`.** The new Recipe shape is
+   limited to a final direct-static call whose result is either the Script
+   terminal value or the root Return value. A dedicated producer issues the
+   Recipe-local key and row from exactly one source/Facts owner row; existing
+   scalar and Loop Recipes remain untouched.
+6. **CLOSED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`.** The dedicated sibling
+   producer issues only its opaque Recipe-local key, validates final Sequence/
+   root Return value relations, and transports the retained Recipe through the
+   Complete Script lowering input/state. Focused Recipe/owner/bundle/continuation
+   tests and the reusable guard are green; the broader lifecycle suite still
+   reproduces the known `mir/instance-constructor-source/cohort-missing` baseline.
+7. **ACTIVE DESIGN STOP — `SCRIPT-DIRECT-STATIC-CALL-JOIN-D0`.** Define one
+   source-owned Recipe-to-result/Join continuation handoff before physicalizing
+   any Script direct-static call. The next row must name the canonical Join
+   issuer, preserve final Sequence/Return destination semantics, and reject
+   local/assignment/control-flow/Deferred/Compatibility/RawLegacy gaps; no code
+   or physical route is authorized until that brief closes.
+8. **PARKED — raw retirement/production.** Retire the old Script edge only when
    every admitted Script family has an exact Recipe/result owner and the new
    path is selected. Deferred, Compatibility, RawLegacy, and nested families
    remain explicit non-claims until separately closed.
-8. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
+9. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
    `Hako/C <= 1.00` as the long-term same-corridor point target; a possible
    upper-95% `<= 1.03` claim requires a new predeclared batch/D0. No WSL/native
    rerun, PMU attribution, threshold change, SIMD work, or backend BoxShape is
@@ -626,6 +635,100 @@ static rows); the negative fixture pairs a bundle from a foreign source and
 requires `BundleSourceMismatch`. Nonempty static-row coverage remains owned by
 the existing bundle/continuation tests and is not claimed by this owner test.
 
-Next design stop: `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0`. Define one Script
-Recipe producer from this owner only after a separate design audit; do not
-start Recipe/Join/physical/result publication or performance work here.
+Closed design stop: `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0`. The next bounded
+implementation row is `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`; do not start
+Join/physical/result publication or performance work there.
+
+## RECIPE-D0 design decision (2026-08-20)
+
+Decision: accept one new `BoxCount` for a Script direct-static Recipe, without
+changing the existing scalar/Loop Recipe vocabularies. The first accepted
+shape is intentionally narrow: the call result must be the final Script
+terminal value or the value of the root `Return` statement.
+
+Source authority + canonical issuer: the landed
+`VerifiedScriptDirectStaticResultPublicationOwnerV1` is the sole Facts input.
+Its demand row already co-seals the Script owner/site, receiver and ordered
+argument sites, result site, parent relations, terminal, canonical target,
+callee representation, and required argument ordinals. A new dedicated Recipe
+producer is the only issuer of the opaque Recipe key and Recipe row.
+
+Non-authority: `RawScriptBodyRecipeV1`,
+`normal_source_plan::script_recipe`, Loop Recipe types, AST re-scan, source-site
+key guessing, callable-key conversion, target/name/arity lookup,
+`ScriptRoot` raw lineage, `ValueId`, `MirType`, `JoinSig`, physical blocks,
+or the later physical result-publication owner.
+
+Fail-fast boundary: reject before Recipe publication when the owner is absent,
+foreign, duplicated, or drifted; when target/representation/site/argument
+coverage differs; or when the continuation is not exactly a final Sequence
+value or root Return value. Local initializer, assignment, print, nested
+expression, branch/loop, discarded call, Deferred, Compatibility, RawLegacy,
+and nested owners are not empty/default Recipe rows and remain `NoSafeSlice`.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0` adds a new sibling
+under 300 lines plus a focused verifier/test sibling. It consumes one owner row
+at a time, issues one Recipe-local key, retains all source/Facts payloads
+unchanged, and transports the resulting Recipe without touching the scalar
+Recipe, raw transport, Join, physicalizer, or route selector.
+
+Acceptance: zero owner rows produce a valid empty Recipe only for a Complete
+Script source; each accepted owner row produces exactly one Recipe row; final
+Sequence and root Return fixtures preserve exact destination/representation;
+two sites to one target remain distinct; duplicate/foreign/missing rows and
+non-final uses reject with no partial output. Recipe key issuance is confined
+to the new producer, and the old Script edge remains selected until a later
+physical/production cutover row.
+
+Non-claims: no general call expression Recipe, local/assignment/print support,
+nested or control-flow support, JoinSig, physical result publication,
+ValueId/MIR type, raw retirement, production switch, performance, or C parity.
+
+## JOIN-D0 design stop (2026-08-20)
+
+Decision: keep the landed Script direct-static Recipe source/Facts-only and
+open one design stop for its continuation/result handoff; do not widen the
+scalar Recipe or infer a physical Join from the Recipe row.
+
+Source authority + canonical issuer: the dedicated Recipe producer remains the
+sole Recipe-key/row issuer. A future Join issuer must consume the same retained
+Recipe row together with the already co-sealed Script continuation and result
+publication owner, then issue one source-owned destination relation. No AST,
+source-site re-pairing, callable-key conversion, or physical block may issue it.
+
+Non-authority: `ValueId`, `MirType`, `JoinSig` labels, raw Script lineage,
+terminal block labels, old scalar/Loop Recipe projections, result ABI guesses,
+assembly, and timing cannot define the Recipe-to-result relation.
+
+Fail-fast boundary: the next design must reject missing/duplicate/foreign Recipe
+keys, non-final destinations, local/assignment/control-flow/Deferred/
+Compatibility/RawLegacy owners, and any destination or representation drift
+before Join or physical effects. No empty/default relation and no raw fallback.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-JOIN-D0` — a read-only census
+and six-line brief naming the existing canonical Join/continuation owner and a
+single bounded I0 seam. Until accepted, no JoinSig, physical result publication,
+route switch, raw retirement, performance rerun, or backend optimization is
+authorized.
+
+Non-claims: no Join implementation, physical `ValueId`/MIR type, ABI change,
+production cutover, fallback, performance result, or C-parity claim.
+
+## RECIPE-I0 closeout (2026-08-20)
+
+Decision: close `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0` as one bounded source/Facts
+BoxCount. The dedicated producer validates only final Sequence/root Return
+value relations and transports the resulting Recipe without consuming it.
+
+Evidence: `cargo test --profile quick -p nyash-rust --lib
+normal_script_direct_static_recipe` passed 1/1; the direct-static bundle,
+continuation, and result-owner focused tests passed 5/5 together; and
+`bash tools/checks/script_direct_static_target_guard.sh` passed. The broader
+`normal_default_root_catalog_lifecycle` suite remains red only at the known
+pre-existing `[freeze:contract][mir/instance-constructor-source/cohort-missing]`
+baseline (6 failures), so it is not reclassified as a Recipe regression.
+
+Non-claims: no non-empty physical Recipe consumption, JoinSig, ValueId/MIR
+type, result ABI, raw-edge retirement, production switch, performance result,
+or C-parity claim. The next executable row is not opened; the active pointer is
+the `SCRIPT-DIRECT-STATIC-CALL-JOIN-D0` design stop.

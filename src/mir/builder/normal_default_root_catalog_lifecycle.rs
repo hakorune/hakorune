@@ -9,6 +9,7 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
+use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
@@ -572,6 +573,18 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/script-static-result/owner] {error:?}").into(),
                             )
                         })?;
+                    let recipe = VerifiedScriptDirectStaticRecipeV1::issue(
+                        &publication_owner,
+                        work.script_root_admission
+                            .as_ref()
+                            .expect("Script admission remains attached")
+                            .window(),
+                    )
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            format!("[mir/script-static-result/recipe] {error:?}").into(),
+                        )
+                    })?;
                     source
                         .attach_direct_static_result_bundle(bundle)
                         .map_err(|error| {
@@ -586,6 +599,11 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/script-static-result/owner-attach] {error}").into(),
                             )
                         })?;
+                    source.attach_direct_static_recipe(recipe).map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            format!("[mir/script-static-result/recipe-attach] {error}").into(),
+                        )
+                    })?;
                 }
                 let static_result_publication_owner =
                     VerifiedStaticCallResultPublicationOwnerV1::issue(

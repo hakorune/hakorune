@@ -7,6 +7,7 @@
 //! carrier can manufacture the Complete loan.
 
 use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
+use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDemandReceiptPackV1;
@@ -39,6 +40,7 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
     direct_static_result_publication_owner:
         Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
+    direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -102,6 +104,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             continuation,
             direct_static_result_bundle: None,
             direct_static_result_publication_owner: None,
+            direct_static_recipe: None,
         })
     }
 
@@ -139,6 +142,20 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         &self,
     ) -> Option<&VerifiedScriptDirectStaticResultPublicationOwnerV1> {
         self.direct_static_result_publication_owner.as_ref()
+    }
+
+    pub(super) fn attach_direct_static_recipe(
+        &mut self,
+        recipe: VerifiedScriptDirectStaticRecipeV1,
+    ) -> Result<(), &'static str> {
+        if self.direct_static_recipe.replace(recipe).is_some() {
+            return Err("duplicate Script direct-static Recipe");
+        }
+        Ok(())
+    }
+
+    pub(super) fn direct_static_recipe(&self) -> Option<&VerifiedScriptDirectStaticRecipeV1> {
+        self.direct_static_recipe.as_ref()
     }
 
     pub(super) fn continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
@@ -273,6 +290,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             self.continuation,
             self.direct_static_result_bundle,
             self.direct_static_result_publication_owner,
+            self.direct_static_recipe,
         )
     }
 }
