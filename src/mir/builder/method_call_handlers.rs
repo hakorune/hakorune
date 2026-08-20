@@ -6,19 +6,19 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::SameModuleCallableNamespaceV1;
 use crate::mir::builder::calls::function_lowering;
+use crate::mir::builder::calls::lower_selected_static_result_publication_v1;
 use crate::mir::builder::calls::{
     AssociatedMethodCallArgumentsV1, MethodCallArgumentDescentV1, MethodCallDescentPortV1,
     MethodCallValueTerminalPortV1, StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
-use crate::mir::builder::calls::lower_selected_static_result_publication_v1;
 use crate::mir::builder::me_call_header_observation::{
     prepare_me_lowered_call_v1, MeCallHeaderObservationPortV1, MethodCallLoweringPortV1,
     PreparedMeReceiverV1,
 };
-use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::builder::static_result_publication_ingress::{
     StaticResultPublicationIngressPortV1, StaticResultPublicationIngressV1,
 };
+use crate::mir::builder::{MirBuilder, ValueId};
 use crate::mir::TypeOpKind;
 
 use super::record_helper_args::{
@@ -157,6 +157,12 @@ impl MeCallPolicyBox {
         Port: MethodCallLoweringPortV1,
     {
         let prepared = Self::prepare(builder, method, arguments, descent)?;
+        Self::validate_prepared_me_arity_before_descent(
+            &prepared,
+            method,
+            arguments.len(),
+            crate::config::env::builder_me_call_arity_strict(),
+        )?;
         Self::execute(builder, method, arguments, descent, prepared)
     }
 
@@ -170,6 +176,12 @@ impl MeCallPolicyBox {
         Port: MethodCallLoweringPortV1 + StaticResultPublicationIngressPortV1,
     {
         let prepared = Self::prepare(builder, method, arguments, descent)?;
+        Self::validate_prepared_me_arity_before_descent(
+            &prepared,
+            method,
+            arguments.len(),
+            crate::config::env::builder_me_call_arity_strict(),
+        )?;
         let publication_owner = match &prepared {
             PreparedMeCallExecutionV1::LoweredGlobal { owner, prepared }
                 if matches!(prepared.receiver(), PreparedMeReceiverV1::Static) =>
@@ -203,6 +215,26 @@ impl MeCallPolicyBox {
             }
         }
         Self::execute(builder, method, arguments, descent, prepared)
+    }
+
+    fn validate_prepared_me_arity_before_descent(
+        prepared: &PreparedMeCallExecutionV1,
+        method: &str,
+        argument_count: usize,
+        strict: bool,
+    ) -> Result<(), String> {
+        let PreparedMeCallExecutionV1::LoweredGlobal { owner, prepared } = prepared else {
+            return Ok(());
+        };
+        let instance = matches!(prepared.receiver(), PreparedMeReceiverV1::Instance { .. });
+        let expected = prepared.expected_params();
+        let provided = argument_count + usize::from(instance);
+        if expected == provided || !strict {
+            return Ok(());
+        }
+        let symbol =
+            function_lowering::generate_method_function_name(owner, method, argument_count);
+        Err(Self::me_arity_error(&symbol, expected, provided, instance))
     }
 
     fn prepare<Port>(
@@ -343,10 +375,7 @@ impl MeCallPolicyBox {
         let shape = if instance { "instance" } else { "static" };
         let provided_shape = if instance { "args(+me)" } else { "args" };
         if crate::config::env::builder_me_call_arity_strict() {
-            return Err(format!(
-                "[me-call] arity mismatch ({}): {}: declared {} params, got {} {}",
-                shape, symbol, expected, provided, provided_shape
-            ));
+            return Err(Self::me_arity_error(symbol, expected, provided, instance));
         }
         if crate::config::env::builder_static_call_trace() {
             crate::runtime::get_global_ring0().log.warn(&format!(
@@ -355,6 +384,15 @@ impl MeCallPolicyBox {
             ));
         }
         Ok(())
+    }
+
+    fn me_arity_error(symbol: &str, expected: usize, provided: usize, instance: bool) -> String {
+        let shape = if instance { "instance" } else { "static" };
+        let provided_shape = if instance { "args(+me)" } else { "args" };
+        format!(
+            "[freeze:contract][me-call/arity] mismatch ({}): {}: declared {} params, got {} {}",
+            shape, symbol, expected, provided, provided_shape
+        )
     }
 }
 
@@ -368,96 +406,8 @@ fn current_bound_me_value(builder: &MirBuilder) -> Option<ValueId> {
 }
 
 #[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::ast::{LiteralValue, Span};
-    use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
-    use crate::mir::builder::calls::{AssociatedMethodCallArgumentsV1, RawLegacyMethodCallInputV1};
-    use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
-    use crate::parser::NyashParser;
-
-    fn integer(value: i64) -> ASTNode {
-        ASTNode::Literal {
-            value: LiteralValue::Integer(value),
-            span: Span::unknown(),
-        }
-    }
-
-    fn instruction_count(builder: &MirBuilder) -> usize {
-        builder
-            .function_state
-            .current_function
-            .as_ref()
-            .unwrap()
-            .blocks
-            .values()
-            .map(|block| block.instructions.len())
-            .sum()
-    }
-
-    #[test]
-    fn prepared_me_standard_unified_is_effect_free_until_execute() {
-        let arguments = vec![integer(1)];
-        let input = RawLegacyMethodCallInputV1::new(
-            ASTNode::Me {
-                span: Span::unknown(),
-            },
-            "routeMethod".to_string(),
-            arguments.clone(),
-        );
-        let mut builder = MirBuilder::new();
-        let root = NyashParser::parse_from_string(
-            "static box RouteCatalogSentinel { noop() { return 0 } }",
-        )
-        .unwrap();
-        let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root).unwrap();
-        builder
-            .comp_ctx
-            .install_callable_declaration_catalog(catalog)
-            .unwrap();
-        builder.enter_function_for_test("RouteOwner.caller/0".to_string());
-        let me = crate::mir::builder::emission::constant::emit_integer(&mut builder, 9).unwrap();
-        builder
-            .function_state
-            .variable_ctx
-            .variable_map
-            .insert("me".to_string(), me);
-        let before = instruction_count(&builder);
-        let mut port = RawLegacyChildLoweringPortV1;
-        let prepared =
-            prepare_me_call_execution_v1(&builder, "routeMethod", &arguments, &mut port).unwrap();
-        assert!(prepared.is_standard_unified());
-        assert_eq!(
-            instruction_count(&builder),
-            before,
-            "prepare must not emit MIR"
-        );
-
-        let mut descent = AssociatedMethodCallArgumentsV1::new(&mut port, &input);
-        let result = MeCallPolicyBox::execute(
-            &mut builder,
-            "routeMethod",
-            &arguments,
-            &mut descent,
-            prepared,
-        )
-        .unwrap()
-        .expect("bound me standard route must execute");
-        assert!(instruction_count(&builder) > before);
-        assert!(builder
-            .function_state
-            .current_function
-            .as_ref()
-            .unwrap()
-            .blocks
-            .values()
-            .flat_map(|block| &block.instructions)
-            .any(|instruction| matches!(
-                instruction,
-                crate::mir::MirInstruction::Call { dst, .. } if *dst == Some(result)
-            )));
-    }
-}
+#[path = "method_call_handlers_tests.rs"]
+mod tests;
 
 impl MirBuilder {
     /// Handle source static calls after route selection.
@@ -565,9 +515,7 @@ impl MirBuilder {
     where
         Port: MethodCallLoweringPortV1 + StaticResultPublicationIngressPortV1,
     {
-        MeCallPolicyBox::resolve_me_call_with_publication_ingress(
-            self, method, arguments, descent,
-        )
+        MeCallPolicyBox::resolve_me_call_with_publication_ingress(self, method, arguments, descent)
     }
 
     pub(in crate::mir::builder) fn handle_standard_method_call_with_descent<Completion>(

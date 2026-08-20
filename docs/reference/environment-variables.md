@@ -565,7 +565,7 @@ env NYASH_FEATURES=stage3 ./target/release/hakorune program.hako
 | `NYASH_VERIFY_ALLOW_NO_PHI=1` | OFF | Any | PHI 検証をスキップ |
 | `NYASH_VERIFY_EDGE_COPY_STRICT=1` | OFF | Any | Edge copy 検証を厳格化 |
 | `NYASH_VERIFY_RET_PURITY=1` | OFF | Any | return ブロックの純粋性検証 |
-| `NYASH_ME_CALL_ARITY_STRICT=1` | OFF | Any | me.method の arity 不一致でエラー |
+| `NYASH_ME_CALL_ARITY_STRICT=1` | ON (unset) | Any | me.method の header-backed arity 不一致を引数descent前にエラー。`=0` のみ明示的な互換遅延を許可 |
 | `NYASH_MIR_DISABLE_OPT=1` | OFF | Any | MIR Optimizer 全体を無効化（開発/診断用、`src/mir/optimizer.rs`） |
 | `NYASH_MIR_CONCAT3_CANON=1` | OFF | Any | MIR Pass 6.6 の concat3 正規化を有効化（`(a+b)+c` / `a+(b+c)` → `nyash.string.concat3_hhh`）。実験的opt-in。 |
 | `NYASH_TRACE_VARMAP=1` | OFF | Any | `MirBuilder.variable_map` の状態をトレース出力（`[varmap/<tag>] {name=ValueId(..),..}`）。JoinIR loop 統合のデバッグ用。 |

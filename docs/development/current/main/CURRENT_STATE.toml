@@ -19,10 +19,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "design_stop"
-current_execution_row = "ME-CALL-ARITY-FAILFAST-D0"
-current_design_stop = "ME-CALL-ARITY-FAILFAST-D0"
-current_blocker_token = "The next row must decide the complete me-arity state table and strict-default compatibility before any pre-descent code change."
+work_mode = "closeout"
+current_execution_row = "ME-CALL-ARITY-FAILFAST-P0"
+current_design_stop = "none"
+current_blocker_token = "ME arity P0 is implemented and verified; no production/canonical cutover or compatibility retirement is opened by this row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -76,7 +76,7 @@ and finishes only after success. Scalar operand Recipe D0 and the canonical
 physical-input D0 are closed; the selected fast row implements the
 Join-plus-operand input and detached helper. The I0 focused suites and canonical
 physical-input guard are green; no source admission or production caller is connected.
-Canonical source-digest I0 is closed and its digest transport is landed. The parser callable-source handoff I0 is closed at 0359ac0af3: the canonical frontdoor retains one total parser callable disposition through source-plan classification, selected-normal carries only the non-Clone digest/profile/read-parse lineage projection, and no replay or second issuer exists. Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed. The next design stop is ME-CALL-ARITY-FAILFAST-D0; no implementation row is open until its finite state table is accepted.
+Canonical source-digest I0 is closed and its digest transport is landed. The parser callable-source handoff I0 is closed at 0359ac0af3: the canonical frontdoor retains one total parser callable disposition through source-plan classification, selected-normal carries only the non-Clone digest/profile/read-parse lineage projection, and no replay or second issuer exists. Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed. ME-CALL-ARITY-FAILFAST-P0 is implementation-complete: strict default-on and prepared-header mismatch rejection are verified before effects; compatibility callable retirement and production cutover remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -89,9 +89,9 @@ current_execution_design = "docs/development/current/main/investigations/me-call
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "me-call-arity-failfast-d0"
 latest_card_path = "docs/development/current/main/investigations/me-call-arity-failfast-d0-2026-08-21.md"
-latest_card_summary = "ME arity design enumerates inline, lowered-global match/mismatch, missing header, standard, fallback, and explicit compatibility states before effects."
-next_design_card = "ME-CALL-ARITY-FAILFAST-D0"
-next_design_card_path = "docs/development/current/main/investigations/me-call-arity-failfast-d0-2026-08-21.md"
+latest_card_summary = "ME arity P0 is implemented and verified: strict default-on and prepared-header mismatch rejection occur before effects; compatibility remains explicit-only."
+next_design_card = "none"
+next_design_card_path = "none"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -104,7 +104,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-21: SCRIPT-STATIC-RESULT-PUBLICATION-INGRESS-FAILFAST-P0 landed one selected-normal BoxShape. Cataloged publication ingress now distinguishes Unavailable, Absent, Selected, and typed Error before descent; owner-backed missing context, source loss, and foreign lineage cannot fall through to the compatibility terminal. StaticReceiver and lowered-me routes use the existing ordered driver, unified Call receipt, and publication owner; focused tests, cargo check, pointer guard, diff check, and reusable guard are green. Canonical/production cutover and compatibility retirement remain closed.",
   "2026-08-20: S6C-C-PARITY-NORTH-STAR-D0 landed docs-only. The perf owner SSOT keeps the existing 1.15 promotion ceiling and names 1.00 as a same-corridor point target; 1.03 remains a separate future design proposal with no gate, schema, measurement, or production effect.",
   "2026-08-20: BRAND-CONSTRUCTOR-INSTALLED-CALLABLE-CONSUMER-I0 landed one bounded BoxShape. Installed callable FunctionCall preflight now consumes exact resolver-issued Constructor/NonBrand dispositions; relationless lanes retain compatibility behavior. New consumer/projection/location guards are green; the legacy externcall child-count red reproduces on parent dc81a64dc7 and remains baseline debt. Follow-up TODOs remain enumerated on the active card and no next row is opened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-LOAN-CONSUMER-I0 landed one selected-normal BoxShape. App, plain-runtime, and nonplain-runtime constructor tickets now borrow the package-issued forest by exact ConstructorSourceId, consume each role once, scope the existing raw body, and require manifest plus package completion; Compatibility/RawLegacy and global raw Brand retirement remain parked.",
@@ -116,4 +115,5 @@ landed_tail = [
   "2026-08-20: SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0 landed one selected-normal BoxShape. StaticReceiver now takes the exact ScriptRoot claim before effects, the bridge uses the existing ordered driver and receipt-required generic Call once, the Script sibling publishes ExactI64 as MirType::Integer once, and the scope finishes only after success. The source transport stayed below 760 lines after a claim child split; focused tests, cargo check, and the reusable guard are green. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed.",
   "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-I0 is implementation-complete. One non-Clone parser callable-source handoff retains the total disposition plus digest/profile/read-parse lineage through canonical source planning; selected-normal attaches only the lineage projection. Focused parser/source-plan/selected-gate tests, cargo check, diff check, and reusable guard are green. Six broad normal_callable failures reproduce on parent befd674ae4 as baseline Dynamic/instance-constructor debt; no Builder consumer, physical Call, production switch, raw retirement, or performance claim opened.",
   "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-P0 closed one selected-normal BoxShape. Ledger-backed missing, unlocated, and foreign source context now hard-stop before child effects; exact ScriptRoot no-row remains the only ordinary-route Absent, while ledger-free compatibility remains Unavailable. Claim validation now peeks before the linear in-flight transition and the member route exhaustively matches outcomes. Focused tests, cargo check, diff check, pointer guard, and script-direct-static reusable guard are green; canonical transport, production switch, raw retirement, and performance remain closed.",
+  "2026-08-21: ME-CALL-ARITY-FAILFAST-P0 landed one bounded BoxShape. The existing header observation remains the sole arity authority; strict mode is ON when unset, and a prepared lowered-global mismatch rejects before receiver/argument effects, Call emission, or publication. Explicit =0 preserves documented compatibility timing only. Inline, standard, missing-header, and static-fallback states remain separate; focused tests, cargo check, pointer guard, diff check, and reusable guard are green. Compatibility callable retirement, production switch, and performance remain closed.",
 ]

@@ -2,10 +2,10 @@
 //!
 //! Centralizes builder/debug toggles to avoid direct env reads.
 
-use super::{env_bool, env_present, env_string};
+use super::{env_bool, env_bool_default, env_present, env_string};
 
 pub fn builder_me_call_arity_strict() -> bool {
-    env_bool("NYASH_ME_CALL_ARITY_STRICT")
+    env_bool_default("NYASH_ME_CALL_ARITY_STRICT", true)
 }
 
 pub fn builder_static_call_trace() -> bool {

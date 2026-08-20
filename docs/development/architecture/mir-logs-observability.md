@@ -112,7 +112,7 @@
 | 150-154 | `[static-call] emit` | Static method呼び出しトレース | 観測用 |
 
 **有効化環境変数**:
-- `NYASH_ME_CALL_ARITY_STRICT=1` - 厳密モード（不一致でエラー返却）
+- `NYASH_ME_CALL_ARITY_STRICT` - 厳密モードは未設定を含め既定ON（不一致をdescent前にエラー）。`=0` のみ明示的な互換遅延
 - `NYASH_STATIC_CALL_TRACE=1` - トレースモード（warning出力）
 
 **説明**:

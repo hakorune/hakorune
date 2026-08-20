@@ -658,6 +658,19 @@ is never promoted by this P0. The reusable
 `script_static_result_publication_ingress_guard.sh` pins the complete outcome
 table and the no-fallback boundary.
 
+## ME-call arity fail-fast P0
+
+`method_call_handlers.rs` prepares the `me` route from the existing header
+observation before any argument descent. A `LoweredGlobal` row compares the
+header-owned parameter count with source arguments (plus the explicit `me`
+receiver for instance calls); a strict mismatch returns the stable
+`[freeze:contract][me-call/arity]` error before effects or Call emission.
+Strictness is ON when `NYASH_ME_CALL_ARITY_STRICT` is unset; only an explicit
+`=0` keeps the documented compatibility timing. Inline, standard, fallback, and
+missing-header routes are not reclassified. The finite state table and guard
+are in `me-call-arity-failfast-d0-2026-08-21.md` and
+`tools/checks/me_call_arity_failfast_guard.sh`.
+
 ## Script direct-static physical bridge I0
 
 The selected-normal ScriptRoot bridge now consumes the claimed

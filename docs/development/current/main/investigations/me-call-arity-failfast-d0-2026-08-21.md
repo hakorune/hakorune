@@ -1,5 +1,5 @@
 ---
-Status: accepted design stop — bounded pre-descent implementation next
+Status: bounded P0 implementation complete — selected existing `me` route
 Date: 2026-08-21
 Decision: ME-CALL-ARITY-FAILFAST-D0
 Parent: docs/development/current/main/investigations/script-static-result-publication-ingress-failfast-d0-2026-08-21.md
@@ -97,3 +97,26 @@ lower arguments, inspect emitted MIR, or infer arity from `ValueId`/`MirType`.
 The explicit `=0` compatibility state remains a non-claim for C-parity and
 does not authorize a production cutover.
 
+## P0 implementation receipt
+
+The strictness helper now treats an unset flag as `true`; only an explicit
+`NYASH_ME_CALL_ARITY_STRICT=0` selects the compatibility timing. Both ordinary
+and publication-ingress `me` routes call the same prepared-row validator before
+execution, so a lowered-global mismatch cannot consume receiver/argument
+effects, Call emission, or publication. The existing ordered driver and
+terminal remain the sole matching-call owners. Focused tests cover strict
+static mismatch, explicit-instance counting, compatibility override, and the
+preparation-before-effects standard route.
+
+The test-only constructor for `PreparedMeLoweredCallV1` exists only in the
+builder test configuration; the header observation authority and production
+source contract are unchanged. The handler stayed below the 760-line split
+trigger after moving its tests to `method_call_handlers_tests.rs`.
+
+Evidence:
+
+- `cargo test --profile quick -p nyash-rust method_call_handlers --lib` — 4 passed
+- `cargo check --profile quick -p nyash-rust` — passed
+- `bash tools/checks/me_call_arity_failfast_guard.sh` — passed
+- `bash tools/checks/current_state_pointer_guard.sh` — passed
+- `git diff --check` — passed
