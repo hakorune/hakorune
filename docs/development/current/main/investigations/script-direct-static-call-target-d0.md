@@ -1,15 +1,15 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
 Status: target I0, result-owner/Facts I0, continuation D0, and continuation I0
-are closed. The next design stop is the ScriptRoot result-publication owner;
-Recipe, Join, and physical rows remain unopened.
+are closed. The ScriptRoot result-publication owner D0 is accepted as the next
+design-stop task; Recipe, Join, and physical rows remain unopened.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
 
 - `1.15` remains the current performance acceptance ceiling and `1.00` remains
-  the long-term C-parity point target; this row is not a performance or backend
-  task.
+  the formal long-term C-parity point target; a possible upper-95% `<= 1.03`
+  claim is a separate future D0. This row is not a performance or backend task.
 - Deferred Script owner repair is `NoSafeSlice`; this row does not relabel it.
 - The target/result bundle and source continuation are Facts/source products
   only. Recipe, result publication, and physical call lowering stay closed
@@ -541,10 +541,12 @@ I0 sections above remain evidence and are not executable rows.
    continuation validates the root/window boundary and projects exact rows.
    Transparent/diagnostic entries remain explicit non-shape boundaries. The
    focused continuation tests pass 2/2, and the reusable guard is green.
-4. **OPEN — Script result-publication owner design.** Define a ScriptRoot
+4. **SELECTED — `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`.** Define a ScriptRoot
    result destination/representation handoff that is distinct from the
-   callable-only publication owner. Missing owner, unsupported representation,
-   or Deferred input is `NoSafeSlice`, not an empty/default row.
+   callable-only publication owner. The worker-audited D0 is now accepted as
+   the active design-stop task; implementation remains unopened. Missing owner,
+   unsupported representation, or Deferred input is `NoSafeSlice`, not an
+   empty/default row.
 5. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`.** Start only after (4)
    closes. Add a dedicated Recipe producer/transport sibling, one source
    row per Facts row, and focused positive/negative/foreign-drift tests. Keep
@@ -564,6 +566,38 @@ I0 sections above remain evidence and are not executable rows.
    rerun, PMU attribution, threshold change, SIMD work, or backend BoxShape is
    authorized by this card.
 
-**Next design stop:** `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`.
-The continuation I0 is closed; Recipe I0 remains closed until the Script
-result-publication owner is accepted.
+## SCRIPT-RESULT-ISSUER-D0 accepted design brief (2026-08-20)
+
+Decision: Keep the callable-keyed publication owner callable-only and add a
+separate ScriptRoot result-publication owner as one future BoxCount; do not
+open Recipe or physical lowering in this row.
+
+Source authority + canonical issuer: the resolver's Complete
+`VerifiedResolvedScriptV1`/`VerifiedResolvedMethodCallSourceV1` rows and the
+landed `VerifiedScriptSourceContinuationV1` issue caller/site/destination;
+`VerifiedScriptDirectStaticResultBundleV1` supplies the exact target and
+provider-issued callee representation.
+
+Non-authority: `RawInvocationRootLineageV1::ScriptRoot`, synthetic callable
+keys, AST/name/arity re-resolution, window ordinals, `ValueId`, `MirType`,
+`JoinSig`, physical blocks, timing, and the callable-only result owner.
+
+Fail-fast boundary: missing/foreign/duplicate owner, call/result/receiver/
+argument/parent/Return drift, target or representation mismatch, Deferred or
+unsupported input, duplicate take, or Script-to-callable conversion rejects
+before Builder effects; no empty/default owner or raw fallback.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0`, a
+new sibling owner that co-seals bundle rows with continuation rows by
+`(FunctionOwnerIdV1, SourceExprSiteV1)` and emits only a source/Facts handoff.
+Recipe keys, physical `ValueId`/`MirType`, Join, and publication to MIR remain
+for later rows.
+
+Non-claims: no Recipe/Join/physical implementation, raw-edge retirement,
+production switch, performance result, C-parity claim, or widening of the
+callable result owner. This D0 is documented and accepted; I0 is not started.
+
+**Current next design stop:** `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`.
+When explicitly reopened, the next execution row is the I0 above; until then
+the current card remains in design-stop/closeout and no code or rerun is
+authorized.
