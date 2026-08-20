@@ -1,8 +1,8 @@
 ---
-Status: Active design stop
+Status: parked — depends on parser source-handoff D0
 Date: 2026-08-20
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0
-Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-disposition-d0-2026-08-20.md
+Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-parser-source-handoff-d0-2026-08-20.md
 ProductionCaller: none; design only
 ReplacementCell: Builder-free source/Facts/Recipe/Join prefix for canonical Script
 Classification: BoxCount
@@ -67,6 +67,24 @@ still prepares `RawScriptBodyRecipeV1`. Calling the existing lifecycle from
 the canonical route would open a second physical pipeline and make A depend on
 Builder effects. Copying its AST or re-running resolver logic on the
 canonical side would create a second semantic authority.
+
+## Newly closed prerequisite: parser handoff is missing at the canonical frontdoor
+
+The canonical frontdoor currently calls `parse_once` and retains only
+`PreparedNormalFileSourceV1 { AST, profile, receipt }`. The source-plan input
+then retains AST plus display identity, and the compile request carries the
+digest but no parser postpass product. `VerifiedFinalCallableProgramSourceV1`
+and the parser source seals are therefore unavailable when A would run.
+
+This is not repaired by calling `parse_from_string_with_source_seal` or
+`parse_from_string_with_resolver_source_handoff` again: those are parser-owned
+postpass/projection issuers, and a second call would violate the one-read/
+one-parse receipt and create a second authority. The missing boundary is now
+tracked by
+`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PARSER-SOURCE-HANDOFF-D0`.
+
+Until that carrier is closed, A remains a design contract only. No canonical
+Script source may enter A from AST plus digest alone.
 
 ## Required source-only handoff shape
 
@@ -134,10 +152,9 @@ Negative:
 
 ## NoSafeSlice conditions
 
-Keep this row at design stop if a source-only owner cannot be separated from
-Builder effects, if the retained parser/resolver handoff is not available at
-the canonical caller, if one producer cannot serve both canonical and
+Keep this row parked if a source-only owner cannot be separated from Builder
+effects, if the parser handoff is not retained at the canonical caller, if
+one producer cannot serve both canonical and
 selected-normal consumers without duplicate issuance, or if digest/profile can
 only be paired through pointer/name/path inference. Do not open disposition C,
 carrier B, or physical bridge I0 until A is closed.
-
