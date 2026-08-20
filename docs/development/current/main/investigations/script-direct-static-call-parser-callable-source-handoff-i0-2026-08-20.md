@@ -1,5 +1,5 @@
 ---
-Status: Implementation complete; closeout pending
+Status: Closed; transport-only I0 complete
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-parser-source-handoff-d0-2026-08-20.md
@@ -193,6 +193,11 @@ source-plan tests (17), selected-gate disposition test (1), the handoff guard,
 still reports six pre-existing Dynamic/instance-constructor baseline failures
 (`cohort-missing`/Dynamic carrier), reproduced on parent `befd674ae4`; they are
 not attributed to this transport row.
+
+Closeout receipt: implementation commit `0359ac0af3` was pushed to
+`hakorune/codex/dynamic-v2-aot-activation`. No next execution card is opened;
+physical consumer, source admission, raw retirement, production switch, and
+performance remain separately gated.
 
 ## Negative matrix and stop line
 

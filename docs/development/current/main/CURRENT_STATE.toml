@@ -23,7 +23,7 @@ development_branch_cutover = "main remains the canonical integration target; cur
 work_mode = "closeout"
 current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-I0"
 current_design_stop = "none"
-current_blocker_token = "Transport-only parser callable source handoff I0 is implementation-complete; closeout requires evidence classification, commit/push, and pointer sync. No physical consumer or production switch is open."
+current_blocker_token = "Transport-only parser callable source handoff I0 is closed at 0359ac0af3; no next execution card is open. Physical consumer, source admission, raw retirement, production switch, and performance remain separately gated."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -76,7 +76,7 @@ and finishes only after success. Scalar operand Recipe D0 and the canonical
 physical-input D0 are closed; the selected fast row implements the
 Join-plus-operand input and detached helper. The I0 focused suites and canonical
 physical-input guard are green; no source admission or production caller is connected.
-Canonical source-digest I0 is closed and its digest transport is landed. The parser callable-source handoff I0 is implementation-complete: the canonical frontdoor retains one total parser callable disposition through source-plan classification, selected-normal carries only the non-Clone digest/profile/read-parse lineage projection, and no replay or second issuer exists. Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed; closeout is the only active work.
+Canonical source-digest I0 is closed and its digest transport is landed. The parser callable-source handoff I0 is closed at 0359ac0af3: the canonical frontdoor retains one total parser callable disposition through source-plan classification, selected-normal carries only the non-Clone digest/profile/read-parse lineage projection, and no replay or second issuer exists. Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed; no next execution card is open.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -89,7 +89,7 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-parser-callable-source-handoff-i0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-parser-callable-source-handoff-i0-2026-08-20.md"
-latest_card_summary = "Transport-only I0 implementation complete: one parser callable source handoff retains total disposition and digest/profile lineage for selected-normal and canonical; closeout only, with no Builder consumer."
+latest_card_summary = "Transport-only I0 closed at 0359ac0af3: one parser callable source handoff retains total disposition and digest/profile lineage for selected-normal and canonical; no Builder consumer or next execution card."
 next_design_card = "none"
 next_design_card_path = "none"
 next_execution_card = "none"
