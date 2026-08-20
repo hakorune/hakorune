@@ -42,6 +42,46 @@ ExactI64 publication, Return/signature change, production switch, raw or
 compatibility retirement, JSON-v0/VM change, ABI/backend change, performance
 measurement, or C-parity claim.
 
+## Exhaustive disposition and transport-state table
+
+The canonical request must not collapse source absence, compatibility, a
+missing carrier, and a proven non-candidate into one `None`/raw-recipe arm.
+The source-owned observation and the later detached session therefore use the
+following finite vocabulary:
+
+| state | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
+|---|---|---|---|---|
+| `NotApplicable` | canonical admission outside Script direct-static scope | no carrier claim or physical effect | caller-owned non-Script route | never fabricate `NonCandidate` |
+| `DeferredOrCompatibility` | retained parser/source admission reason | preserve reason and stop canonical direct-static claim | explicit compatibility/deferred owner | never become `NonCandidate` or raw fallback by absence |
+| `NoCandidate` | source-owned exhaustive observation of the retained Script window | no direct-static carrier is issued | canonical request emits `NonCandidate(raw-recipe)` | allowed only after complete observation; no guessed empty row |
+| `CarrierPending` | source observation found a candidate but the single C carrier is not issued | typed design/transport stop, zero detached effects | `NoSafeSlice`/`IntegrityInvalid` until C closes | raw recipe fallback is forbidden |
+| `DirectStatic` | one source-owned A→C disposition with complete Join/operand carrier | validate identity, owner, key set, target, operands, representation, completion | move once to detached kernel | no second carrier or alternate route |
+| `IntegrityInvalid` | C/transport validator | typed reject before detached effects | terminal candidate/session discard | no retry, AST rescan, or raw fallback |
+| `Consumed` | existing detached entry kernel | carrier has already been moved once | terminal success/failure owned by detached session | no replay, clone, or retry |
+
+`NoCandidate` is the source observation; only its validated projection is the
+`NonCandidate` request outcome. `DeferredOrCompatibility` and `CarrierPending`
+are intentionally not source candidates and must not be treated as proof of
+absence. Every negative witness in this card maps to exactly one row above:
+outside-scope input → `NotApplicable`, retained compatibility/deferred input →
+`DeferredOrCompatibility`, complete no-candidate observation → `NoCandidate`,
+candidate-without-carrier → `CarrierPending`, and identity/key/cardinality/
+target/completion drift → `IntegrityInvalid`.
+
+The allowed transition is exhaustive and one-way:
+
+```text
+source observation
+  -> NotApplicable | DeferredOrCompatibility | NoCandidate
+  -> CarrierPending | DirectStatic | IntegrityInvalid
+DirectStatic -> Consumed | IntegrityInvalid
+Consumed      -> detached terminal only; never back to source or Raw
+```
+
+No wildcard, `Option::None`, `unwrap_or(default)`, or compatibility-success
+arm may merge these states. The later I0 must preserve the table in its typed
+request/consumer contract before any physical implementation is accepted.
+
 ## Existing closed chain and missing edge
 
 The selected-normal chain is already sealed:
