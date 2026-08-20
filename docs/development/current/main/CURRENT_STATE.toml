@@ -21,10 +21,10 @@ shape report; optimizer, C equivalence, and machine origin remain unavailable.
 date = "2026-08-20"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-current_design_stop = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
+current_design_stop = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0"
 work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
-current_blocker_token = "Design only the selected-normal ScriptRoot physical bridge: exact StaticReceiver pre-descent claim, unified Call receipt, Script ExactI64 publication, failure discard, and ledger exhaustion. Keep canonical transport, fallback, raw retirement, and production switch closed."
+current_execution_row = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0"
+current_blocker_token = "Design the missing ScriptRoot one-shot claim authority before physical I0: exact site take, success/discard lifecycle, candidate exhaustion, and no fallback or rollback. Keep physical Call, publication, canonical transport, raw retirement, and production switch closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -76,9 +76,8 @@ SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 is landed: every
 compatibility-compatible initial source carries one parser-owned empty-or-
 complete constructor catalog, while mixed outer and unsupported cohorts retain
 compatibility status. TYPEOP-DISJOINT-I0 is also closed: Builder routing and the
-Script target issuer share one pure predicate. The selected-normal physical
-bridge now has its own design stop; no physical bridge implementation,
-fallback, production switch, or performance claim is open.
+Script target issuer share one pure predicate. PHYSICAL-BRIDGE-D0 fixed the StaticReceiver boundary, but one-shot claim issuer/finish authority is missing.
+CLAIM-LIFECYCLE-P0 is the sole design row; physical Call/publication, canonical transport, fallback, raw retirement, production switch, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -91,8 +90,8 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-target-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
-latest_card_summary = "TYPEOP-DISJOINT-I0 closed one BoxShape: Builder typeop routing and Script target inventory now consume the same pure typed predicate; focused tests and the reusable guard are green. Next is a design-only physical bridge audit; fallback and production switch remain closed."
-next_design_card = "SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0"
+latest_card_summary = "PHYSICAL-BRIDGE-D0 fixed the selected-normal StaticReceiver boundary, but the one-shot claim issuer/finish authority is missing. Next design stop is CLAIM-LIFECYCLE-P0; physical Call/publication, canonical transport, fallback, raw retirement, production switch, and performance remain closed."
+next_design_card = "SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-call-target-d0.md"
 next_execution_card = "none"
 next_execution_card_path = "none"
@@ -116,5 +115,5 @@ landed_tail = [
   "2026-08-20: SCRIPT-INSTANCE-BOX-TRANSFERRED-BOUNDARY-I0 landed one BoxCount. Exact installed method plus parser-constructor semantic coverage now issues one transferred Script boundary; surrounding Script resolves without entering the Box, and physical Brand consumption remains unopened.",
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
-  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-JOIN-I0 landed one source/Facts BoxCount. The exact Recipe/result-owner handoff preserves FinalSequence and RootReturn rows, rejects foreign/missing/duplicate/drifted rows, and is transported through Script lowering input/state. Focused Join 3/3 plus the reusable guard are green; the physical-consumer audit then closed NoSafeSlice for direct reuse because ScriptPhysicalExit is only the Return/signature writer and callable/Cataloged publication cannot consume ScriptRoot rows. Next is SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0; raw retirement, performance, and C-parity remain parked.",
+  "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-JOIN-I0 landed one source/Facts BoxCount. The exact Recipe/result-owner handoff preserves FinalSequence and RootReturn rows, rejects foreign/missing/duplicate/drifted rows, and is transported through Script lowering input/state. Four read-only audits closed the PHYSICAL-BRIDGE-D0 boundary, but one transport audit found no existing one-shot claim issuer/finish authority. CLAIM-LIFECYCLE-P0 is now the design stop; physical Call/publication, canonical transport, raw retirement, production switch, performance, and C-parity remain parked.",
 ]

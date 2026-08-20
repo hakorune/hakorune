@@ -3,11 +3,11 @@
 Status: target/Facts/continuation/Recipe/Join and
 `SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0` are landed. The previous design
 stop `SCRIPT-DIRECT-STATIC-PRE-DESCENT-P0` closed as `NoSafeSlice` on the
-typeop overlap; `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-P0` fixed the shared
-predicate design and its I0 implementation is now closed with focused tests and
-the reusable guard green. The next design stop is
-`SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0`; no bridge, fallback, or
-production switch is open.
+typeop overlap; `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` then closed the
+shared predicate with focused tests and a green reusable guard. Four read-only
+audits close the physical-bridge D0 boundary, but the claim lifecycle is still
+the design stop before physical I0; canonical transport, fallback, raw
+retirement, and production switch remain closed.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -24,42 +24,40 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
   compatibility-compatible initial source an explicit empty-or-complete
   constructor cohort. Mixed outer and unsupported cohorts retain compatibility
   status and do not gain a physical Script route. The typeop route premise is
-  now closed by one shared pure policy; the next question is the selected-
-  normal physical claim/publication boundary, not source admission.
+  now closed by one shared pure policy; the next question is the missing
+  selected-normal claim lifecycle, not source admission.
 - 760 lines is the source split/design trigger and 800 is the hard stop.
   `owner_forest.rs`, `recursive_child_lowering.rs`, package install, and the
   751-line Script runtime owner are no-growth owners.
 
 ## Current six-line brief
 
-Decision: close `SCRIPT-DIRECT-STATIC-TYPEOP-DISJOINT-I0` as a bounded
-BoxShape and return to a design stop for the selected-normal ScriptRoot
-physical bridge.
+Decision: close the physical-bridge D0 boundary, but stop before I0 because
+the current state has no named one-shot claim issuer or success/discard finish
+authority. This is `NoSafeSlice`, not an ordinary missing implementation.
 
-Source authority + canonical issuer: one pure
-`SourceMethodTypeOpDispositionV1` predicate in
-`src/mir/policies/source_method_typeop_route.rs` is the route authority;
-Builder typeop routing and the Script target issuer both delegate to it. The
-existing parser finalizer remains the constructor-catalog issuer; no new
-semantic receipt or source shape is introduced.
+Source authority + canonical issuer: the existing
+`VerifiedScriptDirectStaticJoinHandoffV1` is the only source input. A separate
+claim-lifecycle design must name the owner that atomically consumes its row and
+closes the selected-normal Script scope; it may not infer a claim from AST,
+`ValueId`, `MirType`, or raw success.
 
-Non-authority: duplicated `special_handlers` logic, method-name-only filters,
-static target catalog presence, reserved-route classification alone, AST/name
-reconstruction, `ValueId`/`MirType`, and the physical bridge.
+Non-authority: immutable state accessors, `box_name`/method text, callable-key
+conversion, post-descent terminal hooks, callable/Cataloged publication,
+`ScriptPhysicalExitCommitV1` for Call/publication, and fallback/rollback.
 
-Fail-fast boundary: the shared pure predicate runs before receiver/argument
-descent. Typeop-shaped `is/as` is an explicit noncandidate, reserved routes
-remain noncandidates, and only an exact ordinary qualified target is retained.
-No missing or mismatched row becomes `Absent`, and no fallback is added.
+Fail-fast boundary: the eventual claim belongs at the ordinary
+`StaticReceiver` arm head, before `AssociatedMethodCallArgumentsV1`, receiver/
+argument descent, or MIR effects. Until its owner and finish contract are
+closed, no physical effect or new semantic receipt is authorized.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` design
-audit only. Specify the selected-normal claim/publication boundary before any
-physical implementation; keep source admission, Recipe/Join consumers,
-canonical transport, fallback, and production switch closed.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0` — design the
+move-only claim token, isolated invocation discard, candidate exhaustion, and
+fresh-scope isolation without emitting a Call or publishing a type.
 
-Non-claims: no parser/source admission, physical bridge implementation,
-claim/publication, Recipe/Join consumption, source fallback, raw retirement,
-canonical Script exit, Box/ABI change, production switch, or performance/
+Non-claims: no physical bridge, ExactI64 publication, parser/source admission,
+Recipe/Join redesign, canonical transport, callable owner extension, Box/ABI
+change, raw retirement, production switch, performance measurement, or
 C-parity result.
 
 ## Historical target-I0 contract
@@ -1062,7 +1060,7 @@ Non-claims:
   claim/publication, physical Call, Return/signature write, raw retirement,
   production switch, or performance result.
 
-### `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` (next design stop)
+### `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-D0` (closed boundary)
 
 Change:
   At the ordinary `StaticReceiver` arm head, classify by exact bundle site and
@@ -1094,8 +1092,108 @@ Stop:
   add a second MethodCall matcher/argument driver. Keep every changed Rust file
   below 800 and split by owner at 760. If move-out or success-only finish needs
   a second authority, a generic transport redesign, or growth in a no-growth
-  owner, stop at `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0`. Source admission,
-  canonical Script input, Box/ABI, raw retirement, cutover, and perf stay separate.
+  owner, keep the claim row at `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0`.
+  Source admission, canonical Script input, Box/ABI, raw retirement, cutover,
+  and perf stay separate.
+
+### `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0` (current design stop)
+
+Decision:
+  Do not start the physical bridge until the existing source products have one
+  operational claim owner. Facts/Recipe/Join already issue the candidate seed,
+  but `ScriptSemanticLoweringState` currently exposes only immutable accessors;
+  it cannot prove one-shot consumption or scope exhaustion.
+
+Source authority + canonical issuer:
+  `VerifiedScriptDirectStaticResultBundleV1` issues site membership and
+  `VerifiedScriptDirectStaticJoinHandoffV1` issues the complete target,
+  ordered-sites, representation, and terminal row. The P0 ledger may co-seal
+  those existing rows, but it must not become a second semantic source or
+  invent `Absent` from a Join miss.
+
+Operational contract:
+  At `StaticReceiver` entry, inspect the active exact source site. Bundle miss
+  is `Absent` and leaves the ledger unchanged; Bundle hit requires the same-site
+  Join row or returns `Err`. `Claimed` moves the row into a non-Clone token;
+  there is no reinsert, rollback, retry, or ordinary-route escape. The selected
+  Script scope must call `finish` before restoring its parent ledger and require
+  zero remaining candidate rows. A post-claim failure discards the isolated
+  invocation rather than publishing partial MIR.
+
+Smallest next slice:
+  Design only the move/take token, route capability, scope finish/exhaust
+  boundary, and fresh-scope isolation using the existing
+  `Rc<RefCell<ScriptSemanticLoweringState>>`. Do not emit a Call, publish
+  `ExactI64`, write Return/signature, or add a new semantic `Verified*` receipt.
+
+NoSafeSlice conditions:
+  A generic method-call trait is the only way to expose the claim and it cannot
+  carry the exact site; state is dropped without finish verification; a row must
+  be cloned/reinserted; a second AST/source matcher or canonical transport is
+  needed; or Bundle/Join/active source cannot be co-sealed before effects.
+
+Acceptance:
+  Bundle miss -> `Absent`; Bundle hit plus complete same-site Join -> one
+  movable candidate; missing/foreign/duplicate/drift -> `Err`; claim happens
+  before receiver/argument descent; successful scope has zero candidates;
+  compatibility/deferred lanes issue no claim; fresh scopes cannot observe a
+  prior claim. Physical Call/publication remain unclaimed until this row closes.
+
+### `SCRIPT-DIRECT-STATIC-CALL-PHYSICAL-BRIDGE-I0` execution brief (parked behind P0)
+
+Classification: BoxShape. The accepted source shape and existing Script
+completion contract do not change; this row adds the missing selected-normal
+physical consumer. It is not a canonical transport or production cutover.
+
+Source-to-effect chain:
+
+```text
+VerifiedScriptDirectStaticJoinHandoffV1
+  -> Script-only single-use claim
+  -> existing ordered argument descent
+  -> existing unified generic Call receipt
+  -> Script ExactI64 publication sibling
+  -> existing selected-normal completion owner
+```
+
+Implementation boundary:
+  Enter only at the head of `MemberCallRoutePlan::StaticReceiver`, before
+  `AssociatedMethodCallArgumentsV1`, receiver/argument descent, shortcut
+  handling, or MIR effects. The claim API returns `Absent`, `Claimed`, or an
+  error. `Absent` leaves the ledger untouched and uses the existing route;
+  `Claimed` owns the candidate and cannot return to that route.
+
+Authority contract:
+  The Join handoff supplies canonical target, exact source/receiver/argument
+  sites, `ExactI64`, and `FinalSequence|RootReturn`. The claim sibling validates
+  the active Script source site and moves the row once. The unified emitter is
+  the only Call issuer. A Script-specific publication sibling writes
+  `MirType::Integer` once from the completed receipt destination. The bridge
+  never writes Return/signature; selected-normal completion remains the owner.
+
+Failure contract:
+  Missing Candidate/Join, foreign or drifted site/target/arity/argument order,
+  duplicate claim/publication, unsupported representation, alternate receipt,
+  or unconsumed rows are hard errors. After claim, argument/emitter/publication
+  failure discards the isolated invocation; rollback, retry, shortcut,
+  ordinary fallback, and partial-success publication are forbidden.
+
+Acceptance:
+  FinalSequence and RootReturn each claim before effects; arguments lower
+  left-to-right exactly once; one generic Call receipt and one Integer
+  publication are observed before finalization; successful Script state has no
+  Candidate rows; a fresh compile has no prior claim. Absent rows retain MIR
+  parity. Focused positive/negative tests and one reusable structural guard
+  cover site drift, duplicate claim, alternate route, post-claim failure,
+  typeop/reserved/StaticThis nonintersection, and line limits.
+
+Non-claims:
+  no source admission, Recipe/Join redesign, canonical Script physical input,
+  callable publication reuse, Box/ABI change, raw or compatibility retirement,
+  production switch, Return-owner rewrite, performance measurement, or C-parity
+  result. If a transport split, second AST matcher/driver, rollback mechanism,
+  or >760-line semantic growth is required, stop and open
+  `SCRIPT-DIRECT-STATIC-CLAIM-LIFECYCLE-P0` instead.
 
 ### Ordered continuation
 
