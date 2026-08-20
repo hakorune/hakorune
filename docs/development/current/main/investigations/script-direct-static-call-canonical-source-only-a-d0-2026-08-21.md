@@ -12,17 +12,20 @@ Classification: BoxCount (design only; implementation remains closed)
 
 ## Six-line brief
 
-Decision: Define one Builder-free source-only A that issues a complete
-canonical Script direct-static disposition once from the parser-backed sealed
-Script source and its stable source identity. Do not implement A, C, B, or
-physical effects in this D0.
+Decision: Define one Builder-free source-only A that issues one complete
+canonical Script direct-static source package from the parser-backed sealed
+Script source and its stable source identity. The later C owner alone turns
+that package into a disposition. Do not implement A, C, B, or physical
+effects in this D0.
 
 Source authority + canonical issuer: `SealedNormalScriptSourceV1` together
 with the parser/source identity, profile, and source digest are the input
 authority. A future `CanonicalScriptDirectStaticSourceOnlyIssuerV1` is the
-single issuer; it may borrow a temporary resolver forest and existing target,
-result, Recipe, Join, and required-argument-proof products, then retain only
-AST-free source-bound rows.
+single source-observation/package issuer; it may borrow a temporary resolver
+forest and existing target, result, Recipe, Join, and required-argument-proof
+products, then retain only AST-free source-bound rows. A later C owner alone
+turns that package into the canonical disposition; A does not issue a second
+physical or transport decision.
 
 Non-authority: `normal_default_root_catalog_lifecycle` and `Builder` state,
 `comp_ctx`, `RawScriptBodyRecipeV1`, AST/path/name/pointer re-resolution,
@@ -57,17 +60,20 @@ continuation, and one fallback policy. `None`, wildcard arms, and
 | `NotApplicable` | canonical family classifier proves the input is outside Script direct-static scope | no Script A effect and no source scan | caller-owned non-Script dispatch | never fabricate `NonCandidate` or route Script raw by absence |
 | `Deferred` | Script resolver/source admission reports `ResolveScriptForestOutcomeV1::Deferred` | preserve the deferred reason; no candidate observation or physical effect | explicit deferred owner or design stop | never become `NonCandidate`, `DirectStatic`, or raw success |
 | `SourceAuthorityUnavailable` | A cannot acquire parser postpass, stable identity, profile, complete window, or resolver/catalog authority | typed design stop before Recipe/entry effects | `NoSafeSlice` until the missing issuer/identity is closed | no empty catalog, default identity, AST rescan, or raw fallback |
+| `ObservationIncomplete` | A has a source identity but cannot observe the entire retained Script window/forest/catalog exactly once | typed design stop before any A product or Recipe/entry effect | `NoSafeSlice` until coverage is made total | never round to `NonCandidate`, `Deferred`, compatibility, or raw success |
 | `NonCandidate` | A's complete retained-window observation proves every row is explicitly non-candidate and integrity is clean | no direct-static product or physical effect | explicit canonical non-candidate projection may select the existing raw recipe owner | only after complete observation; missing coverage is not absence |
-| `DirectStaticSourceReady` | A co-seals one source identity with complete forest, target/result, Recipe/Join, operand-proof, and terminal rows | issue one move-only AST-free source disposition; no physical effect | future C/B handoff consumes it once | no second issuer, name lookup, or selected-normal copy |
+| `DirectStaticSourceReady` | A co-seals one source identity with complete forest, target/result, Recipe/Join, operand-proof, and terminal rows | issue one move-only AST-free source package; no physical effect | future C disposition/B transport consumes it once | no second issuer, name lookup, or selected-normal copy |
 | `IntegrityInvalid` | A verifier finds missing, duplicate, foreign, stale, mixed, or contradictory source/product rows | typed reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `NonCandidate`, compatibility, or raw fallback |
 | `Transported` | future A-to-C-to-B handoff consumes `DirectStaticSourceReady` exactly once | no replay or second source interpretation | detached canonical consumer terminal (future slice) | no clone, replay, or return to source/raw |
 
 `NonCandidate` is valid only after complete source observation. `Deferred` and
-`SourceAuthorityUnavailable` are not evidence of absence. A candidate whose
-carrier or product is missing is `IntegrityInvalid`, not `NonCandidate`.
-`DirectStaticSourceReady` is a source product, not a physical permission in
-this D0. `Transported` is named for the future lifecycle only; no carrier is
-implemented here.
+`SourceAuthorityUnavailable` are not evidence of absence. If source identity
+exists but the retained window cannot be observed completely, the outcome is
+`ObservationIncomplete`, not `NonCandidate`. A complete observation with
+missing/duplicate/foreign rows is `IntegrityInvalid`, not
+`ObservationIncomplete`. `DirectStaticSourceReady` is an A source-package
+state, not a physical permission in this D0. `Transported` belongs to the
+future C-to-B lifecycle, not to A's issuer; no carrier is implemented here.
 
 ## Exhaustive transitions
 
@@ -75,33 +81,85 @@ The finite transition relation is:
 
 ```text
 Script input
-  -> NotApplicable | Deferred | SourceAuthorityUnavailable
-  -> NonCandidate | DirectStaticSourceReady | IntegrityInvalid
+  -> NotApplicable | Deferred | SourceAuthorityUnavailable | ObservationIncomplete
+  -> [after complete observation] NonCandidate | DirectStaticSourceReady | IntegrityInvalid
 DirectStaticSourceReady -> Transported | IntegrityInvalid   (future C/B only)
 Transported              -> detached terminal only; no replay
 ```
 
-The first line is exhaustive for the source admission result. The second
-line is exhaustive for a source-authority-backed observation. There is no
-implicit `Pending`, `Unknown`, or compatibility wildcard. If an additional
-state is discovered, this card returns to design stop and the table is revised
-before implementation evidence is accepted.
+The first line is exhaustive for source-family admission and source
+observation readiness. The second line is exhaustive only after A has a
+complete source-authority-backed observation. `ObservationIncomplete` is the
+explicit partial/coverage state; it cannot be silently reclassified as
+`SourceAuthorityUnavailable` after observation begins. There is no implicit
+`Pending`, `Unknown`, or compatibility wildcard. If an additional state is
+discovered, this card returns to design stop and the table is revised before
+implementation evidence is accepted.
+
+### A/C/B phase and owner reconciliation
+
+The state names above are phase-qualified by owner:
+
+```text
+A source observation/package phase:
+  NotApplicable | Deferred | SourceAuthorityUnavailable
+  | ObservationIncomplete | NonCandidate | DirectStaticSourceReady
+  | IntegrityInvalid
+
+C-to-B transport phase (future only):
+  DirectStaticSourceReady -> Transported -> detached terminal
+```
+
+`SourceAuthorityUnavailable` means the parser-backed source/window authority
+cannot be acquired or verified before observation. `ObservationIncomplete`
+means that authority exists but total retained-window coverage cannot be
+issued; both stop at `NoSafeSlice`, but they are different witnesses.
+`IntegrityInvalid` is only for a complete observation whose expected rows are
+known and then fail duplicate/foreign/stale/contradictory validation.
+
+The owner boundary is intentionally one-way:
+
+```text
+A = canonical source observation/package issuer; no physical permission
+C = sole canonical disposition owner; consumes A's package once
+B = typed transport only; it does not observe source or reissue meaning
+```
+
+Thus A's `DirectStaticSourceReady` is a complete source package, C owns the
+future disposition decision, and B only transports that typed decision. No
+state may be inferred from an absent optional payload.
+
+Examples pin the neutral states:
+
+```text
+outside Script direct-static scope
+  -> NotApplicable
+inside scope + complete window + zero candidates
+  -> NonCandidate
+inside scope + source identity but incomplete coverage
+  -> ObservationIncomplete
+inside scope + no source/window authority
+  -> SourceAuthorityUnavailable
+```
 
 ## A-to-C-to-B ownership contract
 
 ```text
 A  CanonicalScriptDirectStaticSourceOnlyIssuerV1
    borrows parser-backed sealed Script source once, validates the complete
-   window, and co-seals existing semantic products into AST-free rows.
+   window, and co-seals existing semantic products into one AST-free source
+   package. It is the sole A issuer, not a physical or transport owner.
 
 C  CanonicalScriptDirectStaticDispositionV1 (future design/implementation)
-   is the only source disposition owner. It must not re-resolve the AST or
-   issue a second target/result/Recipe/Join/physical-input fact.
+   is the only canonical disposition owner. It consumes A's package and must
+   not re-resolve the AST or issue a second target/result/Recipe/Join/
+   physical-input fact.
 
 B  CanonicalCoreSourcePlanCompileRequestV1 (future transport change)
-   receives a required typed Script decision: DirectStaticSourceReady,
+   transports C's required typed Script decision: DirectStaticSourceReady,
    explicit NonCandidate, or terminal IntegrityInvalid. An absent optional
-   payload may not silently select RawScriptBodyRecipeV1.
+   payload may not silently select RawScriptBodyRecipeV1. B never becomes a
+   second source or disposition issuer.
 
 detached Script entry
    remains the existing future consumer; it owns Call/publication/Return only
@@ -176,14 +234,17 @@ resolver product. Until that handoff and the catalog/result issuer are named,
 
 - the finite table above is accepted and every negative witness maps to one
   state only;
+- A is the sole source observation/package issuer, C is the sole disposition
+  owner, and B is transport-only; no A/C/B state is issued twice;
 - parser/source identity has one named issuer and is not a path, filename,
   pointer, name, or digest-only join;
 - A can name one retained Script window and one temporary forest lifetime;
 - target, result, Recipe, Join, and required-proof inputs are co-sealed once;
 - A's output contains no AST, `ValueId`, Builder ordinal, physical block, or
   guessed empty row;
-- `Deferred`, `SourceAuthorityUnavailable`, `NonCandidate`, and
-  `IntegrityInvalid` remain distinct through the future request;
+- `Deferred`, `SourceAuthorityUnavailable`, `ObservationIncomplete`,
+  `NonCandidate`, and `IntegrityInvalid` remain distinct through the future
+  request;
 - a future carrier has one named consumer and one retirement/cutover edge;
 - no code, fixture, source admission, physical Call, publication, production
   switch, raw retirement, or performance evidence is opened by this D0.
