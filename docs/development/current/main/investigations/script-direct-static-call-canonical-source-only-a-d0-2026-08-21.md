@@ -143,6 +143,35 @@ identity or complete catalog/result ownership cannot be co-sealed without
 `normal_default_root_catalog_lifecycle`, `comp_ctx`, pointer comparison, or
 AST re-resolution, remain `NoSafeSlice`.
 
+## Current identity audit (2026-08-21)
+
+The source identity gap is observable in the current owners and is therefore
+an active `SourceAuthorityUnavailable` witness, not a reason to add a carrier:
+
+- `src/parser/normal_callable_program_source/model.rs:33-104` issues
+  `NormalParserSourceLineageV1` from source identity, bytes digest, grammar
+  profile, UTF-8 length, and the one-read/one-parse receipt. This is the only
+  current strong identity candidate.
+- `src/mir/compiler/normal_source_plan/product.rs:24-52` stores a separate
+  `NormalSourceIdentityV1` containing only a display name. The same product's
+  parser-backed input exposes AST and postpass (`:55-83`), but no lineage
+  accessor or co-sealed digest/profile identity.
+- `src/mir/compiler/canonical_core_dispatch.rs:33-73` issues
+  `NormalSourcePlanReceiptV1` with source identity and digest independently of
+  parser lineage. `CanonicalCoreSourcePlanCompileRequestV1` then carries plan,
+  admission, and that receipt (`:92-130`), not one shared source identity.
+- `src/runner/reference/normal_file_vm_frontdoor/source_plan_input.rs:113-141`
+  moves the parser handoff into source planning but projects its display name
+  separately. A canonical A cannot join these owners by filename, display
+  string, pointer, statement ordinal, or digest equality alone.
+
+The first implementation prerequisite is therefore a source-only identity
+handoff that co-seals the parser lineage and canonical receipt once, exposes a
+stable source/window identity to A, and rejects missing/foreign/mismatched
+lineage before `prepare_script_recipe()`. It must not issue a second parser or
+resolver product. Until that handoff and the catalog/result issuer are named,
+`DirectStaticSourceReady` is a design vocabulary only and no I0 is authorized.
+
 ## Acceptance for this design stop
 
 - the finite table above is accepted and every negative witness maps to one
