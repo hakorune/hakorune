@@ -75,6 +75,24 @@ impl PreparedNormalSourcePlanInputV1 {
         matches!(&self.source, NormalSourcePlanSourceV1::ParserBacked(_))
     }
 
+    /// True only for the parser disposition that owns the source-backed
+    /// callable product. Compatibility postpasses retain syntax but do not
+    /// authorize canonical source planning.
+    pub(crate) fn is_parser_source_backed(&self) -> bool {
+        matches!(
+            &self.source,
+            NormalSourcePlanSourceV1::ParserBacked(source) if source.is_source_backed()
+        )
+    }
+
+    /// Borrow the parser-issued identity without cloning or reissuing it.
+    pub(crate) fn parser_lineage(&self) -> Option<&crate::parser::NormalParserSourceLineageV1> {
+        match &self.source {
+            NormalSourcePlanSourceV1::AstOnly(_) => None,
+            NormalSourcePlanSourceV1::ParserBacked(source) => Some(source.lineage()),
+        }
+    }
+
     pub(crate) fn parser_postpass(&self) -> Option<&CompletedParserPostpassV1> {
         match &self.source {
             NormalSourcePlanSourceV1::AstOnly(_) => None,
@@ -199,6 +217,10 @@ impl SealedNormalScriptSourceV1 {
         &self,
     ) -> Option<&crate::parser::postpass_envelope::CompletedParserPostpassV1> {
         self.input.parser_postpass()
+    }
+
+    pub(crate) fn parser_lineage(&self) -> Option<&crate::parser::NormalParserSourceLineageV1> {
+        self.input.parser_lineage()
     }
 }
 
@@ -346,6 +368,16 @@ impl SealedNormalSourcePlanV1 {
                 source.input.has_parser_postpass()
             }
             Self::CallableModule(source) => source.input.has_parser_postpass(),
+        }
+    }
+
+    pub(crate) fn parser_lineage(&self) -> Option<&crate::parser::NormalParserSourceLineageV1> {
+        match self {
+            Self::ScalarRoot(SealedNormalScalarRootV1::Script(source)) => source.parser_lineage(),
+            Self::ScalarRoot(SealedNormalScalarRootV1::Main0(source)) => {
+                source.input.parser_lineage()
+            }
+            Self::CallableModule(source) => source.input.parser_lineage(),
         }
     }
 }

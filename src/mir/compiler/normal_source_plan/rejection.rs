@@ -7,6 +7,16 @@ pub(crate) enum NormalSourcePlanStageV1 {
     FamilyClosure,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum NormalSourcePlanIdentityFieldV1 {
+    SourceIdentity,
+    Digest,
+    GrammarProfile,
+    Utf8Length,
+    ReadCount,
+    ParseCount,
+}
+
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum NormalUnsupportedTopLevelKindV1 {
     NestedProgram,
@@ -23,6 +33,12 @@ pub(crate) enum NormalUnsupportedTopLevelKindV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum NormalSourcePlanErrorV1 {
+    SourceAuthorityUnavailable,
+    CompatibilitySourceUnavailable,
+    SourceLineageUnavailable,
+    SourceIdentityMismatch {
+        field: NormalSourcePlanIdentityFieldV1,
+    },
     RootNotProgram,
     MissingSourceEntry,
     DuplicateMain,
@@ -54,9 +70,12 @@ pub(crate) enum NormalSourcePlanErrorV1 {
 impl NormalSourcePlanErrorV1 {
     fn stage(&self) -> NormalSourcePlanStageV1 {
         match self {
-            Self::RootNotProgram | Self::UnsupportedTopLevelSurface { .. } => {
-                NormalSourcePlanStageV1::RootSurface
-            }
+            Self::SourceAuthorityUnavailable
+            | Self::CompatibilitySourceUnavailable
+            | Self::SourceLineageUnavailable
+            | Self::SourceIdentityMismatch { .. }
+            | Self::RootNotProgram
+            | Self::UnsupportedTopLevelSurface { .. } => NormalSourcePlanStageV1::RootSurface,
             Self::MixedSourceFamilies => NormalSourcePlanStageV1::FamilyClosure,
             Self::MissingSourceEntry
             | Self::DuplicateMain
@@ -80,7 +99,7 @@ pub(crate) struct RejectedNormalSourcePlanV1 {
 }
 
 impl RejectedNormalSourcePlanV1 {
-    pub(super) fn new(
+    pub(crate) fn new(
         owner: PreparedNormalSourcePlanInputV1,
         error: NormalSourcePlanErrorV1,
     ) -> Self {

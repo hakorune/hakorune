@@ -9,13 +9,15 @@ use super::{
     SealedNormalEntryProfileV1,
 };
 use crate::mir::normal_source_plan::{
-    NormalSourcePlanClassifierV1, NormalSourcePlanErrorV1, NormalSourcePlanStageV1,
-    PreparedNormalSourcePlanInputV1, RejectedNormalSourcePlanV1, SealedNormalSourcePlanV1,
+    NormalSourcePlanClassifierV1, NormalSourcePlanErrorV1, NormalSourcePlanIdentityFieldV1,
+    NormalSourcePlanStageV1, PreparedNormalSourcePlanInputV1, RejectedNormalSourcePlanV1,
+    SealedNormalSourcePlanV1,
 };
 use crate::mir::{
     CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
+use hakorune_frontend_parser::parser::GrammarProfile;
 
 #[derive(Debug)]
 pub(crate) struct PreparedNormalFileSourcePlanRequestV1 {
@@ -91,6 +93,13 @@ impl PreparedNormalFileSourcePlanRequestV1 {
             receipt,
             _seal: _,
         } = self;
+        if let Err(error) = validate_parser_identity(&input, &receipt) {
+            return Err(RejectedNormalFileSourcePlanningV1 {
+                rejected: RejectedNormalSourcePlanV1::new(input, error),
+                profile,
+                receipt,
+            });
+        }
         match NormalSourcePlanClassifierV1::seal(input) {
             Ok(plan) => Ok(ClassifiedNormalFileSourcePlanV1 {
                 plan,
@@ -105,6 +114,54 @@ impl PreparedNormalFileSourcePlanRequestV1 {
             }),
         }
     }
+}
+
+fn validate_parser_identity(
+    input: &PreparedNormalSourcePlanInputV1,
+    receipt: &NormalFileSourceReceiptV1,
+) -> Result<(), NormalSourcePlanErrorV1> {
+    if !input.is_parser_source_backed() {
+        return Err(if input.parser_lineage().is_some() {
+            NormalSourcePlanErrorV1::CompatibilitySourceUnavailable
+        } else {
+            NormalSourcePlanErrorV1::SourceAuthorityUnavailable
+        });
+    }
+    let Some(lineage) = input.parser_lineage() else {
+        return Err(NormalSourcePlanErrorV1::SourceLineageUnavailable);
+    };
+    if lineage.source_identity() != receipt.source_identity.as_ref() {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::SourceIdentity,
+        });
+    }
+    if lineage.source_digest() != receipt.source_digest {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::Digest,
+        });
+    }
+    if lineage.grammar_profile() != GrammarProfile::Canonical {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::GrammarProfile,
+        });
+    }
+    if lineage.utf8_len() != receipt.utf8_len {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::Utf8Length,
+        });
+    }
+    let (read_count, parse_count) = lineage.receipt_counts();
+    if read_count != receipt.read_count {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::ReadCount,
+        });
+    }
+    if parse_count != receipt.parse_count {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::ParseCount,
+        });
+    }
+    Ok(())
 }
 
 impl ClassifiedNormalFileSourcePlanV1 {

@@ -3,6 +3,7 @@ use crate::mir::normal_source_plan::{
     NormalSourcePlanClassifierV1, NormalSourcePlanErrorV1, NormalSourcePlanStageV1,
     PreparedNormalSourcePlanInputV1, SealedNormalScalarRootV1, SealedNormalSourcePlanV1,
 };
+use crate::runner::reference::normal_file_vm_frontdoor::NormalFileSourceReceiptSealV1;
 use std::path::{Path, PathBuf};
 use tempfile::tempdir;
 
@@ -88,6 +89,76 @@ fn parsed_empty_and_scalar_sources_become_script_plans_once() {
         assert_eq!(classified.receipt_counts(), (1, 1));
         assert!(classified.retained_source_identity().ends_with(name));
     }
+}
+
+#[test]
+fn parser_lineage_is_borrowed_from_the_sealed_script_plan() {
+    let dir = tempdir().expect("tempdir");
+    let classified = classify(dir.path(), "lineage.hako", "42").expect("Script source plan");
+    let lineage = classified
+        .plan()
+        .parser_lineage()
+        .expect("parser-backed plan retains lineage");
+    assert!(lineage.source_identity().ends_with("lineage.hako"));
+    assert_eq!(lineage.utf8_len(), 2);
+    assert_eq!(lineage.receipt_counts(), (1, 1));
+}
+
+#[test]
+fn parser_lineage_digest_drift_rejects_before_source_classifier() {
+    let dir = tempdir().expect("tempdir");
+    let loaded = request(write_source(dir.path(), "drift.hako", "42"))
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read")
+        .parse_once()
+        .expect("one canonical parse");
+    let mut plan_request = loaded.prepare_source_plan_request();
+    plan_request.receipt.source_digest =
+        crate::mir::CanonicalSourceBytesDigestV1::from_utf8_bytes(b"foreign-source");
+    let rejected = plan_request
+        .classify()
+        .expect_err("lineage/receipt digest drift must reject");
+    assert_eq!(rejected.stage(), &NormalSourcePlanStageV1::RootSurface);
+    assert_eq!(
+        rejected.error(),
+        &NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: crate::mir::normal_source_plan::NormalSourcePlanIdentityFieldV1::Digest,
+        }
+    );
+    rejected.discard();
+}
+
+#[test]
+fn ast_only_source_plan_request_has_no_canonical_lineage_authority() {
+    let ast = crate::parser::NyashParser::parse_from_string_with_build_config(
+        "42",
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .expect("AST-only fixture parse");
+    let request = PreparedNormalFileSourcePlanRequestV1 {
+        input: PreparedNormalSourcePlanInputV1::new(ast, "ast-only-fixture"),
+        profile: SealedNormalEntryProfileV1::file_no_import_vm_reference(),
+        receipt: NormalFileSourceReceiptV1 {
+            source_identity: "ast-only-fixture".into(),
+            source_digest: crate::mir::CanonicalSourceBytesDigestV1::from_utf8_bytes(b"42"),
+            utf8_len: 2,
+            read_count: 1,
+            parse_count: 1,
+            _seal: NormalFileSourceReceiptSealV1,
+        },
+        _seal: PreparedNormalFileSourcePlanRequestSealV1,
+    };
+    let rejected = request
+        .classify()
+        .expect_err("AST-only input cannot enter canonical file planning");
+    assert_eq!(rejected.stage(), &NormalSourcePlanStageV1::RootSurface);
+    assert_eq!(
+        rejected.error(),
+        &NormalSourcePlanErrorV1::SourceAuthorityUnavailable
+    );
+    rejected.discard();
 }
 
 #[test]
