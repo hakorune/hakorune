@@ -15,11 +15,14 @@ Decision: Define one source-owned canonical Script disposition that combines
 the existing direct-static observation and exact physical-input facts. Do not
 implement or connect the canonical caller in this D0.
 
-Source authority + canonical issuer: one future issuer at the retained
-canonical Script source boundary must co-seal source identity, observation,
-Facts/Recipe/Join inputs, and the physical-input result. Existing target
-inventory and result-bundle issuers are inputs to that owner, not competing
-disposition authorities.
+Source authority + canonical issuer: `NormalFileSourceReceiptV1` must issue
+one UTF-8 source-bytes digest plus canonical profile/seal at `read_once`; the
+same identity moves unchanged through `NormalSourcePlanReceiptV1` and
+`CanonicalCoreSourcePlanCompileRequestV1`. A single future issuer at the
+retained canonical Script source boundary then co-seals that identity,
+observation, Facts/Recipe/Join inputs, and physical-input result. Existing
+target inventory and result-bundle issuers are inputs to that owner, not
+competing disposition authorities.
 
 Non-authority: `noncandidate_count`, AST pointers, path/display strings,
 `RawScriptBodyRecipeV1`, selected claim ledgers, Builder ordinals, target names,
@@ -60,7 +63,7 @@ can validate the physical rows, but it must be consumed by the same owner that
 issued the source disposition; calling it independently at the canonical
 entry would create a second physical-input authority.
 
-The source identity gap is equally concrete:
+The source identity gap is now resolved as a design decision:
 
 ```text
 selected semantic Facts: AST-owned identity
@@ -68,10 +71,11 @@ canonical front door: display/path receipt identity
 ```
 
 A filename, display path, or pointer address cannot join these products. The
-future owner must co-seal one canonical source identity (for example an
-explicit source-bytes digest plus profile/seal) at the parse/source boundary,
-then carry it through the source plan, disposition, request, and detached
-entry. No identity may be reconstructed from AST names or statement ordinals.
+front door must issue an explicit source-bytes digest plus canonical
+profile/seal at `read_once`, then carry it through the source plan, disposition,
+request, and detached entry. No identity may be reconstructed from AST names
+or statement ordinals. A missing or changed digest/profile is
+`IntegrityInvalid`, never a new source or a raw fallback.
 
 ## Required disposition shape (design only)
 
@@ -143,6 +147,14 @@ Negative:
 - selected-normal, Deferred, Compatibility, or RawLegacy product presented as
   canonical Script disposition.
 
+## Remaining issuer stop
+
+The digest/profile identity contract is accepted as the next I0 prerequisite;
+it is not yet implemented. The only remaining D0 question is the single
+source-owned issuer that consumes this identity and emits exactly one of the
+three dispositions above without invoking the two existing observation
+issuers a second time.
+
 ## NoSafeSlice conditions
 
 Keep this row at design stop if the issuer cannot see all retained Script rows,
@@ -150,4 +162,3 @@ if source identity requires pointer/name/path inference, if existing input
 issuers cannot be co-sealed without a second authority, or if the canonical
 request must reparse/re-resolve the AST. Do not open the carrier I0 until these
 conditions are closed and the source identity contract is accepted.
-
