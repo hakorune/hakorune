@@ -175,13 +175,14 @@ C  one new canonical source-semantic handoff
 
 The later I0 must therefore introduce one move-only
 `CanonicalScriptDirectStaticCarrierV1` (design name only) at the classified
-canonical source boundary.  Its producer is the existing source/Facts/Recipe/
-Join chain, invoked once for the retained Script source; its consumer is the
-existing detached entry kernel.  The carrier must contain the already-issued
-physical input plus source identity, owner, key/cardinality seal, canonical
-target rows, ordered operand trees, `ExactI64`, and
-`FinalSequence | RootReturn`.  It must not contain an AST, a name lookup, or a
-Builder ordinal.
+canonical source boundary.  The existing source/Facts/Recipe/Join products are
+inputs to that issuer, not an issuer of the canonical disposition themselves;
+the I0 must add exactly one source-owned disposition issuer, invoked once for
+the retained Script source.  Its consumer is the existing detached entry
+kernel.  The carrier must contain the already-issued physical input plus source
+identity, owner, key/cardinality seal, canonical target rows, ordered operand
+trees, `ExactI64`, and `FinalSequence | RootReturn`.  It must not contain an
+AST, a name lookup, or a Builder ordinal.
 
 The canonical request must carry a typed Script disposition rather than an
 ambiguous optional payload:
@@ -193,14 +194,23 @@ IntegrityInvalid            -> terminal rejection
 ```
 
 `NonCandidate` is issued only by the same source-owned observation that proves
-there is no direct-static candidate; a missing carrier for an observed
-candidate is not `NonCandidate` and cannot fall back to the raw recipe.  This
-prevents the canonical entry from silently selecting between two authorities.
+all retained rows are explicitly non-candidates and that no integrity error
+occurred.  A missing carrier for an observed candidate is not `NonCandidate`
+and cannot fall back to the raw recipe; candidate-mixed, missing, duplicate,
+foreign, stale, terminal, or physical-input failures are
+`IntegrityInvalid`.  This prevents the canonical entry from silently selecting
+between two authorities.
 The selected-normal Builder bridge remains a separate implementation until an
 explicit production cutover removes the overlap.
+
+The source identity itself must also be explicit.  The selected lifecycle's
+Facts currently use an AST-owned identity, while the canonical front door
+retains a display/path identity.  A path string or filename cannot substitute
+for the source identity; C must co-seal one identity that both A and B can
+validate without pointer comparison or AST re-resolution.
 
 This makes the next task classification explicit: the canonical request gains
 one accepted Script transport disposition, so the later carrier implementation
 is a `BoxCount` I0, not a behavior-neutral `BoxShape`.  D0 remains a design
-stop until the source-side observation and the exact A-to-C-to-B ownership
-handoff are accepted together.
+stop until the three-state source issuer, shared source identity, and exact
+A-to-C-to-B ownership handoff are accepted together.
