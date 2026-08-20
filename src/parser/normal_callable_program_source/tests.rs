@@ -1,5 +1,6 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
-use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
+use crate::mir::CanonicalSourceBytesDigestV1;
+use crate::parser::{BuildMode, GrammarProfile, NyashParser, ParserBuildConfig};
 
 use super::*;
 
@@ -58,6 +59,28 @@ fn exact_static_callable_set_survives_one_transform() {
         .with_constructor_semantic_syntax(|loan| loan.rows().len())
         .expect("static-only source must carry an empty constructor catalog");
     assert_eq!(constructor_count, 0);
+}
+
+#[test]
+fn parser_source_lineage_rejects_empty_identity_and_non_unit_receipt() {
+    let digest = CanonicalSourceBytesDigestV1::from_utf8_bytes(b"static box Api {}");
+    assert_eq!(
+        NormalParserSourceLineageV1::issue("", digest, GrammarProfile::Canonical, 18, 1, 1,)
+            .expect_err("empty source identity must reject"),
+        NormalParserSourceLineageErrorV1::EmptySourceIdentity
+    );
+    assert_eq!(
+        NormalParserSourceLineageV1::issue(
+            "fixture.hako",
+            digest,
+            GrammarProfile::Canonical,
+            18,
+            2,
+            1,
+        )
+        .expect_err("replayed read must reject"),
+        NormalParserSourceLineageErrorV1::InvalidReadParseReceipt
+    );
 }
 
 #[test]

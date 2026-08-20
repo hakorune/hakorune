@@ -22,7 +22,9 @@ pub(in crate::parser) use model::{
     ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
 };
 pub(in crate::parser) use parse_product::ParsedCallableParameterListV1;
-pub(crate) use product::ParsedProgramWithCallableParameterSourceV1;
+pub(crate) use product::{
+    ParsedProgramWithCallableParameterSourceV1, ParserCallableSourceDispositionV1,
+};
 #[cfg(test)]
 pub(super) use retained::RetainedParserCallableSemanticSourceV1;
 pub(in crate::parser) use session::ParserCallableParameterSourceSessionV1;

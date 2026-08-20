@@ -52,7 +52,11 @@ impl NyashRunner {
             };
 
         let materialized = match crate::runner::modes::common_util::normal_callable::
-            materialize_normal_callable_program_v1(&prepared.code, self.parser_build_config())
+            materialize_normal_callable_program_with_identity_v1(
+                &prepared.code,
+                self.parser_build_config(),
+                filename,
+            )
         {
             Ok(materialized) => materialized,
             Err(
@@ -71,6 +75,13 @@ impl NyashRunner {
                     NormalCallableMaterializationErrorV1::Transform(rejected),
             ) => report::emit_error_and_exit(LlvmRunError::fatal(format!(
                 "Normal callable source transform error: {:?}",
+                rejected
+            ))),
+            Err(
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::SourceLineage(rejected),
+            ) => report::emit_error_and_exit(LlvmRunError::fatal(format!(
+                "Normal callable source lineage error: {:?}",
                 rejected
             ))),
         };

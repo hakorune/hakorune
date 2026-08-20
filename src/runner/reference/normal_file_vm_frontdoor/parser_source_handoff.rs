@@ -5,11 +5,12 @@
 //! provides one move-only handoff into source-plan classification.
 
 use super::{NormalFileSourceReceiptV1, SealedNormalEntryProfileV1};
-use crate::parser::postpass_envelope::CompletedParserPostpassV1;
+use crate::mir::normal_source_plan::NormalParserCallableSourceHandoffV1;
+use crate::parser::{NormalParserSourceLineageV1, ParserCallableSourceDispositionV1};
 
 #[derive(Debug)]
 pub(crate) struct CanonicalParserSourceHandoffV1 {
-    postpass: CompletedParserPostpassV1,
+    callable_source: NormalParserCallableSourceHandoffV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
     _seal: CanonicalParserSourceHandoffSealV1,
@@ -20,12 +21,21 @@ struct CanonicalParserSourceHandoffSealV1;
 
 impl CanonicalParserSourceHandoffV1 {
     pub(super) fn new(
-        postpass: CompletedParserPostpassV1,
+        disposition: ParserCallableSourceDispositionV1,
         profile: SealedNormalEntryProfileV1,
         receipt: NormalFileSourceReceiptV1,
     ) -> Self {
+        let lineage = NormalParserSourceLineageV1::issue(
+            receipt.source_identity.clone(),
+            receipt.source_digest,
+            hakorune_frontend_parser::parser::GrammarProfile::Canonical,
+            receipt.utf8_len,
+            receipt.read_count,
+            receipt.parse_count,
+        )
+        .expect("sealed normal-file receipt must be one-read/one-parse");
         Self {
-            postpass,
+            callable_source: NormalParserCallableSourceHandoffV1::new(disposition, lineage),
             profile,
             receipt,
             _seal: CanonicalParserSourceHandoffSealV1,
@@ -33,7 +43,7 @@ impl CanonicalParserSourceHandoffV1 {
     }
 
     pub(super) fn ast(&self) -> &crate::ast::ASTNode {
-        self.postpass.ast()
+        self.callable_source.ast()
     }
 
     pub(super) fn profile_is_canonical_core(&self) -> bool {
@@ -47,10 +57,10 @@ impl CanonicalParserSourceHandoffV1 {
     pub(super) fn into_parts(
         self,
     ) -> (
-        CompletedParserPostpassV1,
+        NormalParserCallableSourceHandoffV1,
         SealedNormalEntryProfileV1,
         NormalFileSourceReceiptV1,
     ) {
-        (self.postpass, self.profile, self.receipt)
+        (self.callable_source, self.profile, self.receipt)
     }
 }

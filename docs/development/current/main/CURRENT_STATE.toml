@@ -17,13 +17,13 @@ it remains development-only and issues no native promotion authority. The
 selected Dynamic generic active walk is now a 575-line parent plus unchanged
 185-line child. Its observation UX closes at a separate explicit-artifact C shape report; optimizer, C equivalence, and machine origin remain unavailable.
 """
-date = "2026-08-20"
+date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-I0"
 current_design_stop = "none"
-current_blocker_token = "Transport-only I0 is open: move one parser-issued ParsedProgramWithCallableParameterSourceV1 plus source digest/profile/read-parse lineage into a non-Clone handoff; no Builder effect, second issuer, Recipe, Join, physical Call, or production switch."
+current_blocker_token = "Transport-only parser callable source handoff I0 is implementation-complete; closeout requires evidence classification, commit/push, and pointer sync. No physical consumer or production switch is open."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -76,7 +76,7 @@ and finishes only after success. Scalar operand Recipe D0 and the canonical
 physical-input D0 are closed; the selected fast row implements the
 Join-plus-operand input and detached helper. The I0 focused suites and canonical
 physical-input guard are green; no source admission or production caller is connected.
-Canonical source-digest I0 is closed and its digest transport is landed. The parser source-handoff I0 is also closed: the canonical frontdoor retains one parser postpass through source-plan classification with no replay. The parser already has the atomic ParsedProgramWithCallableParameterSourceV1 product for postpass, parameter, and constructor coverage, but the frontdoor does not retain it and selected-normal/canonical still lack one shared Builder-free source/Facts consumer. The source/Facts D0 is accepted as a transport-only I0: one non-Clone parser callable handoff will carry digest/profile/read-parse lineage; Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed.
+Canonical source-digest I0 is closed and its digest transport is landed. The parser callable-source handoff I0 is implementation-complete: the canonical frontdoor retains one total parser callable disposition through source-plan classification, selected-normal carries only the non-Clone digest/profile/read-parse lineage projection, and no replay or second issuer exists. Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed; closeout is the only active work.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -89,11 +89,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-call-parser-callable-source-handoff-i0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-call-parser-callable-source-handoff-i0-2026-08-20.md"
-latest_card_summary = "Transport-only I0: retain one parser callable source handoff with digest/profile lineage for selected-normal and canonical, with no Builder consumer."
+latest_card_summary = "Transport-only I0 implementation complete: one parser callable source handoff retains total disposition and digest/profile lineage for selected-normal and canonical; closeout only, with no Builder consumer."
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-I0"
-next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-call-parser-callable-source-handoff-i0-2026-08-20.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -115,5 +115,5 @@ landed_tail = [
   "2026-08-20: INSTANCE-CONSTRUCTOR-SEMANTIC-OWNER-I0 landed one BoxCount. The parser-branded constructor cohort now survives final callable source, the existing Brand-aware resolver issues one root+nested owner forest per constructor, and the package retains the non-Clone batch; physical consumption and raw-probe retirement remain unopened.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-I0 landed one bounded source/Facts BoxCount. The ScriptRoot owner co-seals exact target/representation rows with resolver continuation destinations by Script owner/site; Recipe, Join, physical publication, raw retirement, and performance remain parked.",
   "2026-08-20: SCRIPT-DIRECT-STATIC-PHYSICAL-BRIDGE-I0 landed one selected-normal BoxShape. StaticReceiver now takes the exact ScriptRoot claim before effects, the bridge uses the existing ordered driver and receipt-required generic Call once, the Script sibling publishes ExactI64 as MirType::Integer once, and the scope finishes only after success. The source transport stayed below 760 lines after a claim child split; focused tests, cargo check, and the reusable guard are green. Canonical transport, compatibility/deferred/raw retirement, production switch, and performance remain closed.",
-  "2026-08-20: MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0 closed one guard-only fast row; selected Dynamic remains pinned after verification, JSON-v0/VM compatibility stays separate, and no Call/fallback/production route changed. The same closeout landed SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-DIGEST-I0 with one read-once UTF-8 digest carried through source planning. SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PARSER-SOURCE-HANDOFF-I0 then landed one non-Clone parser postpass carrier through source-plan classification; tests and guard are green, with no reparse, semantic route, or production change. The parser already owns ParsedProgramWithCallableParameterSourceV1 for postpass/parameter/constructor coverage, but the frontdoor and selected-normal/canonical consumers do not share it yet; the broad A audit remains the source/Facts prefix D0, with disposition/carrier, source admission, physical Call, production switch, raw retirement, and performance closed.",
+  "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-I0 is implementation-complete. One non-Clone parser callable-source handoff retains the total disposition plus digest/profile/read-parse lineage through canonical source planning; selected-normal attaches only the lineage projection. Focused parser/source-plan/selected-gate tests, cargo check, diff check, and reusable guard are green. Six broad normal_callable failures reproduce on parent befd674ae4 as baseline Dynamic/instance-constructor debt; no Builder consumer, physical Call, production switch, raw retirement, or performance claim opened.",
 ]

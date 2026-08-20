@@ -1,6 +1,8 @@
 use crate::ast::ASTNode;
 use crate::parser::postpass_envelope::CompletedParserPostpassV1;
 
+use super::parser_callable_source_handoff::NormalParserCallableSourceHandoffV1;
+
 /// Invocation-neutral identity retained beside one owned parsed source.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct NormalSourceIdentityV1 {
@@ -29,7 +31,7 @@ pub(crate) struct PreparedNormalSourcePlanInputV1 {
 #[derive(Debug)]
 enum NormalSourcePlanSourceV1 {
     AstOnly(ASTNode),
-    ParserBacked(CompletedParserPostpassV1),
+    ParserBacked(NormalParserCallableSourceHandoffV1),
 }
 
 impl PreparedNormalSourcePlanInputV1 {
@@ -40,12 +42,12 @@ impl PreparedNormalSourcePlanInputV1 {
         }
     }
 
-    pub(crate) fn from_parser_postpass(
-        postpass: CompletedParserPostpassV1,
+    pub(crate) fn from_parser_callable_source(
+        source: NormalParserCallableSourceHandoffV1,
         display_name: impl Into<Box<str>>,
     ) -> Self {
         Self {
-            source: NormalSourcePlanSourceV1::ParserBacked(postpass),
+            source: NormalSourcePlanSourceV1::ParserBacked(source),
             identity: NormalSourceIdentityV1::new(display_name),
         }
     }
@@ -53,7 +55,7 @@ impl PreparedNormalSourcePlanInputV1 {
     pub(super) fn source(&self) -> &ASTNode {
         match &self.source {
             NormalSourcePlanSourceV1::AstOnly(source) => source,
-            NormalSourcePlanSourceV1::ParserBacked(postpass) => postpass.ast(),
+            NormalSourcePlanSourceV1::ParserBacked(source) => source.ast(),
         }
     }
 
@@ -64,7 +66,7 @@ impl PreparedNormalSourcePlanInputV1 {
     pub(super) fn into_parts(self) -> (ASTNode, NormalSourceIdentityV1) {
         let source = match self.source {
             NormalSourcePlanSourceV1::AstOnly(source) => source,
-            NormalSourcePlanSourceV1::ParserBacked(postpass) => postpass.into_ast(),
+            NormalSourcePlanSourceV1::ParserBacked(source) => source.into_ast(),
         };
         (source, self.identity)
     }
@@ -76,7 +78,7 @@ impl PreparedNormalSourcePlanInputV1 {
     pub(crate) fn parser_postpass(&self) -> Option<&CompletedParserPostpassV1> {
         match &self.source {
             NormalSourcePlanSourceV1::AstOnly(_) => None,
-            NormalSourcePlanSourceV1::ParserBacked(postpass) => Some(postpass),
+            NormalSourcePlanSourceV1::ParserBacked(source) => Some(source.parser_postpass()),
         }
     }
 }

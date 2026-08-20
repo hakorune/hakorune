@@ -68,10 +68,10 @@ impl PreparedNormalFileSourceV1 {
             _seal: PreparedNormalFileSourceSealV1,
         } = self;
         let display_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
-        let (postpass, profile, receipt) = parser_source_handoff.into_parts();
+        let (callable_source, profile, receipt) = parser_source_handoff.into_parts();
         PreparedNormalFileSourcePlanRequestV1 {
-            input: PreparedNormalSourcePlanInputV1::from_parser_postpass(
-                postpass,
+            input: PreparedNormalSourcePlanInputV1::from_parser_callable_source(
+                callable_source,
                 display_identity,
             ),
             profile,

@@ -313,7 +313,7 @@ impl LoadedNormalFileSourceV1 {
             _seal: _,
         } = self;
         receipt.parse_count = 1;
-        let postpass = match crate::parser::string_postpass_entry::parse_postpass(
+        let product = match crate::parser::string_postpass_entry::parse_with_callable_parameter_source(
             source_text.as_ref().to_owned(),
             Some(100_000),
             ParserBuildConfig {
@@ -321,7 +321,7 @@ impl LoadedNormalFileSourceV1 {
                 ..Default::default()
             },
         ) {
-            Ok(ast) => ast,
+            Ok(product) => product,
             Err(error) => {
                 return Err(RejectedNormalFileSourceV1::Parse {
                     loaded: LoadedNormalFileSourceV1 {
@@ -337,7 +337,8 @@ impl LoadedNormalFileSourceV1 {
                 });
             }
         };
-        if let Some(error) = find_no_import_violation(postpass.ast()) {
+        let disposition = product.into_source_disposition();
+        if let Some(error) = find_no_import_violation(disposition.ast()) {
             return Err(RejectedNormalFileSourceV1::SourceProfile {
                 loaded: LoadedNormalFileSourceV1 {
                     source_file,
@@ -351,7 +352,11 @@ impl LoadedNormalFileSourceV1 {
         }
         Ok(PreparedNormalFileSourceV1 {
             source_file,
-            parser_source_handoff: CanonicalParserSourceHandoffV1::new(postpass, profile, receipt),
+            parser_source_handoff: CanonicalParserSourceHandoffV1::new(
+                disposition,
+                profile,
+                receipt,
+            ),
             _seal: PreparedNormalFileSourceSealV1,
         })
     }
@@ -376,13 +381,13 @@ impl PreparedNormalFileSourceV1 {
                 error: NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference,
             });
         }
-        let (postpass, profile, receipt) = parser_source_handoff.into_parts();
+        let (callable_source, profile, receipt) = parser_source_handoff.into_parts();
         match profile.into_raw_downstream() {
             Ok(downstream) => {
                 let source_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
                 Ok(PreparedNormalFileVmHandoffV1 {
                     invocation: downstream
-                        .into_invocation(postpass.into_ast(), Some(source_identity)),
+                        .into_invocation(callable_source.into_ast(), Some(source_identity)),
                     source: receipt,
                     _seal: PreparedNormalFileVmHandoffSealV1,
                 })

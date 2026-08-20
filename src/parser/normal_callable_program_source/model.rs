@@ -1,4 +1,6 @@
 use crate::ast::ASTNode;
+use crate::mir::CanonicalSourceBytesDigestV1;
+use hakorune_frontend_parser::parser::GrammarProfile;
 
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
@@ -26,6 +28,79 @@ pub(crate) enum NormalCallableParserCompatibilityV1 {
     NoBoxDeclarations,
     NonProgram,
     UnsupportedCallableSource,
+}
+
+/// AST-free source identity carried beside one parser-issued callable source.
+///
+/// The parser product owns semantic coverage; this projection only preserves
+/// the already-sealed read/parse identity for a later source-plan consumer.
+/// It cannot be reconstructed from an AST, path, or Builder invocation.
+#[derive(Debug)]
+pub(crate) struct NormalParserSourceLineageV1 {
+    source_identity: Box<str>,
+    source_digest: CanonicalSourceBytesDigestV1,
+    grammar_profile: GrammarProfile,
+    utf8_len: usize,
+    read_count: u8,
+    parse_count: u8,
+    _seal: NormalParserSourceLineageSealV1,
+}
+
+#[derive(Debug)]
+pub(crate) struct NormalParserSourceLineageSealV1;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum NormalParserSourceLineageErrorV1 {
+    InvalidReadParseReceipt,
+    EmptySourceIdentity,
+}
+
+impl NormalParserSourceLineageV1 {
+    pub(crate) fn issue(
+        source_identity: impl Into<Box<str>>,
+        source_digest: CanonicalSourceBytesDigestV1,
+        grammar_profile: GrammarProfile,
+        utf8_len: usize,
+        read_count: u8,
+        parse_count: u8,
+    ) -> Result<Self, NormalParserSourceLineageErrorV1> {
+        let source_identity = source_identity.into();
+        if source_identity.is_empty() {
+            return Err(NormalParserSourceLineageErrorV1::EmptySourceIdentity);
+        }
+        if read_count != 1 || parse_count != 1 {
+            return Err(NormalParserSourceLineageErrorV1::InvalidReadParseReceipt);
+        }
+        Ok(Self {
+            source_identity,
+            source_digest,
+            grammar_profile,
+            utf8_len,
+            read_count,
+            parse_count,
+            _seal: NormalParserSourceLineageSealV1,
+        })
+    }
+
+    pub(crate) fn source_identity(&self) -> &str {
+        &self.source_identity
+    }
+
+    pub(crate) const fn source_digest(&self) -> CanonicalSourceBytesDigestV1 {
+        self.source_digest
+    }
+
+    pub(crate) const fn grammar_profile(&self) -> GrammarProfile {
+        self.grammar_profile
+    }
+
+    pub(crate) const fn utf8_len(&self) -> usize {
+        self.utf8_len
+    }
+
+    pub(crate) const fn receipt_counts(&self) -> (u8, u8) {
+        (self.read_count, self.parse_count)
+    }
 }
 
 #[derive(Debug)]
@@ -116,6 +191,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     slots: Box<[InitialCallableFinalSlotV1]>,
     parameter_source: ParserCallableParameterSourceDispositionV1,
     constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
+    source_lineage: Option<NormalParserSourceLineageV1>,
     _lineage: ExactCallablePreservingTransformReceiptV1,
 }
 
@@ -136,8 +212,22 @@ impl VerifiedFinalCallableProgramSourceV1 {
             slots,
             parameter_source,
             constructor_source,
+            source_lineage: None,
             _lineage: ExactCallablePreservingTransformReceiptV1,
         }
+    }
+
+    pub(crate) fn with_source_lineage(
+        mut self,
+        source_lineage: NormalParserSourceLineageV1,
+    ) -> Self {
+        debug_assert!(self.source_lineage.is_none());
+        self.source_lineage = Some(source_lineage);
+        self
+    }
+
+    pub(crate) fn source_lineage(&self) -> Option<&NormalParserSourceLineageV1> {
+        self.source_lineage.as_ref()
     }
 
     pub(crate) fn ast(&self) -> &ASTNode {

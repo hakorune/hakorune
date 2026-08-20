@@ -35,28 +35,21 @@ pub(super) fn parse_normal_callable_program(
     fuel: Option<usize>,
     build_config: ParserBuildConfig,
 ) -> Result<super::normal_callable_program_source::ParsedNormalCallableProgramV1, ParseError> {
-    let mut parser = parser_from_string(input, fuel, build_config)?;
-    let completed = parser.parse_postpass_s0()?;
-    let parameter_source = parser.finish_callable_parameter_source_for_normal()?;
-    completed
-        .into_normal_callable_program(parameter_source)
-        .map_err(|error| ParseError::GrammarContract {
-            stable_reject_tag: "parser/normal-callable-parameter-source",
-            detail: format!("normal callable parameter source rejected: {error:?}"),
-            line: 0,
-        })
+    let product = parse_with_callable_parameter_source(input, fuel, build_config)?;
+    product.into_normal_callable_program()
 }
 
-pub(super) fn parse_with_callable_parameter_source(
+pub(crate) fn parse_with_callable_parameter_source(
     input: String,
     fuel: Option<usize>,
     build_config: ParserBuildConfig,
 ) -> Result<ParsedProgramWithCallableParameterSourceV1, ParseError> {
     let mut parser = parser_from_string(input, fuel, build_config)?;
     let completed = parser.parse_postpass_s0()?;
-    let catalog = parser.finish_callable_parameter_source_catalog()?;
+    let parameter_source = parser.finish_callable_parameter_source_for_normal()?;
     Ok(ParsedProgramWithCallableParameterSourceV1::new(
-        completed, catalog,
+        completed,
+        parameter_source,
     ))
 }
 

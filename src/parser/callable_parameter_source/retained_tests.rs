@@ -8,6 +8,7 @@ fn retained(source: &str) -> super::RetainedParserCallableSemanticSourceV1 {
     )
     .unwrap()
     .into_retained_source()
+    .unwrap()
 }
 
 #[test]

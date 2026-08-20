@@ -12,7 +12,8 @@ Current I0 boundary:
 - `session.rs` binds those rows to the parser invocation and exact direct
   Box-method source site, rejecting foreign/duplicate/partial coverage;
 - `catalog.rs` owns the complete non-Clone static/instance sibling catalog;
-- `product.rs` pairs that catalog with the completed total parser postpass and
+- `product.rs` pairs the completed total parser postpass with a total
+  `Complete | SelectedBuildGateUnsupported` parameter-source disposition and
   moves the pair atomically into the retained source owner;
 - `retained.rs` keeps the completed postpass and complete catalog non-Clone
   and non-splittable while lending repeatable callback-scoped declaration
@@ -68,6 +69,11 @@ The older consuming callback remains only for the already-landed standalone
 parameter-contract path. It retires when the contract becomes a borrowed projection
 of `VerifiedResolvedCallableSemanticBatchV1`; new semantic owners must use the
 retained source instead of consuming and independently resolving the catalog.
+
+`normal_source_plan::NormalParserCallableSourceHandoffV1` is the next
+Builder-free carrier. It co-seals this parser product with one source
+digest/profile/read-parse lineage and stays non-Clone; selected-gate or other
+compatibility outcomes remain explicit and never become an empty catalog.
 
 This module issues no Home demand, receiver/result ABI, resolver BindingRef,
 Recipe key, MIR value, fallback, or production activation. The next owner

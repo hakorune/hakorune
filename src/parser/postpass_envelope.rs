@@ -101,6 +101,10 @@ enum CompletedParserProgramV1 {
 }
 
 impl CompletedParserPostpassV1 {
+    pub(crate) fn is_source_backed(&self) -> bool {
+        matches!(self.program, CompletedParserProgramV1::Initial(_))
+    }
+
     pub(crate) fn ast(&self) -> &ASTNode {
         match &self.program {
             CompletedParserProgramV1::Initial(program) => program.ast(),

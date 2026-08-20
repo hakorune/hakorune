@@ -10,6 +10,7 @@ use super::model::ParserCallableDeclarationKindV1;
 use super::parse_product::ParsedCallableParameterListV1;
 use super::project_neutral_parameter_syntax_v1;
 use super::session::{CallableParameterSourceIssueV1, ParserCallableParameterSourceSessionV1};
+use super::syntax_loan::ParserCallableSyntaxLoanErrorV1;
 
 fn first_method_inventory_ordinal() -> BoxMethodInventoryOrdinalV1 {
     let ASTNode::Program { statements, .. } =
@@ -285,22 +286,19 @@ fn source_session_rejects_foreign_and_duplicate_method_sites() {
 
 #[test]
 fn selected_build_gate_stays_outside_the_parameter_catalog_cohort() {
-    let error = NyashParser::parse_from_string_with_callable_parameter_source(
+    let parsed = NyashParser::parse_from_string_with_callable_parameter_source(
         "gate Build.test { box Enabled { run(value) { return value } } } else { box Disabled { run(value) { return value } } }",
         ParserBuildConfig {
             mode: BuildMode::Test,
             ..ParserBuildConfig::default()
         },
     )
-    .unwrap_err();
-    let crate::parser::ParseError::GrammarContract {
-        stable_reject_tag,
-        detail,
-        ..
-    } = error
-    else {
-        panic!("expected parameter-source contract rejection");
-    };
-    assert_eq!(stable_reject_tag, "parser/callable-parameter-source");
-    assert!(detail.contains("SelectedBuildGateUnsupported"));
+    .expect("total parser product keeps the explicit unsupported disposition");
+    let error = parsed
+        .with_callable_declaration_syntax(|_, _| ())
+        .expect_err("unsupported gate must not expose an empty catalog");
+    assert_eq!(
+        error,
+        ParserCallableSyntaxLoanErrorV1::ParameterSourceUnavailable
+    );
 }

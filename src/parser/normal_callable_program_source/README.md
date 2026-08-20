@@ -19,6 +19,12 @@ never define total callable cardinality or classify ABI/Home semantics.
 Top-level, selected-gate, and generated callables remain batch members without
 receiving a fabricated `Ordinary` parameter source.
 
+Selected-normal materialization may attach one `NormalParserSourceLineageV1`
+projection: source identity, digest, grammar profile, UTF-8 length, and the
+one-read/one-parse receipt. It is transported from the parser handoff rather
+than reconstructed from the transformed AST. The canonical normal-file front
+door retains the same non-Clone handoff through source-plan classification.
+
 Non-authority:
 
 - names, arity, spans, ordinals, and AST addresses never recreate identity;

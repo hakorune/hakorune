@@ -25,7 +25,11 @@ impl NyashRunner {
             };
 
         let transformed = match crate::runner::modes::common_util::normal_callable::
-            materialize_normal_callable_program_v1(&prepared.code, self.parser_build_config())
+            materialize_normal_callable_program_with_identity_v1(
+                &prepared.code,
+                self.parser_build_config(),
+                filename,
+            )
         {
             Ok(transformed) => transformed,
             Err(
@@ -44,6 +48,13 @@ impl NyashRunner {
                     NormalCallableMaterializationErrorV1::Transform(rejected),
             ) => {
                 eprintln!("❌ MIR source transform error: {:?}", rejected);
+                process::exit(1);
+            }
+            Err(
+                crate::runner::modes::common_util::normal_callable::
+                    NormalCallableMaterializationErrorV1::SourceLineage(rejected),
+            ) => {
+                eprintln!("❌ MIR source lineage error: {:?}", rejected);
                 process::exit(1);
             }
         };

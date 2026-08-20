@@ -21,6 +21,7 @@ mod main_thunk_plan;
 mod module_source;
 mod normal_acyclic_module_plan;
 mod normal_callable_transaction_handoff;
+mod parser_callable_source_handoff;
 mod product;
 mod rejection;
 mod script_physical_entry;
@@ -122,6 +123,7 @@ pub(crate) use product::{
     PreparedNormalSourcePlanInputV1, SealedNormalCallableModuleSourceV1, SealedNormalMainSourceV1,
     SealedNormalScalarRootV1, SealedNormalScriptSourceV1, SealedNormalSourcePlanV1,
 };
+pub(crate) use parser_callable_source_handoff::NormalParserCallableSourceHandoffV1;
 pub(crate) use rejection::{
     NormalSourcePlanErrorV1, NormalSourcePlanStageV1, RejectedNormalSourcePlanV1,
 };
