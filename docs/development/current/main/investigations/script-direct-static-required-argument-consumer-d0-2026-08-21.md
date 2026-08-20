@@ -158,3 +158,25 @@ is not that proof.
 - the reusable classification-completeness guard is the focused review gate;
 - compatibility cohort admission remains independently parked at its own
   `NoSafeSlice` card.
+
+## D0 closeout and next design stop
+
+The read-only consumer census is complete. The existing
+`VerifiedScriptDirectStaticPhysicalInputV1` / detached-kernel pair is
+`DetachedCandidateOnly`: both production-caller searches are zero, the helper
+does not expose or validate `required_callee_i64_arguments`, and its only call
+is its focused unit test. The selected-normal lowering input also carries no
+scalar operand Recipe, so this candidate cannot be promoted by wiring a
+caller.
+
+The callable `CallProofContextV1` cannot fill the gap: it requires a callable
+owner key, callable parameter environment, and callable `call_result` row;
+ScriptRoot has no such caller identity. A synthetic key or a `CallerOutside-
+Catalog`-to-`Absent` conversion would create a second authority.
+
+This D0 remains an accepted `NoSafeSlice` for physical consumption. The next
+bounded design row is
+[`SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-SOURCE-PROOF-D0`](script-direct-static-required-argument-source-proof-d0-2026-08-21.md),
+which decides whether the existing resolver scalar operand facts can issue a
+complete ScriptRoot argument representation proof. No I0 is opened until
+that source proof and its physical consumer are both named.
