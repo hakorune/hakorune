@@ -17,11 +17,12 @@ source/Facts prefix. Retain the complete parser-backed source product,
 declaration Facts/catalog, resolver package, and Script window before any
 Builder, physical Call, result publication, or canonical consumer is opened.
 
-Source authority + canonical issuer: the single parser postpass plus its
-callable-parameter/constructor source must co-seal the final parser-backed
-source product; declaration Facts, callable semantic packages, and Script
-semantic products keep their existing source owners. A future move-only prefix
-carrier may transport those products, but it may not reissue their meaning.
+Source authority + canonical issuer: parser
+`ParsedProgramWithCallableParameterSourceV1` already co-seals the single
+postpass with the complete callable-parameter catalog; the postpass's initial
+source owns constructor coverage. A future move-only prefix carrier must
+retain that product with the digest/profile and may borrow existing
+declaration/Facts owners, but it may not reissue their meaning.
 
 Non-authority: `CompletedParserPostpassV1` by itself, AST or digest alone,
 `RawScriptBodyRecipeV1`, `ModuleBuilderInvocationSessionV1`,
@@ -46,13 +47,14 @@ compat retirement, ABI/backend/performance change, or Builder cleanup.
 
 ## Audit result: broad A is not open
 
-The parser handoff I0 is closed, but it carries only one completed
-`CompletedParserPostpassV1`. The normal callable source path also requires the
-parser-owned parameter-source product from
-`finish_callable_parameter_source_for_normal()`, then consumes both through
-`CompletedParserPostpassV1::into_normal_callable_program(...)`. A source-only
-producer cannot claim a complete parser-backed source while that second product
-is dropped or re-created later.
+The parser handoff I0 is closed, but the canonical frontdoor currently carries
+only one completed `CompletedParserPostpassV1`. The parser already has the
+correct atomic product: `ParsedProgramWithCallableParameterSourceV1` is issued
+by one `NyashParser` invocation, and its `completed` postpass is paired with
+the complete parameter catalog. The postpass's initial callable source also
+retains the parser-issued constructor catalog. The missing seam is therefore
+transport, not a new parser authority: the canonical frontdoor must retain
+this existing product instead of dropping the catalog or re-deriving it later.
 
 The current complete Script product set is still issued only inside
 `normal_default_root_catalog_lifecycle.rs`. That lifecycle performs Builder
@@ -64,7 +66,34 @@ would create a second physical pipeline; re-running resolver or rebuilding
 products from AST would create a second authority.
 
 Therefore the previous broad A design is retained as an audit boundary, not an
-implementation row. The next bounded task is the source/Facts prefix only.
+implementation row. The next bounded task is still the source/Facts prefix,
+but its parser input is now fixed to the existing atomic product rather than a
+new postpass/parameter co-seal.
+
+## Existing parser issuer and exact seam
+
+The parser-side authority is already source-backed and one-shot:
+
+```text
+one NyashParser
+  -> parse_postpass_s0()
+  -> finish_callable_parameter_source_catalog()
+  -> ParsedProgramWithCallableParameterSourceV1
+       { CompletedParserPostpassV1, ParserCallableParameterSourceCatalogV1 }
+```
+
+The normal callable path separately uses the same parser session through
+`finish_callable_parameter_source_for_normal()` and
+`CompletedParserPostpassV1::into_normal_callable_program(...)`. The
+constructor catalog is issued by the parser source-seal finalizer and is
+attached to `VerifiedInitialCallableProgramSourceV1`; missing constructor
+coverage is already a typed reject. These are the canonical parser issuers,
+not AST/digest pairing or Builder ordinals.
+
+The prefix design must choose one of these existing parser products as its
+input and prove how selected-normal and canonical consumers borrow or consume
+the same source identity. It must not create a third parser product or call
+both parser entrypoints for one source.
 
 ## Required prefix contract
 
@@ -72,12 +101,10 @@ The design must name one producer input and one move-only output. The output
 must retain or linearly move, without cloning or semantic re-issuance:
 
 ```text
-CanonicalParserSourceHandoffV1
-  + parser callable-parameter source
-  + parser constructor/source coverage
+ParsedProgramWithCallableParameterSourceV1
   + retained source digest/profile
-  + declaration Facts/catalog
-  + resolver callable package and Script window
+  + declaration Facts/catalog loan (existing issuer)
+  + resolver callable package and Script window loan (existing issuer)
 ```
 
 The prefix may expose borrowed views while issuing, but its published carrier
@@ -114,8 +141,9 @@ be sibling modules with one thin lifecycle call site.
 The D0 is complete only when the card can answer all of these without a code
 guess or a second issuer:
 
-- Which single parse operation issues both postpass and parameter/constructor
-  source coverage, and how their identity is sealed together;
+- how `ParsedProgramWithCallableParameterSourceV1` is retained or projected
+  without dropping its catalog, and how the constructor catalog remains bound
+  to the same parser brand;
 - which existing source/Facts/resolver owners are lent or moved, and which
   products are explicitly deferred because their current issuer is Builder-
   bound;
@@ -136,7 +164,8 @@ I0.
 
 Stop at this D0 if any of the following remains true:
 
-- parameter-source or constructor coverage is not retained from the same parse;
+- the existing atomic parser product is split into independent postpass and
+  parameter/constructor products;
 - the source-only producer must call `prepare_normal_default_module`, install
   `builder.comp_ctx`, or read a mutable Builder catalog;
 - target/result/Recipe/Join are reissued instead of transported from a named
