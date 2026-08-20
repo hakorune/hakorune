@@ -1,9 +1,9 @@
 # SCRIPT-DIRECT-STATIC-CALL-TARGET-D0
 
-Status: target I0 and result-owner/Facts I0 are complete and closed.
-`SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` is closed as `NoSafeSlice`: the resolver
-does not yet retain a Script-owned continuation relation. Recipe, Join, result
-publication, and physical rows remain unopened.
+Status: target I0, result-owner/Facts I0, and the continuation design stop are
+closed. `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0` is the current
+bounded implementation row; Recipe, Join, result publication, and physical
+rows remain unopened.
 Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Current capsule
@@ -20,10 +20,10 @@ Parent: `brand-instance-constructor-source-relation-d0.md`
 
 ## Six-line brief
 
-Decision: Close `SCRIPT-DIRECT-STATIC-CALL-RECIPE-D0` as `NoSafeSlice` and open
-one prerequisite design slice for a resolver-issued Script continuation
-inventory. Do not issue Recipe rows until that relation and a Script-specific
-result-publication owner are available.
+Decision: Accept one BoxCount source-product slice: retain the resolver-issued
+Script body shape and issue an exact continuation inventory without issuing a
+Recipe or lowering. The prior Recipe D0 remains NoSafeSlice until this product
+and a Script-specific result-publication owner are available.
 
 Source authority + canonical issuer: the resolver's existing
 `ShadowBodyShapeDraftV0`/Script owner seal is the only candidate issuer for
@@ -41,10 +41,11 @@ unsupported result representation, Deferred/Compatibility/RawLegacy input, or
 attempted Recipe publication without the Script result owner rejects before
 Builder effects; no AST/name or raw fallback is allowed.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-D0`
-designs the missing resolver product. Only after it closes may
-`SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0` be selected in a dedicated sibling;
-scalar Recipe/Join/physical code stays unchanged.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0`
+retains the already-issued Script body shape through the forest/source handoff
+and builds a focused source-only continuation sibling. Only after it closes
+may `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0` be selected; scalar Recipe/Join/
+physical code stays unchanged.
 
 Non-claims: no Recipe-I0, Deferred owner repair, callable-key reuse, by-name
 fallback, physical JoinSig inference, raw-edge retirement, backend
@@ -466,6 +467,37 @@ raw-edge retirement, production switch, performance measurement, or C-parity
 claim. Recipe I0 remains parked until this product and the Script
 result-publication owner are both accepted.
 
+### SOURCE-CONTINUATION-D0 acceptance / I0 contract
+
+Decision: the design stop is accepted as one bounded `BoxCount`; the next
+implementation row is `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0`.
+
+Source authority + canonical issuer: `FunctionSemanticResolverSessionV1`'s
+`seal_script_owner_with_maps` issues the owner and `VerifiedBodyShape` from one
+shadow traversal. `ResolveScriptForestOutcomeV1::Complete` must carry the
+already-issued root/nested body-shape map; a new sibling validates and projects
+the root Script continuation. No owner ID or MethodCall row is reissued.
+
+Non-authority: AST re-scan, target inventory ROOT, window ordinal pairing,
+`ScriptRootReturnExitAdmissionV1` alone, raw lineage, `ValueId`, `JoinSig`,
+physical blocks, and the scalar Recipe path.
+
+Fail-fast boundary: `body_shape.owner()` must equal its forest owner; exactly
+one root shape must cover all Script statements/expressions/relations; every
+MethodCall receiver/argument and every Return value must be covered; nested
+owner rows stay separate. Missing/duplicate/foreign shape, Deferred forest,
+window drift, or dangling parent relation rejects before lowering effects.
+
+Smallest I0 seam: add body-shape retention to the Script resolver outcome and
+forest handoff; add `normal_script_source_continuation.rs` (target <300 lines)
+to issue source-only continuation rows; keep existing 751/666-line runtime and
+transport owners, scalar Recipe, result publication, and physical lowering
+unchanged. Add focused positive/negative/foreign-owner tests and one reusable
+guard.
+
+Non-claims: no Recipe key, Script result-publication owner, ValueId, physical
+call, raw retirement, production switch, performance result, or C-parity claim.
+
 ## Current TODO ledger (2026-08-20)
 
 This is the single short list for the remaining work. Historical target/Facts
@@ -475,35 +507,37 @@ I0 sections above remain evidence and are not executable rows.
    existing MethodCall Facts row has call/receiver/argument/result sites but no
    retained Script-owned parent/Return/terminal continuation. The old scalar
    Recipe and callable result owner cannot fill that gap.
-2. **OPEN — `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-D0`.** Design one
-   resolver-issued Script body-shape/continuation product co-sealed with the
-   same forest owner. It must cover each statement, parent relation, final
-   Return/terminal, and exact MethodCall result without AST re-scan or ordinal
-   pairing. The implementation successor is a separate I0, not Recipe code.
-3. **OPEN — Script result-publication owner design.** Define a ScriptRoot
+2. **CLOSED — `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-D0`.** The
+   resolver-issued body-shape retention boundary is accepted: preserve the
+   existing owner/shape pair and validate a root continuation sibling. No
+   Recipe or physical meaning is issued by this design.
+3. **OPEN — `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0`.** Carry the
+   existing Script body-shape map through the forest/source handoff and issue
+   exact source-only continuation rows in a new sibling. Reject foreign,
+   partial, duplicate, or nested-crossing shapes before Builder effects.
+4. **OPEN — Script result-publication owner design.** Define a ScriptRoot
    result destination/representation handoff that is distinct from the
    callable-only publication owner. Missing owner, unsupported representation,
    or Deferred input is `NoSafeSlice`, not an empty/default row.
-4. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`.** Start only after (2)
-   and (3) close. Add a dedicated Recipe producer/transport sibling, one source
+5. **PARKED — `SCRIPT-DIRECT-STATIC-CALL-RECIPE-I0`.** Start only after (3)
+   and (4) close. Add a dedicated Recipe producer/transport sibling, one source
    row per Facts row, and focused positive/negative/foreign-drift tests. Keep
    `RawScriptBodyRecipeV1`, `normal_source_plan::script_recipe`, and the
    existing scalar path unchanged.
-5. **PARKED — Join/physical/result handoff.** After Recipe I0, open separate
+6. **PARKED — Join/physical/result handoff.** After Recipe I0, open separate
    owner cards for source Join/continuation, Script result publication, and
    physical lowering. Never turn a physical `JoinSig`, `ValueId`, or block
    label into source meaning.
-6. **PARKED — raw retirement/production.** Retire the old Script edge only when
+7. **PARKED — raw retirement/production.** Retire the old Script edge only when
    every admitted Script family has an exact Recipe/result owner and the new
    path is selected. Deferred, Compatibility, RawLegacy, and nested families
    remain explicit non-claims until separately closed.
-7. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
+8. **PARKED — performance.** Keep current exact/meso gates unchanged. Treat
    `Hako/C <= 1.00` as the long-term same-corridor point target; a possible
    upper-95% `<= 1.03` claim requires a new predeclared batch/D0. No WSL/native
    rerun, PMU attribution, threshold change, SIMD work, or backend BoxShape is
    authorized by this card.
 
-**Next executable row:** none while `CURRENT_STATE.toml.work_mode` is
-`design_stop`; the next design row is
-`SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-D0`. Recipe I0 remains closed
-until that prerequisite and the Script result-publication owner are accepted.
+**Next executable row:** `SCRIPT-DIRECT-STATIC-CALL-SOURCE-CONTINUATION-I0`.
+Recipe I0 remains closed until this prerequisite and the Script
+result-publication owner are accepted.
