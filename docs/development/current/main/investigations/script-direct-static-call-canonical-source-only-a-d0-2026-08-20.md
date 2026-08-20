@@ -1,163 +1,153 @@
 ---
 Status: Active design stop
 Date: 2026-08-20
-Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0
+Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-FACTS-PREFIX-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-parser-source-handoff-d0-2026-08-20.md
 ProductionCaller: none; design only
-ReplacementCell: Builder-free source/Facts/Recipe/Join prefix for canonical Script
+ReplacementCell: Builder-free parser/source/Facts prefix for canonical Script
 Classification: BoxCount
 ---
 
-# SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0
+# SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-FACTS-PREFIX-D0
 
 ## Six-line brief
 
-Decision: Define one Builder-free source-only A prefix that issues or lends
-the already-owned Script source/Facts/Recipe/Join and physical-input products
-before the canonical request enters `compile_script`. Do not open a Builder,
-install a mutable catalog, lower MIR, or finalize a module in this row.
+Decision: Narrow the broad canonical A proposal to one Builder-free
+source/Facts prefix. Retain the complete parser-backed source product,
+declaration Facts/catalog, resolver package, and Script window before any
+Builder, physical Call, result publication, or canonical consumer is opened.
 
-Source authority + canonical issuer: the retained parser/source handoff plus
-resolver-owned declaration Facts, Script window, target inventory, result
-bundle, Recipe, Join, and physical-input issuers are the source authority. A
-new move-only `CanonicalScriptSourceOnlyAHandoffV1` is the single transport
-issuer; it co-seals the landed source digest/profile with those existing
-products and never reissues their meaning.
+Source authority + canonical issuer: the single parser postpass plus its
+callable-parameter/constructor source must co-seal the final parser-backed
+source product; declaration Facts, callable semantic packages, and Script
+semantic products keep their existing source owners. A future move-only prefix
+carrier may transport those products, but it may not reissue their meaning.
 
-Non-authority: `ModuleBuilderInvocationSessionV1`, `builder.comp_ctx`, mutable
-catalog installation, selected work-plan ordinals, AST/name/path re-scans,
-digest-only inference, `RawScriptBodyRecipeV1`, selected claim ledgers, MIR
-instructions, `ValueId`, and the later three-state disposition are not A
-issuers.
+Non-authority: `CompletedParserPostpassV1` by itself, AST or digest alone,
+`RawScriptBodyRecipeV1`, `ModuleBuilderInvocationSessionV1`,
+`builder.comp_ctx`, work-plan ordinals, pointer/name/path scans, `ValueId`,
+MIR, and the current Builder-bound lifecycle output are not a source/Facts
+issuer.
 
-Fail-fast boundary: before any Builder or physical effect, require one retained
-source identity, canonical digest/profile, complete Script window, resolver
-forest/catalog/brand view, target/result/Recipe/Join/operand coverage, and
-matching owner/site/cardinality. Missing, foreign, duplicate, stale, or
-non-source-backed input terminates as `NoSafeSlice`/`IntegrityInvalid`; it may
-not become `NonCandidate` or Raw fallback.
+Fail-fast boundary: missing parser parameter-source or constructor coverage,
+non-ParserBacked input, Compatibility/Deferred status, missing/foreign/
+duplicate/stale Facts/window/owner, or a product that can only be paired by
+AST/name/path inference keeps the row at `NoSafeSlice` before Builder effects.
+There is no reparse, second resolver, Raw fallback, or guessed empty product.
 
-Smallest next slice: design the source-only prefix and its shared producer
-contract, then make the selected-normal lifecycle and the future canonical
-frontdoor consume the same handoff rather than issuing parallel products.
-Disposition C and canonical request carrier B remain later rows.
+Smallest next slice: specify the exact Builder-free producer input/output and
+the non-Clone handoff identity shared by selected-normal and future canonical
+consumers. Do not edit `normal_default_root_catalog_lifecycle.rs` or
+`canonical_core_dispatch.rs` until that contract is accepted.
 
-Non-claims: no three-state disposition, canonical physical Call/publication/
-Return, source admission expansion, selected-normal production switch, raw or
+Non-claims: no A/C/B handoff, three-state disposition, canonical physical
+Call/publication/Return, source admission expansion, production switch, raw or
 compat retirement, ABI/backend/performance change, or Builder cleanup.
 
-## Why the existing lifecycle is not A
+## Audit result: broad A is not open
 
-`normal_default_root_catalog_lifecycle.rs` is evidence of the desired source
-products, but it is not a source-only caller. Its current receiver is
-`ModuleBuilderInvocationSessionV1` and it performs, in one lifecycle:
+The parser handoff I0 is closed, but it carries only one completed
+`CompletedParserPostpassV1`. The normal callable source path also requires the
+parser-owned parameter-source product from
+`finish_callable_parameter_source_for_normal()`, then consumes both through
+`CompletedParserPostpassV1::into_normal_callable_program(...)`. A source-only
+producer cannot claim a complete parser-backed source while that second product
+is dropped or re-created later.
 
-```text
-root expansion / declaration Facts / resolver
-  -> Builder module preparation
-  -> mutable catalog installation
-  -> Script target/result/Recipe/Join issuance
-  -> Builder lowering
-  -> finalize_module
-```
+The current complete Script product set is still issued only inside
+`normal_default_root_catalog_lifecycle.rs`. That lifecycle performs Builder
+preparation/catalog installation and then issues or attaches declaration,
+resolver, target, result-bundle, Recipe, and Join products before lowering.
+The canonical frontdoor currently consumes `RawScriptBodyRecipeV1` and has no
+consumer for a source-only A handoff. Calling the lifecycle from canonical
+would create a second physical pipeline; re-running resolver or rebuilding
+products from AST would create a second authority.
 
-The canonical frontdoor at `normal_file_canonical_core_vm.rs` does not enter
-that lifecycle; it makes a source-plan request and `canonical_core_dispatch`
-still prepares `RawScriptBodyRecipeV1`. Calling the existing lifecycle from
-the canonical route would open a second physical pipeline and make A depend on
-Builder effects. Copying its AST or re-running resolver logic on the
-canonical side would create a second semantic authority.
+Therefore the previous broad A design is retained as an audit boundary, not an
+implementation row. The next bounded task is the source/Facts prefix only.
 
-## Closed prerequisite: parser handoff is retained at the canonical frontdoor
+## Required prefix contract
 
-The parser-backed source-handoff I0 is now closed. The canonical frontdoor's
-`parse_once` retains the existing `CompletedParserPostpassV1` inside a
-non-Clone `CanonicalParserSourceHandoffV1`; source-plan classification moves
-that same opaque postpass into `PreparedNormalSourcePlanInputV1::ParserBacked`
-and exposes it read-only at the sealed Script boundary. The AST-only source
-constructor remains test compatibility only.
-
-This is not repaired by calling `parse_from_string_with_source_seal` or
-`parse_from_string_with_resolver_source_handoff` again: those are parser-owned
-postpass/projection issuers, and a second call would violate the one-read/
-one-parse receipt and create a second authority. The missing boundary is now
-tracked by
-`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PARSER-SOURCE-HANDOFF-D0`.
-
-The carrier closeout removes this transport blocker but does not open A
-implementation. A remains a design contract until its Builder-free producer,
-complete source/Facts/Recipe/Join coverage, and shared-consumer identity are
-accepted. No canonical Script source may enter A from AST plus digest alone.
-
-## Required source-only handoff shape
+The design must name one producer input and one move-only output. The output
+must retain or linearly move, without cloning or semantic re-issuance:
 
 ```text
-CanonicalScriptSourceOnlyAHandoffV1 (non-Clone, move-only)
-  source_identity: retained source-backed identity
-  source_digest/profile: exact frontdoor pair
-  script_window: complete ProgramBody coverage
-  semantic_forest/catalog: resolver-issued owner and declaration views
-  target_inventory: existing source-call target product
-  result_bundle: existing result/representation product
-  recipe/join: existing source-owned products
-  physical_input: existing verified input plan (no ValueId/MIR effect)
-  seal: one co-seal binding all identities and cardinalities
+CanonicalParserSourceHandoffV1
+  + parser callable-parameter source
+  + parser constructor/source coverage
+  + retained source digest/profile
+  + declaration Facts/catalog
+  + resolver callable package and Script window
 ```
 
-The handoff may borrow existing products while the source-only issuer is
-running, but the published handoff owns or linearly moves every product needed
-by C and by the selected-normal consumer. It must not contain a Builder,
-`CompilationContext`, mutable registry, physical block, `ValueId`, or signature.
+The prefix may expose borrowed views while issuing, but its published carrier
+must be AST-free where the existing owner already provides an AST-free product.
+It must not contain a Builder, mutable registry, physical block, `ValueId`,
+signature, or MIR instruction. Target inventory, result bundle, Recipe, Join,
+and physical-input products are not silently copied into this prefix: each must
+either be shown to have a source-only issuer/transport or remain a later row.
 
-The source-only producer must be shared. The selected-normal lifecycle may no
-longer independently issue a second target inventory, result bundle,
-Recipe/Join, or physical-input product after this row is implemented. Until
-that replacement is proved, the existing lifecycle remains unchanged and the
-new handoff is design-only.
+The producer must be shared. Selected-normal may not continue issuing a second
+source/Facts set once the eventual I0 consumes this carrier, and canonical may
+not reconstruct one from the raw recipe. Until that I0 exists, the current
+Builder lifecycle remains unchanged and is not evidence that the prefix is
+already implemented.
 
-## Source eligibility and rejection
+## Owner and seam inventory
 
-Only a retained source-backed program with an exact parser/resolver handoff may
-enter A. A raw AST that lacks the source identity, resolver owner/window, or
-complete Facts is not an explicit zero-candidate observation. It is
-`NoSafeSlice`/`IntegrityInvalid` before any Raw recipe is selected.
+```text
+parser postpass + parameter source  -> final parser-backed source owner
+declaration Facts/catalog            -> existing Facts issuer
+callable semantic package            -> existing resolver/package issuer
+Script window/semantic source        -> existing Script source issuer
+target/result/Recipe/Join             -> source-only transport design still open
+physical input/Call/publication       -> later C/B/bridge rows
+```
 
-The digest is carried from `read_once` and is compared/co-sealed with the same
-retained source context; it is never compared to an AST pointer or recreated
-from a path. Compatibility, Deferred, RawLegacy, and selected-normal products
-without the exact source handoff remain outside this A row.
+`normal_default_root_catalog_lifecycle.rs` is the evidence boundary, not the
+new owner. It is near the 760/800 line policy and must not absorb the producer
+or new semantic validation. New source-only models, if later authorized, must
+be sibling modules with one thin lifecycle call site.
 
-## Later I0 acceptance matrix
+## Design acceptance
 
-Positive:
+The D0 is complete only when the card can answer all of these without a code
+guess or a second issuer:
 
-- canonical source-only entry opens no `ModuleBuilderInvocationSessionV1` and
-  performs no catalog installation, MIR lowering, or module finalization;
-- one producer issues the complete handoff once, with digest/profile, window,
-  owner/site, target/result/Recipe/Join, operand, and physical-input identity
-  all matching;
-- selected-normal and canonical consumers receive the same source product
-  identity, with no duplicate issuer or re-resolution;
-- missing candidate coverage remains a terminal handoff error rather than an
-  implicit zero-candidate result.
+- Which single parse operation issues both postpass and parameter/constructor
+  source coverage, and how their identity is sealed together;
+- which existing source/Facts/resolver owners are lent or moved, and which
+  products are explicitly deferred because their current issuer is Builder-
+  bound;
+- how one source identity is consumed by selected-normal and canonical without
+  duplicate issuance or pointer/name pairing;
+- how complete Script window/owner/site/cardinality coverage is checked before
+  any Builder effect;
+- how Compatibility, Deferred, RawLegacy, and AST-only fixtures are rejected
+  rather than represented as empty candidates;
+- how a future I0 can prove Builder effect zero in the producer and preserve
+  the old lifecycle until the shared consumer is ready.
 
-Negative:
+Positive design evidence is a source/Facts ownership table and one bounded
+input/output contract. A worker report or local green test alone does not open
+I0.
 
-- digest/profile drift or source/Facts identity mismatch;
-- missing, duplicate, foreign, stale, or partially covered window/owner/site;
-- target/result/Recipe/Join/physical-input cardinality or operand mismatch;
-- compatibility/deferred/raw source presented as a complete A handoff;
-- Builder/session/catalog/MIR/ValueId appears in the source-only producer;
-- canonical-side AST/name/path scan or resolver re-issuance;
-- a selected-normal lifecycle creates a second product set instead of consuming
-  the shared handoff;
-- failure converted to `NonCandidate` or retried through Raw.
+## Negative matrix and stop line
 
-## NoSafeSlice conditions
+Stop at this D0 if any of the following remains true:
 
-Keep this row parked if a source-only owner cannot be separated from Builder
-effects, if the parser handoff is not retained at the canonical caller, if
-one producer cannot serve both canonical and
-selected-normal consumers without duplicate issuance, or if digest/profile can
-only be paired through pointer/name/path inference. Do not open disposition C,
-carrier B, or physical bridge I0 until A is closed.
+- parameter-source or constructor coverage is not retained from the same parse;
+- the source-only producer must call `prepare_normal_default_module`, install
+  `builder.comp_ctx`, or read a mutable Builder catalog;
+- target/result/Recipe/Join are reissued instead of transported from a named
+  source owner;
+- canonical must parse/re-resolve/re-pair by AST, name, path, pointer, or digest;
+- Script window or owner/site coverage is partial, duplicate, foreign, or stale;
+- Compatibility/Deferred/RawLegacy is converted to `NonCandidate` or Raw;
+- a future selected-normal/canonical consumer would receive different source
+  products or one route would silently retain a second issuer;
+- the design requires growth of a source file to 760+ for convenience.
+
+Do not open disposition C, carrier B, physical bridge, canonical request
+changes, production switch, raw retirement, or performance measurement until
+this prefix is accepted and its source authority is explicit.
