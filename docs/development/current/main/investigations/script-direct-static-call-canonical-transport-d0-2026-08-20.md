@@ -154,3 +154,53 @@ to name one lifecycle caller and a move-only carrier that crosses the
 canonical request without AST re-resolution or a second physical-input
 issuer. Until that design is accepted, the selected-normal bridge and the
 canonical `RawScriptBodyRecipeV1` route remain separate and unchanged.
+
+## Caller decision and the only viable next handoff
+
+The second authority audit closes the caller question for this D0:
+
+```text
+A  normal_default_root_catalog_lifecycle
+   owns the existing semantic producer, but it is the selected-normal
+   Builder lifecycle and is not called by the canonical source-plan front door.
+
+B  CanonicalCoreSourcePlanCompileRequestV1
+   is the canonical caller boundary, but currently carries only
+   SealedNormalSourcePlanV1 + admission + read/parse receipt.
+
+C  one new canonical source-semantic handoff
+   must be the only bridge between A's source-owned products and B's
+   detached Script entry.  C is not implemented or emitted in this D0.
+```
+
+The later I0 must therefore introduce one move-only
+`CanonicalScriptDirectStaticCarrierV1` (design name only) at the classified
+canonical source boundary.  Its producer is the existing source/Facts/Recipe/
+Join chain, invoked once for the retained Script source; its consumer is the
+existing detached entry kernel.  The carrier must contain the already-issued
+physical input plus source identity, owner, key/cardinality seal, canonical
+target rows, ordered operand trees, `ExactI64`, and
+`FinalSequence | RootReturn`.  It must not contain an AST, a name lookup, or a
+Builder ordinal.
+
+The canonical request must carry a typed Script disposition rather than an
+ambiguous optional payload:
+
+```text
+DirectStatic(carrier)       -> detached direct-static kernel
+NonCandidate(raw-recipe)    -> existing RawScriptBodyRecipeV1 path
+IntegrityInvalid            -> terminal rejection
+```
+
+`NonCandidate` is issued only by the same source-owned observation that proves
+there is no direct-static candidate; a missing carrier for an observed
+candidate is not `NonCandidate` and cannot fall back to the raw recipe.  This
+prevents the canonical entry from silently selecting between two authorities.
+The selected-normal Builder bridge remains a separate implementation until an
+explicit production cutover removes the overlap.
+
+This makes the next task classification explicit: the canonical request gains
+one accepted Script transport disposition, so the later carrier implementation
+is a `BoxCount` I0, not a behavior-neutral `BoxShape`.  D0 remains a design
+stop until the source-side observation and the exact A-to-C-to-B ownership
+handoff are accepted together.
