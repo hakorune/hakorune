@@ -1,5 +1,5 @@
 ---
-Status: accepted design stop — implementation not started
+Status: accepted design — transport-only P0 complete; publication ingress remains the next design stop
 Date: 2026-08-21
 Decision: SCRIPT-STATIC-RESULT-PUBLICATION-SOURCE-LINEAGE-WITNESS-D0
 Parent: docs/development/current/main/investigations/script-static-result-publication-ingress-failfast-d0-2026-08-21.md
@@ -136,3 +136,31 @@ source shape, or if the witness must be re-paired from AST names/ordinals.
 After this P0 closes, the publication card may resume its own pre-descent
 `Unavailable | Absent | Selected | Error` implementation. No physical
 publication code is authorized before that dependency is green.
+
+## P0 implementation receipt
+
+The transport-only row is closed with no source-admission or publication-owner
+change. `RawInvocationSourceTransportV1` now carries
+`expected_lineage: Option<RawInvocationRootLineageV1>` through source-loss
+construction, context reconstruction, child arguments, structured forwarding,
+and reborrow. A Cataloged/Main/ScriptRoot source-loss witness is preserved;
+genuine compatibility construction remains witness-free.
+
+Focused evidence:
+
+- `mir::builder::raw_invocation_source_transport::lineage_witness_tests` — 2 passed;
+- existing transport tests — 13 passed;
+- statement-classification tests — 5 passed;
+- script claim-transport tests — 4 passed;
+- `cargo check --profile quick -p nyash-rust` — passed with baseline warnings;
+- `tools/checks/script_static_source_lineage_witness_guard.sh` — passed;
+- `tools/checks/current_state_pointer_guard.sh` and `git diff --check` — passed.
+
+The reusable guard also pins the complete state-table vocabulary
+(`Located(Cataloged)`, `Located(non-Cataloged)`, source-backed and genuine
+unlocated states, and `Foreign/contradictory witness`) so a future card cannot
+silently collapse the neither-selected-nor-rejected state. All touched source
+files remain below the 760-line split trigger; the existing transport test file
+remains below the 800-line hard stop. The next row owns the typed
+`Unavailable | Absent | Selected | Error` ingress; this row emits none of
+those semantic/publication effects.

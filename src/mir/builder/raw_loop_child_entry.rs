@@ -455,7 +455,10 @@ mod tests {
     #[test]
     fn unlocated_entry_is_rejected_before_child_classification() {
         let error = PreparedLocatedRawLoopChildEntryV1::prepare(
-            &RawInvocationSourceContextV1::UnlocatedCompatibility(RawUnlocatedPortalV1::CallObject),
+            &RawInvocationSourceContextV1::UnlocatedCompatibility {
+                reason: RawUnlocatedPortalV1::CallObject,
+                expected_lineage: None,
+            },
             loop_node(vec![box_declaration()]),
             None,
         )

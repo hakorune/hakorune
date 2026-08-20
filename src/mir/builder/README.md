@@ -60,6 +60,18 @@ bare `FunctionCall` and `MethodCall` remain `CallObject` compatibility rows.
 Future exact-site activation must change the classifier child explicitly and
 must not reintroduce AST classification into the transport owner.
 
+### Source-lineage witness for unlocated calls (P0)
+
+When a located invocation is demoted to `UnlocatedCompatibility`,
+`RawInvocationSourceContextV1` preserves an optional `expected_lineage` witness
+from the same `RawInvocationRootLineageV1`. A source-backed context therefore
+cannot silently become the compatibility `Unavailable` state after its exact
+node site is lost; the later publication ingress must freeze it as source-loss
+`Error`. A genuinely compatibility/test-created unlocated context carries no
+witness and remains outside the source-bound publication contract. This carrier
+does not issue a target, Recipe, Join, Call receipt, or publication, and it does
+not widen MethodCall source admission.
+
 ### Exact callable bare-call location (P0)
 
 For an installed, source-backed callable root (`Cataloged`, `TopLevel`, or

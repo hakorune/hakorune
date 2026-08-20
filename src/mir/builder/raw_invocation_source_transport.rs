@@ -115,6 +115,10 @@ pub(in crate::mir::builder) enum RawInvocationSourceTransportV1<T> {
     UnlocatedCompatibility {
         node: T,
         reason: RawUnlocatedPortalV1,
+        /// Preserve a source-backed root when exact node location is lost.
+        /// The later ingress uses this witness to reject source loss instead
+        /// of silently treating it as ordinary compatibility.
+        expected_lineage: Option<RawInvocationRootLineageV1>,
     },
 }
 
@@ -147,7 +151,23 @@ impl<T> RawInvocationSourceTransportV1<T> {
     }
 
     pub(in crate::mir::builder) fn unlocated(node: T, reason: RawUnlocatedPortalV1) -> Self {
-        Self::UnlocatedCompatibility { node, reason }
+        Self::UnlocatedCompatibility {
+            node,
+            reason,
+            expected_lineage: None,
+        }
+    }
+
+    fn unlocated_with_expected_lineage(
+        node: T,
+        reason: RawUnlocatedPortalV1,
+        expected_lineage: RawInvocationRootLineageV1,
+    ) -> Self {
+        Self::UnlocatedCompatibility {
+            node,
+            reason,
+            expected_lineage: Some(expected_lineage),
+        }
     }
 
     pub(in crate::mir::builder) fn into_parts(
@@ -159,14 +179,18 @@ impl<T> RawInvocationSourceTransportV1<T> {
             SourceNodeSiteV1,
             SourceBodyKindV1,
         )>,
-        Option<RawUnlocatedPortalV1>,
+        Option<(RawUnlocatedPortalV1, Option<RawInvocationRootLineageV1>)>,
     ) {
         match self {
             Self::Located(located) => {
                 let (node, root, site, body_kind) = located.into_parts();
                 (node, Some((root, site, body_kind)), None)
             }
-            Self::UnlocatedCompatibility { node, reason } => (node, None, Some(reason)),
+            Self::UnlocatedCompatibility {
+                node,
+                reason,
+                expected_lineage,
+            } => (node, None, Some((reason, expected_lineage))),
         }
     }
 }
@@ -263,21 +287,27 @@ pub(in crate::mir::builder) enum RawInvocationSourceContextV1 {
         site: SourceNodeSiteV1,
         body_kind: Option<SourceBodyKindV1>,
     },
-    UnlocatedCompatibility(RawUnlocatedPortalV1),
+    UnlocatedCompatibility {
+        reason: RawUnlocatedPortalV1,
+        expected_lineage: Option<RawInvocationRootLineageV1>,
+    },
 }
 
 impl RawInvocationSourceContextV1 {
     pub(in crate::mir::builder) fn from_transport<T>(
         transport: RawInvocationSourceTransportV1<T>,
     ) -> (T, Self) {
-        let (node, located, reason) = transport.into_parts();
-        let context = match (located, reason) {
+        let (node, located, unlocated) = transport.into_parts();
+        let context = match (located, unlocated) {
             (Some((root, site, body_kind)), None) => Self::Located {
                 root,
                 site,
                 body_kind: Some(body_kind),
             },
-            (None, Some(reason)) => Self::UnlocatedCompatibility(reason),
+            (None, Some((reason, expected_lineage))) => Self::UnlocatedCompatibility {
+                reason,
+                expected_lineage,
+            },
             _ => unreachable!("[freeze:contract][raw-invocation/source-transport-state]"),
         };
         (node, context)
@@ -303,7 +333,11 @@ impl RawInvocationSourceContextV1 {
                         && is_bare_function_call_statement(&statement))
                 {
                     let reason = reason_for_non_box_statement(&statement);
-                    return RawInvocationSourceTransportV1::unlocated(statement, reason);
+                    return RawInvocationSourceTransportV1::unlocated_with_expected_lineage(
+                        statement,
+                        reason,
+                        root.clone(),
+                    );
                 }
                 let kind = body_kind.expect("located body transport must retain its body kind");
                 let child = body_item_site(kind, site, index);
@@ -314,16 +348,24 @@ impl RawInvocationSourceContextV1 {
                     kind,
                 ))
             }
-            Self::UnlocatedCompatibility(reason) => {
-                RawInvocationSourceTransportV1::unlocated(statement, *reason)
-            }
+            Self::UnlocatedCompatibility {
+                reason,
+                expected_lineage,
+            } => match expected_lineage {
+                Some(root) => RawInvocationSourceTransportV1::unlocated_with_expected_lineage(
+                    statement,
+                    *reason,
+                    root.clone(),
+                ),
+                None => RawInvocationSourceTransportV1::unlocated(statement, *reason),
+            },
         }
     }
 
     pub(in crate::mir::builder) fn site(&self) -> Option<&SourceNodeSiteV1> {
         match self {
             Self::Located { site, .. } => Some(site),
-            Self::UnlocatedCompatibility(_) => None,
+            Self::UnlocatedCompatibility { .. } => None,
         }
     }
 
@@ -336,7 +378,13 @@ impl RawInvocationSourceContextV1 {
                     .node(),
                 body_kind: None,
             },
-            Self::UnlocatedCompatibility(reason) => Self::UnlocatedCompatibility(*reason),
+            Self::UnlocatedCompatibility {
+                reason,
+                expected_lineage,
+            } => Self::UnlocatedCompatibility {
+                reason: *reason,
+                expected_lineage: expected_lineage.clone(),
+            },
         }
     }
 
@@ -705,3 +753,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
 #[cfg(test)]
 #[path = "raw_invocation_source_transport_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "raw_invocation_source_lineage_witness_tests.rs"]
+mod lineage_witness_tests;

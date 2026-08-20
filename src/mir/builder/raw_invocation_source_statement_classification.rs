@@ -261,17 +261,19 @@ mod tests {
         ];
         for root in roots {
             let (_, context) = RawInvocationSourceContextV1::from_transport(
-                RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root),
+                RawInvocationSourceTransportV1::root(Vec::<ASTNode>::new(), root.clone()),
             );
             let (_, child) = RawInvocationSourceContextV1::from_transport(
                 context.body_statement(function.clone(), 4),
             );
-            assert!(matches!(
-                child,
-                RawInvocationSourceContextV1::UnlocatedCompatibility(
-                    RawUnlocatedPortalV1::CallObject
-                )
-            ));
+            let RawInvocationSourceContextV1::UnlocatedCompatibility {
+                reason: RawUnlocatedPortalV1::CallObject,
+                expected_lineage: Some(actual_root),
+            } = child
+            else {
+                panic!("bare call source loss must retain its root lineage");
+            };
+            assert_eq!(actual_root, root);
         }
     }
 }

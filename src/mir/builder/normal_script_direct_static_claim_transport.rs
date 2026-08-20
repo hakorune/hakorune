@@ -38,7 +38,7 @@ fn classify_script_direct_static_claim_ingress_v1(
         RawInvocationSourceContextV1::Located { .. } => {
             Err("[freeze:contract][script-direct-static/claim-ingress-foreign-lineage]".to_owned())
         }
-        RawInvocationSourceContextV1::UnlocatedCompatibility(_) => Err(
+        RawInvocationSourceContextV1::UnlocatedCompatibility { .. } => Err(
             "[freeze:contract][script-direct-static/claim-ingress-source-location-lost]".to_owned(),
         ),
     }
@@ -189,8 +189,10 @@ mod tests {
 
     #[test]
     fn ledger_rejects_unlocated_context_before_descent() {
-        let context =
-            RawInvocationSourceContextV1::UnlocatedCompatibility(RawUnlocatedPortalV1::CallObject);
+        let context = RawInvocationSourceContextV1::UnlocatedCompatibility {
+            reason: RawUnlocatedPortalV1::CallObject,
+            expected_lineage: None,
+        };
         assert_eq!(
             classify_script_direct_static_claim_ingress_v1(true, Some(&context)),
             Err(
