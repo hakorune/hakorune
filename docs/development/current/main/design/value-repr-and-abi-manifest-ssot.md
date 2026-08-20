@@ -52,6 +52,27 @@ Related:
 - runtime value の classes と ownership を先に固定して、future `hako.abi` / `hako.value_repr` の土台にする。
 - old compact call-shape codes を immediate truth にせず、manifest から生成される compatibility artifact に落とす。
 
+## Four-layer compiler type convergence (parked)
+
+General C-class lowering must not ask a backend to reconstruct one physical
+type from unrelated optional facts. Keep four authorities distinct:
+
+```text
+semantic type
+  -> physical representation
+  -> ABI passing class
+  -> storage layout
+```
+
+The parked `MIR-PHYSICAL-TYPE-INPUT-D0` may select one already-exact scalar
+corridor and define a single verified backend input that consumes those four
+rows. It must not widen language types, change an ABI, infer layout from a Box
+name, or treat raw `MirType::Integer` as signedness/width/alignment authority.
+Missing or conflicting rows reject before backend effects. General integer
+widths, pointer-sized integers, overflow policy, aggregates, packing, and
+address spaces remain separate BoxCount decisions and cannot be smuggled into
+this BoxShape convergence row.
+
 ## Canonical Runtime Value Classes
 
 current repo の実態に寄せた canonical classes は次。

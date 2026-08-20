@@ -413,6 +413,67 @@ LOCだけを減らしauthority graphを変えない移動
 
 Noなら、cell数やLOCが良く見えても選択しない。
 
+## Convergence credit and proof compression
+
+MirBuilder移行の進捗単位は、新しい型・receipt・module・guardの数ではない。
+次のproduction graph deltaだけを収束creditとして数える。
+
+```text
+named production caller switches to the selected owner
+  + selected old edge becomes zero
+  + fallback / retry / reselection become zero
+```
+
+source/Facts/Recipe/Joinの中間productは、この切替を安全にする証拠であり、
+それ自体をfinish lineにしない。selected-normal、canonical、raw、compatibilityが
+同じsource formを物理化できる期間はmigration windowである。新ownerのgreenだけで
+閉じず、canonical consumer切替と旧consumer退役までを同じordered familyに置く。
+
+専用のmove-only productを恒久化してよい境界は次に限定する。
+
+```text
+source authority or semantic ownership changes
+physical effect becomes possible
+candidate becomes commit/publication eligible
+publication authority changes
+lifecycle closes
+```
+
+同じtransaction内のread-only validation段階、単なるfield projection、テスト専用
+canaryはprivate stateへ畳み込めるかを先に検討する。canary／migration receiptを残す
+場合は、named production consumer、current caller count、`retire_when`を必須にする。
+cutover後はcaller-zeroを確認してpromote、quarantine、またはretireの一つへ閉じる。
+
+`FunctionMetadata`のfact／plan／seedも同じ規律に従う。familyごとに最低限、
+
+```text
+production producer owner/count
+production consumer owner/count
+backend consumer owner/count
+last verified consumption revision
+retire_when
+```
+
+を一つの機械可読inventoryで観測する。`producer > 0`かつproduction/backend
+consumerがともに0のrowは性能成果ではなく、caller-zero migration debtである。
+新しいbackend consumerはperf owner-first attributionが選んだ一familyだけに追加し、
+inventoryだけを理由にoptimizerやfast pathを増やさない。
+
+type authorityも逆流させない。
+
+```text
+semantic type
+  -> verified physical representation
+  -> verified ABI passing class
+  -> verified storage layout
+  -> one backend physical-type input
+```
+
+backendは`MirType`、metadata、ABI manifest、storage planを独立に再結合しない。
+この四層を一つのbackend inputへ閉じる設計は
+`value-repr-and-abi-manifest-ssot.md`が所有し、source semanticsやABIを同時に
+変更するcleanup rowへ混ぜない。
+
 ## Completion authority
 
 MirBuilder再構築は、次がproduction graphで成立したときに着地する。
