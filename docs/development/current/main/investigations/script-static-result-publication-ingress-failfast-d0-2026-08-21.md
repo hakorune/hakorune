@@ -84,6 +84,26 @@ Error
 after the exact Cataloged source context has been proven. It must never be a
 generic `None` that hides source loss or owner drift.
 
+## Classification-completeness receipt
+
+The ingress review is complete only when every outcome has one named owner and
+one explicit pre-effect/terminal/fallback policy. This is the finite routing
+table for this row:
+
+| outcome | issuer/authority | before child effects | allowed terminal | fallback |
+|---|---|---|---|---|
+| `Unavailable` | port capability with no publication owner | leave the source-bound contract; no claim | compatibility/test owner only | existing compatibility behavior, never source-backed success |
+| `Absent` | verified Cataloged site plus publication owner, with no exact handoff row | no owner mutation | existing ordinary terminal | allowed only for this exact no-row case |
+| `Selected` | exact publication handoff owner/site/target/arity | atomically claim once | existing Call receipt + publication | none; failure discards candidate |
+| `Error` | owner-backed source context or handoff validator | freeze before descent | typed error only | no ordinary/raw terminal, retry, or `None` |
+
+Every negative witness in this card must map to exactly one row above. In
+particular, source loss is `Error`, not `Unavailable` or `Absent`; a terminal
+`Option::None`, wildcard arm, or default compatibility label may not collapse
+these states. This table follows the repository-wide
+`Candidate | Declined | Unresolved | Rejected` completeness rule while using
+the publication owner’s vocabulary.
+
 ## Acceptance
 
 Positive:

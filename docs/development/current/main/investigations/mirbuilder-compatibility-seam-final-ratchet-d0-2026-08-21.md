@@ -69,6 +69,15 @@ guard, and owner README/reference receipt. A row is not complete when a new
 owner exists; it closes only when the old boundary has zero unauthorized
 callers or its remaining compatibility scope is explicitly typed and tested.
 
+Before implementation, each routing row must also carry a finite
+classification-completeness table. It must enumerate the selected state, the
+explicit no-candidate/neither state, and every unresolved or rejected state,
+then bind each to one authority, pre-effect behavior, terminal, and fallback
+policy. `Option::None`, wildcard matches, `unwrap_or(default)`, and generic
+compatibility labels are not valid substitutes. A negative fixture must map to
+one named state; if the table cannot be made finite and authority-backed, the
+row remains `NoSafeSlice`.
+
 ```text
 source-backed mismatch -> typed freeze before effects
 exact no-row           -> only explicitly permitted Absent/compat route
