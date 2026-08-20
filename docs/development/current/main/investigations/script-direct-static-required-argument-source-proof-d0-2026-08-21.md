@@ -167,3 +167,53 @@ Remain at this design stop if any of these hold:
 - The callee-required ordinal list and caller-propagated list remain separate.
 - No implementation, fixture, semantic receipt, fallback, production switch,
   or performance claim is authorized by this D0.
+
+## Classification audit follow-up (2026-08-21)
+
+The finite-state rule is now a tracked generic review rule in
+`agent-current-entry-contract-ssot.md`, and the reusable
+`routing_classification_completeness_guard.sh` checks the active card for a
+named authority/issuer, pre-effect behavior, terminal/continuation, neutral
+state, and fallback policy. This card's table is therefore the acceptance
+surface for the required-argument source proof; a local green test cannot
+replace it.
+
+Two boundary findings were rechecked against the current branch:
+
+- The historical static-result publication hole
+  (`UnlocatedCompatibility -> Ok(None) -> old terminal`) is already retired
+  by `a67410e6e1` (`static_result_publication_ingress.rs`). Its source-backed
+  loss is a typed error before descent, and its focused guard is green; it is
+  not a new blocker for this source-proof row.
+- The result bundle still projects
+  `disposition.required_i64_arguments()` with `unwrap_or_default()`
+  (`normal_script_direct_static_result_bundle.rs`). `ExactI64` with an empty
+  requirement set and `ExactNominalBox` with no applicable requirement set are
+  distinct source states, but the stored `Box<[u32]>` cannot represent that
+  distinction. The current selected bridge rejects non-`ExactI64`, so this is
+  not a permission to widen the bridge; it is a typed-projection debt that
+  must be designed before any required-argument proof I0.
+
+The projection debt has the following explicit vocabulary and is parked as a
+separate P1 design follow-up, not opened ahead of this D0:
+
+| projection state | source meaning | pre-effect consequence | allowed continuation | fallback |
+|---|---|---|---|---|
+| `ExactI64Empty` | ExactI64 and the sealed ordinal set is empty | no required-argument proof | current ExactI64 path only | never synthesize a requirement |
+| `ExactI64Required` | ExactI64 and one or more sealed ordinals exist | proof required before claim/effects | future source-proof I0 | never drop to empty |
+| `NotApplicableNominal` | ExactNominalBox result | no ExactI64 physical claim | explicit non-Exact terminal | never coerce to integer/empty |
+| `Unavailable` | result disposition unavailable | no candidate claim | existing unavailable terminal | no default representation |
+| `ProjectionMismatch` | representation and ordinal applicability disagree | freeze before Recipe/claim | typed repair stop | no `unwrap_or_default`, retry, or re-pairing |
+
+The later task must replace the erased empty-list projection with an
+authority-backed representation (or reject the mismatch) and add a negative
+witness for nominal-vs-empty. It must not be smuggled into the current source
+proof I0 as a helper refactor. The current source-proof blocker remains the
+absence of a ScriptRoot caller representation producer/consumer, not a new
+production route.
+
+Other review items remain parked and are not current blockers: compatibility
+callable retirement, typed-error/string flattening, the Deferred admission
+destination note, strict `root_is_app_mode` handling, and explicit upstream
+delegation wording. Each requires its own bounded card and finite state table
+before implementation.
