@@ -1,5 +1,5 @@
 ---
-Status: fast implementation row
+Status: closed — implementation receipt
 Date: 2026-08-20
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PARSER-SOURCE-HANDOFF-I0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-parser-source-handoff-d0-2026-08-20.md
@@ -107,3 +107,33 @@ run one process at a time under the repository's resource contract.
 This row closes only when the parser-backed carrier and its focused evidence
 are green. The next row remains the parked source-only A design; no A/C/B or
 physical task may be opened by this I0 closeout alone.
+
+## Landed receipt
+
+Commit: `e12464bca5` (`feat: retain canonical parser postpass handoff`)
+
+The canonical normal-file front door now issues the existing parser postpass
+once and moves it through a non-Clone `CanonicalParserSourceHandoffV1` into
+`PreparedNormalSourcePlanInputV1::ParserBacked`. The source-plan product keeps
+the opaque postpass available for the later source-only A boundary, while the
+AST-only constructor remains an explicit test fixture compatibility path.
+The raw reference path still consumes the same postpass exactly once after its
+existing profile check; no parser replay, resolver replay, source reread, or
+semantic route change was added.
+
+Evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --lib                                      PASS
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_file_vm_frontdoor -- --test-threads=1
+                                                                           23 passed; 0 failed
+bash tools/checks/script_direct_static_canonical_parser_source_handoff_guard.sh PASS
+bash tools/checks/current_state_pointer_guard.sh                          PASS (after closeout sync)
+rustfmt --edition 2021 --check <changed Rust files>                       PASS
+git diff --check                                                           PASS
+```
+
+All changed Rust owners remain below the 760-line split trigger except the
+pre-existing 762-line parser module, which received visibility-only changes.
+No source admission, A/C/B, Recipe, Join, Builder, physical, publication,
+Return, raw retirement, production switch, or performance claim changed.

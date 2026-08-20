@@ -1,5 +1,5 @@
 ---
-Status: parked — depends on parser source-handoff D0
+Status: Active design stop
 Date: 2026-08-20
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-ONLY-A-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-parser-source-handoff-d0-2026-08-20.md
@@ -68,13 +68,14 @@ the canonical route would open a second physical pipeline and make A depend on
 Builder effects. Copying its AST or re-running resolver logic on the
 canonical side would create a second semantic authority.
 
-## Newly closed prerequisite: parser handoff is missing at the canonical frontdoor
+## Closed prerequisite: parser handoff is retained at the canonical frontdoor
 
-The canonical frontdoor currently calls `parse_once` and retains only
-`PreparedNormalFileSourceV1 { AST, profile, receipt }`. The source-plan input
-then retains AST plus display identity, and the compile request carries the
-digest but no parser postpass product. `VerifiedFinalCallableProgramSourceV1`
-and the parser source seals are therefore unavailable when A would run.
+The parser-backed source-handoff I0 is now closed. The canonical frontdoor's
+`parse_once` retains the existing `CompletedParserPostpassV1` inside a
+non-Clone `CanonicalParserSourceHandoffV1`; source-plan classification moves
+that same opaque postpass into `PreparedNormalSourcePlanInputV1::ParserBacked`
+and exposes it read-only at the sealed Script boundary. The AST-only source
+constructor remains test compatibility only.
 
 This is not repaired by calling `parse_from_string_with_source_seal` or
 `parse_from_string_with_resolver_source_handoff` again: those are parser-owned
@@ -83,8 +84,10 @@ one-parse receipt and create a second authority. The missing boundary is now
 tracked by
 `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-PARSER-SOURCE-HANDOFF-D0`.
 
-Until that carrier is closed, A remains a design contract only. No canonical
-Script source may enter A from AST plus digest alone.
+The carrier closeout removes this transport blocker but does not open A
+implementation. A remains a design contract until its Builder-free producer,
+complete source/Facts/Recipe/Join coverage, and shared-consumer identity are
+accepted. No canonical Script source may enter A from AST plus digest alone.
 
 ## Required source-only handoff shape
 
