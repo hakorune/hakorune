@@ -14,8 +14,9 @@ Prerequisite: docs/development/current/main/investigations/script-direct-static-
 This handoff D0 is parked behind the explicit pure-Script source admission
 P0. `NoBoxDeclarations` is still a compatibility cohort; this card may not
 reinterpret it as a source-backed empty Script window. Only the typed
-`CanonicalScriptSourceBacked` admission from the prerequisite may enter the
-handoff design below.
+`CanonicalScriptCohortAdmitted` admission from the prerequisite may enter the
+handoff design below. The handoff then co-seals canonical identity/profile/
+read-parse receipt and is the first phase that can issue `HandoffReady`.
 
 ## Six-line brief
 
@@ -36,8 +37,9 @@ Builder declaration facts, resolver/target inventories, `RawScriptBodyRecipeV1`,
 pointer/path/name/ordinal/digest joins, `ValueId`, `MirType`, and compatibility
 success cannot issue or complete this handoff.
 
-Fail-fast boundary: after parser identity-I0 has issued
-`CanonicalSourceBacked`, before canonical `prepare_script_recipe()`, resolver
+Fail-fast boundary: after the parser cohort admission and front-door identity
+I0 have issued `CanonicalScriptCohortAdmitted` plus `CanonicalSourceBacked`,
+before canonical `prepare_script_recipe()`, resolver
 forest construction, Builder install, or child effects. Missing source
 coverage, declaration/import/Brand snapshot, or identity/cohort agreement
 stops before A can observe the source.
@@ -124,13 +126,15 @@ The transition is finite and one-way:
 
 | phase | owned states | sole issuer / consumer | allowed transition |
 |---|---|---|---|
-| identity-I0 | `CanonicalSourceBacked`, `NotApplicable`, `CompatibilitySource`, `Deferred` | parser frontdoor and typed source disposition | only `CanonicalSourceBacked` may enter parser-input observation |
+| cohort admission | `CanonicalScriptCohortAdmitted`, `CohortUnresolved`, `CompatibilitySource`, `Deferred` | parser-only cohort issuer | only `CanonicalScriptCohortAdmitted` may reach front-door identity co-seal |
+| identity-I0 | `CanonicalSourceBacked`, `NotApplicable`, `CompatibilitySource`, `Deferred` | parser frontdoor and typed source disposition | only `CanonicalSourceBacked` plus the cohort admission may enter parser-input observation |
 | parser-input | `SourceAuthorityUnavailable`, `ObservationIncomplete`, `HandoffReady`, `IntegrityInvalid` | `CanonicalScriptSourceInputHandoffV1` | `HandoffReady` moves once to A; the other rows stop or remain in their typed owner |
 | A observation | `NonCandidate`, private `InputAuthorityReady`, later `DirectStaticSourceReady` | future `CanonicalScriptDirectStaticSourceOnlyIssuerV1` | A may issue semantic resolver/target/result/proof/terminal meaning exactly once |
 | C/B future | typed disposition, `Transported` | future canonical disposition and transport owners | C consumes A once; B transports the typed result only |
 
-`CanonicalSourceBacked` is an upstream identity state, not parser-input
-readiness. `HandoffReady` is the only public parser product and never means
+`CanonicalScriptCohortAdmitted` is a parser cohort state, not identity or
+parser-input readiness. `CanonicalSourceBacked` is an upstream identity state,
+not parser-input readiness. `HandoffReady` is the only public parser product and never means
 that a direct-static candidate exists. `NonCandidate` is A's complete,
 integrity-clean zero-candidate result and cannot be issued by the parser
 handoff. `Transported` is a C-to-B lifecycle state and cannot be returned to
