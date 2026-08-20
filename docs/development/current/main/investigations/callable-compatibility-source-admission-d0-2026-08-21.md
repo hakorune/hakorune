@@ -1,5 +1,5 @@
 ---
-Status: design stop — compatibility source identity is not yet transported
+Status: accepted design — transport-only P0 candidate identified; package admission remains closed
 Date: 2026-08-21
 Decision: CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0
 Parent: docs/development/current/main/investigations/mirbuilder-compatibility-seam-final-ratchet-d0-2026-08-21.md
@@ -35,11 +35,11 @@ physical publication. Missing/foreign/ambiguous source origin is `Rejected`;
 source-free inputs remain `Unavailable` or explicit `Neither`, never inferred
 SourceBacked.
 
-Smallest next slice: this design-only census. Keep one existing typed
-compatibility route, retain the reason/lineage at the request boundary, and
-decide whether any single cohort may later receive a source-backed package.
-Do not implement transport, create a receipt, or switch a production caller in
-this D0.
+Smallest next slice: `CALLABLE-COMPATIBILITY-SOURCE-TRANSPORT-P0`, a
+transport-only BoxShape candidate. It may carry the already-issued macro
+reason and parser lineage together to the existing compatibility owner, but it
+must not admit a new cohort, issue semantic facts, or switch a production
+caller. A later cohort admission would be a separate BoxCount D0.
 
 Non-claims: no parser grammar change, no new accepted callable shape, no Brand
 cutover, no FunctionCall classifier, no raw retirement, no AST reparse, no
@@ -95,6 +95,50 @@ parser compatibility cohorts plus `DefaultDeriveWouldGenerateCallable` and
 admission may select one cohort only after a separate BoxCount/BoxShape
 decision; this D0 does not select one.
 
+## Transport decision for the next P0
+
+The parser handoff and macro transform each own a different fact and must not
+be made responsible for the other:
+
+- `NormalParserCallableSourceHandoffV1` owns parser disposition and
+  `NormalParserSourceLineageV1`.
+- `NormalCallableTransformOutcomeV1` owns the macro/parser compatibility reason.
+- `NormalCallableMaterializationErrorV1` owns parse/lineage/transform failure,
+  not successful compatibility identity.
+
+The next P0 may therefore introduce one private, non-semantic transport
+aggregate (candidate name `NormalCallableCompatibilityOriginV1`) containing
+the existing typed reason plus the existing parser lineage. Its issuer is the
+materialization seam only after both owners have issued their facts. It is moved
+with the compatibility AST through the request/root boundary and is consumed
+only as a compatibility diagnostic/provenance input. It must be non-Clone,
+non-reconstructible from AST/name/ordinal, and incapable of constructing a
+resolver ledger, Recipe, Join, target, or physical Call.
+
+The P0 must not put the aggregate into the parser handoff (which would make the
+parser a macro-reason issuer), nor into `NormalCallableSemanticPackageMode`
+(which is only a route selector). Public AST/JSON/VM/REPL requests remain
+`Unavailable` without this carrier.
+
+## D0 census result
+
+The current source shows the exact loss points:
+
+- `src/runner/modes/common_util/normal_callable.rs:69-73` drops parser
+  lineage on the Compatibility arm;
+- `src/runner/modes/mir.rs:69-79` and
+  `src/runner/product/llvm/mir_compiler.rs:54-58` bind the reason as
+  `reason: _reason`;
+- `NormalCompileRequestV1` has no compatibility-origin field;
+- `PreparedNormalDefaultProgramRootV1::Compatibility(ASTNode)` has no
+  reason/lineage carrier;
+- the live root chooses `NormalCallableSemanticPackageMode::Compatibility`
+  when no installed package exists, but that mode cannot repair the lost
+  source facts.
+
+No source/name/ordinal re-pairing or second semantic issuer is acceptable at
+any of these seams.
+
 ## Design questions
 
 1. Which runner/request boundary will retain the typed compatibility reason and
@@ -110,24 +154,26 @@ decision; this D0 does not select one.
 
 ## Acceptance and stop line
 
-This D0 is accepted only when:
+This D0 is accepted with the transport-only boundary above:
 
 - every current entrance is mapped to one finite state above, including
   `Neither`, `Unavailable`, and source-loss `Rejected`;
 - parser/macro reason and source lineage are named as the sole source authority;
 - runner/request adapters are recorded as transport-only and their current
-  reason-dropping holes are listed as the next implementation boundary;
+  reason-dropping holes are listed as the next `...SOURCE-TRANSPORT-P0`
+  implementation boundary;
 - no compatibility state can become SourceBacked, an installed package,
   `Complete(empty)`, or raw fallback by default;
 - source drift, foreign lineage, duplicate/ambiguous cohort, and missing reason
   stop before resolver/Builder/child effects;
 - no code, fixture, semantic receipt, production switch, or physical consumer
-  is added in this design stop;
+  was added in this design stop;
 - any future implementation row names one cohort, one owner, one production
   caller, positive/negative evidence, a focused gate, a reusable guard, and
   the old compatibility edge it retires.
 
-Remain `NoSafeSlice` if retaining the reason requires AST re-scan, if a
+The transport-only P0 remains `NoSafeSlice` until its single carrier and full
+move path are proven. Remain `NoSafeSlice` if retaining the reason requires AST re-scan, if a
 source-free entrance cannot be distinguished from `Neither`, if multiple
 cohorts would share one guessed package, or if compatibility success is the
 only evidence for source identity. The existing general classification-
