@@ -1,11 +1,11 @@
 ---
-Status: design stop — finite admission contract required before implementation
+Status: accepted design — caller-zero Deferred is parked; no implementation row opened
 Date: 2026-08-21
 Decision: NORMAL-CALLABLE-SEMANTIC-ADMISSION-DEFERRED-D0
 Parent: docs/development/current/main/investigations/mirbuilder-compatibility-seam-final-ratchet-d0-2026-08-21.md
-ProductionCaller: existing normal-callable semantic admission and parser compatibility only; no new caller
-ReplacementCell: define the Deferred destination and keep it separate from parser Compatibility
-Classification: design stop; no new source shape, receipt, fallback, or physical effect
+ProductionCaller: zero non-test callers for this legacy admission enum; parser compatibility and installed package are separate owners
+ReplacementCell: keep the legacy Deferred result test/canary-only and do not route production through it
+Classification: design-only closeout; no new source shape, receipt, fallback, or physical effect
 Execution row: NORMAL-CALLABLE-SEMANTIC-ADMISSION-DEFERRED-D0
 ---
 
@@ -34,11 +34,12 @@ child argument effects, or physical publication. A source/identity/projection
 error is `Rejected`; a source-backed `Deferred` has no implicit Compatibility
 fallback or retry; an unclassifiable `Neither` result freezes as `NoSafeSlice`.
 
-Smallest next slice: this design-only card. Decide one authority-backed
-destination for `Deferred`, decide whether an empty selected inventory is an
-explicit `Neither`/`NoCandidate` state, and document the existing Compatibility
-route without adding code, a semantic receipt, a production switch, or a
-physical consumer.
+Smallest next slice: close this caller-zero census as a parked design result.
+`Deferred` is a development/test terminal with no package/install/physical
+consumer; a future production caller must stop as `NoSafeSlice`. Empty selected
+inventories are not a production `Complete` input and must be classified before
+this legacy seal. The next independent row is the compatibility source-admission
+census, not a Deferred consumer.
 
 Non-claims: no parser grammar change, callable Compatibility admission, Brand
 cutover, Script Deferred repair, AST reparse, fallback/retry, new
@@ -54,9 +55,9 @@ the neither-selected-nor-rejected state; no implementation may replace it with
 | state | authority / issuer | before effects | allowed terminal | fallback |
 |---|---|---|---|---|
 | `Complete` | `VerifiedNormalCallableSemanticSourceV1::seal` with resolver `Complete` | exact source/forest/projection is sealed and can be lent once | existing callable semantic loan/physical owner | none |
-| `Deferred` | the same `seal`, caused by a named inventory blocker or resolver deferral | stop before Builder/child descent; retain only the declared deferred boundary | one D0-selected deferred terminal, or `NoSafeSlice` if no owner exists | no Compatibility fallback, retry, or empty package |
+| `Deferred` | the same `seal`, caused by a named inventory blocker or resolver deferral | stop before Builder/child descent; retain only the development/test boundary | parked test/canary result; any production caller freezes as `NoSafeSlice` | no Compatibility fallback, retry, or empty package |
 | `Compatibility` | `CompletedParserPostpassV1` → `transform_normal_callable_program_v1` | use only the already-issued parser compatibility route | existing AST compatibility owner | no semantic-package reinterpretation |
-| `Neither` (`NoCandidate`/`Absent`) | selected inventory/source-product admission, only when the lane is explicitly not a callable candidate | no semantic package or child effects | explicit no-candidate terminal owned by the caller | never `Complete(empty)`, Deferred, or raw fallback |
+| `Neither` (`NoCandidate`/`Absent`) | caller-owned lane selection before this legacy seal; no callable source product is issued | no semantic package or child effects | explicit no-candidate terminal owned by the caller | never call `seal` with an empty production inventory; never `Complete(empty)`, Deferred, or raw fallback |
 | `Rejected` | parser/source-site/key/cardinality/projection/identity validator | typed freeze before resolver/Builder effects | stable rejection terminal | no fallback, retry, or compatibility recovery |
 
 `SourceDrift`, duplicate identity, foreign owner, and conflicting source
@@ -76,47 +77,59 @@ enum or default branch to make the table look complete.
 - The parser/postpass transform already has an explicit
   SourceBacked/Compatibility distinction. It must remain the only issuer of
   that compatibility origin.
-- Existing callers and tests must be censused before any consumer change;
-  this card does not claim that semantic admission is production-complete.
+- A current-tree caller census finds no non-test caller of the enum or of
+  `VerifiedNormalCallableSemanticSourceV1::seal`. The references are the
+  defining module, re-exports, and focused tests/canaries only.
+- The live production package path is separate:
+  `normal_default_root_catalog_lifecycle.rs` issues the installed package and
+  chooses `NormalCallableSemanticPackageMode::Compatibility` when no package
+  exists. It does not consume this legacy `Deferred` enum.
+- The parser transform has a separate typed `Compatibility` outcome; runner
+  adapters currently discard its reason when constructing the compatibility
+  request. That is the next compatibility-source D0, not a Deferred consumer.
 - The active root-mode P0 is landed. This row is the next design stop, not a
   request to reopen the closed root or publication rows.
 
-## D0 questions that must be answered
+## D0 questions and answers
 
-1. Which existing owner receives a source-backed `Deferred` result, and what
-   stable terminal proves that it was consumed without lowering children?
-2. Is an empty selected inventory a real `Neither`/`NoCandidate` outcome, or
-   is the lane not selected before semantic admission? Name the issuer either
-   way; do not infer from an empty vector.
-3. Can parser `Compatibility` and semantic `Deferred` be observed as distinct
-   source products at every current caller, including test-only adapters?
-4. Which source/identity/projection failures are `Rejected`, and are they
-   guaranteed to occur before resolver/Builder effects?
-5. Are there any callers that currently catch `Deferred` and re-enter the raw
-   route? If so, the destination is a separate compatibility-seam task, not a
-   silent repair in this D0.
+1. No existing production owner receives this legacy `Deferred`; its only
+   safe destination is a parked test/canary terminal, with production use
+   freezing as `NoSafeSlice`.
+2. `Neither` belongs to the caller's lane selection before `seal`; an empty
+   production inventory is not evidence for `Complete(empty)`.
+3. Parser `Compatibility` and semantic `Deferred` are distinct types and
+   paths. Their runner transport is not unified; that gap is a separate D0.
+4. Source/identity/projection/cardinality failures remain `Rejected` before
+   resolver/Builder effects; no consumer is allowed to reinterpret them.
+5. No non-test caller catches this `Deferred` and re-enters raw lowering. The
+   compatibility mode in the live root lifecycle is a separate explicit
+   mode, not a fallback from this enum.
 
 ## Acceptance and stop line
 
-Acceptance requires:
+Acceptance is complete for this design-only row:
 
 - the finite table above is revised with exact current owner names and every
   negative fixture maps to one state;
-- `Deferred` has one named destination or is explicitly `NoSafeSlice`; it
-  never becomes Compatibility, `None`, warning, default, or empty Complete;
+- `Deferred` is explicitly parked test/canary-only; a production caller would
+  be `NoSafeSlice`, and it never becomes Compatibility, `None`, warning,
+  default, or empty Complete;
 - `Neither` is either issued by a named source admission owner or explicitly
   ruled out before semantic admission;
 - parser Compatibility remains one-shot and separate from semantic Deferred;
 - Rejected errors stop before resolver/Builder/child effects;
 - no code, fixture, semantic receipt, production caller, fallback, or physical
-  lowering is added in this design stop;
+  lowering was added in this design stop;
 - this card and `CURRENT_STATE.toml` remain the only current-pointer updates;
   the durable classification-completeness rule stays in
   `agent-current-entry-contract-ssot.md`.
 
-Stop as `NoSafeSlice` if Deferred's destination has no existing authority, if
-Neither cannot be distinguished from Deferred without a new issuer, or if
-Compatibility recovery would require AST re-scan, name pairing, or a raw
-fallback. Any future implementation row must be selected separately and must
-carry its own positive/negative gate, guard, and owner README/reference
-receipt.
+The next row is `CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0`. Any future
+implementation row must be selected separately and must carry its own
+positive/negative gate, guard, and owner README/reference receipt.
+
+`Unavailable` (no source-backed admission) and `Discarded` (post-admission
+candidate failure) are adjacent transport/session states, not additional
+variants of this legacy enum. They must remain explicit at their owning
+boundaries and must never be silently converted into `Deferred` or
+`Complete(empty)`.
