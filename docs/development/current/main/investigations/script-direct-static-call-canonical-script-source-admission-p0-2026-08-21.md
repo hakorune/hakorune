@@ -1,5 +1,5 @@
 ---
-Status: Active design stop
+Status: Accepted design stop — parser input handoff D0 selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SCRIPT-SOURCE-ADMISSION-P0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-issuer-d0-2026-08-21.md
@@ -218,3 +218,20 @@ Remain at this design stop if any condition holds:
 Until these are closed, the parser input handoff, A issuer, Recipe/Join,
 physical bridge, canonical production consumer, and old-route retirement stay
 parked. This is a development `NoSafeSlice`, not a compiler disposition.
+
+## P0 closeout receipt
+
+- the parser-only cohort issuer is separated from front-door identity and the
+  later parser input handoff;
+- `NoBoxDeclarations`, `SelectedBuildGateUnsupported`, empty catalogs, and
+  unknown top-level shapes have explicit non-success states;
+- every retained top-level AST shape is assigned to `PureScriptSyntax`,
+  `CompatibilitySource`, `NotApplicable`, or `CohortUnresolved` before any
+  semantic effect;
+- `CanonicalScriptCohortAdmitted` is the only public pure-Script cohort
+  outcome, and it carries no identity, AST-free window, resolver, Recipe, or
+  physical meaning;
+- worker read-only audits and the classification-completeness guard agree on
+  the boundary; no code or fixture was changed by this P0;
+- the next selected row is
+  `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-PARSER-INPUT-HANDOFF-D0`.
