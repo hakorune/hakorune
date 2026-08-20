@@ -197,10 +197,41 @@ argument/result-site drift, missing or duplicate row, or nested-owner crossing
 may publish Facts. ScriptRoot must not be passed to the existing callable
 result-publication owner.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-D0` design only —
-name a Script-specific source/result/publication owner first. After that design
-closes, a separate Facts I0 may be considered; Recipe and physical R1/R2 stay
-closed.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`
+design only — specify the Script query and Script-specific result/publication
+owner before Facts I0. Recipe and physical R1/R2 stay closed.
 
 Non-claims: no Facts receipt implementation, Recipe/Join, result handoff,
 physical lowering, raw-edge retirement, production switch, or C parity.
+
+### RESULT-OWNER-D0 audit receipt and closeout
+
+Decision: `SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-D0` is `NoSafeSlice`.
+The existing result owner is callable-only and requires
+`(CanonicalSameModuleCallableKeyV1, SourceExprSiteV1)`; converting
+`ScriptRoot` into that caller key would create a second, false authority.
+
+Source authority + canonical issuer: the resolver's
+`VerifiedResolvedScriptV1`/`VerifiedResolvedMethodCallSourceV1` rows issue the
+exact Script owner, call/receiver site, ordered argument sites, and result
+site. The Script target inventory issues the canonical callee; an existing
+callee result catalog may provide representation data but cannot issue the
+Script caller or publication owner.
+
+Non-authority: `RawInvocationRootLineageV1::ScriptRoot`, AST/name/arity
+lookup, synthetic callable keys, `BodyEffectShapeV1`,
+`ScriptRootReturnExitAdmissionV1`, `EffectMask`/`FunctionSignature`,
+`ScriptSemanticLoweringState`/`ValueId`, raw success, assembly, or timing.
+
+Fail-fast boundary: missing Complete Script forest/query, target or result
+representation drift, missing/duplicate/foreign owner/site/argument/result or
+return row, nested-owner crossing, or callable-owner contamination rejects
+before Builder effects. No fallback or partial Script publication is allowed.
+
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`
+design only. Define one Script-specific source/result/publication owner keyed
+by Script owner plus exact site, with one explicit handoff to later Facts and
+Recipe work. Do not widen the callable owner or touch lowering.
+
+Non-claims: no Facts I0, Recipe/Join, physical handoff, raw retirement,
+production switch, threshold change, or performance conclusion.

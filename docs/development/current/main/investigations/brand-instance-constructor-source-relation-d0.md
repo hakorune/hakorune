@@ -596,9 +596,10 @@ accepted D0. The completed rows remain in the receipts above and in
    resolver rows can co-seal Script owner/site/receiver/ordered arguments/result
    with the target, but Recipe still needs a Script-specific result owner.
    Do not implement Facts or Recipe until that owner is designed.
-7. **`SCRIPT-DIRECT-STATIC-CALL-RESULT-OWNER-D0`** — current design stop:
-   define the source-bound Script result/publication owner without converting
-   ScriptRoot into a synthetic callable caller key.
+7. **`SCRIPT-DIRECT-STATIC-CALL-SCRIPT-RESULT-ISSUER-D0`** — current design
+   stop: define one source-bound Script result/publication owner keyed by the
+   Script owner plus exact site; never convert ScriptRoot into a synthetic
+   callable caller key.
 8. **`BRAND-METHODCALL-UNWRAP-D0`** — separate semantic and physical design for
    MethodCall/`Brand.unwrap`; do not combine it with constructor consumer work.
 9. **`BRAND-CONSTRUCTOR-RAW-NAME-PROBE-R0`** — only after every production
