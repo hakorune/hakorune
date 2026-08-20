@@ -33,6 +33,7 @@ RECIPE=src/mir/builder/normal_script_direct_static_recipe.rs
 RECIPE_TESTS=src/mir/builder/normal_script_direct_static_recipe_tests.rs
 JOIN_HANDOFF=src/mir/builder/normal_script_direct_static_join_handoff.rs
 JOIN_HANDOFF_TESTS=src/mir/builder/normal_script_direct_static_join_handoff_tests.rs
+REQUIRED_ARGUMENT_PROOF=src/mir/builder/normal_script_direct_static_join_handoff/required_argument_proof.rs
 LOWERING_STATE=src/mir/builder/normal_script_semantic_lowering_state.rs
 CLAIM_LEDGER=src/mir/builder/normal_script_direct_static_claim_ledger.rs
 CLAIM_LEDGER_TESTS=src/mir/builder/normal_script_direct_static_claim_ledger_tests.rs
@@ -93,8 +94,15 @@ require_text "$JOIN_HANDOFF" "RecipeRowMissing"
 require_text "$JOIN_HANDOFF_TESTS" "empty_recipe_emits_empty_join_handoff"
 require_text "$JOIN_HANDOFF_TESTS" "join_handoff_rejects_a_foreign_source_owner"
 require_text "$JOIN_HANDOFF_TESTS" "non_empty_recipe_row_is_carried_by_recipe_key"
+require_text "$REQUIRED_ARGUMENT_PROOF" "VerifiedScriptDirectStaticRequiredArgumentProofV1"
+require_text "$REQUIRED_ARGUMENT_PROOF" "ExactI64Required"
+require_text "$REQUIRED_ARGUMENT_PROOF" "ExactI64Empty"
+require_text "$REQUIRED_ARGUMENT_PROOF" "UnsupportedRequiredArgument"
+require_text "$REQUIRED_ARGUMENT_PROOF" "required_proof_issues_only_required_scalar_ordinals"
+require_text "$REQUIRED_ARGUMENT_PROOF" "validate_argument_shape"
 require_text "$LOWERING_STATE" "direct_static_recipe"
 require_text "$LOWERING_STATE" "direct_static_claim_ledger"
+require_text "$LOWERING_STATE" "issue_with_required_argument_proof"
 require_text "$LOWERING_STATE" "take_direct_static_claim"
 require_text "$LOWERING_STATE" "complete_direct_static_claim"
 require_text "$LOWERING_STATE" "finish_direct_static_claims"
@@ -103,9 +111,12 @@ require_text "$CLAIM_LEDGER" "PartialSourceProducts"
 require_text "$CLAIM_LEDGER" "DuplicateClaim"
 require_text "$CLAIM_LEDGER" "completed"
 require_text "$CLAIM_LEDGER" "PendingRows"
+require_text "$CLAIM_LEDGER" "consume_required_argument_proof"
+require_text "$CLAIM_LEDGER" "RequiredArgumentProofUnconsumed"
 require_text "$CLAIM_LEDGER_TESTS" "complete_pair_is_claimed_once_and_finishes_exhausted"
 require_text "$CLAIM_LEDGER_TESTS" "partial_source_products_are_rejected_before_claiming"
 require_text "$CLAIM_LEDGER_TESTS" "finish_rejects_unclaimed_rows_without_mutating_the_source_products"
+require_text "$CLAIM_LEDGER_TESTS" "proof_must_be_consumed_before_claim_completion"
 require_text "$CLAIM_PORT" "script_direct_static_claim_ingress_v1"
 require_text "$CLAIM_PORT" "ScriptDirectStaticClaimIngressV1::Unavailable"
 require_text "$CLAIM_PORT_TESTS" "default_claim_ingress_is_non_consuming_and_unavailable"
@@ -153,7 +164,7 @@ require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_ini
 require_text "$FAILFAST_CARD" "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-P0"
 require_text "$FAILFAST_CARD" "UnlocatedCompatibility"
 
-for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$PHYSICAL_KERNEL" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$REQUIRED_ARGUMENT_PROOF" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$PHYSICAL_KERNEL" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
@@ -212,6 +223,16 @@ if rg -n "raw_root_body_recipe|JoinSig|lower_.*physical|emit_.*call" "$CONTINUAT
   exit 1
 fi
 
+if rg -n "ASTNode|ValueId|MirType|raw.*name|ordinary|fallback|retry" "$REQUIRED_ARGUMENT_PROOF"; then
+  echo "[script-direct-static-target] required-argument proof crossed source/physical or fallback boundary" >&2
+  exit 1
+fi
+
+if rg -n "issue_arguments|VerifiedScriptDirectStaticScalarOperandRecipeV1::issue" "$REQUIRED_ARGUMENT_PROOF"; then
+  echo "[script-direct-static-target] required-argument proof must not become an all-argument producer" >&2
+  exit 1
+fi
+
 if rg -n "ASTNode|source_name|ordinal|ScriptPhysicalExit|finalize_module|rollback|reinsert|put_back" "$PHYSICAL_BRIDGE"; then
   echo "[script-direct-static-target] physical bridge reconstructed source or crossed the exit/publication boundary" >&2
   exit 1
@@ -254,6 +275,8 @@ CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_recipe --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_direct_static_join_handoff --lib
+CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
+  mir::builder::normal_script_direct_static_join_handoff::required_argument_proof --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::builder::normal_script_semantic_lowering_state::direct_static_claim_ledger::tests --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \

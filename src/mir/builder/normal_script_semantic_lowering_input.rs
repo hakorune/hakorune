@@ -4,7 +4,10 @@
 //! This carrier only transfers ownership; it does not issue Recipe keys or
 //! infer any physical continuation.
 
-use super::normal_script_direct_static_join_handoff::VerifiedScriptDirectStaticJoinHandoffV1;
+use super::normal_script_direct_static_join_handoff::{
+    VerifiedScriptDirectStaticJoinHandoffV1,
+    VerifiedScriptDirectStaticRequiredArgumentProofV1,
+};
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
@@ -20,6 +23,8 @@ pub(super) struct VerifiedScriptSemanticLoweringInputV1 {
         Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
     direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
     direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
+    direct_static_required_argument_proof:
+        Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
 }
 
 impl VerifiedScriptSemanticLoweringInputV1 {
@@ -32,6 +37,9 @@ impl VerifiedScriptSemanticLoweringInputV1 {
         >,
         direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
         direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
+        direct_static_required_argument_proof: Option<
+            VerifiedScriptDirectStaticRequiredArgumentProofV1,
+        >,
     ) -> Self {
         Self {
             projection,
@@ -40,6 +48,7 @@ impl VerifiedScriptSemanticLoweringInputV1 {
             direct_static_result_publication_owner,
             direct_static_recipe,
             direct_static_join_handoff,
+            direct_static_required_argument_proof,
         }
     }
 
@@ -52,6 +61,7 @@ impl VerifiedScriptSemanticLoweringInputV1 {
         Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
         Option<VerifiedScriptDirectStaticRecipeV1>,
         Option<VerifiedScriptDirectStaticJoinHandoffV1>,
+        Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
     ) {
         (
             self.projection,
@@ -60,6 +70,7 @@ impl VerifiedScriptSemanticLoweringInputV1 {
             self.direct_static_result_publication_owner,
             self.direct_static_recipe,
             self.direct_static_join_handoff,
+            self.direct_static_required_argument_proof,
         )
     }
 }

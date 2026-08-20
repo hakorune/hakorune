@@ -287,6 +287,7 @@ fn destination_matches(
 mod tests;
 
 mod physical_input;
+mod required_argument_proof;
 mod scalar_operand_recipe;
 
 pub(in crate::mir) use physical_input::{
@@ -299,4 +300,10 @@ pub(in crate::mir) use scalar_operand_recipe::{
     ScalarOperandRecipeNodeV1, ScalarUnaryOperatorV1,
     VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
     VerifiedScriptDirectStaticScalarOperandRecipeV1,
+};
+pub(in crate::mir) use required_argument_proof::{
+    RequiredArgumentProofArgumentV1, ScriptDirectStaticRequiredArgumentProofDispositionV1,
+    ScriptDirectStaticRequiredArgumentProofIssueV1,
+    ScriptDirectStaticRequiredArgumentProofRowV1,
+    VerifiedScriptDirectStaticRequiredArgumentProofV1,
 };

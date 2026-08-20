@@ -238,6 +238,26 @@ fn issue_arguments(
     inventory: &ResolvedExpressionSourceInventoryV1,
 ) -> Result<Box<[ScalarOperandRecipeArgumentV1]>, VerifiedScriptDirectStaticScalarOperandRecipeIssueV1>
 {
+    validate_argument_shape(row, product)?;
+
+    let mut seen = BTreeSet::new();
+    let mut arguments = Vec::with_capacity(row.argument_sites().len());
+    for (ordinal, expected_site) in row.argument_sites().iter().enumerate() {
+        let ordinal = ordinal as u32;
+        let tree = issue_node(inventory, expected_site, &mut seen)?;
+        arguments.push(ScalarOperandRecipeArgumentV1 {
+            ordinal,
+            site: expected_site.clone(),
+            tree,
+        });
+    }
+    Ok(arguments.into_boxed_slice())
+}
+
+pub(in crate::mir) fn validate_argument_shape(
+    row: &VerifiedScriptDirectStaticJoinRowV1,
+    product: &crate::mir::resolved_semantics::VerifiedResolvedScriptV1,
+) -> Result<(), VerifiedScriptDirectStaticScalarOperandRecipeIssueV1> {
     let Some((_, method)) = product
         .method_calls()
         .find(|(site, _)| *site == row.call_site())
@@ -270,8 +290,6 @@ fn issue_arguments(
         );
     }
 
-    let mut seen = BTreeSet::new();
-    let mut arguments = Vec::with_capacity(row.argument_sites().len());
     for (ordinal, (argument, expected_site)) in method
         .arguments()
         .iter()
@@ -295,17 +313,11 @@ fn issue_arguments(
                 },
             );
         }
-        let tree = issue_node(inventory, expected_site, &mut seen)?;
-        arguments.push(ScalarOperandRecipeArgumentV1 {
-            ordinal,
-            site: expected_site.clone(),
-            tree,
-        });
     }
-    Ok(arguments.into_boxed_slice())
+    Ok(())
 }
 
-fn issue_node(
+pub(in crate::mir) fn issue_node(
     inventory: &ResolvedExpressionSourceInventoryV1,
     site: &SourceExprSiteV1,
     seen: &mut BTreeSet<SourceExprSiteV1>,

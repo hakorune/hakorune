@@ -690,6 +690,16 @@ the callable publication owner, emit Return/signature, or infer completion from
 succeed; the enclosing semantic scope finishes once, and any later error
 discards the isolated candidate without rollback, retry, or ordinary fallback.
 
+The claim now also owns a required-ordinal source proof. Its states are kept
+distinct: `Unavailable` (no Complete Script ledger), `Absent` (located site
+has no Join row), `ExactI64Empty`, `ExactI64RequiredProofReady`,
+`RequiredArgumentRepresentationUnavailable`, `ExactNominalBoxSelected`, and
+`SourceMismatch`. Only the proof issuer may decide whether a required ordinal
+is supported; the bridge consumes that proof once before the existing ordered
+argument driver. A missing proof, unsupported required expression, duplicate
+claim, or unconsumed proof freezes the candidate. Non-required arguments keep
+their existing lowering route and are not reclassified by this proof.
+
 This I0 is a bounded selected-normal BoxShape only. Compatibility, Deferred,
 RawLegacy, `StaticThis`, canonical Script transport, raw retirement, and
 production cutover remain explicitly closed. The physical bridge and its

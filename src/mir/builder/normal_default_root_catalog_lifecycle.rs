@@ -9,7 +9,10 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
 use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
-use super::normal_script_direct_static_join_handoff::VerifiedScriptDirectStaticJoinHandoffV1;
+use super::normal_script_direct_static_join_handoff::{
+    VerifiedScriptDirectStaticJoinHandoffV1,
+    VerifiedScriptDirectStaticRequiredArgumentProofV1,
+};
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
@@ -614,6 +617,17 @@ impl ModuleBuilderInvocationSessionV1 {
                             format!("[mir/script-static-result/join] {error:?}").into(),
                         )
                     })?;
+                    let required_argument_proof =
+                        VerifiedScriptDirectStaticRequiredArgumentProofV1::issue(
+                            source,
+                            &join_handoff,
+                        )
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-required-argument/proof] {error:?}")
+                                    .into(),
+                            )
+                        })?;
                     source
                         .attach_direct_static_result_bundle(bundle)
                         .map_err(|error| {
@@ -638,6 +652,14 @@ impl ModuleBuilderInvocationSessionV1 {
                         .map_err(|error| {
                             NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                                 format!("[mir/script-static-result/join-attach] {error}").into(),
+                            )
+                        })?;
+                    source
+                        .attach_direct_static_required_argument_proof(required_argument_proof)
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-required-argument/attach] {error}")
+                                    .into(),
                             )
                         })?;
                 }

@@ -169,3 +169,25 @@ this row is the selected bridge's prior behavior of ignoring
 relationless and are not counted as `ConsumerReady`. A later, separately
 selected row must decide variable/flow/nested representation and only then can
 global raw retirement or canonical Script transport be considered.
+
+## Implementation evidence (2026-08-21)
+
+The required-ordinal proof sibling is now transported from Complete Script
+semantic source through lowering input/state into the claim ledger. The ledger
+co-seals source identity, owner, Join key/cardinality, and proof-row site; the
+non-Clone claimed token cannot complete until the proof is consumed exactly
+once. The bridge consumes it before `AssociatedMethodCallArgumentsV1::lower_all`;
+the existing generic Call receipt, ExactI64 publication, and completion owners
+are unchanged.
+
+The finite-state rule is enforced by the card table and reusable
+`routing_classification_completeness_guard.sh`; the Script direct-static guard
+also pins `ExactI64Empty`, required proof readiness, unsupported required
+arguments, proof omission, and the required-only producer boundary. Focused
+proof tests (3), ledger tests (7), and the direct-static family suite (22),
+`cargo check
+--profile quick`, `cargo test --profile quick --lib direct_static_claim_ledger`,
+the reusable guard, current-state pointer guard, classification guard, and
+`git diff --check` are green. The repository-wide `cargo fmt --all -- --check`
+still reports pre-existing unrelated formatting drift; no formatter rewrite was
+used for this row.

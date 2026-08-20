@@ -134,7 +134,7 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
     assert_eq!(ledger.pending_len(), 1);
     assert_eq!(ledger.in_flight_len(), 0);
 
-    let claimed = match ledger.take(&call_site).expect("first take") {
+    let mut claimed = match ledger.take(&call_site).expect("first take") {
         ScriptDirectStaticClaimTakeV1::Claimed(claimed) => claimed,
         ScriptDirectStaticClaimTakeV1::Absent => panic!("candidate row must be present"),
         ScriptDirectStaticClaimTakeV1::Unavailable => {
@@ -160,6 +160,9 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
             call_site.clone(),
         ))
     );
+    claimed
+        .consume_required_argument_proof()
+        .expect("empty required-argument proof");
     ledger.complete(claimed).expect("complete claim");
     assert_eq!(ledger.in_flight_len(), 0);
     assert_eq!(
@@ -169,6 +172,24 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
         ))
     );
     ledger.finish().expect("all claims exhausted");
+}
+
+#[test]
+fn proof_must_be_consumed_before_claim_completion() {
+    let (bundle, handoff, call_site) = non_empty_products();
+    let mut ledger = ScriptDirectStaticClaimLedgerV1::issue(Some(bundle), Some(handoff))
+        .expect("co-sealed claim ledger");
+    let claimed = match ledger.take(&call_site).expect("claim") {
+        ScriptDirectStaticClaimTakeV1::Claimed(claimed) => claimed,
+        _ => panic!("candidate row must be claimed"),
+    };
+    assert_eq!(
+        ledger.complete(claimed),
+        Err(ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofUnconsumed(
+            call_site,
+        ))
+    );
+    assert_eq!(ledger.in_flight_len(), 1);
 }
 
 #[test]

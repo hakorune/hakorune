@@ -19,10 +19,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-PROOF-I0"
 current_design_stop = "none"
-current_blocker_token = "Fast row: consume the required-ordinal source proof before Script direct-static argument effects; stop on any missing issuer, fallback, or identity drift."
+current_blocker_token = "Closeout: required-ordinal source proof I0 evidence is recorded; compatibility, deferred, raw-retirement, canonical, and performance rows remain unselected."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -86,11 +86,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-required-argument-proof-i0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-required-argument-proof-i0-2026-08-21.md"
-latest_card_summary = "Required-ordinal source proof I0 is selected for the scalar Literal/Unary/Binary cohort. It transports one source-bound proof into the selected-normal claim ledger and consumes it before effects; variables/nested results, compatibility lanes, raw retirement, and performance remain out of scope."
+latest_card_summary = "Required-ordinal source proof I0 is implemented for the scalar Literal/Unary/Binary cohort. It transports one source-bound proof into the selected-normal claim ledger and consumes it before effects; variables/nested results, compatibility lanes, raw retirement, and performance remain out of scope."
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-PROOF-I0"
-next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-required-argument-proof-i0-2026-08-21.md"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -112,4 +112,5 @@ landed_tail = [
   "2026-08-21: ME-CALL-ARITY-FAILFAST-P0 landed one bounded BoxShape. The existing header observation remains the sole arity authority; strict mode is ON when unset, and a prepared lowered-global mismatch rejects before receiver/argument effects, Call emission, or publication. Explicit =0 preserves documented compatibility timing only. Inline, standard, missing-header, and static-fallback states remain separate; focused tests, cargo check, pointer guard, diff check, and reusable guard are green. Compatibility callable retirement, production switch, and performance remain closed.",
   "2026-08-21: MIR-ROOT-APP-MODE-UNDECIDED-P0 landed one bounded BoxShape. The two audited non-Main static-Box entrypoints now distinguish Some(true), Some(false), and None before registration, transaction, or method descent; None freezes with zero effects. Focused raw/normal negatives, App no-op, cargo check, pointer guard, and reusable guard are green. Mode conflict, deferred-static, compatibility retirement, production switch, and performance remain closed.",
   "2026-08-21: CALLABLE-COMPATIBILITY-SOURCE-TRANSPORT-P0 landed one bounded BoxShape. The sole materializer co-seals a non-Clone transformed AST, typed compatibility reason, and parser lineage; request/root transport retains an explicit TypedCompatibility state while SourceBacked and source-free lanes remain separate. Carrier positive/negative tests, materializer/request transport tests, cargo check, diff check, and reusable guard are green. The broad compatibility census still has one pre-existing legacy instance-constructor comparison red; cohort admission, semantic package, fallback retirement, physical route, and production switch remain closed for CALLABLE-COMPATIBILITY-SOURCE-ADMISSION-D0.",
+  "2026-08-21: SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-PROOF-I0 landed one selected-normal BoxCount. A resolver-inventory-backed proof now covers only callee-required scalar Literal/Unary/Binary ordinals, with explicit Empty/Ready/Unavailable/NonExact/SourceMismatch states; the claimed token consumes it before argument effects and cannot complete unconsumed. Proof, ledger, cargo check, pointer/classification guards, diff check, and the Script direct-static reusable guard are green. Variable/flow/nested arguments, compatibility/deferred/raw lanes, canonical transport, raw retirement, production switch, and performance remain closed; no next row is selected.",
 ]

@@ -33,11 +33,13 @@ impl ScriptSemanticLoweringState {
             direct_static_result_publication_owner,
             direct_static_recipe,
             direct_static_join_handoff,
+            direct_static_required_argument_proof,
         ) = input.into_parts();
         let direct_static_claim_ledger =
-            direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1::issue(
+            direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1::issue_with_required_argument_proof(
                 direct_static_result_bundle,
                 direct_static_join_handoff,
+                direct_static_required_argument_proof,
             )
             .map(Some)
             .map_err(|error| {

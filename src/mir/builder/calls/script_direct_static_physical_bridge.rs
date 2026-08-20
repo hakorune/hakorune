@@ -23,6 +23,7 @@ use super::unified_emitter::UnifiedValueCallReceiptErrorV1;
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum ScriptDirectStaticPhysicalBridgeErrorV1 {
     TargetMismatch,
+    RequiredArgumentProof(String),
     ArgumentDescent(String),
     PhysicalArity { expected: u32, actual: usize },
     CallReceipt(UnifiedValueCallReceiptErrorV1),
@@ -36,6 +37,10 @@ impl std::fmt::Display for ScriptDirectStaticPhysicalBridgeErrorV1 {
             Self::TargetMismatch => {
                 write!(formatter, "[freeze:contract][script-direct-static/physical-target]")
             }
+            Self::RequiredArgumentProof(detail) => write!(
+                formatter,
+                "[freeze:contract][script-direct-static/required-argument-proof] {detail}"
+            ),
             Self::ArgumentDescent(detail) => write!(
                 formatter,
                 "[freeze:contract][script-direct-static/argument] {detail}"
@@ -64,13 +69,16 @@ pub(super) fn lower_claimed_script_direct_static_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
     input: &Port::MethodCallInput,
-    claimed: ScriptDirectStaticClaimedRowV1,
+    mut claimed: ScriptDirectStaticClaimedRowV1,
 ) -> Result<ValueId, ScriptDirectStaticPhysicalBridgeErrorV1>
 where
     Port: MethodCallDescentPortV1 + RecursiveChildLoweringPortV1,
 {
     let target = claimed.target().clone();
     validate_claimed_target_v1(&target, claimed.argument_sites().len())?;
+    claimed.consume_required_argument_proof().map_err(|error| {
+        ScriptDirectStaticPhysicalBridgeErrorV1::RequiredArgumentProof(error.to_owned())
+    })?;
 
     let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
     let argument_values = descent

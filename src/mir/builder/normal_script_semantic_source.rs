@@ -7,7 +7,10 @@
 //! carrier can manufacture the Complete loan.
 
 use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
-use super::normal_script_direct_static_join_handoff::VerifiedScriptDirectStaticJoinHandoffV1;
+use super::normal_script_direct_static_join_handoff::{
+    VerifiedScriptDirectStaticJoinHandoffV1,
+    VerifiedScriptDirectStaticRequiredArgumentProofV1,
+};
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
@@ -43,6 +46,8 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
         Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
     direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
     direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
+    direct_static_required_argument_proof:
+        Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -108,6 +113,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             direct_static_result_publication_owner: None,
             direct_static_recipe: None,
             direct_static_join_handoff: None,
+            direct_static_required_argument_proof: None,
         })
     }
 
@@ -175,6 +181,26 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         &self,
     ) -> Option<&VerifiedScriptDirectStaticJoinHandoffV1> {
         self.direct_static_join_handoff.as_ref()
+    }
+
+    pub(super) fn attach_direct_static_required_argument_proof(
+        &mut self,
+        proof: VerifiedScriptDirectStaticRequiredArgumentProofV1,
+    ) -> Result<(), &'static str> {
+        if self
+            .direct_static_required_argument_proof
+            .replace(proof)
+            .is_some()
+        {
+            return Err("duplicate Script direct-static required-argument proof");
+        }
+        Ok(())
+    }
+
+    pub(super) fn direct_static_required_argument_proof(
+        &self,
+    ) -> Option<&VerifiedScriptDirectStaticRequiredArgumentProofV1> {
+        self.direct_static_required_argument_proof.as_ref()
     }
 
     pub(super) fn continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
@@ -311,6 +337,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             self.direct_static_result_publication_owner,
             self.direct_static_recipe,
             self.direct_static_join_handoff,
+            self.direct_static_required_argument_proof,
         )
     }
 }
