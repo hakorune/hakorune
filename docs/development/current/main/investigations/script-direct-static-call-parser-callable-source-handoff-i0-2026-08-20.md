@@ -1,31 +1,35 @@
 ---
-Status: Active design stop
+Status: Design accepted; transport-only I0 selected
 Date: 2026-08-20
-Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-FACTS-PREFIX-D0
+Decision: SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-parser-source-handoff-d0-2026-08-20.md
 ProductionCaller: none; design only
 ReplacementCell: Builder-free parser/source/Facts prefix for canonical Script
 Classification: BoxCount
+Execution row: SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-I0
 ---
 
-# SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-FACTS-PREFIX-D0
+# SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-HANDOFF-D0
 
 ## Six-line brief
 
-Decision: Narrow the broad canonical A proposal to one Builder-free
-source/Facts prefix. Retain the complete parser-backed source product,
-declaration Facts/catalog, resolver package, and Script window before any
-Builder, physical Call, result publication, or canonical consumer is opened.
+Decision: Close the source/Facts design at one transport-only handoff. The
+next I0 may wrap and move the parser's existing atomic callable product, but
+may not issue a second parser/Facts authority or open a Builder consumer.
 
 Source authority + canonical issuer: parser
-`ParsedProgramWithCallableParameterSourceV1` already co-seals the single
-postpass with the complete callable-parameter catalog; the postpass's initial
-source owns constructor coverage. A future move-only prefix carrier must
-retain that product with the digest/profile and may borrow existing
-declaration/Facts owners, but it may not reissue their meaning.
+`string_postpass_entry::parse_with_callable_parameter_source` issues one
+`ParsedProgramWithCallableParameterSourceV1` containing the postpass and the
+complete parameter catalog; the postpass's initial source owns constructor
+coverage. The I0 carrier is one non-Clone
+`NormalParserCallableSourceHandoffV1` that co-seals this product with the
+already-issued source digest/profile/read-parse receipt. Selected-normal and
+canonical are alternative consumers of this same carrier contract; neither
+reparses or reissues source/Facts meaning.
 
 Non-authority: `CompletedParserPostpassV1` by itself, AST or digest alone,
-`RawScriptBodyRecipeV1`, `ModuleBuilderInvocationSessionV1`,
+`ParsedNormalCallableProgramV1`'s AST projection, `RawScriptBodyRecipeV1`,
+`ModuleBuilderInvocationSessionV1`,
 `builder.comp_ctx`, work-plan ordinals, pointer/name/path scans, `ValueId`,
 MIR, and the current Builder-bound lifecycle output are not a source/Facts
 issuer.
@@ -36,10 +40,11 @@ duplicate/stale Facts/window/owner, or a product that can only be paired by
 AST/name/path inference keeps the row at `NoSafeSlice` before Builder effects.
 There is no reparse, second resolver, Raw fallback, or guessed empty product.
 
-Smallest next slice: specify the exact Builder-free producer input/output and
-the non-Clone handoff identity shared by selected-normal and future canonical
-consumers. Do not edit `normal_default_root_catalog_lifecycle.rs` or
-`canonical_core_dispatch.rs` until that contract is accepted.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-CALL-PARSER-CALLABLE-SOURCE-
+HANDOFF-I0`: add the handoff in parser/source-plan sibling modules, make the
+canonical frontdoor retain it, and make the selected-normal transform carry
+only its non-Clone lineage projection. Keep Builder lifecycle and canonical
+dispatch unchanged.
 
 Non-claims: no A/C/B handoff, three-state disposition, canonical physical
 Call/publication/Return, source admission expansion, production switch, raw or
@@ -95,30 +100,30 @@ input and prove how selected-normal and canonical consumers borrow or consume
 the same source identity. It must not create a third parser product or call
 both parser entrypoints for one source.
 
-## Required prefix contract
+## Accepted handoff contract
 
-The design must name one producer input and one move-only output. The output
-must retain or linearly move, without cloning or semantic re-issuance:
+The I0 has one producer input and one move-only output. The output retains or
+linearly moves, without cloning or semantic re-issuance:
 
 ```text
 ParsedProgramWithCallableParameterSourceV1
-  + retained source digest/profile
-  + declaration Facts/catalog loan (existing issuer)
-  + resolver callable package and Script window loan (existing issuer)
+  + source digest/profile/read-parse receipt
+  + one source-owner identity
 ```
 
-The prefix may expose borrowed views while issuing, but its published carrier
-must be AST-free where the existing owner already provides an AST-free product.
-It must not contain a Builder, mutable registry, physical block, `ValueId`,
-signature, or MIR instruction. Target inventory, result bundle, Recipe, Join,
-and physical-input products are not silently copied into this prefix: each must
-either be shown to have a source-only issuer/transport or remain a later row.
+The parser product remains opaque behind the handoff. Its parameter catalog
+and constructor coverage are borrowed only through bounded loans. Declaration
+Facts, resolver packages, Script windows, target inventory, result bundle,
+Recipe, Join, and physical input stay later products with their existing
+issuers; the handoff cannot contain Builder state or a physical identifier.
 
-The producer must be shared. Selected-normal may not continue issuing a second
-source/Facts set once the eventual I0 consumes this carrier, and canonical may
-not reconstruct one from the raw recipe. Until that I0 exists, the current
-Builder lifecycle remains unchanged and is not evidence that the prefix is
-already implemented.
+The producer is shared by contract. The canonical frontdoor consumes the
+handoff directly. Selected-normal consumes it before its existing callable
+transform and carries only a sealed, non-Clone lineage projection inside
+`VerifiedFinalCallableProgramSourceV1`; it does not retain a second postpass or
+catalog. Compatibility/Deferred/RawLegacy/AST-only paths never fabricate an
+empty handoff. Until the I0 lands, the current Builder lifecycle remains
+unchanged and is not evidence that the handoff is already implemented.
 
 ## Owner and seam inventory
 
@@ -138,8 +143,8 @@ be sibling modules with one thin lifecycle call site.
 
 ## Design acceptance
 
-The D0 is complete only when the card can answer all of these without a code
-guess or a second issuer:
+The D0 is accepted with the following bounded answers; the I0 must prove them
+with focused transport tests before any physical consumer opens:
 
 - how `ParsedProgramWithCallableParameterSourceV1` is retained or projected
   without dropping its catalog, and how the constructor catalog remains bound
@@ -147,8 +152,9 @@ guess or a second issuer:
 - which existing source/Facts/resolver owners are lent or moved, and which
   products are explicitly deferred because their current issuer is Builder-
   bound;
-- how one source identity is consumed by selected-normal and canonical without
-  duplicate issuance or pointer/name pairing;
+- how one `NormalParserCallableSourceHandoffV1` contract is consumed by
+  selected-normal and canonical without duplicate issuance or pointer/name
+  pairing;
 - how complete Script window/owner/site/cardinality coverage is checked before
   any Builder effect;
 - how Compatibility, Deferred, RawLegacy, and AST-only fixtures are rejected
@@ -156,9 +162,10 @@ guess or a second issuer:
 - how a future I0 can prove Builder effect zero in the producer and preserve
   the old lifecycle until the shared consumer is ready.
 
-Positive design evidence is a source/Facts ownership table and one bounded
-input/output contract. A worker report or local green test alone does not open
-I0.
+Positive design evidence is the source/Facts ownership table, the bounded
+input/output contract above, and the worker audits confirming that the only
+missing boundary is transport. The I0 is transport-only; it does not claim a
+production consumer.
 
 ## Negative matrix and stop line
 
@@ -178,5 +185,5 @@ Stop at this D0 if any of the following remains true:
 - the design requires growth of a source file to 760+ for convenience.
 
 Do not open disposition C, carrier B, physical bridge, canonical request
-changes, production switch, raw retirement, or performance measurement until
-this prefix is accepted and its source authority is explicit.
+changes beyond retaining the handoff, production switch, raw retirement, or
+performance measurement until the transport I0 is green.
