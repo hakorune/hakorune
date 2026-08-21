@@ -1,4 +1,4 @@
-Status: selected fast BoxShape; implementation not started
+Status: landed fast BoxShape; behavior-neutral split complete
 Task: MIR-LOOP-OPERATION-EMITTER-SPLIT-S0
 Date: 2026-08-22
 Priority: prerequisite
@@ -102,3 +102,37 @@ git diff --check
 
 If the move requires changing operation order, target issuance, error mapping,
 ledger behavior, writer selection, or a public API, stop and return to the D0.
+
+## Evidence
+
+Landed as a pure owner split. `operation_emitter.rs` now owns Binding
+read/write preparation and the shared target-error mapping; the new
+`pure_operation_emitter.rs` owns the existing prepared Const/Binary/Compare
+leaves, their services, receipts, and pure-operation rejection type. The
+parent re-exports the moved private surface so existing dispatcher and canary
+imports remain unchanged. No strict receipt, CFG/SSA/session, ledger state,
+writer, fallback, or caller edge was added.
+
+Measured source sizes after the split:
+
+```text
+operation_emitter.rs        501 lines
+pure_operation_emitter.rs  326 lines
+```
+
+Focused evidence is green:
+
+```text
+RUSTFLAGS='-Awarnings' cargo test --lib loop_recipe_physicalizer -- --nocapture --test-threads=1
+  28 passed, 0 failed
+RUSTFLAGS='-Awarnings' cargo check --lib
+  Finished successfully
+rustfmt --edition 2021 --check <three touched Rust files>
+  clean
+git diff --check
+  clean
+```
+
+The whole-worktree `cargo fmt --check` remains a known baseline failure in
+unrelated files and was not used as an S0 acceptance claim. The caller census
+remains caller-zero outside `#[cfg(test)]`.
