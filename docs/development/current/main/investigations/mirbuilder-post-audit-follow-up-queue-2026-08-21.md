@@ -1,4 +1,4 @@
-Status: queued correctness/compile-cost follow-up SSOT; none of these rows is the current pointer
+Status: queued correctness/compile-cost follow-up SSOT; current pointer is the canonical-emission strictness design row
 Date: 2026-08-22
 Parent: `CURRENT_STATE.toml` and the active Script A capability card
 ---
@@ -6,8 +6,8 @@ Parent: `CURRENT_STATE.toml` and the active Script A capability card
 # MirBuilder post-audit follow-up queue
 
 This queue records the concrete issues confirmed by top-down review and the
-2026-08-22 production-reachability audit. The current pointer remains
-`SCRIPT-A-C-CONSUMER-SERIES-I0-R0`; these rows do not authorize an A/C bypass,
+2026-08-22 production-reachability audit. The current pointer is now
+`MIR-EMIT-CANONICAL-STRICTNESS-D0`; these rows do not authorize an A/C bypass,
 a fallback, a production switch, or an optimization selected only from source
 appearance.
 
@@ -15,6 +15,7 @@ appearance.
 | --- | --- | --- | --- |
 | `MIR-RESULT-DISCARD-CENSUS-D0` | Medium-High | `src/mir/builder` policy | read-only census before any lint/guard rollout; [detail](./mirbuilder-result-discard-policy-d0-2026-08-21.md) |
 | `MIR-ASSIGNMENT-RELEASE-FAILFAST-I0` | High | `assignment_lowering.rs` | independent correctness cell; [detail](./mirbuilder-assignment-release-failure-atomicity-i0-2026-08-21.md) |
+| `MIR-RESULT-DISCARD-GUARD-I0` | Medium-High | `tools/checks` | narrow multiline-aware physical-writer guard; [detail](./mirbuilder-result-discard-guard-i0-2026-08-22.md) |
 | `MIR-EMIT-MOVE-COMMIT-R0` | High confidence | `builder_emit.rs` | after current A/C series or an explicit independent selection; do not overlap the strictness row |
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Medium-High | `builder_emit.rs` + `ssa/local.rs` | design the prepared/legacy boundary and function-owned definition index before implementation |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | PHI materialization/finalization | name a mutation-stable analysis batch before caching or deleting a repair pass |
