@@ -1,12 +1,12 @@
 ---
-Status: Ready for design review — phase-qualified state matrix
+Status: Closed — phase-qualified state matrix accepted
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-SOURCE-A-STATE-MATRIX-P0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-issuer-d0-2026-08-21.md
 ProductionCaller: none; docs-only prerequisite
 ReplacementCell: parser admission -> handoff -> Source-only A boundary
 Classification: BoxShape (design completeness; no code or accepted shape)
-NextCard: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0
+NextCard: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-OBSERVATION-D0
 ---
 
 # SCRIPT-DIRECT-STATIC-SOURCE-A-STATE-MATRIX-P0
@@ -30,9 +30,9 @@ Fail-fast boundary: classify and preserve the exact phase state before
 or child effects; missing coverage is incomplete, while a present foreign or
 contradictory row is integrity-invalid.
 
-Smallest next slice: update the A issuer D0 and its pointer to this complete
+Smallest next slice: open the complete-observation D0 against this accepted
 matrix; do not add code, fixtures, A facts, Recipe, Join, physical Call, or
-production routing.
+production routing in the matrix row.
 
 Non-claims: no parser/source admission change, source identity re-issuer,
 resolver/target/result/proof package, canonical consumer, fallback/retry,
@@ -108,21 +108,29 @@ inventory, proof, or terminal relation exists.
 | `transport.NonCandidate` | a complete source-family classifier | no A/Recipe effect | canonical non-direct-static owner | never raw fallback |
 | `transport.HandoffReady` | parser rows + profile/receipt co-seal | move once into compiler request | future A or named no-A discard | no silent field drop |
 | `transport.DiscardedBeforeA` | current compiler no-A boundary | no candidate publication | terminal discard | never call it consumed |
-| `transport.HandoffConsumed` | future named A consumer only | A observation begins once | A issuer | impossible before named consumer |
+| `transport.rows.HandoffConsumed` | parser-row/frontdoor embedding sentinel | no A observation | source-plan mapping or terminal | never treat as A consumption |
+| `transport.input.HandoffConsumed` | frontdoor input forwarding sentinel | no A observation | compiler carrier mapping or terminal | never treat as A consumption |
+| `transport.compiler.HandoffConsumed` | future named A consumer only | A observation begins once | A issuer | impossible before named consumer |
 | `transport.DispositionTransported` | future C/B owner | no source reinterpretation | detached future consumer | never reuse as parser/A state |
 
 `HandoffReady` is not `HandoffConsumed`. The current carrier's
 `discard_before_a_consumer()` is a named no-A terminal and must disappear or
 become unreachable when a real A consumer is opened. `DispositionTransported`
 is future C/B vocabulary and must not be used to claim parser consumption.
+The Rust spelling `HandoffConsumed` currently appears in both parser/frontdoor
+row embedding and compiler transport enums. `transport.rows.HandoffConsumed`
+and `transport.input.HandoffConsumed` are internal forwarding/embedding
+sentinels; only a future `transport.compiler.HandoffConsumed` may mean that a
+named A consumer has taken the carrier. They are phase-qualified states, not
+one shared semantic transition.
 
 ### 3. Source-only A observation and package
 
 | state | sole issuer / authority | pre-effect behavior | terminal / continuation | fallback |
 |---|---|---|---|---|
 | `A.SourceAuthorityUnavailable` | future A issuer before observation | stop before package/Recipe/entry | `NoSafeSlice` | no Builder/default identity |
-| `A.ObservationIncomplete` | future A issuer with identity but missing coverage | stop before package/child effects | `NoSafeSlice` | never `NonCandidate` |
-| `A.NonCandidate` | future A issuer after complete clean observation | no direct-static package/physical effect | canonical non-direct-static owner | missing coverage is not absence |
+| `A.ObservationIncomplete` | future A issuer with identity but missing coverage | stop before package/child effects | `NoSafeSlice` | never `A.CompleteNoDirectStaticRows` |
+| `A.CompleteNoDirectStaticRows` | future A issuer after complete clean observation; private witness | no direct-static package/physical effect | future C may issue public `C.NonCandidate` | missing coverage is not absence |
 | `A.InputAuthorityReady` | same A issuer, private readiness only | continue inside A; no physical effect | `A.DirectStaticSourceReady` or `A.IntegrityInvalid` | no public second receipt |
 | `A.DirectStaticSourceReady` | same A issuer after all source rows/proof/terminal co-seal | move one AST-free package | future C consumes once | no name lookup/retry/re-pairing |
 | `A.IntegrityInvalid` | same A issuer with present foreign/duplicate/stale/contradictory rows | reject before Recipe/entry/effects | candidate/session discard | no retry, compatibility, or raw |
@@ -133,18 +141,20 @@ The boundary is strict:
 missing expected row / coverage gap / unavailable observer -> ObservationIncomplete
 present row with foreign, duplicate, stale, or contradictory identity
   -> IntegrityInvalid
-complete clean observation with zero direct-static rows -> NonCandidate
+complete clean observation with zero direct-static rows -> private CompleteNoDirectStaticRows
 ```
 
 If the current canonical source family cannot observe a target inventory at
-all, it is `A.ObservationIncomplete`/`NoSafeSlice`, not `A.NonCandidate`.
-`NonCandidate` is only valid after the issuer proves complete zero-row
-coverage.
+all, it is `A.ObservationIncomplete`/`NoSafeSlice`, not
+`A.CompleteNoDirectStaticRows`. Public `C.NonCandidate` is only valid after
+the future C owner consumes that private witness and applies its own
+disposition contract.
 
 ### 4. Future C/B transport
 
 | state | sole issuer / authority | pre-effect behavior | terminal / continuation | fallback |
 |---|---|---|---|---|
+| `C.NonCandidate` | future C disposition owner after consuming the private A zero-row witness | no direct-static physical effect | future B transport or non-direct-static owner | C never re-observes parser source |
 | `C.DispositionReady` | future C disposition owner consuming A once | typed disposition only | future B transport | no source re-observation |
 | `B.DispositionTransported` | future B carrier | no semantic reinterpretation | detached canonical consumer | no clone/replay/raw return |
 
@@ -154,29 +164,61 @@ must not be represented by a bare `Transported` state shared across phases.
 ## Exhaustive transition contract
 
 ```text
-parser.NotApplicable / CompatibilitySource / Deferred /
-  SourceAuthorityUnavailable / CohortUnresolved / AdmissionMissing /
-  IntegrityInvalid / ObservationIncomplete / NonCandidate /
-  DispositionTransported
+parser.NotApplicable / parser.CompatibilitySource / parser.Deferred /
+  parser.SourceAuthorityUnavailable / parser.CohortUnresolved /
+  parser.IntegrityInvalid / parser.ObservationIncomplete /
+  parser.NonCandidate / parser.DispositionTransported
     -> named upstream owner or terminal
 
 parser.CanonicalScriptCohortAdmitted
     -> transport.HandoffReady | transport.ObservationIncomplete
        | transport.IntegrityInvalid
 
-transport.HandoffReady
-    -> transport.DiscardedBeforeA
-       | transport.HandoffConsumed (future named A consumer only)
+transport.NotApplicable / transport.CompatibilitySource / transport.Deferred /
+  transport.AdmissionMissing / transport.SourceAuthorityUnavailable /
+  transport.CohortUnresolved / transport.ObservationIncomplete /
+  transport.IntegrityInvalid / transport.NonCandidate /
+  transport.DispositionTransported
+    -> named transport owner or terminal
 
-transport.HandoffConsumed
+transport.rows.HandoffReady
+    -> transport.rows.HandoffConsumed (internal embedding only)
+
+transport.input.HandoffReady
+    -> transport.compiler.HandoffReady | transport.DiscardedBeforeA
+
+transport.compiler.HandoffReady
+    -> transport.DiscardedBeforeA
+       | transport.compiler.HandoffConsumed (future named A consumer only)
+
+transport.rows.HandoffConsumed / transport.input.HandoffConsumed
+    -> named frontdoor/source-plan mapping or terminal; never A observation
+
+transport.compiler.HandoffConsumed
     -> A.SourceAuthorityUnavailable | A.ObservationIncomplete
-       | A.NonCandidate | A.InputAuthorityReady | A.IntegrityInvalid
+       | A.CompleteNoDirectStaticRows | A.InputAuthorityReady | A.IntegrityInvalid
 
 A.InputAuthorityReady
     -> A.DirectStaticSourceReady | A.IntegrityInvalid
 
 A.DirectStaticSourceReady
     -> C.DispositionReady -> B.DispositionTransported (future only)
+
+A.CompleteNoDirectStaticRows
+    -> C.NonCandidate -> B.DispositionTransported (future only)
+
+A.SourceAuthorityUnavailable / A.ObservationIncomplete /
+  A.CompleteNoDirectStaticRows / A.IntegrityInvalid
+    -> named A terminal or `NoSafeSlice`; never a silent ordinary route
+
+C.NonCandidate
+    -> B.DispositionTransported (future only)
+
+C.DispositionReady
+    -> B.DispositionTransported (future only)
+
+B.DispositionTransported
+    -> detached canonical consumer terminal (future only)
 ```
 
 No wildcard, `Option::None`, empty carrier, `unwrap_or(false)`, or raw
@@ -193,13 +235,34 @@ Acceptance for this docs-only P0:
   `DiscardedBeforeA`, `HandoffConsumed`, and `DispositionTransported` each
   have an explicit owner and transition;
 - missing/coverage gaps and present-invalid rows have distinct outcomes;
-- `NonCandidate` requires complete clean observation;
-- the A issuer D0 points to this matrix and then back to its own design stop;
+- private `A.CompleteNoDirectStaticRows` requires complete clean observation;
+  public `C.NonCandidate` is issued only by future C;
+- the A issuer D0 was reconciled against this matrix and the next observation
+  D0 now owns the source-envelope co-seal prerequisite;
 - no code, fixture, parser/source admission, Recipe, Join, physical, or
   production route changes.
 
+## Closeout evidence (2026-08-21)
+
+- all four actual enum families were re-read from source and mapped without a
+  phase-free alias;
+- parser, transport, A, C, and B transitions are phase-qualified and every
+  inventory row appears in the transition contract;
+- parser/frontdoor `HandoffConsumed` sentinels are distinct from the future
+  compiler A-consumer transition;
+- `ObservationIncomplete`, `IntegrityInvalid`, private complete-zero A, and
+  public C `NonCandidate` remain distinct;
+- source-plan identity, parser invocation brand, and HandoffReady co-seal is
+  recorded as the next observation-D0 prerequisite; duplicate primitive-field
+  pairing is not accepted;
+- `bash tools/checks/current_state_pointer_guard.sh` — PASS;
+- `bash tools/checks/routing_classification_completeness_guard.sh` — PASS;
+- `git diff --check` — PASS;
+- no code, fixture, Recipe, Join, physical, fallback, or production change was
+  opened by this P0.
+
 Remain at design stop if any state cannot be assigned one owner, if a phase
 uses a bare state name that collides with another phase, if a missing row can
-become `NonCandidate`, if `HandoffConsumed` can be issued without a named A
+become `A.CompleteNoDirectStaticRows` or `C.NonCandidate`, if `HandoffConsumed` can be issued without a named A
 consumer, or if the next implementation would need to infer a row by name,
 ordinal, pointer, digest, or Builder state.

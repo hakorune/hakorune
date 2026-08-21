@@ -540,6 +540,112 @@ diff is zero. Broader root topology remains owned by
 `MIR-TOPOLOGY-REBASE0-P0`; disconnected module retirement remains the existing
 T1/T3 leaf-to-root program.
 
+The 2026-08-21 external census measured `src/mir/builder.rs` at 819 lines and
+confirmed that this existing T5-D8 row is the correct first physical cleanup;
+it does not open a second barrel task. Keep it parked until the named
+Script production cutover and T5-D4/T5-D7 prerequisites are closed. Do not
+mix the split with Source-only A observation, direct-static package assembly,
+or `#[allow(dead_code)]` retirement.
+
+The barrel row uses this finite physical state inventory:
+
+| state | owner / meaning | pre-effect behavior | continuation | fallback |
+|---|---|---|---|---|
+| `LiveRegistration` | `builder.rs` module/re-export surface is still canonical | no deletion or re-export rewrite | T5-D4/T5-D7 census | never infer caller-zero from text |
+| `TestTailPendingSplit` | owner-local `#[cfg(test)]` tail identified, but prerequisites are open | no production change | bounded child-module split | no broad topology rewrite |
+| `CallerZeroRetireEligible` | exact owner/mask census and production cutover prove tail can move | split tests only, preserve privacy/filtering | `Retired` after focused gate | no module-mask deletion in this row |
+| `CompatibilityKeep` | a compatibility/test caller still requires the surface | preserve the registration and document owner | later named retirement row | never delete by `allow(dead_code)` |
+| `Retired` | child module owns the moved tests and the root is below the line budget | no old tail or duplicate owner | topology cleanup may continue separately | no reintroduction without a new owner decision |
+
+No state table entry authorizes deleting disconnected registrations. The
+`CallerZeroRetireEligible` transition is blocked until the Script family has a
+named production cutover and the exact T5-D4/T5-D7 census is green.
+
+### `SCRIPT-DIRECT-STATIC-SEMANTIC-PACKAGE-COSEAL-D0` — parked type cleanup
+
+This is a later, behavior-neutral cleanup for the selected-normal direct-static
+bridge. The current lowering input/state carries five parallel `Option`
+products (result bundle, publication owner, Recipe, Join handoff, and required
+argument proof), even though the selected lifecycle already creates them as one
+coherent set. No implementation is authorized while the canonical Source-only
+A observation row is active.
+
+```text
+Decision: Park a BoxShape package-co-seal; aggregate the five existing sealed
+  products without issuing new semantic meaning or changing the selected route.
+Source authority + canonical issuer: the existing five verified products and
+  their selected lifecycle are the only authorities; one new package constructor
+  may co-seal them, but may not re-resolve AST, names, ValueIds, or MirTypes.
+Non-authority: parallel Option presence, attach order, tuple shape, Builder/
+  comp_ctx, the canonical A issuer, compatibility/raw routes, and finalization.
+Fail-fast boundary: before Builder/body effects, require one complete package;
+  partial, foreign, duplicate, or contradictory products reject with no retry.
+Smallest next slice: after Script production cutover, add a focused package
+  owner with `NotApplicable | Absent | Incomplete | Complete(package) |
+  IntegrityInvalid | Consumed | Discarded` at the lowering boundary and
+  remove the five partial attach path only in that same behavior-neutral row.
+Non-claims: no A/source admission, Recipe/Join meaning change, physical Call,
+  publication policy, raw retirement, compatibility repair, or performance.
+```
+
+The finite package state inventory is:
+
+| state | owner / meaning | pre-effect behavior | continuation | fallback |
+|---|---|---|---|---|
+| `NotApplicable` | lane admission says this selected family is not present | no package lookup | existing non-direct-static owner | never fabricate `Absent` |
+| `Absent` | selected lifecycle completed a clean zero-row direct-static observation | no package lookup/effect | existing non-direct-static owner | never treat incomplete inputs as absence |
+| `Incomplete` | selected lifecycle has not co-sealed all five products | stop before lowering | remain in lifecycle or design stop | never enter Builder with partial `Option`s |
+| `Complete(package)` | one lifecycle co-seal owns all five exact products | move the package once | selected lowering consumer | no re-pair/retry |
+| `IntegrityInvalid` | a product is foreign, duplicate, stale, or contradictory | reject before effects | discard candidate/session | no repair/default/empty package |
+| `Consumed` | future lowering session owns the moved package | reject a second take | completion or candidate discard | no reinsertion/rollback |
+| `Discarded` | candidate/session failed after package ownership began | no further effect or publication | terminal cleanup | no reinsertion/retry |
+
+`Incomplete` is the deliberate neither-selected-nor-rejected state. The
+future row must prove that `Complete` cannot be constructed from five unrelated
+`Some` values, that `Absent` is a complete zero-row result rather than a
+missing product, and that `NotApplicable` is not the same as either one.
+This card is `CleanupParked` rather than an active blocker; the current pointer
+must not retarget to it until the selected-normal production edge is explicitly
+reopened.
+
+### `ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P2` — parked guard expansion
+
+The landed P1 guard checks the active card's first finite table. A later
+tooling-only P2 should extend that proof to every phase table and transition
+without scanning compiler semantics or issuing a state. It is parked because
+the current A observation row is still the active design stop.
+
+```text
+Decision: extend the existing classification guard to prove phase-qualified
+  state and transition coverage; do not add a second compiler classifier.
+Source authority + canonical issuer: CURRENT_STATE.latest_card_path selects
+  the card; the card author owns vocabulary/issuer prose; the guard only
+  verifies the finite inventory and transition references.
+Non-authority: compiler enums, historical cards, token presence, empty/default
+  rows, and guard success cannot issue a route or semantic package.
+Fail-fast boundary: before guard success; missing phase/state/transition,
+  bare `Transported`/`CanonicalSourceBacked`, or A reissuance of upstream
+  states fails the guard with zero compiler effects.
+Smallest next slice: one focused guard/tooling row plus temporary-card
+  positive/negative fixtures, after the active source-observation D0 closes.
+Non-claims: no parser/source, A, Recipe/Join, physical, fallback, production,
+  ABI/backend, or performance change.
+```
+
+The P2 state inventory is:
+
+| state | owner / meaning | pre-effect behavior | continuation | fallback |
+|---|---|---|---|---|
+| `CardSelected` | current pointer resolves one active card | read only | parse phase tables | never scan history |
+| `PhaseInventoryComplete` | every phase table has a finite header and data row | no compiler effect | inspect transitions | no first-table-only success |
+| `TransitionInventoryComplete` | every listed state has a phase-qualified edge | no compiler effect | alias/reissue checks | no wildcard/None acceptance |
+| `UnqualifiedAliasRejected` | bare `Transported`/`CanonicalSourceBacked` or upstream reissue found | fail before success | diagnostic terminal | no normalization/default |
+| `GuardFailure` | missing/duplicate/foreign state or edge | fail before success | tooling terminal | no compiler fallback |
+| `GuardPass` | complete card-only proof | report review evidence | active card continues | never claim semantic/production success |
+
+This is a reusable guard follow-up, not permission to widen the current
+source-A observation or to treat a local guard pass as an implementation gate.
+
 ### `SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0` — P0 family finish line
 
 The active selected-normal bridge is an intermediate proof, not production

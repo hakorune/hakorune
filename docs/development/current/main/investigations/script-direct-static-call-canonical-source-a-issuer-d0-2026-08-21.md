@@ -1,12 +1,12 @@
 ---
-Status: Design stop — exhaustive state-matrix prerequisite selected
+Status: Design stop — complete-observation prerequisite selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-input-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: one canonical source-only A issuer before Script Recipe/entry
 Classification: BoxCount (design only; implementation remains closed)
-NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-state-matrix-p0-2026-08-21.md
+NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-observation-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0
@@ -34,8 +34,9 @@ before `prepare_script_recipe()`, `OpenScriptPhysicalEntryV1`, Builder install,
 or child effects. Missing parser-backed handoff, incomplete window/catalog/
 forest/terminal coverage, foreign rows, or identity drift stops here.
 
-Smallest next slice: `SCRIPT-DIRECT-STATIC-SOURCE-A-STATE-MATRIX-P0` is a
-docs-only prerequisite. It fixes phase-qualified names and every transition
+Smallest next slice: the accepted state matrix is closed; the new
+`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-OBSERVATION-D0` now fixes the
+complete source/window/forest/target/proof/terminal observation boundary
 before any issuer implementation is authorized.
 
 Non-claims: no parser grammar/source admission change, A/C/B code, Recipe/Join,
@@ -84,34 +85,39 @@ upstream and transport rows; this card owns only the A rows below.
 ## Exhaustive A issuer state table
 
 The upstream parser and transport states are owned by the companion
-`SCRIPT-DIRECT-STATIC-SOURCE-A-STATE-MATRIX-P0` card. Only these phase-qualified
-A rows may be issued by the future sibling issuer:
+`SCRIPT-DIRECT-STATIC-SOURCE-A-STATE-MATRIX-P0` card. `A.NotApplicable`,
+`A.CompatibilitySource`, and `A.Deferred` are preserved upstream labels, not
+new A issuances. After `HandoffConsumed`, only the observation rows below are
+reachable by the future sibling issuer:
 
 | state | phase | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
 |---|---|---|---|---|---|
-| `A.NotApplicable` | A ingress | canonical Script/direct-static scope classifier | no A observation or physical effect | caller-owned non-direct-static source owner | never fabricate `A.NonCandidate` or enter raw Script |
-| `A.CompatibilitySource` | A ingress | upstream typed compatibility disposition, preserved without reinterpretation | no A observation | compatibility owner or parked stop | never become A success |
-| `A.Deferred` | A ingress | upstream deferred disposition, preserved without reinterpretation | no partial A observation | deferred owner or `NoSafeSlice` | never become empty input or raw success |
+| `A.NotApplicable` | A ingress | upstream parser/transport owner; preserved, not issued by A | no A observation or physical effect | caller-owned non-direct-static source owner | never fabricate an A result or enter raw Script |
+| `A.CompatibilitySource` | A ingress | upstream typed compatibility owner; preserved, not issued by A | no A observation | compatibility owner or parked stop | never become A success |
+| `A.Deferred` | A ingress | upstream deferred owner; preserved, not issued by A | no partial A observation | deferred owner or `NoSafeSlice` | never become empty input or raw success |
 | `A.SourceAuthorityUnavailable` | A ingress | co-sealed parser admission/handoff/identity is absent or foreign | stop before package/Recipe/entry/effects | `NoSafeSlice` until authority exists | no default identity, AST rescan, or Builder fallback |
-| `A.ObservationIncomplete` | A observation | authority exists but retained window, forest, catalog, proof, or terminal coverage is missing/gapped | stop before package/Recipe/entry/child effects | `NoSafeSlice` until coverage is total | never round to `A.NonCandidate` or compatibility |
-| `A.NonCandidate` | A observation | complete integrity-clean observation proves every retained row is outside direct-static scope | no direct-static package or physical effect | canonical non-direct-static owner | missing coverage is not absence; no raw fallback |
+| `A.ObservationIncomplete` | A observation | authority exists but retained window, forest, catalog, proof, or terminal coverage is missing/gapped | stop before package/Recipe/entry/child effects | `NoSafeSlice` until coverage is total | never round to `A.CompleteNoDirectStaticRows` or compatibility |
+| `A.CompleteNoDirectStaticRows` | A private observation witness | complete integrity-clean observation proves every retained row is outside direct-static scope | no direct-static package or physical effect; C may classify later | future C owner | missing coverage is not absence; no raw fallback |
 | `A.InputAuthorityReady` | A internal | the sole A issuer co-seals all required source-bound inputs | private readiness only; no physical effect | `A.DirectStaticSourceReady` or `A.IntegrityInvalid` | no second issuer/public receipt/selected copy |
 | `A.DirectStaticSourceReady` | A terminal | the sole A issuer co-seals target/result/sites/proof/terminal and issues one AST-free package | move-only package; no physical effect | future C consumes once | no name lookup, retry, or re-pairing |
-| `A.IntegrityInvalid` | A verification | complete observation finds present foreign, duplicate, stale, mixed, or contradictory rows | reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `A.NonCandidate`, compatibility, or raw fallback |
+| `A.IntegrityInvalid` | A verification | complete observation finds present foreign, duplicate, stale, mixed, or contradictory rows | reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `A.CompleteNoDirectStaticRows`, compatibility, or raw fallback |
 
 The boundary is exact: missing expected rows or coverage gaps are
 `A.ObservationIncomplete`; a present row with invalid identity or conflicting
 membership is `A.IntegrityInvalid`; only complete clean zero-row observation
-is `A.NonCandidate`. `A.InputAuthorityReady` is private and
-`A.DirectStaticSourceReady` is the only public A package. Future C/B states
-are not re-used as A states.
+is the private `A.CompleteNoDirectStaticRows` witness. Public
+`C.NonCandidate` belongs to the future C disposition owner and is not issued
+by A. `A.InputAuthorityReady` is private and `A.DirectStaticSourceReady` is
+the only public A package. Future C/B states are not re-used as A states.
 
 ## Issuer input and candidate boundary
 
-The single issuer must validate/co-seal, in one source identity:
+The single issuer must validate/co-seal, in one source identity and one
+move-only source envelope:
 
 ```text
-parser lineage/profile/digest/read-parse receipt
+parser invocation brand + parser lineage/profile/digest/read-parse receipt
+matching source-plan identity and retained HandoffReady carrier
 complete retained Script ProgramBody window and coverage
 declaration facts + Brand catalog + canonical import/config snapshot
 one resolver forest for that exact window
@@ -178,13 +184,21 @@ receipt by pointer/name is not a kernel.
   authority are fixed;
 - the companion state-matrix P0 maps every upstream and transport state, with
   no standalone `CanonicalSourceBacked` alias or reissuer;
+- the observation D0 distinguishes complete zero-row observation from missing
+  target/window/forest/proof coverage and identifies source-admission expansion
+  as a separate design decision;
+- parser invocation brand, source-plan identity, and HandoffReady carrier are
+  co-sealed before observation; duplicated receipt/digest/profile fields cannot
+  be re-paired after the boundary;
 - the canonical callpoint is before `prepare_script_recipe()` and remains
   thin; the 748/719-line existing owners receive no semantic growth;
 - every A state above and every upstream/transport state in the companion
   matrix has one owner, pre-effect behavior, continuation, and fallback
   policy; missing and present-invalid rows remain distinct;
-- complete zero-candidate observation, incomplete coverage, and terminal drift
-  map to three distinct states;
+- complete zero-candidate observation (`A.CompleteNoDirectStaticRows`),
+  incomplete coverage, and terminal drift map to three distinct states;
+- public `C.NonCandidate` is issued only by future C after consuming the
+  private A zero-row witness; A does not reissue C dispositions;
 - the issuer input list has one lifetime and no pointer/name/digest-only join;
 - `InputAuthorityReady` is private and `DirectStaticSourceReady` is the only
   public A package;
@@ -211,7 +225,13 @@ Remain at this D0 if any condition holds:
 8. the issuer would require semantic growth in a source already at the
    760-line design trigger or the 800-line hard stop.
 9. the companion phase-qualified state matrix is not accepted, or any
-   actual enum variant lacks an owner/transition row.
+   actual enum variant lacks an owner/transition row;
+10. the complete-observation D0 cannot name a source owner for every required
+    window/forest/catalog/proof/terminal input;
+11. plan, parser invocation brand, and HandoffReady are only matched by
+    duplicated receipt/digest/profile fields rather than one source envelope;
+12. A is required to issue public `C.NonCandidate`, or any upstream
+    `NotApplicable`/`CompatibilitySource`/`Deferred` state is reissued by A.
 
 Until these are closed, the next row remains design-only and no canonical
 physical consumer or production claim is allowed.
