@@ -960,3 +960,21 @@ negatives now map to typed Rejected outcomes; source identity remains a
 resolver-owned rejection. The Facts owner stays below 800 lines through a
 separate validation module. S6A is closed with no selector, physical caller,
 or Builder/MIR effect.
+
+## Canonical Script Source-only A carrier I0
+
+`canonical_script_source_a_input.rs` is the compiler-side transport owner for
+parser-backed Script rows. It carries one AST-free parser witness through
+`CanonicalCoreSourcePlanCompileRequestV1`; it does not issue A facts, Recipe,
+Join, physical Call, publication, or production selection. Its finite states
+keep compatibility, deferred, incomplete, integrity, neutral, ready,
+explicit `DiscardedBeforeA`, and future consumed/transported outcomes
+separate. Main and Callable routes explicitly discard the non-Script transport
+before their existing owners; Script reaches the same named no-A discard just
+before `prepare_script_recipe()`.
+
+The carrier is move-only and co-sealed from parser rows plus the front-door
+identity/profile/read-parse witness. AST/name/ordinal/digest re-pairing,
+default/empty carrier, parser rescan, fallback, and `HandoffConsumed` are
+forbidden. A future Source-only A issuer must replace the named discard with
+its own one-shot consumer before any A/Recipe/physical claim.

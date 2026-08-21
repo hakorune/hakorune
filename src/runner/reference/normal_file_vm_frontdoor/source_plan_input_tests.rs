@@ -220,6 +220,7 @@ fn canonical_core_dispatch_script_handoff_moves_only_the_sealed_plan_and_receipt
     let request = classify_canonical_core(dir.path(), "handoff.hako", "42")
         .into_canonical_core_compile_request()
         .expect("canonical-core handoff");
+    assert_eq!(request.script_input_state(), "HandoffReady");
     let mut compiler = crate::mir::MirCompiler::new();
     let candidate = compiler
         .compile_canonical_core_source_plan(request)
@@ -393,6 +394,7 @@ fn canonical_core_dispatch_builds_only_main0_candidate_in_s0() {
     )
     .into_canonical_core_compile_request()
     .expect("canonical-core handoff");
+    assert_eq!(request.script_input_state(), "CompatibilitySource");
     let mut compiler = crate::mir::MirCompiler::new();
     let candidate = compiler
         .compile_canonical_core_source_plan(request)

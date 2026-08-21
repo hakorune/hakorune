@@ -5,7 +5,9 @@
 //! meaning.
 
 use super::{NormalFileSourceReceiptV1, SealedNormalEntryProfileV1};
-use crate::mir::CanonicalSourceBytesDigestV1;
+use crate::mir::{
+    CanonicalScriptSourceAInputTransportV1, CanonicalSourceBytesDigestV1,
+};
 use crate::parser::callable_parameter_source::{
     CanonicalScriptSourceRowsDispositionV1, CanonicalScriptSourceRowsV1,
 };
@@ -45,6 +47,33 @@ impl CanonicalScriptSourceInputDispositionV1 {
             | Self::HandoffReady(_)
             | Self::HandoffConsumed
             | Self::DispositionTransported => {}
+        }
+    }
+
+    pub(super) fn into_compiler_transport(
+        self,
+    ) -> CanonicalScriptSourceAInputTransportV1 {
+        match self {
+            Self::NotApplicable => CanonicalScriptSourceAInputTransportV1::NotApplicable,
+            Self::CompatibilitySource => {
+                CanonicalScriptSourceAInputTransportV1::CompatibilitySource
+            }
+            Self::Deferred => CanonicalScriptSourceAInputTransportV1::Deferred,
+            Self::AdmissionMissing => CanonicalScriptSourceAInputTransportV1::AdmissionMissing,
+            Self::SourceAuthorityUnavailable => {
+                CanonicalScriptSourceAInputTransportV1::SourceAuthorityUnavailable
+            }
+            Self::CohortUnresolved => CanonicalScriptSourceAInputTransportV1::CohortUnresolved,
+            Self::ObservationIncomplete => {
+                CanonicalScriptSourceAInputTransportV1::ObservationIncomplete
+            }
+            Self::IntegrityInvalid => CanonicalScriptSourceAInputTransportV1::IntegrityInvalid,
+            Self::NonCandidate => CanonicalScriptSourceAInputTransportV1::NonCandidate,
+            Self::HandoffReady(handoff) => handoff.into_compiler_transport(),
+            Self::HandoffConsumed => CanonicalScriptSourceAInputTransportV1::HandoffConsumed,
+            Self::DispositionTransported => {
+                CanonicalScriptSourceAInputTransportV1::DispositionTransported
+            }
         }
     }
 }
@@ -108,6 +137,27 @@ impl CanonicalScriptSourceInputHandoffV1 {
 
     pub(crate) const fn utf8_len(&self) -> usize {
         self.utf8_len
+    }
+
+    fn into_compiler_transport(self) -> CanonicalScriptSourceAInputTransportV1 {
+        let Self {
+            rows,
+            source_identity,
+            source_digest,
+            utf8_len,
+            read_count,
+            parse_count,
+            _seal: _,
+        } = self;
+        CanonicalScriptSourceAInputTransportV1::from_frontdoor_parts(
+            rows,
+            hakorune_frontend_parser::parser::GrammarProfile::Canonical,
+            source_identity,
+            source_digest,
+            utf8_len,
+            read_count,
+            parse_count,
+        )
     }
 }
 

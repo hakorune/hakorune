@@ -1,5 +1,5 @@
 ---
-Status: Ready for implementation — transport-only carrier
+Status: Implementation-complete — transport-only carrier
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-CARRIER-I0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-carrier-d0-2026-08-21.md
@@ -144,3 +144,22 @@ paired after move, is optional/defaulted, is consumed without a named A owner,
 forces Main/Callable through an empty Script field, requires parser/compiler
 rescan, or requires semantic growth in a source already at the 760/800 limit.
 
+## Implementation evidence (2026-08-21)
+
+- `CARGO_BUILD_JOBS=4 cargo test --quiet --profile quick --lib
+  canonical_core_dispatch` — 6 passed, 0 failed.
+- `CARGO_BUILD_JOBS=4 cargo test --quiet --profile quick --lib
+  canonical_script_source_a_input` — 2 passed, 0 failed.
+- `CARGO_BUILD_JOBS=4 cargo check --lib` — passed; existing repository
+  warnings remain baseline-only.
+- `bash tools/checks/script_direct_static_canonical_source_a_carrier_guard.sh`
+  — passed.
+- `bash tools/checks/current_state_pointer_guard.sh` and
+  `bash tools/checks/routing_classification_completeness_guard.sh` — passed.
+- `git diff --check` — passed; all touched Rust owners remain below the
+  760-line design trigger and 800-line hard stop.
+
+The compiler request now owns the move-only carrier. Main/Callable and Script
+all close it at an explicit no-A boundary; no A issuer, Recipe, Join, physical
+Call, fallback, compatibility/raw retirement, production switch, or
+performance claim was opened.

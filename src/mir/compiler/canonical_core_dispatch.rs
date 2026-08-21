@@ -6,6 +6,13 @@
 //! boundaries.
 
 mod callable;
+#[path = "canonical_core_source_plan_request.rs"]
+mod source_plan_request;
+
+pub(crate) use source_plan_request::{
+    CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
+    VerifiedCanonicalCoreSourcePlanAdmissionV1,
+};
 pub(in crate::mir) mod publication;
 
 use crate::mir::builder::{
@@ -19,6 +26,7 @@ use crate::mir::compiler::normal_source_plan::{
     RejectedNormalScriptPhysicalEntryV1, SealedNormalMainSourceV1, SealedNormalScalarRootV1,
     SealedNormalSourcePlanV1, VerifiedNormalMainThunkPlanV1,
 };
+use crate::mir::compiler::canonical_script_source_a_input::CanonicalScriptSourceAInputTransportV1;
 use crate::mir::compiler::raw_root_source_facts::RawScriptRecipeProjectionErrorV1;
 #[cfg(feature = "vm-reference")]
 use crate::mir::compiler::source_entry_vm_invocation::PreparedVmReferenceSourceEntryInvocationV1;
@@ -27,109 +35,7 @@ use crate::mir::compiler::source_entry_vm_reference::{
     RawVmReferenceRunReportV1, VmReferenceProcessOutcomeV1,
 };
 
-use super::canonical_source_identity::CanonicalSourceBytesDigestV1;
 use super::MirCompiler;
-
-/// A compiler-neutral receipt for the front door's one read and one parse.
-#[derive(Debug, PartialEq, Eq)]
-pub(crate) struct NormalSourcePlanReceiptV1 {
-    source_identity: Box<str>,
-    source_digest: CanonicalSourceBytesDigestV1,
-    utf8_len: usize,
-    read_count: u8,
-    parse_count: u8,
-    _seal: NormalSourcePlanReceiptSealV1,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-struct NormalSourcePlanReceiptSealV1;
-
-impl NormalSourcePlanReceiptV1 {
-    pub(crate) fn one_read_one_parse(
-        source_identity: Box<str>,
-        source_digest: CanonicalSourceBytesDigestV1,
-        utf8_len: usize,
-        read_count: u8,
-        parse_count: u8,
-    ) -> Self {
-        Self {
-            source_identity,
-            source_digest,
-            utf8_len,
-            read_count,
-            parse_count,
-            _seal: NormalSourcePlanReceiptSealV1,
-        }
-    }
-
-    pub(crate) const fn source_digest(&self) -> CanonicalSourceBytesDigestV1 {
-        self.source_digest
-    }
-
-    #[cfg(test)]
-    pub(crate) fn counts(&self) -> (u8, u8) {
-        (self.read_count, self.parse_count)
-    }
-}
-
-/// Evidence that the front door selected the fixed canonical-core profile.
-#[derive(Debug)]
-pub(crate) struct VerifiedCanonicalCoreSourcePlanAdmissionV1 {
-    _seal: VerifiedCanonicalCoreSourcePlanAdmissionSealV1,
-}
-
-#[derive(Debug)]
-struct VerifiedCanonicalCoreSourcePlanAdmissionSealV1;
-
-impl VerifiedCanonicalCoreSourcePlanAdmissionV1 {
-    pub(crate) fn seal_from_frontdoor_profile() -> Self {
-        Self {
-            _seal: VerifiedCanonicalCoreSourcePlanAdmissionSealV1,
-        }
-    }
-}
-
-/// The compiler-neutral consuming input emitted by the normal-file front door.
-#[derive(Debug)]
-pub(crate) struct CanonicalCoreSourcePlanCompileRequestV1 {
-    plan: SealedNormalSourcePlanV1,
-    admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
-    receipt: NormalSourcePlanReceiptV1,
-    _seal: CanonicalCoreSourcePlanCompileRequestSealV1,
-}
-
-#[derive(Debug)]
-struct CanonicalCoreSourcePlanCompileRequestSealV1;
-
-impl CanonicalCoreSourcePlanCompileRequestV1 {
-    pub(crate) fn new(
-        plan: SealedNormalSourcePlanV1,
-        admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
-        receipt: NormalSourcePlanReceiptV1,
-    ) -> Self {
-        Self {
-            plan,
-            admission,
-            receipt,
-            _seal: CanonicalCoreSourcePlanCompileRequestSealV1,
-        }
-    }
-
-    #[cfg(test)]
-    pub(crate) const fn source_digest(&self) -> CanonicalSourceBytesDigestV1 {
-        self.receipt.source_digest()
-    }
-
-    fn into_parts(
-        self,
-    ) -> (
-        SealedNormalSourcePlanV1,
-        VerifiedCanonicalCoreSourcePlanAdmissionV1,
-        NormalSourcePlanReceiptV1,
-    ) {
-        (self.plan, self.admission, self.receipt)
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum CanonicalCoreDispatchStageV1 {
@@ -410,15 +316,17 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
         request: CanonicalCoreSourcePlanCompileRequestV1,
     ) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCoreNormalDispatchV1>
     {
-        let (plan, admission, receipt) = request.into_parts();
+        let (plan, admission, receipt, script_input) = request.into_parts();
         match plan {
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Main0(main)) => {
+                script_input.discard_before_a_consumer();
                 Self::compile_main0(compiler, main, admission, receipt)
             }
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) => {
-                Self::compile_script(compiler, script, admission, receipt)
+                Self::compile_script(compiler, script, admission, receipt, script_input)
             }
             SealedNormalSourcePlanV1::CallableModule(source) => {
+                script_input.discard_before_a_consumer();
                 callable::compile(compiler, source, admission, receipt).map_err(reject_callable)
             }
         }
@@ -528,8 +436,10 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
         script: crate::mir::compiler::normal_source_plan::SealedNormalScriptSourceV1,
         admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
         receipt: NormalSourcePlanReceiptV1,
+        script_input: CanonicalScriptSourceAInputTransportV1,
     ) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCoreNormalDispatchV1>
     {
+        script_input.discard_before_a_consumer();
         let recipe = match script.prepare_script_recipe() {
             Ok(recipe) => recipe,
             Err(rejected) => {

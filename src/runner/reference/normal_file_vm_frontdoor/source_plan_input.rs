@@ -15,7 +15,8 @@ use crate::mir::normal_source_plan::{
     SealedNormalSourcePlanV1,
 };
 use crate::mir::{
-    CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
+    CanonicalCoreSourcePlanCompileRequestV1, CanonicalScriptSourceAInputTransportV1,
+    NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
 use hakorune_frontend_parser::parser::GrammarProfile;
@@ -201,10 +202,8 @@ impl ClassifiedNormalFileSourcePlanV1 {
             receipt,
             _seal: _,
         } = self;
-        // This pre-existing compiler request is intentionally not an A
-        // consumer.  Dispose of the parser-only transport at this named
-        // boundary rather than silently treating it as a ready semantic row.
-        script_input.discard_before_a_consumer();
+        let script_input: CanonicalScriptSourceAInputTransportV1 =
+            script_input.into_compiler_transport();
         let receipt = NormalSourcePlanReceiptV1::one_read_one_parse(
             receipt.source_identity,
             receipt.source_digest,
@@ -216,6 +215,7 @@ impl ClassifiedNormalFileSourcePlanV1 {
             plan,
             VerifiedCanonicalCoreSourcePlanAdmissionV1::seal_from_frontdoor_profile(),
             receipt,
+            script_input,
         ))
     }
 
@@ -251,7 +251,21 @@ impl RejectedCanonicalCoreSourcePlanHandoffV1 {
     }
 
     pub(crate) fn discard(self) {
-        drop(self);
+        let Self { owner, error: _ } = self;
+        owner.discard_before_a_consumer();
+    }
+}
+
+impl ClassifiedNormalFileSourcePlanV1 {
+    fn discard_before_a_consumer(self) {
+        let Self {
+            plan: _,
+            script_input,
+            profile: _,
+            receipt: _,
+            _seal: _,
+        } = self;
+        script_input.discard_before_a_consumer();
     }
 }
 
@@ -267,10 +281,11 @@ impl RejectedNormalFileSourcePlanningV1 {
     pub(crate) fn discard(self) {
         let Self {
             rejected,
-            script_input: _,
+            script_input,
             profile: _,
             receipt: _,
         } = self;
+        script_input.discard_before_a_consumer();
         rejected.discard();
     }
 
