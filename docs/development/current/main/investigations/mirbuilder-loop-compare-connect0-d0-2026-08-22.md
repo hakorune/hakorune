@@ -1,10 +1,10 @@
-Status: CONNECT0 handoff and evidence closeout landed; live publication and retirement remain gated
+Status: CONNECT0 handoff/evidence closeout landed; live-publication boundary D0 accepted; implementation and retirement remain gated
 Task: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
 Date: 2026-08-22
-Priority: prove the landed handoff and keep live publication/retirement gated
+Priority: preserve CONNECT0 evidence and define the next live-publication boundary without opening backend or generic retirement
 Parent: MIR-LOOP-COMPARE-STRICT-WRITER-P0
 PreviousCard: MIR-LOOP-COMPARE-STRICT-WRITER-P0
-NextCard: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0 (same rolling card)
+NextCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0 (same rolling card)
 ---
 
 # Loop Compare CONNECT0 handoff
@@ -19,6 +19,79 @@ Fail-fast boundary: I9 row/target/operand provenance, Dynamic-brand-to-function-
 Smallest next slice: `MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0`, adding the caller/fallback guard and recording focused positive, negative, and reservation-poison evidence; no new semantic path and no unrelated family migration.
 Non-claims: no I7 header Compare, no generic dispatcher connection, no general dominance, no cross-block operands, no Const/Binary migration, no A/C/Recipe redesign, no old-leaf retirement, and no production I0/R0.
 ```
+
+## Next frontier design stop
+
+Why this is not Fast path: live publication and generic-loop retirement would
+change the production publication boundary and delete an old physical edge, so
+the named consumer, publication owner, fail-fast terminal, and atomic cutover
+must be re-audited before implementation.
+
+## Next frontier: live publication boundary D0
+
+The read-only audit confirms that the selected I9 handoff is reachable from a
+real non-test compile path, not only from a helper or focused test:
+
+```text
+compile_normal
+  -> normal_default_root_catalog_post_install
+  -> program root lowering
+  -> installed semantic package
+  -> lower_cataloged_static_box_method
+  -> selected Dynamic I9 handoff
+  -> strict Compare writer
+```
+
+This does not yet prove an end-to-end live publication fixture. The word
+`publication` is split into four distinct stages:
+
+| Stage | Meaning | Owner | This D0 |
+| --- | --- | --- | --- |
+| `DraftAdmission` | completed callable draft becomes a collector receipt | `ModuleDraftCollectorV1` | context only |
+| `ModuleDrain` | prepared collector rows are committed into `current_module` | `PreparedNormalCollectorDrainLifecycleV1` | define evidence |
+| `ExternalCommit` | sealed module passes compiler-owned verification and is externally committed | `PreparedModuleExternalCommitV1` / invocation session | define evidence |
+| `BackendEmission` | LLVM/object/native or VM consumer observes the module | backend owner | explicit non-claim |
+
+The next design task is:
+
+```text
+MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
+```
+
+Six-line brief:
+
+```text
+Decision: accept a bounded publication-boundary audit for selected Dynamic I9; do not open backend emission or generic Loop retirement.
+Source authority + canonical issuer: the existing selected Dynamic I9 demand/ledger and private I9 handoff own Compare facts; collector drain and external commit own module publication transitions.
+Non-authority: collector admission alone, `current_module` observation alone, test helpers, generic dispatcher caller-zero, old shared Compare leaf, backend/object output, and any fallback route.
+Fail-fast boundary: the named compile path must retain the exact I9 handoff, complete collector drain and external-commit preflight, and discard the unpublished session on any failure before claiming publication.
+Smallest next slice: prove one unchanged selected-Dynamic normal compile fixture through `ModuleDrain` and `ExternalCommit`, with caller/fallback/old-edge census and no backend claim.
+Non-claims: no new semantic receipt, no generic dispatcher activation, no cross-block dominance, no Const/Binary migration, no shared old-leaf retirement, no LLVM/VM/object promotion, and no performance work.
+```
+
+Finite state routing for this D0 is:
+
+| State | Meaning | Allowed next state |
+| --- | --- | --- |
+| `Unavailable` | selected Dynamic package or publication input is absent | typed reject; no I9 effect |
+| `Selected` | named non-test compile route and I9 row are selected | `DraftAdmission` |
+| `DraftAdmission` | completed draft is held by the collector | `ModuleDrain` |
+| `ModuleDrain` | collector preflight/commit has inserted the draft into `current_module` | `ExternalCommit` |
+| `ExternalCommit` | compiler-owned verification and external commit succeeded | terminal D0 evidence |
+| `Deferred` | publication stage or owner relation is not yet evidenced | design stop; no runtime fallback |
+| `Rejected` | typed preflight/verification failure | unpublished discard only |
+| `NoSafeSlice` | stage owner, exact fixture, or atomic failure boundary cannot be proved | remain in design stop |
+
+The generic dispatcher being caller-zero is useful census evidence but is not a
+retirement proof: the shared legacy leaf still has non-test compatibility and
+canary callers. Generic retirement requires a separate selected production
+consumer and a complete old-leaf caller census.
+
+Acceptance for this D0 is limited to one real compile-path fixture, explicit
+stage receipts/observations for `ModuleDrain` and `ExternalCommit`, zero
+selected-I9 fallback/retry, unchanged failure atomicity, and a reusable guard.
+If the fixture reaches only a helper or test-owned collector, or if publication
+requires a second Dynamic/Loop ledger or backend authority, keep `NoSafeSlice`.
 
 ## Current census
 
