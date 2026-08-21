@@ -1549,6 +1549,8 @@ Its fail-fast boundary is assignment local publication; it must first verify
 the enclosing function-session discard contract before choosing simple error
 propagation or a private prepare/commit seam. `emit_instruction` redesign,
 `builder.rs` cleanup, and Script A/C work remain outside that task.
+The complete post-audit queue is recorded in
+[`mirbuilder-post-audit-follow-up-queue-2026-08-21.md`](./mirbuilder-post-audit-follow-up-queue-2026-08-21.md).
 
 The fast cell was therefore two implementation substeps in one bounded
 series:
