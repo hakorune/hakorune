@@ -94,13 +94,38 @@ test also supplies empty parameter/body vectors. These prove reachability of
 the handoff, not consumption of the unchanged source body and not a live
 module publication.
 
-The first P0 deliverable is therefore a consumption receipt/census at the
-existing package-port completion boundary. It must prove that the exact
-selected source rows are consumed once before the collector can drain. It may
-reuse existing source/Recipe/physical demand products, but it must not create
-a second body observer, a Dynamic-to-Loop adapter, or a default “consumed”
-receipt. No production switch or old-edge deletion is required for this P0;
-generic retirement remains separately gated by the shared legacy leaf census.
+The first P0 deliverable is therefore an existing-owner consumption
+contract/census at the package-port completion boundary, not a new semantic
+receipt. `NormalCallableSemanticPackagePortV1::complete()` currently proves
+only selected-key coverage: `with_selected_*` marks a key after its callback
+returns. It must not be relabeled as proof that the selected method body was
+consumed. The selected Dynamic branch currently receives `body` but passes
+`inspect = |_| Ok(())` to W6, so the body-consumption fact is still absent.
+
+The P0 must make the existing source/physical-demand owner consume and
+validate the exact selected body before `finish_unpublished_draft`; the
+package port may close only after that body-consuming operation returns
+successfully. A code/API boundary may be introduced only as part of that
+existing owner, for example a private consuming operation whose input is the
+selected source loan plus the transported body and whose output is the
+already-existing full Dynamic demand/plan. It must co-seal source identity and
+body identity once. Do not add a default `Consumed` receipt, treat an empty
+body as consumed, rescan the AST in a second authority, or create a
+Dynamic-to-Loop adapter. No production switch or old-edge deletion is required
+for this P0; generic retirement remains separately gated by the shared legacy
+leaf census.
+
+The acceptance therefore has two independent facts:
+
+```text
+package completion = every selected key was consumed exactly once
+body completion    = every selected source/body operation was consumed by
+                     the existing Dynamic demand/physical owner exactly once
+```
+
+Neither fact may stand in for the other. If the existing owner cannot consume
+the unchanged body without a second source authority, the result is
+`NoSafeSlice`, not a synthetic success marker.
 
 Finite state routing for this D0 is:
 
