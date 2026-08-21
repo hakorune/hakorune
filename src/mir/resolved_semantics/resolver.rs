@@ -40,13 +40,14 @@ use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
 use super::source_site_inventory::ResolvedSourceSiteInventoryDraftV1;
 use super::{EnumVariantDemandV1, RecordSchemaDemandV1};
 use super::{
-    ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1, VerifiedResolvedScriptV1,
+    ResolvedFunctionVerificationErrorV1, ScriptResolverDeferredV1, VerifiedResolvedFunctionV1,
+    VerifiedResolvedScriptV1,
 };
 
 #[derive(Debug)]
 pub(crate) enum ResolveScriptOutcomeV1 {
     Complete(VerifiedResolvedScriptV1),
-    Deferred,
+    Deferred(ScriptResolverDeferredV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -160,10 +161,10 @@ impl FunctionSemanticResolverSessionV1 {
             enum_matches,
         ) {
             Ok(draft) => draft,
-            Err(error) if error.is_script_source_deferral() => {
-                return Ok(ResolveScriptOutcomeV1::Deferred)
-            }
-            Err(error) => return Err(ResolveFunctionErrorV1::ScriptInvariant(error)),
+            Err(error) => match error.clone().into_script_resolver_deferred() {
+                Some(deferred) => return Ok(ResolveScriptOutcomeV1::Deferred(deferred)),
+                None => return Err(ResolveFunctionErrorV1::ScriptInvariant(error)),
+            },
         };
         let (origin, owner) = self.issue_owner()?;
         self.seal_script_owner(owner, origin, draft)

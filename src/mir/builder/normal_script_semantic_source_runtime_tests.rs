@@ -72,7 +72,7 @@ fn scopebox_with_disabled_control_stays_deferred() {
         resolver
             .resolve_script(view, &window)
             .expect("ScopeBox resolve"),
-        ResolveScriptOutcomeV1::Deferred,
+        ResolveScriptOutcomeV1::Deferred(_),
     ));
 }
 
@@ -148,7 +148,7 @@ fn nowait_with_disabled_operand_stays_deferred() {
         resolver
             .resolve_script(view, &window)
             .expect("Nowait resolve"),
-        ResolveScriptOutcomeV1::Deferred,
+        ResolveScriptOutcomeV1::Deferred(_),
     ));
 }
 

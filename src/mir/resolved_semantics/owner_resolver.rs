@@ -24,7 +24,7 @@ use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
 use super::VerifiedResolvedBodyShapeInventoryV1;
 use super::{
     EnumMatchDemandV1, EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1,
-    RecordSchemaDemandV1, VerifiedScriptRootDemandWindowV1,
+    RecordSchemaDemandV1, ScriptResolverDeferredV1, VerifiedScriptRootDemandWindowV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -36,7 +36,7 @@ pub(crate) enum ResolveOwnerForestErrorV1 {
 #[derive(Debug)]
 pub(crate) enum ResolveScriptForestOutcomeV1 {
     Complete(VerifiedSemanticOwnerForestV1),
-    Deferred,
+    Deferred(ScriptResolverDeferredV1),
 }
 
 #[derive(Debug)]
@@ -147,14 +147,14 @@ impl FunctionSemanticResolverSessionV1 {
             brand_catalog,
         ) {
             Ok(tree) => tree,
-            Err(error) if error.is_script_source_deferral() => {
-                return Ok(ResolveScriptForestOutcomeV1::Deferred)
-            }
-            Err(error) => {
-                return Err(ResolveOwnerForestErrorV1::Function(
-                    ResolveFunctionErrorV1::ScriptInvariant(error),
-                ))
-            }
+            Err(error) => match error.clone().into_script_resolver_deferred() {
+                Some(deferred) => return Ok(ResolveScriptForestOutcomeV1::Deferred(deferred)),
+                None => {
+                    return Err(ResolveOwnerForestErrorV1::Function(
+                        ResolveFunctionErrorV1::ScriptInvariant(error),
+                    ))
+                }
+            },
         };
         let (origin, owner) = self
             .issue_owner()

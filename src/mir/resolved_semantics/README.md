@@ -26,6 +26,23 @@ resolver seals its decoded symbol by exact expression site; ordinary
 consume only the site-keyed row and must not recover this meaning from a
 function name or from argument zero.
 
+## Typed Script resolver deferral I0 (2026-08-21)
+
+`ShadowResolveErrorV0::into_script_resolver_deferred` is the sole translation
+from source-observation deferrals into `ScriptResolverDeferredV1`. Located
+causes retain their exact statement, expression, or exit site; the one
+unlocated same-scope redeclaration has its own explicit variant. Unrelated
+shadow invariants are not converted into deferral. Both Script forest
+outcomes therefore carry `Deferred(ScriptResolverDeferredV1)` rather than a
+unit state, and they never fabricate an optional or default site.
+
+The normal root lifecycle transports this observation through its existing raw
+lowering owner. `NormalScriptRootLoweringMode::Unavailable` remains separate
+for a route with no Script window, so the lifecycle does not invent a resolver
+cause. This I0 changes no source-window ownership, target lookup, candidate,
+Facts, Recipe, physical, fallback, or production route; those remain behind
+the neutral source-window design stop.
+
 ## Generic G0 S0B source-type inventory
 
 `generic_g0/` is the sole AST-free issuer for the Generic G0 S0B source-type

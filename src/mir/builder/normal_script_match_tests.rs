@@ -115,6 +115,6 @@ fn root_match_does_not_activate_nested_match() {
             .expect("resolver")
             .resolve_script(view, &window)
             .expect("nested Match resolution"),
-        ResolveScriptOutcomeV1::Deferred
+        ResolveScriptOutcomeV1::Deferred(_)
     ));
 }

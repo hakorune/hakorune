@@ -27,6 +27,7 @@ use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, NormalEntryMaterializationSourceReceiptV1, ValueId};
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 use crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1;
+use crate::mir::resolved_semantics::ScriptResolverDeferredV1;
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -76,7 +77,8 @@ pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
 
 pub(super) enum NormalScriptRootLoweringMode<'source> {
     Complete(VerifiedScriptSemanticSourceV1<'source>),
-    Deferred,
+    Deferred(ScriptResolverDeferredV1),
+    Unavailable,
 }
 
 pub(super) enum NormalCallableSemanticPackageMode<'package> {
@@ -189,7 +191,27 @@ impl MirBuilder {
                             target_capability,
                         )
                     }),
-                NormalScriptRootLoweringMode::Deferred => port.with_source_transport_v1(
+                NormalScriptRootLoweringMode::Deferred(observation) => {
+                    port.with_script_deferred_observation(observation, |port| {
+                        port.with_source_transport_v1(
+                            RawInvocationSourceTransportV1::script_root(()),
+                            |port, ()| {
+                                self.lower_prepared_program_root_with_callable_mode_v1(
+                                    work,
+                                    snapshot,
+                                    expansion,
+                                    materialization,
+                                    runtime_inputs,
+                                    declaration_facts,
+                                    callable_mode,
+                                    port,
+                                    target_capability,
+                                )
+                            },
+                        )
+                    })
+                }
+                NormalScriptRootLoweringMode::Unavailable => port.with_source_transport_v1(
                     RawInvocationSourceTransportV1::script_root(()),
                     |port, ()| {
                         self.lower_prepared_program_root_with_callable_mode_v1(

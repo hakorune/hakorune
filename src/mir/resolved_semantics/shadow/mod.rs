@@ -41,7 +41,12 @@ pub(super) use product::{
     ShadowResolvedOwnerV0, ShadowScopeKindV0,
 };
 pub(in crate::mir) use product::{ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0};
-pub(in crate::mir) use product::{ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0};
+pub(in crate::mir) use product::{
+    ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
+};
+pub(crate) use product::{
+    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ScriptResolverDeferredV1,
+};
 pub(crate) use script_root_window::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
     ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,

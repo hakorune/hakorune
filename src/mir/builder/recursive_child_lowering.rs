@@ -4,6 +4,7 @@
 //! MethodCall route, or result-publication policy.
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
 use crate::mir::{MirBuilder, ValueId};
+use crate::mir::resolved_semantics::ScriptResolverDeferredV1;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -219,6 +220,10 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
     pub(in crate::mir::builder) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
     pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
+    /// Source-only Script resolver deferral carried through the existing raw
+    /// runtime owner. It does not select a route or issue a fallback.
+    pub(in crate::mir::builder) script_deferred_observation:
+        Option<ScriptResolverDeferredV1>,
     pub(in crate::mir::builder) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
 }
@@ -246,6 +251,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: None,
             callable_ledger: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
+            script_deferred_observation: None,
             cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
@@ -262,9 +268,21 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
+            script_deferred_observation: self.script_deferred_observation.clone(),
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
+    }
+
+    pub(in crate::mir::builder) fn with_script_deferred_observation<R>(
+        &mut self,
+        observation: ScriptResolverDeferredV1,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        let parent = self.script_deferred_observation.replace(observation);
+        let result = execute(self);
+        self.script_deferred_observation = parent;
+        result
     }
 
     /// Lend the exact collector-backed header view for one observation only.

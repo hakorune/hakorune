@@ -591,6 +591,7 @@ mod normal_script_root_admission_witness; // selected Script root shape/disposit
 mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
 mod normal_script_runtime_block_port;
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
+mod normal_script_resolution; // typed Script resolver outcome transport
 mod normal_script_selected_occurrence; // typed selected-Script work-plan-to-semantics handoff
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 mod ops;

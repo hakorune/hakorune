@@ -270,6 +270,84 @@ impl ShadowResolveErrorV0 {
                 | Self::BlockExprNonLocalExit { .. }
         )
     }
+
+    /// Preserve the existing Script deferral boundary without collapsing the
+    /// source-owned cause or inventing a site for an unlocated error.
+    pub(crate) fn into_script_resolver_deferred(
+        self,
+    ) -> Option<ScriptResolverDeferredV1> {
+        match self {
+            Self::SameScopeRedeclaration { name } => {
+                Some(ScriptResolverDeferredV1::UnlocatedSameScopeRedeclaration { name })
+            }
+            Self::UnresolvedName { name, site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnresolvedName { name },
+                site: ScriptResolverDeferredSiteV1::Expression(site),
+            }),
+            Self::ExitOutsideLoop { kind, site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::ExitOutsideLoop { kind },
+                site: ScriptResolverDeferredSiteV1::Statement(site),
+            }),
+            Self::UnsupportedStatement { kind, site } => {
+                Some(ScriptResolverDeferredV1::Located {
+                    cause: ScriptResolverDeferredCauseV1::UnsupportedStatement { kind },
+                    site: ScriptResolverDeferredSiteV1::Statement(site),
+                })
+            }
+            Self::UnsupportedExpression { kind, site } => {
+                Some(ScriptResolverDeferredV1::Located {
+                    cause: ScriptResolverDeferredCauseV1::UnsupportedExpression { kind },
+                    site: ScriptResolverDeferredSiteV1::Expression(site),
+                })
+            }
+            Self::UnsupportedAssignmentTarget { site } => {
+                Some(ScriptResolverDeferredV1::Located {
+                    cause: ScriptResolverDeferredCauseV1::UnsupportedAssignmentTarget,
+                    site: ScriptResolverDeferredSiteV1::Expression(site),
+                })
+            }
+            Self::FunctionCallArityOverflow { site } => {
+                Some(ScriptResolverDeferredV1::Located {
+                    cause: ScriptResolverDeferredCauseV1::FunctionCallArityOverflow,
+                    site: ScriptResolverDeferredSiteV1::Expression(site),
+                })
+            }
+            Self::BlockExprNonLocalExit { site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::BlockExprNonLocalExit,
+                site: ScriptResolverDeferredSiteV1::Exit(site),
+            }),
+            _ => None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ScriptResolverDeferredV1 {
+    Located {
+        cause: ScriptResolverDeferredCauseV1,
+        site: ScriptResolverDeferredSiteV1,
+    },
+    UnlocatedSameScopeRedeclaration {
+        name: Box<str>,
+    },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ScriptResolverDeferredCauseV1 {
+    UnresolvedName { name: Box<str> },
+    ExitOutsideLoop { kind: &'static str },
+    UnsupportedStatement { kind: &'static str },
+    UnsupportedExpression { kind: &'static str },
+    UnsupportedAssignmentTarget,
+    FunctionCallArityOverflow,
+    BlockExprNonLocalExit,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ScriptResolverDeferredSiteV1 {
+    Statement(SourceStmtSiteV1),
+    Expression(SourceExprSiteV1),
+    Exit(ResolvedExitSiteV1),
 }
 
 #[derive(Debug, Clone)]
@@ -322,6 +400,62 @@ mod tests {
             !ShadowResolveErrorV0::DuplicateEnumVariantDemand { site: site() }
                 .is_script_source_deferral()
         );
+    }
+
+    #[test]
+    fn script_deferral_preserves_located_and_unlocated_states() {
+        let expression_site = site();
+        let statement_site = SourcePathV1::program_body()
+            .child(SourcePathSegmentV1::ProgramBody(0))
+            .stmt();
+        let located = [
+            ShadowResolveErrorV0::UnresolvedName {
+                name: "missing".into(),
+                site: expression_site.clone(),
+            },
+            ShadowResolveErrorV0::ExitOutsideLoop {
+                kind: "break",
+                site: statement_site.clone(),
+            },
+            ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Loop",
+                site: statement_site.clone(),
+            },
+            ShadowResolveErrorV0::UnsupportedExpression {
+                kind: "Call",
+                site: expression_site.clone(),
+            },
+            ShadowResolveErrorV0::UnsupportedAssignmentTarget {
+                site: expression_site.clone(),
+            },
+            ShadowResolveErrorV0::FunctionCallArityOverflow {
+                site: expression_site.clone(),
+            },
+            ShadowResolveErrorV0::BlockExprNonLocalExit {
+                site: ResolvedExitSiteV1::Expression(expression_site),
+            },
+        ];
+        for error in located {
+            assert!(matches!(
+                error.into_script_resolver_deferred(),
+                Some(ScriptResolverDeferredV1::Located { .. })
+            ));
+        }
+
+        assert_eq!(
+            ShadowResolveErrorV0::SameScopeRedeclaration {
+                name: "x".into(),
+            }
+            .into_script_resolver_deferred(),
+            Some(ScriptResolverDeferredV1::UnlocatedSameScopeRedeclaration {
+                name: "x".into(),
+            })
+        );
+        assert!(ShadowResolveErrorV0::DuplicateEnumVariantDemand {
+            site: site(),
+        }
+        .into_script_resolver_deferred()
+        .is_none());
     }
 }
 

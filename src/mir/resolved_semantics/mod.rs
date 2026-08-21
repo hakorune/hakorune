@@ -274,6 +274,8 @@ pub(crate) use shadow::{
     ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
+    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1,
+    ScriptResolverDeferredV1,
 };
 pub(crate) use source_path_policy::{
     assignment_value_sibling_v1, is_statement_expression_surface_v1, BodyChildRoleV1,

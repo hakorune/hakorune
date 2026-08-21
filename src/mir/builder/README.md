@@ -570,9 +570,12 @@ dropped as a sibling.
 `IntegrityInvalid` remain distinct. The latter three stop before target
 installation, resolver/lookup work, Builder effects, Recipe, physical work,
 or fallback. AST-only compatibility and vm-reference paths receive no R0
-credit. The next bounded cell is source reownership: it must make the neutral
-two-axis window and resolver deferral authority explicit before any target or
-candidate work opens.
+credit. The typed resolver-deferral subcell now preserves
+`ScriptResolverDeferredV1` cause/site through the existing raw port; a route
+with no Script window is represented separately as `Unavailable`. This does
+not make the Builder window canonical. The next bounded cell is source
+reownership: it must make the neutral two-axis window authority explicit
+before any target or candidate work opens.
 
 ## Shared Script MethodCall typeop policy I0
 

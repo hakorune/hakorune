@@ -758,7 +758,7 @@ fn task_scope_early_exit_stays_deferred_to_existing_preflight() {
         resolver
             .resolve_script(view, &window)
             .expect("TaskScope resolve"),
-        ResolveScriptOutcomeV1::Deferred
+        ResolveScriptOutcomeV1::Deferred(_)
     ));
 
     let mut compiler = MirCompiler::with_options(false);

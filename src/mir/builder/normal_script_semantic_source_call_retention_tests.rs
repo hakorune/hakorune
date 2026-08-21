@@ -41,6 +41,6 @@ fn script_function_call_remains_r4_retained() {
         resolver
             .resolve_script(view, &window)
             .expect("FunctionCall profile gate"),
-        ResolveScriptOutcomeV1::Deferred
+        ResolveScriptOutcomeV1::Deferred(_)
     ));
 }

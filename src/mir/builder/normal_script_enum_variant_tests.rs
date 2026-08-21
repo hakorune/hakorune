@@ -152,6 +152,6 @@ fn ordinary_from_call_stays_deferred() {
     });
     assert!(matches!(
         outcome.expect("ordinary FromCall selection"),
-        ResolveScriptOutcomeV1::Deferred
+        ResolveScriptOutcomeV1::Deferred(_)
     ));
 }

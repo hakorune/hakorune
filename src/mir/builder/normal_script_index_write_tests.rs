@@ -85,13 +85,13 @@ fn non_array_or_rebound_index_write_stays_deferred() {
             "local xs = 1\nxs[0] = 2",
             vec![resolved_entry(0), index_write_entry(1)]
         ),
-        ResolveScriptOutcomeV1::Deferred
+        ResolveScriptOutcomeV1::Deferred(_)
     ));
     assert!(matches!(
         resolve_script(
             "local xs = [1]\nxs = 2\nxs[0] = 3",
             vec![resolved_entry(0), resolved_entry(1), index_write_entry(2)],
         ),
-        ResolveScriptOutcomeV1::Deferred
+        ResolveScriptOutcomeV1::Deferred(_)
     ));
 }

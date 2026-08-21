@@ -21,7 +21,9 @@ use super::normal_script_composite_partition::{
     CanonicalScriptCompositeProgramPartitionIssuerV1,
 };
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
-use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::normal_script_resolution::{
+    resolve_normal_script_source_v1, NormalScriptResolutionV1,
+};
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_lowering::{
     NormalCallableSemanticPackageMode, NormalScriptRootLoweringMode,
@@ -41,9 +43,7 @@ use crate::mir::normal_callable_semantic_package::{
     InstalledNormalCallableSemanticPackageV1,
 };
 use crate::mir::normal_source_plan::NormalCallableCompatibilityOriginV1;
-use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ResolveScriptForestOutcomeV1, ScriptSyntaxViewV1,
-};
+use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::source_call_target::{
     VerifiedScriptDirectStaticCallTargetInventoryV1, VerifiedStaticImportAliasViewV1,
     VerifiedWholeSourceStaticCallTargetInventoryV1,
@@ -526,49 +526,24 @@ impl ModuleBuilderInvocationSessionV1 {
                             )
                         })?;
                 }
+                let mut script_deferred_observation = None;
                 let mut script_source = match work.script_root_admission.as_ref() {
                     None => None,
                     Some(admission) => {
-                        let window = admission.window();
-                        let view =
-                            ScriptSyntaxViewV1::from_program(source_ast).ok_or_else(|| {
-                                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                    "[mir/script-semantic/source-root] expected Program".into(),
-                                )
-                            })?;
-                        let outcome =
-                            declaration_facts.with_record_schema_demand_view(|record_schemas| {
-                                declaration_facts.with_enum_variant_demand_view(|enum_variants| {
-                                    declaration_facts.with_enum_match_demand_view(|enum_matches| {
-                                        declaration_facts.with_brand_catalog(|brand_catalog| {
-                                            resolver.resolve_script_forest_with_declaration_views(
-                                                view,
-                                                window,
-                                                record_schemas,
-                                                enum_variants,
-                                                enum_matches,
-                                                brand_catalog,
-                                            )
-                                        })
-                                    })
-                                })
-                            });
-                        match outcome.map_err(|error| {
-                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                format!("[mir/script-semantic/seal] {error:?}").into(),
-                            )
-                        })? {
-                            ResolveScriptForestOutcomeV1::Complete(forest) => Some(
-                                VerifiedScriptSemanticSourceV1::seal_ast_with_forest(
-                                    source_ast, forest, window,
-                                )
-                                .map_err(|error| {
-                                    NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                        error.into(),
-                                    )
-                                })?,
-                            ),
-                            ResolveScriptForestOutcomeV1::Deferred => None,
+                        match resolve_normal_script_source_v1(
+                            source_ast,
+                            Some(admission.window()),
+                            &declaration_facts,
+                            &mut resolver,
+                        )
+                        .map_err(NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal)?
+                        {
+                            Some(NormalScriptResolutionV1::Complete(source)) => Some(source),
+                            Some(NormalScriptResolutionV1::Deferred(deferred)) => {
+                                script_deferred_observation = Some(deferred);
+                                None
+                            }
+                            None => unreachable!("Script admission has a window"),
                         }
                     }
                 };
@@ -721,7 +696,10 @@ impl ModuleBuilderInvocationSessionV1 {
                         callable_mode,
                         match script_source {
                             Some(source) => NormalScriptRootLoweringMode::Complete(source),
-                            None => NormalScriptRootLoweringMode::Deferred,
+                            None => match script_deferred_observation {
+                                Some(deferred) => NormalScriptRootLoweringMode::Deferred(deferred),
+                                None => NormalScriptRootLoweringMode::Unavailable,
+                            },
                         },
                         static_result_publication_owner,
                         target_capability,

@@ -57,7 +57,7 @@ fn recipe_and_owner(
         .expect("Script resolution")
     {
         ResolveScriptOutcomeV1::Complete(owner) => owner,
-        ResolveScriptOutcomeV1::Deferred => panic!("fixture must complete"),
+        ResolveScriptOutcomeV1::Deferred(_) => panic!("fixture must complete"),
     };
     let source =
         VerifiedScriptSemanticSourceV1::seal(prepared, owner, &window).expect("semantic source");

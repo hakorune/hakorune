@@ -61,7 +61,7 @@ fn bundle_co_seals_complete_script_owner_and_empty_target_observation() {
         .expect("Script resolver")
     {
         ResolveScriptOutcomeV1::Complete(owner) => owner,
-        ResolveScriptOutcomeV1::Deferred => panic!("fixture must complete: deferred"),
+        ResolveScriptOutcomeV1::Deferred(_) => panic!("fixture must complete: deferred"),
     };
     let source = VerifiedScriptSemanticSourceV1::seal(script, owner, &window)
         .expect("Script semantic source");
@@ -125,7 +125,7 @@ fn bundle_rejects_a_target_inventory_from_a_foreign_program() {
         .expect("Script resolver")
     {
         ResolveScriptOutcomeV1::Complete(owner) => owner,
-        ResolveScriptOutcomeV1::Deferred => panic!("fixture must complete"),
+        ResolveScriptOutcomeV1::Deferred(_) => panic!("fixture must complete"),
     };
     let source = VerifiedScriptSemanticSourceV1::seal(script, owner, &window)
         .expect("Script semantic source");
