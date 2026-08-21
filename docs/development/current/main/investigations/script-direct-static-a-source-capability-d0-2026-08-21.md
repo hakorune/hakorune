@@ -1,12 +1,12 @@
 ---
-Status: Script lookup reownership and source coverage I0 are implementation-complete locally — closeout is pending; A/C cutover remains a bounded design stop
+Status: Script lookup reownership and source coverage I0 are pushed as `2fa560cd8f`; A/C cutover remains a bounded design stop
 Date: 2026-08-21
 Decision: SCRIPT-A-CUTOVER-I0-R0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the selected-normal root; lookup is pre-effect, but resolver/Bundle/Recipe currently run after Builder preparation and no A/C consumer is open
 ReplacementCell: source package + neutral window + owned lookup + resolver outcome -> private A capability -> immediate A consumer -> one C disposition -> named direct/non-direct consumers
 Classification: T2 BoxCount design stop after lookup reownership; A/C product, Recipe retirement, fallback, physical cutover, and production switch remain closed
-NextCard: close out SCRIPT-A-SOURCE-COVERAGE-I0, then return to the pre-effect A/C design stop
+NextCard: design SCRIPT-A-CUTOVER-I0-R0, beginning with the pre-effect source handoff
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -1424,9 +1424,10 @@ read-only boundary audit was completed by the main agent and did not widen the
 cell.
 
 Closeout boundary: this cell is complete, but the parser-witnessed coverage is
-not yet the pre-effect A capability. `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0`
-remains the next design/implementation decision and must first define how the
-resolver complete/deferred outcome and retained terminal cross package install.
+not yet the pre-effect A capability. Under the parent
+`SCRIPT-A-CUTOVER-I0-R0` design stop, `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0`
+is the first design/implementation decision and must define how the resolver
+complete/deferred outcome and retained terminal cross package install.
 
 No implementation card may introduce a parallel `Option` A receipt or expose
 capability `Ready` to dispatch. If complete call coverage cannot be issued
