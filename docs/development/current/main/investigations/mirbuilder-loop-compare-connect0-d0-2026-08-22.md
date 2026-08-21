@@ -1,4 +1,4 @@
-Status: selected production caller; handoff design stop; no implementation authorized
+Status: selected production caller; bounded I9 handoff implementation authorized; production switch remains gated
 Task: MIR-LOOP-COMPARE-CONNECT0-D0
 Date: 2026-08-22
 Priority: caller census and atomic handoff before production connection
@@ -16,7 +16,7 @@ Decision: select the active Selected Dynamic I9 normal-landing Compare as the on
 Source authority + canonical issuer: `DynamicV2CompareI64CapabilityDemandV1`/the prepared I9 row and the session-owned `DynamicV2PhysicalValueLedgerV1` own I9 facts; canonical CFG/SSA owns target and definition witnesses; one private `SelectedDynamicI9CompareHandoffIssuerV1` co-seals them before any Compare effect.
 Non-authority: the test-only Generic G0 dispatcher, focused canaries, old emit_compare_i64_at, Dynamic brand alone, Dynamic value views alone, raw ValueId/state.get, current_block, Builder cursor, operation enum alone, and a fallback retry.
 Fail-fast boundary: I9 row/target/operand provenance, Dynamic-brand-to-function-owner binding, canonical same-block witnesses, destination/Bool preparation, and the Dynamic ledger's V13 reservation must all be complete before the first Compare append; a rejected strict row cannot return to the old leaf.
-Smallest next slice: `MIR-LOOP-COMPARE-I9-HANDOFF-PREPARE-D0`, fixing owner binding, one-shot Dynamic-to-canonical operand rebind, Dynamic V13 reservation, and the one-append/infallible-commit suffix; no production switch or fallback.
+Smallest next slice: `MIR-LOOP-COMPARE-I9-HANDOFF-PREPARE-D0`, implementing owner binding, one-shot Dynamic-to-canonical operand rebind, Dynamic V13 reservation, and the one-append/infallible-commit suffix; no fallback and no unrelated family migration.
 Non-claims: no I7 header Compare, no generic dispatcher connection, no general dominance, no cross-block operands, no Const/Binary migration, no A/C/Recipe redesign, no old-leaf retirement, and no production I0/R0.
 ```
 
@@ -147,6 +147,56 @@ I9 demand/row and Dynamic brand-owner check
 If owner binding or Dynamic reservation cannot be made non-forgeable without
 raw-value reconstruction, this task returns to `NoSafeSlice` rather than
 introducing a second ledger or a post-append repair.
+
+## Implementation authorization
+
+The B design is accepted for this bounded implementation slice. This is not a
+claim that the production edge is complete; it authorizes only the missing
+transport/proof connection needed by the named I9 row.
+
+The implementation must preserve these exact contracts:
+
+```text
+DynamicV2PhysicalSessionBrandV1::for_owner(demand.identity().owner())
+  -> Dynamic ledger and canonical SSA share one function owner
+
+Dynamic V11/V12 view
+  -> CanonicalSameBlockIntegerRequestV1
+  -> CanonicalSsaFunctionSessionV2::prepare_existing_same_block_integer
+  -> strict writer operand witness
+
+Dynamic V13 vacant slot
+  -> private PendingDynamicV2PhysicalValuePublishV1
+  -> strict Compare append
+  -> Bool commit
+  -> Dynamic V13 commit(definition source)
+```
+
+The Dynamic brand constructor and reservation constructor remain private and
+have exactly one production caller in the selected I9 handoff. The reservation
+must retain the producer, result, target brand, destination, and representation
+already admitted by the I9 demand; it may not infer or repair any of them.
+
+Focused acceptance is required before the production edge is called complete:
+
+```text
+positive:
+  I9 normal landing, V11/V12 exact views, unique same-block Integer defs,
+  one strict Compare append, one Bool fact, one Dynamic V13 publication
+
+negative:
+  foreign owner/brand, wrong target, missing or duplicate definition,
+  cross-block/parameter operand, wrong representation, duplicate/reserved V13,
+  Bool type conflict, strict preparation failure, old-leaf fallback
+
+atomicity:
+  every preparation reject leaves instruction/type/Dynamic-ledger state
+  unchanged; pending reservation Drop poisons and the outer draft discards
+```
+
+The old `emit_compare_i64_at_with_dst` call must reach zero for this I9 row in
+the same production connection series. Generic Loop dispatcher callers,
+I7-header Compare, and other operation families remain outside this slice.
 
 The dispatcher may sequence these existing authorities, but it may not become
 a second CFG/SSA/ledger/source authority. In particular, `state.get()` and the
