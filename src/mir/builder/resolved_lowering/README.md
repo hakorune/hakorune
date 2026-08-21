@@ -50,6 +50,31 @@ transition, while an uncommitted drop poisons the slot. There is no reset,
 retry, post-append duplicate check, MIR inspection, or raw-`ValueId`
 reservation input. Strict Compare and production selection remain closed.
 
+## Canonical Loop Compare strict writer P0
+
+The caller-zero strict writer consumes only already-issued canonical witnesses:
+
+```text
+open target + same-block Integer lhs/rhs + fresh destination + Bool plan
+    -> PreparedCanonicalCompareAppendV1
+    -> one shared append_instruction_core mutation
+    -> CanonicalCompareDefinitionSourceV1
+```
+
+`builder_emit.rs` keeps the legacy repair-capable front door, while
+`builder_emit_core.rs` owns the one physical append point and the strict
+prepare/commit contract. The strict commit cannot create a block, change
+`current_block`, invoke `emit_instruction_at`, materialize LocalSSA/PHI state,
+infer a type, or perform a fallible post-append check. The definition source is
+non-Clone/non-Copy and is the only writer-to-ledger handoff shape; result-ledger
+reservation is deliberately a later card.
+
+The strict writer is exercised by three focused tests (positive append,
+sealed-target rejection, and definition-drift rejection). Its non-test caller
+count is zero by design, so this P0 does not change operation dispatch,
+fallback, production selection, or legacy retirement. The reusable guard is
+`tools/checks/rust_mirbuilder_loop_compare_strict_writer_p0_guard.sh`.
+
 ## Common V2 canonical session-open canary
 
 `with_common_v2_canonical_session` is the caller-zero consumer of one

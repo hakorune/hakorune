@@ -14,7 +14,7 @@ mod session;
 mod tests;
 
 pub(in crate::mir::builder) use error::CanonicalCfgErrorV1;
-pub(in crate::mir::builder::resolved_lowering) use open_instruction_target::{
+pub(in crate::mir::builder) use open_instruction_target::{
     CanonicalOpenInstructionTargetErrorV1, VerifiedCanonicalOpenInstructionTargetV1,
 };
 pub(in crate::mir::builder) use session::{CanonicalCfgSessionV1, VerifiedPredecessorsV1};

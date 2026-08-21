@@ -10,6 +10,9 @@ mod callable_canary;
 mod callable_production_canary_tests;
 mod carrier_emitter;
 mod compare_i64_operands;
+mod compare_i64_writer;
+#[cfg(test)]
+mod compare_i64_writer_tests;
 #[cfg(test)]
 mod compare_result_ledger;
 #[cfg(test)]

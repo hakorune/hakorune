@@ -17,14 +17,14 @@ pub(super) struct CanonicalCfgCreationStateV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) struct VerifiedCanonicalOpenInstructionTargetV1 {
+pub(in crate::mir::builder) struct VerifiedCanonicalOpenInstructionTargetV1 {
     owner: FunctionOwnerIdV1,
     block: BasicBlockId,
     _seal: CanonicalOpenInstructionTargetSealV1,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) enum CanonicalOpenInstructionTargetErrorV1 {
+pub(in crate::mir::builder) enum CanonicalOpenInstructionTargetErrorV1 {
     FunctionMissing,
     SessionOwnerUnavailable,
     SessionOwnerMismatch,
@@ -86,11 +86,11 @@ impl CanonicalCfgCreationStateV1 {
 }
 
 impl VerifiedCanonicalOpenInstructionTargetV1 {
-    pub(in crate::mir::builder::resolved_lowering) const fn owner(self) -> FunctionOwnerIdV1 {
+    pub(in crate::mir::builder) const fn owner(self) -> FunctionOwnerIdV1 {
         self.owner
     }
 
-    pub(in crate::mir::builder::resolved_lowering) const fn block(self) -> BasicBlockId {
+    pub(in crate::mir::builder) const fn block(self) -> BasicBlockId {
         self.block
     }
 

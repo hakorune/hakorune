@@ -1,4 +1,4 @@
-Status: selected fast task; implementation not started
+Status: landed fast task; focused writer contract complete; caller-zero remains intentional
 Task: MIR-LOOP-COMPARE-STRICT-WRITER-P0
 Date: 2026-08-22
 Priority: next bounded physical contract
@@ -107,3 +107,42 @@ destination/type preparation remains fallible after append, if a raw
 `ValueId` or block can escape instead of a private capability, if the strict
 child requires a second MIR/CFG/SSA authority, or if any Compare caller must
 be connected before the writer contract is complete.
+
+## Implementation evidence
+
+The bounded writer is landed without opening CONNECT0:
+
+```text
+builder_emit.rs (517 lines)
+  legacy front door + shared-core delegation
+        ↓
+builder_emit_core.rs (232 lines)
+  PreparedCanonicalCompareAppendV1
+        ↓ commit once
+CanonicalCompareDefinitionSourceV1 (non-Clone, non-Copy)
+        ↓
+compare_i64_writer.rs
+  strict orchestration only
+```
+
+`builder_emit_core.rs` was split before the parent crossed the 700-line
+trigger. The only direct `add_instruction_with_span` call is in the shared
+append core. The strict child has no caller outside focused tests, and it does
+not call `emit_instruction_at`, `emit_instruction`, `ensure_block_exists`,
+ambient `current_block`, or dominance utilities. The canonical destination
+capability and builder-private target/operand witnesses remain owned by the
+existing CFG/SSA sessions.
+
+Focused evidence:
+
+```text
+cargo check --profile quick --lib                         PASS
+cargo test --profile quick --lib compare_i64_writer      3 passed
+cargo test --profile quick --lib loop_recipe_physicalizer 36 passed
+tools/checks/rust_mirbuilder_loop_compare_strict_writer_p0_guard.sh PASS
+```
+
+No dispatcher, production caller, result-ledger reservation, fallback
+removal, or production I0/R0 claim was made. The next bounded task is
+`MIR-LOOP-COMPARE-CONNECT0-D0`, which must first census the named caller and
+design the dispatcher handoff.

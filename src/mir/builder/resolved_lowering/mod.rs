@@ -7,7 +7,7 @@
 mod branch_transaction;
 mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
-mod canonical_ssa;
+pub(in crate::mir::builder) mod canonical_ssa;
 mod common_v2_after_block_allocation;
 mod common_v2_if_continuation_target;
 #[cfg(test)]

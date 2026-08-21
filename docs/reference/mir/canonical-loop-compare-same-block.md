@@ -47,3 +47,30 @@ receipt without a fallible post-append check. The legacy unbound ledger keeps
 its old publication helpers for caller-zero compatibility; it cannot open a
 strict reservation. This lifecycle is implemented in the linked result-ledger
 task and does not yet connect a Compare writer or production caller.
+
+## Strict Compare writer boundary
+
+The strict physical writer is a separate caller-zero P0. Its closed state
+machine is:
+
+```text
+verified open target
+  + verified same-block Integer lhs/rhs
+  + session-owned fresh destination
+  + prepared Bool fact
+      -> PreparedCanonicalCompareAppendV1
+      -> one append_instruction_core commit
+      -> non-Clone/non-Copy CanonicalCompareDefinitionSourceV1
+```
+
+All rejection-capable checks happen before append. The strict path does not
+use ambient `current_block`, create missing blocks, invoke the repair-capable
+`emit_instruction_at`/`emit_instruction` front door, materialize LocalSSA or
+PHI inputs, infer types, or run post-append Result checks. The legacy front door
+and strict front door share the same direct MIR append primitive, so there is
+one physical mutation owner.
+
+This P0 proves only the writer contract with three focused tests. It does not
+reserve the result ledger, connect the dispatcher, select a production caller,
+remove fallback, or claim I0/R0. The next design task must census the named
+caller before any connection is attempted.

@@ -26,9 +26,15 @@ use super::identity::ResolvedSsaIdentityStateV2;
 #[path = "session/same_block_operand.rs"]
 mod same_block_operand;
 
+#[path = "session/destination.rs"]
+mod destination;
+
+pub(in crate::mir::builder) use destination::ReservedCanonicalCompareDestinationV1;
+
+pub(in crate::mir::builder) use same_block_operand::VerifiedCanonicalSameBlockIntegerOperandV1;
+
 pub(in crate::mir::builder::resolved_lowering) use same_block_operand::{
     CanonicalSameBlockIntegerRejectV1, CanonicalSameBlockIntegerRequestV1,
-    VerifiedCanonicalSameBlockIntegerOperandV1,
 };
 
 #[path = "session/draft_seal_close.rs"]

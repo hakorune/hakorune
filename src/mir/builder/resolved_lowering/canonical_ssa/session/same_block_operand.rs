@@ -72,7 +72,7 @@ pub(in crate::mir::builder::resolved_lowering) enum CanonicalSameBlockIntegerRej
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder::resolved_lowering) struct VerifiedCanonicalSameBlockIntegerOperandV1 {
+pub(in crate::mir::builder) struct VerifiedCanonicalSameBlockIntegerOperandV1 {
     request: CanonicalSameBlockIntegerRequestV1,
     target: VerifiedCanonicalOpenInstructionTargetV1,
     definition: CanonicalPhysicalDefinitionSiteV1,
@@ -176,6 +176,28 @@ impl<'source> super::CanonicalSsaFunctionSessionV2<'source> {
             )
             .map_err(CanonicalSameBlockIntegerRejectV1::Cfg)?;
         issue(request, target, function, &builder.function_state.type_ctx)
+    }
+}
+
+impl VerifiedCanonicalSameBlockIntegerOperandV1 {
+    pub(in crate::mir::builder) const fn owner(self) -> FunctionOwnerIdV1 {
+        self.request.owner()
+    }
+
+    pub(in crate::mir::builder) const fn target_block(self) -> BasicBlockId {
+        self.request.target_block()
+    }
+
+    pub(in crate::mir::builder) const fn physical_value(self) -> ValueId {
+        self.request.physical_value()
+    }
+
+    pub(in crate::mir::builder) const fn definition_block(self) -> BasicBlockId {
+        self.definition.block
+    }
+
+    pub(in crate::mir::builder) const fn definition_instruction_index(self) -> usize {
+        self.definition.instruction_index
     }
 }
 

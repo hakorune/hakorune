@@ -10,5 +10,9 @@ mod session;
 pub(super) use identity::{CanonicalBindingReadReceiptV1, ResolvedSsaIdentityStateV2};
 pub(super) use session::{
     finish_profile_close, CanonicalSameBlockIntegerRejectV1, CanonicalSameBlockIntegerRequestV1,
-    CanonicalSsaFunctionSessionV2, VerifiedCanonicalSameBlockIntegerOperandV1,
+    CanonicalSsaFunctionSessionV2,
+};
+
+pub(in crate::mir::builder) use session::{
+    ReservedCanonicalCompareDestinationV1, VerifiedCanonicalSameBlockIntegerOperandV1,
 };
