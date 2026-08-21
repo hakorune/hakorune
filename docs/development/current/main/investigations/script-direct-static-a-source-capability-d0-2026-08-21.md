@@ -1,55 +1,55 @@
 ---
-Status: Neutral Script source-window Decision accepted — parser authority handoff I0 is pushed as aa1aecf495; implementation is active at the bounded reownership row
+Status: Script lookup reownership is pushed — A/C cutover remains a bounded design stop; no A/C implementation is selected
 Date: 2026-08-21
-Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
+Decision: SCRIPT-A-CUTOVER-I0-R0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
-ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the parser-backed default root; vm-reference is reference-only and no A/C consumer is open
-ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> existing Script admission -> later private one-shot capability -> named A consumer
-Classification: T2 BoxCount first cell inside the predeclared five-commit series; A/C product and production switch remain closed
-NextCard: execute SCRIPT-SOURCE-REOWN-WINDOW-I0-R0; keep lookup, A/C, physical, and cutover cells closed
+ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the selected-normal root; lookup is pre-effect, but resolver/Bundle/Recipe currently run after Builder preparation and no A/C consumer is open
+ReplacementCell: source package + neutral window + owned lookup + resolver outcome -> private A capability -> immediate A consumer -> one C disposition -> named direct/non-direct consumers
+Classification: T2 BoxCount design stop after lookup reownership; A/C product, Recipe retirement, fallback, physical cutover, and production switch remain closed
+NextCard: close A authority, C disposition, named consumers, and the pre-effect boundary; then select one implementation slice
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 
 ## Six-line brief
 
-Decision: Accept candidate A: one parser-owned opaque, non-`Clone`
-`ParserCompositeSourcePreservationV1`. It owns source preservation only. The
-consuming HRTB loan and private capability-to-A handoff remain downstream;
-the previous whole-Program `Candidate | Residual` model stays rejected.
+Decision: Accept the parser-owned opaque non-`Clone` preservation token and
+keep `SCRIPT-A-CUTOVER-I0-R0` in `design_stop` until its downstream A/C
+authority is named. Lookup reownership is closed; the next design cell is one
+pre-effect Script selector that turns complete source/lookup/resolver facts
+into a private capability and immediately consumes it into A.
 
-Source authority + canonical issuer: `ParserCompositeSourceIssuerV1`, called
-once directly inside `ParsedProgramWithCallableParameterSourceV1::new`, is the
-sole preservation issuer. `CanonicalScriptCompositeProgramPartitionIssuerV1`
-is the sole R0 membership issuer at the parser-backed default root ingress. It
-consumes the preserved token through one HRTB loan and issues only the bounded
-two-axis provider/terminal partition. Later parser/materializer/transform/request
-types transport these authorities but cannot issue them.
+Source authority + canonical issuer: the source package HRTB loan, neutral
+window issuer, `ScriptDirectStaticCallLookupIssuerV1`, resolver complete/typed
+deferred outcome, and retained continuation are the only admissible inputs.
+One private `CanonicalScriptASourceCapabilityIssuerV1` must co-seal them once;
+one private `CanonicalScriptAObservationIssuerV1` must consume the capability
+immediately. One `CanonicalScriptCDispositionIssuerV1` then emits either the
+named direct-static disposition or a complete zero/non-direct disposition.
 
-Non-authority: parser rows alone, source name/digest/ordinal/pointer,
-caller-built windows, Builder work-plan/semantic products, the pointer-branded
-Script target inventory, runtime static-Box completion, empty/default catalogs,
-old Recipe, physical/publication owners, vm-reference reachability, and local
-green tests cannot issue composite membership or A meaning.
+Non-authority: the lookup relation alone, `VerifiedScriptDirectStaticResultBundleV1`,
+`ClaimLedger`, `StaticResultPublicationIngress::{Available, Absent, Selected}`,
+empty Bundle/Join maps, resolver pointer relations, Builder work-plan/semantic
+products, old Recipe, physical/publication owners, fallback, and local green
+tests cannot issue A or C meaning.
 
-Fail-fast boundary: a `Ready` parser token that would be dropped, reconstructed,
-changed, or converted to compatibility rejects after source-backed transform
-selection and before `VerifiedFinalCallableProgramSourceV1` is issued. R0 then
-rejects source-unavailable, incomplete, and integrity-invalid partition states
-before resolver, lookup, Recipe, Builder effects, physical work, raw, retry,
-or fallback.
+Fail-fast boundary: the A/C selector must run after source package/window,
+owned lookup, resolver outcome, and terminal/continuation are co-sealed, but
+before `install_pinned_text_target_capability`, `prepare_normal_default_module`,
+Builder effects, Bundle/Recipe/Join, physical work, raw, retry, or fallback.
+The current lifecycle does not yet have this boundary because resolver and
+downstream products are issued after Builder preparation; moving that boundary
+is part of the next bounded task.
 
-Smallest next slice: `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` consumes the now-pushed
-parser-backed authority through one HRTB loan, co-issues the neutral window,
-composite partition, and witness-bound instance transfer, then hands the
-prepared admission to the work plan. The typed resolver `Deferred` cause/site
-cell and authority handoff I0 are closed; lookup, A/C, Recipe, physical, and
-cutover remain closed.
+Smallest next slice: `SCRIPT-A-CUTOVER-I0-R0-DESIGN` fixes the private A
+capability fields, one C disposition state table, two named consumers, and the
+pre-effect callpoint. It must prove that complete zero is an explicit witness,
+not empty/default state or ClaimLedger `Absent`. No code is selected until
+this brief is accepted in SSOT.
 
-Non-claims: no generic/sync/instance Box admission, import expansion,
-capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
-production switch, residual retirement, backend parity, ABI, or performance
-claim.
+Non-claims: no parser cohort expansion, generic result redesign, Recipe/Join
+redesign, physical Call/publication change, compatibility/raw retirement,
+fallback, production switch, ABI, backend, performance, or old Recipe deletion.
 
 ## Corrected decision
 
@@ -1227,6 +1227,120 @@ candidate/noncandidate disposition, named consumers, Recipe retirement,
 fallback retirement, production switch, and performance remain unopened.
 
 ### 5. Series terminal — `SCRIPT-A-CUTOVER-I0-R0`
+
+Decision: **Conditional Accept; keep `design_stop` until the following A/C
+contract is fixed in code-independent SSOT.** The lookup reownership is a
+valid input boundary, but it is not itself A. The existing Bundle/Recipe/Join
+chain is a valid later direct-static consumer, but it is not itself C.
+
+The two read-only audits reached the same result:
+
+```text
+lookup = owned target/result facts only
+ClaimLedger = operational candidate consumer, not C disposition authority
+empty Bundle/Join = not a zero-candidate witness
+generic activation plan = legacy generic owner; not the canonical Script A
+```
+
+#### A/C authority contract
+
+```text
+source package + neutral window
+  + owned lookup relation
+  + complete resolver source / retained continuation
+  + complete terminal and call coverage
+    -> CanonicalScriptASourceCapabilityIssuerV1::issue_into_a
+       (private, one-shot, non-Clone capability)
+    -> CanonicalScriptAObservationIssuerV1::consume
+       (the only A consumer)
+    -> CanonicalScriptCDispositionIssuerV1::issue_into_named_consumer
+       (the only C issuer)
+```
+
+The private capability co-seals only AST-free source/Facts inputs:
+
+```text
+ParserInvocationWitnessV1
+source-window completeness and terminal coverage
+resolver-complete Script source rows and retained continuation
+owned Script lookup target/result rows
+complete call inventory, including explicit zero/noncandidate coverage
+```
+
+It must not contain AST references, pointer/address identities, `ValueId`,
+`MirType`, `BasicBlockId`, Recipe keys, Join keys, physical IDs, or a public
+`Ready` return. A cannot reconstruct missing rows from names, ordinals, digest,
+or the Builder work plan.
+
+The existing generic `VerifiedCallableResultActivationPlanV1` remains
+non-authority for this cell: it re-observes generic declaration bodies and
+uses pointer-branded borrowed catalogs, while the canonical Script source
+relation already has a parser witness and one source-package issuer.
+
+#### Finite A/C states and named consumers
+
+| Phase | Sole issuer | State | Named next consumer | Forbidden edge |
+| --- | --- | --- | --- | --- |
+| source | lookup/resolver co-seal | `SourceAuthorityUnavailable`, `ObservationDeferred`, `Incomplete`, `IntegrityInvalid` | typed outer rejection | Builder, Recipe, retry, fallback |
+| A | `CanonicalScriptASourceCapabilityIssuerV1` | private `Ready` | `CanonicalScriptAObservationIssuerV1` only | store, discard-to-Recipe, compatibility |
+| A | `CanonicalScriptAObservationIssuerV1` | `CompleteWithCandidates` or `CompleteZeroCandidates` | one C issuer | second source scan |
+| C | `CanonicalScriptCDispositionIssuerV1` | `DispositionReady` | `CanonicalScriptDirectStaticConsumerV1` | generic reclassification |
+| C | `CanonicalScriptCDispositionIssuerV1` | `NonCandidate(complete witness)` | `CanonicalScriptNonDirectContinuationConsumerV1` | ClaimLedger `Absent` as proof |
+| terminal | named consumers | consumed exactly once | existing direct-static Facts/Recipe/Join/physical chain or retained non-direct continuation | old Recipe/fallback |
+
+`CompleteZeroCandidates` is issued only from complete call coverage. It must
+distinguish at least: no MethodCall in the bounded terminal, observed call
+with bound/dynamic/reserved receiver, and observed call whose target/result
+contract is not eligible. A missing call row, empty Bundle, or claim ingress
+`Absent` is `Incomplete`/a later operational outcome, never zero proof.
+
+#### Required pre-effect boundary
+
+The target capability and Builder mutation boundary must become:
+
+```text
+semantic package
+  -> neutral window
+  -> owned lookup + complete call coverage
+  -> resolver Complete / typed Deferred
+  -> terminal/continuation co-seal
+  -> private A issue and immediate consume
+  -> C disposition and named consumer bind
+  -> install_pinned_text_target_capability
+  -> prepare_normal_default_module / Builder effects
+```
+
+Today the resolver and Bundle/Recipe/Join construction occur after Builder
+preparation. That is the concrete remaining lifecycle blocker. The next task
+must move only the source/A/C decision to this boundary; it must not redesign
+Recipe, Join, physical lowering, or publication.
+
+#### Bounded implementation task sequence after design closure
+
+These are three disjoint implementation cards, not permission to start while
+this section is open:
+
+1. `SCRIPT-A-SOURCE-CAPABILITY-I0` — extend the source-owned lookup input to a
+   complete call-coverage/zero witness, define the private non-Clone A
+   capability, issue it once, and consume it immediately in the named A
+   issuer. Add positive, zero, foreign, missing, duplicate, and pre-effect
+   failure evidence. Do not touch Recipe/Join/physical.
+2. `SCRIPT-C-DISPOSITION-CONSUMER-I0` — define the closed C disposition
+   (`DispositionReady` versus explicit `NonCandidate`), bind the two named
+   consumers, and adapt the existing direct-static Facts/Recipe/Join chain
+   only at its input boundary. No generic activation-plan reuse, fallback, or
+   semantic reclassification downstream.
+3. `SCRIPT-A-CUTOVER-I0` — move the A/C facade before pinned-target/Builder
+   effects, remove the post-effect candidate decision for this migrated
+   surface, and add structural guards proving issuer counts, consumer counts,
+   zero-witness preservation, and zero old/fallback edges. Keep old Recipe
+   retirement and production-wide switch as later explicit rows unless the
+   same series' retirement evidence is complete.
+
+No implementation card may introduce a parallel `Option` A receipt or expose
+capability `Ready` to dispatch. If complete call coverage cannot be issued
+without a second AST observer, stop and add that missing source-authority
+cell instead of adapting Builder semantic products.
 
 ```text
 one pre-effect selector
