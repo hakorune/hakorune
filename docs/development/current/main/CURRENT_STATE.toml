@@ -19,10 +19,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0"
-current_design_stop = "Canonical A remains a design stop: the exact call-site composite requires a static-provider catalog transfer, retained runtime terminal, executable Script window, owned lookup, parser-composite preservation through transform, and parser-backed default ingress, but no canonical owner co-seals them."
-current_blocker_token = "SemanticAuthorityMissing: no canonical owner preserves the parser composite witness/source sites through transform into the default request while also issuing the total two-axis Program partition and owned AST-free lookup."
+work_mode = "fast"
+current_execution_row = "SCRIPT-COMPOSITE-SOURCE-ADMIT-T2"
+current_design_stop = "Design accepted for the bounded source-preservation/admission cell; return to design if parser witness/source sites drift, compatibility discards the token, or the default caller cannot consume it pre-effect."
+current_blocker_token = "SCRIPT-COMPOSITE-SOURCE-ADMIT-T2: parser composite token and bounded static-provider/Script-terminal cohort must reach the default pre-effect selector with no loss or fallback."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -77,7 +77,7 @@ Canonical source-digest I0 and parser callable-source handoff I0 (0359ac0af3) ar
 	The A-input contract D0 is closed as a design contract. The parser-owned canonical Script input handoff I0 issues the AST-free window and declaration/config rows without Builder state. The transport-only parser/frontdoor-to-compiler carrier I0 is implementation-complete: the request owns it by move, Main/Callable and Script close it at explicit `DiscardedBeforeA`, and focused tests plus guards are green.
 The phase-qualified parser/admission, transport, A, and future C/B state matrix P0 is now closed with every actual enum state mapped to one owner and transition. The transport-only source-envelope child is closed: it separates parser-internal handoff movement from future compiler A consumption and closes the explicit old-Recipe sunset boundary. Private complete-zero A observation remains distinct from public future C `NonCandidate`; missing coverage remains distinct from present-invalid rows. The parallel direct-static package, builder-barrel cleanup, and all-phase guard expansion are parked behind their existing owners; no A meaning, Recipe/Join, physical, compatibility/raw retirement, production switch, or performance is open.
 	The source-capability premise reset remains a design stop. External review plus three independent worker audits conditionally accept a move-bound envelope/source authority, a consuming fixed-output HRTB loan, and a private capability moved immediately into named A, but reject the earlier whole-Program Candidate/Residual model. The latest audit adds the missing parser-composite preservation line: parser rows/witness are currently dropped before or during transform and never reach the default request.
-Implementation remains closed: the exact atom is one root MethodCall plus its static provider declaration/result, receiver/arguments/result sites, and enclosing retained terminal. The same Program must co-seal static callable catalog transfer and retained static-Box runtime while the candidate call remains a subcohort. Canonical pure-Script admission rejects that natural positive; selected-normal leaves the static Box in catch-all Deferred; target/result products remain AST-borrowed or pointer-branded; default compile_with_source* is AST-only; vm-reference is not production credit; and the parser-to-transform-to-request source-preservation contract is unclosed. The rolling D0 now taskizes composite source admission plus preservation, neutral source reownership with located/unlocated Deferred, owned lookup reownership, bounded-series A cutover, and reference Recipe retirement in dependency order. No execution row is selected.
+	Implementation remains closed except for the selected first series cell: the exact atom is one root MethodCall plus its static provider declaration/result, receiver/arguments/result sites, and enclosing retained terminal. The same Program must co-seal static callable catalog transfer and retained static-Box runtime while the candidate call remains a subcohort. Canonical pure-Script admission still rejects that natural positive; selected-normal still leaves the static Box in catch-all Deferred; target/result products remain AST-borrowed or pointer-branded; default compile_with_source* is AST-only and cannot receive fabricated witness; vm-reference is not production credit. The parser-to-transform-to-request preservation contract is now the selected T2 implementation boundary. The predeclared bounded series is source preservation/admission, source reownership, owned lookup, then A cutover; reference Recipe retirement follows its terminal.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -90,11 +90,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-a-source-capability-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
-latest_card_summary = "Canonical A remains NoSafeSlice: the call-site composite is fixed, but parser witness/source sites are dropped before the default request and no canonical owner co-seals preservation, source partition, retained runtime, executable window, and owned lookup."
-next_design_card = "SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0"
+latest_card_summary = "First T2 series cell selected: preserve a private parser composite token and admit one static-provider/Script-terminal cohort into the default pre-effect selector; A/C, lookup, and Recipe remain later cells."
+next_design_card = "SCRIPT-COMPOSITE-SOURCE-ADMIT-T2"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "SCRIPT-COMPOSITE-SOURCE-ADMIT-T2"
+next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"

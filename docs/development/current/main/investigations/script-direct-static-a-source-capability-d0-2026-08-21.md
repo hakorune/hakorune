@@ -1,12 +1,12 @@
 ---
-Status: Design stop — composite membership and parser-to-default preservation remain open; implementation remains parked
+Status: Fast path selected — first bounded T2 source-preservation/admission cell of the A cutover series
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: default caller is named as evidence, but no parser-backed canonical source authority reaches it; vm-reference is reference-only
 ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> call-site composite membership -> private one-shot capability -> named A consumer
-Classification: corrected design stop; no implementation row, A/C product, or production switch is selected
-NextCard: none; remain on this card until the composite membership and one bounded cutover series are closed
+Classification: accepted T2 source-preservation/admission cell; A/C product and production switch remain closed
+NextCard: continue this card through the predeclared bounded A cutover series; return to design on any source/transform drift
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -41,11 +41,11 @@ outside bounded cohort, located/unlocated resolver deferral, incomplete, and
 integrity-invalid. Capability/A failure never reaches old Recipe, raw, retry,
 or fallback.
 
-Smallest next slice: stay on this card and close the bounded
-`SCRIPT-COMPOSITE-SOURCE-ADMIT-T2` contract: one non-sync, non-Main static
-provider plus one final root direct-static call, with parser authority carried
-unchanged through transform into the default request. No code or child card is
-authorized until this source-preservation line is closed.
+Smallest next slice: implement the bounded
+`SCRIPT-COMPOSITE-SOURCE-ADMIT-T2` cell: one non-sync, non-Main static provider
+plus one final root direct-static call, with parser authority carried unchanged
+through transform into the default request. This is the first cell of the
+predeclared series below; no A/C/Recipe/physical meaning is opened.
 
 Non-claims: no generic/sync/instance Box admission, import expansion,
 capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
@@ -465,11 +465,10 @@ Stop:
   second source scan => remain design_stop
 ```
 
-### 1. Source admission + transform preservation — `SCRIPT-COMPOSITE-SOURCE-ADMIT-T2`
+### 1. Selected source admission + transform preservation — `SCRIPT-COMPOSITE-SOURCE-ADMIT-T2`
 
-Classification: T2 canonical source-family BoxCount plus parser-to-default
-preservation for one already-existing language shape; not selected in the
-current BoxShape lane.
+Classification: selected T2 canonical source-family BoxCount plus
+parser-to-default preservation for one already-existing language shape.
 
 ```text
 Change:
@@ -499,8 +498,29 @@ Stop:
   product
 ```
 
-An explicit T2 Decision must authorize this canonical cohort change before it
-can join a series. The present D0 does not grant that authority.
+This T2 Decision is the first cell of the bounded series below. Its consumer
+is the future pre-effect source selector in the named default caller; it may
+not land as a disconnected parser-only product.
+
+### Bounded series declaration — `SCRIPT-DIRECT-STATIC-A-CUTOVER-SERIES`
+
+The series is fixed before implementation and has one terminal: default
+production A cutover. No new task row may be inserted after it starts.
+
+```text
+1. SCRIPT-COMPOSITE-SOURCE-ADMIT-T2
+   parser composite token + bounded cohort + transform/default preservation
+2. SCRIPT-SOURCE-REOWN-I0-R0
+   neutral two-axis window + located/unlocated Deferred, old Builder window out
+3. SCRIPT-LOOKUP-REOWN-I0-R0
+   owned AST-free target/result relation, pointer lookup out
+4. SCRIPT-A-CUTOVER-I0-R0
+   pre-effect selector -> private capability -> named A/C/physical chain;
+   old Recipe/fallback edges caller-zero
+```
+
+If the first cell cannot preserve the source token exactly, the series returns
+to design stop and does not add an adapter or compatibility fallback.
 
 ### 2. Contingent source reownership — `SCRIPT-SOURCE-REOWN-I0-R0`
 
