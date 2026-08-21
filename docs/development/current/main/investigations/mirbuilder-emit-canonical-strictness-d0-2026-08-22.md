@@ -1,327 +1,359 @@
-Status: design stop; pilot task queued, placement issuer is not yet complete
+Status: accepted design; caller-zero C-prime task series selected
 Task: MIR-EMIT-CANONICAL-STRICTNESS-D0
 Date: 2026-08-22
 Priority: Medium-High
-Owner: `src/mir/builder/builder_emit.rs`
-NextCard: MIR-EMIT-CANONICAL-COMPARE-I0 (blocked until this D0 exits design_stop)
+Owner: canonical Loop operation physicalization and the ordinary MIR writer
+NextCard: MIR-LOOP-OPERATION-EMITTER-SPLIT-S0
 ---
 
-# MIRBuilder canonical emission strictness D0
+# MIRBuilder canonical CompareI64 strictness D0
 
 ## Six-line brief
 
-Decision: keep one final physical writer, but separate canonical verified
-placement from legacy repair before either path reaches that writer. The
-separation is a private prepared-request type, not a runtime boolean or a
-second instruction appender.
+Decision: Accept C-prime: admit only `CompareI64` operands already defined as
+exact Integer values in the same canonical target block, then append the
+Compare at that block's tail. General cross-block dominance remains closed.
 
-Source authority + canonical issuer: for the first pilot,
-`PreparedLoopOperationEmissionV1` plus `LoopPhysicalBlockReceiptV1` is the
-strongest existing placement candidate; `issue_target_for_pure()` is its sole
-adapter into `VerifiedLoopOperationTargetBlockV1`. It is not yet a complete
-canonical placement issuer because sealed-state, operand definition/dominance,
-and direct canonical-CFG coupling are still missing. The eventual
-`MirBuilder::commit_prepared_emission` remains the sole physical commit owner.
-The legacy compatibility facade issues only an explicitly repair-permitted request.
+Source authority + canonical issuer: the verified Loop operation program owns
+the logical Compare and schedule; `CanonicalSsaFunctionSessionV2` must lend one
+scoped service containing its owner, CFG, SSA, and PHI owners. Inside that loan,
+private `CanonicalLoopCompareI64IssuerV1` is the sole co-sealer and immediate
+consumer of the physical proofs.
 
-Non-authority: ambient `current_block`, `ensure_block_exists`, AST/name lookup,
-`variable_map`, LocalSSA scans, `phi_input_materializer`, debug flags, and
-`builder_emit.rs` itself cannot turn an unverified instruction into canonical
-placement.
+Non-authority: `current_block`, `ensure_block_exists`, raw `ValueId`, type
+facts alone, ledger order alone, names/AST, `compute_def_blocks`,
+`compute_dominators`, generic Compare success, debug verification, and a test
+canary cannot admit canonical emission or production selection.
 
-Fail-fast boundary: all canonical block, operand, receiver, PHI, and CFG checks
-must finish before the first MIR mutation. A canonical reject cannot retry via
-the legacy repair request or silently create a target block.
+Fail-fast boundary: open-target, full operand receipt, unique same-block
+definition, exact Integer type, destination, Bool plan, strict append plan, and
+vacant result slot are all checked before append. Result-slot reservation is
+the final fallible action; append, Bool commit, and ledger commit are then
+infallible inside the private issuer.
 
-Smallest next slice: pilot the existing Loop physicalizer's explicit-block
-`LoopOperationV1::CompareI64` through the typed canonical request, consuming
-`VerifiedLoopOperationTargetBlockV1` without re-pairing its block by raw ID.
-Call/receiver, PHI, and legacy callers remain on their current route.
+Smallest next slice: behavior-neutrally extract the pure Const/Binary/Compare
+family from the 794-line `operation_emitter.rs`; preserve every call and error
+boundary and reduce both owners below the 760-line split threshold.
 
-Non-claims: no assignment change, A/C, Recipe/Join, backend, performance
-optimization, `EmitReceipt`, whole-writer migration, or old-route retirement.
+Non-claims: no production caller, cross-block operand, general dominance,
+parameter/inherited operand, Call/receiver, PHI redesign, Recipe change,
+legacy retirement, backend, optimization, `EmitReceipt`, or main integration.
 
-## Why this design stop exists
+## Decision and current disposition
 
-The current `builder_emit.rs` entrypoint is a single physical writer, which is
-the correct ownership direction, but it performs two different jobs without a
-type boundary:
+The selected shape is:
 
 ```text
-canonical caller
-  -> ordinary emit_instruction
-       -> hidden receiver materialization
-       -> hidden PHI input materialization
-       -> missing-block creation through ensure_block_exists
-       -> instruction append
+CANONICAL-LOOP-COMPARE-I64-SAME-BLOCK-C-prime
 
-legacy caller
-  -> the same ordinary emit_instruction
-       -> the same repair behavior
+verified Loop CompareI64 row
+  + exact logical-to-physical target receipt
+  + same canonical session's open-target proof
+  + full Published lhs/rhs Loop receipts
+  + unique physical lhs/rhs definitions already in that target block
+  + exact Integer type
+  + fresh destination capability
+  + prepared Bool publication
+  + prepared strict append
+  + result slot reserved last
+  -> one ordinary-writer append
+  -> infallible Bool commit
+  -> infallible Published ledger commit
 ```
 
-The code comments describe missing-block emission as fail-fast, while the
-current `ensure_block_exists` implementation creates a missing block. The
-first assignment negative fixture exposed this exact distinction: an invalid
-block number did not fail because the helper repaired it by creating the
-block. That behavior is not changed in this D0; it is the reason canonical
-strictness needs a separate entry contract.
+This is narrower than general dominance, but it remains sound while a Loop
+header is open. A definition already present in a block remains before an
+instruction appended to that same block even if another predecessor is added
+later. The design therefore does not need to predict the future predecessor
+set.
 
-The writer also clones debug/function names and the instruction on the normal
-success path. Those are recorded under the separate
-`MIR-EMIT-MOVE-COMMIT-R0` performance row and must not be smuggled into this
-semantic/authority split.
+The current disposition is `CallerZeroCanaryOnly`, not production I0. The
+existing census at
+`loop-recipe-physicalizer-caller-census-d0-2026-08-21.md` is still binding:
+
+- `resolved_lowering/mod.rs:36-37` admits
+  `generic_g0_physical_emitter_session` only under `#[cfg(test)]`;
+- `resolved_lowering/mod.rs:141-142` admits the common Loop physicalizer only
+  under `#[cfg(test)]`;
+- every call to
+  `with_generic_g0_physical_emitter_session_preflight()` is inside that file's
+  test module;
+- the callable and Generic G0 production-named canaries are tests, not named
+  production consumers;
+- `lower_loop_generalized` remains a distinct production route and is not
+  claimed replaceable by this card.
+
+Consequently the implementation ladder is `S0 -> P0 -> CONNECT0`. The token
+`I0/R0` is reserved for a later card that names and switches a real non-test
+caller and removes its exact old edge.
 
 ## Authority map
 
 | Owner | Owns | Must not own |
 | --- | --- | --- |
-| canonical source/Facts/Recipe producer | operation meaning, source relation, selected physical demand | ambient repair or MIR append |
-| `CanonicalSsaFunctionSessionV2` / `CanonicalCfgSessionV1` | function owner, block allocation/selection, CFG edge and seal evidence | AST lookup, legacy repair, type reinterpretation |
-| route-specific canonical physicalizer | verified operation placement, prepared operand/receiver/PHI inputs for its cohort | fallback, second writer, source re-search |
-| legacy compatibility lowerer | explicit repair-permitted request and compatibility behavior | canonical claim or silent canonical downgrade |
-| `MirBuilder::commit_prepared_emission` | one instruction append plus already-prepared bookkeeping | deciding route, creating semantic facts, repairing inputs |
-| outer function session | discard/restore of a failed unpublished draft | retrying another emission mode |
+| `PreparedLoopOperationProgramV1` and verified row | Compare operation, lhs/rhs/result keys, value class, Recipe order | physical IDs, target choice, dominance |
+| `LoopPhysicalSegmentBlockReceiptV1` and `VerifiedLoopOperationTargetBlockV1` | exact logical/segment/role to physical-block relation | open/sealed state, operand definition |
+| `CanonicalCfgSessionV1` | canonical block creation, open/sealed/terminated observation | operation meaning, operand type |
+| `CanonicalSsaFunctionSessionV2` | function owner, canonical value allocation, scoped access to CFG/SSA/PHI owners | source reclassification, legacy repair |
+| `LoopOperationValueLedgerV1` | operation result transport and one-shot result slot | physical truth by itself, Binding SSA |
+| `PreparedCanonicalCompareBoolTypeV1` | prechecked Compare-result Bool publication | operand or placement admission |
+| `CanonicalLoopCompareI64IssuerV1` | one atomic co-seal and immediate strict consumption | target selection, fallback, general dominance |
+| ordinary MIR writer core | one checked instruction append and common post-success bookkeeping | repair, source inference, ledger publication |
+| outer unpublished function session | discard of a failed candidate | retry in another route |
 
-The canonical issuer is not a new generic constructor in `builder_emit.rs`.
-Each selected canonical physicalizer must pass the existing route-owned proof
-through one private adapter. If a route has no owner that can issue the
-placement/operand evidence, it remains `NoSafeSlice`; ambient Builder state is
-not promoted to authority.
+The new issuer creates no semantic fact. It combines existing semantic,
+placement, and session-local physical authorities for one operation. Its
+prepared capability is private and is not returned or stored.
 
-For the selected pilot, the existing chain is concrete:
+## Same-session service boundary
 
-```text
-PreparedLoopOperationEmissionV1
-  + ReadyLoopEntryV1
-  + LoopPhysicalBlockReceiptV1
-  -> issue_target_for_pure()
-  -> VerifiedLoopOperationTargetBlockV1
-  -> validate_function(builder)
-  -> strict canonical emission request
-```
-
-`VerifiedLoopOperationTargetBlockV1` is not a new source authority: it is the
-already-issued placement product consumed by the Loop physicalizer. The pilot
-must preserve its owner, loop/item, logical-block, role, and physical-block
-relation through the new request; it may not reconstruct a target from the
-`BasicBlockId` alone. D0 remains open until the target witness is extended or
-co-sealed with the missing strict facts without making `builder_emit.rs` their
-issuer.
-
-## Worker read-only audit checkpoint — 2026-08-22
-
-The requested read-only audit confirmed the following:
-
-- generic `emission::compare::emit_to_at` is not a canonical placement issuer;
-- the Loop target chain is the best bounded pilot candidate, but its current
-  target is `Clone + Copy`, does not reject sealed blocks, does not prove
-  operand definition/dominance, and is not directly coupled to
-  `CanonicalCfgSessionV1`;
-- the one-writer prepared-request boundary can preserve failure atomicity only
-  when preparation completes all fallible checks, commit bookkeeping is
-  infallible (or covered by the outer unpublished-session discard), and no
-  canonical reject enters legacy repair;
-- `emit_prepared_pure_operation_at_target_v1` still has fallible result-type
-  and value-ledger checks after the physical leaf emission, so those checks
-  must move into preparation or be covered explicitly before I0.
-
-The worker made no file changes, commits, pushes, or heavy-gate claims.
-
-## Proposed request boundary
-
-This is a contract sketch, not an implementation instruction:
+The current `LoopOperationDispatchServicesV1::new(builder, identity, phis)`
+can manually pair sibling borrows and does not carry the canonical CFG owner.
+The strict path must instead be entered through a scoped loan issued by the
+full canonical session, conceptually:
 
 ```rust
-enum PreparedEmissionRequestV1 {
-    Canonical(PreparedCanonicalEmissionV1),
-    Legacy(PreparedLegacyEmissionV1),
-}
-
-impl PreparedEmissionRequestV1 {
-    fn commit(self, builder: &mut MirBuilder) -> Result<CommittedEmissionV1, EmissionErrorV1>;
-}
+CanonicalSsaFunctionSessionV2::with_loop_operation_dispatch_services(
+    builder,
+    |services| { /* prepare and immediately consume strict Compare */ },
+)
 ```
 
-The constructor and fields remain private to the selected adapters. The
-canonical variant has no repair options and no `Option`-shaped missing-block,
-receiver, or PHI state. The legacy variant carries an explicit repair plan;
-repair is visible in the type and cannot be reached by a canonical error arm.
+The service borrows the one session's owner, `cfg`, `identity`, and `phis`.
+The constructor is private to the session. Open-target and operand witnesses
+do not escape the callback, so no digest, pointer, raw owner ID, or public
+session token is needed to re-pair them later.
 
-The public-in-module facades may be named:
+`CanonicalCfgSessionV1` currently records only sealed blocks and its
+`create_block()` takes `&self`. C-prime requires it to record the exact blocks
+it created and to issue an open-instruction-target witness only when:
 
 ```text
-emit_canonical_prepared(request)
-emit_legacy(instruction)
+block is in this session's created set
+block exists in the current function
+block is absent from the session sealed map
+the MIR block is unsealed
+the MIR block is unterminated
+the Loop target receipt names that exact block
 ```
 
-Both delegate to the one private `commit` implementation. There must be one
-append site for `BasicBlock::add_instruction_with_span`, one predecessor
-update owner, and one post-success origin/metadata owner. A pair of wrappers
-is acceptable; a pair of physical writers is not.
+The function entry/preheader is not silently admitted as session-created. The
+first cohort targets only segment blocks allocated through
+`LoopPhysicalServicesV1 -> CanonicalCfgSessionV1::create_block()`.
 
-## Canonical preparation contract
+## Operand proof
 
-Before `PreparedCanonicalEmissionV1` can be issued, its route owner must
-co-seal the following facts for the same function/session:
+The ledger must return the full `LoopOperationValueReceiptV1`, not only the raw
+`ValueId`. The private operand issuer checks:
 
 ```text
-function identity and current canonical session owner
-explicit target block exists in the function
-target block is not terminated or sealed
-instruction operands are defined and satisfy the route's dominance contract
-MethodCall receiver is already prepared, if the instruction is a MethodCall
-PHI inputs are complete/normalized by the route-owned PHI authority
-branch/jump targets exist and pass the canonical CFG preflight
-metadata/origin/type post-success facts are already decidable
+receipt owner == canonical session owner
+receipt class == I64
+receipt physical block == open Compare target
+type_ctx[value] == Integer
+value is not a function parameter
+exactly one physical definition of value exists in the function
+that definition is a Phi head or ordinary instruction in the target block
+that definition is already present before the tail append
 ```
 
-The canonical adapter must reject before mutation when any row is absent,
-foreign, stale, or contradictory. It must not call:
+The issuer validates lhs and rhs in one function scan and captures the target
+tail ordinal before that scan. `lhs == rhs` is an admitted alias and requires
+one unique definition, not two. The definition locator uses
+`MirInstruction::dst_value()` and retains the block plus
+`PhiHead | Instruction(ordinal)` lane. It must detect zero and duplicate
+definitions; it must not call the existing block-only
+`compute_def_blocks()` map, which overwrites duplicates and loses instruction
+order.
 
-```text
-ensure_block_exists
-ssa::local::recv / materialize_local_v1
-phi_input_materializer::for_pred
-function-repair or missing-PHI completion
-AST/name/digest lookup
-legacy emit retry
-```
+This one-scan-per-Compare design is acceptable only in caller-zero P0
+evidence. It is not a
+compile-time performance keeper. Before production I0, an unbounded Compare
+count or measured repeated-scan cost requires a function-owned definition
+index or producer-issued physical-definition receipt with an explicit
+mutation boundary. Pass fusion and a general dominance cache are not opened by
+this card.
 
-The existing `CanonicalCfgSessionV1` is the model for this boundary: its
-`preflight_edge` checks source/target existence, cached edge truth, terminal
-state, and seal state before mutation, then the commit performs only the
-checked write and predecessor publication.
+## One-shot ledger and commit order
 
-## Legacy preparation contract
+The selected segment dispatcher owns `LoopOperationValueLedgerV1` by value and
+returns it only in `CompletedLoopSegmentProgramV1`. That is the bounded owner
+for this design. The older dispatcher that accepts a caller-owned `&mut`
+ledger is not connected to strict Compare by this series.
 
-The current compatibility behavior may remain available behind the legacy
-facade while production callers are being retired. It may explicitly own:
+The strict ledger state is:
 
-```text
-missing-block creation where the legacy route requires it
-receiver LocalSSA materialization
-legacy PHI input rematerialization
-legacy operand normalization and diagnostics
-```
-
-Those operations must be named as a `LegacyRepairPlanV1` (or remain inside a
-clearly named legacy adapter) and must never be inferred from a canonical
-preparation failure. A canonical error is terminal for that attempt; it is not
-a request to run legacy compatibility.
-
-## Commit and failure order
-
-The intended order is:
-
-```text
-route-owned read-only prepare
-  -> PreparedCanonicalEmissionV1 or PreparedLegacyEmissionV1
-  -> sole commit writer moves the instruction once
-  -> infallible/prepared predecessor, origin, metadata, and PHI bookkeeping
-  -> outer function session closes or discards the draft
-```
-
-No fallible validation may be deferred until after `add_instruction`. If a
-bookkeeping operation cannot be made infallible, it must be included in the
-outer session's typed discard proof before the canonical pilot is connected.
-Local type publication follows the existing prepared-receipt rule: publish
-only after the physical instruction commit succeeds.
-
-## Finite state and forbidden transitions
-
-The preferred Rust representation is move-only types rather than one mutable
-runtime enum, but the state table is fixed here:
-
-| State | Owner | Meaning | Allowed next state |
+| Before | Operation | After | Fallible |
 | --- | --- | --- | --- |
-| `Unprepared` | route owner | instruction and route facts are not yet co-sealed | `CanonicalPrepared`, `LegacyPrepared`, or typed reject |
-| `CanonicalPrepared` | canonical adapter | strict placement/operand/PHI evidence is complete | `Committed` or typed commit failure to session discard |
-| `LegacyPrepared` | compatibility adapter | explicit repair permission is complete | `Committed` or typed legacy failure |
-| `Rejected` | preparation owner | missing/foreign/contradictory input | terminal; no fallback |
-| `Committed` | sole writer | one physical instruction and prepared bookkeeping are installed | outer session close |
+| absent | `reserve_result()` | `Reserved` plus affine pending token | yes |
+| `Published` | `reserve_result()` | unchanged reject | yes |
+| `Reserved` | `reserve_result()` | unchanged reject | yes |
+| `Reserved` | pending `commit(definition)` | `Published` | no |
+| `Reserved` | pending token dropped | `Poisoned` | no |
+| `Poisoned` | read or reserve | terminal reject | yes |
 
-Forbidden:
+`PendingLoopValuePublishV1` is non-Clone, holds the exact mutable slot, and
+uses an internal `Option` only to distinguish its own consumed Drop state.
+`commit(mut self, definition)` takes the slot, writes `Published`, and cannot
+revalidate or fail. An unconsumed token poisons the ledger; it never rolls the
+slot back to vacant. Recovery is disposal of the outer unpublished candidate.
 
-```text
-CanonicalPrepared -> LegacyPrepared
-canonical missing block -> ensure_block_exists
-canonical receiver/PHI missing -> hidden materialization
-canonical commit -> second append site
-commit error -> AST/name re-search or compatibility retry
-legacy repair result -> canonical placement authority
-```
-
-## Pilot boundary: Loop physicalizer CompareI64
-
-The first I0 should use the existing
-`loop_recipe_physicalizer::operation_emitter` CompareI64 leaf. It already has
-an explicit target receipt, a prepared operation, a value ledger, and a
-prepared Bool result contract. It does not require MethodCall receiver
-materialization or PHI input repair. The generic `emission::compare` helper
-remains a lower-level compatibility-compatible helper until a later caller
-has the same placement proof.
-
-Positive pilot:
+All fallible work is ordered as follows:
 
 ```text
-canonical placement issuer
-  -> existing Loop target receipt + Compare operands
-  -> PreparedCanonicalEmissionV1
-  -> one writer commit
-  -> prepared Bool type publication
+operation/target relation
+-> same-session open target
+-> full lhs/rhs receipts
+-> unique same-block Integer definitions
+-> wrapped fresh destination
+-> prepared Bool publication
+-> prepared strict writer input
+-> reserve result slot                # last fallible action
+-> append Compare                     # no Result
+-> commit Bool                        # no Result
+-> commit ledger                      # no Result
 ```
 
-Negative pilot cases:
+No result type reread, duplicate publication check, receipt-count check,
+legacy retry, or ordinary Compare helper call is permitted after append.
+
+## Finite state table
+
+| State | Owner | Meaning | Allowed next state | MIR effect |
+| --- | --- | --- | --- | ---: |
+| `Unprepared` | Loop row owner | operation not physically co-sealed | `TargetReady` or reject | 0 |
+| `TargetReady` | canonical CFG session | exact target is session-created, open, and unterminated | `OperandsReady` or reject | 0 |
+| `OperandsReady` | canonical SSA session | lhs/rhs are unique same-block Integer definitions | `ResultReady` or reject | 0 |
+| `ResultReady` | canonical SSA/type/writer preparation | destination, Bool plan, and append plan complete | `LedgerReserved` or reject | destination reservation only |
+| `LedgerReserved` | affine ledger token | result key is reserved; no fallible operation remains | `Committed` | 0 instructions |
+| `Committed` | ordinary writer plus infallible commits | one Compare, one Bool fact, one Published row | terminal | 1 instruction |
+| `RejectedBeforeEffect` | named preparation owner | missing, foreign, stale, duplicate, or unsupported input | outer discard | 0 instructions |
+| `Poisoned` | dropped pending token | internal prepared sequence was abandoned | outer discard only | continuation forbidden |
+
+The destination counter may advance during preparation inside the unpublished
+function draft. A later pre-append reject therefore still requires outer draft
+discard; it never permits local continuation or fallback.
+
+## Sole ordinary-writer connection
+
+The strict path must not call `emit_instruction_at()`, because that path can
+select `current_block`, call `ensure_block_exists`, materialize MethodCall
+receivers, normalize PHI inputs, and create branch targets.
+
+`builder_emit.rs` must expose one private ordinary append core used by both:
 
 ```text
-missing target block       -> typed reject from target issuer, block count unchanged
-terminated/sealed target   -> typed reject, instruction count unchanged
-undefined operand          -> typed reject, no type publication
-canonical preparation fail -> no legacy retry
+legacy repair-capable front door --prepared by existing behavior--\
+                                                               -> append core
+strict Compare front door -------PreparedCanonicalCompare-----/
 ```
 
-Call/receiver and PHI paths remain separate follow-up rows. They must not be
-made to look canonical merely because the Compare pilot is green.
+The append core remains the only ordinary `add_instruction_with_span` owner
+and shares the required Compare metadata/origin post-success behavior. Existing
+specialized canonical CFG marker/terminator writers are outside this ordinary
+instruction scope and are not duplicated or migrated here.
 
-## Acceptance evidence for the D0 and I0 handoff
+## Alternatives
 
-Design acceptance:
+| Choice | Decision | Reason |
+| --- | --- | --- |
+| A: general cross-block dominance | defer | an open target can gain predecessors; safe issuance needs a complete future-edge contract, CFG epoch, and stable definition provenance |
+| B: Loop-only dominance/verifier utility | reject | creates a shadow physical authority; current def/dominator helpers lose duplicate and same-block order information |
+| C-prime: unique same-block definition plus tail append | accept | stable for open headers, matches current caller-zero recipes, and closes one bounded physical law |
 
-- one final physical writer and one append site are named;
-- canonical and legacy issuers, non-authorities, and failure boundary are
-  explicit;
-- `ensure_block_exists`, LocalSSA receiver repair, and PHI rematerialization
-  are phase-separated rather than hidden in canonical commit;
-- the move/clone optimization row is separate;
-- `NoSafeSlice` is retained if the selected canonical route has no placement
-  issuer.
+## Ordered task series
 
-Pilot implementation acceptance:
+| Order | Row | Class | Bounded change | Exit evidence |
+| ---: | --- | --- | --- | --- |
+| 1 | `MIR-LOOP-OPERATION-EMITTER-SPLIT-S0` | BoxShape | extract the existing pure Const/Binary/Compare owner; no behavior change | parent and child below 760; focused parity |
+| 2 | `MIR-LOOP-COMPARE-SESSION-TARGET-P0` | caller-zero physical contract | scoped session service, CFG-created set, and private open-target witness | foreign/uncreated/sealed/terminated targets reject pre-effect |
+| 3 | `MIR-LOOP-COMPARE-SAME-BLOCK-OPERANDS-P0` | caller-zero physical contract | one atomic lhs/rhs scan, unique same-block I64 witnesses, and wrapped destination | missing/duplicate/cross-block/parameter/type negatives reject pre-append |
+| 4 | `MIR-LOOP-COMPARE-LEDGER-RESERVATION-P0` | caller-zero physical contract | add reserve/commit/poison and store operation+target as one prepared segment row | reserve is last; row/target zip and post-append count Result are zero |
+| 5 | `MIR-LOOP-COMPARE-STRICT-WRITER-P0` | caller-zero physical contract | one ordinary append core, prepared Bool, and private strict Compare input | strict route has no repair and all post-append commits are infallible |
+| 6 | `MIR-LOOP-COMPARE-SAME-BLOCK-CONNECT0` | caller-zero connection | switch only the segment Compare leaf; leave older caller-owned dispatcher and generic helpers unchanged | selected old segment Compare edge zero; no fallback; canaries green |
+| 7 | `MIR-LOOP-COMPARE-I0-R0` | future production replacement | name one non-test caller, prove its cohort, switch it, and retire its exact old edge | production caller one, old edge zero, fallback zero |
 
-- valid Compare emits exactly one instruction and one Bool fact;
-- missing/terminated/sealed/undefined inputs fail before any physical or type
-  publication;
-- canonical failure has zero legacy fallback;
-- legacy focused parity remains green;
-- the final writer remains one and touched Rust owners stay below 760 lines;
-- a reusable structural guard proves canonical code does not call
-  `ensure_block_exists` or legacy repair helpers in the pilot adapter.
+Only row 1 is selected now. Later cards are created when their immediate
+predecessor closes; this table is the order SSOT, not permission to batch all
+changes into one commit.
 
-## Non-claims and parked work
+## Line budget
 
-This card does not authorize:
+Current measured owners require physical separation before growth:
+
+| File | Lines at Decision | Rule |
+| --- | ---: | --- |
+| `operation_emitter.rs` | 794 | row 1 must split before semantic edits |
+| `canonical_cfg/session.rs` | 718 | new proof logic goes in a child module; parent stays below 760 |
+| `canonical_ssa/session.rs` | 727 | new proof logic goes in child modules; parent stays below 760 |
+| `operation_dispatcher.rs` | 636 | tests and new prepared-row owner stay separate before 760 |
+| `builder_emit.rs` | 507 | split at 760, hard stop at 800 |
+
+No compression, diagnostic shortening, or unrelated cleanup may be used to
+cross the limit.
+
+## Acceptance and structural guards
+
+The completed caller-zero series must prove:
 
 ```text
-assignment failure atomicity (already closed by Gate 1)
-workspace Clippy rollout or EmitReceipt
-full LocalSSA definition-index design
-PHI repair/finalization retirement
-builder.rs or builder_init.rs physical reorganization
-per-instruction clone removal / compile-time benchmark gate
-Script A/C, Recipe/Join, publication, backend, or main integration
+non-test Loop physicalizer caller                          = 0
+strict segment Compare -> emit_compare_i64_at              = 0
+strict segment Compare -> general emit_instruction_at      = 0
+strict path -> ensure_block_exists / LocalSSA / PHI repair = 0
+strict path -> compute_def_blocks / compute_dominators     = 0
+canonical reject -> legacy fallback/retry                  = 0
+result reservation                                        = 1
+result commit                                             = 1
+post-append fallible type/ledger/count checks              = 0
+ordinary append core                                      = 1
+AST/name/raw-pointer/Recipe reconstruction                 = 0
+touched Rust source                                       < 760 lines
+hard stop                                                 < 800 lines
 ```
 
-The next implementation card must be created only after the source authority
-and pilot placement issuer are accepted. The current `work_mode` therefore
-stays `design_stop` while this D0 is the active pointer.
+Positive evidence covers Header-local provisional PHI or read plus
+Header-local Const, followed by one Header Compare, Bool fact, Published row,
+and instruction. Negative evidence covers missing/duplicate/cross-block/
+parameter/wrong-type definitions, foreign owner/target, uncreated/sealed/
+terminated target, duplicate/reserved/poisoned result, Bool conflict, and
+unconsumed pending token. Every preparation rejection checks unchanged
+instruction count, type facts, and non-reserved ledger state.
+
+## NoSafeSlice triggers
+
+Stop before the affected row when any of these is true:
+
+- a real selected caller requires a parameter, inherited, or cross-block
+  operand;
+- a Header-local Binding read does not physically define a PHI/read result in
+  the target before Compare;
+- the target cannot be tied to the same CFG session's created set;
+- the scoped service cannot prevent sibling session re-pairing;
+- the result slot cannot be reserved last or committed infallibly;
+- strict Compare must enter `emit_instruction_at()` or hidden repair;
+- any type, ledger, schedule, metadata, or receipt check remains fallible after
+  append;
+- a canonical reject can reach legacy, retry, or another profile;
+- the segment ledger ceases to be owned by the unpublished candidate;
+- a touched source reaches 760 without a named split or 800 at all;
+- production promotion would make repeated definition scans an unbounded
+  compile-cost path without a definition-index/receipt decision.
+
+If production later needs cross-block operands, return to A with a complete
+future-edge plan, CFG epoch, stable definition provenance, and a general
+dominance witness. Do not weaken C-prime or route through B.
+
+## Non-claims and references
+
+This Decision does not activate the test-only physicalizer, replace
+`lower_loop_generalized`, add a source shape, or claim performance. It does
+not change Script A/C, assignment, Recipe/Join, backend, publication, or main
+integration.
+
+References:
+
+- `loop-recipe-physicalizer-caller-census-d0-2026-08-21.md`
+- `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
+- `src/mir/builder/resolved_lowering/canonical_cfg/README.md`
+- `src/mir/builder/README.md`
