@@ -35,9 +35,10 @@ MIR for exactly one definition of the receipt's physical value, requires that
 definition to be in the exact target block, and requires `MirType::Integer`.
 Missing, duplicate, parameter, cross-block, foreign, and non-Integer cases
 reject before any Compare destination, ledger reservation, writer call, or MIR
-mutation. The neutral request and co-sealed witness do not resolve targets,
-perform dominance, or connect a production Compare caller; result reservation
-and strict append are separate bounded cards.
+mutation. The neutral request and co-sealed witness do not resolve targets or
+perform dominance. The generic Loop physicalizer remains caller-zero; the
+selected Dynamic I9 handoff is the single bounded production consumer and
+passes its Dynamic-owned operand views directly to this canonical issuer.
 
 ## Canonical Loop Compare result ledger P0
 
@@ -69,11 +70,24 @@ infer a type, or perform a fallible post-append check. The definition source is
 non-Clone/non-Copy and is the only writer-to-ledger handoff shape; result-ledger
 reservation is deliberately a later card.
 
-The strict writer is exercised by three focused tests (positive append,
-sealed-target rejection, and definition-drift rejection). Its non-test caller
-count is zero by design, so this P0 does not change operation dispatch,
-fallback, production selection, or legacy retirement. The reusable guard is
+The strict writer is exercised by focused positive and rejection tests. Its
+generic Loop physicalizer caller count remains zero by design. Selected
+Dynamic I9 is the one named production caller, while legacy Loop operation
+dispatch and fallback remain outside this handoff. The reusable guard is
 `tools/checks/rust_mirbuilder_loop_compare_strict_writer_p0_guard.sh`.
+
+## Selected Dynamic I9 direct canonical handoff
+
+Selected Dynamic I9 keeps `DynamicV2PhysicalValueLedgerV1` as its sole result
+publication owner. It does not project V11/V12 into the generic
+`LoopOperationValueLedgerV1` and does not call the legacy Compare emitter.
+The Dynamic session brand carries the canonical `FunctionOwnerIdV1`; the two
+Dynamic value views are rebound through the canonical same-block Integer
+issuer, and V13 is reserved immediately before the strict writer append.
+The writer returns the canonical definition source, which is consumed once by
+the Dynamic V13 pending token. A dropped pending token poisons the slot, so
+the unpublished outer function session must be discarded; retry, fallback,
+post-append publication, and a second result ledger are forbidden.
 
 ## Common V2 canonical session-open canary
 
@@ -401,7 +415,10 @@ corridor does not mutate `type_ctx` or repair a missing type after emit.
 The physical issuers are separate children of this selected V2 boundary. The
 private E1 continuation consumes exact I9 (`V11:I64`, `V12:I64` -> `V13:Bool`)
 plus the I7 CallSlot and I8 ConstI64 producer receipts, then routes its result
-through the canonical CFG issuer and rejects any I9 Fault row. The cleanup issuer consumes the four scoped rows from
+through the canonical CFG issuer and strict writer. The Dynamic-owned V13
+slot is reserved before append and committed from the writer's canonical
+definition source; no generic Loop-ledger projection or post-append publish
+is permitted. It rejects any I9 Fault row. The cleanup issuer consumes the four scoped rows from
 `invocation_cleanup.rs` in their fixed order (`I6 fault=[]`, `I7 fault=End(V10)`,
 inner Return/Backedge=`End(V10)`) and excludes `V9`, `V17`, `V11`, and the I64
 induction from cleanup ownership. The private E4 continuation/backedge leaf

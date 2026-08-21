@@ -13,15 +13,14 @@ LLVM module before one trusted LLVM18 emission; object/assembly checks
 belong to the later promotion evidence gate. The exact ordinal-zero V3 WSL
 batch closed Complete/development_keeper with both fixed sessions Complete;
 it remains development-only and issues no native promotion authority. The
-selected Dynamic generic active walk is now a 575-line parent plus unchanged
-185-line child. Its observation UX closes at a separate explicit-artifact C shape report; optimizer, C equivalence, and machine origin remain unavailable."""
+selected Dynamic generic active walk is now a 575-line parent plus unchanged 185-line child. Its observation UX closes at a separate explicit-artifact C shape report; optimizer, C equivalence, and machine origin remain unavailable."""
 date = "2026-08-22"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 work_mode = "fast"
-current_execution_row = "MIR-LOOP-COMPARE-CONNECT0-D0"
-current_design_stop = "closed: B design accepted; I9 handoff implementation is authorized while production switch remains gated"
-current_blocker_token = "Execution scope MIR-LOOP-COMPARE-I9-HANDOFF-PREPARE-D0: implement direct Dynamic-to-canonical I9 handoff and atomic Dynamic publication; no fallback"
+current_execution_row = "MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0"
+current_design_stop = "closed: B direct handoff landed; CONNECT0 evidence/guard and closeout remain; live publication stays gated"
+current_blocker_token = "Execution scope MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0: run reusable guard, record focused evidence, synchronize SSOT; no live publication or retirement"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -77,7 +76,7 @@ The phase-qualified parser/admission, transport, A, and future C/B state matrix 
 	The parser-composite preservation Decision is accepted. Candidate A is one parser-owned opaque non-Clone token issued only inside ParsedProgramWithCallableParameterSourceV1::new. It co-seals one parser invocation, one non-Main/non-sync direct static provider declaration/result syntax, and one nested final-root MethodCall receiver/ordered-arguments/result/terminal tree. Span, name, ordinal, pointer, MIR paths, Builder products, and transformed-AST reconstruction remain non-authorities. Parser preservation owns Ready/Outside/SourceAuthorityUnavailable/Incomplete/IntegrityInvalid; later resolver Deferred stays phase-separated.
 	Parser-composite preservation I0 is pushed and closed. Composite source admission R0 is pushed and closed as 254856b5a8: one parser-backed default-root issuer consumes the preserved token through an HRTB loan and emits only the witness-bound provider/terminal partition; existing Script admission consumes the provider transfer without resolving the root call. Focused 4-test evidence, cargo check, pointer guard, R0 guard, diff check, and source-size checks are green. The source-reownership audit is now accepted as two ordered substeps: typed Deferred preservation is the selected fast cell; neutral window reownership remains a separate T2 design stop. Lookup, capability/A/C, physical work, old Recipe retirement, production switch, and performance remain closed.
 The Script lookup reownership I0/R0 is implemented and pushed as 873eacad33. One non-Clone source-package HRTB issuer co-seals the package declaration authority, transient target/result catalogs, parser witness, exact call sites, canonical target keys, and owned result facts before pinned-target/Builder effects; ResultBundle consumes the relation once. The old pointer inventory production edge is zero and focused lookup, bundle, source-reown, composite, target, current-state, and diff guards are green.
-The Script A/C consumer series is pushed as 21b1f3263f; Main integration remains queued. Gate 1 assignment ReleaseStrong fail-fast is pushed as dcd8359f7a; Gate 2 physical-result guard is pushed as 8e9b4562c2. C-prime strictness P0s are landed caller-zero. CONNECT0 selected Dynamic I9; worker review chose direct Dynamic-ledger-to-canonical-SSA handoff, with owner binding and V13 reservation/commit open under MIR-LOOP-COMPARE-I9-HANDOFF-PREPARE-D0. Old physical/compatibility/raw retirement and performance remain queued.
+The Script A/C consumer series is pushed as 21b1f3263f; Main integration remains queued. Gate 1 assignment ReleaseStrong fail-fast is pushed as dcd8359f7a; Gate 2 physical-result guard is pushed as 8e9b4562c2. C-prime strictness P0s are landed caller-zero. CONNECT0 selected Dynamic I9; worker review chose the direct Dynamic-ledger-to-canonical-SSA handoff, which is now landed with owner binding, same-block rebind, V13 reservation/commit, and one strict append. Focused positive/ledger tests, cargo check, both strict-writer/CONNECT0 guards, and the pointer guard are green; evidence closeout remains next. Old physical/compatibility/raw retirement, live publication, and performance remain queued.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -88,12 +87,12 @@ mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mi
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-loop-compare-connect0-d0-2026-08-22.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "mirbuilder-loop-compare-strict-writer-p0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-strict-writer-p0-2026-08-22.md"
-latest_card_summary = "C-prime strict writer P0 is landed: a session-owned fresh destination and prepared Bool plan feed a non-Clone/non-Copy prepared Compare append, one shared physical append core, and a writer-owned definition source. Focused writer 3, Loop physicalizer 36, cargo-check, guard, pointer, diff, and source-size evidence is green. CONNECT0 selected Selected Dynamic I9; its direct Dynamic-ledger-to-canonical-SSA handoff is now authorized for bounded implementation, with production switch still gated."
-next_design_card = "MIR-LOOP-COMPARE-CONNECT0-D0"
+latest_card = "mirbuilder-loop-compare-connect0-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-connect0-d0-2026-08-22.md"
+latest_card_summary = "C-prime strict writer P0 remains generic Loop caller-zero. Selected Dynamic I9 CONNECT0 is landed: Dynamic owns V13 publication, exact V11/V12 views rebind through canonical same-block witnesses, and one strict writer append returns the definition source for Bool/Dynamic commit. Focused positive/ledger tests, cargo check, strict-writer/CONNECT0 guards, pointer, and source-size evidence are green; live publication and generic-loop retirement remain gated."
+next_design_card = "MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-connect0-d0-2026-08-22.md"
-next_execution_card = "MIR-LOOP-COMPARE-CONNECT0-D0"
+next_execution_card = "MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-connect0-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -116,5 +115,5 @@ landed_tail = [
   "2026-08-22: MIR-ASSIGNMENT-RELEASE-FAILFAST-I0 Gate 1 landed as dcd8359f7a. ReleaseStrong now propagates before variable_map publication; session restore and assignment negative evidence are green. Guard, canonical strictness, old retirement, and main integration remain queued.",
   "2026-08-22: MIR-RESULT-DISCARD-GUARD-I0 is implemented and pushed as 8e9b4562c2. The selected physical-writer discard guard is scoped to src/mir/builder, tests multiline forms, and leaves workspace lint, cleanup, and other discard families outside scope.",
   "2026-08-22: MIR-EMIT-CANONICAL-STRICTNESS-D0 accepted C-prime after two read-only audits and an exact caller census. The test-only segment lane will admit only same-session, same-block, uniquely-defined Integer operands; all fallible work ends at result-slot reservation before one strict append and infallible Bool/ledger commits. Because production callers are zero, the ordered task names are S0, P0, and CONNECT0; production I0/R0 remains closed. MIR-LOOP-OPERATION-EMITTER-SPLIT-S0 is the selected fast BoxShape.",
-  "2026-08-22: MIR-LOOP-COMPARE-STRICT-WRITER-P0 landed as a caller-zero physical contract. `builder_emit_core.rs` now owns one shared append point and a prepared strict Compare commit; the non-Clone/non-Copy writer definition source carries the exact owner/target/value proof into the later ledger handoff. Focused writer tests (3), Loop physicalizer regression (36), cargo check, strict-writer guard, pointer, diff, and source-size evidence are green. CONNECT0 is now design_stop for one named non-test caller and atomic dispatcher/owner-bound ledger connection; no fallback, production I0/R0, or performance is open.",
+  "2026-08-22: MIR-LOOP-COMPARE-STRICT-WRITER-P0 and CONNECT0 landed. `builder_emit_core.rs` owns one shared append point and a prepared strict Compare commit; the non-Clone/non-Copy writer definition source carries the exact owner/target/value proof. Selected Dynamic I9 now binds the brand owner, reissues V11/V12 as canonical same-block Integer witnesses, reserves V13 before append, and commits from the definition source without generic Loop-ledger or legacy Compare reuse. Focused writer/Loop/I9/ledger tests, cargo check, strict-writer/CONNECT0 guards, pointer, diff, and source-size evidence are green; live publication, generic-loop retirement, fallback, and performance remain closed.",
 ]

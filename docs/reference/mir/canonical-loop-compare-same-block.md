@@ -1,6 +1,7 @@
 # Canonical Loop Compare same-block operand contract
 
-Status: accepted C-prime P0, caller-zero physical contract (2026-08-22).
+Status: accepted C-prime P0 plus selected Dynamic I9 CONNECT0 handoff
+(2026-08-22).
 
 The bounded strict Compare lane admits only this source-to-physical relation:
 
@@ -22,8 +23,9 @@ cross-block values, or general CFG dominance. `compute_def_blocks()` and
 `compute_dominators()` are not acceptance authorities because they lose
 same-block instruction order or retain legacy unreachable-block behavior.
 The later strict writer may append only after all fallible preparation is
-complete; this P0 itself performs no destination allocation, result
-reservation, append, fallback, or production selection.
+complete. The generic Loop physicalizer remains outside production selection;
+the selected Dynamic I9 connection is documented below and uses this same
+canonical operand issuer without projecting into the generic Loop ledger.
 
 Rejections are typed and pre-effect: missing/duplicate definitions,
 parameter use, cross-block definition, foreign owner/target, and
@@ -50,7 +52,7 @@ task and does not yet connect a Compare writer or production caller.
 
 ## Strict Compare writer boundary
 
-The strict physical writer is a separate caller-zero P0. Its closed state
+The strict physical writer is a separate generic-Loop caller-zero P0. Its closed state
 machine is:
 
 ```text
@@ -70,7 +72,30 @@ PHI inputs, infer types, or run post-append Result checks. The legacy front door
 and strict front door share the same direct MIR append primitive, so there is
 one physical mutation owner.
 
-This P0 proves only the writer contract with three focused tests. It does not
-reserve the result ledger, connect the dispatcher, select a production caller,
-remove fallback, or claim I0/R0. The next design task must census the named
-caller before any connection is attempted.
+This P0 proves the writer contract with focused tests. It does not connect the
+generic dispatcher or retire its legacy lane. The selected Dynamic I9 handoff
+is the one named production consumer and has its own Dynamic result lifecycle
+and CONNECT0 guard.
+
+## Dynamic I9 direct handoff
+
+The selected Dynamic normal landing is the bounded CONNECT0 consumer. Its
+authority chain is:
+
+```text
+Dynamic V11/V12 published views
+  -> canonical owner-bound same-block Integer witnesses
+  -> fresh canonical destination + prepared Bool fact
+  -> Dynamic V13 reservation
+  -> strict writer one-append commit
+  -> Dynamic V13 commit from CanonicalCompareDefinitionSourceV1
+```
+
+`DynamicV2PhysicalSessionBrandV1` carries the same `FunctionOwnerIdV1` as the
+canonical SSA session. `DynamicV2PhysicalValueLedgerV1` is the sole V13
+publication owner; no `LoopOperationValueLedgerV1` projection, legacy
+`emit_compare_i64_at` fallback, or post-append `publish` is allowed. A dropped
+pending reservation poisons the result slot and the unpublished outer draft is
+discarded rather than retried. This slice still excludes the I7 header
+Compare, cross-block operands, generic dominance, and old generic-loop
+retirement.

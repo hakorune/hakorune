@@ -58,13 +58,16 @@ if rg -n -F -- 'add_instruction_with_span(' "$BUILDER_EMIT"; then
   guard_fail "$TAG" "builder_emit.rs must not own a second direct append"
 fi
 
-# P0 intentionally proves the writer in focused tests but does not connect it
-# to a production dispatcher or caller.
+# P0 keeps the generic Loop physicalizer caller-zero. The selected Dynamic I9
+# handoff is a separate CONNECT0 consumer guarded by the sibling guard; it is
+# deliberately excluded here so this P0 does not become a false red after the
+# bounded connection lands.
 non_test_writer_callers=()
 while IFS= read -r file; do
   [[ -z "$file" ]] && continue
   case "$file" in
     *_tests.rs) continue ;;
+    */selected_dynamic_physical_emitter/i8_i9_control.rs) continue ;;
   esac
   non_test_writer_callers+=("$file")
 done < <(rg -l --glob '*.rs' -F 'CanonicalLoopCompareI64WriterV1::emit(' "$ROOT_DIR/src" || true)
@@ -84,4 +87,4 @@ if (( builder_lines >= 700 )); then
   guard_fail "$TAG" "builder_emit.rs reached the 700-line split trigger: $builder_lines"
 fi
 
-echo "[$TAG] ok (one shared append, strict preparation, non-test writer callers=0)"
+echo "[$TAG] ok (one shared append, strict preparation, generic Loop writer callers=0; selected Dynamic is guarded by CONNECT0)"

@@ -45,6 +45,7 @@ use crate::mir::checked_callout::{CheckedCallOutPlanTableV1, CheckedCallOutSiteP
 use crate::mir::compiler::a_prime_i64_physical_capability::issue_selected_a_prime_i64_physical_demand;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::normal_callable_semantic_package::SelectedCatalogedCallableLoweringInputV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 #[cfg(test)]
 use crate::mir::BasicBlockId;
 use targets::DynamicV2PhysicalTargetSetV1;
@@ -76,7 +77,21 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
 }
 
 #[derive(Debug)]
-struct DynamicV2PhysicalSessionBrandV1(Arc<()>);
+struct DynamicV2PhysicalSessionBrandV1(Arc<()>, FunctionOwnerIdV1);
+
+impl DynamicV2PhysicalSessionBrandV1 {
+    fn for_owner(owner: FunctionOwnerIdV1) -> Self {
+        Self(Arc::new(()), owner)
+    }
+
+    fn owner(&self) -> FunctionOwnerIdV1 {
+        self.1
+    }
+
+    fn matches(&self, other: &Self) -> bool {
+        Arc::ptr_eq(&self.0, &other.0) && self.1 == other.1
+    }
+}
 
 /// Consuming, unpublished physical session for one selected V2 plan.
 pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder> {
@@ -330,7 +345,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             Ok(sites) => sites,
             Err(error) => return Self::reject_begin(outer, error),
         };
-        let brand = DynamicV2PhysicalSessionBrandV1(Arc::new(()));
+        let brand = DynamicV2PhysicalSessionBrandV1::for_owner(demand.identity().owner());
         let (targets, formal_header) = match issue_targets_and_formal_header(
             &mut canonical,
             &mut outer,

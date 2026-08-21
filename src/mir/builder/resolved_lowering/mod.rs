@@ -7,6 +7,7 @@
 mod branch_transaction;
 mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
+mod canonical_compare_writer;
 pub(in crate::mir::builder) mod canonical_ssa;
 mod common_v2_after_block_allocation;
 mod common_v2_if_continuation_target;
@@ -140,6 +141,8 @@ mod if_materialization_tests;
 mod if_tests;
 #[cfg(test)]
 mod loop_recipe_physicalizer;
+
+pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::CanonicalLoopCompareI64WriterV1;
 #[cfg(test)]
 mod nested_predicate_effect_adapter_tests;
 #[cfg(test)]

@@ -1,34 +1,37 @@
-Status: selected production caller; bounded I9 handoff implementation authorized; production switch remains gated
-Task: MIR-LOOP-COMPARE-CONNECT0-D0
+Status: bounded I9 handoff landed; focused evidence/guard closeout in progress; live publication and retirement remain gated
+Task: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
 Date: 2026-08-22
-Priority: caller census and atomic handoff before production connection
+Priority: prove the landed handoff and keep live publication/retirement gated
 Parent: MIR-LOOP-COMPARE-STRICT-WRITER-P0
 PreviousCard: MIR-LOOP-COMPARE-STRICT-WRITER-P0
-NextCard: MIR-LOOP-COMPARE-I9-HANDOFF-PREPARE-D0 (same rolling card)
+NextCard: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0 (same rolling card)
 ---
 
-# Loop Compare CONNECT0 design stop
+# Loop Compare CONNECT0 handoff
 
 ## Six-line brief
 
 ```text
-Decision: select the active Selected Dynamic I9 normal-landing Compare as the one named non-test production caller candidate; keep CONNECT0 at design_stop until its Dynamic-to-canonical handoff is co-sealed and atomic. The handoff uses the Dynamic value ledger as the sole I9 publication ledger; it does not project into the Loop ledger.
+Decision: accept and connect the active Selected Dynamic I9 normal-landing Compare as the one named non-test production caller; keep live publication and generic-loop retirement gated until the focused evidence and reusable guard are green. The handoff uses the Dynamic value ledger as the sole I9 publication ledger; it does not project into the Loop ledger.
 Source authority + canonical issuer: `DynamicV2CompareI64CapabilityDemandV1`/the prepared I9 row and the session-owned `DynamicV2PhysicalValueLedgerV1` own I9 facts; canonical CFG/SSA owns target and definition witnesses; one private `SelectedDynamicI9CompareHandoffIssuerV1` co-seals them before any Compare effect.
 Non-authority: the test-only Generic G0 dispatcher, focused canaries, old emit_compare_i64_at, Dynamic brand alone, Dynamic value views alone, raw ValueId/state.get, current_block, Builder cursor, operation enum alone, and a fallback retry.
 Fail-fast boundary: I9 row/target/operand provenance, Dynamic-brand-to-function-owner binding, canonical same-block witnesses, destination/Bool preparation, and the Dynamic ledger's V13 reservation must all be complete before the first Compare append; a rejected strict row cannot return to the old leaf.
-Smallest next slice: `MIR-LOOP-COMPARE-I9-HANDOFF-PREPARE-D0`, implementing owner binding, one-shot Dynamic-to-canonical operand rebind, Dynamic V13 reservation, and the one-append/infallible-commit suffix; no fallback and no unrelated family migration.
+Smallest next slice: `MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0`, adding the caller/fallback guard and recording focused positive, negative, and reservation-poison evidence; no new semantic path and no unrelated family migration.
 Non-claims: no I7 header Compare, no generic dispatcher connection, no general dominance, no cross-block operands, no Const/Binary migration, no A/C/Recipe redesign, no old-leaf retirement, and no production I0/R0.
 ```
 
 ## Current census
 
-The strict writer P0 remains intentionally caller-zero:
+The generic Loop strict writer P0 remains caller-zero; the selected Dynamic
+handoff is now its one named non-test consumer:
 
 ```text
-CanonicalLoopCompareI64WriterV1::emit production callers = 0
+CanonicalLoopCompareI64WriterV1::emit production callers = 1
 CanonicalLoopCompareI64WriterV1::emit focused test callers = 3
 emit_loop_segment_operation_dispatch_v1 non-test callers = 0
 emit_prepared_pure_operation_v1 non-test callers = 0
+old I9 emit_compare_i64_at_with_dst callers = 0
+selected I9 Dynamic V13 post-append values.publish callers = 0
 ```
 
 The old `emit_compare_i64_at` remains a shared legacy leaf with callers in
@@ -54,21 +57,19 @@ The exact I9 row is co-checked against `I9`, `V11`, `V12`, and `V13` by
 `DynamicV2CompareI64CapabilityDemandV1`; the physical normal landing is created
 by the canonical CFG session, `V11` is the I7 normal-result definition, and
 `V12` is emitted immediately before the Compare in that same landing. This is
-enough to select I9 as the named caller candidate, but it is not yet a
-canonical same-block proof accepted by the strict writer.
+now the named production handoff: the strict writer accepts only the
+canonical same-block witnesses reissued from those exact Dynamic views.
 
 The I7 header Compare is explicitly excluded: its current/formal operands
 cross the formal/header relation and are outside the C-prime same-block slice.
 
-The required handoff is still missing. The active route has a
-`DynamicV2PhysicalValueLedgerV1` and post-append `values.publish(I9, V13, ...)`,
-while the strict writer requires a canonical open-target witness, canonical
-same-block Integer operands, a fresh destination, and an infallible
-writer-to-ledger commit. The writer does not require a Loop ledger. A generic
-Dynamic-to-Loop adapter or a second dispatcher would create a competing
-authority. The Dynamic result publication is also fallible after the current
-legacy append, so it needs its own prepared reservation/commit in the same
-atomic handoff.
+The handoff is now connected. The active route retains
+`DynamicV2PhysicalValueLedgerV1` as the sole I9 publication owner, rebinds the
+exact V11/V12 views through canonical same-block Integer witnesses, reserves
+V13 before the strict append, and commits V13 from the writer definition
+source. A generic Dynamic-to-Loop adapter, second dispatcher, post-append
+publish, or legacy fallback is absent from the I9 route. Live module
+publication and old generic-loop retirement remain outside this card.
 
 ## Authority and handoff table
 
@@ -87,7 +88,7 @@ an authority or transport requirement for this selected Dynamic row. Re-issuing
 V11/V12 into it would duplicate publication state without adding a proof that
 the strict writer needs.
 
-## Worker audit and selected next task
+## Worker audit and landed handoff
 
 The read-only worker confirmed the following decision:
 
@@ -112,7 +113,7 @@ for this row. It would create two publication authorities for one selected
 physical value, while `CanonicalLoopCompareI64WriterV1` already accepts the
 canonical operand witnesses directly and does not require a Loop ledger.
 
-The next bounded design task is:
+The landed bounded implementation task was:
 
 ```text
 MIR-LOOP-COMPARE-I9-HANDOFF-PREPARE-D0
@@ -131,7 +132,7 @@ It has exactly four deliverables:
 4. Specify the handoff states and focused acceptance before enabling the named
    production edge.
 
-The required order is:
+The implemented order is:
 
 ```text
 I9 demand/row and Dynamic brand-owner check
@@ -177,7 +178,7 @@ have exactly one production caller in the selected I9 handoff. The reservation
 must retain the producer, result, target brand, destination, and representation
 already admitted by the I9 demand; it may not infer or repair any of them.
 
-Focused acceptance is required before the production edge is called complete:
+Focused acceptance is required before the handoff is called complete:
 
 ```text
 positive:
@@ -194,13 +195,46 @@ atomicity:
   unchanged; pending reservation Drop poisons and the outer draft discards
 ```
 
-The old `emit_compare_i64_at_with_dst` call must reach zero for this I9 row in
+The old `emit_compare_i64_at_with_dst` call is zero for this I9 row in
 the same production connection series. Generic Loop dispatcher callers,
 I7-header Compare, and other operation families remain outside this slice.
 
 The dispatcher may sequence these existing authorities, but it may not become
 a second CFG/SSA/ledger/source authority. In particular, `state.get()` and the
 old `emit_compare_i64_at` result path cannot be the canonical handoff contract.
+
+## Landed implementation evidence
+
+The bounded code connection is now present:
+
+```text
+DynamicV2PhysicalSessionBrandV1::for_owner(demand.identity().owner())
+  -> exact V11/V12 Dynamic views
+  -> canonical same-block Integer witnesses
+  -> fresh destination + Bool plan
+  -> Dynamic V13 reservation
+  -> one strict Compare append
+  -> Bool commit + Dynamic V13 commit(definition source)
+```
+
+Observed focused evidence:
+
+```text
+cargo test --lib selected_dynamic_physical_emitter
+  8 passed
+
+cargo test --lib same_block_operand
+  3 passed
+
+cargo test --lib compare_i64_writer_tests
+  3 passed
+```
+
+The reusable structural guard is
+`tools/checks/rust_mirbuilder_loop_compare_connect0_guard.sh`. Its final green
+result, `cargo check`, and pointer/SSOT checks are closeout evidence still to
+be recorded before this card leaves the fast lane. No live module publication,
+generic Loop dispatcher connection, or old generic-loop retirement is claimed.
 
 ## Finite design states
 
@@ -219,22 +253,21 @@ old `emit_compare_i64_at` result path cannot be the canonical handoff contract.
 `NonCandidate`, `Declined`, or a legacy fallback. It is the current SSOT
 development state.
 
-## Required design evidence before P0
+## Required closeout evidence
 
-1. Count the named non-test caller and identify its active backend/route from
-   `CURRENT_STATE.toml` and the active card; test-only canaries cannot satisfy
-   this row.
-2. Show the exact row handoff from the caller's verified operation/target to
+1. Run the CONNECT0 guard and record one selected non-test writer caller,
+   zero I9 legacy/fallback edges, and the source-size limits.
+2. Keep the exact row handoff from the caller's verified operation/target to
    the C-prime operand witnesses without re-pairing by name, ordinal, or raw
    `ValueId`.
-3. Show the same-session owner binding for the Dynamic brand and the exact
+3. Keep the same-session owner binding for the Dynamic brand and the exact
    normal landing used by V11/V12.
-4. Fix the last fallible step as Dynamic V13 reservation, followed by strict
+4. Keep Dynamic V13 reservation as the last fallible step, followed by strict
    append, Bool commit, and Dynamic ledger commit only.
-5. Prove rejected preparation leaves instruction count, type context, and
-   Dynamic ledger state unchanged and cannot call the old Compare leaf.
-6. Record the production caller count, strict writer count, old canonical edge
-   count, and fallback count in a reusable guard before implementation.
+5. Record focused positive, negative, and reservation-poison tests, then run
+   `cargo check` and the current-state pointer guard.
+6. Do not claim live publication, generic Loop dispatcher activation, or old
+   generic-loop retirement in this card.
 
 ## NoSafeSlice
 
