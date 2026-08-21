@@ -1,33 +1,30 @@
 ---
-Status: Design stop — parser-owned composite site authority is still unresolved
+Status: Accepted parser-preservation Decision — first fast cell selected inside the bounded cutover series
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: default caller is named as evidence, but no parser-backed canonical source authority reaches it; vm-reference is reference-only
 ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> call-site composite membership -> private one-shot capability -> named A consumer
-Classification: T2 design stop inside the predeclared series; A/C product and production switch remain closed
-NextCard: close the parser-owned site product on this card before reselecting the implementation cell
+Classification: T2 BoxCount first cell inside the predeclared five-commit series; A/C product and production switch remain closed
+NextCard: implement SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0 on this card
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 
 ## Six-line brief
 
-Decision: Conditionally accept the consuming HRTB source loan and private
-capability-to-A handoff, but reject the previous whole-Program
-`Candidate | Residual` model. The source must first issue one total per-item
-semantic/runtime partition; only complete direct-static call-site composites
-may enter capability/A.
+Decision: Accept candidate A: one parser-owned opaque, non-`Clone`
+`ParserCompositeSourcePreservationV1`. It owns source preservation only. The
+consuming HRTB loan and private capability-to-A handoff remain downstream;
+the previous whole-Program `Candidate | Residual` model stays rejected.
 
-Source authority + canonical issuer: one move-bound owner co-seals
-`SourceEnvelopeReady`, the sealed parser-backed Program source, and their
-opaque parser-invocation relation. The parser-only
-`ParserCompositeSourcePreservationV1` is the non-Clone source token issued by
-the sole `ParserCompositeSourceIssuerV1`; `VerifiedFinalCallableProgramSourceV1`
-and `NormalCompileRequestV1` transport it but do not issue it. A future
-`CanonicalScriptCompositeProgramMembershipIssuerV1` is the sole issuer of the
-two-axis item partition, provider/catalog relation, executable Script window,
-and call-site composite membership.
+Source authority + canonical issuer: `ParserCompositeSourceIssuerV1`, called
+once directly inside `ParsedProgramWithCallableParameterSourceV1::new`, is the
+sole issuer. It co-seals one parser invocation, one exact direct static provider
+declaration/result syntax, and one nested final-root call/terminal site tree.
+Later parser/materializer/transform/request types transport this authority but
+cannot issue it. A future `CanonicalScriptCompositeProgramMembershipIssuerV1`
+alone may issue the two-axis partition and call-site membership.
 
 Non-authority: parser rows alone, source name/digest/ordinal/pointer,
 caller-built windows, Builder work-plan/semantic products, the pointer-branded
@@ -35,17 +32,17 @@ Script target inventory, runtime static-Box completion, empty/default catalogs,
 old Recipe, physical/publication owners, vm-reference reachability, and local
 green tests cannot issue composite membership or A meaning.
 
-Fail-fast boundary: before capability, Recipe, Builder effects, or physical
-work, one total source-role selector must distinguish complete composite,
-outside bounded cohort, located/unlocated resolver deferral, incomplete, and
-integrity-invalid. Capability/A failure never reaches old Recipe, raw, retry,
-or fallback.
+Fail-fast boundary: a `Ready` parser token that would be dropped, reconstructed,
+changed, or converted to compatibility rejects after source-backed transform
+selection and before `VerifiedFinalCallableProgramSourceV1` is issued. Later
+selector/capability failures remain before Recipe, Builder effects, physical
+work, raw, retry, or fallback.
 
-Smallest next slice: close the missing parser-owned site authority inside
-`SCRIPT-COMPOSITE-SOURCE-ADMIT-T2`: one non-sync, non-Main static provider plus
-one final root direct-static call, with one co-sealed provider/call/receiver/
-argument/result/terminal tree. AST Span, name, ordinal, and pointer pairing are
-not implementation options.
+Smallest next slice: `SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0`: issue and move
+one non-sync, non-Main static provider plus one final root MethodCall and its
+receiver/ordered arguments/result/terminal tree through parser, materializer,
+exact transform validation, final source, and default request. The cell ends at
+request transport and belongs to the already-declared A-cutover series.
 
 Non-claims: no generic/sync/instance Box admission, import expansion,
 capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
@@ -228,8 +225,123 @@ The witness is the primary identity. Private structural paths are only
 coverage/integrity evidence inside that witness, and are carried as one nested
 tree so callers cannot zip independent arrays. `Incomplete` covers missing
 provider/call/receiver/argument/result/terminal rows; `IntegrityInvalid` covers
-foreign witness, duplicate site, provider/call mismatch, order mismatch, or
-terminal drift. Span is diagnostic evidence only.
+foreign witness, duplicate site, provider-source mismatch, malformed call-tree
+relations, order mismatch, or terminal drift. Span is diagnostic evidence only.
+
+### Accepted parser product and sole issuer
+
+The source product is a total disposition, never an optional token:
+
+```rust
+enum ParserCompositeSourceDispositionV1 {
+    Ready(ParserCompositeSourcePreservationV1),
+    OutsideBoundedCohort(ParserCompositeOutsideReasonV1),
+    SourceAuthorityUnavailable(ParserCompositeSourceUnavailableV1),
+    Incomplete(ParserCompositeIncompleteV1),
+    IntegrityInvalid(ParserCompositeIntegrityIssueV1),
+}
+
+struct ParserCompositeSourcePreservationV1 {
+    invocation: ParserInvocationWitnessV1,
+    provider: ParserCompositeStaticProviderV1,
+    terminal: ParserCompositeRootTerminalV1,
+    _seal: ParserCompositeSourcePreservationSealV1,
+}
+```
+
+The token and seal are private and non-`Clone`. Cloneable declaration identity
+or structural coordinates nested inside it remain comparison/coverage evidence;
+they do not make the whole authority replayable.
+
+The bounded `Ready` cohort is exact:
+
+```text
+Program
+  one non-Main, non-sync static Box
+    one ordinary direct method
+      parser callable anchor + source site
+      declared result syntax = Implicit | Explicit(type syntax)
+  final statement
+    FinalSequence(MethodCall)
+      or RootReturn(value = MethodCall)
+      receiver = one exact source subtree
+      arguments = exact parser arity in source order, including proven zero
+      result = this MethodCall
+```
+
+`Implicit` is an observed source state, not missing data. The provider result
+syntax is copied under the parser's existing exact declaration loan; it is not
+inferred from the method body. Receiver and method names may be retained as
+owned syntax/diagnostic inputs, but never as identity or a provider/call join.
+The parser proves provider/call co-presence only; it does not prove that the
+call resolves to that provider.
+
+The terminal owns the call tree. Its receiver, ordered argument roles, call
+result, and terminal relation are not exposed as independently pairable arrays.
+Private structural locators are meaningful only under the token's invocation
+witness. A real zero-arity syntax issues an empty argument slice; a failed
+argument observation is `Incomplete`, never empty.
+
+The sole production constructor is:
+
+```rust
+ParserCompositeSourceIssuerV1::issue(
+    &CompletedParserPostpassV1,
+    &ParserCallableParameterSourceDispositionV1,
+) -> ParserCompositeSourceDispositionV1
+```
+
+It is called exactly once inside
+`ParsedProgramWithCallableParameterSourceV1::new`, where the completed AST,
+verified callable anchors, parameter catalog, and parser brand still belong to
+one invocation. There is no `from_parts`, public constructor, AST replay,
+transformed-AST issuer, or source-string rescan.
+
+### Move and transform contract
+
+The required disposition moves on one spine:
+
+```text
+ParsedProgramWithCallableParameterSourceV1
+  -> ParserCallableSourceDispositionV1::SourceBacked
+  -> PreparedNormalCallableProgramSourceV1
+  -> transform parts
+  -> VerifiedFinalCallableProgramSourceV1
+  -> PreparedNormalDefaultProgramRootV1
+  -> NormalCompileRequestV1
+```
+
+It is a required field on the parser-backed products above. It is not placed in
+the existing optional handoff witness, duplicated as a parallel request field,
+or exposed through a public token getter. `PreparedNormalDefaultProgramRootV1`
+already owns the final callable source, so the request transports the token by
+that existing move relation.
+
+The transform consumes the disposition together with the initial AST. For
+`Ready`, it uses the token's private locators to compare the provider result,
+root call, receiver, exact argument cardinality/order/subtrees, result relation,
+and terminal against the transformed AST. It then moves the same token into the
+final source; it never issues a replacement. The final source's existing exact
+transform wrapper proves that this validation ran.
+
+Typed transform rejects are role-specific:
+
+```text
+WitnessChanged | ProviderChanged | ProviderResultChanged
+RootCallChanged | ReceiverChanged
+ArgumentCardinalityChanged | ArgumentOrderChanged | ArgumentChanged
+ResultChanged | TerminalChanged | CompositeDropped | CompatibilityLoss
+```
+
+A source-backed transform that selects compatibility while the disposition is
+`Ready` returns `CompatibilityLoss` before consuming the AST into that lane.
+Non-ready parser outcomes keep their existing explicit routing; they cannot be
+upgraded to `Ready` later.
+
+`Deferred` is deliberately not a parser-preservation state. No parser issuer
+for it exists in this cohort. Located/unlocated `ObservationDeferred` remains a
+later resolver/membership state, preventing phase meanings from sharing one
+enum.
 
 ## Accepted authority chain
 
@@ -278,13 +390,14 @@ The first positive is deliberately narrow:
 ```text
 provider:
   one parser-backed, non-sync, non-Main static Box
-  ordinary direct method declaration
+  exactly one ordinary direct method declaration
   exact parser callable identity and parameter source
 
 Script terminal:
   one final root Return or final Sequence expression
-  one static receiver MethodCall to that provider
+  one syntactic MethodCall with an exact receiver subtree
   exact receiver, ordered arguments, result, and parent/terminal sites
+  no parser-issued relation from the receiver/call to the provider
 
 excluded:
   Main, sync/interface/record/generic/instance Box
@@ -399,6 +512,7 @@ relations are `IntegrityInvalid`. Neither is resolver deferral or zero.
 
 | Owner | Owns | Must not own |
 | --- | --- | --- |
+| `ParserCompositeSourceIssuerV1` | one parser witness, exact provider declaration/result syntax, nested root-call/terminal tree | target resolution, candidate/A, Recipe, physical IDs |
 | parser/source envelope | parser witness, identity/digest/profile/read-parse transport | Program role, target membership, A |
 | sealed parser-backed Program source | owned AST and callable/source lineage | Builder route, candidate decision |
 | composite Program partition issuer | one total two-axis semantic/runtime item map | target lookup, Recipe, physical IDs |
@@ -413,8 +527,15 @@ relations are `IntegrityInvalid`. Neither is resolver deferral or zero.
 
 ## Finite state and edge table
 
-| State | Sole owner | Next edge | Old Recipe / fallback |
+| State | authority / issuer | pre-effect terminal / continuation | old Recipe / fallback |
 | --- | --- | --- | --- |
+| `ParserComposite.Ready` | parser composite issuer | move through exact transform guard | unavailable |
+| `ParserComposite.OutsideBoundedCohort(reason)` | same issuer | existing explicit nonselected route | cannot become Ready |
+| `ParserComposite.SourceAuthorityUnavailable(reason)` | same issuer | typed parser/source terminal | unavailable |
+| `ParserComposite.Incomplete(error)` | same issuer | hard stop | unavailable |
+| `ParserComposite.IntegrityInvalid(error)` | same issuer | hard stop | unavailable |
+| `Transform.Preserved` | exact transform verifier | same token into final source/request | unavailable |
+| `Transform.CompatibilityLoss/Changed(role)` | exact transform verifier | hard reject before final source | forbidden |
 | `Transport.SourceEnvelopeReady` | envelope owner | bind source authority once | temporary reference edge only before cutover |
 | `SourceAuthority.Bound` | private facade | consume source once | no replay/discard-to-Recipe API |
 | `Partition.CompleteCompositeWithCandidates` | composite issuer | split candidate subcohort and retained continuation atomically | forbidden |
@@ -474,7 +595,7 @@ implementation credit until it either deletes its own named default-production
 old edge or belongs to one predeclared 2–5 commit Refactor Series whose terminal
 is the A cutover.
 
-### 0. Current selected design slice — `SCRIPT-DIRECT-STATIC-A-COMPOSITE-PROGRAM-MEMBERSHIP-D0`
+### 0. Accepted design cell — `SCRIPT-DIRECT-STATIC-A-COMPOSITE-PROGRAM-MEMBERSHIP-D0`
 
 ```text
 Change:
@@ -493,42 +614,73 @@ Stop:
   second source scan => remain design_stop
 ```
 
-### 1. Selected source admission + transform preservation — `SCRIPT-COMPOSITE-SOURCE-ADMIT-T2`
+### 1. Selected fast cell — `SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0`
 
-Classification: parked T2 canonical source-family BoxCount plus
-parser-to-default preservation; the site-authority design must close first.
+Classification: T2 parser source BoxCount and preservation, commit 1 of the
+predeclared five-commit cutover series.
 
 ```text
 Change:
-  admit exactly the bounded static-provider + Script-terminal composite
-  through parser cohort rows, source-plan classification, source envelope, and
-  the transform/default-request handoff
+  add callable_parameter_source/composite_source/{model,issuer,transform_guard}
+  issue exactly one total parser disposition in Parsed...::new
+  move it through Parsed -> Prepared -> transform -> VerifiedFinal -> request
+  reject Ready drift or compatibility loss before final source issuance
 
 Contract:
   no generic/sync/instance/import widening
   no target/result/candidate meaning
-  the same parser witness and source-site payload survive every handoff;
-  compatibility/transform loss is a typed pre-effect failure;
+  token and constructor are private/non-Clone; disposition is never Option
+  the same parser witness and nested site tree survive every handoff
   `VerifiedFinalCallableProgramSourceV1` transports but does not issue the
   private preservation token
+  existing optional NormalParserCallableSourceHandoff witness is not reused as
+  composite authority
 
 Done:
-  one parser-backed owner reaches the future default source selector without
-  dropping the Script-row sibling or parser witness
-  the pure-Script and composite cohorts remain disjoint and exhaustive
-  transformed source rows are proven exact before `NormalCompileRequestV1`
+  natural positive reaches NormalCompileRequestV1 with one Ready token
+  zero/multi argument and FinalSequence/RootReturn coverage is exact
+  provider/result/call/receiver/argument/result/terminal drift rejects by role
+  foreign/duplicate/missing rows classify IntegrityInvalid/Incomplete
+  Ready-to-compatibility is CompatibilityLoss; no AST fallback runs
   token constructor = 1, token move path = 1, AST-only request cannot mint it
+  token AST/Span/MIR-path/raw-pointer fields = 0; public token getter = 0
+  every touched production source stays below 800 lines; 760 triggers a split
+  focused positive/negative tests and the reusable
+  script_direct_static_canonical_parser_source_handoff_guard.sh are green
+  callable_parameter_source/README.md, normal_callable_program_source/README.md,
+  and the existing check index record the authority/transport boundary
 
 Stop:
-  if the transform changes source sites, the compatibility branch discards
-  authority, the request remains AST-only, it lands only on vm-reference, or
-  it has no same-series default cutover, do not implement a disconnected
-  product
+  if the issuer needs target/name pairing, Builder state, a second source scan,
+  a parallel Option field, token reconstruction, or source-backed fallback,
+  return to design_stop
 ```
 
-This T2 Decision remains parked until the parser-owned site tree and its sole
-issuer are fixed. Its future consumer is the pre-effect source selector in the
-named default caller; it may not land as a disconnected parser-only product.
+This cell is one atomic implementation commit. The external three-commit split
+is intentionally folded together: no intermediate commit may leave a parser
+token unvalidated or unable to reach the request. Its later semantic consumer
+and old-edge retirement are fixed by the same series below.
+
+### 2. Composite source admission — `SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0`
+
+```text
+Change:
+  consume the preserved parser disposition at the default pre-effect source
+  selector; admit the exact provider + Script-terminal Program into one total
+  two-axis semantic/runtime partition and source envelope
+
+R0:
+  remove the selected Script-row sibling drop and AST-only composite admission
+  edge for the bounded cohort
+
+Done:
+  Ready source reaches one composite partition issuer under the same witness
+  provider transfer and retained static-Box terminal coexist in one item row
+  Outside / SourceUnavailable / Incomplete / IntegrityInvalid remain distinct
+
+Non-claims:
+  no resolver reownership, target lookup, A/C, Recipe, or physical work
+```
 
 ### Bounded series declaration — `SCRIPT-DIRECT-STATIC-A-CUTOVER-SERIES`
 
@@ -536,13 +688,15 @@ The series is fixed before implementation and has one terminal: default
 production A cutover. No new task row may be inserted after it starts.
 
 ```text
-1. SCRIPT-COMPOSITE-SOURCE-ADMIT-T2
-   parser composite token + bounded cohort + transform/default preservation
-2. SCRIPT-SOURCE-REOWN-I0-R0
+1. SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0
+   sole parser token + exact transform guard + default-request transport
+2. SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0
+   bounded cohort + source envelope + two-axis Program partition
+3. SCRIPT-SOURCE-REOWN-I0-R0
    neutral two-axis window + located/unlocated Deferred, old Builder window out
-3. SCRIPT-LOOKUP-REOWN-I0-R0
+4. SCRIPT-LOOKUP-REOWN-I0-R0
    owned AST-free target/result relation, pointer lookup out
-4. SCRIPT-A-CUTOVER-I0-R0
+5. SCRIPT-A-CUTOVER-I0-R0
    pre-effect selector -> private capability -> named A/C/physical chain;
    old Recipe/fallback edges caller-zero
 ```
@@ -550,7 +704,7 @@ production A cutover. No new task row may be inserted after it starts.
 If the first cell cannot preserve the source token exactly, the series returns
 to design stop and does not add an adapter or compatibility fallback.
 
-### 2. Contingent source reownership — `SCRIPT-SOURCE-REOWN-I0-R0`
+### 3. Contingent source reownership — `SCRIPT-SOURCE-REOWN-I0-R0`
 
 ```text
 Production caller:
@@ -576,7 +730,7 @@ Stop:
 This row is BoxShape/T1 only if the mapping is behavior-identical. Otherwise
 it returns to this D0.
 
-### 3. Contingent lookup reownership — `SCRIPT-LOOKUP-REOWN-I0-R0`
+### 4. Contingent lookup reownership — `SCRIPT-LOOKUP-REOWN-I0-R0`
 
 ```text
 Production caller:
@@ -602,7 +756,7 @@ Stop:
 This is a T2 new authority even when runtime behavior is preserved. It is not
 a rename of the existing pointer product.
 
-### 4. Series terminal — `SCRIPT-A-CUTOVER-I0-R0`
+### 5. Series terminal — `SCRIPT-A-CUTOVER-I0-R0`
 
 ```text
 one pre-effect selector
@@ -631,12 +785,12 @@ guards:
   error/candidate -> Recipe/raw/retry/fallback = 0
 ```
 
-Tasks 1–4 may start only after the T2 source-cohort Decision and as a
+Cells 1–5 form one
 predeclared 2–5 commit series whose terminal closes this cutover. If that bound
 is not credible, remain parked. A forward source/lookup substrate may not land
 and wait for a later CUT0.
 
-### 5. Reference/residual retirement — `SCRIPT-RECIPE-RETIRE-I0-R0`
+### 6. Reference/residual retirement — `SCRIPT-RECIPE-RETIRE-I0-R0`
 
 After every registered residual has a source-backed Facts/Recipe completion
 owner, retire the canonical reference Recipe edge. This cleanup is not default
@@ -653,36 +807,37 @@ fallback / retry                                            = 0
 The Builder-specific `VerifiedScriptDirectStaticRecipeV1` is a different
 product and is not silently included in this retirement row.
 
-## Acceptance evidence for this D0
+## Acceptance for the selected fast cell
 
-Close this D0 and select a bounded series only when all are observable:
+The parser-boundary Decision is closed because the SSOT now fixes:
 
-1. the exact composite atom and narrow natural positive are fixed;
-2. all selected-normal classifier arms and transferred/opaque subtrees have
-   one semantic role and one runtime role;
-3. the default request receives an opaque parser-backed source authority, or
-   its exact pre-effect residual owner and sunset are registered;
-4. static provider declaration/catalog coverage and retained runtime terminal
-   are co-sealed under the same parser invocation;
-5. the executable window can resolve without treating transferred provider
-   rows as missing or deferred;
-6. resolver deferral preserves located and unlocated causes without `Option`,
-   guessed sites, or unit collapse;
-7. one owned AST-free target/result supplier and its selected old-edge delete
-   set are named;
-8. call-site candidate/noncandidate plus enclosing terminal coverage is total;
-9. capability `Ready` remains private and moves immediately to one A consumer;
-10. the 2–5 commit series ends at a default production cutover with all
-    selected old edges and fallback zero.
+1. candidate A, one non-`Clone` token, and one sole constructor call site;
+2. the exact one-provider/final-root-call cohort and nested role tree;
+3. parser witness as primary identity and private paths as coverage only;
+4. total parser states distinct from later resolver `Deferred`;
+5. the required Parsed -> Prepared -> transform -> VerifiedFinal -> request
+   move chain with no parallel `Option` or reconstruction;
+6. role-specific transform drift and `CompatibilityLoss` before final source;
+7. one atomic implementation cell with focused positive/negative/structural
+   evidence and explicit 800-line limits; and
+8. a predeclared five-commit series ending in named default A cutover and old
+   authority deletion.
 
-## NoSafeSlice conditions
+`SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0` closes only when its `Done` block is
+observable. Parser-token green does not authorize source admission, resolver,
+lookup, A/C, physical work, or a production claim.
 
-Remain in `design_stop` while any condition holds:
+## Later-cell stop lines
+
+The selected preservation cell returns to `design_stop` if its own `Stop`
+condition is observed. The following conditions prevent advancing into their
+corresponding later series cell; they do not authorize widening cell 1:
 
 - whole Program `Candidate | Residual` is used as the source partition;
 - provider transfer or retained terminal is called a residual;
-- canonical source admission still rejects the only natural positive;
-- the default request remains AST-only with no named parser-backed authority;
+- canonical source admission still rejects the only natural positive after
+  the preservation cell reaches the request;
+- the source-backed default request fails to transport the accepted token;
 - static Box remains an untyped catch-all resolver deferral;
 - parser rows or caller-provided windows are treated as semantic membership;
 - target/result inputs remain borrowed, AST-bearing, pointer-branded, or
@@ -699,15 +854,18 @@ Remain in `design_stop` while any condition holds:
 - candidate, error, or A failure can retry old Recipe, raw, compatibility,
   ordinary static lowering, or a second resolver.
 
-No code, fixture, fallback, production switch, or new semantic
-`Verified*`/`Prepared*` receipt is authorized while this list is nonempty.
+Only the selected preservation owner, its focused fixtures/tests, and its
+reusable guard are authorized now. No source admission, fallback, production
+switch, or downstream semantic `Verified*`/`Prepared*` receipt is authorized.
 
 ## Review receipt
 
-The external proposal is accepted only for phase separation, opaque parser
-identity, consuming fixed-output HRTB loan, and private immediate capability
-handoff. Two independent read-only worker audits rejected the whole-Program
-candidate/residual model and the old contingent task labels.
+The external proposal's candidate A is accepted for opaque parser identity,
+non-`Clone` move ownership, exact transform validation, and request transport.
+Two corrections keep it compatible with repository policy: parser preservation
+does not borrow the later resolver's `Deferred` state, and the proposed three
+partial commits are one atomic cell inside the existing five-commit cutover
+series so no orphan token lands.
 
 The first audit identified the exact composite atom, the missing static-Box
 transfer state, the retained runtime terminal, and the selected resolver
@@ -718,9 +876,9 @@ and lookup cannot be standalone I0 rows today, that not every deferred cause
 has a site, and that any forward prerequisites must belong to a bounded series
 ending in the A cutover.
 
-The current row therefore remains
-`SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0`, `work_mode = design_stop`, and
-`next_execution_card = none`.
+The current row is therefore `SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0` with
+`work_mode = fast`. The same card owns its implementation contract; later cells
+remain closed until this row's focused acceptance is green.
 
 ## References
 

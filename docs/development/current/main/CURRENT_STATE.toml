@@ -19,10 +19,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-COMPOSITE-SOURCE-ADMIT-T2"
-current_design_stop = "Parser composite admission remains a design stop: Span/MIR paths cannot be parser identity, and no parser-owned co-sealed provider/call/receiver/argument/result/terminal site tree reaches the default request."
-current_blocker_token = "SemanticAuthorityMissing: SCRIPT-COMPOSITE-SOURCE-ADMIT-T2 lacks a parser-owned site-tree issuer; Span, name, ordinal, pointer, and resolver-side paths cannot prove the same invocation through transform."
+work_mode = "fast"
+current_execution_row = "SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0"
+current_design_stop = "none: candidate A and the parser-owned composite source authority are accepted; later source admission, resolver, lookup, A/C, physical, and cutover cells remain closed"
+current_blocker_token = "FastBoundary: stop if the sole parser issuer needs target/name pairing, Builder state, a second source scan, a parallel Option, token reconstruction, or Ready-to-compatibility fallback"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -76,8 +76,8 @@ Canonical source-digest I0 and parser callable-source handoff I0 (0359ac0af3) ar
 	MIR-ROOT-APP-MODE-UNDECIDED-P0 is complete: both audited non-Main static-Box entrypoints distinguish App, non-App, and undecided mode before effects. The legacy normal-callable Deferred enum is caller-zero outside tests and remains parked without a consumer. The compatibility source-admission census is accepted; the reason+lineage transport P0 is implementation-complete with one non-Clone AST/reason/lineage carrier, focused evidence, and a reusable guard. Its compatibility-only route remains unchanged; all cohorts remain explicit compatibility while P1A typed-error preservation is landed. The canonical Script identity transport I0 is now closed with focused evidence and an exhaustive identity-state guard.
 	The A-input contract D0 is closed as a design contract. The parser-owned canonical Script input handoff I0 issues the AST-free window and declaration/config rows without Builder state. The transport-only parser/frontdoor-to-compiler carrier I0 is implementation-complete: the request owns it by move, Main/Callable and Script close it at explicit `DiscardedBeforeA`, and focused tests plus guards are green.
 The phase-qualified parser/admission, transport, A, and future C/B state matrix P0 is now closed with every actual enum state mapped to one owner and transition. The transport-only source-envelope child is closed: it separates parser-internal handoff movement from future compiler A consumption and closes the explicit old-Recipe sunset boundary. Private complete-zero A observation remains distinct from public future C `NonCandidate`; missing coverage remains distinct from present-invalid rows. The parallel direct-static package, builder-barrel cleanup, and all-phase guard expansion are parked behind their existing owners; no A meaning, Recipe/Join, physical, compatibility/raw retirement, production switch, or performance is open.
-	The source-capability premise reset remains a design stop. External review plus three independent worker audits conditionally accept a move-bound envelope/source authority, a consuming fixed-output HRTB loan, and a private capability moved immediately into named A, but reject the earlier whole-Program Candidate/Residual model. The latest audit adds the missing parser-composite preservation line: parser rows/witness are currently dropped before or during transform and never reach the default request.
-	Implementation remains closed: the exact atom is one root MethodCall plus its static provider declaration/result, receiver/arguments/result sites, and enclosing retained terminal. The same Program must co-seal static callable catalog transfer and retained static-Box runtime while the candidate call remains a subcohort. Canonical pure-Script admission still rejects that natural positive; selected-normal still leaves the static Box in catch-all Deferred; target/result products remain AST-borrowed or pointer-branded; default compile_with_source* is AST-only and cannot receive fabricated witness; vm-reference is not production credit; and Span/MIR resolver paths are rejected as parser identity. The parser-owned co-sealed site-tree issuer is still missing, so the predeclared bounded series remains parked before its first implementation cell.
+	The parser-composite preservation Decision is accepted. Candidate A is one parser-owned opaque non-Clone token issued only inside ParsedProgramWithCallableParameterSourceV1::new. It co-seals one parser invocation, one non-Main/non-sync direct static provider declaration/result syntax, and one nested final-root MethodCall receiver/ordered-arguments/result/terminal tree. Span, name, ordinal, pointer, MIR paths, Builder products, and transformed-AST reconstruction remain non-authorities. Parser preservation owns Ready/Outside/SourceAuthorityUnavailable/Incomplete/IntegrityInvalid; later resolver Deferred stays phase-separated.
+	The selected fast cell is SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0, commit 1 of a predeclared five-commit A-cutover series. It atomically carries the required total disposition through Parsed -> Prepared -> exact transform guard -> VerifiedFinal -> existing request root, rejects role drift or Ready compatibility loss before final-source issuance, and adds focused positive/negative/structural evidence under the 800-line source limit. The external three-part transport split is folded into this one cell so no orphan token lands. Canonical source admission, neutral resolver window, owned lookup, capability/A/C, physical work, old Recipe retirement, production switch, and performance remain closed for later cells.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -90,11 +90,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-a-source-capability-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
-latest_card_summary = "T2 design stop: Span and resolver-side paths cannot prove parser identity; a parser-owned co-sealed provider/call/receiver/argument/result/terminal site tree must be issued before source admission implementation."
-next_design_card = "SCRIPT-COMPOSITE-SOURCE-ADMIT-T2"
-next_design_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card_summary = "Accepted parser-preservation Decision: one sole parser issuer moves a non-Clone composite source token through exact transform validation into the default request; the selected fast cell is commit 1 of the five-commit A-cutover series."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0"
+next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
