@@ -1077,9 +1077,10 @@ tools/checks/script_direct_static_composite_source_admission_r0_guard.sh
   pass
 ```
 
-This closes source-window reownership only. Lookup reownership remains the
-next design/authority cell; target/result pointer lookup, A/C, Recipe
-retirement, fallback retirement, and production cutover stay closed.
+This closes source-window reownership. Lookup reownership was the next
+design/authority cell and is recorded as implementation-complete below;
+target/result pointer retirement, A/C, Recipe retirement, fallback retirement,
+and production cutover remain separately bounded.
 
 ### 4. Contingent lookup reownership — `SCRIPT-LOOKUP-REOWN-I0-R0`
 
@@ -1170,6 +1171,60 @@ expansion, generic catalog redesign, ABI/backend/performance
 This is a T2 new authority even when runtime behavior is preserved. It is not
 a rename of the existing pointer product. The temporary generic catalogs are
 inputs only; the owned relation is the sole selected Script lookup product.
+
+### 4a. Lookup implementation receipt — `873eacad33`
+
+`SCRIPT-LOOKUP-REOWN-I0-R0` is implementation-complete and pushed. The
+source-package facade now issues one non-`Clone` lookup relation from the same
+semantic package and neutral-window parser provenance. It co-seals the
+package-owned declaration catalog, transient target/result catalogs, exact
+MethodCall source sites, canonical target keys, result representation, and
+required argument ordinals. The relation is moved by value exactly once into
+the existing ResultBundle; no AST, catalog borrow, pointer/address, Builder
+product, candidate meaning, Recipe key, or physical ID leaves the issuer.
+
+The production order is now observable:
+
+```text
+semantic package
+  -> neutral source window
+  -> ScriptDirectStaticCallLookupIssuerV1::issue
+  -> owned static-result publication owner
+  -> pinned target capability / Builder effects
+```
+
+Lookup/static-publication failure stops at the pre-effect boundary. The old
+pointer inventory issue/attach/take/brand edge is gone from production, and
+the old inventory remains only inside focused test adapters. ResultBundle,
+Recipe, Join, claim, and physical consumers were adapted only at their input
+boundary; their later authority was not reopened.
+
+Observed evidence:
+
+```text
+cargo check --profile quick
+  pass; existing repository warnings only
+cargo test --profile quick --lib mir::builder::normal_script_direct_static_lookup
+  3 passed
+cargo test --profile quick --lib mir::builder::normal_script_direct_static_result_bundle
+  2 passed
+cargo test --profile quick --lib mir::source_call_target::script_direct_static_tests
+  8 passed
+tools/checks/script_direct_static_target_guard.sh
+  OK
+tools/checks/script_direct_static_source_reown_window_r0_guard.sh
+  PASS
+tools/checks/script_direct_static_composite_source_admission_r0_guard.sh
+  PASS
+tools/checks/current_state_pointer_guard.sh
+  ok
+git diff --check
+  pass
+```
+
+The next boundary is `SCRIPT-A-CUTOVER-I0-R0` design stop. A/C capability,
+candidate/noncandidate disposition, named consumers, Recipe retirement,
+fallback retirement, production switch, and performance remain unopened.
 
 ### 5. Series terminal — `SCRIPT-A-CUTOVER-I0-R0`
 
@@ -1295,9 +1350,10 @@ later series cell; they do not authorize widening R0:
   ordinary static lowering, or a second resolver.
 
 Only the selected R0 owner, its focused fixtures/tests, and its reusable guard
-are authorized in this cell. No resolver reownership, lookup, fallback,
-production switch, or downstream semantic `Verified*`/`Prepared*` receipt is
-authorized.
+were authorized in that historical cell. The lookup receipt above closes the
+lookup reownership row; the next authorized work is the A/C design stop. No
+A/C implementation, fallback, production switch, or downstream semantic
+`Verified*`/`Prepared*` receipt is authorized yet.
 
 ## Review receipt
 
@@ -1321,11 +1377,12 @@ The row `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` is now implementation-complete and
 pushed as `c97b40dc3d`. Together with the preceding parser handoff
 `aa1aecf495`, the authority is required through Parsed -> Prepared -> Final ->
 semantic package, one HRTB paired cursor feeds the neutral issuer, and the
-default Builder window/decision/occurrence callers are zero. The next frontier
-is the design-stop row `SCRIPT-LOOKUP-REOWN-I0-R0`: replace the pointer-branded
-target/result lookup authority with one owned AST-free relation before opening
-A/C. No A/C, Recipe, physical, fallback, or production cutover cell is opened
-by this receipt.
+default Builder window/decision/occurrence callers are zero. The lookup
+reownership is now implementation-complete and pushed as `873eacad33`; its
+production pointer inventory caller/attach/take edge is zero and its owned
+relation is consumed once by ResultBundle. The next frontier is the
+design-stop row `SCRIPT-A-CUTOVER-I0-R0`. No A/C implementation, Recipe,
+physical, fallback, or production cutover cell is opened by this receipt.
 
 ## References
 
@@ -1342,6 +1399,9 @@ by this receipt.
 - `src/mir/compiler/normal_default_pipeline_tests.rs`
 - `src/mir/builder/normal_script_composite_partition.rs`
 - `src/mir/builder/README.md`
+- `src/mir/builder/normal_script_direct_static_lookup.rs`
+- `src/mir/builder/normal_script_direct_static_lookup_tests.rs`
+- `tools/checks/script_direct_static_target_guard.sh`
 - `tools/checks/script_direct_static_composite_source_admission_r0_guard.sh`
 - `tools/checks/script_direct_static_canonical_parser_source_handoff_guard.sh`
 - `src/mir/compiler/normal_source_plan/inventory.rs`
