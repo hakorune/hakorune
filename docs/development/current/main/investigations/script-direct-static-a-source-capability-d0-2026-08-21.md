@@ -1,5 +1,5 @@
 ---
-Status: Parser-preservation Decision accepted — first fast cell implementation-complete; closeout evidence recorded
+Status: Parser-preservation Decision accepted — first fast cell closed out; later admission cell remains closed
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
