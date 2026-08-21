@@ -1083,29 +1083,93 @@ retirement, fallback retirement, and production cutover stay closed.
 
 ### 4. Contingent lookup reownership — `SCRIPT-LOOKUP-REOWN-I0-R0`
 
+Decision: ACCEPT the lookup reownership, with one provenance/co-seal
+correction. The old pointer inventory is not renamed or adapted. A single
+source-package lookup issuer observes the root call tree while the parser
+loan is live, snapshots only AST-free rows, and moves the result relation to
+the existing Script result bundle.
+
+Source authority + canonical issuer:
+
 ```text
-Production caller:
-  the same default root/catalog lifecycle
+VerifiedNormalCallableSemanticPackageV1
+  + PreparedCanonicalScriptNeutralProgramWindowV1
+  + package-owned declaration catalog
+  + transient generic target/result catalogs
+    -> ScriptDirectStaticCallLookupIssuerV1::issue
+       (one HRTB loan callback)
+    -> VerifiedScriptDirectStaticCallLookupV1
+```
 
-Change:
-  issue one owned AST-free target/result relation
-  connect it immediately to the existing result/physical consumer chain
+The issuer is the only production constructor. Its output contains the
+parser invocation witness, exact `SourceExprSiteV1` coverage, canonical target
+keys, result representation, and required argument ordinals. It contains no
+AST reference, pointer/address, catalog borrow, Builder product, candidate
+decision, Recipe key, or MIR/physical ID. Generic declaration/import/result
+brands may validate the co-seal inside the issuing scope; none may escape in
+the output. The package and loan are accepted as one source authority so a
+foreign catalog cannot be paired by name, ordinal, digest, or pointer.
 
-R0:
-  delete VerifiedScriptDirectStaticCallTargetInventoryV1::issue on the
-  selected Script edge and its address-brand/attach/take authority
+Non-authority:
 
-Done:
-  selected target/result lookup uses no AST borrow or pointer identity
-  TargetOutsideCatalog behavior is unchanged
+```text
+VerifiedScriptDirectStaticCallTargetInventoryV1
+PreparedScriptRootAdmissionV1::script_direct_static_targets
+AST/name/ordinal/digest/pointer pairing
+caller-built empty/default catalogs
+Builder window or semantic source adapter
+ResultBundle/Recipe/Join/physical products
+```
 
-Stop:
-  AST/body references or addresses remain, source admission is needed in
-  the same slice, or no selected old edge can be deleted
+Fail-fast boundary:
+
+```text
+semantic package
+  -> neutral source window
+  -> generic catalog co-seal + owned Script lookup relation
+  -> owned static-result publication owner
+  -> reject before target-capability install, Builder effects, or fallback
+```
+
+`TargetOutsideCatalog`, missing result representation, source-loan failure,
+foreign witness, duplicate site, and contradictory coverage are typed lookup
+rejections. The old `attach/take` edge is removed from
+`PreparedScriptRootAdmissionV1`; the relation remains a lifecycle-local
+one-shot value and is consumed exactly once by the existing result bundle.
+
+Smallest next slice:
+
+```text
+SCRIPT-LOOKUP-REOWN-I0-R0
+  1. add the owned AST-free relation and one source-package issuer;
+  2. preflight the generic catalogs and static publication owner before
+     target-capability/Builder effects;
+  3. remove admission attach/take and the production pointer inventory edge;
+  4. adapt ResultBundle to consume the relation without changing Recipe/Join.
+```
+
+Acceptance:
+
+```text
+production lookup issuer = 1
+old inventory issue/attach/take/brand edge = 0
+lookup output AST/reference/address/pointer fields = 0
+foreign/missing/duplicate/target-outside/result-unavailable = typed reject
+lookup failure -> target capability, Builder effect, Recipe, fallback = 0
+existing ResultBundle -> Recipe -> Join behavior remains the consumer
+```
+
+Non-claims:
+
+```text
+A/C capability, candidate/noncandidate disposition, physical changes,
+Recipe retirement, fallback retirement, production switch, source cohort
+expansion, generic catalog redesign, ABI/backend/performance
 ```
 
 This is a T2 new authority even when runtime behavior is preserved. It is not
-a rename of the existing pointer product.
+a rename of the existing pointer product. The temporary generic catalogs are
+inputs only; the owned relation is the sole selected Script lookup product.
 
 ### 5. Series terminal — `SCRIPT-A-CUTOVER-I0-R0`
 
