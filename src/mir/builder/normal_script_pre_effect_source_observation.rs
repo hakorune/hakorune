@@ -7,18 +7,23 @@
 
 use super::normal_script_resolution::{resolve_normal_script_source_v1, NormalScriptResolutionV1};
 use super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
-use super::normal_script_semantic_source::{
-    ScriptSemanticSourcePreEffectPartsV1, VerifiedScriptSemanticSourceV1,
-};
+use super::normal_script_semantic_source::ScriptSemanticSourcePreEffectPartsV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use crate::mir::normal_callable_semantic_package::{
-    InstalledNormalCallableSemanticPackageV1, VerifiedNormalCallableSemanticPackageV1,
+    VerifiedNormalCallableSemanticPackageV1,
 };
 use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, ScriptResolverDeferredV1};
 use crate::mir::source_call_target::VerifiedScriptDirectStaticCallLookupV1;
 use crate::parser::{
     ParserInvocationWitnessV1, ParserNormalProgramSourceLoanRejectV1,
-    ParserNormalProgramSourceLoanV1,
+};
+
+#[path = "normal_script_a/mod.rs"]
+mod normal_script_a;
+
+pub(in crate::mir::builder) use normal_script_a::{
+    issue_into_c_transport, CanonicalScriptCBoundSourceV1,
+    CanonicalScriptCPreparedLoweringSourceV1,
 };
 
 #[derive(Debug)]
@@ -34,35 +39,11 @@ pub(super) struct PreEffectCompleteSourceObservationV1 {
 struct PreEffectCompleteSourceObservationSealV1;
 
 #[derive(Debug)]
-pub(super) struct PreEffectSourceObservationAfterWindowMoveV1 {
-    invocation: ParserInvocationWitnessV1,
-    parts: ScriptSemanticSourcePreEffectPartsV1,
-    lookup: VerifiedScriptDirectStaticCallLookupV1,
-    _seal: PreEffectCompleteSourceObservationSealV1,
-}
-
-#[derive(Debug)]
 pub(super) enum NormalScriptPreEffectSourceObservationIssueV1 {
     SourceAuthorityUnavailable(Box<str>),
     ObservationDeferred(ScriptResolverDeferredV1),
     Incomplete(Box<str>),
     IntegrityInvalid(Box<str>),
-}
-
-#[derive(Debug)]
-pub(super) enum PreEffectSourceBindIssueV1 {
-    InvocationMismatch,
-}
-
-#[derive(Debug)]
-pub(super) enum PreEffectSourceBindBoundaryIssueV1 {
-    Loan(ParserNormalProgramSourceLoanRejectV1),
-    Bind(PreEffectSourceBindIssueV1),
-}
-
-pub(super) struct BoundNormalScriptPreEffectSourceV1<'source> {
-    source: VerifiedScriptSemanticSourceV1<'source>,
-    lookup: VerifiedScriptDirectStaticCallLookupV1,
 }
 
 /// Sole pre-effect issuer for the AST-free Script source observation.
@@ -142,70 +123,22 @@ impl NormalScriptPreEffectSourceObservationIssuerV1 {
 }
 
 impl PreEffectCompleteSourceObservationV1 {
-    pub(super) fn split_for_work_plan(
+    pub(super) fn into_a_parts(
         self,
     ) -> (
         PreparedScriptRootAdmissionV1,
-        PreEffectSourceObservationAfterWindowMoveV1,
+        ParserInvocationWitnessV1,
+        ScriptSemanticSourcePreEffectPartsV1,
+        VerifiedScriptDirectStaticCallLookupV1,
     ) {
         (
             self.source_window,
-            PreEffectSourceObservationAfterWindowMoveV1 {
-                invocation: self.invocation,
-                parts: self.parts,
-                lookup: self.lookup,
-                _seal: self._seal,
-            },
+            self.invocation,
+            self.parts,
+            self.lookup,
         )
     }
-}
 
-impl PreEffectSourceObservationAfterWindowMoveV1 {
-    pub(super) fn bind<'source>(
-        self,
-        loan: ParserNormalProgramSourceLoanV1<'source>,
-    ) -> Result<BoundNormalScriptPreEffectSourceV1<'source>, PreEffectSourceBindIssueV1> {
-        if !self.invocation.same_as(loan.invocation_witness()) {
-            return Err(PreEffectSourceBindIssueV1::InvocationMismatch);
-        }
-        Ok(BoundNormalScriptPreEffectSourceV1 {
-            source: VerifiedScriptSemanticSourceV1::from_pre_effect_parts(
-                loan.program(),
-                self.parts,
-            ),
-            lookup: self.lookup,
-        })
-    }
-
-    pub(super) fn with_bound_source<R>(
-        self,
-        package: &InstalledNormalCallableSemanticPackageV1,
-        callback: impl for<'source> FnOnce(
-            VerifiedScriptSemanticSourceV1<'source>,
-            VerifiedScriptDirectStaticCallLookupV1,
-        ) -> R,
-    ) -> Result<R, PreEffectSourceBindBoundaryIssueV1> {
-        package
-            .with_normal_program_source_loan(|loan| {
-                let bound = self
-                    .bind(loan)
-                    .map_err(PreEffectSourceBindBoundaryIssueV1::Bind)?;
-                let (source, lookup) = bound.into_parts();
-                Ok(callback(source, lookup))
-            })
-            .map_err(PreEffectSourceBindBoundaryIssueV1::Loan)?
-    }
-}
-
-impl<'source> BoundNormalScriptPreEffectSourceV1<'source> {
-    pub(super) fn into_parts(
-        self,
-    ) -> (
-        VerifiedScriptSemanticSourceV1<'source>,
-        VerifiedScriptDirectStaticCallLookupV1,
-    ) {
-        (self.source, self.lookup)
-    }
 }
 
 #[cfg(test)]

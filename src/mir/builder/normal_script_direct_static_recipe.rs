@@ -276,7 +276,7 @@ impl VerifiedScriptDirectStaticRecipeV1 {
 /// `Value` relation.  In particular, a final Local/Assignment, a nested call,
 /// or a control/value wrapper must not be mistaken for a Script result merely
 /// because it has a `Value`-shaped parent relation.
-fn validate_terminal_relation(
+pub(in crate::mir::builder) fn validate_terminal_relation(
     terminal: &ScriptSourceContinuationTerminalV1,
     statement: &SourceStmtSiteV1,
     call_site: &SourceExprSiteV1,

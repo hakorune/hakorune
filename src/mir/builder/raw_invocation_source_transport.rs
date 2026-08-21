@@ -22,7 +22,8 @@ use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_lowering_state::{
     ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
 };
-use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::normal_script_pre_effect_source_observation::
+    CanonicalScriptCPreparedLoweringSourceV1;
 use super::raw_invocation_source_item_site::body_item_site;
 use super::raw_invocation_source_statement_classification::{
     is_bare_function_call_statement, is_located_control_or_diagnostic_terminal,
@@ -237,19 +238,20 @@ impl RawInvocationChildPortV1<'_, '_> {
 
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
         &mut self,
-        source: VerifiedScriptSemanticSourceV1<'_>,
+        source: CanonicalScriptCPreparedLoweringSourceV1<'_>,
         execute: impl FnOnce(&mut Self) -> Result<R, String>,
     ) -> Result<R, String> {
-        let [root] = source.forest().roots() else {
+        let [root] = source.source().forest().roots() else {
             return Err("[freeze:contract][mir/script-semantic/root-cardinality]".to_owned());
         };
         if source
+            .source()
             .projection()
-            .owner_root(source.source(), *root)
+            .owner_root(source.source().source(), *root)
             .is_err()
-            || source.runtime_source_indices().iter().any(|index| {
+            || source.source().runtime_source_indices().iter().any(|index| {
                 !matches!(
-                    source.source(),
+                    source.source().source(),
                     ASTNode::Program { statements, .. } if statements.get(*index).is_some()
                 )
             })

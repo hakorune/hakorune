@@ -63,7 +63,7 @@ fn zero_call_source_is_complete_before_effects() {
         &mut resolver,
     )
     .expect("complete pre-effect observation");
-    let (source_window, _observation) = observation.split_for_work_plan();
+    let (source_window, _invocation, _parts, _lookup) = observation.into_a_parts();
     assert_eq!(source_window.window().entries().len(), 1);
 }
 
@@ -108,7 +108,7 @@ fn empty_script_window_moves_without_default_repair() {
         &mut resolver,
     )
     .expect("empty pre-effect observation");
-    let (source_window, _observation) = observation.split_for_work_plan();
+    let (source_window, _invocation, _parts, _lookup) = observation.into_a_parts();
     assert!(source_window.window().entries().is_empty());
 }
 
@@ -129,7 +129,7 @@ fn final_return_admission_moves_with_the_source_window() {
         &mut resolver,
     )
     .expect("return pre-effect observation");
-    let (source_window, _observation) = observation.split_for_work_plan();
+    let (source_window, _invocation, _parts, _lookup) = observation.into_a_parts();
     assert!(matches!(
         source_window
             .window()

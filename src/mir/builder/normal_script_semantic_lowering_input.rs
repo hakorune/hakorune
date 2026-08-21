@@ -4,51 +4,35 @@
 //! This carrier only transfers ownership; it does not issue Recipe keys or
 //! infer any physical continuation.
 
-use super::normal_script_direct_static_join_handoff::{
-    VerifiedScriptDirectStaticJoinHandoffV1,
-    VerifiedScriptDirectStaticRequiredArgumentProofV1,
-};
-use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
-use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
-use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
 use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
+
+#[path = "normal_script_semantic_lowering_input/direct_static_claim_input.rs"]
+mod direct_static_claim_input;
+
+pub(in crate::mir::builder) use direct_static_claim_input::{
+    CanonicalScriptACompleteZeroKindV1, CanonicalScriptANonDirectRowV1,
+    CanonicalScriptCNoDirectClaimsV1, ScriptDirectStaticClaimInputV1,
+    VerifiedScriptDirectStaticClaimProductsV1,
+};
 
 #[derive(Debug)]
 pub(super) struct VerifiedScriptSemanticLoweringInputV1 {
     projection: VerifiedScriptLoweringProjectionV1,
     continuation: VerifiedScriptSourceContinuationV1,
-    direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
-    direct_static_result_publication_owner:
-        Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
-    direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
-    direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
-    direct_static_required_argument_proof:
-        Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
+    direct_static_claim_input: ScriptDirectStaticClaimInputV1,
 }
 
 impl VerifiedScriptSemanticLoweringInputV1 {
     pub(super) fn new(
         projection: VerifiedScriptLoweringProjectionV1,
         continuation: VerifiedScriptSourceContinuationV1,
-        direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
-        direct_static_result_publication_owner: Option<
-            VerifiedScriptDirectStaticResultPublicationOwnerV1,
-        >,
-        direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
-        direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
-        direct_static_required_argument_proof: Option<
-            VerifiedScriptDirectStaticRequiredArgumentProofV1,
-        >,
+        direct_static_claim_input: ScriptDirectStaticClaimInputV1,
     ) -> Self {
         Self {
             projection,
             continuation,
-            direct_static_result_bundle,
-            direct_static_result_publication_owner,
-            direct_static_recipe,
-            direct_static_join_handoff,
-            direct_static_required_argument_proof,
+            direct_static_claim_input,
         }
     }
 
@@ -57,20 +41,12 @@ impl VerifiedScriptSemanticLoweringInputV1 {
     ) -> (
         VerifiedScriptLoweringProjectionV1,
         VerifiedScriptSourceContinuationV1,
-        Option<VerifiedScriptDirectStaticResultBundleV1>,
-        Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
-        Option<VerifiedScriptDirectStaticRecipeV1>,
-        Option<VerifiedScriptDirectStaticJoinHandoffV1>,
-        Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
+        ScriptDirectStaticClaimInputV1,
     ) {
         (
             self.projection,
             self.continuation,
-            self.direct_static_result_bundle,
-            self.direct_static_result_publication_owner,
-            self.direct_static_recipe,
-            self.direct_static_join_handoff,
-            self.direct_static_required_argument_proof,
+            self.direct_static_claim_input,
         )
     }
 }

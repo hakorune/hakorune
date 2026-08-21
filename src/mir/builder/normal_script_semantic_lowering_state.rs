@@ -9,7 +9,9 @@ use crate::mir::ValueId;
 use super::normal_script_direct_static_join_handoff::VerifiedScriptDirectStaticJoinRowV1;
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
-use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
+use super::normal_script_semantic_lowering_input::{
+    ScriptDirectStaticClaimInputV1, VerifiedScriptSemanticLoweringInputV1,
+};
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
 use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
 
@@ -17,39 +19,57 @@ use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1
 pub(super) struct ScriptSemanticLoweringState {
     projection: VerifiedScriptLoweringProjectionV1,
     continuation: VerifiedScriptSourceContinuationV1,
-    direct_static_result_publication_owner:
-        Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
-    direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
-    direct_static_claim_ledger: Option<direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1>,
+    direct_static_products: ScriptDirectStaticLoweringProductsV1,
+    direct_static_claim_ledger: direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
 }
+
+#[derive(Debug)]
+enum ScriptDirectStaticLoweringProductsV1 {
+    CompleteNoDirect,
+    Direct {
+        publication_owner: VerifiedScriptDirectStaticResultPublicationOwnerV1,
+        recipe: VerifiedScriptDirectStaticRecipeV1,
+    },
+}
+
 impl ScriptSemanticLoweringState {
     pub(super) fn new(input: VerifiedScriptSemanticLoweringInputV1) -> Result<Self, String> {
+        let (projection, continuation, direct_static_claim_input) = input.into_parts();
         let (
-            projection,
-            continuation,
-            direct_static_result_bundle,
-            direct_static_result_publication_owner,
-            direct_static_recipe,
-            direct_static_join_handoff,
-            direct_static_required_argument_proof,
-        ) = input.into_parts();
-        let direct_static_claim_ledger =
-            direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1::issue_with_required_argument_proof(
-                direct_static_result_bundle,
-                direct_static_join_handoff,
-                direct_static_required_argument_proof,
-            )
-            .map(Some)
-            .map_err(|error| {
-                format!("[freeze:contract][script-direct-static/claim-ledger] {error:?}")
-            })?;
+            direct_static_products,
+            direct_static_claim_ledger,
+        ) = match direct_static_claim_input {
+            ScriptDirectStaticClaimInputV1::CompleteNoDirectStaticClaims(witness) => (
+                ScriptDirectStaticLoweringProductsV1::CompleteNoDirect,
+                direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1::complete_no_direct(
+                    witness,
+                ),
+            ),
+            ScriptDirectStaticClaimInputV1::DirectStaticClaims(products) => {
+                let (bundle, publication_owner, recipe, handoff, proof) =
+                    products.into_parts();
+                let ledger =
+                    direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1::issue_direct(
+                        bundle, handoff, proof,
+                    )
+                    .map_err(|error| {
+                        format!("[freeze:contract][script-direct-static/claim-ledger] {error:?}")
+                    })?;
+                (
+                    ScriptDirectStaticLoweringProductsV1::Direct {
+                        publication_owner,
+                        recipe,
+                    },
+                    ledger,
+                )
+            }
+        };
         Ok(Self {
             projection,
             continuation,
-            direct_static_result_publication_owner,
-            direct_static_recipe,
+            direct_static_products,
             direct_static_claim_ledger,
             variable_values: BTreeMap::new(),
             materialized_outboxes: BTreeSet::new(),
@@ -62,16 +82,6 @@ impl ScriptSemanticLoweringState {
 
     pub(super) fn source_continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
         &self.continuation
-    }
-
-    pub(super) fn direct_static_result_publication_owner(
-        &self,
-    ) -> Option<&VerifiedScriptDirectStaticResultPublicationOwnerV1> {
-        self.direct_static_result_publication_owner.as_ref()
-    }
-
-    pub(super) fn direct_static_recipe(&self) -> Option<&VerifiedScriptDirectStaticRecipeV1> {
-        self.direct_static_recipe.as_ref()
     }
 
     pub(super) fn lambda_captures(
@@ -161,10 +171,7 @@ impl ScriptSemanticLoweringState {
         &mut self,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
     ) -> Result<direct_static_claim_ledger::ScriptDirectStaticClaimTakeV1, String> {
-        let Some(ledger) = self.direct_static_claim_ledger.as_mut() else {
-            return Err("[freeze:contract][script-direct-static/claim-finished]".to_owned());
-        };
-        ledger
+        self.direct_static_claim_ledger
             .take(site)
             .map_err(|error| format!("[freeze:contract][script-direct-static/claim] {error:?}"))
     }
@@ -173,37 +180,29 @@ impl ScriptSemanticLoweringState {
         &self,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
         validate: impl FnOnce(&VerifiedScriptDirectStaticJoinRowV1) -> Result<(), String>,
-    ) -> Result<bool, String> {
-        let Some(ledger) = self.direct_static_claim_ledger.as_ref() else {
-            return Err("[freeze:contract][script-direct-static/claim-finished]".to_owned());
-        };
-        let row = ledger.peek(site).map_err(|error| {
+    ) -> Result<(), String> {
+        let row = self.direct_static_claim_ledger.peek(site).map_err(|error| {
             format!("[freeze:contract][script-direct-static/claim-peek] {error:?}")
         })?;
         let Some(row) = row else {
-            return Ok(false);
+            return Err(
+                "[freeze:contract][script-direct-static/claim-site-not-covered]".to_owned(),
+            );
         };
-        validate(row)?;
-        Ok(true)
+        validate(row)
     }
 
     pub(super) fn complete_direct_static_claim(
         &mut self,
         claimed: direct_static_claim_ledger::ScriptDirectStaticClaimedRowV1,
     ) -> Result<(), String> {
-        let Some(ledger) = self.direct_static_claim_ledger.as_mut() else {
-            return Err("[freeze:contract][script-direct-static/claim-finished]".to_owned());
-        };
-        ledger.complete(claimed).map_err(|error| {
+        self.direct_static_claim_ledger.complete(claimed).map_err(|error| {
             format!("[freeze:contract][script-direct-static/claim-complete] {error:?}")
         })
     }
 
     pub(super) fn finish_direct_static_claims(&mut self) -> Result<(), String> {
-        let Some(ledger) = self.direct_static_claim_ledger.take() else {
-            return Err("[freeze:contract][script-direct-static/claim-finished]".to_owned());
-        };
-        ledger.finish().map_err(|error| {
+        self.direct_static_claim_ledger.finish().map_err(|error| {
             format!("[freeze:contract][script-direct-static/claim-finish] {error:?}")
         })
     }

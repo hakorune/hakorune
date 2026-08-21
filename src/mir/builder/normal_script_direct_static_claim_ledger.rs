@@ -16,6 +16,7 @@ use super::super::normal_script_direct_static_join_handoff::{
 };
 use super::super::normal_script_direct_static_recipe::ScriptDirectStaticRecipeKeyV1;
 use super::super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
+use super::super::normal_script_semantic_lowering_input::CanonicalScriptCNoDirectClaimsV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ScriptDirectStaticClaimLedgerIssueV1 {
@@ -34,6 +35,7 @@ pub(in crate::mir::builder) enum ScriptDirectStaticClaimLedgerIssueV1 {
     RequiredArgumentProofSiteMismatch(SourceExprSiteV1),
     RequiredArgumentProofForeignKey(ScriptDirectStaticRecipeKeyV1),
     DuplicateClaim(SourceExprSiteV1),
+    ClaimSiteNotCovered(SourceExprSiteV1),
     UnknownClaimState,
     RequiredArgumentProofUnconsumed(SourceExprSiteV1),
     PendingRows(usize),
@@ -132,19 +134,21 @@ impl ScriptDirectStaticClaimedRowV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) enum ScriptDirectStaticClaimTakeV1 {
     Unavailable,
-    Absent,
     Claimed(ScriptDirectStaticClaimedRowV1),
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) struct ScriptDirectStaticClaimLedgerV1 {
-    pending: BTreeMap<SourceExprSiteV1, PendingClaimRowV1>,
-    in_flight: BTreeSet<SourceExprSiteV1>,
-    completed: BTreeSet<SourceExprSiteV1>,
+pub(in crate::mir::builder) enum ScriptDirectStaticClaimLedgerV1 {
+    CompleteNoDirectStaticClaims(CanonicalScriptCNoDirectClaimsV1),
+    DirectStaticClaims {
+        pending: BTreeMap<SourceExprSiteV1, PendingClaimRowV1>,
+        in_flight: BTreeSet<SourceExprSiteV1>,
+        completed: BTreeSet<SourceExprSiteV1>,
+    },
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct PendingClaimRowV1 {
+pub(in crate::mir::builder) struct PendingClaimRowV1 {
     row: VerifiedScriptDirectStaticJoinRowV1,
     required_argument_proof: ScriptDirectStaticRequiredArgumentProofDispositionV1,
 }
@@ -155,32 +159,31 @@ impl ScriptDirectStaticClaimLedgerV1 {
         bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
         handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
     ) -> Result<Self, ScriptDirectStaticClaimLedgerIssueV1> {
+        let (Some(bundle), Some(handoff)) = (bundle, handoff) else {
+            return Err(ScriptDirectStaticClaimLedgerIssueV1::PartialSourceProducts);
+        };
         Self::issue_inner(bundle, handoff, None)
     }
 
-    pub(super) fn issue_with_required_argument_proof(
-        bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
-        handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
-        proof: Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
+    pub(super) fn complete_no_direct(witness: CanonicalScriptCNoDirectClaimsV1) -> Self {
+        Self::CompleteNoDirectStaticClaims(witness)
+    }
+
+    pub(super) fn issue_direct(
+        bundle: VerifiedScriptDirectStaticResultBundleV1,
+        handoff: VerifiedScriptDirectStaticJoinHandoffV1,
+        proof: VerifiedScriptDirectStaticRequiredArgumentProofV1,
     ) -> Result<Self, ScriptDirectStaticClaimLedgerIssueV1> {
         Self::issue_inner(bundle, handoff, Some(proof))
     }
 
     fn issue_inner(
-        bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
-        handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
-        proof: Option<Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>>,
+        bundle: VerifiedScriptDirectStaticResultBundleV1,
+        handoff: VerifiedScriptDirectStaticJoinHandoffV1,
+        proof: Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
     ) -> Result<Self, ScriptDirectStaticClaimLedgerIssueV1> {
-        let (bundle, handoff) = match (bundle, handoff) {
-            (None, None) => return Ok(Self::empty()),
-            (Some(bundle), Some(handoff)) => (bundle, handoff),
-            _ => return Err(ScriptDirectStaticClaimLedgerIssueV1::PartialSourceProducts),
-        };
         let proof = match proof {
-            Some(Some(proof)) => Some(proof),
-            Some(None) => {
-                return Err(ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofMissing)
-            }
+            Some(proof) => Some(proof),
             None => {
                 if handoff
                     .rows()
@@ -263,7 +266,7 @@ impl ScriptDirectStaticClaimLedgerV1 {
             }
         }
         if let Some(proof) = proof.as_ref() {
-            for (key, proof_row) in proof.rows() {
+        for (key, _proof_row) in proof.rows() {
                 if !handoff.rows().any(|(row_key, _)| row_key == key) {
                     return Err(
                         ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofForeignKey(
@@ -280,34 +283,38 @@ impl ScriptDirectStaticClaimLedgerV1 {
                 ));
             }
         }
-        Ok(Self {
+        Ok(Self::DirectStaticClaims {
             pending,
             in_flight: BTreeSet::new(),
             completed: BTreeSet::new(),
         })
     }
 
-    pub(super) fn empty() -> Self {
-        Self {
-            pending: BTreeMap::new(),
-            in_flight: BTreeSet::new(),
-            completed: BTreeSet::new(),
-        }
-    }
-
     pub(super) fn take(
         &mut self,
         site: &SourceExprSiteV1,
     ) -> Result<ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimLedgerIssueV1> {
-        if self.completed.contains(site) || self.in_flight.contains(site) {
+        let Self::DirectStaticClaims {
+            pending,
+            in_flight,
+            completed,
+        } = self
+        else {
+            return Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(
+                site.clone(),
+            ));
+        };
+        if completed.contains(site) || in_flight.contains(site) {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::DuplicateClaim(
                 site.clone(),
             ));
         }
-        let Some(pending) = self.pending.remove(site) else {
-            return Ok(ScriptDirectStaticClaimTakeV1::Absent);
+        let Some(pending) = pending.remove(site) else {
+            return Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(
+                site.clone(),
+            ));
         };
-        if !self.in_flight.insert(site.clone()) {
+        if !in_flight.insert(site.clone()) {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::UnknownClaimState);
         }
         Ok(ScriptDirectStaticClaimTakeV1::Claimed(
@@ -330,12 +337,22 @@ impl ScriptDirectStaticClaimLedgerV1 {
         site: &SourceExprSiteV1,
     ) -> Result<Option<&VerifiedScriptDirectStaticJoinRowV1>, ScriptDirectStaticClaimLedgerIssueV1>
     {
-        if self.completed.contains(site) || self.in_flight.contains(site) {
+        let Self::DirectStaticClaims {
+            pending,
+            in_flight,
+            completed,
+        } = self
+        else {
+            return Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(
+                site.clone(),
+            ));
+        };
+        if completed.contains(site) || in_flight.contains(site) {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::DuplicateClaim(
                 site.clone(),
             ));
         }
-        Ok(self.pending.get(site).map(|pending| &pending.row))
+        Ok(pending.get(site).map(|pending| &pending.row))
     }
 
     pub(super) fn complete(
@@ -348,24 +365,38 @@ impl ScriptDirectStaticClaimLedgerV1 {
                 site,
             ));
         }
-        if !self.in_flight.remove(&site) {
+        let Self::DirectStaticClaims {
+            in_flight,
+            completed,
+            ..
+        } = self
+        else {
+            return Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(site));
+        };
+        if !in_flight.remove(&site) {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::UnknownClaimState);
         }
-        if !self.completed.insert(site) {
+        if !completed.insert(site) {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::UnknownClaimState);
         }
         Ok(())
     }
 
-    pub(super) fn finish(self) -> Result<(), ScriptDirectStaticClaimLedgerIssueV1> {
-        if !self.pending.is_empty() {
+    pub(super) fn finish(&self) -> Result<(), ScriptDirectStaticClaimLedgerIssueV1> {
+        let Self::DirectStaticClaims {
+            pending, in_flight, ..
+        } = self
+        else {
+            return Ok(());
+        };
+        if !pending.is_empty() {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::PendingRows(
-                self.pending.len(),
+                pending.len(),
             ));
         }
-        if !self.in_flight.is_empty() {
+        if !in_flight.is_empty() {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::InFlightRows(
-                self.in_flight.len(),
+                in_flight.len(),
             ));
         }
         Ok(())
@@ -373,12 +404,18 @@ impl ScriptDirectStaticClaimLedgerV1 {
 
     #[cfg(test)]
     pub(super) fn pending_len(&self) -> usize {
-        self.pending.len()
+        match self {
+            Self::CompleteNoDirectStaticClaims(_) => 0,
+            Self::DirectStaticClaims { pending, .. } => pending.len(),
+        }
     }
 
     #[cfg(test)]
     pub(super) fn in_flight_len(&self) -> usize {
-        self.in_flight.len()
+        match self {
+            Self::CompleteNoDirectStaticClaims(_) => 0,
+            Self::DirectStaticClaims { in_flight, .. } => in_flight.len(),
+        }
     }
 }
 

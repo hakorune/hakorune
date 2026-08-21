@@ -215,6 +215,78 @@ impl VerifiedScriptDirectStaticResultPublicationOwnerV1 {
         })
     }
 
+    /// Project the already-issued C rows without reopening the AST or
+    /// resolver forest. Continuation relations remain the only new input:
+    /// this owner attaches the terminal destination to each A-owned demand.
+    pub(in crate::mir::builder) fn from_canonical_bundle(
+        source_owner: FunctionOwnerIdV1,
+        source_identity: usize,
+        bundle: &VerifiedScriptDirectStaticResultBundleV1,
+        continuation: &VerifiedScriptSourceContinuationV1,
+    ) -> Result<Self, ScriptDirectStaticResultPublicationOwnerIssueV1> {
+        if bundle.source_owner() != source_owner {
+            return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::BundleOwnerMismatch);
+        }
+        if bundle.source_identity() != source_identity {
+            return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::BundleSourceMismatch);
+        }
+        if continuation.owner() != source_owner {
+            return Err(
+                ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationOwnerMismatch,
+            );
+        }
+
+        let mut rows = BTreeMap::new();
+        for (site, demand) in bundle.rows() {
+            let Some(destination) = continuation.row(site) else {
+                return Err(
+                    ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationMissing(
+                        site.clone(),
+                    ),
+                );
+            };
+            if destination.owner() != source_owner {
+                return Err(
+                    ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationRowOwnerMismatch(
+                        site.clone(),
+                    ),
+                );
+            }
+            if destination.call_site() != site {
+                return Err(
+                    ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationCallSiteMismatch(
+                        site.clone(),
+                    ),
+                );
+            }
+            let row = VerifiedScriptDirectStaticResultPublicationDemandV1 {
+                source_owner,
+                call_site: site.clone(),
+                receiver_site: demand.receiver_site().clone(),
+                argument_sites: demand.argument_sites().to_vec().into_boxed_slice(),
+                result_site: demand.result_site().clone(),
+                parent_relations: destination.parent_relations().to_vec().into_boxed_slice(),
+                terminal: destination.terminal().clone(),
+                target: demand.target().clone(),
+                representation: demand.representation().clone(),
+                required_callee_i64_arguments: demand
+                    .required_callee_i64_arguments()
+                    .to_vec()
+                    .into_boxed_slice(),
+            };
+            if rows.insert(site.clone(), row).is_some() {
+                return Err(
+                    ScriptDirectStaticResultPublicationOwnerIssueV1::DuplicateSite(site.clone()),
+                );
+            }
+        }
+        Ok(Self {
+            source_owner,
+            source_identity,
+            rows,
+        })
+    }
+
     pub(super) const fn source_owner(&self) -> FunctionOwnerIdV1 {
         self.source_owner
     }

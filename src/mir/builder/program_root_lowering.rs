@@ -13,7 +13,8 @@ use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::normal_callable_semantic_loan_port::NormalCallableSemanticPackagePortAdapterV1;
-use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::normal_script_pre_effect_source_observation::
+    CanonicalScriptCPreparedLoweringSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
     PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanPartsV1,
@@ -76,7 +77,7 @@ pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
 }
 
 pub(super) enum NormalScriptRootLoweringMode<'source> {
-    Complete(VerifiedScriptSemanticSourceV1<'source>),
+    Complete(CanonicalScriptCPreparedLoweringSourceV1<'source>),
     Deferred(ScriptResolverDeferredV1),
     Unavailable,
 }

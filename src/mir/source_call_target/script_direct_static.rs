@@ -73,6 +73,26 @@ impl VerifiedScriptDirectStaticCallLookupRowV1 {
     pub(crate) fn required_callee_i64_arguments(&self) -> &[u32] {
         &self.required_callee_i64_arguments
     }
+
+    pub(crate) fn into_parts(
+        self,
+    ) -> (
+        SourceExprSiteV1,
+        SourceExprSiteV1,
+        Box<[SourceExprSiteV1]>,
+        crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+        VerifiedCallableResultRepresentationV1,
+        Box<[u32]>,
+    ) {
+        (
+            self.site,
+            self.receiver_site,
+            self.argument_sites,
+            self.target,
+            self.representation,
+            self.required_callee_i64_arguments,
+        )
+    }
 }
 
 /// The sole owned selected-Script target/result lookup product.
@@ -271,6 +291,12 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
         ),
     > {
         self.rows.iter()
+    }
+
+    pub(crate) fn into_rows(
+        self,
+    ) -> BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallLookupRowV1> {
+        self.rows
     }
 }
 

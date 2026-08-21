@@ -52,6 +52,10 @@ impl ShadowTraversalProfileV1 {
             Self::ScriptLexicalCoreV1 | Self::ScriptLambdaLeafV1 => match expression {
                 ASTNode::Literal { .. } | ASTNode::Variable { .. } => true,
                 ASTNode::Lambda { .. } => matches!(self, Self::ScriptLexicalCoreV1),
+                // Root Script source admission retains ordinary MethodCall
+                // shape for the resolver-owned source relation.  Lambda
+                // leaves keep the narrower lexical profile.
+                ASTNode::MethodCall { .. } => matches!(self, Self::ScriptLexicalCoreV1),
                 ASTNode::UnaryOp { .. } => true,
                 ASTNode::BinaryOp { .. }
                 | ASTNode::AwaitExpression { .. }

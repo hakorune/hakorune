@@ -8,13 +8,8 @@ use crate::ast::ASTNode;
 use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::builder::normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleErrorV1;
-use crate::mir::builder::normal_script_direct_static_join_handoff::{
-    VerifiedScriptDirectStaticJoinHandoffV1, VerifiedScriptDirectStaticRequiredArgumentProofV1,
-};
-use crate::mir::builder::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
-use crate::mir::builder::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
-use crate::mir::builder::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
-use crate::mir::builder::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use crate::mir::builder::normal_script_pre_effect_source_observation::
+    CanonicalScriptCBoundSourceV1;
 use crate::mir::builder::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use crate::mir::builder::program_root_lowering::{
     NormalCallableSemanticPackageMode, NormalScriptRootLoweringMode,
@@ -26,7 +21,6 @@ use crate::mir::builder::{
 use crate::mir::callable_result_representation::{
     VerifiedSameModuleCallableResultCatalogV1, VerifiedStaticCallResultPublicationOwnerV1,
 };
-use crate::mir::source_call_target::VerifiedScriptDirectStaticCallLookupV1;
 use crate::mir::source_call_target::{
     VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
 };
@@ -41,8 +35,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
     brand: ModuleInvocationBrandV1,
     declaration_facts: PreparedNormalProgramDeclarationFactsV1,
     callable_mode: NormalCallableSemanticPackageMode<'package>,
-    mut script_source: Option<VerifiedScriptSemanticSourceV1<'source>>,
-    script_lookup: Option<VerifiedScriptDirectStaticCallLookupV1>,
+    script_source: Option<CanonicalScriptCBoundSourceV1<'source>>,
     preflight_static_result_publication_owner: &mut Option<
         VerifiedStaticCallResultPublicationOwnerV1,
     >,
@@ -51,100 +44,25 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
     >,
 ) -> Result<MirModule, NormalDefaultRootCatalogLifecycleErrorV1> {
-    if let Some(source) = script_source.as_mut() {
-        let lookup = script_lookup.ok_or_else(|| {
-            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                "[mir/script-static-result/bundle] missing preflight lookup".into(),
+    let script_source = match script_source {
+        Some(bound) => {
+            let admission = work.script_root_admission.as_ref().ok_or_else(|| {
+                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                    "[mir/script-a-c/consumer] missing Script admission".into(),
+                )
+            })?;
+            Some(
+                bound
+                    .consume_into_lowering_source(admission)
+                    .map_err(|error| {
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            error.into(),
+                        )
+                    })?,
             )
-        })?;
-        let window = work
-            .script_root_admission
-            .as_ref()
-            .ok_or_else(|| {
-                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                    "[mir/script-static-result/bundle] missing Script admission".into(),
-                )
-            })?
-            .window();
-        let bundle = VerifiedScriptDirectStaticResultBundleV1::issue(source, window, lookup)
-            .map_err(|error| {
-                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                    format!("[mir/script-static-result/bundle] {error:?}").into(),
-                )
-            })?;
-        let publication_owner = VerifiedScriptDirectStaticResultPublicationOwnerV1::issue(
-            source,
-            &bundle,
-            source.continuation(),
-        )
-        .map_err(|error| {
-            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                format!("[mir/script-static-result/owner] {error:?}").into(),
-            )
-        })?;
-        let recipe = VerifiedScriptDirectStaticRecipeV1::issue(
-            &publication_owner,
-            work.script_root_admission
-                .as_ref()
-                .expect("Script admission remains attached")
-                .window(),
-        )
-        .map_err(|error| {
-            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                format!("[mir/script-static-result/recipe] {error:?}").into(),
-            )
-        })?;
-        let join_handoff =
-            VerifiedScriptDirectStaticJoinHandoffV1::issue(&recipe, &publication_owner).map_err(
-                |error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                        format!("[mir/script-static-result/join] {error:?}").into(),
-                    )
-                },
-            )?;
-        let required_argument_proof =
-            VerifiedScriptDirectStaticRequiredArgumentProofV1::issue(source, &join_handoff)
-                .map_err(|error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                        format!("[mir/script-static-required-argument/proof] {error:?}").into(),
-                    )
-                })?;
-        source
-            .attach_direct_static_result_bundle(bundle)
-            .map_err(|error| {
-                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                    format!("[mir/script-static-result/attach] {error}").into(),
-                )
-            })?;
-        source
-            .attach_direct_static_result_publication_owner(publication_owner)
-            .map_err(|error| {
-                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                    format!("[mir/script-static-result/owner-attach] {error}").into(),
-                )
-            })?;
-        source
-            .attach_direct_static_recipe(recipe)
-            .map_err(|error| {
-                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                    format!("[mir/script-static-result/recipe-attach] {error}").into(),
-                )
-            })?;
-        source
-            .attach_direct_static_join_handoff(join_handoff)
-            .map_err(|error| {
-                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                    format!("[mir/script-static-result/join-attach] {error}").into(),
-                )
-            })?;
-        source
-            .attach_direct_static_required_argument_proof(required_argument_proof)
-            .map_err(|error| {
-                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                    format!("[mir/script-static-required-argument/attach] {error}").into(),
-                )
-            })?;
-    }
+        }
+        None => None,
+    };
 
     let static_result_publication_owner = match preflight_static_result_publication_owner.take() {
         Some(owner) => owner,

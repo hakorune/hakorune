@@ -102,7 +102,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         let expected_arity = u32::try_from(arguments.len()).map_err(|_| {
             "[freeze:contract][script-direct-static/claim-arity-overflow]".to_owned()
         })?;
-        let pending = ledger
+        ledger
             .borrow()
             .validate_direct_static_claim(&call_site, |row| {
                 let target = row.target();
@@ -123,16 +123,10 @@ impl RawInvocationChildPortV1<'_, '_> {
                 }
                 Ok(())
             })?;
-        if !pending {
-            return Ok(ScriptDirectStaticClaimTakeV1::Absent);
-        }
         let take = ledger.borrow_mut().take_direct_static_claim(&call_site)?;
         match take {
             ScriptDirectStaticClaimTakeV1::Claimed(claimed) => {
                 Ok(ScriptDirectStaticClaimTakeV1::Claimed(claimed))
-            }
-            ScriptDirectStaticClaimTakeV1::Absent => {
-                Err("[freeze:contract][script-direct-static/claim-state-drift]".to_owned())
             }
             ScriptDirectStaticClaimTakeV1::Unavailable => {
                 Err("[freeze:contract][script-direct-static/claim-consumer-unavailable]".to_owned())

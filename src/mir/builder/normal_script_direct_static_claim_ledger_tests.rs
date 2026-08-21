@@ -6,6 +6,9 @@ use crate::mir::builder::normal_script_direct_static_recipe::{
     ScriptDirectStaticRecipeDestinationV1, ScriptDirectStaticRecipeKeyV1,
     VerifiedScriptDirectStaticRecipeDemandV1, VerifiedScriptDirectStaticRecipeV1,
 };
+use crate::mir::builder::normal_script_semantic_lowering_input::{
+    CanonicalScriptACompleteZeroKindV1, CanonicalScriptCNoDirectClaimsV1,
+};
 use crate::mir::builder::normal_script_direct_static_result_bundle::{
     VerifiedScriptDirectStaticResultBundleV1, VerifiedScriptDirectStaticResultDemandV1,
 };
@@ -22,6 +25,16 @@ fn site() -> SourceExprSiteV1 {
     SourcePathV1::program_body()
         .child(SourcePathSegmentV1::ProgramBody(0))
         .expr()
+}
+
+fn no_direct_ledger() -> ScriptDirectStaticClaimLedgerV1 {
+    ScriptDirectStaticClaimLedgerV1::complete_no_direct(
+        CanonicalScriptCNoDirectClaimsV1::from_issued_c(
+            CanonicalScriptACompleteZeroKindV1::NoMethodCalls,
+            0,
+            Box::new([]),
+        ),
+    )
 }
 
 fn non_empty_products() -> (
@@ -104,23 +117,23 @@ fn non_empty_products() -> (
 }
 
 #[test]
-fn empty_ledger_is_absent_and_finishes() {
-    let mut ledger = ScriptDirectStaticClaimLedgerV1::empty();
+fn empty_ledger_is_not_claimable_and_finishes() {
+    let mut ledger = no_direct_ledger();
     assert_eq!(ledger.pending_len(), 0);
     assert_eq!(ledger.in_flight_len(), 0);
     assert_eq!(
         ledger.take(&site()),
-        Ok(ScriptDirectStaticClaimTakeV1::Absent)
+        Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(site()))
     );
     ledger.finish().expect("empty ledger finishes");
 }
 
 #[test]
 fn unknown_site_does_not_mutate_empty_ledger() {
-    let mut ledger = ScriptDirectStaticClaimLedgerV1::empty();
+    let mut ledger = no_direct_ledger();
     assert_eq!(
         ledger.take(&site()),
-        Ok(ScriptDirectStaticClaimTakeV1::Absent)
+        Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(site()))
     );
     assert_eq!(ledger.pending_len(), 0);
     assert_eq!(ledger.in_flight_len(), 0);
@@ -136,7 +149,6 @@ fn complete_pair_is_claimed_once_and_finishes_exhausted() {
 
     let mut claimed = match ledger.take(&call_site).expect("first take") {
         ScriptDirectStaticClaimTakeV1::Claimed(claimed) => claimed,
-        ScriptDirectStaticClaimTakeV1::Absent => panic!("candidate row must be present"),
         ScriptDirectStaticClaimTakeV1::Unavailable => {
             panic!("direct ledger must not report unavailable")
         }

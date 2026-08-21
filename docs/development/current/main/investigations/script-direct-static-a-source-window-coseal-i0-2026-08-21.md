@@ -236,8 +236,8 @@ CompleteNoDirectStaticClaims(source-backed C witness)
 DirectStaticClaims(nonempty downstream input)
 ```
 
-The first state is not an empty Bundle and does not authorize
-`ScriptDirectStaticClaimTakeV1::Absent`. Once selected Script owns either C
+The first state is not an empty Bundle and does not authorize a missing-row
+claim result. Once selected Script owns either C
 state, a static-claim ingress with no exact row is an integrity failure; it may
 not retry the generic static lookup. This commit is BoxShape-only and must not
 create a detached production route.
@@ -469,3 +469,48 @@ owners to evade the limit.
 The independent Result-discard queue remains ordered as
 `MIR-RESULT-DISCARD-CENSUS-D0` -> `MIR-ASSIGNMENT-RELEASE-FAILFAST-I0` ->
 `MIR-RESULT-DISCARD-GUARD-I0`; `EmitReceipt` remains parked.
+
+## A/C implementation checkpoint — 2026-08-22
+
+The working tree now contains the selected A/C seam and the production
+callpoint replacement, but this checkpoint is not a pushed closeout yet.
+The linear path is:
+
+```text
+PreEffectCompleteSourceObservationV1
+  -> private non-Clone A capability
+  -> CanonicalScriptAObservationIssuerV1
+  -> CanonicalScriptCDispositionIssuerV1
+  -> one post-install C consumer
+  -> required CompleteNoDirectStaticClaims or DirectStaticClaims input
+```
+
+The direct/no-direct lowering products are retained by one
+`ScriptDirectStaticLoweringProductsV1` enum. They are not parallel optional
+fields, and the C consumer remains the only place that projects canonical A
+rows into the existing Bundle/Recipe/Join/required-argument boundary. The
+resolver MethodCall admission is a bounded source-profile repair: ordinary
+Script root MethodCall traversal is admitted while the narrower lambda-leaf
+profile remains unchanged. No second resolver or AST observer was added.
+
+Evidence recorded for this working tree:
+
+- `CARGO_BUILD_JOBS=4 cargo check --profile quick`: pass; the repository
+  baseline still emits 2,286 warnings and no new compile error;
+- direct focused test binary: A/C 2 passed, pre-effect source observation 6
+  passed, claim ledger 7 passed, and retained FunctionCall 1 passed;
+- `script_direct_static_a_c_consumer_i0_guard.sh`: pass;
+- updated `script_direct_static_target_guard.sh`: pass;
+- source-reown, composite-admission, current-state-pointer, and diff guards:
+  pass;
+- the repository-wide `cargo fmt --all -- --check` remains red on existing
+  formatting drift; no repository-wide formatter rewrite was applied;
+- the broad `normal_script_semantic_source` filter remains a known parent
+  baseline red on work-plan/contract fixtures and is not counted as focused
+  A/C acceptance evidence.
+
+The target guard is intentionally retained as a legacy broad audit and is
+heavier than the new A/C guard because it invokes several cargo test filters
+sequentially. The A/C series does not add those repeated cargo invocations to
+its normal fast gate; its reusable guard is structural and its focused tests
+are run once per evidence collection.

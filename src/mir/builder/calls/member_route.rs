@@ -135,15 +135,6 @@ impl MirBuilder {
                                 lower_claimed_script_direct_static_v1(self, port, input, claimed)
                                     .map_err(|error| error.to_string())
                             }
-                            ScriptDirectStaticClaimTakeV1::Absent => {
-                                let mut descent = AssociatedMethodCallArgumentsV1::new(port, input);
-                                self.handle_static_method_call_with_descent(
-                                    &box_name,
-                                    &method,
-                                    arguments,
-                                    &mut descent,
-                                )
-                            }
                             ScriptDirectStaticClaimTakeV1::Unavailable => Err(
                                 "[freeze:contract][script-direct-static/claim-ingress-state]"
                                     .to_owned(),

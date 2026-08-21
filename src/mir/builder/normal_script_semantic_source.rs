@@ -7,17 +7,9 @@
 //! carrier can manufacture the Complete loan.
 
 use super::normal_script_boundary_receipt_pack::ScriptBoundaryReceiptPackV1;
-use super::normal_script_direct_static_join_handoff::{
-    VerifiedScriptDirectStaticJoinHandoffV1,
-    VerifiedScriptDirectStaticRequiredArgumentProofV1,
-};
-use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
-use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
-use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDemandReceiptPackV1;
 #[cfg(test)]
 use super::normal_script_operational_demand_receipt_pack::ScriptQMarkPropagationTargetV1;
-use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
 use super::normal_script_semantic_source_core::{
     ScriptSemanticSourceCoreV1, ScriptSemanticSourcePreEffectCorePartsV1,
@@ -43,13 +35,6 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     demands: ScriptOperationalDemandReceiptPackV1,
     lowering_projection: VerifiedScriptLoweringProjectionV1,
     continuation: VerifiedScriptSourceContinuationV1,
-    direct_static_result_bundle: Option<VerifiedScriptDirectStaticResultBundleV1>,
-    direct_static_result_publication_owner:
-        Option<VerifiedScriptDirectStaticResultPublicationOwnerV1>,
-    direct_static_recipe: Option<VerifiedScriptDirectStaticRecipeV1>,
-    direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
-    direct_static_required_argument_proof:
-        Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
 }
 
 #[derive(Debug)]
@@ -120,11 +105,6 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             demands,
             lowering_projection,
             continuation,
-            direct_static_result_bundle: None,
-            direct_static_result_publication_owner: None,
-            direct_static_recipe: None,
-            direct_static_join_handoff: None,
-            direct_static_required_argument_proof: None,
         })
     }
 
@@ -137,20 +117,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             demands,
             lowering_projection,
             continuation,
-            direct_static_result_bundle,
-            direct_static_result_publication_owner,
-            direct_static_recipe,
-            direct_static_join_handoff,
-            direct_static_required_argument_proof,
         } = self;
-        if direct_static_result_bundle.is_some()
-            || direct_static_result_publication_owner.is_some()
-            || direct_static_recipe.is_some()
-            || direct_static_join_handoff.is_some()
-            || direct_static_required_argument_proof.is_some()
-        {
-            return Err("pre-effect Script source cannot contain downstream products");
-        }
         Ok(ScriptSemanticSourcePreEffectPartsV1 {
             core: core.into_pre_effect_parts(),
             boundaries,
@@ -170,98 +137,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             demands: parts.demands,
             lowering_projection: parts.lowering_projection,
             continuation: parts.continuation,
-            direct_static_result_bundle: None,
-            direct_static_result_publication_owner: None,
-            direct_static_recipe: None,
-            direct_static_join_handoff: None,
-            direct_static_required_argument_proof: None,
         }
-    }
-
-    pub(super) fn attach_direct_static_result_bundle(
-        &mut self,
-        bundle: VerifiedScriptDirectStaticResultBundleV1,
-    ) -> Result<(), &'static str> {
-        if self.direct_static_result_bundle.replace(bundle).is_some() {
-            return Err("duplicate Script direct-static result bundle");
-        }
-        Ok(())
-    }
-
-    pub(super) fn direct_static_result_bundle(
-        &self,
-    ) -> Option<&VerifiedScriptDirectStaticResultBundleV1> {
-        self.direct_static_result_bundle.as_ref()
-    }
-
-    pub(super) fn attach_direct_static_result_publication_owner(
-        &mut self,
-        owner: VerifiedScriptDirectStaticResultPublicationOwnerV1,
-    ) -> Result<(), &'static str> {
-        if self
-            .direct_static_result_publication_owner
-            .replace(owner)
-            .is_some()
-        {
-            return Err("duplicate Script direct-static result publication owner");
-        }
-        Ok(())
-    }
-
-    pub(super) fn direct_static_result_publication_owner(
-        &self,
-    ) -> Option<&VerifiedScriptDirectStaticResultPublicationOwnerV1> {
-        self.direct_static_result_publication_owner.as_ref()
-    }
-
-    pub(super) fn attach_direct_static_recipe(
-        &mut self,
-        recipe: VerifiedScriptDirectStaticRecipeV1,
-    ) -> Result<(), &'static str> {
-        if self.direct_static_recipe.replace(recipe).is_some() {
-            return Err("duplicate Script direct-static Recipe");
-        }
-        Ok(())
-    }
-
-    pub(super) fn direct_static_recipe(&self) -> Option<&VerifiedScriptDirectStaticRecipeV1> {
-        self.direct_static_recipe.as_ref()
-    }
-
-    pub(super) fn attach_direct_static_join_handoff(
-        &mut self,
-        handoff: VerifiedScriptDirectStaticJoinHandoffV1,
-    ) -> Result<(), &'static str> {
-        if self.direct_static_join_handoff.replace(handoff).is_some() {
-            return Err("duplicate Script direct-static Join handoff");
-        }
-        Ok(())
-    }
-
-    pub(super) fn direct_static_join_handoff(
-        &self,
-    ) -> Option<&VerifiedScriptDirectStaticJoinHandoffV1> {
-        self.direct_static_join_handoff.as_ref()
-    }
-
-    pub(super) fn attach_direct_static_required_argument_proof(
-        &mut self,
-        proof: VerifiedScriptDirectStaticRequiredArgumentProofV1,
-    ) -> Result<(), &'static str> {
-        if self
-            .direct_static_required_argument_proof
-            .replace(proof)
-            .is_some()
-        {
-            return Err("duplicate Script direct-static required-argument proof");
-        }
-        Ok(())
-    }
-
-    pub(super) fn direct_static_required_argument_proof(
-        &self,
-    ) -> Option<&VerifiedScriptDirectStaticRequiredArgumentProofV1> {
-        self.direct_static_required_argument_proof.as_ref()
     }
 
     pub(super) fn continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
@@ -390,16 +266,23 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         self.lowering_projection.variable_binding_at(site)
     }
 
-    pub(super) fn into_lowering_input(self) -> VerifiedScriptSemanticLoweringInputV1 {
-        VerifiedScriptSemanticLoweringInputV1::new(
-            self.lowering_projection,
-            self.continuation,
-            self.direct_static_result_bundle,
-            self.direct_static_result_publication_owner,
-            self.direct_static_recipe,
-            self.direct_static_join_handoff,
-            self.direct_static_required_argument_proof,
-        )
+    pub(super) fn into_lowering_parts(
+        self,
+    ) -> (
+        VerifiedScriptLoweringProjectionV1,
+        VerifiedScriptSourceContinuationV1,
+    ) {
+        (self.lowering_projection, self.continuation)
+    }
+}
+
+impl ScriptSemanticSourcePreEffectPartsV1 {
+    pub(in crate::mir::builder) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
+        self.core.forest()
+    }
+
+    pub(in crate::mir::builder) fn continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
+        &self.continuation
     }
 }
 

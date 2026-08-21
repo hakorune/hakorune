@@ -110,7 +110,7 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
         BTreeSet::new(),
         BTreeSet::new(),
         ShadowMethodCallObservationModeV0::Disabled,
-        false,
+        true,
     )
     .map(|resolver| resolver.finish_owner(profile).function)
 }
@@ -136,7 +136,7 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'a
         BTreeSet::new(),
         BTreeSet::new(),
         ShadowMethodCallObservationModeV0::Disabled,
-        false,
+        true,
     )
     .map(|resolver| resolver.finish_owner(profile))
 }
@@ -167,7 +167,7 @@ pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_with_
         BTreeSet::new(),
         BTreeSet::new(),
         ShadowMethodCallObservationModeV0::Disabled,
-        false,
+        true,
     )
     .map(|resolver| resolver.finish_owner(profile))
 }

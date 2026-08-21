@@ -14,7 +14,9 @@ use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
     VerifiedScriptRootDemandWindowV1,
 };
-use crate::mir::source_call_target::VerifiedScriptDirectStaticCallLookupV1;
+use crate::mir::source_call_target::{
+    VerifiedScriptDirectStaticCallLookupRowV1, VerifiedScriptDirectStaticCallLookupV1,
+};
 
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 
@@ -244,6 +246,44 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
             source_identity: source.source() as *const _ as usize,
             rows,
         })
+    }
+
+    /// Project rows already co-sealed by the private Script A issuer.
+    ///
+    /// This constructor deliberately performs no source observation.  The
+    /// named C consumer is the only production caller and receives rows whose
+    /// site, receiver, arguments, result, target, and representation were
+    /// checked in the single A pass.
+    pub(in crate::mir::builder) fn from_canonical_a_rows(
+        source_owner: FunctionOwnerIdV1,
+        source_identity: usize,
+        rows: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallLookupRowV1>,
+    ) -> Self {
+        let rows = rows
+            .into_iter()
+            .map(|(site, lookup_row)| {
+                let (row_site, receiver_site, argument_sites, target, representation, required) =
+                    lookup_row.into_parts();
+                (
+                    site.clone(),
+                    VerifiedScriptDirectStaticResultDemandV1 {
+                        source_owner,
+                        site,
+                        receiver_site,
+                        argument_sites,
+                        result_site: row_site,
+                        target,
+                        representation,
+                        required_callee_i64_arguments: required,
+                    },
+                )
+            })
+            .collect();
+        Self {
+            source_owner,
+            source_identity,
+            rows,
+        }
     }
 
     pub(super) const fn source_owner(&self) -> FunctionOwnerIdV1 {

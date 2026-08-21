@@ -12,7 +12,9 @@ use super::normal_default_root_catalog_post_install::
     finish_normal_default_root_after_pre_effect_bind;
 use super::normal_script_direct_static_lookup::ScriptDirectStaticCallLookupIssuerV1;
 use super::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWindowV1;
-use super::normal_script_pre_effect_source_observation::NormalScriptPreEffectSourceObservationIssuerV1;
+use super::normal_script_pre_effect_source_observation::{
+    issue_into_c_transport, NormalScriptPreEffectSourceObservationIssuerV1,
+};
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_lowering::NormalCallableSemanticPackageMode;
 use super::program_root_work_plan::{
@@ -373,7 +375,20 @@ impl ModuleBuilderInvocationSessionV1 {
                             &declaration_facts,
                             &mut resolver,
                         ) {
-                            Ok(observation) => Some(observation),
+                            Ok(observation) => match issue_into_c_transport(observation) {
+                                Ok(transport) => Some(transport),
+                                Err(error) => {
+                                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                                        session: self,
+                                        _source: None,
+                                        error:
+                                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                                format!("[mir/script-a/capability] {error:?}")
+                                                    .into(),
+                                            ),
+                                    })
+                                }
+                            },
                             Err(error) => {
                                 return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
                                     session: self,
@@ -518,7 +533,7 @@ impl ModuleBuilderInvocationSessionV1 {
                 let work = work.into_parts();
                 let result = match (installed_package.as_ref(), pre_effect_script_source.take()) {
                     (Some(package), Some(observation)) => observation
-                        .with_bound_source(package, |source, lookup| {
+                        .with_bound_source(package, |source| {
                             finish_normal_default_root_after_pre_effect_bind(
                                 builder,
                                 work,
@@ -530,7 +545,6 @@ impl ModuleBuilderInvocationSessionV1 {
                                 declaration_facts,
                                 NormalCallableSemanticPackageMode::Installed(package),
                                 Some(source),
-                                Some(lookup),
                                 &mut preflight_static_result_publication_owner,
                                 &import_rows,
                                 target_capability,
@@ -552,7 +566,6 @@ impl ModuleBuilderInvocationSessionV1 {
                         declaration_facts,
                         NormalCallableSemanticPackageMode::Installed(package),
                         None,
-                        script_lookup.take(),
                         &mut preflight_static_result_publication_owner,
                         &import_rows,
                         target_capability,
@@ -568,7 +581,6 @@ impl ModuleBuilderInvocationSessionV1 {
                         declaration_facts,
                         NormalCallableSemanticPackageMode::Compatibility,
                         None,
-                        script_lookup.take(),
                         &mut preflight_static_result_publication_owner,
                         &import_rows,
                         target_capability,

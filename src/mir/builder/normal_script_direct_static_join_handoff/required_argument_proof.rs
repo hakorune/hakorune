@@ -40,6 +40,8 @@ pub(in crate::mir) enum ScriptDirectStaticRequiredArgumentProofIssueV1 {
         source: VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
     },
     MethodShape(VerifiedScriptDirectStaticScalarOperandRecipeIssueV1),
+    CanonicalSourceRowMissing(SourceExprSiteV1),
+    CanonicalSourceRowForeign(SourceExprSiteV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -50,6 +52,18 @@ pub(in crate::mir) struct RequiredArgumentProofArgumentV1 {
 }
 
 impl RequiredArgumentProofArgumentV1 {
+    pub(in crate::mir::builder) fn from_canonical_source(
+        ordinal: u32,
+        site: SourceExprSiteV1,
+        tree: ScalarOperandRecipeNodeV1,
+    ) -> Self {
+        Self {
+            ordinal,
+            site,
+            tree,
+        }
+    }
+
     pub(in crate::mir) const fn ordinal(&self) -> u32 {
         self.ordinal
     }
@@ -147,6 +161,59 @@ impl VerifiedScriptDirectStaticRequiredArgumentProofV1 {
         Ok(Self {
             source_owner,
             source_identity: source.source() as *const _ as usize,
+            rows,
+        })
+    }
+
+    /// Move key-free source facts issued by A onto the Recipe-owned keys.
+    /// No resolver expression inventory is consulted here.
+    pub(in crate::mir::builder) fn from_canonical_source_rows(
+        source_owner: FunctionOwnerIdV1,
+        source_identity: usize,
+        join: &VerifiedScriptDirectStaticJoinHandoffV1,
+        mut source_rows: BTreeMap<
+            SourceExprSiteV1,
+            ScriptDirectStaticRequiredArgumentProofDispositionV1,
+        >,
+    ) -> Result<Self, ScriptDirectStaticRequiredArgumentProofIssueV1> {
+        if join.source_owner() != source_owner {
+            return Err(ScriptDirectStaticRequiredArgumentProofIssueV1::SourceOwnerMismatch);
+        }
+        if join.source_identity() != source_identity {
+            return Err(ScriptDirectStaticRequiredArgumentProofIssueV1::SourceIdentityMismatch);
+        }
+        let mut rows = BTreeMap::new();
+        for (key, join_row) in join.rows() {
+            let Some(disposition) = source_rows.remove(join_row.call_site()) else {
+                return Err(
+                    ScriptDirectStaticRequiredArgumentProofIssueV1::CanonicalSourceRowMissing(
+                        join_row.call_site().clone(),
+                    ),
+                );
+            };
+            if rows
+                .insert(
+                    *key,
+                    ScriptDirectStaticRequiredArgumentProofRowV1 {
+                        call_site: join_row.call_site().clone(),
+                        disposition,
+                    },
+                )
+                .is_some()
+            {
+                return Err(
+                    ScriptDirectStaticRequiredArgumentProofIssueV1::DuplicateJoinKey(*key),
+                );
+            }
+        }
+        if let Some((site, _)) = source_rows.into_iter().next() {
+            return Err(
+                ScriptDirectStaticRequiredArgumentProofIssueV1::CanonicalSourceRowForeign(site),
+            );
+        }
+        Ok(Self {
+            source_owner,
+            source_identity,
             rows,
         })
     }

@@ -51,6 +51,8 @@ RAW_DISPATCH=src/mir/builder/raw_expression_dispatch/mod.rs
 RAW_STRUCTURED=src/mir/builder/raw_structured_child_scope.rs
 RAW_INVOCATION=src/mir/builder/raw_invocation_source_transport.rs
 ROOT_TRAVERSAL=src/mir/resolved_semantics/shadow/root_traversal.rs
+A_MODEL=src/mir/builder/normal_script_a/model.rs
+A_CONSUMER=src/mir/builder/normal_script_a/consumer.rs
 BUILDER_README=src/mir/builder/README.md
 CARD=docs/development/current/main/investigations/script-direct-static-call-target-d0.md
 FAILFAST_CARD=docs/development/current/main/investigations/script-direct-static-call-claim-ingress-failfast-d0-2026-08-21.md
@@ -80,7 +82,11 @@ require_text "$LIFECYCLE" "ScriptDirectStaticCallLookupIssuerV1::issue"
 require_text "$LIFECYCLE" "script-static-lookup/preflight"
 require_text "$BUNDLE" "VerifiedScriptDirectStaticResultBundleV1"
 require_text "$BUNDLE" "VerifiedScriptDirectStaticCallLookupV1"
-require_text "$SEMANTIC_SOURCE" "attach_direct_static_result_bundle"
+require_text "$SEMANTIC_SOURCE" "into_lowering_parts"
+require_text "$A_MODEL" "CanonicalScriptCDispositionV1"
+require_text "$A_CONSUMER" "from_canonical_a_rows"
+require_text "$A_CONSUMER" "consume_into_lowering_source"
+require_text "$A_CONSUMER" "admission.is_from_invocation"
 require_text "$CONTINUATION" "VerifiedScriptSourceContinuationV1"
 require_text "$CONTINUATION" "validate_statement_window"
 require_text "$LOWERING_INPUT" "VerifiedScriptSemanticLoweringInputV1"
@@ -112,9 +118,10 @@ require_text "$REQUIRED_ARGUMENT_PROOF" "ExactI64Empty"
 require_text "$REQUIRED_ARGUMENT_PROOF" "UnsupportedRequiredArgument"
 require_text "$REQUIRED_ARGUMENT_PROOF" "required_proof_issues_only_required_scalar_ordinals"
 require_text "$REQUIRED_ARGUMENT_PROOF" "validate_argument_shape"
-require_text "$LOWERING_STATE" "direct_static_recipe"
+require_text "$LOWERING_STATE" "direct_static_products"
+require_text "$LOWERING_STATE" "ScriptDirectStaticLoweringProductsV1"
 require_text "$LOWERING_STATE" "direct_static_claim_ledger"
-require_text "$LOWERING_STATE" "issue_with_required_argument_proof"
+require_text "$A_CONSUMER" "from_canonical_source_rows"
 require_text "$LOWERING_STATE" "take_direct_static_claim"
 require_text "$LOWERING_STATE" "complete_direct_static_claim"
 require_text "$LOWERING_STATE" "finish_direct_static_claims"

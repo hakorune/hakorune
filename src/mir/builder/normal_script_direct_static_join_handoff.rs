@@ -301,6 +301,7 @@ pub(in crate::mir) use scalar_operand_recipe::{
     VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
     VerifiedScriptDirectStaticScalarOperandRecipeV1,
 };
+pub(in crate::mir::builder) use scalar_operand_recipe::issue_node;
 pub(in crate::mir) use required_argument_proof::{
     RequiredArgumentProofArgumentV1, ScriptDirectStaticRequiredArgumentProofDispositionV1,
     ScriptDirectStaticRequiredArgumentProofIssueV1,
