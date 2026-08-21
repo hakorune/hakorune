@@ -1,10 +1,10 @@
-Status: CONNECT0 handoff/evidence closeout landed; Dynamic body-to-semantic-state bridge audit is NoSafeSlice before live-publication evidence
-Task: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-D0
+Status: D0-A/D0-B accepted conditionally; selected Dynamic body-to-semantic-state bridge P0 is next, before live-publication evidence
+Task: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-P0
 Date: 2026-08-22
-Priority: close the missing non-emitting observation/consumption schema for resolver-backed Dynamic body and W6 evidence before implementation or collector/publication claims; keep backend and generic retirement closed
+Priority: implement one private non-emitting observation bridge for resolver-backed Dynamic body and closed W6 evidence; keep backend, live publication, and generic retirement closed
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 PreviousCard: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
-NextCard: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-D0 (same rolling card)
+NextCard: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-P0 (same rolling card)
 ---
 
 # Loop Compare CONNECT0 handoff
@@ -61,12 +61,12 @@ MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-D0
 Six-line brief:
 
 ```text
-Decision: keep `design_stop`: the selected Dynamic branch has no existing non-emitting bridge that can close `CallableSemanticLoweringState` exactly once; define that missing schema before implementation, live publication, backend emission, or generic Loop retirement.
-Source authority + canonical issuer: resolver-owned SelectedCallableLoweringInputRefV1/FunctionSourceViewV1 owns the exact body; CallableSemanticLoweringState owns entry/local/variable/assignment/dynamic-origin consumption; the private selected-Dynamic adapter is the only bridge issuer and reuses the existing A-prime demand/W6 products.
-Non-authority: A-prime body validation alone, package `complete()` key coverage alone, RawInvocationChildPort `lower_*` as an observation API, collector admission alone, `current_module` observation alone, test helpers, generic dispatcher caller-zero, old shared Compare leaf, backend/object output, and fallback.
-Fail-fast boundary: a future bridge must consume exact source/body and all existing semantic-state counters from resolver-bound/W6 evidence, then `state.finish()` must succeed before DraftSeal; any error discards the unpublished session and never reaches collector drain or fallback. The current `inspect` seam is not yet sufficient because OuterReturn evidence is produced inside `profile_close` later in the draft-close sequence.
-Smallest next slice: define the missing non-emitting observation contract for unchanged `parser_scan_loop_box.hako`: entry/local/read/rebind/origin mappings, existing-source transport, V14/outer-tail evidence, and a pre-DraftSeal seam after all required W6 close evidence. Only after this is accepted may P0 implement and observe DraftAdmission/ModuleDrain/ExternalCommit.
-Non-claims: no new semantic receipt, no AST-only rescan authority, no duplicate physical lowering, no generic dispatcher activation, no cross-block dominance, no Const/Binary migration, no shared old-leaf retirement, no LLVM/VM/object promotion, and no performance work.
+Decision: conditionally accept `SelectedDynamicBodyStateBridgeV1` as one private, non-emitting, one-shot transaction; it co-seals existing resolver source, Dynamic Rc, source relation, closed W6 evidence, and `CallableSemanticLoweringState` without issuing a semantic receipt or physical instruction.
+Source authority + canonical issuer: `SelectedCallableLoweringInputRefV1::source()`/`FunctionSourceViewV1` owns the exact body, the existing `Rc<VerifiedSourceBackedDynamicCallableV1>` owns Dynamic source semantics, `DynamicAPrimeI64SourceRelationViewV1` owns source/W6 relations, W6 owns formal/ledger/profile receipts, and the selected Dynamic adapter is the sole bridge issuer.
+Non-authority: A-prime validation alone, package `complete()` alone, `RawInvocationChildPortV1::lower_*`, AST rescan, raw `ValueId` equality, operation cursor alone, `state.finish()` alone, collector/module/backend observation, old leaf, fallback, and a second writer.
+Fail-fast boundary: W6 cleanup/operation close and `profile_close` must retain the outer-return receipt before the bridge; the bridge consumes every source/state obligation exactly once, then `state.finish()` succeeds before canonical `finish_for_draft_seal()` and DraftSeal. Any failure discards the unpublished session and cannot reach collector commit or fallback.
+Smallest next slice: `MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-P0`: transport the existing Dynamic Rc, retain I11 `V14` and the profile-close After receipt, add explicit alias/local/read/rebind/tail observation APIs, invoke the bridge exactly once before DraftSeal, and add focused negative/duplicate/no-effect evidence.
+Non-claims: no new semantic `Verified*`/`Prepared*` receipt, no AST-only authority, no duplicate physical lowering, no generic dispatcher activation, no cross-block dominance, no Const/Binary migration, no old-leaf retirement, no live publication claim, no LLVM/VM/object promotion, and no performance work.
 ```
 
 ### Worker audit result
@@ -261,17 +261,72 @@ authority (`FunctionSourceViewV1::root_body()` and its checked cursor); the
 physical session remains the physical evidence authority; the bridge only
 co-seals their already-issued relations and advances the existing state owner.
 
-The task order is intentionally split:
+The accepted D0-A/D0-B mapping is fixed as follows:
 
-1. **This D0:** map every `CallableSemanticLoweringState::finish()` counter
-   (entry, local, variable, assignment, direct lambda, brand constructor,
-   Dynamic origin) to an existing resolver/W6 row for the unchanged fixture;
-   name the non-emitting callpoint before DraftSeal and its discard path.
-2. **Following P0:** implement that one private bridge in the selected-Dynamic
-   adapter and add focused missing/foreign/duplicate/partial-consumption
-   evidence. Do not activate a second body lowerer or alter generic Loop
-   dispatch.
-3. **Following publication evidence:** run the unchanged production fixture
+| Source/state obligation | Existing W6 evidence | Private non-emitting observation |
+| --- | --- | --- |
+| formal entry `src/pos/end/pred_chars` | `DynamicV2OpenedFormalHeaderV1` values V0..V3 | existing `install_entry_values` with an exact static entry snapshot |
+| `PreludeLocalI` alias | induction declaration plus `pos` entry value V1 | dedicated `observe_preloop_alias`; never generic `record_completed_local` |
+| `ChLocal` | I6 normal result V10 plus exact declaration publication | `observe_existing_local` once for the distinct binding/value |
+| condition/substring/indexOf reads | exact W6 operation rows and V0/V2/V4/V6/V7/V10/V11 views | `observe_variable_site` with source binding and expected W6 relation |
+| `InnerReturnI` | I11 canonical read retained as V14 | `observe_variable_site` against the retained I11 row |
+| `StepReadI` and assignment | I13/V15 and I16/V17 | existing source-backed rebind prepare/commit, with the source relation and W6 values co-sealed |
+| `OuterReturnI` | `profile_close` After read receipt | `observe_tail_site`; do not reread After or equate it with V17 |
+| direct lambdas/brands | resolver-owned exact empty sets for the fixture | explicit zero-cardinality checks; no default map or missing-row inference |
+
+The loop-carrier evidence remains separate and is never reduced to a
+`ValueId == ValueId` assertion:
+
+```text
+Enter/pos       = V1
+Header current  = formal-header canonical binding receipt
+InnerReturn     = I11 / V14
+Backedge        = I16 / V17
+OuterReturn     = profile-close After binding receipt
+```
+
+The bridge checks owner, canonical session/brand, induction binding, source
+site, W6 producer row, and physical block for each relation. It does not assert
+`V1 == Header current`, `V14 == Header current`, `V17 == Header current`, or
+`OuterReturn == V17`. I11 adds V14 to the existing physical value ledger without
+emitting an instruction; `profile_close` returns its already-issued After
+receipt so the bridge cannot create a second PHI/read observation.
+
+The existing Dynamic `Rc` is transported through A-prime demand by cloning the
+already-issued handle before the selected input is consumed. The bridge may
+call `from_shared_source` with that handle, but it may not rerun the source
+issuer or reconstruct source state from AST, digest, name, or physical demand.
+
+The close order is fixed:
+
+```text
+W6 cleanup/operation close
+  -> profile_close retains OuterReturn/Header-current evidence
+  -> SelectedDynamicBodyStateBridgeV1 (once, non-emitting)
+  -> CallableSemanticLoweringState::finish()
+  -> canonical.finish_for_draft_seal()
+  -> DraftSeal
+  -> collector commit
+```
+
+The bridge is reached through the existing unpublished-session discard path.
+Any bridge or state error leaves the function unpublished and prevents DraftSeal,
+collector drain, external commit, fallback, and backend observation.
+
+The task order is now implementation-first within this bounded P0:
+
+1. **P0-A — transport and close seam:** carry the existing Dynamic `Rc`, retain
+   I11 V14 and the `profile_close` After receipt, and move bridge invocation
+   after `profile_close` but before `state.finish()`/DraftSeal.
+2. **P0-B — observation bridge:** implement the private exact-once source/W6
+   mapping above, including the explicit pre-loop alias and distinct `ChLocal`.
+   Do not call `RawInvocationChildPortV1::lower_*`, rescan AST, issue a second
+   source product, or add a physical writer.
+3. **P0-C — focused evidence:** cover missing/foreign/duplicate/partial
+   consumption and verify no instruction/type/ledger publication occurs before
+   a rejected bridge. Add a reusable caller/ordering guard and keep touched
+   production files below the 760/800-line limits.
+4. **Following publication evidence:** run the unchanged production fixture
    through public `compile_normal` and observe `DraftAdmission`, `ModuleDrain`,
    and `ExternalCommit` only after the bridge and state finish are green.
 
@@ -298,16 +353,14 @@ retirement proof: the shared legacy leaf still has non-test compatibility and
 canary callers. Generic retirement requires a separate selected production
 consumer and a complete old-leaf caller census.
 
-Acceptance for this D0 is a named non-emitting bridge owner, an exact mapping
-from resolver/body and W6 evidence to every existing state counter, an explicit
-pre-`finish_unpublished_draft` callpoint for `state.finish()`, and a typed
-discard path. The D0 must also prove that `RawInvocationChildPortV1::lower_*`
-is not reused as an observation pass. If that mapping is missing, if the
+P0 acceptance is one real compile-path fixture with exact once-only body/state
+consumption, explicit alias/tail relation checks, V14/After evidence retained
+without re-emission, typed unpublished discard on every rejection, and zero
+`lower_*`/AST-rescan/fallback/second-writer edges. `DraftAdmission`,
+`ModuleDrain`, and `ExternalCommit` remain later evidence; they are not claimed
+by this bridge P0. If any counter lacks an existing source/W6 relation, if the
 bridge requires a second AST authority or physical writer, or if state failure
-cannot discard the unpublished session, keep `NoSafeSlice`. The later P0
-acceptance is one real compile-path fixture with exact once-only body/state
-consumption and explicit `DraftAdmission`, `ModuleDrain`, and
-`ExternalCommit` evidence.
+cannot discard the unpublished session, return to `NoSafeSlice`.
 
 ## Current census
 
