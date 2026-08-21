@@ -550,6 +550,30 @@ no Recipe key, Join signature, ValueId, MIR type, result-publication ABI,
 physical block, fallback, or production switch; Recipe and physical result
 publication remain later design rows.
 
+## Parser composite source admission R0 (2026-08-21)
+
+`normal_script_composite_partition.rs` is the sole R0 issuer for the first
+parser-backed Script composite cohort. The default normal root binds the
+parser-owned, non-`Clone` composite preservation token through the scoped HRTB
+loan and issues one private two-axis Program partition at
+`PreparedNormalDefaultProgramRootV1::from_callable_source`.
+
+The bounded positive is one non-`Main`, non-sync static provider followed by a
+final root `MethodCall` (either a final Sequence value or a root Return value).
+The provider row transfers only the callable-catalog responsibility while its
+runtime terminal stays retained; the root call row remains an existing
+terminal and is not resolved here. The partition is consumed by the existing
+Script root demand window, so the same source statement cannot be silently
+dropped as a sibling.
+
+`Outside`, `SourceAuthorityUnavailable`, `Incomplete`, and
+`IntegrityInvalid` remain distinct. The latter three stop before target
+installation, resolver/lookup work, Builder effects, Recipe, physical work,
+or fallback. AST-only compatibility and vm-reference paths receive no R0
+credit. The next bounded cell is source reownership: it must make the neutral
+two-axis window and resolver deferral authority explicit before any target or
+candidate work opens.
+
 ## Shared Script MethodCall typeop policy I0
 
 `src/mir/policies/source_method_typeop_route.rs` is the sole pure predicate for

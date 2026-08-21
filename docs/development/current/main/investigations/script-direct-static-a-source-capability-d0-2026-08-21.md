@@ -1,12 +1,12 @@
 ---
-Status: Parser-preservation Decision accepted — first fast cell closed out; later admission cell remains closed
+Status: Composite source admission R0 closed — pushed with focused evidence; next source reownership is a design stop
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
-ProductionCaller: default caller is named as evidence, but no parser-backed canonical source authority reaches it; vm-reference is reference-only
-ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> call-site composite membership -> private one-shot capability -> named A consumer
+ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the parser-backed default root; vm-reference is reference-only and no A/C consumer is open
+ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> existing Script admission -> later private one-shot capability -> named A consumer
 Classification: T2 BoxCount first cell inside the predeclared five-commit series; A/C product and production switch remain closed
-NextCard: close out SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0; keep SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0 closed until the pointer advances
+NextCard: design-audit SCRIPT-SOURCE-REOWN-I0-R0 before implementation; keep lookup, A/C, physical, and cutover cells closed
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -20,11 +20,11 @@ the previous whole-Program `Candidate | Residual` model stays rejected.
 
 Source authority + canonical issuer: `ParserCompositeSourceIssuerV1`, called
 once directly inside `ParsedProgramWithCallableParameterSourceV1::new`, is the
-sole issuer. It co-seals one parser invocation, one exact direct static provider
-declaration/result syntax, and one nested final-root call/terminal site tree.
-Later parser/materializer/transform/request types transport this authority but
-cannot issue it. A future `CanonicalScriptCompositeProgramMembershipIssuerV1`
-alone may issue the two-axis partition and call-site membership.
+sole preservation issuer. `CanonicalScriptCompositeProgramPartitionIssuerV1`
+is the sole R0 membership issuer at the parser-backed default root ingress. It
+consumes the preserved token through one HRTB loan and issues only the bounded
+two-axis provider/terminal partition. Later parser/materializer/transform/request
+types transport these authorities but cannot issue them.
 
 Non-authority: parser rows alone, source name/digest/ordinal/pointer,
 caller-built windows, Builder work-plan/semantic products, the pointer-branded
@@ -34,15 +34,16 @@ green tests cannot issue composite membership or A meaning.
 
 Fail-fast boundary: a `Ready` parser token that would be dropped, reconstructed,
 changed, or converted to compatibility rejects after source-backed transform
-selection and before `VerifiedFinalCallableProgramSourceV1` is issued. Later
-selector/capability failures remain before Recipe, Builder effects, physical
-work, raw, retry, or fallback.
+selection and before `VerifiedFinalCallableProgramSourceV1` is issued. R0 then
+rejects source-unavailable, incomplete, and integrity-invalid partition states
+before resolver, lookup, Recipe, Builder effects, physical work, raw, retry,
+or fallback.
 
-Smallest next slice: `SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0`: issue and move
-one non-sync, non-Main static provider plus one final root MethodCall and its
-receiver/ordered arguments/result/terminal tree through parser, materializer,
-exact transform validation, final source, and default request. The cell ends at
-request transport and belongs to the already-declared A-cutover series.
+Smallest next slice: `SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0`: consume the
+preserved token once at the default root, issue one bounded two-axis provider /
+terminal partition, and feed the existing Script admission window. The cell
+ends before resolver/lookup/A/C/Recipe/physical work and belongs to the
+already-declared A-cutover series.
 
 Non-claims: no generic/sync/instance Box admission, import expansion,
 capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
@@ -712,6 +713,53 @@ Non-claims:
   no resolver reownership, target lookup, A/C, Recipe, or physical work
 ```
 
+R0 execution contract:
+
+```text
+source authority:
+  VerifiedFinalCallableProgramSourceV1 carrying the parser-owned disposition
+
+canonical issuer:
+  CanonicalScriptCompositeProgramPartitionIssuerV1
+  one call at the parser-backed PreparedNormalDefaultProgramRoot ingress
+
+product:
+  one private witness-bound two-axis Program partition;
+  each bounded source item has semantic ownership and runtime ownership,
+  with the static provider row co-sealing callable transfer plus retained
+  existing terminal responsibility
+
+fail-fast:
+  SourceAuthorityUnavailable / Incomplete / IntegrityInvalid stop before
+  resolver, lookup, candidate, Recipe, Builder effects, or fallback;
+  OutsideBoundedCohort remains an explicit pre-capability disposition
+
+transport:
+  the partition is consumed by the existing Script admission handoff;
+  no parallel request Option, AST/name/ordinal re-pairing, or vm-reference
+  production credit is introduced
+```
+
+R0 implementation evidence:
+
+```text
+src/mir/builder/normal_script_composite_partition.rs
+  sole issuer + two-axis provider/terminal rows + focused source/admission tests
+src/parser/callable_parameter_source/composite_source/loan.rs
+  one HRTB loan; AST references cannot escape into the partition product
+src/mir/builder/normal_default_root_catalog_lifecycle.rs
+  one pre-effect issue call; hard partition states stop before target install
+src/mir/builder/program_root_work_plan.rs
+  selected Script window receives the ready partition by borrowed handoff
+```
+
+The R0 product does not resolve the receiver or select a target. A root
+`MethodCall` therefore remains the existing lexical/resolver item, while the
+provider declaration is the only new semantic transfer. The intentionally
+failed full lifecycle probe reached a later missing-variable resolver site;
+that route is outside this cell's non-claims and is recorded as the next
+source/resolver reownership problem rather than widened here.
+
 ### Bounded series declaration — `SCRIPT-DIRECT-STATIC-A-CUTOVER-SERIES`
 
 The series is fixed before implementation and has one terminal: default
@@ -839,29 +887,54 @@ product and is not silently included in this retirement row.
 
 ## Acceptance for the selected fast cell
 
-The parser-boundary Decision is closed because the SSOT now fixes:
+R0 closes only when the following are observable:
 
-1. candidate A, one non-`Clone` token, and one sole constructor call site;
-2. the exact one-provider/final-root-call cohort and nested role tree;
-3. parser witness as primary identity and private paths as coverage only;
-4. total parser states distinct from later resolver `Deferred`;
-5. the required Parsed -> Prepared -> transform -> VerifiedFinal -> request
-   move chain with no parallel `Option` or reconstruction;
-6. role-specific transform drift and `CompatibilityLoss` before final source;
-7. one atomic implementation cell with focused positive/negative/structural
-   evidence and explicit 800-line limits; and
-8. a predeclared five-commit series ending in named default A cutover and old
-   authority deletion.
+1. the parser-preservation I0 token reaches the default root by move and one
+   scoped HRTB loan;
+2. `CanonicalScriptCompositeProgramPartitionIssuerV1` has exactly one
+   production caller and issues no AST-bearing product;
+3. the exact one-provider/final-root-call cohort emits one provider-transfer
+   row plus one retained root-terminal row under the same parser witness;
+4. `Outside`, `SourceAuthorityUnavailable`, `Incomplete`, and
+   `IntegrityInvalid` stay distinct, with the latter three stopping before
+   effects and fallback;
+5. the selected Script demand window consumes the provider transfer without
+   re-resolving or re-pairing the root call;
+6. focused positive/negative/structural evidence, the reusable R0 guard, and
+   the source-size limits are green; and
+7. the next source/resolver reownership cell is named without opening lookup,
+   A/C, Recipe, physical, or production cutover work.
 
-`SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0` closes only when its `Done` block is
-observable. Parser-token green does not authorize source admission, resolver,
-lookup, A/C, physical work, or a production claim.
+The parser-preservation I0 is already pushed and closed. R0 green does not
+authorize resolver, lookup, A/C, physical work, old Recipe retirement, or a
+production claim.
+
+Observed R0 evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_script_composite_partition
+  4 passed
+RUSTFLAGS='-Awarnings' CARGO_BUILD_JOBS=4 cargo check --quiet
+  pass
+tools/checks/script_direct_static_composite_source_admission_r0_guard.sh
+  pass
+tools/checks/current_state_pointer_guard.sh
+  pass
+git diff --check
+  pass
+```
+
+The compatibility-only `verified_expansion_disposition_reaches_script_and_app_root_lowering`
+fixture still stops at the pre-existing constructor-source cohort contract;
+it does not exercise the parser-backed R0 source and remains known baseline
+debt. A full composite lifecycle fixture is deliberately not part of R0,
+because its later resolver/lookup failure would widen the cell.
 
 ## Later-cell stop lines
 
-The selected preservation cell returns to `design_stop` if its own `Stop`
-condition is observed. The following conditions prevent advancing into their
-corresponding later series cell; they do not authorize widening cell 1:
+The selected R0 cell returns to `design_stop` if its own stop condition is
+observed. The following conditions prevent advancing into their corresponding
+later series cell; they do not authorize widening R0:
 
 - whole Program `Candidate | Residual` is used as the source partition;
 - provider transfer or retained terminal is called a residual;
@@ -884,9 +957,10 @@ corresponding later series cell; they do not authorize widening cell 1:
 - candidate, error, or A failure can retry old Recipe, raw, compatibility,
   ordinary static lowering, or a second resolver.
 
-Only the selected preservation owner, its focused fixtures/tests, and its
-reusable guard are authorized now. No source admission, fallback, production
-switch, or downstream semantic `Verified*`/`Prepared*` receipt is authorized.
+Only the selected R0 owner, its focused fixtures/tests, and its reusable guard
+are authorized in this cell. No resolver reownership, lookup, fallback,
+production switch, or downstream semantic `Verified*`/`Prepared*` receipt is
+authorized.
 
 ## Review receipt
 
@@ -906,9 +980,11 @@ and lookup cannot be standalone I0 rows today, that not every deferred cause
 has a site, and that any forward prerequisites must belong to a bounded series
 ending in the A cutover.
 
-The current row is therefore `SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0`. Its
-focused acceptance is green and the pointer moves to closeout; later cells
-remain closed until an explicit next execution selection.
+The current row is therefore `SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0`. Its
+focused acceptance is green and it is pushed; the pointer now enters
+`design_stop` for `SCRIPT-SOURCE-REOWN-I0-R0`. That next cell remains closed
+until a fresh authority audit fixes neutral window ownership and typed
+resolver `Deferred` cause/site preservation.
 
 ## References
 
@@ -921,7 +997,11 @@ remain closed until an explicit next execution selection.
 - `src/parser/callable_parameter_source/composite_source/transform_guard.rs`
 - `src/parser/normal_callable_program_source/semantic_syntax_loan.rs`
 - `src/parser/normal_callable_program_source/README.md`
+- `src/parser/callable_parameter_source/composite_source/loan.rs`
 - `src/mir/compiler/normal_default_pipeline_tests.rs`
+- `src/mir/builder/normal_script_composite_partition.rs`
+- `src/mir/builder/README.md`
+- `tools/checks/script_direct_static_composite_source_admission_r0_guard.sh`
 - `tools/checks/script_direct_static_canonical_parser_source_handoff_guard.sh`
 - `src/mir/compiler/normal_source_plan/inventory.rs`
 - `src/mir/compiler/normal_source_plan/classifier.rs`
