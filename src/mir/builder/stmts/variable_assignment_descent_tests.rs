@@ -260,6 +260,28 @@ fn rhs_failure_keeps_old_assignment_and_emits_no_completion_effect() {
 }
 
 #[test]
+fn release_strong_failure_does_not_publish_reassignment() {
+    let mut builder = builder("asn0_release_failure/0");
+    let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();
+    declare(&mut builder, "x", old, 0);
+    let current_function = builder.function_state.current_function.take();
+
+    let error = builder
+        .build_assignment_from_value("x".to_string(), ValueId::new(41))
+        .unwrap_err();
+    builder.function_state.current_function = current_function;
+
+    assert!(error.contains("No current function"));
+    assert_eq!(
+        builder.function_state.variable_ctx.variable_map.get("x"),
+        Some(&old)
+    );
+    assert!(!instructions(&builder)
+        .iter()
+        .any(|row| matches!(row, MirInstruction::ReleaseStrong { .. })));
+}
+
+#[test]
 fn completion_recheck_rejects_lost_binding_and_fresh_attempt_succeeds() {
     let mut builder = builder("asn0_completion_recheck/0");
     let old = crate::mir::builder::emission::constant::emit_integer(&mut builder, 7).unwrap();

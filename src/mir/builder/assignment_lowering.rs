@@ -94,8 +94,7 @@ impl MirBuilder {
                     .get(&var_name)
                     .copied()
                 {
-                    let _ =
-                        self.emit_instruction(MirInstruction::ReleaseStrong { values: vec![prev] });
+                    self.emit_instruction(MirInstruction::ReleaseStrong { values: vec![prev] })?;
                 }
             }
             self.function_state
