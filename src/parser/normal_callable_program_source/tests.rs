@@ -62,6 +62,244 @@ fn exact_static_callable_set_survives_one_transform() {
 }
 
 #[test]
+fn composite_source_ready_moves_through_final_source_for_root_return_call() {
+    let final_source = transform(
+        parse(
+            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
+        ),
+        |_| {},
+    )
+    .expect("bounded composite source");
+    assert!(final_source.composite_source_is_ready());
+}
+
+#[test]
+fn composite_source_ready_covers_final_sequence_call() {
+    let final_source = transform(
+        parse("static box Helpers { run() { return 1 } }\nHelpers.run()"),
+        |_| {},
+    )
+    .expect("bounded final-sequence composite source");
+    assert!(final_source.composite_source_is_ready());
+}
+
+#[test]
+fn composite_source_ready_covers_ordered_multi_argument_call() {
+    let final_source = transform(
+        parse(
+            "static box Helpers { run(first, second) { return first } }\nreturn Helpers.run(1, 2)",
+        ),
+        |_| {},
+    )
+    .expect("bounded multi-argument composite source");
+    assert!(final_source.composite_source_is_ready());
+}
+
+#[test]
+fn instance_provider_stays_outside_composite_first_cohort() {
+    let final_source = transform(parse("box Helpers { run() { return 1 } }"), |_| {})
+        .expect("ordinary callable source remains transportable");
+    assert!(!final_source.composite_source_is_ready());
+}
+
+#[test]
+fn composite_source_rejects_root_receiver_drift() {
+    let result = transform(
+        parse(
+            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
+        ),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            let ASTNode::Return {
+                value: Some(value),
+                ..
+            } = &mut statements[1]
+            else {
+                unreachable!()
+            };
+            let ASTNode::MethodCall { object, .. } = value.as_mut() else {
+                unreachable!()
+            };
+            *object = Box::new(ASTNode::Variable {
+                name: "Other".to_owned(),
+                span: Span::unknown(),
+            });
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::Composite(
+            crate::parser::callable_parameter_source::ParserCompositeTransformRejectV1::ReceiverChanged
+        ))
+    ));
+}
+
+#[test]
+fn composite_source_rejects_root_argument_drift() {
+    let result = transform(
+        parse(
+            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
+        ),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            let ASTNode::Return {
+                value: Some(value),
+                ..
+            } = &mut statements[1]
+            else {
+                unreachable!()
+            };
+            let ASTNode::MethodCall { arguments, .. } = value.as_mut() else {
+                unreachable!()
+            };
+            arguments[0] = ASTNode::Literal {
+                value: LiteralValue::Integer(2),
+                span: Span::unknown(),
+            };
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::Composite(
+            crate::parser::callable_parameter_source::ParserCompositeTransformRejectV1::ArgumentChanged {
+                ordinal: 0
+            }
+        ))
+    ));
+}
+
+#[test]
+fn composite_source_rejects_provider_result_syntax_drift() {
+    let result = transform(
+        parse(
+            "static box Helpers { run(): i64 { return 1 } }\nreturn Helpers.run()",
+        ),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            let ASTNode::BoxDeclaration { methods, .. } = &mut statements[0] else {
+                unreachable!()
+            };
+            *methods = std::mem::take(methods)
+                .map_declarations(|mut declaration| {
+                    let ASTNode::FunctionDeclaration {
+                        return_type_name, ..
+                    } = &mut declaration
+                    else {
+                        unreachable!()
+                    };
+                    *return_type_name = None;
+                    declaration
+                })
+                .expect("valid transformed inventory");
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::Composite(
+            crate::parser::callable_parameter_source::ParserCompositeTransformRejectV1::ProviderResultChanged
+        ))
+    ));
+}
+
+#[test]
+fn composite_source_rejects_root_method_drift() {
+    let result = transform(
+        parse(
+            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
+        ),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            let ASTNode::Return {
+                value: Some(value),
+                ..
+            } = &mut statements[1]
+            else {
+                unreachable!()
+            };
+            let ASTNode::MethodCall { method, .. } = value.as_mut() else {
+                unreachable!()
+            };
+            *method = "other".to_owned();
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::Composite(
+            crate::parser::callable_parameter_source::ParserCompositeTransformRejectV1::RootCallChanged
+        ))
+    ));
+}
+
+#[test]
+fn composite_source_rejects_root_argument_cardinality_drift() {
+    let result = transform(
+        parse(
+            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
+        ),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            let ASTNode::Return {
+                value: Some(value),
+                ..
+            } = &mut statements[1]
+            else {
+                unreachable!()
+            };
+            let ASTNode::MethodCall { arguments, .. } = value.as_mut() else {
+                unreachable!()
+            };
+            arguments.push(ASTNode::Literal {
+                value: LiteralValue::Integer(2),
+                span: Span::unknown(),
+            });
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::Composite(
+            crate::parser::callable_parameter_source::ParserCompositeTransformRejectV1::ArgumentCardinalityChanged {
+                expected: 1,
+                actual: 2,
+            }
+        ))
+    ));
+}
+
+#[test]
+fn composite_source_rejects_root_terminal_drift() {
+    let result = transform(
+        parse(
+            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
+        ),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            statements[1] = ASTNode::Literal {
+                value: LiteralValue::Integer(0),
+                span: Span::unknown(),
+            };
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::Composite(
+            crate::parser::callable_parameter_source::ParserCompositeTransformRejectV1::TerminalChanged
+        ))
+    ));
+}
+
+#[test]
 fn parser_source_lineage_rejects_empty_identity_and_non_unit_receipt() {
     let digest = CanonicalSourceBytesDigestV1::from_utf8_bytes(b"static box Api {}");
     assert_eq!(

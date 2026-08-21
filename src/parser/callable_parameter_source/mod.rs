@@ -6,6 +6,7 @@
 
 mod canonical_script_source_admission;
 mod catalog;
+mod composite_source;
 mod issuer;
 mod model;
 mod parse_product;
@@ -35,6 +36,12 @@ pub(crate) use script_source_rows::{
 mod script_source_rows_tests;
 pub(crate) use product::{
     ParsedProgramWithCallableParameterSourceV1, ParserCallableSourceDispositionV1,
+};
+pub(crate) use composite_source::{
+    ParserCompositeSourceDispositionV1, ParserCompositeTransformRejectV1,
+};
+pub(super) use composite_source::{
+    validate_parser_composite_transform_v1,
 };
 #[cfg(test)]
 pub(super) use retained::RetainedParserCallableSemanticSourceV1;

@@ -36,3 +36,27 @@ Non-authority:
 The first cohort accepts exact callable-preserving transforms. Added, removed,
 reordered, or changed callable declarations reject. Broader transform receipts
 must be added as explicit source transactions rather than AST reconstruction.
+
+## Composite preservation transport
+
+The parser's bounded composite disposition is a required field of
+`PreparedNormalCallableProgramSourceV1` and
+`VerifiedFinalCallableProgramSourceV1`. The move chain is:
+
+```text
+ParsedProgramWithCallableParameterSourceV1
+  -> PreparedNormalCallableProgramSourceV1
+  -> exact transform guard
+  -> VerifiedFinalCallableProgramSourceV1
+  -> PreparedNormalDefaultProgramRootV1
+  -> NormalCompileRequestV1
+```
+
+`ParserCompositeSourcePreservationV1` is non-`Clone`, AST-free, and parser
+private. The transform guard compares the parser-issued role tree against the
+unchanged/transformed root AST and rejects provider, result, call, receiver,
+argument, terminal, or compatibility drift with a typed
+`FinalCallableProgramSourceRejectV1::Composite` error. A `Ready` token never
+enters the compatibility AST lane and is not exposed through a parallel
+request field. This cell transports source preservation only; resolver,
+target/result lookup, A/C, Recipe, and physical lowering remain later cells.

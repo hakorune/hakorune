@@ -51,6 +51,31 @@ fn callable_source_request_retains_atomic_final_program_owner() {
 }
 
 #[test]
+fn callable_source_request_carries_parser_composite_ready_token() {
+    crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
+        let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
+            crate::parser::ParserBuildConfig::default(),
+        )
+        .expect("bounded composite source parse");
+        let transformed =
+            crate::r#macro::transform_normal_callable_program_v1(parsed).expect("exact transform");
+        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
+        else {
+            panic!("bounded composite source must remain source-backed")
+        };
+        assert!(source.composite_source_is_ready());
+        let request = NormalCompileRequestV1::for_mir_mode_callable_source(
+            source,
+            Some("helpers.hako"),
+            HashMap::new(),
+        );
+        let (program, _, _, _, _, _) = request.into_parts();
+        assert!(program.is_callable_source_backed());
+    });
+}
+
+#[test]
 fn llvm_callable_source_request_keeps_llvm_caller_identity() {
     crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
         let parsed = NyashParser::parse_normal_callable_program_with_build_config(

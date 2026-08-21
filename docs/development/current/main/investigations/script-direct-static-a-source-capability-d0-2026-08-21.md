@@ -1,12 +1,12 @@
 ---
-Status: Accepted parser-preservation Decision — first fast cell selected inside the bounded cutover series
+Status: Parser-preservation Decision accepted — first fast cell implementation-complete; closeout evidence recorded
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: default caller is named as evidence, but no parser-backed canonical source authority reaches it; vm-reference is reference-only
 ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> call-site composite membership -> private one-shot capability -> named A consumer
 Classification: T2 BoxCount first cell inside the predeclared five-commit series; A/C product and production switch remain closed
-NextCard: implement SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0 on this card
+NextCard: close out SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0; keep SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0 closed until the pointer advances
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -661,6 +661,36 @@ is intentionally folded together: no intermediate commit may leave a parser
 token unvalidated or unable to reach the request. Its later semantic consumer
 and old-edge retirement are fixed by the same series below.
 
+### Observed implementation evidence — 2026-08-21
+
+The selected fast cell is implementation-complete and is now in closeout. The
+observed evidence is:
+
+```text
+parser::normal_callable_program_source::tests::composite_source*  9 passed
+  - FinalSequence and RootReturn
+  - zero, one, and ordered multi-argument calls
+  - provider result, call method, receiver, argument value/cardinality,
+    and terminal drift rejection
+parser::normal_callable_program_source::tests::instance_provider_stays_outside_composite_first_cohort  1 passed
+parser::callable_parameter_source::tests::source_session_rejects_foreign_and_duplicate_method_sites  1 passed
+mir::compiler::normal_default_pipeline::tests::callable_source_request_carries_parser_composite_ready_token  1 passed
+cargo check --quiet  pass
+current_state_pointer_guard.sh  pass
+routing_classification_completeness_guard.sh  pass
+script_direct_static_canonical_parser_source_handoff_guard.sh  pass
+git diff --check  pass
+```
+
+The parser issuer has one constructor call and the total typed disposition
+keeps `OutsideBoundedCohort`, `SourceAuthorityUnavailable`, `Incomplete`, and
+`IntegrityInvalid` separate; the existing parser source-session fixture still
+proves foreign and duplicate site rejection. No malformed parser product is
+fabricated in this cell, and no default/empty/`Option` repair path is added.
+The new token remains AST-free/non-`Clone`, and the request keeps it only by
+the existing callable-source root move. Full resolver, lookup, A/C, Recipe,
+physical, fallback retirement, and production activation remain closed.
+
 ### 2. Composite source admission — `SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0`
 
 ```text
@@ -876,9 +906,9 @@ and lookup cannot be standalone I0 rows today, that not every deferred cause
 has a site, and that any forward prerequisites must belong to a bounded series
 ending in the A cutover.
 
-The current row is therefore `SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0` with
-`work_mode = fast`. The same card owns its implementation contract; later cells
-remain closed until this row's focused acceptance is green.
+The current row is therefore `SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0`. Its
+focused acceptance is green and the pointer moves to closeout; later cells
+remain closed until an explicit next execution selection.
 
 ## References
 
@@ -886,7 +916,13 @@ remain closed until this row's focused acceptance is green.
 - `docs/development/current/main/investigations/script-direct-static-a-consumer-bind-d0-2026-08-21.md`
 - `docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md`
 - `src/parser/callable_parameter_source/canonical_script_source_admission.rs`
+- `src/parser/callable_parameter_source/composite_source/model.rs`
+- `src/parser/callable_parameter_source/composite_source/issuer.rs`
+- `src/parser/callable_parameter_source/composite_source/transform_guard.rs`
 - `src/parser/normal_callable_program_source/semantic_syntax_loan.rs`
+- `src/parser/normal_callable_program_source/README.md`
+- `src/mir/compiler/normal_default_pipeline_tests.rs`
+- `tools/checks/script_direct_static_canonical_parser_source_handoff_guard.sh`
 - `src/mir/compiler/normal_source_plan/inventory.rs`
 - `src/mir/compiler/normal_source_plan/classifier.rs`
 - `src/mir/compiler/canonical_core_dispatch.rs`

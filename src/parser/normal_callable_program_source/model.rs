@@ -5,7 +5,7 @@ use hakorune_frontend_parser::parser::GrammarProfile;
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-    ParserCallableSyntaxLoanErrorV1,
+    ParserCallableSyntaxLoanErrorV1, ParserCompositeSourceDispositionV1,
 };
 use super::super::callable_source_anchor::{
     DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
@@ -120,18 +120,21 @@ pub(in crate::parser) enum NormalCallableParameterSourceRejectV1 {
     UnexpectedDirectMethod,
     SyntaxMismatch,
     ConstructorSourceMissing,
+    CompositeSourceCompatibilityLoss,
 }
 
 #[derive(Debug)]
 pub(crate) struct PreparedNormalCallableProgramSourceV1 {
     initial: VerifiedInitialCallableProgramSourceV1,
     parameter_source: ParserCallableParameterSourceDispositionV1,
+    composite_source: ParserCompositeSourceDispositionV1,
 }
 
 impl PreparedNormalCallableProgramSourceV1 {
     pub(in crate::parser) fn issue(
         initial: VerifiedInitialCallableProgramSourceV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,
+        composite_source: ParserCompositeSourceDispositionV1,
     ) -> Result<Self, NormalCallableParameterSourceRejectV1> {
         if let ParserCallableParameterSourceDispositionV1::Complete(catalog) = &parameter_source {
             validate_direct_parameter_coverage(initial.callable_rows(), catalog)?;
@@ -144,6 +147,7 @@ impl PreparedNormalCallableProgramSourceV1 {
         Ok(Self {
             initial,
             parameter_source,
+            composite_source,
         })
     }
 
@@ -155,6 +159,10 @@ impl PreparedNormalCallableProgramSourceV1 {
         self.initial.into_ast()
     }
 
+    pub(crate) fn composite_source_is_ready(&self) -> bool {
+        self.composite_source.is_ready()
+    }
+
     pub(in crate::parser) fn into_transform_parts(
         self,
     ) -> (
@@ -162,6 +170,7 @@ impl PreparedNormalCallableProgramSourceV1 {
         Box<[PreparedCallableSourceV1]>,
         Box<[InitialCallableFinalSlotV1]>,
         ParserCallableParameterSourceDispositionV1,
+        ParserCompositeSourceDispositionV1,
         super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     ) {
         let (ast, sources, slots, constructor_source) = self.initial.into_transform_parts();
@@ -170,6 +179,7 @@ impl PreparedNormalCallableProgramSourceV1 {
             sources,
             slots,
             self.parameter_source,
+            self.composite_source,
             constructor_source.expect("constructor source checked at issue"),
         )
     }
@@ -190,6 +200,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
     parameter_source: ParserCallableParameterSourceDispositionV1,
+    composite_source: ParserCompositeSourceDispositionV1,
     constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     source_lineage: Option<NormalParserSourceLineageV1>,
     _lineage: ExactCallablePreservingTransformReceiptV1,
@@ -204,6 +215,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
         sources: Box<[PreparedCallableSourceV1]>,
         slots: Box<[InitialCallableFinalSlotV1]>,
         parameter_source: ParserCallableParameterSourceDispositionV1,
+        composite_source: ParserCompositeSourceDispositionV1,
         constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     ) -> Self {
         Self {
@@ -211,6 +223,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             sources,
             slots,
             parameter_source,
+            composite_source,
             constructor_source,
             source_lineage: None,
             _lineage: ExactCallablePreservingTransformReceiptV1,
@@ -232,6 +245,10 @@ impl VerifiedFinalCallableProgramSourceV1 {
 
     pub(crate) fn ast(&self) -> &ASTNode {
         &self.ast
+    }
+
+    pub(crate) fn composite_source_is_ready(&self) -> bool {
+        self.composite_source.is_ready()
     }
 
     pub(in crate::parser) fn callable_count(&self) -> usize {

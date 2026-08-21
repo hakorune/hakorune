@@ -25,6 +25,29 @@ Current I0 boundary:
   `Absent | Explicit` type syntax, declaration kind, and exact ordinals;
 - only `Ordinary` has an issuer. `Take` remains vocabulary-only.
 
+## Composite preservation I0
+
+`composite_source/` is the parser-owned preservation owner for the first
+bounded Script composite cohort. `ParserCompositeSourceIssuerV1` is called once
+inside `ParsedProgramWithCallableParameterSourceV1::new`; its non-`Clone`
+`ParserCompositeSourcePreservationV1` token co-seals one non-`Main`, non-sync
+static Box method with one final root MethodCall and its terminal form
+(`FinalSequence` or `RootReturn`).
+
+The token stores only parser witness, declaration/source placement, result
+syntax, receiver syntax, ordered argument coverage, and the call-result/terminal
+relation. It stores no `ASTNode`, `Span`, pointer, MIR, target, candidate, A/C,
+Recipe, or Builder state. Receiver names and ordinals are diagnostic/coverage
+inputs, never pairing keys. Parser witness is the primary identity and the
+source site is the exact placement evidence.
+
+The disposition is total and non-`Option`: `Ready`, `OutsideBoundedCohort`,
+`SourceAuthorityUnavailable`, `Incomplete`, or `IntegrityInvalid`. A `Ready`
+token cannot be discarded by the legacy consuming syntax/retained-source
+helpers. It moves through the normal callable source owner and is validated by
+the transform guard before the final source can exist. No target/result lookup
+or semantic candidate is issued here.
+
 The optional declared-type spelling is transported as borrowed syntax for the
 downstream callable-parameter contract issuer. This parser owner does not
 classify ABI, HomeDemand, Recipe, MIR, or backend meaning.

@@ -40,6 +40,7 @@ impl<'ast> ParserCallableDeclarationSyntaxLoanV1<'ast> {
 pub(crate) enum ParserCallableSyntaxLoanErrorV1 {
     ProgramNotAvailable,
     ParameterSourceUnavailable,
+    CompositeSourceReadyCannotBeDiscarded,
     BoxDeclarationMissing { statement: u32 },
     BoxKindMismatch { statement: u32 },
     InventoryOrdinalOverflow { statement: u32, member: u32 },

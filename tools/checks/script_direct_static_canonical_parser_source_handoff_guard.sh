@@ -20,12 +20,29 @@ rows_tests=src/parser/callable_parameter_source/script_source_rows_tests.rs
 script_input=src/runner/reference/normal_file_vm_frontdoor/script_source_input.rs
 script_input_tests=src/runner/reference/normal_file_vm_frontdoor/source_plan_input_tests.rs
 card=docs/development/current/main/investigations/script-direct-static-call-canonical-source-parser-input-handoff-i0-2026-08-21.md
+composite_root=src/parser/callable_parameter_source/composite_source
+composite_model="$composite_root/model.rs"
+composite_issuer="$composite_root/issuer.rs"
+composite_guard="$composite_root/transform_guard.rs"
+composite_card=docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md
 
 for file in "$frontdoor" "$handoff" "$plan_input" "$plan_product" "$postpass" "$string_entry" "$lineage" "$parser_product" "$handoff_product" "$rows" "$rows_model" "$rows_tests" "$script_input" "$script_input_tests" "$card"; do
   [[ -f "$file" ]] || { echo "missing parser-handoff file: $file" >&2; exit 1; }
   lines="$(wc -l < "$file")"
   (( lines < 760 )) || { echo "760-line split trigger exceeded: $file ($lines)" >&2; exit 1; }
 done
+
+for file in "$composite_model" "$composite_issuer" "$composite_guard" \
+  src/parser/normal_callable_program_source/model.rs \
+  src/parser/normal_callable_program_source/transform.rs; do
+  [[ -f "$file" ]] || { echo "missing composite-preservation file: $file" >&2; exit 1; }
+  lines="$(wc -l < "$file")"
+  (( lines < 760 )) || { echo "760-line split trigger exceeded: $file ($lines)" >&2; exit 1; }
+done
+(( "$(wc -l < "$composite_card")" < 1000 )) || {
+  echo "composite source card crossed its documentation budget" >&2
+  exit 1
+}
 
 (( "$(wc -l < "$rows")" < 350 )) || {
   echo "parser Script rows issuer crossed its card budget" >&2
@@ -60,6 +77,33 @@ rg -q 'CanonicalParserSourceHandoffV1' "$handoff"
 rg -q 'NormalParserSourceLineageV1' "$lineage"
 rg -q 'ParserCallableSourceDispositionV1' "$parser_product"
 rg -q 'NormalParserCallableSourceHandoffV1' "$handoff_product"
+rg -q 'mod composite_source' src/parser/callable_parameter_source/mod.rs
+rg -q 'issue_parser_composite_source_v1' "$composite_issuer" "$parser_product"
+rg -q 'validate_parser_composite_transform_v1' "$composite_guard" src/parser/normal_callable_program_source/transform.rs
+rg -q 'composite_source: ParserCompositeSourceDispositionV1' src/parser/normal_callable_program_source/model.rs
+rg -q 'CompatibilityLoss' "$composite_model" src/macro/normal_callable_transform.rs
+rg -q 'SCRIPT-COMPOSITE-SOURCE-PRESERVATION-I0' "$composite_card"
+rg -q 'ParserCompositeSourcePreservationV1' "$composite_model"
+if rg -n 'Option<ParserCompositeSource' "$composite_root" src/parser/normal_callable_program_source; then
+  echo "composite source disposition must not be parallel Option state" >&2
+  exit 1
+fi
+if rg -n 'ASTNode|Span|ValueId|MirType|Recipe|Join|Builder|\*const|as \*const' "$composite_model"; then
+  echo "opaque parser composite token must remain AST-free and downstream-free" >&2
+  exit 1
+fi
+if rg -U -n '#\[derive\([^]]*Clone[^]]*\)\][[:space:]]*pub\(crate\) struct ParserCompositeSourcePreservationV1' "$composite_model"; then
+  echo "parser composite preservation token must remain non-Clone" >&2
+  exit 1
+fi
+if (( "$(rg -n 'issue_parser_composite_source_v1\(' "$parser_product" | wc -l)" != 1 )); then
+  echo "parser composite issuer must have exactly one product call site" >&2
+  exit 1
+fi
+if (( "$(rg -n 'ParserCompositeSourcePreservationV1::issue\(' "$composite_issuer" | wc -l)" != 1 )); then
+  echo "parser composite token constructor must have exactly one issuer call site" >&2
+  exit 1
+fi
 
 if rg -U -n '#\[derive\([^]]*Clone[^]]*\)\][[:space:]]*pub\(crate\) struct CanonicalParserSourceHandoffV1' "$handoff"; then
   echo "parser source handoff must remain non-Clone" >&2

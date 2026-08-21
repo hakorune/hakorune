@@ -4,6 +4,10 @@ use super::canonical_script_source_admission::{
 use super::catalog::{
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
 };
+use super::composite_source::{
+    issue_parser_composite_source_v1, ParserCompositeSourceDispositionV1,
+    ParserCompositeSourceUnavailableV1,
+};
 use super::retained::RetainedParserCallableSemanticSourceV1;
 use super::script_source_rows::{
     issue_canonical_script_source_rows, CanonicalScriptSourceRowsDispositionV1,
@@ -27,6 +31,7 @@ pub(crate) enum ParserCallableSourceDispositionV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ParserCallableSourceRetentionErrorV1 {
     ParameterSourceUnavailable,
+    CompositeSourceReadyCannotBeDiscarded,
 }
 
 /// One-shot total parser result plus its sibling callable parameter source
@@ -37,6 +42,7 @@ pub(crate) struct ParsedProgramWithCallableParameterSourceV1 {
     parameter_source: ParserCallableParameterSourceDispositionV1,
     canonical_script_admission: CanonicalScriptCohortDispositionV1,
     canonical_script_source_rows: CanonicalScriptSourceRowsDispositionV1,
+    composite_source: ParserCompositeSourceDispositionV1,
 }
 
 impl NyashParser {
@@ -67,11 +73,13 @@ impl ParsedProgramWithCallableParameterSourceV1 {
                 CanonicalScriptSourceRowsDispositionV1::AdmissionMissing
             }
         };
+        let composite_source = issue_parser_composite_source_v1(&completed, &parameter_source);
         Self {
             completed,
             parameter_source,
             canonical_script_admission,
             canonical_script_source_rows,
+            composite_source,
         }
     }
 
@@ -87,12 +95,23 @@ impl ParsedProgramWithCallableParameterSourceV1 {
     pub(crate) fn into_retained_source(
         self,
     ) -> Result<RetainedParserCallableSemanticSourceV1, ParserCallableSourceRetentionErrorV1> {
-        let ParserCallableParameterSourceDispositionV1::Complete(catalog) = self.parameter_source
+        let Self {
+            completed,
+            parameter_source,
+            composite_source,
+            ..
+        } = self;
+        let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source
         else {
             return Err(ParserCallableSourceRetentionErrorV1::ParameterSourceUnavailable);
         };
+        if composite_source.is_ready() {
+            return Err(
+                ParserCallableSourceRetentionErrorV1::CompositeSourceReadyCannotBeDiscarded,
+            );
+        }
         Ok(RetainedParserCallableSemanticSourceV1::new(
-            self.completed,
+            completed,
             catalog,
         ))
     }
@@ -118,6 +137,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             parameter_source,
             canonical_script_admission,
             canonical_script_source_rows,
+            composite_source,
         } = self;
         // Preserve the pre-existing source-backed disposition for the
         // already-sealed callable cohort.  The old boolean is deliberately
@@ -137,6 +157,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
                         canonical_script_admission,
                         canonical_script_source_rows:
                             CanonicalScriptSourceRowsDispositionV1::MovedToParallelHandoff,
+                        composite_source,
                     },
                 ),
                 canonical_script_source_rows,
@@ -173,7 +194,11 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             parameter_source,
             canonical_script_admission: _,
             canonical_script_source_rows: _,
+            composite_source,
         } = self;
+        if composite_source.is_ready() {
+            return Err(ParserCallableSyntaxLoanErrorV1::CompositeSourceReadyCannotBeDiscarded);
+        }
         let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source else {
             return Err(ParserCallableSyntaxLoanErrorV1::ParameterSourceUnavailable);
         };
@@ -203,7 +228,13 @@ impl ParserCallableSourceDispositionV1 {
 
     pub(crate) fn into_ast(self) -> crate::ast::ASTNode {
         match self {
-            Self::SourceBacked(product) => product.completed.into_ast(),
+            Self::SourceBacked(product) => {
+                assert!(
+                    !product.composite_source.is_ready(),
+                    "ready composite source must not be discarded before its named consumer"
+                );
+                product.completed.into_ast()
+            }
             Self::Compatibility(postpass) => postpass.into_ast(),
         }
     }
@@ -218,11 +249,15 @@ impl ParserCallableSourceDispositionV1 {
                     parameter_source,
                     canonical_script_admission: _,
                     canonical_script_source_rows: _,
+                    composite_source,
                 } = product;
-                completed.into_normal_callable_program(parameter_source)
+                completed.into_normal_callable_program(parameter_source, composite_source)
             }
             Self::Compatibility(postpass) => postpass.into_normal_callable_program(
                 ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported,
+                ParserCompositeSourceDispositionV1::SourceAuthorityUnavailable(
+                    ParserCompositeSourceUnavailableV1::PostpassNotSourceBacked,
+                ),
             ),
         };
         parsed.map_err(|error| ParseError::GrammarContract {
