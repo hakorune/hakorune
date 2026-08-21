@@ -6,7 +6,7 @@ Parent: docs/development/current/main/investigations/script-direct-static-call-c
 ProductionCaller: none; design only
 ReplacementCell: HandoffReady -> complete source observation before A package
 Classification: BoxCount (new source-observation contract; no implementation)
-NextCard: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-OBSERVATION-I0
+NextCard: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-SOURCE-ENVELOPE-I0
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-OBSERVATION-D0
@@ -37,11 +37,13 @@ in that same envelope. Missing window/forest/catalog/proof/terminal coverage
 is `A.ObservationIncomplete`; present foreign/duplicate/stale/contradictory
 rows are `A.IntegrityInvalid`.
 
-Smallest next slice: close this D0 with the source-envelope co-seal and the
-A/C ownership boundary; only then may
+Smallest next slice: open the transport-only child
+`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-SOURCE-ENVELOPE-I0` to co-seal
+the source envelope and close the parser/compiler state boundary; only after
+that child is green may
 `SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-OBSERVATION-I0` implement the
 complete-observation issuer. Static target admission, if needed, is a separate
-D0 and cannot be smuggled into this I0.
+D0 and cannot be smuggled into either I0.
 
 Non-claims: no A package implementation in this D0, no new Script source
 admission, no static target acceptance, no public `C.NonCandidate` issuance,
@@ -80,6 +82,14 @@ parser/frontdoor `HandoffConsumed` spelling is an internal embedding/forwarding
 sentinel in some owners, not proof that an A consumer has consumed the carrier.
 Only a future compiler-owned A transition may issue the phase-qualified
 `compiler.HandoffConsumed` edge.
+
+The child I0 must also remove the remaining type-level ambiguity: the parser
+product currently uses a `HandoffConsumed` spelling for its internal move into
+the parallel callable handoff, while the compiler transport reserves the same
+spelling for a future named A consumer. A guard exception is not enough. The
+parser-internal move must have a private embedding marker (for example,
+`MovedToParallelHandoff`), and only the compiler A-consumer owner may issue
+`compiler.HandoffConsumed`.
 
 The old route is the named
 `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` owner. Before A exists,
@@ -187,3 +197,13 @@ parked as `ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P2`, not an A blocker.
 Earlier parser-input/carrier D0 prose that uses a bare `Transported` or treats
 `HandoffConsumed` as a single phase-free state is superseded by the accepted
 phase-qualified matrix and is not an issuer authority.
+
+## Child task selected before A observation
+
+`SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-SOURCE-ENVELOPE-I0` is the only
+next implementation candidate. It is a BoxShape transport/integrity slice,
+not a new semantic source product: the envelope aggregates already-issued
+parser/frontdoor evidence and source-plan relation evidence, then moves once
+into the current no-A boundary. The parked parallel `Option` package cleanup,
+the 819-line `builder.rs` barrel split, and the all-phase routing guard
+expansion remain separate tasks and must not be folded into this child.
