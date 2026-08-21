@@ -1,12 +1,12 @@
 ---
-Status: Design stop — concrete canonical consumer boundary fixed; implementation remains closed
+Status: Closed as consumer-boundary design; implementation remains parked
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-CONSUMER-BIND-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-consumer-closure-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: canonical Script A observation -> C disposition -> B transport -> one named consumer
 Classification: design stop; no semantic product or physical implementation
-NextCard: none until this D0 is accepted
+NextCard: script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-A-CONSUMER-BIND-D0
@@ -191,6 +191,22 @@ require a second AST matcher/target resolver/argument driver/Return writer.
 - A future I0 must first implement the source authority and typed state/owner
   boundaries from this card, then connect one production edge and retire the
   old Recipe edge in the same bounded series.
+
+## D0 review closeout — issuer is the next boundary
+
+Worker review and source inspection confirm that the consumer boundary is
+fixed, but the canonical A issuer is still absent. The compiler request is
+transport-only; the old Recipe/physical owners accept only their old
+AST-backed authority; and the selected Builder bridge is not a canonical
+consumer. The next bounded card is therefore
+`script-direct-static-a-issuer-boundary-d0-2026-08-21.md`.
+
+That card freezes the exact dispatch callpoint, the private
+`normal_source_plan` source-snapshot seam, the canonical resolver/window
+capability that is still missing, the total A observation fields, and the
+phase-qualified A states. This card remains implementation-closed: no A
+receipt, source admission, Recipe rewrite, physical effect, fallback, or
+production switch is opened here.
 
 ## References
 
