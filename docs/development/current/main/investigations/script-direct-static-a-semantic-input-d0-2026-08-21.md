@@ -6,7 +6,7 @@ Parent: docs/development/current/main/investigations/script-direct-static-call-c
 ProductionCaller: none; design only
 ReplacementCell: SourceEnvelopeReady -> complete source-owned A observation input
 Classification: BoxCount (new source-bound semantic input contract; no implementation)
-NextCard: none until this D0 is accepted
+NextCard: docs/development/current/main/investigations/script-direct-static-a-consumer-closure-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SEMANTIC-INPUT-D0
@@ -36,11 +36,15 @@ effects. Missing coverage is `A.ObservationIncomplete`; present foreign,
 duplicate, stale, or contradictory rows are `A.IntegrityInvalid`; neither
 may fall back to the old Recipe or raw route.
 
-Smallest next slice: design the source-owned semantic-input contract and its
+Smallest next slice: first accept the dependent
+`SCRIPT-DIRECT-STATIC-A-CONSUMER-CLOSURE-D0`, which names the one-way A -> C ->
+B handoff, complete-zero and direct-static consumers, and the old-Recipe
+retirement edge. Then design the source-owned semantic-input contract and its
 single issuer: total Script window, resolver forest, declaration/Brand/import
 views, target/result rows with explicit noncandidate reasons,
 required-argument proof, and FinalSequence/RootReturn terminal coverage. Only
-after this D0 is accepted may a bounded I0 implement the input product.
+after both boundaries are accepted may a bounded I0 implement the input
+product.
 
 Non-claims: no A package, public `C.NonCandidate`, source admission change,
 Recipe/Join, physical Call/publication, Return/signature, compatibility/raw
@@ -98,13 +102,18 @@ Accept only when one issuer can be named and the contract proves:
    noncandidate reason, with missing coverage distinct from invalid rows;
 4. a complete clean zero is private A evidence and is not public C meaning;
 5. the issuer consumes the envelope once before Recipe and has no retry/raw
-   fallback; and
-6. the future implementation can stay below the 760/800 source limits.
+   fallback;
+6. the A/C closure card names a single consumer for both
+   `CompleteNoDirectStaticRows -> C.NonCandidate` and
+   `DirectStaticSourceReady -> C.DispositionReady`, with the old-Recipe edge
+   retired when A starts; and
+7. the future implementation can stay below the 760/800 source limits.
 
 Remain at `NoSafeSlice` if any required input is only Builder-issued, if the
 existing pointer-branded inventory is promoted to canonical authority, if a
-parallel `Option` attachment is treated as complete, or if the old Recipe can
-run after an A observation error.
+parallel `Option` attachment is treated as complete, if the A/C consumer and
+retirement edges are unnamed, or if the old Recipe can run after an A
+observation error.
 
 ## Cross-cutting worker audit and parked follow-ups
 
@@ -135,3 +144,33 @@ mixed into this issuer design:
 
 These parked rows are follow-up tasks, not alternate issuers, fallbacks, or
 next execution cards.
+
+## Latest worker review — A/C handoff closure prerequisite
+
+Two read-only workers independently found the same additional boundary: an A
+observation receipt is not useful by itself. Before any A implementation, the
+design must name the one-shot C consumer and both terminal owners:
+
+```text
+A.CompleteNoDirectStaticRows
+  -> C.NonCandidate
+  -> CanonicalScriptNonDirectStaticContinuationV1
+
+A.DirectStaticSourceReady
+  -> C.DispositionReady
+  -> CanonicalScriptDirectStaticPhysicalConsumerV1
+```
+
+`A.SourceAuthorityUnavailable`, `A.ObservationIncomplete`, and
+`A.IntegrityInvalid` stop/discard before Recipe; they never return through
+`DiscardedBeforeA`, old `prepare_script_recipe()`, raw, or compatibility.
+The current transport-only `SourceEnvelopeReady -> DiscardedBeforeA -> old
+Recipe` edge is legal only while A/C is not implemented and must be retired
+atomically when that edge opens. The finite state table and retirement ledger
+live in the dependent
+[`SCRIPT-DIRECT-STATIC-A-CONSUMER-CLOSURE-D0`](script-direct-static-a-consumer-closure-d0-2026-08-21.md)
+card.
+
+The generic classification-completeness rule is already owned by
+`design/agent-current-entry-contract-ssot.md`; no new wildcard, `None`,
+`unwrap_or(default)`, or generic Compatibility state may be introduced here.
