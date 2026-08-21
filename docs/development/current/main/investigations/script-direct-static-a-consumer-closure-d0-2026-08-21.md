@@ -1,5 +1,5 @@
 ---
-Status: Design stop — A/C consumer and retirement edges are not yet named
+Status: Design stop — no existing canonical A/C consumer is available
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-CONSUMER-CLOSURE-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-semantic-input-d0-2026-08-21.md
@@ -74,6 +74,33 @@ not `Absent` or a missing catalog. Every row has one owner and one terminal.
 temporary edge that exists because the A consumer is not implemented. It must
 be deleted, not reused as an A error path, in the same bounded series that
 opens the A consumer. After A starts, the old-Recipe edge count is zero.
+
+## Existing-owner census and blocker
+
+The current tree has no owner that can consume the A package without changing
+authority:
+
+* `CanonicalCoreSourcePlanCompileRequestV1` is a B transport container only;
+  it does not issue or consume A/C meaning.
+* `canonical_core_dispatch::compile_script()` consumes
+  `SourceEnvelopeReady` by `discard_before_a_consumer()` and then enters the
+  sole old `prepare_script_recipe()` edge.
+* `VerifiedNormalScriptRecipeV1` owns the AST-backed
+  `RawScriptBodyRecipeV1`; reusing it after A would return to the old source
+  authority and is forbidden.
+* `OpenScriptPhysicalEntryV1`, `CompletedScriptPhysicalExitV1`, and
+  `PreparedNormalScriptModuleTransactionV1` are Recipe-after physical/candidate
+  owners, not A/C handoff consumers.
+* `CanonicalCoreDispatchStageV1` / `CanonicalCoreDispatchErrorV1` have no
+  phase-qualified A observation, C disposition, or B handoff stage. A future
+  implementation must retain the phase-specific cause/owner instead of
+  folding it into `ScriptSourceEnvelope` or `ScriptRecipe`.
+
+Therefore the two consumer names in this card are design roles, not existing
+implementations. `NamedConsumerMissing` is the primary blocker. This is not a
+permission to add an empty C receipt or a forwarding adapter: the next D0
+acceptance must bind each role to a real source/Facts/Recipe/physical owner and
+state the exact old-edge deletion.
 
 ## Named consumer contracts
 
