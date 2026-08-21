@@ -30,3 +30,20 @@ parameter use, cross-block definition, foreign owner/target, and
 non-Integer/unknown/unavailable type leave MIR, type context, and the existing
 ledger unchanged. The task and evidence ledger are maintained in
 `docs/development/current/main/investigations/mirbuilder-loop-compare-same-block-operands-p0-2026-08-22.md`.
+
+## Result lifecycle boundary
+
+The next physical result lane uses the same one-authority rule. An
+owner-bound `LoopOperationValueLedgerV1` reserves an absent key with a private
+affine slot token. The transition is:
+
+```text
+map-vacant -> Reserved -> Published
+                       \-> Poisoned (uncommitted token drop)
+```
+
+`commit` consumes a writer-owned definition source and returns one full
+receipt without a fallible post-append check. The legacy unbound ledger keeps
+its old publication helpers for caller-zero compatibility; it cannot open a
+strict reservation. This lifecycle is implemented in the linked result-ledger
+task and does not yet connect a Compare writer or production caller.

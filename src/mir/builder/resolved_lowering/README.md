@@ -39,6 +39,17 @@ mutation. The neutral request and co-sealed witness do not resolve targets,
 perform dominance, or connect a production Compare caller; result reservation
 and strict append are separate bounded cards.
 
+## Canonical Loop Compare result ledger P0
+
+Strict result publication is owner-bound. `LoopOperationValueLedgerV1::new_for_owner`
+opens the canonical reservation lane; the legacy `Default` ledger remains
+unbound and keeps the existing `publish/get/receipt` callers. A vacant key is
+reserved by a private non-`Clone` token holding only the exact slot. The token
+is consumed by a writer-owned definition source for an infallible Published
+transition, while an uncommitted drop poisons the slot. There is no reset,
+retry, post-append duplicate check, MIR inspection, or raw-`ValueId`
+reservation input. Strict Compare and production selection remain closed.
+
 ## Common V2 canonical session-open canary
 
 `with_common_v2_canonical_session` is the caller-zero consumer of one

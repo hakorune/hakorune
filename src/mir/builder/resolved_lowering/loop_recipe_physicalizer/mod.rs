@@ -11,6 +11,8 @@ mod callable_production_canary_tests;
 mod carrier_emitter;
 mod compare_i64_operands;
 #[cfg(test)]
+mod compare_result_ledger;
+#[cfg(test)]
 mod generic_production_canary_tests;
 mod operation_dispatcher;
 mod operation_emitter;
