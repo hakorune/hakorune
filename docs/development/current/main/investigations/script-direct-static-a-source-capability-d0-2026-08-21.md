@@ -1,12 +1,12 @@
 ---
-Status: Composite source admission R0 closed — pushed with focused evidence; next source reownership is a design stop
+Status: Typed Script resolver Deferred I0 closed — pushed as 98f36e88b9; neutral window ownership remains a design stop
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the parser-backed default root; vm-reference is reference-only and no A/C consumer is open
 ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> existing Script admission -> later private one-shot capability -> named A consumer
 Classification: T2 BoxCount first cell inside the predeclared five-commit series; A/C product and production switch remain closed
-NextCard: design-audit SCRIPT-SOURCE-REOWN-I0-R0 before implementation; keep lookup, A/C, physical, and cutover cells closed
+NextCard: design-audit SCRIPT-SOURCE-REOWN-WINDOW-I0-R0; typed Deferred preservation is closed; keep lookup, A/C, physical, and cutover cells closed
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -39,11 +39,11 @@ rejects source-unavailable, incomplete, and integrity-invalid partition states
 before resolver, lookup, Recipe, Builder effects, physical work, raw, retry,
 or fallback.
 
-Smallest next slice: `SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0`: consume the
-preserved token once at the default root, issue one bounded two-axis provider /
-terminal partition, and feed the existing Script admission window. The cell
-ends before resolver/lookup/A/C/Recipe/physical work and belongs to the
-already-declared A-cutover series.
+Smallest next slice: `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` remains a T2 design
+stop. The typed resolver `Deferred` cause/site cell is closed without changing
+the existing runtime owner. Before any implementation, fix the neutral
+two-axis source-window issuer and its parser-backed handoff; the old Builder
+window, lookup, A/C, Recipe, physical, and cutover cells remain closed.
 
 Non-claims: no generic/sync/instance Box admission, import expansion,
 capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
@@ -782,31 +782,112 @@ production A cutover. No new task row may be inserted after it starts.
 If the first cell cannot preserve the source token exactly, the series returns
 to design stop and does not add an adapter or compatibility fallback.
 
-### 3. Contingent source reownership — `SCRIPT-SOURCE-REOWN-I0-R0`
+### 3. Source reownership audit — `SCRIPT-SOURCE-REOWN-I0-R0`
+
+The worker audit closed the ambiguity but did not authorize one large edit. The
+current production issuer is a Builder chain, not a neutral window owner:
 
 ```text
-Production caller:
-  NormalDefaultPublishedPipelineV1::compile
-
-Change:
-  issue the neutral two-axis Program window in the default lifecycle
-  preserve located and unlocated resolver deferral exhaustively
-
-R0:
-  delete the work-plan-local ScriptRootDemandWindowBuilder issuance edge
-  delete the unit ResolveScriptForestOutcomeV1::Deferred information-loss edge
-
-Done:
-  existing target/resolver/Recipe consumers use the neutral source owner
-  selected old window and unit-Deferred edges are caller-zero
-
-Stop:
-  mapping/failure policy differs, a cause site must be invented, or the
-  parser-backed source authority does not reach this default caller
+PreparedProgramRootWorkPlanV1
+  -> ScriptRootSemanticDecisionV1
+  -> ScriptRootDemandWindowBuilderV1
+  -> VerifiedScriptRootDemandWindowV1
 ```
 
-This row is BoxShape/T1 only if the mapping is behavior-identical. Otherwise
-it returns to this D0.
+The same window is consumed by resolver traversal, semantic source/continuation,
+target inventory, and Recipe. A wrapper or rename would leave the competing
+Builder authority alive. The R0 parser composite partition is only a bounded
+staging product and cannot replace the full Program window.
+
+The source reownership cell is therefore ordered internally, while remaining
+one bounded prerequisite cell in the declared cutover series:
+
+#### 3a. Typed resolver deferral — `SCRIPT-SOURCE-REOWN-DEFERRED-I0-R0`
+
+```text
+Source authority:
+  existing ShadowResolveErrorV0, including its owned source site when present
+
+Issuer:
+  FunctionSemanticResolverSessionV1 at the existing Script forest boundary
+
+Product:
+  ResolveScriptForestOutcomeV1::Deferred(ScriptResolverDeferredV1)
+  ResolveScriptOutcomeV1::Deferred(ScriptResolverDeferredV1)
+
+Mapping:
+  UnresolvedName / unsupported statement/expression/assignment /
+  arity overflow / non-local exit -> Located { cause, site }
+  SameScopeRedeclaration -> Unlocated { cause, name }
+
+Done:
+  no unit Deferred producer or consumer; no fabricated site and no
+  site: Option<_> unknown-state merge; the existing Deferred runtime owner
+  receives the typed observation without target/Recipe meaning
+
+Non-claims:
+  no window move, lookup, A/C, Recipe, physical, fallback retirement, or
+  production selector change
+```
+
+This is the only fast/BoxShape substep. Its focused gate must cover every
+located cause, the unlocated redeclaration, and the existing Complete/error
+split. It may not hide the typed value behind `None` or convert it to raw
+compatibility. The current runtime behavior remains unchanged until the
+neutral window cell explicitly replaces that owner.
+
+Implementation receipt: `98f36e88b9` adds the exhaustive source-error mapping,
+typed forest/function outcomes, a small normal-lifecycle adapter, and the
+existing raw-port transport. `NormalScriptRootLoweringMode::Unavailable`
+keeps App/compatibility routes with no Script window distinct from resolver
+deferral. The focused
+`script_deferral_preserves_located_and_unlocated_states` test passes, the
+normal Script semantic-source filter reports 17 existing passes, and
+`cargo check --profile quick` passes. Its other 50 failures are baseline: a
+representative `real_print_fixture_uses_the_selected_normal_request` failure
+reproduces unchanged on parent `36a1908966` with
+`[freeze:contract][mir/instance-constructor-source/cohort-missing]`. No target,
+Recipe, physical, fallback, or production route was changed.
+
+#### 3b. Neutral source window — `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0`
+
+This remains `design_stop`/T2 until the source handoff is fixed in the type
+graph. The sole issuer is a source/resolver-boundary owner, not Builder:
+
+```text
+CanonicalScriptNeutralProgramWindowIssuerV1
+  -> VerifiedScriptSourceWindowV1
+  -> fixed resolver demand view / existing consumers
+```
+
+The source window is total over the real Program body and contains only
+AST-free `ProgramBody` site rows with two axes:
+
+```text
+structural source role   +   retained runtime-terminal role
+```
+
+It must be issued once from the move-bound parser-backed source authority and
+the R0 composite witness. The existing instance-box transfer witness may be
+consumed as an already-issued input, but neither the work plan nor
+`SelectedScriptProgramOccurrenceV1` may issue membership. The source window
+must not import `ScriptRootSemanticDecisionV1`, target inventory, Recipe keys,
+MIR IDs, pointers, names, or AST references.
+
+Required cutover evidence:
+
+```text
+neutral issuer production caller             = 1
+ScriptRootDemandWindowBuilder production call = 0
+ScriptRootSemanticDecision production call   = 0
+all Program site coverage and real empty      = explicit
+window failure / typed Deferred               < target install and effects
+```
+
+The window task returns to design stop if the parser-backed authority cannot
+reach the default caller without reconstructing from `package.source_ast()`,
+if instance transfer coverage needs an unowned adapter, or if the old
+semantic mapping cannot be projected without a second source observation.
 
 ### 4. Contingent lookup reownership — `SCRIPT-LOOKUP-REOWN-I0-R0`
 
@@ -980,11 +1061,11 @@ and lookup cannot be standalone I0 rows today, that not every deferred cause
 has a site, and that any forward prerequisites must belong to a bounded series
 ending in the A cutover.
 
-The current row is therefore `SCRIPT-COMPOSITE-SOURCE-ADMIT-I0-R0`. Its
-focused acceptance is green and it is pushed; the pointer now enters
-`design_stop` for `SCRIPT-SOURCE-REOWN-I0-R0`. That next cell remains closed
-until a fresh authority audit fixes neutral window ownership and typed
-resolver `Deferred` cause/site preservation.
+The current row is therefore `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` in design
+stop. The typed resolver deferral substep is complete and pushed; the next
+implementation is not authorized until the neutral-window authority and
+parser-backed handoff are fixed. No lookup, A/C, Recipe, physical, fallback,
+or production cutover cell is opened by this receipt.
 
 ## References
 
