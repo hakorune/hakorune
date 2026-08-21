@@ -1,12 +1,12 @@
 ---
-Status: Fast path selected — first bounded T2 source-preservation/admission cell of the A cutover series
+Status: Design stop — parser-owned composite site authority is still unresolved
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: default caller is named as evidence, but no parser-backed canonical source authority reaches it; vm-reference is reference-only
 ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> call-site composite membership -> private one-shot capability -> named A consumer
-Classification: accepted T2 source-preservation/admission cell; A/C product and production switch remain closed
-NextCard: continue this card through the predeclared bounded A cutover series; return to design on any source/transform drift
+Classification: T2 design stop inside the predeclared series; A/C product and production switch remain closed
+NextCard: close the parser-owned site product on this card before reselecting the implementation cell
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -41,11 +41,11 @@ outside bounded cohort, located/unlocated resolver deferral, incomplete, and
 integrity-invalid. Capability/A failure never reaches old Recipe, raw, retry,
 or fallback.
 
-Smallest next slice: implement the bounded
-`SCRIPT-COMPOSITE-SOURCE-ADMIT-T2` cell: one non-sync, non-Main static provider
-plus one final root direct-static call, with parser authority carried unchanged
-through transform into the default request. This is the first cell of the
-predeclared series below; no A/C/Recipe/physical meaning is opened.
+Smallest next slice: close the missing parser-owned site authority inside
+`SCRIPT-COMPOSITE-SOURCE-ADMIT-T2`: one non-sync, non-Main static provider plus
+one final root direct-static call, with one co-sealed provider/call/receiver/
+argument/result/terminal tree. AST Span, name, ordinal, and pointer pairing are
+not implementation options.
 
 Non-claims: no generic/sync/instance Box admission, import expansion,
 capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
@@ -202,6 +202,34 @@ are `Ready`, `OutsideBoundedCohort`, `SourceAuthorityUnavailable`,
 `WitnessChanged`, `ProviderChanged`, `RootCallChanged`, `ReceiverChanged`,
 `ArgumentChanged`, `ResultChanged`, `TerminalChanged`, or `CompositeDropped`.
 No A/C/Recipe/physical meaning enters this token.
+
+### Source-site identity decision
+
+AST `Span` is rejected as the token's source-site identity. It has no parser
+invocation or owner, `Span::unknown()` aliases unrelated nodes, and macro
+generated nodes may carry unknown spans. The existing MIR
+`SourceExprSiteV1`/`SourceStmtSiteV1` are resolver-side structural paths, not
+parser-issued authority, so they cannot be imported as an identity shortcut.
+
+The minimum missing product is one parser-owned co-sealed site tree:
+
+```text
+ParserCompositeSourcePreservationV1
+  = ParserInvocationWitnessV1
+  + provider callable source site
+  + one root MethodCall site
+      + receiver
+      + ordered argument rows
+      + result relation
+  + RootReturn or FinalSequence terminal relation
+```
+
+The witness is the primary identity. Private structural paths are only
+coverage/integrity evidence inside that witness, and are carried as one nested
+tree so callers cannot zip independent arrays. `Incomplete` covers missing
+provider/call/receiver/argument/result/terminal rows; `IntegrityInvalid` covers
+foreign witness, duplicate site, provider/call mismatch, order mismatch, or
+terminal drift. Span is diagnostic evidence only.
 
 ## Accepted authority chain
 
@@ -467,8 +495,8 @@ Stop:
 
 ### 1. Selected source admission + transform preservation — `SCRIPT-COMPOSITE-SOURCE-ADMIT-T2`
 
-Classification: selected T2 canonical source-family BoxCount plus
-parser-to-default preservation for one already-existing language shape.
+Classification: parked T2 canonical source-family BoxCount plus
+parser-to-default preservation; the site-authority design must close first.
 
 ```text
 Change:
@@ -498,9 +526,9 @@ Stop:
   product
 ```
 
-This T2 Decision is the first cell of the bounded series below. Its consumer
-is the future pre-effect source selector in the named default caller; it may
-not land as a disconnected parser-only product.
+This T2 Decision remains parked until the parser-owned site tree and its sole
+issuer are fixed. Its future consumer is the pre-effect source selector in the
+named default caller; it may not land as a disconnected parser-only product.
 
 ### Bounded series declaration — `SCRIPT-DIRECT-STATIC-A-CUTOVER-SERIES`
 
