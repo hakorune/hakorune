@@ -8,6 +8,7 @@ use crate::mir::callable_parameter_contract::{
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
+use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -70,6 +71,13 @@ pub(crate) enum NormalCallableDynamicProjectionRefV1<'package> {
 impl VerifiedNormalCallableSemanticPackageV1 {
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.batch.source_ast()
+    }
+
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        self.batch.with_normal_program_source_loan(callback)
     }
 
     pub(crate) fn instance_constructors(

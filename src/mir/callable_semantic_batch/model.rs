@@ -8,7 +8,10 @@ use crate::mir::resolved_semantics::{
     VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
-use crate::parser::{CallableDeclarationIdentityV1, CallableMethodSourceObservationV1};
+use crate::parser::{
+    CallableDeclarationIdentityV1, CallableMethodSourceObservationV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
+};
 use crate::parser::{FinalCallableSemanticSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -82,6 +85,16 @@ pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
 impl VerifiedResolvedCallableSemanticBatchV1 {
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.source.ast()
+    }
+
+    /// Borrow the parser-owned whole-Program source authority together with
+    /// the batch-owned AST. The HRTB keeps the paired source/AST cursor inside
+    /// the caller that owns the next source-bound admission.
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        self.source.with_normal_program_source_loan(callback)
     }
 
     /// Borrow the batch-owned BlockExpr expectation without reconstructing a

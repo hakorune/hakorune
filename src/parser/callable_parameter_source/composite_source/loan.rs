@@ -39,20 +39,28 @@ pub(crate) struct ParserCompositeProgramItemLoanV1<'source> {
     statement: &'source ASTNode,
 }
 
-pub(crate) fn with_parser_composite_source_loan<R>(
-    disposition: &ParserCompositeSourceDispositionV1,
-    ast: &ASTNode,
-    callback: impl for<'source> FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
+pub(crate) fn with_parser_composite_source_loan<'source, R>(
+    disposition: &'source ParserCompositeSourceDispositionV1,
+    ast: &'source ASTNode,
+    callback: impl FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
 ) -> Result<R, ParserCompositeSourceLoanRejectV1> {
-    let ParserCompositeSourceDispositionV1::Ready(source) = disposition else {
-        return Err(ParserCompositeSourceLoanRejectV1::from_disposition(disposition));
-    };
     let ASTNode::Program { statements, .. } = ast else {
         return Err(ParserCompositeSourceLoanRejectV1::Incomplete(
             ParserCompositeIncompleteV1::ProgramBodyMissing,
         ));
     };
-    Ok(callback(ParserCompositeSourceLoanV1 { source, statements }))
+    let loan = parser_composite_source_loan_from_statements(disposition, statements)?;
+    Ok(callback(loan))
+}
+
+pub(crate) fn parser_composite_source_loan_from_statements<'source>(
+    disposition: &'source ParserCompositeSourceDispositionV1,
+    statements: &'source [ASTNode],
+) -> Result<ParserCompositeSourceLoanV1<'source>, ParserCompositeSourceLoanRejectV1> {
+    let ParserCompositeSourceDispositionV1::Ready(source) = disposition else {
+        return Err(ParserCompositeSourceLoanRejectV1::from_disposition(disposition));
+    };
+    Ok(ParserCompositeSourceLoanV1 { source, statements })
 }
 
 impl ParserCompositeSourceLoanRejectV1 {

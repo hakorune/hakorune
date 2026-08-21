@@ -16,6 +16,7 @@ mod retained;
 mod script_source_rows;
 mod script_source_rows_model;
 mod session;
+mod script_source_authority;
 mod syntax_loan;
 
 pub(in crate::parser) use catalog::{
@@ -39,15 +40,17 @@ pub(crate) use product::{
 };
 pub(crate) use composite_source::{
     ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
-    ParserCompositeOutsideReasonV1, ParserCompositeSourceDispositionV1,
+    ParserCompositeOutsideReasonV1,
     ParserCompositeSourceLoanRejectV1, ParserCompositeSourceUnavailableV1,
     ParserCompositeTransformRejectV1,
 };
-pub(crate) use composite_source::{
-    with_parser_composite_source_loan, ParserCompositeSourceLoanV1,
-};
-pub(super) use composite_source::{
-    validate_parser_composite_transform_v1,
+pub(crate) use composite_source::ParserCompositeSourceLoanV1;
+pub(crate) use script_source_authority::{
+    validate_parser_normal_program_source_transform_v1,
+    with_parser_composite_source_loan_from_normal_authority,
+    with_parser_normal_program_source_loan, ParserNormalProgramSourceAuthorityDispositionV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
+    ParserNormalProgramSourceTransformRejectV1,
 };
 #[cfg(test)]
 pub(super) use retained::RetainedParserCallableSemanticSourceV1;

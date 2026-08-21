@@ -1,7 +1,8 @@
 use crate::ast::ASTNode;
 
 use super::super::callable_parameter_source::{
-    validate_parser_composite_transform_v1, ParserCompositeTransformRejectV1,
+    validate_parser_normal_program_source_transform_v1,
+    ParserCompositeTransformRejectV1, ParserNormalProgramSourceTransformRejectV1,
 };
 use super::super::initial_callable_program_source::{declaration_at, expected_callable_slots};
 use super::{PreparedNormalCallableProgramSourceV1, VerifiedFinalCallableProgramSourceV1};
@@ -12,6 +13,7 @@ pub(crate) enum FinalCallableProgramSourceRejectV1 {
     CallableDeclarationChanged { row: usize },
     ConstructorSourceChanged,
     Composite(ParserCompositeTransformRejectV1),
+    ProgramSource(ParserNormalProgramSourceTransformRejectV1),
 }
 
 pub(crate) fn issue_final_callable_program_source_v1(
@@ -23,16 +25,21 @@ pub(crate) fn issue_final_callable_program_source_v1(
         sources,
         slots,
         parameter_source,
-        composite_source,
+        source_authority,
         constructor_source,
     ) =
         initial.into_transform_parts();
-    let composite_source = validate_parser_composite_transform_v1(
-        composite_source,
+    let source_authority = validate_parser_normal_program_source_transform_v1(
+        source_authority,
         &initial_ast,
         &transformed,
     )
-    .map_err(FinalCallableProgramSourceRejectV1::Composite)?;
+    .map_err(|error| match error {
+        ParserNormalProgramSourceTransformRejectV1::Composite(error) => {
+            FinalCallableProgramSourceRejectV1::Composite(error)
+        }
+        other => FinalCallableProgramSourceRejectV1::ProgramSource(other),
+    })?;
     let transformed_slots = expected_callable_slots(&transformed)
         .map_err(|_| FinalCallableProgramSourceRejectV1::CallableCoverage)?;
     if transformed_slots.as_slice() != slots.as_ref() || sources.len() != slots.len() {
@@ -51,7 +58,7 @@ pub(crate) fn issue_final_callable_program_source_v1(
         sources,
         slots,
         parameter_source,
-        composite_source,
+        source_authority,
         constructor_source,
     ))
 }

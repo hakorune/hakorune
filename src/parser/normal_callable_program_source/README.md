@@ -19,6 +19,42 @@ never define total callable cardinality or classify ABI/Home semantics.
 Top-level, selected-gate, and generated callables remain batch members without
 receiving a fabricated `Ordinary` parameter source.
 
+## Parser normal-program source authority I0
+
+`ParserNormalProgramSourceAuthorityV1` is the parser-owned, non-`Clone`
+source owner for the source-backed normal Program handoff. Its sole issuer is
+the parser product constructor, where the completed postpass, callable source
+disposition, parser invocation witness, and the bounded composite disposition
+are co-sealed once. The authority stores AST-free top-level body rows and the
+nested parser composite token; it never stores AST references, spans, pointers,
+names as keys, MIR sites, target selection, candidate/C disposition, Recipe, or
+Builder state.
+
+The required move chain is:
+
+```text
+ParsedProgramWithCallableParameterSourceV1
+  -> PreparedNormalCallableProgramSourceV1
+  -> VerifiedFinalCallableProgramSourceV1
+  -> VerifiedResolvedCallableSemanticBatchV1
+  -> VerifiedNormalCallableSemanticPackageV1
+```
+
+The source owner exposes one HRTB callback loan. Each loan item pairs one
+parser-issued body row with its AST statement in one cursor; callers cannot
+return the borrowed AST or split parallel arrays for ordinal re-pairing. The
+semantic package only delegates this scoped loan. The neutral Script window
+issuer will consume this loan once and will become the only production issuer
+of `VerifiedScriptRootDemandWindowV1`; the existing Builder window remains
+transport-only until that cutover.
+
+Transform validation preserves the parser token by move. It checks the initial
+body coverage/kind and the bounded composite role tree, returning typed
+`ProgramSource`/`Composite` rejection. Existing callable declaration checks
+remain responsible for callable-set/body changes, and the established
+non-callable-tail compatibility remains explicit. A `Ready` authority cannot
+be discarded into the compatibility AST lane.
+
 Selected-normal materialization may attach one `NormalParserSourceLineageV1`
 projection: source identity, digest, grammar profile, UTF-8 length, and the
 one-read/one-parse receipt. It is transported from the parser handoff rather

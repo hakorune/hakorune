@@ -499,3 +499,44 @@ fn added_or_changed_callable_rejects_without_compatibility_fallback() {
         Err(FinalCallableProgramSourceRejectV1::CallableDeclarationChanged { row: 0 })
     ));
 }
+
+#[test]
+fn parser_program_source_authority_lends_one_paired_body_cursor() {
+    let final_source = transform(
+        parse("static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)"),
+        |_| {},
+    )
+    .expect("exact source transform");
+    let rows = final_source
+        .with_normal_program_source_loan(|loan| {
+            loan.statements()
+                .map(|row| (row.position(), matches!(row.statement(), ASTNode::BoxDeclaration { .. })))
+                .collect::<Vec<_>>()
+        })
+        .expect("parser source authority loan");
+    assert_eq!(rows, vec![(0, true), (1, false)]);
+}
+
+#[test]
+fn parser_program_source_authority_rejects_body_kind_drift() {
+    let changed = transform(
+        parse("static box Scan { run(value) { return value } }"),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            statements[0] = ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            };
+        },
+    );
+    assert!(matches!(
+        changed,
+        Err(FinalCallableProgramSourceRejectV1::ProgramSource(
+            crate::parser::callable_parameter_source::ParserNormalProgramSourceTransformRejectV1::BodyKindChanged {
+                position: 0
+            }
+        ))
+    ));
+}

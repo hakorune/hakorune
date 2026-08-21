@@ -11,8 +11,8 @@ mod transform_guard;
 
 pub(crate) use issuer::issue_parser_composite_source_v1;
 pub(crate) use loan::{
-    with_parser_composite_source_loan, ParserCompositeSourceLoanRejectV1,
-    ParserCompositeSourceLoanV1,
+    parser_composite_source_loan_from_statements,
+    ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
 };
 pub(crate) use model::{
     ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,

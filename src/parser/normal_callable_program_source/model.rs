@@ -5,8 +5,10 @@ use hakorune_frontend_parser::parser::GrammarProfile;
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-    with_parser_composite_source_loan, ParserCallableSyntaxLoanErrorV1,
-    ParserCompositeSourceDispositionV1, ParserCompositeSourceLoanRejectV1,
+    with_parser_composite_source_loan_from_normal_authority,
+    with_parser_normal_program_source_loan, ParserNormalProgramSourceAuthorityDispositionV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
+    ParserCallableSyntaxLoanErrorV1, ParserCompositeSourceLoanRejectV1,
     ParserCompositeSourceLoanV1,
 };
 use super::super::callable_source_anchor::{
@@ -129,14 +131,14 @@ pub(in crate::parser) enum NormalCallableParameterSourceRejectV1 {
 pub(crate) struct PreparedNormalCallableProgramSourceV1 {
     initial: VerifiedInitialCallableProgramSourceV1,
     parameter_source: ParserCallableParameterSourceDispositionV1,
-    composite_source: ParserCompositeSourceDispositionV1,
+    source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
 }
 
 impl PreparedNormalCallableProgramSourceV1 {
     pub(in crate::parser) fn issue(
         initial: VerifiedInitialCallableProgramSourceV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,
-        composite_source: ParserCompositeSourceDispositionV1,
+        source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     ) -> Result<Self, NormalCallableParameterSourceRejectV1> {
         if let ParserCallableParameterSourceDispositionV1::Complete(catalog) = &parameter_source {
             validate_direct_parameter_coverage(initial.callable_rows(), catalog)?;
@@ -149,7 +151,7 @@ impl PreparedNormalCallableProgramSourceV1 {
         Ok(Self {
             initial,
             parameter_source,
-            composite_source,
+            source_authority,
         })
     }
 
@@ -162,7 +164,7 @@ impl PreparedNormalCallableProgramSourceV1 {
     }
 
     pub(crate) fn composite_source_is_ready(&self) -> bool {
-        self.composite_source.is_ready()
+        self.source_authority.composite_source_is_ready()
     }
 
     /// Lend the parser-issued composite source at the named admission
@@ -171,7 +173,18 @@ impl PreparedNormalCallableProgramSourceV1 {
         &self,
         callback: impl for<'source> FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
     ) -> Result<R, ParserCompositeSourceLoanRejectV1> {
-        with_parser_composite_source_loan(&self.composite_source, self.ast(), callback)
+        with_parser_composite_source_loan_from_normal_authority(
+            &self.source_authority,
+            self.ast(),
+            callback,
+        )
+    }
+
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        with_parser_normal_program_source_loan(&self.source_authority, self.ast(), callback)
     }
 
     pub(in crate::parser) fn into_transform_parts(
@@ -181,7 +194,7 @@ impl PreparedNormalCallableProgramSourceV1 {
         Box<[PreparedCallableSourceV1]>,
         Box<[InitialCallableFinalSlotV1]>,
         ParserCallableParameterSourceDispositionV1,
-        ParserCompositeSourceDispositionV1,
+        ParserNormalProgramSourceAuthorityDispositionV1,
         super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     ) {
         let (ast, sources, slots, constructor_source) = self.initial.into_transform_parts();
@@ -190,7 +203,7 @@ impl PreparedNormalCallableProgramSourceV1 {
             sources,
             slots,
             self.parameter_source,
-            self.composite_source,
+            self.source_authority,
             constructor_source.expect("constructor source checked at issue"),
         )
     }
@@ -211,7 +224,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
     parameter_source: ParserCallableParameterSourceDispositionV1,
-    composite_source: ParserCompositeSourceDispositionV1,
+    source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     source_lineage: Option<NormalParserSourceLineageV1>,
     _lineage: ExactCallablePreservingTransformReceiptV1,
@@ -226,7 +239,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
         sources: Box<[PreparedCallableSourceV1]>,
         slots: Box<[InitialCallableFinalSlotV1]>,
         parameter_source: ParserCallableParameterSourceDispositionV1,
-        composite_source: ParserCompositeSourceDispositionV1,
+        source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     ) -> Self {
         Self {
@@ -234,7 +247,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             sources,
             slots,
             parameter_source,
-            composite_source,
+            source_authority,
             constructor_source,
             source_lineage: None,
             _lineage: ExactCallablePreservingTransformReceiptV1,
@@ -259,7 +272,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
     }
 
     pub(crate) fn composite_source_is_ready(&self) -> bool {
-        self.composite_source.is_ready()
+        self.source_authority.composite_source_is_ready()
     }
 
     /// Lend the parser-issued composite source at the final source owner.
@@ -269,7 +282,18 @@ impl VerifiedFinalCallableProgramSourceV1 {
         &self,
         callback: impl for<'source> FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
     ) -> Result<R, ParserCompositeSourceLoanRejectV1> {
-        with_parser_composite_source_loan(&self.composite_source, &self.ast, callback)
+        with_parser_composite_source_loan_from_normal_authority(
+            &self.source_authority,
+            &self.ast,
+            callback,
+        )
+    }
+
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        with_parser_normal_program_source_loan(&self.source_authority, &self.ast, callback)
     }
 
     pub(in crate::parser) fn callable_count(&self) -> usize {

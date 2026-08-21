@@ -213,7 +213,7 @@ impl CompletedParserPostpassV1 {
     pub(super) fn into_normal_callable_program(
         self,
         parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
-        composite_source: super::callable_parameter_source::ParserCompositeSourceDispositionV1,
+        source_authority: super::callable_parameter_source::ParserNormalProgramSourceAuthorityDispositionV1,
     ) -> Result<
         super::normal_callable_program_source::ParsedNormalCallableProgramV1,
         super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
@@ -223,7 +223,7 @@ impl CompletedParserPostpassV1 {
             ParsedNormalCallableProgramV1 as Program, PreparedNormalCallableProgramSourceV1,
         };
 
-        if composite_source.is_ready()
+        if source_authority.composite_source_is_ready()
             && matches!(self.program, CompletedParserProgramV1::Compatibility { .. })
         {
             return Err(
@@ -236,7 +236,7 @@ impl CompletedParserPostpassV1 {
                 PreparedNormalCallableProgramSourceV1::issue(
                     program,
                     parameter_source,
-                    composite_source,
+                    source_authority,
                 )
                     .map(Program::SourceBacked)
             }

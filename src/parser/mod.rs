@@ -65,6 +65,7 @@ pub(crate) use callable_parameter_source::{
     ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
     ParserCompositeOutsideReasonV1, ParserCompositeSourceUnavailableV1,
     ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
     ParserInvocationWitnessV1,
 };
 mod postpass_compatibility;
