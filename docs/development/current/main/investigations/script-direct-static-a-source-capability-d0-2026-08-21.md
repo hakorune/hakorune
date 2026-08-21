@@ -21,7 +21,10 @@ may enter capability/A.
 
 Source authority + canonical issuer: one move-bound owner co-seals
 `SourceEnvelopeReady`, the sealed parser-backed Program source, and their
-opaque parser-invocation relation. A future
+opaque parser-invocation relation. The parser-only
+`ParserCompositeSourcePreservationV1` is the non-Clone source token issued by
+the sole `ParserCompositeSourceIssuerV1`; `VerifiedFinalCallableProgramSourceV1`
+and `NormalCompileRequestV1` transport it but do not issue it. A future
 `CanonicalScriptCompositeProgramMembershipIssuerV1` is the sole issuer of the
 two-axis item partition, provider/catalog relation, executable Script window,
 and call-site composite membership.
@@ -173,6 +176,32 @@ branch that discards the source authority, a `None` witness, AST/name/ordinal
 repair, or a second parser scan is a typed stop. The source payload remains
 AST-free after the parser loan and carries no target, candidate, Recipe, or
 physical identity.
+
+### Owner and stage contract
+
+`VerifiedFinalCallableProgramSourceV1` is explicitly a transport container,
+not the new source authority. The parser finalizer issues one private,
+non-`Clone` `ParserCompositeSourcePreservationV1` through an internal HRTB
+loan; the owned token then moves through every later stage:
+
+```text
+ParserCompositeSourceIssuerV1
+  -> ParsedProgramWithCallableParameterSourceV1
+  -> PreparedNormalCallableProgramSourceV1
+  -> transform boundary
+  -> VerifiedFinalCallableProgramSourceV1
+  -> NormalCompileRequestV1
+```
+
+The token co-seals the opaque witness, provider callable identity, one nested
+root-call row (receiver/ordered arguments/result), and its enclosing terminal.
+The handoff witness is required, never `Option`; transform compatibility loss
+is `CompatibilityLoss`, never AST fallback. The token's finite source states
+are `Ready`, `OutsideBoundedCohort`, `SourceAuthorityUnavailable`,
+`Incomplete`, and `IntegrityInvalid`; transform rejects separately as
+`WitnessChanged`, `ProviderChanged`, `RootCallChanged`, `ReceiverChanged`,
+`ArgumentChanged`, `ResultChanged`, `TerminalChanged`, or `CompositeDropped`.
+No A/C/Recipe/physical meaning enters this token.
 
 ## Accepted authority chain
 
@@ -452,13 +481,16 @@ Contract:
   no generic/sync/instance/import widening
   no target/result/candidate meaning
   the same parser witness and source-site payload survive every handoff;
-  compatibility/transform loss is a typed pre-effect failure
+  compatibility/transform loss is a typed pre-effect failure;
+  `VerifiedFinalCallableProgramSourceV1` transports but does not issue the
+  private preservation token
 
 Done:
   one parser-backed owner reaches the future default source selector without
   dropping the Script-row sibling or parser witness
   the pure-Script and composite cohorts remain disjoint and exhaustive
   transformed source rows are proven exact before `NormalCompileRequestV1`
+  token constructor = 1, token move path = 1, AST-only request cannot mint it
 
 Stop:
   if the transform changes source sites, the compatibility branch discards
