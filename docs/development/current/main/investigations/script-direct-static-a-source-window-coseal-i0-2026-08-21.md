@@ -1,12 +1,12 @@
 ---
-Status: implementation complete and pushed as `f0d80d6943`; A capability remains `design_stop`
-Date: 2026-08-21
-Decision: SCRIPT-A-SOURCE-WINDOW-COSEAL-I0-D0
+Status: source-window I0 is pushed as `f0d80d6943`; A/C linear-consumer design is accepted and selected for fast execution
+Date: 2026-08-22
+Decision: SCRIPT-A-C-CONSUMER-SERIES-I0-R0
 Parent: docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md
 ProductionCaller: `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle_with_target`
-ReplacementCell: existing neutral window -> one pre-effect source-window handoff -> later A capability
-Classification: T2 BoxShape/ownership prerequisite; no A/C meaning or production switch
-NextCard: design `SCRIPT-A-CAPABILITY-I0`
+ReplacementCell: complete pre-effect observation -> private A -> immediate C -> one required post-install consumer
+Classification: T2 BoxShape/in-place authority replacement; no new accepted language shape
+NextCard: fast `SCRIPT-C-NAMED-CONSUMER-SEAM-R0`
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-WINDOW-COSEAL-I0
@@ -226,30 +226,60 @@ Acceptance:
 
 Non-claims: A/C is still closed after this commit.
 
-### Commit 2 — `SCRIPT-A-CAPABILITY-I0`
+### Commit 2 — `SCRIPT-C-NAMED-CONSUMER-SEAM-R0`
 
-Only after Commit 1 is green, consume the complete pre-effect observation in a
-private, non-Clone A capability. The A issuer validates lookup coverage against
-the continuation and emits the source-level direct rows or an explicit
-complete-zero witness; it moves the source-window admission onward and does
-not return a capability to dispatch.
+Prepare the required downstream seam before issuing A. The Script lowering
+input and claim state must use one closed, non-optional disposition:
 
-### Commit 3 — `SCRIPT-C-DISPOSITION-CONSUMER-I0`
+```text
+CompleteNoDirectStaticClaims(source-backed C witness)
+DirectStaticClaims(nonempty downstream input)
+```
 
-Add the named C disposition and two consumers. The direct consumer may adapt
-the existing Facts/Recipe/Join input boundary; the non-direct consumer must
-retain the Script continuation without using an empty Bundle or claim `Absent`
-as proof.
+The first state is not an empty Bundle and does not authorize
+`ScriptDirectStaticClaimTakeV1::Absent`. Once selected Script owns either C
+state, a static-claim ingress with no exact row is an integrity failure; it may
+not retry the generic static lookup. This commit is BoxShape-only and must not
+create a detached production route.
 
-### Commit 4 — `SCRIPT-A-CUTOVER-I0`
+### Commit 3 — `SCRIPT-A-CAPABILITY-C-DISPOSITION-I0`
 
-Move the complete A/C facade before target/Builder effects, prove zero old
-Recipe/fallback edges for the migrated surface, and only then consider a
-separate production caller switch/retirement row.
+Consume `PreEffectCompleteSourceObservationV1` in a module-private, non-Clone
+capability. Its private issuer performs one total correspondence pass and
+immediately moves Ready through the named A issuer and C issuer. Dispatch never
+receives or stores a capability or A observation. The resulting required C
+transport owns the same admission, pre-effect parts, lookup authority, and one
+closed disposition.
+
+The direct arm carries nonempty candidate-site rows plus key-free required
+argument source facts. The non-direct arm carries the exact A zero reason and
+all explicit non-direct rows. Neither arm owns Recipe/Join keys or physical
+IDs.
+
+### Commit 4 — `SCRIPT-A-C-CUTOVER-R0`
+
+At the sole pre-effect callpoint, replace the direct
+`PreEffectCompleteSourceObservationV1` storage with the A/C facade result.
+After package install, exactly one named consumer moves the same admission to
+the work plan and:
+
+- projects the direct arm into the existing downstream Facts/Recipe/Join
+  boundary; or
+- installs `CompleteNoDirectStaticClaims` and skips empty Bundle/Recipe/Join
+  construction.
+
+Delete the selected-Script empty-Bundle/claim-`Absent` proof edge in the same
+series. Deferred, Incomplete, or Invalid must stop before target installation,
+Builder effects, Recipe/Join, Call, publication, or fallback.
+
+Commits 2-4 are one acceptance unit. They may be local review commits, but A
+or C is not independently complete and the series is not pushed/closed until
+the production caller, both named consumers, old-edge retirement, focused
+tests, and structural guard are all green.
 
 ## Guard and evidence plan
 
-The reusable guard for Commit 1 must assert:
+The reusable guard for Commit 1 asserts:
 
 ```text
 PreparedScriptRootAdmissionV1 source owner count = 1
@@ -265,6 +295,21 @@ source-window production files                 < 760 lines
 The focused test names and classified baseline reds belong in the active card
 at closeout. Local green is evidence for this cell only; it does not authorize
 A/C, physical, or production claims.
+
+For the selected A/C series, the guard must additionally assert:
+
+```text
+private capability production constructor/caller = 1/1
+capability or A observation returned/stored        = 0
+C transport production consumer                   = 1
+selected-Script claim Absent fallback              = 0
+failure -> target/Builder/Recipe/Call/publication  = 0
+AST rescan / resolver rerun / catalog rebuild      = 0
+duplicate window/coverage/lookup owner             = 0
+Builder/Recipe key/MIR ID inside A or C             = 0
+wildcard/default/unwrap_or_default state merge      = 0
+touched production files                            < 760 lines
+```
 
 ## Independent queue remains separate
 
@@ -325,9 +370,102 @@ Evidence:
 - touched production owners are 262, 429, 213, and 600 lines, all below the
   760 split trigger and 800 hard stop.
 
-The next row is not an implementation permission. `SCRIPT-A-CAPABILITY-I0`
-must first close the private capability fields, sole issuer, immediate named A
-consumer, complete-zero representation, and the linear return of the same
-source admission. The independent Result-discard queue remains ordered as
+## A/C design closure — 2026-08-22
+
+Decision:
+reuse `PreEffectCompleteSourceObservationV1` as the sole moved payload of a
+private capability. Do not duplicate its window, resolver facts, continuation,
+coverage, or lookup. Ready is consumed immediately into A, then C, then one
+required post-install consumer.
+
+Source authority + canonical issuer:
+the complete pre-effect observation owns the same-invocation window, resolver
+Complete product, terminal/continuation, total call coverage, and owned
+target/result lookup. `CanonicalScriptASourceCapabilityIssuerV1` is the sole
+private co-seal issuer; `CanonicalScriptAObservationIssuerV1` and
+`CanonicalScriptCDispositionIssuerV1` are its immediate linear consumers.
+
+Non-authority:
+the pointer-branded old ResultBundle, empty Recipe/Join, `ClaimLedger::Absent`,
+AST/name/ordinal/digest, Builder work plan, generic static retry, and physical
+IDs cannot issue A zero, A rows, or C disposition.
+
+Fail-fast boundary:
+after `NormalScriptPreEffectSourceObservationIssuerV1::issue` succeeds and
+before `install_pinned_text_target_capability`. All A/C issue failures have
+zero target install, Builder, Bundle, Recipe/Join, Call, publication, and
+fallback effects.
+
+Smallest next slice:
+execute the three-commit `SCRIPT-A-C-CONSUMER-SERIES-I0-R0`, beginning with
+`SCRIPT-C-NAMED-CONSUMER-SEAM-R0`. The complete series is one BoxShape
+acceptance unit and one push boundary.
+
+Non-claims:
+no source cohort expansion, target-absence language change, general nominal
+result support, Recipe/Join redesign, backend/ABI change, broad Builder
+cleanup, compatibility/raw retirement, or performance-optimization claim.
+
+### Finite states
+
+| State | Exact meaning | Allowed terminal |
+| --- | --- | --- |
+| `A.Zero.EmptyScript` | sealed source window has zero statements and zero calls | `C.NonDirect` |
+| `A.Zero.NoMethodCalls` | nonempty complete window has zero MethodCall rows | `C.NonDirect` |
+| `A.Zero.ObservedNonDirect` | every call has an explicit source-backed non-direct reason | `C.NonDirect` |
+| `A.Rows` | one or more lookup-backed ExactI64 direct-static rows; remaining calls have explicit non-direct rows | `C.DirectStatic` |
+| `ObservationDeferred` | resolver supplied typed cause/site | pre-effect reject |
+| `Incomplete` | expected window/coverage/lookup/continuation/result/required-argument fact is missing or outside bounded I0 | pre-effect reject |
+| `IntegrityInvalid` | foreign witness, duplicate/extra row, or site/order/owner/terminal contradiction | pre-effect reject |
+| private `Ready` | all required relations are complete and consistent | immediate A consume only |
+| `C.NonDirect` | source-backed complete-zero disposition | named no-claim consumer |
+| `C.DirectStatic` | nonempty candidate disposition | named direct consumer |
+
+For bounded I0, a target absent from the complete catalog, unavailable result
+authority, non-ExactI64 result, or unsupported required-argument source is
+typed `Incomplete`; it is never forged into A zero or retried after A starts.
+This preserves the current hard-stop semantics. A later source-backed
+noncandidate expansion requires its own BoxCount Decision.
+
+### One-pass and cost contract
+
+Safety validation is one pre-effect correspondence pass over already-owned
+products. It may use existing `BTreeMap` lookups, so the conservative bound is
+`O(n log n)` for `n` observed call rows; C classification and move transport
+are constant-time apart from moving owned containers. The implementation must
+not:
+
+- scan the AST again;
+- rerun the resolver;
+- rebuild target/result catalogs or perform a second lookup;
+- clone complete coverage, lookup, source-window, or resolver containers;
+- repeat the total correspondence check after C is issued;
+- add broad benchmark or repository-wide test gates to this semantic slice.
+
+Focused positive/negative tests and the structural guard are sufficient for
+the slice. A benchmark is required only if implementation introduces an extra
+observer or allocation not present in this contract. The intended final path
+is lighter than the current route because empty Bundle/Recipe/Join creation,
+post-effect source revalidation, and generic fallback disappear.
+
+### File and size plan
+
+Keep the 827-line `builder.rs` untouched. Add private children below the
+213-line `normal_script_pre_effect_source_observation` owner:
+
+```text
+normal_script_a/model.rs                    target <= 300 lines
+normal_script_a/issuer.rs                   target <= 500 lines
+normal_script_a/required_argument_source.rs target <= 350 lines
+normal_script_a/consumer.rs                 target <= 350 lines
+normal_script_a/tests.rs                    focused matrix only
+```
+
+The 695-line `source_call_target/script_direct_static.rs` receives no semantic
+growth. The 600-line lifecycle receives only the sole thin facade call. Split
+at 760 and hard-stop at 800; do not compress or append tests to production
+owners to evade the limit.
+
+The independent Result-discard queue remains ordered as
 `MIR-RESULT-DISCARD-CENSUS-D0` -> `MIR-ASSIGNMENT-RELEASE-FAILFAST-I0` ->
 `MIR-RESULT-DISCARD-GUARD-I0`; `EmitReceipt` remains parked.
