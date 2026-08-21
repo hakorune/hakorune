@@ -1,10 +1,10 @@
-Status: CONNECT0 handoff/evidence closeout landed; live-publication boundary is deferred on full-body consumption; implementation and retirement remain gated
-Task: MIR-LOOP-COMPARE-LIVE-PUBLICATION-FULL-BODY-CONSUMPTION-P0
+Status: CONNECT0 handoff/evidence closeout landed; Dynamic body-to-semantic-state bridge remains a design stop before live-publication evidence
+Task: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-D0
 Date: 2026-08-22
-Priority: prove complete selected-Dynamic body consumption before claiming collector drain or external commit; keep backend and generic retirement closed
+Priority: name one non-emitting bridge from resolver-backed Dynamic body/physical evidence into the existing callable semantic state before claiming collector drain or external commit; keep backend and generic retirement closed
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 PreviousCard: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
-NextCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-FULL-BODY-CONSUMPTION-P0 (same rolling card)
+NextCard: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-D0 (same rolling card)
 ---
 
 # Loop Compare CONNECT0 handoff
@@ -52,21 +52,21 @@ This does not yet prove an end-to-end live publication fixture. The word
 | `ExternalCommit` | sealed module passes compiler-owned verification and is externally committed | `PreparedModuleExternalCommitV1` / invocation session | define evidence |
 | `BackendEmission` | LLVM/object/native or VM consumer observes the module | backend owner | explicit non-claim |
 
-The publication audit is refined by the following prerequisite task:
+The publication audit is refined by the following prerequisite design task:
 
 ```text
-MIR-LOOP-COMPARE-LIVE-PUBLICATION-FULL-BODY-CONSUMPTION-P0
+MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-D0
 ```
 
 Six-line brief:
 
 ```text
-Decision: accept the static selected-Dynamic production path, but defer live publication until complete source-body consumption is evidenced on the same path; do not open backend emission or generic Loop retirement.
-Source authority + canonical issuer: the existing selected Dynamic I9 demand/ledger and private I9 handoff own Compare facts; collector drain and external commit own module publication transitions.
-Non-authority: collector admission alone, `current_module` observation alone, test helpers, generic dispatcher caller-zero, old shared Compare leaf, backend/object output, and any fallback route.
-Fail-fast boundary: all selected-Dynamic source/body/operation consumption must complete at `package_port` before `finish_unpublished_draft`, collector drain, or external commit; any failure discards the unpublished session and cannot fall back.
-Smallest next slice: drive unchanged `parser_scan_loop_box.hako` through public `compile_normal`, prove every selected-Dynamic source operation is consumed, then observe one `DraftAdmission`, one `ModuleDrain`, and one `ExternalCommit`.
-Non-claims: no new semantic receipt, no generic dispatcher activation, no cross-block dominance, no Const/Binary migration, no shared old-leaf retirement, no LLVM/VM/object promotion, and no performance work.
+Decision: keep live publication gated until the selected Dynamic branch closes the existing CallableSemanticLoweringState through one non-emitting source/physical-consumption bridge; do not open backend emission or generic Loop retirement.
+Source authority + canonical issuer: resolver-owned SelectedCallableLoweringInputRefV1/FunctionSourceViewV1 owns the exact body; CallableSemanticLoweringState owns entry/local/variable/assignment/dynamic-origin consumption; the private selected-Dynamic adapter is the only bridge issuer and reuses the existing A-prime demand/W6 products.
+Non-authority: A-prime body validation alone, package `complete()` key coverage alone, RawInvocationChildPort `lower_*` as an observation API, collector admission alone, `current_module` observation alone, test helpers, generic dispatcher caller-zero, old shared Compare leaf, backend/object output, and fallback.
+Fail-fast boundary: the bridge must consume exact source/body and all existing semantic-state counters from resolver-bound/W6 evidence, then `state.finish()` must succeed before `finish_unpublished_draft`; any error discards the unpublished session and never reaches collector drain or fallback.
+Smallest next slice: design the bridge contract and counter-to-demand mapping for unchanged `parser_scan_loop_box.hako`; prove that no existing `lower_*` call can be reused as observation and name the exact pre-DraftSeal callpoint. Only after this is accepted may P0 implement and observe DraftAdmission/ModuleDrain/ExternalCommit.
+Non-claims: no new semantic receipt, no AST-only rescan authority, no duplicate physical lowering, no generic dispatcher activation, no cross-block dominance, no Const/Binary migration, no shared old-leaf retirement, no LLVM/VM/object promotion, and no performance work.
 ```
 
 ### Worker audit result
@@ -94,38 +94,95 @@ test also supplies empty parameter/body vectors. These prove reachability of
 the handoff, not consumption of the unchanged source body and not a live
 module publication.
 
-The first P0 deliverable is therefore an existing-owner consumption
-contract/census at the package-port completion boundary, not a new semantic
-receipt. `NormalCallableSemanticPackagePortV1::complete()` currently proves
-only selected-key coverage: `with_selected_*` marks a key after its callback
-returns. It must not be relabeled as proof that the selected method body was
-consumed. The selected Dynamic branch currently receives `body` but passes
-`inspect = |_| Ok(())` to W6, so the body-consumption fact is still absent.
+The first D0 deliverable is therefore an existing-owner state-bridge contract,
+not a new semantic receipt. `NormalCallableSemanticPackagePortV1::complete()`
+currently proves only selected-key coverage: `with_selected_*` marks a key
+after its callback returns. It must not be relabeled as proof that the selected
+method body was consumed. The selected Dynamic branch currently receives
+`body` but passes `inspect = |_| Ok(())` to W6, so it also bypasses the
+`CallableSemanticLoweringState` scope whose `finish()` checks entry, locals,
+variables, assignments, direct lambdas, brand constructors, and Dynamic
+origins.
 
-The P0 must make the existing source/physical-demand owner consume and
-validate the exact selected body before `finish_unpublished_draft`; the
-package port may close only after that body-consuming operation returns
-successfully. A code/API boundary may be introduced only as part of that
-existing owner, for example a private consuming operation whose input is the
-selected source loan plus the transported body and whose output is the
-already-existing full Dynamic demand/plan. It must co-seal source identity and
-body identity once. Do not add a default `Consumed` receipt, treat an empty
-body as consumed, rescan the AST in a second authority, or create a
-Dynamic-to-Loop adapter. No production switch or old-edge deletion is required
-for this P0; generic retirement remains separately gated by the shared legacy
-leaf census.
+The exact resolver body authority is
+`SelectedCallableLoweringInputRefV1::source()` ->
+`ResolvedFunctionLoweringInputV1` -> `FunctionSourceViewV1::root_body()` and
+its checked body cursor. The state authority is the existing
+`CallableSemanticLoweringState`. The selected-Dynamic adapter must connect
+these to the existing full Dynamic demand/W6 evidence through one private
+non-emitting consume/commit operation, and call `state.finish()` before
+`finish_unpublished_draft`. A-prime demand validation alone is insufficient.
 
-The acceptance therefore has two independent facts:
+`RawInvocationChildPortV1::lower_*` cannot serve as this bridge: those methods
+perform physical lowering, so calling them as an observation pass would emit
+the body twice before W6. Do not add a default `Consumed` receipt, treat an
+empty body as consumed, rescan the AST in a second authority, create an
+ad-hoc aggregate, or create a Dynamic-to-Loop adapter. If the bridge cannot
+consume W6-owned evidence without a second physical writer, keep `NoSafeSlice`.
+
+After this D0 is accepted, the bounded P0 may implement the bridge and then
+observe one `DraftAdmission`, one `ModuleDrain`, and one `ExternalCommit`.
+Generic retirement remains separately gated by the shared legacy leaf census.
+
+The acceptance therefore has two independent facts plus one ordering fact:
 
 ```text
 package completion = every selected key was consumed exactly once
 body completion    = every selected source/body operation was consumed by
-                     the existing Dynamic demand/physical owner exactly once
+                     the existing Dynamic demand/W6 owner exactly once
+state ordering     = CallableSemanticLoweringState::finish() succeeds before
+                     finish_unpublished_draft
 ```
 
 Neither fact may stand in for the other. If the existing owner cannot consume
 the unchanged body without a second source authority, the result is
 `NoSafeSlice`, not a synthetic success marker.
+
+### State-bridge audit and ordered task split
+
+The selected Dynamic branch must not call the ordinary body lowerer merely to
+make the state counters look consumed. `RawInvocationChildPortV1::lower_body`,
+`lower_statement`, and `lower_expression` are physical lowering entrypoints;
+using them before W6 would create a second physical route and duplicate body
+effects. The bridge therefore belongs at the selected-Dynamic adapter, which
+already owns `body`, the selected package input, and `inner.callable_ledger`.
+
+The accepted contract shape is:
+
+```text
+resolver source loan + exact body relation
+  -> existing CallableSemanticLoweringState loan
+  -> W6-owned physical evidence is consumed once by a private non-emitting bridge
+  -> state.finish()
+  -> existing finish_unpublished_draft()
+  -> existing package key completion / collector admission
+```
+
+The bridge may reuse the existing state methods and the existing full Dynamic
+demand/physical session, but it returns only `Result<(), typed_error>` inside
+the adapter. It does not create, store, or transport a new `Verified*`,
+`Prepared*`, or `Consumed` product. The resolver-backed body remains the source
+authority (`FunctionSourceViewV1::root_body()` and its checked cursor); the
+physical session remains the physical evidence authority; the bridge only
+co-seals their already-issued relations and advances the existing state owner.
+
+The task order is intentionally split:
+
+1. **This D0:** map every `CallableSemanticLoweringState::finish()` counter
+   (entry, local, variable, assignment, direct lambda, brand constructor,
+   Dynamic origin) to an existing resolver/W6 row for the unchanged fixture;
+   name the non-emitting callpoint before DraftSeal and its discard path.
+2. **Following P0:** implement that one private bridge in the selected-Dynamic
+   adapter and add focused missing/foreign/duplicate/partial-consumption
+   evidence. Do not activate a second body lowerer or alter generic Loop
+   dispatch.
+3. **Following publication evidence:** run the unchanged production fixture
+   through public `compile_normal` and observe `DraftAdmission`, `ModuleDrain`,
+   and `ExternalCommit` only after the bridge and state finish are green.
+
+If any counter lacks an existing source/W6 relation, or the bridge would need
+to allocate/emit independently of W6, stop at `NoSafeSlice` and design that
+missing authority rather than adding a synthetic completion flag.
 
 Finite state routing for this D0 is:
 
@@ -133,7 +190,7 @@ Finite state routing for this D0 is:
 | --- | --- | --- |
 | `Unavailable` | selected Dynamic package or publication input is absent | typed reject; no I9 effect |
 | `Selected` | named non-test compile route and I9 row are selected | `BodyConsumptionReady` only after exact source/body coverage is proven |
-| `BodyConsumptionReady` | selected source rows and Dynamic operation demand are consumed exactly once before publication | `DraftAdmission` |
+| `BodyConsumptionReady` | selected source rows and Dynamic operation demand are consumed exactly once, state.finish() succeeds, and no duplicate physical lowering occurred | `DraftAdmission` |
 | `DraftAdmission` | completed draft is held by the collector | `ModuleDrain` |
 | `ModuleDrain` | collector preflight/commit has inserted the draft into `current_module` | `ExternalCommit` |
 | `ExternalCommit` | compiler-owned verification and external commit succeeded | terminal D0 evidence |
@@ -146,14 +203,16 @@ retirement proof: the shared legacy leaf still has non-test compatibility and
 canary callers. Generic retirement requires a separate selected production
 consumer and a complete old-leaf caller census.
 
-Acceptance for this P0 is one real compile-path fixture, exact once-only
-source/body consumption before draft finishing, explicit stage
-receipts/observations for `DraftAdmission`, `ModuleDrain`, and
-`ExternalCommit`, zero selected-I9 fallback/retry, unchanged failure
-atomicity, and a reusable guard. If the fixture reaches only a helper or
-test-owned collector, if the body is not consumed before drain, or if
-publication requires a second Dynamic/Loop ledger or backend authority, keep
-`NoSafeSlice`.
+Acceptance for this D0 is a named non-emitting bridge owner, an exact mapping
+from resolver/body and W6 evidence to every existing state counter, an explicit
+pre-`finish_unpublished_draft` callpoint for `state.finish()`, and a typed
+discard path. The D0 must also prove that `RawInvocationChildPortV1::lower_*`
+is not reused as an observation pass. If that mapping is missing, if the
+bridge requires a second AST authority or physical writer, or if state failure
+cannot discard the unpublished session, keep `NoSafeSlice`. The later P0
+acceptance is one real compile-path fixture with exact once-only body/state
+consumption and explicit `DraftAdmission`, `ModuleDrain`, and
+`ExternalCommit` evidence.
 
 ## Current census
 
