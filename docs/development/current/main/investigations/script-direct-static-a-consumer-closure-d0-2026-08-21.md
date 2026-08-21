@@ -1,12 +1,12 @@
 ---
-Status: Design stop — no existing canonical A/C consumer is available
+Status: Closed as consumer-boundary design; implementation remains parked
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-CONSUMER-CLOSURE-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-semantic-input-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: A SourceEnvelopeReady -> C disposition -> named canonical consumer
 Classification: design stop; no A/C semantic implementation
-NextCard: none until this D0 is accepted
+NextCard: script-direct-static-a-consumer-bind-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-A-CONSUMER-CLOSURE-D0
@@ -101,6 +101,24 @@ implementations. `NamedConsumerMissing` is the primary blocker. This is not a
 permission to add an empty C receipt or a forwarding adapter: the next D0
 acceptance must bind each role to a real source/Facts/Recipe/physical owner and
 state the exact old-edge deletion.
+
+## D0 review closeout — concrete bind boundary
+
+The worker audit confirms that no existing canonical owner can consume A:
+`CanonicalCoreSourcePlanCompileRequestV1` is transport-only, the old
+`prepare_script_recipe()` path owns the old Recipe authority, and the physical
+entry/publication owners accept only Recipe-derived candidates. Therefore the
+missing consumer is structural, not a naming gap. This D0 closes at the
+design-boundary decision that a new Builder-free compiler sibling is required;
+it does not authorize that sibling's code or a new semantic receipt.
+
+The bounded follow-up is
+`script-direct-static-a-consumer-bind-d0-2026-08-21.md`. It fixes the
+proposed sibling split, source/issuer contracts, exhaustive A/C/B states, the
+zero/direct-static consumer roles, the 676-line dispatch split boundary, and
+the atomic `SourceEnvelopeReady -> prepare_script_recipe()` retirement rule.
+Until that card is accepted, this row remains a design-only stop and the old
+Recipe edge is the sole temporary pre-A continuation.
 
 ## Named consumer contracts
 
