@@ -1,6 +1,6 @@
 //! AST-free payload types for the canonical pure-Script parser rows.
 
-use crate::parser::source_authority::ParserInvocationBrandV1;
+use super::parser_invocation_witness::ParserInvocationWitnessV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ScriptBodySyntaxKindV1 {
@@ -156,7 +156,7 @@ impl ScriptImportConfigSnapshotV1 {
 
 #[derive(Debug)]
 pub(crate) struct CanonicalScriptSourceRowsV1 {
-    pub(super) parser_brand: ParserInvocationBrandV1,
+    pub(super) parser_brand: ParserInvocationWitnessV1,
     pub(super) statement_count: u32,
     pub(super) body_rows: Box<[ScriptBodyRowV1]>,
     pub(super) declarations: Box<[ScriptDeclarationSyntaxSnapshotV1]>,
@@ -169,7 +169,7 @@ pub(crate) struct CanonicalScriptSourceRowsV1 {
 pub(super) struct CanonicalScriptSourceRowsSealV1;
 
 impl CanonicalScriptSourceRowsV1 {
-    pub(crate) fn parser_brand(&self) -> &ParserInvocationBrandV1 {
+    pub(crate) fn parser_invocation_witness(&self) -> &ParserInvocationWitnessV1 {
         &self.parser_brand
     }
 
@@ -206,6 +206,25 @@ pub(crate) enum CanonicalScriptSourceRowsDispositionV1 {
     IntegrityInvalid,
     NonCandidate,
     HandoffReady(CanonicalScriptSourceRowsV1),
-    HandoffConsumed,
+    MovedToParallelHandoff,
     DispositionTransported,
+}
+
+impl CanonicalScriptSourceRowsDispositionV1 {
+    pub(crate) fn parser_invocation_witness(&self) -> Option<ParserInvocationWitnessV1> {
+        match self {
+            Self::HandoffReady(rows) => Some(rows.parser_brand.clone()),
+            Self::NotApplicable
+            | Self::CompatibilitySource
+            | Self::Deferred
+            | Self::AdmissionMissing
+            | Self::SourceAuthorityUnavailable
+            | Self::CohortUnresolved
+            | Self::ObservationIncomplete
+            | Self::IntegrityInvalid
+            | Self::NonCandidate
+            | Self::MovedToParallelHandoff
+            | Self::DispositionTransported => None,
+        }
+    }
 }

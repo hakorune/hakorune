@@ -24,14 +24,14 @@ pub(crate) enum CanonicalScriptSourceInputDispositionV1 {
     IntegrityInvalid,
     NonCandidate,
     HandoffReady(CanonicalScriptSourceInputHandoffV1),
-    HandoffConsumed,
+    MovedToParallelHandoff,
     DispositionTransported,
 }
 
 impl CanonicalScriptSourceInputDispositionV1 {
     /// The legacy canonical-core request has no A consumer yet.  This
     /// explicit terminal consumes the transport without interpreting it;
-    /// it is deliberately not `HandoffConsumed` and must be replaced by the
+    /// it is deliberately not compiler `HandoffConsumed` and must be replaced by the
     /// future A input owner before any row can affect compilation.
     pub(super) fn discard_before_a_consumer(self) {
         match self {
@@ -45,7 +45,7 @@ impl CanonicalScriptSourceInputDispositionV1 {
             | Self::IntegrityInvalid
             | Self::NonCandidate
             | Self::HandoffReady(_)
-            | Self::HandoffConsumed
+            | Self::MovedToParallelHandoff
             | Self::DispositionTransported => {}
         }
     }
@@ -70,7 +70,9 @@ impl CanonicalScriptSourceInputDispositionV1 {
             Self::IntegrityInvalid => CanonicalScriptSourceAInputTransportV1::IntegrityInvalid,
             Self::NonCandidate => CanonicalScriptSourceAInputTransportV1::NonCandidate,
             Self::HandoffReady(handoff) => handoff.into_compiler_transport(),
-            Self::HandoffConsumed => CanonicalScriptSourceAInputTransportV1::HandoffConsumed,
+            Self::MovedToParallelHandoff => {
+                CanonicalScriptSourceAInputTransportV1::MovedToParallelHandoff
+            }
             Self::DispositionTransported => {
                 CanonicalScriptSourceAInputTransportV1::DispositionTransported
             }
@@ -197,8 +199,8 @@ pub(super) fn co_seal_script_source_input(
         CanonicalScriptSourceRowsDispositionV1::HandoffReady(rows) => {
             CanonicalScriptSourceInputHandoffV1::issue(rows, profile, receipt)
         }
-        CanonicalScriptSourceRowsDispositionV1::HandoffConsumed => {
-            CanonicalScriptSourceInputDispositionV1::HandoffConsumed
+        CanonicalScriptSourceRowsDispositionV1::MovedToParallelHandoff => {
+            CanonicalScriptSourceInputDispositionV1::MovedToParallelHandoff
         }
         CanonicalScriptSourceRowsDispositionV1::DispositionTransported => {
             CanonicalScriptSourceInputDispositionV1::DispositionTransported

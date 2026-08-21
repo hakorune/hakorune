@@ -31,6 +31,7 @@ impl CanonicalParserSourceHandoffV1 {
         profile: SealedNormalEntryProfileV1,
         receipt: NormalFileSourceReceiptV1,
     ) -> Self {
+        let parser_invocation_witness = script_rows.parser_invocation_witness();
         let lineage = NormalParserSourceLineageV1::issue(
             receipt.source_identity.clone(),
             receipt.source_digest,
@@ -41,7 +42,11 @@ impl CanonicalParserSourceHandoffV1 {
         )
         .expect("sealed normal-file receipt must be one-read/one-parse");
         Self {
-            callable_source: NormalParserCallableSourceHandoffV1::new(disposition, lineage),
+            callable_source: NormalParserCallableSourceHandoffV1::new(
+                disposition,
+                lineage,
+                parser_invocation_witness,
+            ),
             script_input: co_seal_script_source_input(script_rows, &profile, &receipt),
             profile,
             receipt,

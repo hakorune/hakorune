@@ -64,7 +64,11 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
         NyashParser::parse_from_string_with_callable_parameter_source(input, build_config)
             .map_err(NormalCallableMaterializationErrorV1::Parse)?;
     let handoff =
-        NormalParserCallableSourceHandoffV1::new(product.into_source_disposition(), source_lineage);
+        NormalParserCallableSourceHandoffV1::new(
+            product.into_source_disposition(),
+            source_lineage,
+            None,
+        );
     let (parsed, source_lineage) = handoff
         .into_normal_callable_program()
         .map_err(NormalCallableMaterializationErrorV1::Parse)?;

@@ -40,6 +40,7 @@ pub(crate) mod callable_single_loop_syntax_facts;
 pub(crate) mod canonical_core_dispatch;
 #[allow(dead_code)]
 pub(crate) mod canonical_script_source_a_input;
+pub(crate) mod canonical_script_source_plan_envelope;
 #[allow(dead_code)]
 pub(crate) mod canonical_source_identity;
 #[allow(dead_code)]

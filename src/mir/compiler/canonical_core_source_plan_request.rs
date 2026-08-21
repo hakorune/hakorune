@@ -5,7 +5,8 @@
 
 use super::super::canonical_script_source_a_input::CanonicalScriptSourceAInputTransportV1;
 use super::super::canonical_source_identity::CanonicalSourceBytesDigestV1;
-use super::super::normal_source_plan::SealedNormalSourcePlanV1;
+use super::super::normal_source_plan::{SealedNormalScalarRootV1, SealedNormalSourcePlanV1};
+use super::super::canonical_script_source_plan_envelope::CanonicalScriptSourcePlanEnvelopeV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) struct NormalSourcePlanReceiptV1 {
@@ -69,7 +70,7 @@ pub(crate) struct CanonicalCoreSourcePlanCompileRequestV1 {
     plan: SealedNormalSourcePlanV1,
     admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
     receipt: NormalSourcePlanReceiptV1,
-    script_input: CanonicalScriptSourceAInputTransportV1,
+    source_input: CanonicalCoreSourcePlanInputV1,
     _seal: CanonicalCoreSourcePlanCompileRequestSealV1,
 }
 
@@ -81,13 +82,13 @@ impl CanonicalCoreSourcePlanCompileRequestV1 {
         plan: SealedNormalSourcePlanV1,
         admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
         receipt: NormalSourcePlanReceiptV1,
-        script_input: CanonicalScriptSourceAInputTransportV1,
+        source_input: CanonicalCoreSourcePlanInputV1,
     ) -> Self {
         Self {
             plan,
             admission,
             receipt,
-            script_input,
+            source_input,
             _seal: CanonicalCoreSourcePlanCompileRequestSealV1,
         }
     }
@@ -99,7 +100,7 @@ impl CanonicalCoreSourcePlanCompileRequestV1 {
 
     #[cfg(test)]
     pub(crate) fn script_input_state(&self) -> &'static str {
-        self.script_input.state_name()
+        self.source_input.state_name()
     }
 
     pub(crate) fn into_parts(
@@ -108,8 +109,77 @@ impl CanonicalCoreSourcePlanCompileRequestV1 {
         SealedNormalSourcePlanV1,
         VerifiedCanonicalCoreSourcePlanAdmissionV1,
         NormalSourcePlanReceiptV1,
-        CanonicalScriptSourceAInputTransportV1,
+        CanonicalCoreSourcePlanInputV1,
     ) {
-        (self.plan, self.admission, self.receipt, self.script_input)
+        (self.plan, self.admission, self.receipt, self.source_input)
     }
+}
+
+/// The request-side family join. Script cannot carry an untyped transport;
+/// only a source envelope or an explicitly retained rejection may cross the
+/// request boundary. Main/Callable keep their transport solely as a discard
+/// sidecar and never participate in Script routing.
+#[derive(Debug)]
+pub(crate) enum CanonicalCoreSourcePlanInputV1 {
+    Main(CanonicalScriptSourceAInputTransportV1),
+    Script(CanonicalScriptSourcePlanInputV1),
+    Callable(CanonicalScriptSourceAInputTransportV1),
+}
+
+#[derive(Debug)]
+pub(crate) enum CanonicalScriptSourcePlanInputV1 {
+    SourceEnvelopeReady(CanonicalScriptSourcePlanEnvelopeV1),
+    Rejected(CanonicalScriptSourceAInputTransportV1),
+}
+
+impl CanonicalCoreSourcePlanInputV1 {
+    pub(crate) fn from_plan_and_transport(
+        plan: &SealedNormalSourcePlanV1,
+        transport: CanonicalScriptSourceAInputTransportV1,
+    ) -> Self {
+        match plan {
+            SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(_)) => {
+                match transport {
+                    CanonicalScriptSourceAInputTransportV1::SourceEnvelopeReady(envelope) => {
+                        Self::Script(CanonicalScriptSourcePlanInputV1::SourceEnvelopeReady(
+                            envelope,
+                        ))
+                    }
+                    other => Self::Script(CanonicalScriptSourcePlanInputV1::Rejected(other)),
+                }
+            }
+            SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Main0(_)) => {
+                Self::Main(transport)
+            }
+            SealedNormalSourcePlanV1::CallableModule(_) => Self::Callable(transport),
+        }
+    }
+
+    #[cfg(test)]
+    pub(crate) fn state_name(&self) -> &'static str {
+        match self {
+            Self::Main(transport) | Self::Callable(transport) => transport.state_name(),
+            Self::Script(CanonicalScriptSourcePlanInputV1::SourceEnvelopeReady(_)) => {
+                "SourceEnvelopeReady"
+            }
+            Self::Script(CanonicalScriptSourcePlanInputV1::Rejected(transport)) => {
+                transport.state_name()
+            }
+        }
+    }
+
+    pub(crate) fn discard_before_a_consumer(self) {
+        match self {
+            Self::Main(transport) | Self::Callable(transport) => {
+                transport.discard_before_a_consumer()
+            }
+            Self::Script(CanonicalScriptSourcePlanInputV1::SourceEnvelopeReady(envelope)) => {
+                envelope.discard_before_a_consumer()
+            }
+            Self::Script(CanonicalScriptSourcePlanInputV1::Rejected(transport)) => {
+                transport.discard_before_a_consumer()
+            }
+        }
+    }
+
 }

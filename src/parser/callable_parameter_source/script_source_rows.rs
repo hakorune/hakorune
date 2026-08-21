@@ -14,6 +14,7 @@ pub(crate) use super::script_source_rows_model::{
 };
 use crate::ast::{ASTNode, ParamDecl};
 use crate::parser::postpass_envelope::CompletedParserPostpassV1;
+use super::parser_invocation_witness::ParserInvocationWitnessV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ScriptRowsIssueV1 {
@@ -172,7 +173,7 @@ fn issue_rows(
         return Err(ScriptRowsIssueV1::BodyCoverageMismatch);
     }
     Ok(CanonicalScriptSourceRowsV1 {
-        parser_brand: catalog.parser_brand().clone(),
+        parser_brand: ParserInvocationWitnessV1::from_brand(catalog.parser_brand()),
         statement_count,
         body_rows: body_rows.into_boxed_slice(),
         declarations: declarations.into_boxed_slice(),

@@ -964,11 +964,15 @@ or Builder/MIR effect.
 ## Canonical Script Source-only A carrier I0
 
 `canonical_script_source_a_input.rs` is the compiler-side transport owner for
-parser-backed Script rows. It carries one AST-free parser witness through
-`CanonicalCoreSourcePlanCompileRequestV1`; it does not issue A facts, Recipe,
-Join, physical Call, publication, or production selection. Its finite states
-keep compatibility, deferred, incomplete, integrity, neutral, ready,
-explicit `DiscardedBeforeA`, and future consumed/transported outcomes
+parser-backed Script rows. At the canonical-core request boundary,
+`CanonicalCoreSourcePlanInputV1` wraps the Script lane as either one
+`SourceEnvelopeReady` value or one explicit rejected transport; Main and
+Callable keep their transport as a discard-only sidecar. The envelope is
+co-sealed from the parser witness, source-plan lineage, profile, and
+read/parse receipt before it crosses the request boundary. It does not issue A
+facts, Recipe, Join, physical Call, publication, or production selection. Its
+finite states keep compatibility, deferred, incomplete, integrity, neutral,
+ready, explicit `DiscardedBeforeA`, and future consumed/transported outcomes
 separate. Main and Callable routes explicitly discard the non-Script transport
 before their existing owners; Script reaches the same named no-A discard just
 before `prepare_script_recipe()`.

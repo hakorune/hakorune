@@ -93,6 +93,17 @@ impl PreparedNormalSourcePlanInputV1 {
         }
     }
 
+    pub(crate) fn parser_invocation_witness(
+        &self,
+    ) -> Option<&crate::parser::callable_parameter_source::ParserInvocationWitnessV1> {
+        match &self.source {
+            NormalSourcePlanSourceV1::AstOnly(_) => None,
+            NormalSourcePlanSourceV1::ParserBacked(source) => {
+                source.parser_invocation_witness()
+            }
+        }
+    }
+
     pub(crate) fn parser_postpass(&self) -> Option<&CompletedParserPostpassV1> {
         match &self.source {
             NormalSourcePlanSourceV1::AstOnly(_) => None,
@@ -378,6 +389,20 @@ impl SealedNormalSourcePlanV1 {
                 source.input.parser_lineage()
             }
             Self::CallableModule(source) => source.input.parser_lineage(),
+        }
+    }
+
+    pub(crate) fn parser_invocation_witness(
+        &self,
+    ) -> Option<&crate::parser::callable_parameter_source::ParserInvocationWitnessV1> {
+        match self {
+            Self::ScalarRoot(SealedNormalScalarRootV1::Script(source)) => {
+                source.input.parser_invocation_witness()
+            }
+            Self::ScalarRoot(SealedNormalScalarRootV1::Main0(source)) => {
+                source.input.parser_invocation_witness()
+            }
+            Self::CallableModule(source) => source.input.parser_invocation_witness(),
         }
     }
 }

@@ -10,7 +10,8 @@ mod callable;
 mod source_plan_request;
 
 pub(crate) use source_plan_request::{
-    CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
+    CanonicalCoreSourcePlanCompileRequestV1, CanonicalCoreSourcePlanInputV1,
+    CanonicalScriptSourcePlanInputV1, NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
 pub(in crate::mir) mod publication;
@@ -26,7 +27,6 @@ use crate::mir::compiler::normal_source_plan::{
     RejectedNormalScriptPhysicalEntryV1, SealedNormalMainSourceV1, SealedNormalScalarRootV1,
     SealedNormalSourcePlanV1, VerifiedNormalMainThunkPlanV1,
 };
-use crate::mir::compiler::canonical_script_source_a_input::CanonicalScriptSourceAInputTransportV1;
 use crate::mir::compiler::raw_root_source_facts::RawScriptRecipeProjectionErrorV1;
 #[cfg(feature = "vm-reference")]
 use crate::mir::compiler::source_entry_vm_invocation::PreparedVmReferenceSourceEntryInvocationV1;
@@ -45,6 +45,7 @@ pub(crate) enum CanonicalCoreDispatchStageV1 {
     MainThunk,
     MainBatch,
     MainCandidate,
+    ScriptSourceEnvelope,
     ScriptRecipe,
     ScriptPhysical,
     ScriptCandidate,
@@ -73,6 +74,7 @@ pub(crate) enum CanonicalCoreDispatchErrorV1 {
     MainThunk(NormalMainThunkPlanErrorV1),
     MainBatch(NormalCanonicalModuleBatchErrorV1),
     MainCandidate(NormalMainModuleTransactionErrorV1),
+    ScriptSourceEnvelope,
     ScriptRecipe(RawScriptRecipeProjectionErrorV1),
     ScriptPhysical,
     ScriptCandidate,
@@ -316,17 +318,17 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
         request: CanonicalCoreSourcePlanCompileRequestV1,
     ) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCoreNormalDispatchV1>
     {
-        let (plan, admission, receipt, script_input) = request.into_parts();
+        let (plan, admission, receipt, source_input) = request.into_parts();
         match plan {
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Main0(main)) => {
-                script_input.discard_before_a_consumer();
+                source_input.discard_before_a_consumer();
                 Self::compile_main0(compiler, main, admission, receipt)
             }
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) => {
-                Self::compile_script(compiler, script, admission, receipt, script_input)
+                Self::compile_script(compiler, script, admission, receipt, source_input)
             }
             SealedNormalSourcePlanV1::CallableModule(source) => {
-                script_input.discard_before_a_consumer();
+                source_input.discard_before_a_consumer();
                 callable::compile(compiler, source, admission, receipt).map_err(reject_callable)
             }
         }
@@ -436,10 +438,26 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
         script: crate::mir::compiler::normal_source_plan::SealedNormalScriptSourceV1,
         admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
         receipt: NormalSourcePlanReceiptV1,
-        script_input: CanonicalScriptSourceAInputTransportV1,
+        source_input: CanonicalCoreSourcePlanInputV1,
     ) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCoreNormalDispatchV1>
     {
-        script_input.discard_before_a_consumer();
+        match source_input {
+            CanonicalCoreSourcePlanInputV1::Script(
+                CanonicalScriptSourcePlanInputV1::SourceEnvelopeReady(envelope),
+            ) => {
+                envelope.discard_before_a_consumer();
+            }
+            other => {
+                other.discard_before_a_consumer();
+                return Err(reject(
+                    SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)),
+                    admission,
+                    receipt,
+                    CanonicalCoreDispatchStageV1::ScriptSourceEnvelope,
+                    CanonicalCoreDispatchErrorV1::ScriptSourceEnvelope,
+                ));
+            }
+        };
         let recipe = match script.prepare_script_recipe() {
             Ok(recipe) => recipe,
             Err(rejected) => {

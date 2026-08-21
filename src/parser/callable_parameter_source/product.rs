@@ -136,7 +136,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
                         parameter_source,
                         canonical_script_admission,
                         canonical_script_source_rows:
-                            CanonicalScriptSourceRowsDispositionV1::HandoffConsumed,
+                            CanonicalScriptSourceRowsDispositionV1::MovedToParallelHandoff,
                     },
                 ),
                 canonical_script_source_rows,

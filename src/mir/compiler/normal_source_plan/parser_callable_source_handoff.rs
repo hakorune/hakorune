@@ -7,12 +7,14 @@
 
 use crate::parser::{
     NormalParserSourceLineageV1, ParsedNormalCallableProgramV1, ParserCallableSourceDispositionV1,
+    callable_parameter_source::ParserInvocationWitnessV1,
 };
 
 #[derive(Debug)]
 pub(crate) struct NormalParserCallableSourceHandoffV1 {
     disposition: ParserCallableSourceDispositionV1,
     lineage: NormalParserSourceLineageV1,
+    parser_invocation_witness: Option<ParserInvocationWitnessV1>,
     _seal: NormalParserCallableSourceHandoffSealV1,
 }
 
@@ -23,10 +25,12 @@ impl NormalParserCallableSourceHandoffV1 {
     pub(crate) fn new(
         disposition: ParserCallableSourceDispositionV1,
         lineage: NormalParserSourceLineageV1,
+        parser_invocation_witness: Option<ParserInvocationWitnessV1>,
     ) -> Self {
         Self {
             disposition,
             lineage,
+            parser_invocation_witness,
             _seal: NormalParserCallableSourceHandoffSealV1,
         }
     }
@@ -49,6 +53,10 @@ impl NormalParserCallableSourceHandoffV1 {
         &self.lineage
     }
 
+    pub(crate) fn parser_invocation_witness(&self) -> Option<&ParserInvocationWitnessV1> {
+        self.parser_invocation_witness.as_ref()
+    }
+
     pub(crate) fn into_normal_callable_program(
         self,
     ) -> Result<
@@ -58,6 +66,7 @@ impl NormalParserCallableSourceHandoffV1 {
         let Self {
             disposition,
             lineage,
+            parser_invocation_witness: _,
             _seal: _,
         } = self;
         Ok((disposition.into_normal_callable_program()?, lineage))

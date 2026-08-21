@@ -15,10 +15,11 @@ use crate::mir::normal_source_plan::{
     SealedNormalSourcePlanV1,
 };
 use crate::mir::{
-    CanonicalCoreSourcePlanCompileRequestV1, CanonicalScriptSourceAInputTransportV1,
-    NormalSourcePlanReceiptV1,
+    CanonicalCoreSourcePlanCompileRequestV1, CanonicalCoreSourcePlanInputV1,
+    CanonicalScriptSourceAInputTransportV1, NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
+use crate::mir::CanonicalScriptSourcePlanEnvelopeV1;
 use hakorune_frontend_parser::parser::GrammarProfile;
 
 #[derive(Debug)]
@@ -204,6 +205,11 @@ impl ClassifiedNormalFileSourcePlanV1 {
         } = self;
         let script_input: CanonicalScriptSourceAInputTransportV1 =
             script_input.into_compiler_transport();
+        let script_input = CanonicalScriptSourcePlanEnvelopeV1::seal(&plan, script_input);
+        let source_input = CanonicalCoreSourcePlanInputV1::from_plan_and_transport(
+            &plan,
+            script_input,
+        );
         let receipt = NormalSourcePlanReceiptV1::one_read_one_parse(
             receipt.source_identity,
             receipt.source_digest,
@@ -215,7 +221,7 @@ impl ClassifiedNormalFileSourcePlanV1 {
             plan,
             VerifiedCanonicalCoreSourcePlanAdmissionV1::seal_from_frontdoor_profile(),
             receipt,
-            script_input,
+            source_input,
         ))
     }
 

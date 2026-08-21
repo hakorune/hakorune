@@ -7,6 +7,7 @@
 use crate::mir::compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;
 use crate::parser::callable_parameter_source::CanonicalScriptSourceRowsV1;
 use hakorune_frontend_parser::parser::GrammarProfile;
+use super::canonical_script_source_plan_envelope::CanonicalScriptSourcePlanEnvelopeV1;
 
 #[derive(Debug)]
 pub(crate) enum CanonicalScriptSourceAInputTransportV1 {
@@ -20,8 +21,9 @@ pub(crate) enum CanonicalScriptSourceAInputTransportV1 {
     IntegrityInvalid,
     NonCandidate,
     HandoffReady(CanonicalScriptSourceAInputHandoffV1),
+    SourceEnvelopeReady(CanonicalScriptSourcePlanEnvelopeV1),
     DiscardedBeforeA,
-    HandoffConsumed,
+    MovedToParallelHandoff,
     DispositionTransported,
 }
 
@@ -86,8 +88,9 @@ impl CanonicalScriptSourceAInputTransportV1 {
             | Self::IntegrityInvalid
             | Self::NonCandidate
             | Self::DiscardedBeforeA
-            | Self::HandoffConsumed
+            | Self::MovedToParallelHandoff
             | Self::DispositionTransported => {}
+            Self::SourceEnvelopeReady(envelope) => envelope.discard_before_a_consumer(),
         }
     }
 
@@ -105,16 +108,36 @@ impl CanonicalScriptSourceAInputTransportV1 {
             Self::NonCandidate => "NonCandidate",
             Self::HandoffReady(_) => "HandoffReady",
             Self::DiscardedBeforeA => "DiscardedBeforeA",
-            Self::HandoffConsumed => "HandoffConsumed",
+            Self::SourceEnvelopeReady(_) => "SourceEnvelopeReady",
+            Self::MovedToParallelHandoff => "MovedToParallelHandoff",
             Self::DispositionTransported => "DispositionTransported",
         }
     }
 }
 
 impl CanonicalScriptSourceAInputHandoffV1 {
-    #[cfg(test)]
     pub(crate) fn rows(&self) -> &CanonicalScriptSourceRowsV1 {
         &self.rows
+    }
+
+    pub(crate) fn source_identity(&self) -> &str {
+        &self.source_identity
+    }
+
+    pub(crate) const fn source_digest(&self) -> CanonicalSourceBytesDigestV1 {
+        self.source_digest
+    }
+
+    pub(crate) const fn utf8_len(&self) -> usize {
+        self.utf8_len
+    }
+
+    pub(crate) const fn receipt_counts(&self) -> (u8, u8) {
+        (self.read_count, self.parse_count)
+    }
+
+    pub(crate) const fn profile(&self) -> GrammarProfile {
+        self.profile
     }
 
     #[cfg(test)]
@@ -127,10 +150,6 @@ impl CanonicalScriptSourceAInputHandoffV1 {
         )
     }
 
-    #[cfg(test)]
-    pub(crate) fn profile(&self) -> GrammarProfile {
-        self.profile
-    }
 }
 
 #[cfg(test)]
@@ -150,7 +169,7 @@ mod tests {
             CanonicalScriptSourceAInputTransportV1::IntegrityInvalid,
             CanonicalScriptSourceAInputTransportV1::NonCandidate,
             CanonicalScriptSourceAInputTransportV1::DiscardedBeforeA,
-            CanonicalScriptSourceAInputTransportV1::HandoffConsumed,
+            CanonicalScriptSourceAInputTransportV1::MovedToParallelHandoff,
             CanonicalScriptSourceAInputTransportV1::DispositionTransported,
         ];
         assert!(states.iter().all(|state| !state.state_name().is_empty()));

@@ -220,13 +220,53 @@ fn canonical_core_dispatch_script_handoff_moves_only_the_sealed_plan_and_receipt
     let request = classify_canonical_core(dir.path(), "handoff.hako", "42")
         .into_canonical_core_compile_request()
         .expect("canonical-core handoff");
-    assert_eq!(request.script_input_state(), "HandoffReady");
+    assert_eq!(request.script_input_state(), "SourceEnvelopeReady");
     let mut compiler = crate::mir::MirCompiler::new();
     let candidate = compiler
         .compile_canonical_core_source_plan(request)
         .expect("Script candidate through the canonical physical entry");
     assert!(candidate.is_script());
     assert_eq!(candidate.receipt_counts(), (1, 1));
+}
+
+#[test]
+fn source_envelope_rejects_foreign_parser_rows_before_script_recipe() {
+    let dir = tempdir().expect("tempdir");
+    let left = classify_canonical_core(dir.path(), "left.hako", "42");
+    let right = classify_canonical_core(dir.path(), "right.hako", "43");
+    let ClassifiedNormalFileSourcePlanV1 {
+        plan: left_plan,
+        script_input: _,
+        profile: left_profile,
+        receipt: left_receipt,
+        _seal: _,
+    } = left;
+    let ClassifiedNormalFileSourcePlanV1 {
+        plan: _,
+        script_input: right_script_input,
+        profile: _,
+        receipt: _,
+        _seal: _,
+    } = right;
+    let mixed = ClassifiedNormalFileSourcePlanV1 {
+        plan: left_plan,
+        script_input: right_script_input,
+        profile: left_profile,
+        receipt: left_receipt,
+        _seal: ClassifiedNormalFileSourcePlanSealV1,
+    };
+    let request = mixed
+        .into_canonical_core_compile_request()
+        .expect("profile remains canonical");
+    assert_eq!(request.script_input_state(), "IntegrityInvalid");
+    let mut compiler = crate::mir::MirCompiler::new();
+    let rejected = compiler
+        .compile_canonical_core_source_plan(request)
+        .expect_err("foreign parser rows must stop before Script Recipe");
+    assert_eq!(
+        rejected.stage(),
+        crate::mir::CanonicalCoreDispatchStageV1::ScriptSourceEnvelope
+    );
 }
 
 #[test]

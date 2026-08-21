@@ -1,5 +1,5 @@
 ---
-Status: queued design stop — transport-only child selected; implementation not open
+Status: fast implementation row — transport-only child; A meaning remains closed
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-SOURCE-ENVELOPE-I0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-observation-d0-2026-08-21.md
@@ -40,8 +40,8 @@ Smallest next slice: implement the envelope constructor/consumer in a focused
 `canonical_script_source_plan_envelope.rs` sibling, replace the
 parser-internal `HandoffConsumed` spelling with a private embedding marker,
 retain the explicit `SourceEnvelopeReady -> DiscardedBeforeA` no-A edge, and
-add focused tests plus one structural guard. Then return to the accepted A
-observation D0/I0; do not switch `work_mode` until this card is made current.
+add focused tests plus one structural guard. After closeout, return to the
+accepted A observation D0/I0; no A meaning is opened in this row.
 
 Non-claims: no A observation, public `C.NonCandidate`, source admission
 expansion, resolver/target/argument/terminal census, Recipe/Join, physical
@@ -208,3 +208,33 @@ README/receipt, and pointer closeout are green, the next bounded row is
 the complete source-only A observation. That later row must still preserve the
 private `A.CompleteNoDirectStaticRows` witness and future C ownership; this
 child does not authorize it.
+
+## Implementation receipt (2026-08-21)
+
+The child is implemented as a transport-only BoxShape. The parser witness is
+wrapped in `ParserInvocationWitnessV1` under the existing callable-parameter
+source owner, while the compiler issues one
+`CanonicalScriptSourcePlanEnvelopeV1` after source-plan classification. The
+canonical request now stores `CanonicalCoreSourcePlanInputV1`: Script accepts
+only `SourceEnvelopeReady` or an explicit rejected transport, so an untyped
+Script `script_input` cannot be paired later. Main/Callable retain a
+discard-only sidecar. The compiler consumes the envelope exactly once and
+rejects every other Script state before `prepare_script_recipe()`.
+
+Focused evidence:
+
+- `cargo check --all-targets` passes (baseline warnings remain; no new error).
+- the foreign parser-row negative stops at
+  `CanonicalCoreDispatchStageV1::ScriptSourceEnvelope`;
+- the canonical Script positive reaches the existing candidate path;
+- `current_state_pointer_guard.sh`,
+  `routing_classification_completeness_guard.sh`, the parser handoff guard,
+  the carrier guard, and the envelope guard pass;
+- all changed Rust/check/card files remain below the 760-line trigger, and the
+  envelope child remains below 300 lines.
+
+The new envelope guard is
+`tools/checks/script_direct_static_canonical_source_a_envelope_guard.sh` and
+is indexed in `docs/tools/check-scripts-index.md`. No A observation, source
+admission, Recipe/Join redesign, physical consumer, production switch, or
+legacy retirement is claimed by this receipt.
