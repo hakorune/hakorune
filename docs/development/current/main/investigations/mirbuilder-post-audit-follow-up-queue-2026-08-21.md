@@ -11,6 +11,7 @@ an A/C bypass, a fallback, or a production switch.
 
 | Row | Priority | Owner | Selection boundary |
 | --- | --- | --- | --- |
+| `MIR-RESULT-DISCARD-CENSUS-D0` | Medium-High | `src/mir/builder` policy | read-only census before any lint/guard rollout; [detail](./mirbuilder-result-discard-policy-d0-2026-08-21.md) |
 | `MIR-ASSIGNMENT-RELEASE-FAILFAST-I0` | High | `assignment_lowering.rs` | independent correctness cell; [detail](./mirbuilder-assignment-release-failure-atomicity-i0-2026-08-21.md) |
 | `MIR-EMIT-CANONICAL-STRICTNESS-D0` | Medium-High | `builder_emit.rs` | after assignment fix or an explicit design selection |
 | `MIRBUILDER-BARREL-RESPONSIBILITY-CLEANUP-D0` | Medium | `builder.rs` | after relevant production callers are caller-zero |

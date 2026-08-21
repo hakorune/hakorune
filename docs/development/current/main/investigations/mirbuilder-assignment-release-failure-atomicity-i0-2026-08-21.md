@@ -25,6 +25,11 @@ That permits physical emission failure and semantic/local publication to
 diverge. The ignored result is a real failure-atomicity hole, not a style
 warning.
 
+The broader fallible-result policy is documented separately in
+[`mirbuilder-result-discard-policy-d0-2026-08-21.md`](./mirbuilder-result-discard-policy-d0-2026-08-21.md).
+This card is the first concrete consumer of that policy; it must not wait for
+a repo-wide lint cleanup and must not hide behind a blanket allow.
+
 ## Authority and boundary
 
 Source authority is the already-evaluated assignment value and the existing
