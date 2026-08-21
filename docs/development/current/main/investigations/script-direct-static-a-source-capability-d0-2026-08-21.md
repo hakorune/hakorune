@@ -1,12 +1,12 @@
 ---
-Status: Neutral Script source-window Decision accepted — typed Deferred I0 is pushed as 98f36e88b9; implementation may start at the bounded handoff row
+Status: Neutral Script source-window Decision accepted — parser authority handoff I0 is pushed as aa1aecf495; implementation is active at the bounded reownership row
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the parser-backed default root; vm-reference is reference-only and no A/C consumer is open
 ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> existing Script admission -> later private one-shot capability -> named A consumer
 Classification: T2 BoxCount first cell inside the predeclared five-commit series; A/C product and production switch remain closed
-NextCard: execute SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0 followed by SCRIPT-SOURCE-REOWN-WINDOW-I0-R0; keep lookup, A/C, physical, and cutover cells closed
+NextCard: execute SCRIPT-SOURCE-REOWN-WINDOW-I0-R0; keep lookup, A/C, physical, and cutover cells closed
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -39,13 +39,12 @@ rejects source-unavailable, incomplete, and integrity-invalid partition states
 before resolver, lookup, Recipe, Builder effects, physical work, raw, retry,
 or fallback.
 
-Smallest next slice: `SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0` fixes the
-parser-backed authority transport and its one scoped source loan. It is a
-bounded prerequisite of `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0`, not a standalone
-semantic receipt: the same series immediately connects the authority to the
-neutral window issuer. The typed resolver `Deferred` cause/site cell is closed;
-the old Builder window, lookup, A/C, Recipe, physical, and cutover cells remain
-closed until their named rows.
+Smallest next slice: `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` consumes the now-pushed
+parser-backed authority through one HRTB loan, co-issues the neutral window,
+composite partition, and witness-bound instance transfer, then hands the
+prepared admission to the work plan. The typed resolver `Deferred` cause/site
+cell and authority handoff I0 are closed; lookup, A/C, Recipe, physical, and
+cutover remain closed.
 
 Non-claims: no generic/sync/instance Box admission, import expansion,
 capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
@@ -1203,10 +1202,12 @@ and lookup cannot be standalone I0 rows today, that not every deferred cause
 has a site, and that any forward prerequisites must belong to a bounded series
 ending in the A cutover.
 
-The current row is therefore `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` in design
-stop. The typed resolver deferral substep is complete and pushed; the next
-implementation is not authorized until the neutral-window authority and
-parser-backed handoff are fixed. No lookup, A/C, Recipe, physical, fallback,
+The current row is therefore `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` in fast mode.
+The parser-backed authority handoff is complete and pushed as `aa1aecf495`:
+the authority is required through Parsed -> Prepared -> Final -> semantic
+package, and one HRTB paired cursor is available to the neutral issuer. The
+remaining implementation is limited to the one neutral issuer, work-plan
+transport, and caller-zero guards. No lookup, A/C, Recipe, physical, fallback,
 or production cutover cell is opened by this receipt.
 
 ## References
