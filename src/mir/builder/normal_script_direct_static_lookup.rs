@@ -10,8 +10,9 @@ use super::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWi
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 use crate::mir::source_call_target::{
-    ScriptDirectStaticCallLookupErrorV1, VerifiedScriptDirectStaticCallLookupV1,
-    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
+    ScriptDirectStaticCallCoverageIssueV1, ScriptDirectStaticCallLookupErrorV1,
+    VerifiedScriptDirectStaticCallLookupV1, VerifiedStaticImportAliasViewV1,
+    VerifiedWholeSourceStaticCallTargetInventoryV1,
 };
 
 #[derive(Debug)]
@@ -21,7 +22,6 @@ pub(super) enum NormalScriptDirectStaticLookupIssueV1 {
     Results(Box<str>),
     PublicationOwner(Box<str>),
     SourceLoan(Box<str>),
-    InvocationMismatch,
     Lookup(ScriptDirectStaticCallLookupErrorV1),
 }
 
@@ -73,7 +73,11 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
         let lookup = package
             .with_normal_program_source_loan(|loan| {
                 if !neutral_window.is_from_invocation(loan.invocation_witness()) {
-                    return Err(NormalScriptDirectStaticLookupIssueV1::InvocationMismatch);
+                    return Err(NormalScriptDirectStaticLookupIssueV1::Lookup(
+                        ScriptDirectStaticCallLookupErrorV1::Coverage(
+                            ScriptDirectStaticCallCoverageIssueV1::ForeignInvocation,
+                        ),
+                    ));
                 }
                 VerifiedScriptDirectStaticCallLookupV1::issue_from_program_loan(
                     &loan,

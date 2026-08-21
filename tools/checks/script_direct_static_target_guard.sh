@@ -14,6 +14,7 @@ require_text() {
 }
 
 MODULE=src/mir/source_call_target/script_direct_static.rs
+COVERAGE=src/mir/source_call_target/script_call_coverage.rs
 LOOKUP=src/mir/builder/normal_script_direct_static_lookup.rs
 LOOKUP_TESTS=src/mir/builder/normal_script_direct_static_lookup_tests.rs
 TESTS=src/mir/source_call_target/script_direct_static_tests.rs
@@ -57,6 +58,11 @@ SOURCE_FINALIZER=src/parser/source_seal/finalize.rs
 SOURCE_TESTS=src/parser/normal_callable_program_source/tests.rs
 
 require_text "$MODULE" "VerifiedScriptDirectStaticCallLookupV1"
+require_text "$COVERAGE" "VerifiedScriptCallCoverageV1"
+require_text "$COVERAGE" "CompleteEmpty"
+require_text "$COVERAGE" "CompleteRows"
+require_text "$COVERAGE" "VerifiedScriptNonDirectCallReasonV1"
+require_text "$LOOKUP" "ScriptDirectStaticCallCoverageIssueV1::ForeignInvocation"
 require_text "$LOOKUP" "ScriptDirectStaticCallLookupIssuerV1"
 require_text "$LOOKUP" "with_normal_program_source_loan"
 require_text "$LOOKUP_TESTS" "issuer_moves_one_owned_target_result_relation_from_the_parser_loan"
@@ -173,13 +179,18 @@ require_text "$FAILFAST_CARD" "UnlocatedCompatibility"
 # README is a documentation index, not production source.  Keep the 760-line
 # source split gate on Rust owners and validate README content separately via
 # the required-text assertions above.
-for file in "$MODULE" "$LOOKUP" "$LOOKUP_TESTS" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$REQUIRED_ARGUMENT_PROOF" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$PHYSICAL_KERNEL" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+for file in "$MODULE" "$COVERAGE" "$LOOKUP" "$LOOKUP_TESTS" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$REQUIRED_ARGUMENT_PROOF" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$PHYSICAL_KERNEL" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
     exit 1
   fi
 done
+
+if rg -n "ASTNode|MirType|ValueId|JoinSig|Recipe|Physical|as \*const|as usize" "$COVERAGE"; then
+  echo "[script-direct-static-target] source coverage crossed the AST/target/Recipe/physical boundary" >&2
+  exit 1
+fi
 
 if rg -n "VerifiedScriptDirectStaticCallTargetInventoryV1::issue|attach_script_direct_static_targets|with_taken_script_direct_static_targets|TargetInventoryBrandMismatch" "$ADMISSION" "$LIFECYCLE" "$BUNDLE"; then
   echo "[script-direct-static-target] pointer inventory remained on the production edge" >&2

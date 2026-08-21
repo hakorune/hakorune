@@ -1,12 +1,12 @@
 ---
-Status: Script lookup reownership is pushed — A/C cutover remains a bounded design stop; no A/C implementation is selected
+Status: Script lookup reownership and source coverage I0 are implementation-complete locally — closeout is pending; A/C cutover remains a bounded design stop
 Date: 2026-08-21
 Decision: SCRIPT-A-CUTOVER-I0-R0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the selected-normal root; lookup is pre-effect, but resolver/Bundle/Recipe currently run after Builder preparation and no A/C consumer is open
 ReplacementCell: source package + neutral window + owned lookup + resolver outcome -> private A capability -> immediate A consumer -> one C disposition -> named direct/non-direct consumers
 Classification: T2 BoxCount design stop after lookup reownership; A/C product, Recipe retirement, fallback, physical cutover, and production switch remain closed
-NextCard: close A authority, C disposition, named consumers, and the pre-effect boundary; then select one implementation slice
+NextCard: close out SCRIPT-A-SOURCE-COVERAGE-I0, then return to the pre-effect A/C design stop
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -14,10 +14,10 @@ NextCard: close A authority, C disposition, named consumers, and the pre-effect 
 ## Six-line brief
 
 Decision: Accept the parser-owned opaque non-`Clone` preservation token and
-keep `SCRIPT-A-CUTOVER-I0-R0` in `design_stop` until its downstream A/C
-authority is named. Lookup reownership is closed; the next design cell is one
-pre-effect Script selector that turns complete source/lookup/resolver facts
-into a private capability and immediately consumes it into A.
+keep downstream `SCRIPT-A-CUTOVER-I0-R0` in `design_stop` until its A/C
+authority is named. Lookup reownership is closed. The selected fast cell is
+the smaller source-coverage handoff below; it transports complete source
+coverage without issuing A/C meaning.
 
 Source authority + canonical issuer: the source package HRTB loan, neutral
 window issuer, `ScriptDirectStaticCallLookupIssuerV1`, resolver complete/typed
@@ -41,11 +41,11 @@ The current lifecycle does not yet have this boundary because resolver and
 downstream products are issued after Builder preparation; moving that boundary
 is part of the next bounded task.
 
-Smallest next slice: `SCRIPT-A-CUTOVER-I0-R0-DESIGN` fixes the private A
-capability fields, one C disposition state table, two named consumers, and the
-pre-effect callpoint. It must prove that complete zero is an explicit witness,
-not empty/default state or ClaimLedger `Absent`. No code is selected until
-this brief is accepted in SSOT.
+Smallest next slice: `SCRIPT-A-SOURCE-COVERAGE-I0` extends the one
+source-package HRTB observation with explicit `CompleteEmpty`/`CompleteRows`,
+all bounded MethodCall carriers, parser provenance, and source-route evidence.
+It does not select targets or issue A/C. The pre-effect A/C capability remains
+closed until this source coverage product is transported and audited.
 
 Non-claims: no parser cohort expansion, generic result redesign, Recipe/Join
 redesign, physical Call/publication change, compatibility/raw retirement,
@@ -1371,6 +1371,62 @@ this section is open:
    zero-witness preservation, and zero old/fallback edges. Keep old Recipe
    retirement and production-wide switch as later explicit rows unless the
    same series' retirement evidence is complete.
+
+#### Selected execution brief — `SCRIPT-A-SOURCE-COVERAGE-I0`
+
+Change: extend the existing source-package HRTB observation so one parser
+invocation emits a complete AST-free MethodCall coverage product alongside
+the already-owned selected target/result rows. The observation loop remains
+single-pass; it must not be recreated from Builder products or run a second
+AST scan.
+
+Contract: coverage is parser-witnessed and has explicit
+`CompleteEmpty`/`CompleteRows` states. Each bounded MethodCall row retains its
+site, receiver site, ordered argument sites, result site, and source-route
+disposition. Ordinary qualified-unbound rows are marked source-eligible;
+bound/current-owner/dynamic/type-operation/reserved rows retain typed
+non-direct evidence. Target selection, result candidate meaning, C, Recipe,
+Join, and physical identity stay outside this product.
+
+Done: the production lookup transports the coverage product; focused evidence
+covers one ordinary row, a true empty Script, explicit non-direct routes, and
+foreign/missing/duplicate coverage rejection; existing test adapters remain
+test-only; the reusable target guard and source-size limit stay green.
+
+Stop: if complete coverage requires a second AST observer, if missing rows
+collapse into `CompleteEmpty`, or if target/C/Recipe meaning leaks into the
+coverage product, return to design stop and record the missing authority.
+
+Worker audit requested for this fast cell: one read-only top-down review of
+the changed coverage/lookup boundary is allowed before closeout. The question
+is limited to source authority, complete-zero/foreign/duplicate preservation,
+and target/C/Recipe/physical responsibility leakage; the worker must not edit
+files or authorize the next pre-effect A/C slice.
+
+#### Closeout evidence — `SCRIPT-A-SOURCE-COVERAGE-I0`
+
+The production lookup now keeps the single parser-package HRTB observation as
+`VerifiedScriptCallCoverageV1`: a real zero-call Script is
+`CompleteEmpty`; every observed MethodCall is retained in `CompleteRows` with
+parser provenance, receiver/ordered-argument/result sites, and typed source
+route evidence. Ordinary qualified-unbound rows continue to the existing
+target/result lookup; bound/current-owner/dynamic/type-operation/reserved rows
+remain visible as `NonDirect` coverage and do not become A/C meaning.
+
+Focused evidence is green for one ordinary selected row, true empty coverage,
+bound/dynamic routes, type-operation/reserved routes, foreign invocation, and
+target-outside-catalog rejection. The production edge still has one HRTB
+observation and no second AST scan; the coverage product has no AST, pointer,
+target, candidate/C, Recipe/Join, MIR, physical, or fallback identity. The
+reusable Script guard, current-state pointer guard, source-size check, and diff
+check are green. The worker returned no report before shutdown; the same
+read-only boundary audit was completed by the main agent and did not widen the
+cell.
+
+Closeout boundary: this cell is complete, but the parser-witnessed coverage is
+not yet the pre-effect A capability. `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0`
+remains the next design/implementation decision and must first define how the
+resolver complete/deferred outcome and retained terminal cross package install.
 
 No implementation card may introduce a parallel `Option` A receipt or expose
 capability `Ready` to dispatch. If complete call coverage cannot be issued

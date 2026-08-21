@@ -222,6 +222,23 @@ they must keep route-disjoint sealers and reject duplicate caller/site rows
 across variants. They must not turn this module into a replay of the complete
 Builder call router.
 
+## Script MethodCall source coverage I0
+
+`VerifiedScriptCallCoverageV1` is the source-only companion carried by the
+single `ScriptDirectStaticCallLookupIssuerV1` observation. One parser-package
+HRTB loan observes the bounded Script MethodCall tree once and retains either
+`CompleteEmpty` for a real zero-call Script or non-empty `CompleteRows` with
+the parser invocation witness. Each row co-seals the call site, receiver,
+ordered argument sites, result site, and a source-route disposition.
+
+`QualifiedUnboundOrdinary` only permits the later target/result lookup. Bound,
+current-owner, dynamic, type-operation, reserved, and unsupported receiver
+shapes remain explicit `NonDirect` evidence; they are not A/C dispositions.
+Foreign invocation, missing projected site, receiver-site drift, and duplicate
+coverage are typed failures. Missing rows are never converted to empty
+coverage. The coverage product owns no AST, target key, candidate/C meaning,
+Recipe/Join key, MIR ID, physical identity, or fallback route.
+
 ## Accepted Dynamic member target boundary (D0)
 
 The next route family is a source-backed Dynamic member message, not an exact

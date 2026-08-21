@@ -28,7 +28,11 @@ use crate::mir::resolved_semantics::{
 };
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 
-use super::VerifiedStaticImportAliasViewV1;
+use super::{
+    ScriptDirectStaticCallCoverageIssueV1, VerifiedScriptCallCoverageDispositionV1,
+    VerifiedScriptCallCoverageRowV1, VerifiedScriptCallCoverageV1,
+    VerifiedScriptNonDirectCallReasonV1, VerifiedStaticImportAliasViewV1,
+};
 
 /// One owned Script direct-static lookup row.
 ///
@@ -79,6 +83,7 @@ impl VerifiedScriptDirectStaticCallLookupRowV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedScriptDirectStaticCallLookupV1 {
     invocation: crate::parser::ParserInvocationWitnessV1,
+    coverage: VerifiedScriptCallCoverageV1,
     rows: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallLookupRowV1>,
 }
 
@@ -91,18 +96,7 @@ pub(crate) enum ScriptDirectStaticCallLookupErrorV1 {
         program: usize,
     },
     MethodObservation(ShadowResolveErrorV0),
-    SiteProjectionMismatch {
-        site: SourceExprSiteV1,
-    },
-    ReceiverSiteMismatch {
-        site: SourceExprSiteV1,
-    },
-    DuplicateSite {
-        site: SourceExprSiteV1,
-    },
-    ReceiverNameRequired {
-        site: SourceExprSiteV1,
-    },
+    Coverage(ScriptDirectStaticCallCoverageIssueV1),
     TargetOutsideCatalog {
         site: SourceExprSiteV1,
         owner: Box<str>,
@@ -133,6 +127,7 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
         if !results.is_branded_by(declarations, targets) {
             return Err(ScriptDirectStaticCallLookupErrorV1::CatalogRelationMismatch);
         }
+        let invocation = loan.invocation_witness().clone();
         let view = ScriptSyntaxViewV1::from_program(loan.program())
             .ok_or(ScriptDirectStaticCallLookupErrorV1::ProgramRequired)?;
         if view.body().len() != window.entries().len() {
@@ -146,6 +141,7 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
 
         let observed = observe_script_method_calls_shadow_view_v0(view, window)
             .map_err(ScriptDirectStaticCallLookupErrorV1::MethodObservation)?;
+        let mut coverage_rows = BTreeMap::new();
         let mut rows = BTreeMap::new();
         for (site, observation) in observed {
             let Some(ProjectedSourceNodeV1::Node(ASTNode::MethodCall {
@@ -155,44 +151,54 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
                 ..
             })) = project_source_node_v1(loan.program(), site.node())
             else {
-                return Err(ScriptDirectStaticCallLookupErrorV1::SiteProjectionMismatch { site });
+                return Err(ScriptDirectStaticCallLookupErrorV1::Coverage(
+                    ScriptDirectStaticCallCoverageIssueV1::MissingSite { site },
+                ));
             };
             let expected_receiver_site = SourcePathV1::from_node(site.node())
                 .child(SourcePathSegmentV1::Receiver)
                 .expr();
             if observation.receiver_site() != &expected_receiver_site {
-                return Err(ScriptDirectStaticCallLookupErrorV1::ReceiverSiteMismatch { site });
+                return Err(ScriptDirectStaticCallLookupErrorV1::Coverage(
+                    ScriptDirectStaticCallCoverageIssueV1::ReceiverSiteMismatch { site },
+                ));
             }
-
-            let ShadowMethodCallReceiverV0::Qualified(
-                ShadowQualifiedReceiverDispositionV0::ProvenUnbound,
-            ) = observation.receiver()
-            else {
+            let argument_sites = arguments
+                .iter()
+                .enumerate()
+                .map(|(index, _)| {
+                    SourcePathV1::from_node(site.node())
+                        .child(SourcePathSegmentV1::Argument(index as u32))
+                        .expr()
+                })
+                .collect::<Vec<_>>()
+                .into_boxed_slice();
+            let (disposition, receiver_name) = classify_script_call_source_route_v1(
+                observation.receiver(),
+                object,
+                method,
+                arguments,
+            );
+            if coverage_rows
+                .insert(
+                    site.clone(),
+                    VerifiedScriptCallCoverageRowV1::new(
+                        site.clone(),
+                        expected_receiver_site.clone(),
+                        argument_sites.clone(),
+                        site.clone(),
+                        disposition,
+                    ),
+                )
+                .is_some()
+            {
+                return Err(ScriptDirectStaticCallLookupErrorV1::Coverage(
+                    ScriptDirectStaticCallCoverageIssueV1::DuplicateSite { site },
+                ));
+            }
+            let Some(name) = receiver_name else {
                 continue;
             };
-            let ASTNode::Variable { name, .. } = object.as_ref() else {
-                return Err(ScriptDirectStaticCallLookupErrorV1::ReceiverNameRequired { site });
-            };
-            if !matches!(
-                classify_source_method_typeop_route_v1(method, arguments),
-                SourceMethodTypeOpDispositionV1::Ordinary
-            ) {
-                continue;
-            }
-            if !matches!(
-                classify_source_method_reserved_route_v1(
-                    SourceMethodReservedRouteContextV1::Ordinary,
-                    object,
-                    method,
-                    arguments,
-                ),
-                SourceMethodReservedRouteDecisionV1::Ordinary
-            ) {
-                continue;
-            }
-            if rows.contains_key(&site) {
-                return Err(ScriptDirectStaticCallLookupErrorV1::DuplicateSite { site });
-            }
             let canonical_owner = imports.canonical_owner(name).unwrap_or(name);
             let Some(declaration) = declarations.declaration_for(
                 SameModuleCallableNamespaceV1::StaticBoxMethod,
@@ -218,16 +224,6 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
                 || Vec::<u32>::new().into_boxed_slice(),
                 |values| values.to_vec().into_boxed_slice(),
             );
-            let argument_sites = arguments
-                .iter()
-                .enumerate()
-                .map(|(index, _)| {
-                    SourcePathV1::from_node(site.node())
-                        .child(SourcePathSegmentV1::Argument(index as u32))
-                        .expr()
-                })
-                .collect::<Vec<_>>()
-                .into_boxed_slice();
             rows.insert(
                 site.clone(),
                 VerifiedScriptDirectStaticCallLookupRowV1 {
@@ -242,7 +238,8 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
         }
 
         Ok(Self {
-            invocation: loan.invocation_witness().clone(),
+            invocation: invocation.clone(),
+            coverage: VerifiedScriptCallCoverageV1::from_rows(invocation, coverage_rows),
             rows,
         })
     }
@@ -259,6 +256,10 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
         site: &SourceExprSiteV1,
     ) -> Option<&VerifiedScriptDirectStaticCallLookupRowV1> {
         self.rows.get(site)
+    }
+
+    pub(crate) fn source_coverage(&self) -> &VerifiedScriptCallCoverageV1 {
+        &self.coverage
     }
 
     pub(crate) fn rows(
@@ -279,7 +280,7 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
         inventory: &VerifiedScriptDirectStaticCallTargetInventoryV1,
         results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
     ) -> Self {
-        let rows = inventory
+        let rows: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallLookupRowV1> = inventory
             .target_rows()
             .map(|(site, target)| {
                 let observation = inventory
@@ -311,6 +312,23 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
             .collect();
         Self {
             invocation: crate::parser::ParserInvocationWitnessV1::for_test(),
+            coverage: VerifiedScriptCallCoverageV1::from_rows(
+                crate::parser::ParserInvocationWitnessV1::for_test(),
+                rows.iter()
+                    .map(|(site, row)| {
+                        (
+                            site.clone(),
+                            VerifiedScriptCallCoverageRowV1::new(
+                                site.clone(),
+                                row.receiver_site().clone(),
+                                row.argument_sites().to_vec().into_boxed_slice(),
+                                site.clone(),
+                                VerifiedScriptCallCoverageDispositionV1::QualifiedUnboundOrdinary,
+                            ),
+                        )
+                    })
+                    .collect(),
+            ),
             rows,
         }
     }
@@ -318,7 +336,81 @@ impl VerifiedScriptDirectStaticCallLookupV1 {
     pub(crate) fn empty_for_test() -> Self {
         Self {
             invocation: crate::parser::ParserInvocationWitnessV1::for_test(),
+            coverage: VerifiedScriptCallCoverageV1::CompleteEmpty {
+                invocation: crate::parser::ParserInvocationWitnessV1::for_test(),
+            },
             rows: BTreeMap::new(),
+        }
+    }
+}
+
+fn classify_script_call_source_route_v1<'a>(
+    receiver: ShadowMethodCallReceiverV0,
+    object: &'a ASTNode,
+    method: &str,
+    arguments: &[ASTNode],
+) -> (VerifiedScriptCallCoverageDispositionV1, Option<&'a str>) {
+    match receiver {
+        ShadowMethodCallReceiverV0::CurrentOwner => (
+            VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                VerifiedScriptNonDirectCallReasonV1::CurrentOwner,
+            ),
+            None,
+        ),
+        ShadowMethodCallReceiverV0::Qualified(ShadowQualifiedReceiverDispositionV0::Bound) => (
+            VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                VerifiedScriptNonDirectCallReasonV1::QualifiedReceiverBound,
+            ),
+            None,
+        ),
+        ShadowMethodCallReceiverV0::Dynamic => (
+            VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                VerifiedScriptNonDirectCallReasonV1::DynamicReceiver,
+            ),
+            None,
+        ),
+        ShadowMethodCallReceiverV0::Qualified(
+            ShadowQualifiedReceiverDispositionV0::ProvenUnbound,
+        ) => {
+            let ASTNode::Variable { name, .. } = object else {
+                return (
+                    VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                        VerifiedScriptNonDirectCallReasonV1::ReceiverShapeUnsupported,
+                    ),
+                    None,
+                );
+            };
+            if !matches!(
+                classify_source_method_typeop_route_v1(method, arguments),
+                SourceMethodTypeOpDispositionV1::Ordinary
+            ) {
+                return (
+                    VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                        VerifiedScriptNonDirectCallReasonV1::TypeOperation,
+                    ),
+                    None,
+                );
+            }
+            if !matches!(
+                classify_source_method_reserved_route_v1(
+                    SourceMethodReservedRouteContextV1::Ordinary,
+                    object,
+                    method,
+                    arguments,
+                ),
+                SourceMethodReservedRouteDecisionV1::Ordinary
+            ) {
+                return (
+                    VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                        VerifiedScriptNonDirectCallReasonV1::ReservedRoute,
+                    ),
+                    None,
+                );
+            }
+            (
+                VerifiedScriptCallCoverageDispositionV1::QualifiedUnboundOrdinary,
+                Some(name.as_str()),
+            )
         }
     }
 }

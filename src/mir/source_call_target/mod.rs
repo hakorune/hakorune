@@ -16,8 +16,9 @@ mod qualified_receiver_lexical;
 mod qualified_route_facts;
 mod raw_callable_source_view;
 mod raw_source_cursor_error;
-mod source_method_call_site;
+mod script_call_coverage;
 mod script_direct_static;
+mod source_method_call_site;
 mod whole_source_inventory;
 mod whole_source_inventory_error;
 
@@ -66,7 +67,11 @@ pub(crate) use raw_callable_source_view::{
 #[allow(unused_imports)]
 pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;
 #[allow(unused_imports)]
-pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
+pub(crate) use script_call_coverage::{
+    ScriptDirectStaticCallCoverageIssueV1, VerifiedScriptCallCoverageDispositionV1,
+    VerifiedScriptCallCoverageRowV1, VerifiedScriptCallCoverageV1,
+    VerifiedScriptNonDirectCallReasonV1,
+};
 #[allow(unused_imports)]
 pub(crate) use script_direct_static::{
     ScriptDirectStaticCallLookupErrorV1, VerifiedScriptDirectStaticCallLookupRowV1,
@@ -78,6 +83,8 @@ pub(crate) use script_direct_static::{
     VerifiedScriptDirectStaticCallSiteV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
     VerifiedScriptDirectStaticCallTargetV1,
 };
+#[allow(unused_imports)]
+pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
 #[allow(unused_imports)]
 pub(crate) use whole_source_inventory::{
     VerifiedWholeSourceMethodCallSiteV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
@@ -100,9 +107,9 @@ mod qualified_route_facts_tests;
 #[cfg(test)]
 mod raw_callable_source_view_tests;
 #[cfg(test)]
-mod source_method_call_site_tests;
-#[cfg(test)]
 mod script_direct_static_tests;
+#[cfg(test)]
+mod source_method_call_site_tests;
 #[cfg(test)]
 mod test_support;
 #[cfg(test)]

@@ -2,6 +2,10 @@ use super::*;
 
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+use crate::mir::source_call_target::{
+    ScriptDirectStaticCallCoverageIssueV1, ScriptDirectStaticCallLookupErrorV1,
+    VerifiedScriptCallCoverageDispositionV1, VerifiedScriptNonDirectCallReasonV1,
+};
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 fn make_package(source: &str, session_id: u32) -> VerifiedNormalCallableSemanticPackageV1 {
@@ -45,6 +49,106 @@ fn issuer_moves_one_owned_target_result_relation_from_the_parser_loan() {
 }
 
 #[test]
+fn issuer_retains_complete_source_coverage_with_the_selected_row() {
+    let package = make_package(
+        "static box Helpers { run(value) { return 7 } }\nreturn Helpers.run(1)",
+        1805,
+    );
+    let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
+        .expect("neutral source window");
+    let (lookup, _publication_owner) =
+        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+            .expect("owned lookup relation");
+    let lookup = lookup.expect("non-App Script lookup");
+    let coverage = lookup.source_coverage();
+    assert_eq!(coverage.len(), 1);
+    let row = coverage
+        .rows()
+        .expect("non-empty coverage")
+        .values()
+        .next()
+        .expect("one coverage row");
+    assert_eq!(
+        row.disposition(),
+        VerifiedScriptCallCoverageDispositionV1::QualifiedUnboundOrdinary
+    );
+    assert_eq!(row.result_site(), row.site());
+    assert_eq!(row.argument_sites().len(), 1);
+    let invocation = package
+        .with_normal_program_source_loan(|loan| loan.invocation_witness().clone())
+        .expect("parser invocation witness");
+    assert!(coverage.is_from_invocation(&invocation));
+}
+
+#[test]
+fn issuer_seals_true_zero_call_script_as_complete_empty_coverage() {
+    let package = make_package("42", 1806);
+    let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
+        .expect("neutral source window");
+    let (lookup, _publication_owner) =
+        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+            .expect("owned lookup relation");
+    let lookup = lookup.expect("non-App Script lookup");
+    assert!(lookup.source_coverage().is_empty());
+    assert_eq!(lookup.source_coverage().rows(), None);
+}
+
+#[test]
+fn issuer_keeps_non_direct_source_routes_in_coverage() {
+    let package = make_package("local Alias = 0\nreturn Alias.run(1)\nreturn 1.run()", 1807);
+    let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
+        .expect("neutral source window");
+    let (lookup, _publication_owner) =
+        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+            .expect("owned lookup relation");
+    let lookup = lookup.expect("non-App Script lookup");
+    let rows = lookup.source_coverage().rows().expect("non-empty coverage");
+    assert_eq!(rows.len(), 2);
+    assert!(rows.values().any(|row| {
+        row.disposition()
+            == VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                VerifiedScriptNonDirectCallReasonV1::QualifiedReceiverBound,
+            )
+    }));
+    assert!(rows.values().any(|row| {
+        row.disposition()
+            == VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                VerifiedScriptNonDirectCallReasonV1::DynamicReceiver,
+            )
+    }));
+    assert!(lookup.rows().next().is_none());
+}
+
+#[test]
+fn issuer_keeps_typeop_and_reserved_routes_in_coverage() {
+    let package = make_package(
+        "return Helpers.is(\"Integer\")\nreturn __mir__.log(\"value\")",
+        1808,
+    );
+    let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
+        .expect("neutral source window");
+    let (lookup, _publication_owner) =
+        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+            .expect("owned lookup relation");
+    let lookup = lookup.expect("non-App Script lookup");
+    let rows = lookup.source_coverage().rows().expect("non-empty coverage");
+    assert_eq!(rows.len(), 2);
+    assert!(rows.values().any(|row| {
+        row.disposition()
+            == VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                VerifiedScriptNonDirectCallReasonV1::TypeOperation,
+            )
+    }));
+    assert!(rows.values().any(|row| {
+        row.disposition()
+            == VerifiedScriptCallCoverageDispositionV1::NonDirect(
+                VerifiedScriptNonDirectCallReasonV1::ReservedRoute,
+            )
+    }));
+    assert!(lookup.rows().next().is_none());
+}
+
+#[test]
 fn issuer_rejects_a_neutral_window_from_a_foreign_parser_invocation() {
     let package = make_package("42", 1802);
     let foreign_package = make_package("42", 1803);
@@ -52,7 +156,11 @@ fn issuer_rejects_a_neutral_window_from_a_foreign_parser_invocation() {
         .expect("foreign neutral source window");
     assert!(matches!(
         ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&foreign_window), &[]),
-        Err(NormalScriptDirectStaticLookupIssueV1::InvocationMismatch)
+        Err(NormalScriptDirectStaticLookupIssueV1::Lookup(
+            ScriptDirectStaticCallLookupErrorV1::Coverage(
+                ScriptDirectStaticCallCoverageIssueV1::ForeignInvocation
+            )
+        ))
     ));
 }
 
