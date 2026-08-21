@@ -8,4 +8,7 @@ mod identity;
 mod session;
 
 pub(super) use identity::{CanonicalBindingReadReceiptV1, ResolvedSsaIdentityStateV2};
-pub(super) use session::{finish_profile_close, CanonicalSsaFunctionSessionV2};
+pub(super) use session::{
+    finish_profile_close, CanonicalSameBlockIntegerRejectV1, CanonicalSameBlockIntegerRequestV1,
+    CanonicalSsaFunctionSessionV2, VerifiedCanonicalSameBlockIntegerOperandV1,
+};

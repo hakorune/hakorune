@@ -26,6 +26,19 @@ Invariants:
 - legacy statement/expression dispatch, Planner/CorePlan, Lambda, production
   Loop activation, Main, REPL, and ProgramV0 are outside this boundary.
 
+## Canonical Loop Compare operand boundary (C-prime P0)
+
+The caller-zero strict Compare lane admits an operand only after the Loop
+physicalizer has supplied one full `Published` value receipt and the canonical
+SSA session has reissued its own open-target witness. The session scans actual
+MIR for exactly one definition of the receipt's physical value, requires that
+definition to be in the exact target block, and requires `MirType::Integer`.
+Missing, duplicate, parameter, cross-block, foreign, and non-Integer cases
+reject before any Compare destination, ledger reservation, writer call, or MIR
+mutation. The neutral request and co-sealed witness do not resolve targets,
+perform dominance, or connect a production Compare caller; result reservation
+and strict append are separate bounded cards.
+
 ## Common V2 canonical session-open canary
 
 `with_common_v2_canonical_session` is the caller-zero consumer of one

@@ -23,6 +23,14 @@ use super::super::physical_entry_lane_adoption::PhysicalTextEntryLaneSidecarV1;
 use super::super::semantic_stack::{ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1};
 use super::identity::ResolvedSsaIdentityStateV2;
 
+#[path = "session/same_block_operand.rs"]
+mod same_block_operand;
+
+pub(in crate::mir::builder::resolved_lowering) use same_block_operand::{
+    CanonicalSameBlockIntegerRejectV1, CanonicalSameBlockIntegerRequestV1,
+    VerifiedCanonicalSameBlockIntegerOperandV1,
+};
+
 #[path = "session/draft_seal_close.rs"]
 mod draft_seal_close;
 #[path = "session/generic_g0_entry_adoption.rs"]
