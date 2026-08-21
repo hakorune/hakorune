@@ -19,10 +19,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged
 date = "2026-08-21"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-SOURCE-REOWN-WINDOW-I0-R0"
-current_design_stop = "typed Deferred preservation is closed; fix the neutral two-axis source-window owner and parser-backed handoff before implementation"
-current_blocker_token = "DesignStop: SCRIPT-SOURCE-REOWN-WINDOW-I0-R0 must remove Builder window authority without AST reconstruction, unowned instance adapter, or a second source observation"
+work_mode = "fast"
+current_execution_row = "SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0"
+current_design_stop = "closed: parser-backed authority, one HRTB loan, and neutral issuer consumer are fixed in the active card"
+current_blocker_token = "Fast: move ParserNormalProgramSourceAuthorityV1 through Parsed->Prepared->Final->semantic package before neutral window reownership"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -91,11 +91,11 @@ current_execution_design = "docs/development/current/main/investigations/script-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "script-direct-static-a-source-capability-d0"
 latest_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
-latest_card_summary = "Parser-preservation I0, composite source admission R0, and typed Script resolver Deferred preservation I0 are pushed and closed. Deferred outcomes retain cause/site, and no-window routes remain separate; the next cell is the T2 neutral-window authority design stop. Lookup, A/C, physical, old Recipe retirement, fallback, production switch, and performance remain closed."
-next_design_card = "SCRIPT-SOURCE-REOWN-WINDOW-I0-R0"
+latest_card_summary = "Parser-preservation I0, composite source admission R0, and typed Script resolver Deferred preservation I0 are pushed and closed. The neutral-window Decision is now accepted: one parser-owned Program source authority and one HRTB loan will feed the neutral issuer, then replace the Builder window edge. Lookup, A/C, physical, old Recipe retirement, fallback, production switch, and performance remain closed."
+next_design_card = "none"
 next_design_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
-next_execution_card = "none"
-next_execution_card_path = "none"
+next_execution_card = "SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0"
+next_execution_card_path = "docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-21: SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-PROOF-I0 landed one selected-normal BoxCount. A resolver-inventory-backed proof now covers only callee-required scalar Literal/Unary/Binary ordinals, with explicit Empty/Ready/Unavailable/NonExact/SourceMismatch states; the claimed token consumes it before argument effects and cannot complete unconsumed. Proof, ledger, cargo check, pointer/classification guards, diff check, and the Script direct-static reusable guard are green. Variable/flow/nested arguments, compatibility/deferred/raw lanes, canonical transport, raw retirement, production switch, and performance remain closed; no next row is selected.",
   "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-PARSER-INPUT-HANDOFF-I0 closed one parser-owned BoxCount. One exhaustive AST-free ProgramBody/declaration/Brand/config row issuer is co-sealed with the existing canonical identity/profile/read-parse receipt and transported through source-plan classification. Upstream cohort, neutral, incomplete, integrity, parser-consumed, and future C/B transport states remain distinct; no wildcard/default/empty fallback is allowed. Focused parser/source-plan tests, cargo check, routing completeness guard, parser handoff guard, pointer guard, README, and diff check are green. A issuer, Recipe/Join, physical, production switch, raw retirement, and performance remain closed; next row is Source-only A design stop.",
   "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-CARRIER-I0 is implementation-complete as one BoxShape. The compiler request now owns the parser-backed AST-free carrier by move; HandoffReady reaches the compiler and every Main/Callable/Script route closes it at explicit DiscardedBeforeA with no A meaning. Canonical dispatch and carrier focused suites pass (6 and 2 tests), cargo check and routing/current-state/carrier guards pass, and all touched Rust owners remain below 760/800 lines. The sole Source-only A issuer, Recipe/Join, physical consumer, compatibility/raw retirement, production switch, and performance remain closed; next row is the accepted A issuer D0.",
-	"2026-08-21: SCRIPT-SOURCE-REOWN-I0-R0 was audited by three read-only workers: the Builder window remains a competing authority and unit Deferred loses cause/site. The typed substep is pushed as 98f36e88b9; forest/function outcomes carry located/unlocated observations, the raw owner transports them, and no Script window is separate Unavailable. Focused test and cargo check are green; 50 normal Script failures reproduce on parent HEAD as baseline cohort/legacy debt. Neutral window reownership remains the next design stop.",
+  "2026-08-21: SCRIPT-SOURCE-REOWN-I0-R0 was audited by three read-only workers: the Builder window remains a competing authority and unit Deferred loses cause/site. The typed substep is pushed as 98f36e88b9; forest/function outcomes carry located/unlocated observations, the raw owner transports them, and no Script window is separate Unavailable. Focused test and cargo check are green; 50 normal Script failures reproduce on parent HEAD as baseline cohort/legacy debt. The neutral-window Decision is now accepted: parser-owned Program source authority + one HRTB loan + one neutral issuer, followed by Builder caller-zero, are the two bounded execution rows.",
 ]

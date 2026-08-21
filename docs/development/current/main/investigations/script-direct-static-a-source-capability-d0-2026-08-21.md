@@ -1,12 +1,12 @@
 ---
-Status: Typed Script resolver Deferred I0 closed — pushed as 98f36e88b9; neutral window ownership remains a design stop
+Status: Neutral Script source-window Decision accepted — typed Deferred I0 is pushed as 98f36e88b9; implementation may start at the bounded handoff row
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the parser-backed default root; vm-reference is reference-only and no A/C consumer is open
 ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> existing Script admission -> later private one-shot capability -> named A consumer
 Classification: T2 BoxCount first cell inside the predeclared five-commit series; A/C product and production switch remain closed
-NextCard: design-audit SCRIPT-SOURCE-REOWN-WINDOW-I0-R0; typed Deferred preservation is closed; keep lookup, A/C, physical, and cutover cells closed
+NextCard: execute SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0 followed by SCRIPT-SOURCE-REOWN-WINDOW-I0-R0; keep lookup, A/C, physical, and cutover cells closed
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -39,11 +39,13 @@ rejects source-unavailable, incomplete, and integrity-invalid partition states
 before resolver, lookup, Recipe, Builder effects, physical work, raw, retry,
 or fallback.
 
-Smallest next slice: `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` remains a T2 design
-stop. The typed resolver `Deferred` cause/site cell is closed without changing
-the existing runtime owner. Before any implementation, fix the neutral
-two-axis source-window issuer and its parser-backed handoff; the old Builder
-window, lookup, A/C, Recipe, physical, and cutover cells remain closed.
+Smallest next slice: `SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0` fixes the
+parser-backed authority transport and its one scoped source loan. It is a
+bounded prerequisite of `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0`, not a standalone
+semantic receipt: the same series immediately connects the authority to the
+neutral window issuer. The typed resolver `Deferred` cause/site cell is closed;
+the old Builder window, lookup, A/C, Recipe, physical, and cutover cells remain
+closed until their named rows.
 
 Non-claims: no generic/sync/instance Box admission, import expansion,
 capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
@@ -851,43 +853,183 @@ Recipe, physical, fallback, or production route was changed.
 
 #### 3b. Neutral source window — `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0`
 
-This remains `design_stop`/T2 until the source handoff is fixed in the type
-graph. The sole issuer is a source/resolver-boundary owner, not Builder:
+The design stop is closed by the worker census and the following type-level
+Decision. The sole issuer is a source/resolver-boundary owner, not Builder:
 
 ```text
-CanonicalScriptNeutralProgramWindowIssuerV1
-  -> VerifiedScriptSourceWindowV1
+ParserNormalProgramSourceAuthorityV1
+  -> CanonicalScriptNeutralProgramWindowIssuerV1
+  -> PreparedScriptRootAdmissionV1
   -> fixed resolver demand view / existing consumers
 ```
 
-The source window is total over the real Program body and contains only
-AST-free `ProgramBody` site rows with two axes:
+The existing `VerifiedScriptRootDemandWindowV1` remains the consumer contract;
+its `seal` is called by the neutral issuer exactly once in production. The
+Builder `ScriptRootDemandWindowBuilderV1`, `ScriptRootSemanticDecisionV1`, and
+`SelectedScriptProgramOccurrenceV1` are removed from the production edge. A
+test-only compatibility helper may remain temporarily while its tests move to
+the neutral issuer, but it cannot be called by the default lifecycle.
+
+The parser product gets one atomic, non-`Clone`, AST-free authority. It is
+issued inside `ParsedProgramWithCallableParameterSourceV1::new` and carries the
+same invocation witness, generic top-level ProgramBody coverage rows, and the
+already-issued composite disposition:
+
+```rust
+struct ParserNormalProgramSourceAuthorityV1 {
+    invocation: ParserInvocationWitnessV1,
+    body_rows: Box<[ParserProgramBodySourceRowV1]>,
+    composite: ParserCompositeSourceDispositionV1,
+    _seal: ParserNormalProgramSourceAuthoritySealV1,
+}
+```
+
+The source-backed move chain is mandatory and has no parallel `Option` field:
+
+```text
+ParsedProgramWithCallableParameterSourceV1
+  -> PreparedNormalCallableProgramSourceV1
+  -> VerifiedFinalCallableProgramSourceV1
+  -> VerifiedResolvedCallableSemanticBatchV1
+  -> NormalCompileRequestV1 / PreparedNormalDefaultProgramRootV1
+```
+
+`CanonicalScriptSourceRowsV1` remains the older pure-Script/front-door
+projection. It is not promoted into the mixed callable authority and cannot be
+used as a default empty catalog. The new authority is issued for the
+source-backed Program body independently of canonical pure-Script admission,
+so the static-provider + root-call shape is not rejected by a parallel cohort
+classifier before it reaches the selected normal caller.
+
+The authority exposes one higher-ranked loan. Its cursor yields one paired
+parser row and AST node; no caller receives separate arrays to zip, and no AST
+reference can escape:
+
+```rust
+with_normal_program_source_loan(
+    &self,
+    use_loan: impl for<'src> FnOnce(ParserNormalProgramSourceLoanV1<'src>) -> R,
+) -> Result<R, ParserNormalProgramSourceLoanRejectV1>;
+```
+
+The neutral issuer consumes this loan once and co-seals the composite
+partition, instance-Box transfer coverage, and the existing Script window.
+The instance transfer product is witness-bound to the same invocation; an
+ordinal-only adapter is forbidden. The resulting window is total over the
+real Program body and contains only AST-free `ProgramBody` site rows with two
+axes:
 
 ```text
 structural source role   +   retained runtime-terminal role
 ```
 
-It must be issued once from the move-bound parser-backed source authority and
-the R0 composite witness. The existing instance-box transfer witness may be
-consumed as an already-issued input, but neither the work plan nor
-`SelectedScriptProgramOccurrenceV1` may issue membership. The source window
-must not import `ScriptRootSemanticDecisionV1`, target inventory, Recipe keys,
-MIR IDs, pointers, names, or AST references.
+The issuer may call the existing runtime classifier as a shape predicate, but
+it alone cannot issue window membership. The neutral mapping owns the finite
+semantic/runtime projection and never imports target inventory, Recipe keys,
+MIR IDs, pointers, names, or AST references into the window.
+
+The default lifecycle order is fixed:
+
+```text
+source-backed final source
+  -> semantic package owns the move-only parser authority
+  -> one neutral source loan
+  -> window + composite partition + instance transfer co-seal
+  -> typed failure, if any, before target install/effects
+  -> work plan transports the already-prepared admission
+  -> existing resolver/lookup/Recipe consumers continue unchanged
+```
+
+`PreparedProgramRootWorkPlanV1` receives `PreparedScriptRootAdmissionV1`; it
+does not construct or seal a window. `normal_default_root_catalog_lifecycle`
+does not call `package.source_ast()` to rebuild source membership. The old
+`composite_partition` root field and its separate source observation are
+removed once the neutral issuer owns the combined call.
 
 Required cutover evidence:
 
 ```text
-neutral issuer production caller             = 1
+ParserNormalProgramSourceAuthority issuer    = 1
+neutral window issuer production caller      = 1
+VerifiedScriptRootDemandWindowV1::seal      = 1
 ScriptRootDemandWindowBuilder production call = 0
 ScriptRootSemanticDecision production call   = 0
+SelectedScriptProgramOccurrence window calls = 0
 all Program site coverage and real empty      = explicit
-window failure / typed Deferred               < target install and effects
+window/source failure                         < target install and effects
+AST/pointer/name/Recipe/MIR authority         = 0
+```
+
+### Ordered implementation tasks
+
+`SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0`:
+
+1. Add the parser-only non-`Clone` body authority and paired HRTB cursor under
+   `src/parser/callable_parameter_source/`. Keep composite state nested under
+   the same invocation seal; do not reuse canonical pure-Script rows as a
+   complete mixed-source authority.
+2. Move the authority through Parsed → Prepared → Final source. Transform
+   validation must reject body count/shape or exact source-tree drift before a
+   compatibility AST is returned. No reconstruction from name, Span, ordinal,
+   digest, pointer, or transformed AST is allowed.
+3. Make the semantic batch/package transport the authority without cloning or
+   splitting the source AST. Add only a scoped loan method; do not make the
+   semantic package a second issuer.
+
+`SCRIPT-SOURCE-REOWN-WINDOW-I0-R0`:
+
+1. Add `CanonicalScriptNeutralProgramWindowIssuerV1` in split source/issuer
+   files under the Builder boundary, with the issuer itself consuming the
+   parser authority loan. Co-issue the existing R0 composite partition and
+   witness-bound instance transfer in this callback.
+2. Replace the default lifecycle's Builder window construction with the
+   prepared admission returned by the neutral issuer. Pass that admission into
+   the work plan as transport. Keep resolver, continuation, target inventory,
+   bundle, and Recipe signatures unchanged in this row.
+3. Delete the selected production edges to
+   `ScriptRootDemandWindowBuilderV1`, `ScriptRootSemanticDecisionV1`, and
+   `SelectedScriptProgramOccurrenceV1`; move their positive/negative tests to
+   the neutral issuer or delete obsolete test-only authority.
+
+The implementation is intentionally two commits in one bounded series:
+
+```text
+1. SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0
+   parser authority + move chain + transform guard + semantic-package loan
+2. SCRIPT-SOURCE-REOWN-WINDOW-I0-R0
+   one neutral issuer + work-plan transport + old production edges deleted
+```
+
+No commit may land an unused parser authority or a new downstream semantic
+receipt without its named neutral consumer in the same series.
+
+Positive evidence:
+
+```text
+real empty Program -> explicit CompleteEmpty/zero-row window
+one ordinary statement -> one paired row and existing semantic/runtime axes
+static provider + final Sequence/RootReturn -> provider transfer + retained terminal
+instance Box -> witness-bound transfer, no ordinal-only adapter
+multiple arguments -> composite order preserved by one parser loan
+unchanged transform -> authority moves to final source/request
+```
+
+Negative evidence:
+
+```text
+foreign parser witness -> IntegrityInvalid
+missing/duplicate/gap body row -> Incomplete or IntegrityInvalid
+provider/call/terminal drift -> typed transform rejection
+Ready source -> Compatibility -> CompatibilityLoss
+window failure -> zero target-install/Recipe/physical effects
+Builder window/semantic caller on default edge -> guard failure
 ```
 
 The window task returns to design stop if the parser-backed authority cannot
-reach the default caller without reconstructing from `package.source_ast()`,
-if instance transfer coverage needs an unowned adapter, or if the old
-semantic mapping cannot be projected without a second source observation.
+reach the default caller without `package.source_ast()` reconstruction, if
+instance transfer coverage needs an unowned adapter, or if the old semantic
+mapping requires a second source observation. It does not open lookup, A/C,
+Recipe retirement, fallback retirement, production cutover, or performance.
 
 ### 4. Contingent lookup reownership — `SCRIPT-LOOKUP-REOWN-I0-R0`
 
