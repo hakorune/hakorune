@@ -520,6 +520,7 @@ relations are `IntegrityInvalid`. Neither is resolver deferral or zero.
 | composite Program partition issuer | one total two-axis semantic/runtime item map | target lookup, Recipe, physical IDs |
 | callable declaration authority | exact provider method identities/source subtrees | Script call-site pairing, runtime terminal |
 | resolver kernel | executable-window forest and exact typed deferral | source admission, capability issuance |
+| pre-effect source handoff issuer | parser-witness-bound AST-free forest, continuation, terminal, and complete call coverage that cross package install | AST, second resolver scan, target/C/Recipe/physical meaning |
 | owned lookup issuer | AST-free complete target/result relation | candidate/noncandidate and physical selection |
 | composite membership issuer | provider + call + argument + terminal correspondence | A facts, Recipe keys, physical IDs |
 | private capability issuer | atomic candidate co-seal and immediate move to A | Program classification, public `Ready`, retry |
@@ -547,6 +548,7 @@ relations are `IntegrityInvalid`. Neither is resolver deferral or zero.
 | `Partition.ObservationDeferred(Unlocated)` | resolver | typed stop | forbidden |
 | `Partition.Incomplete(error)` | coverage validator | typed stop | forbidden |
 | `Partition.IntegrityInvalid(error)` | relation verifier | typed stop | forbidden |
+| `PreEffectCompleteSourceObservation` | source/resolver handoff issuer | move once across package install | no AST borrow, re-resolve, or fallback |
 | `Capability.Ready` | private issuer | immediate named A consumer | cannot escape/store |
 | `Capability.Consumed` | named A issuer | one A call-site product | no replay |
 | `NoSafeSlice` | design process | remain on this D0 | never a runtime state |
@@ -1242,6 +1244,26 @@ empty Bundle/Join = not a zero-candidate witness
 generic activation plan = legacy generic owner; not the canonical Script A
 ```
 
+Worker premise audit is required before Fast path: the resolver product still
+has no parser-witness bridge, the owned lookup still lacks complete
+zero-candidate coverage, and the live lifecycle places resolver/consumer work
+after Builder preparation.
+
+The ownership audit adds one lifetime constraint: the current
+`VerifiedScriptSemanticSourceV1<'source>` borrows the Program AST and cannot
+survive the move of the callable source into the installed semantic package.
+Therefore the pre-effect product must own an AST-free forest, continuation,
+parser provenance, and complete call coverage first; the later borrowed Script
+wrapper may consume that product after installation, but may not re-resolve or
+re-scan the AST.
+
+Observed callpoints: `normal_script_resolution.rs` currently creates the
+borrowed Script wrapper from AST/window/facts only, while
+`normal_default_root_catalog_lifecycle.rs` moves the callable source into the
+semantic package before `prepare_install` and runs resolver/Bundle/Recipe
+after `prepare_normal_default_module`. This is an ownership boundary, not a
+mere call-order rearrangement.
+
 #### A/C authority contract
 
 ```text
@@ -1265,6 +1287,7 @@ source-window completeness and terminal coverage
 resolver-complete Script source rows and retained continuation
 owned Script lookup target/result rows
 complete call inventory, including explicit zero/noncandidate coverage
+owned pre-effect forest/continuation handoff that can cross package install
 ```
 
 It must not contain AST references, pointer/address identities, `ValueId`,
@@ -1303,7 +1326,7 @@ semantic package
   -> neutral window
   -> owned lookup + complete call coverage
   -> resolver Complete / typed Deferred
-  -> terminal/continuation co-seal
+  -> AST-free PreEffectCompleteSourceObservation co-seal
   -> private A issue and immediate consume
   -> C disposition and named consumer bind
   -> install_pinned_text_target_capability
@@ -1317,20 +1340,32 @@ Recipe, Join, physical lowering, or publication.
 
 #### Bounded implementation task sequence after design closure
 
-These are three disjoint implementation cards, not permission to start while
+These are five disjoint implementation cards, not permission to start while
 this section is open:
 
-1. `SCRIPT-A-SOURCE-CAPABILITY-I0` — extend the source-owned lookup input to a
-   complete call-coverage/zero witness, define the private non-Clone A
-   capability, issue it once, and consume it immediately in the named A
-   issuer. Add positive, zero, foreign, missing, duplicate, and pre-effect
-   failure evidence. Do not touch Recipe/Join/physical.
-2. `SCRIPT-C-DISPOSITION-CONSUMER-I0` — define the closed C disposition
+1. `SCRIPT-A-SOURCE-COVERAGE-I0` — extend the one source-package HRTB issuer
+   to retain every bounded Script MethodCall carrier, with explicit
+   `CompleteEmpty`/`CompleteRows`, source route/noncandidate evidence, and
+   typed missing/foreign/duplicate coverage. Keep target selection and C
+   meaning out of this product.
+2. `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0` — pass the same parser witness into
+   the resolver source owner and issue an owned AST-free
+   `PreEffectCompleteSourceObservation` containing forest, continuation,
+   terminal coverage, and the source coverage product. Move this handoff
+   before pinned-target/Builder effects; after package installation, construct
+   the existing borrowed Script wrapper by consuming the handoff, with no
+   second resolver or AST scan.
+3. `SCRIPT-A-CAPABILITY-I0` — define the private non-Clone A capability from
+   that handoff plus owned target/result facts, issue it once, and consume it
+   immediately in the named A issuer. Add positive, explicit-zero, foreign,
+   missing, duplicate, and pre-effect failure evidence. Do not touch
+   Recipe/Join/physical semantics.
+4. `SCRIPT-C-DISPOSITION-CONSUMER-I0` — define the closed C disposition
    (`DispositionReady` versus explicit `NonCandidate`), bind the two named
    consumers, and adapt the existing direct-static Facts/Recipe/Join chain
    only at its input boundary. No generic activation-plan reuse, fallback, or
    semantic reclassification downstream.
-3. `SCRIPT-A-CUTOVER-I0` — move the A/C facade before pinned-target/Builder
+5. `SCRIPT-A-CUTOVER-I0` — move the A/C facade before pinned-target/Builder
    effects, remove the post-effect candidate decision for this migrated
    surface, and add structural guards proving issuer counts, consumer counts,
    zero-witness preservation, and zero old/fallback edges. Keep old Recipe
