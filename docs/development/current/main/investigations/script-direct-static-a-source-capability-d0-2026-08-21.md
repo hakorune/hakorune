@@ -1,12 +1,12 @@
 ---
-Status: Script lookup reownership and source coverage I0 are pushed as `2fa560cd8f`; A/C cutover remains a bounded design stop
+Status: `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0` is implemented in the current working series with focused evidence and a reusable guard; A/C cutover remains closed
 Date: 2026-08-21
 Decision: SCRIPT-A-CUTOVER-I0-R0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: NormalDefaultPublishedPipelineV1::compile reaches the selected-normal root; lookup is pre-effect, but resolver/Bundle/Recipe currently run after Builder preparation and no A/C consumer is open
 ReplacementCell: source package + neutral window + owned lookup + resolver outcome -> private A capability -> immediate A consumer -> one C disposition -> named direct/non-direct consumers
-Classification: T2 BoxCount design stop after lookup reownership; A/C product, Recipe retirement, fallback, physical cutover, and production switch remain closed
-NextCard: design SCRIPT-A-CUTOVER-I0-R0, beginning with the pre-effect source handoff
+Classification: T2 BoxCount fast cell for the pre-effect source handoff; A/C product, Recipe retirement, fallback, physical cutover, and production switch remain closed
+NextCard: design SCRIPT-A-CAPABILITY-I0
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
@@ -14,10 +14,9 @@ NextCard: design SCRIPT-A-CUTOVER-I0-R0, beginning with the pre-effect source ha
 ## Six-line brief
 
 Decision: Accept the parser-owned opaque non-`Clone` preservation token and
-keep downstream `SCRIPT-A-CUTOVER-I0-R0` in `design_stop` until its A/C
-authority is named. Lookup reownership is closed. The selected fast cell is
-the smaller source-coverage handoff below; it transports complete source
-coverage without issuing A/C meaning.
+accept `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0` as the next fast BoxCount. Keep
+the downstream A/C selector in `design_stop`; this cell transports the complete
+AST-free source observation without issuing A/C meaning.
 
 Source authority + canonical issuer: the source package HRTB loan, neutral
 window issuer, `ScriptDirectStaticCallLookupIssuerV1`, resolver complete/typed
@@ -41,11 +40,11 @@ The current lifecycle does not yet have this boundary because resolver and
 downstream products are issued after Builder preparation; moving that boundary
 is part of the next bounded task.
 
-Smallest next slice: `SCRIPT-A-SOURCE-COVERAGE-I0` extends the one
-source-package HRTB observation with explicit `CompleteEmpty`/`CompleteRows`,
-all bounded MethodCall carriers, parser provenance, and source-route evidence.
-It does not select targets or issue A/C. The pre-effect A/C capability remains
-closed until this source coverage product is transported and audited.
+Smallest next slice: `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0` moves the complete
+AST-free resolver/source observation before target and Builder effects, then
+rebinds the existing borrowed Script lowering wrapper from the moved facts.
+It does not select targets or issue A/C. The private A capability and named
+consumer remain closed until this handoff is consumed by the next design cell.
 
 Non-claims: no parser cohort expansion, generic result redesign, Recipe/Join
 redesign, physical Call/publication change, compatibility/raw retirement,
@@ -1348,13 +1347,17 @@ this section is open:
    `CompleteEmpty`/`CompleteRows`, source route/noncandidate evidence, and
    typed missing/foreign/duplicate coverage. Keep target selection and C
    meaning out of this product.
-2. `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0` — pass the same parser witness into
-   the resolver source owner and issue an owned AST-free
-   `PreEffectCompleteSourceObservation` containing forest, continuation,
-   terminal coverage, and the source coverage product. Move this handoff
-   before pinned-target/Builder effects; after package installation, construct
-   the existing borrowed Script wrapper by consuming the handoff, with no
-   second resolver or AST scan.
+2. `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0` — use one private pre-effect issuer
+   to pass the same parser witness into the resolver/source owner and issue an
+   owned AST-free `PreEffectCompleteSourceObservation` containing the forest,
+   source projection, boundary/demand/lowering facts, continuation, terminal
+   coverage, and source-call coverage. Move this observation before
+   pinned-target/Builder effects; after package installation, construct the
+   existing borrowed Script wrapper by consuming the handoff and the same
+   parser loan, with no second resolver or AST scan. Typed
+   `SourceAuthorityUnavailable`, `ObservationDeferred(cause, site)`,
+   `Incomplete`, and `IntegrityInvalid` outcomes are terminal at that
+   boundary.
 3. `SCRIPT-A-CAPABILITY-I0` — define the private non-Clone A capability from
    that handoff plus owned target/result facts, issue it once, and consume it
    immediately in the named A issuer. Add positive, explicit-zero, foreign,
@@ -1431,6 +1434,141 @@ not yet the pre-effect A capability. Under the parent
 `SCRIPT-A-CUTOVER-I0-R0` design stop, `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0`
 is the first design/implementation decision and must define how the resolver
 complete/deferred outcome and retained terminal cross package install.
+
+#### Current design audit request — `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0` (satisfied)
+
+Before leaving `design_stop`, two read-only audits were requested for the same
+bounded question. Audit A must trace the source-package/parser witness,
+resolver forest/continuation, and the lifetime boundary of
+`VerifiedScriptSemanticSource<'source>`; it must name the sole issuer and the
+AST-free move-only handoff shape. Audit B must trace the default lifecycle from
+package install through target capability/Builder effects and the existing
+ResultBundle/Recipe consumers; it must identify the smallest pre-effect
+callpoint, typed failure states, and caller-zero guards. Both audits must reject
+a second AST scan, a borrowed source product crossing package install, empty or
+`Option` repair, target/C meaning in the handoff, and fallback to old Recipe.
+Workers did not edit files or authorize A/C implementation. Their reports are
+design evidence only; the main agent will reconcile them into one Decision and
+one bounded next slice.
+
+#### Audit reconciliation — accepted pre-effect handoff
+
+Both audits agree that the remaining blocker is one missing source authority,
+not an unresolved choice between Builder and parser ownership:
+
+```text
+ParserNormalProgramSourceAuthorityV1
+  + one neutral Script window
+  + one owned source-call coverage/lookup observation
+  + resolver Complete or located Deferred
+  + retained terminal/continuation
+    -> NormalScriptPreEffectSourceObservationIssuerV1
+    -> PreEffectCompleteSourceObservationV1 (AST-free, non-Clone, move-only)
+```
+
+`NormalScriptPreEffectSourceObservationIssuerV1` is the sole private issuer for
+this product and has one production callpoint in
+`ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle_with_target`,
+immediately after the source package, neutral window, owned lookup, and
+resolver inputs are ready, and before
+`install_pinned_text_target_capability`. Its resolver/source co-seal uses one
+scoped HRTB boundary. The existing lookup is an earlier sibling preflight
+product and is moved into the handoff; no post-install resolver or AST source
+issuer is allowed.
+
+The complete handoff owns only AST-free facts needed by the existing lowering
+consumer: the parser invocation witness, verified Script forest, source
+projection, boundary and operational-demand packs, lowering projection,
+retained source continuation/terminal coverage, and the source-call coverage
+product. The exact implementation may keep the owned target/result lookup as a
+sibling input, but it must split or move the source coverage without cloning or
+reissuing it. The handoff contains no `ASTNode`, `ScriptSyntaxView`, pointer,
+target candidate, C disposition, Recipe/Join key, `ValueId`, `MirType`,
+`BasicBlockId`, physical ID, or public `Ready` capability.
+
+After package installation, the installed package exposes the same scoped
+parser loan. A private bind method consumes the handoff and that loan only
+after checking the same invocation witness, then creates the existing borrowed
+`VerifiedScriptSemanticSource<'source>` wrapper from the already-owned facts.
+It must not call `seal_ast_with_forest`, `ScriptBoundaryReceiptPackV1::seal`,
+`ScriptOperationalDemandReceiptPackV1::seal`, `VerifiedSourceProjectionV1`
+AST sealing, or `VerifiedScriptSourceContinuationV1::issue` a second time.
+The borrowed wrapper remains scoped to lowering and never crosses install.
+
+The finite outcome is:
+
+| Outcome | Meaning | Boundary |
+| --- | --- | --- |
+| `Complete(observation)` | same-witness forest, continuation, terminal/call coverage, and source facts are complete | continue to package install; no A/C claim yet |
+| `SourceAuthorityUnavailable` | source package, parser witness, or selected source authority is unavailable | reject before target/Builder effects |
+| `ObservationDeferred(cause, site)` | resolver explicitly deferred with retained cause/site | reject before effects; no `None` repair |
+| `Incomplete(reason, site)` | required window, call, terminal, or source fact is absent | reject before effects; no empty/default witness |
+| `IntegrityInvalid(reason, site)` | foreign, duplicate, stale, contradictory, or witness-mismatched relation | reject before effects; no retry/fallback |
+
+`Outside` remains the neutral/window issuer's explicit bounded-cohort result;
+it is not converted into a complete handoff. `NoSafeSlice` remains workflow
+state, not a runtime disposition.
+
+#### Closeout evidence — `SCRIPT-A-PREFLIGHT-SOURCE-HANDOFF-I0`
+
+The bounded handoff is now implemented. One private
+`NormalScriptPreEffectSourceObservationIssuerV1` opens the source-package HRTB
+loan before `install_pinned_text_target_capability`, validates the neutral
+window and owned lookup against the same parser invocation, preserves resolver
+`Deferred` as a typed terminal, and moves the complete forest, projection,
+boundary/demand/lowering facts, continuation, and owned lookup into a
+non-`Clone` `PreEffectCompleteSourceObservationV1`. The installed package
+rebinds the existing borrowed Script wrapper from those moved facts inside a
+second scoped HRTB callback; it does not re-seal the forest, boundary packs,
+projection, or continuation after install.
+
+Focused evidence is green for a zero-call source completing before effects and
+a foreign neutral window being rejected before resolver observation. The
+reusable source-reownership guard now checks the issuer/order, typed failure
+states, no post-install resolver call, AST/physical identity exclusion, and
+the 760-line boundary. `cargo check --profile quick --lib` and the focused
+pre-effect test filter are green. The broad `normal_script` filter remains a
+known baseline red on `[freeze:contract][mir/script-neutral-window/work-plan-edge]`
+in compatibility/legacy fixtures that do not enter this source-backed cell;
+the representative `source_bound_static_result_owner_reaches_the_raw_terminal`
+failure reproduces unchanged on parent `2b0dea7c9a`. That unrelated baseline
+is not counted as handoff evidence.
+
+The handoff cell is complete, but it is not an A capability: no candidate or
+noncandidate meaning, C disposition, Recipe/Join, physical publication,
+fallback, or production switch was opened.
+
+#### Queued independent correctness task
+
+The top-down review also confirmed a separate High issue in
+`src/mir/builder/assignment_lowering.rs`: the previous strong-reference
+`ReleaseStrong` emission result is ignored before `variable_map` publication.
+This is not part of the Script A/C authority series. It is taskized separately
+as [`mirbuilder-assignment-release-failure-atomicity-i0-2026-08-21.md`](./mirbuilder-assignment-release-failure-atomicity-i0-2026-08-21.md).
+Its fail-fast boundary is assignment local publication; it must first verify
+the enclosing function-session discard contract before choosing simple error
+propagation or a private prepare/commit seam. `emit_instruction` redesign,
+`builder.rs` cleanup, and Script A/C work remain outside that task.
+
+The fast cell was therefore two implementation substeps in one bounded
+series:
+
+1. issue the AST-free handoff and move resolver/coverage observation to the
+   pre-effect callpoint, with typed outcome preservation and zero Builder
+   effects on every failure;
+2. add the installed-package loan bind and prove that the existing Script
+   lowering wrapper consumes the handoff without a resolver or AST re-scan.
+
+Acceptance requires one handoff issuer caller, one resolver source observation,
+zero post-install resolver/AST scans, zero borrowed handoff fields, zero
+parallel `Option`/default repair, and zero handoff-error edges to target
+capability, Builder preparation, package install, Bundle/Recipe/Join,
+publication, physical work, or old Recipe fallback. Focused positive evidence
+must cover final Sequence and root Return terminals; negatives must cover
+located Deferred, missing coverage, foreign witness, duplicate coverage, and
+pre-effect effect-count zero. This cell still does not authorize A/C,
+candidate/noncandidate, Recipe retirement, physical cutover, or production
+switch work.
 
 No implementation card may introduce a parallel `Option` A receipt or expose
 capability `Ready` to dispatch. If complete call coverage cannot be issued
