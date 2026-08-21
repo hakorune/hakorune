@@ -14,6 +14,13 @@ pub(super) struct ScriptSemanticSourceCoreV1<'source> {
     runtime_source_indices: Box<[usize]>,
 }
 
+#[derive(Debug)]
+pub(super) struct ScriptSemanticSourcePreEffectCorePartsV1 {
+    pub(super) forest: VerifiedSemanticOwnerForestV1,
+    pub(super) projection: VerifiedSourceProjectionV1,
+    pub(super) runtime_source_indices: Box<[usize]>,
+}
+
 impl<'source> ScriptSemanticSourceCoreV1<'source> {
     pub(super) fn seal(
         source: &'source ASTNode,
@@ -36,6 +43,26 @@ impl<'source> ScriptSemanticSourceCoreV1<'source> {
 
     pub(super) fn source(&self) -> &ASTNode {
         self.source
+    }
+
+    pub(super) fn bind_pre_effect_parts(
+        source: &'source ASTNode,
+        parts: ScriptSemanticSourcePreEffectCorePartsV1,
+    ) -> Self {
+        Self {
+            source,
+            forest: parts.forest,
+            projection: parts.projection,
+            runtime_source_indices: parts.runtime_source_indices,
+        }
+    }
+
+    pub(super) fn into_pre_effect_parts(self) -> ScriptSemanticSourcePreEffectCorePartsV1 {
+        ScriptSemanticSourcePreEffectCorePartsV1 {
+            forest: self.forest,
+            projection: self.projection,
+            runtime_source_indices: self.runtime_source_indices,
+        }
     }
 
     pub(super) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {

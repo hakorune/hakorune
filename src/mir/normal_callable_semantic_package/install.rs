@@ -13,7 +13,10 @@ use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSourceIdentityV
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{BindingRefV1, VerifiedResolvedBlockExpressionExpectationV1};
-use crate::parser::CallableMethodSourceObservationV1;
+use crate::parser::{
+    CallableMethodSourceObservationV1, ParserNormalProgramSourceLoanRejectV1,
+    ParserNormalProgramSourceLoanV1,
+};
 
 use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
@@ -375,6 +378,16 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 impl InstalledNormalCallableSemanticPackageV1 {
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.batch.source_ast()
+    }
+
+    /// Reborrow the same parser-owned Program source authority after install.
+    /// The HRTB keeps the AST loan scoped; callers may only bind already-owned
+    /// pre-effect facts and may not carry this borrowed wrapper across install.
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        self.batch.with_normal_program_source_loan(callback)
     }
 
     pub(crate) fn instance_constructors(

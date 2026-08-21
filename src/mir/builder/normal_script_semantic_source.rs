@@ -19,7 +19,9 @@ use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDeman
 use super::normal_script_operational_demand_receipt_pack::ScriptQMarkPropagationTargetV1;
 use super::normal_script_semantic_lowering_input::VerifiedScriptSemanticLoweringInputV1;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
-use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
+use super::normal_script_semantic_source_core::{
+    ScriptSemanticSourceCoreV1, ScriptSemanticSourcePreEffectCorePartsV1,
+};
 use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
@@ -48,6 +50,15 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     direct_static_join_handoff: Option<VerifiedScriptDirectStaticJoinHandoffV1>,
     direct_static_required_argument_proof:
         Option<VerifiedScriptDirectStaticRequiredArgumentProofV1>,
+}
+
+#[derive(Debug)]
+pub(super) struct ScriptSemanticSourcePreEffectPartsV1 {
+    pub(super) core: ScriptSemanticSourcePreEffectCorePartsV1,
+    pub(super) boundaries: ScriptBoundaryReceiptPackV1,
+    pub(super) demands: ScriptOperationalDemandReceiptPackV1,
+    pub(super) lowering_projection: VerifiedScriptLoweringProjectionV1,
+    pub(super) continuation: VerifiedScriptSourceContinuationV1,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -115,6 +126,56 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             direct_static_join_handoff: None,
             direct_static_required_argument_proof: None,
         })
+    }
+
+    pub(super) fn into_pre_effect_parts(
+        self,
+    ) -> Result<ScriptSemanticSourcePreEffectPartsV1, &'static str> {
+        let Self {
+            core,
+            boundaries,
+            demands,
+            lowering_projection,
+            continuation,
+            direct_static_result_bundle,
+            direct_static_result_publication_owner,
+            direct_static_recipe,
+            direct_static_join_handoff,
+            direct_static_required_argument_proof,
+        } = self;
+        if direct_static_result_bundle.is_some()
+            || direct_static_result_publication_owner.is_some()
+            || direct_static_recipe.is_some()
+            || direct_static_join_handoff.is_some()
+            || direct_static_required_argument_proof.is_some()
+        {
+            return Err("pre-effect Script source cannot contain downstream products");
+        }
+        Ok(ScriptSemanticSourcePreEffectPartsV1 {
+            core: core.into_pre_effect_parts(),
+            boundaries,
+            demands,
+            lowering_projection,
+            continuation,
+        })
+    }
+
+    pub(super) fn from_pre_effect_parts(
+        source: &'source crate::ast::ASTNode,
+        parts: ScriptSemanticSourcePreEffectPartsV1,
+    ) -> Self {
+        Self {
+            core: ScriptSemanticSourceCoreV1::bind_pre_effect_parts(source, parts.core),
+            boundaries: parts.boundaries,
+            demands: parts.demands,
+            lowering_projection: parts.lowering_projection,
+            continuation: parts.continuation,
+            direct_static_result_bundle: None,
+            direct_static_result_publication_owner: None,
+            direct_static_recipe: None,
+            direct_static_join_handoff: None,
+            direct_static_required_argument_proof: None,
+        }
     }
 
     pub(super) fn attach_direct_static_result_bundle(

@@ -7,6 +7,9 @@ cd "$repo_root"
 neutral=src/mir/builder/normal_script_neutral_window.rs
 neutral_tests=src/mir/builder/normal_script_neutral_window_tests.rs
 lifecycle=src/mir/builder/normal_default_root_catalog_lifecycle.rs
+pre_effect=src/mir/builder/normal_script_pre_effect_source_observation.rs
+pre_effect_tests=src/mir/builder/normal_script_pre_effect_source_observation_tests.rs
+post_install=src/mir/builder/normal_default_root_catalog_post_install.rs
 work_plan=src/mir/builder/program_root_work_plan.rs
 work_plan_production=src/mir/builder/program_root_work_plan_production.rs
 legacy_window=src/mir/builder/normal_script_root_demand_window.rs
@@ -15,7 +18,8 @@ instance_transfer=src/mir/builder/normal_script_instance_box_transfer.rs
 constructor=src/mir/builder/normal_instance_constructor_admission.rs
 card=docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md
 
-for file in "$neutral" "$neutral_tests" "$lifecycle" "$work_plan" \
+for file in "$neutral" "$neutral_tests" "$lifecycle" "$pre_effect" \
+  "$pre_effect_tests" "$post_install" "$work_plan" \
   "$work_plan_production" "$legacy_window" "$builder_barrel" \
   "$instance_transfer" "$constructor" "$card"; do
   [[ -f "$file" ]] || {
@@ -24,7 +28,8 @@ for file in "$neutral" "$neutral_tests" "$lifecycle" "$work_plan" \
   }
 done
 
-for file in "$neutral" "$neutral_tests" "$lifecycle" "$work_plan" \
+for file in "$neutral" "$neutral_tests" "$lifecycle" "$pre_effect" \
+  "$pre_effect_tests" "$post_install" "$work_plan" \
   "$work_plan_production" "$legacy_window" "$instance_transfer" "$constructor"; do
   lines="$(wc -l < "$file")"
   (( lines < 760 )) || {
@@ -59,12 +64,41 @@ legacy_cfg_line="$(sed -n "1,${legacy_builder_line}p" "$legacy_window" | rg -n '
 # Builder effects.
 neutral_line="$(rg -n 'PreparedCanonicalScriptNeutralProgramWindowV1::issue\(package\)' "$lifecycle" | cut -d: -f1)"
 lookup_line="$(rg -n 'ScriptDirectStaticCallLookupIssuerV1::issue' "$lifecycle" | cut -d: -f1)"
+pre_effect_line="$(rg -n 'NormalScriptPreEffectSourceObservationIssuerV1::issue' "$lifecycle" | cut -d: -f1)"
 install_line="$(rg -n 'install_pinned_text_target_capability' "$lifecycle" | tail -n 1 | cut -d: -f1)"
 effect_line="$(rg -n 'prepare_normal_default_module' "$lifecycle" | cut -d: -f1)"
-(( neutral_line < lookup_line && lookup_line < install_line && install_line < effect_line )) || {
-  echo "[script-source-reown-r0] neutral/lookup failure is not before target/effects" >&2
+(( neutral_line < lookup_line && lookup_line < pre_effect_line && pre_effect_line < install_line && install_line < effect_line )) || {
+  echo "[script-source-reown-r0] source issuers are not ordered before target/effects" >&2
   exit 1
 }
+(( "$(rg -c 'NormalScriptPreEffectSourceObservationIssuerV1::issue' "$lifecycle")" == 1 ))
+if rg -n 'resolve_normal_script_source_v1' "$lifecycle"; then
+  echo "[script-source-reown-r0] lifecycle retained a post-install resolver issuer" >&2
+  exit 1
+fi
+
+pre_effect_struct="$(sed -n '/pub(super) struct PreEffectCompleteSourceObservationV1/,/^}/p' "$pre_effect")"
+if printf '%s\n' "$pre_effect_struct" | rg -n 'ASTNode|ValueId|MirType|BasicBlockId|RecipeKey|JoinSig|\*const|as \*const'; then
+  echo "[script-source-reown-r0] pre-effect handoff leaked AST/physical identity" >&2
+  exit 1
+fi
+if rg -n 'derive\([^)]*Clone|SourceFacts' "$pre_effect"; then
+  echo "[script-source-reown-r0] pre-effect handoff retained Clone/unknown state" >&2
+  exit 1
+fi
+if rg -n 'prepare_script_recipe|fallback|retry' "$pre_effect" "$lifecycle"; then
+  echo "[script-source-reown-r0] pre-effect lifecycle retained Recipe/fallback state" >&2
+  exit 1
+fi
+for state in SourceAuthorityUnavailable ObservationDeferred Incomplete IntegrityInvalid; do
+  rg -q "$state" "$pre_effect" || {
+    echo "[script-source-reown-r0] missing pre-effect state: $state" >&2
+    exit 1
+  }
+done
+rg -q 'with_bound_source' "$pre_effect"
+rg -q 'from_pre_effect_parts' src/mir/builder/normal_script_semantic_source.rs
+rg -q 'into_pre_effect_parts' src/mir/builder/normal_script_semantic_source.rs
 
 product_struct="$(sed -n '/pub(super) struct PreparedCanonicalScriptNeutralProgramWindowV1/,/^}/p' "$neutral")"
 if printf '%s\n' "$product_struct" | rg -n 'ASTNode|ValueId|MirType|BasicBlockId|RecipeKey|JoinSig|\*const|as \*const'; then
