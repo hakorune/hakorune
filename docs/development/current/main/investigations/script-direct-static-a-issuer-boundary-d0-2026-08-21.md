@@ -1,12 +1,12 @@
 ---
-Status: Design stop — canonical A issuer/source seam fixed; implementation remains closed
+Status: Closed as issuer-boundary design; implementation remains parked
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-ISSUER-BOUNDARY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-consumer-bind-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: SourceEnvelopeReady + sealed Script source -> one total A observation
 Classification: design stop; no semantic product or physical implementation
-NextCard: none until this issuer boundary is accepted
+NextCard: script-direct-static-a-source-capability-d0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-A-ISSUER-BOUNDARY-D0
@@ -260,6 +260,18 @@ non-test caller at the dispatch callpoint and remains legal only before A
 starts. This receipt strengthens the D0 boundary; it does not authorize an
 `into_a_parts` implementation, an AST-bearing compiler field, or a guessed
 canonical resolver product.
+
+## D0 closeout — source capability is the next bounded boundary
+
+The follow-up audit confirms that the issuer callpoint and A observation
+contract are now fixed, but `resolved_semantics` still exposes only a kernel:
+its Script entry requires an AST-borrowing view, semantic window entries, and
+declaration demands supplied by another authority. The Builder window/source
+products cannot be imported into canonical A. The next bounded card is
+`script-direct-static-a-source-capability-d0-2026-08-21.md`, which names the
+single capability issuer, envelope move seam, source-plan HRTB callback, and
+deferred/incomplete/invalid states. This card remains closed to code, A/C
+products, physical effects, and old-Recipe retirement.
 
 ## References
 
