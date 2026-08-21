@@ -1,12 +1,12 @@
 ---
-Status: Accepted design stop — parser handoff D0 selected
+Status: Design stop — exhaustive state-matrix prerequisite selected
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0
 Parent: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-input-d0-2026-08-21.md
 ProductionCaller: none; design only
 ReplacementCell: one canonical source-only A issuer before Script Recipe/entry
 Classification: BoxCount (design only; implementation remains closed)
-NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-carrier-d0-2026-08-21.md
+NextCard: docs/development/current/main/investigations/script-direct-static-call-canonical-source-a-state-matrix-p0-2026-08-21.md
 ---
 
 # SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-ISSUER-D0
@@ -17,11 +17,11 @@ Decision: Fix the single issuer and handoff needed to turn the accepted
 canonical Script input contract into one AST-free source-only A package. This
 D0 does not add a carrier, Recipe, Join, physical Call, or production caller.
 
-Source authority + canonical issuer: parser-backed
-`SealedNormalScriptSourceV1`, its `CanonicalParserSourceHandoffV1` lineage,
-and one source-backed configuration/import snapshot are the authority. A new
-sibling `CanonicalScriptDirectStaticSourceOnlyIssuerV1` is the only semantic
-issuer; its private readiness state is not a second public receipt.
+Source authority + canonical issuer: the phase-qualified co-seal of parser
+admission, `HandoffReady`, and the matching parser/profile/receipt identity is
+the upstream authority. A new sibling
+`CanonicalScriptDirectStaticSourceOnlyIssuerV1` is the only A semantic issuer;
+its private readiness state is not a second public receipt.
 
 Non-authority: `NormalSourcePlanClassifierV1`,
 `CanonicalCoreSourcePlanCompileRequestV1`, `normal_default_root_catalog_lifecycle`,
@@ -34,10 +34,9 @@ before `prepare_script_recipe()`, `OpenScriptPhysicalEntryV1`, Builder install,
 or child effects. Missing parser-backed handoff, incomplete window/catalog/
 forest/terminal coverage, foreign rows, or identity drift stops here.
 
-Smallest next slice: docs-only issuer and handoff design. Name the source
-inputs, one lifetime, phase-qualified states, exact candidate boundary, and
-the sibling placement below the 760/800-line limits. No implementation is
-authorized until this D0 is accepted.
+Smallest next slice: `SCRIPT-DIRECT-STATIC-SOURCE-A-STATE-MATRIX-P0` is a
+docs-only prerequisite. It fixes phase-qualified names and every transition
+before any issuer implementation is authorized.
 
 Non-claims: no parser grammar/source admission change, A/C/B code, Recipe/Join,
 physical Call/publication, Return/signature, canonical production switch,
@@ -75,34 +74,37 @@ default or borrowing `comp_ctx`.
 
 ## Upstream identity boundary
 
-`CanonicalSourceBacked` is an upstream identity-I0 state issued by
-`CanonicalParserSourceHandoffV1`; it is not an A disposition and is never
-reissued by A. Only that state may enter A observation. `ASTOnly`, typed
-compatibility, and source-free upstream states remain outside A and map to
-the explicit ingress rows below; no AST scan or default conversion may turn
-them into `CanonicalSourceBacked`.
+`CanonicalSourceBacked` is not a standalone code state or issuer. In the
+state-matrix P0 it is only a shorthand for the co-seal
+`CanonicalScriptCohortAdmitted + HandoffReady + matching parser/profile/
+receipt identity`. A lone admission, identity receipt, compatibility product,
+or source-free product cannot enter A observation. The matrix card owns the
+upstream and transport rows; this card owns only the A rows below.
 
-## Exhaustive issuer state table
+## Exhaustive A issuer state table
+
+The upstream parser and transport states are owned by the companion
+`SCRIPT-DIRECT-STATIC-SOURCE-A-STATE-MATRIX-P0` card. Only these phase-qualified
+A rows may be issued by the future sibling issuer:
 
 | state | phase | issuer / authority | pre-effect behavior | terminal / continuation | fallback policy |
 |---|---|---|---|---|---|
-| `CanonicalSourceBacked` | upstream handoff | `CanonicalParserSourceHandoffV1` issues the parser-backed identity-I0 disposition | pass the exact lineage/receipt to A; no A or physical effect yet | A observation may begin | A never reissues it; other upstream states cannot default into it |
-| `NotApplicable` | ingress | canonical family/profile classifier proves non-Script or outside direct-static scope | no A observation or physical effect | caller-owned non-Script or non-direct-static source owner | never fabricate `NonCandidate` or enter raw Script by absence |
-| `CompatibilitySource` | ingress | parser handoff marks a compatibility cohort | preserve typed compatibility origin; do not issue A | explicit compatibility owner or parked stop | never become authority loss, `NonCandidate`, or A success |
-| `Deferred` | ingress | resolver/source admission returns `Deferred` | preserve the reason; no partial A observation | deferred owner or `NoSafeSlice` | never become empty input, `NonCandidate`, or raw success |
-| `SourceAuthorityUnavailable` | ingress | parser lineage, source receipt, config/import snapshot, or canonical source is absent/foreign before observation | typed stop before Recipe/entry/effects | `NoSafeSlice` until issuer input exists | no default identity, AST rescan, or Builder fallback |
-| `ObservationIncomplete` | A observation | the single A issuer has authority but cannot observe the complete retained window, forest, catalogs, or terminal rows once | typed stop before A package/Recipe/entry/effects | `NoSafeSlice` until coverage is total | never round to `NonCandidate` or compatibility |
-| `NonCandidate` | A observation | the single A issuer completes integrity-clean observation and every row is explicitly outside direct-static scope | no direct-static package or physical effect | canonical non-direct-static source owner | missing coverage is not absence; no raw fallback |
-| `InputAuthorityReady` | A internal | the same A issuer has co-sealed every required source-bound input | private readiness only; no public semantic receipt or physical effect | continue inside A toward `DirectStaticSourceReady` | no second issuer, public carrier, or selected-normal copy |
-| `DirectStaticSourceReady` | A terminal | the single A issuer co-seals target/result/sites/terminal/proof and issues one AST-free package | move-only package; no physical effect | future C consumes exactly once | no name lookup, retry, or re-pairing |
-| `IntegrityInvalid` | A verification | complete observation finds duplicate, foreign, stale, mixed, missing, or contradictory rows | typed reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `NonCandidate`, compatibility, or raw fallback |
-| `Transported` | C-to-B future phase | B consumes `DirectStaticSourceReady` once | no replay or second source interpretation | detached canonical consumer terminal | no clone, return to A, or raw path |
+| `A.NotApplicable` | A ingress | canonical Script/direct-static scope classifier | no A observation or physical effect | caller-owned non-direct-static source owner | never fabricate `A.NonCandidate` or enter raw Script |
+| `A.CompatibilitySource` | A ingress | upstream typed compatibility disposition, preserved without reinterpretation | no A observation | compatibility owner or parked stop | never become A success |
+| `A.Deferred` | A ingress | upstream deferred disposition, preserved without reinterpretation | no partial A observation | deferred owner or `NoSafeSlice` | never become empty input or raw success |
+| `A.SourceAuthorityUnavailable` | A ingress | co-sealed parser admission/handoff/identity is absent or foreign | stop before package/Recipe/entry/effects | `NoSafeSlice` until authority exists | no default identity, AST rescan, or Builder fallback |
+| `A.ObservationIncomplete` | A observation | authority exists but retained window, forest, catalog, proof, or terminal coverage is missing/gapped | stop before package/Recipe/entry/child effects | `NoSafeSlice` until coverage is total | never round to `A.NonCandidate` or compatibility |
+| `A.NonCandidate` | A observation | complete integrity-clean observation proves every retained row is outside direct-static scope | no direct-static package or physical effect | canonical non-direct-static owner | missing coverage is not absence; no raw fallback |
+| `A.InputAuthorityReady` | A internal | the sole A issuer co-seals all required source-bound inputs | private readiness only; no physical effect | `A.DirectStaticSourceReady` or `A.IntegrityInvalid` | no second issuer/public receipt/selected copy |
+| `A.DirectStaticSourceReady` | A terminal | the sole A issuer co-seals target/result/sites/proof/terminal and issues one AST-free package | move-only package; no physical effect | future C consumes once | no name lookup, retry, or re-pairing |
+| `A.IntegrityInvalid` | A verification | complete observation finds present foreign, duplicate, stale, mixed, or contradictory rows | reject before Recipe/entry/child effects | terminal candidate/session discard | no retry, re-pair, `A.NonCandidate`, compatibility, or raw fallback |
 
-`CanonicalSourceBacked` is an upstream admission state, not an A state.
-`InputAuthorityReady` is private A-internal readiness, not a second issuer.
-`Transported` is a future B state, not an A disposition. A complete zero-row
-observation is `NonCandidate`; a row found but failing final Sequence/root
-Return terminal validation is `IntegrityInvalid`, never `NonCandidate`.
+The boundary is exact: missing expected rows or coverage gaps are
+`A.ObservationIncomplete`; a present row with invalid identity or conflicting
+membership is `A.IntegrityInvalid`; only complete clean zero-row observation
+is `A.NonCandidate`. `A.InputAuthorityReady` is private and
+`A.DirectStaticSourceReady` is the only public A package. Future C/B states
+are not re-used as A states.
 
 ## Issuer input and candidate boundary
 
@@ -154,15 +156,15 @@ B = typed-transport phase
   meaning
 ```
 
-These are phase roles, not competing issuers. `CanonicalSourceBacked` is the
-upstream identity-I0 state consumed by A; it is not an A disposition. A
-missing or unconfirmed source/window/config authority is
-`SourceAuthorityUnavailable` or `ObservationIncomplete` before complete
+These are phase roles, not competing issuers. The upstream matrix defines the
+co-seal that permits A ingress; no standalone `CanonicalSourceBacked` state is
+reissued. A missing or unconfirmed source/window/config authority is
+`A.SourceAuthorityUnavailable` or `A.ObservationIncomplete` before complete
 observation. Only after the retained window and all required rows are
-complete may a duplicate, foreign, stale, or cardinality mismatch become
-`IntegrityInvalid`. `Transported` belongs to the future C-to-B lifecycle and
-is not an A state. A/C/B may not collapse any of these states into an empty
-candidate or compatibility success.
+complete may a present duplicate, foreign, stale, or contradictory row become
+`A.IntegrityInvalid`. C/B transport names belong to their own phase and are
+not A states. A/C/B may not collapse any state into an empty candidate or
+compatibility success.
 
 The issuer must not call selected `normal_default_root_catalog_lifecycle`,
 install into `comp_ctx`, or borrow selected Builder products as canonical
@@ -172,14 +174,15 @@ receipt by pointer/name is not a kernel.
 
 ## Acceptance for this design stop
 
-- one named sibling issuer and one parser-backed source authority are fixed;
-- the upstream `CanonicalSourceBacked` identity state is consumed, not
-  reissued, and all other upstream states map to explicit ingress outcomes;
+- one named sibling issuer and one parser-backed phase-qualified source
+  authority are fixed;
+- the companion state-matrix P0 maps every upstream and transport state, with
+  no standalone `CanonicalSourceBacked` alias or reissuer;
 - the canonical callpoint is before `prepare_script_recipe()` and remains
   thin; the 748/719-line existing owners receive no semantic growth;
-- all ten states above have one owner, pre-effect behavior, continuation, and
-  fallback policy, including neutral `NonCandidate` and phase-only
-  `Transported`;
+- every A state above and every upstream/transport state in the companion
+  matrix has one owner, pre-effect behavior, continuation, and fallback
+  policy; missing and present-invalid rows remain distinct;
 - complete zero-candidate observation, incomplete coverage, and terminal drift
   map to three distinct states;
 - the issuer input list has one lifetime and no pointer/name/digest-only join;
@@ -207,6 +210,8 @@ Remain at this D0 if any condition holds:
    source admission expansion, or production switch;
 8. the issuer would require semantic growth in a source already at the
    760-line design trigger or the 800-line hard stop.
+9. the companion phase-qualified state matrix is not accepted, or any
+   actual enum variant lacks an owner/transition row.
 
 Until these are closed, the next row remains design-only and no canonical
 physical consumer or production claim is allowed.
