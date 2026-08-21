@@ -1,10 +1,10 @@
 ---
-Status: Design stop — composite Program membership is selected; implementation remains parked
+Status: Design stop — composite membership and parser-to-default preservation remain open; implementation remains parked
 Date: 2026-08-21
 Decision: SCRIPT-DIRECT-STATIC-A-SOURCE-CAPABILITY-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-issuer-boundary-d0-2026-08-21.md
 ProductionCaller: default caller is named as evidence, but no parser-backed canonical source authority reaches it; vm-reference is reference-only
-ReplacementCell: one parser invocation -> total two-axis Program partition -> call-site composite membership -> private one-shot capability -> named A consumer
+ReplacementCell: one parser invocation -> preserved parser composite source -> total two-axis Program partition -> call-site composite membership -> private one-shot capability -> named A consumer
 Classification: corrected design stop; no implementation row, A/C product, or production switch is selected
 NextCard: none; remain on this card until the composite membership and one bounded cutover series are closed
 ---
@@ -38,11 +38,11 @@ outside bounded cohort, located/unlocated resolver deferral, incomplete, and
 integrity-invalid. Capability/A failure never reaches old Recipe, raw, retry,
 or fallback.
 
-Smallest next slice: stay on this card and close
-`SCRIPT-DIRECT-STATIC-A-COMPOSITE-PROGRAM-MEMBERSHIP-D0`: one non-sync,
-non-Main static provider plus one final root direct-static call, the per-item
-semantic/runtime partition, all existing classifier arms, and the exact
-provider/call/terminal relation. No code or child card is authorized.
+Smallest next slice: stay on this card and close the bounded
+`SCRIPT-COMPOSITE-SOURCE-ADMIT-T2` contract: one non-sync, non-Main static
+provider plus one final root direct-static call, with parser authority carried
+unchanged through transform into the default request. No code or child card is
+authorized until this source-preservation line is closed.
 
 Non-claims: no generic/sync/instance Box admission, import expansion,
 capability/A/C implementation, Recipe/Join, physical Call, publication/Return,
@@ -129,10 +129,50 @@ The current source proves why implementation remains closed.
 - Existing focused target/bundle tests often use a Script root and a separate
   declaration fixture. They prove kernels, not one-source production
   correspondence.
+- The parser product does already hold callable admission and Script-row
+  siblings together, but the selected-normal materializer calls
+  `into_source_disposition()` and drops the Script-row sibling. The handoff
+  also receives no parser witness, and `into_normal_callable_program()` drops
+  admission/rows again.
+- The callable transform currently verifies callable slots/declarations and
+  constructor preservation only. Its `Compatibility` branch can consume the
+  source-backed AST without carrying Script-site identity, while
+  `VerifiedFinalCallableProgramSourceV1` and `NormalCompileRequestV1` expose no
+  composite source payload. Therefore parser identity cannot be paired with
+  the transformed AST by assumption.
 
 Thus the earlier “source admission or lookup reownership” choice was wrong.
 The natural positive requires both responsibilities, in dependency order and
 never mixed into one unbounded slice.
+
+## Parser-composite preservation contract
+
+The first source-admission task has one additional T2 prerequisite. It is not
+a second semantic authority; it is the preservation rule for the parser's
+single source authority:
+
+```text
+parser issuer:
+  opaque parser witness
+  + static provider declaration/result identity
+  + root MethodCall
+  + receiver / ordered arguments / result
+  + enclosing retained terminal
+
+must move unchanged:
+  ParsedProgramWithCallableParameterSourceV1
+    -> PreparedNormalCallableProgramSourceV1
+    -> transform_normal_callable_program_v1
+    -> VerifiedFinalCallableProgramSourceV1
+    -> NormalCompileRequestV1
+```
+
+The transform boundary must validate missing, foreign, duplicate, stale, and
+drifted source rows before the default request is issued. A compatibility
+branch that discards the source authority, a `None` witness, AST/name/ordinal
+repair, or a second parser scan is a typed stop. The source payload remains
+AST-free after the parser loan and carries no target, candidate, Recipe, or
+physical identity.
 
 ## Accepted authority chain
 
@@ -396,27 +436,35 @@ Stop:
   second source scan => remain design_stop
 ```
 
-### 1. Parked source admission — `SCRIPT-COMPOSITE-SOURCE-ADMIT-T2`
+### 1. Source admission + transform preservation — `SCRIPT-COMPOSITE-SOURCE-ADMIT-T2`
 
-Classification: canonical source-family BoxCount for one already-existing
-language shape; not selected in the current BoxShape lane.
+Classification: T2 canonical source-family BoxCount plus parser-to-default
+preservation for one already-existing language shape; not selected in the
+current BoxShape lane.
 
 ```text
 Change:
   admit exactly the bounded static-provider + Script-terminal composite
-  through parser cohort rows, source-plan classification, and source envelope
+  through parser cohort rows, source-plan classification, source envelope, and
+  the transform/default-request handoff
 
 Contract:
   no generic/sync/instance/import widening
   no target/result/candidate meaning
+  the same parser witness and source-site payload survive every handoff;
+  compatibility/transform loss is a typed pre-effect failure
 
 Done:
-  one parser-backed owner reaches the future default source selector
+  one parser-backed owner reaches the future default source selector without
+  dropping the Script-row sibling or parser witness
   the pure-Script and composite cohorts remain disjoint and exhaustive
+  transformed source rows are proven exact before `NormalCompileRequestV1`
 
 Stop:
-  if it lands only on vm-reference or has no same-series default cutover,
-  do not implement it as a disconnected product
+  if the transform changes source sites, the compatibility branch discards
+  authority, the request remains AST-only, it lands only on vm-reference, or
+  it has no same-series default cutover, do not implement a disconnected
+  product
 ```
 
 An explicit T2 Decision must authorize this canonical cohort change before it
