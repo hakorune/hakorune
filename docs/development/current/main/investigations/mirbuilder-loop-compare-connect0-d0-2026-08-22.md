@@ -1,4 +1,4 @@
-Status: selected design stop; no implementation authorized
+Status: selected production caller; handoff design stop; no implementation authorized
 Task: MIR-LOOP-COMPARE-CONNECT0-D0
 Date: 2026-08-22
 Priority: caller census and atomic handoff before production connection
@@ -12,17 +12,17 @@ NextCard: none until the named caller and handoff are accepted
 ## Six-line brief
 
 ```text
-Decision: keep CONNECT0 at design_stop until one named non-test production caller is selected; the strict writer remains a caller-zero physical contract.
-Source authority + canonical issuer: the existing Recipe-order operation row, exact Loop target receipt, full Published operand receipts, owner-bound result ledger, and canonical CFG/SSA session must be co-sealed by one dispatcher handoff issuer before any Compare effect.
-Non-authority: focused canary callers, test-only Generic G0 session, old emit_compare_i64_at, raw ValueId/state.get, current_block, Builder cursor, operation enum alone, and a fallback retry.
-Fail-fast boundary: caller selection, owner/target/operand/result relation, strict destination/Bool preparation, and result-slot reservation must complete before the first Compare append; a rejected strict row cannot return to the old leaf.
-Smallest next slice: read-only census of the named non-test caller and a finite dispatcher handoff table; no code, fixture, fallback, or production switch until that table is accepted.
-Non-claims: no caller selection by test convenience, no general dominance, no cross-block operands, no Const/Binary migration, no A/C/Recipe redesign, no old-leaf retirement, and no production I0/R0.
+Decision: select the active Selected Dynamic I9 normal-landing Compare as the one named non-test production caller candidate; keep CONNECT0 at design_stop until its Dynamic-to-canonical handoff is co-sealed and atomic.
+Source authority + canonical issuer: `DynamicV2CompareI64CapabilityDemandV1`/the prepared I9 row, the session-owned Dynamic target/value ledger, and the canonical CFG/SSA sessions must be co-sealed by one private `SelectedDynamicI9CompareHandoffIssuerV1` before any Compare effect.
+Non-authority: the test-only Generic G0 dispatcher, focused canaries, old emit_compare_i64_at, Dynamic brand alone, Dynamic value views alone, raw ValueId/state.get, current_block, Builder cursor, operation enum alone, and a fallback retry.
+Fail-fast boundary: I9 row/target/operand provenance, canonical same-block witnesses, owner-bound result reservation, and the Dynamic ledger's result publication reservation must all be prepared before the first Compare append; a rejected strict row cannot return to the old leaf.
+Smallest next slice: design-only I9 handoff table covering target issuance, full operand receipts, both result ledgers, and one atomic commit; no code, fixture, fallback, or production switch until that table is accepted.
+Non-claims: no I7 header Compare, no generic dispatcher connection, no general dominance, no cross-block operands, no Const/Binary migration, no A/C/Recipe redesign, no old-leaf retirement, and no production I0/R0.
 ```
 
 ## Current census
 
-The strict writer P0 is intentionally caller-zero:
+The strict writer P0 remains intentionally caller-zero:
 
 ```text
 CanonicalLoopCompareI64WriterV1::emit production callers = 0
@@ -33,11 +33,42 @@ emit_prepared_pure_operation_v1 non-test callers = 0
 
 The old `emit_compare_i64_at` remains a shared legacy leaf with callers in
 `pure_operation_emitter.rs` and other canonical canary/compatibility areas.
-Those callers are evidence of an existing physical route, not permission to
-connect the strict writer. The current Loop physicalizer dispatcher and
-Generic G0 physical-emitter session are test-only/caller-zero surfaces, so a
-production caller must be named from an actual active route before CONNECT0
-can become an implementation row.
+Those callers are evidence of existing physical routes, not permission to
+connect the strict writer. The generic Loop segment dispatcher is still
+caller-zero outside `#[cfg(test)]`; it is not the production caller for this
+row.
+
+## Named production caller decision
+
+The active production edge is:
+
+```text
+normal_callable_semantic_loan_port.rs:lower_cataloged_static_box_method
+  -> assemble_unpublished_selected_dynamic_w6
+  -> callout_corridor::emit
+  -> i8_i9_control::emit
+  -> I9 normal-landing Compare
+```
+
+The exact I9 row is co-checked against `I9`, `V11`, `V12`, and `V13` by
+`DynamicV2CompareI64CapabilityDemandV1`; the physical normal landing is created
+by the canonical CFG session, `V11` is the I7 normal-result definition, and
+`V12` is emitted immediately before the Compare in that same landing. This is
+enough to select I9 as the named caller candidate, but it is not yet a
+canonical same-block proof accepted by the strict writer.
+
+The I7 header Compare is explicitly excluded: its current/formal operands
+cross the formal/header relation and are outside the C-prime same-block slice.
+
+The required handoff is still missing. The active route has a
+`DynamicV2PhysicalValueLedgerV1` and post-append `values.publish(I9, V13, ...)`,
+while the strict writer requires a canonical open-target witness, full
+`LoopOperationValueReceiptV1` operands, an owner-bound
+`LoopOperationValueLedgerV1`, and an infallible writer-to-ledger commit. A
+simple adapter or a second generic dispatcher would create a competing
+authority. The Dynamic result publication is also fallible after the current
+legacy append, so it needs its own prepared reservation/commit in the same
+atomic handoff.
 
 ## Authority and handoff table
 
@@ -59,8 +90,8 @@ old `emit_compare_i64_at` result path cannot be the canonical handoff contract.
 
 | State | Meaning | Effect | Next |
 | --- | --- | ---: | --- |
-| `CallerUnselected` | no named non-test production edge is proven | none | census only |
-| `CallerSelected` | one active route and exact Compare row are named | none | handoff design |
+| `CallerSelected` | Selected Dynamic I9 normal-landing route and exact Compare row are named | none | handoff design |
+| `HandoffUnresolved` | I9 is named, but Dynamic target/value and canonical/owner-bound receipts are not co-sealed | none | design only |
 | `HandoffPrepared` | target, full receipts, destination, Bool plan, and result reservation are co-sealed | none | strict writer |
 | `Committed` | writer definition and ledger publication completed | one Compare | caller-specific postcondition |
 | `RejectedBeforeEffect` | typed relation or preparation failure | none | outer unpublished discard |
@@ -89,9 +120,12 @@ development state.
 
 ## NoSafeSlice
 
-Keep this card at `design_stop` if the only available caller is a test canary,
-if the active route needs cross-block/parameter operands outside C-prime, if
-the owner-bound ledger cannot surround the whole schedule, if a legacy leaf is
-needed after strict rejection, or if dispatcher connection requires a second
-target/value/ledger authority. Do not solve those gaps with an adapter from
-the Builder cursor or with a default/empty receipt.
+Keep this card at `design_stop` if I9 cannot receive a canonical open-target
+witness, if either Dynamic operand lacks a unique same-block definition, if
+the Dynamic result slot cannot be reserved before append, if the owner-bound
+ledger cannot be the one handoff publication owner, if the active route needs
+cross-block/parameter operands outside C-prime, if a legacy leaf is needed
+after strict rejection, or if connection requires a second
+target/value/ledger authority. The Generic dispatcher remains caller-zero and
+cannot be promoted by test evidence. Do not solve these gaps with an adapter
+from the Builder cursor, a default/empty receipt, or a post-append repair.
