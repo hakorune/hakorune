@@ -1,10 +1,10 @@
 ---
-Status: queued independent design task; not the current pointer
+Status: accepted policy; Gate 0 census complete; assignment consumer is next
 Date: 2026-08-21
 Priority: Medium-High policy / High assignment consumer
 Decision: MIRBUILDER-FALLIBLE-RESULT-DISCARD-POLICY-D0
 Parent: docs/development/current/main/investigations/mirbuilder-post-audit-follow-up-queue-2026-08-21.md
-NextCard: run the read-only census before changing Cargo lints or adding a guard
+NextCard: MIR-ASSIGNMENT-RELEASE-FAILFAST-I0
 ---
 
 # MIRBUILDER-FALLIBLE-RESULT-DISCARD-POLICY-D0
@@ -64,6 +64,70 @@ These are syntax counts, not counts of ignored `Result`s. The broader pattern
 `let _name = ...` is also common for guards, reserved bytes, and owned values;
 it must not be merged into the same defect class. The external “122” count is
 therefore not an SSOT fact for this checkout.
+
+## Gate 0 census checkpoint — 2026-08-22
+
+The read-only census was run against the current checkout with archive paths
+excluded. The commands and exact counts are:
+
+```text
+rg -n --glob '*.rs' --glob '!archive/**' \
+  '^[[:space:]]*let[[:space:]]+_[[:space:]]*=' src/mir
+  -> 168
+
+rg -n --glob '*.rs' --glob '!archive/**' \
+  '^[[:space:]]*let[[:space:]]+_[[:space:]]*=' src/mir/builder
+  -> 109
+
+let _<named> = ... under src/mir/builder
+  -> 172
+
+let _: ... = ... under src/mir/builder
+  -> 4
+```
+
+The 109 exact `let _ =` rows are not 109 ignored physical `Result`s. The
+confirmed physical/owner classes are:
+
+| Pattern / owner | Count | Classification | Gate |
+| --- | ---: | --- | --- |
+| `assignment_lowering.rs` `ReleaseStrong` | 1 | physical MIR effect whose error is currently discarded before `variable_map` publication | Gate 1 assignment fix |
+| `ring0.io.stderr_write` | 13 | diagnostic/observability IO; not MIR instruction emission | later explicit cleanup/diagnostic policy |
+| `ensure_global_ring0_initialized` | 13 | initialization/synchronization owner | owner-specific audit; no blanket allow |
+| `std::io::Write::write_all` | 2 | debug/guard artifact output | explicit best-effort disposition |
+| cleanup/restore family (`cleanup`, `close_lexical_scope`, `pop_fastmem_region`, restoration receipt, terminal abort) | 7 | session or teardown effect | owner-specific contract |
+| remaining exact `let _ =` rows | 73 | tests, fixtures, marker/value drops, propagated `?` expressions, semantic probes, or other non-MIR effects | classify before any lint |
+
+Additional fallible-shape checks found zero named underscore bindings around
+`emit_instruction`, zero `drop(emit_instruction(...))`, and one production
+standalone `.ok();` statement (`control_flow/plan/features/generic_loop_body/
+direct_associated.rs:274`). Four other `.ok();` matches bind an `Option` for
+configuration, lookup, or test planning and are not the confirmed physical
+discard. The single relevant emission match is:
+
+```text
+src/mir/builder/assignment_lowering.rs:97-98
+  let _ = self.emit_instruction(MirInstruction::ReleaseStrong { ... });
+```
+
+`rustc` is 1.89.0 and `clippy-driver` reports
+`clippy::let-underscore-must-use` as available and `allow` by default. No
+`[lints]`, `[workspace.lints]`, or matching Clippy setting exists in any of
+the 35 workspace manifests; the root `nyash-rust` package is the sole default
+member. A workspace-wide deny would therefore both classify unrelated rows
+and fail to cover the package topology without an explicit rollout policy.
+
+The enclosing `CanonicalFunctionLoweringSessionV1` has a typed error/cleanup
+and context-restore boundary around the lowering operation. This census does
+not claim that the boundary rolls back every already-appended MIR instruction,
+metadata entry, or type-contract mutation. That proof is the first acceptance
+condition of `MIR-ASSIGNMENT-RELEASE-FAILFAST-I0`; until then the one
+`ReleaseStrong` discard remains an explicitly open correctness defect.
+
+Gate 0 is therefore complete with no code, Cargo lint, fallback, or
+`EmitReceipt` change. The narrow next slice is the assignment consumer, and
+only after its failure boundary is proven may the MIRBuilder structural guard
+be selected.
 
 ## Three gates, in the correct order
 
