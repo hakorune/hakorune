@@ -197,6 +197,38 @@ The ordered next tasks are:
    observe `DraftAdmission`, `ModuleDrain`, and `ExternalCommit` on the public
    compile path.
 
+D0-A is accepted as a design task only when it names, for every source site,
+the existing resolver owner, W6 row/value, state-consumption operation, and
+owner/once-only check. It must explicitly cover the `PreludeLocalI` alias to
+the `pos` entry value; the current generic `record_completed_local` contract
+rejects an initializer/local alias and cannot simply be called with the W6
+declaration.
+
+D0-B is accepted as a design task only when it carries the already-issued
+Dynamic source `Rc` without re-issuing it and retains the complete loop-carrier
+relation: Enter value, Header current/PHI, I11 `V14`, backedge `V17`, and
+OuterReturn. The current physical order is not acceptable:
+
+```text
+begin -> inspect -> profile_close -> DraftSeal
+```
+
+The only acceptable future order is:
+
+```text
+W6 physical close
+  -> profile_close retains OuterReturn/Header-current evidence
+  -> non-emitting state bridge
+  -> state.finish()
+  -> canonical.finish_for_draft_seal()
+  -> DraftSeal
+```
+
+`CallableSemanticLoweringState::finish()` by itself is not evidence: it checks
+consumption cardinality, not the source-site/physical-value relation. A
+bridge that treats `V17` and Header current as interchangeable, or that uses
+operation-cursor claims without a state relation, remains `NoSafeSlice`.
+
 This audit changes no runtime route and adds no semantic receipt. The working
 tree was clean before the audit; the only intended changes are this card and
 the compact `CURRENT_STATE.toml` pointer.
