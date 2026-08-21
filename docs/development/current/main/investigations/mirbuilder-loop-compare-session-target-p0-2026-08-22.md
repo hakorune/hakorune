@@ -1,4 +1,4 @@
-Status: selected fast caller-zero physical contract; implementation not started
+Status: landed fast caller-zero physical contract; no Compare caller connected
 Task: MIR-LOOP-COMPARE-SESSION-TARGET-P0
 Date: 2026-08-22
 Priority: next bounded physical contract
@@ -72,11 +72,16 @@ src/mir/builder/resolved_lowering/canonical_cfg/mod.rs
 src/mir/builder/resolved_lowering/canonical_cfg/open_instruction_target.rs
 src/mir/builder/resolved_lowering/loop_recipe_physicalizer/topology.rs
 src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_dispatcher.rs
+src/mir/builder/resolved_lowering/canonical_ssa/session.rs
+src/mir/builder/control_flow/plan/loop_accum_physicalizer.rs
+src/mir/builder/resolved_lowering/nested_predicate_physicalizer.rs
 ```
 
 Add focused tests beside the canonical CFG child or in the existing
-canonical-CFG test module. Do not edit `operation_dispatcher.rs` to connect
-Compare yet; that is a later card.
+canonical-CFG test module. The three additional implementation files only
+propagate `&mut CanonicalCfgSessionV1` or bind its canonical owner; they do not
+connect a Compare caller. Do not edit `operation_dispatcher.rs` yet; that is a
+later card.
 
 ## Forbidden overlap
 
@@ -97,6 +102,8 @@ no unrelated builder cleanup or performance work
 
 - one private open-target witness has one constructor path owned by the
   canonical CFG session;
+- only an owner-bound CFG session can issue the witness; an unbound legacy
+  session fails closed with a typed error;
 - created-block membership is session-local and cannot be reconstructed from
   `BasicBlockId` alone;
 - foreign owner, foreign session, uncreated, missing, sealed, terminated,
@@ -107,6 +114,23 @@ no unrelated builder cleanup or performance work
   remains zero outside `#[cfg(test)]`;
 - focused tests, `cargo check --lib`, source-size, pointer, and diff guards are
   green.
+
+The old allocation callers were updated only for the ownership change from
+`&self` to `&mut self`. Interior mutability was rejected: creation changes both
+the MIR function and the CFG session, so one mutable borrow keeps the two
+updates explicit and atomic at the API boundary. The canonical SSA session
+constructs an owner-bound CFG session; standalone legacy sessions remain
+unbound and cannot issue this witness.
+
+## Implemented evidence
+
+```text
+canonical_cfg focused tests: 32 passed
+loop_recipe_physicalizer focused tests: 28 passed
+RUSTFLAGS='-Awarnings' cargo check --lib: passed
+session.rs: 745 lines
+topology.rs: 600 lines
+```
 
 Focused gates:
 

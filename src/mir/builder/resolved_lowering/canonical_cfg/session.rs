@@ -1,4 +1,8 @@
 use super::error::{CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
+use super::open_instruction_target::{
+    CanonicalCfgCreationStateV1, CanonicalOpenInstructionTargetErrorV1,
+    VerifiedCanonicalOpenInstructionTargetV1,
+};
 use super::predecessors::derive_and_verify_predecessors;
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
@@ -6,6 +10,7 @@ use crate::mir::pinned_text_residence_lifecycle::{
     PinnedTextResidenceFinishCapabilityV1, PreparedPinnedTextResidenceLifecycleV1,
     TextFormalResidenceIdV1,
 };
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
@@ -52,6 +57,7 @@ impl VerifiedCanonicalCfgV1 {
 #[derive(Debug, Default)]
 pub(in crate::mir::builder) struct CanonicalCfgSessionV1 {
     sealed: BTreeMap<BasicBlockId, VerifiedPredecessorsV1>,
+    creation: CanonicalCfgCreationStateV1,
 }
 
 impl CanonicalCfgSessionV1 {
@@ -59,8 +65,17 @@ impl CanonicalCfgSessionV1 {
         Self::default()
     }
 
+    pub(in crate::mir::builder::resolved_lowering) fn new_for_owner(
+        owner: FunctionOwnerIdV1,
+    ) -> Self {
+        Self {
+            sealed: BTreeMap::new(),
+            creation: CanonicalCfgCreationStateV1::new_for_owner(owner),
+        }
+    }
+
     pub(in crate::mir::builder) fn create_block(
-        &self,
+        &mut self,
         function: &mut MirFunction,
         block: BasicBlockId,
     ) -> Result<(), CanonicalCfgErrorV1> {
@@ -68,7 +83,19 @@ impl CanonicalCfgSessionV1 {
             return Err(CanonicalCfgErrorV1::BlockAlreadyExists { block });
         }
         function.add_block(BasicBlock::new(block));
+        self.creation.record_created(block);
         Ok(())
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn prepare_created_open_instruction_target(
+        &self,
+        function: &MirFunction,
+        owner: FunctionOwnerIdV1,
+        block: BasicBlockId,
+    ) -> Result<VerifiedCanonicalOpenInstructionTargetV1, CanonicalOpenInstructionTargetErrorV1>
+    {
+        self.creation
+            .prepare_open_target(function, self.sealed.contains_key(&block), owner, block)
     }
 
     pub(in crate::mir::builder) fn select_block(

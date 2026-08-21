@@ -19,9 +19,9 @@ date = "2026-08-22"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 work_mode = "fast"
-current_execution_row = "MIR-LOOP-COMPARE-SESSION-TARGET-P0"
+current_execution_row = "MIR-LOOP-COMPARE-SAME-BLOCK-OPERANDS-P0"
 current_design_stop = "closed: C-prime accepts only same-session, same-block, uniquely-defined Integer operands; the physicalizer is caller-zero, so the ordered path is S0 then P0 then CONNECT0 rather than I0"
-current_blocker_token = "Fast scope MIR-LOOP-COMPARE-SESSION-TARGET-P0: same-session open-target witness and created-block membership only; no operand, ledger, writer, caller connection, or production claim"
+current_blocker_token = "Fast scope MIR-LOOP-COMPARE-SAME-BLOCK-OPERANDS-P0: unique same-block Integer definition for a full Published receipt only; no ledger reservation, writer, caller connection, or production claim"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -88,13 +88,13 @@ mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mi
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 current_execution_design = "docs/development/current/main/investigations/mirbuilder-emit-canonical-strictness-d0-2026-08-22.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "mirbuilder-loop-compare-session-target-p0"
-latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-session-target-p0-2026-08-22.md"
-latest_card_summary = "C-prime remains caller-zero. S0 landed as a behavior-neutral pure-operation owner split with 501-line parent and 326-line child; the next fast P0 issues only a private same-session open-target witness and records CFG-created blocks."
+latest_card = "mirbuilder-loop-compare-same-block-operands-p0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-same-block-operands-p0-2026-08-22.md"
+latest_card_summary = "C-prime remains caller-zero. The target P0 landed with owner-bound CFG-session creation state, one private open-target witness, typed fail-fast errors, and 32 canonical-CFG plus 28 Loop physicalizer focused tests. The next fast P0 issues only a same-block Integer witness from a full Published receipt."
 next_design_card = "none"
 next_design_card_path = "none"
-next_execution_card = "MIR-LOOP-COMPARE-SESSION-TARGET-P0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-session-target-p0-2026-08-22.md"
+next_execution_card = "MIR-LOOP-COMPARE-SAME-BLOCK-OPERANDS-P0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-same-block-operands-p0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
@@ -105,7 +105,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-21: SCRIPT-DIRECT-STATIC-REQUIRED-ARGUMENT-PROOF-I0 landed one selected-normal BoxCount. A resolver-inventory-backed proof now covers only callee-required scalar Literal/Unary/Binary ordinals, with explicit Empty/Ready/Unavailable/NonExact/SourceMismatch states; the claimed token consumes it before argument effects and cannot complete unconsumed. Proof, ledger, cargo check, pointer/classification guards, diff check, and the Script direct-static reusable guard are green. Variable/flow/nested arguments, compatibility/deferred/raw lanes, canonical transport, raw retirement, production switch, and performance remain closed; no next row is selected.",
+  "2026-08-22: MIR-LOOP-COMPARE-SESSION-TARGET-P0 landed as a caller-zero physical contract. Owner-bound CanonicalCfgSession state records session-created blocks and issues one private open/unsealed/unterminated target witness; unbound, foreign-owner/session, missing, sealed, and terminated targets reject before Compare work. The `&mut` API propagation is behavior-neutral, canonical SSA sessions bind the function owner, 32 canonical-CFG and 28 Loop physicalizer tests pass, and no Compare caller is connected. The next row is same-block operands; ledger, writer, CONNECT0, production I0/R0, and performance remain closed.",
   "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-PARSER-INPUT-HANDOFF-I0 closed one parser-owned BoxCount. One exhaustive AST-free ProgramBody/declaration/Brand/config row issuer is co-sealed with the existing canonical identity/profile/read-parse receipt and transported through source-plan classification. Upstream cohort, neutral, incomplete, integrity, parser-consumed, and future C/B transport states remain distinct; no wildcard/default/empty fallback is allowed. Focused parser/source-plan tests, cargo check, routing completeness guard, parser handoff guard, pointer guard, README, and diff check are green. A issuer, Recipe/Join, physical, production switch, raw retirement, and performance remain closed; next row is Source-only A design stop.",
   "2026-08-21: SCRIPT-DIRECT-STATIC-CALL-CANONICAL-SOURCE-A-CARRIER-I0 is implementation-complete as one BoxShape. The compiler request now owns the parser-backed AST-free carrier by move; HandoffReady reaches the compiler and every Main/Callable/Script route closes it at explicit DiscardedBeforeA with no A meaning. Canonical dispatch and carrier focused suites pass (6 and 2 tests), cargo check and routing/current-state/carrier guards pass, and all touched Rust owners remain below 760/800 lines. The sole Source-only A issuer, Recipe/Join, physical consumer, compatibility/raw retirement, production switch, and performance remain closed; next row is the accepted A issuer D0.",
   "2026-08-21: SCRIPT-SOURCE-REOWN-I0-R0 was audited by three read-only workers: the Builder window remains a competing authority and unit Deferred loses cause/site. The typed substep is pushed as 98f36e88b9; forest/function outcomes carry located/unlocated observations, the raw owner transports them, and no Script window is separate Unavailable. Focused test and cargo check are green; 50 normal Script failures reproduce on parent HEAD as baseline cohort/legacy debt. The neutral-window Decision is now accepted: parser-owned Program source authority + one HRTB loan + one neutral issuer, followed by Builder caller-zero, are the two bounded execution rows.",
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-22: MIR-ASSIGNMENT-RELEASE-FAILFAST-I0 Gate 1 landed as dcd8359f7a. ReleaseStrong now propagates before variable_map publication; session restore and assignment negative evidence are green. Guard, canonical strictness, old retirement, and main integration remain queued.",
   "2026-08-22: MIR-RESULT-DISCARD-GUARD-I0 is implemented and pushed as 8e9b4562c2. The selected physical-writer discard guard is scoped to src/mir/builder, tests multiline forms, and leaves workspace lint, cleanup, and other discard families outside scope.",
   "2026-08-22: MIR-EMIT-CANONICAL-STRICTNESS-D0 accepted C-prime after two read-only audits and an exact caller census. The test-only segment lane will admit only same-session, same-block, uniquely-defined Integer operands; all fallible work ends at result-slot reservation before one strict append and infallible Bool/ledger commits. Because production callers are zero, the ordered task names are S0, P0, and CONNECT0; production I0/R0 remains closed. MIR-LOOP-OPERATION-EMITTER-SPLIT-S0 is the selected fast BoxShape.",
-  "2026-08-22: MIR-LOOP-OPERATION-EMITTER-SPLIT-S0 landed as a behavior-neutral BoxShape. Pure Const/Binary/Compare emission moved into a private 326-line child, the read/write parent is 501 lines, existing 28 focused physicalizer tests and cargo check are green, and caller census remains zero outside tests. The next selected card is MIR-LOOP-COMPARE-SESSION-TARGET-P0; operand, ledger, strict writer, CONNECT0, production I0/R0, and performance remain closed.",
+  "2026-08-22: MIR-LOOP-OPERATION-EMITTER-SPLIT-S0 landed as a behavior-neutral BoxShape. Pure Const/Binary/Compare emission moved into a private 326-line child, the read/write parent is 501 lines, existing 28 focused physicalizer tests and cargo check are green, and caller census remains zero outside tests. The next selected card was MIR-LOOP-COMPARE-SESSION-TARGET-P0; operand, ledger, strict writer, CONNECT0, production I0/R0, and performance remain closed.",
 ]

@@ -6,7 +6,11 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
+use super::operation_target::VerifiedLoopOperationTargetBlockV1;
+use crate::mir::builder::resolved_lowering::canonical_cfg::{
+    CanonicalCfgSessionV1, CanonicalOpenInstructionTargetErrorV1,
+    VerifiedCanonicalOpenInstructionTargetV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
 use crate::mir::loop_recipe_contract::VerifiedLoopPhysicalBoundaryV1;
@@ -378,6 +382,27 @@ impl<'a> LoopPhysicalServicesV1<'a> {
             .create_block(function, block)
             .map_err(|error| LoopPhysicalizerRejectV1::BlockAllocation(error.to_string()))?;
         Ok(block)
+    }
+
+    /// Co-seal the existing Loop target receipt with the CFG session that
+    /// created its physical block. This is a narrow open-target proof; it
+    /// does not issue operands, dominance, or instruction meaning.
+    pub(in crate::mir::builder::resolved_lowering) fn prepare_open_instruction_target(
+        &self,
+        target: &VerifiedLoopOperationTargetBlockV1,
+    ) -> Result<VerifiedCanonicalOpenInstructionTargetV1, CanonicalOpenInstructionTargetErrorV1>
+    {
+        let function = self
+            .builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or(CanonicalOpenInstructionTargetErrorV1::FunctionMissing)?;
+        self.cfg.prepare_created_open_instruction_target(
+            function,
+            target.owner(),
+            target.physical_block(),
+        )
     }
 }
 

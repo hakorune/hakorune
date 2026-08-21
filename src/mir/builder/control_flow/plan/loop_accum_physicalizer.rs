@@ -323,7 +323,7 @@ where
             self.roles.block(LoopPhysicalRoleV1::Step),
             self.roles.block(LoopPhysicalRoleV1::After),
         ];
-        let cfg = &self.cfg;
+        let cfg = &mut self.cfg;
         let builder = &mut *self.builder;
         let function = builder
             .function_state
