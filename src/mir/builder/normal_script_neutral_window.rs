@@ -45,8 +45,13 @@ pub(super) struct PreparedCanonicalScriptNeutralProgramWindowV1 {
     admission: PreparedScriptRootAdmissionV1,
     instance_box_transfers: VerifiedScriptInstanceBoxTransferCohortV1,
     constructor_source_cohort: VerifiedInstanceConstructorPhysicalSourceCohortV1,
-    invocation_witness: ParserInvocationWitnessV1,
     _seal: PreparedCanonicalScriptNeutralProgramWindowSealV1,
+}
+
+#[derive(Debug)]
+pub(super) struct PreparedCanonicalScriptPostInstallRemainderV1 {
+    instance_box_transfers: VerifiedScriptInstanceBoxTransferCohortV1,
+    constructor_source_cohort: VerifiedInstanceConstructorPhysicalSourceCohortV1,
 }
 
 #[derive(Debug)]
@@ -136,10 +141,10 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
             admission: PreparedScriptRootAdmissionV1::from_neutral_issuer(
                 window,
                 residuals.seal(),
+                loan.invocation_witness().clone(),
             ),
             instance_box_transfers,
             constructor_source_cohort,
-            invocation_witness: loan.invocation_witness().clone(),
             _seal: PreparedCanonicalScriptNeutralProgramWindowSealV1,
         })
     }
@@ -149,21 +154,33 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
     }
 
     pub(super) fn is_from_invocation(&self, witness: &ParserInvocationWitnessV1) -> bool {
-        self.invocation_witness.same_as(witness)
+        self.admission.is_from_invocation(witness)
     }
 
-    pub(super) fn into_parts(
+    pub(super) fn split_for_pre_effect(
         self,
     ) -> (
         PreparedScriptRootAdmissionV1,
-        VerifiedScriptInstanceBoxTransferCohortV1,
-        VerifiedInstanceConstructorPhysicalSourceCohortV1,
+        PreparedCanonicalScriptPostInstallRemainderV1,
     ) {
         (
             self.admission,
-            self.instance_box_transfers,
-            self.constructor_source_cohort,
+            PreparedCanonicalScriptPostInstallRemainderV1 {
+                instance_box_transfers: self.instance_box_transfers,
+                constructor_source_cohort: self.constructor_source_cohort,
+            },
         )
+    }
+}
+
+impl PreparedCanonicalScriptPostInstallRemainderV1 {
+    pub(super) fn into_parts(
+        self,
+    ) -> (
+        VerifiedScriptInstanceBoxTransferCohortV1,
+        VerifiedInstanceConstructorPhysicalSourceCohortV1,
+    ) {
+        (self.instance_box_transfers, self.constructor_source_cohort)
     }
 }
 

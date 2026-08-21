@@ -16,7 +16,7 @@ legacy_window=src/mir/builder/normal_script_root_demand_window.rs
 builder_barrel=src/mir/builder.rs
 instance_transfer=src/mir/builder/normal_script_instance_box_transfer.rs
 constructor=src/mir/builder/normal_instance_constructor_admission.rs
-card=docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md
+card=docs/development/current/main/investigations/script-direct-static-a-source-window-coseal-i0-2026-08-21.md
 
 for file in "$neutral" "$neutral_tests" "$lifecycle" "$pre_effect" \
   "$pre_effect_tests" "$post_install" "$work_plan" \
@@ -65,13 +65,15 @@ legacy_cfg_line="$(sed -n "1,${legacy_builder_line}p" "$legacy_window" | rg -n '
 neutral_line="$(rg -n 'PreparedCanonicalScriptNeutralProgramWindowV1::issue\(package\)' "$lifecycle" | cut -d: -f1)"
 lookup_line="$(rg -n 'ScriptDirectStaticCallLookupIssuerV1::issue' "$lifecycle" | cut -d: -f1)"
 pre_effect_line="$(rg -n 'NormalScriptPreEffectSourceObservationIssuerV1::issue' "$lifecycle" | cut -d: -f1)"
+split_line="$(rg -n 'split_for_pre_effect' "$lifecycle" | cut -d: -f1)"
 install_line="$(rg -n 'install_pinned_text_target_capability' "$lifecycle" | tail -n 1 | cut -d: -f1)"
 effect_line="$(rg -n 'prepare_normal_default_module' "$lifecycle" | cut -d: -f1)"
-(( neutral_line < lookup_line && lookup_line < pre_effect_line && pre_effect_line < install_line && install_line < effect_line )) || {
+(( neutral_line < lookup_line && lookup_line < split_line && split_line < pre_effect_line && pre_effect_line < install_line && install_line < effect_line )) || {
   echo "[script-source-reown-r0] source issuers are not ordered before target/effects" >&2
   exit 1
 }
 (( "$(rg -c 'NormalScriptPreEffectSourceObservationIssuerV1::issue' "$lifecycle")" == 1 ))
+(( "$(rg -c 'split_for_pre_effect' "$lifecycle")" == 1 ))
 if rg -n 'resolve_normal_script_source_v1' "$lifecycle"; then
   echo "[script-source-reown-r0] lifecycle retained a post-install resolver issuer" >&2
   exit 1
@@ -84,6 +86,15 @@ if printf '%s\n' "$pre_effect_struct" | rg -n 'ASTNode|ValueId|MirType|BasicBloc
 fi
 if rg -n 'derive\([^)]*Clone|SourceFacts' "$pre_effect"; then
   echo "[script-source-reown-r0] pre-effect handoff retained Clone/unknown state" >&2
+  exit 1
+fi
+rg -q 'source_window: PreparedScriptRootAdmissionV1' "$pre_effect"
+rg -q 'split_for_work_plan' "$pre_effect"
+rg -q 'PreparedCanonicalScriptPostInstallRemainderV1' "$neutral"
+rg -q 'invocation_witness: ParserInvocationWitnessV1' "$legacy_window"
+rg -q 'is_from_invocation' "$legacy_window"
+if rg -n 'Option<PreparedScriptRootAdmissionV1>|unwrap_or_default' "$pre_effect"; then
+  echo "[script-source-reown-r0] pre-effect source window retained optional/default repair" >&2
   exit 1
 fi
 if rg -n 'prepare_script_recipe|fallback|retry' "$pre_effect" "$lifecycle"; then
@@ -122,8 +133,8 @@ if rg -n 'source_ast\(\)[[:space:]]*,[[:space:]]*package|issue\(package\.source_
   exit 1
 fi
 
-rg -q 'SCRIPT-SOURCE-REOWN-I0-R0' "$card"
-rg -q 'neutral window' "$card"
-rg -q 'Builder.*caller' "$card"
+rg -q 'SCRIPT-A-SOURCE-WINDOW-COSEAL-I0' "$card"
+rg -q 'PreparedScriptRootAdmissionV1' "$card"
+rg -q 'before target/Builder effects' "$card"
 
 echo "script direct-static source reownership window R0 guard: PASS"

@@ -14,6 +14,7 @@ use crate::mir::resolved_semantics::{
     ScriptRootDemandWindowSealErrorV1, SourcePathSegmentV1, SourcePathV1,
     VerifiedScriptRootDemandEntryV1,
 };
+use crate::parser::ParserInvocationWitnessV1;
 use super::normal_script_deferred_residual_registry::{
     PreparedScriptDeferredResidualRegistryV1,
 };
@@ -33,21 +34,28 @@ use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 pub(super) struct PreparedScriptRootAdmissionV1 {
     window: VerifiedScriptRootDemandWindowV1,
     deferred_residuals: PreparedScriptDeferredResidualRegistryV1,
+    invocation_witness: ParserInvocationWitnessV1,
 }
 
 impl PreparedScriptRootAdmissionV1 {
     pub(super) fn from_neutral_issuer(
         window: VerifiedScriptRootDemandWindowV1,
         deferred_residuals: PreparedScriptDeferredResidualRegistryV1,
+        invocation_witness: ParserInvocationWitnessV1,
     ) -> Self {
         Self {
             window,
             deferred_residuals,
+            invocation_witness,
         }
     }
 
     pub(super) fn window(&self) -> &VerifiedScriptRootDemandWindowV1 {
         &self.window
+    }
+
+    pub(super) fn is_from_invocation(&self, witness: &ParserInvocationWitnessV1) -> bool {
+        self.invocation_witness.same_as(witness)
     }
 
     #[cfg(test)]
@@ -152,6 +160,7 @@ impl ScriptRootDemandWindowBuilderV1 {
         Ok(PreparedScriptRootAdmissionV1 {
             window,
             deferred_residuals: self.deferred_residuals.seal(),
+            invocation_witness: ParserInvocationWitnessV1::for_test(),
         })
     }
 }

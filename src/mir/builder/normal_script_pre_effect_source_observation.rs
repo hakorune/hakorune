@@ -5,8 +5,8 @@
 //! the later borrowed semantic wrapper is rebound from these owned facts and
 //! never re-runs source observation.
 
-use super::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWindowV1;
 use super::normal_script_resolution::{resolve_normal_script_source_v1, NormalScriptResolutionV1};
+use super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
 use super::normal_script_semantic_source::{
     ScriptSemanticSourcePreEffectPartsV1, VerifiedScriptSemanticSourceV1,
 };
@@ -23,6 +23,7 @@ use crate::parser::{
 
 #[derive(Debug)]
 pub(super) struct PreEffectCompleteSourceObservationV1 {
+    source_window: PreparedScriptRootAdmissionV1,
     invocation: ParserInvocationWitnessV1,
     parts: ScriptSemanticSourcePreEffectPartsV1,
     lookup: VerifiedScriptDirectStaticCallLookupV1,
@@ -31,6 +32,14 @@ pub(super) struct PreEffectCompleteSourceObservationV1 {
 
 #[derive(Debug)]
 struct PreEffectCompleteSourceObservationSealV1;
+
+#[derive(Debug)]
+pub(super) struct PreEffectSourceObservationAfterWindowMoveV1 {
+    invocation: ParserInvocationWitnessV1,
+    parts: ScriptSemanticSourcePreEffectPartsV1,
+    lookup: VerifiedScriptDirectStaticCallLookupV1,
+    _seal: PreEffectCompleteSourceObservationSealV1,
+}
 
 #[derive(Debug)]
 pub(super) enum NormalScriptPreEffectSourceObservationIssueV1 {
@@ -62,7 +71,7 @@ pub(super) struct NormalScriptPreEffectSourceObservationIssuerV1;
 impl NormalScriptPreEffectSourceObservationIssuerV1 {
     pub(super) fn issue(
         package: &VerifiedNormalCallableSemanticPackageV1,
-        neutral_window: &PreparedCanonicalScriptNeutralProgramWindowV1,
+        source_window: PreparedScriptRootAdmissionV1,
         lookup: VerifiedScriptDirectStaticCallLookupV1,
         declaration_facts: &PreparedNormalProgramDeclarationFactsV1,
         resolver: &mut FunctionSemanticResolverSessionV1,
@@ -70,18 +79,18 @@ impl NormalScriptPreEffectSourceObservationIssuerV1 {
     {
         package
             .with_normal_program_source_loan(|loan| {
-                if !neutral_window.is_from_invocation(loan.invocation_witness())
+                if !source_window.is_from_invocation(loan.invocation_witness())
                     || !lookup.is_from_invocation(loan.invocation_witness())
                 {
                     return Err(
                         NormalScriptPreEffectSourceObservationIssueV1::IntegrityInvalid(
-                            "neutral window or lookup has a foreign parser invocation".into(),
+                            "source window or lookup has a foreign parser invocation".into(),
                         ),
                     );
                 }
                 let result = resolve_normal_script_source_v1(
                     loan.program(),
-                    Some(neutral_window.window()),
+                    Some(source_window.window()),
                     declaration_facts,
                     resolver,
                 )
@@ -105,6 +114,7 @@ impl NormalScriptPreEffectSourceObservationIssuerV1 {
                     NormalScriptPreEffectSourceObservationIssueV1::IntegrityInvalid(error.into())
                 })?;
                 Ok(PreEffectCompleteSourceObservationV1 {
+                    source_window,
                     invocation: loan.invocation_witness().clone(),
                     parts,
                     lookup,
@@ -132,6 +142,25 @@ impl NormalScriptPreEffectSourceObservationIssuerV1 {
 }
 
 impl PreEffectCompleteSourceObservationV1 {
+    pub(super) fn split_for_work_plan(
+        self,
+    ) -> (
+        PreparedScriptRootAdmissionV1,
+        PreEffectSourceObservationAfterWindowMoveV1,
+    ) {
+        (
+            self.source_window,
+            PreEffectSourceObservationAfterWindowMoveV1 {
+                invocation: self.invocation,
+                parts: self.parts,
+                lookup: self.lookup,
+                _seal: self._seal,
+            },
+        )
+    }
+}
+
+impl PreEffectSourceObservationAfterWindowMoveV1 {
     pub(super) fn bind<'source>(
         self,
         loan: ParserNormalProgramSourceLoanV1<'source>,

@@ -36,7 +36,8 @@ fn neutral_issuer_co_seals_composite_provider_and_root_return_window() {
     );
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("bounded neutral Script window");
-    let (admission, transfers, _constructor_source_cohort) = neutral.into_parts();
+    let (admission, remainder) = neutral.split_for_pre_effect();
+    let (transfers, _constructor_source_cohort) = remainder.into_parts();
 
     assert!(transfers.invocation_witness().same_as(
         &package
@@ -60,7 +61,7 @@ fn neutral_issuer_keeps_non_composite_source_explicitly_complete() {
     let package = package("42", 153);
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
         .expect("ordinary Script window remains complete");
-    let (admission, _, _constructor_source_cohort) = neutral.into_parts();
+    let (admission, _remainder) = neutral.split_for_pre_effect();
 
     assert!(matches!(
         admission.window().entry_at(0).expect("ordinary entry").semantic(),

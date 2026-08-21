@@ -594,13 +594,21 @@ The default lifecycle now has this one-way shape:
 ```text
 VerifiedNormalCallableSemanticPackageV1
   -> PreparedCanonicalScriptNeutralProgramWindowV1::issue
-  -> PreparedScriptRootAdmissionV1
+  -> split_for_pre_effect
+  -> PreparedScriptRootAdmissionV1 inside PreEffectCompleteSourceObservationV1
+  -> split_for_work_plan
   -> PreparedProgramRootWorkPlanV1 transport
   -> existing resolver/lookup consumers
 ```
 
-`PreparedProgramRootWorkPlanV1` transports an already-sealed admission and no
-longer constructs or seals the Script window. The old
+`PreparedScriptRootAdmissionV1` owns the parser invocation witness together
+with the already-sealed window. The neutral product moves that admission into
+the pre-effect resolver/lookup observation before target installation or
+Builder effects; the observation later returns the same admission by move to
+the work plan. Instance-Box and constructor-source cohorts travel in a
+separate post-install remainder and cannot issue or repair the source window.
+`PreparedProgramRootWorkPlanV1` therefore transports an already-sealed
+admission and no longer constructs or seals the Script window. The old
 `ScriptRootDemandWindowBuilderV1`, `ScriptRootSemanticDecisionV1`, and
 `SelectedScriptProgramOccurrenceV1` edges are test-only compatibility helpers;
 their production callers are zero. The lifecycle also does not perform a

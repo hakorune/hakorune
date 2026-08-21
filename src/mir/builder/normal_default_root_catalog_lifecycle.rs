@@ -12,9 +12,7 @@ use super::normal_default_root_catalog_post_install::
     finish_normal_default_root_after_pre_effect_bind;
 use super::normal_script_direct_static_lookup::ScriptDirectStaticCallLookupIssuerV1;
 use super::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWindowV1;
-use super::normal_script_pre_effect_source_observation::{
-    NormalScriptPreEffectSourceObservationIssuerV1, PreEffectCompleteSourceObservationV1,
-};
+use super::normal_script_pre_effect_source_observation::NormalScriptPreEffectSourceObservationIssuerV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_lowering::NormalCallableSemanticPackageMode;
 use super::program_root_work_plan::{
@@ -348,19 +346,29 @@ impl ModuleBuilderInvocationSessionV1 {
                     }
                 },
             };
-        let mut pre_effect_script_source: Option<PreEffectCompleteSourceObservationV1> =
-            if preflight_is_app_mode {
-                None
-            } else {
-                match (
-                    semantic_package.as_ref(),
-                    neutral_window.as_ref(),
-                    script_lookup.take(),
-                ) {
-                    (Some(package), Some(window), Some(lookup)) => {
+        let (mut pre_effect_script_source, constructor_source_cohort) =
+            match (semantic_package.as_ref(), neutral_window.take()) {
+                (Some(package), Some(window)) => {
+                    let (source_window, post_install) = window.split_for_pre_effect();
+                    let (_instance_transfers, constructor_source_cohort) =
+                        post_install.into_parts();
+                    let observation = if preflight_is_app_mode {
+                        None
+                    } else {
+                        let Some(lookup) = script_lookup.take() else {
+                            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                                session: self,
+                                _source: None,
+                                error:
+                                    NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                        "[mir/script-pre-effect/source] missing selected-normal lookup"
+                                            .into(),
+                                    ),
+                            });
+                        };
                         match NormalScriptPreEffectSourceObservationIssuerV1::issue(
                             package,
-                            window,
+                            source_window,
                             lookup,
                             &declaration_facts,
                             &mut resolver,
@@ -378,18 +386,19 @@ impl ModuleBuilderInvocationSessionV1 {
                                 })
                             }
                         }
-                    }
-                    (None, None, None) => None,
-                    _ => {
-                        return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
-                            session: self,
-                            _source: None,
-                            error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                "[mir/script-pre-effect/source] incomplete selected-normal source inputs"
-                                    .into(),
-                            ),
-                        })
-                    }
+                    };
+                    (observation, Some(constructor_source_cohort))
+                }
+                (None, None) => (None, None),
+                _ => {
+                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                        session: self,
+                        _source: None,
+                        error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            "[mir/script-pre-effect/source] incomplete selected-normal source inputs"
+                                .into(),
+                        ),
+                    })
                 }
             };
         if let Err(error) = self.install_pinned_text_target_capability(target_capability) {
@@ -402,17 +411,6 @@ impl ModuleBuilderInvocationSessionV1 {
             });
         }
         let brand = self.brand();
-        let (script_root_admission, constructor_source_cohort) = match neutral_window.take() {
-            Some(window) => {
-                let (admission, _instance_transfers, constructor_source_cohort) =
-                    window.into_parts();
-                (
-                    (!preflight_is_app_mode).then_some(admission),
-                    Some(constructor_source_cohort),
-                )
-            }
-            None => (None, None),
-        };
         let result = self.with_builder_and_pinned_text_invocation_binding(|builder, binding| {
             let target_capability = binding
                 .as_ref()
@@ -498,6 +496,14 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/static-result-owner/catalog] {error}").into(),
                             )
                         })?;
+                let (script_root_admission, mut pre_effect_script_source) =
+                    match pre_effect_script_source.take() {
+                        Some(observation) => {
+                            let (admission, observation) = observation.split_for_work_plan();
+                            (Some(admission), Some(observation))
+                        }
+                        None => (None, None),
+                    };
                 let work = PreparedProgramRootWorkPlanV1::prepare_with_script_root_admission_and_constructor_sources(
                     lowering_statements,
                     expansion.is_app_mode(),
