@@ -241,6 +241,12 @@ Rules:
 
 - candidate comparisons end when D0 closes; keep only the selected decision
   and, when needed, one sentence explaining the decisive boundary;
+- routing, claim, publication, admission, and lifecycle cards must include the
+  finite state/transition inventory required by the tracked
+  `agent-current-entry-contract-ssot.md` classification-completeness check;
+  the inventory is the compact exception to the prose budget, not a reason to
+  merge `Absent`/`Unavailable`/`Unresolved`/`NoCandidate` into `None` or a
+  compatibility label;
 - do not copy full type definitions, fixture bodies, exhaustive rejection
   tables, file-by-file edit plans, guard string assertions, generic gate
   commands, or expected LOC ranges into an execution brief;

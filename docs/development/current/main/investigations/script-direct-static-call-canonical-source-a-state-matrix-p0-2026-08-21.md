@@ -47,6 +47,13 @@ to collapse `CohortUnresolved`, `AdmissionMissing`, `HandoffReady`, or
 `DiscardedBeforeA` into absence. The matrix is a design guard, not a new
 runtime enum.
 
+This card is the first concrete application of the tracked
+`agent-current-entry-contract-ssot.md` classification-completeness check:
+every phase row names its owner, pre-effect behavior, terminal/continuation,
+and fallback policy, including the state that is neither selected nor
+rejected. The table is deliberately phase-qualified so a similarly named
+transport or future C/B state cannot silently become an A disposition.
+
 The actual code vocabulary is split across:
 
 ```text
@@ -78,6 +85,9 @@ a lone identity receipt cannot enter A observation.
 | `parser.CohortUnresolved` | exhaustive AST/cohort issuer | stop before handoff | unresolved/compatibility owner or `NoSafeSlice` | never `NonCandidate` |
 | `parser.CanonicalScriptCohortAdmitted` | parser cohort issuer with complete parameter source | issue one parser witness | source-row issuance | no clone/reparse/name pairing |
 | `parser.IntegrityInvalid` | parser validation | reject before rows/effects | discard terminal | no retry/repair/fallback |
+| `parser.ObservationIncomplete` | parser disposition projection (reserved in the current cohort issuer) | preserve the typed coverage gap; no handoff/A effect | source-row projection or typed stop | never round to parser/A `NonCandidate` |
+| `parser.NonCandidate` | parser disposition projection (reserved; not issued by the current cohort issuer) | preserve only a complete parser-side zero-row observation | source-row projection; A must reclassify its own outcome | never treat as A package success |
+| `parser.DispositionTransported` | future parser-to-C/B transport projection (reserved) | no source reinterpretation | detached future transport terminal | never reuse as parser admission or A state |
 
 `CanonicalScriptCohortAdmitted` is syntax/cohort evidence only. It does not
 mean the retained Script window, declaration views, resolver forest, target
@@ -146,7 +156,8 @@ must not be represented by a bare `Transported` state shared across phases.
 ```text
 parser.NotApplicable / CompatibilitySource / Deferred /
   SourceAuthorityUnavailable / CohortUnresolved / AdmissionMissing /
-  IntegrityInvalid
+  IntegrityInvalid / ObservationIncomplete / NonCandidate /
+  DispositionTransported
     -> named upstream owner or terminal
 
 parser.CanonicalScriptCohortAdmitted
