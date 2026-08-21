@@ -614,16 +614,42 @@ and Builder effects. Evidence is owned by
 `script_direct_static_source_reown_window_r0_guard.sh`, and the focused
 neutral, instance-transfer, and composite test filters.
 
+## Script direct-static lookup reownership I0/R0 (2026-08-21)
+
+`ScriptDirectStaticCallLookupIssuerV1::issue` is the sole production issuer
+for the selected Script target/result lookup. It receives the same semantic
+package and neutral window, opens one HRTB parser loan, and co-seals the
+package-owned declaration catalog with transient generic target/result
+inputs. Only the non-`Clone` `VerifiedScriptDirectStaticCallLookupV1` leaves
+the scope. Its
+rows own the parser witness, exact source sites, canonical target key, result
+representation, and required argument ordinals; no AST, catalog borrow,
+pointer/address, candidate decision, Recipe key, or physical ID escapes.
+
+Lookup preflight runs before pinned-target installation and before Builder
+effects. `PreparedScriptRootAdmissionV1` no longer stores a parallel target
+`Option`, and the old inventory issue/attach/take/brand edge is absent from
+production. The lifecycle moves the owned lookup once into the existing
+`VerifiedScriptDirectStaticResultBundleV1`; the downstream ResultBundle,
+Recipe, Join, and claim/physical consumers remain unchanged in this row.
+
+Foreign parser provenance, missing/contradictory coverage, target-outside
+catalog, and unavailable result representation are typed lookup failures.
+There is no fallback to the old inventory, raw, compatibility, or ordinary
+static route. A/C capability, candidate disposition, Recipe retirement, and
+production cutover remain later cells.
+
 ## Shared Script MethodCall typeop policy I0
 
 `src/mir/policies/source_method_typeop_route.rs` is the sole pure predicate for
 the source-shaped `is`/`as` type-operation route. `calls/special_handlers.rs`
-and `calls/build.rs` consume it as thin Builder adapters, while the Script
-direct-static target inventory consumes the same disposition before admitting
-a target. A method with exactly one direct string (or the existing
+and `calls/build.rs` consume it as thin Builder adapters, while the owned
+Script direct-static lookup issuer consumes the same disposition before
+admitting a target. A method with exactly one direct string (or the existing
 `StringBox` string shape) is a typeop noncandidate; other `is`/`as` arguments
-remain ordinary static-call candidates. This slice changes no parser/source
-admission, Recipe/Join, physical bridge, fallback, or production switch.
+remain ordinary static-call candidates. The lookup issuer does not issue A/C
+candidate meaning. This slice changes no parser/source admission, Recipe/Join,
+physical bridge, fallback, or production switch.
 
 ## Script direct-static Recipe I0
 

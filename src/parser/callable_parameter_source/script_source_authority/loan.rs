@@ -21,6 +21,7 @@ pub(crate) enum ParserNormalProgramSourceLoanRejectV1 {
 #[derive(Debug)]
 pub(crate) struct ParserNormalProgramSourceLoanV1<'source> {
     authority: &'source ParserNormalProgramSourceAuthorityV1,
+    program: &'source ASTNode,
     statements: &'source [ASTNode],
 }
 
@@ -63,6 +64,7 @@ pub(crate) fn with_parser_normal_program_source_loan<R>(
     }
     Ok(callback(ParserNormalProgramSourceLoanV1 {
         authority,
+        program: ast,
         statements,
     }))
 }
@@ -139,6 +141,13 @@ impl<'source> ParserNormalProgramSourceLoanV1<'source> {
 
     pub(crate) fn statement_count(&self) -> usize {
         self.statements.len()
+    }
+
+    /// Borrow the exact parser-owned Program only inside the existing HRTB
+    /// loan.  Callers may inspect it to issue AST-free rows, but cannot carry
+    /// the reference beyond the source-authority callback.
+    pub(crate) fn program(&self) -> &'source ASTNode {
+        self.program
     }
 
     pub(crate) fn statements(&self) -> ParserNormalProgramStatementCursorV1<'source> {

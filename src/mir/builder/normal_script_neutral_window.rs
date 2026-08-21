@@ -19,7 +19,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::parser::{
     ParserNormalProgramBodySourceRowV1, ParserNormalProgramSourceLoanRejectV1,
-    ParserNormalProgramSourceLoanV1,
+    ParserNormalProgramSourceLoanV1, ParserInvocationWitnessV1,
 };
 
 use super::normal_script_composite_partition::{
@@ -45,6 +45,7 @@ pub(super) struct PreparedCanonicalScriptNeutralProgramWindowV1 {
     admission: PreparedScriptRootAdmissionV1,
     instance_box_transfers: VerifiedScriptInstanceBoxTransferCohortV1,
     constructor_source_cohort: VerifiedInstanceConstructorPhysicalSourceCohortV1,
+    invocation_witness: ParserInvocationWitnessV1,
     _seal: PreparedCanonicalScriptNeutralProgramWindowSealV1,
 }
 
@@ -138,8 +139,17 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
             ),
             instance_box_transfers,
             constructor_source_cohort,
+            invocation_witness: loan.invocation_witness().clone(),
             _seal: PreparedCanonicalScriptNeutralProgramWindowSealV1,
         })
+    }
+
+    pub(super) fn window(&self) -> &VerifiedScriptRootDemandWindowV1 {
+        self.admission.window()
+    }
+
+    pub(super) fn is_from_invocation(&self, witness: &ParserInvocationWitnessV1) -> bool {
+        self.invocation_witness.same_as(witness)
     }
 
     pub(super) fn into_parts(

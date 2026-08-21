@@ -10,7 +10,8 @@ use crate::mir::resolved_semantics::{
     VerifiedScriptRootDemandWindowV1,
 };
 use crate::mir::source_call_target::{
-    VerifiedScriptDirectStaticCallTargetInventoryV1, VerifiedStaticImportAliasViewV1,
+    VerifiedScriptDirectStaticCallLookupV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
+    VerifiedStaticImportAliasViewV1,
     VerifiedWholeSourceStaticCallTargetInventoryV1,
 };
 use crate::parser::NyashParser;
@@ -89,13 +90,14 @@ fn complete_bundle(
     let results = crate::mir::callable_result_representation::
         VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
         .expect("result catalog");
+    let lookup = VerifiedScriptDirectStaticCallLookupV1::from_test_inventory(
+        &target_inventory,
+        &results,
+    );
     let bundle = VerifiedScriptDirectStaticResultBundleV1::issue(
         &source,
         window,
-        &target_inventory,
-        declarations,
-        imports,
-        &results,
+        lookup,
     )
     .expect("result bundle");
     (source, bundle)

@@ -10,6 +10,9 @@ use crate::ast::ASTNode;
 use crate::mir::builder::{
     SameModuleCallableNamespaceV1, VerifiedSameModuleCallableDeclarationCatalogV1,
 };
+use crate::mir::callable_result_representation::{
+    VerifiedCallableResultRepresentationV1, VerifiedSameModuleCallableResultCatalogV1,
+};
 use crate::mir::policies::source_method_reserved_route::{
     classify_source_method_reserved_route_v1, SourceMethodReservedRouteContextV1,
     SourceMethodReservedRouteDecisionV1,
@@ -23,16 +26,313 @@ use crate::mir::resolved_semantics::{
     ShadowResolveErrorV0, SourceExprSiteV1, SourcePathSegmentV1, SourcePathV1,
     VerifiedScriptRootDemandWindowV1,
 };
+use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 
 use super::VerifiedStaticImportAliasViewV1;
 
+/// One owned Script direct-static lookup row.
+///
+/// The row is emitted only after the parser loan, source window, declaration
+/// catalog, import relation, and result contract have been checked together.
+/// It deliberately owns only AST-free source sites and canonical result facts.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct VerifiedScriptDirectStaticCallLookupRowV1 {
+    site: SourceExprSiteV1,
+    receiver_site: SourceExprSiteV1,
+    argument_sites: Box<[SourceExprSiteV1]>,
+    target: crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    representation: VerifiedCallableResultRepresentationV1,
+    required_callee_i64_arguments: Box<[u32]>,
+}
+
+impl VerifiedScriptDirectStaticCallLookupRowV1 {
+    pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
+        &self.site
+    }
+
+    pub(crate) const fn receiver_site(&self) -> &SourceExprSiteV1 {
+        &self.receiver_site
+    }
+
+    pub(crate) fn argument_sites(&self) -> &[SourceExprSiteV1] {
+        &self.argument_sites
+    }
+
+    pub(crate) const fn target(&self) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
+        &self.target
+    }
+
+    pub(crate) const fn representation(&self) -> &VerifiedCallableResultRepresentationV1 {
+        &self.representation
+    }
+
+    pub(crate) fn required_callee_i64_arguments(&self) -> &[u32] {
+        &self.required_callee_i64_arguments
+    }
+}
+
+/// The sole owned selected-Script target/result lookup product.
+///
+/// This type has no AST or catalog lifetime.  The parser invocation witness
+/// is retained as provenance, while all source rows and result facts are
+/// copied into the one-shot product during the HRTB loan.
+#[derive(Debug)]
+pub(crate) struct VerifiedScriptDirectStaticCallLookupV1 {
+    invocation: crate::parser::ParserInvocationWitnessV1,
+    rows: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallLookupRowV1>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ScriptDirectStaticCallLookupErrorV1 {
+    ProgramRequired,
+    CatalogRelationMismatch,
+    WindowSourceCardinalityMismatch {
+        window: usize,
+        program: usize,
+    },
+    MethodObservation(ShadowResolveErrorV0),
+    SiteProjectionMismatch {
+        site: SourceExprSiteV1,
+    },
+    ReceiverSiteMismatch {
+        site: SourceExprSiteV1,
+    },
+    DuplicateSite {
+        site: SourceExprSiteV1,
+    },
+    ReceiverNameRequired {
+        site: SourceExprSiteV1,
+    },
+    TargetOutsideCatalog {
+        site: SourceExprSiteV1,
+        owner: Box<str>,
+        method: Box<str>,
+        arity: u32,
+    },
+    ResultUnavailable {
+        site: SourceExprSiteV1,
+    },
+    SourceLoan(ParserNormalProgramSourceLoanRejectV1),
+}
+
+impl VerifiedScriptDirectStaticCallLookupV1 {
+    /// Issue one owned relation from the parser loan.  The caller is the
+    /// source-package facade; this lower-level function never receives an AST
+    /// or returns a borrowed catalog.
+    pub(crate) fn issue_from_program_loan(
+        loan: &ParserNormalProgramSourceLoanV1<'_>,
+        window: &VerifiedScriptRootDemandWindowV1,
+        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
+        imports: &VerifiedStaticImportAliasViewV1<'_>,
+        targets: &crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1<'_>,
+        results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> Result<Self, ScriptDirectStaticCallLookupErrorV1> {
+        if !imports.is_branded_by(declarations) {
+            return Err(ScriptDirectStaticCallLookupErrorV1::CatalogRelationMismatch);
+        }
+        if !results.is_branded_by(declarations, targets) {
+            return Err(ScriptDirectStaticCallLookupErrorV1::CatalogRelationMismatch);
+        }
+        let view = ScriptSyntaxViewV1::from_program(loan.program())
+            .ok_or(ScriptDirectStaticCallLookupErrorV1::ProgramRequired)?;
+        if view.body().len() != window.entries().len() {
+            return Err(
+                ScriptDirectStaticCallLookupErrorV1::WindowSourceCardinalityMismatch {
+                    window: window.entries().len(),
+                    program: view.body().len(),
+                },
+            );
+        }
+
+        let observed = observe_script_method_calls_shadow_view_v0(view, window)
+            .map_err(ScriptDirectStaticCallLookupErrorV1::MethodObservation)?;
+        let mut rows = BTreeMap::new();
+        for (site, observation) in observed {
+            let Some(ProjectedSourceNodeV1::Node(ASTNode::MethodCall {
+                object,
+                method,
+                arguments,
+                ..
+            })) = project_source_node_v1(loan.program(), site.node())
+            else {
+                return Err(ScriptDirectStaticCallLookupErrorV1::SiteProjectionMismatch { site });
+            };
+            let expected_receiver_site = SourcePathV1::from_node(site.node())
+                .child(SourcePathSegmentV1::Receiver)
+                .expr();
+            if observation.receiver_site() != &expected_receiver_site {
+                return Err(ScriptDirectStaticCallLookupErrorV1::ReceiverSiteMismatch { site });
+            }
+
+            let ShadowMethodCallReceiverV0::Qualified(
+                ShadowQualifiedReceiverDispositionV0::ProvenUnbound,
+            ) = observation.receiver()
+            else {
+                continue;
+            };
+            let ASTNode::Variable { name, .. } = object.as_ref() else {
+                return Err(ScriptDirectStaticCallLookupErrorV1::ReceiverNameRequired { site });
+            };
+            if !matches!(
+                classify_source_method_typeop_route_v1(method, arguments),
+                SourceMethodTypeOpDispositionV1::Ordinary
+            ) {
+                continue;
+            }
+            if !matches!(
+                classify_source_method_reserved_route_v1(
+                    SourceMethodReservedRouteContextV1::Ordinary,
+                    object,
+                    method,
+                    arguments,
+                ),
+                SourceMethodReservedRouteDecisionV1::Ordinary
+            ) {
+                continue;
+            }
+            if rows.contains_key(&site) {
+                return Err(ScriptDirectStaticCallLookupErrorV1::DuplicateSite { site });
+            }
+            let canonical_owner = imports.canonical_owner(name).unwrap_or(name);
+            let Some(declaration) = declarations.declaration_for(
+                SameModuleCallableNamespaceV1::StaticBoxMethod,
+                canonical_owner,
+                method,
+                arguments.len(),
+            ) else {
+                return Err(ScriptDirectStaticCallLookupErrorV1::TargetOutsideCatalog {
+                    site,
+                    owner: canonical_owner.into(),
+                    method: method.clone().into(),
+                    arity: arguments.len() as u32,
+                });
+            };
+            let target = declaration.key().clone();
+            let Some(disposition) = results.disposition(&target) else {
+                return Err(ScriptDirectStaticCallLookupErrorV1::ResultUnavailable { site });
+            };
+            let Some(representation) = disposition.representation() else {
+                return Err(ScriptDirectStaticCallLookupErrorV1::ResultUnavailable { site });
+            };
+            let required_callee_i64_arguments = disposition.required_i64_arguments().map_or_else(
+                || Vec::<u32>::new().into_boxed_slice(),
+                |values| values.to_vec().into_boxed_slice(),
+            );
+            let argument_sites = arguments
+                .iter()
+                .enumerate()
+                .map(|(index, _)| {
+                    SourcePathV1::from_node(site.node())
+                        .child(SourcePathSegmentV1::Argument(index as u32))
+                        .expr()
+                })
+                .collect::<Vec<_>>()
+                .into_boxed_slice();
+            rows.insert(
+                site.clone(),
+                VerifiedScriptDirectStaticCallLookupRowV1 {
+                    site: site.clone(),
+                    receiver_site: expected_receiver_site,
+                    argument_sites,
+                    target,
+                    representation,
+                    required_callee_i64_arguments,
+                },
+            );
+        }
+
+        Ok(Self {
+            invocation: loan.invocation_witness().clone(),
+            rows,
+        })
+    }
+
+    pub(crate) fn is_from_invocation(
+        &self,
+        witness: &crate::parser::ParserInvocationWitnessV1,
+    ) -> bool {
+        self.invocation.same_as(witness)
+    }
+
+    pub(crate) fn row(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedScriptDirectStaticCallLookupRowV1> {
+        self.rows.get(site)
+    }
+
+    pub(crate) fn rows(
+        &self,
+    ) -> impl Iterator<
+        Item = (
+            &SourceExprSiteV1,
+            &VerifiedScriptDirectStaticCallLookupRowV1,
+        ),
+    > {
+        self.rows.iter()
+    }
+}
+
+#[cfg(test)]
+impl VerifiedScriptDirectStaticCallLookupV1 {
+    pub(crate) fn from_test_inventory(
+        inventory: &VerifiedScriptDirectStaticCallTargetInventoryV1,
+        results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+    ) -> Self {
+        let rows = inventory
+            .target_rows()
+            .map(|(site, target)| {
+                let observation = inventory
+                    .site(site)
+                    .expect("test inventory target has its source site");
+                let disposition = results
+                    .disposition(target.target())
+                    .expect("test target has a result disposition");
+                let representation = disposition
+                    .representation()
+                    .expect("test target has a result representation");
+                let required_callee_i64_arguments =
+                    disposition.required_i64_arguments().map_or_else(
+                        || Vec::<u32>::new().into_boxed_slice(),
+                        |values| values.to_vec().into_boxed_slice(),
+                    );
+                (
+                    site.clone(),
+                    VerifiedScriptDirectStaticCallLookupRowV1 {
+                        site: site.clone(),
+                        receiver_site: observation.receiver_site().clone(),
+                        argument_sites: observation.argument_sites().to_vec().into_boxed_slice(),
+                        target: target.target().clone(),
+                        representation,
+                        required_callee_i64_arguments,
+                    },
+                )
+            })
+            .collect();
+        Self {
+            invocation: crate::parser::ParserInvocationWitnessV1::for_test(),
+            rows,
+        }
+    }
+
+    pub(crate) fn empty_for_test() -> Self {
+        Self {
+            invocation: crate::parser::ParserInvocationWitnessV1::for_test(),
+            rows: BTreeMap::new(),
+        }
+    }
+}
+
+#[cfg(test)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub(crate) struct ScriptStaticCallSourceOwnerIdV1(u32);
 
+#[cfg(test)]
 impl ScriptStaticCallSourceOwnerIdV1 {
     const ROOT: Self = Self(0);
 }
 
+#[cfg(test)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedScriptDirectStaticCallSiteV1 {
     owner: ScriptStaticCallSourceOwnerIdV1,
@@ -41,6 +341,7 @@ pub(crate) struct VerifiedScriptDirectStaticCallSiteV1 {
     argument_sites: Box<[SourceExprSiteV1]>,
 }
 
+#[cfg(test)]
 impl VerifiedScriptDirectStaticCallSiteV1 {
     pub(crate) const fn owner(&self) -> ScriptStaticCallSourceOwnerIdV1 {
         self.owner
@@ -59,12 +360,14 @@ impl VerifiedScriptDirectStaticCallSiteV1 {
     }
 }
 
+#[cfg(test)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedScriptDirectStaticCallTargetV1 {
     site: SourceExprSiteV1,
     target: crate::mir::builder::CanonicalSameModuleCallableKeyV1,
 }
 
+#[cfg(test)]
 impl VerifiedScriptDirectStaticCallTargetV1 {
     pub(crate) const fn site(&self) -> &SourceExprSiteV1 {
         &self.site
@@ -75,6 +378,7 @@ impl VerifiedScriptDirectStaticCallTargetV1 {
     }
 }
 
+#[cfg(test)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ScriptDirectStaticCallTargetErrorV1 {
     ProgramRequired,
@@ -103,6 +407,7 @@ pub(crate) enum ScriptDirectStaticCallTargetErrorV1 {
     },
 }
 
+#[cfg(test)]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct VerifiedScriptDirectStaticCallTargetInventoryV1 {
     owner: ScriptStaticCallSourceOwnerIdV1,
@@ -115,6 +420,7 @@ pub(crate) struct VerifiedScriptDirectStaticCallTargetInventoryV1 {
     noncandidate_count: usize,
 }
 
+#[cfg(test)]
 impl VerifiedScriptDirectStaticCallTargetInventoryV1 {
     pub(crate) fn issue(
         source_ast: &ASTNode,

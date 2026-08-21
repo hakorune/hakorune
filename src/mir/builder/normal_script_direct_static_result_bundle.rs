@@ -2,31 +2,24 @@
 //!
 //! This bundle is the only bridge between the resolver's Script MethodCall
 //! rows and the later Script Facts/Recipe consumer.  It owns no Builder value,
-//! MIR type, Recipe key, or physical block.  The target inventory supplies
-//! only the callee; resolver rows supply every source site.
+//! MIR type, Recipe key, or physical block.  The source-package lookup
+//! relation supplies the callee and exact source sites; resolver rows verify
+//! the same source tree before the bundle is issued.
 
 use std::collections::BTreeMap;
 
-use crate::mir::builder::{
-    CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1,
-    VerifiedSameModuleCallableDeclarationCatalogV1,
-};
-use crate::mir::callable_result_representation::{
-    VerifiedCallableResultRepresentationV1, VerifiedSameModuleCallableResultCatalogV1,
-};
+use crate::mir::builder::{CanonicalSameModuleCallableKeyV1, SameModuleCallableNamespaceV1};
+use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIdV1, ResolvedMethodCallReceiverSourceV1, SourceExprSiteV1,
     VerifiedScriptRootDemandWindowV1,
 };
-use crate::mir::source_call_target::{
-    VerifiedScriptDirectStaticCallTargetInventoryV1, VerifiedStaticImportAliasViewV1,
-};
+use crate::mir::source_call_target::VerifiedScriptDirectStaticCallLookupV1;
 
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) enum ScriptDirectStaticResultBundleErrorV1 {
-    TargetInventoryBrandMismatch,
     ScriptRootMissing,
     ScriptRootNotScript,
     ResolverTargetSiteMissing(SourceExprSiteV1),
@@ -40,7 +33,6 @@ pub(super) enum ScriptDirectStaticResultBundleErrorV1 {
     ResultSiteMismatch(SourceExprSiteV1),
     TargetNamespaceMismatch(SourceExprSiteV1),
     TargetArityMismatch(SourceExprSiteV1),
-    TargetResultUnavailable(SourceExprSiteV1),
     DuplicateSite(SourceExprSiteV1),
 }
 
@@ -136,15 +128,9 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
 
     pub(super) fn issue(
         source: &VerifiedScriptSemanticSourceV1<'_>,
-        window: &VerifiedScriptRootDemandWindowV1,
-        target_inventory: &VerifiedScriptDirectStaticCallTargetInventoryV1,
-        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
-        imports: &VerifiedStaticImportAliasViewV1<'_>,
-        results: &VerifiedSameModuleCallableResultCatalogV1<'_, '_>,
+        _window: &VerifiedScriptRootDemandWindowV1,
+        lookup: VerifiedScriptDirectStaticCallLookupV1,
     ) -> Result<Self, ScriptDirectStaticResultBundleErrorV1> {
-        if !target_inventory.is_branded_by(source.source(), window, declarations, imports) {
-            return Err(ScriptDirectStaticResultBundleErrorV1::TargetInventoryBrandMismatch);
-        }
         let [root] = source.forest().roots() else {
             return Err(ScriptDirectStaticResultBundleErrorV1::ScriptRootMissing);
         };
@@ -158,12 +144,7 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
         let source_owner = product.core().data().owner;
         let method_rows = product.method_calls().collect::<BTreeMap<_, _>>();
         let mut rows = BTreeMap::new();
-        for (site, target_row) in target_inventory.target_rows() {
-            let Some(observation) = target_inventory.site(site) else {
-                return Err(
-                    ScriptDirectStaticResultBundleErrorV1::ResolverTargetSiteMissing(site.clone()),
-                );
-            };
+        for (site, lookup_row) in lookup.rows() {
             let Some(method) = method_rows.get(site) else {
                 return Err(
                     ScriptDirectStaticResultBundleErrorV1::ResolverTargetSiteMissing(site.clone()),
@@ -174,7 +155,7 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
                     ScriptDirectStaticResultBundleErrorV1::ResolverOwnerMismatch(site.clone()),
                 );
             }
-            if method.receiver_site() != observation.receiver_site() {
+            if method.receiver_site() != lookup_row.receiver_site() {
                 return Err(ScriptDirectStaticResultBundleErrorV1::ReceiverSiteMismatch(
                     site.clone(),
                 ));
@@ -189,7 +170,7 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
                     ),
                 );
             }
-            if method.arguments().len() != observation.argument_sites().len() {
+            if method.arguments().len() != lookup_row.argument_sites().len() {
                 return Err(
                     ScriptDirectStaticResultBundleErrorV1::ArgumentSiteMismatch {
                         site: site.clone(),
@@ -200,7 +181,7 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
             for (argument, expected) in method
                 .arguments()
                 .iter()
-                .zip(observation.argument_sites().iter())
+                .zip(lookup_row.argument_sites().iter())
             {
                 if argument.site() != expected
                     || argument.ordinal() as usize >= method.arguments().len()
@@ -218,7 +199,7 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
                     site.clone(),
                 ));
             }
-            let target = target_row.target();
+            let target = lookup_row.target();
             if target.namespace() != SameModuleCallableNamespaceV1::StaticBoxMethod {
                 return Err(
                     ScriptDirectStaticResultBundleErrorV1::TargetNamespaceMismatch(site.clone()),
@@ -229,16 +210,6 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
                     site.clone(),
                 ));
             }
-            let Some(disposition) = results.disposition(target) else {
-                return Err(
-                    ScriptDirectStaticResultBundleErrorV1::TargetResultUnavailable(site.clone()),
-                );
-            };
-            let Some(representation) = disposition.representation() else {
-                return Err(
-                    ScriptDirectStaticResultBundleErrorV1::TargetResultUnavailable(site.clone()),
-                );
-            };
             if rows
                 .insert(
                     site.clone(),
@@ -254,10 +225,9 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
                             .into_boxed_slice(),
                         result_site: method.result_site().clone(),
                         target: target.clone(),
-                        representation,
-                        required_callee_i64_arguments: disposition
-                            .required_i64_arguments()
-                            .unwrap_or_default()
+                        representation: lookup_row.representation().clone(),
+                        required_callee_i64_arguments: lookup_row
+                            .required_callee_i64_arguments()
                             .to_vec()
                             .into_boxed_slice(),
                     },

@@ -69,6 +69,11 @@ pub(crate) use raw_source_cursor_error::RawSourceCursorErrorV1;
 pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;
 #[allow(unused_imports)]
 pub(crate) use script_direct_static::{
+    ScriptDirectStaticCallLookupErrorV1, VerifiedScriptDirectStaticCallLookupRowV1,
+    VerifiedScriptDirectStaticCallLookupV1,
+};
+#[cfg(test)]
+pub(crate) use script_direct_static::{
     ScriptDirectStaticCallTargetErrorV1, ScriptStaticCallSourceOwnerIdV1,
     VerifiedScriptDirectStaticCallSiteV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
     VerifiedScriptDirectStaticCallTargetV1,

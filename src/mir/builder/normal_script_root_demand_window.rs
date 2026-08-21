@@ -14,8 +14,6 @@ use crate::mir::resolved_semantics::{
     ScriptRootDemandWindowSealErrorV1, SourcePathSegmentV1, SourcePathV1,
     VerifiedScriptRootDemandEntryV1,
 };
-use crate::mir::source_call_target::VerifiedScriptDirectStaticCallTargetInventoryV1;
-
 use super::normal_script_deferred_residual_registry::{
     PreparedScriptDeferredResidualRegistryV1,
 };
@@ -35,7 +33,6 @@ use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 pub(super) struct PreparedScriptRootAdmissionV1 {
     window: VerifiedScriptRootDemandWindowV1,
     deferred_residuals: PreparedScriptDeferredResidualRegistryV1,
-    script_direct_static_targets: Option<VerifiedScriptDirectStaticCallTargetInventoryV1>,
 }
 
 impl PreparedScriptRootAdmissionV1 {
@@ -46,7 +43,6 @@ impl PreparedScriptRootAdmissionV1 {
         Self {
             window,
             deferred_residuals,
-            script_direct_static_targets: None,
         }
     }
 
@@ -54,47 +50,10 @@ impl PreparedScriptRootAdmissionV1 {
         &self.window
     }
 
-    pub(super) fn attach_script_direct_static_targets(
-        &mut self,
-        inventory: VerifiedScriptDirectStaticCallTargetInventoryV1,
-    ) -> Result<(), ScriptRootStaticTargetAttachmentErrorV1> {
-        if self
-            .script_direct_static_targets
-            .replace(inventory)
-            .is_some()
-        {
-            return Err(ScriptRootStaticTargetAttachmentErrorV1::Duplicate);
-        }
-        Ok(())
-    }
-
-    pub(super) fn with_taken_script_direct_static_targets<R>(
-        &mut self,
-        f: impl FnOnce(
-            &VerifiedScriptRootDemandWindowV1,
-            VerifiedScriptDirectStaticCallTargetInventoryV1,
-        ) -> R,
-    ) -> Option<R> {
-        let target_inventory = self.script_direct_static_targets.take()?;
-        Some(f(&self.window, target_inventory))
-    }
-
-    #[cfg(test)]
-    pub(super) fn script_direct_static_targets(
-        &self,
-    ) -> Option<&VerifiedScriptDirectStaticCallTargetInventoryV1> {
-        self.script_direct_static_targets.as_ref()
-    }
-
     #[cfg(test)]
     pub(super) fn deferred_residuals(&self) -> &PreparedScriptDeferredResidualRegistryV1 {
         &self.deferred_residuals
     }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(super) enum ScriptRootStaticTargetAttachmentErrorV1 {
-    Duplicate,
 }
 
 #[cfg(test)]
@@ -193,7 +152,6 @@ impl ScriptRootDemandWindowBuilderV1 {
         Ok(PreparedScriptRootAdmissionV1 {
             window,
             deferred_residuals: self.deferred_residuals.seal(),
-            script_direct_static_targets: None,
         })
     }
 }

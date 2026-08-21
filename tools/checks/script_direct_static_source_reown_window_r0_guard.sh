@@ -55,13 +55,14 @@ legacy_builder_line="$(rg -n '^pub\(super\) struct ScriptRootDemandWindowBuilder
 legacy_cfg_line="$(sed -n "1,${legacy_builder_line}p" "$legacy_window" | rg -n '^#\[cfg\(test\)\]' | tail -n 1 | cut -d: -f1)"
 [[ -n "$legacy_builder_line" && -n "$legacy_cfg_line" && "$legacy_cfg_line" -lt "$legacy_builder_line" ]]
 
-# Neutral source failure must precede target installation and Builder effects.
+# Neutral source and lookup failure must precede target installation and
+# Builder effects.
 neutral_line="$(rg -n 'PreparedCanonicalScriptNeutralProgramWindowV1::issue\(package\)' "$lifecycle" | cut -d: -f1)"
-target_line="$(rg -n 'VerifiedScriptDirectStaticCallTargetInventoryV1::issue' "$lifecycle" | cut -d: -f1)"
+lookup_line="$(rg -n 'ScriptDirectStaticCallLookupIssuerV1::issue' "$lifecycle" | cut -d: -f1)"
 install_line="$(rg -n 'install_pinned_text_target_capability' "$lifecycle" | tail -n 1 | cut -d: -f1)"
 effect_line="$(rg -n 'prepare_normal_default_module' "$lifecycle" | cut -d: -f1)"
-(( neutral_line < install_line && install_line < effect_line && neutral_line < target_line )) || {
-  echo "[script-source-reown-r0] neutral source failure is not before target/effects" >&2
+(( neutral_line < lookup_line && lookup_line < install_line && install_line < effect_line )) || {
+  echo "[script-source-reown-r0] neutral/lookup failure is not before target/effects" >&2
   exit 1
 }
 

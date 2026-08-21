@@ -17,4 +17,9 @@ impl ParserInvocationWitnessV1 {
     pub(crate) fn same_as(&self, other: &Self) -> bool {
         self.0.same_as(&other.0)
     }
+
+    #[cfg(test)]
+    pub(crate) fn for_test() -> Self {
+        Self(ParserInvocationBrandV1::issue())
+    }
 }

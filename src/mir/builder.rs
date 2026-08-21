@@ -110,6 +110,7 @@ mod normal_instance_constructor_semantic_scope;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
 mod normal_script_instance_box_transfer;
 mod normal_script_composite_partition;
+mod normal_script_direct_static_lookup;
 mod normal_script_neutral_window;
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]

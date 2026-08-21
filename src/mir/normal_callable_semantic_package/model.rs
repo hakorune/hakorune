@@ -80,6 +80,15 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         self.batch.with_normal_program_source_loan(callback)
     }
 
+    /// Borrow the declaration catalog that is owned by this same source
+    /// package.  Lookup issuers use this accessor together with the package's
+    /// HRTB source loan, so a foreign catalog cannot be supplied independently.
+    pub(crate) fn declaration_catalog(
+        &self,
+    ) -> &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1 {
+        self.catalog.catalog()
+    }
+
     pub(crate) fn instance_constructors(
         &self,
     ) -> &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1 {

@@ -1,11 +1,16 @@
 use super::*;
 use crate::ast::ASTNode;
+use crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1;
+use crate::mir::callable_result_representation::VerifiedSameModuleCallableResultCatalogV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptRootResolvedDemandV1,
     ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, SourcePathSegmentV1,
     SourcePathV1, VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
-use crate::mir::source_call_target::VerifiedWholeSourceStaticCallTargetInventoryV1;
+use crate::mir::source_call_target::{
+    VerifiedScriptDirectStaticCallLookupV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
+    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
+};
 use crate::parser::NyashParser;
 
 fn script_program() -> ASTNode {
@@ -70,15 +75,10 @@ fn bundle_co_seals_complete_script_owner_and_empty_target_observation() {
     let targets = whole.into_targets();
     let results = VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
         .expect("callee result catalog");
-    let bundle = VerifiedScriptDirectStaticResultBundleV1::issue(
-        &source,
-        &window,
-        &target_inventory,
-        declarations,
-        imports,
-        &results,
-    )
-    .expect("complete Script bundle");
+    let lookup =
+        VerifiedScriptDirectStaticCallLookupV1::from_test_inventory(&target_inventory, &results);
+    let bundle = VerifiedScriptDirectStaticResultBundleV1::issue(&source, &window, lookup)
+        .expect("complete Script bundle");
 
     assert_eq!(bundle.len(), 0);
     assert_eq!(bundle.source_owner(), source.forest().roots()[0]);
@@ -90,31 +90,12 @@ fn bundle_co_seals_complete_script_owner_and_empty_target_observation() {
 }
 
 #[test]
-fn bundle_rejects_a_target_inventory_from_a_foreign_program() {
+fn bundle_consumes_an_owned_empty_lookup() {
     let script = Box::leak(Box::new(
         crate::mir::builder::PreparedNormalDefaultProgramRootV1::seal(script_program())
             .expect("Program source"),
     ));
-    let declaration_root =
-        NyashParser::parse_from_string("static box Helper { value() { return 7 } }")
-            .expect("declaration fixture");
-    let declarations = Box::leak(Box::new(
-        VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&declaration_root)
-            .expect("declaration catalog"),
-    ));
-    let imports = Box::leak(Box::new(
-        VerifiedStaticImportAliasViewV1::seal(declarations, std::iter::empty())
-            .expect("empty import view"),
-    ));
     let window = window();
-    let foreign = script_program();
-    let foreign_inventory = VerifiedScriptDirectStaticCallTargetInventoryV1::issue(
-        &foreign,
-        &window,
-        declarations,
-        imports,
-    )
-    .expect("foreign target inventory itself is valid");
     let mut resolver = FunctionSemanticResolverSessionV1::new(4).expect("resolver");
     let owner = match resolver
         .resolve_script(
@@ -129,20 +110,8 @@ fn bundle_rejects_a_target_inventory_from_a_foreign_program() {
     };
     let source = VerifiedScriptSemanticSourceV1::seal(script, owner, &window)
         .expect("Script semantic source");
-    let whole = VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, imports)
-        .expect("whole target inventory");
-    let targets = whole.into_targets();
-    let results = VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
-        .expect("callee result catalog");
-    assert_eq!(
-        VerifiedScriptDirectStaticResultBundleV1::issue(
-            &source,
-            &window,
-            &foreign_inventory,
-            declarations,
-            imports,
-            &results,
-        ),
-        Err(ScriptDirectStaticResultBundleErrorV1::TargetInventoryBrandMismatch)
-    );
+    let lookup = VerifiedScriptDirectStaticCallLookupV1::empty_for_test();
+    let bundle = VerifiedScriptDirectStaticResultBundleV1::issue(&source, &window, lookup)
+        .expect("empty owned lookup has no rows");
+    assert_eq!(bundle.len(), 0);
 }

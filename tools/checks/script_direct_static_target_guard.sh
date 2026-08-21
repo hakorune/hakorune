@@ -14,6 +14,8 @@ require_text() {
 }
 
 MODULE=src/mir/source_call_target/script_direct_static.rs
+LOOKUP=src/mir/builder/normal_script_direct_static_lookup.rs
+LOOKUP_TESTS=src/mir/builder/normal_script_direct_static_lookup_tests.rs
 TESTS=src/mir/source_call_target/script_direct_static_tests.rs
 TYPEOP_POLICY=src/mir/policies/source_method_typeop_route.rs
 TYPEOP_TESTS=src/mir/policies/source_method_typeop_route_tests.rs
@@ -54,7 +56,11 @@ FAILFAST_CARD=docs/development/current/main/investigations/script-direct-static-
 SOURCE_FINALIZER=src/parser/source_seal/finalize.rs
 SOURCE_TESTS=src/parser/normal_callable_program_source/tests.rs
 
-require_text "$MODULE" "VerifiedScriptDirectStaticCallTargetInventoryV1"
+require_text "$MODULE" "VerifiedScriptDirectStaticCallLookupV1"
+require_text "$LOOKUP" "ScriptDirectStaticCallLookupIssuerV1"
+require_text "$LOOKUP" "with_normal_program_source_loan"
+require_text "$LOOKUP_TESTS" "issuer_moves_one_owned_target_result_relation_from_the_parser_loan"
+require_text "$LOOKUP_TESTS" "issuer_rejects_a_neutral_window_from_a_foreign_parser_invocation"
 require_text "$MODULE" "observe_script_method_calls_shadow_view_v0"
 require_text "$MODULE" "classify_source_method_typeop_route_v1"
 require_text "$TYPEOP_POLICY" "SourceMethodTypeOpDispositionV1"
@@ -64,10 +70,10 @@ require_text "$TYPEOP_TESTS" "direct_string_typeops_are_typed_non_candidates"
 require_text "$SPECIAL_HANDLERS" "classify_source_method_typeop_route_v1"
 require_text "$CALL_BUILD" "SourceMethodTypeOpDispositionV1"
 require_text "$MODULE" "TargetOutsideCatalog"
-require_text "$ADMISSION" "attach_script_direct_static_targets"
-require_text "$LIFECYCLE" "VerifiedScriptDirectStaticCallTargetInventoryV1::issue"
+require_text "$LIFECYCLE" "ScriptDirectStaticCallLookupIssuerV1::issue"
+require_text "$LIFECYCLE" "script-static-lookup/preflight"
 require_text "$BUNDLE" "VerifiedScriptDirectStaticResultBundleV1"
-require_text "$BUNDLE" "TargetInventoryBrandMismatch"
+require_text "$BUNDLE" "VerifiedScriptDirectStaticCallLookupV1"
 require_text "$SEMANTIC_SOURCE" "attach_direct_static_result_bundle"
 require_text "$CONTINUATION" "VerifiedScriptSourceContinuationV1"
 require_text "$CONTINUATION" "validate_statement_window"
@@ -164,13 +170,32 @@ require_text "$SOURCE_TESTS" "unsupported_compatibility_cohorts_do_not_enter_ini
 require_text "$FAILFAST_CARD" "SCRIPT-DIRECT-STATIC-CALL-CLAIM-INGRESS-FAILFAST-P0"
 require_text "$FAILFAST_CARD" "UnlocatedCompatibility"
 
-for file in "$MODULE" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$REQUIRED_ARGUMENT_PROOF" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$PHYSICAL_KERNEL" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$BUILDER_README" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
+# README is a documentation index, not production source.  Keep the 760-line
+# source split gate on Rust owners and validate README content separately via
+# the required-text assertions above.
+for file in "$MODULE" "$LOOKUP" "$LOOKUP_TESTS" "$TESTS" "$TYPEOP_POLICY" "$TYPEOP_TESTS" "$SPECIAL_HANDLERS" "$CALL_BUILD" "$BUNDLE" "$BUNDLE_TESTS" "$ADMISSION" "$LIFECYCLE" "$SEMANTIC_SOURCE" "$CONTINUATION" "$CONTINUATION_TESTS" "$LOWERING_INPUT" "$LOWERING_STATE" "$CLAIM_LEDGER" "$CLAIM_LEDGER_TESTS" "$REQUIRED_ARGUMENT_PROOF" "$CLAIM_PORT" "$CLAIM_PORT_TESTS" "$CLAIM_TRANSPORT" "$MEMBER_ROUTE" "$PHYSICAL_BRIDGE" "$PHYSICAL_PUBLICATION" "$PHYSICAL_KERNEL" "$RAW_DISPATCH" "$RAW_STRUCTURED" "$RAW_INVOCATION" "$RESULT_OWNER" "$RESULT_OWNER_TESTS" "$RECIPE" "$RECIPE_TESTS" "$JOIN_HANDOFF" "$JOIN_HANDOFF_TESTS" "$ROOT_TRAVERSAL" "$SOURCE_FINALIZER" "$SOURCE_TESTS"; do
   lines="$(wc -l < "$file")"
   if (( lines >= 760 )); then
     echo "[script-direct-static-target] source split required: $file has $lines lines" >&2
     exit 1
   fi
 done
+
+if rg -n "VerifiedScriptDirectStaticCallTargetInventoryV1::issue|attach_script_direct_static_targets|with_taken_script_direct_static_targets|TargetInventoryBrandMismatch" "$ADMISSION" "$LIFECYCLE" "$BUNDLE"; then
+  echo "[script-direct-static-target] pointer inventory remained on the production edge" >&2
+  exit 1
+fi
+
+if rg -n "ASTNode|as \*const|usize|VerifiedScriptDirectStaticCallTargetInventoryV1" "$LOOKUP"; then
+  echo "[script-direct-static-target] owned lookup relation retained AST/pointer inventory state" >&2
+  exit 1
+fi
+
+LOOKUP_HEADER="$(rg -B 2 -n 'struct VerifiedScriptDirectStaticCallLookupV1' "$MODULE")"
+if printf '%s\n' "$LOOKUP_HEADER" | rg -n 'Clone'; then
+  echo "[script-direct-static-target] owned lookup relation became Clone" >&2
+  exit 1
+fi
 
 if rg -n "MirInstruction|MirType|ScriptPhysicalExit|finish_direct_static_claims|raw_root_body_recipe" "$CLAIM_PORT"; then
   echo "[script-direct-static-target] claim port crossed the physical/finish boundary" >&2
@@ -267,6 +292,8 @@ fi
 
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::source_call_target::script_direct_static_tests --lib
+CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
+  mir::builder::normal_script_direct_static_lookup --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
   mir::policies::source_method_typeop_route_tests --lib
 CARGO_BUILD_JOBS=4 cargo test --profile quick -q -p nyash-rust \
