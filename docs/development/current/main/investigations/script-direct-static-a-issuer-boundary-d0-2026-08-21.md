@@ -116,10 +116,27 @@ only source-owned, AST-free data:
 
 The source-plan owner may validate borrowed source storage while issuing this
 input, but the compiler sibling must receive no AST pointer, `ValueId`, block,
-MIR type, Recipe key, or physical ID. If the source-plan owner cannot provide a
-complete window/resolver capability, the issuer must return
+MIR type, Recipe key, or physical ID. The resolver may need a scoped syntax
+view because `ScriptSyntaxViewV1` currently borrows a Program AST; that view
+must be lent through a source-plan-owned callback and consumed completely while
+the callback is active. No AST pointer may escape into the A product or the
+dispatch state. If the source-plan owner cannot provide a complete
+window/resolver capability, the issuer must return
 `A.SourceAuthorityUnavailable`; it may not synthesize an empty window or reuse
 the selected Builder window.
+
+The transport and semantic seams must remain distinct. The minimum transport
+change is a move-only operation on the existing envelope owner, conceptually
+`CanonicalScriptSourcePlanEnvelopeV1::into_a_parts(self)`, which transfers the
+already validated parser rows, source identity/digest, profile, and envelope
+seal as one unit. That operation issues no A meaning. Separately,
+`normal_source_plan` must expose one HRTB/lifetime-bound source-owner callback
+that lends the retained Script syntax view, source sites, and canonical
+window/resolver capability to the A issuer and returns only AST-free verified
+rows. `CanonicalScriptAObservationIssuerV1` is the only place allowed to
+co-seal those two source-backed inputs. The compiler dispatch must never
+extract envelope fields and source-plan fields independently and pair them by
+name, ordinal, digest, or pointer.
 
 The future A issuer lives in a child such as:
 
@@ -197,8 +214,9 @@ not an A fallback and not a source authority.
 
 Accept only when:
 
-1. the source-plan owner, canonical resolver/window capability, A issuer, and
-   future C handoff are each named without reusing Builder authority;
+1. the envelope transport owner, source-plan owner, canonical resolver/window
+   capability, A issuer, and future C handoff are each named without reusing
+   Builder authority;
 2. the exact callpoint and the private `normal_source_plan` visibility seam
    are fixed, including how AST-free source data crosses the boundary;
 3. every retained site has either a direct-static row or one explicit
@@ -231,6 +249,17 @@ receipt is authorized while any of those conditions holds.
   evidence only.
 - No source-shape expansion, ABI/backend change, performance claim, or loop
   physicalizer cleanup.
+
+## Worker review receipt
+
+Two read-only audits agree that no existing canonical semantic seam is usable:
+the envelope is transport-only, the retained source internals are private,
+and the existing resolver requires Builder/AST capabilities that cannot be
+copied into A. They also confirm that `prepare_script_recipe()` has one
+non-test caller at the dispatch callpoint and remains legal only before A
+starts. This receipt strengthens the D0 boundary; it does not authorize an
+`into_a_parts` implementation, an AST-bearing compiler field, or a guessed
+canonical resolver product.
 
 ## References
 
