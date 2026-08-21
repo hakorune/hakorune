@@ -1,4 +1,4 @@
-Status: bounded I9 handoff landed; focused evidence/guard closeout in progress; live publication and retirement remain gated
+Status: CONNECT0 handoff and evidence closeout landed; live publication and retirement remain gated
 Task: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
 Date: 2026-08-22
 Priority: prove the landed handoff and keep live publication/retirement gated
@@ -232,8 +232,8 @@ cargo test --lib compare_i64_writer_tests
 
 The reusable structural guard is
 `tools/checks/rust_mirbuilder_loop_compare_connect0_guard.sh`. Its final green
-result, `cargo check`, and pointer/SSOT checks are closeout evidence still to
-be recorded before this card leaves the fast lane. No live module publication,
+result, `cargo check`, and pointer/SSOT checks are recorded closeout evidence.
+No live module publication,
 generic Loop dispatcher connection, or old generic-loop retirement is claimed.
 
 ## Finite design states
