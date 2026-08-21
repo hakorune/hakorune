@@ -20,6 +20,7 @@ appearance.
 | `MIR-LOCAL-SSA-PREPARED-OPERAND-D0` | Medium-High | `builder_emit.rs` + `ssa/local.rs` | design the prepared/legacy boundary and function-owned definition index before implementation |
 | `MIR-PHI-ANALYSIS-BATCH-D0` | Medium-High | PHI materialization/finalization | name a mutation-stable analysis batch before caching or deleting a repair pass |
 | `MIR-EMIT-CANONICAL-STRICTNESS-D0` | Medium-High | `builder_emit.rs` | after assignment fix or an explicit design selection |
+| `MIR-EMIT-CANONICAL-COMPARE-I0` | High | `loop_recipe_physicalizer/operation_emitter.rs` + `builder_emit.rs` | only after strictness D0 accepts the Loop target/operand issuer; one CompareI64 leaf, no generic writer migration; [detail](./mirbuilder-emit-canonical-compare-i0-2026-08-22.md) |
 | `MIR-RECIPE-VERIFY-MOVE-R0` | Medium | three production Recipe producers | only after their selected profiles remain production-reachable |
 | `MIR-COMPILE-COST-BASELINE-P0` | Parked prerequisite | existing compile timing/scaling tools | selfhost/perf return lane or before claiming a compiler-speed keeper |
 | `MIRBUILDER-BARREL-RESPONSIBILITY-CLEANUP-D0` | Medium | `builder.rs` | after relevant production callers are caller-zero |
@@ -206,6 +207,31 @@ Acceptance:
 
 Non-claims: no assignment semantics, Script A/C capability, Recipe/Join, or
 backend performance work.
+
+## `MIR-EMIT-CANONICAL-COMPARE-I0`
+
+This is the bounded implementation cell after the strictness D0. It uses one
+existing Loop physicalizer `CompareI64` leaf, not the generic
+`emission::compare::emit_to_at` helper. The target chain is the strongest
+existing placement candidate, but the I0 must first close sealed-state,
+operand definition/type/dominance, destination, and value-ledger ownership
+under one private prepared canonical request. The sole physical writer remains
+unchanged in count; canonical preparation must not call block creation,
+LocalSSA/PHI repair, or legacy fallback.
+
+Acceptance:
+
+- valid CompareI64 emits exactly one instruction, Bool fact, ledger row, and
+  physical receipt at the witness-bound target;
+- missing/foreign/terminated/sealed target and missing/foreign/non-dominating
+  or wrong-type operands reject before append;
+- canonical errors have zero legacy retry and zero hidden repair;
+- any post-append failure is covered by the outer unpublished-session discard;
+- one append site remains and touched Rust owners stay below 760 lines.
+
+Non-claims: no generic Compare/Call/PHI migration, assignment semantics,
+`EmitReceipt`, move optimization, backend, old-route retirement, production
+switch, or main integration.
 
 ## `MIRBUILDER-BARREL-RESPONSIBILITY-CLEANUP-D0`
 

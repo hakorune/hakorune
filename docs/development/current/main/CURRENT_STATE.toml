@@ -20,8 +20,8 @@ development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 work_mode = "design_stop"
 current_execution_row = "MIR-EMIT-CANONICAL-STRICTNESS-D0"
-current_design_stop = "open: canonical verified placement, legacy repair, and the one final physical writer must be separated by an accepted prepared-request boundary before implementation"
-current_blocker_token = "Design stop MIR-EMIT-CANONICAL-STRICTNESS-D0: name the canonical placement issuer and strict fail-fast API; no second writer, fallback, move optimization, or EmitReceipt"
+current_design_stop = "open: the Loop CompareI64 pilot has the strongest existing target chain, but its canonical placement issuer still needs sealed-state, operand definition/dominance, and strict prepared-request closure before implementation"
+current_blocker_token = "Design stop MIR-EMIT-CANONICAL-STRICTNESS-D0: complete one Loop CompareI64 placement/operand issuer and strict fail-fast API; no second writer, fallback, move optimization, or EmitReceipt"
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -90,7 +90,7 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-emit-canonical-strictness-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-emit-canonical-strictness-d0-2026-08-22.md"
-latest_card_summary = "Gate 1 assignment ReleaseStrong propagation is pushed as dcd8359f7a and Gate 2 narrow physical-writer discard guard is pushed as 8e9b4562c2; current design stop names one prepared canonical/legacy request boundary over the sole emit_instruction writer."
+latest_card_summary = "Gate 1 assignment ReleaseStrong propagation is pushed as dcd8359f7a and Gate 2 narrow physical-writer discard guard is pushed as 8e9b4562c2; the active emission design stop now selects one Loop CompareI64 pilot while its placement/operand issuer remains incomplete."
 next_design_card = "MIR-EMIT-CANONICAL-STRICTNESS-D0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-emit-canonical-strictness-d0-2026-08-22.md"
 next_execution_card = "none"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-22: MIR-RESULT-DISCARD-CENSUS-D0 is complete as a read-only Gate 0. The census records 168 exact `let _ =` rows under src/mir and 109 under src/mir/builder, with one ignored physical ReleaseStrong before variable_map publication; Clippy is available but no workspace lint rollout is authorized. The next bounded row is MIR-ASSIGNMENT-RELEASE-FAILFAST-I0."
   "2026-08-22: MIR-ASSIGNMENT-RELEASE-FAILFAST-I0 Gate 1 landed as dcd8359f7a. ReleaseStrong now propagates before variable_map publication; session restore and assignment negative evidence are green. Guard, canonical strictness, old retirement, and main integration remain queued.",
   "2026-08-22: MIR-RESULT-DISCARD-GUARD-I0 is implemented and pushed as 8e9b4562c2. The selected physical-writer discard guard is scoped to src/mir/builder, tests multiline forms, and leaves workspace lint, cleanup, and other discard families outside scope.",
-  "2026-08-22: MIR-EMIT-CANONICAL-STRICTNESS-D0 is selected as design_stop. The D0 keeps one physical writer, separates canonical prepared placement from legacy repair, and leaves implementation blocked until the placement issuer and explicit-block Compare pilot are accepted.",
+  "2026-08-22: MIR-EMIT-CANONICAL-STRICTNESS-D0 remains design_stop after a read-only worker audit. The strongest bounded pilot is the Loop CompareI64 target chain, but sealed-state, operand definition/dominance, and post-append failure-atomicity closure are not yet one canonical issuer; MIR-EMIT-CANONICAL-COMPARE-I0 is queued without implementation authorization.",
 ]

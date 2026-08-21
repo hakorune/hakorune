@@ -1,9 +1,9 @@
-Status: design stop; accepted boundary, implementation not authorized
+Status: design stop; pilot task queued, placement issuer is not yet complete
 Task: MIR-EMIT-CANONICAL-STRICTNESS-D0
 Date: 2026-08-22
 Priority: Medium-High
 Owner: `src/mir/builder/builder_emit.rs`
-NextCard: MIR-EMIT-CANONICAL-STRICTNESS-I0 (create only after this D0 is accepted)
+NextCard: MIR-EMIT-CANONICAL-COMPARE-I0 (blocked until this D0 exits design_stop)
 ---
 
 # MIRBuilder canonical emission strictness D0
@@ -15,10 +15,14 @@ placement from legacy repair before either path reaches that writer. The
 separation is a private prepared-request type, not a runtime boolean or a
 second instruction appender.
 
-Source authority + canonical issuer: the existing canonical CFG/SSA/profile
-owners issue the placement, operand, receiver, and PHI-preparation evidence;
-`MirBuilder::commit_prepared_emission` is the sole physical commit owner. The
-legacy compatibility facade issues only an explicitly repair-permitted request.
+Source authority + canonical issuer: for the first pilot,
+`PreparedLoopOperationEmissionV1` plus `LoopPhysicalBlockReceiptV1` is the
+strongest existing placement candidate; `issue_target_for_pure()` is its sole
+adapter into `VerifiedLoopOperationTargetBlockV1`. It is not yet a complete
+canonical placement issuer because sealed-state, operand definition/dominance,
+and direct canonical-CFG coupling are still missing. The eventual
+`MirBuilder::commit_prepared_emission` remains the sole physical commit owner.
+The legacy compatibility facade issues only an explicitly repair-permitted request.
 
 Non-authority: ambient `current_block`, `ensure_block_exists`, AST/name lookup,
 `variable_map`, LocalSSA scans, `phi_input_materializer`, debug flags, and
@@ -29,9 +33,10 @@ Fail-fast boundary: all canonical block, operand, receiver, PHI, and CFG checks
 must finish before the first MIR mutation. A canonical reject cannot retry via
 the legacy repair request or silently create a target block.
 
-Smallest next slice: design and then pilot one explicit-block scalar operation
-(`emission::compare::emit_to_at`) through the typed canonical request while
-leaving Call/receiver, PHI, and legacy callers on their current route.
+Smallest next slice: pilot the existing Loop physicalizer's explicit-block
+`LoopOperationV1::CompareI64` through the typed canonical request, consuming
+`VerifiedLoopOperationTargetBlockV1` without re-pairing its block by raw ID.
+Call/receiver, PHI, and legacy callers remain on their current route.
 
 Non-claims: no assignment change, A/C, Recipe/Join, backend, performance
 optimization, `EmitReceipt`, whole-writer migration, or old-route retirement.
@@ -83,6 +88,45 @@ Each selected canonical physicalizer must pass the existing route-owned proof
 through one private adapter. If a route has no owner that can issue the
 placement/operand evidence, it remains `NoSafeSlice`; ambient Builder state is
 not promoted to authority.
+
+For the selected pilot, the existing chain is concrete:
+
+```text
+PreparedLoopOperationEmissionV1
+  + ReadyLoopEntryV1
+  + LoopPhysicalBlockReceiptV1
+  -> issue_target_for_pure()
+  -> VerifiedLoopOperationTargetBlockV1
+  -> validate_function(builder)
+  -> strict canonical emission request
+```
+
+`VerifiedLoopOperationTargetBlockV1` is not a new source authority: it is the
+already-issued placement product consumed by the Loop physicalizer. The pilot
+must preserve its owner, loop/item, logical-block, role, and physical-block
+relation through the new request; it may not reconstruct a target from the
+`BasicBlockId` alone. D0 remains open until the target witness is extended or
+co-sealed with the missing strict facts without making `builder_emit.rs` their
+issuer.
+
+## Worker read-only audit checkpoint — 2026-08-22
+
+The requested read-only audit confirmed the following:
+
+- generic `emission::compare::emit_to_at` is not a canonical placement issuer;
+- the Loop target chain is the best bounded pilot candidate, but its current
+  target is `Clone + Copy`, does not reject sealed blocks, does not prove
+  operand definition/dominance, and is not directly coupled to
+  `CanonicalCfgSessionV1`;
+- the one-writer prepared-request boundary can preserve failure atomicity only
+  when preparation completes all fallible checks, commit bookkeeping is
+  infallible (or covered by the outer unpublished-session discard), and no
+  canonical reject enters legacy repair;
+- `emit_prepared_pure_operation_at_target_v1` still has fallible result-type
+  and value-ledger checks after the physical leaf emission, so those checks
+  must move into preparation or be covered explicitly before I0.
+
+The worker made no file changes, commits, pushes, or heavy-gate claims.
 
 ## Proposed request boundary
 
@@ -208,20 +252,21 @@ commit error -> AST/name re-search or compatibility retry
 legacy repair result -> canonical placement authority
 ```
 
-## Pilot boundary: explicit scalar Compare
+## Pilot boundary: Loop physicalizer CompareI64
 
-The first I0 should use `emission::compare::emit_to_at` because it already
-has a small, explicit target-block contract and a prepared Bool type fact. It
-does not require MethodCall receiver materialization or PHI input repair. The
-pilot must first thread an accepted canonical placement issuer from the
-selected CFG/SSA owner; the helper's current existence check alone is not a
-new semantic authority.
+The first I0 should use the existing
+`loop_recipe_physicalizer::operation_emitter` CompareI64 leaf. It already has
+an explicit target receipt, a prepared operation, a value ledger, and a
+prepared Bool result contract. It does not require MethodCall receiver
+materialization or PHI input repair. The generic `emission::compare` helper
+remains a lower-level compatibility-compatible helper until a later caller
+has the same placement proof.
 
 Positive pilot:
 
 ```text
 canonical placement issuer
-  -> existing target block + Compare operands
+  -> existing Loop target receipt + Compare operands
   -> PreparedCanonicalEmissionV1
   -> one writer commit
   -> prepared Bool type publication
@@ -230,7 +275,7 @@ canonical placement issuer
 Negative pilot cases:
 
 ```text
-missing target block       -> typed reject, block count unchanged
+missing target block       -> typed reject from target issuer, block count unchanged
 terminated/sealed target   -> typed reject, instruction count unchanged
 undefined operand          -> typed reject, no type publication
 canonical preparation fail -> no legacy retry
