@@ -1389,9 +1389,11 @@ non-direct evidence. Target selection, result candidate meaning, C, Recipe,
 Join, and physical identity stay outside this product.
 
 Done: the production lookup transports the coverage product; focused evidence
-covers one ordinary row, a true empty Script, explicit non-direct routes, and
-foreign/missing/duplicate coverage rejection; existing test adapters remain
-test-only; the reusable target guard and source-size limit stay green.
+covers one ordinary row, a true empty Script, explicit non-direct routes,
+foreign invocation, and target-outside-catalog rejection. The production error
+vocabulary and structural guard retain missing, receiver-mismatch, and
+duplicate coverage rejection paths; existing test adapters remain test-only;
+the reusable target guard and source-size limit stay green.
 
 Stop: if complete coverage requires a second AST observer, if missing rows
 collapse into `CompleteEmpty`, or if target/C/Recipe meaning leaks into the
@@ -1415,13 +1417,14 @@ remain visible as `NonDirect` coverage and do not become A/C meaning.
 
 Focused evidence is green for one ordinary selected row, true empty coverage,
 bound/dynamic routes, type-operation/reserved routes, foreign invocation, and
-target-outside-catalog rejection. The production edge still has one HRTB
-observation and no second AST scan; the coverage product has no AST, pointer,
-target, candidate/C, Recipe/Join, MIR, physical, or fallback identity. The
-reusable Script guard, current-state pointer guard, source-size check, and diff
-check are green. The worker returned no report before shutdown; the same
-read-only boundary audit was completed by the main agent and did not widen the
-cell.
+target-outside-catalog rejection. The production typed error paths retain
+missing projected sites, receiver-site mismatch, and duplicate coverage
+rejection. The production edge still has one HRTB observation and no second
+AST scan; the coverage product has no AST, pointer, target, candidate/C,
+Recipe/Join, MIR, physical, or fallback identity. The reusable Script guard,
+current-state pointer guard, source-size check, and diff check are green. The
+worker returned no report before shutdown; the same read-only boundary audit
+was completed by the main agent and did not widen the cell.
 
 Closeout boundary: this cell is complete, but the parser-witnessed coverage is
 not yet the pre-effect A capability. Under the parent
