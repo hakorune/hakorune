@@ -5,12 +5,19 @@
 //! meaning.
 
 mod issuer;
+mod loan;
 mod model;
 mod transform_guard;
 
 pub(crate) use issuer::issue_parser_composite_source_v1;
+pub(crate) use loan::{
+    with_parser_composite_source_loan, ParserCompositeSourceLoanRejectV1,
+    ParserCompositeSourceLoanV1,
+};
 pub(crate) use model::{
-    ParserCompositeSourceDispositionV1, ParserCompositeSourceUnavailableV1,
+    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
+    ParserCompositeOutsideReasonV1, ParserCompositeSourceDispositionV1,
+    ParserCompositeSourceUnavailableV1,
     ParserCompositeTransformRejectV1,
 };
 pub(crate) use transform_guard::validate_parser_composite_transform_v1;

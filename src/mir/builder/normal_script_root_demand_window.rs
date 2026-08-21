@@ -17,6 +17,7 @@ use super::normal_script_deferred_residual_registry::{
 #[cfg(test)]
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
+use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 
 /// Complete/Deferred root admission evidence prepared from one Program pass.
@@ -105,8 +106,21 @@ impl ScriptRootDemandWindowBuilderV1 {
         statement: &ASTNode,
         occurrence: SelectedScriptProgramOccurrenceV1,
     ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
-        let decision =
-            ScriptRootSemanticDecisionV1::decide(self.entries.len(), statement, occurrence)?;
+        self.record_selected_work_item_with_composite_partition(statement, occurrence, None)
+    }
+
+    pub(super) fn record_selected_work_item_with_composite_partition(
+        &mut self,
+        statement: &ASTNode,
+        occurrence: SelectedScriptProgramOccurrenceV1,
+        composite_partition: Option<&CanonicalScriptCompositeProgramPartitionV1>,
+    ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
+        let decision = ScriptRootSemanticDecisionV1::decide_with_composite_partition(
+            self.entries.len(),
+            statement,
+            occurrence,
+            composite_partition,
+        )?;
         self.deferred_residuals
             .record(occurrence.source_statement_index(), statement, decision);
         self.record_decision(occurrence.source_statement_index(), decision)

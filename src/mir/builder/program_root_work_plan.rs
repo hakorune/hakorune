@@ -10,6 +10,7 @@ use super::normal_instance_constructor_admission::{
     NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
 };
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
+use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
@@ -214,6 +215,26 @@ impl PreparedProgramRootWorkPlanV1 {
         instance_box_transfers: Option<&VerifiedScriptInstanceBoxTransferCohortV1>,
         constructor_source_cohort: Option<&VerifiedInstanceConstructorPhysicalSourceCohortV1>,
     ) -> Result<Self, String> {
+        Self::prepare_with_instance_box_transfers_and_constructor_sources_and_composite_partition(
+            statements,
+            is_app_mode,
+            work_plan_admission,
+            selected_callable_sources,
+            instance_box_transfers,
+            constructor_source_cohort,
+            None,
+        )
+    }
+
+    pub(super) fn prepare_with_instance_box_transfers_and_constructor_sources_and_composite_partition(
+        statements: Vec<ASTNode>,
+        is_app_mode: bool,
+        work_plan_admission: ProgramRootWorkPlanAdmissionV1,
+        selected_callable_sources: Option<&VerifiedSelectedNormalCallableSourceInventoryV1>,
+        instance_box_transfers: Option<&VerifiedScriptInstanceBoxTransferCohortV1>,
+        constructor_source_cohort: Option<&VerifiedInstanceConstructorPhysicalSourceCohortV1>,
+        composite_partition: Option<&CanonicalScriptCompositeProgramPartitionV1>,
+    ) -> Result<Self, String> {
         assert_eq!(
             selected_callable_sources.is_some(),
             work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal,
@@ -250,7 +271,11 @@ impl PreparedProgramRootWorkPlanV1 {
                     occurrence = occurrence.with_instance_box_transfer();
                 }
                 window
-                    .record_selected_work_item(&statement, occurrence)
+                    .record_selected_work_item_with_composite_partition(
+                        &statement,
+                        occurrence,
+                        composite_partition,
+                    )
                     .expect("selected Script demand-window source contract");
             }
             let disposition = classify_statement(

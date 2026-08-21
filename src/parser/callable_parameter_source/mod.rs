@@ -38,7 +38,13 @@ pub(crate) use product::{
     ParsedProgramWithCallableParameterSourceV1, ParserCallableSourceDispositionV1,
 };
 pub(crate) use composite_source::{
-    ParserCompositeSourceDispositionV1, ParserCompositeTransformRejectV1,
+    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
+    ParserCompositeOutsideReasonV1, ParserCompositeSourceDispositionV1,
+    ParserCompositeSourceLoanRejectV1, ParserCompositeSourceUnavailableV1,
+    ParserCompositeTransformRejectV1,
+};
+pub(crate) use composite_source::{
+    with_parser_composite_source_loan, ParserCompositeSourceLoanV1,
 };
 pub(super) use composite_source::{
     validate_parser_composite_transform_v1,

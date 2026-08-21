@@ -16,6 +16,10 @@ use super::normal_script_direct_static_join_handoff::{
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
+use super::normal_script_composite_partition::{
+    CanonicalScriptCompositeProgramPartitionDispositionV1,
+    CanonicalScriptCompositeProgramPartitionIssuerV1,
+};
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
 use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
@@ -120,7 +124,10 @@ struct PreparedNormalDefaultProgramRootSealV1;
 
 #[derive(Debug)]
 enum PreparedNormalDefaultProgramSourceV1 {
-    Callable(VerifiedFinalCallableProgramSourceV1),
+    Callable {
+        source: VerifiedFinalCallableProgramSourceV1,
+        composite_partition: CanonicalScriptCompositeProgramPartitionDispositionV1,
+    },
     TypedCompatibility(NormalCallableCompatibilityOriginV1),
     Compatibility(ASTNode),
 }
@@ -139,8 +146,12 @@ impl PreparedNormalDefaultProgramRootV1 {
     pub(in crate::mir) fn from_callable_source(
         source: VerifiedFinalCallableProgramSourceV1,
     ) -> Self {
+        let composite_partition = CanonicalScriptCompositeProgramPartitionIssuerV1::issue(&source);
         Self {
-            source: PreparedNormalDefaultProgramSourceV1::Callable(source),
+            source: PreparedNormalDefaultProgramSourceV1::Callable {
+                source,
+                composite_partition,
+            },
             _seal: PreparedNormalDefaultProgramRootSealV1,
         }
     }
@@ -156,7 +167,7 @@ impl PreparedNormalDefaultProgramRootV1 {
 
     pub(super) fn source_ast(&self) -> &ASTNode {
         match &self.source {
-            PreparedNormalDefaultProgramSourceV1::Callable(source) => source.ast(),
+            PreparedNormalDefaultProgramSourceV1::Callable { source, .. } => source.ast(),
             PreparedNormalDefaultProgramSourceV1::TypedCompatibility(origin) => origin.ast(),
             PreparedNormalDefaultProgramSourceV1::Compatibility(ast) => ast,
         }
@@ -172,8 +183,19 @@ impl PreparedNormalDefaultProgramRootV1 {
     pub(in crate::mir) fn is_callable_source_backed(&self) -> bool {
         matches!(
             &self.source,
-            PreparedNormalDefaultProgramSourceV1::Callable(_)
+            PreparedNormalDefaultProgramSourceV1::Callable { .. }
         )
+    }
+
+    fn composite_partition_fail_fast_error(&self) -> Option<Box<str>> {
+        match &self.source {
+            PreparedNormalDefaultProgramSourceV1::Callable {
+                composite_partition,
+                ..
+            } => composite_partition.fail_fast_error(),
+            PreparedNormalDefaultProgramSourceV1::TypedCompatibility(_)
+            | PreparedNormalDefaultProgramSourceV1::Compatibility(_) => None,
+        }
     }
 
     pub(in crate::mir) fn is_typed_compatibility(&self) -> bool {
@@ -245,6 +267,13 @@ impl ModuleBuilderInvocationSessionV1 {
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
     > {
+        if let Some(error) = source.composite_partition_fail_fast_error() {
+            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                session: self,
+                _source: Some(source),
+                error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(error),
+            });
+        }
         if let Err(error) = self.install_pinned_text_target_capability(target_capability) {
             return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
                 session: self,
@@ -296,9 +325,12 @@ impl ModuleBuilderInvocationSessionV1 {
                 })
             }
         };
-        let (mut semantic_package, compatibility_source) = match source {
+        let (mut semantic_package, compatibility_source, composite_partition) = match source {
             PreparedNormalDefaultProgramRootV1 {
-                source: PreparedNormalDefaultProgramSourceV1::Callable(callable),
+                source: PreparedNormalDefaultProgramSourceV1::Callable {
+                    source: callable,
+                    composite_partition,
+                },
                 ..
             } => {
                 let package = match declaration_facts.with_brand_catalog(|catalog| {
@@ -319,9 +351,9 @@ impl ModuleBuilderInvocationSessionV1 {
                         })
                     }
                 };
-                (Some(package), None)
+                (Some(package), None, Some(composite_partition))
             }
-            compatibility => (None, Some(compatibility)),
+            compatibility => (None, Some(compatibility), None),
         };
         let instance_box_transfers = match (preflight_is_app_mode, semantic_package.as_ref()) {
             (true, _) => None,
@@ -453,13 +485,16 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/static-result-owner/catalog] {error}").into(),
                             )
                         })?;
-                let work = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers_and_constructor_sources(
+                let work = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers_and_constructor_sources_and_composite_partition(
                     lowering_statements,
                     expansion.is_app_mode(),
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                     Some(declarations.selected_source_inventory()),
                     instance_box_transfers.as_ref(),
                     constructor_source_cohort.as_ref(),
+                    composite_partition
+                        .as_ref()
+                        .and_then(CanonicalScriptCompositeProgramPartitionDispositionV1::ready_partition),
                 )
                 .map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())

@@ -5,7 +5,9 @@ use hakorune_frontend_parser::parser::GrammarProfile;
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-    ParserCallableSyntaxLoanErrorV1, ParserCompositeSourceDispositionV1,
+    with_parser_composite_source_loan, ParserCallableSyntaxLoanErrorV1,
+    ParserCompositeSourceDispositionV1, ParserCompositeSourceLoanRejectV1,
+    ParserCompositeSourceLoanV1,
 };
 use super::super::callable_source_anchor::{
     DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
@@ -163,6 +165,15 @@ impl PreparedNormalCallableProgramSourceV1 {
         self.composite_source.is_ready()
     }
 
+    /// Lend the parser-issued composite source at the named admission
+    /// boundary. The higher-ranked callback cannot return an AST reference.
+    pub(crate) fn with_composite_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserCompositeSourceLoanRejectV1> {
+        with_parser_composite_source_loan(&self.composite_source, self.ast(), callback)
+    }
+
     pub(in crate::parser) fn into_transform_parts(
         self,
     ) -> (
@@ -249,6 +260,16 @@ impl VerifiedFinalCallableProgramSourceV1 {
 
     pub(crate) fn composite_source_is_ready(&self) -> bool {
         self.composite_source.is_ready()
+    }
+
+    /// Lend the parser-issued composite source at the final source owner.
+    /// The higher-ranked callback keeps both the AST view and token view
+    /// inside the named admission boundary.
+    pub(crate) fn with_composite_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserCompositeSourceLoanRejectV1> {
+        with_parser_composite_source_loan(&self.composite_source, &self.ast, callback)
     }
 
     pub(in crate::parser) fn callable_count(&self) -> usize {

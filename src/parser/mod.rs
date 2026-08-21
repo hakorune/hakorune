@@ -58,7 +58,14 @@ pub(crate) use normal_callable_program_source::{
     issue_final_callable_program_source_v1, CallableMethodSourceObservationV1,
     FinalCallableDeclarationModeV1, FinalCallableProgramSourceRejectV1,
     FinalCallableSemanticSyntaxLoanErrorV1, NormalCallableParserCompatibilityV1, NormalParserSourceLineageErrorV1,
-    NormalParserSourceLineageV1, ParsedNormalCallableProgramV1, ParserCallableSourceDispositionV1, VerifiedFinalCallableProgramSourceV1,
+    NormalParserSourceLineageV1, ParsedNormalCallableProgramV1, ParserCallableSourceDispositionV1,
+    VerifiedFinalCallableProgramSourceV1,
+};
+pub(crate) use callable_parameter_source::{
+    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
+    ParserCompositeOutsideReasonV1, ParserCompositeSourceUnavailableV1,
+    ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
+    ParserInvocationWitnessV1,
 };
 mod postpass_compatibility;
 pub(crate) mod postpass_envelope;

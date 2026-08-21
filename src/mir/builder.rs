@@ -109,6 +109,7 @@ mod normal_instance_constructor_demand_loan;
 mod normal_instance_constructor_semantic_scope;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
 mod normal_script_instance_box_transfer;
+mod normal_script_composite_partition;
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
