@@ -1253,13 +1253,15 @@ and lookup cannot be standalone I0 rows today, that not every deferred cause
 has a site, and that any forward prerequisites must belong to a bounded series
 ending in the A cutover.
 
-The current row is therefore `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` in fast mode.
-The parser-backed authority handoff is complete and pushed as `aa1aecf495`:
-the authority is required through Parsed -> Prepared -> Final -> semantic
-package, and one HRTB paired cursor is available to the neutral issuer. The
-remaining implementation is limited to the one neutral issuer, work-plan
-transport, and caller-zero guards. No lookup, A/C, Recipe, physical, fallback,
-or production cutover cell is opened by this receipt.
+The row `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0` is now implementation-complete and
+pushed as `c97b40dc3d`. Together with the preceding parser handoff
+`aa1aecf495`, the authority is required through Parsed -> Prepared -> Final ->
+semantic package, one HRTB paired cursor feeds the neutral issuer, and the
+default Builder window/decision/occurrence callers are zero. The next frontier
+is the design-stop row `SCRIPT-LOOKUP-REOWN-I0-R0`: replace the pointer-branded
+target/result lookup authority with one owned AST-free relation before opening
+A/C. No A/C, Recipe, physical, fallback, or production cutover cell is opened
+by this receipt.
 
 ## References
 
