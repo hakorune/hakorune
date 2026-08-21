@@ -1,12 +1,12 @@
 ---
-Status: design accepted; next bounded implementation cell is `SCRIPT-A-SOURCE-WINDOW-COSEAL-I0`
+Status: implementation complete and pushed as `f0d80d6943`; A capability remains `design_stop`
 Date: 2026-08-21
 Decision: SCRIPT-A-SOURCE-WINDOW-COSEAL-I0-D0
 Parent: docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md
 ProductionCaller: `ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle_with_target`
 ReplacementCell: existing neutral window -> one pre-effect source-window handoff -> later A capability
 Classification: T2 BoxShape/ownership prerequisite; no A/C meaning or production switch
-NextCard: implement `SCRIPT-A-SOURCE-WINDOW-COSEAL-I0`
+NextCard: design `SCRIPT-A-CAPABILITY-I0`
 ---
 
 # SCRIPT-DIRECT-STATIC-A-SOURCE-WINDOW-COSEAL-I0
@@ -292,3 +292,42 @@ neutral window issuer
 If implementation discovers that the admission cannot be split without a
 second window issuer or an internal optional/default repair, stop immediately
 and record the missing owner instead of adapting Builder products.
+
+## Implementation closeout
+
+`f0d80d6943` closes this bounded ownership cell:
+
+```text
+PreparedCanonicalScriptNeutralProgramWindowV1
+  -> split_for_pre_effect
+  -> PreparedScriptRootAdmissionV1 moves into
+     PreEffectCompleteSourceObservationV1
+  -> resolver/lookup co-seal under the same parser invocation
+  -> split_for_work_plan
+  -> the same admission moves to PreparedProgramRootWorkPlanV1
+```
+
+The admission now owns its `ParserInvocationWitnessV1`. Instance-Box transfer
+and constructor-source cohorts move in a separate
+`PreparedCanonicalScriptPostInstallRemainderV1`; they cannot issue, copy, or
+repair the canonical source window. No A/C meaning, Recipe/Join edge, physical
+effect, fallback, or production-switch claim was added.
+
+Evidence:
+
+- `cargo check --profile quick --lib`: green;
+- `cargo test --profile quick --lib pre_effect_source_observation`: 4 passed,
+  including real empty Script, final root Return, ordinary zero-call, and
+  foreign parser invocation rejection;
+- `cargo test --profile quick --lib normal_script_neutral_window`: 2 passed;
+- `script_direct_static_source_reown_window_r0_guard.sh`: green;
+- `current_state_pointer_guard.sh` and `git diff --check`: green;
+- touched production owners are 262, 429, 213, and 600 lines, all below the
+  760 split trigger and 800 hard stop.
+
+The next row is not an implementation permission. `SCRIPT-A-CAPABILITY-I0`
+must first close the private capability fields, sole issuer, immediate named A
+consumer, complete-zero representation, and the linear return of the same
+source admission. The independent Result-discard queue remains ordered as
+`MIR-RESULT-DISCARD-CENSUS-D0` -> `MIR-ASSIGNMENT-RELEASE-FAILFAST-I0` ->
+`MIR-RESULT-DISCARD-GUARD-I0`; `EmitReceipt` remains parked.
