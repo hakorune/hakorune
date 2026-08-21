@@ -1,10 +1,10 @@
 ---
-Status: accepted policy; Gate 0 census complete; assignment consumer is next
+Status: Gate 0 census and Gate 1 assignment fix complete; Gate 2 guard selected
 Date: 2026-08-21
 Priority: Medium-High policy / High assignment consumer
 Decision: MIRBUILDER-FALLIBLE-RESULT-DISCARD-POLICY-D0
 Parent: docs/development/current/main/investigations/mirbuilder-post-audit-follow-up-queue-2026-08-21.md
-NextCard: MIR-ASSIGNMENT-RELEASE-FAILFAST-I0
+NextCard: MIR-RESULT-DISCARD-GUARD-I0
 ---
 
 # MIRBUILDER-FALLIBLE-RESULT-DISCARD-POLICY-D0
@@ -244,12 +244,25 @@ Negative:
 Structural:
 
 ```text
-assignment ReleaseStrong discard remains explicitly tracked = 1 until Gate 1
+    assignment ReleaseStrong discard remains explicitly tracked = 1 at Gate 0; Gate 1 closes it
 MIRBuilder physical-result discard guard scope                = named
 blanket clippy allow over builder                               = 0
 second physical writer                                         = 0
 workspace-wide lint rollout without package scope             = 0
 ```
+
+## Gate 1 checkpoint — 2026-08-22
+
+`MIR-ASSIGNMENT-RELEASE-FAILFAST-I0` is implemented and pushed as
+`dcd8359f7a`. The existing function-owned session restore contract was
+verified with its fallible-checkpoint and primary-plus-cleanup-error tests;
+the assignment now propagates `ReleaseStrong` before publishing
+`variable_map`. Its focused suite is 6/6 green, and the old ignored physical
+result is zero in the selected MIRBuilder surface.
+
+The next bounded row is `MIR-RESULT-DISCARD-GUARD-I0`. It protects only the
+three confirmed physical-writer discard shapes and deliberately does not
+enable a workspace Clippy deny or classify the remaining census rows.
 
 ## Relationship to the current lane
 
