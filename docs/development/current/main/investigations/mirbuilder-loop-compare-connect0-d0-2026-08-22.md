@@ -1,10 +1,10 @@
-Status: CONNECT0 handoff/evidence closeout landed; live-publication boundary D0 accepted; implementation and retirement remain gated
-Task: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
+Status: CONNECT0 handoff/evidence closeout landed; live-publication boundary is deferred on full-body consumption; implementation and retirement remain gated
+Task: MIR-LOOP-COMPARE-LIVE-PUBLICATION-FULL-BODY-CONSUMPTION-P0
 Date: 2026-08-22
-Priority: preserve CONNECT0 evidence and define the next live-publication boundary without opening backend or generic retirement
-Parent: MIR-LOOP-COMPARE-STRICT-WRITER-P0
-PreviousCard: MIR-LOOP-COMPARE-STRICT-WRITER-P0
-NextCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0 (same rolling card)
+Priority: prove complete selected-Dynamic body consumption before claiming collector drain or external commit; keep backend and generic retirement closed
+Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
+PreviousCard: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
+NextCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-FULL-BODY-CONSUMPTION-P0 (same rolling card)
 ---
 
 # Loop Compare CONNECT0 handoff
@@ -52,33 +52,67 @@ This does not yet prove an end-to-end live publication fixture. The word
 | `ExternalCommit` | sealed module passes compiler-owned verification and is externally committed | `PreparedModuleExternalCommitV1` / invocation session | define evidence |
 | `BackendEmission` | LLVM/object/native or VM consumer observes the module | backend owner | explicit non-claim |
 
-The next design task is:
+The publication audit is refined by the following prerequisite task:
 
 ```text
-MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
+MIR-LOOP-COMPARE-LIVE-PUBLICATION-FULL-BODY-CONSUMPTION-P0
 ```
 
 Six-line brief:
 
 ```text
-Decision: accept a bounded publication-boundary audit for selected Dynamic I9; do not open backend emission or generic Loop retirement.
+Decision: accept the static selected-Dynamic production path, but defer live publication until complete source-body consumption is evidenced on the same path; do not open backend emission or generic Loop retirement.
 Source authority + canonical issuer: the existing selected Dynamic I9 demand/ledger and private I9 handoff own Compare facts; collector drain and external commit own module publication transitions.
 Non-authority: collector admission alone, `current_module` observation alone, test helpers, generic dispatcher caller-zero, old shared Compare leaf, backend/object output, and any fallback route.
-Fail-fast boundary: the named compile path must retain the exact I9 handoff, complete collector drain and external-commit preflight, and discard the unpublished session on any failure before claiming publication.
-Smallest next slice: prove one unchanged selected-Dynamic normal compile fixture through `ModuleDrain` and `ExternalCommit`, with caller/fallback/old-edge census and no backend claim.
+Fail-fast boundary: all selected-Dynamic source/body/operation consumption must complete at `package_port` before `finish_unpublished_draft`, collector drain, or external commit; any failure discards the unpublished session and cannot fall back.
+Smallest next slice: drive unchanged `parser_scan_loop_box.hako` through public `compile_normal`, prove every selected-Dynamic source operation is consumed, then observe one `DraftAdmission`, one `ModuleDrain`, and one `ExternalCommit`.
 Non-claims: no new semantic receipt, no generic dispatcher activation, no cross-block dominance, no Const/Binary migration, no shared old-leaf retirement, no LLVM/VM/object promotion, and no performance work.
 ```
+
+### Worker audit result
+
+The static route is real, but the live publication claim is not yet evidenced:
+
+```text
+parser_scan_loop_box.hako
+  -> compile_normal
+  -> normal_default_root_catalog_post_install
+  -> program root lowering
+  -> selected Dynamic adapter
+  -> W6 unpublished emitter
+  -> (not yet proven: complete body consumption)
+  -> DraftAdmission / ModuleDrain / ExternalCommit
+```
+
+Evidence anchors are `normal_default_pipeline.rs:452-484`,
+`normal_callable_semantic_loan_port.rs:463-495`,
+`selected_dynamic_physical_emitter/mod.rs:685-728`,
+`program_root_lowering.rs:237-244`, and
+`normal_default_pipeline.rs:505-510`. The selected Dynamic branch receives the
+source `body` but the W6 call uses `inspect = |_| Ok(())`; the focused adapter
+test also supplies empty parameter/body vectors. These prove reachability of
+the handoff, not consumption of the unchanged source body and not a live
+module publication.
+
+The first P0 deliverable is therefore a consumption receipt/census at the
+existing package-port completion boundary. It must prove that the exact
+selected source rows are consumed once before the collector can drain. It may
+reuse existing source/Recipe/physical demand products, but it must not create
+a second body observer, a Dynamic-to-Loop adapter, or a default “consumed”
+receipt. No production switch or old-edge deletion is required for this P0;
+generic retirement remains separately gated by the shared legacy leaf census.
 
 Finite state routing for this D0 is:
 
 | State | Meaning | Allowed next state |
 | --- | --- | --- |
 | `Unavailable` | selected Dynamic package or publication input is absent | typed reject; no I9 effect |
-| `Selected` | named non-test compile route and I9 row are selected | `DraftAdmission` |
+| `Selected` | named non-test compile route and I9 row are selected | `BodyConsumptionReady` only after exact source/body coverage is proven |
+| `BodyConsumptionReady` | selected source rows and Dynamic operation demand are consumed exactly once before publication | `DraftAdmission` |
 | `DraftAdmission` | completed draft is held by the collector | `ModuleDrain` |
 | `ModuleDrain` | collector preflight/commit has inserted the draft into `current_module` | `ExternalCommit` |
 | `ExternalCommit` | compiler-owned verification and external commit succeeded | terminal D0 evidence |
-| `Deferred` | publication stage or owner relation is not yet evidenced | design stop; no runtime fallback |
+| `Deferred` | body consumption or publication stage is not yet evidenced | design stop; no runtime fallback |
 | `Rejected` | typed preflight/verification failure | unpublished discard only |
 | `NoSafeSlice` | stage owner, exact fixture, or atomic failure boundary cannot be proved | remain in design stop |
 
@@ -87,11 +121,14 @@ retirement proof: the shared legacy leaf still has non-test compatibility and
 canary callers. Generic retirement requires a separate selected production
 consumer and a complete old-leaf caller census.
 
-Acceptance for this D0 is limited to one real compile-path fixture, explicit
-stage receipts/observations for `ModuleDrain` and `ExternalCommit`, zero
-selected-I9 fallback/retry, unchanged failure atomicity, and a reusable guard.
-If the fixture reaches only a helper or test-owned collector, or if publication
-requires a second Dynamic/Loop ledger or backend authority, keep `NoSafeSlice`.
+Acceptance for this P0 is one real compile-path fixture, exact once-only
+source/body consumption before draft finishing, explicit stage
+receipts/observations for `DraftAdmission`, `ModuleDrain`, and
+`ExternalCommit`, zero selected-I9 fallback/retry, unchanged failure
+atomicity, and a reusable guard. If the fixture reaches only a helper or
+test-owned collector, if the body is not consumed before drain, or if
+publication requires a second Dynamic/Loop ledger or backend authority, keep
+`NoSafeSlice`.
 
 ## Current census
 
