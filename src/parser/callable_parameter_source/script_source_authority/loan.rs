@@ -170,6 +170,10 @@ impl<'source> Iterator for ParserNormalProgramStatementCursorV1<'source> {
 }
 
 impl<'source> ParserNormalProgramStatementLoanV1<'source> {
+    pub(crate) fn source_row(&self) -> ParserNormalProgramBodySourceRowV1 {
+        *self.row
+    }
+
     pub(crate) const fn position(&self) -> u32 {
         self.row.position()
     }

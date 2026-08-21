@@ -552,11 +552,12 @@ publication remain later design rows.
 
 ## Parser composite source admission R0 (2026-08-21)
 
-`normal_script_composite_partition.rs` is the sole R0 issuer for the first
-parser-backed Script composite cohort. The default normal root binds the
-parser-owned, non-`Clone` composite preservation token through the scoped HRTB
-loan and issues one private two-axis Program partition at
-`PreparedNormalDefaultProgramRootV1::from_callable_source`.
+`normal_script_composite_partition.rs` remains the sole partition issuer for
+the first parser-backed Script composite cohort. The default normal root now
+reaches it only through
+`PreparedCanonicalScriptNeutralProgramWindowV1::issue`, which binds the
+parser-owned, non-`Clone` composite preservation token through one scoped HRTB
+loan and issues one private two-axis Program partition.
 
 The bounded positive is one non-`Main`, non-sync static provider followed by a
 final root `MethodCall` (either a final Sequence value or a root Return value).
@@ -576,6 +577,42 @@ with no Script window is represented separately as `Unavailable`. This does
 not make the Builder window canonical. The next bounded cell is source
 reownership: it must make the neutral two-axis window authority explicit
 before any target or candidate work opens.
+
+## Script source reownership I0/R0 (2026-08-21)
+
+`PreparedCanonicalScriptNeutralProgramWindowV1::issue` is the sole production
+issuer for the selected normal Script source window. It consumes one
+`ParserNormalProgramSourceLoanV1` from the parser-owned authority and, inside
+that scoped loan, co-seals the composite partition, instance-Box transfer
+rows, constructor-source cohort, and the existing
+`VerifiedScriptRootDemandWindowV1`. The parser invocation witness plus the
+parser-issued body row is the source identity; a Builder ordinal set, AST
+pointer, name, or digest is not an authority.
+
+The default lifecycle now has this one-way shape:
+
+```text
+VerifiedNormalCallableSemanticPackageV1
+  -> PreparedCanonicalScriptNeutralProgramWindowV1::issue
+  -> PreparedScriptRootAdmissionV1
+  -> PreparedProgramRootWorkPlanV1 transport
+  -> existing resolver/lookup consumers
+```
+
+`PreparedProgramRootWorkPlanV1` transports an already-sealed admission and no
+longer constructs or seals the Script window. The old
+`ScriptRootDemandWindowBuilderV1`, `ScriptRootSemanticDecisionV1`, and
+`SelectedScriptProgramOccurrenceV1` edges are test-only compatibility helpers;
+their production callers are zero. The lifecycle also does not perform a
+second `package.source_ast()` source scan for constructor coverage.
+
+This row is intentionally source-only. The neutral product issues no target,
+candidate/noncandidate, A/C, Recipe/Join, MIR ID, physical, fallback, or
+production-switch meaning. Source failure is returned before target install
+and Builder effects. Evidence is owned by
+`normal_script_neutral_window_tests.rs`,
+`script_direct_static_source_reown_window_r0_guard.sh`, and the focused
+neutral, instance-transfer, and composite test filters.
 
 ## Shared Script MethodCall typeop policy I0
 

@@ -37,6 +37,14 @@ impl ParserNormalProgramBodySourceRowV1 {
     pub(crate) const fn kind(self) -> ParserNormalProgramBodySyntaxKindV1 {
         self.kind
     }
+
+    #[cfg(test)]
+    pub(crate) const fn from_test(
+        position: u32,
+        kind: ParserNormalProgramBodySyntaxKindV1,
+    ) -> Self {
+        Self::new(position, kind)
+    }
 }
 
 #[derive(Debug)]

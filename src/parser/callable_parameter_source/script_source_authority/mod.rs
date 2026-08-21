@@ -17,6 +17,7 @@ pub(crate) use loan::{
     ParserNormalProgramSourceLoanV1,
 };
 pub(crate) use model::{
+    ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     ParserNormalProgramSourceAuthorityDispositionV1,
     ParserNormalProgramSourceAuthorityUnavailableV1,
 };

@@ -341,11 +341,14 @@ impl MirBuilder {
         Port: RootCallableCapturePortV1,
     {
         self.prepare_program_root_lowering_state_v1(snapshot, expansion.is_app_mode())?;
-        let work = PreparedProgramRootWorkPlanV1::prepare(
+        debug_assert_eq!(
+            work_plan_admission,
+            ProgramRootWorkPlanAdmissionV1::RawCompatibility,
+            "legacy root lowering only owns raw compatibility"
+        );
+        let work = PreparedProgramRootWorkPlanV1::prepare_raw_compatibility(
             statements,
             expansion.is_app_mode(),
-            work_plan_admission,
-            None,
         )
         .into_parts();
         self.lower_program_root_work_plan_with_callable_port_v1(

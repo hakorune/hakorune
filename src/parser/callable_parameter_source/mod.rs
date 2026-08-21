@@ -46,6 +46,7 @@ pub(crate) use composite_source::{
 };
 pub(crate) use composite_source::ParserCompositeSourceLoanV1;
 pub(crate) use script_source_authority::{
+    ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     validate_parser_normal_program_source_transform_v1,
     with_parser_composite_source_loan_from_normal_authority,
     with_parser_normal_program_source_loan, ParserNormalProgramSourceAuthorityDispositionV1,

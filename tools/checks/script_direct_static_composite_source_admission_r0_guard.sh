@@ -6,20 +6,22 @@ cd "$repo_root"
 
 issuer=src/mir/builder/normal_script_composite_partition.rs
 loan=src/parser/callable_parameter_source/composite_source/loan.rs
+normal_loan=src/parser/callable_parameter_source/script_source_authority/loan.rs
 lifecycle=src/mir/builder/normal_default_root_catalog_lifecycle.rs
+neutral=src/mir/builder/normal_script_neutral_window.rs
 work_plan=src/mir/builder/program_root_work_plan.rs
 decision=src/mir/builder/normal_script_root_admission_witness.rs
 window=src/mir/builder/normal_script_root_demand_window.rs
 card=docs/development/current/main/investigations/script-direct-static-a-source-capability-d0-2026-08-21.md
 
-for file in "$issuer" "$loan" "$lifecycle" "$work_plan" "$decision" "$window" "$card"; do
+for file in "$issuer" "$loan" "$normal_loan" "$lifecycle" "$neutral" "$work_plan" "$decision" "$window" "$card"; do
   [[ -f "$file" ]] || {
     echo "[script-composite-r0] missing $file" >&2
     exit 1
   }
 done
 
-for file in "$issuer" "$loan" "$lifecycle" "$work_plan" "$decision" "$window"; do
+for file in "$issuer" "$loan" "$lifecycle" "$neutral" "$work_plan" "$decision" "$window"; do
   lines="$(wc -l < "$file")"
   (( lines < 760 )) || {
     echo "[script-composite-r0] 760-line split trigger exceeded: $file ($lines)" >&2
@@ -27,10 +29,10 @@ for file in "$issuer" "$loan" "$lifecycle" "$work_plan" "$decision" "$window"; d
   }
 done
 
-rg -q 'CanonicalScriptCompositeProgramPartitionIssuerV1::issue' "$lifecycle"
-(( "$(rg -c 'CanonicalScriptCompositeProgramPartitionIssuerV1::issue' "$lifecycle")" == 1 ))
+rg -q 'CanonicalScriptCompositeProgramPartitionIssuerV1::issue_from_program_loan' "$neutral"
+(( "$(rg -c 'CanonicalScriptCompositeProgramPartitionIssuerV1::issue_from_program_loan' "$neutral")" == 1 ))
 rg -q 'with_composite_source_loan' "$issuer"
-rg -q "for<'source> FnOnce" "$loan"
+rg -q "for<'source> FnOnce" "$normal_loan"
 rg -q 'StaticCallableCatalogTransfer' "$decision"
 rg -q 'record_selected_work_item_with_composite_partition' "$window"
 rg -q 'SourceAuthorityUnavailable' "$issuer"

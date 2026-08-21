@@ -9,18 +9,22 @@ use super::normal_instance_constructor_admission::{
 use super::normal_instance_constructor_admission::{
     NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
 };
+#[cfg(test)]
 use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
+#[cfg(test)]
 use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
 use super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
+#[cfg(test)]
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuilderV1;
 #[cfg(test)]
 use super::normal_script_runtime_work::NormalScriptRuntimeStatementAdmissionV1;
 use super::normal_script_runtime_work::{
     PreparedNormalScriptRuntimeInputV1, PreparedNormalScriptRuntimeWorkV1,
 };
+#[cfg(test)]
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::MirBuilder;
@@ -174,6 +178,7 @@ enum ProgramRootStatementDispositionV1 {
     RuntimeOnly(PreparedProgramRootRuntimeStatementV1),
 }
 impl PreparedProgramRootWorkPlanV1 {
+    #[cfg(test)]
     pub(super) fn prepare(
         statements: Vec<ASTNode>,
         is_app_mode: bool,
@@ -189,6 +194,7 @@ impl PreparedProgramRootWorkPlanV1 {
         )
     }
 
+    #[cfg(test)]
     pub(super) fn prepare_with_instance_box_transfers(
         statements: Vec<ASTNode>,
         is_app_mode: bool,
@@ -207,6 +213,7 @@ impl PreparedProgramRootWorkPlanV1 {
         .expect("constructor source transfer must be supplied for production SelectedNormal")
     }
 
+    #[cfg(test)]
     pub(super) fn prepare_with_instance_box_transfers_and_constructor_sources(
         statements: Vec<ASTNode>,
         is_app_mode: bool,
@@ -226,6 +233,7 @@ impl PreparedProgramRootWorkPlanV1 {
         )
     }
 
+    #[cfg(test)]
     pub(super) fn prepare_with_instance_box_transfers_and_constructor_sources_and_composite_partition(
         statements: Vec<ASTNode>,
         is_app_mode: bool,
@@ -266,7 +274,7 @@ impl PreparedProgramRootWorkPlanV1 {
                     normal_script_kind.expect("selected Script runtime classifier"),
                 );
                 if instance_box_transfers
-                    .is_some_and(|transfers| transfers.contains(statement_index))
+                    .is_some_and(|transfers| transfers.contains_statement_ordinal(statement_index))
                 {
                     occurrence = occurrence.with_instance_box_transfer();
                 }
@@ -343,6 +351,9 @@ impl PreparedProgramRootWorkPlanV1 {
         }
     }
 }
+
+#[path = "program_root_work_plan_production.rs"]
+mod production;
 
 fn collect_constructor_demand_expectations(
     immediate: &[PreparedProgramRootImmediateWorkV1],

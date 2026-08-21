@@ -110,6 +110,7 @@ mod normal_instance_constructor_semantic_scope;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
 mod normal_script_instance_box_transfer;
 mod normal_script_composite_partition;
+mod normal_script_neutral_window;
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
@@ -587,11 +588,13 @@ mod module_lifecycle_capture_tests;
 mod normal_script_deferred_residual_registry; // named selected-Script residual ownership
 mod normal_script_direct_statement_owner; // Selected Script direct statement terminals
 mod normal_script_program_item_admission; // Selected Script Program-item source admission
+#[cfg(test)]
 mod normal_script_root_admission_witness; // selected Script root shape/disposition proof
 mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
 mod normal_script_runtime_block_port;
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
 mod normal_script_resolution; // typed Script resolver outcome transport
+#[cfg(test)]
 mod normal_script_selected_occurrence; // typed selected-Script work-plan-to-semantics handoff
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 mod ops;

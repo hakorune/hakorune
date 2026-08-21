@@ -8,7 +8,6 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
-use super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalSourceCohortV1;
 use super::normal_script_direct_static_join_handoff::{
     VerifiedScriptDirectStaticJoinHandoffV1,
     VerifiedScriptDirectStaticRequiredArgumentProofV1,
@@ -16,11 +15,7 @@ use super::normal_script_direct_static_join_handoff::{
 use super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
 use super::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
-use super::normal_script_composite_partition::{
-    CanonicalScriptCompositeProgramPartitionDispositionV1,
-    CanonicalScriptCompositeProgramPartitionIssuerV1,
-};
-use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
+use super::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWindowV1;
 use super::normal_script_resolution::{
     resolve_normal_script_source_v1, NormalScriptResolutionV1,
 };
@@ -126,7 +121,6 @@ struct PreparedNormalDefaultProgramRootSealV1;
 enum PreparedNormalDefaultProgramSourceV1 {
     Callable {
         source: VerifiedFinalCallableProgramSourceV1,
-        composite_partition: CanonicalScriptCompositeProgramPartitionDispositionV1,
     },
     TypedCompatibility(NormalCallableCompatibilityOriginV1),
     Compatibility(ASTNode),
@@ -146,12 +140,8 @@ impl PreparedNormalDefaultProgramRootV1 {
     pub(in crate::mir) fn from_callable_source(
         source: VerifiedFinalCallableProgramSourceV1,
     ) -> Self {
-        let composite_partition = CanonicalScriptCompositeProgramPartitionIssuerV1::issue(&source);
         Self {
-            source: PreparedNormalDefaultProgramSourceV1::Callable {
-                source,
-                composite_partition,
-            },
+            source: PreparedNormalDefaultProgramSourceV1::Callable { source },
             _seal: PreparedNormalDefaultProgramRootSealV1,
         }
     }
@@ -185,17 +175,6 @@ impl PreparedNormalDefaultProgramRootV1 {
             &self.source,
             PreparedNormalDefaultProgramSourceV1::Callable { .. }
         )
-    }
-
-    fn composite_partition_fail_fast_error(&self) -> Option<Box<str>> {
-        match &self.source {
-            PreparedNormalDefaultProgramSourceV1::Callable {
-                composite_partition,
-                ..
-            } => composite_partition.fail_fast_error(),
-            PreparedNormalDefaultProgramSourceV1::TypedCompatibility(_)
-            | PreparedNormalDefaultProgramSourceV1::Compatibility(_) => None,
-        }
     }
 
     pub(in crate::mir) fn is_typed_compatibility(&self) -> bool {
@@ -267,22 +246,6 @@ impl ModuleBuilderInvocationSessionV1 {
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
     > {
-        if let Some(error) = source.composite_partition_fail_fast_error() {
-            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
-                session: self,
-                _source: Some(source),
-                error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(error),
-            });
-        }
-        if let Err(error) = self.install_pinned_text_target_capability(target_capability) {
-            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
-                session: self,
-                _source: Some(source),
-                error: NormalDefaultRootCatalogLifecycleErrorV1::RootLower(
-                    format!("[freeze:contract][pinned-text/invocation-binding] {error:?}").into(),
-                ),
-            });
-        }
         let preflight_expansion =
             match VerifiedRawRootExpansionV1::from_program(source.source_ast()) {
                 Ok(expansion) => expansion,
@@ -325,12 +288,9 @@ impl ModuleBuilderInvocationSessionV1 {
                 })
             }
         };
-        let (mut semantic_package, compatibility_source, composite_partition) = match source {
+        let (mut semantic_package, compatibility_source) = match source {
             PreparedNormalDefaultProgramRootV1 {
-                source: PreparedNormalDefaultProgramSourceV1::Callable {
-                    source: callable,
-                    composite_partition,
-                },
+                source: PreparedNormalDefaultProgramSourceV1::Callable { source: callable },
                 ..
             } => {
                 let package = match declaration_facts.with_brand_catalog(|catalog| {
@@ -351,48 +311,34 @@ impl ModuleBuilderInvocationSessionV1 {
                         })
                     }
                 };
-                (Some(package), None, Some(composite_partition))
+                (Some(package), None)
             }
-            compatibility => (None, Some(compatibility), None),
+            compatibility => (None, Some(compatibility)),
         };
-        let instance_box_transfers = match (preflight_is_app_mode, semantic_package.as_ref()) {
-            (true, _) => None,
-            (false, Some(package)) => Some(match VerifiedScriptInstanceBoxTransferCohortV1::issue(
-                package.source_ast(),
-                package,
-            ) {
-                Ok(cohort) => cohort,
+        let mut neutral_window = match semantic_package.as_ref() {
+            None => None,
+            Some(package) => match PreparedCanonicalScriptNeutralProgramWindowV1::issue(package) {
+                Ok(window) => Some(window),
                 Err(error) => {
                     return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
                         session: self,
                         _source: None,
-                        error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                            format!("[mir/script-instance-box-transfer/issue] {error:?}").into(),
-                        ),
-                    })
-                }
-            }),
-            (false, None) => None,
-        };
-        let constructor_source_cohort = if let Some(package) = semantic_package.as_ref() {
-            match VerifiedInstanceConstructorPhysicalSourceCohortV1::issue(
-                package.source_ast(),
-                package,
-            ) {
-                Ok(cohort) => Some(cohort),
-                Err(error) => {
-                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
-                        session: self,
-                        _source: None,
-                        error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                            format!("[mir/instance-constructor-source/issue] {error:?}").into(),
+                        error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            format!("[mir/script-neutral-window/issue] {error:?}").into(),
                         ),
                     })
                 }
             }
-        } else {
-            None
         };
+        if let Err(error) = self.install_pinned_text_target_capability(target_capability) {
+            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                session: self,
+                _source: None,
+                error: NormalDefaultRootCatalogLifecycleErrorV1::RootLower(
+                    format!("[freeze:contract][pinned-text/invocation-binding] {error:?}").into(),
+                ),
+            });
+        }
         let brand = self.brand();
         let import_rows = self
             .config()
@@ -400,6 +346,17 @@ impl ModuleBuilderInvocationSessionV1 {
             .iter()
             .map(|(alias, owner)| (alias.clone(), owner.clone()))
             .collect::<Vec<_>>();
+        let (script_root_admission, constructor_source_cohort) = match neutral_window.take() {
+            Some(window) => {
+                let (admission, _instance_transfers, constructor_source_cohort) =
+                    window.into_parts();
+                (
+                    (!preflight_is_app_mode).then_some(admission),
+                    Some(constructor_source_cohort),
+                )
+            }
+            None => (None, None),
+        };
         let result = self.with_builder_and_pinned_text_invocation_binding(|builder, binding| {
             let target_capability = binding
                 .as_ref()
@@ -485,16 +442,13 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/static-result-owner/catalog] {error}").into(),
                             )
                         })?;
-                let work = PreparedProgramRootWorkPlanV1::prepare_with_instance_box_transfers_and_constructor_sources_and_composite_partition(
+                let work = PreparedProgramRootWorkPlanV1::prepare_with_script_root_admission_and_constructor_sources(
                     lowering_statements,
                     expansion.is_app_mode(),
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                     Some(declarations.selected_source_inventory()),
-                    instance_box_transfers.as_ref(),
                     constructor_source_cohort.as_ref(),
-                    composite_partition
-                        .as_ref()
-                        .and_then(CanonicalScriptCompositeProgramPartitionDispositionV1::ready_partition),
+                    script_root_admission,
                 )
                 .map_err(|error| {
                     NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())

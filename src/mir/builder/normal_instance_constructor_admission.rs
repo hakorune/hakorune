@@ -12,7 +12,10 @@ use super::recursive_child_lowering::RawInvocationChildPortV1;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 use crate::mir::MirBuilder;
-use crate::parser::ConstructorSourceIdV1;
+use crate::parser::{
+    ConstructorSourceIdV1, ParserInvocationWitnessV1, ParserNormalProgramBodySourceRowV1,
+    ParserNormalProgramBodySyntaxKindV1, ParserNormalProgramSourceLoanV1,
+};
 
 #[path = "normal_instance_constructor_demand_manifest.rs"]
 mod demand_manifest;
@@ -22,12 +25,13 @@ pub(super) use demand_manifest::{
     VerifiedInstanceConstructorPhysicalDemandManifestV1,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub(super) struct VerifiedInstanceConstructorPhysicalSourceCohortV1 {
+    invocation: ParserInvocationWitnessV1,
     rows: Box<[VerifiedInstanceConstructorPhysicalSourceRowV1]>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Debug)]
 struct VerifiedInstanceConstructorPhysicalSourceRowV1 {
     source_id: ConstructorSourceIdV1,
     final_box_ordinal: u32,
@@ -40,9 +44,22 @@ pub(super) enum InstanceConstructorPhysicalSourceIssueV1 {
     ProgramMissing,
     ForeignRow,
     DuplicateSourceId,
+    StatementPositionOverflow,
 }
 
 impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
+    pub(super) fn issue_from_program_loan(
+        loan: &ParserNormalProgramSourceLoanV1<'_>,
+        package: &VerifiedNormalCallableSemanticPackageV1,
+    ) -> Result<Self, InstanceConstructorPhysicalSourceIssueV1> {
+        let statements = loan
+            .statements()
+            .map(|row| (row.source_row(), row.statement()))
+            .collect::<Vec<_>>();
+        Self::issue_from_source_rows(loan.invocation_witness().clone(), &statements, package)
+    }
+
+    #[cfg(test)]
     pub(super) fn issue(
         source: &ASTNode,
         package: &VerifiedNormalCallableSemanticPackageV1,
@@ -50,6 +67,34 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
         let ASTNode::Program { statements, .. } = source else {
             return Err(InstanceConstructorPhysicalSourceIssueV1::ProgramMissing);
         };
+        let statements = statements
+            .iter()
+            .enumerate()
+            .map(|(position, statement)| {
+                u32::try_from(position)
+                    .map(|position| {
+                        (
+                            ParserNormalProgramBodySourceRowV1::from_test(
+                                position,
+                                test_body_kind(statement),
+                            ),
+                            statement,
+                        )
+                    })
+                    .map_err(|_| InstanceConstructorPhysicalSourceIssueV1::StatementPositionOverflow)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let invocation = package
+            .with_normal_program_source_loan(|loan| loan.invocation_witness().clone())
+            .map_err(|_| InstanceConstructorPhysicalSourceIssueV1::ProgramMissing)?;
+        Self::issue_from_source_rows(invocation, &statements, package)
+    }
+
+    fn issue_from_source_rows(
+        invocation: ParserInvocationWitnessV1,
+        statements: &[(ParserNormalProgramBodySourceRowV1, &ASTNode)],
+        package: &VerifiedNormalCallableSemanticPackageV1,
+    ) -> Result<Self, InstanceConstructorPhysicalSourceIssueV1> {
         let mut rows = Vec::with_capacity(package.instance_constructors().rows().len());
         for semantic in package.instance_constructors().rows() {
             if rows
@@ -60,12 +105,18 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
             {
                 return Err(InstanceConstructorPhysicalSourceIssueV1::DuplicateSourceId);
             }
-            let Some(ASTNode::BoxDeclaration {
-                name, constructors, ..
-            }) = statements.get(semantic.final_box_ordinal() as usize)
+            let Some((source_row, ASTNode::BoxDeclaration { name, constructors, .. })) = statements
+                .iter()
+                .find(|(source_row, _)| {
+                    usize::try_from(source_row.position()).ok()
+                        == Some(semantic.final_box_ordinal() as usize)
+                })
             else {
                 return Err(InstanceConstructorPhysicalSourceIssueV1::ForeignRow);
             };
+            if source_row.kind() != ParserNormalProgramBodySyntaxKindV1::BoxDeclaration {
+                return Err(InstanceConstructorPhysicalSourceIssueV1::ForeignRow);
+            }
             if name != semantic.box_name() || !constructors.contains_key(semantic.key()) {
                 return Err(InstanceConstructorPhysicalSourceIssueV1::ForeignRow);
             }
@@ -80,8 +131,13 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
             });
         }
         Ok(Self {
+            invocation,
             rows: rows.into_boxed_slice(),
         })
+    }
+
+    pub(super) fn invocation_witness(&self) -> &ParserInvocationWitnessV1 {
+        &self.invocation
     }
 
     fn row_for(
@@ -133,6 +189,15 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
             return Err("[freeze:contract][mir/instance-constructor-source/count]".to_owned());
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+fn test_body_kind(statement: &ASTNode) -> ParserNormalProgramBodySyntaxKindV1 {
+    if matches!(statement, ASTNode::BoxDeclaration { .. }) {
+        ParserNormalProgramBodySyntaxKindV1::BoxDeclaration
+    } else {
+        ParserNormalProgramBodySyntaxKindV1::ExecutableItem
     }
 }
 

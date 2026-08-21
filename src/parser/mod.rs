@@ -66,7 +66,8 @@ pub(crate) use callable_parameter_source::{
     ParserCompositeOutsideReasonV1, ParserCompositeSourceUnavailableV1,
     ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
     ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
-    ParserInvocationWitnessV1,
+    ParserInvocationWitnessV1, ParserNormalProgramBodySourceRowV1,
+    ParserNormalProgramBodySyntaxKindV1,
 };
 mod postpass_compatibility;
 pub(crate) mod postpass_envelope;

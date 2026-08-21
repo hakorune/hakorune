@@ -10,8 +10,10 @@ use crate::parser::{
     ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
     ParserCompositeOutsideReasonV1, ParserCompositeSourceLoanRejectV1,
     ParserCompositeSourceUnavailableV1, ParserCompositeSourceLoanV1,
-    ParserInvocationWitnessV1, VerifiedFinalCallableProgramSourceV1,
+    ParserInvocationWitnessV1, ParserNormalProgramSourceLoanV1,
 };
+#[cfg(test)]
+use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 #[derive(Debug)]
 pub(in crate::mir::builder) enum CanonicalScriptCompositeProgramPartitionDispositionV1 {
@@ -23,6 +25,7 @@ pub(in crate::mir::builder) enum CanonicalScriptCompositeProgramPartitionDisposi
 }
 
 impl CanonicalScriptCompositeProgramPartitionDispositionV1 {
+    #[cfg(test)]
     pub(in crate::mir::builder) fn ready_partition(
         &self,
     ) -> Option<&CanonicalScriptCompositeProgramPartitionV1> {
@@ -35,6 +38,7 @@ impl CanonicalScriptCompositeProgramPartitionDispositionV1 {
         }
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn fail_fast_error(&self) -> Option<Box<str>> {
         match self {
             Self::Ready(_) | Self::Outside(_) => None,
@@ -85,7 +89,9 @@ struct CanonicalScriptCompositeProgramPartitionSealV1;
 pub(in crate::mir::builder) struct CanonicalScriptCompositeProgramPartitionIssuerV1;
 
 impl CanonicalScriptCompositeProgramPartitionIssuerV1 {
-    /// Sole production issuer for the bounded parser-backed source partition.
+    /// Test/legacy facade. Production uses `issue_from_program_loan` so the
+    /// partition is co-issued inside the neutral source observation.
+    #[cfg(test)]
     pub(in crate::mir::builder) fn issue(
         source: &VerifiedFinalCallableProgramSourceV1,
     ) -> CanonicalScriptCompositeProgramPartitionDispositionV1 {
@@ -94,6 +100,20 @@ impl CanonicalScriptCompositeProgramPartitionIssuerV1 {
                 CanonicalScriptCompositeProgramPartitionDispositionV1::Ready(partition)
             }
             Ok(Err(disposition)) => disposition,
+            Err(reject) => map_loan_reject(reject),
+        }
+    }
+
+    pub(in crate::mir::builder) fn issue_from_program_loan(
+        loan: &ParserNormalProgramSourceLoanV1<'_>,
+    ) -> CanonicalScriptCompositeProgramPartitionDispositionV1 {
+        match loan.composite_loan() {
+            Ok(loan) => match Self::issue_ready(loan) {
+                Ok(partition) => {
+                    CanonicalScriptCompositeProgramPartitionDispositionV1::Ready(partition)
+                }
+                Err(disposition) => disposition,
+            },
             Err(reject) => map_loan_reject(reject),
         }
     }

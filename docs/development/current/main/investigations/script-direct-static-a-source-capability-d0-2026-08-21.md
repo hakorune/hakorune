@@ -722,7 +722,7 @@ source authority:
 
 canonical issuer:
   CanonicalScriptCompositeProgramPartitionIssuerV1
-  one call at the parser-backed PreparedNormalDefaultProgramRoot ingress
+  one call inside the parser-backed neutral-window loan callback
 
 product:
   one private witness-bound two-axis Program partition;
@@ -785,8 +785,8 @@ to design stop and does not add an adapter or compatibility fallback.
 
 ### 3. Source reownership audit — `SCRIPT-SOURCE-REOWN-I0-R0`
 
-The worker audit closed the ambiguity but did not authorize one large edit. The
-current production issuer is a Builder chain, not a neutral window owner:
+The worker audit first closed the ambiguity: the old production issuer was a
+Builder chain, not a neutral window owner:
 
 ```text
 PreparedProgramRootWorkPlanV1
@@ -795,10 +795,12 @@ PreparedProgramRootWorkPlanV1
   -> VerifiedScriptRootDemandWindowV1
 ```
 
-The same window is consumed by resolver traversal, semantic source/continuation,
-target inventory, and Recipe. A wrapper or rename would leave the competing
-Builder authority alive. The R0 parser composite partition is only a bounded
-staging product and cannot replace the full Program window.
+The same window was consumed by resolver traversal, semantic
+source/continuation, target inventory, and Recipe. A wrapper or rename would
+have left the competing Builder authority alive. The R0 parser composite
+partition was only a bounded staging product and could not replace the full
+Program window. Phase2 now removes that production edge and installs the
+neutral issuer documented in 3b/3c.
 
 The source reownership cell is therefore ordered internally, while remaining
 one bounded prerequisite cell in the declared cutover series:
@@ -857,7 +859,7 @@ Decision. The sole issuer is a source/resolver-boundary owner, not Builder:
 
 ```text
 ParserNormalProgramSourceAuthorityV1
-  -> CanonicalScriptNeutralProgramWindowIssuerV1
+  -> PreparedCanonicalScriptNeutralProgramWindowV1::issue
   -> PreparedScriptRootAdmissionV1
   -> fixed resolver demand view / existing consumers
 ```
@@ -877,7 +879,7 @@ already-issued composite disposition:
 ```rust
 struct ParserNormalProgramSourceAuthorityV1 {
     invocation: ParserInvocationWitnessV1,
-    body_rows: Box<[ParserProgramBodySourceRowV1]>,
+    body_rows: Box<[ParserNormalProgramBodySourceRowV1]>,
     composite: ParserCompositeSourceDispositionV1,
     _seal: ParserNormalProgramSourceAuthoritySealV1,
 }
@@ -977,10 +979,10 @@ AST/pointer/name/Recipe/MIR authority         = 0
 
 `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0`:
 
-1. Add `CanonicalScriptNeutralProgramWindowIssuerV1` in split source/issuer
-   files under the Builder boundary, with the issuer itself consuming the
-   parser authority loan. Co-issue the existing R0 composite partition and
-   witness-bound instance transfer in this callback.
+1. Add `PreparedCanonicalScriptNeutralProgramWindowV1::issue` under the
+   Builder boundary, with the issuer itself consuming the parser authority
+   loan. Co-issue the existing R0 composite partition, witness-bound
+   instance transfer, and constructor-source cohort in this callback.
 2. Replace the default lifecycle's Builder window construction with the
    prepared admission returned by the neutral issuer. Pass that admission into
    the work plan as transport. Keep resolver, continuation, target inventory,
@@ -990,17 +992,16 @@ AST/pointer/name/Recipe/MIR authority         = 0
    `SelectedScriptProgramOccurrenceV1`; move their positive/negative tests to
    the neutral issuer or delete obsolete test-only authority.
 
-The implementation is intentionally two commits in one bounded series:
+The parser authority handoff is already landed in the preceding commit
+`aa1aecf495`. This window row is the single follow-up implementation slice:
 
 ```text
-1. SCRIPT-SOURCE-AUTHORITY-HANDOFF-I0
-   parser authority + move chain + transform guard + semantic-package loan
-2. SCRIPT-SOURCE-REOWN-WINDOW-I0-R0
-   one neutral issuer + work-plan transport + old production edges deleted
+SCRIPT-SOURCE-REOWN-WINDOW-I0-R0
+  one neutral issuer + work-plan transport + old production edges deleted
 ```
 
-No commit may land an unused parser authority or a new downstream semantic
-receipt without its named neutral consumer in the same series.
+No later commit may land an unused parser authority or a new downstream
+semantic receipt without its named neutral consumer in the same series.
 
 Positive evidence:
 
@@ -1029,6 +1030,56 @@ reach the default caller without `package.source_ast()` reconstruction, if
 instance transfer coverage needs an unowned adapter, or if the old semantic
 mapping requires a second source observation. It does not open lookup, A/C,
 Recipe retirement, fallback retirement, production cutover, or performance.
+
+#### 3c. Window implementation receipt — `SCRIPT-SOURCE-REOWN-WINDOW-I0-R0`
+
+The phase2 implementation closes the neutral source boundary described above.
+The production graph is now:
+
+```text
+VerifiedNormalCallableSemanticPackageV1
+  -> PreparedCanonicalScriptNeutralProgramWindowV1::issue
+       -> one ParserNormalProgramSourceLoanV1
+       -> composite partition
+       -> instance-Box transfer cohort
+       -> constructor source cohort
+       -> one VerifiedScriptRootDemandWindowV1::seal
+  -> PreparedScriptRootAdmissionV1
+  -> PreparedProgramRootWorkPlanV1 transport
+```
+
+The neutral aggregate stores only source admission, parser-witness-bound
+source rows, and the existing source cohorts. It does not store AST, pointer,
+target inventory, Recipe/Join, MIR identity, or physical meaning. The
+instance-transfer product no longer stores a `BTreeSet<usize>` source
+authority, and constructor coverage is issued from the same parser loan rather
+than a lifecycle `package.source_ast()` scan.
+
+The old Builder window/decision/occurrence modules remain only for legacy unit
+fixtures. Their production callers are zero. Neutral source failure is before
+target installation and Builder effects; the work plan receives the prepared
+admission and does not rebuild the window.
+
+Observed phase2 evidence:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick
+  pass
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib neutral_issuer
+  2 passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_script_instance_box_transfer
+  4 passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_script_composite_partition
+  4 passed
+tools/checks/script_direct_static_source_reown_window_r0_guard.sh
+  pass
+tools/checks/script_direct_static_composite_source_admission_r0_guard.sh
+  pass
+```
+
+This closes source-window reownership only. Lookup reownership remains the
+next design/authority cell; target/result pointer lookup, A/C, Recipe
+retirement, fallback retirement, and production cutover stay closed.
 
 ### 4. Contingent lookup reownership — `SCRIPT-LOOKUP-REOWN-I0-R0`
 

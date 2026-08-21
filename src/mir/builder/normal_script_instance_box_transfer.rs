@@ -6,16 +6,22 @@ use crate::ast::ASTNode;
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 
 use super::callable_declaration_catalog::SelectedNormalCallableSourceSiteV1;
+#[cfg(test)]
 use super::normal_instance_constructor_admission::{
     InstanceConstructorDemandRoleV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
 };
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };
+use crate::parser::{
+    ParserInvocationWitnessV1, ParserNormalProgramBodySourceRowV1,
+    ParserNormalProgramBodySyntaxKindV1, ParserNormalProgramSourceLoanV1,
+};
 
 #[derive(Debug)]
 pub(super) struct VerifiedScriptInstanceBoxTransferCohortV1 {
-    statement_ordinals: BTreeSet<usize>,
+    invocation: ParserInvocationWitnessV1,
+    source_rows: Box<[ParserNormalProgramBodySourceRowV1]>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -24,9 +30,22 @@ pub(super) enum ScriptInstanceBoxTransferIssueV1 {
     MethodCoverage,
     ConstructorCoverage,
     ForeignConstructor,
+    StatementPositionOverflow,
 }
 
 impl VerifiedScriptInstanceBoxTransferCohortV1 {
+    pub(super) fn issue_from_program_loan(
+        loan: &ParserNormalProgramSourceLoanV1<'_>,
+        package: &VerifiedNormalCallableSemanticPackageV1,
+    ) -> Result<Self, ScriptInstanceBoxTransferIssueV1> {
+        let statements = loan
+            .statements()
+            .map(|row| (row.source_row(), row.statement()))
+            .collect::<Vec<_>>();
+        Self::issue_from_source_rows(loan.invocation_witness().clone(), &statements, package)
+    }
+
+    #[cfg(test)]
     pub(super) fn issue(
         source: &ASTNode,
         package: &VerifiedNormalCallableSemanticPackageV1,
@@ -34,6 +53,34 @@ impl VerifiedScriptInstanceBoxTransferCohortV1 {
         let ASTNode::Program { statements, .. } = source else {
             return Err(ScriptInstanceBoxTransferIssueV1::ProgramMissing);
         };
+        let statements = statements
+            .iter()
+            .enumerate()
+            .map(|(position, statement)| {
+                u32::try_from(position)
+                    .map(|position| {
+                        (
+                            ParserNormalProgramBodySourceRowV1::from_test(
+                                position,
+                                test_body_kind(statement),
+                            ),
+                            statement,
+                        )
+                    })
+                    .map_err(|_| ScriptInstanceBoxTransferIssueV1::StatementPositionOverflow)
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+        let invocation = package
+            .with_normal_program_source_loan(|loan| loan.invocation_witness().clone())
+            .map_err(|_| ScriptInstanceBoxTransferIssueV1::ProgramMissing)?;
+        Self::issue_from_source_rows(invocation, &statements, package)
+    }
+
+    fn issue_from_source_rows(
+        invocation: ParserInvocationWitnessV1,
+        statements: &[(ParserNormalProgramBodySourceRowV1, &ASTNode)],
+        package: &VerifiedNormalCallableSemanticPackageV1,
+    ) -> Result<Self, ScriptInstanceBoxTransferIssueV1> {
         let mut method_keys = BTreeMap::<usize, BTreeMap<Box<str>, usize>>::new();
         for (_, site) in package.selected_callable_sources().entries() {
             if let SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
@@ -49,23 +96,31 @@ impl VerifiedScriptInstanceBoxTransferCohortV1 {
             }
         }
         let mut constructor_keys = BTreeMap::<usize, BTreeSet<Box<str>>>::new();
-        for row in package.instance_constructors().rows() {
-            let ordinal = row.final_box_ordinal() as usize;
-            let Some(ASTNode::BoxDeclaration { name, .. }) = statements.get(ordinal) else {
+        for semantic in package.instance_constructors().rows() {
+            let ordinal = semantic.final_box_ordinal() as usize;
+            let Some((source_row, ASTNode::BoxDeclaration { name, .. })) = statements
+                .iter()
+                .find(|(row, _)| usize::try_from(row.position()).ok() == Some(ordinal))
+            else {
                 return Err(ScriptInstanceBoxTransferIssueV1::ForeignConstructor);
             };
-            if name != row.box_name()
+            if source_row.kind() != ParserNormalProgramBodySyntaxKindV1::BoxDeclaration {
+                return Err(ScriptInstanceBoxTransferIssueV1::ForeignConstructor);
+            }
+            if name != semantic.box_name()
                 || !constructor_keys
                     .entry(ordinal)
                     .or_default()
-                    .insert(row.key().into())
+                    .insert(semantic.key().into())
             {
                 return Err(ScriptInstanceBoxTransferIssueV1::ForeignConstructor);
             }
         }
 
-        let mut transferred = BTreeSet::new();
-        for (ordinal, statement) in statements.iter().enumerate() {
+        let mut transferred = Vec::<ParserNormalProgramBodySourceRowV1>::new();
+        for (row, statement) in statements {
+            let ordinal = usize::try_from(row.position())
+                .map_err(|_| ScriptInstanceBoxTransferIssueV1::StatementPositionOverflow)?;
             if !matches!(
                 classify_normal_script_program_item_v1(statement),
                 NormalScriptProgramItemAdmissionV1::InstancePrefixCompatibility
@@ -98,15 +153,36 @@ impl VerifiedScriptInstanceBoxTransferCohortV1 {
             if constructor_keys.remove(&ordinal).unwrap_or_default() != expected_constructors {
                 return Err(ScriptInstanceBoxTransferIssueV1::ConstructorCoverage);
             }
-            transferred.insert(ordinal);
+            transferred.push(*row);
         }
         Ok(Self {
-            statement_ordinals: transferred,
+            invocation,
+            source_rows: transferred.into_boxed_slice(),
         })
     }
 
-    pub(super) fn contains(&self, statement_ordinal: usize) -> bool {
-        self.statement_ordinals.contains(&statement_ordinal)
+    pub(super) fn contains(&self, source_row: ParserNormalProgramBodySourceRowV1) -> bool {
+        self.source_rows.iter().any(|row| *row == source_row)
+    }
+
+    #[cfg(test)]
+    pub(super) fn contains_statement_ordinal(&self, statement_ordinal: usize) -> bool {
+        self.source_rows.iter().any(|row| {
+            usize::try_from(row.position()).ok() == Some(statement_ordinal)
+        })
+    }
+
+    pub(super) fn invocation_witness(&self) -> &ParserInvocationWitnessV1 {
+        &self.invocation
+    }
+}
+
+#[cfg(test)]
+fn test_body_kind(statement: &ASTNode) -> ParserNormalProgramBodySyntaxKindV1 {
+    if matches!(statement, ASTNode::BoxDeclaration { .. }) {
+        ParserNormalProgramBodySyntaxKindV1::BoxDeclaration
+    } else {
+        ParserNormalProgramBodySyntaxKindV1::ExecutableItem
     }
 }
 
