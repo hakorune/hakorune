@@ -1,7 +1,6 @@
 use super::super::catalog::ParserCallableParameterSourceDispositionV1;
 use super::super::composite_source::ParserCompositeSourceDispositionV1;
 use super::super::parser_invocation_witness::ParserInvocationWitnessV1;
-use crate::parser::postpass_envelope::CompletedParserPostpassV1;
 use super::model::{
     ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     ParserNormalProgramSourceAuthorityDispositionV1,
@@ -9,6 +8,8 @@ use super::model::{
     ParserNormalProgramSourceAuthorityIntegrityIssueV1,
     ParserNormalProgramSourceAuthorityUnavailableV1, ParserNormalProgramSourceAuthorityV1,
 };
+use super::module_rows::ParserNormalModuleSourceAuthorityIssuerV1;
+use crate::parser::postpass_envelope::CompletedParserPostpassV1;
 
 pub(crate) fn issue_parser_normal_program_source_authority_v1(
     completed: &CompletedParserPostpassV1,
@@ -48,12 +49,16 @@ pub(crate) fn issue_parser_normal_program_source_authority_v1(
             syntax_kind(statement),
         ));
     }
+    let invocation = ParserInvocationWitnessV1::from_brand(catalog.parser_brand());
+    let body_rows = rows.into_boxed_slice();
+    let module_rows = ParserNormalModuleSourceAuthorityIssuerV1::issue_once(
+        completed,
+        catalog,
+        &body_rows,
+        invocation.clone(),
+    );
     ParserNormalProgramSourceAuthorityDispositionV1::Ready(
-        ParserNormalProgramSourceAuthorityV1::new(
-            ParserInvocationWitnessV1::from_brand(catalog.parser_brand()),
-            rows.into_boxed_slice(),
-            composite,
-        ),
+        ParserNormalProgramSourceAuthorityV1::new(invocation, body_rows, composite, module_rows),
     )
 }
 

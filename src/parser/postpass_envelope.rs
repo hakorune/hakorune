@@ -67,6 +67,18 @@ pub(super) enum ParserBoxPostpassRowV1 {
     },
 }
 
+impl ParserBoxPostpassRowV1 {
+    pub(super) fn source_sealed(&self) -> Option<(usize, &ParserBoxSourceSealV1)> {
+        match self {
+            Self::SourceSealedOrdinary {
+                final_box_ordinal,
+                seal,
+            } => Some((*final_box_ordinal, seal)),
+            Self::AstOnlyCompatibility { .. } => None,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub(super) struct ParserBoxPostpassCoverageV1 {
     program_cohort: ParserPostpassProgramCohortV1,
@@ -238,7 +250,7 @@ impl CompletedParserPostpassV1 {
                     parameter_source,
                     source_authority,
                 )
-                    .map(Program::SourceBacked)
+                .map(Program::SourceBacked)
             }
             CompletedParserProgramV1::Compatibility { ast, .. } => {
                 let cohort = match self.box_coverage.program_cohort {

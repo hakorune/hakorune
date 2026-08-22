@@ -110,6 +110,23 @@ impl SourceProgramCallablePathV1 {
             Self::TopLevel { declaration } | Self::BoxMethod { declaration, .. } => declaration,
         }
     }
+
+    pub(super) fn box_method_parts(
+        &self,
+    ) -> Option<(
+        &SourceProgramDeclarationPathV1,
+        &[SourceProgramMemberGateStepV1],
+        u32,
+    )> {
+        match self {
+            Self::TopLevel { .. } => None,
+            Self::BoxMethod {
+                declaration,
+                gate_path,
+                member_ordinal,
+            } => Some((declaration, gate_path, *member_ordinal)),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

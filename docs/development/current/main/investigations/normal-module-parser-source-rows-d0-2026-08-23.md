@@ -1,11 +1,11 @@
 ---
-Status: closed design stop; NoSafeSlice found, Box declaration syntax prerequisite selected
+Status: accepted design correction; ordinary-only parser module-row I0 is bounded, static Main is a separate design stop
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MODULE-ROWS-D0
 ParentDecision: NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
-Candidate: B-prime
+Candidate: B-prime-narrowed
 ProductionCaller: 0
-ProductionEdit: forbidden during D0
+ProductionEdit: parser-only source product; ingress and production switch forbidden
 ---
 
 # NORMAL-GENERAL-PROGRAM-PARSER-MODULE-ROWS-D0
@@ -14,23 +14,25 @@ ProductionEdit: forbidden during D0
 
 ```text
 Decision:
-  close the smallest parser-owned module source-row authority before ingress.
+  close the smallest parser-owned ordinary module source-row authority before ingress;
+  do not mix static Main entry semantics into this row product.
 Source authority + canonical issuer:
   one parser invocation, existing ParserBoxSourceSealV1,
-  PreparedCallableSourceV1, and exact entry observation; one private
+  PreparedCallableSourceV1, and exact ordinary-box source relations; one private
   ParserNormalModuleSourceAuthorityIssuerV1 at the parser product boundary.
 Non-authority:
   AST-only request roots, names/ordinals/pointers, NormalSourcePlanClassifier,
-  Builder catalog/expansion, Recipe/Join, runtime entry selection, MIR.
+  static Main entry selection, Builder catalog/expansion, Recipe/Join, MIR.
 Fail-fast boundary:
   after total parser postpass and before NormalCompileRequest/Builder open;
   foreign, missing, duplicate, or contradictory rows terminate with no effect.
 Smallest next slice:
-  one ordinary Program with one static Main.main/0 and one plain non-Main Box
-  with one direct method, same parser invocation, no import/build-gate rows.
+  one ordinary top-level Box with one direct instance method, same parser
+  invocation, no static/interface/record/build-gate/import rows.
 Non-claims:
-  no normal ingress switch, imports-bearing modules, body plan, resolver
-  semantics, physical lowering, fallback, or GeneralProgram aggregate.
+  no static-box parent source, Main.main admission, normal ingress switch,
+  imports-bearing modules, body plan, resolver semantics, physical lowering,
+  fallback, or GeneralProgram aggregate.
 ```
 
 ## Authority boundary
@@ -63,18 +65,13 @@ ParserNormalModuleSourceAuthorityIssuerV1::issue_once(
 ```
 
 It is called once from the existing parser product construction boundary. It
-co-seals the existing Box/callable products and the source-level entry
-observation. It does not select a runtime symbol, allocate a ValueId, resolve
-a method target, or issue a Recipe.
+co-seals the existing ordinary Box/callable products. It does not select a
+runtime symbol, allocate a ValueId, resolve a method target, or issue a Recipe.
 
-The entry observation means only:
-
-```text
-the parser-issued Main declaration relation contains static main/0
-```
-
-Runtime `Main.main -> root main` expansion remains a later admission/physical
-owner. This prevents parser syntax carriage from becoming Builder policy.
+`static box Main` is deliberately outside this issuer. The current parser
+postpass treats static and ordinary Box declarations as different cohorts, and
+their mixture as `MixedProgram` compatibility. Static parent source authority
+and `Main.main` admission therefore belong to a separate design card.
 
 ## Bounded cohort
 
@@ -82,16 +79,16 @@ The first slice is deliberately narrower than the full normal module corpus:
 
 ```text
 Program root
-exactly one ordinary (non-static/non-interface/non-record) Main Box
-exactly one direct static Main.main/0 declaration
-exactly one ordinary non-Main Box
+exactly one ordinary top-level Box
 exactly one direct instance method in that Box
-no BuildGate, Using, Import, nested Program, generated-only row, or duplicate
+method is parser-direct and belongs to the same Box source relation
+no static/interface/record Box, BuildGate, Using, Import, nested Program,
+generated-only row, or duplicate
 ```
 
-The non-Main method body is only a source declaration row in this D0. Its body
-grammar is not admitted. Fields, constructors, static helpers, multiple user
-Boxes, imports, `Main.main(args)`, and top-level functions are later slices.
+The method body is only a source declaration row in this D0. Its body grammar
+is not admitted. Fields, constructors, static helpers, multiple user Boxes,
+static `Main.main`, imports, and top-level functions are later slices.
 
 ## Finite disposition table
 
@@ -108,10 +105,9 @@ Boxes, imports, `Main.main(args)`, and top-level functions are later slices.
 
 ```text
 ProgramBody coverage is total
-Main Box count = 1
-Main.main declaration count = 1 and static arity = 0
-non-Main ordinary Box count = 1
-non-Main direct method count = 1
+ordinary Box count = 1
+direct instance method count = 1
+method-to-Box source relation is exact and unique
 all Box/callable/parser brands agree
 all source relations are unique and final-placement coverage is exact
 ```
@@ -146,10 +142,10 @@ without rereading the source.
 Return to `NoSafeSlice` and do not implement if any condition holds:
 
 ```text
-ParserBoxSourceSealV1 lacks exact relation coverage for the cohort
-PreparedCallableSourceV1 cannot identify Main.main and the user method without
-  AST name/ordinal reconstruction
-the entry observation would choose a runtime/physical route
+ParserBoxSourceSealV1 lacks exact relation coverage for the ordinary cohort
+PreparedCallableSourceV1 cannot identify the direct instance method through its
+  parser-issued source relation without AST name/ordinal reconstruction
+static Box or Main.main admission is required for the ordinary row product
 two parser issuers or a second AST scan are required
 the aggregate can be Clone'd, independently constructed, or partially moved
 foreign parser brands cannot be rejected before the handoff
@@ -165,7 +161,7 @@ No implementation is authorized until the design packet proves:
 issuer definition/call site                     = 1
 ParserBoxSourceSealV1 reuse                      = exact and same invocation
 PreparedCallableSourceV1 reuse                   = exact and same invocation
-entry observation is syntax-only                 = yes
+static/Main entry observation                    = 0 in this D0
 AST scan below parser boundary                   = 0
 NormalCompileRequest construction                = 0 in this D0
 Builder effect during row issuance               = 0
@@ -184,10 +180,80 @@ production caller in the same slice.
 NormalGeneralProgramModuleSourceIssuerV1 implementation
 NormalCompileRequest transport change
 normal/default production switch
-imports-bearing or Main(args) admission
+static Box parent source and `Main.main` admission
+imports-bearing or `Main(args)` admission
 resolver semantic owner forest
 function/body Facts or Recipe
 Builder/module catalog replacement
 physical entry selection or publication
 legacy retirement, fallback changes, backend, performance
 ```
+
+## Audit resolution and task order
+
+The original cohort was rejected by both local inspection and the read-only
+worker audit. In the current parser:
+
+```text
+ordinary `box` method       -> is_static = false
+`static Main.main/0`        -> method inside `static box Main`
+static + ordinary program   -> MixedProgram compatibility
+static Box source seal      -> not issued by the current ordinary seal path
+```
+
+Therefore the design is split rather than repaired with an AST name lookup.
+The accepted implementation task is:
+
+```text
+NORMAL-GENERAL-PROGRAM-PARSER-MODULE-ROWS-I0
+  parser-only ordinary Box source-row aggregate
+  one issuer / one parser invocation / no downstream effect
+```
+
+The parked follow-up is:
+
+```text
+NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-D0
+  static Box header/member source authority and postpass cohort policy
+```
+
+The follow-up must not be implemented as part of this I0. In particular,
+`static Main.main` must not be inferred from an ordinary Box name, callable
+ordinal, AST scan, or compatibility row.
+
+## I0 implementation receipt
+
+`NORMAL-GENERAL-PROGRAM-PARSER-MODULE-ROWS-I0` is implementation-complete as
+a parser-only slice. `ParserNormalModuleSourceAuthorityIssuerV1::issue_once`
+is the single call from the existing parser source-authority issuer. It
+co-seals the existing ordinary `ParserBoxSourceSealV1`, callable catalog row,
+direct callable path, and one parser invocation into a non-`Clone` disposition.
+The disposition is carried through the existing parser authority and transform
+rebuild without a second AST scan or a parallel downstream field.
+
+Evidence:
+
+```text
+module_rows focused tests                         3 passed
+script_source_authority focused tests             3 passed
+source_seal_finalizer focused tests               7 passed
+cargo check                                       passed
+module-row structural guard                       passed
+Box syntax guard                                  passed
+current-state pointer guard                       passed
+rustfmt changed-file check                        passed
+git diff --check                                  passed
+```
+
+The broader `cargo test callable_parameter_source --lib` run exposed one
+pre-existing baseline failure in the unchanged
+`unchanged_parser_scan_loop_box_has_four_methods_and_fifteen_rows` test: the
+parser Box declaration-syntax I0 now preserves an explicit `i64` spelling,
+while that old assertion still expects `None`. It is not caused by this
+module-row slice and remains classified as baseline debt; the new focused
+authority tests are green.
+
+The production caller count remains zero by design. No
+`NormalCompileRequest`, resolver semantic product, Builder effect, Recipe,
+Join, fallback, or production switch is part of this receipt. The next design
+stop remains `NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-D0`.

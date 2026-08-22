@@ -6,12 +6,12 @@ use super::catalog::{
 };
 use super::composite_source::issue_parser_composite_source_v1;
 use super::retained::RetainedParserCallableSemanticSourceV1;
-use super::script_source_rows::{
-    issue_canonical_script_source_rows, CanonicalScriptSourceRowsDispositionV1,
-};
 use super::script_source_authority::{
     issue_parser_normal_program_source_authority_v1,
     ParserNormalProgramSourceAuthorityDispositionV1,
+};
+use super::script_source_rows::{
+    issue_canonical_script_source_rows, CanonicalScriptSourceRowsDispositionV1,
 };
 use super::syntax_loan::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
@@ -93,6 +93,19 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         &self.canonical_script_admission
     }
 
+    pub(in crate::parser) fn normal_module_source_rows(
+        &self,
+    ) -> Option<&super::script_source_authority::ParserNormalModuleSourceRowsDispositionV1> {
+        match &self.source_authority {
+            ParserNormalProgramSourceAuthorityDispositionV1::Ready(authority) => {
+                Some(authority.module_rows())
+            }
+            ParserNormalProgramSourceAuthorityDispositionV1::SourceAuthorityUnavailable(_)
+            | ParserNormalProgramSourceAuthorityDispositionV1::Incomplete(_)
+            | ParserNormalProgramSourceAuthorityDispositionV1::IntegrityInvalid(_) => None,
+        }
+    }
+
     /// Move the atomic parser result into the retained source owner used by
     /// the future sole callable semantic batch.
     ///
@@ -107,8 +120,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             source_authority,
             ..
         } = self;
-        let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source
-        else {
+        let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source else {
             return Err(ParserCallableSourceRetentionErrorV1::ParameterSourceUnavailable);
         };
         if source_authority.composite_source_is_ready() {
@@ -117,8 +129,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             );
         }
         Ok(RetainedParserCallableSemanticSourceV1::new(
-            completed,
-            catalog,
+            completed, catalog,
         ))
     }
 

@@ -21,8 +21,10 @@ pub(crate) fn validate_parser_normal_program_source_transform_v1(
     disposition: ParserNormalProgramSourceAuthorityDispositionV1,
     initial: &ASTNode,
     transformed: &ASTNode,
-) -> Result<ParserNormalProgramSourceAuthorityDispositionV1, ParserNormalProgramSourceTransformRejectV1>
-{
+) -> Result<
+    ParserNormalProgramSourceAuthorityDispositionV1,
+    ParserNormalProgramSourceTransformRejectV1,
+> {
     let ParserNormalProgramSourceAuthorityDispositionV1::Ready(authority) = disposition else {
         return Ok(disposition);
     };
@@ -55,19 +57,13 @@ pub(crate) fn validate_parser_normal_program_source_transform_v1(
         if row.kind() != parser_program_body_syntax_kind(initial_statement)
             || row.kind() != parser_program_body_syntax_kind(transformed_statement)
         {
-            return Err(ParserNormalProgramSourceTransformRejectV1::BodyKindChanged {
-                position,
-            });
+            return Err(ParserNormalProgramSourceTransformRejectV1::BodyKindChanged { position });
         }
     }
-    let (invocation, body_rows, composite) = authority.into_parts();
-    let composite = validate_parser_composite_transform_v1(
-        composite,
-        initial,
-        transformed,
-    )
-    .map_err(ParserNormalProgramSourceTransformRejectV1::Composite)?;
+    let (invocation, body_rows, composite, module_rows) = authority.into_parts();
+    let composite = validate_parser_composite_transform_v1(composite, initial, transformed)
+        .map_err(ParserNormalProgramSourceTransformRejectV1::Composite)?;
     Ok(ParserNormalProgramSourceAuthorityDispositionV1::Ready(
-        ParserNormalProgramSourceAuthorityV1::new(invocation, body_rows, composite),
+        ParserNormalProgramSourceAuthorityV1::new(invocation, body_rows, composite, module_rows),
     ))
 }

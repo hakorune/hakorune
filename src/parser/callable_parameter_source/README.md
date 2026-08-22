@@ -25,6 +25,27 @@ Current I0 boundary:
   `Absent | Explicit` type syntax, declaration kind, and exact ordinals;
 - only `Ordinary` has an issuer. `Take` remains vocabulary-only.
 
+## Ordinary module source-row I0
+
+`script_source_authority/module_rows.rs` owns the bounded parser-only module
+row product. `ParserNormalModuleSourceAuthorityIssuerV1::issue_once` is its
+sole issuer and is called once from the existing normal-program source
+authority boundary. It co-seals the already-issued parser invocation, one
+ordinary top-level `Box` source seal, one direct instance-method catalog row,
+and the exact callable source path.
+
+The current cohort is deliberately narrow: one ordinary `Box`, one direct
+instance method, ordinary parameter transfer, and no static/interface/record
+or generated/build-gate rows. The product is non-`Clone`, has no public
+constructor, does not rescan the AST, and issues no request, resolver fact,
+Recipe, Join, MIR, Builder effect, fallback, or production route.
+
+Static `Box`/`Main.main` is not reclassified here. If the existing ordinary
+source seal is absent, the module-row disposition remains typed
+`Incomplete(BoxSourceSealMissing)` until the separate static-parent source
+authority design is accepted. That keeps missing authority distinct from an
+ordinary row and prevents name-based `Main` admission.
+
 ## Composite preservation I0
 
 `composite_source/` is the parser-owned preservation owner for the first

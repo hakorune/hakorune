@@ -1,5 +1,6 @@
 use super::super::composite_source::ParserCompositeSourceDispositionV1;
 use super::super::parser_invocation_witness::ParserInvocationWitnessV1;
+use super::module_rows::ParserNormalModuleSourceRowsDispositionV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ParserNormalProgramBodySyntaxKindV1 {
@@ -23,10 +24,7 @@ pub(crate) struct ParserNormalProgramBodySourceRowV1 {
 }
 
 impl ParserNormalProgramBodySourceRowV1 {
-    pub(super) const fn new(
-        position: u32,
-        kind: ParserNormalProgramBodySyntaxKindV1,
-    ) -> Self {
+    pub(super) const fn new(position: u32, kind: ParserNormalProgramBodySyntaxKindV1) -> Self {
         Self { position, kind }
     }
 
@@ -52,6 +50,7 @@ pub(crate) struct ParserNormalProgramSourceAuthorityV1 {
     invocation: ParserInvocationWitnessV1,
     body_rows: Box<[ParserNormalProgramBodySourceRowV1]>,
     composite: ParserCompositeSourceDispositionV1,
+    module_rows: ParserNormalModuleSourceRowsDispositionV1,
     _seal: ParserNormalProgramSourceAuthoritySealV1,
 }
 
@@ -112,11 +111,13 @@ impl ParserNormalProgramSourceAuthorityV1 {
         invocation: ParserInvocationWitnessV1,
         body_rows: Box<[ParserNormalProgramBodySourceRowV1]>,
         composite: ParserCompositeSourceDispositionV1,
+        module_rows: ParserNormalModuleSourceRowsDispositionV1,
     ) -> Self {
         Self {
             invocation,
             body_rows,
             composite,
+            module_rows,
             _seal: ParserNormalProgramSourceAuthoritySealV1,
         }
     }
@@ -129,6 +130,10 @@ impl ParserNormalProgramSourceAuthorityV1 {
         &self.body_rows
     }
 
+    pub(in crate::parser) fn module_rows(&self) -> &ParserNormalModuleSourceRowsDispositionV1 {
+        &self.module_rows
+    }
+
     pub(crate) fn composite_source(&self) -> &ParserCompositeSourceDispositionV1 {
         &self.composite
     }
@@ -139,7 +144,13 @@ impl ParserNormalProgramSourceAuthorityV1 {
         ParserInvocationWitnessV1,
         Box<[ParserNormalProgramBodySourceRowV1]>,
         ParserCompositeSourceDispositionV1,
+        ParserNormalModuleSourceRowsDispositionV1,
     ) {
-        (self.invocation, self.body_rows, self.composite)
+        (
+            self.invocation,
+            self.body_rows,
+            self.composite,
+            self.module_rows,
+        )
     }
 }

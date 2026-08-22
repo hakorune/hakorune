@@ -8,6 +8,7 @@
 mod issuer;
 mod loan;
 mod model;
+mod module_rows;
 mod transform_guard;
 
 pub(super) use issuer::issue_parser_normal_program_source_authority_v1;
@@ -21,7 +22,11 @@ pub(crate) use model::{
     ParserNormalProgramSourceAuthorityDispositionV1,
     ParserNormalProgramSourceAuthorityUnavailableV1,
 };
+pub(in crate::parser) use module_rows::ParserNormalModuleSourceRowsDispositionV1;
 pub(crate) use transform_guard::{
     validate_parser_normal_program_source_transform_v1,
     ParserNormalProgramSourceTransformRejectV1,
 };
+
+#[cfg(test)]
+mod module_rows_tests;
