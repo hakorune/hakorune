@@ -1,11 +1,11 @@
 ---
-Status: S0 BoxShape complete; D1 accepted; P0 NoSafeSlice; next D0
-Task: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0
+Status: S0 BoxShape complete; D1/P0 audit NoSafeSlice; D0 accepted; next P0
+Task: MIR-CALLABLE-LOOP-GENERIC-FACTS-POLICY-P0
 Date: 2026-08-22
-Priority: design one source-aware callable Facts/Recipe issuer before ordinary effects
+Priority: carry one GenericLoop policy frame and one-shot extraction before source relation
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-GENERIC-FACTS-POLICY-P0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -1396,3 +1396,89 @@ The current execution row is therefore
 `MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0`; no Rust implementation or
 production claim is authorized until that design stop receives an accepted
 Decision.
+
+## D0 Decision — accepted source-aware Facts boundary
+
+The D0 is now accepted after the worker/local audit. The accepted design is
+strictly one-way:
+
+```text
+PreparedLocatedRawLoopChildEntryV1
+  -> CallableGenericLoopSourceFactsIssuerV1 (one call site)
+  -> one policy frame + one GenericLoop Facts extraction
+  -> final BodyLoweringPolicy retained verbatim
+  -> sibling terminal transport
+  -> later named consumer
+```
+
+The existing generic `LoopRouteContext` is not extended with an optional
+callable relation. It is used only to create a borrowed structural view after
+a later terminal consumer has consumed the private source product. This keeps
+the generic route surface from becoming a second source authority or an
+optional semantic lane.
+
+The future issuer is the only place allowed to co-seal:
+
+```text
+callable owner + grouped source coverage
++ exact parent/condition/body source contexts
++ exact condition/body AST references from the same prepared entry
++ one GenericLoopV1ExtractionV1
++ final RecipeOnly / ExitAllowed policy
++ one front-selected GenericLoopV1 terminal with no legacy suffix
+```
+
+The callable state/projection owns binding role/class meaning. The raw source
+context owns location and lineage only. The existing GenericLoop Facts issuer
+owns shape, Recipe, and final policy. The new issuer aggregates these existing
+products and does not infer new source semantics.
+
+### Accepted next fast slice
+
+`MIR-CALLABLE-LOOP-GENERIC-FACTS-POLICY-P0` is the only currently authorized
+implementation slice. It has two tightly related obligations:
+
+1. Introduce a `GenericLoopFactsPolicyFrameV1` owned by the Facts/planner
+   boundary. The frame captures the strict/dev/planner-required decisions once;
+   the GenericLoop extractor receives it explicitly and does not re-read
+   ambient policy downstream.
+2. Reuse one `GenericLoopV1ExtractionV1` when the facts builder needs the
+   GenericLoop hint and the final GenericLoop Facts. The hint path must not
+   call the extractor and then call it again for the final field.
+
+This slice does **not** issue the callable source relation, alter
+`LoopRouteContext`, add grouped Outside rows, add an ordinary consumer, change
+route selection, or connect a production caller. It is a caller-zero Facts
+foundation only.
+
+### P0 acceptance
+
+```text
+one GenericLoopFactsPolicyFrameV1 per Facts build
+GenericLoop extractor invocation per Facts build = 1
+final body_lowering_policy/body_exit_allowed/body_no_exit retained from that extraction
+no downstream ambient-policy read for the selected GenericLoop facts
+existing non-callable route behavior remains unchanged
+source relation issuer production callers = 0
+ordinary consumer / fallback / retry / production switch changes = 0
+```
+
+Required negative evidence is policy drift and duplicate extraction. The
+focused test must show that a policy frame which downgrades
+`ExitAllowed` to `RecipeOnly` remains visible in the final Facts product and
+is not recomputed by the route. A reusable guard must reject a second generic
+extractor call from the facts-builder hint path.
+
+After this P0 is green, the next tasks remain ordered as follows:
+
+```text
+MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0       caller-zero grouped transport
+MIR-CALLABLE-LOOP-SOURCE-FACTS-RELATION-P0       private source relation
+MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0       no-PostEffectRetryDebt terminal
+MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0         source-aware normalizer seam
+MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0            first admitted cohort
+MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0             atomic production cutover
+```
+
+The old P0 relation design remains recorded as the preceding NoSafeSlice
+audit; this D0 Decision does not retroactively authorize its implementation.
