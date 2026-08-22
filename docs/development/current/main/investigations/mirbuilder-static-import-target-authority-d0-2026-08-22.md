@@ -1,10 +1,10 @@
-Status: lexical Program-block I0 complete; source-bound hard reject P0 accepted as next BoxShape
-ClosedTask: MIR-CALLABLE-RESOLVER-LEXICAL-PROGRAM-BLOCK-I0
-NextTask: MIR-CALLABLE-RESOLVER-SOURCE-BOUND-REJECT-P0
+Status: source-bound hard reject P0 complete; Program lexical-region containment D0 selected
+ClosedTask: MIR-CALLABLE-RESOLVER-SOURCE-BOUND-REJECT-P0
+NextTask: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-D0
 Date: 2026-08-22
-Priority: bind the next non-deferrable verifier failure to its exact parser source before diagnosis
+Priority: prove whether the existing Program lexical region is the exact container of its child control sites
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-CENSUS-D0
-NextCard: this rolling card owns the bounded P0 brief
+NextCard: this rolling card owns the bounded D0 brief
 ---
 
 # Imported static authority census and callable Deferred correction
@@ -578,3 +578,114 @@ guards:
 Stop and redesign if the verification error is session-global rather than
 attributable to the one tree being sealed, or if retaining identity requires
 an AST reference, a second resolver pass, or caller-side re-pairing.
+
+## Source-bound hard reject P0 execution closeout
+
+`MIR-CALLABLE-RESOLVER-SOURCE-BOUND-REJECT-P0` is complete.
+
+The all-row resolver kernel now retains each parser identity beside its pending
+owner tree and binds both construction and forest-verification hard errors to
+that exact identity before returning. Callable and constructor production
+issuers expose only the source-bound terminal. The cause-less API remains only
+for its existing test/caller-zero surface and maps the private kernel reject
+back to its original error without a second resolver pass.
+
+Evidence:
+
+```text
+callable semantic batch tests = 20 passed
+  - natural construction reject retains exact callable identity
+  - forest verification reject retains exact callable identity
+
+constructor resolver tests = 2 passed
+  - natural construction reject retains exact ConstructorSourceIdV1
+
+owner-resolver precedence test = 1 passed
+cargo check --lib = passed
+cargo build --bin hakorune = passed
+source-bound production API = one definition + two named consumers
+owner/name/order re-pairing = 0
+AST reference in reject = 0
+fallback/retry = 0
+touched production source max = 653 lines
+```
+
+The reusable complete-batch guard reaches all newly added source-bound checks,
+then fails at its pre-existing selected-mapping identity-repair vocabulary
+check. The exact same failure reproduces against parent `0ac2b93e522b`; it is
+classified as known baseline debt, not a current-change failure.
+
+The rebuilt 646-line production probe now reports:
+
+```text
+source = Callable {
+  diagnostic_owner: Some("StringHelpers"),
+  diagnostic_name: "starts_with",
+}
+error = IfRegion(ControlContractMismatch(
+  RegionId { owner: compilation 1 / slot 9, slot: 3 }
+))
+```
+
+The diagnostic name is observation-only; the terminal itself owns the opaque
+callable declaration identity from the same parser invocation.
+
+## Next decision — Program lexical-region containment D0
+
+```text
+Decision: audit one missing source-containment relation before changing code: a parser-issued ProgramBodyRoot lexical region should contain its sibling ProgramBody(i) sites under the existing LexicalScope kind.
+Source authority + canonical issuer: the existing Program block resolver issues the lexical region/scope and canonical ProgramBody coordinates; the resolved-forest verifier remains the sole exact-container and control-contract issuer.
+Non-authority: the failing FunctionOwnerIdV1 slot, diagnostic callable name, statement ordinal alone, AST pointer, Builder state, Lower behavior, and the production fixture.
+Fail-fast boundary: exact source-region selection and If/Loop control-contract verification, before semantic-package completion, Builder effects, fallback, or publication.
+Smallest next slice: after the premise audit, MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0 may add only ProgramBodyRoot -> ProgramBody(i) to the existing LexicalScope containment law with focused If and Loop evidence.
+Non-claims: no new syntax acceptance, region/scope/path vocabulary, If or Loop semantics, owner identity, Recipe/Join, Builder/MIR, fallback, publication, backend, or performance work.
+```
+
+### Observed premise
+
+The lexical Program-block I0 already emits one region at:
+
+```text
+Body(k) / ProgramBodyRoot
+```
+
+and its children at:
+
+```text
+Body(k) / ProgramBody(i)
+```
+
+`source_region_contains_site_v1()` recognizes the equivalent sibling-body
+law for `ScopeBody`, `TaskScopeBody`, and `FastMemBody`, but not for
+`ProgramBody`. Consequently `exact_source_region_v1()` selects the enclosing
+Sequence for a nested If site while the If region's actual parent is the
+Program lexical region, producing the observed `ControlContractMismatch`.
+
+This is a bounded verifier correspondence gap, not evidence for a second
+resolver pass or a general control-flow redesign.
+
+### Proposed P0 acceptance
+
+```text
+positive:
+  Program lexical region is the exact container of ProgramBody(i) sites
+  natural Program-contained If seals with that lexical parent/scope
+  natural Program-contained Loop seals with that lexical parent/scope
+
+negative:
+  mismatched prefix or foreign ProgramBodyRoot does not contain the site
+  top-level Script Program ownership does not widen
+  Scope/TaskScope/FastMem containment remains unchanged
+
+guards:
+  one new sibling-body relation only
+  new region/scope/path/semantic receipt = 0
+  source re-scan or caller-side re-pairing = 0
+  fallback/retry = 0
+  touched production files < 760 lines; 800 hard stop
+```
+
+Remain in `design_stop` if Program membership cannot be expressed by the
+existing sibling-body helper, if the root profile makes nested and top-level
+Program ambiguous, or if resolving the probe requires any second accepted
+syntax shape.

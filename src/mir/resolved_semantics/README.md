@@ -58,6 +58,19 @@ still rejects the whole issue attempt. `Complete` behavior and accepted syntax
 are unchanged, and a Deferred batch cannot publish a semantic package, retry a
 Builder/compatibility route, or escape with an AST reference.
 
+## Source-bound selected-callable hard reject P0 (2026-08-22)
+
+The same all-row kernel binds every non-deferrable construction or forest-
+verification error to the exact parser identity that accompanied its borrowed
+function syntax. Callable rows retain `CallableDeclarationIdentityV1` and
+constructor rows retain `ConstructorSourceIdV1`; a resolver owner slot, name,
+arity, batch position, or source path is never used to pair the error later.
+
+The first hard error remains terminal and accepted syntax is unchanged. The
+source-bound reject contains no AST reference, cannot publish a semantic
+package, and cannot retry Builder, compatibility, or legacy lowering. The
+cause-less resolver API remains only for its existing test/caller-zero surface.
+
 ## Callable bare lexical Program block I0 (2026-08-22)
 
 Inside a declared function body, the parser's `ASTNode::Program` statement is

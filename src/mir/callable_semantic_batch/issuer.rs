@@ -8,10 +8,11 @@ use crate::mir::compiler::source_projection::{
 };
 use crate::mir::resolved_semantics::{
     issue_resolved_block_expr_expectation_v1, FunctionSemanticResolverSessionV1,
-    FunctionSyntaxViewV1, ReceiverPolicyV1, ResolveOwnerForestErrorV1,
+    FunctionSyntaxViewV1, ReceiverPolicyV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     ResolvedBlockExpressionExpectationIssueV1, SelectedCallableResolverDeferredBatchV1,
     SelectedCallableResolverInputV1, SemanticOwnerRootProfileV1,
+    SourceBoundSelectedCallableResolverRejectV1,
 };
 use crate::parser::{
     FinalCallableDeclarationModeV1, FinalCallableSemanticSyntaxLoanErrorV1,
@@ -27,7 +28,7 @@ use super::model::{
 pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     ParserSyntax(FinalCallableSemanticSyntaxLoanErrorV1),
     SourceCoverage,
-    Resolver(ResolveOwnerForestErrorV1),
+    Resolver(SourceBoundSelectedCallableResolverRejectV1),
     ResolverDeferred(SelectedCallableResolverDeferredBatchV1),
     MissingRoot,
     RootProfileMismatch,

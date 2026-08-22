@@ -217,6 +217,7 @@ pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
     ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
     ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
+    SourceBoundSelectedCallableResolverRejectV1,
 };
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;

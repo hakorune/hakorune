@@ -8,11 +8,14 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 PARSER_LOAN="$ROOT_DIR/src/parser/normal_callable_program_source/semantic_syntax_loan.rs"
 PARSER_ANCHOR="$ROOT_DIR/src/parser/callable_source_anchor.rs"
 BATCH_ISSUER="$ROOT_DIR/src/mir/callable_semantic_batch/issuer.rs"
+BATCH_RESOLVER="$ROOT_DIR/src/mir/resolved_semantics/owner_resolver.rs"
 CONTRACT_DIR="$ROOT_DIR/src/mir/callable_parameter_contract"
 CONTRACT_ISSUER="$CONTRACT_DIR/issuer.rs"
 CONTRACT_MODEL="$CONTRACT_DIR/model.rs"
 CONTRACT_TESTS="$CONTRACT_DIR/tests.rs"
 PACKAGE_ISSUER="$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs"
+CONSTRUCTOR_ISSUER="$ROOT_DIR/src/mir/normal_callable_semantic_package/instance_constructor_semantic.rs"
+CONSTRUCTOR_TESTS="$ROOT_DIR/src/mir/normal_callable_semantic_package/resolver_deferred_tests.rs"
 PACKAGE_MODEL="$ROOT_DIR/src/mir/normal_callable_semantic_package/model.rs"
 PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
 PACKAGE_COMPLETION_SEED="$ROOT_DIR/src/mir/normal_callable_semantic_package/completion_seed.rs"
@@ -36,9 +39,11 @@ RAW_SOURCE_TRANSPORT="$ROOT_DIR/src/mir/builder/raw_invocation_source_transport.
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" \
-  "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$CONTRACT_ISSUER" \
+  "$PARSER_LOAN" "$PARSER_ANCHOR" "$BATCH_ISSUER" "$BATCH_RESOLVER" \
+  "$CONTRACT_ISSUER" \
   "$CONTRACT_MODEL" "$CONTRACT_TESTS" \
-  "$PACKAGE_ISSUER" "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$PACKAGE_COMPLETION_SEED" \
+  "$PACKAGE_ISSUER" "$CONSTRUCTOR_ISSUER" "$CONSTRUCTOR_TESTS" \
+  "$PACKAGE_MODEL" "$PACKAGE_INSTALL" "$PACKAGE_COMPLETION_SEED" \
   "$PACKAGE_PHYSICAL_HEADER" "$PACKAGE_PHYSICAL_HEADER_TESTS" "$SELECTED_MAPPING" \
   "$SOURCE_CATALOG" "$INVOCATION_CLEANUP" "$BATCH_TESTS" "$PACKAGE_TESTS" \
   "$PARSER_TESTS" \
@@ -82,6 +87,30 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   ".with_callable_semantic_syntax" "$BATCH_ISSUER" \
   "semantic batch must traverse complete final callable syntax"
+guard_expect_fixed_in_file "$TAG" \
+  "struct SourceBoundSelectedCallableResolverRejectV1" "$BATCH_RESOLVER" \
+  "selected callable hard rejects must retain their parser source identity"
+guard_expect_fixed_in_file "$TAG" \
+  "SourceBoundSelectedCallableResolverRejectV1" "$BATCH_ISSUER" \
+  "callable batch must expose only source-bound resolver hard rejects"
+guard_expect_fixed_in_file "$TAG" \
+  "SourceBoundSelectedCallableResolverRejectV1" "$CONSTRUCTOR_ISSUER" \
+  "constructor batch must expose only source-bound resolver hard rejects"
+reject_fixed_in_file \
+  "Resolver(ResolveOwnerForestErrorV1)" "$BATCH_ISSUER" \
+  "callable batch still exposes an unbound resolver hard reject"
+reject_fixed_in_file \
+  "Resolver(ResolveOwnerForestErrorV1)" "$CONSTRUCTOR_ISSUER" \
+  "constructor batch still exposes an unbound resolver hard reject"
+guard_expect_fixed_in_file "$TAG" \
+  "construction_reject_keeps_the_exact_callable_identity" "$BATCH_TESTS" \
+  "callable construction hard-reject identity negative is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "forest_verification_reject_keeps_the_exact_callable_identity" "$BATCH_TESTS" \
+  "callable forest hard-reject identity negative is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "constructor_construction_reject_keeps_the_exact_parser_source_id" "$CONSTRUCTOR_TESTS" \
+  "constructor hard-reject identity negative is missing"
 reject_fixed_in_file \
   "with_callable_parameter_syntax" "$BATCH_ISSUER" \
   "parameter catalog must not define semantic batch membership"

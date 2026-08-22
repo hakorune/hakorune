@@ -1,12 +1,16 @@
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1,
+    FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveOwnerForestErrorV1,
+    ResolvedFunctionVerificationErrorV1, ResolvedIfRegionVerificationErrorV1,
+    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ShadowResolveErrorV0,
     SourceBindingSiteV1, SourcePathSegmentV1, SourceResolverDeferredV1,
 };
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::{
-    issue_resolved_callable_semantic_batch_v1, ResolvedCallableDeclarationModeV1,
-    ResolvedCallableSemanticBatchLoanErrorV1, VerifiedResolvedCallableSemanticBatchV1,
+    issue_resolved_callable_semantic_batch_v1,
+    issue_resolved_callable_semantic_batch_with_brand_catalog_v1,
+    ResolvedCallableDeclarationModeV1, ResolvedCallableSemanticBatchLoanErrorV1,
+    VerifiedResolvedCallableSemanticBatchV1,
 };
 
 fn batch(source: &str) -> VerifiedResolvedCallableSemanticBatchV1 {
@@ -230,4 +234,83 @@ fn parsed_standalone_block_resolves_with_exact_program_child_site() {
         }
         other => panic!("expected located Program child name, got {other:?}"),
     }
+}
+
+#[test]
+fn construction_reject_keeps_the_exact_callable_identity() {
+    let source = final_source(
+        "brand PageId: i64\n\
+         static box Api { bad() { return PageId(1, 2) } }",
+    );
+    let identity = source
+        .with_callable_semantic_syntax(|loan| {
+            loan.rows()
+                .first()
+                .expect("callable row")
+                .identity()
+                .clone()
+        })
+        .expect("callable identity loan");
+    let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(
+        source.ast(),
+    )
+    .expect("brand catalog");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(75).unwrap();
+    let reject = match issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
+        &mut resolver,
+        source,
+        Some(&catalog),
+    ) {
+        Err(super::ResolvedCallableSemanticBatchIssueV1::Resolver(reject)) => reject,
+        other => panic!("expected source-bound construction reject, got {other:?}"),
+    };
+
+    assert!(reject
+        .source()
+        .callable_identity()
+        .expect("callable identity")
+        .same_as(&identity));
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Syntax(
+            ShadowResolveErrorV0::BrandConstructorArity { actual: 2, .. }
+        ))
+    ));
+}
+
+#[test]
+fn forest_verification_reject_keeps_the_exact_callable_identity() {
+    let source = final_source(
+        "static box Api {\n\
+             good() { return 0 }\n\
+             bad() { { if 1 { return 1 } } return 0 }\n\
+         }",
+    );
+    let identities = source
+        .with_callable_semantic_syntax(|loan| {
+            loan.rows()
+                .iter()
+                .map(|row| row.identity().clone())
+                .collect::<Vec<_>>()
+        })
+        .expect("callable identity loan");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(76).unwrap();
+    let reject = match issue_resolved_callable_semantic_batch_v1(&mut resolver, source) {
+        Err(super::ResolvedCallableSemanticBatchIssueV1::Resolver(reject)) => reject,
+        other => panic!("expected source-bound forest reject, got {other:?}"),
+    };
+
+    assert!(reject
+        .source()
+        .callable_identity()
+        .expect("callable identity")
+        .same_as(&identities[1]));
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Verification(
+            ResolvedFunctionVerificationErrorV1::IfRegion(
+                ResolvedIfRegionVerificationErrorV1::ControlContractMismatch(_)
+            )
+        ))
+    ));
 }

@@ -1,10 +1,15 @@
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1,
+    FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveOwnerForestErrorV1,
+    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ShadowResolveErrorV0,
     SourceResolverDeferredV1,
 };
 use crate::parser::{NyashParser, ParserBuildConfig, VerifiedFinalCallableProgramSourceV1};
 
-use super::{issue_normal_callable_semantic_package_v1, NormalCallableSemanticPackageIssueV1};
+use super::{
+    issue_normal_callable_semantic_package_v1,
+    issue_normal_callable_semantic_package_with_brand_catalog_v1,
+    NormalCallableSemanticPackageIssueV1,
+};
 
 fn final_source(source: &str) -> VerifiedFinalCallableProgramSourceV1 {
     let parsed = NyashParser::parse_normal_callable_program_with_build_config(
@@ -59,4 +64,50 @@ fn constructor_resolver_deferred_keeps_the_exact_parser_source_id() {
         } => assert_eq!(&**name, "missing_constructor_value"),
         other => panic!("expected located constructor unresolved name, got {other:?}"),
     }
+}
+
+#[test]
+fn constructor_construction_reject_keeps_the_exact_parser_source_id() {
+    let source = final_source(
+        "brand PageId: i64\n\
+         box Holder { init() { return PageId(1, 2) } }",
+    );
+    let source_id = source
+        .with_constructor_semantic_syntax(|loan| {
+            loan.rows()
+                .first()
+                .expect("constructor row")
+                .source_id()
+                .clone()
+        })
+        .expect("constructor identity loan");
+    let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(
+        source.ast(),
+    )
+    .expect("brand catalog");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(95).unwrap();
+    let reject = match issue_normal_callable_semantic_package_with_brand_catalog_v1(
+        &mut resolver,
+        source,
+        Some(&catalog),
+    ) {
+        Err(NormalCallableSemanticPackageIssueV1::InstanceConstructors(
+            super::instance_constructor_semantic::InstanceConstructorSemanticBatchIssueV1::Resolver(
+                reject,
+            ),
+        )) => reject,
+        other => panic!("expected constructor construction reject, got {other:?}"),
+    };
+
+    assert!(reject
+        .source()
+        .constructor_source_id()
+        .expect("constructor source id")
+        .same_as(&source_id));
+    assert!(matches!(
+        reject.error(),
+        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Syntax(
+            ShadowResolveErrorV0::BrandConstructorArity { actual: 2, .. }
+        ))
+    ));
 }

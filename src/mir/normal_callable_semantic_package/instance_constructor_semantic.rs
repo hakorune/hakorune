@@ -6,9 +6,10 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ResolveOwnerForestErrorV1, ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
+    ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
     SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverInputV1,
-    SemanticOwnerRootProfileV1, VerifiedSemanticOwnerForestV1,
+    SemanticOwnerRootProfileV1, SourceBoundSelectedCallableResolverRejectV1,
+    VerifiedSemanticOwnerForestV1,
 };
 use crate::parser::{ConstructorSourceIdV1, VerifiedFinalCallableProgramSourceV1};
 
@@ -16,7 +17,7 @@ use crate::parser::{ConstructorSourceIdV1, VerifiedFinalCallableProgramSourceV1}
 pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     ParserSyntax,
     SourceCoverage,
-    Resolver(ResolveOwnerForestErrorV1),
+    Resolver(SourceBoundSelectedCallableResolverRejectV1),
     ResolverDeferred(SelectedCallableResolverDeferredBatchV1),
     MissingRoot,
     RootProfileMismatch,
