@@ -427,6 +427,56 @@ brief before implementation:
 | `MIRBUILDER-RING0-LOGGER-INJECTION-D0` | a broad scan finds 223 ring0-containing files, not dependency edges; measure the actual graph and forbid a hidden global observer |
 | `MIRBUILDER-AST-VIEW-MIGRATION-D0` | the broad current scan finds 893 AST-importing files, not 617; staged source-view authority is needed, and any synthetic AST construction is a separate correctness review |
 
+#### `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0` — current design stop
+
+This is the selected next row. It is a BoxShape audit, not permission to edit
+`if_control.rs`. The file is at the 760-line split trigger and just below the
+800-line hard stop, but line count alone does not define the new module
+boundaries.
+
+Six-line brief:
+
+```text
+Decision: preserve one resolved If-control authority; first map a safe split of analyzer, use-ledger, and product surfaces.
+Source authority + canonical issuer: Resolved source/completion input is consumed by the existing IfControlAnalyzerV1; the final VerifiedResolvedFunctionIfControlV1 remains the sole product owner until the audit accepts a split.
+Non-authority: filenames, re-export barrels, compiler projections, loop_owned_if helpers, test fixtures, and line counts cannot issue a second If-control product.
+Fail-fast boundary: stop before any move if private visibility, cfg(test) scope, super imports, or compiler↔builder direction cannot be preserved without duplicate types or a new dispatcher.
+Smallest next slice: produce the symbol/visibility/caller/dependency census and a candidate module graph for analyzer, use-ledger, and product; no code movement.
+Non-claims: no semantic change, new receipt, route classifier, fallback, production switch, I9 work, or broad builder shelving.
+```
+
+Current census receipt:
+
+```text
+source: src/mir/resolved_control_flow/if_control.rs = 798 lines
+registration: resolved_control_flow/mod.rs registers if_control once; tests are cfg(test)
+current logical surfaces: source analyzer + completion/coverage validation,
+  VerifiedResolvedFunctionIfControlV1 / row materialization product,
+  FunctionIfControlUseLedgerV1 + IfControlCoverageUseV1
+production import files: 20 (31 including test-only files)
+adjacent helper: loop_owned_if.rs consumes the existing product and is not a second issuer
+known public surface: 2 verifier entrypoints plus crate-visible product/ledger types
+```
+
+Required D0 output:
+
+```text
+1. exact symbol map: analyzer, coverage validator, product, row materializer,
+   use-ledger, error vocabulary, and test-only helpers
+2. caller map for both verifier entrypoints and every crate-visible type
+3. visibility/re-export/cfg map proving no widening and no duplicate product type
+4. dependency graph proving the split does not deepen compiler↔builder cycles
+5. candidate module graph and one owner for each moved symbol
+6. focused-test and reusable-guard plan; implementation remains forbidden until
+   this Decision is accepted
+```
+
+The likely safe direction is a thin `if_control/mod.rs` facade with private
+analyzer/coverage and use-ledger children while keeping the verified product
+and its sole verifier at one named authority. That is only a hypothesis until
+the census proves it; do not create the directory or new semantic types in
+this D0.
+
 ## Guard and closeout contract
 
 Every R0 commit must run:
