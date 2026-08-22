@@ -1,11 +1,11 @@
 ---
-Status: Active design stop
+Status: Accepted design; parser-only I0 selected
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-D0
 Exception: independent parser source-authority boundary; ordinary module-row card is closed
 ParentCurrentCard: docs/development/current/main/investigations/normal-module-parser-source-rows-d0-2026-08-23.md
 ProductionCaller: 0
-ProductionEdit: none until this Decision closes
+ProductionEdit: parser-only static parent source transport/seal I0; no downstream consumer
 CeremonyTier: T2 — new parser source authority and identity boundary
 ---
 
@@ -15,10 +15,10 @@ CeremonyTier: T2 — new parser source authority and identity boundary
 
 - **Current decision:** static Box parent source is a separate parser authority;
   it is not an extension of the ordinary `ParserBoxSourceSealV1`.
-- **Current implementation status:** design only; the existing static path still
+- **Current implementation status:** D0 accepted; the existing static path still
   produces an AST-only compatibility row and no static parent seal.
-- **Next ordered task:** fix the exact bounded parent/member source schema and
-  its sole parser issuer, then decide the source-only I0.
+- **Next ordered task:** issue and transport one parser-only static parent seal
+  with exact header/member coverage.
 - **Production stop line:** no `NormalCompileRequest`, `Main.main` admission,
   Builder effect, Recipe/Join, fallback, or compatibility reclassification.
 - **Retirement finish line:** one static parent authority is named, all old
@@ -44,8 +44,8 @@ Fail-fast boundary:
   missing/foreign/duplicate/contradictory parent or member evidence terminates
   without a request or physical effect.
 Smallest next slice:
-  one top-level non-entry static Box, one direct static method, same parser
-  invocation, exact parent header/member coverage, no fields/init/generated rows.
+  one top-level static Box, one direct static method, same parser invocation,
+  bundled header/member rows, no fields/init/generated rows; transport only.
 Non-claims:
   Main.main/App selection, mixed programs, multiple static Boxes, inheritance,
   imports, resolver semantics, Recipe/Join, MIR, publication, fallback, and
@@ -96,6 +96,48 @@ to that cohort.
 Extending `ParserBoxSourceSealV1` is rejected: it would make the ordinary
 finalizer and static compatibility arm share a false authority, while the
 static parser currently has no parent seal issuance path.
+
+## D0 closure: exact I0 contract
+
+The design is now closed at the following two-stage parser boundary:
+
+```text
+parse_static_box
+  -> one ParserStaticBoxSourceTransactionV1
+  -> one opaque PreparedParserStaticBoxParentSourceV1
+  -> existing postpass source-session move
+  -> ParsedProgramWithCallableParameterSourceV1::new
+  -> ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once
+  -> ParserStaticBoxSourceSealV1
+```
+
+The transaction emits one bundled row per source member. A row contains its
+parser-branded `SourceBoxMemberSiteV1`, a closed member-kind witness, and the
+direct static method relation only when that member is a direct method. The
+final coverage witness owns the exact contiguous member count and the Box
+path; it is not a bare ordinal list. Existing static callable catalog rows are
+co-sealed by exact brand/path/member-site equality, never by a name/ordinal
+join.
+
+The first I0 admits only:
+
+```text
+one top-level static Box
+one direct static method
+no field/init/static-init/constructor/generated member
+no build-gate path, ordinary sibling, interface, record, or import
+```
+
+Other observed member kinds receive an explicit `Outside`/typed source
+disposition; they are not omitted from a supposedly total parent product.
+`Main` has no special source identity here. `Main.main` entry/App selection is
+not consumed and remains a separate `Outside` boundary at its later consumer.
+
+The static prepared payload must survive the existing postpass prune move by
+the same parser brand/path. It is carried as a sibling of ordinary prepared
+seals, never inserted into `prepared_source_seals` and never converted into
+`SourceSealedOrdinary`. The final static issuer runs once at the same parser
+product boundary as the ordinary module issuer; no AST rescan is permitted.
 
 ## Bounded cohort
 
@@ -210,15 +252,18 @@ the source schema cannot stay below the 760-line split trigger
 
 ```text
 D0  this card: freeze static parent authority, cohort, states, and hard stops
-I0  after Decision: issue one parser-owned static parent seal only
+NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-I0:
+    issue one parser-owned static parent seal only
 D0  separate: decide static/mixed postpass transport policy
 D0  separate: decide Main.main/App entry admission from the parent source
 later: normal ingress -> Facts -> Recipe -> Verify -> Lower, only after those
        source and consumer authorities are independently named
 ```
 
-The current task stops at D0. No code, fixture, fallback, production switch,
-or guessed `Verified*`/`Prepared*` semantic receipt is opened by this card.
+The D0 is accepted. The next task is the parser-only I0 above. It may add the
+new parser source transaction, sibling transport field, final static issuer,
+focused parser tests, and one reusable guard. It may not connect normal ingress,
+add a production caller, or open Main/App/Builder/Recipe/Join/MIR/fallback.
 
 ## Worker/census receipt
 
