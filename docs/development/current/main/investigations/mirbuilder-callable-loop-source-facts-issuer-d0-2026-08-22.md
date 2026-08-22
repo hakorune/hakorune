@@ -1,6 +1,6 @@
 ---
-Status: D0, caller-zero issuer P0, and terminal-only port P0 complete; next ordinary Ready port P0
-Task: MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0 (complete)
+Status: D0, caller-zero issuer P0, and terminal-only port P0 complete; ordinary Ready consumer D0 is design_stop
+Task: MIR-CALLABLE-LOOP-ORDINARY-READY-D0
 Date: 2026-08-22
 Priority: carry one source-bound GenericLoop Facts/Recipe outcome before any consumer
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
@@ -167,13 +167,20 @@ AST-only `LoopRouteContext` and could re-enter the old schedule.
 2. `MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0` — caller-zero route seam
    (complete). Add one terminal port that consumes the Ready aggregate without
    exposing `PostEffectRetryDebt`, legacy suffix, fallback, or retry.
-3. `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` — one non-nested Ready fixture.
-   Consume exact callable rows during the existing normalizer traversal while
-   structural expression lookup stays on its existing port.
-4. `MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0` — first Outside-derived cohort.
+3. `MIR-CALLABLE-LOOP-ORDINARY-READY-D0` — fix the structural-port ownership
+   and HRTB handoff before adding an ordinary consumer. The current issuer
+   creates a `LoopRouteContext` and drops it; the later ordinary path creates
+   another one. This row stays at design_stop until one traversal owns the
+   structural view and passes it into the named consumer without AST/Facts/
+   Recipe re-observation.
+4. `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` — one non-nested Ready fixture.
+   Add the scoped normalizer consumer after D0 is accepted. Consume exact
+   callable rows during the existing normalizer traversal while structural
+   expression lookup stays on its existing port.
+5. `MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0` — first Outside-derived cohort.
    Extend the named consumer only after the source relation is complete; do
    not relabel body-only rows as the existing Ready carrier.
-5. `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0` — production cutover.
+6. `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0` — production cutover.
    Require one named caller, old bypass caller-zero, no retry/fallback, and
    the merged probe beyond the current Outside terminal.
 
@@ -271,11 +278,127 @@ bash tools/checks/current_state_pointer_guard.sh                     PASS
 git diff --check                                                     PASS
 ```
 
-The next authorized cell is
-`MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0`: design one non-nested named
-consumer for exact callable rows while structural expression lookup stays on
-its existing port. Body-only rebind admission, route cutover, fallback/retry,
-physical/publication work and parser witness strengthening remain closed.
+The next authorized design cell is
+`MIR-CALLABLE-LOOP-ORDINARY-READY-D0`: fix the ownership of the existing
+structural traversal and name the scoped HRTB handoff. The implementation P0
+must remain closed until that relation is accepted. Body-only rebind admission,
+route cutover, fallback/retry, physical/publication work and parser witness
+strengthening remain closed.
+
+## Ordinary Ready consumer D0 (2026-08-22)
+
+### Six-line brief
+
+```text
+Decision: keep Ready as the only source/Facts/Recipe product and add one scoped HRTB normalizer consumer; do not reuse the terminal consumer or add a callable field to LoopRouteContext.
+Source authority + canonical issuer: CallableLoopSourceProjectionV1 and the existing Facts/Recipe authorities remain owners; CallableGenericLoopSourceFactsIssuerV1::issue_once is the sole co-seal issuer; CallableGenericLoopSourceFactsNormalizerConsumerV1::consume is only a consumer.
+Non-authority: AST-only contexts rebuilt after Ready, GenericLoopAdmissionObservationV1, Builder/ValueId, registry/RouteExecutionWitness, PostEffectRetryDebt, names, ordinals, pointers, cloned Facts, and a second Recipe/route selection.
+Fail-fast boundary: exact Ready, owner/lineage/child coverage, policy, retained Facts/Recipe, and exact [GenericLoopV1] selection must be closed before the HRTB callback; the callback must receive one existing structural traversal port and must not construct a new context or enter Builder.
+Smallest next slice: D0 fixes the structural-port ownership and callback shape; only after acceptance does P0 add one non-nested caller-zero normalizer consumer in a new sibling module.
+Non-claims: no physical lowering, PlanLowerer, registry, ledger, route cutover, fallback/retry, publication, body-only rebind, nested loops, parser witness strengthening, or production switch.
+```
+
+### Why the extra design stop is required
+
+`CallableGenericLoopSourceFactsIssuerV1::issue_once` currently creates a
+`LoopRouteContext` only to run the one explicit-policy Facts/Recipe extraction,
+then drops that structural view. The ordinary path later constructs another
+context inside `cf_loop_joinir_impl`. Passing `Ready` into that later route
+would therefore allow a second structural observation even if Facts and the
+route selection themselves were not recomputed.
+
+The HRTB boundary must close this gap without making `LoopRouteContext` a
+callable semantic owner and without storing a self-referential borrow in
+`CallableGenericLoopSourceFactsReadyV1`. The existing traversal must lend its
+structural view to the consumer for one callback scope. The callback may see
+the retained Facts/Recipe, exact selection seal, source schedule, and the
+already-located condition/body relation, but it may not return an AST or source
+borrow whose lifetime escapes the scope.
+
+The intended named API is:
+
+```text
+CallableGenericLoopSourceFactsNormalizerConsumerV1::consume(
+    Ready,
+    existing_structural_port,
+    use_normalizer_input,
+) -> R
+```
+
+The exact `existing_structural_port` type and its construction owner are the
+D0 decision. It must be borrowed from the same normalizer traversal, not
+reconstructed from `Ready`, an AST pointer, a route name, or a second
+`LoopRouteContext::new` call. If this cannot be expressed without one of
+those forbidden pairings, the row remains `NoSafeSlice` and no P0 code is
+allowed.
+
+### Authority and handoff shape
+
+The P0 consumer must receive one private aggregate from the existing issuer,
+not independently supplied fragments:
+
+```text
+Ready
+  = exact source contexts + condition/body
+  + retained PlanBuildOutcome
+  + retained RecipeFirstRouteSelectionV1
+  + VerifiedLocatedGenericLoopV1SelectionV1
+  + Ready callable schedule
+```
+
+The scoped normalizer input may borrow those fields together with the one
+existing structural port. It must not issue new Facts, clone or reconstruct
+`GenericLoopV1Facts`, rerun `select_recipe_first_routes`, or call the terminal
+consumer. The callback result must not carry the borrowed AST/source view
+outside the HRTB scope.
+
+The normalizer consumer is therefore not a second authority and not a
+production bridge. It only proves that the source-bound Ready product can
+reach the existing normalizer seam exactly once, with no Builder/ledger/
+registry effect. Physical lowering and production selection remain a later R0.
+
+### Ordered design and implementation tasks
+
+1. `MIR-CALLABLE-LOOP-ORDINARY-READY-D0` (current, design_stop)
+
+   Identify the one existing structural traversal that owns the ordinary
+   normalizer view. Fix the handoff as a private scoped callback/HRTB API.
+   Record the exact input/output relation, lifetime rule, and the proof that
+   no second `LoopRouteContext` or AST walk is introduced.
+
+2. `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` (blocked until D0 accepted)
+
+   Add `normal_callable_loop_ready_normalizer.rs` with exactly one named
+   `CallableGenericLoopSourceFactsNormalizerConsumerV1::consume`. Keep the
+   new file below 760 lines and leave `raw_loop_child_entry.rs` and
+   `normal_callable_loop_handoff.rs` untouched. Add one non-nested positive
+   fixture and typed negative cases; do not connect the production raw port.
+
+3. `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0` (parked)
+
+   Only after the P0 consumer is proven may a later card decide whether the
+   existing normalizer/PlanLowerer can be connected. That card must separately
+   own Builder effects, route cutover, no-fallback/no-retry, and old caller-zero
+   evidence.
+
+### D0 acceptance / NoSafeSlice
+
+Accept D0 only when all of these are written as one contract:
+
+```text
+one named existing structural traversal owner
+one private HRTB/scoped consumer boundary
+Ready is moved once and never cloned
+Facts/Recipe/selection extraction counts remain one
+no AST/source borrow escapes the callback
+no second LoopRouteContext construction or structural walk
+no terminal consumer, registry, retry, fallback, Builder, ledger, or publication edge
+```
+
+Return to `NoSafeSlice` if the only available handoff requires a new
+`LoopRouteContext` from Ready, an AST pointer/name/ordinal pairing, a parallel
+optional product, a second Facts/Recipe extraction, or any Builder effect in
+this row. A green test or a terminal-only consume does not waive this stop.
 
 ## Terminal-only Ready consumption P0 (2026-08-22)
 
