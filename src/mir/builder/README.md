@@ -50,6 +50,23 @@ An internal candidate connection with production callers at zero is not I0.
 Stage-B-specific source routes must not be connected here; only their
 source-neutral reusable parts may enter a named production replacement cell.
 
+### Callable Loop root Ready unpublished scope (D0)
+
+The live root `Ready` Loop path is owned by the existing
+`ModuleBuilderInvocationSessionV1` candidate. Its same-root
+`ModuleDraftCollectorV1` remains the draft-admission owner, and the invocation
+brand binds the two. `CanonicalFunctionLoweringSessionV1` is a child
+function-draft owner; it is not opened for this root Loop path.
+
+Before the source-aware physical adapter is switched, a private borrow-scoped
+root facade must co-bind those existing owners. The facade is not a second
+Builder/session/collector, cannot be built from a bare `&mut MirBuilder`, and
+must not expose a generic mutable Builder getter. The bounded claim is
+unpublished-effect confinement and one collector drain/commit on success; it
+does not claim that `PlanVerifier` is effect-free. See the active card in
+`CURRENT_STATE.toml` for the exact call chain, acceptance guards, and
+`NoSafeSlice` conditions.
+
 ### Raw invocation source transport classifier
 
 `raw_invocation_source_transport.rs` owns exact path construction and temporal

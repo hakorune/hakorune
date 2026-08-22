@@ -1,5 +1,5 @@
-Status: Design stop; conditional design only, no implementation authorized
-Task: MIR-CALLABLE-LOOP-UNPUBLISHED-SESSION-CAPABILITY-D0
+Status: Superseded by `MIR-CALLABLE-LOOP-ROOT-UNPUBLISHED-SCOPE-D0`; historical design audit only
+Task: MIR-CALLABLE-LOOP-UNPUBLISHED-SESSION-CAPABILITY-D0 (superseded)
 Date: 2026-08-23
 Priority: constrain the source-aware physical adapter to the existing unpublished function transaction
 Parent: MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0
@@ -7,6 +7,12 @@ Current execution row: MIR-CALLABLE-LOOP-UNPUBLISHED-SESSION-CAPABILITY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-callable-loop-unpublished-session-capability-d0-2026-08-23.md
 NextCard: none until this Decision is accepted
 ---
+
+> This card initially named `CanonicalFunctionLoweringSessionV1` as the root
+> owner. A top-down caller audit showed that the live root Ready path is owned
+> by `ModuleBuilderInvocationSessionV1`; child function sessions are a separate
+> authority. The corrected active design is in
+> `mirbuilder-callable-loop-root-unpublished-scope-d0-2026-08-23.md`.
 
 # Callable Loop unpublished-session capability D0
 
