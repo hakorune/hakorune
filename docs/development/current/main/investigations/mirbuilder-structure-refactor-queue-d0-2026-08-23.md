@@ -1,7 +1,7 @@
-Status: if_control owner-split R0 complete; literal dynamic_full_body_recipe move rejected; boundary-shape D0 selected
+Status: if_control owner-split R0 complete; dynamic Recipe transport aggregate is NoSafeSlice; Script direct-static shelf D0 selected
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0`
+Current row: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,10 +56,10 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0` —
-classify the twelve Builder production import surfaces and select one
-compiler-owned transport aggregate only if it preserves one-way ownership;
-no code move or re-export sweep is authorized by this D0.
+Smallest next slice: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` — classify the
+four direct-static owner flows and six physical locations, then select a
+Builder-owned shelf only if Script cutover/old-route evidence permits it; no
+directory move is authorized by this D0.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -74,7 +74,7 @@ series:
 | --- | --- | --- |
 | `#6 if_control.rs` analyzer/use-ledger/product split | Safe BoxShape; landed as `7c9ea5944f` with one logical facade and one product/verifier authority | Complete; no follow-up move |
 | `#7 dynamic_full_body_recipe` vocabulary move | Literal compiler-to-Builder relocation rejected. The Recipe/Facts/semantic-program owner is already compiler-side, and the production edge is one-way for this module | Replace with the boundary-shape D0 below; no direct move |
-| `#8 normal_script/direct_static/` consolidation | Potentially useful, but it crosses active Script cutover/retirement boundaries and has no bounded ownership census here | Park as `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` |
+| `#8 normal_script/direct_static/` consolidation | Potentially useful, but the current production files span source, semantic, physical, and compiler capability owners; it also crosses active Script cutover/retirement boundaries | Selected as design-only `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0`; no broad move |
 
 The review therefore selects one dependency-boundary design task, not a
 repository-wide shelving pass. The second-stage rows (`normal_*`, `module_*`,
@@ -615,7 +615,7 @@ rejected shape and a narrower next design boundary. This is not permission to
 edit code; it closes the architectural question without inventing a new
 semantic product.
 
-#### `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0` — selected next
+#### `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0` — complete
 
 This D0 determines whether the current twelve Builder imports can be reduced
 to one compiler-owned transport aggregate without hiding semantic ownership.
@@ -656,9 +656,93 @@ the selected candidate has a <760-line owner and focused guard plan
 otherwise the result is NoSafeSlice with the counterexample recorded
 ```
 
-This D0 remains separate from Script direct-static shelving and Dynamic I9
-transaction hardening. The second-stage shelf proposals remain parked until
-their own active cutover/ownership decisions are selected.
+Local classification receipt — 2026-08-23:
+
+| Builder surface | Dynamic Recipe symbols | Meaning class | Boundary result |
+| --- | --- | --- | --- |
+| `canonical_ssa/session.rs` | `DynamicCanonicalSessionAuthorityRefV1` | borrowed Completion/Join-control session authority | physical session constructor input; not a Recipe move candidate |
+| `selected_dynamic_physical_abi.rs` | operation refs/effects, placements, item kind, control/arms, fault family, prepared operation program, cleanup rows, source relation | complete physical-input and lifecycle evidence | must remain one demand view; splitting rows would permit recombination |
+| `selected_dynamic_physical_capability.rs` | cleanup action/kind/row views | lifecycle/cleanup evidence | already consumed by the selected capability seam |
+| `body_state_bridge.rs`, `formal_header.rs`, emitter `mod.rs` | `DynamicAPrimeI64SourceRelationViewV1` | source/parameter relation borrowed from the same exit co-seal | source relation must remain tied to A-prime demand |
+| `callout_corridor/emission.rs`, `continuation_backedge.rs`, `i8_i9_control.rs`, `inner_return_then.rs` | prepared operation program and operation refs | physical operation transport | existing A-prime demand already owns the aggregate |
+| `operation_cursor.rs`, `lifecycle_terminal.rs` | operation rows/counts and cleanup kind | preflight/lifecycle consumption | no second cursor or cleanup issuer allowed |
+
+The twelve Builder files therefore use four different borrowed evidence
+families, not one freely pairable vocabulary. The existing
+`VerifiedAPrimeI64PhysicalDemandV1` is already the compiler-owned aggregate,
+but its public-in-crate methods deliberately lend these views to the selected
+physical owner. It is not safe to replace that with a type-by-type facade.
+
+Candidate rejection:
+
+```text
+Builder-owned Recipe directory
+  -> semantic package/compiler would depend on Builder; ownership direction worsens
+
+A-prime type-by-type re-export
+  -> hides imports only; it creates no aggregate and permits no stronger pairing
+
+Move physical_evidence/cleanup/source relation into A-prime
+  -> creates a new cross-owner physical/semantic module boundary or reverse edge
+
+new neutral aggregate with wrapper rows
+  -> new transport authority and broad API/signature rewrite, not a BoxShape
+```
+
+Decision: `NoSafeSlice` for the proposed one-aggregate relocation. Keep the
+current one-way production graph and the existing A-prime demand boundary.
+Do not add a directory move, re-export sweep, wrapper receipt, or second
+issuer. The direction audit is complete; the next structural work, if any,
+must be a separate owner-specific shelf audit.
+
+#### `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` — selected next
+
+This is a design-only audit of proposal #8. It does not authorize moving all
+files whose names contain `direct_static` into one directory. The current
+production census is:
+
+```text
+direct-static-named production files = 14
+physical roots = source_call_target, compiler capability, Builder semantic,
+  Builder call bridge, Builder script exit, and Builder semantic-input children
+tests are separate and must not define production ownership
+```
+
+Required tasks:
+
+```text
+1. Map the four owner flows: source/lookup, semantic Recipe/Join/claim,
+   physical bridge/publication, and compiler/backend capability.
+2. Record every logical module registration, #[path] child, re-export, and
+   production caller; preserve logical module paths in any later shelf.
+3. Separate Builder-owned files from source/compiler authorities. A shelf may
+   group only one owner flow; it may not absorb source_call_target or compiler
+   capability merely because the filename contains direct_static.
+4. Prove the Script production cutover and old-route retirement preconditions:
+   named canonical consumer exists, old bypass caller is zero, fallback/retry
+   is zero, and the shelf does not become a new route or issuer.
+5. Compare one owner-specific facade/shelf with NoSafeSlice. Reject a broad
+   `normal_script/direct_static/` move, type re-export sweep, and path rename
+   that widens visibility or changes logical imports.
+6. Select at most one behavior-neutral BoxShape R0 only after this Decision;
+   otherwise record NoSafeSlice and leave the current file topology unchanged.
+```
+
+Acceptance:
+
+```text
+four flows and six physical roots are symbol/caller classified
+source/compiler/Builder authority boundaries remain explicit
+canonical Script consumer and old-route retirement evidence are recorded
+no code, semantic product, route, fallback, or production switch changes in D0
+any selected shelf has one logical owner, preserved module paths, and <760-line
+  facade/children with a focused structure guard
+otherwise NoSafeSlice is recorded with the exact blocking edge
+```
+
+This D0 remains separate from Dynamic I9 hardening and from broad
+`normal_*`/`module_*` shelving. The second-stage proposals remain parked until
+their own owner maps and cutover evidence are selected.
 
 ## Guard and closeout contract
 

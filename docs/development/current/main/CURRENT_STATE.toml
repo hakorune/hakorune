@@ -18,14 +18,14 @@ date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0"
-current_design_stop = "The if_control owner-split R0 is complete and the literal dynamic_full_body_recipe move is rejected. Before any transport-boundary edit, classify the twelve Builder production import surfaces and prove one compiler-owned, one-way aggregate boundary; no re-export sweep or semantic move is authorized."
-current_blocker_token = "MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0: classify the twelve Builder production consumers and compare one aggregate boundary with NoSafeSlice before selecting a bounded BoxShape."
+current_execution_row = "MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0"
+current_design_stop = "The dynamic Recipe transport aggregate D0 is NoSafeSlice: the existing compiler-owned A-prime demand already co-seals the four borrowed evidence families, so no relocation, re-export sweep, wrapper, or second issuer is authorized. Before any Script shelf edit, classify its four owner flows and six roots and prove cutover/old-route retirement evidence; no broad move is authorized."
+current_blocker_token = "MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0: classify four direct-static owner flows and six physical roots, then compare one owner-specific BoxShape with NoSafeSlice before any shelf move."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — dynamic full-body recipe transport-boundary audit"
+active_lane = "MirBuilder in-place replacement — Script direct-static owner-shelf audit"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -91,8 +91,8 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-structure-refactor-queue-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md"
-latest_card_summary = "The if_control owner-split R0 is complete, and the dynamic_full_body_recipe direction audit rejected a literal compiler-to-Builder move: Recipe/Facts/semantic authority stays compiler-owned. The next design stop classifies twelve Builder consumers and selects one narrow transport boundary or NoSafeSlice."
-next_design_card = "MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0"
+latest_card_summary = "The dynamic Recipe transport aggregate D0 is NoSafeSlice: Recipe/Facts/semantic authority stays compiler-owned and the existing A-prime demand remains the boundary. The active design stop is Script direct-static shelf classification: four owner flows, six roots, and cutover/old-route evidence before one owner-specific BoxShape or NoSafeSlice."
+next_design_card = "MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0"
 next_execution_card = "none"
 next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-23: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-I0 is landed. Existing I6/I7 cleanup claims now occur once before Fault/CallOut-End effects; the dedicated Fault guard, selected Dynamic suite (10/10), CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0 is landed. Header validation and existing Backedge cleanup/I13..I16 claims now occur before `select_block` and the first physical effect; the dedicated Backedge guard, selected Dynamic suite (10/10), Fault/CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-INNER-RETURN-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: Compare/Bridge hardening (0f3a1c821d, 91bc0923d9), structural-lease cfg(test) retirement (40e862c3dc), callable-loop Outside observed/Ready row I0 (5365985372), root unpublished scope I0 (4757bcbd1c), and structure baseline taskification (7157bc6f23) are landed/pushed on main. Root I0 threads one same-brand unpublished candidate/collector through one private Ready edge; builder test-home R0 is the next closed BoxShape cell. Pure plan, ordinary Outside consumer, publication, parser, fallback, and performance remain closed.",
-  "2026-08-23: Structure R0s are complete: builder test-home (738/99, 4 tests), loop_physical_prepare test-home (481/319, 6 tests), README path P0, compiler tests home (30-line facade, 25/6 parity, baseline failures), common_v2 session home (545-line parent, 12 children), and if_control owner split (7c9ea5944f, one facade/product authority, green guard). dynamic_full_body_recipe direction D0 recorded 54 references/31 files and rejected a literal compiler-to-Builder move; boundary-shape D0 is next. Pure-plan, ordinary Outside, publication, fallback, parser witness, and performance remain closed."
+  "2026-08-23: Structure R0s are complete: builder test-home (738/99, 4 tests), loop_physical_prepare test-home (481/319, 6 tests), README path P0, compiler tests home (30-line facade, 25/6 parity, baseline failures), common_v2 session home (545-line parent, 12 children), and if_control owner split (7c9ea5944f, one facade/product authority, green guard). dynamic_full_body_recipe direction D0 recorded 54 references/31 files, 12 Builder consumers across four evidence families, and rejected a literal compiler-to-Builder move; its boundary shape is NoSafeSlice. Script direct-static shelf D0 is next: four owner flows, six roots, cutover/old-route evidence, and no broad move. Pure-plan, ordinary Outside, publication, fallback, parser witness, and performance remain closed."
 ]
