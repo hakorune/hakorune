@@ -123,6 +123,20 @@ fn emit_program(
     }
     let then_block = then_target.block();
     validate_then_predecessor(outer, corridor, then_block)?;
+
+    // Consume the existing cleanup and operation rows before select_block()
+    // mutates the Builder/SSA session or any End/ledger effect begins. Later
+    // physical failure is discarded by the caller's unpublished session.
+    cleanup
+        .claim(DynamicV2PhysicalCleanupCutPointV1::InnerReturn)
+        .map_err(|error| reject(format!("InnerReturn cleanup claim: {error:?}")))?;
+    operation_census
+        .claim_operation(I11)
+        .map_err(|error| reject(format!("I11 physical operation claim: {error:?}")))?;
+    operation_census
+        .claim_exit()
+        .map_err(|error| reject(format!("Exit physical claim: {error:?}")))?;
+
     canonical
         .cfg
         .select_block(outer.builder_view_mut_for_lowering(), then_block)
@@ -156,15 +170,6 @@ fn emit_program(
             lifecycle.lease_slot(),
         )
         .map_err(reject)?;
-    cleanup
-        .claim(DynamicV2PhysicalCleanupCutPointV1::InnerReturn)
-        .map_err(|error| reject(format!("InnerReturn cleanup claim: {error:?}")))?;
-    operation_census
-        .claim_operation(I11)
-        .map_err(|error| reject(format!("I11 physical operation claim: {error:?}")))?;
-    operation_census
-        .claim_exit()
-        .map_err(|error| reject(format!("Exit physical claim: {error:?}")))?;
     canonical
         .completion
         .claim_explicit_return(
