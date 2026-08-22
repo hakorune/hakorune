@@ -1,22 +1,22 @@
-Status: CallOut preclaim Decision accepted; I0 is the active bounded cell
+Status: CallOut preclaim I0 landed; Fault cleanup preclaim D0 is the next design stop
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
-Current execution row: MIR-DYNAMIC-CALLOUT-PRECLAIM-I0
+Current execution row: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-D0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-DYNAMIC-CALLOUT-PRECLAIM-I0 (after the accepted CallOut preclaim Decision)
+NextCard: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-D0 (after CallOut preclaim I0)
 ---
 
 # Selected Dynamic Compare hardening D0
 
 ## Six-line brief
 
-Decision: accept the feedback as ordered hardening cells. The cursor EOF P0 and I8/I9/If preclaim I0 are closed. Use preflight-and-consume for I0..I7 CallOut claims at the pre-MIR/ledger physical-effect boundary, without a new batch receipt or second order authority; later design one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
+Decision: accept the feedback as ordered hardening cells. The cursor EOF P0, I8/I9/If preclaim I0, and CallOut I0..I7 preclaim I0 are closed. Use preflight-and-consume for the next I6/I7 cleanup claims at their pre-effect boundary, without a new batch receipt or second cleanup authority; later design one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
 Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
 Fail-fast boundary: for I0..I7, existing row/site/brand validation and identity observations are followed by the eight existing census claims before `loop_operation::publish_i64_value`, the first MIR/ledger physical effect. A claim failure is terminal and the unpublished outer session is discarded; no rollback, retry, or fallback exists. Writer preparation, bridge checks, and result reservation remain in their later transaction cell.
-Smallest next slice: MIR-DYNAMIC-CALLOUT-PRECLAIM-I0, move the I0..I7 claims to that boundary and prove one claim edge each with line-order/effect-zero evidence. It does not open Fault/Backedge/InnerReturn claims, live publication, or the broader writer transaction.
+Smallest next slice: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-D0, a design-only census of the two I6/I7 cleanup claims before their corresponding physical Fault/CallOut-End effects. It does not open Backedge/InnerReturn claims, live publication, or the broader writer transaction.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -180,10 +180,9 @@ effect census, selected `preflight-and-consume` for I8/I9/If, and kept
 Backedge/Fault/InnerReturn outside this I0. The audit found no need for a new
 receipt or second authority.
 
-The next design stop is `MIR-DYNAMIC-CALLOUT-PRECLAIM-D0`, covering the I0..I7
-CallOut operation claims only. It must audit the pure pre-effect boundary
-before any CallOut ValueId/Const/Add/CallOut effect; cleanup and terminal
-claims remain separate.
+The next design stop after this completed I0 is
+`MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-D0`, covering only the I6/I7 cleanup
+claims; Backedge, InnerReturn, and operation claims remain separate.
 
 ### 3. MIR-DYNAMIC-CALLOUT-PRECLAIM-D0
 
@@ -238,10 +237,41 @@ Acceptance:
     no Builder publication, generic Loop route, or fallback changes
     touched production files remain below 760 lines
 
+I0 closeout evidence: the I0..I7 loop now occurs once immediately before
+`loop_operation::publish_i64_value`; the old end-of-corridor loop is gone. The
+selected Dynamic focused suite is 10/10, the dedicated CallOut preclaim guard,
+CONNECT0 guard, strict-writer guard, and pointer guard are green, the CallOut
+owner remains below 760 lines, and `git diff --check` is clean.
+
 NoSafeSlice: a claim failure can bypass `reject_begin()`, the old claim loop
 cannot be removed completely, or the boundary requires a second authority.
 
-### 5. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
+The next design stop is `MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-D0`. It covers only
+the I6/I7 cleanup claims and must not mix operation claims, Backedge, or
+InnerReturn cleanup.
+
+### 5. MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-D0
+
+Design-only next cell. Audit the I6 and I7 cleanup claims in
+`fault_terminals.rs`. Decide whether both existing cleanup rows can be
+preflight-and-consumed after corridor/lifecycle/brand validation and before
+the first corresponding Fault/CallOut-End physical effect. Keep
+`DynamicV2PhysicalCleanupCursorV1` as the sole cleanup owner; do not add a
+cleanup batch, rollback, or operation-census authority.
+
+Acceptance:
+
+    I6/I7 cleanup claim sites and preceding effects are recorded
+    one pre-effect boundary or explicit NoSafeSlice is named
+    outer unpublished discard and no-fallback behavior are proven
+    a focused positive/negative test and reusable line-order guard can be
+      specified without touching Backedge/InnerReturn/operation claims
+
+NoSafeSlice: cleanup rows cannot be safely discarded with the unpublished
+session, a second cleanup authority is needed, or the corresponding physical
+effect must occur before the claim.
+
+### 6. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 
 Implement only after the preclaim D0 is accepted. Split the current writer
 front door into:
@@ -287,7 +317,7 @@ Acceptance:
 NoSafeSlice: the aggregate cannot make definition/slot pairing private and
 move-only, or the writer still needs a repair-capable legacy front door.
 
-### 6. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
+### 7. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
 
 Keep this separate from the physical transaction rewrite.
 
@@ -303,7 +333,7 @@ negative test that changes only the physical value and rejects before any
 publication. Type affinity must be verified by compile/guard evidence rather
 than runtime behavior.
 
-### 7. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
+### 8. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
 
 Do not touch the generic caller-zero leaf in the selected Dynamic hardening
 series. Its old append-then-publish behavior remains a known baseline debt

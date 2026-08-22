@@ -361,6 +361,16 @@ fn emit_program(
         .identity
         .claim_variable_use_binding(relation.condition_end(), relation.end_binding())
         .map_err(reject)?;
+
+    // Consume the existing operation census before the first MIR/ledger
+    // physical effect in this corridor.  Identity observations above remain
+    // covered by the unpublished outer-session discard contract.
+    for raw in 0..8 {
+        operation_census
+            .claim_operation(crate::mir::loop_recipe_contract::LoopItemKeyV1::new(raw))
+            .map_err(|error| reject(format!("physical operation claim {raw}: {error:?}")))?;
+    }
+
     loop_operation::publish_i64_value(outer.builder_view_mut_for_lowering(), current)
         .map_err(reject)?;
 
@@ -598,11 +608,6 @@ fn emit_program(
         i7_normal,
         i7_fault,
     );
-    for raw in 0..8 {
-        operation_census
-            .claim_operation(crate::mir::loop_recipe_contract::LoopItemKeyV1::new(raw))
-            .map_err(|error| reject(format!("physical operation claim {raw}: {error:?}")))?;
-    }
     i8_i9_control::emit(
         canonical,
         outer,
