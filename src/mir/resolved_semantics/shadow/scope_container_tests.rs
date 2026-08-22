@@ -4,7 +4,10 @@ use crate::mir::resolved_semantics::{
     SourceStmtSiteV1,
 };
 
-use super::{resolve_function_shadow_v0, ShadowBindingKindV0};
+use super::{
+    resolve_function_shadow_v0, ShadowBindingKindV0, ShadowControlExitV0, ShadowRegionKindV0,
+    ShadowResolveErrorV0, ShadowScopeKindV0,
+};
 
 fn local_x() -> ASTNode {
     ASTNode::Local {
@@ -93,4 +96,86 @@ fn fastmem_region_is_inline_execution_with_real_lexical_lifetime() {
         },
         SourcePathSegmentV1::FastMemBody(0),
     );
+}
+
+#[test]
+fn standalone_program_has_exact_lexical_lifetime_and_source_coverage() {
+    let container = ASTNode::Program {
+        statements: vec![local_x()],
+        span: Span::unknown(),
+    };
+    assert_container_scope(container.clone(), SourcePathSegmentV1::ProgramBody(0));
+
+    let product = resolve_function_shadow_v0(FunctionOriginV1::new(0, 0), &function(container))
+        .expect("standalone Program block");
+    let scope_origin = SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::ProgramBodyRoot,
+    ]);
+    assert!(product.scopes.values().any(|scope| {
+        scope.kind == ShadowScopeKindV0::LexicalBlock
+            && scope.origin.as_ref() == Some(&scope_origin)
+    }));
+    assert!(product.regions.values().any(|region| {
+        region.kind == ShadowRegionKindV0::LexicalScope
+            && region.origin.as_ref() == Some(&scope_origin)
+    }));
+    for segments in [
+        vec![SourcePathSegmentV1::Body(0)],
+        vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBody(0),
+        ],
+    ] {
+        assert!(product
+            .statement_sites
+            .contains(&SourceStmtSiteV1::from_node(
+                SourceNodeSiteV1::from_segments(segments)
+            )));
+    }
+}
+
+#[test]
+fn duplicate_local_inside_one_program_block_remains_a_typed_redeclaration() {
+    let tree = function(ASTNode::Program {
+        statements: vec![local_x(), local_x()],
+        span: Span::unknown(),
+    });
+    assert!(matches!(
+        resolve_function_shadow_v0(FunctionOriginV1::new(0, 0), &tree),
+        Err(ShadowResolveErrorV0::SameScopeRedeclaration { name }) if &*name == "x"
+    ));
+}
+
+#[test]
+fn program_block_inside_loop_keeps_the_enclosing_break_target() {
+    let tree = function(ASTNode::Loop {
+        condition: Box::new(ASTNode::Literal {
+            value: LiteralValue::Bool(true),
+            span: Span::unknown(),
+        }),
+        body: vec![ASTNode::Program {
+            statements: vec![ASTNode::Break {
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        }],
+        span: Span::unknown(),
+    });
+    let product = resolve_function_shadow_v0(FunctionOriginV1::new(0, 0), &tree)
+        .expect("nested Program break");
+    let (loop_region, _) = product
+        .regions
+        .iter()
+        .find(|(_, region)| region.kind == ShadowRegionKindV0::Loop)
+        .expect("enclosing Loop region");
+    let exit_site = SourceStmtSiteV1::from_node(SourceNodeSiteV1::from_segments(vec![
+        SourcePathSegmentV1::Body(0),
+        SourcePathSegmentV1::LoopBody(0),
+        SourcePathSegmentV1::ProgramBody(0),
+    ]));
+    assert!(matches!(
+        product.resolved_exits[&exit_site].transfer,
+        ShadowControlExitV0::Break { target_loop } if target_loop == *loop_region
+    ));
 }

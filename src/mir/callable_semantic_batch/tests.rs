@@ -1,6 +1,6 @@
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1,
-    SourceBindingSiteV1, SourceResolverDeferredV1,
+    SourceBindingSiteV1, SourcePathSegmentV1, SourceResolverDeferredV1,
 };
 use crate::parser::{NyashParser, ParserBuildConfig};
 
@@ -200,4 +200,34 @@ fn same_scope_redeclaration_keeps_its_unlocated_typed_cause() {
         SourceResolverDeferredV1::UnlocatedSameScopeRedeclaration { name }
             if &**name == "x"
     ));
+}
+
+#[test]
+fn parsed_standalone_block_resolves_with_exact_program_child_site() {
+    let complete = batch("static box Api { run(x) { { local y = x } return x } }");
+    assert_eq!(complete.declarations().len(), 1);
+
+    let source = final_source("static box Api { run() { { return missing_inside_program } } }");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(74).unwrap();
+    let deferred = match issue_resolved_callable_semantic_batch_v1(&mut resolver, source) {
+        Err(super::ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(deferred)) => deferred,
+        other => panic!("expected Program child deferral, got {other:?}"),
+    };
+    match deferred.first().observation() {
+        SourceResolverDeferredV1::Located {
+            cause: ScriptResolverDeferredCauseV1::UnresolvedName { name },
+            site: ScriptResolverDeferredSiteV1::Expression(site),
+        } => {
+            assert_eq!(&**name, "missing_inside_program");
+            assert_eq!(
+                site.node().segments(),
+                [
+                    SourcePathSegmentV1::Body(0),
+                    SourcePathSegmentV1::ProgramBody(0),
+                    SourcePathSegmentV1::Value,
+                ]
+            );
+        }
+        other => panic!("expected located Program child name, got {other:?}"),
+    }
 }

@@ -168,6 +168,9 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 )?;
                 Ok(())
             }
+            ASTNode::Program { statements, .. } => {
+                self.resolve_program_block(statement, statements, path)
+            }
             ASTNode::ScopeBox { body, .. } => self.resolve_scope_box(statement, body, path),
             ASTNode::TaskScope { body, .. } => self.resolve_task_scope(statement, body, path),
             ASTNode::FastMemRegion { body, .. } => {
@@ -384,6 +387,25 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         );
         let result = self.resolve_body(body, |index| {
             Self::stmt_body_item_path(statement, path, BodyChildRoleV1::ScopeBody, index)
+        });
+        self.leave_region_scope(region);
+        result
+    }
+
+    fn resolve_program_block(
+        &mut self,
+        statement: &'ast ASTNode,
+        body: &'ast [ASTNode],
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let body_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::ProgramBody);
+        let (region, _) = self.enter_region_scope(
+            ShadowRegionKindV0::LexicalScope,
+            ShadowScopeKindV0::LexicalBlock,
+            &body_path,
+        );
+        let result = self.resolve_body(body, |index| {
+            Self::stmt_body_item_path(statement, path, BodyChildRoleV1::ProgramBody, index)
         });
         self.leave_region_scope(region);
         result

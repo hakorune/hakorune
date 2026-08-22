@@ -1,8 +1,8 @@
-Status: typed Deferred P0 complete; lexical Program-block I0 accepted as the next fast BoxCount
-ClosedTask: MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0
-NextTask: MIR-CALLABLE-RESOLVER-LEXICAL-PROGRAM-BLOCK-I0
+Status: lexical Program-block I0 complete; source-bound hard reject P0 accepted as next BoxShape
+ClosedTask: MIR-CALLABLE-RESOLVER-LEXICAL-PROGRAM-BLOCK-I0
+NextTask: MIR-CALLABLE-RESOLVER-SOURCE-BOUND-REJECT-P0
 Date: 2026-08-22
-Priority: admit exactly one parser-issued bare lexical block without flattening its scope
+Priority: bind the next non-deferrable verifier failure to its exact parser source before diagnosis
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-CENSUS-D0
 NextCard: this rolling card owns the bounded P0 brief
 ---
@@ -457,3 +457,124 @@ child traversal needs TryCatch/postfix compatibility
 Script admission or target/Builder state is needed
 the real probe requires a second newly accepted AST shape
 ```
+
+## Lexical Program-block I0 execution closeout
+
+`MIR-CALLABLE-RESOLVER-LEXICAL-PROGRAM-BLOCK-I0` is complete.
+
+The existing statement resolver now consumes one nested parser-issued
+`ASTNode::Program` as a `LexicalScope` / `LexicalBlock`. It uses only the
+existing `ProgramBodyRoot` and `ProgramBody(i)` vocabulary, leaves the scope on
+success or child error, and does not push a control target. Script profiles
+still reject Program at their existing profile gate.
+
+Evidence:
+
+```text
+scope-container tests = 5 passed
+  - exact inner binding lifetime
+  - exact scope/region origin and statement coverage
+  - duplicate Local remains typed redeclaration
+  - nested Break retains enclosing Loop target
+
+vocabulary/profile tests = 5 passed
+callable batch tests = 9 passed
+  - natural parser bare block reaches Complete
+  - unresolved child retains Body(0)/ProgramBody(0)/Value
+
+cargo check --lib = passed
+cargo build --bin hakorune = passed
+Program flatten/rewrite = 0
+new scope/region/path/receipt vocabulary = 0
+touched production max = 556 lines
+```
+
+The rebuilt 646-line merged-source probe no longer reports either
+`UnsupportedStatement { kind: "Program" }`. It advances to:
+
+```text
+Batch(Resolver(Function(Verification(
+  IfRegion(ControlContractMismatch(
+    RegionId { owner: compilation 1 / slot 9, slot: 3 }
+  ))
+))))
+```
+
+This is a hard resolver/verifier rejection, not a Deferred source shape. The
+error still exposes only a resolver owner slot. Pairing that slot back to a
+callable by source order or diagnostic name would violate the same identity
+rule fixed for Deferred.
+
+## Next decision — source-bound hard reject P0
+
+```text
+Decision: carry the exact selected callable or constructor parser identity beside every non-deferrable construction/forest-verification error emitted by the all-row resolver kernel. Preserve the existing first-hard-error terminal and do not repair the IfRegion mismatch in this slice.
+Source authority + canonical issuer: the parser loan supplies CallableDeclarationIdentityV1 or ConstructorSourceIdV1 beside each FunctionSyntaxViewV1; the shadow/forest resolver remains the sole error issuer; the source-bound kernel alone co-seals identity + error.
+Non-authority: FunctionOwnerIdV1 slot, resolver batch order, callable/Box name, arity, source path alone, AST pointer, merged line number, Builder state, and the current fixture.
+Fail-fast boundary: bind a construction or forest-verification error before returning from the source-bound resolver API and before semantic-package completion, catalog installation, Builder effects, fallback, or publication.
+Smallest next slice: MIR-CALLABLE-RESOLVER-SOURCE-BOUND-REJECT-P0; replace unbound production Resolver(error) terminals with one exact source-bound reject while leaving legacy caller-zero APIs unchanged.
+Non-claims: no IfRegion repair, resolver syntax acceptance, control-contract redesign, owner-ID redesign, import/target/result work, Recipe/Join, Builder/MIR, fallback, publication, backend, or performance work.
+```
+
+### Bounded contract
+
+```text
+input identity + FunctionSyntaxView
+  -> construction success
+     -> retain identity beside pending owner tree
+     -> forest verification success -> Complete row
+     -> forest verification error   -> SourceBoundReject(identity, error)
+
+  -> construction Deferred
+     -> existing non-empty Deferred batch
+
+  -> construction hard error
+     -> SourceBoundReject(identity, error)
+```
+
+The kernel continues in parser-loan order. The first hard error remains
+terminal exactly as today. A source-bound reject is one non-Clone terminal row,
+not an optional parallel diagnostic and not a new semantic capability.
+
+Counterexample:
+
+```text
+P1 and P2 contain identical callable names, arities, and batch positions
+owner slot 9 is compilation-local and cannot recover either parser anchor
+
+owner slot/name/order + verifier error
+  -> ambiguous or foreign pairing
+
+exact parser identity nested with verifier error
+  -> one request-local reject, no re-pairing
+```
+
+### Acceptance
+
+```text
+positive:
+  Complete and identity-bound Deferred behavior remain unchanged
+
+negative:
+  construction hard error retains exact callable identity
+  forest verification error retains exact callable identity
+  constructor hard error retains exact ConstructorSourceIdV1
+  foreign parser identity cannot be substituted by name/order
+
+production observation:
+  real merged probe names the exact parser callable identity plus
+  IfRegion(ControlContractMismatch)
+  no package/Builder effect occurs
+
+guards:
+  production unbound Resolver(error) terminal = 0
+  owner slot/name/ordinal re-pairing = 0
+  AST ref in reject = 0
+  new syntax acceptance = 0
+  fallback/retry = 0
+  touched production files < 760 lines; 800 hard stop
+```
+
+Stop and redesign if the verification error is session-global rather than
+attributable to the one tree being sealed, or if retaining identity requires
+an AST reference, a second resolver pass, or caller-side re-pairing.

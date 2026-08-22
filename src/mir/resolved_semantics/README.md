@@ -58,6 +58,20 @@ still rejects the whole issue attempt. `Complete` behavior and accepted syntax
 are unchanged, and a Deferred batch cannot publish a semantic package, retry a
 Builder/compatibility route, or escape with an AST reference.
 
+## Callable bare lexical Program block I0 (2026-08-22)
+
+Inside a declared function body, the parser's `ASTNode::Program` statement is
+the exact representation of one standalone `{ ... }` block. Full-function and
+selected-callable traversal resolve it as a lexical region/scope, with the
+scope origin at `ProgramBodyRoot` and ordered children at `ProgramBody(i)`.
+The block is never flattened into its enclosing scope, and it adds no control
+target: nested `break`/`continue` still resolve to the nearest enclosing Loop.
+
+Script profiles continue to reject this statement shape at their existing
+profile gate. Top-level Program roots, Builder-created Program shells,
+compile-time directives, Try/Catch compatibility, target selection, Recipe,
+and physical lowering are outside this resolver admission.
+
 ## Generic G0 S0B source-type inventory
 
 `generic_g0/` is the sole AST-free issuer for the Generic G0 S0B source-type
