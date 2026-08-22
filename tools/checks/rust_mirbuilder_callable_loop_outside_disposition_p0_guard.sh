@@ -20,10 +20,16 @@ require_match "project_disposition" "$handoff"
 require_match "CallableLoopBindingProjectionDispositionV1::Ready(handoff)" "$raw_entry"
 require_match "CallableLoopBindingProjectionDispositionV1::Outside(reason)" "$raw_entry"
 require_match "lower_outside_callable_loop_v1" "$raw_entry"
+require_match "Err(reason.into_terminal_error())" "$raw_entry"
 require_match ".project_disposition(loop_site)" "$recursive"
 
 if rg -n --fixed-strings ".project(loop_site)" "$recursive"; then
   echo "[callable-loop-outside-p0] recursive child path still uses Ready-only project()" >&2
+  exit 1
+fi
+
+if rg -n -A 12 "fn lower_outside_callable_loop_v1" "$raw_entry" | rg -q "lower_loop_or_freeze_v1"; then
+  echo "[callable-loop-outside-p0] Outside helper still enters ordinary JoinIR" >&2
   exit 1
 fi
 

@@ -161,7 +161,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
 
         match (disposition, outside_reason) {
             (RawLoopChildEntryDispositionV1::NoChildFunctionEntry, Some(reason)) => {
-                lower_outside_callable_loop_v1(builder, condition, body, reason)
+                lower_outside_callable_loop_v1(reason)
             }
             (RawLoopChildEntryDispositionV1::NoChildFunctionEntry, None) => {
                 super::control_flow::joinir::routing::lower_loop_or_freeze_v1(
@@ -178,15 +178,12 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     }
 }
 
-fn lower_outside_callable_loop_v1(
-    builder: &mut MirBuilder,
-    condition: ASTNode,
-    body: Vec<ASTNode>,
-    _reason: CallableLoopOutsideReasonV1,
-) -> Result<ValueId, String> {
-    // Outside is selected before the callable pre-effect receipt is consumed.
-    // This is the existing ordinary JoinIR owner, not a retry from Ready.
-    super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, condition, body)
+fn lower_outside_callable_loop_v1(reason: CallableLoopOutsideReasonV1) -> Result<ValueId, String> {
+    // Ordinary JoinIR currently accepts only MirBuilder and cannot consume
+    // the callable source ledger.  Keep Outside terminal until a named
+    // ledger-aware bridge is designed; never create partial MIR and defer the
+    // source-consumption failure to CallableSemanticLoweringState::finish.
+    Err(reason.into_terminal_error())
 }
 
 fn verify_exact_loop_child_receipts(

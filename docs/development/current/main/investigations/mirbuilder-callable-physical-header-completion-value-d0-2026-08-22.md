@@ -1,11 +1,11 @@
 ---
 Status: P0 complete; next D0 selected; design_stop
-Task: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0
+Task: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-D0
 Date: 2026-08-22
 Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-D0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -661,6 +661,113 @@ source authority, if accepting it requires body/MIR inference, or if the only
 way to pass is default/empty synthesis, a second source walk, fallback, or a
 new competing handoff issuer.
 
+## D0 decision closure — MIR-CALLABLE-LOOP-OUTSIDE-TERMINAL-P0
+
+The ordinary JoinIR route is not a consumer of the callable source ledger.
+The local audit found the exact ownership boundary:
+
+```text
+with_selected_source_scope
+  -> one Rc<RefCell<CallableSemanticLoweringState>>
+  -> RawInvocationChildPortV1::callable_ledger
+
+RawLoopChildEntryPortV1::lower_loop
+  -> lower_loop_or_freeze_v1(&mut MirBuilder, condition, body)
+  -> no callable-ledger observation
+
+outer CallableSemanticLoweringState::finish
+  -> variables 5/21, assignments 0/3
+```
+
+Therefore `Outside -> ordinary JoinIR` is not a completed handoff. It can
+write partial MIR and only fail at the outer semantic finish. It is removed as
+the current Outside consumer. The accepted state is:
+
+```text
+Ready(schedule)
+  -> consume callable pre-effect receipt
+  -> existing selected consumer
+
+Outside(body-only rebind)
+  -> typed terminal before ordinary JoinIR or callable pre-effect effects
+
+Incomplete / IntegrityInvalid
+  -> typed reject before effects
+```
+
+This is a bounded fail-fast correction, not a claim that `esc_json/1` is now
+supported. The source projection remains the only issuer of the Outside
+evidence. `CallableSemanticLoweringState::finish` remains strict and is not
+weakened, and no missing row is marked consumed merely to make the probe pass.
+
+### Authority and rejected alternatives
+
+| Owner | Owns | Does not own |
+| --- | --- | --- |
+| parser/resolver callable ledger + `CallableLoopSourceProjectionV1` | binding/site rows and `Ready`/`Outside` classification | physical values, JoinIR route, fallback |
+| `RawLoopChildEntry` terminal | pre-effect Outside stop | source reclassification or ordinary lowering |
+| `CallableSemanticLoweringState` | exact row consumption and finish completeness | deciding that an unconsumed row is harmless |
+| ordinary JoinIR | ordinary AST/Builder loop lowering | callable source consumption until a separate bridge is accepted |
+
+Rejected as standalone fixes:
+
+```text
+Dynamic admission -> Ordinary
+  insufficient: the ordinary Loop child entry still bypasses the ledger.
+
+ignore or subtract missing rows in finish
+  forbidden: it creates a false source-consumption receipt.
+
+AST/name/ValueId post-walk to mark rows consumed
+  forbidden: second observation and a competing authority.
+
+ordinary JoinIR retry after terminal
+  forbidden: fallback and partial-effect escape.
+```
+
+### Finite terminal table
+
+| State | Evidence | Effect | Next |
+| --- | --- | --- | --- |
+| `Ready` | one-carrier source schedule complete | existing consumer may proceed | consume/finish |
+| `Outside` | complete body-only rebind evidence | no JoinIR/Builder effect from this handoff | typed terminal |
+| `Incomplete` | required source row absent | no effect | typed reject |
+| `IntegrityInvalid` | foreign/duplicate/contradictory row | no effect | typed reject |
+| `ReachableBoxDeclaration` | nested child ownership boundary | no effect | existing terminal |
+
+### P0 boundary
+
+`MIR-CALLABLE-LOOP-OUTSIDE-TERMINAL-P0` changes only the current Outside
+consumer:
+
+```text
+lower_outside_callable_loop_v1(reason)
+  -> stable typed terminal carrying the source-backed Outside reason
+  -> no call to lower_loop_or_freeze_v1
+```
+
+Acceptance:
+
+```text
+Outside returns before the first ordinary JoinIR call
+Outside leaves instruction count and callable-ledger consumption unchanged
+Ready behavior remains unchanged
+Incomplete/foreign/duplicate cases remain typed rejects
+merged esc_json/1 probe stops at outside-first-cohort before effects
+no retry/fallback/default/second resolver observation
+source files remain below 760 lines (800 hard stop)
+```
+
+### Future bridge design stop
+
+The real ordinary-consumption work is parked as
+`MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-D0`. It may open only with a named
+ledger-aware JoinIR/port consumer that consumes the same resolver rows during
+the existing lowering traversal. It must not be implemented by a post-walk,
+name join, ValueId inference, or by weakening `finish`. Its design must state
+the source authority, exact consumer entry, nested-loop ownership, negative
+matrix, and no-effects boundary before any new receipt or production edge.
+
 ## P0 execution brief — MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0
 
 ```text
@@ -700,3 +807,47 @@ changing Text handle/ABI, S6C, Dynamic physical, Builder, or publication
 falling back or retrying after package/header rejection;
 accepting the production probe without exact source-bound row evidence.
 ```
+
+## P0 closeout — MIR-CALLABLE-LOOP-OUTSIDE-TERMINAL-P0
+
+The accepted terminal correction is complete. `Outside` no longer enters
+ordinary JoinIR. `CallableLoopOutsideReasonV1::into_terminal_error` is the
+single stable terminal formatter, and `RawLoopChildEntry` returns it before
+the ordinary route or the callable pre-effect receipt can run.
+
+Evidence:
+
+```text
+normal_callable_loop_handoff focused tests: 6 passed
+raw_loop_child_entry focused tests: 7 passed
+cargo check --profile quick --lib: passed
+cargo build --profile quick --bin hakorune: passed
+rustfmt --check: passed
+P0 guard: passed
+current-state pointer guard: passed
+git diff --check: passed
+source sizes: handoff 540, raw entry 491, recursive child 730 lines
+```
+
+The rebuilt merged `esc_json/1` probe now stops at:
+
+```text
+[freeze:contract][callable-loop-handoff/outside-first-cohort]
+loop_site=[Body(5)] bindings=1 sites=8
+```
+
+It does not report the former late
+`callable-semantic-lowering/incomplete-consumption` failure. This proves the
+pre-effect terminal boundary, not support for the body-only rebind cohort.
+Ready behavior, strict incomplete/foreign/duplicate rejection, and the
+strict `CallableSemanticLoweringState::finish` contract remain unchanged.
+
+Next design stop:
+
+```text
+MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-D0
+```
+
+This future slice must name a ledger-aware JoinIR/port consumer before adding
+any receipt or production edge. Performance work, Builder cleanup, fallback,
+publication, and main integration remain outside this closeout.

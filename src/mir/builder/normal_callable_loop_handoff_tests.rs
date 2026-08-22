@@ -327,6 +327,10 @@ fn body_only_rebind_is_explicit_outside_with_source_evidence() {
     assert_eq!(reason.loop_site(), &loop_site);
     assert_eq!(reason.bindings(), &[outside]);
     assert_eq!(reason.sites(), &[outside_rebind, outside_read]);
+    let terminal = reason.into_terminal_error();
+    assert!(terminal.contains("callable-loop-handoff/outside-first-cohort"));
+    assert!(terminal.contains("bindings=1"));
+    assert!(terminal.contains("sites=2"));
 }
 
 #[test]

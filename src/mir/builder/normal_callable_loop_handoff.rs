@@ -49,6 +49,15 @@ impl CallableLoopOutsideReasonV1 {
     pub(super) fn sites(&self) -> &[SourceNodeSiteV1] {
         &self.sites
     }
+
+    pub(super) fn into_terminal_error(self) -> String {
+        format!(
+            "[freeze:contract][callable-loop-handoff/outside-first-cohort] loop_site={:?} bindings={} sites={}",
+            self.loop_site.segments(),
+            self.bindings.len(),
+            self.sites.len(),
+        )
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
