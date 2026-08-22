@@ -1,7 +1,7 @@
-Status: if_control owner-split D0 complete; selected behavior-neutral if_control BoxShape R0
+Status: if_control owner-split R0 complete; selected dynamic_full_body_recipe direction D0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0`
+Current row: `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,10 +56,9 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0` — move only the
-already-mapped analyzer, product, and use-ledger symbols behind an
-`if_control/mod.rs` facade; preserve the logical module, visibility, and
-behavior.
+Smallest next slice: `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` — map
+the existing compiler/builder dependency edges and choose one-way vocabulary
+ownership before any relocation; no code move is authorized by this D0.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -496,7 +495,7 @@ analyzer remains the sole verifier issuer, and use-ledger movement changes no
 consumer contract. The following R0 is the only authorized implementation
 slice; no new semantic type, route, fallback, or production edge is opened.
 
-#### `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0` — selected next
+#### `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0` — complete
 
 Create `src/mir/resolved_control_flow/if_control/mod.rs` and move the mapped
 symbols into three private children:
@@ -517,6 +516,85 @@ analyzer.rs
 Keep `resolved_control_flow::if_control` as the logical module and re-export
 the existing crate/super-visible symbols from `mod.rs`. `source_coverage.rs`,
 `function_control.rs`, and `loop_owned_if.rs` stay in their current homes.
+
+Acceptance:
+
+```text
+if_control/mod.rs is the only logical facade
+product.rs owns the existing If rows/materialization/product types
+use_ledger.rs owns the existing coverage ledgers and errors
+analyzer.rs owns the existing source navigation/verifier entrypoints
+resolved_control_flow/mod.rs still registers if_control exactly once
+no visibility widening, semantic reorder, route, fallback, or production switch
+```
+
+Evidence:
+
+```text
+if_control/mod.rs = 30 lines
+product.rs = 247 lines; use_ledger.rs = 103 lines; analyzer.rs = 468 lines
+flat legacy if_control.rs = 0; all four owners remain below 800 lines
+product/verifier authority definitions = one each
+resolved_control_flow focused suite = 33 passed, 0 failed
+resolved_value_profile focused suite = 46 passed, 0 failed
+resolved_if_control_structure_r0_guard.sh = passed
+focused rustfmt, cargo check --profile quick, and git diff --check = passed
+logical imports/re-exports, visibility, test paths, and behavior unchanged
+```
+
+Commit: `7c9ea5944f` (`refactor: split resolved if control ownership`).
+The R0 is a BoxShape-only cleanup; it does not activate the disconnected
+If-control analyzer or create a second production authority.
+
+#### `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` — selected next
+
+The review proposal to move `dynamic_full_body_recipe` vocabulary toward the
+Builder is not yet an implementation task. The current broad scan records 53
+references, but a token count cannot distinguish compiler semantic ownership,
+Builder physical consumption, compatibility glue, and test-only evidence. A
+blind move could deepen the existing compiler↔Builder cycle instead of making
+the dependency one-way.
+
+Six-line design brief:
+
+```text
+Decision: audit dependency direction and vocabulary ownership before any move;
+  do not relocate compiler symbols from the proposal alone.
+Source authority + canonical issuer: existing compiler-owned dynamic semantic
+  program/Facts/Recipe issuers remain sole owners; no issuer is added by D0.
+Non-authority: directory names, token counts, re-exports, physical adapters,
+  Builder state, compatibility shells, and test fixtures.
+Fail-fast boundary: stop before editing if a proposed edge adds a compiler↔
+  Builder cycle, widens visibility, mixes semantic and physical meanings, or
+  requires a second Recipe/Join/physical authority.
+Smallest next slice: classify all 53 references by definition/caller/owner,
+  draw the current and proposed dependency graph, and select one bounded
+  facade or vocabulary move only if it has a one-way proof.
+Non-claims: no directory move, rename, re-export sweep, semantic reorder,
+  pure-plan conversion, fallback, production switch, or performance claim.
+```
+
+Required D0 tasks:
+
+```text
+1. Census every dynamic_full_body_recipe reference and classify it as
+   compiler semantic definition, compiler consumer, Builder physical consumer,
+   compatibility/migration, or test-only evidence.
+2. Separate names that describe source/Facts/Recipe/Join meaning from names
+   that describe MIR/ValueId/BasicBlock/physical publication.
+3. Map reverse imports and re-exports in both directions; record the exact
+   edges that would be removed, preserved, or newly introduced.
+4. Produce two candidate graphs: keep compiler vocabulary with a thin Builder
+   adapter, or move only a dependency-free vocabulary leaf behind a facade.
+5. Reject both candidates if neither gives one-way ownership without a new
+   semantic receipt, visibility widening, or duplicated issuer.
+6. Select at most one behavior-neutral next BoxShape cell with caller,
+   visibility, line-budget, and focused-gate acceptance; otherwise keep D0.
+```
+
+The next implementation cell is forbidden until this Decision is accepted.
+This row is intentionally separate from Script direct-static shelving and
+from Dynamic I9 transaction hardening.
 
 Acceptance:
 
