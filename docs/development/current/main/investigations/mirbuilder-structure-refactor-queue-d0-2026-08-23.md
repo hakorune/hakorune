@@ -1,7 +1,7 @@
-Status: loop physical prepare test-home R0 complete; selected next live README path receipt P0
+Status: live README path receipt P0 complete; selected next compiler tests home D0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-LIVE-README-PATH-RECEIPT-P0`
+Current row: `MIRBUILDER-COMPILER-TESTS-HOME-D0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,9 +56,9 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-LIVE-README-PATH-RECEIPT-P0` — correct only the
-two stale live navigation claims in `src/mir/builder/README.md`; no Rust module,
-semantic owner, or runtime route changes.
+Smallest next slice: `MIRBUILDER-COMPILER-TESTS-HOME-D0` — map the test groups,
+`super` imports, fixture owners, and parent `#[cfg(test)]` scope before any
+`compiler/tests.rs` move; no Rust source change is authorized in this D0.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -162,9 +162,29 @@ git diff --check = passed
 ```
 
 The new guard preserves the parent `#![cfg(test)]`, registry `#[cfg(test)]`,
-logical module path, and all six test symbols. The next bounded cell is the
-documentation-only live README path receipt; `compiler/tests.rs`, common_v2
-relocation, and all live semantic architecture rows remain separate.
+logical module path, and all six test symbols. The following README receipt
+records the next cell that was selected at that time; `compiler/tests.rs`,
+common_v2 relocation, and all live semantic architecture rows remain separate.
+
+## Live README path receipt P0 — 2026-08-23
+
+`MIRBUILDER-LIVE-README-PATH-RECEIPT-P0` is complete. Only the current
+`src/mir/builder/README.md` navigation claims were corrected:
+`stmts/mod.rs` is the statement facade and
+`raw_expression_dispatch/mod.rs` is the legacy raw-expression dispatcher.
+No Rust module registration, semantic owner, fallback, publication, or
+runtime route changed.
+
+Evidence:
+
+```text
+two live target paths exist
+stale flat stmts.rs/exprs.rs references = 0
+git diff --check = passed
+```
+
+The next row is the compiler test-home D0. It is an owner/dependency census,
+not permission to split or alter the production compiler module graph.
 
 ## Ordered task queue
 
@@ -189,7 +209,7 @@ metadata.rs is explicitly excluded with its owner rationale
 live README stale references are enumerated separately from archive references
 ```
 
-#### `MIRBUILDER-LIVE-README-PATH-RECEIPT-P0`
+#### `MIRBUILDER-LIVE-README-PATH-RECEIPT-P0` — complete
 
 Correct only current `src/mir/builder/README.md` references that claim
 nonexistent flat `stmts.rs`/`exprs.rs` files. Point to the existing directory
@@ -198,6 +218,9 @@ reference text without a separate authority review.
 
 Acceptance: README links resolve; no Rust code, module path, semantic product,
 or production caller changes; `git diff --check` is clean.
+
+Evidence: both live paths resolve, the stale flat-path count is zero, and the
+README-only diff passes `git diff --check`.
 
 #### `MIRBUILDER-LOOP-CALLERZERO-NAVIGATION-P0`
 
@@ -251,7 +274,7 @@ home guard, and `git diff --check` passed. The parent is 481 lines and the
 test child is 319 lines; the original logical module and `cfg(test)` scope are
 unchanged.
 
-#### `MIRBUILDER-COMPILER-TESTS-HOME-D0`
+#### `MIRBUILDER-COMPILER-TESTS-HOME-D0` — selected next
 
 First map `super` imports, test filters, fixture ownership, and parent
 `#[cfg(test)]` scope for `src/mir/compiler/tests.rs`. Only then split it into
@@ -263,6 +286,17 @@ Acceptance for D0: the owner map identifies every moved test group and no
 production module dependency. A later R0 must make `compiler/tests.rs < 760`
 or document a justified remaining-owner exception; focused compiler tests and
 diff/size guards must be green.
+
+Current design-stop brief:
+
+```text
+Decision: map ownership before moving any compiler test group.
+Source authority + canonical issuer: none; tests observe existing production owners.
+Non-authority: filename counts, test names, filters, and line count alone.
+Fail-fast boundary: stop before code movement if a group has unresolved super/fixture/visibility edges.
+Smallest next slice: one owner map for all groups and parent #[cfg(test)] scope.
+Non-claims: no split, production registration change, semantic change, fallback, or new receipt.
+```
 
 ### D0 — deferred architecture decisions
 

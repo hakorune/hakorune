@@ -499,8 +499,8 @@ be narrowed or rewritten. The exact task order is in
 - ValueId/BlockId
   - `src/mir/builder/utils.rs`（`MirBuilder::next_value_id()` など）
 - AST → MIR の基本道
-  - `src/mir/builder/stmts.rs`
-  - `src/mir/builder/exprs.rs`
+  - `src/mir/builder/stmts/mod.rs`（statement facade）
+  - `src/mir/builder/raw_expression_dispatch/mod.rs`（legacy raw expression dispatcher）
 - recursive child-lowering boundary
   - `src/mir/builder/recursive_child_lowering.rs` owns one associated-input
     port across body, statement, and expression entries.
@@ -609,7 +609,8 @@ SSOT:
 
 Prep rule:
 
-- public entry は `stmts.rs` / `exprs.rs` / `control_flow/` の入口に寄せる
+- public entry は `stmts/mod.rs` / `raw_expression_dispatch/mod.rs` /
+  `control_flow/` の入口に寄せる
 - helper を増やす前に、Context の責務境界を README に書く
 - split は docs-first で境界が固定されてから行う
 - member call は「route selection を 1 回、emit を 1 回」の順に保つ。
