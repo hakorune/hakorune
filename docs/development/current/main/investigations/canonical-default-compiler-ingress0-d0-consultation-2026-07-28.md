@@ -175,8 +175,7 @@ No implementation, fixture, guard-as-permission, production switch, or
 
 ## 2026-08-23 D0.1/D0.2 corpus and relation receipt
 
-Status: D0.1/D0.2 census recorded; D0.3 issuer selection and D0.4 acceptance
-closeout remain pending. This section grants no implementation permission.
+Status: D0.1/D0.2 census recorded; D0.3 accepted; D0.4 pending; no implementation permission.
 
 This is a read-only census of the current normal/default surface. It separates
 three kinds of evidence so that parser fixtures and disconnected source-plan
