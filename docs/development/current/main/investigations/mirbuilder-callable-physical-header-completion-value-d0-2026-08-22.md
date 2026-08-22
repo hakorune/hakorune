@@ -1,11 +1,11 @@
 ---
-Status: design_stop; D0 accepted; implementation remains closed until the next P0 is selected
+Status: P0 selected; D0 accepted; implementation in progress
 Task: MIR-CALLABLE-PHYSICAL-HEADER-ELIGIBILITY-D0
 Date: 2026-08-22
 Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-PHYSICAL-HEADER-ELIGIBILITY-P0
+NextCard: this rolling card owns the bounded P0
 ---
 
 # Callable physical-header eligibility D0
@@ -254,6 +254,30 @@ MIR-CALLABLE-PHYSICAL-HEADER-ELIGIBILITY-R0
   rerun the merged production probe, prove the observed row identity and
   next blocker, then close the package-level evidence before any activation
 ```
+
+## P0 execution brief — MIR-CALLABLE-PHYSICAL-HEADER-ELIGIBILITY-P0
+
+```text
+change:
+  reuse issue_callable_completion_seed_cohort_v1 and preserve its existing
+  source result/Completion/parameter identity co-seal
+
+accept:
+  explicit accepted scalar + value -> existing header seed
+  valid Unannotated/Void -> ordinary seed with no physical-header result
+  unsupported or invalid explicit rows -> existing typed reject
+
+files:
+  completion_seed.rs, focused physical-header/package tests, one reusable guard
+
+forbidden:
+  body/MIR/ResultCatalog inference, new receipt, Builder/ABI change,
+  fallback/retry, source reparse, ordinal/name pairing
+```
+
+P0 closes only after the focused mixed/negative tests, cargo check, source-size
+guard, and the merged production probe all pass or the next blocker is
+recorded. The next probe result is not a license to widen this row.
 
 ## NoSafeSlice conditions
 
