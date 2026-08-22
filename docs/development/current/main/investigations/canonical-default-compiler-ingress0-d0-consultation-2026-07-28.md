@@ -1,5 +1,5 @@
 ---
-Status: closed bounded design census; narrower prerequisite selected
+Status: active design stop; bounded module-source census selected
 Date: 2026-07-28
 Decision: NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
 ParentDecision: CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
@@ -733,3 +733,18 @@ NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0, add verified function-plan
 vocabularies one at a time, aggregate only closed products, preserve the
 current-normal result contract, and only then reopen Candidate A.
 ```
+
+## Frontier after Script semantic-shelf R0
+
+The Script direct-static semantic-shelf R0 is a completed BoxShape refactor;
+it does not widen this design or authorize a default-ingress implementation.
+The repository-artifact interlude is also closed at `RETURN0`, so this existing
+card is now the current design frontier. The next work is still census-only:
+freeze the finite normal corpus, name the Program/module source authority and
+issuer, and prove the total pre-effect family boundary before any code,
+fixture, fallback, aggregate, or production switch.
+
+A read-only worker review on 2026-08-23 selected this row over
+`dynamic_full_body_recipe` relocation. The latter remains compiler-owned and
+its Builder move is `NoSafeSlice`; its existing source/Recipe boundary is not
+to be reopened by this D0.
