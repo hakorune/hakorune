@@ -3,6 +3,7 @@ use crate::ast::{
 };
 use crate::parser::{NyashParser, ParserMetadata};
 
+use super::super::source_authority::ParserBoxDeclarationKindV1;
 use super::super::source_path::SourceBoxDeclarationPathV1;
 use super::model::{
     OpenParserPostpassProductV1, ParsedProgramWithSourceV1, ParserBoxSourceSealV1,
@@ -12,9 +13,26 @@ use super::model::{
 impl PreparedBoxSourceSealV1 {
     fn validate_against(
         &self,
+        final_name: &str,
+        final_is_sync: bool,
         final_inventory: &BoxMethodInventoryV1,
         final_constructors: &std::collections::HashMap<String, ASTNode>,
     ) -> Result<(), SourceSealFinalizationErrorV1> {
+        if self.declaration_syntax.kind() != ParserBoxDeclarationKindV1::Ordinary {
+            return Err(SourceSealFinalizationErrorV1::DeclarationKindMismatch);
+        }
+        if self.declaration_syntax.name() != final_name {
+            return Err(SourceSealFinalizationErrorV1::DeclarationNameMismatch {
+                prepared: self.declaration_syntax.name().to_owned().into_boxed_str(),
+                final_ast: final_name.to_owned().into_boxed_str(),
+            });
+        }
+        if self.declaration_syntax.is_sync() != final_is_sync {
+            return Err(SourceSealFinalizationErrorV1::DeclarationSyncMismatch {
+                prepared: self.declaration_syntax.is_sync(),
+                final_ast: final_is_sync,
+            });
+        }
         let prepared_entries = self.inventory.clone().into_selected_declaration_order();
         let final_entries = final_inventory.clone().into_selected_declaration_order();
         if final_entries.len() < prepared_entries.len() {
@@ -63,15 +81,23 @@ impl PreparedBoxSourceSealV1 {
     /// final inventory and generated-delegate relation coverage is exact.
     pub(in crate::parser) fn finalize_against(
         self,
+        final_name: &str,
+        final_is_sync: bool,
         final_inventory: &BoxMethodInventoryV1,
         final_constructors: &std::collections::HashMap<String, ASTNode>,
     ) -> Result<ParserBoxSourceSealV1, SourceSealFinalizationErrorV1> {
-        self.validate_against(final_inventory, final_constructors)?;
+        self.validate_against(
+            final_name,
+            final_is_sync,
+            final_inventory,
+            final_constructors,
+        )?;
 
         Ok(ParserBoxSourceSealV1 {
             prepared: PreparedBoxSourceSealV1 {
                 brand: self.brand,
                 box_site: self.box_site,
+                declaration_syntax: self.declaration_syntax,
                 inventory: self.inventory,
                 method_relations: self.method_relations,
                 delegate_source_declarations: Box::new([]),
@@ -286,7 +312,12 @@ fn finalize_program(
         .enumerate()
         .map(|(prepared_index, prepared)| {
             let final_index = coverage.prepared_to_final[prepared_index];
-            prepared.finalize_against(final_boxes[final_index].1, final_boxes[final_index].2)
+            prepared.finalize_against(
+                final_boxes[final_index].1,
+                final_boxes[final_index].2,
+                final_boxes[final_index].3,
+                final_boxes[final_index].4,
+            )
         })
         .collect::<Result<Vec<_>, _>>()?
         .into_boxed_slice();
@@ -326,8 +357,8 @@ fn finalize_compatibility_source(
     let mut final_box_ordinals = Vec::with_capacity(prepared.len());
     for (prepared_index, prepared) in prepared.into_iter().enumerate() {
         let final_index = coverage.prepared_to_final[prepared_index];
-        let (ordinal, inventory, constructors) = final_boxes[final_index];
-        seals.push(prepared.finalize_against(inventory, constructors)?);
+        let (ordinal, name, is_sync, inventory, constructors) = final_boxes[final_index];
+        seals.push(prepared.finalize_against(name, is_sync, inventory, constructors)?);
         final_box_ordinals.push(ordinal);
     }
     Ok((
@@ -344,7 +375,7 @@ fn validate_ordinary_source_seals(
     let final_boxes = final_boxes_for_source(ast, prepared.len(), false)?;
     for (prepared_index, seal) in prepared.iter().enumerate() {
         let final_box = final_boxes[coverage.prepared_to_final[prepared_index]];
-        seal.validate_against(final_box.1, final_box.2)?;
+        seal.validate_against(final_box.1, final_box.2, final_box.3, final_box.4)?;
     }
     Ok(())
 }
@@ -356,6 +387,8 @@ fn final_boxes_for_source(
 ) -> Result<
     Vec<(
         usize,
+        &str,
+        bool,
         &BoxMethodInventoryV1,
         &std::collections::HashMap<String, ASTNode>,
     )>,
@@ -377,13 +410,17 @@ fn final_boxes_for_source(
     for (ordinal, statement) in statements.iter().enumerate() {
         match statement {
             ASTNode::BoxDeclaration {
+                name,
                 methods,
                 constructors,
                 is_interface: false,
                 is_record: false,
                 is_static,
+                is_sync,
                 ..
-            } if !*is_static => final_boxes.push((ordinal, methods, constructors)),
+            } if !*is_static => {
+                final_boxes.push((ordinal, name.as_str(), *is_sync, methods, constructors))
+            }
             ASTNode::BoxDeclaration {
                 is_interface: false,
                 is_record: false,
@@ -441,6 +478,15 @@ pub(in crate::parser) fn map_error(
             final_ast,
         } => format!(
             "R6-S3B-B3 final AST Box source-path coverage mismatch: prepared={prepared}, final={final_ast}"
+        ),
+        SourceSealFinalizationErrorV1::DeclarationNameMismatch { prepared, final_ast } => format!(
+            "R6-S3B-B4 Box declaration name changed: prepared={prepared}, final={final_ast}"
+        ),
+        SourceSealFinalizationErrorV1::DeclarationKindMismatch => {
+            "R6-S3B-B4 Box declaration kind is outside the ordinary source-seal cohort".to_owned()
+        },
+        SourceSealFinalizationErrorV1::DeclarationSyncMismatch { prepared, final_ast } => format!(
+            "R6-S3B-B4 Box sync syntax changed: prepared={prepared}, final={final_ast}"
         ),
         SourceSealFinalizationErrorV1::DuplicateFinalAstBoxPath { final_index } => {
             format!("R6-S3B-B3 duplicate final AST Box source path at index {final_index}")

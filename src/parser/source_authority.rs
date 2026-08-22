@@ -7,6 +7,8 @@
 #![allow(dead_code)]
 
 pub(super) mod constructor_source;
+mod declaration_syntax;
+mod errors;
 mod selected_gate;
 
 use std::sync::Arc;
@@ -26,6 +28,12 @@ use crate::parser::ParseError;
 pub(in crate::parser) use constructor_source::{
     ConstructorSourceOriginV1, ConstructorSourceRelationV1, GeneratedBirthTriggerKindV1,
     GeneratedBirthTriggerSourceV1,
+};
+pub(in crate::parser) use declaration_syntax::{
+    ParserBoxDeclarationKindV1, ParserBoxDeclarationSyntaxV1,
+};
+pub(in crate::parser) use errors::{
+    inventory_error_to_parse_error, source_authority_to_parse_error,
 };
 
 pub(super) use super::source_seal::PreparedBoxSourceSealV1;
@@ -406,6 +414,7 @@ impl GeneratedPropertySink for BoxMethodInventoryV1 {
 #[derive(Debug)]
 pub(super) struct OpenBoxMethodSourceTransactionV1 {
     cursor: ParserBoxMemberSourceCursorV1,
+    declaration_syntax: ParserBoxDeclarationSyntaxV1,
     written_gate_path: Vec<SourceProgramMemberGateStepV1>,
     member_gate_selection_receipts: Vec<MemberGateSelectionReceiptV1>,
     inventory: BoxMethodInventoryV1,
@@ -416,9 +425,11 @@ pub(super) struct OpenBoxMethodSourceTransactionV1 {
 }
 
 impl OpenBoxMethodSourceTransactionV1 {
+    #[cfg(test)]
     pub(super) fn open(brand: ParserInvocationBrandV1, statement_ordinal: u32) -> Self {
         Self {
             cursor: ParserBoxMemberSourceCursorV1::open(brand, statement_ordinal),
+            declaration_syntax: ParserBoxDeclarationSyntaxV1::ordinary("TestBox".to_owned(), false),
             written_gate_path: Vec::new(),
             member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
@@ -432,9 +443,11 @@ impl OpenBoxMethodSourceTransactionV1 {
     pub(super) fn open_with_path(
         brand: ParserInvocationBrandV1,
         path: SourceBoxDeclarationPathV1,
+        declaration_syntax: ParserBoxDeclarationSyntaxV1,
     ) -> Self {
         Self {
             cursor: ParserBoxMemberSourceCursorV1::open_with_path(brand, path),
+            declaration_syntax,
             written_gate_path: Vec::new(),
             member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
@@ -464,6 +477,7 @@ impl OpenBoxMethodSourceTransactionV1 {
     pub(super) fn branch(&self) -> Self {
         Self {
             cursor: self.cursor.branch(),
+            declaration_syntax: self.declaration_syntax.clone(),
             written_gate_path: self.written_gate_path.clone(),
             member_gate_selection_receipts: Vec::new(),
             inventory: BoxMethodInventoryV1::empty(),
@@ -653,6 +667,7 @@ impl OpenBoxMethodSourceTransactionV1 {
         Ok(PreparedBoxSourceSealV1 {
             brand,
             box_site,
+            declaration_syntax: self.declaration_syntax,
             inventory: self.inventory,
             method_relations: self.method_relations.into_boxed_slice(),
             delegate_source_declarations: self.delegate_source_declarations.into_boxed_slice(),
@@ -692,52 +707,6 @@ impl GeneratedPropertySink for OpenBoxMethodSourceTransactionV1 {
     fn record_generated_birth_trigger_at_current(&mut self, kind: GeneratedBirthTriggerKindV1) {
         self.record_generated_birth_trigger_at_current(kind)
     }
-}
-
-fn source_authority_to_parse_error(error: SourceAuthorityErrorV1) -> ParseError {
-    let message = match error {
-        SourceAuthorityErrorV1::ForeignBoxSite => {
-            "Box source site belongs to another parser invocation".to_owned()
-        }
-        SourceAuthorityErrorV1::StaleMemberSite => "Box source member site is stale".to_owned(),
-        SourceAuthorityErrorV1::MemberOrdinalOverflow => {
-            "Box member ordinal exceeds u32".to_owned()
-        }
-        SourceAuthorityErrorV1::ExposeOrdinalOverflow => {
-            "delegate expose ordinal exceeds u32".to_owned()
-        }
-        SourceAuthorityErrorV1::DelegateCompatibilityOnly => {
-            "compatibility-only delegate cannot issue parser source declarations".to_owned()
-        }
-        SourceAuthorityErrorV1::MissingMethodSourceRelation { inventory_ordinal } => {
-            format!("Box source relation missing for inventory ordinal {inventory_ordinal}")
-        }
-        SourceAuthorityErrorV1::MethodSourceRelationMismatch { name } => {
-            format!("Box source relation does not match method `{name}`")
-        }
-        SourceAuthorityErrorV1::DuplicateConstructorKey(key) => {
-            format!("duplicate constructor source key `{key}`")
-        }
-        SourceAuthorityErrorV1::ConstructorMissing(key) => {
-            format!("constructor source row `{key}` is missing from the AST inventory")
-        }
-        SourceAuthorityErrorV1::ConstructorShapeMismatch(key) => {
-            format!("constructor source row `{key}` does not match its AST declaration")
-        }
-        SourceAuthorityErrorV1::ConstructorCoverageMismatch(relations, constructors) => format!(
-            "constructor source coverage mismatch: relations={relations}, constructors={constructors}"
-        ),
-        SourceAuthorityErrorV1::Inventory(error) => {
-            return crate::parser::declarations::box_def::members::pending_method::map_inventory_error(
-                error,
-            );
-        }
-    };
-    ParseError::BuildCfg { message, line: 0 }
-}
-
-fn inventory_error_to_parse_error(error: BoxMethodInventoryErrorV1) -> ParseError {
-    crate::parser::declarations::box_def::members::pending_method::map_inventory_error(error)
 }
 
 #[cfg(test)]

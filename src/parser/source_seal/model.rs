@@ -8,8 +8,8 @@ use super::super::callable_source_anchor::{
 };
 use super::super::delegate_source_relation::GeneratedDelegateSourceRelationV1;
 use super::super::source_authority::{
-    DelegateSourceDeclarationV1, MethodSourceRelationV1, ParserInvocationBrandV1,
-    SourceBoxDeclarationSiteV1,
+    DelegateSourceDeclarationV1, MethodSourceRelationV1, ParserBoxDeclarationSyntaxV1,
+    ParserInvocationBrandV1, SourceBoxDeclarationSiteV1,
 };
 use super::super::source_gate_ledger::PreparedBuildGateSourceRecordV1;
 use super::super::source_gate_receipt::BuildGateSelectionReceiptV1;
@@ -40,6 +40,15 @@ pub(in crate::parser) enum SourceSealFinalizationErrorV1 {
         prepared: usize,
         final_ast: usize,
     },
+    DeclarationNameMismatch {
+        prepared: Box<str>,
+        final_ast: Box<str>,
+    },
+    DeclarationKindMismatch,
+    DeclarationSyncMismatch {
+        prepared: bool,
+        final_ast: bool,
+    },
     DuplicateFinalAstBoxPath {
         final_index: usize,
     },
@@ -64,6 +73,7 @@ pub(in crate::parser) enum SourceSealFinalizationErrorV1 {
 pub(in crate::parser) struct PreparedBoxSourceSealV1 {
     pub(in crate::parser) brand: ParserInvocationBrandV1,
     pub(in crate::parser) box_site: SourceBoxDeclarationSiteV1,
+    pub(in crate::parser) declaration_syntax: ParserBoxDeclarationSyntaxV1,
     pub(in crate::parser) inventory: BoxMethodInventoryV1,
     pub(in crate::parser) method_relations: Box<[MethodSourceRelationV1]>,
     pub(in crate::parser) delegate_source_declarations: Box<[DelegateSourceDeclarationV1]>,
@@ -97,6 +107,10 @@ impl PreparedBoxSourceSealV1 {
 
     pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
         &self.box_site
+    }
+
+    pub(in crate::parser) fn declaration_syntax(&self) -> &ParserBoxDeclarationSyntaxV1 {
+        &self.declaration_syntax
     }
 
     pub(in crate::parser) fn member_gate_selection_receipts(
@@ -169,6 +183,10 @@ impl ParserBoxSourceSealV1 {
 
     pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
         &self.prepared.box_site
+    }
+
+    pub(in crate::parser) fn declaration_syntax(&self) -> &ParserBoxDeclarationSyntaxV1 {
+        &self.prepared.declaration_syntax
     }
 
     pub(in crate::parser) fn generated_delegate_source_relations(

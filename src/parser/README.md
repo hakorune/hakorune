@@ -296,6 +296,24 @@ cohorts. Their total postpass envelope is tracked by
 `PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0`; no catch-and-fallback cutover is
 allowed.
 
+## R6-S3B-B4 / Box declaration syntax I0
+
+The parser-only B4 slice carries one ordinary Box declaration's name and
+`is_sync` syntax through the existing non-Clone `ParserBoxSourceSealV1`. The
+Box header captures the row once; `PreparedBoxSourceSealV1` moves it; and the
+finalizer only compares it with the final AST declaration shape before issuing
+the seal. The finalizer never issues a name by looking up an AST node through a
+statement ordinal.
+
+The current seal cohort admits `Ordinary` Boxes only. Static, interface, and
+record declarations remain typed compatibility/outside rows because their
+parser lanes do not issue this seal. The name is source syntax and may later
+be used by a bounded module issuer for the explicit `Main` predicate, but it
+is never an identity or row-pairing key. Resolver, NormalCompileRequest,
+Builder, Recipe, Join, MIR, fallback, and production ingress remain closed.
+The reusable `frontend_parsed_box_declaration_syntax_i0_guard.sh` pins this
+boundary and the 760/800-line source limits.
+
 ## Broad AST postpass design stop
 
 The broad parser API family will converge on one private postpass owner, not

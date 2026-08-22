@@ -2,7 +2,9 @@ use crate::ast::{
     ASTNode, BoxMemberGateSiteV1, BoxMethodInventoryV1, ContractClause, DeclarationAttrs,
     DelegateDecl, FieldDecl, ParamDecl, TransitionDecl,
 };
-use crate::parser::source_authority::{OpenBoxMethodSourceTransactionV1, ParserInvocationBrandV1};
+use crate::parser::source_authority::OpenBoxMethodSourceTransactionV1;
+#[cfg(test)]
+use crate::parser::source_authority::ParserInvocationBrandV1;
 use std::collections::{BTreeMap, HashMap};
 
 #[derive(Debug)]
@@ -22,6 +24,7 @@ pub(crate) struct BoxMemberState {
     pub(crate) birth_once_props: Vec<String>,
 }
 
+#[cfg(test)]
 impl Default for BoxMemberState {
     fn default() -> Self {
         Self::with_source_transaction(OpenBoxMethodSourceTransactionV1::open(

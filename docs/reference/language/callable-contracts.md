@@ -406,6 +406,21 @@ total postpass envelope is the separate
 `PARSER-PUBLIC-AST-POSTPASS-CUTOVER-D0/I0` design row; no second seal or
 catch-and-fallback is allowed.
 
+R6-S3B-B4-I0 implementation receipt (2026-08-23): the parser now captures
+one ordinary Box declaration's name and `is_sync` syntax at the Box header and
+moves it through the existing `PreparedBoxSourceSealV1` into the sole final
+`ParserBoxSourceSealV1`. Finalization compares the captured syntax with the
+final AST declaration shape and rejects name or sync drift before the seal is
+issued; it does not reconstruct source syntax from an AST name or ordinal.
+The current source-seal kind is `Ordinary` only. Static/interface/record
+lanes remain typed compatibility/outside rows because they do not issue this
+seal. The name is not an identity key; a later bounded module issuer may use
+the exact source predicate `name == "Main"`. No module aggregate, request,
+resolver, Recipe, Join, Builder, MIR, fallback, or production switch is part
+of B4. The reusable
+`frontend_parsed_box_declaration_syntax_i0_guard.sh` and focused parser tests
+pin the boundary and source-size limits.
+
 The broad AST cutover design uses one total private postpass result rather
 than pretending that every parsed program is resolver-source sealed:
 

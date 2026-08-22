@@ -5,7 +5,9 @@
 
 use crate::ast::{ASTNode, Span};
 use crate::parser::common::ParserUtils;
-use crate::parser::source_authority::OpenBoxMethodSourceTransactionV1;
+use crate::parser::source_authority::{
+    OpenBoxMethodSourceTransactionV1, ParserBoxDeclarationSyntaxV1,
+};
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
 
@@ -75,8 +77,11 @@ fn parse_box_declaration_after_box_keyword(
                 message: "Box source transaction requires an active parser source path".to_owned(),
                 line: p.current_token().line,
             })?;
-    let source_tx =
-        OpenBoxMethodSourceTransactionV1::open_with_path(p.source_invocation_brand(), source_path);
+    let source_tx = OpenBoxMethodSourceTransactionV1::open_with_path(
+        p.source_invocation_brand(),
+        source_path,
+        ParserBoxDeclarationSyntaxV1::ordinary(name.clone(), is_sync),
+    );
     let mut state = BoxMemberState::with_source_transaction(source_tx);
     parse_box_member_body(p, &mut state, true)?;
     p.consume(TokenType::RBRACE)?;

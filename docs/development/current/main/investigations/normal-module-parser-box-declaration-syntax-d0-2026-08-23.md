@@ -1,11 +1,12 @@
 ---
-Status: active design stop; Box declaration syntax prerequisite
+Status: closeout; parser-only Box declaration syntax I0 implemented
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-BOX-DECLARATION-SYNTAX-D0
 ParentDecision: NORMAL-GENERAL-PROGRAM-PARSER-MODULE-ROWS-D0
 Candidate: extend existing ParserBoxSourceSealV1
 ProductionCaller: 0
-ProductionEdit: forbidden during D0
+ProductionEdit: parser source-seal only; module ingress and Builder remain forbidden
+ExecutionRow: NORMAL-GENERAL-PROGRAM-PARSER-BOX-DECLARATION-SYNTAX-I0
 ---
 
 # NORMAL-GENERAL-PROGRAM-PARSER-BOX-DECLARATION-SYNTAX-D0
@@ -50,21 +51,57 @@ ParserBoxDeclarationSyntaxV1
   + ParserBoxDeclarationKindV1
 ```
 
-`ParserBoxDeclarationKindV1` is closed to the parser grammar cohort:
+`ParserBoxDeclarationKindV1` is closed to the currently admitted parser
+source-seal cohort:
 
 ```text
-Ordinary | Static | Interface | Record
+Ordinary
 ```
+
+`Static`, `Interface`, and `Record` are explicit outside/compatibility cases
+for this slice, not variants silently represented by a default or empty kind.
 
 The name is syntax/diagnostic payload only. Identity remains the opaque parser
 brand plus `SourceBoxDeclarationSiteV1`; no consumer may pair rows by name,
 statement ordinal, or AST pointer.
 
-The sole issuer is the existing parser finalizer boundary, represented by the
-future named operation `ParserBoxDeclarationSyntaxIssuerV1` inside
-`PreparedBoxSourceSealV1::finalize_against`. It must validate the prepared
-syntax against the final AST inventory and move it into
-`ParserBoxSourceSealV1`. No second source scan is introduced downstream.
+The sole syntax co-seal point is the existing parser finalizer boundary at
+`PreparedBoxSourceSealV1::finalize_against`. This I0 does not add a second
+issuer type: the finalizer validates the prepared syntax against the final AST
+inventory and moves it into `ParserBoxSourceSealV1`. No second source scan is
+introduced downstream.
+
+The capture and validation points are intentionally separate:
+
+```text
+parse_box_declaration_after_box_keyword
+  -> capture declaration name + admitted kind + sync flag
+  -> OpenBoxMethodSourceTransactionV1::finish
+  -> PreparedBoxSourceSealV1
+  -> finalize_against(final AST shape)
+  -> ParserBoxSourceSealV1
+```
+
+The parser header is the only place that may capture the declaration syntax;
+the finalizer may compare it with final AST declaration flags, but may not
+issue the name by looking up an AST node through a statement ordinal. The
+existing `box_site` remains the only source-site identity. The syntax name may
+later be used by the bounded module issuer as the explicit predicate
+`name == "Main"`, but never as a row pairing key or identity.
+
+This D0 only admits the source-seal cohort that exists today: an ordinary Box
+with an explicit `is_sync` flag. `Static`, `Interface`, and `Record` are not
+variants of this new seal yet because their parser lanes do not issue the same
+`PreparedBoxSourceSealV1`. They remain explicit outside/compatibility cases
+until a separate parser authority is designed for them. No broad kind enum is
+introduced merely to name unsupported lanes.
+
+The implementation must respect the source-size rule. `source_authority.rs`
+is already near the 760-line split threshold, so declaration-syntax types and
+capture helpers belong in a parser-private submodule (for example
+`source_authority/declaration_syntax.rs`), rather than being appended to the
+large authority file. A behavior-neutral split is part of the implementation
+preflight if needed; no compression or unrelated cleanup is allowed.
 
 This is a source syntax extension, not a semantic module product. The later
 `ParserNormalModuleSourceAuthorityIssuerV1` may consume the extended seal to
@@ -87,7 +124,8 @@ again.
 brand matches every existing relation in the seal
 site is unique and final-placement coverage is exact
 name is present as parser syntax (not an identity key)
-kind matches the final AST declaration flags
+kind is the admitted ordinary source-seal kind
+sync flag matches the final AST declaration flags
 ordinary source rows remain ordinary, never silently static/interface/record
 ```
 
@@ -133,25 +171,52 @@ foreign parser brands or duplicate sites are not rejected before move
 the change requires NormalCompileRequest, Builder, Recipe, or physical code
 ```
 
-## Acceptance packet
+## Acceptance contract
 
-Before implementation permission, record:
+The I0 acceptance contract is:
 
 ```text
-ParserBoxDeclarationSyntaxIssuerV1 call site       = 1
-ParserBoxSourceSealV1 constructor/finalizer        = 1
+PreparedBoxSourceSealV1 finalizer syntax co-seal    = 1
+ParserBoxSourceSealV1 constructor/finalizer         = 1
+parser-header syntax capture                       = 1
+final-AST syntax validation                        = 1
 declaration syntax source scan below parser        = 0
 name/ordinal/pointer pairing outside parser        = 0
 foreign/duplicate/changed row typed rejection      = exact
 AST/request/Builder effect in this slice           = 0
 normal production caller                            = 0
 fallback/retry/reselection                          = 0
+admitted declaration kinds in this slice            = Ordinary only
 ```
 
-The next implementation slice, after this D0 is accepted, is parser-only:
-extend the prepared/final Box seal, add focused source-seal positives and
-negative coverage, and add one reusable structural guard. It must not connect
-the module aggregate or normal ingress in the same change.
+The selected implementation slice was parser-only: extend the prepared/final
+Box seal, add focused source-seal positives and negative coverage, and add one
+reusable structural guard. It does not connect the module aggregate or normal
+ingress.
+
+## I0 implementation receipt (2026-08-23)
+
+```text
+parser-header syntax capture                         = 1
+PreparedBoxSourceSealV1 transport                    = 1
+finalizer syntax co-seal                             = 1
+ordinary kind variants                               = 1
+downstream AST/name syntax issuer                    = 0
+resolver/module/Builder/Recipe/MIR effect            = 0
+focused source-seal tests                            = 7 passed
+parser source-authority tests                        = 15 passed
+cargo check                                          = passed
+current-state pointer guard                          = passed
+frontend syntax I0 guard                             = passed
+changed Rust rustfmt check                           = passed
+git diff --check                                     = passed
+```
+
+The workspace-wide `cargo fmt --all -- --check` remains red in unrelated
+baseline files; every changed Rust file passes the targeted rustfmt check, so
+this is recorded as known baseline debt rather than a current-change failure.
+The module aggregate, normal ingress, fallback, publication, and production
+caller remain deliberately closed after this parser-only I0.
 
 ## Explicit non-claims
 
