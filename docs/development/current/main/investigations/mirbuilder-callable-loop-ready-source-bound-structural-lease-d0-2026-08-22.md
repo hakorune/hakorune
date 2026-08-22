@@ -1,11 +1,11 @@
 ---
-Status: design_stop; NoSafeSlice accepted after worker audit
+Status: D0 complete after worker audit; B-prime Decision accepted; caller-zero I0 is the selected next slice
 Task: MIR-CALLABLE-LOOP-READY-SOURCE-BOUND-STRUCTURAL-LEASE-D0
 Date: 2026-08-22
 Priority: create the missing source-lineage/structural-owner relation before any Ready consumer or production edge
 Parent: MIR-CALLABLE-LOOP-READY-NORMALIZER-CONSUMER-D0
 PreviousCard: mirbuilder-callable-loop-ready-normalizer-consumer-d0-2026-08-22.md
-NextCard: none-until-Decision
+NextCard: mirbuilder-callable-loop-ready-structural-lease-i0-2026-08-22.md
 ---
 
 # Callable Loop Ready source-bound structural lease D0
@@ -209,7 +209,30 @@ same route kind
 same independently-built LoopRouteContext
 ```
 
-This D0 deliberately does not solve the production ingress. After it closes,
-the next separate Decision must connect the raw Ready source to the named
-consumer and retire the old route edge atomically; no silent fallback is
-allowed.
+## Decision closure: B-prime
+
+The existing `RawInvocationSourceContextV1::shares_root_lineage()` plus the
+source-facts issuer's `validate_source_input()` already provide the required
+source-side relation: parent, condition, and body share one root lineage;
+sites are the exact Loop/Condition and Loop/BodyRoot children; owner and
+schedule agree. No new source-lineage issuer is needed for this bounded lease.
+
+Adopt B-prime:
+
+```text
+source-facts receipt
+  -> private CallableLoopStructuralLeaseIssuerV1
+  -> CallableLoopRouteNeutralStructuralSeedV1
+  -> PreparedCallableLoopStructuralHandoffV1
+  -> CallableLoopReadyStructuralViewV1<'view>
+```
+
+The seed and aggregate live on the structural-port side of the boundary and
+are transport-only. The view borrows the existing `PlanBuildOutcome`, route
+selection, selected proof, pre-effect receipt, and opaque route-neutral port;
+it exposes no AST, source context, Builder, `ValueId`, or route classifier.
+The old `LoopRouteContext`/`route_loop` path is not used.
+
+The next I0 is explicitly caller-zero. It proves ownership/lifetime and
+foreign-lineage rejection, but does not add the first production ingress or
+change the old raw route.
