@@ -173,6 +173,97 @@ D0.4 acceptance packet
 No implementation, fixture, guard-as-permission, production switch, or
 `VerifiedNormalGeneralProgramPlanV1` aggregate belongs to these D0 cells.
 
+## 2026-08-23 D0.1/D0.2 corpus and relation receipt
+
+Status: D0.1/D0.2 census recorded; D0.3 issuer selection and D0.4 acceptance
+closeout remain pending. This section grants no implementation permission.
+
+This is a read-only census of the current normal/default surface. It separates
+three kinds of evidence so that parser fixtures and disconnected source-plan
+tests are not misreported as a production switch:
+
+```text
+A = direct `compile_normal` acceptance/parity evidence
+B = source-plan or source-backed product evidence with no normal/default caller
+C = parser/example syntax evidence only; not a normal acceptance claim
+```
+
+| Corpus row | Current evidence | D0 state | Missing source obligation |
+| --- | --- | --- | --- |
+| Script scalar and ordinary expression/statement rows | A: `normal_script_semantic_source_tests.rs`, `normal_script_*_tests.rs`, and `legacy_candidate_session_tests.rs::real_integer_zero_fixture_uses_the_selected_normal_request` | existing Script core where its source owner is complete | one Program source identity and total Script source coverage; no module reclassification |
+| Script control/return and selected declaration rows | A: `normal_script_semantic_source_tests.rs`, `normal_script_root_return_tests.rs`, `normal_script_match_tests.rs`, `normal_script_enum_*_tests.rs` | existing Script corridor or explicit deferred row; not a GeneralModule row | retain source role/site facts without using declaration-name or AST re-probe as a new authority |
+| Plain `Main.main/0` | A: `normal_default_root_catalog_lifecycle_tests.rs::verified_expansion_disposition_reaches_script_and_app_root_lowering`; B: `normal_source_plan/tests.rs::main_zero_only_is_a_scalar_main_root` | `CanonicalCore` candidate after source transfer is decided | exact Main declaration/entry relation co-sealed with the Program source authority |
+| `Main.main(args)` and Main helpers | A: `normal_default_pipeline_tests.rs::normal_ingress_materializes_required_callable_main_without_changing_script`; A: `legacy_candidate_session_tests.rs::normal_pipeline_matches_legacy_compatibility_for_general_module` | `GeneralModuleSource` first bounded residual | entry arity, helper identities, and callable/member rows before the Builder session |
+| Source-backed callable family | A/B: `normal_default_pipeline_tests.rs` callable request tests and `normal_default_root_catalog_lifecycle_tests.rs::source_backed_selected_callable_uses_the_installed_package_port`; B: `normal_source_plan/*callable*` | existing Callable core; topology remains `Acyclic | Recursive` inside its owner | raw normal ingress must not manufacture a second callable authority or lose parser provenance |
+| Non-Main instance Box with fields/constructor/methods | A: `legacy_candidate_session_tests.rs::normal_pipeline_matches_legacy_compatibility_for_general_module`; B: `normal_source_plan/tests.rs::main_with_plain_instance_box_seals_module_source` | `GeneralModuleSource` | exact Box/member declaration rows, constructor/field/method identity, and source correspondence |
+| Imports/Using plus configuration snapshot | A: `legacy_candidate_session_tests.rs::explicit_imports_commit_only_with_the_finished_normal_candidate`; request imports live in `normal_default_pipeline.rs` | `GeneralModuleSource` | source import rows, source identity, admission/config snapshot, and one co-seal before effects; empty imports are not an absence proof |
+| Enum/Brand/TypeAlias/Global/StaticConst/Record declarations | A for selected Script enum/record rows; B: `program_declaration_facts.rs` observes declarations inside the session | finite named residual rows, not `Other` | declaration site/cardinality and demand relation must be source-owned; `PreparedNormalProgramDeclarationFactsV1` is not silently promoted to the Program issuer |
+| BuildGate, nested Program, duplicate/mixed/foreign rows | B/C: `normal_source_plan/inventory.rs`, `module_source.rs`, parser source-seal tests, and root lifecycle rejection tests | typed `UnsupportedNormalSurface`, `Incomplete`, or `IntegrityInvalid` | exact first rejection stage and source witness; no repair, reparse, or Legacy retry |
+
+The corpus table is intentionally not a claim that every A row already has a
+canonical source product. A rows prove current-normal behavior only. B rows
+prove reusable source machinery only. C rows remain outside the acceptance
+corpus until a normal caller and source authority are named.
+
+### D0.2 relation boundary observed in the current code
+
+The current request and root lifecycle expose the precise missing seam:
+
+```text
+MirCompiler::compile_with_source*
+  -> NormalCompileRequestV1::for_mir_mode
+  -> PreparedNormalDefaultProgramRootV1::seal(AST)
+  -> ModuleBuilderInvocationSessionV1::open_for_token
+  -> root expansion / declaration facts / catalog / lower
+```
+
+The request currently carries a source hint (`Named | Anonymous`), imports,
+admission, and result contract. The raw `for_mir_mode` constructor does not
+carry a parser invocation witness or a source-backed declaration handoff.
+The existing `NormalSourcePlanClassifierV1::seal` and
+`VerifiedNormalModuleSourceV1::seal` are not a substitute: their production
+caller is the reference frontdoor, and the module product is the bounded
+`Main0WithPlainInstanceBoxes0` shape with no normal/default caller.
+
+Inside the selected normal lifecycle, `VerifiedRawRootExpansionV1::from_program`
+and `PreparedNormalProgramDeclarationFactsV1::collect` are currently invoked
+after the Builder session has been opened. The compatibility branch also seals
+the callable declaration catalog after `prepare_normal_default_module`. These
+are useful observations and existing source checks, but they are not one
+Program/source authority before the effect boundary.
+
+Therefore the D0 issuer contract is now concrete:
+
+```text
+one parser/source-backed Program owner
+ + one exact source/import/admission/config snapshot
+ + top-level declaration rows and cardinality
+ + Main/entry site and arity
+ + user-box/member callable identities and sites
+ -> one finite disposition before ModuleBuilderInvocationSession::open
+ -> no AST-only reclassification below that boundary
+```
+
+If the raw normal frontdoor cannot transfer parser provenance exactly once,
+that is `SourceAuthorityUnavailable`/`NoSafeSlice`, not permission to use a
+source-file name, AST ordinal, Builder catalog, or compatibility retry.
+
+### D0.1/D0.2 completion conditions
+
+```text
+1. Each A/B/C row above has one named evidence owner and one D0 state.
+2. GeneralModuleSource rows are finite and disjoint by top-level/declaration
+   vocabulary; no Other/Unknown/Legacy residual remains.
+3. Source identity, parser invocation, imports/config, declaration rows,
+   entry relation, and member callable relation have one planned co-seal.
+4. The first rejection stage is named before Builder effects; current
+   lifecycle stages are not reused as a semantic authority by name alone.
+5. The current-normal result contract remains a parity obligation, not a
+   source admission shortcut.
+6. No Rust product, fixture, guard permission, fallback, or production caller
+   is added by this receipt.
+```
+
 ## Why Candidate A cannot be implemented now
 
 ### Existing substrate
