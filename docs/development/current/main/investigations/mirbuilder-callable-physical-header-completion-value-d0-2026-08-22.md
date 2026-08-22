@@ -511,6 +511,14 @@ body-only accumulator/rebind
 Do not reinterpret `out`/`handled` as `ReadOnlyOperand`, do not drop their
 rebinds, and do not infer a second carrier from ValueId/AST/body state.
 
+Source-size stop:
+
+```text
+normal_callable_loop_handoff.rs = 749 lines
+760 = split-design trigger; 800 = hard stop
+next P0 must split the source-role/cohort owner before adding semantic state
+```
+
 Required D0 evidence:
 
 ```text
