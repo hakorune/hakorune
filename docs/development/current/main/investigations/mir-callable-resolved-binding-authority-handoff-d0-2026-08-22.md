@@ -1,11 +1,11 @@
 ---
-Status: design_stop; existing resolved-session authority conflicts with the callable legacy-binding lowerer
+Status: accepted; Candidate A selected by read-only worker audit; implementation moved to CALLABLE-CANONICAL-TRIVIAL-ROW-I0
 Task: CALLABLE-RESOLVED-BINDING-AUTHORITY-HANDOFF-D0
 Date: 2026-08-22
 Priority: choose one authority-safe handoff for source-backed cataloged callable BindingRef rows
 Parent: MIR-CALLABLE-SEMANTIC-NESTED-IF-SOURCE-ROW-I0
 PreviousCard: mir-callable-semantic-nested-if-source-row-d0-2026-08-22
-NextCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
+NextCard: CALLABLE-CANONICAL-TRIVIAL-ROW-I0
 ---
 
 # Callable resolved-binding authority handoff D0
@@ -41,6 +41,43 @@ The worker audit classified this as `NOSAFESLICE / separate blocker` and
 identified `SelectedCallableLoweringInputRefV1::source().function()` as the
 authority candidate. This card records the design boundary only; it does not
 authorize a new `Verified*` product or a bridge implementation.
+
+## Accepted Decision
+
+The follow-up worker audit selected **Candidate A** for one bounded source
+shape. The existing resolver input and canonical preflight already provide the
+needed handoff; no callable-specific BindingRef receipt and no second BindingId
+allocator are needed.
+
+```text
+SelectedCallableLoweringInputRefV1::source()
+  -> CanonicalLoweringPreflightV1::verify_function(input)
+  -> existing CanonicalFirstFamilyPlanV1
+  -> existing canonical trivial lowerer
+  -> existing resolved session / draft collector
+```
+
+The first admitted row is the shape represented by the small positive fixture
+`Scan.run(value) { return value }`: one static cataloged callable, one source
+parameter, and a final variable return. The fixture name is test evidence only;
+selection is by the existing canonical preflight and exact resolver products,
+never by name, ordinal, or AST reconstruction.
+
+The current I0 does not admit loops, nested calls, local declarations, typed
+signatures, direct-call families, instance receiver lanes, or the parser-scan
+program as a whole. A row outside this bounded canonical preflight is an
+explicit outside/unsupported disposition for this slice. It must not be
+silently retried through the canonical path, and a canonical preflight failure
+must not fall through after effects begin. The existing compatibility route is
+only retained where its caller is explicitly classified outside this I0; it is
+not a failure fallback from the canonical row.
+
+The worker also confirmed that Candidate B would promote
+`CallableSemanticLoweringState` into a competing Binding authority and that
+Candidate C would only preserve a safe stop rather than advance the canonical
+replacement. Therefore `install/finish` is allowed only inside the existing
+canonical lowerer lifecycle, never around `build_static_method_draft_with_port_v1`
+or any legacy `allocate_binding_id()` call.
 
 ## Authority census
 
@@ -86,6 +123,17 @@ failure discards the unpublished session with no publication
 ordinary cataloged-static caller count and old edge are measured
 ```
 
+For the selected I0 row, the stronger acceptance is:
+
+```text
+preflight plan issuer = existing CanonicalLoweringPreflightV1 exactly once
+plan consumer = existing canonical trivial lowerer exactly once
+legacy CallableSemanticLoweringState body consumer = 0
+legacy BindingId allocation after canonical install = 0
+canonical draft collector publication = 1
+canonical reject -> compatibility fallback = 0
+```
+
 ## NoSafeSlice conditions
 
 Keep `design_stop` if any of these remain:
@@ -100,9 +148,42 @@ failure can publish a function or collector row before authority completion
 the only route is fallback or a second physical writer
 ```
 
+The I0 also remains `NoSafeSlice` if the existing preflight cannot classify the
+small positive row as one of its already-owned canonical plan variants, if the
+plan has to be reconstructed after the source callback, or if the physical
+method symbol/ABI requires a second name-based mapping. In that case the
+bounded row is not widened; the next action is another design stop.
+
+## Bounded implementation task
+
+`CALLABLE-CANONICAL-TRIVIAL-ROW-I0` is the only implementation task opened by
+this Decision.
+
+1. Add a pre-effect source-to-plan seam at the ordinary cataloged-static
+   source-backed caller. It must consume the existing
+   `ResolvedFunctionLoweringInputV1` once and retain the existing
+   `CanonicalTrivialBindingSsaPlanV1` only inside the lowering callback.
+2. Reuse the existing canonical trivial lowerer and resolved function session.
+   Parameter declarations and the final return must be published through the
+   existing `ResolvedIdentityStateV1`; do not call the port-aware legacy body
+   driver for the admitted row.
+3. Preserve the existing physical-signature loan and collector owner. If the
+   current physical symbol cannot be carried without a second mapping, stop at
+   `NoSafeSlice` rather than deriving it from a name or AST.
+4. Keep outside shapes explicit. Do not broaden the preflight, add a fallback,
+   or change parser-scan loop/call/local behavior in this task.
+5. Add one positive and one negative focused test, one structural guard for the
+   canonical caller/legacy allocator boundary, and update the owner README and
+   reference receipt in the same slice.
+
+The task is complete only when the small positive source-backed callable reaches
+one collected canonical draft and all pre-effect rejects leave Builder,
+collector, and publication state unchanged.
+
 ## Ordered successor
 
 ```text
-1. CALLABLE-RESOLVED-BINDING-AUTHORITY-HANDOFF-D0  (this design stop)
-2. MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0  (remains parked until 1 closes)
+1. CALLABLE-RESOLVED-BINDING-AUTHORITY-HANDOFF-D0  (accepted)
+2. CALLABLE-CANONICAL-TRIVIAL-ROW-I0  (next implementation slice)
+3. MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0  (remains parked until 2 closes)
 ```
