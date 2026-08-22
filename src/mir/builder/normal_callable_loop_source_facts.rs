@@ -17,6 +17,10 @@ use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
+use super::control_flow::joinir::structural_port::{
+    issue_route_neutral_structural_seed, CallableLoopRouteNeutralStructuralSeedV1,
+    CallableLoopSourceBoundStructuralPortV1, CallableLoopStructuralLeaseRejectV1,
+};
 use super::normal_callable_loop_handoff::{
     CallableSemanticLoopHandoffPreEffectReceiptV1, VerifiedCallableSemanticLoopBindingScheduleV1,
 };
@@ -179,6 +183,100 @@ impl<'source> CallableGenericLoopSourceFactsReceiptV1<'source> {
     #[cfg(test)]
     pub(in crate::mir::builder) fn policy(&self) -> GenericLoopFactsPolicyFrameV1 {
         self.policy
+    }
+}
+
+/// Move-only source/structural handoff.  The seed is transport-only and the
+/// source receipt remains the sole Facts/Recipe authority.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedCallableLoopStructuralHandoffV1<'source> {
+    receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
+    seed: CallableLoopRouteNeutralStructuralSeedV1,
+}
+
+/// Opaque view borrowed only for one callback invocation.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CallableLoopReadyStructuralViewV1<'view> {
+    owner: FunctionOwnerIdV1,
+    loop_site: &'view SourceNodeSiteV1,
+    pre_effect: &'view CallableSemanticLoopHandoffPreEffectReceiptV1,
+    outcome: &'view PlanBuildOutcome,
+    selection: &'view RecipeFirstRouteSelectionV1,
+    selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
+    port: CallableLoopSourceBoundStructuralPortV1<'view>,
+}
+
+impl CallableLoopReadyStructuralViewV1<'_> {
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(in crate::mir::builder) fn loop_site(&self) -> &SourceNodeSiteV1 {
+        self.loop_site
+    }
+
+    pub(in crate::mir::builder) fn pre_effect(
+        &self,
+    ) -> &CallableSemanticLoopHandoffPreEffectReceiptV1 {
+        self.pre_effect
+    }
+
+    pub(in crate::mir::builder) fn outcome(&self) -> &PlanBuildOutcome {
+        self.outcome
+    }
+
+    pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
+        self.selection
+    }
+
+    pub(in crate::mir::builder) fn selected(&self) -> &VerifiedLocatedGenericLoopV1SelectionV1 {
+        self.selected
+    }
+
+    pub(in crate::mir::builder) fn structural_port(
+        &self,
+    ) -> &CallableLoopSourceBoundStructuralPortV1<'_> {
+        &self.port
+    }
+}
+
+/// Sole issuer for the caller-zero route-neutral structural lease.
+pub(in crate::mir::builder) struct CallableLoopStructuralLeaseIssuerV1;
+
+impl CallableLoopStructuralLeaseIssuerV1 {
+    pub(in crate::mir::builder) fn prepare<'source>(
+        receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
+    ) -> Result<PreparedCallableLoopStructuralHandoffV1<'source>, CallableLoopStructuralLeaseRejectV1>
+    {
+        let seed = issue_route_neutral_structural_seed(
+            receipt.owner,
+            &receipt.parent_source,
+            &receipt.condition_source,
+            &receipt.body_source,
+            &receipt.pre_effect,
+        )?;
+        Ok(PreparedCallableLoopStructuralHandoffV1 { receipt, seed })
+    }
+}
+
+impl<'source> PreparedCallableLoopStructuralHandoffV1<'source> {
+    /// Consume the handoff exactly once; the borrowed view cannot escape this
+    /// higher-ranked callback and no physical effect occurs here.
+    pub(in crate::mir::builder) fn with_view<R>(
+        self,
+        use_view: impl for<'view> FnOnce(CallableLoopReadyStructuralViewV1<'view>) -> R,
+    ) -> R {
+        let Self { receipt, seed } = self;
+        let view = CallableLoopReadyStructuralViewV1 {
+            owner: receipt.owner,
+            loop_site: receipt.pre_effect.loop_site(),
+            pre_effect: &receipt.pre_effect,
+            outcome: &receipt.outcome,
+            selection: &receipt.selection,
+            selected: &receipt.selected,
+            port: CallableLoopSourceBoundStructuralPortV1::from_seed(&seed),
+        };
+        use_view(view)
     }
 }
 
@@ -361,3 +459,7 @@ fn route_error(
 #[cfg(test)]
 #[path = "normal_callable_loop_source_facts_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "normal_callable_loop_structural_lease_tests.rs"]
+mod structural_lease_tests;

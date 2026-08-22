@@ -336,12 +336,19 @@ the route registry, or connect the old raw Loop path. The existing raw
 `_pre_effect_receipt` debt remains a later structural-handoff/bridge concern,
 not evidence that this caller-zero claim is production-connected.
 
-The selected `MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-I0` adds only the private
-`CallableLoopStructuralPortV1` callback lease owned by the existing
-`cf_loop_joinir_impl` context construction. Its HRTB callback cannot return the
-borrowed view, and the view has no route/Facts/Recipe/registry/PlanLowerer/
-Builder/ValueId/AST or physical authority. This is caller-zero infrastructure;
-it does not connect Ready to `route_loop` or the old raw lowerer.
+The existing diagnostic-only `CallableLoopStructuralPortV1` remains limited
+to the old context owner. The selected
+`MIR-CALLABLE-LOOP-READY-STRUCTURAL-LEASE-I0` adds only a private,
+route-neutral `CallableLoopRouteNeutralStructuralSeedV1`, a move-only
+`PreparedCallableLoopStructuralHandoffV1`, and one HRTB
+`CallableLoopReadyStructuralViewV1`. The seed reuses the source-facts
+issuer's existing root-lineage/site/owner validation; it does not construct
+`LoopRouteContext`, call `choose_route_kind`, or enter `route_loop`. The view
+borrows the existing Facts/Recipe outcome, exact selection, pre-effect
+receipt, and opaque source-bound structural port, but exposes no AST, source
+context, Builder, ValueId, registry, PlanLowerer, or physical authority. This
+is caller-zero infrastructure; it does not connect Ready to the old raw
+lowerer or silently create a fallback.
 
 ### Callable Loop source-aware Facts terminal-only P0
 
