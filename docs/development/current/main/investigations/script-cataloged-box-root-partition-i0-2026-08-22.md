@@ -136,10 +136,16 @@ composite one-method provider + root call -> existing composite transfer unchang
 partition failure -> no lookup, target install, or Builder effect
 ```
 
-The source-reownership/composite guard, current-state pointer guard, focused
-neutral/lookup tests, `cargo check --lib`, and `git diff --check` are the
-minimum evidence. Production files remain below the 760-line split trigger
-and 800-line hard boundary.
+The cataloged-box partition guard, composite source-admission guard,
+current-state pointer guard, focused neutral/lookup tests, `cargo check
+--lib`, and `git diff --check` are the minimum evidence. Production files
+remain below the 760-line split trigger and 800-line hard boundary.
+
+The older `script_direct_static_source_reown_window_r0_guard.sh` is a known
+baseline guard drift: parent HEAD already uses `into_a_parts` while that
+historical guard still requires the removed `split_for_work_plan` contract
+(and then stops on additional retired names). It is not modified or claimed
+green by this I0; repairing that guard is a separate cleanup row.
 
 ## Explicit non-claims and return edge
 
@@ -161,3 +167,26 @@ Once this I0 is green, the next design card is
 reuse `ModuleDraftCollectorV1`, `PreparedNormalCollectorDrainLifecycleV1`,
 and `PreparedBuilderExternalCommitV1::commit` exactly once; the admission
 receipt remains transient and is not promoted to a second publication ledger.
+
+## I0 evidence
+
+The bounded implementation evidence is green:
+
+```text
+normal_script_neutral_window::tests       3 passed
+normal_script_direct_static_lookup::tests 8 passed
+parser-scan lifecycle blocker test        1 passed
+cargo check --lib                         passed
+script_cataloged_box_root_partition_i0_guard.sh  PASS
+script_direct_static_composite_source_admission_r0_guard.sh PASS
+current_state_pointer_guard.sh            PASS
+git diff --check                           passed
+```
+
+The parser-scan lifecycle now reaches the existing
+`callable-semantic-lowering/missing-variable-site` blocker at RootLower;
+this I0 does not implement that body/state bridge. The historical
+source-reownership R0 guard and repository-wide `cargo fmt --all -- --check`
+are known parent-baseline drift and are not treated as current-change
+failures: the former still names retired source-observation APIs, while the
+latter reports unrelated pre-existing formatting across the repository.

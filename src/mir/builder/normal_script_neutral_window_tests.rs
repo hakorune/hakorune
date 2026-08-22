@@ -69,3 +69,40 @@ fn neutral_issuer_keeps_non_composite_source_explicitly_complete() {
     ));
     assert!(admission.deferred_residuals().entries().is_empty());
 }
+
+#[test]
+fn parser_scan_loop_box_catalog_transfer() {
+    let package = package(
+        include_str!(concat!(
+            "../../../lang/src/compiler/parser/scan/",
+            "parser_scan_loop_box.hako"
+        )),
+        154,
+    );
+    let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
+        .expect("cataloged static box belongs to the source window");
+    let (admission, _remainder) = neutral.split_for_pre_effect();
+
+    assert_eq!(admission.window().entries().len(), 2);
+    assert!(matches!(
+        admission.window().entry_at(0).expect("using entry").semantic(),
+        ScriptRootSemanticDispositionV1::Transparent(_)
+    ));
+    assert!(matches!(
+        admission.window().entry_at(1).expect("cataloged box entry").semantic(),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::StaticCallableCatalogTransfer
+        )
+    ));
+    assert!(admission.deferred_residuals().entries().is_empty());
+
+    let method_count = package
+        .declaration_catalog()
+        .declarations()
+        .filter(|(key, _)| {
+            key.namespace() == crate::mir::builder::SameModuleCallableNamespaceV1::StaticBoxMethod
+                && key.owner() == "ParserScanLoopBox"
+        })
+        .count();
+    assert_eq!(method_count, 4, "all cataloged method rows stay source-owned");
+}

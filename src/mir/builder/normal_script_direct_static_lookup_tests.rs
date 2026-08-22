@@ -94,6 +94,27 @@ fn issuer_seals_true_zero_call_script_as_complete_empty_coverage() {
 }
 
 #[test]
+fn cataloged_box_has_complete_empty_root_coverage() {
+    let package = make_package(
+        include_str!(concat!(
+            "../../../lang/src/compiler/parser/scan/",
+            "parser_scan_loop_box.hako"
+        )),
+        1809,
+    );
+    let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)
+        .expect("cataloged static box source window");
+    let (lookup, _publication_owner) =
+        ScriptDirectStaticCallLookupIssuerV1::issue(&package, Some(&neutral), &[])
+            .expect("root lookup must observe only executable source");
+    let lookup = lookup.expect("non-App Script lookup");
+
+    assert!(lookup.source_coverage().is_empty());
+    assert_eq!(lookup.source_coverage().rows(), None);
+    assert_eq!(lookup.rows().count(), 0);
+}
+
+#[test]
 fn issuer_keeps_non_direct_source_routes_in_coverage() {
     let package = make_package("local Alias = 0\nreturn Alias.run(1)\nreturn 1.run()", 1807);
     let neutral = PreparedCanonicalScriptNeutralProgramWindowV1::issue(&package)

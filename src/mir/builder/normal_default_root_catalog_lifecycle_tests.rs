@@ -200,7 +200,7 @@ fn parser_scan_package_reaches_the_existing_physical_blocker_without_fallback() 
     assert!(rejected
         .error()
         .to_string()
-        .contains("callable-semantic-lowering/incomplete-consumption"));
+        .contains("callable-semantic-lowering/missing-variable-site"));
     assert!(rejected._source.is_none());
 }
 

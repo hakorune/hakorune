@@ -5,7 +5,14 @@
 //! evidence. It does not resolve names, issue target inventory, create Recipe
 //! keys, or touch physical Builder state.
 
+use std::collections::BTreeSet;
+
 use crate::ast::ASTNode;
+use crate::mir::builder::{
+    SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1,
+    VerifiedSelectedNormalCallableSourceInventoryV1,
+};
 use crate::mir::normal_callable_semantic_package::VerifiedNormalCallableSemanticPackageV1;
 use crate::mir::resolved_semantics::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
@@ -27,6 +34,7 @@ use super::normal_script_composite_partition::{
     CanonicalScriptCompositeProgramPartitionIssuerV1,
     CanonicalScriptCompositeProgramPartitionV1,
 };
+use super::callable_declaration_catalog::SelectedNormalCallableSourceSiteV1;
 use super::normal_script_deferred_residual_registry::ScriptDeferredResidualRegistryBuilderV1;
 use super::normal_script_instance_box_transfer::{
     ScriptInstanceBoxTransferIssueV1, VerifiedScriptInstanceBoxTransferCohortV1,
@@ -63,6 +71,7 @@ pub(super) enum CanonicalScriptNeutralProgramWindowIssueV1 {
     Composite(CanonicalScriptCompositeProgramPartitionDispositionV1),
     InstanceTransfer(ScriptInstanceBoxTransferIssueV1),
     ConstructorSource(InstanceConstructorPhysicalSourceIssueV1),
+    CatalogedStaticBoxSource(Box<str>),
     StatementPositionOverflow,
     StatementBoundaryMismatch,
     Window(ScriptRootDemandWindowSealErrorV1),
@@ -104,6 +113,8 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
             .map_err(CanonicalScriptNeutralProgramWindowIssueV1::ConstructorSource)?;
 
         let statement_count = loan.statement_count();
+        let declaration_catalog = package.declaration_catalog();
+        let selected_callable_sources = package.selected_callable_sources();
         let mut entries = Vec::with_capacity(statement_count);
         let mut residuals = ScriptDeferredResidualRegistryBuilderV1::new();
         for row in loan.statements() {
@@ -119,6 +130,8 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
                 admission,
                 composite_partition.as_ref(),
                 &instance_box_transfers,
+                declaration_catalog,
+                selected_callable_sources,
             )?;
             residuals.record(
                 position,
@@ -200,6 +213,8 @@ impl NeutralScriptRootDecisionV1 {
         admission: NormalScriptProgramItemAdmissionV1,
         composite_partition: Option<&CanonicalScriptCompositeProgramPartitionV1>,
         instance_box_transfers: &VerifiedScriptInstanceBoxTransferCohortV1,
+        declaration_catalog: &VerifiedSameModuleCallableDeclarationCatalogV1,
+        selected_callable_sources: &VerifiedSelectedNormalCallableSourceInventoryV1,
     ) -> Result<Self, CanonicalScriptNeutralProgramWindowIssueV1> {
         use NormalScriptProgramItemAdmissionV1 as Admission;
         use ScriptRootRuntimeDispositionV1 as Runtime;
@@ -208,6 +223,17 @@ impl NeutralScriptRootDecisionV1 {
         let (semantic, runtime) = if composite_partition
             .is_some_and(|partition| partition.is_static_provider_at(statement_index))
         {
+            (
+                Semantic::Transferred(ScriptTransferredBoundaryV1::StaticCallableCatalogTransfer),
+                Runtime::RetainedExistingTerminal,
+            )
+        } else if matches!(admission, Admission::CatalogedNonMainStaticBox) {
+            validate_cataloged_static_box_source(
+                declaration_catalog,
+                selected_callable_sources,
+                statement_index,
+                statement,
+            )?;
             (
                 Semantic::Transferred(ScriptTransferredBoundaryV1::StaticCallableCatalogTransfer),
                 Runtime::RetainedExistingTerminal,
@@ -327,6 +353,121 @@ impl NeutralScriptRootDecisionV1 {
             runtime,
         })
     }
+}
+
+fn validate_cataloged_static_box_source(
+    declaration_catalog: &VerifiedSameModuleCallableDeclarationCatalogV1,
+    selected_callable_sources: &VerifiedSelectedNormalCallableSourceInventoryV1,
+    statement_index: usize,
+    statement: &ASTNode,
+) -> Result<(), CanonicalScriptNeutralProgramWindowIssueV1> {
+    let ASTNode::BoxDeclaration {
+        name,
+        methods,
+        is_interface: false,
+        is_record: false,
+        is_sync: false,
+        is_static: true,
+        ..
+    } = statement
+    else {
+        return Err(CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
+            "cataloged static-box transfer shape mismatch".into(),
+        ));
+    };
+
+    let expected = methods
+        .iter_compat_name_order()
+        .map(|entry| {
+            let ASTNode::FunctionDeclaration { params, .. } = entry.declaration() else {
+                return Err(
+                    CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
+                        format!("cataloged method is not a FunctionDeclaration: {name}").into(),
+                    ),
+                );
+            };
+            let arity = u32::try_from(params.len()).map_err(|_| {
+                CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
+                    format!("cataloged method arity overflow: {name}.{}", entry.name()).into(),
+                )
+            })?;
+            Ok((entry.name().to_owned(), arity))
+        })
+        .collect::<Result<BTreeSet<_>, CanonicalScriptNeutralProgramWindowIssueV1>>()?;
+
+    let actual = declaration_catalog
+        .declarations()
+        .filter(|(key, _)| {
+            key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
+                && key.owner() == name
+        })
+        .map(|(key, _)| (key.name().to_owned(), key.arity()))
+        .collect::<BTreeSet<_>>();
+
+    let selected_count = selected_callable_sources
+        .entries()
+        .filter(|(_, site)| {
+            matches!(
+                site,
+                SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
+                    statement_index: selected_statement_index,
+                    ..
+                } if *selected_statement_index == statement_index
+            )
+        })
+        .count();
+    if selected_count != expected.len() {
+        return Err(CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
+            format!(
+                "cataloged source inventory cardinality mismatch for {name}: expected={} actual={selected_count}",
+                expected.len()
+            )
+            .into(),
+        ));
+    }
+
+    for (key, _) in declaration_catalog.declarations().filter(|(key, _)| {
+        key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
+            && key.owner() == name
+    }) {
+        let selected_key = SelectedNormalCallableKeyV1::Cataloged(key.clone());
+        let Some(SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
+            statement_index: selected_statement_index,
+            method_key,
+        }) = selected_callable_sources.site(&selected_key)
+        else {
+            return Err(
+                CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
+                    format!(
+                        "cataloged source inventory missing {}.{}",
+                        key.owner(),
+                        key.name()
+                    )
+                    .into(),
+                ),
+            );
+        };
+        if *selected_statement_index != statement_index || method_key.as_ref() != key.name() {
+            return Err(CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
+                format!(
+                    "cataloged source inventory site mismatch for {}.{}",
+                    key.owner(),
+                    key.name()
+                )
+                .into(),
+            ));
+        }
+    }
+
+    if expected != actual {
+        return Err(CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
+            format!(
+                "cataloged method partition mismatch for {name}: expected={expected:?} actual={actual:?}"
+            )
+            .into(),
+        ));
+    }
+    Ok(())
 }
 
 fn validate_source_boundary(
