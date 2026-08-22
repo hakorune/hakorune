@@ -1,11 +1,11 @@
 ---
-Status: GenericLoop policy-frame P0 complete; next caller-zero Outside coverage P0
-Task: MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0
+Status: grouped Outside coverage P0 complete; next source-aware Facts design stop
+Task: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0
 Date: 2026-08-22
-Priority: preserve grouped Outside coverage rows before source relation/consumer
+Priority: design one-shot source-aware GenericLoop Facts issuance before any consumer
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -1536,3 +1536,65 @@ ordinary consumer, route selection, production caller, fallback, retry,
 physical/publication work, or main integration was added. The next bounded
 task is `MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0` as caller-zero transport
 only; any need to invent source meaning returns to the accepted D0 boundary.
+
+## P0 closeout — MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0
+
+The caller-zero BoxShape slice is complete. `CallableLoopOutsideReasonV1`
+no longer carries independently collected `bindings[]` and `sites[]`. It now
+move-transports one exact owner, Loop site, and grouped
+`CallableLoopBindingCoverageRowV1` array. Each row keeps its binding, source
+class, and `(site, role)` receipts together, so a later consumer cannot
+re-pair two parallel arrays.
+
+### Authority and boundary
+
+```text
+CallableSemanticLoweringState
+  -> CallableLoopSourceProjectionV1
+  -> one shared grouped-row builder
+  -> Ready schedule or terminal Outside reason
+  -> RawLoopChildEntry typed terminal
+```
+
+The source projection remains the sole issuer of the row class and role
+relation. The row is source evidence only; it does not issue a GenericLoop
+Fact, Recipe key, ValueId, route selection, ordinary-consumer permission, or
+physical effect. `Outside` still returns through
+`into_terminal_error()` before ordinary JoinIR, Builder mutation, callable
+pre-effect consumption, fallback, or retry.
+
+The worker audit confirmed this is a safe BoxShape-only slice. It also fixed
+the implementation constraint that `Ready` and `Outside` must share one
+private row-classification path; no second class authority was introduced.
+
+### Acceptance evidence
+
+```text
+normal_callable_loop_handoff focused: 6 passed
+raw_loop_child_entry focused: 7 passed
+RUSTFLAGS='-Awarnings' cargo check --profile quick --lib: PASS
+RUSTFLAGS='-Awarnings' cargo build --profile quick --bin hakorune: PASS
+bash tools/checks/rust_mirbuilder_callable_loop_outside_disposition_p0_guard.sh: PASS
+bash tools/checks/rust_mirbuilder_callable_loop_generic_facts_policy_p0_guard.sh: PASS
+bash tools/checks/loop_precutover_authority_guard.sh: PASS
+bash tools/checks/current_state_pointer_guard.sh: PASS
+rustfmt / git diff --check: PASS
+source sizes: handoff 573, raw entry 491, recursive child 679 lines
+```
+
+The focused positive evidence covers one body-only row with exact BodyRead and
+BodyRebind sites, and the production `esc_json` projection covers two grouped
+Outside rows without mixed bindings. Existing `skip_while` Ready coverage and
+foreign/duplicate/nested/incomplete rejection remain green. The reusable
+Outside guard now checks the grouped fields, move-only shape, one shared row
+builder, terminal-only raw path, no ordinary lowering, and the 800-line hard
+boundary.
+
+### Next design stop
+
+The next task is `MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0`. It must design the
+one-shot source-aware Facts issuer and terminal route transport before any
+source-to-Recipe relation or ordinary consumer is added. The current grouped
+rows are prepared evidence only; they do not authorize source/Facts pairing,
+GenericLoop extraction, ordinary body-only-rebind support, production switch,
+fallback/retry, publication, performance work, or main integration.
