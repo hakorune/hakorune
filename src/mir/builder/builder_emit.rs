@@ -9,6 +9,7 @@ mod builder_emit_core;
 
 pub(in crate::mir::builder) use builder_emit_core::{
     CanonicalCompareAppendRejectV1, CanonicalCompareDefinitionSourceV1,
+    PreparedCanonicalCompareAppendV1,
 };
 
 impl MirBuilder {

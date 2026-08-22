@@ -23,18 +23,20 @@ guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$I9_CONTROL" "$VALUE_LEDGER" "$BRAND" "$WRITER" \
   "$OPERAND" "$OPERATION_CURSOR" "$CARD" "$README" "$REFERENCE" "$INDEX"
 
-guard_expect_fixed_in_file "$TAG" "CanonicalLoopCompareI64WriterV1::emit(" "$I9_CONTROL" \
-  "selected Dynamic I9 must call the named strict writer"
+guard_expect_fixed_in_file "$TAG" "CanonicalLoopCompareI64WriterV1::prepare(" "$I9_CONTROL" \
+  "selected Dynamic I9 must call the named strict writer preparation"
 guard_expect_fixed_in_file "$TAG" "SelectedDynamicI9CompareHandoffIssuerV1" "$I9_CONTROL" \
   "I9 handoff must have one named private issuer"
 guard_expect_fixed_in_file "$TAG" "prepare_existing_same_block_integer" "$I9_CONTROL" \
   "I9 operands must be rebound through canonical same-block witnesses"
+guard_expect_fixed_in_file "$TAG" "prepare_branch(canonical" "$I9_CONTROL" \
+  "I9 Branch must be prepared before result reservation"
 guard_expect_fixed_in_file "$TAG" "reserve_result(" "$I9_CONTROL" \
-  "Dynamic V13 must reserve before the strict append"
+  "Dynamic V13 must reserve after all strict preparation"
 guard_expect_fixed_in_file "$TAG" "Consume the existing physical census before the first I8 ValueId" "$I9_CONTROL" \
   "I8/I9/If claims must be explicitly pre-effect"
-guard_expect_fixed_in_file "$TAG" "pending.commit(&definition)" "$I9_CONTROL" \
-  "Dynamic V13 must commit from the writer definition source"
+guard_expect_fixed_in_file "$TAG" "pending.commit()" "$I9_CONTROL" \
+  "Dynamic V13 must commit only from the private prepared aggregate"
 guard_expect_fixed_in_file "$TAG" "for_owner(demand.identity().owner())" "$BRAND" \
   "Dynamic session brand must bind the canonical function owner"
 guard_expect_fixed_in_file "$TAG" "PendingDynamicV2PhysicalValuePublishV1" "$VALUE_LEDGER" \
@@ -59,7 +61,7 @@ while IFS= read -r file; do
     *_tests.rs) continue ;;
   esac
   production_callers+=("$file")
-done < <(rg -l --glob '*.rs' -F 'CanonicalLoopCompareI64WriterV1::emit(' "$ROOT_DIR/src" || true)
+done < <(rg -l --glob '*.rs' -F 'CanonicalLoopCompareI64WriterV1::prepare(' "$ROOT_DIR/src" || true)
 
 if [[ "${#production_callers[@]}" -ne 1 || "${production_callers[0]:-}" != "$I9_CONTROL" ]]; then
   guard_fail "$TAG" "expected exactly one selected I9 production writer caller; found ${production_callers[*]:-none}"
@@ -80,12 +82,29 @@ for claim in ("claim_operation(I8)", "claim_operation(I9)", "claim_if()"):
         raise SystemExit(f"expected exactly one {claim}, found {len(positions)}")
     if positions[0] > first_effect:
         raise SystemExit(f"{claim} occurs after the first I9 physical effect")
+
+start = text.index("impl SelectedDynamicI9CompareHandoffIssuerV1")
+end = text.index("\npub(super) fn emit", start)
+body = text[start:end]
+compare = body.find("CanonicalLoopCompareI64WriterV1::prepare(")
+branch = body.find("let branch = prepare_branch(canonical")
+reserve = body.find("let pending = values")
+commit = body.find(".commit(outer.builder_view_mut_for_lowering())")
+if min(compare, branch, reserve, commit) < 0:
+    raise SystemExit("missing I9 prepare/branch/reserve/commit sequence")
+if not compare < branch < reserve < commit:
+    raise SystemExit("I9 fallible preparation/reservation order is not strict")
+pending_end = body.find(";", reserve)
+if pending_end < 0 or body[pending_end + 1 :].count("?") != 0:
+    raise SystemExit("I9 has a Result path after V13 reservation")
 PY
 
 # The selected I9 row must not fall back to the generic Loop ledger or legacy
 # Compare leaf. Other canary/compatibility rows remain outside this guard.
 for forbidden in \
   'emit_compare_i64_at' \
+  'CanonicalLoopCompareI64WriterV1::emit(' \
+  '.emit_branch(' \
   'loop_operation' \
   'LoopOperationValueLedger' \
   'values.publish(' \
@@ -95,6 +114,16 @@ do
     guard_fail "$TAG" "I9 handoff reaches a forbidden legacy/second-authority route: $forbidden"
   fi
 done
+
+python3 - "$VALUE_LEDGER" <<'PY'
+from pathlib import Path
+import sys
+
+text = Path(sys.argv[1]).read_text()
+production = text.split("#[cfg(test)]", 1)[0]
+if "assert_eq!" in production:
+    raise SystemExit("Dynamic V13 production commit must not use assert-based definition pairing")
+PY
 
 for file in "$I9_CONTROL" "$VALUE_LEDGER" "$BRAND" "$WRITER" "$OPERAND" "$OPERATION_CURSOR"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"

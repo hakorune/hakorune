@@ -4,6 +4,7 @@
 //! MIR terminators are the graph truth; cached successors/predecessors are
 //! checked witnesses and are never repaired here.
 
+mod branch;
 mod error;
 mod open_instruction_target;
 mod pinned_text_finish;
@@ -13,6 +14,7 @@ mod session;
 #[cfg(test)]
 mod tests;
 
+pub(in crate::mir::builder::resolved_lowering) use branch::PreparedCanonicalBranchV1;
 pub(in crate::mir::builder) use error::CanonicalCfgErrorV1;
 pub(in crate::mir::builder) use open_instruction_target::{
     CanonicalOpenInstructionTargetErrorV1, VerifiedCanonicalOpenInstructionTargetV1,

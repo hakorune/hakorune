@@ -12,7 +12,7 @@ use crate::mir::builder::type_context::TypeContext;
 use crate::mir::{MirType, ValueId};
 
 /// Prepared Bool fact for a future successfully emitted physical Compare.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq)]
 pub(in crate::mir::builder) struct PreparedCanonicalCompareBoolTypeV1 {
     publication: PreparedTypeFactPublicationV1,
 }

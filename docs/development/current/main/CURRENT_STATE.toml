@@ -18,14 +18,14 @@ date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "fast"
-current_execution_row = "MIR-LOOP-COMPARE-PREPARE-RESERVE-I0"
-current_design_stop = "Compare prepare/reserve/commit D0 is conditionally accepted after read-only audit: add a same-owner borrow-free Branch prepare/commit seam, make Compare preparation borrow-free, complete every fallible preclaim/Compare/Branch step before the last-fallible V13 reservation, and commit only through one private move-only co-seal. Stop immediately if the seam or definition/V13 pairing cannot be made private; publication, generic Loop cleanup, parser witness, and performance remain closed."
-current_blocker_token = "MIR-LOOP-COMPARE-PREPARE-RESERVE-I0: implement the bounded selected-Dynamic I9 prepare/reserve/commit transaction; Branch seam and definition/V13 co-seal are mandatory, with no fallback or post-reservation Result path."
+current_execution_row = "MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0"
+current_design_stop = "Compare prepare/reserve/commit I0 is complete: the selected-Dynamic I9 path now prepares Compare and the session-bound Branch before the last-fallible V13 reservation and commits only through one private move-only aggregate. The next bounded fast slice is the existing body-bridge OuterReturn/Header-current relation check plus compile/guard evidence for move-only destination/Bool plans; publication, generic Loop cleanup, parser witness, and performance remain closed."
+current_blocker_token = "MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0: add the narrow OuterReturn/Header-current physical-value equality check and verify destination/Bool affinity without creating a new semantic receipt or route."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — selected Dynamic Compare transaction hardening"
+active_lane = "MirBuilder in-place replacement — selected Dynamic Compare transaction hardening / body bridge affinity"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -90,10 +90,10 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-loop-compare-hardening-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md"
-latest_card_summary = "Ready GenericLoopV1 R0, the Outside terminal closeout, MIR-DYNAMIC-CURSOR-EOF-FAILFAST-P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, Fault I6/I7 cleanup preclaim I0, Backedge cleanup/I13..I16 preclaim I0, and InnerReturn cleanup/I11/Exit preclaim I0 are complete on main. MIR-DYNAMIC-INNER-RETURN-FACTS-I0 is landed; Compare prepare/reserve/commit I0 is conditionally accepted and active with Branch seam and private definition/V13 co-seal required."
-next_design_card = "MIR-LOOP-COMPARE-PREPARE-RESERVE-I0"
+latest_card_summary = "Ready GenericLoopV1 R0, the Outside terminal closeout, MIR-DYNAMIC-CURSOR-EOF-FAILFAST-P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, Fault I6/I7 cleanup preclaim I0, Backedge cleanup/I13..I16 preclaim I0, and InnerReturn preclaim/facts I0 are complete on main. Compare prepare/reserve/commit I0 is landed: Branch preparation is session-bound, Compare preparation is borrow-free, V13 reservation is last-fallible, and strict commit has no arbitrary definition pairing. The next bounded slice is body-bridge OuterReturn/Header-current affinity; publication, fallback retirement, generic Loop retirement, and performance remain closed."
+next_design_card = "MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md"
-next_execution_card = "MIR-LOOP-COMPARE-PREPARE-RESERVE-I0"
+next_execution_card = "MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-22: MIR-DYNAMIC-CALLOUT-PRECLAIM-I0 is landed. The existing I0..I7 operation claim loop now occurs once before the first `publish_i64_value` MIR/ledger effect; the dedicated CallOut guard, selected Dynamic suite (10/10), CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-I0 is landed. Existing I6/I7 cleanup claims now occur once before Fault/CallOut-End effects; the dedicated Fault guard, selected Dynamic suite (10/10), CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0 is landed. Header validation and existing Backedge cleanup/I13..I16 claims now occur before `select_block` and the first physical effect; the dedicated Backedge guard, selected Dynamic suite (10/10), Fault/CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-INNER-RETURN-PRECLAIM-D0 is the next design stop.",
-  "2026-08-23: MIR-DYNAMIC-INNER-RETURN-FACTS-I0 is landed after the preclaim series. Existing Completion claim_explicit_return and identity mark_return claims now occur exactly once after SSA receipt validation but before End and V14 publication; the dedicated InnerReturn guard, selected Dynamic suite (10/10), Backedge/Fault/CallOut/CONNECT0/strict-writer guards, pointer guard, diff check, and 250-line source-size check are green. MIR-LOOP-COMPARE-PREPARE-RESERVE-D0 is the next design stop."
+  "2026-08-23: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0 is landed after the preclaim series. Selected Dynamic I9 now prepares Compare and a session-bound Branch before the last-fallible V13 reservation, then commits one private move-only aggregate with one Compare append, Bool fact, V13 publication, and Branch. The selected Dynamic suite is 10/10; prepared-Branch is 1/1; CONNECT0, strict-writer, preclaim, pointer, diff, and source-size checks are green. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0 is the next bounded fast slice."
 ]

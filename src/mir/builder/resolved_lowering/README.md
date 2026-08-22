@@ -42,14 +42,15 @@ passes its Dynamic-owned operand views directly to this canonical issuer.
 
 ## Canonical Loop Compare result ledger P0
 
-Strict result publication is owner-bound. `LoopOperationValueLedgerV1::new_for_owner`
-opens the canonical reservation lane; the legacy `Default` ledger remains
-unbound and keeps the existing `publish/get/receipt` callers. A vacant key is
-reserved by a private non-`Clone` token holding only the exact slot. The token
-is consumed by a writer-owned definition source for an infallible Published
-transition, while an uncommitted drop poisons the slot. There is no reset,
-retry, post-append duplicate check, MIR inspection, or raw-`ValueId`
-reservation input. Strict Compare and production selection remain closed.
+The selected Dynamic I9 result publication is owner-bound to
+`DynamicV2PhysicalValueLedgerV1`. A vacant V13 key is reserved by a private
+one-shot token holding only the exact slot. The token is co-sealed with the
+prepared strict Compare and session-bound Branch inside the private I9
+aggregate; its commit performs an infallible Published transition, while an
+uncommitted drop poisons the slot. There is no reset, retry, post-append
+duplicate check, MIR inspection, arbitrary definition pairing, or raw-
+`ValueId` reservation input. The generic Loop ledger remains caller-zero and
+outside this selected Dynamic handoff.
 
 ## Canonical Loop Compare strict writer P0
 
@@ -64,11 +65,13 @@ open target + same-block Integer lhs/rhs + fresh destination + Bool plan
 
 `builder_emit.rs` keeps the legacy repair-capable front door, while
 `builder_emit_core.rs` owns the one physical append point and the strict
-prepare/commit contract. The strict commit cannot create a block, change
+prepare/commit contract. The prepared Compare no longer retains a Builder
+borrow, so a caller can prepare a same-session Branch before reserving its
+result. The strict commit cannot create a block, change
 `current_block`, invoke `emit_instruction_at`, materialize LocalSSA/PHI state,
 infer a type, or perform a fallible post-append check. The definition source is
-non-Clone/non-Copy and is the only writer-to-ledger handoff shape; result-ledger
-reservation is deliberately a later card.
+non-Clone/non-Copy and is the only writer-to-ledger handoff shape. The selected
+Dynamic transaction reserves V13 only after Compare and Branch preparation.
 
 The strict writer is exercised by focused positive and rejection tests. Its
 generic Loop physicalizer caller count remains zero by design. Selected
@@ -84,9 +87,12 @@ publication owner. It does not project V11/V12 into the generic
 The Dynamic session brand carries the canonical `FunctionOwnerIdV1`; the two
 Dynamic value views are rebound through the canonical same-block Integer
 issuer, and V13 is reserved immediately before the strict writer append.
-The writer returns the canonical definition source, which is consumed once by
-the Dynamic V13 pending token. A dropped pending token poisons the slot, so
-the unpublished outer function session must be discarded; retry, fallback,
+The I9 path prepares the strict Compare and a session-bound Branch before its
+last-fallible V13 reservation. A private move-only aggregate then commits one
+Compare append, one Bool fact, one V13 publication, and one Branch. The
+pending token no longer accepts an arbitrary Compare definition or uses
+assert-based pairing. A dropped pending token poisons the slot, so the
+unpublished outer function session must be discarded; retry, fallback,
 post-append publication, and a second result ledger are forbidden.
 
 ## Common V2 canonical session-open canary

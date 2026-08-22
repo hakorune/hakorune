@@ -144,40 +144,6 @@ impl CanonicalCfgSessionV1 {
         Ok(())
     }
 
-    pub(in crate::mir::builder) fn emit_branch(
-        &self,
-        function: &mut MirFunction,
-        source: BasicBlockId,
-        condition: ValueId,
-        then_block: BasicBlockId,
-        else_block: BasicBlockId,
-    ) -> Result<(), CanonicalCfgErrorV1> {
-        if then_block == else_block {
-            return Err(CanonicalCfgErrorV1::DuplicateEdge {
-                source,
-                target: then_block,
-            });
-        }
-        self.preflight_edge(function, source, &[then_block, else_block])?;
-        function
-            .get_block_mut(source)
-            .expect("source was checked")
-            .set_terminator(MirInstruction::Branch {
-                condition,
-                then_bb: then_block,
-                else_bb: else_block,
-                then_edge_args: None,
-                else_edge_args: None,
-            });
-        for target in [then_block, else_block] {
-            function
-                .get_block_mut(target)
-                .expect("target was checked")
-                .add_predecessor(source);
-        }
-        Ok(())
-    }
-
     pub(in crate::mir::builder) fn emit_return(
         &self,
         function: &mut MirFunction,
@@ -447,7 +413,7 @@ impl CanonicalCfgSessionV1 {
         })
     }
 
-    fn preflight_edge(
+    pub(in crate::mir::builder::resolved_lowering::canonical_cfg) fn preflight_edge(
         &self,
         function: &MirFunction,
         source: BasicBlockId,

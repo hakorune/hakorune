@@ -1,7 +1,7 @@
 # Canonical Loop Compare same-block operand contract
 
-Status: accepted C-prime P0 plus selected Dynamic I9 CONNECT0 handoff
-(2026-08-22).
+Status: accepted C-prime P0 plus selected Dynamic I9 transactional CONNECT0
+handoff (2026-08-23).
 
 The bounded strict Compare lane admits only this source-to-physical relation:
 
@@ -44,16 +44,18 @@ map-vacant -> Reserved -> Published
                        \-> Poisoned (uncommitted token drop)
 ```
 
-`commit` consumes a writer-owned definition source and returns one full
-receipt without a fallible post-append check. The legacy unbound ledger keeps
-its old publication helpers for caller-zero compatibility; it cannot open a
-strict reservation. This lifecycle is implemented in the linked result-ledger
-task and does not yet connect a Compare writer or production caller.
+The selected Dynamic ledger's private pending token is reserved only after all
+Compare and Branch preparation succeeds. Its commit is reached only through
+the private I9 aggregate, so it accepts no arbitrary writer definition and
+performs no post-append pairing check. Dropping the token poisons the slot and
+the unpublished outer session discards the partial function. The generic Loop
+ledger and its old publication helpers remain caller-zero and outside this
+transaction.
 
 ## Strict Compare writer boundary
 
-The strict physical writer is a separate generic-Loop caller-zero P0. Its closed state
-machine is:
+The strict physical writer is generic-Loop caller-zero but has one named
+selected-Dynamic production consumer. Its closed state machine is:
 
 ```text
 verified open target
@@ -86,16 +88,17 @@ authority chain is:
 Dynamic V11/V12 published views
   -> canonical owner-bound same-block Integer witnesses
   -> fresh canonical destination + prepared Bool fact
-  -> Dynamic V13 reservation
-  -> strict writer one-append commit
-  -> Dynamic V13 commit from CanonicalCompareDefinitionSourceV1
+  -> strict Compare preparation
+  -> session-bound Branch preparation
+  -> Dynamic V13 reservation (last fallible step)
+  -> private aggregate: Compare append + Bool + V13 + Branch commit
 ```
 
 `DynamicV2PhysicalSessionBrandV1` carries the same `FunctionOwnerIdV1` as the
 canonical SSA session. `DynamicV2PhysicalValueLedgerV1` is the sole V13
 publication owner; no `LoopOperationValueLedgerV1` projection, legacy
-`emit_compare_i64_at` fallback, or post-append `publish` is allowed. A dropped
-pending reservation poisons the result slot and the unpublished outer draft is
-discarded rather than retried. This slice still excludes the I7 header
-Compare, cross-block operands, generic dominance, and old generic-loop
-retirement.
+`emit_compare_i64_at` fallback, post-append `publish`, or assert-based
+definition pairing is allowed. A dropped pending reservation poisons the
+result slot and the unpublished outer draft is discarded rather than retried.
+This slice still excludes the I7 header Compare, cross-block operands,
+generic dominance, and old generic-loop retirement.

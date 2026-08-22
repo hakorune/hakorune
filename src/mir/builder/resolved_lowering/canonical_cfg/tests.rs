@@ -77,6 +77,46 @@ fn branch_updates_exact_then_and_else_predecessors() {
 }
 
 #[test]
+fn prepared_branch_has_no_effect_until_commit() {
+    let mut function = function(3);
+    let session = CanonicalCfgSessionV1::new();
+
+    let prepared = session
+        .prepare_branch(&function, block(0), ValueId::new(7), block(1), block(2))
+        .expect("prepare branch");
+    assert!(function.get_block(block(0)).unwrap().terminator.is_none());
+    assert!(function
+        .get_block(block(1))
+        .unwrap()
+        .predecessors
+        .is_empty());
+    assert!(function
+        .get_block(block(2))
+        .unwrap()
+        .predecessors
+        .is_empty());
+
+    prepared.commit(&mut function);
+    assert!(matches!(
+        function.get_block(block(0)).unwrap().terminator,
+        Some(MirInstruction::Branch {
+            condition,
+            then_bb,
+            else_bb,
+            ..
+        }) if condition == ValueId::new(7) && then_bb == block(1) && else_bb == block(2)
+    ));
+    assert_eq!(
+        function.get_block(block(1)).unwrap().predecessors,
+        [block(0)].into_iter().collect()
+    );
+    assert_eq!(
+        function.get_block(block(2)).unwrap().predecessors,
+        [block(0)].into_iter().collect()
+    );
+}
+
+#[test]
 fn duplicate_branch_edge_is_rejected_before_mutation() {
     let mut function = function(2);
     let session = CanonicalCfgSessionV1::new();

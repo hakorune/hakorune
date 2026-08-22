@@ -1,22 +1,22 @@
-Status: Compare prepare/reserve/commit I0 active (conditional acceptance)
+Status: Compare prepare/reserve/commit I0 complete; Bridge affinity P0 is next
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
 Current execution row: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
+NextCard: MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
 ---
 
 # Selected Dynamic Compare hardening D0
 
 ## Six-line brief
 
-Decision: accept the worker's Conditional Accept as one bounded I0. The cursor EOF P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, Fault I6/I7 cleanup preclaim I0, Backedge cleanup/I13..I16 preclaim I0, and InnerReturn cleanup/facts I0 are closed. I0 now adds only a same-owner Branch prepare/commit seam, borrow-free Compare preparation, last-fallible V13 reservation, and one private move-only co-seal; bridge equality, affinity cleanup, publication, and the caller-zero generic leaf remain separate.
+Decision: the conditionally accepted Compare transaction I0 is implemented. The cursor EOF P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, Fault I6/I7 cleanup preclaim I0, Backedge cleanup/I13..I16 preclaim I0, and InnerReturn cleanup/facts I0 are closed. I0 adds only a same-owner Branch prepare/commit seam, borrow-free Compare preparation, last-fallible V13 reservation, and one private move-only co-seal; bridge equality, publication, and the caller-zero generic leaf remain separate.
 Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
-Fail-fast boundary: InnerReturn return facts now occur before End/V14. In I0, every fallible selected-I9 preclaim, Compare preparation, and Branch preparation must finish before the last-fallible V13 reservation; only the private aggregate may commit the prepared Compare, Bool, V13, and Branch products. If the Branch seam or private definition/V13 pairing cannot be made real, stop with NoSafeSlice. No rollback, retry, or fallback exists.
-Smallest next slice: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0, implement the accepted bounded transaction and its focused negative/guard evidence. It does not open publication, generic Loop retirement, parser witness, or performance work.
+Fail-fast boundary: InnerReturn return facts now occur before End/V14. The selected-I9 transaction prepares all fallible claims, Compare, and Branch work before the last-fallible V13 reservation; only the private aggregate commits the prepared Compare, Bool, V13, and Branch products. No rollback, retry, or fallback exists.
+Smallest next slice: MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0, add only the narrow OuterReturn/Header-current relation check and compile/guard evidence for move-only destination/Bool plans. It does not open publication, generic Loop retirement, parser witness, or performance work.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -35,19 +35,24 @@ The current HEAD confirms the following rows.
 | loop_recipe_physicalizer/compare_i64_writer.rs is a test-only adapter but is compiled non-test to re-export the production writer | build-scope/naming mismatch, not a correctness blocker | loop_recipe_physicalizer/mod.rs, resolved_lowering/mod.rs | parked cleanup; never cfg-out the production writer |
 | pure_operation_emitter.rs retains old post-append checks | caller-zero baseline debt | generic Loop module header and caller census | preserve until activation/retirement Decision |
 
-Independent baseline evidence on this HEAD:
+Independent evidence on the I0 implementation:
 
     bash tools/checks/rust_mirbuilder_loop_compare_connect0_guard.sh
       -> green: one selected I9 writer caller, Dynamic-only V13 commit, no legacy fallback
 
-    CARGO_BUILD_JOBS=4 cargo test --profile quick --lib selected_dynamic_physical_emitter -- --nocapture
+    CARGO_BUILD_JOBS=4 cargo test --profile quick --lib selected_dynamic_physical_emitter
       -> 10 passed; existing compiler warnings are baseline and unrelated to this card
 
+    CARGO_BUILD_JOBS=4 cargo test --profile quick --lib prepared_branch_has_no_effect_until_commit
+      -> 1 passed; preparation leaves MIR/predecessor caches unchanged until commit
+
+    CARGO_BUILD_JOBS=4 cargo check --profile quick
+      -> passed; existing compiler warnings are baseline
+
 The Outside terminal closeout and the selected Dynamic preclaim series are
-complete through InnerReturn return-facts I0. This card's current bounded lane
-is the design-only Compare prepare/reserve/commit audit; implementation,
-publication, generic Loop retirement, and performance remain closed until that
-Decision is accepted.
+complete through InnerReturn return-facts I0. The bounded Compare
+prepare/reserve/commit implementation is now closed; publication, generic
+Loop retirement, and performance remain separately closed.
 
 Worker audit confirmation:
 
@@ -607,8 +612,8 @@ accepted.
 
 ### 14. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 
-Implementation active under the conditional D0 acceptance. Split the current writer
-front door into:
+Implementation complete under the conditional D0 acceptance. The current writer
+front door is split into:
 
     CanonicalLoopCompareI64WriterV1::prepare(...)
       -> PreparedCanonicalCompareAppendV1 / Bool plan
@@ -623,9 +628,9 @@ front door into:
       -> Dynamic V13 commit
       -> Branch
 
-CanonicalLoopCompareI64WriterV1::emit must not remain the selected I9
-production entry after this cell. prepare_canonical_compare_append remains
-the writer preparation authority; it must run before reserve_result.
+`CanonicalLoopCompareI64WriterV1::emit` is test-only compatibility coverage and
+is not a selected-I9 production entry. `prepare_canonical_compare_append`
+remains the writer preparation authority; it runs before `reserve_result`.
 
 Branch emission is part of the same transaction. Any fallible target/current
 block/operand preparation required by Branch must complete before
@@ -633,23 +638,32 @@ reserve_result. After reservation, Branch may only be a private infallible
 commit consuming the prepared Compare definition/result relation. A sequence
 of Compare append -> V13 commit -> fallible emit_branch is not accepted.
 
-The private aggregate owns the prepared writer and the exact pending V13 slot
-together. The pending ledger commit must no longer accept an arbitrary
-CanonicalCompareDefinitionSourceV1 from the caller or use assert_eq! to
-pair unrelated products. Its infallible commit is reachable only through the
-aggregate that produced the definition and reserved the slot.
+The private aggregate owns the prepared writer, the session-bound Branch plan,
+and the exact pending V13 slot together. The pending ledger commit no longer
+accepts an arbitrary `CanonicalCompareDefinitionSourceV1` or uses `assert_eq!`
+to pair unrelated products. Its infallible commit is reached only through the
+aggregate that prepared the Branch and reserved the slot.
 
-Acceptance:
+I0 evidence:
 
+    `CanonicalCfgSessionV1::prepare_branch` is non-mutating and its prepared
+    product carries the exact session reference into commit
     writer preparation rejection -> no V13 reservation and no MIR append
-    V13 reservation is the last fallible operation
-    after reservation, no Result-returning validation remains
+    V13 reservation is after Compare and Branch preparation
+    after reservation, the private aggregate has no Result path
     no post-append type or ledger lookup remains on the strict path
     no pending-result assert_eq! pairing remains
     one Compare append, one Bool fact, one V13 publication, one Branch
+    destination and Bool preparation products are move-only
+    selected Dynamic focused suite: 10 passed
+    canonical CFG prepared-Branch test: 1 passed
+    CONNECT0, strict-writer, preclaim, pointer, and diff checks: green
+    touched production sources remain below 760 lines (maximum: 711)
 
-NoSafeSlice: the aggregate cannot make definition/slot pairing private and
-move-only, or the writer still needs a repair-capable legacy front door.
+NoSafeSlice was not triggered: the aggregate makes the definition/slot pairing
+private, the Branch plan is session-bound, and the strict writer does not use a
+repair-capable legacy front door. Publication and generic retirement remain
+closed by explicit non-claims.
 
 ### 15. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
 

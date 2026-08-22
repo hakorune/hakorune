@@ -7,7 +7,6 @@
 use std::collections::{btree_map::Entry, BTreeMap, BTreeSet};
 use std::sync::Arc;
 
-use crate::mir::builder::builder_emit::CanonicalCompareDefinitionSourceV1;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -38,7 +37,6 @@ struct DynamicV2PhysicalValueEntryV1 {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct DynamicV2PhysicalValueReservationV1 {
-    owner: FunctionOwnerIdV1,
     producer: LoopItemKeyV1,
     result: LoopValueKeyV1,
     block: BasicBlockId,
@@ -211,7 +209,6 @@ impl DynamicV2PhysicalValueLedgerV1 {
                 self.producers.insert(producer);
                 let slot = slot.insert(DynamicV2PhysicalValueSlotV1::Reserved(
                     DynamicV2PhysicalValueReservationV1 {
-                        owner: self.brand.owner(),
                         producer,
                         result,
                         block: target.block(),
@@ -264,19 +261,15 @@ impl DynamicV2PhysicalValueLedgerV1 {
 }
 
 impl PendingDynamicV2PhysicalValuePublishV1<'_> {
-    /// Commit the reserved Dynamic result from the sole strict writer.
-    /// Reservation fixed every metadata field, so this suffix is infallible.
-    pub(super) fn commit(
-        mut self,
-        definition: &CanonicalCompareDefinitionSourceV1,
-    ) -> DynamicV2PhysicalValueViewV1 {
+    /// Commit the reserved Dynamic result from the private selected-I9
+    /// aggregate. The reservation already owns the exact producer/result/
+    /// target/value relation; no arbitrary post-append definition may be
+    /// supplied and no assert-based pairing remains here.
+    pub(super) fn commit(mut self) -> DynamicV2PhysicalValueViewV1 {
         let reservation = match &*self.slot {
             DynamicV2PhysicalValueSlotV1::Reserved(reservation) => *reservation,
             _ => unreachable!("pending Dynamic result must remain reserved"),
         };
-        assert_eq!(reservation.owner, definition.owner());
-        assert_eq!(reservation.block, definition.target());
-        assert_eq!(reservation.value, definition.physical_value());
         let entry = DynamicV2PhysicalValueEntryV1 {
             producer: reservation.producer,
             result: reservation.result,

@@ -144,7 +144,9 @@ mod if_tests;
 #[cfg(test)]
 mod loop_recipe_physicalizer;
 
-pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::CanonicalLoopCompareI64WriterV1;
+pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::{
+    CanonicalLoopCompareI64WriterV1, PreparedCanonicalLoopCompareI64V1,
+};
 #[cfg(test)]
 mod nested_predicate_effect_adapter_tests;
 #[cfg(test)]

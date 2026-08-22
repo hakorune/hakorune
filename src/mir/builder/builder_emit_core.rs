@@ -63,8 +63,8 @@ pub(in crate::mir::builder) enum CanonicalCompareAppendRejectV1 {
     DestinationTypeAlreadyPublished,
 }
 
-pub(in crate::mir::builder) struct PreparedCanonicalCompareAppendV1<'builder> {
-    builder: &'builder mut MirBuilder,
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedCanonicalCompareAppendV1 {
     target: VerifiedCanonicalOpenInstructionTargetV1,
     lhs: VerifiedCanonicalSameBlockIntegerOperandV1,
     rhs: VerifiedCanonicalSameBlockIntegerOperandV1,
@@ -86,13 +86,15 @@ pub(super) fn append_instruction_core(
     Ok(())
 }
 
-impl<'builder> PreparedCanonicalCompareAppendV1<'builder> {
+impl PreparedCanonicalCompareAppendV1 {
     /// Commit one already-prepared Compare append. The shared append core is
     /// the only physical mutation point; prepared invariants make this commit
     /// infallible, so a violated invariant is an internal contract panic.
-    pub(in crate::mir::builder) fn commit(self) -> CanonicalCompareDefinitionSourceV1 {
+    pub(in crate::mir::builder) fn commit(
+        self,
+        builder: &mut MirBuilder,
+    ) -> CanonicalCompareDefinitionSourceV1 {
         let Self {
-            builder,
             target,
             lhs,
             rhs,
@@ -137,13 +139,13 @@ impl MirBuilder {
     /// witnesses. No block creation, current-block selection, type inference,
     /// LocalSSA repair, or PHI materialization is reachable from this path.
     pub(in crate::mir::builder) fn prepare_canonical_compare_append(
-        &mut self,
+        &self,
         target: VerifiedCanonicalOpenInstructionTargetV1,
         lhs: VerifiedCanonicalSameBlockIntegerOperandV1,
         rhs: VerifiedCanonicalSameBlockIntegerOperandV1,
         destination: ReservedCanonicalCompareDestinationV1,
         op: crate::mir::CompareOp,
-    ) -> Result<PreparedCanonicalCompareAppendV1<'_>, CanonicalCompareAppendRejectV1> {
+    ) -> Result<PreparedCanonicalCompareAppendV1, CanonicalCompareAppendRejectV1> {
         if target.owner() != lhs.owner()
             || target.owner() != rhs.owner()
             || target.owner() != destination.owner()
@@ -212,7 +214,6 @@ impl MirBuilder {
             return Err(CanonicalCompareAppendRejectV1::DestinationTypeAlreadyPublished);
         }
         Ok(PreparedCanonicalCompareAppendV1 {
-            builder: self,
             target,
             lhs,
             rhs,

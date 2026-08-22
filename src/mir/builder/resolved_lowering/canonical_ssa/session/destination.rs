@@ -8,7 +8,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::ValueId;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir::builder) struct ReservedCanonicalCompareDestinationV1 {
     owner: FunctionOwnerIdV1,
     value: ValueId,
@@ -19,11 +19,11 @@ pub(in crate::mir::builder) struct ReservedCanonicalCompareDestinationV1 {
 struct ReservedCanonicalCompareDestinationSealV1;
 
 impl ReservedCanonicalCompareDestinationV1 {
-    pub(in crate::mir::builder) const fn owner(self) -> FunctionOwnerIdV1 {
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
 
-    pub(in crate::mir::builder) const fn value(self) -> ValueId {
+    pub(in crate::mir::builder) const fn value(&self) -> ValueId {
         self.value
     }
 

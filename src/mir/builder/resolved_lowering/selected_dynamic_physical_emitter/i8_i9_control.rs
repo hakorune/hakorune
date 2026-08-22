@@ -13,6 +13,7 @@ use super::value_ledger::DynamicV2PhysicalValueLedgerV1;
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::emission::compare_type::PreparedCanonicalCompareBoolTypeV1;
+use crate::mir::builder::resolved_lowering::canonical_cfg::PreparedCanonicalBranchV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     CanonicalSameBlockIntegerRequestV1, CanonicalSsaFunctionSessionV2,
 };
@@ -21,10 +22,14 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability
     DynamicV2CompareI64CapabilityDemandV1, DynamicV2PhysicalRepresentationV1,
     DynamicV2ProducerFamilyV1,
 };
-use crate::mir::builder::resolved_lowering::CanonicalLoopCompareI64WriterV1;
+use crate::mir::builder::resolved_lowering::{
+    CanonicalLoopCompareI64WriterV1, PreparedCanonicalLoopCompareI64V1,
+};
 use crate::mir::compiler::dynamic_full_body_recipe::PreparedDynamicLoopOperationProgramV2;
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
-use crate::mir::{BasicBlockId, CompareOp, MirInstruction};
+use crate::mir::{BasicBlockId, CompareOp, MirInstruction, ValueId};
+
+use super::value_ledger::PendingDynamicV2PhysicalValuePublishV1;
 
 const I8: LoopItemKeyV1 = LoopItemKeyV1::new(8);
 const I9: LoopItemKeyV1 = LoopItemKeyV1::new(9);
@@ -98,18 +103,18 @@ fn validate_i7_normal_predecessor(
     })
 }
 
-fn emit_branch(
-    canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
-    outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
+fn prepare_branch<'session>(
+    canonical: &'session CanonicalSsaFunctionSessionV2<'_>,
+    outer: &CanonicalFunctionLoweringSessionV1<'_>,
     source: BasicBlockId,
-    condition: crate::mir::ValueId,
+    condition: ValueId,
     targets: &DynamicV2PhysicalTargetSetV1,
-) -> Result<(), DynamicV2I8EmitterRejectV1> {
+) -> Result<PreparedCanonicalBranchV1<'session>, DynamicV2I8EmitterRejectV1> {
     let function = outer
-        .builder_view_mut_for_lowering()
+        .builder_view()
         .function_state
         .current_function
-        .as_mut()
+        .as_ref()
         .ok_or_else(|| reject("missing function while emitting I9 branch"))?;
     targets.with_role(DynamicV2PhysicalTargetRoleV1::ThenTerminal, |then_target| {
         targets.with_role(
@@ -117,7 +122,7 @@ fn emit_branch(
             |continuation_target| {
                 canonical
                     .cfg
-                    .emit_branch(
+                    .prepare_branch(
                         function,
                         source,
                         condition,
@@ -128,6 +133,25 @@ fn emit_branch(
             },
         )
     })
+}
+
+struct PreparedSelectedDynamicI9CompareV1<'session, 'ledger> {
+    compare: PreparedCanonicalLoopCompareI64V1,
+    branch: PreparedCanonicalBranchV1<'session>,
+    pending: PendingDynamicV2PhysicalValuePublishV1<'ledger>,
+}
+
+impl PreparedSelectedDynamicI9CompareV1<'_, '_> {
+    fn commit(self, builder: &mut crate::mir::builder::MirBuilder) {
+        let _definition = self.compare.commit(builder);
+        let _published = self.pending.commit();
+        let function = builder
+            .function_state
+            .current_function
+            .as_mut()
+            .expect("prepared Dynamic I9 commit requires current function");
+        self.branch.commit(function);
+    }
 }
 
 struct SelectedDynamicI9CompareHandoffIssuerV1;
@@ -239,18 +263,10 @@ impl SelectedDynamicI9CompareHandoffIssuerV1 {
                     .get_type(destination.value()),
             )
             .map_err(|error| reject(format!("I9 Bool plan: {error:?}")))?;
-            let pending = values
-                .reserve_result(
-                    I9,
-                    V13,
-                    normal,
-                    destination.value(),
-                    DynamicV2PhysicalRepresentationV1::ImmediateBool,
-                )
-                .map_err(|error| reject(format!("I9 result reservation: {error:?}")))?;
+            let condition = destination.value();
             let target = lhs.target();
-            let definition = CanonicalLoopCompareI64WriterV1::emit(
-                outer.builder_view_mut_for_lowering(),
+            let compare = CanonicalLoopCompareI64WriterV1::prepare(
+                outer.builder_view(),
                 target,
                 lhs,
                 rhs,
@@ -258,15 +274,24 @@ impl SelectedDynamicI9CompareHandoffIssuerV1 {
                 CompareOp::Lt,
                 bool_plan,
             )
-            .map_err(|error| reject(format!("I9 strict Compare writer: {error:?}")))?;
-            let _published = pending.commit(&definition);
-            emit_branch(
-                canonical,
-                outer,
-                block,
-                definition.physical_value(),
-                targets,
-            )
+            .map_err(|error| reject(format!("I9 strict Compare preparation: {error:?}")))?;
+            let branch = prepare_branch(canonical, outer, block, condition, targets)?;
+            let pending = values
+                .reserve_result(
+                    I9,
+                    V13,
+                    normal,
+                    condition,
+                    DynamicV2PhysicalRepresentationV1::ImmediateBool,
+                )
+                .map_err(|error| reject(format!("I9 result reservation: {error:?}")))?;
+            PreparedSelectedDynamicI9CompareV1 {
+                compare,
+                branch,
+                pending,
+            }
+            .commit(outer.builder_view_mut_for_lowering());
+            Ok(())
         })
     }
 }
