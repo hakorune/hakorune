@@ -98,8 +98,14 @@ guard_expect_fixed_in_file "$TAG" \
   "module README must record the canonical/outside authority split"
 guard_expect_fixed_in_file "$TAG" \
   "CALLABLE-CANONICAL-TRIVIAL-ROW-I0" "$CARD" "active I0 card is missing"
-guard_expect_fixed_in_file "$TAG" \
-  'current_execution_row = "CALLABLE-CANONICAL-TRIVIAL-ROW-I0"' "$STATE" \
-  "CURRENT_STATE must select this I0 while it is active"
+if rg -F -q -- 'current_execution_row = "CALLABLE-CANONICAL-TRIVIAL-ROW-I0"' "$STATE"; then
+  : # active implementation state
+elif rg -F -q -- 'current_execution_row = "MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0"' "$STATE" \
+  && rg -F -q -- 'latest_card = "mir-callable-canonical-trivial-row-i0"' "$STATE" \
+  && rg -F -q -- 'c1d0e43a41 + e275ead266' "$STATE"; then
+  : # I0 is closed and the next design stop is selected
+else
+  guard_fail "$TAG" "CURRENT_STATE must select active I0 or record its closed successor"
+fi
 
 echo "[$TAG] ok"

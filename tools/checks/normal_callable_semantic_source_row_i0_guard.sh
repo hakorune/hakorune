@@ -71,6 +71,10 @@ if rg -F -q -- 'current_execution_row = "MIR-CALLABLE-SEMANTIC-NESTED-IF-SOURCE-
   : # active I0 state
 elif rg -F -q -- 'current_execution_row = "CALLABLE-CANONICAL-TRIVIAL-ROW-I0"' "$STATE"; then
   : # the resolved-binding successor I0 is active
+elif rg -F -q -- 'current_execution_row = "MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0"' "$STATE" \
+  && rg -F -q -- 'latest_card = "mir-callable-canonical-trivial-row-i0"' "$STATE" \
+  && rg -F -q -- 'c1d0e43a41 + e275ead266' "$STATE"; then
+  : # the canonical callable I0 is closed and the next design stop is selected
 elif rg -F -q -- 'current_execution_row = "CALLABLE-RESOLVED-BINDING-AUTHORITY-HANDOFF-D0"' "$STATE" \
   && rg -F -q -- 'latest_card = "mir-callable-resolved-binding-authority-handoff-d0"' "$STATE" \
   && rg -F -q -- '95b65e4081' "$STATE"; then

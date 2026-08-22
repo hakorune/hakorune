@@ -1,5 +1,5 @@
 ---
-Status: active; fast
+Status: complete; I0 pushed as c1d0e43a41 + e275ead266; next design stop is MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 Task: CALLABLE-CANONICAL-TRIVIAL-ROW-I0
 Date: 2026-08-22
 Priority: replace one ordinary cataloged-static callable body with the existing canonical BindingRef lowerer
@@ -39,9 +39,11 @@ proves the first accepted shape without opening the parser-scan family.
 
 `CallableSemanticLoweringState` remains an outside compatibility projection for
 rows not admitted by this I0. It is never installed together with the
-canonical resolved BindingRef lifecycle for the admitted row. A canonical
-preflight reject is terminal for this row; it is not an invitation to retry
-with `build_static_method_draft_with_port_v1`.
+canonical resolved BindingRef lifecycle for the admitted row. Preflight
+classification happens before child-session effects: the exact row becomes
+`Ready`, an unsupported row becomes explicit `Outside`, and a non-shape
+preflight error is terminal. No canonical-lowerer failure retries through
+`build_static_method_draft_with_port_v1`.
 
 ## Finite state
 
@@ -77,7 +79,7 @@ legacy BindingId allocation while resolved authority is installed = 0
 Negative:
 
 ```text
-preflight rejects loop/call/local/typed/direct-call shape before body effects
+loop/call/local/typed/direct-call shape is classified Outside or typed-rejected before canonical body effects
 physical symbol or signature mismatch rejects before collector mutation
 canonical reject never retries the legacy body driver
 foreign owner/input cannot be paired with the selected plan
@@ -89,7 +91,7 @@ Structural guard:
 ```text
 canonical admitted row -> CanonicalLoweringPreflightV1 exactly once
 canonical admitted row -> canonical trivial lowerer exactly once
-canonical admitted row -> build_static_method_draft_with_port_v1 callers = 0
+canonical admitted row -> build_static_method_draft_with_port_v1 callers = 0 in the admitted callable seam
 canonical admitted row -> CallableSemanticLoweringState construction = 0
 canonical reject -> fallback/retry = 0
 all touched Rust files < 760 lines; 800 is hard stop
@@ -119,3 +121,22 @@ an outside shape needs an implicit fallback to make the positive fixture pass
 
 No loop, parser-scan, instance, backend, cleanup, or performance work may be
 included in these commits.
+
+## Closeout evidence
+
+```text
+cargo check --profile quick --lib: passed (existing warning baseline only)
+source_backed_selected_callable_uses_the_installed_package_port: 1 passed
+parser_scan_package_passes_callable_source_handoff_without_fallback: 1 passed
+source_backed_package_failure_is_terminal_before_builder_effects: 1 passed
+normal_callable_semantic_source_row_i0_guard.sh: passed
+normal_callable_canonical_trivial_row_i0_guard.sh: passed
+current_state_pointer_guard.sh: passed
+git diff --check: passed
+Rust owners: 613 / 235 / 680 lines; all below the 760-line split boundary
+```
+
+The full lifecycle module remains outside this claim because its other rows
+retain independent baseline blockers. This I0 opens no loop/call/local
+expansion, Recipe/Join, physical cutover, fallback retirement, backend, or
+performance work.
