@@ -1,7 +1,7 @@
-Status: if_control owner-split R0 complete; selected dynamic_full_body_recipe direction D0
+Status: if_control owner-split R0 complete; literal dynamic_full_body_recipe move rejected; boundary-shape D0 selected
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0`
+Current row: `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,13 +56,30 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` — map
-the existing compiler/builder dependency edges and choose one-way vocabulary
-ownership before any relocation; no code move is authorized by this D0.
+Smallest next slice: `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0` —
+classify the twelve Builder production import surfaces and select one
+compiler-owned transport aggregate only if it preserves one-way ownership;
+no code move or re-export sweep is authorized by this D0.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
 no compile-speed claim, and no blanket `pass` fusion.
+
+## Stage 1 proposal review receipt — 2026-08-23
+
+The three proposals do not have the same status and are not one refactor
+series:
+
+| Proposal | Result | Task status |
+| --- | --- | --- |
+| `#6 if_control.rs` analyzer/use-ledger/product split | Safe BoxShape; landed as `7c9ea5944f` with one logical facade and one product/verifier authority | Complete; no follow-up move |
+| `#7 dynamic_full_body_recipe` vocabulary move | Literal compiler-to-Builder relocation rejected. The Recipe/Facts/semantic-program owner is already compiler-side, and the production edge is one-way for this module | Replace with the boundary-shape D0 below; no direct move |
+| `#8 normal_script/direct_static/` consolidation | Potentially useful, but it crosses active Script cutover/retirement boundaries and has no bounded ownership census here | Park as `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` |
+
+The review therefore selects one dependency-boundary design task, not a
+repository-wide shelving pass. The second-stage rows (`normal_*`, `module_*`,
+raw-root, logger injection, and AST view migration) remain independent D0s;
+their broad counts are not implementation authorization.
 
 ## Local verification of the review
 
@@ -99,7 +116,10 @@ compiler/tests.rs: 849 lines, test-only owner
 src/mir/function/metadata.rs: 804 lines, explicitly excluded
 operation_emitter.rs: 491 lines, supplied 794-line claim is stale
 if_control.rs: 798 lines, architecture D0, not a mechanical split
-dynamic_full_body_recipe/mod.rs: 287 lines, 53 vocabulary references
+dynamic_full_body_recipe/mod.rs: 287 lines; 54 exact vocabulary occurrences
+  across 31 Rust files; 12 Builder production consumers; no production
+  dynamic_full_body_recipe -> Builder import; four normal-callable package
+  production files import both Builder and the Recipe module
 pre-R0 snapshot: common_v2_session.rs had 12 #[path] child declarations
 ```
 
@@ -420,7 +440,7 @@ brief before implementation:
 | Row | Reason for design stop |
 | --- | --- |
 | `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0` | analyzer, use-ledger, and product ownership must be separated without creating a second control authority |
-| `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` | the current broad token scan finds 53 occurrences; moving compiler vocabulary across the dependency edge can either resolve or deepen the cycle; prove the desired one-way ownership first |
+| `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` | the exact scan finds 54 occurrences across 31 files; literal compiler-to-Builder relocation would mix semantic Recipe ownership with physical consumption, so the direction decision must precede any move |
 | `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` | consolidation must follow the active Script cutover and old-route retirement, not precede it |
 | `MIRBUILDER-NORMAL-MODULE-SHELF-D0` | broad current filename counts are 103 `normal_*` and 63 `module_*`; an ownership map is needed, not a directory-only rename |
 | `MIRBUILDER-RAW-ROOT-BOUNDARY-D0` | compiler/builder split affects source, physical, and publication edges |
@@ -546,68 +566,99 @@ Commit: `7c9ea5944f` (`refactor: split resolved if control ownership`).
 The R0 is a BoxShape-only cleanup; it does not activate the disconnected
 If-control analyzer or create a second production authority.
 
-#### `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` — selected next
+#### `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-DIRECTION-D0` — complete
 
-The review proposal to move `dynamic_full_body_recipe` vocabulary toward the
-Builder is not yet an implementation task. The current broad scan records 53
-references, but a token count cannot distinguish compiler semantic ownership,
-Builder physical consumption, compatibility glue, and test-only evidence. A
-blind move could deepen the existing compiler↔Builder cycle instead of making
-the dependency one-way.
-
-Six-line design brief:
+The exact current census is 54 occurrences across 31 Rust files. The module
+has 287 lines and its largest focused child is 691 lines; the problem is not a
+line-budget emergency. The important ownership facts are:
 
 ```text
-Decision: audit dependency direction and vocabulary ownership before any move;
-  do not relocate compiler symbols from the proposal alone.
-Source authority + canonical issuer: existing compiler-owned dynamic semantic
-  program/Facts/Recipe issuers remain sole owners; no issuer is added by D0.
-Non-authority: directory names, token counts, re-exports, physical adapters,
-  Builder state, compatibility shells, and test fixtures.
-Fail-fast boundary: stop before editing if a proposed edge adds a compiler↔
-  Builder cycle, widens visibility, mixes semantic and physical meanings, or
-  requires a second Recipe/Join/physical authority.
-Smallest next slice: classify all 53 references by definition/caller/owner,
-  draw the current and proposed dependency graph, and select one bounded
-  facade or vocabulary move only if it has a one-way proof.
-Non-claims: no directory move, rename, re-export sweep, semantic reorder,
-  pure-plan conversion, fallback, production switch, or performance claim.
+dynamic_full_body_recipe production imports Builder = 0
+Builder production files importing dynamic_full_body_recipe = 12
+normal-callable package production files importing both = 4
+test-only dynamic recipe -> Builder import = coseal/tests.rs only
+existing compiler-owned A-prime physical-capability boundary = present
 ```
 
-Required D0 tasks:
+The module README names `dynamic_full_body_recipe` as the compiler-side owner
+of the bounded source-to-Facts/Recipe/Join corridor and explicitly excludes
+Builder, MIR, CFG, PHI, runtime, and fallback authority. A literal move of the
+directory or a type-by-type re-export sweep would therefore make the physical
+consumer own semantic vocabulary, deepen the existing compiler/Builder graph,
+and make a second authority easier to introduce.
+
+Decision receipt:
 
 ```text
-1. Census every dynamic_full_body_recipe reference and classify it as
-   compiler semantic definition, compiler consumer, Builder physical consumer,
-   compatibility/migration, or test-only evidence.
-2. Separate names that describe source/Facts/Recipe/Join meaning from names
-   that describe MIR/ValueId/BasicBlock/physical publication.
-3. Map reverse imports and re-exports in both directions; record the exact
-   edges that would be removed, preserved, or newly introduced.
-4. Produce two candidate graphs: keep compiler vocabulary with a thin Builder
-   adapter, or move only a dependency-free vocabulary leaf behind a facade.
-5. Reject both candidates if neither gives one-way ownership without a new
-   semantic receipt, visibility widening, or duplicated issuer.
-6. Select at most one behavior-neutral next BoxShape cell with caller,
-   visibility, line-budget, and focused-gate acceptance; otherwise keep D0.
+Decision: reject literal compiler -> Builder relocation. Keep
+  source/Facts/Recipe/Join/semantic-program authority in compiler-owned
+  dynamic_full_body_recipe. Continue with one narrow transport-boundary audit.
+Source authority + canonical issuer: existing dynamic Recipe/Facts issuers
+  remain sole owners; the existing A-prime capability is the named
+  Builder-free physical-demand boundary and may be reused, not duplicated.
+Non-authority: directory placement, token counts, Builder state, raw ValueId,
+  BasicBlockId, re-export barrels, and physical adapters do not issue Recipe,
+  Join, source, or semantic products.
+Fail-fast boundary: no move if it widens visibility, exposes physical meaning
+  through semantic types, adds a reverse production import, or requires a
+  second issuer/dispatcher. Stop before code and keep direction D0 on failure.
+Smallest next slice: classify the twelve Builder production import surfaces
+  and design one aggregate/HRTB transport boundary, using A-prime where it
+  already owns the demand. No implementation is authorized by this receipt.
+Non-claims: no directory move, rename, re-export sweep, pure-plan conversion,
+  Script consolidation, I9 hardening, production switch, retirement, or
+  performance claim.
 ```
 
-The next implementation cell is forbidden until this Decision is accepted.
-This row is intentionally separate from Script direct-static shelving and
-from Dynamic I9 transaction hardening.
+The direction D0 is complete because the proposed broad relocation has a
+rejected shape and a narrower next design boundary. This is not permission to
+edit code; it closes the architectural question without inventing a new
+semantic product.
+
+#### `MIRBUILDER-DYNAMIC-FULL-BODY-RECIPE-BOUNDARY-SHAPE-D0` — selected next
+
+This D0 determines whether the current twelve Builder imports can be reduced
+to one compiler-owned transport aggregate without hiding semantic ownership.
+It is a design task only. The A-prime module is an existing boundary candidate,
+not automatic permission to add re-exports.
+
+Required tasks:
+
+```text
+1. List the unique symbols used by each of the twelve Builder production files
+   and classify each as semantic source/Facts/Recipe/Join, physical demand,
+   lifecycle/cleanup evidence, or diagnostic-only transport.
+2. Mark which rows are already represented by the A-prime demand/capability
+   boundary and which would require a new aggregate. Do not create that
+   aggregate during this D0.
+3. Prove the production graph remains one-way:
+   compiler Recipe/Facts -> named transport boundary -> Builder physical owner.
+   The dynamic Recipe module must not import Builder in production.
+4. Check visibility, HRTB/loan lifetime, no-Clone movement, and source package
+   identity so a facade cannot permit arbitrary recombination of rows.
+5. Compare one aggregate-boundary candidate with NoSafeSlice. Reject a
+   type-by-type re-export sweep, a Builder-owned Recipe facade, and a second
+   physical issuer.
+6. Select at most one bounded BoxShape implementation only after Decision
+   acceptance; otherwise record NoSafeSlice and keep the current graph.
+```
 
 Acceptance:
 
 ```text
-if_control/mod.rs remains < 760 lines; every child remains < 800
-all existing logical imports and test paths compile unchanged
-all current visibility scopes remain externally equivalent
-VerifiedResolvedFunctionIfControlV1 and verifier entrypoints remain unique
-focused resolved_control_flow and resolved_value_profile tests retain results
-no new semantic type, issuer, route, fallback, effect, or production switch
-reusable guard rejects flat child paths, duplicate verifier definitions, and
-  any child over the 800-line boundary
+all twelve production import surfaces are symbol-classified
+reverse production imports = 0
+one named transport owner and one physical consumer are identified
+no new semantic Verified*/Prepared* type is invented during D0
+no visibility widening, duplicate issuer, route, fallback, or production
+  switch is required
+the selected candidate has a <760-line owner and focused guard plan
+otherwise the result is NoSafeSlice with the counterexample recorded
 ```
+
+This D0 remains separate from Script direct-static shelving and Dynamic I9
+transaction hardening. The second-stage shelf proposals remain parked until
+their own active cutover/ownership decisions are selected.
 
 ## Guard and closeout contract
 
