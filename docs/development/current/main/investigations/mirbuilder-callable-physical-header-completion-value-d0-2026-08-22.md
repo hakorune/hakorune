@@ -768,6 +768,139 @@ name join, ValueId inference, or by weakening `finish`. Its design must state
 the source authority, exact consumer entry, nested-loop ownership, negative
 matrix, and no-effects boundary before any new receipt or production edge.
 
+## Feedback audit and task boundary — 2026-08-22
+
+The latest audit is accepted as a boundary correction, not as permission to
+open a second production route.
+
+### Decision
+
+Keep the current `Outside(body-only rebind)` terminal. The ordinary JoinIR
+route is not a callable-ledger consumer, so `Outside -> ordinary JoinIR` is
+not a completed handoff. `CallableSemanticLoweringState::finish` remains
+strict; the late incomplete-consumption error must not be hidden by subtracting
+rows, adding defaults, or weakening the finish check.
+
+The eventual ordinary consumer is named here so the next design does not
+drift:
+
+```text
+CallableOrdinaryLoopJoinIrConsumerV1
+  = one scoped source-backed consumer at RawLoopChildEntryPortV1
+  -> exact callable source port during the existing Loop normalization walk
+  -> existing sole physical JoinIR/PlanLowerer only after source consumption
+```
+
+This is a consumer, not a new source issuer. It is not implemented by passing
+the current diagnostic `CallableLoopOutsideReasonV1` into
+`lower_loop_or_freeze_v1`.
+
+### Authority boundary
+
+```text
+CallableSemanticLoweringState
+  + CallableLoopSourceProjectionV1
+  -> grouped source-role coverage and Ready/Outside classification
+  -> CallableOrdinaryLoopJoinIrConsumerV1
+  -> existing JoinIR/PlanLowerer physical route
+```
+
+The source projection remains the sole issuer of binding/site roles. When the
+ordinary bridge is eventually opened, its input must preserve each
+`binding + class + (site, role)` relation as grouped coverage rows. The current
+Outside diagnostic, which stores separate `bindings[]` and `sites[]`, is enough
+for a terminal error but is not enough to authorize ordinary consumption. Do
+not widen that diagnostic or issue a new receipt until the named consumer has
+an exact one-shot owner.
+
+The existing `RawLoopPlanExpressionPortV1` and
+`LocatedLoopPlanExpressionPortV1` are structural source ports only; neither
+consumes `CallableSemanticLoweringState`. A wrapper that merely forwards them
+to the generic Builder route is therefore rejected. The bridge must use a
+dedicated source-aware normalizer/port, while the existing PlanLowerer remains
+the sole physical owner.
+
+### No-effects and nested-loop boundary
+
+The bridge must validate its complete source relation, exact parent/condition/
+body ownership, and first-cohort shape before any of these actions:
+
+```text
+callable pre-effect receipt consumption
+ordinary JoinIR routing
+CorePlan physical lowering
+Builder instruction/block/ledger mutation
+```
+
+The first implementation cohort is one non-nested executable Loop. An
+executable nested Loop encountered while preparing that cohort is a typed
+`NestedLoopUnsupported` terminal before effects; it is not delegated to the
+generic route. A later child-context/reborrow design is a separate slice.
+
+Any missing, foreign, duplicate, or unconsumable source row is terminal and
+discards the unpublished outer session. There is no retry, fallback,
+post-walk, AST/name/ordinal join, `ValueId` inference, or finish relaxation.
+
+### Ordered tasks
+
+```text
+1. MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0
+   close the boundary with the terminal Outside decision above; no code edge.
+
+2. MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0
+   design the exact source-aware port seam and grouped coverage input. Census
+   the current normalizer/JoinIR call graph and nested-loop ownership. This is
+   a BoxShape/port design cell; it does not claim ordinary support or add a
+   production edge.
+
+3. MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-I0
+   one named consumer, one non-nested body-only-rebind cohort, same traversal,
+   pre-effect complete consumption, positive/negative/no-effect evidence.
+
+4. MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0
+   only after I0: one named production caller, old bypass caller-zero, and no
+   fallback/retry.
+```
+
+Before S0/I0, `recursive_child_lowering.rs` is a behavior-neutral BoxShape
+split candidate because it is already near the 760-line design threshold.
+That split must not acquire ordinary-consumption semantics.
+
+### Cross-card hardening classification
+
+The selected Dynamic Compare feedback was independently verified and is
+already owned by
+`mirbuilder-loop-compare-hardening-d0-2026-08-22.md`; no duplicate task is
+created here.
+
+```text
+MIR-DYNAMIC-CURSOR-EOF-FAILFAST-P0       immediate typed-reject fix
+MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0         claims before effects
+MIR-LOOP-COMPARE-PREPARE-RESERVE-I0      writer prepare -> last reserve -> commit
+MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0  OuterReturn relation + move-only cleanup
+MIR-LOOP-GENERIC-COMPARE-RETIRE-D0       caller-zero generic debt, parked
+```
+
+The EOF indexing risk is a real correctness bug. The post-effect claims,
+reserve-before-writer-prepare, `assert_eq!` pairing, destination/Bool
+affinity, and missing OuterReturn physical-value relation are real hardening
+items. They remain downstream of the current callable Outside boundary and
+must not be mixed into the ordinary bridge. `compare_i64_writer.rs` is not
+test-only in build scope: selected Dynamic imports the production writer;
+only its generic test adapter/name cleanup is parked.
+
+The projection currently creates and drops a Ready schedule while classifying
+an Outside row. This is a valid structural cleanup candidate for the ordinary
+bridge S0 (`validate_first_cohort_rows` before Ready issuance), but it is not a
+reason to issue a new semantic product during the current terminal slice.
+
+### Current stop
+
+The active mode remains `design_stop`. The next allowed decision is the S0
+source-aware port design above. No ordinary receipt, Builder mutation,
+production switch, live publication, performance work, or main integration is
+opened by this audit.
+
 ## P0 execution brief — MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0
 
 ```text
