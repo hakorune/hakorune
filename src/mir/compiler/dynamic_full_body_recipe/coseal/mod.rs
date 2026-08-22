@@ -15,7 +15,8 @@ use crate::mir::source_call_target::VerifiedSourceBoundDynamicMemberCallV1;
 
 use super::{DynamicFullLoopRecipeCandidateV2, DynamicFullLoopRetainedSourceV1};
 pub(in crate::mir) use a_prime_source::{
-    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
+    DynamicAPrimeFormalRelationRowV1, DynamicAPrimeI64SourceRelationRejectV1,
+    DynamicAPrimeI64SourceRelationViewV1,
 };
 use calls::{
     verify_dynamic_call_relations_v2, DynamicFullLoopCallRelationRejectV2,
@@ -41,13 +42,12 @@ pub(in crate::mir) use physical_evidence::{
 pub(in crate::mir) use semantic_program::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_invocation_cleanup_projection_i0, DynamicExitTransactionCoSealRejectV1,
-    DynamicFullLoopAfterRefV2, DynamicFullLoopFaultCutPointCatalogRefV2,
-    DynamicFullLoopFaultCutPointV2, DynamicFullLoopFaultFamilyV2,
-    DynamicCanonicalSessionAuthorityRefV1,
-    DynamicFullLoopPhysicalInputRejectV2, DynamicFullLoopPhysicalInputViewV2,
-    DynamicFullLoopSemanticProgramRejectV2, DynamicInvocationCarrierDestinationRefV1,
-    DynamicInvocationCarrierLifecycleCatalogRefV1,
+    issue_dynamic_invocation_cleanup_projection_i0, DynamicCanonicalSessionAuthorityRefV1,
+    DynamicExitTransactionCoSealRejectV1, DynamicFullLoopAfterRefV2,
+    DynamicFullLoopFaultCutPointCatalogRefV2, DynamicFullLoopFaultCutPointV2,
+    DynamicFullLoopFaultFamilyV2, DynamicFullLoopPhysicalInputRejectV2,
+    DynamicFullLoopPhysicalInputViewV2, DynamicFullLoopSemanticProgramRejectV2,
+    DynamicInvocationCarrierDestinationRefV1, DynamicInvocationCarrierLifecycleCatalogRefV1,
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCarrierLifecycleRowRefV1,
     DynamicInvocationCarrierPublicationV1, DynamicInvocationCleanupActionViewV1,
     DynamicInvocationCleanupCurrentDispositionV1, DynamicInvocationCleanupProjectionRejectV1,

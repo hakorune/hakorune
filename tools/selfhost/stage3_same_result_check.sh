@@ -108,11 +108,11 @@ build_stage1_cli_env_seed() {
   env \
     NYASH_LLVM_SKIP_BUILD="${NYASH_LLVM_SKIP_BUILD:-1}" \
     HAKO_BACKEND_COMPILE_RECIPE="${HAKO_BACKEND_COMPILE_RECIPE:-pure-first}" \
-    HAKO_BACKEND_COMPAT_REPLAY="${HAKO_BACKEND_COMPAT_REPLAY:-none}" \
     "$ROOT_DIR/tools/selfhost/mainline/build_stage1.sh" \
       --artifact-kind stage1-cli \
       --entry "$entry" \
       --out "$seed_bin" \
+      --compat-replay "${HAKO_BACKEND_COMPAT_REPLAY:-none}" \
       --timeout-secs "${HAKORUNE_STAGE3_SEED_BUILD_TIMEOUT_SECS:-240}" \
       --force-rebuild
 }

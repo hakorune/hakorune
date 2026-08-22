@@ -408,12 +408,21 @@ fn rewrite_value_uses_in_block(block: &mut BasicBlock, from: ValueId, to: ValueI
 
 fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: ValueId, to: ValueId) {
     match instruction {
-        MirInstruction::Const { .. } | MirInstruction::Catch { .. } | MirInstruction::Safepoint => {
-        }
+        MirInstruction::Const { .. }
+        | MirInstruction::Catch { .. }
+        | MirInstruction::Safepoint
+        | MirInstruction::CheckedCallOutEnd { .. }
+        | MirInstruction::CheckedCallOutFault { .. }
+        | MirInstruction::PinnedTextResidenceFinish { .. }
+        | MirInstruction::PinnedTextResidenceEnter { .. }
+        | MirInstruction::PinnedTextResidenceTrap { .. } => {}
         MirInstruction::MemOp { operands, .. } => {
             for operand in operands {
                 rewrite_value_use(operand, from, to);
             }
+        }
+        MirInstruction::PinnedTextOp { kind, .. } => {
+            kind.rewrite_values(|value| rewrite_value_use(value, from, to));
         }
         MirInstruction::BinOp { lhs, rhs, .. } | MirInstruction::Compare { lhs, rhs, .. } => {
             rewrite_value_use(lhs, from, to);
@@ -534,6 +543,17 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
                 rewrite_value_use(value, from, to);
             }
         }
+        MirInstruction::CheckedCallOut {
+            receiver,
+            arguments,
+            ..
+        } => {
+            rewrite_value_use(receiver, from, to);
+            for argument in arguments {
+                rewrite_value_use(argument, from, to);
+            }
+        }
+        MirInstruction::CheckedCallOutNormalResult { .. } => {}
         MirInstruction::Phi { inputs, .. } => {
             for (_, incoming_value) in inputs {
                 rewrite_value_use(incoming_value, from, to);

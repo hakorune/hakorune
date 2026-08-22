@@ -5,13 +5,18 @@
 //! a CLI route, or widen the normal/default runner.
 
 use crate::ast::ASTNode;
-use crate::mir::{RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1};
+use crate::mir::{
+    CanonicalSourceBytesDigestV1, RawVmReferenceInvocationV1, RawVmReferenceSupportProfileV1,
+};
 use hakorune_frontend_parser::parser::{GrammarProfile, ParserBuildConfig};
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
+mod parser_source_handoff;
+mod script_source_input;
 mod source_plan_input;
 
+pub(crate) use parser_source_handoff::CanonicalParserSourceHandoffV1;
 #[allow(unused_imports)]
 pub(crate) use source_plan_input::{
     CanonicalCoreSourcePlanHandoffErrorV1, ClassifiedNormalFileSourcePlanV1,
@@ -184,6 +189,7 @@ pub(crate) struct PreparedNormalFileRequestV1 {
 #[derive(Debug)]
 pub(crate) struct NormalFileSourceReceiptV1 {
     source_identity: Box<str>,
+    source_digest: CanonicalSourceBytesDigestV1,
     utf8_len: usize,
     read_count: u8,
     parse_count: u8,
@@ -208,9 +214,7 @@ struct LoadedNormalFileSourceSealV1;
 #[derive(Debug)]
 pub(crate) struct PreparedNormalFileSourceV1 {
     source_file: Box<Path>,
-    ast: ASTNode,
-    profile: SealedNormalEntryProfileV1,
-    receipt: NormalFileSourceReceiptV1,
+    parser_source_handoff: CanonicalParserSourceHandoffV1,
     _seal: PreparedNormalFileSourceSealV1,
 }
 
@@ -282,6 +286,7 @@ impl PreparedNormalFileRequestV1 {
         };
         let receipt = NormalFileSourceReceiptV1 {
             source_identity: source_file.to_string_lossy().into_owned().into_boxed_str(),
+            source_digest: CanonicalSourceBytesDigestV1::from_utf8_bytes(source_text.as_bytes()),
             utf8_len: source_text.len(),
             read_count: 1,
             parse_count: 0,
@@ -309,30 +314,33 @@ impl LoadedNormalFileSourceV1 {
             _seal: _,
         } = self;
         receipt.parse_count = 1;
-        let ast = match crate::parser::NyashParser::parse_from_string_with_build_config(
-            source_text.as_ref(),
-            ParserBuildConfig {
-                grammar_profile: GrammarProfile::Canonical,
-                ..Default::default()
-            },
-        ) {
-            Ok(ast) => ast,
-            Err(error) => {
-                return Err(RejectedNormalFileSourceV1::Parse {
-                    loaded: LoadedNormalFileSourceV1 {
-                        source_file,
-                        source_text,
-                        profile,
-                        receipt,
-                        _seal: LoadedNormalFileSourceSealV1,
-                    },
-                    error: NormalFileParseErrorV1 {
-                        detail: format!("{error:?}").into_boxed_str(),
-                    },
-                });
-            }
-        };
-        if let Some(error) = find_no_import_violation(&ast) {
+        let product =
+            match crate::parser::string_postpass_entry::parse_with_callable_parameter_source(
+                source_text.as_ref().to_owned(),
+                Some(100_000),
+                ParserBuildConfig {
+                    grammar_profile: GrammarProfile::Canonical,
+                    ..Default::default()
+                },
+            ) {
+                Ok(product) => product,
+                Err(error) => {
+                    return Err(RejectedNormalFileSourceV1::Parse {
+                        loaded: LoadedNormalFileSourceV1 {
+                            source_file,
+                            source_text,
+                            profile,
+                            receipt,
+                            _seal: LoadedNormalFileSourceSealV1,
+                        },
+                        error: NormalFileParseErrorV1 {
+                            detail: format!("{error:?}").into_boxed_str(),
+                        },
+                    });
+                }
+            };
+        let (disposition, script_rows) = product.into_source_disposition_with_script_rows();
+        if let Some(error) = find_no_import_violation(disposition.ast()) {
             return Err(RejectedNormalFileSourceV1::SourceProfile {
                 loaded: LoadedNormalFileSourceV1 {
                     source_file,
@@ -346,9 +354,12 @@ impl LoadedNormalFileSourceV1 {
         }
         Ok(PreparedNormalFileSourceV1 {
             source_file,
-            ast,
-            profile,
-            receipt,
+            parser_source_handoff: CanonicalParserSourceHandoffV1::new(
+                disposition,
+                script_rows,
+                profile,
+                receipt,
+            ),
             _seal: PreparedNormalFileSourceSealV1,
         })
     }
@@ -360,31 +371,46 @@ impl PreparedNormalFileSourceV1 {
     ) -> Result<PreparedNormalFileVmHandoffV1, RejectedNormalFileVmHandoffV1> {
         let Self {
             source_file,
-            ast,
-            profile,
-            receipt,
+            parser_source_handoff,
             _seal: _,
         } = self;
+        if parser_source_handoff.profile_is_canonical_core() {
+            return Err(RejectedNormalFileVmHandoffV1 {
+                source: PreparedNormalFileSourceV1 {
+                    source_file,
+                    parser_source_handoff,
+                    _seal: PreparedNormalFileSourceSealV1,
+                },
+                error: NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference,
+            });
+        }
+        let (callable_source, _script_input, profile, receipt) = parser_source_handoff.into_parts();
         match profile.into_raw_downstream() {
             Ok(downstream) => {
                 let source_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
                 Ok(PreparedNormalFileVmHandoffV1 {
-                    invocation: downstream.into_invocation(ast, Some(source_identity)),
+                    invocation: downstream
+                        .into_invocation(callable_source.into_ast(), Some(source_identity)),
                     source: receipt,
                     _seal: PreparedNormalFileVmHandoffSealV1,
                 })
             }
-            Err(profile) => Err(RejectedNormalFileVmHandoffV1 {
-                source: PreparedNormalFileSourceV1 {
-                    source_file,
-                    ast,
-                    profile,
-                    receipt,
-                    _seal: PreparedNormalFileSourceSealV1,
-                },
-                error: NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference,
-            }),
+            Err(_) => {
+                unreachable!("canonical profile was rejected before consuming the parser handoff")
+            }
         }
+    }
+}
+
+impl PreparedNormalFileSourceV1 {
+    #[cfg(test)]
+    fn receipt(&self) -> &NormalFileSourceReceiptV1 {
+        self.parser_source_handoff.receipt()
+    }
+
+    #[cfg(test)]
+    fn profile_is_canonical_core(&self) -> bool {
+        self.parser_source_handoff.profile_is_canonical_core()
     }
 }
 
@@ -421,7 +447,7 @@ fn find_no_import_violation(node: &ASTNode) -> Option<NormalFileSourceProfileErr
 }
 
 impl SealedNormalEntryProfileV1 {
-    fn is_canonical_core(&self) -> bool {
+    pub(super) fn is_canonical_core(&self) -> bool {
         matches!(
             self.profile,
             NormalEntryProfileV1::FileCanonicalCoreVmReferenceV1
@@ -503,9 +529,9 @@ mod tests {
             .expect("read")
             .parse_once()
             .expect("parse");
-        assert_eq!(prepared.receipt.read_count, 1);
-        assert_eq!(prepared.receipt.parse_count, 1);
-        assert_eq!(prepared.receipt.utf8_len, 2);
+        assert_eq!(prepared.receipt().read_count, 1);
+        assert_eq!(prepared.receipt().parse_count, 1);
+        assert_eq!(prepared.receipt().utf8_len, 2);
     }
 
     #[test]
@@ -585,9 +611,9 @@ mod tests {
             rejected.error(),
             NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference
         );
-        assert!(rejected.source.profile.is_canonical_core());
-        assert_eq!(rejected.source.receipt.read_count, 1);
-        assert_eq!(rejected.source.receipt.parse_count, 1);
+        assert!(rejected.source.profile_is_canonical_core());
+        assert_eq!(rejected.source.receipt().read_count, 1);
+        assert_eq!(rejected.source.receipt().parse_count, 1);
         rejected.discard();
     }
 

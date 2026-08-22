@@ -55,15 +55,34 @@ pub(super) fn build_mir_json_root(
     let mut export_functions = Vec::new();
     for (name, f) in ordered_harness_functions(module) {
         let control_edge_args = VerifiedExactNoneControlEdgeArgsV1::verify(f);
+        if let Some(carrier) = f.metadata.pinned_text_residence_backend_carrier.as_ref() {
+            carrier
+                .verify_projected_function(f)
+                .map_err(|error| format!("pinned Text Residence carrier drift: {error:?}"))?;
+        }
         crate::mir::type_contracts::parameter_entry::validate_parameter_entry_contracts(f)?;
         crate::mir::type_contracts::return_exit::validate_return_exit_contract(f)?;
         crate::mir::type_contracts::local_slot::validate_local_slot_contracts(f)?;
         crate::mir::type_contracts::typed_array::validate_function(f)?;
+        let mut pinned_text_rows = Vec::new();
+        for block in f.blocks.values() {
+            for instruction in &block.instructions {
+                if let crate::mir::MirInstruction::PinnedTextOp { plan, kind, .. } = instruction {
+                    pinned_text_rows.push((*plan, *kind));
+                }
+            }
+        }
+        f.metadata
+            .pinned_text_access_plans
+            .verify_census(&pinned_text_rows)
+            .map_err(|error| format!("pinned Text plan census failed: {error:?}"))?;
         let boxed_sum_site_plans =
             crate::mir::boxed_sum_abi_plan::build_function_boxed_sum_site_plan_map(
                 f,
                 &boxed_sum_abi_plans,
             );
+        let pinned_text_residence_transport =
+            f.metadata.pinned_text_residence_backend_carrier.is_some();
         let mut blocks = Vec::new();
         let mut export_blocks = Vec::new();
         let mut instruction_count = 0usize;
@@ -82,13 +101,16 @@ pub(super) fn build_mir_json_root(
                 emitters::emit_non_phi_instructions(
                     f,
                     bb,
+                    pinned_text_residence_transport,
                     &boxed_sum_abi_plans,
                     &boxed_sum_site_plans,
                     &mut insts,
                 )?;
 
                 // Phase 131-13: Terminator emitted inline (no delayed copies)
-                if let Some(term) = emitters::emit_terminator(&bb.terminator)? {
+                if let Some(term) =
+                    emitters::emit_terminator(&bb.terminator, pinned_text_residence_transport)?
+                {
                     insts.push(term);
                 }
                 instruction_count += insts.len();
@@ -108,7 +130,7 @@ pub(super) fn build_mir_json_root(
         let params: Vec<_> = f.params.iter().map(|v| v.as_u32()).collect();
 
         // Phase 131-11-F: Build metadata JSON from MIR metadata (SSOT)
-        let mut metadata_json = build_function_metadata_json(f);
+        let mut metadata_json = build_function_metadata_json(f)?;
         if let Ok(control_edge_args) = control_edge_args {
             metadata_json["control_edge_args_v1"] = control_edge_args.to_json();
         }

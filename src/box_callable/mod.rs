@@ -5,6 +5,7 @@
 //! BoxDescriptor projection code.
 
 pub mod model;
+pub(crate) mod provider_admission;
 pub mod providers;
 pub mod registry;
 pub mod report;

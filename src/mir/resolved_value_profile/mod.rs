@@ -3,6 +3,7 @@
 //! See `README.md` before adding a producer or consumer connection.
 
 mod analyzer;
+mod analyzer_mode;
 mod analyzer_policy;
 mod consumption;
 mod coverage;
@@ -37,50 +38,42 @@ pub(crate) enum TrivialCanonicalOwnerAnalysisV1 {
     NotAdmitted(error::TrivialProfileStopV1),
 }
 
-pub(crate) fn analyze_trivial_canonical_owner_v1(
+pub(crate) fn analyze_trivial_canonical_with_mode_v1(
     input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
     completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
     if_control: &crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
+    mode: TrivialCanonicalAnalysisModeV1,
 ) -> Result<TrivialCanonicalOwnerAnalysisV1, error::TrivialProfileContractErrorV1> {
-    analyzer::analyze_trivial_canonical_owner_impl_v1(input, completion, if_control)
+    analyzer::analyze_trivial_canonical_with_mode_impl_v1(input, completion, if_control, mode)
 }
 
-pub(crate) fn analyze_trivial_canonical_main_owner_v1(
-    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
-    if_control: &crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
-    role: crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1,
-) -> Result<TrivialCanonicalOwnerAnalysisV1, error::TrivialProfileContractErrorV1> {
-    analyzer::analyze_trivial_canonical_main_owner_impl_v1(input, completion, if_control, role)
-}
-
-pub(crate) fn analyze_trivial_canonical_main_owner_with_finite_direct_calls_v1(
-    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
-    if_control: &crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
-    role: crate::mir::compiler::normal_source_plan::VerifiedNormalMainRoleV1,
-) -> Result<TrivialCanonicalOwnerAnalysisV1, error::TrivialProfileContractErrorV1> {
-    analyzer::analyze_trivial_canonical_main_owner_with_finite_direct_calls_impl_v1(
-        input, completion, if_control, role,
-    )
-}
-
-/// Disconnected P0c-F-DX0a analyzer for finite one-or-more exact calls.
-/// Callable Program routes use this finite policy; body-only compilation uses
-/// the call-disabled entry above.
-pub(crate) fn analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
-    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
-    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
-    if_control: &crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
-) -> Result<TrivialCanonicalOwnerAnalysisV1, error::TrivialProfileContractErrorV1> {
-    analyzer::analyze_trivial_canonical_owner_with_finite_direct_calls_impl_v1(
-        input, completion, if_control,
-    )
-}
-
+pub(crate) use analyzer_mode::TrivialCanonicalAnalysisModeV1;
 pub(crate) use consumption::TrivialProfileConsumptionV1;
 pub(crate) use direct_call::VerifiedTrivialDirectCallV1;
 pub(crate) use nested_recipe_facts::VerifiedNestedTrivialIfRecipeFactsV1;
 pub(crate) use nested_recipe_mapper::{map_nested_trivial_if_recipe_v1, NestedIfRecipeMapRejectV1};
 pub(crate) use recipe_facts::VerifiedTrivialIfRecipeFactsV1;
 pub(crate) use recipe_mapper::{map_trivial_if_recipe_v1, IfRecipeMapRejectV1};
+
+#[cfg(test)]
+fn analyze_closed_result_for_test(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    if_control: &crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
+) -> Result<TrivialCanonicalOwnerAnalysisV1, error::TrivialProfileContractErrorV1> {
+    analyze_trivial_canonical_with_mode_v1(
+        input,
+        completion,
+        if_control,
+        TrivialCanonicalAnalysisModeV1::OrdinaryClosed,
+    )
+}
+
+#[cfg(test)]
+fn analyze_closed_for_test(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+    completion: &crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1,
+    if_control: &crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1,
+) -> TrivialCanonicalOwnerAnalysisV1 {
+    analyze_closed_result_for_test(input, completion, if_control).unwrap()
+}

@@ -17,6 +17,8 @@ The resulting demand contains no `ValueId`, `BasicBlockId`, MIR instruction,
 backend tag, ABI helper, or fallback. A later fresh physical session must
 materialize those facts and publish its own session-local receipt. This module
 does not re-observe AST/source, reissue Dynamic semantics, or select a backend.
+Its physical function header comes from the installed catalog's one-shot
+projection; it must not reconstruct header fields from an AST/root node.
 
 `VerifiedResolvedCallableSourceIdentityV1` is a private comparison/navigation
 view borrowed from the same resolved batch row. It is not a callable key,
@@ -47,4 +49,7 @@ plan's plan-consuming handoff, receives an opaque `Prelude` target issued by
 the canonical unpublished session, and never accepts a raw
 `BasicBlockId`/`ValueId` or re-reads Recipe/source roles. The capability gate
 remains `RejectBeforeEffect` until the I7, I8, and physical End leaves are all
-available; this canary does not open a production caller or bypass that gate.
+available. The selected canary may consume that negative-only disposition into
+a private unpublished-session fence immediately before Builder open; this
+issues no executable/backend/runtime readiness and does not open a production
+caller or bypass the gate.

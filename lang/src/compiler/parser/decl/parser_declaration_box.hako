@@ -4,6 +4,7 @@ using lang.compiler.parser.generated.grammar_contract_projection as GrammarContr
 using lang.compiler.parser.legacy.parser_from_reject_box as ParserFromRejectBox
 using lang.compiler.parser.decl.parser_delegate_exposes_box as ParserDelegateExposesBox
 using lang.compiler.parser.decl.parser_record_declaration_box as ParserRecordDeclarationBox
+using lang.compiler.parser.decl.parser_brand_declaration_box as ParserBrandDeclarationBox
 using lang.compiler.parser.decl.parser_box_weak_field_box as ParserBoxWeakFieldBox
 
 static box ParserDeclarationBox {
@@ -12,7 +13,10 @@ static box ParserDeclarationBox {
     if from_reject != null { return from_reject }
     local row_id = ""
     local form_and_pos = null
-    if ctx.starts_with_kw(src, i, "record") == 1 {
+    if ctx.starts_with_kw(src, i, "brand") == 1 {
+      row_id = "brand_declaration"
+      form_and_pos = ParserBrandDeclarationBox.parse(src, i, ctx)
+    } else if ctx.starts_with_kw(src, i, "record") == 1 {
       row_id = "record_declaration"
       form_and_pos = ParserRecordDeclarationBox.parse(src, i, ctx)
     } else if ctx.starts_with_kw(src, i, "box") == 1 {

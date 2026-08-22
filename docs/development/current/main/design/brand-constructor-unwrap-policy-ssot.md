@@ -18,6 +18,31 @@ local raw = PageId.unwrap(page)
 `BrandName(value)` constructs a branded scalar. `BrandName.unwrap(value)` extracts
 the underlying scalar. Both are explicit and Stage1-owned.
 
+### Namespace and result identity
+
+- The effective top-level Brand declaration set is program-wide after build-gate
+  pruning; source order does not limit later or earlier constructor use.
+- Two effective declarations with the same Brand name are rejected before
+  function resolution or argument effects with `[brand/duplicate-declaration]`.
+  Map overwrite order is not language meaning.
+- For a bare identifier call whose name is a declared Brand, Brand construction
+  owns the site. It is not also a FreeStatic, TypeOp, Math, `str`, or other
+  compatibility call. Canonical explicit externcall has a dedicated syntax and
+  does not collide; dotted names are not legal Brand declarations.
+- Construction produces a semantic Brand identity consisting of the exact
+  declaration identity, Brand name, and underlying type. A physical backend may
+  reuse the underlying scalar representation, but it must not erase the
+  semantic identity before verified use or explicit unwrap.
+- Constructor and unwrap relations are issued from one AST-free effective Brand
+  declaration catalog at exact source sites. Resolver and lowering consume that
+  relation; they do not re-pair a call name with a copied map or recover Brand
+  meaning from a FreeStatic miss.
+
+The grammar registry owns only the `brand Name: Type` declaration spelling.
+Constructor and unwrap reuse existing call syntax; their contextual Brand
+meaning belongs to this semantic policy and must not be duplicated as new
+grammar productions.
+
 ## Stage1 owns
 
 - Recognize `BrandName(value)` when `BrandName` is declared by a top-level
@@ -37,6 +62,9 @@ the underlying scalar. Both are explicit and Stage1-owned.
 - Rejecting all implicit assignments/conversions between underlying scalars and
   branded values.
 - Verifier/CorePlan brand facts.
+
+These deferred checks do not permit construction to lose its Brand identity.
+They only defer validation of implicit conversions and cross-call mismatches.
 
 Those remain `BRAND-003` and later verifier rows.
 

@@ -337,13 +337,21 @@ impl NyashParser {
             return Ok(false);
         }
         if !matches!(self.peek_token(), TokenType::LPAREN) {
-            return Ok(false);
+            return Err(ParseError::UnexpectedToken {
+                found: self.peek_token().clone(),
+                expected: "[parser/explicit_externcall_shape] '(' after target".to_owned(),
+                line: self.current_token().line,
+            });
         }
 
-        let target = self.expr_parse_primary()?;
+        let target = match &self.current_token().token_type {
+            TokenType::STRING(target) => target.clone(),
+            _ => unreachable!("externcall source syntax requires a string token"),
+        };
+        self.advance();
         self.consume(TokenType::LPAREN)?;
 
-        let mut arguments = vec![target];
+        let mut arguments = Vec::new();
         while !self.match_token(&TokenType::RPAREN) && !self.is_at_end() {
             must_advance!(self, _unused, "externcall argument parsing");
             arguments.push(self.parse_expression()?);
@@ -353,8 +361,8 @@ impl NyashParser {
         }
         self.consume(TokenType::RPAREN)?;
 
-        *expr = ASTNode::FunctionCall {
-            name,
+        *expr = ASTNode::ExplicitExternCall {
+            target,
             arguments,
             span: Span::unknown(),
         };

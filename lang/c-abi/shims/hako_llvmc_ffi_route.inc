@@ -29,6 +29,11 @@ static int compile_json_compat_harness_keep(const char* json_in, const char* obj
   }
   remove(obj_out);
   rc = system(cmd);
+  hako_llvmc_emit_route_trace(
+      "child",
+      (rc == 0 && hako_llvmc_file_exists(obj_out)) ? "success" : "failure",
+      "ny-llvmc",
+      "driver=harness");
   if (rc == 0 && hako_llvmc_file_exists(obj_out)) {
     remove(log_path);
     return 0;
@@ -70,6 +75,100 @@ static yyjson_val* hako_llvmc_find_entry_function(yyjson_val* fns) {
     }
   }
   return fallback ? fallback : yyjson_arr_get_first(fns);
+}
+
+/*
+ * Selected Dynamic has two physical identities.  Keep this census beside the
+ * ordinary entry finder, but never make the ordinary finder choose the
+ * selected helper.  The returned view borrows the one parsed JSON document;
+ * it does not copy metadata or invent a launch-to-helper call.
+ */
+typedef struct hako_llvmc_selected_dynamic_identity_view {
+  yyjson_val* launch_fn;
+  size_t launch_index;
+  yyjson_val* helper_fn;
+  size_t helper_index;
+  yyjson_val* helper_metadata;
+} hako_llvmc_selected_dynamic_identity_view;
+
+static int hako_llvmc_selected_dynamic_metadata_flags(
+    yyjson_val* fn,
+    int* has_receipt,
+    int* has_admission) {
+  yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
+  yyjson_val* receipt = metadata ? yyjson_obj_get(metadata, "a_prime_i64_physical_receipt") : NULL;
+  yyjson_val* admission = metadata
+      ? yyjson_obj_get(metadata, "dynamic_v2_aot_call_admission_v2")
+      : NULL;
+  if (has_receipt) *has_receipt = receipt && yyjson_is_obj(receipt);
+  if (has_admission) *has_admission = admission && yyjson_is_obj(admission);
+  if ((receipt && !yyjson_is_obj(receipt)) ||
+      (admission && !yyjson_is_obj(admission))) return -1;
+  return 0;
+}
+
+/* 1 = selected dual view, 0 = ordinary module, -1 = malformed selected view. */
+static int hako_llvmc_census_selected_dynamic_identity(
+    yyjson_val* root,
+    hako_llvmc_selected_dynamic_identity_view* out) {
+  yyjson_val* fns = root ? yyjson_obj_get(root, "functions") : NULL;
+  size_t launch_count = 0;
+  size_t helper_count = 0;
+  size_t selected_markers = 0;
+  int launch_has_zero_params = 0;
+  if (out) memset(out, 0, sizeof(*out));
+  if (!(fns && yyjson_is_arr(fns))) return -1;
+
+  for (size_t i = 0; i < yyjson_arr_size(fns); i++) {
+    yyjson_val* fn = yyjson_arr_get(fns, i);
+    yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
+    yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
+    const char* name = fn ? yyjson_get_str(yyjson_obj_get(fn, "name")) : NULL;
+    int has_receipt = 0;
+    int has_admission = 0;
+    int marker_status = hako_llvmc_selected_dynamic_metadata_flags(
+        fn, &has_receipt, &has_admission);
+    if (!name || marker_status < 0) return -1;
+
+    if (strcmp(name, "main") == 0 || strcmp(name, "ny_main") == 0) {
+      launch_count++;
+      if (launch_count == 1) {
+        launch_has_zero_params =
+            params && yyjson_is_arr(params) && yyjson_arr_size(params) == 0;
+        if (out) {
+          out->launch_fn = fn;
+          out->launch_index = i;
+        }
+      }
+      if (has_receipt || has_admission) return -1;
+    }
+
+    if (has_receipt || has_admission) {
+      selected_markers++;
+      if (!has_receipt || !has_admission || !metadata) return -1;
+      if (strcmp(name, "ParserScanLoopBox.skip_while/4") != 0 ||
+          yyjson_arr_size(params) != 4 || helper_count != 0) return -1;
+      for (size_t p = 0; p < yyjson_arr_size(params); p++) {
+        yyjson_val* value = yyjson_arr_get(params, p);
+        if (!value || !yyjson_is_int(value) || yyjson_get_sint(value) < 0) return -1;
+        for (size_t prior = 0; prior < p; prior++) {
+          yyjson_val* prior_value = yyjson_arr_get(params, prior);
+          if (yyjson_get_sint(prior_value) == yyjson_get_sint(value)) return -1;
+        }
+      }
+      helper_count++;
+      if (out) {
+        out->helper_fn = fn;
+        out->helper_index = i;
+        out->helper_metadata = metadata;
+      }
+    }
+  }
+
+  if (selected_markers == 0) return 0;
+  if (launch_count != 1 || !launch_has_zero_params || helper_count != 1 || !out ||
+      out->launch_fn == out->helper_fn) return -1;
+  return 1;
 }
 
 static int hako_llvmc_rune_trace_enabled(void) {
@@ -160,6 +259,64 @@ static void hako_llvmc_emit_entry_header(
   fprintf(f, "define %si64 @\"%s\"() {\n", callconv_prefix, symbol);
 }
 
+/*
+ * Selected Dynamic entry signatures are a physical projection of the MIR
+ * function parameter list.  Keep the historical no-parameter header above
+ * for the old seed lane; the selected lane must never silently reuse it.
+ */
+static int hako_llvmc_selected_dynamic_admission_present(yyjson_val* fn) {
+  yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
+  yyjson_val* admission = metadata
+      ? yyjson_obj_get(metadata, "dynamic_v2_aot_call_admission_v2")
+      : NULL;
+  return admission && yyjson_is_obj(admission);
+}
+
+static int hako_llvmc_selected_dynamic_parameter_signature_valid(yyjson_val* fn) {
+  yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
+  size_t count;
+  long long values[4];
+  if (!(params && yyjson_is_arr(params))) return 0;
+  count = yyjson_arr_size(params);
+  if (count != 4) return 0;
+  for (size_t i = 0; i < count; i++) {
+    yyjson_val* value = yyjson_arr_get(params, i);
+    if (!(value && yyjson_is_int(value))) return 0;
+    values[i] = (long long)yyjson_get_sint(value);
+    if (values[i] < 0) return 0;
+    for (size_t prior = 0; prior < i; prior++) {
+      if (values[prior] == values[i]) return 0;
+    }
+  }
+  return 1;
+}
+
+static int hako_llvmc_selected_dynamic_entry_signature_gate(yyjson_val* root) {
+  hako_llvmc_selected_dynamic_identity_view view;
+  int census = hako_llvmc_census_selected_dynamic_identity(root, &view);
+  if (census <= 0) return census == 0 ? 1 : 0;
+  return hako_llvmc_selected_dynamic_parameter_signature_valid(view.helper_fn);
+}
+
+static int hako_llvmc_emit_selected_dynamic_entry_header(
+    FILE* f,
+    const hako_llvmc_entry_rune_selection* selection,
+    yyjson_val* fn) {
+  yyjson_val* params = fn ? yyjson_obj_get(fn, "params") : NULL;
+  const char* symbol = fn ? yyjson_get_str(yyjson_obj_get(fn, "name")) : NULL;
+  const char* callconv_prefix = hako_llvmc_entry_callconv_prefix(selection);
+  if (!f || !symbol || !symbol[0] ||
+      !hako_llvmc_selected_dynamic_parameter_signature_valid(fn)) return 0;
+  fprintf(f, "define %si64 @\"%s\"(", callconv_prefix, symbol);
+  for (size_t i = 0; i < 4; i++) {
+    yyjson_val* value = yyjson_arr_get(params, i);
+    long long reg = (long long)yyjson_get_sint(value);
+    fprintf(f, "%si64 %%r%lld", i ? ", " : "", reg);
+  }
+  fprintf(f, ") {\n");
+  return 1;
+}
+
 static void hako_llvmc_emit_entry_alias_if_needed(
     FILE* f,
     const hako_llvmc_entry_rune_selection* selection) {
@@ -192,67 +349,6 @@ static void hako_llvmc_log_selected_entry_runes(yyjson_val* fn0) {
   }
 }
 
-static void hako_llvmc_entry_rune_selection_from_json_file(
-    const char* json_in,
-    hako_llvmc_entry_rune_selection* out) {
-  yyjson_read_err rerr;
-  yyjson_doc* d;
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn0;
-  if (!out) {
-    return;
-  }
-  out->symbol = NULL;
-  out->callconv = NULL;
-  d = yyjson_read_file(json_in, 0, NULL, &rerr);
-  if (!d) {
-    return;
-  }
-  root = yyjson_doc_get_root(d);
-  fns = yyjson_obj_get(root, "functions");
-  fn0 = hako_llvmc_find_entry_function(fns);
-  hako_llvmc_select_entry_runes(fn0, out);
-  yyjson_doc_free(d);
-}
-
-static void hako_llvmc_log_selected_entry_runes_from_json(const char* json_in) {
-  yyjson_read_err rerr;
-  yyjson_doc* d;
-  yyjson_val* root;
-  yyjson_val* fns;
-  yyjson_val* fn0;
-  if (!hako_llvmc_rune_trace_enabled()) {
-    return;
-  }
-  d = yyjson_read_file(json_in, 0, NULL, &rerr);
-  if (!d) {
-    return;
-  }
-  root = yyjson_doc_get_root(d);
-  fns = yyjson_obj_get(root, "functions");
-  fn0 = hako_llvmc_find_entry_function(fns);
-  hako_llvmc_log_selected_entry_runes(fn0);
-  yyjson_doc_free(d);
-}
-
-static int hako_llvmc_forward_compile_to_aot_without_ffi(
-    const char* json_in,
-    const char* obj_out,
-    char** err_out) {
-  const char* prev_raw = getenv("HAKO_AOT_USE_FFI");
-  char prev_buf[64];
-  int had_prev = prev_raw && prev_raw[0];
-  if (had_prev) {
-    snprintf(prev_buf, sizeof(prev_buf), "%s", prev_raw);
-  }
-  hako_llvmc_log_selected_entry_runes_from_json(json_in);
-  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", "0");
-  int rc = hako_aot_compile_json(json_in, obj_out, err_out);
-  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", had_prev ? prev_buf : NULL);
-  return rc;
-}
-
 static int hako_llvmc_forward_link_to_aot_without_ffi(
     const char* obj_in,
     const char* exe_out,
@@ -270,22 +366,40 @@ static int hako_llvmc_forward_link_to_aot_without_ffi(
   return rc;
 }
 
-static int forward_compile_json_to_aot(const char* json_in, const char* obj_out, char** err_out) {
-  return hako_llvmc_forward_compile_to_aot_without_ffi(json_in, obj_out, err_out);
+static int hako_llvmc_forward_link_to_aot_v2_without_ffi(
+    const char* obj_in,
+    const char* exe_out,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  const char* prev_raw = getenv("HAKO_AOT_USE_FFI");
+  char prev_buf[64];
+  int had_prev = prev_raw && prev_raw[0];
+  if (had_prev) {
+    snprintf(prev_buf, sizeof(prev_buf), "%s", prev_raw);
+  }
+  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", "0");
+  int rc = hako_aot_link_obj_v2(
+      obj_in, exe_out, runtime_archive_path, extra_ldflags, err_out);
+  hako_llvmc_set_env_value("HAKO_AOT_USE_FFI", had_prev ? prev_buf : NULL);
+  return rc;
 }
 
 static int forward_link_obj_to_aot(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out) {
   return hako_llvmc_forward_link_to_aot_without_ffi(obj_in, exe_out, extra_ldflags, err_out);
 }
 
-static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
-
-static int compile_json_via_default_forwarder(
-    const char* json_in,
-    const char* obj_out,
+static int forward_link_obj_to_aot_v2(
+    const char* obj_in,
+    const char* exe_out,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
     char** err_out) {
-  return forward_compile_json_to_aot(json_in, obj_out, err_out);
+  return hako_llvmc_forward_link_to_aot_v2_without_ffi(
+      obj_in, exe_out, runtime_archive_path, extra_ldflags, err_out);
 }
+
+static int compile_json_compat_pure(const char* json_in, const char* obj_out, char** err_out);
 
 static int compile_json_via_explicit_compat_harness_replay(
     const char* json_in,
@@ -302,15 +416,25 @@ static int compile_json_via_pure_first_lane(
   return compile_json_compat_pure(json_in, obj_out, err_out);
 }
 
-static int compile_json_with_selected_route(
-    const char* json_in,
-    const char* obj_out,
-    char** err_out,
-    int pure_first_selected) {
-  if (!pure_first_selected) {
-    return compile_json_via_default_forwarder(json_in, obj_out, err_out);
+static int hako_llvmc_require_pure_first_recipe(char** err_out) {
+  const char* recipe = hako_llvmc_backend_compile_recipe();
+  if (recipe && strcmp(recipe, "pure-first") == 0) {
+    return 0;
   }
-  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
+  hako_set_last_error("UNSUPPORTED");
+  return set_err_owned(
+      err_out,
+      "[freeze:route][generic-capi-recipe-required] set HAKO_BACKEND_COMPILE_RECIPE=pure-first");
+}
+
+static int hako_llvmc_reject_ambient_harness_replay(char** err_out) {
+  if (!compat_harness_replay_enabled()) {
+    return 0;
+  }
+  hako_set_last_error("UNSUPPORTED");
+  return set_err_owned(
+      err_out,
+      "[freeze:route][generic-capi-compat-admission-required] use hako_llvmc_compile_json_compat_harness");
 }
 
 // Exported symbols expected by hako_aot.c when loading libhako_llvmc_ffi.so
@@ -323,12 +447,31 @@ int hako_llvmc_compile_json(const char* json_in, const char* obj_out, char** err
         err_out,
         "[freeze:contract][env/hako_capi_pure_retired] HAKO_CAPI_PURE is retired; use HAKO_BACKEND_COMPILE_RECIPE=pure-first");
   }
-  return compile_json_with_selected_route(json_in, obj_out, err_out, capi_pure_enabled());
+  if (hako_llvmc_require_pure_first_recipe(err_out) != 0) {
+    return -1;
+  }
+  if (hako_llvmc_reject_ambient_harness_replay(err_out) != 0) {
+    return -1;
+  }
+  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
 }
 
 // Recipe-aware daily callers use this explicit pure-first transport entry so
 // generic route selection stays outside the C shim.
 __attribute__((visibility("default")))
 int hako_llvmc_compile_json_pure_first(const char* json_in, const char* obj_out, char** err_out) {
-  return compile_json_with_selected_route(json_in, obj_out, err_out, 1);
+  if (hako_llvmc_reject_ambient_harness_replay(err_out) != 0) {
+    return -1;
+  }
+  return compile_json_via_pure_first_lane(json_in, obj_out, err_out);
+}
+
+// Explicit compatibility ABI.  It does not read replay environment state;
+// reaching this symbol is itself the named admission.
+__attribute__((visibility("default")))
+int hako_llvmc_compile_json_compat_harness(
+    const char* json_in,
+    const char* obj_out,
+    char** err_out) {
+  return compile_json_compat_harness_keep(json_in, obj_out, err_out);
 }

@@ -17,6 +17,7 @@ pub(crate) mod callable_loop_physical_canary;
 pub(in crate::mir) mod callable_scc_partition;
 #[allow(dead_code)]
 pub(in crate::mir) mod callable_single_loop_operation_effect;
+pub(in crate::mir) mod callable_semantic_program;
 #[cfg(test)]
 pub(crate) mod callable_single_loop_prelude_arguments;
 #[allow(dead_code)]
@@ -38,12 +39,23 @@ pub(crate) mod callable_single_loop_syntax_facts;
 #[allow(dead_code)]
 pub(crate) mod canonical_core_dispatch;
 #[allow(dead_code)]
+pub(crate) mod canonical_script_source_a_input;
+pub(crate) mod canonical_script_source_plan_envelope;
+#[allow(dead_code)]
+pub(crate) mod canonical_source_identity;
+#[allow(dead_code)]
 mod canonical_drain_manifest;
 #[allow(dead_code)]
 pub(in crate::mir) mod canonical_finalization;
 #[allow(dead_code)]
 pub(in crate::mir) mod canonical_physical_completion;
 pub(in crate::mir) mod capability;
+#[allow(dead_code)]
+pub(in crate::mir) mod common_v2_session_admission;
+#[allow(dead_code)]
+pub(in crate::mir) mod common_v2_physical_function_entry_input;
+#[allow(dead_code)]
+pub(in crate::mir) mod common_v2_physical_function_skeleton;
 #[allow(dead_code)]
 pub(in crate::mir) mod direct_accum_capability;
 #[cfg(test)]
@@ -70,6 +82,24 @@ pub(crate) mod generic_g0_physical_prepare;
 #[allow(dead_code)]
 pub(in crate::mir) mod generic_g0_projection;
 #[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_source_parent;
+#[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_storage_lane_source;
+#[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_physical_function_entry_input;
+pub(in crate::mir) mod generic_g0_physical_function_effect;
+pub(in crate::mir) mod generic_g0_physical_entry_facts;
+pub(in crate::mir) mod generic_g0_physical_shell_facts;
+pub(in crate::mir) mod generic_g0_physical_operation_cohort;
+pub(in crate::mir) mod generic_g0_physical_operation_mapping;
+#[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_function_effect;
+#[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_completion;
+#[allow(dead_code)]
+pub(in crate::mir) mod generic_g0_result_abi;
+pub(in crate::mir) mod generic_g0_top_level_declaration_header;
+#[allow(dead_code)]
 pub(in crate::mir) mod located;
 #[cfg(test)]
 pub(crate) mod loop_cond_break_continue_observation;
@@ -85,6 +115,9 @@ mod lowering_input;
 #[allow(dead_code)]
 pub(in crate::mir) mod module_postprocess;
 pub(in crate::mir) mod module_postprocess_stages;
+pub(in crate::mir) mod pinned_text_backend_frame;
+pub(in crate::mir) mod pinned_text_residence_backend_carrier;
+pub(crate) mod pinned_text_residence_backend_projection;
 mod module_session;
 #[allow(dead_code)]
 pub(in crate::mir) mod nested_predicate_effect_plan;
@@ -131,6 +164,7 @@ mod nested_predicate_projection_tests;
 #[cfg(test)]
 mod nested_predicate_topology_tests;
 mod normal_default_pipeline;
+pub(crate) mod target_capability;
 #[allow(dead_code)]
 pub(crate) mod normal_source_plan;
 pub(in crate::mir) mod publication_kernel;
@@ -175,6 +209,7 @@ pub(in crate::mir) mod resolved_callable_module_preflight;
 mod resolved_direct_accum_cutover;
 #[allow(dead_code)]
 mod resolved_nested_predicate_cutover;
+pub(in crate::mir) mod selected_dynamic_w6_activation;
 #[allow(dead_code)]
 pub(in crate::mir) mod source_bound_package;
 #[allow(dead_code)]

@@ -6,6 +6,7 @@
 mod callable_catalog_source;
 mod callable_source;
 mod classifier;
+mod compatibility_origin;
 mod instance_function_plan;
 mod instance_i64_parameter_return_plan;
 mod instance_integer_local_return_plan;
@@ -21,6 +22,7 @@ mod main_thunk_plan;
 mod module_source;
 mod normal_acyclic_module_plan;
 mod normal_callable_transaction_handoff;
+mod parser_callable_source_handoff;
 mod product;
 mod rejection;
 mod script_physical_entry;
@@ -39,6 +41,9 @@ pub(crate) use callable_source::{
     VerifiedNormalCallableSourceUnitV1,
 };
 pub(crate) use classifier::NormalSourcePlanClassifierV1;
+pub(crate) use compatibility_origin::{
+    NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
+};
 #[allow(unused_imports)]
 pub(crate) use instance_function_plan::{
     GeneralFunctionPlanErrorV1, GeneralFunctionPlanStageV1, GeneralFunctionSignatureStopV1,
@@ -117,13 +122,15 @@ pub(crate) use normal_callable_transaction_handoff::{
     RejectedNormalCallableHandoffV1, RejectedNormalMainProofBindingV1,
     RetainedNormalCallableSourceAuthorityV1,
 };
+pub(crate) use parser_callable_source_handoff::NormalParserCallableSourceHandoffV1;
 #[allow(unused_imports)]
 pub(crate) use product::{
     PreparedNormalSourcePlanInputV1, SealedNormalCallableModuleSourceV1, SealedNormalMainSourceV1,
     SealedNormalScalarRootV1, SealedNormalScriptSourceV1, SealedNormalSourcePlanV1,
 };
 pub(crate) use rejection::{
-    NormalSourcePlanErrorV1, NormalSourcePlanStageV1, RejectedNormalSourcePlanV1,
+    NormalSourcePlanErrorV1, NormalSourcePlanIdentityFieldV1, NormalSourcePlanStageV1,
+    RejectedNormalSourcePlanV1,
 };
 pub(crate) use script_physical_entry::{
     CompletedScriptPhysicalExitV1, NormalScriptPhysicalEntryStageV1, OpenScriptPhysicalEntryV1,

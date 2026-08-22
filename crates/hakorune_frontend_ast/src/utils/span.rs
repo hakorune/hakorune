@@ -49,6 +49,7 @@ impl ASTNode {
             ASTNode::Local { span, .. } => *span,
             ASTNode::Outbox { span, .. } => *span,
             ASTNode::FunctionCall { span, .. } => *span,
+            ASTNode::ExplicitExternCall { span, .. } => *span,
             ASTNode::Call { span, .. } => *span,
             ASTNode::AwaitExpression { span, .. } => *span,
             ASTNode::MatchExpr { span, .. } => *span,

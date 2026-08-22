@@ -112,10 +112,12 @@ pub mod providers;
 
 // C‑ABI PoC shim (20.36/20.37)
 pub mod abi {
-    pub(crate) mod dynamic_call_slot_wire;
+    pub mod dynamic_call_slot_wire;
     pub mod nyrt_shim;
     pub mod return_proof;
     pub mod runtime_decl_return_proof;
+    #[allow(dead_code)]
+    pub mod text_scan_aot_export_facts;
 }
 
 // Expose the macro engine module under a raw identifier; the source lives under `src/macro/`.

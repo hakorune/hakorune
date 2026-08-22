@@ -1,10 +1,17 @@
+use std::sync::Arc;
+
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedFunctionV1, VerifiedSemanticOwnerForestV1,
+    FunctionOriginV1, FunctionOwnerIdV1, VerifiedResolvedBlockExpressionExpectationV1,
+    VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedFunctionV1,
+    VerifiedSemanticOwnerForestV1,
 };
 use crate::mir::CanonicalLoweringErrorV1;
-use crate::parser::{CallableDeclarationIdentityV1, CallableMethodSourceObservationV1};
+use crate::parser::{
+    CallableDeclarationIdentityV1, CallableMethodSourceObservationV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
+};
 use crate::parser::{FinalCallableSemanticSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -23,6 +30,8 @@ pub(super) struct VerifiedResolvedCallableSemanticRowV1 {
     pub(super) owner: FunctionOwnerIdV1,
     pub(super) function_origin: FunctionOriginV1,
     pub(super) forest: VerifiedSemanticOwnerForestV1,
+    pub(super) body_shape: Arc<VerifiedResolvedBodyShapeInventoryV1>,
+    pub(super) block_expr_expectation: VerifiedResolvedBlockExpressionExpectationV1,
     pub(super) projection: VerifiedSourceProjectionV1,
     pub(super) method_source_observation: Option<CallableMethodSourceObservationV1>,
 }
@@ -61,6 +70,7 @@ pub(crate) struct VerifiedResolvedCallableSemanticBatchRefV1<'batch> {
 pub(crate) struct VerifiedResolvedCallableSemanticRowRefV1<'batch> {
     semantic: &'batch VerifiedResolvedCallableSemanticRowV1,
     function: &'batch VerifiedResolvedFunctionV1,
+    body_shape: &'batch Arc<VerifiedResolvedBodyShapeInventoryV1>,
     parameters: Option<Box<[VerifiedResolvedCallableParameterSourceRefV1<'batch>]>>,
 }
 
@@ -75,6 +85,34 @@ pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
 impl VerifiedResolvedCallableSemanticBatchV1 {
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.source.ast()
+    }
+
+    /// Borrow the parser-owned whole-Program source authority together with
+    /// the batch-owned AST. The HRTB keeps the paired source/AST cursor inside
+    /// the caller that owns the next source-bound admission.
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        self.source.with_normal_program_source_loan(callback)
+    }
+
+    /// Borrow the batch-owned BlockExpr expectation without reconstructing a
+    /// count or opening another resolver traversal.
+    pub(crate) fn block_expr_expectation(
+        &self,
+        batch_slot: u32,
+    ) -> Result<
+        &VerifiedResolvedBlockExpressionExpectationV1,
+        ResolvedCallableSemanticBatchLoanErrorV1,
+    > {
+        let index = usize::try_from(batch_slot)
+            .map_err(|_| ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)?;
+        self.rows
+            .get(index)
+            .filter(|row| row.batch_slot == batch_slot)
+            .map(|row| &row.block_expr_expectation)
+            .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)
     }
 
     pub(crate) fn declarations(
@@ -184,7 +222,18 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                         .forest
                         .owner(semantic.owner)
                         .ok_or(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch)?;
+                    if semantic.body_shape.owner() != semantic.owner {
+                        return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
+                    }
                     if function.function_origin() != semantic.function_origin {
+                        return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
+                    }
+                    if semantic.block_expr_expectation.owner() != semantic.owner
+                        || semantic.block_expr_expectation.function_origin()
+                            != semantic.function_origin
+                        || semantic.block_expr_expectation.body_root()
+                            != *semantic.body_shape.body_root()
+                    {
                         return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
                     }
                     let parameters = syntax.parameters().map(|parameters| {
@@ -202,6 +251,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                     rows.push(VerifiedResolvedCallableSemanticRowRefV1 {
                         semantic,
                         function,
+                        body_shape: &semantic.body_shape,
                         parameters,
                     });
                 }
@@ -242,6 +292,10 @@ impl VerifiedResolvedCallableSemanticBatchRefV1<'_> {
 }
 
 impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
+    pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.semantic.identity
+    }
+
     pub(crate) const fn batch_slot(&self) -> u32 {
         self.semantic.batch_slot
     }
@@ -262,8 +316,40 @@ impl VerifiedResolvedCallableSemanticRowRefV1<'_> {
         self.function
     }
 
+    pub(crate) fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
+        self.body_shape.as_ref()
+    }
+
+    pub(crate) fn body_shape_arc(&self) -> Arc<VerifiedResolvedBodyShapeInventoryV1> {
+        Arc::clone(self.body_shape)
+    }
+
     pub(crate) fn parameters(&self) -> Option<&[VerifiedResolvedCallableParameterSourceRefV1<'_>]> {
         self.parameters.as_deref()
+    }
+
+    pub(super) fn source_ledger(
+        &self,
+    ) -> Result<
+        crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'_>,
+        crate::mir::resolved_semantics::CallableSourceLedgerRejectV1,
+    > {
+        self.semantic.forest.callable_source_ledger(self.owner())
+    }
+
+    // The source-bound S6C producer is intentionally caller-zero until its
+    // Facts/Recipe row lands; keep the scoped transport warning-free.
+    #[allow(dead_code)]
+    pub(crate) fn with_source_ledger<R>(
+        &self,
+        callback: impl for<'source> FnOnce(
+            crate::mir::resolved_semantics::CallableSemanticSourceLedgerView<'source>,
+        ) -> R,
+    ) -> Result<R, crate::mir::resolved_semantics::CallableSourceLedgerRejectV1> {
+        self.semantic
+            .forest
+            .callable_source_ledger(self.owner())
+            .map(callback)
     }
 }
 
@@ -286,6 +372,10 @@ impl VerifiedResolvedCallableParameterSourceRefV1<'_> {
 }
 
 impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
+    pub(crate) fn identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.row.identity
+    }
+
     pub(crate) fn same_declaration_identity(
         self,
         identity: &CallableDeclarationIdentityV1,

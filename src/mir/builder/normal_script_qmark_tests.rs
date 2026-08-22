@@ -120,7 +120,7 @@ fn root_qmark_with_an_unsafe_operand_defers_before_child_semantics() {
             .expect("resolver")
             .resolve_script(view, &window)
             .expect("deferred QMark resolution"),
-        ResolveScriptOutcomeV1::Deferred
+        ResolveScriptOutcomeV1::Deferred(_)
     ));
 }
 

@@ -43,6 +43,7 @@ mod located_loop_error;
 // MIR lowering の中核インフラ
 pub(in crate::mir::builder) mod branchn;
 pub(in crate::mir::builder) mod facts;
+pub(in crate::mir::builder) use generic_loop::facts::GenericLoopFactsPolicyFrameV1;
 pub(in crate::mir::builder) mod lowerer;
 mod normalizer;
 pub(in crate::mir::builder) mod step_mode;

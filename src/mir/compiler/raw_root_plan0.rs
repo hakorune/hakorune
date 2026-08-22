@@ -507,6 +507,7 @@ fn build_schedule(statements: &[ASTNode]) -> Vec<RawRootWorkItemV1> {
                 | ASTNode::Arrow { .. }
                 | ASTNode::MethodCall { .. }
                 | ASTNode::FunctionCall { .. }
+                | ASTNode::ExplicitExternCall { .. }
                 | ASTNode::Call { .. }
                 | ASTNode::FieldAccess { .. }
                 | ASTNode::Index { .. }

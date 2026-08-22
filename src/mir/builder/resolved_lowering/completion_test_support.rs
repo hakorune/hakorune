@@ -16,7 +16,9 @@ use super::draft_seal::{
     MultiSiteExitPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
 };
 
-pub(super) fn resolved_product(name: &str) -> Arc<crate::mir::resolved_semantics::VerifiedResolvedFunctionV1> {
+pub(super) fn resolved_product(
+    name: &str,
+) -> Arc<crate::mir::resolved_semantics::VerifiedResolvedFunctionV1> {
     let function = function(name, Vec::new());
     let view = FunctionSyntaxViewV1::from_ast(&function).unwrap();
     FunctionSemanticResolverSessionV1::new(0)
@@ -95,4 +97,3 @@ pub(super) fn return_count(function: &crate::mir::MirFunction) -> usize {
         })
         .count()
 }
-

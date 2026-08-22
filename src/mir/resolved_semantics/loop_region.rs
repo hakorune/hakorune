@@ -13,13 +13,23 @@ use super::product::{
 };
 use super::records::{RegionKindV1, RegionOriginV1, ScopeKindV1, ScopeOriginV1};
 use super::source_site::{
-    FunctionOriginV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1, SourceStmtSiteV1,
+    FunctionOriginV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourcePathV1,
+    SourceStmtSiteV1,
 };
 use super::verifier::exact_source_region_v1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) struct ResolvedLoopRegionBundleV1 {
     loop_pair: ResolvedScopeRegionPairV1,
+}
+
+/// Resolver-owned placement of one expression relative to an exact Loop.
+///
+/// This is a source relation, not a physical block or Recipe item identity.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ResolvedLoopPlacementV1 {
+    Condition,
+    Body,
 }
 
 impl ResolvedLoopRegionBundleV1 {
@@ -32,6 +42,7 @@ impl ResolvedLoopRegionBundleV1 {
 pub(crate) enum ResolvedLoopRegionLookupErrorV1 {
     MissingExactBundle(SourceStmtSiteV1),
     NoUniqueLoopSite { actual: usize },
+    PairContractMismatch,
 }
 
 /// Owner-branded source identity for one Loop admitted by the sealed index.
@@ -268,6 +279,59 @@ impl VerifiedResolvedFunctionV1 {
             .loop_regions
             .get(site)
             .ok_or_else(|| ResolvedLoopRegionLookupErrorV1::MissingExactBundle(site.clone()))
+    }
+
+    /// Checks exact source containment for one selected Loop body.
+    ///
+    /// The loop-region index is the authority for the selected statement and
+    /// region origin. Consumers must use this resolver-owned check instead of
+    /// rebuilding a path prefix from AST or route-local coordinates.
+    pub(crate) fn loop_body_contains_site(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<bool, ResolvedLoopRegionLookupErrorV1> {
+        let bundle = self.loop_region_bundle(loop_site)?;
+        let pair = bundle.loop_pair();
+        let region = self
+            .region(pair.region())
+            .ok_or(ResolvedLoopRegionLookupErrorV1::PairContractMismatch)?;
+        if region.kind() != RegionKindV1::Loop
+            || region.origin() != &RegionOriginV1::Source(loop_site.node().clone())
+        {
+            return Err(ResolvedLoopRegionLookupErrorV1::PairContractMismatch);
+        }
+        Ok(super::verifier::source_region_contains_site_v1(
+            self.root_profile(),
+            region.kind(),
+            region.origin(),
+            site.node(),
+        ))
+    }
+
+    /// Classifies one expression against a sealed Loop source site.
+    ///
+    /// The Loop index first proves the selected source identity. Only then is
+    /// its canonical structural path used to distinguish Condition and Body.
+    pub(crate) fn resolved_loop_placement(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<Option<ResolvedLoopPlacementV1>, ResolvedLoopRegionLookupErrorV1> {
+        self.loop_region_bundle(loop_site)?;
+        let loop_segments = loop_site.node().segments();
+        let site_segments = site.node().segments();
+        let Some(relative) = site_segments.get(loop_segments.len()..) else {
+            return Ok(None);
+        };
+        if !site_segments.starts_with(loop_segments) {
+            return Ok(None);
+        }
+        Ok(match relative.first() {
+            Some(SourcePathSegmentV1::LoopCondition) => Some(ResolvedLoopPlacementV1::Condition),
+            Some(SourcePathSegmentV1::LoopBody(_)) => Some(ResolvedLoopPlacementV1::Body),
+            _ => None,
+        })
     }
 
     /// Returns only the sealed cardinality for future source/flow bijection.

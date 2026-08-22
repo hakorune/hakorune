@@ -1,6 +1,30 @@
 //! Neutral selfhost-portable recursive Loop recipe contract.
 
 mod continuation;
+// Caller-zero common V2 operation/control/coverage projections.
+mod common_v2_issuers;
+// Caller-zero typed source-backed After boundary; no allocation or CFG.
+mod common_v2_after_boundary;
+// Caller-zero V2 physical-ID-free layout input transport.
+mod common_v2_layout_input;
+// Caller-zero source-backed CompareI64 producer relation transport.
+mod common_v2_condition_producer;
+// Caller-zero source-block validation for JoinSig If continuation targets.
+mod common_v2_continuation_relation;
+// Caller-zero source-backed condition operand inventory transport.
+mod common_v2_condition_operand_inventory;
+// Caller-zero source-backed initial-index seed transport; no physical effect.
+mod common_v2_initial_index_seed;
+// Caller-zero source-backed StringLen target realization; no physical Call.
+mod common_v2_string_len_target_plan;
+// Caller-zero source-backed StringSubstring target realization; no physical Call.
+mod common_v2_substring_target_plan;
+// Caller-zero source-backed complete predicate branch-plan transport.
+mod common_v2_predicate_branch_plan;
+// Caller-zero same-cohort Return-read logical/layout/Join co-seal view.
+mod common_v2_return_read_co_seal;
+// Caller-zero source-segment allocation demand; synthetic After is separate.
+mod common_v2_segment_allocation;
 mod direct_accum_producer;
 mod error;
 mod ids;
@@ -17,6 +41,35 @@ mod physical_layout;
 mod physical_transfer;
 mod producer_id;
 pub(crate) mod route_id;
+#[allow(dead_code)]
+mod s6c_scan_with_init;
+// Caller-zero source-to-Recipe/Join Return binding; no physical effect.
+#[allow(dead_code)]
+mod s6c_return_source_binding;
+// Caller-zero product-first JOINIR input façade; no physical consumer.
+#[allow(dead_code)]
+mod s6c_scan_with_init_joinir;
+// Caller-zero logical output product and typed consumer; no JoinIR/MIR materialization.
+#[allow(dead_code)]
+mod s6c_scan_with_init_joinir_output;
+// Caller-zero Builder-free prephysical ingress; no physical IDs or session state.
+#[allow(dead_code)]
+mod s6c_prephysical_ingress;
+#[allow(dead_code)]
+mod s6c_scan_with_init_joinir_output_rows;
+#[allow(dead_code)]
+mod s6c_scan_with_init_logical_consumer;
+// Caller-zero parent-retaining TextEq site contract; no physical target.
+#[allow(dead_code)]
+mod s6c_text_eq_site_contract;
+// Source-bound TextEq occurrence view; no physical IDs/runtime wire.
+mod s6c_text_eq_occurrence;
+// Caller-zero source-backed scalar-scan corridor view; no physical effect.
+#[allow(dead_code)]
+mod s6c_scalar_scan_corridor;
+// Typed row façade is currently exercised by focused tests only.
+#[allow(dead_code)]
+mod s6c_scan_with_init_rows;
 mod schema;
 mod schema_v2;
 mod semantic_context;
@@ -57,31 +110,45 @@ mod join_sig_nested_shadow_tests;
 mod join_sig_after_binding_tests;
 
 #[cfg(test)]
+#[path = "s6c_scan_with_init_tests.rs"]
+mod s6c_scan_with_init_tests;
+
+#[cfg(test)]
+#[path = "s6c_prephysical_ingress_tests.rs"]
+mod s6c_prephysical_ingress_tests;
+
+#[cfg(test)]
+#[path = "common_v2_initial_index_seed_tests.rs"]
+mod common_v2_initial_index_seed_tests;
+
+#[cfg(test)]
+#[path = "s6c_text_eq_site_contract_tests.rs"]
+mod s6c_text_eq_site_contract_tests;
+
+#[cfg(test)]
 #[path = "source_bound_core_tests.rs"]
 mod source_bound_core_tests;
 
-#[cfg(test)]
 mod generic_g0_demand;
 
-#[cfg(test)]
 mod generic_g0;
 
 #[cfg(test)]
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
 
-#[cfg(test)]
 pub(crate) use generic_g0_demand::{
     issue_generic_g0_recipe_demand_v1, GenericG0RecipeDemandIssueV1, GenericG0RoleLeaseRejectV1,
     VerifiedGenericG0RoleLeaseV1, VerifiedGenericRecipeDemandG0,
 };
 
-#[cfg(test)]
 #[allow(unused_imports)]
 pub(crate) use generic_g0::{
-    generic_operation_demand_parts_for_test, produce_generic_g0_recipe_v1,
-    GenericG0RecipeProducerRejectV1, VerifiedGenericG0TailCapabilityV1,
-    VerifiedGenericRecipeProductG0,
+    produce_generic_g0_recipe_v1, GenericG0RecipeProducerRejectV1,
+    VerifiedGenericG0TailCapabilityV1, VerifiedGenericRecipeProductG0,
 };
+
+#[cfg(test)]
+pub(crate) use generic_g0::generic_operation_demand_parts_for_test;
 
 #[cfg(test)]
 pub(crate) use source_bound_core::issue_source_bound_core_for_test;
@@ -118,8 +185,59 @@ pub(crate) use operation_effect_parity::{
     LoopOperationEffectParityRejectV1, LoopOperationEffectParitySideV1,
 };
 
-// M2 is intentionally disconnected. Keep one stable facade for later producers
-// without turning caller-zero exports into warning noise.
+// Keep one stable facade for the caller-zero common-V2 parent; the products
+// remain source-only and do not open the physical session.
+#[allow(unused_imports)]
+pub(crate) use common_v2_after_boundary::{
+    AfterBoundaryIssueRejectV1, LoopV2AfterBoundaryRelationV1,
+    VerifiedLoopV2AfterBoundarySourceRelationV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_condition_operand_inventory::{
+    ConditionOperandInventoryRejectV1, PreparedLoopV2ConditionOperandInventoryV1,
+    PreparedLoopV2ConditionOperandKindV1, PreparedLoopV2ConditionOperandRowV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_initial_index_seed::{
+    InitialIndexSeedRelationRejectV1, PreparedLoopV2InitialIndexSeedRelationV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_issuers::{
+    issue_s6c_common_v2_pre_session_v1, CommonV2IssuerRejectV1, PreparedLoopControlPlacementV2,
+    PreparedLoopControlTransferProgramV2, PreparedLoopOperationProgramV2,
+    PreparedLoopOperationRowV2, PreparedLoopV2PreSessionEnvelopeV1,
+    VerifiedLoopV2EnvelopeCoverageV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_layout_input::{
+    LayoutInputRejectV1, PreparedLoopV2LayoutLoopV1, PreparedLoopV2LayoutSegmentRefV1,
+    PreparedLoopV2PhysicalLayoutInputV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_predicate_branch_plan::{
+    issue_s6c_v2_predicate_branch_plan_v1, PredicateBranchPlanRejectV1,
+    PreparedLoopV2ConditionCarrierRequirementV1, PreparedLoopV2PredicateBranchPlanV1,
+    PreparedLoopV2PredicateFalseTargetV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_return_read_co_seal::{
+    issue_s6c_v2_return_read_co_seal_v1, CommonV2ReturnReadCoSealRefV1, ReturnReadCoSealRejectV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_segment_allocation::{
+    issue_v2_segment_allocation_plan, PreparedLoopV2SegmentAllocationPlanV1,
+    SegmentAllocationPlanRejectV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_string_len_target_plan::{
+    issue_s6c_v2_string_len_call_target_plan_v1, PreparedLoopV2StringLenCallTargetPlanV1,
+    StringLenCallTargetPlanRejectV1,
+};
+#[allow(unused_imports)]
+pub(crate) use common_v2_substring_target_plan::{
+    issue_s6c_v2_substring_call_target_plan_v1, PreparedLoopV2SubstringCallTargetPlanV1,
+    SubstringCallTargetPlanRejectV1,
+};
 #[allow(unused_imports)]
 pub(crate) use continuation::VerifiedLoopContinuationContractV1;
 #[allow(unused_imports)]
@@ -147,10 +265,10 @@ pub(crate) use join_sig::{
     LoopJoinBranchExitV2, LoopJoinBranchV1, LoopJoinBranchV2, LoopJoinClosureRejectV2,
     LoopJoinEdgeRoleV1, LoopJoinEdgeV1, LoopJoinEdgeV2, LoopJoinLogicalTransferRejectV1,
     LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV1, LoopJoinLogicalTransferViewV2,
-    LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinPayloadV1, LoopJoinPayloadV2, LoopJoinPortBindingV1,
-    LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
-    LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinClosureV2,
-    VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
+    LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinNextItemV1, LoopJoinPayloadV1, LoopJoinPayloadV2,
+    LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigElaboratorV1,
+    LoopJoinSigRejectReasonV1, LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1,
+    VerifiedLoopJoinClosureV2, VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue_producer::{
@@ -183,6 +301,51 @@ pub(crate) use physical_layout::{
 };
 #[allow(unused_imports)]
 pub(crate) use producer_id::LoopRecipeProducerIdV1;
+#[allow(unused_imports)]
+pub(crate) use s6c_prephysical_ingress::{
+    issue_s6c_prephysical_ingress_v2, S6CPrephysicalCompletionParityRefV2,
+    S6CPrephysicalCompletionRefV2, S6CPrephysicalIngressRejectV2, S6CPrephysicalOperationRoleV2,
+    VerifiedS6CPrephysicalIngressV2,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_return_source_binding::VerifiedS6CReturnSourceRecipeBindingV1;
+#[allow(unused_imports)]
+pub(crate) use s6c_scalar_scan_corridor::{S6CScalarScanSourceRefV1, S6CScalarScanSourceRejectV1};
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init::{
+    produce_s6c_scan_with_init_recipe_v2, S6CScanWithInitRecipeProducerRejectV2,
+    S6CScanWithInitRecipeProductRefV2, S6CScanWithInitRecipeRolesRefV2,
+    S6CVerifiedRecipeReadViewV2, VerifiedS6CJoinRoleSealV2, VerifiedS6CScanWithInitRecipeProductV2,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init_joinir::{
+    with_s6c_scan_with_init_logical_join_input, S6CLogicalCallInputRefV1, S6CLogicalCallRoleV1,
+    S6CLogicalJoinInputRejectV1, S6CScanWithInitLogicalJoinInputRefV1,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init_joinir_output::{
+    issue_s6c_scan_with_init_logical_output_v1, S6CLogicalCallPairsRefV1,
+    S6CLogicalCallWithSourceRefV1, S6CScanWithInitLogicalOutputRefV1,
+    VerifiedS6CScanWithInitLogicalOutputV1,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init_joinir_output_rows::{
+    S6CLogicalCallArgsV1, S6CLogicalCallSlotV1, S6CLogicalItemV1,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_scan_with_init_logical_consumer::{
+    consume_s6c_scan_with_init_logical_output_v1, S6CLogicalConsumerRejectV1,
+    S6CLogicalConsumerResultV1,
+};
+pub(crate) use s6c_text_eq_occurrence::{
+    issue_s6c_text_eq_occurrence_source_v1, S6CTextEqOccurrenceSourceRejectV1,
+    S6CTextEqOccurrenceSourceViewV1,
+};
+#[allow(unused_imports)]
+pub(crate) use s6c_text_eq_site_contract::{
+    issue_s6c_text_eq_source_binding_v1, LoopTextEqSiteRefV1, TextEqualityLawV1,
+    VerifiedS6CTextEqSourceBindingV1,
+};
 #[allow(unused_imports)]
 pub(crate) use schema::{
     LoopBinaryI64OpV1, LoopCompareI64OpV1, LoopConditionV1, LoopExitKindV1,

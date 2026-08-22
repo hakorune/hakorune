@@ -42,17 +42,17 @@ MIR JSON transport and LLVM lowering are not identical sets.
 capability gate rejects execution; these rows must not be added to
 `LLVM_SUPPORTED_JSON_OPS` until a real consumer exists.
 
-## Current Contract Snapshot (2026-06-23)
+## Current Contract Snapshot (2026-08-13)
 
 `backend_core_ops` と `INSTRUCTION_SET.md` の機械可読countが現状の
 同期対象。
 
 | Cohort | Count |
 |---|---:|
-| kept | 36 |
+| kept | 48 |
 | lowered-away | 0 |
 | removed | 16 |
-| vocabulary | 52 |
+| vocabulary | 64 |
 
 運用注記（2026-03）:
 - `Catch/Throw` は語彙としては kept だが、selfhost/mainline の日常 lane では `NYASH_TRY_RESULT_MODE=1` に pin して legacy MIR `Catch/Throw` 実行を使わない。

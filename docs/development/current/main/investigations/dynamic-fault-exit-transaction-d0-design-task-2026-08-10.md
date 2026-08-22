@@ -1,18 +1,25 @@
 ---
-Status: active compact card
+Status: closed predecessor; do not resume from this card
 Date: 2026-08-12
 Scope: selected Dynamic callable, canonical session admission, hako.text.scan@1,
   AOT/LLVM production activation
 ParentHistory: docs/development/current/main/design/archive/dynamic-fault-exit-transaction-d0-history-2026-08-10.md
+Successor: docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
   - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
   - docs/development/current/main/design/current-docs-update-policy-ssot.md
   - docs/development/current/main/design/box-callable-registry-ssot.md
   - docs/development/current/main/design/ring2-provider-link-abi-lifecycle-ssot.md
+  - docs/reference/mir/loop-recipe-contract.md
 ---
 
 # Dynamic callable current card
+
+> This card closes the semantic/header/admission/session/DraftSeal predecessor
+> series. The live W6 publication boundary and implementation DAG are owned by
+> the `Successor` card above. Historical “next slice” wording below is evidence,
+> not a restart selector.
 
 ## Current capsule
 
@@ -23,25 +30,29 @@ package port remains the exactly-once transport owner; the existing A-prime
 demand/emission plan opens the existing canonical CFG/SSA/PHI session inside
 that scoped loan.
 
-Current implementation status: exact-I64 semantic recut, exact-two Completion
-and DraftSeal machinery, the Rust-VM nonconsumer fence, neutral output wire,
-the I8 unpublished canary, and the complete R0 canonical-session projection
-series are landed. The selected emitter now consumes the exact package input,
-borrows the final Dynamic program only through its private HRTB authority,
-snapshots Completion/control expectations, and opens its unpublished canonical
-session internally. Production still uses the selected raw AST/JoinIR edge.
+Current implementation status: W0-W3 semantic/header/admission, strict
+CodePoint entries, checked CallOut ABI, generation-aware neutral lease owner,
+test-only metadata/link facts, the complete unpublished physical session,
+exact-two DraftSeal preparation, cataloged Box-method collector handoff, and
+the selected adapter input/admission loan are landed. Raw generation input is
+removed, and the collector-brand callback transport is now landed as a
+BoxShape. Selected admission consumption remains W6-only. Production still
+uses the selected raw AST/JoinIR edge and every production
+CheckedCallOut/LLVM/link caller remains zero.
 
-Next ordered task: implement the already-accepted AOT physical activation cell
-(`DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0`) with the complete provider contract,
-admission, strict LLVM leaf, I6/I7 receipts, End/lifecycle, and atomic selected
-production switch. No provider/runtime/LLVM implementation is implied by the
-completed R0 BoxShape row itself.
+Next ordered task: `DYNAMIC-V2-AOT-ACTIVATION-I0-W6`.
+The test-only assembly canary now proves the collector-brand-to-unpublished
+owner chain without opening production. W6 is the only production route. All
+pre-cutover
+physical/session and key-handoff prerequisites are closed; W6 is the only
+route allowed to connect selected package input, physical session, exact-two
+DraftSeal, catalog collector, publication, and old-edge retirement.
 
 Production stop line: provider/AOT/runtime activation and the selected
-production switch remain closed until the projection series is green. No
-trivial-plan widening, second Completion/If/profile, raw AST repair, arbitrary
-session pairing, fallback, retry, or Rust-VM DynamicV2 consumer may cross the
-seam.
+production switch remain closed until both R0 prerequisites and the complete
+activation cell are green. No trivial-plan widening, second
+Completion/If/profile, raw AST repair, arbitrary session pairing, fallback,
+retry, or Rust-VM DynamicV2 consumer may cross the seam.
 
 Retirement finish line: one atomic AOT activation consumes the selected package
 loan through exact-two DraftSeal, removes the selected old edge in the same
@@ -52,26 +63,27 @@ fallthrough, fallback, retry, and Rust-VM DynamicV2 callers at zero.
 
 ```text
 Decision:
-  Reuse the final Dynamic program as the sole semantic plan and the existing
-  A-prime demand/emission plan as the sole pre-session physical plan. Do not
-  admit this cohort into CanonicalTrivialBindingSsaPlanV1.
+  Build one atomic AOT activation from the final Dynamic program and the
+  existing A-prime demand/emission plan. Do not widen the trivial family or
+  land a provider/session fragment as a selectable route.
 Source authority + canonical issuer:
   Installed package same-batch loan + VerifiedDynamicExitTransactionCoSealV1;
-  issue_selected_a_prime_i64_physical_demand is the existing co-seal issuer.
+  retained CoreMethod rows own callable result/effect, the normalized TextScan
+  contract owns the complete role/profile/lifecycle contract, and one neutral
+  AOT export artifact owns the strict physical entry/ABI declarations.
 Non-authority:
-  generic trivial analysis, package-local verify_function, canary semantic
-  AST/header re-verification, reissued Completion/If, names/ordinals, provider,
-  LLVM, VM.
+  generic trivial analysis, mutable compatibility registry, selector/name
+  lookup, generic String, raw AST/MIR inference, LLVM, and Rust VM.
 Fail-fast boundary:
-  ordinary/foreign/mismatched identity, authority reissue, arbitrary session
-  pairing, borrow escape, double consume, or incomplete physical capability
-  rejects before Builder effect.
+  complete TextScan/provider symbolic AOT admission and session authority
+  validate before Builder mutation. Exact image/digest/symbol validation occurs
+  only at link and must succeed before executable publication.
 Smallest next slice:
-  DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0, a behavior-neutral refactor
-  series with the existing unpublished canary as its named consumer.
+  The successor card's `DYNAMIC-V2-W6-PUBLICATION-BOUNDARY-D0`; the physical
+  session named by the former brief is landed and no longer a live selector.
 Non-claims:
-  no accepted source shape, provider/runtime feature, LLVM hook, VM feature,
-  production switch, generic typed-trivial expansion, fallback, or retry.
+  no Dynamic registry, runtime lookup, VM feature, generic fallback, retry,
+  legacy collector key, or production switch before all subrows are green.
 ```
 
 ### Why the former trivial-plan premise is rejected
@@ -91,7 +103,7 @@ SelectedCallableLoweringInputRefV1
   -> PreparedSelectedDynamicV2EmissionPlanV1
 ```
 
-The missing seam is only the physical session projection:
+The landed pre-activation seam is:
 
 ```text
 borrowed sole Completion
@@ -104,6 +116,31 @@ borrowed sole Completion
 `PreparedProgramRootWorkPlanV1` stays a root scheduling owner. It does not gain
 a borrowed canonical-plan field, avoiding a self-reference and foreign-plan
 pairing surface.
+
+### Landed preflight invariants
+
+The body-free physical header/effect work is already landed and remains a hard
+precondition of activation:
+
+```text
+catalog physical symbol + arity
++ exact declared parameter/return representations
++ verified operation-program EffectMask projection
+  -> APrimePhysicalFunctionHeaderV1
+  -> create_resolved_function_skeleton(header facts)
+```
+
+The selected route never formats a symbol from the raw function name, scans a
+body with `contains_value_return`, or supplies a Builder-fixed effect mask.
+Header/Completion/control/executable validation finishes before the unpublished
+Builder session opens. `PureRead` is a callable semantic effect; it does not
+erase the Dynamic invocation outcome, Fault, suspension, or lifecycle axes.
+
+The cataloged-method transport correction is landed. The adapter moves its one
+already-sealed `NormalCatalogedBoxMethodDraftAdmissionV1` into the scoped
+package loan/A-prime demand, and issuer-side `seal(source_key)` is zero. The
+same admission supplies the physical header and remains the future cataloged
+Box-method collector identity; no raw key is resealed downstream.
 
 ## Final owner graph
 
@@ -128,7 +165,17 @@ SelectedCallableLoweringInputRefV1::Dynamic
                     v
              PreparedSelectedDynamicV2EmissionPlanV1
                     |
-                    | opens its own scoped session
+                    | private TextScan loan
+                    | + normalized ProviderSlot artifact
+                    | + neutral embedded-AOT export facts
+                    | + canonical String alias projection
+                    | -> consuming admission
+                    v
+             PreparedSelectedDynamicV2AotActivationV1
+               immutable admitted rows + PreparedAotExecutableAdmissionV1
+               strict I6/I7 entry IDs/lanes + PlanStamp + V10 lease capability
+                    |
+                    | validates, then opens one scoped session
                     v
              CanonicalSsaFunctionSessionV2
                sole CFG / Binding SSA / PHI owner
@@ -137,7 +184,14 @@ SelectedCallableLoweringInputRefV1::Dynamic
              site-keyed Completion claims
              -> DraftSeal prepare: Return x 2
              -> DraftSeal commit
-             -> Collector / Atomic Publish
+             -> Collector / atomic MIR-module candidate publish
+                (not executable publication)
+                    |
+                    v
+             LLVM object + AOT link finalizer
+             -> exact ProviderImageId / artifact digest / resolved entries
+             -> RuntimeExecutablePlanV1
+             -> executable publication; link failure publishes no executable
 ```
 
 The scoped loan may yield a private view, not a durable semantic receipt. The
@@ -146,364 +200,469 @@ Completion parts, `ValueId`, or `BasicBlockId`.
 
 ## Ordered implementation DAG
 
-### 1. `DYNAMIC-V2-SELECTED-SESSION-ADMISSION-D0` — accepted Decision
+The former session-admission Decision and its canonical-session/I8 BoxShape
+series are closed. Their detailed evidence lives in `ParentHistory` and git.
+The only active parent row is the following atomic production replacement.
 
-The previously listed projection row is now opened by this owner decision.
-The target is a Dynamic Loop with an inner If Return, so
-`CanonicalTrivialBindingSsaPlanV1`, `CanonicalLoweringPreflightV1`, and the
-first-family trivial analyzer are not valid session inputs.  Making them
-accept this shape would issue a second semantic plan, Completion, or If
-authority.
-
-Decision:
-  choose one same-source admission boundary that lends the existing Dynamic
-  semantic authority to the existing canonical CFG/SSA/PHI engine.
-Source authority + canonical issuer:
-  the installed package's exactly-once selected loan and its
-  `VerifiedDynamicExitTransactionCoSealV1`; the existing
-  `VerifiedAPrimeI64PhysicalDemandV1` ->
-  `PreparedSelectedDynamicV2EmissionPlanV1` chain remains the only pre-session
-  physical plan.
-Non-authority:
-  `CanonicalTrivialBindingSsaPlanV1`, generic trivial analysis, package-local
-  Completion/If reissuance, canary semantic AST/header re-verification, raw
-  AST/JoinIR meaning, names/ordinals, provider/LLVM/runtime/VM, and arbitrary
-  external sessions.
-Fail-fast boundary:
-  if owner/function/forest/projection/source-root identity, Completion,
-  Dynamic Loop control disposition, or lifetime cannot be lent exactly once
-  without clone/reverification, remain `NoSafeSlice` before Builder effect.
-Smallest next slice:
-  decide the private HRTB/consuming callback shape and whether the existing
-  canonical session can consume the borrowed facts without leaking a
-  semantic borrow into DraftSeal.
-Non-claims:
-  no code, new durable `Verified*`/`Prepared*` semantic receipt, provider or
-  LLVM implementation, VM work, production switch, fallback, or retry.
-
-Required acceptance:
-
-```text
-selected Dynamic -> CanonicalTrivialBindingSsaPlan consumer = 0
-selected Dynamic -> CanonicalLoweringPreflight consumer      = 0
-Dynamic Completion semantic issuer                          = 1
-Dynamic Loop control issuer                                  = 1
-canonical-session admission issuer                          = 1
-source/Recipe/Completion/If reissue                         = 0
-semantic AST/header re-verification                          = 0
-foreign/arbitrary session pairing                            = 0
-```
-
-Only after this D0 is accepted may the following parked BoxShape row open.
-
-The accepted private boundary is:
-
-```text
-VerifiedDynamicExitTransactionCoSealV1
-  -> with_canonical_session_authority(HRTB callback)
-       borrows the retained Completion and Dynamic Loop control disposition
-       and carries owner/target/source-root identity
-  -> existing A-prime demand/emission plan
-  -> CanonicalSsaFunctionSessionV2::new_selected_dynamic
-       Completion consumer = Owned | Borrowed
-       control consumer   = Resolved | DynamicProfileOwned
-```
-
-The HRTB callback is the only place where the borrowed authority and the
-mutable canonical session meet.  It cannot return the borrow, a session, or a
-semantic part.  `finish()` snapshots only the borrow-free physical claims and
-return kind needed by DraftSeal.  The Dynamic control disposition is a
-private view of the already sealed JoinClosure; it is not an empty
-`VerifiedResolvedFunctionIfControlV1`, and it is not reissued from the source.
-
-This closes the D0 design question.  The next row is the parked BoxShape
-projection, beginning with the completion consumer's `Owned | Borrowed`
-storage and borrow-free ready close.
-
-### 2. `DYNAMIC-V2-CANONICAL-SESSION-PROJECTION-R0` — landed BoxShape
+### 1. `DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0` — active BoxCount
 
 Change:
-  make the existing Completion consumption ledger accept owned or borrowed
-  Completion authority; add a private HRTB session-authority view on the final
-  Dynamic program; make the Dynamic emission plan open the canonical session
-  internally instead of accepting an arbitrary session.
+  consume the retained I6/I7 CoreMethod rows into one complete TextScan
+  AOT admission, lower the whole selected Loop through the existing canonical
+  session and exact-two DraftSeal, finalize the exact linked executable plan,
+  admit the completed draft with a cataloged Box-method key, and delete the
+  selected raw AST/JoinIR edge in the same activation unit.
 
 Contract:
-  semantic facts remain in the final Dynamic program. The physical consumer
-  copies only target/result/site expectations into its one-shot claim ledger.
-  Dynamic JoinSig remains the Loop-local control owner; common outer If rows
-  are exactly zero without constructing another verified empty If product.
+  `CoreMethodContractBox` is the sole callable result/effect authority. The
+  normalized TextScan contract owns only the complete two-role grouping,
+  shared CodePoint profile, and lifecycle requirements. A neutral AOT export
+  artifact owns symbolic strict entry IDs and ABI declarations; the runtime
+  type registry owns String/StringBox vocabulary. `ProviderAdmissionSeal`
+  owns provider/ABI admission and issues one canonical Text branch plus a
+  symbolic `PreparedAotExecutableAdmissionV1`. Only the post-object AOT link
+  finalizer may issue an exact `RuntimeExecutablePlanV1` with image digest,
+  resolved entry and the carried compile-session `PlanStamp`. The session owns
+  physical values, CFG/SSA/PHI, cleanup, and Completion claims. No layer
+  re-searches selector, name, generated rows, registry, provider, or image.
+
+Acceptance (not yet landed):
+  exact two-role admission, immutable deterministic admitted registry,
+  receiver-bearing symbolic AOT admission, strict AOT/LLVM I6/I7 leaf, exact
+  link-time RuntimeExecutablePlan, one V10 lease and End, I7 ImmediateI64 with
+  no lease, full I0-I16/control/backedge close, two Completion claims and
+  physical Returns, one cataloged Box-method collector handoff, selected
+  canonical caller=1, selected old edge=0, and all focused tests/guards green.
+
+Stop:
+  missing/foreign/duplicate Core row, incomplete role coverage, alias
+  ambiguity, wrong symbolic entry/stamp/lane/lifecycle, or Builder mutation
+  before pre-MIR validation rejects the MIR candidate. A stale/foreign linked
+  image, digest, ABI, or symbol rejects executable publication. Synthetic
+  return join/PHI, legacy key, generic fallthrough, fallback, retry, sentinel
+  repair, or Rust-VM dependency rejects the cell.
+
+The activation is one production product. Work-branch checkpoints may be
+small, but none is an independently selectable mainline route. Closed details
+live in `ParentHistory` and git:
+
+```text
+W0  b7ecfd161a                         catalog admission transport
+W1  ca193378ce                         normalized TextScan/export authority
+W2  8e94d95d26..e721a300ec             symbolic admission/header/session seed
+W3  7a9728e5ff..d3c25a5af9             strict entries, checked ABI, u64 metadata bounds, transport-only CheckedCallOut view, site-id AOT projection remains pre-cutover
+```
+
+All W0-W3 production LLVM/CallOut/link callers remain zero. Their transport
+facts are closed; the remaining order is the single W6 activation cell: strict
+LLVM/link, exact-two collector publication, and atomic selected cutover.
+
+#### `DYNAMIC-V2-CALLOUT-CFG-OUTCOME-REPRESENTATION-D0` — accepted
+
+```text
+Decision: CheckedCallOut is one canonical MIR terminator; its Normal result is a separate first instruction in the site-local Normal landing, never a terminator dst or edge-defined value.
+Source authority + canonical issuer: retained AOT admission/call rows own entry and lanes, the exit transaction owns Normal/Fault meaning, the function-local site plan owns physical shape/effect/slots, and CanonicalSsaFunctionSessionV2 alone issues CFG and SSA state.
+Non-authority: instruction/cache/JSON/LLVM do not issue Recipe, provider, ABI, lifecycle, selector, result class, or successor meaning; runtime tokens and raw pointers never enter MIR.
+Fail-fast boundary: plan/terminator/projection cardinality, brands, shapes, distinct site-local landings, effect-cache parity, ABI/wire revisions, and backend policy reject before publication; unpublished-session failures discard.
+Smallest next slice: the W6 activation cell; transport-only site identity and
+CheckedCallOut execution remain closed until that cell is complete.
+Non-claims: no full cursor, LLVM production lowering, DraftSeal/collector, executable publication, cutover, fallback/retry, or VM parity.
+```
+
+The exact neutral representation is:
+
+```text
+CheckedCallOut terminator:
+  site_id, receiver, ordered arguments,
+  normal_landing, fault_landing, verified_effect_cache
+  dst_value = None
+
+CheckedCallOutNormalResult:
+  site_id, dst
+  first instruction of normal_landing
+  ordinary block-local SSA definition
+
+function-local CheckedCallOutSitePlanV1:
+  site_id, admitted entry ID, call ABI revision, wire revision,
+  normal_shape = EndAuthorizedHandle { lease_slot } | ImmediateI64,
+  physical effect authority, outcome_slot, PlanStamp,
+  contract_violation_policy = BackendFailStopNoSuccessor
+```
+
+Each terminator has exactly one plan and one Normal projection. Normal and
+Fault landings are distinct, site-local, and have exactly the CallOut source as
+their predecessor. The Normal projection is the only result definition; the
+terminator is never a generic `dst_value`, and no shared def-map, dominance, or
+PHI rule gains an edge-defined exception. Fault publishes no result or lease;
+after its site-local chronology is fixed it may jump through ordinary canonical
+edges to shared cleanup.
+
+The site plan is the physical-effect authority. The terminator carries only a
+verified cache for context-free `MirInstruction::effects()`, and verification
+requires equality. `CanonicalCfgSessionV1::emit_checked_callout` alone installs
+the terminator, successors and predecessors;
+`CanonicalSsaFunctionSessionV2::define_checked_callout_normal_result` alone
+installs the landing projection and ordinary SSA definition.
+
+Semantic `Fault` follows the MIR fault landing. Nonzero transport failure,
+malformed wire, unknown revision, or `Suspended` from the sync-only TextScan
+entry follows the non-rejoining backend fail-stop policy: it is not semantic
+Fault, creates no MIR-visible value or successor, and cannot fall back or
+rejoin. LLVM may emit the physical conditional branches, but their Normal/Fault
+targets and meaning come only from the MIR terminator.
+
+I6 has `EndAuthorizedHandle { lease_slot }`; I7 has `ImmediateI64`. The static
+lease slot is not a runtime token. Future End consumes the exact I6 slot once;
+I7 and every Fault path issue no lease and no End. JSON carries only neutral
+IDs/revisions/shapes. Function pointers, provider objects, session brands,
+runtime tokens and raw outcome storage are never serialized.
+
+#### `DYNAMIC-V2-LEASE-IDENTITY-R0` — landed BoxShape
+
+Change:
+  replace token-to-raw-handle storage with one host-handle-owner-issued
+  generation-aware identity; make raw `issue_end_authorized(handle)` private.
+
+Contract:
+  `host_handles` alone captures `{ raw_handle, generation }` and conditionally
+  drops under the same slot-table lock. Every slot publication advances a
+  non-wrapping generation. The lease table stores that identity; the strict
+  public surface remains aggregate publish plus exactly-once End consume.
 
 Done:
-  the existing I8 unpublished canary uses the selected package loan, existing
-  A-prime demand, borrowed Completion, and Dynamic-owned control disposition.
-  Its calls to `verify_function_completion_v1` and
-  `empty_for_owned_loop_profile` are zero. Ordinary/trivial behavior is
-  unchanged, no borrow escapes, and the emitter no longer accepts externally
-  paired outer/canonical sessions.
-
-Landed evidence (R0-A/R0-B/R0-C):
-
-```text
-Completion consumer Owned|Borrowed storage                 = landed
-borrow-free Ready close                                    = landed
-final-program HRTB authority                               = landed
-Dynamic-owned control disposition                          = landed
-selected emitter external session arguments                = 0
-selected canary semantic re-verification                   = 0
-selected canary empty If reissuance                         = 0
-preflight ledger Clone / clone-or-split production path     = 0 / 0
-focused canary / semantic authority / pointer guards        = green
-```
+  valid aggregate publish/End is one-shot; ordinary drop followed by LIFO reuse
+  makes the old token reject as stale while the replacement object remains
+  live. Duplicate, foreign, zero, missing, generation mismatch and exhaustion
+  tests plus the existing authority guards are green.
 
 Stop:
-  if the sole Completion or control disposition cannot be projected without
-  clone, re-verification, raw parts, or a second semantic issuer, return to
-  design stop.
+  raw handle alone, legacy generation zero, drop-epoch inference, unlocked
+  check-then-drop, reusable token, public raw issuer, fallback or VM work is
+  forbidden. This row opens no production caller.
 
-Recommended refactor commits:
+Receipt (2026-08-13):
+  text-only identity capture, non-wrapping slot generation, conditional
+  same-slot drop, collision-preserving lease insertion, and LIFO stale-token
+  tests are green. The raw issuer remains private; aggregate publish and
+  exactly-once End consume remain the only public lease surface.
 
-```text
-R0-A  completion consumer Owned|Borrowed internal storage; borrow-free ready close
-R0-B  private final-program HRTB session authority and Dynamic control disposition
-R0-C  emission plan opens session; canary reissue/external pairing deleted; guard
-```
-
-Required structural evidence:
-
-```text
-selected Dynamic imports CanonicalTrivialBindingSsaPlanV1       = 0
-selected Dynamic calls CanonicalLoweringPreflightV1             = 0
-selected canary verify_function_completion_v1 calls             = 0
-selected canary empty_for_owned_loop_profile calls              = 0
-external canonical-session argument to Dynamic begin            = 0
-Dynamic Completion semantic issuer                              = 1
-Dynamic canonical-session projection issuer                     = 1
-CanonicalSsaFunctionSessionV2 mutable owner                      = 1
-provider / LLVM / VM additions                                  = 0 / 0 / 0
-fallback / retry                                                = 0 / 0
-preflight ledger Clone / clone-or-split production path          = 0 / 0
-```
-
-### 3. `DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0` — atomic BoxCount
-
-This is one activation cell built in small owner modules. Intermediate code
-does not become an independently selectable provider or production route.
-
-No provider contract, registry, executable branch, wire, LLVM leaf, runtime
-lease, or receipt is landed ahead of this cell.  The complete
-`hako.text.scan@1` contract, admission, executable branch, strict AOT leaf,
-canonical I6/I7 receipts, and lifecycle must land as one activation unit; an
-isolated preparatory authority is forbidden.
+#### `DYNAMIC-V2-CHECKED-CALLOUT-PHYSICAL-R0` — after lease identity
 
 Change:
-  activate the complete `hako.text.scan@1` provider capability, strict AOT/LLVM
-  I6/I7 execution, full Dynamic Loop physical session, exact-two DraftSeal,
-  and selected package production caller; delete the selected raw AST/JoinIR
-  edge in the same activation commit.
+  add the neutral site-plan/terminator/Normal-projection vocabulary, one
+  canonical CFG issuer, verifier and Rust JSON roundtrip; keep all execution
+  backends explicitly unsupported.
 
 Contract:
-  `TextSliceRange` and `TextFindNeedle` are the complete two-role capability.
-  `CoreMethodContractBox` and its generated rows remain the sole callable
-  result/effect authority (`StringValue` for substring and `I64Value` for
-  indexOf). The TextScan ProviderSlot contract is only the complete two-role
-  aggregate: it borrows and co-seals those generated rows, then owns the
-  shared semantic profile and cross-role lifecycle/capability requirements.
-  ProviderAdmissionSeal separately owns selected provider/ABI admission, and
-  RuntimeExecutablePlan owns executable binding. No layer may reissue a
-  second result/effect table.
-  The global provider spine is reused; runtime consumes a presealed executable
-  branch and never searches a registry or reselects provider/image/selector.
-  The LLVM formal lane is exact and role-bound: `src=0`, `pos=1`, `end=2`,
-  `pred_chars=3`; swapped or shifted receipt rows reject before effect.
+  one new small CheckedCallOut owner holds IDs, typed Normal shape and rejects.
+  Generic instruction/BasicBlock/CFG/SSA surfaces only project that owner;
+  result definition stays in the Normal landing and effect stays plan-owned.
 
-Activation preflight invariants (P0):
-
-```text
-physical symbol/header source       = existing catalog/source identity projection
-raw method name -> physical symbol  = 0
-raw body return scan in canonical    = 0
-canonical skeleton input             = exact physical header + Completion contract
-authority validation before Builder mutation = 1
-legacy raw skeleton/body inference   = selected AOT path only, 0
-semantic block count chosen by emitter = 0
-DynamicProfileOwned owner validation  = exact or unit disposition
-```
-
-The selected physical symbol must come from the existing cataloged method
-admission (`ParserScanLoopBox.skip_while/4` for this cohort), never from
-`format!("{name}/{}", params.len())`. The canonical skeleton may allocate
-function storage and entry blocks only after the selected package loan,
-physical header projection, and Dynamic Completion/control expectations have
-validated. It must not call `contains_value_return` or otherwise rescan raw
-AST to infer a return shape; the existing legacy skeleton remains a
-compatibility route only. These checks are part of the same activation cell,
-not a new semantic authority.
-
-Acceptance criteria:
-  one consuming ProviderAdmissionSeal, immutable deterministic admitted
-  registry, receiver-identity RuntimeExecutablePlan, strict CodePoint AOT leaf,
-  I6 V10 value+one-shot lease/End, I7 ImmediateI64/no lease, complete operation
-  and control schedule, two Completion claims, two physical Returns, one new
-  selected production caller, and zero selected old callers are green. The
-  schedule is mechanically derived from verified Recipe order/placement and
-  JoinSig control (`Prelude`, `ThenTerminal`, `Continuation`); source-role names
-  are diagnostic cross-checks only. The preflight ledger is move-only and has
-  no Clone, clone, or split emitter path.
+Done:
+  local plan admission, canonical two-edge emission, ordinary Normal-block
+  dominance, I6/I7 typed shapes and test-only JSON parity are green. The
+  function-level plan:terminator:Normal-projection census and final landing
+  predecessor proof remain the first E0 closeout; LLVM and VM execution
+  allowlists reject by name and production issuers/callers remain 0.
 
 Stop:
-  missing/foreign/duplicate contract or image, alias ambiguity, incomplete
-  slot coverage, missing capability, lifecycle drift, synthetic return join or
-  PHI, generic-method fallthrough, fallback, retry, or VM dependence rejects
-  before activation.
+  duplicate/orphan/foreign site, shared or identical landing, result in
+  terminator `dst_value`, cache drift, wrong lease shape, Fault payload,
+  backend hidden semantic branch, fallback/retry or any source at 800 lines
+  rejects the row.
 
-Internal implementation order, without creating separate authorities:
+Receipt (2026-08-13):
+  neutral CheckedCallOut owner, function-local site-plan admission, canonical
+  two-edge CFG emission, Normal-landing SSA projection, test-only JSON parity,
+  and explicit LLVM/VM rejection are green as local evidence. Exact function
+  census, fresh SSA destination issuance, and final landing predecessor proof
+  are intentionally deferred to E0; production callers remain zero.
 
-```text
-hako.text.scan@1 role aggregate
-  + borrowed generated CoreMethodContractBox rows (sole result/effect source)
-  + A-prime I6/I7 role requirement co-seal
-  -> BoxCallableRegistryDraft
-  -> consuming ProviderAdmissionSeal
-  -> immutable admitted registry
-  -> MethodCallRoutePlan / RuntimeExecutablePlan
-  -> neutral call-in admission wire + PlanStamp
-  -> canonical-session I6/I7 receipts
-  -> strict LLVM early hook / CodePoint leaf
-  -> V10 lease and exact End
-  -> full unpublished physical session
-  -> exact-two DraftSeal
-  -> atomic selected production switch + old-edge deletion
-```
+#### `PHYSICAL-SESSION-I0-E0` — CheckedCallOut function census / corridor precondition
 
-Bounded implementation subrows (all part of this one activation cell; none is
-an independently selectable provider or production route):
-
-`CORE-METHOD-CONTRACT-COMPLETE-ROW-PROJECTION-R0`
-  Extend the existing `CoreMethodContractBox` code generator so the generated
-  Rust semantic row carries the typed `effect` (and only the source-owned
-  contract fields needed by the selected co-seal) alongside `result_kind`.
-  The `.hako` `CoreMethodContractBox` remains the only effect authority; no
-  TextScan-only effect table, selector lookup, or Builder-fixed `EffectMask`
-  is allowed. The by-`CoreMethodOp` projection must expose both result and
-  effect, and missing, unknown, or drifted rows reject before provider
-  admission. `pure_read` is the callable effect axis; it must not reclassify
-  the Dynamic invocation envelope's `OpaqueObservable`/suspension semantics.
-  This is a semantic projection BoxShape, not a new TextScan authority or
-  production route.
-
-Status (landed BoxShape, 2026-08-12): the generator validates source effects,
-emits `CoreMethodEffectV1` beside `result_kind`, and keeps JSON/Rust parity.
-Unknown effect values reject in the generator; this does not open a provider,
-runtime, LLVM, VM, or production route.
-
-`DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-R0`
-  Decision: first land a private, non-durable two-role validation cell. It borrows the two generated rows and verified I6/I7 call relations, builds one transient view, and consumes it immediately inside the existing call-relation admission; it is not ProviderAdmission and creates no durable TextScan aggregate.
-  Source authority + issuer: `.hako` `CoreMethodContractBox` is the sole result/effect authority; generated Rust rows are projections. `verify_dynamic_call_relations_v2()` is the only P0 consumer boundary. It resolves `StringSubstring/2 -> StringValue/PureRead` and `StringIndexOf/1 -> I64Value/PureRead` by operation identity, then lends those rows to `coseal/text_scan.rs` without reissuing them.
-  Non-authority: selector/name/ordinal/Recipe key, target row alone, generated table alone, MIR `EffectMask`/`ValueId`, AST rescans, provider/runtime registry, ABI/LLVM/runtime facts, and `StringBox` compatibility. Shared UTF-8/profile/ABI meaning remains a later ProviderAdmission authority.
-  Fail-fast boundary: after exact source/target/Recipe verification and before `VerifiedDynamicFullLoopCallRelationsV2` returns. Missing/duplicate/foreign role, owner/site drift, op/arity mismatch, result-kind drift, or effect drift rejects with no Builder/registry/runtime/production effect.
-  Bounded tasks: (1) add private `coseal/text_scan.rs` with borrowed non-`Clone`/non-storable two-role view and typed rejects; (2) add only narrow relation accessors, build exactly one Substring and one IndexOf role, and immediately consume it from `calls.rs`; (3) add focused positive/negative tests and a guard proving one consumer, one generated-row resolution, no reissued result/effect table, and zero provider/registry/LLVM/runtime/VM/fallback/retry additions; (4) record evidence here and in the module README. If the immediate consumer cannot remain in this admission, stop as `NoSafeSlice` instead of returning an aggregate.
-  Acceptance: exact two roles pass; each borrows generated result/effect; foreign/duplicate/missing/mismatched rows fail before effect; no `Arc`, `Clone`, public constructor, persistence, or second scan. Provider admission, registry, RuntimeExecutablePlan, LLVM, physical session, DraftSeal, cutover, and production caller remain closed.
-
-Status (result/effect BoxShape landed, P0 design accepted, implementation not started): `calls.rs` already projects generated rows by `CoreMethodOp`/arity, cross-checks canonical spelling, and derives Recipe class from `StringValue`/`I64Value`; hand-written `recipe_result_class` is gone. The next code slice is this P0; full provider/LLVM/runtime/session activation remains closed.
-
-Evidence:
+This is the first private BoxShape substep of `PHYSICAL-SESSION-I0-E`; it is
+not a new card, semantic receipt, backend route, or production caller.
 
 ```text
-generated result-row projection tests                  = 6 passed
-dynamic_full_body_recipe tests                         = 33 passed
-selector cross-check / selector-only result authority = green / 0
-generated effect projection                            = 1 (typed enum + parity)
-single generated-row resolution per call relation      = 1
-provider/registry/LLVM/runtime/VM additions            = 0
+Authority:
+  CheckedCallOutPlanTableV1 owns admitted plans;
+  CanonicalCfgSessionV1 owns terminators/edges;
+  CanonicalSsaFunctionSessionV2 owns Normal projections and fresh ValueIds.
+
+Change:
+  add one consuming function-level census and verify plan:terminator:Normal
+  projection = 1:1:1, site-local distinct landings, exact source predecessor,
+  effect-cache/PlanStamp parity, and unique outcome/lease slots. Keep six
+  logical target anchors; model I6/I7 Normal/Fault landing pairs as a
+  session-private corridor without executing providers or emitting calls.
+
+Acceptance:
+  orphan/duplicate/foreign plan, terminator, projection, landing predecessor,
+  slot, or stamp rejects before publication; Normal projection destination is
+  session-issued, not caller-supplied; I6 shape is EndAuthorizedHandle and I7
+  shape is ImmediateI64. Positive/negative focused tests and one reusable guard
+  are green.
+
+Non-claims:
+  no I6/I7 runtime execution, lease/End consumption, full cursor, LLVM hook,
+  DraftSeal, collector, production switch, fallback/retry, or VM consumer.
 ```
 
-The effect row is required before the later TextScan aggregate can claim to
-borrow the complete callable contract. `StringSubstring` and `StringIndexOf`
-must both project `PureRead` from generated rows; the P0 only verifies and
-consumes that evidence. Shared UTF-8/profile/ABI and cross-role lifecycle
-requirements remain later owners.
+Checkpoint receipt (2026-08-13): the borrow-free function census is now
+consumed once by canonical function finish. It closes exact
+plan:terminator:Normal-projection cardinality, final site-local predecessor
+sets, effect/PlanStamp parity, unique outcome/lease slots, and canonical fresh
+Normal-result ValueId issuance. The session-private I6/I7 physical corridor
+and result representation/value-ledger publication remain the open half of E0.
 
-Activation order after the effect projection is fixed:
+`PHYSICAL-SESSION-I0-E0-SITE-PLAN-TRANSPORT-D0` is the design stop before the
+corridor: `targets.rs` must not mint site plans or
+landing pairs. First transport exactly two already-admitted physical call
+plans from the existing capability aggregate into the selected session:
+I6=`EndAuthorizedHandle/V10`, I7=`ImmediateI64/V11`, one shared PlanStamp.
+The transport is private, move-only, has no selector/entry lookup or parts API,
+and is consumed by canonical CFG/SSA before any corridor block mutation. A
+missing, duplicate, swapped, foreign, or partial pair is RejectBeforeEffect.
+Only after this transport is accepted may the same session allocate the four
+site-local landings, emit two CheckedCallOut terminators/projections, publish
+their results to its existing value ledger, and satisfy the final census.
+
+Transport owner/issuer: the existing `SelectedDynamicV2PhysicalCapabilityAdmissionV1`
+consumes its retained A-prime relation and `PreparedAotExecutableAdmissionV1`;
+it issues one private move-only pair, not a new semantic receipt. The selected
+emitter consumes that pair through `begin(builder, activation)` before target
+allocation. No selector/by-name lookup, `into_parts`, or target-side plan minting.
+
+Checkpoint (2026-08-13): the private transport is implemented and consumed by
+the unpublished emitter before target allocation. The next bounded row is
+`PHYSICAL-SESSION-I0-E0-CALLOUT-CORRIDOR-D1`: site-local Normal/Fault landings,
+canonical Normal-result/value-ledger publication, and final 1:1:1 census only.
+
+Decision (2026-08-13): D2 preflight is landed; D1 must not be split into an
+I6-only or I7-only leaf. The smallest safe physical slice is one unpublished
+session that adopts the verified formal seeds, emits I0-I5 prerequisites,
+emits site-local I6/I7 CheckedCallOut terminators and Normal projections, and
+publishes all resulting receipts through the existing V2 ledger.
 
 ```text
-TextScan role aggregate -> consuming admission -> immutable registry
--> receiver-identity RuntimeExecutablePlan -> strict LLVM leaf
--> PHYSICAL-SESSION-BLOCKS (Header/BodyPrelude/Then/Continuation/After)
--> TYPED-OPS -> CARRIER-SSA-END (I6 lease/End, I7 ImmediateI64)
--> exact-two DraftSeal -> CanonicalCallable collector -> cutover
+Decision: task one combined typed-ledger/callout corridor; no new semantic shape.
+Source authority + canonical issuer: operation_rows() for order; A-prime formal
+  relation for V0..V3; CanonicalSsaFunctionSessionV2 for ValueId/SSA; CanonicalCfgSessionV1
+  for CheckedCallOut/edges; existing DynamicV2PhysicalValueLedgerV1 for receipts.
+Non-authority: six logical targets, site-plan transport, V1 physicalizer, selector/name
+  lookup, caller ValueId, MirType inference, LLVM/runtime/VM, lease/End, DraftSeal.
+Fail-fast boundary: missing/foreign/duplicate formal or operation, use-before-produce,
+  typed representation drift, PlanStamp/site mismatch, shared landing, or orphan projection
+  rejects before publication and discards the unpublished session.
+Smallest next slice: consume existing projections (formal Dynamic stays a canonical SSA
+  receipt; operation rows provide ImmediateI64/ImmediateBool; admitted site plans provide
+  I6 EndAuthorizedHandle and I7 ImmediateI64) in one private corridor for formal->I0-I5->I6->I7.
+Non-claims: no I9/control/backedge/cleanup completion, provider/LLVM/runtime activation,
+  collector, production caller, fallback, retry, or VM parity.
 ```
 
-Each arrow is a named child of this activation cell, not an independently
-selectable authority. Any missing relation remains `RejectBeforeEffect`.
+Implementation checkpoint (2026-08-13): D2 preflight remains the complete
+15-row dependency/order gate. D1 now consumes one unpublished session through
+formal -> I0-I5 -> site-local I6/I7 CheckedCallOut and Normal projections;
+the corridor retains both site IDs and verifies all four landing brands
+against the lifecycle pair. E1
+and E2 close I8/I9 and Fault/End terminals, E3 closes I11/inner Completion,
+E4 consumes I13-I16 and seals the Enter+Continuation Header PHI path, and E5
+claims the outer Completion and prepares exact-two DraftSeal. Canonical SSA/CFG
+remain the sole ValueId/edge owners; publication and collector handoff remain
+closed.
+
+#### `PHYSICAL-SESSION-I0-E`
+```text
+Entry precondition: lease identity R0, local CheckedCallOut evidence, and E0
+function-level census/corridor closeout are green.
+Decision: consume one move-only activation aggregate and one Recipe-order cursor for all I0-I16/control/cleanup in an unpublished session.
+Authority: A-prime demand, admitted CallOut site plans, exit/cleanup projection, target/formal/value ledgers, and canonical SSA/CFG session only.
+Acceptance: six logical targets, 15 operations, both call outcomes, V10 lease/End, backedge/PHI and profile close are consumed exactly once; any mismatch discards the session.
+E1 landed: `PHYSICAL-SESSION-I0-E1-I8-I9-CONTROL` consumes the I7 Normal landing, emits I8/V12 and I9/V13, then branches canonically. E2 landed: `PHYSICAL-SESSION-I0-E2-FAULT-END` emits I6 Fault without End and I7 Fault with one V10 End, both as successorless terminals. E3 landed: `PHYSICAL-SESSION-I0-E3-INNER-RETURN-THEN` reads I11/V14, consumes the canonical I6 End cutpoint, claims the inner Completion return, and seals ThenTerminal without emitting Return. E4 landed: `PHYSICAL-SESSION-I0-E4-CONTINUATION-BACKEDGE-PHI` consumes I13-I16, emits the Backedge End, jumps Continuation to Header, and closes Header with Enter and Continuation predecessors plus the canonical induction PHI. E5 landed: profile close claims the outer Completion, seals the remaining corridor, and hands exact-two DraftSeal to the existing owner. Publication and collector remain closed.
+Non-claims: no CanonicalCallable collector, production publication/caller, fallback/retry, or VM DynamicV2 work.
+```
+
+#### `DYNAMIC-V2-PHYSICAL-END-FAULT-TERMINAL-R0`
+```text
+Decision: accepted BoxCount; `CheckedCallOutEnd` is the neutral physical lease-consumption instruction and non-rejoining `CheckedCallOutFault` is the canonical fault terminal.
+Source authority + canonical issuer: retained cleanup/site-plan/JoinSig facts; one move-only lifecycle owner feeds Canonical SSA/CFG. Runtime lease is the execution consumer, not the MIR issuer.
+Non-authority: runtime lease API alone, `ReleaseStrong`, existing `Throw`, `After`, V1 physicalizer, generic Call, provider/LLVM/VM, selector/name lookup, fallback, or a second semantic receipt.
+Fail-fast boundary: missing/foreign/stale/duplicate lease, End, site/landing/predecessor, Fault rejoin, or profile-close evidence rejects before publication; no I8-I16 cursor or production route is opened by R0.
+Landed R0 slice: `ca31203fba` adds the typed MIR vocabulary/issuers and `fe8e70b83a` co-seals cleanup/site-plan facts into a move-only lifecycle plan; full cursor execution remains unpublished.
+Non-claims: no full I8-I16/control/cleanup, provider/runtime activation, DraftSeal/collector, production caller, or VM parity in R0.
+```
+
+#### `EXACT-TWO-COLLECTOR-I0-F-KEY-AUTHORITY-R0`
+
+Decision: accepted BoxShape; implement the selected identity as
+`SelectedNormalCallableKeyV1::Cataloged(CanonicalSameModuleCallableKeyV1)`.
+Source authority + canonical issuer: package catalog admission and the retained
+Box-method key; `CompletedFunctionDraftV1` must carry that identity once.
+Non-authority: FreeStatic-only `CanonicalCallableKeyV1`, `LegacySymbol`, raw
+`MirFunction.signature.name/arity`, `into_legacy_collector_parts`, or re-sealing.
+Fail-fast boundary: owner/namespace/name/arity/symbol, collector brand, duplicate,
+foreign, and second-consume mismatch rejects before collector mutation/publication.
+Landed R0/R1 canary: `662e50847b` adds `FunctionDraftKeyV1::CatalogedBoxMethod`
+and retains the admission key in a move-only completed-draft projection;
+`7502802af9` routes that draft once through the invocation-owned
+`ModuleLoweringPortV1` branded collector terminal, and `d77a490713` adds
+symbol/arity-drift and unbranded-collector rejection evidence plus a guard
+for issuer/test-caller/production-caller counts. Publication and production
+cutover remain closed.
+Non-claims: no provider/runtime/LLVM/VM activation, legacy retirement, or
+production caller in R0; the selected production collector handoff is next.
+
+#### `DYNAMIC-V2-SELECTED-ADAPTER-INPUT-LOAN-R0`
+
+Decision: accepted BoxShape; the selected package adapter may borrow the
+already-paired semantic input and catalog admission for one identity check,
+then consume the same move-only wrapper into the unchanged compatibility
+route. No second receipt or collector path is introduced.
+Source authority + canonical issuer: `NormalCallableSemanticPackagePortV1`
+and its `SelectedCatalogedCallableLoweringInputV1`; the package's existing
+exactly-once selected-key loan remains the issuer.
+Non-authority: raw AST/body, `LegacySymbol`, raw name/arity, A-prime demand,
+physical session, collector mutation, publication, provider, LLVM, VM, or
+fallback/retry.
+Fail-fast: selected catalog key and admission source key must match; the
+borrowed views cannot escape the HRTB callback, and ordinary/compatibility
+lowering remains behaviorally unchanged.
+Landed: `fa49ade689` adds the non-escaping paired loan and adapter cross-check;
+the authority guard fixes its issuer/caller census while selected physical,
+collector, publication, and production callers remain zero.
+Non-claims: no selected production cutover or old-edge deletion; the complete
+activation cell remains the only route to production.
+
+#### `DYNAMIC-V2-AOT-ACTIVATION-I0-W6`
+
+Decision: one atomic activation cell only. The existing selected package loan
+must feed the existing A-prime demand, admitted physical session, exact-two
+DraftSeal, invocation-branded `CatalogedBoxMethod` collector terminal, and
+module publication; the selected raw AST/JoinIR edge is retired in the same
+commit. No partial production caller is a valid intermediate state.
+Source authority + canonical issuer: selected package input/admission,
+`VerifiedAPrimeI64PhysicalDemandV1`, `DynamicV2PhysicalEmissionSessionV1`,
+the existing canonical DraftSeal owner, and `ModuleLoweringPortV1` are reused
+in that order. No new semantic plan, registry, CFG, or collector authority.
+Non-authority: raw AST/body, selector/name/arity reconstruction,
+`CanonicalCallable` FreeStatic conversion, `LegacySymbol`, generic String,
+runtime registry lookup, provider/image reselection, LLVM-invented CFG, VM,
+fallback, and retry.
+Fail-fast: selected key/admission, physical header/effect, admitted site plan,
+lease/End, exact-two Completion, collector brand/key/symbol/arity, batch
+collision, module readiness, and old-edge census must all pass before live
+Builder/module mutation. Any mismatch discards the unpublished cell.
+Acceptance: selected production caller exactly 1; old selected edge 0;
+collector/publication exactly once; legacy key conversion, runtime lookup,
+fallback, retry, and Rust-VM DynamicV2 callers all 0; focused positive and
+negative tests plus existing authority guards green; every touched source file
+below 760 target and 800 hard stop.
+Non-claims: no W6 subfragment may land as a selectable production route; if
+the complete cell is not green, keep the current unpublished lane unchanged.
+
+#### `DYNAMIC-V2-AOT-REGISTRY-GENERATION-BRAND-TRANSPORT-R0` — accepted BoxShape
+
+Decision: the existing invocation identity issuer remains the sole source of
+the admitted provider-registry generation, and the brand is transported from
+that owner before the admission call. The raw `NonZeroU64` input is removed;
+the selected capability must no longer accept a caller-supplied brand.
+
+Source authority + canonical issuer: the existing `ModuleInvocationTokenV1` /
+`ModuleDraftCollectorV1::receipt_brand()` for the same module invocation is
+the source. A private invocation/child-port transport must lend that exact
+brand to the selected capability, where `ProviderAdmissionSealV1` consumes it
+once; `AdmittedTextScanRegistryV1` stores it and derives only a diagnostic
+ordinal projection. No provider lookup or second issuer is added.
+
+Non-authority: raw `NonZeroU64`, host lease generation, type-registry slot
+number, selector/name, runtime lookup, LLVM, VM, and the unpublished test
+canary. `ModuleInvocationBrandV1` is the existing identity source, not a new
+semantic receipt. No new semantic `Verified*`/`Prepared*`
+meaning or second provider registry is allowed.
+
+Fail-fast boundary: missing/unbranded invocation, foreign/stale brand,
+registry/alias collision, PlanStamp mismatch, or `RejectBeforeEffect` success
+disposition must reject before Builder/session/collector mutation. The
+admitted brand, collector brand, and eventual CheckedCallOut PlanStamp must
+compare equal. W6 keeps provider/runtime/LLVM production callers at zero.
+
+Smallest next slice: `DYNAMIC-V2-AOT-W6-ASSEMBLY-ORCHESTRATOR-R0` is landed as
+a private BoxShape; the callback transport and private unpublished W6
+orchestration seam are landed, and the focused canary is its only caller. The
+canary consumes the collector brand through
+`ModuleLoweringPortV1::with_invocation_brand`, runs the existing admission,
+unpublished physical session, exact-two DraftSeal, and branded collector
+terminal, then discards publication. The production consumer remains inside
+the complete W6 activation cell.
+
+Acceptance: collector callback issuer and raw-child delegate are exactly one;
+the private orchestration has exactly one focused canary caller and observes one
+exact brand through admission, unpublished session, exact-two draft, and
+collector receipt; unbranded rejection is green;
+admitted registry and PlanStamp equal the collector brand; generation is only
+an ordinal projection; raw generation input and test-only `legacy_test()` are
+production callers = 0. This canary does not open W6 production execution.
+Non-claims: successful W6 activation, strict leaf/link cutover, collector
+publication, old-edge retirement, or RuntimeExecutablePlan activation.
+
+#### `SELECTED-CUTOVER-I0-G`
+
+The installed package adapter consumes the selected Dynamic program instead
+of forwarding only a source seed. The located Loop keeps its retained method
+and admission evidence, invokes the activation cell once, and cannot enter
+`lower_loop_or_freeze_v1`. Ordinary/foreign callables keep their existing
+route. The same activation commit establishes new selected caller=1, old
+selected edge=0, fallback=0, and retry=0.
+
+#### Work-branch and main landing boundary
+
+Implementation may use bounded internal commits on this feature branch:
 
 ```text
-DYNAMIC-V2-CANONICAL-CHILD-ADMISSION-R0
-  The package adapter's existing cataloged-method admission is the sole
-  physical-header source. It is moved into the selected Dynamic activation
-  input and retained through the unpublished session and collector; the
-  emitter must not re-seal the same source key. Foreign symbol, arity, owner,
-  target, or physical-header evidence rejects before Builder mutation.
-
-DYNAMIC-V2-SESSION-EXACT-TWO-TERMINAL-I0
-  The same session consumes the complete operation/control schedule, I6/I7
-  producer receipts, and V10 End evidence; it claims exactly two Completion
-  sites and prepares the two physical Return terminators.  Missing, extra,
-  duplicate, mixed-representation, or synthetic join/PHI evidence rejects.
-  Physical targets remain exact: condition B0 -> Header, body operations
-  before If -> BodyPrelude in B1, then Return -> ThenTerminal in B2, body
-  operations after If -> Continuation in B1, and callable After -> After.
-  `Prelude` is an order label only; it must never collapse B0 and B1 into one
-  physical block.
-
-DYNAMIC-V2-CANONICAL-DRAFT-COLLECTOR-HANDOFF-I0
-  ModuleLoweringPortV1 receives the already-completed canonical draft through
-  one direct collector admission.  It must not open a second function session
-  or re-run finalize/type/return inference. The selected package-owned
-  catalog identity maps to `FunctionDraftKeyV1::CanonicalCallable` with the
-  existing whole-batch collision preflight; `into_legacy_collector_parts()`
-  and `FunctionDraftKeyV1::LegacySymbol` are compatibility-only and forbidden
-  on this path.
-
-DYNAMIC-V2-SELECTED-PACKAGE-ADAPTER-CUTOVER-I0
-  NormalCallableSemanticPackagePortAdapterV1 routes only the selected Dynamic
-  variant through demand -> full session -> DraftSeal -> collector.  Ordinary
-  remains on its existing route.  In the same activation commit the selected
-  raw AST/JoinIR edge is deleted; selected canonical caller=1, old edge=0,
-  fallback=0, retry=0.
+W0  move existing catalog admission through package/A-prime; delete reseal
+W1  normalized TextScan contract + neutral export facts + alias projection
+W2  consuming admission + immutable registry + symbolic AOT aggregate
+W3  strict runtime leaf + checked ABI/metadata + test-only link verifier
+R0a generation-aware carrier lease identity
+R0b neutral CheckedCallOut MIR/JSON representation is transport-only, round-trips
+through the Rust v0 parser/emitter, preserves the test-only PlanStamp compiler
+domain, and rejects malformed effect bits or zero stamp parts; backend execution
+remains closed
+W4  full physical session + selected LLVM CheckedCallOut physicalizer
+W5  exact-two DraftSeal + CanonicalCallable collector
+W6  package cutover + old-edge deletion + guards/docs
 ```
 
-The four names are execution subrows, not new authority types. Their sole
-owners are respectively the existing Dynamic physical session, the same
-session/DraftSeal path, `ModuleLoweringPortV1`, and the installed package
-adapter. They may be developed in a work branch, but main receives them only
-as the complete activation unit.
+Every checkpoint before W6 keeps production callers at zero and the capability
+closed. Main receives only the complete activation unit (squashed or otherwise
+presented as one indivisible activation commit). A provider-only, registry-only,
+LLVM-only, link-plan-only, lease-only, PHI-only, or partial-cursor main landing
+is forbidden.
 
-Required activation counts:
+Required counts at the I0 terminal:
 
 ```text
-complete TextScan roles / same provider-profile                 = 2 / 1
-generated CoreMethodContractBox result/effect source             = 1
-generated typed effect projection                              = 1
-TextScan result/effect reissuance                                = 0
-ProviderAdmissionSeal / immutable admitted registry             = 1 / 1
-mutable admitted insert / duplicate overwrite                   = 0 / 0
-String|StringBox canonical branch                               = 1
-RuntimeExecutablePlan with receiver/generation/image/PlanStamp  = 1
-LLVM selected early consumer / strict leaf                      = 1 / 1
-I6 receipt / lease issuer / End consumer                        = 1 / 1 / 1
-I7 receipt / lease / End                                        = 1 / 0 / 0
-Completion expected / claimed / physical Return                 = 2 / 2 / 2
-synthetic return join / return PHI                              = 0 / 0
-new selected production caller / selected old edge              = 1 / 0
-runtime registry/selector/provider/image lookup                  = 0
-selected legacy finalizer / name-type repair                     = 0 / 0
-selected Builder-fixed effect summary / legacy collector key      = 0 / 0
-Rust VM DynamicV2 production consumer                           = 0
-fallback / retry / sentinel-zero repair                         = 0 / 0 / 0
+TextScan roles / provider profile                              = 2 / 1
+normalized contract artifact / neutral AOT export artifact    = 1 / 1
+provider executable entry IDs                                 = 2
+ProviderAdmissionSeal / immutable admitted registry           = 1 / 1
+mutable admitted insert / duplicate overwrite                 = 0 / 0
+canonical Text receiver branch                                = 1
+symbolic AOT admission / strict entries / LLVM consumer        = 1 / 2 / 1
+link finalizer / RuntimeExecutablePlan / exact image pin       = 1 / 1 / 1
+I6 receipt / lease / End                                      = 1 / 1 / 1
+I7 ImmediateI64 / lease / End                                 = 1 / 0 / 0
+Completion expected / claimed / physical Return               = 2 / 2 / 2
+synthetic return join / Return PHI                             = 0 / 0
+selected Box-method collector key / legacy collector key       = 1 / 0
+adapter admission move / A-prime catalog reseal                = 1 / 0
+new selected caller / selected old edge                       = 1 / 0
+runtime lookup / generic fallthrough / fallback / retry        = 0 / 0 / 0 / 0
+Rust VM DynamicV2 production consumer                         = 0
 ```
 
-### 4. `DYNAMIC-V2-SELECTED-LEGACY-RETIREMENT-R0` — after cutover
+### 2. `DYNAMIC-V2-SELECTED-LEGACY-RETIREMENT-R0` — after cutover
 
 Delete only after caller-zero evidence:
 
@@ -520,7 +679,7 @@ Global fixed-topology deletion waits for all remaining callers to reach zero.
 H2/H3/H5 parity and the AOT mimalloc gate then run as independent siblings;
 both must be green before Hako producer activation.
 
-### 5. `MIRBUILDER-MODULE-DRAIN-CONVERGENCE-D0 -> I0` — after selected cutover
+### 3. `MIRBUILDER-MODULE-DRAIN-CONVERGENCE-D0 -> I0` — after selected cutover
 
 This is a post-cutover publication cleanup, not a second module authority.
 First census every production lowering route, then converge the routes onto the
@@ -544,7 +703,7 @@ The row opens only after the selected AOT caller switch and old-edge
 retirement. It does not change semantic source, Recipe, JoinSig, Completion,
 provider, or VM ownership.
 
-### 6. `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0` — after legacy retirement
+### 4. `LOOP-PHYSICAL-TOPOLOGY-RETIREMENT-R0` — after legacy retirement
 
 After `DYNAMIC-V2-SELECTED-LEGACY-RETIREMENT-R0`, perform a full production
 and test caller census for the fixed-role topology and its old issue APIs.
@@ -592,94 +751,93 @@ decide result class, representation, lifecycle, provider, or executable entry.
 The strict leaf does not call the environment-selected/generic String surface,
 string-to-i64 compatibility parsing, or sentinel-zero helpers.
 
-## Mandatory cleanup and line-budget gates
+## Activation file boundaries
 
-These are BoxShape siblings, not semantic progress and not substitutes for the
-current session projection or production cutover.
+Keep one public/session entry per owner and put the new logic in small modules.
+Exact filenames may vary only within the owning directories; ownership and
+line budgets may not move into the near-limit files.
 
 ```text
-MIRBUILDER-LINE-BUDGET-R0
-  split module_draft_collector.rs (434 after test extraction)
-  split completion tests into completion_consumption_tests.rs (202),
-  completion_draft_seal_tests.rs (627), and completion_test_support.rs (98)
-  split src/mir/resolved_value_profile/analyzer.rs (769) at its policy/
-  verification seam; keep one analyzer authority and move only private
-  helpers/tests. Freeze src/mir/builder.rs (788): no additions before its
-  module-registry classification row below.
-  treat this as a pre-cutover hard gate for the formerly 801/894-line files: no new
-  production authority or physical activation code may be added to them;
-  analyzer.rs is either split at the same private seam or frozen unchanged.
+lang/src/runtime/meta/provider_slot_contract_box.hako
+tools/provider_slot_contract_manifest_codegen.py
+lang/src/runtime/meta/generated/provider_slot_contract_manifest.json
+  normalized TextScan semantic contract; generated Core row identities only
 
-  Landed cleanup evidence is archived in `ParentHistory`/git. Current guards
-  enforce the line budget, explicit physical targets, and Dynamic count
-  ownership; the focused recipe suite has 33 passing tests. Repository-wide
-  `cargo fmt --check` remains a known baseline and is not part of this row.
+include/nyrt_dynamic_text_scan_v1.h
+src/abi/text_scan_aot_export_facts.rs
+src/llvm_py/builders/dynamic_v2_text_scan_export_facts.py
+  one physical export/ABI owner plus checked projections
 
-CURRENT-STATE-LIVE-SCHEMA-I0
-  CURRENT_STATE.toml -> live pointer/blocker/next/parked + bounded landed tail
-  historical key registry -> generated/archive index
+src/box_callable/provider_admission/
+  seal.rs                 consuming TextScan/alias/export co-seal
+  admitted_registry.rs    immutable deterministic selected rows
+  aot_admission.rs        symbolic entry IDs/generation/PlanStamp aggregate
 
-MIRBUILDER-WORKSTREAM-ARCHIVE-R0
-  rolling workstream current brief below 800 lines
-  closed chronology -> archive/git history
+src/runtime/dynamic_v2_lease.rs
+  one-shot ABA-safe lease issuer/consumer for the strict leaf
 
-MIRBUILDER-EMIT-INSTRUCTION-PHASE-SPLIT-R0
-  keep one public emit_instruction writer; split private prepare/validate/
-  physical-commit/post-metadata phases
+crates/nyash_kernel/src/exports/dynamic_v2_text_scan.rs
+  strict CodePoint I6/I7 entries consuming the neutral lease API
 
-MIRBUILDER-BUILDER-BUILD-SPLIT-R0
-  keep the existing MirBuilder methods, visibility, callers, and emission order
-  builder_build.rs becomes a thin facade over:
-    literal_lowering.rs
-      literal dispatch + exact-numeric constant metadata
-    variable_read.rs
-      variable lookup + undefined-variable diagnostics
-    assignment_lowering.rs
-      assignment + local/typed-array contract publication
-      + previous strong-reference release
-    new_expression.rs
-      PreparedRawNewExpression + raw new route + legacy child descent
-  move file-local tests to one sibling test module
-  do not add a new lowering entry, receipt, fallback, env policy, or authority
+src/llvm_py/instructions/mir_call/selected_dynamic_v2.py
+  short early hook; no provider lookup or generic fallback
 
-  Landed evidence is archived in `ParentHistory`/git. The selected canary
-  already uses catalog-derived `ParserScanLoopBox.skip_while/4`, a body-free
-  skeleton, and pre-mutation authority validation; it remains unpublished and
-  adds no provider, LLVM, VM, or production caller.
+src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/
+  executable.rs / call_slots.rs / lifecycle.rs / terminal.rs
+  move-only aggregate consumption and full session realization
 
-MIRBUILDER-MODULE-REGISTRY-CLASSIFY-R0
-  run after selected production cutover and a caller/cfg census
-  keep builder.rs as the sole MirBuilder facade and preserve module paths,
-  re-exports, visibility, and cfg gates
-  reorder its declarations into:
-    state / session
-    source admission
-    semantic plans
-    physical lowering
-    draft collection / publication
-    legacy compatibility
-    tests / migration-only
-  move inline binding tests to a sibling test module
-  move historical phase/migration prose to archive or owning README
-  remove #[allow(dead_code)] or disconnected modules only after caller-zero;
-  classification alone never retires them
-
-MIRBUILDER-COMPLETION-COMMENT-CLEANUP-R0
-  update the stale completion-consumption comment that still describes a
-  single explicit claim; exact-two site-keyed consumption is already landed
-  and must remain the only physical claim model
+src/bin/ny_mir_builder_aot_provider_plan.rs
+  post-object artifact digest/symbol verification and link-plan finalization
 ```
 
-Both rows are behavior-neutral refactor series of two to five commits. Their
-Done boundary is unchanged public callers and diagnostics, focused parity and
-failure tests, no new production edge, `git diff --check`, and every touched
-Rust file below 760 lines. If moving a method changes metadata/publication/
-release ordering or a module move changes its Rust path or cfg reachability,
-the series stops and returns to its parent commit.
+The AOT driver must pass the exact `--nyrt` artifact path into the link
+finalizer explicitly; production code may not rediscover it from an environment
+variable. `ProviderImageId` is derived from the verified artifact digest, while
+`PlanStamp` remains the carried compile/module-invocation stamp. Static link
+success alone is insufficient if the descriptor, ABI, or required symbols do
+not match.
 
-The current active card is intentionally compact. Its multi-thousand-line
-predecessor is retained only under `design/archive/` as historical evidence.
-It is not a current pointer or implementation authority.
+## Mandatory cleanup and line-budget gates
+
+These are BoxShape boundaries, not substitutes for the active BoxCount.
+
+Closed and archived in `ParentHistory`/git:
+
+```text
+CURRENT-STATE-LIVE-SCHEMA-I0           CURRENT_STATE = compact live pointer
+MIRBUILDER-WORKSTREAM-ARCHIVE-R0       closed chronology archived
+MIRBUILDER-BUILDER-BUILD-SPLIT-R0      thin facade + four responsibility files
+MIRBUILDER-LINE-BUDGET-R0              collector/completion test splits landed
+MIRBUILDER-COMPLETION-COMMENT-CLEANUP  site-keyed exact-two wording current
+```
+
+Pre-cutover freeze:
+
+```text
+src/mir/builder.rs                         794 lines; additions forbidden
+src/mir/resolved_value_profile/analyzer.rs 769 lines; freeze or private seam split
+crates/nyash_kernel/src/exports/string.rs  694 lines; strict leaf additions forbidden
+new/touched Rust source                    design split at 760, hard stop at 800
+new activation owner modules              target below 650, mandatory split by 700
+LLVM method_call.py / ny_mir_builder.rs    short hook only; plan logic in new module
+```
+
+Post-cutover queue:
+
+```text
+MIRBUILDER-EMIT-INSTRUCTION-PHASE-SPLIT-R0
+  keep one public writer; split private prepare/validate/commit/post-metadata
+
+MIRBUILDER-MODULE-REGISTRY-CLASSIFY-R0
+  after caller/cfg census, keep one MirBuilder facade and classify modules as
+  state/session, source admission, semantic plans, physical lowering,
+  collection/publication, compatibility, and tests/migration. Preserve paths,
+  visibility, cfg, and re-exports; delete only caller-zero modules.
+```
+
+Each pending BoxShape is a two-to-five-commit refactor series with unchanged
+behavior and callers, focused parity/failure tests, `git diff --check`, and all
+touched Rust files below 760 lines. It cannot overlap the activation BoxCount.
 
 ## Common negative matrix
 
@@ -689,6 +847,13 @@ owner/function/forest/projection/root drift              -> reject
 missing/duplicate/extra Completion site                  -> reject
 wrong function target or return operand                  -> reject
 Loop/local If/inner Return shape drift                   -> reject
+catalog admission resealed below the package adapter     -> guard failure
+raw physical symbol/body Return/effect inference         -> guard failure
+missing/duplicate ProviderSlot or AOT export row         -> RejectBeforeEffect
+String/StringBox alias/profile/entry disagreement        -> RejectBeforeEffect
+symbolic entry/ABI/generation/PlanStamp drift            -> RejectBeforeEffect
+final image/digest/address requested before AOT link     -> guard failure
+stale/foreign linked artifact or missing strict symbol   -> link reject
 second Completion/If/profile issuance                    -> guard failure
 raw AST/Recipe/JoinSig/ValueId handoff                    -> guard failure
 arbitrary canonical-session pairing                      -> API/guard failure
@@ -713,9 +878,28 @@ bash tools/checks/dynamic_v2_physical_input_authority_guard.sh
 bash tools/checks/dynamic_v2_callslot_wire_authority_guard.sh
 bash tools/checks/dynamic_v2_vm_nonconsumer_fence_guard.sh
 bash tools/checks/loop_precutover_authority_guard.sh
+bash tools/checks/dynamic_v2_aot_activation_authority_guard.sh
 bash tools/checks/mirbuilder_inplace_replacement_guard.sh
 git diff --check
 ```
+
+`tools/checks/dynamic_v2_aot_activation_authority_guard.sh` is now landed and
+green in closed pre-cutover mode. Before W6 it requires production caller=0;
+the complete W6 cell must flip the same guard atomically to new=1/old=0. It
+owns export/header projection parity, single admission/alias/PlanStamp
+issuers, pre-link versus post-link plan boundaries, strict symbols, cataloged
+Box-key handoff, the private unpublished orchestration caller census, and zero
+VM/lookup/fallback/retry assertions.
+
+Gate classification (2026-08-13): the focused `completion` command has one
+known parent-baseline failure in
+`mir::compiler::canonical_physical_completion_p0::compiler_bridge_drains_a_plus_single_route`
+(`ReturnValueTypeMissing`, `ValueId(12)`). It reproduces at parent
+`b69f5e11fe` and is outside the selected Dynamic activation diff; it remains
+recorded as baseline debt, not a green production claim. All currently
+existing selected Dynamic/package/Recipe/emitter checks and authority guards
+pass; the activation guard is green in its closed pre-cutover mode, while the
+W6 production flip remains unclaimed.
 
 ## Non-claims
 
@@ -725,13 +909,13 @@ generic all-V2 Loop admission
 full String surface or I6-only provider slot
 Dynamic-specific registry
 runtime provider/selector/image lookup
+pre-link final image/address fabrication
 generic String compatibility route
 Rust VM provider/receipt/session
 new Recipe/JoinSig/CFG/SSA/PHI/Completion authority
 production cutover before the complete atomic activation cell
 fallback / retry / legacy dual-production
 ```
-
 ## History
 
 Detailed landed chronology lives in git history and the historical archive

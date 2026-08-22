@@ -25,9 +25,9 @@ use crate::mir::builder::control_flow::facts::loop_cond_continue_only::try_extra
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::try_extract_loop_cond_continue_with_return_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::try_extract_loop_cond_return_in_body_facts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
-    has_generic_loop_v1_recipe_hint, try_extract_generic_loop_v0_facts,
-    try_extract_generic_loop_v1_facts,
+    try_extract_generic_loop_v0_facts_with_policy, try_extract_generic_loop_v1_with_policy,
 };
+use crate::mir::builder::control_flow::plan::generic_loop::facts::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_body_local_facts;
 use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_facts_with_projection;
 use crate::mir::builder::control_flow::plan::loop_cond::break_continue_entry::{
@@ -53,7 +53,8 @@ pub(in crate::mir::builder) fn try_build_loop_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopFacts>, Freeze> {
-    try_build_loop_facts_inner(condition, body)
+    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    try_build_loop_facts_inner(condition, body, policy)
 }
 
 /// Builds facts while retaining the exact live source frame that produced them.
@@ -65,7 +66,8 @@ pub(in crate::mir::builder) fn try_build_live_loop_facts<'src>(
     condition: &'src ASTNode,
     body: &'src [ASTNode],
 ) -> Result<Option<LiveLoopFactsV1<'src>>, Freeze> {
-    try_build_loop_facts_inner(condition, body)
+    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    try_build_loop_facts_inner(condition, body, policy)
         .map(|facts| facts.map(|facts| bind_live_loop_facts_v1(condition, body, facts)))
 }
 
@@ -74,12 +76,13 @@ pub(in crate::mir::builder) fn try_build_loop_facts_with_ctx(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<LoopFacts>, Freeze> {
-    try_build_loop_facts_inner(condition, body)
+    try_build_loop_facts_inner(condition, body, _ctx.generic_loop_policy())
 }
 
 fn try_build_loop_facts_inner(
     condition: &ASTNode,
     body: &[ASTNode],
+    generic_loop_policy: GenericLoopFactsPolicyFrameV1,
 ) -> Result<Option<LoopFacts>, Freeze> {
     // Phase 29ai P4/P7: keep Facts conservative; only return Some when we can
     // build a concrete route fact set (no guesses / no hardcoded names).
@@ -145,12 +148,20 @@ fn try_build_loop_facts_inner(
     let keep_loop_cond_break_continue = loop_cond_break_continue
         .as_ref()
         .is_some_and(loop_cond_break_continue_requires_recipe_owner);
-    let has_generic_v1_recipe_hint =
+    // Keep the probe result, including a successful `None`, so a source-aware
+    // caller can later reuse the exact same extraction attempt for final Facts
+    // without re-reading policy or re-running the generic extractor.
+    let generic_loop_v1_probe =
         if loop_cond_break_continue.is_some() && !keep_loop_cond_break_continue {
-            has_generic_loop_v1_recipe_hint(condition, body)?
+            Some(try_extract_generic_loop_v1_with_policy(
+                condition,
+                body,
+                generic_loop_policy,
+            )?)
         } else {
-            false
+            None
         };
+    let has_generic_v1_recipe_hint = generic_loop_v1_probe.as_ref().is_some_and(Option::is_some);
     let loop_cond_break_continue = if has_generic_v1_recipe_hint && !keep_loop_cond_break_continue {
         None
     } else {
@@ -181,12 +192,15 @@ fn try_build_loop_facts_inner(
     let generic_loop_v0 = if loop_cond_any_matched {
         None
     } else {
-        try_extract_generic_loop_v0_facts(condition, body)?
+        try_extract_generic_loop_v0_facts_with_policy(condition, body, generic_loop_policy)?
     };
     let generic_loop_v1 = if loop_cond_any_matched {
         None
+    } else if let Some(probe) = generic_loop_v1_probe {
+        probe.map(|extraction| extraction.into_facts())
     } else {
-        try_extract_generic_loop_v1_facts(condition, body)?
+        try_extract_generic_loop_v1_with_policy(condition, body, generic_loop_policy)?
+            .map(|extraction| extraction.into_facts())
     };
     let if_phi_join =
         try_extract_if_phi_join_facts_with_projection(condition, body, &source_projection)?;
@@ -279,7 +293,7 @@ fn try_build_loop_facts_inner(
         loop_break,
         loop_break_body_local,
     };
-    if crate::config::env::joinir_dev::debug_enabled() {
+    if generic_loop_policy.debug_enabled() {
         let ring0 = crate::runtime::get_global_ring0();
         ring0.log.debug(&format!(
             "[plan/trace:facts_summary] ctx=loop_facts has_any=1"

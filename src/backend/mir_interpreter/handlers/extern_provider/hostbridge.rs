@@ -63,7 +63,10 @@ impl MirInterpreter {
                     Err(self.err_invalid("extern_invoke env.file.read expects 1 arg"))
                 }
             }
-            ("env.codegen", "emit_object" | "compile_ll_text" | "link_object") => {
+            (
+                "env.codegen",
+                "emit_object" | "emit_object_compat_harness" | "compile_ll_text" | "link_object",
+            ) => {
                 return self.dispatch_loader_hostbridge_codegen_invoke(args);
             }
             ("env.box_introspect", "kind") => {

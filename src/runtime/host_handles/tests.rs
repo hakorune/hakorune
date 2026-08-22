@@ -1,12 +1,9 @@
 use super::*;
 use crate::box_trait::IntegerBox;
 use crate::runtime::object_identity::ObjectGeneration;
-use std::sync::Mutex;
-
-static HOST_HANDLE_POLICY_ENV_LOCK: Mutex<()> = Mutex::new(());
 
 fn with_host_handle_policy_env<F: FnOnce()>(value: &str, f: F) {
-    let _guard = HOST_HANDLE_POLICY_ENV_LOCK.lock().expect("env lock");
+    let _guard = test_host_handle_policy_lock().lock().expect("env lock");
     let prev = std::env::var("NYASH_HOST_HANDLE_ALLOC_POLICY").ok();
     std::env::set_var("NYASH_HOST_HANDLE_ALLOC_POLICY", value);
     f();
@@ -18,7 +15,7 @@ fn with_host_handle_policy_env<F: FnOnce()>(value: &str, f: F) {
 }
 
 fn with_global_host_handles<F: FnOnce()>(f: F) {
-    let _guard = HOST_HANDLE_POLICY_ENV_LOCK
+    let _guard = test_host_handle_policy_lock()
         .lock()
         .expect("host handle lock");
     f();
@@ -103,6 +100,30 @@ fn live_host_handle_identity_is_legacy_generation() {
 
         drop_handle(raw);
         assert_eq!(identity(raw), None);
+    });
+}
+
+#[test]
+fn lease_identity_rejects_lifo_reuse_and_preserves_replacement() {
+    with_host_handle_policy_env("lifo", || {
+        let first = to_handle_text("first");
+        let first_identity = capture_text_lease_identity(first).expect("first lease identity");
+        drop_handle(first);
+
+        let replacement = to_handle_text("replacement");
+        let replacement_identity =
+            capture_text_lease_identity(replacement).expect("replacement lease identity");
+        assert_eq!(replacement, first);
+        assert_ne!(
+            first_identity.generation(),
+            replacement_identity.generation()
+        );
+        assert!(!drop_if_lease_identity_matches(first_identity));
+        assert_eq!(
+            with_str_handle_ready(replacement, str::to_owned),
+            Some("replacement".to_owned())
+        );
+        assert!(drop_if_lease_identity_matches(replacement_identity));
     });
 }
 
@@ -197,6 +218,10 @@ fn host_handle_identity_report_fields_are_explicit() {
 
     assert!(fields.contains(&("external_host_abi_changed", "0")));
     assert!(fields.contains(&("object_handle_contract_used_by_host_handles", "1")));
+    assert!(fields.contains(&(
+        "dynamic_v2_lease_identity_generation",
+        "slot_monotonic_nonwrapping"
+    )));
     assert!(fields.contains(&("borrowed_access_preserved", "1")));
     assert!(fields.contains(&("host_handle_backing_arc_replaced", "0")));
     assert!(fields.contains(&("host_handle_text_payload_arc_replaced", "1")));

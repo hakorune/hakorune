@@ -1,611 +1,84 @@
-# Current State SSOT
-# Keep live pointers compact. Detailed scope belongs in the active card.
-
-status = "The selected Dynamic semantic-plan and canonical-session admission Decisions are accepted. VerifiedDynamicExitTransactionCoSealV1 is the sole source/Recipe/JoinSig/Completion owner; CanonicalTrivialBindingSsaPlanV1 is a different family and will not be extended for the Loop plus inner Return cohort. The installed package HRTB loan, private final-program session-authority callback, and A-prime demand/emission plan are the only transport/pre-session owners. The R0 canonical-session projection is landed and its unpublished canary is green; the next bounded row is the accepted AOT physical activation. Provider/runtime/LLVM activation and production cutover remain closed until that row is complete; Rust-VM DynamicV2 work remains forbidden."
-date = "2026-08-12"
+status = """
+The caller-zero S6C TextEq route has one source-issued Subject/Needle Residence, one derived V9 scalar slice, canonical source-index SSA, private byte cursor,
+one lifecycle carrier, and one DraftSeal Return owner. Strict real-candidate
+JSON now passes selected-C preflight, lowers into a private textual LLVM draft,
+and reaches one test-owned object through the existing LLVM18 session's memory
+ingress. The failed object-observer probe was a false negative: it rejected the
+mandatory unnamed ELF null section as an empty iterator. LLVM18 Object and
+Disassembler APIs work on the real object, but machine-shape inspection is not
+a compiler authority. The runtime-owned Enter/Finish ABI now projects exact
+no-unwind declarations into selected LLVM without a new receipt or runtime
+object. The final compiler-owned lifecycle closure now verifies the same parsed
+LLVM module before one trusted LLVM18 emission; object/assembly checks
+belong to the later promotion evidence gate. The exact ordinal-zero V3 WSL
+batch closed Complete/development_keeper with both fixed sessions Complete;
+it remains development-only and issues no native promotion authority. The
+selected Dynamic generic active walk is now a 575-line parent plus unchanged 185-line child. Its observation UX closes at a separate explicit-artifact C shape report; optimizer, C equivalence, and machine origin remain unavailable."""
+date = "2026-08-22"
 development_branch_ssot = "main"
-development_branch_cutover = "public-main fast-forwarded into main at 49b502da41; main tracks hakorune/main"
-current_design_stop = "none"
+development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
 work_mode = "fast"
-current_execution_row = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
-current_blocker_token = "The accepted first cell is DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-P0: borrow the two generated CoreMethodContractBox rows through the existing exact I6/I7 call-relation admission, validate owner/site/op/arity/result/effect, and consume the transient view immediately. It must not become a durable provider authority. After its focused evidence is green, continue to ProviderAdmission, immutable registry, receiver-identity RuntimeExecutablePlan, strict LLVM, the I6/I7 physical session, exact-two DraftSeal, and CanonicalCallable collector handoff. Do not select by selector/name, re-search registry/provider/image at runtime, use generic String compatibility, add Rust-VM work, fallback, retry, legacy collector keys, or switch production until all rows are green."
-hako_callable_header_result_carrier_d0_task = "docs/development/current/main/investigations/hako-callable-header-result-carrier-d0-design-task-2026-08-11.md"
-callable_loop_after_closure_task = "docs/development/current/main/investigations/callable-loop-after-closure-p0-task-2026-08-07.md"
-callable_loop_draft_seal_task = "docs/development/current/main/investigations/callable-loop-draft-seal-p0-task-2026-08-07.md"
-callable_loop_production_edge_design_task = "docs/development/current/main/investigations/callable-loop-production-edge-d0-design-2026-08-07.md"
-callable_loop_production_admission_design_task = "docs/development/current/main/investigations/callable-loop-production-admission-d0-design-2026-08-08.md"
-callable_loop_production_source_facts_bridge_design_task = "docs/development/current/main/investigations/callable-loop-production-source-facts-bridge-d0-design-2026-08-08.md"
-callable_loop_production_source_facts_issuer_task = "docs/development/current/main/investigations/callable-loop-production-source-facts-issuer-s0-task-2026-08-08.md"
-callable_loop_production_logical_issuer_design_task = "docs/development/current/main/investigations/callable-loop-production-logical-issuer-d0-design-2026-08-08.md"
-callable_loop_production_logical_issuer_task = "docs/development/current/main/investigations/callable-loop-production-logical-issuer-s0-task-2026-08-08.md"
-callable_loop_production_source_loan_expansion_task = "docs/development/current/main/investigations/callable-loop-production-source-loan-expansion-s0-task-2026-08-08.md"
-callable_loop_production_prepared_ingress_task = "docs/development/current/main/investigations/callable-loop-production-prepared-ingress-s1-task-2026-08-08.md"
-callable_loop_production_prepared_ingress_design_task = "docs/development/current/main/investigations/callable-loop-production-prepared-ingress-d0-design-2026-08-08.md"
-callable_loop_production_full_demand_preflight_task = "docs/development/current/main/investigations/callable-loop-production-full-demand-preflight-s2-task-2026-08-08.md"
-loop_physical_prepare_design_correction_task = "docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md"
-loop_physical_prepare_static_call_fixture_design_task = "docs/development/current/main/investigations/loop-physical-prepare-static-call-fixture-design-2026-08-07.md"
-callable_static_prefix_map_s1_task = "docs/development/current/main/investigations/callable-static-prefix-map-s1-implementation-task-2026-08-07.md"
-callable_static_prefix_p0_task = "docs/development/current/main/investigations/callable-static-prefix-p0-implementation-task-2026-08-07.md"
-loop_common_physicalizer_design_stop_task = "docs/development/current/main/investigations/loop-common-physicalizer-design-stop-2026-08-07.md"
-loop_prelude_argument_receipt_task = "docs/development/current/main/investigations/loop-prelude-argument-receipt-p0-task-2026-08-07.md"
-loop_operation_effect_plan_task = "docs/development/current/main/investigations/loop-recipe-operation-effect-plan-d0-task-2026-08-07.md"
-loop_operation_effect_s0_task = "docs/development/current/main/investigations/loop-recipe-operation-effect-s0-implementation-task-2026-08-07.md"
-loop_operation_effect_callable_adapter_s0_task = "docs/development/current/main/investigations/loop-recipe-operation-effect-callable-adapter-s0-task-2026-08-07.md"
-loop_operation_effect_generic_g0_anchor_s0_task = "docs/development/current/main/investigations/loop-recipe-operation-effect-generic-g0-anchor-ledger-s0-task-2026-08-07.md"
-loop_operation_effect_cross_profile_parity_s0_task = "docs/development/current/main/investigations/loop-recipe-operation-effect-cross-profile-parity-s0-task-2026-08-07.md"
-loop_operation_physicalizer_design_stop_task = "docs/development/current/main/investigations/loop-recipe-operation-physicalizer-design-stop-2026-08-07.md"
-loop_operation_physical_demand_task = "docs/development/current/main/investigations/loop-recipe-operation-physical-demand-p0-task-2026-08-07.md"
-loop_physicalizer_module_split_task = "docs/development/current/main/investigations/loop-recipe-physicalizer-module-split-r0-task-2026-08-07.md"
-loop_physical_block_receipt_task = "docs/development/current/main/investigations/loop-recipe-physical-block-receipt-p0-task-2026-08-07.md"
-loop_operation_emitter_const_task = "docs/development/current/main/investigations/loop-recipe-operation-emitter-const-s0-task-2026-08-07.md"
-callable_loop_physical_canary_task = "docs/development/current/main/investigations/callable-loop-physical-canary-p0-task-2026-08-07.md"
-loop_caller_zero_parity_g0_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-design-2026-08-08.md"
-loop_caller_zero_parity_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
-loop_caller_zero_parity_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
-loop_caller_zero_parity_g0_i1_design_d1_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-d1-2026-08-08.md"
-joinir_loop_m8_loopv0_recurrence_s6a_design_task = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-d0-task-2026-08-08.md"
-loop_input_source_relation_set_r0_task = "docs/development/current/main/investigations/loop-input-source-relation-set-r0-task-2026-08-08.md"
-joinir_loop_m8_loopv0_recurrence_s6a_implementation_task = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-recurrence-s6a-implementation-task-2026-08-08.md"
-loop_joinsig_mixed_fallthrough_design_task = "docs/development/current/main/investigations/loop-joinsig-mixed-fallthrough-d0-design-2026-08-08.md"
-joinir_loop_m8_loopv0_exits_joins_s6b_implementation_task = "docs/development/current/main/investigations/joinir-loop-m8-loopv0-exits-joins-s6b-implementation-task-2026-08-08.md"
-loop_recipe_typed_call_value_design_task = "docs/development/current/main/investigations/loop-recipe-typed-call-value-d0-design-task-2026-08-08.md"
-loop_recipe_v2_typed_schema_callslot_i0_task = "docs/development/current/main/investigations/loop-recipe-v2-typed-schema-callslot-i0-task-2026-08-08.md"
-loop_recipe_v2_typed_schema_callslot_i0_closeout_r0_task = "docs/development/current/main/investigations/loop-recipe-v2-typed-schema-callslot-i0-closeout-r0-task-2026-08-09.md"
-loop_resolver_instance_call_target_design_task = "docs/development/current/main/investigations/loop-resolver-instance-call-target-d0-design-task-2026-08-08.md"
-loop_resolver_canonical_callable_contract_design_task = "docs/development/current/main/investigations/loop-resolver-canonical-callable-contract-d0-design-task-2026-08-08.md"
-resolver_box_source_handoff_design_task = "docs/development/current/main/investigations/resolver-box-source-handoff-d0-design-task-2026-08-09.md"
-resolver_instance_declaration_signature_i0_task = "docs/development/current/main/investigations/resolver-instance-declaration-signature-i0-implementation-task-2026-08-09.md"
-loop_resolver_instance_declaration_and_contract_receipts_design_task = "docs/development/current/main/investigations/loop-resolver-instance-declaration-and-contract-receipts-d0-design-task-2026-08-08.md"
-language_typed_callable_profile_design_task = "docs/development/current/main/investigations/language-typed-callable-profile-d0-design-task-2026-08-08.md"
-frontend_ordered_box_method_inventory_design_task = "docs/development/current/main/investigations/frontend-ordered-box-method-inventory-d0-design-task-2026-08-08.md"
-frontend_ordered_box_method_inventory_r0_task = "docs/development/current/main/investigations/frontend-ordered-box-method-inventory-r0-implementation-task-2026-08-08.md"
-frontend_ordered_box_method_inventory_r1_task = "docs/development/current/main/investigations/frontend-ordered-box-method-inventory-r1-cutover-task-2026-08-08.md"
-frontend_ordered_box_method_inventory_r0a_task = "docs/development/current/main/investigations/frontend-ordered-box-method-inventory-r0a-authority-correction-task-2026-08-08.md"
-callable_contract_external_review_reconciliation = "docs/development/current/main/investigations/callable-contract-external-review-reconciliation-2026-08-08.md"
-callable_contract_implementation_task_map = "docs/development/current/main/investigations/callable-contract-and-instance-call-implementation-task-map-2026-08-08.md"
-callable_body_source_authority_design_task = "docs/development/current/main/investigations/own-home-callable-body-source-d0-design-task-2026-08-09.md"
-callable_body_source_authority_i0_task = "docs/development/current/main/investigations/own-home-callable-body-source-i0-implementation-task-2026-08-09.md"
-callable_query_body_selection_d0_task = "docs/development/current/main/investigations/own-home-callable-query-body-selection-d0-design-task-2026-08-09.md"
-callable_query_body_selection_i0_task = "docs/development/current/main/investigations/own-home-callable-query-body-selection-i0-implementation-task-2026-08-09.md"
-callable_body_owner_binding_d0_task = "docs/development/current/main/investigations/own-home-callable-body-owner-binding-d0-design-task-2026-08-09.md"
-callable_body_owner_carrier_i0_task = "docs/development/current/main/investigations/own-home-callable-body-owner-carrier-i0-implementation-task-2026-08-09.md"
-callable_body_owner_binding_i0_task = "docs/development/current/main/investigations/own-home-callable-body-owner-binding-i0-implementation-task-2026-08-09.md"
-callable_body_facts_query_d0_task = "docs/development/current/main/investigations/own-home-callable-body-facts-query-d0-design-task-2026-08-09.md"
-callable_body_resolved_shape_issuer_d0_task = "docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-d0-design-task-2026-08-09.md"
-callable_body_resolved_shape_issuer_i0_task = "docs/development/current/main/investigations/own-home-callable-body-resolved-shape-issuer-i0-implementation-task-2026-08-09.md"
-callable_body_home_flow_d0_task = "docs/development/current/main/investigations/own-home-callable-body-home-flow-d0-design-task-2026-08-09.md"
-home_source_event_d0_task = "docs/development/current/main/investigations/own-home-source-event-d0-design-task-2026-08-09.md"
-home_syntax_d0_task = "docs/development/current/main/investigations/own-home-syntax-d0-design-task-2026-08-09.md"
-home_release_source_i0_task = "docs/development/current/main/investigations/own-home-release-source-i0-implementation-task-2026-08-09.md"
-home_parser_cleanliness_reconciliation = "docs/development/current/main/investigations/own-home-parser-cleanliness-reconciliation-2026-08-10.md"
-home_contextual_htrivia_parity_r0_task = "docs/development/current/main/investigations/home-contextual-htrivia-parity-r0-task-2026-08-10.md"
-parser_direct_method_observation_recut_r0_task = "docs/development/current/main/investigations/parser-direct-method-observation-recut-r0-task-2026-08-10.md"
-hako_parameter_transfer_typed_seal_d0_task = "docs/development/current/main/investigations/hako-parameter-transfer-typed-seal-d0-task-2026-08-10.md"
-hako_parameter_transfer_typed_seal_r0_task = "docs/development/current/main/investigations/hako-parameter-transfer-typed-seal-r0-task-2026-08-10.md"
-home_nested_release_source_path_p2_task = "docs/development/current/main/investigations/own-home-nested-release-source-path-p2-task-2026-08-10.md"
-loop_v2_dynamic_local_slot_index_p2_task = "docs/development/current/main/investigations/loop-v2-dynamic-local-slot-index-p2-task-2026-08-10.md"
-home_take_decl_syntax_i0_preflight_task = "docs/development/current/main/investigations/own-home-take-decl-syntax-i0-preflight-task-2026-08-09.md"
-hako_parser_take_parameter_carriage_h2_d0_task = "docs/development/current/main/investigations/hako-parser-take-parameter-carriage-h2-d0-consultation-2026-08-09.md"
-hako_parser_box_source_session_h2_s0_task = "docs/development/current/main/investigations/hako-parser-box-source-session-h2-s0-implementation-task-2026-08-09.md"
-hako_parser_parameter_list_product_h2_s1_task = "docs/development/current/main/investigations/hako-parser-parameter-list-product-h2-s1-implementation-task-2026-08-09.md"
-hako_parser_rich_body_result_h2_s2_d0_task = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-d0-consultation-2026-08-09.md"
-hako_parser_rich_body_result_h2_s2_r0_task = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-r0-refactor-task-2026-08-09.md"
-hako_parser_rich_body_result_h2_s2_s0_task = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s0-integer-lexical-parts-task-2026-08-09.md"
-hako_parser_rich_body_result_h2_s2_s1_task = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-return-product-task-2026-08-09.md"
-hako_parser_rich_body_result_h2_s2_s1_r0_task = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r0-open-carrier-task-2026-08-09.md"
-hako_parser_rich_body_result_h2_s2_s1_r1_task = "docs/development/current/main/investigations/hako-parser-rich-body-result-h2-s2-s1-r1-expression-product-task-2026-08-09.md"
-general_static_call_exact_box_result_i1_d0_task = "docs/development/current/main/investigations/general-static-call-exact-box-result-i1-d0-task-2026-08-09.md"
-generic_loop_source_backed_dynamic_carrier_d0_task = "docs/development/current/main/investigations/generic-loop-source-backed-dynamic-carrier-d0-task-2026-08-09.md"
-generic_loop_dynamic_full_body_closure_task = "docs/development/current/main/investigations/generic-loop-dynamic-full-body-closure-d0-task-2026-08-10.md"
-source_bound_dynamic_method_dispatch_design_task = "docs/development/current/main/investigations/source-bound-dynamic-method-dispatch-d0-task-2026-08-10.md"
-source_bound_dynamic_method_dispatch_i0_task = "docs/development/current/main/investigations/source-bound-dynamic-method-dispatch-i0-task-2026-08-10.md"
-resolved_method_call_source_relation_i0_task = "docs/development/current/main/investigations/resolved-method-call-source-relation-i0-task-2026-08-10.md"
-dynamic_dispatch_execution_envelope_design_task = "docs/development/current/main/investigations/dynamic-dispatch-execution-envelope-d0-task-2026-08-10.md"
-loop_recipe_v2_joinsig_dynamic_design_task = "docs/development/current/main/investigations/loop-recipe-v2-joinsig-dynamic-d0-design-task-2026-08-10.md"
-loop_joinsig_neutral_engine_r0_task = "docs/development/current/main/investigations/loop-joinsig-neutral-engine-r0-task-2026-08-10.md"
-loop_recipe_v2_joinsig_dynamic_i0_task = "docs/development/current/main/investigations/loop-recipe-v2-joinsig-dynamic-i0-task-2026-08-10.md"
-loop_v2_semantic_program_coseal_i0_task = "docs/development/current/main/investigations/loop-v2-semantic-program-coseal-i0-task-2026-08-10.md"
-dynamic_fault_exit_transaction_d0_task = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-dynamic_fault_cutpoint_catalog_i0_task = "docs/development/current/main/investigations/dynamic-fault-cutpoint-catalog-i0-task-2026-08-10.md"
-dynamic_local_destination_home_capability_d0_task = "docs/development/current/main/investigations/dynamic-local-destination-home-capability-d0-design-task-2026-08-10.md"
-dynamic_carrier_lexical_disposition_d0_task = "docs/development/current/main/investigations/dynamic-carrier-lexical-disposition-d0-design-task-2026-08-10.md"
-dynamic_invocation_result_lifecycle_i0_task = "docs/development/current/main/investigations/dynamic-invocation-result-lifecycle-i0-task-2026-08-10.md"
-dynamic_operator_carrier_lifecycle_d0_task = "docs/development/current/main/investigations/dynamic-operator-carrier-lifecycle-d0-design-task-2026-08-10.md"
-dynamic_carrier_lifecycle_vocabulary_r0_task = "docs/development/current/main/investigations/dynamic-carrier-lifecycle-vocabulary-r0-task-2026-08-10.md"
-dynamic_operator_execution_contract_i0_task = "docs/development/current/main/investigations/dynamic-operator-execution-contract-i0-task-2026-08-10.md"
-dynamic_operator_carrier_lifecycle_i0_task = "docs/development/current/main/investigations/dynamic-operator-carrier-lifecycle-i0-task-2026-08-10.md"
-dynamic_carrier_rebind_transaction_d0_task = "docs/development/current/main/investigations/dynamic-carrier-rebind-transaction-d0-design-task-2026-08-10.md"
-dynamic_carrier_ingress_lifecycle_d0_task = "docs/development/current/main/investigations/dynamic-carrier-ingress-lifecycle-d0-design-task-2026-08-10.md"
-dynamic_fault_catalog_exhaustive_r0_task = "docs/development/current/main/investigations/dynamic-fault-catalog-exhaustive-r0-task-2026-08-10.md"
-current_pointer_crossfield_consistency_r0_task = "docs/development/current/main/investigations/current-pointer-crossfield-consistency-r0-task-2026-08-10.md"
-hako_parser_numeric_scan_carrier_source_d0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-source-d0-consultation-2026-08-09.md"
-hako_parser_numeric_scan_carrier_parameter_i0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-carrier-parameter-i0-task-2026-08-09.md"
-hako_parser_numeric_scan_parameter_carriage_d0_task = "docs/development/current/main/investigations/hako-parser-numeric-scan-parameter-carriage-d0-consultation-2026-08-09.md"
-hako_parser_rich_body_s0_dependency_carrier_d0_task = "docs/development/current/main/investigations/hako-parser-rich-body-s0-dependency-carrier-d0-consultation-2026-08-09.md"
-general_static_call_result_publication_i0_task = "docs/development/current/main/investigations/general-static-call-result-publication-i0-task-2026-08-09.md"
-source_instance_result_contract_retire_task = "docs/development/current/main/investigations/source-instance-result-contract-retire0-r0-task-2026-08-09.md"
-source_instance_result_contract_retire_i0_task = "docs/development/current/main/investigations/source-instance-result-contract-retire0-i0-implementation-task-2026-08-09.md"
-frontend_ordered_box_method_inventory_r2_task = "docs/development/current/main/investigations/frontend-ordered-box-method-inventory-r2-explicit-source-task-2026-08-08.md"
-frontend_ordered_box_method_inventory_r3_task = "docs/development/current/main/investigations/frontend-ordered-box-method-inventory-r3-ordinary-transaction-task-2026-08-08.md"
-frontend_ordered_box_method_inventory_r4_task = "docs/development/current/main/investigations/frontend-ordered-box-method-inventory-r4-json-codec-task-2026-08-08.md"
-hako_parser_box_declaration_carrier_design_task = "docs/development/current/main/investigations/hako-parser-box-declaration-carrier-d0-design-task-2026-08-08.md"
-frontend_parsed_box_source_aware_delegate_d0_task = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-d0-design-task-2026-08-08.md"
-frontend_parsed_box_source_aware_delegate_s0_task = "docs/development/current/main/investigations/frontend-parsed-box-source-aware-delegate-r6-s3b-c-s0-implementation-task-2026-08-09.md"
-parser_public_ast_postpass_cutover_d0_task = "docs/development/current/main/investigations/parser-public-ast-postpass-cutover-d0-design-task-2026-08-09.md"
-parser_public_ast_postpass_s0_task = "docs/development/current/main/investigations/parser-public-ast-postpass-s0-implementation-task-2026-08-09.md"
-parser_public_ast_postpass_i0_a_task = "docs/development/current/main/investigations/parser-public-ast-postpass-i0-a-implementation-task-2026-08-09.md"
-parser_public_ast_postpass_i0_c_design_task = "docs/development/current/main/investigations/parser-public-ast-postpass-i0-c-design-task-2026-08-09.md"
-parser_public_ast_postpass_i0_c_s0_task = "docs/development/current/main/investigations/parser-public-ast-postpass-i0-c-s0-implementation-task-2026-08-09.md"
-parser_public_ast_postpass_i0_c_projection_d0_task = "docs/development/current/main/investigations/parser-public-ast-postpass-i0-c-projection-d0-design-task-2026-08-09.md"
-parser_public_ast_postpass_i0_c_projection_i0_task = "docs/development/current/main/investigations/parser-public-ast-postpass-i0-c-projection-i0-implementation-task-2026-08-09.md"
-resolver_declared_query_instance_contract_task = "docs/development/current/main/investigations/loop-resolver-declared-query-instance-contract-i0-task-2026-08-08.md"
-callable_contract_language_reference = "docs/reference/language/callable-contracts.md"
-callable_contract_typed_syntax_carriage_i0_task = "docs/development/current/main/investigations/callable-contract-typed-syntax-carriage-i0-implementation-task-2026-08-09.md"
-loop_recipe_operation_shape_split_task = "docs/development/current/main/investigations/loop-recipe-operation-shape-split-r0-task-2026-08-08.md"
-loop_common_predicate_carrier_i0_task = "docs/development/current/main/investigations/loop-common-predicate-carrier-i0-r0-task-2026-08-08.md"
-loop_operation_emitter_read_design_task = "docs/development/current/main/investigations/loop-recipe-operation-emitter-read-design0-d0-task-2026-08-07.md"
-loop_operation_emitter_read_i0_task = "docs/development/current/main/investigations/loop-recipe-operation-emitter-read-i0-implementation-task-2026-08-07.md"
-loop_common_physical_demand_and_session_design = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md"
-loop_semantic_program_coseal_design = "docs/development/current/main/design/loop-common-physical-demand-and-session-ssot.md#pre-cutover-authority-correction-2026-08-08"
-loop_physical_transfer_authority_design = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md#pre-cutover-semantic-program-and-transfer-authority-decision-2026-08-08"
-generic_raw_structured_demands_admission_task = "docs/development/current/main/investigations/generic-raw-structured-demands-admission-s1-d0-task-2026-08-07.md"
-generic_raw_structured_field_receiver_receipt_task = "docs/development/current/main/investigations/generic-raw-structured-demands-admission-s1-d0-task-2026-08-07.md"
-generic_raw_structured_method_receiver_receipt_task = "docs/development/current/main/investigations/generic-raw-structured-method-receiver-receipt-s2-d0-task-2026-08-07.md"
-generic_raw_structured_body_item_source_canonicalization_task = "docs/development/current/main/investigations/generic-raw-structured-body-item-source-canonicalization-s3-d0-task-2026-08-07.md"
-generic_raw_structured_generic_loop_carrier_representation_task = "docs/development/current/main/investigations/generic-raw-structured-generic-loop-carrier-representation-d0-task-2026-08-07.md"
-generic_raw_structured_static_call_result_publication_task = "docs/development/current/main/investigations/generic-raw-structured-static-call-result-publication-d0-task-2026-08-07.md"
-generic_raw_structured_static_call_result_publication_implementation_task = "docs/development/current/main/investigations/generic-raw-structured-static-call-result-publication-i0-r0-implementation-task-2026-08-07.md"
-generic_raw_structured_static_call_result_publication_activation_task = "docs/development/current/main/investigations/generic-raw-structured-static-call-result-publication-i1-d0-activation-task-2026-08-07.md"
-generic_raw_structured_static_call_result_publication_activation_implementation_task = "docs/development/current/main/investigations/generic-raw-structured-static-call-result-publication-i1-r0-implementation-task-2026-08-07.md"
-generic_static_call_publication_source_bound_handoff_design_stop_task = "docs/development/current/main/investigations/generic-static-call-publication-source-bound-handoff-design-stop-2026-08-07.md"
-generic_callable_semantic_loop_handoff_design_stop_task = "docs/development/current/main/investigations/generic-callable-semantic-loop-handoff-design-stop-2026-08-07.md"
-generic_callable_semantic_loop_handoff_s0_task = "docs/development/current/main/investigations/generic-callable-semantic-loop-handoff-s0-implementation-task-2026-08-07.md"
-generic_callable_single_loop_source_recipe_design_stop_task = "docs/development/current/main/investigations/generic-callable-semantic-loop-physical-s1-design-stop-2026-08-07.md"
-generic_callable_single_loop_source_ledger_task = "docs/development/current/main/investigations/generic-callable-single-loop-source-ledger-s1-task-2026-08-07.md"
-generic_callable_single_loop_source_recipe_map_design_task = "docs/development/current/main/investigations/generic-callable-single-loop-source-recipe-map-d0-task-2026-08-07.md"
-generic_callable_single_loop_source_map_s1_task = "docs/development/current/main/investigations/generic-callable-single-loop-source-map-s1-task-2026-08-07.md"
-generic_callable_loop_recipe_coseal_d0_task = "docs/development/current/main/investigations/generic-callable-loop-recipe-coseal-d0-task-2026-08-07.md"
-generic_callable_loop_recipe_coseal_i0_r0_task = "docs/development/current/main/investigations/generic-callable-loop-recipe-coseal-i0-r0-implementation-task-2026-08-07.md"
-resolver_syntax_facts_design_task = "docs/development/current/main/investigations/resolver-syntax-facts-d0-task-2026-08-07.md"
-resolver_syntax_facts_implementation_task = "docs/development/current/main/investigations/resolver-syntax-facts-s1-implementation-task-2026-08-07.md"
-family_row_context_retention_task = "docs/development/current/main/investigations/loop-family-row-context-retention-r0-task-2026-08-06.md"
-loop_family_window_lease_issuer_task = "docs/development/current/main/investigations/loop-family-window-lease-issuer-s0-task-2026-08-06.md"
-loop_family_common_admission_window_task = "docs/development/current/main/investigations/loop-family-common-admission-window-d0-design-task-2026-08-06.md"
-loop_family_selector_design_task = "docs/development/current/main/investigations/loop-family-selector-s2-design-task-2026-08-06.md"
-loop_family_selector_implementation_task = "docs/development/current/main/investigations/loop-family-selector-s2-implementation-task-2026-08-06.md"
-generic_resolved_carrier_toplevel_compound_premise_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-toplevel-compound-premise-d2-s4-task-2026-08-05.md"
-generic_resolved_carrier_norecursive_disposition_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-norecursive-disposition-d2-s5-d0-design-2026-08-05.md"
-generic_resolved_carrier_norecursive_source_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-both-norecursive-d2-s5-s1-task-2026-08-05.md"
-generic_resolved_carrier_selection_disposition_matrix_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-selection-disposition-matrix-d3-s1-design-2026-08-05.md"
-generic_resolved_carrier_v1_only_local_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-matrix-v1only-local-d3-s1-s1-task-2026-08-05.md"
-generic_resolved_carrier_candidate_stage_source_bridge_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-candidate-stage-source-bridge-d3-s1-s2-task-2026-08-05.md"
-generic_resolved_carrier_typed_provenance_handoff_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-typed-provenance-handoff-d3-s2-d0-design-2026-08-05.md"
-generic_resolved_carrier_typed_provenance_observation_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-provenance-observation-d3-s2-s0-task-2026-08-05.md"
-generic_resolved_carrier_cross_session_brand_audit_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-cross-session-brand-audit-d3-s2-s1-task-2026-08-05.md"
-generic_resolved_carrier_provenance_product_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-provenance-product-d3-s2-s2-task-2026-08-05.md"
-generic_resolved_carrier_provenance_repeat_audit_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-provenance-repeat-audit-d3-s2-s3-task-2026-08-05.md"
-generic_resolved_carrier_source_site_totality_census_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-site-totality-census-d3-s2-p0-task-2026-08-05.md"
-generic_resolved_carrier_source_projection_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-source-projection-d3-s2-p1-task-2026-08-05.md"
-generic_resolved_carrier_facts_snapshot_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-facts-snapshot-d3-s2-p2-task-2026-08-05.md"
-generic_resolved_carrier_family_overlap_census_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-family-overlap-census-d3-s2-p3-task-2026-08-05.md"
-generic_resolved_carrier_shared_source_bridge_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md"
-generic_resolved_carrier_shared_source_bridge_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md"
-generic_resolved_carrier_canonical_route_migration_direct_accum_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#next-design-only-task-directaccum-canonical-route"
-generic_resolved_carrier_canonical_route_migration_direct_accum_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#selected-d4-s1-s0-task"
-generic_resolved_carrier_family_boundary_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s2-family-boundary-design-closeout"
-generic_resolved_carrier_family_authority_correction_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s2-family-boundary-design-closeout"
-generic_resolved_carrier_legacy_same_source_census_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s2-s0-closeout"
-generic_resolved_carrier_canonical_selection_authority_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s3-d0-design-closeout"
-generic_resolved_carrier_canonical_observation_set_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#ordered-task-ladder"
-generic_resolved_carrier_canonical_matrix_close_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s3-s1-canonical-matrix-closeout"
-generic_resolved_carrier_canonical_selector_pure_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s3-s2-pure-selector-closeout"
-generic_resolved_carrier_generic_recipe_handoff_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-d0-generic-recipe-handoff-design-closeout"
-generic_resolved_carrier_generic_semantic_demand_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-nosafeslice-closeout"
-generic_resolved_carrier_generic_semantic_shape_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-generic_resolved_carrier_generic_semantic_demand_witness1_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
-generic_resolved_carrier_generic_source_lease_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0s1-witness-closeout"
-generic_resolved_carrier_generic_semantic_shape_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d1-semantic-shape-extension-design-closeout"
-generic_resolved_carrier_generic_semantic_shape_extension_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d1-semantic-shape-extension-design-closeout"
-generic_resolved_carrier_generic_semantic_shape_role_issuer_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
-generic_resolved_carrier_generic_semantic_shape_role_issuer_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s1-resolver-role-issuer-witness-closeout"
-generic_resolved_carrier_generic_semantic_shape_design_stop_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-d0-condition-step-semantic-shape-design-closeout"
-generic_resolved_carrier_generic_semantic_shape_syntax_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-s0-condition-step-syntax-fact-witness-task"
-generic_resolved_carrier_generic_semantic_shape_policy_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-d1-policy-type-overflow-monotonicity-design-closeout"
-generic_resolved_carrier_generic_semantic_shape_numeric_receipt_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-s1-s1-co-sealed-numeric-source-receipt-design"
-generic_resolved_carrier_generic_semantic_shape_numeric_receipt_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0s1-through-s1-s0-closeout"
-generic_resolved_carrier_generic_semantic_shape_numeric_receipt_co_seal_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-s1-s1-co-sealed-numeric-source-receipt-design"
-generic_resolved_carrier_generic_semantic_shape_numeric_policy_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-s1-s2-d0-numeric-policy-adapter-design-stop"
-generic_resolved_carrier_generic_semantic_shape_numeric_substrate_projection_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-s1-s2-s0-numeric-substrate-projection-task"
-generic_resolved_carrier_generic_semantic_shape_numeric_policy_projection_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-s1-s2-s1-d0-numeric-policy-projection-design-stop"
-generic_resolved_carrier_generic_semantic_shape_numeric_policy_projection_witness_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-s1-s2-s1-s1-numeric-policy-projection-witness-closeout"
-generic_resolved_carrier_generic_semantic_shape_numeric_policy_selector_handoff_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s3-s1-s2-s2-d0-policy-to-selector-handoff-design-stop"
-generic_resolved_carrier_generic_semantic_shape_numeric_promotion_gate_task = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md#d4-numeric-promotion-gate0"
-generic_source_to_portable_recipe_design_task = "docs/development/current/main/design/generic-loop-source-to-portable-recipe-ssot.md"
-generic_selection_open_design_task = "docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md#generic-selection-open-d0"
-generic_selection_open_candidate_envelope_task = "docs/development/current/main/investigations/generic-selection-open-d0-candidate-envelope-task-2026-08-06.md"
-generic_selection_policy_handoff_design_task = "docs/development/current/main/investigations/generic-selection-policy-handoff-d0-design-task-2026-08-06.md"
-generic_selection_policy_handoff_implementation_task = "docs/development/current/main/investigations/generic-selection-policy-handoff-i0-r0-implementation-task-2026-08-06.md"
-generic_g0_demand_design_task = "docs/development/current/main/investigations/generic-g0-demand-s3-design-task-2026-08-07.md"
-generic_g0_demand_implementation_task = "docs/development/current/main/investigations/generic-g0-demand-s3-i0-r0-implementation-task-2026-08-07.md"
-generic_g0_recipe_s4_design_task = "docs/development/current/main/investigations/generic-g0-recipe-s4-design-task-2026-08-07.md"
-generic_g0_recipe_s4_implementation_task = "docs/development/current/main/investigations/generic-g0-recipe-s4-i0-r0-implementation-task-2026-08-07.md"
-generic_legacy_corpus_universe_task = "docs/development/current/main/investigations/generic-legacy-corpus-universe-p0-task-2026-08-07.md"
-generic_legacy_observation_front_task = "docs/development/current/main/investigations/generic-legacy-observation-front-g0-task-2026-08-07.md"
-generic_raw_structured_demands_repair_task = "docs/development/current/main/investigations/generic-raw-structured-demands-repair-s0-d0-task-2026-08-07.md"
-generic_resolved_carrier_resolved_source_site_inventory_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-d0-resolver-role-issuer-design-closeout"
-generic_resolved_carrier_resolved_source_site_inventory_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s2-s0-source-site-inventory-implementation-closeout"
-generic_resolved_carrier_generic_semantic_shape_schema_design_task = "docs/development/current/main/investigations/joinir-generic-resolved-carrier-shared-source-bridge-d3-s2-d4-design-2026-08-05.md#d4-s4-s0-semantic-shape-schema-design-closeout"
-current_execution_summary = "The false typed-trivial-plan premise is retired and the sole Dynamic canonical-session admission boundary is accepted. The final Dynamic program remains the semantic owner; the existing A-prime demand/emission plan remains the pre-session physical owner. R0-A/R0-B/R0-C and the typed CoreMethod result/effect projection are landed. The next bounded cell is the private, immediately consumed TextScan two-role co-seal P0; provider/registry/LLVM/runtime activation, production, and Rust-VM lanes remain closed until the complete physical activation is green."
-current_execution_design = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-generic_g0_i0_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i0-r0-task-2026-08-08.md"
-generic_g0_i1_design_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-2026-08-08.md"
-generic_g0_post_i1_audit_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-post-i1-topdown-audit-d0-task-2026-08-08.md"
-generic_g0_i1_design_d1_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-design-d1-2026-08-08.md"
-generic_g0_i1_task = "docs/development/current/main/investigations/loop-caller-zero-parity-g0-i1-r0-task-2026-08-08.md"
-loop_common_segment_block_cutover_task = "docs/development/current/main/investigations/loop-common-segment-block-cutover-r2-task-2026-08-08.md"
-loop_common_recursive_after_r3_task = "docs/development/current/main/investigations/loop-common-recursive-after-r3-task-2026-08-08.md"
-looptrue_observation_design_task = "docs/development/current/main/investigations/loop-family-looptrue-observation-s1-design-task-2026-08-06.md"
-loop_family_common_admission_window_design_task = "docs/development/current/main/investigations/loop-family-common-admission-window-d0-design-task-2026-08-06.md#ordered-finite-ladder"
-loop_family_loopcond_observation_design_task = "docs/development/current/main/investigations/loop-family-common-admission-window-d0-design-task-2026-08-06.md#cell-a-loopcond-observation-design"
-joinir_if_recipe_two_call_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-two-call-arms-d0-d2-execution-task-2026-08-04.md"
-joinir_if_recipe_call_implicit_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-call-branch-implicit-d0-d2-execution-task-2026-08-04.md"
-joinir_if_recipe_nested_execution_task = "docs/development/current/main/investigations/joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md"
-joinir_if_recipe_nested_consumer_design_stop = "docs/development/current/main/investigations/joinir-if-recipe-nested-production-consumer-design-stop-2026-08-04.md"
-ownership_home_reference_closeout_task = "OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST after fini/release I0/U; /FINAL after cutover (parent closes only at /FINAL)"
-reference_closeout_task_set = [
-  "BOX-MEMBER-PROPERTY-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/design/box-member-field-method-surface-ssot.md)",
-  "LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0 (mandatory only after P0, I0, R0, HOME0-I0, HOME0-I0/S, and backend parity)",
-  "LANGUAGE-FAILURE-REFERENCE-CLOSEOUT0-DOC0 (required receipt of LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0)",
-  "LANGUAGE-CLEANUP-REFERENCE-CLOSEOUT0-DOC0 (required receipt of LANGUAGE-RESULT-EXIT-C-PRIME0-DOC0)",
-  "LIFECYCLE-LAST-HOME-FINI-REFERENCE-CLOSEOUT0-DOC0 (required receipt at both Home DOC0/FIRST and /FINAL)",
-  "OWN-EXPLICIT-HOME-RELEASE-REFERENCE-CLOSEOUT0-DOC0 (required receipt at both Home DOC0/FIRST and /FINAL; implementation commits update exact references immediately)",
-  "INLINE-REFERENCE-CLOSEOUT0-DOC0 (every inline implementation cell updates exact references in the same commit; final row audits current/default/required parity)",
-  "OWN-HOME-REFERENCE-CLOSEOUT0-DOC0/FIRST and /FINAL (every Home grammar/plan/implementation/retirement cell updates exact references in the same commit; parent completes only after /FINAL)",
-  "AI-DEVLOOP-REFERENCE-CLOSEOUT0-DOC0 (mandatory only after selected diagnostic/query/repair/tooling products land)",
-  "JOINIR-IF-RECIPE-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/investigations/joinir-if-recipe-nested-one-level-d0-d2-execution-task-2026-08-04.md)",
-  "JOINIR-LOOP-TRUE-BRANCH-EXIT-REFERENCE-CLOSEOUT0-DOC0 (in docs/development/current/main/design/joinir-loop-selfhost-recipe-pipeline-ssot.md)",
-  "GENERIC-G0-PORTABLE-REFERENCE-CLOSEOUT0-DOC0/FIRST-ACTIVATE-FINAL (every S0A-S4 and physical row updates exact caller-zero references; M10b activates; R1/M11/M12 remove legacy claims)"
-]
+current_execution_row = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0"
+current_design_stop = "D0, caller-zero source/Facts issuer P0, and terminal-only port P0 are complete. The next fast cell is one non-nested ordinary Ready consumer; body-only rebind, route cutover, fallback/retry, physical/publication work, parser witness strengthening, and main integration remain closed."
+current_blocker_token = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0: name one source-backed normalizer consumer for exact Ready rows without structural re-search, registry suffix, fallback, retry, or production switch."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-raw_root_body0_s0_status = "closed"
-script_result_tail0_s0_status = "closed"
-
-active_lane = "MirBuilder in-place replacement"
-active_lane_status = """Public MirCompiler compile methods seal whole-file Program into the typed normal lifecycle; public MirBuilder build_module, build_expression, their callers, dead generic root wrappers, disconnected raw root owner, caller-zero If facades, cfg(test) short-circuit facade edges, live MatchExpr input clones, the two record-helper raw-parts body terminals, the duplicate instance-method parameter normalization pair, eight immediate compound-expression payload clones, selected verified Main helper/root lower-side AST reclassification, raw static-Main compatibility lower-side source classification, three raw static-Main facade layers, raw static-Main fresh-port reselection, the shared instance-Box lower-side metadata authority, the raw non-Main static-Box inline lifecycle authority, the old raw Lambda HashSet/ambient-me/pre-emit-metadata authority, the NYASH_BUILDER_DISABLE_TRYCATCH try-body-only compatibility route, the NYASH_BUILDER_DISABLE_THROW debug-trace compatibility route, the caller-zero raw-expression facade, and the caller-zero Call global-presence facade are deleted. The selected live Program declaration indexer and mixed Program-root statement coordinator are now replaced by complete source-only products; catalog -> facts -> static-table -> work-plan -> body order is preserved, while static-table, instance lifecycle, DraftSeal, and collector remain separate owners. Fresh census found no safe live T0 replacement: normal collector drain is the selected T2 D0, while Loop/JoinIR, raw static-Main, and broad Call compatibility remain separate boundaries. Legacy JoinModule disposition and final parity are mandatory before repository-wide final-pipeline completion. Home ownership and later features remain parked until then. All historical detail below in this compatibility field is non-authoritative and must not select work.
-LANGUAGE-DOCS-POSTFIX-CATCH-D1-CLOSEOUT is historical. Its July postfix-catch
-target is superseded by accepted LANGUAGE-RESULT-EXIT-C-PRIME0-D0: recoverable
-failure is Result<T,E>, exact unchanged propagation uses Result-only postfix
-?, source try/throw/catch and RecoverableFailure are rejected, Fault remains
-terminal, and standalone cleanup is the sole lexical registration target.
-OWN-LAST-HOME-FINALIZATION-C-PRIME0-D0 separately selects non-callable
-last-Home Box fini. OWN-EXPLICIT-HOME-RELEASE-STMT0-D0 selects contextual,
-not globally reserved, statement release root for one verified whole-root
-Home; ordinary-call Home authority and every drop/unbox alias are rejected,
-while generic/composite support under the same statement remains provisional.
-The Inline C-speed family keeps Inline(prefer|avoid|required) as
-the sole annotation surface and parks post-inline simplification,
-residual-call verification, default automatic leaf planning, generic
-instances, and any
-evidence-gated structured inline behind the current lane. Both language
-families remain
-production 0; their census, passive plan, Trivial/Home implementation,
-retirement, implementation-coupled reference sync, and mandatory two-point
-post-implementation DOC0 rows are parked and do not move this lane.
-NORMAL-FILE-VM0-FRONTDOOR-FORGE0-S0 has closed its typed no-import front door,
-Raw-terminal correspondence, Script matrix, and Main/function boundary
-classification with production caller=0. RESULT-CARRIER-NORMAL-CAPABILITY0-
-prime-r1 selects Scalar-and-Unit-only, Raw/function-exit annotation rejection,
-and uncredited Null/Void evidence. S0 now preserves existing Raw facts and
-adds typed rejection evidence before annotation/carrier S2, without changing a
-normal or default route.
-The function-exit
-semantics and Raw VM-reference history below remain accepted context.
-FUNCTION-EXIT-SEMANTICS-prime-r1 remains the function-exit semantic
-authority. FUNCTION-EXIT-F1-RETURN0-S0, DRAFT-SEAL0-S0,
-SCRIPT-RESULT-TAIL0-S0, and ENTRY-RESULT-PROJECTION0-D0 are closed.
-ENTRY-RESULT-PROJECTION0-S0 and S1 projection consume are closed. The next
-ENTRY-RESULT-PROJECTION0-S2 closed one disconnected VM-reference consumer.
-S3 accepted one explicit Raw VM-reference owner; S3-ENTRY-CARRY0,
-S3-EXECUTION0, S3-OWNER0, and S3-PARITY0/G0 are closed with a guarded
-route-scoped caller census. POST-S3-CLEAN-CANARY-prime-r1 has now closed the
-caller-zero retirement, passive profile, explicit early canary, and real-binary
-canary parity rows. NORMAL-ENTRY-CUTOVER-prime-r1 selects A-prime: the explicit
-route becomes a supported opt-in reference lane while normal/default cutover
-stays parked. RAW-VM-REFERENCE-SUPPORT0-S0 is closed. D1 accepted C, and the
-NORMAL-FILE-VM0-FAMILY-D0 now closes as NoBoundedCallerFamily: all six plain
-source-hint sites are heterogeneous legacy/artifact/fallback routes. The
-accepted forge row creates a new front door with no legacy caller mapping; no
-normal production caller or general/default/backend/JSON widening is authorized
-until D2. The D′/Raw
-history below is parked context and must not select a different current row.
-D′ is the current canonical control-lowering authority:
-pre-Builder products retain exact coverage/topology/ports/cleanup, while one
-function-owned Binding SSA becomes the only BindingRef-to-ValueId/PHI merge
-owner. B0-L4-S2′, SSA-P0's guarded 92-row inventory, behavior-neutral SSA-L0,
-SSA-C1, SSA-P1, SSA-V0, SSA-S1, SSA-S2, SSA-E0, SSA-S3, and SSA-M0 are closed.
-A′ accepts explicit CopyOwned/DestroyOwned Ownership SSA, keeps Copy neutral,
-and isolates legacy ReleaseStrong. SSA-RC-L0a repairs stale instruction-diet
-test/reference literals to the unchanged 41/16/57 implementation vocabulary.
-SSA-RC-L0b closes the static-const-table load guard false-green by explicitly
-enabling `vm-reference`; all three existing module tests now execute.
-SSA-RC-L0 closes the ownership transport seam split: backend opcode
-vocabulary/allowlists/tests and MIR JSON v0 lifecycle parsing now live behind
-thin facades, all touched source/check files remain below 800 lines, and
-behavior/API/grammar deltas are zero. SSA-RC-L1 closes one closure-scoped Rust
-interpreter function-frame transaction across success and every typed error,
-including PHI/step failures and primary-plus-restoration error retention. The
-SSA-RC-P0 closes a guarded 17-row origin/storage matrix: exact BoxRef source
-producers are zero, StorageClass remains inventory-only, direct JSON v0 lacks
-an authoritative representation ingress, and the first SSA-I1 cutover is
-trivial-only until SSA-I1-O1. SSA-RC-A0 closes passive Ownership SSA
-vocabulary and exact direct-JSON BoxRef transport with production callers and
-backend execution still zero. SSA-RC-A1a closes the temporary Rust semantic-
-oracle handlers: CopyOwned clones one exact BoxRef into an undefined register,
-DestroyOwned takes only the named BoxRef register, and invalid operands fail
-explicitly. SSA-RC-V0 closes one disconnected, owner-branded Ownership SSA
-verifier: exact live-Owned block-entry sets, edge-indexed parallel Phi
-forwarding, finite-exit closure, Borrowed/edge-argument/unwitnessed-call
-rejection, and zero production callers. SSA-RC-A1b closes one explicit Rust
-verified-function session: sealed witness install/restore, owned argument move,
-selected-edge parallel Phi take-before-publish, and exact Owned Return take,
-with ordinary execution and canonical production callers unchanged.
-SSA-RC-A1c closes exact llvm_py plus nyash_kernel ownership materialization.
-SSA-RC-RET-P0 closes a behavior-neutral 118-surface, 266-occurrence legacy
-ReleaseStrong retirement ledger with one private authority-guard helper.
-SSA-RC0 closes a disconnected pure local-binding ownership-transition planner:
-exact BindingRef self-assignment, next-before-previous replacement, BlockExpr
-tail transfer/copy, reverse-order scope/function close, terminal Return ABI,
-and draft discard are sealed with zero MIR/materialization authority. A′ is
-accepted and SSA-I0-PROFILE is closed: one exact whole-owner
-trivial profile is co-sealed with completion and carrier-free If control,
-admits only InlineI64/InlineBool/InlineF64 value propagation, records If merge
-profiles without deciding PHIs, and gives explicit no-value dispositions to
-`return;` and implicit fallthrough. Parameters, receiver, Outbox, String,
-Void values, Null values, and mixed merges reject before Builder effects.
-SSA-I1-T is closed: an admitted trivial whole owner now uses one function-owned
-Binding SSA, carrier-free If control, exact coverage, C1 CFG sealing, and
-demand-driven PHIs. The selected route skips legacy `insert_rc_instructions`;
-temporary A+ remains a once-selected non-admitted whole-unit owner with no
-mixing or failure retry. Production Ownership SSA remains zero.
-SSA-I1-COMPAT-N0a is closed: exact source Null gains one NullSentinel profile
-over the existing ConstValue::Null / MirType::Void / runtime no-value
-representation. Local/read/assignment/BlockExpr, homogeneous If, and Bool
-comparison are production green with zero ownership operations. Null return,
-Void, Outbox, BorrowedText, parameters, and receiver remain separate rows.
-SSA-I1-COMPAT-V0a is closed: exact source Void has a distinct
-ExplicitVoidValue profile over existing ConstValue::Void / MirType::Void /
-runtime no-value representation. It keeps `return void`, `return;`, and
-implicit fallthrough as separate source/profile dispositions. Outbox,
-BorrowedText, parameters, receiver, Ownership SSA, opcodes, backend vocabulary,
-and Loop activation remain inactive. Profile 13/13, focused Void 3/3,
-resolved-lowering 89/89, production inventory 18/18, authority guard, release
-build, and quick 66/66 are green. The P0 exact typed parameter ABI selection
-stop has now selected P0a; receiver remains a separate owner family.
-SSA-I1-COMPAT-P0a is closed: one non-main static function owner with one
-or more parameters, every declared source type exactly `i64`, no typed return,
-and only the current SSA-I1-T body grammar. Sealed parameter-entry rows adopt
-reserved formal ValueIds into the function-owned Binding SSA, preserve exact
-MirParamDecl transport, and reuse the existing exact-numeric final-callee
-contract. Parameter reassignment and If PHIs use the same Binding SSA owner;
-unsupported typed signatures reject before Builder effects and never retry
-A+. Strict corpus candidates remain zero, so this is an ingress proof rather
-than a selfhost coverage claim. Source calls, receiver, broader numeric types,
-Box ownership, Ownership SSA/opcodes, and backend widening remain inactive.
-R0a is closed: exact static `i64` return metadata is consumed only from the
-sealed profile, the existing Binding SSA supplies the returned value, and the
-existing ReturnExitContract remains runtime authority. P0c-i64 A′ is accepted:
-the first executable source Call will be one exact current-owner self call over
-a generic one-entry callable index, generic callable identity, co-sealed call
-projection, conservative effect, and explicit VM-only direct-call capability.
-P0c-L0 is closed: one bounded body-free callable-header view seals one exact
-static-i64 header into generic key/reference/symbol vocabulary; exact lookup
-has no fallback, physical symbol spelling is rejected at source, direct-call
-arity drift is a typed pre-materialization error, and the conservative effect
-plus passive backend capability are guarded. Production callable/capability
-callers, source Call activation, grammar, route, and runtime behavior remain
-zero through L0. P0c-S0a and P0c-S0b co-seal the target and direct-call profile.
-P0c-I1 is closed: an explicit call-enabled ingress admits one exact
-current-owner FunctionCall; canonical Lower consumes the whole row without
-name lookup or fallback; recursion rechecks parameter/return contracts; and an
-explicit VM-only capability rejects unsupported backends. Ownership ops,
-sibling/multiple calls, MethodCall/receiver, and backend widening remain zero.
-P0c-CAT0 A′+ is accepted. CAT0-L0 is closed: one primary header store,
-key-only callable/symbol reverse indexes, indexed lookup, and a checked
-sole-header facade preserve the one-entry self-call behavior without grammar,
-route, runtime, or ownership delta. CAT0-S0 is also closed: one owned non-empty
-function-only Program exposes only opaque declaration sites and body-free
-headers; bodies, owner issuance, catalog sealing, and production callers remain
-zero. CAT0-C0a is also closed: exact-i64 candidates and duplicate key/symbol
-laws are sealed before identity issuance. CAT0-C0b is also closed: all
-top-level origin/owner pairs are reserved from one resolver session, the exact
-Program and immutable catalog are co-sealed, and one non-Clone single-use
-continuation preserves the next origin ordinal and same-branded owner issuer.
-CAT0-G0 is also closed: normalized catalog rows exclude invocation-local
-identity, declaration reorder preserves normalized/lookup meaning, malformed
-private drafts own duplicate identity/symbol invariant tests, and the final
-Program/catalog pairing and caller-zero boundaries are guarded. MP0-S0 is also
-closed: one passive compiler-layer carrier owns the CAT0 source unit and one
-CanonicalCallableKeyV1-keyed primary function map; each function row keeps its
-declaration site, single-root forest, and exact projection together. It has no
-constructor, body authority, resolver continuation consumer, production caller,
-Builder, MIR, runtime, backend, or ownership delta. MP0-R0 is also closed: one
-consuming body-resolution view keeps Program/catalog inseparable, every root
-reuses its CAT0-reserved identity, every body sees the complete index, nested
-Lambda owners consume the same continuation/brand, and each canonical key owns
-one exact forest/projection pair. Self/forward/backward calls resolve without
-Builder/MIR/runtime activation. MP0-P0 is also closed: every canonical-keyed
-function plan is sealed before Builder effects. MP0-TX0 is now closed: every
-function lowers to an unpublished verified draft; exact key/symbol/arity/
-cardinality correspondence precedes one atomic candidate-module batch
-insertion; declaration reorder is stable; and late lowering, symbol, or batch
-collision failures publish no partial callable set. Production transaction
-callers and sibling-call activation remain zero through MP0-TX0. P0c-B1 is
-now closed: one explicit compiler ingress accepts exactly two static exact-i64
-functions and one non-self sibling edge; caller and target headers remain
-separate sealed authorities; declaration order is stable; MIR interpreter
-execution and VM-only backend fail-fast are green; ownership operations and
-fallback remain zero. P0c-F is now selected and absorbs P0c-N: multiple and
-nested calls are fixtures inside one exact acyclic-module row. P0c-F-DX0a is
-closed: one disconnected one-or-more exact-call analysis/preflight request
-records nested calls child-before-parent with checked cardinality while the
-existing exact-one self-call ingress remains unchanged and generalized
-production callers stay zero. DX0b is closed: the sealed profile installs one
-capability per calling function before expression lowering, and call emitters
-only verify it. S0 is closed: resolved call sites project to canonical keys,
-retain multiplicity, collapse only unique topology edges, and seal a
-deterministic DAG witness with self/cycle rejection. V0 is closed: it combines
-that topology proof with canonical-keyed finite trivial plans, seals exact
-graph/function/plan cardinality and per-function call-row correspondence, and
-keeps Builder/MIR/effect/symbol/publication authority and production callers
-zero. The read-only `lang/src` census is closed with zero exact P0c-F
-candidates, so I1 remains an ingress proof rather than a corpus-coverage
-claim. I1 activates the existing atomic module ingress. C-prime is accepted
-for P0c-MR: G0 extracts one behavior-neutral non-Clone callable graph
-inventory, S0 seals a deterministic SCC partition, V0 seals the recursive
-exact-i64 plan, C0 adds one passive module-level capability, I1 explicitly
-activates VM-only recursive modules through the existing atomic draft
-transaction, and R0 later retires the separate one-function self-call
-authority. G0 is closed: one non-Clone inventory owns canonical-key nodes,
-exact function-relative call sites, unique edges, target projection, and
-inventory errors; the existing acyclic proof consumes it by value and retains
-the prior P0c-F behavior. S0 is closed: one non-Clone deterministic SCC
-partition consumes and retains that inventory by value, uses iterative
-host-stack-safe traversal, assigns each component its minimum canonical key,
-classifies recursion, and seals canonical condensation edges/order. V0 is
-closed: one disconnected plan seals recursive-module admission plus exact
-inventory/function/component/typed-plan/call-row correspondence. C0 is the sole
-next code-facing row and adds only a passive module capability schema. C0 is
-closed with one Option marker, exact schema validation, VM acceptance, and
-stable fail-fast for every other backend. I1 is the sole next code-facing row
-and adds one explicit atomic recursive-module ingress. Recursion production
-producers remain zero before I1. I1 is closed: one explicit recursive compiler
-ingress consumes the typed plan, reuses unpublished draft collection, atomically
-publishes the complete function set, installs one module marker, and commits
-only the finished isolated candidate. The MR-specific MAX_CALL_DEPTH and inner
-parameter/return contract failure fixtures now prove caller-frame restoration
-and interpreter reuse. R0 selected Program-only authority with
-`S0 -> P0 -> CUT0 -> G0`. S0 and P0 are closed: test-only normalized
-snapshots prove old/new header, semantic-shape, call ABI, profile order,
-MIR control/value/call/return relation, contract, runtime, backend fail-fast,
-ownership-op, and compiler-reuse parity; the Program route's one recursive
-module marker is the sole intentional difference. CUT0 is also closed:
-singleton production uses the Program authority and the old RootCallable,
-one-entry, temporary selector, and exact-one authorities are deleted. R0-G0 is
-closed with old-symbol/caller zero, one explicit Program ingress, and no retry.
-Historical
-lane chronology follows and is non-authoritative.
-Explicit user priority change on 2026-07-12 reopens
-the parked Source Selfhost/MirBuilder lane before LANGV1 conformance closeout.
-Language-v1 behavior remains unchanged and its closeout stays parked. 3456,
-3454, 3455, and the focused 3457 inventory are closed. The active slice
-reuses ExactNumericValueFact for a narrow MapStoreI64 exact-i64 witness;
-I64Value remains a derived projection and no route, runtime authority, or
-Source Selfhost claim is added. 3478 closes LANGV1-GRAMMAR-001 with
-one physical registry, two independent recursive parser witnesses, 106/106
-corpus fixtures, zero Canonical-rejected spellings under lang/src, and bounded
-differential composition. 3479 accepts one eventual semantic meaning for every
-canonical :T site, a two-axis guarantee/enforcement vocabulary, and the
-existing exact-numeric Box field owner as the first slice. 3480 closes the
-11-site matrix, structural proof, dynamic type/range check, and backend
-preflight boundary. 3481 accepts FunctionEntryContractOwner, a typed
-exact-numeric parameter carrier, final-callee checks, and VM-only first-slice
-support. 3482 closes that carrier, final-callee VM entry check, MIR JSON
-transport, and unsupported-backend preflight. 3483 accepts the final-callee
-return owner, typed carrier, Void/fallthrough veto, and VM-only first slice.
-3484 closes the return carrier, shared value checker, final-outcome verifier,
-VM exit check, MIR JSON, and backend preflight. 3485 accepts existing BindingId
-wrapped as LocalSlotId, explicit LocalContractWrite, checked-edge PHI/loop
-identity, U1 uninitialized rejection, and VM-only first support. 3486 closes
-the behavior-preserving BindingId owner/bypass prerequisite. 3487 closes the
-narrow exact-numeric local write contract, PHI/loop identity evidence, MIR
-JSON, VM owner, and backend preflight. 3488 accepts semantic_refresh as the
-single contract carrier owner and fixes the one-way source-contract to
-representation-fact boundary. 3489 closes the facade, consumer bypass guards,
-representation inventory, and mutable status ledger. 3490 audits the four
-active exact-numeric boundaries. 3490 closes the four-owner island and shared
-runtime value checker. 3491 selects record construction/update under one
-RecordValueContractOwner. 3492 closes the instance-method parameter BindingId
-gap, retires string-based assignment exceptions, and restores FULL 12/12
-grammar parity. 3493 closes the record carrier, VM owner, MIR JSON, and
-unsupported-backend gate. 3494 selects Static Table readonly U16 contract
-closeout without new semantic activation. 3495 closes its source spec, derived
-plan, refreshed carrier, VM consumer, and backend preflight. 3496 accepts
-explicit ArrayElementWrite and shared-state identity. 3497 closes producer,
-planner, VM, JSON, backend projection, and shared-state convergence. 3498
-accepts annotation-only source authority, invariant state attachment, a
-seven-type exact-numeric subset, one-lock mutation, VM-only support, and no
-check elision. 3499 closes all seven source boundaries, atomic state adoption,
-checked mutation, one VM consumer, JSON transport, and non-VM fail-fast. 3500
-accepts A + W1 + S1 + R1 with an atomic owner and thin VM-reference adapter.
-3501 closes WeakRef token equality and Dead/Freed upgrade law. 3502 closes
-source Weak field specs, declaration-indexed slots, explicit writes, refresh,
-runtime convergence, JSON, and backend fail-fast. 3503 now selects whether to
-defer product lowering or name one carrier-aware product backend consumer;
-the VM remains a narrow semantic-reference adapter, not a product fallback.
-3503 accepts defer_with_failfast with declaration-level product rejection and
-no capability activation. 3504 accepts relation/spec plus exhaustive
-inventory-only Failure/Outcome design. Repository artifact C2 classification
-is 91% complete with 77 warning-unregistered consultation rows; no physical
-move was started. 3505 S0-S5 and the narrow 3511 activation slice are landed
-history; the exact-i64 witness and LocalContractWrite Fact bridge slices are
-closed. The active next slice is BoundedBodyAnalysisSnapshotV0: one bounded,
-read-only Hako analysis capability over validated Program(JSON v0), with
-independent Rust/Hako traversal parity before another Fact facade moves.
-The consultation accepts wire_vocabulary: V0 is an explicitly lossy,
-removable Program(JSON v0) observational quotient and never recovers source
-kind. S0 ProgramV0WireContractInventoryV0 is closed with 40 classified union
-rows, 7 exact SchemaMismatchStop tags, field/root seams, and parser strictness
-gaps. S1 SnapshotSchemaV0 is closed with neutral Rust/Hako declarative schema,
-immutable model, limits, PathV0, budget, exact equality, three-way outcomes,
-focused tests, Hako syntax evidence, and an analysis-only dependency guard.
-S2 is closed with a Rust analysis-only strict JSON/ProgramV0 compat adapter,
-decoded duplicate-key and trailing-input rejection, closed field/tag/scalar
-validation, explicit Unsupported versus InvalidInput outcomes, ten focused
-tests, and no MIR lowering/raw-scanner dependency. The active S2.5 task closes
-SnapshotAlgebraV0 in Rust before Hako traversal: canonical ordered atoms and
-edges, closed paths, normalized validated accessors, construction invariants,
-and one executable Rust witness. A1-A3 are closed with typed ordered atom and
-child schemas, exact operator encodings, eighteen closed path fields, fixed
-depth conventions, fourteen tests, and Rust/Hako declarative parity. A4
-is now closed with opaque borrowed nodes, canonical i64, typed text bundled
-with exact UTF-8 bytes/class, and schema-ordered read-only children. Eighteen
-focused tests are green. A5 is closed with one-shot poisoned drafts, complete
-seal checks, canonical schemas, forward paths, flat DFS preorder/depth, and
-read-only publication. A6 is closed with a verification-only validated-view
-witness, builder-only publication, exact integer equivalence, all accepted
-kinds/roles/operators, and inclusive limit boundaries. Twenty-six tests are
-green. S2.5 is complete and S3 Hako traversal is active;
-its B1 flat ordered publication model is VM-reference green and exactly uses
-ordered atom/child records rather than maps or Hako-only ordinals. B2 typed
-validated carrier now follows the accepted B-led hybrid: declarative
-DecodedUtf8ByteLengthContractV0 is authority, the first executable leaf is an
-analysis/internal environment-independent capability, and RHako/HHako build
-local checked text witnesses independently. Rust normalized-carrier replay is
-non-authority. U0/U1 are closed: the RHako internal leaf owns only decoded
-UTF-8 octet length and is proven independent of `NYASH_STR_CP`; U2 closes one
-internal HHako `Callee::Extern` route, Rust reference direct dispatch,
-metadata-only shared product-backend preflight/rejection, and a two-mode Hako
-fixture. U3 closes sealed RHako construction, an HHako scalar carrier factory,
-replay-only count verification, repository construction guards, and the Hako
-literal/atom budget split. U4 now selects an invocation-scoped opaque strict
-JSON arena: Rust owns generic strict JSON syntax/access only, while HHako owns
-ProgramV0 validation, classification, paths, budgets, traversal, and snapshot
-publication. B and C remain replay-only. Direct ingress is raw JSON -> generic
-strict tree handle -> independent HHako ProgramV0 reader; a
-ValidatedProgramV0BodyView bridge, MapBox reader input, and Rust text/count
-witness bridge are forbidden. The reference MIR interpreter is the only
-first-slice backend and all other backends fail before parse/session effects.
-U4 implementation replaces the earlier stop at the strict
-structured-ingress implementation boundary. U4-A0 through U4-A2 now cover the
-neutral arena/session/accessor and reference-VM capability; U4-A3 through U4-A5
-cover the HHako reader, parity gates, and one read-only consumer. Both
-recursive prototypes remain parked and must not be revived directly.
-LoopFeature parity remains a parked follow-up;
-call-return/provider/cast roots remain deferred."""
-
+active_lane = "MirBuilder in-place replacement — Callable source-backed ordinary Loop consumption boundary"
+active_lane_status = """
+Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
+private byte cursor plus canonical index SSA, exact lifecycle carrier,
+Finish-before-Return detached projection, strict MIR JSON, selected-C preflight,
+private textual lowering, and one LLVM18 memory-buffer TargetMachine handoff.
+Real JSON emits a nonempty test-owned object; invalid IR and unwritable output
+leave no object, named `.ll`, or TargetMachine temporary. Production
+correctness now closes on that same parsed LLVM module before its sole emission.
+The versioned runtime header and selected declarations agree that Enter/Finish
+are no-unwind; object/disassembly observation is promotion-only and Selected
+Dynamic remains the sole production arm. The residual-performance owner remains
+unissued; WSL MeasurementBatch V3 has no native promotion authority. The
+hako_check inspect owner split is landed:
+the inspect entry, metadata, identity, shape CLI, and shape model owners are
+753/245/172/107/207 lines. Eleven focused tests and the reusable guard are
+green. The real S6C ingress and first shape canary are landed. Exact fixture
+bytes, strict JSON, final LLVM, object, and disassembly share one V1 seal; the report exposes independent layer counts but no correspondence or keeper authority. Provenance D0 selected MIR-to-final-LLVM
+issuer rows and rejected exact machine mapping. The landed S6C journal now digest-binds 53 emission-site rows covering 8 MIR blocks/8 edges and 22
+final LLVM blocks/31 edges; shape groups them by MIR origin while ASM
+attribution remains unavailable. The pure MIR counter reports
+8 blocks/8 edges/5 branches/24 instructions and final LLVM reports
+22 blocks/31 edges/82 instructions.
+The row-sparse physical-header prerequisite is landed. The package owns one
+always-present sparse cohort, only row lookup is optional, and the unchanged
+full parser source now lends the exact-I64 skip_while row without sibling
+contamination. A-prime remains strict and selected Dynamic provenance resumes.
+The C1 physical predecessor prerequisite is also landed. One compile-local
+edge-keyed inventory maps C1-expanded Normal, Fault, and End edges to their
+actual LLVM tails before output; the existing PHI writer consumes those rows.
+The real full-source candidate now passes LLVM18 verification and emits an
+ELF object, so lowered-LLVM provenance may resume.
+The selected-Dynamic lowered-provenance product is now landed. One exact
+source constant feeds parsing and publication, the collector moves its sole
+completed draft without cloning, and the generic/C1 physical emitters journal
+their own blocks and edges. The pre-opt product closes MIR 10/10 and lowered
+LLVM 32/32 through 64 uniquely-owned rows; post-opt LLVM and ASM remain
+unavailable. Its thin hako_check command surface is landed without changing the
+753-line generic router; reserved root/driver overrides reject before build.
+The V0 disposition closure is landed: one pure child accepts only real preserved/split cohorts and both C issuers stay unchanged. Bundle identity now
+identity I0 is landed: seven payloads are digest-bound before one write-last
+root receipt and exact inventory validation. Origin-footprint I0 now seals the same-emission object/ASM and exposes honest MIR-origin LLVM shape plus independent ASM totals. The external C report is landed without changing the Hako seal, and observation UX returns to the Script ExistingRoot production frontier. Script continuation I0 retains the resolver body-shape owner through lowering input; the ScriptRoot result-publication owner I0 co-seals bundle and continuation Facts; the dedicated final-terminal/root-Return Script Recipe I0 is now source/Facts-only. Its terminal correction is closed: bare final Sequence calls require zero parent relations and direct root Returns require exactly one Value relation. The source-owned Script Recipe-to-result/Join handoff is landed and transported through Script lowering input/state. Direct owner reuse closed NoSafeSlice.
+The selected-normal Script direct-static bridge has closed its ingress fail-fast follow-up: ledger-backed unlocated or foreign source context now stops before child effects; only exact ScriptRoot no-row remains an ordinary-route `Absent`. The static-result publication finite state table and pre-descent seam are accepted, and its transport-only Cataloged lineage witness P0 is now closed with focused tests and an exhaustive guard. The typed publication ingress P0 is implemented and verified with explicit owner-backed missing/foreign/source-loss errors; no canonical consumer or production claim is open.
+	SCRIPT-DIRECT-STATIC-SOURCE-ADMISSION-I0 and TYPEOP-DISJOINT-I0 are landed; PHYSICAL-BRIDGE-I0 is also landed with green focused evidence. The selected bridge takes one exact claim, emits one generic Call, publishes ExactI64 once, and finishes only after success. Scalar operand Recipe D0 and the canonical physical-input D0 are closed; the selected fast row implements the Join-plus-operand input and detached helper. The I0 focused suites and canonical physical-input guard are green; no source admission or production caller is connected.
+Canonical source-digest I0 and parser callable-source handoff I0 (0359ac0af3) are closed with one total parser disposition and no replay/second issuer; Builder, Recipe, Join, physical Call, fallback, raw retirement, production switch, and performance remain closed. ME-CALL-ARITY-FAILFAST-P0 is complete.
+	MIR-ROOT-APP-MODE-UNDECIDED-P0 is complete: both audited non-Main static-Box entrypoints distinguish App, non-App, and undecided mode before effects. The legacy normal-callable Deferred enum is caller-zero outside tests and remains parked without a consumer. The compatibility source-admission census is accepted; the reason+lineage transport P0 is implementation-complete with one non-Clone AST/reason/lineage carrier, focused evidence, and a reusable guard. Its compatibility-only route remains unchanged; all cohorts remain explicit compatibility while P1A typed-error preservation is landed. The canonical Script identity transport I0 is now closed with focused evidence and an exhaustive identity-state guard.
+	The A-input contract D0 is closed as a design contract. The parser-owned canonical Script input handoff I0 issues the AST-free window and declaration/config rows without Builder state. The transport-only parser/frontdoor-to-compiler carrier I0 is implementation-complete: the request owns it by move, Main/Callable and Script close it at explicit `DiscardedBeforeA`, and focused tests plus guards are green.
+The phase-qualified parser/admission, transport, A, and future C/B state matrix P0 is now closed with every actual enum state mapped to one owner and transition. The transport-only source-envelope child is closed: it separates parser-internal handoff movement from future compiler A consumption and closes the explicit old-Recipe sunset boundary. Private complete-zero A observation remains distinct from public future C `NonCandidate`; missing coverage remains distinct from present-invalid rows. The parallel direct-static package, builder-barrel cleanup, and all-phase guard expansion are parked behind their existing owners; no A meaning, Recipe/Join, physical, compatibility/raw retirement, production switch, or performance is open.
+	The parser-composite preservation Decision is accepted. Candidate A is one parser-owned opaque non-Clone token issued only inside ParsedProgramWithCallableParameterSourceV1::new. It co-seals one parser invocation, one non-Main/non-sync direct static provider declaration/result syntax, and one nested final-root MethodCall receiver/ordered-arguments/result/terminal tree. Span, name, ordinal, pointer, MIR paths, Builder products, and transformed-AST reconstruction remain non-authorities. Parser preservation owns Ready/Outside/SourceAuthorityUnavailable/Incomplete/IntegrityInvalid; later resolver Deferred stays phase-separated.
+	Parser-composite preservation I0 is pushed and closed. Composite source admission R0 is pushed and closed as 254856b5a8: one parser-backed default-root issuer consumes the preserved token through an HRTB loan and emits only the witness-bound provider/terminal partition; existing Script admission consumes the provider transfer without resolving the root call. Focused 4-test evidence, cargo check, pointer guard, R0 guard, diff check, and source-size checks are green. The source-reownership audit is now accepted as two ordered substeps: typed Deferred preservation is the selected fast cell; neutral window reownership remains a separate T2 design stop. Lookup, capability/A/C, physical work, old Recipe retirement, production switch, and performance remain closed.
+The Script lookup reownership I0/R0 is implemented and pushed as 873eacad33. One non-Clone source-package HRTB issuer co-seals the package declaration authority, transient target/result catalogs, parser witness, exact call sites, canonical target keys, and owned result facts before pinned-target/Builder effects; ResultBundle consumes the relation once. The old pointer inventory production edge is zero and focused lookup, bundle, source-reown, composite, target, current-state, and diff guards are green.
+	The Script A/C consumer series is pushed as 21b1f3263f; Main integration remains queued. Gate 1 assignment ReleaseStrong fail-fast is pushed as dcd8359f7a; Gate 2 physical-result guard is pushed as 8e9b4562c2. C-prime strictness P0s are landed caller-zero. CONNECT0 selected Dynamic I9; worker review chose the direct Dynamic-ledger-to-canonical-SSA handoff, which is now landed with owner binding, same-block rebind, V13 reservation/commit, and one strict append. Focused positive/ledger tests, cargo check, both strict-writer/CONNECT0 guards, and the pointer guard are green. Static compile-path reachability is confirmed.
+	Selected Dynamic body/state bridge, root/source rows, lexical containment, physical-header P0, and loop-control projection P0 are landed (`a7935344dc`, `9bdd557b6c`, `bc052cb60d`) with focused gates and quick check/build evidence. The old trim/1 TerminalSiteIsNotReturn boundary is gone. Grouped Outside coverage P0 is landed with owner/Loop-site/role-grouped move-only rows and a terminal-only raw path; esc_json/1 body-only rebinds remain Outside. The source-aware Facts issuer D0, caller-zero P0, and terminal-only P0 are complete; the next fast cell is the ordinary Ready port. Builder, ABI, fallback, publication, parser witness strengthening, and performance remain closed.
+"""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -613,372 +86,35 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-normal_entry_cutover_decision = "docs/development/current/main/investigations/normal-entry-cutover-d0-consultation-2026-07-25.md"
-normal_entry_cutover_d1_decision = "docs/development/current/main/investigations/normal-entry-cutover-d1-consultation-2026-07-25.md"
-normal_file_vm0_task = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
-normal_file_vm0_historical_roadmap = "docs/development/current/main/investigations/normal-file-vm0-forge-task-2026-07-25.md"
-normal_file_vm0_d0_question = "docs/development/current/main/investigations/normal-file-vm0-family-d0-no-candidate-question-2026-07-25.md"
-normal_file_vm0_frontdoor_forge_task = "docs/development/current/main/investigations/normal-file-vm0-frontdoor-forge-task-2026-07-26.md"
-result_carrier_normal_capability_design_stop = "docs/development/current/main/investigations/result-carrier-normal-capability0-design-stop-2026-07-26.md"
-result_carrier_normal_capability_s0_task = "docs/development/current/main/investigations/result-carrier-normal-capability0-s0-execution-task-2026-07-26.md"
-normal_file_vm0_d2_decision = "docs/development/current/main/investigations/normal-entry-cutover-d2-consultation-2026-07-26.md"
-normal_source_plan0_decision = "docs/development/current/main/investigations/normal-source-plan0-design-stop-2026-07-26.md"
-normal_source_plan0_s0_task = "docs/development/current/main/investigations/normal-source-plan0-s0-execution-task-2026-07-26.md"
-normal_source_plan0_input0_task = "docs/development/current/main/investigations/normal-source-plan0-input0-s0-execution-task-2026-07-26.md"
-normal_main0_source0_task = "docs/development/current/main/investigations/normal-main0-source0-s0-execution-task-2026-07-26.md"
-normal_main0_f1_plan0_task = "docs/development/current/main/investigations/normal-main0-f1-plan0-s0-execution-task-2026-07-26.md"
-normal_module_tx0_l0_task = "docs/development/current/main/investigations/normal-module-tx0-l0-execution-task-2026-07-26.md"
-normal_main0_thunk0_task = "docs/development/current/main/investigations/normal-main0-thunk0-s0-execution-task-2026-07-26.md"
-normal_main0_vmref_adapter0_task = "docs/development/current/main/investigations/normal-main0-vmref-adapter0-i0-execution-task-2026-07-26.md"
-normal_main0_vmref0_p0_task = "docs/development/current/main/investigations/normal-main0-vmref0-p0-execution-task-2026-07-26.md"
-normal_callable_source0_task = "docs/development/current/main/investigations/normal-callable-source0-s0-execution-task-2026-07-26.md"
-normal_main_direct_call0_task = "docs/development/current/main/investigations/normal-main-direct-call0-s0-execution-task-2026-07-26.md"
-normal_callable_module0_tx0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-s0-execution-task-2026-07-26.md"
-normal_callable_module0_tx0_draft_failure_decision = "docs/development/current/main/investigations/normal-callable-module0-tx0-draft-failure-d0-design-question-2026-07-26.md"
-normal_callable_module0_tx0_handoff0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-handoff0-s0-execution-task-2026-07-26.md"
-normal_callable_module0_tx0_drafts0_lowerer0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-lowerer0-s0-execution-task-2026-07-26.md"
-normal_callable_module0_tx0_drafts0_helper_prefix0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-helper-prefix0-s0-execution-task-2026-07-26.md"
-normal_callable_module0_tx0_drafts0_main_physical0_task = "docs/development/current/main/investigations/normal-callable-module0-tx0-drafts0-main-physical0-s0-execution-task-2026-07-26.md"
-normal_file_canonical_core_dispatch_decision = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-d0-design-question-2026-07-26.md"
-normal_file_canonical_core_dispatch_task = "docs/development/current/main/investigations/normal-file-canonical-core0-dispatch-series-execution-task-2026-07-26.md"
-normal_script0_physical_entry_decision = "docs/development/current/main/investigations/normal-script0-physical-entry-d0-design-question-2026-07-26.md"
-normal_script0_physical_entry_task = "docs/development/current/main/investigations/normal-script0-physical-entry0-s0-execution-task-2026-07-26.md"
-canonical_source_entry_publication0_task = "docs/development/current/main/investigations/canonical-source-entry-publication0-execution-task-2026-07-26.md"
-ownership_home_surface_task = "docs/development/current/main/investigations/hakorune-home-ownership-task-2026-08-04.md"
-ownership_home_design_ssot = "docs/development/current/main/design/ownership-home-model-ssot.md"
-ownership_home_callable_abi_design_task = "docs/development/current/main/investigations/own-home-callable-abi-d0-design-task-2026-08-09.md"
-ownership_home_abi0_design_task = "docs/development/current/main/investigations/own-home-abi0-s0-design-task-2026-08-09.md"
-ownership_home_cprime_lifecycle_ssot = "docs/development/current/main/design/box-lifecycle-cprime-terminal-home-finalization-ssot.md"
-ownership_home_cprime_task = "D0 -> hook grammar/plan -> terminal DropPlan schema + /U -> I0/U -> DOC0/FIRST -> storage+DropPlan /F -> I0/F -> share+DropPlan /S -> I0/S -> C-SPEED -> R0 -> PRODUCT-READINESS -> CUTOVER -> DOC0/FINAL (parked in hakorune-home-ownership-task-2026-08-04.md)"
-ownership_home_resume_after = "MIRBUILDER-INPLACE-REPLACEMENT0 final-pipeline completion"
-ownership_home_first_resume_row = "OWNERSHIP-HOME-RESUME-D0"
-ownership_home_first_design_row = "OWN-HOME-CENSUS0"
-ownership_home_product_readiness_row = "OWNERSHIP-HOME-PRODUCT-READINESS-D0"
-language_docs_status_task = "docs/development/current/main/investigations/language-docs-status-ssot-cleanup-task-2026-07-25.md"
-language_docs_try_catch_task = "docs/development/current/main/investigations/language-docs-try-catch-d1-consultation-2026-07-25.md"
-language_tryless_postfix_catch_task = "docs/development/current/main/investigations/language-tryless-postfix-catch-task-order-2026-07-26.md (historical; superseded by LANGUAGE-RESULT-EXIT-C-PRIME0-D0)"
-language_result_exit_cprime_ssot = "docs/development/current/main/design/language-result-propagation-and-exit-transaction-ssot.md"
-language_result_exit_cprime_task = "D0 -> P0 -> I0 -> R0 -> HOME0-I0 (Unique+field) -> HOME0-I0/S (Shared) -> DOC0; parked in docs/development/current/main/workstreams/language-v1-convergence-current.md"
-postfix_catch_closeout_resume = "historical; do not resume. Use the parked C-prime P0 -> I0 -> R0 -> HOME0-I0 -> HOME0-I0/S -> DOC0 family only after lane selection"
-raw_script_semantic_complete_closure_question = "docs/development/current/main/investigations/raw-script-semantic-complete-closure0-question-2026-07-31.md"
-raw_vm_reference_support0_task = "docs/development/current/main/investigations/raw-vm-reference-support0-s0-execution-task-2026-07-25.md"
-parked_loop_route_retirement_card = "docs/development/current/main/investigations/generic-loop-named-route-retirement-task-2026-07-19.md"
-mirbuilder_clean_architecture_card = "docs/development/current/main/investigations/mirbuilder-clean-architecture-consolidation-task-2026-07-19.md"
-joinir_dprime_succession_task = "docs/development/current/main/investigations/mirbuilder-joinir-dprime-succession-task-2026-07-20.md"
-copy_unknown_consultation = "docs/development/current/main/investigations/mirbuilder-copy-unknown-origin-consultation-2026-07-20.md"
-copy_unknown_task = "docs/development/current/main/investigations/mirbuilder-copy-unknown-origin-task-2026-07-20.md"
-exact0_const_task = "docs/development/current/main/investigations/mirbuilder-exact0-const-task-2026-07-20.md"
-staticload0_task = "docs/development/current/main/investigations/mirbuilder-staticload0-task-2026-07-20.md"
-checkselect0_task = "docs/development/current/main/investigations/mirbuilder-checkselect0-task-2026-07-20.md"
-literal_postemit_retirement_task = "docs/development/current/main/investigations/mirbuilder-literal-postemit-retirement-task-2026-07-20.md"
-resolved_trivial_operation_task = "docs/development/current/main/investigations/mirbuilder-resolved-trivial-operation-task-2026-07-20.md"
-resolved_direct_call_task = "docs/development/current/main/investigations/mirbuilder-resolved-direct-call-task-2026-07-20.md"
-compareemit0_task = "docs/development/current/main/investigations/mirbuilder-compare-emission-receipt-task-2026-07-20.md"
-fact0_tx0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
-fastmem_receipt0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
-fastmem_fieldload0_task = "docs/development/current/main/investigations/mirbuilder-fact0-transaction-boundary-task-2026-07-20.md"
-fastmem_v1_execution_task = "docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md"
-fastmem_v1_schedule_status = "reserved after MODULE-FINALIZE-VERIFY-CUT0; currently parked"
-fastmem_v1_resume_after = "MODULE-FINALIZE-VERIFY-CUT0"
-fastmem_v1_resume_row = "FASTMEM-BASELINE0"
-fastmem_v1_first_delivery = "FASTMEM-FIELDLOAD-VERTICAL0"
-weakfield_classify0_task = "docs/development/current/main/investigations/mirbuilder-weakfield-classification-task-2026-07-20.md"
-finalize0_boundary_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-boundary-consultation-2026-07-20.md"
-finalize0_p0_production_census_consultation = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-consultation-2026-07-20.md"
-finalize0_p0_production_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-p0-production-census-task-2026-07-20.md"
-module_draft_headerport_i0_task = "docs/development/current/main/investigations/mirbuilder-module-draft-headerport-i0-task-2026-07-21.md"
-headerport_hdr0_p0_execution_task = "docs/development/current/main/investigations/mirbuilder-headerport-i0-hdr0-p0-execution-task-2026-07-22.md"
-cut0_i0_t_prime_r1_execution_task = "docs/development/current/main/investigations/cut0-i0-t-prime-r1-execution-task-2026-07-22.md"
-raw_source0_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-consultation-2026-07-23.md"
-raw_source0_lower_execution_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-execution-task-2026-07-23.md"
-raw_source0_lower_root_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-consultation-2026-07-23.md"
-raw_source0_lower_root_plan_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-plan0-execution-task-2026-07-23.md"
-raw_source0_lower_root_owner_package_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-package0-execution-task-2026-07-23.md"
-raw_source0_lower_root_owner_eligibility_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-eligibility-consultation-2026-07-23.md"
-raw_source0_lower_root_owner_eligibility_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-eligibility-question-2026-07-23.md"
-raw_source0_lower_root_owner_eligibility_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-eligibility0-s0-execution-task-2026-07-24.md"
-raw_source0_lower_root_owner_eligibility_g0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-eligibility0-g0-execution-task-2026-07-24.md"
-raw_source0_lower_root_owner_physical_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-owner0-physical0-execution-task-2026-07-24.md"
-raw_source0_lower_root_children_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-children-consultation-2026-07-24.md"
-raw_source0_lower_root_children_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-children-question-2026-07-24.md"
-raw_source0_lower_root_children_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-children0-s0-execution-task-2026-07-24.md"
-raw_source0_lower_root_callmain_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-callmain-question-2026-07-24.md"
-raw_source0_lower_root_callmain_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-callmain0-s0-execution-task-2026-07-24.md"
-raw_source0_lower_root_declaccess_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-declaccess-question-2026-07-24.md"
-raw_source0_lower_root_declaccess_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-declaccess0-s0-execution-task-2026-07-24.md"
-raw_source0_lower_root_declaccess_implementation_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-declaccess-implementation-consult0-2026-07-24.md"
-raw_source0_lower_root_declaccess_implementation_closeout = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-declaccess-implementation-consult0-closeout-2026-07-24.md"
-raw_source0_lower_root_declaccess_manifest0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-declaccess-manifest0-execution-task-2026-07-24.md"
-raw_source0_lower_root_declaccess_coinstall0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-declaccess-coinstall0-execution-task-2026-07-24.md"
-raw_source0_lower_root_body_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-body-question-2026-07-24.md"
-raw_source0_lower_root_body_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-body0-s0-execution-task-2026-07-24.md"
-raw_source0_lower_root_rootbatch_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-rootbatch-question-2026-07-24.md"
-raw_source0_lower_root_rootbatch_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-rootbatch0-s0-execution-task-2026-07-24.md"
-raw_source0_lower_root_final0_source_drain_handoff_question = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-source-drain-handoff-consultation-question-2026-07-24.md"
-raw_source0_lower_root_final0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-final0-s0-execution-task-2026-07-24.md"
-
-latest_card = "dynamic-fault-exit-transaction-d0"
-latest_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_design_card = "none"
-next_design_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
-next_execution_card = "DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0"
-next_execution_card_path = "docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md"
+current_execution_design = "docs/development/current/main/investigations/mirbuilder-callable-loop-source-facts-issuer-d0-2026-08-22.md"
+g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
+latest_card = "mirbuilder-callable-loop-source-facts-issuer-d0"
+latest_card_path = "docs/development/current/main/investigations/mirbuilder-callable-loop-source-facts-issuer-d0-2026-08-22.md"
+latest_card_summary = "Source-aware GenericLoop Facts issuer D0, caller-zero P0, and terminal-only P0 are complete after top-down and source-boundary review: the private issuer co-seals same prepared raw-root owner/lineage/source rows, an explicit policy frame, one existing Facts/Recipe outcome, and exact GenericLoop-only front selection without extending LoopRouteContext or entering retry. The next fast cell is one non-nested ordinary Ready consumer; fallback/retry, physical/publication work, parser witness strengthening, main integration, and performance remain closed."
+next_design_card = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0"
+next_design_card_path = "docs/development/current/main/investigations/mirbuilder-callable-loop-source-facts-issuer-d0-2026-08-22.md"
+next_execution_card = "MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
+parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
+parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
-latest_card_summary = "The Dynamic canonical-session Decision is accepted: the final Dynamic exit co-seal is the sole semantic plan, the existing A-prime demand/emission plan is the sole pre-session plan, and the generic trivial-plan family is excluded. R0-A/R0-B/R0-C and the typed CoreMethod result/effect projection are landed. The next bounded cell is DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-P0: one private borrowed two-role view is immediately consumed by existing exact I6/I7 call admission; no durable provider authority is opened. Provider/LLVM/runtime activation, production switch, and Rust-VM DynamicV2 work remain closed until the full activation row is green."
-preloop_stageb_source_producer_task_map = "docs/development/current/main/investigations/preloop-stageb-source-producer-selection0-prime-r1-task-map-2026-07-27.md"
-latest_landed_card_summary = """COMPAREEMIT0 is closed: shared builder Compare now
-requires strict current-function/current-block membership, emits one physical
-Compare, then commits Bool through one prepared decision; JSON-v0 cf_common is
-unchanged. Three independent audits then close FACT0-TX0-D0: normal FieldGet
-has a distinct pre-emission typed-reservation residual, while the canonical
-generic unified Call has a post-failure annotation residual. No generic
-transaction API is selected. FACT0-TX0-CALL-RECEIPT0-S0 is closed: one
-disconnected post-success payload retains only final existing annotation
-descriptors for the canonical generic unified Call. M0 fixes exactly one future
-canonical consumer while excluding receipt-ordered compatibility routes. P0
-records signature, Array, and Map failed-Call residuals; I0 receipt-gates all
-three existing annotation families after one successful physical Call; G0
-freezes that one receipt consumer in the existing FACT0 partition guard. The
-distinct typed FieldGet reservation design stop is now closed: one ordinary
-non-FastMem FieldGet receipt owner will commit its declared type, field-access
-metadata, and origin only after physical FieldGet success. Its disconnected S0
-product is closed with no production callers; M0 is the sole next row;
-FieldGet/FastMem, ArrayWrite, metadata propagation, and other Call routes stay
-parked. FIELDGET0-M0 now fixes one future ordinary `region == None` consumer;
-P0 fixes the current typed/untyped success/failure temporal matrix. I0 and G0
-now receipt-gate and guard exactly one ordinary consumer. The next producer
-family is an explicit selection frontier; FastMem and CorePlan remain excluded.
-Historical retained detail: STATICLOAD0-D0 is closed: the
-previous sole producer was an
-exact StaticDataLoad from an existing sealed static u16 plan. That contract,
-not index syntax/value/name/runtime behavior, was Integer representation
-authority. STATICLOAD0-S0 was closed as one disconnected prepare-only owner
-with zero production consumers; M0 was closed: no lowering-time consumer needed
-the current early metadata Integer because successful load already published
-transient Integer. P0 was closed: direct Builder and VM/JSON fixtures prove the
-pre-I0 transient/metadata baseline, finalization snapshot, unsupported-plan
-preflight, failed-emission isolation, and no origin. I0 connected one
-successful StaticDataLoad transient-fact commit and removed only its early
-metadata write. Successful StaticDataLoad now commits
-only transient Integer after emission, and finalized metadata comes only from
-normal function finalization. G0 is closed: the reusable manifest-backed FACT0
-guard freezes COPY0, CONST0, and STATICLOAD0 together. The next blocker is an
-explicit next-producer selection; final metadata is never a lowering authority.
-Compare, Select,
-operator/call-backed writers, static u16 load, and post-emit duplicate
-annotations remain separate rows. Historical summary follows. CARRIER-TYPE-D0
-selects the NumericProgression
-representation-precondition rebase: the actual R0 rejection stays source-faithful
-and no type backfill, retry, or fixture rewrite is authorized. FSESSION0-CENSUS0
-is closed with one checked inventory: all 41 expanded prepare/restore leaves,
-all 27 direct MirBuilder fields, and two uncovered ValueId-keyed metadata gaps
-are explicit. BoxCompilationContext's three uncleared FunctionOwned TypeContext
-maps are recorded rather than repaired. S0a-V0 now fixes one private,
-fieldful FunctionLoweringState vocabulary and a structural partition guard
-without adding Builder storage, consumers, constructors, or Deref
-compatibility. The selected next hand is MIRBUILDER-CLEAN0-FSESSION0-S0a-G0.
-T0 fixes legacy child-entry,
-success/error/panic restoration across every captured FunctionOwned surface and
-the existing BoxCompilationContext three-clear/three-retain type-map behavior.
-The two metadata-origin gaps remain explicit and unhealed. S0a-G0 now selects
-one Census-owned selector/destination map plus an adjacent occurrence guard;
-S0b's physical storage cutover follows only after that evidence freezes every
-FunctionOwned direct access. I0 is closed: 32 selector/destination routes and
-64 broad production/test observation rows record 1,787 syntactic accesses with
-no Builder storage or behavior change. P0-S0 replaces that disposable broad
-snapshot with a lexical receiver-owner three-domain proof: 96 rows and 1,776
-observations (1,175 production, 599 test, 2 shared). P0-R0 closes the nine
-mixed-context API owners and the unhealed metadata-origin control: the snapshot
-now records 1,792 observations (1,175 production, 615 test, 2 shared), while
-outer-to-child visibility and child-to-outer retention remain deliberately
-unrepaired. P0-P0 and P0-G0 are closed: Census, the corrected snapshot,
-focused lifecycle tests, all-target check, pointer, format, diff, and line
-checks are green. S0b-D0 selects one all-route mechanical cutover. S0b-I0/P0/G0
-are now closed: all 32 FunctionOwned routes live in one private
-FunctionLoweringStateV1, the historical 1,792-route observation remains
-separately frozen, and the active 96-row direct-access guard proves old-route
-zero. Scope/debug storage is split, the BoxCompilationContext
-three-clear/three-retain action and metadata-origin no-isolation control are
-preserved, and the individual saved_* transaction is unchanged. S0c-D0 is now
-closed: it selects one private move-only captured-subset transaction, never a
-whole FunctionLoweringState swap. Legacy and Box mode preserve their exact
-existing state actions, metadata origins remain an explicit METAISO control,
-and C0 fresh-session construction remains separate. S0c-S0 is closed: one
-private transaction vocabulary exists with production consumers still zero.
-S0c-P0 is closed: direct legacy/Box parity proves the six-map legacy restore
-and three-clear/three-retain Box action while the existing session error/panic
-matrix remains green. S0c-I0/G0 are closed: canonical lifecycle now has one
-move-only FunctionOwned transaction, separate LegacyCompatibility and
-ObservationBorrow snapshots, zero individual FunctionOwned saved captures, and
-one Census-owned transaction guard; existing close/error/panic/publication
-ordering and METAISO control remain unchanged. S0d is closed: the same Census
-now proves the exact captured payload, capture modes, and Box three-clear/
-three-retain law with no second fixture or scanner. C0-D0 is closed: three
-read-only audits fix the future child borrow contract and prohibit fresh-session
-activation until FACT0, PHI0, FINALIZE0, PLAN0, COMPCTX0, CONFIG0, and RAWADAPT0
-close. The child may borrow only frozen module truth, entry-sealed configuration,
-and a non-restoring observation capability; all mutable compatibility, shared
-allocation, direct maps, finalization repair, and parent publication remain
-non-authorities. FACT0-S0 is closed: one pure map-free decision treats missing
-and Unknown as non-facts, Void as exact, rejects explicit Unknown publication,
-and has zero TypeContext/Builder/PHI/production consumers. FACT0-P0-INV0 is
-closed: one static source census freezes 47 direct transient-writer paths and
-99 occurrences, classified once with five primary family anchors; it is not a
-runtime timing proof. FACT0-P0-T0 is closed: eight in-process cases observe
-receiver Parameter, Copy, canonical Phi, generic Call, and typed FieldGet
-against transient facts, instruction commit, and finalized-draft metadata.
-They preserve the observed generic-Call and typed-FieldGet failure residuals,
-while explicit Unknown parameters and FastMem FieldLoad remain separate legacy
-controls. FACT0-I0-RCV0 is closed: only receiver parameter zero consumes the
-monotone decision, from the existing method-skeleton Box(owner) fact after
-preflight and before receiver-state mutation. Existing direct parameter commit
-remains the one identity-write site, explicit/static Unknown formals remain
-legacy, and conflict tests prove no binding/variable/kind/type/origin/slot
-publication. FACT0-P1-S0 and P0 are closed: schema v2 now partitions the
-unchanged 47-path/99-occurrence census into 58 gap-free ordinal slices and 38
-semantic profiles, with two explicit shared lexical sites. The partition fixes
-PHI lifecycle, literal/operator, call annotation, field, allocation, and
-metadata-facade retirement owners without migrating any raw writer.
-FACT0-P1-G0 is also closed: one independent projection guard fixes the 38
-profile/prerequisite schedule, 58 slices, two shared sites, status baseline,
-and the prohibition on a premature FACT0-G0 prerequisite. PHI0-S0 is closed:
-one disconnected private completion vocabulary validates logical predecessor
-rows and delegates the existing type decision with zero production consumers
-or mutation. PHI0-M0 is closed as an evidence row: raw, final, patch, and
-batch do not share one existing predecessor-readiness authority. In particular,
-provisional patch and loop-header batch may intentionally name future edges
-that a recomputed current CFG cannot see. `PHI0-PRED0-D0` is closed: generic
-input/type completion is the one four-entry semantic transaction, while
-CFG-ready predecessor validation is a distinct route-scoped capability.
-`PHI0-PRED0-S0` is closed: the private vocabulary now separates generic
-input/type completion from CFG-ready preparation with zero production
-consumers. `PHI0-PRED0-P0` is closed: focused fixtures freeze the legal
-unsealed provisional patch and future loop-host edge, while resolved-If and
-CorePlan select-as-PHI prove their existing CFG-ready routes. The shared guard
-now fixes private CFG-ready consumers at zero and forbids generic patch/batch
-predecessor recomputation. `PHI0-I0` is closed: raw/final/patch/batch now use
-one generic completion connection, prepare from logical rows, and commit type
-facts only after their existing instruction success. Duplicate predecessor rows
-fail before mutation, while unsealed patches and batch candidate atomicity stay
-intact. `PHI0-CFGREADY0-D0` and S0 are closed: canonical resolved-If is the
-sole first route-owned exact predecessor witness, and its disconnected bridge
-co-seals reverified CFG truth with exact join rows while remaining unconnected
-to PHI completion. P0 closes implicit/explicit actual-exit coverage. I0 now
-connects exactly that bridge to the shared successful final-PHI physical commit:
-the route-local sidecar is the only CFG-ready consumer, while generic
-raw/final/patch/batch remain the four input/type-only consumers and perform no
-CFG analysis. G0 freezes that one-consumer/route-exclusion inventory. PHI0-G0
-now closes the whole completion series: the exact generic four, one resolved-If
-CFG-ready consumer, raw-only origin, and the shared physical continuation are
-guarded without new PHI admission. `FACT0-I1-COPY0-D0` is closed as a design
-stop: successful LocalSSA Copy currently transfers stored `Unknown`, and that
-entry suppresses the adjacent receiver-origin `Box(owner)` fallback. The next
-owner is `COPY-UNKNOWN0-D0`; no COPY0 publisher is authorized beforehand.
-PHI0 does not widen
-origin, provisional Unknown,
-finalization, or function-level type authority. `metadata::propagate` remains a distinct
-METAPROP0 owner after COMPCTX0/CONFIG0 and before PLAN0-CUT0; FACT0-G0 remains
-the final global-zero gate after that owner plus FINALIZE0, PLAN0, COMPCTX0,
-CONFIG0, and RAWADAPT0 retire their named legacy writers.
-NESTED-REP0 remains parked. A read-only three-worker next-producer inventory
-selects only the shared FastMem MemOp receipt: `emit_fastmem_memop` must
-preflight function/region, emit the physical MemOp, then publish its region
-counter. FastMem FieldLoad reservation, Array write observation, array
-receiver/result facts, CorePlan FieldGet, metadata propagation, and finalization
-remain separate parked owners. FASTMEM-RECEIPT0-S0 now owns a disconnected
-private prepared receipt with no production emitter consumer; M0 must inventory
-the existing facade/timing matrix before the single I0 connection. The M0
-inventory fixes one physical owner and eight direct helper call sites; P0
-freezes the direct/value no-block counter residual. I0 moves the one shared
-receipt commit after successful physical MemOp emission, and G0 seals that
-single owner through the existing partition guard. The next decision stop is
-FASTMEM-FIELDLOAD0-D0 is closed with a behavior-preserving split: FastMem
-FieldLoad site plus declared type remain pre-emission reservations, while its
-missing-declared Integer compatibility and field-result origin remain
-post-success completions. The selected lifecycle must not be silently merged
-with ordinary FieldGet or the closed generic MemOp receipt. FASTMEM-FIELDLOAD0
-S0 now owns a disconnected Builder-free lifecycle payload with zero production
-consumers; M0/P0 now freeze one FieldLoad owner, two semantic entrances, and
-declared/missing success/failure timing. I0 alone may connect the prepared
-lifecycle to that FieldLoad arm while preserving its pre-emission reservations
-and post-success completions. FASTMEM-FIELDLOAD0 is now closed: one selected
-lifecycle owns the reservation/completion split, and the existing partition
-guard seals its two scoped type lanes and one site/origin owner. Return to
-ARRAY-WRITE-OBSERVE0-D0 before opening another code row. FASTMEM-EXPECT0 is
-closed: the two stale FastMem tests now assert the existing FieldLoad/FieldStore
-MemOp surface and legacy FieldGet/FieldSet absence; full FastMem is 91/91.
-Three independent read-only inventories identify Array write receiver
-observation as the next distinct pre-emission seam. ARRAY-WRITE-OBSERVE0-D0
-is closed: two direct ArrayElementWrite specializations retain the existing
-semantic observer and move only its invocation after successful physical
-emission. Six temporal witnesses and the existing partition guard seal two
-post-success direct consumers while generic Call/Map, FieldStore/index
-reservations, and FastMem remain excluded. Three read-only Map audits then
-select MAP-WRITE-OBSERVE0-D0: Map Set/Delete/Clear needs a route-specific,
-success-only replay chain, not a naive observer move. The chain preserves the
-existing semantic-source to LocalSSA receiver fact propagation: terminal
-BoxCall commits S, direct Unified commits S then its finalized receiver R when
-distinct, and BoxCall-to-Unified commits S then the delegated L/R chain after
-one physical Call receipt. No persistent alias map, generic Call API rewrite,
-Map Get policy, router/environment change, FieldStore/index, or FastMem work
-is authorized. MAP-WRITE-OBSERVE0-S0 is closed: one private non-Clone,
-Builder-free Map write replay product retains only existing Set/Delete/Clear
-semantic descriptors and the S/L/R schedule. It has zero production consumers
-and makes zero fact-map writes. M0 must now freeze the direct Unified,
-terminal BoxCall, and BoxCall-to-Unified route inventory plus the exact
-failure/success witness matrix before any production connection."""
-preloop_stageb_carrier_f5_f9_execution_task = "docs/development/current/main/investigations/preloop-stageb-carrier-f5-f9-execution-task-2026-07-27.md"
-raw_post0_drained_carrier_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-drained-carrier-consultation-2026-07-24.md"
-raw_post0_commit_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit-consultation-question-2026-07-24.md"
-raw_post0_commit0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-commit0-s0-execution-task-2026-07-24.md"
-raw_post0_publication_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-publication-consultation-2026-07-24.md"
-raw_post0_publication0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-publication0-s0-execution-task-2026-07-24.md"
-raw_post0_publication_adapter_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-publication-adapter-consultation-question-2026-07-24.md"
-raw_post0_publication_adapter0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-publication-adapter0-s0-execution-task-2026-07-24.md"
-raw_post0_public_ingress0_s0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-s0-execution-task-2026-07-24.md"
-raw_post0_public_cutover_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-consultation-question-2026-07-24.md"
-raw_post0_public_cutover_decision_task_map = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-decision-task-map-2026-07-24.md"
-raw_post0_public_ingress0_closeout_repair0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress0-closeout-repair0-s0-execution-task-2026-07-24.md"
-raw_post0_public_ingress_config0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-ingress-config0-s0-execution-task-2026-07-24.md"
-raw_post0_public_cutover_coverage0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-s0-execution-task-2026-07-24.md"
-raw_post0_public_cutover_coverage0_repair_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-design-question-2026-07-24.md"
-raw_post0_public_cutover_coverage0_repair_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-coverage0-repair-s0-execution-task-2026-07-24.md"
-raw_post0_public_cutover_parity0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-s0-execution-task-2026-07-24.md"
-raw_post0_public_cutover_parity0_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-design-question-2026-07-24.md"
-raw_post0_public_cutover_parity0_effect_repair_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-effect-repair-design-question-2026-07-25.md"
-raw_post0_public_cutover_parity0_effect_repair_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-effect-repair-s0-execution-task-2026-07-25.md"
-raw_post0_public_cutover_parity0_body_return_consultation = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-design-question-2026-07-25.md"
-raw_post0_public_cutover_parity0_body_return_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-s0-execution-task-2026-07-25.md"
-raw_post0_public_cutover_parity0_body_return_app_design = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-app-d0-design-question-2026-07-25.md"
-raw_post0_public_cutover_parity0_body_return_app_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-public-cutover-parity0-body-return-app-s0-execution-task-2026-07-25.md"
-function_exit_semantics_ssot = "docs/reference/language/function-exit-and-entry-result.md"
-function_exit_f1_return0_task = "docs/development/current/main/investigations/function-exit-f1-return0-s0-execution-task-2026-07-25.md"
-raw_body_return_compat_p0_task = "docs/development/current/main/investigations/function-exit-raw-body-return-compat-p0-execution-task-2026-07-25.md"
-raw_body_return_compat_sunset_id = "RAW-BODY-RETURN-COMPAT-SUNSET-001"
-entry_exit_code_compat_sunset_id = "ENTRY-EXIT-CODE-COMPAT-SUNSET-001"
-raw_post0_old_raw_retire0_task = "docs/development/current/main/investigations/cut0-i0-raw-source0-lower-root-post0-old-raw-retire0-execution-task-2026-07-24.md"
-failure_outcome_semantic_manifest_maint0_task = "docs/development/current/main/investigations/failure-outcome-semantic-manifest-maint0-execution-task-2026-07-24.md"
-finalize0_census_task = "docs/development/current/main/investigations/mirbuilder-finalize0-census-task-2026-07-20.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
 current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
-
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
-
 landed_tail = [
-  "2026-07-29: MIRCOMPILER-PUBLIC-PROGRAM-ADMISSION0-I0-R0 closes public whole-file Program admission. compile/compile_with_source/compile_with_source_and_imports retain their signatures but enter the typed normal lifecycle; non-Program rejects before Builder effects. compile_legacy, the Legacy request selector/candidate session, the public LegacyModuleLoweringInputV1 facade export, and the sole compiler production build_module edge are deleted. Focused tests, feature/check builds, root facade/shared replacement guards, failure reuse, and <800-line checks are green. Wasm full-suite 17/40 failures are the same pre-existing undefined-label failures on unmodified HEAD. MIRBUILDER-PUBLIC-ROOT-API0-D0 is next; Ownership/View remain parked.",
-  "2026-07-28: RECORD-HELPER-BODY-DESCENT0-I0-R0 closes the eighth in-place production replacement. One tagged catalog-child loan crosses the selected MethodCall descent object without creating source, identity, grammar, publication, failure, or located authority. The helper driver remains the sole statement/Return classifier and Return-as-value owner. Two direct Legacy re-entry edges and three dead same-family facades are physically absent; fallback/retry/reselection is zero. Cargo check, 38 focused tests, private M0 helper, real CLI allocator/helper guard, shared/pointer guards, diff check, and <800-line checks are green. Source/test files remain 952/139, source LOC is +46, test LOC is -6, and the five-cell rolling production total is -292. MIRBUILDER-NEXT-EDGE-DESIGN-STOP is current.",
-  "2026-07-28: RETURN-SOURCE-PARTITION-CUTOVER0-I0-R0 closes the sixth in-place production replacement. The sole raw/default ASTNode::Return selector sends Some(value) through RawLegacyValueReturnInputV1 to drive_value_return_statement_v1 and None to one AST-free build_void_return_statement leaf; one detached located value caller remains root-inactive. build_return_statement, drive_raw_value_return_statement_v1, no-value Match observation, and facade-only tests are physically absent. Return ABI, Match/CorePlan, defer/cleanup/completion policy, runtime, backend, and language behavior remain unchanged. Cargo check, 17 focused Return tests, 6 located tests, private Return helper, shared/pointer guards, diff check, and <800-line checks are green. src/**/*.rs changes by -141 lines and the five-cell rolling total is -73. MIRBUILDER-NEXT-EDGE-DESIGN-STOP is current.",
-  "2026-07-28: VARIABLE-ASSIGNMENT-DESCENT-CUTOVER0-I0-R0 closes the fifth in-place production replacement. Exact Variable-target Assignment and GroupedAssignmentExpr are the two raw/default callers of one RawLegacyVariableAssignmentInputV1/drive_variable_assignment_v1 owner; one detached located caller remains root-inactive. drive_raw_variable_assignment_v1 and build_grouped_assignment are physically absent, the sole facade-only test is removed, fallback/retry is zero, and exact-Variable parity plus Grouped production-ingress behavior remain green. Cargo check, focused suites, private ASN0 helper, shared/pointer guards, diff check, and <800-line checks are green. src/**/*.rs changes by -77 lines and the five-cell rolling total is -134. MIRBUILDER-NEXT-EDGE-DESIGN-STOP is current.",
-  "2026-07-28: LOCAL-STATEMENT-DESCENT-CUTOVER0-I0-R0 closes the fourth in-place production replacement. The raw/default ASTNode::Local selector calls drive_local_statement_v1 exactly once; the detached located caller remains root-inactive. build_local_statement and drive_raw_local_statement_v1 are physically absent, all nine cfg(test) setup callers use the real AST ingress, fallback/retry is zero, and Local ordering/specialized-owner/parity proofs remain green. Cargo check, focused suites, Local semantic helper, shared/pointer guards, diff check, and <800-line checks are green. Production Rust is -52 for this cell and -57 across four cells. MIRBUILDER-NEXT-EDGE-DESIGN-STOP is current.",
-  "2026-07-28: MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0 closes the third fixed in-place production replacement. Default Legacy requests own source/import inputs before opening one ModuleBuilderInvocationSessionV1; build and compiler finish touch only the candidate, and the existing prepared external commit replaces live state after success. Failed candidates leave all live config/core cursors unchanged, reuse is green, old live build-module and fallback edges are zero. Successful module finalization closes function-local state. Collector parity exposed and repaired an exact-numeric/typed-array field classification leak; dynamic contract, constant proof, and verifier range rejection tests are green. Shared/pointer guards, cargo check, focused suites, diff check, and all touched files under 800 lines are green. Production Rust is +44 for this cell and -5 across three cells. MIRBUILDER-NEXT-EDGE-DESIGN-STOP is current.",
-  "2026-07-28: CALLABLE-DRAFT-COLLECTOR-CUTOVER0-I0-R0 closes the second restored in-place production replacement. One ordinary root-local ModuleDraftCollectorV1 now owns static/free, instance, constructor, optional callable Main, and nested raw callable drafts until the root lifecycle drains the complete set through one try_add_functions_atomic call. The old direct per-function production publication edge is zero; a collision fixture proves no collected prefix is published; fallback/retry is zero. The root-only extension reuses existing raw child ports and retains only the canonical instance observation required by the parked Stage-B adapter. Focused existing tests are 63/63 green, cargo check and shared/pointer guards are green, every modified source file is below 800 lines, production Rust is +153 for this cell and -49 across the two closed cells. MODULE-CANDIDATE-SESSION-CUTOVER0-I0-R0 is next.",
-  "2026-07-28: CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0 closes the first restored in-place production replacement. The ordinary static/free and instance/constructor callable closures now create RawLegacyChildLoweringPortV1 and consume the existing port-aware draft owner before the unchanged Legacy finalizer/session publication. build_static_method_draft_v1, build_instance_method_draft_v1, lower_function_body, lower_method_body, and the unused disconnected port-aware protocol shell are deleted. New production callers=2, selected old callers=0, fallback/retry=0, focused callable/loop/Call/constructor tests are green, the shared replacement manifest/guard is live, and production Rust changes by -202 lines. CALLABLE-DRAFT-COLLECTOR-CUTOVER0-I0-R0 is next.",
-  "2026-07-27: PRELOOP-STAGEB-INSTANCE-METHOD-CAPTURE-SEAM0-S0 closes F7-1. The shared post-catalog root kernel lends every source-order instance method to one stack-scoped InstanceMethodCapturePortV1; its ordinary adapter delegates to the existing lower_method_as_function terminal. A focused real root proves exactly one Worker.run/1 observation and unchanged materialization. Raw-port, module-activation, F6 session, structural guard, cargo check, diff check, and <800-line checks are green. Exact-caller ledger I0 is next; selected policy, collector admission, compile_request, retry/fallback, catalog reseal, and module publication remain zero.",
-  "2026-07-27: PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-P0/G0 closes F6-4. The Phase-A-indexed actual Parser completes one unpublished function with exact inner-before-outer Call order, three physical parameters, distinct Unknown function return metadata and Integer outer-carrier evidence, and exact parent restoration. Without Phase A, the typed BodySchedule rejection retains the completed carrier, publishes no draft, restores the same parent, and a fresh selected session on the same Builder succeeds after the existing declaration indexer runs. Generic payload cleanup, focused session/Raw-port/outer-carrier tests, structural guard, cargo check, diff check, pointer guard, and <800-line checks are green. F7 exact-caller activation ledger is next; production consumers, retry/fallback, and module publication remain zero.",
-  "2026-07-27: PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0 closes F6-3. One exact catalog-backed instance source projection feeds existing preparation, StepTree, the sole F6-2 schedule, shared finalizer preparation, header-aware finalization, and the generic payload session. In a Phase-A-indexed actual Parser context, Body(4) clears, the complete unpublished draft and body-schedule/carrier payload survive one pending completion, and the parent restores exactly. Carrier Integer and unannotated function-signature Unknown remain distinct. Focused/session/Raw-port/outer-carrier tests, structural guard, cargo check, diff check, and <800-line checks are green. P0/G0 failure retention and reuse are next; ledger and production consumers remain zero.",
-  "2026-07-27: PRELOOP-STAGEB-BODY-SCHEDULE0-I0 closes F6-2. One bounded schedule port reuses the sole Legacy block/statement drivers, clips prefix routing before the selected row, consumes the exact F3-F5 chain once, and permits suffix routing only after outer Integer publication. The actual Parser fixture proves distinct inner/outer Calls, assignment equality, visible Integer fact, then the honest Body(4) suffix frontier; that rejection retains the complete published carrier. Focused tests, surrounding block/Raw-port/outer-carrier suites, structural guard, cargo check, diff check, and <800-line checks are green. PRELOOP-STAGEB-INSTANCE-FUNCTION-SESSION0-I0 is next; finalization, activation ledger, production consumers, retry/fallback, and module publication remain zero.",
+  "2026-08-21: SCRIPT-SOURCE-REOWN-WINDOW-I0-R0 is implementation-complete and pushed as c97b40dc3d. One parser HRTB loan now feeds the sole neutral window issuer, which co-seals the Script window, composite partition, instance-Box transfer, and constructor-source cohort; the old Builder window/decision/occurrence production callers are zero. Focused neutral/instance/composite tests, cargo check, source-reownership/composite guards, current-state pointer guard, diff check, and sub-760 source-size checks are green. Lookup reownership remains design_stop; A/C, Recipe/Join, physical, fallback, production switch, and performance remain closed.",
+  "2026-08-21: SCRIPT-A-SOURCE-COVERAGE-I0 is implementation-complete and pushed as 2fa560cd8f. The single source-package HRTB observation retains complete Script MethodCall coverage as explicit CompleteEmpty/CompleteRows with parser provenance and typed source-route evidence; ordinary rows continue to owned target/result lookup while non-direct rows remain visible. Focused 7-test coverage, cargo check, reusable Script guard, current-state pointer guard, source-size, and diff checks are green. The next design stop is the pre-effect source handoff under SCRIPT-A-CUTOVER-I0-R0; A/C, Recipe/Join, physical, fallback, production switch, and performance remain closed.",
+  "2026-08-22: SCRIPT-A-C-CONSUMER-SERIES-I0-R0 is pushed as 21b1f3263f on codex/dynamic-v2-aot-activation. The pre-effect source observation now moves through a private non-Clone A capability, immediate named A/C issuers, and one required post-install C consumer; the lowering boundary has one closed no-direct/direct disposition instead of parallel optional products, and selected-Script claim Absent fallback is removed. Focused A/C 2, pre-effect 6, claim-ledger 7, and retained-call 1 tests pass; cargo check, A/C guard, updated target guard, current-state guard, and diff checks pass. Main integration, assignment fail-fast, old physical/compatibility/raw retirement, and performance remain queued.",
+  "2026-08-22: MIR-RESULT-DISCARD-CENSUS-D0 is complete as a read-only Gate 0. The census records 168 exact `let _ =` rows under src/mir and 109 under src/mir/builder, with one ignored physical ReleaseStrong before variable_map publication; Clippy is available but no workspace lint rollout is authorized. The next bounded row is MIR-ASSIGNMENT-RELEASE-FAILFAST-I0.",
+  "2026-08-22: MIR-ASSIGNMENT-RELEASE-FAILFAST-I0 Gate 1 landed as dcd8359f7a. ReleaseStrong now propagates before variable_map publication; session restore and assignment negative evidence are green. Guard, canonical strictness, old retirement, and main integration remain queued.",
+  "2026-08-22: MIR-RESULT-DISCARD-GUARD-I0 is implemented and pushed as 8e9b4562c2. The selected physical-writer discard guard is scoped to src/mir/builder, tests multiline forms, and leaves workspace lint, cleanup, and other discard families outside scope.",
+  "2026-08-22: MIR-EMIT-CANONICAL-STRICTNESS-D0 accepted C-prime after two read-only audits and an exact caller census. The test-only segment lane will admit only same-session, same-block, uniquely-defined Integer operands; all fallible work ends at result-slot reservation before one strict append and infallible Bool/ledger commits. Because production callers are zero, the ordered task names are S0, P0, and CONNECT0; production I0/R0 remains closed. MIR-LOOP-OPERATION-EMITTER-SPLIT-S0 is the selected fast BoxShape.",
+  "2026-08-22: MIR-LOOP-COMPARE-STRICT-WRITER-P0 and CONNECT0 landed. `builder_emit_core.rs` owns one shared append point and a prepared strict Compare commit; the non-Clone/non-Copy writer definition source carries the exact owner/target/value proof. Selected Dynamic I9 now binds the brand owner, reissues V11/V12 as canonical same-block Integer witnesses, reserves V13 before append, and commits from the definition source without generic Loop-ledger or legacy Compare reuse. Focused writer/Loop/I9/ledger tests, cargo check, strict-writer/CONNECT0 guards, pointer, diff, and source-size evidence are green; live publication, generic-loop retirement, fallback, and performance remain closed.",
+  "2026-08-22: MIR-CALLABLE-CANONICAL-TRIVIAL-ROW-I0 is pushed as c1d0e43a41 + e275ead266. One exact ordinary static cataloged Scan row is classified by the existing resolver preflight and lowered through the existing canonical trivial lowerer, resolved session, physical-symbol loan, and collector. Explicit Outside rows retain the existing compatibility source transport before effects; no canonical failure retries legacy. Focused positive/parser-scan/terminal tests (3), cargo check, source-row/canonical guards, pointer, diff, and source-size evidence are green. The next design stop is MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0; publication, fallback retirement, backend, and performance remain closed.",
+  "2026-08-22: MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0 is complete. Callable and constructor production issuers now consume one all-row resolver kernel whose Deferred terminal is structurally non-empty and retains exact parser identity plus located/unlocated cause/site in deterministic source order. Focused callable 8, constructor 1, precedence 1, and Script regression 1 tests pass; cargo check/build, pointer, diff, and source-size checks pass. The rebuilt 646-line production merge reports two StringHelpers nested Program statements, so lexical Program-block I0 is the accepted next BoxCount; import/target/result, Builder, fallback, publication, backend, and performance remain closed.",
+  "2026-08-22: MIR-CALLABLE-RESOLVER-LEXICAL-PROGRAM-BLOCK-I0 is complete. Nested parser Program statements resolve under the existing LexicalScope/LexicalBlock and ProgramBody coordinates without flattening or a new control target; Script profiles remain closed. Scope 5, vocabulary 5, and callable 9 tests plus cargo check/build are green. The real probe removes both StringHelpers Program deferrals and reaches IfRegion(ControlContractMismatch); source-bound hard-reject P0 is next because owner slot/name/order are non-authorities.",
+  "2026-08-22: Program-region/header P0 and loop-control projection P0 are pushed as a7935344dc, 9bdd557b6c, and bc052cb60d. Focused gates and quick check/build evidence are green; trim/1's old TerminalSiteIsNotReturn is gone. The current probe stops at incomplete-binding-coverage for esc_json/1 body-only rebinds (`out`, `handled`) treated as carriers. MIR-CALLABLE-LOOP-HANDOFF-BINDING-COVERAGE-D0 is the next design stop; Builder, ABI, fallback, publication, and performance remain closed.",
 ]

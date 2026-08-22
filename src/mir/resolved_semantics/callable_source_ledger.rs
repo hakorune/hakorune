@@ -15,7 +15,8 @@ use super::source_site::{
     FunctionOriginV1, ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
 };
 use super::{
-    FunctionOwnerIdV1, LoopExecutionFrameKeyV1, ResolvedLoopRegionLookupErrorV1,
+    FunctionOwnerIdV1, LoopExecutionFrameKeyV1, RegionId, ResolvedIfConditionRegionRefV1,
+    ResolvedIfRegionLookupErrorV1, ResolvedLoopPlacementV1, ResolvedLoopRegionLookupErrorV1,
     ResolvedScopeRegionPairV1, SemanticOwnerSourceKindV1, VerifiedResolvedFunctionV1,
     VerifiedResolvedLoopSourceV1, VerifiedResolvedSourceSiteInventoryV1,
 };
@@ -176,10 +177,40 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         self.function.variable_refs()
     }
 
+    pub(crate) fn variable_ref(&self, site: &SourceExprSiteV1) -> Option<ResolvedLexicalRefV1> {
+        self.function.variable_ref(site)
+    }
+
     pub(crate) fn assignment_targets(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedAssignmentTargetV1)> {
         self.function.assignment_targets()
+    }
+
+    pub(crate) fn binary_expression_sources(
+        &self,
+    ) -> impl Iterator<Item = &super::ResolvedBinaryExpressionSourceV1> {
+        self.function.expression_source().binaries()
+    }
+
+    pub(crate) fn initializer_relations(
+        &self,
+    ) -> impl Iterator<Item = &super::ResolvedInitializerRelationV1> {
+        self.function.expression_source().initializers()
+    }
+
+    pub(crate) fn literal_source(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::ResolvedLiteralSourceV1> {
+        self.function.expression_source().literal(site)
+    }
+
+    pub(crate) fn unary_source(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&super::ResolvedUnaryExpressionSourceV1> {
+        self.function.expression_source().unary(site)
     }
 
     /// Borrows the complete resolver-sealed Loop site inventory.
@@ -208,6 +239,27 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         &self,
     ) -> impl Iterator<Item = (&ResolvedExitSiteV1, &ResolvedExitRecordV1)> {
         self.function.resolved_exits()
+    }
+
+    pub(crate) fn with_if_region_for_condition<R>(
+        &self,
+        condition: &SourceExprSiteV1,
+        callback: impl for<'condition> FnOnce(ResolvedIfConditionRegionRefV1<'condition>) -> R,
+    ) -> Result<R, ResolvedIfRegionLookupErrorV1> {
+        self.function
+            .with_if_region_for_condition(condition, callback)
+    }
+
+    pub(crate) fn region_parent(&self, region: RegionId) -> Option<RegionId> {
+        self.function.region(region).and_then(|row| row.parent())
+    }
+
+    pub(crate) fn function_region(&self) -> RegionId {
+        self.function.lowering_roots().function_pair().region()
+    }
+
+    pub(crate) fn root_body_region(&self) -> RegionId {
+        self.function.lowering_roots().body_pair().region()
     }
 
     /// Returns the resolver's existing capture boundary for this owner.
@@ -243,13 +295,7 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         &self,
     ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
         let site = self.function.only_loop_site()?;
-        let (source, scope_region) = self.function.resolved_loop_source_context(&site)?;
-        let frame = source.frame_key();
-        Ok(VerifiedCallableLoopMembershipV1 {
-            source,
-            frame,
-            scope_region,
-        })
+        self.function.issue_callable_loop_membership(&site)
     }
 
     /// Issue exact Loop membership and frame identity from the sealed index.
@@ -257,7 +303,37 @@ impl<'a> CallableSemanticSourceLedgerView<'a> {
         &self,
         site: &SourceStmtSiteV1,
     ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
-        let (source, scope_region) = self.function.resolved_loop_source_context(site)?;
+        self.function.issue_callable_loop_membership(site)
+    }
+
+    pub(crate) fn loop_body_contains_site(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<bool, ResolvedLoopRegionLookupErrorV1> {
+        self.function.loop_body_contains_site(loop_site, site)
+    }
+
+    pub(crate) fn resolved_loop_placement(
+        &self,
+        loop_site: &SourceStmtSiteV1,
+        site: &SourceExprSiteV1,
+    ) -> Result<Option<ResolvedLoopPlacementV1>, ResolvedLoopRegionLookupErrorV1> {
+        self.function.resolved_loop_placement(loop_site, site)
+    }
+}
+
+impl VerifiedResolvedFunctionV1 {
+    /// Issues one resolver-owned Loop membership/frame product.
+    ///
+    /// This is the single constructor used by source-ledger consumers. It
+    /// keeps the source token, frame, and scope/region pair together so a
+    /// later relation cannot mix a frame from another owner or loop.
+    pub(crate) fn issue_callable_loop_membership(
+        &self,
+        site: &SourceStmtSiteV1,
+    ) -> Result<VerifiedCallableLoopMembershipV1, ResolvedLoopRegionLookupErrorV1> {
+        let (source, scope_region) = self.resolved_loop_source_context(site)?;
         let frame = source.frame_key();
         Ok(VerifiedCallableLoopMembershipV1 {
             source,

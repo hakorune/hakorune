@@ -4,6 +4,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use super::ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 use crate::mir::resolved_semantics::body_shape::ShadowBodyShapeDraftV0;
+use crate::mir::resolved_semantics::brand_source_relation::BrandCallSourceRelationDraftV1;
+use crate::mir::resolved_semantics::expression_source::ShadowExpressionSourceDraftV1;
 use crate::mir::resolved_semantics::source_site::{
     ResolvedExitSiteV1, SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourceStmtSiteV1,
 };
@@ -166,6 +168,11 @@ pub(crate) struct ShadowDirectCallUseV0 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct ShadowExplicitExternCallV0 {
+    pub(crate) symbol: Box<str>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ShadowResolveErrorV0 {
     ExpectedFunctionDeclaration,
     SameScopeRedeclaration {
@@ -204,6 +211,24 @@ pub(crate) enum ShadowResolveErrorV0 {
         site: SourceStmtSiteV1,
     },
     DuplicateDirectCallSite {
+        site: SourceExprSiteV1,
+    },
+    DuplicateBrandCallSite {
+        site: SourceExprSiteV1,
+    },
+    BrandConstructorArity {
+        site: SourceExprSiteV1,
+        actual: usize,
+    },
+    BrandUnwrapArity {
+        site: SourceExprSiteV1,
+        actual: usize,
+    },
+    UnsupportedBrandStaticMethod {
+        site: SourceExprSiteV1,
+        method: Box<str>,
+    },
+    DuplicateExplicitExternCallSite {
         site: SourceExprSiteV1,
     },
     DuplicateRecordLiteralDemand {
@@ -245,6 +270,84 @@ impl ShadowResolveErrorV0 {
                 | Self::BlockExprNonLocalExit { .. }
         )
     }
+
+    /// Preserve a source deferral without collapsing its cause or inventing a
+    /// site for an unlocated error. Script and selected-callable adapters use
+    /// the same observation vocabulary; their source identity owners remain
+    /// separate.
+    pub(crate) fn into_source_resolver_deferred(self) -> Option<SourceResolverDeferredV1> {
+        match self {
+            Self::SameScopeRedeclaration { name } => {
+                Some(ScriptResolverDeferredV1::UnlocatedSameScopeRedeclaration { name })
+            }
+            Self::UnresolvedName { name, site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnresolvedName { name },
+                site: ScriptResolverDeferredSiteV1::Expression(site),
+            }),
+            Self::ExitOutsideLoop { kind, site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::ExitOutsideLoop { kind },
+                site: ScriptResolverDeferredSiteV1::Statement(site),
+            }),
+            Self::UnsupportedStatement { kind, site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnsupportedStatement { kind },
+                site: ScriptResolverDeferredSiteV1::Statement(site),
+            }),
+            Self::UnsupportedExpression { kind, site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnsupportedExpression { kind },
+                site: ScriptResolverDeferredSiteV1::Expression(site),
+            }),
+            Self::UnsupportedAssignmentTarget { site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnsupportedAssignmentTarget,
+                site: ScriptResolverDeferredSiteV1::Expression(site),
+            }),
+            Self::FunctionCallArityOverflow { site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::FunctionCallArityOverflow,
+                site: ScriptResolverDeferredSiteV1::Expression(site),
+            }),
+            Self::BlockExprNonLocalExit { site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::BlockExprNonLocalExit,
+                site: ScriptResolverDeferredSiteV1::Exit(site),
+            }),
+            _ => None,
+        }
+    }
+
+    pub(crate) fn into_script_resolver_deferred(self) -> Option<ScriptResolverDeferredV1> {
+        self.into_source_resolver_deferred()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ScriptResolverDeferredV1 {
+    Located {
+        cause: ScriptResolverDeferredCauseV1,
+        site: ScriptResolverDeferredSiteV1,
+    },
+    UnlocatedSameScopeRedeclaration {
+        name: Box<str>,
+    },
+}
+
+/// Route-neutral name used by selected-callable resolver transport. The
+/// existing Script name remains the compatibility-facing semantic alias.
+pub(crate) type SourceResolverDeferredV1 = ScriptResolverDeferredV1;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ScriptResolverDeferredCauseV1 {
+    UnresolvedName { name: Box<str> },
+    ExitOutsideLoop { kind: &'static str },
+    UnsupportedStatement { kind: &'static str },
+    UnsupportedExpression { kind: &'static str },
+    UnsupportedAssignmentTarget,
+    FunctionCallArityOverflow,
+    BlockExprNonLocalExit,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) enum ScriptResolverDeferredSiteV1 {
+    Statement(SourceStmtSiteV1),
+    Expression(SourceExprSiteV1),
+    Exit(ResolvedExitSiteV1),
 }
 
 #[derive(Debug, Clone)]
@@ -260,6 +363,8 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ShadowAssignmentTargetV0>,
     pub(crate) ancestor_capture_events: Box<[ShadowAncestorCaptureEventV0]>,
     pub(crate) direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
+    pub(crate) brand_calls: BTreeMap<SourceExprSiteV1, BrandCallSourceRelationDraftV1>,
+    pub(crate) explicit_extern_calls: BTreeMap<SourceExprSiteV1, ShadowExplicitExternCallV0>,
     pub(crate) resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     pub(crate) statement_sites: BTreeSet<SourceStmtSiteV1>,
     pub(crate) expression_sites: BTreeSet<SourceExprSiteV1>,
@@ -270,6 +375,7 @@ pub(crate) struct ShadowResolvedFunctionV0 {
     pub(crate) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     pub(crate) match_control_sites: BTreeSet<SourceExprSiteV1>,
     pub(crate) body_shape: ShadowBodyShapeDraftV0,
+    pub(in crate::mir::resolved_semantics) expression_source: ShadowExpressionSourceDraftV1,
 }
 
 #[cfg(test)]
@@ -294,6 +400,62 @@ mod tests {
             !ShadowResolveErrorV0::DuplicateEnumVariantDemand { site: site() }
                 .is_script_source_deferral()
         );
+    }
+
+    #[test]
+    fn script_deferral_preserves_located_and_unlocated_states() {
+        let expression_site = site();
+        let statement_site = SourcePathV1::program_body()
+            .child(SourcePathSegmentV1::ProgramBody(0))
+            .stmt();
+        let located = [
+            ShadowResolveErrorV0::UnresolvedName {
+                name: "missing".into(),
+                site: expression_site.clone(),
+            },
+            ShadowResolveErrorV0::ExitOutsideLoop {
+                kind: "break",
+                site: statement_site.clone(),
+            },
+            ShadowResolveErrorV0::UnsupportedStatement {
+                kind: "Loop",
+                site: statement_site.clone(),
+            },
+            ShadowResolveErrorV0::UnsupportedExpression {
+                kind: "Call",
+                site: expression_site.clone(),
+            },
+            ShadowResolveErrorV0::UnsupportedAssignmentTarget {
+                site: expression_site.clone(),
+            },
+            ShadowResolveErrorV0::FunctionCallArityOverflow {
+                site: expression_site.clone(),
+            },
+            ShadowResolveErrorV0::BlockExprNonLocalExit {
+                site: ResolvedExitSiteV1::Expression(expression_site),
+            },
+        ];
+        for error in located {
+            assert!(matches!(
+                error.into_script_resolver_deferred(),
+                Some(ScriptResolverDeferredV1::Located { .. })
+            ));
+        }
+
+        assert_eq!(
+            ShadowResolveErrorV0::SameScopeRedeclaration {
+                name: "x".into(),
+            }
+            .into_script_resolver_deferred(),
+            Some(ScriptResolverDeferredV1::UnlocatedSameScopeRedeclaration {
+                name: "x".into(),
+            })
+        );
+        assert!(ShadowResolveErrorV0::DuplicateEnumVariantDemand {
+            site: site(),
+        }
+        .into_script_resolver_deferred()
+        .is_none());
     }
 }
 

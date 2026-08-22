@@ -1,0 +1,122 @@
+// NyRT TextScan symbolic AOT export facts (revision 1).
+//
+// This header owns neutral, pre-link export vocabulary and the checked call
+// signature. It declares no provider, registry, runtime address, image, or
+// selector lookup. CoreMethod result/effect rows remain the callable owner.
+
+#pragma once
+#include <stdint.h>
+
+#include "nyrt_dynamic_call_slot_v2.h"
+
+#define HAKO_TEXT_SCAN_CONTRACT_ID "hako.text.scan@1"
+#define HAKO_TEXT_SCAN_ABI_REVISION UINT32_C(1)
+#define HAKO_TEXT_SCAN_PROFILE_CODEPOINT_CLAMPED UINT32_C(1)
+#define HAKO_TEXT_SCAN_SUSPENSION_NON_SUSPENDING UINT32_C(0)
+
+#define HAKO_TEXT_SCAN_CALL_ABI_REVISION UINT32_C(1)
+#define HAKO_TEXT_SCAN_CALL_OK UINT32_C(0)
+#define HAKO_TEXT_SCAN_CALL_INVALID_OUTPUT UINT32_C(1)
+#define HAKO_TEXT_SCAN_CALL_OUT_WIRE_REVISION UINT32_C(2)
+#define HAKO_TEXT_SCAN_CALL_TRANSPORT_RETURN_U32 UINT32_C(1)
+#define HAKO_TEXT_SCAN_CALL_OUT_POINTER_REQUIRED UINT32_C(1)
+
+#define HAKO_TEXT_SCAN_PARAM_TYPE_U64 UINT32_C(1)
+#define HAKO_TEXT_SCAN_PARAM_TYPE_I64 UINT32_C(2)
+#define HAKO_TEXT_SCAN_PARAM_TYPE_OUT_POINTER UINT32_C(3)
+#define HAKO_TEXT_SCAN_SUBSTRING_PARAM_COUNT UINT32_C(4)
+#define HAKO_TEXT_SCAN_INDEX_OF_PARAM_COUNT UINT32_C(3)
+#define HAKO_TEXT_SCAN_SUBSTRING_PARAM_0 UINT32_C(1)
+#define HAKO_TEXT_SCAN_SUBSTRING_PARAM_1 UINT32_C(2)
+#define HAKO_TEXT_SCAN_SUBSTRING_PARAM_2 UINT32_C(2)
+#define HAKO_TEXT_SCAN_SUBSTRING_PARAM_3 UINT32_C(3)
+#define HAKO_TEXT_SCAN_INDEX_OF_PARAM_0 UINT32_C(1)
+#define HAKO_TEXT_SCAN_INDEX_OF_PARAM_1 UINT32_C(1)
+#define HAKO_TEXT_SCAN_INDEX_OF_PARAM_2 UINT32_C(3)
+
+#define HAKO_TEXT_SCAN_ENTRY_SUBSTRING UINT32_C(1)
+#define HAKO_TEXT_SCAN_ENTRY_INDEX_OF UINT32_C(2)
+#define HAKO_TEXT_SCAN_ENTRY_COUNT UINT32_C(2)
+
+#define HAKO_TEXT_SCAN_SUBSTRING_ARITY UINT32_C(2)
+#define HAKO_TEXT_SCAN_INDEX_OF_ARITY UINT32_C(1)
+
+// Physical lanes are intentionally symbolic facts; they are not a call ABI
+// implementation and do not imply a resolved executable address.
+#define HAKO_TEXT_SCAN_LANE_RECEIVER UINT32_C(0)
+#define HAKO_TEXT_SCAN_LANE_ARG0 UINT32_C(1)
+#define HAKO_TEXT_SCAN_LANE_ARG1 UINT32_C(2)
+
+#define HAKO_TEXT_SCAN_VALUE_HOST_HANDLE UINT32_C(1)
+#define HAKO_TEXT_SCAN_VALUE_IMMEDIATE_I64 UINT32_C(2)
+
+#define HAKO_TEXT_SCAN_SUBSTRING_RECEIVER_LANE UINT32_C(1)
+#define HAKO_TEXT_SCAN_INDEX_OF_RECEIVER_LANE UINT32_C(1)
+
+#define HAKO_TEXT_SCAN_LEASE_NONE UINT32_C(0)
+#define HAKO_TEXT_SCAN_LEASE_END_AUTHORIZED UINT32_C(1)
+
+#define HAKO_TEXT_SCAN_SYMBOL_SUBSTRING "hako.text.scan.substring.v1"
+#define HAKO_TEXT_SCAN_SYMBOL_INDEX_OF "hako.text.scan.index_of.v1"
+
+// Logical arity excludes the checked out-parameter. Semantic Normal/Fault,
+// value payload, disposition, and lease token are written to `out`; the
+// uint32 return is transport status only.
+typedef uint32_t (*HakoTextScanSubstringEntryV1)(
+    uint64_t receiver_handle,
+    int64_t start,
+    int64_t end,
+    HakoDynamicV2CallOutV1 *out
+);
+typedef uint32_t (*HakoTextScanIndexOfEntryV1)(
+    uint64_t receiver_handle,
+    uint64_t needle_handle,
+    HakoDynamicV2CallOutV1 *out
+);
+
+#if defined(__cplusplus)
+#define HAKO_TEXT_SCAN_STATIC_ASSERT static_assert
+#else
+#define HAKO_TEXT_SCAN_STATIC_ASSERT _Static_assert
+#endif
+
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_ENTRY_SUBSTRING == 1, "TextScan substring entry");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_ENTRY_INDEX_OF == 2, "TextScan indexOf entry");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_ENTRY_COUNT == 2, "TextScan entry count");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_LANE_RECEIVER == 0, "TextScan receiver lane");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_LANE_ARG0 == 1, "TextScan arg0 lane");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_LANE_ARG1 == 2, "TextScan arg1 lane");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_VALUE_HOST_HANDLE == 1, "TextScan host handle tag");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_VALUE_IMMEDIATE_I64 == 2, "TextScan i64 tag");
+HAKO_TEXT_SCAN_STATIC_ASSERT(
+    HAKO_TEXT_SCAN_SUBSTRING_RECEIVER_LANE == HAKO_TEXT_SCAN_VALUE_HOST_HANDLE,
+    "TextScan substring receiver lane"
+);
+HAKO_TEXT_SCAN_STATIC_ASSERT(
+    HAKO_TEXT_SCAN_INDEX_OF_RECEIVER_LANE == HAKO_TEXT_SCAN_VALUE_HOST_HANDLE,
+    "TextScan indexOf receiver lane"
+);
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_CALL_ABI_REVISION == 1, "TextScan call ABI revision");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_CALL_OK == 0, "TextScan call success status");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_CALL_INVALID_OUTPUT == 1, "TextScan call output status");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_CALL_OUT_WIRE_REVISION == 2, "TextScan call wire revision");
+HAKO_TEXT_SCAN_STATIC_ASSERT(
+    HAKO_TEXT_SCAN_CALL_OUT_WIRE_REVISION == HAKO_DYNAMIC_V2_WIRE_REVISION_V2,
+    "TextScan call wire owner drift"
+);
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_CALL_TRANSPORT_RETURN_U32 == 1, "TextScan call return width");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_CALL_OUT_POINTER_REQUIRED == 1, "TextScan output pointer");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_PARAM_TYPE_U64 == 1, "TextScan u64 parameter type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_PARAM_TYPE_I64 == 2, "TextScan i64 parameter type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_PARAM_TYPE_OUT_POINTER == 3, "TextScan out pointer type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_SUBSTRING_PARAM_COUNT == 4, "TextScan substring physical arity");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_INDEX_OF_PARAM_COUNT == 3, "TextScan indexOf physical arity");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_SUBSTRING_PARAM_0 == HAKO_TEXT_SCAN_PARAM_TYPE_U64, "TextScan substring receiver type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_SUBSTRING_PARAM_1 == HAKO_TEXT_SCAN_PARAM_TYPE_I64, "TextScan substring start type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_SUBSTRING_PARAM_2 == HAKO_TEXT_SCAN_PARAM_TYPE_I64, "TextScan substring end type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_SUBSTRING_PARAM_3 == HAKO_TEXT_SCAN_PARAM_TYPE_OUT_POINTER, "TextScan substring out type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_INDEX_OF_PARAM_0 == HAKO_TEXT_SCAN_PARAM_TYPE_U64, "TextScan indexOf receiver type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_INDEX_OF_PARAM_1 == HAKO_TEXT_SCAN_PARAM_TYPE_U64, "TextScan indexOf needle type");
+HAKO_TEXT_SCAN_STATIC_ASSERT(HAKO_TEXT_SCAN_INDEX_OF_PARAM_2 == HAKO_TEXT_SCAN_PARAM_TYPE_OUT_POINTER, "TextScan indexOf out type");
+
+#undef HAKO_TEXT_SCAN_STATIC_ASSERT

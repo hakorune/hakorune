@@ -81,6 +81,7 @@ Accepted ownership grammar and implementation status:
 target_take_param    := IDENT("take") HTRIVIA IDENT HTRIVIA ':' type_ref
 target_share_expr    := IDENT("share") HTRIVIA non_group_postfix_expr
 release_stmt         := IDENT("release") HSPACE IDENT stmt_end  (* parser/source live; semantic 0 *)
+explicit_extern_call := IDENT("externcall") HTRIVIA STRING HTRIVIA '(' argument_list? ')'
 ```
 
 `HTRIVIA` excludes line terminators. Release I0 narrows `HSPACE` to spaces and
@@ -129,6 +130,9 @@ const_int_expr := INT
 ; BRAND-001 Stage0 capsule.
 ; `brand` is metadata transport only here. Distinct type checking,
 ; constructor/unwrap policy, and verifier facts are Stage1-owned.
+; See brands.md for program-wide namespace, duplicate rejection, and result
+; identity. Constructor/unwrap reuse ordinary call grammar and are not new
+; parser productions.
 brand_decl := 'brand' IDENT ':' TYPE_REF
            ; BRAND-002 Stage1 semantics use existing call syntax:
            ;   IDENT '(' expr ')'          ; explicit brand constructor when IDENT is a declared brand
@@ -914,6 +918,11 @@ postfix_cleanup    := primary_expr 'cleanup' block
 Semantics (summary)
 - stored: O(1) slot read; write via assignment. Bare stored fields are dynamic/untyped. Typed stored fields keep declared-type metadata for optimizers/verifiers and typed-object planning, but ordinary field writes are not type-enforced by this syntax.
 - stored initializers: `name = expr` and `name: Type = expr` are accepted and lower to constructor prologue assignments equivalent to `me.name = expr`. The prologue runs before the user `birth` body, in field declaration order. Initializer expressions are evaluated for each construction, so `field: ArrayBox = new ArrayBox()` creates a per-instance value rather than a shared static default.
+- constructor overload identity is the normalized `init|pack|birth/arity` key.
+  Two selected declarations with the same key are rejected before either can
+  overwrite the other. Generated `birth/0` is source-backed by the stored-field
+  or `birth once` initializer sites that require its prologue; it is not a
+  source occurrence reconstructed later from the constructor map.
 - weak: a stored, non-owning relation; it is not a Property kind.
 - field declaration syntax admits neither `=>` nor a block body. Computation is
   an ordinary method and therefore requires `()` at the call site.

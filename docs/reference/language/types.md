@@ -431,6 +431,14 @@ is conformance evidence:
 Equality is implemented as `eq_vm` (`src/backend/abi_util.rs`) and used by comparisons:
 
 - Same-kind equality for primitives: `Integer/Float/Bool/String/Void`.
+- `String == String` is exact Unicode scalar-value sequence equality: the
+  sequences must have the same length and scalar order. It is
+  case-sensitive, performs no normalization, and is locale/collation-free.
+- The logical `Text` class used by the typed Loop Recipe follows this same
+  content law. A `StringBox` participates in that law only when an explicit
+  source contract admits the `StringBox-as-Text` bridge; this does not change
+  ordinary `BoxRef` equality.
+- `String != String` is the logical negation of the same String/Text equality.
 - Cross-kind coercions (Number-only):
   - `Integer` ↔ `Float` only, with a precise rule (avoid accidental true via float rounding)
 - `BoxRef == BoxRef` is pointer identity (`Arc::ptr_eq`).

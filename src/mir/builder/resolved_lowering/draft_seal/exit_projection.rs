@@ -7,6 +7,9 @@
 
 use crate::mir::{BasicBlockId, ConstValue, MirBuilder, MirInstruction, MirType};
 
+use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
+use crate::mir::pinned_text_residence_lifecycle::PinnedTextResidenceFinishCapabilityV1;
+
 use super::{
     FunctionDraftSealProjectionErrorV1, FunctionDraftSealProjectionV1, PreparedFunctionExitSetV1,
     ReadyFunctionDraftSealV1,
@@ -87,6 +90,32 @@ impl FunctionDraftSealProjectionV1 {
             FunctionDraftSealProjectionErrorV1,
         ),
     > {
+        Self::project_from_builder_exit_set_with_finish(builder, exit, None)
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder::resolved_lowering) fn project_from_builder_pinned_text(
+        builder: &MirBuilder,
+        consumer: super::text_residence_ingress::PreparedPinnedTextResidenceDraftSealConsumerV1,
+        plans: &crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1,
+        frame: crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorrowV1<'_>,
+    ) -> Result<Self, String> {
+        let (exit, finish) = consumer.into_projection_parts(plans, frame)?;
+        Self::project_from_builder_exit_set_with_finish(builder, exit, Some(finish))
+            .map_err(|(_, error)| format!("{error:?}"))
+    }
+
+    fn project_from_builder_exit_set_with_finish(
+        builder: &MirBuilder,
+        exit: PreparedFunctionExitSetV1,
+        finish: Option<PinnedTextResidenceFinishCapabilityV1>,
+    ) -> Result<
+        Self,
+        (
+            PreparedFunctionExitSetV1,
+            FunctionDraftSealProjectionErrorV1,
+        ),
+    > {
         let mut function = match builder.function_state.current_function.as_ref() {
             Some(function) => function.clone(),
             None => {
@@ -122,6 +151,18 @@ impl FunctionDraftSealProjectionV1 {
 
             match exit {
                 PreparedFunctionExitV1::ExplicitValue { value, .. } => {
+                    if let Some(finish) = finish.as_ref() {
+                        CanonicalCfgSessionV1::emit_pinned_text_residence_finish_detached(
+                            &mut function,
+                            block,
+                            finish.residence(),
+                        )
+                        .map_err(|error| {
+                            FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                                error.to_string(),
+                            )
+                        })?;
+                    }
                     function
                         .blocks
                         .get_mut(&block)
@@ -130,6 +171,11 @@ impl FunctionDraftSealProjectionV1 {
                 }
                 PreparedFunctionExitV1::ExplicitUnit { .. }
                 | PreparedFunctionExitV1::ImplicitUnit { .. } => {
+                    if finish.is_some() {
+                        return Err(FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                            "pinned-Text Finish requires an explicit value exit".to_owned(),
+                        ));
+                    }
                     let value = super::allocate_projected_void(
                         &mut function,
                         &builder.function_state.compilation.reserved_value_ids,

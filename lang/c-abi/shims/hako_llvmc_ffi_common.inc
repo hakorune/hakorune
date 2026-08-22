@@ -72,14 +72,6 @@ static void hako_llvmc_warn_legacy_capi_pure_alias_once(void) {
           "'HAKO_BACKEND_COMPILE_RECIPE=pure-first'\n");
 }
 
-static int capi_pure_enabled(void) {
-  const char* recipe = hako_llvmc_backend_compile_recipe();
-  if (recipe && recipe[0]) {
-    return strcmp(recipe, "pure-first") == 0;
-  }
-  return 0;
-}
-
 static int compat_harness_replay_enabled(void) {
   const char* replay = hako_llvmc_backend_compat_replay();
   if (replay && replay[0]) {

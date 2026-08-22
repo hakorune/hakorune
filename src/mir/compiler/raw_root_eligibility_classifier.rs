@@ -389,6 +389,7 @@ impl RawScalarControl0ClassifierV1 {
             ASTNode::Arrow { .. }
             | ASTNode::MethodCall { .. }
             | ASTNode::FunctionCall { .. }
+            | ASTNode::ExplicitExternCall { .. }
             | ASTNode::Call { .. } => Self::unsupported(path, RawScalarUnsupportedSurface0V1::Call),
             ASTNode::FieldAccess { .. }
             | ASTNode::Index { .. }
@@ -448,6 +449,7 @@ impl RawScalarControl0ClassifierV1 {
             }
             ASTNode::MethodCall { .. }
             | ASTNode::FunctionCall { .. }
+            | ASTNode::ExplicitExternCall { .. }
             | ASTNode::Call { .. }
             | ASTNode::Arrow { .. } => {
                 Self::unsupported(path, RawScalarUnsupportedSurface0V1::Call)

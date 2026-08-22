@@ -110,6 +110,8 @@ pub(crate) struct CompilationContext {
     /// Stage1 owns brand mismatch checking. The MIR builder only needs this
     /// declaration inventory so `BrandName(value)` can lower as a transparent
     /// single-value constructor instead of an unresolved function call.
+    /// Temporary raw-lowering compatibility cache projected only from the
+    /// sealed Brand program declaration catalog.
     pub brand_decls: HashMap<String, String>,
 
     /// Typed field declarations keyed by user box name.

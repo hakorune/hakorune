@@ -4,6 +4,22 @@ Status: SSOT
 Scope: source anchors, `hako_check inspect`, MIR / LLVM IR / assembly dump
 boundaries, and AI-readable inspect artifacts.
 
+## Current execution brief
+
+Decision: Close the C-reference product at one separate explicit-artifact report;
+do not invent or adapt a C builder without an exact reference source authority.
+Source authority + canonical issuer: The ten-payload Hako identity remains sole
+Hako authority; caller-provided C assembly digest and exact unique symbol issue
+only the external-reference column.
+Non-authority: Benchmark filename pairing, aliases, old diff helpers, default
+symbols, clipped snippets, count similarity, and the report issue no equivalence.
+Fail-fast boundary: The landed command rejects bundle/footprint drift, missing or
+ambiguous C symbols, malformed input, and pre-existing output before publication.
+Smallest next slice: No C-consumer I0; return to the next bounded MIRBuilder
+production frontier selected by current-state authority.
+Non-claims: No canonical C implementation, C/Hako equivalence, timing, keeper,
+machine-origin mapping, optimization advice, promotion, or production change.
+
 ## Decision
 
 Scope-wide MIR / LLVM IR / assembly dump is a tool query, not a `.hako`
@@ -88,6 +104,20 @@ bash tools/hako_check.sh inspect route \
   --emit mir,asm,report
 ```
 
+Sealed lowering-shape comparison:
+
+```bash
+bash tools/hako_check.sh inspect shape \
+  --bundle target/hako-inspect/loop \
+  --c-asm target/hako-inspect/reference/c-loop.objdump.txt \
+  --c-symbol c_loop \
+  --out target/hako-inspect/loop-shape
+```
+
+`--c-asm` and `--c-symbol` are optional but must appear together. `hako_check`
+does not build the C reference; it validates its exact symbol, records its
+digest, and labels it `external_reference_only`.
+
 Mark-focused selector:
 
 ```bash
@@ -118,6 +148,27 @@ target/hako-inspect/<region_id>/
   report.kv
   summary.md
 ```
+
+The historical `manifest.json` is a V0 observation manifest. It does not bind
+the copied MIR/LLVM/executable/assembly bytes strongly enough for cross-layer
+shape inspection and is not a candidate-lineage authority.
+
+The selected V1 slice adds one seal written only after validation:
+
+```text
+target/hako-inspect/<region_id>/
+  executable.bin              # when backend artifacts were requested
+  identity.json               # hako-inspect-bundle-identity-v1, written last
+  shape/shape.json            # hako-lowering-shape-report-v0
+  shape/report.kv
+  shape/summary.md
+```
+
+`identity.json` binds the digest of every available artifact. A backend-ready
+seal additionally requires explicit, unique MIR function, LLVM function, and
+assembly symbol selectors. The candidate seal is derived from the canonical
+identity payload; callers cannot provide it. Partial MIR-only bundles may bind
+the artifacts they contain, but they are not shape-ready.
 
 Required report keys:
 
@@ -160,16 +211,264 @@ exact assembly slice when the backend can only provide symbol-level evidence.
   unavailable assembly.
 - mapping quality below `--require-mapping` fails.
 - `--require-selected-route <route>` fails when the selected route is absent.
+- a V1 backend-ready seal fails when any MIR/LLVM/assembly selector is omitted,
+  missing, or ambiguous.
+- a V1 seal never falls back to `ny_main`, `main`, or the first assembly label.
+- a copied executable/disassembly digest mismatch fails before `identity.json`
+  publication.
+
+## Lowering Shape Boundary
+
+After the identity seal lands, `hako_check inspect shape` may render independent
+normalized columns for MIR, LLVM, selected-symbol assembly, and an optional
+externally supplied C assembly artifact. Its minimum mapping floor is:
+
+```text
+source -> MIR   exact
+MIR -> LLVM     block
+LLVM -> ASM     symbol
+```
+
+This is sufficient for counts and localizing a suspicious layer, but not for
+an instruction correspondence graph. For example, S6C direct-continuation may
+delete the Bool merge and rebranch, merge blocks, or redirect PHI predecessors.
+Two artifacts may therefore have similar branch counts inside the same symbol
+while no assembly branch has a sound one-to-one MIR-edge identity. The report
+must print `cross_layer_correspondence=unclaimed`, `keeper_selection=0`, and
+`measurement_authority=0`.
+
+For the selected S6C canary, `lowering.provenance.json` raises only the
+MIR→LLVM floor to `issuer_exact`. Its rows are emitted at the selected lowering
+site and exhaustively cover the sealed candidate's 8 MIR blocks/8 edges and 22
+final LLVM blocks/31 edges. The renderer groups those rows by MIR origin while
+keeping `LLVM→ASM correspondence: unavailable`; it never reconstructs an edge
+from equal labels, adjacency, ValueIds, counts, or disassembly.
 
 ## Task Ladder
 
-- `INSPECT-000`: SSOT and restart pointers.
-- `INSPECT-001`: `inspect scope --span ... --emit mir,mir-json,report`.
-- `INSPECT-002`: stable bundle format with `manifest.json` and `report.kv`.
-- `INSPECT-003`: optional `// hako:inspect begin/end <id>` comment anchors.
-- `INSPECT-004`: LLVM IR / assembly artifacts with explicit mapping quality.
-- `INSPECT-005`: `inspect route` for selected-route evidence.
-- `INSPECT-006`: `inspect diff` for before/after artifact comparison.
+- `INSPECT-000` through `INSPECT-006`: landed source/MIR/backend bundle,
+  route/mark queries, and report-key diff surface.
+- `HAKO-INSPECT-SCOPE-OWNER-SPLIT-I0` (**landed BoxShape**): the former
+  916-line owner is a 692-line CLI/effect facade plus one 245-line pure
+  metadata/report child. The reusable guard runs all five focused tests,
+  rejects duplicate/effect-bearing model ownership, and enforces 760 lines.
+- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-D0` (**accepted**): the current bundle
+  cannot yet support the report because V0 lacks MIR/LLVM/executable/assembly
+  digests and exact selectors. Symbol/name fallback cannot issue lineage.
+- `HAKO-INSPECT-BUNDLE-IDENTITY-SEAL-I0` (**landed BoxCount**): one V1
+  bundle seal, explicit selectors, executable copy, artifact digests, a derived
+  candidate identity, fail-fast negatives, and guard coverage are live. The
+  entry/model/identity owners are 745/245/172 lines; seven focused tests and the
+  reusable guard are green. Report vocabulary and compiler behavior stay
+  unchanged.
+- `HAKO-INSPECT-LOWERING-SHAPE-REPORT-I0` (**landed BoxCount**): one
+  evidence-only report shows MIR blocks/edges/PHIs/calls, LLVM
+  blocks/branches/calls/loads, and selected-symbol assembly
+  instructions/branches/calls beside an externally supplied C artifact. A thin
+  `tools/perf` wrapper may build the reference; hako_check remains the renderer.
+  The entry/model/identity/shape-cli/shape-model owners are
+  753/245/172/107/207 lines. Eleven focused tests, the reusable owner guard,
+  command help, and pointer guard are green.
+- `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-D0` (**accepted**): the canonical seam
+  is the existing `pinned_text_real_candidate_json_preserves_carrier_lineage`
+  export after verified function serialization. Its carrier retains the exact
+  parsed fixture bytes with the function; reopened paths, target directories,
+  test names, ordinals, nonces, and historical perf artifacts are non-authority.
+- `HAKO-INSPECT-S6C-OBSERVATION-INGRESS-I0` (**landed BoxCount**): the
+  test-only envelope and dedicated private-transaction adapter carry exact
+  source bytes, strict JSON, final LLVM, the object carrier, and object-derived
+  disassembly into one V1 seal. Foreign/stale/projected artifacts reject before
+  publication; the 753-line generic inspect entry and 754-line trace script
+  remain untouched.
+- `HAKO-INSPECT-S6C-SHAPE-CANARY-R0` (**landed observation row**): the first
+  seal exposed two counter defects subsequently repaired. The current census is
+  MIR `8 blocks / 8 edges / 24 instructions`, final LLVM `22 / 31 / 82`, and
+  selected-symbol assembly `69 instructions / 13 branches / 3 calls / 2 returns`.
+- `HAKO-INSPECT-PROVENANCE-D0` (**accepted**): first provenance product is an
+  issuer-emitted, candidate-local MIR→final-LLVM block/edge relation. It natively
+  represents preserved/split/merged/deleted/introduced sets. LLVM→machine
+  remains unavailable because optimization may fold, merge, delete, or create
+  instructions without a carried machine origin.
+- `HAKO-INSPECT-MIR-CFG-COUNT-I0` (**landed BoxShape**): teach only the pure
+  shape model that `checked_callout` and `pinned_text_residence_enter` each own
+  two canonical successors. Add exact positive/negative counters and update the
+  canary to MIR `8 blocks / 8 edges / 5 branches / 24 instructions`; no sidecar.
+- `HAKO-INSPECT-LLVM-FUNCTION-SLICE-I0` (**landed BoxShape**): replace the
+  multiline-consuming `^\s*define` selector with horizontal whitespace only.
+  Reject ambiguous/missing functions as before and prove leading blank lines do
+  not create an implicit LLVM block or instruction.
+- `HAKO-INSPECT-PROVENANCE-MIR-LLVM-I0` (**landed BoxCount**): one
+  compile-time observation sink in the selected dispatch/lowerer plus a new
+  private relation model/validator. Direct `bbN`, WidthAt/ScalarEq internal
+  regions, consumed direct-continuation branch arms, and lifecycle edges must
+  be issued while lowering; the ingress only validates, digest-binds, and
+  renders them. The real canary closes 8/8 and 22/31 through 53 rows, the
+  generic lowerer remains 759 lines, the generic inspect entry remains 753,
+  and ASM exactness is explicitly unavailable. Twenty-two focused inspect
+  tests plus structural/preflight/pointer guards are green.
+- `HAKO-INSPECT-PROVENANCE-GENERALIZATION-D0` (**accepted**): the second
+  consumer is the source-backed selected Dynamic
+  `ParserScanLoopBox.skip_while/4`. Selected admission promotes that helper to
+  `program.entry`, so its real owner is the generic active walker plus the C1
+  checked-callout emitter—not the same-module body emitter. Ordinary simple
+  loop fixtures currently stop earlier at `PhysicalHeader::CompletionNotValue`
+  and cannot be used as provenance consumers without mixing another BoxCount.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-WALK-SPLIT-I0` (**landed BoxShape**): move
+  the existing lines 516–700 active block/instruction walk verbatim from the
+  759-line generic lowering owner into one private child include. Parent and
+  child must remain below 760, while emitted LLVM bytes, object bytes, symbols,
+  failure tags, routes, and accepted shapes remain identical. The landed owners
+  are 575/185 lines; the extracted child SHA equals the old line range and the
+  parent/current preprocessed C hashes are identical. No journal or schema was
+  added. The focused Dynamic and S6C smokes are green. The broad
+  `dynamic_v2_aot_activation_authority_guard.sh` is classified baseline-red at
+  parent `fdb04a6cdd` with `selected package adapter must consume ... once`.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-D0` (**accepted**): the production
+  default uses external `opt`/`llc`; its post-opt CFG has no carried MIR origin.
+  The optional legacy CAPI `ModuleRef` is an alternate test route and may not
+  become authority. Therefore the exact product stops at the pre-opt lowered
+  LLVM bytes emitted by the generic walker plus C1 owner. Post-opt LLVM and ASM
+  remain unmapped rather than receiving inferred origins.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-LOWERED-LLVM-PROVENANCE-I0` (**landed
+  caller-zero BoxCount**): one exact source constant drives parsing and
+  publication; the collector moves the sole completed draft without cloning.
+  The generic active walker and actual C1 CallOut/End emitters issue 64 unique
+  rows covering MIR 10 blocks/10 edges and lowered-pre-opt LLVM 32 blocks/32
+  edges. Staged source/MIR digests are rechecked, conflicting ownership and
+  incomplete coverage reject, and forced journal failure leaves neither named
+  output nor `/tmp/hako_pure_gen_<pid>.ll`. Post-opt and machine mapping remain
+  unavailable.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-PROVENANCE-UX-I0` (**landed BoxShape**):
+  route `hako_check inspect selected-dynamic-provenance --out ...` directly to
+  one dedicated child which builds the private driver and invokes the landed
+  atomic ingress. Reserved `--repo-root` and `--driver` overrides reject before
+  compilation, and internal values are appended last as defense in depth. The
+  753-line generic inspect router is unchanged; eleven focused tests plus the
+  public positive and two override negatives are green.
+- `HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-D0` (**accepted BoxShape**): V0
+  keeps only the two dispositions emitted by both real consumers. A preserved
+  block/edge is canonical 1:1. A split cohort is keyed only by
+  `(issuer,bid,ii,reason_kind,entity)`, contains at least two typed LLVM
+  endpoints, and may use `arm=none` only for physical internal edges; non-none
+  arms alone cover canonical MIR edges. Every canonical MIR block/edge and
+  every LLVM block/edge has exactly one owner. `merged`, `deleted`, and
+  `introduced` retire rather than pretending an unsupported relation graph;
+  an actual issuer requires a later relation-ID/schema D0.
+- `HAKO-INSPECT-PROVENANCE-DISPOSITION-CLOSURE-I0` (**landed BoxShape**): the
+  108-line pure child validates issuer/reason compatibility, canonical
+  preserved owners, instruction-origin split cohorts, and exact endpoint
+  ownership. Unsupported latent dispositions, foreign reason/issuer, singleton
+  or dangling cohorts, internal preserved edges, and duplicate LLVM ownership
+  reject. Thirty-three inspect tests, both reusable inspect guards, the real
+  selected-Dynamic 64-row bundle, and the S6C structural canary are green; both
+  C issuers and their event bytes are unchanged.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-D0` (**accepted BoxShape**):
+  the payload inventory is exactly `producer.json`, `source.full.hako`,
+  `mir.raw.json`, `llvm.lowered-pre-opt.ir`, `lowering.origins.tsv`,
+  `lowering.provenance.json`, and `summary.md`. All seven are written before
+  `identity.json` and appear in its artifact digest table. `identity.json` is
+  the root receipt, not a recursively self-hashed payload. After writing it,
+  local inventory must equal seven payloads plus the receipt before atomic
+  directory rename; missing, extra, foreign, or tampered siblings publish 0.
+- `HAKO-INSPECT-SELECTED-DYNAMIC-BUNDLE-IDENTITY-I0` (**landed BoxShape**):
+  reorder only the existing ingress transaction, copy the already validated
+  producer manifest, seal the summary, and add exact-inventory/tamper tests.
+  Provenance rows, compiler driver, selectors, mappings, and publication route
+  remain unchanged. The local inventory is exactly seven payloads plus the
+  write-last root receipt; producer/summary tamper and extra sibling reject.
+  Thirty-five inspect tests and the 17-test public real-bundle guard are green.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-D0` (**accepted observation BoxCount**): the
+  existing private driver already emits `real.o` beside lowered LLVM/origins in
+  one invocation. Its exact unique object function is
+  `ParserScanLoopBox.skip_while/4` (separate from `ny_main`). Add `object.bin`,
+  exact-symbol `asm.s`, and `origin-footprint.json` to the sealed payloads.
+  Footprint groups lowered-LLVM block/edge/instruction counts only by the
+  issuer-emitted MIR origin cohort. ASM reports selected-symbol aggregate
+  instructions/branches/calls/returns with `origin_attribution=unavailable`.
+  `lowered_pre_opt→machine=unavailable` is mandatory; objdump labels, addresses,
+  order, and shape similarity may not create correspondence.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-I0` (**landed observation BoxCount**): add a
+  pure model/renderer below 300 lines, pass the same-invocation object into the
+  existing ingress, disassemble only the exact symbol, and extend the identity
+  inventory from seven to ten payloads. Missing/duplicate symbol, foreign or
+  tampered object/assembly, uncovered relation, false machine attribution, and
+  partial output reject. The 148-line model renders MIR-origin rows for exact
+  lowered-LLVM blocks/edges/instructions/calls/branches and an independent ASM
+  total with origin attribution unavailable. Thirty-nine inspect tests and the
+  21-test real public guard are green. No C comparison or timing in this slice.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-D0` (**accepted observation
+  BoxCount**): keep the exact ten-payload Hako bundle unchanged. An explicit
+  external C assembly digest and exact unique symbol may feed only a separate
+  derived report. The report renders independent Hako/C aggregate ASM columns
+  with correspondence unavailable; it cannot issue equivalence, mapping,
+  measurement, keeper, or promotion meaning. C building, default symbol
+  selection, first-match fallback, and clipped textual diff are non-authority.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-REFERENCE-I0` (**landed observation
+  BoxCount**): a 150-line dedicated owner validates the exact ten-payload bundle,
+  rebuild-checks its footprint, and requires explicit `--c-asm` plus one unique
+  `--c-symbol`. It writes `summary.md` before the write-last `comparison.json`
+  root in a separate atomic directory. The report binds the Hako candidate seal,
+  footprint digest, external assembly digest/symbol, and independent shapes while
+  fixing correspondence unavailable and keeper/measurement authority false.
+  The Hako bundle remains byte-identical. Fifty-one inspect tests, the public
+  selected-Dynamic guard, owner guard, and pointer guard are green.
+- `HAKO-INSPECT-ORIGIN-FOOTPRINT-C-CONSUMER-D0` (**NoSafeSlice**): no exact C
+  source currently owns a semantic reference for `ParserScanLoopBox.skip_while/4`.
+  Existing perf helpers own unrelated micro pairs, default/first-match symbols,
+  and clipped textual diffs. Do not adapt them or manufacture a C member by
+  filename. Reopen only after a separate Decision names one exact C source,
+  symbol, and comparison purpose; the landed explicit-artifact CLI is complete.
+- `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-D0` (**accepted physical
+  BoxCount**): the first real full-source provenance canary exposed an invalid
+  pre-opt module. C1 expands the loop backedge through
+  `c1_end_continue_4_2` and the second normal landing through
+  `c1_validate_normal_1_6_1`, but PHIs still name `%bb4` and `%bb6` as their
+  incoming predecessors. One block-tail row cannot represent C1 normal and
+  fault exits from the same MIR block. The C1 physical CFG preflight therefore
+  issues an exact edge-tail inventory keyed by `(MIR pred, MIR successor)`;
+  emission co-checks it and the existing PHI writer consumes it. Provenance,
+  label formatting, and post-hoc LLVM scans may not issue correctness.
+- `SELECTED-DYNAMIC-C1-PHI-PREDECESSOR-PROJECTION-I0` (**landed BoxCount**):
+  add the pre-effect edge-tail inventory without growing the 575-line generic
+  parent. Positive acceptance requires `%r4` from
+  `%c1_end_continue_4_2`, `%r15` from
+  `%c1_validate_normal_1_6_1`, exact normal/fault/end rows, and LLVM18
+  parse/verify plus external opt green. Missing, duplicate, conflicting,
+  dangling, late, or emitter-drift rows reject before output; a projected edge
+  has no `%bb<pred>` fallback. The focused fixture covers the CallOut-normal
+  and End-backedge PHIs plus dangling-target rejection; the real full-source
+  candidate passes LLVM18 verification and emits an ELF object. Source/MIR,
+  C1 meaning, provenance, production, retry, and performance stay unchanged.
+- `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-D0` (**accepted
+  BoxCount design**): preserve one package owner but make header availability
+  row-local. An annotated exact-I64 callable with its own complete parameter
+  contract and verified value Completion may issue one row; unannotated
+  siblings issue no row and may not erase eligible rows. Unsupported explicit
+  annotations remain rejected. The unchanged full parser scan source must lend
+  exactly the `skip_while` row with two Completion sites and no rows for its
+  three unannotated siblings. A-prime's header requirement remains unchanged.
+  The final product is one always-present, possibly empty sparse cohort; only
+  `cohort.row(batch_slot)` returns `Option`. Package-wide
+  `missing_parameter_contract`, `missing_result_annotation`, and the outer
+  `Option<Cohort>` are retired together so no second availability authority
+  remains. S6C seed consumption remains prior and affine.
+- `NORMAL-CALLABLE-PHYSICAL-HEADER-ROW-SPARSE-COHORT-I0` (**landed
+  BoxCount**): implement the accepted product shape in completion seed,
+  physical header, package model/issuer/install, and focused tests. Positive:
+  unchanged full parser scan source lends exactly one exact-I64 `skip_while`
+  row with two explicit Completion sites and the existing A-prime demand
+  succeeds. Negative: unannotated single/mixed rows lend no header; unsupported
+  explicit annotations and malformed covered rows still reject. No source,
+  Dynamic catalog header, A-prime validator, Builder, or provenance changes.
+  The package owns one always-present cohort, package-wide missing bits are
+  gone, and only row lookup remains optional. All 35 package tests plus two
+  selected-emitter tests are green. The reusable complete-batch guard's new
+  sparse-cohort assertions are green, but the whole guard remains classified
+  parent-baseline-red at `e3adb2de8e` on its unchanged selected-mapping
+  vocabulary regex.
+- `HAKO-INSPECT-LLVM-ASM-D0` (**conditional NoSafeSlice**): open only if exact
+  machine attribution remains necessary. LLVM18 block-name assembly comments
+  are useful diagnostics but are not exact object-address provenance.
 
 ## Non-Goals
 

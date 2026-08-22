@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::ids::{FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionId, ScopeId};
 use super::if_region::{ResolvedIfRegionLookupErrorV1, ResolvedIfRegionVerificationErrorV1};
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
@@ -201,6 +202,8 @@ fn if_data(owner: FunctionOwnerIdV1, with_else: bool) -> ResolvedFunctionDataV1 
     }
 
     ResolvedFunctionDataV1 {
+        brand_call_relations: BTreeMap::new(),
+        explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {
@@ -216,6 +219,7 @@ fn if_data(owner: FunctionOwnerIdV1, with_else: bool) -> ResolvedFunctionDataV1 
         assignment_targets: BTreeMap::new(),
         direct_call_targets: BTreeMap::new(),
         method_calls: BTreeMap::new(),
+        expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::new(),
     }
 }
@@ -341,6 +345,30 @@ fn nested_if_sites_have_independent_exact_bundles() {
     assert_eq!(
         product.region(inner.control()).unwrap().parent(),
         Some(outer.then_pair().region())
+    );
+}
+
+#[test]
+fn program_block_if_uses_program_lexical_region_as_parent() {
+    let product = resolve(&function(vec![ASTNode::Program {
+        statements: vec![if_stmt(Vec::new(), None)],
+        span: Span::unknown(),
+    }]));
+    let bundle = *product
+        .if_region_bundle(&stmt(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBody(0),
+        ]))
+        .unwrap();
+    let control = product.region(bundle.control()).unwrap();
+    let parent = product.region(control.parent().unwrap()).unwrap();
+    assert_eq!(parent.kind(), RegionKindV1::LexicalScope);
+    assert_eq!(
+        parent.origin(),
+        &RegionOriginV1::Source(node(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBodyRoot,
+        ]))
     );
 }
 

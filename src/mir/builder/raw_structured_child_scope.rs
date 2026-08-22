@@ -12,11 +12,19 @@ use crate::mir::{MirBuilder, ValueId};
 use crate::mir::resolved_semantics::ExprChildRoleV1;
 
 use super::enum_match_source_demand::EnumMatchSourceDemandPortV1;
+use super::normal_script_semantic_lowering_state::{
+    ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
+};
 use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
     RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
+};
+use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
+use super::static_result_publication_ingress::{
+    StaticResultPublicationIngressErrorV1, StaticResultPublicationIngressPortV1,
+    StaticResultPublicationIngressV1,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -46,6 +54,14 @@ pub(in crate::mir::builder) struct RawStructuredChildScopePortV1<'port, Port> {
 }
 
 impl<'port, Port> RawStructuredChildScopePortV1<'port, Port> {
+    pub(super) fn child(&self) -> &Port {
+        self.child
+    }
+
+    pub(super) fn child_mut(&mut self) -> &mut Port {
+        self.child
+    }
+
     pub(in crate::mir::builder) fn new(
         child: &'port mut Port,
         expressions: Vec<PreparedRawChildSourceV1>,
@@ -144,21 +160,32 @@ where
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
-    fn try_emit_source_bound_static_call_result_v1(
+    fn script_direct_static_claim_ingress_v1(
         &mut self,
-        builder: &mut MirBuilder,
-        owner: &str,
+        box_name: &str,
         method: &str,
-        checked_source_arity: u32,
-        arguments: &[ValueId],
-    ) -> Result<Option<ValueId>, String> {
-        self.child.try_emit_source_bound_static_call_result_v1(
-            builder,
-            owner,
-            method,
-            checked_source_arity,
-            arguments,
-        )
+        argument_count: usize,
+    ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
+        self.child
+            .script_direct_static_claim_ingress_v1(box_name, method, argument_count)
+    }
+
+    fn take_script_direct_static_claim_v1(
+        &mut self,
+        box_name: &str,
+        method: &str,
+        receiver: &ASTNode,
+        arguments: &[ASTNode],
+    ) -> Result<ScriptDirectStaticClaimTakeV1, String> {
+        self.child
+            .take_script_direct_static_claim_v1(box_name, method, receiver, arguments)
+    }
+
+    fn complete_script_direct_static_claim_v1(
+        &mut self,
+        claimed: ScriptDirectStaticClaimedRowV1,
+    ) -> Result<(), String> {
+        self.child.complete_script_direct_static_claim_v1(claimed)
     }
 
     fn lower_body(
@@ -212,6 +239,29 @@ where
                 })
             }
         }
+    }
+}
+
+impl<Port> StaticResultPublicationIngressPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: StaticResultPublicationIngressPortV1,
+{
+    fn take_static_result_publication_ingress_v1(
+        &mut self,
+        declarations: Option<
+            &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
+        >,
+        owner: &str,
+        method: &str,
+        argument_count: usize,
+    ) -> Result<StaticResultPublicationIngressV1, StaticResultPublicationIngressErrorV1> {
+        self.child
+            .take_static_result_publication_ingress_v1(
+                declarations,
+                owner,
+                method,
+                argument_count,
+            )
     }
 }
 

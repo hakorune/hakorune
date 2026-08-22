@@ -1,4 +1,9 @@
+use super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
 use super::completion_test_support::*;
+use super::draft_seal::{
+    DetachedFunctionExitClaimSetV1, FunctionDraftSealPreparationErrorV1,
+    MultiSiteExitPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
+};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
@@ -8,12 +13,6 @@ use crate::mir::resolved_semantics::{
     SourceStmtSiteV1,
 };
 use crate::mir::{BasicBlockId, MirBuilder, MirCompiler, MirInstruction, MirType, ValueId};
-use super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
-use super::draft_seal::{
-    DetachedFunctionExitClaimSetV1, FunctionDraftSealPreparationErrorV1,
-    MultiSiteExitPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
-};
-
 
 #[test]
 fn draft_seal_projection_materializes_exact_two_site_returns_without_mutating_live_builder() {
@@ -511,6 +510,7 @@ fn open_draft_seal_prepares_and_commits_one_projected_function() {
         completed.draft().get_block(BasicBlockId::new(0)).unwrap().terminator,
         Some(MirInstruction::Return { value: Some(value) }) if value == ValueId::new(0)
     ));
+    let _draft = completed.consume_non_authority_evidence();
     assert!(builder.function_state.current_function.is_none());
     assert!(builder.function_state.current_block.is_none());
 }

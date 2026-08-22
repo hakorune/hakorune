@@ -13,7 +13,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::MirBuilder;
 use crate::mir::function::MirParamDecl;
 use crate::mir::region::function_slot_registry::FunctionSlotRegistry;
-use crate::mir::{Effect, EffectMask, FunctionSignature, MirType};
+use crate::mir::{FunctionSignature, MirType};
 
 impl MirBuilder {
     /// 🎯 箱理論: Step 2 - 関数スケルトン作成
@@ -39,6 +39,7 @@ impl MirBuilder {
         func_name: String,
         param_decls: &[MirParamDecl],
         declared_return_type_name: Option<&str>,
+        effects: crate::mir::EffectMask,
     ) -> Result<(), String> {
         let signature = FunctionSignature {
             name: func_name,
@@ -54,7 +55,7 @@ impl MirBuilder {
             return_type: declared_return_type_name
                 .map(crate::mir::builder::builder_metadata::source_type_name_to_mir)
                 .unwrap_or(MirType::Void),
-            effects: EffectMask::READ.add(Effect::ReadHeap),
+            effects,
         };
         self.install_function_skeleton(signature, Some("create_resolved_function_skeleton"))
     }
@@ -84,6 +85,33 @@ impl MirBuilder {
             );
         }
 
+        self.install_function_state(function, entry)
+    }
+
+    /// Install a previously reserved physical shell into the current
+    /// unpublished function transaction. The shell's detached entry id is
+    /// replaced with a live builder-owned id; parameter ValueIds remain
+    /// `%0..%N-1` because the physical signature is unchanged.
+    pub(in crate::mir::builder) fn install_prepared_physical_function_skeleton(
+        &mut self,
+        detached: crate::mir::function::MirFunction,
+    ) -> Result<(), String> {
+        if self.function_state.current_function.is_some()
+            || self.function_state.current_block.is_some()
+        {
+            return Err("physical skeleton install requires an empty function slot".to_owned());
+        }
+        let entry = self.next_block_id();
+        let mut function = self.new_function_with_metadata(detached.signature.clone(), entry);
+        function.metadata = detached.metadata;
+        self.install_function_state(function, entry)
+    }
+
+    fn install_function_state(
+        &mut self,
+        function: crate::mir::function::MirFunction,
+        entry: crate::mir::BasicBlockId,
+    ) -> Result<(), String> {
         // Phase 136 Step 3/7: Use scope_ctx as SSOT
         self.function_state.current_function = Some(function);
         self.function_state.current_block = Some(entry);

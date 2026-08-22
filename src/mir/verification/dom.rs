@@ -23,7 +23,16 @@ pub fn check_dominance_with(
     def_block: &HashMap<ValueId, BasicBlockId>,
     dominators: &utils::DominatorTree,
 ) -> Result<(), Vec<VerificationError>> {
-    if crate::config::env::verify_allow_no_phi() {
+    check_dominance_with_policy(function, def_block, dominators, true)
+}
+
+pub fn check_dominance_with_policy(
+    function: &MirFunction,
+    def_block: &HashMap<ValueId, BasicBlockId>,
+    dominators: &utils::DominatorTree,
+    respect_ambient_skip: bool,
+) -> Result<(), Vec<VerificationError>> {
+    if respect_ambient_skip && crate::config::env::verify_allow_no_phi() {
         return Ok(());
     }
     let mut errors = Vec::new();

@@ -16,6 +16,7 @@ mod rss_observe;
 mod user_box_registry;
 
 pub use exports::*;
+pub use ffi::dynamic_v2_lease::*;
 pub use ffi::lifecycle::*;
 pub use ffi::weak::*;
 pub use plugin::*;

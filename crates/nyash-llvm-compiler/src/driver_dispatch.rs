@@ -26,6 +26,9 @@ pub(super) fn emit_compile_output(
         args.nyrt.as_ref(),
         args.libs.as_deref(),
         "object",
+        Some(input_path),
+        args.receipt_json.as_deref(),
+        args.artifact_bundle.as_deref(),
     )
 }
 

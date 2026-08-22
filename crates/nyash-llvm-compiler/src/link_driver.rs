@@ -7,6 +7,11 @@ use anyhow::{bail, Context, Result};
 use super::boundary_driver;
 use super::DriverKind;
 
+#[allow(dead_code)]
+mod static_artifact_descriptor;
+#[allow(dead_code)]
+mod static_artifact_publication;
+
 pub(super) fn finalize_emit_output(
     driver: DriverKind,
     obj_path: &Path,
@@ -15,11 +20,81 @@ pub(super) fn finalize_emit_output(
     nyrt_dir: Option<&PathBuf>,
     extra_libs: Option<&str>,
     object_label: &str,
+    input_json: Option<&Path>,
+    receipt_json: Option<&Path>,
+    artifact_bundle: Option<&Path>,
 ) -> Result<()> {
     if emit_exe {
+        if let Some(bundle_path) = artifact_bundle {
+            let input_json =
+                input_json.context("--artifact-bundle requires a non-dummy MIR JSON input")?;
+            if driver != DriverKind::Boundary {
+                bail!("--artifact-bundle is available only for the Boundary driver");
+            }
+            let nyrt_dir = nyrt_dir.context(
+                "--artifact-bundle requires explicit --nyrt <DIR> for static publication",
+            )?;
+            let runtime_archive = require_explicit_nyrt_archive(Some(nyrt_dir))?;
+            let prepared = static_artifact_publication::StaticAotArtifactPublicationTxnV1::prepare_bundle_with_linker(
+                input_json,
+                obj_path,
+                bundle_path,
+                &runtime_archive,
+                |object, candidate, archive| {
+                    super::boundary_driver::link_object_to_exe_with_archive(
+                        object, candidate, archive, extra_libs,
+                    )
+                    .map_err(|_| static_artifact_publication::StaticArtifactRejectV1::LinkFailed)
+                },
+            )
+            .map_err(|error| anyhow::anyhow!(error))?;
+            let published = prepared
+                .commit_bundle()
+                .map_err(|error| anyhow::anyhow!(error))?;
+            println!(
+                "[ny-llvmc] published artifact bundle: {}",
+                published.published_bundle_path().display()
+            );
+            return Ok(());
+        }
+        if let Some(receipt_path) = receipt_json {
+            let input_json =
+                input_json.context("--receipt-json requires a non-dummy MIR JSON input")?;
+            if driver != DriverKind::Boundary {
+                bail!("--receipt-json is available only for the Boundary driver");
+            }
+            let nyrt_dir = nyrt_dir.context(
+                "--receipt-json requires explicit --nyrt <DIR> for the static artifact receipt",
+            )?;
+            let runtime_archive = require_explicit_nyrt_archive(Some(nyrt_dir))?;
+            let prepared = static_artifact_publication::StaticAotArtifactPublicationTxnV1::prepare(
+                input_json,
+                obj_path,
+                out_path,
+                &runtime_archive,
+                extra_libs,
+            )
+            .map_err(|error| anyhow::anyhow!(error))?;
+            let published = prepared.commit().map_err(|error| anyhow::anyhow!(error))?;
+            published
+                .write_receipt_json(input_json, receipt_path)
+                .map_err(|error| anyhow::anyhow!(error))?;
+            println!(
+                "[ny-llvmc] published artifact receipt: {}",
+                receipt_path.display()
+            );
+            println!(
+                "[ny-llvmc] executable written: {}",
+                published.published_path().display()
+            );
+            return Ok(());
+        }
         link_executable_via_driver(driver, obj_path, out_path, nyrt_dir, extra_libs)?;
         println!("[ny-llvmc] executable written: {}", out_path.display());
     } else {
+        if receipt_json.is_some() || artifact_bundle.is_some() {
+            bail!("artifact publication requires --emit exe");
+        }
         println!(
             "[ny-llvmc] {} written: {}",
             object_label,
@@ -55,21 +130,7 @@ pub(super) fn link_executable(
     nyrt_dir_opt: Option<&PathBuf>,
     extra_libs: Option<&str>,
 ) -> Result<()> {
-    let nyrt_dir = nyrt_dir_opt.cloned().context(
-        "explicit --nyrt <DIR> is required for Harness/Native exe linking; boundary route handles fallback",
-    )?;
-    let libnyrt = nyrt_dir.join("libnyash_kernel.a");
-    if !libnyrt.exists() {
-        bail!(
-            "libnyash_kernel.a not found in {}.\n\
-             hint: build the kernel staticlib first:\n\
-               cargo build --release -p nyash_kernel\n\
-             expected output (workspace default): target/release/libnyash_kernel.a\n\
-             or pass an explicit directory via --nyrt <DIR>.\n\
-             note: the llvmlite harness path (NYASH_LLVM_USE_HARNESS=1) does not need libnyash_kernel.a.",
-            nyrt_dir.display(),
-        );
-    }
+    let libnyrt = require_explicit_nyrt_archive(nyrt_dir_opt)?;
     let whole_archive_enabled = link_whole_archive_enabled()?;
     let gc_sections_enabled = link_gc_sections_enabled()?;
 
@@ -144,6 +205,29 @@ pub(super) fn link_executable(
     Ok(())
 }
 
+/// Resolve the explicit kernel artifact required by the AOT link lane.
+///
+/// This is only the pre-link presence boundary.  Digest, symbol, ABI, and
+/// PlanStamp validation belong to the later post-link executable-plan owner.
+fn require_explicit_nyrt_archive(nyrt_dir_opt: Option<&PathBuf>) -> Result<PathBuf> {
+    let nyrt_dir = nyrt_dir_opt.cloned().context(
+        "explicit --nyrt <DIR> is required for Harness/Native exe linking; boundary route handles fallback",
+    )?;
+    let libnyrt = nyrt_dir.join("libnyash_kernel.a");
+    if !libnyrt.is_file() {
+        bail!(
+            "libnyash_kernel.a not found in {}.\n\
+             hint: build the kernel staticlib first:\n\
+               cargo build --release -p nyash_kernel\n\
+             expected output (workspace default): target/release/libnyash_kernel.a\n\
+             or pass an explicit directory via --nyrt <DIR>.\n\
+             note: the llvmlite harness path (NYASH_LLVM_USE_HARNESS=1) does not need libnyash_kernel.a.",
+            nyrt_dir.display(),
+        );
+    }
+    Ok(libnyrt)
+}
+
 fn parse_link_whole_archive_enabled(raw: Option<&str>) -> Result<bool> {
     let Some(value) = raw.map(str::trim).filter(|s| !s.is_empty()) else {
         return Ok(true);
@@ -209,6 +293,7 @@ fn link_system_libs() -> Result<LinkSystemLibs> {
 mod tests {
     use super::*;
     use std::path::Path;
+    use std::time::{SystemTime, UNIX_EPOCH};
 
     #[test]
     fn harness_and_native_exe_linking_requires_explicit_nyrt_dir() {
@@ -223,6 +308,53 @@ mod tests {
         assert!(
             message.contains("explicit --nyrt <DIR> is required for Harness/Native exe linking")
         );
+    }
+
+    #[test]
+    fn explicit_nyrt_archive_boundary_rejects_missing_archive() {
+        let root = std::env::temp_dir().join(format!(
+            "nyllvmc_missing_nyrt_{}_{}",
+            std::process::id(),
+            unique_test_suffix()
+        ));
+        let err = require_explicit_nyrt_archive(Some(&root)).unwrap_err();
+        assert!(err.to_string().contains("libnyash_kernel.a not found"));
+    }
+
+    #[test]
+    fn explicit_nyrt_archive_boundary_rejects_directory_named_as_archive() {
+        let root = std::env::temp_dir().join(format!(
+            "nyllvmc_directory_nyrt_{}_{}",
+            std::process::id(),
+            unique_test_suffix()
+        ));
+        std::fs::create_dir_all(root.join("libnyash_kernel.a"))
+            .expect("temporary archive-shaped directory");
+        let err = require_explicit_nyrt_archive(Some(&root)).unwrap_err();
+        assert!(err.to_string().contains("libnyash_kernel.a not found"));
+        std::fs::remove_dir_all(&root).expect("remove temporary nyrt directory");
+    }
+
+    #[test]
+    fn explicit_nyrt_archive_boundary_returns_only_existing_path() {
+        let root = std::env::temp_dir().join(format!(
+            "nyllvmc_present_nyrt_{}_{}",
+            std::process::id(),
+            unique_test_suffix()
+        ));
+        std::fs::create_dir_all(&root).expect("temporary nyrt directory");
+        let archive = root.join("libnyash_kernel.a");
+        std::fs::write(&archive, b"test archive").expect("temporary archive");
+        let resolved = require_explicit_nyrt_archive(Some(&root)).expect("archive resolves");
+        assert_eq!(resolved, archive);
+        std::fs::remove_dir_all(&root).expect("remove temporary nyrt directory");
+    }
+
+    fn unique_test_suffix() -> u128 {
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .expect("system clock")
+            .as_nanos()
     }
 
     #[test]

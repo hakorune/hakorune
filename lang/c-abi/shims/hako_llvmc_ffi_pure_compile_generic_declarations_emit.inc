@@ -129,3 +129,4 @@
       if (needs.printf || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.console.log_handle\"(i64)\n");
       if (needs.string_substring_len) fprintf(f, "declare i64 @\"nyash.string.substring_len_hii\"(i64, i64, i64)\n");
+      if (ptfc_selected) hako_llvmc_ptfc_emit_selected_declarations(f);

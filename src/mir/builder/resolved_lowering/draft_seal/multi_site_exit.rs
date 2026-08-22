@@ -95,6 +95,14 @@ impl DetachedFunctionExitClaimV1 {
     pub(in crate::mir::builder::resolved_lowering) fn exit(&self) -> PreparedFunctionExitV1 {
         self.exit
     }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder::resolved_lowering) fn from_test(
+        site: SourceStmtSiteV1,
+        exit: PreparedFunctionExitV1,
+    ) -> Self {
+        Self { site, exit }
+    }
 }
 
 /// Canonical source-order collection of explicit value exits.  It is

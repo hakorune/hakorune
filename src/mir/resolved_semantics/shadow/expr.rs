@@ -9,6 +9,7 @@ use super::product::{
     ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
 use super::resolver::ShadowResolverV0;
+use crate::mir::resolved_semantics::brand_source_relation::BrandCallSourceRelationKindV1;
 
 impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
     fn expr_child_path(
@@ -27,7 +28,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         expr: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        if !self.allows_expression(expr) {
+        if !self.allows_expression(expr) && !self.is_catalog_brand_expression(expr) {
             return Err(ShadowResolveErrorV0::UnsupportedExpression {
                 kind: expr.node_type(),
                 site: path.expr(),
@@ -35,6 +36,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         }
         self.record_expression_site(path.expr());
         self.record_expression_shape(expr, path.expr());
+        self.record_expression_source(expr, path.expr());
         match expr {
             ASTNode::Literal { .. } => Ok(()),
             ASTNode::Variable { name, .. } => self.resolve_named_use(name, path),
@@ -156,9 +158,39 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 )
             }
             ASTNode::MethodCall {
-                object, arguments, ..
+                object,
+                method,
+                arguments,
+                ..
             } => {
                 let receiver_path = Self::expr_child_path(expr, path, ExprChildRoleV1::Receiver);
+                let brand_name = match object.as_ref() {
+                    ASTNode::Variable { name, .. } => Some(name.as_str()),
+                    _ => None,
+                };
+                let brand_draft = brand_name.and_then(|name| {
+                    self.brand_call_draft(
+                        name,
+                        BrandCallSourceRelationKindV1::Unwrap,
+                        path.expr(),
+                        Some(receiver_path.expr()),
+                        Self::expr_child_path(expr, path, ExprChildRoleV1::CallArgument(0)).expr(),
+                    )
+                });
+                if brand_draft.is_some() {
+                    if method != "unwrap" {
+                        return Err(ShadowResolveErrorV0::UnsupportedBrandStaticMethod {
+                            site: path.expr(),
+                            method: method.clone().into(),
+                        });
+                    }
+                    if arguments.len() != 1 {
+                        return Err(ShadowResolveErrorV0::BrandUnwrapArity {
+                            site: path.expr(),
+                            actual: arguments.len(),
+                        });
+                    }
+                }
                 self.record_effect(
                     path.expr(),
                     crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Call,
@@ -168,7 +200,14 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                     crate::mir::resolved_semantics::SourcePathSegmentV1::Receiver,
                     receiver_path.expr(),
                 );
-                self.resolve_method_call_receiver(path.expr(), object, &receiver_path)?;
+                if brand_draft.is_some() {
+                    self.resolve_brand_qualified_receiver(object, &receiver_path)?;
+                } else {
+                    self.resolve_method_call_receiver(path.expr(), object, &receiver_path)?;
+                }
+                if let Some(draft) = brand_draft {
+                    self.record_brand_call(path.expr(), draft)?;
+                }
                 self.resolve_arguments(expr, arguments, path)
             }
             ASTNode::FieldAccess { object, .. } => {
@@ -197,7 +236,34 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                     path.expr(),
                     crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Call,
                 );
-                self.record_direct_call(path.expr(), name, arguments.len())?;
+                let brand_draft = self.brand_call_draft(
+                    name,
+                    BrandCallSourceRelationKindV1::Constructor,
+                    path.expr(),
+                    None,
+                    Self::expr_child_path(expr, path, ExprChildRoleV1::CallArgument(0)).expr(),
+                );
+                if let Some(draft) = brand_draft {
+                    if arguments.len() != 1 {
+                        return Err(ShadowResolveErrorV0::BrandConstructorArity {
+                            site: path.expr(),
+                            actual: arguments.len(),
+                        });
+                    }
+                    self.record_brand_call(path.expr(), draft)?;
+                } else {
+                    self.record_direct_call(path.expr(), name, arguments.len())?;
+                }
+                self.resolve_arguments(expr, arguments, path)
+            }
+            ASTNode::ExplicitExternCall {
+                target, arguments, ..
+            } => {
+                self.record_effect(
+                    path.expr(),
+                    crate::mir::resolved_semantics::body_shape::BodyEffectKindV1::Call,
+                );
+                self.record_explicit_extern_call(path.expr(), target)?;
                 self.resolve_arguments(expr, arguments, path)
             }
             ASTNode::FromCall {
@@ -397,6 +463,28 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             }
         };
         self.record_method_call_observation(call_site, receiver_site, receiver)
+    }
+
+    fn resolve_brand_qualified_receiver(
+        &mut self,
+        object: &'ast ASTNode,
+        receiver_path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let ASTNode::Variable { .. } = object else {
+            return Err(ShadowResolveErrorV0::UnsupportedExpression {
+                kind: "BrandQualifiedReceiver",
+                site: receiver_path.expr(),
+            });
+        };
+        let site = receiver_path.expr();
+        self.record_expression_site(site.clone());
+        self.record_expression_shape(object, site.clone());
+        self.record_expression_source(object, site.clone());
+        self.request_qualified_receiver(site.clone());
+        self.record_qualified_receiver_disposition(
+            site,
+            ShadowQualifiedReceiverDispositionV0::ProvenUnbound,
+        )
     }
 
     fn resolve_named_assignment(

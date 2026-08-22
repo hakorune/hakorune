@@ -21,6 +21,48 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
 - Same-module `.inc` partitions may publish backend-local register type/origin
   facts from metadata, but MIRBuilder owns the semantic truth that produces
   those facts.
+- The selected Dynamic entry header is a narrow C1-A physical projection: it
+  consumes the existing admission marker and exact four MIR formal ValueIds;
+  it rejects signature drift before object emission and does not infer return,
+  effect, site shape, lease, ABI, wire, or PlanStamp facts. Those remaining
+  typed facts are carried by the existing C1-A1 candidate transport.
+- `hako_llvmc_ffi_checked_callout_lowering.inc` is the sole C1 Boundary
+  physicalizer for the selected Dynamic lane. It consumes the typed
+  site-id projection once, emits only the two direct TextScan entries,
+  preserves MIR-owned Normal/Fault successors, and calls the sole Rust lease
+  End consumer through the versioned C ABI. It must not resolve coordinates,
+  selectors, providers, registries, generic `mir_call`, VM routes, fallback,
+  or retry. Link/publication remains a later W6 transaction.
+- The C1 projection also consumes the one non-Clone CheckedCallOut census
+  view carried through AOT JSON. Per-site source/receiver/arguments,
+  Normal/Fault landing, Normal-result position, effect, and the three End
+  cutpoints are cross-checked against the emitted MIR JSON before any object
+  is produced. JSON and C remain consumers; neither rebuilds a site plan or
+  predecessor/cleanup authority.
+- `hako_llvmc_ffi_checked_callout_predecessor_projection.inc` is the
+  compile-local physical edge projection for C1-expanded control flow. Before
+  LLVM output it maps each affected `(MIR predecessor, MIR successor)` to the
+  exact normal, fault, or End continuation label issued by the C1 emitter.
+  The existing PHI writer only consumes these rows; missing, duplicate,
+  conflicting, dangling, or unconsumed rows reject instead of falling back to
+  `%bb<pred>`. A block-only tail row is insufficient because one CallOut has
+  distinct Normal and Fault physical tails.
+- C1's wire checks are fail-stop projections of the shared CallSlot contract:
+  I6 EndAuthorized host handles must carry a non-zero payload, I7
+  ImmediateI64 may carry zero, and semantic Fault codes must be in the fixed
+  `1..=8` header range. Unknown status/tag/disposition, Suspended, malformed
+  fields, or transport/lease failures trap locally and never become MIR Fault.
+- The selected W6 link path uses the versioned `hako_llvmc_link_obj_v2`
+  boundary. Rust resolves the exact `libnyash_kernel.a` path from `--nyrt`
+  and passes it as an argument; this path never asks the C shim to rediscover
+  `NYASH_EMIT_EXE_NYRT` or a fallback directory. The legacy four-argument
+  symbol remains a compatibility owner only.
+- `hako_llvmc_ffi_dynamic_v2_artifact_descriptor.inc` is the sole selected
+  object-descriptor emitter. It copies the already validated candidate
+  metadata into the fixed layout from
+  `include/hako_dynamic_v2_artifact_descriptor_v1.h`; it does not select a
+  provider, rediscover a call site, or issue a link receipt. Ordinary objects
+  emit no descriptor. The Rust W6-D transaction is the sole post-link observer.
 - Generic-method route tuple facts must have one registry owner. The tuple
   `route_id / core_op / route_kind / tier / route_proof / helper_symbol` must
   not be re-listed independently in route policy, generic method match,
@@ -236,6 +278,51 @@ Current partitions:
 - `hako_llvmc_ffi_pure_compile.inc`
   - `compile_json_compat_pure(...)`, generic walk orchestration, and the remaining exported link surface
   - now partitioned further into `hako_llvmc_ffi_pure_compile_generic_lowering.inc` and `hako_llvmc_ffi_pure_compile_minimal_paths.inc`
+- `hako_llvmc_ffi_pure_compile_generic_active_walk.inc`
+  - lexical child for the generic active function's block/instruction walk;
+    region replacement, base labels/PHIs, registration prelude, and operation
+    dispatch remain in their original order
+  - owns no route selection, provenance schema, or compiler meaning; future
+    profile-local journals must still be issued by the exact base/C1 emitters
+- `hako_llvmc_ffi_pinned_text_selected_preflight.inc`
+  - effect-free exact consumer of the Rust-issued pinned-Text frame/carrier,
+    parameter, root, plan, and lifecycle cohort
+- `hako_llvmc_ffi_pinned_text_selected_lowering.inc`
+  - caller-zero private textual projection for the three pinned-Text leaves
+    and Enter/Trap/Finish; owns one `tmpfile()` draft, verifies it, closes the
+    stream, and moves the resulting bytes once to the retained LLVM18 session
+  - consumes the versioned runtime header's no-unwind Enter/Finish contract;
+    it emits `nounwind` declarations but never marks Finish `noreturn`,
+    `readonly`, `readnone`, `nofree`, or `speculatable`
+  - scalar equality keeps exact align-1 width-1..4 reads and short-circuits
+    after the first mismatch; a default-no-op test hook may lend the accepted
+    real scalar plan to a separate evidence callable through this same emitter
+- `hako_llvmc_ffi_pinned_text_final_module_closure.inc`
+  - selected-only, read-only consumer of the already-preflighted candidate and
+    the same parsed `LLVMModuleRef`; runs `LLVMVerifyModule`, checks exact
+    target/layout, runtime call attributes, lifecycle calls, Finish/Return,
+    terminal Trap, and zero EH before the sole object emission
+  - owns no JSON scan, pass, module mutation, semantic receipt, object reader,
+    fallback, or retry
+- `hako_llvmc_ffi_pinned_text_target_machine_session.inc`
+  - sole contract-bound LLVM parse/module/object owner; file and selected
+    memory-buffer ingress converge before parse and share temporary-object
+    cleanup plus atomic rename
+  - selected memory ingress lends its candidate to final-module closure after
+    target/layout installation; file ingress passes no closure and is unchanged
+  - a compile-time-only, default-no-op test hook may borrow that same closed
+    module immediately before emission for offline promotion evidence; it adds
+    no export, environment selector, pass, mutation, or compiler authority
+- `hako_llvmc_ffi_pinned_text_selected_dispatch.inc`
+  - one small hook from the existing generic operation writer; it does not
+    duplicate PHI, arithmetic, compare, branch, or Return lowering
+- `hako_llvmc_ffi_pinned_text_lowering_provenance.inc`
+  - default-off, compile-time-only MIR-to-final-LLVM block/edge origin journal
+    for the selected pinned-Text projection
+  - records relations at the actual emission site; labels, ValueIds, textual
+    adjacency, disassembly, and counts never reconstruct missing origins
+  - exact machine attribution remains unavailable and is not inferred from the
+    selected assembly symbol
 
 Rules:
 
@@ -275,4 +362,7 @@ Rules:
 - `hako_llvmc_ffi_string_concat_window.inc` is the producer-window helper seam for string concat; keep helper logic out of `string_concat_match.inc` once the migration settles.
 - Keep `hako_llvmc_ffi_generic_method_get_window.inc`, `hako_llvmc_ffi_string_concat_window.inc`, and the `indexOf` observer family native in this wave; they are compiler-state-heavy analyzers, not the next `.hako` owner tables.
 - For pure-first lanes, the formal boundary contract is `llpath canonical emit`: promotable scalar stack slots are canonicalized before object emission, and the current implementation does that with `opt -passes=mem2reg` before `llc`.
-- `HAKO_CAPI_TM` is an explicit bypass / compat-probe keep lane; do not treat it as the canonical mainline contract.
+- `HAKO_CAPI_TM` is an explicit bypass / compat-probe keep lane for
+  uncontracted legacy modules only. Contract-bound pinned-Text modules ignore
+  it, retain one LLVM-18 C-API TargetMachine session from preflight through
+  object emission, and never fall back to external opt/llc.

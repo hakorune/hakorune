@@ -8,6 +8,7 @@
 mod entry_session;
 mod exit;
 mod terminal;
+mod direct_static_entry_kernel;
 
 pub(in crate::mir) use entry_session::{
     CompletedScriptPhysicalFunctionV1, OpenScriptPhysicalEntrySessionV1,
@@ -23,6 +24,7 @@ pub(in crate::mir) use terminal::{
     LoweredScriptTerminalV1, LoweredScriptUnitPayloadV1, ScriptRecipeLoweringErrorV1,
     ScriptRecipeLoweringOperationV1,
 };
+pub(in crate::mir) use direct_static_entry_kernel::lower_direct_static_physical_input_v1;
 
 #[cfg(test)]
 mod tests;

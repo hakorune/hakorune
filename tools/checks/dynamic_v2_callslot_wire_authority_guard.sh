@@ -24,6 +24,11 @@ guard_expect_fixed_in_file "$TAG" "WIRE_REVISION = 2" "$WIRE_PY" "Python project
 guard_expect_fixed_in_file "$TAG" "immediate_i64_normal_has_no_lifecycle_disposition" "$WIRE_RS" "Rust ImmediateI64 validity test is missing"
 guard_expect_fixed_in_file "$TAG" "test_immediate_i64_normal_has_no_lifecycle_disposition" "$WIRE_TEST" "Python ImmediateI64 validity test is missing"
 guard_expect_fixed_in_file "$TAG" "_Static_assert(sizeof(HakoDynamicV2CallOutV1) == 48" "$WIRE_C" "C layout assertion is missing"
+guard_expect_fixed_in_file "$TAG" "pub mod dynamic_call_slot_wire" "$ROOT_DIR/src/lib.rs" "shared Rust wire projection must be public to the kernel crate"
+guard_expect_fixed_in_file "$TAG" "pub struct DynamicV2CallOutV1" "$WIRE_RS" "Rust wire layout must have one public owner"
+if rg -n 'struct[[:space:]]+DynamicV2CallOutV1|repr\(C\).*DynamicV2CallOut' "$ROOT_DIR/crates/nyash_kernel/src"; then
+  guard_fail "$TAG" "kernel must not define a duplicate DynamicV2CallOut wire"
+fi
 
 for pair in "Invalid = 0" "HostHandle = 1" "ImmediateI64 = 2" "Normal = 0" "Fault = 1" "Suspended = 2" "None = 0" "Forwarded = 1" "EndAuthorized = 2"; do
   guard_expect_fixed_in_file "$TAG" "$pair" "$WIRE_RS" "Rust enum drifted: $pair"

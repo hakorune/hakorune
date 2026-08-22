@@ -51,6 +51,14 @@ pub(crate) fn transform_normal_callable_program_v1(
                 None
             };
             if let Some(reason) = compatibility {
+                if initial.composite_source_is_ready() {
+                    return Err(NormalCallableTransformRejectV1::ExactSourceChanged(
+                        FinalCallableProgramSourceRejectV1::Composite(
+                            crate::parser::callable_parameter_source::
+                                ParserCompositeTransformRejectV1::CompatibilityLoss,
+                        ),
+                    ));
+                }
                 let ast = initial.into_ast();
                 return Ok(NormalCallableTransformOutcomeV1::Compatibility {
                     ast: super::maybe_expand_and_dump(&ast, false),

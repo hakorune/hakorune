@@ -38,6 +38,57 @@ fn test_module_creation() {
 }
 
 #[test]
+fn selected_dynamic_metadata_pair_observation_is_linear_and_fail_closed() {
+    let mut metadata = FunctionMetadata::default();
+    assert!(matches!(
+        metadata.selected_dynamic_metadata_observation(),
+        DynamicV2MetadataPairObservation::Ordinary
+    ));
+    let ordinary_clone = metadata.clone();
+    assert!(matches!(
+        ordinary_clone.selected_dynamic_metadata_observation(),
+        DynamicV2MetadataPairObservation::Ordinary
+    ));
+
+    metadata
+        .install_a_prime_i64_physical_receipt_for_test(crate::mir::test_support::a_prime_receipt())
+        .expect("receipt install");
+    assert!(matches!(
+        metadata.selected_dynamic_metadata_observation(),
+        DynamicV2MetadataPairObservation::Partial
+    ));
+
+    metadata
+        .install_dynamic_v2_aot_metadata_for_test(
+            crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(
+            ),
+        )
+        .expect("admission install");
+    assert!(matches!(
+        metadata.selected_dynamic_metadata_observation(),
+        DynamicV2MetadataPairObservation::Selected { .. }
+    ));
+
+    let scrubbed = metadata.clone();
+    assert!(matches!(
+        scrubbed.selected_dynamic_metadata_observation(),
+        DynamicV2MetadataPairObservation::Scrubbed
+    ));
+
+    let mut admission_only = FunctionMetadata::default();
+    admission_only
+        .install_dynamic_v2_aot_metadata_for_test(
+            crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(
+            ),
+        )
+        .expect("admission-only install");
+    assert!(matches!(
+        admission_only.selected_dynamic_metadata_observation(),
+        DynamicV2MetadataPairObservation::Partial
+    ));
+}
+
+#[test]
 fn checked_function_publication_rejects_duplicate_without_replacement() {
     let mut module = MirModule::new("checked-publication".to_string());
     let first = MirFunction::new(

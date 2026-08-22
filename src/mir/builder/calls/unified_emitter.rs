@@ -11,7 +11,7 @@
 use super::call_unified;
 use super::CallTarget;
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
-use crate::mir::builder::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
+use crate::mir::builder::{Effect, EffectMask, MirBuilder, ValueId};
 use crate::mir::definitions::call_unified::Callee;
 use crate::mir::policies::callee_box_kind::{
     classify_callee_box_kind_v1, CalleeBoxKindPolicyContextV1,
@@ -27,6 +27,7 @@ pub struct UnifiedCallEmitterBox;
 
 #[cfg(test)]
 mod array_write_timing_tests;
+mod compat_entrypoints;
 #[cfg(test)]
 mod map_write_timing_tests;
 #[cfg(test)]
@@ -746,52 +747,5 @@ impl UnifiedCallEmitterBox {
             signature_publication,
         )
         .map(UnifiedCallEmissionOutcomeV1::Generic)
-    }
-
-    /// Emit global call with name constant (public compatibility entry).
-    pub fn emit_global_unified(
-        builder: &mut MirBuilder,
-        dst: Option<ValueId>,
-        name: String,
-        args: Vec<ValueId>,
-    ) -> Result<(), String> {
-        // Create a string constant for the function name via NameConstBox
-        let name_const = crate::mir::builder::name_const::make_name_const_result(builder, &name)?;
-        // Allocate a destination if not provided so we can annotate it
-        let actual_dst = if let Some(d) = dst {
-            d
-        } else {
-            builder.next_value_id()
-        };
-        let mut args = args;
-        crate::mir::builder::ssa::local::finalize_args(builder, &mut args)?;
-        builder.emit_instruction(MirInstruction::Call {
-            dst: Some(actual_dst),
-            func: name_const,
-            callee: Some(Callee::Global(name.clone())),
-            args,
-            effects: EffectMask::IO,
-        })?;
-        // Annotate from module signature (if present)
-        builder.annotate_call_result_from_func_name(actual_dst, name);
-        Ok(())
-    }
-
-    /// Emit value call (first-class function, public compatibility entry).
-    pub fn emit_value_unified(
-        builder: &mut MirBuilder,
-        dst: Option<ValueId>,
-        func_val: ValueId,
-        args: Vec<ValueId>,
-    ) -> Result<(), String> {
-        let mut args = args;
-        crate::mir::builder::ssa::local::finalize_args(builder, &mut args)?;
-        builder.emit_instruction(MirInstruction::Call {
-            dst,
-            func: func_val,
-            callee: Some(Callee::Value(func_val)),
-            args,
-            effects: EffectMask::IO,
-        })
     }
 }

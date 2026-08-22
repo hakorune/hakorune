@@ -17,8 +17,8 @@ use crate::mir::loop_recipe_contract::{
     LoopJoinLogicalTransferRejectV2, LoopJoinLogicalTransferViewV2, LoopNodeKeyV1,
     LoopValueClassV2, LoopValueKeyV1, VerifiedLoopJoinClosureV2,
 };
-use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
+use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId, SourceStmtSiteV1};
 
 use super::a_prime_source::{
     DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,

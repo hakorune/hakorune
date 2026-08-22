@@ -245,6 +245,37 @@ stage1_contract_export_stageb_module_env() {
   stage1_contract_export_stage1_module_env "$@"
 }
 
+# A Stage1 build may use the compatibility harness only when the build
+# invocation itself admits it. An inherited harness value is not an admission.
+stage1_contract_resolve_backend_replay() {
+  local requested="${1:-}"
+  local inherited="${HAKO_BACKEND_COMPAT_REPLAY-}"
+  local effective="$requested"
+
+  if [[ -z "$effective" ]]; then
+    if [[ -z "$inherited" || "$inherited" == "none" ]]; then
+      printf '%s\n' 'none'
+      return 0
+    fi
+    echo "[stage1-contract/replay-unadmitted] inherited HAKO_BACKEND_COMPAT_REPLAY=${inherited@Q}; use --compat-replay ${inherited@Q}" >&2
+    return 2
+  fi
+
+  case "$effective" in
+    none|harness) ;;
+    *)
+      echo "[stage1-contract/replay-invalid] expected none|harness, got ${effective@Q}" >&2
+      return 2
+      ;;
+  esac
+
+  if [[ -n "$inherited" && "$inherited" != "$effective" ]]; then
+    echo "[stage1-contract/replay-mismatch] CLI=${effective@Q} env=${inherited@Q}" >&2
+    return 2
+  fi
+  printf '%s\n' "$effective"
+}
+
 stage1_contract_export_runner_defaults() {
   export NYASH_NYRT_SILENT_RESULT="${NYASH_NYRT_SILENT_RESULT:-1}"
   export NYASH_DISABLE_PLUGINS="${NYASH_DISABLE_PLUGINS:-1}"

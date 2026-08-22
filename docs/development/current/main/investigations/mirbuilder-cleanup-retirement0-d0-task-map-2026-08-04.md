@@ -2,7 +2,10 @@
 
 Status: T1-D0 baseline and T1-S0 `drain_policy_p0` retirement are closed. The
 If D0-D3 boundary is landed separately; this lane remains behavior-neutral and
-must not alter Recipe, route, or PHI/SSA authority.
+must not alter Recipe, route, or PHI/SSA authority. T5 records the parked
+post-cutover debt/governance cleanup. The 2026-08-20 architecture review is
+taskized below as P0-P5 convergence order and does not preempt the active
+Script row.
 Date: 2026-08-04
 
 This card records the cleanup opportunities raised by the dead-code audit. It
@@ -335,6 +338,403 @@ wrappers, and compat callers are zero. Do not delete
 `src/stage1/program_json_v0*` merely because a CLI flag retires. Only then
 hard-delete the bridge.
 
+### T5-D0..R8 — post-cutover debt, governance, and whole-builder convergence
+
+This is one parked cleanup program, not four new active cards. It records the
+repository-wide debt reported after the Dynamic/AOT hardening series without
+making that debt a blocker for the active Loop product row. Promotion requires
+an explicit `CURRENT_STATE.toml` retarget after the current Loop/cutover gate
+and a fresh integration census. A newly reproduced current-change regression
+may still preempt under the normal red-classification policy; a historical or
+grep-only concern may not.
+
+Local taskization snapshot on 2026-08-14:
+
+```text
+docs total                          = 125 MiB / 17,255 files
+archive-shaped docs directories    = about 42 MiB total
+docs-prefixed commits in last 10   = 8
+unique textual NYASH_* tokens      = 557 (not yet an env-reader census)
+reported full lib test baseline    = branch 6,641 pass / 139 fail
+reported comparison baseline       = main 143 fail
+focused completion baseline        = 107 pass / 1 ReturnValueTypeMissing fail
+```
+
+The full-lib counts are an external report until the exact command, SHA, and
+result are reproduced. The smaller completion result is already classified in
+`CURRENT_STATE.toml`; neither result is permission to normalize a permanent
+red baseline.
+
+Fixed order:
+
+```text
+T5-D0  BASELINE-RED-DEBT-BUDGET-D0
+  -> T5-R0  BASELINE-RED-BURNDOWN-R0 (bounded owner rows)
+
+T5-D1  DOCS-AND-ARCHIVE-FOOTPRINT-D0
+  -> T5-R1  CURRENT-DOC-COMPACTION-R0
+
+T5-D2  DEVELOPMENT-CEREMONY-COST-D0
+  -> T5-R2  CEREMONY-TIER-APPLICATION-R0
+
+T5-D3  COMPATIBILITY-SURFACE-RETIREMENT-D0
+  -> T5-R3  COMPATIBILITY-CALLER-ZERO-RETIREMENT-R0
+
+T5-D4..D8  WHOLE-BUILDER-CONVERGENCE (parked; ordered after the active cutover)
+```
+
+#### T5-D0/R0 — red-baseline debt budget and burn-down
+
+Reproduce branch and comparison baselines with the same command and record each
+failure by test, owner, first known SHA, comparison result, reachability, and
+named repair/retirement row. `mir::builder` and `mir::compiler` are categories,
+not owners; each red needs the smallest responsible module. From D0 onward,
+new failures are zero-budget and an existing failure cannot be carried merely
+as “known baseline” without a stable reproducer and disposition. R0 burns the
+manifest down in bounded owner rows. The finish line is a green required suite,
+not a smaller undocumented baseline. This program must not fold the current
+S6C positive/negative evidence into unrelated Return-value repair.
+
+#### T5-D1/R1 — docs and archive footprint
+
+Inventory current pointers, active contracts, historical receipts, generated
+evidence, and duplicate mirrors before moving or deleting anything. Fix one
+retention policy: live restart docs stay compact; stable reference contracts
+remain searchable; completed narrative moves to one archive owner or git
+history; generated/reproducible evidence is regenerated rather than copied.
+R1 works in bounded directory groups with link/pointer validation and a
+before/after byte/file census. No semantic contract is shortened merely to hit
+a byte target, and no archive deletion is authorized without an exact retained
+source and restore path.
+
+#### T5-D2/R2 — ceremony-cost consolidation
+
+Apply the existing T0/T1/T2 policy instead of inventing another governance
+layer. Durable private renames/splits/accessor narrowing with complete caller
+census use T0 and the owning commit; bounded existing-owner changes use T1;
+authority, accepted shape, ABI, failure owner, publication, or cutover changes
+remain T2. R2 removes stale duplicate task pointers and obsolete CURRENT
+mirrors, forbids a new card/guard for a one-line T0 change, and retains one
+serial `current_execution_row`. Read-only worker audits may remain parallel;
+implementation authority stays serial unless the durable agent policy changes.
+
+#### T5-D3/R3 — compatibility surface census and retirement
+
+Build one source-backed census for four distinct families: `nyash` naming and
+`NYASH_*` environment readers; Python/llvmlite compatibility; legacy VM routes;
+legacy facades/adapters. Text occurrences and deprecated names are not caller
+evidence. Each row records production, explicit compat/oracle, test, docs, and
+unreachable dispositions plus its replacement owner. Reuse the existing
+llvmlite graduation/archive task for that family rather than duplicating it.
+R3 retires one caller-zero family at a time only after native/Boundary coverage,
+fallback/retry zero, focused replacement evidence, and a restore/archive path.
+Broad `nyash -> hakorune` renaming, ABI spelling changes, and source deletion
+require separate accepted authority decisions and are not implied by this row.
+
+#### T5-D4/R4 — whole-builder convergence and operational SSOT (parked)
+
+The 2026-08-15 whole-builder audit found a clean selected/S6C semantic spine,
+but also confirmed that repository-wide migration is not complete. These rows
+are taskized here so they cannot be mistaken for the current physical-header
+D0 or silently reopened as a hardening tail:
+
+```text
+T5-D4  MIRBUILDER-BRANCH-INTEGRATION-CLOSEOUT-R0
+  main remains the canonical integration target; the current work branch is
+  an evidence/implementation branch, not a second code SSOT. Merge only after
+  exact-HEAD integration evidence, pointer sync, and old-edge census.
+
+T5-D5  MIRBUILDER-WHOLE-BUILDER-TYPED-INGRESS-D0
+  replace root/ordinary source_ast()->raw AST work-plan descent with one
+  source-backed typed root/program loan. Keep RawCompatibility as one explicit
+  adapter boundary; no by-name classifier, AST re-expansion, or fallback.
+
+T5-D6  MIRBUILDER-COMMON-FINISH-CONVERGENCE-D0
+  converge Canonical/Legacy/SelectedDynamic finish schedules behind the
+  canonical session/DraftSeal owner only after caller-zero proof. Do not merge
+  schedules by spelling or create a second Return/publication writer.
+
+T5-D7  MIRBUILDER-WARNING-SURFACE-CENSUS-R0
+  collect cargo JSON diagnostics at an exact HEAD and parent, classify
+  current-change versus inherited by owner, then narrow module-level allows in
+  bounded rows. Blanket allow removal and warning-driven semantic edits are
+  forbidden.
+
+T5-D8  MIRBUILDER-PHYSICAL-STRUCTURE-CLEANUP-D0
+  after cutover, compact stale docs/mirrors/archive and split near-limit
+  modules by owner. Preserve the authority graph, keep the 760-line design
+  trigger/800-line hard stop, and validate links/guards before deletion.
+```
+
+These rows are parked behind the active Loop production/cutover gate. Their
+acceptance requires an explicit pointer retarget, a source/owner census, and
+one bounded commit per responsibility. Local focused green on the current
+work branch does not close main integration or whole-builder convergence.
+
+## Architecture-convergence queue (2026-08-20)
+
+The external architecture review is accepted as a convergence audit, not as
+permission for a broad rewrite. Most concerns already have owners: Script
+cutover belongs to the active Script card, canonical Call belongs to
+`mir-canonical-callsite-lane-ssot.md`, physical representation/ABI belongs to
+`value-repr-and-abi-manifest-ssot.md`, and optimization selection belongs to
+`perf-owner-first-optimization-ssot.md`. This card owns only the ordered debt
+queue and retirement finish lines.
+
+Current read-only snapshot at `2cd880295c`:
+
+```text
+src/mir/builder.rs                                      = 815 lines
+builder.rs #[allow(dead_code)] module masks             = 40
+MirInstruction::Call { callee: None } source mentions = 25
+current branch relative to main                       = 0 behind / 954 ahead
+main...HEAD changed surface                           = 857 files
+ordinary PR min-gate                                  = cargo check + ABI + semantic manifest
+pointer/in-place/real-object structural gates         = not all required in min-gate
+```
+
+These are census facts, not deletion or merge permission. In particular,
+`callee: None` includes tests, compatibility loaders, canonicalizer inputs,
+and diagnostics; each production family must be classified before retirement.
+
+The docs-only closeout also reran
+`bash tools/checks/mirbuilder_inplace_replacement_guard.sh` at both the edited
+tree and its clean parent `2cd880295c0a5de0017d0de6a0cd476541879c2d`. Both
+failed identically at `selected normal lifecycle caller must be exactly one`
+with the same structural census. This is a known parent-baseline failure, not
+evidence produced by this documentation change and not a waiver for P4.
+
+### Fixed priority
+
+```text
+P0  close the current Script direct-static family
+      selected-normal bridge
+        -> canonical Script input
+        -> canonical physical consumer
+        -> production cutover
+        -> raw/compat caller zero and old-edge retirement
+
+P1  retire the dual Call target representation
+P2  inventory metadata consumers and compress caller-zero proof surfaces
+P3  converge backend physical-type input from the existing four authorities
+P4  add required structural CI gates
+P5  integrate the exact branch into main and enable branch protection
+```
+
+No other Script call BoxCount, general optimizer pass, SIMD leaf, or metadata
+family activation may preempt P0. A measured owner may still reopen one
+bounded perf row under the perf SSOT; this queue does not manufacture one.
+
+### `MIRBUILDER-ROOT-TEST-TAIL-SPLIT-P0` — T5-D8 first bounded split
+
+`builder.rs` is already above the 800-line hard stop and mixes module
+registration, outward re-exports, the root struct, and about 120 lines of
+owner-local tests. Keep it no-growth while the active Script row is open.
+After T5-D4 integration and T5-D7's exact owner/mask census, move only the
+existing `#[cfg(test)]` tail into a child test module. This is a behavior-neutral
+BoxShape; preserve test names, privacy, and filters, and do not change module
+registration/re-exports or delete `#[allow(dead_code)]` rows in the same slice.
+Done means `builder.rs < 760`, every touched Rust/check file remains `< 800`,
+the exact tests and existing MIR root/builder guards are green, and production
+diff is zero. Broader root topology remains owned by
+`MIR-TOPOLOGY-REBASE0-P0`; disconnected module retirement remains the existing
+T1/T3 leaf-to-root program.
+
+The 2026-08-21 external census measured `src/mir/builder.rs` at 819 lines and
+confirmed that this existing T5-D8 row is the correct first physical cleanup;
+it does not open a second barrel task. Keep it parked until the named
+Script production cutover and T5-D4/T5-D7 prerequisites are closed. Do not
+mix the split with Source-only A observation, direct-static package assembly,
+or `#[allow(dead_code)]` retirement.
+
+The barrel row uses this finite physical state inventory:
+
+| state | owner / meaning | pre-effect behavior | continuation | fallback |
+|---|---|---|---|---|
+| `LiveRegistration` | `builder.rs` module/re-export surface is still canonical | no deletion or re-export rewrite | T5-D4/T5-D7 census | never infer caller-zero from text |
+| `TestTailPendingSplit` | owner-local `#[cfg(test)]` tail identified, but prerequisites are open | no production change | bounded child-module split | no broad topology rewrite |
+| `CallerZeroRetireEligible` | exact owner/mask census and production cutover prove tail can move | split tests only, preserve privacy/filtering | `Retired` after focused gate | no module-mask deletion in this row |
+| `CompatibilityKeep` | a compatibility/test caller still requires the surface | preserve the registration and document owner | later named retirement row | never delete by `allow(dead_code)` |
+| `Retired` | child module owns the moved tests and the root is below the line budget | no old tail or duplicate owner | topology cleanup may continue separately | no reintroduction without a new owner decision |
+
+No state table entry authorizes deleting disconnected registrations. The
+`CallerZeroRetireEligible` transition is blocked until the Script family has a
+named production cutover and the exact T5-D4/T5-D7 census is green.
+
+### `SCRIPT-DIRECT-STATIC-SEMANTIC-PACKAGE-COSEAL-D0` — parked type cleanup
+
+This is a later, behavior-neutral cleanup for the selected-normal direct-static
+bridge. The current lowering input/state carries five parallel `Option`
+products (result bundle, publication owner, Recipe, Join handoff, and required
+argument proof), even though the selected lifecycle already creates them as one
+coherent set. No implementation is authorized while the canonical Source-only
+A observation row is active.
+
+```text
+Decision: Park a BoxShape package-co-seal; aggregate the five existing sealed
+  products without issuing new semantic meaning or changing the selected route.
+Source authority + canonical issuer: the existing five verified products and
+  their selected lifecycle are the only authorities; one new package constructor
+  may co-seal them, but may not re-resolve AST, names, ValueIds, or MirTypes.
+Non-authority: parallel Option presence, attach order, tuple shape, Builder/
+  comp_ctx, the canonical A issuer, compatibility/raw routes, and finalization.
+Fail-fast boundary: before Builder/body effects, require one complete package;
+  partial, foreign, duplicate, or contradictory products reject with no retry.
+Smallest next slice: after Script production cutover, add a focused package
+  owner with `NotApplicable | Absent | Incomplete | Complete(package) |
+  IntegrityInvalid | Consumed | Discarded` at the lowering boundary and
+  remove the five partial attach path only in that same behavior-neutral row.
+Non-claims: no A/source admission, Recipe/Join meaning change, physical Call,
+  publication policy, raw retirement, compatibility repair, or performance.
+```
+
+The finite package state inventory is:
+
+| state | owner / meaning | pre-effect behavior | continuation | fallback |
+|---|---|---|---|---|
+| `NotApplicable` | lane admission says this selected family is not present | no package lookup | existing non-direct-static owner | never fabricate `Absent` |
+| `Absent` | selected lifecycle completed a clean zero-row direct-static observation | no package lookup/effect | existing non-direct-static owner | never treat incomplete inputs as absence |
+| `Incomplete` | selected lifecycle has not co-sealed all five products | stop before lowering | remain in lifecycle or design stop | never enter Builder with partial `Option`s |
+| `Complete(package)` | one lifecycle co-seal owns all five exact products | move the package once | selected lowering consumer | no re-pair/retry |
+| `IntegrityInvalid` | a product is foreign, duplicate, stale, or contradictory | reject before effects | discard candidate/session | no repair/default/empty package |
+| `Consumed` | future lowering session owns the moved package | reject a second take | completion or candidate discard | no reinsertion/rollback |
+| `Discarded` | candidate/session failed after package ownership began | no further effect or publication | terminal cleanup | no reinsertion/retry |
+
+`Incomplete` is the deliberate neither-selected-nor-rejected state. The
+future row must prove that `Complete` cannot be constructed from five unrelated
+`Some` values, that `Absent` is a complete zero-row result rather than a
+missing product, and that `NotApplicable` is not the same as either one.
+This card is `CleanupParked` rather than an active blocker; the current pointer
+must not retarget to it until the selected-normal production edge is explicitly
+reopened.
+
+### `ROUTING-CLASSIFICATION-COMPLETENESS-GUARD-P2` — parked guard expansion
+
+The landed P1 guard checks the active card's first finite table. A later
+tooling-only P2 should extend that proof to every phase table and transition
+without scanning compiler semantics or issuing a state. It is parked because
+the current A observation row is still the active design stop.
+
+```text
+Decision: extend the existing classification guard to prove phase-qualified
+  state and transition coverage; do not add a second compiler classifier.
+Source authority + canonical issuer: CURRENT_STATE.latest_card_path selects
+  the card; the card author owns vocabulary/issuer prose; the guard only
+  verifies the finite inventory and transition references.
+Non-authority: compiler enums, historical cards, token presence, empty/default
+  rows, and guard success cannot issue a route or semantic package.
+Fail-fast boundary: before guard success; missing phase/state/transition,
+  bare `Transported`/`CanonicalSourceBacked`, or A reissuance of upstream
+  states fails the guard with zero compiler effects.
+Smallest next slice: one focused guard/tooling row plus temporary-card
+  positive/negative fixtures, after the active source-observation D0 closes.
+Non-claims: no parser/source, A, Recipe/Join, physical, fallback, production,
+  ABI/backend, or performance change.
+```
+
+The P2 state inventory is:
+
+| state | owner / meaning | pre-effect behavior | continuation | fallback |
+|---|---|---|---|---|
+| `CardSelected` | current pointer resolves one active card | read only | parse phase tables | never scan history |
+| `PhaseInventoryComplete` | every phase table has a finite header and data row | no compiler effect | inspect transitions | no first-table-only success |
+| `TransitionInventoryComplete` | every listed state has a phase-qualified edge | no compiler effect | alias/reissue checks | no wildcard/None acceptance |
+| `UnqualifiedAliasRejected` | bare `Transported`/`CanonicalSourceBacked` or upstream reissue found | fail before success | diagnostic terminal | no normalization/default |
+| `GuardFailure` | missing/duplicate/foreign state or edge | fail before success | tooling terminal | no compiler fallback |
+| `GuardPass` | complete card-only proof | report review evidence | active card continues | never claim semantic/production success |
+
+This is a reusable guard follow-up, not permission to widen the current
+source-A observation or to treat a local guard pass as an implementation gate.
+
+### `SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0` — P0 family finish line
+
+The active selected-normal bridge is an intermediate proof, not production
+closure. Its ordered successors are already named by the active Script card:
+canonical AST-free physical input D0, canonical consumer I0, one production
+cutover, then raw/compat caller-zero retirement. The family closes only when
+one canonical physical owner remains, the selected old edge is zero, and
+fallback/retry/reselection are zero. Do not count another receipt or a
+candidate-only green as replacement progress.
+
+### `MIR-CALL-LEGACY-TARGET-RETIREMENT-D0/R0` — P1
+
+Extend the existing canonical-callsite SSOT rather than creating another Call
+authority. D0 classifies every remaining `callee: None` producer and consumer
+as canonicalizer input, explicit compatibility, test, diagnostic, or
+unreachable. First guard the selected native/canonical corridor at
+`callee.is_some() == 100%`; then choose exactly one end state for core MIR:
+
+```text
+canonical Call { dst, callee: Callee, args, effects }
+or
+an explicitly quarantined LegacyCall input outside canonical MIR
+```
+
+R0 removes `func`/`Option<Callee>` only after loader, optimizer, interpreter,
+backend, printer/JSON, fixture, and reference callers are migrated together.
+No sentinel/default Callee and no backend fallback are permitted.
+
+### `MIR-METADATA-CONSUMER-MANIFEST-I0` — P2 census owner
+
+Add one observation-only, machine-readable inventory of `FunctionMetadata`
+families. Each row records family, producer owner/count, production consumer
+owner/count, backend consumer owner/count, exact observed revision, and
+`retire_when`. The tool reports but does not infer semantic authority or
+activate a backend. Missing/duplicate family rows and a field present in code
+but absent from the inventory reject. Long-lived producer-only rows become
+explicit retirement debt; they do not become speed keepers.
+
+### `MIRBUILDER-PROOF-SURFACE-COMPRESSION-R0` — P2 retirement
+
+After the owning production cutover, classify each temporary receipt/module as
+durable authority boundary, transaction-internal state, test canary, or dead
+migration shell. Preserve dedicated types at source-authority transfer,
+physical-effect start, commit/publication eligibility, publication transfer,
+and lifecycle close. Fold validation-only stages into their transaction and
+retire canaries only after named consumer/guard migration and caller-zero.
+This is a bounded owner-by-owner series, never a bulk `allow(dead_code)` purge.
+
+### `MIR-PHYSICAL-TYPE-INPUT-D0` — P3
+
+Use the existing value-representation/ABI SSOT to define one backend input
+that consumes semantic type, physical representation, ABI passing class, and
+storage layout without re-inference. Start with one already-exact scalar
+corridor. Do not widen `MirType`, add a general layout system, or change an ABI
+in this row; unsupported combinations reject before backend effects.
+
+### `MIRBUILDER-PR-STRUCTURAL-GATES-I0` — P4
+
+Promote deterministic, bounded checks into the ordinary pull-request gate in
+two steps. First require current-state pointer integrity, the reusable
+in-place-replacement guard, and a canonical-Call/fallback structural census.
+Then separately qualify one real LLVM object smoke with pinned dependencies
+and a stable time budget before making it required. Performance ratios remain
+outside per-PR CI; helper/indirect/allocation/RC/fallback/legacy-Call counts may
+be required only when their owning corridor supplies a stable manifest.
+
+### `MIRBUILDER-MAIN-INTEGRATION-R0` — P5
+
+Reuse T5-D4 rather than opening a second integration task. The exact branch
+HEAD must pass the selected required gates, synchronize current pointers,
+record the production old-edge census, and preserve evidence/binary commit
+identity before integration. After the merge/fast-forward is observed on
+`main`, configure branch protection to require the named stable checks. Branch
+protection is an external repository mutation and needs an explicitly
+authorized GitHub operation; a docs commit cannot claim it complete.
+
+### Non-claims and stop conditions
+
+- This queue does not change the current Script execution row or authorize a
+  cleanup implementation while that row is active.
+- It does not turn `builder.rs` text hits into delete candidates.
+- It does not treat metadata production as backend consumption.
+- It does not add optimizer, SIMD, SROA, GVN, LICM, or inlining work without
+  owner-first attribution.
+- It does not claim C parity, canonical production, main integration, or
+  branch protection from documentation alone.
+- Any row that requires a new source authority, accepted source form, ABI, or
+  behavior change returns to its own D0; BoxShape cleanup cannot absorb it.
+
 ## Cross-lane rules and acceptance
 
 - This card never authorizes If/Loop production wiring or PHI owner adoption.
@@ -342,9 +742,12 @@ hard-delete the bridge.
   owner), but exclusive production physicalization is not yet complete.
 - Every refactor series is behavior-neutral, buildable, and below 800 lines;
   BoxCount and BoxShape changes are not mixed.
+- T5 remains parked while the active Loop product row is open. Its census may
+  be refreshed read-only, but implementation requires an explicit pointer
+  retarget and must not become another hardening tail.
 - Each deletion has a stable replacement proof, caller/guard census, focused
   gate, and explicit rollback boundary.
-- `phi_input_materializer.rs` and route-local PHI repair remain outside T1–T4;
+- `phi_input_materializer.rs` and route-local PHI repair remain outside T1–T5;
   their size/authority split is a separate behavior-neutral SSA lane.
 - This cleanup card is parked behind active If D0-D1/D0-D2 implementation and
   may run in parallel only as read-only audit/design work until a bounded row

@@ -1,0 +1,1000 @@
+---
+Status: closed implementation receipt; next lane is the staged llvmlite route census
+Date: 2026-08-13
+Scope: selected Dynamic W6 production activation, CatalogedBoxMethod drain,
+  Boundary C-ABI CheckedCallOut lowering, static post-link artifact receipt,
+  and atomic selected-edge replacement
+Exception: the 900-line predecessor mixes closed D0/E chronology with the new
+  backend/publication boundary; this bounded successor replaces that stale
+  restart surface instead of appending another ordinary row to it
+ParentCurrentCard: docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
+Predecessor: docs/development/current/main/investigations/dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md
+ParentHistory: docs/development/current/main/design/archive/dynamic-fault-exit-transaction-d0-history-2026-08-10.md
+Related:
+  - docs/development/current/main/CURRENT_STATE.toml
+  - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
+  - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
+  - docs/development/current/main/design/box-callable-registry-ssot.md
+  - docs/development/current/main/design/ring2-provider-link-abi-lifecycle-ssot.md
+  - docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md
+  - docs/reference/mir/loop-recipe-contract.md
+---
+
+# Dynamic V2 W6 production activation task
+
+## Current capsule
+
+The selected Dynamic semantic program, A-prime demand, catalog physical
+header, TextScan admission, strict runtime entries, checked CallOut ABI,
+generation-aware lease owner, canonical CheckedCallOut MIR vocabulary,
+site-id transport, full unpublished physical session, exact-two DraftSeal,
+CatalogedBoxMethod drain, Boundary/static-artifact owners, and the selected
+package-adapter compiler handoff are landed.
+
+The compiler-side route is now:
+
+```text
+selected Dynamic package-adapter handoff                = 1
+selected Dynamic raw AST/JoinIR edge                     = 0
+ordinary compatibility edge                              = 1
+Boundary/static artifact candidate owners                = 1 / 1
+live artifact/executable publication                    = 1 (temporary published path and launch)
+Rust-VM DynamicV2 production consumer                    = 0
+```
+
+The remaining work is the ordered compiler/backend handoff: consume the
+completed candidate through the existing root external-commit owner, then
+consume the static artifact receipt before live executable publication. No
+RuntimeExecutablePlan, llvmlite fallback, second collector, or cross-process
+rollback claim is opened here.
+
+## `DYNAMIC-V2-W6-FINAL-LIVE-ACTIVATION-R0-CLOSEOUT`
+
+```text
+Decision:
+  Keep compiler MIR-module publication and backend executable publication as
+  two ordered transactions. “Live” means the selected compiler route publishes
+  the MirModule through the existing root owner, then the selected Boundary
+  route validates and publishes the static artifact through its existing owner.
+  Reuse both owners; do not add a third transaction or receipt.
+Source authority + canonical issuer:
+  The existing selected package/admission loan, canonical DraftSeal,
+  ModuleDraftCollector/ModuleBuilderInvocationSession, published MirModule,
+  Boundary C-ABI driver, explicit link observation, and one static artifact
+  receipt issuer in that order.
+Non-authority:
+  The test-only W6 canary, Python/llvmlite, native replay driver, Rust VM,
+  LegacySymbol/FreeStatic conversion, selector/name lookup, and a
+  RuntimeExecutablePlan, runtime function addresses, `dlopen`/`dlsym`, and a
+  caller-copied PlanStamp presented as an observed artifact fact.
+Fail-fast boundary:
+  Catalog key/brand/symbol/arity drift rejects the MIR candidate; malformed
+  site/ABI/wire/PlanStamp, link failure, digest/symbol/descriptor drift, or a
+  missing/duplicate defined strict symbol rejects executable publication.
+  Neither failure may enter fallback.
+Smallest next slice:
+  Close out the existing root-owned final-live publication: selected
+  package/Boundary=1 each, selected raw/JoinIR=0, final-live=1, ordinary=1.
+Non-claims:
+  No cross-process rollback, RuntimeExecutablePlan, second backend, llvmlite
+  G1/G2/G3 retirement, or ordinary compatibility retirement is claimed here.
+```
+### Why the publication boundary is two transactions
+
+The global pipeline SSOT is normative:
+
+```text
+Resolve -> Observe -> Facts -> Recipe -> Verify -> Lower
+        -> Seal -> Collect -> Atomic MIR Publish
+        -> Backend Boundary
+```
+
+Therefore W6 must not invent one cross-process transaction in which the
+backend links an executable before the compiler is allowed to publish its
+`MirModule`. The clean end-to-end order is:
+
+```text
+Compiler transaction
+  selected package loan
+  -> full unpublished physical session
+  -> exact-two DraftSeal
+  -> CatalogedBoxMethod collector preflight
+  -> mixed normal collector drain
+  -> candidate MirModule
+  -> atomic MirModule publish once
+
+Backend transaction
+  published MirModule + canonical site-id metadata
+  -> default Boundary C-ABI lowering
+  -> temporary object
+  -> explicit --nyrt link into temporary executable
+  -> executable/archive digest + defined symbol + embedded descriptor check
+  -> StaticLinkedAotArtifactReceiptV1 issue
+  -> atomic executable artifact publication once
+```
+
+Link failure publishes no executable and no static artifact receipt. It does
+not turn a valid published `MirModule` into a partial compiler publication. If a future
+product requires rollback across both processes, that requires a separately
+named higher-level build invocation transaction; W6 does not fabricate one.
+
+The phrase “same activation commit” means that the repository production
+graph changes atomically:
+
+```text
+new selected compiler caller = 1
+old selected raw/JoinIR edge = 0
+```
+
+It does not merge the two runtime publication authorities.
+
+### D0 exit decisions
+
+This D0 is accepted only when all four representation/owner choices are
+explicit. Merely naming a future receipt is not enough.
+
+#### 1. Cataloged Box-method mixed normal-drain projection
+
+Preferred shape:
+
+```text
+NormalCatalogedBoxMethodDraftAdmissionV1
++ completed exact-two draft
++ ModuleInvocationBrandV1
+  -> one move-only CatalogedBoxMethodDrainProjectionV1
+     key = CanonicalSameModuleCallableKeyV1
+     symbol + arity = moved admission projections
+  -> existing normal collector drain lifecycle
+     (mixed legacy + cataloged terminal)
+```
+
+This projection is a physical transport of the retained admission, not a new
+catalog/source identity. Extend the existing
+`PreparedNormalCollectorDrainLifecycleV1`/`ModuleDraftCollectorV1` path with a
+mixed terminal: `LegacySymbol` rows keep `LegacyReplaceWholePair`, while the
+cataloged projection uses `CanonicalRejectDuplicate` and inserts the exact
+`FunctionDraftKeyV1::CatalogedBoxMethod` row. The compiler-level
+`CanonicalPhysicalDrainManifestV1` remains unchanged and must not gain a
+CatalogedBoxMethod variant; the normal selected package path does not own its
+canonical-source continuation family.
+
+A free-static callable row, `LegacySymbol` conversion, reconstructed
+name/arity key, second collector, or a second module transaction is rejected.
+
+#### 2. Explicit Boundary link call ABI
+
+The current C boundary obtains the runtime archive through
+`NYASH_EMIT_EXE_NYRT`. W6 must not treat a temporary environment override as
+the final exact-artifact authority. Freeze a revised link call ABI that passes
+the exact archive path as an argument, for example:
+
+```text
+hako_llvmc_link_obj_v2(
+  object_path,
+  temporary_executable_path,
+  runtime_archive_path,
+  extra_link_flags,
+  error_out,
+)
+```
+
+The CLI `--nyrt` resolution remains the caller-side source. The C linker does
+not rediscover it from an environment variable or fallback directory.
+
+#### 3. Artifact-bound descriptor
+
+ABI revision, wire revision, and PlanStamp cannot be copied from expected
+input into an “observed” struct. Select the generated-object representation;
+the sidecar alternative is not part of W6:
+
+```text
+selected: generated-object descriptor symbol retained in the executable
+         in a dedicated non-discarded descriptor section
+rejected: digest-co-sealed sidecar emitted and renamed with the executable
+```
+
+The selected descriptor binds exact entry IDs/symbols, ABI/wire revisions, and
+the compile invocation brand to the linked artifact. The link verifier reads
+the retained descriptor symbol after link and rejects missing, duplicate, or
+foreign descriptors. The descriptor is a compile fact; executable and runtime
+archive digests remain post-link observations in the static receipt.
+
+#### 4. Candidate cleanup and publication owner
+
+Name one owner in `crates/nyash-llvm-compiler/src/link_driver.rs`:
+
+```text
+StaticAotArtifactPublicationTxnV1
+```
+
+It owns:
+
+```text
+temporary object
+temporary executable
+retained object descriptor observation
+failure cleanup
+final atomic rename
+StaticLinkedAotArtifactReceiptV1 issue
+```
+
+No file at the requested final executable path is replaced until every
+post-link observation is green. A failure leaves the prior final artifact
+unchanged.
+
+## Actual production backend owner
+
+The daily `ny-llvmc` default is `DriverKind::Boundary`. The production chain
+is:
+
+```text
+Rust MIRBuilder
+  -> MIR JSON + CheckedCallOut site-id metadata
+  -> ny-llvmc --driver boundary
+  -> hako_llvmc_compile_json_pure_first
+  -> lang/c-abi/shims/hako_llvmc_ffi_pure_compile.inc
+  -> LLVM IR / object
+  -> link_driver + explicit runtime archive
+  -> executable
+```
+
+Accordingly:
+
+- the Boundary C-ABI pure-first lowering is the sole W6 CheckedCallOut
+  physicalizer;
+- `src/llvm_py/**` remains a transport/test/compatibility view;
+- `--driver native` and `--driver harness` remain keep/canary lanes;
+- Rust VM remains an explicit DynamicV2 nonconsumer.
+
+LLVM/C emits the physical conditional branches named by MIR. It does not
+choose Normal/Fault meaning, successors, provider, selector, result class, or
+cleanup chronology.
+
+## Accepted authority graph
+
+```text
+CoreMethodContractBox generated rows
+  -> retained I6/I7 call relations
+  -> normalized TextScan complete-role contract
+  -> ProviderAdmissionSeal
+  -> PreparedAotExecutableAdmissionV1
+  -> CheckedCallOut function-local site plans
+  -> canonical site-id MIR/JSON metadata
+  -> Boundary C-ABI physicalizer
+  -> post-link observed static artifact facts
+  -> StaticLinkedAotArtifactReceiptV1
+
+VerifiedDynamicExitTransactionCoSealV1
+  -> A-prime physical demand
+  -> one physical operation/control/cleanup session
+  -> canonical CFG/SSA/PHI/Completion close
+  -> exact-two DraftSeal
+  -> CatalogedBoxMethod collector
+  -> mixed normal collector drain
+  -> atomic MirModule publication
+```
+
+No downstream owner relooks up generated rows, selector, provider, image, or
+registry. Site ID is the only backend call-site locator; old
+`block + instruction_index` remains source/preflight evidence only.
+
+## Ordered implementation DAG
+
+The following rows are work-branch checkpoints inside one W6 series. Except
+for the behavior-preserving source split, none may land on main as a selectable
+production fragment. The production graph changes only at W6-E.
+
+### W6-S — `DYNAMIC-V2-W6-SOURCE-SPLIT-R0` (BoxShape)
+
+Split the two over-budget implementation surfaces without changing paths,
+visibility, issuers, callers, instruction order, or accepted shapes.
+
+```text
+src/mir/checked_callout.rs (778)
+  -> checked_callout.rs              facade/re-exports
+  -> checked_callout/site_plan.rs    IDs, shape, plan, JSON projection
+  -> checked_callout/census.rs       function 1:1:1 verifier
+  -> checked_callout/tests.rs        focused tests
+
+src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/callout_corridor.rs (731)
+  -> callout_corridor/mod.rs         corridor model/orchestration
+  -> callout_corridor/emission.rs    I0-I7 emission body
+```
+
+Acceptance:
+
+```text
+external Rust module paths and visibility unchanged
+CheckedCallOut site-plan pair issuer                    = 1
+function census verifier                                = 1
+canonical CFG/SSA issuer                                = 1
+corridor emission entry                                 = 1
+each touched activation source                          < 650 target
+any activation source                                   < 700 mandatory gate
+all Rust source                                         < 800 hard stop
+```
+
+Observed closeout: the split is landed with checked-callout sources at
+14/360/197/245 lines and corridor sources at 139/598 lines; focused
+`checked_callout` (14) and `selected_dynamic_physical_emitter` (3) tests,
+`cargo check --lib`, and the current-state, activation, physical-input, VM,
+and pre-cutover guards are green. Production counts remain new=0, old=1.
+
+Do not combine this BoxShape with evidence semantics, backend vocabulary, or
+the production caller switch.
+
+### W6-A1 — `DYNAMIC-V2-W6-A1-PHYSICAL-EVIDENCE-CURSOR-R0`
+
+Close only the physical evidence already retained by the unpublished session.
+This is the safe first part of W6-A; AOT backend handoff remains closed until
+the static artifact owner is implemented.
+
+```text
+compare demand              = move-only, consumed by I9 exactly once
+cleanup rows                = private cursor, issue=1 / claims=4 / close=1
+physical census             = 15 operations + 1 If + 1 Exit, claim/close once
+profile/DraftSeal before close = reject
+AOT artifact/backend handoff = 0
+new production caller       = 0
+selected old edge           = 1
+```
+
+The cursor may only consume existing A-prime/Recipe/cleanup evidence. It may
+not issue semantic rows, reissue site plans, reinterpret `RejectBeforeEffect`,
+or introduce a provider, LLVM, RuntimeExecutablePlan, VM, fallback, or retry
+consumer.
+
+Focused acceptance requires exact End locations (`I7 Fault`, `ThenTerminal`,
+`Continuation`) and rejects missing, duplicate, foreign, reordered, or
+unclosed evidence before profile close and DraftSeal.
+
+Observed W6-A1 closeout: the move-only compare consumer, four-row cleanup
+cursor, ordered 15-operation/If/Exit cursor, and profile-before-close fence are
+implemented. Focused selected-emitter tests (4), `cargo check --lib`, the
+current-state/AOT/physical-input/VM/pre-cutover guards, and `git diff --check`
+are green; AOT/backend handoff remains 0 and production counts remain new=0,
+old=1.
+
+### W6-A — `DYNAMIC-V2-W6-EVIDENCE-CONSUME-R0`
+
+Closed by W6-A1. The selected session consumes the move-only compare demand,
+the four exact cleanup rows, and the ordered 15-operation/If/Exit census
+before profile close and DraftSeal. The unpublished fence remains non-
+executable; backend handoff is owned by the current C0-D/C1/W6-D queue.
+
+### W6-B — `DYNAMIC-V2-W6-CATALOGED-DRAIN-I0`
+
+Extend the existing normal collector drain to consume the already-defined
+`FunctionDraftKeyV1::CatalogedBoxMethod` row alongside existing legacy rows.
+Do not add a CatalogedBoxMethod arm to the compiler-level
+`CanonicalPhysicalDrainManifestV1`; do not create a second collector, module
+transaction, or key family.
+
+The drain co-checks:
+
+```text
+selected catalog key
++ physical symbol and arity
++ invocation brand
++ completed exact-two draft
++ whole-batch collision census
+  -> existing mixed normal collector-drain terminal
+  -> existing candidate MirModule transaction
+```
+
+The selected projection is move-only and is issued from the completed
+cataloged draft/admission pair. The mixed terminal accepts exactly
+`LegacySymbol` plus the cataloged row for this bounded cohort:
+
+```text
+LegacySymbol       -> LegacyReplaceWholePair
+CatalogedBoxMethod -> CanonicalRejectDuplicate + exact symbol/arity
+CanonicalCallable/Main/arbitrary -> reject in this terminal
+```
+
+Forbidden conversions:
+
+```text
+CatalogedBoxMethod -> LegacySymbol
+CatalogedBoxMethod -> FreeStatic CanonicalCallable
+CatalogedBoxMethod -> reconstructed name/arity key
+```
+
+Acceptance:
+
+```text
+CatalogedBoxMethod mixed normal-drain owner              = 1
+collector handoff / normal-drain consumption             = 1 / 1
+legacy/free-static conversion                           = 0 / 0
+second finalization or second function session          = 0
+failure before module commit leaves live Builder equal  = green
+production selected caller                              = 0
+```
+
+Negative cases include foreign/unbranded receipt, key or symbol/arity drift,
+duplicate key/symbol, cataloged row paired with `LegacyReplaceWholePair`,
+CatalogedBoxMethod -> LegacySymbol/CanonicalCallable conversion, replacement
+disposition drift, symbol-index drift, missing projection, projection-count
+mismatch, and a second drain attempt.
+
+Observed closeout (2026-08-13): the existing normal drain now accepts the
+mixed `LegacySymbol` + `CatalogedBoxMethod` rows with their original policy,
+brand, key, symbol, and arity. Focused lifecycle tests (7 passed), `cargo
+check --lib`, current-state, AOT/physical-input, VM-fence, pre-cutover, and
+in-place-replacement guards are green; production remains `new=0`, `old=1`.
+
+### W6-C — `DYNAMIC-V2-W6-BOUNDARY-CALLOUT-I0`
+
+W6-C is deliberately split into two bounded rows. The first connects an
+already-issued site-id projection to the candidate MIR JSON path. The second
+adds one Boundary C-ABI physicalizer. Neither row changes the production
+caller; both keep `new=0`, `old=1`.
+
+#### W6-C0-A — `DYNAMIC-V2-W6-PHYSICAL-RECEIPT-SITE-ID-RECUT-R0`
+
+```text
+Decision: recut APrime call-edge identity to CheckedCallOutSiteIdV1 and issue
+  the transport receipt once at canonical physical close.
+Source authority + canonical issuer: receipt slot/schema + CheckedCallOut
+  census, typed operation/Core rows, SSA values, lifecycle/Completion close;
+  canonical session is the sole issuer.
+Non-authority: test seal, old block/instruction_index identity, JSON,
+  Python/LLVM, provider admission, selector lookup, parallel/empty receipt.
+Fail-fast boundary: missing/duplicate site, stale PlanStamp, incomplete
+  cursor/lease/return close, or post-DraftSeal install -> reject before effect.
+Smallest next slice: site-id keyed call rows; coordinates are diagnostics only
+  (remove/rename instruction_index), then one consuming issuer under 800 lines.
+Non-claims: no JSON/C/link/RuntimePlan/publication/caller/VM/fallback/retry.
+```
+
+Acceptance: `receipt issuer/install/borrowed observer = 1/1/1`, while the
+live `take_once` consumer remains `0` until a C1/backend consumer;
+site-id locator exact, old coordinate locator/default receipt `= 0`,
+production callers `new=0 old=1`.
+
+#### W6-C0-B — `DYNAMIC-V2-W6-SITE-ID-CANDIDATE-METADATA-HANDOFF-R0`
+
+```text
+Decision: after C0-A, connect the existing owned projection to candidate JSON
+  exactly once; issue no second site/entry/ABI/A-prime receipt.
+Source authority: CheckedCallOut plan/census owns site/shape/landing/stamp;
+  PreparedAotExecutableAdmission owns entry/ABI/wire; projection co-seals.
+Non-authority: APrime coordinates, Python/C/LLVM, selector/name/runtime lookup,
+  generic mir_call, new provider/semantic table.
+Fail-fast boundary: missing/duplicate/swapped site or retained evidence,
+  entry/shape/ABI/wire/stamp drift, late install -> reject; no fallback/retry.
+Smallest next slice: clone-scrubbing FunctionMetadata slot, unpublished install,
+  and exactly-one build_function_metadata_json consumer.
+Non-claims: no C/link/RuntimePlan/live publication/production caller/VM.
+```
+
+Acceptance: candidate JSON key/consumer/slot issuer `= 1/1/1`, exact two
+site-id entries, coordinate locator/lookup `= 0`, production `new=0 old=1`.
+
+#### W6-C0-C — `DYNAMIC-V2-W6-CANDIDATE-METADATA-POSTSEAL-HANDOFF-R0`
+
+```text
+Decision: preserve clone-scrubbing slots and carry the already-issued receipt
+  plus Dynamic projection as one move-only payload; install only on final draft.
+Source authority + canonical issuer: existing close/projection issuers; DraftSeal's detached projection is the sole final FunctionMetadata image.
+Non-authority: clone exceptions, JSON reissue/take_once repair, site-plan
+  reconstruction, and second provider/admission/metadata issuer.
+Fail-fast boundary: PlanStamp/site-pair drift, consumed/occupied final slot,
+  or pre-final install rejects with candidate/MIR publication unchanged.
+Smallest next slice: private post-seal payload + one prepare/commit handoff after projection clone but before `into_session_commit_input`; JSON borrow stays.
+Non-claims: no C/LLVM/link/RuntimePlan/live publication/production caller/VM.
+```
+
+Acceptance: final candidate JSON has exactly one receipt and one Dynamic key; clone is scrubbed; install failure leaves Builder unchanged; `take_once=0`, production `new=0 old=1`.
+
+#### W6-C0-D — `DYNAMIC-V2-W6-DYNAMIC-LEASE-END-C-ABI-I0`
+
+```text
+Decision: expose one uint64 token -> uint32 status C ABI wrapper; all lease
+  meaning, table mutation, generation check, and handle release stay in the
+  existing runtime dynamic_v2_lease::consume_end_authorized owner.
+Source authority + canonical issuer: runtime dynamic_v2_lease is the sole
+  consume issuer; the kernel FFI wrapper is a checked ABI projection only.
+Non-authority: C/LLVM, HostHandle/drop_handle/release_h, raw token tests,
+  lease_slot, Python/VM, provider/registry, and semantic Fault.
+Fail-fast boundary: zero, foreign/unknown, duplicate, and stale-identity inputs
+  return bounded statuses before C1; a later non-OK C1 result traps without a
+  semantic successor, fallback, or retry.
+Observed closeout (2026-08-13): the neutral header, one Rust FFI adapter,
+  status tests, C/C++ syntax checks, staticlib symbol census, README receipt,
+  and reusable guard are green. C1 remains design-stop; no backend consumer
+  or production caller was opened.
+Non-claims: no CheckedCallOut physicalizer, link/receipt/publication,
+  RuntimeExecutablePlan, production caller, or old-edge deletion.
+```
+
+Exact frozen ABI:
+
+```c
+#define NYRT_DYNAMIC_V2_LEASE_ABI_REVISION_V1 UINT32_C(1)
+#define NYRT_DYNAMIC_V2_LEASE_CONSUME_OK UINT32_C(0)
+#define NYRT_DYNAMIC_V2_LEASE_CONSUME_INVALID_TOKEN UINT32_C(1)
+#define NYRT_DYNAMIC_V2_LEASE_CONSUME_UNKNOWN_OR_ALREADY_CONSUMED UINT32_C(2)
+#define NYRT_DYNAMIC_V2_LEASE_CONSUME_STALE_HANDLE_IDENTITY UINT32_C(3)
+uint32_t nyrt_dynamic_v2_lease_consume_end_authorized_v1(uint64_t lease_token);
+```
+
+The C header owns the numeric ABI/status vocabulary. The adapter maps zero
+without entering the Rust owner and otherwise maps its two existing reject
+variants without adding a lease table. `libnyash_kernel.a` must define the
+symbol exactly once. C1 later passes the I6 site-local wire lease token;
+non-OK is a backend contract violation, never semantic Fault.
+
+Acceptance observed: valid consume succeeds exactly once; zero and
+foreign/duplicate reject; stale rejection remains covered by the Rust runtime
+owner test; archive symbol `= 1`; production raw `consume_end_authorized`
+adapter `= 1`; C/LLVM `drop_handle|release_h`, fallback, retry, and VM
+consumer `= 0`; `new=0 old=1`.
+
+Worker premise audit: consumed. Independent runtime/Boundary and static
+archive reviews agree this is a thin FFI BoxShape, not a second lease
+authority. C1 remains forbidden until a separate design-stop audit closes.
+
+#### W6-C1-A — `DYNAMIC-V2-W6-BOUNDARY-C1-A-PARAMETERIZED-ENTRY-SIGNATURE-R0`
+
+Design-stop correction: the generic C entry header currently emits `i64 @symbol()`
+with no parameters, while selected Dynamic requires the exact four formal `i64`
+values. Preserve the legacy no-parameter header for old seeds, but add one shared
+parameterized signature owner and a selected-metadata hard gate before any C1 callout.
+
+```text
+Source authority + issuer: MIR function params/signature and selected site-id metadata.
+Non-authority: C1 helper, block/index coordinates, selector/name lookup, fallback.
+Reject before effect: parameter count/order/value-id mismatch. Return/effect transport
+is a separate C1-A1 gate; this row does not infer or duplicate it.
+Acceptance: selected header has exact four `%r<ValueId>` parameters; old header is
+never used for selected Dynamic; generic no-param seeds remain unchanged.
+Non-claims: no CheckedCallOut emission, lease End, link, RuntimePlan, publication,
+production caller, VM, fallback, or retry.
+```
+
+Bounded files: `hako_llvmc_ffi_route.inc` (shared signature helper),
+`hako_llvmc_ffi_pure_compile.inc` (selected gate), and focused C/IR negative tests.
+Keep existing generic lowering/dispatch files untouched and below their current
+line budgets. After this row is green, resume W6-C1 with one new
+`hako_llvmc_ffi_checked_callout_lowering.inc` included exactly once: it consumes
+site-id metadata, preserves MIR Normal/Fault targets, uses the neutral lease C ABI,
+and traps malformed transport/Suspended/nonzero End without fallback.
+
+#### W6-C1-A1 — `DYNAMIC-V2-W6-BOUNDARY-C1-A1-TYPED-TRANSPORT-COSEAL-R0`
+
+Before C1 callout emission, carry the existing typed contract through the final
+candidate metadata without re-inference. The existing physical-session close is
+the issuer: borrow `APrimePhysicalFunctionHeaderV1`, opened formal ValueIds,
+`ReadyFunctionDraftSealV1` return observations, and the consumed
+`CheckedCallOutPlanTableV1` once, then extend the existing projection (no parallel
+V2 product). It must carry four formal role/lane/ValueId rows, exact i64 return,
+verified function `EffectMask`, both site IDs, entry/ABI/wire, Normal shape,
+outcome/lease slots, Normal-result dst, and one PlanStamp. C/LLVM only checks
+this borrowed site-id projection; missing/foreign/swapped facts reject before
+object emission. No provider lookup, wire reinterpretation, link, RuntimePlan,
+publication, VM, fallback, or production caller is opened.
+
+Observed closeout: the existing Rust projection now transports the four formal
+ValueIds/lanes, i64 return lane, verified EffectMask, site shape/slot/result
+facts, and PlanStamp into strict JSON/Python transport views; focused Rust and
+Python tests plus the authority guard are green. C1 physicalization remains
+closed (`new=0`, `old=1`).
+
+#### W6-C1 — `DYNAMIC-V2-W6-BOUNDARY-C-ABI-CHECKED-CALLOUT-PHYSICALIZER-R0`
+
+Observed closeout (2026-08-13):
+
+```text
+Decision: one 350-line Boundary C/LLVM physicalizer consumes the existing
+  typed site-id projection; it adds no semantic authority.
+Source authority + issuer: canonical MIR CheckedCallOut plan/census and
+  DynamicV2AotCallMetadataProjectionV1; Rust dynamic_v2_lease remains the sole
+  End consumer behind the versioned uint64->uint32 C ABI.
+Non-authority: coordinates, selectors, providers, registries, generic mir_call,
+  VM, RuntimeExecutablePlan, C-owned CFG/lease state, fallback, and retry.
+Observed: direct I6/I7 calls decode the fixed 48-byte wire, preserve MIR
+  Normal/Fault targets, save the I6 token once, and lower exactly three End
+  cutpoints through the sole lease symbol. Malformed/Suspended wire and every
+  nonzero End status trap locally with no semantic Fault successor.
+Evidence: C shared-library build, positive object symbol census, metadata-drift
+  negative smoke, Rust/Python focused tests, cargo check, and authority guards
+  are green. Production remains closed: `new=0`, `old=1`.
+Non-claims: no static link receipt, executable publication, RuntimePlan,
+  production switch, or selected old-edge deletion.
+```
+
+Acceptance observed: dedicated C owner `<700`, include/dispatch/declaration
+consumers `=1`, direct sites `=2`, End calls `=3`, raw release/lookup/
+fallback/retry/VM consumers `=0`; `new=0`, `old=1`.
+
+### W6-D — `DYNAMIC-V2-W6-STATIC-LINK-RECEIPT-D0 -> I1` (landed)
+
+Do not promote the test-only `RuntimeExecutablePlanV1`. The static Boundary
+lane directly calls linked symbols and has no runtime function-pointer table,
+dynamic provider image, or `dlsym` consumer. Keep that type parked until a
+real dynamic-image execution route exists.
+
+The selected Rust Boundary caller resolves `libnyash_kernel.a` from `--nyrt`
+once and consumes the versioned `hako_llvmc_link_obj_v2` ABI. The C path does
+not rediscover an archive through env/fallback. One neutral fixed descriptor
+is emitted into the selected object from the final typed candidate metadata;
+ordinary objects emit none. One Rust transaction owns:
+
+```text
+temporary output path and atomic final rename owner
+runtime archive and executable digest owner
+defined-symbol census owner
+ABI / wire / PlanStamp artifact descriptor or paired-manifest owner
+candidate cleanup on every failure
+```
+
+The descriptor retains canonical site IDs, entry IDs/symbols/arities,
+contract/profile, ABI/wire, registry generation, and PlanStamp in a versioned
+192-byte layout. The transaction compares the actual object and executable
+descriptor with the final candidate JSON, verifies unresolved object symbols
+and exact archive/executable definitions, and records:
+
+```text
+temporary executable path and final destination
+executable digest
+exact runtime archive path and digest
+required entry IDs and uniquely defined symbols
+artifact symbol values as diagnostics, never runtime addresses
+call ABI revision / wire revision
+carried ModuleInvocationBrandV1 PlanStamp
+```
+
+`StaticAotArtifactPublicationTxnV1` is the only temporary path, link,
+observation, cleanup, receipt, and future final-rename owner. Only complete
+actual-artifact observations issue `StaticLinkedAotArtifactReceiptV1`.
+Missing/duplicate/foreign/mismatched observations and link failure remove the
+candidate and preserve the prior final path. W6-D has no production prepare or
+commit caller; W6-E is the sole consumer allowed to publish it.
+
+Acceptance:
+
+```text
+post-link static artifact receipt issuer                 = 1
+exact runtime archive input                              = 1
+explicit Boundary link ABI / env archive rediscovery    = 1 / 0
+archive/exe digest + symbol + descriptor verification    = green
+runtime address/image-lifetime fabrication               = 0
+RuntimeExecutablePlan / dlsym / provider reselection     = 0 / 0 / 0
+link failure executable publication                      = 0
+executable final-path publication before W6-E            = 0
+```
+
+The receipt has two explicit states: the pre-rename observation is
+`StaticLinkedAotArtifactReceiptV1`, while the W6-E consumer receives only
+`PublishedStaticLinkedAotArtifactReceiptV1` after the final rename. Rename
+failure cleans the temporary candidate and leaves the prior final path
+unchanged; no consumer may treat a temporary path as published.
+
+Evidence: eight focused tests include a Boundary-generated object -> exact
+archive -> real executable -> Rust receipt run, header/Rust layout parity,
+entry-scope rejection, duplicate/missing symbols, descriptor drift, and
+cleanup. Selected/ordinary C descriptor census, explicit-link smoke, `cargo
+check`, and the W6 authority guard are green. All touched sources are below the
+760-line split gate; `new=0`, `old=1`.
+
+### W6-E — `DYNAMIC-V2-AOT-ACTIVATION-I0-W6`
+
+This is the only production BoxCount. In one activation commit:
+
+```text
+selected package production callback                    = 1 (landed)
+selected Boundary candidate/runner                      = 1 (landed)
+selected old raw AST/JoinIR edge                         = 0 (landed)
+CatalogedBoxMethod collector/mixed normal drain          = 1
+atomic MirModule publication                             = 1
+Boundary C-ABI CheckedCallOut physicalizer               = 1
+static artifact receipt / executable publication         = 1 / 1
+final live publication                                    = 1 (landed)
+RuntimeExecutablePlan issuer/install                     = 0 / 0
+LegacySymbol / FreeStatic conversion                     = 0 / 0
+runtime lookup / generic fallthrough / fallback / retry  = 0 / 0 / 0 / 0
+Rust-VM DynamicV2 production consumer                    = 0
+```
+
+Accepted pre-implementation contract:
+
+```text
+Decision:
+  W6-E is one prepared activation owner over the two existing transactions;
+  it is not a third MIR or artifact authority.
+Source authority + canonical issuer:
+  selected package/admission -> canonical session/DraftSeal/collector;
+  Boundary link -> StaticAotArtifactPublicationTxnV1 receipt.
+Non-authority:
+  raw AST/JoinIR, selector/name lookup, RuntimeExecutablePlan, llvmlite,
+  VM, fallback, retry, and any reconstructed receipt/PlanStamp.
+Fail-fast boundary:
+  brand/key/site/ABI/wire/descriptor/digest/link mismatch, or a selected-lane
+  census different from policy, rejects before final artifact rename; no live
+  Builder or artifact mutation.
+Smallest next slice:
+  root final-live preflight consumes candidate/brand; child consumes only receipt.
+  selected raw/JoinIR=0; ordinary compatibility explicit; no selected-old deletion.
+Non-claims:
+  no crash-recovery transaction, RuntimeExecutablePlan, second backend, or
+  durable old-edge witness product.
+```
+
+#### W6-E-D0-HISTORY — `DYNAMIC-V2-W6-CROSS-CRATE-HANDOFF-D0` (closed predecessor)
+
+This is the closed cross-crate handoff predecessor. Do not resume it as a
+second current frontier or invent a local receipt, re-open the old lowering
+route, or switch a caller as a workaround.
+
+```text
+Decision: the cross-process handoff predecessor is closed; R0 consumes its
+  existing site-id candidate and receipt channels without reopening semantics.
+Source authority + canonical issuer: selected package/admission -> canonical
+  session/DraftSeal/collector; ny-llvmc -> static artifact receipt.
+Non-authority: raw AST/JoinIR, selector/name lookup, RuntimeExecutablePlan,
+  llvmlite, VM, fallback, retry, and reconstructed receipt/PlanStamp.
+Fail-fast boundary: candidate brand/key/site metadata must match the Boundary
+  descriptor, archive, digest, ABI/wire, and root R4 census before rename.
+Smallest next slice: R0 consumes the existing site-id MIR-JSON handoff and
+  dedicated child receipt once, then reuses the two publication owners without
+  semantic re-selection or old-edge witness transport.
+Non-claims: no third transaction, rollback, or new receipt authority.
+```
+
+Historical D0 exit receipt: selected caller exactly one, selected Dynamic old
+edge zero, ordinary compatibility edge explicitly preserved, one ny-llvmc
+prepare/receipt/rename consumer, PlanStamp or candidate-digest co-seal across
+the process boundary, and focused positive/negative/rename-failure evidence.
+R0 must preserve these checks while moving the live caller switch into the
+existing owners.
+
+#### W6-E-D0-A — `DYNAMIC-V2-W6-ROOT-CENSUS-POLICY-D0` (accepted)
+
+The R4 manifest is the policy source for the selected old edge, but it is not a
+runtime witness issuer. A guard result is observation evidence, not an
+activation receipt. W6 therefore keeps the old-edge fact in the root cutover
+preflight and does not create a witness product or copy the fact into MIR JSON.
+
+```text
+Decision:
+  use `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001` as the retirement
+  policy and have the root W6 coordinator check old=1 before child rename and
+  old=0 after the selected commit. The child receives no old-edge fact; the
+  site-id MIR JSON remains a one-way projection of existing Dynamic metadata.
+Source authority + canonical issuer:
+  R4 manifest = retirement policy; root W6 cutover preflight = direct
+  before/after census action; selected physical/site/ABI facts = existing
+  Builder projection; artifact facts = StaticAotArtifactPublicationTxnV1.
+Non-authority:
+  guard text as a receipt, block/index locators, child JSON, llvmlite,
+  RuntimeExecutablePlan, stdout diagnostics, and any reconstructed witness.
+Fail-fast boundary:
+  R4 policy drift, old-edge before-count != 1, ordinary compatibility route
+  loss, or post-commit old-count != 0 rejects rename/caller switch.
+Smallest next slice:
+  freeze the dedicated child artifact-receipt transport and keep the old-edge
+  census entirely in the root transaction.
+Non-claims:
+  no new semantic authority, MIR metadata key, sidecar-as-authority, witness
+  product, production caller, rename, fallback, or retry.
+```
+
+#### W6-E-D0-B — `DYNAMIC-V2-W6-CROSS-CRATE-RECEIPT-TRANSPORT-S0` (closed)
+
+```text
+Decision:
+  transport one versioned child-published artifact receipt through a dedicated
+  machine-readable path; diagnostics stay on stderr and old-edge census stays
+  root-only.
+Source authority + canonical issuer:
+  existing dynamic_v2_aot_call_admission_v2 projection; child
+  StaticAotArtifactPublicationTxnV1 publishes the receipt after rename.
+Non-authority:
+  JSON parser, block/index/logs, selector lookup, RuntimeExecutablePlan,
+  llvmlite, fallback, retry, and any old-edge witness field.
+Fail-fast boundary:
+  missing/duplicate/foreign receipt, candidate digest/PlanStamp/site/ABI/wire/
+  descriptor mismatch, or pre-rename publication rejects before Builder or
+  caller mutation.
+Smallest next slice:
+  freeze the `--receipt-json` schema and clone-safe selected MIR JSON export;
+  root consumes exactly one receipt while production remains new=0 / old=1.
+Non-claims:
+  no caller switch, old-edge deletion, RuntimeExecutablePlan, or final
+  publication transaction.
+```
+
+Landed receipt: commit `9179e319f9` adds the versioned child `--receipt-json`
+channel, post-rename receipt writer, clone-safe selected MIR JSON export, one
+root validator, and the named-owner guard. Focused child/root tests and the
+W6 authority guards are green; the child receipt is not an old-edge witness.
+
+#### W6-E-D0-C — `DYNAMIC-V2-W6-ROOT-CUTOVER-COORDINATOR-R0` (test canary landed)
+
+```text
+Decision:
+  one root candidate transaction remains the only publication path. The
+  package adapter owns selected-Dynamic lowering handoff; the existing root
+  ModuleBuilderInvocationSession/collector and session.prepare_external_commit()
+  remain the candidate and external-commit owners.
+Source authority + canonical issuer:
+  sealed selected package/admission -> canonical session/DraftSeal/collector;
+  NormalDefaultPublishedPipelineV1 consumes the existing root commit product.
+Non-authority:
+  test canaries, child receipts, raw AST/JoinIR, LegacySymbol conversion,
+  emitter-created commits, global callbacks, llvmlite, RuntimeExecutablePlan,
+  fallback, retry, or a second witness.
+Fail-fast boundary:
+  package/admission/brand, site/ABI/wire/PlanStamp, DraftSeal,
+  key/symbol/arity, artifact receipt, old=1, and ordinary compatibility all
+  remain checked before any future commit; rejection leaves live Builder and
+  old edge unchanged.
+Acceptance landed:
+  D0-C0..C3 provide root borrow/fence/co-seal/R4 consume-discard typestate;
+  D0-C4 (`0469ff1e07`) proves package-owned selected input -> same candidate
+  collector -> canonical emitter in a disconnected test canary. Production
+  remains `new=0 / old=1`; ordinary compatibility is unchanged.
+Non-claims:
+  no production caller, callback switch, old-edge deletion, alternate backend,
+  RuntimeExecutablePlan, fallback, retry, or crash-recovery claim.
+```
+
+#### W6-E-D0-D — `DYNAMIC-V2-W6-ROOT-TRANSITION-OWNER-D0` (accepted correction)
+
+```text
+Decision:
+  no separate SelectedDynamicProductionTransitionV1 is needed. The sealed
+  package adapter is the selected-Dynamic route owner: Dynamic lowers through
+  the existing unpublished emitter, Ordinary keeps the source-scoped
+  compatibility route, and the existing root candidate/external-commit
+  lifecycle remains the sole publication owner.
+Source authority + canonical issuer:
+  SelectedCallableSemanticRefV1::Dynamic selects once; the adapter consumes
+  the package-owned selected input once; ModuleDraftCollectorV1 and
+  ModuleBuilderInvocationSessionV1 remain the candidate and external-commit
+  issuers.
+Non-authority:
+  Cell<Option<Fn>>, global callback state, emitter-created commit, second
+  collector, child receipt as route witness, raw AST/JoinIR re-entry, or
+  durable old-edge witness.
+Fail-fast boundary:
+  selected key/admission/brand, candidate/artifact fence, ordinary
+  compatibility, and pre-state `old=1/new=0` are checked before the existing
+  root commit; rejection leaves the live Builder and old edge unchanged.
+Smallest next slice:
+  consume the candidate's already-sealed A-prime/AOT metadata pair through
+  one runner census and enter the existing selected Boundary artifact path
+  before VM/fallback. Reuse the existing root collector and
+  `prepare_external_commit`; do not add a transition product or publication
+  seam.
+Acceptance:
+  selected adapter handoff `= 1`, selected Dynamic raw edge `= 0`, one runner
+  census caller and one selected Boundary caller, partial/duplicate metadata
+  rejected before backend spawn, ordinary compatibility edge remains explicit,
+  and selected Boundary failure never enters VM/fallback/retry. Final artifact
+  receipt/live publication and the new/old runtime caller census remain open.
+Non-claims:
+  no cross-process atomic rollback, RuntimeExecutablePlan, new semantic
+  receipt, second backend, or llvmlite fallback.
+```
+
+#### W6-E-C3 — `DYNAMIC-V2-W6-RECEIPT-FENCE-HANDOFF-R0` (landed `b4f68ddc92`)
+
+```text
+Decision: return the existing root-consumed Boundary receipt fence and hold it through selected executable launch.
+Source authority + canonical issuer: selected sealed metadata/candidate JSON; `consume_static_artifact_receipt` is the sole fence issuer.
+Non-authority: runner census, JSON parser, llvmlite, VM, fallback, RuntimeExecutablePlan, or a second receipt/transaction owner.
+Fail-fast boundary: missing/invalid receipt or descriptor/digest/site/ABI/wire/PlanStamp drift rejects before `run_emitted_executable`.
+Smallest next slice: selected emitter returns `StaticArtifactReceiptConsumedFenceV1`; runner consumes it while ordinary compatibility stays unchanged.
+Non-claims: no long-lived candidate↔artifact product, cross-process rollback, crash recovery, or final live artifact switch.
+```
+
+#### W6-E-C6 — `DYNAMIC-V2-W6-FINAL-LIVE-PUBLICATION-D0` (fast implementation; final live publication closed)
+
+```text
+Decision: accept one shared normal-callable materialization helper; SourceBacked is exact and bypasses `normalize_core_pass`, while Compatibility remains the existing AST request with exactly one compatibility-only `normalize_core_pass`.
+Source authority + canonical issuer: `parse_normal_callable_program_with_build_config` -> `transform_normal_callable_program_v1` -> `VerifiedFinalCallableProgramSourceV1`/`issue_normal_callable_semantic_package_v1` -> one shared materialization helper -> `NormalDefaultPublishedPipelineV1` -> `prepare_external_commit`/`PreparedBuilderExternalCommitV1::commit`.
+Non-authority: raw `parse_source` outside the helper, `for_llvm_source` as anything beyond the Compatibility request constructor, runner census, child receipt JSON, llvmlite, VM, fallback/retry, RuntimeExecutablePlan, guard text, and cross-process rollback.
+Fail-fast boundary: parser/transform rejection, SourceBacked exact-preservation drift, SourceBacked reaching `normalize_core_pass`, duplicate Compatibility normalization, foreign package/admission, receipt/site/ABI/wire drift, or selected/ordinary census mismatch leaves the live Builder and ordinary edge unchanged.
+Smallest next slice: implemented in `0c7ae61b6d` as one shared helper (`normal-callable parser/transform -> SourceBacked|Compatibility`; SourceBacked -> existing callable request, Compatibility -> existing AST request plus one compatibility-only normalization) plus one scoped census; no guessed callback, transition product, or AST-to-package re-inference.
+Acceptance: shared helper=1, source-backed request constructors (MIR/LLVM)=1 each, SourceBacked normalize=0, Compatibility normalize=1 exactly, package-adapter=1, selected raw/JoinIR=0, ordinary compatibility=1, selected Boundary candidate/runner=1, receipt/path fence=1, fallback/retry/VM=0; final LLVM-ingress live caller remains 0. Focused helper/request tests, cargo check, fmt, pointer guard, source-carrier guard, complete-batch guard, in-place guard, and diff check are green; unrelated compiler dirty files remain outside the commit.
+Non-claims: no ordinary compatibility retirement, llvmlite G1/G2/G3 activation, source deletion, cross-process recovery, RuntimeExecutablePlan, or guessed transition state.
+```
+## Negative matrix
+
+```text
+foreign selected package/admission or invocation brand       -> RejectBeforeEffect
+CatalogedBoxMethod key/symbol/arity/brand drift               -> discard MIR candidate
+missing/duplicate/extra operation, If, Exit, cleanup row      -> discard session
+compare demand missing, reused, or wrong representation       -> discard session
+End in wrong block or duplicate/stale lease                   -> discard session
+orphan/duplicate site plan, terminator, Normal projection     -> discard session
+site-id role/entry/shape swap                                 -> backend reject
+unknown ABI/wire/effect/status/result tag                     -> backend fail-stop
+Suspended from non-suspending TextScan                        -> backend fail-stop
+missing/foreign runtime archive path or env rediscovery       -> static-link reject
+missing/duplicate/undefined linked symbol                      -> static-link reject
+stale archive/executable digest or artifact descriptor         -> static-link reject
+link failure followed by executable/plan publication          -> guard failure
+legacy/free-static key conversion                             -> guard failure
+old and new selected production callers both nonzero          -> guard failure
+provider/selector/image runtime relookup                      -> guard failure
+fallback, retry, generic String, or VM DynamicV2 consumer     -> guard failure
+```
+
+## Focused gates
+
+Run per internal row, then run the full set before W6-E:
+
+```bash
+cargo check -q --lib
+cargo test -q --lib normal_callable_semantic_package
+cargo test -q --lib dynamic_full_body_recipe
+cargo test -q --lib selected_dynamic_physical_emitter
+cargo test -q --lib completion
+
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/dynamic_v2_physical_input_authority_guard.sh
+bash tools/checks/dynamic_v2_callslot_wire_authority_guard.sh
+bash tools/checks/dynamic_v2_vm_nonconsumer_fence_guard.sh
+bash tools/checks/loop_precutover_authority_guard.sh
+bash tools/checks/dynamic_v2_aot_activation_authority_guard.sh
+bash tools/checks/mirbuilder_inplace_replacement_guard.sh
+git diff --check
+```
+
+The focused `completion` suite has a known parent-baseline
+`ReturnValueTypeMissing(ValueId(12))` failure. Reproduce it at the recorded
+parent before classifying it as baseline debt; every new failure remains
+blocking until classified.
+
+## Guard ratchets
+
+Extend existing guards rather than creating one guard per file.
+
+```text
+checked_callout and corridor files                       < 650 target
+activation owner file                                   < 700 hard task gate
+all Rust source                                          < 800 repository hard stop
+site-id AOT lookup consumer                              = canonical call relation only
+CheckedCallOut plan-table install                        = 1
+compare/cleanup/AOT evidence terminal                    = 1 / 1 / 1
+Boundary C physicalizer                                  = 1
+Python/native/harness/VM production physicalizer         = 0
+CatalogedBoxMethod mixed normal drain                    = 1
+static artifact receipt post-link issuer                 = 1
+RuntimeExecutablePlan production issuer                  = 0
+selected package/Boundary caller census                    = 1 / 1
+selected raw/JoinIR edge                                   = 0; ordinary compatibility = 1
+```
+
+## Post-cutover queue
+
+After W6-E final-live evidence:
+
+1. delete the selected raw JoinIR edge, legacy finalizer remnants, reject-only
+   canary shells, and stale block/index AOT locator definitions;
+2. convert the physical operation cursor into typed move-only leaf views only
+   if the W6-A 17-item terminal still leaves duplicate row interpretation;
+3. split `emit_instruction` private phases while keeping one public writer;
+4. classify `builder.rs` modules after production caller/cfg census;
+5. distinguish per-site physical effect from function-wide union before any
+   provider cohort beyond the sealed pure-read TextScan pair;
+6. keep `CURRENT_STATE.toml` compact and archive landed W6 receipts rather
+   than appending chronology to this card.
+
+## Closeout template
+
+```text
+Decision actually implemented:
+Production new/old caller census:
+Compiler publication owner and count:
+Backend static artifact receipt/publication owner and count:
+Evidence consume counts:
+Negative matrix result:
+Focused gates and classified reds:
+Line counts:
+Commit / push:
+Remaining non-claims:
+```

@@ -11,6 +11,7 @@ use super::super::super::loop_recipe_contract::ids::{LoopBindingKeyV1, LoopNodeK
 use super::super::super::loop_recipe_contract::join_sig::{
     LoopJoinSigElaboratorV1, LoopJoinSigRejectReasonV1,
 };
+#[cfg(test)]
 use super::super::super::loop_recipe_contract::physical_input::VerifiedLoopPhysicalBoundaryV1;
 use super::super::super::loop_recipe_contract::producer_id::LoopRecipeProducerIdV1;
 use super::super::super::loop_recipe_contract::schema::{
@@ -22,6 +23,10 @@ use super::super::super::loop_recipe_contract::source_bound_core::{
 use super::super::super::loop_recipe_contract::verify::LoopRecipeVerifierV1;
 use super::super::super::loop_recipe_contract::{
     VerifiedLoopContinuationContractV1, VerifiedLoopSemanticContextV1,
+};
+use super::super::operation_physical_demand::{
+    LoopOperationPhysicalDemandRejectV1, PreparedLoopOperationProgramV1,
+    VerifiedLoopOperationPhysicalDemandV1,
 };
 use super::after::{
     issue_after, GenericG0AfterRejectV1, VerifiedGenericAfterEffectG0,
@@ -80,6 +85,30 @@ impl VerifiedGenericRecipeProductG0 {
         self.target
     }
 
+    /// Consume the complete Generic operation product into the neutral
+    /// Builder-free program.  This is the production ownership transition;
+    /// the old demand-part split remains test-only below.
+    pub(crate) fn into_prepared_operation_program(
+        self,
+    ) -> Result<PreparedLoopOperationProgramV1, LoopOperationPhysicalDemandRejectV1> {
+        let Self {
+            operation_effect,
+            after,
+            context,
+            target: _,
+        } = self;
+        let continuation = VerifiedLoopContinuationContractV1::from_after(
+            operation_effect.core().owner(),
+            after.into_after_binding(),
+        );
+        VerifiedLoopOperationPhysicalDemandV1::issue(context, operation_effect, continuation)?
+            .prepare_all()
+    }
+
+    /// Legacy topology-only split retained for the caller-zero observation
+    /// adapter.  Production consumers must take the complete operation
+    /// program/cohort; this boundary is not a physical-owner ingress.
+    #[cfg(test)]
     pub(crate) fn into_physical_boundary(self) -> VerifiedLoopPhysicalBoundaryV1 {
         let (core, _) = self.operation_effect.into_parts();
         VerifiedLoopPhysicalBoundaryV1::from_parts(core, self.after.into_after_binding())

@@ -1,6 +1,9 @@
 use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::mir::resolved_semantics::SourcePathSegmentV1;
+use crate::mir::resolved_semantics::{
+    RegionId, ResolvedControlTransferV1, ResolvedExitOriginV1, ResolvedExitRecordV1,
+    SourcePathSegmentV1,
+};
 use crate::parser::NyashParser;
 
 use super::function_control::{
@@ -88,6 +91,14 @@ fn function_with_return_type(body: Vec<ASTNode>, return_type_name: Option<&str>)
 
 fn function(body: Vec<ASTNode>) -> ASTNode {
     function_with_return_type(body, None)
+}
+
+fn loop_with_control(control: ASTNode) -> ASTNode {
+    ASTNode::Loop {
+        condition: Box::new(literal(1)),
+        body: vec![control],
+        span: Span::unknown(),
+    }
 }
 
 fn verify(
@@ -354,4 +365,54 @@ fn nested_return_cannot_impersonate_the_root_terminal_site() {
         error,
         FunctionCompletionVerificationErrorV1::NonTerminalReturn { .. }
     ));
+}
+
+#[test]
+fn loop_control_only_is_implicit_completion_not_a_return() {
+    let completion = verify(vec![loop_with_control(ASTNode::Break {
+        span: Span::unknown(),
+    })])
+    .unwrap();
+
+    assert!(completion.is_implicit_void());
+    assert!(completion.explicit_sites().is_empty());
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactZeroExitRootBody
+    ));
+}
+
+#[test]
+fn nested_loop_control_is_excluded_but_root_return_remains_candidate() {
+    let completion = verify(vec![
+        loop_with_control(ASTNode::Continue {
+            span: Span::unknown(),
+        }),
+        return_stmt(Some(literal(7))),
+    ])
+    .unwrap();
+
+    assert!(completion.returns_value());
+    assert_eq!(completion.explicit_sites().len(), 1);
+    assert!(matches!(
+        completion.function_exit_contract().coverage(),
+        FunctionExitCoverageV1::ExactOneTerminalRootReturn
+    ));
+}
+
+#[test]
+fn malformed_origin_transfer_is_not_projected_as_loop_control() {
+    let unit =
+        VerifiedResolvedSourceUnitV1::resolve_function(function(vec![return_stmt(None)])).unwrap();
+    let owner = unit.root_function_input().unwrap().owner();
+    let region = RegionId::new(owner, 0);
+    let malformed = ResolvedExitRecordV1::new(
+        region,
+        ResolvedExitOriginV1::ExplicitBreak,
+        ResolvedControlTransferV1::Return {
+            target_function: region,
+        },
+    );
+
+    assert!(!super::function_control::is_loop_control_exit(&malformed));
 }

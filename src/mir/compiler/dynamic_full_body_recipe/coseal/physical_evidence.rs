@@ -218,9 +218,11 @@ pub(in crate::mir) struct DynamicFullLoopOperationPhysicalRefV2<'program> {
     evidence: &'program DynamicFullLoopOperationSourceEffectV2,
     operation: &'program LoopOperationV2,
     call: Option<&'program VerifiedSourceBoundDynamicMemberCallV1>,
+    core_method:
+        Option<&'static crate::mir::core_method_result_kind::CoreMethodContractRowV2>,
 }
 
-impl DynamicFullLoopOperationPhysicalRefV2<'_> {
+impl<'program> DynamicFullLoopOperationPhysicalRefV2<'program> {
     pub(in crate::mir) const fn item(&self) -> LoopItemKeyV1 {
         self.evidence.item()
     }
@@ -259,6 +261,12 @@ impl DynamicFullLoopOperationPhysicalRefV2<'_> {
 
     pub(in crate::mir) fn call(&self) -> Option<&VerifiedSourceBoundDynamicMemberCallV1> {
         self.call
+    }
+
+    pub(in crate::mir) fn core_method(
+        &self,
+    ) -> Option<&'static crate::mir::core_method_result_kind::CoreMethodContractRowV2> {
+        self.core_method
     }
 }
 
@@ -439,10 +447,20 @@ fn issue_operation_refs<'program>(
             ),
             None => None,
         };
+        let core_method = match source.call_role() {
+            Some(_) => Some(
+                calls
+                    .relation_for_item(source.item())
+                    .ok_or(DynamicFullLoopPhysicalEvidenceRejectV2::CallRelation)?
+                    .core_method(),
+            ),
+            None => None,
+        };
         rows.push(DynamicFullLoopOperationPhysicalRefV2 {
             evidence: source,
             operation,
             call,
+            core_method,
         });
     }
     rows.try_into()

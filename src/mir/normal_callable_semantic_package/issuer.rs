@@ -1,12 +1,15 @@
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::mir::builder::{
-    issue_source_backed_same_module_callable_catalog_v1, SourceBackedCallableCatalogIssueV1,
+    issue_source_backed_same_module_callable_catalog_v1,
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, SourceBackedCallableCatalogIssueV1,
 };
 use crate::mir::callable_parameter_contract::{
     issue_callable_parameter_contract_v1, CallableParameterContractIssueV1,
 };
+use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::callable_semantic_batch::{
-    issue_resolved_callable_semantic_batch_v1, ResolvedCallableSemanticBatchIssueV1,
-    ResolvedCallableSemanticBatchLoanErrorV1,
+    issue_resolved_callable_semantic_batch_with_brand_catalog_v1,
+    ResolvedCallableSemanticBatchIssueV1, ResolvedCallableSemanticBatchLoanErrorV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
@@ -22,14 +25,26 @@ use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
 
+use super::completion_seed::issue_callable_completion_seed_cohort_v1;
 use super::dynamic_admission::{
     admit_dynamic_callable_v1, issue_dynamic_parameter_contract_v2,
     DynamicCallableAdmissionIssueV1, DynamicCallableAdmissionV1,
+};
+use super::instance_constructor_semantic::{
+    issue_instance_constructor_semantic_batch_v1, InstanceConstructorSemanticBatchIssueV1,
 };
 use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
     OwnedCallableParameterContractV1, VerifiedNormalCallableSemanticPackageV1,
 };
+use super::physical_header::{
+    issue_callable_physical_header_from_seeds_v1, CallablePhysicalHeaderIssueV1,
+};
+use super::physical_signature::{
+    issue_callable_physical_signature_v1, CallablePhysicalSignatureIssueV1,
+};
+use super::s6c_child::{issue_s6c_semantic_child_v1, S6CSemanticChildIssueV1};
+use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::{
     issue_selected_callable_batch_map_v1, SelectedCallableBatchMapIssueV1,
 };
@@ -38,8 +53,12 @@ use super::selected_mapping::{
 pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     SourceBackedCatalog(SourceBackedCallableCatalogIssueV1),
     Batch(ResolvedCallableSemanticBatchIssueV1),
+    InstanceConstructors(InstanceConstructorSemanticBatchIssueV1),
     SelectedMapping(SelectedCallableBatchMapIssueV1),
     ParameterContract(CallableParameterContractIssueV1),
+    PhysicalHeader(CallablePhysicalHeaderIssueV1),
+    PhysicalSignature(CallablePhysicalSignatureIssueV1),
+    S6CChild(S6CSemanticChildIssueV1),
     BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
     Dynamic {
         batch_slot: u32,
@@ -54,16 +73,33 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     DynamicInvocationLifecycle(DynamicInvocationCarrierLifecycleProgramRejectV1),
     DynamicCleanup(DynamicInvocationCleanupProjectionRejectV1),
     DynamicExitTransaction(DynamicExitTransactionCoSealRejectV1),
+    MissingDynamicPhysicalHeader,
+    MissingS6CStorageHeader,
 }
 
 pub(crate) fn issue_normal_callable_semantic_package_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: VerifiedFinalCallableProgramSourceV1,
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    issue_normal_callable_semantic_package_with_brand_catalog_v1(resolver, source, None)
+}
+
+pub(crate) fn issue_normal_callable_semantic_package_with_brand_catalog_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: VerifiedFinalCallableProgramSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    let instance_constructors =
+        issue_instance_constructor_semantic_batch_v1(resolver, &source, brand_catalog)
+            .map_err(NormalCallableSemanticPackageIssueV1::InstanceConstructors)?;
     let catalog = issue_source_backed_same_module_callable_catalog_v1(&source)
         .map_err(NormalCallableSemanticPackageIssueV1::SourceBackedCatalog)?;
-    let batch = issue_resolved_callable_semantic_batch_v1(resolver, source)
-        .map_err(NormalCallableSemanticPackageIssueV1::Batch)?;
+    let batch = issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
+        resolver,
+        source,
+        brand_catalog,
+    )
+    .map_err(NormalCallableSemanticPackageIssueV1::Batch)?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(NormalCallableSemanticPackageIssueV1::SelectedMapping)?;
     let parameter_contracts = {
@@ -74,6 +110,7 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             .map(|declaration| OwnedCallableParameterContractDeclarationV1 {
                 batch_slot: declaration.batch_slot(),
                 owner: declaration.owner(),
+                mode: declaration.mode(),
                 parameters: declaration
                     .parameters()
                     .iter()
@@ -88,9 +125,42 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             .collect::<Vec<_>>()
             .into_boxed_slice()
     };
+    let completion_seeds =
+        issue_callable_completion_seed_cohort_v1(&batch, &selected, &parameter_contracts)
+            .map_err(NormalCallableSemanticPackageIssueV1::PhysicalHeader)?;
+    let mut completion_seeds = completion_seeds;
+    let s6c_child = issue_s6c_semantic_child_v1(&batch, &selected, &mut completion_seeds)
+        .map_err(NormalCallableSemanticPackageIssueV1::S6CChild)?;
+    let s6c_storage_header = match s6c_child.as_ref() {
+        None => None,
+        Some(child) => {
+            let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(key)) =
+                selected.key_for_batch_slot(child.batch_slot())
+            else {
+                return Err(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader);
+            };
+            let declaration = catalog
+                .catalog()
+                .declaration(key)
+                .ok_or(NormalCallableSemanticPackageIssueV1::MissingS6CStorageHeader)?;
+            Some(VerifiedS6CStorageHeaderProjectionV1::from_catalog_declaration(declaration))
+        }
+    };
+    let physical_header =
+        issue_callable_physical_header_from_seeds_v1(completion_seeds.into_rows());
     let mut candidate = None;
     for declaration in batch.declarations() {
+        // The resolved batch row is the sole declaration-mode authority.  The
+        // bounded Dynamic lowerer accepts only static Box methods; instance
+        // and top-level rows remain ordinary-owned and must not be probed by
+        // Dynamic source/parameter admission.
+        if declaration.mode() != ResolvedCallableDeclarationModeV1::StaticBoxMethod {
+            continue;
+        }
         let batch_slot = declaration.batch_slot();
+        if !selected.dynamic_eligible_batch_slot(batch_slot) {
+            continue;
+        }
         let admission = batch
             .with_lowering_input(batch_slot, admit_dynamic_callable_v1)
             .map_err(NormalCallableSemanticPackageIssueV1::BatchLoan)?
@@ -102,9 +172,6 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             calls,
         } = admission
         {
-            if !selected.contains_batch_slot(batch_slot) {
-                continue;
-            }
             if candidate
                 .replace((batch_slot, owner, source, inventory, calls))
                 .is_some()
@@ -113,8 +180,8 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
             }
         }
     }
-    let dynamic = match candidate {
-        None => NormalCallableDynamicProjectionV1::ValidUnselected,
+    let (dynamic, dynamic_physical_header) = match candidate {
+        None => (NormalCallableDynamicProjectionV1::ValidUnselected, None),
         Some((
             dynamic_batch_slot,
             dynamic_owner,
@@ -158,20 +225,47 @@ pub(crate) fn issue_normal_callable_semantic_package_v1(
                 .map_err(NormalCallableSemanticPackageIssueV1::DynamicCleanup)?;
             let program = issue_dynamic_exit_transaction_coseal_i0(program)
                 .map_err(NormalCallableSemanticPackageIssueV1::DynamicExitTransaction)?;
-            NormalCallableDynamicProjectionV1::Selected {
-                batch_slot: dynamic_batch_slot,
-                owner: dynamic_owner,
-                source: Rc::new(dynamic_source),
-                program,
-            }
+            let Some(crate::mir::builder::SelectedNormalCallableKeyV1::Cataloged(dynamic_key)) =
+                selected.key_for_batch_slot(dynamic_batch_slot)
+            else {
+                return Err(NormalCallableSemanticPackageIssueV1::MissingDynamicPhysicalHeader);
+            };
+            let declaration = catalog
+                .catalog()
+                .declaration(dynamic_key)
+                .ok_or(NormalCallableSemanticPackageIssueV1::MissingDynamicPhysicalHeader)?;
+            let physical_header =
+                CatalogedBoxMethodPhysicalHeaderProjectionV1::from_catalog_declaration(declaration);
+            (
+                NormalCallableDynamicProjectionV1::Selected {
+                    batch_slot: dynamic_batch_slot,
+                    owner: dynamic_owner,
+                    source: Rc::new(dynamic_source),
+                    program,
+                },
+                Some(physical_header),
+            )
         }
     };
+    let physical_signature = issue_callable_physical_signature_v1(
+        catalog.catalog().brand().clone(),
+        &batch,
+        &selected,
+        &parameter_contracts,
+    )
+    .map_err(NormalCallableSemanticPackageIssueV1::PhysicalSignature)?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
         catalog,
         batch,
+        instance_constructors,
         selected,
         parameter_contracts,
+        physical_signature,
+        s6c_child,
+        s6c_storage_header,
+        physical_header,
         dynamic,
+        dynamic_physical_header,
     })
 }

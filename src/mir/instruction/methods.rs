@@ -66,11 +66,30 @@ impl MirInstruction {
             // Function calls use provided effect mask
             MirInstruction::Call { effects, .. } => *effects,
             MirInstruction::MemOp { effects, .. } => *effects,
+            MirInstruction::PinnedTextOp { .. } => EffectMask::READ,
+            MirInstruction::PinnedTextResidenceEnter { .. } => {
+                EffectMask::WRITE.add(Effect::Barrier).add(Effect::Control)
+            }
+            MirInstruction::PinnedTextResidenceTrap { .. } => {
+                EffectMask::CONTROL.add(Effect::Panic)
+            }
+            MirInstruction::PinnedTextResidenceFinish { .. } => {
+                EffectMask::WRITE.add(Effect::Barrier).add(Effect::Panic)
+            }
 
             // Control flow (pure but affects execution)
             MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. }
-            | MirInstruction::Return { .. } => EffectMask::PURE,
+            | MirInstruction::Return { .. }
+            | MirInstruction::CheckedCallOutNormalResult { .. } => EffectMask::PURE,
+
+            MirInstruction::CheckedCallOutFault { .. } => EffectMask::CONTROL,
+
+            MirInstruction::CheckedCallOutEnd { .. } => EffectMask::WRITE,
+
+            // The effect is a verified cache projected from the function-local
+            // CheckedCallOut site plan.  No selector/provider lookup occurs here.
+            MirInstruction::CheckedCallOut { effects, .. } => *effects,
 
             // Box creation may allocate
             MirInstruction::NewBox { .. } => EffectMask::PURE.add(Effect::Alloc),
@@ -138,6 +157,7 @@ impl MirInstruction {
             MirInstruction::Call { dst, .. } => *dst,
             MirInstruction::ArrayElementWrite { dst, .. } => *dst,
             MirInstruction::MemOp { dst, .. } => *dst,
+            MirInstruction::PinnedTextOp { dst, .. } => Some(*dst),
 
             MirInstruction::Store { .. }
             | MirInstruction::FieldSet { .. }
@@ -145,6 +165,12 @@ impl MirInstruction {
             | MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. }
             | MirInstruction::Return { .. }
+            | MirInstruction::CheckedCallOut { .. }
+            | MirInstruction::CheckedCallOutEnd { .. }
+            | MirInstruction::CheckedCallOutFault { .. }
+            | MirInstruction::PinnedTextResidenceEnter { .. }
+            | MirInstruction::PinnedTextResidenceTrap { .. }
+            | MirInstruction::PinnedTextResidenceFinish { .. }
             | MirInstruction::Debug { .. }
             | MirInstruction::KeepAlive { .. }
             | MirInstruction::DestroyOwned { .. }
@@ -155,6 +181,8 @@ impl MirInstruction {
             | MirInstruction::RecordFieldContractCheck { .. }
             | MirInstruction::ArrayStateContractClaim { .. }
             | MirInstruction::Safepoint => None,
+
+            MirInstruction::CheckedCallOutNormalResult { dst, .. } => Some(*dst),
 
             MirInstruction::Catch {
                 exception_value, ..
@@ -220,7 +248,24 @@ impl MirInstruction {
             return used;
         }
         match self {
-            MirInstruction::Const { .. } | MirInstruction::Jump { .. } => Vec::new(),
+            MirInstruction::Const { .. }
+            | MirInstruction::Jump { .. }
+            | MirInstruction::CheckedCallOutNormalResult { .. }
+            | MirInstruction::CheckedCallOutEnd { .. }
+            | MirInstruction::CheckedCallOutFault { .. }
+            | MirInstruction::PinnedTextResidenceEnter { .. }
+            | MirInstruction::PinnedTextResidenceTrap { .. }
+            | MirInstruction::PinnedTextResidenceFinish { .. } => Vec::new(),
+
+            MirInstruction::CheckedCallOut {
+                receiver,
+                arguments,
+                ..
+            } => {
+                let mut values = vec![*receiver];
+                values.extend(arguments.iter().copied());
+                values
+            }
 
             MirInstruction::ArrayStateContractClaim { array, .. } => vec![*array],
 
@@ -318,6 +363,7 @@ impl MirInstruction {
             MirInstruction::FutureSet { future, value } => vec![*future, *value],
             MirInstruction::Await { future, .. } => vec![*future],
             MirInstruction::MemOp { operands, .. } => operands.clone(),
+            MirInstruction::PinnedTextOp { kind, .. } => kind.used_values(),
         }
     }
 }

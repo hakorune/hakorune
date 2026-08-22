@@ -29,10 +29,11 @@ def check_p0c_f(root: pathlib.Path, fail) -> None:
     )
 
     allowed_by_pattern = {
-        r"analyze_trivial_canonical_owner_with_finite_direct_calls_v1": {
+        r"TrivialCanonicalAnalysisModeV1::OrdinaryFiniteDirectCalls": {
             compiler_capability,
-            profile_mod,
+            profile_analyzer,
             profile_tests,
+            root / "src/mir/resolved_value_profile/recipe_call_tests.rs",
         },
         r"verify_function_with_finite_direct_calls_v1": {
             compiler_capability,

@@ -4,22 +4,28 @@
 //! classifier. It retains the sealed entry profile and read/parse receipt,
 //! but does not inspect the profile or connect a compiler/runtime route.
 
+use super::script_source_input::CanonicalScriptSourceInputDispositionV1;
 use super::{
     NormalFileSourceReceiptV1, PreparedNormalFileSourceSealV1, PreparedNormalFileSourceV1,
     SealedNormalEntryProfileV1,
 };
 use crate::mir::normal_source_plan::{
-    NormalSourcePlanClassifierV1, NormalSourcePlanErrorV1, NormalSourcePlanStageV1,
-    PreparedNormalSourcePlanInputV1, RejectedNormalSourcePlanV1, SealedNormalSourcePlanV1,
+    NormalSourcePlanClassifierV1, NormalSourcePlanErrorV1, NormalSourcePlanIdentityFieldV1,
+    NormalSourcePlanStageV1, PreparedNormalSourcePlanInputV1, RejectedNormalSourcePlanV1,
+    SealedNormalSourcePlanV1,
 };
 use crate::mir::{
-    CanonicalCoreSourcePlanCompileRequestV1, NormalSourcePlanReceiptV1,
+    CanonicalCoreSourcePlanCompileRequestV1, CanonicalCoreSourcePlanInputV1,
+    CanonicalScriptSourceAInputTransportV1, NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
+use crate::mir::CanonicalScriptSourcePlanEnvelopeV1;
+use hakorune_frontend_parser::parser::GrammarProfile;
 
 #[derive(Debug)]
 pub(crate) struct PreparedNormalFileSourcePlanRequestV1 {
     input: PreparedNormalSourcePlanInputV1,
+    script_input: CanonicalScriptSourceInputDispositionV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
     _seal: PreparedNormalFileSourcePlanRequestSealV1,
@@ -31,6 +37,7 @@ struct PreparedNormalFileSourcePlanRequestSealV1;
 #[derive(Debug)]
 pub(crate) struct ClassifiedNormalFileSourcePlanV1 {
     plan: SealedNormalSourcePlanV1,
+    script_input: CanonicalScriptSourceInputDispositionV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
     _seal: ClassifiedNormalFileSourcePlanSealV1,
@@ -42,6 +49,7 @@ struct ClassifiedNormalFileSourcePlanSealV1;
 #[derive(Debug)]
 pub(crate) struct RejectedNormalFileSourcePlanningV1 {
     rejected: RejectedNormalSourcePlanV1,
+    script_input: CanonicalScriptSourceInputDispositionV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
 }
@@ -64,14 +72,17 @@ impl PreparedNormalFileSourceV1 {
     pub(crate) fn prepare_source_plan_request(self) -> PreparedNormalFileSourcePlanRequestV1 {
         let Self {
             source_file,
-            ast,
-            profile,
-            receipt,
+            parser_source_handoff,
             _seal: PreparedNormalFileSourceSealV1,
         } = self;
         let display_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
+        let (callable_source, script_input, profile, receipt) = parser_source_handoff.into_parts();
         PreparedNormalFileSourcePlanRequestV1 {
-            input: PreparedNormalSourcePlanInputV1::new(ast, display_identity),
+            input: PreparedNormalSourcePlanInputV1::from_parser_callable_source(
+                callable_source,
+                display_identity,
+            ),
+            script_input,
             profile,
             receipt,
             _seal: PreparedNormalFileSourcePlanRequestSealV1,
@@ -85,19 +96,30 @@ impl PreparedNormalFileSourcePlanRequestV1 {
     ) -> Result<ClassifiedNormalFileSourcePlanV1, RejectedNormalFileSourcePlanningV1> {
         let Self {
             input,
+            script_input,
             profile,
             receipt,
             _seal: _,
         } = self;
+        if let Err(error) = validate_parser_identity(&input, &receipt) {
+            return Err(RejectedNormalFileSourcePlanningV1 {
+                rejected: RejectedNormalSourcePlanV1::new(input, error),
+                script_input,
+                profile,
+                receipt,
+            });
+        }
         match NormalSourcePlanClassifierV1::seal(input) {
             Ok(plan) => Ok(ClassifiedNormalFileSourcePlanV1 {
                 plan,
+                script_input,
                 profile,
                 receipt,
                 _seal: ClassifiedNormalFileSourcePlanSealV1,
             }),
             Err(rejected) => Err(RejectedNormalFileSourcePlanningV1 {
                 rejected,
+                script_input,
                 profile,
                 receipt,
             }),
@@ -105,9 +127,61 @@ impl PreparedNormalFileSourcePlanRequestV1 {
     }
 }
 
+fn validate_parser_identity(
+    input: &PreparedNormalSourcePlanInputV1,
+    receipt: &NormalFileSourceReceiptV1,
+) -> Result<(), NormalSourcePlanErrorV1> {
+    if !input.is_parser_source_backed() {
+        return Err(if input.parser_lineage().is_some() {
+            NormalSourcePlanErrorV1::CompatibilitySourceUnavailable
+        } else {
+            NormalSourcePlanErrorV1::SourceAuthorityUnavailable
+        });
+    }
+    let Some(lineage) = input.parser_lineage() else {
+        return Err(NormalSourcePlanErrorV1::SourceLineageUnavailable);
+    };
+    if lineage.source_identity() != receipt.source_identity.as_ref() {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::SourceIdentity,
+        });
+    }
+    if lineage.source_digest() != receipt.source_digest {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::Digest,
+        });
+    }
+    if lineage.grammar_profile() != GrammarProfile::Canonical {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::GrammarProfile,
+        });
+    }
+    if lineage.utf8_len() != receipt.utf8_len {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::Utf8Length,
+        });
+    }
+    let (read_count, parse_count) = lineage.receipt_counts();
+    if read_count != receipt.read_count {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::ReadCount,
+        });
+    }
+    if parse_count != receipt.parse_count {
+        return Err(NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: NormalSourcePlanIdentityFieldV1::ParseCount,
+        });
+    }
+    Ok(())
+}
+
 impl ClassifiedNormalFileSourcePlanV1 {
     pub(crate) fn plan(&self) -> &SealedNormalSourcePlanV1 {
         &self.plan
+    }
+
+    pub(crate) fn script_input(&self) -> &CanonicalScriptSourceInputDispositionV1 {
+        &self.script_input
     }
 
     /// Move a canonical-core classified plan into the compiler without
@@ -124,12 +198,21 @@ impl ClassifiedNormalFileSourcePlanV1 {
         }
         let Self {
             plan,
+            script_input,
             profile: _,
             receipt,
             _seal: _,
         } = self;
+        let script_input: CanonicalScriptSourceAInputTransportV1 =
+            script_input.into_compiler_transport();
+        let script_input = CanonicalScriptSourcePlanEnvelopeV1::seal(&plan, script_input);
+        let source_input = CanonicalCoreSourcePlanInputV1::from_plan_and_transport(
+            &plan,
+            script_input,
+        );
         let receipt = NormalSourcePlanReceiptV1::one_read_one_parse(
             receipt.source_identity,
+            receipt.source_digest,
             receipt.utf8_len,
             receipt.read_count,
             receipt.parse_count,
@@ -138,6 +221,7 @@ impl ClassifiedNormalFileSourcePlanV1 {
             plan,
             VerifiedCanonicalCoreSourcePlanAdmissionV1::seal_from_frontdoor_profile(),
             receipt,
+            source_input,
         ))
     }
 
@@ -152,8 +236,18 @@ impl ClassifiedNormalFileSourcePlanV1 {
     }
 
     #[cfg(test)]
+    fn source_digest(&self) -> crate::mir::CanonicalSourceBytesDigestV1 {
+        self.receipt.source_digest
+    }
+
+    #[cfg(test)]
     pub(crate) fn is_canonical_core_profile_for_test(&self) -> bool {
         self.profile.is_canonical_core()
+    }
+
+    #[cfg(test)]
+    fn retains_parser_postpass(&self) -> bool {
+        self.plan.has_parser_postpass()
     }
 }
 
@@ -163,7 +257,21 @@ impl RejectedCanonicalCoreSourcePlanHandoffV1 {
     }
 
     pub(crate) fn discard(self) {
-        drop(self);
+        let Self { owner, error: _ } = self;
+        owner.discard_before_a_consumer();
+    }
+}
+
+impl ClassifiedNormalFileSourcePlanV1 {
+    fn discard_before_a_consumer(self) {
+        let Self {
+            plan: _,
+            script_input,
+            profile: _,
+            receipt: _,
+            _seal: _,
+        } = self;
+        script_input.discard_before_a_consumer();
     }
 }
 
@@ -179,9 +287,11 @@ impl RejectedNormalFileSourcePlanningV1 {
     pub(crate) fn discard(self) {
         let Self {
             rejected,
+            script_input,
             profile: _,
             receipt: _,
         } = self;
+        script_input.discard_before_a_consumer();
         rejected.discard();
     }
 

@@ -14,14 +14,14 @@ pub(in crate::mir) use coseal::{
     issue_dynamic_exit_transaction_coseal_i0, issue_dynamic_full_loop_semantic_program_v2,
     issue_dynamic_full_loop_source_recipe_envelope_v2,
     issue_dynamic_invocation_carrier_lifecycle_program_v1,
-    issue_dynamic_invocation_cleanup_projection_i0, DynamicAPrimeI64SourceRelationRejectV1,
-    DynamicAPrimeI64SourceRelationViewV1, DynamicExitTransactionCoSealRejectV1,
+    issue_dynamic_invocation_cleanup_projection_i0, DynamicAPrimeFormalRelationRowV1,
+    DynamicAPrimeI64SourceRelationRejectV1, DynamicAPrimeI64SourceRelationViewV1,
+    DynamicCanonicalSessionAuthorityRefV1, DynamicExitTransactionCoSealRejectV1,
     DynamicFullLoopAfterRefV2, DynamicFullLoopFaultCutPointCatalogRefV2,
     DynamicFullLoopFaultCutPointV2, DynamicFullLoopFaultFamilyV2, DynamicFullLoopOperationEffectV2,
     DynamicFullLoopOperationPhysicalRefV2, DynamicFullLoopPhysicalInputRejectV2,
     DynamicFullLoopPhysicalInputViewV2, DynamicFullLoopPhysicalItemKindV2,
     DynamicFullLoopPhysicalItemPlacementV2, DynamicFullLoopSemanticProgramRejectV2,
-    DynamicCanonicalSessionAuthorityRefV1,
     DynamicFullLoopSourceRecipeEnvelopeRejectV2, DynamicInvocationCarrierDestinationRefV1,
     DynamicInvocationCarrierLifecycleCatalogRefV1,
     DynamicInvocationCarrierLifecycleProgramRejectV1, DynamicInvocationCarrierLifecycleRowRefV1,
@@ -32,7 +32,8 @@ pub(in crate::mir) use coseal::{
     VerifiedDynamicExitTransactionCoSealV1, VerifiedDynamicFullLoopSemanticProgramV2,
     VerifiedDynamicFullLoopSourceRecipeEnvelopeV2,
     VerifiedDynamicInvocationCarrierLifecycleProgramV1,
-    VerifiedDynamicInvocationCleanupProjectionV1,
+    VerifiedDynamicInvocationCleanupProjectionV1, DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2,
+    DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
 };
 #[allow(unused_imports)]
 pub(in crate::mir) use physical_demand::{

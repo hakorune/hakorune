@@ -61,6 +61,22 @@ Update canon split (SSOT, no behavior change):
 Type split (SSOT, no behavior change):
 - `canon/generic_loop/types.rs`: Condition/Update/Step の観測型定義
 
+Policy frame boundary (MIR-CALLABLE-LOOP-GENERIC-FACTS-POLICY-P0):
+- `GenericLoopFactsPolicyFrameV1` captures strict/dev/planner-required
+  decisions at the Facts/planner boundary; the extractor does not read
+  ambient policy after receiving the frame.
+- `PlannerContext::from_generic_loop_policy` is the transport seam for a
+  future source-aware caller. It does not issue source relation or route
+  authority.
+- `try_build_loop_facts_inner` performs at most one GenericLoopV1 extraction
+  per Facts build. A probe that returns `None` is retained as an attempted
+  result and is not retried for the final Facts field.
+- The accepted extraction remains the sole owner of
+  `body_lowering_policy`, `body_exit_allowed`, and `body_no_exit`; downstream
+  routes must consume those Facts rather than recompute policy.
+- This P0 adds no callable source relation, Outside consumer, route switch,
+  fallback, retry, or production caller.
+
 Related docs:
 - `docs/development/current/main/design/coreloop-generic-loop-v0-ssot.md`
 - `docs/development/current/main/design/compiler-expressivity-first-policy.md`

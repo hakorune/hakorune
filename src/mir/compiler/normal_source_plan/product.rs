@@ -1,4 +1,7 @@
 use crate::ast::ASTNode;
+use crate::parser::postpass_envelope::CompletedParserPostpassV1;
+
+use super::parser_callable_source_handoff::NormalParserCallableSourceHandoffV1;
 
 /// Invocation-neutral identity retained beside one owned parsed source.
 #[derive(Debug, PartialEq, Eq)]
@@ -21,20 +24,39 @@ impl NormalSourceIdentityV1 {
 /// The sole input consumed by normal source-family classification.
 #[derive(Debug)]
 pub(crate) struct PreparedNormalSourcePlanInputV1 {
-    source: ASTNode,
+    source: NormalSourcePlanSourceV1,
     identity: NormalSourceIdentityV1,
+}
+
+#[derive(Debug)]
+enum NormalSourcePlanSourceV1 {
+    AstOnly(ASTNode),
+    ParserBacked(NormalParserCallableSourceHandoffV1),
 }
 
 impl PreparedNormalSourcePlanInputV1 {
     pub(crate) fn new(source: ASTNode, display_name: impl Into<Box<str>>) -> Self {
         Self {
-            source,
+            source: NormalSourcePlanSourceV1::AstOnly(source),
+            identity: NormalSourceIdentityV1::new(display_name),
+        }
+    }
+
+    pub(crate) fn from_parser_callable_source(
+        source: NormalParserCallableSourceHandoffV1,
+        display_name: impl Into<Box<str>>,
+    ) -> Self {
+        Self {
+            source: NormalSourcePlanSourceV1::ParserBacked(source),
             identity: NormalSourceIdentityV1::new(display_name),
         }
     }
 
     pub(super) fn source(&self) -> &ASTNode {
-        &self.source
+        match &self.source {
+            NormalSourcePlanSourceV1::AstOnly(source) => source,
+            NormalSourcePlanSourceV1::ParserBacked(source) => source.ast(),
+        }
     }
 
     pub(super) fn identity(&self) -> &NormalSourceIdentityV1 {
@@ -42,7 +64,51 @@ impl PreparedNormalSourcePlanInputV1 {
     }
 
     pub(super) fn into_parts(self) -> (ASTNode, NormalSourceIdentityV1) {
-        (self.source, self.identity)
+        let source = match self.source {
+            NormalSourcePlanSourceV1::AstOnly(source) => source,
+            NormalSourcePlanSourceV1::ParserBacked(source) => source.into_ast(),
+        };
+        (source, self.identity)
+    }
+
+    pub(crate) fn has_parser_postpass(&self) -> bool {
+        matches!(&self.source, NormalSourcePlanSourceV1::ParserBacked(_))
+    }
+
+    /// True only for the parser disposition that owns the source-backed
+    /// callable product. Compatibility postpasses retain syntax but do not
+    /// authorize canonical source planning.
+    pub(crate) fn is_parser_source_backed(&self) -> bool {
+        matches!(
+            &self.source,
+            NormalSourcePlanSourceV1::ParserBacked(source) if source.is_source_backed()
+        )
+    }
+
+    /// Borrow the parser-issued identity without cloning or reissuing it.
+    pub(crate) fn parser_lineage(&self) -> Option<&crate::parser::NormalParserSourceLineageV1> {
+        match &self.source {
+            NormalSourcePlanSourceV1::AstOnly(_) => None,
+            NormalSourcePlanSourceV1::ParserBacked(source) => Some(source.lineage()),
+        }
+    }
+
+    pub(crate) fn parser_invocation_witness(
+        &self,
+    ) -> Option<&crate::parser::callable_parameter_source::ParserInvocationWitnessV1> {
+        match &self.source {
+            NormalSourcePlanSourceV1::AstOnly(_) => None,
+            NormalSourcePlanSourceV1::ParserBacked(source) => {
+                source.parser_invocation_witness()
+            }
+        }
+    }
+
+    pub(crate) fn parser_postpass(&self) -> Option<&CompletedParserPostpassV1> {
+        match &self.source {
+            NormalSourcePlanSourceV1::AstOnly(_) => None,
+            NormalSourcePlanSourceV1::ParserBacked(source) => Some(source.parser_postpass()),
+        }
     }
 }
 
@@ -152,6 +218,20 @@ impl SealedNormalScriptSourceV1 {
 
     pub(super) fn source_ast(&self) -> &ASTNode {
         self.input.source()
+    }
+
+    pub(crate) fn has_parser_postpass(&self) -> bool {
+        self.input.has_parser_postpass()
+    }
+
+    pub(crate) fn parser_postpass(
+        &self,
+    ) -> Option<&crate::parser::postpass_envelope::CompletedParserPostpassV1> {
+        self.input.parser_postpass()
+    }
+
+    pub(crate) fn parser_lineage(&self) -> Option<&crate::parser::NormalParserSourceLineageV1> {
+        self.input.parser_lineage()
     }
 }
 
@@ -287,4 +367,42 @@ pub(crate) enum SealedNormalScalarRootV1 {
 pub(crate) enum SealedNormalSourcePlanV1 {
     ScalarRoot(SealedNormalScalarRootV1),
     CallableModule(SealedNormalCallableModuleSourceV1),
+}
+
+impl SealedNormalSourcePlanV1 {
+    pub(crate) fn has_parser_postpass(&self) -> bool {
+        match self {
+            Self::ScalarRoot(SealedNormalScalarRootV1::Script(source)) => {
+                source.has_parser_postpass()
+            }
+            Self::ScalarRoot(SealedNormalScalarRootV1::Main0(source)) => {
+                source.input.has_parser_postpass()
+            }
+            Self::CallableModule(source) => source.input.has_parser_postpass(),
+        }
+    }
+
+    pub(crate) fn parser_lineage(&self) -> Option<&crate::parser::NormalParserSourceLineageV1> {
+        match self {
+            Self::ScalarRoot(SealedNormalScalarRootV1::Script(source)) => source.parser_lineage(),
+            Self::ScalarRoot(SealedNormalScalarRootV1::Main0(source)) => {
+                source.input.parser_lineage()
+            }
+            Self::CallableModule(source) => source.input.parser_lineage(),
+        }
+    }
+
+    pub(crate) fn parser_invocation_witness(
+        &self,
+    ) -> Option<&crate::parser::callable_parameter_source::ParserInvocationWitnessV1> {
+        match self {
+            Self::ScalarRoot(SealedNormalScalarRootV1::Script(source)) => {
+                source.input.parser_invocation_witness()
+            }
+            Self::ScalarRoot(SealedNormalScalarRootV1::Main0(source)) => {
+                source.input.parser_invocation_witness()
+            }
+            Self::CallableModule(source) => source.input.parser_invocation_witness(),
+        }
+    }
 }

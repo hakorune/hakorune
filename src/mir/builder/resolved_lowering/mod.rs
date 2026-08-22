@@ -7,15 +7,35 @@
 mod branch_transaction;
 mod callable_module_transaction;
 pub(in crate::mir::builder) mod canonical_cfg;
-mod canonical_ssa;
+mod canonical_compare_writer;
+pub(in crate::mir::builder) mod canonical_ssa;
+mod common_v2_after_block_allocation;
+mod common_v2_if_continuation_target;
+#[cfg(test)]
+mod common_v2_s6c_observation_fixture;
+mod common_v2_s6c_substring_callout_admission;
+#[allow(dead_code)]
+mod common_v2_s6c_text_content_root_admission;
+#[allow(dead_code)]
+mod common_v2_s6c_text_cursor_preheader;
+#[allow(dead_code)]
+mod common_v2_s6c_textref_entry_bridge;
+mod common_v2_segment_block_allocation;
+mod common_v2_session;
 mod completion_consumption;
 mod direct_accum_adapter;
 mod direct_accum_lowerer;
 mod draft_seal;
 mod draft_seal_owner;
+pub(in crate::mir::builder) use draft_seal::ReadyFunctionDraftSealV1;
+pub(in crate::mir::builder) use draft_seal_owner::{
+    CompletedCatalogedBoxCallableDraftV1, SelectedDynamicCandidateMetadataV1,
+};
 pub(in crate::mir::builder) mod dynamic_loop_phi;
 mod dynamic_loop_phi_close;
 mod flow_consumption;
+#[cfg(test)]
+mod generic_g0_physical_emitter_session;
 mod identity;
 pub(in crate::mir::builder) mod if_cfg_ready_bridge;
 mod if_materialization;
@@ -26,9 +46,10 @@ mod nested_predicate_adapter;
 mod nested_predicate_lowerer;
 mod nested_predicate_physicalizer;
 mod ownership;
+mod physical_entry_lane_adoption;
+mod physical_entry_session;
 mod selected_dynamic_physical_abi;
 mod selected_dynamic_physical_capability;
-#[cfg(test)]
 mod selected_dynamic_physical_emitter;
 mod semantic_stack;
 mod trivial_ssa;
@@ -36,15 +57,52 @@ mod trivial_ssa;
 pub(in crate::mir) use callable_module_transaction::{
     CallableModuleTransactionErrorV1, VerifiedUnpublishedCallableDraftSetV1,
 };
-pub(in crate::mir) use selected_dynamic_physical_abi::{
-    issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalScheduleRowV1,
-    DynamicV2PhysicalBlockTargetV1, DynamicV2PhysicalScheduleSegmentV1,
-    PreparedSelectedDynamicV2EmissionPlanV1,
-    SelectedDynamicV2PhysicalPlanRejectV1,
+pub(in crate::mir::builder) use common_v2_s6c_substring_callout_admission::{
+    issue_common_v2_s6c_substring_callout_admission_v1, CommonV2SubstringCallOutAdmissionRejectV1,
+    CommonV2SubstringEndConsumerRefV1, CommonV2SubstringEndObligationV1,
+    PreparedCommonV2SubstringCallOutAdmissionV1,
 };
+pub(in crate::mir::builder) use common_v2_s6c_text_content_root_admission::{
+    issue_common_v2_s6c_text_content_root_admission_v1,
+    CommonV2S6CTextContentRootAdmissionRejectV1, CommonV2S6CTextContentRootAdmissionV1,
+    CommonV2S6CTextContentRootRoleV1, CommonV2S6CTextContentRootRowV1,
+};
+pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::{
+    issue_common_v2_s6c_text_cursor_preheader_v1, CommonV2S6CTextCursorInitialStateV1,
+    CommonV2S6CTextCursorPreheaderPlanV1, CommonV2S6CTextCursorPreheaderRejectV1,
+    CommonV2S6CTextCursorRootLoadV1, CommonV2S6CTextCursorSourceRelationV1,
+};
+pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
+pub(in crate::mir::builder) use common_v2_session::{
+    issue_common_v2_s6c_text_scalar_equality_leaf_v1,
+    CommonV2S6CTextScalarEqualityLeafCapabilityV1, CommonV2S6CTextScalarEqualityLeafReceiptV1,
+    CommonV2S6CTextScalarEqualityLeafRejectV1, CommonV2S6CTextScalarEqualityLeafShapeV1,
+};
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_physical_entry_draft_seal;
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_pinned_text_physical_entry_draft_seal;
+pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session;
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_expected_brand;
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_with_s6c_effects;
+#[cfg(test)]
+pub(in crate::mir::builder) use physical_entry_session::with_common_v2_physical_entry_session_with_s6c_loan;
+pub(in crate::mir) use selected_dynamic_physical_abi::{
+    issue_selected_dynamic_v2_emission_plan, DynamicV2PhysicalBlockTargetV1,
+    DynamicV2PhysicalScheduleRowV1, DynamicV2PhysicalScheduleSegmentV1,
+    PreparedSelectedDynamicV2EmissionPlanV1, SelectedDynamicV2PhysicalPlanRejectV1,
+};
+#[cfg(test)]
+pub(in crate::mir) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission;
+pub(in crate::mir::builder) use selected_dynamic_physical_capability::issue_selected_dynamic_v2_physical_capability_admission_from_brand;
 pub(in crate::mir) use selected_dynamic_physical_capability::{
-    issue_selected_dynamic_v2_physical_capability_admission,
-    DynamicV2PhysicalCapabilityDispositionV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
+    DynamicV2PhysicalCapabilityDispositionV1, DynamicV2PhysicalRepresentationV1,
+    DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
+};
+pub(in crate::mir::builder) use selected_dynamic_physical_emitter::{
+    assemble_unpublished_selected_dynamic_w6, assemble_unpublished_selected_dynamic_w6_from_parts,
 };
 
 #[cfg(test)]
@@ -52,11 +110,23 @@ mod block_expr_tests;
 #[cfg(test)]
 mod callable_module_transaction_tests;
 #[cfg(test)]
-mod completion_test_support;
+mod common_v2_condition_bool_tests;
+#[cfg(test)]
+mod common_v2_if_continuation_target_tests;
+#[cfg(test)]
+mod common_v2_initial_index_seed_tests;
+#[cfg(test)]
+mod common_v2_return_read_tests;
+#[cfg(test)]
+mod common_v2_s6c_cursor_cfg_tests;
+#[cfg(test)]
+mod common_v2_s6c_operand_issuer_tests;
 #[cfg(test)]
 mod completion_consumption_tests;
 #[cfg(test)]
 mod completion_draft_seal_tests;
+#[cfg(test)]
+mod completion_test_support;
 #[cfg(test)]
 mod dynamic_loop_discard_tests;
 #[cfg(test)]
@@ -73,6 +143,8 @@ mod if_materialization_tests;
 mod if_tests;
 #[cfg(test)]
 mod loop_recipe_physicalizer;
+
+pub(in crate::mir::builder::resolved_lowering) use canonical_compare_writer::CanonicalLoopCompareI64WriterV1;
 #[cfg(test)]
 mod nested_predicate_effect_adapter_tests;
 #[cfg(test)]
@@ -81,6 +153,10 @@ mod normal_function_draft_lowering_tests;
 mod null_tests;
 #[cfg(test)]
 mod parameter_tests;
+#[cfg(test)]
+mod physical_entry_draftseal;
+#[cfg(test)]
+mod physical_entry_lane_adoption_tests;
 #[cfg(test)]
 mod return_tests;
 #[cfg(test)]
@@ -100,7 +176,6 @@ use crate::mir::{MirFunction, MirModule};
 use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
 use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
-use draft_seal::ReadyFunctionDraftSealV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
 use if_recipe_adapter::{
     admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1,
@@ -289,7 +364,7 @@ impl MirBuilder {
         };
         let open = ReadyFunctionDraftSealV1::new(ready, current_block).open(session);
         let prepared = open.prepare().map_err(reject_draft_seal)?;
-        Ok(prepared.commit().into_draft())
+        Ok(prepared.commit().consume_non_authority_evidence())
     }
 
     /// Caller-zero DirectAccum draft consumer. The plan is lowered only on a
@@ -390,7 +465,7 @@ impl MirBuilder {
         };
         let open = ready.open(session);
         let prepared = open.prepare().map_err(reject_draft_seal)?;
-        Ok(prepared.commit().into_draft())
+        Ok(prepared.commit().consume_non_authority_evidence())
     }
 
     pub(in crate::mir) fn build_resolved_trivial_function_module(
@@ -417,7 +492,20 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_trivial_function_draft_inner(plan, false)
+        self.lower_resolved_trivial_function_draft_inner(plan, false, None)
+            .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
+    }
+
+    /// Callable sibling of the ordinary canonical trivial consumer. The
+    /// source plan still owns BindingRef identity; only the already-admitted
+    /// physical symbol is supplied by the catalog admission. No AST/name
+    /// pairing or legacy body driver is reachable from this entry.
+    pub(in crate::mir) fn lower_resolved_trivial_function_draft_with_physical_name_v1(
+        &mut self,
+        plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+        physical_name: String,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        self.lower_resolved_trivial_function_draft_inner(plan, false, Some(physical_name))
             .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
     }
 
@@ -426,7 +514,7 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_trivial_function_draft_inner(plan, true)
+        self.lower_resolved_trivial_function_draft_inner(plan, true, None)
             .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
     }
 
@@ -437,13 +525,14 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, RejectedNormalFunctionDraftLoweringV1> {
-        self.lower_resolved_trivial_function_draft_inner(plan, false)
+        self.lower_resolved_trivial_function_draft_inner(plan, false, None)
     }
 
     fn lower_resolved_trivial_function_draft_inner(
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
         _inject_seal_failure: bool,
+        physical_name: Option<String>,
     ) -> Result<MirFunction, RejectedNormalFunctionDraftLoweringV1> {
         let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
         let crate::ast::ASTNode::FunctionDeclaration {
@@ -457,7 +546,7 @@ impl MirBuilder {
         else {
             unreachable!("preflight seals one FunctionDeclaration root")
         };
-        let function_name = format!("{}/{}", name, params.len());
+        let function_name = physical_name.unwrap_or_else(|| format!("{}/{}", name, params.len()));
         let session_name = function_name.clone();
         let mut session = self.open_resolved_function_draft_seal_session_v1(&session_name);
         let lowering = {
@@ -543,7 +632,7 @@ impl MirBuilder {
             Ok(prepared) => prepared,
             Err(rejected) => return Err(reject_draft_seal_typed(rejected)),
         };
-        Ok(prepared.commit().into_draft())
+        Ok(prepared.commit().consume_non_authority_evidence())
     }
 }
 

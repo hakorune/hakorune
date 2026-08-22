@@ -22,15 +22,24 @@ def row(
     arity: str,
     *,
     aliases: list[str] | None = None,
+    core_op: str = "ArrayGet",
     result_kind: str = "Dynamic",
+    semantic_law: dict[str, str] | None = None,
 ) -> dict[str, object]:
+    if semantic_law is None:
+        semantic_law = {
+            part: "Unprojected"
+            for part in arity.split("|")
+            if part.isdigit()
+        }
     return {
         "box": receiver,
         "canonical": canonical,
         "aliases": aliases or [],
         "arity": arity,
+        "semantic_law": semantic_law,
         "effect": "pure_read",
-        "core_op": "ArrayGet",
+        "core_op": core_op,
         "result_kind": result_kind,
         "lowering_tier": "warm_direct_abi",
         "cold_lowering": "test.helper",
@@ -55,7 +64,7 @@ class CoreMethodContractCodegenTests(unittest.TestCase):
             CODEGEN.validate_rows(
                 [
                     row("StringBox", "length", "0", aliases=["len"]),
-                    row("StringBox", "len", "0"),
+                    row("StringBox", "len", "0", core_op="ArrayLen"),
                 ]
             )
 
@@ -64,14 +73,32 @@ class CoreMethodContractCodegenTests(unittest.TestCase):
             CODEGEN.validate_rows(
                 [
                     row("StringBox", "indexOf", "1", aliases=["find"]),
-                    row("StringBox", "search", "1", aliases=["find"]),
+                    row(
+                        "StringBox",
+                        "search",
+                        "1",
+                        aliases=["find"],
+                        core_op="StringContains",
+                    ),
                 ]
             )
 
     def test_expanded_arity_overlap_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "spelling collision"):
             CODEGEN.validate_rows(
-                [row("StringBox", "substring", "1|2"), row("StringBox", "substring", "2")]
+                [
+                    row("StringBox", "substring", "1|2"),
+                    row("StringBox", "substring", "2", core_op="StringSubstring"),
+                ]
+            )
+
+    def test_same_receiver_operation_and_arity_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "operation collision"):
+            CODEGEN.validate_rows(
+                [
+                    row("StringBox", "find", "1", core_op="StringIndexOf"),
+                    row("StringBox", "search", "1", core_op="StringIndexOf"),
+                ]
             )
 
     def test_duplicate_alias_inside_one_row_is_rejected(self) -> None:
@@ -85,6 +112,71 @@ class CoreMethodContractCodegenTests(unittest.TestCase):
             CODEGEN.validate_rows(
                 [row("StringBox", "length", "0", result_kind="ScalarMaybe")]
             )
+
+    def test_unknown_semantic_law_is_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "unknown semantic_law"):
+            CODEGEN.validate_rows(
+                [
+                    row(
+                        "StringBox",
+                        "length",
+                        "0",
+                        semantic_law={"0": "ByteCount"},
+                    )
+                ]
+            )
+
+    def test_semantic_law_must_cover_each_declared_arity_in_order(self) -> None:
+        with self.assertRaisesRegex(ValueError, "exactly cover sorted arities"):
+            CODEGEN.validate_rows(
+                [
+                    row(
+                        "StringBox",
+                        "substring",
+                        "1|2",
+                        semantic_law={"2": "CodePointHalfOpenClamped"},
+                    )
+                ]
+            )
+        with self.assertRaisesRegex(ValueError, "exactly cover sorted arities"):
+            CODEGEN.validate_rows(
+                [
+                    row(
+                        "StringBox",
+                        "substring",
+                        "1|2",
+                        semantic_law={
+                            "2": "CodePointHalfOpenClamped",
+                            "1": "Unprojected",
+                        },
+                    )
+                ]
+            )
+
+    def test_arity_indexed_text_laws_are_accepted(self) -> None:
+        CODEGEN.validate_rows(
+            [
+                row(
+                    "StringBox",
+                    "length",
+                    "0",
+                    core_op="StringLen",
+                    result_kind="I64Value",
+                    semantic_law={"0": "CodePointCount"},
+                ),
+                row(
+                    "StringBox",
+                    "substring",
+                    "1|2",
+                    core_op="StringSubstring",
+                    result_kind="StringValue",
+                    semantic_law={
+                        "1": "Unprojected",
+                        "2": "CodePointHalfOpenClamped",
+                    },
+                ),
+            ]
+        )
 
     def test_unknown_effect_is_rejected(self) -> None:
         malformed = row("StringBox", "length", "0")

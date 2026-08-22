@@ -75,6 +75,7 @@ pub(super) fn ast_kind_name(ast: &ASTNode) -> &'static str {
         ASTNode::MethodCall { .. } => "MethodCall",
         ASTNode::Call { .. } => "Call",
         ASTNode::FunctionCall { .. } => "FunctionCall",
+        ASTNode::ExplicitExternCall { .. } => "ExplicitExternCall",
         ASTNode::FieldAccess { .. } => "FieldAccess",
         ASTNode::Index { .. } => "Index",
         ASTNode::New { .. } => "New",

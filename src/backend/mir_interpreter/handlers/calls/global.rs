@@ -173,6 +173,11 @@ impl MirInterpreter {
             "env.codegen.emit_object" | "env.codegen.emit_object/1" => {
                 return self.execute_extern_function("env.codegen.emit_object", args);
             }
+            "env.codegen.emit_object_compat_harness"
+            | "env.codegen.emit_object_compat_harness/1" => {
+                return self
+                    .execute_extern_function("env.codegen.emit_object_compat_harness", args);
+            }
             "env.codegen.link_object" | "env.codegen.link_object/3" => {
                 // C-API route only; args[2] is expected to be an ArrayBox
                 // [obj_path, exe_out?, extra_ldflags?].

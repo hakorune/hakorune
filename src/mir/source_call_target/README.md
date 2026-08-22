@@ -2,6 +2,22 @@
 
 This module owns disconnected, pre-Builder source-call target proofs.
 
+## S6C source-bound CoreMethod relation I0
+
+`VerifiedSourceBoundS6CCallRelationV1` is the fixed, non-Clone relation for
+the first forward scan cohort. Its issuer consumes the landed typed-input
+product and the `StringLen/0` plus `StringSubstring/2` targets from one target
+issuer session. Inside the typed product's HRTB call-site loan it finds the
+exact resolver rows by retained site and consumes them through the existing
+placement-aware callable issuer.
+
+The product owns exactly `{ typed, length, substring }`. It issues no pair
+brand, target, Loop membership, Recipe key, ValueId, physical ID, or backend
+route. Selector spelling is only the callable target's canonical/alias
+cross-check; it is never used to find either call. Mixed relation brands,
+swapped roles, foreign membership/ledger, missing sites, or callable drift
+reject before the product and before Facts/Recipe or Builder effects.
+
 ## SAME-MODULE-CALLABLE-RECEIVER-POLICY0-S0
 
 `SameModuleCallableSourceReceiverPolicyV1` is the sole production projection
@@ -205,6 +221,23 @@ Future route families may add variants to the final target vocabulary, but
 they must keep route-disjoint sealers and reject duplicate caller/site rows
 across variants. They must not turn this module into a replay of the complete
 Builder call router.
+
+## Script MethodCall source coverage I0
+
+`VerifiedScriptCallCoverageV1` is the source-only companion carried by the
+single `ScriptDirectStaticCallLookupIssuerV1` observation. One parser-package
+HRTB loan observes the bounded Script MethodCall tree once and retains either
+`CompleteEmpty` for a real zero-call Script or non-empty `CompleteRows` with
+the parser invocation witness. Each row co-seals the call site, receiver,
+ordered argument sites, result site, and a source-route disposition.
+
+`QualifiedUnboundOrdinary` only permits the later target/result lookup. Bound,
+current-owner, dynamic, type-operation, reserved, and unsupported receiver
+shapes remain explicit `NonDirect` evidence; they are not A/C dispositions.
+Foreign invocation, missing projected site, receiver-site drift, and duplicate
+coverage are typed failures. Missing rows are never converted to empty
+coverage. The coverage product owns no AST, target key, candidate/C meaning,
+Recipe/Join key, MIR ID, physical identity, or fallback route.
 
 ## Accepted Dynamic member target boundary (D0)
 

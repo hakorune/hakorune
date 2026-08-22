@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::core_method_result_kind::{
-    lookup_core_method_result_row_v1, CoreMethodResultKindV1,
+    lookup_core_method_result_row_v2, CoreMethodResultKindV1,
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::{
@@ -130,7 +130,7 @@ impl<'target, 'catalog, 'rows> CallProofContextV1<'target, 'catalog, 'rows> {
                 arity: arguments.len(),
             }
         })?;
-        let Some(contract) = lookup_core_method_result_row_v1("StringBox", method, arity) else {
+        let Some(contract) = lookup_core_method_result_row_v2("StringBox", method, arity) else {
             return Ok(CallProofOutcomeV1::unavailable_target());
         };
         Ok(match contract.result_kind {

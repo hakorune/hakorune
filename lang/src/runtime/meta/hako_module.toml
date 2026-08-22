@@ -5,3 +5,4 @@ version = "1.0.0"
 [exports]
 JsonShapeToMap = "support/json_shape_parser.hako"
 CoreMethodContract = "core_method_contract_box.hako"
+TextScanProviderSlotContract = "provider_slot_contract_box.hako"

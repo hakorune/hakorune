@@ -1,8 +1,9 @@
 //! Caller-zero Generic G0 portable Recipe producer.
 //!
-//! This subtree is test-only until the production selector/cutover rows open.
-//! It owns the one source-to-Recipe mapping, while common Recipe verification,
-//! JoinSig elaboration, and source-bound Core remain shared owners.
+//! This subtree owns the one Generic source-to-Recipe mapping used by the
+//! caller-zero source-parent seam.  Common Recipe verification, JoinSig
+//! elaboration, and source-bound Core remain shared owners; physical demand
+//! and production selection stay outside this module.
 
 mod after;
 mod operation_effect;

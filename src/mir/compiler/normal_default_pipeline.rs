@@ -15,7 +15,7 @@ use crate::mir::builder::{
 };
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
-use super::{MirCompileResult, MirCompiler, MirFinishScheduleV1};
+use super::{finish_schedule_for_normal_module, MirCompileResult, MirCompiler};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum NormalPreparedSourceCallerV1 {
@@ -71,6 +71,8 @@ pub struct NormalCompileRequestV1 {
     imports: HashMap<String, String>,
     admission: NormalCompileAdmissionV1,
     result_contract: CurrentNormalCompileResultContractV1,
+    compile_target_capability:
+        Option<super::target_capability::PinnedTextCompileTargetCapabilityV1>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -183,6 +185,7 @@ impl NormalCompileRequestV1 {
             imports,
             admission,
             result_contract: CurrentNormalCompileResultContractV1::ReportPreTransformVerification,
+            compile_target_capability: None,
         }
     }
 
@@ -201,6 +204,7 @@ impl NormalCompileRequestV1 {
                 imports,
                 admission,
                 result_contract,
+                compile_target_capability: None,
             }),
             Err(ast) => Err(RejectedNormalProgramCompileRequestV1 {
                 _ast: ast,
@@ -211,6 +215,14 @@ impl NormalCompileRequestV1 {
                 error: NormalProgramCompileRequestErrorV1::ExpectedProgramRoot,
             }),
         }
+    }
+
+    pub(crate) fn with_compile_target_capability(
+        mut self,
+        capability: super::target_capability::PinnedTextCompileTargetCapabilityV1,
+    ) -> Self {
+        self.compile_target_capability = Some(capability);
+        self
     }
 
     pub fn for_mir_mode(
@@ -239,6 +251,51 @@ impl NormalCompileRequestV1 {
             imports,
             NormalCompileAdmissionV1::PreparedSourceWithImports(
                 NormalPreparedSourceCallerV1::MirMode,
+            ),
+        )
+    }
+
+    pub(crate) fn for_mir_mode_compatibility(
+        origin: super::normal_source_plan::NormalCallableCompatibilityOriginV1,
+        source_file: Option<&str>,
+        imports: HashMap<String, String>,
+    ) -> Self {
+        Self::from_prepared(
+            PreparedNormalDefaultProgramRootV1::from_compatibility_origin(origin),
+            source_file,
+            imports,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalPreparedSourceCallerV1::MirMode,
+            ),
+        )
+    }
+
+    pub(crate) fn for_llvm_callable_source(
+        source: VerifiedFinalCallableProgramSourceV1,
+        source_file: Option<&str>,
+        imports: HashMap<String, String>,
+    ) -> Self {
+        Self::from_prepared(
+            PreparedNormalDefaultProgramRootV1::from_callable_source(source),
+            source_file,
+            imports,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalPreparedSourceCallerV1::LlvmSourceCompiler,
+            ),
+        )
+    }
+
+    pub(crate) fn for_llvm_compatibility(
+        origin: super::normal_source_plan::NormalCallableCompatibilityOriginV1,
+        source_file: Option<&str>,
+        imports: HashMap<String, String>,
+    ) -> Self {
+        Self::from_prepared(
+            PreparedNormalDefaultProgramRootV1::from_compatibility_origin(origin),
+            source_file,
+            imports,
+            NormalCompileAdmissionV1::PreparedSourceWithImports(
+                NormalPreparedSourceCallerV1::LlvmSourceCompiler,
             ),
         )
     }
@@ -376,6 +433,7 @@ impl NormalCompileRequestV1 {
         HashMap<String, String>,
         NormalCompileAdmissionV1,
         CurrentNormalCompileResultContractV1,
+        Option<super::target_capability::PinnedTextCompileTargetCapabilityV1>,
     ) {
         (
             self.program,
@@ -383,6 +441,7 @@ impl NormalCompileRequestV1 {
             self.imports,
             self.admission,
             self.result_contract,
+            self.compile_target_capability,
         )
     }
 }
@@ -394,7 +453,8 @@ impl NormalDefaultPublishedPipelineV1 {
         compiler: &mut MirCompiler,
         request: NormalCompileRequestV1,
     ) -> Result<MirCompileResult, String> {
-        let (program, source, imports, _admission, result_contract) = request.into_parts();
+        let (program, source, imports, _admission, result_contract, target_capability) =
+            request.into_parts();
         let runtime_inputs = NormalRuntimeInputSnapshotV1::capture_from_normal_ingress();
         let token = compiler
             .invocation_identity
@@ -411,10 +471,11 @@ impl NormalDefaultPublishedPipelineV1 {
 
         let stage_start = Instant::now();
         let completed = session
-            .complete_normal_default_program_root_catalog_lifecycle(
+            .complete_normal_default_program_root_catalog_lifecycle_with_target(
                 program,
                 materialization,
                 runtime_inputs,
+                target_capability,
             )
             .map_err(|rejected| {
                 let message = rejected.error().to_string();
@@ -427,7 +488,19 @@ impl NormalDefaultPublishedPipelineV1 {
         match result_contract {
             CurrentNormalCompileResultContractV1::ReportPreTransformVerification => {}
         }
-        let result = compiler.finish_built_module(module, MirFinishScheduleV1::Legacy)?;
+        let finish_schedule = finish_schedule_for_normal_module(&module)?;
+        let result = compiler.finish_built_module(module, finish_schedule)?;
+        if finish_schedule == super::MirFinishScheduleV1::SelectedDynamic {
+            // The selected module must not be published or handed to a
+            // backend until the strict post-seal result has been consumed.
+            result.verification_result.as_ref().map_err(|errors| {
+                errors
+                    .iter()
+                    .map(|error| error.to_string())
+                    .collect::<Vec<_>>()
+                    .join("; ")
+            })?;
+        }
         let prepared = session
             .prepare_external_commit()
             .map_err(|error| error.to_string())?;

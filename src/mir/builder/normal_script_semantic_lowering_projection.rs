@@ -28,6 +28,9 @@ pub(super) struct VerifiedScriptLoweringProjectionV1 {
     enum_variant_demands: Box<[(SourceNodeSiteV1, EnumVariantAdmissionV1)]>,
     enum_match_scrutinee_receipts: Box<[SourceNodeSiteV1]>,
     qmark_propagation_receipts: Box<[SourceNodeSiteV1]>,
+    explicit_extern_calls: Box<[(SourceNodeSiteV1, Box<str>)]>,
+    brand_constructors:
+        super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1,
 }
 
 impl VerifiedScriptLoweringProjectionV1 {
@@ -45,11 +48,28 @@ impl VerifiedScriptLoweringProjectionV1 {
             .ok_or_else(|| freeze("root-owner"))?;
         let owner_id = *root;
 
+        let brand_constructors = super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1::from_verified_owner(
+            owner_id,
+            owner.core().expression_sites(),
+            owner.core().data().brand_call_relations.iter(),
+        )
+        .map_err(|error| format!("{} {error:?}", freeze("brand-projection")))?;
+        let explicit_extern_calls = owner
+            .core()
+            .data()
+            .explicit_extern_calls
+            .iter()
+            .map(|(site, call)| (site.node().clone(), call.symbol().into()))
+            .collect();
+
         let mut locals = BTreeMap::new();
         let mut nowaits = BTreeMap::new();
-        for site in owner.declaration_sites() {
+        for site in owner.core().data().declarations.keys() {
             let binding = owner
-                .declaration_binding(site)
+                .core()
+                .data()
+                .declarations
+                .get(site)
                 .ok_or_else(|| freeze("missing-declaration-binding"))?;
             if binding.owner() != owner_id {
                 return Err(freeze("foreign-declaration-binding"));
@@ -60,14 +80,14 @@ impl VerifiedScriptLoweringProjectionV1 {
                 _ => None,
             };
             if let Some((facts, statement)) = destination {
-                if facts.insert(statement.node().clone(), binding).is_some() {
+                if facts.insert(statement.node().clone(), *binding).is_some() {
                     return Err(freeze("duplicate-declaration-site"));
                 }
             }
         }
 
         let mut variables = BTreeMap::new();
-        for (site, reference) in owner.variable_refs() {
+        for (site, reference) in &owner.core().data().variable_uses {
             let ResolvedLexicalRefV1::Local(binding) = reference else {
                 continue;
             };
@@ -80,7 +100,7 @@ impl VerifiedScriptLoweringProjectionV1 {
         }
 
         let mut assignments = BTreeMap::new();
-        for (site, target) in owner.assignment_targets() {
+        for (site, target) in &owner.core().data().assignment_targets {
             let ResolvedAssignmentTargetV1::BindingRebind(binding) = target else {
                 continue;
             };
@@ -177,7 +197,25 @@ impl VerifiedScriptLoweringProjectionV1 {
             enum_variant_demands: enum_variant_demands.into_iter().collect(),
             enum_match_scrutinee_receipts: enum_match_scrutinee_receipts.into_iter().collect(),
             qmark_propagation_receipts: qmark_propagation_receipts.into_iter().collect(),
+            explicit_extern_calls,
+            brand_constructors,
         })
+    }
+
+    pub(super) fn brand_constructor_disposition_at(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<
+        super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1<'_>,
+        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
+    > {
+        self.brand_constructors.disposition(site)
+    }
+
+    pub(super) fn explicit_extern_symbol_at(&self, site: &SourceNodeSiteV1) -> Option<&str> {
+        self.explicit_extern_calls
+            .iter()
+            .find_map(|(candidate, symbol)| (candidate == site).then_some(symbol.as_ref()))
     }
 
     pub(super) fn local_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {

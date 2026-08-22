@@ -449,7 +449,27 @@ mod tests {
     use super::*;
     use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_demand_parts_for_test;
     use crate::mir::loop_recipe_contract::generic_g0::generic_operation_demand_parts_for_test;
+    use crate::mir::loop_recipe_contract::join_sig::{
+        LoopJoinBoundaryTransferRefV1, LoopJoinEdgeRoleV1, LoopJoinPortV1,
+    };
     use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
+
+    fn transfer(
+        loop_key: LoopNodeKeyV1,
+        from: LoopJoinPortV1,
+        to: LoopJoinPortV1,
+        role: LoopJoinEdgeRoleV1,
+        condition: Option<(LoopBlockKeyV1, LoopValueKeyV1)>,
+    ) -> LoopJoinBoundaryTransferRefV1<'static> {
+        LoopJoinBoundaryTransferRefV1 {
+            loop_key,
+            from,
+            to,
+            role,
+            condition,
+            payload: &[],
+        }
+    }
 
     fn callable_layout() -> PreparedLoopPhysicalLayoutV1 {
         let (effect, context, continuation) = callable_operation_demand_parts_for_test();
@@ -548,6 +568,132 @@ mod tests {
             LoopPhysicalTransferV1::Predicate {
                 on_false: LoopPhysicalTargetV1::Segment(target), ..
             } if target == root_resume
+        ));
+    }
+
+    #[test]
+    fn predicate_transfer_binder_rejects_role_port_loop_and_condition_drift() {
+        let loop_key = LoopNodeKeyV1::new(0);
+        let condition = Some((LoopBlockKeyV1::new(0), LoopValueKeyV1::new(1)));
+        let true_target = LoopPhysicalSegmentKeyV1::new(loop_key, LoopBlockKeyV1::new(0), 0);
+        let false_target = LoopPhysicalTargetV1::OpenRootAfter;
+
+        assert!(matches!(
+            super::super::physical_transfer::bind_predicate(
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::Body,
+                    LoopJoinEdgeRoleV1::Backedge,
+                    condition,
+                ),
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::After,
+                    LoopJoinEdgeRoleV1::PredicateFalse,
+                    condition,
+                ),
+                true_target,
+                false_target,
+            ),
+            Err(LoopPhysicalTransferBindingRejectV1::RoleMismatch { .. })
+        ));
+        assert!(matches!(
+            super::super::physical_transfer::bind_predicate(
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::Body,
+                    LoopJoinEdgeRoleV1::PredicateTrue,
+                    condition,
+                ),
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Body,
+                    LoopJoinPortV1::After,
+                    LoopJoinEdgeRoleV1::PredicateFalse,
+                    condition,
+                ),
+                true_target,
+                false_target,
+            ),
+            Err(LoopPhysicalTransferBindingRejectV1::PortMismatch { .. })
+        ));
+        assert!(matches!(
+            super::super::physical_transfer::bind_predicate(
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::Body,
+                    LoopJoinEdgeRoleV1::PredicateTrue,
+                    condition,
+                ),
+                transfer(
+                    LoopNodeKeyV1::new(1),
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::After,
+                    LoopJoinEdgeRoleV1::PredicateFalse,
+                    condition,
+                ),
+                true_target,
+                false_target,
+            ),
+            Err(LoopPhysicalTransferBindingRejectV1::LoopMismatch { .. })
+        ));
+        assert!(matches!(
+            super::super::physical_transfer::bind_predicate(
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::Body,
+                    LoopJoinEdgeRoleV1::PredicateTrue,
+                    condition,
+                ),
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Header,
+                    LoopJoinPortV1::After,
+                    LoopJoinEdgeRoleV1::PredicateFalse,
+                    Some((LoopBlockKeyV1::new(0), LoopValueKeyV1::new(2))),
+                ),
+                true_target,
+                false_target,
+            ),
+            Err(LoopPhysicalTransferBindingRejectV1::ConditionMismatch { .. })
+        ));
+    }
+
+    #[test]
+    fn nested_and_backedge_binders_reject_wrong_loop_or_role() {
+        let loop_key = LoopNodeKeyV1::new(0);
+        let segment = LoopPhysicalSegmentKeyV1::new(loop_key, LoopBlockKeyV1::new(0), 0);
+        assert!(matches!(
+            super::super::physical_transfer::bind_backedge(
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Body,
+                    LoopJoinPortV1::Header,
+                    LoopJoinEdgeRoleV1::Enter,
+                    None,
+                ),
+                LoopPhysicalTargetV1::Segment(segment),
+            ),
+            Err(LoopPhysicalTransferBindingRejectV1::RoleMismatch { .. })
+        ));
+        assert!(matches!(
+            super::super::physical_transfer::bind_nested_loop(
+                transfer(
+                    loop_key,
+                    LoopJoinPortV1::Preheader,
+                    LoopJoinPortV1::Header,
+                    LoopJoinEdgeRoleV1::Enter,
+                    None,
+                ),
+                LoopNodeKeyV1::new(1),
+                segment,
+            ),
+            Err(LoopPhysicalTransferBindingRejectV1::LoopMismatch { .. })
         ));
     }
 }

@@ -3,9 +3,12 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
-use super::body_shape::VerifiedResolvedMethodCallSourceV1;
+use super::body_shape::{VerifiedResolvedBodyShapeInventoryV1, VerifiedResolvedMethodCallSourceV1};
+use super::brand_source_relation::VerifiedBrandCallSourceRelationV1;
 use super::direct_call::ResolvedDirectCallTargetV1;
 use super::enum_variant_demand::EnumVariantAdmissionV1;
+use super::explicit_extern_call::ResolvedExplicitExternCallV1;
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::function_root::ResolvedFunctionLoweringRootsV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId};
 use super::if_region::ResolvedIfRegionIndexV1;
@@ -41,7 +44,10 @@ pub(crate) struct ResolvedFunctionDataV1 {
     pub(crate) variable_uses: BTreeMap<SourceExprSiteV1, ResolvedLexicalRefV1>,
     pub(crate) assignment_targets: BTreeMap<SourceExprSiteV1, ResolvedAssignmentTargetV1>,
     pub(crate) direct_call_targets: BTreeMap<SourceExprSiteV1, ResolvedDirectCallTargetV1>,
+    pub(crate) brand_call_relations: BTreeMap<SourceExprSiteV1, VerifiedBrandCallSourceRelationV1>,
+    pub(crate) explicit_extern_calls: BTreeMap<SourceExprSiteV1, ResolvedExplicitExternCallV1>,
     pub(crate) method_calls: BTreeMap<SourceExprSiteV1, VerifiedResolvedMethodCallSourceV1>,
+    pub(crate) expression_source: ResolvedExpressionSourceInventoryV1,
     pub(crate) resolved_exits: BTreeMap<ResolvedExitSiteV1, ResolvedExitRecordV1>,
 }
 
@@ -70,6 +76,10 @@ impl VerifiedResolvedOwnerCoreV1 {
     pub(crate) const fn normalized_graph(&self) -> &NormalizedResolvedFunctionGraphV1 {
         &self.normalized
     }
+
+    pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.source_sites.expression_sites()
+    }
 }
 
 /// Immutable declared-function/Lambda authority. The public wrapper remains
@@ -84,6 +94,7 @@ pub struct VerifiedResolvedFunctionV1 {
 #[derive(Debug)]
 pub(crate) struct VerifiedResolvedScriptV1 {
     core: VerifiedResolvedOwnerCoreV1,
+    body_shape: VerifiedResolvedBodyShapeInventoryV1,
     record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
     enum_match_demands: BTreeSet<SourceExprSiteV1>,
@@ -293,10 +304,44 @@ impl VerifiedResolvedFunctionV1 {
             .map(|(site, target)| (site, *target))
     }
 
+    pub(crate) fn brand_call_relation(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedBrandCallSourceRelationV1> {
+        self.core.data.brand_call_relations.get(site)
+    }
+
+    pub(crate) fn brand_call_relations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedBrandCallSourceRelationV1)> {
+        self.core.data.brand_call_relations.iter()
+    }
+
+    pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.core.source_sites.expression_sites()
+    }
+
+    pub(crate) fn explicit_extern_call(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&ResolvedExplicitExternCallV1> {
+        self.core.data.explicit_extern_calls.get(site)
+    }
+
+    pub(crate) fn explicit_extern_calls(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &ResolvedExplicitExternCallV1)> {
+        self.core.data.explicit_extern_calls.iter()
+    }
+
     pub(crate) fn method_calls(
         &self,
     ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedResolvedMethodCallSourceV1)> {
         self.core.data.method_calls.iter()
+    }
+
+    pub(crate) const fn expression_source(&self) -> &ResolvedExpressionSourceInventoryV1 {
+        &self.core.data.expression_source
     }
 
     pub fn resolved_exit(&self, site: &ResolvedExitSiteV1) -> Option<&ResolvedExitRecordV1> {
@@ -384,6 +429,7 @@ impl VerifiedResolvedScriptV1 {
     pub(crate) fn from_canonical_data(
         data: ResolvedFunctionDataV1,
         source_sites: ResolvedSourceSiteInventoryDraftV1,
+        body_shape: VerifiedResolvedBodyShapeInventoryV1,
         record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
         enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
         enum_match_demands: BTreeSet<SourceExprSiteV1>,
@@ -392,6 +438,7 @@ impl VerifiedResolvedScriptV1 {
     ) -> Result<Self, ResolvedFunctionVerificationErrorV1> {
         Ok(Self {
             core: seal_owner_core(data, source_sites)?,
+            body_shape,
             record_literal_demands,
             enum_variant_demands,
             enum_match_demands,
@@ -404,8 +451,41 @@ impl VerifiedResolvedScriptV1 {
         &self.core
     }
 
+    pub(crate) const fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
+        &self.body_shape
+    }
+
+    pub(crate) fn method_calls(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedResolvedMethodCallSourceV1)> {
+        self.core.data.method_calls.iter()
+    }
+
+    pub(crate) const fn expression_source(
+        &self,
+    ) -> &ResolvedExpressionSourceInventoryV1 {
+        &self.core.data.expression_source
+    }
+
     pub(crate) fn declaration_binding(&self, site: &SourceBindingSiteV1) -> Option<BindingRefV1> {
         self.core.data.declarations.get(site).copied()
+    }
+
+    pub(crate) fn brand_call_relation(
+        &self,
+        site: &SourceExprSiteV1,
+    ) -> Option<&VerifiedBrandCallSourceRelationV1> {
+        self.core.data.brand_call_relations.get(site)
+    }
+
+    pub(crate) fn brand_call_relations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceExprSiteV1, &VerifiedBrandCallSourceRelationV1)> {
+        self.core.data.brand_call_relations.iter()
+    }
+
+    pub(crate) fn expression_sites(&self) -> impl Iterator<Item = &SourceExprSiteV1> {
+        self.core.source_sites.expression_sites()
     }
 
     pub(crate) fn record_literal_demands(&self) -> impl Iterator<Item = (&SourceExprSiteV1, u32)> {

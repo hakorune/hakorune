@@ -38,10 +38,197 @@ production activation. The focused receipt is
 forward-use, Return-key, and wrong-result-class negatives); all touched Rust files remain below the
 760-line design trigger and 800-line hard boundary.
 
-The next independent rows are resolver instance-target issuance, source-bound
-call relation verification, typed parameter/initializer input relations, and
-only then the S6C ScanWithInit observer/producer. No guessed scan counts or
-legacy deletion belongs to this receipt.
+The separate generic user-instance target remains independent and unopened.
+For the bounded text-call cohort, the next rows are source-bound call relation
+verification, typed parameter/initializer input relations, and only then the
+S6C ScanWithInit observer/producer. No guessed scan counts or legacy deletion
+belongs to this receipt.
+
+## CoreMethod/Home target prerequisite I0
+
+The first implementation prerequisite for the forward `ScanWithInit` cohort is
+now landed as a separate manifest-backed target issuer. The generated
+`CoreMethodContractBox` row brand is co-sealed with an explicit `StringBoxText`
+Home schema and dedicated typed relations: `StringLen/0` returns `I64`, while
+`StringSubstring/2` returns logical `Text`; both are `PureRead` and
+non-suspending/non-control. The issuer specializes union arity rows and rejects
+foreign brands, wrong receiver/result/effect, duplicates, and inferred MIR
+meaning before issuing the target capability. It has no source-site, Recipe,
+physical, backend, fallback, or production consumer; the later source-bound
+relation must borrow the target and add owner/frame and exact call-site facts.
+
+## Resolver callable-contract bridge I0
+
+The bounded resolver bridge now co-seals one exact
+`VerifiedResolvedMethodCallSourceV1`, a borrowed selected Loop membership,
+canonical placement, and the existing CoreMethod target. `StringLen/0` is
+accepted only in `Condition`; `StringSubstring/2` only in `Body`. The issuer
+verifies owner/source-inventory membership, lexical receiver binding, ordered
+argument sites, result-site identity, placement, StringBox/Text Home, operation/arity,
+PureRead, and non-suspending/non-control policy. The resulting non-`Clone`
+product is still resolver-only: it issues no Recipe key, source-bound relation,
+Facts/Recipe row, physical ID, ABI, fallback, or production edge. Selector text
+is a cross-check only; `only_loop_site`, AST/MIR inference, and CoreMethod
+relookup are forbidden. S6C remains closed until its complete source/Facts/
+Recipe producer is separately co-sealed.
+
+## S6C explicit typed-input prerequisite I0
+
+The resolver now seals one AST-free typed-input/source-frame prerequisite for
+the first forward `ScanWithInit` cohort. Its sole type authority is explicit
+source spelling: two ordinary `StringBox` parameters and one local
+`i: i64 = 0`. It retains exact resolver bindings, the literal initializer,
+`Less`, `TextEq`, two `Add` relations, and canonical Loop `Condition | Body`
+placement. Names, call-site literals, CoreMethod result kinds, MIR types, and
+selected-Dynamic receipts cannot supply missing type evidence.
+
+The product also retains the two already-verified call sites as a fixed
+borrow-only pair: `length = LoopConditionLess.rhs` in `Condition` and
+`substring = TextEqual.lhs` in `Body`. Consumers cannot reconstruct or
+reorder that pair, and the pair issues no target, membership, or Recipe key.
+
+The source-bound S6C issuer consumes this typed product together with
+same-session `StringLen/0` and `StringSubstring/2` targets. It exact-lookups
+the retained sites in the sealed resolver ledger, consumes each through the
+placement-aware callable issuer, and returns one non-Clone fixed aggregate.
+It creates no pair brand and performs no selector/name lookup or generated-row
+relookup. Mixed target sessions, swapped roles, foreign owner/frame, missing
+sites, or callable/placement drift reject before Facts or Recipe issuance.
+
+This product is not a Recipe or a source-bound call relation. Missing,
+foreign, duplicate, swapped, or shape-drifted input rejects before Recipe
+keys, Facts, Builder/MIR, physical IDs, fallback, or production. The later
+source-bound row must borrow this exact product and the existing callable and
+CoreMethod target authorities; it may not reconstruct them.
+
+## S6C typed Recipe I0 implementation receipt (2026-08-15)
+
+The first bounded `ScanWithInit` Recipe producer now consumes
+`VerifiedS6CScanWithInitFactsV1` by value and issues one non-`Clone`
+`VerifiedS6CScanWithInitRecipeProductV2`. The product retains the verified V2
+Recipe, a fixed role-to-key struct with complete domain coverage, the existing
+sole-root `VerifiedLoopJoinClosureV2`, and a parity seal for its logical
+transfer view. No Artifact/source binding, selector, physical identity,
+Builder/MIR, fallback, or retry is issued here.
+
+The exact canonical domains are: Loop=1, Blocks=3, Binding=1, Inputs=3,
+Values=15, Items=15, Carriers=1, Exits=1. Canonical preorder is
+`I0..I8`, nested `I9..I10`, then `I11..I14`. The callable Tail `return -1`
+stays in the retained Facts/Completion and is not imported into Recipe or
+JoinSig exits.
+
+The HRTB product API lends only private read facades. It does not lend raw
+`&VerifiedLoopRecipeV2`, raw `&VerifiedLoopJoinClosureV2`, `JoinSig`,
+`as_recipe`, `into_recipe`, or `join_sig`; HRTB alone is insufficient when the
+underlying verified Recipe is `Clone`. Before publication, Join parity checks
+After=`L0/B0/I64`, one branch `I8/V10`, then Return `I10` to FunctionExit,
+else Fallthrough, one Return summary, and one Backedge. Focused product and
+facade tests pass. Physical selection and production callers remain closed.
+
+The landed product-first handoff is the private S6C logical JOINIR input façade
+`S6CScanWithInitLogicalJoinInputRefV1` in
+`s6c_scan_with_init_joinir.rs`; its HRTB view co-checks exact Recipe domains,
+call rows, TextEq/If, and Join transfer. The caller-zero logical output
+producer consumes that product once and owns fixed typed rows in
+`VerifiedS6CScanWithInitLogicalOutputV1`; its façade lends rows, one canonical
+role-wise Length/Substring call view paired with retained source contracts,
+and the borrowed transfer only; raw `input()` escape is gone. Its caller-zero
+consumer returns a typed `Consumed` terminal or named reject through a
+fallible HRTB seam. It emits no JoinModule/MIR, Artifact, route, fallback, or
+production caller; physical selection remains closed. The existing MIR/name/fallback
+`LoopToJoinLowerer::lower` remains a compatibility non-consumer.
+
+## S6C prephysical ingress I0 (2026-08-15)
+
+The first Builder-free physical handoff is a single
+`VerifiedS6CPrephysicalIngressV2` issued from the retained S6C logical output.
+The issuer consumes that output by value and retains the original non-`Clone`
+cohort; callers cannot supply a second Facts, Recipe, JoinSig, or Completion.
+Its landed seal checks exact `15 = 13 operations + If + Exit` placement,
+source-anchor multiplicity, source-bound Length/Substring contracts, and the
+existing V2 branch/Return-summary/Backedge/After transfer.
+
+The bounded `LOOP-TEXT-EQ-INGRESS-SURFACE-R0` is now closed: the raw
+role-to-key table, cloned source/Completion fields, and borrow-time semantic
+revalidation are gone. The retained cohort lends independent,
+projection-only HRTB views for TextEq, the Substring-to-TextEq corridor,
+Completion, and inputs/carrier. Anchor counts and broad logical rows remain
+diagnostics, not physical authority.
+
+`LOOP-TEXT-EQ-SITE-CONTRACT-I0` consumes that ingress by value into one
+non-`Clone` `VerifiedS6CTextEqSourceBindingV1`. Its `LoopTextEqSiteRefV1`
+borrows the exact source `Equal` row, Recipe TextEq/If placement, and passive
+`TextEqualityLawV1`; it does not copy keys/sites, re-pair the cohort, or lend
+Completion/Tail. ABI, route, residence, ReadyEntry, host/session, Builder,
+MIR/CFG/SSA/PHI, selector, fallback, retry, and production caller remain
+closed until their own source-backed issuers are named.
+
+Authority categories remain separate: Facts owns `Call=2` and `Write=1`
+body effects, CoreMethod contracts own Home/ABI/PureRead, and V2 schema owns
+execution class (`11` non-faulting, `0` fault-before-normal, `2`
+externally-bound outcomes). No TextEq physical target is inferred here, and no
+ReadyEntry, host/session, Builder/MIR/CFG/SSA/PHI, selector, fallback, retry,
+or production caller is opened. The accepted TextEq architecture keeps route
+policy site-free and requires later common semantic-program/transfer rows plus
+an installed Normal-package port with an exact source-backed result/header ABI
+before any common V2 session can open.
+
+## Common V2 Return-read co-seal view D0/I0 (2026-08-18)
+
+Decision: accepted as a transport-only BoxShape. The existing
+`VerifiedS6CReturnSourceRecipeBindingV1` remains the sole source-to-key
+authority for S6C item 9 `ReadBinding`, item 10 `Exit`, the then block, and the
+Join `Return -> FunctionExit` arm. The existing common V2 pre-session issuer
+co-seals that binding with exactly one matching operation row, If/Exit
+placement, physical-ID-free layout segments, and strict
+`Fallthrough(NextItem)` continuation.
+
+`CommonV2ReturnReadCoSealRefV1` is a callback-scoped non-`Clone` logical view.
+It exposes only item/block/value keys, split ordinals, the continuation, and
+the existing Join target. It does not issue a physical block or `ValueId`,
+canonical binding-read receipt, edge, terminator, Completion, publication,
+fallback, retry, or production route. Missing/duplicate/foreign-owner and
+operation, placement, segment, branch, continuation, or value drift reject
+before physical mutation. Physical Return-read materialization and the
+FunctionExit terminal remain a separate `NoSafeSlice` design row.
+
+## Common V2 physical Return-read receipt I0 (2026-08-18)
+
+The accepted physical boundary is now implemented as one callback-scoped,
+non-Clone `CommonV2ReturnReadPhysicalReceiptV1` owned by the existing
+`CommonV2CanonicalSessionRefV1`. It consumes, without re-deriving meaning,
+the co-sealed source binding, same-session segment receipt, and reserved
+`NextItem` continuation target. Before any effect it checks owner/stamp,
+unique segment rows, split/item coverage, continuation parity, source
+site/binding/result, target function, and one-shot state.
+
+The canonical identity/SSA owner issues the item-9 read; the canonical
+session's existing i64 type publication seam resolves an `Unknown` provisional
+PHI; Completion claims the source Return against `FunctionExit`; and identity
+records the return coverage. The receipt itself only transports the joined
+evidence to its callback. The outer unpublished function session is
+the sole rollback owner, and late callback failure discards the read and
+continuation block. Focused positive and late-discard tests pass (2/2).
+
+No `emit_branch`, `emit_return`, edge, PHI, CFG publication, DraftSeal,
+fallback, retry, production switch, or legacy retirement is opened. The
+remaining branch/split/terminal authority must be accepted separately before
+mechanical CFG writing.
+
+## Common V2 shared-segment scope I0 (2026-08-18)
+
+This mechanical BoxShape owns one session-local, one-shot segment allocation
+brand and transports the exact `PreparedSegmentBlockReceiptV1` through the
+Length-to-Bool path. It introduces no Recipe key, semantic issuer, physical
+branch, or publication authority. Duplicate allocation and late callback
+rollback are guarded by focused tests.
+
+The Bool-to-Return-read adapter rejects a logical condition mismatch before
+effects. In the current S6C fixture the loop Length/Bool condition and the
+inner TextEq If condition are distinct values, so `ConditionLogicalMismatch`
+is expected negative evidence. A future branch/Return consumer still needs a
+source-backed same-condition co-seal; this section does not authorize CFG
+writing, fallback, retry, production selection, or legacy retirement.
 
 ## Accepted Dynamic value boundary — V2 only
 
@@ -480,6 +667,20 @@ before any physical effect. If a future profile cannot satisfy this common
 shape, it is `NoSafeSlice`, not an invitation to add a callable-specific
 Recipe kind or physicalizer. The callable row is one more instance of the
 single recursive algebra; it is not a twentieth Recipe variant.
+
+### Callable-first semantic-program parent
+
+The Callable adapter now consumes the complete
+`VerifiedCallableSingleLoopRecipeProductV1` once into a private,
+non-`Clone` semantic-program parent. The parent keeps the existing
+operation/effect product, initialized-local input, resolver semantic context,
+JoinSig-owned continuation, and Callable Prelude/Tail together until the
+prepared-operation consumer. It does not mint a second Core, JoinSig, source
+fact, or physical identity. A mechanical demand projection may run inside the
+parent consumer, but callers cannot provide context/Core/continuation as
+independent arguments. This closes only the Callable-first caller-zero
+co-seal; the all-family G0 issuer, physical CFG/SSA, lifecycle, Text route,
+production selection, fallback, and retry remain outside this reference.
 
 ## Callable source/facts issuer S0
 
@@ -946,7 +1147,11 @@ LoopJoinBranchV1
 
 LoopJoinBranchArmV1
   Exit(LoopJoinBranchExitV1)
-  Fallthrough { payload }
+  Fallthrough { continuation, payload }
+
+LoopJoinNextItemV1
+  block
+  item
 
 LoopJoinBranchExitV1
   exit_item
@@ -979,6 +1184,15 @@ Two normal arms must agree on binding/value state. This is a caller-zero
 logical contract only: source observation, physical CFG/PHI, Builder/MIR,
 selector, retry/fallback, production activation, and legacy deletion remain
 closed.
+
+Reference receipt — `LOOP-PHYSICAL-IF-CONTINUATION-RELATION-I0` (2026-08-18):
+the Fallthrough arm now carries one explicit physical-ID-free
+`NextItem { block, item }` copied from the verified parent block at JoinSig
+issuance. The V2 control view transports the same relation, and the retained
+source consumer rejects missing/foreign/duplicate/non-strict targets before
+Layout. No `item + 1` inference, BlockEnd, two-normal-arm PHI, physical edge,
+canonical session, CFG/SSA/PHI mutation, production switch, retry, or fallback
+is opened by this receipt.
 
 ### Visible carrier payloads
 
@@ -1189,6 +1403,24 @@ After writer, Tail/Completion path, selector, retry/fallback, or production
 caller. Segment-aware canonical block cutover is the next R2 task; physical
 G0 and legacy retirement remain closed.
 
+## Generic G0 prephysical emitter admission receipt (2026-08-17)
+
+One `PreparedGenericG0PhysicalEmitterAdmissionV1` now consumes the exact
+source-owned Generic operation cohort. It owns the neutral physical layout
+and its complete operation program, a declaration-only shell plan, the
+resolver BlockExpr and outer-If products, canonical Completion, target, and
+one full cohort stamp. The stamp co-seals source identity, selected Loop/frame,
+logical arity, receiver-prefix and physical-lane coverage, operation/layout
+coverage, and target; matching owner values alone cannot assemble it.
+
+The admission exposes only one-shot callback-scoped views. Its mechanical
+operation mapping is borrowed from `layout.program()` and is never stored.
+No executable function, physical ID, Builder/session state, block allocation,
+operation emission, Completion consumption, publication, or fallback is
+created here. The old detached entry probe is explicitly named
+`GenericG0DetachedEntryCanaryV1` and remains outside this owner until the
+session-owned shell/adoption path reaches parity and retires it.
+
 ## Segment block cutover R2 receipt (2026-08-08)
 
 `LOOP-COMMON-SEGMENT-BLOCK-CUTOVER-R2` is closed for the selected Callable
@@ -1211,6 +1443,91 @@ changes, selector, retry/fallback retirement, collector/publication, and
 legacy deletion remain closed. The R3-I0 implementation receipt below replaces
 this adapter on the selected Callable path; the investigation records both
 the correction and its closeout.
+
+## Common V2 source-segment block allocation I0 receipt (2026-08-17)
+
+The common V2 physical layout now has a caller-zero segment allocation slice.
+One source-backed allocation plan is borrowed from the installed cohort and
+consumed by the canonical function session. It allocates exactly one
+unpublished physical block for each ordered source segment, after preflighting
+owner/function identity, count/cursor range, entry collision, and coverage.
+The outer unpublished-function transaction is the sole rollback owner; a late
+callback failure discards the function but does not rewind the monotonic block
+cursor, so any resulting ID gap is unobservable and never reused.
+
+The receipt retains only the source segment relation and its physical block.
+It does not allocate synthetic After, edges, terminators, operations, or
+effects, and it does not open CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+route selection, fallback/retry, publication, or a production caller. The
+source-backed `LOOP-COMMON-V2-PHYSICAL-AFTER-BOUNDARY-D0` is now an accepted
+BoxShape; its transport-only I0 is recorded below. JoinSig's After port alone
+is still not an allocation authority.
+
+## Common V2 condition-block physical target I0 (2026-08-17)
+
+The canonical session now projects the logical condition block through the
+same source-segment allocation receipt and lends one
+`ConditionBlockPhysicalTargetRefV1` only inside a callback. The projection
+checks the condition row's loop, split ordinal, owner, layout coverage, and
+retained physical-entry stamp. It is the only accepted bridge from the
+source-backed condition block to its unpublished physical `BasicBlockId`; the
+Builder cursor, copied rows, and owner equality alone are not authorities.
+
+The outer unpublished-function transaction remains the sole rollback owner.
+This I0 emits no `Call`, `ValueId`, `Compare`, edge, terminator, CFG/PHI,
+Completion/DraftSeal claim, lifecycle, Text route, fallback, retry, or
+production caller. The next design stop is the same-session canonical Length
+Call/result materializer, which must consume this callback-scoped target.
+
+## Common V2 If continuation target placement I0 (2026-08-18)
+
+The common physical session now consumes the sealed
+`Exit + Fallthrough(NextItem)` relation through
+`with_if_continuation_target`. Before the first physical mutation it checks
+the exact one-branch S6C shape, the same source block and strict later item,
+owner/loop/split parity, the existing segment receipt, and the retained
+physical-entry stamp. It then reserves exactly one unpublished continuation
+`BasicBlockId` through the canonical session and lends a
+`IfContinuationPhysicalTargetRefV1` only inside the callback.
+
+This is placement-only evidence: the non-Clone view carries no `ValueId`,
+edge, terminator, operation, Return, BlockEnd, publication, or PHI power. A
+session-local one-shot guard rejects duplicate consumption, while any late
+callback error is discarded by the outer unpublished function transaction.
+Focused positive, duplicate, and late-discard tests are green. Branch/Return
+emission, operation item-to-split mapping, Layout rewriting, CFG/SSA/PHI,
+production selection, fallback, and retry remain closed at the next design
+stop.
+
+## Common V2 typed After-boundary transport I0 (2026-08-17)
+
+The installed S6C ingress now issues one non-Clone,
+source/frame-branded `VerifiedLoopV2AfterBoundarySourceRelationV1` beside the
+physical-ID-free layout. The common-V2 envelope transports the typed
+`RootAfter | ParentResume` relation without allocating a physical block; the
+current S6C cohort admits only `RootAfter`, while `ParentResume` remains
+parked until its source issuer input exists. Owner, root-loop, and exact
+source/frame evidence are co-sealed before the envelope is returned. No
+After block, edge, terminator, operation, CFG/PHI, Completion/DraftSeal,
+lifecycle, Text, route, fallback, retry, or production caller is opened.
+
+## Common V2 synthetic After allocation I0 (2026-08-17)
+
+The accepted RootAfter relation now feeds one caller-zero placement effect.
+The common session validates the same-owner relation together with the
+complete source-segment block receipt, issues a private one-shot allocation
+plan, and lets the canonical session allocate exactly one unpublished
+`BasicBlockId`. Only a callback-scoped `PreparedAfterBlockViewV1` is exposed;
+the view cannot publish a function or express a successor/edge.
+
+The allocation is preflighted for RootAfter disposition, relation/layout
+parity, exact segment coverage, entry/segment collision, and checked monotonic
+cursor range. The outer function transaction remains the only discard owner;
+late failure leaves no published function and any numeric cursor gap is
+non-semantic and never reused. A second allocation is rejected by the
+session-local one-shot ledger. ParentResume, edges/terminators,
+operations/ReadBinding, CFG/PHI, Completion/DraftSeal, lifecycle, Text,
+route, fallback/retry, and production remain outside this slice.
 
 ## Recursive After R3-I0 implementation receipt (2026-08-08; Decision: accepted)
 
@@ -1464,3 +1781,390 @@ Dynamic invocation temporary and keeps its existing End-authorized lifecycle.
 This receipt does not issue a provider, registry, runtime, LLVM, VM, physical
 session, fallback, retry, or production caller; those remain separately
 gated by the active card.
+
+## Common V2 pre-session issuer implementation receipt (2026-08-16)
+
+The caller-zero common-V2 issuer is now landed. One installed package Port
+HRTB invokes `issue_s6c_common_v2_pre_session_v1` over the retained S6C
+source/Recipe/Join cohort. The operation sibling projects generic operation
+rows and existing execution classes; the control sibling borrows the existing
+JoinSig logical transfer view and co-seals only Recipe `If`/`Exit`; the passive
+coverage sibling rejects overlap and proves the disjoint union. Only the S6C
+adapter asserts its profile count of `13 + 1 + 1 = 15`.
+
+`NormalCallableSemanticPackagePortV1::with_s6c_common_v2_pre_session` is the
+single installed transport seam. It lends selected identity/signature, the
+installed S6C child, and the common envelope together, and records the same
+selected key exactly once. The older `with_s6c_child` path is a compatibility
+wrapper, not a second issuer or authority. Focused tests cover a valid
+13-operation/If/Exit envelope, foreign-owner rejection, and duplicate child
+consumption.
+
+This is a Builder-free caller-zero receipt. It does not emit MIR/JSON, CFG,
+ValueId, Binding-SSA, PHI, lifecycle, Text residence, route, fallback, retry,
+publication, or a production caller. The next row is canonical V2 session
+admission, which must consume this scoped envelope without rescanning
+Recipe/JoinSig or adding an S6C physicalizer.
+
+## Common V2 physical layout input I0 (2026-08-17)
+
+The same common-V2 S6C issuer now lends a typed,
+physical-ID-free `PreparedLoopV2PhysicalLayoutInputV1` beside the operation,
+control, and passive coverage siblings. Its loop/block/item segments are
+borrowed from `S6CLogicalOutputRowsV1`; split ordinals are checked projections,
+not MIR block numbers. The view also carries the existing After binding and
+does not recreate JoinSig roles or infer layout from Recipe order, current
+Builder state, `BasicBlockId`, or `ValueId`.
+
+The issuer rejects foreign owners, missing or duplicate topology, invalid loop
+parents, block-owner drift, duplicate item membership, and an unknown After
+loop before returning the envelope. A relation check proves that the operation
+and If/Exit rows cover the same disjoint item set, reference only borrowed
+blocks, and each item belongs to its specified block segment. The focused
+operation/If/Exit block-drift negatives are green. The transport is
+caller-zero and effect-free: no block allocation, operation/effect emission,
+CFG/PHI, Completion/DraftSeal claim, lifecycle, Text route, fallback, retry,
+or production caller is opened. The next bounded design stop is post-layout
+physical effect ownership. Its first candidate is source-segment-only block
+allocation; a synthetic After block requires a separate source-backed After
+boundary and is not inferred from the JoinSig After port alone.
+
+## Typed resolved BlockExpr expectation I0 (2026-08-17)
+
+The resolver now records `BlockExpr` as a typed body-shape variant during the
+same shadow traversal that issues the resolved function and body-shape
+inventory. `ResolvedBlockExpressionExpectationIssuerV1` co-seals those two
+products, checks exact source-site to scope/region-pair coverage in both
+directions, and stores one private non-Clone expectation in the callable
+semantic batch row. A raw `Other("BlockExpr")` string, arena length, fixed zero,
+AST/MIR rescan, or session counter is not an authority. This I0 is source-only:
+selected/package transport, canonical session construction, CFG/SSA/PHI,
+Completion consumption, physical lowering, fallback, retry, and production
+caller remain unopened.
+
+The follow-up transport row lends that receipt through the existing selected
+callable/package HRTB. It is a borrow of the batch owner, not a second issuer;
+the next canonical-session admission must consume the scoped view without
+recounting BlockExpr sites or reopening resolver traversal.
+
+The canonical-session admission row now performs that consume only as an
+effect-free, callback-scoped fan-in: resolver Loop/outer-If residual, typed
+BlockExpr expectation, common V2 envelope, and actual Completion are checked
+for one owner/target cohort. The next physical-session row may consume this
+admission to create the canonical session; no other caller may reacquire a
+sibling by key.
+
+## Common V2 canonical session-open canary I0 (2026-08-17)
+
+The first physical-session seam consumes the callback-scoped admission exactly
+once. `CanonicalSsaFunctionSessionV2::new_common_v2` receives the typed
+BlockExpr expectation and performs the only count projection; it does not
+accept a raw count from a caller. The installed semantic
+`VerifiedFunctionCompletionV1` stays owned by the installed cohort, while one
+owned `ResolvedFunctionCompletionConsumptionV1` is issued from its scoped
+borrow and moved into the session. A thin callback wrapper retains the same
+common V2 envelope beside the session so a later consumer cannot reacquire a
+second sibling loan.
+
+This is a caller-zero session-open canary only. It creates the sole canonical
+session owner but emits no Builder/CFG/SSA/PHI effect, operation or control
+placement, Completion claim, Return, DraftSeal, lifecycle, Text operation,
+route, fallback, retry, or production caller. The first session-effects
+boundary remains a separate design-stop task.
+
+## Common V2 predicate branch-plan transport I0 (2026-08-17)
+
+The accepted After boundary now transports one complete, source-backed
+predicate branch plan from the installed S6C cohort. The issuer co-seals the
+resolver-backed Bool condition, its condition segment, the logical
+`Header -> Body` and `Header -> RootAfter` transfer rows, and a future physical
+condition-carrier requirement. The plan is non-`Clone`, callback-scoped, and
+physical-ID-free: it issues no `ValueId`, `BasicBlockId`, terminator, or CFG
+mutation. Both successors are required; a false-only plan is rejected because
+the canonical branch operation is atomic over its two successors.
+
+The focused installed-loan receipt checks the same owner, Bool condition,
+Body target, and RootAfter target. This row is transport-only. It does not open
+condition materialization, `emit_branch`, operation emission, Completion/
+DraftSeal, lifecycle, Text route, fallback, retry, or a production caller.
+The next design stop must name the physical condition carrier before any edge
+effect is admitted.
+
+## Common V2 condition operand inventory I0 (2026-08-17)
+
+The common V2 envelope now transports a fixed two-row, source-backed operand
+inventory for the S6C predicate. The Left row is the condition-block index
+`ReadBinding`; the Right row is the condition-block `StringLen` `CallSlot`,
+including its resolver-owned call contract and result/class relation. Both rows
+are issued from the same retained S6C ingress and remain physical-ID-free.
+
+The inventory rejects foreign owners, malformed Length role/operation/receiver
+or argument shape, producer/item/block/result drift, and duplicate or missing
+rows before any physical effect. Focused positive, foreign-owner, and
+Length-operation-drift tests are green. This I0 does not issue a ValueId or
+physical result and does not open Compare lowering, branch/edge effects,
+CFG/PHI, Completion, lifecycle, Text, route, fallback, retry, or production.
+
+## Common V2 Length receiver operand I0 (2026-08-18)
+
+The accepted receiver boundary now has one mechanical source projection and
+one physical issuer. The resolver's exact
+`ResolvedLexicalRefV1::Local(BindingRefV1)` relation is projected through the
+retained Length call row as `LengthReceiverBindingRefV1`; the projection does
+not reissue semantic meaning or infer from a Recipe key. The same canonical
+session then reads that binding at the callback-scoped physical condition
+block through `CanonicalBindingReadReceiptV1` and lends one
+`LengthReceiverPhysicalOperandRefV1`.
+
+Owner, condition block, target/stamp, local-receiver shape, and one-shot
+checks reject before any Call or result effect. The view cannot be repaired
+from a raw `ValueId`, Builder cursor, CallSlot receiver, or legacy emitter, and
+the outer unpublished function transaction remains the only late-discard
+owner. Direct `StringBox.length` Call/result emission, Compare, edges,
+CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback, retry, and
+production remain closed; the next sibling is the direct Call emitter.
+
+The direct Call/result BoxShape is accepted separately. Its canonical session
+consumer will co-seal the already-issued target plan, callback-scoped receiver
+operand, physical condition block, and entry stamp before emitting one
+`StringBox.length` Call and one I64 result receipt. The first I0 is a
+caller-zero unpublished canary; the outer transaction discards it, and no
+module publication, parent Bool, Compare, edge, CFG/PHI, or production route
+is implied.
+
+## Common V2 direct Length Call/result I0 (2026-08-17)
+
+The caller-zero canary now emits exactly one generic `StringBox.length` Call
+and one canonical I64 result receipt from the same target/receiver/
+condition/stamp cohort. The canonical session is the sole result/type issuer;
+the unified Call emitter is the sole Call constructor, and the session checks
+the final emitted callee, receiver, destination, and `READ` effect. The outer
+unpublished function transaction remains the only rollback owner, so late
+callback failure publishes neither Call nor receipt. No parent Bool/Compare,
+edge/terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route,
+fallback, retry, or production caller is opened. The follow-up lifetime
+BoxShape is accepted: the result receipt owns the exclusive borrow of the
+exact canonical session that issued it, and a future materializer must be
+entered through that receipt rather than by passing copied metadata to another
+session.
+
+## Common V2 Length-result receipt lifetime I0 (2026-08-17)
+
+The direct Length receipt is now callback-scoped and non-Clone. Its return type
+contains an exclusive borrow of `CommonV2CanonicalSessionRefV1`, so the Rust
+type boundary prevents it from escaping the physical-entry callback or being
+accepted by a foreign session. A duplicate/re-entry check must first drop or
+consume the receipt; the outer unpublished transaction remains the sole late
+discard owner. This I0 emits no Bool ValueId, Compare, branch, edge,
+terminator, CFG/PHI, Completion/DraftSeal, lifecycle, Text, route, fallback,
+retry, publication, or production caller.
+
+## Common V2 Bool-result materializer I0
+
+`CanonicalLengthCallResultReceiptV1::consume_for_condition_bool` is the sole
+bridge from the source Left ReadBinding and Length result to the physical
+condition value. It consumes the same-session Length receipt, reads the seeded
+Left binding at canonical entry (without provisional PHI creation), issues one
+Bool ValueId/type, and emits one mechanical `Less` Compare in the physical
+condition block. The returned non-Clone receipt retains the exclusive session
+borrow. Missing seed, wrong role/type, duplicate/re-entry, and late callback
+failure reject before publication; the outer unpublished transaction is the
+only discard owner. No branch/edge/terminator, CFG/PHI, Completion/DraftSeal,
+lifecycle, Text, route, publication, fallback, retry, or production caller is
+opened. The next bounded gate is `LOOP-PRECUTOVER-AUTHORITY-G0`.
+
+## Common V2 initial index seed source transport I0
+
+The seed BoxShape is accepted; the caller-zero source transport is now
+landed. The relation is issued from
+`VerifiedS6CTypedInputRelationV1::initializer()`,
+`ResolvedInitializerRelationV1`, and the source ledger's
+`ResolvedLiteralSourceV1::Integer(0)`. The transport product
+`PreparedLoopV2InitialIndexSeedRelationV1` carries the S6C index carrier,
+binding, entry relation, I64 type, and literal witness as one private
+non-Clone same-cohort view through the existing ingress/envelope HRTB.
+Missing/foreign initializer, site, binding, carrier, owner, stamp, type, or
+literal evidence rejects before physical effect; no defaulting, AST/MIR
+recount, fallback, or retry is permitted. This I0 emits no Const, declaration,
+ValueId, read receipt, Bool/Compare, CFG/PHI, lifecycle, Text route, or
+production. The seed materializer I0 emits only the unpublished `ConstI64(0)`
+and exact declaration publication.
+
+## Common V2 initial index seed materializer I0
+
+`CommonV2CanonicalSessionRefV1::emit_initial_index_seed` is the sole physical
+issuer for the source-backed pre-loop index seed. It reserves one ValueId,
+writes one entry-block `ConstI64(0)`, and calls `publish_declaration_exact` for
+the resolver BindingRef. The callback-scoped non-Clone receipt carries the
+binding/carrier/value witness and prevents re-entry through the same session.
+Missing function, entry drift, and late callback failure reject before
+publication or are discarded by the outer unpublished function transaction.
+No Bool/Compare, branch/edge, CFG/PHI, lifecycle, Text, route, fallback,
+retry, or production caller is opened.
+
+## Common V2 Length-result materialization canary I0 (2026-08-17)
+
+The first post-inventory consumer is a one-shot, Builder-neutral
+`LengthCallMaterializationCanaryV1`. It is issued only from the canonical
+session that retains the same installed S6C envelope and physical-entry cohort
+stamp. Its checks cover the source `StringLen/0` relation, the fixed condition
+operand inventory, owner/cohort provenance, and the required I64 source shape.
+The receipt contains source keys and stamp provenance only; it does not issue a
+`ValueId`, type, `CallSlot`, CFG edge, terminator, or physical call.
+
+Missing entry stamp, owner/producer or operand drift, malformed Length shape,
+and a second issue attempt reject before effect. This I0 proves only the
+same-session one-shot seam. It does not lower the Length call, publish an I64
+result, emit Compare/branch/edges, open CFG/SSA/PHI, claim Completion or
+DraftSeal, or activate lifecycle/Text/route/production/fallback behavior.
+
+## Common V2 StringLen target-plan I0 (2026-08-17)
+
+The first accepted target-realization product is the non-Clone,
+physical-ID-free `PreparedLoopV2StringLenCallTargetPlanV1`. It is issued from
+the same retained S6C logical call, Length CallSlot row, condition operand
+inventory, and physical-entry stamp. The plan records the verified StringBox
+target, receiver relation, zero arguments, I64 result, PureRead effect,
+non-suspending policy, and target/manifest brands. It does not create a MIR
+`Call`, `ValueId`, type, or `Callee`.
+
+The plan is one-shot and rejects foreign/mixed brands, owner or block drift,
+receiver/argument/result/class drift, missing stamp, duplicate issuance, and
+late callback escape before physical mutation. `CoreMethodOp::StringLen`,
+canonical spelling, `/N`, raw logical keys, MIR/JSON lookup, and legacy or
+Selected-Dynamic CallSlot emitters cannot issue or repair it. The next design
+stop is the canonical session materializer that consumes this plan and emits
+one Length Call/result receipt.
+
+## Common V2 physical-entry stamp retention I0 (2026-08-17)
+
+The consuming physical-entry/session seam now moves the existing
+`PhysicalFunctionEntryCohortStampV1` exactly once into the same canonical
+session that consumes the prepared physical skeleton. The stamp is a
+mechanical same-cohort witness (owner, selected key, callable signature
+identity, and physical lane count); it is not a new semantic nonce, result, or
+lifecycle authority. The common-session wrapper exposes only a scoped borrow,
+so clone/reconstruction, second-loan re-pairing, foreign drift, and callback
+escape reject before effect. The focused physical-entry and session-admission
+canaries are green. Physical condition results, ValueIds, edges, CFG/PHI,
+Completion/DraftSeal claims, lifecycle, Text, route, fallback, retry, and
+production remain closed.
+
+## Common V2 physical condition-result BoxShape D0 (2026-08-17)
+
+The next design stop keeps physical result emission closed and fixes one
+session-local plan/receipt boundary. A future physical condition-result plan
+borrows the source CompareI64 relation, the fixed two-row operand inventory,
+and the session-held `PhysicalFunctionEntryCohortStampV1`; its later receipt
+contains exactly one canonical Bool `ValueId` and its published Bool type.
+`CanonicalSsaFunctionSessionV2` remains the sole ValueId/type issuer, and one
+common-V2 materializer must own the private Length CallSlot result plus the
+`CompareI64 Less` emission. Raw logical keys, caller types, old value ledgers,
+or a standalone compare helper cannot issue the result. Missing/foreign stamp,
+operand or producer drift, absent Length result, duplicate publication,
+materializer re-entry, branch-consumer mismatch, and receipt escape reject
+before effect. This D0 does not open ValueId/Compare/call/edge/CFG/PHI,
+Completion, lifecycle, Text, route, fallback, retry, or production.
+
+## Post-Dynamic transfer-authority closeout boundary (2026-08-18)
+
+The current implementation already contains the behavior-neutral transfer,
+ledger, common-After, and topology-census surfaces from the bounded
+post-Dynamic series. The authority split is fixed: Core/JoinSig issues logical
+transfers, Recipe supplies structure, Layout binds placement, and the canonical
+session owns physical CFG/SSA effects. The series does not authorize a V2-to-V1
+adapter, a second semantic receipt, or a production switch.
+
+The design stop remains open until direct missing/duplicate/foreign/
+wrong-target transfer negatives, a focused segment-allocation negative, and the
+transitive legacy fixed-topology caller census are recorded. The reusable guard
+is `tools/checks/loop_physical_transfer_authority_guard.sh`; its S6C ingress
+rule permits legitimate borrowed `logical_*` views and checks detached-
+authority patterns instead of using a broad method-name match. If any of those
+evidence rows cannot be closed without re-pairing, stop with `NoSafeSlice`.
+
+## S6C scalar-scan source corridor I0 (2026-08-18)
+
+The sole `VerifiedS6CPrephysicalIngressV2` now lends a callback-scoped
+`S6CScalarScanSourceRefV1`. It is a source/Facts/Recipe/Join relation view,
+not a physical plan: subject/needle/index roles, `i = 0`, the arity-indexed
+CodePoint laws, `i < length`, `substring(i, i + 1)`, the sole
+`V9 -> TextEq -> If` use, the increment write, and Join/Completion are
+co-sealed before any effect. V9 is represented only as a derived slice
+relation; it is not a root or a runtime object.
+
+The view has no MIR `ValueId`, Bool V10, CFG/SSA/PHI, pointer, runtime frame,
+selector, fallback/retry, or production authority. It rejects missing,
+foreign, duplicate, escaped, and drifted relations before physicalization. The
+next bounded row is base-root admission against the existing ExactText
+subject/needle residence. The portable Text-kernel/fastpath syntax remains a
+parked idea under `contract-region-v0-ssot.md`; it is not part of this
+language contract.
+
+## Common V2 S6C scalar-equality leaf capability I0 (2026-08-18)
+
+Decision: consume the one-shot S6C cursor/preheader plan through the canonical
+session and issue only the two existing backend-neutral leaf shapes,
+`Utf8WidthAt` and `Utf8ScalarSliceEqWholeText`. This is a BoxShape physical
+capability, not a new source operation. V9 remains a derived slice relation
+over the Subject root and is never admitted as a content root or runtime
+object.
+
+Source authority + canonical issuer: the source/Facts/Recipe/Join
+`S6CScalarScanSourceRefV1`, the Subject/Needle base-root admission, and the
+verified sequential UTF-8 cursor/preheader plan are the semantic authorities.
+`CommonV2CanonicalSessionRefV1::consume_s6c_scalar_equality_leaf` is the sole
+issuer and consumes the plan exactly once. It rechecks the existing physical
+entry stamp and root sidecar before lending the callback-scoped capability.
+
+Non-authority: raw handles or generations, numeric root order, MIR
+adjacency, `ValueId`, `MirInstruction`, `PinnedTextOp`, an access-plan row,
+`StringBox::equals`, `nyash.string.eq_hh`, runtime V9, or any detached
+dispatcher. No Bool V10 or CFG meaning is issued by this row.
+
+Fail-fast boundary: reject duplicate issue, missing/foreign physical entry,
+zero or mismatched cohort stamp, swapped or duplicate roots, and cursor drift
+before any physical effect. The outer unpublished-function transaction remains
+the only rollback owner; there is no local cleanup, fallback, or retry.
+
+Acceptance: the focused positive proves the Subject/Needle root roles,
+zero-offset initial cursor, TextEq relation, and exactly two leaf shapes. The
+negative proves that a swapped source root cannot be relabelled as V9. The
+focused suite is green (`2/2`), `cargo check --profile quick` is green, and
+the S6C structure guard keeps the file free of physical IDs and MIR effects.
+The caller-zero cursor CFG/SSA materializer shape is now named; its
+same-cohort integration fixture is the next bounded row. V10/CFG integration,
+Completion/Return, publication, production, performance promotion,
+fallback/retry, and `eq_hh` retirement remain closed.
+
+## Common V2 S6C cursor CFG/SSA materializer shape I0 (2026-08-18; integration open)
+
+Decision: keep one effect-bearing cursor CFG/SSA consumer under the canonical
+session, but do not treat the current shape as an accepted physical route until
+the source/entry/segment/Return-read cohort is handed in through one typed
+callback. The shape emits byte-offset and CP-index PHIs, the existing
+`Utf8WidthAt` and `Utf8ScalarSliceEqWholeText` leaves, the V10 inner If,
+width/CP updates, and the existing backedge. The outer V5 predicate is a
+separate Bool and cannot be paired with V10 by raw identity.
+
+Source authority + canonical issuer: the retained S6C
+source/Facts/Recipe/Join/Completion cohort, the cursor/preheader and scalar
+leaf receipts, `CommonV2CanonicalSessionRefV1`, canonical CFG/SSA/PHI, the
+shared segment scope, and the existing Return-read receipt. No new semantic
+issuer is introduced.
+
+Non-authority: a raw outer `ValueId`, MIR adjacency, numeric root/segment
+indices, a second orchestrator, detached session, runtime V9 object, new frame,
+raw pointer, fallback, retry, or production selector.
+
+Fail-fast boundary: duplicate issue, owner/entry/stamp drift, foreign or
+duplicated segment rows, outer-V5/inner-V10 aliasing, missing typed condition
+receipt, mismatched Return-read If, and any late CFG/PHI/leaf writer error
+reject before publication; the unpublished function transaction owns discard.
+
+Smallest next slice: add only a private callback seam that co-consumes the
+source view, entry sidecar bridge, shared segment, and typed V5 condition from
+the same common-V2 session, then exercise one positive and one foreign/raw-
+condition negative fixture. Residence exit, normal-return finish, runtime,
+production, performance, fallback/retry, and `eq_hh` retirement remain
+closed.

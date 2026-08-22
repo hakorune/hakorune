@@ -13,14 +13,18 @@ pub fn parse_brand_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErro
     } else {
         return Err(ParseError::UnexpectedToken {
             found: p.current_token().token_type.clone(),
-            expected: "[brand/declaration] brand name".to_string(),
+            expected: "[freeze:contract][parser/brand_declaration_invalid] brand name".to_string(),
             line: p.current_token().line,
         });
     };
 
-    p.consume(TokenType::COLON)?;
+    if !matches!(p.current_token().token_type, TokenType::COLON) {
+        return Err(invalid_brand_declaration(p, "colon"));
+    }
+    p.advance();
     let underlying_type_name =
-        crate::parser::common::type_refs::parse_type_ref_text(p, "brand underlying type")?;
+        crate::parser::common::type_refs::parse_type_ref_text(p, "brand underlying type")
+            .map_err(|_| invalid_brand_declaration(p, "underlying type"))?;
 
     let node = ASTNode::BrandDeclaration {
         name,
@@ -29,4 +33,12 @@ pub fn parse_brand_declaration(p: &mut NyashParser) -> Result<ASTNode, ParseErro
     };
 
     p.wrap_with_pending_build_gate(node)
+}
+
+fn invalid_brand_declaration(p: &NyashParser, expected_item: &str) -> ParseError {
+    ParseError::UnexpectedToken {
+        found: p.current_token().token_type.clone(),
+        expected: format!("[freeze:contract][parser/brand_declaration_invalid] {expected_item}"),
+        line: p.current_token().line,
+    }
 }

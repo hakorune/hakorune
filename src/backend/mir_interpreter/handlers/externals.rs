@@ -237,6 +237,13 @@ impl MirInterpreter {
                 self.write_result(dst, ret);
                 Ok(())
             }
+            ("env.codegen", "emit_object_compat_harness") => {
+                let ret = self
+                    .extern_provider_dispatch("env.codegen.emit_object_compat_harness", args)
+                    .unwrap_or(Ok(VMValue::Void))?;
+                self.write_result(dst, ret);
+                Ok(())
+            }
             ("env.codegen", "compile_ll_text") => {
                 let ret = self
                     .extern_provider_dispatch("env.codegen.compile_ll_text", args)

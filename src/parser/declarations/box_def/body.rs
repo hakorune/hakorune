@@ -103,6 +103,7 @@ fn box_try_constructor(
     {
         let mut node = node;
         p.attach_pending_runes_to_declaration(&mut node)?;
+        state.source_tx.commit_constructor_at_current(&key, &node)?;
         state.constructors.insert(key, node);
         return Ok(true);
     }

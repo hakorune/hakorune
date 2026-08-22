@@ -4,9 +4,11 @@ mod model;
 mod semantic_syntax_loan;
 mod transform;
 
+pub(crate) use super::callable_parameter_source::ParserCallableSourceDispositionV1;
 pub(in crate::parser) use model::NormalCallableParameterSourceRejectV1;
 pub(crate) use model::{
-    NormalCallableParserCompatibilityV1, ParsedNormalCallableProgramV1,
+    NormalCallableParserCompatibilityV1, NormalParserSourceLineageErrorV1,
+    NormalParserSourceLineageV1, ParsedNormalCallableProgramV1,
     PreparedNormalCallableProgramSourceV1, VerifiedFinalCallableProgramSourceV1,
 };
 pub(crate) use semantic_syntax_loan::{

@@ -540,6 +540,17 @@ pub enum ASTNode {
         span: Span,
     },
 
+    /// Canonical low-level capability call: `externcall "symbol"(arguments)`.
+    ///
+    /// The target is source syntax, not a runtime argument. Keeping this shape
+    /// distinct prevents ordinary call lookup from rediscovering the special
+    /// form by name after argument effects have started.
+    ExplicitExternCall {
+        target: String,
+        arguments: Vec<ASTNode>,
+        span: Span,
+    },
+
     /// 一般式呼び出し: (callee)(arguments)
     Call {
         callee: Box<ASTNode>,

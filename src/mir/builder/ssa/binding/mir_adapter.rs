@@ -17,11 +17,28 @@ const ADAPTER_TAG: &str = "canonical_binding_ssa/mir_adapter";
 pub(in crate::mir::builder) struct MirBindingSsaAdapterV1<'a> {
     builder: &'a mut MirBuilder,
     phis: &'a mut PhiTxn,
+    deferred_reachable_block: Option<BasicBlockId>,
 }
 
 impl<'a> MirBindingSsaAdapterV1<'a> {
     pub(in crate::mir::builder) fn new(builder: &'a mut MirBuilder, phis: &'a mut PhiTxn) -> Self {
-        Self { builder, phis }
+        Self {
+            builder,
+            phis,
+            deferred_reachable_block: None,
+        }
+    }
+
+    pub(in crate::mir::builder) fn new_with_deferred_reachable(
+        builder: &'a mut MirBuilder,
+        phis: &'a mut PhiTxn,
+        deferred_reachable_block: BasicBlockId,
+    ) -> Self {
+        Self {
+            builder,
+            phis,
+            deferred_reachable_block: Some(deferred_reachable_block),
+        }
     }
 }
 
@@ -66,7 +83,11 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
                 "{ADAPTER_TAG}: missing predecessor block {predecessor}"
             ));
         }
-        if !is_reachable_from_entry(function, predecessor) {
+        let reachable_from_deferred = self
+            .deferred_reachable_block
+            .is_some_and(|root| is_reachable_from(function, root, predecessor));
+        let reachable_from_entry = is_reachable_from_entry(function, predecessor);
+        if !reachable_from_entry && !reachable_from_deferred {
             return Err(format!(
                 "{ADAPTER_TAG}: predecessor block {predecessor} is unreachable"
             ));
@@ -76,6 +97,13 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
             .get(&value)
             .copied()
             .ok_or_else(|| format!("{ADAPTER_TAG}: value {value} has no MIR definition"))?;
+        if !reachable_from_entry && self.deferred_reachable_block.is_some() {
+            // The physical E1 -> cursor graph is being co-written in this
+            // unpublished session.  The exact deferred-entry adapter still
+            // requires a real MIR definition, while canonical CFG sealing
+            // below closes the final reachability/dominance witness.
+            return Ok(());
+        }
         if !compute_dominators(function).dominates(definition, predecessor) {
             return Err(format!(
                 "{ADAPTER_TAG}: value {value} from {definition} does not dominate {predecessor}"
@@ -97,8 +125,16 @@ impl BindingSsaIrV1 for MirBindingSsaAdapterV1<'_> {
 }
 
 fn is_reachable_from_entry(function: &crate::mir::MirFunction, target: BasicBlockId) -> bool {
+    is_reachable_from(function, function.entry_block, target)
+}
+
+fn is_reachable_from(
+    function: &crate::mir::MirFunction,
+    root: BasicBlockId,
+    target: BasicBlockId,
+) -> bool {
     let mut seen = BTreeSet::new();
-    let mut pending = vec![function.entry_block];
+    let mut pending = vec![root];
     while let Some(block) = pending.pop() {
         if !seen.insert(block) {
             continue;

@@ -7,8 +7,8 @@
 use super::super::ids::{LoopBindingKeyV1, LoopItemKeyV1, LoopNodeKeyV1, LoopValueKeyV1};
 use super::super::schema_v2::LoopValueClassV2;
 use super::model::{
-    LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinPayloadV2,
-    LoopJoinPortV1,
+    LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinNextItemV1,
+    LoopJoinPayloadV2, LoopJoinPortV1,
 };
 use super::v2::VerifiedLoopJoinClosureV2;
 
@@ -46,6 +46,7 @@ pub(crate) struct LoopJoinBranchExitRefV2<'program> {
 pub(crate) enum LoopJoinBranchArmTransferRefV2<'program> {
     Exit(LoopJoinBranchExitRefV2<'program>),
     Fallthrough {
+        continuation: LoopJoinNextItemV1,
         payload: &'program [LoopJoinPayloadV2],
     },
 }
@@ -224,11 +225,13 @@ fn branch_arm(arm: &LoopJoinBranchArmV2) -> LoopJoinBranchArmTransferRefV2<'_> {
                 payload: exit.payload.as_slice(),
             })
         }
-        LoopJoinBranchArmV2::Fallthrough { payload } => {
-            LoopJoinBranchArmTransferRefV2::Fallthrough {
-                payload: payload.as_slice(),
-            }
-        }
+        LoopJoinBranchArmV2::Fallthrough {
+            continuation,
+            payload,
+        } => LoopJoinBranchArmTransferRefV2::Fallthrough {
+            continuation: *continuation,
+            payload: payload.as_slice(),
+        },
     }
 }
 

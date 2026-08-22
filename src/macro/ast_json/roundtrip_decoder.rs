@@ -350,6 +350,16 @@ impl AstJsonDecoder {
                     .collect(),
                 span: Span::unknown(),
             },
+            "ExplicitExternCall" => ASTNode::ExplicitExternCall {
+                target: v.get("target")?.as_str()?.to_string(),
+                arguments: v
+                    .get("arguments")?
+                    .as_array()?
+                    .iter()
+                    .filter_map(|node| self.decode(node))
+                    .collect(),
+                span: Span::unknown(),
+            },
             "Array" => ASTNode::ArrayLiteral {
                 elements: v
                     .get("elements")?

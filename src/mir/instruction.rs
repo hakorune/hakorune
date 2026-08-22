@@ -7,6 +7,10 @@
 
 use super::{EdgeArgs, EffectMask, ValueId};
 use crate::mir::definitions::Callee; // Import Callee from unified definitions
+use crate::mir::pinned_text_access_plan::{PinnedTextAccessKindV1, PinnedTextAccessPlanIdV1};
+use crate::mir::pinned_text_residence_lifecycle::{
+    PinnedTextResidencePlanIdV1, TextFormalResidenceIdV1,
+};
 use crate::mir::types::{
     BarrierOp, BinaryOp, CompareOp, ConstValue, MirType, TypeOpKind, UnaryOp, WeakRefOp,
 };
@@ -345,6 +349,19 @@ pub enum MirInstruction {
         effects: EffectMask,
     },
 
+    /// Transport-only pinned Text leaf.  The plan table owns all safety facts;
+    /// this variant carries only the typed leaf and its function-local stamp.
+    PinnedTextOp {
+        dst: ValueId,
+        plan: PinnedTextAccessPlanIdV1,
+        kind: PinnedTextAccessKindV1,
+    },
+
+    /// Success-only physical Residence cleanup marker.  The opaque
+    /// residence identity is compiler-local provenance; it carries no raw
+    /// runtime frame, token, pointer, or status value.
+    PinnedTextResidenceFinish { residence: TextFormalResidenceIdV1 },
+
     /// Canonical object field read.
     /// `%dst = field.get %base .field`
     FieldGet {
@@ -460,6 +477,55 @@ pub enum MirInstruction {
     /// Return from function
     /// `ret %value` or `ret void`
     Return { value: Option<ValueId> },
+
+    /// Checked external call whose semantic outcome owns two canonical CFG
+    /// successors.  The function-local site plan carries entry/ABI/slot
+    /// authority; the terminator carries only the opaque site and operands.
+    CheckedCallOut {
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+        receiver: ValueId,
+        arguments: Vec<ValueId>,
+        normal_landing: super::BasicBlockId,
+        fault_landing: super::BasicBlockId,
+        effects: EffectMask,
+    },
+
+    /// Physical Residence entry with canonical Normal/Trap CFG edges.  The
+    /// status-returning runtime transport is intentionally not represented as
+    /// a ValueId or generic Call.
+    PinnedTextResidenceEnter {
+        plan: PinnedTextResidencePlanIdV1,
+        normal_landing: super::BasicBlockId,
+        trap_landing: super::BasicBlockId,
+    },
+
+    /// Successorless physical fail-stop for the admitted Residence Enter
+    /// trap landing.  It carries only the same compiler-local plan
+    /// provenance; it is not a source Trap, runtime status, or value.
+    PinnedTextResidenceTrap { plan: PinnedTextResidencePlanIdV1 },
+
+    /// Normal-only result projection for a preceding CheckedCallOut.  This is
+    /// an ordinary block-local SSA definition in the Normal landing block;
+    /// the terminator itself never defines a ValueId.
+    CheckedCallOutNormalResult {
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+        dst: ValueId,
+    },
+
+    /// Consume the lease attached to one admitted CheckedCallOut result.
+    /// This is a physical lifecycle instruction, not a generic call or a
+    /// semantic cleanup receipt.  The selected lifecycle owner guarantees
+    /// that each path consumes the I6 lease exactly once.
+    CheckedCallOutEnd {
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+        lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1,
+    },
+
+    /// Terminal for a checked-call Fault landing.  It deliberately has no
+    /// successor; backend lowering may only materialize this canonical stop.
+    CheckedCallOutFault {
+        site_id: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+    },
 
     // === SSA Phi Function ===
     /// SSA phi function for merging values from different paths

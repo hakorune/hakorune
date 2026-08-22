@@ -63,6 +63,8 @@ pub(in crate::mir::builder) enum CanonicalCfgErrorV1 {
     SealedBlockRemoved {
         block: BasicBlockId,
     },
+    CheckedCallOut(String),
+    PinnedTextResidence(String),
 }
 
 impl fmt::Display for CanonicalCfgErrorV1 {
@@ -124,6 +126,12 @@ impl fmt::Display for CanonicalCfgErrorV1 {
             ),
             Self::SealedBlockRemoved { block } => {
                 write!(f, "canonical CFG sealed block {block} was removed")
+            }
+            Self::CheckedCallOut(error) => {
+                write!(f, "canonical CFG checked callout rejected: {error}")
+            }
+            Self::PinnedTextResidence(error) => {
+                write!(f, "canonical CFG pinned-Text Residence rejected: {error}")
             }
         }
     }

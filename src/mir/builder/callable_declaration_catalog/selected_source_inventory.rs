@@ -42,7 +42,7 @@ pub(crate) enum SelectedNormalCallableKeyV1 {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum SelectedNormalCallableSourceSiteV1 {
+pub(crate) enum SelectedNormalCallableSourceSiteV1 {
     ProgramFunction {
         statement_index: usize,
     },
@@ -59,7 +59,7 @@ struct SelectedNormalCallableSourceRowV1 {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum SelectedCallableSemanticBlockerV1 {
+pub(crate) enum SelectedCallableSemanticBlockerV1 {
     NonPlainInstanceBox { statement_index: usize },
 }
 

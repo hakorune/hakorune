@@ -9,9 +9,12 @@ usage() {
   cat << USAGE
 Usage: tools/run_llvm_harness.sh [--no-build] <input.hako> [-- <args...>]
 
-Builds LLVM-harness prerequisites and runs the program via the explicit
-compat/probe keep lane:
+Builds LLVM compatibility/probe prerequisites and runs the program through
+the top-level Hakorune runner keep gate:
   NYASH_LLVM_USE_HARNESS=1 "$ROOT_DIR/target/release/hakorune" --backend llvm <input.hako>
+The historical script name and NYASH_LLVM_USE_HARNESS hint do not by
+themselves select `ny-llvmc --driver harness`; inspect the route trace when
+the direct Python/llvmlite selector is required.
   Rebuilds libhako_llvmc_ffi when shim sources are newer than the artifact.
 
 Options:
@@ -93,5 +96,5 @@ if [[ ! -x "$BIN" ]]; then
   fi
 fi
 
-echo "[5/5] Running LLVM harness..."
+echo "[5/5] Running top-level LLVM compatibility runner..."
 NYASH_LLVM_USE_HARNESS=1 "$BIN" --backend llvm "$INPUT" "$@"

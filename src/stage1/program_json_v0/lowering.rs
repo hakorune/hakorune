@@ -1,4 +1,7 @@
 use super::extract::HelperMethod;
+#[cfg(test)]
+use crate::analysis::brand_program_declaration_catalog::BrandProgramDeclarationCatalogDraftV1;
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::{
     ASTNode, ContractClause, ContractKind, EnumVariantDecl, FieldDecl, LiteralValue, ParamDecl,
 };
@@ -22,21 +25,31 @@ use self::typed_array::{validate_typed_array_method_contract, validate_typed_arr
 
 #[cfg(test)]
 pub(super) fn program_json_v0_from_body(body: &[ASTNode]) -> Result<serde_json::Value, String> {
-    program_json_v0_from_body_with_context(body, &ProgramJsonV0LoweringContext::default())
+    program_json_v0_from_body_with_context(body, &ProgramJsonV0LoweringContext::empty_for_test())
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug)]
 pub(super) struct ProgramJsonV0LoweringContext {
     known_enums: BTreeMap<String, Vec<EnumVariantDecl>>,
-    known_brands: BTreeMap<String, String>,
+    known_brands: VerifiedBrandProgramDeclarationCatalogV1,
     known_records: BTreeMap<String, Vec<FieldDecl>>,
     source_enum_names: BTreeSet<String>,
 }
 
 impl ProgramJsonV0LoweringContext {
+    #[cfg(test)]
+    fn empty_for_test() -> Self {
+        Self {
+            known_enums: BTreeMap::new(),
+            known_brands: BrandProgramDeclarationCatalogDraftV1::default().seal(),
+            known_records: BTreeMap::new(),
+            source_enum_names: BTreeSet::new(),
+        }
+    }
+
     pub(super) fn with_known_enums_brands_and_records(
         known_enums: BTreeMap<String, Vec<EnumVariantDecl>>,
-        known_brands: BTreeMap<String, String>,
+        known_brands: VerifiedBrandProgramDeclarationCatalogV1,
         known_records: BTreeMap<String, Vec<FieldDecl>>,
         source_enum_names: BTreeSet<String>,
     ) -> Self {
@@ -55,7 +68,11 @@ impl ProgramJsonV0LoweringContext {
     }
 
     fn brand_underlying_type(&self, brand_name: &str) -> Option<&str> {
-        self.known_brands.get(brand_name).map(String::as_str)
+        self.known_brands.underlying_type(brand_name)
+    }
+
+    pub(super) fn brand_catalog(&self) -> &VerifiedBrandProgramDeclarationCatalogV1 {
+        &self.known_brands
     }
 
     fn find_record(&self, record_name: &str) -> Option<&[FieldDecl]> {

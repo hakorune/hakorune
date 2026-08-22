@@ -1,5 +1,6 @@
 use crate::mir::builder::{
-    CanonicalSameModuleCallableKeyV1, CompilationContext, SelectedNormalCallableKeyV1,
+    CanonicalSameModuleCallableKeyV1, CompilationContext, NormalCatalogedBoxMethodDraftAdmissionV1,
+    SelectedNormalCallableKeyV1,
 };
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -54,6 +55,57 @@ fn issue(
     issue_normal_callable_semantic_package_v1(&mut resolver, final_source(source))
 }
 
+fn issue_with_brand_catalog(
+    source: &str,
+) -> Result<super::VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    let source = final_source(source);
+    let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(
+        source.ast(),
+    )
+    .expect("brand catalog");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(93).unwrap();
+    super::issue_normal_callable_semantic_package_with_brand_catalog_v1(
+        &mut resolver,
+        source,
+        Some(&catalog),
+    )
+}
+
+#[test]
+fn instance_constructor_semantics_keep_parser_identity_and_nested_brand_relations() {
+    let package = issue_with_brand_catalog(
+        r#"
+brand Id: i64
+
+box Holder {
+    init(value) {
+        local direct = Id(value)
+        local nested = fn(x) { Id(x) }
+    }
+    pack(other) {
+        local second = Id(other)
+    }
+}
+"#,
+    )
+    .expect("constructor semantic package");
+
+    let rows = package.instance_constructors().rows();
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].box_name(), "Holder");
+    assert_eq!(rows[0].key(), "init/1");
+    assert!(rows[0].source_id().same_as(rows[0].source_id()));
+    assert_eq!(rows[0].forest().owner_count(), 2);
+    assert_eq!(rows[1].key(), "pack/1");
+    assert_eq!(
+        rows.iter()
+            .flat_map(|row| row.forest().owners())
+            .map(|(_, owner)| owner.brand_call_relations().count())
+            .sum::<usize>(),
+        3
+    );
+}
+
 #[test]
 fn parser_scan_source_seals_one_dynamic_candidate_and_all_parameter_contracts() {
     let package = issue(include_str!(
@@ -105,6 +157,35 @@ fn selected_dynamic_loan_carries_the_package_source_seed() {
 }
 
 #[test]
+fn foreign_catalog_admission_rejects_before_selected_loan_callback() {
+    let package = issue(include_str!(
+        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
+    ))
+    .expect("exact Dynamic package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let foreign = NormalCatalogedBoxMethodDraftAdmissionV1::seal(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("ForeignBox", "skip_while", 4),
+    )
+    .expect("foreign admission shape");
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    let mut called = false;
+    let result = port.with_selected_cataloged_lowering_input(foreign, |_| {
+        called = true;
+    });
+    assert_eq!(
+        result,
+        Err(NormalCallableSemanticPackageInstallIssueV1::SelectedKeyUnavailable)
+    );
+    assert!(!called);
+}
+
+#[test]
 fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
     let package = issue(include_str!(
         "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
@@ -125,16 +206,35 @@ fn selected_dynamic_loan_issues_one_builder_free_a_prime_demand() {
     let mut port = installed
         .begin_lowering(&context)
         .expect("same installed catalog");
-    port.with_selected_lowering_input(&key, |input| {
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
+        input.with_selected_and_admission(|selected, admitted| {
+            assert_eq!(
+                selected.selected_key(),
+                &SelectedNormalCallableKeyV1::Cataloged(admitted.source_key().clone())
+            );
+            assert_eq!(admitted.physical_symbol(), "ParserScanLoopBox.skip_while/4");
+            assert_eq!(admitted.physical_arity(), 4);
+        });
+        let owner = input.selected().source().owner();
         let demand = crate::mir::compiler::a_prime_i64_physical_capability::
-            issue_selected_a_prime_i64_physical_demand(&input)
+            issue_selected_a_prime_i64_physical_demand(input)
             .expect("selected Dynamic A-prime demand");
         assert_eq!(
             demand.requirement(),
             crate::mir::compiler::a_prime_i64_physical_capability::
                 APrimeI64PhysicalRequirementV1::DirectExactI64
         );
-        assert_eq!(demand.identity().owner(), input.source().owner());
+        assert_eq!(demand.identity().owner(), owner);
+        assert_eq!(
+            demand.physical_header().physical_symbol(),
+            "ParserScanLoopBox.skip_while/4"
+        );
+        assert_eq!(demand.physical_header().physical_arity(), 4);
         assert_eq!(demand.source_relation().completion_sites().len(), 2);
         demand.with_operation_program(|program| {
             assert_eq!(program.placement_rows().len(), 17);
@@ -166,9 +266,14 @@ fn selected_dynamic_loan_issues_one_v2_native_preflight_plan() {
     let mut port = installed
         .begin_lowering(&context)
         .expect("same installed catalog");
-    port.with_selected_lowering_input(&key, |input| {
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
         let demand = crate::mir::compiler::a_prime_i64_physical_capability::
-            issue_selected_a_prime_i64_physical_demand(&input)
+            issue_selected_a_prime_i64_physical_demand(input)
             .expect("selected Dynamic A-prime demand");
         let plan = crate::mir::builder::issue_selected_dynamic_v2_emission_plan(demand)
             .expect("selected V2 preflight plan");
@@ -263,19 +368,50 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
     let mut port = installed
         .begin_lowering(&context)
         .expect("same installed catalog");
-    port.with_selected_lowering_input(&key, |input| {
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
         let demand = crate::mir::compiler::a_prime_i64_physical_capability::
-            issue_selected_a_prime_i64_physical_demand(&input)
+            issue_selected_a_prime_i64_physical_demand(input)
             .expect("selected Dynamic A-prime demand");
         let plan = crate::mir::builder::issue_selected_dynamic_v2_emission_plan(demand)
             .expect("selected V2 preflight plan");
         let admission =
-            crate::mir::builder::issue_selected_dynamic_v2_physical_capability_admission(plan)
-                .expect("exact V2 capability requirements");
+            crate::mir::builder::issue_selected_dynamic_v2_physical_capability_admission(
+                plan,
+                crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test(),
+            )
+            .expect("exact V2 capability requirements");
         assert_eq!(
             admission.disposition(),
             crate::mir::builder::resolved_lowering::
                 DynamicV2PhysicalCapabilityDispositionV1::RejectBeforeEffect
+        );
+        assert_eq!(admission.aot_admission().contract_id(), "hako.text.scan@1");
+        assert_eq!(admission.aot_admission().canonical_receiver(), "Text");
+        assert_eq!(admission.aot_admission().aliases(), ["String", "StringBox"]);
+        assert_eq!(admission.aot_admission().registry_branch_count(), 1);
+        assert_eq!(admission.aot_admission().registry_generation(), 1);
+        assert_eq!(
+            admission
+                .aot_admission()
+                .entry_for(
+                    crate::box_callable::provider_admission::TextScanAdmittedRoleV1::TextSliceRange
+                )
+                .symbol(),
+            "hako.text.scan.substring.v1"
+        );
+        assert_eq!(
+            admission
+                .aot_admission()
+                .entry_for(
+                    crate::box_callable::provider_admission::TextScanAdmittedRoleV1::TextFindNeedle
+                )
+                .symbol(),
+            "hako.text.scan.index_of.v1"
         );
         let compare_i64 = admission.compare_i64();
         assert_eq!(
@@ -293,6 +429,22 @@ fn selected_v2_capability_admission_is_all_or_nothing_before_effect() {
         assert_eq!(
             compare_i64.result(),
             crate::mir::loop_recipe_contract::LoopValueKeyV1::new(13)
+        );
+        assert_eq!(
+            compare_i64.v11().family(),
+            crate::mir::builder::resolved_lowering::DynamicV2ProducerFamilyV1::DynamicCallSlot
+        );
+        assert_eq!(
+            compare_i64.v11().representation(),
+            crate::mir::builder::resolved_lowering::DynamicV2PhysicalRepresentationV1::ImmediateI64
+        );
+        assert_eq!(
+            compare_i64.v12().family(),
+            crate::mir::builder::resolved_lowering::DynamicV2ProducerFamilyV1::ConstI64
+        );
+        assert_eq!(
+            compare_i64.v12().representation(),
+            crate::mir::builder::resolved_lowering::DynamicV2PhysicalRepresentationV1::ImmediateI64
         );
         let cleanup = admission.cleanup();
         assert_eq!(cleanup.len(), 4);
@@ -362,6 +514,42 @@ fn package_scoped_loan_retains_exact_parameter_contract() {
 }
 
 #[test]
+fn package_scoped_loan_retains_exact_text_parameter_contract() {
+    let package =
+        issue("static box Api { run(source: StringBox, needle: StringBox) { return 0 } }")
+            .expect("ordinary StringBox package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method("Api", "run", 2),
+    );
+    let mut port = installed
+        .begin_lowering(&context)
+        .expect("same installed catalog");
+    port.with_selected_lowering_input(&key, |input| {
+        let rows = input.parameter_contracts().collect::<Vec<_>>();
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0].0, 0);
+        assert_eq!(rows[1].0, 1);
+        assert!(rows.iter().all(|(_, binding, kind)| {
+            binding.owner() == input.source().owner()
+                && matches!(
+                    kind,
+                    CallableParameterContractKindV1::ExactText(
+                        crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1::STRING_BOX
+                    )
+                )
+        }));
+        assert_ne!(rows[0].1, rows[1].1);
+    })
+    .expect("exact text contract loan");
+    port.complete().expect("selected contract consumed");
+}
+
+#[test]
 fn ordinary_selected_loan_cannot_enter_a_prime_dynamic_demand() {
     let package =
         issue("static box Api { run(value) { return value } }").expect("ordinary package");
@@ -376,10 +564,15 @@ fn ordinary_selected_loan_cannot_enter_a_prime_dynamic_demand() {
     let mut port = installed
         .begin_lowering(&context)
         .expect("same installed catalog");
-    port.with_selected_lowering_input(&key, |input| {
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    port.with_selected_cataloged_lowering_input(admission, |input| {
         assert!(matches!(
             crate::mir::compiler::a_prime_i64_physical_capability::
-                issue_selected_a_prime_i64_physical_demand(&input),
+                issue_selected_a_prime_i64_physical_demand(input),
             Err(
                 crate::mir::compiler::a_prime_i64_physical_capability::
                     APrimeI64PhysicalDemandRejectV1::NotSelectedDynamic
@@ -414,6 +607,23 @@ fn top_level_and_dynamic_candidate_share_one_complete_package_batch() {
 }
 
 #[test]
+fn instance_shaped_scan_loop_stays_ordinary_owned() {
+    let source = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako")
+        .replace("static box ParserScanLoopBox", "box ParserScanLoopBox");
+    let package = issue(&source).expect("instance-shaped scan loop remains admissible ordinary");
+
+    assert!(matches!(
+        package.dynamic_projection(),
+        NormalCallableDynamicProjectionRefV1::ValidUnselected
+    ));
+    assert!(package
+        .batch()
+        .declarations()
+        .any(|declaration| declaration.mode()
+            == ResolvedCallableDeclarationModeV1::InstanceBoxMethod));
+}
+
+#[test]
 fn zero_dynamic_candidates_are_valid_unselected_without_default_or_name_selection() {
     let package = issue("static box Api { run(value) { return value } }")
         .expect("fully observed non-Dynamic package");
@@ -439,20 +649,27 @@ fn two_exact_dynamic_candidates_reject_without_ordinal_tiebreak() {
 #[test]
 fn unselected_main_dynamic_candidate_cannot_capture_production_selection() {
     let source = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako")
-        .replace("ParserScanLoopBox", "Main");
+        .replace("ParserScanLoopBox", "Main")
+        .replace(
+            "static box Main {",
+            "static box Main {\n  main() { return 0 }",
+        );
     let package = issue(&source).expect("Main remains a valid unselected batch row");
 
     assert!(matches!(
         package.dynamic_projection(),
         NormalCallableDynamicProjectionRefV1::ValidUnselected
     ));
-    assert_eq!(package.batch().declarations().len(), 4);
+    assert_eq!(package.batch().declarations().len(), 5);
 }
 
 #[test]
 fn unselected_main_candidate_does_not_duplicate_one_selected_dynamic_candidate() {
     let selected = include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako");
-    let unselected = selected.replace("ParserScanLoopBox", "Main");
+    let unselected = selected.replace("ParserScanLoopBox", "Main").replace(
+        "static box Main {",
+        "static box Main {\n  main() { return 0 }",
+    );
     let package = issue(&format!("{unselected}\n{selected}"))
         .expect("only selected-map Dynamic rows participate in production selection");
 
@@ -494,8 +711,12 @@ gate Build.test {
 #[test]
 fn package_has_no_clone_or_split_surface() {
     let model = include_str!("model.rs");
+    let install = include_str!("install.rs");
     assert!(!model.contains("Clone)]\npub(crate) struct VerifiedNormalCallableSemanticPackageV1"));
     assert!(!model.contains("fn into_parts"));
+    assert!(install.contains("MissingParameterContract"));
+    assert!(install.contains("DuplicateParameterContract"));
+    assert!(!install.contains("unwrap_or(&[])"));
 }
 
 #[test]

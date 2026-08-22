@@ -39,6 +39,13 @@ pub(in crate::mir::builder) struct PreparedCallableEntryValuesV1 {
 }
 
 impl PreparedCallableEntryValuesV1 {
+    pub(in crate::mir::builder) fn static_from_values(parameters: [ValueId; 4]) -> Self {
+        Self {
+            receiver: None,
+            parameters: parameters.into(),
+        }
+    }
+
     pub(in crate::mir::builder) fn static_function(
         builder: &MirBuilder,
         parameter_count: usize,

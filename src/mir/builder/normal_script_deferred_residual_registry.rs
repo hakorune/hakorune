@@ -9,8 +9,6 @@ use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::ScriptRootSemanticDispositionV1;
 
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
-use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
-use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum ScriptDeferredResidualKindV1 {
@@ -76,7 +74,8 @@ impl ScriptDeferredResidualRegistryBuilderV1 {
         &mut self,
         source_statement_index: usize,
         statement: &ASTNode,
-        decision: ScriptRootSemanticDecisionV1,
+        admission: NormalScriptProgramItemAdmissionV1,
+        semantic: ScriptRootSemanticDispositionV1,
     ) {
         let kind = match statement {
             ASTNode::FunctionCall { .. } => Some(ScriptDeferredResidualKindV1::FunctionCall),
@@ -90,27 +89,21 @@ impl ScriptDeferredResidualRegistryBuilderV1 {
             ASTNode::TryCatch { .. } => Some(ScriptDeferredResidualKindV1::TryCatch),
             ASTNode::Throw { .. } => Some(ScriptDeferredResidualKindV1::Throw),
             ASTNode::Return { .. }
-                if matches!(
-                    decision.semantic(),
-                    ScriptRootSemanticDispositionV1::Deferred(_)
-                ) =>
+                if matches!(semantic, ScriptRootSemanticDispositionV1::Deferred(_)) =>
             {
                 Some(ScriptDeferredResidualKindV1::NonfinalReturn)
             }
             ASTNode::BoxDeclaration { .. }
-                if matches!(
-                    decision.semantic(),
-                    ScriptRootSemanticDispositionV1::Deferred(_)
-                ) =>
+                if matches!(semantic, ScriptRootSemanticDispositionV1::Deferred(_)) =>
             {
-                Some(ScriptDeferredResidualKindV1::Box(decision.admission()))
+                Some(ScriptDeferredResidualKindV1::Box(admission))
             }
             _ => None,
         };
         if let Some(kind) = kind {
             self.entries.push(ScriptDeferredResidualEntryV1 {
                 source_statement_index,
-                admission: decision.admission(),
+                admission,
                 kind,
             });
         }
@@ -127,6 +120,10 @@ impl ScriptDeferredResidualRegistryBuilderV1 {
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+    use crate::mir::builder::normal_script_root_admission_witness::
+        ScriptRootSemanticDecisionV1;
+    use crate::mir::builder::normal_script_selected_occurrence::
+        SelectedScriptProgramOccurrenceV1;
     use std::collections::HashMap;
 
     fn integer(value: i64) -> ASTNode {
@@ -154,7 +151,7 @@ mod tests {
             ),
         )
         .expect("call decision");
-        registry.record(3, &call, decision);
+        registry.record(3, &call, decision.admission(), decision.semantic());
         let entries = registry.seal();
         assert_eq!(entries.entries().len(), 1);
         assert_eq!(entries.entries()[0].source_statement_index(), 3);
@@ -305,7 +302,7 @@ mod tests {
                 SelectedScriptProgramOccurrenceV1::new(index, statement, *admission),
             )
             .expect("residual decision");
-            registry.record(index, statement, decision);
+            registry.record(index, statement, decision.admission(), decision.semantic());
         }
 
         let entries = registry.seal();

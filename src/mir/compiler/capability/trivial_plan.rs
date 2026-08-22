@@ -1,6 +1,6 @@
 use super::{
-    CanonicalFirstFamilyPlanBrandV1, ResolvedOwnerHeaderFamilyV1,
-    ResolvedOwnerHeaderSealErrorV1, VerifiedResolvedOwnerHeaderV1,
+    CanonicalFirstFamilyPlanBrandV1, ResolvedOwnerHeaderFamilyV1, ResolvedOwnerHeaderSealErrorV1,
+    VerifiedResolvedOwnerHeaderV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfControlV1;

@@ -8,6 +8,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 use std::sync::Arc;
 
+use super::assignment_source::ResolvedAssignmentSourceV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1};
 use super::owner_root_profile::SemanticOwnerRootProfileV1;
 use super::product::VerifiedResolvedFunctionV1;
@@ -27,6 +28,18 @@ pub(crate) enum BodyStatementShapeV1 {
     },
 }
 
+impl BodyStatementShapeV1 {
+    pub(crate) fn site(&self) -> &SourceStmtSiteV1 {
+        match self {
+            Self::SequenceItem { site } | Self::Return { site, .. } => site,
+        }
+    }
+
+    pub(crate) const fn is_return(&self) -> bool {
+        matches!(self, Self::Return { .. })
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum BodyExpressionShapeV1 {
     Variable {
@@ -35,7 +48,9 @@ pub(crate) enum BodyExpressionShapeV1 {
     },
     /// Bare receiver name proven absent from the lexical environment.
     /// Source-call routing may later bind it as a qualified static owner.
-    QualifiedReceiver { site: SourceExprSiteV1 },
+    QualifiedReceiver {
+        site: SourceExprSiteV1,
+    },
     Me {
         site: SourceExprSiteV1,
         receiver: BodyMeReceiverV1,
@@ -50,6 +65,9 @@ pub(crate) enum BodyExpressionShapeV1 {
         object: SourceExprSiteV1,
         method: Box<str>,
         arity: u32,
+    },
+    BlockExpr {
+        site: SourceExprSiteV1,
     },
     Other {
         site: SourceExprSiteV1,
@@ -92,12 +110,27 @@ pub(crate) struct BodyShapeRelationV1 {
     pub(crate) child: SourceExprSiteV1,
 }
 
+impl BodyShapeRelationV1 {
+    pub(crate) fn parent(&self) -> &SourceNodeSiteV1 {
+        &self.parent
+    }
+
+    pub(crate) fn role(&self) -> &SourcePathSegmentV1 {
+        &self.role
+    }
+
+    pub(crate) fn child(&self) -> &SourceExprSiteV1 {
+        &self.child
+    }
+}
+
 #[derive(Debug, Default, Clone)]
 pub(crate) struct ShadowBodyShapeDraftV0 {
     pub(crate) statements: BTreeMap<SourceStmtSiteV1, ShadowStatementShapeV0>,
     pub(crate) expressions: BTreeMap<SourceExprSiteV1, ShadowExpressionShapeV0>,
     pub(crate) effects: BTreeSet<(SourceExprSiteV1, BodyEffectKindV1)>,
     pub(crate) relations: Vec<BodyShapeRelationV0>,
+    pub(crate) assignment_sources: BTreeMap<SourceStmtSiteV1, ResolvedAssignmentSourceV1>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -130,6 +163,9 @@ pub(crate) enum ShadowExpressionShapeV0 {
         method: Box<str>,
         arity: usize,
     },
+    BlockExpr {
+        site: SourceExprSiteV1,
+    },
     Other {
         site: SourceExprSiteV1,
         kind: Box<str>,
@@ -151,6 +187,7 @@ pub(crate) struct VerifiedResolvedBodyShapeInventoryV1 {
     expressions: Box<[BodyExpressionShapeV1]>,
     effects: Box<[BodyEffectShapeV1]>,
     relations: Box<[BodyShapeRelationV1]>,
+    assignment_sources: Box<[ResolvedAssignmentSourceV1]>,
 }
 
 /// One ordered source argument belonging to an exact resolved MethodCall.
@@ -320,6 +357,10 @@ impl VerifiedResolvedBodyShapeInventoryV1 {
 
     pub(crate) fn relations(&self) -> &[BodyShapeRelationV1] {
         &self.relations
+    }
+
+    pub(crate) fn assignment_sources(&self) -> &[ResolvedAssignmentSourceV1] {
+        &self.assignment_sources
     }
 }
 
@@ -506,6 +547,7 @@ fn expression_shape_site(expression: &BodyExpressionShapeV1) -> SourceExprSiteV1
         | BodyExpressionShapeV1::Me { site, .. }
         | BodyExpressionShapeV1::FieldAccess { site, .. }
         | BodyExpressionShapeV1::MethodCall { site, .. }
+        | BodyExpressionShapeV1::BlockExpr { site }
         | BodyExpressionShapeV1::Other { site, .. } => site.clone(),
     }
 }
@@ -649,6 +691,9 @@ pub(crate) fn seal_shadow_body_shape(
                     arity,
                 })
             }
+            ShadowExpressionShapeV0::BlockExpr { site } => {
+                Ok(BodyExpressionShapeV1::BlockExpr { site })
+            }
             ShadowExpressionShapeV0::Other { site, kind } => {
                 Ok(BodyExpressionShapeV1::Other { site, kind })
             }
@@ -663,6 +708,11 @@ pub(crate) fn seal_shadow_body_shape(
         .collect::<Vec<_>>()
         .into_boxed_slice();
     let relations = seal_shadow_body_shape_relations(draft.relations)?;
+    let assignment_sources = draft
+        .assignment_sources
+        .into_values()
+        .collect::<Vec<_>>()
+        .into_boxed_slice();
 
     Ok(VerifiedResolvedBodyShapeInventoryV1 {
         owner,
@@ -671,100 +721,6 @@ pub(crate) fn seal_shadow_body_shape(
         expressions,
         effects,
         relations,
+        assignment_sources,
     })
-}
-
-impl<'ast, 'schema> super::shadow::resolver::ShadowResolverV0<'ast, 'schema> {
-    pub(super) fn record_statement_shape(
-        &mut self,
-        statement: &crate::ast::ASTNode,
-        site: SourceStmtSiteV1,
-    ) {
-        let shape = match statement {
-            crate::ast::ASTNode::Return { value, .. } => ShadowStatementShapeV0::Return {
-                site: site.clone(),
-                value: value.as_deref().map(|_| {
-                    super::source_site::SourcePathV1::from_node(site.node())
-                        .child(SourcePathSegmentV1::Value)
-                        .expr()
-                }),
-            },
-            _ => ShadowStatementShapeV0::SequenceItem { site: site.clone() },
-        };
-        self.body_shape.statements.insert(site, shape);
-    }
-
-    pub(super) fn record_expression_shape(
-        &mut self,
-        expression: &crate::ast::ASTNode,
-        site: SourceExprSiteV1,
-    ) {
-        let shape = match expression {
-            crate::ast::ASTNode::Variable { .. } => {
-                ShadowExpressionShapeV0::Variable { site: site.clone() }
-            }
-            crate::ast::ASTNode::Me { .. } => ShadowExpressionShapeV0::Me { site: site.clone() },
-            crate::ast::ASTNode::FieldAccess { field, .. } => {
-                ShadowExpressionShapeV0::FieldAccess {
-                    site: site.clone(),
-                    object: super::source_site::SourcePathV1::from_node(site.node())
-                        .child(SourcePathSegmentV1::Receiver)
-                        .expr(),
-                    field: field.clone().into_boxed_str(),
-                }
-            }
-            crate::ast::ASTNode::MethodCall {
-                method, arguments, ..
-            } => ShadowExpressionShapeV0::MethodCall {
-                site: site.clone(),
-                object: super::source_site::SourcePathV1::from_node(site.node())
-                    .child(SourcePathSegmentV1::Receiver)
-                    .expr(),
-                method: method.clone().into_boxed_str(),
-                arity: arguments.len(),
-            },
-            _ => ShadowExpressionShapeV0::Other {
-                site: site.clone(),
-                kind: expression.node_type().into(),
-            },
-        };
-        self.body_shape.expressions.insert(site, shape);
-    }
-
-    /// Records one assignment-place expression without reclassifying a plain
-    /// binding target as a lexical value read.
-    pub(super) fn record_assignment_target_shape(
-        &mut self,
-        target: &crate::ast::ASTNode,
-        site: SourceExprSiteV1,
-    ) {
-        if matches!(target, crate::ast::ASTNode::Variable { .. }) {
-            self.body_shape.expressions.insert(
-                site.clone(),
-                ShadowExpressionShapeV0::Other {
-                    site,
-                    kind: "BindingAssignmentTarget".into(),
-                },
-            );
-        } else {
-            self.record_expression_shape(target, site);
-        }
-    }
-
-    pub(super) fn record_effect(&mut self, site: SourceExprSiteV1, kind: BodyEffectKindV1) {
-        self.body_shape.effects.insert((site, kind));
-    }
-
-    pub(super) fn record_relation(
-        &mut self,
-        parent: SourceNodeSiteV1,
-        role: SourcePathSegmentV1,
-        child: SourceExprSiteV1,
-    ) {
-        self.body_shape.relations.push(BodyShapeRelationV0 {
-            parent,
-            role,
-            child,
-        });
-    }
 }

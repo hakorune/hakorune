@@ -1,4 +1,6 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
+#[cfg(feature = "llvmlite-compat")]
+use std::path::PathBuf;
 
 /// Resolve ny-llvmc executable path with env/PATH fallbacks
 fn resolve_ny_llvmc() -> std::path::PathBuf {
@@ -52,6 +54,17 @@ fn default_nyrt_dir() -> String {
         .unwrap_or_else(|| "target/release".to_string())
 }
 
+/// Resolve and verify the runtime archive directory for the selected Boundary
+/// lane.  Unlike ordinary compatibility execution, this path must always
+/// pass an explicit `--nyrt` value to `ny-llvmc`; the harness environment must
+/// not suppress the link input.
+#[cfg(feature = "llvm-boundary")]
+pub(crate) fn selected_dynamic_nyrt_dir() -> Result<String, String> {
+    let dir = default_nyrt_dir();
+    verify_nyrt_dir(&dir)?;
+    Ok(dir)
+}
+
 fn apply_nyrt_arg(cmd: &mut std::process::Command, nyrt_dir: Option<&str>) -> Result<(), String> {
     let default_nyrt = default_nyrt_dir();
     let nyrt_dir_final = nyrt_dir.unwrap_or(&default_nyrt);
@@ -90,6 +103,7 @@ fn append_ny_llvmc_extra_libs_arg(cmd: &mut std::process::Command, extra_libs: O
     }
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn resolve_python3() -> Option<PathBuf> {
     if let Ok(p) = which::which("python3") {
         return Some(p);
@@ -100,6 +114,7 @@ fn resolve_python3() -> Option<PathBuf> {
     None
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn resolve_llvmlite_harness() -> Option<PathBuf> {
     if let Some(root) = crate::config::env::hako_root() {
         let p = PathBuf::from(root).join("tools/llvmlite_harness.py");
@@ -118,12 +133,14 @@ fn resolve_llvmlite_harness() -> Option<PathBuf> {
     None
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn prepare_llvmlite_emit_json_path() -> PathBuf {
     let tmp_dir = Path::new("tmp");
     let _ = std::fs::create_dir_all(tmp_dir);
     tmp_dir.join("nyash_cli_emit_harness.json")
 }
 
+#[cfg(feature = "llvmlite-compat")]
 fn spawn_llvmlite_emit_obj_command(
     python: &Path,
     harness: &Path,
@@ -153,6 +170,86 @@ fn prepare_ny_llvmc_emit_json_path() -> std::path::PathBuf {
     tmp_dir.join(format!("nyash_cli_emit_{}.json", std::process::id()))
 }
 
+/// Census the already-sealed selected Dynamic metadata pair on a candidate
+/// module.  This is a physical route query, not a second semantic issuer:
+/// the package adapter/session already issued both slots.  A partial pair or
+/// more than one pair is rejected before any backend process is spawned.
+pub(crate) fn selected_dynamic_aot_metadata_present(
+    module: &crate::mir::MirModule,
+) -> Result<bool, String> {
+    use crate::mir::function::DynamicV2MetadataPairObservation;
+
+    let mut selected = 0usize;
+    for (name, function) in &module.functions {
+        match function.metadata.selected_dynamic_metadata_observation() {
+            DynamicV2MetadataPairObservation::Ordinary => {}
+            DynamicV2MetadataPairObservation::Selected { .. } => {
+                selected += 1;
+            }
+            DynamicV2MetadataPairObservation::Scrubbed => {
+                return Err(format!(
+                    "selected Dynamic metadata pair is scrubbed for function {name}"
+                ));
+            }
+            DynamicV2MetadataPairObservation::Partial => {
+                return Err(format!(
+                    "selected Dynamic metadata pair is partial for function {name}"
+                ));
+            }
+        }
+    }
+    match selected {
+        0 => Ok(false),
+        1 => Ok(true),
+        count => Err(format!(
+            "selected Dynamic metadata pair count={count} expected=1"
+        )),
+    }
+}
+
+fn validate_selected_dynamic_boundary_route_values(
+    compile_recipe: Option<&str>,
+    compat_replay: Option<&str>,
+    emit_provider: Option<&str>,
+    legacy_capi_pure: Option<&str>,
+) -> Result<(), String> {
+    if let Some(recipe) = compile_recipe {
+        if recipe != "pure-first" {
+            return Err(format!(
+                "selected Dynamic Boundary rejects HAKO_BACKEND_COMPILE_RECIPE={recipe:?}; expected pure-first or unset"
+            ));
+        }
+    }
+    if let Some(replay) = compat_replay {
+        if replay != "none" {
+            return Err(format!(
+                "selected Dynamic Boundary rejects HAKO_BACKEND_COMPAT_REPLAY={replay:?}; expected none or unset"
+            ));
+        }
+    }
+    if let Some(provider) = emit_provider {
+        return Err(format!(
+            "selected Dynamic Boundary rejects explicit HAKO_LLVM_EMIT_PROVIDER={provider:?}"
+        ));
+    }
+    if matches!(legacy_capi_pure, Some("1" | "on" | "true" | "yes")) {
+        return Err(
+            "selected Dynamic Boundary rejects deprecated HAKO_CAPI_PURE; use the fixed pure-first route"
+                .to_owned(),
+        );
+    }
+    Ok(())
+}
+
+pub(crate) fn validate_selected_dynamic_boundary_route_request() -> Result<(), String> {
+    validate_selected_dynamic_boundary_route_values(
+        std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
+        std::env::var("HAKO_BACKEND_COMPAT_REPLAY").ok().as_deref(),
+        std::env::var("HAKO_LLVM_EMIT_PROVIDER").ok().as_deref(),
+        std::env::var("HAKO_CAPI_PURE").ok().as_deref(),
+    )
+}
+
 fn build_ny_llvmc_emit_obj_command(
     ny_llvmc: &std::path::Path,
     json_path: &std::path::Path,
@@ -175,6 +272,8 @@ fn build_ny_llvmc_emit_exe_command(
     exe_out: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
+    receipt_json: Option<&std::path::Path>,
+    artifact_bundle: Option<&std::path::Path>,
 ) -> Result<std::process::Command, String> {
     let mut cmd = std::process::Command::new(ny_llvmc);
     cmd.arg("--in")
@@ -186,6 +285,12 @@ fn build_ny_llvmc_emit_exe_command(
     apply_ny_llvmc_driver_arg(&mut cmd)?;
     apply_nyrt_arg(&mut cmd, nyrt_dir)?;
     append_ny_llvmc_extra_libs_arg(&mut cmd, extra_libs);
+    if let Some(receipt_json) = receipt_json {
+        cmd.arg("--receipt-json").arg(receipt_json);
+    }
+    if let Some(artifact_bundle) = artifact_bundle {
+        cmd.arg("--artifact-bundle").arg(artifact_bundle);
+    }
     Ok(cmd)
 }
 
@@ -241,13 +346,21 @@ fn run_ny_llvmc_emit_exe(
     exe_out: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
+    receipt_json: Option<&std::path::Path>,
 ) -> Result<(), String> {
     let ny_llvmc = resolve_ny_llvmc();
     if !ny_llvmc.exists() {
         return Err(hint_ny_llvmc_missing(&ny_llvmc));
     }
-    let mut cmd =
-        build_ny_llvmc_emit_exe_command(&ny_llvmc, json_path, exe_out, nyrt_dir, extra_libs)?;
+    let mut cmd = build_ny_llvmc_emit_exe_command(
+        &ny_llvmc,
+        json_path,
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+        receipt_json,
+        None,
+    )?;
     spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
 }
 
@@ -273,17 +386,93 @@ fn emit_json_and_run_ny_llvmc_emit_exe(
     exe_out: &str,
     nyrt_dir: Option<&str>,
     extra_libs: Option<&str>,
+    receipt_json: Option<&std::path::Path>,
 ) -> Result<(), String> {
+    emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
+        emit_json,
+        exe_out,
+        nyrt_dir,
+        extra_libs,
+        receipt_json,
+    )
+    .map(|_| ())
+}
+
+/// Execute one Boundary artifact attempt and return its consumed receipt fence
+/// when the caller supplied a receipt path.  The selected Dynamic runner keeps
+/// that fence alive through process execution; ordinary callers intentionally
+/// discard the optional transport fence at this compatibility boundary.
+fn emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
+    emit_json: impl FnOnce(&std::path::Path) -> Result<(), String>,
+    exe_out: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+    receipt_json: Option<&std::path::Path>,
+) -> Result<Option<crate::mir::StaticArtifactReceiptConsumedFenceV1>, String> {
     let json_path = prepare_ny_llvmc_emit_json_path();
     emit_json(&json_path)?;
-    let result = run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs);
+    let result = run_ny_llvmc_emit_exe(&json_path, exe_out, nyrt_dir, extra_libs, receipt_json);
     match result {
         Ok(()) => {
+            let consumed_receipt = if let Some(receipt_json) = receipt_json {
+                Some(crate::runner::modes::common_util::static_artifact_receipt::consume_static_artifact_receipt(
+                    receipt_json,
+                    &json_path,
+                    Some(Path::new(exe_out)),
+                ).map_err(|err| with_retained_mir_path(err, &json_path))?)
+            } else {
+                None
+            };
             let _ = std::fs::remove_file(&json_path);
-            Ok(())
+            Ok(consumed_receipt)
         }
         Err(err) => Err(with_retained_mir_path(err, &json_path)),
     }
+}
+
+pub(crate) fn emit_json_and_run_ny_llvmc_emit_exe_with_bundle(
+    emit_json: impl FnOnce(&std::path::Path) -> Result<(), String>,
+    bundle_path: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<crate::runner::modes::common_util::static_artifact_receipt::VerifiedStaticArtifactBundleLaunchFenceV1, String>{
+    let json_path = prepare_ny_llvmc_emit_json_path();
+    emit_json(&json_path)?;
+    let result = run_ny_llvmc_emit_exe_with_bundle(&json_path, bundle_path, nyrt_dir, extra_libs);
+    match result {
+        Ok(()) => {
+            let fence = crate::runner::modes::common_util::static_artifact_receipt::consume_static_artifact_bundle(
+                std::path::Path::new(bundle_path),
+                &json_path,
+            )
+            .map_err(|err| with_retained_mir_path(err, &json_path));
+            let _ = std::fs::remove_file(&json_path);
+            fence
+        }
+        Err(err) => Err(with_retained_mir_path(err, &json_path)),
+    }
+}
+
+fn run_ny_llvmc_emit_exe_with_bundle(
+    json_path: &std::path::Path,
+    bundle_path: &str,
+    nyrt_dir: Option<&str>,
+    extra_libs: Option<&str>,
+) -> Result<(), String> {
+    let ny_llvmc = resolve_ny_llvmc();
+    if !ny_llvmc.exists() {
+        return Err(hint_ny_llvmc_missing(&ny_llvmc));
+    }
+    let mut cmd = build_ny_llvmc_emit_exe_command(
+        &ny_llvmc,
+        json_path,
+        bundle_path,
+        nyrt_dir,
+        extra_libs,
+        None,
+        Some(std::path::Path::new(bundle_path)),
+    )?;
+    spawn_ny_llvmc_emit_exe_command(&ny_llvmc, &mut cmd)
 }
 
 /// Emit native executable via ny-llvmc (lib-side MIR)
@@ -306,10 +495,12 @@ pub fn ny_llvmc_emit_exe_lib(
         exe_out,
         nyrt_dir,
         extra_libs,
+        None,
     )
 }
 
 /// Emit a native object via the llvmlite keep lane (lib-side MIR).
+#[cfg(feature = "llvmlite-compat")]
 pub fn llvmlite_emit_obj_lib(
     module: &nyash_rust::mir::MirModule,
     obj_out: &str,
@@ -340,6 +531,14 @@ pub fn llvmlite_emit_obj_lib(
     })();
     let _ = std::fs::remove_file(&json_path);
     result
+}
+
+#[cfg(not(feature = "llvmlite-compat"))]
+pub fn llvmlite_emit_obj_lib(
+    _module: &nyash_rust::mir::MirModule,
+    _obj_out: &str,
+) -> Result<(), String> {
+    Err("[llvmemit/llvmlite/compat-disabled] build with --features llvmlite-compat for the explicit compatibility lane".to_string())
 }
 
 /// Deprecated compatibility alias for older internal call sites.
@@ -377,6 +576,7 @@ pub fn ny_llvmc_emit_exe_bin(
         exe_out,
         nyrt_dir,
         extra_libs,
+        None,
     )
 }
 
@@ -401,7 +601,13 @@ pub fn run_executable(
 #[cfg(test)]
 mod tests {
     use super::{
-        append_ny_llvmc_extra_libs_arg, ny_llvmc_driver_arg_from_backend, with_retained_mir_path,
+        append_ny_llvmc_extra_libs_arg, build_ny_llvmc_emit_exe_command,
+        ny_llvmc_driver_arg_from_backend, selected_dynamic_aot_metadata_present,
+        validate_selected_dynamic_boundary_route_values, with_retained_mir_path,
+    };
+
+    use crate::mir::{
+        BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType,
     };
 
     #[test]
@@ -424,6 +630,97 @@ mod tests {
             ny_llvmc_driver_arg_from_backend(Some("llvmlite")).unwrap(),
             None
         );
+    }
+
+    #[test]
+    fn selected_dynamic_census_keeps_ordinary_module_on_generic_route() {
+        let module = MirModule::new("ordinary".to_owned());
+        assert!(!selected_dynamic_aot_metadata_present(&module).unwrap());
+    }
+
+    #[test]
+    fn selected_dynamic_census_rejects_scrubbed_clone() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "ParserScanLoopBox.skip_while/4".to_owned(),
+                params: vec![MirType::Unknown; 4],
+                return_type: MirType::Integer,
+                effects: EffectMask::READ,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .install_a_prime_i64_physical_receipt_for_test(
+                crate::mir::test_support::a_prime_receipt(),
+            )
+            .expect("receipt install");
+        function
+            .metadata
+            .install_dynamic_v2_aot_metadata_for_test(
+                crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(),
+            )
+            .expect("admission install");
+
+        let scrubbed_function = function.clone();
+        let mut module = MirModule::new("selected".to_owned());
+        module.add_function(function);
+        assert!(selected_dynamic_aot_metadata_present(&module).unwrap());
+
+        let mut cloned_module = MirModule::new("scrubbed-clone".to_owned());
+        cloned_module.add_function(scrubbed_function);
+        let error = selected_dynamic_aot_metadata_present(&cloned_module).unwrap_err();
+        assert!(error.contains("scrubbed"));
+    }
+
+    #[test]
+    fn selected_dynamic_census_rejects_partial_pair() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "partial/4".to_owned(),
+                params: vec![MirType::Unknown; 4],
+                return_type: MirType::Integer,
+                effects: EffectMask::READ,
+            },
+            BasicBlockId::new(0),
+        );
+        function
+            .metadata
+            .install_a_prime_i64_physical_receipt_for_test(
+                crate::mir::test_support::a_prime_receipt(),
+            )
+            .expect("receipt install");
+        let mut module = MirModule::new("partial".to_owned());
+        module.add_function(function);
+        let error = selected_dynamic_aot_metadata_present(&module).unwrap_err();
+        assert!(error.contains("partial"));
+    }
+
+    #[test]
+    fn selected_dynamic_boundary_accepts_only_fixed_route_values() {
+        assert!(validate_selected_dynamic_boundary_route_values(None, None, None, None).is_ok());
+        assert!(validate_selected_dynamic_boundary_route_values(
+            Some("pure-first"),
+            Some("none"),
+            None,
+            Some("0"),
+        )
+        .is_ok());
+    }
+
+    #[test]
+    fn selected_dynamic_boundary_rejects_compat_route_inheritance() {
+        for (recipe, replay, provider, legacy) in [
+            (Some("harness"), None, None, None),
+            (None, Some("harness"), None, None),
+            (None, None, Some("llvmlite"), None),
+            (None, None, None, Some("1")),
+        ] {
+            assert!(validate_selected_dynamic_boundary_route_values(
+                recipe, replay, provider, legacy
+            )
+            .is_err());
+        }
     }
 
     #[test]
@@ -455,5 +752,26 @@ mod tests {
         );
         assert!(err.contains("ny-llvmc failed"));
         assert!(err.contains("retained_mir=tmp/nyash_cli_emit_123.json"));
+    }
+
+    #[test]
+    fn selected_receipt_flag_is_forwarded_to_boundary_command() {
+        let cmd = build_ny_llvmc_emit_exe_command(
+            std::path::Path::new("ny-llvmc"),
+            std::path::Path::new("candidate.json"),
+            "candidate.exe",
+            Some("target/release"),
+            None,
+            Some(std::path::Path::new("receipt.json")),
+            None,
+        )
+        .expect("command");
+        let args: Vec<_> = cmd
+            .get_args()
+            .map(|arg| arg.to_string_lossy().into_owned())
+            .collect();
+        assert!(args
+            .windows(2)
+            .any(|pair| pair == ["--receipt-json", "receipt.json"]));
     }
 }

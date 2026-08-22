@@ -12,8 +12,13 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{MirBuilder, ValueId};
 
 use super::generic_loop_admission_observation::GenericLoopAdmissionObservationV1;
-use super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1;
+use super::normal_callable_loop_handoff::{
+    CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
+    VerifiedCallableSemanticLoopBindingScheduleV1,
+};
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
+use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
 /// Exact child-entry result for one raw Loop syntax surface.
@@ -40,16 +45,82 @@ pub(in crate::mir::builder) struct PreparedLocatedRawLoopChildEntryV1<'source> {
     condition: ASTNode,
     body: Vec<ASTNode>,
     disposition: RawLoopChildEntryDispositionV1,
-    callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
+    callable_handoff: Option<CallableLoopBindingProjectionDispositionV1>,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
     admission_observation: Option<GenericLoopAdmissionObservationV1>,
+}
+
+/// Opaque move-only payload assembled from one prepared Loop entry.
+///
+/// The source-aware issuer receives this aggregate, not independently
+/// supplied AST/source fragments.  Its fields are private to this module and
+/// the only constructor is the exact `PreparedLocatedRawLoopChildEntryV1`
+/// move below.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedCallableGenericLoopSourceFactsPayloadV1<'source> {
+    parent_source: &'source RawInvocationSourceContextV1,
+    condition_source: RawInvocationSourceContextV1,
+    body_source: RawInvocationSourceContextV1,
+    condition: ASTNode,
+    body: Vec<ASTNode>,
+    owner: FunctionOwnerIdV1,
+    schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
+    function_name: Box<str>,
+    debug: bool,
+    in_static_box: bool,
+    policy: GenericLoopFactsPolicyFrameV1,
+}
+
+impl<'source> PreparedCallableGenericLoopSourceFactsPayloadV1<'source> {
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        &'source RawInvocationSourceContextV1,
+        RawInvocationSourceContextV1,
+        RawInvocationSourceContextV1,
+        ASTNode,
+        Vec<ASTNode>,
+        FunctionOwnerIdV1,
+        VerifiedCallableSemanticLoopBindingScheduleV1,
+        Box<str>,
+        bool,
+        bool,
+        GenericLoopFactsPolicyFrameV1,
+    ) {
+        let Self {
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            owner,
+            schedule,
+            function_name,
+            debug,
+            in_static_box,
+            policy,
+        } = self;
+        (
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            owner,
+            schedule,
+            function_name,
+            debug,
+            in_static_box,
+            policy,
+        )
+    }
 }
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     pub(in crate::mir::builder) fn prepare(
         parent_source: &'source RawInvocationSourceContextV1,
         loop_node: ASTNode,
-        callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
+        callable_handoff: Option<CallableLoopBindingProjectionDispositionV1>,
     ) -> Result<Self, String> {
         Self::prepare_with_method_source_observation(
             parent_source,
@@ -63,7 +134,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     pub(in crate::mir::builder) fn prepare_with_method_source_observation(
         parent_source: &'source RawInvocationSourceContextV1,
         loop_node: ASTNode,
-        callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
+        callable_handoff: Option<CallableLoopBindingProjectionDispositionV1>,
         method_source_observation: Option<CallableMethodSourceObservationV1>,
         admission_observation: Option<GenericLoopAdmissionObservationV1>,
     ) -> Result<Self, String> {
@@ -137,9 +208,9 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             method_source_observation: _,
             admission_observation: _,
         } = self;
-        let _pre_effect_receipt = callable_handoff
-            .map(|handoff| {
-                handoff.consume_pre_effect(
+        let outside_reason = match callable_handoff {
+            Some(CallableLoopBindingProjectionDispositionV1::Ready(handoff)) => {
+                let _pre_effect_receipt = handoff.consume_pre_effect(
                     parent_source.site().ok_or_else(|| {
                         "[freeze:contract][raw-loop-child-entry/missing-parent-site]".to_owned()
                     })?,
@@ -149,17 +220,23 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     body_source.site().ok_or_else(|| {
                         "[freeze:contract][raw-loop-child-entry/missing-body-site]".to_owned()
                     })?,
-                )
-            })
-            .transpose()?;
+                )?;
+                None
+            }
+            Some(CallableLoopBindingProjectionDispositionV1::Outside(reason)) => Some(reason),
+            None => None,
+        };
 
-        match disposition {
-            RawLoopChildEntryDispositionV1::NoChildFunctionEntry => {
+        match (disposition, outside_reason) {
+            (RawLoopChildEntryDispositionV1::NoChildFunctionEntry, Some(reason)) => {
+                lower_outside_callable_loop_v1(reason)
+            }
+            (RawLoopChildEntryDispositionV1::NoChildFunctionEntry, None) => {
                 super::control_flow::joinir::routing::lower_loop_or_freeze_v1(
                     builder, condition, body,
                 )
             }
-            RawLoopChildEntryDispositionV1::ReachableBoxDeclaration => Err(
+            (RawLoopChildEntryDispositionV1::ReachableBoxDeclaration, _) => Err(
                 super::control_flow::lower::Freeze::contract(
                     "raw_loop_child_entry: reachable BoxDeclaration requires a pure-plan/function-session bridge",
                 )
@@ -167,6 +244,69 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             ),
         }
     }
+
+    /// Move the exact prepared Loop into the caller-zero source-aware Facts
+    /// issuer. This is a seam only; no production caller is connected in P0.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn into_callable_generic_loop_source_facts_payload(
+        self,
+        owner: FunctionOwnerIdV1,
+        function_name: &str,
+        debug: bool,
+        in_static_box: bool,
+        policy: GenericLoopFactsPolicyFrameV1,
+    ) -> Result<PreparedCallableGenericLoopSourceFactsPayloadV1<'source>, String> {
+        let Self {
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            disposition,
+            callable_handoff,
+            method_source_observation: _,
+            admission_observation: _,
+        } = self;
+        if disposition != RawLoopChildEntryDispositionV1::NoChildFunctionEntry {
+            return Err(
+                "[freeze:contract][callable-loop-source-facts/reachable-child-entry]".to_owned(),
+            );
+        }
+        let schedule = match callable_handoff {
+            Some(CallableLoopBindingProjectionDispositionV1::Ready(schedule)) => schedule,
+            Some(CallableLoopBindingProjectionDispositionV1::Outside(_)) => {
+                return Err(
+                    "[freeze:contract][callable-loop-source-facts/outside-schedule]".to_owned(),
+                )
+            }
+            None => {
+                return Err(
+                    "[freeze:contract][callable-loop-source-facts/missing-schedule]".to_owned(),
+                )
+            }
+        };
+        Ok(PreparedCallableGenericLoopSourceFactsPayloadV1 {
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            owner,
+            schedule,
+            function_name: function_name.into(),
+            debug,
+            in_static_box,
+            policy,
+        })
+    }
+}
+
+fn lower_outside_callable_loop_v1(reason: CallableLoopOutsideReasonV1) -> Result<ValueId, String> {
+    // Ordinary JoinIR currently accepts only MirBuilder and cannot consume
+    // the callable source ledger.  Keep Outside terminal until a named
+    // ledger-aware bridge is designed; never create partial MIR and defer the
+    // source-consumption failure to CallableSemanticLoweringState::finish.
+    Err(reason.into_terminal_error())
 }
 
 fn verify_exact_loop_child_receipts(
@@ -225,13 +365,13 @@ mod tests {
     use std::collections::HashMap;
 
     use super::{
-        classify_raw_loop_child_entry_v1, PreparedLocatedRawLoopChildEntryV1,
-        RawLoopChildEntryDispositionV1,
+        classify_raw_loop_child_entry_v1, CallableLoopBindingProjectionDispositionV1,
+        PreparedLocatedRawLoopChildEntryV1, RawLoopChildEntryDispositionV1,
+        VerifiedCallableSemanticLoopBindingScheduleV1,
     };
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use crate::mir::builder::normal_callable_loop_handoff::{
         CallableLoopBindingReceiptV1, CallableLoopBindingRoleV1,
-        VerifiedCallableSemanticLoopBindingScheduleV1,
     };
     use crate::mir::builder::raw_invocation_source_transport::{
         RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawUnlocatedPortalV1,
@@ -445,7 +585,9 @@ mod tests {
         let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
             &source,
             loop_node(vec![ASTNode::Break { span: span() }]),
-            Some(callable_handoff(&loop_site)),
+            Some(CallableLoopBindingProjectionDispositionV1::Ready(
+                callable_handoff(&loop_site),
+            )),
         )
         .expect("located Loop entry with callable handoff");
 
@@ -455,7 +597,10 @@ mod tests {
     #[test]
     fn unlocated_entry_is_rejected_before_child_classification() {
         let error = PreparedLocatedRawLoopChildEntryV1::prepare(
-            &RawInvocationSourceContextV1::UnlocatedCompatibility(RawUnlocatedPortalV1::CallObject),
+            &RawInvocationSourceContextV1::UnlocatedCompatibility {
+                reason: RawUnlocatedPortalV1::CallObject,
+                expected_lineage: None,
+            },
             loop_node(vec![box_declaration()]),
             None,
         )

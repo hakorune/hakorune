@@ -184,7 +184,7 @@ fn verify_targets(
     };
     let expected_value_class =
         |key: crate::mir::loop_recipe_contract::LoopValueKeyV1| match key.raw() {
-        1 | 2 | 4 | 6 | 7 | 8 | 9 | 11 | 12 | 14 | 15 | 16 | 17 => LoopValueClassV2::I64,
+            1 | 2 | 4 | 6 | 7 | 8 | 9 | 11 | 12 | 14 | 15 | 16 | 17 => LoopValueClassV2::I64,
             5 | 13 => LoopValueClassV2::Bool,
             _ => LoopValueClassV2::Dynamic,
         };

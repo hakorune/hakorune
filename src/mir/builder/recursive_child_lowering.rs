@@ -3,7 +3,7 @@
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
-use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
+use crate::mir::resolved_semantics::ScriptResolverDeferredV1;
 use crate::mir::{MirBuilder, ValueId};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -18,7 +18,6 @@ use super::me_call_header_observation::{
 use super::module_lowering_invocation::{
     LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
 };
-use super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1;
 use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
@@ -28,10 +27,17 @@ use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
     RawSourceTransportPortV1,
 };
-use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use crate::parser::CallableMethodSourceObservationV1;
+
+#[path = "normal_script_direct_static_claim_transport.rs"]
+mod script_direct_static_claim_transport;
+
+pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
+pub(in crate::mir::builder) use super::recursive_child_lowering_port::{
+    RawAstChildLoweringPortV1, RecursiveChildLoweringPortV1,
+};
 
 pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
     function_name: &str,
@@ -44,95 +50,6 @@ pub(in crate::mir::builder) fn normalize_instance_box_method_input_v1(
     )
 }
 
-pub(in crate::mir::builder) trait RecursiveChildLoweringPortV1 {
-    type BodyInput;
-    type StatementInput;
-    type ExpressionInput;
-
-    fn lower_body(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::BodyInput,
-    ) -> Result<ValueId, String>;
-
-    fn lower_statement(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::StatementInput,
-    ) -> Result<ValueId, String>;
-
-    fn lower_expression(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::ExpressionInput,
-    ) -> Result<ValueId, String>;
-
-    /// Optional source-bound static-call terminal.  The default keeps all
-    /// compatibility/test ports on the ordinary terminal; the live raw
-    /// invocation overrides this only after exact source identity and target
-    /// proof have been sealed.
-    fn try_emit_source_bound_static_call_result_v1(
-        &mut self,
-        _builder: &mut MirBuilder,
-        _owner: &str,
-        _method: &str,
-        _checked_source_arity: u32,
-        _arguments: &[ValueId],
-    ) -> Result<Option<ValueId>, String> {
-        Ok(None)
-    }
-
-    /// Isolated test-only ports deny cleanup exits unless they explicitly
-    /// provide an operation policy. Production ports must override this.
-    fn cleanup_exit_policy_v1(&self) -> CleanupExitPolicyV1 {
-        CleanupExitPolicyV1::default()
-    }
-
-    fn prepare_expression_child_source_v1(
-        &self,
-        _parent: &ASTNode,
-        _role: ExprChildRoleV1,
-    ) -> Result<PreparedRawChildSourceV1, String> {
-        Ok(PreparedRawChildSourceV1::Preserve)
-    }
-    fn prepare_body_child_source_v1(
-        &self,
-        _parent: &ASTNode,
-        _role: BodyChildRoleV1,
-    ) -> Result<PreparedRawChildSourceV1, String> {
-        Ok(PreparedRawChildSourceV1::Preserve)
-    }
-    fn prepare_body_statement_source_v1(
-        &self,
-        _statement: &ASTNode,
-        _index: usize,
-    ) -> Result<PreparedRawChildSourceV1, String> {
-        Ok(PreparedRawChildSourceV1::Preserve)
-    }
-    fn with_prepared_child_source_v1<R>(
-        &mut self,
-        _source: PreparedRawChildSourceV1,
-        execute: impl FnOnce(&mut Self) -> R,
-    ) -> R {
-        execute(self)
-    }
-
-    fn with_call_argument_source_v1<R>(
-        &mut self,
-        _index: usize,
-        execute: impl FnOnce(&mut Self) -> R,
-    ) -> R {
-        execute(self)
-    }
-}
-pub(in crate::mir::builder) trait RawAstChildLoweringPortV1:
-    RecursiveChildLoweringPortV1<
-    BodyInput = Vec<ASTNode>,
-    StatementInput = ASTNode,
-    ExpressionInput = ASTNode,
->
-{
-}
 pub(in crate::mir::builder) trait RawFunctionHeaderLookupPortV1 {
     fn with_function_headers<R>(
         &mut self,
@@ -211,19 +128,6 @@ pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
     }
 }
 
-/// One raw Loop child-entry boundary.
-///
-/// This boundary owns only the decision whether a raw invocation may delegate
-/// to the existing JoinIR route owner. It does not pass the invocation port
-/// into recipe composition, normalization, or plan lowering.
-pub(in crate::mir::builder) trait RawLoopChildEntryPortV1 {
-    fn lower_loop(
-        &mut self,
-        builder: &mut MirBuilder,
-        loop_node: ASTNode,
-    ) -> Result<ValueId, String>;
-}
-
 impl<Port> RawAstChildLoweringPortV1 for Port where
     Port: RecursiveChildLoweringPortV1<
         BodyInput = Vec<ASTNode>,
@@ -297,12 +201,15 @@ impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
 /// collector-backed production route and the direct compatibility facade
 /// mechanically distinct.
 pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
-    pub(super) module_port: &'port mut ModuleLoweringPortV1<'collector>,
-    pub(super) active_source: Option<RawInvocationSourceContextV1>,
-    pub(super) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
-    pub(super) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
-    pub(super) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
-    pub(super) cleanup_exit_policy: CleanupExitPolicyV1,
+    pub(in crate::mir::builder) module_port: &'port mut ModuleLoweringPortV1<'collector>,
+    pub(in crate::mir::builder) active_source: Option<RawInvocationSourceContextV1>,
+    pub(in crate::mir::builder) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
+    pub(in crate::mir::builder) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
+    pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
+    /// Source-only Script resolver deferral carried through the existing raw
+    /// runtime owner. It does not select a route or issue a fallback.
+    pub(in crate::mir::builder) script_deferred_observation: Option<ScriptResolverDeferredV1>,
+    pub(in crate::mir::builder) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
 }
 
@@ -329,6 +236,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: None,
             callable_ledger: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
+            script_deferred_observation: None,
             cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
@@ -345,9 +253,21 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
+            script_deferred_observation: self.script_deferred_observation.clone(),
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
+    }
+
+    pub(in crate::mir::builder) fn with_script_deferred_observation<R>(
+        &mut self,
+        observation: ScriptResolverDeferredV1,
+        execute: impl FnOnce(&mut Self) -> R,
+    ) -> R {
+        let parent = self.script_deferred_observation.replace(observation);
+        let result = execute(self);
+        self.script_deferred_observation = parent;
+        result
     }
 
     /// Lend the exact collector-backed header view for one observation only.
@@ -356,6 +276,15 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         observe: impl for<'header> FnOnce(&'header LoweringHeaderPortV1<'header>) -> R,
     ) -> R {
         self.module_port.with_headers(observe)
+    }
+
+    /// Delegate the invocation-owned brand without retaining it in the raw
+    /// child port. This keeps provider admission tied to its collector.
+    pub(in crate::mir::builder) fn with_invocation_brand<R>(
+        &self,
+        observe: impl FnOnce(crate::mir::module_invocation_identity::ModuleInvocationBrandV1) -> R,
+    ) -> Result<R, super::module_draft_collector::CollectorReceiptBrandErrorV1> {
+        self.module_port.with_invocation_brand(observe)
     }
 
     /// Transport one parser-issued method observation through the raw child
@@ -382,7 +311,10 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
 
     pub(in crate::mir::builder) fn issue_callable_loop_binding_schedule_v1(
         &self,
-    ) -> Result<Option<VerifiedCallableSemanticLoopBindingScheduleV1>, String> {
+    ) -> Result<
+        Option<super::normal_callable_loop_handoff::CallableLoopBindingProjectionDispositionV1>,
+        String,
+    > {
         let Some(ledger) = self.callable_ledger.as_ref() else {
             return Ok(None);
         };
@@ -397,7 +329,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         let state = ledger.borrow();
         state
             .loop_binding_source_projection()
-            .project(loop_site)
+            .project_disposition(loop_site)
             .map(Some)
     }
 
@@ -657,22 +589,6 @@ impl RawFunctionHeaderLookupPortV1 for RawLegacyChildLoweringPortV1 {
     }
 }
 
-impl RawLoopChildEntryPortV1 for RawLegacyChildLoweringPortV1 {
-    fn lower_loop(
-        &mut self,
-        builder: &mut MirBuilder,
-        loop_node: ASTNode,
-    ) -> Result<ValueId, String> {
-        let ASTNode::Loop {
-            condition, body, ..
-        } = loop_node
-        else {
-            return Err("[freeze:contract][raw-loop-child-entry/expected-loop]".to_owned());
-        };
-        super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, *condition, body)
-    }
-}
-
 impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn lower_static_main_box(
         &mut self,
@@ -719,28 +635,6 @@ impl MeCallHeaderObservationPortV1 for RawInvocationChildPortV1<'_, '_> {
                 lookup,
             )
         })
-    }
-}
-
-impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
-    fn lower_loop(
-        &mut self,
-        builder: &mut MirBuilder,
-        loop_node: ASTNode,
-    ) -> Result<ValueId, String> {
-        let source = self.active_source.as_ref().ok_or_else(|| {
-            "[freeze:contract][raw-loop-child-entry/missing-located-source]".to_owned()
-        })?;
-        let callable_handoff = self.issue_callable_loop_binding_schedule_v1()?;
-        let admission_observation = self.generic_loop_diagnostic.issue_for_loop(source);
-        PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
-            source,
-            loop_node,
-            callable_handoff,
-            self.generic_loop_diagnostic.method_source().cloned(),
-            admission_observation,
-        )?
-        .lower_with_existing_route_v1(builder)
     }
 }
 

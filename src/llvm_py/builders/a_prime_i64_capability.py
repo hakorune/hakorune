@@ -25,9 +25,8 @@ _RECEIPT_KEYS = {
 }
 _PARAMETER_KEYS = {"role", "formal_parameter_index", "value_id", "lane"}
 _CALL_KEYS = {
+    "site_id",
     "role",
-    "block",
-    "instruction_index",
     "target_fingerprint",
     "receiver_role",
     "receiver_value_id",
@@ -62,9 +61,8 @@ class APrimeI64ArgumentRow:
 
 @dataclass(frozen=True)
 class APrimeI64CallEdgeRow:
+    site_id: int
     role: str
-    block: int
-    instruction_index: int
     target_fingerprint: str
     receiver_role: str
     receiver_value_id: int
@@ -96,15 +94,15 @@ class APrimeI64CapabilityView:
             raise APrimeI64CapabilityError(f"parameter role is not unique: {role}")
         return rows[0]
 
-    def require_call_edge(self, block: int, instruction_index: int) -> APrimeI64CallEdgeRow:
+    def require_call_site(self, site_id: int) -> APrimeI64CallEdgeRow:
         rows = [
             row
             for row in self.call_edges
-            if row.block == block and row.instruction_index == instruction_index
+            if row.site_id == site_id
         ]
         if len(rows) != 1:
             raise APrimeI64CapabilityError(
-                f"call edge is not unique: ({block}, {instruction_index})"
+                f"call site is not unique: {site_id}"
             )
         return rows[0]
 
@@ -254,11 +252,8 @@ def load_selected_a_prime_capability(
             _reject_unknown_keys(arg, _ARGUMENT_KEYS, "call.argument")
         calls.append(
             APrimeI64CallEdgeRow(
+                site_id=_required_int(row.get("site_id"), "call.site_id"),
                 role=_required_string(row.get("role"), "call.role"),
-                block=_required_int(row.get("block"), "call.block"),
-                instruction_index=_required_int(
-                    row.get("instruction_index"), "call.instruction_index"
-                ),
                 target_fingerprint=_required_string(
                     row.get("target_fingerprint"), "call.target_fingerprint"
                 ),
@@ -286,7 +281,9 @@ def load_selected_a_prime_capability(
         )
     if {row.role for row in calls} != {"substring", "index_of"}:
         raise APrimeI64CapabilityError("call roles must be exactly substring/index_of")
-    if len({(row.block, row.instruction_index) for row in calls}) != len(calls):
+    if {row.site_id for row in calls} != {0, 1}:
+        raise APrimeI64CapabilityError("call sites must be exactly 0/1")
+    if len({row.site_id for row in calls}) != len(calls):
         raise APrimeI64CapabilityError("duplicate call site")
     call_results = set()
     for row in calls:
@@ -294,6 +291,9 @@ def load_selected_a_prime_capability(
         # receiver excluded (`substring/2`, `indexOf/1`).  A receiver-inclusive
         # ABI spelling belongs to a future explicit field, never this key.
         expected_target = "substring/2" if row.role == "substring" else "indexOf/1"
+        expected_site = 0 if row.role == "substring" else 1
+        if row.site_id != expected_site:
+            raise APrimeI64CapabilityError("call site does not match role")
         expected_receiver = "src" if row.role == "substring" else "pred_chars"
         expected_argument_roles = ("start", "end") if row.role == "substring" else ("ch",)
         expected_argument_lanes = (

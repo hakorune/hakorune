@@ -194,7 +194,7 @@ fn unchanged_dynamic_recipe_has_exact_typed_joinsig() {
     assert_eq!(then_exit.role, LoopJoinEdgeRoleV1::Return);
     assert_eq!(then_exit.target, LoopJoinBranchExitTargetV2::FunctionExit);
     assert_eq!(then_exit.payload, vec![entry.clone()]);
-    let LoopJoinBranchArmV2::Fallthrough { payload } = &branch.else_arm else {
+    let LoopJoinBranchArmV2::Fallthrough { payload, .. } = &branch.else_arm else {
         panic!("else arm must fall through")
     };
     assert_eq!(payload, &vec![entry]);

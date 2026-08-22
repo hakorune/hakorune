@@ -18,10 +18,10 @@ pub(crate) use flow::LoopJoinSigElaboratorV1;
 pub(crate) use model::{
     LoopJoinBranchArmV1, LoopJoinBranchArmV2, LoopJoinBranchExitTargetV2, LoopJoinBranchExitV1,
     LoopJoinBranchExitV2, LoopJoinBranchV1, LoopJoinBranchV2, LoopJoinEdgeRoleV1, LoopJoinEdgeV1,
-    LoopJoinEdgeV2, LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinPayloadV1, LoopJoinPayloadV2,
-    LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1, LoopJoinSigRejectReasonV1,
-    LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1, VerifiedLoopJoinSigV1,
-    VerifiedLoopJoinSigV2,
+    LoopJoinEdgeV2, LoopJoinLoopV1, LoopJoinLoopV2, LoopJoinNextItemV1, LoopJoinPayloadV1,
+    LoopJoinPayloadV2, LoopJoinPortBindingV1, LoopJoinPortBindingV2, LoopJoinPortV1,
+    LoopJoinSigRejectReasonV1, LoopJoinSigV1, LoopJoinSigV2, VerifiedLoopAfterBindingV1,
+    VerifiedLoopJoinSigV1, VerifiedLoopJoinSigV2,
 };
 pub(crate) use transfer_view_v1::{
     LoopJoinBoundaryTransferRefV1, LoopJoinLogicalTransferRejectV1, LoopJoinLogicalTransferViewV1,

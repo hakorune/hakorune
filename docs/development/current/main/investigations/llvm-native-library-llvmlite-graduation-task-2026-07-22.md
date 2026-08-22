@@ -1,10 +1,11 @@
 ---
-Status: Parked execution board; current production mutation is forbidden
+Status: Post-W6 graduation board; current production mutation is forbidden
 Decision: staged llvmlite graduation and native-library ownership selected
 Date: 2026-07-22
 Scope: LLVM route truth, native library boundary, Hako LLVM-text ownership, and llvmlite retirement
 Current-lane effect: none; D-prime HEADERPORT0 remains authoritative
-Reserved activation: after `MODULE-FINALIZE-VERIFY-CUT0`
+Reserved activation: W6 final-live receipt/caller evidence is landed; G1/G2/G3
+remain independently gated
 Related:
   - docs/development/current/main/design/llvm-line-ownership-and-boundary-ssot.md
   - docs/development/current/main/investigations/fastmem-v1-execution-task-2026-07-22.md
@@ -12,6 +13,7 @@ Related:
   - crates/nyash-llvm-compiler/README.md
   - src/host_providers/llvm_codegen/README.md
   - src/llvm_py/README.md
+  - docs/development/current/main/investigations/dynamic-v2-w6-production-activation-task-2026-08-13.md
 ---
 
 # LLVM Native Library And llvmlite Graduation Task Board
@@ -54,6 +56,126 @@ emitter and hands LLVM text to the native library.
 `ny-llvmc --driver native` remains a const/print/ret canary. Growing it into a
 second LLVM lowerer is forbidden.
 
+## MIRBuilder W6 handoff lock (2026-08-13)
+
+```text
+Decision: W6-E Boundary route closeout is prerequisite evidence for llvmlite
+graduation; the current pointer records that selected route as landed.
+Source authority + canonical issuer: W6-E caller census, Boundary artifact receipt, and this board's G1/G2/G3 rows.
+Non-authority: llvmlite output, harness fallback, Python route, native canary, and default build environment.
+Fail-fast boundary: Boundary failure or unsupported MIR is a typed error; no harness retry/fallback; unknown Python ingress blocks G1.
+Smallest next slice: after W6-E, run ROUTE0 census/identity/observe, then close G1, G2, and G3 in order.
+Non-claims: no source deletion, new llvmlite semantics, or current W6 production switch is claimed here.
+```
+
+The W6 prerequisite is observable, not a prose milestone. The caller census is
+scoped to the selected Dynamic lane; ordinary compatibility is not silently
+retired by this board:
+
+```text
+selected Dynamic Boundary caller = 1
+selected Dynamic old raw/JoinIR edge = 0
+ordinary compatibility edge = 1 (allowed until its own retirement row)
+Boundary artifact receipt = 1
+Python/llvmlite production consumer = 0
+fallback = 0, retry = 0, VM consumer = 0
+```
+
+`W6-E-C5 STATIC-RECEIPT-GATED-LIVE-INSTALL-R0` and `W6-E-C6` landed the
+receipt-gated selected runner terminal, runtime-archive path, shared
+LLVM-ingress materialization boundary, and scoped receipt/caller evidence.
+Compiler MIR publication and backend executable publication remain two ordered
+transactions; ordinary compatibility is not retired here. G1 retires automatic
+production reachability, G2 removes Python/llvmlite from default build/CI/perf
+gates, and G3 separately decides source/archive removal.
+The explicit `--driver harness` and `NYASH_LLVM_USE_HARNESS=1` lanes remain
+named keep/oracle lanes; they may not become a new production authority.
+
+## Post-W6 graduation acceptance matrix (DOC0, 2026-08-13)
+
+This feedback is taskized by the existing G1/G2/G3 rows; it does not open a
+new backend or a new fallback lane. The rows are ordered and may not be
+collapsed into “MIRBuilder finished, therefore llvmlite is deleted”.
+
+The graduation boundary is deliberately two-dimensional:
+
+```text
+MIRBuilder / Boundary completion
+  = canonical MIR is emitted and the selected native artifact path is closed
+
+llvmlite graduation
+  = every Python ingress is censused, observed, and retired in stages
+```
+
+The first line is necessary but not sufficient for the second. A MIRBuilder
+green result must not be used as evidence for repository-wide llvmlite
+deletion. Conversely, keeping an explicit oracle does not authorize a native
+failure fallback or a second production physicalizer.
+
+### Feedback reconciliation (DOC1, 2026-08-13)
+
+The recommended retirement shape is accepted without opening a new task:
+
+```text
+G1  production reachability retirement
+    Boundary/native failure -> typed fail-fast; Python/llvmlite fallback = 0
+G2  default build/CI/perf independence
+    Python/llvmlite remains only in explicitly named compat/oracle/monitor jobs
+G3  source/archive retirement
+    separate approval after an independent oracle and fixture/archive census
+```
+
+MIRBuilder or Boundary completion alone closes none of G1/G2/G3. W6-E must
+first provide the selected caller, old-edge, artifact-receipt, and no-fallback
+evidence. Until then the board remains parked, `--driver harness` and
+`NYASH_LLVM_USE_HARNESS=1` remain explicit non-production keep roots, and no
+llvmlite source deletion or new llvmlite semantic lowering is authorized.
+
+```text
+W6-E receipt and caller census
+  -> LLVMLITE-PROD0-G0 (G1: automatic production retirement)
+  -> LLVMLITE-AUTO0      (G2: default build/CI/perf independence)
+  -> LLVMLITE-KEEP0-RET0 (G3: source/archive retirement, separate approval)
+```
+
+### G1 — remove production reachability (`LLVMLITE-PROD0-G1-REACHABILITY-R0`)
+
+Owner: W6-E Boundary artifact receipt plus route/child-process census;
+route landed (BoundaryPureFirst/Stage1 ExplicitHarnessCompat); `G1-RUNNER-FAILFAST-R0` is the
+selected early-return guard only, ordinary mock compatibility non-production.
+Acceptance: selected Dynamic Boundary caller `= 1`, old raw/JoinIR edge `= 0`,
+ordinary compatibility may remain `= 1`, Boundary artifact receipt/fence `= 1`,
+automatic Python/llvmlite consumer `= 0`, native retry `= 0`, generic C ->
+implicit harness `= 0`, selected automatic mock fallback `= 0`, and unsupported
+native input is typed fail-fast. Explicit harness/oracle roots remain available
+but are not production callers.
+
+### G2 — remove default dependency
+
+G2 census, perf-oracle, caller census, shared-smoke default, and microbench
+are closed at the boundary: 17 roots, 8 default-boundary, 29 callers (13
+explicit compat, 14 default-boundary, 2 owners); selector admission is green
+and the full oracle smoke remains a known stale-artifact red.
+`LLVMLITE-AUTO0-G2-MICROBENCH-R0` receipt: non-`--exe` `--backend llvm` now
+forwards `NYASH_LLVM_USE_HARNESS` default `0`; explicit `=1` remains named
+oracle/compat. The case owner is split below 800 lines; no new backend/counter.
+G3 is now the separate design stop; G2 fail-fast remains implicit harness/fallback/retry=0.
+
+### G3 — archive or delete the keep lane
+
+`LLVMLITE-KEEP0-RET0` is the current design stop. Decision: archive frozen
+source/artifact and fixture/golden evidence first; source deletion needs later
+approval after a zero-or-archived consumer census. Source authority + archive
+issuer: G0/G2 census, `src/llvm_py/**`, `tools/llvmlite_harness.py`, explicit
+keep callers, and fixture inventory; archive policy owns placement. Non-authority:
+keep labels, Python output, MIRBuilder completion, or default-route status.
+Fail-fast on deletion before archive/evidence, fallback/retry, or new semantics.
+Next slice is archive/consumer/fixture inventory only; non-claims are source
+deletion, new backend authority, production switch, and fallback removal.
+Manifest fields are source commit/tree, artifact checksums, fixture/golden paths,
+consumer rows, restore command, archive URI/tag, and separate deletion approval;
+no external archive path is invented before its owner exists.
+
 ## Corrected current truth
 
 The current repository has three distinct ny-llvmc routes:
@@ -78,8 +200,7 @@ Therefore these statements are false:
 "ny-llvmc itself only supports const/ret/print"
 "all llvmlite use is already explicit"
 "libhako_llvmc_ffi is already an in-process LLVM library"
-"--harness PATH alone selects the llvmlite driver"
-"NYASH_LLVM_USE_HARNESS=1 alone proves llvmlite execution"
+"--harness PATH alone selects the llvmlite driver" / "NYASH_LLVM_USE_HARNESS=1 alone proves llvmlite execution"
 ```
 
 ### Remaining automatic Python reachability
@@ -240,6 +361,86 @@ one semantic behavior delta may belong to only one I0.
 
 ### `LLVMLITE-ROUTE0-CENSUS0`
 
+#### `LLVMLITE-ROUTE0-CENSUS0-D0-IDENTITY-OBSERVE` (closed D0 receipt; next stop is `LLVMLITE-ROUTE0-IDENTITY0`)
+
+```text
+Decision: classify executable LLVM ingress by actual driver/provider/replay, not names.
+Source authority + canonical issuer: driver dispatch, provider selection, and child-command observation.
+Non-authority: comments, NYASH_LLVM_USE_HARNESS alone, generic-export fallback, or historical command names.
+Fail-fast boundary: unknown Python reachability, pure-first -> generic fallback, or unclassified ingress stays stopped.
+Smallest next slice: source-site matrix, child-command observation, and one reusable route guard; behavior and retirement remain closed.
+Non-claims: no G1/G2/G3 retirement, source deletion, new backend, or fallback change.
+```
+
+Current census leads are `hako_aot_compile_json` hardcoding `--driver harness`,
+`provider_keep.rs` directly selecting llvmlite, `capi_transport.rs` falling
+from pure-first to a generic export, and `fast-smoke` explicitly using
+`compat_replay=harness`. The default `ny-llvmc` Boundary and stage1
+`pure-first/replay=none` routes are separate observations, not proof that all
+other ingresses are Python-free.
+
+Initial source-site matrix (D0 observation, not a production decision):
+
+| source site | actual selector | Python reachability |
+| --- | --- | --- |
+| `ny-llvmc` default | Boundary driver | Unreachable observed |
+| `ny-llvmc --driver harness` | `harness_driver` | Reachable |
+| `ny-llvmc --driver native` | native canary | Unreachable observed |
+| `hako_aot_compile_json` | hard-coded `--driver harness` | Reachable |
+| `provider_keep.rs` | `HAKO_LLVM_EMIT_PROVIDER=llvmlite` | Reachable |
+| `route.rs` CAPI/default | CAPI selection; generic export may enter `hako_aot`/harness | Reachability is route-dependent; symbol fallback remains a drift stop |
+| `env.codegen.emit_object` with CAPI + generic recipe | generic C export -> `hako_aot_compile_json` -> `--driver harness` | Reachable |
+| `env.codegen.emit_object` with CAPI + `pure-first`, replay=none | pure-first C export | Unreachable observed; unsupported shape stops |
+| `env.codegen.emit_object` with explicit `HAKO_LLVM_EMIT_PROVIDER=llvmlite` and CAPI disabled | provider_keep -> Python harness | Reachable keep |
+| `env.codegen.emit_object` with explicit `HAKO_LLVM_EMIT_PROVIDER=ny-llvmc` and CAPI disabled | `ny-llvmc` Boundary | Unreachable observed |
+| `env.codegen.compile_ll_text` | external `opt`/`llc` tool seam | Unreachable observed (not a llvmlite route) |
+| stage1 mainline | `pure-first`, `replay=none` | Unreachable observed |
+| `tools/ny_mir_builder.sh` llvmlite branch | explicit backend flag | Reachable keep |
+| `fast-smoke` compat job | `compat_replay=harness` | Reachable keep |
+| perf AOT helpers | reject harness/llvmlite/replay | Unreachable by policy |
+
+The D0 implementation may only turn `Unknown` into an observed classification
+or a typed stop; it may not silently reinterpret a generic C export as the
+Boundary route or change any production behavior. In particular, a CAPI flag
+does not prove Boundary-only execution: the generic C export can deliberately
+enter the compatibility `hako_aot_compile_json -> --driver harness` route.
+
+### Worker route-observation receipt (D0, 2026-08-13)
+
+The read-only route audit closed the previously unknown plugin ingress as
+route-dependent rather than Boundary-only:
+
+```text
+compat_codegen_receiver::emit_object
+  -> mir_json_text_object::route
+  -> CAPI generic export (when CAPI flags are enabled and recipe is absent)
+  -> hako_llvmc_compile_json
+  -> hako_aot_compile_json
+  -> ny-llvmc --driver harness
+  -> Python/llvmlite
+```
+
+The same ingress with `pure-first` and `compat_replay=none` remains a pure
+lane and rejects unsupported shapes; `replay=harness` is the only explicit
+replay into Python. `compile_ll_text` is a separate Rust thin seam over
+external `opt`/`llc` and must not be counted as llvmlite reachability.
+
+Two identity hazards remain open for the next bounded guard, without changing
+behavior in D0:
+
+1. `capi_transport.rs` can try a generic compile symbol after the requested
+   pure-first symbol is absent. This is a route-identity drift and must be
+   observed or typed-stopped before G1; it is not evidence of a successful
+   Boundary route.
+2. `HAKO_LLVM_EMIT_PROVIDER=llvmlite` is not a direct-provider receipt when
+   CAPI flags win earlier in `route.rs`; the actual selected C export and
+   child command are the authority.
+
+The plugin receiver currently converts `emit_object`/`compile_ll_text` errors
+to `Ok(None)`. Whether that compatibility-facing loss of typed failure is
+accepted or changed is a separate route-contract decision; it does not count
+as Python reachability evidence and remains outside D0 behavior changes.
+
 Create a source-derived route inventory. One row represents one exact ingress
 and carries:
 
@@ -282,46 +483,120 @@ source-site reverse census is bijective
 production behavior delta = 0
 ```
 
-### `LLVMLITE-ROUTE0-IDENTITY0`
-
-Separate actual selector from descriptive or stale flags.
+### D0 bounded guard task (`LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0`)
 
 ```text
-actual llvmlite selector:
-  --driver harness
-  explicit llvmlite provider
-  explicit compat_replay=harness
-
-not sufficient evidence:
-  NYASH_LLVM_USE_HARNESS=1
-  --harness PATH without --driver harness
-  filename/comment containing llvmlite or harness
+Task: LLVMLITE-ROUTE0-CENSUS0-IDENTITY-GUARD-S0
+Owner: existing route/driver/provider source census; no new backend owner
+Shape: one reusable static guard plus source-derived matrix, no runtime change
+Guard inputs: CAPI flags, recipe, compat replay, provider, selected C export,
+              driver, child command, and plugin ingress
+Positive: pure-first+none has Python=0; explicit harness/provider is Reachable;
+          compile_ll_text is external-tool-only; generic C export is compat
+          harness reachability, not Boundary-only
+Negative: missing requested pure-first symbol, implicit generic fallback,
+          provider/CAPI precedence drift, unknown child command, and untyped
+          ingress remain a typed stop / red census
+Non-claims: no G1/G2/G3 retirement, source deletion, fallback removal,
+            provider precedence change, or plugin error-policy change
 ```
 
-Fix tool names, comments, README examples, and gates so every claimed route is
-backed by an actual selection receipt. Behavior changes belong to later
-retirement rows, not this truth-sync row.
+S0 receipt (2026-08-13): `tools/checks/llvm_codegen_route_identity_guard.sh`
+is green. Identity0/OBSERVE0 then fixed selector labels and child evidence;
+G1-D1 now fences selected-Dynamic route inheritance before child spawn. F0
+closed the pure-first CAPI symbol fallback with focused route/guard evidence.
+The remaining source-backed hazards are generic C -> hako_aot -> harness
+reachability and plugin `Err=>Ok(None)`; no provider order changed.
 
-### `LLVMLITE-ROUTE0-OBSERVE0`
+### `LLVMLITE-ROUTE0-IDENTITY0` (closed)
 
-Add one route receipt at the selected boundary. It records:
+Identity0/OBSERVE0 are closed behavior-free selector/child-evidence batches.
+The route guard remains the regression gate; explicit keep/oracle lanes remain
+source-scoped and no llvmlite source deletion is implied.
+
+### `LLVMLITE-AUTO0-GENERIC-CAPI-RET0` (closed by R0)
 
 ```text
-request id
-entry family
-driver
-library export
-recipe
-compat replay
-Python child started: yes/no
-artifact result
+Decision: design the retirement of automatic generic-C/API -> hako_aot ->
+  harness reachability; keep explicit `--driver harness`, provider_keep, and
+  replay lanes unchanged.
+Source authority + canonical issuer: route plan/driver/provider/replay choice,
+  exact CAPI symbol, hako_aot child command, plugin result, and child evidence.
+Non-authority: `.or_else(generic)` fallback, provider names, NYASH hint alone,
+  llvmlite output, or plugin `Err=>Ok(None)` as a success signal.
+Fail-fast boundary: pure-first symbol loss, recipe-unset generic export,
+  implicit hako_aot harness, CAPI-unavailable, plugin error, or unsupported
+  input must stop with typed failure; no native retry or second lookup.
+Non-claims: no G2/G3 retirement, explicit keep removal, selected-Dynamic change,
+  generic backend expansion, or llvmlite source deletion.
 ```
 
-The receipt is test/diagnostic observation, not semantic authority. It may not
-select a backend, retry, alter an error, or read a second route after failure.
+R0 receipt (2026-08-14): recipe-unset generic C and non-replay direct AOT fail
+before a child/object; pure-first/replay and named keep lanes remain unchanged.
+C build, missing-gate ctypes smoke, explicit compat probe, route guard, fmt, and
+diff check are green. No fallback, provider reorder, G2/G3, or source deletion.
 
+F0 receipt (2026-08-14, closed): one requested CAPI symbol lookup; missing pure-first symbols return typed dlsym failure.
+Plugin receipt (2026-08-14, closed): `compile_ll_text`, `emit_object`, and
+`link_object` preserve success paths and map backend errors to
+`BidError::PluginError`; focused tests, route guard, fmt, pointer guard, and
+diff check are green. Generic C/hako_aot ingress remains design-only; no
+provider order or source deletion changes here.
+### Boundary C ABI role lock (DOC2)
+```text
+Decision: versioned C ABI is a thin transport bridge, never semantic authority.
+Source authority + issuer: MIR/site plan plus sole Rust lease owner.
+Non-authority: C/LLVM, raw handle/drop, provider lookup, Fault meaning, lease table,
+  generation checks, and release semantics. Fail-fast: bad status/wire/ABI/suspension
+  traps before a semantic successor; no Python fallback. No alternate ABI/publication.
+```
+### `LLVMLITE-AUTO0-STAGE1-REPLAY-RET0` (closed by R0)
+```text
+Decision: `build_stage1.sh --compat-replay <none|harness>` is the sole Stage1
+  replay admission; default is `pure-first/none`; inherited `harness` without
+  the option fails before bootstrap child/object creation.
+Source authority + issuer: build invocation policy plus `stage1_contract` validation;
+  artifact metadata records replay mode/admission. Non-authority: Python output,
+  `NYASH_LLVM_USE_HARNESS` alone, or env text. Fail-fast: invalid/mismatched/
+  inherited replay stops before Python child.
+Receipt: helper, build/stage3 wiring, positive/negative tests, metadata,
+  route/pointer guards, shell syntax, and diff checks are green.
+Non-claims: no provider reorder, G1/G2/G3 retirement, or source deletion.
+```
+### `LLVMLITE-AUTO0-ENV-CODEGEN-RET0` (closed R0; fast)
+Decision: ordinary `env.codegen.emit_object` is fixed Boundary/pure-first and
+  rejects inherited replay; only named `emit_object_compat_harness` admits the
+  explicit harness keep lane. Source authority: named receiver plus route request.
+Non-authority: hints, Python output, provider labels, generic C fallback, plugin `None`.
+Fail-fast: ambient replay other than `none` rejects before route/child creation.
+Receipt (2026-08-14): focused Rust tests=7; ordinary child=0, named child=1,
+  inherited replay child=0 observed by opt-in strace; route/pointer guards, fmt,
+  and diff check are green. Non-claims: no G1/G2/G3 retirement or source deletion.
+### `LLVMLITE-AUTO0-HAKO-AOT-FFI-ADMISSION-F0` (closed, 2026-08-14)
+Decision: generic AOT/FFI now rejects inherited harness replay; only the versioned
+  named `*_compat_harness` C ABI may enter the frozen keep lane. Source authority is
+  the named export, not `HAKO_AOT_USE_FFI` or ambient replay.
+Non-authority: inherited replay, `NYASH_LLVM_USE_HARNESS`, provider names, fallback,
+  and Python output. Fail-fast is before FFI `dlsym`, child spawn, or object creation.
+Receipt: direct generic reject, named direct keep, generic FFI replay reject, and named
+  FFI keep all pass `llvm_hako_aot_ffi_admission_smoke.sh`; build, route/pointer guards,
+  and diff check are green. Tracked daily hako_aot caller census remains zero.
+Non-claims: no provider reorder, G1/G2/G3 retirement, source deletion, or driver switch.
+### `LLVMLITE-ROUTE0-OBSERVE0-R0` (closed)
+Decision: reuse `NYASH_LLVM_ROUTE_TRACE` as diagnostic events; no durable route
+  receipt or second selector. Source authority: route/driver dispatch emits one
+  selection event; child-command owner emits one child event.
+Non-authority: trace text, Python output, paths, names, `NYASH_LLVM_USE_HARNESS`,
+  or lookup after failure. Fail-fast: contradictory selectors/child/artifact
+  evidence stop. Acceptance: route guard pins both producers, trace default-off,
+  selectors, and field contract
+  (`request_id`, `entry_family`, `driver`, `export`, `recipe`, `compat_replay`,
+  `python_child`, `artifact_result`).
+Evidence (2026-08-14): opt-in guard records ordinary=0, named compat=1,
+  inherited replay=0 Python children; explicit replay has no child/object.
+Non-claims: no G1/G2/G3 retirement, source deletion, provider reorder,
+  fallback/retry change, or new semantic/backend authority.
 ## 2. Native library foundation
-
 ### `LLVM-NATIVELIB0-CENSUS0`
 
 Inventory every exported symbol, caller, allocator/free convention, dynamic
@@ -644,24 +919,28 @@ Retire zero-consumer direct Python helpers and stale wrapper APIs only after a
 source and cfg census. Do not delete shared oracle code here.
 
 ### `LLVMLITE-PROD0-G0`
+#### `LLVMLITE-PROD0-G0-D1-ROUTE-REQUEST-BOUNDARY` (closed)
+Decision: ordinary Boundary, explicit llvmlite keep, and selected Dynamic Boundary
+  are separate requests; `llvm_use_harness()` alone never selects production.
+Source authority: route plan, driver/provider/replay request, child command, and
+  selected Boundary artifact receipt. Non-authority: labels, Python output, hints,
+  or a second lookup. Fail-fast: unknown ingress, inherited replay, native retry,
+  generic implicit harness, plugin `Err=>Ok(None)`, or untyped unsupported input.
+Receipt: route policy and named C/API admissions are closed; no G1/G2/G3 or
+  source deletion is claimed.
 
-Required terminal counts:
-
-```text
-automatic production Python ingresses = 0
-default production llvmlite reachability = Unreachable
-unknown watched reachability = 0
-native/library failure -> llvmlite retry = 0
-generic C export -> implicit harness = 0
-stage1 forced harness replay = 0
-default build Python requirement = 0
-default perf/acceptance Python child = 0
-
-explicit llvmlite keep roots = closed enumerated set
-explicit keep route receipts = one per execution
-llvmlite source deletion claim = 0
-```
-
+#### `LLVMLITE-PROD0-G0-CENSUS-R0` (closed; 2026-08-14)
+Decision: build one source-backed matrix for every active Python/llvmlite ingress,
+  retry edge, C/AOT export, runner/tool, CI/smoke/perf root, and explicit keep root.
+Source authority: caller/child-process owner plus the existing W6 Boundary receipt.
+Non-authority: environment names, static labels, Python output, and archive-only code.
+Fail-fast: any unclassified caller, native-failure retry, or automatic child path
+  blocks G1. Acceptance: `llvmlite-production-ingress-census-v0.json` has
+  production=0, explicit keep roots enumerated, positive/negative evidence per row,
+  and one reusable guard; child observation ordinary=0, compat=1, replay=0;
+  direct keep/debug/smoke roots are enumerated; `LegacyAmbientKeep` and
+  harness-or-fallback remain explicit G1 inputs; no route behavior, source
+  deletion, G2/G3, or new semantic/backend authority.
 ## 7. Later retirement
 
 ### `LLVM-NATIVELIB0-LEGACYJSON-RET0`

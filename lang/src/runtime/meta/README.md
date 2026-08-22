@@ -38,6 +38,16 @@ Rule:
   - paired with `tools/checks/core_method_contract_inc_no_growth_guard.sh`
     to stop new `.inc` method/box-name classifier growth
   - not a semantic owner; regenerate instead of hand-editing.
+- `provider_slot_contract_box.hako`
+  - normalized `hako.text.scan@1` grouping for `TextSliceRange` and
+    `TextFindNeedle`.
+  - borrows CoreMethod operation identity; it does not redefine result/effect
+    rows, select a provider, or emit runtime ABI.
+  - exported as `selfhost.meta.TextScanProviderSlotContract` in
+    `hako_module.toml`.
+- `generated/provider_slot_contract_manifest.json`
+  - deterministic projection checked by
+    `tools/provider_slot_contract_manifest_codegen.py`.
 
 ## Root Invariant
 

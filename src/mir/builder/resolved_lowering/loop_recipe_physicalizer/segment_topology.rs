@@ -42,7 +42,7 @@ pub(super) enum LoopPhysicalSegmentBlockReceiptRejectV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) struct LoopPhysicalSegmentBlockReceiptV1 {
+pub(in crate::mir::builder::resolved_lowering) struct LoopPhysicalSegmentBlockReceiptV1 {
     owner: FunctionOwnerIdV1,
     preheader: BasicBlockId,
     entry_segment: LoopPhysicalSegmentKeyV1,

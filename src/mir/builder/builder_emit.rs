@@ -1,7 +1,15 @@
+use self::builder_emit_core::append_instruction_core;
 use super::{observe, origin, utils};
 use super::{BasicBlockId, MirBuilder, MirInstruction, ValueId};
 use crate::mir::diagnostics::{caller_string, mir_dump_value, FreezeContract};
 use crate::mir::BasicBlock;
+
+#[path = "builder_emit_core.rs"]
+mod builder_emit_core;
+
+pub(in crate::mir::builder) use builder_emit_core::{
+    CanonicalCompareAppendRejectV1, CanonicalCompareDefinitionSourceV1,
+};
 
 impl MirBuilder {
     /// Emit one instruction into an explicitly selected existing block.
@@ -254,7 +262,7 @@ impl MirBuilder {
             // Extract function name before mutable borrow to avoid borrowck error
             let current_fn_name = function.signature.name.clone();
 
-            if let Some(block) = function.get_block_mut(block_id) {
+            if function.get_block(block_id).is_some() {
                 // CRITICAL: Copy専用トレース（LocalSSA調査用）
                 if let MirInstruction::Copy { dst, src } = &instruction {
                     if crate::config::env::builder_local_ssa_trace() {
@@ -355,12 +363,14 @@ impl MirBuilder {
                         }
                     ));
                 }
-                // Phase 136 Step 6/7: Use metadata_ctx for span
-                block.add_instruction_with_span(
+                // Phase 136 Step 6/7: Use metadata_ctx for span. Both legacy
+                // and strict front doors share this one physical append point.
+                append_instruction_core(
+                    function,
+                    block_id,
                     instruction.clone(),
                     self.metadata_ctx.current_span(),
-                );
-                // Drop the mutable borrow of `block` before updating other blocks
+                )?;
             } else {
                 return Err(FreezeContract::new("builder/emit_missing_block")
                     .field("fn", current_fn_name)

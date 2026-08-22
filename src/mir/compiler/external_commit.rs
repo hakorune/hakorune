@@ -78,7 +78,7 @@ pub(in crate::mir) enum PostprocessEvidenceSealV1<'a> {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) struct PreparedModuleExternalCommitV1<'a> {
+pub(crate) struct PreparedModuleExternalCommitV1<'a> {
     token: ModuleInvocationTokenV1,
     builder: PreparedBuilderExternalCommitV1,
     module: crate::mir::MirModule,
@@ -93,6 +93,19 @@ struct PreparedModuleExternalCommitSealV1;
 impl<'a> PreparedModuleExternalCommitV1<'a> {
     pub(in crate::mir) fn evidence(&self) -> &PostprocessEvidenceSealV1<'a> {
         &self.evidence
+    }
+
+    /// Lend the already-prepared candidate module to one root-owned observer.
+    ///
+    /// The callback is higher-ranked so no module borrow can escape into a
+    /// receipt, candidate aggregate, or future commit product.  This is the
+    /// only D0-C export seam: it does not clone the module, expose mutable
+    /// Builder state, or re-issue any artifact evidence.
+    pub(crate) fn with_candidate_module<R>(
+        &self,
+        observe: impl for<'module> FnOnce(&'module crate::mir::MirModule) -> R,
+    ) -> R {
+        observe(&self.module)
     }
 
     /// Test-only read boundary for immutable candidate observation.  The

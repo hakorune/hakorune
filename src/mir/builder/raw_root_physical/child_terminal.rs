@@ -105,7 +105,11 @@ fn map_abort_reason(error: &ModuleLoweringPortChildErrorV1) -> RawExpansionAbort
             _,
         ))
         | ModuleLoweringPortChildErrorV1::Admission(_)
-        | ModuleLoweringPortChildErrorV1::ReceiptBrand(_) => RawExpansionAbortReasonV1::Admission,
+        | ModuleLoweringPortChildErrorV1::ReceiptBrand(_)
+        | ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch
+        | ModuleLoweringPortChildErrorV1::PinnedTextBackendFrameContractMismatch => {
+            RawExpansionAbortReasonV1::Admission
+        }
     }
 }
 

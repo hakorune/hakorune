@@ -11,7 +11,10 @@ use super::normal_script_operational_demand_receipt_pack::ScriptOperationalDeman
 #[cfg(test)]
 use super::normal_script_operational_demand_receipt_pack::ScriptQMarkPropagationTargetV1;
 use super::normal_script_semantic_lowering_projection::VerifiedScriptLoweringProjectionV1;
-use super::normal_script_semantic_source_core::ScriptSemanticSourceCoreV1;
+use super::normal_script_semantic_source_core::{
+    ScriptSemanticSourceCoreV1, ScriptSemanticSourcePreEffectCorePartsV1,
+};
+use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, SemanticOwnerForestDraftV1, SourceNodeSiteV1, VerifiedResolvedScriptV1,
@@ -31,6 +34,16 @@ pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
     boundaries: ScriptBoundaryReceiptPackV1,
     demands: ScriptOperationalDemandReceiptPackV1,
     lowering_projection: VerifiedScriptLoweringProjectionV1,
+    continuation: VerifiedScriptSourceContinuationV1,
+}
+
+#[derive(Debug)]
+pub(super) struct ScriptSemanticSourcePreEffectPartsV1 {
+    pub(super) core: ScriptSemanticSourcePreEffectCorePartsV1,
+    pub(super) boundaries: ScriptBoundaryReceiptPackV1,
+    pub(super) demands: ScriptOperationalDemandReceiptPackV1,
+    pub(super) lowering_projection: VerifiedScriptLoweringProjectionV1,
+    pub(super) continuation: VerifiedScriptSourceContinuationV1,
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
@@ -74,6 +87,8 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             })?;
         let boundaries = ScriptBoundaryReceiptPackV1::seal(source, product, window)?;
         let demands = ScriptOperationalDemandReceiptPackV1::seal(source, product, window)?;
+        let continuation = VerifiedScriptSourceContinuationV1::issue(&forest, window)
+            .map_err(|error| format!("[mir/script-semantic/continuation] {error:?}"))?;
         let core = ScriptSemanticSourceCoreV1::seal(
             source,
             forest,
@@ -89,7 +104,44 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
             boundaries,
             demands,
             lowering_projection,
+            continuation,
         })
+    }
+
+    pub(super) fn into_pre_effect_parts(
+        self,
+    ) -> Result<ScriptSemanticSourcePreEffectPartsV1, &'static str> {
+        let Self {
+            core,
+            boundaries,
+            demands,
+            lowering_projection,
+            continuation,
+        } = self;
+        Ok(ScriptSemanticSourcePreEffectPartsV1 {
+            core: core.into_pre_effect_parts(),
+            boundaries,
+            demands,
+            lowering_projection,
+            continuation,
+        })
+    }
+
+    pub(super) fn from_pre_effect_parts(
+        source: &'source crate::ast::ASTNode,
+        parts: ScriptSemanticSourcePreEffectPartsV1,
+    ) -> Self {
+        Self {
+            core: ScriptSemanticSourceCoreV1::bind_pre_effect_parts(source, parts.core),
+            boundaries: parts.boundaries,
+            demands: parts.demands,
+            lowering_projection: parts.lowering_projection,
+            continuation: parts.continuation,
+        }
+    }
+
+    pub(super) fn continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
+        &self.continuation
     }
 
     pub(super) fn source(&self) -> &crate::ast::ASTNode {
@@ -214,8 +266,23 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         self.lowering_projection.variable_binding_at(site)
     }
 
-    pub(super) fn into_lowering_projection(self) -> VerifiedScriptLoweringProjectionV1 {
-        self.lowering_projection
+    pub(super) fn into_lowering_parts(
+        self,
+    ) -> (
+        VerifiedScriptLoweringProjectionV1,
+        VerifiedScriptSourceContinuationV1,
+    ) {
+        (self.lowering_projection, self.continuation)
+    }
+}
+
+impl ScriptSemanticSourcePreEffectPartsV1 {
+    pub(in crate::mir::builder) fn forest(&self) -> &VerifiedSemanticOwnerForestV1 {
+        self.core.forest()
+    }
+
+    pub(in crate::mir::builder) fn continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
+        &self.continuation
     }
 }
 

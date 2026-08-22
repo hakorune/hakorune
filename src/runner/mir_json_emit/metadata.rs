@@ -1,8 +1,9 @@
-use super::a_prime_i64_capability::insert_a_prime_i64_physical_receipt_json;
+use super::a_prime_i64_capability::insert_a_prime_i64_physical_receipt_value_json;
 use super::agg_local::build_agg_local_scalarization_routes_json;
 use super::array_metadata::insert_array_metadata_json;
 use super::array_write::insert_array_write_metadata_json;
 use super::core_metadata::insert_core_metadata_json;
+use super::dynamic_v2_aot_admission::insert_dynamic_v2_aot_call_admission_json;
 use super::exact_numeric::insert_exact_numeric_metadata_json;
 use super::fastmem_metadata::insert_fastmem_metadata_json;
 use super::local_contracts::insert_local_contract_metadata_json;
@@ -25,8 +26,19 @@ use super::weak_field_contracts::insert_weak_field_contract_metadata_json;
 use crate::mir::MirFunction;
 use serde_json::json;
 
-pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value {
+pub(super) fn build_function_metadata_json(f: &MirFunction) -> Result<serde_json::Value, String> {
     let metadata = &f.metadata;
+    let dynamic_observation = metadata.selected_dynamic_metadata_observation();
+    if matches!(
+        dynamic_observation,
+        crate::mir::function::DynamicV2MetadataPairObservation::Scrubbed
+            | crate::mir::function::DynamicV2MetadataPairObservation::Partial
+    ) {
+        return Err(format!(
+            "function {} has invalid selected Dynamic metadata lifecycle",
+            f.signature.name
+        ));
+    }
     let mut metadata_json = json!({
         "span_access_plans": metadata.span_access_plans.iter().map(|plan| {
             json!({
@@ -481,7 +493,20 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
         insert_weak_field_contract_metadata_json(obj, f);
         insert_exact_numeric_metadata_json(obj, metadata);
         insert_parameter_contract_metadata_json(obj, metadata);
-        insert_a_prime_i64_physical_receipt_json(obj, metadata);
+        match dynamic_observation {
+            crate::mir::function::DynamicV2MetadataPairObservation::Ordinary => {}
+            crate::mir::function::DynamicV2MetadataPairObservation::Selected {
+                receipt,
+                admission,
+            } => {
+                insert_a_prime_i64_physical_receipt_value_json(obj, receipt);
+                insert_dynamic_v2_aot_call_admission_json(obj, admission);
+            }
+            crate::mir::function::DynamicV2MetadataPairObservation::Scrubbed
+            | crate::mir::function::DynamicV2MetadataPairObservation::Partial => {
+                unreachable!("invalid selected metadata rejected before JSON construction")
+            }
+        }
         insert_return_contract_metadata_json(obj, metadata);
         insert_local_contract_metadata_json(obj, metadata);
         insert_record_contract_metadata_json(obj, metadata);
@@ -490,6 +515,19 @@ pub(super) fn build_function_metadata_json(f: &MirFunction) -> serde_json::Value
     if let serde_json::Value::Object(obj) = &mut metadata_json {
         insert_fastmem_metadata_json(obj, metadata);
         insert_plan_metadata_json(obj, metadata);
+        if let Some(contract) = metadata.pinned_text_backend_frame_contract {
+            let borrow = contract.borrow();
+            obj.insert(
+                "pinned_text_backend_frame_v1".to_owned(),
+                borrow.to_transport_json(),
+            );
+        }
+        if let Some(carrier) = metadata.pinned_text_residence_backend_carrier.as_ref() {
+            obj.insert(
+                "pinned_text_residence_carrier_v1".to_owned(),
+                carrier.to_transport_json(),
+            );
+        }
     }
-    metadata_json
+    Ok(metadata_json)
 }

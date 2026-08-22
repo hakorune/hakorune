@@ -15,6 +15,7 @@ use crate::mir::resolved_semantics::{
 use super::super::claims::DynamicFullLoopClaimTargetV2;
 use super::super::{DynamicFullLoopParameterClassV2, DynamicFullLoopRetainedSourceV1};
 use super::coverage::VerifiedDynamicFullLoopClaimCoverageV2;
+use super::local::DynamicIterationLocalValueRefV2;
 use super::VerifiedDynamicFullLoopSourceRecipeEnvelopeV2;
 use crate::mir::compiler::dynamic_full_body_source::{
     DynamicFullBodyBindingRoleV1, DynamicFullBodyBindingRowV1, DynamicFullBodySourceRoleV1,
@@ -37,25 +38,76 @@ pub(in crate::mir) struct DynamicAPrimeI64SourceRelationViewV1<'program> {
     owner: FunctionOwnerIdV1,
     frame: &'program LoopExecutionFrameKeyV1,
     scope_region: ResolvedScopeRegionPairV1,
+    src_binding: BindingRefV1,
     pos_binding: BindingRefV1,
     end_binding: BindingRefV1,
+    pred_chars_binding: BindingRefV1,
+    src_declaration: &'program SourceBindingSiteV1,
+    pos_declaration: &'program SourceBindingSiteV1,
+    end_declaration: &'program SourceBindingSiteV1,
+    pred_chars_declaration: &'program SourceBindingSiteV1,
     induction_binding: BindingRefV1,
     induction_declaration: &'program SourceBindingSiteV1,
     initializer: &'program SourceExprSiteV1,
     loop_site: &'program SourceStmtSiteV1,
     condition_i: &'program SourceExprSiteV1,
+    condition_end: &'program SourceExprSiteV1,
+    substring_receiver: &'program SourceExprSiteV1,
+    substring_start: &'program SourceExprSiteV1,
+    substring_end_i: &'program SourceExprSiteV1,
+    index_of_receiver: &'program SourceExprSiteV1,
     step_read_i: &'program SourceExprSiteV1,
     step_target_i: &'program SourceExprSiteV1,
     inner_return_i: &'program SourceExprSiteV1,
     outer_return_i: &'program SourceExprSiteV1,
     completion_sites: [&'program SourceStmtSiteV1; 2],
+    src_class: DynamicFullLoopParameterClassV2,
     pos_class: DynamicFullLoopParameterClassV2,
     end_class: DynamicFullLoopParameterClassV2,
+    pred_chars_class: DynamicFullLoopParameterClassV2,
     induction_key: LoopBindingKeyV1,
     carrier_key: LoopCarrierKeyV1,
     entry_value: LoopValueKeyV1,
+    src_value: LoopValueKeyV1,
+    pos_value: LoopValueKeyV1,
+    end_value: LoopValueKeyV1,
+    pred_chars_value: LoopValueKeyV1,
     inner_return_value: LoopValueKeyV1,
     outer_tail_binding: LoopBindingKeyV1,
+    iteration_local: DynamicIterationLocalValueRefV2<'program>,
+}
+
+/// One borrowed formal lane from the already verified source/Recipe relation.
+/// This is a physical-session input view, not a second semantic contract.
+#[derive(Debug, Clone, Copy)]
+pub(in crate::mir) struct DynamicAPrimeFormalRelationRowV1<'program> {
+    ordinal: u32,
+    declaration: &'program SourceBindingSiteV1,
+    binding: BindingRefV1,
+    recipe_value: LoopValueKeyV1,
+    class: DynamicFullLoopParameterClassV2,
+}
+
+impl<'program> DynamicAPrimeFormalRelationRowV1<'program> {
+    pub(in crate::mir) const fn ordinal(self) -> u32 {
+        self.ordinal
+    }
+
+    pub(in crate::mir) const fn declaration(self) -> &'program SourceBindingSiteV1 {
+        self.declaration
+    }
+
+    pub(in crate::mir) const fn binding(self) -> BindingRefV1 {
+        self.binding
+    }
+
+    pub(in crate::mir) const fn recipe_value(self) -> LoopValueKeyV1 {
+        self.recipe_value
+    }
+
+    pub(in crate::mir) const fn class(self) -> DynamicFullLoopParameterClassV2 {
+        self.class
+    }
 }
 
 impl DynamicAPrimeI64SourceRelationViewV1<'_> {
@@ -75,8 +127,16 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
         self.pos_binding
     }
 
+    pub(in crate::mir) const fn src_binding(&self) -> BindingRefV1 {
+        self.src_binding
+    }
+
     pub(in crate::mir) const fn end_binding(&self) -> BindingRefV1 {
         self.end_binding
+    }
+
+    pub(in crate::mir) const fn pred_chars_binding(&self) -> BindingRefV1 {
+        self.pred_chars_binding
     }
 
     pub(in crate::mir) const fn induction_binding(&self) -> BindingRefV1 {
@@ -97,6 +157,26 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
 
     pub(in crate::mir) const fn condition_i(&self) -> &SourceExprSiteV1 {
         self.condition_i
+    }
+
+    pub(in crate::mir) const fn condition_end(&self) -> &SourceExprSiteV1 {
+        self.condition_end
+    }
+
+    pub(in crate::mir) const fn substring_receiver(&self) -> &SourceExprSiteV1 {
+        self.substring_receiver
+    }
+
+    pub(in crate::mir) const fn substring_start(&self) -> &SourceExprSiteV1 {
+        self.substring_start
+    }
+
+    pub(in crate::mir) const fn substring_end_i(&self) -> &SourceExprSiteV1 {
+        self.substring_end_i
+    }
+
+    pub(in crate::mir) const fn index_of_receiver(&self) -> &SourceExprSiteV1 {
+        self.index_of_receiver
     }
 
     pub(in crate::mir) const fn step_read_i(&self) -> &SourceExprSiteV1 {
@@ -127,6 +207,47 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
         self.end_class
     }
 
+    pub(in crate::mir) const fn src_class(&self) -> DynamicFullLoopParameterClassV2 {
+        self.src_class
+    }
+
+    pub(in crate::mir) const fn pred_chars_class(&self) -> DynamicFullLoopParameterClassV2 {
+        self.pred_chars_class
+    }
+
+    pub(in crate::mir) fn formal_rows(&self) -> [DynamicAPrimeFormalRelationRowV1<'_>; 4] {
+        [
+            DynamicAPrimeFormalRelationRowV1 {
+                ordinal: 0,
+                declaration: self.src_declaration,
+                binding: self.src_binding,
+                recipe_value: self.src_value,
+                class: self.src_class,
+            },
+            DynamicAPrimeFormalRelationRowV1 {
+                ordinal: 1,
+                declaration: self.pos_declaration,
+                binding: self.pos_binding,
+                recipe_value: self.pos_value,
+                class: self.pos_class,
+            },
+            DynamicAPrimeFormalRelationRowV1 {
+                ordinal: 2,
+                declaration: self.end_declaration,
+                binding: self.end_binding,
+                recipe_value: self.end_value,
+                class: self.end_class,
+            },
+            DynamicAPrimeFormalRelationRowV1 {
+                ordinal: 3,
+                declaration: self.pred_chars_declaration,
+                binding: self.pred_chars_binding,
+                recipe_value: self.pred_chars_value,
+                class: self.pred_chars_class,
+            },
+        ]
+    }
+
     pub(in crate::mir) const fn induction_key(&self) -> LoopBindingKeyV1 {
         self.induction_key
     }
@@ -146,6 +267,10 @@ impl DynamicAPrimeI64SourceRelationViewV1<'_> {
     pub(in crate::mir) const fn outer_tail_binding(&self) -> LoopBindingKeyV1 {
         self.outer_tail_binding
     }
+
+    pub(in crate::mir) const fn iteration_local(&self) -> DynamicIterationLocalValueRefV2<'_> {
+        self.iteration_local
+    }
 }
 
 pub(super) fn issue<R>(
@@ -162,21 +287,35 @@ pub(super) fn issue_view(
     let source = &envelope.source;
     let artifact = &envelope.artifact;
     let coverage = &envelope.coverage;
+    let src = binding(source, DynamicFullBodyBindingRoleV1::Src)?;
     let pos = binding(source, DynamicFullBodyBindingRoleV1::Pos)?;
     let end = binding(source, DynamicFullBodyBindingRoleV1::End)?;
+    let pred_chars = binding(source, DynamicFullBodyBindingRoleV1::PredChars)?;
     let induction = binding(source, DynamicFullBodyBindingRoleV1::Induction)?;
     let initializer = expression(source, DynamicFullBodySourceRoleV1::PreludeInitializerPos)?;
     let loop_site = statement(source, DynamicFullBodySourceRoleV1::Loop)?;
     let condition_i = expression(source, DynamicFullBodySourceRoleV1::LoopConditionI)?;
+    let condition_end = expression(source, DynamicFullBodySourceRoleV1::LoopConditionEnd)?;
+    let substring_receiver = expression(source, DynamicFullBodySourceRoleV1::SubstringReceiverSrc)?;
+    let substring_start = expression(source, DynamicFullBodySourceRoleV1::SubstringStartI)?;
+    let substring_end_i = expression(source, DynamicFullBodySourceRoleV1::SubstringEndI)?;
+    let index_of_receiver = expression(
+        source,
+        DynamicFullBodySourceRoleV1::IndexOfReceiverPredChars,
+    )?;
     let step_read_i = expression(source, DynamicFullBodySourceRoleV1::StepReadI)?;
     let step_target_i = expression(source, DynamicFullBodySourceRoleV1::StepTargetI)?;
     let inner_return_i = expression(source, DynamicFullBodySourceRoleV1::InnerReturnI)?;
     let outer_return_i = expression(source, DynamicFullBodySourceRoleV1::OuterReturnI)?;
 
+    let src_class = parameter_class(source, 0)?;
     let pos_class = parameter_class(source, 1)?;
     let end_class = parameter_class(source, 2)?;
-    if pos_class != DynamicFullLoopParameterClassV2::I64
+    let pred_chars_class = parameter_class(source, 3)?;
+    if src_class != DynamicFullLoopParameterClassV2::Dynamic
+        || pos_class != DynamicFullLoopParameterClassV2::I64
         || end_class != DynamicFullLoopParameterClassV2::I64
+        || pred_chars_class != DynamicFullLoopParameterClassV2::Dynamic
     {
         return Err(DynamicAPrimeI64SourceRelationRejectV1::ParameterContract);
     }
@@ -197,6 +336,10 @@ pub(super) fn issue_view(
             .ok_or(DynamicAPrimeI64SourceRelationRejectV1::ClaimMismatch)
     };
     expected_binding(
+        DynamicFullBodyBindingRoleV1::Src,
+        DynamicFullLoopClaimTargetV2::Value(value(0)),
+    )?;
+    expected_binding(
         DynamicFullBodyBindingRoleV1::Pos,
         DynamicFullLoopClaimTargetV2::Value(value(1)),
     )?;
@@ -206,6 +349,10 @@ pub(super) fn issue_view(
     )?;
     let induction_key = LoopBindingKeyV1::new(0);
     let carrier_key = LoopCarrierKeyV1::new(0);
+    expected_binding(
+        DynamicFullBodyBindingRoleV1::PredChars,
+        DynamicFullLoopClaimTargetV2::Value(value(3)),
+    )?;
     expected_binding(
         DynamicFullBodyBindingRoleV1::Induction,
         DynamicFullLoopClaimTargetV2::Binding(induction_key),
@@ -275,25 +422,43 @@ pub(super) fn issue_view(
         owner: source.owner,
         frame: &source.frame,
         scope_region: source.scope_region,
+        src_binding: src.binding(),
         pos_binding: pos.binding(),
         end_binding: end.binding(),
+        pred_chars_binding: pred_chars.binding(),
+        src_declaration: src.declaration(),
+        pos_declaration: pos.declaration(),
+        end_declaration: end.declaration(),
+        pred_chars_declaration: pred_chars.declaration(),
         induction_binding: induction.binding(),
         induction_declaration: induction.declaration(),
         initializer,
         loop_site,
         condition_i,
+        condition_end,
+        substring_receiver,
+        substring_start,
+        substring_end_i,
+        index_of_receiver,
         step_read_i,
         step_target_i,
         inner_return_i,
         outer_return_i,
         completion_sites: [inner_site, outer_site],
+        src_class,
         pos_class,
         end_class,
+        pred_chars_class,
         induction_key,
         carrier_key,
         entry_value: value(1),
+        src_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::Src)?,
+        pos_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::Pos)?,
+        end_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::End)?,
+        pred_chars_value: binding_value(coverage, DynamicFullBodyBindingRoleV1::PredChars)?,
         inner_return_value: value(14),
         outer_tail_binding: induction_key,
+        iteration_local: envelope.iteration_local(),
     };
     Ok(view)
 }
@@ -309,6 +474,16 @@ fn parameter_class(
         .find(|row| row.ordinal == ordinal)
         .map(|row| row.class)
         .ok_or(DynamicAPrimeI64SourceRelationRejectV1::ParameterContract)
+}
+
+fn binding_value(
+    coverage: &VerifiedDynamicFullLoopClaimCoverageV2,
+    role: DynamicFullBodyBindingRoleV1,
+) -> Result<LoopValueKeyV1, DynamicAPrimeI64SourceRelationRejectV1> {
+    match coverage.binding_target(role) {
+        Some(DynamicFullLoopClaimTargetV2::Value(value)) => Ok(value),
+        _ => Err(DynamicAPrimeI64SourceRelationRejectV1::ClaimMismatch),
+    }
 }
 
 fn expected_source(

@@ -4,6 +4,7 @@
 //! the sparse ProgramBody(original ordinal) adapter here without widening that
 //! public view.
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::function_view::{FunctionBodyOriginV1, ReceiverPolicyV1};
 use crate::mir::resolved_semantics::{
@@ -28,6 +29,7 @@ pub(super) struct ShadowRootTraversalInputV1<'ast, 'schema> {
     enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
     enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
     record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
+    brand_catalog: Option<&'schema VerifiedBrandProgramDeclarationCatalogV1>,
 }
 
 enum ShadowRootItemsV1<'ast> {
@@ -36,6 +38,10 @@ enum ShadowRootItemsV1<'ast> {
         origin: FunctionBodyOriginV1,
     },
     SparseScript {
+        view: ScriptSyntaxViewV1<'ast>,
+        window: &'ast VerifiedScriptRootDemandWindowV1,
+    },
+    ScriptStaticTargetObservation {
         view: ScriptSyntaxViewV1<'ast>,
         window: &'ast VerifiedScriptRootDemandWindowV1,
     },
@@ -62,6 +68,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             enum_variant_demand: None,
             enum_match_demand: None,
             record_schema_demand: None,
+            brand_catalog: None,
         }
     }
 
@@ -81,7 +88,35 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
             enum_variant_demand: Some(enum_variant_demand),
             enum_match_demand: Some(enum_match_demand),
             record_schema_demand: Some(record_schema_demand),
+            brand_catalog: None,
         }
+    }
+
+    pub(super) fn sparse_script_static_target_observation(
+        view: ScriptSyntaxViewV1<'ast>,
+        window: &'ast VerifiedScriptRootDemandWindowV1,
+    ) -> Self {
+        Self {
+            params: &[],
+            items: ShadowRootItemsV1::ScriptStaticTargetObservation { view, window },
+            // `me` is observed as a current-owner noncandidate.  This is an
+            // observation policy only; it does not issue a Script owner.
+            receiver_policy: ReceiverPolicyV1::StaticCurrentOwner,
+            root_profile: view.root_profile(),
+            traversal_profile: ShadowTraversalProfileV1::FullFunctionV1,
+            enum_variant_demand: None,
+            enum_match_demand: None,
+            record_schema_demand: None,
+            brand_catalog: None,
+        }
+    }
+
+    pub(super) fn with_brand_catalog(
+        mut self,
+        catalog: &'schema VerifiedBrandProgramDeclarationCatalogV1,
+    ) -> Self {
+        self.brand_catalog = Some(catalog);
+        self
     }
 
     pub(super) const fn params(&self) -> &'ast [String] {
@@ -112,6 +147,12 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
         self.enum_match_demand
     }
 
+    pub(super) const fn brand_catalog(
+        &self,
+    ) -> Option<&'schema VerifiedBrandProgramDeclarationCatalogV1> {
+        self.brand_catalog
+    }
+
     pub(super) fn body_path(&self) -> ShadowSourcePathV0 {
         match self.items {
             ShadowRootItemsV1::Dense {
@@ -123,6 +164,9 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
                 ..
             } => ShadowSourcePathV0::lambda_body(),
             ShadowRootItemsV1::SparseScript { .. } => ShadowSourcePathV0::program_body(),
+            ShadowRootItemsV1::ScriptStaticTargetObservation { .. } => {
+                ShadowSourcePathV0::program_body()
+            }
         }
     }
 
@@ -171,6 +215,7 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
                                     },
                                 );
                             }
+                            resolver.record_statement_shape(statement, entry.site().clone());
                             dispatch_resolved_script_root_statement(
                                 resolver,
                                 statement,
@@ -191,6 +236,38 @@ impl<'ast, 'schema> ShadowRootTraversalInputV1<'ast, 'schema> {
                         | ScriptRootSemanticDispositionV1::Transferred(_)
                         | ScriptRootSemanticDispositionV1::Diagnostic(_) => continue,
                     }
+                }
+                Ok(())
+            }
+            ShadowRootItemsV1::ScriptStaticTargetObservation { view, window } => {
+                for entry in window.entries() {
+                    let [SourcePathSegmentV1::ProgramBodyRoot, SourcePathSegmentV1::ProgramBody(index)] =
+                        entry.site().node().segments()
+                    else {
+                        return Err(super::product::ShadowResolveErrorV0::UnsupportedStatement {
+                            kind: "invalid Script static-target demand site",
+                            site: entry.site().clone(),
+                        });
+                    };
+                    let index = *index as usize;
+                    let Some(statement) = view.body().get(index) else {
+                        return Err(super::product::ShadowResolveErrorV0::UnsupportedStatement {
+                            kind: "missing Script static-target demand statement",
+                            site: entry.site().clone(),
+                        });
+                    };
+                    if matches!(
+                        entry.semantic(),
+                        ScriptRootSemanticDispositionV1::Transparent(_)
+                            | ScriptRootSemanticDispositionV1::Transferred(_)
+                            | ScriptRootSemanticDispositionV1::Diagnostic(_)
+                    ) {
+                        continue;
+                    }
+                    let path = ShadowSourcePathV0::program_body()
+                        .child(SourcePathSegmentV1::ProgramBody(index as u32));
+                    resolver.record_statement_site(path.stmt());
+                    resolver.resolve_stmt(statement, &path)?;
                 }
                 Ok(())
             }

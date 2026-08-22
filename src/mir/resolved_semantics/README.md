@@ -18,6 +18,73 @@ only `ShadowResolvedFunctionV0` for tests and deterministic inspection. It
 cannot populate the canonical draft, allocate `BindingId`, plan control flow,
 or lower MIR.
 
+## Explicit externcall source identity
+
+Canonical `externcall "symbol"(args)` is a dedicated source expression. The
+resolver seals its decoded symbol by exact expression site; ordinary
+`externcall("symbol", args)` remains a shadowable `FunctionCall`. Lowering may
+consume only the site-keyed row and must not recover this meaning from a
+function name or from argument zero.
+
+## Typed Script resolver deferral I0 (2026-08-21)
+
+`ShadowResolveErrorV0::into_script_resolver_deferred` is the sole translation
+from source-observation deferrals into `ScriptResolverDeferredV1`. Located
+causes retain their exact statement, expression, or exit site; the one
+unlocated same-scope redeclaration has its own explicit variant. Unrelated
+shadow invariants are not converted into deferral. Both Script forest
+outcomes therefore carry `Deferred(ScriptResolverDeferredV1)` rather than a
+unit state, and they never fabricate an optional or default site.
+
+The normal root lifecycle transports this observation through its existing raw
+lowering owner. `NormalScriptRootLoweringMode::Unavailable` remains separate
+for a route with no Script window, so the lifecycle does not invent a resolver
+cause. This I0 changes no source-window ownership, target lookup, candidate,
+Facts, Recipe, physical, fallback, or production route; those remain behind
+the neutral source-window design stop.
+
+## Identity-bound selected-callable deferral P0 (2026-08-22)
+
+Selected callable resolution transports every source deferral as one
+structurally non-empty batch. Each row nests the shadow resolver's exact
+cause/site with the opaque parser identity supplied beside that same borrowed
+`FunctionSyntaxViewV1`; downstream code never re-pairs a bare ordinal, name,
+arity, or path. Constructor rows keep their own `ConstructorSourceIdV1`
+instead of borrowing callable identity.
+
+The resolver still scans the complete input batch. Multiple valid deferrals
+remain in parser-loan order, while any later non-deferrable resolver invariant
+still rejects the whole issue attempt. `Complete` behavior and accepted syntax
+are unchanged, and a Deferred batch cannot publish a semantic package, retry a
+Builder/compatibility route, or escape with an AST reference.
+
+## Source-bound selected-callable hard reject P0 (2026-08-22)
+
+The same all-row kernel binds every non-deferrable construction or forest-
+verification error to the exact parser identity that accompanied its borrowed
+function syntax. Callable rows retain `CallableDeclarationIdentityV1` and
+constructor rows retain `ConstructorSourceIdV1`; a resolver owner slot, name,
+arity, batch position, or source path is never used to pair the error later.
+
+The first hard error remains terminal and accepted syntax is unchanged. The
+source-bound reject contains no AST reference, cannot publish a semantic
+package, and cannot retry Builder, compatibility, or legacy lowering. The
+cause-less resolver API remains only for its existing test/caller-zero surface.
+
+## Callable bare lexical Program block I0 (2026-08-22)
+
+Inside a declared function body, the parser's `ASTNode::Program` statement is
+the exact representation of one standalone `{ ... }` block. Full-function and
+selected-callable traversal resolve it as a lexical region/scope, with the
+scope origin at `ProgramBodyRoot` and ordered children at `ProgramBody(i)`.
+The block is never flattened into its enclosing scope, and it adds no control
+target: nested `break`/`continue` still resolve to the nearest enclosing Loop.
+
+Script profiles continue to reject this statement shape at their existing
+profile gate. Top-level Program roots, Builder-created Program shells,
+compile-time directives, Try/Catch compatibility, target selection, Recipe,
+and physical lowering are outside this resolver admission.
+
 ## Generic G0 S0B source-type inventory
 
 `generic_g0/` is the sole AST-free issuer for the Generic G0 S0B source-type
@@ -54,6 +121,51 @@ definition-site child index, and normalized graph are derived exactly once at
 seal. OF0 rejects a second root, mixed compilation brands, cycles, duplicate
 parent/definition sites, and a parent scope that is not the exact lexical
 scope containing the Lambda definition.
+
+## Generic G0 body-shape transport I0
+
+The resolver's `resolve_forest_with_body_shapes` path emits the forest and its
+per-owner `VerifiedResolvedBodyShapeInventoryV1` siblings in one shadow
+traversal.  The compiler source unit retains those passive inventories by
+`FunctionOwnerIdV1`; it does not re-resolve the body or issue a function-effect
+receipt.  Downstream Generic G0 transport borrows only the exact owner/root
+matching sibling.  Missing, foreign, or drifted products reject before any
+effect, skeleton, session, or Builder mutation.  The next design stop is the
+separate Generic function-effect projection issuer.
+
+## Resolver callable-contract I0
+
+`ResolverCoreMethodCallableContractIssuerV1` is the bounded Loop bridge. It
+borrows one exact `VerifiedResolvedMethodCallSourceV1` and the caller's
+non-Clone Loop membership, proves every call/receiver/argument/result site has
+the target's exact canonical placement (`StringLen/0 = Condition`,
+`StringSubstring/2 = Body`), and consumes the existing generated target. The
+resulting non-`Clone` product owns the source sites, frame/site projection,
+placement, and target; it does not issue another membership. It does not choose by selector, narrow with
+`only_loop_site`, inspect AST/MIR/Recipe data, issue a source-bound relation, or
+open S6C production. A source row, frame, or target mismatch rejects before any
+Facts/Recipe or physical effect.
+
+## S6C explicit typed-input contract I0
+
+`expression_source.rs` extends the same resolver seal with passive, AST-free
+binary/unary/literal/local-initializer rows. Each unary row retains its exact
+operator and operand site; downstream S6C code proves `-1` only as
+`Minus(Integer(1))`, never from an Operand path or AST reread. The S6C issuer
+borrows those rows plus the callable source ledger and requires the exact annotated cohort
+`(StringBox, StringBox)`, `local i: i64 = 0`, one `length/0`, one
+`substring/2`, `Less`, `TextEq`, two `Add` rows, and their canonical
+`Condition | Body` placement. Parameter names are not type authority.
+
+The resulting non-`Clone` `VerifiedS6CTypedInputRelationV1` owns the exact
+bindings, initializer, binary source relations, Loop membership, and a fixed
+borrow-only `{ length, substring }` call-site pair. The pair retains the
+already-verified `Less.rhs` and `TextEq.lhs` sites and their placements; it
+does not reselect calls or issue a pair brand. Missing
+or wrong annotations, literal/operator/call/placement drift, duplicates, and
+swapped receiver/operands reject before a source-bound call relation, Facts,
+Recipe, Builder/MIR, physicalization, fallback, or production effect. The
+unannotated historical fixture remains a `MissingTypeEvidence` negative.
 
 ## Instance declaration/signature I0
 
@@ -233,6 +345,23 @@ Lambda syntax is borrowed through an AST-derived view and never cloned into a
 semantic product. A child declaration uses a child-local `BindingId`; raw IDs
 may repeat across owners without aliasing.
 
+## Loop CoreMethod/Home target I0
+
+`core_method_instance_target.rs` is the separate manifest-backed issuer for
+the bounded Loop text-call prerequisite. It consumes only the generated
+`CoreMethodManifestRowRefV2` brand and a dedicated `StringBoxText` Home schema;
+it does not widen the user-instance `I64UnitTrivial` ABI. `StringLen/0` and
+`StringSubstring/2` are specialized into explicit receiver, parameter, result,
+`PureRead`, ABI/profile, and non-suspending/non-control relations. The v2 row
+also carries one complete exact-arity semantic-law map: `StringLen/0` projects
+`CodePointCount`, `StringSubstring/2` projects
+`CodePointHalfOpenClamped`, and `StringSubstring/1` remains explicitly
+`Unprojected`. Foreign or mixed manifest brands, union/incorrect arity, wrong
+receiver/result/effect, duplicate targets, and inferred MIR/ResultKind meaning
+reject before a target capability is issued. The target remains
+source-bound-consumer/Facts/Recipe and production caller zero; those later rows
+borrow this capability rather than reissuing the generated CoreMethod row.
+
 UP0 adds only a structural read relation:
 
 ```text
@@ -284,6 +413,16 @@ exact expression container; loop-local Break/Continue remain valid. Planner,
 RegionFlow, ProgramV0, and compatibility fallback remain disconnected.
 B0-L3a is the first bounded Lower consumer: it queries the sealed BlockExpr
 pair by exact expression site and does not change resolver ownership.
+
+The typed BlockExpr expectation slice keeps that identity source-owned. The
+shadow traversal emits `BodyExpressionShapeV1::BlockExpr { site }` directly;
+the old `Other("BlockExpr")` spelling is not an authority. A sibling issuer
+co-seals the same `VerifiedResolvedFunctionV1` and
+`VerifiedResolvedBodyShapeInventoryV1`, checks every exact scope/region pair
+and reciprocal source-origin coverage, then publishes one private,
+non-Clone `VerifiedResolvedBlockExpressionExpectationV1`. It owns only the
+function/root provenance and pair count. It does not create a Recipe key,
+session, CFG, SSA, PHI, ValueId, or physical lowering path.
 
 ## B0-L3b-S1 exact If identity bundle
 
@@ -912,3 +1051,25 @@ to state the bounded `Less -> Bool` and `Add(exact I64) -> Dynamic` relations,
 but it may not infer Dynamic from `MirType::Unknown`, emitted opcodes, variable
 names, or an I64 Recipe operation. Calls, locals, exits, physical values, and
 PHI remain owned by their separate later stages.
+
+## Brand constructor and unwrap source relations
+
+`VerifiedBrandCallSourceRelationV1` is the sole resolved source-site product
+for explicit Brand construction and unwrap. The shared shadow traversal borrows
+the effective `VerifiedBrandProgramDeclarationCatalogV1` while it still owns
+the exact owner-local `SourceExprSiteV1`; it records the declaration identity,
+Brand name and underlying type, relation kind, and exact `Argument(0)` site.
+Unwrap additionally records the exact receiver site.
+
+Recognized constructor sites never enter the ordinary direct-call ledger.
+Exact `Variable(BrandName).unwrap(value)` is namespace-owned even when an equal
+lexical spelling exists; another selector on a declared Brand rejects before
+receiver or argument traversal. Canonicalization only owner-brands and verifies
+the already-issued rows. It never reconstructs Brand meaning from names,
+FreeStatic misses, AST spans, mutable Builder maps, Stage1 JSON, or MIR values.
+
+This relation is issued for selected callable and Script owners from the same
+catalog loan. Physical constructor consumption, unwrap activation, nominal MIR
+Brand identity, mismatch verification, and legacy cache retirement are later
+rows; the current raw `is_brand_declared` consumer intentionally remains until
+the constructor cutover.

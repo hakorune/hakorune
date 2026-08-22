@@ -88,6 +88,7 @@ impl AstWireOracleV0 {
             | ASTNode::Outbox { .. }
             | ASTNode::Call { .. }
             | ASTNode::FunctionCall { .. }
+            | ASTNode::ExplicitExternCall { .. }
             | ASTNode::UnaryOp { .. } => Self::unsupported(
                 path,
                 expression.node_type(),

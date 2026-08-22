@@ -446,6 +446,13 @@ impl AstJsonEncoder {
                 "args": arguments.iter().map(|a| self.encode(a)).collect::<Vec<_>>(),  // JoinIR expects "args"
                 "arguments": arguments.into_iter().map(|a| self.encode(&a)).collect::<Vec<_>>()  // Keep for backward compatibility
             }),
+            ASTNode::ExplicitExternCall {
+                target, arguments, ..
+            } => json!({
+                "kind": "ExplicitExternCall",
+                "target": target,
+                "arguments": arguments.into_iter().map(|a| self.encode(&a)).collect::<Vec<_>>()
+            }),
             // Phase 56: ArrayLiteral with JoinIR-compatible type field
             ASTNode::ArrayLiteral { elements, .. } => json!({
                 "kind": "Array",

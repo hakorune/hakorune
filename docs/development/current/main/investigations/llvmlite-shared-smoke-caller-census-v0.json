@@ -1,0 +1,196 @@
+{
+  "schema": "llvmlite-shared-smoke-caller-census-v0",
+  "status": "g2-caller-census",
+  "production_claim": false,
+  "behavior_change": false,
+  "g3_deletion": false,
+  "source_authority": "shared smoke helper/result checker and each active caller source",
+  "non_authority": [
+    "script names",
+    "comments",
+    "Python output",
+    "historical archive labels"
+  ],
+  "allowed_classes": [
+    "helper_owner",
+    "default_boundary",
+    "default_pending",
+    "explicit_compat"
+  ],
+  "rows": [
+    {
+      "id": "owner-llvm-helper",
+      "class": "helper_owner",
+      "path": "tools/smokes/v2/lib/test_runner_llvm_helpers.sh",
+      "evidence": ["run_nyash_llvm()", "NYASH_LLVM_USE_HARNESS=\"${NYASH_LLVM_USE_HARNESS:-0}\""]
+    },
+    {
+      "id": "owner-result-checker",
+      "class": "helper_owner",
+      "path": "tools/smokes/v2/lib/result_checker.sh",
+      "evidence": ["check_parity()", "local llvm_harness=\"${NYASH_LLVM_USE_HARNESS:-0}\""]
+    },
+    {
+      "id": "compat-json-lint",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/integration/json/json_lint_vm_llvm.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-pp",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/integration/json/json_pp_vm_llvm.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-query",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/integration/json/json_query_vm_llvm.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-nested",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/integration/parity/json_nested_vm_llvm.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-roundtrip",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/integration/parity/json_roundtrip_vm_llvm.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-method-resolution",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/integration/parity/method_resolution_is_eof_vm_llvm.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-deep-nesting",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/quick/core/json_deep_nesting_ast.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-error-messages",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/quick/core/json_error_messages_ast.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-errors",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/quick/core/json_errors_ast.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-large-array",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/quick/core/json_large_array_ast.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-nested-ast",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/quick/core/json_nested_ast.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-roundtrip-ast",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/quick/core/json_roundtrip_ast.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "compat-json-unicode",
+      "class": "explicit_compat",
+      "path": "tools/smokes/v2/profiles/quick/core/json_unicode_basic_ast.sh",
+      "evidence": ["run_nyash_llvm", "NYASH_LLVM_USE_HARNESS=1"]
+    },
+    {
+      "id": "pending-m2-binop",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/quick/core/parity_m2_binop_add_vm_llvm.sh",
+      "evidence": ["run_nyash_llvm"]
+    },
+    {
+      "id": "pending-m2-const-ret",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/quick/core/parity_m2_const_ret_vm_llvm.sh",
+      "evidence": ["run_nyash_llvm"]
+    },
+    {
+      "id": "pending-parity-compare-basic",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_compare_basic.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-concat",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_concat_string_number.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-early-return",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_early_return.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-hello",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_hello.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-if-else",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_if_else_phi.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-if-without-else",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_if_without_else_phi.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-loop-break",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_loop_break_continue.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-loop-sum",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_loop_sum.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-nested-if",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_nested_if.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-precedence",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_precedence_arith.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-scope-assign",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_scope_assign.sh",
+      "evidence": ["check_parity"]
+    },
+    {
+      "id": "pending-parity-unary-not",
+      "class": "default_boundary",
+      "path": "tools/smokes/v2/profiles/integration/parity/vm_llvm_unary_not.sh",
+      "evidence": ["check_parity"]
+    }
+  ]
+}

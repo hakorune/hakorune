@@ -1,10 +1,16 @@
-use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span, UnaryOperator};
+use crate::mir::core_method_op::CoreMethodOp;
+use crate::mir::core_method_result_kind::{
+    issue_core_method_manifest_row_ref_v2, CORE_METHOD_MANIFEST_BRAND_V2,
+};
 
 use super::{
     CallableSourceLedgerRejectV1, CallableSourceRowDispositionV1, CallableSourceRowFamilyV1,
-    FunctionOwnerIssuerV1, FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1,
-    OwnedExprSiteV1, ResolvedLoopRegionLookupErrorV1, SourceBindingSiteV1, SourceNodeSiteV1,
-    SourcePathSegmentV1, SourceStmtSiteV1,
+    CoreMethodInstanceTargetIssuerV1, FunctionOwnerIssuerV1, FunctionSemanticResolverSessionV1,
+    FunctionSyntaxViewV1, OwnedExprSiteV1, ResolvedLiteralSourceV1, ResolvedLoopPlacementV1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedUnaryOperatorV1,
+    ResolverCoreMethodCallableContractIssuerV1, ResolverCoreMethodCallableContractRejectV1,
+    SourceBindingSiteV1, SourceExprSiteV1, SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
 };
 
 fn function(body: Vec<ASTNode>) -> ASTNode {
@@ -37,6 +43,14 @@ fn variable(name: &str) -> ASTNode {
     }
 }
 
+fn unary(operator: UnaryOperator, operand: ASTNode) -> ASTNode {
+    ASTNode::UnaryOp {
+        operator,
+        operand: Box::new(operand),
+        span: Span::unknown(),
+    }
+}
+
 fn method_call(object: ASTNode, method: &str, arguments: Vec<ASTNode>) -> ASTNode {
     ASTNode::MethodCall {
         object: Box::new(object),
@@ -61,6 +75,48 @@ fn node(segments: Vec<SourcePathSegmentV1>) -> SourceNodeSiteV1 {
 
 fn stmt(index: u32) -> SourceStmtSiteV1 {
     SourceStmtSiteV1::from_node(node(vec![SourcePathSegmentV1::Body(index)]))
+}
+
+fn local_initializer(index: u32) -> SourceExprSiteV1 {
+    SourceExprSiteV1::from_node(node(vec![
+        SourcePathSegmentV1::Body(index),
+        SourcePathSegmentV1::Initializer(0),
+    ]))
+}
+
+#[test]
+fn ledger_seals_every_unary_operator_with_exact_operand_site() {
+    let operators = [
+        (UnaryOperator::Minus, ResolvedUnaryOperatorV1::Minus),
+        (UnaryOperator::Not, ResolvedUnaryOperatorV1::Not),
+        (UnaryOperator::BitNot, ResolvedUnaryOperatorV1::BitNot),
+        (UnaryOperator::Weak, ResolvedUnaryOperatorV1::Weak),
+    ];
+    let tree = function(
+        operators
+            .iter()
+            .enumerate()
+            .map(|(index, (operator, _))| {
+                local(&format!("v{index}"), unary(operator.clone(), literal(1)))
+            })
+            .collect(),
+    );
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let view = forest.callable_source_ledger(forest.roots()[0]).unwrap();
+
+    for (index, (_, expected)) in operators.iter().enumerate() {
+        let site = local_initializer(index as u32);
+        let row = view.unary_source(&site).expect("exact unary source row");
+        assert_eq!(row.site(), &site);
+        assert_eq!(row.operator(), *expected);
+        assert_eq!(
+            view.literal_source(row.operand()),
+            Some(&ResolvedLiteralSourceV1::Integer(1))
+        );
+    }
 }
 
 #[test]
@@ -176,6 +232,216 @@ fn ledger_seals_method_call_receiver_arguments_and_result_without_ast_borrows() 
         .source_site_inventory()
         .contains_expression(argument.site())));
     assert_eq!(view.family_count(CallableSourceRowFamilyV1::MethodCall), 1);
+}
+
+#[test]
+fn resolver_callable_contract_co_seals_condition_length_and_generated_target() {
+    let tree = function(vec![
+        local("text", literal(7)),
+        ASTNode::Loop {
+            condition: Box::new(method_call(variable("text"), "length", vec![])),
+            body: Vec::new(),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let (call_site, call) = view.method_calls().next().expect("one method call");
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
+        .expect("generated length row");
+    let mut target_issuer =
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
+    let target = target_issuer.issue(row).unwrap();
+    let membership = view.resolved_loop_source(&stmt(1)).unwrap();
+
+    let contract = ResolverCoreMethodCallableContractIssuerV1::issue(
+        &view,
+        call,
+        &membership,
+        ResolvedLoopPlacementV1::Condition,
+        target,
+    )
+    .unwrap();
+    assert_eq!(contract.owner(), owner);
+    assert_eq!(contract.call_site(), call_site);
+    assert_eq!(contract.arguments().len(), 0);
+    assert_eq!(contract.loop_site(), &stmt(1));
+    assert_eq!(contract.frame(), membership.frame());
+    assert_eq!(contract.placement(), ResolvedLoopPlacementV1::Condition);
+    assert_eq!(contract.target().row().arity(), 0);
+}
+
+#[test]
+fn resolver_callable_contract_co_seals_body_substring_and_generated_target() {
+    let tree = function(vec![
+        local("text", literal(7)),
+        ASTNode::Loop {
+            condition: Box::new(literal(1)),
+            body: vec![ASTNode::Return {
+                value: Some(Box::new(method_call(
+                    variable("text"),
+                    "substring",
+                    vec![literal(0), literal(1)],
+                ))),
+                span: Span::unknown(),
+            }],
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let (_, call) = view.method_calls().next().expect("one method call");
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringSubstring, 2)
+        .expect("generated substring row");
+    let mut target_issuer =
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
+    let target = target_issuer.issue(row).unwrap();
+    let membership = view.resolved_loop_source(&stmt(1)).unwrap();
+
+    let contract = ResolverCoreMethodCallableContractIssuerV1::issue(
+        &view,
+        call,
+        &membership,
+        ResolvedLoopPlacementV1::Body,
+        target,
+    )
+    .unwrap();
+    assert_eq!(contract.placement(), ResolvedLoopPlacementV1::Body);
+    assert_eq!(contract.arguments().len(), 2);
+    assert_eq!(contract.target().row().arity(), 2);
+}
+
+#[test]
+fn resolver_callable_contract_rejects_call_outside_selected_loop_body() {
+    let tree = function(vec![
+        local("text", literal(7)),
+        ASTNode::Loop {
+            condition: Box::new(literal(1)),
+            body: Vec::new(),
+            span: Span::unknown(),
+        },
+        ASTNode::Return {
+            value: Some(Box::new(method_call(variable("text"), "length", vec![]))),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let (_, call) = view.method_calls().next().expect("one method call");
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
+        .expect("generated length row");
+    let mut target_issuer =
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
+    let target = target_issuer.issue(row).unwrap();
+    let membership = view.resolved_loop_source(&stmt(1)).unwrap();
+
+    assert!(matches!(
+        ResolverCoreMethodCallableContractIssuerV1::issue(
+            &view,
+            call,
+            &membership,
+            ResolvedLoopPlacementV1::Condition,
+            target
+        ),
+        Err(ResolverCoreMethodCallableContractRejectV1::PlacementMismatch { actual: None, .. })
+    ));
+}
+
+#[test]
+fn resolver_callable_contract_rejects_target_placement_drift() {
+    let tree = function(vec![
+        local("text", literal(7)),
+        ASTNode::Loop {
+            condition: Box::new(method_call(variable("text"), "length", vec![])),
+            body: Vec::new(),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let forest = session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let owner = forest.roots()[0];
+    let view = forest.callable_source_ledger(owner).unwrap();
+    let (_, call) = view.method_calls().next().expect("one method call");
+    let membership = view.resolved_loop_source(&stmt(1)).unwrap();
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
+        .expect("generated length row");
+    let mut target_issuer =
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
+    let target = target_issuer.issue(row).unwrap();
+
+    assert!(matches!(
+        ResolverCoreMethodCallableContractIssuerV1::issue(
+            &view,
+            call,
+            &membership,
+            ResolvedLoopPlacementV1::Body,
+            target
+        ),
+        Err(
+            ResolverCoreMethodCallableContractRejectV1::TargetPlacementMismatch {
+                expected: ResolvedLoopPlacementV1::Condition,
+                actual: ResolvedLoopPlacementV1::Body,
+                ..
+            }
+        )
+    ));
+}
+
+#[test]
+fn resolver_callable_contract_rejects_foreign_loop_membership() {
+    let tree = function(vec![
+        local("text", literal(7)),
+        ASTNode::Loop {
+            condition: Box::new(method_call(variable("text"), "length", vec![])),
+            body: Vec::new(),
+            span: Span::unknown(),
+        },
+    ]);
+    let mut first_session = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let first = first_session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let first_view = first.callable_source_ledger(first.roots()[0]).unwrap();
+    let (_, call) = first_view.method_calls().next().expect("one method call");
+
+    let mut second_session = FunctionSemanticResolverSessionV1::new(1).unwrap();
+    let second = second_session
+        .resolve_forest(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap();
+    let second_view = second.callable_source_ledger(second.roots()[0]).unwrap();
+    let foreign_membership = second_view.resolved_loop_source(&stmt(1)).unwrap();
+
+    let row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
+        .expect("generated length row");
+    let mut target_issuer =
+        CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2).unwrap();
+    let target = target_issuer.issue(row).unwrap();
+
+    assert_eq!(
+        ResolverCoreMethodCallableContractIssuerV1::issue(
+            &first_view,
+            call,
+            &foreign_membership,
+            ResolvedLoopPlacementV1::Condition,
+            target
+        )
+        .unwrap_err(),
+        ResolverCoreMethodCallableContractRejectV1::ForeignLoopMembership
+    );
 }
 
 #[test]

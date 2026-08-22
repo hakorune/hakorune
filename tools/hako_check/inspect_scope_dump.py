@@ -19,6 +19,22 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+from inspect_scope_model import (
+    bundle_report_rows,
+    format_report,
+    manifest_contract,
+    read_bundle_report,
+    route_counts,
+    selected_route_rows,
+)
+from inspect_scope_identity import (
+    build_identity_contract,
+    require_unique_asm_symbol,
+    require_unique_llvm_function,
+    require_unique_mir_function,
+)
+from inspect_shape import run_shape
+
 
 ROOT = Path(__file__).resolve().parents[2]
 EMIT_ROUTE = ROOT / "tools" / "smokes" / "v2" / "lib" / "emit_mir_route.sh"
@@ -45,75 +61,19 @@ def write_text(path: Path, text: str) -> None:
     path.write_text(text, encoding="utf-8")
 
 
-def sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+def write_bytes(path: Path, data: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+
+
+def write_json_atomic(path: Path, data: Any) -> None:
+    tmp_path = path.with_name(path.name + ".tmp")
+    write_json(tmp_path, data)
+    os.replace(tmp_path, path)
 
 
 def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def root_list(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
-    value = data.get(key)
-    if not isinstance(value, list):
-        return []
-    return [row for row in value if isinstance(row, dict)]
-
-
-def function_metadata_rows(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    for function in root_list(data, "functions"):
-        metadata = function.get("metadata")
-        if not isinstance(metadata, dict):
-            continue
-        values = metadata.get(key)
-        if not isinstance(values, list):
-            continue
-        for row in values:
-            if isinstance(row, dict):
-                copied = dict(row)
-                copied.setdefault("function", function.get("name", "unknown"))
-                rows.append(copied)
-    return rows
-
-
-def function_metadata_object_rows(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    for function in root_list(data, "functions"):
-        metadata = function.get("metadata")
-        if not isinstance(metadata, dict):
-            continue
-        value = metadata.get(key)
-        if not isinstance(value, dict):
-            continue
-        copied = dict(value)
-        copied.setdefault("function", function.get("name", "unknown"))
-        rows.append(copied)
-    return rows
-
-
-def typed_object_route_rows(data: dict[str, Any]) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
-    for function in root_list(data, "functions"):
-        metadata = function.get("metadata")
-        if not isinstance(metadata, dict):
-            continue
-        values = metadata.get("route_decisions")
-        if not isinstance(values, list):
-            continue
-        for row in values:
-            if not isinstance(row, dict):
-                continue
-            if row.get("source_plan_kind") != "TypedObjectExactSlotRoute":
-                continue
-            copied = dict(row)
-            copied.setdefault("function", function.get("name", "unknown"))
-            rows.append(copied)
-    return rows
-
-
-def bool_text(value: bool) -> str:
-    return "1" if value else "0"
 
 
 def parse_span(value: str) -> tuple[Path, int, int]:
@@ -236,229 +196,28 @@ def emit_llvm_asm_bundle(
         )
     ll_dump = tmp_dir / "lowered.ll"
     objdump = tmp_dir / "objdump.txt"
+    exe_path = tmp_dir / "bundle.exe"
     if not ll_dump.is_file():
         raise SystemExit(f"trace bundle did not produce LLVM IR: {ll_dump}")
-    if not objdump.is_file():
-        exe_path = tmp_dir / "bundle.exe"
-        if not exe_path.is_file():
-            raise SystemExit(f"trace bundle did not produce executable for assembly dump: {exe_path}")
-        objdump_cmd = ["objdump", "-d", "--demangle", str(exe_path)]
-        objdump_result = subprocess.run(
-            objdump_cmd,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        if objdump_result.returncode != 0:
-            raise SystemExit(
-                "objdump failed (rc=%s)\n%s%s"
-                % (
-                    objdump_result.returncode,
-                    objdump_result.stdout,
-                    objdump_result.stderr,
-                )
-            )
-        objdump.write_text(objdump_result.stdout, encoding="utf-8")
-    return tmp_dir, result.stdout + result.stderr
-
-
-def read_bundle_report(path: Path) -> dict[str, str]:
-    if path.is_dir():
-        path = path / "report.kv"
-    if not path.is_file():
-        raise SystemExit(f"missing report artifact: {path}")
-    rows: dict[str, str] = {}
-    for raw_line in path.read_text(encoding="utf-8", errors="replace").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        rows[key.strip()] = value.strip()
-    return rows
-
-
-def route_counts(mir: dict[str, Any]) -> dict[str, int]:
-    route_decisions = typed_object_route_rows(mir)
-    array_text_state_routes = function_metadata_object_rows(
-        mir, "array_text_state_residence_route"
+    if not exe_path.is_file():
+        raise SystemExit(f"trace bundle did not produce executable for assembly dump: {exe_path}")
+    objdump_result = subprocess.run(
+        ["objdump", "-d", "--demangle", str(exe_path)],
+        check=False,
+        capture_output=True,
+        text=True,
     )
-    array_text_sessions = function_metadata_rows(mir, "array_text_residence_sessions")
-    array_text_observer_routes = function_metadata_rows(mir, "array_text_observer_routes")
-
-    return {
-        "typed_object_exact_route_decision_count": len(route_decisions),
-        "array_text_state_residence_route_count": len(array_text_state_routes),
-        "array_text_selected_route_count": sum(
-            1
-            for row in array_text_state_routes
-            if str(row.get("selected_route", "")).startswith("hako.array_text.")
-        ),
-        "array_text_selected_bridge_symbol_count": sum(
-            1
-            for row in array_text_state_routes
-            if str(row.get("selected_bridge_symbol", "")).startswith("hako.array_text.")
-        ),
-        "array_text_compat_string_indexof_hisi_count": sum(
-            1
-            for row in array_text_state_routes
-            if str(row.get("fallback_route", "")).startswith("nyash.array.string_indexof_")
-        ),
-        "array_text_session_count": len(array_text_sessions),
-        "array_text_session_begin_count": sum(
-            1
-            for row in array_text_sessions
-            if str(row.get("begin_block", "")).isdigit() or str(row.get("begin_block", ""))
-        ),
-        "array_text_session_end_count": sum(
-            1
-            for row in array_text_sessions
-            if str(row.get("end_block", "")).isdigit() or str(row.get("end_block", ""))
-        ),
-        "array_text_publication_in_selected_region_count": sum(
-            1
-            for row in array_text_sessions
-            if str(row.get("publication_boundary", "none")).lower() != "none"
-        ),
-        "array_text_registry_carrier_in_selected_region_count": sum(
-            1
-            for row in array_text_sessions
-            if "registry" in str(row.get("carrier", "")).lower()
-        ),
-        "array_text_silent_fallback_after_selected_route_count": sum(
-            1
-            for row in array_text_state_routes
-            if str(row.get("fallback_policy", "")) != "fail_fast"
-        ),
-        "array_text_observer_route_count": len(array_text_observer_routes),
-        "array_text_observer_selected_route_count": sum(
-            1
-            for row in array_text_observer_routes
-            if str(row.get("selected_route", "")).startswith("hako.array_text.")
-        ),
-        "array_text_observer_selected_bridge_symbol_count": sum(
-            1
-            for row in array_text_observer_routes
-            if str(row.get("selected_bridge_symbol", "")).startswith("hako.array_text.")
-        ),
-    }
-
-
-def selected_route_rows(mir: dict[str, Any]) -> list[dict[str, Any]]:
-    rows = typed_object_route_rows(mir)
-    rows.extend(function_metadata_object_rows(mir, "array_text_state_residence_route"))
-    rows.extend(function_metadata_rows(mir, "array_text_residence_sessions"))
-    rows.extend(function_metadata_rows(mir, "array_text_observer_routes"))
-    return rows
-
-
-def resolve_objdump_symbol(objdump_text: str, function_name: str) -> tuple[str, int | None]:
-    import re
-
-    preferred = [
-        function_name,
-        function_name.replace("/", "_"),
-        "ny_main",
-        "main",
-    ]
-    lines = objdump_text.splitlines()
-    label_pattern = re.compile(r"^\s*[0-9a-fA-F]+\s+<([^>]+)>:\s*$")
-    indexed_labels: list[tuple[str, int]] = []
-    for idx, line in enumerate(lines, start=1):
-        m = label_pattern.match(line)
-        if m:
-            indexed_labels.append((m.group(1), idx))
-    if not indexed_labels:
-        return ("unknown", None)
-    label_map = {label: line_no for label, line_no in indexed_labels}
-    for candidate in preferred:
-        if candidate and candidate in label_map:
-            return candidate, label_map[candidate]
-    return indexed_labels[0]
-
-
-def manifest_contract(
-    selector_kind: str,
-    source_file: Path,
-    source_hash: str,
-    region_id: str,
-    function_name: str,
-    backend: str,
-    emit_mir: bool,
-    emit_mir_json: bool,
-    emit_llvm: bool,
-    emit_asm: bool,
-    source_to_mir_mapping: str,
-    mir_to_llvm_mapping: str,
-    llvm_to_asm_mapping: str,
-    summary: str,
-) -> dict[str, Any]:
-    return {
-        "output_contract": "hako-inspect-scope-bundle-v0",
-        "tool_surface": "hako_check_inspect_scope",
-        "observation_only": True,
-        "rewrite_executed": False,
-        "keeper_selection": False,
-        "source_file": str(source_file),
-        "source_hash": f"sha256:{source_hash}",
-        "selector_kind": selector_kind,
-        "region_id": region_id,
-        "function": function_name,
-        "backend": backend,
-        "emit_mir": emit_mir,
-        "emit_mir_json": emit_mir_json,
-        "emit_llvm": emit_llvm,
-        "emit_asm": emit_asm,
-        "source_to_mir_mapping": source_to_mir_mapping,
-        "mir_to_llvm_mapping": mir_to_llvm_mapping,
-        "llvm_to_asm_mapping": llvm_to_asm_mapping,
-        "summary": summary,
-    }
-
-
-def format_report(rows: list[tuple[str, Any]]) -> str:
-    return "\n".join(f"{k}={v}" for k, v in rows) + "\n"
-
-
-def bundle_report_rows(
-    selector_kind: str,
-    source_file: Path,
-    source_hash: str,
-    region_id: str,
-    function_name: str,
-    backend: str,
-    emit_mir: bool,
-    emit_mir_json: bool,
-    emit_llvm: bool,
-    emit_asm: bool,
-    source_to_mir_mapping: str,
-    mir_to_llvm_mapping: str,
-    llvm_to_asm_mapping: str,
-    route_count_rows: dict[str, int],
-    summary: str,
-) -> list[tuple[str, Any]]:
-    rows: list[tuple[str, Any]] = [
-        ("output_contract", "hako-check-inspect-scope-v0"),
-        ("tool_surface", "hako_check_inspect_scope"),
-        ("observation_only", "1"),
-        ("rewrite_executed", "0"),
-        ("keeper_selection", "0"),
-        ("source_file", str(source_file)),
-        ("source_hash", f"sha256:{source_hash}"),
-        ("selector_kind", selector_kind),
-        ("region_id", region_id),
-        ("function", function_name),
-        ("backend", backend),
-        ("emit_mir", "1" if emit_mir else "0"),
-        ("emit_mir_json", "1" if emit_mir_json else "0"),
-        ("emit_llvm", "1" if emit_llvm else "0"),
-        ("emit_asm", "1" if emit_asm else "0"),
-        ("source_to_mir_mapping", source_to_mir_mapping),
-        ("mir_to_llvm_mapping", mir_to_llvm_mapping),
-        ("llvm_to_asm_mapping", llvm_to_asm_mapping),
-    ]
-    rows.extend((key, str(value)) for key, value in route_count_rows.items())
-    rows.append(("summary", summary))
-    return rows
+    if objdump_result.returncode != 0:
+        raise SystemExit(
+            "objdump failed (rc=%s)\n%s%s"
+            % (
+                objdump_result.returncode,
+                objdump_result.stdout,
+                objdump_result.stderr,
+            )
+        )
+    objdump.write_text(objdump_result.stdout, encoding="utf-8")
+    return tmp_dir, result.stdout + result.stderr
 
 
 @dataclass
@@ -522,14 +281,22 @@ def bundle_scope(args: argparse.Namespace) -> int:
     out_dir = args.out or (ROOT / "target" / "hako-inspect" / selector.region_id)
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    identity_path = out_dir / "identity.json"
+    identity_path.unlink(missing_ok=True)
 
     mir_json_path: Path | None = args.mir_json
+    mir_was_emitted = mir_json_path is None
     mir_json_text = ""
     emit_log = ""
     if mir_json_path is None:
         if args.app is None:
             args.app = selector.source_file
         mir_json_path, emit_log = emit_mir_json(Path(args.app), args.emit_timeout_secs)
+    source_to_mir_exact = (
+        mir_was_emitted
+        and args.app is not None
+        and Path(args.app).resolve() == selector.source_file.resolve()
+    )
     mir = load_json(mir_json_path)
     mir_json_text = json.dumps(mir, indent=2, sort_keys=True) + "\n"
 
@@ -544,27 +311,50 @@ def bundle_scope(args: argparse.Namespace) -> int:
     llvm_ir_text = ""
     asm_text = ""
     asm_map: dict[str, Any] = {}
+    backend_requested = emit_llvm_requested or emit_asm_requested
+    if backend_requested:
+        missing_selectors = [
+            flag
+            for flag, value in (
+                ("--mir-function", args.mir_function),
+                ("--llvm-function", args.llvm_function),
+                ("--asm-symbol", args.asm_symbol),
+            )
+            if not value
+        ]
+        if missing_selectors:
+            raise SystemExit(
+                "backend-ready identity requires explicit selectors: "
+                + ", ".join(missing_selectors)
+            )
+        require_unique_mir_function(mir, args.mir_function)
     if emit_llvm_requested or emit_asm_requested:
         try:
             backend_trace_dir, backend_trace_log = emit_llvm_asm_bundle(
                 mir_json_path,
-                args.function or "",
+                args.mir_function,
                 args.emit_timeout_secs,
             )
             llvm_ir_path = backend_trace_dir / "lowered.ll"
             asm_path = backend_trace_dir / "objdump.txt"
             llvm_ir_text = llvm_ir_path.read_text(encoding="utf-8", errors="replace")
             asm_text = asm_path.read_text(encoding="utf-8", errors="replace")
+            executable_path = backend_trace_dir / "bundle.exe"
+            if not executable_path.is_file():
+                raise SystemExit(
+                    f"trace bundle did not produce executable for identity: {executable_path}"
+                )
+            require_unique_llvm_function(llvm_ir_text, args.llvm_function)
+            symbol_line = require_unique_asm_symbol(asm_text, args.asm_symbol)
             emit_llvm_actual = True
             emit_asm_actual = True
-            symbol_name, symbol_line = resolve_objdump_symbol(asm_text, args.function or "")
             asm_map = {
                 "output_contract": "hako-inspect-asm-map-v0",
                 "tool_surface": "hako_check_inspect_scope",
                 "source_file": str(selector.source_file),
                 "region_id": selector.region_id,
                 "function": args.function or "",
-                "function_symbol": symbol_name,
+                "function_symbol": args.asm_symbol,
                 "mapping_quality": "symbol",
                 "asm_file": "asm.s",
                 "symbol_line": symbol_line,
@@ -573,7 +363,7 @@ def bundle_scope(args: argparse.Namespace) -> int:
                 ],
             }
         except SystemExit:
-            if not args.allow_unavailable_artifacts:
+            if backend_trace_dir is not None or not args.allow_unavailable_artifacts:
                 raise
             emit_llvm_actual = False
             emit_asm_actual = False
@@ -641,6 +431,7 @@ def bundle_scope(args: argparse.Namespace) -> int:
     ]
 
     source_slice_path = out_dir / "source.slice.hako"
+    source_full_path = out_dir / "source.full.hako"
     source_map_path = out_dir / "source.map.json"
     mir_raw_path = out_dir / "mir.raw.json"
     mir_raw_txt_path = out_dir / "mir.raw.txt"
@@ -654,8 +445,10 @@ def bundle_scope(args: argparse.Namespace) -> int:
     llvm_ir_path = out_dir / "llvm.ir"
     asm_path = out_dir / "asm.s"
     asm_map_path = out_dir / "asm.map.json"
+    executable_path = out_dir / "executable.bin"
 
     write_text(source_slice_path, selected_source)
+    write_bytes(source_full_path, selector.source_file.read_bytes())
     write_json(
         source_map_path,
         {
@@ -684,9 +477,43 @@ def bundle_scope(args: argparse.Namespace) -> int:
     if emit_asm_actual:
         write_text(asm_path, asm_text)
         write_json(asm_map_path, asm_map)
+    if backend_trace_dir is not None:
+        write_bytes(executable_path, (backend_trace_dir / "bundle.exe").read_bytes())
     write_text(report_path, report_text)
     write_json(manifest_path, manifest)
     write_text(summary_path, "\n".join(summary_lines) + "\n")
+
+    artifact_names = [
+        "source.full.hako",
+        "source.slice.hako",
+        "mir.raw.json",
+    ]
+    if emit_llvm_actual:
+        artifact_names.append("llvm.ir")
+    if emit_asm_actual:
+        artifact_names.append("asm.s")
+    if backend_trace_dir is not None:
+        artifact_names.append("executable.bin")
+    identity = build_identity_contract(
+        out_dir=out_dir,
+        source_file=selector.source_file,
+        selector={
+            "kind": selector.kind,
+            "region_id": selector.region_id,
+            "start_line": selector.start_line,
+            "end_line": selector.end_line,
+        },
+        artifact_names=artifact_names,
+        mappings={
+            "source_to_mir": "exact" if source_to_mir_exact else "missing",
+            "mir_to_llvm": "block" if emit_llvm_actual else "missing",
+            "llvm_to_asm": "symbol" if emit_asm_actual else "missing",
+        },
+        mir_function=args.mir_function or "",
+        llvm_function=args.llvm_function or "",
+        asm_symbol=args.asm_symbol or "",
+    )
+    write_json_atomic(identity_path, identity)
 
     print(f"inspect scope: {out_dir}")
     print(report_text, end="")
@@ -868,6 +695,9 @@ def build_parser() -> argparse.ArgumentParser:
     scope.add_argument("--span", help="Span selector PATH:START:END")
     scope.add_argument("--region", help="Comment anchor region id")
     scope.add_argument("--function", help="Function name label for the bundle")
+    scope.add_argument("--mir-function", help="Exact MIR function for V1 identity")
+    scope.add_argument("--llvm-function", help="Exact LLVM function for V1 identity")
+    scope.add_argument("--asm-symbol", help="Exact assembly symbol for V1 identity")
     scope.add_argument("--app", type=Path, help="App/source path used when emitting MIR JSON")
     scope.add_argument("--mir-json", type=Path, help="Existing MIR JSON artifact to inspect")
     scope.add_argument("--emit", default="mir,mir-json,report", help="Comma separated artifacts to emit")
@@ -902,6 +732,13 @@ def build_parser() -> argparse.ArgumentParser:
     diff.add_argument("--after", type=Path, required=True)
     diff.add_argument("--out", type=Path)
     diff.set_defaults(func=bundle_diff)
+
+    shape = sub.add_parser("shape", help="Render sealed MIR/LLVM/ASM shape counts")
+    shape.add_argument("--bundle", type=Path, required=True)
+    shape.add_argument("--c-asm", type=Path)
+    shape.add_argument("--c-symbol")
+    shape.add_argument("--out", type=Path)
+    shape.set_defaults(func=run_shape)
 
     return parser
 

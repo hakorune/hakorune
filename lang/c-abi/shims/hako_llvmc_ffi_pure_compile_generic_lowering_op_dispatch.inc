@@ -1,3 +1,65 @@
+          #include "hako_llvmc_ffi_pinned_text_selected_dispatch.inc"
+          if (strcmp(op, "checked_callout")==0) {
+            if (!hako_llvmc_c1_predecessor_note_emission_v1(
+                    &c1_predecessor_projection, bid, (long long)ii, 2) ||
+                hako_llvmc_c1_emit_callout(
+                    f, fn_metadata, ins, bid, ii,
+                    c1_current_llvm_label) < 0) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "checked_callout_projection_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            continue;
+          }
+          if (strcmp(op, "checked_callout_normal_result")==0) {
+            int lane = hako_llvmc_c1_emit_normal_result(f, fn_metadata, ins);
+            long long dst = read_int(ins, "dst");
+            if (lane < 0 || !dst) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "checked_callout_normal_result_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            set_type(dst, T_I64);
+            if (lane == 1) {
+              set_origin(dst, ORG_STRING);
+              set_scan_origin(dst, ORG_STRING);
+            }
+            continue;
+          }
+          if (strcmp(op, "checked_callout_end")==0) {
+            size_t c1_end_rows = hako_llvmc_c1_predecessor_site_row_count_v1(
+                &c1_predecessor_projection, bid, (long long)ii);
+            if (!hako_llvmc_c1_predecessor_note_emission_v1(
+                    &c1_predecessor_projection, bid, (long long)ii,
+                    c1_end_rows) ||
+                hako_llvmc_c1_emit_end(
+                    f, ins, bid, ii, c1_current_llvm_label,
+                    sizeof(c1_current_llvm_label)) < 0) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "checked_callout_end_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            continue;
+          }
+          if (strcmp(op, "checked_callout_fault")==0) {
+            int site_ok = 0;
+            long long site = hako_llvmc_c1_int(ins, "site_id", &site_ok);
+            if (!site_ok || site < 0 || site > 1 ||
+                !hako_llvmc_c1_call_for_site(fn_metadata, site)) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "checked_callout_fault_mismatch", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            /* MIR marks this as a successorless terminal.  A semantic
+             * provider Fault already reached its MIR landing; only malformed
+             * transport/status took the trap paths in the CallOut emitter. */
+            EMIT("  unreachable\n");
+            continue;
+          }
           if (strcmp(op, "const")==0) {
             long long dst = read_int(ins, "dst");
             const char* sval = get_str_const(dst);
@@ -597,8 +659,32 @@
             set_type(dst, T_I64);
             continue;
           }
-          if (strcmp(op, "branch")==0) { long long cond=read_int(ins, "cond"); long long th=read_int(ins,"then"); long long el=read_int(ins,"else"); if(!el) el=read_int(ins,"else_id"); emit_branch(cond, th, el); continue; }
-          if (strcmp(op, "jump")==0) { long long tgt=read_int(ins, "target"); EMIT("  br label %%bb%lld\n", tgt); continue; }
+          if (strcmp(op, "branch")==0) {
+            long long cond=read_int(ins, "cond"); long long th=read_int(ins,"then"); long long el=read_int(ins,"else");
+            if(!el) el=read_int(ins,"else_id"); emit_branch(cond, th, el);
+            if (c1_provenance_selected &&
+                !hako_llvmc_c1_provenance_emitted_branch_v1(
+                    bid, (long long)ii, c1_current_llvm_label, th, el)) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "selected_dynamic_provenance_failed", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            continue;
+          }
+          if (strcmp(op, "jump")==0) {
+            long long tgt=read_int(ins, "target");
+            EMIT("  br label %%bb%lld\n", tgt);
+            if (c1_provenance_selected &&
+                !hako_llvmc_c1_provenance_emitted_jump_v1(
+                    bid, (long long)ii, c1_current_llvm_label, tgt)) {
+              note_pure_unsupported_shape(
+                  bid, ii, op, "selected_dynamic_provenance_failed", NULL);
+              yyjson_doc_free(d);
+              goto GEN_ABORT;
+            }
+            continue;
+          }
           if (strcmp(op, "ret")==0) {
             long long v=read_int(ins, "value"); long long cv;
             if (has_const(v,&cv)) { EMIT("  ret i64 %lld\n", cv); }
@@ -657,120 +743,7 @@
             set_type(dst, T_I64);
             continue;
           }
-          if (strcmp(op, "call")==0) {
-            yyjson_val* cal = yyjson_obj_get(ins, "callee");
-            const char* ctype = cal ? read_str(cal, "type") : NULL;
-            const char* bname = cal
-                ? (read_str(cal, "box_name")
-                    ? read_str(cal, "box_name")
-                    : read_str(cal, "box_type"))
-                : NULL;
-            const char* mname = NULL;
-            long long dst = read_int(ins, "dst");
-            long long recv = cal ? read_int(cal, "receiver") : 0;
-            yyjson_val* args = yyjson_obj_get(ins, "args");
-            long long a0 = 0, a1 = 0;
-            if (!cal) {
-              note_pure_unsupported_shape(
-                  bid,
-                  ii,
-                  op,
-                  "legacy_call_missing_structured_callee",
-                  NULL);
-              yyjson_doc_free(d);
-              goto GEN_ABORT;
-            }
-            if (ctype && (!strcmp(ctype, "Global") || !strcmp(ctype, "Extern"))) {
-              mname = read_str(cal, "name");
-            } else if (ctype && !strcmp(ctype, "Method")) {
-              mname = read_str(cal, "method")
-                  ? read_str(cal, "method")
-                  : read_str(cal, "name");
-            } else if (ctype && !strcmp(ctype, "Constructor")) {
-              mname = read_str(cal, "name");
-            }
-            if (args && yyjson_is_arr(args)) {
-              if (yyjson_arr_size(args) >= 1) {
-                a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-              }
-              if (yyjson_arr_size(args) >= 2) {
-                a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
-              }
-            }
-            if (emit_mir_call_dispatch(
-                    f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
-                    dst, recv, args, a0, a1, skip_inst) < 0) {
-              if (ctype && !strcmp(ctype, "Global")) {
-                if (!note_global_call_lowering_plan_unsupported_shape(bid, ii, op)) {
-                  note_pure_unsupported_shape_detail(
-                      bid,
-                      ii,
-                      op,
-                      "missing_multi_function_emitter",
-                      "?",
-                      "structured_call_global_user_target",
-                      mname,
-                      "same_module_global_call_requires_uniform_emitter");
-                }
-              } else {
-                note_pure_unsupported_shape_route_detail(
-                    bid,
-                    ii,
-                    op,
-                    "structured_call_no_route",
-                    NULL,
-                    ctype,
-                    mname,
-                    NULL,
-                    mname,
-                    bname,
-                    NULL,
-                    NULL,
-                    "check_callee_route_or_receiver_origin");
-              }
-              yyjson_doc_free(d);
-              goto GEN_ABORT;
-            }
-            continue;
-          }
-          if (strcmp(op, "mir_call")==0) {
-            yyjson_val* mc = yyjson_obj_get(ins, "mir_call");
-            yyjson_val* cal = mc ? yyjson_obj_get(mc, "callee") : NULL;
-            const char* ctype = cal ? read_str(cal, "type") : NULL;
-            const char* bname = cal ? (read_str(cal, "box_name") ? read_str(cal, "box_name") : read_str(cal, "box_type")) : NULL;
-            const char* mname = cal ? (read_str(cal, "method") ? read_str(cal, "method") : read_str(cal, "name")) : NULL;
-            long long dst = read_int(ins, "dst");
-            long long recv = read_int(cal, "receiver");
-            yyjson_val* args = mc ? yyjson_obj_get(mc, "args") : NULL;
-            long long a0 = 0, a1 = 0;
-            if (args && yyjson_is_arr(args)) {
-              if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
-              if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
-            }
-            if (emit_mir_call_dispatch(
-                    f, blocks, bid, ii, ilen, insts, ctype, bname, mname,
-                    dst, recv, args, a0, a1, skip_inst) < 0) {
-              if (!note_global_call_lowering_plan_unsupported_shape(bid, ii, op)) {
-                note_pure_unsupported_shape_route_detail(
-                    bid,
-                    ii,
-                    op,
-                    "mir_call_no_route",
-                    NULL,
-                    ctype,
-                    NULL,
-                    NULL,
-                    mname,
-                    bname,
-                    NULL,
-                    NULL,
-                    "check_callee_route_or_receiver_origin");
-              }
-              yyjson_doc_free(d);
-              goto GEN_ABORT;
-            }
-            continue;
-          }
+          #include "hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch_calls.inc"
           // any other op unsupported
           note_pure_unsupported_shape(bid, ii, op, "unknown_op", NULL);
           yyjson_doc_free(d); goto GEN_ABORT;

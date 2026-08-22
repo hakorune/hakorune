@@ -8,6 +8,7 @@ use std::collections::BTreeMap;
 
 use super::module_invocation_identity::ModuleInvocationBrandV1;
 use super::module_invocation_owner_chain::InvocationBranded;
+use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
 use crate::mir::resolved_semantics::{CanonicalCallableKeyV1, FunctionOwnerIdV1};
 use crate::mir::{FunctionSignature, MirFunction};
 
@@ -59,6 +60,9 @@ pub(in crate::mir::builder) enum FunctionDraftKeyV1 {
     LegacySymbol(String),
     CanonicalResolvedOwner(FunctionOwnerIdV1),
     CanonicalCallable(CanonicalCallableKeyV1),
+    /// Cataloged Box-method identity; unlike `CanonicalCallable`, this keeps
+    /// the same-module namespace and owner/name/arity together.
+    CatalogedBoxMethod(CanonicalSameModuleCallableKeyV1),
     SyntheticConditionFn,
 }
 
@@ -399,6 +403,33 @@ impl ModuleDraftCollectorV1 {
     /// their collector indexes are consumed together by the one drain owner.
     pub(in crate::mir::builder) fn into_draft_functions(self) -> Vec<MirFunction> {
         self.drafts.into_values().map(|entry| entry.draft).collect()
+    }
+
+    /// Test-only affine observation seam for one exact completed draft.
+    ///
+    /// The selected inspection canary consumes the collector instead of
+    /// cloning a function or rebuilding it from its symbol.  Production drain
+    /// remains the only non-test consumer of the owned draft inventory.
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn into_single_observation_draft(
+        mut self,
+        expected_symbol: &str,
+    ) -> Result<MirFunction, &'static str> {
+        if self.drafts.len() != 1 || self.key_by_symbol.len() != 1 {
+            return Err("observation requires exactly one completed draft");
+        }
+        let key = self
+            .key_by_symbol
+            .remove(expected_symbol)
+            .ok_or("observation draft symbol mismatch")?;
+        let row = self
+            .drafts
+            .remove(&key)
+            .ok_or("observation draft index mismatch")?;
+        if row.draft.signature.name != expected_symbol {
+            return Err("observation draft signature mismatch");
+        }
+        Ok(row.draft)
     }
 
     pub(in crate::mir::builder) fn key_for_symbol(

@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use hakorune_mir_core::BindingId;
 
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::ids::{BindingRefV1, FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionId, ScopeId};
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
@@ -71,6 +72,8 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
     let exit_site = stmt(3);
 
     ResolvedFunctionDataV1 {
+        explicit_extern_calls: BTreeMap::new(),
+        brand_call_relations: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {
@@ -140,6 +143,7 @@ fn sample_data(owner: FunctionOwnerIdV1, binding: BindingId) -> ResolvedFunction
         )]),
         direct_call_targets: BTreeMap::new(),
         method_calls: BTreeMap::new(),
+        expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::from([(
             ResolvedExitSiteV1::Statement(exit_site),
             ResolvedExitRecordV1::new(
@@ -653,6 +657,17 @@ fn source_region_containment_uses_closed_root_member_roles() {
             RegionKindV1::LexicalScope,
             vec![
                 SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::ProgramBodyRoot,
+            ],
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::ProgramBody(0),
+            ],
+        ),
+        (
+            RegionKindV1::LexicalScope,
+            vec![
+                SourcePathSegmentV1::Body(0),
                 SourcePathSegmentV1::ScopeBodyRoot,
             ],
             vec![
@@ -724,5 +739,19 @@ fn source_region_containment_uses_closed_root_member_roles() {
         RegionKindV1::Sequence,
         &RegionOriginV1::Source(node(vec![SourcePathSegmentV1::ProgramBodyRoot])),
         &node(vec![SourcePathSegmentV1::ProgramBody(3)]),
+    ));
+    assert!(!source_region_contains_site_v1(
+        super::SemanticOwnerRootProfileV1::DeclaredFunction {
+            receiver_policy: super::ReceiverPolicyV1::Absent,
+        },
+        RegionKindV1::LexicalScope,
+        &RegionOriginV1::Source(node(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBodyRoot,
+        ])),
+        &node(vec![
+            SourcePathSegmentV1::Body(1),
+            SourcePathSegmentV1::ProgramBody(3),
+        ]),
     ));
 }

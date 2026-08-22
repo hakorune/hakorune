@@ -15,10 +15,7 @@ use crate::mir::resolved_semantics::{
     ResolvedLexicalRefV1, ScopeKindV1, SourceBindingSiteV1,
 };
 use crate::mir::resolved_value_profile::{
-    analyze_trivial_canonical_main_owner_v1,
-    analyze_trivial_canonical_main_owner_with_finite_direct_calls_v1,
-    analyze_trivial_canonical_owner_v1,
-    analyze_trivial_canonical_owner_with_finite_direct_calls_v1,
+    analyze_trivial_canonical_with_mode_v1, TrivialCanonicalAnalysisModeV1,
     TrivialCanonicalOwnerAnalysisV1,
 };
 
@@ -323,27 +320,32 @@ impl CanonicalLoweringPreflightV1 {
                 CanonicalFunctionRolePolicyV1::NormalMain0,
                 FirstFamilyExpressionPolicyV1::Closed,
                 Some(main_role),
-            ) => analyze_trivial_canonical_main_owner_v1(
+            ) => analyze_trivial_canonical_with_mode_v1(
                 function,
                 &completion,
                 &if_control,
-                main_role,
+                TrivialCanonicalAnalysisModeV1::NormalMainClosed { role: main_role },
             ),
             (
                 CanonicalFunctionRolePolicyV1::NormalMainDirectCall0,
                 FirstFamilyExpressionPolicyV1::ExactDirectCall,
                 Some(main_role),
-            ) => analyze_trivial_canonical_main_owner_with_finite_direct_calls_v1(
+            ) => analyze_trivial_canonical_with_mode_v1(
                 function,
                 &completion,
                 &if_control,
-                main_role,
+                TrivialCanonicalAnalysisModeV1::NormalMainFiniteDirectCalls { role: main_role },
             ),
             (
                 CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily,
                 FirstFamilyExpressionPolicyV1::Closed,
                 None,
-            ) => analyze_trivial_canonical_owner_v1(function, &completion, &if_control),
+            ) => analyze_trivial_canonical_with_mode_v1(
+                function,
+                &completion,
+                &if_control,
+                TrivialCanonicalAnalysisModeV1::OrdinaryClosed,
+            ),
             (
                 CanonicalFunctionRolePolicyV1::OrdinaryFirstFamily,
                 FirstFamilyExpressionPolicyV1::ExactDirectCall,
@@ -353,10 +355,11 @@ impl CanonicalLoweringPreflightV1 {
                     direct_call_admission,
                     DirectCallAdmissionV1::FiniteOneOrMore
                 );
-                analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
+                analyze_trivial_canonical_with_mode_v1(
                     function,
                     &completion,
                     &if_control,
+                    TrivialCanonicalAnalysisModeV1::OrdinaryFiniteDirectCalls,
                 )
             }
             _ => {

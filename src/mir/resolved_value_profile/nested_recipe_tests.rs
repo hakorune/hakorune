@@ -5,8 +5,8 @@ use crate::mir::if_recipe_contract::{
 };
 
 use super::{
-    analyze_trivial_canonical_owner_v1, map_nested_trivial_if_recipe_v1,
-    TrivialCanonicalOwnerAnalysisV1,
+    analyze_trivial_canonical_with_mode_v1, map_nested_trivial_if_recipe_v1,
+    TrivialCanonicalAnalysisModeV1, TrivialCanonicalOwnerAnalysisV1,
 };
 
 fn literal(value: LiteralValue) -> ASTNode {
@@ -117,7 +117,13 @@ fn admitted<'a>(
         )
         .expect("if control");
     let analysis =
-        analyze_trivial_canonical_owner_v1(input, &completion, &if_control).expect("analysis");
+        analyze_trivial_canonical_with_mode_v1(
+            input,
+            &completion,
+            &if_control,
+            TrivialCanonicalAnalysisModeV1::OrdinaryClosed,
+        )
+        .expect("analysis");
     let TrivialCanonicalOwnerAnalysisV1::Admitted(product) = analysis else {
         panic!("nested shape is expected to be admitted by the whole trivial owner")
     };

@@ -1,7 +1,7 @@
 ---
 Status: SSOT
-Decision: provisional
-Date: 2026-03-23
+Decision: provisional; callable ExactText two-lane boundary accepted
+Date: 2026-08-16
 Scope: deeper substrate capability workの前提として、runtime value representation と ABI manifest の正本を固定する。
 Related:
   - CURRENT_TASK.md
@@ -17,15 +17,61 @@ Related:
   - crates/nyash_kernel/src/plugin/value_codec/encode.rs
   - lang/src/vm/boxes/abi_adapter_registry.hako
   - docs/development/current/main/phases/phase-289x/289x-90-runtime-value-object-design-brief.md
+  - docs/development/current/main/investigations/callable-text-formal-physical-signature-d0-2026-08-15.md
+  - docs/development/current/main/investigations/callable-text-formal-call-residence-d0-2026-08-15.md
 ---
 
 # Value Repr And ABI Manifest (SSOT)
+
+## Current Capsule
+
+- **Current decision:** one logical `ExactText` formal remains one
+  `BindingRef` and expands to adjacent scalar `u64` lanes `[slot,generation]`;
+  an InstanceBoxMethod has one separate leading receiver lane, and a by-value
+  16-byte aggregate is not the callable ABI.
+- **Current implementation status:** the pair validator and caller-zero atomic
+  lease-set/pending-retirement substrate are landed; the package-owned total
+  physical-signature mapping and every compiler consumer remain caller-zero.
+- **Next ordered task:** close the design-only
+  `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BINDER-D0`: one compile-time
+  frame-contract projection must consume the accepted receiver-aware physical
+  lane map and the Residence lifetime census, then reach the selected
+  ny-llvmc consumer through one strict typed metadata handoff. Runtime frame
+  state, raw pointers/lengths, direct backend lowering, lifecycle CFG, session
+  wiring, and route admission remain separate later rows.
+- **Production stop line:** no raw handle may recapture generation, no lane may
+  become a second logical value, and no pointer/length residence may cross the
+  callable boundary or detach from its lease set.
+- **Retirement finish line:** all admitted Text calls use the same signature
+  map, callee-entry lease-set, scoped root residence, and normal-exit finish;
+  legacy recapture, per-iteration registry entry, retry, and fallback are zero.
 
 ## Goal
 
 - current plugin export surface を手書き alias 群のまま増殖させず、manifest-first に寄せる。
 - runtime value の classes と ownership を先に固定して、future `hako.abi` / `hako.value_repr` の土台にする。
 - old compact call-shape codes を immediate truth にせず、manifest から生成される compatibility artifact に落とす。
+
+## Four-layer compiler type convergence (parked)
+
+General C-class lowering must not ask a backend to reconstruct one physical
+type from unrelated optional facts. Keep four authorities distinct:
+
+```text
+semantic type
+  -> physical representation
+  -> ABI passing class
+  -> storage layout
+```
+
+The parked `MIR-PHYSICAL-TYPE-INPUT-D0` may select one already-exact scalar
+corridor and define a single verified backend input that consumes those four
+rows. It must not widen language types, change an ABI, infer layout from a Box
+name, or treat raw `MirType::Integer` as signedness/width/alignment authority.
+Missing or conflicting rows reject before backend effects. General integer
+widths, pointer-sized integers, overflow policy, aggregates, packing, and
+address spaces remain separate BoxCount decisions and cannot be smuggled into
+this BoxShape convergence row.
 
 ## Canonical Runtime Value Classes
 
@@ -193,6 +239,95 @@ legacy `h` / `hh` / `hi` / `hii` 表記は compatibility artifact として残�
 - return is owned by default unless explicitly `none`
 - borrowed string handle is a first-class manifest class
 - ownership mismatch must fail-fast; no silent fallback
+
+## Callable Text Formal Wire (V1)
+
+The callable boundary for one logical `ExactText` formal is two adjacent
+scalar lanes:
+
+```text
+logical ExactText / one BindingRef
+  -> slot:u64
+  -> generation:u64
+```
+
+The pair totals 16 bytes in the current fixed-width wire, but it is not one
+by-value ABI aggregate. Logical `/N` remains explicit source-parameter arity.
+The complete callable signature keeps four counts distinct:
+
+```text
+source_logical_arity    = explicit source formal count (/N)
+receiver_lane_count     = 1 iff InstanceBoxMethod, otherwise 0
+physical_formal_lane_count
+  = sum(explicit-formal lane widths)
+physical_callable_lane_count
+  = receiver_lane_count + physical_formal_lane_count
+```
+
+Physical order is an optional leading `InstanceReceiver` lane followed by
+explicit formals in logical ordinal order; ordinary formals use one lane and
+ExactText formals use adjacent `[slot,generation]`. The receiver is the exact
+source `Receiver` binding, not a formal ordinal, and cannot be inferred from a
+function/parameter length difference. The sole physical-signature issuer
+consumes the same-brand selected/batch identity, declaration mode, exact
+receiver binding when present, and the complete explicit parameter-contract
+cohort. It does not consume callable header, result, or Completion and contains
+no `ValueId`, pointer, length, lease token, or route policy.
+
+The lane map is also the only source for later physical parameter and call
+argument projections. Within one callee function, physical parameter
+`ValueId`s are pairwise distinct by lane. Within one caller function,
+occurrence order is preserved but aliasing occurrences may repeat a
+`ValueId`; caller and callee `ValueId` numbers belong to different scopes and
+are never compared as identity.
+
+### MIR carrier for the `u64` wire lanes
+
+The callable wire remains explicitly `u64` for both `slot` and `generation`.
+The current MIR/LLVM callable carrier is `i64`; the physical-signature row
+records this checked bit-preserving carrier as `U64BitsOnI64`. This is a
+mechanical transport fact, not a semantic `MirType::Integer` decision, a
+source-level `u64` type, or a reason to add a new unsigned MIR type. The lane
+role and signature row remain the sole authority for the unsigned-wire
+meaning. In particular, the generation lane is not an ordinary arithmetic
+value and may not be reconstructed from the `i64` carrier, a raw slot, a
+`MirType`, a JSON length, or a parameter-name string.
+
+Any consumer that cannot preserve the `U64BitsOnI64` contract must reject the
+physical signature before effect. A spelling such as `"u64"` must not be fed
+through source-type mapping (which would create an unrelated boxed type), and
+the existing scalar `i64` carrier must not be exposed as a second semantic
+authority.
+
+At callee entry, the Rust runtime owns exact pair validation, Text-class
+validation, generation identity, atomic invocation-wide pinning, pending
+retirement, and move-only finish. One pin is held per admitted ExactText formal
+occurrence; equal pairs in two formals count twice and each nested callee entry
+acquires its own set. All pairs preflight before any pin or body effect.
+Zero/out-of-range, missing, stale-generation, non-Text, retiring, and overflow
+reject without fallback/retry.
+
+The current `TextFormalBorrowV1` and `hako_text_formal_validate_v1` are
+caller-zero validator/probe surfaces. Production entry consumes the already
+published `[slot,generation]` lanes and must not recapture generation from a
+raw handle. `Raw HostHandle`, `ObjectIdentity`, `HomeDemand::Handle`,
+`MirType::String`, DynamicV2 lease tokens, `StringSpan`, `StringViewBox`, and
+`TextReadSession` are not signature or residence issuers.
+
+Function-internal residence is a later, separate product:
+
+```text
+atomic lease-set
+  -> non-splittable TextFormalCallResidenceSetV1
+       lease token + immutable UTF-8 root descriptors
+  -> session-branded TextSliceRef / backend-local TextPlan
+  -> scoped backend ptr/len projection
+```
+
+The root lifetime never belongs to raw `ptr,len`, and slices/plans never detach
+from the residence set or cross the stable callable ABI. TextEq, Substring,
+Builder, MIR/CFG/SSA, and production selection remain outside the current
+caller-zero runtime substrate.
 
 ## Demand Verb Reading
 

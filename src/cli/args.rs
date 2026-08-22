@@ -43,16 +43,14 @@ pub fn parse() -> CliConfig {
 }
 
 pub fn build_command() -> Command {
-    let version = if cfg!(feature = "llvm-harness") {
-        if cfg!(feature = "llvm") {
-            "1.0 features:llvm,llvm-harness"
-        } else {
-            "1.0 features:llvm-harness"
-        }
-    } else if cfg!(feature = "llvm") {
-        "1.0 features:llvm"
-    } else {
-        "1.0"
+    let version = match (
+        cfg!(feature = "llvm-boundary"),
+        cfg!(feature = "llvmlite-compat"),
+    ) {
+        (true, true) => "1.0 features:llvm-boundary,llvmlite-compat",
+        (true, false) => "1.0 features:llvm-boundary",
+        (false, true) => "1.0 features:llvmlite-compat",
+        (false, false) => "1.0",
     };
 
     Command::new("hakorune")

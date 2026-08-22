@@ -1,21 +1,32 @@
-//! Ordinal storage and total-coverage seal for selected Script root demand.
+//! Storage and downstream transport for the selected Script root demand.
 //!
-//! Source-shape policy belongs to `normal_script_root_admission_witness`; this
-//! module receives only the private decision and turns it into a canonical
-//! ProgramBody-ordinal window.
+//! The neutral source issuer owns source-shape decisions and calls the one
+//! canonical window seal. The legacy Builder is retained only for old unit
+//! fixtures while its production caller is removed.
 
+#[cfg(test)]
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::{
-    ScriptRootDemandWindowSealErrorV1, SourcePathSegmentV1, SourcePathV1,
-    VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
-};
-
-use super::normal_script_deferred_residual_registry::{
-    PreparedScriptDeferredResidualRegistryV1, ScriptDeferredResidualRegistryBuilderV1,
+    VerifiedScriptRootDemandWindowV1,
 };
 #[cfg(test)]
+use crate::mir::resolved_semantics::{
+    ScriptRootDemandWindowSealErrorV1, SourcePathSegmentV1, SourcePathV1,
+    VerifiedScriptRootDemandEntryV1,
+};
+use crate::parser::ParserInvocationWitnessV1;
+use super::normal_script_deferred_residual_registry::{
+    PreparedScriptDeferredResidualRegistryV1,
+};
+#[cfg(test)]
+use super::normal_script_deferred_residual_registry::ScriptDeferredResidualRegistryBuilderV1;
+#[cfg(test)]
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
+#[cfg(test)]
 use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
+#[cfg(test)]
+use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
+#[cfg(test)]
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 
 /// Complete/Deferred root admission evidence prepared from one Program pass.
@@ -23,11 +34,28 @@ use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 pub(super) struct PreparedScriptRootAdmissionV1 {
     window: VerifiedScriptRootDemandWindowV1,
     deferred_residuals: PreparedScriptDeferredResidualRegistryV1,
+    invocation_witness: ParserInvocationWitnessV1,
 }
 
 impl PreparedScriptRootAdmissionV1 {
+    pub(super) fn from_neutral_issuer(
+        window: VerifiedScriptRootDemandWindowV1,
+        deferred_residuals: PreparedScriptDeferredResidualRegistryV1,
+        invocation_witness: ParserInvocationWitnessV1,
+    ) -> Self {
+        Self {
+            window,
+            deferred_residuals,
+            invocation_witness,
+        }
+    }
+
     pub(super) fn window(&self) -> &VerifiedScriptRootDemandWindowV1 {
         &self.window
+    }
+
+    pub(super) fn is_from_invocation(&self, witness: &ParserInvocationWitnessV1) -> bool {
+        self.invocation_witness.same_as(witness)
     }
 
     #[cfg(test)]
@@ -36,12 +64,14 @@ impl PreparedScriptRootAdmissionV1 {
     }
 }
 
+#[cfg(test)]
 #[derive(Debug)]
 pub(super) struct ScriptRootDemandWindowBuilderV1 {
     entries: Vec<Option<VerifiedScriptRootDemandEntryV1>>,
     deferred_residuals: ScriptDeferredResidualRegistryBuilderV1,
 }
 
+#[cfg(test)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) enum ScriptRootDemandWindowBuildErrorV1 {
     SourceOrdinalOutOfBounds,
@@ -50,6 +80,7 @@ pub(super) enum ScriptRootDemandWindowBuildErrorV1 {
     Seal(ScriptRootDemandWindowSealErrorV1),
 }
 
+#[cfg(test)]
 impl ScriptRootDemandWindowBuilderV1 {
     pub(super) fn for_program_statement_count(statement_count: usize) -> Self {
         Self {
@@ -66,10 +97,28 @@ impl ScriptRootDemandWindowBuilderV1 {
         statement: &ASTNode,
         occurrence: SelectedScriptProgramOccurrenceV1,
     ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
-        let decision =
-            ScriptRootSemanticDecisionV1::decide(self.entries.len(), statement, occurrence)?;
+        self.record_selected_work_item_with_composite_partition(statement, occurrence, None)
+    }
+
+    pub(super) fn record_selected_work_item_with_composite_partition(
+        &mut self,
+        statement: &ASTNode,
+        occurrence: SelectedScriptProgramOccurrenceV1,
+        composite_partition: Option<&CanonicalScriptCompositeProgramPartitionV1>,
+    ) -> Result<(), ScriptRootDemandWindowBuildErrorV1> {
+        let decision = ScriptRootSemanticDecisionV1::decide_with_composite_partition(
+            self.entries.len(),
+            statement,
+            occurrence,
+            composite_partition,
+        )?;
         self.deferred_residuals
-            .record(occurrence.source_statement_index(), statement, decision);
+            .record(
+                occurrence.source_statement_index(),
+                statement,
+                decision.admission(),
+                decision.semantic(),
+            );
         self.record_decision(occurrence.source_statement_index(), decision)
     }
 
@@ -111,6 +160,7 @@ impl ScriptRootDemandWindowBuilderV1 {
         Ok(PreparedScriptRootAdmissionV1 {
             window,
             deferred_residuals: self.deferred_residuals.seal(),
+            invocation_witness: ParserInvocationWitnessV1::for_test(),
         })
     }
 }

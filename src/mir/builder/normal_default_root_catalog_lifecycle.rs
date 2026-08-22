@@ -8,11 +8,15 @@ use crate::parser::VerifiedFinalCallableProgramSourceV1;
 
 use super::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use super::main_expansion::VerifiedRawRootExpansionV1;
-use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
-use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
-use super::program_root_lowering::{
-    NormalCallableSemanticPackageMode, NormalScriptRootLoweringMode,
+use super::normal_default_root_catalog_post_install::
+    finish_normal_default_root_after_pre_effect_bind;
+use super::normal_script_direct_static_lookup::ScriptDirectStaticCallLookupIssuerV1;
+use super::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWindowV1;
+use super::normal_script_pre_effect_source_observation::{
+    issue_into_c_transport, NormalScriptPreEffectSourceObservationIssuerV1,
 };
+use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
+use super::program_root_lowering::NormalCallableSemanticPackageMode;
 use super::program_root_work_plan::{
     PreparedProgramRootWorkPlanV1, ProgramRootWorkPlanAdmissionV1,
 };
@@ -20,18 +24,12 @@ use super::{
     CallableMainMaterializationPolicyV1, MirModule, ModuleBuilderInvocationSessionV1,
     NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
 };
-use crate::mir::callable_result_representation::{
-    VerifiedSameModuleCallableResultCatalogV1, VerifiedStaticCallResultPublicationOwnerV1,
-};
 use crate::mir::normal_callable_semantic_package::{
-    issue_normal_callable_semantic_package_v1, InstalledNormalCallableSemanticPackageV1,
+    issue_normal_callable_semantic_package_with_brand_catalog_v1,
+    InstalledNormalCallableSemanticPackageV1,
 };
-use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ResolveScriptForestOutcomeV1, ScriptSyntaxViewV1,
-};
-use crate::mir::source_call_target::{
-    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
-};
+use crate::mir::normal_source_plan::NormalCallableCompatibilityOriginV1;
+use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir) enum NormalDefaultRootCatalogLifecycleStageV1 {
@@ -108,7 +106,10 @@ struct PreparedNormalDefaultProgramRootSealV1;
 
 #[derive(Debug)]
 enum PreparedNormalDefaultProgramSourceV1 {
-    Callable(VerifiedFinalCallableProgramSourceV1),
+    Callable {
+        source: VerifiedFinalCallableProgramSourceV1,
+    },
+    TypedCompatibility(NormalCallableCompatibilityOriginV1),
     Compatibility(ASTNode),
 }
 
@@ -127,14 +128,24 @@ impl PreparedNormalDefaultProgramRootV1 {
         source: VerifiedFinalCallableProgramSourceV1,
     ) -> Self {
         Self {
-            source: PreparedNormalDefaultProgramSourceV1::Callable(source),
+            source: PreparedNormalDefaultProgramSourceV1::Callable { source },
+            _seal: PreparedNormalDefaultProgramRootSealV1,
+        }
+    }
+
+    pub(in crate::mir) fn from_compatibility_origin(
+        origin: NormalCallableCompatibilityOriginV1,
+    ) -> Self {
+        Self {
+            source: PreparedNormalDefaultProgramSourceV1::TypedCompatibility(origin),
             _seal: PreparedNormalDefaultProgramRootSealV1,
         }
     }
 
     pub(super) fn source_ast(&self) -> &ASTNode {
         match &self.source {
-            PreparedNormalDefaultProgramSourceV1::Callable(source) => source.ast(),
+            PreparedNormalDefaultProgramSourceV1::Callable { source, .. } => source.ast(),
+            PreparedNormalDefaultProgramSourceV1::TypedCompatibility(origin) => origin.ast(),
             PreparedNormalDefaultProgramSourceV1::Compatibility(ast) => ast,
         }
     }
@@ -149,7 +160,14 @@ impl PreparedNormalDefaultProgramRootV1 {
     pub(in crate::mir) fn is_callable_source_backed(&self) -> bool {
         matches!(
             &self.source,
-            PreparedNormalDefaultProgramSourceV1::Callable(_)
+            PreparedNormalDefaultProgramSourceV1::Callable { .. }
+        )
+    }
+
+    pub(in crate::mir) fn is_typed_compatibility(&self) -> bool {
+        matches!(
+            &self.source,
+            PreparedNormalDefaultProgramSourceV1::TypedCompatibility(_)
         )
     }
 }
@@ -187,10 +205,30 @@ impl RejectedNormalDefaultRootCatalogLifecycleV1 {
 
 impl ModuleBuilderInvocationSessionV1 {
     pub(in crate::mir) fn complete_normal_default_program_root_catalog_lifecycle(
+        self,
+        source: PreparedNormalDefaultProgramRootV1,
+        materialization_policy: CallableMainMaterializationPolicyV1,
+        runtime_inputs: NormalRuntimeInputSnapshotV1,
+    ) -> Result<
+        CompletedNormalDefaultRootCatalogLifecycleV1,
+        RejectedNormalDefaultRootCatalogLifecycleV1,
+    > {
+        self.complete_normal_default_program_root_catalog_lifecycle_with_target(
+            source,
+            materialization_policy,
+            runtime_inputs,
+            None,
+        )
+    }
+
+    pub(in crate::mir) fn complete_normal_default_program_root_catalog_lifecycle_with_target(
         mut self,
         source: PreparedNormalDefaultProgramRootV1,
         materialization_policy: CallableMainMaterializationPolicyV1,
         runtime_inputs: NormalRuntimeInputSnapshotV1,
+        target_capability: Option<
+            crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<
         CompletedNormalDefaultRootCatalogLifecycleV1,
         RejectedNormalDefaultRootCatalogLifecycleV1,
@@ -211,6 +249,20 @@ impl ModuleBuilderInvocationSessionV1 {
         let preflight_is_app_mode = preflight_expansion.is_app_mode();
         drop(preflight_expansion);
 
+        let declaration_facts =
+            match PreparedNormalProgramDeclarationFactsV1::collect(source.source_ast()) {
+                Ok(facts) => facts,
+                Err(error) => {
+                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                        session: self,
+                        _source: Some(source),
+                        error: NormalDefaultRootCatalogLifecycleErrorV1::CatalogSeal(
+                            error.to_string().into(),
+                        ),
+                    })
+                }
+            };
+
         let mut resolver = match FunctionSemanticResolverSessionV1::new(0) {
             Ok(resolver) => resolver,
             Err(error) => {
@@ -225,37 +277,159 @@ impl ModuleBuilderInvocationSessionV1 {
         };
         let (mut semantic_package, compatibility_source) = match source {
             PreparedNormalDefaultProgramRootV1 {
-                source: PreparedNormalDefaultProgramSourceV1::Callable(callable),
+                source: PreparedNormalDefaultProgramSourceV1::Callable { source: callable },
                 ..
             } => {
-                let package =
-                    match issue_normal_callable_semantic_package_v1(&mut resolver, callable) {
-                        Ok(package) => package,
-                        Err(error) => {
-                            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
-                                session: self,
-                                _source: None,
-                                error:
-                                    NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                                        format!("[mir/callable-semantic-package/issue] {error:?}")
-                                            .into(),
-                                    ),
-                            })
-                        }
-                    };
+                let package = match declaration_facts.with_brand_catalog(|catalog| {
+                    issue_normal_callable_semantic_package_with_brand_catalog_v1(
+                        &mut resolver,
+                        callable,
+                        Some(catalog),
+                    )
+                }) {
+                    Ok(package) => package,
+                    Err(error) => {
+                        return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                            session: self,
+                            _source: None,
+                            error: NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
+                                format!("[mir/callable-semantic-package/issue] {error:?}").into(),
+                            ),
+                        })
+                    }
+                };
                 (Some(package), None)
             }
             compatibility => (None, Some(compatibility)),
         };
-        let brand = self.brand();
+        let mut neutral_window = match semantic_package.as_ref() {
+            None => None,
+            Some(package) => match PreparedCanonicalScriptNeutralProgramWindowV1::issue(package) {
+                Ok(window) => Some(window),
+                Err(error) => {
+                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                        session: self,
+                        _source: None,
+                        error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            format!("[mir/script-neutral-window/issue] {error:?}").into(),
+                        ),
+                    })
+                },
+            }
+        };
         let import_rows = self
             .config()
             .using_import_boxes()
             .iter()
             .map(|(alias, owner)| (alias.clone(), owner.clone()))
             .collect::<Vec<_>>();
-        let result = {
-            let builder = self.builder_mut();
+        let lookup_window = if preflight_is_app_mode {
+            None
+        } else {
+            neutral_window.as_ref()
+        };
+        let (mut script_lookup, mut preflight_static_result_publication_owner) =
+            match semantic_package.as_ref() {
+                None => (None, None),
+                Some(package) => match ScriptDirectStaticCallLookupIssuerV1::issue(
+                    package,
+                    lookup_window,
+                    &import_rows,
+                ) {
+                    Ok((lookup, publication_owner)) => (lookup, Some(publication_owner)),
+                    Err(error) => {
+                        return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                            session: self,
+                            _source: None,
+                            error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                format!("[mir/script-static-lookup/preflight] {error:?}").into(),
+                            ),
+                        })
+                    }
+                },
+            };
+        let (mut pre_effect_script_source, constructor_source_cohort) =
+            match (semantic_package.as_ref(), neutral_window.take()) {
+                (Some(package), Some(window)) => {
+                    let (source_window, post_install) = window.split_for_pre_effect();
+                    let (_instance_transfers, constructor_source_cohort) =
+                        post_install.into_parts();
+                    let observation = if preflight_is_app_mode {
+                        None
+                    } else {
+                        let Some(lookup) = script_lookup.take() else {
+                            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                                session: self,
+                                _source: None,
+                                error:
+                                    NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                        "[mir/script-pre-effect/source] missing selected-normal lookup"
+                                            .into(),
+                                    ),
+                            });
+                        };
+                        match NormalScriptPreEffectSourceObservationIssuerV1::issue(
+                            package,
+                            source_window,
+                            lookup,
+                            &declaration_facts,
+                            &mut resolver,
+                        ) {
+                            Ok(observation) => match issue_into_c_transport(observation) {
+                                Ok(transport) => Some(transport),
+                                Err(error) => {
+                                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                                        session: self,
+                                        _source: None,
+                                        error:
+                                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                                format!("[mir/script-a/capability] {error:?}")
+                                                    .into(),
+                                            ),
+                                    })
+                                }
+                            },
+                            Err(error) => {
+                                return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                                    session: self,
+                                    _source: None,
+                                    error:
+                                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                            format!("[mir/script-pre-effect/source] {error:?}")
+                                                .into(),
+                                        ),
+                                })
+                            }
+                        }
+                    };
+                    (observation, Some(constructor_source_cohort))
+                }
+                (None, None) => (None, None),
+                _ => {
+                    return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                        session: self,
+                        _source: None,
+                        error: NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                            "[mir/script-pre-effect/source] incomplete selected-normal source inputs"
+                                .into(),
+                        ),
+                    })
+                }
+            };
+        if let Err(error) = self.install_pinned_text_target_capability(target_capability) {
+            return Err(RejectedNormalDefaultRootCatalogLifecycleV1 {
+                session: self,
+                _source: None,
+                error: NormalDefaultRootCatalogLifecycleErrorV1::RootLower(
+                    format!("[freeze:contract][pinned-text/invocation-binding] {error:?}").into(),
+                ),
+            });
+        }
+        let brand = self.brand();
+        let result = self.with_builder_and_pinned_text_invocation_binding(|builder, binding| {
+            let target_capability = binding
+                .as_ref()
+                .map(|binding| binding.target_capability());
             (|| {
                 builder
                     .prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())
@@ -328,8 +502,6 @@ impl ModuleBuilderInvocationSessionV1 {
                     ASTNode::Program { statements, .. } => statements,
                     _ => unreachable!("root expansion retained a Program"),
                 };
-                let declaration_facts =
-                    PreparedNormalProgramDeclarationFactsV1::collect(source_ast);
                 let declarations =
                     builder
                         .comp_ctx
@@ -339,94 +511,52 @@ impl ModuleBuilderInvocationSessionV1 {
                                 format!("[mir/static-result-owner/catalog] {error}").into(),
                             )
                         })?;
-                let work = PreparedProgramRootWorkPlanV1::prepare(
+                let (script_root_admission, mut pre_effect_script_source) =
+                    match pre_effect_script_source.take() {
+                        Some(observation) => {
+                            let (admission, observation) = observation.split_for_work_plan();
+                            (Some(admission), Some(observation))
+                        }
+                        None => (None, None),
+                    };
+                let work = PreparedProgramRootWorkPlanV1::prepare_with_script_root_admission_and_constructor_sources(
                     lowering_statements,
                     expansion.is_app_mode(),
                     ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                     Some(declarations.selected_source_inventory()),
-                );
+                    constructor_source_cohort.as_ref(),
+                    script_root_admission,
+                )
+                .map_err(|error| {
+                    NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())
+                })?;
                 let work = work.into_parts();
-                let script_source = match work.script_root_admission.as_ref() {
-                    None => None,
-                    Some(admission) => {
-                        let window = admission.window();
-                        let view =
-                            ScriptSyntaxViewV1::from_program(source_ast).ok_or_else(|| {
-                                NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                    "[mir/script-semantic/source-root] expected Program".into(),
-                                )
-                            })?;
-                        let outcome =
-                            declaration_facts.with_record_schema_demand_view(|record_schemas| {
-                                declaration_facts.with_enum_variant_demand_view(|enum_variants| {
-                                    declaration_facts.with_enum_match_demand_view(|enum_matches| {
-                                        resolver.resolve_script_forest_with_declaration_views(
-                                            view,
-                                            window,
-                                            record_schemas,
-                                            enum_variants,
-                                            enum_matches,
-                                        )
-                                    })
-                                })
-                            });
-                        match outcome.map_err(|error| {
+                let result = match (installed_package.as_ref(), pre_effect_script_source.take()) {
+                    (Some(package), Some(observation)) => observation
+                        .with_bound_source(package, |source| {
+                            finish_normal_default_root_after_pre_effect_bind(
+                                builder,
+                                work,
+                                source_ast,
+                                &expansion,
+                                &receipt,
+                                &runtime_inputs,
+                                brand,
+                                declaration_facts,
+                                NormalCallableSemanticPackageMode::Installed(package),
+                                Some(source),
+                                &mut preflight_static_result_publication_owner,
+                                &import_rows,
+                                target_capability,
+                            )
+                        })
+                        .map_err(|error| {
                             NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                format!("[mir/script-semantic/seal] {error:?}").into(),
+                                format!("[mir/script-pre-effect/rebind] {error:?}").into(),
                             )
-                        })? {
-                            ResolveScriptForestOutcomeV1::Complete(forest) => Some(
-                                VerifiedScriptSemanticSourceV1::seal_ast_with_forest(
-                                    source_ast, forest, window,
-                                )
-                                .map_err(|error| {
-                                    NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                        error.into(),
-                                    )
-                                })?,
-                            ),
-                            ResolveScriptForestOutcomeV1::Deferred => None,
-                        }
-                    }
-                };
-                let imports = VerifiedStaticImportAliasViewV1::seal(declarations, import_rows)
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                            format!("[mir/static-result-owner/imports] {error:?}").into(),
-                        )
-                    })?;
-                let inventory =
-                    VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
-                        .map_err(|error| {
-                            NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                                format!("[mir/static-result-owner/targets] {error:?}").into(),
-                            )
-                        })?;
-                let targets = inventory.into_targets();
-                let callable_mode = match installed_package.as_ref() {
-                    Some(package) => NormalCallableSemanticPackageMode::Installed(package),
-                    None => NormalCallableSemanticPackageMode::Compatibility,
-                };
-                let results =
-                    VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
-                        .map_err(|error| {
-                            NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                                format!("[mir/static-result-owner/results] {error:?}").into(),
-                            )
-                        })?;
-                let static_result_publication_owner =
-                    VerifiedStaticCallResultPublicationOwnerV1::issue(
-                        declarations,
-                        &targets,
-                        &results,
-                    )
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::CallableSemanticSeal(
-                            format!("[mir/static-result-owner/issue] {error:?}").into(),
-                        )
-                    })?;
-                let result_value = builder
-                    .lower_normal_default_program_root_after_catalog_install_v1(
+                        })?,
+                    (Some(package), None) => finish_normal_default_root_after_pre_effect_bind(
+                        builder,
                         work,
                         source_ast,
                         &expansion,
@@ -434,21 +564,34 @@ impl ModuleBuilderInvocationSessionV1 {
                         &runtime_inputs,
                         brand,
                         declaration_facts,
-                        callable_mode,
-                        match script_source {
-                            Some(source) => NormalScriptRootLoweringMode::Complete(source),
-                            None => NormalScriptRootLoweringMode::Deferred,
-                        },
-                        static_result_publication_owner,
-                    )
-                    .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into())
-                    })?;
-                builder.finalize_module(result_value).map_err(|error| {
-                    NormalDefaultRootCatalogLifecycleErrorV1::FinalizeModule(error.into())
-                })
+                        NormalCallableSemanticPackageMode::Installed(package),
+                        None,
+                        &mut preflight_static_result_publication_owner,
+                        &import_rows,
+                        target_capability,
+                    ),
+                    (None, None) => finish_normal_default_root_after_pre_effect_bind(
+                        builder,
+                        work,
+                        source_ast,
+                        &expansion,
+                        &receipt,
+                        &runtime_inputs,
+                        brand,
+                        declaration_facts,
+                        NormalCallableSemanticPackageMode::Compatibility,
+                        None,
+                        &mut preflight_static_result_publication_owner,
+                        &import_rows,
+                        target_capability,
+                    ),
+                    _ => Err(NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                        "[mir/script-pre-effect/rebind] source package/observation mismatch".into(),
+                    )),
+                };
+                result
             })()
-        };
+        });
 
         match result {
             Ok(module) => Ok(CompletedNormalDefaultRootCatalogLifecycleV1 {
@@ -465,277 +608,5 @@ impl ModuleBuilderInvocationSessionV1 {
 }
 
 #[cfg(test)]
-mod tests {
-    use crate::ast::{ASTNode, Span};
-    use crate::mir::builder::{
-        BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1, MirBuilder,
-        ModuleBuilderInvocationSessionV1, NormalDefaultRootCatalogLifecycleStageV1,
-        NormalRuntimeInputSnapshotV1, PreparedNormalDefaultProgramRootV1,
-    };
-    use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
-
-    fn callable_source(
-        source: &str,
-        config: ParserBuildConfig,
-    ) -> PreparedNormalDefaultProgramRootV1 {
-        let parsed = NyashParser::parse_normal_callable_program_with_build_config(source, config)
-            .expect("normal callable source");
-        let transformed = crate::test_support::with_env_var("NYASH_MACRO_DISABLE", "1", || {
-            crate::r#macro::transform_normal_callable_program_v1(parsed)
-                .expect("exact callable transform")
-        });
-        let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
-        else {
-            panic!("fixture must remain source-backed")
-        };
-        PreparedNormalDefaultProgramRootV1::from_callable_source(source)
-    }
-
-    fn session() -> ModuleBuilderInvocationSessionV1 {
-        let current = MirBuilder::new();
-        let config = BuilderInvocationConfigV1::snapshot_for_raw(&current, None);
-        ModuleBuilderInvocationSessionV1::open(&current, config)
-    }
-
-    #[test]
-    fn verified_expansion_disposition_reaches_script_and_app_root_lowering() {
-        let _ = crate::runtime::ring0::ensure_global_ring0_initialized();
-        for (source, expected_app_mode) in [
-            ("42", false),
-            ("static box Main { main() { return 0 } }", true),
-        ] {
-            let source = NyashParser::parse_from_string(source).expect("route source");
-            let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
-            let completed = session()
-                .complete_normal_default_program_root_catalog_lifecycle(
-                    source,
-                    CallableMainMaterializationPolicyV1::Omitted,
-                    NormalRuntimeInputSnapshotV1::empty(),
-                )
-                .expect("verified route must lower");
-            let (session, _) = completed.into_parts();
-
-            assert_eq!(session.builder().root_is_app_mode, Some(expected_app_mode));
-        }
-    }
-
-    #[test]
-    fn root_expansion_failure_precedes_prepare_and_retains_source() {
-        let source = NyashParser::parse_from_string(
-            r#"
-                static box Main { main() { return 0 } }
-                static box Main { main() { return 1 } }
-            "#,
-        )
-        .expect("duplicate Main source");
-        let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
-        let rejected = session()
-            .complete_normal_default_program_root_catalog_lifecycle(
-                source,
-                CallableMainMaterializationPolicyV1::Omitted,
-                NormalRuntimeInputSnapshotV1::empty(),
-            )
-            .expect_err("duplicate Main must reject before prepare");
-
-        assert_eq!(
-            rejected.stage(),
-            NormalDefaultRootCatalogLifecycleStageV1::RootExpansion
-        );
-        assert!(rejected.session.builder().current_module.is_none());
-        assert!(matches!(
-            rejected
-                ._source
-                .as_ref()
-                .expect("preflight rejection retains compatibility source")
-                .source_ast(),
-            crate::ast::ASTNode::Program { .. }
-        ));
-    }
-
-    #[test]
-    fn catalog_failure_follows_prepare_and_retains_source() {
-        let ASTNode::Program { mut statements, .. } =
-            NyashParser::parse_from_string("box Duplicate { first() { return 0 } }")
-                .expect("first Box source")
-        else {
-            unreachable!()
-        };
-        let ASTNode::Program {
-            statements: second, ..
-        } = NyashParser::parse_from_string("box Duplicate { second() { return 1 } }")
-            .expect("second Box source")
-        else {
-            unreachable!()
-        };
-        statements.extend(second);
-        let source = ASTNode::Program {
-            statements,
-            span: Span::unknown(),
-        };
-        let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
-        let rejected = session()
-            .complete_normal_default_program_root_catalog_lifecycle(
-                source,
-                CallableMainMaterializationPolicyV1::Omitted,
-                NormalRuntimeInputSnapshotV1::empty(),
-            )
-            .expect_err("duplicate Box owner must reject during catalog seal");
-
-        assert_eq!(
-            rejected.stage(),
-            NormalDefaultRootCatalogLifecycleStageV1::CatalogSeal
-        );
-        assert!(rejected.session.builder().current_module.is_some());
-        assert!(matches!(
-            rejected
-                ._source
-                .as_ref()
-                .expect("catalog rejection retains compatibility source")
-                .source_ast(),
-            crate::ast::ASTNode::Program { .. }
-        ));
-    }
-
-    #[test]
-    fn source_bound_static_result_owner_reaches_the_raw_terminal() {
-        crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
-            let source = NyashParser::parse_from_string(
-                r#"
-                static box StringHelpers {
-                    int_to_str(n) {
-                        local value = me.to_i64("x")
-                        return value
-                    }
-                    to_i64(x) { return x + 1 }
-                }
-                "#,
-            )
-            .expect("source-bound static fixture");
-            let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
-            let completed = session()
-                .complete_normal_default_program_root_catalog_lifecycle(
-                    source,
-                    CallableMainMaterializationPolicyV1::Omitted,
-                    NormalRuntimeInputSnapshotV1::empty(),
-                )
-                .expect("source-bound static row must lower");
-            let (_, module) = completed.into_parts();
-            assert!(module
-                .functions
-                .iter()
-                .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
-        });
-    }
-
-    #[test]
-    fn source_backed_selected_callable_uses_the_installed_package_port() {
-        let source = callable_source(
-            "static box Scan { run(value) { return value } }",
-            ParserBuildConfig::default(),
-        );
-        let completed = session()
-            .complete_normal_default_program_root_catalog_lifecycle(
-                source,
-                CallableMainMaterializationPolicyV1::Omitted,
-                NormalRuntimeInputSnapshotV1::empty(),
-            )
-            .expect("source-backed package must lower");
-        let (_, module) = completed.into_parts();
-
-        assert!(module
-            .functions
-            .iter()
-            .any(|(_, function)| function.signature.name == "Scan.run/1"));
-    }
-
-    #[test]
-    fn parser_scan_package_reaches_the_existing_physical_blocker_without_fallback() {
-        let source = callable_source(
-            include_str!(concat!(
-                "../../../lang/src/compiler/parser/scan/",
-                "parser_scan_loop_box.hako"
-            )),
-            ParserBuildConfig::default(),
-        );
-        let rejected = session()
-            .complete_normal_default_program_root_catalog_lifecycle(
-                source,
-                CallableMainMaterializationPolicyV1::Omitted,
-                NormalRuntimeInputSnapshotV1::empty(),
-            )
-            .expect_err("Dynamic physical consumption is not claimed by this cutover");
-
-        assert_eq!(
-            rejected.stage(),
-            NormalDefaultRootCatalogLifecycleStageV1::RootLower
-        );
-        assert!(rejected
-            .error()
-            .to_string()
-            .contains("callable-semantic-lowering/incomplete-consumption"));
-        assert!(rejected._source.is_none());
-    }
-
-    #[test]
-    fn source_backed_package_failure_is_terminal_before_builder_effects() {
-        let source = callable_source(
-            r#"
-gate Build.test {
-  static box ParserScanLoopBox {
-    skip_while(src, pos, end, pred_chars) {
-      local i = pos
-      loop(i < end) {
-        local ch = src.substring(i, i + 1)
-        if pred_chars.indexOf(ch) < 0 { return i }
-        i = i + 1
-      }
-      return i
-    }
-  }
-}
-"#,
-            ParserBuildConfig {
-                mode: BuildMode::Test,
-                ..ParserBuildConfig::default()
-            },
-        );
-        let rejected = session()
-            .complete_normal_default_program_root_catalog_lifecycle(
-                source,
-                CallableMainMaterializationPolicyV1::Omitted,
-                NormalRuntimeInputSnapshotV1::empty(),
-            )
-            .expect_err("missing selected-gate parameter authority must reject");
-
-        assert_eq!(
-            rejected.stage(),
-            NormalDefaultRootCatalogLifecycleStageV1::CallableSemanticSeal
-        );
-        assert!(rejected.session.builder().current_module.is_none());
-        assert!(rejected._source.is_none());
-    }
-
-    #[test]
-    fn actual_string_helpers_general_result_row_reaches_its_first_loop_carrier() {
-        crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
-            let source = NyashParser::parse_from_string(include_str!(concat!(
-                "../../../lang/src/shared/common/",
-                "string_helpers.hako"
-            )))
-            .expect("actual StringHelpers source");
-            let source = PreparedNormalDefaultProgramRootV1::seal(source).expect("Program source");
-            let completed = session()
-                .complete_normal_default_program_root_catalog_lifecycle(
-                    source,
-                    CallableMainMaterializationPolicyV1::Omitted,
-                    NormalRuntimeInputSnapshotV1::empty(),
-                )
-                .expect("actual StringHelpers exact result must reach GenericLoop");
-            let (_, module) = completed.into_parts();
-            assert!(module
-                .functions
-                .iter()
-                .any(|(_, function)| function.signature.name == "StringHelpers.int_to_str/1"));
-        });
-    }
-}
+#[path = "normal_default_root_catalog_lifecycle_tests.rs"]
+mod normal_default_root_catalog_lifecycle_tests;

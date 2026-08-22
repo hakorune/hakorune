@@ -35,6 +35,31 @@ pub(in crate::mir::builder) fn emit_add_i64_at(
     emit_binary_i64_at(builder, block, BinaryOp::Add, lhs, rhs)
 }
 
+pub(in crate::mir::builder) fn emit_add_i64_at_with_dst(
+    builder: &mut MirBuilder,
+    block: crate::mir::BasicBlockId,
+    dst: ValueId,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<(), String> {
+    require_i64_operands_at(builder, block, lhs, rhs)?;
+    builder.emit_instruction_at(
+        block,
+        MirInstruction::BinOp {
+            dst,
+            op: BinaryOp::Add,
+            lhs,
+            rhs,
+        },
+    )?;
+    builder
+        .function_state
+        .type_ctx
+        .value_types
+        .insert(dst, MirType::Integer);
+    Ok(())
+}
+
 pub(in crate::mir::builder) fn emit_sub_i64(
     builder: &mut MirBuilder,
     lhs: ValueId,
@@ -82,6 +107,18 @@ pub(in crate::mir::builder) fn emit_compare_i64_at(
     let dst = builder.next_value_id();
     compare::emit_to_at(builder, block, dst, op, lhs, rhs)?;
     Ok(dst)
+}
+
+pub(in crate::mir::builder) fn emit_compare_i64_at_with_dst(
+    builder: &mut MirBuilder,
+    block: crate::mir::BasicBlockId,
+    dst: ValueId,
+    op: CompareOp,
+    lhs: ValueId,
+    rhs: ValueId,
+) -> Result<(), String> {
+    require_i64_operands_at(builder, block, lhs, rhs)?;
+    compare::emit_to_at(builder, block, dst, op, lhs, rhs)
 }
 
 fn emit_binary_i64_at(

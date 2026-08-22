@@ -261,6 +261,7 @@ fn project_segment<'source>(
         }
         (ASTNode::MethodCall { arguments, .. }, SourcePathSegmentV1::Argument(index))
         | (ASTNode::FunctionCall { arguments, .. }, SourcePathSegmentV1::Argument(index))
+        | (ASTNode::ExplicitExternCall { arguments, .. }, SourcePathSegmentV1::Argument(index))
         | (ASTNode::FromCall { arguments, .. }, SourcePathSegmentV1::Argument(index))
         | (ASTNode::Call { arguments, .. }, SourcePathSegmentV1::Argument(index))
         | (ASTNode::New { arguments, .. }, SourcePathSegmentV1::Argument(index)) => {

@@ -1,7 +1,12 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
 use crate::mir::resolved_semantics::body_shape::ShadowBodyShapeDraftV0;
+use crate::mir::resolved_semantics::brand_source_relation::{
+    BrandCallSourceRelationDraftV1, BrandCallSourceRelationKindV1,
+};
+use crate::mir::resolved_semantics::expression_source::ShadowExpressionSourceDraftV1;
 use crate::mir::resolved_semantics::function_view::ReceiverPolicyV1;
 use crate::mir::resolved_semantics::source_site::{
     FunctionOriginV1, SourceBindingSiteV1, SourceExprSiteV1, SourceStmtSiteV1,
@@ -18,10 +23,11 @@ use super::path::ShadowSourcePathV0;
 use super::product::{
     ShadowAncestorCaptureAccessV0, ShadowAncestorCaptureEventV0, ShadowAssignmentTargetV0,
     ShadowBindingKindV0, ShadowBindingRecordV0, ShadowControlExitV0, ShadowDirectCallUseV0,
-    ShadowExitOriginV0, ShadowExitRecordV0, ShadowLexicalRefV0, ShadowMethodCallObservationV0,
-    ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowRegionKindV0,
-    ShadowRegionRecordV0, ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
-    ShadowScopeKindV0, ShadowScopeRecordV0,
+    ShadowExitOriginV0, ShadowExitRecordV0, ShadowExplicitExternCallV0, ShadowLexicalRefV0,
+    ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
+    ShadowQualifiedReceiverDispositionV0, ShadowRegionKindV0, ShadowRegionRecordV0,
+    ShadowResolveErrorV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0, ShadowScopeKindV0,
+    ShadowScopeRecordV0,
 };
 use super::root_traversal::ShadowRootTraversalInputV1;
 use super::traversal_profile::ShadowTraversalProfileV1;
@@ -32,13 +38,13 @@ struct ResolverScopeFrameV0 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ShadowLambdaModeV0 {
+pub(super) enum ShadowLambdaModeV0 {
     Reject,
     Inventory,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum ShadowMethodCallObservationModeV0 {
+pub(super) enum ShadowMethodCallObservationModeV0 {
     Disabled,
     All,
 }
@@ -62,6 +68,8 @@ pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
     array_initialized_locals: BTreeSet<ShadowBindingOrdinalV0>,
     ancestor_capture_events: Vec<ShadowAncestorCaptureEventV0>,
     direct_calls: BTreeMap<SourceExprSiteV1, ShadowDirectCallUseV0>,
+    brand_calls: BTreeMap<SourceExprSiteV1, BrandCallSourceRelationDraftV1>,
+    explicit_extern_calls: BTreeMap<SourceExprSiteV1, ShadowExplicitExternCallV0>,
     resolved_exits: BTreeMap<SourceStmtSiteV1, ShadowExitRecordV0>,
     statement_sites: BTreeSet<SourceStmtSiteV1>,
     expression_sites: BTreeSet<SourceExprSiteV1>,
@@ -79,175 +87,16 @@ pub(in crate::mir::resolved_semantics) struct ShadowResolverV0<'ast, 'schema> {
     pub(super) record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
     pub(super) enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
     pub(super) enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
+    pub(super) brand_catalog: Option<&'schema VerifiedBrandProgramDeclarationCatalogV1>,
     pub(super) record_literal_demands: BTreeMap<SourceExprSiteV1, u32>,
     pub(super) enum_variant_demands: BTreeMap<SourceExprSiteV1, EnumVariantAdmissionV1>,
     pub(super) enum_match_demands: BTreeSet<SourceExprSiteV1>,
     pub(super) qmark_propagation_sites: BTreeSet<SourceExprSiteV1>,
     pub(super) match_control_sites: BTreeSet<SourceExprSiteV1>,
     pub(in crate::mir::resolved_semantics) body_shape: ShadowBodyShapeDraftV0,
+    pub(in crate::mir::resolved_semantics) expression_source: ShadowExpressionSourceDraftV1,
 }
-pub(super) fn resolve_function_shadow_v0(
-    _function_origin: FunctionOriginV1,
-    function: &ASTNode,
-) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
-    let Some(view) = FunctionSyntaxViewV1::from_ast(function) else {
-        return Err(ShadowResolveErrorV0::ExpectedFunctionDeclaration);
-    };
-    resolve_function_shadow_view_v0(view)
-}
-
-pub(in crate::mir::resolved_semantics) fn resolve_function_shadow_view_v0(
-    view: FunctionSyntaxViewV1<'_>,
-) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
-    resolve_shadow_view(
-        view,
-        ShadowLambdaModeV0::Reject,
-        BTreeSet::new(),
-        ShadowMethodCallObservationModeV0::Disabled,
-    )
-    .map(|owner| owner.function)
-}
-
-pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_v0<'ast>(
-    view: FunctionSyntaxViewV1<'ast>,
-    ancestor_names: BTreeSet<Box<str>>,
-) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    resolve_owner_shadow_view_with_profile_v0(
-        view,
-        ancestor_names,
-        ShadowTraversalProfileV1::FullFunctionV1,
-    )
-}
-
-pub(in crate::mir::resolved_semantics) fn resolve_owner_shadow_view_with_profile_v0<'ast>(
-    view: FunctionSyntaxViewV1<'ast>,
-    ancestor_names: BTreeSet<Box<str>>,
-    traversal_profile: ShadowTraversalProfileV1,
-) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    resolve_shadow_view_with_profile(
-        view,
-        ShadowLambdaModeV0::Inventory,
-        ancestor_names,
-        ShadowMethodCallObservationModeV0::Disabled,
-        traversal_profile,
-    )
-}
-
-pub(in crate::mir::resolved_semantics) fn resolve_script_shadow_view_v0<'ast>(
-    view: ScriptSyntaxViewV1<'ast>,
-    window: &'ast VerifiedScriptRootDemandWindowV1,
-    record_schemas: &dyn RecordSchemaDemandV1,
-    enum_variants: &dyn EnumVariantDemandV1,
-    enum_matches: &dyn EnumMatchDemandV1,
-) -> Result<ShadowResolvedFunctionV0, ShadowResolveErrorV0> {
-    let input = ShadowRootTraversalInputV1::sparse_script(
-        view,
-        window,
-        record_schemas,
-        enum_variants,
-        enum_matches,
-    );
-    let profile = input.root_profile();
-    traverse_shadow_root_v1(
-        input,
-        ShadowLambdaModeV0::Reject,
-        BTreeSet::new(),
-        BTreeSet::new(),
-        ShadowMethodCallObservationModeV0::Disabled,
-        false,
-    )
-    .map(|resolver| resolver.finish_owner(profile).function)
-}
-pub(in crate::mir::resolved_semantics) fn resolve_script_owner_shadow_view_v0<'ast>(
-    view: ScriptSyntaxViewV1<'ast>,
-    window: &'ast VerifiedScriptRootDemandWindowV1,
-    record_schemas: &dyn RecordSchemaDemandV1,
-    enum_variants: &dyn EnumVariantDemandV1,
-    enum_matches: &dyn EnumMatchDemandV1,
-) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    let input = ShadowRootTraversalInputV1::sparse_script(
-        view,
-        window,
-        record_schemas,
-        enum_variants,
-        enum_matches,
-    );
-    let profile = input.root_profile();
-    traverse_shadow_root_v1(
-        input,
-        ShadowLambdaModeV0::Inventory,
-        BTreeSet::new(),
-        BTreeSet::new(),
-        ShadowMethodCallObservationModeV0::Disabled,
-        false,
-    )
-    .map(|resolver| resolver.finish_owner(profile))
-}
-fn resolve_shadow_view<'ast>(
-    view: FunctionSyntaxViewV1<'ast>,
-    lambda_mode: ShadowLambdaModeV0,
-    ancestor_names: BTreeSet<Box<str>>,
-    method_call_observation_mode: ShadowMethodCallObservationModeV0,
-) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    resolve_shadow_view_with_profile(
-        view,
-        lambda_mode,
-        ancestor_names,
-        method_call_observation_mode,
-        ShadowTraversalProfileV1::FullFunctionV1,
-    )
-}
-fn resolve_shadow_view_with_profile<'ast>(
-    view: FunctionSyntaxViewV1<'ast>,
-    lambda_mode: ShadowLambdaModeV0,
-    ancestor_names: BTreeSet<Box<str>>,
-    method_call_observation_mode: ShadowMethodCallObservationModeV0,
-    traversal_profile: ShadowTraversalProfileV1,
-) -> Result<ShadowResolvedOwnerV0<'ast>, ShadowResolveErrorV0> {
-    let input = ShadowRootTraversalInputV1::dense_with_profile(view, traversal_profile);
-    let root_profile = input.root_profile();
-    traverse_shadow_root_v1(
-        input,
-        lambda_mode,
-        ancestor_names,
-        BTreeSet::new(),
-        method_call_observation_mode,
-        true,
-    )
-    .map(|resolver| resolver.finish_owner(root_profile))
-}
-
-pub(in crate::mir) fn observe_qualified_receiver_shadow_view_v0(
-    view: FunctionSyntaxViewV1<'_>,
-    requested_sites: BTreeSet<SourceExprSiteV1>,
-) -> Result<BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>, ShadowResolveErrorV0>
-{
-    traverse_shadow_root_v1(
-        ShadowRootTraversalInputV1::dense(view),
-        ShadowLambdaModeV0::Reject,
-        BTreeSet::new(),
-        requested_sites,
-        ShadowMethodCallObservationModeV0::Disabled,
-        false,
-    )?
-    .finish_qualified_receiver_observations()
-}
-
-pub(in crate::mir) fn observe_method_calls_shadow_view_v0(
-    view: FunctionSyntaxViewV1<'_>,
-) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0> {
-    traverse_shadow_root_v1(
-        ShadowRootTraversalInputV1::dense(view),
-        ShadowLambdaModeV0::Reject,
-        BTreeSet::new(),
-        BTreeSet::new(),
-        ShadowMethodCallObservationModeV0::All,
-        false,
-    )?
-    .finish_method_call_observations()
-}
-
-fn traverse_shadow_root_v1<'ast, 'schema>(
+pub(super) fn traverse_shadow_root_v1<'ast, 'schema>(
     input: ShadowRootTraversalInputV1<'ast, 'schema>,
     lambda_mode: ShadowLambdaModeV0,
     ancestor_names: BTreeSet<Box<str>>,
@@ -268,6 +117,7 @@ fn traverse_shadow_root_v1<'ast, 'schema>(
         input.record_schema_demand(),
         input.enum_variant_demand(),
         input.enum_match_demand(),
+        input.brand_catalog(),
     );
     if receiver_policy == ReceiverPolicyV1::DeclaredInstance {
         resolver.declare_binding(
@@ -309,6 +159,20 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         self.traversal_profile.allows_expression(expression)
     }
 
+    pub(super) fn is_catalog_brand_expression(&self, expression: &ASTNode) -> bool {
+        let Some(catalog) = self.brand_catalog else {
+            return false;
+        };
+        match expression {
+            ASTNode::FunctionCall { name, .. } => catalog.contains_name(name),
+            ASTNode::MethodCall { object, .. } => match object.as_ref() {
+                ASTNode::Variable { name, .. } => catalog.contains_name(name),
+                _ => false,
+            },
+            _ => false,
+        }
+    }
+
     pub(super) const fn is_script_lexical_core(&self) -> bool {
         matches!(
             self.traversal_profile,
@@ -327,6 +191,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         record_schema_demand: Option<&'schema dyn RecordSchemaDemandV1>,
         enum_variant_demand: Option<&'schema dyn EnumVariantDemandV1>,
         enum_match_demand: Option<&'schema dyn EnumMatchDemandV1>,
+        brand_catalog: Option<&'schema VerifiedBrandProgramDeclarationCatalogV1>,
     ) -> Self {
         let function_scope = ShadowScopeIdV0::new(0);
         let function_region = ShadowRegionIdV0::new(0);
@@ -372,6 +237,8 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             array_initialized_locals: BTreeSet::new(),
             ancestor_capture_events: Vec::new(),
             direct_calls: BTreeMap::new(),
+            brand_calls: BTreeMap::new(),
+            explicit_extern_calls: BTreeMap::new(),
             resolved_exits: BTreeMap::new(),
             statement_sites: BTreeSet::new(),
             expression_sites: BTreeSet::new(),
@@ -388,16 +255,18 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             record_schema_demand,
             enum_variant_demand,
             enum_match_demand,
+            brand_catalog,
             record_literal_demands: BTreeMap::new(),
             enum_variant_demands: BTreeMap::new(),
             enum_match_demands: BTreeSet::new(),
             qmark_propagation_sites: BTreeSet::new(),
             match_control_sites: BTreeSet::new(),
             body_shape: ShadowBodyShapeDraftV0::default(),
+            expression_source: ShadowExpressionSourceDraftV1::default(),
         }
     }
 
-    fn finish_owner(
+    pub(super) fn finish_owner(
         self,
         root_profile: super::super::SemanticOwnerRootProfileV1,
     ) -> ShadowResolvedOwnerV0<'ast> {
@@ -414,6 +283,8 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 assignment_targets: self.assignment_targets,
                 ancestor_capture_events: self.ancestor_capture_events.into_boxed_slice(),
                 direct_calls: self.direct_calls,
+                brand_calls: self.brand_calls,
+                explicit_extern_calls: self.explicit_extern_calls,
                 resolved_exits: self.resolved_exits,
                 statement_sites: self.statement_sites,
                 expression_sites: self.expression_sites,
@@ -423,12 +294,13 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                 qmark_propagation_sites: self.qmark_propagation_sites,
                 match_control_sites: self.match_control_sites,
                 body_shape: self.body_shape,
+                expression_source: self.expression_source,
             },
             lambdas: self.lambdas.into_boxed_slice(),
         }
     }
 
-    fn finish_qualified_receiver_observations(
+    pub(super) fn finish_qualified_receiver_observations(
         self,
     ) -> Result<
         BTreeMap<SourceExprSiteV1, ShadowQualifiedReceiverDispositionV0>,
@@ -457,7 +329,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         Ok(self.qualified_receiver_dispositions)
     }
 
-    fn finish_method_call_observations(
+    pub(super) fn finish_method_call_observations(
         self,
     ) -> Result<BTreeMap<SourceExprSiteV1, ShadowMethodCallObservationV0>, ShadowResolveErrorV0>
     {
@@ -620,6 +492,56 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         };
         if self.direct_calls.insert(site.clone(), record).is_some() {
             return Err(ShadowResolveErrorV0::DuplicateDirectCallSite { site });
+        }
+        Ok(())
+    }
+
+    pub(super) fn record_brand_call(
+        &mut self,
+        site: SourceExprSiteV1,
+        record: BrandCallSourceRelationDraftV1,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        if self.brand_calls.insert(site.clone(), record).is_some() {
+            return Err(ShadowResolveErrorV0::DuplicateBrandCallSite { site });
+        }
+        Ok(())
+    }
+
+    pub(super) fn brand_call_draft(
+        &self,
+        name: &str,
+        kind: BrandCallSourceRelationKindV1,
+        call_site: SourceExprSiteV1,
+        receiver_site: Option<SourceExprSiteV1>,
+        operand_site: SourceExprSiteV1,
+    ) -> Option<BrandCallSourceRelationDraftV1> {
+        self.brand_catalog
+            .and_then(|catalog| catalog.declaration(name))
+            .map(|declaration| {
+                BrandCallSourceRelationDraftV1::from_catalog_row(
+                    kind,
+                    declaration,
+                    call_site,
+                    receiver_site,
+                    operand_site,
+                )
+            })
+    }
+
+    pub(super) fn record_explicit_extern_call(
+        &mut self,
+        site: SourceExprSiteV1,
+        symbol: &str,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let record = ShadowExplicitExternCallV0 {
+            symbol: symbol.into(),
+        };
+        if self
+            .explicit_extern_calls
+            .insert(site.clone(), record)
+            .is_some()
+        {
+            return Err(ShadowResolveErrorV0::DuplicateExplicitExternCallSite { site });
         }
         Ok(())
     }

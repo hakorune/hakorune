@@ -138,6 +138,23 @@ impl ExprParserWithCursor {
     pub(crate) fn parse_unary_expr(cursor: &mut TokenCursor) -> Result<ASTNode, ParseError> {
         // match式は旧系にあるが、ここでは単項の最小対応に限定
         match &cursor.current().token_type {
+            TokenType::WEAK => {
+                let op_line = cursor.current().line;
+                cursor.advance();
+                if cursor.match_token(&TokenType::LPAREN) {
+                    return Err(ParseError::UnexpectedToken {
+                        found: TokenType::LPAREN,
+                        expected: "[freeze:contract][parser/weak_paren_call_rejected] grammar profile rejects weak_paren_expr".to_owned(),
+                        line: cursor.current().line,
+                    });
+                }
+                let operand = Self::parse_unary_expr(cursor)?;
+                Ok(ASTNode::UnaryOp {
+                    operator: crate::ast::UnaryOperator::Weak,
+                    operand: Box::new(operand),
+                    span: Span::new(op_line, 0, op_line, 0),
+                })
+            }
             TokenType::MINUS => {
                 let op_line = cursor.current().line;
                 cursor.advance();
@@ -248,6 +265,39 @@ impl ExprParserWithCursor {
                 continue;
             }
 
+            if let ASTNode::Variable { name, .. } = &expr {
+                if name == "externcall" {
+                    if let TokenType::STRING(target) = &cursor.current().token_type {
+                        if !matches!(cursor.peek_nth_token(1), TokenType::LPAREN) {
+                            return Err(ParseError::UnexpectedToken {
+                                found: cursor.peek_nth_token(1).clone(),
+                                expected: "[parser/explicit_externcall_shape] '(' after target"
+                                    .to_owned(),
+                                line: cursor.current().line,
+                            });
+                        } else {
+                            let target = target.clone();
+                            cursor.advance();
+                            cursor.consume(TokenType::LPAREN)?;
+                            let mut arguments = Vec::new();
+                            while !cursor.match_token(&TokenType::RPAREN) && !cursor.is_at_end() {
+                                arguments.push(Self::parse_expression(cursor)?);
+                                if cursor.match_token(&TokenType::COMMA) {
+                                    cursor.advance();
+                                }
+                            }
+                            cursor.consume(TokenType::RPAREN)?;
+                            expr = ASTNode::ExplicitExternCall {
+                                target,
+                                arguments,
+                                span: Span::unknown(),
+                            };
+                            continue;
+                        }
+                    }
+                }
+            }
+
             if cursor.match_token(&TokenType::LPAREN) {
                 cursor.advance();
                 let mut args: Vec<ASTNode> = Vec::new();
@@ -297,5 +347,53 @@ impl ExprParserWithCursor {
         }
 
         Ok(expr)
+    }
+}
+
+#[cfg(test)]
+mod weak_grammar_parity_tests {
+    use super::*;
+    use crate::tokenizer::Token;
+
+    fn token(token_type: TokenType, column: usize) -> Token {
+        Token {
+            token_type,
+            line: 1,
+            column,
+        }
+    }
+
+    #[test]
+    fn weak_unary_emits_one_weak_ast_node() {
+        let tokens = [
+            token(TokenType::WEAK, 1),
+            token(TokenType::IDENTIFIER("value".to_owned()), 6),
+            token(TokenType::EOF, 11),
+        ];
+        let mut cursor = TokenCursor::new(&tokens);
+        let parsed = ExprParserWithCursor::parse_expression(&mut cursor).unwrap();
+        assert!(matches!(
+            parsed,
+            ASTNode::UnaryOp {
+                operator: crate::ast::UnaryOperator::Weak,
+                operand,
+                ..
+            } if matches!(operand.as_ref(), ASTNode::Variable { name, .. } if name == "value")
+        ));
+    }
+
+    #[test]
+    fn weak_parenthesized_rejects_before_operand_parse() {
+        let tokens = [
+            token(TokenType::WEAK, 1),
+            token(TokenType::LPAREN, 5),
+            token(TokenType::IDENTIFIER("missing".to_owned()), 6),
+            token(TokenType::RPAREN, 13),
+            token(TokenType::EOF, 14),
+        ];
+        let mut cursor = TokenCursor::new(&tokens);
+        let error = ExprParserWithCursor::parse_expression(&mut cursor).unwrap_err();
+        assert!(format!("{error}").contains("parser/weak_paren_call_rejected"));
+        assert!(cursor.match_token(&TokenType::LPAREN));
     }
 }

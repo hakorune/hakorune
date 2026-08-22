@@ -45,6 +45,105 @@ Host reverse-call ABI for plugins:
 
 TLV values are used at this boundary.
 
+### `include/nyrt_dynamic_v2_lease_v1.h`
+
+The selected Boundary AOT lane uses this versioned C calling-convention
+projection for the physical `CheckedCallOutEnd` cutpoint:
+
+- `nyrt_dynamic_v2_lease_consume_end_authorized_v1(uint64_t) -> uint32_t`
+- `0`: the existing Rust one-shot lease was consumed;
+- `1`: zero/invalid token;
+- `2`: unknown or already-consumed token;
+- `3`: stale handle identity.
+
+The header owns only fixed-width ABI/status vocabulary. The lease table,
+generation check, and handle release remain solely in
+`runtime::dynamic_v2_lease`. Boundary lowering treats a non-zero status as a
+backend contract failure, not as a semantic Fault or fallback. This is a
+projection for the static Boundary lane, not a second lifecycle authority.
+Fresh End-authorized text publication obtains the handle and its reusable-slot
+generation identity in one host-handle registry write-lock transition before
+the existing lease table admits the token. Token collision/exhaustion rolls
+back only that new identity; it never releases an existing generation.
+
+### `include/nyrt_dynamic_call_slot_v2.h` and `include/nyrt_dynamic_text_scan_v1.h`
+
+The selected Boundary AOT CheckedCallOut lane uses the versioned CallSlot
+wire and TextScan entry declarations. The headers own fixed-width transport,
+entry, ABI, and wire vocabulary only:
+
+- `hako.text.scan.substring.v1` has logical arguments `(receiver, start, end)`
+  and produces an EndAuthorized host-handle result;
+- `hako.text.scan.index_of.v1` has logical arguments `(receiver, needle)` and
+  produces an ImmediateI64 result with no lease;
+- both entries write semantic Normal/Fault and payload/disposition/lease data
+  to `HakoDynamicV2CallOutV1`; the `uint32_t` return is transport status.
+
+The canonical MIR `CheckedCallOut` plan/census owns site identity, CFG
+successors, Normal projection, and End chronology. The C physicalizer consumes
+that site-id projection and emits direct calls plus local trap paths for
+malformed transport, wire, or lease status. It does not choose a provider,
+reconstruct a site from block coordinates, or turn a backend contract failure
+into semantic Fault/fallback. Link, artifact validation, and live publication
+remain later W6 transactions.
+
+The AOT JSON handoff also carries the one closed census view for each selected
+site: source block, receiver/arguments, Normal/Fault landing, Normal-result
+block/index, effect, and the three End cutpoints. Boundary C1 compares those
+facts with the emitted MIR JSON topology (including exact landing incoming
+edges) before object emission; JSON is transport and does not become a second
+CFG or cleanup authority.
+
+When C1 splits one MIR edge into validation/trap blocks, its physical CFG
+projection also issues the exact LLVM predecessor label keyed by the original
+MIR predecessor and successor. PHI lowering consumes that edge-keyed row; it
+does not infer labels from naming conventions or reuse one tail label for all
+successors of a block. The projection is closed before LLVM output and any
+missing, duplicate, dangling, or emission-drift row rejects the candidate.
+
+Wire failures are backend contract violations, not semantic Faults: C1 traps
+on nonzero transport status, unknown status/tag/disposition, Suspended,
+malformed reserved/lease fields, an I6 EndAuthorized host-handle payload of
+zero, or a Fault code outside the header's fixed `1..=8` range. I7's
+ImmediateI64 zero is valid. Only a known semantic Fault code reaches the MIR
+Fault landing.
+
+### W6 explicit static link boundary
+
+The selected Boundary W6 route uses the versioned link symbol:
+
+```c
+int hako_llvmc_link_obj_v2(
+    const char* object_path,
+    const char* temporary_executable_path,
+    const char* runtime_archive_path,
+    const char* extra_link_flags,
+    char** error_out);
+```
+
+`runtime_archive_path` is resolved once by the Rust `--nyrt` caller and is
+passed as an exact archive path. The selected route does not temporarily set
+or rediscover `NYASH_EMIT_EXE_NYRT`; the unversioned four-argument symbol is
+compatibility-only. This ABI fixes link-input authority; it does not publish an
+executable or issue runtime addresses.
+
+### `include/hako_dynamic_v2_artifact_descriptor_v1.h`
+
+Selected Dynamic Boundary objects and linked executables contain exactly one
+fixed `.hako_dynamic_v2_descriptor` section and the global descriptor symbol
+named by this header. The layout carries the two canonical CheckedCallOut site
+IDs, entry IDs/symbols/arities, contract/profile, ABI/wire revisions, registry
+generation, and PlanStamp. It is a physical projection of final candidate
+metadata, not another semantic or provider authority.
+
+The Rust W6-D transaction observes the actual object, explicit runtime archive,
+and temporary executable; it checks descriptor parity and exact symbol state,
+records all three artifact digests, and issues one move-only static link
+receipt. Failure removes the temporary candidate and preserves the previous
+final path. Final rename and production activation remain exclusively W6-E;
+`RuntimeExecutablePlan`, `dlopen`/`dlsym`, provider reselection, fallback, and
+retry are not part of this static direct-symbol lane.
+
 ## 3. Lifecycle Extension Symbols
 
 Lifecycle-specific handle operations are currently exported from NyRT kernel FFI:

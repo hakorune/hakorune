@@ -223,6 +223,30 @@ positive_fixture_ids = ["delegate_exposes_compat"]
 negative_fixture_ids = ["delegate_exposes_missing_block"]
 
 [[rows]]
+row_id = "brand_declaration"
+family = "brand"
+spelling_id = "brand_declaration"
+production = "brand identifier colon type-ref"
+
+[rows.canonical]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "BrandDeclaration"
+semantic_owner = "brand"
+stable_reject_tag = "parser/brand_declaration_invalid"
+positive_fixture_ids = ["brand_declaration_canonical"]
+negative_fixture_ids = ["brand_declaration_missing_colon_canonical_reject"]
+
+[rows.compat2025]
+status = "canonical"
+normalization_mode = "canonical_shape"
+normalized_shape = "BrandDeclaration"
+semantic_owner = "brand"
+stable_reject_tag = "parser/brand_declaration_invalid"
+positive_fixture_ids = ["brand_declaration_compat"]
+negative_fixture_ids = ["brand_declaration_missing_type_compat_reject"]
+
+[[rows]]
 row_id = "record_declaration"
 family = "record"
 spelling_id = "record_declaration"
@@ -437,6 +461,14 @@ spelling_id = "release_statement"
 production = "release identifier"
 canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ReleaseStatement", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/release_exact_root_required", positive_fixture_ids = ["release_statement_canonical"], negative_fixture_ids = ["release_projected_root_canonical_reject", "release_receiver_root_canonical_reject"] }
 compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ReleaseStatement", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/release_exact_root_required", positive_fixture_ids = ["release_statement_compat"], negative_fixture_ids = ["release_projected_root_compat_reject", "release_receiver_root_compat_reject"] }
+
+[[rows]]
+row_id = "explicit_externcall"
+family = "call"
+spelling_id = "explicit_externcall"
+production = "externcall string-literal call-arguments"
+canonical = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ExplicitExternCall", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/explicit_externcall_shape", positive_fixture_ids = ["explicit_externcall_canonical"], negative_fixture_ids = ["explicit_externcall_missing_paren_canonical_reject"] }
+compat2025 = { status = "canonical", normalization_mode = "canonical_shape", normalized_shape = "ExplicitExternCall", semantic_owner = "parser-source-authority", stable_reject_tag = "parser/explicit_externcall_shape", positive_fixture_ids = ["explicit_externcall_compat"], negative_fixture_ids = ["explicit_externcall_missing_paren_compat_reject"] }
 
 [[rows]]
 row_id = "for_loop"

@@ -29,6 +29,7 @@ pub(crate) fn emit_phi_instructions(
 pub(crate) fn emit_non_phi_instructions(
     func: &crate::mir::MirFunction,
     block: &crate::mir::BasicBlock,
+    pinned_text_residence_transport: bool,
     boxed_sum_abi_plans: &[crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1],
     boxed_sum_site_plans: &std::collections::BTreeMap<
         (crate::mir::BasicBlockId, usize),
@@ -45,6 +46,7 @@ pub(crate) fn emit_non_phi_instructions(
             block.id,
             instruction_index,
             inst,
+            pinned_text_residence_transport,
             boxed_sum_abi_plans,
             boxed_sum_site_plans,
         )?;
@@ -55,9 +57,12 @@ pub(crate) fn emit_non_phi_instructions(
 
 pub(crate) fn emit_terminator(
     terminator: &Option<crate::mir::MirInstruction>,
+    pinned_text_residence_transport: bool,
 ) -> Result<Option<serde_json::Value>, String> {
     match terminator.as_ref() {
-        Some(term) => control_flow::emit_terminator(term).map(Some),
+        Some(term) => {
+            control_flow::emit_terminator(term, pinned_text_residence_transport).map(Some)
+        }
         None => Ok(None),
     }
 }
@@ -67,6 +72,7 @@ fn emit_instruction(
     block: crate::mir::BasicBlockId,
     instruction_index: usize,
     inst: &crate::mir::MirInstruction,
+    pinned_text_residence_transport: bool,
     boxed_sum_abi_plans: &[crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1],
     boxed_sum_site_plans: &std::collections::BTreeMap<
         (crate::mir::BasicBlockId, usize),
@@ -81,7 +87,11 @@ fn emit_instruction(
         ));
     }
 
-    if !crate::mir::contracts::backend_core_ops::is_supported_mir_json_instruction(inst) {
+    let pinned_text_residence_instruction =
+        pinned_text_residence_transport && matches!(inst, I::PinnedTextResidenceFinish { .. });
+    if !crate::mir::contracts::backend_core_ops::is_supported_mir_json_instruction(inst)
+        && !pinned_text_residence_instruction
+    {
         return Err(format!(
             "MIR JSON emit contract violation: unsupported instruction {}",
             crate::mir::contracts::backend_core_ops::instruction_tag(inst)
@@ -272,6 +282,19 @@ fn emit_instruction(
         } => Ok(fastmem::emit_memop(
             region, kind, dst, operands, access, effects,
         )),
+        I::PinnedTextOp { dst, plan, kind } => Ok(basic::emit_pinned_text_op(dst, plan, *kind)),
+        I::PinnedTextResidenceEnter {
+            plan,
+            normal_landing,
+            trap_landing,
+        } => Ok(basic::emit_pinned_text_residence_enter(
+            plan,
+            normal_landing,
+            trap_landing,
+        )),
+        I::PinnedTextResidenceFinish { residence } => {
+            Ok(basic::emit_pinned_text_residence_finish(residence))
+        }
         I::ArrayElementWrite {
             site_id,
             dst,
@@ -292,6 +315,13 @@ fn emit_instruction(
             ..
         } => calls::emit_call(dst, func, callee.as_ref(), args, effects)
             .ok_or_else(|| "MIR JSON emit contract violation: failed to emit Call".to_string()),
+        I::CheckedCallOutNormalResult { site_id, dst } => Ok(
+            control_flow::emit_checked_callout_normal_result(site_id, dst),
+        ),
+        I::CheckedCallOutEnd {
+            site_id,
+            lease_slot,
+        } => Ok(control_flow::emit_checked_callout_end(site_id, lease_slot)),
         I::NewBox {
             dst,
             box_type,

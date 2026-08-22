@@ -42,6 +42,7 @@ pub(super) fn classify_extern_provider_lane(extern_name: &str) -> Option<ExternP
         "env.mirbuilder.emit"
         | "env.mirbuilder_emit"
         | "env.codegen.emit_object"
+        | "env.codegen.emit_object_compat_harness"
         | "env.codegen.compile_ll_text"
         | "env.codegen.link_object"
         | "env.box_introspect.kind"

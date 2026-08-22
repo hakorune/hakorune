@@ -3,7 +3,357 @@
 This directory owns module-level route selection before `MirBuilder` creates
 module, entry-block, or FunctionRegion state.
 
+### Generic G0 body-shape transport I0
+
+`VerifiedResolvedSourceUnitV1::resolve_function` resolves the forest and the
+resolver-owned body-shape inventories in one traversal.  The source unit
+retains those inventories by `FunctionOwnerIdV1`; its root
+`ResolvedFunctionLoweringInputV1` lends only the exact owner-matched body-shape
+sibling.  Bare mechanical inputs and callable-module inputs remain explicitly
+body-shape-free, so they cannot fabricate a Generic effect product.
+
+`with_generic_g0_source_parent_v1` requires the borrowed sibling and checks
+owner/body-root equality before issuing its existing demand/product cohort.
+The accepted follow-up effect row now borrows the selected Generic structural
+facts before moving the selection into demand/product, co-seals them with the
+same body-shape/function/header cohort, and retains one private
+`VerifiedGenericG0NoExternalEffectV1`.  That receipt records the exact bounded
+two-local-write/one-tail-return shape without becoming an `EffectMask`; it
+adds no Builder/session mutation, `ValueId`, CFG/SSA/PHI, lifecycle, Text,
+route, fallback, retry, or production caller.
+
+The Generic source parent now also retains one private result-ABI row from the
+same selected observation before demand/product consumption.  The transport
+checks owner/origin/source-kind and declaration-header ABI parity; it does not
+classify a new ABI or open Completion, physical entry, or session effects.
+It now lends the canonical `VerifiedFunctionCompletionV1` from the same input
+after checking Generic tail, value-result, declared-`i64`, and empty-cleanup
+parity.  Completion remains unconsumed and no physical/session effect opens.
+
+### Generic G0 physical function-entry input I0
+
+`generic_g0_physical_function_entry_input.rs` is the Generic-only,
+caller-zero projection after the source parent has been co-sealed.  Its
+private, non-`Clone` input keeps the parent attached while projecting a
+receiver-prefix row (when the resolver says `DeclaredInstance`) followed by
+dense ordinary `i64` rows.  The row records source binding/name/type evidence
+and may borrow only the existing `ExistingCallableI64` carrier tag as a
+ mechanical transport detail.
+
+This module does not reuse the S6C physical descriptor/header/signature,
+allocate a `MirFunction`, reserve or publish `ValueId`s, issue an
+`EffectMask`, consume Completion, or mutate Builder/session/CFG/SSA state.
+ The callback-scoped `consume` seam moves the parent and descriptors together;
+ the focused test proves the receiver/explicit order and that the loan cannot
+ escape.  The Generic physical-effect BoxShape and its caller-zero projection
+ are now landed.  There is no shortcut through S6C or `/N`/JSON counts.  The
+ next consumer is the combined Generic emitter admission; the old detached
+ shell probe is retired.
+
+The effect stop is narrower than assigning `EffectMask::PURE` to this
+fixture.  A future Generic issuer must consume the parent-owned source effect,
+result/header/storage rows, product target, and execution frame together with
+an explicit physical-operation mapping.  It may project `PURE` only when that
+mapping proves every admitted lowered operation is MIR-pure.  Local-write or
+ tail-return counts, absent calls, `NumericTarget`, MIR construction, and S6C
+ physical effects are not issuers.  The projection-only I0 is now landed;
+ skeleton allocation is a separate Generic-only consumer.
+
+### Generic G0 physical emitter admission and session
+
+`generic_g0_physical_operation_cohort/emitter_admission.rs` is now the sole
+prephysical owner. It consumes one source cohort and retains the neutral
+program/layout, declaration-only shell facts, resolver control facts,
+Completion, target, and full stamp. Mapping remains callback-scoped. The
+shared source validators live in `generic_g0_physical_entry_facts.rs` and
+`generic_g0_physical_shell_facts.rs`; they allocate no `MirFunction` or
+Builder state.
+
+`resolved_lowering/generic_g0_physical_emitter_session.rs` is the only current
+caller-zero session probe. It creates the shell inside the unpublished
+transaction, adopts source lanes, prepares canonical entry/segment inputs,
+and can exercise the existing common dispatcher under one discard owner. The
+former detached skeleton/canary/session files and tuple exits are retired;
+no S6C/V1 adapter, second rollback owner, Completion claim, publication,
+fallback, or production caller is implied.
+
+### Generic G0 physical-effect projection I0
+
+`generic_g0_physical_function_effect.rs` is the sole Generic mapping issuer.
+It consumes the same callback-scoped source parent as the entry-input row and
+checks owner/origin/source-kind/body-root/frame, result/header/storage parity,
+the product target, and complete operation evidence before issuing a private,
+non-`Clone` `EffectMask::PURE` projection.  The admitted operation set is
+exactly `ReadBinding`, `ConstI64`, `BinaryI64`, `CompareI64`, and
+`WriteBinding`; it is a source-to-physical mapping, not a default effect.
+
+The projection is borrowed/mechanical and creates no `MirFunction`,
+`ValueId`, Builder/session state, CFG/SSA/PHI, lifecycle, Text, route, or
+publication.  The focused Generic suite is green.
+
+### Generic G0 physical-operation mapping I0
+
+`generic_g0_physical_operation_mapping.rs` is the sole caller-zero consumer
+for the accepted Generic operation contract.  It borrows the same source
+parent's verified operation/evidence product and produces one private,
+non-`Clone` mapping over exactly `ReadBinding`, `ConstI64`, `BinaryI64`,
+`CompareI64`, and `WriteBinding`.  The mapping preserves item/block/loop
+placement and source evidence identity; nested item `4` and carrier/tail rows
+remain outside the operation mapping.
+
+This I0 is mechanical only: it does not create a `MirFunction`, `ValueId`,
+Builder/session state, CFG/SSA/PHI, Completion/DraftSeal claim, lifecycle,
+Text, route, or publication.  Missing/duplicate/foreign evidence, placement
+or owner drift, unsupported variants, and incomplete coverage fail before any
+physical effect.  No S6C operation row or `new_selected_dynamic` path is
+reused.
+
+The Generic operation cohort and combined emitter admission are landed. One
+`PreparedGenericG0PhysicalEmitterAdmissionV1` consumes the source-owned
+operation cohort exactly once and owns only prephysical facts: the neutral
+`PreparedLoopPhysicalLayoutV1` (which owns the program), a physical-ID-free
+shell plan, entry-control facts, canonical Completion, target, and one full
+cohort stamp.  Mapping remains a callback-only borrow from
+`layout.program()`.  The admission owns no `MirFunction`, `ValueId`,
+`BasicBlockId`, Builder, or session; the later unpublished function
+transaction alone creates the shell and owns rollback.
+The same admission also retains the resolver-issued source entry rows
+(`LoopValueKeyV1`/`BindingRefV1`) for the later canonical preheader read; the
+session must borrow those rows from the whole admission rather than rebuild
+them from arity or physical identifiers.
+
+The current `CommonV2CanonicalSessionRefV1` remains an S6C-bound envelope view
+and must not grow a Generic branch.  The current detached Generic skeleton,
+weak owner/name/lane-count stamp, tuple `into_parts`, S6C-bound segment-plan
+ingress, and old V1 receipts are canary/legacy artifacts, not admission
+inputs. The source parent exposes one compiler-private borrowed view from
+`generic_g0_source_parent/physical_emitter_source_parts.rs`; entry, effect,
+skeleton, and entry-control canaries use it only for shared owner/origin/
+source-kind/body-root/frame checks.  The view is not a new semantic receipt,
+does not return a tuple or store a mapping, and imports no MIR/Builder/session
+or physical layout state. The old skeleton/canary tuple exits retire once
+the session-owned shell/adoption path has parity and zero callers.  The
+Generic and ExactText adopters may later share their mechanical reserved-param
+validation, but their role/publication and ExactText sidecar policies remain
+separate authorities.
+
+`ReadyLoopEntryV1` and the segment receipt are not source-admission inputs.
+The session-preflight D0 must treat them only as mechanical outputs of the
+same canonical unpublished session: derive exact Recipe key/binding rows from
+the admission-owned program, read the adopted BindingSSA values at the actual
+preheader, then let the existing layout segment allocator issue the receipt.
+The raw test constructor, an S6C-envelope adapter, copied IDs, or a second
+Generic receipt keeps the preflight at `NoSafeSlice`; the existing
+segment-aware dispatcher remains the sole leaf consumer.
+
+The caller-zero session-preflight proof now consumes the whole admission,
+creates the shell only inside `CanonicalFunctionLoweringSessionV1`, adopts
+the retained lanes, reads canonical entry receipts at the live preheader, and
+allocates the layout-keyed segment receipt before invoking its callback. A
+late callback error discards the unpublished transaction. The bridge is
+mechanical and test-scoped; it does not make `ReadyLoopEntryV1` a Generic
+source authority. The dispatcher-preflight BoxShape now binds the
+admission-owned layout/program to the same-session canonical entry and
+layout-keyed segment receipt in one callback-scoped mechanical input. Its I0
+only runs the existing segment-dispatch preflight and drops the unpublished
+plan; the caller-zero operation emitter now consumes the same input through
+the existing common segment dispatcher under the outer discard owner. The
+input cannot be re-paired from independent layout, entry, or segment getters;
+no Completion/DraftSeal claim or production caller is opened.
+
+The old `VerifiedGenericRecipeProductG0::into_physical_boundary` topology
+split is now `cfg(test)` only.  It remains available to the caller-zero
+observation adapter, but production code must cross the complete
+source-parent/cohort/admission boundary.  The lexical `recipe.clone()` used by
+the forest verifier is unrelated: it stays inside that verifier scope and is
+not a physical or semantic escape.
+
 ## Typed ingress contract
+
+### LLVM compile-target capability transport (I0)
+
+The LLVM runner selects the single cataloged
+`PinnedTextCompileTargetProfileV1` at the outer compile invocation and issues
+one move-only `PinnedTextCompileTargetCapabilityV1`. `NormalCompileRequestV1`
+transports that same invocation-branded capability through the normal
+root-catalog lifecycle; the selected-normal close lends it only as a scoped
+reference beside the existing physical-signature loan. The collector never
+stores it, and JSON, MIR arity, host probing, C `TargetMachine`, and backend
+code cannot reissue or infer it.
+
+The capability remains transport-only on the Rust side, but the contract-bound
+pure-first path now consumes its strict projection through one retained LLVM C
+API 18 TargetMachine session. That session validates the realized triple/data
+layout and emits the object with the same TargetMachine; it never consults
+host/default/env target selection or falls back to external opt/llc. Uncontracted
+modules retain the legacy path. The session does not derive a residence frame,
+materialize pointers, or open lifecycle/MIR Text lowering.
+
+### Pinned Text backend-frame Binder I0
+
+The selected-normal close now co-seals one unpublished
+`PinnedTextBackendFrameContractV1` from four scoped inputs: complete physical
+callable lanes, the Residence-owned `ResidenceAbiLayoutV1`, the stamped
+`PinnedTextAccessPlanTableV1` census, and the mandatory compile-invocation
+target capability. The contract records only checked counts, revisions,
+derived frame bounds, and invocation/owner stamps; it contains no `ValueId`,
+runtime token, pointer, JSON-owned meaning, or host-layout observation.
+
+The strict versioned transport projection, profile-schema consumer, module
+census, and retained contract-bound TargetMachine object emitter are landed.
+Contract-bearing modules use the same session for realization validation and
+object emission with success-only temporary-file publication; uncontracted
+modules retain the legacy external path. GEP/load, lifecycle CFG, session
+residence adoption, route selection, fallback/retry, and production callers
+remain closed.
+
+The caller-zero `TEXT-FORMAL-PINNED-RESIDENCE-BACKEND-FRAME-BORROW-I0` row now
+lends the co-sealed facts through a scoped, non-`Clone`/
+non-`Copy` `PinnedTextBackendFrameBorrowV1<'_>`. The JSON metadata writer uses
+that view only for the duration of its existing transport projection, so the
+borrow adds no serialization authority and exposes no pointer, byte length,
+runtime token, slot, generation, or `ValueId`. The C validator and retained
+TargetMachine session remain consumers only; runtime residence, lifecycle
+entry/finish, `PinnedTextOp`, GEP/load, and direct production lowering are
+still outside this row.
+
+The frame-timing slice keeps the ingress plan-less: it carries only the
+session-owned Residence/target provenance before canonical lowering. The final
+frame contract is issued once from the current function's own
+`pinned_text_access_plans` table, after canonical leaf rows exist and before
+DraftSeal opens. Caller-borrowed plan tables, empty detached snapshots, and
+`into_prepared()` handoffs are not valid sources for the frame census.
+
+### Common V2 canonical-session admission I0
+
+`common_v2_session_admission.rs` owns the effect-free fan-in after the typed
+BlockExpr expectation transport. Within one installed S6C HRTB loan it borrows
+the selected resolved input, obtains the resolver singleton Loop site, issues
+the existing Loop-owned outer-If residual, borrows the batch-owned typed
+expectation, checks the common V2 envelope owner, and nests the actual
+Completion borrow. The non-`Clone` admission is callback-scoped and contains
+no `ValueId`, `BasicBlockId`, Builder/session mutation, Completion consumption,
+Recipe/MIR rescan, legacy finalizer, fallback, or retry. A future physical
+session may consume this one fan-in; it may not reacquire any sibling by key.
+
+The caller-zero follow-up `LOOP-COMMON-V2-PHYSICAL-SESSION-I0` is a thin
+session-open canary. It consumes that admission once, projects the typed
+BlockExpr count only inside `CanonicalSsaFunctionSessionV2::new_common_v2`,
+and creates one owned `ResolvedFunctionCompletionConsumptionV1` from the
+installed parent's scoped Completion borrow. The semantic Completion remains
+owned by the installed cohort. A callback-scoped wrapper retains the same
+pre-session envelope beside the session, so no second Port loan can be
+reacquired. This canary does not mutate Builder/CFG/SSA/PHI state or emit
+operations, claims, Returns, DraftSeal, lifecycle, Text, route, fallback, or
+production code; the first session-effects boundary remains a separate design
+stop. The canonical callback is also the sole scoped consumer boundary for
+the existing `VerifiedS6CReturnSourceRecipeBindingV1`; it lends that relation
+from the retained envelope without issuing a second semantic receipt.
+
+### Callable-first semantic-program co-seal I0
+
+`callable_semantic_program.rs` consumes one complete
+`VerifiedCallableSingleLoopRecipeProductV1` parent and keeps its
+operation/effect product, initialized-local input, resolver context,
+JoinSig-owned continuation, and Callable Prelude/Tail together until the
+existing prepared-operation consumer. The issuer accepts no separately
+supplied Core, context, or continuation, so matching owner values cannot
+re-pair products from different source frames. The existing
+`VerifiedLoopOperationPhysicalDemandV1::issue` remains a mechanical
+projection inside this adapter rather than a second semantic authority.
+
+This is a Callable-first caller-zero slice. It does not claim a generic G0
+issuer, CFG/SSA/PHI, Builder/session effects, lifecycle, Text lowering, route
+selection, fallback, retry, or production activation.
+
+The follow-up semantic-program consume I0 is now landed. The complete parent
+is consumed once into the source-free, non-`Clone`
+`PreparedCallableOperationDemandV1`; its one-shot `consume` method lends the
+already-issued input, prepared operation, Prelude, and Tail together to the
+existing Builder-side handoff. The former six-element
+`into_prepared_parts` escape hatch has zero source callers and is removed.
+Demand owner/continuation validation remains the existing neutral issuer, and
+no Builder, `MirFunction`, `ValueId`, CFG/SSA/PHI, Completion, lifecycle, Text,
+route, fallback, retry, or production selector is opened by this cleanup.
+
+### Common V2 physical function-entry input I0
+
+`common_v2_physical_function_entry_input.rs` is the transport-only consumer
+of the accepted physical-entry BoxShape. Inside the same installed S6C HRTB
+loan it borrows the catalog-backed storage header, physical-signature lane
+row, and source-backed physical effects, then projects one non-semantic
+`PhysicalCallableParameterDescriptorV1` per physical lane. The descriptor
+records lane role/order, source `BindingRef` relation, diagnostic name, source
+annotation evidence, and the checked carrier tag
+(`ExistingCallableI64` or `U64BitsOnI64`). It never issues semantic meaning,
+allocates a skeleton, creates a `ValueId`, or mutates Builder/CFG/SSA state.
+
+Receiver order is an explicit prefix row (`me`) and is not an explicit source
+formal. Ordinary formals use one existing `i64` lane; one ExactText formal
+uses adjacent `[slot, generation]` lanes over the existing `i64` mechanical
+carrier, with `U64BitsOnI64` preserving the wire meaning. Missing/duplicate
+source names, foreign owners, lane gaps/swaps, non-adjacent ExactText pairs,
+and incomplete header/effects relations reject before any Builder effect.
+The aggregate owns the same callback-scoped loan, so its siblings cannot be
+re-paired or stored as a second package authority. Skeleton reservation has
+landed as a detached caller-zero shell; entry-lane adoption is the active
+caller-zero canary. Lifecycle, Text lowering, route selection, fallback, and
+production callers remain closed.
+
+### Common V2 physical function skeleton I0
+
+`common_v2_physical_function_skeleton.rs` consumes the same prepared entry
+input and reserves one detached `MirFunction` shell with one existing
+mechanical `i64` parameter lane per physical descriptor. The shell retains
+the source-backed symbol, result/effects, source declaration metadata, and
+descriptor carrier tags while keeping the installed loan alive. It uses a
+local unpublished entry block id and is never installed in a `MirBuilder` or
+module during this slice.
+
+ExactText remains one logical `BindingRef` with adjacent `[slot,generation]`
+descriptors; this I0 reserves the two `ValueId`s but does not publish either
+lane to BindingSSA. No Loop CFG/PHI, Completion claim, DraftSeal, lifecycle,
+Text lowering, route, fallback, retry, or production caller is opened here.
+
+### Common V2 physical-session stamp retention I0
+
+The prepared physical-entry skeleton already carries one mechanical
+`PhysicalFunctionEntryCohortStampV1`. The consuming physical-entry/session seam
+moves that stamp exactly once into `CanonicalSsaFunctionSessionV2` before the
+Builder transaction or any callback-scoped physical consumer is exposed. The
+common-session wrapper lends only a scoped borrow; it does not clone,
+reconstruct, or re-pair the stamp. The stamp remains a cohort witness (owner,
+selected key, callable signature identity, and physical lane count), not a
+result, lifecycle, or semantic authority. Missing, foreign, drifted, duplicate,
+or escaped stamps reject before effect; the physical condition result and all
+later CFG/PHI/Text/route work remain closed.
+
+### ExactText physical entry/session seam I0
+
+`LOOP-COMMON-V2-PHYSICAL-ENTRY-LANE-ADOPTION-D0` and its caller-zero lane
+canary are now consumed by `LOOP-COMMON-V2-PHYSICAL-ENTRY-SESSION-SEAM-I0`.
+`PreparedPhysicalEntrySessionInputV1` is compiler-only, non-`Clone`, and keeps
+the installed S6C loan, detached shell, descriptor rows, and one cohort stamp
+together. `with_common_v2_physical_entry_session` issues the common-V2
+admission from that retained loan, opens one fresh
+`CanonicalFunctionLoweringSessionV1`, installs the source Binding authority and
+physical shell, then adopts the canonical one-value
+`BindingRef -> slot ValueId` plus the private generation sidecar exactly once.
+
+The outer function session is the sole rollback owner: late adoption or
+callback rejection calls `discard_unpublished` once and leaves no current
+function, BindingSSA entry, sidecar, or module-visible state. No public
+`into_parts` split, second Port loan, ordinary generation read, Completion
+claim, DraftSeal, CFG/PHI, lifecycle, Text lowering, route, fallback, retry,
+or production caller is opened. The same callback-scoped seam is the only
+physical-demand consumer boundary for retained source relations; it does not
+reconstruct meaning from Layout or Recipe ordinals. The V2-native
+physical-ID-free
+layout/placement BoxShape is now accepted; the active caller-zero slice is
+`LOOP-COMMON-V2-PHYSICAL-LAYOUT-INPUT-I0`, which lends typed loop/block/item
+topology and JoinSig transfer bindings through the same operation/control
+cohort. Const/read/CFG/PHI, Completion, lifecycle, Text, route, and
+production remain closed until this transport is sealed.
 
 - `LegacyModuleLoweringInputV1` is a crate-internal Raw lifecycle carrier. It
   owns syntax only and is not a public `MirCompiler` admission authority.
@@ -18,6 +368,18 @@ module, entry-block, or FunctionRegion state.
   call-disabled body-only family. `VerifiedResolvedCallableProgramV1` owns all
   exact callable modules, including singleton self recursion. Neither retries
   through the other.
+
+### Normal callable runner materialization
+
+The MIR and LLVM runner frontdoors share one parser/transform materialization
+helper in `runner/modes/common_util/normal_callable.rs`. It issues the
+parser-backed `SourceBacked` callable product once and routes the explicit
+`Compatibility` cohort through the existing AST compile request with exactly
+one compatibility-only `normalize_core_pass`. The source-backed branch goes
+directly to its typed MIR request (`for_mir_mode_callable_source` or
+`for_llvm_callable_source`); it never re-enters the AST normalizer. This is a
+transport boundary only: it issues no new semantic receipt, fallback, retry,
+or production backend route.
 
 Exact child-site navigation belongs to B0-L2b. Function transaction cleanup
 belongs to B0-L2c. BindingId adoption and production semantic activation belong
@@ -207,18 +569,21 @@ candidate-envelope witness remains cfg(test)-only evidence and is not wrapped
 or paired after the fact.
 
 Focused G0 observation/policy tests and the shared caller-zero guard are
-green. This row still has no production caller, demand, Recipe, Builder/MIR,
+green. The production source-parent row consumes this handoff only through
+the selected Generic source cohort; it still has no physical, Builder/MIR,
 retry, fallback, or legacy-retirement claim.
 
 ## Generic G0 demand S3 I0/R0 (caller-zero implementation)
 
-The test-only selector-to-demand issuer consumes `Selected(Generic)` by value
-and retains one canonical window lease, the borrowed handoff brand, the typed
+The selector-to-demand issuer consumes `Selected(Generic)` by value and
+retains one canonical window lease, the borrowed handoff brand, the typed
 source/numeric/return bundle, the post-loop return read, profile/mode/coverage,
 and an opaque exact-role proof. Candidate evidence is checked against the
-selector lease before the product is sealed. It does not issue Recipe keys or
-touch Builder/MIR; the next boundary is the caller-zero S4 Recipe producer
-`GENERIC-G0-RECIPE-S4-I0-R0`.
+selector lease before the product is sealed. The production
+`generic_g0_source_parent` issuer invokes this demand and the S4 producer
+inside one source-parent transaction, then validates the exact resolver input
+and two source-parameter entry rows before lending a callback-scoped parent.
+It does not issue physical demand or touch Builder/MIR.
 
 ## Generic G0 Recipe S4 (design accepted)
 
@@ -235,6 +600,45 @@ The five family observers now consume their source attempts exactly once and
 retain typed expected/observed identity, mode, and coverage evidence on every
 C/D/U/R disposition. This R0 evidence-preservation change is caller-zero and
 does not open the common admission assembler or any production lowering.
+
+## Generic G0 TopLevel declaration/header I0
+
+`generic_g0_top_level_declaration_header.rs` is the only issuer for the
+Generic G0 TopLevel declaration/header projection. It consumes the exact
+`ResolvedFunctionLoweringInputV1::source()` view already held by the
+source-parent transaction, validates the declared-function root, owner/source
+kind, parameter name/`ParamDecl` coverage, return annotation, and empty
+signature metadata, then stores one private non-`Clone`
+`VerifiedGenericG0TopLevelDeclarationHeaderV1` in the same parent. The
+callback lends that row; it does not re-scan AST or reconstruct a header from
+`/N`, MIR parameter length, or S6C storage facts.
+
+This I0 is a source projection only. Result ABI, receiver/lane layout,
+function effect, Completion, skeleton/session, CFG/SSA/PHI, lifecycle, Text,
+route, fallback, retry, and production caller remain closed by the active
+physical-entry design stop. The source-only projection I0 is landed; the next
+design stop is one same-cohort Generic physical-entry input issuer. No
+skeleton, lane adoption, or session effect is authorized until that issuer is
+named.
+
+## Generic G0 storage/lane source projection I0
+
+`generic_g0_storage_lane_source.rs` retains one parent-owned source row after
+the declaration/header, result, effect, and Completion siblings have been
+co-sealed.  It records the exact receiver policy and optional resolver
+`BindingRef`, declaration metadata witnesses, dense explicit parameter rows,
+and a local mechanical `ExistingCallableI64` carrier tag.  Receiver policy is
+separate from explicit formal arity: `DeclaredInstance` contributes a
+receiver prefix, while `Absent` contributes none; `/N`, MIR/JSON length, and
+S6C physical rows are not consulted.
+
+The row is non-`Clone` and callback-scoped through
+`VerifiedGenericG0SourceParentV1`.  It owns no physical signature,
+`EffectMask`, `ValueId`, `MirFunction`, Builder/session state, or lane
+materialization.  Foreign owner/origin/frame, receiver-policy or BindingRef
+drift, duplicate/missing rows, and type/ABI drift reject before any physical
+effect.  Generic static narrowing, S6C descriptor reuse, and production
+caller activation remain separate decisions.
 
 ## NestedPredicate S1 source observation
 
@@ -556,3 +960,25 @@ negatives now map to typed Rejected outcomes; source identity remains a
 resolver-owned rejection. The Facts owner stays below 800 lines through a
 separate validation module. S6A is closed with no selector, physical caller,
 or Builder/MIR effect.
+
+## Canonical Script Source-only A carrier I0
+
+`canonical_script_source_a_input.rs` is the compiler-side transport owner for
+parser-backed Script rows. At the canonical-core request boundary,
+`CanonicalCoreSourcePlanInputV1` wraps the Script lane as either one
+`SourceEnvelopeReady` value or one explicit rejected transport; Main and
+Callable keep their transport as a discard-only sidecar. The envelope is
+co-sealed from the parser witness, source-plan lineage, profile, and
+read/parse receipt before it crosses the request boundary. It does not issue A
+facts, Recipe, Join, physical Call, publication, or production selection. Its
+finite states keep compatibility, deferred, incomplete, integrity, neutral,
+ready, explicit `DiscardedBeforeA`, and future consumed/transported outcomes
+separate. Main and Callable routes explicitly discard the non-Script transport
+before their existing owners; Script reaches the same named no-A discard just
+before `prepare_script_recipe()`.
+
+The carrier is move-only and co-sealed from parser rows plus the front-door
+identity/profile/read-parse witness. AST/name/ordinal/digest re-pairing,
+default/empty carrier, parser rescan, fallback, and `HandoffConsumed` are
+forbidden. A future Source-only A issuer must replace the named discard with
+its own one-shot consumer before any A/Recipe/physical claim.

@@ -25,6 +25,20 @@ pub fn link_object_to_exe(
     super::boundary_driver_ffi::link_object_to_exe(obj, out_exe, nyrt_dir, extra_libs)
 }
 
+pub fn link_object_to_exe_with_archive(
+    obj: &Path,
+    out_exe: &Path,
+    runtime_archive: &Path,
+    extra_libs: Option<&str>,
+) -> Result<()> {
+    super::boundary_driver_ffi::link_object_to_exe_with_archive(
+        obj,
+        out_exe,
+        runtime_archive,
+        extra_libs,
+    )
+}
+
 fn build_dummy_mir_json() -> String {
     r#"{"kind":"MIR","schema_version":"1.0","metadata":{"extern_c":[]},"functions":[{"name":"ny_main","blocks":[{"id":0,"instructions":[{"op":"const","dst":1,"value":{"type":"i64","value":0}},{"op":"ret","value":1}]}]}]}"#
         .to_string()

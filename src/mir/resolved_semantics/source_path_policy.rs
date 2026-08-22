@@ -18,6 +18,7 @@ pub(crate) fn is_statement_expression_surface_v1(node: &ASTNode) -> bool {
             | ASTNode::UnaryOp { .. }
             | ASTNode::MethodCall { .. }
             | ASTNode::FunctionCall { .. }
+            | ASTNode::ExplicitExternCall { .. }
             | ASTNode::Call { .. }
             | ASTNode::New { .. }
             | ASTNode::ArrayLiteral { .. }
@@ -29,6 +30,24 @@ pub(crate) fn is_statement_expression_surface_v1(node: &ASTNode) -> bool {
             | ASTNode::BlockExpr { .. }
             | ASTNode::Lambda { .. }
     )
+}
+
+/// Returns the canonical Assignment value sibling for an exact target site.
+///
+/// Consumers must not reconstruct this relation with string paths or AST
+/// rescans. A non-Assignment target path has no sibling in this vocabulary.
+pub(crate) fn assignment_value_sibling_v1(
+    target: &super::SourceExprSiteV1,
+) -> Option<super::SourceExprSiteV1> {
+    let segments = target.node().segments();
+    if !matches!(segments.last(), Some(SourcePathSegmentV1::Target)) {
+        return None;
+    }
+    let mut value = segments.to_vec();
+    *value.last_mut()? = SourcePathSegmentV1::Value;
+    Some(super::SourceExprSiteV1::from_node(
+        super::SourceNodeSiteV1::from_segments(value),
+    ))
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -195,6 +214,7 @@ impl ExprChildRoleV1 {
             }
             (Self::CallArgument(index), ASTNode::MethodCall { arguments, .. })
             | (Self::CallArgument(index), ASTNode::FunctionCall { arguments, .. })
+            | (Self::CallArgument(index), ASTNode::ExplicitExternCall { arguments, .. })
             | (Self::CallArgument(index), ASTNode::FromCall { arguments, .. })
             | (Self::CallArgument(index), ASTNode::Call { arguments, .. })
             | (Self::CallArgument(index), ASTNode::New { arguments, .. }) => (

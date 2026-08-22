@@ -65,6 +65,8 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::Branch { .. }
             | MirInstruction::Jump { .. }
             | MirInstruction::Return { .. }
+            | MirInstruction::CheckedCallOutNormalResult { .. }
+            | MirInstruction::CheckedCallOutEnd { .. }
             | MirInstruction::WeakRef { .. }
             | MirInstruction::KeepAlive { .. }
             | MirInstruction::ReleaseStrong { .. }
@@ -73,6 +75,7 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
             | MirInstruction::FutureSet { .. }
             | MirInstruction::Await { .. }
             | MirInstruction::Phi { .. }
+            | MirInstruction::PinnedTextOp { .. }
     )
 }
 
@@ -80,7 +83,11 @@ pub fn is_supported_mir_json_instruction(inst: &MirInstruction) -> bool {
 pub fn is_supported_mir_json_terminator(inst: &MirInstruction) -> bool {
     matches!(
         inst,
-        MirInstruction::Return { .. } | MirInstruction::Jump { .. } | MirInstruction::Branch { .. }
+        MirInstruction::Return { .. }
+            | MirInstruction::Jump { .. }
+            | MirInstruction::Branch { .. }
+            | MirInstruction::CheckedCallOut { .. }
+            | MirInstruction::CheckedCallOutFault { .. }
     )
 }
 
@@ -155,6 +162,12 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
         MirInstruction::Branch { .. } => &["branch"],
         MirInstruction::Jump { .. } => &["jump"],
         MirInstruction::Return { .. } => &["ret"],
+        // CheckedCallOut is intentionally not an LLVM JSON opcode in R0.
+        // Canonical CFG plumbing exists, but AOT execution remains closed.
+        MirInstruction::CheckedCallOut { .. }
+        | MirInstruction::CheckedCallOutNormalResult { .. }
+        | MirInstruction::CheckedCallOutEnd { .. }
+        | MirInstruction::CheckedCallOutFault { .. } => &[],
         MirInstruction::Phi { .. } => &["phi"],
         MirInstruction::NewBox { .. } => &["newbox"],
         MirInstruction::TypeOp { .. } => &["typeop"],
@@ -180,6 +193,13 @@ pub fn llvm_json_ops_for_instruction(inst: &MirInstruction) -> &'static [&'stati
                 &[]
             }
         }
+
+        // Transport-only in I0: it is serialized for typed round-trip but no
+        // backend may claim a lowering opcode yet.
+        MirInstruction::PinnedTextOp { .. }
+        | MirInstruction::PinnedTextResidenceEnter { .. }
+        | MirInstruction::PinnedTextResidenceTrap { .. }
+        | MirInstruction::PinnedTextResidenceFinish { .. } => &[],
 
         MirInstruction::Load { .. }
         | MirInstruction::Store { .. }
@@ -235,6 +255,11 @@ pub const MIR_JSON_TRANSPORT_ONLY_OPS: &[&str] = &[
     "local_contract_write",
     "record_field_contract_check",
     "record_value_publish",
+    "checked_callout",
+    "checked_callout_normal_result",
+    "checked_callout_end",
+    "checked_callout_fault",
+    "pinned_text_op",
 ];
 
 /// Canonical LLVM JSON opcode allowlist (Python lowerer frontend contract).

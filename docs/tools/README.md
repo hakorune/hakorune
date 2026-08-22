@@ -22,8 +22,29 @@ Related:
 ```bash
 cd /home/tomoaki/git/hakorune-selfhost
 git status -sb
-tools/checks/dev_gate.sh quick
+bash tools/checks/dev_gate.sh quick
 ```
+
+このgateは子Cargoのjob数を最大4に制限する。同じcheckoutで別terminalの
+Cargoを同時に起動せず、前のCargoが終了してから次を実行する。
+
+### 0.1 ローカルCargoの安全な反復
+
+agentや複数terminalから同じcheckoutのCargoを同時実行しない。focused testは
+不要なintegration test binaryをlinkしないよう、原則として次を使う:
+
+```bash
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib <filter>
+```
+
+`--release`、`--exact`、`--nocapture`、`RUSTFLAGS`切替の条件、およびOOM時の
+停止線は
+[`agent-current-entry-contract-ssot.md`](../development/current/main/design/agent-current-entry-contract-ssot.md#local-cargo-resource-safety-contract)
+を唯一の運用policyとして参照する。
+
+`Waiting for background terminal` は成功表示ではない。強制終了や中断からの再開は、
+残存 `cargo`/`rustc` がないことを確認してから一つずつ行う。focused test の
+`0 passed` / `0 tests` は filter miss であり、成功証拠として記録しない。
 
 ### 1. バグ起点の切り分け（archived internal engineering triage）
 
@@ -199,17 +220,18 @@ tools/perf/run_micro_llc_flags_matrix.sh kilo_micro_array_getset --warmup 0 --re
 日常の「多すぎるコマンド」を 1 本にまとめた導線:
 
 ```bash
-tools/checks/dev_gate.sh --list
-tools/checks/dev_gate.sh quick
-tools/checks/dev_gate.sh hotpath
-tools/checks/dev_gate.sh portability
-tools/checks/dev_gate.sh milestone
-tools/checks/dev_gate.sh milestone-runtime
-tools/checks/dev_gate.sh milestone-perf
+bash tools/checks/dev_gate.sh --list
+bash tools/checks/dev_gate.sh --list-steps  # detailed quick-step listing
+bash tools/checks/dev_gate.sh quick
+bash tools/checks/dev_gate.sh hotpath
+bash tools/checks/dev_gate.sh portability
+bash tools/checks/dev_gate.sh milestone
+bash tools/checks/dev_gate.sh milestone-runtime
+bash tools/checks/dev_gate.sh milestone-perf
 ```
 
 プロファイル:
-- `quick`: 毎コミット前の軽量セット（`route_no_fallback_guard` + `cargo check` + `strlen_fast` unittest + chip8 crosslang smoke）
+- `quick`: 毎コミット前の軽量セット。`--list` は10群の導線、`--list-steps` は同じ66 stepの詳細を表示する（実行順・failure signalは不変）。
 - `hotpath`: `quick` + `phase21.5 perf gate bundle (hotpath)`
 - `portability`: `windows_wsl_cmd_smoke`（既定は preflight）+ `macos_portability_guard`
 - `milestone-runtime`: `hotpath` + `phase29y_no_compat_mainline_vm`

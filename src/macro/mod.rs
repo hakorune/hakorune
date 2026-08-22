@@ -17,8 +17,8 @@ pub mod pattern;
 pub mod test_harness;
 
 pub(crate) use normal_callable_transform::{
-    transform_normal_callable_program_v1, NormalCallableTransformOutcomeV1,
-    NormalCallableTransformRejectV1,
+    transform_normal_callable_program_v1, NormalCallableTransformCompatibilityV1,
+    NormalCallableTransformOutcomeV1, NormalCallableTransformRejectV1,
 };
 
 use nyash_rust::ASTNode;

@@ -1,10 +1,14 @@
 use crate::mir::builder::{
-    VerifiedSourceBackedDynamicCallableV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, VerifiedSourceBackedDynamicCallableV1,
+    VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
-use crate::mir::callable_parameter_contract::CallableParameterContractKindV1;
+use crate::mir::callable_parameter_contract::{
+    CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
+};
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
 use crate::mir::compiler::dynamic_full_body_recipe::VerifiedDynamicExitTransactionCoSealV1;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1};
+use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 use std::rc::Rc;
 
 #[derive(Debug)]
@@ -18,6 +22,7 @@ pub(super) struct OwnedCallableParameterContractV1 {
 pub(super) struct OwnedCallableParameterContractDeclarationV1 {
     pub(super) batch_slot: u32,
     pub(super) owner: FunctionOwnerIdV1,
+    pub(super) mode: CallableParameterDeclarationModeV1,
     pub(super) parameters: Box<[OwnedCallableParameterContractV1]>,
 }
 
@@ -30,9 +35,18 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
 pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
+    pub(super) instance_constructors:
+        super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,
     pub(super) parameter_contracts: Box<[OwnedCallableParameterContractDeclarationV1]>,
+    pub(super) physical_signature:
+        super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1,
+    pub(super) s6c_child: Option<super::s6c_child::VerifiedS6CSemanticChildV1>,
+    pub(super) s6c_storage_header:
+        Option<super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1>,
+    pub(super) physical_header: super::physical_header::VerifiedCallablePhysicalHeaderCohortV1,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,
+    pub(super) dynamic_physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
 }
 
 #[derive(Debug)]
@@ -59,9 +73,37 @@ impl VerifiedNormalCallableSemanticPackageV1 {
         self.batch.source_ast()
     }
 
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        self.batch.with_normal_program_source_loan(callback)
+    }
+
+    /// Borrow the declaration catalog that is owned by this same source
+    /// package.  Lookup issuers use this accessor together with the package's
+    /// HRTB source loan, so a foreign catalog cannot be supplied independently.
+    pub(crate) fn declaration_catalog(
+        &self,
+    ) -> &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1 {
+        self.catalog.catalog()
+    }
+
+    pub(crate) fn instance_constructors(
+        &self,
+    ) -> &super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1 {
+        &self.instance_constructors
+    }
+
     #[cfg(test)]
     pub(crate) fn batch(&self) -> &VerifiedResolvedCallableSemanticBatchV1 {
         &self.batch
+    }
+
+    pub(crate) fn selected_callable_sources(
+        &self,
+    ) -> &crate::mir::builder::VerifiedSelectedNormalCallableSourceInventoryV1 {
+        self.catalog.catalog().selected_source_inventory()
     }
 
     #[cfg(test)]
@@ -75,6 +117,13 @@ impl VerifiedNormalCallableSemanticPackageV1 {
             .iter()
             .map(|row| row.parameters.len())
             .sum()
+    }
+
+    #[cfg(test)]
+    pub(crate) fn physical_signature(
+        &self,
+    ) -> &super::physical_signature::VerifiedCallablePhysicalSignatureCohortV1 {
+        &self.physical_signature
     }
 
     #[cfg(test)]

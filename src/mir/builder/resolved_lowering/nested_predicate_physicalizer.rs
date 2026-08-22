@@ -182,7 +182,7 @@ fn emit_predicate(
 
 fn create_blocks(
     builder: &mut MirBuilder,
-    cfg: &CanonicalCfgSessionV1,
+    cfg: &mut CanonicalCfgSessionV1,
     blocks: &VerifiedNestedPhysicalBlockProjectionV1,
     topology: &crate::mir::compiler::nested_predicate_topology::VerifiedNestedPhysicalTopologyV1,
     root_preheader: BasicBlockId,

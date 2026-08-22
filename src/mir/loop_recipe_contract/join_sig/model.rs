@@ -126,10 +126,24 @@ pub(crate) type LoopJoinBranchV1 =
 pub(crate) type LoopJoinBranchV2 =
     LoopJoinBranch<super::super::schema_v2::LoopValueClassV2, LoopJoinBranchExitTargetV2>;
 
+/// The one-sided logical continuation of a fallthrough branch.
+///
+/// This is source-local evidence only.  It is not a physical block/edge and
+/// must be carried from the verified parent block rather than reconstructed
+/// by a later consumer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub(crate) struct LoopJoinNextItemV1 {
+    pub(crate) block: LoopBlockKeyV1,
+    pub(crate) item: LoopItemKeyV1,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum LoopJoinBranchArm<C, T = LoopNodeKeyV1> {
     Exit(LoopJoinBranchExit<C, T>),
-    Fallthrough { payload: Vec<LoopJoinPayload<C>> },
+    Fallthrough {
+        continuation: LoopJoinNextItemV1,
+        payload: Vec<LoopJoinPayload<C>>,
+    },
 }
 
 pub(crate) type LoopJoinBranchArmV1 =
@@ -272,6 +286,9 @@ pub(crate) enum LoopJoinSigRejectReasonV1 {
     },
     UnsupportedNestedPredicate {
         loop_key: LoopNodeKeyV1,
+    },
+    MissingFallthroughContinuation {
+        item: LoopItemKeyV1,
     },
     DuplicatePortBinding {
         loop_key: LoopNodeKeyV1,

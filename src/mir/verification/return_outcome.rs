@@ -26,7 +26,11 @@ pub(crate) fn check_return_outcomes(function: &MirFunction) -> Result<(), String
         match block.terminator.as_ref() {
             Some(MirInstruction::Return { value: Some(_) })
             | Some(MirInstruction::Jump { .. })
-            | Some(MirInstruction::Branch { .. }) => {}
+            | Some(MirInstruction::Branch { .. })
+            | Some(MirInstruction::CheckedCallOut { .. })
+            | Some(MirInstruction::CheckedCallOutFault { .. })
+            | Some(MirInstruction::PinnedTextResidenceEnter { .. })
+            | Some(MirInstruction::PinnedTextResidenceTrap { .. }) => {}
             Some(MirInstruction::Return { value: None }) => {
                 return Err(format!(
                     "{} function={} block={} reason=return-without-value",

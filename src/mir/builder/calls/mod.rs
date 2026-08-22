@@ -27,10 +27,16 @@ mod call_argument_descent_tests;
 pub mod call_target;
 pub mod call_unified;
 pub mod extern_calls;
+mod function_call_brand_source_demand;
 mod function_call_preflight_route;
+pub(in crate::mir::builder) use function_call_brand_source_demand::{
+    BrandConstructorSourcePortV1, RawBrandCallAuthorityV1,
+};
 pub mod function_lowering;
 pub(in crate::mir::builder) use function_call_preflight_route::{
-    lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightV1,
+    lower_prepared_raw_explicit_extern_call_with_port_v1,
+    lower_prepared_raw_function_preflight_with_port_v1, PreparedRawExplicitExternCallV1,
+    PreparedRawFunctionPreflightV1,
 };
 mod function_session; // Closure-scoped function transaction and cleanup owner
 pub(in crate::mir::builder) mod instance_method_draft_preparation;
@@ -83,6 +89,8 @@ pub(in crate::mir::builder) use method_call_terminal::{
 pub(in crate::mir::builder) use method_call_terminal::{
     StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
+pub(in crate::mir::builder) use static_result_publication_physical_bridge::
+    lower_selected_static_result_publication_v1;
 #[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]
@@ -95,6 +103,8 @@ mod reserved_method_route; // shared reserved-route policy adapter + selected di
 #[cfg(test)]
 mod reserved_method_route_tests;
 pub mod resolver; // Phase 25.1d: Callee resolution (CallTarget → Callee)
+mod script_direct_static_physical_bridge;
+mod static_result_publication_physical_bridge;
 pub mod skeleton_builder; // Step 5: Function/method skeleton creation
 pub mod special_method_handlers; // Special method handlers (TypeOp, math, str normalization)
 pub mod static_resolution; // Step 3: Static method resolution and unresolved-call recovery

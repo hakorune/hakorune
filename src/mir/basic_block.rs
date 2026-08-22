@@ -137,6 +137,10 @@ impl BasicBlock {
             MirInstruction::Branch { .. }
                 | MirInstruction::Jump { .. }
                 | MirInstruction::Return { .. }
+                | MirInstruction::CheckedCallOut { .. }
+                | MirInstruction::PinnedTextResidenceEnter { .. }
+                | MirInstruction::PinnedTextResidenceTrap { .. }
+                | MirInstruction::CheckedCallOutFault { .. }
                 | MirInstruction::Throw { .. }
         )
     }
@@ -167,6 +171,32 @@ impl BasicBlock {
                 MirInstruction::Throw { .. } => {
                     // No normal successors for throw - control goes to exception handlers
                     // Exception edges are handled separately from normal control flow
+                }
+                MirInstruction::CheckedCallOutFault { .. } => {
+                    // A checked-call Fault is a canonical fail-stop terminal.
+                    // It deliberately has no normal successor; the backend
+                    // must not invent a rejoin edge or route it through After.
+                }
+                MirInstruction::PinnedTextResidenceTrap { .. } => {
+                    // Residence Enter failure is a physical fail-stop.  The
+                    // terminal has no normal successor and cannot rejoin the
+                    // admitted body.
+                }
+                MirInstruction::CheckedCallOut {
+                    normal_landing,
+                    fault_landing,
+                    ..
+                } => {
+                    successors.insert(*normal_landing);
+                    successors.insert(*fault_landing);
+                }
+                MirInstruction::PinnedTextResidenceEnter {
+                    normal_landing,
+                    trap_landing,
+                    ..
+                } => {
+                    successors.insert(*normal_landing);
+                    successors.insert(*trap_landing);
                 }
                 _ => unreachable!("Non-terminator instruction in terminator position"),
             }
@@ -202,6 +232,34 @@ impl BasicBlock {
                 target,
                 args: edge_args.clone(), // Phase 260 P2: No fallback, terminator SSOT
             }],
+            Some(MirInstruction::CheckedCallOut {
+                normal_landing,
+                fault_landing,
+                ..
+            }) => vec![
+                OutEdge {
+                    target: normal_landing,
+                    args: None,
+                },
+                OutEdge {
+                    target: fault_landing,
+                    args: None,
+                },
+            ],
+            Some(MirInstruction::PinnedTextResidenceEnter {
+                normal_landing,
+                trap_landing,
+                ..
+            }) => vec![
+                OutEdge {
+                    target: normal_landing,
+                    args: None,
+                },
+                OutEdge {
+                    target: trap_landing,
+                    args: None,
+                },
+            ],
             _ => Vec::new(),
         }
     }

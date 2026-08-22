@@ -241,6 +241,9 @@ tools/selfhost/mainline/build_stage1.sh --out /tmp/hakorune-dev
 
 # Custom entry (experimental)
 tools/selfhost/mainline/build_stage1.sh --entry apps/selfhost-minimal/main.hako --out /tmp/hako_min
+
+# Explicit compatibility replay (not the daily mainline)
+tools/selfhost/mainline/build_stage1.sh --compat-replay harness
 ```
 
 How it works
@@ -265,6 +268,10 @@ Notes
   selfhost stage-axis owners.
 - `tools/selfhost_identity_check.sh` keeps the stage0 / stage1 compare contract in full mode as a separate diagnostics lane; the reduced artifact itself is not the payload-emitting contract.
 - Prefer explicit artifact kind in scripts and CI to avoid accidental contract mismatch.
+- Stage1 replay defaults to `pure-first/none`; an inherited
+  `HAKO_BACKEND_COMPAT_REPLAY=harness` is rejected unless the build receives
+  `--compat-replay harness`. The sidecar records `compat_replay` and
+  `replay_admission` for route evidence.
 
 Helper — G1 Identity Check
 - `tools/selfhost_identity_check.sh`

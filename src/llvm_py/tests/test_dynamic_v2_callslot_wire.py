@@ -175,6 +175,19 @@ class TestDynamicV2CallslotWire(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_call_out(out)
 
+    def test_unknown_fault_code_rejects_before_fault_landing(self):
+        out = normal_end_authorized()
+        out.update(
+            status=STATUS_FAULT,
+            fault_code=9,
+            result_tag=TAG_INVALID,
+            disposition=DISPOSITION_NONE,
+            value_payload=0,
+            lease_token=0,
+        )
+        with self.assertRaises(ValueError):
+            validate_call_out(out)
+
     def test_fixed_width_overflow_rejects_before_ctypes_truncation(self):
         with self.assertRaises(ValueError):
             validate_wire_value(0, 0, 1 << 64)

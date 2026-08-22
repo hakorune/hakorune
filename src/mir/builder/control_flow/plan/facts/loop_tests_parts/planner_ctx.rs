@@ -33,7 +33,7 @@ fn loopfacts_ctx_keeps_simple_while_route_even_when_kind_mismatch() {
         }),
         span: Span::unknown(),
     };
-    let ctx = PlannerContext {};
+    let ctx = PlannerContext::from_environment();
 
     let facts = try_build_loop_facts_with_ctx(&ctx, &condition, &[step]).expect("Ok");
     let facts = facts.expect("Some");
@@ -64,7 +64,7 @@ fn loopfacts_ctx_allows_simple_while_route_when_kind_matches() {
         }),
         span: Span::unknown(),
     };
-    let ctx = PlannerContext {};
+    let ctx = PlannerContext::from_environment();
 
     let facts = try_build_loop_facts_with_ctx(&ctx, &condition, &[step]).expect("Ok");
     let facts = facts.expect("Some");
@@ -137,8 +137,8 @@ fn loopfacts_ctx_allows_bool_predicate_scan_route_in_static_box() {
         span: Span::unknown(),
     };
     let body = vec![predicate_if, step];
-    let allow_ctx = PlannerContext {};
-    let block_ctx = PlannerContext {};
+    let allow_ctx = PlannerContext::from_environment();
+    let block_ctx = PlannerContext::from_environment();
 
     let allow = try_build_loop_facts_with_ctx(&allow_ctx, &condition, &body).expect("Ok");
     assert!(allow
@@ -156,7 +156,8 @@ fn loopfacts_ctx_allows_bool_predicate_scan_route_in_static_box() {
 #[test]
 fn loopfacts_ok_none_when_condition_not_supported() {
     let condition = v("i"); // not `i < n`
-    let facts = try_build_loop_facts_with_ctx(&PlannerContext {}, &condition, &[]).expect("Ok");
+    let facts = try_build_loop_facts_with_ctx(&PlannerContext::from_environment(), &condition, &[])
+        .expect("Ok");
     assert!(facts.is_none());
 }
 
@@ -187,6 +188,8 @@ fn loopfacts_ok_none_when_step_var_differs_from_condition_var() {
         span: Span::unknown(),
     };
 
-    let facts = try_build_loop_facts_with_ctx(&PlannerContext {}, &condition, &[step]).expect("Ok");
+    let facts =
+        try_build_loop_facts_with_ctx(&PlannerContext::from_environment(), &condition, &[step])
+            .expect("Ok");
     assert!(facts.is_none());
 }

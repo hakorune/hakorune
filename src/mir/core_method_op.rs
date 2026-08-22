@@ -27,6 +27,7 @@ pub enum CoreMethodOp {
     StringIndexOf,
     StringLastIndexOf,
     StringContains,
+    StringEquals,
 }
 
 impl CoreMethodOp {
@@ -50,6 +51,7 @@ impl CoreMethodOp {
         Self::StringIndexOf,
         Self::StringLastIndexOf,
         Self::StringContains,
+        Self::StringEquals,
     ];
 
     pub fn as_manifest_name(self) -> &'static str {
@@ -73,6 +75,7 @@ impl CoreMethodOp {
             Self::StringIndexOf => "StringIndexOf",
             Self::StringLastIndexOf => "StringLastIndexOf",
             Self::StringContains => "StringContains",
+            Self::StringEquals => "StringEquals",
         }
     }
 
@@ -149,16 +152,23 @@ impl LoweringPlanEmitKind {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CoreMethodLoweringTier {
+    DesignOnly,
     HotInline,
     WarmDirectAbi,
     ColdFallback,
 }
 
 impl CoreMethodLoweringTier {
-    pub const ALL: &'static [Self] = &[Self::HotInline, Self::WarmDirectAbi, Self::ColdFallback];
+    pub const ALL: &'static [Self] = &[
+        Self::DesignOnly,
+        Self::HotInline,
+        Self::WarmDirectAbi,
+        Self::ColdFallback,
+    ];
 
     pub fn as_manifest_name(self) -> &'static str {
         match self {
+            Self::DesignOnly => "design_only",
             Self::HotInline => "hot_inline",
             Self::WarmDirectAbi => "warm_direct_abi",
             Self::ColdFallback => "cold_fallback",
@@ -176,6 +186,10 @@ impl CoreMethodLoweringTier {
         self == Self::WarmDirectAbi
     }
 
+    pub fn is_design_only(self) -> bool {
+        self == Self::DesignOnly
+    }
+
     pub fn is_hot_inline(self) -> bool {
         self == Self::HotInline
     }
@@ -186,6 +200,7 @@ impl CoreMethodLoweringTier {
 
     pub fn plan_tier(self) -> LoweringPlanTier {
         match self {
+            Self::DesignOnly => LoweringPlanTier::Unsupported,
             Self::HotInline => LoweringPlanTier::HotInline,
             Self::WarmDirectAbi => LoweringPlanTier::DirectAbi,
             Self::ColdFallback => LoweringPlanTier::ColdRuntime,
@@ -194,6 +209,7 @@ impl CoreMethodLoweringTier {
 
     pub fn plan_emit_kind(self) -> LoweringPlanEmitKind {
         match self {
+            Self::DesignOnly => LoweringPlanEmitKind::Unsupported,
             Self::HotInline => LoweringPlanEmitKind::InlineIr,
             Self::WarmDirectAbi => LoweringPlanEmitKind::DirectAbiCall,
             Self::ColdFallback => LoweringPlanEmitKind::RuntimeCall,
@@ -315,6 +331,13 @@ mod tests {
             carrier.lowering_tier.plan_emit_kind(),
             LoweringPlanEmitKind::DirectAbiCall
         );
+        let design_only = CoreMethodLoweringTier::DesignOnly;
+        assert!(design_only.is_design_only());
+        assert_eq!(design_only.plan_tier(), LoweringPlanTier::Unsupported);
+        assert_eq!(
+            design_only.plan_emit_kind(),
+            LoweringPlanEmitKind::Unsupported
+        );
         assert_eq!(
             CoreMethodLoweringTier::from_manifest_name("warm_direct_abi"),
             Some(CoreMethodLoweringTier::WarmDirectAbi)
@@ -322,6 +345,10 @@ mod tests {
         assert_eq!(
             CoreMethodLoweringTier::from_manifest_name("hot_inline"),
             Some(CoreMethodLoweringTier::HotInline)
+        );
+        assert_eq!(
+            CoreMethodLoweringTier::from_manifest_name("design_only"),
+            Some(CoreMethodLoweringTier::DesignOnly)
         );
         assert_eq!(CoreMethodLoweringTier::from_manifest_name("unknown"), None);
         assert_eq!(

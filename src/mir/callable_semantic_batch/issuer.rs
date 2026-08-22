@@ -1,12 +1,18 @@
 use std::collections::BTreeSet;
+use std::sync::Arc;
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::ast::ASTNode;
 use crate::mir::compiler::source_projection::{
     SourceNavigationErrorV1, VerifiedSourceProjectionV1,
 };
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ResolveOwnerForestErrorV1, ResolveSelectedCallableForestsOutcomeV1, SemanticOwnerRootProfileV1,
+    issue_resolved_block_expr_expectation_v1, FunctionSemanticResolverSessionV1,
+    FunctionSyntaxViewV1, ReceiverPolicyV1,
+    ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
+    ResolvedBlockExpressionExpectationIssueV1, SelectedCallableResolverDeferredBatchV1,
+    SelectedCallableResolverInputV1, SemanticOwnerRootProfileV1,
+    SourceBoundSelectedCallableResolverRejectV1,
 };
 use crate::parser::{
     FinalCallableDeclarationModeV1, FinalCallableSemanticSyntaxLoanErrorV1,
@@ -22,10 +28,13 @@ use super::model::{
 pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     ParserSyntax(FinalCallableSemanticSyntaxLoanErrorV1),
     SourceCoverage,
-    Resolver(ResolveOwnerForestErrorV1),
-    ResolverDeferred,
+    Resolver(SourceBoundSelectedCallableResolverRejectV1),
+    ResolverDeferred(SelectedCallableResolverDeferredBatchV1),
     MissingRoot,
     RootProfileMismatch,
+    BodyShapeMissing,
+    BodyShapeOwnerMismatch,
+    BlockExprExpectation(ResolvedBlockExpressionExpectationIssueV1),
     DuplicateOwner,
     Projection(SourceNavigationErrorV1),
     ParameterCountOverflow,
@@ -35,17 +44,28 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: VerifiedFinalCallableProgramSourceV1,
 ) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
+    issue_resolved_callable_semantic_batch_with_brand_catalog_v1(resolver, source, None)
+}
+
+pub(crate) fn issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
+    resolver: &mut FunctionSemanticResolverSessionV1,
+    source: VerifiedFinalCallableProgramSourceV1,
+    brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+) -> Result<VerifiedResolvedCallableSemanticBatchV1, ResolvedCallableSemanticBatchIssueV1> {
     let rows = source
         .with_callable_semantic_syntax(|loan| {
             let mut candidates = Vec::with_capacity(loan.rows().len());
-            let mut views = Vec::with_capacity(loan.rows().len());
+            let mut resolver_inputs = Vec::with_capacity(loan.rows().len());
             for (expected, syntax) in loan.rows().iter().enumerate() {
                 let batch_slot = u32::try_from(expected)
                     .map_err(|_| ResolvedCallableSemanticBatchIssueV1::SourceCoverage)?;
                 if syntax.batch_slot() != batch_slot {
                     return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
                 }
-                let ASTNode::FunctionDeclaration { params, body, .. } = syntax.declaration() else {
+                let ASTNode::FunctionDeclaration {
+                    name, params, body, ..
+                } = syntax.declaration()
+                else {
                     return Err(ResolvedCallableSemanticBatchIssueV1::SourceCoverage);
                 };
                 let (mode, receiver) = match syntax.mode() {
@@ -75,16 +95,31 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                     syntax.method_source_observation().cloned(),
                     view,
                 ));
-                views.push(view);
+                resolver_inputs.push(SelectedCallableResolverInputV1::callable(
+                    syntax.identity().clone(),
+                    syntax.owner_name(),
+                    name,
+                    view,
+                ));
             }
 
-            let forests = match resolver
-                .resolve_selected_callable_forests(&views)
+            let (forests, mut body_shapes) = match resolver
+                .resolve_source_bound_selected_callable_forests_with_body_shapes_and_brand_catalog(
+                    &resolver_inputs,
+                    brand_catalog,
+                )
                 .map_err(ResolvedCallableSemanticBatchIssueV1::Resolver)?
             {
-                ResolveSelectedCallableForestsOutcomeV1::Complete(forests) => forests,
-                ResolveSelectedCallableForestsOutcomeV1::Deferred => {
-                    return Err(ResolvedCallableSemanticBatchIssueV1::ResolverDeferred)
+                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
+                    forests,
+                    body_shapes,
+                } => (forests, body_shapes),
+                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred(
+                    deferred,
+                ) => {
+                    return Err(ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(
+                        deferred,
+                    ))
                 }
             };
             if forests.len() != candidates.len() {
@@ -112,6 +147,14 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                 let function = forest
                     .owner(*owner)
                     .ok_or(ResolvedCallableSemanticBatchIssueV1::MissingRoot)?;
+                let body_shape = body_shapes
+                    .remove(owner)
+                    .ok_or(ResolvedCallableSemanticBatchIssueV1::BodyShapeMissing)?;
+                if body_shape.owner() != *owner
+                    || body_shape.body_root() != &view.root_profile().body_root()
+                {
+                    return Err(ResolvedCallableSemanticBatchIssueV1::BodyShapeOwnerMismatch);
+                }
                 if function.root_profile() != view.root_profile()
                     || !matches!(
                         function.root_profile(),
@@ -123,6 +166,9 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                 if !owners.insert(*owner) {
                     return Err(ResolvedCallableSemanticBatchIssueV1::DuplicateOwner);
                 }
+                let block_expr_expectation =
+                    issue_resolved_block_expr_expectation_v1(function, &body_shape)
+                        .map_err(ResolvedCallableSemanticBatchIssueV1::BlockExprExpectation)?;
                 let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
                     declaration,
                     &forest,
@@ -137,6 +183,8 @@ pub(crate) fn issue_resolved_callable_semantic_batch_v1(
                     owner: *owner,
                     function_origin: function.function_origin(),
                     forest,
+                    body_shape: Arc::new(body_shape),
+                    block_expr_expectation,
                     projection,
                     method_source_observation,
                 });

@@ -53,7 +53,8 @@ fn window() -> VerifiedScriptRootDemandWindowV1 {
 fn direct_enum_match_seals_only_its_scrutinee_receipt() {
     let program = source();
     let prepared = PreparedNormalDefaultProgramRootV1::seal(program).expect("Program source");
-    let facts = PreparedNormalProgramDeclarationFactsV1::collect(prepared.source_ast());
+    let facts = PreparedNormalProgramDeclarationFactsV1::collect(prepared.source_ast())
+        .expect("declaration facts");
     let view = ScriptSyntaxViewV1::from_program(prepared.source_ast()).expect("Script view");
     let window = window();
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver");

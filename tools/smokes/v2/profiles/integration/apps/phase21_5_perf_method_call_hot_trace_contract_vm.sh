@@ -12,7 +12,7 @@ set -euo pipefail
 
 SMOKE_NAME="phase21_5_perf_method_call_hot_trace_contract_vm"
 KEY="method_call_only"
-BACKEND="${PERF_METHOD_CALL_HOT_TRACE_BACKEND:-llvmlite}"
+BACKEND="${PERF_METHOD_CALL_HOT_TRACE_BACKEND:-}"
 MAX_FALLBACK_CALL="${PERF_METHOD_CALL_HOT_TRACE_MAX_FALLBACK_CALL:-0}"
 
 source "$(dirname "$0")/../../../lib/test_runner.sh"

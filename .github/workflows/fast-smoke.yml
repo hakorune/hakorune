@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   fast:
+    name: boundary-and-explicit-compat-smoke
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -27,7 +28,7 @@ jobs:
       - name: Cache cargo
         uses: Swatinem/rust-cache@v2
 
-      - name: Install LLVM 18 and Python deps
+      - name: Install LLVM 18 and compat/oracle Python deps
         run: |
           sudo apt-get update
           sudo apt-get install -y curl ca-certificates lsb-release wget gnupg python3-pip
@@ -63,6 +64,8 @@ jobs:
 
       - name: EXE smoke (peek_expr_block -> 1)
         run: |
+          # This case is the explicit compatibility replay; the two preceding
+          # cases remain Boundary/default and do not prove Python reachability.
           export HAKO_BACKEND_COMPAT_REPLAY=harness
           NYASH_LLVM_ROUTE_TRACE=1 ./target/release/hakorune --emit-mir-json tmp/pb.json --backend mir apps/tests/peek_expr_block.hako
           NYASH_LLVM_ROUTE_TRACE=1 ./target/release/ny-llvmc --in tmp/pb.json --emit exe --nyrt target/release --out tmp/pb

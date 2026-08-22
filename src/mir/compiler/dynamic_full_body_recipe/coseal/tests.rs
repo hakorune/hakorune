@@ -2,7 +2,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::{
     issue_catalog_callable_owner_link_v1, NormalCallableSemanticAdmissionV1,
     SameModuleCallableNamespaceV1, VerifiedNormalCallableSemanticSourceV1,
-    VerifiedSameModuleCallableDeclarationCatalogV1,
+    VerifiedSameModuleCallableDeclarationCatalogV1, issue_source_backed_dynamic_callable_v1,
 };
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
@@ -73,7 +73,10 @@ pub(super) fn fixture(include_dynamic_targets: bool) -> CosealFixtureV2 {
         .into_parts();
     let input = ingress.input();
     let calls = if include_dynamic_targets {
-        issue_source_bound_dynamic_member_calls_v1(input).expect("owned Dynamic call relations")
+        let dynamic = issue_source_backed_dynamic_callable_v1(input)
+            .expect("source-backed Dynamic callable");
+        issue_source_bound_dynamic_member_calls_v1(input, &dynamic)
+            .expect("owned Dynamic call relations")
     } else {
         Box::new([])
     };
@@ -152,6 +155,16 @@ fn a_prime_source_relation_borrows_only_verified_i64_facts() {
                 view.end_class(),
                 super::super::DynamicFullLoopParameterClassV2::I64
             );
+            assert_eq!(
+                view.src_class(),
+                super::super::DynamicFullLoopParameterClassV2::Dynamic
+            );
+            assert_eq!(
+                view.pred_chars_class(),
+                super::super::DynamicFullLoopParameterClassV2::Dynamic
+            );
+            assert_eq!(view.src_binding().owner(), owner);
+            assert_eq!(view.pred_chars_binding().owner(), owner);
             assert_eq!(view.pos_binding().owner(), owner);
             assert_eq!(view.end_binding().owner(), owner);
             assert_eq!(view.induction_binding().owner(), owner);

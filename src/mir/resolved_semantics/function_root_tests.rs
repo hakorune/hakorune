@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::function_root::{
     build_verified_function_lowering_roots_v1, ResolvedFunctionRootVerificationErrorV1,
 };
@@ -31,6 +32,8 @@ fn data(body_segment: SourcePathSegmentV1) -> ResolvedFunctionDataV1 {
     let body_region = RegionId::new(owner, 1);
     let body_origin = root_site(body_segment.clone());
     ResolvedFunctionDataV1 {
+        brand_call_relations: BTreeMap::new(),
+        explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: match body_segment {
@@ -94,6 +97,7 @@ fn data(body_segment: SourcePathSegmentV1) -> ResolvedFunctionDataV1 {
         assignment_targets: BTreeMap::new(),
         direct_call_targets: BTreeMap::new(),
         method_calls: BTreeMap::new(),
+        expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::new(),
     }
 }

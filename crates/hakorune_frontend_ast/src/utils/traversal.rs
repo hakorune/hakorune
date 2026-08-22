@@ -167,7 +167,9 @@ impl ASTNode {
                     visitor(initializer);
                 }
             }
-            ASTNode::FromCall { arguments, .. } | ASTNode::FunctionCall { arguments, .. } => {
+            ASTNode::FromCall { arguments, .. }
+            | ASTNode::FunctionCall { arguments, .. }
+            | ASTNode::ExplicitExternCall { arguments, .. } => {
                 for argument in arguments {
                     visitor(argument);
                 }

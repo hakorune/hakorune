@@ -9,7 +9,10 @@ use std::collections::HashMap;
 use crate::ast::{ASTNode, DeclarationAttrs, ParamDecl};
 
 use super::module_lifecycle::RootCallableCapturePortV1;
-use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceBatchV1;
+use super::normal_instance_constructor_admission::InstanceConstructorDemandRoleV1;
+use super::normal_instance_constructor_admission::{
+    NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
+};
 use super::recursive_child_lowering::RawBoxMethodChildPortV1;
 use super::MirBuilder;
 
@@ -77,14 +80,33 @@ impl PreparedInstanceBoxConstructorBatchV1 {
     pub(super) fn normal_sources(
         &self,
         statement_index: usize,
-    ) -> NormalInstanceConstructorSourceBatchV1 {
-        NormalInstanceConstructorSourceBatchV1::new(
+        cohort: &VerifiedInstanceConstructorPhysicalSourceCohortV1,
+        role: InstanceConstructorDemandRoleV1,
+    ) -> Result<NormalInstanceConstructorSourceBatchV1, String> {
+        NormalInstanceConstructorSourceBatchV1::from_physical_cohort(
             statement_index,
             &self.owner,
             self.constructors
                 .iter()
-                .map(|constructor| constructor.parser_constructor_key.clone())
-                .collect(),
+                .map(|constructor| constructor.parser_constructor_key.clone()),
+            cohort,
+            role,
+        )
+    }
+
+    #[cfg(test)]
+    pub(super) fn normal_sources_for_test(
+        &self,
+        statement_index: usize,
+        role: InstanceConstructorDemandRoleV1,
+    ) -> NormalInstanceConstructorSourceBatchV1 {
+        NormalInstanceConstructorSourceBatchV1::for_test(
+            statement_index,
+            &self.owner,
+            self.constructors
+                .iter()
+                .map(|constructor| constructor.parser_constructor_key.clone()),
+            role,
         )
     }
 
@@ -116,7 +138,7 @@ impl PreparedInstanceBoxConstructorBatchV1 {
         self,
         builder: &mut MirBuilder,
         port: &mut Port,
-        sources: &NormalInstanceConstructorSourceBatchV1,
+        sources: NormalInstanceConstructorSourceBatchV1,
     ) -> Result<(), String>
     where
         Port: RootCallableCapturePortV1,
@@ -128,7 +150,12 @@ impl PreparedInstanceBoxConstructorBatchV1 {
         if constructors.len() != sources.sources().len() {
             return Err("[freeze:contract][mir/instance-constructor-admission/count]".to_owned());
         }
-        for (constructor, source_key) in constructors.into_vec().into_iter().zip(sources.sources())
+        let ticketed_sources = sources.into_ticketed_sources()?;
+        if constructors.len() != ticketed_sources.len() {
+            return Err("[freeze:contract][mir/instance-constructor-admission/count]".to_owned());
+        }
+        for (constructor, (source_key, ticket)) in
+            constructors.into_vec().into_iter().zip(ticketed_sources)
         {
             if constructor.parser_constructor_key != source_key.parser_constructor_key()
                 || owner != source_key.box_name()
@@ -137,9 +164,10 @@ impl PreparedInstanceBoxConstructorBatchV1 {
                     "[freeze:contract][mir/instance-constructor-admission/source-drift]".to_owned(),
                 );
             }
-            port.lower_normal_instance_constructor(
+            port.lower_normal_instance_constructor_with_demand(
                 builder,
-                source_key,
+                &source_key,
+                ticket,
                 constructor.params,
                 constructor.param_decls,
                 constructor.return_type_name,

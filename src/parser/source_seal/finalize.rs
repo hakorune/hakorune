@@ -13,6 +13,7 @@ impl PreparedBoxSourceSealV1 {
     fn validate_against(
         &self,
         final_inventory: &BoxMethodInventoryV1,
+        final_constructors: &std::collections::HashMap<String, ASTNode>,
     ) -> Result<(), SourceSealFinalizationErrorV1> {
         let prepared_entries = self.inventory.clone().into_selected_declaration_order();
         let final_entries = final_inventory.clone().into_selected_declaration_order();
@@ -50,7 +51,12 @@ impl PreparedBoxSourceSealV1 {
             self,
             final_inventory,
         )
-        .map_err(SourceSealFinalizationErrorV1::GeneratedDelegateCoverage)
+        .map_err(SourceSealFinalizationErrorV1::GeneratedDelegateCoverage)?;
+        super::super::source_authority::constructor_source::validate_constructor_rows(
+            &self.constructor_relations,
+            final_constructors,
+        )
+        .map_err(|_| SourceSealFinalizationErrorV1::ConstructorCoverageMismatch)
     }
 
     /// Consume the prepared payload only after the postpass has produced the
@@ -58,8 +64,9 @@ impl PreparedBoxSourceSealV1 {
     pub(in crate::parser) fn finalize_against(
         self,
         final_inventory: &BoxMethodInventoryV1,
+        final_constructors: &std::collections::HashMap<String, ASTNode>,
     ) -> Result<ParserBoxSourceSealV1, SourceSealFinalizationErrorV1> {
-        self.validate_against(final_inventory)?;
+        self.validate_against(final_inventory, final_constructors)?;
 
         Ok(ParserBoxSourceSealV1 {
             prepared: PreparedBoxSourceSealV1 {
@@ -71,6 +78,7 @@ impl PreparedBoxSourceSealV1 {
                 member_gate_selection_receipts: self.member_gate_selection_receipts,
                 generated_property_callable_rows: Box::new([]),
                 generated_delegate_source_relations: self.generated_delegate_source_relations,
+                constructor_relations: self.constructor_relations,
             },
         })
     }
@@ -128,11 +136,11 @@ impl OpenParserPostpassProductV1 {
         }
 
         let semantic_candidate = super::super::initial_callable_program_source::compatibility_program_can_enter_initial_callable_lane_v1(&product.ast);
-        let (ast, metadata, callable_rows, program_slots, prepared_seals) =
+        let (ast, metadata, callable_rows, program_slots, prepared_seals, final_box_paths) =
             product.into_compatibility_parts();
         let ast = super::super::postpass_compatibility::lower(ast)?;
         if semantic_candidate {
-            let program = super::super::initial_callable_program_source::issue_initial_callable_program_source_v1(
+            let mut program = super::super::initial_callable_program_source::issue_initial_callable_program_source_v1(
                 ast,
                 callable_rows,
                 program_slots,
@@ -141,6 +149,21 @@ impl OpenParserPostpassProductV1 {
             .map_err(|error| {
                 map_error(SourceSealFinalizationErrorV1::InitialCallableProgramSource(error))
             })?;
+            let (seals, final_box_ordinals) =
+                finalize_compatibility_source(program.ast(), prepared_seals, final_box_paths)
+                    .map_err(map_error)?;
+            let constructor_source =
+                super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1::issue(
+                    program.ast(),
+                    &seals,
+                    &final_box_ordinals,
+                )
+                .map_err(|error| {
+                    map_error(SourceSealFinalizationErrorV1::ConstructorSourceCatalog(
+                        error,
+                    ))
+                })?;
+            program = program.attach_constructor_source(constructor_source);
             return super::super::postpass_envelope::CompletedParserPostpassV1::from_initial_compatibility(
                 program,
                 metadata,
@@ -165,6 +188,7 @@ impl OpenParserPostpassProductV1 {
         Box<[super::super::callable_source_anchor::PreparedCallableSourceV1]>,
         Option<super::super::build_cfg::program_item_slots::ProjectedProgramItemSlotSetV1>,
         Vec<PreparedBoxSourceSealV1>,
+        Vec<SourceBoxDeclarationPathV1>,
     ) {
         let (prepared_seals, callable_rows) = self.source_session.into_parts();
         (
@@ -173,6 +197,7 @@ impl OpenParserPostpassProductV1 {
             callable_rows.into_boxed_slice(),
             self.projected_program_item_slots,
             prepared_seals,
+            self.final_box_paths,
         )
     }
 }
@@ -255,25 +280,60 @@ fn finalize_program(
             &prepared,
         )
         .map_err(SourceSealFinalizationErrorV1::InitialCallableProgramSource)?;
-    let final_inventories =
-        ordinary_final_inventories(initial_callable_source.ast(), prepared.len())?;
+    let final_boxes = final_boxes_for_source(initial_callable_source.ast(), prepared.len(), false)?;
     let source_seals = prepared
         .into_iter()
         .enumerate()
         .map(|(prepared_index, prepared)| {
             let final_index = coverage.prepared_to_final[prepared_index];
-            prepared.finalize_against(final_inventories[final_index])
+            prepared.finalize_against(final_boxes[final_index].1, final_boxes[final_index].2)
         })
         .collect::<Result<Vec<_>, _>>()?
         .into_boxed_slice();
+    let final_box_ordinals = coverage
+        .prepared_to_final
+        .iter()
+        .map(|final_index| final_boxes[*final_index].0)
+        .collect::<Vec<_>>();
+    let constructor_source =
+        super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1::issue(
+            initial_callable_source.ast(),
+            &source_seals,
+            &final_box_ordinals,
+        )
+        .map_err(SourceSealFinalizationErrorV1::ConstructorSourceCatalog)?;
+    drop(final_boxes);
+    let initial_callable_source =
+        initial_callable_source.attach_constructor_source(constructor_source);
 
     Ok(ParsedProgramWithSourceV1 {
         initial_callable_source,
         source_seals,
-        final_box_ordinals: coverage.prepared_to_final.into_boxed_slice(),
+        final_box_ordinals: final_box_ordinals.into_boxed_slice(),
         generated_delegate_source_relations,
         metadata,
     })
+}
+
+fn finalize_compatibility_source(
+    ast: &ASTNode,
+    prepared: Vec<PreparedBoxSourceSealV1>,
+    final_box_paths: Vec<SourceBoxDeclarationPathV1>,
+) -> Result<(Box<[ParserBoxSourceSealV1]>, Box<[usize]>), SourceSealFinalizationErrorV1> {
+    let coverage = FinalizerCoveragePlanV1::issue(&prepared, &final_box_paths)?;
+    let final_boxes = final_boxes_for_source(ast, prepared.len(), true)?;
+    let mut seals = Vec::with_capacity(prepared.len());
+    let mut final_box_ordinals = Vec::with_capacity(prepared.len());
+    for (prepared_index, prepared) in prepared.into_iter().enumerate() {
+        let final_index = coverage.prepared_to_final[prepared_index];
+        let (ordinal, inventory, constructors) = final_boxes[final_index];
+        seals.push(prepared.finalize_against(inventory, constructors)?);
+        final_box_ordinals.push(ordinal);
+    }
+    Ok((
+        seals.into_boxed_slice(),
+        final_box_ordinals.into_boxed_slice(),
+    ))
 }
 
 fn validate_ordinary_source_seals(
@@ -281,17 +341,26 @@ fn validate_ordinary_source_seals(
     prepared: &[PreparedBoxSourceSealV1],
     coverage: &FinalizerCoveragePlanV1,
 ) -> Result<(), SourceSealFinalizationErrorV1> {
-    let final_inventories = ordinary_final_inventories(ast, prepared.len())?;
+    let final_boxes = final_boxes_for_source(ast, prepared.len(), false)?;
     for (prepared_index, seal) in prepared.iter().enumerate() {
-        seal.validate_against(final_inventories[coverage.prepared_to_final[prepared_index]])?;
+        let final_box = final_boxes[coverage.prepared_to_final[prepared_index]];
+        seal.validate_against(final_box.1, final_box.2)?;
     }
     Ok(())
 }
 
-fn ordinary_final_inventories(
+fn final_boxes_for_source(
     ast: &ASTNode,
     prepared_count: usize,
-) -> Result<Vec<&BoxMethodInventoryV1>, SourceSealFinalizationErrorV1> {
+    allow_static: bool,
+) -> Result<
+    Vec<(
+        usize,
+        &BoxMethodInventoryV1,
+        &std::collections::HashMap<String, ASTNode>,
+    )>,
+    SourceSealFinalizationErrorV1,
+> {
     let ASTNode::Program { statements, .. } = ast else {
         return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
             prepared: prepared_count,
@@ -304,29 +373,36 @@ fn ordinary_final_inventories(
     {
         return Err(SourceSealFinalizationErrorV1::TopLevelBuildGateUnsupported);
     }
-    let mut final_inventories = Vec::new();
+    let mut final_boxes = Vec::new();
     for (ordinal, statement) in statements.iter().enumerate() {
         match statement {
             ASTNode::BoxDeclaration {
                 methods,
+                constructors,
                 is_interface: false,
                 is_record: false,
-                is_static: false,
+                is_static,
                 ..
-            } => final_inventories.push(methods),
+            } if !*is_static => final_boxes.push((ordinal, methods, constructors)),
+            ASTNode::BoxDeclaration {
+                is_interface: false,
+                is_record: false,
+                is_static: true,
+                ..
+            } if allow_static => {}
             ASTNode::BoxDeclaration { .. } => {
                 return Err(SourceSealFinalizationErrorV1::UnsupportedTopLevelBoxKind { ordinal });
             }
             _ => {}
         }
     }
-    if final_inventories.len() != prepared_count {
+    if final_boxes.len() != prepared_count {
         return Err(SourceSealFinalizationErrorV1::OrdinaryBoxCountMismatch {
             prepared: prepared_count,
-            final_ast: final_inventories.len(),
+            final_ast: final_boxes.len(),
         });
     }
-    Ok(final_inventories)
+    Ok(final_boxes)
 }
 
 pub(in crate::parser) fn map_error(
@@ -377,6 +453,12 @@ pub(in crate::parser) fn map_error(
         ),
         SourceSealFinalizationErrorV1::GeneratedDelegateCoverage(error) => {
             format!("R6-S3B-D generated delegate relation coverage is invalid: {error:?}")
+        }
+        SourceSealFinalizationErrorV1::ConstructorCoverageMismatch => {
+            "parser constructor source inventory does not match final AST constructors".to_owned()
+        }
+        SourceSealFinalizationErrorV1::ConstructorSourceCatalog(error) => {
+            format!("parser constructor source catalog rejected: {error:?}")
         }
         SourceSealFinalizationErrorV1::InitialCallableProgramSource(error) => {
             format!("initial callable Program source co-seal rejected: {error:?}")

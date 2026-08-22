@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::ids::{FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionId, ScopeId};
 use super::loop_region::{
     build_source_forest_for_test, build_verified_loop_region_index_v1,
@@ -102,6 +103,8 @@ fn loop_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
     let body_origin = node(vec![SourcePathSegmentV1::FunctionBody]);
 
     ResolvedFunctionDataV1 {
+        brand_call_relations: BTreeMap::new(),
+        explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {
@@ -176,6 +179,7 @@ fn loop_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
         assignment_targets: BTreeMap::new(),
         direct_call_targets: BTreeMap::new(),
         method_calls: BTreeMap::new(),
+        expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::new(),
     }
 }
@@ -218,6 +222,30 @@ fn nested_loop_bundle_uses_the_outer_loop_as_its_exact_parent() {
     assert_eq!(
         product.scope(inner.loop_pair().scope()).unwrap().parent(),
         Some(outer.loop_pair().scope())
+    );
+}
+
+#[test]
+fn program_block_loop_uses_program_lexical_region_as_parent() {
+    let product = resolve(&function(vec![ASTNode::Program {
+        statements: vec![loop_stmt(Vec::new())],
+        span: Span::unknown(),
+    }]));
+    let bundle = *product
+        .loop_region_bundle(&stmt(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBody(0),
+        ]))
+        .unwrap();
+    let loop_region = product.region(bundle.loop_pair().region()).unwrap();
+    let parent = product.region(loop_region.parent().unwrap()).unwrap();
+    assert_eq!(parent.kind(), RegionKindV1::LexicalScope);
+    assert_eq!(
+        parent.origin(),
+        &RegionOriginV1::Source(node(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBodyRoot,
+        ]))
     );
 }
 

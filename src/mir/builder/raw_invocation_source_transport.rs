@@ -19,13 +19,23 @@ use crate::mir::ValueId;
 use super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
-use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::normal_script_semantic_lowering_state::{
+    ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
+};
+use super::normal_script_pre_effect_source_observation::
+    CanonicalScriptCPreparedLoweringSourceV1;
 use super::raw_invocation_source_item_site::body_item_site;
+use super::raw_invocation_source_statement_classification::{
+    is_bare_function_call_statement, is_located_control_or_diagnostic_terminal,
+    is_located_lambda_statement, is_located_scalar_statement,
+    is_located_zero_child_runtime_completion, reason_for_non_box_statement,
+};
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     lower_raw_expression_with_recursion_guard_v1, RawInvocationChildPortV1,
     RecursiveChildLoweringPortV1,
 };
+use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 use super::{CanonicalSameModuleCallableKeyV1, RawSourceLocatorV1};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -47,6 +57,13 @@ pub(in crate::mir::builder) enum RawUnlocatedPortalV1 {
 }
 
 impl RawInvocationRootLineageV1 {
+    fn allows_bare_function_call_location(&self) -> bool {
+        matches!(
+            self,
+            Self::Cataloged(_) | Self::TopLevel(_) | Self::InstanceConstructor(_)
+        )
+    }
+
     pub(in crate::mir::builder) fn nested_box_method(
         parent_site: SourceNodeSiteV1,
         method_key: String,
@@ -99,6 +116,10 @@ pub(in crate::mir::builder) enum RawInvocationSourceTransportV1<T> {
     UnlocatedCompatibility {
         node: T,
         reason: RawUnlocatedPortalV1,
+        /// Preserve a source-backed root when exact node location is lost.
+        /// The later ingress uses this witness to reject source loss instead
+        /// of silently treating it as ordinary compatibility.
+        expected_lineage: Option<RawInvocationRootLineageV1>,
     },
 }
 
@@ -131,7 +152,23 @@ impl<T> RawInvocationSourceTransportV1<T> {
     }
 
     pub(in crate::mir::builder) fn unlocated(node: T, reason: RawUnlocatedPortalV1) -> Self {
-        Self::UnlocatedCompatibility { node, reason }
+        Self::UnlocatedCompatibility {
+            node,
+            reason,
+            expected_lineage: None,
+        }
+    }
+
+    fn unlocated_with_expected_lineage(
+        node: T,
+        reason: RawUnlocatedPortalV1,
+        expected_lineage: RawInvocationRootLineageV1,
+    ) -> Self {
+        Self::UnlocatedCompatibility {
+            node,
+            reason,
+            expected_lineage: Some(expected_lineage),
+        }
     }
 
     pub(in crate::mir::builder) fn into_parts(
@@ -143,14 +180,18 @@ impl<T> RawInvocationSourceTransportV1<T> {
             SourceNodeSiteV1,
             SourceBodyKindV1,
         )>,
-        Option<RawUnlocatedPortalV1>,
+        Option<(RawUnlocatedPortalV1, Option<RawInvocationRootLineageV1>)>,
     ) {
         match self {
             Self::Located(located) => {
                 let (node, root, site, body_kind) = located.into_parts();
                 (node, Some((root, site, body_kind)), None)
             }
-            Self::UnlocatedCompatibility { node, reason } => (node, None, Some(reason)),
+            Self::UnlocatedCompatibility {
+                node,
+                reason,
+                expected_lineage,
+            } => (node, None, Some((reason, expected_lineage))),
         }
     }
 }
@@ -197,19 +238,20 @@ impl RawInvocationChildPortV1<'_, '_> {
 
     pub(in crate::mir::builder) fn with_script_semantic_source_v1<R>(
         &mut self,
-        source: VerifiedScriptSemanticSourceV1<'_>,
-        execute: impl FnOnce(&mut Self) -> R,
+        source: CanonicalScriptCPreparedLoweringSourceV1<'_>,
+        execute: impl FnOnce(&mut Self) -> Result<R, String>,
     ) -> Result<R, String> {
-        let [root] = source.forest().roots() else {
+        let [root] = source.source().forest().roots() else {
             return Err("[freeze:contract][mir/script-semantic/root-cardinality]".to_owned());
         };
         if source
+            .source()
             .projection()
-            .owner_root(source.source(), *root)
+            .owner_root(source.source().source(), *root)
             .is_err()
-            || source.runtime_source_indices().iter().any(|index| {
+            || source.source().runtime_source_indices().iter().any(|index| {
                 !matches!(
-                    source.source(),
+                    source.source().source(),
                     ASTNode::Program { statements, .. } if statements.get(*index).is_some()
                 )
             })
@@ -217,15 +259,26 @@ impl RawInvocationChildPortV1<'_, '_> {
             return Err("[freeze:contract][mir/script-semantic/source-proof]".to_owned());
         }
         let state = Rc::new(RefCell::new(ScriptSemanticLoweringState::new(
-            source.into_lowering_projection(),
-        )));
+            source.into_lowering_input(),
+        )?));
+        let finish_state = Rc::clone(&state);
         let parent = std::mem::replace(&mut self.semantic_ledger, Some(state));
         let result = self.with_source_transport_v1(
             RawInvocationSourceTransportV1::script_semantic_root(()),
             |port, ()| execute(port),
         );
+        let result = match result {
+            Ok(value) => finish_state
+                .try_borrow_mut()
+                .map_err(|_| {
+                    "[freeze:contract][script-direct-static/claim-finish-borrow]".to_owned()
+                })?
+                .finish_direct_static_claims()
+                .map(|()| value),
+            Err(error) => Err(error),
+        };
         self.semantic_ledger = parent;
-        Ok(result)
+        result
     }
 }
 
@@ -236,21 +289,27 @@ pub(in crate::mir::builder) enum RawInvocationSourceContextV1 {
         site: SourceNodeSiteV1,
         body_kind: Option<SourceBodyKindV1>,
     },
-    UnlocatedCompatibility(RawUnlocatedPortalV1),
+    UnlocatedCompatibility {
+        reason: RawUnlocatedPortalV1,
+        expected_lineage: Option<RawInvocationRootLineageV1>,
+    },
 }
 
 impl RawInvocationSourceContextV1 {
     pub(in crate::mir::builder) fn from_transport<T>(
         transport: RawInvocationSourceTransportV1<T>,
     ) -> (T, Self) {
-        let (node, located, reason) = transport.into_parts();
-        let context = match (located, reason) {
+        let (node, located, unlocated) = transport.into_parts();
+        let context = match (located, unlocated) {
             (Some((root, site, body_kind)), None) => Self::Located {
                 root,
                 site,
                 body_kind: Some(body_kind),
             },
-            (None, Some(reason)) => Self::UnlocatedCompatibility(reason),
+            (None, Some((reason, expected_lineage))) => Self::UnlocatedCompatibility {
+                reason,
+                expected_lineage,
+            },
             _ => unreachable!("[freeze:contract][raw-invocation/source-transport-state]"),
         };
         (node, context)
@@ -272,9 +331,15 @@ impl RawInvocationSourceContextV1 {
                     && !is_located_scalar_statement(&statement)
                     && !is_located_zero_child_runtime_completion(&statement)
                     && !is_located_lambda_statement(&statement)
+                    && !(root.allows_bare_function_call_location()
+                        && is_bare_function_call_statement(&statement))
                 {
                     let reason = reason_for_non_box_statement(&statement);
-                    return RawInvocationSourceTransportV1::unlocated(statement, reason);
+                    return RawInvocationSourceTransportV1::unlocated_with_expected_lineage(
+                        statement,
+                        reason,
+                        root.clone(),
+                    );
                 }
                 let kind = body_kind.expect("located body transport must retain its body kind");
                 let child = body_item_site(kind, site, index);
@@ -285,17 +350,57 @@ impl RawInvocationSourceContextV1 {
                     kind,
                 ))
             }
-            Self::UnlocatedCompatibility(reason) => {
-                RawInvocationSourceTransportV1::unlocated(statement, *reason)
-            }
+            Self::UnlocatedCompatibility {
+                reason,
+                expected_lineage,
+            } => match expected_lineage {
+                Some(root) => RawInvocationSourceTransportV1::unlocated_with_expected_lineage(
+                    statement,
+                    *reason,
+                    root.clone(),
+                ),
+                None => RawInvocationSourceTransportV1::unlocated(statement, *reason),
+            },
         }
     }
 
     pub(in crate::mir::builder) fn site(&self) -> Option<&SourceNodeSiteV1> {
         match self {
             Self::Located { site, .. } => Some(site),
-            Self::UnlocatedCompatibility(_) => None,
+            Self::UnlocatedCompatibility { .. } => None,
         }
+    }
+
+    pub(in crate::mir::builder) fn shares_root_lineage(
+        &self,
+        other: &RawInvocationSourceContextV1,
+    ) -> bool {
+        match (self, other) {
+            (Self::Located { root: left, .. }, Self::Located { root: right, .. }) => left == right,
+            _ => false,
+        }
+    }
+
+    pub(in crate::mir::builder) fn is_exact_loop_condition(&self) -> bool {
+        matches!(
+            self,
+            Self::Located {
+                site,
+                body_kind: None,
+                ..
+            } if site.segments().last() == Some(&SourcePathSegmentV1::LoopCondition)
+        )
+    }
+
+    pub(in crate::mir::builder) fn is_exact_loop_body_root(&self) -> bool {
+        matches!(
+            self,
+            Self::Located {
+                site,
+                body_kind: Some(SourceBodyKindV1::Loop),
+                ..
+            } if site.segments().last() == Some(&SourcePathSegmentV1::LoopBodyRoot)
+        )
     }
 
     fn child_call_argument(&self, index: usize) -> Self {
@@ -307,7 +412,13 @@ impl RawInvocationSourceContextV1 {
                     .node(),
                 body_kind: None,
             },
-            Self::UnlocatedCompatibility(reason) => Self::UnlocatedCompatibility(*reason),
+            Self::UnlocatedCompatibility {
+                reason,
+                expected_lineage,
+            } => Self::UnlocatedCompatibility {
+                reason: *reason,
+                expected_lineage: expected_lineage.clone(),
+            },
         }
     }
 
@@ -398,6 +509,8 @@ impl RawInvocationSourceContextV1 {
             && !is_located_scalar_statement(statement)
             && !is_located_zero_child_runtime_completion(statement)
             && !is_located_lambda_statement(statement)
+            && !(root.allows_bare_function_call_location()
+                && is_bare_function_call_statement(statement))
         {
             return Err(format!(
                 "[freeze:contract][raw-invocation/statement-source-role] kind={}",
@@ -411,115 +524,6 @@ impl RawInvocationSourceContextV1 {
             body_kind: None,
         })
     }
-}
-fn reason_for_non_box_statement(statement: &ASTNode) -> RawUnlocatedPortalV1 {
-    match statement {
-        ASTNode::Break { .. }
-        | ASTNode::Continue { .. }
-        | ASTNode::UsingStatement { .. }
-        | ASTNode::ImportStatement { .. }
-        | ASTNode::BuildGate { .. }
-        | ASTNode::Nowait { .. }
-        | ASTNode::AwaitExpression { .. }
-        | ASTNode::QMarkPropagate { .. }
-        | ASTNode::ArrayLiteral { .. }
-        | ASTNode::MapLiteral { .. }
-        | ASTNode::RecordLiteral { .. }
-        | ASTNode::RecordUpdate { .. }
-        | ASTNode::Arrow { .. }
-        | ASTNode::Throw { .. }
-        | ASTNode::FunctionDeclaration { .. }
-        | ASTNode::EnumDeclaration { .. }
-        | ASTNode::BrandDeclaration { .. }
-        | ASTNode::TypeAliasDeclaration { .. }
-        | ASTNode::GlobalVar { .. }
-        | ASTNode::StaticConstTable { .. }
-        | ASTNode::Literal { .. }
-        | ASTNode::Variable { .. }
-        | ASTNode::UnaryOp { .. }
-        | ASTNode::BinaryOp { .. }
-        | ASTNode::CheckExpr { .. }
-        | ASTNode::MethodCall { .. }
-        | ASTNode::FieldAccess { .. }
-        | ASTNode::Index { .. }
-        | ASTNode::New { .. }
-        | ASTNode::This { .. }
-        | ASTNode::Me { .. }
-        | ASTNode::FromCall { .. }
-        | ASTNode::ThisField { .. }
-        | ASTNode::MeField { .. }
-        | ASTNode::Outbox { .. }
-        | ASTNode::FunctionCall { .. }
-        | ASTNode::Call { .. } => RawUnlocatedPortalV1::CallObject,
-
-        ASTNode::Lambda { .. }
-        | ASTNode::Program { .. }
-        | ASTNode::BoxDeclaration { .. }
-        | ASTNode::Assignment { .. }
-        | ASTNode::CompoundAssignment { .. }
-        | ASTNode::Return { .. }
-        | ASTNode::Release { .. }
-        | ASTNode::Local { .. }
-        | ASTNode::Print { .. }
-        | ASTNode::GroupedAssignmentExpr { .. }
-        | ASTNode::If { .. }
-        | ASTNode::Loop { .. }
-        | ASTNode::TaskScope { .. }
-        | ASTNode::FastMemRegion { .. }
-        | ASTNode::BlockExpr { .. }
-        | ASTNode::ScopeBox { .. }
-        | ASTNode::LoopRange { .. }
-        | ASTNode::ContextScope { .. }
-        | ASTNode::MatchExpr { .. }
-        | ASTNode::EnumMatchExpr { .. }
-        | ASTNode::TryCatch { .. } => {
-            unreachable!("[freeze:contract][raw-invocation/direct-box-classifier]")
-        }
-    }
-}
-
-fn is_located_scalar_statement(statement: &ASTNode) -> bool {
-    matches!(
-        statement,
-        ASTNode::Assignment { .. }
-            | ASTNode::CompoundAssignment { .. }
-            | ASTNode::GroupedAssignmentExpr { .. }
-            | ASTNode::Print { .. }
-            | ASTNode::Return { .. }
-            | ASTNode::Local { .. }
-            | ASTNode::Nowait { .. }
-    )
-}
-
-fn is_located_zero_child_runtime_completion(statement: &ASTNode) -> bool {
-    matches!(statement, ASTNode::StaticConstTable { .. })
-}
-
-fn is_located_lambda_statement(statement: &ASTNode) -> bool {
-    matches!(statement, ASTNode::Lambda { .. })
-}
-
-fn is_located_control_or_diagnostic_terminal(statement: &ASTNode) -> bool {
-    if super::normal_script_program_item_admission::is_direct_selected_unsupported_statement_v1(
-        statement,
-    ) {
-        return true;
-    }
-    matches!(
-        statement,
-        ASTNode::Program { .. }
-            | ASTNode::If { .. }
-            | ASTNode::Loop { .. }
-            | ASTNode::TaskScope { .. }
-            | ASTNode::FastMemRegion { .. }
-            | ASTNode::ScopeBox { .. }
-            | ASTNode::BlockExpr { .. }
-            | ASTNode::LoopRange { .. }
-            | ASTNode::ContextScope { .. }
-            | ASTNode::MatchExpr { .. }
-            | ASTNode::EnumMatchExpr { .. }
-            | ASTNode::TryCatch { .. }
-    )
 }
 
 /// Temporal source scope used only by the selected invocation port.
@@ -559,22 +563,30 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
     type StatementInput = ASTNode;
     type ExpressionInput = ASTNode;
 
-    fn try_emit_source_bound_static_call_result_v1(
+    fn script_direct_static_claim_ingress_v1(
         &mut self,
-        builder: &mut MirBuilder,
-        owner: &str,
+        _box_name: &str,
+        _method: &str,
+        _argument_count: usize,
+    ) -> Result<ScriptDirectStaticClaimIngressV1, String> {
+        self.script_direct_static_claim_ingress_inner_v1(_box_name, _method, _argument_count)
+    }
+
+    fn take_script_direct_static_claim_v1(
+        &mut self,
+        box_name: &str,
         method: &str,
-        checked_source_arity: u32,
-        arguments: &[ValueId],
-    ) -> Result<Option<ValueId>, String> {
-        super::raw_static_result_publication::try_emit_source_bound_static_call_result_v1(
-            self,
-            builder,
-            owner,
-            method,
-            checked_source_arity,
-            arguments,
-        )
+        _receiver: &ASTNode,
+        arguments: &[ASTNode],
+    ) -> Result<ScriptDirectStaticClaimTakeV1, String> {
+        self.take_script_direct_static_claim_inner_v1(box_name, method, _receiver, arguments)
+    }
+
+    fn complete_script_direct_static_claim_v1(
+        &mut self,
+        claimed: ScriptDirectStaticClaimedRowV1,
+    ) -> Result<(), String> {
+        self.complete_script_direct_static_claim_inner_v1(claimed)
     }
 
     fn cleanup_exit_policy_v1(&self) -> super::control_flow::cleanup::CleanupExitPolicyV1 {
@@ -757,3 +769,7 @@ impl RecursiveChildLoweringPortV1 for RawInvocationChildPortV1<'_, '_> {
 #[cfg(test)]
 #[path = "raw_invocation_source_transport_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "raw_invocation_source_lineage_witness_tests.rs"]
+mod lineage_witness_tests;

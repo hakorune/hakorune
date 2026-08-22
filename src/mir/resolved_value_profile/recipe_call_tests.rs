@@ -8,8 +8,8 @@ use crate::mir::resolved_control_flow::if_control::verify_resolved_function_if_c
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
 
 use super::{
-    analyze_trivial_canonical_owner_with_finite_direct_calls_v1, map_trivial_if_recipe_v1,
-    TrivialCanonicalOwnerAnalysisV1,
+    analyze_trivial_canonical_with_mode_v1, map_trivial_if_recipe_v1,
+    TrivialCanonicalAnalysisModeV1, TrivialCanonicalOwnerAnalysisV1,
 };
 
 fn literal(value: LiteralValue) -> ASTNode {
@@ -99,10 +99,11 @@ fn product<'a>(
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control =
         verify_resolved_function_if_control_with_direct_call_v1(input, &completion).unwrap();
-    let analysis = analyze_trivial_canonical_owner_with_finite_direct_calls_v1(
+    let analysis = analyze_trivial_canonical_with_mode_v1(
         input,
         &completion,
         &if_control,
+        TrivialCanonicalAnalysisModeV1::OrdinaryFiniteDirectCalls,
     )
     .unwrap();
     let TrivialCanonicalOwnerAnalysisV1::Admitted(product) = analysis else {

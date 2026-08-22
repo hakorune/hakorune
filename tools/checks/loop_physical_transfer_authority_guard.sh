@@ -16,12 +16,41 @@ V1_DISPATCH="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalize
 V1_SEGMENT_DISPATCH="$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/segment_dispatcher.rs"
 V2_DEMAND="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/model.rs"
 PHYSICAL_INPUT="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/physical_input.rs"
+S6C_INGRESS="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_prephysical_ingress.rs"
+S6C_SOURCE_OUTPUT="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_scan_with_init_joinir_output.rs"
+S6C_SITE="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_text_eq_site_contract.rs"
+MAIN_ROLE="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/selected_role.rs"
+MAIN_CATALOG="$ROOT_DIR/src/mir/builder/callable_declaration_catalog/source_backed.rs"
+MAIN_EXPANSION="$ROOT_DIR/src/mir/builder/main_expansion.rs"
+MAIN_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+MAIN_MAPPING="$ROOT_DIR/src/mir/normal_callable_semantic_package/selected_mapping.rs"
+MAIN_DECLS="$ROOT_DIR/src/mir/builder/decls.rs"
+MAIN_LIFECYCLE="$ROOT_DIR/src/mir/builder/module_lifecycle.rs"
+MAIN_ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
+PHYSICAL_HEADER="$ROOT_DIR/src/mir/normal_callable_semantic_package/physical_header.rs"
+COMPLETION_SEED="$ROOT_DIR/src/mir/normal_callable_semantic_package/completion_seed.rs"
+S6C_CHILD="$ROOT_DIR/src/mir/normal_callable_semantic_package/s6c_child.rs"
+TEXT_FORMAL_ABI="$ROOT_DIR/src/runtime/text_formal_abi.rs"
+TEXT_FORMAL_HOST="$ROOT_DIR/src/runtime/host_handles/lease_identity.rs"
+TEXT_FORMAL_CALL_LIFETIME="$ROOT_DIR/src/runtime/host_handles/call_lifetime.rs"
+TEXT_FORMAL_CALL_FACADE="$ROOT_DIR/src/runtime/text_formal_call_lease.rs"
+TEXT_FORMAL_HOST_README="$ROOT_DIR/src/runtime/host_handles/README.md"
+TEXT_FORMAL_HEADER="$ROOT_DIR/include/nyrt_text_formal_v1.h"
+TEXT_FORMAL_EXPORT="$ROOT_DIR/crates/nyash_kernel/src/exports/text_formal.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" \
   "$LEDGER" "$V1_DEMAND" "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND"
 guard_require_files "$TAG" "$PHYSICAL_INPUT"
+guard_require_files "$TAG" "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE"
+guard_require_files "$TAG" "$MAIN_ROLE" "$MAIN_CATALOG" "$MAIN_EXPANSION" "$MAIN_INSTALL" \
+  "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" "$MAIN_ADAPTER"
+guard_require_files "$TAG" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD"
+guard_require_files "$TAG" "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" \
+  "$TEXT_FORMAL_HEADER" "$TEXT_FORMAL_EXPORT"
+guard_require_files "$TAG" "$TEXT_FORMAL_CALL_LIFETIME" "$TEXT_FORMAL_CALL_FACADE" \
+  "$TEXT_FORMAL_HOST_README"
 
 guard_expect_fixed_in_file "$TAG" \
   "logical_transfer_view()" "$LAYOUT" \
@@ -62,6 +91,157 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "#[cfg(test)]" "$ROOT_DIR/src/mir/builder/resolved_lowering/loop_recipe_physicalizer/mod.rs" \
   "callable tail adapter must remain test-only"
+guard_expect_fixed_in_file "$TAG" \
+  "with_retained_prephysical_source" "$S6C_INGRESS" \
+  "S6C post-issuance views must borrow the retained cohort"
+guard_expect_fixed_in_file "$TAG" \
+  "roles.text_equal()" "$S6C_INGRESS" \
+  "S6C ingress must derive item identity from the producer-owned role seal"
+guard_expect_fixed_in_file "$TAG" \
+  "with_s6c_scan_with_init_retained_logical_join_input" "$S6C_SOURCE_OUTPUT" \
+  "S6C retained source projection must bypass semantic revalidation"
+guard_expect_fixed_in_file "$TAG" \
+  "issue_s6c_text_eq_source_binding_v1" "$S6C_SITE" \
+  "S6C TextEq site must have one parent-retaining issuer"
+guard_expect_fixed_in_file "$TAG" \
+  "with_text_eq_leaf" "$S6C_SITE" \
+  "S6C TextEq site must borrow the retained leaf"
+guard_expect_fixed_in_file "$TAG" \
+  "with_main_static_child_lowering_input" "$MAIN_INSTALL" \
+  "Main static children must use the role-bearing scoped Port loan"
+guard_expect_fixed_in_file "$TAG" \
+  "lower_app_main_static_child" "$MAIN_LIFECYCLE" \
+  "the Main static-child route must have one typed capture-port owner"
+guard_expect_fixed_in_file "$TAG" \
+  "dynamic_eligible_batch_slot" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
+  "Main static-child rows must be filtered before Dynamic admission"
+guard_expect_fixed_in_file "$TAG" \
+  "verify_function_completion_v1" "$COMPLETION_SEED" \
+  "callable Completion seed must use the sole Completion issuer"
+if rg -n -F -- 'verify_function_completion_v1' "$PHYSICAL_HEADER" >/dev/null 2>&1; then
+  guard_fail "$TAG" "callable physical-header row reissues the Completion authority"
+fi
+guard_expect_fixed_in_file "$TAG" \
+  "ExactTrivialScalarAbiV1::classify" "$COMPLETION_SEED" \
+  "callable Completion seed result must use the explicit scalar source spelling"
+guard_expect_fixed_in_file "$TAG" \
+  "issue_callable_physical_header_from_seeds_v1" "$ROOT_DIR/src/mir/normal_callable_semantic_package/issuer.rs" \
+  "package issuer must have one source/header cohort seam"
+guard_expect_fixed_in_file "$TAG" \
+  "TextFormalBorrowV1" "$TEXT_FORMAL_ABI" \
+  "physical Text formal lane must have one generation-branded Rust owner"
+guard_expect_fixed_in_file "$TAG" \
+  "with_text_formal_wire" "$TEXT_FORMAL_HOST" \
+  "wire validation must carry the published generation into the slot-table owner"
+guard_expect_fixed_in_file "$TAG" \
+  "acquire_text_formal_call_lease_set_v1" "$TEXT_FORMAL_CALL_LIFETIME" \
+  "Text formal call pins must have one atomic lease-set registry owner"
+guard_expect_fixed_in_file "$TAG" \
+  "request_slot_retirement_v1" "$TEXT_FORMAL_CALL_LIFETIME" \
+  "raw and generation-matched Text drops must share one pin-aware retirement terminal"
+guard_expect_fixed_in_file "$TAG" \
+  "#[must_use = \"a Text formal call lease set must be explicitly finished\"]" "$TEXT_FORMAL_CALL_FACADE" \
+  "the caller-zero Text formal lease token must require explicit consuming finish"
+guard_expect_fixed_in_file "$TAG" \
+  "pub(crate) fn acquire_text_formal_call_leases_v1" "$TEXT_FORMAL_CALL_FACADE" \
+  "the caller-zero Text formal lease façade must expose one whole-set acquisition"
+guard_expect_fixed_in_file "$TAG" \
+  "pub(in crate::runtime) struct RegistryTextFormalCallLeaseSetV1" "$TEXT_FORMAL_CALL_LIFETIME" \
+  "the registry handoff must retain one narrow move-only lease-set carrier"
+guard_expect_fixed_in_file "$TAG" \
+  "_Static_assert(sizeof(NyrtTextFormalBorrowV1) == 16" "$TEXT_FORMAL_HEADER" \
+  "Text formal C wire width must remain fixed"
+guard_expect_fixed_in_file "$TAG" \
+  "hako_text_formal_validate_v1" "$TEXT_FORMAL_EXPORT" \
+  "Text formal C bridge must have one named export"
+
+for forbidden in \
+  'nyash.string.eq_hh' \
+  'DynamicV2' \
+  'fallback' \
+  'retry'
+do
+  if rg -n -F -- "$forbidden" "$TEXT_FORMAL_ABI" >/dev/null 2>&1; then
+    guard_fail "$TAG" "Text formal validator imports a non-authority route: $forbidden"
+  fi
+done
+
+text_formal_lease_production_callers="$(rg -l --glob '*.rs' \
+  -F 'acquire_text_formal_call_leases_v1(' "$ROOT_DIR/src" \
+  | grep -v '/runtime/text_formal_call_lease.rs' \
+  | grep -v '/runtime/text_formal_call_lease_tests.rs' || true)"
+if [[ -n "$text_formal_lease_production_callers" ]]; then
+  guard_fail "$TAG" "caller-zero Text formal lease façade gained a production caller: $text_formal_lease_production_callers"
+fi
+text_formal_lease_raw_callers="$(rg -l --glob '*.rs' \
+  -e 'acquire_text_formal_call_lease_set_v1\(' \
+  -e 'finish_text_formal_call_lease_set_v1\(' "$ROOT_DIR/src" \
+  | grep -v '/runtime/host_handles/call_lifetime.rs' \
+  | grep -v '/runtime/text_formal_call_lease.rs' \
+  | grep -v '_tests.rs' || true)"
+if [[ -n "$text_formal_lease_raw_callers" ]]; then
+  guard_fail "$TAG" "raw Text formal lease registry seam gained a production caller: $text_formal_lease_raw_callers"
+fi
+registry_token_declaration="$(rg -B1 -F \
+  'struct RegistryTextFormalCallLeaseSetV1' "$TEXT_FORMAL_CALL_LIFETIME")"
+if printf '%s\n' "$registry_token_declaration" | rg -n 'Clone|Copy' >/dev/null 2>&1; then
+  guard_fail "$TAG" "raw Text formal lease registry carrier became duplicable"
+fi
+for forbidden in \
+  'impl Clone for TextFormalCallLeaseSetTokenV1' \
+  'impl Copy for TextFormalCallLeaseSetTokenV1'
+do
+  if rg -n -F -- "$forbidden" "$TEXT_FORMAL_CALL_FACADE" >/dev/null 2>&1; then
+    guard_fail "$TAG" "Text formal lease token became duplicable: $forbidden"
+  fi
+done
+
+for forbidden in \
+  'anchor_count' \
+  'VerifiedLoopSemanticContextV1::from_parts'
+do
+  if rg -n -F -- "$forbidden" "$S6C_INGRESS" >/dev/null 2>&1; then
+    guard_fail "$TAG" "S6C ingress exposes a second source/key authority: $forbidden"
+  fi
+done
+
+if rg -n -F -- 'if owner == "Main"' "$MAIN_CATALOG" >/dev/null 2>&1; then
+  guard_fail "$TAG" "Main child role is classified by owner spelling"
+fi
+if rg -n -F -- 'VerifiedRawRootExpansionV1::from_program' "$MAIN_INSTALL" >/dev/null 2>&1; then
+  guard_fail "$TAG" "Main child Port reissues the Main expansion"
+fi
+
+for forbidden in \
+  'derive(Clone)' \
+  'into_parts' \
+  'take_ingress' \
+  'pub(crate) fn logical' \
+  'with_completion'
+do
+  if rg -n -F -- "$forbidden" "$S6C_SITE" >/dev/null 2>&1; then
+    guard_fail "$TAG" "S6C TextEq site exposes a detached or broad authority: $forbidden"
+  fi
+done
+
+site_product_block="$(awk '
+  /pub\(crate\) struct VerifiedS6CTextEqSourceBindingV1/ { in_product = 1 }
+  in_product { print }
+  in_product && /^}/ { exit }
+' "$S6C_SITE")"
+if printf '%s\n' "$site_product_block" | rg -n 'Clone|Default|into_parts|take_' >/dev/null 2>&1; then
+  guard_fail "$TAG" "S6C TextEq owned product is splittable or cloneable"
+fi
+site_issuer_count="$(rg -n -F 'issue_s6c_text_eq_source_binding_v1(' "$S6C_SITE" | wc -l | tr -d '[:space:]')"
+if [[ "$site_issuer_count" != 1 ]]; then
+  guard_fail "$TAG" "S6C TextEq site issuer count drifted: $site_issuer_count"
+fi
+site_non_test_callers="$(rg -l --glob '*.rs' -F 'issue_s6c_text_eq_source_binding_v1(' "$ROOT_DIR/src" \
+  | grep -v '/s6c_text_eq_site_contract.rs' \
+  | grep -v '_tests.rs' || true)"
+if [[ -n "$site_non_test_callers" ]]; then
+  guard_fail "$TAG" "S6C TextEq site gained a non-test caller: $site_non_test_callers"
+fi
 
 for forbidden in \
   'ReadyCallableLoopProfileCloseV1' \
@@ -155,7 +335,12 @@ if rg -n -F -- '.zip(' "$V2_DEMAND" >/dev/null 2>&1; then
 fi
 
 for file in "$LAYOUT" "$TRANSFER" "$VIEW" "$ALLOCATOR" "$AFTER" "$LEDGER" "$V1_DEMAND" \
-  "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT"; do
+  "$V1_DISPATCH" "$V1_SEGMENT_DISPATCH" "$V2_DEMAND" "$PHYSICAL_INPUT" \
+  "$S6C_INGRESS" "$S6C_SOURCE_OUTPUT" "$S6C_SITE" "$MAIN_ROLE" "$MAIN_CATALOG" \
+  "$MAIN_EXPANSION" "$MAIN_INSTALL" "$MAIN_MAPPING" "$MAIN_DECLS" "$MAIN_LIFECYCLE" \
+  "$MAIN_ADAPTER" "$PHYSICAL_HEADER" "$COMPLETION_SEED" "$S6C_CHILD" \
+  "$TEXT_FORMAL_ABI" "$TEXT_FORMAL_HOST" "$TEXT_FORMAL_CALL_LIFETIME" \
+  "$TEXT_FORMAL_CALL_FACADE" "$TEXT_FORMAL_EXPORT"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "800-line boundary exceeded: ${file#"$ROOT_DIR/"}=$lines"

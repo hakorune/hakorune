@@ -49,7 +49,18 @@ pub(crate) mod canonical_recursive_callable_module_backend_capability;
 pub(crate) mod canonical_recursive_callable_module_capability;
 pub(crate) mod compile_timing;
 mod compiler;
+
+/// Public compile-invocation target capability facade.  The concrete issuer
+/// lives with the compiler owner; the runner sees only this narrow profile and
+/// move-only capability surface.
+pub mod compile_target_capability {
+    pub use super::compiler::target_capability::{
+        PinnedTextCompileTargetCapabilityIssueV1, PinnedTextCompileTargetCapabilityIssuerV1,
+        PinnedTextCompileTargetCapabilityV1, PinnedTextCompileTargetProfileV1,
+    };
+}
 pub mod edge_args;
+pub(crate) mod linear_metadata_slot; // clone-scrub lifecycle observation vocabulary
 pub(crate) mod normal_callable_semantic_package;
 pub(crate) mod raw_finalization_contract;
 pub(crate) mod raw_physical_drain;
@@ -58,12 +69,18 @@ pub(crate) mod raw_vm_reference_contract;
 #[cfg(test)]
 #[path = "shared_loop_source_window_tests.rs"]
 pub(crate) mod shared_loop_source_window;
+#[cfg(test)]
+pub(crate) mod test_support;
 #[allow(unused_imports)]
 pub(crate) use compiler::canonical_core_dispatch::{
     CanonicalCallableDispatchStageV1, CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1,
     CanonicalCoreInvocationFailureReportV1, CanonicalCoreSourcePlanCompileRequestV1,
-    NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
+    CanonicalCoreSourcePlanInputV1, NormalSourcePlanReceiptV1,
+    VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
+pub(crate) use compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;
+pub(crate) use compiler::canonical_script_source_a_input::CanonicalScriptSourceAInputTransportV1;
+pub(crate) use compiler::canonical_script_source_plan_envelope::CanonicalScriptSourcePlanEnvelopeV1;
 pub(crate) use compiler::normal_source_plan;
 pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
 #[cfg(feature = "vm-reference")]
@@ -74,6 +91,7 @@ pub(crate) use raw_vm_reference_contract::{
     RawVmReferenceImportProfileV1, RawVmReferenceInvocationV1, RawVmReferenceSourceProfileV1,
     RawVmReferenceSupportProfileV1,
 };
+pub(crate) mod checked_callout; // canonical MIR-owned checked Normal/Fault callout vocabulary
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
 pub mod constructor_call_route_plan; // MIR-owned constructor call route plans
 pub mod contracts; // backend-core instruction contracts (SSOT)
@@ -99,6 +117,7 @@ pub(crate) mod exact_numeric_field_contracts; // exact numeric field-write facts
 pub(crate) mod exact_numeric_unification; // exact numeric PHI/Select merge policy owner
 pub mod exact_numeric_value_facts; // exact numeric per-value facts derived from MIR metadata
 pub mod exact_seed_backend_route; // function-level backend route tags for exact seed bridges
+pub(crate) mod exact_text_parameter_abi; // exact source spelling for semantic Text parameter rows
 pub(crate) mod exact_trivial_parameter_abi; // exact source spelling for first Binding-SSA parameter row
 pub(crate) mod exact_trivial_return_abi; // exact source spelling for first Binding-SSA return row
 pub(crate) mod exact_trivial_scalar_abi; // site-neutral exact scalar ABI for trivial callable rows
@@ -174,6 +193,8 @@ pub(crate) mod ownership_ssa; // verified per-function Ownership SSA discipline
 pub mod passes;
 pub mod phi_core; // Phase 1 scaffold: unified PHI entry (re-exports only)
 pub(crate) mod phi_query; // generic PHI base-relation seam for later relation consumers
+pub(crate) mod pinned_text_access_plan; // transport-only stamped Text leaf plans
+pub(crate) mod pinned_text_residence_lifecycle; // affine physical Enter/Finish carriers
 pub mod placement_effect; // generic placement/effect owner seam folded from landed pilots
 pub mod printer;
 mod printer_helpers; // internal helpers extracted from printer.rs
@@ -241,6 +262,10 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 // tools/checks/mir_root_facade_allowlist.txt.
 pub use basic_block::BasicBlock;
 pub use builder::MirBuilder;
+pub(crate) use compiler::selected_dynamic_w6_activation::{
+    PreparedSelectedDynamicW6ActivationV1, PreparedSelectedDynamicW6RootReadyV1,
+    SelectedDynamicW6RootPreflightErrorV1, StaticArtifactReceiptConsumedFenceV1,
+};
 pub use compiler::{
     CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
     NormalProgramCompileRequestErrorV1, RejectedNormalProgramCompileRequestV1,

@@ -2,6 +2,9 @@
 
 use std::collections::BTreeMap;
 
+use crate::mir::core_method_result_kind::CoreMethodEffectV1;
+use crate::mir::EffectMask;
+
 use super::super::coseal::DynamicFullLoopFaultCutPointCatalogRefV2;
 use super::super::coseal::{
     DynamicFullLoopOperationPhysicalRefV2, DynamicFullLoopPhysicalInputViewV2,
@@ -103,6 +106,27 @@ impl PreparedDynamicLoopOperationProgramV2<'_> {
 
     pub(in crate::mir) const fn faults(&self) -> DynamicFullLoopFaultCutPointCatalogRefV2<'_> {
         self.demand.input.faults()
+    }
+
+    /// Project the already verified operation/call effects into the physical
+    /// function-header mask.  This is a boundary projection only: the
+    /// generated CoreMethod rows remain the semantic effect authority, while
+    /// the MIR signature receives the storage-level read capability it needs.
+    pub(in crate::mir) fn physical_function_effects(&self) -> Option<EffectMask> {
+        let mut external_calls = 0usize;
+        for operation in self.operation_rows() {
+            if operation.effect()
+                != super::super::coseal::DynamicFullLoopOperationEffectV2::ExternalCall
+            {
+                continue;
+            }
+            let core_method = operation.core_method()?;
+            if core_method.effect != CoreMethodEffectV1::PureRead {
+                return None;
+            }
+            external_calls += 1;
+        }
+        (external_calls == 2).then_some(EffectMask::READ)
     }
 }
 

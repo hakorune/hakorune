@@ -84,7 +84,7 @@ impl ParserBoxPostpassCoverageV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct CompletedParserPostpassV1 {
+pub(crate) struct CompletedParserPostpassV1 {
     program: CompletedParserProgramV1,
     metadata: ParserMetadata,
     explain: Option<BuildGateExplainReport>,
@@ -101,11 +101,19 @@ enum CompletedParserProgramV1 {
 }
 
 impl CompletedParserPostpassV1 {
-    pub(super) fn ast(&self) -> &ASTNode {
+    pub(crate) fn is_source_backed(&self) -> bool {
+        matches!(self.program, CompletedParserProgramV1::Initial(_))
+    }
+
+    pub(crate) fn ast(&self) -> &ASTNode {
         match &self.program {
             CompletedParserProgramV1::Initial(program) => program.ast(),
             CompletedParserProgramV1::Compatibility { ast, .. } => ast,
         }
+    }
+
+    pub(in crate::parser) fn program_cohort_for_admission(&self) -> ParserPostpassProgramCohortV1 {
+        self.box_coverage.program_cohort
     }
 
     pub(super) fn from_source_product(
@@ -195,7 +203,7 @@ impl CompletedParserPostpassV1 {
         })
     }
 
-    pub(super) fn into_ast(self) -> ASTNode {
+    pub(crate) fn into_ast(self) -> ASTNode {
         match self.program {
             CompletedParserProgramV1::Initial(program) => program.into_ast(),
             CompletedParserProgramV1::Compatibility { ast, .. } => ast,
@@ -205,6 +213,7 @@ impl CompletedParserPostpassV1 {
     pub(super) fn into_normal_callable_program(
         self,
         parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
+        source_authority: super::callable_parameter_source::ParserNormalProgramSourceAuthorityDispositionV1,
     ) -> Result<
         super::normal_callable_program_source::ParsedNormalCallableProgramV1,
         super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
@@ -214,9 +223,21 @@ impl CompletedParserPostpassV1 {
             ParsedNormalCallableProgramV1 as Program, PreparedNormalCallableProgramSourceV1,
         };
 
+        if source_authority.composite_source_is_ready()
+            && matches!(self.program, CompletedParserProgramV1::Compatibility { .. })
+        {
+            return Err(
+                super::normal_callable_program_source::NormalCallableParameterSourceRejectV1::CompositeSourceCompatibilityLoss,
+            );
+        }
+
         match self.program {
             CompletedParserProgramV1::Initial(program) => {
-                PreparedNormalCallableProgramSourceV1::issue(program, parameter_source)
+                PreparedNormalCallableProgramSourceV1::issue(
+                    program,
+                    parameter_source,
+                    source_authority,
+                )
                     .map(Program::SourceBacked)
             }
             CompletedParserProgramV1::Compatibility { ast, .. } => {

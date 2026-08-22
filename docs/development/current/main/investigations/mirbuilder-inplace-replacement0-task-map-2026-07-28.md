@@ -1,6 +1,6 @@
 ---
 Status: accepted execution task map
-Date: 2026-07-28
+Date: 2026-08-16
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Historical first executable replacement row (closed; not current):
   - CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0
@@ -12,10 +12,12 @@ Final convergence pointer (serial, after Loop retirement):
   - docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
-Current execution row:
-  - Builder-free `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0`
-Current execution task:
-  - docs/development/current/main/investigations/loop-recipe-operation-physical-demand-p0-task-2026-08-07.md
+Current Loop product-frontier mirror (non-authoritative):
+  - `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0` (caller-zero T2 BoxCount)
+Resume gate:
+  - always resolve `current_execution_row` and `latest_card_path` from
+    `CURRENT_STATE.toml`; this frontmatter is only a product-frontier summary
+    and cannot resume a retired or parked row.
 Supersedes scheduling authority of:
   - PRELOOP-STAGEB-SELECTED-CANDIDATE-SESSION0-prime-r1
   - OWN-GRAM-REJECT0-HAKO0-S0
@@ -61,32 +63,86 @@ P0 = parity after that switch
 ## Active Loop physicalization order
 
 This is the compact order for the current Loop frontier. It is subordinate to
-`CURRENT_STATE.toml`; it exists so the task map cannot silently fall back to
-the retired prepare-only row.
+`CURRENT_STATE.toml`; it is parked while another active card is selected and
+must not silently fall back to the retired prepare-only row or resume before an
+explicit pointer retarget.
 
 ```text
-1. LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0
-   full Callable/G0 demand + prepare_all; Builder effect zero
-2. LOOP-RECIPE-PHYSICALIZER-MODULE-SPLIT-R0
-   flat file -> one directory facade; delete old flat module, behavior unchanged
-3. LOOP-RECIPE-PHYSICAL-BLOCK-RECEIPT-P0
-   canonical logical-block -> physical-block receipt
-4. LOOP-RECIPE-OPERATION-EMITTER-CONST-S0
-   private ConstI64 leaf canary; exact placement/discard/fresh reuse
-5. LOOP-RECIPE-OPERATION-EMITTER-READ-S1
-6. LOOP-RECIPE-OPERATION-EMITTER-BINARY-S2
-7. LOOP-RECIPE-OPERATION-EMITTER-COMPARE-S3
-8. LOOP-RECIPE-OPERATION-EMITTER-WRITE-S4
-9. LOOP-RECIPE-OPERATION-PROGRAM-CALLABLE-P0
-   all seven Callable operations exactly once, then continuation
-10. LOOP-RECIPE-OPERATION-PROGRAM-GENERIC-G0-P0
-    all fifteen G0 operations plus item-3 carrier seed
-11. production operation physicalizer selection
-    one selector, no retry/fallback/reselection
-12. M8/M9 all-ingress Recipe coverage
-13. M10b activation, then M11/M12 legacy retirement
-14. REPO-FINAL-CONVERGENCE-AUDIT0-G0
+1--5. CLOSED: demand, module split, block receipt, Const, Read
+6--8. CLOSED-BY-INTEGRATION: Binary, Compare, Write through the common
+      five-family dispatcher and its exact receipt/negative evidence
+9. CLOSED caller-zero: seven-row Callable program through DraftSeal
+10. CLOSED caller-zero: fifteen-row Generic G0 program plus carrier
+11. CLOSED caller-zero semantic cohort: S6C source/Facts/Recipe/logical output,
+    prephysical ingress, the normative String/Text law, and the TextEq site
+    contract are issued without Builder or a production caller
+12. CLOSED caller-zero: `CALLABLE-PHYSICAL-HEADER-TRANSPORT-R0` adds the
+    explicit source result annotation and transports supported formal rows,
+    source-backed result/header, and Completion/return proof through one
+    branded package/Port cohort; no runtime wire or physical route
+13. CLOSED design: `CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-D0` accepted one
+    generation-checked TextFormalBorrowV1 owner; its caller-zero wire/validator
+    implementation is now closed and still has no production caller
+14. CLOSED caller-zero I0: `CALLABLE-PHYSICAL-TEXT-PARAMETER-ABI-I0` added only
+    the Rust validator, fixed C status projection, stale-generation and exact
+    Text negatives; S6C, TextEq, Builder, and session callers remain zero
+15. CLOSED child BoxShape: `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-D0` names
+    `issue_normal_callable_semantic_package_v1` as the sole pre-install issuer
+    of a total same-cohort S6C child and one move-only Completion seed; the Port
+    only verifies the issued role/identity and takes/lends that child exactly
+    once. Caller-supplied Facts/Recipe/slot/fixture and Port-side
+    reclassification are forbidden.
+16. CLOSED caller-zero I0: `LOOP-S6C-INSTALLED-CHILD-COMPOSITION-I0`
+    implemented the package-private seed/child models, issuer wiring, and
+    focused negatives; production caller, TextFormal mapping, V2 envelope,
+    Builder/session, fallback, and retry remain zero.
+17. CLOSED caller-zero runtime substrate:
+    `TEXT-FORMAL-CALL-LEASE-RUNTIME-I0` atomically validates/pins one pair per
+    ExactText formal occurrence, defers retirement, and finishes through one
+    move-only lease-set; compiler, C entry, session, and production callers are
+    still zero.
+18. CURRENT caller-zero BoxCount:
+    `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0` implements the accepted
+    Completion-independent package mapping: one logical ExactText
+    ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes, with
+    logical `/N` separate from physical lane count. It transports the same row
+    through one combined Installed S6C loan and opens no call edge or residence.
+19a. OPEN route-free common-program branch after 18:
+    `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` then closes the neutral exact
+    disjoint `13 operations + If + Exit = 15 placements` envelope, followed by
+    semantic-program co-seal,
+    JoinSig transfer, bound segment input, boundary cleanup,
+    `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then caller-zero
+    `LOOP-S6C-COMMON-V2-PRESESSION-I0`; detached ingress/header/Completion,
+    route policy, and session authority remain zero.
+19b. OPEN Text residence/execution branch after 18:
+    `TEXT-FORMAL-PINNED-RESIDENCE-D0/I0` closes exact call edge, pair-based
+    pinned UTF-8 roots, Canonical composite adoption, and Completion-backed
+    finish coverage; `LOOP-TEXT-SLICE-EXECUTION-D0/I0` then adds CP-correct
+    slices, one generic sequential code-point cursor, and inline byte equality.
+    Root/token separation, raw ptr/len escape, and per-iteration registry entry
+    are `NoSafeSlice`.
+19c. OPEN static route-admission branch after exact/meso/whole evidence:
+    strict scalar probe, pinned-slice/cursor probes, tracked route decision,
+    canonical Trap owner, then only the selected route's lifecycle demand;
+    runtime fallback/retry remains zero.
+20. OPEN fan-in structural/session coverage: the common envelope, selected
+    route, and admitted residence meet after Always, If, Exit, then the first
+    common V2 physical session under `CanonicalSsaFunctionSessionV2`
+21. OPEN gated production selection: pre-cutover authority proof, then M10b
+    activation and M11/M12 legacy retirement
+22. PARKED post-cutover convergence: main integration, whole-builder typed
+    ingress, common finish convergence, warning/allow census, and physical
+    docs/module cleanup (see the current physical-header card's parked rows)
+23. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
 ```
+
+The selected-Dynamic `skip_while/4` lane is a reusable authority/physical
+precedent, not S6C source truth: it owns `substring/indexOf`, while forward
+`ScanWithInit` requires its own exact `length/substring/TextEq` source-bound
+relations. The old live general-Loop edge remains one registry/legacy route;
+portable/common production selection remains zero until the current header
+cohort and later common/session rows close.
 
 Decision B forbids taking one operation from a full demand. The current demand
 row and every later leaf row have one acceptance claim each. No current row

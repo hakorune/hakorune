@@ -7,6 +7,10 @@
 - `string_plan.rs` contains the transient text carrier (`TextPlan` / `TextPiece`) and plan constructors.
 - `string_view.rs` contains `StringView` / `StringSpan`, borrowed substring placement, and span resolution.
 - `string_span_cache.rs` contains TLS span-cache storage/promotion helpers.
+- `dynamic_v2_text_scan.rs` contains the work-branch-only strict CodePoint
+  `hako.text.scan@1` entries. It uses the shared CallOut wire and the root
+  runtime's one-shot lease owner; it must not call the generic String surface,
+  VM, or LLVM dispatch until the complete I0 activation is cut over.
 
 ## Re-export Inventory
 
@@ -20,5 +24,28 @@ Treat them as public symbol-family exports, not as ownership boundaries.
 - Internal string support modules such as `string_route_policy`,
   `string_search`, `string_plan`, `string_view`, and `string_span_cache`
   stay module imports only; they do not define crate-root ABI ownership.
+- `dynamic_v2_text_scan` is also kept as an internal module import. Its two
+  `export_name` symbols are a strict AOT checkpoint, not a selected production
+  caller or a second provider registry.
+- `text_formal.rs` owns the fixed pair validator plus the private
+  caller-zero residence-frame `enter`/`finish_or_abort` projections declared in
+  `include/nyrt_text_formal_residence_v1.h`. Both entries are no-unwind C
+  boundaries. Enter returns its exhaustive status; Finish returns `void` only
+  after status zero and every nonzero status terminates inside the runtime.
+  Finish itself is therefore not globally `noreturn`. The frame is a runtime
+  transport surface only; it does not own Text semantics, source origin, or
+  route selection.
+- `promotion_test_support.rs` is compiled only with the default-off
+  `promotion-test-support` feature. It issues text/non-Text test wires with
+  their generation inside the registry allocation transaction so offline
+  link/run evidence never guesses a generation from a raw handle. Its symbols
+  are absent from production headers, shims, and default NyRT builds.
+- Fresh text results receive their handle and slot-generation identity in one
+  root host-handle owner transition before lease-token admission; the strict
+  export never performs a raw-handle rollback or relookup.
+- `ffi::dynamic_v2_lease` owns the single neutral C ABI projection for
+  `CheckedCallOutEnd`. It maps fixed-width status values to the existing
+  `nyash_rust::runtime::dynamic_v2_lease` owner; it does not own a table,
+  generation policy, handle release, or semantic Fault.
 - Do not replace a glob export with explicit symbols until that family has a
   wiring test or inventory note that pins the exported symbol set.

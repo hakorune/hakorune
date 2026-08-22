@@ -61,7 +61,17 @@ pub fn check_merge_uses_with(
     def_block: &HashMap<ValueId, BasicBlockId>,
     dominators: &utils::DominatorTree,
 ) -> Result<(), Vec<VerificationError>> {
-    if crate::config::env::verify_allow_no_phi() {
+    check_merge_uses_with_policy(function, preds, def_block, dominators, true)
+}
+
+pub fn check_merge_uses_with_policy(
+    function: &MirFunction,
+    preds: &HashMap<BasicBlockId, Vec<BasicBlockId>>,
+    def_block: &HashMap<ValueId, BasicBlockId>,
+    dominators: &utils::DominatorTree,
+    respect_ambient_skip: bool,
+) -> Result<(), Vec<VerificationError>> {
+    if respect_ambient_skip && crate::config::env::verify_allow_no_phi() {
         return Ok(());
     }
     let mut errors = Vec::new();

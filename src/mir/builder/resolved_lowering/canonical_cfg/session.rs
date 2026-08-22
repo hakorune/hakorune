@@ -1,6 +1,16 @@
 use super::error::{CanonicalCfgBlockRoleV1, CanonicalCfgErrorV1};
+use super::open_instruction_target::{
+    CanonicalCfgCreationStateV1, CanonicalOpenInstructionTargetErrorV1,
+    VerifiedCanonicalOpenInstructionTargetV1,
+};
 use super::predecessors::derive_and_verify_predecessors;
 use crate::mir::builder::MirBuilder;
+use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
+use crate::mir::pinned_text_residence_lifecycle::{
+    PinnedTextResidenceFinishCapabilityV1, PreparedPinnedTextResidenceLifecycleV1,
+    TextFormalResidenceIdV1,
+};
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::{BasicBlock, BasicBlockId, MirFunction, MirInstruction, ValueId};
 use std::collections::BTreeMap;
 
@@ -47,6 +57,7 @@ impl VerifiedCanonicalCfgV1 {
 #[derive(Debug, Default)]
 pub(in crate::mir::builder) struct CanonicalCfgSessionV1 {
     sealed: BTreeMap<BasicBlockId, VerifiedPredecessorsV1>,
+    creation: CanonicalCfgCreationStateV1,
 }
 
 impl CanonicalCfgSessionV1 {
@@ -54,8 +65,17 @@ impl CanonicalCfgSessionV1 {
         Self::default()
     }
 
+    pub(in crate::mir::builder::resolved_lowering) fn new_for_owner(
+        owner: FunctionOwnerIdV1,
+    ) -> Self {
+        Self {
+            sealed: BTreeMap::new(),
+            creation: CanonicalCfgCreationStateV1::new_for_owner(owner),
+        }
+    }
+
     pub(in crate::mir::builder) fn create_block(
-        &self,
+        &mut self,
         function: &mut MirFunction,
         block: BasicBlockId,
     ) -> Result<(), CanonicalCfgErrorV1> {
@@ -63,7 +83,19 @@ impl CanonicalCfgSessionV1 {
             return Err(CanonicalCfgErrorV1::BlockAlreadyExists { block });
         }
         function.add_block(BasicBlock::new(block));
+        self.creation.record_created(block);
         Ok(())
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn prepare_created_open_instruction_target(
+        &self,
+        function: &MirFunction,
+        owner: FunctionOwnerIdV1,
+        block: BasicBlockId,
+    ) -> Result<VerifiedCanonicalOpenInstructionTargetV1, CanonicalOpenInstructionTargetErrorV1>
+    {
+        self.creation
+            .prepare_open_target(function, self.sealed.contains_key(&block), owner, block)
     }
 
     pub(in crate::mir::builder) fn select_block(
@@ -157,6 +189,179 @@ impl CanonicalCfgSessionV1 {
             .get_block_mut(source)
             .expect("return source was checked")
             .set_terminator(MirInstruction::Return { value });
+        Ok(())
+    }
+
+    /// Sole canonical CFG writer for the neutral CheckedCallOut terminator.
+    /// The function-local site plan is the authority for effect/ABI/shape;
+    /// this method only installs the terminator and its two CFG edges.
+    pub(in crate::mir::builder) fn emit_checked_callout(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        site_id: CheckedCallOutSiteIdV1,
+        receiver: ValueId,
+        arguments: Vec<ValueId>,
+        normal_landing: BasicBlockId,
+        fault_landing: BasicBlockId,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        if source == normal_landing || source == fault_landing {
+            return Err(CanonicalCfgErrorV1::CheckedCallOut(
+                "source and landing blocks must be distinct".to_owned(),
+            ));
+        }
+        let effects = function
+            .metadata
+            .checked_callout_plan(site_id)
+            .ok_or_else(|| {
+                CanonicalCfgErrorV1::CheckedCallOut(format!(
+                    "missing function-local site plan for {site_id:?}"
+                ))
+            })?
+            .effects();
+        self.preflight_edge(function, source, &[normal_landing, fault_landing])?;
+        function
+            .metadata
+            .checked_callout_plan(site_id)
+            .expect("site plan remained present")
+            .validate_instruction(site_id, normal_landing, fault_landing, effects)
+            .map_err(|error| CanonicalCfgErrorV1::CheckedCallOut(format!("{error:?}")))?;
+        function
+            .get_block_mut(source)
+            .expect("source was checked")
+            .set_terminator(MirInstruction::CheckedCallOut {
+                site_id,
+                receiver,
+                arguments,
+                normal_landing,
+                fault_landing,
+                effects,
+            });
+        for target in [normal_landing, fault_landing] {
+            function
+                .get_block_mut(target)
+                .expect("target was checked")
+                .add_predecessor(source);
+        }
+        Ok(())
+    }
+
+    /// Sole canonical CFG writer for the physical pinned-Text Residence
+    /// entry.  The affine carrier has already co-sealed the function-local
+    /// frame/plan provenance; this method only installs its two edges.
+    pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_enter(
+        &mut self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        carrier: PreparedPinnedTextResidenceLifecycleV1,
+    ) -> Result<PinnedTextResidenceFinishCapabilityV1, CanonicalCfgErrorV1> {
+        let (plan, residence, normal_landing, trap_landing) = carrier.into_parts();
+        if source == normal_landing || source == trap_landing {
+            return Err(CanonicalCfgErrorV1::PinnedTextResidence(
+                "source and landing blocks must be distinct".to_owned(),
+            ));
+        }
+        self.preflight_edge(function, source, &[normal_landing, trap_landing])?;
+        let trap_block = function
+            .get_block(trap_landing)
+            .expect("Residence trap target was checked");
+        if !trap_block.instructions.is_empty()
+            || trap_block.terminator.is_some()
+            || !trap_block.predecessors.is_empty()
+            || trap_block.is_sealed()
+            || self.sealed.contains_key(&trap_landing)
+        {
+            return Err(CanonicalCfgErrorV1::PinnedTextResidence(
+                "Residence trap landing must be empty, unterminated, unsealed, and predecessor-free"
+                    .to_owned(),
+            ));
+        }
+        function
+            .get_block_mut(source)
+            .expect("Residence source was checked")
+            .set_terminator(MirInstruction::PinnedTextResidenceEnter {
+                plan,
+                normal_landing,
+                trap_landing,
+            });
+        for target in [normal_landing, trap_landing] {
+            function
+                .get_block_mut(target)
+                .expect("Residence target was checked")
+                .add_predecessor(source);
+        }
+        function
+            .get_block_mut(trap_landing)
+            .expect("Residence trap target was checked")
+            .set_terminator(MirInstruction::PinnedTextResidenceTrap { plan });
+        self.seal_block(function, trap_landing)?;
+        Ok(PinnedTextResidenceFinishCapabilityV1::from_parts(residence))
+    }
+
+    /// Sole canonical instruction writer for the success-only Residence
+    /// finish marker.  The caller has already validated the explicit exit
+    /// set; this writer only requires the selected block to be unterminated.
+    pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_finish(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        residence: TextFormalResidenceIdV1,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        self.preflight_terminator(function, source)?;
+        function
+            .get_block_mut(source)
+            .expect("Residence normal landing was checked")
+            .add_instruction(MirInstruction::PinnedTextResidenceFinish { residence });
+        Ok(())
+    }
+
+    /// Sole canonical writer for a success-only Residence marker on the
+    /// detached DraftSeal image. The image has already passed the live CFG
+    /// close, so a sealed block is expected; only the absence of a terminator
+    /// and the Residence marker itself are admitted here. No second CFG
+    /// session or direct MIR writer is allowed to place this instruction.
+    pub(in crate::mir::builder::resolved_lowering) fn emit_pinned_text_residence_finish_detached(
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        residence: TextFormalResidenceIdV1,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        super::pinned_text_finish::emit_detached(function, source, residence)
+    }
+
+    /// Sole canonical CFG writer for a checked-call Fault landing.  Fault is
+    /// a terminal with no successor; it cannot silently rejoin `After` or a
+    /// shared normal cleanup block.
+    pub(in crate::mir::builder) fn emit_checked_callout_fault(
+        &self,
+        function: &mut MirFunction,
+        source: BasicBlockId,
+        site_id: CheckedCallOutSiteIdV1,
+    ) -> Result<(), CanonicalCfgErrorV1> {
+        self.preflight_terminator(function, source)?;
+        if function.metadata.checked_callout_plan(site_id).is_none() {
+            return Err(CanonicalCfgErrorV1::CheckedCallOut(
+                "checked callout Fault has no admitted site plan".to_owned(),
+            ));
+        }
+        let fault_target_matches = function.blocks.values().any(|block| {
+            matches!(
+                block.terminator.as_ref(),
+                Some(MirInstruction::CheckedCallOut {
+                    site_id: actual_site,
+                    fault_landing,
+                    ..
+                }) if *actual_site == site_id && *fault_landing == source
+            )
+        });
+        if !fault_target_matches {
+            return Err(CanonicalCfgErrorV1::CheckedCallOut(
+                "checked callout Fault source is not the admitted site landing".to_owned(),
+            ));
+        }
+        let block = function
+            .get_block_mut(source)
+            .expect("Fault source was checked");
+        block.set_terminator(MirInstruction::CheckedCallOutFault { site_id });
         Ok(())
     }
 
@@ -294,5 +499,247 @@ impl CanonicalCfgSessionV1 {
             return Err(CanonicalCfgErrorV1::SourceAfterSeal { source });
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::checked_callout::{
+        CheckedCallOutEntryIdV1, CheckedCallOutNormalShapeV1, CheckedCallOutSiteIdV1,
+        CheckedCallOutSitePlanV1,
+    };
+    use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1;
+    use crate::mir::function::{FunctionSignature, MirFunction};
+    use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
+    use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
+    use crate::mir::pinned_text_residence_lifecycle::PreparedPinnedTextResidenceLifecycleV1;
+    use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
+    use crate::mir::{EffectMask, MirType};
+
+    fn function() -> MirFunction {
+        MirFunction::new(
+            FunctionSignature {
+                name: "checked_callout_test".to_owned(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::READ,
+            },
+            BasicBlockId::new(0),
+        )
+    }
+
+    #[test]
+    fn checked_callout_is_the_only_two_edge_cfg_write() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        function
+            .metadata
+            .admit_checked_callout_plan(CheckedCallOutSitePlanV1::from_test(
+                CheckedCallOutSiteIdV1::from_test(6),
+                CheckedCallOutEntryIdV1::from_test(17),
+                CheckedCallOutNormalShapeV1::EndAuthorizedHandle {
+                    lease_slot: crate::mir::checked_callout::CheckedCallOutLeaseSlotIdV1::from_test(
+                        1,
+                    ),
+                },
+                EffectMask::READ,
+                ModuleInvocationBrandV1::legacy_test(),
+            ))
+            .expect("plan admission");
+        CanonicalCfgSessionV1::new()
+            .emit_checked_callout(
+                &mut function,
+                BasicBlockId::new(0),
+                CheckedCallOutSiteIdV1::from_test(6),
+                ValueId::new(0),
+                vec![ValueId::new(1), ValueId::new(2)],
+                BasicBlockId::new(1),
+                BasicBlockId::new(2),
+            )
+            .expect("checked callout");
+        let source = function.get_block(BasicBlockId::new(0)).unwrap();
+        assert_eq!(source.successors.len(), 2);
+        assert!(matches!(
+            source.terminator,
+            Some(MirInstruction::CheckedCallOut { .. })
+        ));
+        assert_eq!(source.terminator.as_ref().unwrap().dst_value(), None);
+    }
+
+    #[test]
+    fn checked_callout_rejects_same_normal_and_fault_landing() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function
+            .metadata
+            .admit_checked_callout_plan(CheckedCallOutSitePlanV1::from_test(
+                CheckedCallOutSiteIdV1::from_test(7),
+                CheckedCallOutEntryIdV1::from_test(18),
+                CheckedCallOutNormalShapeV1::ImmediateI64,
+                EffectMask::READ,
+                ModuleInvocationBrandV1::legacy_test(),
+            ))
+            .expect("plan admission");
+        let error = CanonicalCfgSessionV1::new().emit_checked_callout(
+            &mut function,
+            BasicBlockId::new(0),
+            CheckedCallOutSiteIdV1::from_test(7),
+            ValueId::new(0),
+            vec![],
+            BasicBlockId::new(1),
+            BasicBlockId::new(1),
+        );
+        assert!(matches!(error, Err(CanonicalCfgErrorV1::CheckedCallOut(_))));
+        assert!(function
+            .get_block(BasicBlockId::new(0))
+            .unwrap()
+            .terminator
+            .is_none());
+    }
+
+    fn residence_carrier(
+        owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
+        normal: BasicBlockId,
+        trap: BasicBlockId,
+    ) -> PreparedPinnedTextResidenceLifecycleV1 {
+        let plans = PinnedTextAccessPlanTableV1::new(17);
+        let frame_contract = PinnedTextBackendFrameContractV1::from_test(owner, 17, 1);
+        let frame = frame_contract.borrow();
+        PreparedPinnedTextResidenceLifecycleV1::issue_from_frame(owner, &plans, frame, normal, trap)
+            .expect("test Residence carrier")
+    }
+
+    #[test]
+    fn pinned_text_residence_enter_and_finish_are_canonical_cfg_writes() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("compilation brand")
+            .issue()
+            .expect("function owner");
+        let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
+        let mut cfg = CanonicalCfgSessionV1::new();
+        let capability = cfg
+            .emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier)
+            .expect("Enter");
+        let source = function.get_block(BasicBlockId::new(0)).unwrap();
+        assert!(matches!(
+            source.terminator,
+            Some(MirInstruction::PinnedTextResidenceEnter { .. })
+        ));
+        assert_eq!(source.successors.len(), 2);
+        assert!(source.effects.contains(crate::mir::Effect::Control));
+        assert!(source.effects.contains(crate::mir::Effect::Barrier));
+        assert!(source.effects.contains(crate::mir::Effect::WriteHeap));
+
+        let trap = function.get_block(BasicBlockId::new(2)).unwrap();
+        assert!(matches!(
+            trap.terminator,
+            Some(MirInstruction::PinnedTextResidenceTrap { .. })
+        ));
+        assert!(trap.instructions.is_empty());
+        assert!(trap.successors.is_empty());
+        assert!(trap.is_sealed());
+        assert!(trap.effects.contains(crate::mir::Effect::Control));
+        assert!(trap.effects.contains(crate::mir::Effect::Panic));
+
+        cfg.emit_pinned_text_residence_finish(
+            &mut function,
+            BasicBlockId::new(1),
+            capability.into_residence(),
+        )
+        .expect("Finish");
+        let normal = function.get_block(BasicBlockId::new(1)).unwrap();
+        assert!(matches!(
+            normal.instructions.as_slice(),
+            [MirInstruction::PinnedTextResidenceFinish { .. }]
+        ));
+        assert!(normal.effects.contains(crate::mir::Effect::Panic));
+        assert!(normal.effects.contains(crate::mir::Effect::Barrier));
+    }
+
+    #[test]
+    fn pinned_text_residence_rejects_return_before_finish() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("compilation brand")
+            .issue()
+            .expect("function owner");
+        let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
+        let mut cfg = CanonicalCfgSessionV1::new();
+        let capability = cfg
+            .emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier)
+            .expect("Enter");
+        cfg.emit_return(&mut function, BasicBlockId::new(1), Some(ValueId::new(9)))
+            .expect("Return");
+        assert!(matches!(
+            cfg.emit_pinned_text_residence_finish(
+                &mut function,
+                BasicBlockId::new(1),
+                capability.into_residence(),
+            ),
+            Err(CanonicalCfgErrorV1::SourceAlreadyTerminated { .. })
+        ));
+    }
+
+    #[test]
+    fn pinned_text_residence_rejects_nonempty_trap_before_cfg_mutation() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        function
+            .get_block_mut(BasicBlockId::new(2))
+            .unwrap()
+            .add_instruction(MirInstruction::KeepAlive {
+                values: vec![ValueId::new(9)],
+            });
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("compilation brand")
+            .issue()
+            .expect("function owner");
+        let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
+        let mut cfg = CanonicalCfgSessionV1::new();
+        let result =
+            cfg.emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier);
+        assert!(matches!(
+            result,
+            Err(CanonicalCfgErrorV1::PinnedTextResidence(_))
+        ));
+        assert!(function
+            .get_block(BasicBlockId::new(0))
+            .unwrap()
+            .terminator
+            .is_none());
+        assert!(function
+            .get_block(BasicBlockId::new(2))
+            .unwrap()
+            .terminator
+            .is_none());
+    }
+
+    #[test]
+    fn pinned_text_residence_trap_is_sealed_against_rejoin_edges() {
+        let mut function = function();
+        function.add_block(BasicBlock::new(BasicBlockId::new(1)));
+        function.add_block(BasicBlock::new(BasicBlockId::new(2)));
+        let owner = FunctionOwnerIssuerV1::new_for_compilation()
+            .expect("compilation brand")
+            .issue()
+            .expect("function owner");
+        let carrier = residence_carrier(owner, BasicBlockId::new(1), BasicBlockId::new(2));
+        let mut cfg = CanonicalCfgSessionV1::new();
+        let _capability = cfg
+            .emit_pinned_text_residence_enter(&mut function, BasicBlockId::new(0), carrier)
+            .expect("Enter and Trap");
+        let result = cfg.emit_jump(&mut function, BasicBlockId::new(1), BasicBlockId::new(2));
+        assert!(matches!(
+            result,
+            Err(CanonicalCfgErrorV1::EdgeAfterSeal { .. })
+        ));
     }
 }

@@ -8,7 +8,10 @@ use crate::mir::exact_numeric_value_facts::{ExactNumericReturnFact, ExactNumeric
 use crate::mir::function::ExactNumericRuntimeCheckContractKind;
 use crate::mir::string_corridor::StringCorridorOp;
 use crate::mir::string_corridor_placement::StringCorridorCandidateKind;
-use crate::mir::{MirInstruction, MirPrinter, MirType};
+use crate::mir::{
+    BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
+    MirPrinter, MirType,
+};
 use crate::parser::NyashParser;
 
 #[test]
@@ -31,6 +34,92 @@ fn current_canonical_and_legacy_finish_schedules_keep_legacy_rc() {
         MirFinishScheduleV1::Legacy.legacy_rc_insertion(),
         LegacyRcInsertionScheduleV1::Run
     );
+}
+
+#[test]
+fn selected_dynamic_finish_schedule_skips_legacy_postseal_mutators() {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "ParserScanLoopBox.skip_while/4".to_owned(),
+            params: vec![MirType::Unknown; 4],
+            return_type: MirType::Integer,
+            effects: EffectMask::READ,
+        },
+        BasicBlockId::new(0),
+    );
+    function
+        .metadata
+        .install_a_prime_i64_physical_receipt_for_test(crate::mir::test_support::a_prime_receipt())
+        .expect("receipt install");
+    function
+        .metadata
+        .install_dynamic_v2_aot_metadata_for_test(
+            crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(
+            ),
+        )
+        .expect("AOT metadata install");
+
+    let mut module = MirModule::new("selected".to_owned());
+    module.add_function(function);
+
+    let schedule = super::finish_schedule_for_normal_module(&module)
+        .expect("selected pair should select the closed schedule");
+    assert_eq!(schedule, MirFinishScheduleV1::SelectedDynamic);
+    assert_eq!(
+        schedule.legacy_rc_insertion(),
+        LegacyRcInsertionScheduleV1::Skip
+    );
+}
+
+#[test]
+fn selected_dynamic_finish_schedule_rejects_scrubbed_or_partial_metadata() {
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "selected/0".to_owned(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    function
+        .metadata
+        .install_a_prime_i64_physical_receipt_for_test(crate::mir::test_support::a_prime_receipt())
+        .expect("receipt install");
+    let mut partial = MirModule::new("partial".to_owned());
+    partial.add_function(function);
+    assert!(super::finish_schedule_for_normal_module(&partial)
+        .unwrap_err()
+        .contains("partial"));
+
+    let mut function = MirFunction::new(
+        FunctionSignature {
+            name: "selected/0".to_owned(),
+            params: vec![],
+            return_type: MirType::Void,
+            effects: EffectMask::PURE,
+        },
+        BasicBlockId::new(0),
+    );
+    function
+        .metadata
+        .install_a_prime_i64_physical_receipt_for_test(crate::mir::test_support::a_prime_receipt())
+        .expect("receipt install");
+    function
+        .metadata
+        .install_dynamic_v2_aot_metadata_for_test(
+            crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1::for_test(
+            ),
+        )
+        .expect("AOT metadata install");
+    let mut scrubbed_function = function.clone();
+    scrubbed_function.signature.name = "scrubbed/0".to_owned();
+    let mut scrubbed = MirModule::new("scrubbed".to_owned());
+    scrubbed.add_function(function);
+    scrubbed.add_function(scrubbed_function);
+    assert!(super::finish_schedule_for_normal_module(&scrubbed)
+        .unwrap_err()
+        .contains("scrubbed"));
 }
 
 #[test]

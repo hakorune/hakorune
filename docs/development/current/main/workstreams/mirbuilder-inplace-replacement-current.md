@@ -29,387 +29,46 @@ Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
 diffs and proof transcripts; this card keeps the live task and boundaries.
 
-## Callable single-loop source ledger, SyntaxFacts, and MAP S1
+## Parked follow-ups from external architecture review
 
-`GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-LEDGER-S1`, `RESOLVER-SYNTAX-FACTS-S1`,
-and caller-zero `GENERIC-CALLABLE-SINGLE-LOOP-SOURCE-MAP-S1` are closed. MAP
-co-seals resolver source/frame/Scope/Region plus the selected `0`/`1`/`Less`/`Add`
-policy. The 19 legacy route labels are ingress coverage, not Recipe kinds;
-this callable maps into the same recursive `LoopRecipeV1`.
-`RECIPE-COSEAL-I0-R0` and `CANONICAL-FUNCTION-FINISH-TERMINAL-R0` are closed; Loop continuation/Tail remain separate, and the one non-V2 `ReadyFunctionDraftSealV1::new` caller remains named compatibility debt.
-Static-call fixture design is accepted; `CALLABLE-SOURCE-SHAPE-THIN0`,
-`CALLABLE-STATIC-PREFIX-S0`, `CALLABLE-STATIC-PREFIX-MAP-S1`, and
-`CALLABLE-STATIC-PREFIX-P0` are closed: resolver-backed `int_to_str -> to_i64`
-proves FreeStatic, same-brand different-owner mapping, foreign-brand rejection,
-and declaration-derived Prepared ABI, while MethodCall remains typed negative.
-The common physicalizer/session design stop is closed with a resolver-backed
-variable-only i64 Prelude argument receipt contract. The caller-zero
-`LOOP-PRELUDE-ARGUMENT-RECEIPT-P0` and the test-only
-`LOOP-RECIPE-RECURSIVE-PHYSICALIZER-P0` topology/After canary are closed;
-`LOOP-RECIPE-OPERATION-EFFECT-PLAN-D0` is now accepted and its ownership,
-coverage, Core move, and P0 boundary ordering are fixed. Passive S0, Callable
-adapter S0, Generic G0 anchor S0, and cross-profile parity S0 are closed. The
-reviewed Decision B separates one complete move-only demand/preflight from the
-private leaf emitter and forbids extracting a single operation from the full
-product. `LOOP-RECIPE-OPERATION-PHYSICAL-DEMAND-P0` is now landed as a Builder-free full-demand receipt: neutral resolver context and After continuation move exactly once, Generic G0 Scope/Region comes from the window lease, and Callable/G0 `prepare_all` covers seven/fifteen rows. Block mapping, operation emission, physical/production activation, and retirement remain closed.
-Const S0 and bounded ReadBinding I0 are closed (complete projection, canonical SSA receipt, exact placement, entry/no-extraction evidence). The first bounded `CALLABLE-LOOP-PHYSICAL-CANARY-P0` preparation slice is green: Prepared move handoff, complete Write projection, and explicit-block Const/Binary/Compare leaf bridges. Caller-zero Prelude, After, Tail/Completion, DraftSeal are closed.
-`CALLABLE-LOOP-PRODUCTION-EDGE-D0`/`ADMISSION-D0` are `NoSafeSlice`.
-`CALLABLE-LOOP-PRODUCTION-SOURCE-FACTS-BRIDGE-D0` is accepted without a
-new Bridge owner: resolver ledger plus neutral SyntaxFacts/SourceMap are the
-target. S0-A source navigation is green and S0-B compiles neutral SyntaxFacts/SourceMap issuers in production scope while keeping fixture
-constructors and mutation helpers test-only. S0-C connects the issuer entry,
-exact resolver parity, and the bounded negative matrix; caller-zero/current
-receipt audit is green. Logical issuer D0/S0 is now closed: the
-production-scope issuer consumes the source map once, reuses the existing
-Recipe/JoinSig/After/Core owners, and keeps the profile shape separate from
-the test-only parity wrapper. Prepared issuance, selection, Generic G0,
-retry/fallback, and legacy retirement remain closed; the next row is the
-prepared ingress design stop.
-## Root-neutral semantic foundation
+The review supplied on 2026-08-18 was based on old HEAD `8237906da0`; the
+current A0 StringEquals/1 DesignOnly rejection is already landed at the live
+HEAD. It does not reopen A or change the B blocker. Five bounded follow-up tasks
+are recorded for later selection only:
 
-Closed. One private traversal is the Function/Lambda and selected-Script lexical authority. Function/Lambda use dense roots; Script uses the sparse
-`ProgramBody(original ordinal)` window. The former Script visible-name map,
-recursive mini-resolver, manual Local/Variable facts, and path reconstruction
-are deleted. Complete issues one forest/projection only after total coverage;
-Deferred issues neither and preserves RootLower diagnostics once. Git history
-and the shared guard own the detailed proof.
+| task | evidence now | acceptance when selected |
+| --- | --- | --- |
+| `LOOP-GENERIC-PREFLIGHT-CONSUME-SHAPE-D0` | `PreparedGenericG0PhysicalEmitterSessionPreflightV1` has borrowed getters plus `take_layout`/control extraction; canonical consumer is test-only and production callers are 0 | choose one opaque session consumer or typed duplicate rejection; no re-pairing and no Generic production switch |
+| `LOOP-CALLABLE-OPAQUE-DEMAND-CONSUME-D0` | `PreparedCallableOperationDemandV1::consume<R>` has two test-only direct callsites; wrapper `into_parts` has no caller | census callers, then hide tuple-like escape behind one private/opaque aggregate; preserve source co-seal |
+| `LOOP-COMMON-DISPATCHER-ENTRY-CENSUS-D0` | target-explicit and block-receipt dispatcher functions share leaf emitters; target path is mechanical, block path has tests | name one keeper, classify test-only callers, and retire/restrict duplicates at production cutover |
+| `STATE-PARSER-INTEGRITY-I0` | shell pointer guard was green while standard `tomllib` rejected missing commas; the array is now repaired | add standard-parser validation to the reusable state guard and make parse failure blocking |
+| `CURRENT-POINTER-COMPACTNESS-D0` | active lane drift was corrected; pointer is 115 lines and still contains bounded status/tail | only if selected, compact current pointers without copying history or changing semantic authority |
 
-### Recovered WIP order
+All four are `design_stop` follow-ups. They may not add a `Verified*`/
+`Prepared*` receipt, production selector, fallback/retry, or physical effect
+until the current TextEq B/C boundary is explicitly closed.
+
+## Closed chronology (archived)
+
+The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
+Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
+route experiments are closed. Their detailed Decisions, counters, and proof
+transcripts live in ParentHistory/git history and the owning investigation
+cards; they are not current scheduling authority.
+
+Stable boundaries retained from that work:
 
 ```text
-closed — RAW-SCRIPT-NEXT-NAMED-FAMILY0-D0 (NoSafeSlice)
-  Call/Object needs header/type/origin preflight; Loop drops receipts before
-  JoinIR; EnumMatch needs external inventory; GroupedAssignment needs a second
-  target demand. No safe I0 exists. Next is Call/Object boundary design only.
-closed — RAW-SCRIPT-CALL-OBJECT-OWNER-BOUNDARY0-D0 (NoSafeSlice)
-  FunctionCall, indirect Call, MethodCall, New, Field/Index, and RecordUpdate
-  each combine preflight route authority with operation lowering. No standalone
-  I0 exists. Only catalog-resolved ordinary FunctionCall merits a new D0.
-closed — RAW-SCRIPT-DIRECT-CALL-CATALOG-RECEIPT0-D0 (NoSafeSlice)
-  A callable-index loan cannot exclude weak/extern/Brand/TypeOp/Math/FastMem
-  or replace RootLower header observation without a second classifier.
-  Next asks only whether the existing preflight can publish one SSOT receipt.
-closed — RAW-SCRIPT-CALL-PREFLIGHT-CLASSIFIER-SSOT0-D0 (Decision B, R4 retained)
-  The semantic unit is not a callable name or catalog target: one preflight
-  owns special-name classification plus header/environment observation before
-  ordinary call descent. Retain FunctionCall as one operation authority through
-  R4; the Deferred floor is `FunctionCallPreflightAuthority`. Release requires
-  either one all-route preflight recipe or a named final retained operation
-  boundary. Do not run a fourth Script-call census.
-closed — RAW-SCRIPT-GROUPED-BINDING-REBIND0-I0-R0 (T2)
-  The earlier GroupedAssignment NoSafe premise is stale: Script root
-  BindingRebind receipts and the BindingRef -> ValueId ledger now exist.
-  Accept only `GroupedAssignmentExpr { lhs, rhs }` where `lhs` resolves to a
-  prior Script Local and `rhs` is in the existing Complete lexical closure.
-  `GroupedAssignmentTarget` is a synthetic, non-descended BindingRef receipt;
-  `GroupedAssignmentValue` is the one physical child demand. Route it through
-  the existing `drive_variable_assignment_v1` owner and rebind the ledger only
-  after raw success. Field/index/nested targets and every Call/Object family
-  remain Deferred. Eligible GroupedAssignment ->
-  Deferred -> bare `script_root(())` reachability = 0. No ABI, publication,
-  ValueId owner, fallback, retry, or raw/reference change.
+source/resolver -> Facts -> Recipe/JoinSig -> Verify
+  -> one physical owner -> DraftSeal -> Collector -> Atomic Publish
 
-closed — RAW-SCRIPT-ENUM-DECLARATION-COMPLETION0-I0-R0 (T2)
-  EnumDeclaration is a typed Program transfer plus one existing Void
-  completion; declaration facts remain the sole inventory producer/installer.
-closed — RAW-SCRIPT-ENUM-INVENTORY-VIEW0-D0 (NoStandaloneRow)
-  A view alone had no real Script consumer; AST-only EnumMatch proof is
-  forbidden. The producer audit below corrected that premise.
-closed — RAW-SCRIPT-ENUM-VARIANT-PRODUCER0-I0-R0 (T2)
-  The one declaration-facts scan now proves only final non-generic
-  `Type::Variant(args*)` routes with exact arity; Complete co-seals exact
-  `CallArgument` receipts and invokes the existing enum emitter once.
-  Ordinary/invalid/raw/reference FromCall remains Deferred; selected/legacy
-  `VariantMake` parity is fixed by the shared fixture ratchet.
-
-closed — SCRIPT-SEMANTIC-COMPLEXITY-CONSOLIDATION0-S0
-  Receipt core/packs, source-vs-invariant Script outcomes, sealed root-demand
-  issuance, test-family split, current pointer, and full Complete identity floor
-  are now compact; admission, lowering, diagnostics, and raw/reference are unchanged.
-closed — ENUM-MATCH-SOURCE-OWNER-FILE-SPLIT0-S0
-  ScopeBox preparation/lowering now has its private sibling; enum-match owner
-  is below the file boundary with raw behavior and diagnostics unchanged.
-
-closed — RAW-SCRIPT-ENUM-MATCH-DIRECT-SCRUTINEE0-I0-R0 (T2)
-  One shared direct enum preflight now serves raw lowering and the borrowed
-  declaration-facts view. Complete co-seals EnumMatchScrutinee only; arms
-  remain raw-owner observations. Selected/legacy parity is green.
-
-closed — SCRIPT-ROOT-ADMISSION-WITNESS0-S0
-  Root-demand AST shape/disposition proof now has one private witness; the
-  demand window retains ordinal coverage only. Eligibility, route, diagnostic,
-  raw/reference, and lowering behavior are unchanged.
-
-closed — RAW-SCRIPT-NEXT-NAMED-FAMILY4-D0 (NoSafeSlice)
-  No standalone Script family has an atomic old-edge deletion. Loop remains
-  JoinIR-fenced; FunctionCall, Field/Index/New, and Box runtime retain their
-  all-route R4 operation owners; Lambda capture/publication remains fenced;
-  TryCatch/Throw and non-final Return retain their control/result owners.
-  `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001` remains the single Deferred
-  terminal. Do not reopen these surfaces under a renamed I0.
-
-closed — MIRBUILDER-R4-RESIDUAL-RECONCILIATION0-D0
-  The generic Deferred terminal is real, but its R4 manifest named only
-  FunctionCall. Loop, CallObject siblings, Box runtime, and control/result
-  residuals must be mechanically enumerated before `unregistered = 0` can be
-  claimed. No cleanup I0 is available at this seam.
-
-closed — SCRIPT-DEFERRED-RESIDUAL-REGISTRY0-S0
-  The existing root-admission witness co-issues a production-owned, root-only
-  residual sidecar from the already-classified admission and exact AST shape.
-  It is observability/R4 ownership only: semantic disposition, resolver
-  traversal, raw lowering, route selection, and raw/reference are unchanged.
-
-closed — SCRIPT-DEFERRED-RESIDUAL-MANIFEST-RATCHET0-S0
-  The root-only sidecar and R4 manifest now share a table-driven guard. The
-  old FunctionCall singleton assertion is gone; every registered residual has
-  exact admission/shape/family, owner/release fields, and a fixture anchor.
-  Nested/profile failures and Lambda capture remain deliberately outside it.
-
-closed — MIRBUILDER-R4-RESIDUAL-CONFORMANCE1-D0
-  The mechanically anchored registry is exact for unconditional root-admission
-  residuals. Profile-dependent Deferred shapes are not falsely counted as
-  root entries: they require their own exact D0. The Lambda fence now means
-  Deferred/raw/reference Lambda capture/publication only; selected lexical
-  Lambda already has its sealed child owner and ordered receipt. No generic
-  cleanup I0 exists at this seam.
-
-closed — RAW-SCRIPT-INDEX-WRITE-MUTATION-DESCENT0-I0-R0 (T2)
-  Ordinary `Assignment(Index(Variable(prior Local Array), index), value)` now
-  uses one construction-local Array-initialized binding proof before child
-  descent, then the shared `IndexWrite` resolver fact and existing exact
-  `IndexTarget` / `IndexSubscript` / `AssignmentValue` handoff. The raw index
-  mutation owner remains the sole operational owner. Map/scalar/rebound locals,
-  CompoundAssignment, FieldWrite, Index read, Loop, Call/Object, Lambda, and
-  Box runtime remain Deferred. The selected prior-Local Array form no longer
-  reaches Deferred-to-bare-`script_root(())`; its fixture identity is ratcheted.
-
-closed — RAW-SCRIPT-NEXT-NAMED-FAMILY5-D0 (NoSafeSlice)
-  Fresh production census found no standalone old-edge deletion after IndexWrite.
-  Every remaining root surface belongs to Loop/JoinIR, a Call/Object operation
-  owner, Lambda capture/publication, Box runtime, or an explicit R4 residual;
-  none is reopened under a renamed small I0.
-
-closed — SCRIPT-SEMANTIC-RATCHET-COVERAGE0-S0
-  The Script Complete identity floor now includes every already-closed
-  root-level family with a focused parity fixture. Behavior, admission,
-  lowering, and Deferred reasons are unchanged; the shared manifest guard
-  rejects any later fixture-identity regression.
-
-closed — MIRBUILDER-LOOP-JOINIR-SOURCE-ERASING-TERMINAL0-D0 (R4 retain/rehome)
-  `PreparedLocatedRawLoopChildEntryV1::lower_with_existing_route_v1` retains
-  exact receipts only until it passes raw condition/body to
-  `lower_loop_or_freeze_v1 -> try_cf_loop_joinir -> route_loop`. The existing
-  verified generic loop plan is test-only and callable-result-specific, not a
-  selected Script consumer. The terminal stays under
-  `RAW-LOCATED-LOOP-ROUTE-SOURCE-HANDOFF-SUNSET-001`; release requires one
-  all-route located plan from the existing planner/registry, including every
-  dynamic child/claim schedule, to replace that terminal once.
-
-closed — RAW-SCRIPT-LAMBDA-DEFERRED-CAPTURE-PUBLICATION0-D0 (R4 retain/rehome)
-  Deferred has owner/forest/projection = 0 and raw/reference has no Script
-  lineage, so neither has `forest.child_at` or an ordered BindingRef capture
-  receipt. The live `RawLambdaLexicalObservationV1 -> variable_map snapshot ->
-  PreparedRawLambdaClosureEmissionV1` lifecycle remains the named owner under
-  `RAW-LAMBDA-CHILD-OWNER-SOURCE-LINEAGE-SUNSET-001` without an unlocated
-  transport portal.
-  Release requires one all-route lineage/capture product (or one final named
-  Lambda operation boundary) that lets the existing emitter delete the raw
-  observer atomically.
-
-closed — MIRBUILDER-R4-RESIDUAL-FINAL-CONFORMANCE0-D0 (incomplete inventory)
-  The root-only registry is mechanically sound but cannot claim all R4
-  surfaces: raw/reference Lambda capture-publication and nested/profile
-  Deferred paths are outside its root AST vocabulary. Final conformance is
-  therefore not claimed.
-
-closed — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-LAMBDA0-S0
-  The manifest/guard now fixes the raw/reference Lambda capture-publication
-  operation, direct recursive compatibility, release condition, and focused
-  raw dispatcher fixture. No route or semantic behavior changes.
-
-closed — SCRIPT-NONCOMPLETE-PROFILE-RESIDUAL-CENSUS0-D0
-  Nested CallObject and Lambda-leaf profile gates are reachable. They cannot
-  share one R4 operation entry: CallObject and control/result keep
-  shape-specific owners, while Lambda leaf composes its capture owner with a
-  child operation. Final R4 conformance remains unclaimed.
-
-closed — SCRIPT-PROFILE-RESIDUAL-OBSERVATION0-D0 (NoSafeSlice)
-  Profile gates collapse to unbranded Deferred before any source product can
-  survive. A receipt needs a new Deferred lifecycle product; Lambda leaf also
-  loses its parent boundary and cannot infer a child operation residual.
-
-closed — NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-D0 (Accept A′)
-  The two nested static/instance issuer frames are self-created from a located
-  outer Box context; no other production unlocated constructor exists. One
-  function-relative method source product can retain the batch-owned method
-  key, exact FunctionDeclaration/body, and legacy symbol/physical arity.
-  It does not need a global Box/method source-path projection.
-
-closed — NESTED-BOX-METHOD-SOURCE-EXTRACTION0-S0
-  Both live nested static/instance method lowerings now delegate to one private,
-  behavior-neutral owner. Existing collector admission, unlocated transport,
-  headers, normalization, diagnostics, and raw/reference behavior are unchanged.
-
-closed — NESTED-BOX-FUNCTION-RELATIVE-SOURCE-CONTRACT0-I0-R0
-  The two nested-method batches now issue one owned method-key/body input;
-  a located parent seals `NestedBoxMethod` at `FunctionBody`. Both legacy
-  admission issuers and the `NestedBoxAdmission` portal are deleted.
-
-closed — RAW-SCRIPT-NEXT-NAMED-FAMILY6-D0 (NoSafeSlice)
-  Fresh bounded audit confirms that all remaining Script surfaces are already
-  owned by Loop/JoinIR, all-route Call/Object, deferred/raw/reference Lambda
-  capture-publication, Field/Index operation routes, or Box lifecycle. They
-  remain under their named R4 fences; no renamed Script I0 may reopen them.
-
-closed — MIRBUILDER-NEXT-NONSCRIPT-RESPONSIBILITY0-D0 (NoSafeSlice)
-  Default normal App already owns verified Main. The remaining raw static-Main,
-  Loop/JoinIR, VM bridge, JoinModule observer, and generic legacy child port
-  are all-route R4 fences, not narrow production replacements.
-
-closed — SCRIPT-R4-RATCHET-EVIDENCE-EXTRACTION0-S0
-  The shared guard now delegates Script Complete/Deferred/profile/residual
-  floors to one manifest-backed helper; inline evidence authority is deleted.
-
-closed — MIRBUILDER-R4-FENCE-REGISTRY-SSOT0-S0
-  All seven live R4 fences are first-class manifest rows with kind-specific
-  source/fixture/guard evidence and dependency checks. The handwritten table
-  is deleted; no route or runtime behavior changed.
-
-closed — MIRBUILDER-R4-FENCE-EVIDENCE-MATURITY0-D0 (NoSafeSlice)
-  None of the seven R4 fences has an all-route replacement owner: source and
-  fixture anchors prove presence only, never atomic route replacement parity.
-
-closed — MIRBUILDER-FINAL-R4-RETENTION-POLICY0-D0 (Decision)
-  R4 named retains are migration inventory only. `MIRBUILDER-FINAL-PIPELINE-v1`
-  requires every active fence to retire or complete an all-route rehome. A final
-  named operation may remain only behind one typed all-route product, with the
-  generic compatibility portal, source-erasing terminal, and old production edge at zero.
-
-closed — MIRBUILDER-R4-REHOME-ORDER0-D0 (NoSafeSlice)
-  No active fence can yet name an all-route typed product and atomic generic
-  old-edge deletion. Required-order DAG: VM bridge policy; normalized-shadow
-  Loop Recipe/CorePlan; located Loop plan consumer; raw static-Main source and
-  entry materialization; Lambda lineage; CallObject preflight; then their
-  transport/substrate-derived closeouts.
-
-closed — MIRBUILDER-VM-BRIDGE-RETIREMENT-POLICY0-D0 (Decision)
-  Retire the default-off explicit JoinIR VM bridge; do not migrate it to the
-  `.hako` interpreter. Ordinary VM remains the only MIR execution owner.
-
-closed — MIRBUILDER-VM-BRIDGE-RETIRE0-I0-R0
-  The runner bridge call, target table, bridge-only environment flags, dispatch,
-  execution routes, and A/B tests are deleted. Structured JoinModule-to-MIR
-  conversion is rehomed to `join_ir_to_mir`, its one existing normalized consumer
-  remains, and the VM-bridge plus shared-substrate R4 fences are retired.
-
-closed — JOINIR-LOOP-RECIPE-COREPLAN0-D0 (NoSafeSlice)
-  Nineteen registry routes plus two normalized-shadow shapes still use ordered
-  operational decline, physical CorePlan composition, name/ValueId carrier
-  recovery, a phase-only converter snapshot, and shared-driver fallback. No
-  current product can prove all-route logical binding coverage and delete both
-  mutation routes atomically.
-
-closed premise sequence — JOINIR-LOOP-LOGICAL-INTERFACE0-D0 /
-JOINIR-LOOP-ROOT-NEUTRAL-BINDING-SNAPSHOT0-D0
-  Both stops correctly rejected name/ValueId recovery, but their atomic caller
-  set over-counted a profile-blind helper as raw/reference. The exact located
-  source, missing logical binding product, and shared suffix mutation findings
-  remain valid; the raw/reference premise is superseded below.
-
-closed — JOINIR-LOOP-ALL-ROUTE-PREMISE-RESET0-D0 (Decision B-prime)
-  Explicit raw-vm-reference already owns one typed support profile, owned AST,
-  and source-bound root. NarrowV1 rejects Loop while projecting the body recipe,
-  before physical Builder open, so its Loop reachability is zero. The generic
-  `RawLegacyChildLoweringPortV1` is not a compilation profile; static provenance
-  found no repository production Loop caller for that port. Do not add a new
-  raw/reference profile or universal semantic ingress.
-
-closed premise sequence — normalized-shadow coverage / grammar / receipt
-  Finite concrete-shape coverage was false: six grammar families include
-  `(Assignment | Local)*; Break`.  The bounded audit found one PlanBox/executor
-  gap, five ordinary-route overlaps, and suffix-to-direct retry.  Exact
-  eligibility still used `variable_map`, dummy `ValueId`s, and operational
-  JoinIR emission, so a passive receipt would merely rename the second physical
-  resolver.  The detailed temporary manifest evidence is retired with the
-  mutation fence; do not rebuild it or a name-set facade.
-
-closed — JOINMODULE-NORMALIZED-SHADOW-MUTATION-RETIRE0-I0-R0
-Change:
-  Retire the duplicate dev-only normalized-shadow Loop mutation authority
-  instead of migrating it.  Delete the direct and block-suffix entries, suffix
-  port capability, Plan/Execute module, and phase-only `Normalized -> Structured`
-  bridge.  Keep the ordinary recipe-first Loop route and the non-mutating
-  normalized-shadow observer, including its independently tested JoinModule
-  builders.
-
-Contract:
-  T2 deletion only: add no semantic ingress, route, fallback, environment
-  toggle, or replacement adapter.  `joinir_dev` no longer changes Loop
-  mutation ownership; raw/reference and Script admission remain unchanged.
-  Shared JoinIR-to-MIR conversion, `JoinIrPhase`, `JoinInlineBoundary`, and the
-  if-only comparison observer remain because they have independent consumers.
-  Reuse shared guards; every touched source/check file remains below 800 lines.
-
-Done:
-  `try_normalized_shadow`, `try_lower_loop_suffix`, `NormalizationPlanBox`,
-  `NormalizationExecuteBox`, the suffix retry edge, and the phase-only bridge
-  have zero definitions/callers.  Ordinary
-  recipe-first Loop tests remain green with `joinir_dev` OFF and ON.  The
-  non-mutating shadow observer still compiles and its non-Loop evidence remains
-  green.  The R4 fence row and stale suffix proof capability are removed.
-
-Stop:
-  Stop if removing either mutation entry changes the default route, requires a
-  new compatibility branch, removes an independently consumed converter or
-  observer, or cannot preserve ordinary Loop diagnostics/results without
-  retrying the retired route.
-
-closed — JOINIR-LOOP-MISSING-TRANSIENT-TYPE-OWNER0-D0 (NoSafeSlice)
-  Call-result/`BindingRef` truths have no production loan; String -> `ValueId`
-  -> `type_ctx` is wrong. The five-case failure predates this retirement.
-closed — CALLABLE-RESULT-BINDING-REPRESENTATION-INGRESS0-D0 (NoSafeSlice)
-  Activation has no production issuer; cataloged lowering keeps only key,
-  symbol, arity, and lineage. The disconnected observer/session is not an
-  acceptable second resolver.
-closed — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-D0 / SOURCE-INVENTORY0-S0
-  Catalog owns exact top-level/three-terminal Box sites; Main stays transferred.
-closed — NORMAL-CALLABLE-SEMANTIC-SOURCE-LOAN0-I0-R0
-  One selected lifecycle issuer traverses the complete callable batch before
-  owner issue and co-seals exact catalog key, Program site, forest, and
-  projection. Complete consumes typed loans exactly once at top-level, static,
-  and plain-instance terminals; missing, duplicate, or unconsumed loans reject.
-  FunctionCall defers before children. Script non-plain instance Box makes the
-  whole batch Deferred before resolution; App remains eligible. Callable scope
-  cannot borrow the Script BindingRef-to-ValueId ledger. Raw/reference and user
-  diagnostic order are unchanged; fallback/retry and partial forest are zero.
-closed — NORMAL-CALLABLE-LEXICAL-BINDING-MATERIALIZATION0-I0-R0
-  Root callable loans now install one scoped BindingRef-to-ValueId projection
-  for formal entries, Local, Variable, and rebind facts. The old name-derived
-  semantic identity recovery is gone from this closure; nested Lambda capture
-  retains its existing ordered/name compatibility owner. Focused top-level /
-  static / plain-instance compound-rebind and direct-capture parity, reuse,
-  loan-consumption, guard, and test compilation are green.
-closed — NORMAL-CALLABLE-DIRECT-LAMBDA-CAPTURE-MATERIALIZATION0-I0-R0
-  Selected root callable direct Lambda children now consume the forest's
-  ordered BindingRef capture receipt through the callable ledger and the
-  selected name-observation edge is unreachable. The forest remains
-  capture-existence/ancestry truth and the receipt remains capture-slot order
-  truth; the ledger only projects already-materialized root bindings to
-  ValueIds. Missing, foreign, duplicate, or unavailable receipts fail before
-  closure publication. Descendant capture forms, Lambda-body lowering,
-  capture ABI, ClosureBodyId/NewClosure, FunctionCall, raw/reference, and
-  diagnostics remain with their existing owners.
-closed — MIRBUILDER-NEXT-NAMED-FAMILY-CENSUS0-D0 (NoSafeSlice)
-  Loop/JoinIR retains its located-receipt-to-raw-route operation until a
-  verified Loop plan consumes that receipt. TryCatch/Throw/nonfinal Return
-  retain one cleanup/result-policy family, and Field/Index/New/RecordUpdate
-  retain all-route CallObject preflight owners. No standalone selected old edge
-  can be deleted without creating a second planner/resolver; no I0 is opened.
-already closed — do not reopen as WIP
-  QMark, root Match, StaticConst, and explicit Record schema; only a regression
-  can reopen their Git-history evidence.
+closed routes never authorize a new production caller;
+NoSafeSlice remains a development state;
+legacy retirement requires caller-zero evidence.
 ```
+
+The current Dynamic AOT activation is tracked only by CURRENT_STATE.toml and
+the active investigation card. Do not restore closed chronology here.
 
 ## Protected-region control-state design
 
@@ -495,7 +154,7 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active task pointer
 
-The sole current row is `CURRENT_STATE.toml.current_blocker_token`. The active
+The sole current row is `CURRENT_STATE.toml.current_execution_row`. The active
 JoinIR contract and ordered convergence map live in
 `design/joinir-loop-selfhost-recipe-pipeline-ssot.md`. Closed route-local provenance
 records below are evidence only and must not schedule another route.
@@ -512,18 +171,13 @@ docs/development/current/main/CURRENT_STATE.toml
   -> latest_card_path
 ```
 
-For the selected Dynamic callable, the active card is:
+For every active lane, resolve the card and row only from `latest_card_path`
+and `current_execution_row` above. `current_blocker_token` describes the stop
+condition for that selected row; it never selects a different task. This
+historical ledger does not mirror those values. Older S6C/S6D/S6G briefs and
+route chronology remain evidence in git history or their owning cards; they
+do not schedule a new route from this workstream.
 
-```text
-docs/development/current/main/investigations/
-  dynamic-fault-exit-transaction-d0-design-task-2026-08-10.md
-```
-
-Its current implementation row is
-`DYNAMIC-V2-AOT-PHYSICAL-ACTIVATION-I0`. Older S6C/S6D/S6G briefs and route
-chronology remain evidence in git history or their owning cards; they do not
-schedule a new route from this workstream.
-```
 ## Production invariants
 ```text
 named production caller required       = yes
@@ -595,6 +249,35 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Compact queue
 
 ```text
+selected design stop
+  FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0
+  -> name one resolver-issued explicit-special/direct-FreeStatic/lexical-value
+     classification before arguments and select one bounded first cohort.
+
+landed BoxShape
+  FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0
+  -> production owner 790 -> 329 lines; five unchanged tests live in a 443-line
+     child. Focused tests are green; reusable guard red is parent baseline debt.
+
+accepted census
+  FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0
+  -> AST kind cannot distinguish identifier-value from FreeStatic; late target
+     resolution has one main chain, two recovery consumers, and two tail variants.
+
+accepted design
+  FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0
+  -> FunctionCall is direct FreeStatic/explicit special; Call evaluates one callee
+     value first; arguments evaluate once left-to-right after target selection.
+
+closed NoSafeSlice
+  RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0
+  -> argument lowering can mutate variable_map before current target resolution;
+     moving target selection earlier changes callee choice and diagnostic order.
+
+  SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0
+  -> ordinary retains only name plus AST arguments; target/recovery/header/tail
+     decisions remain later and Builder-owned, so no affine Script transfer exists.
+
 R2bi RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
   closed Accept-corrected
 

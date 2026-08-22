@@ -13,6 +13,12 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 import inspect_scope_dump
+from inspect_scope_identity import (
+    require_unique_asm_symbol,
+    require_unique_llvm_function,
+    require_unique_mir_function,
+    validate_identity_contract,
+)
 
 
 class InspectScopeDumpTest(unittest.TestCase):
@@ -104,6 +110,7 @@ class InspectScopeDumpTest(unittest.TestCase):
             )
             self.assertEqual(rc, 0)
             self.assertTrue((out_dir / "manifest.json").is_file())
+            self.assertTrue((out_dir / "identity.json").is_file())
             self.assertTrue((out_dir / "source.slice.hako").is_file())
             self.assertTrue((out_dir / "report.kv").is_file())
             report = (out_dir / "report.kv").read_text(encoding="utf-8")
@@ -111,6 +118,10 @@ class InspectScopeDumpTest(unittest.TestCase):
             self.assertIn("array_text_selected_route_count=1", report)
             self.assertIn("typed_object_exact_route_decision_count=1", report)
             self.assertIn("summary=ok", report)
+            identity = json.loads((out_dir / "identity.json").read_text(encoding="utf-8"))
+            self.assertEqual(identity["output_contract"], "hako-inspect-bundle-identity-v1")
+            self.assertFalse(identity["shape_ready"])
+            validate_identity_contract(out_dir, identity)
 
     def test_scope_bundle_writes_backend_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -138,7 +149,11 @@ class InspectScopeDumpTest(unittest.TestCase):
             def fake_emit_backend_bundle(mir_json_path: Path, function_name: str, timeout_secs: int):
                 backend_dir = tmp_path / "backend"
                 backend_dir.mkdir(exist_ok=True)
-                (backend_dir / "lowered.ll").write_text("; ModuleID = 'test'\n", encoding="utf-8")
+                (backend_dir / "lowered.ll").write_text(
+                    "; ModuleID = 'test'\ndefine i64 @ny_main() { ret i64 0 }\n",
+                    encoding="utf-8",
+                )
+                (backend_dir / "bundle.exe").write_bytes(b"exact-fixture-executable")
                 (backend_dir / "objdump.txt").write_text(
                     "\n".join(
                         [
@@ -151,7 +166,11 @@ class InspectScopeDumpTest(unittest.TestCase):
                 )
                 return backend_dir, "[bundle] llvm_ir=/tmp/test.ll\n"
 
-            with mock.patch.object(inspect_scope_dump, "emit_llvm_asm_bundle", side_effect=fake_emit_backend_bundle):
+            with mock.patch.object(
+                inspect_scope_dump, "emit_mir_json", return_value=(mir_json, "")
+            ), mock.patch.object(
+                inspect_scope_dump, "emit_llvm_asm_bundle", side_effect=fake_emit_backend_bundle
+            ):
                 rc = inspect_scope_dump.main(
                     [
                         "scope",
@@ -159,8 +178,14 @@ class InspectScopeDumpTest(unittest.TestCase):
                         str(source),
                         "--span",
                         f"{source}:2:5",
-                        "--mir-json",
-                        str(mir_json),
+                        "--app",
+                        str(source),
+                        "--mir-function",
+                        "main",
+                        "--llvm-function",
+                        "ny_main",
+                        "--asm-symbol",
+                        "ny_main",
                         "--emit",
                         "mir,mir-json,llvm,asm,report",
                         "--out",
@@ -172,6 +197,7 @@ class InspectScopeDumpTest(unittest.TestCase):
             self.assertTrue((out_dir / "llvm.ir").is_file())
             self.assertTrue((out_dir / "asm.s").is_file())
             self.assertTrue((out_dir / "asm.map.json").is_file())
+            self.assertTrue((out_dir / "executable.bin").is_file())
             report = (out_dir / "report.kv").read_text(encoding="utf-8")
             self.assertIn("emit_llvm=1", report)
             self.assertIn("emit_asm=1", report)
@@ -180,6 +206,59 @@ class InspectScopeDumpTest(unittest.TestCase):
             asm_map = json.loads((out_dir / "asm.map.json").read_text(encoding="utf-8"))
             self.assertEqual(asm_map["output_contract"], "hako-inspect-asm-map-v0")
             self.assertEqual(asm_map["mapping_quality"], "symbol")
+            identity = json.loads((out_dir / "identity.json").read_text(encoding="utf-8"))
+            self.assertTrue(identity["shape_ready"])
+            self.assertEqual(identity["selectors"]["mir_function"], "main")
+            self.assertEqual(identity["selectors"]["llvm_function"], "ny_main")
+            self.assertEqual(identity["selectors"]["asm_symbol"], "ny_main")
+            validate_identity_contract(out_dir, identity)
+            (out_dir / "asm.s").write_text("tampered\n", encoding="utf-8")
+            with self.assertRaisesRegex(SystemExit, "artifact digest mismatch"):
+                validate_identity_contract(out_dir, identity)
+
+    def test_backend_identity_rejects_missing_selectors_without_seal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            source = tmp_path / "scope.hako"
+            source.write_text("box Example {}\n", encoding="utf-8")
+            mir_json = tmp_path / "mir.json"
+            mir_json.write_text(json.dumps(self._mir()), encoding="utf-8")
+            out_dir = tmp_path / "bundle"
+            out_dir.mkdir()
+            (out_dir / "identity.json").write_text("stale\n", encoding="utf-8")
+            with self.assertRaisesRegex(SystemExit, "explicit selectors"):
+                inspect_scope_dump.main(
+                    [
+                        "scope",
+                        "--source-file",
+                        str(source),
+                        "--span",
+                        f"{source}:1:1",
+                        "--mir-json",
+                        str(mir_json),
+                        "--emit",
+                        "llvm,asm",
+                        "--out",
+                        str(out_dir),
+                    ]
+                )
+            self.assertFalse((out_dir / "identity.json").exists())
+
+    def test_identity_selectors_reject_missing_and_ambiguous_rows(self) -> None:
+        with self.assertRaisesRegex(SystemExit, "MIR function must be unique"):
+            require_unique_mir_function(
+                {"functions": [{"name": "main"}, {"name": "main"}]}, "main"
+            )
+        with self.assertRaisesRegex(SystemExit, "LLVM function must be unique"):
+            require_unique_llvm_function(
+                "define i64 @ny_main() { ret i64 0 }\n"
+                "define i64 @ny_main() { ret i64 1 }\n",
+                "ny_main",
+            )
+        with self.assertRaisesRegex(SystemExit, "assembly symbol must be unique"):
+            require_unique_asm_symbol(
+                "00000001 <ny_main>:\n00000002 <ny_main>:\n", "ny_main"
+            )
 
     def test_route_bundle_filters_selected_route(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

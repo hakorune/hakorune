@@ -13,8 +13,19 @@ DEMAND_MOD="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/
 DEMAND_MODEL="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/model.rs"
 DEMAND_ISSUER="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/physical_demand/issuer.rs"
 APRIME_MODEL="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/model.rs"
+APRIME_ISSUER="$ROOT_DIR/src/mir/compiler/a_prime_i64_physical_capability/issuer.rs"
+APRIME_SOURCE="$ROOT_DIR/src/mir/compiler/dynamic_full_body_recipe/coseal/a_prime_source.rs"
+CATALOG_ADMISSION="$ROOT_DIR/src/mir/builder/normal_cataloged_box_method_admission.rs"
+PACKAGE_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+PACKAGE_LOAN="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
+SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+SELECTED_TARGETS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/targets.rs"
+SELECTED_FORMAL_HEADER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/formal_header.rs"
+SELECTED_VALUE_LEDGER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/value_ledger.rs"
+SELECTED_OPERATION_CURSOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/operation_cursor.rs"
+SKELETON_BUILDER="$ROOT_DIR/src/mir/builder/calls/skeleton_builder.rs"
 CANONICAL_SESSION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
 WIRE_PY="$ROOT_DIR/src/llvm_py/builders/dynamic_v2_callslot_wire.py"
@@ -23,8 +34,11 @@ WIRE_C="$ROOT_DIR/include/nyrt_dynamic_call_slot_v2.h"
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
-  "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$SELECTED_ABI" \
-  "$SELECTED_EMITTER" "$CANONICAL_SESSION" "$APRIME_MODEL" "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
+  "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$APRIME_SOURCE" "$SELECTED_ABI" \
+  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
+  "$APRIME_ISSUER" "$CATALOG_ADMISSION" "$PACKAGE_INSTALL" "$PACKAGE_LOAN" "$SELECTED_FORMAL_HEADER" \
+  "$SELECTED_OPERATION_CURSOR" \
+  "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
   "DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2: usize = 17" "$EVIDENCE" \
@@ -47,6 +61,14 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "physical_demand_consumes_the_complete_view_inside_the_htrb_loan" "$EXIT_TX" \
   "whole-program Dynamic demand HRTB test is missing"
+for formal_fact in \
+  "src_binding" "pos_binding" "end_binding" "pred_chars_binding" \
+  "src_class" "pos_class" "end_class" "pred_chars_class" \
+  "DynamicFullBodyBindingRoleV1::Src" "Value(value(0))" \
+  "DynamicFullBodyBindingRoleV1::PredChars" "Value(value(3))"; do
+  guard_expect_fixed_in_file "$TAG" "$formal_fact" "$APRIME_SOURCE" \
+    "A-prime source relation is missing exact formal-lane fact: $formal_fact"
+done
 
 INPUT_PRODUCTION="$(mktemp "${TMPDIR:-/tmp}/dynamic-v2-physical-input.XXXXXX")"
 sed '/^#\[cfg(test)\]/,$d' "$INPUT" >"$INPUT_PRODUCTION"
@@ -120,15 +142,168 @@ guard_expect_fixed_in_file "$TAG" "new_selected_dynamic" "$SELECTED_EMITTER" \
 if rg -n -A6 -- "fn new_selected_dynamic" "$CANONICAL_SESSION" | rg -q -- "block_expr_count"; then
   guard_fail "$TAG" "Dynamic canonical semantic block count must not be selected by the physical emitter"
 fi
-guard_expect_fixed_in_file "$TAG" "NormalCatalogedBoxMethodDraftAdmissionV1" "$SELECTED_EMITTER" \
-  "selected emitter must project the physical symbol from the catalog admission"
+guard_expect_fixed_in_file "$TAG" "NormalCatalogedBoxMethodDraftAdmissionV1" "$APRIME_MODEL" \
+  "A-prime demand must own the single catalog-backed physical-header admission"
+guard_expect_fixed_in_file "$TAG" "physical_header" "$APRIME_MODEL" \
+  "selected physical session must consume the demand-owned header projection"
+guard_expect_fixed_in_file "$TAG" "function_effects" "$APRIME_MODEL" \
+  "the physical header must retain the verified effect projection"
+guard_expect_fixed_in_file "$TAG" "SelectedCatalogedCallableLoweringInputV1" "$PACKAGE_INSTALL" \
+  "catalog admission must travel with the selected package loan"
+guard_expect_fixed_in_file "$TAG" "CatalogedBoxMethodPhysicalHeaderProjectionV1" "$CATALOG_ADMISSION" \
+  "catalog must issue the bounded physical-header projection"
+guard_expect_fixed_in_file "$TAG" "dynamic_physical_header" "$PACKAGE_INSTALL" \
+  "the installed package must retain the linear catalog-header projection"
+guard_expect_fixed_in_file "$TAG" "take_dynamic_physical_header" "$PACKAGE_INSTALL" \
+  "the package loan must consume the catalog-header projection exactly once"
+guard_expect_fixed_in_file "$TAG" "with_selected_cataloged_lowering_input" "$PACKAGE_INSTALL" \
+  "package must expose one exactly-once cataloged admission loan"
+guard_expect_fixed_in_file "$TAG" "with_cataloged_callable_source_scope" "$PACKAGE_LOAN" \
+  "Builder adapter must forward the existing catalog admission"
+if rg -F -q -- "NormalCatalogedBoxMethodDraftAdmissionV1::seal" "$APRIME_ISSUER"; then
+  guard_fail "$TAG" "A-prime issuer must not re-seal a catalog physical header"
+fi
+if rg -F -q -- "format!(" "$APRIME_ISSUER"; then
+  guard_fail "$TAG" "A-prime issuer must not reconstruct the catalog physical symbol"
+fi
+for forbidden in \
+  "use crate::ast::ASTNode" \
+  "ASTNode::FunctionDeclaration" \
+  "input.source().source().root()" \
+  "source().source().root()"; do
+  if rg -F -q -- "$forbidden" "$APRIME_ISSUER"; then
+    guard_fail "$TAG" "A-prime issuer must not re-observe raw AST/header authority: $forbidden"
+  fi
+done
+guard_expect_fixed_in_file "$TAG" "physical_function_effects" "$DEMAND_MODEL" \
+  "the operation/effect plan must be the selected function-effect projection source"
+if rg -F -q -- "NormalCatalogedBoxMethodDraftAdmissionV1::seal" "$SELECTED_EMITTER"; then
+  guard_fail "$TAG" "selected emitter must not re-seal the catalog physical header"
+fi
+for contract in \
+  "CoreMethodOp::StringSubstring" \
+  "CoreMethodResultKindV1::StringValue" \
+  "CoreMethodEffectV1::PureRead" \
+  "CoreMethodOp::StringIndexOf" \
+  "CoreMethodResultKindV1::I64Value" \
+  "CoreMethodEffectV1::PureRead" \
+  "DynamicV2PhysicalRepresentationV1::ImmediateI64"; do
+  guard_expect_fixed_in_file "$TAG" "$contract" "$SELECTED_CAPABILITY" \
+    "selected physical capability must consume the generated I7 contract and exact representation: $contract"
+done
+if rg -F -q -- "DynamicV2ProducerLaneV1" "$SELECTED_CAPABILITY" || \
+   rg -F -q -- ".lane()" "$SELECTED_CAPABILITY"; then
+  guard_fail "$TAG" "producer family and physical representation must not be collapsed into a legacy lane"
+fi
 guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_EMITTER" \
   "canonical selected skeleton must consume an exact header without body inference"
+guard_expect_fixed_in_file "$TAG" "physical_header.effects()" "$SELECTED_EMITTER" \
+  "canonical selected skeleton must consume the demand-owned physical-header effect projection"
+if rg -n -A35 -- "fn create_resolved_function_skeleton" "$SKELETON_BUILDER" \
+  | rg -q -- "EffectMask::READ|Effect::ReadHeap"; then
+  guard_fail "$TAG" "canonical skeleton must not hardcode its function effect"
+fi
 guard_expect_fixed_in_file "$TAG" "DynamicV2PhysicalBlockTargetV1" "$SELECTED_ABI" \
   "selected schedule must carry an explicit logical-to-physical block target"
 for target in Header BodyPrelude ThenTerminal Continuation After; do
   guard_expect_fixed_in_file "$TAG" "${target}" "$SELECTED_ABI" \
     "selected block-target projection is missing: ${target}"
+done
+for target in Header BodyPrelude ThenTerminal Continuation After; do
+  guard_expect_fixed_in_file "$TAG" "${target}" "$SELECTED_TARGETS" \
+    "session-private target set is missing role: ${target}"
+done
+for target_fact in \
+  "DynamicV2PhysicalTargetSetV1" \
+  "DynamicV2OpaquePhysicalTargetV1" \
+  "with_role" \
+  "create_unpublished_block" \
+  "let enter = canonical.entry_block(builder)?"; do
+  guard_expect_fixed_in_file "$TAG" "$target_fact" "$SELECTED_TARGETS" \
+    "session-private target ownership is missing: ${target_fact}"
+done
+if ! rg -n -q -- 'let blocks = \[' "$SELECTED_TARGETS"; then
+  guard_fail "$TAG" "session-private target ownership is missing: let blocks = [enter, header, body_prelude, then_terminal, continuation, after]"
+fi
+for formal_fact in \
+  "DynamicV2FormalSeedV1" \
+  "adopt_exact_formal_parameter" \
+  "claim_variable_use_binding" \
+  "emit_jump(function, enter, header)" \
+  "read_entry_receipt"; do
+  guard_expect_fixed_in_file "$TAG" "$formal_fact" "$SELECTED_FORMAL_HEADER" \
+    "formal Enter/Header admission is missing: ${formal_fact}"
+done
+for ledger_fact in \
+  "DynamicV2PhysicalValueLedgerV1" \
+  "DynamicV2PhysicalValueLedgerRejectV1" \
+  "DynamicV2PhysicalValueViewV1" \
+  "pub(super) fn publish" \
+  "pub(super) fn with_value"; do
+  guard_expect_fixed_in_file "$TAG" "$ledger_fact" "$SELECTED_VALUE_LEDGER" \
+    "session-private physical value ledger is missing: ${ledger_fact}"
+done
+if rg -n -B3 -A1 -- "struct DynamicV2PhysicalValueLedgerV1" "$SELECTED_VALUE_LEDGER" \
+  | rg -q -- "Clone" || rg -F -q -- "into_parts" "$SELECTED_VALUE_LEDGER"; then
+  guard_fail "$TAG" "session-private physical value ledger must remain move-only"
+fi
+guard_expect_fixed_in_file "$TAG" "self.values" "$SELECTED_EMITTER" \
+  "the I8 canary must retain a session-owned physical value ledger"
+guard_expect_fixed_in_file "$TAG" "with_physical_value_for_test" "$SELECTED_EMITTER" \
+  "the canary must exercise callback-scoped ledger reads"
+for cursor_fact in \
+  "DynamicV2RecipeOperationCursorV1" \
+  "consume_all" \
+  "DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2" \
+  "UseBeforeProduce" \
+  "DuplicateResult" \
+  "CoreMethodOp::StringSubstring" \
+  "CoreMethodOp::StringIndexOf"; do
+  guard_expect_fixed_in_file "$TAG" "$cursor_fact" "$SELECTED_OPERATION_CURSOR" \
+    "V2 Recipe-order cursor is missing required fact: $cursor_fact"
+done
+guard_expect_fixed_in_file "$TAG" "operation_cursor::validate" "$SELECTED_EMITTER" \
+  "selected session must run the exact-once V2 cursor before opening Builder state"
+for forbidden in \
+  "loop_recipe_physicalizer" \
+  "MirInstruction" \
+  "BasicBlockId" \
+  "ValueId" \
+  "selector" \
+  "lookup"; do
+  if rg -F -q -- "$forbidden" "$SELECTED_OPERATION_CURSOR"; then
+    guard_fail "$TAG" "V2 operation cursor must not become a second physical/selector authority: $forbidden"
+  fi
+done
+cursor_lines="$(wc -l < "$SELECTED_OPERATION_CURSOR" | tr -d '[:space:]')"
+if (( cursor_lines >= 800 )); then
+  guard_fail "$TAG" "V2 operation cursor reached hard 800-line boundary: ${SELECTED_OPERATION_CURSOR#"$ROOT_DIR/"} has $cursor_lines"
+fi
+if rg -n -- "physical_value\(" "$SELECTED_EMITTER" "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/i64_const.rs"; then
+  guard_fail "$TAG" "production emitter must not expose a raw physical ValueId getter"
+fi
+for file in "$SELECTED_VALUE_LEDGER"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "session value ledger reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+if rg -n -B3 -A3 -- "struct DynamicV2PhysicalTargetSetV1" "$SELECTED_TARGETS" \
+  | rg -q -- "Clone"; then
+  guard_fail "$TAG" "physical target set must remain move-only"
+fi
+for forbidden in \
+  "DynamicV2OpaqueBodyPreludeTargetV1" \
+  "body_prelude_target"; do
+  if rg -F -q -- "$forbidden" "$SELECTED_EMITTER" "$SELECTED_TARGETS"; then
+    guard_fail "$TAG" "selected emitter retained the old singleton physical target: $forbidden"
+  fi
+done
+for file in "$SELECTED_EMITTER" "$SELECTED_TARGETS"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "selected physical target source reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
 done
 if rg -F -q -- 'format!("{name}/' "$SELECTED_EMITTER"; then
   guard_fail "$TAG" "selected physical symbol was reconstructed from the raw method name"

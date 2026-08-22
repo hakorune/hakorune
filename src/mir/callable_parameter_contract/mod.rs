@@ -2,9 +2,10 @@
 //!
 //! One complete resolved callable batch lends exact declaration identity,
 //! optional source type spelling, and resolver-owned parameter bindings. This
-//! module classifies only explicit `i64` as `ExactTrivial`; an absent ordinary
-//! spelling remains `OpaqueHandle`. HomeDemand is a one-way projection and is
-//! not the contract authority.
+//! module classifies explicit `i64` as `ExactTrivial` and `StringBox` as the
+//! semantic `ExactText` formal contract; an absent ordinary spelling remains
+//! `OpaqueHandle`. HomeDemand is a one-way projection and is not the contract
+//! authority. Physical Text handles/wires belong to a later closed route.
 
 mod issuer;
 mod model;

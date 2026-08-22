@@ -140,7 +140,9 @@ fn first_wait_like_in_node(node: &ASTNode) -> Option<&'static str> {
                     .iter()
                     .find_map(|(_, expr)| first_wait_like_in_node(expr))
             }),
-        ASTNode::FromCall { arguments, .. } | ASTNode::FunctionCall { arguments, .. } => {
+        ASTNode::FromCall { arguments, .. }
+        | ASTNode::FunctionCall { arguments, .. }
+        | ASTNode::ExplicitExternCall { arguments, .. } => {
             arguments.iter().find_map(first_wait_like_in_node)
         }
         ASTNode::Call {

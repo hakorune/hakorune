@@ -7,7 +7,10 @@ use crate::mir::resolved_control_flow::verify_function_completion_v1;
 
 use super::error::TrivialProfileStopReasonV1;
 use super::product::{TrivialRepresentationV1, TrivialTerminalProfileV1};
-use super::{analyze_trivial_canonical_owner_v1, TrivialCanonicalOwnerAnalysisV1};
+use super::{
+    analyze_trivial_canonical_with_mode_v1, TrivialCanonicalAnalysisModeV1,
+    TrivialCanonicalOwnerAnalysisV1,
+};
 
 fn literal(value: LiteralValue) -> ASTNode {
     ASTNode::Literal {
@@ -68,7 +71,13 @@ fn analyze(root: ASTNode) -> TrivialCanonicalOwnerAnalysisV1 {
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
-    analyze_trivial_canonical_owner_v1(input, &completion, &if_control).unwrap()
+    analyze_trivial_canonical_with_mode_v1(
+        input,
+        &completion,
+        &if_control,
+        TrivialCanonicalAnalysisModeV1::OrdinaryClosed,
+    )
+    .unwrap()
 }
 
 #[test]

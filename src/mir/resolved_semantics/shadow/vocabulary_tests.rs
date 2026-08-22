@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 
 use super::vocabulary::{classify_shadow_ast_disposition_v0, ShadowAstDispositionV0};
+use super::ShadowTraversalProfileV1;
 
 fn span() -> Span {
     Span::unknown()
@@ -48,7 +49,7 @@ fn this_is_explicitly_unsupported_inventory_pending_resolver_correction() {
 }
 
 #[test]
-fn unconnected_program_container_is_only_a_transparent_candidate() {
+fn program_container_is_a_resolved_lexical_statement() {
     let program = ASTNode::Program {
         statements: Vec::new(),
         span: span(),
@@ -56,8 +57,12 @@ fn unconnected_program_container_is_only_a_transparent_candidate() {
 
     assert_eq!(
         classify_shadow_ast_disposition_v0(&program),
-        ShadowAstDispositionV0::SemanticallyTransparentCandidate
+        ShadowAstDispositionV0::CurrentResolvedStatement
     );
+    assert!(ShadowTraversalProfileV1::FullFunctionV1.allows_statement(&program));
+    assert!(ShadowTraversalProfileV1::SelectedCallableV1.allows_statement(&program));
+    assert!(!ShadowTraversalProfileV1::ScriptLexicalCoreV1.allows_statement(&program));
+    assert!(!ShadowTraversalProfileV1::ScriptLambdaLeafV1.allows_statement(&program));
 }
 
 #[test]

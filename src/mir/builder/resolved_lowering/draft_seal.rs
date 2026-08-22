@@ -18,6 +18,7 @@ use crate::mir::builder::emission::value_lifecycle_definition::{
 use crate::mir::builder::function_signature_lookup::FunctionSignatureLookupV1;
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::function::FunctionMetadata;
+use crate::mir::resolved_semantics::SourceStmtSiteV1;
 use crate::mir::{BasicBlockId, MirBuilder, MirFunction, MirType, ValueId};
 
 use super::completion_consumption::ReadyFunctionCompletionV1;
@@ -25,15 +26,46 @@ use super::draft_seal_owner::OpenFunctionDraftSealV1;
 
 mod exit_projection;
 mod multi_site_exit;
+mod text_residence_exit;
+#[cfg(test)]
+mod text_residence_ingress;
+
+#[cfg(test)]
+pub(in crate::mir::builder::resolved_lowering) use text_residence_ingress::issue_pinned_text_residence_draftseal_consumer_v1;
 
 pub(super) use exit_projection::{FunctionDraftSealPreparationErrorV1, PreparedFunctionExitV1};
 pub(super) use multi_site_exit::PreparedFunctionExitSetV1;
 pub(super) use multi_site_exit::{DetachedFunctionExitClaimSetV1, MultiSiteExitPreparationErrorV1};
 
 #[derive(Debug)]
-pub(super) struct ReadyFunctionDraftSealV1 {
+pub(in crate::mir::builder) struct ReadyFunctionDraftSealV1 {
     completion: ReadyFunctionCompletionV1,
     current_block: BasicBlockId,
+    checked_callout_census: Option<crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1>,
+}
+
+/// Borrowed projection of the already site-keyed Completion witnesses.  This
+/// is transport evidence for the selected physical receipt; it does not issue
+/// a second return or Completion authority and cannot outlive the ready seal.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(in crate::mir::builder::resolved_lowering) struct ReadyFunctionReturnObservationV1 {
+    site: SourceStmtSiteV1,
+    block: BasicBlockId,
+    value: ValueId,
+}
+
+impl ReadyFunctionReturnObservationV1 {
+    pub(in crate::mir::builder::resolved_lowering) fn site(&self) -> &SourceStmtSiteV1 {
+        &self.site
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn block(&self) -> BasicBlockId {
+        self.block
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn value(&self) -> ValueId {
+        self.value
+    }
 }
 
 /// Detached exit-only plan used by the PREPARE0 fixtures.  It owns no live
@@ -60,6 +92,7 @@ pub(super) enum FunctionDraftSealProjectionErrorV1 {
     CurrentFunctionMissing,
     ExitBlockMissing { block: BasicBlockId },
     ExitBlockAlreadyTerminated { block: BasicBlockId },
+    PinnedTextResidence(String),
     ReturnValueTypeMissing { value: ValueId },
     UnknownReturnValueType { value: ValueId },
     UnsupportedReturnValueType { value: ValueId, actual: MirType },
@@ -141,10 +174,12 @@ impl ReadyFunctionDraftSealV1 {
     pub(in crate::mir::builder::resolved_lowering) fn from_v2_finish(
         completion: ReadyFunctionCompletionV1,
         current_block: BasicBlockId,
+        checked_callout_census: crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1,
     ) -> Self {
         Self {
             completion,
             current_block,
+            checked_callout_census: Some(checked_callout_census),
         }
     }
 
@@ -152,7 +187,14 @@ impl ReadyFunctionDraftSealV1 {
         Self {
             completion,
             current_block,
+            checked_callout_census: None,
         }
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn take_checked_callout_census(
+        &mut self,
+    ) -> Option<crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1> {
+        self.checked_callout_census.take()
     }
 
     pub(super) fn prepare(
@@ -178,6 +220,34 @@ impl ReadyFunctionDraftSealV1 {
 
     pub(super) fn into_completion(self) -> ReadyFunctionCompletionV1 {
         self.completion
+    }
+
+    pub(in crate::mir::builder::resolved_lowering) fn return_observations(
+        &self,
+    ) -> Result<[ReadyFunctionReturnObservationV1; 2], String> {
+        let claims = self.completion.explicit_claims();
+        if claims.len() != 2 {
+            return Err(format!(
+                "selected Dynamic receipt requires exactly two returns, got {}",
+                claims.len()
+            ));
+        }
+        let mut observations = Vec::with_capacity(2);
+        for claim in claims {
+            let super::completion_consumption::ExplicitReturnWitnessV1::Value(witness) =
+                claim.witness()
+            else {
+                return Err("selected Dynamic receipt requires value returns".to_owned());
+            };
+            observations.push(ReadyFunctionReturnObservationV1 {
+                site: claim.site().clone(),
+                block: witness.block(),
+                value: witness.value(),
+            });
+        }
+        observations
+            .try_into()
+            .map_err(|_| "selected Dynamic return observation cardinality drift".to_owned())
     }
 }
 
@@ -459,6 +529,59 @@ impl PreparedFunctionStaleFactsV1 {
 }
 
 impl PreparedFunctionDraftSealPlanV1 {
+    /// Install the source-bound pinned-Text carrier only after the detached
+    /// candidate has passed DraftSeal verification. The live function never
+    /// receives this transport metadata, and duplicate installation rejects
+    /// before commit.
+    #[cfg(test)]
+    pub(super) fn install_pinned_text_residence_backend_carrier(
+        mut self,
+        carrier: crate::mir::compiler::pinned_text_residence_backend_carrier::PinnedTextResidenceBackendCarrierV1,
+    ) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
+        crate::mir::compiler::pinned_text_residence_backend_projection::install_pinned_text_residence_backend_carrier_v1(
+            carrier,
+            &mut self.metadata.projection.function,
+        )
+        .map_err(|error| {
+                FunctionDraftSealProjectionErrorV1::MetadataContractFailed(format!(
+                    "pinned-Text Residence backend carrier install rejected: {error:?}"
+                ))
+            })?;
+        Ok(self)
+    }
+
+    /// Install selected Dynamic candidate metadata on the detached final
+    /// projection only.  The live FunctionMetadata was intentionally cloned
+    /// before this move, so clone-scrubbing remains a one-way publication
+    /// fence while the candidate still receives the issued values exactly once.
+    pub(super) fn install_selected_dynamic_candidate(
+        mut self,
+        candidate: super::draft_seal_owner::SelectedDynamicCandidateMetadataV1,
+    ) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
+        let (receipt, projection) = candidate.into_parts();
+        self.metadata
+            .projection
+            .function
+            .metadata
+            .install_a_prime_i64_physical_receipt(receipt)
+            .map_err(|error| {
+                FunctionDraftSealProjectionErrorV1::MetadataContractFailed(format!(
+                    "selected Dynamic A-prime receipt install rejected: {error:?}"
+                ))
+            })?;
+        self.metadata
+            .projection
+            .function
+            .metadata
+            .install_dynamic_v2_aot_metadata(projection)
+            .map_err(|error| {
+                FunctionDraftSealProjectionErrorV1::MetadataContractFailed(format!(
+                    "selected Dynamic AOT metadata install rejected: {error:?}"
+                ))
+            })?;
+        Ok(self)
+    }
+
     #[cfg(test)]
     pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
         match &self.metadata.projection.exit {

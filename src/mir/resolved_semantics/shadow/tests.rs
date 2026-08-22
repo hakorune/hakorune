@@ -77,6 +77,25 @@ fn resolve(function: &ASTNode) -> super::ShadowResolvedFunctionV0 {
 }
 
 #[test]
+fn explicit_extern_call_issues_one_site_keyed_symbol_relation() {
+    let tree = function(
+        &[],
+        vec![ASTNode::ExplicitExternCall {
+            target: "env.get".to_owned(),
+            arguments: vec![int(1)],
+            span: span(),
+        }],
+    );
+    let product = resolve(&tree);
+    let site = expr_site(vec![SourcePathSegmentV1::Body(0)]);
+    assert_eq!(
+        product.explicit_extern_calls[&site].symbol.as_ref(),
+        "env.get"
+    );
+    assert!(product.direct_calls.get(&site).is_none());
+}
+
+#[test]
 fn initializer_observes_outer_binding_before_shadow_is_inserted() {
     let tree = function(
         &[],
@@ -661,6 +680,7 @@ fn accepted_vocabulary_is_closed_and_reviewable() {
             "FieldAccess",
             "Index",
             "FunctionCall",
+            "ExplicitExternCall",
             "New",
             "AwaitExpression",
             "ArrayLiteral",

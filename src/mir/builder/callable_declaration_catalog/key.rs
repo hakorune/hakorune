@@ -55,4 +55,9 @@ impl CanonicalSameModuleCallableKeyV1 {
     pub(crate) fn test_static_box_method(owner: &str, name: &str, arity: usize) -> Self {
         Self::static_box_method(owner, name, arity as u32)
     }
+
+    #[cfg(test)]
+    pub(crate) fn test_instance_box_method(owner: &str, name: &str, arity: usize) -> Self {
+        Self::instance_box_method(owner, name, arity as u32)
+    }
 }

@@ -6,8 +6,14 @@
 // gives the schema its first shadow-only producer/consumer.
 #![allow(dead_code, unused_imports)]
 
+mod assignment_source;
+mod block_expr_expectation;
 mod body_effect_control_coverage;
 mod body_shape;
+mod body_shape_resolver;
+mod brand_source_relation;
+#[cfg(test)]
+mod brand_source_relation_tests;
 mod callable_catalog;
 mod callable_catalog_candidate;
 mod callable_catalog_resolution_source;
@@ -17,12 +23,15 @@ mod callable_index;
 mod callable_module_header_view;
 mod callable_source_ledger;
 mod callable_symbol;
+mod core_method_instance_target;
 mod declared_instance_contract;
 mod declared_query_body_source;
 mod direct_call;
 mod direct_call_verifier;
 mod enum_match_demand;
 mod enum_variant_demand;
+mod explicit_extern_call;
+mod expression_source;
 mod function_root;
 mod function_view;
 pub(crate) mod generic_g0;
@@ -55,7 +64,9 @@ mod query_body_facts;
 mod record_schema_demand;
 mod records;
 mod resolver;
+mod resolver_core_method_callable_contract;
 mod script_view;
+mod selected_callable_deferred;
 mod shadow;
 mod source_path_policy;
 mod source_projection;
@@ -63,12 +74,20 @@ mod source_site;
 mod source_site_inventory;
 mod verifier;
 
+pub(crate) use assignment_source::{ResolvedAssignmentFormV1, ResolvedAssignmentSourceV1};
+pub(crate) use block_expr_expectation::{
+    issue_resolved_block_expr_expectation_v1, ResolvedBlockExpressionExpectationIssueV1,
+    VerifiedResolvedBlockExpressionExpectationV1,
+};
 pub(crate) use body_shape::{
     BodyEffectKindV1, BodyEffectShapeV1, BodyExpressionShapeV1, BodyMeReceiverV1,
     BodyShapeRelationV1, BodyStatementShapeV1, ResolvedFunctionBodyShapeProductV1,
     ResolvedMethodCallArgumentSourceV1, ResolvedMethodCallReceiverSourceV1,
     ResolvedMethodCallSourceIssueV1, VerifiedResolvedBodyShapeInventoryV1,
     VerifiedResolvedMethodCallSourceV1,
+};
+pub(crate) use brand_source_relation::{
+    BrandCallSourceRelationKindV1, VerifiedBrandCallSourceRelationV1,
 };
 pub(crate) use callable_catalog::{
     CallableCatalogOwnerSealErrorV1, CallableCatalogSealOutcomeV1,
@@ -98,6 +117,12 @@ pub(crate) use callable_source_ledger::{
     CallableSourceRowFamilyV1, VerifiedCallableLoopMembershipV1,
 };
 pub(crate) use callable_symbol::CanonicalCallableSymbolV1;
+pub(crate) use core_method_instance_target::{
+    CoreMethodHomeAbiProfileV1, CoreMethodHomeExecutionPolicyV1, CoreMethodHomeParameterRelationV1,
+    CoreMethodHomeReceiverRelationV1, CoreMethodHomeResultRelationV1, CoreMethodHomeSchemaV1,
+    CoreMethodInstanceTargetIssuerV1, CoreMethodInstanceTargetRejectV1, CoreMethodTargetBrandV1,
+    VerifiedCoreMethodInstanceTargetV1,
+};
 pub(crate) use declared_instance_contract::{
     DeclaredInstanceMethodContractIssueV1, DeclaredInstanceMethodContractIssuerV1,
     DeclaredInstanceMethodContractRefV1, DeclaredInstanceMethodIdentityV1,
@@ -112,6 +137,12 @@ pub(crate) use enum_match_demand::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1,
 };
 pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1};
+pub(crate) use explicit_extern_call::ResolvedExplicitExternCallV1;
+pub(crate) use expression_source::{
+    ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1, ResolvedInitializerRelationV1,
+    ResolvedExpressionSourceInventoryV1, ResolvedLiteralSourceV1,
+    ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
+};
 pub(crate) use function_root::{
     ResolvedFunctionLoweringRootsV1, ResolvedFunctionRootVerificationErrorV1,
     ResolvedOwnerLoweringRootsV1,
@@ -129,7 +160,9 @@ pub(crate) use home_relation::{
 pub(crate) use ids::FunctionOwnerIssuerV1;
 pub use ids::{BindingRefV1, FunctionOwnerIdV1, RegionId, ScopeId, UpvarRefV1};
 pub use if_region::ResolvedIfRegionVerificationErrorV1;
-pub(crate) use if_region::{ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1};
+pub(crate) use if_region::{
+    ResolvedIfConditionRegionRefV1, ResolvedIfRegionBundleV1, ResolvedIfRegionLookupErrorV1,
+};
 pub(in crate::mir) use instance_method_body_owner::{
     InstanceMethodBodyOwnerBindingIssueV1, InstanceMethodBodyOwnerBindingIssuerV1,
     VerifiedInstanceMethodBodyOwnerCatalogV1, VerifiedInstanceMethodBodyOwnerRowV1,
@@ -157,9 +190,10 @@ pub(crate) use loop_family_window::{
 pub(crate) use loop_region::loop_execution_frame_key_for_test;
 pub use loop_region::ResolvedLoopRegionVerificationErrorV1;
 pub(crate) use loop_region::{
-    LoopExecutionFrameKeyV1, ResolvedLoopRegionBundleV1, ResolvedLoopRegionLookupErrorV1,
-    ResolvedLoopSourceForestRejectV1, VerifiedResolvedLoopSourceForestMemberV1,
-    VerifiedResolvedLoopSourceForestV1, VerifiedResolvedLoopSourceV1,
+    LoopExecutionFrameKeyV1, ResolvedLoopPlacementV1, ResolvedLoopRegionBundleV1,
+    ResolvedLoopRegionLookupErrorV1, ResolvedLoopSourceForestRejectV1,
+    VerifiedResolvedLoopSourceForestMemberV1, VerifiedResolvedLoopSourceForestV1,
+    VerifiedResolvedLoopSourceV1,
 };
 pub use normalized::{
     NormalizedAssignmentTargetV1, NormalizedAssignmentV1, NormalizedBindingKeyV1,
@@ -181,7 +215,9 @@ pub use owner_forest::{
 pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
-    ResolveSelectedCallableForestsOutcomeV1,
+    ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
+    ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
+    SourceBoundSelectedCallableResolverRejectV1,
 };
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
@@ -222,9 +258,18 @@ pub use records::{
 pub(crate) use resolver::{
     FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveScriptOutcomeV1,
 };
+pub(crate) use resolver_core_method_callable_contract::{
+    ResolverCoreMethodCallableContractIssuerV1, ResolverCoreMethodCallableContractRejectV1,
+    VerifiedResolverCoreMethodCallableContractV1,
+};
 pub(crate) use script_view::ScriptSyntaxViewV1;
+pub(crate) use selected_callable_deferred::{
+    SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverDeferredV1,
+    SelectedCallableResolverInputV1, SelectedCallableResolverSourceIdentityV1,
+};
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
+    observe_script_method_calls_shadow_view_v0,
     ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
     ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
@@ -236,10 +281,12 @@ pub(crate) use shadow::{
     ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
+    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1,
+    ScriptResolverDeferredV1, SourceResolverDeferredV1,
 };
 pub(crate) use source_path_policy::{
-    is_statement_expression_surface_v1, BodyChildRoleV1, ExprChildRoleV1, ExprChildSyntaxV1,
-    ResolvedBodyChildV1, ResolvedExprChildV1, SourceBodyKindV1,
+    assignment_value_sibling_v1, is_statement_expression_surface_v1, BodyChildRoleV1,
+    ExprChildRoleV1, ExprChildSyntaxV1, ResolvedBodyChildV1, ResolvedExprChildV1, SourceBodyKindV1,
 };
 pub(in crate::mir) use source_projection::{
     project_source_body_node_v1, project_source_node_v1, ProjectedSourceNodeV1,

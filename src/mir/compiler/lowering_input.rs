@@ -4,10 +4,13 @@
 //! exact-source projection into one disconnected transport bundle. The bundle
 //! is constructed atomically from one owned syntax root at SA3-B.
 
+use std::collections::BTreeMap;
 use std::fmt;
 
 use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::VerifiedSemanticOwnerForestV1;
+use crate::mir::resolved_semantics::{
+    FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1, VerifiedSemanticOwnerForestV1,
+};
 
 use super::source_projection::VerifiedSourceProjectionV1;
 
@@ -28,6 +31,7 @@ pub struct VerifiedResolvedSourceUnitV1 {
     syntax: CanonicalSyntaxOwnerV1,
     forest: VerifiedSemanticOwnerForestV1,
     projection: VerifiedSourceProjectionV1,
+    body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
     _seal: ResolvedSourceUnitSealV1,
 }
 
@@ -49,7 +53,7 @@ impl VerifiedResolvedSourceUnitV1 {
                 detail: format!("{error:?}"),
             }
         })?;
-        let forest = session.resolve_forest(view).map_err(|error| {
+        let (forest, body_shapes) = session.resolve_forest_with_body_shapes(view).map_err(|error| {
             CanonicalLoweringErrorV1::SourceUnitResolution {
                 detail: format!("{error:?}"),
             }
@@ -63,6 +67,7 @@ impl VerifiedResolvedSourceUnitV1 {
             syntax: CanonicalSyntaxOwnerV1 { root },
             forest,
             projection,
+            body_shapes,
             _seal: ResolvedSourceUnitSealV1,
         })
     }
@@ -77,6 +82,13 @@ impl VerifiedResolvedSourceUnitV1 {
 
     pub(crate) fn projection(&self) -> &VerifiedSourceProjectionV1 {
         &self.projection
+    }
+
+    pub(crate) fn body_shape(
+        &self,
+        owner: FunctionOwnerIdV1,
+    ) -> Option<&VerifiedResolvedBodyShapeInventoryV1> {
+        self.body_shapes.get(&owner)
     }
 
     pub fn lowering_input(&self) -> ResolvedModuleLoweringInputV1<'_> {
@@ -251,6 +263,7 @@ pub(super) fn verified_source_unit_for_test(root: ASTNode) -> VerifiedResolvedSo
 #[cfg(test)]
 mod tests {
     use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
+    use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 
     use super::*;
 
@@ -291,6 +304,25 @@ mod tests {
             ASTNode::FunctionDeclaration { .. }
         ));
         assert_eq!(input.source_unit().forest().owner_count(), 1);
+        let root_owner = input.source_unit().forest().roots()[0];
+        let body_shape = input
+            .source_unit()
+            .body_shape(root_owner)
+            .expect("resolver body-shape product");
+        assert_eq!(body_shape.owner(), root_owner);
+    }
+
+    #[test]
+    fn bare_constructor_does_not_fabricate_a_body_shape() {
+        let root = function();
+        let unit = verified_source_unit_for_test(root);
+        let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+            unit.syntax_root(),
+            unit.forest(),
+            unit.projection(),
+        )
+        .expect("bare mechanical input");
+        assert!(input.body_shape().is_none());
     }
 
     #[test]

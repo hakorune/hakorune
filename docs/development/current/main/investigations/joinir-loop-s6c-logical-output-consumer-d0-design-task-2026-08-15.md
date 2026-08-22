@@ -1,0 +1,83 @@
+---
+Status: accepted; consumer I0 is bounded and ready
+Date: 2026-08-15
+Decision: design a product-first logical consumer without opening JoinModule/MIR
+Scope: M8 LoopV0 forward ScanWithInit logical output; caller-zero only
+---
+
+# JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-OUTPUT-CONSUMER-D0
+
+## Six-line brief
+
+```text
+Decision: keep the S6C logical output product as the only consumer input and fix one typed Consumed/reject terminal.
+Source authority + canonical issuer: VerifiedS6CScanWithInitLogicalOutputV1 and its private HRTB view.
+Non-authority: raw Recipe/JoinSig, JoinModule/MIR, names, selectors, physical IDs, Artifact, fallback, retry.
+Fail-fast boundary: canonical call-role co-seal, row/domain/transfer drift, and result-shape drift reject before any module or backend effect.
+Smallest next slice: specify one caller-zero consumer façade, canonical call view, and typed terminal result/reject.
+Non-claims: no JoinModule construction, MIR lowering, physical selection, production caller, or legacy retirement.
+```
+
+## Current capsule
+
+The preceding I0 producer consumes the combined non-Clone S6C
+Facts/Recipe/Join product by value and retains it inside
+`VerifiedS6CScanWithInitLogicalOutputV1`. Its private façade lends fixed
+Recipe-local logical rows and borrows the already sealed source-call and Join
+transfer authorities. It does not create a new key space or materialize
+JoinModule/MIR.
+
+The remaining consumer work is one bounded caller-zero implementation returning
+the fixed typed terminal. The independent source-call escape is closed by the bounded
+`JOINIR-LOOP-M8-LOOPV0-SCANS-S6C-LOGICAL-CALL-VIEW-R0` BoxShape. It must not accept a
+Recipe-only or JoinSig-only input, and it must not use the compatibility
+`LoopToJoinLowerer` as a semantic oracle.
+
+## Required correction before consumer I0
+
+The landed output façade currently exposes `rows()`, `input()`, and
+`logical_transfer()` as separate read surfaces. The accepted R0 removes the
+raw `input()` escape and adds one private role-wise call view that co-seals the
+`Length`/`Substring` row with its retained source contract. The independent
+`calls` array remains only as logical row storage; consumers use the paired
+view.
+
+The consumer result dialect is fixed for I0: a private HRTB façade invokes one
+caller-zero logical consumer and returns
+`Result<S6CLogicalConsumerResultV1, S6CLogicalConsumerRejectV1>`. The result is
+the typed `Consumed` terminal of the already sealed output, not a new
+Facts/Recipe/Join authority; the named reject is fail-fast drift only.
+`()`, `Option`, legacy `JoinModule`, MIR values, and generic unconstrained
+consumer results are not acceptable boundaries. A result that introduces new
+semantic meaning remains a separate BoxCount design stop.
+
+## Required design checks
+
+1. The consumer receives the combined output product only through its private
+   HRTB view;
+   no constituent product can be re-paired by the caller.
+2. Every output row and source-call role is consumed by one fixed typed role;
+   missing, duplicate,
+   swapped, foreign-owner, and transfer-drift cases reject before effects.
+3. Logical output remains distinct from JoinModule/MIR values, blocks, IDs,
+   ABI, and physical layout.
+4. The callable Tail `return -1` remains Facts/Completion authority and is not
+   imported as a loop consumer exit.
+5. The consumer returns only the named typed
+   `Result<S6CLogicalConsumerResultV1, S6CLogicalConsumerRejectV1>` and has
+   no `Option` fallback, selector, retry, or production route. A later physical
+   consumer requires a separate design stop.
+
+## Acceptance / negative matrix
+
+```text
+positive: exact 15 items, one canonical Length/Substring call view, one If/Return,
+          one Backedge, After L0/B0/I64, typed accepted result
+negative: row omission/duplication, call-role re-pair, wrong class, foreign owner/frame,
+          branch/summary/After drift, raw Recipe input, Tail import, fallback,
+          untyped/Option result
+```
+
+The call-view R0 is closed and this D0 authorizes exactly one bounded I0
+consumer row. The I0 implementation must remain product-first and caller-zero;
+it may not change source, Facts, Recipe, Join, or physical authorities.

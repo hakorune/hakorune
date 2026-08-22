@@ -1,29 +1,22 @@
-//! LLVM harness executor (native executable generation and execution)
+//! LLVM compatibility-harness executor (native executable generation).
 //!
-//! Handles execution via LLVM harness when available (feature-gated).
+//! The selected Dynamic Boundary owner lives in `boundary_executor`; this
+//! module is the explicit compatibility lane and keeps its historical
+//! feature-gated behavior until the feature recut is complete.
 
+#[cfg(feature = "llvmlite-compat")]
+use super::boundary_executor::run_emitted_executable;
 use super::error::LlvmRunError;
 use crate::config::env;
 use crate::runtime::get_global_ring0;
 use nyash_rust::mir::MirModule;
 
-/// Harness executor Box
-///
-/// **Responsibility**: Execute via LLVM harness (native executable generation and execution)
-/// **Input**: &MirModule
-/// **Output**: Result<i32, LlvmRunError> (Ok(exit_code) if executed, Err if failed)
+/// Compatibility harness executor.
 pub struct HarnessExecutorBox;
 
 impl HarnessExecutorBox {
-    /// Execute via LLVM harness if available
-    ///
-    /// This function:
-    /// 1. Generates a native executable via ny-llvmc
-    /// 2. Executes the generated executable
-    /// 3. Returns the exit code
-    ///
-    /// Returns Ok(exit_code) on success, Err(LlvmRunError) on failure.
-    #[cfg(feature = "llvm-harness")]
+    /// Execute via the explicit LLVM compatibility harness.
+    #[cfg(feature = "llvmlite-compat")]
     pub fn try_execute(module: &MirModule) -> Result<i32, LlvmRunError> {
         log_harness_runtime_state();
         ensure_harness_requested()?;
@@ -32,7 +25,7 @@ impl HarnessExecutorBox {
         run_emitted_executable(exe_out)
     }
 
-    #[cfg(not(feature = "llvm-harness"))]
+    #[cfg(not(feature = "llvmlite-compat"))]
     pub fn try_execute(_module: &MirModule) -> Result<i32, LlvmRunError> {
         if env::cli_verbose_enabled() {
             get_global_ring0()
@@ -48,7 +41,7 @@ impl HarnessExecutorBox {
     }
 }
 
-#[cfg(feature = "llvm-harness")]
+#[cfg(feature = "llvmlite-compat")]
 fn log_harness_runtime_state() {
     if env::cli_verbose_enabled() {
         get_global_ring0()
@@ -66,7 +59,7 @@ fn log_harness_runtime_state() {
     }
 }
 
-#[cfg(feature = "llvm-harness")]
+#[cfg(feature = "llvmlite-compat")]
 fn ensure_harness_requested() -> Result<(), LlvmRunError> {
     if crate::config::env::llvm_use_harness() {
         return Ok(());
@@ -76,7 +69,7 @@ fn ensure_harness_requested() -> Result<(), LlvmRunError> {
     ))
 }
 
-#[cfg(feature = "llvm-harness")]
+#[cfg(feature = "llvmlite-compat")]
 fn emit_executable_via_ny_llvmc(module: &MirModule, exe_out: &str) -> Result<(), LlvmRunError> {
     let libs = env::env_string("NYASH_LLVM_EXE_LIBS");
     crate::runner::modes::common_util::exec::ny_llvmc_emit_exe_lib(
@@ -91,18 +84,4 @@ fn emit_executable_via_ny_llvmc(module: &MirModule, exe_out: &str) -> Result<(),
             e
         ))
     })
-}
-
-#[cfg(feature = "llvm-harness")]
-fn run_emitted_executable(exe_out: &str) -> Result<i32, LlvmRunError> {
-    match crate::runner::modes::common_util::exec::run_executable(exe_out, &[], 20_000) {
-        Ok((code, _timed_out, stdout_text)) => {
-            if !stdout_text.is_empty() {
-                print!("{}", stdout_text);
-            }
-            crate::console_println!("✅ LLVM (harness) execution completed (exit={})", code);
-            Ok(code)
-        }
-        Err(e) => Err(LlvmRunError::fatal(format!("run executable error: {}", e))),
-    }
 }

@@ -2,8 +2,11 @@
 mod tests {
     use super::super::test_support::with_joinir_env;
     use super::super::v0::try_extract_generic_loop_v0_facts;
-    use super::super::v1::try_extract_generic_loop_v1_facts;
+    use super::super::v1::{
+        try_extract_generic_loop_v1_facts, try_extract_generic_loop_v1_facts_with_policy,
+    };
     use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span, UnaryOperator};
+    use crate::mir::builder::control_flow::plan::generic_loop::facts::GenericLoopFactsPolicyFrameV1;
     use crate::mir::policies::BodyLoweringPolicy;
 
     fn var(name: &str) -> ASTNode {
@@ -259,6 +262,36 @@ mod tests {
             assert!(matches!(
                 facts.body_lowering_policy,
                 BodyLoweringPolicy::ExitAllowed { .. }
+            ));
+        });
+    }
+
+    #[test]
+    fn generic_loop_v1_explicit_policy_is_retained_over_ambient_gate() {
+        // Keep the ambient planner gate enabled to prove the explicit frame,
+        // rather than a later environment read, owns the final policy.
+        with_joinir_env(Some("1"), Some("1"), || {
+            let cond = bin(BinaryOperator::Less, var("i"), var("n"));
+            let body = vec![
+                local_init("tmp0", lit_i(0)),
+                ASTNode::If {
+                    condition: Box::new(cond.clone()),
+                    then_body: vec![assign("tmp1", lit_i(1))],
+                    else_body: Some(vec![assign("tmp2", lit_i(2))]),
+                    span: Span::unknown(),
+                },
+                assign("i", bin(BinaryOperator::Add, var("i"), lit_i(1))),
+            ];
+            let policy =
+                GenericLoopFactsPolicyFrameV1::from_values(true, true, false, false, false, true);
+
+            let facts = try_extract_generic_loop_v1_facts_with_policy(&cond, &body, policy)
+                .expect("no freeze")
+                .expect("should match");
+
+            assert!(matches!(
+                facts.body_lowering_policy,
+                BodyLoweringPolicy::RecipeOnly
             ));
         });
     }

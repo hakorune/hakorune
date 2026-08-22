@@ -24,6 +24,7 @@ pub mod core_box_ids; // Phase 87: CoreBoxId/CoreMethodId 型安全enum
 pub mod core_method_aliases; // Phase 29ab: Core method alias SSOT
 pub mod core_services; // Phase 91: CoreServices trait 定義
 pub mod deprecations;
+pub mod dynamic_v2_lease;
 pub(crate) mod exact_numeric_contract;
 pub mod extern_registry; // ExternCall (env.*) 登録・診断用レジストリ
 pub mod gc;
@@ -46,6 +47,8 @@ pub mod plugin_ffi_common;
 pub mod plugin_host; // Phase 91: PluginHost skeleton
 pub mod plugin_loader_unified;
 pub mod plugin_loader_v2;
+#[cfg(feature = "promotion-test-support")]
+pub mod promotion_test_support;
 pub mod provider_lock;
 pub mod provider_verify;
 pub mod ring0; // Phase 88: Ring0Context - OS API 抽象化レイヤー
@@ -54,13 +57,24 @@ pub mod runtime_profile; // Phase 109: RuntimeProfile enum (Default/NoFs)
 pub mod scheduler;
 pub mod scheduler_route;
 pub mod semantics;
+// The source-bound producer is an intentional caller-zero canary until the
+// common-V2 production edge is opened; keep its parked surface warning-free.
+#[allow(dead_code)]
+pub(crate) mod source_bound_v9_runtime;
 pub mod sync_box;
+// The source-bound scope is a caller-zero lifecycle canary until TextEq V10
+// opens; keep its parked API warning-free without making it a production arm.
+#[allow(dead_code)]
+pub(crate) mod text_eq_residence_scope;
+pub mod text_formal_abi;
+pub(crate) mod text_formal_call_lease;
+pub mod text_formal_residence;
 pub mod thread_capability;
 pub mod thread_registry;
 pub mod type_box_abi; // Phase 12: Nyash ABI (vtable) 雛形
 pub mod type_meta;
-pub mod type_registry;
-// Deprecation warnings with warn-once guards.
+pub mod type_registry; // Versioned generation-checked callable Text formal lane
+                       // Deprecation warnings with warn-once guards.
 pub mod unified_registry;
 // Phase 285LLVM-1: WeakRef Handle レジストリ（bit 63 = 1）
 // Phase 12: TypeId→TypeBox 解決（雛形） / env.modules minimal registry

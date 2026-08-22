@@ -31,8 +31,8 @@ export HAKO_JOINIR_STRICT="${HAKO_JOINIR_STRICT:-1}"
 # ============================================================================
 # LLVM Features
 # ============================================================================
-# LLVM harness execution (Python llvmlite backend)
-export NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-1}"
+# LLVM harness execution is an explicit compatibility selector; Boundary is default.
+export NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}"
 
 # LLVM backend selection (crate|python|auto)
 export NYASH_LLVM_BACKEND="${NYASH_LLVM_BACKEND:-crate}"

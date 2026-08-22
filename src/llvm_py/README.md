@@ -15,9 +15,11 @@ mainline backend route は `ny-llvm / ny-llvmc` に固定されていて、こ�
 - `tools/llvmlite_harness.py` と `src/llvm_py/**` は current daily owner ではない
 - daily backend route は `.hako -> LlvmBackendBox -> hako_aot -> backend helper`
 - Python/llvmlite line は explicit opt-in probe/canary keep としてだけ保守する
+- Rust runner の互換入口は `llvmlite-compat` feature の明示有効時だけ到達し、`llvm-boundary` は Python/llvmlite を依存しない
 - `tools/llvmlite_harness.py` は `"[llvmlite-keep]"` tag で keep lane を self-identify する
 - compat harness は `llvm_builder.py` CLI を `runpy` で再入せず、narrow library seam を直接呼ぶ
-- この repo から retire するのはまだ先で、retire する場合も source + artifact を external archive repo に保存してからだけ行う
+- W6-EのBoundary artifact receiptとcaller-zero証拠後に、既存の [llvmlite graduation task board](../../docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md) のG1→G2→G3を順に実施する。G1（`LLVMLITE-PROD0-G0`）は自動production ingress=0・native failure→harness retry=0・unsupportedはtyped fail-fast、G2（`LLVMLITE-AUTO0`）は通常build/CI/perfのPython/llvmlite依存=0、G3（`LLVMLITE-KEEP0-RET0`）は独立oracleとfixture/golden保存・zero-or-archived consumer census後のarchive/delete判断とする。ここでは新しい意味論やfallbackを追加しない
+- G3でこのrepoから退役する場合も、独立oracle、fixture/golden、全consumerのzero-or-archiveを確認し、source + artifactをexternal archiveへ保存してから別承認で行う
 
 ## 📂 構造
 ```

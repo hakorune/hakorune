@@ -1,4 +1,5 @@
 use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1;
+use crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
 use crate::mir::resolved_semantics::{
     BindingRefV1, FunctionOriginV1, FunctionOwnerIdV1, HomeDemandV1,
@@ -8,6 +9,7 @@ use crate::mir::resolved_semantics::{
 pub(crate) enum CallableParameterContractKindV1 {
     OpaqueHandle,
     ExactTrivial(ExactTrivialParameterAbiV1),
+    ExactText(ExactTextFormalAbiV1),
 }
 
 impl CallableParameterContractKindV1 {
@@ -15,6 +17,7 @@ impl CallableParameterContractKindV1 {
         match self {
             Self::OpaqueHandle => HomeDemandV1::Handle,
             Self::ExactTrivial(_) => HomeDemandV1::Trivial,
+            Self::ExactText(_) => HomeDemandV1::Handle,
         }
     }
 
@@ -22,6 +25,7 @@ impl CallableParameterContractKindV1 {
         match self {
             Self::OpaqueHandle => None,
             Self::ExactTrivial(abi) => Some(abi),
+            Self::ExactText(_) => None,
         }
     }
 }

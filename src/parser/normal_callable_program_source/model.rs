@@ -1,9 +1,15 @@
 use crate::ast::ASTNode;
+use crate::mir::CanonicalSourceBytesDigestV1;
+use hakorune_frontend_parser::parser::GrammarProfile;
 
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-    ParserCallableSyntaxLoanErrorV1,
+    with_parser_composite_source_loan_from_normal_authority,
+    with_parser_normal_program_source_loan, ParserNormalProgramSourceAuthorityDispositionV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
+    ParserCallableSyntaxLoanErrorV1, ParserCompositeSourceLoanRejectV1,
+    ParserCompositeSourceLoanV1,
 };
 use super::super::callable_source_anchor::{
     DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
@@ -28,6 +34,79 @@ pub(crate) enum NormalCallableParserCompatibilityV1 {
     UnsupportedCallableSource,
 }
 
+/// AST-free source identity carried beside one parser-issued callable source.
+///
+/// The parser product owns semantic coverage; this projection only preserves
+/// the already-sealed read/parse identity for a later source-plan consumer.
+/// It cannot be reconstructed from an AST, path, or Builder invocation.
+#[derive(Debug)]
+pub(crate) struct NormalParserSourceLineageV1 {
+    source_identity: Box<str>,
+    source_digest: CanonicalSourceBytesDigestV1,
+    grammar_profile: GrammarProfile,
+    utf8_len: usize,
+    read_count: u8,
+    parse_count: u8,
+    _seal: NormalParserSourceLineageSealV1,
+}
+
+#[derive(Debug)]
+pub(crate) struct NormalParserSourceLineageSealV1;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum NormalParserSourceLineageErrorV1 {
+    InvalidReadParseReceipt,
+    EmptySourceIdentity,
+}
+
+impl NormalParserSourceLineageV1 {
+    pub(crate) fn issue(
+        source_identity: impl Into<Box<str>>,
+        source_digest: CanonicalSourceBytesDigestV1,
+        grammar_profile: GrammarProfile,
+        utf8_len: usize,
+        read_count: u8,
+        parse_count: u8,
+    ) -> Result<Self, NormalParserSourceLineageErrorV1> {
+        let source_identity = source_identity.into();
+        if source_identity.is_empty() {
+            return Err(NormalParserSourceLineageErrorV1::EmptySourceIdentity);
+        }
+        if read_count != 1 || parse_count != 1 {
+            return Err(NormalParserSourceLineageErrorV1::InvalidReadParseReceipt);
+        }
+        Ok(Self {
+            source_identity,
+            source_digest,
+            grammar_profile,
+            utf8_len,
+            read_count,
+            parse_count,
+            _seal: NormalParserSourceLineageSealV1,
+        })
+    }
+
+    pub(crate) fn source_identity(&self) -> &str {
+        &self.source_identity
+    }
+
+    pub(crate) const fn source_digest(&self) -> CanonicalSourceBytesDigestV1 {
+        self.source_digest
+    }
+
+    pub(crate) const fn grammar_profile(&self) -> GrammarProfile {
+        self.grammar_profile
+    }
+
+    pub(crate) const fn utf8_len(&self) -> usize {
+        self.utf8_len
+    }
+
+    pub(crate) const fn receipt_counts(&self) -> (u8, u8) {
+        (self.read_count, self.parse_count)
+    }
+}
+
 #[derive(Debug)]
 pub(crate) enum ParsedNormalCallableProgramV1 {
     SourceBacked(PreparedNormalCallableProgramSourceV1),
@@ -44,27 +123,35 @@ pub(in crate::parser) enum NormalCallableParameterSourceRejectV1 {
     DuplicateDirectMethod,
     UnexpectedDirectMethod,
     SyntaxMismatch,
+    ConstructorSourceMissing,
+    CompositeSourceCompatibilityLoss,
 }
 
 #[derive(Debug)]
 pub(crate) struct PreparedNormalCallableProgramSourceV1 {
     initial: VerifiedInitialCallableProgramSourceV1,
     parameter_source: ParserCallableParameterSourceDispositionV1,
+    source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
 }
 
 impl PreparedNormalCallableProgramSourceV1 {
     pub(in crate::parser) fn issue(
         initial: VerifiedInitialCallableProgramSourceV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,
+        source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     ) -> Result<Self, NormalCallableParameterSourceRejectV1> {
         if let ParserCallableParameterSourceDispositionV1::Complete(catalog) = &parameter_source {
             validate_direct_parameter_coverage(initial.callable_rows(), catalog)?;
             borrow_callable_declaration_syntax_v1(initial.ast(), catalog)
                 .map_err(|_| NormalCallableParameterSourceRejectV1::SyntaxMismatch)?;
         }
+        if initial.constructor_source_is_missing() {
+            return Err(NormalCallableParameterSourceRejectV1::ConstructorSourceMissing);
+        }
         Ok(Self {
             initial,
             parameter_source,
+            source_authority,
         })
     }
 
@@ -76,6 +163,30 @@ impl PreparedNormalCallableProgramSourceV1 {
         self.initial.into_ast()
     }
 
+    pub(crate) fn composite_source_is_ready(&self) -> bool {
+        self.source_authority.composite_source_is_ready()
+    }
+
+    /// Lend the parser-issued composite source at the named admission
+    /// boundary. The higher-ranked callback cannot return an AST reference.
+    pub(crate) fn with_composite_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserCompositeSourceLoanRejectV1> {
+        with_parser_composite_source_loan_from_normal_authority(
+            &self.source_authority,
+            self.ast(),
+            callback,
+        )
+    }
+
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        with_parser_normal_program_source_loan(&self.source_authority, self.ast(), callback)
+    }
+
     pub(in crate::parser) fn into_transform_parts(
         self,
     ) -> (
@@ -83,9 +194,18 @@ impl PreparedNormalCallableProgramSourceV1 {
         Box<[PreparedCallableSourceV1]>,
         Box<[InitialCallableFinalSlotV1]>,
         ParserCallableParameterSourceDispositionV1,
+        ParserNormalProgramSourceAuthorityDispositionV1,
+        super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     ) {
-        let (ast, sources, slots) = self.initial.into_transform_parts();
-        (ast, sources, slots, self.parameter_source)
+        let (ast, sources, slots, constructor_source) = self.initial.into_transform_parts();
+        (
+            ast,
+            sources,
+            slots,
+            self.parameter_source,
+            self.source_authority,
+            constructor_source.expect("constructor source checked at issue"),
+        )
     }
 }
 
@@ -104,6 +224,9 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     sources: Box<[PreparedCallableSourceV1]>,
     slots: Box<[InitialCallableFinalSlotV1]>,
     parameter_source: ParserCallableParameterSourceDispositionV1,
+    source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
+    constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
+    source_lineage: Option<NormalParserSourceLineageV1>,
     _lineage: ExactCallablePreservingTransformReceiptV1,
 }
 
@@ -116,18 +239,61 @@ impl VerifiedFinalCallableProgramSourceV1 {
         sources: Box<[PreparedCallableSourceV1]>,
         slots: Box<[InitialCallableFinalSlotV1]>,
         parameter_source: ParserCallableParameterSourceDispositionV1,
+        source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
+        constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     ) -> Self {
         Self {
             ast,
             sources,
             slots,
             parameter_source,
+            source_authority,
+            constructor_source,
+            source_lineage: None,
             _lineage: ExactCallablePreservingTransformReceiptV1,
         }
     }
 
+    pub(crate) fn with_source_lineage(
+        mut self,
+        source_lineage: NormalParserSourceLineageV1,
+    ) -> Self {
+        debug_assert!(self.source_lineage.is_none());
+        self.source_lineage = Some(source_lineage);
+        self
+    }
+
+    pub(crate) fn source_lineage(&self) -> Option<&NormalParserSourceLineageV1> {
+        self.source_lineage.as_ref()
+    }
+
     pub(crate) fn ast(&self) -> &ASTNode {
         &self.ast
+    }
+
+    pub(crate) fn composite_source_is_ready(&self) -> bool {
+        self.source_authority.composite_source_is_ready()
+    }
+
+    /// Lend the parser-issued composite source at the final source owner.
+    /// The higher-ranked callback keeps both the AST view and token view
+    /// inside the named admission boundary.
+    pub(crate) fn with_composite_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserCompositeSourceLoanRejectV1> {
+        with_parser_composite_source_loan_from_normal_authority(
+            &self.source_authority,
+            &self.ast,
+            callback,
+        )
+    }
+
+    pub(crate) fn with_normal_program_source_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
+        with_parser_normal_program_source_loan(&self.source_authority, &self.ast, callback)
     }
 
     pub(in crate::parser) fn callable_count(&self) -> usize {
@@ -170,6 +336,19 @@ impl VerifiedFinalCallableProgramSourceV1 {
             &self.slots,
             &self.parameter_source,
         )?;
+        Ok(callback(loan))
+    }
+
+    pub(crate) fn with_constructor_semantic_syntax<R>(
+        &self,
+        callback: impl for<'source> FnOnce(
+            super::super::constructor_source_catalog::FinalConstructorSemanticSyntaxLoanV1<'source>,
+        ) -> R,
+    ) -> Result<
+        R,
+        super::super::constructor_source_catalog::FinalConstructorSemanticSyntaxLoanErrorV1,
+    > {
+        let loan = self.constructor_source.syntax_loan(&self.ast)?;
         Ok(callback(loan))
     }
 }

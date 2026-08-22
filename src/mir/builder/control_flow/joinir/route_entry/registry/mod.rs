@@ -42,7 +42,10 @@ pub(crate) use live_preflight_frame::LivePreflightFrameV1;
 pub(crate) use live_preflight_frame::{issue_live_preflight_frame, observe_all_route_preflight_v1};
 use predicates::*;
 use route_id::{entry_keys, LoopRouteId};
-pub(crate) use selection::{select_recipe_first_routes, RecipeFirstRouteSelectionV1};
+pub(crate) use selection::{
+    select_recipe_first_routes, LocatedGenericLoopV1SelectionErrorV1, RecipeFirstRouteSelectionV1,
+    VerifiedLocatedGenericLoopV1SelectionV1,
+};
 use types::LegacyRouteSuccess;
 pub(crate) use types::{Entry, RouterEnv, SharedAbsentContractDeclineRouteV1};
 

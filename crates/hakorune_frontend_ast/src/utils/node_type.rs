@@ -46,6 +46,7 @@ impl ASTNode {
             ASTNode::Local { .. } => "Local",
             ASTNode::Outbox { .. } => "Outbox",
             ASTNode::FunctionCall { .. } => "FunctionCall",
+            ASTNode::ExplicitExternCall { .. } => "ExplicitExternCall",
             ASTNode::Call { .. } => "Call",
             ASTNode::Nowait { .. } => "Nowait",
             ASTNode::TaskScope { .. } => "TaskScope",

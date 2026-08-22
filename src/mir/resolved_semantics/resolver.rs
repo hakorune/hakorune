@@ -10,8 +10,12 @@ use super::body_shape::{
     ResolvedFunctionBodyShapeProductV1, ResolvedMethodCallSourceIssueV1,
     VerifiedResolvedBodyShapeInventoryV1,
 };
+use super::brand_source_relation::{
+    seal_brand_call_source_relations_v1, BrandCallSourceRelationSealErrorV1,
+};
 use super::callable_index::{CallableLookupErrorV1, VerifiedCallableIndexV1};
 use super::direct_call::ResolvedDirectCallTargetV1;
+use super::expression_source::seal_shadow_expression_source_v1;
 use super::function_view::FunctionSyntaxViewV1;
 use super::ids::{
     BindingRefV1, FunctionOwnerIssueExhaustedV1, FunctionOwnerIssuerV1, RegionId, ScopeId,
@@ -36,13 +40,14 @@ use super::source_site::{FunctionOriginV1, ResolvedExitSiteV1};
 use super::source_site_inventory::ResolvedSourceSiteInventoryDraftV1;
 use super::{EnumVariantDemandV1, RecordSchemaDemandV1};
 use super::{
-    ResolvedFunctionVerificationErrorV1, VerifiedResolvedFunctionV1, VerifiedResolvedScriptV1,
+    ResolvedFunctionVerificationErrorV1, ScriptResolverDeferredV1, VerifiedResolvedFunctionV1,
+    VerifiedResolvedScriptV1,
 };
 
 #[derive(Debug)]
 pub(crate) enum ResolveScriptOutcomeV1 {
     Complete(VerifiedResolvedScriptV1),
-    Deferred,
+    Deferred(ScriptResolverDeferredV1),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -55,6 +60,7 @@ pub(crate) enum ResolveFunctionErrorV1 {
     MethodCallSource(ResolvedMethodCallSourceIssueV1),
     Verification(ResolvedFunctionVerificationErrorV1),
     CallableLookup(CallableLookupErrorV1),
+    BrandSourceRelation(BrandCallSourceRelationSealErrorV1),
 }
 
 /// One resolver session per compilation input.
@@ -78,7 +84,6 @@ pub(super) struct SealedScriptConstructionV1 {
     pub(super) binding_refs: BTreeMap<ShadowBindingOrdinalV0, BindingRefV1>,
     pub(super) scope_ids: BTreeMap<ShadowScopeIdV0, ScopeId>,
     pub(super) ordered_capture_demands: Box<[OrderedCaptureDemandV1]>,
-    pub(super) body_shape: VerifiedResolvedBodyShapeInventoryV1,
 }
 
 #[derive(Debug, Clone)]
@@ -156,10 +161,10 @@ impl FunctionSemanticResolverSessionV1 {
             enum_matches,
         ) {
             Ok(draft) => draft,
-            Err(error) if error.is_script_source_deferral() => {
-                return Ok(ResolveScriptOutcomeV1::Deferred)
-            }
-            Err(error) => return Err(ResolveFunctionErrorV1::ScriptInvariant(error)),
+            Err(error) => match error.clone().into_script_resolver_deferred() {
+                Some(deferred) => return Ok(ResolveScriptOutcomeV1::Deferred(deferred)),
+                None => return Err(ResolveFunctionErrorV1::ScriptInvariant(error)),
+            },
         };
         let (origin, owner) = self.issue_owner()?;
         self.seal_script_owner(owner, origin, draft)
@@ -206,6 +211,7 @@ impl FunctionSemanticResolverSessionV1 {
         let product = VerifiedResolvedScriptV1::from_canonical_data(
             canonical.data,
             canonical.source_sites,
+            canonical.body_shape,
             record_literal_demands,
             enum_variant_demands,
             enum_match_demands,
@@ -218,7 +224,6 @@ impl FunctionSemanticResolverSessionV1 {
             binding_refs: canonical.binding_refs,
             scope_ids: canonical.scope_ids,
             ordered_capture_demands: canonical.ordered_capture_demands,
-            body_shape: canonical.body_shape,
         })
     }
 
@@ -298,7 +303,7 @@ impl FunctionSemanticResolverSessionV1 {
 fn canonicalize_draft(
     owner: super::FunctionOwnerIdV1,
     function_origin: FunctionOriginV1,
-    draft: ShadowResolvedFunctionV0,
+    mut draft: ShadowResolvedFunctionV0,
     ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
     callable_index: Option<&VerifiedCallableIndexV1>,
 ) -> Result<CanonicalizedDraftV1, ResolveFunctionErrorV1> {
@@ -465,6 +470,9 @@ fn canonicalize_draft(
             Ok((site.clone(), target))
         })
         .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?;
+    let expression_source =
+        seal_shadow_expression_source_v1(std::mem::take(&mut draft.expression_source), binding_ref)
+            .map_err(ResolveFunctionErrorV1::DraftInvariant)?;
     let resolved_exits = draft
         .resolved_exits
         .iter()
@@ -512,6 +520,22 @@ fn canonicalize_draft(
             .collect::<Result<BTreeMap<_, _>, ResolveFunctionErrorV1>>()?,
         None => BTreeMap::new(),
     };
+    let brand_call_relations = seal_brand_call_source_relations_v1(
+        owner,
+        std::mem::take(&mut draft.brand_calls),
+        &draft.expression_sites,
+    )
+    .map_err(ResolveFunctionErrorV1::BrandSourceRelation)?;
+    let explicit_extern_calls = draft
+        .explicit_extern_calls
+        .into_iter()
+        .map(|(site, call)| {
+            (
+                site,
+                super::ResolvedExplicitExternCallV1::from_source(call.symbol),
+            )
+        })
+        .collect();
 
     let mut seen_capture_bindings = std::collections::BTreeSet::new();
     let mut ordered_capture_demands = Vec::new();
@@ -548,7 +572,10 @@ fn canonicalize_draft(
         variable_uses,
         assignment_targets,
         direct_call_targets,
+        brand_call_relations,
+        explicit_extern_calls,
         method_calls,
+        expression_source,
         resolved_exits,
     };
     let mut source_sites = ResolvedSourceSiteInventoryDraftV1::default();

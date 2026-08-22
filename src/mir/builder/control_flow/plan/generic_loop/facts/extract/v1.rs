@@ -29,6 +29,7 @@ use super::super::super::facts_helpers::reject_or_none;
 use super::super::super::facts_types::{
     GenericLoopV1ExtractionV1, GenericLoopV1Facts, GenericLoopV1StepDispositionV1,
 };
+use super::super::GenericLoopFactsPolicyFrameV1;
 use super::collection::{
     body_has_break_or_continue_stmt, collect_increment_loop_var_candidates_from_body,
     collect_loop_var_candidates_from_body, observe_generic_loop_carrier_observation,
@@ -63,15 +64,21 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<GenericLoopV1ExtractionV1>, Freeze> {
+    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    try_extract_generic_loop_v1_with_policy(condition, body, policy)
+}
+
+pub(in crate::mir::builder) fn try_extract_generic_loop_v1_with_policy(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    policy: GenericLoopFactsPolicyFrameV1,
+) -> Result<Option<GenericLoopV1ExtractionV1>, Freeze> {
     let flat_body = flatten_scope_boxes(body);
-    let strict = crate::config::env::joinir_dev::strict_enabled();
-    let strict_or_dev = strict || crate::config::env::joinir_dev_enabled();
-    let debug_enabled = crate::config::env::joinir_dev::debug_enabled();
-    let planner_required =
-        strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
-    // Release route also needs var-step extraction for selfhost loops where
-    // index progression uses non-literal steps (e.g. i = next_i / i = k).
-    let allow_var_step = true;
+    let strict = policy.strict();
+    let strict_or_dev = policy.strict_or_dev();
+    let debug_enabled = policy.debug_enabled();
+    let planner_required = policy.planner_required();
+    let allow_var_step = policy.allow_var_step();
     let has_break_or_continue = flat_body.iter().any(body_has_break_or_continue_stmt);
     let base_body_lowering_policy = if planner_required && !has_break_or_continue {
         BodyLoweringPolicy::ExitAllowed {
@@ -191,7 +198,7 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1(
                 let msg = crate::mir::builder::control_flow::plan::planner::tags::planner_first_tag_with_label(
                     PlanRuleId::LoopSimpleWhile,
                 );
-                if crate::config::env::joinir_dev::strict_planner_required_enabled() {
+                if policy.strict_planner_required() {
                     let ring0 = crate::runtime::get_global_ring0();
                     let _ = ring0.io.stderr_write(format!("{}\n", msg).as_bytes());
                 } else if debug_enabled {
@@ -275,7 +282,19 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<GenericLoopV1Facts>, Freeze> {
-    Ok(try_extract_generic_loop_v1(condition, body)?.map(GenericLoopV1ExtractionV1::into_facts))
+    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    try_extract_generic_loop_v1_facts_with_policy(condition, body, policy)
+}
+
+pub(in crate::mir::builder) fn try_extract_generic_loop_v1_facts_with_policy(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    policy: GenericLoopFactsPolicyFrameV1,
+) -> Result<Option<GenericLoopV1Facts>, Freeze> {
+    Ok(
+        try_extract_generic_loop_v1_with_policy(condition, body, policy)?
+            .map(GenericLoopV1ExtractionV1::into_facts),
+    )
 }
 
 fn resolve_step_for_candidate(
@@ -383,7 +402,16 @@ pub(in crate::mir::builder) fn has_generic_loop_v1_recipe_hint(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<bool, Freeze> {
-    Ok(try_extract_generic_loop_v1(condition, body)?.is_some())
+    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    has_generic_loop_v1_recipe_hint_with_policy(condition, body, policy)
+}
+
+pub(in crate::mir::builder) fn has_generic_loop_v1_recipe_hint_with_policy(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    policy: GenericLoopFactsPolicyFrameV1,
+) -> Result<bool, Freeze> {
+    Ok(try_extract_generic_loop_v1_with_policy(condition, body, policy)?.is_some())
 }
 
 fn preferred_loop_var_from_condition(condition: &ASTNode) -> Option<String> {

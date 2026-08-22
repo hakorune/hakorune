@@ -40,7 +40,8 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::ScopeBox { .. }
         | ASTNode::TaskScope { .. }
         | ASTNode::FastMemRegion { .. }
-        | ASTNode::Outbox { .. } => CurrentResolvedStatement,
+        | ASTNode::Outbox { .. }
+        | ASTNode::Program { .. } => CurrentResolvedStatement,
 
         ASTNode::Literal { .. }
         | ASTNode::Variable { .. }
@@ -52,6 +53,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::New { .. }
         | ASTNode::Me { .. }
         | ASTNode::FunctionCall { .. }
+        | ASTNode::ExplicitExternCall { .. }
         | ASTNode::AwaitExpression { .. }
         | ASTNode::ArrayLiteral { .. }
         | ASTNode::MapLiteral { .. }
@@ -63,8 +65,7 @@ pub(super) fn classify_shadow_ast_disposition_v0(node: &ASTNode) -> ShadowAstDis
         | ASTNode::GroupedAssignmentExpr { .. }
         | ASTNode::BlockExpr { .. } => CurrentResolvedExpression,
 
-        ASTNode::Program { .. }
-        | ASTNode::UsingStatement { .. }
+        ASTNode::UsingStatement { .. }
         | ASTNode::ImportStatement { .. }
         | ASTNode::StaticConstTable { .. } => SemanticallyTransparentCandidate,
 
@@ -95,6 +96,7 @@ pub(super) const SHADOW_ACCEPTED_STATEMENTS_V0: &[&str] = &[
     "Local",
     "Outbox",
     "Nowait",
+    "Program",
     "Assignment",
     "CompoundAssignment",
     "ScopeBox",
@@ -119,6 +121,7 @@ pub(super) const SHADOW_ACCEPTED_EXPRESSIONS_V0: &[&str] = &[
     "FieldAccess",
     "Index",
     "FunctionCall",
+    "ExplicitExternCall",
     "New",
     "AwaitExpression",
     "ArrayLiteral",

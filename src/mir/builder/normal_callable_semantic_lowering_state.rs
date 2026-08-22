@@ -18,6 +18,9 @@ use super::normal_callable_dynamic_origin::{
 };
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 
+#[path = "normal_callable_semantic_observation.rs"]
+mod observation;
+
 /// Physical values materialized while lowering one callable body.
 ///
 /// Semantic identity remains owned by `VerifiedResolvedFunctionV1`; this state
@@ -30,6 +33,9 @@ pub(super) struct CallableSemanticLoweringState {
     locals: BTreeMap<SourceNodeSiteV1, Box<[BindingRefV1]>>,
     variables: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
     assignments: BTreeMap<SourceNodeSiteV1, BindingRefV1>,
+    explicit_extern_calls: BTreeMap<SourceNodeSiteV1, Box<str>>,
+    brand_constructors:
+        super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1,
     direct_lambda_captures: BTreeMap<SourceNodeSiteV1, Box<[(Box<str>, BindingRefV1)]>>,
     values: BTreeMap<BindingRefV1, ValueId>,
     dynamic_origins: CallableDynamicOriginLoweringStateV1,
@@ -38,6 +44,7 @@ pub(super) struct CallableSemanticLoweringState {
     consumed_variables: BTreeSet<SourceNodeSiteV1>,
     consumed_assignments: BTreeSet<SourceNodeSiteV1>,
     consumed_direct_lambdas: BTreeSet<SourceNodeSiteV1>,
+    consumed_brand_constructors: BTreeSet<SourceNodeSiteV1>,
 }
 
 #[derive(Debug)]
@@ -50,6 +57,10 @@ pub(super) struct PreparedCallableDynamicRebindV1 {
 }
 
 impl CallableSemanticLoweringState {
+    pub(super) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.owner
+    }
+
     pub(super) fn from_exact_source(
         input: ResolvedFunctionLoweringInputV1<'_>,
     ) -> Result<Self, String> {
@@ -79,6 +90,12 @@ impl CallableSemanticLoweringState {
         };
         let owner = forest.owner(*root).ok_or_else(|| freeze("root-owner"))?;
         let owner_id = owner.owner();
+        let brand_constructors = super::brand_constructor_lowering_projection::BrandConstructorLoweringProjectionV1::from_verified_owner(
+            owner_id,
+            input.function().expression_sites(),
+            input.function().brand_call_relations(),
+        )
+        .map_err(|error| format!("[freeze:contract][callable-brand-projection] {error:?}"))?;
         if dynamic_origins.owner() != owner_id {
             return Err(freeze("dynamic-origin-owner"));
         }
@@ -141,6 +158,10 @@ impl CallableSemanticLoweringState {
         }
 
         let mut assignments = BTreeMap::new();
+        let explicit_extern_calls = owner
+            .explicit_extern_calls()
+            .map(|(site, call)| (site.node().clone(), call.symbol().into()))
+            .collect();
         for (site, target) in owner.assignment_targets() {
             let ResolvedAssignmentTargetV1::BindingRebind(binding) = target else {
                 continue;
@@ -192,6 +213,8 @@ impl CallableSemanticLoweringState {
             locals,
             variables,
             assignments,
+            explicit_extern_calls,
+            brand_constructors,
             direct_lambda_captures,
             values: BTreeMap::new(),
             dynamic_origins,
@@ -200,7 +223,39 @@ impl CallableSemanticLoweringState {
             consumed_variables: BTreeSet::new(),
             consumed_assignments: BTreeSet::new(),
             consumed_direct_lambdas: BTreeSet::new(),
+            consumed_brand_constructors: BTreeSet::new(),
         })
+    }
+
+    pub(super) fn explicit_extern_symbol(&self, site: &SourceNodeSiteV1) -> Option<&str> {
+        self.explicit_extern_calls.get(site).map(Box::as_ref)
+    }
+
+    pub(super) fn brand_constructor_disposition(
+        &self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<
+        super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1<'_>,
+        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
+    > {
+        self.brand_constructors.disposition(site)
+    }
+
+    pub(super) fn take_brand_constructor(
+        &mut self,
+        site: &SourceNodeSiteV1,
+    ) -> Result<
+        Option<super::brand_constructor_lowering_projection::ProjectedBrandConstructorV1>,
+        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
+    > {
+        let row = match self.brand_constructors.disposition(site)? {
+            super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1::NonBrand => return Ok(None),
+            super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1::Constructor(row) => row.clone(),
+        };
+        if !self.consumed_brand_constructors.insert(site.clone()) {
+            return Err(super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1::DuplicateConstructorSite(site.clone()));
+        }
+        Ok(Some(row))
     }
 
     pub(super) fn loop_binding_source_projection(
@@ -443,6 +498,7 @@ impl CallableSemanticLoweringState {
             || self.consumed_variables.len() != self.variables.len()
             || self.consumed_assignments.len() != self.assignments.len()
             || self.consumed_direct_lambdas.len() != self.direct_lambda_captures.len()
+            || self.consumed_brand_constructors.len() != self.brand_constructors.constructor_count()
         {
             return Err(format!(
                 "{} owner={:?} entry={} locals={}/{} variables={}/{} missing_variables={:?} assignments={}/{} lambdas={}/{}",

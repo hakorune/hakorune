@@ -111,6 +111,9 @@ pub(crate) fn try_parse_header_first_field_or_property(
         });
         if let Some(expr) = init_expr {
             field_initializers.push((fname, expr));
+            sink.record_generated_birth_trigger_at_current(
+                crate::parser::source_authority::GeneratedBirthTriggerKindV1::StoredFieldInitializer,
+            );
         }
         return Ok(true);
     }
@@ -130,6 +133,9 @@ pub(crate) fn try_parse_header_first_field_or_property(
             default_value: None,
         });
         field_initializers.push((fname, init_expr));
+        sink.record_generated_birth_trigger_at_current(
+            crate::parser::source_authority::GeneratedBirthTriggerKindV1::StoredFieldInitializer,
+        );
         return Ok(true);
     }
 

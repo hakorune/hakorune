@@ -15,7 +15,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::coseal::{
 use crate::mir::loop_recipe_contract::{
     LoopConditionV2, LoopExitKindV2, LoopJoinBranchArmTransferRefV2, LoopJoinBranchExitRefV2,
     LoopJoinBranchExitTargetV2, LoopJoinEdgeRoleV1, LoopJoinLogicalTransferRejectV2,
-    LoopJoinLogicalTransferViewV2, LoopOperationExecutionClassV2,
+    LoopJoinLogicalTransferViewV2, LoopJoinNextItemV1, LoopOperationExecutionClassV2,
     LoopRecipeProvenanceV1,
 };
 use crate::mir::resolved_semantics::{
@@ -455,7 +455,13 @@ mod tests {
             crate::mir::loop_recipe_contract::LoopItemKeyV1::new(12),
         );
         let payload: &'static [LoopJoinPayloadV2] = &[];
-        let logical = LoopJoinBranchArmTransferRefV2::Fallthrough { payload };
+        let logical = LoopJoinBranchArmTransferRefV2::Fallthrough {
+            continuation: LoopJoinNextItemV1 {
+                block: LoopBlockKeyV1::new(2),
+                item: crate::mir::loop_recipe_contract::LoopItemKeyV1::new(13),
+            },
+            payload,
+        };
         assert!(verify_arm(
             logical,
             DynamicLoopPhysicalArmV2::Fallthrough,

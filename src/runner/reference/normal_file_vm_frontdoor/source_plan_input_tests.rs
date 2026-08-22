@@ -1,8 +1,9 @@
 use super::*;
 use crate::mir::normal_source_plan::{
-    NormalSourcePlanErrorV1, NormalSourcePlanStageV1, SealedNormalScalarRootV1,
-    SealedNormalSourcePlanV1,
+    NormalSourcePlanClassifierV1, NormalSourcePlanErrorV1, NormalSourcePlanStageV1,
+    PreparedNormalSourcePlanInputV1, SealedNormalScalarRootV1, SealedNormalSourcePlanV1,
 };
+use crate::runner::reference::normal_file_vm_frontdoor::NormalFileSourceReceiptSealV1;
 use std::path::{Path, PathBuf};
 use tempfile::tempdir;
 
@@ -18,6 +19,22 @@ fn write_source(dir: &Path, name: &str, source: &str) -> PathBuf {
     let path = dir.join(name);
     std::fs::write(&path, source).expect("write source-plan fixture");
     path
+}
+
+#[test]
+fn ast_only_source_plan_fixture_is_not_parser_backed() {
+    let ast = crate::parser::NyashParser::parse_from_string_with_build_config(
+        "42",
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .expect("AST-only fixture parse");
+    let input = PreparedNormalSourcePlanInputV1::new(ast, "ast-only-fixture");
+    assert!(!input.has_parser_postpass());
+    let plan = NormalSourcePlanClassifierV1::seal(input).expect("AST-only fixture plan");
+    assert!(matches!(
+        plan,
+        SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(_))
+    ));
 }
 
 fn classify(
@@ -62,9 +79,87 @@ fn parsed_empty_and_scalar_sources_become_script_plans_once() {
             classified.plan(),
             SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(_))
         ));
+        assert!(classified.retains_parser_postpass());
+        let SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) =
+            classified.plan()
+        else {
+            panic!("expected Script source plan");
+        };
+        assert!(script.parser_postpass().is_some());
         assert_eq!(classified.receipt_counts(), (1, 1));
         assert!(classified.retained_source_identity().ends_with(name));
     }
+}
+
+#[test]
+fn parser_lineage_is_borrowed_from_the_sealed_script_plan() {
+    let dir = tempdir().expect("tempdir");
+    let classified = classify(dir.path(), "lineage.hako", "42").expect("Script source plan");
+    let lineage = classified
+        .plan()
+        .parser_lineage()
+        .expect("parser-backed plan retains lineage");
+    assert!(lineage.source_identity().ends_with("lineage.hako"));
+    assert_eq!(lineage.utf8_len(), 2);
+    assert_eq!(lineage.receipt_counts(), (1, 1));
+}
+
+#[test]
+fn parser_lineage_digest_drift_rejects_before_source_classifier() {
+    let dir = tempdir().expect("tempdir");
+    let loaded = request(write_source(dir.path(), "drift.hako", "42"))
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read")
+        .parse_once()
+        .expect("one canonical parse");
+    let mut plan_request = loaded.prepare_source_plan_request();
+    plan_request.receipt.source_digest =
+        crate::mir::CanonicalSourceBytesDigestV1::from_utf8_bytes(b"foreign-source");
+    let rejected = plan_request
+        .classify()
+        .expect_err("lineage/receipt digest drift must reject");
+    assert_eq!(rejected.stage(), &NormalSourcePlanStageV1::RootSurface);
+    assert_eq!(
+        rejected.error(),
+        &NormalSourcePlanErrorV1::SourceIdentityMismatch {
+            field: crate::mir::normal_source_plan::NormalSourcePlanIdentityFieldV1::Digest,
+        }
+    );
+    rejected.discard();
+}
+
+#[test]
+fn ast_only_source_plan_request_has_no_canonical_lineage_authority() {
+    let ast = crate::parser::NyashParser::parse_from_string_with_build_config(
+        "42",
+        crate::parser::ParserBuildConfig::default(),
+    )
+    .expect("AST-only fixture parse");
+    let request = PreparedNormalFileSourcePlanRequestV1 {
+        input: PreparedNormalSourcePlanInputV1::new(ast, "ast-only-fixture"),
+        script_input: CanonicalScriptSourceInputDispositionV1::SourceAuthorityUnavailable,
+        profile: SealedNormalEntryProfileV1::file_no_import_vm_reference(),
+        receipt: NormalFileSourceReceiptV1 {
+            source_identity: "ast-only-fixture".into(),
+            source_digest: crate::mir::CanonicalSourceBytesDigestV1::from_utf8_bytes(b"42"),
+            utf8_len: 2,
+            read_count: 1,
+            parse_count: 1,
+            _seal: NormalFileSourceReceiptSealV1,
+        },
+        _seal: PreparedNormalFileSourcePlanRequestSealV1,
+    };
+    let rejected = request
+        .classify()
+        .expect_err("AST-only input cannot enter canonical file planning");
+    assert_eq!(rejected.stage(), &NormalSourcePlanStageV1::RootSurface);
+    assert_eq!(
+        rejected.error(),
+        &NormalSourcePlanErrorV1::SourceAuthorityUnavailable
+    );
+    rejected.discard();
 }
 
 #[test]
@@ -84,8 +179,39 @@ fn canonical_core_profile_reaches_the_same_one_read_one_parse_source_plan_bounda
         classified.plan(),
         SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(_))
     ));
+    assert!(classified.retains_parser_postpass());
+    let SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) =
+        classified.plan()
+    else {
+        panic!("expected Script source plan");
+    };
+    assert!(script.parser_postpass().is_some());
     assert_eq!(classified.receipt_counts(), (1, 1));
     assert!(classified.is_canonical_core_profile_for_test());
+}
+
+#[test]
+fn source_digest_is_issued_once_and_moves_into_canonical_request() {
+    let dir = tempdir().expect("tempdir");
+    let path = write_source(dir.path(), "digest.hako", "42");
+    let loaded = canonical_core_request(path.clone())
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read");
+    std::fs::write(&path, "43").expect("rewrite after read");
+    let classified = loaded
+        .parse_once()
+        .expect("parse retained bytes")
+        .prepare_source_plan_request()
+        .classify()
+        .expect("source plan");
+    let expected = crate::mir::CanonicalSourceBytesDigestV1::from_utf8_bytes(b"42");
+    assert_eq!(classified.source_digest(), expected);
+    let request = classified
+        .into_canonical_core_compile_request()
+        .expect("canonical handoff");
+    assert_eq!(request.source_digest(), expected);
 }
 
 #[test]
@@ -94,12 +220,53 @@ fn canonical_core_dispatch_script_handoff_moves_only_the_sealed_plan_and_receipt
     let request = classify_canonical_core(dir.path(), "handoff.hako", "42")
         .into_canonical_core_compile_request()
         .expect("canonical-core handoff");
+    assert_eq!(request.script_input_state(), "SourceEnvelopeReady");
     let mut compiler = crate::mir::MirCompiler::new();
     let candidate = compiler
         .compile_canonical_core_source_plan(request)
         .expect("Script candidate through the canonical physical entry");
     assert!(candidate.is_script());
     assert_eq!(candidate.receipt_counts(), (1, 1));
+}
+
+#[test]
+fn source_envelope_rejects_foreign_parser_rows_before_script_recipe() {
+    let dir = tempdir().expect("tempdir");
+    let left = classify_canonical_core(dir.path(), "left.hako", "42");
+    let right = classify_canonical_core(dir.path(), "right.hako", "43");
+    let ClassifiedNormalFileSourcePlanV1 {
+        plan: left_plan,
+        script_input: _,
+        profile: left_profile,
+        receipt: left_receipt,
+        _seal: _,
+    } = left;
+    let ClassifiedNormalFileSourcePlanV1 {
+        plan: _,
+        script_input: right_script_input,
+        profile: _,
+        receipt: _,
+        _seal: _,
+    } = right;
+    let mixed = ClassifiedNormalFileSourcePlanV1 {
+        plan: left_plan,
+        script_input: right_script_input,
+        profile: left_profile,
+        receipt: left_receipt,
+        _seal: ClassifiedNormalFileSourcePlanSealV1,
+    };
+    let request = mixed
+        .into_canonical_core_compile_request()
+        .expect("profile remains canonical");
+    assert_eq!(request.script_input_state(), "IntegrityInvalid");
+    let mut compiler = crate::mir::MirCompiler::new();
+    let rejected = compiler
+        .compile_canonical_core_source_plan(request)
+        .expect_err("foreign parser rows must stop before Script Recipe");
+    assert_eq!(
+        rejected.stage(),
+        crate::mir::CanonicalCoreDispatchStageV1::ScriptSourceEnvelope
+    );
 }
 
 #[test]
@@ -267,6 +434,7 @@ fn canonical_core_dispatch_builds_only_main0_candidate_in_s0() {
     )
     .into_canonical_core_compile_request()
     .expect("canonical-core handoff");
+    assert_eq!(request.script_input_state(), "CompatibilitySource");
     let mut compiler = crate::mir::MirCompiler::new();
     let candidate = compiler
         .compile_canonical_core_source_plan(request)
@@ -530,4 +698,45 @@ fn parse_and_using_rejections_never_issue_source_plan_requests() {
         using_rejected.stage(),
         super::super::NormalFileSourceStageV1::SourceProfile
     );
+}
+
+#[test]
+fn canonical_pure_script_retains_one_ast_free_source_input_handoff() {
+    let dir = tempdir().expect("tempdir");
+    let classified = canonical_core_request(write_source(dir.path(), "pure.hako", "42\n"))
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read")
+        .parse_once()
+        .expect("one canonical parse")
+        .prepare_source_plan_request()
+        .classify()
+        .expect("pure Script source plan");
+    let super::CanonicalScriptSourceInputDispositionV1::HandoffReady(handoff) =
+        classified.script_input()
+    else {
+        panic!("canonical pure Script must retain a ready input handoff");
+    };
+    assert_eq!(handoff.rows().statement_count(), 1);
+    assert_eq!(handoff.rows().body_rows().len(), 1);
+    assert_eq!(handoff.receipt_counts(), (1, 1));
+    assert_eq!(handoff.utf8_len(), 3);
+}
+
+#[test]
+fn compatibility_script_input_is_typed_and_never_empty_ready() {
+    let dir = tempdir().expect("tempdir");
+    let request = canonical_core_request(write_source(dir.path(), "boxed.hako", "box Plain {}\n"))
+        .prepare()
+        .expect("profile")
+        .read_once()
+        .expect("one read")
+        .parse_once()
+        .expect("one canonical parse")
+        .prepare_source_plan_request();
+    assert!(matches!(
+        request.script_input,
+        super::CanonicalScriptSourceInputDispositionV1::CompatibilitySource
+    ));
 }

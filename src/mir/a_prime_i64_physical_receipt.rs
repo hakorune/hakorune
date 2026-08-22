@@ -5,6 +5,8 @@
 //! that session is connected, normal functions leave the metadata field
 //! empty and the LLVM loader keeps the legacy path unchanged.
 
+use crate::mir::checked_callout::CheckedCallOutSiteIdV1;
+use crate::mir::linear_metadata_slot::LinearSlotObservation;
 use crate::mir::{BasicBlockId, ValueId};
 use std::collections::BTreeSet;
 
@@ -57,9 +59,10 @@ pub(crate) struct APrimeI64CallArgumentReceiptV1 {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct APrimeI64CallEdgeReceiptV1 {
+    /// Canonical physical identity.  Role/fingerprint remain diagnostics and
+    /// cross-checks; they never select a call edge.
+    pub(crate) site_id: CheckedCallOutSiteIdV1,
     pub(crate) role: String,
-    pub(crate) block: BasicBlockId,
-    pub(crate) instruction_index: usize,
     pub(crate) target_fingerprint: String,
     pub(crate) receiver_role: String,
     pub(crate) receiver_value_id: ValueId,
@@ -93,6 +96,7 @@ pub(crate) enum APrimeI64PhysicalReceiptRejectV1 {
     MissingCallEdgeRows,
     WrongCallEdgeRows,
     DuplicateCallSite,
+    CallSiteRoleMismatch,
     CallRoleMismatch,
     EmptyCallTarget,
     CallTargetFingerprintMismatch,
@@ -225,7 +229,7 @@ impl APrimeI64PhysicalReceiptV1 {
             if !call_roles.insert(row.role.as_str()) {
                 return Err(APrimeI64PhysicalReceiptRejectV1::CallRoleMismatch);
             }
-            if !call_sites.insert((row.block.as_u32(), row.instruction_index)) {
+            if !call_sites.insert(row.site_id.as_u32()) {
                 return Err(APrimeI64PhysicalReceiptRejectV1::DuplicateCallSite);
             }
             if row.target_fingerprint.is_empty() {
@@ -240,6 +244,10 @@ impl APrimeI64PhysicalReceiptV1 {
                 "index_of" => ("indexOf/1", "pred_chars", &[(0usize, "ch")][..]),
                 _ => unreachable!("call role checked above"),
             };
+            let expected_site = if row.role == "substring" { 0 } else { 1 };
+            if row.site_id.as_u32() != expected_site {
+                return Err(APrimeI64PhysicalReceiptRejectV1::CallSiteRoleMismatch);
+            }
             if row.target_fingerprint != expected_target {
                 return Err(APrimeI64PhysicalReceiptRejectV1::CallTargetFingerprintMismatch);
             }
@@ -321,6 +329,13 @@ impl APrimeI64PhysicalReceiptV1 {
         &self.call_edges
     }
 
+    pub(crate) fn call_edge(
+        &self,
+        site_id: CheckedCallOutSiteIdV1,
+    ) -> Option<&APrimeI64CallEdgeReceiptV1> {
+        self.call_edges.iter().find(|edge| edge.site_id == site_id)
+    }
+
     pub(crate) fn returns(&self) -> &[APrimeI64ReturnReceiptV1] {
         &self.returns
     }
@@ -376,6 +391,16 @@ pub(crate) enum APrimeI64PhysicalReceiptSlotRejectV1 {
 }
 
 impl APrimeI64PhysicalReceiptSlotV1 {
+    pub(crate) fn observe(&self) -> LinearSlotObservation<'_, APrimeI64PhysicalReceiptV1> {
+        match &self.state {
+            APrimeI64PhysicalReceiptSlotState::Empty => LinearSlotObservation::Empty,
+            APrimeI64PhysicalReceiptSlotState::Occupied(receipt) => {
+                LinearSlotObservation::Occupied(receipt)
+            }
+            APrimeI64PhysicalReceiptSlotState::Consumed => LinearSlotObservation::Scrubbed,
+        }
+    }
+
     pub(crate) fn borrow(&self) -> Option<&APrimeI64PhysicalReceiptV1> {
         match &self.state {
             APrimeI64PhysicalReceiptSlotState::Occupied(receipt) => Some(receipt),
@@ -450,9 +475,8 @@ mod tests {
             ],
             vec![
                 APrimeI64CallEdgeReceiptV1 {
+                    site_id: CheckedCallOutSiteIdV1::from_test(0),
                     role: "substring".to_string(),
-                    block: BasicBlockId::new(1),
-                    instruction_index: 3,
                     target_fingerprint: "substring/2".to_string(),
                     receiver_role: "src".to_string(),
                     receiver_value_id: ValueId::new(10),
@@ -475,9 +499,8 @@ mod tests {
                     result_lane: APrimeI64LaneV1::OpaqueHandle,
                 },
                 APrimeI64CallEdgeReceiptV1 {
+                    site_id: CheckedCallOutSiteIdV1::from_test(1),
                     role: "index_of".to_string(),
-                    block: BasicBlockId::new(1),
-                    instruction_index: 4,
                     target_fingerprint: "indexOf/1".to_string(),
                     receiver_role: "pred_chars".to_string(),
                     receiver_value_id: ValueId::new(14),
@@ -528,7 +551,7 @@ mod tests {
         );
 
         let mut receipt = valid_receipt();
-        receipt.call_edges[1].instruction_index = receipt.call_edges[0].instruction_index;
+        receipt.call_edges[1].site_id = receipt.call_edges[0].site_id;
         assert_eq!(
             receipt.validate(),
             Err(APrimeI64PhysicalReceiptRejectV1::DuplicateCallSite)
@@ -605,18 +628,28 @@ mod tests {
             receipt.validate(),
             Err(APrimeI64PhysicalReceiptRejectV1::CallArgumentMismatch)
         );
+
+        let mut receipt = valid_receipt();
+        receipt.call_edges[0].site_id = CheckedCallOutSiteIdV1::from_test(1);
+        assert_eq!(
+            receipt.validate(),
+            Err(APrimeI64PhysicalReceiptRejectV1::CallSiteRoleMismatch)
+        );
     }
 
     #[test]
     fn receipt_slot_is_linear_and_clone_scrubs_capability() {
         let mut slot = APrimeI64PhysicalReceiptSlotV1::default();
         assert!(slot.borrow().is_none());
+        assert_eq!(slot.observe(), LinearSlotObservation::Empty);
         slot.install_for_test(valid_receipt())
             .expect("first receipt install");
         assert!(slot.borrow().is_some());
+        assert!(matches!(slot.observe(), LinearSlotObservation::Occupied(_)));
 
         let mut cloned = slot.clone();
         assert!(cloned.borrow().is_none());
+        assert_eq!(cloned.observe(), LinearSlotObservation::Scrubbed);
         assert_eq!(
             cloned.take_once(),
             Err(APrimeI64PhysicalReceiptSlotRejectV1::AlreadyConsumed)

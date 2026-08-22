@@ -24,7 +24,7 @@ run_nyash_llvm() {
             sed -i -E 's/;([[:space:]]*)(\}|$)/\1\2/g' "$tmpfile" || true
         fi
         # プラグイン初期化メッセージを除外
-        PYTHONPATH="${PYTHONPATH:-$NYASH_ROOT}" NYASH_NY_LLVM_COMPILER="$NYASH_ROOT/target/release/ny-llvmc" NYASH_LLVM_USE_HARNESS=1 NYASH_EMIT_EXE_NYRT="$NYASH_ROOT/target/release" NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 "$NYASH_BIN" --backend llvm "$tmpfile" "$@" 2>&1 | \
+        PYTHONPATH="${PYTHONPATH:-$NYASH_ROOT}" NYASH_NY_LLVM_COMPILER="$NYASH_ROOT/target/release/ny-llvmc" NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}" NYASH_EMIT_EXE_NYRT="$NYASH_ROOT/target/release" NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 "$NYASH_BIN" --backend llvm "$tmpfile" "$@" 2>&1 | \
             grep -v "^\[UnifiedBoxRegistry\]" | grep -v "^\[FileBox\]" | grep -v "^Net plugin:" | grep -v "^\[.*\] Plugin" | \
             grep -v '^\[plugin-loader\] backend=' | \
             grep -v '^🔌 plugin host initialized' | grep -v '^✅ plugin host fully configured' | \
@@ -46,7 +46,7 @@ run_nyash_llvm() {
             runprog="$workfile"
         fi
         # プラグイン初期化メッセージを除外
-        PYTHONPATH="${PYTHONPATH:-$NYASH_ROOT}" NYASH_NY_LLVM_COMPILER="$NYASH_ROOT/target/release/ny-llvmc" NYASH_LLVM_USE_HARNESS=1 NYASH_EMIT_EXE_NYRT="$NYASH_ROOT/target/release" NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 "$NYASH_BIN" --backend llvm "$runprog" "$@" 2>&1 | \
+        PYTHONPATH="${PYTHONPATH:-$NYASH_ROOT}" NYASH_NY_LLVM_COMPILER="$NYASH_ROOT/target/release/ny-llvmc" NYASH_LLVM_USE_HARNESS="${NYASH_LLVM_USE_HARNESS:-0}" NYASH_EMIT_EXE_NYRT="$NYASH_ROOT/target/release" NYASH_ENTRY_ALLOW_TOPLEVEL_MAIN=1 NYASH_FEATURES=stage3 NYASH_PARSER_ALLOW_SEMICOLON=1 NYASH_DISABLE_NY_COMPILER=1 HAKO_DISABLE_NY_COMPILER=1 "$NYASH_BIN" --backend llvm "$runprog" "$@" 2>&1 | \
             grep -v "^\[UnifiedBoxRegistry\]" | grep -v "^\[FileBox\]" | grep -v "^Net plugin:" | grep -v "^\[.*\] Plugin" | \
             grep -v '^\[plugin-loader\] backend=' | \
             grep -v '^🔌 plugin host initialized' | grep -v '^✅ plugin host fully configured' | \

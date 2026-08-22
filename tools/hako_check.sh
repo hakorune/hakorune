@@ -22,7 +22,7 @@ Usage:
   $0 fastpath-explain (--app app.hako | --mir-json app.mir.json) [options]
   $0 fastpath-check (--app app.hako | --mir-json app.mir.json) [options]
   $0 state-explain (--app app.hako | --mir-json app.mir.json) [options]
-  $0 inspect scope|route|mark|diff [options]
+  $0 inspect scope|route|mark|diff|shape|selected-dynamic-provenance|origin-footprint-c-reference [options]
   $0 boxcall-contract [--out report.kv] [--include-plugin-catalog-sample]
   $0 collection-visible-contract [--out report.kv]
   $0 optimizer-schedule [--format kv|summary] [--out report.kv]
@@ -50,7 +50,7 @@ Tool surfaces:
   fastpath-check      CI-style RouteDecision profile check for current
                       direct-exact / replacement-front optimization work
   state-explain       read-only state bucket / direct-state metadata explanation
-  inspect             read-only scope/route/mark/diff artifact query surface
+  inspect             read-only scope/route/mark/diff/shape artifact query surface
   boxcall-contract    read-only BoxCallable / TypeAbiCatalog boundary contract
   collection-visible-contract
                       read-only collection visible semantics boundary contract
@@ -84,6 +84,16 @@ fi
 if [ "${1:-}" = "state-explain" ]; then
   shift
   exec bash "$ROOT/tools/hako_check/state_explain.sh" "$@"
+fi
+
+if [ "${1:-}" = "inspect" ] && [ "${2:-}" = "selected-dynamic-provenance" ]; then
+  shift 2
+  exec bash "$ROOT/tools/hako_check/inspect_selected_dynamic_provenance.sh" "$@"
+fi
+
+if [ "${1:-}" = "inspect" ] && [ "${2:-}" = "origin-footprint-c-reference" ]; then
+  shift 2
+  exec python3 "$ROOT/tools/hako_check/inspect_origin_footprint_c_reference.py" "$@"
 fi
 
 if [ "${1:-}" = "inspect" ]; then

@@ -9,6 +9,7 @@ use crate::mir::builder::{
     issue_catalog_callable_owner_link_v1, issue_source_backed_dynamic_callable_v1,
     CanonicalSameModuleCallableKeyV1, CatalogCallableOwnerLinkIssueV1,
     VerifiedCatalogCallableOwnerLinkV1, VerifiedNormalCallableSemanticSourceV1,
+    VerifiedSourceBackedDynamicCallableV1,
 };
 use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::{
@@ -135,13 +136,12 @@ impl VerifiedSourceBoundDynamicMemberCallV1 {
 /// same source relations directly.
 pub(crate) fn issue_source_bound_dynamic_member_calls_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
+    dynamic: &VerifiedSourceBackedDynamicCallableV1,
 ) -> Result<Box<[VerifiedSourceBoundDynamicMemberCallV1]>, DynamicMemberSourceIssueV1> {
     let owner = input.owner();
-    let dynamic = issue_source_backed_dynamic_callable_v1(input).map_err(|error| {
-        DynamicMemberSourceIssueV1::Unresolved(
-            DynamicMemberSourceUnresolvedV1::DynamicOriginEvidenceUnavailable(error.into()),
-        )
-    })?;
+    if dynamic.owner() != owner {
+        return Err(owner_mismatch(owner, dynamic.owner()));
+    }
     let ledger = input
         .forest()
         .callable_source_ledger(owner)
@@ -268,7 +268,13 @@ impl<'catalog> VerifiedSourceCallTargetCatalogV1<'catalog> {
                 DynamicMemberSourceRejectV1::ForeignCatalogCallable(caller),
             ));
         }
-        for target in issue_source_bound_dynamic_member_calls_v1(source.input())? {
+        let input = source.input();
+        let dynamic = issue_source_backed_dynamic_callable_v1(input).map_err(|error| {
+            DynamicMemberSourceIssueV1::Unresolved(
+                DynamicMemberSourceUnresolvedV1::DynamicOriginEvidenceUnavailable(error.into()),
+            )
+        })?;
+        for target in issue_source_bound_dynamic_member_calls_v1(input, &dynamic)? {
             let row_key = (caller.clone(), target.call_site().clone());
             if self.rows.contains_key(&row_key) {
                 return Err(DynamicMemberSourceIssueV1::Rejected(

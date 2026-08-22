@@ -131,7 +131,6 @@ impl NyashTokenizer {
                     | TokenType::NOWAIT
                     | TokenType::OVERRIDE
                     | TokenType::DELEGATE
-                    | TokenType::WEAK
                     | TokenType::PACK
             );
             if is_extended {

@@ -390,14 +390,14 @@ pub(super) fn prepare_loop_operation_dispatch_v1(
 ///
 /// The dispatcher sequences borrows of the existing pure/identity service
 /// bundles. It is not a new physical or SSA owner.
-pub(super) struct LoopOperationDispatchServicesV1<'a, 'source> {
+pub(in crate::mir::builder::resolved_lowering) struct LoopOperationDispatchServicesV1<'a, 'source> {
     pub(super) builder: &'a mut MirBuilder,
     pub(super) identity: &'a mut ResolvedSsaIdentityStateV2<'source>,
     pub(super) phis: &'a mut PhiTxn,
 }
 
 impl<'a, 'source> LoopOperationDispatchServicesV1<'a, 'source> {
-    pub(super) fn new(
+    pub(in crate::mir::builder::resolved_lowering) fn new(
         builder: &'a mut MirBuilder,
         identity: &'a mut ResolvedSsaIdentityStateV2<'source>,
         phis: &'a mut PhiTxn,

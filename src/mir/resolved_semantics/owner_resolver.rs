@@ -1,5 +1,6 @@
 //! Recursive owner-forest construction for non-capturing nested functions.
 
+use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::callable_index::VerifiedCallableIndexV1;
@@ -19,11 +20,16 @@ use super::resolver::{
     SealedOwnerConstructionV1, SealedScriptConstructionV1,
 };
 use super::script_view::ScriptSyntaxViewV1;
+use super::selected_callable_deferred::{
+    SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverDeferredV1,
+    SelectedCallableResolverInputV1, SelectedCallableResolverSourceIdentityV1,
+};
 use super::shadow::{resolve_function_shadow_view_v0, ShadowLambdaSyntaxV0};
 use super::VerifiedResolvedBodyShapeInventoryV1;
 use super::{
     EnumMatchDemandV1, EnumVariantDemandV1, FunctionOriginV1, OwnedExprSiteV1,
-    RecordSchemaDemandV1, VerifiedScriptRootDemandWindowV1,
+    RecordSchemaDemandV1, ScriptResolverDeferredV1, SourceResolverDeferredV1,
+    VerifiedScriptRootDemandWindowV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -35,13 +41,92 @@ pub(crate) enum ResolveOwnerForestErrorV1 {
 #[derive(Debug)]
 pub(crate) enum ResolveScriptForestOutcomeV1 {
     Complete(VerifiedSemanticOwnerForestV1),
-    Deferred,
+    Deferred(ScriptResolverDeferredV1),
 }
 
 #[derive(Debug)]
 pub(crate) enum ResolveSelectedCallableForestsOutcomeV1 {
     Complete(Box<[VerifiedSemanticOwnerForestV1]>),
     Deferred,
+}
+
+#[derive(Debug)]
+pub(crate) enum ResolveSelectedCallableForestsWithBodyShapesOutcomeV1 {
+    Complete {
+        forests: Box<[VerifiedSemanticOwnerForestV1]>,
+        body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+    },
+    Deferred,
+}
+
+#[derive(Debug)]
+pub(crate) enum ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1 {
+    Complete {
+        forests: Box<[VerifiedSemanticOwnerForestV1]>,
+        body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+    },
+    Deferred(SelectedCallableResolverDeferredBatchV1),
+}
+
+#[derive(Debug)]
+pub(crate) struct SourceBoundSelectedCallableResolverRejectV1 {
+    source: SelectedCallableResolverSourceIdentityV1,
+    error: ResolveOwnerForestErrorV1,
+}
+
+impl SourceBoundSelectedCallableResolverRejectV1 {
+    fn from_parts(
+        source: SelectedCallableResolverSourceIdentityV1,
+        error: ResolveOwnerForestErrorV1,
+    ) -> Self {
+        Self { source, error }
+    }
+
+    pub(crate) const fn source(&self) -> &SelectedCallableResolverSourceIdentityV1 {
+        &self.source
+    }
+
+    pub(crate) const fn error(&self) -> &ResolveOwnerForestErrorV1 {
+        &self.error
+    }
+}
+
+#[derive(Debug)]
+struct SelectedCallableResolverKernelInputV1<'source, Identity> {
+    identity: Identity,
+    view: FunctionSyntaxViewV1<'source>,
+}
+
+#[derive(Debug)]
+struct SelectedCallableResolverKernelDeferredV1<Identity> {
+    identity: Identity,
+    observation: SourceResolverDeferredV1,
+}
+
+struct SelectedCallableResolverKernelTreeV1<'source, Identity> {
+    identity: Identity,
+    tree: ShadowOwnerConstructionTreeV1<'source>,
+}
+
+#[derive(Debug)]
+struct SelectedCallableResolverKernelRejectV1<Identity> {
+    identity: Identity,
+    error: ResolveOwnerForestErrorV1,
+}
+
+#[derive(Debug)]
+struct NonEmptySelectedCallableResolverKernelDeferredBatchV1<Identity> {
+    first: SelectedCallableResolverKernelDeferredV1<Identity>,
+    rest: Box<[SelectedCallableResolverKernelDeferredV1<Identity>]>,
+}
+
+#[derive(Debug)]
+enum SelectedCallableResolverKernelOutcomeV1<Identity> {
+    Complete {
+        forests: Box<[VerifiedSemanticOwnerForestV1]>,
+        body_shapes: BTreeMap<FunctionOwnerIdV1, VerifiedResolvedBodyShapeInventoryV1>,
+    },
+    Deferred(NonEmptySelectedCallableResolverKernelDeferredBatchV1<Identity>),
 }
 
 #[derive(Debug, Clone)]
@@ -57,30 +142,197 @@ impl FunctionSemanticResolverSessionV1 {
         &mut self,
         roots: &[FunctionSyntaxViewV1<'_>],
     ) -> Result<ResolveSelectedCallableForestsOutcomeV1, ResolveOwnerForestErrorV1> {
-        let mut trees = Vec::with_capacity(roots.len());
-        let mut deferred = false;
-        for root in roots {
-            match construct_selected_callable_owner_tree_v1(*root) {
-                Ok(tree) => trees.push(tree),
-                Err(error) => deferred |= selected_callable_source_deferral(error)?,
+        match self.resolve_selected_callable_forests_with_body_shapes(roots)? {
+            ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete { forests, .. } => {
+                Ok(ResolveSelectedCallableForestsOutcomeV1::Complete(forests))
+            }
+            ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred => {
+                Ok(ResolveSelectedCallableForestsOutcomeV1::Deferred)
             }
         }
-        if deferred {
-            return Ok(ResolveSelectedCallableForestsOutcomeV1::Deferred);
+    }
+
+    pub(crate) fn resolve_selected_callable_forests_with_body_shapes(
+        &mut self,
+        roots: &[FunctionSyntaxViewV1<'_>],
+    ) -> Result<ResolveSelectedCallableForestsWithBodyShapesOutcomeV1, ResolveOwnerForestErrorV1>
+    {
+        self.resolve_selected_callable_forests_with_body_shapes_and_brand_catalog(roots, None)
+    }
+
+    pub(crate) fn resolve_selected_callable_forests_with_body_shapes_and_brand_catalog(
+        &mut self,
+        roots: &[FunctionSyntaxViewV1<'_>],
+        brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    ) -> Result<ResolveSelectedCallableForestsWithBodyShapesOutcomeV1, ResolveOwnerForestErrorV1>
+    {
+        let inputs = roots
+            .iter()
+            .copied()
+            .map(|view| SelectedCallableResolverKernelInputV1 { identity: (), view })
+            .collect::<Vec<_>>();
+        match self
+            .resolve_selected_callable_kernel(&inputs, brand_catalog)
+            .map_err(|rejected| rejected.error)?
+        {
+            SelectedCallableResolverKernelOutcomeV1::Complete {
+                forests,
+                body_shapes,
+            } => Ok(
+                ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
+                    forests,
+                    body_shapes,
+                },
+            ),
+            SelectedCallableResolverKernelOutcomeV1::Deferred(_) => {
+                Ok(ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred)
+            }
+        }
+    }
+
+    /// Source-bound selected-callable entry. Every Deferred cause/site remains
+    /// nested with the parser identity supplied beside the same borrowed view.
+    pub(crate) fn resolve_source_bound_selected_callable_forests_with_body_shapes_and_brand_catalog(
+        &mut self,
+        inputs: &[SelectedCallableResolverInputV1<'_>],
+        brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    ) -> Result<
+        ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
+        SourceBoundSelectedCallableResolverRejectV1,
+    > {
+        let kernel_inputs = inputs
+            .iter()
+            .map(|input| SelectedCallableResolverKernelInputV1 {
+                identity: input.source().clone(),
+                view: input.view(),
+            })
+            .collect::<Vec<_>>();
+        match self
+            .resolve_selected_callable_kernel(&kernel_inputs, brand_catalog)
+            .map_err(|rejected| {
+                SourceBoundSelectedCallableResolverRejectV1::from_parts(
+                    rejected.identity,
+                    rejected.error,
+                )
+            })? {
+            SelectedCallableResolverKernelOutcomeV1::Complete {
+                forests,
+                body_shapes,
+            } => Ok(
+                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
+                    forests,
+                    body_shapes,
+                },
+            ),
+            SelectedCallableResolverKernelOutcomeV1::Deferred(deferred) => {
+                let first = SelectedCallableResolverDeferredV1::from_parts(
+                    deferred.first.identity,
+                    deferred.first.observation,
+                );
+                let rest = deferred
+                    .rest
+                    .into_vec()
+                    .into_iter()
+                    .map(|row| {
+                        SelectedCallableResolverDeferredV1::from_parts(
+                            row.identity,
+                            row.observation,
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .into_boxed_slice();
+                Ok(
+                    ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred(
+                        SelectedCallableResolverDeferredBatchV1::from_non_empty_parts(first, rest),
+                    ),
+                )
+            }
+        }
+    }
+
+    fn resolve_selected_callable_kernel<'source, Identity: Clone>(
+        &mut self,
+        inputs: &[SelectedCallableResolverKernelInputV1<'source, Identity>],
+        brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
+    ) -> Result<
+        SelectedCallableResolverKernelOutcomeV1<Identity>,
+        SelectedCallableResolverKernelRejectV1<Identity>,
+    > {
+        let mut trees = Vec::with_capacity(inputs.len());
+        let mut first_deferred = None;
+        let mut deferred_rest = Vec::new();
+        for input in inputs {
+            match construct_selected_callable_owner_tree_v1(input.view, brand_catalog) {
+                Ok(tree) => trees.push(SelectedCallableResolverKernelTreeV1 {
+                    identity: input.identity.clone(),
+                    tree,
+                }),
+                Err(error) => {
+                    let observation = match selected_callable_source_deferral(error) {
+                        Ok(observation) => observation,
+                        Err(error) => {
+                            return Err(SelectedCallableResolverKernelRejectV1 {
+                                identity: input.identity.clone(),
+                                error,
+                            })
+                        }
+                    };
+                    let row = SelectedCallableResolverKernelDeferredV1 {
+                        identity: input.identity.clone(),
+                        observation,
+                    };
+                    if first_deferred.is_none() {
+                        first_deferred = Some(row);
+                    } else {
+                        deferred_rest.push(row);
+                    }
+                }
+            }
+        }
+        if let Some(first) = first_deferred {
+            return Ok(SelectedCallableResolverKernelOutcomeV1::Deferred(
+                NonEmptySelectedCallableResolverKernelDeferredBatchV1 {
+                    first,
+                    rest: deferred_rest.into_boxed_slice(),
+                },
+            ));
         }
         let mut forests = Vec::with_capacity(trees.len());
-        for tree in trees {
+        let mut body_shapes = BTreeMap::new();
+        for pending in trees {
             let mut draft = SemanticOwnerForestDraftV1::new();
-            self.seal_owner_tree(tree, &BTreeMap::new(), None, None, None, &mut draft, None)?;
-            forests.push(
-                draft
-                    .seal()
-                    .map_err(ResolveOwnerForestErrorV1::Verification)?,
-            );
+            if let Err(error) = self.seal_owner_tree(
+                pending.tree,
+                &BTreeMap::new(),
+                None,
+                None,
+                None,
+                &mut draft,
+                Some(&mut body_shapes),
+            ) {
+                return Err(SelectedCallableResolverKernelRejectV1 {
+                    identity: pending.identity,
+                    error,
+                });
+            }
+            let forest = match draft
+                .seal()
+                .map_err(ResolveOwnerForestErrorV1::Verification)
+            {
+                Ok(forest) => forest,
+                Err(error) => {
+                    return Err(SelectedCallableResolverKernelRejectV1 {
+                        identity: pending.identity,
+                        error,
+                    })
+                }
+            };
+            forests.push(forest);
         }
-        Ok(ResolveSelectedCallableForestsOutcomeV1::Complete(
-            forests.into_boxed_slice(),
-        ))
+        Ok(SelectedCallableResolverKernelOutcomeV1::Complete {
+            forests: forests.into_boxed_slice(),
+            body_shapes,
+        })
     }
 
     pub(crate) fn resolve_script_forest_with_declaration_views(
@@ -90,6 +342,7 @@ impl FunctionSemanticResolverSessionV1 {
         record_schemas: &dyn RecordSchemaDemandV1,
         enum_variants: &dyn EnumVariantDemandV1,
         enum_matches: &dyn EnumMatchDemandV1,
+        brand_catalog: &VerifiedBrandProgramDeclarationCatalogV1,
     ) -> Result<ResolveScriptForestOutcomeV1, ResolveOwnerForestErrorV1> {
         let tree = match construct_script_owner_tree_v1(
             view,
@@ -97,16 +350,17 @@ impl FunctionSemanticResolverSessionV1 {
             record_schemas,
             enum_variants,
             enum_matches,
+            brand_catalog,
         ) {
             Ok(tree) => tree,
-            Err(error) if error.is_script_source_deferral() => {
-                return Ok(ResolveScriptForestOutcomeV1::Deferred)
-            }
-            Err(error) => {
-                return Err(ResolveOwnerForestErrorV1::Function(
-                    ResolveFunctionErrorV1::ScriptInvariant(error),
-                ))
-            }
+            Err(error) => match error.clone().into_script_resolver_deferred() {
+                Some(deferred) => return Ok(ResolveScriptForestOutcomeV1::Deferred(deferred)),
+                None => {
+                    return Err(ResolveOwnerForestErrorV1::Function(
+                        ResolveFunctionErrorV1::ScriptInvariant(error),
+                    ))
+                }
+            },
         };
         let (origin, owner) = self
             .issue_owner()
@@ -314,7 +568,6 @@ impl FunctionSemanticResolverSessionV1 {
             binding_refs,
             scope_ids,
             ordered_capture_demands,
-            body_shape: _,
         } = self
             .seal_script_owner_with_maps(owner, origin, function)
             .map_err(ResolveOwnerForestErrorV1::Function)?;
@@ -357,13 +610,12 @@ impl FunctionSemanticResolverSessionV1 {
 
 fn selected_callable_source_deferral(
     error: super::shadow::ShadowResolveErrorV0,
-) -> Result<bool, ResolveOwnerForestErrorV1> {
-    if error.is_script_source_deferral() {
-        Ok(true)
-    } else {
-        Err(ResolveOwnerForestErrorV1::Function(
+) -> Result<SourceResolverDeferredV1, ResolveOwnerForestErrorV1> {
+    match error.clone().into_source_resolver_deferred() {
+        Some(deferred) => Ok(deferred),
+        None => Err(ResolveOwnerForestErrorV1::Function(
             ResolveFunctionErrorV1::Syntax(error),
-        ))
+        )),
     }
 }
 
@@ -379,7 +631,7 @@ mod selected_callable_tests {
             kind: "test-deferred",
             site: SourcePathV1::function_body().stmt(),
         };
-        assert!(selected_callable_source_deferral(deferred).unwrap());
+        assert!(selected_callable_source_deferral(deferred).is_ok());
         let invariant = ShadowResolveErrorV0::DuplicateExitSite {
             site: SourcePathV1::function_body().stmt(),
         };

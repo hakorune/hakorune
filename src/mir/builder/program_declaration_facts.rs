@@ -9,6 +9,10 @@ use std::collections::{BTreeSet, HashMap};
 use super::compilation_context::CompilationContext;
 use super::declaration_order::sorted_method_entries;
 use super::static_scalar_facts::{infer_static_scalar_method_fact, StaticScalarMethodFact};
+use crate::analysis::brand_program_declaration_catalog::{
+    BrandCatalogIssueV1, BrandDeclarationSourceIdV1, BrandProgramDeclarationCatalogDraftV1,
+    VerifiedBrandProgramDeclarationCatalogV1,
+};
 use crate::ast::{ASTNode, BoxMethodInventoryV1, EnumVariantDecl, FieldDecl};
 use crate::mir::resolved_semantics::{
     admit_direct_enum_match_v1, EnumMatchAdmissionV1, EnumMatchDemandV1, EnumVariantAdmissionV1,
@@ -18,6 +22,7 @@ use crate::mir::resolved_semantics::{
 #[derive(Debug)]
 pub(super) struct PreparedNormalProgramDeclarationFactsV1 {
     operations: Box<[NormalProgramDeclarationFactOperationV1]>,
+    brand_catalog: VerifiedBrandProgramDeclarationCatalogV1,
     effective_enum_operations: HashMap<Box<str>, usize>,
     effective_record_operations: HashMap<Box<str>, usize>,
     _seal: PreparedNormalProgramDeclarationFactsSealV1,
@@ -28,10 +33,6 @@ struct PreparedNormalProgramDeclarationFactsSealV1;
 
 #[derive(Debug)]
 enum NormalProgramDeclarationFactOperationV1 {
-    Brand {
-        name: String,
-        underlying_type_name: String,
-    },
     Enum {
         name: String,
         type_parameters: Vec<String>,
@@ -62,22 +63,33 @@ struct StaticScalarFactUpdateV1 {
 }
 
 impl PreparedNormalProgramDeclarationFactsV1 {
-    pub(super) fn collect(root: &ASTNode) -> Self {
+    pub(super) fn collect(root: &ASTNode) -> Result<Self, BrandCatalogIssueV1> {
         let mut operations = Vec::new();
+        let mut brand_catalog = BrandProgramDeclarationCatalogDraftV1::default();
         let mut effective_enum_operations = HashMap::new();
         let mut effective_record_operations = HashMap::new();
         collect_operations(
             root,
+            None,
             &mut operations,
+            &mut brand_catalog,
             &mut effective_enum_operations,
             &mut effective_record_operations,
-        );
-        Self {
+        )?;
+        Ok(Self {
             operations: operations.into_boxed_slice(),
+            brand_catalog: brand_catalog.seal(),
             effective_enum_operations,
             effective_record_operations,
             _seal: PreparedNormalProgramDeclarationFactsSealV1,
-        }
+        })
+    }
+
+    pub(super) fn with_brand_catalog<R>(
+        &self,
+        use_catalog: impl FnOnce(&VerifiedBrandProgramDeclarationCatalogV1) -> R,
+    ) -> R {
+        use_catalog(&self.brand_catalog)
     }
 
     pub(super) fn with_record_schema_demand_view<R>(
@@ -102,12 +114,14 @@ impl PreparedNormalProgramDeclarationFactsV1 {
     }
 
     pub(super) fn install_into(self, context: &mut CompilationContext) {
+        for declaration in self.brand_catalog.into_rows().into_vec() {
+            context.register_brand_decl(
+                declaration.name().to_owned(),
+                declaration.underlying_type().to_owned(),
+            );
+        }
         for operation in self.operations.into_vec() {
             match operation {
-                NormalProgramDeclarationFactOperationV1::Brand {
-                    name,
-                    underlying_type_name,
-                } => context.register_brand_decl(name, underlying_type_name),
                 NormalProgramDeclarationFactOperationV1::Enum {
                     name,
                     type_parameters,
@@ -150,29 +164,36 @@ impl PreparedNormalProgramDeclarationFactsV1 {
 
 fn collect_operations(
     node: &ASTNode,
+    program_item_ordinal: Option<usize>,
     operations: &mut Vec<NormalProgramDeclarationFactOperationV1>,
+    brand_catalog: &mut BrandProgramDeclarationCatalogDraftV1,
     effective_enum_operations: &mut HashMap<Box<str>, usize>,
     effective_record_operations: &mut HashMap<Box<str>, usize>,
-) {
+) -> Result<(), BrandCatalogIssueV1> {
     match node {
         ASTNode::Program { statements, .. } => {
-            for statement in statements {
+            for (ordinal, statement) in statements.iter().enumerate() {
                 collect_operations(
                     statement,
+                    Some(ordinal),
                     operations,
+                    brand_catalog,
                     effective_enum_operations,
                     effective_record_operations,
-                );
+                )?;
             }
         }
         ASTNode::BrandDeclaration {
             name,
             underlying_type_name,
             ..
-        } => operations.push(NormalProgramDeclarationFactOperationV1::Brand {
-            name: name.clone(),
-            underlying_type_name: underlying_type_name.clone(),
-        }),
+        } => brand_catalog.record_effective_declaration(
+            BrandDeclarationSourceIdV1::from_program_item_ordinal(
+                program_item_ordinal.ok_or(BrandCatalogIssueV1::DeclarationOutsideProgram)?,
+            )?,
+            name,
+            underlying_type_name,
+        )?,
         ASTNode::EnumDeclaration {
             name,
             variants,
@@ -201,7 +222,7 @@ fn collect_operations(
             ..
         } => {
             if *is_sync {
-                return;
+                return Ok(());
             }
             if *is_record {
                 let operation_ordinal = operations.len();
@@ -229,6 +250,7 @@ fn collect_operations(
         }
         _ => {}
     }
+    Ok(())
 }
 
 struct EnumVariantDemandViewV1<'facts> {
@@ -521,16 +543,19 @@ mod tests {
                 HashMap::new(),
             ),
             ASTNode::BrandDeclaration {
-                name: "Token".to_owned(),
+                name: "OtherToken".to_owned(),
                 underlying_type_name: "u64".to_owned(),
                 span: Span::unknown(),
             },
         ]);
 
         let mut context = CompilationContext::new();
-        PreparedNormalProgramDeclarationFactsV1::collect(&root).install_into(&mut context);
+        PreparedNormalProgramDeclarationFactsV1::collect(&root)
+            .expect("unique Brand declarations")
+            .install_into(&mut context);
 
-        assert_eq!(context.brand_decls["Token"], "u64");
+        assert_eq!(context.brand_decls["Token"], "i64");
+        assert_eq!(context.brand_decls["OtherToken"], "u64");
         assert_eq!(context.enum_decls["Option"].variants[0].name, "Only");
         assert_eq!(context.record_decls["Pair"].default_field_names, ["count"]);
         assert!(matches!(
@@ -587,11 +612,36 @@ mod tests {
             verified,
             no_longer_verified,
         ]))
+        .expect("declaration facts")
         .install_into(&mut context);
 
         assert!(context
             .static_scalar_method_fact("HakoAllocObjectLifecycleFacadeReason.answer/0")
             .is_none());
+    }
+
+    #[test]
+    fn duplicate_brand_rejects_before_compatibility_cache_install() {
+        let root = program(vec![
+            ASTNode::BrandDeclaration {
+                name: "PageId".to_owned(),
+                underlying_type_name: "i64".to_owned(),
+                span: Span::unknown(),
+            },
+            ASTNode::BrandDeclaration {
+                name: "PageId".to_owned(),
+                underlying_type_name: "u64".to_owned(),
+                span: Span::unknown(),
+            },
+        ]);
+
+        let error = PreparedNormalProgramDeclarationFactsV1::collect(&root)
+            .expect_err("duplicate Brand must reject");
+        assert!(error.to_string().contains("[brand/duplicate-declaration]"));
+        assert!(error.to_string().contains("first=0 duplicate=1"));
+
+        let context = CompilationContext::new();
+        assert!(context.brand_decls.is_empty());
     }
 
     #[test]
@@ -630,7 +680,8 @@ mod tests {
                 HashMap::new(),
             ),
         ]);
-        let facts = PreparedNormalProgramDeclarationFactsV1::collect(&root);
+        let facts =
+            PreparedNormalProgramDeclarationFactsV1::collect(&root).expect("declaration facts");
         facts.with_record_schema_demand_view(|schemas| {
             assert!(schemas
                 .admit_fully_explicit_literal("Pair", &[("second".to_owned(), literal(2))],)

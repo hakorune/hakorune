@@ -94,6 +94,17 @@ impl ScriptBoundaryReceiptPackV1 {
                     });
                 }
                 ScriptRootSemanticDispositionV1::Transferred(
+                    ScriptTransferredBoundaryV1::StaticCallableCatalogTransfer,
+                ) if matches!(
+                    statement,
+                    ASTNode::BoxDeclaration {
+                        name,
+                        is_static: true,
+                        is_sync: false,
+                        ..
+                    } if name != "Main"
+                ) => {}
+                ScriptRootSemanticDispositionV1::Transferred(
                     ScriptTransferredBoundaryV1::ProgramEnumDeclaration,
                 ) if matches!(statement, ASTNode::EnumDeclaration { .. }) => {}
                 ScriptRootSemanticDispositionV1::Transferred(

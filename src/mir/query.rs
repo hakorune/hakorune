@@ -90,6 +90,10 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             StaticDataLoad { index, .. } => vec![*index],
             Store { ptr, value } => vec![*ptr, *value],
             MemOp { operands, .. } => operands.clone(),
+            PinnedTextOp { kind, .. } => kind.used_values(),
+            PinnedTextResidenceFinish { .. }
+            | PinnedTextResidenceEnter { .. }
+            | PinnedTextResidenceTrap { .. } => Vec::new(),
             Call {
                 callee, func, args, ..
             } => {
@@ -107,6 +111,17 @@ impl<'m> MirQuery for MirQueryBox<'m> {
                 used
             }
             Return { value } => value.iter().copied().collect(),
+            CheckedCallOut {
+                receiver,
+                arguments,
+                ..
+            } => {
+                let mut values = vec![*receiver];
+                values.extend(arguments.iter().copied());
+                values
+            }
+            CheckedCallOutNormalResult { .. } => Vec::new(),
+            CheckedCallOutEnd { .. } | CheckedCallOutFault { .. } => Vec::new(),
             Branch { condition, .. } => vec![*condition],
             Jump { .. } => Vec::new(),
             Phi { inputs, .. } => inputs.iter().map(|(_, v)| *v).collect(),
@@ -159,6 +174,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | Load { dst, .. }
             | StaticDataLoad { dst, .. }
             | MemOp { dst: Some(dst), .. }
+            | PinnedTextOp { dst, .. }
             | ArrayElementWrite { dst: Some(dst), .. }
             | Call { dst: Some(dst), .. }
             | Phi { dst, .. }
@@ -172,13 +188,18 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | CopyOwned { dst, .. }
             | LocalContractWrite { dst, .. }
             | RecordValuePublish { dst, .. }
-            | Select { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
+            | Select { dst, .. }
+            | CheckedCallOutNormalResult { dst, .. } => vec![*dst], // Copy writes to dst, Select writes to dst
             // No writes
             Store { .. }
             | MemOp { dst: None, .. }
             | FieldSet { .. }
             | Call { dst: None, .. }
             | Return { .. }
+            | CheckedCallOut { .. }
+            | PinnedTextResidenceEnter { .. }
+            | PinnedTextResidenceTrap { .. }
+            | PinnedTextResidenceFinish { .. }
             | Branch { .. }
             | Jump { .. }
             | Debug { .. }

@@ -186,6 +186,26 @@ class WitnessProjectionTests(unittest.TestCase):
         )
 
     def test_rust_declaration_projection_preserves_contract_values(self) -> None:
+        brand = {
+            "statements": [
+                {
+                    "kind": "BrandDeclaration",
+                    "name": "PageId",
+                    "underlying_type": "i64",
+                }
+            ]
+        }
+        self.assertEqual(
+            project_rust_normalized_form("brand_declaration", brand),
+            {
+                "kind": "BrandDeclaration",
+                "children": [
+                    {"kind": "Identifier", "value": "PageId", "children": []},
+                    {"kind": "TypeRef", "value": "i64", "children": []},
+                ],
+            },
+        )
+
         record = {
             "statements": [
                 {

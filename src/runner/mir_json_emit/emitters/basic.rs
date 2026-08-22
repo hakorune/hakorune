@@ -204,6 +204,66 @@ pub(crate) fn emit_select(
     })
 }
 
+pub(crate) fn emit_pinned_text_op(
+    dst: &ValueId,
+    plan: &crate::mir::pinned_text_access_plan::PinnedTextAccessPlanIdV1,
+    kind: crate::mir::pinned_text_access_plan::PinnedTextAccessKindV1,
+) -> serde_json::Value {
+    json!({
+        "op": "pinned_text_op",
+        "dst": dst.as_u32(),
+        "plan": plan.index(),
+        "plan_stamp": plan.stamp(),
+        "access": kind.json_payload(),
+    })
+}
+
+pub(crate) fn emit_pinned_text_residence_enter(
+    plan: &crate::mir::pinned_text_residence_lifecycle::PinnedTextResidencePlanIdV1,
+    normal_landing: &crate::mir::BasicBlockId,
+    trap_landing: &crate::mir::BasicBlockId,
+) -> serde_json::Value {
+    let owner = plan.owner();
+    json!({
+        "op": "pinned_text_residence_enter",
+        "owner": {
+            "compilation_brand": owner.compilation_brand(),
+            "slot": owner.slot(),
+        },
+        "plan_stamp": plan.plan_stamp(),
+        "normal": normal_landing.as_u32(),
+        "trap": trap_landing.as_u32(),
+    })
+}
+
+pub(crate) fn emit_pinned_text_residence_finish(
+    residence: &crate::mir::pinned_text_residence_lifecycle::TextFormalResidenceIdV1,
+) -> serde_json::Value {
+    let owner = residence.owner();
+    json!({
+        "op": "pinned_text_residence_finish",
+        "owner": {
+            "compilation_brand": owner.compilation_brand(),
+            "slot": owner.slot(),
+        },
+        "plan_stamp": residence.plan_stamp(),
+    })
+}
+
+pub(crate) fn emit_pinned_text_residence_trap(
+    plan: &crate::mir::pinned_text_residence_lifecycle::PinnedTextResidencePlanIdV1,
+) -> serde_json::Value {
+    let owner = plan.owner();
+    json!({
+        "op": "pinned_text_residence_trap",
+        "owner": {
+            "compilation_brand": owner.compilation_brand(),
+            "slot": owner.slot(),
+        },
+        "plan_stamp": plan.plan_stamp(),
+    })
+}
+
 pub(crate) fn emit_debug(value: &ValueId, message: &str) -> serde_json::Value {
     json!({
         "op":"debug",
@@ -214,6 +274,33 @@ pub(crate) fn emit_debug(value: &ValueId, message: &str) -> serde_json::Value {
 
 pub(crate) fn emit_safepoint() -> serde_json::Value {
     json!({"op": "safepoint"})
+}
+
+#[cfg(test)]
+mod tests {
+    use super::emit_pinned_text_op;
+    use crate::mir::pinned_text_access_plan::{
+        PinnedTextAccessKindV1, PinnedTextAccessPlanTableV1, PinnedTextRootIdV1,
+    };
+    use crate::mir::ValueId;
+
+    #[test]
+    fn pinned_text_json_payload_is_typed_and_round_trippable() {
+        let root = PinnedTextRootIdV1::from_frame_row(4);
+        let kind = PinnedTextAccessKindV1::Utf8WidthAt {
+            root,
+            byte_offset: ValueId::new(8),
+        };
+        let mut table = PinnedTextAccessPlanTableV1::new(77);
+        let plan = table.issue(kind);
+        let payload = emit_pinned_text_op(&ValueId::new(9), &plan, kind);
+        assert_eq!(payload["op"], "pinned_text_op");
+        assert_eq!(payload["plan"], 0);
+        assert_eq!(payload["plan_stamp"], 77);
+        assert_eq!(payload["access"]["kind"], "utf8_width_at");
+        assert_eq!(payload["access"]["root"], 4);
+        assert_eq!(payload["access"]["byte_offset"], 8);
+    }
 }
 
 pub(crate) fn emit_future_new(dst: &ValueId, value: &ValueId) -> serde_json::Value {

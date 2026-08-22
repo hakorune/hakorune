@@ -23,11 +23,12 @@ mod callable_contract_syntax;
 mod callable_gate_projection;
 #[cfg(test)]
 mod callable_gate_projection_tests;
-mod callable_parameter_source;
+pub(crate) mod callable_parameter_source;
 mod callable_source_anchor;
 pub(crate) use callable_source_anchor::CallableDeclarationIdentityV1;
 pub(crate) use initial_callable_program_source::InitialCallableFinalSlotV1;
 mod common;
+mod constructor_source_catalog;
 mod contracts;
 mod cursor; // TokenCursor: 改行処理を一元管理
 mod declarations;
@@ -39,6 +40,8 @@ pub(crate) mod env;
 // depth_tracking.rs was a legacy depth counter for Smart advance.
 // Phase 15.5: removed in favor of TokenCursor-centric newline handling.
 pub mod entry_sugar; // helper to parse with sugar level
+#[cfg(test)]
+mod explicit_externcall_source_tests;
 mod expr;
 mod expr_cursor; // TokenCursorを使用した式パーサー（実験的）
 mod expressions;
@@ -50,14 +53,24 @@ mod items;
 mod lifecycle;
 pub(crate) mod log;
 mod normal_callable_program_source;
+pub(crate) use constructor_source_catalog::ConstructorSourceIdV1;
 pub(crate) use normal_callable_program_source::{
     issue_final_callable_program_source_v1, CallableMethodSourceObservationV1,
     FinalCallableDeclarationModeV1, FinalCallableProgramSourceRejectV1,
-    FinalCallableSemanticSyntaxLoanErrorV1, NormalCallableParserCompatibilityV1,
-    ParsedNormalCallableProgramV1, VerifiedFinalCallableProgramSourceV1,
+    FinalCallableSemanticSyntaxLoanErrorV1, NormalCallableParserCompatibilityV1, NormalParserSourceLineageErrorV1,
+    NormalParserSourceLineageV1, ParsedNormalCallableProgramV1, ParserCallableSourceDispositionV1,
+    VerifiedFinalCallableProgramSourceV1,
+};
+pub(crate) use callable_parameter_source::{
+    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
+    ParserCompositeOutsideReasonV1, ParserCompositeSourceUnavailableV1,
+    ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
+    ParserInvocationWitnessV1, ParserNormalProgramBodySourceRowV1,
+    ParserNormalProgramBodySyntaxKindV1,
 };
 mod postpass_compatibility;
-mod postpass_envelope;
+pub(crate) mod postpass_envelope;
 mod postpass_open;
 mod release_source;
 mod runes;
@@ -73,7 +86,7 @@ mod source_seal_finalizer;
 mod source_session_tests;
 mod stage3; // Phase 152-A: Stage-3 parser extensions
 mod statements; // Now uses modular structure in statements/
-mod string_postpass_entry;
+pub(crate) mod string_postpass_entry;
 pub mod sugar; // Phase 12.7-B: desugar pass (basic)
 pub mod sugar_gate; // thread-local gate for sugar parsing (tests/docs)
                     // mod errors;

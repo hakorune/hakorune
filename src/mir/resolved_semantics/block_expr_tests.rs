@@ -2,6 +2,7 @@ use std::collections::BTreeMap;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 
+use super::expression_source::ResolvedExpressionSourceInventoryV1;
 use super::ids::{FunctionOwnerIdV1, FunctionOwnerIssuerV1, RegionId, ScopeId};
 use super::product::{ResolvedFunctionDataV1, ResolvedFunctionDraftV1};
 use super::records::{
@@ -134,6 +135,8 @@ fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
     let blockexpr_origin = blockexpr_root();
 
     ResolvedFunctionDataV1 {
+        brand_call_relations: BTreeMap::new(),
+        explicit_extern_calls: BTreeMap::new(),
         owner,
         function_origin,
         root_profile: super::SemanticOwnerRootProfileV1::DeclaredFunction {
@@ -208,6 +211,7 @@ fn blockexpr_data(owner: FunctionOwnerIdV1) -> ResolvedFunctionDataV1 {
         assignment_targets: BTreeMap::new(),
         direct_call_targets: BTreeMap::new(),
         method_calls: BTreeMap::new(),
+        expression_source: ResolvedExpressionSourceInventoryV1::default(),
         resolved_exits: BTreeMap::new(),
     }
 }

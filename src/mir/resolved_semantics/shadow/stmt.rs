@@ -68,7 +68,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         statement: &'ast ASTNode,
         path: &ShadowSourcePathV0,
     ) -> Result<(), ShadowResolveErrorV0> {
-        if !self.allows_statement(statement) {
+        if !self.allows_statement(statement) && !self.is_catalog_brand_expression(statement) {
             return Err(ShadowResolveErrorV0::UnsupportedStatement {
                 kind: statement.node_type(),
                 site: path.stmt(),
@@ -81,13 +81,30 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             ASTNode::Local {
                 variables,
                 initial_values,
+                declared_type_names,
                 ..
-            } => self.resolve_declaration(statement, variables, initial_values, path, false, true),
+            } => self.resolve_declaration(
+                statement,
+                variables,
+                initial_values,
+                Some(declared_type_names),
+                path,
+                false,
+                true,
+            ),
             ASTNode::Outbox {
                 variables,
                 initial_values,
                 ..
-            } => self.resolve_declaration(statement, variables, initial_values, path, true, false),
+            } => self.resolve_declaration(
+                statement,
+                variables,
+                initial_values,
+                None,
+                path,
+                true,
+                false,
+            ),
             ASTNode::Assignment { target, value, .. } => {
                 self.record_effect(
                     Self::stmt_expr_path(statement, path, ExprChildRoleV1::AssignmentTarget).expr(),
@@ -150,6 +167,9 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
                     },
                 )?;
                 Ok(())
+            }
+            ASTNode::Program { statements, .. } => {
+                self.resolve_program_block(statement, statements, path)
             }
             ASTNode::ScopeBox { body, .. } => self.resolve_scope_box(statement, body, path),
             ASTNode::TaskScope { body, .. } => self.resolve_task_scope(statement, body, path),
@@ -282,6 +302,7 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         statement: &'ast ASTNode,
         variables: &[String],
         initial_values: &'ast [Option<Box<ASTNode>>],
+        declared_type_names: Option<&[Option<String>]>,
         path: &ShadowSourcePathV0,
         outbox: bool,
         resolve_initializers: bool,
@@ -323,7 +344,26 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
             } else {
                 ShadowBindingKindV0::Local { ordinal }
             };
-            let binding = self.declare_binding(name, kind, origin)?;
+            let binding = self.declare_binding(name, kind, origin.clone())?;
+            if !outbox {
+                let initializer_site =
+                    initial_values.get(index).and_then(Option::as_ref).map(|_| {
+                        Self::stmt_expr_path(
+                            statement,
+                            path,
+                            ExprChildRoleV1::LocalInitializer(ordinal),
+                        )
+                        .expr()
+                    });
+                self.record_local_initializer_source(
+                    origin,
+                    binding,
+                    declared_type_names
+                        .and_then(|types| types.get(index))
+                        .and_then(Option::as_deref),
+                    initializer_site,
+                );
+            }
             if !outbox
                 && matches!(initial_values.get(index), Some(Some(initial)) if matches!(initial.as_ref(), ASTNode::ArrayLiteral { .. }))
             {
@@ -347,6 +387,25 @@ impl<'ast, 'schema> ShadowResolverV0<'ast, 'schema> {
         );
         let result = self.resolve_body(body, |index| {
             Self::stmt_body_item_path(statement, path, BodyChildRoleV1::ScopeBody, index)
+        });
+        self.leave_region_scope(region);
+        result
+    }
+
+    fn resolve_program_block(
+        &mut self,
+        statement: &'ast ASTNode,
+        body: &'ast [ASTNode],
+        path: &ShadowSourcePathV0,
+    ) -> Result<(), ShadowResolveErrorV0> {
+        let body_path = Self::stmt_body_root_path(statement, path, BodyChildRoleV1::ProgramBody);
+        let (region, _) = self.enter_region_scope(
+            ShadowRegionKindV0::LexicalScope,
+            ShadowScopeKindV0::LexicalBlock,
+            &body_path,
+        );
+        let result = self.resolve_body(body, |index| {
+            Self::stmt_body_item_path(statement, path, BodyChildRoleV1::ProgramBody, index)
         });
         self.leave_region_scope(region);
         result

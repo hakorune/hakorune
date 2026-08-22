@@ -132,6 +132,32 @@ fn absent_ordinary_type_is_opaque_handle_not_exact_trivial() {
 }
 
 #[test]
+fn projects_exact_text_without_reinterpreting_it_as_an_opaque_handle() {
+    let batch = batch(
+        "static box TextApi { run(source: StringBox, needle: StringBox) { return 0 } }",
+        81,
+    );
+    let catalog = issue_callable_parameter_contract_v1(&batch).unwrap();
+    let declaration = catalog.declarations().next().unwrap();
+    let parameters = declaration.parameters();
+
+    assert_eq!(parameters.len(), 2);
+    assert!(parameters.iter().all(|parameter| matches!(
+        parameter.kind(),
+        CallableParameterContractKindV1::ExactText(
+            crate::mir::exact_text_parameter_abi::ExactTextFormalAbiV1::STRING_BOX
+        )
+    )));
+    assert!(parameters
+        .iter()
+        .all(|parameter| parameter.home_demand()
+            == crate::mir::resolved_semantics::HomeDemandV1::Handle));
+    assert_eq!(parameters[0].ordinal(), 0);
+    assert_eq!(parameters[1].ordinal(), 1);
+    assert_ne!(parameters[0].binding(), parameters[1].binding());
+}
+
+#[test]
 fn parser_scan_loop_box_preserves_exact_i64_parameter_contracts() {
     let batch = batch(
         include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"),

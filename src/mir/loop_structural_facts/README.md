@@ -66,23 +66,22 @@ not a fifth source outcome. The producer and JoinSig tests are caller-zero;
 there is no Builder/MIR/CFG/PHI, selector, retry/fallback, production route,
 callable tail, or legacy-deletion authority in S6B.
 
-## M8 S6C scans design stop
+## M8 S6C ScanWithInit frontier
 
-No scan Facts product is landed. The current portable Loop schema is numeric
-only, while forward `ScanWithInit` needs resolver-bound text calls and typed
-text values. Do not add a scan-specific Facts union, reuse legacy AST-based
-scan builders, or publish guessed operation counts. The separate
-`LOOP-RECIPE-TYPED-CALL-VALUE-D0` design is accepted, but the next row is the
-behavior-neutral demand/verifier split
-`LOOP-RECIPE-OPERATION-SHAPE-SPLIT-R0`. Facts remains below the Recipe wire:
-it owns semantic roles, `BindingRef`s, exact sites, and complete coverage;
-producers alone mint Recipe-local keys. The later typed cohort uses logical
-`Text` plus a local CallSlot and `TextEq`; source-bound instance target,
-signature, Home, effect, ABI, and source-site contracts remain outside Facts.
-No `Handle`/`Any`/`Opaque`/Array/Box fallback is allowed. After those rows,
-implement only `ScanWithInit`; keep `SplitScan`, `CharMap`, `ArrayJoin`, and
-`BoolPredicateScan` as separate source-family rows. `NoSafeSlice` remains a
-development state, not a source disposition.
+The typed-input relation, exact length/substring source-bound call relation,
+and non-Clone Exit/Tail source co-seal are landed. The co-seal consumes the
+existing Completion, requires exactly two explicit value returns, relates the
+TextEq-owned If-then `return index` to the selected Loop, and relates the root
+body tail only through the resolver's exact `Minus(Integer(1))` source rows.
+It lends one HRTB view and owns no Recipe key or physical identity.
+
+`VerifiedS6CScanWithInitFactsV1` now consumes the co-sealed source products and
+closes the exact statement/expression/effect/relation surface from the same
+resolver body-shape seal. Its HRTB view carries no AST, source-order guess,
+Recipe key, MIR ID, physical ID, fallback, or selector. Compound assignment
+and extra source statements are rejected before Facts publication. The next
+boundary is the sole Recipe producer; `SplitScan`, `CharMap`, `ArrayJoin`, and
+`BoolPredicateScan` remain separate source-family rows.
 
 ## Generic G0 S0A
 
@@ -117,15 +116,15 @@ witness remains a cfg(test)-only source lease witness and is not a second
 production authority. The handoff implementation is caller-zero and does not
 open demand, Recipe, Builder/MIR, retry, fallback, or legacy deletion.
 
-The S3 demand witness is now closed caller-zero in
+The S3 demand witness is now a production-capable caller-zero seam in
 `loop_recipe_contract::generic_g0_demand`. It consumes the selected Generic
 product once, keeps the canonical lease plus the borrowed brand, typed source
 bundle, post-loop tail read, and an opaque role proof, and does not copy or
-reconstruct role/BindingRef rows. The worker-reviewed S4 design is closed; the
-next caller-zero producer is `GENERIC-G0-RECIPE-S4-I0-R0`. S4 consumes this
-demand once and owns only Generic key/effect/provenance assembly while common
-Recipe/JoinSig/Core owners remain separate. P0 owns executable
-completion/DraftSeal.
+reconstruct role/BindingRef rows. The compiler-side
+`generic_g0_source_parent` issuer co-seals that product with the exact
+resolver input and two source-parameter entry rows through one callback-scoped
+non-Clone parent. Physical demand, Builder/MIR, retry, fallback, and
+production selection remain closed.
 
 `generic_g0_observation.rs` owns the neutral S1 source-attempt transport. It
 stores only the existing typed candidate or C/D/U/R source outcome together

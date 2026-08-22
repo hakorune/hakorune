@@ -4,6 +4,14 @@ The parser owns source syntax, ordered source coordinates, and parser-private
 transport products. It does not resolve callable targets, issue semantic
 contracts, build Recipe/CallSlot products, or emit MIR/runtime routes.
 
+The canonical pure-Script admission is a parser-only, non-Clone cohort
+witness. It is issued from the same postpass plus complete parameter-source
+product after an exhaustive top-level shape check; `NoBoxDeclarations` and
+`is_source_backed()` are not sufficient. The following parser-input handoff
+owns ProgramBody/declaration/config rows, while resolver and physical owners
+remain downstream. Compatibility, unresolved shapes, and missing parser
+authority stay typed stops rather than empty source success.
+
 ## Shared Box-member source cursor
 
 `source_member_cursor.rs` is the parser-private owner of one Box declaration's
@@ -309,6 +317,14 @@ successful AST projections and never carry an empty seal, target, Recipe
 input, or fallback marker. Final AST placement is coverage metadata; parser
 source paths/sites remain identity and inventory ordinals never become source
 identity.
+
+Box constructor membership is sealed by the same parser source transaction,
+before the public constructor map can overwrite or reorder it. Direct
+`init`/`pack`/`birth` rows retain their written or selected-gate member site;
+an initializer-generated `birth/0` row instead retains the exact field or
+`birth once` trigger sites. Final source sealing requires exact key and
+function-shape coverage against the selected AST map. Builder key sorting,
+constructor names, and physical demand counts are not source authority.
 
 The same private `PreparedBuildGateDecisionSetV1` (implementation name may
 change) must feed AST prune, explain-report projection, and top-level ordinary

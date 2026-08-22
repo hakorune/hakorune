@@ -1,5 +1,6 @@
-use super::{CanonicalCfgErrorV1, CanonicalCfgSessionV1};
+use super::{CanonicalCfgErrorV1, CanonicalCfgSessionV1, CanonicalOpenInstructionTargetErrorV1};
 use crate::mir::builder::MirBuilder;
+use crate::mir::resolved_semantics::FunctionOwnerIssuerV1;
 use crate::mir::{
     BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType,
     ValueId,
@@ -23,6 +24,13 @@ fn function(block_count: u32) -> MirFunction {
         function.add_block(BasicBlock::new(block(id)));
     }
     function
+}
+
+fn owner() -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+    FunctionOwnerIssuerV1::new_for_compilation()
+        .expect("owner issuer")
+        .issue()
+        .expect("owner")
 }
 
 fn seal_all(
@@ -298,13 +306,125 @@ fn all_blocks_can_finish_without_outgoing_edges() {
 #[test]
 fn named_block_owner_rejects_duplicate_creation() {
     let mut function = function(1);
-    let session = CanonicalCfgSessionV1::new();
+    let mut session = CanonicalCfgSessionV1::new();
     assert_eq!(
         session.create_block(&mut function, block(0)).unwrap_err(),
         CanonicalCfgErrorV1::BlockAlreadyExists { block: block(0) }
     );
     session.create_block(&mut function, block(1)).unwrap();
     assert!(function.get_block(block(1)).is_some());
+}
+
+#[test]
+fn open_instruction_target_requires_session_created_open_block() {
+    let owner = owner();
+    let mut function = function(1);
+    let mut session = CanonicalCfgSessionV1::new_for_owner(owner);
+    let target = block(1);
+    session.create_block(&mut function, target).unwrap();
+
+    let before_blocks = function.blocks.len();
+    let before_instructions = function.get_block(target).unwrap().instructions.len();
+    let witness = session
+        .prepare_created_open_instruction_target(&function, owner, target)
+        .unwrap();
+
+    assert_eq!(witness.owner(), owner);
+    assert_eq!(witness.block(), target);
+    assert_eq!(function.blocks.len(), before_blocks);
+    assert_eq!(
+        function.get_block(target).unwrap().instructions.len(),
+        before_instructions
+    );
+}
+
+#[test]
+fn open_instruction_target_rejects_unbound_or_foreign_session_owner() {
+    let owner_a = owner();
+    let foreign_owner = owner();
+    let target = block(1);
+    let mut function = function(1);
+
+    let mut unbound = CanonicalCfgSessionV1::new();
+    unbound.create_block(&mut function, target).unwrap();
+    assert_eq!(
+        unbound.prepare_created_open_instruction_target(&function, owner_a, target),
+        Err(CanonicalOpenInstructionTargetErrorV1::SessionOwnerUnavailable)
+    );
+
+    let mut bound = CanonicalCfgSessionV1::new_for_owner(owner_a);
+    bound.create_block(&mut function, block(2)).unwrap();
+    assert_eq!(
+        bound.prepare_created_open_instruction_target(&function, foreign_owner, block(2)),
+        Err(CanonicalOpenInstructionTargetErrorV1::SessionOwnerMismatch)
+    );
+}
+
+#[test]
+fn open_instruction_target_rejects_foreign_session_and_missing_block() {
+    let owner = owner();
+    let target = block(1);
+    let mut function = function(1);
+    let mut creator = CanonicalCfgSessionV1::new_for_owner(owner);
+    creator.create_block(&mut function, target).unwrap();
+
+    let foreign_session = CanonicalCfgSessionV1::new_for_owner(owner);
+    assert_eq!(
+        foreign_session.prepare_created_open_instruction_target(&function, owner, target),
+        Err(CanonicalOpenInstructionTargetErrorV1::SessionDidNotCreate(
+            target
+        ))
+    );
+
+    function.blocks.remove(&target);
+    assert_eq!(
+        creator.prepare_created_open_instruction_target(&function, owner, target),
+        Err(CanonicalOpenInstructionTargetErrorV1::TargetBlockMissing(
+            target
+        ))
+    );
+}
+
+#[test]
+fn open_instruction_target_rejects_sealed_and_terminated_blocks() {
+    let owner = owner();
+
+    let sealed_target = block(1);
+    let mut sealed_function = function(1);
+    let mut sealed_session = CanonicalCfgSessionV1::new_for_owner(owner);
+    sealed_session
+        .create_block(&mut sealed_function, sealed_target)
+        .unwrap();
+    sealed_function.get_block_mut(sealed_target).unwrap().seal();
+    assert_eq!(
+        sealed_session.prepare_created_open_instruction_target(
+            &sealed_function,
+            owner,
+            sealed_target
+        ),
+        Err(CanonicalOpenInstructionTargetErrorV1::TargetBlockSealed(
+            sealed_target
+        ))
+    );
+
+    let terminated_target = block(1);
+    let mut terminated_function = function(1);
+    let mut terminated_session = CanonicalCfgSessionV1::new_for_owner(owner);
+    terminated_session
+        .create_block(&mut terminated_function, terminated_target)
+        .unwrap();
+    terminated_function
+        .get_block_mut(terminated_target)
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    assert_eq!(
+        terminated_session.prepare_created_open_instruction_target(
+            &terminated_function,
+            owner,
+            terminated_target
+        ),
+        Err(CanonicalOpenInstructionTargetErrorV1::TargetBlockTerminated(terminated_target))
+    );
 }
 
 #[test]

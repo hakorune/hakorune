@@ -231,8 +231,7 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
         program.after().class() == LoopValueClassV2::I64
             && program.recipe_value_class(LoopValueKeyV1::new(10))
                 == Some(LoopValueClassV2::Dynamic)
-            && program.recipe_value_class(LoopValueKeyV1::new(11))
-                == Some(LoopValueClassV2::I64)
+            && program.recipe_value_class(LoopValueKeyV1::new(11)) == Some(LoopValueClassV2::I64)
             && program.recipe_value_class(LoopValueKeyV1::new(14)) == Some(LoopValueClassV2::I64)
             && program.recipe_value_class(LoopValueKeyV1::new(15)) == Some(LoopValueClassV2::I64)
             && program.recipe_value_class(LoopValueKeyV1::new(17)) == Some(LoopValueClassV2::I64)
@@ -244,8 +243,7 @@ pub(in crate::mir) fn issue_dynamic_invocation_cleanup_projection_i0(
     let faults = invocation.fault_cut_points().rows();
     let i6 = exact_fault(faults, 6, DynamicFullLoopFaultFamilyV2::DynamicInvocation)?;
     let i7 = exact_fault(faults, 7, DynamicFullLoopFaultFamilyV2::DynamicInvocation)?;
-    if faults.len() != 2
-        || [i6.item(), i7.item()] != [LoopItemKeyV1::new(6), LoopItemKeyV1::new(7)]
+    if faults.len() != 2 || [i6.item(), i7.item()] != [LoopItemKeyV1::new(6), LoopItemKeyV1::new(7)]
     {
         return Err(DynamicInvocationCleanupProjectionRejectV1::FaultCoverage);
     }

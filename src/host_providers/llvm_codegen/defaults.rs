@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use super::Opts;
+use super::{CodegenRouteRequestV1, Opts};
 
 pub(super) const COMPILE_SYMBOL_DEFAULT: &[u8] = b"hako_llvmc_compile_json\0";
 
@@ -42,8 +42,9 @@ pub fn boundary_default_object_opts(
         nyrt,
         opt_level,
         timeout_ms,
-        compile_recipe: None,
-        compat_replay: None,
+        compile_recipe: Some("pure-first".to_string()),
+        compat_replay: Some("none".to_string()),
+        route_request: CodegenRouteRequestV1::BoundaryPureFirst,
     }
 }
 
@@ -52,13 +53,15 @@ mod tests {
     use super::{
         boundary_default_object_opts, ffi_library_default_candidates, ffi_library_filenames,
     };
+    use crate::host_providers::llvm_codegen::CodegenRouteRequestV1;
     use std::path::PathBuf;
 
     #[test]
-    fn boundary_default_object_opts_stays_transport_only() {
+    fn boundary_default_object_opts_is_explicit_boundary() {
         let opts = boundary_default_object_opts(None, None, None, None);
-        assert_eq!(opts.compile_recipe, None);
-        assert_eq!(opts.compat_replay, None);
+        assert_eq!(opts.compile_recipe.as_deref(), Some("pure-first"));
+        assert_eq!(opts.compat_replay.as_deref(), Some("none"));
+        assert_eq!(opts.route_request, CodegenRouteRequestV1::BoundaryPureFirst);
     }
 
     #[test]

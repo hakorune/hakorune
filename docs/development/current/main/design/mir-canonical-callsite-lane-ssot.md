@@ -136,6 +136,44 @@ MIR 命令数そのものを急いで減らすのではなく、まず「call-si
 - NCL-1: done（`NewClosure.body` は `body_id -> module.metadata.closure_bodies` へ外出しし、canonical 形は `body=[]` を維持）
 - NCL-2: done（shape 判定を SSOT 化。`dst=Some + args=[]` のみ canonicalize、それ以外は shape-specific fail-fast）
 
+## Core Call target retirement successor (parked)
+
+MCL/RCLはbackend入口のcanonicalizationと旧instruction variant退役を閉じた。
+core `MirInstruction::Call` 自体は、なお
+`func: ValueId + callee: Option<Callee>`というmigration carrierである。
+次のlaneは新しいCall authorityではなく、このSSOTのretirement successorとする。
+
+```text
+MIR-CALL-LEGACY-TARGET-CENSUS-D0
+  -> MIR-CALL-CANONICAL-CORRIDOR-GUARD-I0
+  -> MIR-CALL-LEGACY-TARGET-RETIREMENT-R0
+```
+
+`CENSUS-D0`は全`callee: None`をcanonicalizer input、明示compatibility、test、
+diagnostic、unreachableへ分類する。text countや`ValueId::INVALID`だけで
+retirementを選ばない。`GUARD-I0`はまずselected native/canonical corridorだけで
+`callee.is_some() == 100%`、legacy func authority/fallbackが0であることを固定する。
+現状は`callee=Some`でもJoinIRやJSON transportが有効な`func`値を併記するため、
+`func == ValueId::INVALID`をこのguardの不変条件にはしない。また、このcountを
+証明するためだけの新しい`FunctionMetadata` semantic rowも追加しない。最初の
+consumerはmodule/backend境界のpure structural censusでなければならない。
+
+`RETIREMENT-R0`のend stateは、canonical MIRの
+
+```text
+Call { dst, callee: Callee, args, effects }
+```
+
+への収束、またはcanonical MIR外に隔離した明示`LegacyCall` inputのどちらか一つ。
+`callee=None`をdefault/sentinel Calleeへ変換する案、backendのstring fallback、
+optimizerによるtarget再推論は不採用。loader、interpreter、optimizer、printer/JSON、
+backend、fixture/reference callerが同じretirement seriesで閉じるまでcore fieldは
+削除しない。
+
+このsuccessorはcurrent Script convergence、JSON-v0 compatibility disposition、
+main integrationより先に自動起動しない。実行順は
+`mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md`が保持する。
+
 ## 作業分離ルール
 
 - BoxShape lane と BoxCount lane を混ぜない

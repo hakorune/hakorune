@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-04-18
+Date: 2026-08-20
 Scope: perf/asm を使う最適化レーンで、`front split` / `owner/state transition` / `keeper-revert stop-line` を先に固定する運用。
 Related:
   - AGENTS.md
@@ -323,6 +323,132 @@ remote-free lane の実務判定は、まず source `me.*` と MIR `field_get/se
 - same owner family で 2 probes fail
 - active boundary counter が 0 の seam をまだ触ろうとしている
 - helper 名だけで owner を説明している
+
+## Measurement Batch and Repetition Law
+
+Compiler transactionのfallback禁止と、empirical measurementの反復可能性を
+混同しない。性能測定は一回限りではなく、事前封印されたimmutable batchを
+append-onlyに積む。
+
+```text
+protocol / candidate / corpus / threshold
+  -> BatchManifestV3
+       fixed environment role
+       fixed session slots and order
+       prior terminal receipt digest
+  -> exact session executions
+  -> one terminal batch receipt
+```
+
+同一batchはresume、overwrite、sample replacementをしない。effect後の中断は
+`Incomplete`、identity/oracle/schema driftは`IntegrityInvalid`、全slot完了は
+`Complete`として一度だけ閉じる。中断後の再測定は、旧terminal receiptを参照する
+新しいbatch IDとして開始する。これはcompiler retryでもsame-batch retryでもない。
+
+固定するもの:
+
+- full commit、binary SHA/build-id、symbol body、toolchain;
+- environment role、CPU contract、corpus、oracle、threshold;
+- session census、case/order schedule、統計、terminal taxonomy;
+- predecessor batch digestとrepeat reason。
+
+許可する反復:
+
+- `PreflightRejected`はeffect前なので、入力を直してbatchを発行し直せる;
+- `Incomplete`はlinked successor batchを明示発行できる;
+- `Complete`後の確認測定も別batchとして全履歴を残せる。
+
+禁止する反復:
+
+- 完了sample、red case、汚染armだけの取り直し;
+- batchのresume、receipt overwrite/delete、別batch間のpairing/pooling;
+- latest/best/green batchだけの選別;
+- 結果を見た後のsession数、threshold、corpus、order変更。
+
+`wsl_development`はkeeper/red/inconclusiveの開発証拠だけを発行する。
+`native_promotion`は別Decisionで開き、事前指定されたbatch集合だけをpromotionへ
+渡す。WSL greenや過去V1 receiptはnative authorityへ昇格しない。
+
+各session内では全sampleをretainし、既存のAB/BA、block、p50 gateを維持する。
+partial rowsはterminal receiptへ参照せず、性能比を発行しない。旧V1/V2
+plan/receiptはhistorical auditとしてimmutableに残し、V3へnormalizeしない。
+
+Calibrationはsample eligibilityとは別に封印する。warmup後のcalibration targetは
+sample minimumより厳しくなければならず、target到達後のiterationsを全sampleで固定する。
+取得済みarmがsample minimumを下回った場合はidentity破損ではなく`Incomplete`であり、
+同batch内で取り直さない。Complete以外のraw observationはdigest-bound diagnosticとして
+保存できるが、ratio/classification consumerへ渡る物理経路を持たない。
+
+Pure V3 model owner:
+`tools/perf/s6c_paired_wallclock_batch.py`。filesystemやsubprocessは持たず、
+manifest、same-candidate lineage、session terminal、batch terminalだけを発行する。
+Append-only projection ownerは
+`tools/perf/s6c_paired_wallclock_batch_store.py`、実行consumerは
+`tools/perf/s6c_paired_wallclock_harness.py`。storeだけがimmutable childをpublishし、
+harnessはmanifestのslotを再分類せず消費する。
+
+## S6C C-parity north star (design-only D0)
+
+S6C の Hako/C 比較は、現行の採用条件と長期的な性能目標を分離して
+記録する。これは測定の再実行、閾値変更、compiler/backend変更を許可する
+行ではない。
+
+```text
+Decision:
+  Keep every existing exact/meso promotion threshold unchanged. Define
+  Hako/C <= 1.00 as the S6C corridor's formal point north star, not as a
+  replacement for the current 1.15 promotion ceiling.
+Source authority + canonical issuer:
+  The existing sealed Hako candidate, matched C reference, fixed corpus/oracle,
+  and the existing retain-all paired measurement validator issue observations;
+  this SSOT only names the target and does not issue a result.
+Non-authority:
+  One run, WSL output, assembly size, PMU totals, p95 alone, best-session
+  selection, source-name branches, and a proposed confidence margin cannot
+  claim C parity or select a compiler owner.
+Fail-fast boundary:
+  Any future parity claim must use a newly predeclared immutable batch with the
+  existing identity, corpus, order, sample-retention, and promotion contracts;
+  no old receipt is reinterpreted and no current gate is relaxed.
+Smallest next slice:
+  Record the 1.00 point target in the active S6C design card and keep a possible
+  upper-95% <= 1.03 C-class claim as a separate future D0, without adding a
+  schema field, gate, measurement, or production selector here.
+Non-claims:
+  No claim that current evidence reaches 1.00 or 1.03, no strict
+  no-slower-than-C proof, no SIMD requirement, no backend BoxShape, no
+  promotion/production switch, and no C-reference rewrite.
+```
+
+The ratio is `R = Hako elapsed / C elapsed`; lower is faster. The existing
+`1.15` meso gate remains the current promotion ceiling for its already-defined
+front, not a universal language-speed promise. `1.00` is a development target
+for the same-corridor point estimate. A future `R` confidence claim must name
+its sample size, interval method, batch lineage, and native authority in a new
+decision row; `1.03` is not policy until that row is accepted.
+
+## Compiler compile-time lane
+
+Generated-program runtime and Hakorune compiler latency are different fronts.
+The owner-first law applies to both, but their probes, counters, and keeper
+claims must not be pooled.
+
+The detailed parked compiler-cost task SSOT is
+[`mirbuilder-post-audit-follow-up-queue-2026-08-21.md`](../investigations/mirbuilder-post-audit-follow-up-queue-2026-08-21.md).
+
+Its existing owners are `src/mir/compile_timing.rs` and
+`tools/perf/mir_compile_scaling.py`. Reuse them; do not add a second timing
+framework or an always-on CI wall-time gate. Source inspection can select a
+measurement candidate, but only a repeated baseline can select a speed keeper.
+
+Until `CURRENT_STATE.toml` explicitly opens this lane:
+
+```text
+compiler_compile_time_observation = parked
+compiler_speed_keeper_claim = 0
+global pass fusion = 0
+incremental compilation implementation = 0
+```
 
 ## Doc Placement
 

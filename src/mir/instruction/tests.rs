@@ -58,6 +58,39 @@ fn test_binop_instruction() {
 }
 
 #[test]
+fn pinned_text_op_is_read_typed_and_transport_only() {
+    let root = crate::mir::pinned_text_access_plan::PinnedTextRootIdV1::from_frame_row(2);
+    let kind =
+        crate::mir::pinned_text_access_plan::PinnedTextAccessKindV1::Utf8ScalarSliceEqWholeText {
+            lhs_root: root,
+            lhs_byte_offset: ValueId::new(11),
+            lhs_width: ValueId::new(12),
+            rhs_root: root,
+        };
+    let mut table = crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1::new(9);
+    let plan = table.issue(kind);
+    let inst = MirInstruction::PinnedTextOp {
+        dst: ValueId::new(13),
+        plan,
+        kind,
+    };
+
+    assert_eq!(inst.effects(), EffectMask::READ);
+    assert_eq!(inst.dst_value(), Some(ValueId::new(13)));
+    assert_eq!(inst.used_values(), vec![ValueId::new(11), ValueId::new(12)]);
+    assert_eq!(
+        crate::mir::contracts::backend_core_ops::instruction_tag(&inst),
+        "PinnedTextOp"
+    );
+    assert!(crate::mir::contracts::backend_core_ops::is_supported_mir_json_instruction(&inst));
+    assert_eq!(
+        crate::mir::contracts::backend_core_ops::llvm_json_ops_for_instruction(&inst),
+        &[] as &[&str]
+    );
+    assert!(table.verify_census(&[(plan, kind)]).is_ok());
+}
+
+#[test]
 fn test_call_instruction() {
     let dst = ValueId::new(0);
     let func = ValueId::new(1);

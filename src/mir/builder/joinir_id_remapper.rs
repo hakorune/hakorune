@@ -94,6 +94,11 @@ impl JoinIrIdRemapper {
                 vals.extend(operands.iter().copied());
                 vals
             }
+            PinnedTextOp { dst, kind, .. } => {
+                let mut vals = vec![*dst];
+                vals.extend(kind.used_values());
+                vals
+            }
             FieldGet { dst, base, .. } => vec![*dst, *base],
             FieldSet { base, value, .. } => vec![*base, *value],
             WeakFieldWrite { base, value, .. } => vec![*base, *value],
@@ -145,6 +150,21 @@ impl JoinIrIdRemapper {
                 .map(|args| args.values.clone())
                 .unwrap_or_default(),
             Return { value } => value.iter().copied().collect(),
+            CheckedCallOut {
+                receiver,
+                arguments,
+                ..
+            } => {
+                let mut vals = vec![*receiver];
+                vals.extend(arguments.iter().copied());
+                vals
+            }
+            CheckedCallOutNormalResult { dst, .. } => vec![*dst],
+            CheckedCallOutEnd { .. }
+            | CheckedCallOutFault { .. }
+            | PinnedTextResidenceFinish { .. }
+            | PinnedTextResidenceEnter { .. }
+            | PinnedTextResidenceTrap { .. } => Vec::new(),
             Phi { dst, inputs, .. } => {
                 let mut vals = vec![*dst];
                 vals.extend(inputs.iter().map(|(_, v)| *v));
@@ -334,6 +354,11 @@ impl JoinIrIdRemapper {
                 operands: operands.iter().map(|&v| remap(v)).collect(),
                 access: access.clone(),
                 effects: *effects,
+            },
+            PinnedTextOp { dst, plan, kind } => PinnedTextOp {
+                dst: remap(*dst),
+                plan: *plan,
+                kind: kind.remap_values(remap),
             },
             FieldGet {
                 dst,
@@ -596,6 +621,29 @@ impl JoinIrIdRemapper {
             Return { value } => Return {
                 value: value.map(remap),
             },
+            CheckedCallOut {
+                site_id,
+                receiver,
+                arguments,
+                normal_landing,
+                fault_landing,
+                effects,
+            } => CheckedCallOut {
+                site_id: *site_id,
+                receiver: remap(*receiver),
+                arguments: arguments.iter().map(|&value| remap(value)).collect(),
+                normal_landing: *normal_landing,
+                fault_landing: *fault_landing,
+                effects: *effects,
+            },
+            CheckedCallOutNormalResult { site_id, dst } => CheckedCallOutNormalResult {
+                site_id: *site_id,
+                dst: remap(*dst),
+            },
+            CheckedCallOutEnd { .. } | CheckedCallOutFault { .. } => inst.clone(),
+            PinnedTextResidenceFinish { .. }
+            | PinnedTextResidenceEnter { .. }
+            | PinnedTextResidenceTrap { .. } => inst.clone(),
             // Pass through unchanged
             Safepoint => inst.clone(),
         }

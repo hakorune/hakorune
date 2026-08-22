@@ -2,6 +2,42 @@
 # Declaration evidence is parser-owned and never a MIR/runtime/backend input.
 
 [[fixtures]]
+fixture_id = "brand_declaration_canonical"
+row_id = "brand_declaration"
+profile = "Canonical"
+source = "brand PageId: i64"
+accepted = true
+normalized_form = { kind = "BrandDeclaration", children = [{ kind = "Identifier", value = "PageId", children = [] }, { kind = "TypeRef", value = "i64", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "brand_declaration_compat"
+row_id = "brand_declaration"
+profile = "Compat2025"
+source = "brand PageId: i64"
+accepted = true
+normalized_form = { kind = "BrandDeclaration", children = [{ kind = "Identifier", value = "PageId", children = [] }, { kind = "TypeRef", value = "i64", children = [] }] }
+stable_reject_tag = ""
+
+[[fixtures]]
+fixture_id = "brand_declaration_missing_colon_canonical_reject"
+row_id = "brand_declaration"
+profile = "Canonical"
+source = "brand PageId i64"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/brand_declaration_invalid"
+
+[[fixtures]]
+fixture_id = "brand_declaration_missing_type_compat_reject"
+row_id = "brand_declaration"
+profile = "Compat2025"
+source = "brand PageId:"
+accepted = false
+normalized_form = { kind = "", children = [] }
+stable_reject_tag = "parser/brand_declaration_invalid"
+
+[[fixtures]]
 fixture_id = "record_declaration_canonical"
 row_id = "record_declaration"
 profile = "Canonical"

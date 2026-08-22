@@ -127,6 +127,17 @@ pub(in crate::mir::builder) enum PreparedMeReceiverV1 {
 }
 
 impl PreparedMeLoweredCallV1 {
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn from_test_parts(
+        expected_params: usize,
+        receiver: PreparedMeReceiverV1,
+    ) -> Self {
+        Self {
+            expected_params,
+            receiver,
+        }
+    }
+
     pub(in crate::mir::builder) fn expected_params(&self) -> usize {
         self.expected_params
     }

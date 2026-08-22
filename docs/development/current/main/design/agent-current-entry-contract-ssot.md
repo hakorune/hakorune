@@ -118,6 +118,24 @@ Smallest next slice:
 Non-claims:
 ```
 
+### Classification-completeness check
+
+Every routing, claim, publication, admission, or lifecycle design card must
+also include a finite state table before implementation. The table must name
+every outcome, including the state that is neither selected nor rejected (for
+example `Unavailable`, `Absent`, `Unresolved`, or `NoCandidate`), and bind
+each outcome to its authority, pre-effect behavior, allowed terminal, and
+fallback policy. A wildcard arm, `Option::None`, `unwrap_or(default)`, or
+generic compatibility label may not silently merge two distinct states.
+
+Use `LoopFamilyRowDispositionV1`'s four-way
+`Candidate | Declined | Unresolved | Rejected` matrix as the reference
+pattern, but choose the vocabulary owned by the current row. Reviewers must
+check that every state is issued by one named owner, every negative witness
+maps to exactly one state, and every state transition is exhaustive before a
+focused gate is treated as evidence. If the table cannot be made finite and
+authority-backed, remain at `NoSafeSlice` rather than inventing a default.
+
 The design stop ends only after the selected slice and its explicit non-claims
 are accepted in the owning card/SSOT. If a schema or operation vocabulary is
 missing, record `NoSafeSlice` as a development state; do not force it into
@@ -258,6 +276,22 @@ block keeps its blocker and next action; it is not closed as “partially landed
 
 Workers are a bounded review resource, not a second implementation stream.
 
+- Keep exactly one serial authority/current-execution spine. Up to two
+  workers may inspect independent premises concurrently, but under the current
+  policy they remain read-only and the primary agent integrates one Decision.
+- Do not infer ceremony from a task suffix. T0 is a fully censused private
+  mechanical move with unchanged authority/identity/failure/ABI/route; T1 adds
+  one bounded witness to an existing owner; every unknown or changed truth,
+  failure, publication, lifetime, rollback, or schema boundary is T2.
+- An audit finding interrupts the unlocked product row only when a named live
+  reproducer reaches effect/publication, the exact selected cutover reaches
+  the owner and its unchanged gate fails, or that path has reachable UB,
+  corruption, or irreversible-effect risk. Otherwise park it and return to
+  the product row after the declared closeout.
+- A second code-writing lane would change the durable worker and integration
+  policy. It is not authorized by independent T0 work and must not be
+  improvised in a shared worktree.
+
 - Use a worker for a genuinely difficult design/authority audit or an
   independent premise review; mechanical T0 work does not need one.
 - The worker receives a read-only question covering source authority,
@@ -284,6 +318,74 @@ Use the three result classes owned by
 `current-docs-update-policy-ssot.md`: current-change failure, known baseline
 debt, and informational census. An unclassified failure is blocking, and an
 agent may not invent a waiver or turn census output into completion evidence.
+
+### Local Cargo resource-safety contract
+
+One repository checkout and shared `target/` directory may have at most one
+agent-started top-level Cargo build, check, or test command in flight.  Before
+starting Cargo, inspect the agent's background terminals; wait for the active
+Cargo command or stop a redundant one.  Do not use background terminals to
+race equivalent focused gates.
+
+Agent-driven development commands use the quick profile, one library target
+when applicable, and an explicit four-job ceiling:
+
+```bash
+CARGO_BUILD_JOBS=4 cargo check
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib <filter>
+```
+
+Use `--exact` only with the complete test path.  Omit `--nocapture` unless the
+test output is required evidence.  Do not change `RUSTFLAGS` while another
+Cargo command is active: a different flag set creates a separate artifact
+graph and may start a full rebuild beside the first one.  In particular, do
+not launch an `RUSTFLAGS=-Awarnings` retry merely to hide a large warning
+transcript; wait for the current build and keep the existing flag set.
+
+The repository's configured parallelism and release profile remain available
+for deliberate standalone use.  `--release` is reserved for an active card's
+explicit final evidence, not ordinary iteration.  If a required gate itself
+spawns Cargo, it is the sole top-level Cargo owner until it exits.  Stop and
+report resource pressure instead of opening another build when aggregate
+host RSS (the agent plus Cargo/rustc children) approaches 8 GiB, swap grows
+continuously, or the terminal has stopped producing progress.  This is a
+hard safety boundary: the 2026-08-18 incident was confirmed by the kernel as
+`global_oom` killing the Codex process while overlapping Cargo/rustc workers
+were resident, not as a Rust panic.
+
+The checked-in `tools/checks/dev_gate.sh` applies the same four-job ceiling to
+all Cargo steps it launches (while respecting a smaller caller value), so the
+single-entry gate cannot silently restore host-wide parallelism.
+
+#### Forced-termination recovery
+
+`Waiting for background terminal` is an orchestration state, not a successful
+Cargo result.  If the terminal reports multiple background terminals, or a
+focused test reports `0 passed`/`0 tests`, treat the run as invalid evidence:
+do not start a second Cargo command and do not infer that the test is green.
+First inspect the process table and stop or wait for every redundant
+`cargo`/`rustc` child, then rerun one complete test path serially with the
+existing flag set.  A `--nocapture` transcript full of warnings is not a
+reason to launch an `RUSTFLAGS=-Awarnings` retry.  After an interruption or
+forced termination, the restart order is:
+
+```bash
+git status -sb
+ps -eo pid,ppid,stat,etime,pcpu,pmem,args | rg '[c]argo|[r]ustc|[s]ccache|[r]ustdoc' || true
+bash tools/checks/current_state_pointer_guard.sh
+```
+
+Only after the process check is empty may the single quick Cargo gate resume.
+Record the command and its nonzero executed-test count as the evidence; a
+zero-match filter is a command-selection error, not a passing test.
+
+When the cause of an unexpected termination is unclear, inspect the kernel
+record before retrying so an OOM kill is not mistaken for a test failure:
+
+```bash
+dmesg -T 2>/dev/null | rg -i 'oom|out of memory|killed process' | tail -40 || true
+journalctl -k -b 2>/dev/null | rg -i 'oom|out of memory|killed process' | tail -40 || true
+```
 
 ### Active SSOT current capsule
 

@@ -19,11 +19,19 @@ pub fn instruction_tag(inst: &MirInstruction) -> &'static str {
         MirInstruction::Load { .. } => "Load",
         MirInstruction::Store { .. } => "Store",
         MirInstruction::MemOp { .. } => "MemOp",
+        MirInstruction::PinnedTextOp { .. } => "PinnedTextOp",
+        MirInstruction::PinnedTextResidenceFinish { .. } => "PinnedTextResidenceFinish",
+        MirInstruction::PinnedTextResidenceEnter { .. } => "PinnedTextResidenceEnter",
+        MirInstruction::PinnedTextResidenceTrap { .. } => "PinnedTextResidenceTrap",
         MirInstruction::Call { .. } => "Call",
         MirInstruction::NewClosure { .. } => "NewClosure",
         MirInstruction::Branch { .. } => "Branch",
         MirInstruction::Jump { .. } => "Jump",
         MirInstruction::Return { .. } => "Return",
+        MirInstruction::CheckedCallOut { .. } => "CheckedCallOut",
+        MirInstruction::CheckedCallOutNormalResult { .. } => "CheckedCallOutNormalResult",
+        MirInstruction::CheckedCallOutEnd { .. } => "CheckedCallOutEnd",
+        MirInstruction::CheckedCallOutFault { .. } => "CheckedCallOutFault",
         MirInstruction::Phi { .. } => "Phi",
         MirInstruction::NewBox { .. } => "NewBox",
         MirInstruction::TypeOp { .. } => "TypeOp",
@@ -86,12 +94,20 @@ pub const MIR_INSTRUCTION_KEPT_TAGS: &[&str] = &[
     "KeepAlive",
     "Load",
     "MemOp",
+    "PinnedTextOp",
+    "PinnedTextResidenceEnter",
+    "PinnedTextResidenceFinish",
+    "PinnedTextResidenceTrap",
     "NewBox",
     "NewClosure",
     "Phi",
     "RefNew",
     "ReleaseStrong",
     "Return",
+    "CheckedCallOut",
+    "CheckedCallOutNormalResult",
+    "CheckedCallOutEnd",
+    "CheckedCallOutFault",
     "Safepoint",
     "Select",
     "Store",
@@ -159,12 +175,20 @@ pub fn instruction_diet_cohort(inst: &MirInstruction) -> InstructionDietCohort {
         | MirInstruction::KeepAlive { .. }
         | MirInstruction::Load { .. }
         | MirInstruction::MemOp { .. }
+        | MirInstruction::PinnedTextOp { .. }
+        | MirInstruction::PinnedTextResidenceEnter { .. }
+        | MirInstruction::PinnedTextResidenceTrap { .. }
+        | MirInstruction::PinnedTextResidenceFinish { .. }
         | MirInstruction::NewBox { .. }
         | MirInstruction::NewClosure { .. }
         | MirInstruction::Phi { .. }
         | MirInstruction::RefNew { .. }
         | MirInstruction::ReleaseStrong { .. }
         | MirInstruction::Return { .. }
+        | MirInstruction::CheckedCallOut { .. }
+        | MirInstruction::CheckedCallOutNormalResult { .. }
+        | MirInstruction::CheckedCallOutEnd { .. }
+        | MirInstruction::CheckedCallOutFault { .. }
         | MirInstruction::Safepoint
         | MirInstruction::Select { .. }
         | MirInstruction::Store { .. }

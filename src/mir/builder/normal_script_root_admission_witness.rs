@@ -15,6 +15,7 @@ use crate::mir::resolved_semantics::{
 };
 
 use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
+use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuildErrorV1;
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 
@@ -32,13 +33,29 @@ impl ScriptRootSemanticDecisionV1 {
         statement: &ASTNode,
         occurrence: SelectedScriptProgramOccurrenceV1,
     ) -> Result<Self, ScriptRootDemandWindowBuildErrorV1> {
+        Self::decide_with_composite_partition(statement_count, statement, occurrence, None)
+    }
+
+    pub(super) fn decide_with_composite_partition(
+        statement_count: usize,
+        statement: &ASTNode,
+        occurrence: SelectedScriptProgramOccurrenceV1,
+        composite_partition: Option<&CanonicalScriptCompositeProgramPartitionV1>,
+    ) -> Result<Self, ScriptRootDemandWindowBuildErrorV1> {
         use NormalScriptProgramItemAdmissionV1 as Admission;
         use ScriptRootRuntimeDispositionV1 as Runtime;
         use ScriptRootSemanticDispositionV1 as Semantic;
 
         let source_statement_index = occurrence.source_statement_index();
         let admission = occurrence.admission();
-        let (semantic, runtime) = if matches!(statement, ASTNode::EnumDeclaration { .. }) {
+        let (semantic, runtime) = if composite_partition
+            .is_some_and(|partition| partition.is_static_provider_at(source_statement_index))
+        {
+            (
+                Semantic::Transferred(ScriptTransferredBoundaryV1::StaticCallableCatalogTransfer),
+                Runtime::RetainedExistingTerminal,
+            )
+        } else if matches!(statement, ASTNode::EnumDeclaration { .. }) {
             (
                 Semantic::Transferred(ScriptTransferredBoundaryV1::ProgramEnumDeclaration),
                 Runtime::RetainedExistingTerminal,
@@ -52,6 +69,11 @@ impl ScriptRootSemanticDecisionV1 {
             (
                 Semantic::Transferred(ScriptTransferredBoundaryV1::TopLevelCallable),
                 Runtime::None,
+            )
+        } else if occurrence.transfers_instance_box() {
+            (
+                Semantic::Transferred(ScriptTransferredBoundaryV1::InstanceBoxSemanticOwner),
+                Runtime::RetainedExistingTerminal,
             )
         } else {
             match admission {
@@ -225,6 +247,17 @@ fn validate_source_boundary(
             ScriptTransferredBoundaryV1::ProgramStaticMetadata,
         ) => matches!(statement, ASTNode::StaticConstTable { .. }),
         ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::StaticCallableCatalogTransfer,
+        ) => matches!(
+            statement,
+            ASTNode::BoxDeclaration {
+                name,
+                is_static: true,
+                is_sync: false,
+                ..
+            } if name != "Main"
+        ),
+        ScriptRootSemanticDispositionV1::Transferred(
             ScriptTransferredBoundaryV1::ProgramEnumDeclaration,
         ) => matches!(statement, ASTNode::EnumDeclaration { .. }),
         ScriptRootSemanticDispositionV1::Transferred(
@@ -233,6 +266,15 @@ fn validate_source_boundary(
         ScriptRootSemanticDispositionV1::Transferred(
             ScriptTransferredBoundaryV1::ProgramRecordDeclaration,
         ) => is_program_record_declaration(statement),
+        ScriptRootSemanticDispositionV1::Transferred(
+            ScriptTransferredBoundaryV1::InstanceBoxSemanticOwner,
+        ) => matches!(
+            statement,
+            ASTNode::BoxDeclaration {
+                is_static: false,
+                ..
+            }
+        ),
         ScriptRootSemanticDispositionV1::Diagnostic(
             ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported,
         ) => {

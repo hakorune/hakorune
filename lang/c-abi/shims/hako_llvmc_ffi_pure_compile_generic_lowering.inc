@@ -1,6 +1,6 @@
       #include "hako_llvmc_ffi_pure_compile_generic_lowering_prescan.inc"
       if (!generic_capacity_ok()) {
-        fclose(f);
+        HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
@@ -305,8 +305,32 @@
             last_exact_status_ii);
         return 1;
       }
-      auto const char* phi_predecessor_label(long long pred, char* buf, size_t buf_len) {
+      auto const char* phi_predecessor_label(
+          long long pred,
+          long long successor,
+          char* buf,
+          size_t buf_len) {
         if (!buf || buf_len == 0) return "%bb0";
+        {
+          const char* c1_label = hako_llvmc_c1_predecessor_lookup_v1(
+              &c1_predecessor_projection, pred, successor);
+          if (c1_label) {
+            snprintf(buf, buf_len, "%%%s", c1_label);
+            return buf;
+          }
+        }
+        if (ptfc_selected && pred == ptfc_candidate.scalar_branch_block) {
+          if (successor == ptfc_candidate.scalar_branch_then) {
+            snprintf(
+                buf, buf_len, "%%ptfc_eq_true_%lld", ptfc_candidate.plans[2].dst);
+            return buf;
+          }
+          if (successor == ptfc_candidate.scalar_branch_else) {
+            snprintf(
+                buf, buf_len, "%%ptfc_eq_false_%lld", ptfc_candidate.plans[2].dst);
+            return buf;
+          }
+        }
         for (size_t i = 0; i < block_tail_labels_n; i++) {
           if (block_tail_labels[i].bid == pred && block_tail_labels[i].label[0]) {
             snprintf(buf, buf_len, "%%%s", block_tail_labels[i].label);
@@ -327,7 +351,7 @@
         snprintf(buf, buf_len, "%%bb%lld", pred);
         return buf;
       }
-      auto void emit_phi(long long dst, struct Incoming* in, int in_n){
+      auto void emit_phi(long long block_id, long long dst, struct Incoming* in, int in_n){
         int phi_ty = get_type(dst);
         struct GenericPureVariantBinding variant_binding;
         int variant_phi = get_variant_binding(dst, &variant_binding) &&
@@ -340,10 +364,10 @@
           long long val_reg = resolve_copy_source_reg(in[i].val_reg);
           int hc=has_const(val_reg,&cv);
           if (phi_ty == T_I1) {
-            if (hc) EMIT("[ %s, %s ]%s", cv ? "true" : "false", phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
-            else EMIT("[ %%r%lld, %s ]%s", val_reg, phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
+            if (hc) EMIT("[ %s, %s ]%s", cv ? "true" : "false", phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
+            else EMIT("[ %%r%lld, %s ]%s", val_reg, phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
           } else {
-            EMIT("[ %s%lld%s, %s ]%s", hc?"":"%r", hc?cv:val_reg, hc?"":"", phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
+            EMIT("[ %s%lld%s, %s ]%s", hc?"":"%r", hc?cv:val_reg, hc?"":"", phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)), (i+1<in_n)?", ":"");
           }
         }
         EMIT("\n");
@@ -357,13 +381,13 @@
                 incoming_variant.tag_reg) {
               EMIT("[ %%r%lld_tag, %s ]%s",
                    incoming_variant.tag_reg,
-                   phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)),
+                   phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)),
                    (i + 1 < in_n) ? ", " : "");
             } else {
               long long tag_value = incoming_variant.tag_const;
               EMIT("[ %lld, %s ]%s",
                    tag_value,
-                   phi_predecessor_label(in[i].pred, pred_label, sizeof(pred_label)),
+                   phi_predecessor_label(in[i].pred, block_id, pred_label, sizeof(pred_label)),
                    (i + 1 < in_n) ? ", " : "");
             }
           }
@@ -455,17 +479,17 @@
             "static_data_plan",
             "unsupported_static_data_plan",
             NULL);
-        fclose(f);
+        HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       if (emit_same_module_function_definitions(f) < 0) {
-        fclose(f);
+        HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
       // Unboxer (declare opportunistically; low cost)
-      hako_llvmc_emit_entry_header(f, &selection);
+      #include "hako_llvmc_ffi_selected_dynamic_entry_header.inc"
       auto int should_skip_string_const_box_for_known_len_use(
           size_t ii,
           size_t ilen,
@@ -497,292 +521,80 @@
         return mname && (strcmp(mname, "length") == 0 || strcmp(mname, "size") == 0);
       }
 
-      for (size_t bi=0; bi<blen; bi++) {
-        struct GenericPureBlockView block;
-        if (!read_generic_pure_block_view(bi, &block)) continue;
-        yyjson_val* b = block.block;
-        long long bid = block.id;
-        if (active_combined_region_emitted &&
-            (bid == active_combined_region.header_block ||
-             bid == active_combined_region.edit_block ||
-             bid == active_combined_region.observer_begin_block ||
-             bid == active_combined_region.observer_header_block ||
-             bid == active_combined_region.observer_block ||
-             bid == active_combined_region.observer_store_block ||
-             bid == active_combined_region.observer_latch_block ||
-             bid == active_combined_region.observer_exit_block ||
-             bid == active_combined_region.latch_block)) {
-          emit_block_label(bid);
-          EMIT("  unreachable\n");
-          continue;
-        }
-        if (active_region_executor_matched &&
-            (bid == active_region_executor.header_block ||
-             bid == active_region_executor.body_block)) {
-          emit_block_label(bid);
-          EMIT("  unreachable\n");
-          continue;
-        }
-        if (active_observer_store_len_sum_region_ready &&
-            (bid == active_observer_store_len_sum_region.observer_block ||
-             bid == active_observer_store_len_sum_region.then_store_block ||
-             bid == active_observer_store_len_sum_region.latch_block)) {
-          emit_block_label(bid);
-          EMIT("  unreachable\n");
-          continue;
-        }
-        if (active_observer_store_region_available &&
-            (bid == active_observer_store_region.header_block ||
-             bid == active_observer_store_region.observer_block ||
-             bid == active_observer_store_region.then_store_block ||
-             bid == active_observer_store_region.latch_block)) {
-          emit_block_label(bid);
-          EMIT("  unreachable\n");
-          continue;
-        }
-        if (active_loop_session_region_emitted &&
-            bid == active_loop_session_region.loop_body) {
-          emit_block_label(bid);
-          EMIT("  unreachable\n");
-          continue;
-        }
-        if (active_indexof_const_region_emitted &&
-            bid == active_indexof_const_region.loop_body) {
-          emit_block_label(bid);
-          EMIT("  unreachable\n");
-          continue;
-        }
-        if (active_string_dead_text_region_emitted &&
-            (bid == active_string_dead_text_region.loop_body ||
-             bid == active_string_dead_text_region.loop_exit)) {
-          emit_block_label(bid);
-          EMIT("  unreachable\n");
-          continue;
-        }
-        if (!active_region_executor_matched &&
-            match_array_text_residence_session_region_begin_metadata(
-                bid,
-                &active_region_executor)) {
-          emit_block_label(bid);
-          emit_array_text_region_executor_call(&active_region_executor);
-          EMIT("  br label %%bb%lld\n", active_region_executor.exit_block);
-          active_region_executor_matched = 1;
-          continue;
-        }
-        if (active_combined_region_available &&
-            !active_combined_region_emitted &&
-            bid == active_combined_region.begin_block) {
-          emit_block_label(bid);
-          emit_array_text_combined_region_call(&active_combined_region);
-          EMIT("  br label %%bb%lld\n", active_combined_region.exit_block);
-          active_combined_region_emitted = 1;
-          continue;
-        }
-        if (active_observer_store_len_sum_region_ready &&
-            !active_observer_store_len_sum_region_emitted &&
-            bid == active_observer_store_len_sum_region.header_block) {
-          emit_block_label(bid);
-          emit_array_text_observer_store_len_sum_region_call(
-              &active_observer_store_len_sum_region);
-          EMIT("  br label %%bb%lld\n", active_observer_store_len_sum_region.exit_block);
-          active_observer_store_len_sum_region_emitted = 1;
-          continue;
-        }
-        if (active_observer_store_region_available &&
-            !active_observer_store_region_emitted &&
-            bid == active_observer_store_region.begin_block) {
-          emit_block_label(bid);
-          emit_array_text_observer_store_region_call(&active_observer_store_region);
-          EMIT("  br label %%bb%lld\n", active_observer_store_region.exit_block);
-          active_observer_store_region_emitted = 1;
-          continue;
-        }
-        if (!active_loop_session_region_emitted &&
-            match_array_text_loop_session_plan_by_header_metadata(
-                bid,
-                &active_loop_session_region) &&
-            array_text_loop_session_region_ready(&active_loop_session_region)) {
-          emit_block_label(bid);
-          emit_array_text_loop_session_region_call(&active_loop_session_region);
-          EMIT("  br label %%bb%lld\n", active_loop_session_region.loop_exit);
-          active_loop_session_region_emitted = 1;
-          continue;
-        }
-        if (!active_indexof_const_region_emitted &&
-            match_array_text_indexof_const_region_plan_by_header_metadata(
-                bid,
-                &active_indexof_const_region) &&
-            array_text_indexof_const_region_ready(&active_indexof_const_region)) {
-          emit_block_label(bid);
-          emit_array_text_indexof_const_region_call(&active_indexof_const_region);
-          EMIT("  br label %%bb%lld\n", active_indexof_const_region.loop_exit);
-          active_indexof_const_region_emitted = 1;
-          continue;
-        }
-        if (!active_string_dead_text_region_emitted &&
-            match_string_dead_text_region_plan_by_header_metadata(
-                bid,
-                &active_string_dead_text_region) &&
-            string_dead_text_region_ready(&active_string_dead_text_region)) {
-          emit_block_label(bid);
-          emit_string_dead_text_region_closed_form_return(&active_string_dead_text_region);
-          active_string_dead_text_region_emitted = 1;
-          continue;
-        }
-        emit_block_label(bid);
-        // phi first
-        for (int pi=0; pi<phi_n; pi++) if (phis[pi].bid==bid){ for (int r=0;r<phis[pi].rec_n;r++){ emit_phi(phis[pi].recs[r].dst, phis[pi].recs[r].in, phis[pi].recs[r].in_n); } }
-        if (bi == 0) {
-          hako_llvmc_emit_direct_exact_runtime_mode_check(f);
-          if (!emit_typed_object_layout_registrations(f)) {
-            note_pure_unsupported_shape(
-                -1,
-                0,
-                "typed_object_layout",
-                "typed_object_layout_registration_failed",
-                NULL);
-            fclose(f);
-            yyjson_doc_free(d);
-            goto GEN_ABORT;
-          }
-          if (!emit_boxed_sum_abi_layout_registrations(f)) {
-            note_pure_unsupported_shape(
-                -1,
-                0,
-                "boxed_sum_abi_layout",
-                "boxed_sum_abi_layout_registration_failed",
-                NULL);
-            fclose(f);
-            yyjson_doc_free(d);
-            goto GEN_ABORT;
-          }
-          emit_hoisted_string_const_defs(f);
-        }
-        yyjson_val* insts = block.instructions;
-        size_t ilen = block.instruction_count;
-        unsigned char skip_inst[ilen ? ilen : 1];
-        memset(skip_inst, 0, sizeof(skip_inst));
-        for (size_t ii=0; ii<ilen; ii++) {
-          if (skip_inst[ii]) continue;
-          yyjson_val* ins = yyjson_arr_get(insts, ii);
-          const char* op = read_str(ins, "op");
-          if (!op) {
-            note_pure_unsupported_shape(bid, ii, "unknown", "missing_op", NULL);
-            yyjson_doc_free(d);
-            goto GEN_ABORT;
-          }
-          if (hako_llvmc_route_trace_enabled() && generic_walk_trace_budget > 0) {
-            char extra[256];
-            long long dst_dbg = read_int(ins, "dst");
-            snprintf(extra, sizeof(extra), "ii=%zu dst=%lld op=%s", ii, dst_dbg, op);
-            hako_llvmc_emit_route_trace("generic_walk", "seen", op, extra);
-            generic_walk_trace_budget--;
-          }
-          if (strcmp(op, "phi")==0) continue; // already emitted
-      #include "hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch.inc"
-        }
+      #include "hako_llvmc_ffi_pure_compile_generic_active_walk.inc"
+      if (!hako_llvmc_c1_predecessor_projection_complete_v1(
+              &c1_predecessor_projection)) {
+        note_pure_unsupported_shape(
+            -1, 0, "checked_callout", "c1_predecessor_emission_drift", NULL);
+        yyjson_doc_free(d);
+        goto GEN_ABORT;
       }
       fprintf(f, "}\n");
-      hako_llvmc_emit_entry_alias_if_needed(f, &selection);
-      fclose(f);
-
-      // Optional: try LLVM TargetMachine emit (dlopen C-API) when HAKO_CAPI_TM=1
-      int rc = -1;
-#if !defined(_WIN32)
-      {
-        const char* tm = getenv("HAKO_CAPI_TM");
-        if (tm && tm[0]=='1') {
-          // Minimal dynamic loader for a subset of LLVM C-API
-          typedef void* (*p_LLVMContextCreate)(void);
-          typedef void  (*p_LLVMContextDispose)(void*);
-          typedef void* (*p_LLVMCreateMemoryBufferWithContentsOfFile)(const char*, char**);
-          typedef void  (*p_LLVMDisposeMemoryBuffer)(void*);
-          typedef int   (*p_LLVMParseIRInContext)(void*, void*, void**, char**);
-          typedef char* (*p_LLVMGetDefaultTargetTriple)(void);
-          typedef void  (*p_LLVMDisposeMessage)(char*);
-          typedef int   (*p_LLVMGetTargetFromTriple)(const char*, void**, char**);
-          typedef void* (*p_LLVMCreateTargetMachine)(void*, const char*, const char*, const char*, int, int, int);
-          typedef int   (*p_LLVMTargetMachineEmitToFile)(void*, void*, char*, int, char**);
-          typedef void  (*p_LLVMDisposeTargetMachine)(void*);
-          typedef void  (*p_LLVMDisposeModule)(void*);
-          typedef void* (*p_LLVMModuleCreateWithNameInContext)(const char*, void*);
-          // Target init (X86)
-          typedef void (*p_LLVMInitializeX86TargetInfo)(void);
-          typedef void (*p_LLVMInitializeX86Target)(void);
-          typedef void (*p_LLVMInitializeX86TargetMC)(void);
-          typedef void (*p_LLVMInitializeX86AsmPrinter)(void);
-
-          const char* cand[] = { "libLLVM-18.so", "libLLVM.so.18", "libLLVM.so", NULL };
-          void* h = NULL; for (int i=0;cand[i];i++){ h = dlopen(cand[i], RTLD_LAZY|RTLD_LOCAL); if (h) break; }
-          if (h) {
-            // Resolve required symbols
-            p_LLVMContextCreate                 f_LLVMContextCreate                 = (p_LLVMContextCreate)dlsym(h, "LLVMContextCreate");
-            p_LLVMContextDispose                f_LLVMContextDispose                = (p_LLVMContextDispose)dlsym(h, "LLVMContextDispose");
-            p_LLVMCreateMemoryBufferWithContentsOfFile f_LLVMCreateMemoryBufferWithContentsOfFile = (p_LLVMCreateMemoryBufferWithContentsOfFile)dlsym(h, "LLVMCreateMemoryBufferWithContentsOfFile");
-            p_LLVMDisposeMemoryBuffer           f_LLVMDisposeMemoryBuffer           = (p_LLVMDisposeMemoryBuffer)dlsym(h, "LLVMDisposeMemoryBuffer");
-            p_LLVMParseIRInContext              f_LLVMParseIRInContext              = (p_LLVMParseIRInContext)dlsym(h, "LLVMParseIRInContext");
-            p_LLVMGetDefaultTargetTriple        f_LLVMGetDefaultTargetTriple        = (p_LLVMGetDefaultTargetTriple)dlsym(h, "LLVMGetDefaultTargetTriple");
-            p_LLVMDisposeMessage                f_LLVMDisposeMessage                = (p_LLVMDisposeMessage)dlsym(h, "LLVMDisposeMessage");
-            p_LLVMGetTargetFromTriple           f_LLVMGetTargetFromTriple           = (p_LLVMGetTargetFromTriple)dlsym(h, "LLVMGetTargetFromTriple");
-            p_LLVMCreateTargetMachine           f_LLVMCreateTargetMachine           = (p_LLVMCreateTargetMachine)dlsym(h, "LLVMCreateTargetMachine");
-            p_LLVMTargetMachineEmitToFile       f_LLVMTargetMachineEmitToFile       = (p_LLVMTargetMachineEmitToFile)dlsym(h, "LLVMTargetMachineEmitToFile");
-            p_LLVMDisposeTargetMachine          f_LLVMDisposeTargetMachine          = (p_LLVMDisposeTargetMachine)dlsym(h, "LLVMDisposeTargetMachine");
-            p_LLVMDisposeModule                 f_LLVMDisposeModule                 = (p_LLVMDisposeModule)dlsym(h, "LLVMDisposeModule");
-            p_LLVMModuleCreateWithNameInContext f_LLVMModuleCreateWithNameInContext = (p_LLVMModuleCreateWithNameInContext)dlsym(h, "LLVMModuleCreateWithNameInContext");
-            // Target init
-            p_LLVMInitializeX86TargetInfo       f_LLVMInitializeX86TargetInfo       = (p_LLVMInitializeX86TargetInfo)dlsym(h, "LLVMInitializeX86TargetInfo");
-            p_LLVMInitializeX86Target           f_LLVMInitializeX86Target           = (p_LLVMInitializeX86Target)dlsym(h, "LLVMInitializeX86Target");
-            p_LLVMInitializeX86TargetMC         f_LLVMInitializeX86TargetMC         = (p_LLVMInitializeX86TargetMC)dlsym(h, "LLVMInitializeX86TargetMC");
-            p_LLVMInitializeX86AsmPrinter       f_LLVMInitializeX86AsmPrinter       = (p_LLVMInitializeX86AsmPrinter)dlsym(h, "LLVMInitializeX86AsmPrinter");
-
-            int ok = f_LLVMContextCreate && f_LLVMCreateMemoryBufferWithContentsOfFile && f_LLVMParseIRInContext &&
-                     f_LLVMGetDefaultTargetTriple && f_LLVMGetTargetFromTriple && f_LLVMCreateTargetMachine &&
-                     f_LLVMTargetMachineEmitToFile && f_LLVMDisposeTargetMachine && f_LLVMDisposeMessage &&
-                     f_LLVMDisposeMemoryBuffer && f_LLVMContextDispose && f_LLVMDisposeModule &&
-                     f_LLVMInitializeX86TargetInfo && f_LLVMInitializeX86Target && f_LLVMInitializeX86TargetMC && f_LLVMInitializeX86AsmPrinter;
-            if (ok) {
-              // Init targets
-              f_LLVMInitializeX86TargetInfo(); f_LLVMInitializeX86Target(); f_LLVMInitializeX86TargetMC(); f_LLVMInitializeX86AsmPrinter();
-              void* ctx = f_LLVMContextCreate();
-              char* emsg = NULL; void* buf = f_LLVMCreateMemoryBufferWithContentsOfFile(llpath, &emsg);
-              if (!buf) { if (emsg) f_LLVMDisposeMessage(emsg); goto TM_END; }
-              void* mod = NULL; if (f_LLVMParseIRInContext(ctx, buf, &mod, &emsg)) { if (emsg) f_LLVMDisposeMessage(emsg); f_LLVMDisposeMemoryBuffer(buf); goto TM_CTX; }
-              char* triple = f_LLVMGetDefaultTargetTriple();
-              void* tgt = NULL; if (f_LLVMGetTargetFromTriple(triple, &tgt, &emsg)) { if (emsg) f_LLVMDisposeMessage(emsg); goto TM_MOD; }
-              // Opt level
-              const char* ol = getenv("HAKO_LLVM_OPT_LEVEL"); if (!ol) ol = getenv("NYASH_LLVM_OPT_LEVEL"); if (!ol) ol = "0";
-              int opt = (ol[0]=='3')?3:(ol[0]=='2')?2:(ol[0]=='1')?1:0; // LLVMCodeGenOptLevel
-              void* tmachine = f_LLVMCreateTargetMachine(tgt, triple, "", "", opt, /*Reloc*/0, /*CodeModel*/0);
-              if (!tmachine) { goto TM_MOD; }
-              // Emit object (1 = LLVMObjectFile)
-              if (f_LLVMTargetMachineEmitToFile(tmachine, mod, (char*)obj_out, /*Object*/1, &emsg)) {
-                if (emsg) f_LLVMDisposeMessage(emsg);
-              } else {
-                rc = 0;
-              }
-              f_LLVMDisposeTargetMachine(tmachine);
-            TM_MOD:
-              if (mod) f_LLVMDisposeModule(mod);
-              if (triple) f_LLVMDisposeMessage(triple);
-              f_LLVMDisposeMemoryBuffer(buf);
-            TM_CTX:
-              f_LLVMContextDispose(ctx);
-            TM_END: ;
-            }
-            dlclose(h);
-          }
+      if (!ptfc_selected) hako_llvmc_emit_entry_alias_if_needed(f, &selection);
+      if (ptfc_selected) {
+        struct HakoPtfSelectedLlvmBytes ptfc_bytes;
+        int ptfc_rc = -1;
+        if (hako_llvmc_ptfc_verify_and_take_selected_llvm(
+                &ptfc_draft, &ptfc_bytes, err_out) != 0) {
+          f = NULL;
+          free_owned_str_consts();
+          yyjson_doc_free(d);
+          return -1;
         }
+        f = NULL;
+        if (hako_llvmc_ptfb_session_open(
+                &ptfb_session, &ptfb_census, err_out) == 0) {
+          ptfc_rc = hako_llvmc_ptfb_session_emit_object_from_bytes(
+              &ptfb_session,
+              ptfc_bytes.data,
+              ptfc_bytes.size,
+              &ptfc_candidate,
+              hako_llvmc_effective_entry_symbol(&selection),
+              obj_out,
+              err_out);
+        }
+        hako_llvmc_ptfc_release_selected_llvm_bytes(&ptfc_bytes);
+        hako_llvmc_ptfb_session_close(&ptfb_session);
+        free_owned_str_consts();
+        yyjson_doc_free(d);
+        return ptfc_rc == 0 ? 0 : -1;
       }
-#endif
+      HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
 
-      if (rc != 0) {
+      if (program.selected_dynamic &&
+          HAKO_LLVMC_C1_LOWERED_LLVM_EVIDENCE_V1(llpath, err_out) != 0) {
+        remove(llpath);
+        free_owned_str_consts();
+        yyjson_doc_free(d);
+        return -1;
+      }
+
+      int rc = -1;
+      if (ptfb_contract_bound) {
+        rc = hako_llvmc_ptfb_session_emit_object(
+            &ptfb_session, llpath, obj_out, err_out);
+      } else {
+        #include "hako_llvmc_ffi_pure_compile_legacy_capi_emit.inc"
+      }
+
+      if (!ptfb_contract_bound && rc != 0) {
         rc = hako_llvmc_mem2reg_canonicalize_and_llc(llpath, obj_out);
       }
       remove(llpath);
       free_owned_str_consts();
       yyjson_doc_free(d);
+      if (ptfb_contract_bound) {
+        hako_llvmc_ptfb_session_close(&ptfb_session);
+        if (rc == 0) return 0;
+        return -1;
+      }
       if (rc == 0) return 0;
     GEN_ABORT:;
+      if (f) HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
+      if (llpath[0]) remove(llpath);
+      free_owned_str_consts();
+      hako_llvmc_ptfb_session_close(&ptfb_session);
       // fall through to pattern lowers
     GEN_END: ;
+      #undef HAKO_LLVMC_CLOSE_GENERIC_OUTPUT
     } while(0);

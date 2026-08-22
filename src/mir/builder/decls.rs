@@ -3,10 +3,10 @@ use super::calls::CanonicalFunctionSessionErrorV1;
 use super::main_expansion::{OwnedVerifiedMainRootLoweringV1, VerifiedMainExpansionV1};
 use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortChildErrorV1;
-use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::{
-    CallableMainMaterializationTargetV1, MirInstruction, NormalEntryMaterializationSourceReceiptV1,
-    NormalRuntimeInputSnapshotV1, SameModuleCallableNamespaceV1, ValueId,
+    CallableMainMaterializationTargetV1, MirInstruction, NormalCatalogedBoxMethodDraftAdmissionV1,
+    NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
+    SameModuleCallableNamespaceV1, ValueId,
 };
 use crate::ast::ASTNode;
 use serde_json;
@@ -67,42 +67,7 @@ impl super::MirBuilder {
         Port: RootCallableCapturePortV1,
     {
         for child in main.static_children() {
-            let canonical_key = self
-                .comp_ctx
-                .callable_declaration_catalog()
-                .map_err(|error| error.to_string())?
-                .declaration_for(
-                    SameModuleCallableNamespaceV1::StaticBoxMethod,
-                    main.root().box_name(),
-                    child.method_name(),
-                    child.arity(),
-                )
-                .ok_or_else(|| {
-                    format!(
-                        "[freeze:contract][mir/main-static-capture/catalog] \\
-                         missing exact declaration for {}.{}/{}",
-                        main.root().box_name(),
-                        child.method_name(),
-                        child.arity()
-                    )
-                })?
-                .key()
-                .clone();
-            let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(canonical_key)
-                .map_err(|error| error.to_string())?;
-            let (symbol, params, param_decls, return_type_name, body, uses, attrs) =
-                child.to_owned_lowering().into_parts();
-            debug_assert_eq!(symbol, admission.physical_symbol());
-            port.lower_cataloged_static_box_method(
-                self,
-                admission,
-                params,
-                param_decls,
-                return_type_name,
-                body,
-                uses,
-                attrs,
-            )?;
+            port.lower_app_main_static_child(self, child)?;
         }
         self.lower_verified_static_main_root_with_port_v1(
             port,

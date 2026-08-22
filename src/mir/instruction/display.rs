@@ -114,6 +114,18 @@ impl fmt::Display for MirInstruction {
                     write!(f, "ret void")
                 }
             }
+            MirInstruction::CheckedCallOutEnd {
+                site_id,
+                lease_slot,
+            } => write!(
+                f,
+                "checked_callout.end site={} lease={}",
+                site_id.as_u32(),
+                lease_slot.as_u32()
+            ),
+            MirInstruction::CheckedCallOutFault { site_id } => {
+                write!(f, "checked_callout.fault site={}", site_id.as_u32())
+            }
             // Phase 287: Lifecycle management
             MirInstruction::KeepAlive { values } => {
                 write!(f, "keepalive")?;
@@ -167,6 +179,16 @@ impl fmt::Display for MirInstruction {
                     }
                 }
                 write!(f, "); effects: {}", effects)
+            }
+            MirInstruction::PinnedTextOp { dst, plan, kind } => {
+                write!(
+                    f,
+                    "{} = pinned_text.{} plan={} stamp={}",
+                    dst,
+                    kind.tag(),
+                    plan.index(),
+                    plan.stamp()
+                )
             }
             _ => write!(f, "{:?}", self), // Fallback for other instructions
         }

@@ -24,6 +24,23 @@ fn tokenizer_retains_the_explicit_profile() {
 }
 
 #[test]
+fn brand_declaration_follows_the_v1_profile_contract() {
+    for profile in [GrammarProfile::Canonical, GrammarProfile::Compat2025] {
+        assert!(
+            parse_with_profile("brand PageId: i64", profile).is_ok(),
+            "{profile:?} must accept Brand declaration"
+        );
+        for source in ["brand PageId i64", "brand PageId:"] {
+            let error = format!("{:?}", parse_with_profile(source, profile).unwrap_err());
+            assert!(
+                error.contains("parser/brand_declaration_invalid"),
+                "{source}: {error}"
+            );
+        }
+    }
+}
+
+#[test]
 fn canonical_default_and_explicit_canonical_reject_statement_try() {
     let source = "try { local x = 1 } catch () { }";
     for result in [
@@ -272,6 +289,21 @@ fn remaining_expression_surfaces_follow_the_v1_profile_contract() {
             let error = format!("{:?}", parse_with_profile(source, profile).unwrap_err());
             assert!(error.contains(stable_tag), "{source}: {error}");
         }
+    }
+}
+
+#[test]
+fn weak_expression_surface_follows_the_v1_profile_contract() {
+    for profile in [GrammarProfile::Canonical, GrammarProfile::Compat2025] {
+        assert!(
+            parse_with_profile("weak value", profile).is_ok(),
+            "{profile:?} must accept unary weak"
+        );
+        let error = format!(
+            "{:?}",
+            parse_with_profile("weak(missing)", profile).unwrap_err()
+        );
+        assert!(error.contains("parser/weak_paren_call_rejected"), "{error}");
     }
 }
 

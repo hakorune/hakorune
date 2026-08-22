@@ -11,6 +11,8 @@ use super::{
 pub(crate) use calls::CallTarget;
 use hakorune_mir_builder::CoreContext;
 mod array_element_write;
+mod assignment_lowering;
+mod brand_constructor_lowering_projection;
 mod builder_build;
 mod builder_debug;
 mod builder_emit;
@@ -23,6 +25,7 @@ mod builder_test_api;
 mod builder_value_kind;
 mod call_resolution; // ChatGPT5 Pro: Type-safe call resolution utilities
 mod callable_declaration_catalog; // Complete same-module callable declaration authority
+mod literal_lowering;
 #[cfg(test)]
 mod literal_postemit_retirement_tests;
 mod new_expression;
@@ -35,18 +38,26 @@ mod normal_callable_dynamic_operation_source; // source-backed Dynamic Loop oper
 mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physical receipts
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
+#[allow(dead_code)]
+mod normal_callable_loop_source_facts; // callable source-aware Facts/Recipe P0 caller-zero issuer
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
 mod normal_cataloged_box_method_lowering;
+mod variable_read;
 pub(crate) use callable_declaration_catalog::{
     issue_source_backed_same_module_callable_catalog_v1, CanonicalSameModuleCallableKeyV1,
-    SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1, SelectedNormalCallableKeyV1,
+    SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1,
+    SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
     SourceBackedCallableCatalogIssueV1, VerifiedSameModuleCallableDeclarationCatalogV1,
-    VerifiedSameModuleCallableDeclarationV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
+    VerifiedSameModuleCallableDeclarationV1, VerifiedSelectedNormalCallableSourceInventoryV1,
+    VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
+#[cfg(test)]
+pub(crate) use main_expansion::with_test_main_static_children;
+pub(in crate::mir) use main_expansion::VerifiedMainStaticChildV1;
 pub(in crate::mir) use normal_callable_catalog_owner_link::{
     issue_catalog_callable_owner_link_v1, CatalogCallableOwnerLinkIssueV1,
     VerifiedCatalogCallableOwnerLinkV1,
@@ -96,7 +107,13 @@ mod instance_box_method_batch;
 mod main_expansion; // HEADERPORT0-I0-MAINROLE0-S0 source-only Main expansion
 mod nested_box_method_source;
 mod normal_instance_constructor_admission;
+mod normal_instance_constructor_demand_loan;
+mod normal_instance_constructor_semantic_scope;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
+mod normal_script_instance_box_transfer;
+mod normal_script_composite_partition;
+mod normal_script_direct_static_lookup;
+mod normal_script_neutral_window;
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
 mod raw_required_condition_draft_p0; // ROOTBATCH0-S0b exact factory contract
@@ -263,6 +280,7 @@ mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
 #[allow(dead_code)]
 mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 mod module_invocation_session; // Shared isolated Builder transaction
+mod pinned_text_invocation_binding; // Session-owned pinned-Text target/brand ingress
 pub(in crate::mir) use module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
     PreparedBuilderExternalCommitV1, PreparedBuilderModuleSessionV1,
@@ -271,13 +289,29 @@ pub(in crate::mir) use module_invocation_session::{
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity
+pub(in crate::mir) use normal_cataloged_box_method_admission::{
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, NormalCatalogedBoxMethodAdmissionErrorV1,
+    NormalCatalogedBoxMethodDraftAdmissionV1,
+};
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
+mod normal_default_root_catalog_post_install; // Existing post-install lowering consumer
 mod normal_script_boundary_receipt_pack; // Script retained boundary receipts
+mod normal_script_direct_static_join_handoff; // Script source/Facts Recipe handoff
+mod normal_script_direct_static_physical_publication; // Script ExactI64 physical publication
+mod normal_script_direct_static_recipe; // Dedicated Script direct-static Recipe producer
+mod normal_script_direct_static_result_bundle; // Script source/result Facts bundle
+mod normal_script_direct_static_result_publication_owner; // Script source/Facts result owner
 mod normal_script_operational_demand_receipt_pack; // Script structured demand receipts
+mod normal_script_pre_effect_source_observation; // AST-free Script source handoff before Builder effects
+mod normal_script_semantic_lowering_input; // Retained Script source products into lowering
 mod normal_script_semantic_lowering_projection; // Immutable Script lowering projection
 mod normal_script_semantic_lowering_state; // Script BindingRef -> ValueId ledger
 mod normal_script_semantic_source; // Producer-backed lexical Script source
 mod normal_script_semantic_source_core; // Shared Script source/forest/projection core
+mod normal_script_source_continuation; // Resolver-issued Script source continuation
+#[cfg(test)]
+#[path = "builder/normal_script_source_continuation_tests.rs"]
+mod normal_script_source_continuation_tests;
 mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
     CompletedNormalDefaultRootCatalogLifecycleV1, NormalDefaultRootCatalogLifecycleErrorV1,
@@ -285,6 +319,7 @@ pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
     RejectedNormalDefaultRootCatalogLifecycleV1,
 };
 #[allow(dead_code)]
+mod cataloged_box_method_collector_handoff;
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
 #[cfg(test)]
 mod module_lowering_borrow_root_p0; // HEADERPORT0 WIRING-I0-BORROW-P0-ROOT proof
@@ -326,6 +361,7 @@ mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
+mod raw_loop_child_port; // CALLABLE-LOOP-ORDINARY-BRIDGE-S0 behavior-neutral port boundary
 #[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 pub(in crate::mir) use raw_root_completion::RawInvocationRootWitnessV1;
@@ -342,11 +378,15 @@ mod qmark_source_demand;
 mod raw_expression_recursion_guard;
 mod raw_invocation_body;
 mod raw_invocation_source_item_site;
+mod raw_invocation_source_statement_classification;
 mod raw_invocation_source_transport;
-mod raw_static_result_publication;
+mod static_result_publication_ingress;
 mod raw_structured_child_scope;
 mod record_literal_source_demand;
+mod recursive_child_lowering_port;
 mod recursive_child_lowering;
+#[cfg(test)]
+mod recursive_child_lowering_port_tests;
 #[cfg(test)]
 mod recursive_child_lowering_rawport_header_tests;
 #[cfg(test)]
@@ -368,7 +408,6 @@ mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 polic
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
-
 #[cfg(test)]
 pub(crate) use control_flow::joinir::route_entry::registry::{
     execute_legacy_policy_parity_v1, LegacyPolicyAttemptDispositionV1, LegacyPolicyParityReceiptV1,
@@ -555,10 +594,13 @@ mod module_lifecycle_capture_tests;
 mod normal_script_deferred_residual_registry; // named selected-Script residual ownership
 mod normal_script_direct_statement_owner; // Selected Script direct statement terminals
 mod normal_script_program_item_admission; // Selected Script Program-item source admission
+#[cfg(test)]
 mod normal_script_root_admission_witness; // selected Script root shape/disposition proof
 mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
 mod normal_script_runtime_block_port;
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
+mod normal_script_resolution; // typed Script resolver outcome transport
+#[cfg(test)]
 mod normal_script_selected_occurrence; // typed selected-Script work-plan-to-semantics handoff
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission
 mod ops;
@@ -590,11 +632,11 @@ mod receiver; // ReceiverMaterializationBox（Method recv の pin+LocalSSA 集�
 mod record_helper_args; // RECORD-VALUE-HELPER-001: local record helper argument scalarization
 mod record_values; // C205b: builder-local record value scalarization
 pub(in crate::mir) mod resolved_lowering; // sealed source/product -> exact BindingRef lowering
+pub(in crate::mir) use resolved_lowering::issue_selected_dynamic_v2_emission_plan;
+#[cfg(test)]
+pub(in crate::mir) use resolved_lowering::issue_selected_dynamic_v2_physical_capability_admission;
+pub(in crate::mir) use resolved_lowering::with_common_v2_canonical_session;
 pub(in crate::mir) use resolved_lowering::CanonicalResolvedBuildErrorV1;
-pub(in crate::mir) use resolved_lowering::{
-    issue_selected_dynamic_v2_emission_plan,
-    issue_selected_dynamic_v2_physical_capability_admission,
-};
 mod rewrite; // P1: Known rewrite & special consolidation
 mod router; // RouterPolicyBox（Unified vs BoxCall）
 mod schedule; // BlockScheduleBox（物理順序: PHI→materialize→body）
@@ -720,7 +762,7 @@ mod binding_id_tests {
         let mut builder = MirBuilder::new();
 
         // Simulate function entry scope
-        builder.push_lexical_scope();
+        builder.push_lexical_scope_for_test();
 
         // Declare outer x
         // Phase 136 P0: Use SSOT allocator for function scope simulation
@@ -733,7 +775,7 @@ mod binding_id_tests {
         assert_eq!(outer_bid.raw(), 0);
 
         // Enter inner scope and shadow x
-        builder.push_lexical_scope();
+        builder.push_lexical_scope_for_test();
         // Phase 136 P0: Use SSOT allocator for function scope simulation
         let inner_vid = builder.next_value_id();
         builder
@@ -744,14 +786,14 @@ mod binding_id_tests {
         assert_eq!(inner_bid.raw(), 1);
 
         // Exit inner scope - should restore outer binding
-        builder.pop_lexical_scope();
+        builder.pop_lexical_scope_for_test();
         // Phase 2-6: Check binding_ctx (SSOT)
         let restored_bid = builder.function_state.binding_ctx.lookup("x").unwrap();
         assert_eq!(restored_bid, outer_bid);
         assert_eq!(restored_bid.raw(), 0);
 
         // Cleanup
-        builder.pop_lexical_scope();
+        builder.pop_lexical_scope_for_test();
     }
 
     #[test]

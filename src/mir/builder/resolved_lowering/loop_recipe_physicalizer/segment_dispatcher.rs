@@ -273,6 +273,38 @@ pub(super) fn prepare_loop_segment_operation_dispatch_v1(
     })
 }
 
+/// Run the complete segment-dispatch preflight without exposing the prepared
+/// leaf plan to a sibling owner.  The caller must already have co-sealed the
+/// layout, canonical entry, and segment receipt; this helper only validates
+/// the existing mechanical dispatcher input and drops the unpublished plan.
+pub(in crate::mir::builder::resolved_lowering) fn preflight_loop_segment_operation_dispatch_v1(
+    layout: PreparedLoopPhysicalLayoutV1,
+    entry: ReadyLoopEntryV1,
+    segment_receipt: LoopPhysicalSegmentBlockReceiptV1,
+) -> Result<(), String> {
+    prepare_loop_segment_operation_dispatch_v1(layout, entry, segment_receipt)
+        .map(|_| ())
+        .map_err(|error| format!("segment dispatch preflight: {error:?}"))
+}
+
+/// Emit one complete prepared segment program through the existing common
+/// leaf dispatcher.  All target validation happens inside `emit_all` before
+/// its first leaf mutates the unpublished function; the caller supplies the
+/// sole outer rollback owner and canonical service bundle.
+pub(in crate::mir::builder::resolved_lowering) fn emit_loop_segment_operation_dispatch_v1(
+    layout: PreparedLoopPhysicalLayoutV1,
+    entry: ReadyLoopEntryV1,
+    segment_receipt: LoopPhysicalSegmentBlockReceiptV1,
+    services: &mut LoopOperationDispatchServicesV1<'_, '_>,
+) -> Result<usize, String> {
+    let plan = prepare_loop_segment_operation_dispatch_v1(layout, entry, segment_receipt)
+        .map_err(|error| format!("segment dispatch preflight: {error:?}"))?;
+    let completed = plan
+        .emit_all(LoopOperationValueLedgerV1::default(), services)
+        .map_err(|error| format!("segment operation emission: {error:?}"))?;
+    Ok(completed.dispatch.operation_count())
+}
+
 fn segment_index(
     layout: &PreparedLoopPhysicalLayoutV1,
 ) -> Result<BTreeMap<LoopItemKeyV1, LoopPhysicalSegmentKeyV1>, LoopOperationDispatchPreflightRejectV1>

@@ -50,6 +50,54 @@ An internal candidate connection with production callers at zero is not I0.
 Stage-B-specific source routes must not be connected here; only their
 source-neutral reusable parts may enter a named production replacement cell.
 
+### Raw invocation source transport classifier
+
+`raw_invocation_source_transport.rs` owns exact path construction and temporal
+source scopes. Its private
+`raw_invocation_source_statement_classification.rs` child owns only the finite
+statement located/compatibility classification. The split is behavior-neutral:
+bare `FunctionCall` and `MethodCall` remain `CallObject` compatibility rows.
+Future exact-site activation must change the classifier child explicitly and
+must not reintroduce AST classification into the transport owner.
+
+### Source-lineage witness for unlocated calls (P0)
+
+When a located invocation is demoted to `UnlocatedCompatibility`,
+`RawInvocationSourceContextV1` preserves an optional `expected_lineage` witness
+from the same `RawInvocationRootLineageV1`. A source-backed context therefore
+cannot silently become the compatibility `Unavailable` state after its exact
+node site is lost; the later publication ingress must freeze it as source-loss
+`Error`. A genuinely compatibility/test-created unlocated context carries no
+witness and remains outside the source-bound publication contract. This carrier
+does not issue a target, Recipe, Join, Call receipt, or publication, and it does
+not widen MethodCall source admission.
+
+### Exact callable bare-call location (P0)
+
+For an installed, source-backed callable root (`Cataloged`, `TopLevel`, or
+`InstanceConstructor`), a bare `FunctionCall` statement is carried as the
+resolver-issued `FunctionBody -> Body(i)` site, and its argument descent uses
+the existing `CallArgument(n)` path. This is transport only: the statement
+classifier does not issue a Brand relation and the later consumer remains the
+owner of missing/foreign/site-drift rejection. `MethodCall`, indirect `Call`,
+explicit extern calls, raw `Main`/`ScriptRoot`, nested compatibility, and other
+unlocated rows remain `CallObject`; no name, span, or lineage fallback is
+introduced.
+
+### Installed callable Brand consumer (I0)
+
+Installed, source-backed callable roots now ask the resolver-issued callable
+ledger for a `Constructor|NonBrand` disposition at the transported
+`SourceNodeSiteV1` before direct `FunctionCall` preflight. The private query
+port validates the call name and `CallArgument(0)` site, and the exact
+constructor lowers its operand under the existing argument source scope. An
+exact `NonBrand` route never re-probes `CompilationContext::is_brand_declared`;
+it proceeds through the existing TypeOp, Math, FastMem, and ordinary routes.
+Relationless Compatibility, Deferred, RawLegacy, nested/Main, and other
+unlocated paths deliberately retain their compatibility behavior and are not
+treated as exact consumers. MethodCall/unwrap, global legacy-map retirement,
+and Script semantic consumption remain separate rows.
+
 ### Ordered Box-method compatibility edge (R5-S1)
 
 The deferred non-Main static-Box Program path consumes the AST-owned
@@ -81,6 +129,41 @@ ordering; they are not source-order reconstruction and remain outside this
 transport cleanup. Runtime `CoreBoxDecl` projection, legacy JSON, and test
 fixture maps remain separately classified.
 
+### Instance-constructor physical source transfer (P0)
+
+The parser-issued `ConstructorSourceIdV1` carried by the installed normal
+callable semantic package is the sole source identity for selected-normal
+instance constructors. `VerifiedInstanceConstructorPhysicalSourceCohortV1`
+validates the final Program Box ordinal/name/key against those package rows
+before physical work is prepared. Immediate work and the Script-runtime
+duplicate demand both carry that same opaque source ID; each demand still
+creates its own physical admission. Sorted constructor-map keys and
+`(statement, box, key)` coordinates are placement checks only, and the legacy
+`CompilationContext::is_brand_declared` consumer remains intentionally
+unchanged until the later constructor-consumer cutover.
+
+### Instance-constructor physical demand manifest (I0)
+
+The selected-normal work plan now issues an explicit role ticket for every
+physical constructor demand. `ImmediateDeclaration` is required once for each
+source row; non-app Script `Prefix` and `FullLifecycle` rows receive their
+matching runtime ticket, while app and compatibility work receive no runtime
+ticket. The manifest validates the complete immediate/runtime ticket set before
+Builder effects, rejecting duplicate, foreign, swapped, or missing roles. It
+does not select a constructor or replace the later semantic package loan; the
+raw Brand consumer remains parked for that separate cutover.
+
+### Instance-constructor semantic loan consumer (I0)
+
+Selected-normal constructor work now moves one non-Clone demand ticket through
+the capture surface. The installed semantic package loans the matching
+constructor forest by `ConstructorSourceIdV1` only, and the adapter installs a
+request-local callable semantic scope around the existing raw body lowering.
+Immediate and permitted Script-runtime roles may borrow the same immutable
+forest, but each physical ticket is consumed exactly once and completion checks
+manifest exhaustion. Compatibility, RawLegacy, bare/unlocated calls, and the
+legacy `is_brand_declared` route remain outside this consumer row.
+
 ## Reading Order
 
 1. `src/mir/README.md`
@@ -99,6 +182,10 @@ Builder core owns:
 - lexical scope / binding / local state through Context owners.
 - source span / diagnostic provenance.
 - actual MIR block assembly after a route has been selected.
+- normal-program declaration facts own the same neutral, AST-free Brand catalog
+  consumed by Stage1. Duplicate effective Brand names reject before resolver or
+  Builder effects; `CompilationContext.brand_decls` is only a temporary
+  catalog-derived compatibility cache for the remaining raw call consumer.
 - `record_values.rs` owns record preflight, exactly-once field evaluation, and
   `RecordFieldContractCheck` / `RecordValuePublish` emission. Declaration and
   schema policy stays in `mir/type_contracts/record_value.rs`; VM, JSON, and
@@ -147,6 +234,18 @@ design.  The live production path remains the explicit migration edge below
 cutover commit.  Do not add a second source observer, route planner, type
 repair, fallback, or retry to bridge this gap.
 
+### Generic G0 physical-entry adoption and retirement (2026-08-17)
+
+The Generic entry facts are now consumed by the combined emitter admission and
+the caller-zero `generic_g0_physical_emitter_session` preflight.  The session
+transaction remains the sole owner of shell installation, lane adoption, and
+discard; the common dispatcher is only borrowed after canonical entry/segment
+receipts are ready.  The former detached skeleton, canary admission, and
+entry-session modules were removed by `GENERIC-G0-ENTRY-CANARY-RETIREMENT-R0`.
+No Generic Builder publication, Completion claim, CFG/PHI, lifecycle/Text,
+route, fallback/retry, or production caller is implied by the caller-zero
+probe.
+
 ## Legacy callable source ingress (pre-cutover edge)
 
 `normal_callable_semantic_source.rs` owns the selected normal-callable source
@@ -160,9 +259,12 @@ is now closed by `normal_callable_prepared_operation.rs`. That assembler
 consumes the ingress exactly once, issues the existing neutral operation/effect
 demand, and calls `prepare_all` for the complete Recipe-order schedule. The
 result retains only the callable source/input/Prelude/Tail transport while the
-common program owns operation/effect/continuation meaning. It creates no
-Builder/session effect or physical ID; the next bounded row is the caller-zero
-full physical canary.
+common program owns operation/effect/continuation meaning. The semantic parent
+now hands the assembler one source-free prepared-demand parent through a
+one-shot consume method; no six-element tuple or independently re-pairable
+semantic rows cross the compiler/Builder seam. It creates no Builder/session
+effect or physical ID; the next bounded row is the caller-zero full physical
+canary.
 
 `normal_callable_dynamic_source.rs` owns the source-only co-seal for deliberate
 untyped/dynamic callables. It combines the exact function root,
@@ -190,6 +292,50 @@ the carrier, while `end`, `src`, and `pred_chars` are operands and `ch` is
 iteration-local. This remains source-only; Dynamic operation results,
 prepared representation, PHI, backend metadata, route selection, retry, and
 fallback remain closed.
+
+The caller-zero `Outside(body-only rebind)` terminal now transports one
+move-only `CallableLoopOutsideReasonV1` containing the exact owner, Loop site,
+and grouped `CallableLoopBindingCoverageRowV1` rows. Each row keeps its
+`BindingRefV1`, source class, and `(site, role)` receipts together; later code
+must not reconstruct the relation from separate binding/site arrays. The same
+private row builder is used for `Ready` and `Outside` classification, while
+`RawLoopChildEntry` consumes `Outside` only as a typed terminal. No ordinary
+JoinIR consumer, Builder effect, fallback, retry, or source-to-Recipe relation
+is opened by this transport slice.
+
+### Callable Loop source-aware Facts issuer P0
+
+`normal_callable_loop_source_facts.rs` is the caller-zero source/Facts seam. It
+accepts only the private move-only
+`PreparedCallableGenericLoopSourceFactsPayloadV1` assembled by
+`PreparedLocatedRawLoopChildEntryV1`; AST and source contexts are not supplied
+as independent peer arguments. The issuer passes one captured
+`GenericLoopFactsPolicyFrameV1` through the existing planner, including the
+GenericLoop V0 extractor and body validator, then selects from that retained
+`PlanBuildOutcome` exactly once. It accepts only exact `[GenericLoopV1]` and
+returns a private `Ready` aggregate or a typed terminal.
+
+This P0 has no production caller, ordinary consumer, Builder/ledger effect,
+retry, fallback, or registry suffix. The raw port currently proves only the
+same prepared raw-root lineage; it does not claim opaque parser-invocation
+identity. A parser witness must be added in a separate design slice before
+stronger identity claims are allowed.
+
+### Callable Loop source-aware Facts terminal-only P0
+
+`CallableGenericLoopSourceFactsTerminalConsumerV1` is the sole named consumer
+for the caller-zero terminal seam. It accepts only the private move-only
+`CallableGenericLoopSourceFactsReadyV1` and returns a separate
+`CallableGenericLoopSourceFactsConsumedV1`; the transition is infallible and
+has no Builder, ledger, registry, fallback, retry, or physical effect. The
+consumed state retains only the existing source schedule and exact
+`GenericLoopV1` selection seal. AST, Facts, and Recipe are dropped at this
+terminal so no ordinary lowering path can observe or rebuild them.
+
+The consumer is intentionally caller-zero in this slice. A future ordinary
+Ready port must be a separately named consumer with its own source-backed
+contract; it cannot reuse this terminal state or reopen the legacy registry
+suffix.
 
 `normal_callable_dynamic_operation_source.rs` owns the next source-only S0
 co-seal. It combines the existing resolver ledger, source-backed Dynamic
@@ -429,6 +575,313 @@ Prep rule:
 - member call は「route selection を 1 回、emit を 1 回」の順に保つ。
   static receiver / env method / this-me normalization は `calls/*` の classifier
   helper で決め、`build.rs` から重複判定しない
+
+## Complete Script source continuation I0
+
+`VerifiedScriptSourceContinuationV1` is the narrow source-only continuation
+product for a Complete Script root. The resolver's existing shadow seal issues
+the `VerifiedBodyShape` and the Script product retains that same owner/shape
+pair; the continuation sibling validates the canonical demand window and
+projects only already-issued parent relations and terminal statements.
+Transparent, transferred, and diagnostic root entries are explicit boundaries
+and do not receive guessed body rows. `VerifiedScriptSemanticLoweringInputV1`
+transports this continuation together with the existing lowering projection and
+direct-static Facts bundle. The source/Facts-only
+`VerifiedScriptDirectStaticResultPublicationOwnerV1` co-seals the existing
+target/representation rows with the resolver-issued continuation and keeps the
+ScriptRoot owner distinct from the callable-only publication owner. It issues
+no Recipe key, Join signature, ValueId, MIR type, result-publication ABI,
+physical block, fallback, or production switch; Recipe and physical result
+publication remain later design rows.
+
+## Parser composite source admission R0 (2026-08-21)
+
+`normal_script_composite_partition.rs` remains the sole partition issuer for
+the first parser-backed Script composite cohort. The default normal root now
+reaches it only through
+`PreparedCanonicalScriptNeutralProgramWindowV1::issue`, which binds the
+parser-owned, non-`Clone` composite preservation token through one scoped HRTB
+loan and issues one private two-axis Program partition.
+
+The bounded positive is one non-`Main`, non-sync static provider followed by a
+final root `MethodCall` (either a final Sequence value or a root Return value).
+The provider row transfers only the callable-catalog responsibility while its
+runtime terminal stays retained; the root call row remains an existing
+terminal and is not resolved here. The partition is consumed by the existing
+Script root demand window, so the same source statement cannot be silently
+dropped as a sibling.
+
+`Outside`, `SourceAuthorityUnavailable`, `Incomplete`, and
+`IntegrityInvalid` remain distinct. The latter three stop before target
+installation, resolver/lookup work, Builder effects, Recipe, physical work,
+or fallback. AST-only compatibility and vm-reference paths receive no R0
+credit. The typed resolver-deferral subcell now preserves
+`ScriptResolverDeferredV1` cause/site through the existing raw port; a route
+with no Script window is represented separately as `Unavailable`. This does
+not make the Builder window canonical. The next bounded cell is source
+reownership: it must make the neutral two-axis window authority explicit
+before any target or candidate work opens.
+
+## Script source reownership I0/R0 (2026-08-21)
+
+`PreparedCanonicalScriptNeutralProgramWindowV1::issue` is the sole production
+issuer for the selected normal Script source window. It consumes one
+`ParserNormalProgramSourceLoanV1` from the parser-owned authority and, inside
+that scoped loan, co-seals the composite partition, instance-Box transfer
+rows, constructor-source cohort, and the existing
+`VerifiedScriptRootDemandWindowV1`. The parser invocation witness plus the
+parser-issued body row is the source identity; a Builder ordinal set, AST
+pointer, name, or digest is not an authority.
+
+The default lifecycle now has this one-way shape:
+
+```text
+VerifiedNormalCallableSemanticPackageV1
+  -> PreparedCanonicalScriptNeutralProgramWindowV1::issue
+  -> split_for_pre_effect
+  -> PreparedScriptRootAdmissionV1 inside PreEffectCompleteSourceObservationV1
+  -> split_for_work_plan
+  -> PreparedProgramRootWorkPlanV1 transport
+  -> existing resolver/lookup consumers
+```
+
+`PreparedScriptRootAdmissionV1` owns the parser invocation witness together
+with the already-sealed window. The neutral product moves that admission into
+the pre-effect resolver/lookup observation before target installation or
+Builder effects; the observation later returns the same admission by move to
+the work plan. Instance-Box and constructor-source cohorts travel in a
+separate post-install remainder and cannot issue or repair the source window.
+`PreparedProgramRootWorkPlanV1` therefore transports an already-sealed
+admission and no longer constructs or seals the Script window. The old
+`ScriptRootDemandWindowBuilderV1`, `ScriptRootSemanticDecisionV1`, and
+`SelectedScriptProgramOccurrenceV1` edges are test-only compatibility helpers;
+their production callers are zero. The lifecycle also does not perform a
+second `package.source_ast()` source scan for constructor coverage.
+
+This row is intentionally source-only. The neutral product issues no target,
+candidate/noncandidate, A/C, Recipe/Join, MIR ID, physical, fallback, or
+production-switch meaning. Source failure is returned before target install
+and Builder effects. Evidence is owned by
+`normal_script_neutral_window_tests.rs`,
+`script_direct_static_source_reown_window_r0_guard.sh`, and the focused
+neutral, instance-transfer, and composite test filters.
+
+## Script direct-static lookup reownership I0/R0 (2026-08-21)
+
+`ScriptDirectStaticCallLookupIssuerV1::issue` is the sole production issuer
+for the selected Script target/result lookup. It receives the same semantic
+package and neutral window, opens one HRTB parser loan, and co-seals the
+package-owned declaration catalog with transient generic target/result
+inputs. Only the non-`Clone` `VerifiedScriptDirectStaticCallLookupV1` leaves
+the scope. Its
+rows own the parser witness, exact source sites, canonical target key, result
+representation, and required argument ordinals; no AST, catalog borrow,
+pointer/address, candidate decision, Recipe key, or physical ID escapes.
+
+Lookup preflight runs before pinned-target installation and before Builder
+effects. `PreparedScriptRootAdmissionV1` no longer stores a parallel target
+`Option`, and the old inventory issue/attach/take/brand edge is absent from
+production. The lifecycle moves the owned lookup once into the existing
+`VerifiedScriptDirectStaticResultBundleV1`; the downstream ResultBundle,
+Recipe, Join, and claim/physical consumers remain unchanged in this row.
+
+Foreign parser provenance, missing/contradictory coverage, target-outside
+catalog, and unavailable result representation are typed lookup failures.
+There is no fallback to the old inventory, raw, compatibility, or ordinary
+static route. A/C capability, candidate disposition, Recipe retirement, and
+production cutover remain later cells.
+
+## Shared Script MethodCall typeop policy I0
+
+`src/mir/policies/source_method_typeop_route.rs` is the sole pure predicate for
+the source-shaped `is`/`as` type-operation route. `calls/special_handlers.rs`
+and `calls/build.rs` consume it as thin Builder adapters, while the owned
+Script direct-static lookup issuer consumes the same disposition before
+admitting a target. A method with exactly one direct string (or the existing
+`StringBox` string shape) is a typeop noncandidate; other `is`/`as` arguments
+remain ordinary static-call candidates. The lookup issuer does not issue A/C
+candidate meaning. This slice changes no parser/source admission, Recipe/Join,
+physical bridge, fallback, or production switch.
+
+## Script direct-static Recipe I0
+
+`VerifiedScriptDirectStaticRecipeV1` is a dedicated Script Recipe producer for
+the co-sealed `VerifiedScriptDirectStaticResultPublicationOwnerV1`. It issues
+an opaque Recipe-local key and retains the owner/site, ordered argument,
+target, result representation, and continuation relations without re-reading
+AST or re-resolving names. The first accepted shape is deliberately narrow:
+the call must be the value of the final Sequence statement or the value of the
+root Return statement. Local initializers, assignments, print/discarded calls,
+control-flow/nested owners, Deferred, Compatibility, and RawLegacy remain
+outside this Recipe and are rejected rather than represented by an empty row.
+
+The producer is separate from `RawScriptBodyRecipeV1` and the Loop Recipe
+vocabulary. The Recipe is transported through the existing Complete Script
+semantic source/lowering input/state only; no JoinSig, ValueId, MIR type,
+physical block, route selection, raw retirement, or production switch is
+performed in this I0. The focused guard and empty Complete Script fixture cover
+the source/Facts boundary; non-empty physical consumption is a later row.
+
+## Script direct-static Recipe-to-result handoff I0
+
+`VerifiedScriptDirectStaticJoinHandoffV1` is the source/Facts bridge between
+the dedicated Script Recipe and its already-issued result-publication owner.
+It verifies source identity, owner, key/site, target, representation, ordered
+arguments, terminal destination, and parent relations one-to-one, then carries
+one immutable row per Recipe key through `VerifiedScriptSemanticLoweringInputV1`
+and `ScriptSemanticLoweringState`. It does not create a JoinSig or physical
+value/block, reclassify AST, infer a destination, or retire the raw route. Empty
+Recipe/owner pairs remain explicitly empty; foreign, duplicate, missing, or
+drifted rows fail before physical work. The focused handoff tests and reusable
+Script direct-static guard own this boundary.
+
+## Script direct-static claim carrier I0
+
+`ScriptDirectStaticClaimLedgerV1` is an operational, scope-local carrier over
+the already-issued Bundle and Join. It validates source identity, owner,
+cardinality, and exact site coverage once while constructing
+`ScriptSemanticLoweringState`; it does not issue a new semantic fact. A
+`take(site)` returns an unchanged `Absent` only for a site that has never been
+issued by the Bundle. A pending row becomes a non-`Clone` claimed Join row;
+an in-flight or completed site is a fail-fast `DuplicateClaim`. The claimed
+row can only be completed by consuming its token; there is no rollback,
+reinsertion, retry, or name-based fallback. The token exposes only read-only
+target/argument/representation views for the future physical consumer;
+it does not re-issue semantic facts. `finish()` consumes the ledger and
+rejects pending or in-flight rows. The future physical bridge owns invoking
+that finish around a real Call consumer; this carrier-only I0 deliberately
+does not fabricate a consumer merely to force exhaustion.
+
+Compatibility, Deferred, and RawLegacy paths do not acquire this ledger. The
+claim carrier emits no Call, ExactI64 publication, Return/signature, canonical
+transport, performance evidence, or production switch. The focused ledger
+tests and `script_direct_static_target_guard.sh` enforce the operational-only
+boundary and the 760-line split trigger.
+
+## Script direct-static claim ingress P0
+
+`recursive_child_lowering_port.rs` now owns the small recursive-child contract
+and its default, non-consuming `script_direct_static_claim_ingress_v1` hook;
+the former 794-line lowering owner is now a 708-line implementation-only
+module. The raw
+invocation overrides the hook only for an active ScriptRoot semantic scope,
+while `RawStructuredChildScopePortV1` delegates to its child and legacy/test
+ports retain `Unavailable`. `StaticReceiver` probes this capability after
+route selection and before receiver/argument descent, then continues through
+the existing route unchanged. This BoxShape P0 emits no Call, publication,
+Return/signature, fallback, retry, canonical transport, or production claim.
+When a semantic ledger is installed, missing source context, unlocated
+compatibility context, and foreign lineage are fail-fast contract errors before
+child effects; only a ledger-free port may report `Unavailable`. A located
+ScriptRoot with no matching row remains the sole `Absent` case and preserves
+the existing static route. The ingress validates the row before moving it to
+`in_flight`, so validation failure cannot require rollback or reinsert.
+
+## Static-result publication ingress fail-fast P0
+
+`static_result_publication_ingress.rs` is the pre-descent capability boundary
+for the existing Cataloged static-result owner. It keeps four outcomes
+separate: `Unavailable` means that a compatibility/test port has no
+source-bound publication capability; `Absent` means an exact Cataloged site
+and owner are present but no row was issued; `Selected` consumes one existing
+publication handoff; and owner-backed source loss or drift is a typed freeze
+error. A Cataloged `expected_lineage` demoted to `UnlocatedCompatibility` is
+therefore never treated as ordinary `None`.
+
+The `StaticReceiver` route head and lowered static `me` route invoke this
+ingress before receiver/argument effects. A selected row reuses the existing
+ordered argument driver, generic Call receipt emitter, and
+`PreparedStaticCallResultPublicationV1`; no second target resolver, Call
+emitter, publication owner, AST matcher, or late terminal hook exists. Only
+the exact no-row `Absent` state may continue through the ordinary terminal.
+Ledger-free Compatibility, Deferred, RawLegacy, and non-Cataloged roots remain
+`Unavailable`; an owner-backed missing or foreign source is a typed freeze and
+is never promoted by this P0. The reusable
+`script_static_result_publication_ingress_guard.sh` pins the complete outcome
+table and the no-fallback boundary.
+
+## ME-call arity fail-fast P0
+
+`method_call_handlers.rs` prepares the `me` route from the existing header
+observation before any argument descent. A `LoweredGlobal` row compares the
+header-owned parameter count with source arguments (plus the explicit `me`
+receiver for instance calls); a strict mismatch returns the stable
+`[freeze:contract][me-call/arity]` error before effects or Call emission.
+Strictness is ON when `NYASH_ME_CALL_ARITY_STRICT` is unset; only an explicit
+`=0` keeps the documented compatibility timing. Inline, standard, fallback, and
+missing-header routes are not reclassified. The finite state table and guard
+are in `me-call-arity-failfast-d0-2026-08-21.md` and
+`tools/checks/me_call_arity_failfast_guard.sh`.
+
+## Script direct-static physical bridge I0
+
+The selected-normal ScriptRoot bridge now consumes the claimed
+`ScriptDirectStaticClaimedRowV1` only at the `StaticReceiver` route head, after
+typeop/reserved routing and before receiver or argument effects. `Absent` keeps
+the existing static route unchanged; a matching row is an atomic handoff whose
+canonical target and ordered argument sites come from the Join row, not from
+AST names or ordinals. The bridge reuses the existing ordered argument driver
+once and accepts only `CompletedUnifiedValueCallEmissionV1` from the existing
+receipt-required generic Call terminal.
+
+`PreparedScriptDirectStaticResultPublicationV1` is a Script-only physical
+sibling: it accepts the already-issued `ExactI64` representation and publishes
+`MirType::Integer` to the receipt destination exactly once. It does not reuse
+the callable publication owner, emit Return/signature, or infer completion from
+`ValueId`/`MirType`. The claim is completed only after Call and publication
+succeed; the enclosing semantic scope finishes once, and any later error
+discards the isolated candidate without rollback, retry, or ordinary fallback.
+
+The claim now also owns a required-ordinal source proof. Its states are kept
+distinct: `Unavailable` (no Complete Script ledger), `Absent` (located site
+has no Join row), `ExactI64Empty`, `ExactI64RequiredProofReady`,
+`RequiredArgumentRepresentationUnavailable`, `ExactNominalBoxSelected`, and
+`SourceMismatch`. Only the proof issuer may decide whether a required ordinal
+is supported; the bridge consumes that proof once before the existing ordered
+argument driver. A missing proof, unsupported required expression, duplicate
+claim, or unconsumed proof freezes the candidate. Non-required arguments keep
+their existing lowering route and are not reclassified by this proof.
+
+This I0 is a bounded selected-normal BoxShape only. Compatibility, Deferred,
+RawLegacy, `StaticThis`, canonical Script transport, raw retirement, and
+production cutover remain explicitly closed. The physical bridge and its
+publication sibling stay below the 760-line split trigger; the reusable
+`script_direct_static_target_guard.sh` checks the single receipt/publication
+path and the no-fallback boundary.
+
+## Script direct-static canonical physical input I0
+
+`VerifiedScriptDirectStaticPhysicalInputV1` is the narrow AST-free input for a
+future canonical Script physical consumer. It is composed only from the
+already-issued Join rows and a resolver-owned scalar operand Recipe; it does
+not re-open source, infer a target from names/ordinals, allocate physical
+identities, or publish a second semantic fact. Unsupported literals,
+operators, calls, variables, fields, comparisons, and typed payloads fail
+before physical work.
+
+`direct_static_entry_kernel.rs` is a detached helper only. It lowers the
+ordered scalar trees, invokes the existing receipt-required generic Call
+emitter exactly once, projects the already-sealed `ExactI64` result through
+the Script publication sibling, and hands the value terminal to
+`OpenScriptPhysicalEntrySessionV1::complete_lowered_terminal_v1`. The session
+remains the sole candidate, verifier, Return/signature, and finish owner.
+
+This I0 is not connected to source admission or production routing. The
+selected-normal bridge, canonical Script transport, compatibility/Deferred/
+RawLegacy paths, raw retirement, and performance evidence remain separate
+rows. The focused physical-input and detached-session tests plus
+`script_direct_static_canonical_physical_input_guard.sh` own this boundary;
+`builder.rs` remains pre-existing migration debt and is not grown.
+
+## Root app-mode boundary P0
+
+`PreparedRawNonMainStaticBoxLifecycleV1` consumes only the mode prepared by
+`VerifiedRawRootExpansionV1`: `Some(true)` is the App no-op, `Some(false)` is
+the existing registration/transaction path, and `None` freezes before Box
+registration or method descent. It never infers mode from names or uses
+`unwrap_or(false)`; deferred-static and other compatibility owners remain
+outside this boundary. The finite state table and fail-fast evidence live in
+`mir-root-app-mode-undecided-failfast-d0-2026-08-21.md`.
 
 ## Loop PHI observer boundary (M6-B)
 

@@ -6,7 +6,11 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
+use super::operation_target::VerifiedLoopOperationTargetBlockV1;
+use crate::mir::builder::resolved_lowering::canonical_cfg::{
+    CanonicalCfgSessionV1, CanonicalOpenInstructionTargetErrorV1,
+    VerifiedCanonicalOpenInstructionTargetV1,
+};
 use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::VerifiedLoopOperationPhysicalDemandV1;
 use crate::mir::loop_recipe_contract::VerifiedLoopPhysicalBoundaryV1;
@@ -43,7 +47,7 @@ impl ReadyLoopEntryRowV1 {
 }
 
 #[derive(Debug)]
-pub(super) struct ReadyLoopEntryV1 {
+pub(in crate::mir::builder::resolved_lowering) struct ReadyLoopEntryV1 {
     owner: FunctionOwnerIdV1,
     preheader: BasicBlockId,
     pub(super) rows: Box<[ReadyLoopEntryRowV1]>,
@@ -72,6 +76,28 @@ impl ReadyLoopEntryV1 {
 
     pub(super) fn contains_binding(&self, binding: BindingRefV1) -> bool {
         self.rows.iter().any(|row| row.binding == binding)
+    }
+}
+
+/// Mechanical bridge from canonical identity receipts to the legacy-shaped
+/// segment allocator input.  The rows must already have been read from the
+/// live canonical preheader; this constructor performs no source lookup.
+pub(in crate::mir::builder::resolved_lowering) fn ready_loop_entry_from_canonical_rows(
+    owner: FunctionOwnerIdV1,
+    preheader: BasicBlockId,
+    rows: Vec<(
+        crate::mir::loop_recipe_contract::LoopValueKeyV1,
+        BindingRefV1,
+        ValueId,
+    )>,
+) -> ReadyLoopEntryV1 {
+    ReadyLoopEntryV1 {
+        owner,
+        preheader,
+        rows: rows
+            .into_iter()
+            .map(|(key, binding, value)| ReadyLoopEntryRowV1::new(key, binding, value))
+            .collect(),
     }
 }
 
@@ -329,17 +355,22 @@ impl LoopAfterContinuationReceiptV1 {
 
 /// Borrowed canonical services. This is a service bundle, not a second
 /// physical/SSA owner; callers pass the existing session's CFG service.
-pub(super) struct LoopPhysicalServicesV1<'a> {
+pub(in crate::mir::builder::resolved_lowering) struct LoopPhysicalServicesV1<'a> {
     pub(super) builder: &'a mut MirBuilder,
     cfg: &'a mut CanonicalCfgSessionV1,
 }
 
 impl<'a> LoopPhysicalServicesV1<'a> {
-    pub(super) fn new(builder: &'a mut MirBuilder, cfg: &'a mut CanonicalCfgSessionV1) -> Self {
+    pub(in crate::mir::builder::resolved_lowering) fn new(
+        builder: &'a mut MirBuilder,
+        cfg: &'a mut CanonicalCfgSessionV1,
+    ) -> Self {
         Self { builder, cfg }
     }
 
-    pub(super) fn allocate_block(&mut self) -> Result<BasicBlockId, LoopPhysicalizerRejectV1> {
+    pub(in crate::mir::builder::resolved_lowering) fn allocate_block(
+        &mut self,
+    ) -> Result<BasicBlockId, LoopPhysicalizerRejectV1> {
         let block = self.builder.next_block_id();
         let function = self
             .builder
@@ -351,6 +382,27 @@ impl<'a> LoopPhysicalServicesV1<'a> {
             .create_block(function, block)
             .map_err(|error| LoopPhysicalizerRejectV1::BlockAllocation(error.to_string()))?;
         Ok(block)
+    }
+
+    /// Co-seal the existing Loop target receipt with the CFG session that
+    /// created its physical block. This is a narrow open-target proof; it
+    /// does not issue operands, dominance, or instruction meaning.
+    pub(in crate::mir::builder::resolved_lowering) fn prepare_open_instruction_target(
+        &self,
+        target: &VerifiedLoopOperationTargetBlockV1,
+    ) -> Result<VerifiedCanonicalOpenInstructionTargetV1, CanonicalOpenInstructionTargetErrorV1>
+    {
+        let function = self
+            .builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or(CanonicalOpenInstructionTargetErrorV1::FunctionMissing)?;
+        self.cfg.prepare_created_open_instruction_target(
+            function,
+            target.owner(),
+            target.physical_block(),
+        )
     }
 }
 

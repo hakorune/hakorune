@@ -1,3 +1,6 @@
+use super::dynamic_v2_aot_metadata_slot::{
+    DynamicV2AotMetadataSlotRejectV1, DynamicV2AotMetadataSlotV1,
+};
 use super::facts::{
     CountingLoopFact, DirectArrayExtentFact, FastPathObligation, LoopRangeFact, RangeIndexFact,
     RegionStabilityFact, RequiredFastPathRegion, SpanAccessPlan, SpanBorrowFact,
@@ -99,6 +102,32 @@ use std::collections::BTreeMap;
 /// should be added here unless they are module-level metadata.
 #[derive(Debug, Clone, Default)]
 pub struct FunctionMetadata {
+    /// Function-local checked-callout site plans.  The neutral MIR terminator
+    /// carries only an opaque site id; entry/ABI/shape/slot authority stays in
+    /// this table and is admitted exactly once by the canonical session.
+    checked_callout_site_plans: crate::mir::checked_callout::CheckedCallOutPlanTableV1,
+
+    /// Function-local stamped Text leaf plans. JSON export validates that
+    /// every row is emitted exactly once; no backend consumes this table yet.
+    pub(crate) pinned_text_access_plans:
+        crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1,
+
+    /// Unpublished Rust-side backend-frame contract. JSON/C transport is a
+    /// later strict projection and may not reconstruct this relation.
+    pub(crate) pinned_text_backend_frame_contract:
+        Option<crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameContractV1>,
+
+    /// Caller-zero physical carrier linking the source-issued lane map to the
+    /// existing Residence lifecycle placement.  This is transport metadata,
+    /// not a source semantic receipt or a backend lowering result.
+    pub(crate) pinned_text_residence_backend_carrier: Option<
+        crate::mir::compiler::pinned_text_residence_backend_carrier::PinnedTextResidenceBackendCarrierV1,
+    >,
+
+    /// Candidate-only Dynamic AOT projection. The canonical physical session
+    /// installs it once; JSON borrows it without rebuilding site/ABI facts.
+    pub(super) dynamic_v2_aot_metadata: DynamicV2AotMetadataSlotV1,
+
     /// Source file location
     pub source_file: Option<String>,
 
@@ -594,7 +623,7 @@ pub struct FunctionMetadata {
     /// issuer and ordinary functions leave it absent. The slot is deliberately
     /// clone-scrubbing: install only after the final metadata/prepared-draft
     /// snapshot, then let the live consumer take it once.
-    a_prime_i64_physical_receipt: APrimeI64PhysicalReceiptSlotV1,
+    pub(super) a_prime_i64_physical_receipt: APrimeI64PhysicalReceiptSlotV1,
 
     /// Source-level declared return annotation carried into MIR without
     /// forcing `FunctionSignature.return_type`.
@@ -691,6 +720,60 @@ pub struct FunctionMetadata {
 }
 
 impl FunctionMetadata {
+    pub(crate) fn admit_checked_callout_plan(
+        &mut self,
+        plan: crate::mir::checked_callout::CheckedCallOutSitePlanV1,
+    ) -> Result<(), crate::mir::checked_callout::CheckedCallOutPlanRejectV1> {
+        self.checked_callout_site_plans.admit(plan)
+    }
+
+    pub(crate) fn install_checked_callout_plan_table(
+        &mut self,
+        plans: crate::mir::checked_callout::CheckedCallOutPlanTableV1,
+    ) {
+        self.checked_callout_site_plans = plans;
+    }
+
+    pub(crate) fn checked_callout_plan(
+        &self,
+        site: crate::mir::checked_callout::CheckedCallOutSiteIdV1,
+    ) -> Option<&crate::mir::checked_callout::CheckedCallOutSitePlanV1> {
+        self.checked_callout_site_plans.get(site)
+    }
+
+    pub(crate) fn checked_callout_site_plan_table(
+        &self,
+    ) -> &crate::mir::checked_callout::CheckedCallOutPlanTableV1 {
+        &self.checked_callout_site_plans
+    }
+
+    pub(crate) fn verify_checked_callout_function(
+        &self,
+        function: &crate::mir::MirFunction,
+    ) -> Result<
+        crate::mir::checked_callout::VerifiedCheckedCallOutFunctionV1,
+        crate::mir::checked_callout::CheckedCallOutFunctionRejectV1,
+    > {
+        self.checked_callout_site_plans.verify_function(function)
+    }
+}
+
+impl FunctionMetadata {
+    /// Borrow the candidate-only Dynamic AOT projection for JSON observation.
+    pub(crate) fn dynamic_v2_aot_metadata(
+        &self,
+    ) -> Option<&crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1>
+    {
+        self.dynamic_v2_aot_metadata.borrow()
+    }
+
+    pub(in crate::mir) fn install_dynamic_v2_aot_metadata(
+        &mut self,
+        projection: crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1,
+    ) -> Result<(), DynamicV2AotMetadataSlotRejectV1> {
+        self.dynamic_v2_aot_metadata.install(projection)
+    }
+
     /// Borrow the transport receipt for JSON observation only. The live
     /// physical consumer must use `take_a_prime_i64_physical_receipt`.
     pub(crate) fn a_prime_i64_physical_receipt(&self) -> Option<&APrimeI64PhysicalReceiptV1> {

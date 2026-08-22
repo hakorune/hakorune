@@ -74,7 +74,7 @@ def main() -> None:
         "enum CanonicalFirstFamilyPlanV1",
         "TrivialBindingSsa(CanonicalTrivialBindingSsaPlanV1",
         "CurrentCanonicalAPlus(CanonicalCurrentAPlusPlanV1",
-        "analyze_trivial_canonical_owner_v1",
+        "analyze_trivial_canonical_with_mode_v1",
     ):
         require(text["capability"], anchor, "pre-Builder route")
 
@@ -199,7 +199,7 @@ def main() -> None:
     profile_box = root / "src/mir/resolved_value_profile"
     profile_callers = callers(
         root,
-        "analyze_trivial_canonical_owner_v1",
+        "analyze_trivial_canonical_with_mode_v1",
         set(profile_box.rglob("*.rs")),
     )
     expected_profile = ["src/mir/compiler/capability.rs"]

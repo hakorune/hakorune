@@ -13,12 +13,12 @@ use crate::mir::{MirType, ValueId};
 
 /// Prepared Bool fact for a future successfully emitted physical Compare.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) struct PreparedCanonicalCompareBoolTypeV1 {
+pub(in crate::mir::builder) struct PreparedCanonicalCompareBoolTypeV1 {
     publication: PreparedTypeFactPublicationV1,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub(super) enum CanonicalCompareBoolTypeErrorV1 {
+pub(in crate::mir::builder) enum CanonicalCompareBoolTypeErrorV1 {
     FactDecision(TypeFactDecisionErrorV1),
 }
 
@@ -34,7 +34,7 @@ impl std::error::Error for CanonicalCompareBoolTypeErrorV1 {}
 
 impl PreparedCanonicalCompareBoolTypeV1 {
     /// Prepares the fixed Compare result fact without mutating a fact store.
-    pub(super) fn prepare(
+    pub(in crate::mir::builder) fn prepare(
         existing_destination: Option<&MirType>,
     ) -> Result<Self, CanonicalCompareBoolTypeErrorV1> {
         let publication = TypeFactDecisionV1::prepare(existing_destination, Some(&MirType::Bool))
@@ -43,7 +43,7 @@ impl PreparedCanonicalCompareBoolTypeV1 {
     }
 
     /// Commits only a Bool fact prepared before a checked Compare receipt.
-    pub(super) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
+    pub(in crate::mir::builder) fn commit(self, destination: ValueId, type_ctx: &mut TypeContext) {
         if let PreparedTypeFactPublicationV1::Publish(ty) = self.publication {
             type_ctx.set_type(destination, ty);
         }

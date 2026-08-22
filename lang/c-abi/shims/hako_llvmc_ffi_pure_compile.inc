@@ -23,6 +23,8 @@ typedef struct hako_llvmc_generic_pure_program_view {
   size_t block_count;
   hako_llvmc_entry_rune_selection selection;
   hako_llvmc_generic_pure_function_view entry;
+  hako_llvmc_generic_pure_function_view launch;
+  int selected_dynamic;
 } hako_llvmc_generic_pure_program_view;
 
 static int hako_llvmc_read_generic_pure_function_view(
@@ -53,6 +55,8 @@ static int hako_llvmc_read_generic_pure_program_view(
     yyjson_val* root,
     hako_llvmc_generic_pure_program_view* out) {
   yyjson_val* fns;
+  hako_llvmc_selected_dynamic_identity_view selected_view;
+  int selected_census;
   if (!out) return 0;
   memset(out, 0, sizeof(*out));
   fns = yyjson_obj_get(root, "functions");
@@ -60,7 +64,20 @@ static int hako_llvmc_read_generic_pure_program_view(
   out->functions = fns;
   out->function_count = yyjson_arr_size(fns);
   if (out->function_count < 1) return 0;
-  out->fn = hako_llvmc_find_entry_function(fns);
+  selected_census = hako_llvmc_census_selected_dynamic_identity(root, &selected_view);
+  if (selected_census < 0) return 0;
+  out->selected_dynamic = selected_census == 1;
+  if (out->selected_dynamic &&
+      !hako_llvmc_read_generic_pure_function_view(
+          selected_view.launch_fn,
+          selected_view.launch_index,
+          0,
+          &out->launch)) {
+    return 0;
+  }
+  out->fn = out->selected_dynamic
+      ? selected_view.helper_fn
+      : hako_llvmc_find_entry_function(fns);
   if (!(out->fn && yyjson_is_obj(out->fn))) return 0;
   out->entry_index = out->function_count;
   for (size_t i = 0; i < out->function_count; i++) {
@@ -84,6 +101,10 @@ static int hako_llvmc_read_generic_pure_program_view(
   return 1;
 }
 /* inc-codegen-view-owner: generic_pure_view end */
+
+#include "hako_llvmc_ffi_pinned_text_selected_preflight.inc"
+#include "hako_llvmc_ffi_pinned_text_selected_lowering.inc"
+#include "hako_llvmc_ffi_pinned_text_final_module_closure.inc"
 
 static int hako_llvmc_read_exact_seed_backend_route_tag(
     const char* json_in,
@@ -174,6 +195,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   // Phase 21.2: validate v1 JSON, try generic pure lowering (CFG/phi),
   // then fall back to a few pattern lowers, and finally to AOT helper.
   char* verr = NULL;
+  struct HakoPtfbModuleCensus ptfb_census;
+  struct HakoPtfbTargetMachineSession ptfb_session;
+  int ptfb_contract_bound = 0;
+  memset(&ptfb_census, 0, sizeof(ptfb_census));
+  hako_llvmc_ptfb_session_zero(&ptfb_session);
   struct HakoLlvmcPureUnsupportedShapeDiagnostic pure_unsupported_diag;
   hako_llvmc_pure_unsupported_shape_init(&pure_unsupported_diag);
 #define note_pure_unsupported_shape_detail(...) \
@@ -188,6 +214,10 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
   if (hako_json_v1_validate_file(json_in, &verr) != 0) {
     return set_err_owned(err_out, verr ? verr : "invalid v1 json");
   }
+  if (hako_llvmc_collect_pinned_text_module_census(json_in, &ptfb_census, err_out) != 0) {
+    return -1;
+  }
+  ptfb_contract_bound = ptfb_census.contract_count > 0;
 
   do {
     yyjson_read_err rerr_t; yyjson_doc* d = yyjson_read_file(json_in, 0, NULL, &rerr_t);
@@ -213,6 +243,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       return -1;
     }
     if (exact_seed_route > 0) {
+      if (ptfb_contract_bound) {
+        return set_err_owned(
+            err_out,
+            "contract-bound module cannot use exact-seed or legacy dispatch");
+      }
       if (hako_llvmc_route_trace_enabled()) {
         hako_llvmc_emit_route_trace(
             "exact_seed_backend_route",
@@ -229,6 +264,28 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
     }
   }
 
+  /* Selected Dynamic must not fall through to a no-parameter or harness lane. */
+  do {
+    yyjson_read_err rerr_signature;
+    yyjson_doc* signature_doc = yyjson_read_file(json_in, 0, NULL, &rerr_signature);
+    yyjson_val* signature_root;
+    if (!signature_doc) break;
+    signature_root = yyjson_doc_get_root(signature_doc);
+    if (!hako_llvmc_selected_dynamic_entry_signature_gate(signature_root)) {
+      yyjson_doc_free(signature_doc);
+      return set_err_owned(
+          err_out,
+          "selected Dynamic entry requires exactly four unique nonnegative formal ValueIds");
+    }
+    if (!hako_llvmc_c1_validate_projection(signature_root)) {
+      yyjson_doc_free(signature_doc);
+      return set_err_owned(
+          err_out,
+          "selected Dynamic CheckedCallOut projection is missing or inconsistent");
+    }
+    yyjson_doc_free(signature_doc);
+  } while (0);
+
     // --- Generic CFG/PHI lowering (minimal i64 subset) ---
     // Supported ops: const/compare/branch/jump/ret/phi, mir_call (Array/Map minimal, Global print)
     do {
@@ -236,6 +293,9 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       if (!d) break;
       yyjson_val* root = yyjson_doc_get_root(d);
       hako_llvmc_generic_pure_program_view program;
+      struct HakoPtfSelectedCandidateView ptfc_candidate;
+      struct HakoPtfSelectedLlvmDraft ptfc_draft;
+      int ptfc_selected = 0;
       if (!hako_llvmc_read_generic_pure_program_view(root, &program)) {
         if (hako_llvmc_route_trace_enabled()) {
           hako_llvmc_emit_route_trace(
@@ -250,11 +310,50 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       hako_llvmc_generic_pure_function_view* active_function = &program.entry;
       yyjson_val* fn0 = active_function->fn;
       yyjson_val* fn_metadata = active_function->metadata;
+      yyjson_val* ptfc_metadata = fn_metadata
+          ? yyjson_obj_get(fn_metadata, "pinned_text_residence_carrier_v1") : NULL;
       yyjson_val* blocks = active_function->blocks;
       size_t generic_pure_block_count = active_function->block_count;
       hako_llvmc_entry_rune_selection selection = active_function->selection;
-      if (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
-          hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0) {
+      struct HakoLlvmcC1PredecessorProjectionV1 c1_predecessor_projection;
+      memset(&ptfc_candidate, 0, sizeof(ptfc_candidate));
+      memset(&ptfc_draft, 0, sizeof(ptfc_draft));
+      if (ptfb_contract_bound && ptfc_metadata) {
+        if (hako_llvmc_ptfc_preflight_selected_candidate(
+                &program, &ptfc_candidate, err_out) != 0) {
+          yyjson_doc_free(d);
+          return -1;
+        }
+        ptfc_selected = 1;
+      }
+      if (ptfb_contract_bound && !ptfc_selected &&
+          ptfb_census.pinned_text_op_count > 0) {
+        yyjson_doc_free(d);
+        return set_err_owned(
+            err_out,
+            "pinned Text selected frame/carrier metadata is missing");
+      }
+      if (program.selected_dynamic) {
+        /* The selected helper's function name is canonical; never emit a launch alias. */
+        selection.symbol = NULL;
+      }
+      if (!hako_llvmc_c1_prepare_predecessor_projection_v1(
+              fn0, fn_metadata, program.selected_dynamic,
+              &c1_predecessor_projection)) {
+        yyjson_doc_free(d);
+        return set_err_owned(
+            err_out,
+            "selected Dynamic C1 physical predecessor projection is inconsistent");
+      }
+      if (!ptfc_selected &&
+          (hako_llvmc_match_indexof_line_text_state_residence_fn(fn0, obj_out) == 0 ||
+           hako_llvmc_match_indexof_leaf_text_state_residence_fn(fn0, obj_out) == 0)) {
+        if (ptfb_contract_bound) {
+          yyjson_doc_free(d);
+          return set_err_owned(
+              err_out,
+              "contract-bound module cannot use a pattern emitter");
+        }
         yyjson_doc_free(d);
         return 0;
       }
@@ -415,6 +514,8 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #include "hako_llvmc_ffi_mir_call_prepass.inc"
       #include "hako_llvmc_ffi_mir_call_shell.inc"
       #define HAKO_LLVM_READONLY_ATTRS " nounwind readonly willreturn"
+      char llpath[1024] = {0};
+      FILE* f = NULL;
       auto int should_skip_string_const_box_for_known_len_use(
           size_t ii,
           size_t ilen,
@@ -459,6 +560,11 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
       #undef generic_method_trace_budget
       #undef generic_capacity_overflow
       #undef generic_capacity_overflow_reason
+  if (ptfb_contract_bound) {
+    return set_err_owned(
+        err_out,
+        "contract-bound module cannot use compatibility replay");
+  }
   if (compat_harness_replay_enabled()) {
     return compile_json_via_explicit_compat_harness_replay(json_in, obj_out, err_out);
   }
@@ -474,4 +580,15 @@ static int compile_json_compat_pure(const char* json_in, const char* obj_out, ch
 __attribute__((visibility("default")))
 int hako_llvmc_link_obj(const char* obj_in, const char* exe_out, const char* extra_ldflags, char** err_out) {
   return forward_link_obj_to_aot(obj_in, exe_out, extra_ldflags, err_out);
+}
+
+__attribute__((visibility("default")))
+int hako_llvmc_link_obj_v2(
+    const char* obj_in,
+    const char* exe_out,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out) {
+  return forward_link_obj_to_aot_v2(
+      obj_in, exe_out, runtime_archive_path, extra_ldflags, err_out);
 }

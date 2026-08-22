@@ -6,6 +6,7 @@
 
 #![allow(dead_code)]
 
+pub(super) mod constructor_source;
 mod selected_gate;
 
 use std::sync::Arc;
@@ -21,6 +22,11 @@ use crate::ast::{
     PreparedGeneratedBoxMethodBatchV1, Span,
 };
 use crate::parser::ParseError;
+
+pub(in crate::parser) use constructor_source::{
+    ConstructorSourceOriginV1, ConstructorSourceRelationV1, GeneratedBirthTriggerKindV1,
+    GeneratedBirthTriggerSourceV1,
+};
 
 pub(super) use super::source_seal::PreparedBoxSourceSealV1;
 
@@ -335,6 +341,10 @@ pub(super) enum SourceAuthorityErrorV1 {
     DelegateCompatibilityOnly,
     MissingMethodSourceRelation { inventory_ordinal: u32 },
     MethodSourceRelationMismatch { name: Box<str> },
+    DuplicateConstructorKey(Box<str>),
+    ConstructorMissing(Box<str>),
+    ConstructorShapeMismatch(Box<str>),
+    ConstructorCoverageMismatch(usize, usize),
     Inventory(BoxMethodInventoryErrorV1),
 }
 
@@ -359,6 +369,8 @@ pub(super) trait GeneratedPropertySink {
         &mut self,
         batch: PreparedGeneratedBoxMethodBatchV1,
     ) -> Result<Box<[BoxMethodInventoryPlacementReceiptV1]>, ParseError>;
+
+    fn record_generated_birth_trigger_at_current(&mut self, _kind: GeneratedBirthTriggerKindV1) {}
 }
 
 // Compatibility sink for parser lanes that still build a standalone method
@@ -399,6 +411,8 @@ pub(super) struct OpenBoxMethodSourceTransactionV1 {
     inventory: BoxMethodInventoryV1,
     method_relations: Vec<MethodSourceRelationV1>,
     delegate_source_declarations: Vec<DelegateSourceDeclarationV1>,
+    constructor_relations: Vec<ConstructorSourceRelationV1>,
+    generated_birth_triggers: Vec<GeneratedBirthTriggerSourceV1>,
 }
 
 impl OpenBoxMethodSourceTransactionV1 {
@@ -410,6 +424,8 @@ impl OpenBoxMethodSourceTransactionV1 {
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
+            constructor_relations: Vec::new(),
+            generated_birth_triggers: Vec::new(),
         }
     }
 
@@ -424,6 +440,8 @@ impl OpenBoxMethodSourceTransactionV1 {
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
+            constructor_relations: Vec::new(),
+            generated_birth_triggers: Vec::new(),
         }
     }
 
@@ -451,6 +469,8 @@ impl OpenBoxMethodSourceTransactionV1 {
             inventory: BoxMethodInventoryV1::empty(),
             method_relations: Vec::new(),
             delegate_source_declarations: Vec::new(),
+            constructor_relations: Vec::new(),
+            generated_birth_triggers: Vec::new(),
         }
     }
 
@@ -617,7 +637,11 @@ impl OpenBoxMethodSourceTransactionV1 {
         &self.delegate_source_declarations
     }
 
-    pub(super) fn finish(self) -> Result<PreparedBoxSourceSealV1, ParseError> {
+    pub(super) fn finish(
+        mut self,
+        constructors: &std::collections::HashMap<String, ASTNode>,
+    ) -> Result<PreparedBoxSourceSealV1, ParseError> {
+        self.seal_constructor_inventory(constructors)?;
         let (brand, box_site) = self.cursor.into_parts();
         let generated_property_callable_rows =
             super::generated_callable_anchor::issue_property_callable_rows(
@@ -635,6 +659,7 @@ impl OpenBoxMethodSourceTransactionV1 {
             member_gate_selection_receipts: self.member_gate_selection_receipts.into_boxed_slice(),
             generated_property_callable_rows,
             generated_delegate_source_relations: Box::new([]),
+            constructor_relations: self.constructor_relations.into_boxed_slice(),
         })
     }
 }
@@ -663,6 +688,10 @@ impl GeneratedPropertySink for OpenBoxMethodSourceTransactionV1 {
     ) -> Result<Box<[BoxMethodInventoryPlacementReceiptV1]>, ParseError> {
         self.commit_generated_property_batch_at_current(batch)
     }
+
+    fn record_generated_birth_trigger_at_current(&mut self, kind: GeneratedBirthTriggerKindV1) {
+        self.record_generated_birth_trigger_at_current(kind)
+    }
 }
 
 fn source_authority_to_parse_error(error: SourceAuthorityErrorV1) -> ParseError {
@@ -686,6 +715,18 @@ fn source_authority_to_parse_error(error: SourceAuthorityErrorV1) -> ParseError 
         SourceAuthorityErrorV1::MethodSourceRelationMismatch { name } => {
             format!("Box source relation does not match method `{name}`")
         }
+        SourceAuthorityErrorV1::DuplicateConstructorKey(key) => {
+            format!("duplicate constructor source key `{key}`")
+        }
+        SourceAuthorityErrorV1::ConstructorMissing(key) => {
+            format!("constructor source row `{key}` is missing from the AST inventory")
+        }
+        SourceAuthorityErrorV1::ConstructorShapeMismatch(key) => {
+            format!("constructor source row `{key}` does not match its AST declaration")
+        }
+        SourceAuthorityErrorV1::ConstructorCoverageMismatch(relations, constructors) => format!(
+            "constructor source coverage mismatch: relations={relations}, constructors={constructors}"
+        ),
         SourceAuthorityErrorV1::Inventory(error) => {
             return crate::parser::declarations::box_def::members::pending_method::map_inventory_error(
                 error,

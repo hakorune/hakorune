@@ -93,6 +93,10 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             ..
         } => vec![*lhs, *rhs],
         MirInstruction::MemOp { operands, .. } => operands.clone(),
+        MirInstruction::PinnedTextOp { kind, .. } => kind.used_values(),
+        MirInstruction::PinnedTextResidenceFinish { .. }
+        | MirInstruction::PinnedTextResidenceEnter { .. }
+        | MirInstruction::PinnedTextResidenceTrap { .. } => Vec::new(),
         MirInstruction::FieldGet { base, .. } => vec![*base],
         MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
         MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
@@ -124,6 +128,19 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
             .map(|args| args.values.clone())
             .unwrap_or_default(),
         MirInstruction::Return { value, .. } => value.iter().copied().collect(),
+        MirInstruction::CheckedCallOut {
+            receiver,
+            arguments,
+            ..
+        } => {
+            let mut values = vec![*receiver];
+            values.extend(arguments.iter().copied());
+            values
+        }
+        MirInstruction::CheckedCallOutNormalResult { .. } => Vec::new(),
+        MirInstruction::CheckedCallOutEnd { .. } | MirInstruction::CheckedCallOutFault { .. } => {
+            Vec::new()
+        }
         MirInstruction::NewBox { args, .. } => args.clone(),
         MirInstruction::RecordValuePublish { base, fields, .. } => {
             let mut used = base.iter().copied().collect::<Vec<_>>();

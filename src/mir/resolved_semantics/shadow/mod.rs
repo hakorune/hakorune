@@ -6,6 +6,7 @@
 //! and seal the canonical product before publication.
 
 mod block_expr;
+mod entry;
 mod expr;
 mod ids;
 mod owner_boundary;
@@ -20,24 +21,32 @@ mod stmt;
 mod traversal_profile;
 mod vocabulary;
 
+use entry::resolve_function_shadow_v0;
+pub(in crate::mir) use entry::{
+    observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
+    observe_script_method_calls_shadow_view_v0,
+};
+pub(super) use entry::{
+    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0,
+    resolve_owner_shadow_view_with_profile_and_brand_catalog_v1,
+    resolve_owner_shadow_view_with_profile_v0, resolve_script_owner_shadow_view_v0,
+    resolve_script_owner_shadow_view_with_brand_catalog_v1, resolve_script_shadow_view_v0,
+};
 pub(super) use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 pub(super) use owner_boundary::ShadowLambdaSyntaxV0;
 pub(super) use product::{
     ShadowAncestorCaptureAccessV0, ShadowAssignmentTargetV0, ShadowBindingKindV0,
     ShadowControlExitV0, ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0,
-    ShadowLexicalRefV0, ShadowRegionKindV0, ShadowResolvedFunctionV0, ShadowResolvedOwnerV0,
-    ShadowScopeKindV0,
+    ShadowExplicitExternCallV0, ShadowLexicalRefV0, ShadowRegionKindV0, ShadowResolvedFunctionV0,
+    ShadowResolvedOwnerV0, ShadowScopeKindV0,
 };
 pub(in crate::mir) use product::{ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0};
-pub(in crate::mir) use product::{ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0};
-use resolver::resolve_function_shadow_v0;
-pub(in crate::mir) use resolver::{
-    observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
+pub(in crate::mir) use product::{
+    ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
-pub(super) use resolver::{
-    resolve_function_shadow_view_v0, resolve_owner_shadow_view_v0,
-    resolve_owner_shadow_view_with_profile_v0, resolve_script_owner_shadow_view_v0,
-    resolve_script_shadow_view_v0,
+pub(crate) use product::{
+    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ScriptResolverDeferredV1,
+    SourceResolverDeferredV1,
 };
 pub(crate) use script_root_window::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,

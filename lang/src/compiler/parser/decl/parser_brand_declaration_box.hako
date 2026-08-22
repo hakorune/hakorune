@@ -1,0 +1,39 @@
+// Brand declaration grammar evidence. No semantic Brand catalog is published.
+
+using lang.compiler.parser.scan.parser_string_utils_box as ParserStringUtilsBox
+
+static box ParserBrandDeclarationBox {
+  parse(src, i, ctx) {
+    local j = ctx.skip_ws(src, i + 5)
+    local name_start = j
+    local name_pair = ctx.read_ident2(src, name_start)
+    local name_at = name_pair.lastIndexOf("@")
+    local brand_name = name_pair.substring(0, name_at)
+    j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(name_pair.substring(name_at + 1, name_pair.length())))
+    if brand_name == "" || src.substring(j, j + 1) != ":" {
+      return me._fail(src, ctx, "brand declaration requires name: TypeRef")
+    }
+    local type_start = ctx.skip_ws(src, j + 1)
+    local type_pair = ctx.read_ident2(src, type_start)
+    local type_at = type_pair.lastIndexOf("@")
+    local type_name = type_pair.substring(0, type_at)
+    j = ctx.skip_ws(src, ParserStringUtilsBox.to_int(type_pair.substring(type_at + 1, type_pair.length())))
+    if type_name == "" {
+      return me._fail(src, ctx, "brand underlying type is missing")
+    }
+    ctx.gpos_set(j)
+    local form = "{\"kind\":\"BrandDeclaration\",\"children\":["
+    form = form + me._value_node("Identifier", brand_name) + ","
+    form = form + me._value_node("TypeRef", type_name) + "]}"
+    return form + "@" + ctx.i2s(j)
+  }
+
+  _value_node(kind, value) {
+    return "{\"kind\":\"" + kind + "\",\"value\":\"" + value + "\",\"children\":[]}"
+  }
+
+  _fail(src, ctx, message) {
+    ctx.gpos_set(src.length())
+    return ctx.freeze_contract("parser/brand_declaration_invalid", message)
+  }
+}

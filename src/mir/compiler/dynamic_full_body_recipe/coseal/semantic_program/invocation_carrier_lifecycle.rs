@@ -222,24 +222,22 @@ pub(super) fn issue_invocation_carrier_lifecycle_v1(
     )?;
 
     Ok(VerifiedDynamicInvocationCarrierLifecycleCatalogV1 {
-        rows: [
-            DynamicInvocationCarrierLifecycleRowV1 {
-                producer: local_producer,
-                producer_source: local_source.clone(),
-                result: local_result,
-                publication: DynamicInvocationCarrierPublicationV1::OnNormalResultPublication,
-                destination: DynamicInvocationCarrierDestinationV1::LoopBodyLocal {
-                    declaration: local.declaration().clone(),
-                    declaration_statement: local.declaration_statement().clone(),
-                    binding: local.binding(),
-                    scope_region: local.scope_region(),
-                    read: local.read().clone(),
-                    borrowed_by: local.consumer(),
-                    input_contract: local_contract.input,
-                },
-                lifecycle: local_contract.lifecycle,
+        rows: [DynamicInvocationCarrierLifecycleRowV1 {
+            producer: local_producer,
+            producer_source: local_source.clone(),
+            result: local_result,
+            publication: DynamicInvocationCarrierPublicationV1::OnNormalResultPublication,
+            destination: DynamicInvocationCarrierDestinationV1::LoopBodyLocal {
+                declaration: local.declaration().clone(),
+                declaration_statement: local.declaration_statement().clone(),
+                binding: local.binding(),
+                scope_region: local.scope_region(),
+                read: local.read().clone(),
+                borrowed_by: local.consumer(),
+                input_contract: local_contract.input,
             },
-        ],
+            lifecycle: local_contract.lifecycle,
+        }],
     })
 }
 

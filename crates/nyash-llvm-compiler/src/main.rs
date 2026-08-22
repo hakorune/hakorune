@@ -12,6 +12,8 @@ mod driver_dispatch;
 mod harness_driver;
 mod link_driver;
 mod native_driver;
+#[cfg(test)]
+mod runtime_executable_plan;
 
 #[derive(Parser, Debug)]
 #[command(
@@ -63,6 +65,22 @@ struct Args {
     /// Extra linker libs/flags appended when emitting an executable (single string, space-separated).
     #[arg(long, value_name = "FLAGS", help_heading = "Stable CLI")]
     libs: Option<String>,
+
+    /// Write one versioned post-rename static artifact receipt to this path.
+    #[arg(
+        long = "receipt-json",
+        value_name = "FILE",
+        help_heading = "Implementation Detail"
+    )]
+    receipt_json: Option<PathBuf>,
+
+    /// Publish the executable and receipt together as one directory bundle.
+    #[arg(
+        long = "artifact-bundle",
+        value_name = "DIR",
+        help_heading = "Implementation Detail"
+    )]
+    artifact_bundle: Option<PathBuf>,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, ValueEnum)]
@@ -88,6 +106,7 @@ fn main() -> Result<()> {
 
     // Determine emit kind
     let emit_exe = matches!(args.emit, EmitKind::Exe);
+    validate_receipt_args(&args, emit_exe)?;
 
     if args.dummy {
         return run_dummy_mode(&args, emit_exe);
@@ -108,7 +127,29 @@ fn run_dummy_mode(args: &Args, emit_exe: bool) -> Result<()> {
         args.nyrt.as_ref(),
         args.libs.as_deref(),
         "dummy object",
+        None,
+        None,
+        None,
     )
+}
+
+fn validate_receipt_args(args: &Args, emit_exe: bool) -> Result<()> {
+    if args.receipt_json.is_none() && args.artifact_bundle.is_none() {
+        return Ok(());
+    }
+    if !emit_exe {
+        anyhow::bail!("--receipt-json requires --emit exe");
+    }
+    if args.driver != DriverKind::Boundary {
+        anyhow::bail!("--receipt-json is available only for the Boundary driver");
+    }
+    if args.nyrt.is_none() {
+        anyhow::bail!("artifact publication requires explicit --nyrt <DIR>");
+    }
+    if args.receipt_json.is_some() && args.artifact_bundle.is_some() {
+        anyhow::bail!("--receipt-json and --artifact-bundle are mutually exclusive");
+    }
+    Ok(())
 }
 
 fn run_compile_mode(args: &Args, emit_exe: bool) -> Result<()> {
@@ -145,6 +186,8 @@ mod tests {
         assert!(!args.dummy);
         assert!(args.nyrt.is_none());
         assert!(args.libs.is_none());
+        assert!(args.receipt_json.is_none());
+        assert!(args.artifact_bundle.is_none());
     }
 
     #[test]
@@ -166,6 +209,8 @@ mod tests {
         assert_eq!(args.emit, EmitKind::Exe);
         assert_eq!(args.nyrt, Some(PathBuf::from("target/release")));
         assert_eq!(args.libs.as_deref(), Some("-lssl -lcrypto"));
+        assert!(args.receipt_json.is_none());
+        assert!(args.artifact_bundle.is_none());
     }
 
     #[test]
@@ -180,6 +225,38 @@ mod tests {
         let args =
             Args::try_parse_from(["ny-llvmc", "--out", "out.o", "--driver", "harness"]).unwrap();
         assert_eq!(args.driver, DriverKind::Harness);
+    }
+
+    #[test]
+    fn receipt_json_requires_explicit_runtime_directory() {
+        let args = Args::try_parse_from([
+            "ny-llvmc",
+            "--out",
+            "out.exe",
+            "--emit",
+            "exe",
+            "--receipt-json",
+            "receipt.json",
+        ])
+        .unwrap();
+        let error = validate_receipt_args(&args, true).unwrap_err();
+        assert!(error.to_string().contains("explicit --nyrt"));
+    }
+
+    #[test]
+    fn artifact_bundle_requires_executable_boundary_inputs() {
+        let args = Args::try_parse_from([
+            "ny-llvmc",
+            "--out",
+            "bundle",
+            "--emit",
+            "exe",
+            "--artifact-bundle",
+            "bundle",
+        ])
+        .unwrap();
+        let error = validate_receipt_args(&args, true).unwrap_err();
+        assert!(error.to_string().contains("explicit --nyrt"));
     }
 
     #[test]

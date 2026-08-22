@@ -194,12 +194,18 @@ tools/checks/env_dead_accessors_report.sh
 | `NYASH_GC_TRACE` | bool | false | GC trace | 低 |
 | `NYASH_GC_STRESS` | bool | false | GC stress test | 低 |
 
-### I. LLVM系 (7個)
+### I. LLVM系 (14個)
 
 | 変数名 | 型 | デフォルト | 目的 | 使用頻度 |
 |--------|------|----------|------|----------|
-| `NYASH_LLVM_USE_HARNESS` | bool | false | Use LLVM harness | 高 |
-| `HAKO_LLVM_USE_HARNESS` | bool | false | (非推奨) Use NYASH_LLVM_USE_HARNESS | 低 |
+| `NYASH_LLVM_USE_HARNESS` | bool | true (legacy accessor) | Top-level LLVM compatibility-runner hint; not a direct `ny-llvmc` driver selector | 高 |
+| `HAKO_LLVM_USE_HARNESS` | bool | alias | (非推奨) alias for the runner hint | 低 |
+| `HAKO_BACKEND_COMPILE_RECIPE` | string | - | CAPI compile recipe selector (`pure-first` or compat recipe) | 高 |
+| `HAKO_BACKEND_COMPAT_REPLAY` | string | - | Explicit compatibility replay selector (for example `harness`) | 高 |
+| `HAKO_LLVM_EMIT_PROVIDER` | enum | - | Explicit compat provider (`llvmlite` or `ny-llvmc`) | 中 |
+| `NYASH_LLVM_USE_CAPI` | bool | false | Enable the CAPI route | 中 |
+| `HAKO_V1_EXTERN_PROVIDER_C_ABI` | bool | false | Enable the extern C-ABI bridge used by CAPI | 中 |
+| `NYASH_NY_LLVM_COMPILER` | path | - | `ny-llvmc` binary path override | 低 |
 | `NYASH_LLVM_DUMP_IR` | string | - | Dump LLVM IR path | 低 |
 | `NYASH_LLVM_VERIFY` | bool | true | Verify LLVM IR | 低 |
 | `NYASH_LLVM_OPT_LEVEL` | string | ? | LLVM optimization level | 低 |

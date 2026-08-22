@@ -76,6 +76,7 @@ pub(super) fn classify_normal_script_program_item_v1(
         | ASTNode::ThisField { .. }
         | ASTNode::MeField { .. }
         | ASTNode::FunctionCall { .. }
+        | ASTNode::ExplicitExternCall { .. }
         | ASTNode::Call { .. } => DirectPortAwareExpression,
 
         ASTNode::Assignment { .. }

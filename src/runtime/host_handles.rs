@@ -9,12 +9,18 @@
 #[path = "host_handles/perf_observe.rs"]
 mod perf_observe;
 pub use perf_observe::PerfObserveSnapshot;
+#[path = "host_handles/call_lifetime.rs"]
+mod call_lifetime;
+#[path = "host_handles/lease_identity.rs"]
+mod lease_identity;
 #[path = "host_handles/text_read.rs"]
 mod text_read;
 
 use once_cell::sync::OnceCell;
 use parking_lot::RwLock;
 use std::cell::RefCell;
+#[cfg(test)]
+use std::sync::Mutex;
 use std::sync::{
     atomic::{AtomicU64, Ordering},
     Arc,
@@ -27,6 +33,18 @@ use super::object_identity::{
 };
 use crate::box_trait::{NyashBox, StringBox};
 use crate::config::env::HostHandleAllocPolicyMode;
+pub(super) use call_lifetime::{
+    acquire_text_formal_call_lease_set_v1, acquire_text_formal_call_residence_v1,
+    finish_text_formal_call_lease_set_raw_v1, finish_text_formal_call_lease_set_v1,
+    RegistryTextFormalCallLeaseSetV1, RegistryTextFormalCallResidenceV1,
+    TextFormalRootDescriptorV1,
+};
+pub(crate) use call_lifetime::{TextFormalLeaseAcquireRejectV1, TextFormalLeaseFinishRejectV1};
+pub(crate) use lease_identity::{
+    capture_text_formal_pair, capture_text_lease_identity, drop_if_lease_identity_matches,
+    to_handle_text_with_lease_identity, with_stable_text_formal_wire, with_text_formal_wire,
+    HostHandleLeaseIdentityV1, TextFormalLookupRejectV1,
+};
 pub use perf_observe::ObjectWithHandleCaller as PerfObserveObjectWithHandleCaller;
 pub use text_read::TextReadSession;
 
@@ -36,6 +54,14 @@ pub use text_read::TextReadSession;
 const HOST_HANDLE_INITIAL_SLOTS: usize = 128 * 1024;
 /// Initial capacity for the reusable handle free-list. (64 Ki entries.)
 const HOST_HANDLE_INITIAL_FREE: usize = 64 * 1024;
+
+#[cfg(test)]
+static TEST_HOST_HANDLE_POLICY_ENV_LOCK: OnceCell<Mutex<()>> = OnceCell::new();
+
+#[cfg(test)]
+pub(crate) fn test_host_handle_policy_lock() -> &'static Mutex<()> {
+    TEST_HOST_HANDLE_POLICY_ENV_LOCK.get_or_init(|| Mutex::new(()))
+}
 
 #[derive(Clone)]
 struct LatestFreshStableBox {
@@ -52,6 +78,14 @@ thread_local! {
 enum HandlePayload {
     StableBox(Arc<dyn NyashBox>),
     StableText(String),
+}
+
+#[cfg(feature = "promotion-test-support")]
+pub(crate) fn issue_promotion_non_text_wire_v1() -> (u64, u64) {
+    use crate::box_trait::IntegerBox;
+
+    let object: Arc<dyn NyashBox> = Arc::new(IntegerBox::new(0));
+    reg().alloc_payload_with_generation(HandlePayload::StableBox(object))
 }
 
 impl HandlePayload {
@@ -120,6 +154,10 @@ struct SlotTable {
     // Reusable handle IDs released via drop_handle().
     // Reuse keeps slot table growth bounded under churn.
     free: Vec<u64>,
+    // Per-slot lease generation. Zero is reserved for an unpublished slot.
+    lease_generations: Vec<u64>,
+    // Call-scoped Text formal pins and opaque lease-set records.
+    call_lifetime: call_lifetime::CallLifetimeTableV1,
 }
 
 struct Registry {
@@ -164,6 +202,14 @@ fn ensure_slot_vacant_or_panic(
     }
 }
 
+#[inline(always)]
+fn next_lease_generation(previous: u64) -> u64 {
+    previous
+        .checked_add(1)
+        .filter(|generation| *generation != 0)
+        .expect("[host_handles] lease generation exhausted")
+}
+
 impl Registry {
     fn new() -> Self {
         #[cfg(not(test))]
@@ -175,6 +221,8 @@ impl Registry {
                 next: 1,
                 slots,
                 free: Vec::with_capacity(HOST_HANDLE_INITIAL_FREE),
+                lease_generations: vec![0],
+                call_lifetime: call_lifetime::CallLifetimeTableV1::new(),
             }),
             #[cfg(not(test))]
             alloc_policy_mode,
@@ -205,6 +253,11 @@ impl Registry {
 
     #[inline(always)]
     fn alloc_payload(&self, payload: HandlePayload) -> u64 {
+        self.alloc_payload_with_generation(payload).0
+    }
+
+    #[inline(always)]
+    pub(super) fn alloc_payload_with_generation(&self, payload: HandlePayload) -> (u64, u64) {
         let policy_mode = self.alloc_policy_mode();
         let mut table = self.table.write();
 
@@ -216,14 +269,21 @@ impl Registry {
                 "[host_handles] reusable handle out of slots range",
                 "[host_handles] reusable handle points to occupied slot",
             );
+            let generation = next_lease_generation(table.lease_generations[idx]);
+            table.lease_generations[idx] = generation;
             table.slots[idx] = Some(payload);
-            return h;
+            table.call_lifetime.activate_slot_or_panic(idx);
+            return (h, generation);
         }
 
         let h = host_handles_policy::issue_fresh_handle(policy_mode, &mut table.next);
         let idx = handle_index_or_panic(h, "[host_handles] fresh handle overflow");
+        let previous_generation = table.lease_generations.get(idx).copied().unwrap_or(0);
+        let generation = next_lease_generation(previous_generation);
         if idx == table.slots.len() {
             table.slots.push(Some(payload));
+            table.lease_generations.push(generation);
+            table.call_lifetime.activate_slot_or_panic(idx);
         } else {
             ensure_slot_vacant_or_panic(
                 &table,
@@ -231,9 +291,11 @@ impl Registry {
                 "[host_handles] fresh handle out of slots range",
                 "[host_handles] fresh handle points to occupied slot",
             );
+            table.lease_generations[idx] = generation;
             table.slots[idx] = Some(payload);
+            table.call_lifetime.activate_slot_or_panic(idx);
         }
-        h
+        (h, generation)
     }
     #[inline(always)]
     fn get(&self, h: u64) -> Option<Arc<dyn NyashBox>> {
@@ -395,23 +457,6 @@ impl Registry {
                 Some(payload.identity_descriptor(identity))
             })
             .collect()
-    }
-    #[inline(always)]
-    fn drop_handle(&self, h: u64) {
-        let mut table = self.table.write();
-        let removed = if let Ok(idx) = usize::try_from(h) {
-            table
-                .slots
-                .get_mut(idx)
-                .and_then(|slot| slot.take())
-                .is_some()
-        } else {
-            false
-        };
-        if removed {
-            host_handles_policy::recycle_handle(self.alloc_policy_mode(), &mut table.free, h);
-            DROP_EPOCH.fetch_add(1, Ordering::Relaxed);
-        }
     }
 }
 
@@ -688,6 +733,10 @@ pub fn host_handle_identity_report_fields() -> &'static [(&'static str, &'static
         ("external_host_abi_changed", "0"),
         ("object_handle_contract_used_by_host_handles", "1"),
         ("host_handle_identity_generation", "legacy_unversioned"),
+        (
+            "dynamic_v2_lease_identity_generation",
+            "slot_monotonic_nonwrapping",
+        ),
         ("borrowed_access_preserved", "1"),
         ("identity_snapshot_available", "1"),
         ("host_handle_backing_arc_replaced", "0"),

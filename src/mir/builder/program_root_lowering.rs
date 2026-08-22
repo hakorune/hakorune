@@ -13,7 +13,8 @@ use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::normal_callable_semantic_loan_port::NormalCallableSemanticPackagePortAdapterV1;
-use super::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
+use super::normal_script_pre_effect_source_observation::
+    CanonicalScriptCPreparedLoweringSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
     PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanPartsV1,
@@ -27,6 +28,7 @@ use super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::{MirBuilder, NormalEntryMaterializationSourceReceiptV1, ValueId};
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 use crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1;
+use crate::mir::resolved_semantics::ScriptResolverDeferredV1;
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -75,8 +77,9 @@ pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
 }
 
 pub(super) enum NormalScriptRootLoweringMode<'source> {
-    Complete(VerifiedScriptSemanticSourceV1<'source>),
-    Deferred,
+    Complete(CanonicalScriptCPreparedLoweringSourceV1<'source>),
+    Deferred(ScriptResolverDeferredV1),
+    Unavailable,
 }
 
 pub(super) enum NormalCallableSemanticPackageMode<'package> {
@@ -131,6 +134,9 @@ impl MirBuilder {
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
         static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
             work,
@@ -143,6 +149,7 @@ impl MirBuilder {
             callable_mode,
             script_mode,
             static_result_publication_owner,
+            target_capability,
         )
     }
 
@@ -158,6 +165,9 @@ impl MirBuilder {
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
         static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
         collector.install_static_result_publication_owner(static_result_publication_owner)?;
@@ -179,9 +189,30 @@ impl MirBuilder {
                             declaration_facts,
                             callable_mode,
                             port,
+                            target_capability,
                         )
-                    })?,
-                NormalScriptRootLoweringMode::Deferred => port.with_source_transport_v1(
+                    }),
+                NormalScriptRootLoweringMode::Deferred(observation) => {
+                    port.with_script_deferred_observation(observation, |port| {
+                        port.with_source_transport_v1(
+                            RawInvocationSourceTransportV1::script_root(()),
+                            |port, ()| {
+                                self.lower_prepared_program_root_with_callable_mode_v1(
+                                    work,
+                                    snapshot,
+                                    expansion,
+                                    materialization,
+                                    runtime_inputs,
+                                    declaration_facts,
+                                    callable_mode,
+                                    port,
+                                    target_capability,
+                                )
+                            },
+                        )
+                    })
+                }
+                NormalScriptRootLoweringMode::Unavailable => port.with_source_transport_v1(
                     RawInvocationSourceTransportV1::script_root(()),
                     |port, ()| {
                         self.lower_prepared_program_root_with_callable_mode_v1(
@@ -193,6 +224,7 @@ impl MirBuilder {
                             declaration_facts,
                             callable_mode,
                             port,
+                            target_capability,
                         )
                     },
                 ),
@@ -224,13 +256,23 @@ impl MirBuilder {
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         port: &mut RawInvocationChildPortV1<'_, '_>,
+        target_capability: Option<
+            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
+        >,
     ) -> Result<ValueId, String> {
         match callable_mode {
             NormalCallableSemanticPackageMode::Installed(package) => {
+                let mut work = work;
+                let constructor_manifest = work.constructor_demand_manifest.take();
                 let package_port = package.begin_lowering(&self.comp_ctx).map_err(|error| {
                     format!("[freeze:contract][mir/callable-semantic-package/open] {error:?}")
                 })?;
-                let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(port, package_port);
+                let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(
+                    port,
+                    package_port,
+                    target_capability,
+                    constructor_manifest,
+                );
                 let result = self.lower_prepared_program_root_with_callable_port_v1(
                     work,
                     snapshot,
@@ -300,11 +342,14 @@ impl MirBuilder {
         Port: RootCallableCapturePortV1,
     {
         self.prepare_program_root_lowering_state_v1(snapshot, expansion.is_app_mode())?;
-        let work = PreparedProgramRootWorkPlanV1::prepare(
+        debug_assert_eq!(
+            work_plan_admission,
+            ProgramRootWorkPlanAdmissionV1::RawCompatibility,
+            "legacy root lowering only owns raw compatibility"
+        );
+        let work = PreparedProgramRootWorkPlanV1::prepare_raw_compatibility(
             statements,
             expansion.is_app_mode(),
-            work_plan_admission,
-            None,
         )
         .into_parts();
         self.lower_program_root_work_plan_with_callable_port_v1(
@@ -347,7 +392,9 @@ impl MirBuilder {
         snapshot: &ASTNode,
         is_app_mode: bool,
     ) -> Result<(), String> {
-        PreparedNormalProgramDeclarationFactsV1::collect(snapshot).install_into(&mut self.comp_ctx);
+        PreparedNormalProgramDeclarationFactsV1::collect(snapshot)
+            .map_err(|error| error.to_string())?
+            .install_into(&mut self.comp_ctx);
         self.prepare_program_root_static_lowering_state_v1(snapshot, is_app_mode)
     }
 

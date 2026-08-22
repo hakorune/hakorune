@@ -231,7 +231,7 @@ pub(in crate::mir) fn lower_nested_predicate_function_draft(
             "[freeze:contract][nested_predicate/draft_seal/{stage:?}] {error}"
         ))
     })?;
-    Ok(prepared.commit().into_draft())
+    Ok(prepared.commit().consume_non_authority_evidence())
 }
 
 impl<'builder, 'source> std::fmt::Debug

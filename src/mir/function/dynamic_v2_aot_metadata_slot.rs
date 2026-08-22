@@ -1,0 +1,108 @@
+//! Clone-scrubbing candidate metadata slot for the selected Dynamic lane.
+//!
+//! This slot transports an already co-sealed AOT projection to the candidate
+//! MIR JSON path.  It does not select a provider, issue a site plan, or own a
+//! live executable.  Ordinary function metadata remains empty.
+
+use crate::box_callable::provider_admission::DynamicV2AotCallMetadataProjectionV1;
+
+use crate::mir::linear_metadata_slot::LinearSlotObservation;
+
+#[derive(Debug, PartialEq, Eq)]
+enum State {
+    Empty,
+    Occupied(DynamicV2AotCallMetadataProjectionV1),
+    Consumed,
+}
+
+/// Linear candidate-only storage.  Cloning metadata scrubs the projection so
+/// a prepared clone cannot publish a second candidate admission.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct DynamicV2AotMetadataSlotV1 {
+    state: State,
+}
+
+impl Default for DynamicV2AotMetadataSlotV1 {
+    fn default() -> Self {
+        Self {
+            state: State::Empty,
+        }
+    }
+}
+
+impl Clone for DynamicV2AotMetadataSlotV1 {
+    fn clone(&self) -> Self {
+        Self {
+            state: match self.state {
+                State::Empty => State::Empty,
+                State::Occupied(_) | State::Consumed => State::Consumed,
+            },
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DynamicV2AotMetadataSlotRejectV1 {
+    AlreadyOccupied,
+    AlreadyConsumed,
+}
+
+impl DynamicV2AotMetadataSlotV1 {
+    pub(crate) fn observe(
+        &self,
+    ) -> LinearSlotObservation<'_, DynamicV2AotCallMetadataProjectionV1> {
+        match &self.state {
+            State::Empty => LinearSlotObservation::Empty,
+            State::Occupied(projection) => LinearSlotObservation::Occupied(projection),
+            State::Consumed => LinearSlotObservation::Scrubbed,
+        }
+    }
+
+    pub(crate) fn borrow(&self) -> Option<&DynamicV2AotCallMetadataProjectionV1> {
+        match &self.state {
+            State::Occupied(projection) => Some(projection),
+            State::Empty | State::Consumed => None,
+        }
+    }
+
+    pub(in crate::mir) fn install(
+        &mut self,
+        projection: DynamicV2AotCallMetadataProjectionV1,
+    ) -> Result<(), DynamicV2AotMetadataSlotRejectV1> {
+        match self.state {
+            State::Empty => {
+                self.state = State::Occupied(projection);
+                Ok(())
+            }
+            State::Occupied(_) => Err(DynamicV2AotMetadataSlotRejectV1::AlreadyOccupied),
+            State::Consumed => Err(DynamicV2AotMetadataSlotRejectV1::AlreadyConsumed),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clone_preserves_empty_slot() {
+        let slot = DynamicV2AotMetadataSlotV1::default();
+        assert!(slot.borrow().is_none());
+        assert_eq!(slot.observe(), LinearSlotObservation::Empty);
+        let clone = slot.clone();
+        assert!(clone.borrow().is_none());
+        assert_eq!(clone.observe(), LinearSlotObservation::Empty);
+    }
+
+    #[test]
+    fn clone_scrubs_occupied_candidate_projection() {
+        let mut slot = DynamicV2AotMetadataSlotV1::default();
+        slot.install(DynamicV2AotCallMetadataProjectionV1::for_test())
+            .expect("test projection install");
+        assert!(slot.borrow().is_some());
+        assert!(matches!(slot.observe(), LinearSlotObservation::Occupied(_)));
+        let clone = slot.clone();
+        assert!(clone.borrow().is_none());
+        assert_eq!(clone.observe(), LinearSlotObservation::Scrubbed);
+    }
+}

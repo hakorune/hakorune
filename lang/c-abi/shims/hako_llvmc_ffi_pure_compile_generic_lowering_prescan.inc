@@ -619,21 +619,12 @@
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }
-      // IR temp file
-      char llpath[1024]; snprintf(llpath, sizeof(llpath), "%s/hako_pure_gen_%d.ll", "/tmp", (int)getpid());
-      FILE* f = fopen(llpath, "wb");
-      if (!f) {
-        note_pure_unsupported_shape(
-            -1,
-            0,
-            "generic_pure_ir",
-            "ir_temp_file_open_failed",
-            NULL);
+      if (ptfb_contract_bound && !ptfc_selected &&
+          hako_llvmc_ptfb_session_open(&ptfb_session, &ptfb_census, err_out) != 0) {
         yyjson_doc_free(d);
-        break;
+        goto GEN_ABORT;
       }
-      fprintf(f, "; nyash pure IR (generic)\n");
-      fprintf(f, "target triple = \"x86_64-pc-linux-gnu\"\n\n");
+      #include "hako_llvmc_ffi_pure_compile_ir_open.inc"
       emit_module_function_declarations(f);
       if (needs.map_birth || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i64 @\"nyash.map.birth_h\"()\n");
@@ -753,9 +744,10 @@
         fprintf(f, "declare void @llvm.trap()\n");
       }
       #include "hako_llvmc_ffi_pure_compile_generic_declarations_emit.inc"
+      hako_llvmc_c1_emit_declarations(f, fn_metadata);
       fprintf(f, "\n");
       if (emit_module_function_leaf_definitions(f) < 0) {
-        fclose(f);
+        HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
         yyjson_doc_free(d);
         goto GEN_ABORT;
       }

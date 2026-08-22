@@ -60,6 +60,7 @@ fn parsed_box(source: &str) -> ASTNode {
 fn seeded_static_box_caller() -> MirBuilder {
     let mut builder = MirBuilder::new();
     builder.prepare_module().expect("module shell");
+    builder.root_is_app_mode = Some(false);
     builder.enter_function_for_test("static_box_parent/0".to_string());
     builder
         .function_state
@@ -207,6 +208,81 @@ fn raw_nonmain_static_box_success_restores_four_state_caller() {
     let module = builder.current_module.as_ref().expect("module shell");
     assert!(module.functions.contains_key("Helpers.alpha/0"));
     assert!(module.functions.contains_key("Helpers.beta/0"));
+}
+
+#[test]
+fn raw_nonmain_static_box_app_mode_is_void_without_registration() {
+    let mut builder = seeded_static_box_caller();
+    builder.root_is_app_mode = Some(true);
+    let mut port = RawLegacyChildLoweringPortV1;
+    let result = builder
+        .build_expression_impl_with_port_v1(
+            &mut port,
+            parsed_box("static box Helpers { alpha() { return 1 } }"),
+        )
+        .expect("App-mode static Box is a no-op");
+
+    assert_eq!(
+        builder.function_state.type_ctx.get_type(result),
+        Some(&MirType::Void)
+    );
+    assert!(!builder.comp_ctx.user_defined_boxes.contains_key("Helpers"));
+    let module = builder.current_module.as_ref().expect("module shell");
+    assert!(!module.functions.contains_key("Helpers.alpha/0"));
+}
+
+#[test]
+fn raw_nonmain_static_box_undecided_mode_freezes_before_registration() {
+    let mut builder = seeded_static_box_caller();
+    builder.root_is_app_mode = None;
+    let before_functions = builder
+        .current_module
+        .as_ref()
+        .expect("module shell")
+        .functions
+        .len();
+    let mut port = RawLegacyChildLoweringPortV1;
+
+    let error = builder
+        .build_expression_impl_with_port_v1(
+            &mut port,
+            parsed_box("static box Helpers { alpha() { return 1 } }"),
+        )
+        .expect_err("unset root mode must freeze before lifecycle effects");
+
+    assert_eq!(error, "[freeze:contract][mir/root-app-mode/undecided]");
+    assert!(!builder.comp_ctx.user_defined_boxes.contains_key("Helpers"));
+    assert_eq!(
+        builder
+            .current_module
+            .as_ref()
+            .expect("module shell")
+            .functions
+            .len(),
+        before_functions
+    );
+    assert_static_box_caller_restored(&builder);
+}
+
+#[test]
+fn normal_nonmain_static_box_undecided_mode_freezes_before_registration() {
+    let mut builder = seeded_static_box_caller();
+    builder.root_is_app_mode = None;
+    let mut port = RawLegacyChildLoweringPortV1;
+
+    let error = super::PreparedRawNonMainStaticBoxLifecycleV1::prepare(
+        "Helpers".to_owned(),
+        match parsed_box("static box Helpers { alpha() { return 1 } }") {
+            ASTNode::BoxDeclaration { methods, .. } => methods,
+            other => panic!("expected static box, got {other:?}"),
+        },
+    )
+    .lower_normal_with_port_v1(&mut builder, &mut port)
+    .expect_err("unset root mode must freeze before normal lifecycle effects");
+
+    assert_eq!(error, "[freeze:contract][mir/root-app-mode/undecided]");
+    assert!(!builder.comp_ctx.user_defined_boxes.contains_key("Helpers"));
+    assert_static_box_caller_restored(&builder);
 }
 
 #[test]

@@ -5,8 +5,12 @@
  * These require custom processing beyond standard method calls
  */
 
-use crate::ast::{ASTNode, LiteralValue};
+use crate::ast::ASTNode;
 use crate::mir::numeric_substrate::is_numeric_integer_type_name;
+use crate::mir::policies::source_method_typeop_route::{
+    classify_source_method_typeop_route_v1, extract_source_string_literal_v1,
+    SourceMethodTypeOpDispositionV1,
+};
 use crate::mir::MirType;
 
 /// Check if a function is a math function
@@ -19,32 +23,16 @@ pub fn is_math_function(name: &str) -> bool {
 
 /// Check if a method is a type operation (.is() or .as())
 pub fn is_typeop_method(method: &str, arguments: &[ASTNode]) -> Option<String> {
-    if (method == "is" || method == "as") && arguments.len() == 1 {
-        extract_string_literal(&arguments[0])
-    } else {
-        None
+    match classify_source_method_typeop_route_v1(method, arguments) {
+        SourceMethodTypeOpDispositionV1::TypeOp { type_name, .. } => Some(type_name.to_string()),
+        SourceMethodTypeOpDispositionV1::Ordinary => None,
     }
 }
 
 /// Extract string literal from AST node if possible
 /// Handles both direct literals and StringBox constructors
 pub fn extract_string_literal(node: &ASTNode) -> Option<String> {
-    let mut cur = node;
-    loop {
-        match cur {
-            ASTNode::Literal {
-                value: LiteralValue::String(s),
-                ..
-            } => return Some(s.clone()),
-            ASTNode::New {
-                class, arguments, ..
-            } if class == "StringBox" && arguments.len() == 1 => {
-                cur = &arguments[0];
-                continue;
-            }
-            _ => return None,
-        }
-    }
+    extract_source_string_literal_v1(node)
 }
 
 /// Map a user-facing type name to MIR type

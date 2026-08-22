@@ -42,6 +42,31 @@ pub(in crate::mir) fn emit_integer_at(
     emit_exact_const_at(b, Some(block), ConstValue::Integer(val))
 }
 
+/// Emit an integer into a destination already issued by the canonical SSA
+/// owner. This helper only writes the verified Const and commits its type
+/// fact; it does not issue or reinterpret the destination.
+pub(in crate::mir) fn emit_integer_at_with_dst(
+    b: &mut MirBuilder,
+    block: BasicBlockId,
+    dst: ValueId,
+    val: i64,
+) -> Result<(), String> {
+    let prepared = PreparedCanonicalConstTypeV1::prepare(
+        &ConstValue::Integer(val),
+        b.function_state.type_ctx.get_type(dst),
+    )
+    .map_err(|error| error.to_string())?;
+    b.emit_instruction_at(
+        block,
+        MirInstruction::Const {
+            dst,
+            value: ConstValue::Integer(val),
+        },
+    )?;
+    prepared.commit(dst, &mut b.function_state.type_ctx);
+    Ok(())
+}
+
 #[inline]
 pub fn emit_integer(b: &mut MirBuilder, val: i64) -> Result<ValueId, String> {
     emit_exact_const(b, ConstValue::Integer(val))

@@ -19,9 +19,12 @@ pub mod loop_body_lowering_policy;
 pub mod post_loop_early_return_plan;
 pub mod return_prelude_policy;
 pub(crate) mod source_method_reserved_route;
+pub(crate) mod source_method_typeop_route;
 
 #[cfg(test)]
 mod source_method_reserved_route_tests;
+#[cfg(test)]
+mod source_method_typeop_route_tests;
 
 pub use cond_profile::{BoundExpr, CmpOp, CondParam, CondProfile, CondSkeleton, StepExpr};
 pub use generic_loop_v1_shape::GenericLoopV1ShapeId;

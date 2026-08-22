@@ -29,9 +29,25 @@ void        hako_mem_free(void* ptr);
 // is set to a short token (VALIDATION/NOT_FOUND/FAILED…)
 int hako_aot_compile_json(const char* mir_json_path, const char* obj_path, char** err_out);
 
+// Versioned explicit compatibility keep lane.  This is the only AOT entry
+// allowed to invoke the harness; generic compile_json never inherits replay.
+int hako_aot_compile_json_compat_harness(
+    const char* mir_json_path,
+    const char* obj_path,
+    char** err_out);
+
 // AOT: link object path → native executable path
 // extra_ldflags may be NULL. Returns 0 on success; non‑zero on failure.
 int hako_aot_link_obj(const char* obj_path, const char* exe_path, const char* extra_ldflags, char** err_out);
+
+// Versioned explicit-archive link boundary.  The caller owns archive
+// resolution; this entry never consults NYASH_EMIT_EXE_NYRT or fallback dirs.
+int hako_aot_link_obj_v2(
+    const char* obj_path,
+    const char* exe_path,
+    const char* runtime_archive_path,
+    const char* extra_ldflags,
+    char** err_out);
 
 #ifdef __cplusplus
 }
