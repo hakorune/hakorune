@@ -261,7 +261,7 @@ impl ScriptSemanticLoweringState {
 
 #[path = "normal_script_binding_materialization.rs"]
 mod binding_materialization;
-#[path = "normal_script_direct_static_claim_ledger.rs"]
+#[path = "normal_script/direct_static/semantic/normal_script_direct_static_claim_ledger.rs"]
 mod direct_static_claim_ledger;
 
 pub(in crate::mir::builder) use direct_static_claim_ledger::{
