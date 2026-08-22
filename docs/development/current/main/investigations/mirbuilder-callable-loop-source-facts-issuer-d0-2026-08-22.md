@@ -1,11 +1,11 @@
 ---
-Status: D0 accepted after worker audit; route-neutral planner I0 complete; Ready claim I0 complete; structural lease I0 complete; next normalizer consumer remains design_stop
+Status: D0 closed at structural lease; route-neutral planner I0, Ready claim I0, and structural lease I0 complete; next normalizer consumer is tracked in the successor D0 card
 Task: MIR-CALLABLE-LOOP-ORDINARY-READY-D0
 Date: 2026-08-22
 Priority: carry one source-bound GenericLoop Facts/Recipe outcome before any consumer
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-callable-physical-header-completion-value-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-READY-NORMALIZER-CONSUMER-D0
+NextCard: mirbuilder-callable-loop-ready-normalizer-consumer-d0-2026-08-22.md
 ---
 
 # Callable Loop source-aware Facts issuer D0
