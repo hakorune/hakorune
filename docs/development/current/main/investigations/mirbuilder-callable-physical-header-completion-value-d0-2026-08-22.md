@@ -1,11 +1,11 @@
 ---
-Status: S0 BoxShape complete; S0-D1 design_stop
-Task: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1
+Status: S0 BoxShape complete; D1 accepted; next P0
+Task: MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0
 Date: 2026-08-22
 Priority: preserve one exact callable source-to-GenericLoop Recipe relation before ordinary effects
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -1065,7 +1065,7 @@ Decision: keep body-only-rebind Outside terminal. Before any ordinary consumer, 
 Source authority + canonical issuer: CallableSemanticLoweringState and CallableLoopSourceProjectionV1 own grouped binding/site/role rows; RawInvocationSourceContextV1 owns exact parent/condition/body location. A future private CallableOrdinaryLoopSourceRecipeIssuerV1 may co-seal those existing facts at PreparedLocatedRawLoopChildEntryV1, but it may not issue new binding roles or route policy.
 Non-authority: CallableLoopOutsideReasonV1 bindings[]/sites[], cloned GenericLoopV1Facts alone, AST/name/ordinal/ValueId, Builder variable_map, LoopRouteContext, RawLoopPlanExpressionPortV1, LocatedLoopPlanExpressionPortV1, and the retry-capable legacy route continuation.
 Fail-fast boundary: exact source ownership, grouped coverage, source-to-Facts correspondence, non-nested first cohort, and one terminal selected route must all close before CorePlan composition, callable row consumption, Builder mutation, or PlanLowerer; every later reject discards the unpublished outer session and never advances the route schedule.
-Smallest next slice: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1; fix the source-located Facts/Recipe and terminal-route contract, and census whether the first source-aware cohort is RecipeOnly or ExitAllowed. This is design/census only.
+Smallest next slice: MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0; issue only the caller-zero source-located Facts/Recipe relation after the accepted D1 contract. Ordinary consumption remains closed until a later consumer slice.
 Non-claims: no new semantic receipt, ordinary support, body-only-rebind admission, nested child support, GenericLoop production switch, finish relaxation, fallback/retry, publication, Compare hardening, performance work, or main integration.
 ```
 
@@ -1103,6 +1103,23 @@ The existing expression ports solve only structural child access. They do not
 call `CallableSemanticLoweringState::read_variable` or `rebind`, so wrapping
 one of them does not complete source consumption. D1 keeps structural syntax
 transport and semantic binding consumption as separate ports.
+
+### D1 policy census
+
+The selfhost entry defaults `HAKO_JOINIR_PLANNER_REQUIRED=1`. The existing
+GenericLoop Facts issuer first observes whether the body contains a
+break/continue and proposes `ExitAllowed` only when the planner-required gate
+and the no-break/no-continue condition both hold. It then builds the
+exit-allowed Recipe; if that Recipe is unavailable, the same Facts issuer
+records the final policy as `RecipeOnly`.
+
+Therefore the source-aware bridge must not choose a policy from ambient env or
+from a later route. It must transport the exact final
+`body_lowering_policy + body_exit_allowed/body_no_exit` issued with the same
+GenericLoop facts. The first cohort is policy-parametric at the relation
+boundary, while each implementation cell may admit only the policy it can
+prove source-aware. A policy downgrade must remain visible in the co-sealed
+Facts/Recipe product; it is never a downstream retry.
 
 ### Authority map
 
@@ -1167,11 +1184,11 @@ another route.
 
 ### Ordered bounded tasks
 
-1. `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1` — current design stop.
+1. `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1` — accepted design stop.
    Census the production and focused fixtures through
    `try_extract_generic_loop_v1`, `RecipeFirstRouteSelectionV1`, and
-   `observe_selected_preflight_v1`; choose `RecipeOnly` or `ExitAllowed` for
-   the first source-aware cohort and fix the exact source-to-Facts relation.
+   `observe_selected_preflight_v1`; preserve the final Facts-selected policy
+   (`RecipeOnly` or `ExitAllowed`) and fix the exact source-to-Facts relation.
 2. `MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0` — caller-zero only after D1.
    Add one private non-Clone continuation for the exact front-selected
    GenericLoop family. Compose/lower rejection is terminal; legacy suffix,
@@ -1238,5 +1255,6 @@ nested Loop delegation without a child-context/reborrow owner;
 post-walk repair, finish relaxation, fallback, or retry.
 ```
 
-The immediate current task is D1 design/census. No Rust implementation or new
-receipt is authorized by this section.
+The immediate current task is `MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0`.
+It may add only the caller-zero source-located transport named above; it may
+not consume the relation in ordinary lowering or add a production edge.
