@@ -1,10 +1,10 @@
-Status: P0-A/P0-B/P0-C implemented; live publication boundary D0 remains design-gated after worker/local audit
+Status: P0-A/P0-B/P0-C implemented; publication census complete with NoSafeSlice at imported static target authority
 Task: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 Date: 2026-08-22
 Priority: design one atomic selected-Dynamic publication handoff through DraftAdmission, ModuleDrain, and ExternalCommit; keep backend and generic retirement closed
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 PreviousCard: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
-NextCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0 (same rolling card)
+NextCard: SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0
 ---
 
 # Loop Compare CONNECT0 handoff
@@ -112,6 +112,14 @@ The focused public-root test passes while asserting the unchanged fixture's
 not observe DraftAdmission, ModuleDrain, or ExternalCommit. This is valid
 unpublished-failure evidence only. No production switch, fallback retry, or
 second publication owner was added by this census.
+
+### Census outcome
+
+The publication owners compose cleanly, but the named fixture does not reach
+them. Its typed stop is an imported static declaration/result authority gap,
+not an ordinary `Absent` observation. The next design card is
+`SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0`; Loop publication remains closed
+until that source-owned relation is co-sealed.
 
 The publication audit is refined by the following prerequisite design task:
 
