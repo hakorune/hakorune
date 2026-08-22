@@ -64,10 +64,15 @@ guard_expect_fixed_in_file "$TAG" \
   "MIR-CALLABLE-SEMANTIC-NESTED-IF-SOURCE-ROW-I0" \
   "$CARD" \
   "bounded I0 task must be recorded in the active card"
-guard_expect_fixed_in_file "$TAG" \
-  "current_execution_row = \"MIR-CALLABLE-SEMANTIC-NESTED-IF-SOURCE-ROW-I0\"" \
-  "$STATE" \
-  "CURRENT_STATE must select the bounded I0"
+if rg -F -q -- 'current_execution_row = "MIR-CALLABLE-SEMANTIC-NESTED-IF-SOURCE-ROW-I0"' "$STATE"; then
+  : # active I0 state
+elif rg -F -q -- 'current_execution_row = "CALLABLE-RESOLVED-BINDING-AUTHORITY-HANDOFF-D0"' "$STATE" \
+  && rg -F -q -- 'latest_card = "mir-callable-resolved-binding-authority-handoff-d0"' "$STATE" \
+  && rg -F -q -- '95b65e4081' "$STATE"; then
+  : # I0 is closed and the next design stop is selected
+else
+  guard_fail "$TAG" "CURRENT_STATE must select active I0 or its recorded next design stop"
+fi
 
 for file in "$LOAN_PORT" "$LOWERING"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
