@@ -1,10 +1,11 @@
-Status: parked design/task card; current pointer remains SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0
+Status: cursor EOF P0 landed; preclaim D0 is the next design stop
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
+Current execution row: MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
-CurrentCard: docs/development/current/main/investigations/mirbuilder-static-import-target-authority-d0-2026-08-22.md
-NextCard: MIR-DYNAMIC-CURSOR-EOF-FAILFAST-P0 (after the current import D0 is accepted)
+CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
+NextCard: MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0 (after cursor EOF P0 closeout)
 ---
 
 # Selected Dynamic Compare hardening D0
@@ -42,8 +43,9 @@ Independent baseline evidence on this HEAD:
     CARGO_BUILD_JOBS=4 cargo test --lib selected_dynamic_physical_emitter -- --nocapture
       -> 9 passed; existing compiler warnings are baseline and unrelated to this card
 
-No source or fixture change is authorized by this audit card while the current
-SSOT remains design_stop.
+The Outside terminal closeout is now complete. This card is the next accepted
+bounded lane; only the cursor EOF P0 below is active, and the broader preclaim
+and live-publication cells remain closed.
 
 Worker audit confirmation:
 
@@ -101,6 +103,19 @@ Acceptance:
 
 Non-claims: no batch claims, no writer change, no ledger change, no live
 publication.
+
+### Cursor EOF P0 closeout evidence
+
+`claim_operation()` now returns typed `DuplicateItem` when the operation
+order is exhausted; it no longer indexes past the end of `operation_order`.
+The focused cursor suite is green (2 passed), including an explicit
+`catch_unwind` negative proof that an extra claim does not panic. The selected
+Dynamic CONNECT0 guard and strict-writer guard remain green, the cursor source
+is 538 lines, the pointer guard is green, and `git diff --check` is clean.
+
+This cell changed no writer, ledger, claim timing, publication, fallback, or
+ordinary/generic Loop route. The next accepted work is design-only
+`MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0`.
 
 ### 2. MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0
 
@@ -261,6 +276,6 @@ Keep live publication closed if any of these remains:
     strict I9 can reach generic emit/fallback/retry
     DraftAdmission/ModuleDrain/ExternalCommit evidence is still missing
 
-This card does not change the current pointer. The active task remains
-SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0; this hardening card is the ordered
-downstream prerequisite to revisit before live publication is claimed.
+Cursor EOF P0 is closed. Return to the preclaim D0 below before opening
+prepare/reserve/commit or live publication. The generic caller-zero leaf and
+all unrelated import/publication work remain parked.

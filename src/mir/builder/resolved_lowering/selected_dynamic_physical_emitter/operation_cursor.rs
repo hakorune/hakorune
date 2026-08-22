@@ -92,9 +92,12 @@ impl DynamicV2PhysicalOperationCensusV1 {
         &mut self,
         item: crate::mir::loop_recipe_contract::LoopItemKeyV1,
     ) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
-        if self.operation_order.get(self.next_operation).copied() != Some(item) {
+        let Some(expected) = self.operation_order.get(self.next_operation).copied() else {
+            return Err(DynamicV2RecipeOperationCursorRejectV1::DuplicateItem);
+        };
+        if expected != item {
             return Err(DynamicV2RecipeOperationCursorRejectV1::PhysicalOrder {
-                expected: self.operation_order[self.next_operation],
+                expected,
                 actual: item,
             });
         }
@@ -506,5 +509,30 @@ mod tests {
         cursor.claim_if().expect("If claim");
         cursor.claim_exit().expect("Exit claim");
         cursor.close().expect("all physical evidence closed");
+    }
+
+    #[test]
+    fn physical_evidence_cursor_rejects_extra_claim_after_order_exhaustion() {
+        let mut cursor = DynamicV2PhysicalOperationCensusV1 {
+            expected_operation_count: 1,
+            expected_if_count: 0,
+            expected_exit_count: 0,
+            operation_order: vec![LoopItemKeyV1::new(0)].into_boxed_slice(),
+            next_operation: 0,
+            remaining_if: 0,
+            remaining_exit: 0,
+        };
+        cursor
+            .claim_operation(LoopItemKeyV1::new(0))
+            .expect("only physical claim");
+
+        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            cursor.claim_operation(LoopItemKeyV1::new(0))
+        }));
+        assert!(result.is_ok(), "exhausted operation order must not panic");
+        assert_eq!(
+            result.expect("checked no panic"),
+            Err(DynamicV2RecipeOperationCursorRejectV1::DuplicateItem)
+        );
     }
 }
