@@ -7,10 +7,12 @@ use crate::mir::builder::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopBindingReceiptV1,
     CallableLoopBindingRoleV1, VerifiedCallableSemanticLoopBindingScheduleV1,
 };
+use crate::mir::builder::normal_callable_loop_physical_adapter::CallableGenericLoopV1PhysicalAdapterV1;
 use crate::mir::builder::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1,
 };
 use crate::mir::builder::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
+use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
     FunctionOwnerIssuerV1, SourceBodyKindV1, SourcePathSegmentV1, SourcePathV1,
 };
@@ -240,6 +242,57 @@ fn claimed_facts_move_into_one_higher_ranked_semantic_recipe_view() {
 }
 
 #[test]
+fn semantic_recipe_reaches_the_single_named_physical_adapter() {
+    let source_owner = owner();
+    with_prepared(source_owner, generic_loop(), |_, prepared| {
+        let payload = prepared
+            .into_callable_generic_loop_source_facts_payload(
+                source_owner,
+                "semantic-physical",
+                false,
+                false,
+                policy(),
+            )
+            .expect("source payload");
+        let super::CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) =
+            CallableGenericLoopSourceFactsIssuerV1::issue_once(payload)
+        else {
+            panic!("expected source-aware GenericLoop Ready outcome")
+        };
+        let recipe = source_facts
+            .claim_all()
+            .expect("claim receipt")
+            .into_semantic_recipe()
+            .expect("semantic recipe");
+
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("semantic-physical/0".to_owned());
+        let i = builder.alloc_value_for_test();
+        builder.bind_variable_for_test("i", i);
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(i, crate::mir::MirType::Integer);
+        let limit = builder.alloc_value_for_test();
+        builder.bind_variable_for_test("limit", limit);
+        builder
+            .function_state
+            .type_ctx
+            .value_types
+            .insert(limit, crate::mir::MirType::Integer);
+
+        let value = CallableGenericLoopV1PhysicalAdapterV1::lower(&mut builder, recipe)
+            .expect("source Recipe must reach the named physical adapter");
+        assert!(builder
+            .function_state
+            .type_ctx
+            .value_types
+            .contains_key(&value));
+    });
+}
+
+#[test]
 fn issuer_rejects_foreign_owner_before_facts() {
     let schedule_owner = owner();
     let foreign_owner = owner();
@@ -287,4 +340,25 @@ fn non_generic_loop_is_facts_absent_or_typed_rejected_without_ready() {
             CallableGenericLoopSourceFactsDispositionV1::Ready(_)
         ));
     });
+}
+
+#[test]
+fn ready_rejection_stops_before_builder_effect_and_never_uses_legacy_route() {
+    let source_owner = owner();
+    with_prepared(
+        source_owner,
+        ASTNode::Loop {
+            condition: Box::new(boolean(true)),
+            body: vec![],
+            span: Span::unknown(),
+        },
+        |_, prepared| {
+            let mut builder = MirBuilder::new();
+            let result = prepared.lower_v1(&mut builder, "ready-reject", false, false, policy());
+
+            let error = result.expect_err("non-Generic Ready must reject");
+            assert!(error.contains("callable-loop/facts-absent"));
+            assert!(builder.function_state.current_function.is_none());
+        },
+    );
 }

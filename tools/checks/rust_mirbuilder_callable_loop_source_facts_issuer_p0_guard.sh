@@ -83,6 +83,8 @@ guard_expect_fixed_in_file "$TAG" "with_view" "$ADAPTER" \
   "physical consumer must use the HRTB semantic view"
 guard_expect_fixed_in_file "$TAG" "CallableGenericLoopV1PhysicalAdapterV1::lower" "$RAW_ENTRY" \
   "Ready must connect to the named physical adapter"
+guard_expect_fixed_in_file "$TAG" "ready_rejection_stops_before_builder_effect" "$TESTS" \
+  "Ready rejection must have effect-zero focused evidence"
 guard_expect_fixed_in_file "$TAG" "into_semantic_recipe" "$RAW_ENTRY" \
   "Ready must not return to the old lowerer"
 guard_expect_fixed_in_file "$TAG" "claim_all()" "$RAW_ENTRY" \
@@ -174,8 +176,8 @@ if [[ "$planner_calls" -ne 1 ]]; then
   guard_fail "$TAG" "issuer must have exactly one route-neutral planner call; found $planner_calls"
 fi
 claim_calls="$(rg -F -o -- 'claim_all()' "$TESTS" | wc -l | tr -d '[:space:]')"
-if [[ "$claim_calls" -ne 2 ]]; then
-  guard_fail "$TAG" "focused evidence must cover two one-shot source-facts claims; found $claim_calls"
+if [[ "$claim_calls" -ne 3 ]]; then
+  guard_fail "$TAG" "focused evidence must cover three one-shot source-facts claims; found $claim_calls"
 fi
 lease_definitions="$(rg -F -o -- 'with_existing_structural_port<R>' "$STRUCTURAL_PORT" | wc -l | tr -d '[:space:]')"
 lease_tests="$(rg -F -o -- 'with_existing_structural_port(&context' "$STRUCTURAL_PORT_TESTS" | wc -l | tr -d '[:space:]')"
