@@ -1,8 +1,8 @@
-Status: source-bound hard reject P0 complete; Program lexical-region containment D0 accepted; P0 selected
+Status: complete; Program lexical-region containment P0 pushed as a7935344dc; next D0 is physical-header value eligibility
 ClosedTask: MIR-CALLABLE-RESOLVER-SOURCE-BOUND-REJECT-P0
-NextTask: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
+NextTask: MIR-CALLABLE-PHYSICAL-HEADER-ELIGIBILITY-D0
 Date: 2026-08-22
-Priority: add one existing LexicalScope sibling-body relation and prove If/Loop containment
+Priority: preserve sparse source/header admission when a selected callable is source-valid but returns Void
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-CENSUS-D0
 NextCard: this rolling card owns the bounded D0 brief
 ---
@@ -727,3 +727,45 @@ top-level Script membership becomes wider or ambiguous
 If/Loop control semantics or Builder code must change
 the change needs a second resolver pass, fallback, or source reconstruction
 ```
+
+## Program lexical-region containment P0 closeout
+
+The selected verifier correspondence is complete and pushed as
+`a7935344dc` (`fix: bind program lexical regions to child sites`). The
+production change is one invocation of the existing `sibling_body_member`
+primitive for `ProgramBodyRoot -> ProgramBody(_)`; no new source product,
+path vocabulary, Builder route, or fallback was added. The callable batch
+regression was updated from the former false negative to a positive
+Program-contained If proof.
+
+Evidence:
+
+```text
+If region suite                 = 11 passed
+Loop region suite               = 17 passed
+callable semantic batch suite   = 11 passed
+exact containment helper test   = 1 passed
+rustfmt / cargo check --lib     = passed
+current-state pointer guard     = passed
+diff check / source-size        = passed; max changed Rust file 757 lines
+```
+
+The broad `program_block` filter still reports one unrelated existing Builder
+recipe-only panic in `break_continue_facts.rs`; that module is unchanged by
+this slice and is not used as P0 acceptance evidence. The reusable complete
+batch guard now recognizes the positive Program-contained If proof, then
+reaches its previously recorded selected-mapping identity-repair vocabulary
+baseline red. No new failure was introduced there.
+
+The rebuilt merged production probe moved past the former
+`IfRegion(ControlContractMismatch)` and now stops at:
+
+```text
+[mir/callable-semantic-package/issue]
+PhysicalHeader(CompletionNotValue { batch_slot: 36 })
+```
+
+The slot is an observation only. The read-only worker audit tied it through
+the same parser semantic loan to the source anchor for the void-returning
+`CompareOperator.apply/3`; the next card must preserve that identity relation
+and never use the ordinal as a join key.
