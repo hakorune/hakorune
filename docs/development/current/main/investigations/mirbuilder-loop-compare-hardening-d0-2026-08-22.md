@@ -1,11 +1,11 @@
-Status: Fault cleanup preclaim I0 landed; Backedge cleanup preclaim D0 is the next design stop
+Status: Backedge cleanup preclaim I0 accepted; implementation active
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
-Current execution row: MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0
+Current execution row: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0 (after Fault cleanup preclaim I0)
+NextCard: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0
 ---
 
 # Selected Dynamic Compare hardening D0
@@ -15,8 +15,8 @@ NextCard: MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0 (after Fault cleanup preclaim I0)
 Decision: accept the feedback as ordered hardening cells. The cursor EOF P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, and Fault I6/I7 cleanup preclaim I0 are closed. Use preflight-and-consume for the next Backedge cleanup/I13..I16 claims at their pre-effect boundary, without a new batch receipt or second cleanup authority; later design one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
 Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
-Fail-fast boundary: after the existing corridor/lifecycle/brand and site-pair validation, consume the two existing I6/I7 cleanup rows before any Fault or CallOut-End MIR effect. A claim failure is terminal and the unpublished outer session is discarded; no rollback, retry, or fallback exists. Backedge/InnerReturn claims and the writer transaction remain separate cells.
-Smallest next slice: MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0, a design-only census of the existing Backedge cleanup and I13..I16 claims before their first physical continuation effect. It does not open InnerReturn claims, live publication, or the broader writer transaction.
+Fail-fast boundary: after the existing pure Backedge row, cutpoint, Continuation brand/predecessor, and Header brand validation, consume the existing Backedge cleanup row and I13..I16 operation claims before `select_block()` or any MIR/ledger effect. A claim failure is terminal and the unpublished outer session is discarded; no rollback, retry, or fallback exists. InnerReturn claims and the writer transaction remain separate cells.
+Smallest next slice: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0, move the existing Backedge cleanup and I13..I16 claims to one pre-effect boundary and prove the old post-effect edges are gone. It does not open InnerReturn claims, live publication, or the broader writer transaction.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -327,28 +327,60 @@ Compare writer transaction remain separate.
 
 ### 7. MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0
 
-Design-only next cell. Audit `continuation_backedge.rs`, recording the exact
-order of continuation validation, first physical value/instruction effect,
-the Backedge cleanup claim, I13..I16 operation claims, and the final CFG/PHI
-sealing. Decide whether the existing cleanup cursor and operation census can
-both be preflight-and-consumed after pure relation/brand/predecessor checks and
-before the first physical continuation effect, while keeping the two owners
-separate. Do not implement, add a batch, or open InnerReturn/publication.
+Decision accepted after the Sagan read-only audit: the existing cleanup cursor
+and operation census can be preflight-and-consumed before the hidden
+`select_block()` mutation and before the first V15 ledger/MIR effect. The
+existing lifecycle plan owns the Backedge cleanup row and the existing ordered
+operation census owns I13..I16; they remain separate sole authorities. No batch,
+receipt, rollback, or second authority is introduced.
+
+The exact bounded state is:
+
+    row/cutpoint validation
+      + Continuation brand/predecessor validation
+      + Header brand validation
+      -> claim(Backedge cleanup)
+      -> claim_operation(I13..I16)
+      -> select_block()
+      -> identity claim
+      -> V15/ValueId/Const/Add/assignment/End
+      -> Jump and CFG/PHI seal
+
+The accepted implementation task is
+`MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0`:
+
+    move Header brand validation before all claims
+    consume cleanup.claim(Backedge) exactly once
+    consume claim_operation(I13), I14, I15, I16 exactly once
+    remove the old post-effect claim sites
 
 Acceptance:
 
-    every Backedge cleanup/operation claim and preceding physical effect is
-      recorded
-    one pre-effect boundary or explicit NoSafeSlice is named
-    `reject_begin()` discard and no-fallback behavior are proven
-    a focused positive/negative test and reusable guard can be specified
-      without changing Fault, InnerReturn, or Compare writer authority
+    every Backedge/operation claim occurs before `select_block()`, the first
+      `values.publish()` effect, ValueId issuance, or MIR append
+    duplicate/missing cleanup and operation-order drift remain typed rejects
+    foreign Continuation/Header rejects before any claim
+    later physical failure still reaches `reject_begin()`/discard
+    the normal fixture closes both the cleanup cursor and operation census
+    a reusable line-order/effect-zero guard is green
+    `continuation_backedge.rs` remains below 760 lines
 
-NoSafeSlice: identity/CFG observations cannot be discarded with the
-unpublished session, either cursor needs a second authority, or a required
-physical effect must precede its claim.
+NoSafeSlice: identity/CFG validation cannot be completed before claims,
+claims cannot be safely discarded through the unpublished session, a second
+cleanup/census authority is needed, or a claim failure can continue to another
+route.
 
-### 8. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
+Worker evidence: Sagan found `select_block()` mutates current-block and SSA
+cache state, identity claim marks source coverage, and `values.publish()` is
+the first ledger effect. The existing caller routes all later errors through
+`reject_begin()`/`discard_unpublished()`. NoSafeSlice was not found.
+
+### 8. MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0
+
+Implementation pending. Keep this cell limited to the accepted claim reorder;
+do not change Jump/CFG/PHI/InnerReturn/Fault/Compare/publication authority.
+
+### 9. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 
 Implement only after the preclaim D0 is accepted. Split the current writer
 front door into:
@@ -394,7 +426,7 @@ Acceptance:
 NoSafeSlice: the aggregate cannot make definition/slot pairing private and
 move-only, or the writer still needs a repair-capable legacy front door.
 
-### 9. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
+### 10. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
 
 Keep this separate from the physical transaction rewrite.
 
@@ -410,7 +442,7 @@ negative test that changes only the physical value and rejects before any
 publication. Type affinity must be verified by compile/guard evidence rather
 than runtime behavior.
 
-### 10. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
+### 11. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
 
 Do not touch the generic caller-zero leaf in the selected Dynamic hardening
 series. Its old append-then-publish behavior remains a known baseline debt
