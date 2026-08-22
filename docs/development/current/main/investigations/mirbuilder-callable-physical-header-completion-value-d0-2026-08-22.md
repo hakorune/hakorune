@@ -1482,3 +1482,57 @@ MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0             atomic production cutover
 
 The old P0 relation design remains recorded as the preceding NoSafeSlice
 audit; this D0 Decision does not retroactively authorize its implementation.
+
+## `MIR-CALLABLE-LOOP-GENERIC-FACTS-POLICY-P0` implementation evidence
+
+This bounded fast cell is complete. It implements only the accepted D0
+foundation and keeps the source-aware relation caller-zero.
+
+### Landed shape
+
+```text
+Planner/Facts boundary
+  -> GenericLoopFactsPolicyFrameV1
+  -> one explicit-policy GenericLoopV1 extraction
+  -> retained GenericLoopV1Facts
+  -> existing downstream Facts/Recipe consumers
+```
+
+The policy frame captures strict/dev/planner-required/debug/step decisions at
+the outer boundary. `PlannerContext::from_generic_loop_policy` is the future
+source-aware transport seam. The extractor accepts the frame explicitly and
+does not re-read ambient policy. The Facts builder retains an attempted probe,
+including `None`, so the hint path cannot trigger a second GenericLoop
+extraction before final Facts publication.
+
+The selected final policy fields remain owned by the one extraction:
+`body_lowering_policy`, `body_exit_allowed`, and `body_no_exit`. The existing
+non-callable route is otherwise unchanged.
+
+### Acceptance evidence
+
+```text
+RUSTFLAGS='-Awarnings' cargo check --profile quick --lib                       PASS
+RUSTFLAGS='-Awarnings' cargo test --profile quick --lib \
+  generic_loop_v1_explicit_policy_is_retained_over_ambient_gate                PASS
+RUSTFLAGS='-Awarnings' cargo test --profile quick --lib generic_loop_v1_policy_ PASS (2)
+RUSTFLAGS='-Awarnings' cargo test --profile quick --lib loopfacts_ctx_         PASS (3)
+bash tools/checks/rust_mirbuilder_callable_loop_generic_facts_policy_p0_guard.sh PASS
+bash tools/checks/current_state_pointer_guard.sh                               PASS
+rustfmt --check / git diff --check                                             PASS
+```
+
+The focused negative keeps the ambient planner gate enabled while passing an
+explicit frame with `planner_required=false`; the resulting GenericLoop Facts
+retain `BodyLoweringPolicy::RecipeOnly`. The reusable guard rejects the old
+hint/facts facades in the Facts builder, checks the mutually-exclusive
+policy-aware call sites, rejects downstream environment reads, and keeps the
+source-aware issuer/Outside consumer absent.
+
+### Explicit non-claims and next task
+
+No callable source relation, grouped Outside rows, `LoopRouteContext` field,
+ordinary consumer, route selection, production caller, fallback, retry,
+physical/publication work, or main integration was added. The next bounded
+task is `MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0` as caller-zero transport
+only; any need to invent source meaning returns to the accepted D0 boundary.

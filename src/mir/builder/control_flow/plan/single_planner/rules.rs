@@ -109,7 +109,7 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
 
     let gate = PlannerGate::new();
 
-    let planner_ctx = PlannerContext {};
+    let planner_ctx = PlannerContext::from_environment();
     let mut outcome = planner::build_plan_with_facts_ctx(&planner_ctx, ctx.condition, ctx.body)
         .map_err(|freeze| freeze.to_string())?;
     let planner_present = planner_candidate_present(&outcome);
