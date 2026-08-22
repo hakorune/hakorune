@@ -349,6 +349,30 @@ fn nested_if_sites_have_independent_exact_bundles() {
 }
 
 #[test]
+fn program_block_if_uses_program_lexical_region_as_parent() {
+    let product = resolve(&function(vec![ASTNode::Program {
+        statements: vec![if_stmt(Vec::new(), None)],
+        span: Span::unknown(),
+    }]));
+    let bundle = *product
+        .if_region_bundle(&stmt(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBody(0),
+        ]))
+        .unwrap();
+    let control = product.region(bundle.control()).unwrap();
+    let parent = product.region(control.parent().unwrap()).unwrap();
+    assert_eq!(parent.kind(), RegionKindV1::LexicalScope);
+    assert_eq!(
+        parent.origin(),
+        &RegionOriginV1::Source(node(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBodyRoot,
+        ]))
+    );
+}
+
+#[test]
 fn query_reports_a_typed_missing_exact_bundle() {
     let product = resolve(&function(vec![if_stmt(Vec::new(), None)]));
     let missing = stmt(vec![SourcePathSegmentV1::Body(9)]);

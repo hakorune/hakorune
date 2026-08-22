@@ -106,8 +106,8 @@ guard_expect_fixed_in_file "$TAG" \
   "construction_reject_keeps_the_exact_callable_identity" "$BATCH_TESTS" \
   "callable construction hard-reject identity negative is missing"
 guard_expect_fixed_in_file "$TAG" \
-  "forest_verification_reject_keeps_the_exact_callable_identity" "$BATCH_TESTS" \
-  "callable forest hard-reject identity negative is missing"
+  "program_contained_if_resolves_with_the_exact_callable_identity" "$BATCH_TESTS" \
+  "Program-contained If containment regression evidence is missing"
 guard_expect_fixed_in_file "$TAG" \
   "constructor_construction_reject_keeps_the_exact_parser_source_id" "$CONSTRUCTOR_TESTS" \
   "constructor hard-reject identity negative is missing"

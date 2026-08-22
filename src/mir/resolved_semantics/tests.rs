@@ -657,6 +657,17 @@ fn source_region_containment_uses_closed_root_member_roles() {
             RegionKindV1::LexicalScope,
             vec![
                 SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::ProgramBodyRoot,
+            ],
+            vec![
+                SourcePathSegmentV1::Body(0),
+                SourcePathSegmentV1::ProgramBody(0),
+            ],
+        ),
+        (
+            RegionKindV1::LexicalScope,
+            vec![
+                SourcePathSegmentV1::Body(0),
                 SourcePathSegmentV1::ScopeBodyRoot,
             ],
             vec![
@@ -728,5 +739,19 @@ fn source_region_containment_uses_closed_root_member_roles() {
         RegionKindV1::Sequence,
         &RegionOriginV1::Source(node(vec![SourcePathSegmentV1::ProgramBodyRoot])),
         &node(vec![SourcePathSegmentV1::ProgramBody(3)]),
+    ));
+    assert!(!source_region_contains_site_v1(
+        super::SemanticOwnerRootProfileV1::DeclaredFunction {
+            receiver_policy: super::ReceiverPolicyV1::Absent,
+        },
+        RegionKindV1::LexicalScope,
+        &RegionOriginV1::Source(node(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBodyRoot,
+        ])),
+        &node(vec![
+            SourcePathSegmentV1::Body(1),
+            SourcePathSegmentV1::ProgramBody(3),
+        ]),
     ));
 }

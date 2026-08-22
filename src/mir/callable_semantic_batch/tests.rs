@@ -1,6 +1,5 @@
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveOwnerForestErrorV1,
-    ResolvedFunctionVerificationErrorV1, ResolvedIfRegionVerificationErrorV1,
     ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ShadowResolveErrorV0,
     SourceBindingSiteV1, SourcePathSegmentV1, SourceResolverDeferredV1,
 };
@@ -279,7 +278,7 @@ fn construction_reject_keeps_the_exact_callable_identity() {
 }
 
 #[test]
-fn forest_verification_reject_keeps_the_exact_callable_identity() {
+fn program_contained_if_resolves_with_the_exact_callable_identity() {
     let source = final_source(
         "static box Api {\n\
              good() { return 0 }\n\
@@ -295,22 +294,9 @@ fn forest_verification_reject_keeps_the_exact_callable_identity() {
         })
         .expect("callable identity loan");
     let mut resolver = FunctionSemanticResolverSessionV1::new(76).unwrap();
-    let reject = match issue_resolved_callable_semantic_batch_v1(&mut resolver, source) {
-        Err(super::ResolvedCallableSemanticBatchIssueV1::Resolver(reject)) => reject,
-        other => panic!("expected source-bound forest reject, got {other:?}"),
-    };
-
-    assert!(reject
-        .source()
-        .callable_identity()
-        .expect("callable identity")
-        .same_as(&identities[1]));
-    assert!(matches!(
-        reject.error(),
-        ResolveOwnerForestErrorV1::Function(ResolveFunctionErrorV1::Verification(
-            ResolvedFunctionVerificationErrorV1::IfRegion(
-                ResolvedIfRegionVerificationErrorV1::ControlContractMismatch(_)
-            )
-        ))
-    ));
+    let batch = issue_resolved_callable_semantic_batch_v1(&mut resolver, source)
+        .expect("Program-contained If resolves");
+    let declarations = batch.declarations().collect::<Vec<_>>();
+    assert_eq!(declarations.len(), 2);
+    assert!(declarations[1].identity().same_as(&identities[1]));
 }

@@ -226,6 +226,30 @@ fn nested_loop_bundle_uses_the_outer_loop_as_its_exact_parent() {
 }
 
 #[test]
+fn program_block_loop_uses_program_lexical_region_as_parent() {
+    let product = resolve(&function(vec![ASTNode::Program {
+        statements: vec![loop_stmt(Vec::new())],
+        span: Span::unknown(),
+    }]));
+    let bundle = *product
+        .loop_region_bundle(&stmt(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBody(0),
+        ]))
+        .unwrap();
+    let loop_region = product.region(bundle.loop_pair().region()).unwrap();
+    let parent = product.region(loop_region.parent().unwrap()).unwrap();
+    assert_eq!(parent.kind(), RegionKindV1::LexicalScope);
+    assert_eq!(
+        parent.origin(),
+        &RegionOriginV1::Source(node(vec![
+            SourcePathSegmentV1::Body(0),
+            SourcePathSegmentV1::ProgramBodyRoot,
+        ]))
+    );
+}
+
+#[test]
 fn nested_loop_source_forest_is_non_clone_preorder_with_local_parent_links() {
     let product = resolve(&function(vec![loop_stmt(vec![loop_stmt(Vec::new())])]));
     let root = stmt(vec![SourcePathSegmentV1::Body(0)]);

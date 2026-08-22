@@ -681,6 +681,11 @@ pub(super) fn source_region_contains_site_v1(
             sibling_body_member(
                 origin,
                 site,
+                SourcePathSegmentV1::ProgramBodyRoot,
+                |segment| matches!(segment, SourcePathSegmentV1::ProgramBody(_)),
+            ) || sibling_body_member(
+                origin,
+                site,
                 SourcePathSegmentV1::ScopeBodyRoot,
                 |segment| matches!(segment, SourcePathSegmentV1::ScopeBody(_)),
             ) || sibling_body_member(
