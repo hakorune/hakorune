@@ -1,7 +1,7 @@
-Status: if_control owner-split R0 complete; dynamic Recipe transport aggregate is NoSafeSlice; Script direct-static shelf D0 selected
+Status: if_control R0 complete; dynamic aggregate NoSafeSlice; Script direct-static B-prime R0 selected
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0`
+Current row: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,10 +56,10 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` — classify the
-four direct-static owner flows and six physical locations, then select a
-Builder-owned shelf only if Script cutover/old-route evidence permits it; no
-directory move is authorized by this D0.
+Smallest next slice: `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` — move
+only the existing Recipe and claim-ledger modules plus their test siblings to
+the frozen physical shelf. Preserve logical modules, bytes, visibility,
+callers, and route edges exactly.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -74,7 +74,7 @@ series:
 | --- | --- | --- |
 | `#6 if_control.rs` analyzer/use-ledger/product split | Safe BoxShape; landed as `7c9ea5944f` with one logical facade and one product/verifier authority | Complete; no follow-up move |
 | `#7 dynamic_full_body_recipe` vocabulary move | Literal compiler-to-Builder relocation rejected. The Recipe/Facts/semantic-program owner is already compiler-side, and the production edge is one-way for this module | Replace with the boundary-shape D0 below; no direct move |
-| `#8 normal_script/direct_static/` consolidation | Potentially useful, but the current production files span source, semantic, physical, and compiler capability owners; it also crosses active Script cutover/retirement boundaries | Selected as design-only `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0`; no broad move |
+| `#8 normal_script/direct_static/` consolidation | The broad move is rejected. A narrowed B-prime moves only the byte-identical Recipe and claim-ledger atoms plus test siblings; all other owner flows stay put | Design complete; bounded `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` selected |
 
 The review therefore selects one dependency-boundary design task, not a
 repository-wide shelving pass. The second-stage rows (`normal_*`, `module_*`,
@@ -695,54 +695,34 @@ Do not add a directory move, re-export sweep, wrapper receipt, or second
 issuer. The direction audit is complete; the next structural work, if any,
 must be a separate owner-specific shelf audit.
 
-#### `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` — selected next
+#### `MIRBUILDER-SCRIPT-DIRECT-STATIC-SHELF-D0` — complete
 
-This is a design-only audit of proposal #8. It does not authorize moving all
-files whose names contain `direct_static` into one directory. The current
-production census is:
+The four-flow/six-root audit rejects the broad feature-name shelf and a
+re-export facade. Source/lookup, mixed-owner Join children, transport,
+physical publication/exit, and compiler/backend capability remain in their
+current owner homes.
 
-```text
-direct-static-named production files = 14
-physical roots = source_call_target, compiler capability, Builder semantic,
-  Builder call bridge, Builder script exit, and Builder semantic-input children
-tests are separate and must not define production ownership
-```
-
-Required tasks:
+The accepted B-prime is one behavior-neutral physical shelf containing only:
 
 ```text
-1. Map the four owner flows: source/lookup, semantic Recipe/Join/claim,
-   physical bridge/publication, and compiler/backend capability.
-2. Record every logical module registration, #[path] child, re-export, and
-   production caller; preserve logical module paths in any later shelf.
-3. Separate Builder-owned files from source/compiler authorities. A shelf may
-   group only one owner flow; it may not absorb source_call_target or compiler
-   capability merely because the filename contains direct_static.
-4. Prove the Script production cutover and old-route retirement preconditions:
-   named canonical consumer exists, old bypass caller is zero, fallback/retry
-   is zero, and the shelf does not become a new route or issuer.
-5. Compare one owner-specific facade/shelf with NoSafeSlice. Reject a broad
-   `normal_script/direct_static/` move, type re-export sweep, and path rename
-   that widens visibility or changes logical imports.
-6. Select at most one behavior-neutral BoxShape R0 only after this Decision;
-   otherwise record NoSafeSlice and leave the current file topology unchanged.
+normal_script_direct_static_recipe.rs + its test sibling
+normal_script_direct_static_claim_ledger.rs + its test sibling
 ```
 
-Acceptance:
+The production pair is 757 lines total and each file is below 760. The exact
+current types are retained: `VerifiedScriptDirectStaticRecipeV1::issue` is
+the Recipe/key issuer; `ScriptDirectStaticClaimLedgerV1` is the operational
+linear-consumption owner, not a second semantic issuer. Four file hashes,
+caller cardinalities, parent path edits, hard stops, guards, and the three
+commit sequence are frozen in
+[`mirbuilder-script-direct-static-semantic-shelf-r0-2026-08-23.md`](./mirbuilder-script-direct-static-semantic-shelf-r0-2026-08-23.md).
 
-```text
-four flows and six physical roots are symbol/caller classified
-source/compiler/Builder authority boundaries remain explicit
-canonical Script consumer and old-route retirement evidence are recorded
-no code, semantic product, route, fallback, or production switch changes in D0
-any selected shelf has one logical owner, preserved module paths, and <760-line
-  facade/children with a focused structure guard
-otherwise NoSafeSlice is recorded with the exact blocking edge
-```
+#### `MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0` — selected next
 
-This D0 remains separate from Dynamic I9 hardening and from broad
-`normal_*`/`module_*` shelving. The second-stage proposals remain parked until
-their own owner maps and cutover evidence are selected.
+Move the four frozen files byte-identically and change only the two parent
+`#[path]` declarations. Do not create `mod.rs`, re-exports, aliases, shims, a
+new issuer, or any caller/route/fallback change. Any preservation failure is
+`NoSafeSlice` before code is committed.
 
 ## Guard and closeout contract
 
