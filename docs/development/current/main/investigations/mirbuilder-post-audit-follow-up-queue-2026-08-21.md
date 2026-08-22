@@ -96,6 +96,14 @@ measured duplicate computation and a named invalidation authority.
 This audit does not reopen performance while `CURRENT_STATE.toml` says it is
 closed. It only provides bounded rows for a later explicit selection.
 
+The repeated 2026-08-22 top-down review adds no new compile-cost row. Its
+recommendations map to the existing baseline, session debug-policy, lazy
+payload, move-commit, walk-census, source move/loan, source-graph, and future
+incremental-authority rows above. In particular, a process-global `OnceLock`,
+blanket pass fusion, and the unmeasured `2-4x` speed claim remain rejected.
+This keeps the queue thin: measurement selects one owner first, then one
+behavior-preserving seam is changed and remeasured.
+
 ## Parked compiler-cost order
 
 ```text

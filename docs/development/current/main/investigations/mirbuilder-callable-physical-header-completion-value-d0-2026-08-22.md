@@ -1,11 +1,11 @@
 ---
-Status: P0 selected; D0 accepted; implementation in progress
+Status: P0 complete; next D0 accepted; design_stop
 Task: MIR-CALLABLE-PHYSICAL-HEADER-ELIGIBILITY-D0
 Date: 2026-08-22
 Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: this rolling card owns the bounded P0
+NextCard: MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-D0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -278,6 +278,112 @@ forbidden:
 P0 closes only after the focused mixed/negative tests, cargo check, source-size
 guard, and the merged production probe all pass or the next blocker is
 recorded. The next probe result is not a license to widen this row.
+
+## P0 closeout and merged production probe
+
+The bounded P0 is implementation-complete and pushed as `9bdd557b6c`.
+Pointer selection was recorded in `0e2ef08ca4`. The change is deliberately
+small: valid `Unannotated | Void` completion rows remain ordinary seed rows
+with no physical-header result, while explicit scalar rows and their typed
+rejects keep the existing authority and error boundary.
+
+Evidence:
+
+```text
+physical-header focused suite: 5 passed, 0 failed
+normal-callable semantic-package suite: 39 passed, 0 failed
+cargo check --profile quick --lib: passed
+cargo build --bin hakorune: passed
+rustfmt / pointer / source-size checks: passed
+```
+
+The reusable complete-batch guard reaches its pre-existing selected-mapping
+identity-repair vocabulary failure after all new P0 checks pass. The parent
+baseline reproduces the same failure; it is recorded as baseline debt, not
+silently weakened or counted as P0 evidence.
+
+The rebuilt merged production probe no longer stops at:
+
+```text
+PhysicalHeader(CompletionNotValue { batch_slot: 36 })
+```
+
+It now stops at:
+
+```text
+PhysicalHeader(Completion {
+  batch_slot: 33,
+  issue: TerminalSiteIsNotReturn(
+    SourceStmtSiteV1(SourceNodeSiteV1([Body(6), LoopBody(1), IfElse(0)]))
+  )
+})
+```
+
+The read-only parser/source-loan audit identifies this exact source-bound row
+as `ParserCommonUtilsBox.trim/1`. The path is a nested `loop -> if -> else {
+break }`, not a function Return. `batch_slot` remains diagnostic transport
+evidence only and is not a pairing key.
+
+## Next design stop — MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-D0
+
+The next blocker has a bounded source-semantic fix. The resolver already emits
+one atomic `ResolvedExitRecordV1` containing source region, origin, and transfer;
+the existing control verifier already rejects malformed origin/transfer pairs.
+The completion verifier is the only owner that currently feeds all resolved
+exits into the function-Return validator.
+
+```text
+Decision: project a transient Completion Return-candidate view that excludes
+  only exact ExplicitBreak + Break and ExplicitContinue + Continue pairs;
+  keep the resolver exit inventory unchanged and leave malformed pairs on the
+  typed-reject path.
+Source authority + canonical issuer: the existing parser-owned final callable
+  source loan and ResolvedFunctionLoweringInputV1 supply the same invocation,
+  source, and resolver product; verify_function_completion_v1 remains the sole
+  Completion issuer. No second resolver or source scan.
+Non-authority: batch_slot, callable name/arity/ordinal, SourceStmtSite alone,
+  AST/body/MIR/Builder/CFG/SSA/physical-header inference, returns_value(),
+  fallback, compatibility, and fixture shape.
+Fail-fast boundary: immediately after resolved_exits() is observed and before
+  exit cardinality, terminal, value, or Completion seed validation; control
+  exits are excluded only from this temporary view and remain resolver facts.
+Smallest next slice: MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0;
+  add the typed projection at the existing Completion verifier seam, preserve
+  existing Return checks, and add nested loop/if plus malformed-pair evidence.
+Non-claims: no parser/resolver inventory change, Break/Continue lowering,
+  body/MIR inference, Return-value inference, new semantic receipt, Builder,
+  ABI, Dynamic/S6C, physical publication, fallback, retry, or performance.
+```
+
+Finite state for the next slice:
+
+| State | Meaning | Next |
+| --- | --- | --- |
+| `FunctionReturnCandidate` | exact `ExplicitReturn + Return` record | existing Return validation |
+| `LoopControlExcluded` | exact `ExplicitBreak + Break` or `ExplicitContinue + Continue` | not a Completion Return candidate |
+| `ImplicitCompletion` | no Return candidates remain after projection | existing unannotated/Void seed path |
+| `ExplicitReturnSet` | one or more Return candidates remain | existing terminal/value/contract validation |
+| `CompletionIntegrityReject` | origin/transfer, target, region, or source relation is malformed | typed reject before effects |
+
+Ordered tasks:
+
+```text
+MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-D0
+  accepted source/control authority and no-effects boundary (this section)
+
+MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0
+  implement only the transient projection at verify_function_completion_v1;
+  preserve the resolver inventory and existing Return validator
+
+MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-R0
+  rerun the merged production probe, then close exact nested-control and
+  regression evidence before any physical/publication activation
+```
+
+Remain `NoSafeSlice` if the existing origin/transfer pair cannot distinguish
+loop control without hiding malformed records, if a second resolver/source
+walk is required, or if the fix expands into body/MIR inference, a new
+Completion issuer, Builder/ABI changes, or fallback.
 
 ## NoSafeSlice conditions
 
