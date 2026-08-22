@@ -1,123 +1,275 @@
-Status: design_stop; selected-Dynamic live publication is blocked before the publication stages
-Task: SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0
+Status: D0-A/B accepted after premise correction; next execution is one fast BoxShape
+ClosedTask: SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0
+NextTask: MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0
 Date: 2026-08-22
-Priority: name one source-owned imported declaration/target/result authority before allowing the existing static publication ingress to proceed
+Priority: preserve the actual first production blocker before widening any resolver shape
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-CENSUS-D0
-PreviousCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
-NextCard: none until this D0 is accepted
+NextCard: this rolling card owns the bounded P0 brief
 ---
 
-# Imported static target authority D0
+# Imported static authority census and callable Deferred correction
 
 ## Six-line brief
 
 ```text
-Decision: keep `TargetUnavailable` as a typed design-stop blocker. The selected-Dynamic public fixture reaches an imported static call whose declaration/result authority is not present in the current same-module catalog; it must not be downgraded to `Absent` or retried through a legacy route.
-Source authority + canonical issuer: the parser/source-plan import bundle must own the imported declaration, canonical target, and result contract under one parser/source invocation. The existing `ScriptDirectStaticCallLookupIssuerV1` is an audited candidate boundary, not yet an accepted consumer for the generic physical ingress.
-Non-authority: same-module declarations alone, alias strings, `using_import_boxes` alone, AST/name/arity lookup, `resolve_static_receiver_box_name`, raw Builder state, empty/default catalogs, `Absent`, and fallback.
-Fail-fast boundary: imported declaration/target/result co-seal must complete before `StaticResultPublicationIngress` consumes a handoff or any physical call effect. Missing or foreign dependency evidence discards the unpublished session.
-Smallest next slice: `SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0-A/B`, census the actual import bundle and name the sole issuer plus one source-owned handoff into existing ingress; no code, fixture, fallback, or production switch.
-Non-claims: no generic import loader, no Dynamic body change, no Loop Compare publication, no A/C/Recipe redesign, no result inference, no backend, and no old-route retirement.
+Decision: revise and close the imported-target premise. Production imports are recursively text-merged before one parser invocation, so ParserCommonUtilsBox is already part of the source-backed callable catalog. The first live blocker is callable-batch ResolverDeferred before static lookup.
+Source authority + canonical issuer: VerifiedFinalCallableProgramSourceV1 owns complete callable membership and opaque declaration identities. The selected-callable resolver batch issuer must co-seal every deferred cause/site with the exact identity supplied by that same parser loan.
+Non-authority: the isolated direct-AST test, import alias strings, AST/name/arity, batch ordinal alone, Builder catalog state, TargetUnavailable, empty catalogs, and fallback.
+Fail-fast boundary: typed Deferred evidence is issued at selected-callable owner-tree construction, before semantic-package completion, static lookup, Builder installation, or physical effects.
+Smallest next slice: MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0; replace bare Deferred with a non-empty identity-bound batch without accepting any new syntax.
+Non-claims: no import handoff, resolver capability expansion, target/result redesign, StaticResultPublicationIngress change, Dynamic publication, fallback, production switch, backend, or performance work.
 ```
 
-## Observed blocker
+## Corrected production route
 
-The unchanged fixture has an explicit dependency:
+The live MIR runner does not parse the fixture in isolation.
 
 ```text
 parser_scan_loop_box.hako
-  -> using ... parser_common_utils_box as ParserCommonUtilsBox
-  -> ParserCommonUtilsBox.i2s(...)
+  -> prepare_source_with_imports
+  -> recursive prelude text merge
+  -> one merged source string
+  -> one parser invocation
+  -> VerifiedFinalCallableProgramSourceV1
+  -> NormalCompileRequestV1
+  -> normal callable semantic package attempt
+  -> source-backed declaration catalog
+  -> selected-callable resolver
+  -> Batch(ResolverDeferred)                 current stop
+  X  ScriptDirectStaticCallLookupIssuerV1
+  X  result catalog / publication owner
+  X  StaticResultPublicationIngress
 ```
 
-`static_result_publication_ingress.rs` currently resolves the target through
-`VerifiedSameModuleCallableDeclarationCatalogV1::declaration_for(...)`. The
-catalog is sealed from the current root AST, while the imported dependency's
-declaration/result contract is not proven there; the ingress therefore returns
-`[freeze:contract][static-result-ingress/target-unavailable]`. The existing
-public-root test passes by asserting this typed `RootLower` stop.
-
-The import-aware source lookup already accepts `import_rows`, but its alias
-view is branded to the same declaration catalog and requires the canonical
-import owner to exist in that catalog. An alias map is consequently not an
-imported target authority. The exact missing dependency bundle and its result
-contract must be identified before any consumer is connected.
-
-`resolve_static_receiver_box_name` is a separate Builder heuristic that uses
-`variable_map`; this D0 must not silently treat a change there as proof of an
-imported target. The current evidence is sufficient to name the imported
-authority gap, but not to claim a receiver-classification fix.
-
-The read-only worker confirms the same boundary: `ParserCommonUtilsBox.i2s`
-is correctly classified as a static receiver; the primary failure is the
-imported target authority gap between import-aware lookup and the same-module
-ingress. A raw-name path without the import relation is a separate transport
-defect, not permission to downgrade the current error.
-
-## Authority and state boundary
+Read-only production evidence on this HEAD:
 
 ```text
-parser/source import bundle
-  -> imported declaration + canonical target + result contract co-seal
-  -> source-owned handoff (one take)
-  -> existing StaticResultPublicationIngress
-  -> physical Call/result publication
+NYASH_RESOLVE_DUMP_MERGED=<temp>/merged.hako
+NYASH_USING_AST=1 target/debug/hakorune --dev --backend mir \
+  lang/src/compiler/parser/scan/parser_scan_loop_box.hako
+
+merged source lines = 646
+ParserCommonUtilsBox declaration = merged line 379
+ParserScanLoopBox declaration = merged line 587
+result = [mir/callable-semantic-package/issue] Batch(ResolverDeferred)
 ```
 
-Required states are distinct:
+The current binary was built after the last production-code change affecting
+this route. The same route was also observed with NYASH_USING_AST=0 by the
+read-only audit.
 
-| State | Meaning | Allowed next step |
-| --- | --- | --- |
-| `ImportAuthorityUnavailable` | dependency declaration/result source is absent | typed reject; unpublished discard |
-| `ImportTargetComplete` | one invocation-branded imported target/result row is complete | source handoff preparation |
-| `TargetAbsent` | a complete authority proves no matching target | explicit ordinary noncandidate route only |
-| `IntegrityInvalid` | alias, invocation, declaration, target, or result relation conflicts | typed reject; no repair |
-| `Ready` | one co-sealed handoff is available | existing ingress consumes once |
+The source chain is exact:
 
-`TargetAbsent` must never be produced merely because the imported catalog was
-not loaded. The source owner must distinguish unavailable authority from a
-complete negative observation.
+- source_hint.rs sends merge_prelude_text_with_imports output to normal
+  callable materialization;
+- merge.rs recursively expands dependencies, concatenates every prelude before
+  the main source, and retains alias-to-owner rows;
+- normal_callable.rs parses that merged string once and preserves one-read /
+  one-parse lineage;
+- the final parser source loan retains every callable anchor and declaration;
+- source_backed.rs emits the callable declaration catalog from that same loan;
+- normal_script_direct_static_lookup.rs already verifies aliases against that
+  catalog, issues target/result catalogs, checks parser invocation, and issues
+  the existing publication owner.
 
-## Bounded D0-A / D0-B
+Therefore a second imported declaration catalog or imported-target handoff
+would duplicate an existing source authority. It is rejected.
 
-1. **D0-A — import authority census:** identify the production import loader,
-   the exact `ParserCommonUtilsBox` declaration source, its parser invocation
-   identity, and the result-contract owner. Count whether the current public
-   compile request transports that bundle or only an alias/config row.
-2. **D0-B — handoff contract:** decide whether the existing source lookup can
-   lend one imported target/result row to `StaticResultPublicationIngress`
-   without a second catalog, AST rescan, name join, or Builder adapter. Name
-   the sole issuer, one-shot consumer, failure terminal, and negative state.
+## Why the old target-unavailable evidence was not production evidence
 
-Acceptance requires an exact source/declaration/target/result relation, one
-issuer and one consumer, a pre-effect rejection path, and a reproducible
-explanation of why `ParserCommonUtilsBox.i2s` is `Ready`, `TargetAbsent`, or
-`ImportAuthorityUnavailable`. If the dependency bundle is unavailable, remain
-`NoSafeSlice`; do not manufacture an empty catalog or alter the ingress error.
+normal_default_root_catalog_lifecycle_tests.rs directly include_str! parses
+parser_scan_loop_box.hako. Its helper does not call the runner import loader,
+does not merge ParserCommonUtilsBox, and opens a session without import rows.
+For that deliberately different input, target-unavailable is the correct typed
+reject.
 
-## NoSafeSlice conditions
-
-Keep this design stop if any of the following remains true:
+The focused test remains valid for this narrower statement:
 
 ```text
-only alias/name/arity or Builder import state identifies the imported target
-same-module catalog is asked to prove a foreign dependency
-target and result facts come from separate issuers without one co-seal
-the public request has no owned dependency source/bundle
-TargetUnavailable would be converted to Absent to reach publication
-the proposed fix requires a second physical call or generic fallback
-receiver classification and imported target resolution cannot be separated
+unmerged direct-AST input with no imported declaration
+  -> static-result-ingress/target-unavailable
 ```
 
-No Loop publication implementation is authorized while this card is open.
+It does not prove:
 
-## Downstream prerequisite recorded
+```text
+production merged input
+  -> imported declaration unavailable
+```
 
-The selected Dynamic Compare transaction-hardening review is recorded in
-docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md.
-It is intentionally parked behind this import-authority D0. Its first bounded
-cell is the typed EOF reject in the Dynamic operation cursor; later cells cover
-pre-effect claims, writer preparation before V13 reservation, private
-definition/ledger co-sealing, and the OuterReturn/Header-current relation.
-This link does not change the current execution row or authorize production
-publication.
+The test passed unchanged during this census. It is retained as negative
+boundary evidence, not as live reachability evidence.
+
+## D0-A / D0-B decision
+
+### D0-A — import authority census: Complete
+
+```text
+source owner:
+  one recursively merged source string
+
+parser authority:
+  VerifiedFinalCallableProgramSourceV1
+  + opaque callable declaration anchors
+  + one parser/source lineage
+
+declaration issuer:
+  issue_source_backed_same_module_callable_catalog_v1
+
+import relation:
+  VerifiedStaticImportAliasViewV1
+  accepted only when its canonical owner exists in the same catalog
+```
+
+ParserCommonUtilsBox.i2s/1 is inside the merged parser source and is eligible
+for the existing canonical declaration key. The catalog is currently dropped
+because the later callable-batch resolver defers; absence was not observed.
+
+### D0-B — imported handoff contract: Rejected as redundant
+
+If the semantic package becomes Complete, the existing
+ScriptDirectStaticCallLookupIssuerV1 already scopes:
+
+```text
+parser source loan
++ exact declaration catalog
++ verified import aliases
++ whole-source static target inventory
++ same-module result catalog
++ static-result publication owner
+```
+
+No new imported handoff is needed. The current run never reaches this issuer.
+Its result disposition must be observed after the callable Deferred is typed;
+ParserCommonUtilsBox.i2s returning string syntax must not be guessed into an
+ExactI64 result or relabeled as missing authority.
+
+## Actual blocker
+
+resolve_selected_callable_forests_with_body_shapes_and_brand_catalog currently
+folds every deferrable ShadowResolveErrorV0 into a bool and returns a bare
+Deferred. ResolvedCallableSemanticBatchIssueV1 then returns the cause-less
+ResolverDeferred variant. Consequently the live source does not reveal:
+
+```text
+which parser callable deferred
+which source cause was observed
+which exact statement/expression/exit site caused it
+whether more than one callable deferred
+```
+
+The resolver intentionally scans the whole input batch so a later integrity
+error is not hidden by an earlier source deferral. The next slice must preserve
+that precedence.
+
+## Authority contract for typed Deferred
+
+| Responsibility | Sole owner |
+| --- | --- |
+| complete callable membership | VerifiedFinalCallableProgramSourceV1 |
+| exact callable identity | parser-issued CallableDeclarationIdentityV1 |
+| deferral cause and source site | Shadow resolver kernel |
+| identity + cause/site co-seal | selected-callable resolver batch issuer |
+| package terminal | ResolvedCallableSemanticBatchIssueV1 |
+| rollback / no publication | unpublished normal compilation session |
+
+The selected resolver input must carry identity beside its borrowed
+FunctionSyntaxViewV1. A returned Deferred row must nest that identity and its
+cause/site; it must not expose a bare ordinal for a later join.
+
+The constructor-semantic caller of the same resolver API must retain its own
+parser-issued constructor source identity. It may not borrow a callable anchor
+or silently discard the typed observation merely to compile.
+
+Counterexample:
+
+```text
+parse P1 and parse P2 contain identical text, names, arities, and row order
+
+P1 deferred cause + P2 batch ordinal/name
+  -> looks equal under name/ordinal pairing
+  -> is foreign under parser-issued identity
+```
+
+## Finite state table
+
+| State | Evidence | Effect / terminal | Fallback |
+| --- | --- | --- | --- |
+| Complete | every tagged input produced one forest/body shape | semantic package may continue | none |
+| DeferredNonEmpty | one or more identity-bound cause/site rows | package not issued; typed reject | none |
+| IntegrityInvalid | any non-deferrable resolver or verification error | package not issued; hard reject | none |
+| SourceIdentityInvalid | missing, foreign, duplicate, or unpaired input identity | package not issued; hard reject | none |
+
+DeferredNonEmpty must be structurally non-empty, for example first + rest or a
+private non-empty constructor. Vec::new(), Option::None, and default cannot
+represent it.
+
+All input rows are still scanned. If an early row defers and a later row has an
+integrity error, IntegrityInvalid wins exactly as it does today. Multiple valid
+deferrals are retained in deterministic parser-loan order.
+
+## Next execution brief — MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0
+
+Change:
+
+```text
+replace ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred
+  with one non-empty identity-bound deferred batch
+
+preserve each source-owned cause/site
+  through callable-batch and constructor-batch terminal errors
+
+delete the bool-only / cause-less production edge
+```
+
+Contract:
+
+```text
+BoxShape only; accepted syntax and resolver traversal stay unchanged
+no AST reference escapes the HRTB loan
+no name, arity, input ordinal, or source path becomes pairing authority
+all-row scan and later-integrity precedence remain unchanged
+Script typed Deferred behavior remains unchanged
+no retry, fallback, Absent downgrade, or package publication on Deferred
+```
+
+Done:
+
+```text
+focused positive: complete batch remains Complete
+focused negative: located and unlocated causes retain exact identity/site
+multiple deferrals form one non-empty deterministic batch
+later invariant still overrides an earlier deferral
+constructor caller preserves its exact source identity
+production parser_scan route reports typed cause/site instead of bare Deferred
+cargo check, focused tests, current pointer guard, diff check, and source sizes pass
+all touched production files remain below 760 lines; 800 is hard stop
+```
+
+Stop:
+
+```text
+the implementation needs an AST ref in the deferred product
+the returned product exposes a bare index for caller-side re-pairing
+the constructor caller has no exact source identity
+any resolver syntax is newly accepted
+any later invariant is hidden by an earlier deferred row
+the typed terminal can retry static lookup, Builder, compatibility, or legacy
+```
+
+## Downstream boundary
+
+After P0, rerun the real merged source and name the exact typed blocker. Only
+then may a new design decide whether that source shape belongs to canonical
+callable resolution or an explicit outside terminal. Static lookup, result
+disposition, selected Dynamic publication, and the transaction-hardening card
+remain downstream.
+
+The parked transaction work remains recorded in:
+
+```text
+docs/development/current/main/investigations/
+  mirbuilder-loop-compare-hardening-d0-2026-08-22.md
+```
+
+No code or fixture was changed while closing this D0.

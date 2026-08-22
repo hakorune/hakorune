@@ -17,10 +17,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged 185
 date = "2026-08-22"
 development_branch_ssot = "main"
 development_branch_cutover = "main remains the canonical integration target; current TextEq work is on codex/dynamic-v2-aot-activation and is not yet integrated into main; do not claim main closeout before an explicit integration step"
-work_mode = "design_stop"
-current_execution_row = "SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0"
-current_design_stop = "Loop publication census is complete: existing DraftAdmission/ModuleDrain/ExternalCommit owners compose without a second authority, but parser_scan_loop_box stops at RootLower/static-result-ingress/target-unavailable for an imported static declaration/result. Keep TargetUnavailable distinct from Absent; no target bypass, generic publication, or old-edge retirement."
-current_blocker_token = "Design stop for SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0: identify one parser/source-plan import bundle and sole declaration/target/result issuer, then one source-owned handoff into existing static ingress. Alias strings, same-module catalog alone, Builder import state, empty defaults, Absent downgrade, and fallback are forbidden."
+work_mode = "fast"
+current_execution_row = "MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0"
+current_design_stop = "SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0 is closed after premise correction: production recursively text-merges ParserCommonUtilsBox into the same parser invocation, and the existing source-backed lookup already owns declaration/target/result issuance. The first live stop is the earlier cause-less callable Batch(ResolverDeferred)."
+current_blocker_token = "Fast BoxShape MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0: preserve a non-empty parser-identity-bound deferred cause/site batch through callable and constructor terminal errors. Accepted syntax, import/target/result owners, Builder effects, fallback, and publication must not change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -77,7 +77,7 @@ The phase-qualified parser/admission, transport, A, and future C/B state matrix 
 	Parser-composite preservation I0 is pushed and closed. Composite source admission R0 is pushed and closed as 254856b5a8: one parser-backed default-root issuer consumes the preserved token through an HRTB loan and emits only the witness-bound provider/terminal partition; existing Script admission consumes the provider transfer without resolving the root call. Focused 4-test evidence, cargo check, pointer guard, R0 guard, diff check, and source-size checks are green. The source-reownership audit is now accepted as two ordered substeps: typed Deferred preservation is the selected fast cell; neutral window reownership remains a separate T2 design stop. Lookup, capability/A/C, physical work, old Recipe retirement, production switch, and performance remain closed.
 The Script lookup reownership I0/R0 is implemented and pushed as 873eacad33. One non-Clone source-package HRTB issuer co-seals the package declaration authority, transient target/result catalogs, parser witness, exact call sites, canonical target keys, and owned result facts before pinned-target/Builder effects; ResultBundle consumes the relation once. The old pointer inventory production edge is zero and focused lookup, bundle, source-reown, composite, target, current-state, and diff guards are green.
 	The Script A/C consumer series is pushed as 21b1f3263f; Main integration remains queued. Gate 1 assignment ReleaseStrong fail-fast is pushed as dcd8359f7a; Gate 2 physical-result guard is pushed as 8e9b4562c2. C-prime strictness P0s are landed caller-zero. CONNECT0 selected Dynamic I9; worker review chose the direct Dynamic-ledger-to-canonical-SSA handoff, which is now landed with owner binding, same-block rebind, V13 reservation/commit, and one strict append. Focused positive/ledger tests, cargo check, both strict-writer/CONNECT0 guards, and the pointer guard are green. Static compile-path reachability is confirmed.
-	D0-A/D0-B and P0-A/P0-B/P0-C are complete for the selected Dynamic body/state bridge; focused tests, cargo check, guard, and unpublished no-effect evidence are green. Root partition I0 is d39e2005fd; callable source-row I0 is 95b65e4081; canonical trivial row I0 is c1d0e43a41 + e275ead266. Loop publication census found clean existing owners but no live reachability: parser_scan_loop_box stops at RootLower/static-result-ingress/target-unavailable for imported static authority. Next design task: SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0; backend, retirement, cutover, and performance remain queued.
+	D0-A/D0-B and P0-A/P0-B/P0-C are complete for the selected Dynamic body/state bridge; focused tests, cargo check, guard, and unpublished no-effect evidence are green. Root partition I0 is d39e2005fd; callable source-row I0 is 95b65e4081; canonical trivial row I0 is c1d0e43a41 + e275ead266. Loop publication census found clean existing owners but no live reachability. The imported-target D0 premise is corrected: the production merge already supplies ParserCommonUtilsBox under one parser invocation, while callable semantic package issuance stops earlier at cause-less Batch(ResolverDeferred). The next BoxShape preserves that exact typed cause/site; backend, retirement, cutover, and performance remain queued.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -90,11 +90,11 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-static-import-target-authority-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-static-import-target-authority-d0-2026-08-22.md"
-latest_card_summary = "SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0 is the current design stop. Worker/local audit confirms ParserCommonUtilsBox.i2s is a correctly classified imported static call, but same-module static ingress has no imported declaration/target/result authority. TargetUnavailable remains distinct from Absent; no alias/name fallback or production switch is allowed."
-next_design_card = "SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-static-import-target-authority-d0-2026-08-22.md"
-next_execution_card = "none until D0 acceptance"
-next_execution_card_path = "none"
+latest_card_summary = "SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0 is closed after correcting isolated-test evidence against the real merged runner route. One existing source-backed issuer already owns import/declaration/target/result relations; production stops earlier at a cause-less callable ResolverDeferred. MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0 is the selected BoxShape."
+next_design_card = "none until typed callable Deferred evidence names the real source shape"
+next_design_card_path = "none"
+next_execution_card = "MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-static-import-target-authority-d0-2026-08-22.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
