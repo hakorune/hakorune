@@ -17,15 +17,15 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged 185
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0"
-current_design_stop = "The common_v2 session home R0 is complete. Before splitting if_control.rs, audit analyzer/use-ledger/product ownership, all callers, visibility, re-exports, and cycle risk; no semantic or production change is authorized."
-current_blocker_token = "MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0: establish one control authority and a bounded BoxShape split without semantic reorder, visibility widening, fallback, or production switch."
+work_mode = "fast"
+current_execution_row = "MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0"
+current_design_stop = "The if_control owner-split D0 is complete. The next fast cell only moves the mapped existing symbols behind an if_control/mod.rs facade with product, use-ledger, and analyzer children; preserve the logical module, visibility, re-exports, and behavior."
+current_blocker_token = "MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0: move only the audited if_control symbols without duplicate authority, visibility widening, semantic reorder, fallback, or production switch."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — if_control owner split design audit"
+active_lane = "MirBuilder in-place replacement — if_control owner split BoxShape R0"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -78,7 +78,7 @@ The phase-qualified parser/admission, transport, A, and future C/B state matrix 
 The Script lookup reownership I0/R0 is implemented and pushed as 873eacad33. One non-Clone source-package HRTB issuer co-seals the package declaration authority, transient target/result catalogs, parser witness, exact call sites, canonical target keys, and owned result facts before pinned-target/Builder effects; ResultBundle consumes the relation once. The old pointer inventory production edge is zero and focused lookup, bundle, source-reown, composite, target, current-state, and diff guards are green.
 	The Script A/C consumer series is pushed as 21b1f3263f; main integration is now complete at aafda19d86. Gate 1 assignment ReleaseStrong fail-fast is pushed as dcd8359f7a; Gate 2 physical-result guard is pushed as 8e9b4562c2. C-prime strictness P0s are landed caller-zero. CONNECT0 selected Dynamic I9; worker review chose the direct Dynamic-ledger-to-canonical-SSA handoff, which is now landed with owner binding, same-block rebind, V13 reservation/commit, and one strict append. Focused positive/ledger tests, cargo check, both strict-writer/CONNECT0 guards, and the pointer guard are green. Static compile-path reachability is confirmed.
 	The selected Dynamic transaction lane is closed through the sealed BodyBridge relation: After has one Header predecessor and its OuterReturn PHI consumes the existing Header-current receipt; raw ValueId equality is not used. The I9 Compare/Branch transaction remains one private move-only commit, and destination/Bool affinity is compile/guard verified. Structural-lease cfg(test) retirement and callable-loop F2 observed/Ready row separation are complete as 40e862c3dc and 5365985372. A top-down audit corrected the live Ready root owner: ModuleBuilderInvocationSessionV1 owns the unpublished candidate, the same-root ModuleDraftCollectorV1 owns draft admission, and CanonicalFunctionLoweringSessionV1 is child-only for this path.
-	Root unpublished scope I0 is now landed as 4757bcbd1c with focused source-Facts/raw-entry evidence and a baseline lifecycle classification. The structure baseline census, builder and loop physical prepare test-home R0 cells, live README path receipt P0, compiler tests ownership D0, compiler tests home R0, and common_v2 session home R0 are complete. The next row is the if_control owner-split design audit; pure-plan, ordinary Outside consumer, publication, fallback, parser witness, and performance remain closed.
+	Root unpublished scope I0 is now landed as 4757bcbd1c with focused source-Facts/raw-entry evidence and a baseline lifecycle classification. The structure baseline census, builder and loop physical prepare test-home R0 cells, live README path receipt P0, compiler tests ownership D0, compiler tests home R0, common_v2 session home R0, and if_control owner-split D0 are complete. The next fast cell is the behavior-neutral if_control BoxShape R0; pure-plan, ordinary Outside consumer, publication, fallback, parser witness, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -91,10 +91,10 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-structure-refactor-queue-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md"
-latest_card_summary = "The common_v2 session home R0 is complete: one mod.rs facade and 12 private children preserve logical paths, visibility, re-exports, and behavior with 63 focused tests green. The next design-stop audits if_control ownership before any split."
-next_design_card = "MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0"
-next_execution_card = "none"
-next_execution_card_path = "none"
+latest_card_summary = "The if_control owner-split D0 is complete: one authority, one production verifier caller, mapped product/use-ledger/analyzer symbols, and no new compiler↔builder edge. The selected fast row moves only those existing symbols behind an if_control/mod.rs facade."
+next_design_card = "none"
+next_execution_card = "MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0"
+next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

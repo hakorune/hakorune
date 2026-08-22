@@ -1,7 +1,7 @@
-Status: common_v2 session home R0 complete; selected if_control owner-split design audit
+Status: if_control owner-split D0 complete; selected behavior-neutral if_control BoxShape R0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0`
+Current row: `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,9 +56,10 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0` — audit the live
-if_control.rs analyzer/use-ledger/product ownership and all callers before any
-BoxShape split; preserve one control authority and behavior.
+Smallest next slice: `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0` — move only the
+already-mapped analyzer, product, and use-ledger symbols behind an
+`if_control/mod.rs` facade; preserve the logical module, visibility, and
+behavior.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -427,7 +428,7 @@ brief before implementation:
 | `MIRBUILDER-RING0-LOGGER-INJECTION-D0` | a broad scan finds 223 ring0-containing files, not dependency edges; measure the actual graph and forbid a hidden global observer |
 | `MIRBUILDER-AST-VIEW-MIGRATION-D0` | the broad current scan finds 893 AST-importing files, not 617; staged source-view authority is needed, and any synthetic AST construction is a separate correctness review |
 
-#### `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0` — current design stop
+#### `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0` — complete
 
 This is the selected next row. It is a BoxShape audit, not permission to edit
 `if_control.rs`. The file is at the 760-line split trigger and just below the
@@ -471,11 +472,64 @@ Required D0 output:
    this Decision is accepted
 ```
 
-The likely safe direction is a thin `if_control/mod.rs` facade with private
-analyzer/coverage and use-ledger children while keeping the verified product
-and its sole verifier at one named authority. That is only a hypothesis until
-the census proves it; do not create the directory or new semantic types in
-this D0.
+Decision receipt:
+
+```text
+symbol map complete: analyzer/source navigation/seal; product/row materialization;
+  use-ledger/coverage consumption; error vocabulary; test-only callers
+caller map complete: verifier entrypoints have one production caller in
+  compiler/capability.rs; remaining verifier calls are tests; product/ledger
+  consumers are mapped to canonical_ssa and trivial_ssa lowering
+visibility map complete: resolved_control_flow/mod.rs registers if_control once;
+  no public re-export widening is required; tests remain cfg(test)
+dependency map complete: the split remains inside resolved_control_flow; the
+  existing compiler -> resolved_control_flow -> builder-consumer direction is
+  unchanged and no new compiler↔builder edge is introduced
+accepted module graph: if_control/mod.rs facade -> product.rs, use_ledger.rs,
+  analyzer.rs; source_coverage.rs/function_control.rs/loop_owned_if.rs remain
+  sibling owners; no duplicate product or verifier issuer
+```
+
+The audit closes because the candidate is a pure relocation of existing
+symbols. The product remains `VerifiedResolvedFunctionIfControlV1`, the
+analyzer remains the sole verifier issuer, and use-ledger movement changes no
+consumer contract. The following R0 is the only authorized implementation
+slice; no new semantic type, route, fallback, or production edge is opened.
+
+#### `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-R0` — selected next
+
+Create `src/mir/resolved_control_flow/if_control/mod.rs` and move the mapped
+symbols into three private children:
+
+```text
+product.rs
+  ResolvedIf* ports, VerifiedLocatedIfControlV1,
+  ResolvedIfControlMaterializationV1,
+  VerifiedResolvedFunctionIfControlV1, coverage partition row
+use_ledger.rs
+  FunctionIfControlUseLedgerV1, IfControlCoverageUseV1,
+  their existing error types
+analyzer.rs
+  IfControlAnalyzerV1, row draft, policy, verifier entrypoints,
+  source navigation and existing analyzer errors
+```
+
+Keep `resolved_control_flow::if_control` as the logical module and re-export
+the existing crate/super-visible symbols from `mod.rs`. `source_coverage.rs`,
+`function_control.rs`, and `loop_owned_if.rs` stay in their current homes.
+
+Acceptance:
+
+```text
+if_control/mod.rs remains < 760 lines; every child remains < 800
+all existing logical imports and test paths compile unchanged
+all current visibility scopes remain externally equivalent
+VerifiedResolvedFunctionIfControlV1 and verifier entrypoints remain unique
+focused resolved_control_flow and resolved_value_profile tests retain results
+no new semantic type, issuer, route, fallback, effect, or production switch
+reusable guard rejects flat child paths, duplicate verifier definitions, and
+  any child over the 800-line boundary
+```
 
 ## Guard and closeout contract
 
