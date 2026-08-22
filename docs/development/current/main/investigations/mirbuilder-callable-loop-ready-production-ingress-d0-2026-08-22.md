@@ -1,11 +1,11 @@
 ---
-Status: design_stop; successor after caller-zero structural lease I0
+Status: D0 closed as NoSafeSlice after worker audit; successor Recipe-authority D0 is active
 Task: MIR-CALLABLE-LOOP-READY-PRODUCTION-INGRESS-D0
 Date: 2026-08-22
 Priority: connect one source-backed Ready ingress to one named normalizer consumer
 Parent: MIR-CALLABLE-LOOP-READY-STRUCTURAL-LEASE-I0
 PreviousCard: mirbuilder-callable-loop-ready-structural-lease-i0-2026-08-22.md
-NextCard: none-until-Decision
+NextCard: mirbuilder-callable-loop-ready-generic-loop-v1-recipe-authority-d0-2026-08-22.md
 ---
 
 # Callable Loop Ready production ingress D0
@@ -193,3 +193,23 @@ changing the raw route and source Facts in one unbounded patch
 The next implementation card may be opened only after the consumer owner,
 plan producer, fail-fast boundary, and production caller census are written in
 one accepted Decision.
+
+## Worker audit closure
+
+The worker audit confirms that the existing
+`RecipeComposer::compose_generic_loop_v1_recipe` is not a source-aware
+consumer. It requires `&mut MirBuilder`, `&LoopRouteContext`, skeleton
+allocation, and the generic-loop physical pipeline; it emits `CorePlan`
+fields containing physical `ValueId`/`BasicBlockId` state. The separate
+`VerifiedLocatedCoreLoopPlanV1` also requires a
+`VerifiedCallableResultActivationPlanV1`, caller ledger, and `LegacyStmtInputV1`
+that the current source receipt does not own.
+
+The current `PlanBuildOutcome`/selection pair therefore proves only Facts and
+the selected `GenericLoopV1` route. It is not yet a Recipe/Join product. The
+raw `Ready` edge remains unchanged and all source Facts/claim/lease production
+callers remain zero.
+
+This card is closed as `NoSafeSlice`, not as a production-consumer success. The
+successor must first name the sole issuer for a non-physical GenericLoopV1
+Recipe/Join product and its exact relation to the existing composer.
