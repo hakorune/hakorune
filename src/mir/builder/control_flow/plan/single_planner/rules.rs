@@ -3,6 +3,7 @@
 //! `PLAN_RULE_ORDER` is intentionally single-plan-only.
 //! Router-level recipe entries still emit planner-first tags via `PlanRuleId`.
 
+use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBodyLocalShape;
@@ -11,6 +12,7 @@ use crate::mir::builder::control_flow::plan::trace as plan_trace;
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 
+use super::input::CallableLoopFactsPlannerInputV1;
 use super::rule_order::{planner_rule_semantic_label, rule_name, PlanRuleId, PLAN_RULE_ORDER};
 
 struct PlannerGate {
@@ -40,12 +42,16 @@ impl PlannerGate {
     }
 }
 
-fn freeze_planner_required_none(ctx: &LoopRouteContext) -> String {
+fn freeze_planner_required_none(
+    function_name: &str,
+    condition: &ASTNode,
+    body: &[ASTNode],
+) -> String {
     let mut msg = format!(
         "planner required, but planner returned None (legacy fallback forbidden): func={} cond={} body_len={}",
-        ctx.func_name,
-        ctx.condition.node_type(),
-        ctx.body.len()
+        function_name,
+        condition.node_type(),
+        body.len()
     );
     if let Some(detail) = planner_reject_detail::take_last_plan_reject_detail() {
         msg.push_str(&format!("\nDetail: [joinir/reject_detail] {detail}"));
@@ -113,12 +119,35 @@ pub(super) fn try_build_outcome_with_policy(
     ctx: &LoopRouteContext,
     policy: GenericLoopFactsPolicyFrameV1,
 ) -> Result<PlanBuildOutcome, String> {
+    try_build_outcome_with_policy_parts(ctx.condition, ctx.body, ctx.func_name, ctx.debug, policy)
+}
+
+pub(super) fn try_build_source_outcome(
+    input: CallableLoopFactsPlannerInputV1<'_>,
+) -> Result<PlanBuildOutcome, String> {
+    let CallableLoopFactsPlannerInputV1 {
+        condition,
+        body,
+        policy,
+        function_name,
+        debug_enabled,
+    } = input;
+    try_build_outcome_with_policy_parts(condition, body, &function_name, debug_enabled, policy)
+}
+
+fn try_build_outcome_with_policy_parts(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    function_name: &str,
+    debug_enabled: bool,
+    policy: GenericLoopFactsPolicyFrameV1,
+) -> Result<PlanBuildOutcome, String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
     let gate = PlannerGate::from_policy(policy);
 
     let planner_ctx = PlannerContext::from_generic_loop_policy(policy);
-    let mut outcome = planner::build_plan_with_facts_ctx(&planner_ctx, ctx.condition, ctx.body)
+    let mut outcome = planner::build_plan_with_facts_ctx(&planner_ctx, condition, body)
         .map_err(|freeze| freeze.to_string())?;
     let planner_present = planner_candidate_present(&outcome);
 
@@ -165,7 +194,7 @@ pub(super) fn try_build_outcome_with_policy(
     }
 
     if gate.planner_required && !planner_present && outcome.facts.is_none() {
-        return Err(freeze_planner_required_none(ctx));
+        return Err(freeze_planner_required_none(function_name, condition, body));
     }
 
     let promotion_facts = outcome
@@ -190,7 +219,7 @@ pub(super) fn try_build_outcome_with_policy(
 
         if planner_hit {
             gate.log_planner_first(rule_id);
-        } else if !gate.planner_required && ctx.debug {
+        } else if !gate.planner_required && debug_enabled {
             let debug_msg = format!("{} extraction returned None, trying next rule", name);
             trace::trace().debug("route", &debug_msg);
         }

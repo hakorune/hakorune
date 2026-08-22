@@ -9,8 +9,9 @@ use crate::mir::builder::control_flow::joinir::route_entry::registry::{
     select_recipe_first_routes, LocatedGenericLoopV1SelectionErrorV1, RecipeFirstRouteSelectionV1,
     VerifiedLocatedGenericLoopV1SelectionV1,
 };
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
-use crate::mir::builder::control_flow::plan::single_planner;
+use crate::mir::builder::control_flow::plan::single_planner::{
+    self, CallableLoopFactsPlannerInputV1,
+};
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
@@ -140,7 +141,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             schedule,
             function_name,
             debug,
-            in_static_box,
+            _in_static_box,
             policy,
         ) = payload.into_parts();
 
@@ -154,9 +155,9 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             return CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error);
         }
 
-        let route_context =
-            LoopRouteContext::new(&condition, &body, &function_name, debug, in_static_box);
-        let outcome = match single_planner::try_build_outcome_with_policy(&route_context, policy) {
+        let planner_input =
+            CallableLoopFactsPlannerInputV1::new(&condition, &body, policy, function_name, debug);
+        let outcome = match single_planner::try_build_source_outcome(planner_input) {
             Ok(outcome) => outcome,
             Err(error) => {
                 return CallableGenericLoopSourceFactsDispositionV1::FactsRejected(

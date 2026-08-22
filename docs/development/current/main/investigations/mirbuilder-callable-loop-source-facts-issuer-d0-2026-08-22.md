@@ -1,11 +1,11 @@
 ---
-Status: D0, caller-zero issuer P0, and terminal-only port P0 complete; ordinary Ready consumer D0 is design_stop after route-neutral-planner and structural-handoff audit
+Status: D0 accepted; route-neutral planner I0 complete; caller-zero issuer/terminal evidence complete; Ready structural handoff remains design_stop
 Task: MIR-CALLABLE-LOOP-ORDINARY-READY-D0
 Date: 2026-08-22
 Priority: carry one source-bound GenericLoop Facts/Recipe outcome before any consumer
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-callable-physical-header-completion-value-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0
+NextCard: MIR-CALLABLE-LOOP-READY-STRUCTURAL-HANDOFF-D0
 ---
 
 # Callable Loop source-aware Facts issuer D0
@@ -205,13 +205,17 @@ the source issuer itself must never construct one.
    is retired in the same production connection slice as the in-place source
    facts claim model.
 3. `MIR-CALLABLE-LOOP-READY-PLANNER-D0` — route-neutral planner contract
-   (current design subcell). Name and audit
+   (accepted). Name and audit
    `CallableLoopFactsPlannerInputV1` and
    `single_planner::try_build_source_outcome`. Remove
    `LoopRouteContext::new`, `choose_route_kind`, function-name whitelist,
    canonicalizer parity, ambient environment reread, and registry access from
    the source-aware issuer. Keep diagnostics separate from Facts authority and
    make any semantic static-box input explicit in the captured policy frame.
+   `MIR-CALLABLE-LOOP-READY-PLANNER-I0` is the current bounded implementation:
+   add the input type, route-neutral kernel adapter, source-issuer call, and
+   reusable guard only. It must remain caller-zero and must not touch the raw
+   Ready route.
 4. `MIR-CALLABLE-LOOP-READY-STRUCTURAL-HANDOFF-D0` — one existing traversal
    owner and private HRTB handoff (current design subcell). Preserve the
    `CallableSemanticLoopHandoffPreEffectReceiptV1` instead of discarding it;
@@ -320,16 +324,69 @@ admitting body-only rebind as Ready
 inventing a second GenericLoop/Recipe authority
 ```
 
-This D0 remains at design_stop until the route-neutral planner input, the
-existing structural owner/HRTB relation, and the in-place source-facts state
-model are accepted together. The terminal-only P0 below is complete as a
-caller-zero experiment; it does not authorize an ordinary consumer or a
-production switch.
+The route-neutral planner portion of this D0 is accepted by the worker audit
+and is the bounded I0 below. The remaining structural-owner/HRTB relation and
+in-place source-facts state model remain at design_stop. The terminal-only P0
+below is complete as a caller-zero experiment; it does not authorize an
+ordinary consumer or a production switch.
+
+## Route-neutral planner I0 (2026-08-22, complete)
+
+Decision: implement only the accepted planner subcell. The source issuer gets
+one `CallableLoopFactsPlannerInputV1` containing borrowed `condition/body`, the
+captured `GenericLoopFactsPolicyFrameV1`, and diagnostic-only function name /
+debug values. `single_planner::try_build_source_outcome` shares the existing
+planner kernel with the Context adapter; it does not classify a route or enter
+the registry.
+
+```text
+source issuer
+  -> route-neutral planner input
+  -> PlannerContext::from_generic_loop_policy
+  -> build_plan_with_facts_ctx(condition, body)
+  -> one RecipeMatcher observation
+  -> existing PlanBuildOutcome
+```
+
+Acceptance for this I0:
+
+```text
+source issuer LoopRouteContext construction = 0
+source issuer choose_route_kind/registry access = 0
+route-neutral planner kernel = 1
+Facts/Recipe extraction is not duplicated
+existing Context callers retain the same adapter/kernel behavior
+source Ready -> lower_loop_or_freeze_v1/route_loop new edge = 0
+Builder/ledger/physical/publication effect = 0
+```
+
+The source issuer's current `in_static_box` value is deliberately not copied
+into this planner input: the audited Facts/Recipe kernel does not use it. If a
+future semantic rule needs it, that is a separate policy-authority Decision;
+it must not be recovered by constructing `LoopRouteContext` here.
+
+This I0 does not claim the Ready production handoff. The next design cell is
+the existing structural owner and private HRTB transport, including the
+currently discarded pre-effect receipt.
+
+Evidence recorded for the route-neutral planner I0:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick --lib                         PASS
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib \\
+  normal_callable_loop_source_facts                                      4 passed
+bash tools/checks/rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh PASS
+bash tools/checks/rust_mirbuilder_callable_loop_generic_facts_policy_p0_guard.sh PASS
+bash tools/checks/current_state_pointer_guard.sh                             PASS
+rustfmt --edition 2021 --check (changed Rust files)                          PASS
+git diff --check                                                             PASS
+```
 
 ## Caller-zero P0 implementation receipt (2026-08-22)
 
 The caller-zero foundation is integrated into `main` at merge commit
-`aafda19d86`; this is not a production switch.
+`aafda19d86`; this is not a production switch. The route-neutral planner I0
+above supersedes the earlier context-construction shape.
 
 ```text
 PreparedLocatedRawLoopChildEntryV1
@@ -343,9 +400,8 @@ PreparedLocatedRawLoopChildEntryV1
 The payload is move-only and has no constructor that accepts independently
 supplied AST/source-context parts. The explicit policy frame is passed through
 the planner, GenericLoop V0 extraction, and body validator; the issuer does
-not reread the environment. This is the landed caller-zero baseline only; its
-current `LoopRouteContext::new` call is explicitly superseded by the revised
-route-neutral planner D0 above. The issuer has no production caller, no Builder
+not reread the environment. This is the landed caller-zero baseline plus the
+route-neutral planner I0 above. The issuer has no production caller, no Builder
 or ledger effect, no registry suffix, fallback, retry, or parser-invocation
 identity claim. The bounded identity claim remains the same prepared raw-root
 lineage only.
@@ -355,7 +411,7 @@ Evidence recorded for this slice:
 ```text
 CARGO_BUILD_JOBS=4 cargo check --profile quick --lib                 PASS
 CARGO_BUILD_JOBS=4 cargo test --profile quick --lib \\
-  normal_callable_loop_source_facts -- --nocapture                  3 passed
+  normal_callable_loop_source_facts -- --nocapture                  4 passed
 bash tools/checks/rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh PASS
 bash tools/checks/rust_mirbuilder_callable_loop_generic_facts_policy_p0_guard.sh PASS
 bash tools/checks/rust_mirbuilder_callable_loop_outside_disposition_p0_guard.sh PASS
@@ -364,7 +420,7 @@ git diff --check                                                     PASS
 ```
 
 The next authorized design cell is
-`MIR-CALLABLE-LOOP-ORDINARY-READY-D0`: fix the ownership of the existing
+`MIR-CALLABLE-LOOP-READY-STRUCTURAL-HANDOFF-D0`: fix the ownership of the existing
 structural traversal and name the scoped HRTB handoff. The implementation P0
 must remain closed until that relation is accepted. Body-only rebind admission,
 route cutover, fallback/retry, physical/publication work and parser witness

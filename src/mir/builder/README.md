@@ -303,7 +303,7 @@ private row builder is used for `Ready` and `Outside` classification, while
 JoinIR consumer, Builder effect, fallback, retry, or source-to-Recipe relation
 is opened by this transport slice.
 
-### Callable Loop source-aware Facts issuer P0
+### Callable Loop source-aware Facts issuer P0 / route-neutral planner I0
 
 `normal_callable_loop_source_facts.rs` is the caller-zero source/Facts seam. It
 accepts only the private move-only
@@ -314,6 +314,13 @@ as independent peer arguments. The issuer passes one captured
 GenericLoop V0 extractor and body validator, then selects from that retained
 `PlanBuildOutcome` exactly once. It accepts only exact `[GenericLoopV1]` and
 returns a private `Ready` aggregate or a typed terminal.
+
+The route-neutral planner I0 now gives the issuer one
+`CallableLoopFactsPlannerInputV1`: borrowed condition/body, the captured policy
+frame, and diagnostic-only function/debug fields. The source issuer does not
+construct `LoopRouteContext`, call `choose_route_kind`, read `in_static_box`,
+or enter the registry. The legacy Context callers and the source caller share
+one planner kernel; no second Facts/Recipe extraction is introduced.
 
 This P0 has no production caller, ordinary consumer, Builder/ledger effect,
 retry, fallback, or registry suffix. The raw port currently proves only the
