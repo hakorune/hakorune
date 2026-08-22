@@ -1,11 +1,11 @@
 ---
-Status: P0 complete; next D0 selected; design_stop
-Task: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-D0
+Status: S0 BoxShape complete; next I0 design_stop
+Task: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-I0
 Date: 2026-08-22
 Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-D0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-I0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -896,10 +896,77 @@ reason to issue a new semantic product during the current terminal slice.
 
 ### Current stop
 
-The active mode remains `design_stop`. The next allowed decision is the S0
-source-aware port design above. No ordinary receipt, Builder mutation,
-production switch, live publication, performance work, or main integration is
-opened by this audit.
+The D0 decision is accepted and the behavior-neutral S0 BoxShape is complete.
+The active mode is now `design_stop` for the I0 source-aware consumer below.
+This does not open ordinary consumption.
+
+### S0 bounded BoxShape cell — MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0
+
+S0 moves the existing `RawLoopChildEntryPortV1` trait and its legacy and
+invocation implementations out of `recursive_child_lowering.rs` into one
+dedicated child-entry port module. The move must preserve every caller and
+every existing route; it is a physical responsibility split, not a new
+semantic layer.
+
+```text
+recursive_child_lowering.rs
+  -> existing recursive body/statement/expression and source-aware port owner
+
+raw_loop_child_port.rs
+  -> RawLoopChildEntryPortV1
+  -> RawLegacyChildLoweringPortV1::lower_loop
+  -> RawInvocationChildPortV1::lower_loop
+```
+
+Acceptance:
+
+```text
+old import paths remain valid through a narrow re-export
+caller graph is unchanged
+ordinary JoinIR consumer count remains zero
+callable receipt/ledger product count remains unchanged
+no new source walk, AST reconstruction, ValueId/name join, or fallback
+focused raw-loop/recursive-child tests and quick check stay green
+recursive_child_lowering.rs < 760 lines; touched production source < 800
+```
+
+Non-claims:
+
+```text
+no CallableOrdinaryLoopJoinIrConsumerV1 implementation
+no Outside diagnostic widening or new semantic receipt
+no ordinary body-only-rebind support
+no nested-loop support
+no production switch, publication, Compare hardening, performance, or main integration
+```
+
+### S0 evidence and red classification
+
+The split is behavior-neutral and preserves the old import path through the
+`recursive_child_lowering` re-export. Evidence:
+
+```text
+raw_loop_child_entry focused tests: 7 passed
+cargo check --profile quick --lib: passed
+rustfmt --check --edition 2021 on changed Rust files: passed
+current-state pointer guard: passed
+callable-loop Outside P0 guard: passed
+loop pre-cutover authority guard: passed
+git diff --check: passed
+recursive_child_lowering.rs: 679 lines
+raw_loop_child_port.rs: 68 lines
+```
+
+The broader `recursive_child_lowering` filter has 25 passed and 8 failures,
+all with the existing
+`[freeze:contract][raw-invocation/missing-expression-source-receipt]` error.
+The same 25/8 result reproduces on the parent commit `49bcde52a6`, so it is
+classified as baseline debt and is not attributed to S0.
+
+S0 adds no callable ordinary consumer, receipt, source walk, Builder effect,
+fallback, or production edge. I0 may add a source-aware ordinary consumer
+only after its exact grouped coverage relation and same-traversal consumption
+boundary are fixed.
 
 ## P0 execution brief — MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0
 

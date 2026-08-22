@@ -359,6 +359,7 @@ mod raw_expansion_receipt_ledger_tests; // ROUTEINV-P0b-RAWLEDGER-S0 fixtures
 mod raw_expression_dispatch; // single raw AST expression dispatcher
 #[allow(dead_code)]
 mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
+mod raw_loop_child_port; // CALLABLE-LOOP-ORDINARY-BRIDGE-S0 behavior-neutral port boundary
 #[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
 pub(in crate::mir) use raw_root_completion::RawInvocationRootWitnessV1;
