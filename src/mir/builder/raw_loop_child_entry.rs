@@ -365,7 +365,7 @@ fn contains_reachable_box_declaration(node: &ASTNode) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use std::collections::HashMap;
+    use std::collections::{BTreeMap, HashMap};
 
     use super::{
         classify_raw_loop_child_entry_v1, CallableLoopBindingProjectionDispositionV1,
@@ -373,12 +373,14 @@ mod tests {
         VerifiedCallableSemanticLoopBindingScheduleV1,
     };
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
+    use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
     use crate::mir::builder::normal_callable_loop_handoff::{
-        CallableLoopBindingReceiptV1, CallableLoopBindingRoleV1,
+        CallableLoopBindingReceiptV1, CallableLoopBindingRoleV1, CallableLoopSourceProjectionV1,
     };
     use crate::mir::builder::raw_invocation_source_transport::{
         RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawUnlocatedPortalV1,
     };
+    use crate::mir::builder::MirBuilder;
     use crate::mir::resolved_semantics::{
         FunctionOwnerIssuerV1, SourceBodyKindV1, SourcePathSegmentV1, SourcePathV1,
     };
@@ -480,6 +482,48 @@ mod tests {
             std::collections::BTreeSet::new(),
         )
         .unwrap()
+    }
+
+    fn outside_handoff(
+        loop_site: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+    ) -> CallableLoopBindingProjectionDispositionV1 {
+        let mut issuer = FunctionOwnerIssuerV1::new_for_compilation().unwrap();
+        let owner = issuer.issue().unwrap();
+        let carrier = crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(0));
+        let outside = crate::mir::resolved_semantics::BindingRefV1::new(owner, BindingId::new(1));
+        let condition = SourcePathV1::from_node(loop_site)
+            .child(SourcePathSegmentV1::LoopCondition)
+            .child(SourcePathSegmentV1::Lhs)
+            .node();
+        let carrier_read = SourcePathV1::from_node(loop_site)
+            .child(SourcePathSegmentV1::LoopBody(0))
+            .child(SourcePathSegmentV1::Value)
+            .child(SourcePathSegmentV1::Lhs)
+            .node();
+        let carrier_rebind = SourcePathV1::from_node(loop_site)
+            .child(SourcePathSegmentV1::LoopBody(0))
+            .child(SourcePathSegmentV1::Target)
+            .node();
+        let outside_read = SourcePathV1::from_node(loop_site)
+            .child(SourcePathSegmentV1::LoopBody(1))
+            .child(SourcePathSegmentV1::Value)
+            .child(SourcePathSegmentV1::Lhs)
+            .node();
+        let outside_rebind = SourcePathV1::from_node(loop_site)
+            .child(SourcePathSegmentV1::LoopBody(1))
+            .child(SourcePathSegmentV1::Target)
+            .node();
+        let mut variables = BTreeMap::new();
+        variables.insert(condition, carrier);
+        variables.insert(carrier_read, carrier);
+        variables.insert(outside_read, outside);
+        let mut assignments = BTreeMap::new();
+        assignments.insert(carrier_rebind, carrier);
+        assignments.insert(outside_rebind, outside);
+        let locals = BTreeMap::new();
+        CallableLoopSourceProjectionV1::new(owner, &locals, &variables, &assignments)
+            .project_disposition(loop_site.clone())
+            .unwrap()
     }
 
     #[test]
@@ -595,6 +639,33 @@ mod tests {
         .expect("located Loop entry with callable handoff");
 
         assert!(prepared.callable_handoff.is_some());
+    }
+
+    #[test]
+    fn outside_terminal_rejects_before_builder_effect() {
+        let source = located_loop_source();
+        let loop_site = source.site().unwrap().clone();
+        let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
+            &source,
+            loop_node(Vec::new()),
+            Some(outside_handoff(&loop_site)),
+        )
+        .expect("located Loop entry with Outside handoff");
+
+        let mut builder = MirBuilder::new();
+        let error = prepared
+            .lower_v1(
+                &mut builder,
+                "outside-terminal/0",
+                false,
+                false,
+                GenericLoopFactsPolicyFrameV1::from_values(false, false, false, false, false, true),
+            )
+            .expect_err("Outside must remain a typed terminal");
+
+        assert!(error.contains("callable-loop-handoff/outside-first-cohort"));
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
     }
 
     #[test]

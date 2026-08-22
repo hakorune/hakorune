@@ -85,6 +85,8 @@ guard_expect_fixed_in_file "$TAG" "CallableGenericLoopV1PhysicalAdapterV1::lower
   "Ready must connect to the named physical adapter"
 guard_expect_fixed_in_file "$TAG" "ready_rejection_stops_before_builder_effect" "$TESTS" \
   "Ready rejection must have effect-zero focused evidence"
+guard_expect_fixed_in_file "$TAG" "outside_terminal_rejects_before_builder_effect" "$RAW_ENTRY" \
+  "Outside terminal must have effect-zero focused evidence"
 guard_expect_fixed_in_file "$TAG" "into_semantic_recipe" "$RAW_ENTRY" \
   "Ready must not return to the old lowerer"
 guard_expect_fixed_in_file "$TAG" "claim_all()" "$RAW_ENTRY" \
@@ -209,6 +211,14 @@ ready_calls="$(rg -F -o -- 'CallableGenericLoopSourceFactsIssuerV1::issue_once(p
 if [[ "$ready_calls" -ne 1 ]]; then
   guard_fail "$TAG" "Ready issuer must have exactly one production caller; found $ready_calls"
 fi
+outside_calls="$(rg -F -o -- 'lower_outside_callable_loop_v1(reason)' "$RAW_ENTRY" | wc -l | tr -d '[:space:]')"
+if [[ "$outside_calls" -ne 1 ]]; then
+  guard_fail "$TAG" "Outside terminal must have exactly one production caller; found $outside_calls"
+fi
+if rg -n -A6 -- 'fn lower_outside_callable_loop_v1' "$RAW_ENTRY" \
+  | rg -- 'lower_loop_or_freeze_v1|PlanLowerer|emit_instruction|builder\.'; then
+  guard_fail "$TAG" "Outside terminal must not enter a physical/legacy route"
+fi
 if rg -n -- 'from_prepared_parts|CallableGenericLoopSourceFactsInputV1|ParserInvocationWitness' \
   "$ISSUER" "$RAW_ENTRY"; then
   guard_fail "$TAG" "loose input/reconstructed parser identity leaked into P0"
@@ -233,4 +243,4 @@ for file in "$PLANNER_INPUT" "$PLANNER_MOD"; do
   fi
 done
 
-echo "[$TAG] ok (one route-neutral explicit-policy source/Facts issuer, one semantic Recipe/physical consumer, production Ready caller=1)"
+echo "[$TAG] ok (one source/Facts issuer, one Ready Recipe/physical consumer, one terminal Outside consumer, no Ready/Outside legacy fallback)"

@@ -1,22 +1,21 @@
 ---
-Status: Design stop; successor frontier after Ready R0
-Task: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0
-Current execution row: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0
+Status: Decision accepted; terminal Outside closeout
+Task: MIR-CALLABLE-LOOP-OUTSIDE-TERMINAL-CLOSEOUT
+Current execution row: MIR-CALLABLE-LOOP-OUTSIDE-TERMINAL-CLOSEOUT
 Date: 2026-08-22
-Priority: decide whether grouped Outside source evidence has one safe named consumer
+Priority: close the bounded terminal Outside lane without inventing a consumer
 Parent: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-RECIPE-AUTHORITY-D0
 PreviousCard: mirbuilder-callable-loop-ready-generic-loop-v1-recipe-authority-d0-2026-08-22.md
-NextCard: none until Decision
+NextCard: none until the next bounded Decision
 ---
 
 # Callable Loop Outside ordinary consumption D0
 
 ## Six-line brief
 
-Decision: not accepted yet. The current safe behavior is a typed terminal for
-`Outside(BodyOnlyRebind)`. First census whether a real source-backed ordinary
-consumer exists; if it does not, keep Outside terminal and close this row
-without inventing a second lowering authority.
+Decision: accepted. `Outside(BodyOnlyRebind)` remains a typed terminal. The
+read-only census found no source-backed ordinary consumer, so no new semantic
+product or ordinary route is opened for this bounded cohort.
 
 Source authority + canonical issuer: `normal_callable_loop_handoff` owns the
 source-only projection and `CallableLoopOutsideReasonV1` owns the grouped,
@@ -33,16 +32,16 @@ Fail-fast boundary: immediately after source classification and before the
 first Builder effect. Missing relation, foreign owner/site, unsupported role,
 or unavailable named consumer is a typed terminal with zero effect.
 
-Smallest next slice: read-only worker/census of the exact source-backed
-consumer boundary and its required owner relation. If no safe relation exists,
-formalize `Outside -> terminal` as the bounded completion. If one exists,
-write the accepted type/state/guard design before implementation.
+Smallest next slice: closeout evidence only: record the exact caller census,
+prove the terminal has zero Builder effect, and add a reusable guard for the
+forbidden Outside-to-old-route edges. The next independent lane may be chosen
+after this closeout.
 
 Non-claims: ordinary Loop lowering, route selection, new Recipe/Join meaning,
 physical MIR, `ValueId`/PHI, publication, nested or multi-carrier expansion,
 fallback retirement outside the Ready edge, performance, and backend work.
 
-## Current boundary
+## Accepted terminal decision
 
 Ready R0 is now connected:
 
@@ -68,7 +67,22 @@ The old ordinary route must not be treated as an implicit consumer. The
 current `CallableLoopOutsideReasonV1` is diagnostic/terminal evidence, not a
 permission to reconstruct a plan from names or counts.
 
-## Required census before implementation
+The worker audit confirmed:
+
+```text
+Outside ordinary consumer = 0
+Outside terminal consumer = 1
+Outside -> lower_loop_or_freeze_v1 = 0
+Outside -> route_loop / LoopRouteContext = 0
+Outside -> PlanLowerer = 0
+Outside -> Builder mutation = 0
+```
+
+The `Carrier` class wording inside an Outside row is retained as a parked
+vocabulary cleanup because the row cannot reach the Ready or physical lane.
+It is not promoted to an accepted carrier by this closeout.
+
+## Closeout census
 
 Record exact counts and owners for:
 
@@ -79,19 +93,19 @@ Outside -> LoopRouteContext/route_loop              = 0
 Outside -> registry/PlanLowerer/Builder             = 0
 Outside reason structured rows preserved to boundary = yes/no
 body-only rebind source row relation                = exact grouped rows
-ordinary source-backed consumer owner               = named or absent
+ordinary source-backed consumer owner               = absent
 second AST/source walk                               = 0
 ```
 
-If the only available consumer requires a new semantic `Verified*` or
-`Prepared*` product, stop and name its source authority and sole issuer first.
-Do not fill the gap with `Option`, empty maps, a route kind, or a MIR lookup.
+No ordinary consumer is opened. A future consumer would require a new
+Decision naming its source authority and sole issuer; this card does not fill
+the gap with `Option`, empty maps, a route kind, or a MIR lookup.
 
 ## Candidate decision
 
 | Candidate | Decision | Reason |
 | --- | --- | --- |
-| Terminal Outside | preferred safe default | complete source evidence is retained and no physical effect is guessed |
+| Terminal Outside | **accepted** | complete source evidence is retained and no physical effect is guessed |
 | Existing ordinary JoinIR | reject until a source-aware consumer exists | it re-observes route/Builder meaning and can hide a fallback |
 | New source-backed ordinary consumer | conditional | only after owner, exact row relation, fail-fast boundary, and effect evidence are accepted |
 | Default/empty Facts or synthetic carrier | reject | absence is not a source authority |
@@ -122,16 +136,19 @@ String conversion before the terminal boundary = 0
 AST/source second walk = 0
 default/empty state merge = 0
 all new Rust files < 760 lines
+Outside terminal helper has no Builder/route/PlanLowerer input
+Outside terminal caller count = 1
 ```
 
 Positive evidence must show exact owner/site/role grouping. Negative evidence
 must show foreign, missing, duplicate, and unsupported Outside rows stop with
-no Builder effect. A caller-zero result is valid only for the terminal
-decision; it is not evidence of ordinary consumption.
+no Builder effect. The accepted terminal has one production caller and is not
+evidence of ordinary consumption.
 
 ## NoSafeSlice conditions
 
-Keep this design stop if:
+These conditions reopen a new design stop rather than changing this terminal
+lane:
 
 ```text
 ordinary consumption needs a second AST/source observation
@@ -143,6 +160,26 @@ structured rows are flattened before the terminal/consumer boundary
 the new consumer would create a second Recipe/Join authority
 ```
 
-The preferred bounded outcome is a documented terminal Outside lane. Open an
-implementation slice only after a worker-reviewed Decision identifies one
-named source-backed consumer and proves that the old route remains unreachable.
+The bounded outcome of this card is the documented terminal Outside lane.
+Ordinary consumption remains closed until a separate worker-reviewed Decision
+identifies one named source-backed consumer and proves that the old route
+remains unreachable.
+
+## Closeout evidence
+
+```text
+normal_callable_loop_handoff focused suite = 6 passed
+raw_loop_child_entry focused suite          = 8 passed
+  includes outside_terminal_rejects_before_builder_effect
+issuer/consumer + Outside forbidden-edge guard = passed
+current-state pointer guard                    = passed
+git diff --check                               = passed
+raw_loop_child_entry.rs                        = 686 lines
+normal_callable_loop_source_facts.rs           = 590 lines
+normal_callable_loop_physical_adapter.rs       = 45 lines
+```
+
+The raw-entry negative test consumes the exact grouped Outside disposition
+through `PreparedLocatedRawLoopChildEntryV1::lower_v1`; it observes the typed
+terminal and verifies that both `current_function` and `current_block` remain
+absent. The worker audit was read-only and made no file changes.
