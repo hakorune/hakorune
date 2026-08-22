@@ -1,11 +1,11 @@
 ---
-Status: P0 selected; D0 accepted; implementation in progress
-Task: MIR-CALLABLE-PHYSICAL-HEADER-ELIGIBILITY-D0
+Status: P0 complete; next D0 selected; design_stop
+Task: MIR-CALLABLE-LOOP-HANDOFF-BINDING-COVERAGE-D0
 Date: 2026-08-22
 Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-HANDOFF-BINDING-COVERAGE-D0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -384,6 +384,98 @@ Remain `NoSafeSlice` if the existing origin/transfer pair cannot distinguish
 loop control without hiding malformed records, if a second resolver/source
 walk is required, or if the fix expands into body/MIR inference, a new
 Completion issuer, Builder/ABI changes, or fallback.
+
+## P0 closeout — MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0
+
+The bounded projection is implementation-complete and pushed as
+`bc052cb60d`. `verify_function_completion_v1` now removes only exact paired
+`ExplicitBreak + Break` and `ExplicitContinue + Continue` records from its
+temporary Return-candidate view. The resolver inventory, source loan, and all
+Builder/publication routes are unchanged.
+
+Evidence:
+
+```text
+function-control focused suite: 17 passed, 0 failed
+resolved-control-flow suite: 33 passed, 0 failed
+normal-callable semantic-package suite: 39 passed, 0 failed
+cargo check --profile quick --lib: passed
+cargo build --profile quick --bin hakorune: passed
+targeted rustfmt / current-state pointer guard / diff check: passed
+source size: function_control.rs 626 lines; function_control_tests.rs 418 lines
+```
+
+The reusable complete-batch guard still reaches its parent-baseline
+identity-repair vocabulary failure after the new checks pass. The same failure
+is reproduced on the parent baseline and remains recorded as baseline debt;
+the guard was not weakened.
+
+The rebuilt merged production probe no longer stops at the previous
+`TerminalSiteIsNotReturn` for the nested loop-control site. It now stops at the
+next existing source/semantic boundary:
+
+```text
+[freeze:contract][callable-loop-handoff/incomplete-binding-coverage]
+```
+
+This is a deliberate P0 stop. No Builder effect, ABI change, physical
+publication, fallback, or retry was added. The exact missing binding/role
+coverage must be identified before changing the existing handoff contract.
+
+## Next design stop — MIR-CALLABLE-LOOP-HANDOFF-BINDING-COVERAGE-D0
+
+```text
+Decision: keep VerifiedCallableSemanticLoopBindingScheduleV1 strict and
+  audit the exact source-backed coverage row that rejects the merged
+  ParserCommonUtilsBox.trim/1 loop; do not turn incomplete coverage into a
+  default/read-only row without evidence.
+Source authority + canonical issuer: the parser-owned callable source loan,
+  resolver-issued BindingRef/source-site inventory, and the existing
+  CallableLoopSourceProjectionV1 -> VerifiedCallableSemanticLoopBindingScheduleV1
+  issuer; no AST/body/MIR/name reconstruction and no second resolver.
+Non-authority: the freeze string alone, batch slot, callable name/ordinal,
+  loop shape guessed from the fixture, Builder current state, ValueId/SSA,
+  physical header, fallback, compatibility, and a missing row synthesized by
+  default/empty/Option merging.
+Fail-fast boundary: after the existing source projection has collected its
+  parser/resolver rows and before any Dynamic loop ingress, Builder/session,
+  or physical effect; retain typed incomplete/invalid distinction.
+Smallest next slice: read-only census of the one failing loop site
+  [Body(6), LoopBody(1), IfElse(0)] and its binding rows; classify whether the
+  row is missing from the parser/resolver inventory, misclassified by the
+  source-role projection, or intentionally outside the first cohort, then
+  freeze one bounded P0 only after that classification.
+Non-claims: no handoff implementation, nested-loop generalization, AST/MIR
+  inference, new receipt, Dynamic/Builder/ABI/physical/publication change,
+  fallback, retry, performance work, or production activation.
+```
+
+Finite state for the next design stop:
+
+| State | Meaning | Next |
+| --- | --- | --- |
+| `CoverageObserved` | exact parser/resolver rows and binding sites are recorded | classify source ownership |
+| `CoverageComplete` | existing roles already prove the loop contract | select the smallest implementation cell |
+| `CoverageMissing` | required source row is absent from the authority | repair the owning parser/resolver source contract only |
+| `CoverageMisclassified` | row exists but projection role/site rule rejects it | bounded projection P0, with negative evidence |
+| `OutsideFirstCohort` | source shape is complete but not admitted | explicit outside lane; no guessed acceptance |
+| `CoverageInvalid` | foreign/duplicate/contradictory relation | typed reject before effects |
+
+Required D0 evidence:
+
+```text
+exact failing loop owner and source site
+all BindingRef rows with role and source-site relation
+one explanation for incomplete-binding-coverage
+one positive existing handoff case preserved
+one negative missing/foreign/duplicate case preserved
+no Builder/session/effect count on rejection
+```
+
+Remain `NoSafeSlice` if the failing row cannot be tied to the parser/resolver
+source authority, if accepting it requires body/MIR inference, or if the only
+way to pass is default/empty synthesis, a second source walk, fallback, or a
+new competing handoff issuer.
 
 ## P0 execution brief — MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0
 
