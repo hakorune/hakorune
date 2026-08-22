@@ -543,11 +543,33 @@ the discard boundary.
 
 ### 13. MIR-LOOP-COMPARE-PREPARE-RESERVE-D0
 
-Design-only next cell. Audit the selected Dynamic I9 transaction as one
-prepare/reserve/commit boundary without changing code. The audit must inspect
-the existing operation/control preclaims, strict Compare writer preparation,
-Branch preparation, Dynamic V13 reservation/commit, and the private physical
-append owner.
+Design-only cell. The Dirac read-only audit returns `Conditional Accept`: no
+current NoSafeSlice, but implementation must stop if a private Branch seam or
+definition/V13 co-seal cannot be made valid. The current exact order is:
+
+    I8/I9/If preclaims
+      -> I9 ValueId/Const effect
+      -> operand/destination/Bool preparation
+      -> V13 reserve_result
+      -> fallible Compare writer preparation
+      -> Compare append + Bool commit
+      -> V13 commit with assert pairing
+      -> fallible Branch emit
+
+The required target order is:
+
+    preclaims
+      -> Compare preparation
+      -> Branch preparation
+      -> V13 reserve_result       # last fallible operation
+      -> private commit:
+           Compare append, Bool commit, V13 commit, Branch commit
+
+The existing `CanonicalCfgSessionV1::emit_branch` has no prepare/commit seam;
+it performs `preflight_edge` and MIR mutation together. The bounded I0 must add
+a borrow-free, same-owner `PreparedCanonicalBranchV1` whose commit is the only
+new Branch mutation path. The Compare prepared product must likewise be
+borrow-free so Branch preparation can run before V13 reservation.
 
 Decision candidates are intentionally narrow:
 
@@ -574,6 +596,14 @@ The worker audit must name:
 
 Do not add a new semantic meaning, general dominance witness, generic Loop
 ledger adapter, publication proof, or optimization work in this D0.
+
+Worker evidence: Dirac confirmed the current last fallible operation is
+`emit_branch` (the current code prepares V13 before Compare preparation), and
+that Branch has no real seam. The worker found no present NoSafeSlice, but
+requires the Branch prepare/commit seam, Compare borrow-free preparation,
+last-fallible V13 reservation, a private move-only I9 aggregate, and removal of
+arbitrary definition/slot `assert_eq!` pairing before implementation can be
+accepted.
 
 ### 14. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 
