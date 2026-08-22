@@ -1,10 +1,10 @@
-Status: P0-A/P0-B implemented; P0-C structural guard is green, while runtime reject/no-effect evidence remains before live-publication evidence
-Task: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-P0
+Status: P0-A/P0-B/P0-C implemented; live publication boundary D0 is next and remains design-gated
+Task: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 Date: 2026-08-22
-Priority: finish one private non-emitting observation bridge for resolver-backed Dynamic body and closed W6 evidence; keep backend, live publication, and generic retirement closed
+Priority: design one atomic selected-Dynamic publication handoff through DraftAdmission, ModuleDrain, and ExternalCommit; keep backend and generic retirement closed
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 PreviousCard: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
-NextCard: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-P0 (same rolling card)
+NextCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0 (same rolling card)
 ---
 
 # Loop Compare CONNECT0 handoff
@@ -390,17 +390,18 @@ Evidence currently green:
 
 ```text
 CARGO_BUILD_JOBS=4 cargo test --lib selected_dynamic_physical_emitter::tests:: -- --nocapture
-  2 passed, 0 failed
+  3 passed, 0 failed (positive, production route, duplicate-reject/no-effect)
 CARGO_BUILD_JOBS=4 cargo check --lib
   success; existing warning baseline only
 bash tools/checks/rust_mirbuilder_dynamic_body_state_bridge_p0_guard.sh
-  green: one bridge caller, retained W6 evidence, ordered DraftSeal seam
+  green: one bridge caller, retained W6 evidence, ordered DraftSeal seam,
+  duplicate-reject/no-effect test and zero committed module symbols
 ```
 
 The current structural guard also keeps the touched production owners below
-the 760-line split trigger and 800-line hard boundary. Runtime negative
-fixture coverage for a rejected/duplicate bridge and explicit no-effect
-assertions is still P0-C work; this evidence does not claim
+the 760-line split trigger and 800-line hard boundary. P0-C now has runtime
+negative evidence for duplicate bridge rejection and unpublished discard; this
+evidence does not claim
 `DraftAdmission`/`ModuleDrain`/`ExternalCommit`, live publication, generic
 retirement, backend parity, or performance.
 

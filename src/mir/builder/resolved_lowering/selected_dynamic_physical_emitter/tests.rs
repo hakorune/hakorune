@@ -1,4 +1,5 @@
 use super::*;
+use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, CompilationContext, MirBuilder,
     NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1,
@@ -393,6 +394,82 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
         observation_fixture::publish(std::path::Path::new(&path), helper)
             .expect("publish selected Dynamic observation cohort");
     }
+}
+
+#[test]
+fn duplicate_body_bridge_rejects_and_discards_unpublished_effects() {
+    let parsed = NyashParser::parse_normal_callable_program_with_build_config(
+        observation_fixture::SOURCE,
+        ParserBuildConfig::default(),
+    )
+    .expect("parser fixture");
+    let transformed =
+        crate::r#macro::transform_normal_callable_program_v1(parsed).expect("callable transform");
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+        panic!("fixture must remain source-backed")
+    };
+    let mut resolver = FunctionSemanticResolverSessionV1::new(195).expect("resolver");
+    let package =
+        issue_normal_callable_semantic_package_v1(&mut resolver, source).expect("semantic package");
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("catalog install")
+        .commit();
+    let key = SelectedNormalCallableKeyV1::Cataloged(
+        CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "ParserScanLoopBox",
+            "skip_while",
+            4,
+        ),
+    );
+    let mut package_port = installed.begin_lowering(&context).expect("loan");
+    let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {
+        SelectedNormalCallableKeyV1::Cataloged(source_key) => source_key.clone(),
+        SelectedNormalCallableKeyV1::TopLevel(_) => unreachable!(),
+    })
+    .expect("catalog admission");
+    let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
+    let mut builder = MirBuilder::new();
+    let collector =
+        crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
+    let mut invocation =
+        crate::mir::builder::module_lowering_invocation::ModuleLoweringInvocationV1::with_collector(
+            &mut builder,
+            collector,
+        );
+
+    package_port
+        .with_selected_cataloged_lowering_input(admission, |input| {
+            let (selected, admission, physical_header) = input.into_lowering_and_admission();
+            invocation.with_module_port(|builder, module_port| {
+                let result = assemble_unpublished_selected_dynamic_w6_from_parts(
+                    builder,
+                    module_port,
+                    &selected,
+                    admission,
+                    physical_header,
+                    |session, profile| {
+                        let mut state =
+                            CallableSemanticLoweringState::from_exact_source_with_dynamic_source(
+                                selected.source(),
+                                Some(std::rc::Rc::clone(session.dynamic_source())),
+                            )?;
+                        session.observe_body_state(&mut state, profile)?;
+                        let duplicate = session
+                            .observe_body_state(&mut state, profile)
+                            .expect_err("body bridge must be one-shot");
+                        Err(format!("duplicate body bridge rejected: {duplicate}"))
+                    },
+                );
+                assert!(result.is_err());
+                assert!(builder.function_state.current_function.is_none());
+                module_port.with_headers(|headers| {
+                    assert_eq!(headers.symbol_count(), 0);
+                });
+            })
+        })
+        .expect("selected loan");
 }
 
 #[test]
