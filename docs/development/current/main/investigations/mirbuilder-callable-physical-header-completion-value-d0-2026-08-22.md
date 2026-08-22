@@ -426,9 +426,12 @@ coverage must be identified before changing the existing handoff contract.
 
 ```text
 Decision: keep VerifiedCallableSemanticLoopBindingScheduleV1 strict and
-  audit the exact source-backed coverage row that rejects the merged
-  ParserCommonUtilsBox.trim/1 loop; do not turn incomplete coverage into a
-  default/read-only row without evidence.
+  classify the exact source-backed coverage rows that reject the merged
+  ParserCommonUtilsBox.esc_json/1 loop. The static census finds `out` and
+  `handled` rebinds in the loop body without a LoopCondition read; the current
+  issuer treats every BodyRebind as a Carrier and therefore rejects them as
+  incomplete. Do not turn them into a default/read-only row without a cohort
+  decision.
 Source authority + canonical issuer: the parser-owned callable source loan,
   resolver-issued BindingRef/source-site inventory, and the existing
   CallableLoopSourceProjectionV1 -> VerifiedCallableSemanticLoopBindingScheduleV1
@@ -440,11 +443,11 @@ Non-authority: the freeze string alone, batch slot, callable name/ordinal,
 Fail-fast boundary: after the existing source projection has collected its
   parser/resolver rows and before any Dynamic loop ingress, Builder/session,
   or physical effect; retain typed incomplete/invalid distinction.
-Smallest next slice: read-only census of the one failing loop site
-  [Body(6), LoopBody(1), IfElse(0)] and its binding rows; classify whether the
-  row is missing from the parser/resolver inventory, misclassified by the
-  source-role projection, or intentionally outside the first cohort, then
-  freeze one bounded P0 only after that classification.
+Smallest next slice: freeze the one-carrier first-cohort boundary for
+  body-only rebinds, record `esc_json/1` rows (`out`, `handled`, and condition
+  carrier `i`) with their source roles, and choose one explicit state:
+  `OutsideFirstCohort` or a source-backed multi-carrier extension. No physical
+  handoff is opened until that choice has a named consumer.
 Non-claims: no handoff implementation, nested-loop generalization, AST/MIR
   inference, new receipt, Dynamic/Builder/ABI/physical/publication change,
   fallback, retry, performance work, or production activation.
@@ -460,6 +463,53 @@ Finite state for the next design stop:
 | `CoverageMisclassified` | row exists but projection role/site rule rejects it | bounded projection P0, with negative evidence |
 | `OutsideFirstCohort` | source shape is complete but not admitted | explicit outside lane; no guessed acceptance |
 | `CoverageInvalid` | foreign/duplicate/contradictory relation | typed reject before effects |
+
+## D0 census result — body-only rebind is not a missing read
+
+The previous completion error was the nested `trim/1` `break` at
+`[Body(6), LoopBody(1), IfElse(0)]`; exact paired loop-control projection
+removed that false Return candidate. The current handoff error is a different
+contract boundary. `ParserCommonUtilsBox.esc_json/1` contains:
+
+```text
+loop(i < n) {
+  local ch = ...
+  local handled = 0
+  out = out + ...; handled = 1   // repeated in body branches
+  i = i + 1
+}
+```
+
+The source/resolver inventory can therefore supply:
+
+```text
+i       = ConditionRead + BodyRead + BodyRebind   -> current carrier
+out     = BodyRead + BodyRebind                   -> body-only accumulator
+handled = BodyRead + BodyRebind                   -> body-only local state
+ch      = BodyRead                                 -> iteration local
+n       = ConditionRead                            -> read-only operand
+```
+
+`VerifiedCallableSemanticLoopBindingScheduleV1::seal` currently classifies
+every row with `BodyRebind` as `Carrier` and requires ConditionRead + BodyRead
++ BodyRebind. Thus `out` or `handled` reaches the existing typed
+`incomplete-binding-coverage` stop. This is not evidence that a read is absent
+from the parser; it is evidence that the current one-carrier cohort has no
+state for body-only accumulators.
+
+Decision boundary:
+
+```text
+one condition carrier + read-only operands + iteration locals
+  -> current cohort
+
+body-only accumulator/rebind
+  -> explicit OutsideFirstCohort until a source-backed multi-carrier owner
+     and named physical consumer are designed
+```
+
+Do not reinterpret `out`/`handled` as `ReadOnlyOperand`, do not drop their
+rebinds, and do not infer a second carrier from ValueId/AST/body state.
 
 Required D0 evidence:
 
