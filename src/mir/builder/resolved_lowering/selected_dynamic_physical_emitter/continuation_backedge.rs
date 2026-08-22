@@ -131,6 +131,27 @@ fn emit_program(
         return Err(reject("Continuation has a foreign session brand"));
     }
     validate_continuation_predecessor(outer, corridor, continuation.block())?;
+
+    let (enter, header) =
+        targets.with_enter_header(|enter, header| (enter.block(), header.block()));
+    if !targets.with_role(DynamicV2PhysicalTargetRoleV1::Header, |target| {
+        target.matches(brand)
+    }) {
+        return Err(reject("Header has a foreign session brand"));
+    }
+
+    // Consume the existing cleanup and operation rows before select_block()
+    // mutates the Builder session or any ledger/MIR effect begins.  Later
+    // physical failure is discarded by the caller's unpublished session.
+    cleanup
+        .claim(DynamicV2PhysicalCleanupCutPointV1::Backedge)
+        .map_err(|error| reject(format!("Backedge cleanup claim: {error:?}")))?;
+    for item in [I13, I14, I15, I16] {
+        operation_census
+            .claim_operation(item)
+            .map_err(|error| reject(format!("{item:?} physical operation claim: {error:?}")))?;
+    }
+
     canonical
         .cfg
         .select_block(outer.builder_view_mut_for_lowering(), continuation.block())
@@ -223,22 +244,7 @@ fn emit_program(
             lifecycle.lease_slot(),
         )
         .map_err(reject)?;
-    cleanup
-        .claim(DynamicV2PhysicalCleanupCutPointV1::Backedge)
-        .map_err(|error| reject(format!("Backedge cleanup claim: {error:?}")))?;
-    for item in [I13, I14, I15, I16] {
-        operation_census
-            .claim_operation(item)
-            .map_err(|error| reject(format!("{item:?} physical operation claim: {error:?}")))?;
-    }
 
-    let (enter, header) =
-        targets.with_enter_header(|enter, header| (enter.block(), header.block()));
-    if !targets.with_role(DynamicV2PhysicalTargetRoleV1::Header, |target| {
-        target.matches(brand)
-    }) {
-        return Err(reject("Header has a foreign session brand"));
-    }
     let function = outer
         .builder_view_mut_for_lowering()
         .function_state
