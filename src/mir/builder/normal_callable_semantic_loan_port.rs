@@ -512,9 +512,9 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
-                with_selected_source_scope(inner, lineage, selected, |inner, _transport| {
+                with_selected_source_scope(inner, lineage, selected, |inner, transport| {
                     inner
-                        .lower_normal_cataloged_static_box_method_with_signature_v1(
+                        .lower_normal_cataloged_static_box_method_with_signature_and_source_v1(
                             builder,
                             admission,
                             signature,
@@ -525,6 +525,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             uses,
                             attrs,
                             self.target_capability,
+                            transport,
                         )
                         .map_err(|error| error.to_string())
                 })

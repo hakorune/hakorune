@@ -135,7 +135,7 @@ impl RawInvocationChildPortV1<'_, '_> {
     }
 
     #[allow(clippy::too_many_arguments)]
-    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_signature_v1(
+    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_signature_and_source_v1(
         &mut self,
         builder: &mut MirBuilder,
         admission: NormalCatalogedBoxMethodDraftAdmissionV1,
@@ -149,6 +149,7 @@ impl RawInvocationChildPortV1<'_, '_> {
         target_capability: Option<
             &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
+        source: RawInvocationSourceTransportV1<()>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
         let function_name = admission.physical_symbol().to_owned();
         let session_name = function_name.clone();
@@ -160,23 +161,25 @@ impl RawInvocationChildPortV1<'_, '_> {
         );
         let pending: PendingFunctionSessionCloseV1<'_> = {
             let mut child_port = self.reborrow();
-            builder
-                .capture_resolved_function_pending_session_v1(&session_name, move |builder| {
-                    let prepared = builder.build_static_method_draft_with_port_v1(
-                        &mut child_port,
-                        function_name,
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                    )?;
-                    child_port.with_headers(|headers| {
-                        builder.finalize_function_draft_with_headers(prepared, headers)
+            child_port.with_source_transport_v1(source, |child_port, ()| {
+                builder
+                    .capture_resolved_function_pending_session_v1(&session_name, move |builder| {
+                        let prepared = builder.build_static_method_draft_with_port_v1(
+                            child_port,
+                            function_name,
+                            params,
+                            param_decls,
+                            return_type_name,
+                            body,
+                            uses,
+                            attrs,
+                        )?;
+                        child_port.with_headers(|headers| {
+                            builder.finalize_function_draft_with_headers(prepared, headers)
+                        })
                     })
-                })
-                .map_err(ModuleLoweringPortChildErrorV1::Session)?
+                    .map_err(ModuleLoweringPortChildErrorV1::Session)
+            })?
         };
         self.module_port.complete_resolved_child_with_physical_loan(
             pending,

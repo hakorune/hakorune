@@ -177,7 +177,7 @@ fn source_backed_selected_callable_uses_the_installed_package_port() {
 }
 
 #[test]
-fn parser_scan_package_reaches_the_existing_physical_blocker_without_fallback() {
+fn parser_scan_package_passes_callable_source_handoff_without_fallback() {
     let source = callable_source(
         include_str!(concat!(
             "../../../lang/src/compiler/parser/scan/",
@@ -197,7 +197,15 @@ fn parser_scan_package_reaches_the_existing_physical_blocker_without_fallback() 
         rejected.stage(),
         NormalDefaultRootCatalogLifecycleStageV1::RootLower
     );
-    assert!(rejected
+    assert!(
+        rejected
+            .error()
+            .to_string()
+            .contains("static-result-ingress/target-unavailable"),
+        "unexpected next blocker: {}",
+        rejected.error()
+    );
+    assert!(!rejected
         .error()
         .to_string()
         .contains("callable-semantic-lowering/missing-variable-site"));
