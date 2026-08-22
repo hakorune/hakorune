@@ -269,3 +269,32 @@ around the existing raw constructor body and restores the enclosing scope
 afterwards. Manifest exhaustion is checked together with ordinary package
 completion. Compatibility, RawLegacy, unlocated calls, and raw
 `is_brand_declared` routing remain outside this row.
+
+## Canonical trivial callable row I0 (2026-08-22)
+
+One ordinary static cataloged callable row, `Scan.run(value) { return value }`,
+now enters the existing resolved canonical trivial lowerer. The route is
+single-source and pre-effect:
+
+```text
+SelectedCallableLoweringInputRefV1::source()
+  -> CanonicalLoweringPreflightV1::verify_function
+  -> CanonicalTrivialBindingSsaPlanV1
+  -> existing resolved trivial lowerer
+  -> unpublished resolved function session
+  -> existing physical-signature/collector owner
+```
+
+The resolver-issued plan is the BindingRef authority. Catalog admission lends
+only the already validated physical symbol and signature owner; the callable
+path does not re-read AST names, allocate legacy BindingIds, or enter
+`CallableSemanticLoweringState`. A physical-symbol mismatch or session
+failure is terminal before collector publication and cannot retry through the
+old body driver.
+
+`CallableSemanticLoweringState` remains an outside compatibility projection
+for rows not admitted by this I0. Those rows use an explicit `Outside` route
+selected before child-session effects; it is not a post-failure fallback from
+the canonical lowerer. Loops, calls, locals, instance receivers, typed
+signatures, parser-scan expansion, and production-wide callable cutover remain
+outside this I0.

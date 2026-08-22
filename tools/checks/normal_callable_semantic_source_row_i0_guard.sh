@@ -20,24 +20,27 @@ guard_expect_fixed_in_file "$TAG" \
   "$LOAN_PORT" \
   "ordinary cataloged-static branch must retain the function-root transport"
 guard_expect_fixed_in_file "$TAG" \
-  "lower_normal_cataloged_static_box_method_with_signature_and_source_v1" \
+  "lower_normal_cataloged_static_box_method_with_source_v1" \
   "$LOAN_PORT" \
-  "signature lowering must consume the named source-aware seam"
+  "outside callable rows must retain the named source-aware seam"
 if rg -F -q -- "lower_normal_cataloged_static_box_method_with_signature_v1" "$LOAN_PORT"; then
   guard_fail "$TAG" "old source-dropping signature seam must remain retired"
+fi
+if rg -F -q -- "lower_normal_cataloged_static_box_method_with_signature_and_source_v1" "$LOAN_PORT"; then
+  guard_fail "$TAG" "resolved legacy signature seam must remain retired"
 fi
 if rg -F -q -- "|inner, _transport|" "$LOAN_PORT"; then
   guard_fail "$TAG" "ordinary static branch must not discard its transport"
 fi
 
 guard_expect_fixed_in_file "$TAG" \
-  "pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_signature_and_source_v1" \
+  "pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_source_v1" \
   "$LOWERING" \
-  "source-aware signature lowering owner is missing"
+  "outside source-aware lowering owner is missing"
 guard_expect_fixed_in_file "$TAG" \
-  "with_source_transport_v1(source, |child_port, ()|" \
+  "self.with_source_transport_v1(source, |port, ()|" \
   "$LOWERING" \
-  "resolved function session must run under the existing function-root source"
+  "outside function session must run under the existing function-root source"
 guard_expect_fixed_in_file "$TAG" \
   "source: RawInvocationSourceTransportV1<()>" \
   "$LOWERING" \
@@ -66,6 +69,8 @@ guard_expect_fixed_in_file "$TAG" \
   "bounded I0 task must be recorded in the active card"
 if rg -F -q -- 'current_execution_row = "MIR-CALLABLE-SEMANTIC-NESTED-IF-SOURCE-ROW-I0"' "$STATE"; then
   : # active I0 state
+elif rg -F -q -- 'current_execution_row = "CALLABLE-CANONICAL-TRIVIAL-ROW-I0"' "$STATE"; then
+  : # the resolved-binding successor I0 is active
 elif rg -F -q -- 'current_execution_row = "CALLABLE-RESOLVED-BINDING-AUTHORITY-HANDOFF-D0"' "$STATE" \
   && rg -F -q -- 'latest_card = "mir-callable-resolved-binding-authority-handoff-d0"' "$STATE" \
   && rg -F -q -- '95b65e4081' "$STATE"; then
