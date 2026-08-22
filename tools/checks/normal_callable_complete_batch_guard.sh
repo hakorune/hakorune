@@ -121,11 +121,20 @@ reject_fixed_in_file \
   "missing_result_annotation" "$PACKAGE_PHYSICAL_HEADER" \
   "physical-header availability must not use a package-wide missing-result bit"
 reject_fixed_in_file \
+  "CompletionNotValue" "$PACKAGE_COMPLETION_SEED" \
+  "valid ordinary Void rows must not be rejected by completion-seed eligibility"
+reject_fixed_in_file \
+  "CompletionNotValue" "$PACKAGE_PHYSICAL_HEADER" \
+  "physical-header projection must not own the ordinary Void rejection"
+reject_fixed_in_file \
   "Option<super::physical_header::VerifiedCallablePhysicalHeaderCohortV1>" "$PACKAGE_MODEL" \
   "the package must always own one sparse physical-header cohort"
 guard_expect_fixed_in_file "$TAG" \
   "mixed_package_lends_only_the_eligible_physical_header_row" "$PACKAGE_PHYSICAL_HEADER_TESTS" \
   "mixed packages must prove that missing siblings cannot erase an eligible header row"
+guard_expect_fixed_in_file "$TAG" \
+  "valid_void_siblings_do_not_poison_sparse_physical_header_cohort" "$PACKAGE_PHYSICAL_HEADER_TESTS" \
+  "valid Void siblings must remain ordinary without poisoning the sparse header cohort"
 guard_expect_fixed_in_file "$TAG" \
   "let Some(source_parameters) = row.parameters() else" "$CONTRACT_ISSUER" \
   "parameter contract must skip unprojected callable rows without inference"

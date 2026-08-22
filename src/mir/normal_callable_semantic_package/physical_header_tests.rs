@@ -85,6 +85,41 @@ fn absent_result_annotation_keeps_ordinary_package_without_physical_header() {
 }
 
 #[test]
+fn valid_void_siblings_do_not_poison_sparse_physical_header_cohort() {
+    let package = issue(
+        "static box Api {\
+             observe(a: i64) { return }\
+             explicit(a: i64): void { return }\
+             run(value: i64): i64 { return value }\
+         }",
+    )
+    .expect("ordinary Void siblings remain source-valid");
+    let selected_keys = package.selected.keys().cloned().collect::<Vec<_>>();
+    assert_eq!(selected_keys.len(), 3);
+    let mut context = CompilationContext::new();
+    let installed = package
+        .prepare_install(&mut context)
+        .expect("vacant catalog slot")
+        .commit();
+    let mut port = installed.begin_lowering(&context).expect("same catalog");
+    for key in selected_keys {
+        let SelectedNormalCallableKeyV1::Cataloged(source_key) = &key else {
+            panic!("Void/header fixture rows must stay cataloged")
+        };
+        let expected_header = source_key.name() == "run";
+        port.with_selected_lowering_input(&key, |input| {
+            assert_eq!(
+                input.physical_header().is_some(),
+                expected_header,
+                "{}",
+                source_key.name()
+            );
+        })
+        .expect("selected row loan");
+    }
+}
+
+#[test]
 fn mixed_package_lends_only_the_eligible_physical_header_row() {
     let package = issue(include_str!(
         "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"

@@ -150,9 +150,6 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
                         batch_slot,
                     });
                 }
-                if !completion.returns_value() {
-                    return Err(CallablePhysicalHeaderIssueV1::CompletionNotValue { batch_slot });
-                }
                 Ok((result, completion))
             })
             .map_err(CallablePhysicalHeaderIssueV1::BatchLoan)??;

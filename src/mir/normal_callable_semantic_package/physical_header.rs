@@ -36,9 +36,6 @@ pub(super) enum CallablePhysicalHeaderIssueV1 {
     CompletionOwnerMismatch {
         batch_slot: u32,
     },
-    CompletionNotValue {
-        batch_slot: u32,
-    },
 }
 
 #[derive(Debug)]
