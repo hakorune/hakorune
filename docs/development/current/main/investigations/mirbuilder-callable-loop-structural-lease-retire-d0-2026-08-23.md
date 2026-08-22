@@ -1,21 +1,22 @@
-Status: Design stop
+Status: Decision accepted; cfg(test) retirement I0 active
 Task: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-D0
 Date: 2026-08-23
 Priority: classify the caller-zero structural lease before any retirement or namespace change
 Parent: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0
+Current execution row: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-I0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-callable-loop-structural-lease-retire-d0-2026-08-23.md
-NextCard: none until this Decision is accepted
+NextCard: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-I0
 ---
 
 # Callable Loop structural lease retirement D0
 
 ## Six-line brief
 
-Decision: the source-Facts -> semantic Recipe -> named physical adapter path is the only current production Ready authority; the route-neutral structural lease is caller-zero outside tests, but its retirement shape is not yet selected. The bounded design choice is delete, `cfg(test)`, or an explicitly experimental namespace.
+Decision: the source-Facts -> semantic Recipe -> named physical adapter path is the only current production Ready authority. Dirac's read-only audit confirms the route-neutral structural lease is caller-zero outside tests; the next bounded implementation is `cfg(test)` retirement, preserving its four focused tests as test-only evidence. Complete deletion remains a later cleanup only if no owner needs the experiment.
 Source authority + canonical issuer: `CallableGenericLoopSourceFactsIssuerV1` issues the source-located Facts/Recipe disposition; `CallableGenericLoopV1SemanticRecipeIssuerV1` and `CallableGenericLoopV1PhysicalAdapterV1` consume that production path. The structural lease issuer is not a production source authority.
 Non-authority: `CallableLoopStructuralLeaseIssuerV1`, `PreparedCallableLoopStructuralHandoffV1`, `CallableLoopReadyStructuralViewV1`, `CallableLoopRouteNeutralStructuralSeedV1`, `CallableLoopSourceBoundStructuralPortV1`, `with_existing_structural_port`, `LoopRouteContext` as a reconstructed source authority, and test-only structural observations.
-Fail-fast boundary: before any code or module registration change, prove the non-test caller census. A hidden production construction, re-export, or accepted source shape keeps this row at `NoSafeSlice`; no delete or `cfg(test)` change may guess around it.
-Smallest next slice: read-only census and one retirement Decision for the complete structural lease family, with exact files, test ownership, and a caller-zero guard plan. No production behavior change belongs in D0.
+Fail-fast boundary: the caller-zero census is complete. The I0 change is limited to compile-time registration/import boundaries; any non-test caller, re-export, or production field discovered during the edit is a typed stop, not a compatibility fallback.
+Smallest next slice: put the structural port module and lease-only source-facts section behind `cfg(test)`, retain the existing three lease tests and one port test, and add a reusable guard proving the live Ready path is unchanged and the production structural graph is zero.
 Non-claims: no Ready production switch, no Outside consumer, no pure-plan split, no unpublished-session capability, no `GenericLoopV1LoweringContext` redesign, no Builder barrel reorganization, no publication, fallback, parser, or performance work.
 
 ## Why this is the next design stop
@@ -72,6 +73,24 @@ src/mir/builder.rs
 That registration is not itself a production caller. It is the reason the
 retirement shape must be explicit rather than inferred from `#[allow(dead_code)]`.
 
+## Worker Decision — Dirac (read-only)
+
+The worker inspected `main` at `2dd627d3b7` without editing or running
+mutating commands. The result is:
+
+```text
+non-test lease issuer callers       = 0
+non-test structural-port callers   = 0
+re-exports                         = 0
+live Ready path                    = issue_once -> claim_all -> Recipe -> adapter
+```
+
+The worker recommends `cfg(test)` as the smallest safe slice because it removes
+the family from the production graph while retaining the three lease tests and
+one structural-port callback test. Complete deletion is a later option; an
+experimental namespace is rejected now because it has no named owner or close
+condition.
+
 ## Authority boundary
 
 ```text
@@ -92,12 +111,43 @@ because its HRTB shape is attractive.
 | Candidate | Benefit | Cost / risk | Status |
 | --- | --- | --- | --- |
 | Delete the whole structural lease family and its tests | smallest live graph; removes dead production registration and stale authority vocabulary | loses exploratory HRTB tests unless their contract is intentionally archived or replaced | recommended if no owner needs the experiment |
-| Make the family `cfg(test)` | preserves the test-only HRTB contract without compiling it into production | requires splitting source-facts production imports/types from test-only lease glue | viable if the tests remain valuable |
+| Make the family `cfg(test)` | preserves the test-only HRTB contract without compiling it into production | requires splitting source-facts production imports/types from test-only lease glue | **accepted I0** |
 | Move it under an explicit experimental namespace | preserves code and test evidence while labeling it non-production | keeps migration weight and another visible authority-shaped family | only if a named experiment owner exists |
 
 No option may leave the family as an unlabeled production module with zero
 callers. The final choice must name the owner, exact module boundary, test
 location, and the guard proving production caller count remains zero.
+
+## Accepted implementation — MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-I0
+
+Change only the compile-time boundary:
+
+```text
+joinir::structural_port module registration       -> #[cfg(test)]
+source-facts structural imports and lease types   -> #[cfg(test)]
+structural lease tests                            -> retained under cfg(test)
+source Facts -> Recipe -> physical adapter        -> unchanged
+```
+
+The implementation must not delete the test evidence yet, introduce an
+experimental module, alter `CallableGenericLoopSourceFactsIssuerV1`, change
+`LoopRouteContext`, or touch `raw_loop_child_entry.rs` / the physical adapter.
+
+Acceptance:
+
+```text
+production build does not compile structural_port or lease-only types
+test build still runs three structural lease tests and one port test
+source-facts production tests and Ready adapter tests remain unchanged
+non-test structural symbol/caller/re-export census is zero
+live Ready production edge count remains one
+source Facts -> Recipe -> adapter has no new route or fallback
+touched Rust files remain below 760 lines
+```
+
+The reusable guard must fail if a structural lease symbol is restored to a
+non-test registration or a non-test caller appears. It must not ban unrelated
+legacy `LoopRouteContext` uses in ordinary tests or compatibility routes.
 
 ## Finite design states
 
@@ -165,4 +215,3 @@ After this D0, separate cards remain:
    semantic change.
 
 None of these is opened by the structural lease census.
-
