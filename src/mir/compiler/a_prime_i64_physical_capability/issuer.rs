@@ -1,5 +1,7 @@
 //! Sole issuer for the bounded A-prime exact-I64 demand.
 
+use std::rc::Rc;
+
 use crate::mir::builder::{
     CatalogedBoxMethodPhysicalHeaderProjectionV1, NormalCatalogedBoxMethodDraftAdmissionV1,
     SelectedNormalCallableKeyV1,
@@ -10,9 +12,9 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     issue_dynamic_full_loop_operation_physical_demand_v2, DynamicAPrimeI64SourceRelationViewV1,
     DynamicFullLoopPhysicalInputViewV2,
 };
-use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::compiler::dynamic_full_body_source::DynamicFullBodySourceRoleV1;
 use crate::mir::exact_trivial_parameter_abi::ExactTrivialParameterAbiV1;
+use crate::mir::exact_trivial_scalar_abi::ExactTrivialScalarAbiV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::normal_callable_semantic_package::{
     CallablePhysicalHeaderRefV1, SelectedCallableLoweringInputRefV1, SelectedCallableSemanticRefV1,
@@ -28,9 +30,20 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
     input: SelectedCatalogedCallableLoweringInputV1<'loan>,
 ) -> Result<VerifiedAPrimeI64PhysicalDemandV1<'loan>, APrimeI64PhysicalDemandRejectV1> {
     let (input, catalog, physical_header) = input.into_lowering_and_admission();
-    let SelectedCallableSemanticRefV1::Dynamic { program, .. } = input.semantic() else {
+    issue_selected_a_prime_i64_physical_demand_from_parts(&input, catalog, physical_header)
+}
+
+pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand_from_parts<'loan>(
+    input: &SelectedCallableLoweringInputRefV1<'loan>,
+    catalog: NormalCatalogedBoxMethodDraftAdmissionV1,
+    physical_header_projection: Option<
+        crate::mir::builder::CatalogedBoxMethodPhysicalHeaderProjectionV1,
+    >,
+) -> Result<VerifiedAPrimeI64PhysicalDemandV1<'loan>, APrimeI64PhysicalDemandRejectV1> {
+    let SelectedCallableSemanticRefV1::Dynamic { program, source } = input.semantic() else {
         return Err(APrimeI64PhysicalDemandRejectV1::NotSelectedDynamic);
     };
+    let dynamic_source = Rc::clone(source);
     let selected_key = input.selected_key().clone();
     if !matches!(&selected_key, SelectedNormalCallableKeyV1::Cataloged(_)) {
         return Err(APrimeI64PhysicalDemandRejectV1::CallableIdentity);
@@ -52,7 +65,7 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
     let function_effects = operation_program
         .physical_function_effects()
         .ok_or(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionEffect)?;
-    let physical_header = physical_header
+    let physical_header = physical_header_projection
         .ok_or(APrimeI64PhysicalDemandRejectV1::PhysicalFunctionHeader)?;
     let physical_function_header =
         issue_physical_function_header(catalog, physical_header, function_effects)?;
@@ -67,6 +80,7 @@ pub(in crate::mir) fn issue_selected_a_prime_i64_physical_demand<'loan>(
         selected_key,
         identity,
         program,
+        dynamic_source,
         source_relation,
         operation_program,
         physical_function_header,
@@ -83,12 +97,15 @@ fn validate_package_physical_header(
     if package_header.owner() != input.source().owner()
         || package_header.result() != ExactTrivialScalarAbiV1::I64
         || package_header.completion_owner() != source_relation.owner()
-        || package_header.completion_target_function() != input.source().function().function_region()
+        || package_header.completion_target_function()
+            != input.source().function().function_region()
         || !package_header.completion_returns_value()
-        || package_header.completion_explicit_site_count() != source_relation.completion_sites().len()
+        || package_header.completion_explicit_site_count()
+            != source_relation.completion_sites().len()
         || package_header.completion_explicit_site_count() != 2
         || !package_header.completion_cleanup_is_empty()
-        || physical_header.return_type_name() != Some(ExactTrivialScalarAbiV1::I64.source_type_name())
+        || physical_header.return_type_name()
+            != Some(ExactTrivialScalarAbiV1::I64.source_type_name())
     {
         return Err(APrimeI64PhysicalDemandRejectV1::PackagePhysicalHeader);
     }

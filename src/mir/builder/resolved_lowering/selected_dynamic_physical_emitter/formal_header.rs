@@ -7,6 +7,7 @@ use crate::box_callable::provider_admission::{
     DynamicV2AotFormalProjectionV1, DynamicV2AotFormalRoleV1,
 };
 use crate::mir::a_prime_i64_physical_receipt::APrimeI64LaneV1;
+use crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
 };
@@ -86,9 +87,12 @@ impl DynamicV2OpenedFormalHeaderV1 {
         self.header
     }
 
-    #[cfg(test)]
     pub(super) const fn header_current(&self) -> CanonicalBindingReadReceiptV1 {
         self.header_current
+    }
+
+    pub(super) fn entry_values(&self) -> PreparedCallableEntryValuesV1 {
+        PreparedCallableEntryValuesV1::static_from_values(self.formals.map(|row| row.value))
     }
 }
 

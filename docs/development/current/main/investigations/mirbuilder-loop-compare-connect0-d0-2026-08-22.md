@@ -1,7 +1,7 @@
-Status: D0-A/D0-B accepted conditionally; selected Dynamic body-to-semantic-state bridge P0 is next, before live-publication evidence
+Status: P0-A/P0-B implemented; P0-C structural guard is green, while runtime reject/no-effect evidence remains before live-publication evidence
 Task: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-P0
 Date: 2026-08-22
-Priority: implement one private non-emitting observation bridge for resolver-backed Dynamic body and closed W6 evidence; keep backend, live publication, and generic retirement closed
+Priority: finish one private non-emitting observation bridge for resolver-backed Dynamic body and closed W6 evidence; keep backend, live publication, and generic retirement closed
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 PreviousCard: MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0
 NextCard: MIR-CALLABLE-DYNAMIC-BODY-STATE-BRIDGE-P0 (same rolling card)
@@ -361,6 +361,48 @@ without re-emission, typed unpublished discard on every rejection, and zero
 by this bridge P0. If any counter lacks an existing source/W6 relation, if the
 bridge requires a second AST authority or physical writer, or if state failure
 cannot discard the unpublished session, return to `NoSafeSlice`.
+
+## P0 implementation evidence (current)
+
+The bounded implementation now follows the accepted order in the selected
+Dynamic production adapter:
+
+```text
+selected input
+  -> A-prime demand transports the existing Dynamic Rc
+  -> W6 emits the existing physical evidence
+  -> profile_close retains the After read receipt
+  -> private non-emitting body_state_bridge observes source/W6 rows once
+  -> CallableSemanticLoweringState::finish()
+  -> canonical finish_for_draft_seal()
+  -> DraftSeal and existing collector admission
+```
+
+The bridge does not call `RawInvocationChildPortV1::lower_*`, rescan AST, emit
+MIR, issue a second semantic product, or add a fallback. I11 retains its
+existing physical read as `V14`; the profile-close `After` receipt is passed
+through rather than reread. The typed `pos -> i` local is handled as the
+source-backed static alias/rebind case because the fixture's `pos` formal is
+not a Dynamic-origin local; this keeps Dynamic-origin tracking separate from
+typed source aliasing.
+
+Evidence currently green:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --lib selected_dynamic_physical_emitter::tests:: -- --nocapture
+  2 passed, 0 failed
+CARGO_BUILD_JOBS=4 cargo check --lib
+  success; existing warning baseline only
+bash tools/checks/rust_mirbuilder_dynamic_body_state_bridge_p0_guard.sh
+  green: one bridge caller, retained W6 evidence, ordered DraftSeal seam
+```
+
+The current structural guard also keeps the touched production owners below
+the 760-line split trigger and 800-line hard boundary. Runtime negative
+fixture coverage for a rejected/duplicate bridge and explicit no-effect
+assertions is still P0-C work; this evidence does not claim
+`DraftAdmission`/`ModuleDrain`/`ExternalCommit`, live publication, generic
+retirement, backend parity, or performance.
 
 ## Current census
 

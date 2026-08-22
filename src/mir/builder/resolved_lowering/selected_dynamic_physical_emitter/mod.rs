@@ -6,6 +6,8 @@
 //! or publication path.
 
 mod a_prime_receipt;
+mod assembly;
+mod body_state_bridge;
 mod callout_corridor;
 mod continuation_backedge;
 mod fault_terminals;
@@ -25,9 +27,6 @@ use std::sync::Arc;
 
 use crate::box_callable::provider_admission::PreparedAotExecutableAdmissionV1;
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
-use crate::mir::builder::module_draft_collector::CollectedDraftAdmissionReceiptV1;
-use crate::mir::builder::module_invocation_owner_chain::InvocationBranded;
-use crate::mir::builder::module_lowering_invocation::ModuleLoweringPortV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2I8EvidenceV1, DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalBlockTargetV1,
@@ -42,9 +41,7 @@ use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::canonical_direct_static_call_capability::CanonicalDirectStaticCallCapabilityV1;
 use crate::mir::checked_callout::{CheckedCallOutPlanTableV1, CheckedCallOutSitePlanPairV1};
-use crate::mir::compiler::a_prime_i64_physical_capability::issue_selected_a_prime_i64_physical_demand;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
-use crate::mir::normal_callable_semantic_package::SelectedCatalogedCallableLoweringInputV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 #[cfg(test)]
 use crate::mir::BasicBlockId;
@@ -277,6 +274,12 @@ fn issue_targets_and_formal_header(
 }
 
 impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> {
+    pub(in crate::mir::builder) fn dynamic_source(
+        &self,
+    ) -> &std::rc::Rc<crate::mir::builder::VerifiedSourceBackedDynamicCallableV1> {
+        self.demand.dynamic_source()
+    }
+
     fn reject_begin(
         outer: CanonicalFunctionLoweringSessionV1<'builder>,
         error: DynamicV2I8EmitterRejectV1,
@@ -408,6 +411,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &lifecycle,
             &mut cleanup_cursor,
             &mut operation_census,
+            &mut values,
             &brand,
         ) {
             return Self::reject_begin(outer, error);
@@ -436,6 +440,10 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     /// existing root collector; publication remains outside this emitter.
     pub(super) fn finish_unpublished_draft(
         mut self,
+        inspect: impl FnOnce(
+            &mut Self,
+            &profile_close::DynamicV2PhysicalProfileCloseV1,
+        ) -> Result<(), String>,
     ) -> Result<
         crate::mir::builder::resolved_lowering::CompletedCatalogedBoxCallableDraftV1,
         DynamicV2I8EmitterRejectV1,
@@ -462,8 +470,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 "physical cleanup cursor drift: {error:?}"
             )));
         }
-        let operation_census = self.operation_census;
-        if let Err(error) = operation_census.close() {
+        if let Err(error) = self.operation_census.check_closed() {
             outer.discard_unpublished();
             return Err(DynamicV2I8EmitterRejectV1::RecipeOperationCursor(format!(
                 "physical operation census drift: {error:?}"
@@ -484,6 +491,26 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 return Err(error);
             }
         };
+        self.canonical = Some(canonical);
+        self.outer = Some(outer);
+        if let Err(error) = inspect(&mut self, &profile) {
+            self.canonical.take();
+            self.outer
+                .take()
+                .expect("unpublished emitter must retain outer session")
+                .discard_unpublished();
+            return Err(DynamicV2I8EmitterRejectV1::DraftSeal(format!(
+                "selected Dynamic body-state bridge rejected: {error}"
+            )));
+        }
+        let mut canonical = self
+            .canonical
+            .take()
+            .expect("unpublished emitter must retain canonical session");
+        let mut outer = self
+            .outer
+            .take()
+            .expect("unpublished emitter must retain outer session");
         let after = self
             .targets
             .with_role(targets::DynamicV2PhysicalTargetRoleV1::After, |target| {
@@ -607,6 +634,25 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         ))
     }
 
+    pub(in crate::mir::builder) fn observe_body_state(
+        &self,
+        state: &mut crate::mir::builder::normal_callable_semantic_lowering_state::
+            CallableSemanticLoweringState,
+        profile: &profile_close::DynamicV2PhysicalProfileCloseV1,
+    ) -> Result<(), String> {
+        body_state_bridge::observe(
+            state,
+            &self.demand,
+            &self.formal_header,
+            &self.targets,
+            &self.callout_corridor,
+            &self.values,
+            profile,
+            self.lifecycle.lease_slot(),
+            &self.brand,
+        )
+    }
+
     /// Explicit terminal for an unpublished selected-Dynamic candidate.
     pub(super) fn discard_unpublished(mut self) {
         self.canonical.take();
@@ -678,55 +724,9 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     }
 }
 
-/// Assemble one unpublished selected Dynamic W6 candidate through the existing
-/// package loan, invocation brand, physical session, DraftSeal, and collector
-/// terminal. The adapter is the route owner; root publication remains owned by
-/// the existing candidate/external-commit lifecycle.
-pub(in crate::mir::builder) fn assemble_unpublished_selected_dynamic_w6<'program, 'builder>(
-    builder: &'builder mut MirBuilder,
-    module_port: &mut ModuleLoweringPortV1<'_>,
-    input: SelectedCatalogedCallableLoweringInputV1<'program>,
-    inspect: impl FnOnce(
-        &mut DynamicV2PhysicalEmissionSessionV1<'program, 'builder>,
-    ) -> Result<(), String>,
-) -> Result<InvocationBranded<CollectedDraftAdmissionReceiptV1>, String> {
-    let demand = issue_selected_a_prime_i64_physical_demand(input)
-        .map_err(|error| format!("A-prime demand rejected: {error:?}"))?;
-    let plan =
-        crate::mir::builder::resolved_lowering::issue_selected_dynamic_v2_emission_plan(demand)
-            .map_err(|error| format!("physical plan rejected: {error:?}"))?;
-    let (capability, brand) = module_port
-        .with_invocation_brand(|brand| {
-            (
-                crate::mir::builder::resolved_lowering::
-                    issue_selected_dynamic_v2_physical_capability_admission_from_brand(
-                        plan, brand,
-                    ),
-                brand,
-            )
-        })
-        .map_err(|error| format!("collector brand unavailable: {error:?}"))?;
-    let capability =
-        capability.map_err(|error| format!("physical capability rejected: {error:?}"))?;
-    if capability.plan_stamp() != brand {
-        return Err("collector brand and admission PlanStamp diverged".to_owned());
-    }
-    let activation = capability
-        .prepare_aot_activation()
-        .map_err(|error| format!("AOT activation rejected: {error:?}"))?;
-    let mut session = DynamicV2PhysicalEmissionSessionV1::begin(builder, activation)
-        .map_err(|error| format!("physical session rejected: {error:?}"))?;
-    if let Err(error) = inspect(&mut session) {
-        session.discard_unpublished();
-        return Err(error);
-    }
-    let completed = session
-        .finish_unpublished_draft()
-        .map_err(|error| format!("DraftSeal rejected: {error:?}"))?;
-    module_port
-        .commit_cataloged_box_method_completed(completed)
-        .map_err(|error| format!("collector admission rejected: {error}"))
-}
+pub(in crate::mir::builder) use assembly::{
+    assemble_unpublished_selected_dynamic_w6, assemble_unpublished_selected_dynamic_w6_from_parts,
+};
 
 #[cfg(test)]
 mod tests;

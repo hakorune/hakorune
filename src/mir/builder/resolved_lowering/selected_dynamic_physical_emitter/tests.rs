@@ -56,7 +56,7 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
                 builder,
                 module_port,
                 input,
-                |session| {
+                |session, _profile| {
         let target = |item| {
             session
                 .schedule

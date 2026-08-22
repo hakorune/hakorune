@@ -16,6 +16,7 @@ use super::callable_declaration_catalog::{
 };
 use super::main_expansion::VerifiedMainStaticChildV1;
 use super::module_lifecycle::RootCallableCapturePortV1;
+use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftAdmissionV1;
 use super::normal_instance_constructor_demand_loan::InstanceConstructorDemandConsumptionV1;
 use super::normal_instance_constructor_semantic_scope::with_constructor_semantic_scope;
@@ -480,12 +481,24 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     input.selected().semantic(),
                     crate::mir::normal_callable_semantic_package::SelectedCallableSemanticRefV1::Dynamic { .. }
                 ) {
+                    let (selected, admission, physical_header) =
+                        input.into_lowering_and_admission();
                     let _collector_receipt =
-                        crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6(
+                        crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6_from_parts(
                             builder,
                             inner.module_port,
-                            input,
-                            |_| Ok(()),
+                            &selected,
+                            admission,
+                            physical_header,
+                            |session, profile| {
+                                let mut state =
+                                    CallableSemanticLoweringState::from_exact_source_with_dynamic_source(
+                                        selected.source(),
+                                        Some(Rc::clone(session.dynamic_source())),
+                                    )?;
+                                session.observe_body_state(&mut state, profile)?;
+                                state.finish()
+                            },
                         )
                         .map_err(|error| {
                             format!(

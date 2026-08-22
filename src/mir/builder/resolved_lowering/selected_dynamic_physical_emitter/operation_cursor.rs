@@ -118,9 +118,9 @@ impl DynamicV2PhysicalOperationCensusV1 {
         Ok(())
     }
 
-    /// Consume the cursor only after every selected physical leaf has claimed
-    /// its row.  No partial evidence can silently disappear at session close.
-    pub(super) fn close(self) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
+    /// Check that every selected physical leaf claimed its row. No partial
+    /// evidence can silently disappear at session close.
+    pub(super) fn check_closed(&self) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
         if self.next_operation == self.operation_order.len()
             && self.remaining_if == 0
             && self.remaining_exit == 0
@@ -129,6 +129,10 @@ impl DynamicV2PhysicalOperationCensusV1 {
         } else {
             Err(DynamicV2RecipeOperationCursorRejectV1::MissingRequiredShape)
         }
+    }
+
+    pub(super) fn close(self) -> Result<(), DynamicV2RecipeOperationCursorRejectV1> {
+        self.check_closed()
     }
 }
 

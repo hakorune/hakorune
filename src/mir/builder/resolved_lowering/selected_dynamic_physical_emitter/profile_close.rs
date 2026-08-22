@@ -10,15 +10,18 @@ use super::lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1;
 use super::targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
-use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use crate::mir::builder::resolved_lowering::canonical_ssa::{
+    CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
+};
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::resolved_semantics::ResolvedExitSiteV1;
 use crate::mir::{BasicBlockId, MirInstruction, MirType};
 
 #[derive(Debug, Clone, Copy)]
-pub(super) struct DynamicV2PhysicalProfileCloseV1 {
+pub(in crate::mir::builder) struct DynamicV2PhysicalProfileCloseV1 {
     owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     terminal: BasicBlockId,
+    outer_return: CanonicalBindingReadReceiptV1,
 }
 
 impl DynamicV2PhysicalProfileCloseV1 {
@@ -31,6 +34,10 @@ impl DynamicV2PhysicalProfileCloseV1 {
             return Err("Dynamic profile close owner/terminal mismatch".to_owned());
         }
         Ok(())
+    }
+
+    pub(super) const fn outer_return(self) -> CanonicalBindingReadReceiptV1 {
+        self.outer_return
     }
 }
 
@@ -317,5 +324,6 @@ pub(super) fn emit(
     Ok(DynamicV2PhysicalProfileCloseV1 {
         owner: demand.identity().owner(),
         terminal: after,
+        outer_return: receipt,
     })
 }

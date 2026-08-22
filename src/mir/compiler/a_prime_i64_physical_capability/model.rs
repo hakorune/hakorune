@@ -1,7 +1,10 @@
 //! Builder-free A-prime physical-demand product.
 
+use std::rc::Rc;
+
 use crate::ast::DeclarationAttrs;
 use crate::mir::builder::SelectedNormalCallableKeyV1;
+use crate::mir::builder::VerifiedSourceBackedDynamicCallableV1;
 use crate::mir::builder::{
     NormalCatalogedBoxMethodAdmissionErrorV1, NormalCatalogedBoxMethodDraftAdmissionV1,
 };
@@ -106,6 +109,7 @@ pub(in crate::mir) struct VerifiedAPrimeI64PhysicalDemandV1<'program> {
     selected_key: SelectedNormalCallableKeyV1,
     identity: VerifiedResolvedCallableSourceIdentityV1,
     program: &'program VerifiedDynamicExitTransactionCoSealV1,
+    dynamic_source: Rc<VerifiedSourceBackedDynamicCallableV1>,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
     operation_program: PreparedDynamicLoopOperationProgramV2<'program>,
     physical_function_header: APrimePhysicalFunctionHeaderV1,
@@ -152,6 +156,10 @@ impl<'program> VerifiedAPrimeI64PhysicalDemandV1<'program> {
         &self.source_relation
     }
 
+    pub(in crate::mir) fn dynamic_source(&self) -> &Rc<VerifiedSourceBackedDynamicCallableV1> {
+        &self.dynamic_source
+    }
+
     pub(in crate::mir) fn with_cleanup_physical_rows<R>(
         &self,
         callback: impl FnOnce([DynamicInvocationCleanupRowViewV1; 4]) -> R,
@@ -178,6 +186,7 @@ pub(super) fn from_parts<'program>(
     selected_key: SelectedNormalCallableKeyV1,
     identity: VerifiedResolvedCallableSourceIdentityV1,
     program: &'program VerifiedDynamicExitTransactionCoSealV1,
+    dynamic_source: Rc<VerifiedSourceBackedDynamicCallableV1>,
     source_relation: DynamicAPrimeI64SourceRelationViewV1<'program>,
     operation_program: PreparedDynamicLoopOperationProgramV2<'program>,
     physical_function_header: APrimePhysicalFunctionHeaderV1,
@@ -187,6 +196,7 @@ pub(super) fn from_parts<'program>(
         selected_key,
         identity,
         program,
+        dynamic_source,
         source_relation,
         operation_program,
         physical_function_header,

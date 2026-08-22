@@ -11,9 +11,11 @@ use super::lifecycle_terminal::{
 };
 use super::operation_cursor::DynamicV2PhysicalOperationCensusV1;
 use super::targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
+use super::value_ledger::DynamicV2PhysicalValueLedgerV1;
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
 use crate::mir::builder::calls::CanonicalFunctionLoweringSessionV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionSessionV2;
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupRowKindV1;
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopOperationV2, LoopValueKeyV1};
@@ -100,6 +102,7 @@ fn emit_program(
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
     cleanup: &mut DynamicV2PhysicalCleanupCursorV1,
     operation_census: &mut DynamicV2PhysicalOperationCensusV1,
+    values: &mut DynamicV2PhysicalValueLedgerV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     let rows = program.operation_rows();
@@ -175,6 +178,15 @@ fn emit_program(
         .identity
         .mark_return(ResolvedExitSiteV1::Statement(site))
         .map_err(reject)?;
+    values
+        .publish(
+            I11,
+            V14,
+            &then_target,
+            receipt.physical_value(),
+            DynamicV2PhysicalRepresentationV1::ImmediateI64,
+        )
+        .map_err(|error| reject(format!("I11 physical value ledger: {error:?}")))?;
 
     let witness = {
         let function = outer
@@ -208,6 +220,7 @@ pub(super) fn emit(
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
     cleanup: &mut DynamicV2PhysicalCleanupCursorV1,
     operation_census: &mut DynamicV2PhysicalOperationCensusV1,
+    values: &mut DynamicV2PhysicalValueLedgerV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
 ) -> Result<(), DynamicV2I8EmitterRejectV1> {
     demand.with_operation_program(|program| {
@@ -221,6 +234,7 @@ pub(super) fn emit(
             lifecycle,
             cleanup,
             operation_census,
+            values,
             brand,
         )
     })

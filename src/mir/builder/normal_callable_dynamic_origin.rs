@@ -29,6 +29,18 @@ pub(super) enum CallableDynamicOriginErrorV1 {
     LocalShapeMismatch,
     LocalOrdinalMismatch(u32),
     LocalBindingMismatch(BindingRefV1),
+    AliasExpectationMissing {
+        binding: BindingRefV1,
+        expected_locals: Box<[BindingRefV1]>,
+    },
+    AliasDeclarationMismatch(BindingRefV1),
+    AliasFormalMismatch(BindingRefV1),
+    AliasOrdinalMismatch {
+        binding: BindingRefV1,
+        expected: u32,
+        actual: u32,
+    },
+    AliasAlreadyCompleted(BindingRefV1),
     InitializerOriginMismatch(BindingRefV1),
     DuplicateLocalCompletion(BindingRefV1),
     StaleRebindOrigin(BindingRefV1),
@@ -331,6 +343,79 @@ impl CallableDynamicOriginLoweringStateV1 {
                     binding,
                 ));
             }
+        }
+        Ok(())
+    }
+
+    pub(super) fn record_alias_local(
+        &mut self,
+        statement: &crate::mir::resolved_semantics::SourceNodeSiteV1,
+        binding: BindingRefV1,
+        formal: BindingRefV1,
+        value: ValueId,
+        expected_ordinal: u32,
+    ) -> Result<(), CallableDynamicOriginErrorV1> {
+        let Some(expected) = self.local_expectations.get(&binding) else {
+            return Err(CallableDynamicOriginErrorV1::AliasExpectationMissing {
+                binding,
+                expected_locals: self.local_expectations.keys().copied().collect(),
+            });
+        };
+        let SourceBindingSiteV1::Local {
+            statement: expected_statement,
+            ordinal,
+        } = &expected.declaration
+        else {
+            return Err(CallableDynamicOriginErrorV1::AliasDeclarationMismatch(
+                binding,
+            ));
+        };
+        if expected.formal != formal {
+            return Err(CallableDynamicOriginErrorV1::AliasFormalMismatch(binding));
+        }
+        if expected_statement.node() != statement {
+            return Err(CallableDynamicOriginErrorV1::AliasDeclarationMismatch(
+                binding,
+            ));
+        }
+        if *ordinal != expected_ordinal {
+            return Err(CallableDynamicOriginErrorV1::AliasOrdinalMismatch {
+                binding,
+                expected: *ordinal,
+                actual: expected_ordinal,
+            });
+        }
+        if !self.completed_locals.insert(binding) {
+            return Err(CallableDynamicOriginErrorV1::AliasAlreadyCompleted(binding));
+        }
+        let Some(&(formal_value, source_formal)) = self.active_origins.get(&formal) else {
+            return Err(CallableDynamicOriginErrorV1::MissingFormalOrigin(formal));
+        };
+        if source_formal != formal || formal_value != value {
+            return Err(CallableDynamicOriginErrorV1::InitializerOriginMismatch(
+                binding,
+            ));
+        }
+        if self
+            .active_origins
+            .insert(binding, (value, formal))
+            .is_some()
+        {
+            return Err(CallableDynamicOriginErrorV1::DuplicateLocalCompletion(
+                binding,
+            ));
+        }
+        let entry = PreparedDynamicLocalEntryV1 {
+            declaration: expected.declaration.clone(),
+            formal,
+            binding,
+            initializer: value,
+            local: value,
+        };
+        if self.local_entries.insert(binding, entry).is_some() {
+            return Err(CallableDynamicOriginErrorV1::DuplicateLocalCompletion(
+                binding,
+            ));
         }
         Ok(())
     }

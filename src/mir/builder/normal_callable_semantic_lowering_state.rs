@@ -18,6 +18,9 @@ use super::normal_callable_dynamic_origin::{
 };
 use super::normal_callable_dynamic_source::SourceBackedDynamicCallableIssuerV1;
 
+#[path = "normal_callable_semantic_observation.rs"]
+mod observation;
+
 /// Physical values materialized while lowering one callable body.
 ///
 /// Semantic identity remains owned by `VerifiedResolvedFunctionV1`; this state
@@ -54,6 +57,10 @@ pub(super) struct PreparedCallableDynamicRebindV1 {
 }
 
 impl CallableSemanticLoweringState {
+    pub(super) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.owner
+    }
+
     pub(super) fn from_exact_source(
         input: ResolvedFunctionLoweringInputV1<'_>,
     ) -> Result<Self, String> {
