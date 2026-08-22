@@ -1,11 +1,11 @@
 ---
-Status: fast; bounded caller-zero BoxShape implementation
+Status: complete; caller-zero structural lease landed and production ingress remains closed
 Task: MIR-CALLABLE-LOOP-READY-STRUCTURAL-LEASE-I0
 Date: 2026-08-22
 Priority: implement one route-neutral source-bound lease with no production edge
 Parent: MIR-CALLABLE-LOOP-READY-SOURCE-BOUND-STRUCTURAL-LEASE-D0
 PreviousCard: mirbuilder-callable-loop-ready-source-bound-structural-lease-d0-2026-08-22.md
-NextCard: none-until-Decision
+NextCard: mirbuilder-callable-loop-ready-production-ingress-d0-2026-08-22.md
 ---
 
 # Callable Loop Ready structural lease I0
@@ -89,10 +89,38 @@ must show zero effect and typed rejection for each relation failure.
 
 ## Closeout
 
-On green evidence, update this card and the module README, commit and push the
-caller-zero I0, then return to `design_stop` for the separate production
-Ready-ingress/normalizer Decision. Do not delete or alter the current raw
-Ready -> old route edge in this slice.
+Implemented and verified on `main`:
+
+```text
+CallableGenericLoopSourceFactsReceiptV1
+  -> CallableLoopStructuralLeaseIssuerV1
+  -> CallableLoopRouteNeutralStructuralSeedV1
+  -> PreparedCallableLoopStructuralHandoffV1
+  -> one HRTB CallableLoopReadyStructuralViewV1<'view>
+```
+
+Evidence:
+
+```text
+source_bound_lease tests = 3 passed
+typed foreign-root rejection = passed
+typed pre-effect-owner rejection = passed
+production lease callers = 0
+old route/planner/physical calls from lease path = 0
+rustfmt check = passed
+diff check = passed
+pointer guard = passed
+source-facts/structural-lease guard = passed
+```
+
+The focused test fixture now keeps the source receipt in a higher-ranked
+callback without a leaked source allocation. The structural module still has
+the historical diagnostic-only `LoopRouteContext` helper, but the new lease
+path never constructs or classifies a route.
+
+The raw `Ready -> lower_loop_or_freeze_v1` edge was intentionally not changed.
+The next card is a separate `design_stop` for one named production ingress and
+normalizer consumer; no physical/publication work is opened by this closeout.
 
 This I0 does not claim ordinary Loop lowering, physical publication, fallback
 retirement, or production activation.
