@@ -1,7 +1,7 @@
-Status: live README path receipt P0 complete; selected next compiler tests home D0
+Status: compiler tests home D0 complete; selected next behavior-neutral compiler tests home R0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-COMPILER-TESTS-HOME-D0`
+Current row: `MIRBUILDER-COMPILER-TESTS-HOME-R0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,9 +56,9 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-COMPILER-TESTS-HOME-D0` — map the test groups,
-`super` imports, fixture owners, and parent `#[cfg(test)]` scope before any
-`compiler/tests.rs` move; no Rust source change is authorized in this D0.
+Smallest next slice: `MIRBUILDER-COMPILER-TESTS-HOME-R0` — move the already
+mapped test-only groups behind one `tests` facade, preserving test names and
+the compiler production module graph.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -274,7 +274,7 @@ home guard, and `git diff --check` passed. The parent is 481 lines and the
 test child is 319 lines; the original logical module and `cfg(test)` scope are
 unchanged.
 
-#### `MIRBUILDER-COMPILER-TESTS-HOME-D0` — selected next
+#### `MIRBUILDER-COMPILER-TESTS-HOME-D0` — complete
 
 First map `super` imports, test filters, fixture ownership, and parent
 `#[cfg(test)]` scope for `src/mir/compiler/tests.rs`. Only then split it into
@@ -297,6 +297,36 @@ Fail-fast boundary: stop before code movement if a group has unresolved super/fi
 Smallest next slice: one owner map for all groups and parent #[cfg(test)] scope.
 Non-claims: no split, production registration change, semantic change, fallback, or new receipt.
 ```
+
+D0 census receipt:
+
+```text
+parent: src/mir/compiler/mod.rs:710 #[cfg(test)] mod tests;
+production registration: none; module_registry.in.rs is unchanged
+test count: 25 total, 6 ignored, 19 non-ignored
+shared surface: one super import block; no local helper module or test fixture file
+crate surface: AST/MIR/parser/runtime/config/test-support reads only
+groups: finish-schedule/discard (6), exact-numeric contracts (5), basic/legacy lowering (5), string corridor (2), method-id (1), await (3), throw/loop/try-catch (3)
+external state: ring0 initialization in numeric/try paths; env mutation only in ignored await rewrite
+R0 shape: keep compiler::tests as the parent facade; add test-only child files under compiler/tests/ and retain all function names/attributes
+```
+
+The D0 is complete because every test belongs to one bounded group, the only
+parent-private surface is the existing compiler module import block, and no
+production module dependency was found. The later R0 must preserve the
+`#[cfg(test)]` parent registration and must not alter fixtures, semantics, or
+runtime/compiler ownership.
+
+#### `MIRBUILDER-COMPILER-TESTS-HOME-R0` — selected next
+
+Move the seven mapped test groups behind a test-only `compiler::tests` facade.
+This is a behavior-neutral BoxShape refactor, not a test repair or compiler
+production change.
+
+Acceptance: `compiler/tests.rs < 760`, all 25 test names and six ignore
+attributes remain, the parent `#[cfg(test)] mod tests;` remains the only
+production registration, focused compiler tests retain their current result,
+and one reusable size/module guard proves the split.
 
 ### D0 — deferred architecture decisions
 
