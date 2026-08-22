@@ -69,7 +69,7 @@ pub(super) fn try_lower_blockexpr_loop_prelude_value(
     plans.extend(effects_to_plans(tail_effects));
     Ok(Some((tail_id, plans)))
 }
-pub(super) fn body_has_blockexpr_prelude_loop(body: &[ASTNode]) -> bool {
+pub(in crate::mir::builder) fn body_has_blockexpr_prelude_loop(body: &[ASTNode]) -> bool {
     body.iter().any(stmt_has_blockexpr_prelude_loop)
 }
 

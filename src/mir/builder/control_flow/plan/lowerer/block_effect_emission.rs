@@ -8,7 +8,7 @@
 //! - Strict planner validation for undefined operands and forward references
 //! - Body block vs normal block handling
 
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -30,12 +30,12 @@ pub fn emit_all_block_effects(
     loop_plan: &CoreLoopPlan,
     block_effects: &[(BasicBlockId, Vec<CoreEffectPlan>)],
     body_effects: Option<Vec<CoreEffectPlan>>,
-    ctx: &LoopRouteContext,
+    ctx: &dyn PlanLoweringContext,
     loop_stack: &mut Vec<LoopFrame>,
     port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
 ) -> Result<(), String> {
     let trace_logger = trace::trace();
-    let debug = ctx.debug;
+    let debug = ctx.debug_enabled();
 
     // Strict planner setup for validation
     let strict_planner_required = crate::config::env::joinir_dev::strict_enabled()
@@ -70,7 +70,7 @@ pub fn emit_all_block_effects(
             "lowerer/block_enter",
             &format!(
                 "func={} bb={:?} terminated={} term={}",
-                ctx.func_name,
+                ctx.function_name(),
                 block_id,
                 builder.is_current_block_terminated(),
                 term
@@ -137,7 +137,7 @@ fn emit_block_effects_strict(
     builder: &mut MirBuilder,
     block_id: BasicBlockId,
     effects: &[CoreEffectPlan],
-    ctx: &LoopRouteContext,
+    ctx: &dyn PlanLoweringContext,
     planned_defs: &Option<HashMap<ValueId, (BasicBlockId, usize, &'static str)>>,
     strict_planner_required: bool,
     port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
@@ -178,7 +178,7 @@ fn emit_block_effects_strict(
                     *dst,
                     &op_str,
                     block_id,
-                    ctx.func_name,
+                    ctx.function_name(),
                     "lhs",
                 )?;
                 validate_binop_operands(
@@ -190,7 +190,7 @@ fn emit_block_effects_strict(
                     *dst,
                     &op_str,
                     block_id,
-                    ctx.func_name,
+                    ctx.function_name(),
                     "rhs",
                 )?;
             }
@@ -259,7 +259,7 @@ fn validate_binop_operands(
 fn emit_loop_body_plans(
     builder: &mut MirBuilder,
     body: &[LoweredRecipe],
-    ctx: &LoopRouteContext,
+    ctx: &dyn PlanLoweringContext,
     loop_stack: &mut Vec<LoopFrame>,
     step_bb: BasicBlockId,
     port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,

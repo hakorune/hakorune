@@ -13,7 +13,7 @@
 //! - lower_with_stack() is the internal dispatcher
 //! - LoopFrame tracks break/continue targets and PHI inputs
 
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 use crate::mir::builder::control_flow::plan::{CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -39,7 +39,7 @@ impl super::PlanLowerer {
     pub(in crate::mir::builder) fn lower(
         builder: &mut MirBuilder,
         plan: LoweredRecipe,
-        ctx: &LoopRouteContext,
+        ctx: &dyn PlanLoweringContext,
     ) -> Result<Option<ValueId>, String> {
         let mut port = super::emission_port::CorePlanEffectEmissionPortV1::raw();
         Self::lower_with_emission_port(builder, plan, ctx, &mut port)
@@ -51,7 +51,7 @@ impl super::PlanLowerer {
     pub(in crate::mir::builder) fn lower_with_emission_port<'plan>(
         builder: &mut MirBuilder,
         plan: LoweredRecipe,
-        ctx: &LoopRouteContext,
+        ctx: &dyn PlanLoweringContext,
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'plan>,
     ) -> Result<Option<ValueId>, String> {
         let mut loop_stack = Vec::new();
@@ -62,7 +62,7 @@ impl super::PlanLowerer {
     pub(super) fn lower_with_stack(
         builder: &mut MirBuilder,
         plan: LoweredRecipe,
-        ctx: &LoopRouteContext,
+        ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {

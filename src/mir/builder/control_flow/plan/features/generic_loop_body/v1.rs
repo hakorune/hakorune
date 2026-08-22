@@ -27,6 +27,7 @@ use super::{
 
 #[path = "branch.rs"]
 mod branch;
+pub(in crate::mir::builder) use branch::body_has_blockexpr_prelude_loop;
 
 pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     builder: &mut MirBuilder,

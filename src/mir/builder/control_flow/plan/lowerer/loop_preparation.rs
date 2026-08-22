@@ -10,7 +10,7 @@
 //! - Provisional PHI insertion (Step 1.5)
 
 use crate::mir::builder::control_flow::edgecfg::api::Frag;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan, LoweredRecipe};
 use crate::mir::builder::emission::phi_lifecycle;
 use crate::mir::builder::MirBuilder;
@@ -26,12 +26,12 @@ use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 pub fn prepare_loop_entry(
     builder: &mut MirBuilder,
     mut loop_plan: CoreLoopPlan,
-    ctx: &LoopRouteContext,
+    ctx: &dyn PlanLoweringContext,
 ) -> Result<(Frag, Option<Vec<CoreEffectPlan>>, CoreLoopPlan), String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
     let trace_logger = trace::trace();
-    let debug = ctx.debug;
+    let debug = ctx.debug_enabled();
 
     // Preheader handling: if current block != preheader_bb, either:
     // - Jump to preheader (if fresh)
@@ -49,7 +49,9 @@ pub fn prepare_loop_entry(
                         "lowerer/term_set",
                         &format!(
                             "func={} bb={:?} term=Jump target={:?}",
-                            ctx.func_name, current_bb, loop_plan.preheader_bb
+                            ctx.function_name(),
+                            current_bb,
+                            loop_plan.preheader_bb
                         ),
                     );
                 }
@@ -102,7 +104,9 @@ pub fn prepare_loop_entry(
                     "lowerer/term_set",
                     &format!(
                         "func={} bb={:?} term=Jump target={:?}",
-                        ctx.func_name, current_bb, frag.entry
+                        ctx.function_name(),
+                        current_bb,
+                        frag.entry
                     ),
                 );
             }

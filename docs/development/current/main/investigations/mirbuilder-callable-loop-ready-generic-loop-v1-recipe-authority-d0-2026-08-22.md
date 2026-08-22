@@ -1,11 +1,12 @@
 ---
-Status: Decision accepted; implementation is opened at route-neutral context S0
+Status: Decision accepted; route-neutral context S0 and Ready semantic Recipe/physical adapter I0 are implemented; R0 evidence/closeout remains
 Task: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-RECIPE-AUTHORITY-D0
+Current execution row: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-SEMANTIC-RECIPE-PHYSICAL-ADAPTER-I0
 Date: 2026-08-22
 Priority: separate semantic GenericLoopV1 Recipe/Join issuance from the physical composer
 Parent: MIR-CALLABLE-LOOP-READY-PRODUCTION-INGRESS-D0
 PreviousCard: mirbuilder-callable-loop-ready-production-ingress-d0-2026-08-22.md
-NextCard: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-ROUTE-NEUTRAL-CONTEXT-S0 (this card)
+NextCard: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-READY-R0 (same bounded lane)
 ---
 
 # Callable Loop Ready GenericLoopV1 Recipe authority D0
@@ -37,15 +38,15 @@ lineage is foreign, the semantic Recipe issuer cannot prove its complete
 cohort, or the downstream physical composer would need to re-observe route
 meaning. Rejection is terminal; it cannot return to the old Ready route.
 
-Smallest next slice: first perform the behavior-neutral route-neutral context
-split, then implement the private semantic Recipe authority and its named
-physical adapter for one non-nested cohort. The same implementation series
-must connect `Ready`, remove the old Ready edge, and retain zero fallback.
+Smallest next slice: close R0 evidence for the implemented behavior-neutral
+route-neutral context split, private semantic Recipe authority, named physical
+adapter, and one non-nested Ready cohort. The same bounded series must retain
+zero fallback and record the main checkpoint.
 
-Non-claims: production Ready ingress, ordinary Loop lowering, `CorePlan`
-construction, `PlanLowerer`, CFG/SSA/physical IDs, nested-loop expansion,
-Outside ordinary consumption, fallback/retry retirement, production switch,
-and performance.
+Non-claims: Outside ordinary consumption, parser witness strengthening,
+general nested-loop expansion, publication beyond the unpublished function
+session, fallback/retry retirement outside this Ready edge, production
+performance, and backend changes.
 
 ## Why the previous ingress D0 stopped
 
@@ -222,6 +223,41 @@ adapter.
 4. **Evidence and closeout.** Add positive/negative focused tests, one
    reusable lane guard, module README/reference contract updates, source-size
    checks, and the pointer/commit/push receipt.
+
+## Current implementation receipt
+
+The bounded S0/I0 implementation is now present:
+
+```text
+Ready(schedule)
+  -> CallableGenericLoopSourceFactsIssuerV1::issue_once       (one call)
+  -> claim_all()                                             (one move)
+  -> CallableGenericLoopV1SemanticRecipeIssuerV1             (one source receipt)
+  -> CallableGenericLoopV1PhysicalAdapterV1                  (one named consumer)
+  -> route-neutral composer/context
+  -> PlanVerifier
+  -> PlanLowerer                                              (unpublished MIR)
+```
+
+The old `Ready -> lower_loop_or_freeze_v1` edge is gone. The `None` handoff
+case remains the legacy non-callable lane; it is not a fallback from a source-
+aware rejection. `Outside` remains terminal because its ordinary source-backed
+consumer is a separate design slice.
+
+The payload is one move-only aggregate with no 11-element tuple escape. The
+semantic Recipe lends its retained Facts through an HRTB view and does not
+rebuild route/Facts authority. The physical adapter is bounded to the existing
+non-nested GenericLoopV1 first cohort.
+
+Remaining R0 evidence before this card can close:
+
+```text
+focused production-edge evidence for Ready -> adapter
+source-aware reject effect-zero evidence
+reusable guard proving one issuer/consumer and no old Ready fallback
+README/current-pointer synchronization
+commit + push receipt on main
+```
 
 ## Finite state table
 

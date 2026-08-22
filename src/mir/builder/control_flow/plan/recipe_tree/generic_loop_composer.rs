@@ -3,6 +3,7 @@
 use super::RecipeComposer;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::features::generic_loop_context::GenericLoopV1LoweringContext;
 use crate::mir::builder::control_flow::plan::features::generic_loop_pipeline;
 use crate::mir::builder::control_flow::plan::parts::var_map_scope::with_saved_variable_map_typed;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
@@ -60,6 +61,25 @@ impl RecipeComposer {
         builder: &mut MirBuilder,
         facts: &CanonicalLoopFacts,
         ctx: &LoopRouteContext,
+    ) -> Result<LoweredRecipe, Freeze> {
+        Self::compose_generic_loop_v1_recipe_with_context(builder, facts, ctx)
+    }
+
+    /// Compose a source-backed GenericLoopV1 Recipe through the route-neutral
+    /// physical context.  The caller has already selected GenericLoopV1; this
+    /// method never constructs or reclassifies a `LoopRouteContext`.
+    pub(in crate::mir::builder) fn compose_source_generic_loop_v1_recipe(
+        builder: &mut MirBuilder,
+        facts: &CanonicalLoopFacts,
+        ctx: &dyn GenericLoopV1LoweringContext,
+    ) -> Result<LoweredRecipe, Freeze> {
+        Self::compose_generic_loop_v1_recipe_with_context(builder, facts, ctx)
+    }
+
+    fn compose_generic_loop_v1_recipe_with_context(
+        builder: &mut MirBuilder,
+        facts: &CanonicalLoopFacts,
+        ctx: &dyn GenericLoopV1LoweringContext,
     ) -> Result<LoweredRecipe, Freeze> {
         use crate::config::env::joinir_dev;
 

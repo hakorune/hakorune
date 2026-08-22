@@ -1,10 +1,12 @@
 //! Raw Loop child-entry port boundary.
 //!
-//! This module owns only the two existing raw Loop-entry implementations. It
-//! is a behavior-neutral BoxShape split: source ownership, callable semantic
-//! consumption, JoinIR routing, and physical lowering remain unchanged.
+//! This module owns the two raw Loop-entry implementations. The legacy port
+//! still delegates to JoinIR; the invocation port now consumes a source-backed
+//! Ready product through the named semantic Recipe/physical adapter and keeps
+//! Outside terminal.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::raw_loop_child_entry::PreparedLocatedRawLoopChildEntryV1;
@@ -12,9 +14,9 @@ use super::recursive_child_lowering::{RawInvocationChildPortV1, RawLegacyChildLo
 
 /// One raw Loop child-entry boundary.
 ///
-/// This boundary owns only the decision whether a raw invocation may delegate
-/// to the existing JoinIR route owner. It does not pass the invocation port
-/// into recipe composition, normalization, or plan lowering.
+/// This boundary owns the raw invocation entry. A non-callable handoff may
+/// delegate to the legacy JoinIR owner, while a source-backed Ready handoff
+/// enters the named Recipe/physical adapter exactly once.
 pub(in crate::mir::builder) trait RawLoopChildEntryPortV1 {
     fn lower_loop(
         &mut self,
@@ -52,6 +54,15 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
         })?;
         let callable_handoff = self.issue_callable_loop_binding_schedule_v1()?;
         let admission_observation = self.generic_loop_diagnostic.issue_for_loop(source);
+        let function_name = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .map(|function| function.signature.name.clone())
+            .unwrap_or_else(|| "<unknown>".to_owned());
+        let debug = crate::config::env::joinir_dev::debug_enabled();
+        let in_static_box = builder.comp_ctx.current_static_box.is_some();
+        let policy = GenericLoopFactsPolicyFrameV1::from_environment();
         PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
             source,
             loop_node,
@@ -59,6 +70,6 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
             self.generic_loop_diagnostic.method_source().cloned(),
             admission_observation,
         )?
-        .lower_with_existing_route_v1(builder)
+        .lower_v1(builder, &function_name, debug, in_static_box, policy)
     }
 }

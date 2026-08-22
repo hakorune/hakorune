@@ -20,7 +20,7 @@
 //! - Phase 29bq+: PlanBuildSession structural lock
 
 use super::LoopFrame;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CoreLoopPlan};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -43,19 +43,22 @@ impl super::PlanLowerer {
     pub(super) fn lower_loop(
         builder: &mut MirBuilder,
         loop_plan: CoreLoopPlan,
-        ctx: &LoopRouteContext,
+        ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
         use crate::mir::builder::control_flow::joinir::trace;
 
         let trace_logger = trace::trace();
-        let debug = ctx.debug;
+        let debug = ctx.debug_enabled();
 
         if debug {
             trace_logger.debug(
                 "lowerer/loop",
-                &format!("Phase 273 P3: Lowering CoreLoopPlan for {}", ctx.func_name),
+                &format!(
+                    "Phase 273 P3: Lowering CoreLoopPlan for {}",
+                    ctx.function_name()
+                ),
             );
         }
 
@@ -86,7 +89,7 @@ impl super::PlanLowerer {
     fn lower_loop_generalized(
         builder: &mut MirBuilder,
         loop_plan: CoreLoopPlan,
-        ctx: &LoopRouteContext,
+        ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
     ) -> Result<Option<ValueId>, String> {
@@ -97,7 +100,7 @@ impl super::PlanLowerer {
         let mut session = PlanBuildSession::new();
 
         let trace_logger = trace::trace();
-        let debug = ctx.debug;
+        let debug = ctx.debug_enabled();
         let pre_loop_map = builder.function_state.variable_ctx.variable_map.clone();
 
         // Phase 6: Prepare loop entry (preheader, body flattening, jump to entry)

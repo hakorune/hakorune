@@ -16,6 +16,10 @@ use super::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
     VerifiedCallableSemanticLoopBindingScheduleV1,
 };
+use super::normal_callable_loop_physical_adapter::CallableGenericLoopV1PhysicalAdapterV1;
+use super::normal_callable_loop_source_facts::{
+    CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
+};
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -53,67 +57,22 @@ pub(in crate::mir::builder) struct PreparedLocatedRawLoopChildEntryV1<'source> {
 /// Opaque move-only payload assembled from one prepared Loop entry.
 ///
 /// The source-aware issuer receives this aggregate, not independently
-/// supplied AST/source fragments.  Its fields are private to this module and
-/// the only constructor is the exact `PreparedLocatedRawLoopChildEntryV1`
-/// move below.
+/// supplied AST/source fragments.  The fields are visible only inside the
+/// Builder tree so the sole issuer can destructure this one aggregate; they
+/// are never exposed as an independently pairable tuple.
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PreparedCallableGenericLoopSourceFactsPayloadV1<'source> {
-    parent_source: &'source RawInvocationSourceContextV1,
-    condition_source: RawInvocationSourceContextV1,
-    body_source: RawInvocationSourceContextV1,
-    condition: ASTNode,
-    body: Vec<ASTNode>,
-    owner: FunctionOwnerIdV1,
-    schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
-    function_name: Box<str>,
-    debug: bool,
-    in_static_box: bool,
-    policy: GenericLoopFactsPolicyFrameV1,
-}
-
-impl<'source> PreparedCallableGenericLoopSourceFactsPayloadV1<'source> {
-    pub(in crate::mir::builder) fn into_parts(
-        self,
-    ) -> (
-        &'source RawInvocationSourceContextV1,
-        RawInvocationSourceContextV1,
-        RawInvocationSourceContextV1,
-        ASTNode,
-        Vec<ASTNode>,
-        FunctionOwnerIdV1,
-        VerifiedCallableSemanticLoopBindingScheduleV1,
-        Box<str>,
-        bool,
-        bool,
-        GenericLoopFactsPolicyFrameV1,
-    ) {
-        let Self {
-            parent_source,
-            condition_source,
-            body_source,
-            condition,
-            body,
-            owner,
-            schedule,
-            function_name,
-            debug,
-            in_static_box,
-            policy,
-        } = self;
-        (
-            parent_source,
-            condition_source,
-            body_source,
-            condition,
-            body,
-            owner,
-            schedule,
-            function_name,
-            debug,
-            in_static_box,
-            policy,
-        )
-    }
+    pub(in crate::mir::builder) parent_source: &'source RawInvocationSourceContextV1,
+    pub(in crate::mir::builder) condition_source: RawInvocationSourceContextV1,
+    pub(in crate::mir::builder) body_source: RawInvocationSourceContextV1,
+    pub(in crate::mir::builder) condition: ASTNode,
+    pub(in crate::mir::builder) body: Vec<ASTNode>,
+    pub(in crate::mir::builder) owner: FunctionOwnerIdV1,
+    pub(in crate::mir::builder) schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
+    pub(in crate::mir::builder) function_name: Box<str>,
+    pub(in crate::mir::builder) debug: bool,
+    pub(in crate::mir::builder) in_static_box: bool,
+    pub(in crate::mir::builder) policy: GenericLoopFactsPolicyFrameV1,
 }
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
@@ -193,9 +152,13 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         })
     }
 
-    pub(in crate::mir::builder) fn lower_with_existing_route_v1(
+    pub(in crate::mir::builder) fn lower_v1(
         self,
         builder: &mut MirBuilder,
+        function_name: &str,
+        debug: bool,
+        in_static_box: bool,
+        policy: GenericLoopFactsPolicyFrameV1,
     ) -> Result<ValueId, String> {
         let Self {
             parent_source,
@@ -208,46 +171,78 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             method_source_observation: _,
             admission_observation: _,
         } = self;
-        let outside_reason = match callable_handoff {
-            Some(CallableLoopBindingProjectionDispositionV1::Ready(handoff)) => {
-                let _pre_effect_receipt = handoff.consume_pre_effect(
-                    parent_source.site().ok_or_else(|| {
-                        "[freeze:contract][raw-loop-child-entry/missing-parent-site]".to_owned()
-                    })?,
-                    condition_source.site().ok_or_else(|| {
-                        "[freeze:contract][raw-loop-child-entry/missing-condition-site]".to_owned()
-                    })?,
-                    body_source.site().ok_or_else(|| {
-                        "[freeze:contract][raw-loop-child-entry/missing-body-site]".to_owned()
-                    })?,
-                )?;
-                None
-            }
-            Some(CallableLoopBindingProjectionDispositionV1::Outside(reason)) => Some(reason),
-            None => None,
-        };
-
-        match (disposition, outside_reason) {
-            (RawLoopChildEntryDispositionV1::NoChildFunctionEntry, Some(reason)) => {
-                lower_outside_callable_loop_v1(reason)
-            }
-            (RawLoopChildEntryDispositionV1::NoChildFunctionEntry, None) => {
-                super::control_flow::joinir::routing::lower_loop_or_freeze_v1(
-                    builder, condition, body,
-                )
-            }
-            (RawLoopChildEntryDispositionV1::ReachableBoxDeclaration, _) => Err(
+        if disposition == RawLoopChildEntryDispositionV1::ReachableBoxDeclaration {
+            return Err(
                 super::control_flow::lower::Freeze::contract(
                     "raw_loop_child_entry: reachable BoxDeclaration requires a pure-plan/function-session bridge",
                 )
                 .to_string(),
-            ),
+            );
+        }
+
+        match callable_handoff {
+            Some(CallableLoopBindingProjectionDispositionV1::Ready(schedule)) => {
+                let owner = schedule.owner();
+                let prepared = Self {
+                    parent_source,
+                    condition_source,
+                    body_source,
+                    condition,
+                    body,
+                    disposition,
+                    callable_handoff: Some(CallableLoopBindingProjectionDispositionV1::Ready(
+                        schedule,
+                    )),
+                    method_source_observation: None,
+                    admission_observation: None,
+                };
+                let payload = prepared.into_callable_generic_loop_source_facts_payload(
+                    owner,
+                    function_name,
+                    debug,
+                    in_static_box,
+                    policy,
+                )?;
+                let source_facts = match CallableGenericLoopSourceFactsIssuerV1::issue_once(payload)
+                {
+                    CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) => {
+                        source_facts
+                    }
+                    CallableGenericLoopSourceFactsDispositionV1::SourceUnavailable(error) => {
+                        return Err(format!(
+                            "[freeze:contract][callable-loop/source-unavailable] {error:?}"
+                        ));
+                    }
+                    CallableGenericLoopSourceFactsDispositionV1::FactsAbsent => {
+                        return Err("[freeze:contract][callable-loop/facts-absent]".to_owned());
+                    }
+                    CallableGenericLoopSourceFactsDispositionV1::FactsRejected(error) => {
+                        return Err(format!(
+                            "[freeze:contract][callable-loop/facts-rejected] {error}"
+                        ));
+                    }
+                    CallableGenericLoopSourceFactsDispositionV1::RouteNotFrontSelected(error) => {
+                        return Err(format!(
+                            "[freeze:contract][callable-loop/route-not-front-selected] {error:?}"
+                        ));
+                    }
+                };
+                let receipt = source_facts.claim_all().map_err(|error| {
+                    format!("[freeze:contract][callable-loop/source-claim] {error:?}")
+                })?;
+                let recipe = receipt.into_semantic_recipe().map_err(|error| {
+                    format!("[freeze:contract][callable-loop/semantic-recipe] {error:?}")
+                })?;
+                CallableGenericLoopV1PhysicalAdapterV1::lower(builder, recipe)
+            }
+            Some(CallableLoopBindingProjectionDispositionV1::Outside(reason)) => {
+                lower_outside_callable_loop_v1(reason)
+            }
+            None => lower_non_callable_loop_legacy_v1(builder, condition, body),
         }
     }
 
-    /// Move the exact prepared Loop into the caller-zero source-aware Facts
-    /// issuer. This is a seam only; no production caller is connected in P0.
-    #[allow(dead_code)]
+    /// Move the exact prepared Loop into the sole source-aware Facts issuer.
     pub(in crate::mir::builder) fn into_callable_generic_loop_source_facts_payload(
         self,
         owner: FunctionOwnerIdV1,
@@ -307,6 +302,14 @@ fn lower_outside_callable_loop_v1(reason: CallableLoopOutsideReasonV1) -> Result
     // ledger-aware bridge is designed; never create partial MIR and defer the
     // source-consumption failure to CallableSemanticLoweringState::finish.
     Err(reason.into_terminal_error())
+}
+
+fn lower_non_callable_loop_legacy_v1(
+    builder: &mut MirBuilder,
+    condition: ASTNode,
+    body: Vec<ASTNode>,
+) -> Result<ValueId, String> {
+    super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, condition, body)
 }
 
 fn verify_exact_loop_child_receipts(

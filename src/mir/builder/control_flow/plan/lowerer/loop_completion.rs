@@ -10,7 +10,7 @@
 //! - Step 8: Return Void (pattern applied successfully)
 
 use crate::mir::builder::control_flow::edgecfg::api::Frag;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 use crate::mir::builder::control_flow::plan::CoreLoopPlan;
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, ValueId};
@@ -26,12 +26,12 @@ pub fn emit_loop_frag(
     session: &mut PlanBuildSession,
     frag: &Frag,
     loop_plan: &CoreLoopPlan,
-    ctx: &LoopRouteContext,
+    ctx: &dyn PlanLoweringContext,
 ) -> Result<(), String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
     let trace_logger = trace::trace();
-    let debug = ctx.debug;
+    let debug = ctx.debug_enabled();
 
     // Step 5: Emit Frag (terminators)
     // Phase 29bq+: Use session.emit_and_seal for structural lock
@@ -91,13 +91,13 @@ pub fn finalize_loop_variables(
     builder: &mut MirBuilder,
     final_values: &[(String, ValueId)],
     after_bb: BasicBlockId,
-    ctx: &LoopRouteContext,
+    ctx: &dyn PlanLoweringContext,
 ) -> Result<Option<ValueId>, String> {
     use crate::mir::builder::control_flow::joinir::trace;
     use crate::mir::builder::emission::constant::emit_void;
 
     let trace_logger = trace::trace();
-    let debug = ctx.debug;
+    let debug = ctx.debug_enabled();
 
     // Step 6: Update variable_map for final values
     for (name, value_id) in final_values {

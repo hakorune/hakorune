@@ -38,8 +38,8 @@ mod normal_callable_dynamic_operation_source; // source-backed Dynamic Loop oper
 mod normal_callable_dynamic_origin; // source-backed Dynamic -> existing physical receipts
 mod normal_callable_dynamic_source; // source-backed untyped formal/Loop carrier authority
 mod normal_callable_loop_handoff; // callable Loop source/BindingRef S0 handoff
-#[allow(dead_code)]
-mod normal_callable_loop_source_facts; // callable source-aware Facts/Recipe P0 caller-zero issuer
+mod normal_callable_loop_physical_adapter; // callable GenericLoopV1 source Recipe consumer
+mod normal_callable_loop_source_facts; // callable source-aware Facts/Recipe Ready issuer
 mod normal_callable_prepared_operation; // Builder-free full-demand ingress
 mod normal_callable_semantic_loan_port; // Thin installed-package port adapter
 mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId projection

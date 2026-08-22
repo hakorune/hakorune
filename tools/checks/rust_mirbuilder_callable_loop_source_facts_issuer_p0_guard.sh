@@ -20,8 +20,11 @@ STRUCTURAL_LEASE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_structura
 GENERIC_LOOP_CONTEXT="$ROOT_DIR/src/mir/builder/control_flow/plan/features/generic_loop_context.rs"
 GENERIC_LOOP_PIPELINE="$ROOT_DIR/src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs"
 GENERIC_LOOP_V1="$ROOT_DIR/src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs"
+LOWERING_CONTEXT="$ROOT_DIR/src/mir/builder/control_flow/plan/lowering_context.rs"
+COMPOSER="$ROOT_DIR/src/mir/builder/control_flow/plan/recipe_tree/generic_loop_composer.rs"
+ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_loop_physical_adapter.rs"
 FEATURES_README="$ROOT_DIR/src/mir/builder/control_flow/plan/features/README.md"
-CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-callable-loop-ready-structural-lease-i0-2026-08-22.md"
+CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-callable-loop-ready-generic-loop-v1-recipe-authority-d0-2026-08-22.md"
 README="$ROOT_DIR/src/mir/builder/README.md"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh"
@@ -32,6 +35,7 @@ guard_require_files "$TAG" "$ISSUER" "$TESTS" "$RAW_ENTRY" "$FACTS_BUILDER" \
   "$V0" "$VALIDATION" "$PLANNER" "$PLANNER_MOD" "$PLANNER_INPUT" \
   "$STRUCTURAL_PORT" "$STRUCTURAL_PORT_TESTS" "$STRUCTURAL_LEASE_TESTS" \
   "$GENERIC_LOOP_CONTEXT" "$GENERIC_LOOP_PIPELINE" "$GENERIC_LOOP_V1" \
+  "$LOWERING_CONTEXT" "$COMPOSER" "$ADAPTER" \
   "$FEATURES_README" \
   "$CARD" "$README" "$INDEX"
 
@@ -65,6 +69,28 @@ guard_expect_fixed_in_file "$TAG" "GenericLoopV1LoweringContext" "$GENERIC_LOOP_
   "GenericLoopV1 must consume a narrow route-neutral context seam"
 guard_expect_fixed_in_file "$TAG" "GenericLoopV1SourceLoweringContextV1" "$GENERIC_LOOP_CONTEXT" \
   "source-backed GenericLoopV1 must have a route-neutral context"
+guard_expect_fixed_in_file "$TAG" "PlanLoweringContext" "$LOWERING_CONTEXT" \
+  "CorePlan lowering must consume a route-neutral diagnostic context"
+guard_expect_fixed_in_file "$TAG" "compose_source_generic_loop_v1_recipe" "$COMPOSER" \
+  "source-backed lowering must use the route-neutral composer entry"
+guard_expect_fixed_in_file "$TAG" "CallableGenericLoopV1SemanticRecipeV1" "$ISSUER" \
+  "Ready must move into one semantic Recipe owner"
+guard_expect_fixed_in_file "$TAG" "into_semantic_recipe" "$ISSUER" \
+  "claimed source Facts must have one semantic Recipe transition"
+guard_expect_fixed_in_file "$TAG" "CallableGenericLoopV1PhysicalAdapterV1" "$ADAPTER" \
+  "semantic Recipe must have one named physical consumer"
+guard_expect_fixed_in_file "$TAG" "with_view" "$ADAPTER" \
+  "physical consumer must use the HRTB semantic view"
+guard_expect_fixed_in_file "$TAG" "CallableGenericLoopV1PhysicalAdapterV1::lower" "$RAW_ENTRY" \
+  "Ready must connect to the named physical adapter"
+guard_expect_fixed_in_file "$TAG" "into_semantic_recipe" "$RAW_ENTRY" \
+  "Ready must not return to the old lowerer"
+guard_expect_fixed_in_file "$TAG" "claim_all()" "$RAW_ENTRY" \
+  "Ready must claim the source product exactly once"
+guard_expect_fixed_in_file "$TAG" "None => lower_non_callable_loop_legacy_v1" "$RAW_ENTRY" \
+  "legacy JoinIR must be named as the non-callable lane"
+guard_expect_fixed_in_file "$TAG" "fn lower_non_callable_loop_legacy_v1" "$RAW_ENTRY" \
+  "old JoinIR entry must remain outside the Ready branch"
 guard_expect_fixed_in_file "$TAG" "&dyn GenericLoopV1LoweringContext" "$GENERIC_LOOP_PIPELINE" \
   "GenericLoopV1 pipeline must accept the narrow context seam"
 guard_expect_fixed_in_file "$TAG" "&dyn GenericLoopV1LoweringContext" "$GENERIC_LOOP_V1" \
@@ -87,12 +113,12 @@ guard_expect_fixed_in_file "$TAG" "GenericLoopFactsPolicyFrameV1" "$VALIDATION" 
   "body validation must have an explicit-policy seam"
 guard_expect_fixed_in_file "$TAG" "CallableGenericLoopSourceFactsRouteErrorV1" "$ISSUER" \
   "route rejection must preserve a typed reason"
-guard_expect_fixed_in_file "$TAG" "caller-zero, effect-zero" "$CARD" \
-  "active I0 card must retain caller-zero scope"
-guard_expect_fixed_in_file "$TAG" "MIR-CALLABLE-LOOP-READY-STRUCTURAL-LEASE-I0" "$CARD" \
-  "active card must name the structural lease slice"
-guard_expect_fixed_in_file "$TAG" "Callable Loop source-aware Facts issuer P0" "$README" \
-  "builder README must document the caller-zero seam"
+guard_expect_fixed_in_file "$TAG" "Ready production caller switch = 1" "$CARD" \
+  "active card must record the Ready production switch"
+guard_expect_fixed_in_file "$TAG" "MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-RECIPE-AUTHORITY-D0" "$CARD" \
+  "active card must name the accepted Recipe authority"
+guard_expect_fixed_in_file "$TAG" "Callable Loop source-aware Facts issuer I0" "$README" \
+  "builder README must document the production Ready seam"
 guard_expect_fixed_in_file "$TAG" "CallableLoopStructuralPortV1" "$README" \
   "builder README must document the callback-scoped structural lease"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" \
@@ -113,6 +139,9 @@ if rg -n -- 'LoopRouteContext|choose_route_kind' "$ISSUER"; then
 fi
 if rg -n -- 'LoopRouteContext::new|choose_route_kind|route_loop' "$GENERIC_LOOP_CONTEXT"; then
   guard_fail "$TAG" "route-neutral context must not construct or classify a route"
+fi
+if rg -n -- 'LoopRouteContext::new|choose_route_kind|route_loop' "$ADAPTER"; then
+  guard_fail "$TAG" "source-aware physical adapter must not reconstruct route authority"
 fi
 if ! rg -n -- 'fn legacy_route_context\(&self\) -> Option' "$GENERIC_LOOP_CONTEXT" >/dev/null; then
   guard_fail "$TAG" "context seam must expose an explicit legacy nested capability"
@@ -145,8 +174,8 @@ if [[ "$planner_calls" -ne 1 ]]; then
   guard_fail "$TAG" "issuer must have exactly one route-neutral planner call; found $planner_calls"
 fi
 claim_calls="$(rg -F -o -- 'claim_all()' "$TESTS" | wc -l | tr -d '[:space:]')"
-if [[ "$claim_calls" -ne 1 ]]; then
-  guard_fail "$TAG" "focused evidence must claim the source-facts product exactly once; found $claim_calls"
+if [[ "$claim_calls" -ne 2 ]]; then
+  guard_fail "$TAG" "focused evidence must cover two one-shot source-facts claims; found $claim_calls"
 fi
 lease_definitions="$(rg -F -o -- 'with_existing_structural_port<R>' "$STRUCTURAL_PORT" | wc -l | tr -d '[:space:]')"
 lease_tests="$(rg -F -o -- 'with_existing_structural_port(&context' "$STRUCTURAL_PORT_TESTS" | wc -l | tr -d '[:space:]')"
@@ -169,16 +198,24 @@ fi
 if rg -n --glob '!normal_callable_loop_source_facts.rs' \
   --glob '!normal_callable_loop_source_facts_tests.rs' \
   --glob '!normal_callable_loop_structural_lease_tests.rs' \
+  --glob '!raw_loop_child_entry.rs' \
   -- 'CallableGenericLoopSourceFactsIssuerV1::issue_once' \
   "$ROOT_DIR/src/mir/builder"; then
-  guard_fail "$TAG" "P0 issuer still has a production caller"
+  guard_fail "$TAG" "Ready issuer has an unexpected production caller"
+fi
+ready_calls="$(rg -F -o -- 'CallableGenericLoopSourceFactsIssuerV1::issue_once(payload)' "$RAW_ENTRY" | wc -l | tr -d '[:space:]')"
+if [[ "$ready_calls" -ne 1 ]]; then
+  guard_fail "$TAG" "Ready issuer must have exactly one production caller; found $ready_calls"
 fi
 if rg -n -- 'from_prepared_parts|CallableGenericLoopSourceFactsInputV1|ParserInvocationWitness' \
   "$ISSUER" "$RAW_ENTRY"; then
   guard_fail "$TAG" "loose input/reconstructed parser identity leaked into P0"
 fi
 if rg -n -- 'lower_loop_or_freeze_v1|RouteExecutionWitnessV1|PostEffectRetryDebt|ValueId' "$ISSUER"; then
-  guard_fail "$TAG" "caller-zero source issuer grew a lowering/physical/fallback authority"
+  guard_fail "$TAG" "source issuer grew a lowering/physical/fallback authority"
+fi
+if rg -n -- 'PreparedCallableGenericLoopSourceFactsPayloadV1::into_parts|fn into_parts' "$RAW_ENTRY"; then
+  guard_fail "$TAG" "source-facts payload must not expose an 11-element tuple escape"
 fi
 
 for file in "$ISSUER" "$TESTS" "$RAW_ENTRY" "$V0" "$VALIDATION" "$PLANNER" "$STRUCTURAL_PORT" "$STRUCTURAL_PORT_TESTS" "$STRUCTURAL_LEASE_TESTS" "$GENERIC_LOOP_CONTEXT" "$GENERIC_LOOP_PIPELINE" "$GENERIC_LOOP_V1"; do
@@ -194,4 +231,4 @@ for file in "$PLANNER_INPUT" "$PLANNER_MOD"; do
   fi
 done
 
-echo "[$TAG] ok (one route-neutral explicit-policy source/Facts issuer, opaque prepared payload, production caller=0)"
+echo "[$TAG] ok (one route-neutral explicit-policy source/Facts issuer, one semantic Recipe/physical consumer, production Ready caller=1)"

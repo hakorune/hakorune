@@ -303,9 +303,9 @@ private row builder is used for `Ready` and `Outside` classification, while
 JoinIR consumer, Builder effect, fallback, retry, or source-to-Recipe relation
 is opened by this transport slice.
 
-### Callable Loop source-aware Facts issuer P0 / route-neutral planner I0
+### Callable Loop source-aware Facts issuer I0 / route-neutral planner I0
 
-`normal_callable_loop_source_facts.rs` is the caller-zero source/Facts seam. It
+`normal_callable_loop_source_facts.rs` is the named source/Facts seam. It
 accepts only the private move-only
 `PreparedCallableGenericLoopSourceFactsPayloadV1` assembled by
 `PreparedLocatedRawLoopChildEntryV1`; AST and source contexts are not supplied
@@ -322,19 +322,25 @@ construct `LoopRouteContext`, call `choose_route_kind`, read `in_static_box`,
 or enter the registry. The legacy Context callers and the source caller share
 one planner kernel; no second Facts/Recipe extraction is introduced.
 
-This P0 has no production caller, ordinary consumer, Builder/ledger effect,
-retry, fallback, or registry suffix. The raw port currently proves only the
-same prepared raw-root lineage; it does not claim opaque parser-invocation
-identity. A parser witness must be added in a separate design slice before
-stronger identity claims are allowed.
+The raw `Ready` branch is now the one production caller. It claims the
+source-facts result exactly once, moves it into the private
+`CallableGenericLoopV1SemanticRecipeV1`, and hands that Recipe to the named
+`CallableGenericLoopV1PhysicalAdapterV1`. The adapter composes the retained
+Facts through the route-neutral source context and lowers once; a source-aware
+reject is terminal and never returns to `lower_loop_or_freeze_v1`. This bounded
+I0 still has no ordinary Outside consumer, publication, retry, fallback, or
+registry suffix. The raw port currently proves only the same prepared
+raw-root lineage; it does not claim opaque parser-invocation identity. A
+parser witness must be added in a separate design slice before stronger
+identity claims are allowed.
 
 The selected `MIR-CALLABLE-LOOP-READY-CLAIM-I0` keeps the aggregate in place as
 `CallableGenericLoopSourceFactsV1` and exposes one private `claim_all()` move.
 That move retains `CallableSemanticLoopHandoffPreEffectReceiptV1` inside a
-non-`Clone` `CallableGenericLoopSourceFactsReceiptV1`; it does not lower, enter
-the route registry, or connect the old raw Loop path. The existing raw
-`_pre_effect_receipt` debt remains a later structural-handoff/bridge concern,
-not evidence that this caller-zero claim is production-connected.
+non-`Clone` `CallableGenericLoopSourceFactsReceiptV1`. The receipt now moves
+into the semantic Recipe before the named physical adapter; it does not enter
+the route registry or retry a source-aware rejection. The existing raw
+`_pre_effect_receipt` debt remains a later structural-handoff/bridge concern.
 
 The existing diagnostic-only `CallableLoopStructuralPortV1` remains limited
 to the old context owner. The selected
@@ -347,24 +353,9 @@ issuer's existing root-lineage/site/owner validation; it does not construct
 borrows the existing Facts/Recipe outcome, exact selection, pre-effect
 receipt, and opaque source-bound structural port, but exposes no AST, source
 context, Builder, ValueId, registry, PlanLowerer, or physical authority. This
-is caller-zero infrastructure; it does not connect Ready to the old raw
-lowerer or silently create a fallback.
-
-### Callable Loop source-aware Facts terminal-only P0
-
-`CallableGenericLoopSourceFactsTerminalConsumerV1` is the sole named consumer
-for the caller-zero terminal seam. It accepts only the private move-only
-`CallableGenericLoopSourceFactsV1` and returns a separate
-`CallableGenericLoopSourceFactsConsumedV1`; the transition is infallible and
-has no Builder, ledger, registry, fallback, retry, or physical effect. The
-consumed state retains only the existing source schedule and exact
-`GenericLoopV1` selection seal. AST, Facts, and Recipe are dropped at this
-terminal so no ordinary lowering path can observe or rebuild them.
-
-The consumer is intentionally caller-zero in this slice. A future ordinary
-Ready port must be a separately named consumer with its own source-backed
-contract; it cannot reuse this terminal state or reopen the legacy registry
-suffix.
+is caller-zero infrastructure; the production Ready path uses the semantic
+Recipe/physical adapter above and does not consume this structural lease or
+silently create a fallback.
 
 `normal_callable_dynamic_operation_source.rs` owns the next source-only S0
 co-seal. It combines the existing resolver ledger, source-backed Dynamic

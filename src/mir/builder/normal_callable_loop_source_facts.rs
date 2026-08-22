@@ -1,18 +1,22 @@
-//! Caller-zero source-aware GenericLoop Facts/Recipe issuer.
+//! Source-aware GenericLoop Facts/Recipe issuer.
 //!
 //! This module only transports one already-located callable Loop into the
 //! existing planner/Facts authority. It does not lower, consume a ledger,
-//! enter the route registry, or provide a fallback path.
+//! enter the route registry, or provide a fallback path.  Its only production
+//! caller is the Ready branch in `raw_loop_child_entry`.
 
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::joinir::route_entry::registry::{
     select_recipe_first_routes, LocatedGenericLoopV1SelectionErrorV1, RecipeFirstRouteSelectionV1,
     VerifiedLocatedGenericLoopV1SelectionV1,
 };
+use crate::mir::builder::control_flow::lower::normalize::CanonicalLoopFacts;
+use crate::mir::builder::control_flow::plan::features::generic_loop_body;
 use crate::mir::builder::control_flow::plan::single_planner::{
     self, CallableLoopFactsPlannerInputV1,
 };
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::builder::control_flow::plan::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1};
@@ -69,6 +73,8 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsV1<'source> {
     body: Vec<ASTNode>,
     schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
     policy: GenericLoopFactsPolicyFrameV1,
+    debug: bool,
+    in_static_box: bool,
     outcome: PlanBuildOutcome,
     selection: RecipeFirstRouteSelectionV1,
     selected: VerifiedLocatedGenericLoopV1SelectionV1,
@@ -110,6 +116,8 @@ impl<'source> CallableGenericLoopSourceFactsV1<'source> {
             body,
             schedule,
             policy,
+            debug,
+            in_static_box,
             outcome,
             selection,
             selected,
@@ -135,6 +143,8 @@ impl<'source> CallableGenericLoopSourceFactsV1<'source> {
             body,
             pre_effect,
             policy,
+            debug,
+            in_static_box,
             outcome,
             selection,
             selected,
@@ -162,6 +172,8 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsReceiptV1<'sour
     body: Vec<ASTNode>,
     pre_effect: CallableSemanticLoopHandoffPreEffectReceiptV1,
     policy: GenericLoopFactsPolicyFrameV1,
+    debug: bool,
+    in_static_box: bool,
     outcome: PlanBuildOutcome,
     selection: RecipeFirstRouteSelectionV1,
     selected: VerifiedLocatedGenericLoopV1SelectionV1,
@@ -183,6 +195,150 @@ impl<'source> CallableGenericLoopSourceFactsReceiptV1<'source> {
     #[cfg(test)]
     pub(in crate::mir::builder) fn policy(&self) -> GenericLoopFactsPolicyFrameV1 {
         self.policy
+    }
+
+    pub(in crate::mir::builder) fn into_semantic_recipe(
+        self,
+    ) -> Result<
+        CallableGenericLoopV1SemanticRecipeV1<'source>,
+        CallableGenericLoopV1SemanticRecipeRejectV1,
+    > {
+        CallableGenericLoopV1SemanticRecipeIssuerV1::issue(self)
+    }
+}
+
+/// The single source-backed semantic Recipe owner for GenericLoopV1.
+///
+/// This wrapper owns the already-claimed source Facts receipt.  It does not
+/// copy Facts, re-run the planner, select a route, or issue physical IDs.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticRecipeV1<'source> {
+    receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum CallableGenericLoopV1SemanticRecipeRejectV1 {
+    FactsMissing,
+    GenericFactsMissing,
+    NestedLoopOutsideFirstCohort,
+    BlockExprPreludeOutsideFirstCohort,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum CallableGenericLoopV1SemanticRecipeViewRejectV1 {
+    FactsMissing,
+    GenericFactsMissing,
+}
+
+/// HRTB-bounded semantic view.  The borrowed fields all come from the one
+/// claimed receipt and cannot escape the callback with a source lifetime.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticViewV1<'view> {
+    owner: FunctionOwnerIdV1,
+    loop_site: &'view SourceNodeSiteV1,
+    pre_effect: &'view CallableSemanticLoopHandoffPreEffectReceiptV1,
+    facts: &'view CanonicalLoopFacts,
+    generic: &'view GenericLoopV1Facts,
+    selection: &'view RecipeFirstRouteSelectionV1,
+    selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
+    debug: bool,
+    in_static_box: bool,
+}
+
+impl CallableGenericLoopV1SemanticViewV1<'_> {
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    pub(in crate::mir::builder) fn loop_site(&self) -> &SourceNodeSiteV1 {
+        self.loop_site
+    }
+
+    pub(in crate::mir::builder) fn pre_effect(
+        &self,
+    ) -> &CallableSemanticLoopHandoffPreEffectReceiptV1 {
+        self.pre_effect
+    }
+
+    pub(in crate::mir::builder) fn facts(&self) -> &CanonicalLoopFacts {
+        self.facts
+    }
+
+    pub(in crate::mir::builder) fn generic(&self) -> &GenericLoopV1Facts {
+        self.generic
+    }
+
+    pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
+        self.selection
+    }
+
+    pub(in crate::mir::builder) fn selected(&self) -> &VerifiedLocatedGenericLoopV1SelectionV1 {
+        self.selected
+    }
+
+    pub(in crate::mir::builder) const fn debug(&self) -> bool {
+        self.debug
+    }
+
+    pub(in crate::mir::builder) const fn in_static_box(&self) -> bool {
+        self.in_static_box
+    }
+}
+
+impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
+    pub(in crate::mir::builder) fn with_view<R>(
+        self,
+        use_view: impl for<'view> FnOnce(CallableGenericLoopV1SemanticViewV1<'view>) -> R,
+    ) -> Result<R, CallableGenericLoopV1SemanticRecipeViewRejectV1> {
+        let Self { receipt } = self;
+        let Some(facts) = receipt.outcome.facts.as_ref() else {
+            return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::FactsMissing);
+        };
+        let Some(generic) = facts.facts.generic_loop_v1() else {
+            return Err(CallableGenericLoopV1SemanticRecipeViewRejectV1::GenericFactsMissing);
+        };
+        let view = CallableGenericLoopV1SemanticViewV1 {
+            owner: receipt.owner,
+            loop_site: receipt.pre_effect.loop_site(),
+            pre_effect: &receipt.pre_effect,
+            facts,
+            generic,
+            selection: &receipt.selection,
+            selected: &receipt.selected,
+            debug: receipt.debug,
+            in_static_box: receipt.in_static_box,
+        };
+        Ok(use_view(view))
+    }
+}
+
+pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticRecipeIssuerV1;
+
+impl CallableGenericLoopV1SemanticRecipeIssuerV1 {
+    pub(in crate::mir::builder) fn issue<'source>(
+        receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
+    ) -> Result<
+        CallableGenericLoopV1SemanticRecipeV1<'source>,
+        CallableGenericLoopV1SemanticRecipeRejectV1,
+    > {
+        let facts = receipt
+            .outcome
+            .facts
+            .as_ref()
+            .ok_or(CallableGenericLoopV1SemanticRecipeRejectV1::FactsMissing)?;
+        let generic = facts
+            .facts
+            .generic_loop_v1()
+            .ok_or(CallableGenericLoopV1SemanticRecipeRejectV1::GenericFactsMissing)?;
+        if facts.nested_loop {
+            return Err(CallableGenericLoopV1SemanticRecipeRejectV1::NestedLoopOutsideFirstCohort);
+        }
+        if generic_loop_body::body_has_blockexpr_prelude_loop(&generic.body.body) {
+            return Err(
+                CallableGenericLoopV1SemanticRecipeRejectV1::BlockExprPreludeOutsideFirstCohort,
+            );
+        }
+        Ok(CallableGenericLoopV1SemanticRecipeV1 { receipt })
     }
 }
 
@@ -280,48 +436,15 @@ impl<'source> PreparedCallableLoopStructuralHandoffV1<'source> {
     }
 }
 
-/// A terminal-only state transition for the caller-zero seam.
-///
-/// This keeps only the already-issued source schedule and exact route seal. The
-/// AST, Facts, and Recipe are intentionally dropped at this terminal; no
-/// later normalizer, registry suffix, or physical consumer can observe them
-/// through this product.
-#[derive(Debug)]
-pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsConsumedV1 {
-    schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
-    selected: VerifiedLocatedGenericLoopV1SelectionV1,
-}
-
-impl CallableGenericLoopSourceFactsConsumedV1 {
-    #[cfg(test)]
-    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.schedule.owner()
-    }
-}
-
-/// Sole named consumer for the terminal-only P0.
-pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsTerminalConsumerV1;
-
-impl CallableGenericLoopSourceFactsTerminalConsumerV1 {
-    pub(in crate::mir::builder) fn consume<'source>(
-        ready: CallableGenericLoopSourceFactsV1<'source>,
-    ) -> CallableGenericLoopSourceFactsConsumedV1 {
-        let CallableGenericLoopSourceFactsV1 {
-            schedule, selected, ..
-        } = ready;
-        CallableGenericLoopSourceFactsConsumedV1 { schedule, selected }
-    }
-}
-
 pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsIssuerV1;
 
 impl CallableGenericLoopSourceFactsIssuerV1 {
-    /// Issue exactly one source-aware planner outcome. This is intentionally a
-    /// disconnected P0 seam; no production caller may invoke it yet.
+    /// Issue exactly one source-aware planner outcome.  The raw Ready branch
+    /// is the sole production caller; no old-route fallback is owned here.
     pub(in crate::mir::builder) fn issue_once<'source>(
         payload: PreparedCallableGenericLoopSourceFactsPayloadV1<'source>,
     ) -> CallableGenericLoopSourceFactsDispositionV1<'source> {
-        let (
+        let PreparedCallableGenericLoopSourceFactsPayloadV1 {
             parent_source,
             condition_source,
             body_source,
@@ -331,9 +454,9 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             schedule,
             function_name,
             debug,
-            _in_static_box,
+            in_static_box,
             policy,
-        ) = payload.into_parts();
+        } = payload;
 
         if let Err(error) = validate_source_input(
             parent_source,
@@ -378,6 +501,8 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             body,
             schedule,
             policy,
+            debug,
+            in_static_box,
             outcome,
             selection,
             selected,

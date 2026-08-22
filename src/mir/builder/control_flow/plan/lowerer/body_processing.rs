@@ -14,7 +14,7 @@
 //! - Control flow detection for optimization decisions
 
 use super::LoopFrame;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 use crate::mir::builder::control_flow::plan::{CoreEffectPlan, CorePlan, LoweredRecipe};
 use crate::mir::builder::MirBuilder;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
@@ -494,7 +494,7 @@ impl super::PlanLowerer {
     pub(super) fn lower_loop_body_plans(
         builder: &mut MirBuilder,
         plans: &[LoweredRecipe],
-        ctx: &LoopRouteContext,
+        ctx: &dyn PlanLoweringContext,
         loop_stack: &mut Vec<LoopFrame>,
         fallthrough_target: BasicBlockId,
         port: &mut super::emission_port::CorePlanEffectEmissionPortV1<'_>,
@@ -517,12 +517,12 @@ impl super::PlanLowerer {
                             {
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_cross_plan_forward_ref] fn={} use_idx={} use=%{} def_idx={} def_kind={} use_by=CorePlan::Effect dst=%{} op={:?} operand=lhs path=body_plan",
-                                    ctx.func_name, idx, lhs.0, def_idx, def_kind, dst.0, op
+                                    ctx.function_name(), idx, lhs.0, def_idx, def_kind, dst.0, op
                                 ));
                             }
                             return Err(format!(
                                 "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CorePlan::Effect dst=%{} op={:?} operand=lhs plan_def=none path=body_plan",
-                                ctx.func_name,
+                                ctx.function_name(),
                                 builder.function_state.current_block,
                                 lhs.0,
                                 idx,
@@ -535,12 +535,12 @@ impl super::PlanLowerer {
                             {
                                 return Err(format!(
                                     "[freeze:contract][loop_lowering/effect_cross_plan_forward_ref] fn={} use_idx={} use=%{} def_idx={} def_kind={} use_by=CorePlan::Effect dst=%{} op={:?} operand=rhs path=body_plan",
-                                    ctx.func_name, idx, rhs.0, def_idx, def_kind, dst.0, op
+                                    ctx.function_name(), idx, rhs.0, def_idx, def_kind, dst.0, op
                                 ));
                             }
                             return Err(format!(
                                 "[freeze:contract][loop_lowering/effect_undefined_operand] fn={} bb={:?} use=%{} use_idx={} use_by=CorePlan::Effect dst=%{} op={:?} operand=rhs plan_def=none path=body_plan",
-                                ctx.func_name,
+                                ctx.function_name(),
                                 builder.function_state.current_block,
                                 rhs.0,
                                 idx,
@@ -555,7 +555,7 @@ impl super::PlanLowerer {
             if builder.is_current_block_terminated() {
                 trace_logger.debug(
                     "lowerer/loop_body",
-                    &format!("func={} terminated_at idx={}", ctx.func_name, idx),
+                    &format!("func={} terminated_at idx={}", ctx.function_name(), idx),
                 );
                 return Ok(());
             }
@@ -571,7 +571,9 @@ impl super::PlanLowerer {
                 "lowerer/term_set",
                 &format!(
                     "func={} bb={:?} term=Jump target={:?}",
-                    ctx.func_name, current_bb, fallthrough_target
+                    ctx.function_name(),
+                    current_bb,
+                    fallthrough_target
                 ),
             );
         }

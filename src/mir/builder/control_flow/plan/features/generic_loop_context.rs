@@ -6,6 +6,7 @@
 //! diagnostic settings and an explicit legacy nested-loop capability.
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum GenericLoopV1LoweringContextRejectV1 {
@@ -22,11 +23,9 @@ impl std::fmt::Display for GenericLoopV1LoweringContextRejectV1 {
 }
 
 /// Narrow context consumed by GenericLoop body/pipeline helpers.
-pub(in crate::mir::builder) trait GenericLoopV1LoweringContext {
-    fn function_name(&self) -> &str;
-    fn debug_enabled(&self) -> bool;
-    fn in_static_box(&self) -> bool;
-
+pub(in crate::mir::builder) trait GenericLoopV1LoweringContext:
+    PlanLoweringContext
+{
     /// A source-backed context returns `None`: nested lowering is not part of
     /// the first source cohort and must fail before physical effects instead
     /// of re-entering route classification.
@@ -53,6 +52,12 @@ impl GenericLoopV1SourceLoweringContextV1 {
 }
 
 impl GenericLoopV1LoweringContext for GenericLoopV1SourceLoweringContextV1 {
+    fn legacy_route_context(&self) -> Option<&LoopRouteContext<'_>> {
+        None
+    }
+}
+
+impl PlanLoweringContext for GenericLoopV1SourceLoweringContextV1 {
     fn function_name(&self) -> &str {
         "<source-generic-loop>"
     }
@@ -64,25 +69,9 @@ impl GenericLoopV1LoweringContext for GenericLoopV1SourceLoweringContextV1 {
     fn in_static_box(&self) -> bool {
         self.in_static_box
     }
-
-    fn legacy_route_context(&self) -> Option<&LoopRouteContext<'_>> {
-        None
-    }
 }
 
 impl<'a> GenericLoopV1LoweringContext for LoopRouteContext<'a> {
-    fn function_name(&self) -> &str {
-        self.func_name
-    }
-
-    fn debug_enabled(&self) -> bool {
-        self.debug
-    }
-
-    fn in_static_box(&self) -> bool {
-        self.in_static_box
-    }
-
     fn legacy_route_context(&self) -> Option<&LoopRouteContext<'_>> {
         Some(self)
     }
@@ -91,6 +80,7 @@ impl<'a> GenericLoopV1LoweringContext for LoopRouteContext<'a> {
 #[cfg(test)]
 mod tests {
     use super::{GenericLoopV1LoweringContext, GenericLoopV1SourceLoweringContextV1};
+    use crate::mir::builder::control_flow::plan::lowering_context::PlanLoweringContext;
 
     #[test]
     fn source_context_has_no_legacy_route_capability() {

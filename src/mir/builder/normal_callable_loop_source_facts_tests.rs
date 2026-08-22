@@ -1,9 +1,6 @@
 use std::collections::BTreeSet;
 
-use super::{
-    CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
-    CallableGenericLoopSourceFactsTerminalConsumerV1,
-};
+use super::{CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::normal_callable_loop_handoff::{
@@ -149,7 +146,7 @@ fn policy() -> GenericLoopFactsPolicyFrameV1 {
 }
 
 #[test]
-fn caller_zero_issuer_co_seals_one_generic_facts_outcome() {
+fn issuer_co_seals_one_generic_facts_outcome() {
     let source_owner = owner();
     with_prepared(source_owner, generic_loop(), |_, prepared| {
         let payload = prepared
@@ -205,25 +202,40 @@ fn claim_all_retains_pre_effect_receipt_without_physical_effect() {
 }
 
 #[test]
-fn terminal_consumer_moves_ready_into_one_no_effect_consumed_state() {
+fn claimed_facts_move_into_one_higher_ranked_semantic_recipe_view() {
     let source_owner = owner();
     with_prepared(source_owner, generic_loop(), |_, prepared| {
         let payload = prepared
             .into_callable_generic_loop_source_facts_payload(
                 source_owner,
-                "terminal-only",
-                false,
-                false,
+                "semantic-recipe",
+                true,
+                true,
                 policy(),
             )
             .expect("source payload");
-        let outcome = CallableGenericLoopSourceFactsIssuerV1::issue_once(payload);
-        let super::CallableGenericLoopSourceFactsDispositionV1::Ready(ready) = outcome else {
+        let super::CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) =
+            CallableGenericLoopSourceFactsIssuerV1::issue_once(payload)
+        else {
             panic!("expected source-aware GenericLoop Ready outcome")
         };
 
-        let consumed = CallableGenericLoopSourceFactsTerminalConsumerV1::consume(ready);
-        assert_eq!(consumed.owner(), source_owner);
+        let recipe = source_facts
+            .claim_all()
+            .expect("claim receipt")
+            .into_semantic_recipe()
+            .expect("semantic recipe");
+        let observed = recipe
+            .with_view(|view| {
+                assert_eq!(view.owner(), source_owner);
+                assert!(view.facts().facts.generic_loop_v1().is_some());
+                assert_eq!(view.debug(), true);
+                assert_eq!(view.in_static_box(), true);
+                assert!(!view.pre_effect().rows().is_empty());
+                true
+            })
+            .expect("semantic view");
+        assert!(observed);
     });
 }
 
