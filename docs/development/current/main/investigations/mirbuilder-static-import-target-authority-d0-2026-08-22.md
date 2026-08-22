@@ -1,8 +1,8 @@
-Status: source-bound hard reject P0 complete; Program lexical-region containment D0 selected
+Status: source-bound hard reject P0 complete; Program lexical-region containment D0 accepted; P0 selected
 ClosedTask: MIR-CALLABLE-RESOLVER-SOURCE-BOUND-REJECT-P0
-NextTask: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-D0
+NextTask: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 Date: 2026-08-22
-Priority: prove whether the existing Program lexical region is the exact container of its child control sites
+Priority: add one existing LexicalScope sibling-body relation and prove If/Loop containment
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-CENSUS-D0
 NextCard: this rolling card owns the bounded D0 brief
 ---
@@ -630,7 +630,7 @@ error = IfRegion(ControlContractMismatch(
 The diagnostic name is observation-only; the terminal itself owns the opaque
 callable declaration identity from the same parser invocation.
 
-## Next decision — Program lexical-region containment D0
+## Accepted decision — Program lexical-region containment D0
 
 ```text
 Decision: audit one missing source-containment relation before changing code: a parser-issued ProgramBodyRoot lexical region should contain its sibling ProgramBody(i) sites under the existing LexicalScope kind.
@@ -685,7 +685,45 @@ guards:
   touched production files < 760 lines; 800 hard stop
 ```
 
-Remain in `design_stop` if Program membership cannot be expressed by the
-existing sibling-body helper, if the root profile makes nested and top-level
-Program ambiguous, or if resolving the probe requires any second accepted
-syntax shape.
+The premise is accepted. The existing `sibling_body_member` helper is the
+canonical verifier primitive; the only production change is to invoke it for
+`ProgramBodyRoot` with `ProgramBody(_)`. No new source product or issuer is
+needed.
+
+## Execution brief — MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
+
+Change:
+
+```text
+add ProgramBodyRoot -> ProgramBody(_) to the LexicalScope containment law
+add focused If/Loop source-region evidence and one foreign/mismatched negative
+old authority: none; this is a verifier correspondence completion
+```
+
+Contract:
+
+```text
+reuse existing Program lexical scope/region and source-path vocabulary
+preserve exact_source_region_v1() as the sole container selector
+do not widen top-level Script Program Sequence membership
+no new syntax, receipt, Builder route, fallback, or retry
+```
+
+Done:
+
+```text
+natural nested Program If seals with ProgramBodyRoot parent
+natural nested Program Loop seals with ProgramBodyRoot parent
+foreign/mismatched ProgramBodyRoot is rejected
+existing Scope/TaskScope/FastMem containment remains green
+focused tests, cargo check, pointer/diff/source-size guards pass
+```
+
+Stop:
+
+```text
+the relation needs a new path/profile/semantic owner
+top-level Script membership becomes wider or ambiguous
+If/Loop control semantics or Builder code must change
+the change needs a second resolver pass, fallback, or source reconstruction
+```
