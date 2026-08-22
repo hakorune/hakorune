@@ -1,7 +1,7 @@
-Status: compiler tests home R0 complete; selected next common_v2 session D0
+Status: common_v2 session home D0 complete; selected behavior-neutral common_v2 session home R0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-COMMON-V2-SESSION-HOME-D0`
+Current row: `MIRBUILDER-COMMON-V2-SESSION-HOME-R0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,9 +56,9 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-COMMON-V2-SESSION-HOME-D0` — audit only the
-session child cluster before any directory move, preserving logical module
-names, visibility, re-exports, and the current dependency direction.
+Smallest next slice: `MIRBUILDER-COMMON-V2-SESSION-HOME-R0` — move only the
+audited session parent and its 12 private children behind a `mod.rs` facade,
+preserving logical module paths, visibility, re-exports, and behavior.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -236,7 +236,7 @@ caller-zero status; no Rust module graph changes.
 Each row is a separate 2–5 commit refactor series. Do not combine file moves
 with I9, source Facts, Recipe, or physical writer changes.
 
-#### `MIRBUILDER-COMMON-V2-SESSION-HOME-D0`
+#### `MIRBUILDER-COMMON-V2-SESSION-HOME-D0` — complete
 
 Audit the child implementation files currently attached to
 `resolved_lowering/common_v2_session.rs` into a `common_v2_session/` directory
@@ -248,6 +248,56 @@ families into the same commit.
 Only after that audit may a separate R0 move be opened. Stop if the move needs
 a public visibility widening, a new route classifier, a second physical/session
 owner, or a semantic reorder.
+
+D0 census receipt:
+
+```text
+scope: src/mir/builder/resolved_lowering/common_v2_session.rs
+parent: 545 lines; registered once as resolved_lowering::common_v2_session
+private path children: 12
+children: length_call, initial_index_seed, return_read, condition_bool,
+  s6c_operand_issuer, s6c_text_eq_occurrence, s6c_substring_v9_issuer,
+  s6c_substring_callout_materializer, session_length, session_segments,
+  s6c_scalar_equality_leaf, s6c_cursor_cfg
+largest child: s6c_cursor_cfg = 687 lines; all scoped files < 800
+external logical consumers: resolved_lowering/mod.rs re-exports, physical_entry_session,
+  physical_entry_draftseal, source/test bridges, and existing test-only modules
+visibility: existing pub(in crate::mir*) scopes; no widening required
+second session owner: none; CommonV2CanonicalSessionRefV1 remains the sole owner
+outside scope: sibling common_v2 modules, test files, compiler admission files,
+  pinned-text/residence owners, and unrelated common_v2 families
+path-dependent evidence: common_v2_s6c_structure_guard.sh and README child references
+```
+
+The audit closes because every child is nested under the same logical parent,
+all external consumers name the parent module rather than a physical child
+file, and the move can preserve the current `pub(in crate::mir*)` scopes. The
+existing compiler↔builder type dependency is pre-existing and is not changed
+by this BoxShape move. The supplied broad `common_v2` file count is therefore
+not a move scope.
+
+#### `MIRBUILDER-COMMON-V2-SESSION-HOME-R0` — selected next
+
+Create `src/mir/builder/resolved_lowering/common_v2_session/mod.rs` and move
+the audited parent plus its 12 children into that directory. Replace the
+parent's path glue with ordinary child module declarations, retaining the
+logical module name `resolved_lowering::common_v2_session` and every existing
+re-export. Update only the structure guard and live README paths that refer to
+the moved physical files.
+
+Acceptance:
+
+```text
+common_v2_session/mod.rs remains < 760 lines and every moved child < 800
+resolved_lowering::common_v2_session logical imports compile unchanged
+all existing pub(in crate::mir*) visibility scopes remain unchanged
+parent re-export set and test module paths are unchanged
+common_v2_s6c_structure_guard.sh is updated and green
+focused common_v2 session tests and cargo check --profile quick pass
+git diff --check is clean
+no non-session common_v2 file moves, semantic edits, new authority, route,
+  fallback, physical effect, or production switch
+```
 
 #### `MIRBUILDER-BUILDER-TEST-HOME-R0` — complete
 
