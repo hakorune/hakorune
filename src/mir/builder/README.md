@@ -293,6 +293,16 @@ iteration-local. This remains source-only; Dynamic operation results,
 prepared representation, PHI, backend metadata, route selection, retry, and
 fallback remain closed.
 
+The caller-zero `Outside(body-only rebind)` terminal now transports one
+move-only `CallableLoopOutsideReasonV1` containing the exact owner, Loop site,
+and grouped `CallableLoopBindingCoverageRowV1` rows. Each row keeps its
+`BindingRefV1`, source class, and `(site, role)` receipts together; later code
+must not reconstruct the relation from separate binding/site arrays. The same
+private row builder is used for `Ready` and `Outside` classification, while
+`RawLoopChildEntry` consumes `Outside` only as a typed terminal. No ordinary
+JoinIR consumer, Builder effect, fallback, retry, or source-to-Recipe relation
+is opened by this transport slice.
+
 `normal_callable_dynamic_operation_source.rs` owns the next source-only S0
 co-seal. It combines the existing resolver ledger, source-backed Dynamic
 callable product, and R0 binding schedule to issue one move-only exact

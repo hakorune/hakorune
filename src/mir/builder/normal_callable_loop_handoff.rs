@@ -32,30 +32,36 @@ pub(super) enum CallableLoopBindingProjectionDispositionV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct CallableLoopOutsideReasonV1 {
+    owner: FunctionOwnerIdV1,
     loop_site: SourceNodeSiteV1,
-    bindings: Box<[BindingRefV1]>,
-    sites: Box<[SourceNodeSiteV1]>,
+    rows: Box<[CallableLoopBindingCoverageRowV1]>,
 }
 
 impl CallableLoopOutsideReasonV1 {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
     pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 {
         &self.loop_site
     }
 
-    pub(super) fn bindings(&self) -> &[BindingRefV1] {
-        &self.bindings
-    }
-
-    pub(super) fn sites(&self) -> &[SourceNodeSiteV1] {
-        &self.sites
+    pub(super) fn rows(&self) -> &[CallableLoopBindingCoverageRowV1] {
+        &self.rows
     }
 
     pub(super) fn into_terminal_error(self) -> String {
+        let receipt_count = self
+            .rows
+            .iter()
+            .map(|row| row.receipts().len())
+            .sum::<usize>();
         format!(
-            "[freeze:contract][callable-loop-handoff/outside-first-cohort] loop_site={:?} bindings={} sites={}",
+            "[freeze:contract][callable-loop-handoff/outside-first-cohort] owner={:?} loop_site={:?} rows={} receipts={}",
+            self.owner,
             self.loop_site.segments(),
-            self.bindings.len(),
-            self.sites.len(),
+            self.rows.len(),
+            receipt_count,
         )
     }
 }
@@ -259,18 +265,24 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
                 ready_receipts,
                 ready_iteration_locals,
             )?;
-            let sites = receipts
-                .iter()
-                .filter(|receipt| outside_bindings.contains(&receipt.binding()))
-                .map(|receipt| receipt.site().clone())
-                .collect::<BTreeSet<_>>()
+            let rows = receipts_by_binding
                 .into_iter()
-                .collect::<Vec<_>>();
+                .filter_map(|(binding, receipts)| {
+                    outside_bindings.contains(&binding).then(|| {
+                        build_callable_loop_binding_coverage_row(
+                            binding,
+                            receipts,
+                            &iteration_locals,
+                        )
+                    })
+                })
+                .collect::<Vec<_>>()
+                .into_boxed_slice();
             return Ok(CallableLoopBindingProjectionDispositionV1::Outside(
                 CallableLoopOutsideReasonV1 {
+                    owner: self.owner,
                     loop_site,
-                    bindings: outside_bindings.into_iter().collect(),
-                    sites: sites.into_boxed_slice(),
+                    rows,
                 },
             ));
         }
@@ -311,40 +323,36 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         let mut carrier_count = 0;
         let mut rows = Vec::with_capacity(receipts_by_binding.len());
         for (binding, receipts) in receipts_by_binding {
-            let has_read = receipts.iter().any(|receipt| {
+            let row =
+                build_callable_loop_binding_coverage_row(binding, receipts, &iteration_locals);
+            let has_read = row.receipts().iter().any(|receipt| {
                 matches!(
                     receipt.role(),
                     CallableLoopBindingRoleV1::ConditionRead | CallableLoopBindingRoleV1::BodyRead
                 )
             });
-            let has_rebind = receipts
+            let has_rebind = row
+                .receipts()
                 .iter()
                 .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind);
-            let has_condition_read = receipts
+            let has_condition_read = row
+                .receipts()
                 .iter()
                 .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::ConditionRead);
-            let has_body_read = receipts
+            let has_body_read = row
+                .receipts()
                 .iter()
                 .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRead);
-            let class = if iteration_locals.contains(&binding) {
-                CallableLoopBindingClassV1::IterationLocal
-            } else if has_rebind {
+            if row.class() == CallableLoopBindingClassV1::Carrier {
                 carrier_count += 1;
-                CallableLoopBindingClassV1::Carrier
-            } else {
-                CallableLoopBindingClassV1::ReadOnlyOperand
-            };
+            }
             if !has_read
-                || (class == CallableLoopBindingClassV1::Carrier
+                || (row.class() == CallableLoopBindingClassV1::Carrier
                     && (!has_condition_read || !has_body_read || !has_rebind))
             {
                 return Err(freeze("incomplete-binding-coverage"));
             }
-            rows.push(CallableLoopBindingCoverageRowV1 {
-                binding,
-                class,
-                receipts: receipts.into_boxed_slice(),
-            });
+            rows.push(row);
         }
         if carrier_count != 1 {
             return Err(freeze("carrier-cardinality"));
@@ -401,6 +409,28 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
 
     pub(super) fn rows(&self) -> &[CallableLoopBindingCoverageRowV1] {
         &self.rows
+    }
+}
+
+fn build_callable_loop_binding_coverage_row(
+    binding: BindingRefV1,
+    receipts: Vec<CallableLoopBindingReceiptV1>,
+    iteration_locals: &BTreeSet<BindingRefV1>,
+) -> CallableLoopBindingCoverageRowV1 {
+    let has_rebind = receipts
+        .iter()
+        .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind);
+    let class = if iteration_locals.contains(&binding) {
+        CallableLoopBindingClassV1::IterationLocal
+    } else if has_rebind {
+        CallableLoopBindingClassV1::Carrier
+    } else {
+        CallableLoopBindingClassV1::ReadOnlyOperand
+    };
+    CallableLoopBindingCoverageRowV1 {
+        binding,
+        class,
+        receipts: receipts.into_boxed_slice(),
     }
 }
 

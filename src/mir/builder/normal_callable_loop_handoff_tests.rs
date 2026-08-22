@@ -325,12 +325,24 @@ fn body_only_rebind_is_explicit_outside_with_source_evidence() {
         panic!("body-only rebind must not become Ready")
     };
     assert_eq!(reason.loop_site(), &loop_site);
-    assert_eq!(reason.bindings(), &[outside]);
-    assert_eq!(reason.sites(), &[outside_rebind, outside_read]);
+    assert_eq!(reason.owner(), owner_id);
+    assert_eq!(reason.rows().len(), 1);
+    let row = &reason.rows()[0];
+    assert_eq!(row.binding(), outside);
+    assert_eq!(row.class(), CallableLoopBindingClassV1::Carrier);
+    assert_eq!(row.receipts().len(), 2);
+    assert_eq!(row.receipts()[0].binding(), outside);
+    assert_eq!(row.receipts()[1].binding(), outside);
+    assert!(row.receipts().iter().any(|receipt| {
+        receipt.site() == &outside_read && receipt.role() == CallableLoopBindingRoleV1::BodyRead
+    }));
+    assert!(row.receipts().iter().any(|receipt| {
+        receipt.site() == &outside_rebind && receipt.role() == CallableLoopBindingRoleV1::BodyRebind
+    }));
     let terminal = reason.into_terminal_error();
     assert!(terminal.contains("callable-loop-handoff/outside-first-cohort"));
-    assert!(terminal.contains("bindings=1"));
-    assert!(terminal.contains("sites=2"));
+    assert!(terminal.contains("rows=1"));
+    assert!(terminal.contains("receipts=2"));
 }
 
 #[test]
@@ -432,6 +444,26 @@ fn production_esc_json_uses_explicit_outside_for_body_only_rebinds() {
     let CallableLoopBindingProjectionDispositionV1::Outside(reason) = disposition else {
         panic!("esc_json body-only rebinds must be Outside")
     };
-    assert_eq!(reason.bindings().len(), 2);
-    assert!(reason.sites().len() >= 4);
+    assert_eq!(reason.rows().len(), 2);
+    assert!(reason.rows().iter().all(|row| {
+        matches!(
+            row.class(),
+            CallableLoopBindingClassV1::Carrier | CallableLoopBindingClassV1::IterationLocal
+        )
+    }));
+    assert!(reason.rows().iter().flat_map(|row| row.receipts()).count() >= 4);
+    assert!(reason.rows().iter().all(|row| {
+        row.receipts()
+            .iter()
+            .all(|receipt| receipt.binding() == row.binding())
+    }));
+    assert!(reason.rows().iter().all(|row| {
+        row.receipts()
+            .iter()
+            .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRead)
+            && row
+                .receipts()
+                .iter()
+                .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind)
+    }));
 }
