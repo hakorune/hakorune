@@ -36,6 +36,8 @@ markers = {
     "cleanup": "claim(DynamicV2PhysicalCleanupCutPointV1::InnerReturn)",
     "I11": "claim_operation(I11)",
     "Exit": "claim_exit()",
+    "Completion": ".claim_explicit_return(",
+    "Identity": ".mark_return(",
 }
 positions = {}
 for name, marker in markers.items():
@@ -44,20 +46,34 @@ for name, marker in markers.items():
         raise SystemExit(f"expected exactly one {name} claim, found {len(found)}")
     positions[name] = found[0]
 
-effects = [
+pre_effects = [
     body.find(".select_block("),
     body.find("read_entry_receipt("),
     body.find("emit_checked_callout_end("),
     body.find("values.publish("),
 ]
-effects = [position for position in effects if position >= 0]
-if not effects:
+pre_effects = [position for position in pre_effects if position >= 0]
+if not pre_effects:
     raise SystemExit("missing InnerReturn physical effect")
-if max(positions.values()) > min(effects):
+
+first_select_or_read = min(
+    position
+    for position in (body.find(".select_block("), body.find("read_entry_receipt("))
+    if position >= 0
+)
+if max(positions[name] for name in ("cleanup", "I11", "Exit")) > first_select_or_read:
     raise SystemExit("InnerReturn cleanup/operation claims occur after a physical effect")
+
+first_end = body.find("emit_checked_callout_end(")
+if first_end < 0:
+    raise SystemExit("missing InnerReturn End effect")
+if max(positions[name] for name in ("Completion", "Identity")) > first_end:
+    raise SystemExit("return-fact claims occur after the InnerReturn End effect")
 
 if body.count("claim_operation(I11)") != 1 or body.count("claim_exit()") != 1:
     raise SystemExit("InnerReturn operation claims must not retain post-effect edges")
+if body.count(".claim_explicit_return(") != 1 or body.count(".mark_return(") != 1:
+    raise SystemExit("return-fact claims must not retain post-End edges")
 PY
 
 lines="$(wc -l < "$INNER_RETURN" | tr -d '[:space:]')"
@@ -68,4 +84,4 @@ if (( lines >= 760 )); then
   guard_fail "$TAG" "InnerReturn source reached the 760-line split trigger: $lines"
 fi
 
-echo "[$TAG] ok (InnerReturn cleanup/I11/Exit claims once before select_block and physical effects)"
+echo "[$TAG] ok (InnerReturn cleanup/I11/Exit and return-fact claims before End/ledger effects)"

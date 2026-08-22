@@ -1,11 +1,11 @@
-Status: InnerReturn preclaim I0 landed; InnerReturn facts D0 is the next design stop
+Status: Compare prepare/reserve/commit D0 design stop
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
-Current execution row: MIR-DYNAMIC-INNER-RETURN-FACTS-D0
+Current execution row: MIR-LOOP-COMPARE-PREPARE-RESERVE-D0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-DYNAMIC-INNER-RETURN-FACTS-D0 (after InnerReturn preclaim I0)
+NextCard: MIR-LOOP-COMPARE-PREPARE-RESERVE-D0
 ---
 
 # Selected Dynamic Compare hardening D0
@@ -15,8 +15,8 @@ NextCard: MIR-DYNAMIC-INNER-RETURN-FACTS-D0 (after InnerReturn preclaim I0)
 Decision: accept the feedback as ordered hardening cells. The cursor EOF P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, and Fault I6/I7 cleanup preclaim I0 are closed. Use preflight-and-consume for the next Backedge cleanup/I13..I16 claims at their pre-effect boundary, without a new batch receipt or second cleanup authority; later design one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
 Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
-Fail-fast boundary: the existing InnerReturn row/site, ThenTerminal brand/predecessor, cleanup, I11, and Exit claims now precede `select_block()` and all End/SSA/ledger effects. A claim failure is terminal and the unpublished outer session is discarded; no rollback, retry, or fallback exists. Completion/mark_return facts, Compare writer, and publication remain separate cells.
-Smallest next slice: MIR-DYNAMIC-INNER-RETURN-FACTS-D0, design-only audit of `claim_explicit_return` and `mark_return` after the InnerReturn preclaim I0. It must decide whether their authority can be prepared before End without inventing a second Completion/identity issuer. No implementation is open yet.
+Fail-fast boundary: InnerReturn return facts now occur before End/V14. The next boundary is selected Dynamic I9: every fallible operation/preclaim/writer/Branch preparation must finish before the last-fallible V13 reservation; only a private aggregate may commit the prepared Compare, Bool, V13, and Branch products. No rollback, retry, or fallback exists.
+Smallest next slice: MIR-LOOP-COMPARE-PREPARE-RESERVE-D0, a design-only audit of the selected I9 writer/Branch preparation and V13 reservation ordering. It must choose one bounded co-seal of existing receipts or record NoSafeSlice; no implementation or publication is open.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -40,12 +40,14 @@ Independent baseline evidence on this HEAD:
     bash tools/checks/rust_mirbuilder_loop_compare_connect0_guard.sh
       -> green: one selected I9 writer caller, Dynamic-only V13 commit, no legacy fallback
 
-    CARGO_BUILD_JOBS=4 cargo test --lib selected_dynamic_physical_emitter -- --nocapture
-      -> 9 passed; existing compiler warnings are baseline and unrelated to this card
+    CARGO_BUILD_JOBS=4 cargo test --profile quick --lib selected_dynamic_physical_emitter -- --nocapture
+      -> 10 passed; existing compiler warnings are baseline and unrelated to this card
 
-The Outside terminal closeout is now complete. This card is the next accepted
-bounded lane; only the cursor EOF P0 below is active, and the broader preclaim
-and live-publication cells remain closed.
+The Outside terminal closeout and the selected Dynamic preclaim series are
+complete through InnerReturn return-facts I0. This card's current bounded lane
+is the design-only Compare prepare/reserve/commit audit; implementation,
+publication, generic Loop retirement, and performance remain closed until that
+Decision is accepted.
 
 Worker audit confirmation:
 
@@ -478,28 +480,104 @@ prepare/reserve/commit, publication, and generic Loop remain separate.
 
 ### 11. MIR-DYNAMIC-INNER-RETURN-FACTS-D0
 
-Design-only next cell. Audit the Completion and identity return-fact claims
-that remain after the InnerReturn End/claim reorder. Record their exact source
-authority, required physical/SSA inputs, first effect boundary, and whether
-they can be preflighted or must become a private prepare/commit handoff before
-End. Keep Completion and identity as separate owners; do not add a combined
-semantic receipt, rollback, fallback, or second return writer.
+Decision accepted after the Pasteur read-only audit: once the existing SSA
+binding receipt has validated owner, binding, and ThenTerminal block, the two
+existing return-fact claims can be consumed before End. Completion remains the
+sole owner of `claim_explicit_return`; identity remains the sole owner of
+`mark_return`. No combined `ReturnFacts` semantic product, prepare/commit
+aggregate, rollback, or second issuer is introduced.
+
+The exact bounded state is:
+
+    source/site/target/predecessor validation
+      -> existing SSA binding receipt validation
+      -> Completion claim_explicit_return
+      -> identity mark_return
+      -> physical End
+      -> V14 ledger publication
+      -> existing CFG/SSA finish validation
+
+The accepted implementation task is `MIR-DYNAMIC-INNER-RETURN-FACTS-I0`:
+
+    move the two existing claims before emit_checked_callout_end
+    keep completion_consumption.rs and identity/ledger.rs unchanged
+    retain separate owners and the existing reject_begin discard path
 
 Acceptance:
 
-    `claim_explicit_return` and `mark_return` call/effect order is recorded
-    one bounded Decision or explicit NoSafeSlice is named
-    existing `reject_begin()` discard and no-fallback behavior are proven
-    any future I0 can have a focused positive/negative test and reusable guard
-      without changing Fault, Backedge, Compare, or publication authority
+    each return-fact claim occurs exactly once before End and V14 publication
+    site/target/block/duplicate mismatch remains a typed reject
+    later physical failure still reaches `reject_begin()`/discard
+    positive selected Dynamic test and reusable line-order guard are green
+    `inner_return_then.rs` remains below 760 lines
 
-NoSafeSlice: required return facts have no source owner, require a physical
-value before any safe preflight and no prepare/commit seam exists, or moving
-them would create a second Completion/identity/Return authority.
+NoSafeSlice: the validated SSA receipt is unavailable before End, an existing
+owner cannot consume its claim independently, or moving the claims requires a
+combined semantic/Completion/identity authority.
 
-### 12. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
+Worker evidence: Pasteur confirmed that Completion stores the physical operand
+witness in its own site slot while identity records source coverage in its own
+ledger. Both are session-local mutations and later failure is discarded by the
+existing unpublished-session terminal. The existing `finish()` remains the
+final completeness check, not a replacement for these pre-End claims.
 
-Implement only after the preclaim D0 is accepted. Split the current writer
+### 12. MIR-DYNAMIC-INNER-RETURN-FACTS-I0
+
+Implementation complete. After the existing SSA receipt validates owner,
+binding, and ThenTerminal block, Completion `claim_explicit_return` and
+identity `mark_return` now occur exactly once before `emit_checked_callout_end`
+and V14 publication. The owners and their modules are unchanged; the old
+post-End claim edges are gone and later failure still reaches the existing
+unpublished-session discard path.
+
+The reusable guard
+`rust_mirbuilder_dynamic_inner_return_preclaim_i0_guard.sh` now proves the
+cleanup/I11/Exit claims precede select/SSA effects and the two return-fact
+claims precede End/ledger effects. The selected Dynamic focused suite is
+10/10, the Backedge/Fault/CallOut/CONNECT0/strict-writer/pointer guards and
+diff check are green, and `inner_return_then.rs` is 250 lines.
+
+NoSafeSlice was not triggered: both existing owners can consume their facts
+after the validated SSA receipt, and the outer unpublished session remains
+the discard boundary.
+
+### 13. MIR-LOOP-COMPARE-PREPARE-RESERVE-D0
+
+Design-only next cell. Audit the selected Dynamic I9 transaction as one
+prepare/reserve/commit boundary without changing code. The audit must inspect
+the existing operation/control preclaims, strict Compare writer preparation,
+Branch preparation, Dynamic V13 reservation/commit, and the private physical
+append owner.
+
+Decision candidates are intentionally narrow:
+
+    accepted:
+      all fallible preclaims and writer/Branch preparation
+        -> last-fallible V13 reserve_result
+        -> private co-sealed commit
+        -> one Compare append, Bool commit, V13 commit, Branch commit
+
+    NoSafeSlice:
+      a prepared writer/Branch product cannot be committed without a
+      Result-returning check, or definition/slot pairing cannot be made
+      private and move-only without creating a second authority.
+
+The worker audit must name:
+
+    Source authority + canonical issuer
+    non-authorities and forbidden fallback edges
+    exact first physical effect and last fallible step
+    whether Branch has a prepare/commit seam
+    how the pending V13 slot is co-sealed to the Compare definition
+    acceptance/negative/guard evidence
+    non-claims, especially publication and generic Loop retirement
+
+Do not add a new semantic meaning, general dominance witness, generic Loop
+ledger adapter, publication proof, or optimization work in this D0.
+
+### 14. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
+
+Implement only after the prepare/reserve D0 is accepted. Split the current writer
 front door into:
 
     CanonicalLoopCompareI64WriterV1::prepare(...)
@@ -543,7 +621,7 @@ Acceptance:
 NoSafeSlice: the aggregate cannot make definition/slot pairing private and
 move-only, or the writer still needs a repair-capable legacy front door.
 
-### 13. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
+### 15. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
 
 Keep this separate from the physical transaction rewrite.
 
@@ -559,7 +637,7 @@ negative test that changes only the physical value and rejects before any
 publication. Type affinity must be verified by compile/guard evidence rather
 than runtime behavior.
 
-### 14. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
+### 16. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
 
 Do not touch the generic caller-zero leaf in the selected Dynamic hardening
 series. Its old append-then-publish behavior remains a known baseline debt

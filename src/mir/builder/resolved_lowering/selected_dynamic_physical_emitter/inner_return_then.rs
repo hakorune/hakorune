@@ -162,14 +162,9 @@ fn emit_program(
         return Err(reject("I11 canonical binding receipt drift"));
     }
 
-    canonical
-        .emit_checked_callout_end(
-            outer.builder_view_mut_for_lowering(),
-            then_block,
-            lifecycle.i6_site(),
-            lifecycle.lease_slot(),
-        )
-        .map_err(reject)?;
+    // Both return-fact owners consume their existing source/operand evidence
+    // before the physical End append.  They remain separate authorities; a
+    // later physical rejection still discards the unpublished session.
     canonical
         .completion
         .claim_explicit_return(
@@ -181,7 +176,16 @@ fn emit_program(
         .map_err(reject)?;
     canonical
         .identity
-        .mark_return(ResolvedExitSiteV1::Statement(site))
+        .mark_return(ResolvedExitSiteV1::Statement(site.clone()))
+        .map_err(reject)?;
+
+    canonical
+        .emit_checked_callout_end(
+            outer.builder_view_mut_for_lowering(),
+            then_block,
+            lifecycle.i6_site(),
+            lifecycle.lease_slot(),
+        )
         .map_err(reject)?;
     values
         .publish(
