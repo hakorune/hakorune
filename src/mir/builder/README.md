@@ -321,6 +321,22 @@ same prepared raw-root lineage; it does not claim opaque parser-invocation
 identity. A parser witness must be added in a separate design slice before
 stronger identity claims are allowed.
 
+### Callable Loop source-aware Facts terminal-only P0
+
+`CallableGenericLoopSourceFactsTerminalConsumerV1` is the sole named consumer
+for the caller-zero terminal seam. It accepts only the private move-only
+`CallableGenericLoopSourceFactsReadyV1` and returns a separate
+`CallableGenericLoopSourceFactsConsumedV1`; the transition is infallible and
+has no Builder, ledger, registry, fallback, retry, or physical effect. The
+consumed state retains only the existing source schedule and exact
+`GenericLoopV1` selection seal. AST, Facts, and Recipe are dropped at this
+terminal so no ordinary lowering path can observe or rebuild them.
+
+The consumer is intentionally caller-zero in this slice. A future ordinary
+Ready port must be a separately named consumer with its own source-backed
+contract; it cannot reuse this terminal state or reopen the legacy registry
+suffix.
+
 `normal_callable_dynamic_operation_source.rs` owns the next source-only S0
 co-seal. It combines the existing resolver ledger, source-backed Dynamic
 callable product, and R0 binding schedule to issue one move-only exact

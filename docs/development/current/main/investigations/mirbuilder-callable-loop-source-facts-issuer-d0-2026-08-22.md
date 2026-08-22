@@ -1,11 +1,11 @@
 ---
-Status: D0 and caller-zero issuer P0 complete; next terminal-only port P0
-Task: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-P0 (complete)
+Status: D0, caller-zero issuer P0, and terminal-only port P0 complete; next ordinary Ready port P0
+Task: MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0 (complete)
 Date: 2026-08-22
 Priority: carry one source-bound GenericLoop Facts/Recipe outcome before any consumer
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-callable-physical-header-completion-value-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0
+NextCard: MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0
 ---
 
 # Callable Loop source-aware Facts issuer D0
@@ -164,9 +164,9 @@ AST-only `LoopRouteContext` and could re-enter the old schedule.
    policy-aware planner call. Prove one extraction, same prepared raw-root source
    ownership, exact GenericLoop-only selection, Ready move-only shape, and
    typed terminal states. Do not call it from the production raw Loop port.
-2. `MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0` — caller-zero route seam.
-   Add one terminal port that consumes the Ready aggregate without exposing
-   `PostEffectRetryDebt`, legacy suffix, fallback, or retry.
+2. `MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0` — caller-zero route seam
+   (complete). Add one terminal port that consumes the Ready aggregate without
+   exposing `PostEffectRetryDebt`, legacy suffix, fallback, or retry.
 3. `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` — one non-nested Ready fixture.
    Consume exact callable rows during the existing normalizer traversal while
    structural expression lookup stays on its existing port.
@@ -233,8 +233,8 @@ inventing a second GenericLoop/Recipe authority
 ```
 
 This D0 is accepted by the top-down review and the source-boundary audit. The
-next authorized work is the terminal-only P0 below; no ordinary consumer or
-production switch is implied by this completion.
+terminal-only P0 below is now complete; no ordinary consumer or production
+switch is implied by that completion.
 
 ## Caller-zero P0 implementation receipt (2026-08-22)
 
@@ -272,7 +272,47 @@ git diff --check                                                     PASS
 ```
 
 The next authorized cell is
-`MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0`: consume the private `Ready`
-aggregate through one terminal-only named seam. Ordinary lowering, body-only
-rebind admission, route cutover, fallback/retry, physical/publication work,
-parser witness strengthening, and main integration remain closed.
+`MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0`: design one non-nested named
+consumer for exact callable rows while structural expression lookup stays on
+its existing port. Body-only rebind admission, route cutover, fallback/retry,
+physical/publication work, parser witness strengthening, and main integration
+remain closed.
+
+## Terminal-only Ready consumption P0 (2026-08-22)
+
+Decision: represent the terminal port as a move-only state transition, not as
+a second Facts/Recipe or registry terminality authority.
+
+```text
+CallableGenericLoopSourceFactsReadyV1
+  -> CallableGenericLoopSourceFactsTerminalConsumerV1::consume
+  -> CallableGenericLoopSourceFactsConsumedV1
+```
+
+The existing source-aware issuer remains the sole authority for owner, source
+lineage, Facts/Recipe, and exact `[GenericLoopV1]` selection. The named
+terminal consumer only consumes that already-sealed Ready product. It retains
+the existing source schedule and exact selection seal, while intentionally
+dropping AST/Facts/Recipe at the no-effect terminal. It does not expose a
+`RouteExecutionWitnessV1`, registry suffix, `PostEffectRetryDebt`, Builder,
+ledger, or physical receipt.
+
+The consumed type is non-`Clone` and has no constructor or conversion from an
+AST, `LoopRouteContext`, route list, name, ordinal, `ValueId`, or physical
+product. The transition is infallible because every fallible source/Facts/
+route check is complete before `Ready` exists. There is no production caller
+in this P0; the focused test is the only consumer.
+
+Acceptance for this slice:
+
+```text
+Ready -> exactly one Consumed move
+owner and exact GenericLoopV1 seal are retained
+AST/Facts/Recipe cannot be observed through Consumed
+registry/lowering/Builder/ledger edge count = 0
+production terminal-consumer caller count = 0
+```
+
+The next authorized row is the ordinary Ready port. It must not reuse the
+terminal state, and it must first name the normalizer consumer and its
+source-backed row relation before any physical or production edge is opened.

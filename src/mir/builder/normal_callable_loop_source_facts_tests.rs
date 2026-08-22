@@ -1,6 +1,9 @@
 use std::collections::BTreeSet;
 
-use super::{CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1};
+use super::{
+    CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
+    CallableGenericLoopSourceFactsTerminalConsumerV1,
+};
 use crate::ast::{ASTNode, BinaryOperator, LiteralValue, Span};
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::normal_callable_loop_handoff::{
@@ -171,6 +174,29 @@ fn caller_zero_issuer_co_seals_one_generic_facts_outcome() {
             [crate::mir::loop_recipe_contract::route_id::LoopRouteId::GenericLoopV1]
         );
         assert!(ready.outcome().facts.is_some());
+    });
+}
+
+#[test]
+fn terminal_consumer_moves_ready_into_one_no_effect_consumed_state() {
+    let source_owner = owner();
+    with_prepared(source_owner, generic_loop(), |_, prepared| {
+        let payload = prepared
+            .into_callable_generic_loop_source_facts_payload(
+                source_owner,
+                "terminal-only",
+                false,
+                false,
+                policy(),
+            )
+            .expect("source payload");
+        let outcome = CallableGenericLoopSourceFactsIssuerV1::issue_once(payload);
+        let super::CallableGenericLoopSourceFactsDispositionV1::Ready(ready) = outcome else {
+            panic!("expected source-aware GenericLoop Ready outcome")
+        };
+
+        let consumed = CallableGenericLoopSourceFactsTerminalConsumerV1::consume(ready);
+        assert_eq!(consumed.owner(), source_owner);
     });
 }
 

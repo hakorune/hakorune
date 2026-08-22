@@ -68,20 +68,57 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsReadyV1<'source
 }
 
 impl<'source> CallableGenericLoopSourceFactsReadyV1<'source> {
+    #[cfg(test)]
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) const fn policy(&self) -> GenericLoopFactsPolicyFrameV1 {
         self.policy
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
         &self.selection
     }
 
+    #[cfg(test)]
     pub(in crate::mir::builder) fn outcome(&self) -> &PlanBuildOutcome {
         &self.outcome
+    }
+}
+
+/// A terminal-only state transition for the caller-zero seam.
+///
+/// This keeps only the already-issued source schedule and exact route seal. The
+/// AST, Facts, and Recipe are intentionally dropped at this terminal; no
+/// later normalizer, registry suffix, or physical consumer can observe them
+/// through this product.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsConsumedV1 {
+    schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
+    selected: VerifiedLocatedGenericLoopV1SelectionV1,
+}
+
+impl CallableGenericLoopSourceFactsConsumedV1 {
+    #[cfg(test)]
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.schedule.owner()
+    }
+}
+
+/// Sole named consumer for the terminal-only P0.
+pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsTerminalConsumerV1;
+
+impl CallableGenericLoopSourceFactsTerminalConsumerV1 {
+    pub(in crate::mir::builder) fn consume<'source>(
+        ready: CallableGenericLoopSourceFactsReadyV1<'source>,
+    ) -> CallableGenericLoopSourceFactsConsumedV1 {
+        let CallableGenericLoopSourceFactsReadyV1 {
+            schedule, selected, ..
+        } = ready;
+        CallableGenericLoopSourceFactsConsumedV1 { schedule, selected }
     }
 }
 
