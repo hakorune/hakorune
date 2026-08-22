@@ -15,6 +15,7 @@ PLANNER="$ROOT_DIR/src/mir/builder/control_flow/plan/single_planner/rules.rs"
 PLANNER_MOD="$ROOT_DIR/src/mir/builder/control_flow/plan/single_planner/mod.rs"
 PLANNER_INPUT="$ROOT_DIR/src/mir/builder/control_flow/plan/single_planner/input.rs"
 STRUCTURAL_PORT="$ROOT_DIR/src/mir/builder/control_flow/joinir/structural_port.rs"
+JOINIR_MOD="$ROOT_DIR/src/mir/builder/control_flow/joinir/mod.rs"
 STRUCTURAL_PORT_TESTS="$ROOT_DIR/src/mir/builder/control_flow/joinir/structural_port_tests.rs"
 STRUCTURAL_LEASE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_structural_lease_tests.rs"
 GENERIC_LOOP_CONTEXT="$ROOT_DIR/src/mir/builder/control_flow/plan/features/generic_loop_context.rs"
@@ -24,7 +25,7 @@ LOWERING_CONTEXT="$ROOT_DIR/src/mir/builder/control_flow/plan/lowering_context.r
 COMPOSER="$ROOT_DIR/src/mir/builder/control_flow/plan/recipe_tree/generic_loop_composer.rs"
 ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_loop_physical_adapter.rs"
 FEATURES_README="$ROOT_DIR/src/mir/builder/control_flow/plan/features/README.md"
-CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-callable-loop-ready-generic-loop-v1-recipe-authority-d0-2026-08-22.md"
+CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-callable-loop-structural-lease-retire-d0-2026-08-23.md"
 README="$ROOT_DIR/src/mir/builder/README.md"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 SELF_SCRIPT="tools/checks/rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh"
@@ -33,7 +34,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$ISSUER" "$TESTS" "$RAW_ENTRY" "$FACTS_BUILDER" \
   "$V0" "$VALIDATION" "$PLANNER" "$PLANNER_MOD" "$PLANNER_INPUT" \
-  "$STRUCTURAL_PORT" "$STRUCTURAL_PORT_TESTS" "$STRUCTURAL_LEASE_TESTS" \
+  "$STRUCTURAL_PORT" "$JOINIR_MOD" "$STRUCTURAL_PORT_TESTS" "$STRUCTURAL_LEASE_TESTS" \
   "$GENERIC_LOOP_CONTEXT" "$GENERIC_LOOP_PIPELINE" "$GENERIC_LOOP_V1" \
   "$LOWERING_CONTEXT" "$COMPOSER" "$ADAPTER" \
   "$FEATURES_README" \
@@ -117,10 +118,10 @@ guard_expect_fixed_in_file "$TAG" "GenericLoopFactsPolicyFrameV1" "$VALIDATION" 
   "body validation must have an explicit-policy seam"
 guard_expect_fixed_in_file "$TAG" "CallableGenericLoopSourceFactsRouteErrorV1" "$ISSUER" \
   "route rejection must preserve a typed reason"
-guard_expect_fixed_in_file "$TAG" "Ready production caller switch = 1" "$CARD" \
-  "active card must record the Ready production switch"
-guard_expect_fixed_in_file "$TAG" "MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-RECIPE-AUTHORITY-D0" "$CARD" \
-  "active card must name the accepted Recipe authority"
+guard_expect_fixed_in_file "$TAG" "live Ready production edge count remains one" "$CARD" \
+  "active card must record the unchanged Ready production edge"
+guard_expect_fixed_in_file "$TAG" "MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-I0" "$CARD" \
+  "active card must name the accepted cfg(test) retirement I0"
 guard_expect_fixed_in_file "$TAG" "Callable Loop source-aware Facts issuer I0" "$README" \
   "builder README must document the production Ready seam"
 guard_expect_fixed_in_file "$TAG" "CallableLoopStructuralPortV1" "$README" \
@@ -138,6 +139,28 @@ if rg -n \
   "$ROOT_DIR/src/mir/builder"; then
   guard_fail "$TAG" "structural lease issuer still has a production caller"
 fi
+if rg -n \
+  --glob '!normal_callable_loop_structural_lease_tests.rs' \
+  --glob '!structural_port_tests.rs' \
+  --glob '!structural_port.rs' \
+  -- 'with_existing_structural_port|CallableLoopStructuralLeaseIssuerV1::prepare' \
+  "$ROOT_DIR/src/mir/builder"; then
+  guard_fail "$TAG" "structural lease/port must have no non-test caller"
+fi
+if ! rg -U -q -- '#\[cfg\(test\)\]\n[^\n]*pub\(in crate::mir::builder\) mod structural_port;' "$JOINIR_MOD"; then
+  guard_fail "$TAG" "structural_port module must be test-only"
+fi
+if ! rg -U -q -- '#\[cfg\(test\)\]\nuse super::control_flow::joinir::structural_port::' "$ISSUER"; then
+  guard_fail "$TAG" "source-facts structural imports must be test-only"
+fi
+for symbol in \
+  'PreparedCallableLoopStructuralHandoffV1' \
+  'CallableLoopReadyStructuralViewV1' \
+  'CallableLoopStructuralLeaseIssuerV1'; do
+  if ! rg -U -q -- "#\[cfg\(test\)\][^\n]*(\n[^\n]*){0,2}${symbol}" "$ISSUER"; then
+    guard_fail "$TAG" "source-facts lease symbol must remain test-only: $symbol"
+  fi
+done
 if rg -n -- 'LoopRouteContext|choose_route_kind' "$ISSUER"; then
   guard_fail "$TAG" "source-aware issuer must not construct or classify a route context"
 fi
@@ -243,4 +266,4 @@ for file in "$PLANNER_INPUT" "$PLANNER_MOD"; do
   fi
 done
 
-echo "[$TAG] ok (one source/Facts issuer, one Ready Recipe/physical consumer, one terminal Outside consumer, no Ready/Outside legacy fallback)"
+echo "[$TAG] ok (one source/Facts issuer, one Ready Recipe/physical consumer, cfg(test)-only structural lease, no Ready/Outside legacy fallback)"

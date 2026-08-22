@@ -21,6 +21,7 @@ use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
+#[cfg(test)]
 use super::control_flow::joinir::structural_port::{
     issue_route_neutral_structural_seed, CallableLoopRouteNeutralStructuralSeedV1,
     CallableLoopSourceBoundStructuralPortV1, CallableLoopStructuralLeaseRejectV1,
@@ -344,6 +345,7 @@ impl CallableGenericLoopV1SemanticRecipeIssuerV1 {
 
 /// Move-only source/structural handoff.  The seed is transport-only and the
 /// source receipt remains the sole Facts/Recipe authority.
+#[cfg(test)]
 #[derive(Debug)]
 pub(in crate::mir::builder) struct PreparedCallableLoopStructuralHandoffV1<'source> {
     receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
@@ -351,6 +353,7 @@ pub(in crate::mir::builder) struct PreparedCallableLoopStructuralHandoffV1<'sour
 }
 
 /// Opaque view borrowed only for one callback invocation.
+#[cfg(test)]
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CallableLoopReadyStructuralViewV1<'view> {
     owner: FunctionOwnerIdV1,
@@ -362,6 +365,7 @@ pub(in crate::mir::builder) struct CallableLoopReadyStructuralViewV1<'view> {
     port: CallableLoopSourceBoundStructuralPortV1<'view>,
 }
 
+#[cfg(test)]
 impl CallableLoopReadyStructuralViewV1<'_> {
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
@@ -397,8 +401,10 @@ impl CallableLoopReadyStructuralViewV1<'_> {
 }
 
 /// Sole issuer for the caller-zero route-neutral structural lease.
+#[cfg(test)]
 pub(in crate::mir::builder) struct CallableLoopStructuralLeaseIssuerV1;
 
+#[cfg(test)]
 impl CallableLoopStructuralLeaseIssuerV1 {
     pub(in crate::mir::builder) fn prepare<'source>(
         receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
@@ -415,6 +421,7 @@ impl CallableLoopStructuralLeaseIssuerV1 {
     }
 }
 
+#[cfg(test)]
 impl<'source> PreparedCallableLoopStructuralHandoffV1<'source> {
     /// Consume the handoff exactly once; the borrowed view cannot escape this
     /// higher-ranked callback and no physical effect occurs here.

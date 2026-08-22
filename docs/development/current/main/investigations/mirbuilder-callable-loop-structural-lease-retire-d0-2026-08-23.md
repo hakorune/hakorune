@@ -1,11 +1,11 @@
-Status: Decision accepted; cfg(test) retirement I0 active
+Status: cfg(test) retirement I0 complete; F2 design stop next
 Task: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-D0
 Date: 2026-08-23
 Priority: classify the caller-zero structural lease before any retirement or namespace change
 Parent: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0
-Current execution row: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-I0
+Current execution row: MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-callable-loop-structural-lease-retire-d0-2026-08-23.md
-NextCard: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-I0
+NextCard: MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0
 ---
 
 # Callable Loop structural lease retirement D0
@@ -16,7 +16,7 @@ Decision: the source-Facts -> semantic Recipe -> named physical adapter path is 
 Source authority + canonical issuer: `CallableGenericLoopSourceFactsIssuerV1` issues the source-located Facts/Recipe disposition; `CallableGenericLoopV1SemanticRecipeIssuerV1` and `CallableGenericLoopV1PhysicalAdapterV1` consume that production path. The structural lease issuer is not a production source authority.
 Non-authority: `CallableLoopStructuralLeaseIssuerV1`, `PreparedCallableLoopStructuralHandoffV1`, `CallableLoopReadyStructuralViewV1`, `CallableLoopRouteNeutralStructuralSeedV1`, `CallableLoopSourceBoundStructuralPortV1`, `with_existing_structural_port`, `LoopRouteContext` as a reconstructed source authority, and test-only structural observations.
 Fail-fast boundary: the caller-zero census is complete. The I0 change is limited to compile-time registration/import boundaries; any non-test caller, re-export, or production field discovered during the edit is a typed stop, not a compatibility fallback.
-Smallest next slice: put the structural port module and lease-only source-facts section behind `cfg(test)`, retain the existing three lease tests and one port test, and add a reusable guard proving the live Ready path is unchanged and the production structural graph is zero.
+Smallest next slice: I0 is closed with test-only structural registration and preserved evidence. The next design stop is `MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0`; no Outside row/class refactor starts until its observed-vs-admitted authority is accepted.
 Non-claims: no Ready production switch, no Outside consumer, no pure-plan split, no unpublished-session capability, no `GenericLoopV1LoweringContext` redesign, no Builder barrel reorganization, no publication, fallback, parser, or performance work.
 
 ## Why this is the next design stop
@@ -148,6 +148,34 @@ touched Rust files remain below 760 lines
 The reusable guard must fail if a structural lease symbol is restored to a
 non-test registration or a non-test caller appears. It must not ban unrelated
 legacy `LoopRouteContext` uses in ordinary tests or compatibility routes.
+
+## I0 closeout evidence
+
+The structural port module, source-facts structural imports, and lease-only
+handoff types are now `cfg(test)`; the live path remains:
+
+```text
+issue_once -> claim_all -> semantic Recipe -> physical adapter
+```
+
+Evidence:
+
+```text
+non-test cargo check: passed
+structural lease tests: 3 passed
+structural port callback test: 1 passed
+source-facts tests: 7 passed
+selected Dynamic suite: 10 passed
+source-Facts guard: green
+current-state pointer guard: green
+git diff --check: green
+normal_callable_loop_source_facts.rs: 597 lines
+raw_loop_child_entry.rs: 686 lines
+```
+
+No production Ready, Outside, Recipe, physical, Builder, or fallback edge was
+changed. Complete deletion remains parked until an owner confirms that the
+test-only HRTB evidence is no longer useful.
 
 ## Finite design states
 
