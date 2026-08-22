@@ -17,15 +17,15 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged 185
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0"
-current_design_stop = "Structural-lease cfg(test) I0 is complete: production no longer compiles the caller-zero lease/port family, while three lease tests and one port test remain test-only evidence. The next bounded slice is the Outside observed-row versus Ready-admitted-class Decision; publication, generic Loop cleanup, parser witness, and performance remain closed."
-current_blocker_token = "MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0: separate exact source observation rows from Ready admission classes and validate the Ready remainder without issuing and dropping a Verified schedule."
+work_mode = "fast"
+current_execution_row = "MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-I0"
+current_design_stop = "Outside observed-row versus Ready-admitted-class F2 is conditionally accepted for a terminal-only I0: split the exact source rows and admitted classes, preserve binding-to-receipt relation, and replace throwaway Verified schedule issuance with a private remainder validator. The ordinary Outside consumer, publication, pure plan, parser, and performance remain closed."
+current_blocker_token = "MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-I0: implement the observed/Ready/Outside row split and private remainder validation without opening an ordinary Outside route."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — callable Loop Outside observed-class design stop"
+active_lane = "MirBuilder in-place replacement — callable Loop Outside observed-class separation"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -77,7 +77,7 @@ The phase-qualified parser/admission, transport, A, and future C/B state matrix 
 	Parser-composite preservation I0 is pushed and closed. Composite source admission R0 is pushed and closed as 254856b5a8: one parser-backed default-root issuer consumes the preserved token through an HRTB loan and emits only the witness-bound provider/terminal partition; existing Script admission consumes the provider transfer without resolving the root call. Focused 4-test evidence, cargo check, pointer guard, R0 guard, diff check, and source-size checks are green. The source-reownership audit is now accepted as two ordered substeps: typed Deferred preservation is the selected fast cell; neutral window reownership remains a separate T2 design stop. Lookup, capability/A/C, physical work, old Recipe retirement, production switch, and performance remain closed.
 The Script lookup reownership I0/R0 is implemented and pushed as 873eacad33. One non-Clone source-package HRTB issuer co-seals the package declaration authority, transient target/result catalogs, parser witness, exact call sites, canonical target keys, and owned result facts before pinned-target/Builder effects; ResultBundle consumes the relation once. The old pointer inventory production edge is zero and focused lookup, bundle, source-reown, composite, target, current-state, and diff guards are green.
 	The Script A/C consumer series is pushed as 21b1f3263f; main integration is now complete at aafda19d86. Gate 1 assignment ReleaseStrong fail-fast is pushed as dcd8359f7a; Gate 2 physical-result guard is pushed as 8e9b4562c2. C-prime strictness P0s are landed caller-zero. CONNECT0 selected Dynamic I9; worker review chose the direct Dynamic-ledger-to-canonical-SSA handoff, which is now landed with owner binding, same-block rebind, V13 reservation/commit, and one strict append. Focused positive/ledger tests, cargo check, both strict-writer/CONNECT0 guards, and the pointer guard are green. Static compile-path reachability is confirmed.
-The selected Dynamic transaction lane is closed through the sealed BodyBridge relation: After has one Header predecessor and its OuterReturn PHI consumes the existing Header-current receipt; raw ValueId equality is not used. The I9 Compare/Branch transaction remains one private move-only commit, and destination/Bool affinity is compile/guard verified. Structural-lease cfg(test) retirement is complete; the next design stop is Outside observed-class separation, with no publication, fallback, parser witness, or performance expansion open.
+The selected Dynamic transaction lane is closed through the sealed BodyBridge relation: After has one Header predecessor and its OuterReturn PHI consumes the existing Header-current receipt; raw ValueId equality is not used. The I9 Compare/Branch transaction remains one private move-only commit, and destination/Bool affinity is compile/guard verified. Structural-lease cfg(test) retirement is complete; the current terminal-only F2 I0 separates Outside observations from Ready admission, with no ordinary Outside consumer, publication, fallback, parser witness, or performance expansion open.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -90,10 +90,10 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-callable-loop-outside-observed-class-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-callable-loop-outside-observed-class-d0-2026-08-23.md"
-latest_card_summary = "Structural-lease cfg(test) I0 is complete: production no longer compiles the caller-zero lease/port family, while three lease tests and one port test remain test-only evidence. The next design stop is Outside observed-row versus Ready-admitted-class separation; no ordinary Outside consumer, pure plan, publication, parser, or performance work is open."
-next_design_card = "MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0"
-next_design_card_path = "docs/development/current/main/investigations/mirbuilder-callable-loop-outside-observed-class-d0-2026-08-23.md"
-next_execution_card = "none"
+latest_card_summary = "Structural-lease cfg(test) I0 is complete: production no longer compiles the caller-zero lease/port family, while three lease tests and one port test remain test-only evidence. F2 is conditionally accepted for terminal-only observed-row versus Ready-admitted-class separation; the current I0 preserves the existing Ready/Outside consumers and opens no ordinary Outside route."
+next_design_card = "none"
+next_design_card_path = "none"
+next_execution_card = "MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-I0"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-22: MIR-DYNAMIC-CALLOUT-PRECLAIM-I0 is landed. The existing I0..I7 operation claim loop now occurs once before the first `publish_i64_value` MIR/ledger effect; the dedicated CallOut guard, selected Dynamic suite (10/10), CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-I0 is landed. Existing I6/I7 cleanup claims now occur once before Fault/CallOut-End effects; the dedicated Fault guard, selected Dynamic suite (10/10), CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0 is landed. Header validation and existing Backedge cleanup/I13..I16 claims now occur before `select_block` and the first physical effect; the dedicated Backedge guard, selected Dynamic suite (10/10), Fault/CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-INNER-RETURN-PRECLAIM-D0 is the next design stop.",
-  "2026-08-23: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0 (0f3a1c821d) and MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0 (91bc0923d9) are landed. I9 has one private move-only Compare/Bool/V13/Branch commit; canonical SSA verifies the sealed After/Header-current PHI edge without raw ValueId equality. Relation tests (2), production fixture (1), selected Dynamic suite (10), quick check, transaction/preclaim/relation guards, pointer, and diff checks are green. Next is MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-D0; publication, Outside consumer, pure plan, parser, and performance remain closed."
+  "2026-08-23: Compare/Bridge hardening (0f3a1c821d, 91bc0923d9) and MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-I0 (40e862c3dc) are landed. I9 remains one private move-only commit; canonical SSA verifies the sealed After/Header-current PHI edge without raw ValueId equality; the caller-zero structural lease/port family is cfg(test)-only. Relation tests (2), structural lease (3), port (1), source Facts (7), selected Dynamic (10), quick check, source-Facts guard, pointer, and diff checks are green. Next is MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0; ordinary Outside consumer, pure plan, parser, and performance remain closed."
 ]
