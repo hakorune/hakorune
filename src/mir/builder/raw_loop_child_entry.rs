@@ -12,7 +12,10 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{MirBuilder, ValueId};
 
 use super::generic_loop_admission_observation::GenericLoopAdmissionObservationV1;
-use super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1;
+use super::normal_callable_loop_handoff::{
+    CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
+    VerifiedCallableSemanticLoopBindingScheduleV1,
+};
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
@@ -40,7 +43,7 @@ pub(in crate::mir::builder) struct PreparedLocatedRawLoopChildEntryV1<'source> {
     condition: ASTNode,
     body: Vec<ASTNode>,
     disposition: RawLoopChildEntryDispositionV1,
-    callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
+    callable_handoff: Option<CallableLoopBindingProjectionDispositionV1>,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
     admission_observation: Option<GenericLoopAdmissionObservationV1>,
 }
@@ -49,7 +52,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     pub(in crate::mir::builder) fn prepare(
         parent_source: &'source RawInvocationSourceContextV1,
         loop_node: ASTNode,
-        callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
+        callable_handoff: Option<CallableLoopBindingProjectionDispositionV1>,
     ) -> Result<Self, String> {
         Self::prepare_with_method_source_observation(
             parent_source,
@@ -63,7 +66,7 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
     pub(in crate::mir::builder) fn prepare_with_method_source_observation(
         parent_source: &'source RawInvocationSourceContextV1,
         loop_node: ASTNode,
-        callable_handoff: Option<VerifiedCallableSemanticLoopBindingScheduleV1>,
+        callable_handoff: Option<CallableLoopBindingProjectionDispositionV1>,
         method_source_observation: Option<CallableMethodSourceObservationV1>,
         admission_observation: Option<GenericLoopAdmissionObservationV1>,
     ) -> Result<Self, String> {
@@ -137,9 +140,9 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             method_source_observation: _,
             admission_observation: _,
         } = self;
-        let _pre_effect_receipt = callable_handoff
-            .map(|handoff| {
-                handoff.consume_pre_effect(
+        let outside_reason = match callable_handoff {
+            Some(CallableLoopBindingProjectionDispositionV1::Ready(handoff)) => {
+                let _pre_effect_receipt = handoff.consume_pre_effect(
                     parent_source.site().ok_or_else(|| {
                         "[freeze:contract][raw-loop-child-entry/missing-parent-site]".to_owned()
                     })?,
@@ -149,17 +152,23 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                     body_source.site().ok_or_else(|| {
                         "[freeze:contract][raw-loop-child-entry/missing-body-site]".to_owned()
                     })?,
-                )
-            })
-            .transpose()?;
+                )?;
+                None
+            }
+            Some(CallableLoopBindingProjectionDispositionV1::Outside(reason)) => Some(reason),
+            None => None,
+        };
 
-        match disposition {
-            RawLoopChildEntryDispositionV1::NoChildFunctionEntry => {
+        match (disposition, outside_reason) {
+            (RawLoopChildEntryDispositionV1::NoChildFunctionEntry, Some(reason)) => {
+                lower_outside_callable_loop_v1(builder, condition, body, reason)
+            }
+            (RawLoopChildEntryDispositionV1::NoChildFunctionEntry, None) => {
                 super::control_flow::joinir::routing::lower_loop_or_freeze_v1(
                     builder, condition, body,
                 )
             }
-            RawLoopChildEntryDispositionV1::ReachableBoxDeclaration => Err(
+            (RawLoopChildEntryDispositionV1::ReachableBoxDeclaration, _) => Err(
                 super::control_flow::lower::Freeze::contract(
                     "raw_loop_child_entry: reachable BoxDeclaration requires a pure-plan/function-session bridge",
                 )
@@ -167,6 +176,17 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
             ),
         }
     }
+}
+
+fn lower_outside_callable_loop_v1(
+    builder: &mut MirBuilder,
+    condition: ASTNode,
+    body: Vec<ASTNode>,
+    _reason: CallableLoopOutsideReasonV1,
+) -> Result<ValueId, String> {
+    // Outside is selected before the callable pre-effect receipt is consumed.
+    // This is the existing ordinary JoinIR owner, not a retry from Ready.
+    super::control_flow::joinir::routing::lower_loop_or_freeze_v1(builder, condition, body)
 }
 
 fn verify_exact_loop_child_receipts(
@@ -225,13 +245,13 @@ mod tests {
     use std::collections::HashMap;
 
     use super::{
-        classify_raw_loop_child_entry_v1, PreparedLocatedRawLoopChildEntryV1,
-        RawLoopChildEntryDispositionV1,
+        classify_raw_loop_child_entry_v1, CallableLoopBindingProjectionDispositionV1,
+        PreparedLocatedRawLoopChildEntryV1, RawLoopChildEntryDispositionV1,
+        VerifiedCallableSemanticLoopBindingScheduleV1,
     };
     use crate::ast::{ASTNode, DeclarationAttrs, Span};
     use crate::mir::builder::normal_callable_loop_handoff::{
         CallableLoopBindingReceiptV1, CallableLoopBindingRoleV1,
-        VerifiedCallableSemanticLoopBindingScheduleV1,
     };
     use crate::mir::builder::raw_invocation_source_transport::{
         RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawUnlocatedPortalV1,
@@ -445,7 +465,9 @@ mod tests {
         let prepared = PreparedLocatedRawLoopChildEntryV1::prepare(
             &source,
             loop_node(vec![ASTNode::Break { span: span() }]),
-            Some(callable_handoff(&loop_site)),
+            Some(CallableLoopBindingProjectionDispositionV1::Ready(
+                callable_handoff(&loop_site),
+            )),
         )
         .expect("located Loop entry with callable handoff");
 

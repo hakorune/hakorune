@@ -3,8 +3,8 @@
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
-use crate::mir::{MirBuilder, ValueId};
 use crate::mir::resolved_semantics::ScriptResolverDeferredV1;
+use crate::mir::{MirBuilder, ValueId};
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -18,7 +18,6 @@ use super::me_call_header_observation::{
 use super::module_lowering_invocation::{
     LoweringHeaderPortV1, ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1,
 };
-use super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1;
 use super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::port_aware_function_draft_impl::PortAwarePreparedDraftBodyV1;
@@ -222,8 +221,7 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
     /// Source-only Script resolver deferral carried through the existing raw
     /// runtime owner. It does not select a route or issue a fallback.
-    pub(in crate::mir::builder) script_deferred_observation:
-        Option<ScriptResolverDeferredV1>,
+    pub(in crate::mir::builder) script_deferred_observation: Option<ScriptResolverDeferredV1>,
     pub(in crate::mir::builder) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
 }
@@ -326,7 +324,10 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
 
     pub(in crate::mir::builder) fn issue_callable_loop_binding_schedule_v1(
         &self,
-    ) -> Result<Option<VerifiedCallableSemanticLoopBindingScheduleV1>, String> {
+    ) -> Result<
+        Option<super::normal_callable_loop_handoff::CallableLoopBindingProjectionDispositionV1>,
+        String,
+    > {
         let Some(ledger) = self.callable_ledger.as_ref() else {
             return Ok(None);
         };
@@ -341,7 +342,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         let state = ledger.borrow();
         state
             .loop_binding_source_projection()
-            .project(loop_site)
+            .project_disposition(loop_site)
             .map(Some)
     }
 

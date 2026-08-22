@@ -1,4 +1,5 @@
 use hakorune_mir_core::BindingId;
+use std::collections::BTreeMap;
 
 use super::*;
 use crate::ast::ASTNode;
@@ -20,18 +21,24 @@ fn binding(owner: FunctionOwnerIdV1, slot: u32) -> BindingRefV1 {
 }
 
 fn parsed_skip_while() -> ASTNode {
-    let program = NyashParser::parse_from_string(include_str!(
-        "../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"
-    ))
-    .expect("production parser scan loop source");
+    parsed_method(
+        include_str!("../../../lang/src/compiler/parser/scan/parser_scan_loop_box.hako"),
+        "ParserScanLoopBox",
+        "skip_while",
+    )
+}
+
+fn parsed_method(source: &str, box_name: &str, method_name: &str) -> ASTNode {
+    let program =
+        NyashParser::parse_from_string(source).expect("production parser scan loop source");
     let ASTNode::Program { statements, .. } = program else {
         panic!("parser must return Program")
     };
     statements
         .into_iter()
         .find_map(|statement| match statement {
-            ASTNode::BoxDeclaration { name, methods, .. } if name == "ParserScanLoopBox" => {
-                methods.get_declaration("skip_while").cloned()
+            ASTNode::BoxDeclaration { name, methods, .. } if name == box_name => {
+                methods.get_declaration(method_name).cloned()
             }
             _ => None,
         })
@@ -272,6 +279,57 @@ fn variable_reads_are_rows_not_fixed_counts_or_cross_binding_repair() {
 }
 
 #[test]
+fn body_only_rebind_is_explicit_outside_with_source_evidence() {
+    let owner_id = owner();
+    let loop_site = SourcePathV1::root_body(2).node();
+    let carrier = binding(owner_id, 0);
+    let outside = binding(owner_id, 1);
+    let condition = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopCondition)
+        .child(SourcePathSegmentV1::Lhs)
+        .node();
+    let carrier_read = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopBody(0))
+        .child(SourcePathSegmentV1::Value)
+        .child(SourcePathSegmentV1::Lhs)
+        .node();
+    let carrier_rebind = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopBody(0))
+        .child(SourcePathSegmentV1::Target)
+        .node();
+    let outside_read = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopBody(1))
+        .child(SourcePathSegmentV1::Value)
+        .child(SourcePathSegmentV1::Lhs)
+        .node();
+    let outside_rebind = SourcePathV1::from_node(&loop_site)
+        .child(SourcePathSegmentV1::LoopBody(1))
+        .child(SourcePathSegmentV1::Target)
+        .node();
+
+    let mut variables = BTreeMap::new();
+    variables.insert(condition.clone(), carrier);
+    variables.insert(carrier_read, carrier);
+    variables.insert(outside_read.clone(), outside);
+    let mut assignments = BTreeMap::new();
+    assignments.insert(carrier_rebind, carrier);
+    assignments.insert(outside_rebind.clone(), outside);
+    let locals = BTreeMap::new();
+    let projection =
+        CallableLoopSourceProjectionV1::new(owner_id, &locals, &variables, &assignments);
+
+    let disposition = projection
+        .project_disposition(loop_site.clone())
+        .expect("complete body-only row is an explicit outside disposition");
+    let CallableLoopBindingProjectionDispositionV1::Outside(reason) = disposition else {
+        panic!("body-only rebind must not become Ready")
+    };
+    assert_eq!(reason.loop_site(), &loop_site);
+    assert_eq!(reason.bindings(), &[outside]);
+    assert_eq!(reason.sites(), &[outside_rebind, outside_read]);
+}
+
+#[test]
 fn production_skip_while_keeps_one_carrier_and_variable_operand_rows() {
     let function = parsed_skip_while();
     let syntax =
@@ -327,4 +385,49 @@ fn production_skip_while_keeps_one_carrier_and_variable_operand_rows() {
         .iter()
         .any(|row| row.class() == CallableLoopBindingClassV1::IterationLocal));
     assert!(schedule.receipt_count() > 3);
+}
+
+#[test]
+fn production_esc_json_uses_explicit_outside_for_body_only_rebinds() {
+    let function = parsed_method(
+        include_str!("../../../lang/src/compiler/parser/scan/parser_common_utils_box.hako"),
+        "ParserCommonUtilsBox",
+        "esc_json",
+    );
+    let syntax =
+        CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax view");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(mut forests) = resolver
+        .resolve_selected_callable_forests(&[syntax.function()])
+        .expect("resolved production function")
+    else {
+        panic!("production esc_json unexpectedly deferred")
+    };
+    let forest = forests
+        .into_vec()
+        .pop()
+        .expect("one production function forest");
+    let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
+        &function,
+        &forest,
+        syntax.function().root_profile(),
+    )
+    .expect("source projection");
+    let input = ResolvedFunctionLoweringInputV1::from_exact_parts_without_callable(
+        &function,
+        &forest,
+        &projection,
+    )
+    .expect("resolved lowering input");
+    let state = super::super::normal_callable_semantic_lowering_state::CallableSemanticLoweringState::from_exact_source(input)
+        .expect("callable semantic lowering state");
+    let disposition = state
+        .loop_binding_source_projection()
+        .project_disposition(SourcePathV1::root_body(3).node())
+        .expect("esc_json loop source projection");
+    let CallableLoopBindingProjectionDispositionV1::Outside(reason) = disposition else {
+        panic!("esc_json body-only rebinds must be Outside")
+    };
+    assert_eq!(reason.bindings().len(), 2);
+    assert!(reason.sites().len() >= 4);
 }

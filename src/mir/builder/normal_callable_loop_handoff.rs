@@ -24,6 +24,33 @@ pub(super) enum CallableLoopBindingClassV1 {
     IterationLocal,
 }
 
+#[derive(Debug, PartialEq, Eq)]
+pub(super) enum CallableLoopBindingProjectionDispositionV1 {
+    Ready(VerifiedCallableSemanticLoopBindingScheduleV1),
+    Outside(CallableLoopOutsideReasonV1),
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(super) struct CallableLoopOutsideReasonV1 {
+    loop_site: SourceNodeSiteV1,
+    bindings: Box<[BindingRefV1]>,
+    sites: Box<[SourceNodeSiteV1]>,
+}
+
+impl CallableLoopOutsideReasonV1 {
+    pub(super) fn loop_site(&self) -> &SourceNodeSiteV1 {
+        &self.loop_site
+    }
+
+    pub(super) fn bindings(&self) -> &[BindingRefV1] {
+        &self.bindings
+    }
+
+    pub(super) fn sites(&self) -> &[SourceNodeSiteV1] {
+        &self.sites
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct CallableLoopBindingReceiptV1 {
     site: SourceNodeSiteV1,
@@ -129,6 +156,18 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
         self,
         loop_site: SourceNodeSiteV1,
     ) -> Result<VerifiedCallableSemanticLoopBindingScheduleV1, String> {
+        match self.project_disposition(loop_site)? {
+            CallableLoopBindingProjectionDispositionV1::Ready(schedule) => Ok(schedule),
+            CallableLoopBindingProjectionDispositionV1::Outside(_) => {
+                Err(freeze("outside-first-cohort"))
+            }
+        }
+    }
+
+    pub(super) fn project_disposition(
+        self,
+        loop_site: SourceNodeSiteV1,
+    ) -> Result<CallableLoopBindingProjectionDispositionV1, String> {
         let mut receipts = Vec::new();
         for (site, binding) in self.variables {
             let Some(relative) = relative_segments(&loop_site, site) else {
@@ -180,12 +219,60 @@ impl<'a> CallableLoopSourceProjectionV1<'a> {
             .flat_map(|(_, bindings)| bindings.iter().copied())
             .filter(|binding| observed_bindings.contains(binding))
             .collect();
-        VerifiedCallableSemanticLoopBindingScheduleV1::seal(
-            self.owner,
-            loop_site.clone(),
-            receipts,
-            iteration_locals,
-        )
+        let receipts_by_binding =
+            validate_projection_rows(self.owner, &loop_site, &receipts, &iteration_locals)?;
+        let outside_bindings = receipts_by_binding
+            .iter()
+            .filter_map(|(binding, rows)| {
+                let has_rebind = rows
+                    .iter()
+                    .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::BodyRebind);
+                let has_condition_read = rows
+                    .iter()
+                    .any(|receipt| receipt.role() == CallableLoopBindingRoleV1::ConditionRead);
+                (has_rebind && !has_condition_read).then_some(*binding)
+            })
+            .collect::<BTreeSet<_>>();
+        if !outside_bindings.is_empty() {
+            let ready_receipts = receipts
+                .iter()
+                .filter(|receipt| !outside_bindings.contains(&receipt.binding()))
+                .cloned()
+                .collect();
+            let ready_iteration_locals = iteration_locals
+                .iter()
+                .filter(|binding| !outside_bindings.contains(binding))
+                .copied()
+                .collect();
+            VerifiedCallableSemanticLoopBindingScheduleV1::seal(
+                self.owner,
+                loop_site.clone(),
+                ready_receipts,
+                ready_iteration_locals,
+            )?;
+            let sites = receipts
+                .iter()
+                .filter(|receipt| outside_bindings.contains(&receipt.binding()))
+                .map(|receipt| receipt.site().clone())
+                .collect::<BTreeSet<_>>()
+                .into_iter()
+                .collect::<Vec<_>>();
+            return Ok(CallableLoopBindingProjectionDispositionV1::Outside(
+                CallableLoopOutsideReasonV1 {
+                    loop_site,
+                    bindings: outside_bindings.into_iter().collect(),
+                    sites: sites.into_boxed_slice(),
+                },
+            ));
+        }
+        Ok(CallableLoopBindingProjectionDispositionV1::Ready(
+            VerifiedCallableSemanticLoopBindingScheduleV1::seal(
+                self.owner,
+                loop_site,
+                receipts,
+                iteration_locals,
+            )?,
+        ))
     }
 }
 
@@ -210,35 +297,8 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
         receipts: Vec<CallableLoopBindingReceiptV1>,
         iteration_locals: BTreeSet<BindingRefV1>,
     ) -> Result<Self, String> {
-        if loop_site.segments().is_empty() {
-            return Err(freeze("empty-loop-site"));
-        }
-        if receipts.is_empty() {
-            return Err(freeze("incomplete-coverage"));
-        }
-        if iteration_locals
-            .iter()
-            .any(|binding| binding.owner() != owner)
-        {
-            return Err(freeze("foreign-iteration-local"));
-        }
-        let mut sites = BTreeSet::new();
-        let mut receipts_by_binding = BTreeMap::<_, Vec<_>>::new();
-        for receipt in &receipts {
-            if receipt.binding().owner() != owner {
-                return Err(freeze("foreign-binding"));
-            }
-            classify_suffix(&loop_site, receipt.site(), receipt.role())?;
-            if !sites.insert(receipt.site().clone()) {
-                return Err(freeze("duplicate-source-site"));
-            }
-        }
-        for receipt in receipts {
-            receipts_by_binding
-                .entry(receipt.binding())
-                .or_default()
-                .push(receipt);
-        }
+        let receipts_by_binding =
+            validate_projection_rows(owner, &loop_site, &receipts, &iteration_locals)?;
         let mut carrier_count = 0;
         let mut rows = Vec::with_capacity(receipts_by_binding.len());
         for (binding, receipts) in receipts_by_binding {
@@ -333,6 +393,58 @@ impl VerifiedCallableSemanticLoopBindingScheduleV1 {
     pub(super) fn rows(&self) -> &[CallableLoopBindingCoverageRowV1] {
         &self.rows
     }
+}
+
+fn validate_projection_rows(
+    owner: FunctionOwnerIdV1,
+    loop_site: &SourceNodeSiteV1,
+    receipts: &[CallableLoopBindingReceiptV1],
+    iteration_locals: &BTreeSet<BindingRefV1>,
+) -> Result<BTreeMap<BindingRefV1, Vec<CallableLoopBindingReceiptV1>>, String> {
+    if loop_site.segments().is_empty() {
+        return Err(freeze("empty-loop-site"));
+    }
+    if receipts.is_empty() {
+        return Err(freeze("incomplete-coverage"));
+    }
+    if iteration_locals
+        .iter()
+        .any(|binding| binding.owner() != owner)
+    {
+        return Err(freeze("foreign-iteration-local"));
+    }
+    let mut sites = BTreeSet::new();
+    let mut receipts_by_binding = BTreeMap::<_, Vec<_>>::new();
+    for receipt in receipts {
+        if receipt.binding().owner() != owner {
+            return Err(freeze("foreign-binding"));
+        }
+        classify_suffix(loop_site, receipt.site(), receipt.role())?;
+        if !sites.insert(receipt.site().clone()) {
+            return Err(freeze("duplicate-source-site"));
+        }
+        receipts_by_binding
+            .entry(receipt.binding())
+            .or_default()
+            .push(receipt.clone());
+    }
+    for rows in receipts_by_binding.values() {
+        let has_read = rows.iter().any(|receipt| {
+            matches!(
+                receipt.role(),
+                CallableLoopBindingRoleV1::ConditionRead | CallableLoopBindingRoleV1::BodyRead
+            )
+        });
+        if !has_read {
+            return Err(freeze("incomplete-binding-coverage"));
+        }
+    }
+    for binding in iteration_locals {
+        if !receipts_by_binding.contains_key(binding) {
+            return Err(freeze("unconsumed-iteration-local"));
+        }
+    }
+    Ok(receipts_by_binding)
 }
 
 fn classify_suffix(

@@ -1,11 +1,11 @@
 ---
-Status: D0 accepted; S0 in progress; fast
-Task: MIR-CALLABLE-LOOP-HANDOFF-OUTSIDE-DISPOSITION-S0
+Status: P0 complete; next D0 selected; design_stop
+Task: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0
 Date: 2026-08-22
 Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-HANDOFF-OUTSIDE-DISPOSITION-S0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -570,6 +570,80 @@ P0 must stop if the ordinary lane cannot be entered without a second parser or
 resolver observation, or if its existing retry/debt behavior becomes a new
 escape from a canonical `Ready` failure. In that case the disposition remains
 an explicit terminal Outside and multi-carrier design reopens separately.
+
+## S0 evidence and P0 boundary
+
+S0 is complete in `9074535308`. The 749-line handoff owner was split into a
+419-line production owner and a separate test module without changing the
+existing one-carrier `Ready`/error behavior. The focused handoff suite remains
+green with four original tests.
+
+P0 now uses the same source projection to issue a move-only
+`Ready(schedule)` or `Outside(reason)` disposition. The new Outside test proves
+that a body-only rebind carries its exact `BindingRef` and source sites. The
+raw child entry consumes a Ready schedule before the existing route, while an
+Outside reason enters the named ordinary JoinIR lane without consuming a
+callable pre-effect receipt. No AST, ValueId, fallback, or second observation
+is introduced.
+
+## P0 closeout — next blocker is ordinary-lane consumption
+
+P0 is complete in the working tree. The source projection now issues
+`Ready(schedule)` or `Outside(reason)`, the raw child entry has one explicit
+consumer for each disposition, and the reusable structural guard is
+`tools/checks/rust_mirbuilder_callable_loop_outside_disposition_p0_guard.sh`.
+
+Evidence:
+
+```text
+normal_callable_loop_handoff focused suite: 6 passed, 0 failed
+raw_loop_child_entry focused suite: 7 passed, 0 failed
+cargo check --profile quick --lib: passed
+cargo build --profile quick --bin hakorune: passed
+outside disposition guard / pointer guard / diff check: passed
+source-size: normal_callable_loop_handoff.rs 531; recursive_child_lowering.rs 730
+```
+
+The rebuilt merged production probe now passes the old
+`callable-loop-handoff/incomplete-binding-coverage` boundary and stops at the
+existing ordinary-lane terminal:
+
+```text
+[freeze:contract][callable-semantic-lowering/incomplete-consumption]
+owner=FunctionOwnerIdV1 { compilation: 1, slot: 11 }
+entry=true locals=4/4 variables=5/21 assignments=0/3
+```
+
+This proves that `Outside` is selected before the callable pre-effect receipt
+and reaches the named ordinary JoinIR owner. It does not prove that the
+ordinary lane can consume this callable resolver cohort. The ordinary lane's
+existing `CallableSemanticLoweringState` still reports missing source rows at
+its finish boundary. No retry, second parser/resolver observation, or default
+row is authorized to make that error disappear.
+
+## Next design stop — MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0
+
+```text
+Decision:
+  keep body-only rebinds outside the one-carrier Ready cohort; decide whether
+  Outside is a terminal typed outcome or whether one existing ordinary-lane
+  source-consumption bridge can consume the same resolver rows.
+Source authority + canonical issuer:
+  the parser/resolver callable ledger and CallableLoopSourceProjectionV1 remain
+  the sole source-role authority; no ordinary-lane reconstruction is allowed.
+Non-authority:
+  ordinary JoinIR routing, CallableSemanticLoweringState finish diagnostics,
+  AST/name/ordinal, Builder maps, ValueId, and a retry outcome.
+Fail-fast boundary:
+  before callable pre-effect consumption; an incomplete ordinary consumption
+  remains terminal until this D0 names one consumer and one ownership relation.
+Smallest next slice:
+  census the exact missing rows for esc_json/1 and the ordinary route, then
+  choose terminal Outside or a single source-backed consumption handoff.
+Non-claims:
+  no multi-carrier Ready, no second resolver/source walk, no AST reconstruction,
+  no physical/publication change, no fallback, and no performance work.
+```
 
 Required D0 evidence:
 
