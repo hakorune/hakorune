@@ -278,6 +278,23 @@ pub(crate) enum FunctionCompletionVerificationErrorV1 {
     ReturnClassificationInvariant,
 }
 
+/// Completion validates function-return exits only. Loop-control exits remain
+/// resolver facts, but they are not function completion candidates. Matching
+/// origin and transfer together is intentional: a malformed pair must remain
+/// on the existing typed-reject path rather than being filtered as control.
+pub(super) fn is_loop_control_exit(exit: &ResolvedExitRecordV1) -> bool {
+    matches!(
+        (exit.origin(), exit.transfer()),
+        (
+            ResolvedExitOriginV1::ExplicitContinue,
+            ResolvedControlTransferV1::Continue { .. }
+        ) | (
+            ResolvedExitOriginV1::ExplicitBreak,
+            ResolvedControlTransferV1::Break { .. }
+        )
+    )
+}
+
 pub(crate) fn verify_function_completion_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
 ) -> Result<VerifiedFunctionCompletionV1, FunctionCompletionVerificationErrorV1> {
@@ -294,7 +311,10 @@ pub(crate) fn verify_function_completion_v1(
         FunctionCompletionVerificationErrorV1::SourceNavigation(error.to_string())
     })?;
     let declared_result = declared_result_contract(input.source().declared_return_type_name());
-    let exits = product.resolved_exits().collect::<Vec<_>>();
+    let exits = product
+        .resolved_exits()
+        .filter(|(_, exit)| !is_loop_control_exit(exit))
+        .collect::<Vec<_>>();
     if exits.is_empty() {
         let body_end = u32::try_from(body.statements().len())
             .map_err(|_| FunctionCompletionVerificationErrorV1::BodyLengthOverflow)?;
