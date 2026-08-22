@@ -1,14 +1,19 @@
-Status: Design stop; corrected authority and bounded implementation task map
+Status: Decision accepted; implementation is bounded to the linked I0 card
 Task: MIR-CALLABLE-LOOP-ROOT-UNPUBLISHED-SCOPE-D0
 Date: 2026-08-23
 Priority: bind the Ready source-aware Loop adapter to the existing unpublished root candidate
 Parent: MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0
 Current execution row: MIR-CALLABLE-LOOP-ROOT-UNPUBLISHED-SCOPE-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-callable-loop-root-unpublished-scope-d0-2026-08-23.md
-NextCard: none until this Decision is accepted
+NextCard: docs/development/current/main/investigations/mirbuilder-callable-loop-root-unpublished-scope-i0-2026-08-23.md
 ---
 
 # Callable Loop root unpublished scope D0
+
+Decision: Accept the corrected root authority. The implementation cell is the
+private root scope and one Ready physical-edge handoff described in the I0
+card. This does not authorize pure-plan, Outside consumption, publication, or
+other parked work.
 
 ## Six-line brief
 
