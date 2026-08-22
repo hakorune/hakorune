@@ -1,5 +1,5 @@
 ---
-Status: D0 accepted; route-neutral planner I0 complete; caller-zero issuer/terminal evidence complete; Ready structural handoff remains design_stop
+Status: D0 accepted after worker audit; route-neutral planner I0 complete; Ready structural handoff remains design_stop
 Task: MIR-CALLABLE-LOOP-ORDINARY-READY-D0
 Date: 2026-08-22
 Priority: carry one source-bound GenericLoop Facts/Recipe outcome before any consumer
@@ -224,6 +224,9 @@ the source issuer itself must never construct one.
    traversal may lend one structural view for a callback, but the handoff and
    source product hold no `LoopRouteContext`, AST pointer, Builder, or
    `ValueId`, and no borrow escapes the callback.
+   Worker audit accepted the owner/lease split above. The bounded next task is
+   design-only contract/guard work; no caller-zero implementation may enter
+   `route_loop`.
 5. `MIR-CALLABLE-LOOP-READY-SOURCE-SHAPE-D0` — close the aggregate boundary
    before implementation. Replace the 11-element `into_parts()` escape with
    one source-facts-owned opaque input or a typed payload-to-input method. In
@@ -510,12 +513,76 @@ CallableGenericLoopSourceFactsNormalizerConsumerV1::consume_in_existing_port(
 ) -> Result<R, CallableLoopReadyHandoffErrorV1>
 ```
 
-The exact `structural_port` type and construction owner are still a D0
-decision. The likely existing owner is the structural view created in
-`cf_loop_joinir_impl`; it may be borrowed by the callback, but the callback
-must not call `route_loop` afterward. If the only usable port necessarily
-rebuilds a context, exposes route classification as new authority, or lets a
-borrow escape, this remains `NoSafeSlice`.
+### Worker-audited structural handoff decision (2026-08-22)
+
+The read-only Aristotle audit changed no repository files. It compared the
+ordinary boundary with `PreparedSourceBackedDynamicLoopIngressV1` and rejected
+reusing that Dynamic physical ingress as an ordinary semantic consumer.
+
+The existing structural owner is fixed as the context construction already
+owned by `cf_loop_joinir_impl`. It creates one `LoopRouteContext` for the
+ordinary traversal, but that context is not itself a source-facts handoff and
+must never be stored in the source product. `route_loop` is not a consumer for
+the source-aware product: it re-enters Facts/Recipe observation, the registry,
+and Builder lowering.
+
+The structural boundary is a private opaque lease minted immediately before
+the ordinary `route_loop` edge:
+
+```rust
+with_existing_structural_port<R>(
+    ctx: &LoopRouteContext<'_>,
+    use_port: impl for<'view> FnOnce(
+        CallableLoopStructuralPortV1<'view>,
+    ) -> R,
+) -> R
+```
+
+The helper belongs to the existing routing owner. `CallableLoopStructuralPortV1`
+has no public fields or conversion from AST/name/ordinal/`ValueId`; it exposes
+only the narrow structural inputs needed by the later normalizer. It does not
+expose `route_kind`, Facts/Recipe APIs, registry access, Builder, or physical
+receipts. The `for<'view> FnOnce` contract makes the borrow callback-scoped:
+the returned `R` cannot carry the structural borrow.
+
+The source product instead moves its source evidence into one private handoff:
+
+```text
+CallableGenericLoopSourceFactsV1
+  -> claim_all()
+  -> CallableGenericLoopSourceFactsReceiptV1
+       + CallableSemanticLoopHandoffPreEffectReceiptV1
+  -> PreparedCallableLoopStructuralHandoffV1
+  -> with_existing_structural_port(..., |port| ...)
+```
+
+`claim_all()` is the only place that consumes the existing schedule's
+`consume_pre_effect(...)`. It must retain that receipt in the move-only
+source-facts receipt; assigning it to `_pre_effect_receipt` is forbidden. The
+structural port is borrowed only inside the callback and is never co-sealed
+into the source product. A source-aware callback returns before the old
+`route_loop` edge; it does not call `route_loop` or
+`lower_loop_or_freeze_v1`.
+
+This decision is accepted for design/task purposes only. It does not authorize
+the Ready production consumer, physical lowering, registry, fallback, or a
+production switch. If a future implementation can only pass
+`&LoopRouteContext` directly, construct a second context, or continue into
+`route_loop`, return to `NoSafeSlice`.
+
+### Structural handoff finite state
+
+| State | Owner | Effects | Allowed next step |
+| --- | --- | ---: | --- |
+| `Ready` | source-facts issuer | 0 | one `claim_all()` move |
+| `Claimed` | source-facts consumer | 0 | prepare one structural handoff |
+| `HandoffPrepared` | private handoff owner | 0 | one HRTB lease callback |
+| `BorrowedStructuralView` | routing owner | 0 | callback return only |
+| `RejectedBeforeEffect` | typed handoff validator | 0 | terminal discard |
+| `Consumed` | future named normalizer | 0 | later plan/lower decision; not this slice |
+
+`BorrowedStructuralView` is not a storable product. The callback cannot return
+the view, source AST borrow, or a `LoopRouteContext` reference through `R`.
 
 ### In-place source-facts state and shape cleanup
 
