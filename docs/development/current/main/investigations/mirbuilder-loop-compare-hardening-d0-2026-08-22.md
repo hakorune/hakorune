@@ -1,22 +1,22 @@
-Status: Compare prepare/reserve/commit D0 design stop
+Status: Compare prepare/reserve/commit I0 active (conditional acceptance)
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
-Current execution row: MIR-LOOP-COMPARE-PREPARE-RESERVE-D0
+Current execution row: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-LOOP-COMPARE-PREPARE-RESERVE-D0
+NextCard: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 ---
 
 # Selected Dynamic Compare hardening D0
 
 ## Six-line brief
 
-Decision: accept the feedback as ordered hardening cells. The cursor EOF P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, and Fault I6/I7 cleanup preclaim I0 are closed. Use preflight-and-consume for the next Backedge cleanup/I13..I16 claims at their pre-effect boundary, without a new batch receipt or second cleanup authority; later design one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
+Decision: accept the worker's Conditional Accept as one bounded I0. The cursor EOF P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, Fault I6/I7 cleanup preclaim I0, Backedge cleanup/I13..I16 preclaim I0, and InnerReturn cleanup/facts I0 are closed. I0 now adds only a same-owner Branch prepare/commit seam, borrow-free Compare preparation, last-fallible V13 reservation, and one private move-only co-seal; bridge equality, affinity cleanup, publication, and the caller-zero generic leaf remain separate.
 Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
-Fail-fast boundary: InnerReturn return facts now occur before End/V14. The next boundary is selected Dynamic I9: every fallible operation/preclaim/writer/Branch preparation must finish before the last-fallible V13 reservation; only a private aggregate may commit the prepared Compare, Bool, V13, and Branch products. No rollback, retry, or fallback exists.
-Smallest next slice: MIR-LOOP-COMPARE-PREPARE-RESERVE-D0, a design-only audit of the selected I9 writer/Branch preparation and V13 reservation ordering. It must choose one bounded co-seal of existing receipts or record NoSafeSlice; no implementation or publication is open.
+Fail-fast boundary: InnerReturn return facts now occur before End/V14. In I0, every fallible selected-I9 preclaim, Compare preparation, and Branch preparation must finish before the last-fallible V13 reservation; only the private aggregate may commit the prepared Compare, Bool, V13, and Branch products. If the Branch seam or private definition/V13 pairing cannot be made real, stop with NoSafeSlice. No rollback, retry, or fallback exists.
+Smallest next slice: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0, implement the accepted bounded transaction and its focused negative/guard evidence. It does not open publication, generic Loop retirement, parser witness, or performance work.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -543,8 +543,8 @@ the discard boundary.
 
 ### 13. MIR-LOOP-COMPARE-PREPARE-RESERVE-D0
 
-Design-only cell. The Dirac read-only audit returns `Conditional Accept`: no
-current NoSafeSlice, but implementation must stop if a private Branch seam or
+Decision accepted conditionally after the Dirac read-only audit: no current
+NoSafeSlice, but implementation must stop if a private Branch seam or
 definition/V13 co-seal cannot be made valid. The current exact order is:
 
     I8/I9/If preclaims
@@ -584,7 +584,7 @@ Decision candidates are intentionally narrow:
       Result-returning check, or definition/slot pairing cannot be made
       private and move-only without creating a second authority.
 
-The worker audit must name:
+The worker audit named:
 
     Source authority + canonical issuer
     non-authorities and forbidden fallback edges
@@ -595,7 +595,7 @@ The worker audit must name:
     non-claims, especially publication and generic Loop retirement
 
 Do not add a new semantic meaning, general dominance witness, generic Loop
-ledger adapter, publication proof, or optimization work in this D0.
+ledger adapter, publication proof, or optimization work in this I0.
 
 Worker evidence: Dirac confirmed the current last fallible operation is
 `emit_branch` (the current code prepares V13 before Compare preparation), and
@@ -607,7 +607,7 @@ accepted.
 
 ### 14. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 
-Implement only after the prepare/reserve D0 is accepted. Split the current writer
+Implementation active under the conditional D0 acceptance. Split the current writer
 front door into:
 
     CanonicalLoopCompareI64WriterV1::prepare(...)
