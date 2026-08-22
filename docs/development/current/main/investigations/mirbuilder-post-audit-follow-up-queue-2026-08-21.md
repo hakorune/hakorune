@@ -30,6 +30,7 @@ selected only from source appearance.
 | `MIR-EMIT-CANONICAL-STRICTNESS-D0` | Accepted | canonical Loop physicalization + ordinary writer | C-prime same-block Decision and P0/CONNECT0 order are fixed; [detail](./mirbuilder-emit-canonical-strictness-d0-2026-08-22.md) |
 | `MIR-LOOP-OPERATION-EMITTER-SPLIT-S0` | Selected prerequisite | `loop_recipe_physicalizer/operation_emitter.rs` | behavior-neutral pure-operation owner split before semantic growth; [detail](./mirbuilder-loop-operation-emitter-split-s0-2026-08-22.md) |
 | `MIR-LOOP-COMPARE-SAME-BLOCK-P0-CONNECT0` | High, ordered | canonical CFG/SSA, Loop ledger, ordinary writer | caller-zero only: session target -> same-block operands -> reservation -> strict writer -> CONNECT0; production I0/R0 remains a later design |
+| `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0` | Parked BoxShape | module/test ownership and live README | validate the structure review before any move; [detail](./mirbuilder-structure-refactor-queue-d0-2026-08-23.md) |
 | `MIR-RECIPE-VERIFY-MOVE-R0` | Medium | three production Recipe producers | only after their selected profiles remain production-reachable |
 | `MIRBUILDER-BARREL-RESPONSIBILITY-CLEANUP-D0` | Medium | `builder.rs` | after relevant production callers are caller-zero |
 | `MIRBUILDER-INIT-RESPONSIBILITY-CLEANUP-D0` | Medium | `builder_init.rs` | after the barrel/owner census is accepted |
