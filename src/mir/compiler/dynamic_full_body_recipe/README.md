@@ -53,6 +53,17 @@ runtime representation.
 - `exit_transaction.rs` consumes that projection and seals the inner Recipe
   Return and outer callable Tail to the existing function Completion target.
 
+## TextScan activation boundary
+
+The first activation cell is deliberately smaller than ProviderAdmission.
+`DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-P0` borrows the generated
+`CoreMethodContractBox` rows and the already verified I6/I7 call relations,
+validates the exact two-role contract, and consumes that transient view inside
+the existing call-relation admission. It does not persist a TextScan provider,
+reissue result/effect meaning, or open registry, ABI, runtime, LLVM, Builder,
+VM, fallback, retry, or production work. If an immediate named consumer cannot
+be kept in this admission, the cell is `NoSafeSlice`.
+
 All complete products are non-`Clone` and non-splittable.  Production callers
 cannot supply a second Recipe, source catalog, JoinSig, After, lifecycle, or
 Completion.  Missing, foreign, duplicate, or ambiguous facts reject as a

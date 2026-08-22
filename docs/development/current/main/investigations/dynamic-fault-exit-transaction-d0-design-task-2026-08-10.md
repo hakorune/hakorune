@@ -398,27 +398,14 @@ Unknown effect values reject in the generator; this does not open a provider,
 runtime, LLVM, VM, or production route.
 
 `DYNAMIC-V2-TEXT-SCAN-CONTRACT-COSEAL-R0`
-  The existing generated `CoreMethodContractBox` rows are borrowed by a
-  private TextScan role view that is consumed immediately by the same-slice
-  ProviderAdmission; it is not a standalone durable authority. I6/substring
-  must match the generated `StringValue` row and I7/indexOf must match the
-  generated `I64Value` row; the view adds only the complete two-role profile
-  and shared lifecycle requirements. Missing, foreign, duplicated, or
-  mismatched rows reject before provider admission. A hand-written result
-  table, selector-only result classification, or independent provider catalog
-  is forbidden.
+  Decision: first land a private, non-durable two-role validation cell. It borrows the two generated rows and verified I6/I7 call relations, builds one transient view, and consumes it immediately inside the existing call-relation admission; it is not ProviderAdmission and creates no durable TextScan aggregate.
+  Source authority + issuer: `.hako` `CoreMethodContractBox` is the sole result/effect authority; generated Rust rows are projections. `verify_dynamic_call_relations_v2()` is the only P0 consumer boundary. It resolves `StringSubstring/2 -> StringValue/PureRead` and `StringIndexOf/1 -> I64Value/PureRead` by operation identity, then lends those rows to `coseal/text_scan.rs` without reissuing them.
+  Non-authority: selector/name/ordinal/Recipe key, target row alone, generated table alone, MIR `EffectMask`/`ValueId`, AST rescans, provider/runtime registry, ABI/LLVM/runtime facts, and `StringBox` compatibility. Shared UTF-8/profile/ABI meaning remains a later ProviderAdmission authority.
+  Fail-fast boundary: after exact source/target/Recipe verification and before `VerifiedDynamicFullLoopCallRelationsV2` returns. Missing/duplicate/foreign role, owner/site drift, op/arity mismatch, result-kind drift, or effect drift rejects with no Builder/registry/runtime/production effect.
+  Bounded tasks: (1) add private `coseal/text_scan.rs` with borrowed non-`Clone`/non-storable two-role view and typed rejects; (2) add only narrow relation accessors, build exactly one Substring and one IndexOf role, and immediately consume it from `calls.rs`; (3) add focused positive/negative tests and a guard proving one consumer, one generated-row resolution, no reissued result/effect table, and zero provider/registry/LLVM/runtime/VM/fallback/retry additions; (4) record evidence here and in the module README. If the immediate consumer cannot remain in this admission, stop as `NoSafeSlice` instead of returning an aggregate.
+  Acceptance: exact two roles pass; each borrows generated result/effect; foreign/duplicate/missing/mismatched rows fail before effect; no `Arc`, `Clone`, public constructor, persistence, or second scan. Provider admission, registry, RuntimeExecutablePlan, LLVM, physical session, DraftSeal, cutover, and production caller remain closed.
 
-Status (result/effect BoxShape landed, 2026-08-12): `calls.rs` projects and
-retains the generated row by `CoreMethodOp`/arity, cross-checks canonical
-spelling, and derives Recipe class from `StringValue`/`I64Value`; hand-written
-`recipe_result_class` is gone. Provider/LLVM/runtime/session activation
-remains open; no production caller was opened.
-
-The I6/I7 generated rows are resolved once by operation identity and the same
-borrowed references are passed through target/Recipe verification and retained
-in the two call-relation rows. Selector spelling is only a cross-check against
-the borrowed row's canonical spelling; a second selector/result/effect
-authority or relookup is forbidden.
+Status (result/effect BoxShape landed, P0 design accepted, implementation not started): `calls.rs` already projects generated rows by `CoreMethodOp`/arity, cross-checks canonical spelling, and derives Recipe class from `StringValue`/`I64Value`; hand-written `recipe_result_class` is gone. The next code slice is this P0; full provider/LLVM/runtime/session activation remains closed.
 
 Evidence:
 
@@ -431,10 +418,11 @@ single generated-row resolution per call relation      = 1
 provider/registry/LLVM/runtime/VM additions            = 0
 ```
 
-The effect row is required before the TextScan aggregate can claim to borrow
-the complete callable contract. `StringSubstring` and `StringIndexOf` must
-both project `PureRead` from generated rows; the aggregate may add only the
-shared UTF-8 code-point profile and cross-role lifecycle requirements.
+The effect row is required before the later TextScan aggregate can claim to
+borrow the complete callable contract. `StringSubstring` and `StringIndexOf`
+must both project `PureRead` from generated rows; the P0 only verifies and
+consumes that evidence. Shared UTF-8/profile/ABI and cross-role lifecycle
+requirements remain later owners.
 
 Activation order after the effect projection is fixed:
 
