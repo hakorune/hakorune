@@ -1,5 +1,5 @@
 ---
-Status: accepted; next bounded I0 is an existing function-root transport handoff
+Status: complete; I0 pushed as 95b65e4081; next design stop is the resolved-binding authority handoff
 Task: MIR-CALLABLE-SEMANTIC-NESTED-IF-SOURCE-ROW-D0
 Date: 2026-08-22
 Priority: carry one parser-backed nested If variable site into the existing callable semantic state
