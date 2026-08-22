@@ -280,9 +280,10 @@ one parser invocation
 ```
 
 `ParserNormalProgramSourceAuthorityDispositionV1` remains the parser owner of
-the invocation witness and parser body/source rows; a later bounded parser
-slice must add the declaration/entry/member rows to that source product rather
-than making the ingress scan the AST. The design-only
+the invocation witness and ProgramBody rows. A later bounded parser slice must
+co-seal the existing `ParserBoxSourceSealV1` and `PreparedCallableSourceV1`
+relations into the module-source product, adding only the exact entry row;
+the ingress must not scan the AST or rebuild rows from names/ordinals. The design-only
 `NormalGeneralProgramModuleSourceIssuerV1` is the sole normal-ingress issuer
 that co-seals that parser product with the exact normalized source identity,
 imports, admission, configuration snapshot, top-level declaration rows,
