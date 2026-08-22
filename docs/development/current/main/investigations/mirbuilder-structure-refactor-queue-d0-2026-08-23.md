@@ -1,7 +1,7 @@
-Status: selected design stop; baseline census only, no implementation started
+Status: baseline census complete; selected behavior-neutral BoxShape R0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0`
+Current row: `MIRBUILDER-BUILDER-TEST-HOME-R0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,9 +56,9 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0` — record the
-validated facts below, add only a narrow navigation/line-budget guard, and
-select one child-module/test extraction for a later behavior-neutral commit.
+Smallest next slice: `MIRBUILDER-BUILDER-TEST-HOME-R0` — extract the existing
+test-only `binding_id_tests` cluster from the production barrel without changing
+module registration, semantic ownership, or runtime behavior.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -83,11 +83,42 @@ The following facts were checked in the current working tree on 2026-08-23:
 | ring0 has 440 reverse dependencies | A broad current `ring0` filename scan finds 223 files, not dependency edges | Measure actual import edges before injection design |
 | AST direct imports are 617 | A broad current import scan finds 893 files; it includes tests and non-authority uses | Reject the number as a claim; stage a source-view census and isolate the synthetic-AST correctness case |
 
+## Baseline census receipt — 2026-08-23
+
+The baseline row is complete. The current tree confirms the following exact
+owner facts before any move:
+
+```text
+loop physicalizer parent: resolved_lowering/mod.rs:145 #[cfg(test)]
+loop physicalizer outside-tree consumers: test-only generic G0 session only
+loop_physical_prepare parent: compiler/module_registry.in.rs:109 #[cfg(test)]
+dynamic_v2_aot_activation tracked entries: 0
+builder.rs: 831 lines
+loop_physical_prepare.rs: 795 lines, test module begins at line 479
+compiler/tests.rs: 849 lines, test-only owner
+src/mir/function/metadata.rs: 804 lines, explicitly excluded
+operation_emitter.rs: 491 lines, supplied 794-line claim is stale
+if_control.rs: 798 lines, architecture D0, not a mechanical split
+dynamic_full_body_recipe/mod.rs: 287 lines, 53 vocabulary references
+common_v2_session.rs: 12 #[path] child declarations
+```
+
+The live README stale references are limited to
+`src/mir/builder/README.md:502-503,612`; the live tree has `stmts/` and
+`raw_expression_dispatch/`, not a flat `exprs.rs` owner. Broad filename/import
+counts remain informational until an owner/edge census exists.
+
+The first implementation cell is deliberately the test-only
+`binding_id_tests` module at `src/mir/builder.rs:736-831`. It preserves the
+logical module name through an external `#[path]` child, changes no production
+registration or authority, and has a measurable exit: `builder.rs < 760` with
+the pre/post test symbol set unchanged.
+
 ## Ordered task queue
 
 ### P0 — baseline and no-op closure
 
-#### `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0`
+#### `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0` — complete
 
 Record the exact file counts, parent module declarations, caller classes,
 re-exports, and line-budget values in a reusable guard or receipt. The guard
@@ -143,7 +174,7 @@ Only after that audit may a separate R0 move be opened. Stop if the move needs
 a public visibility widening, a new route classifier, a second physical/session
 owner, or a semantic reorder.
 
-#### `MIRBUILDER-BUILDER-TEST-HOME-R0`
+#### `MIRBUILDER-BUILDER-TEST-HOME-R0` — selected next
 
 Extract one coherent `#[cfg(test)]` cluster from `src/mir/builder.rs` while
 keeping `builder.rs` as the production barrel. Preserve test module paths where
