@@ -1,11 +1,11 @@
 ---
-Status: S0 BoxShape complete; D1/P0 audit NoSafeSlice; D0 accepted; next P0
-Task: MIR-CALLABLE-LOOP-GENERIC-FACTS-POLICY-P0
+Status: GenericLoop policy-frame P0 complete; next caller-zero Outside coverage P0
+Task: MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0
 Date: 2026-08-22
-Priority: carry one GenericLoop policy frame and one-shot extraction before source relation
+Priority: preserve grouped Outside coverage rows before source relation/consumer
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-GENERIC-FACTS-POLICY-P0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
