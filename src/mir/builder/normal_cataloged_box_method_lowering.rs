@@ -134,53 +134,41 @@ impl RawInvocationChildPortV1<'_, '_> {
             .commit_normal_cataloged_box_method_pending(pending, admission)
     }
 
-    #[allow(clippy::too_many_arguments)]
-    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_signature_and_source_v1(
+    /// Canonical trivial sibling for one already-preflighted source row.
+    ///
+    /// The body never enters the port-aware legacy driver. The existing
+    /// resolver plan owns BindingRef identity, while the catalog admission
+    /// supplies only the already-validated physical symbol/signature loan.
+    pub(in crate::mir::builder) fn lower_normal_cataloged_static_box_method_with_canonical_trivial_plan_v1(
         &mut self,
         builder: &mut MirBuilder,
         admission: NormalCatalogedBoxMethodDraftAdmissionV1,
         signature: ResolvedCallablePhysicalSignatureLoanV1<'_>,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
+        plan: crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1<'_>,
         target_capability: Option<
             &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
-        source: RawInvocationSourceTransportV1<()>,
     ) -> Result<(), ModuleLoweringPortChildErrorV1> {
+        if plan.with_function_input(|input| input.owner()) != signature.owner() {
+            return Err(ModuleLoweringPortChildErrorV1::PhysicalSignatureMismatch);
+        }
         let function_name = admission.physical_symbol().to_owned();
         let session_name = function_name.clone();
-        builder.observe_legacy_method_lowering_v1(&function_name, &body, None);
         let resolved = ResolvedChildDraftAdmissionV1::canonical_resolved_owner(
             signature.owner(),
             function_name.clone(),
             admission.physical_arity(),
         );
-        let pending: PendingFunctionSessionCloseV1<'_> = {
-            let mut child_port = self.reborrow();
-            child_port.with_source_transport_v1(source, |child_port, ()| {
+        let pending: PendingFunctionSessionCloseV1<'_> = builder
+            .capture_resolved_function_pending_session_v1(&session_name, move |builder| {
                 builder
-                    .capture_resolved_function_pending_session_v1(&session_name, move |builder| {
-                        let prepared = builder.build_static_method_draft_with_port_v1(
-                            child_port,
-                            function_name,
-                            params,
-                            param_decls,
-                            return_type_name,
-                            body,
-                            uses,
-                            attrs,
-                        )?;
-                        child_port.with_headers(|headers| {
-                            builder.finalize_function_draft_with_headers(prepared, headers)
-                        })
-                    })
-                    .map_err(ModuleLoweringPortChildErrorV1::Session)
-            })?
-        };
+                    .lower_resolved_trivial_function_draft_with_physical_name_v1(
+                        plan,
+                        function_name,
+                    )
+                    .map_err(|error| format!("{error:?}"))
+            })
+            .map_err(ModuleLoweringPortChildErrorV1::Session)?;
         self.module_port.complete_resolved_child_with_physical_loan(
             pending,
             resolved,

@@ -25,7 +25,9 @@ use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
     RawBoxMethodChildPortV1, RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
 };
+use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1;
+use crate::mir::compiler::CanonicalLoweringErrorV1;
 use crate::mir::normal_callable_semantic_package::{
     NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
     ResolvedCallablePhysicalSignatureLoanV1, SelectedCallableLoweringInputRefV1,
@@ -177,6 +179,36 @@ fn validate_selected_signature_loan(
         }
         Ok(())
     })
+}
+
+enum CanonicalTrivialRouteV1<'source> {
+    Ready(crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1<'source>),
+    Outside,
+}
+
+fn classify_canonical_trivial_route(
+    input: crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1<'_>,
+) -> Result<CanonicalTrivialRouteV1<'_>, String> {
+    match CanonicalLoweringPreflightV1::verify_function(input) {
+        Ok(CanonicalFirstFamilyPlanV1::TrivialBindingSsa(plan)) => {
+            Ok(CanonicalTrivialRouteV1::Ready(plan))
+        }
+        Ok(_) => Ok(CanonicalTrivialRouteV1::Outside),
+        Err(error) if is_canonical_shape_outside(&error) => Ok(CanonicalTrivialRouteV1::Outside),
+        Err(error) => Err(format!(
+            "[freeze:contract][mir/callable-canonical-preflight] {error:?}"
+        )),
+    }
+}
+
+fn is_canonical_shape_outside(error: &CanonicalLoweringErrorV1) -> bool {
+    matches!(
+        error,
+        CanonicalLoweringErrorV1::UnsupportedCanonicalOwnerKind
+            | CanonicalLoweringErrorV1::UnsupportedCanonicalSyntaxKind
+            | CanonicalLoweringErrorV1::UnsupportedCanonicalControlRoute
+            | CanonicalLoweringErrorV1::UnsupportedFirstFamilyShape { .. }
+    )
 }
 
 fn with_selected_source_scope<'port, 'collector, R>(
@@ -508,27 +540,39 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     return Ok(());
                 }
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
+                let canonical_route = classify_canonical_trivial_route(selected.source())?;
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
-                with_selected_source_scope(inner, lineage, selected, |inner, transport| {
-                    inner
-                        .lower_normal_cataloged_static_box_method_with_signature_and_source_v1(
+                match canonical_route {
+                    CanonicalTrivialRouteV1::Ready(plan) => inner
+                        .lower_normal_cataloged_static_box_method_with_canonical_trivial_plan_v1(
                             builder,
                             admission,
                             signature,
-                            params,
-                            param_decls,
-                            return_type_name,
-                            body,
-                            uses,
-                            attrs,
+                            plan,
                             self.target_capability,
-                            transport,
                         )
-                        .map_err(|error| error.to_string())
-                })
+                        .map_err(|error| error.to_string()),
+                    CanonicalTrivialRouteV1::Outside => {
+                        with_selected_source_scope(inner, lineage, selected, |inner, transport| {
+                            inner
+                                .lower_normal_cataloged_static_box_method_with_source_v1(
+                                    builder,
+                                    admission,
+                                    params,
+                                    param_decls,
+                                    return_type_name,
+                                    body,
+                                    uses,
+                                    attrs,
+                                    transport,
+                                )
+                                .map_err(|error| error.to_string())
+                        })
+                    }
+                }
             })
             .map_err(package_issue)?
     }

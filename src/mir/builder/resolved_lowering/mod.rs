@@ -492,7 +492,20 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_trivial_function_draft_inner(plan, false)
+        self.lower_resolved_trivial_function_draft_inner(plan, false, None)
+            .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
+    }
+
+    /// Callable sibling of the ordinary canonical trivial consumer. The
+    /// source plan still owns BindingRef identity; only the already-admitted
+    /// physical symbol is supplied by the catalog admission. No AST/name
+    /// pairing or legacy body driver is reachable from this entry.
+    pub(in crate::mir) fn lower_resolved_trivial_function_draft_with_physical_name_v1(
+        &mut self,
+        plan: CanonicalTrivialBindingSsaPlanV1<'_>,
+        physical_name: String,
+    ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
+        self.lower_resolved_trivial_function_draft_inner(plan, false, Some(physical_name))
             .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
     }
 
@@ -501,7 +514,7 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1> {
-        self.lower_resolved_trivial_function_draft_inner(plan, true)
+        self.lower_resolved_trivial_function_draft_inner(plan, true, None)
             .map_err(RejectedNormalFunctionDraftLoweringV1::into_compatibility_error)
     }
 
@@ -512,13 +525,14 @@ impl MirBuilder {
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
     ) -> Result<MirFunction, RejectedNormalFunctionDraftLoweringV1> {
-        self.lower_resolved_trivial_function_draft_inner(plan, false)
+        self.lower_resolved_trivial_function_draft_inner(plan, false, None)
     }
 
     fn lower_resolved_trivial_function_draft_inner(
         &mut self,
         plan: CanonicalTrivialBindingSsaPlanV1<'_>,
         _inject_seal_failure: bool,
+        physical_name: Option<String>,
     ) -> Result<MirFunction, RejectedNormalFunctionDraftLoweringV1> {
         let (input, if_control, completion, profile, block_expr_count) = plan.into_parts();
         let crate::ast::ASTNode::FunctionDeclaration {
@@ -532,7 +546,7 @@ impl MirBuilder {
         else {
             unreachable!("preflight seals one FunctionDeclaration root")
         };
-        let function_name = format!("{}/{}", name, params.len());
+        let function_name = physical_name.unwrap_or_else(|| format!("{}/{}", name, params.len()));
         let session_name = function_name.clone();
         let mut session = self.open_resolved_function_draft_seal_session_v1(&session_name);
         let lowering = {
