@@ -1,5 +1,5 @@
 ---
-Status: active design stop; parser-owned module source rows only
+Status: closed design stop; NoSafeSlice found, Box declaration syntax prerequisite selected
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MODULE-ROWS-D0
 ParentDecision: NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0

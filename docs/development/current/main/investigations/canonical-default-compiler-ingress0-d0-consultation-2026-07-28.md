@@ -175,7 +175,7 @@ No implementation, fixture, guard-as-permission, production switch, or
 
 ## 2026-08-23 D0.1/D0.2 corpus and relation receipt
 
-Status: D0.1/D0.2 census recorded; D0.3 accepted; D0.4 records NoSafeSlice for full ingress; parser-row D0 is next; no implementation permission.
+Status: D0.1/D0.2 census recorded; D0.3 accepted; D0.4 records NoSafeSlice for full ingress; Box declaration syntax D0 is next; no implementation permission.
 
 This is a read-only census of the current normal/default surface. It separates
 three kinds of evidence so that parser fixtures and disconnected source-plan
@@ -338,8 +338,8 @@ GeneralProgram catch-all / empty defaults     = 0
 
 This closes the issuer-selection cell but does not authorize a Rust product, fixture, guard-as-permission, production switch, or aggregate
 `VerifiedNormalGeneralProgramPlanV1`. Full-ingress D0.4 is recorded as
-`NoSafeSlice`; the next bounded design card is the parser-owned module-row
-slice, which must remain disconnected from normal production ingress.
+`NoSafeSlice`; the next bounded design card is the parser-owned Box declaration
+syntax slice, which must remain disconnected from normal production ingress.
 
 ## Why Candidate A cannot be implemented now
 
