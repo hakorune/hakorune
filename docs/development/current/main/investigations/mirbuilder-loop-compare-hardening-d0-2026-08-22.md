@@ -1,22 +1,22 @@
-Status: cursor EOF P0 landed; preclaim D0 is the next design stop
+Status: preclaim Decision accepted; I0 is the active bounded cell
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
-Current execution row: MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0
+Current execution row: MIR-DYNAMIC-PHYSICAL-PRECLAIM-I0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0 (after cursor EOF P0 closeout)
+NextCard: MIR-DYNAMIC-PHYSICAL-PRECLAIM-I0 (after the accepted preclaim Decision)
 ---
 
 # Selected Dynamic Compare hardening D0
 
 ## Six-line brief
 
-Decision: accept the feedback as four ordered hardening cells. Fix the cursor EOF panic first; then design one pre-effect claim boundary and one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
+Decision: accept the feedback as four ordered hardening cells. The cursor EOF P0 is closed. For the next cell, use preflight-and-consume for I8/I9/If without a new batch receipt or second order authority; later design one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
 Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
-Fail-fast boundary: all claim validation, writer preparation, bridge relation checks, and result-slot availability must finish before the first I9 Compare/Branch/CallOut effect. After the final reservation, only move-only infallible commits may remain; any rejected preflight discards the unpublished session.
-Smallest next slice: MIR-DYNAMIC-CURSOR-EOF-FAILFAST-P0, a behavior-narrow typed-reject fix plus an extra-claim negative test. It does not open live publication or the broader preclaim design.
+Fail-fast boundary: for I8/I9/If, pure row/corridor/owner validation is followed by three existing census claims before `issue_physical_value_id` or the first I8 Const effect. A claim failure is terminal and the unpublished outer session is discarded; no rollback, retry, or fallback exists. Writer preparation, bridge checks, and result reservation remain in their later transaction cell.
+Smallest next slice: MIR-DYNAMIC-PHYSICAL-PRECLAIM-I0, move the I8/I9/If claims before the I8 physical effect and add effect-zero/line-order evidence. It does not open Backedge/Fault/InnerReturn claims, live publication, or the broader writer transaction.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -114,48 +114,62 @@ Dynamic CONNECT0 guard and strict-writer guard remain green, the cursor source
 is 538 lines, the pointer guard is green, and `git diff --check` is clean.
 
 This cell changed no writer, ledger, claim timing, publication, fallback, or
-ordinary/generic Loop route. The next accepted work is design-only
-`MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0`.
+ordinary/generic Loop route. The next accepted work is
+`MIR-DYNAMIC-PHYSICAL-PRECLAIM-I0`.
 
-### 2. MIR-DYNAMIC-PHYSICAL-PRECLAIM-D0
+### 2. MIR-DYNAMIC-PHYSICAL-PRECLAIM-I0
 
-Design before implementation. The selected Dynamic physical leaves must not
-discover operation meaning after an effect has already been appended.
+Decision accepted: use `preflight-and-consume` for the first named cohort.
+After the existing pure validation in `i8_i9_control.rs` and before the first
+`issue_physical_value_id`/`i64_const::emit_with_dst`, consume exactly:
 
-The D0 must decide one of these bounded forms and record why:
+    claim_operation(I8)
+    claim_operation(I9)
+    claim_if()
 
-    preflight-and-consume:
-      validate the exact claim set, consume it before effects, and make every
-      claim failure terminal to the unpublished outer session
+The existing `DynamicV2PhysicalOperationCensusV1` remains the sole claim
+owner. Do not add a claim batch, a second order authority, rollback, or a new
+semantic receipt. If any claim fails, return the existing typed emitter reject;
+the caller's `reject_begin()` discards the unpublished outer session.
 
-    prepare-and-commit:
-      reserve a private claim batch before effects and commit it after effects
-      without another fallible check; dropping it poisons the session
+The selected Dynamic physical leaves must not discover I8/I9/If operation
+meaning after an effect has already been appended. The exact boundary is after
+the current row/corridor/brand validation and before destination ValueId
+issuance. Claims are consumed once and are never reused after a later physical
+failure because the whole unpublished session is terminal.
 
 The first named cohort is:
 
     I8 + I9 + If claim before I9 Compare/Branch
-    I13..I16 + Backedge cleanup claim before backedge physical effects
 
-The census must also record every selected Dynamic CallOut, InnerReturn, Fault,
-and Exit claim site. They are not silently declared safe because they are
-outside the first cohort; each remains either in the preclaim cohort or an
-explicit later cell.
+The remaining claim sites are explicitly outside this I0 and remain separate
+follow-on cells:
 
-The D0 must census all remaining selected Dynamic leaves before widening the
-cohort to InnerReturn, Fault, or Exit. Operation census and cleanup cursor stay
-separate owners even when their preclaim timing is unified.
+    I0..I7 CallOut operation claims
+    I6/I7 Fault cleanup claims
+    Backedge cleanup plus I13..I16 operation claims
+    InnerReturn cleanup plus I11/Exit/Return claims
+
+They are not silently declared safe. Operation census and cleanup cursor remain
+separate owners even when a later cell unifies their pre-effect timing.
 
 Acceptance:
 
-    no claim_operation/claim_if/cleanup.claim occurs after the corresponding
-      Compare, Branch, CallOut, Const, Add, assignment, or Return effect
-    claim failure leaves MIR/type/ledger unchanged before outer discard
+    I8/I9/If claims occur before I8 Const and before any I9 ValueId/Compare/Branch effect
+    I8/I9/If claim failure produces typed reject with no cohort effect
+    normal selected Dynamic fixture reaches each of the three claims once
+    no duplicate I8/I9/If claim edge remains after the physical effects
     no fallback/retry catches a claim rejection
-    one claim owner and one terminal state are named
+    one existing claim owner and one terminal discard path are named
 
-NoSafeSlice: preclaim requires a second order authority, allows continuation
-after a failed reservation, or cannot prove the outer session is discarded.
+NoSafeSlice: I8/I9/If claims cannot be placed before the first cohort effect,
+preflight requires a second order authority, claim failure can continue into a
+fallback/retry, or the unpublished outer session discard cannot be proven.
+
+Worker audit evidence: Huygens independently confirmed the exhaustive claim /
+effect census, selected `preflight-and-consume` for I8/I9/If, and kept
+Backedge/Fault/InnerReturn outside this I0. The audit found no need for a new
+receipt or second authority.
 
 ### 3. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 
