@@ -426,7 +426,9 @@ impl ModuleBuilderInvocationSessionV1 {
             });
         }
         let brand = self.brand();
-        let result = self.with_builder_and_pinned_text_invocation_binding(|builder, binding| {
+        let result = self
+            .with_builder_and_pinned_text_invocation_binding_and_callable_loop_scope(
+                |builder, binding, callable_loop_root_scope| {
             let target_capability = binding
                 .as_ref()
                 .map(|binding| binding.target_capability());
@@ -548,6 +550,7 @@ impl ModuleBuilderInvocationSessionV1 {
                                 &mut preflight_static_result_publication_owner,
                                 &import_rows,
                                 target_capability,
+                                callable_loop_root_scope,
                             )
                         })
                         .map_err(|error| {
@@ -569,6 +572,7 @@ impl ModuleBuilderInvocationSessionV1 {
                         &mut preflight_static_result_publication_owner,
                         &import_rows,
                         target_capability,
+                        callable_loop_root_scope,
                     ),
                     (None, None) => finish_normal_default_root_after_pre_effect_bind(
                         builder,
@@ -584,6 +588,7 @@ impl ModuleBuilderInvocationSessionV1 {
                         &mut preflight_static_result_publication_owner,
                         &import_rows,
                         target_capability,
+                        callable_loop_root_scope,
                     ),
                     _ => Err(NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
                         "[mir/script-pre-effect/rebind] source package/observation mismatch".into(),
@@ -591,7 +596,8 @@ impl ModuleBuilderInvocationSessionV1 {
                 };
                 result
             })()
-        });
+                },
+            );
 
         match result {
             Ok(module) => Ok(CompletedNormalDefaultRootCatalogLifecycleV1 {

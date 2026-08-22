@@ -209,6 +209,13 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     /// Source-only Script resolver deferral carried through the existing raw
     /// runtime owner. It does not select a route or issue a fallback.
     pub(in crate::mir::builder) script_deferred_observation: Option<ScriptResolverDeferredV1>,
+    /// Root-scoped permission for the source-aware callable Loop consumer.
+    ///
+    /// This is borrowed from the existing unpublished module invocation and
+    /// is propagated through recursive frames. It is not a second Builder or
+    /// function session and cannot outlive the root callback.
+    pub(in crate::mir::builder) callable_loop_root_scope:
+        Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
     pub(in crate::mir::builder) cleanup_exit_policy: CleanupExitPolicyV1,
     _seal: RawInvocationChildPortSealV1,
 }
@@ -230,6 +237,32 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
     ) -> Self {
+        Self::new_with_optional_callable_loop_root_scope(
+            module_port,
+            cleanup_exit_policy,
+            None,
+        )
+    }
+
+    pub(in crate::mir::builder) fn new_with_cleanup_exit_policy_and_callable_loop_scope(
+        module_port: &'port mut ModuleLoweringPortV1<'collector>,
+        cleanup_exit_policy: CleanupExitPolicyV1,
+        callable_loop_root_scope: &'port mut super::UnpublishedCallableLoopRootScopeV1,
+    ) -> Self {
+        Self::new_with_optional_callable_loop_root_scope(
+            module_port,
+            cleanup_exit_policy,
+            Some(callable_loop_root_scope),
+        )
+    }
+
+    fn new_with_optional_callable_loop_root_scope(
+        module_port: &'port mut ModuleLoweringPortV1<'collector>,
+        cleanup_exit_policy: CleanupExitPolicyV1,
+        callable_loop_root_scope: Option<
+            &'port mut super::UnpublishedCallableLoopRootScopeV1,
+        >,
+    ) -> Self {
         Self {
             module_port,
             active_source: None,
@@ -237,6 +270,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             callable_ledger: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             script_deferred_observation: None,
+            callable_loop_root_scope,
             cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }
@@ -254,6 +288,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             callable_ledger: self.callable_ledger.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             script_deferred_observation: self.script_deferred_observation.clone(),
+            callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),
             cleanup_exit_policy: self.cleanup_exit_policy,
             _seal: RawInvocationChildPortSealV1,
         }

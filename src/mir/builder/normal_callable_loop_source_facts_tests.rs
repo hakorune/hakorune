@@ -282,7 +282,7 @@ fn semantic_recipe_reaches_the_single_named_physical_adapter() {
             .value_types
             .insert(limit, crate::mir::MirType::Integer);
 
-        let value = CallableGenericLoopV1PhysicalAdapterV1::lower(&mut builder, recipe)
+        let value = CallableGenericLoopV1PhysicalAdapterV1::lower_for_test(&mut builder, recipe)
             .expect("source Recipe must reach the named physical adapter");
         assert!(builder
             .function_state
@@ -361,4 +361,19 @@ fn ready_rejection_stops_before_builder_effect_and_never_uses_legacy_route() {
             assert!(builder.function_state.current_function.is_none());
         },
     );
+}
+
+#[test]
+fn ready_source_facts_requires_the_unpublished_root_scope_before_physical_lowering() {
+    let source_owner = owner();
+    with_prepared(source_owner, generic_loop(), |_, prepared| {
+        let mut builder = MirBuilder::new();
+        let error = prepared
+            .lower_v1(&mut builder, "missing-root-scope", false, false, policy())
+            .expect_err("Ready physical lowering must require the root scope");
+
+        assert!(error.contains("callable-loop/root-scope/missing"));
+        assert!(builder.function_state.current_function.is_none());
+        assert!(builder.function_state.current_block.is_none());
+    });
 }

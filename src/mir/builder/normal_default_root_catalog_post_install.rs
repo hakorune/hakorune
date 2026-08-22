@@ -17,6 +17,7 @@ use crate::mir::builder::program_root_lowering::{
 use crate::mir::builder::program_root_work_plan::PreparedProgramRootWorkPlanPartsV1;
 use crate::mir::builder::{
     MirBuilder, MirModule, NormalEntryMaterializationSourceReceiptV1, NormalRuntimeInputSnapshotV1,
+    UnpublishedCallableLoopRootScopeV1,
 };
 use crate::mir::callable_result_representation::{
     VerifiedSameModuleCallableResultCatalogV1, VerifiedStaticCallResultPublicationOwnerV1,
@@ -43,6 +44,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
     target_capability: Option<
         &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
     >,
+    callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
 ) -> Result<MirModule, NormalDefaultRootCatalogLifecycleErrorV1> {
     let script_source = match script_source {
         Some(bound) => {
@@ -122,6 +124,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
             },
             static_result_publication_owner,
             target_capability,
+            callable_loop_root_scope,
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))?;
     builder

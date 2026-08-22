@@ -20,6 +20,7 @@ use super::normal_callable_loop_physical_adapter::CallableGenericLoopV1PhysicalA
 use super::normal_callable_loop_source_facts::{
     CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
 };
+use super::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
@@ -160,6 +161,44 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
         in_static_box: bool,
         policy: GenericLoopFactsPolicyFrameV1,
     ) -> Result<ValueId, String> {
+        self.lower_v1_with_optional_root_scope(
+            builder,
+            function_name,
+            debug,
+            in_static_box,
+            policy,
+            None,
+        )
+    }
+
+    pub(in crate::mir::builder) fn lower_v1_with_root_scope(
+        self,
+        builder: &mut MirBuilder,
+        function_name: &str,
+        debug: bool,
+        in_static_box: bool,
+        policy: GenericLoopFactsPolicyFrameV1,
+        callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
+    ) -> Result<ValueId, String> {
+        self.lower_v1_with_optional_root_scope(
+            builder,
+            function_name,
+            debug,
+            in_static_box,
+            policy,
+            Some(callable_loop_root_scope),
+        )
+    }
+
+    fn lower_v1_with_optional_root_scope(
+        self,
+        builder: &mut MirBuilder,
+        function_name: &str,
+        debug: bool,
+        in_static_box: bool,
+        policy: GenericLoopFactsPolicyFrameV1,
+        mut callable_loop_root_scope: Option<&mut UnpublishedCallableLoopRootScopeV1>,
+    ) -> Result<ValueId, String> {
         let Self {
             parent_source,
             condition_source,
@@ -233,7 +272,10 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 let recipe = receipt.into_semantic_recipe().map_err(|error| {
                     format!("[freeze:contract][callable-loop/semantic-recipe] {error:?}")
                 })?;
-                CallableGenericLoopV1PhysicalAdapterV1::lower(builder, recipe)
+                let root_scope = callable_loop_root_scope.as_deref_mut().ok_or_else(|| {
+                    "[freeze:contract][callable-loop/root-scope/missing]".to_owned()
+                })?;
+                CallableGenericLoopV1PhysicalAdapterV1::lower(builder, root_scope, recipe)
             }
             Some(CallableLoopBindingProjectionDispositionV1::Outside(reason)) => {
                 lower_outside_callable_loop_v1(reason)

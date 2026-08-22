@@ -63,13 +63,23 @@ impl RawLoopChildEntryPortV1 for RawInvocationChildPortV1<'_, '_> {
         let debug = crate::config::env::joinir_dev::debug_enabled();
         let in_static_box = builder.comp_ctx.current_static_box.is_some();
         let policy = GenericLoopFactsPolicyFrameV1::from_environment();
-        PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
+        let prepared = PreparedLocatedRawLoopChildEntryV1::prepare_with_method_source_observation(
             source,
             loop_node,
             callable_handoff,
             self.generic_loop_diagnostic.method_source().cloned(),
             admission_observation,
-        )?
-        .lower_v1(builder, &function_name, debug, in_static_box, policy)
+        )?;
+        match self.callable_loop_root_scope.as_deref_mut() {
+            Some(root_scope) => prepared.lower_v1_with_root_scope(
+                builder,
+                &function_name,
+                debug,
+                in_static_box,
+                policy,
+                root_scope,
+            ),
+            None => prepared.lower_v1(builder, &function_name, debug, in_static_box, policy),
+        }
     }
 }

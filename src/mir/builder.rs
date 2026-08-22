@@ -286,6 +286,7 @@ pub(in crate::mir) use module_invocation_session::{
     PreparedBuilderExternalCommitV1, PreparedBuilderModuleSessionV1,
     RejectedPreparedBuilderModuleSessionV1,
 };
+pub(in crate::mir::builder) use module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity

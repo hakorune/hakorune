@@ -25,7 +25,10 @@ use super::raw_invocation_source_transport::{
     RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
 use super::recursive_child_lowering::RawInvocationChildPortV1;
-use super::{MirBuilder, NormalEntryMaterializationSourceReceiptV1, ValueId};
+use super::{
+    MirBuilder, NormalEntryMaterializationSourceReceiptV1, UnpublishedCallableLoopRootScopeV1,
+    ValueId,
+};
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 use crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1;
 use crate::mir::resolved_semantics::ScriptResolverDeferredV1;
@@ -137,6 +140,7 @@ impl MirBuilder {
         target_capability: Option<
             &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
+        callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
             work,
@@ -150,6 +154,7 @@ impl MirBuilder {
             script_mode,
             static_result_publication_owner,
             target_capability,
+            callable_loop_root_scope,
         )
     }
 
@@ -168,14 +173,17 @@ impl MirBuilder {
         target_capability: Option<
             &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
         >,
+        callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
+        callable_loop_root_scope.validate_collector(&collector)?;
         collector.install_static_result_publication_owner(static_result_publication_owner)?;
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
-            let mut port = RawInvocationChildPortV1::new_with_cleanup_exit_policy(
+            let mut port = RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope(
                 &mut module_port,
                 runtime_inputs.cleanup_exit_policy(),
+                callable_loop_root_scope,
             );
             match script_mode {
                 NormalScriptRootLoweringMode::Complete(source) => port

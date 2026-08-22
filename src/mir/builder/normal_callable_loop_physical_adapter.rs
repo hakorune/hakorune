@@ -12,13 +12,14 @@ use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::normal_callable_loop_source_facts::{
     CallableGenericLoopV1SemanticRecipeV1, CallableGenericLoopV1SemanticRecipeViewRejectV1,
 };
-use crate::mir::builder::{MirBuilder, ValueId};
+use crate::mir::builder::{MirBuilder, UnpublishedCallableLoopRootScopeV1, ValueId};
 
 pub(in crate::mir::builder) struct CallableGenericLoopV1PhysicalAdapterV1;
 
 impl CallableGenericLoopV1PhysicalAdapterV1 {
     pub(in crate::mir::builder) fn lower(
         builder: &mut MirBuilder,
+        _root_scope: &mut UnpublishedCallableLoopRootScopeV1,
         recipe: CallableGenericLoopV1SemanticRecipeV1<'_>,
     ) -> Result<ValueId, String> {
         let lowered = recipe
@@ -41,5 +42,14 @@ impl CallableGenericLoopV1PhysicalAdapterV1 {
                 format!("[freeze:contract][callable-loop/semantic-view] {error:?}")
             })?;
         lowered
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn lower_for_test(
+        builder: &mut MirBuilder,
+        recipe: CallableGenericLoopV1SemanticRecipeV1<'_>,
+    ) -> Result<ValueId, String> {
+        let mut root_scope = UnpublishedCallableLoopRootScopeV1::for_test();
+        Self::lower(builder, &mut root_scope, recipe)
     }
 }

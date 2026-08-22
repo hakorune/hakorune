@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use super::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
 };
+use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::MirBuilder;
 use crate::mir::MirType;
 use hakorune_mir_builder::CoreContext;
@@ -203,6 +204,46 @@ impl std::fmt::Debug for ModuleBuilderInvocationSessionV1 {
 
 #[derive(Debug)]
 struct ModuleBuilderInvocationSessionSealV1;
+
+/// Borrow-scoped permission for the source-aware root Loop consumer.
+///
+/// This is minted only by the existing unpublished module session. It carries
+/// the invocation brand used to validate the root collector, but owns no
+/// Builder, collector, function draft, or publication state of its own.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct UnpublishedCallableLoopRootScopeV1 {
+    brand: ModuleInvocationBrandV1,
+    _seal: UnpublishedCallableLoopRootScopeSealV1,
+}
+
+#[derive(Debug)]
+struct UnpublishedCallableLoopRootScopeSealV1;
+
+impl UnpublishedCallableLoopRootScopeV1 {
+    fn from_brand(brand: ModuleInvocationBrandV1) -> Self {
+        Self {
+            brand,
+            _seal: UnpublishedCallableLoopRootScopeSealV1,
+        }
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn for_test() -> Self {
+        Self::from_brand(ModuleInvocationBrandV1::legacy_test())
+    }
+
+    pub(in crate::mir::builder) fn validate_collector(
+        &self,
+        collector: &ModuleDraftCollectorV1,
+    ) -> Result<(), String> {
+        if collector.receipt_brand() != Some(self.brand) {
+            return Err(
+                "[freeze:contract][callable-loop/root-scope/collector-brand-mismatch]".to_owned(),
+            );
+        }
+        Ok(())
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir) enum BuilderCommitReadinessErrorV1 {
@@ -400,6 +441,31 @@ impl ModuleBuilderInvocationSessionV1 {
             }
         });
         callback(&mut self.candidate, binding)
+    }
+
+    /// Lend the unpublished candidate together with the one root Ready-scope
+    /// permission. The scope cannot outlive this callback and cannot be
+    /// constructed from a bare Builder.
+    pub(in crate::mir) fn with_builder_and_pinned_text_invocation_binding_and_callable_loop_scope<R>(
+        &mut self,
+        callback: impl FnOnce(
+            &mut MirBuilder,
+            Option<
+                super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1<'_>,
+            >,
+            &mut UnpublishedCallableLoopRootScopeV1,
+        ) -> R,
+    ) -> R {
+        let brand = self.brand;
+        let target = self.pinned_text_target_capability.as_ref();
+        let binding = target.map(|target| {
+            super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1 {
+                brand,
+                target,
+            }
+        });
+        let mut scope = UnpublishedCallableLoopRootScopeV1::from_brand(brand);
+        callback(&mut self.candidate, binding, &mut scope)
     }
 
     pub(in crate::mir) fn with_pinned_text_invocation_binding<R>(

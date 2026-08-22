@@ -78,3 +78,38 @@ The I0 closeout must name changed files, focused test commands and results,
 guard commands and results, source-size results, commit SHA, and pushed remote
 state. If any required evidence is missing, leave the card partially open and
 record the next bounded action instead of claiming completion.
+
+## Evidence recorded before commit
+
+Implementation files are limited to the existing root lifecycle, raw child
+port/entry, recursive port, physical adapter, and focused source-Facts test;
+one reusable guard and its check-index entry were added. No new semantic
+authority or publication path was added.
+
+Focused results:
+
+```text
+cargo check --profile quick                                  PASS
+cargo test --profile quick --lib normal_callable_loop_source_facts  10 passed
+cargo test --profile quick --lib raw_loop_child_entry       8 passed
+```
+
+The related `normal_default_root_catalog_lifecycle` suite is 5 passed / 3
+failed in both the current worktree and a clean detached worktree at the
+pre-I0 HEAD. The three failures stop earlier at the existing
+`[mir/script-neutral-window/work-plan-edge]` work-plan contract, before the
+new root scope/Ready adapter is reached; they are recorded as baseline debt,
+not current-change failures.
+
+Structural results:
+
+```text
+bash tools/checks/rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh  PASS
+tools/checks/rust_mirbuilder_callable_loop_root_unpublished_scope_i0_guard.sh    PASS
+git diff --check                                                        PASS
+```
+
+The direct source-Facts guard is invoked through `bash` because its existing
+file mode is not executable; this is an operational permission issue, not a
+guard assertion failure. Final source-size counts and the commit/push receipt
+are added only after the implementation diff is frozen.
