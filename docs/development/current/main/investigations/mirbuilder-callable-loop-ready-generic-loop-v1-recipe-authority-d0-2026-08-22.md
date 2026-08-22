@@ -1,12 +1,12 @@
 ---
-Status: Decision accepted; route-neutral context S0 and Ready semantic Recipe/physical adapter I0 are implemented; R0 evidence/closeout remains
+Status: Decision accepted; route-neutral context S0 and Ready semantic Recipe/physical adapter I0 are implemented; R0 evidence is complete
 Task: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-RECIPE-AUTHORITY-D0
 Current execution row: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-SEMANTIC-RECIPE-PHYSICAL-ADAPTER-I0
 Date: 2026-08-22
 Priority: separate semantic GenericLoopV1 Recipe/Join issuance from the physical composer
 Parent: MIR-CALLABLE-LOOP-READY-PRODUCTION-INGRESS-D0
 PreviousCard: mirbuilder-callable-loop-ready-production-ingress-d0-2026-08-22.md
-NextCard: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-READY-R0 (same bounded lane)
+NextCard: MIR-CALLABLE-LOOP-OUTSIDE-ORDINARY-CONSUMPTION-D0 (new design boundary)
 ---
 
 # Callable Loop Ready GenericLoopV1 Recipe authority D0
@@ -38,10 +38,11 @@ lineage is foreign, the semantic Recipe issuer cannot prove its complete
 cohort, or the downstream physical composer would need to re-observe route
 meaning. Rejection is terminal; it cannot return to the old Ready route.
 
-Smallest next slice: close R0 evidence for the implemented behavior-neutral
+Smallest next slice: R0 evidence is complete for the behavior-neutral
 route-neutral context split, private semantic Recipe authority, named physical
-adapter, and one non-nested Ready cohort. The same bounded series must retain
-zero fallback and record the main checkpoint.
+adapter, and one non-nested Ready cohort. The next bounded decision is whether
+Outside source evidence has a safe named consumer; until that decision, keep
+Outside terminal and do not reopen the old route.
 
 Non-claims: Outside ordinary consumption, parser witness strengthening,
 general nested-loop expansion, publication beyond the unpublished function
@@ -249,15 +250,29 @@ semantic Recipe lends its retained Facts through an HRTB view and does not
 rebuild route/Facts authority. The physical adapter is bounded to the existing
 non-nested GenericLoopV1 first cohort.
 
-Remaining R0 evidence before this card can close:
+R0 closeout evidence:
 
 ```text
-focused production-edge evidence for Ready -> adapter
-source-aware reject effect-zero evidence
-reusable guard proving one issuer/consumer and no old Ready fallback
-README/current-pointer synchronization
-commit + push receipt on main
+normal_callable_loop_source_facts: 10 passed
+semantic_recipe_reaches_the_single_named_physical_adapter: passed
+ready_rejection_stops_before_builder_effect_and_never_uses_legacy_route: passed
+reusable issuer/consumer guard: passed
+current-state pointer guard: passed
+git diff --check: passed
+checkpoint commit on main: 4a8f86bf9c
 ```
+
+The positive test seeds the exact Integer carrier and operand bindings needed
+by the existing GenericLoopV1 physical plan; it does not weaken the adapter or
+invent a default value. The reject test enters the production `Ready` method
+with a non-Generic loop and proves that the result is typed rejection while
+the Builder has no current function, so no old route or physical effect is
+used.
+
+The broader `module_lowering_invocation_reentrant_tests` run was not green:
+10/13 passed and three failures remained in static/instance constructor
+paths outside this Ready source-backed loop edge. They are recorded as
+known out-of-scope reds, not as R0 evidence.
 
 ## Finite state table
 
