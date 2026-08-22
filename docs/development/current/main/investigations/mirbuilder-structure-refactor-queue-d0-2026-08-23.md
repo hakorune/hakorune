@@ -1,7 +1,7 @@
-Status: baseline census complete; selected behavior-neutral BoxShape R0
+Status: builder test-home R0 complete; selected next behavior-neutral BoxShape R0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-BUILDER-TEST-HOME-R0`
+Current row: `MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -108,11 +108,37 @@ The live README stale references are limited to
 `raw_expression_dispatch/`, not a flat `exprs.rs` owner. Broad filename/import
 counts remain informational until an owner/edge census exists.
 
-The first implementation cell is deliberately the test-only
+The first implementation cell was deliberately the test-only
 `binding_id_tests` module at `src/mir/builder.rs:736-831`. It preserves the
 logical module name through an external `#[path]` child, changes no production
 registration or authority, and has a measurable exit: `builder.rs < 760` with
 the pre/post test symbol set unchanged.
+
+## Builder test-home R0 receipt — 2026-08-23
+
+`MIRBUILDER-BUILDER-TEST-HOME-R0` is complete. The four existing tests remain
+under the logical `mir::builder::binding_id_tests` module, while their bodies
+now live in `src/mir/builder/builder_binding_id_tests.rs` behind the parent
+`#[cfg(test)]` path declaration. No production module registration,
+re-export, semantic owner, fallback, or runtime route changed.
+
+Evidence:
+
+```text
+builder.rs = 738 lines
+builder_binding_id_tests.rs = 99 lines
+focused binding_id_tests = 4 passed
+cargo check --profile quick = passed (existing warning baseline retained)
+builder test-home R0 guard = passed
+focused rustfmt for new file = passed
+git diff --check = passed
+```
+
+The full-workspace formatter still reports unrelated pre-existing formatting
+drift outside this slice; it is not used as a current-change failure. The next
+bounded cell is the already test-only/caller-zero `loop_physical_prepare.rs`
+test-home split. `compiler/tests.rs`, README correction, common_v2 relocation,
+and all live semantic architecture rows remain separate.
 
 ## Ordered task queue
 
@@ -174,7 +200,7 @@ Only after that audit may a separate R0 move be opened. Stop if the move needs
 a public visibility widening, a new route classifier, a second physical/session
 owner, or a semantic reorder.
 
-#### `MIRBUILDER-BUILDER-TEST-HOME-R0` — selected next
+#### `MIRBUILDER-BUILDER-TEST-HOME-R0` — complete
 
 Extract one coherent `#[cfg(test)]` cluster from `src/mir/builder.rs` while
 keeping `builder.rs` as the production barrel. Preserve test module paths where
@@ -185,7 +211,7 @@ Acceptance: production `builder.rs < 760` lines after the extraction, no
 production module registration changes, focused builder tests green, and the
 pre/post test symbol census is equal.
 
-#### `MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0`
+#### `MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0` — selected next
 
 Split `src/mir/compiler/loop_physical_prepare.rs` before semantic growth. Keep
 the existing test-only/caller-zero contract and assign each moved function to
