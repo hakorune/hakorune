@@ -1,22 +1,23 @@
 ---
-Status: design_stop; source-bound non-physical Recipe authority is not yet named
+Status: Decision accepted; implementation is opened at route-neutral context S0
 Task: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-RECIPE-AUTHORITY-D0
 Date: 2026-08-22
 Priority: separate semantic GenericLoopV1 Recipe/Join issuance from the physical composer
 Parent: MIR-CALLABLE-LOOP-READY-PRODUCTION-INGRESS-D0
 PreviousCard: mirbuilder-callable-loop-ready-production-ingress-d0-2026-08-22.md
-NextCard: none-until-Decision
+NextCard: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-ROUTE-NEUTRAL-CONTEXT-S0 (this card)
 ---
 
 # Callable Loop Ready GenericLoopV1 Recipe authority D0
 
 ## Six-line brief
 
-Decision: before connecting production `Ready`, define one source-bound,
-non-physical GenericLoopV1 Recipe/Join product. It must co-seal the existing
-source receipt, canonical Facts, exact `GenericLoopV1` selection, and retained
-pre-effect relation, while issuing no `CorePlan`, `ValueId`, `BasicBlockId`,
-Builder mutation, or `LoopRouteContext` classification.
+Decision: accepted. Before connecting production `Ready`, define one
+source-bound, non-physical GenericLoopV1 Recipe/Join product. It co-seals the
+existing claimed source receipt, canonical Facts, exact `GenericLoopV1`
+selection, and retained pre-effect relation, while issuing no `CorePlan`,
+`ValueId`, `BasicBlockId`, Builder mutation, or `LoopRouteContext`
+classification.
 
 Source authority + canonical issuer: the existing
 `CallableGenericLoopSourceFactsIssuerV1::issue_once` and `claim_all` remain the
@@ -36,11 +37,10 @@ lineage is foreign, the semantic Recipe issuer cannot prove its complete
 cohort, or the downstream physical composer would need to re-observe route
 meaning. Rejection is terminal; it cannot return to the old Ready route.
 
-Smallest next slice: audit the existing GenericLoopV1 Facts and composer
-inputs, then choose between reusing an existing semantic product and adding
-one narrowly owned non-physical product. Define its move/borrow boundary and
-the later physical adapter contract. This D0 authorizes no code or production
-caller yet.
+Smallest next slice: first perform the behavior-neutral route-neutral context
+split, then implement the private semantic Recipe authority and its named
+physical adapter for one non-nested cohort. The same implementation series
+must connect `Ready`, remove the old Ready edge, and retain zero fallback.
 
 Non-claims: production Ready ingress, ordinary Loop lowering, `CorePlan`
 construction, `PlanLowerer`, CFG/SSA/physical IDs, nested-loop expansion,
@@ -122,72 +122,123 @@ The D0 must answer all of these before implementation:
 | Reuse `VerifiedLocatedCoreLoopPlanV1` | reject for this slice | Its activation/caller-ledger/source statement authority is absent from this lane. |
 | **New source-bound non-physical GenericLoopV1 Recipe authority** | **candidate** | Keeps source/Facts/selection together and leaves physical IDs to the later composer adapter. |
 
-The candidate is not accepted until its fields and issuer are written down.
-Do not implement a speculative `Verified*` type merely to make the old
-composer compile.
+The candidate is accepted with the bounded shape below. Do not implement a
+second product with duplicated `facts`, `selection`, or AST fields merely to
+make the old composer compile.
 
-## Proposed shape for review
+## Accepted Decision
 
-This is a design sketch, not implementation authorization:
+The semantic product is a move-only wrapper around the claimed source receipt;
+it does not copy the receipt's Facts, selection, AST, or pre-effect fields.
+The sole issuer is:
 
 ```rust
-struct CallableGenericLoopV1RecipeAuthorityV1<'source> {
-    source: CallableGenericLoopSourceFactsReceiptV1<'source>,
-    facts: CanonicalLoopFacts,
-    selected: VerifiedLocatedGenericLoopV1SelectionV1,
-    _seal: CallableGenericLoopV1RecipeAuthoritySealV1,
-}
+CallableGenericLoopV1SemanticRecipeIssuerV1::issue(
+    CallableGenericLoopSourceFactsReceiptV1<'source>,
+) -> Result<CallableGenericLoopV1SemanticRecipeV1<'source>, Reject>
+```
 
-struct CallableGenericLoopV1RecipeIssuerV1;
-
-impl CallableGenericLoopV1RecipeIssuerV1 {
-    fn issue(
-        receipt: CallableGenericLoopSourceFactsReceiptV1<'_>,
-    ) -> Result<CallableGenericLoopV1RecipeAuthorityV1<'_>, Reject>;
+```rust
+struct CallableGenericLoopV1SemanticRecipeV1<'source> {
+    receipt: CallableGenericLoopSourceFactsReceiptV1<'source>,
+    _seal: CallableGenericLoopV1SemanticRecipeSealV1,
 }
 ```
 
-The exact shape may instead borrow `facts` from an owned outcome through an
-HRTB view. In either form, the product must not expose source AST as a new
-pairing input, and it must not claim that semantic Facts are already physical
-MIR.
-
-The later physical boundary should look like:
+The product is an aggregate of already-issued authority, not a second Facts
+extractor. Its private HRTB view may lend only these relations from that one
+receipt:
 
 ```text
-CallableGenericLoopV1RecipeAuthorityV1
+owner and exact loop source site
+source/pre-effect lineage evidence
+&CanonicalLoopFacts
+&GenericLoopV1Facts
+&VerifiedLocatedGenericLoopV1SelectionV1
+&CallableSemanticLoopHandoffPreEffectReceiptV1
+```
+
+The view does not lend an independent AST, route key, registry entry,
+`RecipeContract`, `CorePlan`, `ValueId`, `BasicBlockId`, `MirBuilder`, or a
+second source tuple. The GenericLoop facts remain the sole semantic syntax
+view; the receipt remains the sole owner of the source relation.
+
+The issuer performs only pre-effect validation. It does not call
+`try_build_outcome`, `try_build_source_outcome`,
+`select_recipe_first_routes`, `LoopRouteContext::new`, `choose_route_kind`,
+`route_loop`, or a physical composer. It verifies that the existing outcome
+contains exactly one GenericLoopV1 fact, the existing selection is exactly
+`[GenericLoopV1]`, the source owner/site/pre-effect relation is intact, and
+the first physical cohort is non-nested and has no BlockExpr loop prelude.
+
+The physical boundary is a separate named adapter:
+
+```text
+CallableGenericLoopV1SemanticRecipeV1
+  -> CallableGenericLoopV1PhysicalAdapterV1
+  -> GenericLoopV1LoweringContextV1 (route-neutral)
+  -> prepared CorePlan / physical session
+```
+
+`GenericLoopV1LoweringContextV1` carries only diagnostic settings and a
+source-borrowed syntax view plus an explicit nested policy. It has no
+`route_kind` and no route registry. The legacy `LoopRouteContext` remains on
+the old lane; the source-aware adapter never constructs it. Nested loops and
+BlockExpr loop preludes are typed `UnsupportedFirstCohort` before Builder
+effects, rather than being reclassified or routed through a fallback.
+
+This closes the design stop. It does not claim that the physical adapter,
+production caller, or old-route retirement is already landed.
+
+## Physical boundary
+
+```text
+CallableGenericLoopV1SemanticRecipeV1
   -> one named physical composer adapter
   -> prepared physical plan/effect owner
   -> sole physical writer
 ```
 
-The adapter must be designed separately if it needs `LoopRouteContext`. A
-constructor that silently calls `choose_route_kind` is not a source-aware
+The adapter must consume only the semantic product and a Builder effect owner.
+A constructor that silently calls `choose_route_kind` is not a source-aware
 adapter.
 
 ## Task sequence
 
-1. **Census existing authority.** Record every field read by
-   `RecipeComposer::compose_generic_loop_v1_recipe`,
-   `generic_loop_pipeline`, GenericLoopV1 body lowering, and nested-loop
-   helpers. Mark each field semantic, source, diagnostic, or physical.
-2. **Census re-observation.** Count source Facts extraction, route selection,
-   `LoopRouteContext` construction, registry selection, and `PlanLowerer` calls
-   that the proposed consumer would trigger. The target is one source Facts
-   issuer, one selection issuer, and zero re-observation in the new lane.
-3. **Close the product contract.** Select existing `CanonicalLoopFacts`/
-   `GenericLoopV1Facts` reuse or name the new non-physical product, with owner,
-   source site, selection, pre-effect relation, and typed reject vocabulary.
-4. **Close the physical adapter boundary.** Specify how the existing composer
-   receives the accepted semantic product without receiving independent AST,
-   route, or source keys. If this requires a route-neutral lowering context,
-   make that a separate named authority in the same Decision.
-5. **Add guards and evidence plan.** Cover natural GenericLoopV1, absent Facts,
-   non-Generic selection, foreign source, duplicate claim, second issuer,
-   route-context reclassification, physical-ID escape, and old-route fallback.
-6. **Only then open implementation.** Change `work_mode` to `fast` with one
-   bounded production edge. Keep the current caller-zero guards until the
-   same slice has a named consumer and old Ready edge is zero.
+1. **Route-neutral context S0 (BoxShape).** Introduce the narrow
+   `GenericLoopV1LoweringContextV1` seam and route the existing GenericLoopV1
+   pipeline/body helpers through it without changing legacy behavior. The
+   nested callback is an explicit policy: legacy may re-enter its old lane;
+   the source-aware policy returns typed `UnsupportedFirstCohort`.
+2. **Semantic Recipe I0.** Add the private move-only authority wrapper and
+   HRTB view. Its reject cases are FactsAbsent, selection mismatch, foreign
+   source/pre-effect, nested first cohort, and BlockExpr prelude. Add the
+   named physical adapter in the same bounded series so the product has a
+   consumer and cannot become an orphan receipt.
+3. **Production Ready cutover R0.** Consume Ready exactly once, issue the
+   semantic Recipe exactly once, call the named adapter exactly once, and
+   delete the `Ready -> lower_loop_or_freeze_v1` edge in the same series.
+   Canonical rejection is terminal and never retries the old route.
+4. **Evidence and closeout.** Add positive/negative focused tests, one
+   reusable lane guard, module README/reference contract updates, source-size
+   checks, and the pointer/commit/push receipt.
+
+## Finite state table
+
+| State | Sole owner | Effect | Allowed next state | Old route |
+| --- | --- | --- | --- | --- |
+| `Located` | source handoff | none | `Ready` / `Outside` / terminal reject | not entered |
+| `ReadyUnclaimed` | source Facts issuer | none | `Claimed` | forbidden |
+| `Claimed` | `claim_all` | none | `SemanticRecipeReady` / typed reject | forbidden |
+| `SemanticRecipeReady` | semantic Recipe issuer | none | `PhysicalPrepared` | forbidden |
+| `UnsupportedFirstCohort` | semantic Recipe issuer | none | terminal discard | forbidden |
+| `PhysicalPrepared` | named physical adapter | none | `Lowered` / unpublished failure | forbidden |
+| `Lowered` | existing sole physical owner | unpublished MIR only | terminal success | forbidden |
+| `RejectedBeforeEffect` | relevant issuer | none | terminal discard | forbidden |
+
+No state uses `Option`, default, or compatibility text to merge absent,
+unsupported, and invalid coverage. `Outside` remains the source projection's
+terminal state and is not converted into a GenericLoopV1 Recipe.
 
 ## Acceptance / guards
 
@@ -201,8 +252,12 @@ semantic product contains ValueId/BasicBlockId/MirBuilder = 0
 new issuer -> LoopRouteContext::new/with_fn_body = 0
 new issuer -> choose_route_kind/route_loop/registry = 0
 new issuer -> PlanLowerer/physical writer = 0
+source-aware physical adapter -> LoopRouteContext::new/with_fn_body = 0
+source-aware physical adapter -> choose_route_kind/route_loop/registry = 0
 source-aware reject -> old Ready route/fallback/retry = 0
-production callers remain 0 until Decision acceptance
+semantic Recipe product has exactly one named consumer
+Ready production caller switch = 1
+old Ready production caller = 0 after R0
 all touched Rust source files < 760 lines
 ```
 
@@ -226,6 +281,9 @@ source receipt and semantic Facts can be independently paired
 old Ready route must remain reachable after source-aware rejection
 ```
 
-The production ingress D0 remains closed as NoSafeSlice until this card has an
-accepted Decision. This is the smallest honest blocker: one missing semantic
-Recipe authority, not a reason to widen the Builder or add another fallback.
+If the route-neutral context cannot be introduced without a second source
+scan, route classification, or nested re-entry, return to `design_stop` and
+split the missing context authority before adding a Recipe type. If the
+first-cohort physical adapter needs a `CorePlan`/physical ID before the
+semantic product is consumed, return to `NoSafeSlice`; do not move those IDs
+upstream or revive the old route.
