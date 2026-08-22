@@ -264,6 +264,83 @@ source-file name, AST ordinal, Builder catalog, or compatibility retry.
    is added by this receipt.
 ```
 
+## 2026-08-23 D0.3 issuer decision
+
+Status: design decision accepted; implementation remains forbidden in this D0.
+The canonical shape is a parser-owned source authority plus one normal-ingress
+co-seal issuer. The existing parser authority is the substrate, not a reason
+to add a second scanner:
+
+```text
+one parser invocation
+  -> ParserNormalProgramSourceAuthorityDispositionV1
+  -> NormalGeneralProgramModuleSourceIssuerV1
+  -> source disposition carried by move
+  -> NormalCompileRequestV1 transport
+  -> ModuleBuilderInvocationSessionV1::open
+```
+
+`ParserNormalProgramSourceAuthorityDispositionV1` remains the parser owner of
+the invocation witness and parser body/source rows; a later bounded parser
+slice must add the declaration/entry/member rows to that source product rather
+than making the ingress scan the AST. The design-only
+`NormalGeneralProgramModuleSourceIssuerV1` is the sole normal-ingress issuer
+that co-seals that parser product with the exact normalized source identity,
+imports, admission, configuration snapshot, top-level declaration rows,
+Main/entry relation, and user-box/member callable rows. It must run before the
+Builder session opens; it may not reparse or reconstruct rows from a request
+name, AST ordinal, or Builder catalog.
+
+The request remains transport. `NormalSourcePlanClassifierV1` remains the
+bounded reference issuer. `PreparedNormalProgramDeclarationFactsV1`, raw root
+expansion, `build_module`, and the compatibility catalog remain observations or
+lowering inputs, not the missing source authority.
+
+```text
+source authority unavailable / foreign / incomplete / contradictory
+  -> typed terminal before Builder effects
+source-backed finite module rows
+  -> one source disposition
+compatibility admission
+  -> explicit compatibility owner; never normal retry
+```
+
+The move contract is one-way and exact:
+
+```text
+prepared source/import snapshot
+  + parser source authority
+  -> issuer consumes both once
+  -> request transports the resulting disposition once
+  -> Builder opens only after classification
+```
+
+No parallel `Option` source fact, AST-only request constructor, second source
+planner, or legacy fallback is part of this design. If parser provenance cannot
+reach the issuer exactly once, the result is `SourceAuthorityUnavailable` /
+`NoSafeSlice`, not a name-based or Builder-based repair.
+
+### D0.3 acceptance and next task
+
+The issuer choice is accepted only as a design boundary. D0.4 must still write
+the finite/disjoint disposition table and an evidence packet proving:
+
+```text
+issuer definition/cardinality                 = 1
+parser witness transfer                       = exactly once
+declaration/entry/member relation co-seal     = before Builder open
+AST reconstruction below the boundary         = 0
+Builder effects during classification         = 0
+normal production caller during D0             = 0
+fallback / retry / reselection                = 0
+GeneralProgram catch-all / empty defaults     = 0
+```
+
+This closes the issuer-selection cell but does not authorize a Rust product, fixture, guard-as-permission, production switch, or aggregate
+`VerifiedNormalGeneralProgramPlanV1`. The next bounded task is D0.4 acceptance
+closeout; if any preservation item above cannot be evidenced, return to
+`NoSafeSlice` and narrow the first module-source vocabulary.
+
 ## Why Candidate A cannot be implemented now
 
 ### Existing substrate
