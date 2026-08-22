@@ -98,6 +98,21 @@ commit owners, zero fallback/retry edges, and an explicit decision whether the
 next work is a bounded fast evidence slice or another design stop. No code
 implementation is authorized until that report is complete.
 
+### Census evidence (2026-08-22)
+
+```text
+commit_cataloged_box_method_completed: 1 definition, 1 production caller
+prepare_normal_collector_drain: 1 definition, 1 production caller, 7 test callers
+normal_default_pipeline external commit: 1 production prepare/commit pair
+strict I9 Compare writer: 1 non-test caller; generic dispatcher: 0 non-test callers
+```
+
+The focused public-root test passes while asserting the unchanged fixture's
+`RootLower` rejection and `static-result-ingress/target-unavailable`; it does
+not observe DraftAdmission, ModuleDrain, or ExternalCommit. This is valid
+unpublished-failure evidence only. No production switch, fallback retry, or
+second publication owner was added by this census.
+
 The publication audit is refined by the following prerequisite design task:
 
 ```text
