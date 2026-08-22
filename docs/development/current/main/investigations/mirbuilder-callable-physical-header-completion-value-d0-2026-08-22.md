@@ -1,11 +1,11 @@
 ---
-Status: P0 complete; next D0 accepted; design_stop
+Status: P0 selected; D0 accepted; implementation in progress
 Task: MIR-CALLABLE-PHYSICAL-HEADER-ELIGIBILITY-D0
 Date: 2026-08-22
 Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-D0 (this rolling card)
+NextCard: MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -384,6 +384,29 @@ Remain `NoSafeSlice` if the existing origin/transfer pair cannot distinguish
 loop control without hiding malformed records, if a second resolver/source
 walk is required, or if the fix expands into body/MIR inference, a new
 Completion issuer, Builder/ABI changes, or fallback.
+
+## P0 execution brief — MIR-CALLABLE-COMPLETION-LOOP-CONTROL-PROJECTION-P0
+
+```text
+change:
+  add one private projection at the existing verify_function_completion_v1
+  seam; keep ResolvedFunctionProduct.resolved_exits() unchanged
+
+accept:
+  exact ExplicitBreak + Break and ExplicitContinue + Continue are absent from
+  the temporary Completion Return candidates
+  a function containing only loop control reaches existing implicit unit
+  mixed loop control plus a root Return reaches existing explicit Return logic
+  malformed origin/transfer pairs are not filtered into success
+
+files:
+  function_control.rs and its focused function-control tests only
+
+forbidden:
+  resolver/source rewalk, AST/body/MIR inference, new semantic receipt,
+  Completion issuer, Builder/ABI/physical change, fallback/retry, or
+  batch-slot/name/ordinal pairing
+```
 
 ## NoSafeSlice conditions
 
