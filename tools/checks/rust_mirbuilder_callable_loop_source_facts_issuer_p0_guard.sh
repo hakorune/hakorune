@@ -14,6 +14,8 @@ VALIDATION="$ROOT_DIR/src/mir/builder/control_flow/plan/generic_loop/body_check/
 PLANNER="$ROOT_DIR/src/mir/builder/control_flow/plan/single_planner/rules.rs"
 PLANNER_MOD="$ROOT_DIR/src/mir/builder/control_flow/plan/single_planner/mod.rs"
 PLANNER_INPUT="$ROOT_DIR/src/mir/builder/control_flow/plan/single_planner/input.rs"
+STRUCTURAL_PORT="$ROOT_DIR/src/mir/builder/control_flow/joinir/structural_port.rs"
+STRUCTURAL_PORT_TESTS="$ROOT_DIR/src/mir/builder/control_flow/joinir/structural_port_tests.rs"
 CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-callable-loop-source-facts-issuer-d0-2026-08-22.md"
 README="$ROOT_DIR/src/mir/builder/README.md"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
@@ -23,6 +25,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$ISSUER" "$TESTS" "$RAW_ENTRY" "$FACTS_BUILDER" \
   "$V0" "$VALIDATION" "$PLANNER" "$PLANNER_MOD" "$PLANNER_INPUT" \
+  "$STRUCTURAL_PORT" "$STRUCTURAL_PORT_TESTS" \
   "$CARD" "$README" "$INDEX"
 
 guard_expect_fixed_in_file "$TAG" "CallableGenericLoopSourceFactsIssuerV1" "$ISSUER" \
@@ -37,6 +40,12 @@ guard_expect_fixed_in_file "$TAG" "try_build_source_outcome" "$ISSUER" \
   "issuer must use the route-neutral explicit-policy planner seam"
 guard_expect_fixed_in_file "$TAG" "CallableLoopFactsPlannerInputV1" "$PLANNER_INPUT" \
   "planner input must be the named route-neutral boundary"
+guard_expect_fixed_in_file "$TAG" "CallableLoopStructuralPortV1" "$STRUCTURAL_PORT" \
+  "structural handoff must use one opaque port"
+guard_expect_fixed_in_file "$TAG" "for<'view> FnOnce" "$STRUCTURAL_PORT" \
+  "structural port must be callback-scoped by HRTB"
+guard_expect_fixed_in_file "$TAG" "with_existing_structural_port" "$STRUCTURAL_PORT_TESTS" \
+  "focused evidence must exercise the structural lease"
 guard_expect_fixed_in_file "$TAG" "try_build_source_outcome" "$PLANNER_MOD" \
   "single planner must expose the route-neutral source entry"
 guard_expect_fixed_in_file "$TAG" "try_build_outcome_with_policy_parts" "$PLANNER" \
@@ -51,8 +60,12 @@ guard_expect_fixed_in_file "$TAG" "CallableGenericLoopSourceFactsRouteErrorV1" "
   "route rejection must preserve a typed reason"
 guard_expect_fixed_in_file "$TAG" "same prepared raw-root lineage" "$CARD" \
   "card must not overclaim parser identity"
+guard_expect_fixed_in_file "$TAG" "MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-I0" "$CARD" \
+  "active card must name the structural lease slice"
 guard_expect_fixed_in_file "$TAG" "Callable Loop source-aware Facts issuer P0" "$README" \
   "builder README must document the caller-zero seam"
+guard_expect_fixed_in_file "$TAG" "CallableLoopStructuralPortV1" "$README" \
+  "builder README must document the callback-scoped structural lease"
 guard_expect_fixed_in_file "$TAG" "$SELF_SCRIPT" "$INDEX" \
   "check index must list the reusable issuer guard"
 
@@ -64,6 +77,12 @@ if rg -n -- 'LoopRouteContext|choose_route_kind' "$ISSUER"; then
 fi
 if rg -n -- 'CallableGenericLoopSourceFactsReadyV1|_pre_effect_receipt' "$ISSUER"; then
   guard_fail "$TAG" "source-facts claim must be in-place and retain the receipt"
+fi
+if rg -n -- 'route_kind|LoopRouteKind|Facts|Recipe|registry|PlanLowerer|ValueId|ASTNode|Deref|route_loop|lower_loop_or_freeze_v1' "$STRUCTURAL_PORT"; then
+  guard_fail "$TAG" "structural port must not grow semantic, route, AST, or physical authority"
+fi
+if rg -n -- 'with_existing_structural_port|route_loop|lower_loop_or_freeze_v1|PlanLowerer' "$ISSUER"; then
+  guard_fail "$TAG" "source-aware issuer must not connect the structural lease to the old route"
 fi
 if rg -n -- 'LoopRouteContext|LoopRouteKind|in_static_box|ValueId|registry' "$PLANNER_INPUT"; then
   guard_fail "$TAG" "route-neutral planner input must not carry structural or physical authority"
@@ -82,6 +101,11 @@ fi
 claim_calls="$(rg -F -o -- 'claim_all()' "$TESTS" | wc -l | tr -d '[:space:]')"
 if [[ "$claim_calls" -ne 1 ]]; then
   guard_fail "$TAG" "focused evidence must claim the source-facts product exactly once; found $claim_calls"
+fi
+lease_definitions="$(rg -F -o -- 'with_existing_structural_port<R>' "$STRUCTURAL_PORT" | wc -l | tr -d '[:space:]')"
+lease_tests="$(rg -F -o -- 'with_existing_structural_port(&context' "$STRUCTURAL_PORT_TESTS" | wc -l | tr -d '[:space:]')"
+if [[ "$lease_definitions" -ne 1 || "$lease_tests" -ne 1 ]]; then
+  guard_fail "$TAG" "structural lease must have one definition and one focused caller; definitions=$lease_definitions tests=$lease_tests"
 fi
 payload_literals="$(rg -F -o -- 'Ok(PreparedCallableGenericLoopSourceFactsPayloadV1 {' "$RAW_ENTRY" | wc -l | tr -d '[:space:]')"
 if [[ "$payload_literals" -ne 1 ]]; then
@@ -102,7 +126,7 @@ if rg -n -- 'lower_loop_or_freeze_v1|RouteExecutionWitnessV1|PostEffectRetryDebt
   guard_fail "$TAG" "caller-zero source issuer grew a lowering/physical/fallback authority"
 fi
 
-for file in "$ISSUER" "$TESTS" "$RAW_ENTRY" "$V0" "$VALIDATION" "$PLANNER"; do
+for file in "$ISSUER" "$TESTS" "$RAW_ENTRY" "$V0" "$VALIDATION" "$PLANNER" "$STRUCTURAL_PORT" "$STRUCTURAL_PORT_TESTS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "P0 source reached the 800-line hard boundary: ${file#"$ROOT_DIR/"}=$lines"

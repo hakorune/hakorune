@@ -336,6 +336,13 @@ the route registry, or connect the old raw Loop path. The existing raw
 `_pre_effect_receipt` debt remains a later structural-handoff/bridge concern,
 not evidence that this caller-zero claim is production-connected.
 
+The selected `MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-I0` adds only the private
+`CallableLoopStructuralPortV1` callback lease owned by the existing
+`cf_loop_joinir_impl` context construction. Its HRTB callback cannot return the
+borrowed view, and the view has no route/Facts/Recipe/registry/PlanLowerer/
+Builder/ValueId/AST or physical authority. This is caller-zero infrastructure;
+it does not connect Ready to `route_loop` or the old raw lowerer.
+
 ### Callable Loop source-aware Facts terminal-only P0
 
 `CallableGenericLoopSourceFactsTerminalConsumerV1` is the sole named consumer

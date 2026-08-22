@@ -16,6 +16,7 @@ pub(in crate::mir::builder) mod merge;
 pub(in crate::mir::builder) mod parity_checker;
 pub(in crate::mir::builder) mod route_entry;
 pub(in crate::mir::builder) mod routing;
+pub(in crate::mir::builder) mod structural_port;
 pub(in crate::mir::builder) mod trace;
 
 // Phase 140-P4-A: Re-export skip_whitespace shape detection for loop_canonicalizer

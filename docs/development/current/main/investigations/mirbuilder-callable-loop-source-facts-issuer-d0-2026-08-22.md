@@ -1,11 +1,11 @@
 ---
-Status: D0 accepted after worker audit; route-neutral planner I0 complete; Ready claim I0 complete; structural lease remains design_stop
+Status: D0 accepted after worker audit; route-neutral planner I0 complete; Ready claim I0 complete; structural lease I0 complete; next normalizer consumer remains design_stop
 Task: MIR-CALLABLE-LOOP-ORDINARY-READY-D0
 Date: 2026-08-22
 Priority: carry one source-bound GenericLoop Facts/Recipe outcome before any consumer
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-callable-physical-header-completion-value-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-READY-STRUCTURAL-HANDOFF-D0
+NextCard: MIR-CALLABLE-LOOP-READY-NORMALIZER-CONSUMER-D0
 ---
 
 # Callable Loop source-aware Facts issuer D0
@@ -586,6 +586,38 @@ production switch. If a future implementation can only pass
 
 `BorrowedStructuralView` is not a storable product. The callback cannot return
 the view, source AST borrow, or a `LoopRouteContext` reference through `R`.
+
+### `MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-I0` (complete fast BoxShape slice)
+
+Change: add one private `CallableLoopStructuralPortV1` and one
+`with_existing_structural_port` HRTB callback at the existing
+`cf_loop_joinir_impl` Context owner. Keep the source claim receipt move-only;
+do not connect the Ready product to the old route.
+
+Contract: the port is a callback-scoped borrowed structural view with private
+fields and no `Deref`; it exposes no route kind, Facts/Recipe, registry,
+PlanLowerer, Builder, `ValueId`, AST, or physical receipt. The source-aware
+issuer and terminal consumer remain caller-zero. This is a BoxShape seam, not
+a new semantic accepted shape.
+
+Done: focused callback-scope evidence, one reusable lane guard, source and
+module README receipt, all touched Rust files below 800 lines, and no
+Ready-scoped caller to `route_loop`, `lower_loop_or_freeze_v1`, registry, or
+`PlanLowerer`.
+
+Stop: return to design if the lease needs a second `LoopRouteContext`, exposes
+AST/route/Facts authority, lets the borrow escape the callback, pairs a foreign
+source receipt, or requires any physical/production effect.
+
+Evidence for this slice: `structural_port` focused test 1 passed; the existing
+source/Facts lane guard and current-state pointer guard pass; the new lease
+module is 46 lines and its focused test is 20 lines. No production caller,
+route continuation, or physical effect was added.
+
+Closeout: `MIR-CALLABLE-LOOP-READY-NORMALIZER-CONSUMER-D0` is the next design
+frontier. It must name the consumer owner and exact source-receipt/structural
+port relation before any normalizer, PlanLowerer, registry, Builder, or
+production edge is opened.
 
 ### `MIR-CALLABLE-LOOP-READY-CLAIM-I0` (complete)
 
