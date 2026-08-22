@@ -43,6 +43,21 @@ cause. This I0 changes no source-window ownership, target lookup, candidate,
 Facts, Recipe, physical, fallback, or production route; those remain behind
 the neutral source-window design stop.
 
+## Identity-bound selected-callable deferral P0 (2026-08-22)
+
+Selected callable resolution transports every source deferral as one
+structurally non-empty batch. Each row nests the shadow resolver's exact
+cause/site with the opaque parser identity supplied beside that same borrowed
+`FunctionSyntaxViewV1`; downstream code never re-pairs a bare ordinal, name,
+arity, or path. Constructor rows keep their own `ConstructorSourceIdV1`
+instead of borrowing callable identity.
+
+The resolver still scans the complete input batch. Multiple valid deferrals
+remain in parser-loan order, while any later non-deferrable resolver invariant
+still rejects the whole issue attempt. `Complete` behavior and accepted syntax
+are unchanged, and a Deferred batch cannot publish a semantic package, retry a
+Builder/compatibility route, or escape with an AST reference.
+
 ## Generic G0 S0B source-type inventory
 
 `generic_g0/` is the sole AST-free issuer for the Generic G0 S0B source-type

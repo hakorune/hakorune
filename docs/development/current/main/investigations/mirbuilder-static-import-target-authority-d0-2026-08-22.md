@@ -1,8 +1,8 @@
-Status: D0-A/B accepted after premise correction; next execution is one fast BoxShape
-ClosedTask: SCRIPT-STATIC-IMPORT-TARGET-AUTHORITY-D0
-NextTask: MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0
+Status: typed Deferred P0 complete; lexical Program-block I0 accepted as the next fast BoxCount
+ClosedTask: MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0
+NextTask: MIR-CALLABLE-RESOLVER-LEXICAL-PROGRAM-BLOCK-I0
 Date: 2026-08-22
-Priority: preserve the actual first production blocker before widening any resolver shape
+Priority: admit exactly one parser-issued bare lexical block without flattening its scope
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-CENSUS-D0
 NextCard: this rolling card owns the bounded P0 brief
 ---
@@ -273,3 +273,187 @@ docs/development/current/main/investigations/
 ```
 
 No code or fixture was changed while closing this D0.
+
+## Typed Deferred P0 execution closeout
+
+`MIR-CALLABLE-RESOLVER-TYPED-DEFERRED-P0` is complete.
+
+```text
+parser callable/constructor identity + borrowed FunctionSyntaxViewV1
+  -> one all-row resolver kernel
+  -> Complete
+     or structurally non-empty identity-bound Deferred batch
+  -> callable/constructor package terminal
+```
+
+The new Deferred product contains no AST reference and exposes no empty or
+default state. Callable rows retain `CallableDeclarationIdentityV1`;
+constructor rows retain `ConstructorSourceIdV1`. Multiple deferrals stay in
+parser-loan order. A later non-deferrable resolver invariant still terminates
+the issue attempt instead of being hidden by an earlier source deferral.
+
+Production caller census after the change:
+
+```text
+source-bound resolver callers = 2
+  callable semantic batch = 1
+  constructor semantic batch = 1
+
+cause-less resolver callers in those production owners = 0
+legacy cause-less resolver API callers = test/caller-zero only
+```
+
+Focused evidence:
+
+```text
+callable semantic batch tests = 8 passed
+  - Complete rows unchanged
+  - two unresolved callables retain two identities, exact causes/sites, and order
+  - same-scope redeclaration retains its unlocated typed cause
+
+constructor Deferred test = 1 passed
+  - exact parser ConstructorSourceIdV1 retained
+
+later-invariant precedence test = 1 passed
+Script Deferred conversion regression = 1 passed
+cargo check --lib = passed
+cargo build --bin hakorune = passed
+current-state pointer guard = passed
+diff check = passed
+touched production source max = 581 lines
+```
+
+The rebuilt real merged-source probe now reports the exact next blocker:
+
+```text
+merged source lines = 646
+
+StringHelpers.starts_with
+  identity = exact parser callable anchor
+  cause = UnsupportedStatement { kind: "Program" }
+  site = Body(2)
+
+StringHelpers.starts_with_kw
+  identity = exact parser callable anchor
+  cause = UnsupportedStatement { kind: "Program" }
+  site = Body(0)
+```
+
+Both rows are standalone `{ ... }` debug blocks emitted by the parser as
+nested `ASTNode::Program` statements. This is now observed evidence; no import,
+target, result, or Builder authority is missing at this boundary.
+
+## Next decision — lexical Program block I0
+
+```text
+Decision: accept one nested ASTNode::Program statement as the parser representation of a standalone bare lexical block. Traverse it under a new lexical region/scope; never flatten it into the enclosing function scope.
+Source authority + canonical issuer: parse_standalone_block_statement is the sole syntax-shape issuer; VerifiedFinalCallableProgramSourceV1 retains the parser invocation/callable identity; the existing shadow resolver is the sole binding/scope/owner issuer.
+Non-authority: top-level Program, Builder-created Program shells, braces/text/span, name or body ordinal, Lower behavior, Script root admission, and the current production fixture.
+Fail-fast boundary: after the enclosing Program statement site is admitted and before any child is observed, enter one existing LexicalScope/LexicalBlock at ProgramBodyRoot; any child error unwinds that scope and returns the existing typed terminal before package or Builder effects.
+Smallest next slice: MIR-CALLABLE-RESOLVER-LEXICAL-PROGRAM-BLOCK-I0; connect ProgramBody traversal for FullFunction/SelectedCallable profiles with exact lexical lifetime and source paths.
+Non-claims: no transparent flattening, Script Program admission, Using/Import/StaticConst traversal, TryCatch/postfix compatibility, new resolver receipt, target/result/A/C, Recipe/Join, Builder/MIR, fallback, publication, backend, or performance work.
+```
+
+### Why the block is lexical, not transparent
+
+The language invariant and legacy Lower agree that a standalone `{ ... }`
+body owns a lexical lifetime. The parser emits that statement as
+`ASTNode::Program`, while the existing block driver enters one lexical scope
+before lowering its statements.
+
+Flattening would be observably wrong:
+
+```text
+local x = 1
+{
+  local x = 2
+}
+return x
+
+correct: inner x shadows and expires
+flattened: false same-scope redeclaration or leaked inner binding
+```
+
+The accepted source coordinates are already canonical:
+
+```text
+outer statement             = Body(k)
+lexical scope/region origin = Body(k) / ProgramBodyRoot
+child statement i           = Body(k) / ProgramBody(i)
+```
+
+`ProgramBodyRoot` is a scope origin, not an extra item-prefix segment. The
+existing `BodyChildRoleV1::ProgramBody` / `SourceBodyKindV1::Program` mapping
+must issue both coordinates; callers must not build them by ordinal.
+
+The lexical block adds no control target. A `break` or `continue` nested in the
+block keeps the existing nearest enclosing Loop relation.
+
+### Bounded implementation task
+
+Change only one accepted statement shape:
+
+```text
+shadow/stmt.rs
+  ASTNode::Program { statements, .. }
+    -> record outer SequenceItem
+    -> enter LexicalScope + LexicalBlock at ProgramBodyRoot
+    -> resolve every child at ProgramBody(i)
+    -> leave scope on success or error
+
+shadow/vocabulary.rs
+  Program: SemanticallyTransparentCandidate -> CurrentResolvedStatement
+  Using/Import/StaticConst remain non-accepted candidates
+
+focused tests
+  exact lexical shadowing/lifetime
+  exact ProgramBodyRoot and ProgramBody(i) coordinates
+  same-scope duplicate inside one block rejects
+  nested block inside Loop preserves Break/Continue target
+  Script profile and unrelated candidate syntax remain unchanged
+```
+
+No new `Verified*` or `Prepared*` type is needed. This is one BoxCount using
+the existing parser, scope, region, path, forest, and package authorities.
+
+### Acceptance
+
+```text
+positive:
+  natural parsed callable with one bare block resolves Complete
+  local inside the block shadows an outer binding and is absent afterward
+  outer Program statement and every child site appear exactly once
+  nested block Break/Continue resolve to the enclosing Loop
+
+negative:
+  duplicate Local names inside the same Program block retain typed redeclaration
+  unresolved child retains callable identity + ProgramBody child site
+  Using/Import/StaticConst do not become resolved statements
+  Script root admission does not widen
+
+production observation:
+  the two StringHelpers Program deferrals disappear
+  any next stop remains a typed identity-bound cause/site
+  no package/Builder effect occurs on a remaining Deferred
+
+guards:
+  Program flatten/rewrite = 0
+  new scope/region vocabulary = 0
+  new source-path vocabulary = 0
+  new semantic receipt = 0
+  fallback/retry = 0
+  touched production files < 760 lines; 800 hard stop
+```
+
+### Stop conditions
+
+Return to `design_stop` instead of widening the slice if:
+
+```text
+the nested Program cannot be distinguished from a synthetic/top-level shell
+Lower does not give the same shape lexical lifetime
+exact ProgramBody source coordinates require reconstruction
+child traversal needs TryCatch/postfix compatibility
+Script admission or target/Builder state is needed
+the real probe requires a second newly accepted AST shape
+```

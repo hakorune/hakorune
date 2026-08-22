@@ -28,6 +28,8 @@ mod physical_signature_tests;
 #[cfg(test)]
 mod resolved_selected_handoff_tests;
 #[cfg(test)]
+mod resolver_deferred_tests;
+#[cfg(test)]
 mod s6c_child_tests;
 #[cfg(test)]
 mod tests;

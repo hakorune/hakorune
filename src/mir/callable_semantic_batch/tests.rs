@@ -1,4 +1,7 @@
-use crate::mir::resolved_semantics::{FunctionSemanticResolverSessionV1, SourceBindingSiteV1};
+use crate::mir::resolved_semantics::{
+    FunctionSemanticResolverSessionV1, ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1,
+    SourceBindingSiteV1, SourceResolverDeferredV1,
+};
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::{
@@ -136,5 +139,65 @@ fn missing_row_rejects_before_any_lowering_input_is_lent() {
     assert!(matches!(
         batch.with_lowering_input(1, |_| ()),
         Err(ResolvedCallableSemanticBatchLoanErrorV1::MissingSourceRow)
+    ));
+}
+
+#[test]
+fn deferred_batch_keeps_every_callable_identity_and_source_order() {
+    let source = final_source(
+        "static box Api {\n\
+             first() { return missing_first }\n\
+             second() { return missing_second }\n\
+         }",
+    );
+    let identities = source
+        .with_callable_semantic_syntax(|loan| {
+            loan.rows()
+                .iter()
+                .map(|row| row.identity().clone())
+                .collect::<Vec<_>>()
+        })
+        .expect("callable identity loan");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(72).unwrap();
+    let deferred = match issue_resolved_callable_semantic_batch_v1(&mut resolver, source) {
+        Err(super::ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(deferred)) => deferred,
+        other => panic!("expected identity-bound resolver deferral, got {other:?}"),
+    };
+
+    assert_eq!(deferred.len(), 2);
+    for ((row, identity), expected_name) in std::iter::once(deferred.first())
+        .chain(deferred.rest())
+        .zip(identities.iter())
+        .zip(["missing_first", "missing_second"])
+    {
+        assert!(row
+            .source()
+            .callable_identity()
+            .expect("callable identity")
+            .same_as(identity));
+        match row.observation() {
+            SourceResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnresolvedName { name },
+                site: ScriptResolverDeferredSiteV1::Expression(_),
+            } => assert_eq!(&**name, expected_name),
+            other => panic!("expected located unresolved name, got {other:?}"),
+        }
+    }
+}
+
+#[test]
+fn same_scope_redeclaration_keeps_its_unlocated_typed_cause() {
+    let source = final_source("static box Api { run() { local x = 1 local x = 2 return x } }");
+    let mut resolver = FunctionSemanticResolverSessionV1::new(73).unwrap();
+    let deferred = match issue_resolved_callable_semantic_batch_v1(&mut resolver, source) {
+        Err(super::ResolvedCallableSemanticBatchIssueV1::ResolverDeferred(deferred)) => deferred,
+        other => panic!("expected typed redeclaration deferral, got {other:?}"),
+    };
+
+    assert_eq!(deferred.len(), 1);
+    assert!(matches!(
+        deferred.first().observation(),
+        SourceResolverDeferredV1::UnlocatedSameScopeRedeclaration { name }
+            if &**name == "x"
     ));
 }

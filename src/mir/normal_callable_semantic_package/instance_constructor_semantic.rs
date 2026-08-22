@@ -6,7 +6,8 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, ReceiverPolicyV1,
-    ResolveOwnerForestErrorV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
+    ResolveOwnerForestErrorV1, ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
+    SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverInputV1,
     SemanticOwnerRootProfileV1, VerifiedSemanticOwnerForestV1,
 };
 use crate::parser::{ConstructorSourceIdV1, VerifiedFinalCallableProgramSourceV1};
@@ -16,7 +17,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     ParserSyntax,
     SourceCoverage,
     Resolver(ResolveOwnerForestErrorV1),
-    ResolverDeferred,
+    ResolverDeferred(SelectedCallableResolverDeferredBatchV1),
     MissingRoot,
     RootProfileMismatch,
     SourceProjection(String),
@@ -116,7 +117,7 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
     source
         .with_constructor_semantic_syntax(|loan| {
             let mut candidates = Vec::with_capacity(loan.rows().len());
-            let mut views = Vec::with_capacity(loan.rows().len());
+            let mut resolver_inputs = Vec::with_capacity(loan.rows().len());
             for syntax in loan.rows() {
                 let ASTNode::FunctionDeclaration { params, body, .. } = syntax.declaration() else {
                     return Err(InstanceConstructorSemanticBatchIssueV1::SourceCoverage);
@@ -134,20 +135,30 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     syntax.declaration(),
                     view,
                 ));
-                views.push(view);
+                resolver_inputs.push(SelectedCallableResolverInputV1::constructor(
+                    syntax.source_id().clone(),
+                    syntax.box_name(),
+                    syntax.key(),
+                    view,
+                ));
             }
             let forests = match resolver
-                .resolve_selected_callable_forests_with_body_shapes_and_brand_catalog(
-                    &views,
+                .resolve_source_bound_selected_callable_forests_with_body_shapes_and_brand_catalog(
+                    &resolver_inputs,
                     brand_catalog,
                 )
                 .map_err(InstanceConstructorSemanticBatchIssueV1::Resolver)?
             {
-                ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
-                    forests, ..
+                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Complete {
+                    forests,
+                    ..
                 } => forests,
-                ResolveSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred => {
-                    return Err(InstanceConstructorSemanticBatchIssueV1::ResolverDeferred)
+                ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1::Deferred(
+                    deferred,
+                ) => {
+                    return Err(InstanceConstructorSemanticBatchIssueV1::ResolverDeferred(
+                        deferred,
+                    ))
                 }
             };
             if forests.len() != candidates.len() {

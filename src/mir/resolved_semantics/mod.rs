@@ -66,6 +66,7 @@ mod records;
 mod resolver;
 mod resolver_core_method_callable_contract;
 mod script_view;
+mod selected_callable_deferred;
 mod shadow;
 mod source_path_policy;
 mod source_projection;
@@ -215,6 +216,7 @@ pub(crate) use owner_forest_payload::VerifiedSemanticOwnerProductV1;
 pub(crate) use owner_resolver::{
     ResolveOwnerForestErrorV1, ResolveScriptForestOutcomeV1,
     ResolveSelectedCallableForestsOutcomeV1, ResolveSelectedCallableForestsWithBodyShapesOutcomeV1,
+    ResolveSourceBoundSelectedCallableForestsWithBodyShapesOutcomeV1,
 };
 pub(crate) use owner_root_profile::SemanticOwnerRootProfileV1;
 pub use owner_source_kind::SemanticOwnerSourceKindV1;
@@ -260,6 +262,10 @@ pub(crate) use resolver_core_method_callable_contract::{
     VerifiedResolverCoreMethodCallableContractV1,
 };
 pub(crate) use script_view::ScriptSyntaxViewV1;
+pub(crate) use selected_callable_deferred::{
+    SelectedCallableResolverDeferredBatchV1, SelectedCallableResolverDeferredV1,
+    SelectedCallableResolverInputV1, SelectedCallableResolverSourceIdentityV1,
+};
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
     observe_script_method_calls_shadow_view_v0,
@@ -275,7 +281,7 @@ pub(crate) use shadow::{
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
     VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
     ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1,
-    ScriptResolverDeferredV1,
+    ScriptResolverDeferredV1, SourceResolverDeferredV1,
 };
 pub(crate) use source_path_policy::{
     assignment_value_sibling_v1, is_statement_expression_surface_v1, BodyChildRoleV1,

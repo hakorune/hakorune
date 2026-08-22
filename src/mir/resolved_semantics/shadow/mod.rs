@@ -46,6 +46,7 @@ pub(in crate::mir) use product::{
 };
 pub(crate) use product::{
     ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ScriptResolverDeferredV1,
+    SourceResolverDeferredV1,
 };
 pub(crate) use script_root_window::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,

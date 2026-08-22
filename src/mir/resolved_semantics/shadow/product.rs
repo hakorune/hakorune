@@ -271,11 +271,11 @@ impl ShadowResolveErrorV0 {
         )
     }
 
-    /// Preserve the existing Script deferral boundary without collapsing the
-    /// source-owned cause or inventing a site for an unlocated error.
-    pub(crate) fn into_script_resolver_deferred(
-        self,
-    ) -> Option<ScriptResolverDeferredV1> {
+    /// Preserve a source deferral without collapsing its cause or inventing a
+    /// site for an unlocated error. Script and selected-callable adapters use
+    /// the same observation vocabulary; their source identity owners remain
+    /// separate.
+    pub(crate) fn into_source_resolver_deferred(self) -> Option<SourceResolverDeferredV1> {
         match self {
             Self::SameScopeRedeclaration { name } => {
                 Some(ScriptResolverDeferredV1::UnlocatedSameScopeRedeclaration { name })
@@ -288,36 +288,32 @@ impl ShadowResolveErrorV0 {
                 cause: ScriptResolverDeferredCauseV1::ExitOutsideLoop { kind },
                 site: ScriptResolverDeferredSiteV1::Statement(site),
             }),
-            Self::UnsupportedStatement { kind, site } => {
-                Some(ScriptResolverDeferredV1::Located {
-                    cause: ScriptResolverDeferredCauseV1::UnsupportedStatement { kind },
-                    site: ScriptResolverDeferredSiteV1::Statement(site),
-                })
-            }
-            Self::UnsupportedExpression { kind, site } => {
-                Some(ScriptResolverDeferredV1::Located {
-                    cause: ScriptResolverDeferredCauseV1::UnsupportedExpression { kind },
-                    site: ScriptResolverDeferredSiteV1::Expression(site),
-                })
-            }
-            Self::UnsupportedAssignmentTarget { site } => {
-                Some(ScriptResolverDeferredV1::Located {
-                    cause: ScriptResolverDeferredCauseV1::UnsupportedAssignmentTarget,
-                    site: ScriptResolverDeferredSiteV1::Expression(site),
-                })
-            }
-            Self::FunctionCallArityOverflow { site } => {
-                Some(ScriptResolverDeferredV1::Located {
-                    cause: ScriptResolverDeferredCauseV1::FunctionCallArityOverflow,
-                    site: ScriptResolverDeferredSiteV1::Expression(site),
-                })
-            }
+            Self::UnsupportedStatement { kind, site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnsupportedStatement { kind },
+                site: ScriptResolverDeferredSiteV1::Statement(site),
+            }),
+            Self::UnsupportedExpression { kind, site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnsupportedExpression { kind },
+                site: ScriptResolverDeferredSiteV1::Expression(site),
+            }),
+            Self::UnsupportedAssignmentTarget { site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::UnsupportedAssignmentTarget,
+                site: ScriptResolverDeferredSiteV1::Expression(site),
+            }),
+            Self::FunctionCallArityOverflow { site } => Some(ScriptResolverDeferredV1::Located {
+                cause: ScriptResolverDeferredCauseV1::FunctionCallArityOverflow,
+                site: ScriptResolverDeferredSiteV1::Expression(site),
+            }),
             Self::BlockExprNonLocalExit { site } => Some(ScriptResolverDeferredV1::Located {
                 cause: ScriptResolverDeferredCauseV1::BlockExprNonLocalExit,
                 site: ScriptResolverDeferredSiteV1::Exit(site),
             }),
             _ => None,
         }
+    }
+
+    pub(crate) fn into_script_resolver_deferred(self) -> Option<ScriptResolverDeferredV1> {
+        self.into_source_resolver_deferred()
     }
 }
 
@@ -331,6 +327,10 @@ pub(crate) enum ScriptResolverDeferredV1 {
         name: Box<str>,
     },
 }
+
+/// Route-neutral name used by selected-callable resolver transport. The
+/// existing Script name remains the compatibility-facing semantic alias.
+pub(crate) type SourceResolverDeferredV1 = ScriptResolverDeferredV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum ScriptResolverDeferredCauseV1 {
