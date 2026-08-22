@@ -1,11 +1,11 @@
 ---
-Status: D0 accepted after worker audit; implementation remains design_stop
+Status: D0 closed as NoSafeSlice after worker audit; successor structural-lease design is active
 Task: MIR-CALLABLE-LOOP-READY-NORMALIZER-CONSUMER-D0
 Date: 2026-08-22
 Priority: connect one claimed source-facts receipt to one existing structural normalizer boundary without re-observation
 Parent: MIR-CALLABLE-LOOP-ORDINARY-READY-D0
 PreviousCard: mirbuilder-callable-loop-source-facts-issuer-d0-2026-08-22.md
-NextCard: none-until-Decision
+NextCard: mirbuilder-callable-loop-ready-source-bound-structural-lease-d0-2026-08-22.md
 ---
 
 # Callable Loop Ready normalizer consumer D0
@@ -188,4 +188,6 @@ parallel source-facts or terminal authority
 
 This card is a handoff task, not a claim that the ordinary Loop consumer,
 physical lowerer, publication, fallback retirement, or production switch is
-complete.
+complete. The current API cannot implement even the caller-zero handoff
+without a source-bound structural owner, so the successor D0 is a required
+design step rather than an optional refactor.
