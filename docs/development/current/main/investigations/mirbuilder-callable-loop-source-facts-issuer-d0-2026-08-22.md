@@ -43,7 +43,7 @@ Source authority + canonical issuer: CallableSemanticLoweringState/CallableLoopS
 Non-authority: AST-only LoopRouteContext, GenericLoopAdmissionObservationV1, Builder/ValueId, names/ordinals/pointers, cloned Facts/Recipe, and the existing raw registry continuation.
 Fail-fast boundary: source ownership, Ready coverage, policy frame, one Facts extraction, final policy, and exact front-selected route close before lower_loop_or_freeze_v1 or any Builder effect; every reject is terminal with no retry.
 Smallest next slice: caller-zero source-aware issuer P0 for one non-nested Ready cohort; issue the private aggregate and prove extraction count=1 without wiring a production consumer.
-Non-claims: Outside admission, ordinary consumer, route cutover, PostEffectRetryDebt removal, physical/publication work, fallback/retry, performance, main integration, and nested-loop support.
+Non-claims: Outside admission, ordinary consumer, route cutover, PostEffectRetryDebt removal, physical/publication work, fallback/retry, performance, production switch, and nested-loop support.
 ```
 
 ## Authority map
@@ -238,8 +238,8 @@ switch is implied by that completion.
 
 ## Caller-zero P0 implementation receipt (2026-08-22)
 
-The caller-zero foundation is complete on
-`codex/dynamic-v2-aot-activation`; it is not a production switch.
+The caller-zero foundation is integrated into `main` at merge commit
+`aafda19d86`; this is not a production switch.
 
 ```text
 PreparedLocatedRawLoopChildEntryV1
@@ -275,8 +275,7 @@ The next authorized cell is
 `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0`: design one non-nested named
 consumer for exact callable rows while structural expression lookup stays on
 its existing port. Body-only rebind admission, route cutover, fallback/retry,
-physical/publication work, parser witness strengthening, and main integration
-remain closed.
+physical/publication work and parser witness strengthening remain closed.
 
 ## Terminal-only Ready consumption P0 (2026-08-22)
 
