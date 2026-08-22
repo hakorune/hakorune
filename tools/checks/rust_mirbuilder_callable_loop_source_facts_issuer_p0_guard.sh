@@ -17,6 +17,10 @@ PLANNER_INPUT="$ROOT_DIR/src/mir/builder/control_flow/plan/single_planner/input.
 STRUCTURAL_PORT="$ROOT_DIR/src/mir/builder/control_flow/joinir/structural_port.rs"
 STRUCTURAL_PORT_TESTS="$ROOT_DIR/src/mir/builder/control_flow/joinir/structural_port_tests.rs"
 STRUCTURAL_LEASE_TESTS="$ROOT_DIR/src/mir/builder/normal_callable_loop_structural_lease_tests.rs"
+GENERIC_LOOP_CONTEXT="$ROOT_DIR/src/mir/builder/control_flow/plan/features/generic_loop_context.rs"
+GENERIC_LOOP_PIPELINE="$ROOT_DIR/src/mir/builder/control_flow/plan/features/generic_loop_pipeline.rs"
+GENERIC_LOOP_V1="$ROOT_DIR/src/mir/builder/control_flow/plan/features/generic_loop_body/v1.rs"
+FEATURES_README="$ROOT_DIR/src/mir/builder/control_flow/plan/features/README.md"
 CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-callable-loop-ready-structural-lease-i0-2026-08-22.md"
 README="$ROOT_DIR/src/mir/builder/README.md"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
@@ -27,6 +31,8 @@ guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$ISSUER" "$TESTS" "$RAW_ENTRY" "$FACTS_BUILDER" \
   "$V0" "$VALIDATION" "$PLANNER" "$PLANNER_MOD" "$PLANNER_INPUT" \
   "$STRUCTURAL_PORT" "$STRUCTURAL_PORT_TESTS" "$STRUCTURAL_LEASE_TESTS" \
+  "$GENERIC_LOOP_CONTEXT" "$GENERIC_LOOP_PIPELINE" "$GENERIC_LOOP_V1" \
+  "$FEATURES_README" \
   "$CARD" "$README" "$INDEX"
 
 guard_expect_fixed_in_file "$TAG" "CallableGenericLoopSourceFactsIssuerV1" "$ISSUER" \
@@ -55,6 +61,16 @@ guard_expect_fixed_in_file "$TAG" "PreparedCallableLoopStructuralHandoffV1" "$IS
   "receipt and structural seed must be co-sealed"
 guard_expect_fixed_in_file "$TAG" "CallableLoopReadyStructuralViewV1" "$ISSUER" \
   "ready view must be the named HRTB consumer boundary"
+guard_expect_fixed_in_file "$TAG" "GenericLoopV1LoweringContext" "$GENERIC_LOOP_CONTEXT" \
+  "GenericLoopV1 must consume a narrow route-neutral context seam"
+guard_expect_fixed_in_file "$TAG" "GenericLoopV1SourceLoweringContextV1" "$GENERIC_LOOP_CONTEXT" \
+  "source-backed GenericLoopV1 must have a route-neutral context"
+guard_expect_fixed_in_file "$TAG" "&dyn GenericLoopV1LoweringContext" "$GENERIC_LOOP_PIPELINE" \
+  "GenericLoopV1 pipeline must accept the narrow context seam"
+guard_expect_fixed_in_file "$TAG" "&dyn GenericLoopV1LoweringContext" "$GENERIC_LOOP_V1" \
+  "GenericLoopV1 body must accept the narrow context seam"
+guard_expect_fixed_in_file "$TAG" "route-neutral context" "$FEATURES_README" \
+  "features README must document the route-neutral context boundary"
 guard_expect_fixed_in_file "$TAG" "CallableLoopStructuralLeaseIssuerV1::prepare" "$STRUCTURAL_LEASE_TESTS" \
   "focused evidence must consume the source-bound lease"
 guard_expect_fixed_in_file "$TAG" "with_existing_structural_port" "$STRUCTURAL_PORT_TESTS" \
@@ -94,6 +110,16 @@ if rg -n \
 fi
 if rg -n -- 'LoopRouteContext|choose_route_kind' "$ISSUER"; then
   guard_fail "$TAG" "source-aware issuer must not construct or classify a route context"
+fi
+if rg -n -- 'LoopRouteContext::new|choose_route_kind|route_loop' "$GENERIC_LOOP_CONTEXT"; then
+  guard_fail "$TAG" "route-neutral context must not construct or classify a route"
+fi
+if ! rg -n -- 'fn legacy_route_context\(&self\) -> Option' "$GENERIC_LOOP_CONTEXT" >/dev/null; then
+  guard_fail "$TAG" "context seam must expose an explicit legacy nested capability"
+fi
+if ! rg -n -A20 -- 'impl GenericLoopV1LoweringContext for GenericLoopV1SourceLoweringContextV1' "$GENERIC_LOOP_CONTEXT" \
+  | rg -- 'None' >/dev/null; then
+  guard_fail "$TAG" "source context must not expose legacy nested route capability"
 fi
 if rg -n -- 'CallableGenericLoopSourceFactsReadyV1|_pre_effect_receipt' "$ISSUER"; then
   guard_fail "$TAG" "source-facts claim must be in-place and retain the receipt"
@@ -155,7 +181,7 @@ if rg -n -- 'lower_loop_or_freeze_v1|RouteExecutionWitnessV1|PostEffectRetryDebt
   guard_fail "$TAG" "caller-zero source issuer grew a lowering/physical/fallback authority"
 fi
 
-for file in "$ISSUER" "$TESTS" "$RAW_ENTRY" "$V0" "$VALIDATION" "$PLANNER" "$STRUCTURAL_PORT" "$STRUCTURAL_PORT_TESTS" "$STRUCTURAL_LEASE_TESTS"; do
+for file in "$ISSUER" "$TESTS" "$RAW_ENTRY" "$V0" "$VALIDATION" "$PLANNER" "$STRUCTURAL_PORT" "$STRUCTURAL_PORT_TESTS" "$STRUCTURAL_LEASE_TESTS" "$GENERIC_LOOP_CONTEXT" "$GENERIC_LOOP_PIPELINE" "$GENERIC_LOOP_V1"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "P0 source reached the 800-line hard boundary: ${file#"$ROOT_DIR/"}=$lines"

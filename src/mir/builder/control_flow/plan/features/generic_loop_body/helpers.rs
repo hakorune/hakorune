@@ -1,6 +1,9 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::features::generic_loop_context::{
+    GenericLoopV1LoweringContext, GenericLoopV1LoweringContextRejectV1,
+};
 use crate::mir::builder::control_flow::plan::normalizer::cond_lowering_entry::lower_cond_value;
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
@@ -55,8 +58,12 @@ pub(super) fn lower_nested_loop_plan(
     builder: &mut MirBuilder,
     condition: &ASTNode,
     body: &[ASTNode],
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
 ) -> Result<LoweredRecipe, String> {
+    let Some(legacy_ctx) = ctx.legacy_route_context() else {
+        return Err(GenericLoopV1LoweringContextRejectV1::UnsupportedFirstCohort.to_string());
+    };
+
     if let Some(plan) =
         try_lower_generic_nested_loop_depth1_fastpath(builder, condition, body, GENERIC_LOOP_ERR)
     {
@@ -65,8 +72,13 @@ pub(super) fn lower_nested_loop_plan(
 
     use crate::mir::builder::control_flow::plan::single_planner;
 
-    let nested_ctx =
-        LoopRouteContext::new(condition, body, ctx.func_name, ctx.debug, ctx.in_static_box);
+    let nested_ctx = LoopRouteContext::new(
+        condition,
+        body,
+        legacy_ctx.func_name,
+        legacy_ctx.debug,
+        legacy_ctx.in_static_box,
+    );
     let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
         || crate::config::env::joinir_dev_enabled();
     let planner_required =

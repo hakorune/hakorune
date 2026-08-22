@@ -1,6 +1,7 @@
 //! GenericLoop pipeline (ordered feature application).
 
 use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::features::generic_loop_context::GenericLoopV1LoweringContext;
 use crate::mir::builder::control_flow::plan::features::{generic_loop_body, generic_loop_handoff};
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::{
     GenericLoopV0Facts, GenericLoopV1Facts,
@@ -43,7 +44,7 @@ pub(in crate::mir::builder) fn apply_generic_loop_v0_pipeline(
 pub(in crate::mir::builder) fn apply_generic_loop_v1_pipeline(
     builder: &mut MirBuilder,
     facts: &GenericLoopV1Facts,
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
     skeleton: &mut GenericLoopSkeleton,
 ) -> Result<(), String> {
     crate::mir::builder::control_flow::joinir::trace::trace().varmap(

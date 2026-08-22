@@ -1,4 +1,4 @@
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::features::generic_loop_context::GenericLoopV1LoweringContext;
 use crate::mir::builder::control_flow::plan::generic_loop::carrier_representation::PreparedGenericLoopCarrierRepresentationV1;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::plan::{CoreLoopPlan, LoweredRecipe};
@@ -72,7 +72,7 @@ pub(in crate::mir::builder) fn orchestrate_generic_loop_v1_carriers(
     facts: &GenericLoopV1Facts,
     loop_var_current: ValueId,
     carrier_representation: &PreparedGenericLoopCarrierRepresentationV1,
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
 ) -> Result<GenericLoopV1CarrierOrchestration, String> {
     let carrier_state =
         prepare_generic_loop_v1_carriers(builder, facts, loop_var_current, carrier_representation);

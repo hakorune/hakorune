@@ -1,8 +1,8 @@
 use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
 use crate::mir::builder::control_flow::facts::no_exit_block::try_build_no_exit_block_recipe;
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
 use crate::mir::builder::control_flow::plan::facts::feature_facts::detect_nested_loop;
+use crate::mir::builder::control_flow::plan::features::generic_loop_context::GenericLoopV1LoweringContext;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::plan::normalizer::loop_body_lowering;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
@@ -33,7 +33,7 @@ pub(in crate::mir::builder) fn lower_generic_loop_v1_body(
     facts: &GenericLoopV1Facts,
     phi_bindings: &BTreeMap<String, crate::mir::ValueId>,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let mut current_bindings = phi_bindings.clone();
     for (name, value_id) in phi_bindings {
@@ -109,7 +109,7 @@ fn lower_direct_raw_body(
     current_bindings: &mut BTreeMap<String, crate::mir::ValueId>,
     facts: &GenericLoopV1Facts,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     let port = crate::mir::builder::control_flow::plan::RawLoopPlanExpressionPortV1::new();
     let mut fallback =
@@ -149,7 +149,7 @@ fn lower_body_stmt_v1(
     loop_var: &str,
     loop_increment: &ASTNode,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     match stmt {
         ASTNode::Assignment { target, value, .. } => {
@@ -340,7 +340,7 @@ fn lower_if_stmt_v1(
     loop_var: &str,
     loop_increment: &ASTNode,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     if let Some(if_plans) = branch::try_lower_conditional_update_if(
         builder,
@@ -446,7 +446,7 @@ fn lower_body_block_v1(
     loop_var: &str,
     loop_increment: &ASTNode,
     carrier_step_phis: &BTreeMap<String, crate::mir::ValueId>,
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
 ) -> Result<Vec<LoweredRecipe>, String> {
     // One-part lowering path (ExitAllowed RecipeBlock), restricted to blocks that do not contain
     // `break`/`continue` so we don't introduce phi-arg requirements into generic_loop_v1.

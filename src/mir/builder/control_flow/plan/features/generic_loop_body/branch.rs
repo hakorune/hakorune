@@ -8,7 +8,7 @@ use crate::mir::builder::MirBuilder;
 use std::collections::BTreeMap;
 
 use super::{body_plans_exit_on_all_paths, lower_body_stmt_v1, GENERIC_LOOP_ERR};
-use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteContext;
+use crate::mir::builder::control_flow::plan::features::generic_loop_context::GenericLoopV1LoweringContext;
 use crate::mir::builder::control_flow::plan::generic_loop::facts_types::GenericLoopV1Facts;
 use crate::mir::builder::control_flow::plan::normalizer::PlanNormalizer;
 
@@ -19,7 +19,7 @@ pub(super) fn try_lower_blockexpr_loop_prelude_value(
     facts: &GenericLoopV1Facts,
     loop_var: &str,
     loop_increment: &ASTNode,
-    ctx: &LoopRouteContext,
+    ctx: &dyn GenericLoopV1LoweringContext,
     value: &ASTNode,
 ) -> Result<Option<(crate::mir::ValueId, Vec<LoweredRecipe>)>, String> {
     let ASTNode::BlockExpr {

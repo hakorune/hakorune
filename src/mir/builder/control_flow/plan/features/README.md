@@ -23,6 +23,11 @@ Pipeline:
   - body (`features/generic_loop_body.rs`)
   - carriers finalize (v1)
 - entry: `features/generic_loop_pipeline.rs` (skeleton in → CorePlan out)
+- GenericLoopV1 accepts the narrow `generic_loop_context.rs` seam. Legacy
+  callers may lend `LoopRouteContext`; source-backed callers use the
+  route-neutral context and have no nested route-reclassification capability.
+  The source first cohort rejects nested/BlockExpr-prelude lowering before
+  Builder effects.
 - loop pipelines:
   - loop_true_break_continue: `features/loop_true_break_continue_pipeline.rs`
   - loop_cond_break_continue: `features/loop_cond_break_continue_pipeline.rs`
