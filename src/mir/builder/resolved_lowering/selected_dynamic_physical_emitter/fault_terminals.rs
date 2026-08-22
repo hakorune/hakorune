@@ -63,12 +63,19 @@ pub(super) fn emit(
         ));
     }
 
-    corridor.with_i6_fault(|i6_fault| {
-        emit_fault_terminal(canonical, outer, i6_fault, brand, lifecycle.i6_site())
-    })?;
+    // Consume both existing cleanup rows before any Fault or CallOut-End MIR
+    // effect.  The caller discards the unpublished session if a later effect
+    // rejects; no cleanup rollback or second authority is needed.
     cleanup
         .claim(DynamicV2PhysicalCleanupCutPointV1::I6Fault)
         .map_err(|error| reject(format!("I6 Fault cleanup claim: {error:?}")))?;
+    cleanup
+        .claim(DynamicV2PhysicalCleanupCutPointV1::I7Fault)
+        .map_err(|error| reject(format!("I7 Fault cleanup claim: {error:?}")))?;
+
+    corridor.with_i6_fault(|i6_fault| {
+        emit_fault_terminal(canonical, outer, i6_fault, brand, lifecycle.i6_site())
+    })?;
 
     corridor.with_i7_fault(|i7_fault| {
         if !i7_fault.matches(brand) {
@@ -98,8 +105,5 @@ pub(super) fn emit(
             .emit_checked_callout_fault(function, block, lifecycle.i7_site())
             .map_err(|error| reject(error.to_string()))
     })?;
-    cleanup
-        .claim(DynamicV2PhysicalCleanupCutPointV1::I7Fault)
-        .map(|_| ())
-        .map_err(|error| reject(format!("I7 Fault cleanup claim: {error:?}")))
+    Ok(())
 }
