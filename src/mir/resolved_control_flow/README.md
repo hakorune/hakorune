@@ -67,11 +67,15 @@ finalized only after the canonical function Lower session has finished.
 
 ## SSA-S3 carrier-free If control
 
-`if_control.rs` owns the disconnected future statement-`If` contract. One
-function product contains one source-preorder row for every exact semantic If
-site. Each row co-seals its exact If/IfThen/optional IfElse topology,
-fallthrough-only typed ports, one nonempty statement range, and one exclusive
-structural coverage partition.
+`if_control/mod.rs` is the logical facade for the disconnected future
+statement-`If` contract. Its three private children keep one authority split
+visible without changing the product: `analyzer.rs` owns source navigation and
+verification, `product.rs` owns the co-sealed rows/materialization, and
+`use_ledger.rs` owns one-shot coverage consumption. One function product
+contains one source-preorder row for every exact semantic If site. Each row
+co-seals its exact If/IfThen/optional IfElse topology, fallthrough-only typed
+ports, one nonempty statement range, and one exclusive structural coverage
+partition.
 
 Nested If rows own their own statement/subtree claims. Their parent row owns
 the containing body marker but never duplicates a child row's source claims.
@@ -82,7 +86,9 @@ owner.
 This product contains no binding effects, `may_rebind` sets, carrier or join
 rows, names, MIR identities, or Builder state. The historical A+ RegionFlow
 product remains the sole production If authority until the atomic SSA-I1
-cutover. The new analyzer has zero production callers.
+cutover. The new analyzer has zero production callers. The facade split is
+BoxShape-only: it introduces no second issuer, route, fallback, or semantic
+receipt.
 
 For a selected Loop profile, `loop_owned_if.rs` verifies that every exact If
 region is structurally inside that exact resolver-inventoried Loop before the
