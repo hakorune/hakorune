@@ -1,5 +1,5 @@
 ---
-Status: D0 accepted after worker audit; route-neutral planner I0 complete; Ready structural handoff remains design_stop
+Status: D0 accepted after worker audit; route-neutral planner I0 complete; Ready claim I0 complete; structural lease remains design_stop
 Task: MIR-CALLABLE-LOOP-ORDINARY-READY-D0
 Date: 2026-08-22
 Priority: carry one source-bound GenericLoop Facts/Recipe outcome before any consumer
@@ -240,6 +240,9 @@ the source issuer itself must never construct one.
    into a private receipt/view. Do not add a parallel Facts type; do not use
    `ConsumedV1` as the normalizer handoff; do not connect Builder, registry,
    physical lowering, or production route yet.
+   The bounded implementation name is
+   `MIR-CALLABLE-LOOP-READY-CLAIM-I0`; it is a caller-zero type/receipt slice,
+   not the later ordinary consumer or production bridge.
 7. `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` — one non-nested named
    normalizer consumer. Consume the claimed product exactly once through the
    existing structural HRTB port, with no Facts/Recipe/selection rerun and no
@@ -583,6 +586,52 @@ production switch. If a future implementation can only pass
 
 `BorrowedStructuralView` is not a storable product. The callback cannot return
 the view, source AST borrow, or a `LoopRouteContext` reference through `R`.
+
+### `MIR-CALLABLE-LOOP-READY-CLAIM-I0` (complete)
+
+This bounded slice implements only the already-accepted source-facts state
+transition. It renames the current `CallableGenericLoopSourceFactsReadyV1`
+in place to `CallableGenericLoopSourceFactsV1` and adds exactly one private
+`claim_all(self)` operation. The operation moves the existing schedule through
+`consume_pre_effect(...)` and returns one non-`Clone`
+`CallableGenericLoopSourceFactsReceiptV1` containing that receipt plus the
+existing source contexts, AST slice, `PlanBuildOutcome`, policy, and exact
+selection. It issues no new semantic fact.
+
+Acceptance:
+
+```text
+Ready variant stores CallableGenericLoopSourceFactsV1
+claim_all caller count = 1 in focused test only
+pre-effect receipt is a required receipt field, never `_pre_effect_receipt`
+claim failure is typed and occurs before any Builder/ledger effect
+receipt cannot be cloned or claimed twice
+terminal ConsumedV1 remains historical only and is not the structural handoff
+old raw lower_loop_or_freeze_v1 edge is unchanged and explicitly not claimed
+as fixed by this caller-zero slice
+```
+
+Evidence recorded for this I0:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib normal_callable_loop_source_facts  PASS (5 passed, 0 failed)
+bash tools/checks/rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh  PASS
+bash tools/checks/current_state_pointer_guard.sh                              PASS
+python3 TOML parse check                                                     PASS
+rustfmt --edition 2021 on touched Rust files                                  PASS
+git diff --check                                                              PASS
+```
+
+The focused test proves that the claimed pre-effect receipt is retained in
+the non-`Clone` receipt and that the claim path itself performs no physical
+effect. The source guard proves the in-place type name, one private claim
+operation, and the absence of the discarded `_pre_effect_receipt` shape in
+the issuer. This is caller-zero evidence, not a production-route claim.
+
+Non-claims: no `CallableLoopStructuralPortV1` implementation, no raw-route
+connection, no `route_loop`/registry continuation, no Builder/physical/
+publication effect, no fallback/retry change, and no production switch. The
+next design stop reopens after this I0 to implement the opaque HRTB lease.
 
 ### In-place source-facts state and shape cleanup
 

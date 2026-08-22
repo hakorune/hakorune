@@ -27,6 +27,10 @@ guard_require_files "$TAG" "$ISSUER" "$TESTS" "$RAW_ENTRY" "$FACTS_BUILDER" \
 
 guard_expect_fixed_in_file "$TAG" "CallableGenericLoopSourceFactsIssuerV1" "$ISSUER" \
   "source-aware issuer must remain the named owner"
+guard_expect_fixed_in_file "$TAG" "CallableGenericLoopSourceFactsReceiptV1" "$ISSUER" \
+  "source-facts claim must retain one private receipt"
+guard_expect_fixed_in_file "$TAG" "claim_all" "$ISSUER" \
+  "source-facts product must have one one-shot claim operation"
 guard_expect_fixed_in_file "$TAG" "PreparedCallableGenericLoopSourceFactsPayloadV1" "$RAW_ENTRY" \
   "raw prepared entry must assemble the opaque move payload"
 guard_expect_fixed_in_file "$TAG" "try_build_source_outcome" "$ISSUER" \
@@ -58,6 +62,9 @@ fi
 if rg -n -- 'LoopRouteContext|choose_route_kind' "$ISSUER"; then
   guard_fail "$TAG" "source-aware issuer must not construct or classify a route context"
 fi
+if rg -n -- 'CallableGenericLoopSourceFactsReadyV1|_pre_effect_receipt' "$ISSUER"; then
+  guard_fail "$TAG" "source-facts claim must be in-place and retain the receipt"
+fi
 if rg -n -- 'LoopRouteContext|LoopRouteKind|in_static_box|ValueId|registry' "$PLANNER_INPUT"; then
   guard_fail "$TAG" "route-neutral planner input must not carry structural or physical authority"
 fi
@@ -71,6 +78,10 @@ fi
 planner_calls="$(rg -F -o -- 'try_build_source_outcome(' "$ISSUER" | wc -l | tr -d '[:space:]')"
 if [[ "$planner_calls" -ne 1 ]]; then
   guard_fail "$TAG" "issuer must have exactly one route-neutral planner call; found $planner_calls"
+fi
+claim_calls="$(rg -F -o -- 'claim_all()' "$TESTS" | wc -l | tr -d '[:space:]')"
+if [[ "$claim_calls" -ne 1 ]]; then
+  guard_fail "$TAG" "focused evidence must claim the source-facts product exactly once; found $claim_calls"
 fi
 payload_literals="$(rg -F -o -- 'Ok(PreparedCallableGenericLoopSourceFactsPayloadV1 {' "$RAW_ENTRY" | wc -l | tr -d '[:space:]')"
 if [[ "$payload_literals" -ne 1 ]]; then

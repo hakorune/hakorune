@@ -178,6 +178,33 @@ fn caller_zero_issuer_co_seals_one_generic_facts_outcome() {
 }
 
 #[test]
+fn claim_all_retains_pre_effect_receipt_without_physical_effect() {
+    let source_owner = owner();
+    with_prepared(source_owner, generic_loop(), |_, prepared| {
+        let payload = prepared
+            .into_callable_generic_loop_source_facts_payload(
+                source_owner,
+                "claim-all",
+                false,
+                false,
+                policy(),
+            )
+            .expect("source payload");
+        let outcome = CallableGenericLoopSourceFactsIssuerV1::issue_once(payload);
+        let super::CallableGenericLoopSourceFactsDispositionV1::Ready(source_facts) = outcome
+        else {
+            panic!("expected source-aware GenericLoop Ready outcome")
+        };
+
+        let receipt = source_facts.claim_all().expect("claim receipt");
+        assert_eq!(receipt.owner(), source_owner);
+        assert_eq!(receipt.policy(), policy());
+        assert_eq!(receipt.pre_effect().owner(), source_owner);
+        assert!(!receipt.pre_effect().rows().is_empty());
+    });
+}
+
+#[test]
 fn terminal_consumer_moves_ready_into_one_no_effect_consumed_state() {
     let source_owner = owner();
     with_prepared(source_owner, generic_loop(), |_, prepared| {

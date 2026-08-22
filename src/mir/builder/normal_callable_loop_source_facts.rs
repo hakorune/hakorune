@@ -17,7 +17,9 @@ use crate::mir::builder::control_flow::plan::PlanBuildOutcome;
 use crate::mir::loop_recipe_contract::route_id::LoopRouteId;
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, SourceNodeSiteV1, SourcePathSegmentV1};
 
-use super::normal_callable_loop_handoff::VerifiedCallableSemanticLoopBindingScheduleV1;
+use super::normal_callable_loop_handoff::{
+    CallableSemanticLoopHandoffPreEffectReceiptV1, VerifiedCallableSemanticLoopBindingScheduleV1,
+};
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::raw_loop_child_entry::PreparedCallableGenericLoopSourceFactsPayloadV1;
 
@@ -45,7 +47,7 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsDispositionV1<'so
     FactsAbsent,
     FactsRejected(Box<str>),
     RouteNotFrontSelected(CallableGenericLoopSourceFactsRouteErrorV1),
-    Ready(CallableGenericLoopSourceFactsReadyV1<'source>),
+    Ready(CallableGenericLoopSourceFactsV1<'source>),
 }
 
 /// One move-only source-located Facts/Recipe outcome.
@@ -54,7 +56,7 @@ pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsDispositionV1<'so
 /// aggregate only co-seals it with the already-issued source schedule and the
 /// exact route selection; it does not issue a new semantic binding or policy.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsReadyV1<'source> {
+pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsV1<'source> {
     owner: FunctionOwnerIdV1,
     parent_source: &'source RawInvocationSourceContextV1,
     condition_source: RawInvocationSourceContextV1,
@@ -68,7 +70,7 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsReadyV1<'source
     selected: VerifiedLocatedGenericLoopV1SelectionV1,
 }
 
-impl<'source> CallableGenericLoopSourceFactsReadyV1<'source> {
+impl<'source> CallableGenericLoopSourceFactsV1<'source> {
     #[cfg(test)]
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
@@ -87,6 +89,96 @@ impl<'source> CallableGenericLoopSourceFactsReadyV1<'source> {
     #[cfg(test)]
     pub(in crate::mir::builder) fn outcome(&self) -> &PlanBuildOutcome {
         &self.outcome
+    }
+
+    pub(in crate::mir::builder) fn claim_all(
+        self,
+    ) -> Result<
+        CallableGenericLoopSourceFactsReceiptV1<'source>,
+        CallableGenericLoopSourceFactsClaimErrorV1,
+    > {
+        let CallableGenericLoopSourceFactsV1 {
+            owner,
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            schedule,
+            policy,
+            outcome,
+            selection,
+            selected,
+        } = self;
+        let parent_site = parent_source
+            .site()
+            .ok_or(CallableGenericLoopSourceFactsClaimErrorV1::ParentNotLocated)?;
+        let condition_site = condition_source
+            .site()
+            .ok_or(CallableGenericLoopSourceFactsClaimErrorV1::ConditionNotLocated)?;
+        let body_site = body_source
+            .site()
+            .ok_or(CallableGenericLoopSourceFactsClaimErrorV1::BodyNotLocated)?;
+        let pre_effect = schedule
+            .consume_pre_effect(parent_site, condition_site, body_site)
+            .map_err(CallableGenericLoopSourceFactsClaimErrorV1::PreEffectRejected)?;
+        Ok(CallableGenericLoopSourceFactsReceiptV1 {
+            owner,
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            pre_effect,
+            policy,
+            outcome,
+            selection,
+            selected,
+        })
+    }
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub(in crate::mir::builder) enum CallableGenericLoopSourceFactsClaimErrorV1 {
+    ParentNotLocated,
+    ConditionNotLocated,
+    BodyNotLocated,
+    PreEffectRejected(String),
+}
+
+/// One-shot source-facts claim receipt.  The pre-effect receipt is retained
+/// here; it is not an observation that may be discarded at the old route.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsReceiptV1<'source> {
+    owner: FunctionOwnerIdV1,
+    parent_source: &'source RawInvocationSourceContextV1,
+    condition_source: RawInvocationSourceContextV1,
+    body_source: RawInvocationSourceContextV1,
+    condition: ASTNode,
+    body: Vec<ASTNode>,
+    pre_effect: CallableSemanticLoopHandoffPreEffectReceiptV1,
+    policy: GenericLoopFactsPolicyFrameV1,
+    outcome: PlanBuildOutcome,
+    selection: RecipeFirstRouteSelectionV1,
+    selected: VerifiedLocatedGenericLoopV1SelectionV1,
+}
+
+impl<'source> CallableGenericLoopSourceFactsReceiptV1<'source> {
+    #[cfg(test)]
+    pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn pre_effect(
+        &self,
+    ) -> &CallableSemanticLoopHandoffPreEffectReceiptV1 {
+        &self.pre_effect
+    }
+
+    #[cfg(test)]
+    pub(in crate::mir::builder) fn policy(&self) -> GenericLoopFactsPolicyFrameV1 {
+        self.policy
     }
 }
 
@@ -114,9 +206,9 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsTerminalConsume
 
 impl CallableGenericLoopSourceFactsTerminalConsumerV1 {
     pub(in crate::mir::builder) fn consume<'source>(
-        ready: CallableGenericLoopSourceFactsReadyV1<'source>,
+        ready: CallableGenericLoopSourceFactsV1<'source>,
     ) -> CallableGenericLoopSourceFactsConsumedV1 {
-        let CallableGenericLoopSourceFactsReadyV1 {
+        let CallableGenericLoopSourceFactsV1 {
             schedule, selected, ..
         } = ready;
         CallableGenericLoopSourceFactsConsumedV1 { schedule, selected }
@@ -179,7 +271,7 @@ impl CallableGenericLoopSourceFactsIssuerV1 {
             }
         };
 
-        CallableGenericLoopSourceFactsDispositionV1::Ready(CallableGenericLoopSourceFactsReadyV1 {
+        CallableGenericLoopSourceFactsDispositionV1::Ready(CallableGenericLoopSourceFactsV1 {
             owner,
             parent_source,
             condition_source,

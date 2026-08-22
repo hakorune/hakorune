@@ -328,11 +328,19 @@ same prepared raw-root lineage; it does not claim opaque parser-invocation
 identity. A parser witness must be added in a separate design slice before
 stronger identity claims are allowed.
 
+The selected `MIR-CALLABLE-LOOP-READY-CLAIM-I0` keeps the aggregate in place as
+`CallableGenericLoopSourceFactsV1` and exposes one private `claim_all()` move.
+That move retains `CallableSemanticLoopHandoffPreEffectReceiptV1` inside a
+non-`Clone` `CallableGenericLoopSourceFactsReceiptV1`; it does not lower, enter
+the route registry, or connect the old raw Loop path. The existing raw
+`_pre_effect_receipt` debt remains a later structural-handoff/bridge concern,
+not evidence that this caller-zero claim is production-connected.
+
 ### Callable Loop source-aware Facts terminal-only P0
 
 `CallableGenericLoopSourceFactsTerminalConsumerV1` is the sole named consumer
 for the caller-zero terminal seam. It accepts only the private move-only
-`CallableGenericLoopSourceFactsReadyV1` and returns a separate
+`CallableGenericLoopSourceFactsV1` and returns a separate
 `CallableGenericLoopSourceFactsConsumedV1`; the transition is infallible and
 has no Builder, ledger, registry, fallback, retry, or physical effect. The
 consumed state retains only the existing source schedule and exact
