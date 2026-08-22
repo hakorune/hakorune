@@ -427,6 +427,29 @@ for the same-corridor point estimate. A future `R` confidence claim must name
 its sample size, interval method, batch lineage, and native authority in a new
 decision row; `1.03` is not policy until that row is accepted.
 
+## Compiler compile-time lane
+
+Generated-program runtime and Hakorune compiler latency are different fronts.
+The owner-first law applies to both, but their probes, counters, and keeper
+claims must not be pooled.
+
+The detailed parked compiler-cost task SSOT is
+[`mirbuilder-post-audit-follow-up-queue-2026-08-21.md`](../investigations/mirbuilder-post-audit-follow-up-queue-2026-08-21.md).
+
+Its existing owners are `src/mir/compile_timing.rs` and
+`tools/perf/mir_compile_scaling.py`. Reuse them; do not add a second timing
+framework or an always-on CI wall-time gate. Source inspection can select a
+measurement candidate, but only a repeated baseline can select a speed keeper.
+
+Until `CURRENT_STATE.toml` explicitly opens this lane:
+
+```text
+compiler_compile_time_observation = parked
+compiler_speed_keeper_claim = 0
+global pass fusion = 0
+incremental compilation implementation = 0
+```
+
 ## Doc Placement
 
 ### `AGENTS.md`
