@@ -1,11 +1,11 @@
-Status: Implementation in progress; one bounded Ready-edge cutover
+Status: Complete; bounded Ready-edge cutover pushed to `main`
 Task: MIR-CALLABLE-LOOP-ROOT-UNPUBLISHED-SCOPE-I0
 Date: 2026-08-23
 Priority: bind the existing root candidate and collector to the Ready physical adapter
 Design: docs/development/current/main/investigations/mirbuilder-callable-loop-root-unpublished-scope-d0-2026-08-23.md
 Current execution row: MIR-CALLABLE-LOOP-ROOT-UNPUBLISHED-SCOPE-I0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-callable-loop-root-unpublished-scope-i0-2026-08-23.md
-NextCard: none until I0 evidence is complete
+NextCard: `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0` (design stop; no implementation started)
 ---
 
 # Callable Loop root unpublished scope I0
@@ -113,3 +113,16 @@ The direct source-Facts guard is invoked through `bash` because its existing
 file mode is not executable; this is an operational permission issue, not a
 guard assertion failure. Final source-size counts and the commit/push receipt
 are added only after the implementation diff is frozen.
+
+## Closeout receipt
+
+```text
+implementation commit: 4757bcbd1c  mir: bind callable loop root Ready scope
+docs queue commit:     7157bc6f23  docs: queue MirBuilder structure cleanup
+remote:                hakorune/main contains 7157bc6f23
+```
+
+The next pointer is intentionally a design-stop census for structure cleanup;
+it does not authorize moving the Loop physicalizer, opening the empty Dynamic
+directory, completing I9 work already closed on `main`, or starting the later
+pure-plan/ordinary-Outside/publication rows.

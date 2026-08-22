@@ -1,7 +1,7 @@
-Status: parked BoxShape/design queue; not the current execution pointer
+Status: selected design stop; baseline census only, no implementation started
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIR-CALLABLE-LOOP-ROOT-UNPUBLISHED-SCOPE-I0` remains active
+Current row: `MIRBUILDER-STRUCTURE-BASELINE-CENSUS-P0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -205,6 +205,6 @@ git diff --check
 
 Red results are classified as current-change failure, known baseline debt, or
 informational census. A line-count reduction without symbol/dependency
-evidence is not completion. The queue remains parked until the current
-Callable Loop root Ready I0 is closed and `CURRENT_STATE.toml` selects a
-cleanup row.
+evidence is not completion. The R0 and architecture rows remain parked until
+the selected baseline census is complete and `CURRENT_STATE.toml` explicitly
+selects one bounded cleanup row.
