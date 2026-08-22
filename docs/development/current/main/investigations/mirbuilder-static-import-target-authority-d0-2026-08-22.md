@@ -110,3 +110,14 @@ receiver classification and imported target resolution cannot be separated
 ```
 
 No Loop publication implementation is authorized while this card is open.
+
+## Downstream prerequisite recorded
+
+The selected Dynamic Compare transaction-hardening review is recorded in
+docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md.
+It is intentionally parked behind this import-authority D0. Its first bounded
+cell is the typed EOF reject in the Dynamic operation cursor; later cells cover
+pre-effect claims, writer preparation before V13 reservation, private
+definition/ledger co-sealing, and the OuterReturn/Header-current relation.
+This link does not change the current execution row or authorize production
+publication.
