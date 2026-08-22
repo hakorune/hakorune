@@ -1,4 +1,4 @@
-Status: P0-A/P0-B/P0-C implemented; live publication boundary D0 is next and remains design-gated
+Status: P0-A/P0-B/P0-C implemented; live publication boundary D0 remains design-gated after worker/local audit
 Task: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 Date: 2026-08-22
 Priority: design one atomic selected-Dynamic publication handoff through DraftAdmission, ModuleDrain, and ExternalCommit; keep backend and generic retirement closed
@@ -12,12 +12,12 @@ NextCard: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0 (same rolling card)
 ## Six-line brief
 
 ```text
-Decision: accept and connect the active Selected Dynamic I9 normal-landing Compare as the one named non-test production caller; keep live publication and generic-loop retirement gated until the focused evidence and reusable guard are green. The handoff uses the Dynamic value ledger as the sole I9 publication ledger; it does not project into the Loop ledger.
-Source authority + canonical issuer: `DynamicV2CompareI64CapabilityDemandV1`/the prepared I9 row and the session-owned `DynamicV2PhysicalValueLedgerV1` own I9 facts; canonical CFG/SSA owns target and definition witnesses; one private `SelectedDynamicI9CompareHandoffIssuerV1` co-seals them before any Compare effect.
-Non-authority: the test-only Generic G0 dispatcher, focused canaries, old emit_compare_i64_at, Dynamic brand alone, Dynamic value views alone, raw ValueId/state.get, current_block, Builder cursor, operation enum alone, and a fallback retry.
-Fail-fast boundary: I9 row/target/operand provenance, Dynamic-brand-to-function-owner binding, canonical same-block witnesses, destination/Bool preparation, and the Dynamic ledger's V13 reservation must all be complete before the first Compare append; a rejected strict row cannot return to the old leaf.
-Smallest next slice: `MIR-LOOP-COMPARE-CONNECT0-EVIDENCE-D0`, adding the caller/fallback guard and recording focused positive, negative, and reservation-poison evidence; no new semantic path and no unrelated family migration.
-Non-claims: no I7 header Compare, no generic dispatcher connection, no general dominance, no cross-block operands, no Const/Binary migration, no A/C/Recipe redesign, no old-leaf retirement, and no production I0/R0.
+Decision: keep live publication in design_stop. The selected Dynamic I9 Compare handoff is connected, but an unchanged public compile has not yet been proven through DraftAdmission, ModuleDrain, and ExternalCommit; generic-loop retirement and old-edge deletion stay closed.
+Source authority + canonical issuer: the prepared I9 row and session-owned `DynamicV2PhysicalValueLedgerV1` own I9 facts; canonical CFG/SSA owns target/definition witnesses; one private I9 handoff co-seals them before Compare. Publication remains owned by the existing collector, drain lifecycle, and invocation session.
+Non-authority: Generic/test dispatchers, old `emit_compare_i64_at`, Dynamic brand/views alone, raw `ValueId`/`state.get`, `current_block`, Builder cursor, operation enum alone, any second collector/commit owner, and fallback retry.
+Fail-fast boundary: all I9 preparation is complete before Compare append; publication failures are checked before collector mutation, module drain, and live Builder replacement. Every rejection discards the unpublished session and cannot retry an old route.
+Smallest next slice: `MIR-LOOP-COMPARE-LIVE-PUBLICATION-CENSUS-D0`, observe the existing production caller and unchanged fixture, record the exact stage/effect boundary, and update only the SSOT; no new semantic receipt or runtime route.
+Non-claims: no I7 header Compare, no generic dispatcher connection, no general dominance, no cross-block operands, no Const/Binary migration, no A/C/Recipe redesign, no old-leaf retirement, no backend, and no production I0/R0.
 ```
 
 ## Next frontier design stop
@@ -49,8 +49,54 @@ This does not yet prove an end-to-end live publication fixture. The word
 | --- | --- | --- | --- |
 | `DraftAdmission` | completed callable draft becomes a collector receipt | `ModuleDraftCollectorV1` | context only |
 | `ModuleDrain` | prepared collector rows are committed into `current_module` | `PreparedNormalCollectorDrainLifecycleV1` | define evidence |
-| `ExternalCommit` | sealed module passes compiler-owned verification and is externally committed | `PreparedModuleExternalCommitV1` / invocation session | define evidence |
+| `ExternalCommit` | sealed module passes compiler-owned verification and replaces the live Builder | `ModuleBuilderInvocationSessionV1::prepare_external_commit` → `PreparedBuilderExternalCommitV1::commit` | define evidence |
 | `BackendEmission` | LLVM/object/native or VM consumer observes the module | backend owner | explicit non-claim |
+
+### Latest D0 decision: composition accepted, live evidence pending
+
+The read-only worker audit and local source/test audit agree on the following
+bounded result:
+
+```text
+CompletedCatalogedBoxCallableDraftV1
+  -> ModuleLoweringPortV1::commit_cataloged_box_method_completed
+  -> ModuleDraftCollectorV1 / DraftAdmission
+  -> prepare_normal_collector_drain(...).commit()
+  -> ModuleBuilderInvocationSessionV1::prepare_external_commit()
+  -> PreparedBuilderExternalCommitV1::commit()
+```
+
+These are existing one-shot owners, not a new publication aggregate. The
+collector receipt is a transition witness only; it must not become a second
+ledger or a retained capability. No new issuer or consumer is needed merely
+to compose these stages.
+
+The live claim is still open. The unchanged
+`lang/src/compiler/parser/scan/parser_scan_loop_box.hako` fixture is the named
+selected-Dynamic production fixture, but the existing public-root test passes
+by asserting a typed stop at `RootLower` with
+`static-result-ingress/target-unavailable`. Therefore it proves the upstream
+handoff and unpublished failure boundary, not DraftAdmission/ModuleDrain/
+ExternalCommit reachability.
+
+The bounded next task is:
+
+```text
+MIR-LOOP-COMPARE-LIVE-PUBLICATION-CENSUS-D0
+```
+
+It may only:
+
+1. census the non-test caller and the unchanged fixture's exact terminal stage;
+2. observe existing owner/effect counts without adding a receipt or route;
+3. record whether a fixture can reach all three publication stages;
+4. if the target-unavailable blocker remains, keep `NoSafeSlice` and design the
+   missing source/target authority separately rather than bypassing it.
+
+Acceptance is one reproducible stage/effect report, zero second collector or
+commit owners, zero fallback/retry edges, and an explicit decision whether the
+next work is a bounded fast evidence slice or another design stop. No code
+implementation is authorized until that report is complete.
 
 The publication audit is refined by the following prerequisite design task:
 
