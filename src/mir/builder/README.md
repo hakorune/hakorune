@@ -295,13 +295,16 @@ fallback remain closed.
 
 The caller-zero `Outside(body-only rebind)` terminal now transports one
 move-only `CallableLoopOutsideReasonV1` containing the exact owner, Loop site,
-and grouped `CallableLoopBindingCoverageRowV1` rows. Each row keeps its
-`BindingRefV1`, source class, and `(site, role)` receipts together; later code
-must not reconstruct the relation from separate binding/site arrays. The same
-private row builder is used for `Ready` and `Outside` classification, while
-`RawLoopChildEntry` consumes `Outside` only as a typed terminal. No ordinary
-JoinIR consumer, Builder effect, fallback, retry, or source-to-Recipe relation
-is opened by this transport slice.
+and grouped `CallableLoopOutsideRowV1` rows. Each Outside row keeps an
+observed `BindingRefV1`, its `(site, role)` receipts, and the explicit
+`BodyOnlyRebind` kind together. Ready schedules use the separate
+`CallableLoopReadyBindingRowV1` / `CallableLoopReadyBindingClassV1` vocabulary;
+Outside observation is never presented as an admitted Ready `Carrier`. Later
+code must not reconstruct either relation from separate binding/site arrays.
+The Outside remainder is checked by a private validator without issuing a
+throwaway Verified schedule, while `RawLoopChildEntry` consumes `Outside` only
+as a typed terminal. No ordinary JoinIR consumer, Builder effect, fallback,
+retry, or source-to-Recipe relation is opened by this transport slice.
 
 ### Callable Loop source-aware Facts issuer I0 / route-neutral planner I0
 

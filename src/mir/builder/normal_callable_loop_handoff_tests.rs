@@ -101,7 +101,7 @@ fn seals_exact_condition_body_and_assignment_roles() {
     assert_eq!(receipt.rows().len(), 1);
     assert_eq!(
         receipt.rows()[0].class(),
-        CallableLoopBindingClassV1::Carrier
+        CallableLoopReadyBindingClassV1::Carrier
     );
     assert_eq!(receipt.rows()[0].receipts().len(), 3);
 }
@@ -329,7 +329,7 @@ fn body_only_rebind_is_explicit_outside_with_source_evidence() {
     assert_eq!(reason.rows().len(), 1);
     let row = &reason.rows()[0];
     assert_eq!(row.binding(), outside);
-    assert_eq!(row.class(), CallableLoopBindingClassV1::Carrier);
+    assert_eq!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind);
     assert_eq!(row.receipts().len(), 2);
     assert_eq!(row.receipts()[0].binding(), outside);
     assert_eq!(row.receipts()[1].binding(), outside);
@@ -384,7 +384,7 @@ fn production_skip_while_keeps_one_carrier_and_variable_operand_rows() {
         schedule
             .rows()
             .iter()
-            .filter(|row| row.class() == CallableLoopBindingClassV1::Carrier)
+            .filter(|row| row.class() == CallableLoopReadyBindingClassV1::Carrier)
             .count(),
         1
     );
@@ -392,14 +392,14 @@ fn production_skip_while_keeps_one_carrier_and_variable_operand_rows() {
         schedule
             .rows()
             .iter()
-            .filter(|row| row.class() == CallableLoopBindingClassV1::ReadOnlyOperand)
+            .filter(|row| row.class() == CallableLoopReadyBindingClassV1::ReadOnlyOperand)
             .count()
             >= 3
     );
     assert!(schedule
         .rows()
         .iter()
-        .any(|row| row.class() == CallableLoopBindingClassV1::IterationLocal));
+        .any(|row| row.class() == CallableLoopReadyBindingClassV1::IterationLocal));
     assert!(schedule.receipt_count() > 3);
 }
 
@@ -445,12 +445,10 @@ fn production_esc_json_uses_explicit_outside_for_body_only_rebinds() {
         panic!("esc_json body-only rebinds must be Outside")
     };
     assert_eq!(reason.rows().len(), 2);
-    assert!(reason.rows().iter().all(|row| {
-        matches!(
-            row.class(),
-            CallableLoopBindingClassV1::Carrier | CallableLoopBindingClassV1::IterationLocal
-        )
-    }));
+    assert!(reason
+        .rows()
+        .iter()
+        .all(|row| { matches!(row.kind(), CallableLoopOutsideKindV1::BodyOnlyRebind) }));
     assert!(reason.rows().iter().flat_map(|row| row.receipts()).count() >= 4);
     assert!(reason.rows().iter().all(|row| {
         row.receipts()

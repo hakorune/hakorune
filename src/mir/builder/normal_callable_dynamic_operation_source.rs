@@ -17,7 +17,7 @@ use crate::mir::resolved_semantics::{
 
 use super::normal_callable_dynamic_source::VerifiedSourceBackedDynamicCallableV1;
 use super::normal_callable_loop_handoff::{
-    CallableLoopBindingClassV1, CallableLoopBindingRoleV1,
+    CallableLoopBindingRoleV1, CallableLoopReadyBindingClassV1,
     VerifiedCallableSemanticLoopBindingScheduleV1,
 };
 
@@ -188,7 +188,7 @@ impl DynamicLoopOperationSourceIssuerV1 {
         let mut carrier_rows = schedule
             .rows()
             .iter()
-            .filter(|row| row.class() == CallableLoopBindingClassV1::Carrier);
+            .filter(|row| row.class() == CallableLoopReadyBindingClassV1::Carrier);
         let carrier_row = carrier_rows
             .next()
             .ok_or(DynamicLoopOperationSourceIssueV1::CarrierCardinality)?;
@@ -269,7 +269,7 @@ fn issue_comparison(
     if !dynamic_bindings.contains(&operand)
         || !schedule.rows().iter().any(|row| {
             row.binding() == operand
-                && row.class() == CallableLoopBindingClassV1::ReadOnlyOperand
+                && row.class() == CallableLoopReadyBindingClassV1::ReadOnlyOperand
                 && row.receipts().iter().any(|receipt| {
                     receipt.site() == operand_read.node()
                         && receipt.role() == CallableLoopBindingRoleV1::ConditionRead

@@ -1,20 +1,20 @@
-Status: Conditional Accept; terminal-only F2 design is accepted, implementation I0 pending
+Status: I0 implementation complete; terminal-only F2 accepted, no ordinary Outside consumer opened
 Task: MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0
 Date: 2026-08-23
 Priority: separate source observation from Ready admission without opening an ordinary Outside consumer
 Parent: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-D0
-Current execution row: MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-I0
+Current execution row: MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-I0 (closeout)
 CurrentCard: docs/development/current/main/investigations/mirbuilder-callable-loop-outside-observed-class-d0-2026-08-23.md
-NextCard: none until this Decision is accepted
+NextCard: MIR-CALLABLE-LOOP-UNPUBLISHED-SESSION-CAPABILITY-D0 (design stop)
 ---
 
 # Callable Loop Outside observed rows and Ready classes D0
 
 ## Six-line brief
 
-Decision: Conditional Accept. Keep `Outside(BodyOnlyRebind)` terminal and stop using one `CallableLoopBindingClassV1` vocabulary for both observed source rows and admitted Ready rows. The current helper classifies any rebind as `Carrier`; this is observation evidence, not proof that the binding belongs to the one-carrier Ready cohort. I0 may proceed only with the row/class split and private remainder validator; no ordinary consumer opens.
+Decision: Accept. Keep `Outside(BodyOnlyRebind)` terminal and use separate observed-row, Ready-class, and Outside-kind vocabularies. A body-only rebind is observation evidence, not proof that the binding belongs to the one-carrier Ready cohort. I0 is complete with the row/class split and private remainder validator; no ordinary consumer opens.
 Source authority + canonical issuer: `CallableLoopSourceProjectionV1::project_disposition` owns the exact resolver-issued variable/assignment/source-site rows; `VerifiedCallableSemanticLoopBindingScheduleV1::seal` remains the sole issuer of the admitted Ready schedule. A bounded private validator may validate the Ready remainder but must not issue a throwaway Verified product.
-Non-authority: `has_rebind` as a complete classifier, `CallableLoopBindingClassV1::Carrier` for Outside rows, binding/name/ordinal joins, Builder state, AST inference, ValueId/MIR facts, ordinary JoinIR lowering, and a default/empty row.
+Non-authority: `has_rebind` as a complete classifier, `CallableLoopReadyBindingClassV1::Carrier` for Outside rows, binding/name/ordinal joins, Builder state, AST inference, ValueId/MIR facts, ordinary JoinIR lowering, and a default/empty row.
 Fail-fast boundary: after source rows are collected and grouped by exact `BindingRefV1`, classify complete body-only rebind rows before Ready schedule issuance. Outside returns typed terminal evidence with zero Builder effect; malformed/foreign/duplicate coverage rejects before any consumer.
 Smallest next slice: introduce observed-row and admitted-class vocabulary in the existing handoff owner, preserve binding-to-receipt relation in `CallableLoopOutsideReasonV1`, and replace the Outside remainder `VerifiedCallableSemanticLoopBindingScheduleV1::seal(...)?` with a private validation function. The existing terminal Outside and Ready production consumers remain unchanged.
 Non-claims: no ordinary Outside consumer, no source rescan, no new physical receipt, no Ready cohort expansion, no `LoopRouteContext`, no Builder capability, no pure-plan split, no publication, fallback, or generic Loop activation.
@@ -53,7 +53,7 @@ Ready consumer         = one semantic Recipe -> physical adapter
 Outside consumer       = one terminal error path, Builder effect = 0
 ```
 
-The worker confirms that `CallableLoopBindingCoverageRowV1` currently combines
+The worker confirmed that the old shared row combined
 observed receipts with Ready class, and that the Outside remainder calls
 `VerifiedCallableSemanticLoopBindingScheduleV1::seal(...)` only to validate then
 drops it. The accepted I0 is to split observed/Ready/Outside row vocabulary and
@@ -62,7 +62,7 @@ fallback, and ordinary Outside lowering remain outside the slice.
 
 ## Problem in the current vocabulary
 
-`build_callable_loop_binding_coverage_row()` currently derives:
+The former shared row builder derived:
 
 ```text
 iteration local -> IterationLocal
@@ -108,9 +108,8 @@ struct CallableLoopOutsideRowV1 {
 }
 ```
 
-This is a shape sketch, not an implementation instruction until the Decision
-is accepted. The existing `CallableLoopBindingCoverageRowV1` may be renamed or
-split in place; do not create a second source scan or parallel projection.
+The implementation keeps this shape in the existing handoff owner; it does not
+create a second source scan or parallel projection.
 
 The Ready class is issued only after the first-cohort predicate succeeds:
 
@@ -139,6 +138,23 @@ one exact source grouping pass
 No new source scan, semantic issuer, Builder capability, ordinary Outside
 consumer, or fallback is part of I0.
 
+## I0 closeout evidence
+
+The implementation now has:
+
+```text
+CallableLoopObservedBindingRowV1       = observed binding + exact receipts
+CallableLoopReadyBindingClassV1        = Ready-only admission vocabulary
+CallableLoopOutsideKindV1::BodyOnlyRebind = explicit terminal kind
+validate_ready_remainder(...)          = private validation, no throwaway Verified schedule
+```
+
+The existing Ready semantic/physical consumer and the existing Outside
+terminal consumer remain the only production consumers. The focused handoff
+tests and the Outside disposition guard cover the separated vocabulary,
+exact receipts, and zero-effect terminal boundary. The next design slice is
+not opened by this I0.
+
 ## Finite state table
 
 | State | Sole owner | Effect | Allowed next | Fallback |
@@ -156,7 +172,7 @@ or a compatibility retry.
 
 ## Acceptance evidence
 
-Before implementation is accepted, the card must name:
+The completed I0 names:
 
 ```text
 one source grouping/observation owner
@@ -168,7 +184,7 @@ existing Outside terminal consumer count = 1
 existing Ready production consumer count unchanged
 ```
 
-Focused evidence must cover:
+Focused evidence covers:
 
 ```text
 body-only rebind -> OutsideBodyOnlyRebind with exact receipts
@@ -178,6 +194,23 @@ foreign/duplicate/missing source row -> typed reject
 Outside path Builder effect = 0
 no second source scan and no raw/ordinal re-pairing
 ```
+
+Observed evidence:
+
+```text
+cargo test --profile quick --lib normal_callable_loop_handoff: 6 passed
+cargo test --profile quick --lib normal_callable_loop_source_facts::tests: 7 passed
+cargo test --profile quick --lib selected_dynamic_physical_emitter: 10 passed
+bash tools/checks/rust_mirbuilder_callable_loop_outside_disposition_p0_guard.sh: PASS
+bash tools/checks/rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh: PASS
+bash tools/checks/rust_mirbuilder_callable_loop_generic_facts_policy_p0_guard.sh: PASS
+bash tools/checks/current_state_pointer_guard.sh: PASS
+git diff --check: PASS
+```
+
+The generic terminal-port guard remains a caller-zero historical guard; its
+message currently says that a named consumer is required even though the
+assertion requires zero production callers. It is not part of this F2 slice.
 
 ## NoSafeSlice
 

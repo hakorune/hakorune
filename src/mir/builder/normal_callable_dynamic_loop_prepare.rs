@@ -13,7 +13,7 @@ use crate::mir::ValueId;
 use super::normal_callable_dynamic_operation_source::VerifiedDynamicLoopOperationSourceSetV1;
 use super::normal_callable_dynamic_origin::CallableDynamicOriginLoweringStateV1;
 use super::normal_callable_loop_handoff::{
-    CallableLoopBindingClassV1, CallableSemanticLoopHandoffPreEffectReceiptV1,
+    CallableLoopReadyBindingClassV1, CallableSemanticLoopHandoffPreEffectReceiptV1,
     VerifiedCallableSemanticLoopBindingScheduleV1,
 };
 
@@ -61,7 +61,7 @@ pub(super) enum PreparedLoopIncomingRoleV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct PreparedDynamicLoopEntryBindingV1 {
     binding: BindingRefV1,
-    class: CallableLoopBindingClassV1,
+    class: CallableLoopReadyBindingClassV1,
     current: ValueId,
     representation: PreparedLoopCarrierRepresentationV1,
 }
@@ -71,7 +71,7 @@ impl PreparedDynamicLoopEntryBindingV1 {
         self.binding
     }
 
-    pub(super) const fn class(self) -> CallableLoopBindingClassV1 {
+    pub(super) const fn class(self) -> CallableLoopReadyBindingClassV1 {
         self.class
     }
 
@@ -235,7 +235,7 @@ impl DynamicLoopPrepareIssuerV1 {
         let carrier_rows = schedule
             .rows()
             .iter()
-            .filter(|row| row.class() == CallableLoopBindingClassV1::Carrier)
+            .filter(|row| row.class() == CallableLoopReadyBindingClassV1::Carrier)
             .collect::<Vec<_>>();
         let [carrier_row] = carrier_rows.as_slice() else {
             return Err(DynamicLoopPrepareIssueV1::CarrierCardinality);
@@ -247,7 +247,7 @@ impl DynamicLoopPrepareIssuerV1 {
         let mut current_values = BTreeSet::new();
         let mut entry_bindings = Vec::new();
         for row in schedule.rows() {
-            if row.class() == CallableLoopBindingClassV1::IterationLocal {
+            if row.class() == CallableLoopReadyBindingClassV1::IterationLocal {
                 continue;
             }
             let (current, origin) = origins.current_binding(row.binding()).ok_or(
