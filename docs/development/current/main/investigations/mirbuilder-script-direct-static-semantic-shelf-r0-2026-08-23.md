@@ -1,5 +1,5 @@
 ---
-Status: design freeze accepted; bounded BoxShape R0 selected; implementation not started
+Status: landed; bounded BoxShape R0 closed with baseline classification
 Date: 2026-08-23
 Decision: MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0
 Parent: mirbuilder-structure-refactor-queue-d0-2026-08-23.md
@@ -181,7 +181,7 @@ The consultation tasks close as follows:
 
 ## R0 implementation sequence
 
-### Commit 1 — Recipe atom
+### Commit 1 — Recipe atom — landed
 
 ```text
 move recipe production file byte-identically
@@ -190,9 +190,11 @@ add one #[path] to builder.rs
 run Recipe-focused and structural checks
 ```
 
-This commit must build independently.
+Landed as `8b24ea3fbc` on `main` and pushed to `hakorune/main`. The Recipe
+production file and its test sibling are 100% renames; the only source edit is
+the existing `builder.rs` path literal. The focused Recipe suite passed 5/5.
 
-### Commit 2 — Claim-ledger atom
+### Commit 2 — Claim-ledger atom — landed
 
 ```text
 move claim-ledger production file byte-identically
@@ -201,9 +203,12 @@ update one existing #[path] literal
 run ledger-focused and structural checks
 ```
 
-This commit must build independently.
+Landed as `5c1822e948` on `main` and pushed to `hakorune/main`. The claim-ledger
+production file and its test sibling are 100% renames; the only source edit is
+the existing lowering-state path literal. The focused claim-ledger suite passed
+7/7.
 
-### Commit 3 — Closeout evidence
+### Commit 3 — Closeout evidence — landed
 
 ```text
 record before/after hashes and caller census
@@ -212,8 +217,44 @@ update CURRENT_STATE and this card
 commit/push on main
 ```
 
+This closeout evidence is included in the current documentation/guard commit
+and is pushed together with the two implementation atoms.
+
 Do not add a Join, lookup, transport, physical, capability, fixture, route, or
 fallback change to any of these commits.
+
+## Implementation evidence
+
+The moved files retain the four frozen SHA-256 values and the frozen line
+counts. The new structure guard is
+`tools/checks/mirbuilder_script_direct_static_semantic_shelf_r0_guard.sh`.
+It proves the four-path shelf, old-path absence, logical module/path
+cardinality, byte identity, caller cardinality, detached physical-kernel
+caller-zero, no facade, and the source-size limits.
+
+Green evidence on the landed R0:
+
+```text
+Recipe focused tests: 5 passed
+Claim-ledger focused tests: 7 passed
+new semantic-shelf structure guard: PASS
+Script A/C consumer guard: PASS
+current-state pointer guard: PASS
+cargo check --profile quick: PASS
+git diff --check: PASS
+```
+
+The existing `script_direct_static_target_guard.sh` was updated only for the
+two new physical paths, but still stops on the unchanged parent baseline
+`src/mir/builder/raw_invocation_source_transport.rs` at 775 lines. The same
+775-line result is reproduced at pre-R0 commit `7d9c910654`; this is classified
+as known baseline debt, not a current-change failure, and is intentionally not
+fixed in this BoxShape cell.
+
+The R0 preserves the production chain and does not add a route, fallback,
+re-export, alias, or new authority. The broad direct-static shelf, Join
+subtree, lookup, transport, physical bridge, backend capability, and
+performance work remain parked.
 
 ## Guard packet
 

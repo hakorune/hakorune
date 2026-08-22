@@ -17,10 +17,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged 185
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0"
-current_design_stop = "The Script direct-static shelf D0 is complete. The broad feature-name move and re-export facade are rejected. The selected fast cell moves only the byte-identical Recipe and claim-ledger modules plus their test siblings to one Builder semantic-protocol physical shelf, changing only two parent path declarations."
-current_blocker_token = "MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0: preserve file hashes, logical module identities, visibility, callers, tests, route edges, and fallback set; any alias, body drift, mixed-owner move, or source reaching 760 lines is NoSafeSlice."
+current_design_stop = "The Script direct-static semantic-shelf R0 is landed. The broad feature-name move and re-export facade remain rejected; the next design decision must not widen this cell into Join, lookup, transport, physical, backend, or performance work."
+current_blocker_token = "MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0-CLOSEOUT: preserve the landed hashes, logical module identities, visibility, callers, tests, route edges, and fallback classification; the existing 775-line raw_invocation_source_transport.rs target-guard result is parent baseline debt, not this change."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -91,7 +91,7 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-script-direct-static-semantic-shelf-r0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-script-direct-static-semantic-shelf-r0-2026-08-23.md"
-latest_card_summary = "The four-flow/six-root Script direct-static audit accepts narrowed B-prime. The next BoxShape moves only Recipe, claim ledger, and their test siblings byte-identically; two parent path declarations are the only edits. Source/lookup, Join children, transport, physical, and backend owners stay put."
+latest_card_summary = "The narrowed Script direct-static semantic-shelf R0 is landed: four byte-identical Recipe/claim-ledger files moved with two parent path edits. Structure, A/C, pointer, focused tests, and quick check are green; the unchanged 775-line raw_invocation_source_transport.rs target-guard result is recorded as parent baseline debt."
 next_design_card = "none"
 next_execution_card = "MIRBUILDER-SCRIPT-DIRECT-STATIC-SEMANTIC-SHELF-R0"
 next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-script-direct-static-semantic-shelf-r0-2026-08-23.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-23: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-I0 is landed. Existing I6/I7 cleanup claims now occur once before Fault/CallOut-End effects; the dedicated Fault guard, selected Dynamic suite (10/10), CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0 is landed. Header validation and existing Backedge cleanup/I13..I16 claims now occur before `select_block` and the first physical effect; the dedicated Backedge guard, selected Dynamic suite (10/10), Fault/CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-INNER-RETURN-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: Compare/Bridge hardening (0f3a1c821d, 91bc0923d9), structural-lease cfg(test) retirement (40e862c3dc), callable-loop Outside observed/Ready row I0 (5365985372), root unpublished scope I0 (4757bcbd1c), and structure baseline taskification (7157bc6f23) are landed/pushed on main. Root I0 threads one same-brand unpublished candidate/collector through one private Ready edge; builder test-home R0 is the next closed BoxShape cell. Pure plan, ordinary Outside consumer, publication, parser, fallback, and performance remain closed.",
-  "2026-08-23: Structure R0s through if_control are complete. dynamic_full_body_recipe relocation remains NoSafeSlice. The Script direct-static four-flow/six-root D0 now accepts narrowed B-prime: move only byte-identical Recipe/claim-ledger production files and their test siblings, with two parent path edits and no re-export, body, caller, route, fallback, or authority change. The 333/424-line production pair is individually below 760 and totals 757; the fast semantic-shelf R0 is selected. Pure-plan, ordinary Outside, publication, fallback, parser witness, and performance remain closed."
+  "2026-08-23: Structure R0s through if_control are complete. dynamic_full_body_recipe relocation remains NoSafeSlice. The Script direct-static four-flow/six-root D0 landed as narrowed B-prime: four byte-identical Recipe/claim-ledger files moved with two parent path edits and no re-export, body, caller, route, fallback, or authority change. The 333/424-line production pair remains below 760 (757 combined); the semantic-shelf structure/A-C/pointer guards and focused tests are green. The unchanged 775-line raw_invocation_source_transport.rs target-guard result is recorded as parent baseline debt. Pure-plan, ordinary Outside, publication, fallback, parser witness, and performance remain closed."
 ]
