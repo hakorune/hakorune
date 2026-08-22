@@ -17,15 +17,15 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged 185
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIRBUILDER-COMPILER-TESTS-HOME-R0"
-current_design_stop = "The compiler tests ownership D0 is complete. The next fast cell moves only the seven mapped test groups behind a test-only compiler::tests facade; no semantic, runtime, or production compiler graph change may occur."
-current_blocker_token = "MIRBUILDER-COMPILER-TESTS-HOME-R0: move the mapped compiler/tests.rs groups to test-only child files and prove test-name/ignore parity, cfg(test), and production caller-zero."
+work_mode = "design_stop"
+current_execution_row = "MIRBUILDER-COMMON-V2-SESSION-HOME-D0"
+current_design_stop = "The compiler tests home R0 is complete. Before any common_v2 session move, audit only the attached session child cluster for logical module names, visibility, re-exports, super imports, and dependency direction; no code move is authorized until the audit closes."
+current_blocker_token = "MIRBUILDER-COMMON-V2-SESSION-HOME-D0: prove the common_v2 session cluster can move behind a mod.rs facade without visibility widening, a second session owner, a route classifier, or semantic reorder."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — compiler tests home BoxShape R0"
+active_lane = "MirBuilder in-place replacement — common_v2 session home design audit"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -78,7 +78,7 @@ The phase-qualified parser/admission, transport, A, and future C/B state matrix 
 The Script lookup reownership I0/R0 is implemented and pushed as 873eacad33. One non-Clone source-package HRTB issuer co-seals the package declaration authority, transient target/result catalogs, parser witness, exact call sites, canonical target keys, and owned result facts before pinned-target/Builder effects; ResultBundle consumes the relation once. The old pointer inventory production edge is zero and focused lookup, bundle, source-reown, composite, target, current-state, and diff guards are green.
 	The Script A/C consumer series is pushed as 21b1f3263f; main integration is now complete at aafda19d86. Gate 1 assignment ReleaseStrong fail-fast is pushed as dcd8359f7a; Gate 2 physical-result guard is pushed as 8e9b4562c2. C-prime strictness P0s are landed caller-zero. CONNECT0 selected Dynamic I9; worker review chose the direct Dynamic-ledger-to-canonical-SSA handoff, which is now landed with owner binding, same-block rebind, V13 reservation/commit, and one strict append. Focused positive/ledger tests, cargo check, both strict-writer/CONNECT0 guards, and the pointer guard are green. Static compile-path reachability is confirmed.
 	The selected Dynamic transaction lane is closed through the sealed BodyBridge relation: After has one Header predecessor and its OuterReturn PHI consumes the existing Header-current receipt; raw ValueId equality is not used. The I9 Compare/Branch transaction remains one private move-only commit, and destination/Bool affinity is compile/guard verified. Structural-lease cfg(test) retirement and callable-loop F2 observed/Ready row separation are complete as 40e862c3dc and 5365985372. A top-down audit corrected the live Ready root owner: ModuleBuilderInvocationSessionV1 owns the unpublished candidate, the same-root ModuleDraftCollectorV1 owns draft admission, and CanonicalFunctionLoweringSessionV1 is child-only for this path.
-	Root unpublished scope I0 is now landed as 4757bcbd1c with focused source-Facts/raw-entry evidence and a baseline lifecycle classification. The structure baseline census, builder and loop physical prepare test-home R0 cells, live README path receipt P0, and compiler tests ownership D0 are complete; the next fast cell is the test-only compiler tests home R0. Pure-plan, ordinary Outside consumer, publication, fallback, parser witness, and performance remain closed.
+	Root unpublished scope I0 is now landed as 4757bcbd1c with focused source-Facts/raw-entry evidence and a baseline lifecycle classification. The structure baseline census, builder and loop physical prepare test-home R0 cells, live README path receipt P0, compiler tests ownership D0, and compiler tests home R0 are complete; the next cell is the common_v2 session D0 audit. Pure-plan, ordinary Outside consumer, publication, fallback, parser witness, and performance remain closed.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -91,10 +91,10 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-structure-refactor-queue-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md"
-latest_card_summary = "The structure baseline census, builder and loop physical prepare test-home R0 cells, live README path receipt, and compiler tests ownership D0 are complete. The selected fast row moves only the seven mapped test groups behind a test-only facade."
-next_design_card = "none"
-next_execution_card = "MIRBUILDER-COMPILER-TESTS-HOME-R0"
-next_execution_card_path = "docs/development/current/main/investigations/mirbuilder-structure-refactor-queue-d0-2026-08-23.md"
+latest_card_summary = "The structure baseline census, builder and loop physical prepare test-home R0 cells, live README path receipt, compiler tests ownership D0, and compiler tests home R0 are complete. The next design-stop cell audits only the common_v2 session cluster before any move."
+next_design_card = "MIRBUILDER-COMMON-V2-SESSION-HOME-D0"
+next_execution_card = "none"
+next_execution_card_path = "none"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-23: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-I0 is landed. Existing I6/I7 cleanup claims now occur once before Fault/CallOut-End effects; the dedicated Fault guard, selected Dynamic suite (10/10), CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0 is landed. Header validation and existing Backedge cleanup/I13..I16 claims now occur before `select_block` and the first physical effect; the dedicated Backedge guard, selected Dynamic suite (10/10), Fault/CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-INNER-RETURN-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: Compare/Bridge hardening (0f3a1c821d, 91bc0923d9), structural-lease cfg(test) retirement (40e862c3dc), callable-loop Outside observed/Ready row I0 (5365985372), root unpublished scope I0 (4757bcbd1c), and structure baseline taskification (7157bc6f23) are landed/pushed on main. Root I0 threads one same-brand unpublished candidate/collector through one private Ready edge; builder test-home R0 is the next closed BoxShape cell. Pure plan, ordinary Outside consumer, publication, parser, fallback, and performance remain closed.",
-  "2026-08-23: MIRBUILDER-BUILDER-TEST-HOME-R0 moved binding_id_tests to a test-only path child (builder=738, home=99, four tests). MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0 moved six test-only tests to a path child (parent=481, home=319). README P0 corrected two live path claims. Compiler tests D0 mapped 25 tests into seven groups with six ignored and no production dependency; compiler tests home R0 is selected next."
+  "2026-08-23: MIRBUILDER-BUILDER-TEST-HOME-R0 moved binding_id_tests to a test-only path child (builder=738, home=99, four tests). MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0 moved six test-only tests to a path child (parent=481, home=319). README P0 corrected two live path claims. Compiler tests D0 mapped 25 tests into seven groups with six ignored and no production dependency; compiler tests home R0 then completed with a 30-line facade, seven child groups, preserved 25/6 test parity, and parent-equivalent baseline failures. Common_v2 session D0 is next."
 ]

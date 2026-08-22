@@ -1,7 +1,7 @@
-Status: compiler tests home D0 complete; selected next behavior-neutral compiler tests home R0
+Status: compiler tests home R0 complete; selected next common_v2 session D0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-COMPILER-TESTS-HOME-R0`
+Current row: `MIRBUILDER-COMMON-V2-SESSION-HOME-D0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,9 +56,9 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-COMPILER-TESTS-HOME-R0` — move the already
-mapped test-only groups behind one `tests` facade, preserving test names and
-the compiler production module graph.
+Smallest next slice: `MIRBUILDER-COMMON-V2-SESSION-HOME-D0` — audit only the
+session child cluster before any directory move, preserving logical module
+names, visibility, re-exports, and the current dependency direction.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -317,7 +317,7 @@ production module dependency was found. The later R0 must preserve the
 `#[cfg(test)]` parent registration and must not alter fixtures, semantics, or
 runtime/compiler ownership.
 
-#### `MIRBUILDER-COMPILER-TESTS-HOME-R0` — selected next
+#### `MIRBUILDER-COMPILER-TESTS-HOME-R0` — complete
 
 Move the seven mapped test groups behind a test-only `compiler::tests` facade.
 This is a behavior-neutral BoxShape refactor, not a test repair or compiler
@@ -327,6 +327,25 @@ Acceptance: `compiler/tests.rs < 760`, all 25 test names and six ignore
 attributes remain, the parent `#[cfg(test)] mod tests;` remains the only
 production registration, focused compiler tests retain their current result,
 and one reusable size/module guard proves the split.
+
+Evidence:
+
+```text
+compiler/tests.rs facade = 30 lines
+child groups = 7; every child < 800 lines
+test attributes = 25; ignored tests = 6; names preserved exactly once
+focused compiler suite = 5 passed, 14 failed, 6 ignored
+parent 93c5fc3e0a = 5 passed, 14 failed, 6 ignored with the same baseline errors
+cargo check --profile quick = passed (existing warning baseline retained)
+compiler tests home R0 guard = passed
+focused rustfmt check = passed
+git diff --check = passed
+```
+
+The 14 failing tests are recorded as existing baseline debt: normal-program
+admission, instance-constructor source cohort, and script-neutral-window
+contract failures. The split changed only test ownership and preserves the
+test-gated compiler production module graph.
 
 ### D0 — deferred architecture decisions
 
