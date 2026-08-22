@@ -17,10 +17,10 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged 185
 date = "2026-08-22"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIR-DYNAMIC-CALLOUT-PRECLAIM-D0"
-current_design_stop = "I8/I9/If preclaim I0 is complete: the existing operation census claims are consumed before the first I8 physical effect with no batch receipt or second authority. The next bounded cell is design-only CallOut preclaim for I0..I7; Backedge/Fault/InnerReturn, prepare/reserve/commit, publication, parser witness strengthening, and performance remain closed."
-current_blocker_token = "MIR-DYNAMIC-CALLOUT-PRECLAIM-D0: audit I0..I7 CallOut claim/effect order and decide a single pre-effect boundary without a second order authority."
+work_mode = "fast"
+current_execution_row = "MIR-DYNAMIC-CALLOUT-PRECLAIM-I0"
+current_design_stop = "The CallOut preclaim Decision is accepted: consume the existing I0..I7 operation census claims after identity observations but before the first MIR/ledger physical effect, `loop_operation::publish_i64_value`. The next implementation must remove the old post-effect claim loop and prove typed reject/outer discard; Fault/Backedge/InnerReturn, prepare/reserve/commit, publication, parser witness strengthening, and performance remain closed."
+current_blocker_token = "MIR-DYNAMIC-CALLOUT-PRECLAIM-I0: move I0..I7 claims before the first CallOut physical effect and prove one claim edge each with no fallback or second authority."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -77,7 +77,7 @@ The phase-qualified parser/admission, transport, A, and future C/B state matrix 
 	Parser-composite preservation I0 is pushed and closed. Composite source admission R0 is pushed and closed as 254856b5a8: one parser-backed default-root issuer consumes the preserved token through an HRTB loan and emits only the witness-bound provider/terminal partition; existing Script admission consumes the provider transfer without resolving the root call. Focused 4-test evidence, cargo check, pointer guard, R0 guard, diff check, and source-size checks are green. The source-reownership audit is now accepted as two ordered substeps: typed Deferred preservation is the selected fast cell; neutral window reownership remains a separate T2 design stop. Lookup, capability/A/C, physical work, old Recipe retirement, production switch, and performance remain closed.
 The Script lookup reownership I0/R0 is implemented and pushed as 873eacad33. One non-Clone source-package HRTB issuer co-seals the package declaration authority, transient target/result catalogs, parser witness, exact call sites, canonical target keys, and owned result facts before pinned-target/Builder effects; ResultBundle consumes the relation once. The old pointer inventory production edge is zero and focused lookup, bundle, source-reown, composite, target, current-state, and diff guards are green.
 	The Script A/C consumer series is pushed as 21b1f3263f; main integration is now complete at aafda19d86. Gate 1 assignment ReleaseStrong fail-fast is pushed as dcd8359f7a; Gate 2 physical-result guard is pushed as 8e9b4562c2. C-prime strictness P0s are landed caller-zero. CONNECT0 selected Dynamic I9; worker review chose the direct Dynamic-ledger-to-canonical-SSA handoff, which is now landed with owner binding, same-block rebind, V13 reservation/commit, and one strict append. Focused positive/ledger tests, cargo check, both strict-writer/CONNECT0 guards, and the pointer guard are green. Static compile-path reachability is confirmed.
-	The selected Dynamic Compare transaction lane is now active after the Ready R0, Outside terminal closeout, cursor EOF P0, and I8/I9/If preclaim I0. The next cell is design-only CallOut preclaim for I0..I7; no physical, ledger, publication, fallback, Backedge/Fault/InnerReturn, parser witness, or performance expansion is open.
+	The selected Dynamic Compare transaction lane is now active after the Ready R0, Outside terminal closeout, cursor EOF P0, and I8/I9/If preclaim I0. The accepted next cell is CallOut I0..I7 pre-MIR/ledger preclaim; no new authority, publication, fallback, Backedge/Fault/InnerReturn, parser witness, or performance expansion is open.
 """
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -90,10 +90,10 @@ current_execution_design = "docs/development/current/main/investigations/mirbuil
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-loop-compare-hardening-d0"
 latest_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md"
-latest_card_summary = "Ready GenericLoopV1 R0, the Outside terminal closeout, MIR-DYNAMIC-CURSOR-EOF-FAILFAST-P0, and I8/I9/If preclaim I0 are complete on main. The next accepted bounded cell is design-only MIR-DYNAMIC-CALLOUT-PRECLAIM-D0; no writer, ledger, publication, or fallback expansion is open."
-next_design_card = "MIR-DYNAMIC-CALLOUT-PRECLAIM-D0"
+latest_card_summary = "Ready GenericLoopV1 R0, the Outside terminal closeout, MIR-DYNAMIC-CURSOR-EOF-FAILFAST-P0, and I8/I9/If preclaim I0 are complete on main. The CallOut preclaim Decision is accepted; MIR-DYNAMIC-CALLOUT-PRECLAIM-I0 is the active bounded cell with no new authority, writer, ledger, publication, or fallback expansion."
+next_design_card = "MIR-DYNAMIC-CALLOUT-PRECLAIM-I0"
 next_design_card_path = "docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md"
-next_execution_card = "none-until-Decision"
+next_execution_card = "MIR-DYNAMIC-CALLOUT-PRECLAIM-I0"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

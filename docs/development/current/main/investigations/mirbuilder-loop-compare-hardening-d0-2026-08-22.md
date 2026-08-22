@@ -1,22 +1,22 @@
-Status: I8/I9/If preclaim I0 landed; CallOut preclaim D0 is the next design stop
+Status: CallOut preclaim Decision accepted; I0 is the active bounded cell
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
-Current execution row: MIR-DYNAMIC-CALLOUT-PRECLAIM-D0
+Current execution row: MIR-DYNAMIC-CALLOUT-PRECLAIM-I0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-DYNAMIC-CALLOUT-PRECLAIM-D0 (after I8/I9/If preclaim I0)
+NextCard: MIR-DYNAMIC-CALLOUT-PRECLAIM-I0 (after the accepted CallOut preclaim Decision)
 ---
 
 # Selected Dynamic Compare hardening D0
 
 ## Six-line brief
 
-Decision: accept the feedback as four ordered hardening cells. The cursor EOF P0 is closed. For the next cell, use preflight-and-consume for I8/I9/If without a new batch receipt or second order authority; later design one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
+Decision: accept the feedback as ordered hardening cells. The cursor EOF P0 and I8/I9/If preclaim I0 are closed. Use preflight-and-consume for I0..I7 CallOut claims at the pre-MIR/ledger physical-effect boundary, without a new batch receipt or second order authority; later design one prepare -> reserve -> commit transaction for I9. Bridge equality and affine type cleanup remain separate small cells; the caller-zero generic leaf stays parked.
 Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
-Fail-fast boundary: for I8/I9/If, pure row/corridor/owner validation is followed by three existing census claims before `issue_physical_value_id` or the first I8 Const effect. A claim failure is terminal and the unpublished outer session is discarded; no rollback, retry, or fallback exists. Writer preparation, bridge checks, and result reservation remain in their later transaction cell.
-Smallest next slice: MIR-DYNAMIC-CALLOUT-PRECLAIM-D0, a design-only census of I0..I7 CallOut claims before selecting its implementation cell. It does not open Backedge/Fault/InnerReturn claims, live publication, or the broader writer transaction.
+Fail-fast boundary: for I0..I7, existing row/site/brand validation and identity observations are followed by the eight existing census claims before `loop_operation::publish_i64_value`, the first MIR/ledger physical effect. A claim failure is terminal and the unpublished outer session is discarded; no rollback, retry, or fallback exists. Writer preparation, bridge checks, and result reservation remain in their later transaction cell.
+Smallest next slice: MIR-DYNAMIC-CALLOUT-PRECLAIM-I0, move the I0..I7 claims to that boundary and prove one claim edge each with line-order/effect-zero evidence. It does not open Fault/Backedge/InnerReturn claims, live publication, or the broader writer transaction.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -187,12 +187,13 @@ claims remain separate.
 
 ### 3. MIR-DYNAMIC-CALLOUT-PRECLAIM-D0
 
-Design-only next cell. Audit the I0..I7 operation claims currently consumed
-at the end of `callout_corridor/emission.rs`. Decide whether the same existing
+Decision accepted: the same existing
 `DynamicV2PhysicalOperationCensusV1` can preflight-and-consume the exact
-ordered claims after pure row/site/brand validation and before the first
-CallOut ValueId, Const, Add, or CallOut effect. Do not add a batch receipt or
-second order authority.
+ordered I0..I7 claims after row/site/brand validation and identity observations
+but before the first `loop_operation::publish_i64_value` MIR/ledger effect.
+This is a pre-MIR/ledger physical-effect boundary, not a claim that the whole
+session is mutation-free: identity observations already occur before it and
+remain covered by the existing unpublished outer discard.
 
 Acceptance:
 
@@ -203,11 +204,44 @@ Acceptance:
     a focused positive/negative test and reusable line-order/effect-zero guard
       can be specified without touching Backedge/Fault/InnerReturn
 
-NoSafeSlice: CallOut claims need a second source/order authority, the pure
-boundary cannot be placed before the first CallOut effect, or preclaiming them
-would require changing the selected Dynamic route or generic Loop authority.
+NoSafeSlice: identity observations cannot be safely discarded with the
+unpublished outer session, CallOut claims need a second source/order authority,
+the pre-MIR/ledger boundary cannot be placed before the first physical effect,
+or preclaiming them would require changing the selected Dynamic route or
+generic Loop authority.
 
-### 4. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
+Worker audit evidence: Dirac independently confirmed that the first physical
+effect is `loop_operation::publish_i64_value` and that moving the existing
+I0..I7 loop immediately before it is safe under the current `reject_begin()`
+discard contract. The audit explicitly kept identity observations, Fault,
+Backedge, and InnerReturn outside the I0 boundary.
+
+### 4. MIR-DYNAMIC-CALLOUT-PRECLAIM-I0
+
+Implement only the accepted boundary above:
+
+    existing row/site/brand validation
+    existing identity observations
+    claim_operation(I0..I7) exactly once in verified order
+    loop_operation::publish_i64_value and the existing CallOut physical lane
+
+Remove the old end-of-corridor claim loop. Do not add a claim batch, reorder
+authority, rollback, fallback, or any cleanup claim. The focused selected
+Dynamic fixture must still close its existing operation census exactly once.
+
+Acceptance:
+
+    I0..I7 claim loop occurs once before the first publish_i64_value effect
+    positive selected Dynamic fixture reaches all eight claims and closes
+    claim/effect line-order guard is green and proves no post-effect claim edge
+    typed cursor wrong-order/duplicate/exhausted behavior remains unchanged
+    no Builder publication, generic Loop route, or fallback changes
+    touched production files remain below 760 lines
+
+NoSafeSlice: a claim failure can bypass `reject_begin()`, the old claim loop
+cannot be removed completely, or the boundary requires a second authority.
+
+### 5. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 
 Implement only after the preclaim D0 is accepted. Split the current writer
 front door into:
@@ -253,7 +287,7 @@ Acceptance:
 NoSafeSlice: the aggregate cannot make definition/slot pairing private and
 move-only, or the writer still needs a repair-capable legacy front door.
 
-### 5. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
+### 6. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
 
 Keep this separate from the physical transaction rewrite.
 
@@ -269,7 +303,7 @@ negative test that changes only the physical value and rejects before any
 publication. Type affinity must be verified by compile/guard evidence rather
 than runtime behavior.
 
-### 6. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
+### 7. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
 
 Do not touch the generic caller-zero leaf in the selected Dynamic hardening
 series. Its old append-then-publish behavior remains a known baseline debt
