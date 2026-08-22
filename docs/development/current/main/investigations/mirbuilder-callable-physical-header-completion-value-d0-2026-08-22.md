@@ -1,11 +1,11 @@
 ---
-Status: S0 BoxShape complete; next I0 design_stop
-Task: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-I0
+Status: S0 BoxShape complete; S0-D1 design_stop
+Task: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1
 Date: 2026-08-22
-Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
+Priority: preserve one exact callable source-to-GenericLoop Recipe relation before ordinary effects
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-I0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -1051,3 +1051,192 @@ MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-D0
 This future slice must name a ledger-aware JoinIR/port consumer before adding
 any receipt or production edge. Performance work, Builder cleanup, fallback,
 publication, and main integration remain outside this closeout.
+
+## S0-D1 worker audit — exact source-to-Recipe bridge
+
+Two independent read-only audits and the local call-graph census reject a
+direct jump from the completed S0 split to the former I0. The entry seam is
+now known, but the relation that the consumer would consume is not yet present.
+
+### Six-line brief
+
+```text
+Decision: keep body-only-rebind Outside terminal. Before any ordinary consumer, co-seal one exact callable source-to-GenericLoop Facts/Recipe relation and one front-selected terminal route; do not feed the current diagnostic Outside arrays to generic lowering.
+Source authority + canonical issuer: CallableSemanticLoweringState and CallableLoopSourceProjectionV1 own grouped binding/site/role rows; RawInvocationSourceContextV1 owns exact parent/condition/body location. A future private CallableOrdinaryLoopSourceRecipeIssuerV1 may co-seal those existing facts at PreparedLocatedRawLoopChildEntryV1, but it may not issue new binding roles or route policy.
+Non-authority: CallableLoopOutsideReasonV1 bindings[]/sites[], cloned GenericLoopV1Facts alone, AST/name/ordinal/ValueId, Builder variable_map, LoopRouteContext, RawLoopPlanExpressionPortV1, LocatedLoopPlanExpressionPortV1, and the retry-capable legacy route continuation.
+Fail-fast boundary: exact source ownership, grouped coverage, source-to-Facts correspondence, non-nested first cohort, and one terminal selected route must all close before CorePlan composition, callable row consumption, Builder mutation, or PlanLowerer; every later reject discards the unpublished outer session and never advances the route schedule.
+Smallest next slice: MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1; fix the source-located Facts/Recipe and terminal-route contract, and census whether the first source-aware cohort is RecipeOnly or ExitAllowed. This is design/census only.
+Non-claims: no new semantic receipt, ordinary support, body-only-rebind admission, nested child support, GenericLoop production switch, finish relaxation, fallback/retry, publication, Compare hardening, performance work, or main integration.
+```
+
+### Verified missing relations
+
+The exact source entry already exists:
+
+```text
+RawInvocationChildPortV1::lower_loop
+  -> RawLoopChildEntryPortV1
+  -> PreparedLocatedRawLoopChildEntryV1
+```
+
+`PreparedLocatedRawLoopChildEntryV1` co-seals the parent, condition, and body
+source contexts before ordinary routing. This is the sole future consumer
+entry. Moving the consumer below `lower_loop_or_freeze_v1` is too late because
+that API transports only `MirBuilder + AST`.
+
+Three relations are still missing:
+
+1. `CallableLoopOutsideReasonV1` stores `bindings[]` and `sites[]` separately.
+   It is a terminal diagnostic, not a pairing authority. The existing
+   `CallableLoopBindingCoverageRowV1` is the reusable grouped source shape.
+2. `try_extract_generic_loop_v1` clones condition/body syntax into
+   `GenericLoopV1Facts`, but those Facts retain no `SourceNodeSiteV1` relation.
+   Rejoining the cloned Recipe body to source rows by name, ordinal, or AST
+   shape would create a second authority.
+3. the selected GenericLoop registry path is explicitly classified as
+   `PostEffectRetryDebt`; `RouteExecutionWitnessV1::execute_selected_in_order`
+   advances after that outcome. A one-shot source consumer cannot enter that
+   continuation because partial consumption could be followed by another
+   route attempt.
+
+The existing expression ports solve only structural child access. They do not
+call `CallableSemanticLoweringState::read_variable` or `rebind`, so wrapping
+one of them does not complete source consumption. D1 keeps structural syntax
+transport and semantic binding consumption as separate ports.
+
+### Authority map
+
+| Owner | Owns | Must not own |
+| --- | --- | --- |
+| `CallableSemanticLoweringState` | exact callable local/read/assignment rows, current `BindingRefV1 -> ValueId`, strict finish | GenericLoop route selection or Recipe shape |
+| `CallableLoopSourceProjectionV1` | grouped `binding + class + (site, role)` classification | AST/Recipe re-pairing or physical values |
+| `RawInvocationSourceContextV1` | exact loop/condition/body source path under one callable root | binding meaning or route policy |
+| GenericLoop Facts issuer | one raw Loop shape and existing GenericLoop facts | source identity reconstructed from cloned AST |
+| registry selection/preflight | ordered candidate route and policy observations | callable binding roles or source consumption |
+| future source-Recipe relation issuer | co-seal already-issued source rows, located Loop inputs, Facts, and terminal route | new source meaning, fallback, or physical emission |
+| `CallableOrdinaryLoopJoinIrConsumerV1` | consume the private relation once during the same normalizer traversal | source issuance, route reselection, or Builder inference |
+| `PlanVerifier` / `PlanLowerer` | verify the resulting CorePlan / remain the sole physical route | source-row repair or ledger completion |
+
+### Required target shape
+
+The D1 target is a private, non-`Clone` relation; this is a contract sketch,
+not authorization to add the type yet.
+
+```text
+exact callable owner
++ exact Loop / condition / body source contexts
++ grouped binding/site/role rows
++ source-located GenericLoop input relation
++ exact GenericLoop Facts/Recipe family
++ front-selected terminal route with unreached legacy tail
+  -> CallableOrdinaryLoopSourceRecipeRelationV1
+  -> immediate CallableOrdinaryLoopJoinIrConsumerV1
+```
+
+The consumer must be moved only after the selected route is terminal. It then
+drives the existing GenericLoop normalizer once. Variable reads and rebinds are
+claimed at their exact source inputs during that traversal; the normalizer may
+produce the existing CorePlan, which continues through the existing verifier
+and sole physical lowerer.
+
+The current `Ready` schedule can supply an infrastructure fixture because its
+carrier law is already closed. Body-only rebind cannot be relabeled as Ready:
+the present schedule seal requires a carrier to have
+`ConditionRead + BodyRead + BodyRebind`. The production body-only cohort gets
+its own later source disposition/consumer extension after D1; until then it
+remains `OutsideTerminal`.
+
+### Finite state table
+
+| State | Required evidence | Allowed next step | Effects |
+| --- | --- | --- | ---: |
+| `Unbound` | no callable source relation | existing non-callable route only | none from this bridge |
+| `SourcePrepared` | exact parent/condition/body + grouped rows | source-to-Facts validation | none |
+| `NestedUnsupported` | executable nested Loop in selected source body | typed terminal | none |
+| `OutsideTerminal` | complete source observation outside admitted cohort | existing stable terminal | none |
+| `RouteDeferred` | selected route is retry-capable or nonterminal | design stop / typed terminal | none |
+| `ReadyToConsume` | source-to-Facts relation + one terminal route | immediate named consumer | none |
+| `Consuming` | one moved consumer in the existing normalizer walk | Recipe completion only | no fallback |
+| `RecipeReady` | all required source rows consumed + existing CorePlan | `PlanVerifier` | plan preparation only |
+| `PhysicallyLowered` | verified CorePlan | existing `PlanLowerer` | physical |
+| `Rejected` | missing/foreign/duplicate/bypass/route drift | outer session discard | unpublished |
+
+`RouteDeferred` must not be encoded as an empty route, `Option::None`, or a
+permission to enter legacy scheduling. `Consuming` cannot transition back to
+another route.
+
+### Ordered bounded tasks
+
+1. `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-S0-D1` — current design stop.
+   Census the production and focused fixtures through
+   `try_extract_generic_loop_v1`, `RecipeFirstRouteSelectionV1`, and
+   `observe_selected_preflight_v1`; choose `RecipeOnly` or `ExitAllowed` for
+   the first source-aware cohort and fix the exact source-to-Facts relation.
+2. `MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0` — caller-zero only after D1.
+   Add one private non-Clone continuation for the exact front-selected
+   GenericLoop family. Compose/lower rejection is terminal; legacy suffix,
+   `PostEffectRetryDebt`, fallback, and retry are inaccessible.
+3. `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` — caller-zero infrastructure.
+   Thread one separate callable semantic port through the existing normalizer
+   traversal for one non-nested already-Ready fixture. Structural expression
+   lookup remains owned by the existing expression port; exact reads/rebinds
+   are owned by the callable state. No production Outside row is admitted.
+4. `MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0` — first BoxCount.
+   Issue grouped body-only rows directly into the named consumer, run the same
+   source-aware normalizer once, and prove complete callable finish. Other
+   Outside reasons remain terminal.
+5. `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0` — atomic cutover.
+   Named production caller = 1, admitted old terminal/bypass caller = 0,
+   route fallback/retry = 0, and the merged probe advances past the old
+   Outside boundary without weakening finish.
+
+Each implementation cell must keep production files below 800 lines and split
+at 760. `expression_port.rs` is already 648 lines and
+`generic_loop/facts/extract/v1.rs` is 593 lines, so the semantic port and its
+tests belong in new sibling modules rather than those files.
+
+### Acceptance and structural guards
+
+```text
+positive:
+  exact same-owner Ready fixture -> one source-aware Recipe -> one PlanLowerer
+  later body-only fixture -> each BodyRead/BodyRebind site consumed exactly once
+
+negative before effects:
+  foreign parent/condition/body
+  missing/duplicate/foreign binding receipt
+  source row paired to cloned Facts from another invocation
+  executable nested Loop
+  selected route not front-terminal
+  RecipeOnly/ExitAllowed mode drift
+  normalizer statement path without semantic-port coverage
+
+guards:
+  OutsideReason used as ordinary authority = 0
+  source/Recipe pairing by name, ordinal, AST pointer, or ValueId = 0
+  callable consumer through legacy execution continuation = 0
+  callable PostEffectRetryDebt / fallback / retry = 0
+  second AST/source walk = 0
+  CallableSemanticLoweringState::finish weakening = 0
+  PlanLowerer physical owner count unchanged
+```
+
+### NoSafeSlice
+
+Remain in `design_stop` if any proposal requires:
+
+```text
+GenericLoop Facts without an exact source-located relation;
+Outside diagnostic arrays as grouped consumer input;
+name/ordinal/AST-shape/ValueId re-pairing;
+one port that silently mixes structural source lookup and callable authority;
+source consumption before the selected route is terminal;
+GenericLoop PostEffectRetryDebt or any later route attempt after consumption;
+an uninstrumented normalizer path that can read/rebind through Builder maps;
+body-only rows relabeled as the existing Ready carrier shape;
+nested Loop delegation without a child-context/reborrow owner;
+post-walk repair, finish relaxation, fallback, or retry.
+```
+
+The immediate current task is D1 design/census. No Rust implementation or new
+receipt is authorized by this section.
