@@ -1,11 +1,11 @@
 ---
-Status: P0 complete; next D0 selected; design_stop
-Task: MIR-CALLABLE-LOOP-HANDOFF-BINDING-COVERAGE-D0
+Status: D0 accepted; S0 in progress; fast
+Task: MIR-CALLABLE-LOOP-HANDOFF-OUTSIDE-DISPOSITION-S0
 Date: 2026-08-22
 Priority: classify source-valid Void/unannotated callable rows without poisoning the sparse physical-header cohort
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-HANDOFF-BINDING-COVERAGE-D0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-HANDOFF-OUTSIDE-DISPOSITION-S0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -518,6 +518,58 @@ normal_callable_loop_handoff.rs = 749 lines
 760 = split-design trigger; 800 = hard stop
 next P0 must split the source-role/cohort owner before adding semantic state
 ```
+
+## Decision closed — MIR-CALLABLE-LOOP-HANDOFF-OUTSIDE-DISPOSITION-D0
+
+The first callable Loop cohort stays exactly one condition carrier. A
+source-backed binding with a body rebind but no `LoopCondition` read is not
+silently made a carrier, read-only operand, or missing row. The projection
+classifies the complete, validated row set as:
+
+```text
+Ready(schedule)
+  -> consume the callable pre-effect receipt
+  -> existing selected Dynamic/JoinIR consumer
+
+Outside(BodyOnlyRebind { bindings, sites })
+  -> explicit ordinary JoinIR lane, exactly once
+  -> no callable pre-effect receipt and no canonical retry
+```
+
+`Outside` is selected by the same parser/resolver source projection before
+Builder effects. It is not an error produced after `Ready`, and it is not a
+fallback from a rejected canonical handoff. The ordinary lane remains the
+existing named `lower_loop_or_freeze_v1` owner; this slice does not make that
+lane a callable semantic authority or widen its facts.
+
+The new disposition is transport/classification state, not a second semantic
+`Verified*` or physical `Prepared*` product. `Incomplete` and
+`IntegrityInvalid` remain terminal typed rejects. A body-only row must carry
+its source `BindingRef`/site evidence into the Outside reason; default, empty,
+name, ordinal, AST-pointer, ValueId, or MIR reconstruction is forbidden.
+
+## Accepted task order
+
+```text
+MIR-CALLABLE-LOOP-HANDOFF-OUTSIDE-DISPOSITION-S0
+  behavior-neutral split of the 749-line handoff owner and its tests;
+  preserve all existing Ready/error behavior
+
+MIR-CALLABLE-LOOP-HANDOFF-OUTSIDE-DISPOSITION-P0
+  issue Ready/Outside from the existing source projection, transport the
+  disposition through the raw child entry, and branch Outside to the named
+  ordinary JoinIR lane before any callable receipt consumption
+
+MIR-CALLABLE-LOOP-HANDOFF-OUTSIDE-DISPOSITION-R0
+  prove esc_json/1 rows, one existing Ready row, typed invalid negatives,
+  Outside-before-effect counts, no canonical retry, and the next production
+  boundary; no multi-carrier expansion yet
+```
+
+P0 must stop if the ordinary lane cannot be entered without a second parser or
+resolver observation, or if its existing retry/debt behavior becomes a new
+escape from a canonical `Ready` failure. In that case the disposition remains
+an explicit terminal Outside and multi-carrier design reopens separately.
 
 Required D0 evidence:
 
