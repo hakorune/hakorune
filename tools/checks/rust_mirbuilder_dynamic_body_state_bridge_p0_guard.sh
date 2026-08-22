@@ -10,6 +10,7 @@ ASSEMBLY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_
 EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 INNER_RETURN="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/inner_return_then.rs"
 PROFILE_CLOSE="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/profile_close.rs"
+IDENTITY="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/identity.rs"
 OPERATION_CURSOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/operation_cursor.rs"
 TESTS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/tests.rs"
 ADAPTER="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
@@ -25,7 +26,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_command "$TAG" awk
 guard_require_files "$TAG" "$BRIDGE" "$ASSEMBLY" "$EMITTER" "$INNER_RETURN" \
-  "$PROFILE_CLOSE" "$OPERATION_CURSOR" "$TESTS" "$ADAPTER" "$STATE" "$OBSERVATION" \
+  "$PROFILE_CLOSE" "$IDENTITY" "$OPERATION_CURSOR" "$TESTS" "$ADAPTER" "$STATE" "$OBSERVATION" \
   "$DYNAMIC_ORIGIN" "$DEMAND" "$CARD" "$INDEX"
 
 guard_expect_fixed_in_file "$TAG" "mod body_state_bridge;" "$EMITTER" \
@@ -46,6 +47,12 @@ guard_expect_fixed_in_file "$TAG" "V14" "$INNER_RETURN" \
   "I11 must retain V14 without emitting a second instruction"
 guard_expect_fixed_in_file "$TAG" "outer_return: CanonicalBindingReadReceiptV1" "$PROFILE_CLOSE" \
   "profile close must retain the existing After read receipt"
+guard_expect_fixed_in_file "$TAG" "verify_single_predecessor_read_relation" "$PROFILE_CLOSE" \
+  "canonical SSA must verify the sealed After-to-Header read relation"
+guard_expect_fixed_in_file "$TAG" "verify_single_predecessor_phi" "$IDENTITY" \
+  "canonical SSA must own the one-predecessor PHI relation check"
+guard_expect_fixed_in_file "$TAG" "single_predecessor_phi_relation_accepts_distinct_target_value" "$IDENTITY" \
+  "relation evidence must allow distinct target and predecessor ValueIds"
 guard_expect_fixed_in_file "$TAG" "pub(super) fn check_closed" "$OPERATION_CURSOR" \
   "the close seam must check operation coverage before the bridge"
 guard_expect_fixed_in_file "$TAG" "duplicate_body_bridge_rejects_and_discards_unpublished_effects" "$TESTS" \
@@ -121,8 +128,15 @@ assert_order "$EMITTER" \
 assert_order "$EMITTER" \
   'finish_profile_close' \
   '.finish_for_draft_seal('
+assert_order "$PROFILE_CLOSE" \
+  'seal_block(canonical, outer, after)?;' \
+  'verify_single_predecessor_read_relation('
 
-for file in "$BRIDGE" "$ASSEMBLY" "$EMITTER" "$INNER_RETURN" "$PROFILE_CLOSE" \
+if rg -n -F -- 'outer_return.physical_value()' "$BRIDGE" >/dev/null 2>&1; then
+  guard_fail "$TAG" "body bridge must not equate OuterReturn with Header-current or Backedge ValueIds"
+fi
+
+for file in "$BRIDGE" "$ASSEMBLY" "$EMITTER" "$INNER_RETURN" "$PROFILE_CLOSE" "$IDENTITY" \
   "$OPERATION_CURSOR" "$TESTS" "$ADAPTER" "$STATE" "$OBSERVATION" "$DYNAMIC_ORIGIN" "$DEMAND"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then

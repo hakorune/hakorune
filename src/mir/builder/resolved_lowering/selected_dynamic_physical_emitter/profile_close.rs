@@ -6,6 +6,7 @@
 //! Return writer.
 
 use super::callout_corridor::DynamicV2CallOutCorridorV1;
+use super::formal_header::DynamicV2OpenedFormalHeaderV1;
 use super::lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1;
 use super::targets::{DynamicV2PhysicalTargetRoleV1, DynamicV2PhysicalTargetSetV1};
 use super::{DynamicV2I8EmitterRejectV1, DynamicV2PhysicalSessionBrandV1};
@@ -237,6 +238,7 @@ pub(super) fn emit(
     canonical: &mut CanonicalSsaFunctionSessionV2<'_>,
     outer: &mut CanonicalFunctionLoweringSessionV1<'_>,
     demand: &VerifiedAPrimeI64PhysicalDemandV1<'_>,
+    formals: &DynamicV2OpenedFormalHeaderV1,
     targets: &DynamicV2PhysicalTargetSetV1,
     corridor: &DynamicV2CallOutCorridorV1,
     lifecycle: &DynamicV2PhysicalLifecycleTerminalPlanV1,
@@ -303,6 +305,14 @@ pub(super) fn emit(
     // DraftSeal needs an open, site-keyed exit block. It writes the two Return
     // instructions only on its detached projection, never in this live CFG.
     seal_block(canonical, outer, after)?;
+    canonical
+        .identity
+        .verify_single_predecessor_read_relation(
+            outer.builder_view_mut_for_lowering(),
+            receipt,
+            formals.header_current(),
+        )
+        .map_err(reject)?;
     let body = role_block(targets, DynamicV2PhysicalTargetRoleV1::BodyPrelude);
     let (i6_normal, i6_fault, i7_normal, i7_fault) = corridor.with_i6_normal(|i6_normal| {
         corridor.with_i6_fault(|i6_fault| {

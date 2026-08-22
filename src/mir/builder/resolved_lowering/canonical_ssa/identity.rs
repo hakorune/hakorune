@@ -8,7 +8,7 @@ use crate::mir::resolved_semantics::{
     BindingKindV1, BindingRefV1, FunctionOwnerIdV1, ResolvedExitSiteV1, SourceBindingSiteV1,
     SourceExprSiteV1, VerifiedResolvedFunctionV1,
 };
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::{BasicBlock, BasicBlockId, MirInstruction, ValueId};
 
 use super::super::identity::ledger::ResolvedIdentityLedgerV2;
 use super::super::semantic_stack::ResolvedScopeRetirementV1;
@@ -224,6 +224,44 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         })
     }
 
+    /// Verify the existing one-predecessor SSA edge used by a profile's
+    /// terminal read.  The target read may have a distinct PHI ValueId from
+    /// its predecessor; the authority here is the sealed PHI input relation,
+    /// not raw ValueId equality.
+    pub(in crate::mir::builder::resolved_lowering) fn verify_single_predecessor_read_relation(
+        &self,
+        builder: &MirBuilder,
+        target: CanonicalBindingReadReceiptV1,
+        predecessor: CanonicalBindingReadReceiptV1,
+    ) -> Result<(), String> {
+        if target.owner != self.ledger.owner()
+            || predecessor.owner != self.ledger.owner()
+            || target.owner != predecessor.owner
+            || target.binding != predecessor.binding
+            || target.physical_block == predecessor.physical_block
+        {
+            return Err(
+                "[freeze:contract][canonical_binding_ssa/read_relation_identity]".to_owned(),
+            );
+        }
+        let function = builder
+            .function_state
+            .current_function
+            .as_ref()
+            .ok_or_else(|| {
+                "[freeze:contract][canonical_binding_ssa/read_relation_function]".to_owned()
+            })?;
+        let target_block = function.get_block(target.physical_block).ok_or_else(|| {
+            "[freeze:contract][canonical_binding_ssa/read_relation_target]".to_owned()
+        })?;
+        verify_single_predecessor_phi(
+            target_block,
+            target.physical_value,
+            predecessor.physical_block,
+            predecessor.physical_value,
+        )
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn resolve_assignment_binding(
         &self,
         site: &SourceExprSiteV1,
@@ -312,6 +350,32 @@ impl<'source> ResolvedSsaIdentityStateV2<'source> {
         }
         Ok(())
     }
+}
+
+fn verify_single_predecessor_phi(
+    target: &BasicBlock,
+    target_value: ValueId,
+    predecessor_block: BasicBlockId,
+    predecessor_value: ValueId,
+) -> Result<(), String> {
+    if target.predecessors.len() != 1 || !target.predecessors.contains(&predecessor_block) {
+        return Err(
+            "[freeze:contract][canonical_binding_ssa/read_relation_predecessor]".to_owned(),
+        );
+    }
+    let mut matching = target.instructions.iter().filter_map(|instruction| {
+        let MirInstruction::Phi { dst, inputs, .. } = instruction else {
+            return None;
+        };
+        (*dst == target_value).then_some(inputs)
+    });
+    let inputs = matching
+        .next()
+        .ok_or_else(|| "[freeze:contract][canonical_binding_ssa/read_relation_phi]".to_owned())?;
+    if matching.next().is_some() || inputs.as_slice() != [(predecessor_block, predecessor_value)] {
+        return Err("[freeze:contract][canonical_binding_ssa/read_relation_input]".to_owned());
+    }
+    Ok(())
 }
 
 impl ResolvedScopeRetirementV1 for ResolvedSsaIdentityStateV2<'_> {
@@ -460,5 +524,37 @@ mod tests {
             .expect("scope retirement");
         assert!(!state.active.contains(&binding));
         assert!(!state.initialized.contains(&binding));
+    }
+
+    #[test]
+    fn single_predecessor_phi_relation_accepts_distinct_target_value() {
+        let predecessor = BasicBlockId::new(1);
+        let mut target = BasicBlock::new(BasicBlockId::new(2));
+        target.predecessors.insert(predecessor);
+        target.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(9),
+            inputs: vec![(predecessor, ValueId::new(4))],
+            type_hint: Some(crate::mir::MirType::Integer),
+        });
+
+        verify_single_predecessor_phi(&target, ValueId::new(9), predecessor, ValueId::new(4))
+            .expect("After PHI may use a distinct ValueId");
+    }
+
+    #[test]
+    fn single_predecessor_phi_relation_rejects_input_drift() {
+        let predecessor = BasicBlockId::new(1);
+        let mut target = BasicBlock::new(BasicBlockId::new(2));
+        target.predecessors.insert(predecessor);
+        target.add_instruction(MirInstruction::Phi {
+            dst: ValueId::new(9),
+            inputs: vec![(predecessor, ValueId::new(4))],
+            type_hint: Some(crate::mir::MirType::Integer),
+        });
+
+        let error =
+            verify_single_predecessor_phi(&target, ValueId::new(9), predecessor, ValueId::new(5))
+                .expect_err("PHI input drift must reject");
+        assert!(error.contains("read_relation_input"));
     }
 }

@@ -79,6 +79,12 @@ impl<'a> ResolvedIdentityLedgerV2<'a> {
         }
     }
 
+    pub(in crate::mir::builder::resolved_lowering) const fn owner(
+        &self,
+    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+        self.product.owner()
+    }
+
     pub(in crate::mir::builder::resolved_lowering) fn adopt_declaration(
         &mut self,
         site: &SourceBindingSiteV1,

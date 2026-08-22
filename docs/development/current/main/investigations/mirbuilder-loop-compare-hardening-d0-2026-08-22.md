@@ -1,22 +1,22 @@
-Status: Compare prepare/reserve/commit I0 complete; Bridge affinity P0 is next
+Status: Compare prepare/reserve/commit I0 and Bridge relation P0 complete; next is structural-lease design stop
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
-Current execution row: MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
+Current execution row: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-D0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
+NextCard: MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-D0
 ---
 
 # Selected Dynamic Compare hardening D0
 
 ## Six-line brief
 
-Decision: the conditionally accepted Compare transaction I0 is implemented. The cursor EOF P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, Fault I6/I7 cleanup preclaim I0, Backedge cleanup/I13..I16 preclaim I0, and InnerReturn cleanup/facts I0 are closed. I0 adds only a same-owner Branch prepare/commit seam, borrow-free Compare preparation, last-fallible V13 reservation, and one private move-only co-seal; bridge equality, publication, and the caller-zero generic leaf remain separate.
-Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
+Decision: the conditionally accepted Compare transaction I0 is implemented. The cursor EOF P0, I8/I9/If preclaim I0, CallOut I0..I7 preclaim I0, Fault I6/I7 cleanup preclaim I0, Backedge cleanup/I13..I16 preclaim I0, and InnerReturn cleanup/facts I0 are closed. I0 adds only a same-owner Branch prepare/commit seam, borrow-free Compare preparation, last-fallible V13 reservation, and one private move-only co-seal; the bridge relation, publication, and the caller-zero generic leaf remain separate.
+Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts and the sealed binding-read relation; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
 Fail-fast boundary: InnerReturn return facts now occur before End/V14. The selected-I9 transaction prepares all fallible claims, Compare, and Branch work before the last-fallible V13 reservation; only the private aggregate commits the prepared Compare, Bool, V13, and Branch products. No rollback, retry, or fallback exists.
-Smallest next slice: MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0, add only the narrow OuterReturn/Header-current relation check and compile/guard evidence for move-only destination/Bool plans. It does not open publication, generic Loop retirement, parser witness, or performance work.
+Smallest next slice: the Bridge relation P0 is now closed with evidence. The next slice is the read-only `MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-D0` census and retirement Decision; it must not edit code until the caller-zero structural lease is classified as delete, `cfg(test)`, or explicit experimental namespace.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -31,7 +31,7 @@ The current HEAD confirms the following rows.
 | V13 reserve_result precedes CanonicalLoopCompareI64WriterV1::emit, whose preparation can reject | ordering defect | i8_i9_control.rs; canonical_compare_writer.rs | prepare/reserve split |
 | PendingDynamicV2PhysicalValuePublishV1::commit uses three assert_eq! checks | panic-capable pairing gap | selected_dynamic_physical_emitter/value_ledger.rs::commit | private co-sealed commit aggregate |
 | destination and Bool plan derive Clone/Copy or Clone | affinity hardening | canonical_ssa/session/destination.rs; emission/compare_type.rs | remove in a separate P2 cell |
-| OuterReturn checks owner/binding/block but not physical value equality with Header-current | bridge completeness gap | selected_dynamic_physical_emitter/body_state_bridge.rs | add narrow relation check |
+| OuterReturn checks owner/binding/block but not the sealed Header-to-After SSA edge | bridge completeness gap | selected_dynamic_physical_emitter/profile_close.rs; canonical_ssa/identity.rs | verify the existing one-predecessor PHI relation; reject raw ValueId equality |
 | loop_recipe_physicalizer/compare_i64_writer.rs is a test-only adapter but is compiled non-test to re-export the production writer | build-scope/naming mismatch, not a correctness blocker | loop_recipe_physicalizer/mod.rs, resolved_lowering/mod.rs | parked cleanup; never cfg-out the production writer |
 | pure_operation_emitter.rs retains old post-append checks | caller-zero baseline debt | generic Loop module header and caller census | preserve until activation/retirement Decision |
 
@@ -62,6 +62,27 @@ Worker audit confirmation:
     commit. Therefore reserve-last includes Branch preparation, not only the
     Compare writer preparation. P3 items and the generic caller-zero leaf stay
     parked and are not merged into the selected Dynamic authority.
+
+Latest relation audit (Dirac, read-only):
+
+    OuterReturn, Header-current, and Backedge V17 are intentionally distinct
+    physical ValueIds in the current fixture. The canonical relation is:
+
+        After predecessor = Header
+        After OuterReturn PHI input = (Header, Header-current)
+
+    Direct `OuterReturn == Header-current` and `OuterReturn == V17` are both
+    NoSafeSlice. The profile-close/canonical-SSA owner verifies the sealed PHI
+    input relation without issuing a new semantic receipt; the BodyBridge
+    continues to consume the existing owner/binding/block receipt only.
+
+Feedback reconciliation:
+
+    The report claiming that I9 still reserves before writer/Branch preparation
+    is stale relative to main `0f3a1c821d`. The selected path already has
+    Compare/Branch prepare, last-fallible V13 reservation, private move-only
+    commit, and no pending `assert_eq!` pairing. That report is retained only
+    as historical audit input, not as a new implementation task.
 
 ## Authority boundary
 
@@ -665,21 +686,48 @@ private, the Branch plan is session-bound, and the strict writer does not use a
 repair-capable legacy front door. Publication and generic retirement remain
 closed by explicit non-claims.
 
-### 15. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
+### 15. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0 — complete
 
 Keep this separate from the physical transaction rewrite.
 
 Required narrow checks:
 
     OuterReturn owner/binding/block must match Header-current
-    OuterReturn physical_value must equal header_current.physical_value()
+    profile close seals After before relation verification
+    After has exactly one Header predecessor
+    After OuterReturn is exactly one PHI whose input is
+      (Header, Header-current.physical_value())
+    distinct OuterReturn/Header-current ValueIds are accepted
+    raw OuterReturn == Header-current and OuterReturn == V17 equality are forbidden
     ReservedCanonicalCompareDestinationV1 is Debug-only and move-only
     PreparedCanonicalCompareBoolTypeV1 is Debug-only and move-only
 
-The bridge check is a relation check, not a new semantic source. Add a
-negative test that changes only the physical value and rejects before any
-publication. Type affinity must be verified by compile/guard evidence rather
-than runtime behavior.
+The relation check is owned by `CanonicalSsaFunctionSessionV2` after the
+existing profile-close seal. It is a mechanical check over an already-issued
+`CanonicalBindingReadReceiptV1`; it is not a new semantic source or route.
+Focused evidence accepts a distinct target PHI ValueId and rejects a drifted
+PHI input before DraftSeal. Type affinity is verified by compile/guard evidence
+rather than runtime behavior.
+
+Implementation evidence / closeout:
+
+    canonical_ssa/identity.rs::verify_single_predecessor_read_relation
+    selected_dynamic_physical_emitter/profile_close.rs calls it after
+      `seal_block(canonical, outer, after)?`
+    body_state_bridge.rs retains only the existing owner/binding/block check
+    identity relation tests: distinct target ValueId accepted; input drift rejected
+    selected Dynamic production fixture: 1 passed
+
+    selected Dynamic focused suite: 10 passed
+    `cargo check --profile quick`: passed
+    body-state bridge, CONNECT0, strict-writer, preclaim, pointer, and diff
+    guards: green
+    `ReservedCanonicalCompareDestinationV1` and
+    `PreparedCanonicalCompareBoolTypeV1`: no Clone/Copy derivation
+
+The relation authority is the canonical SSA owner's sealed After PHI edge; the
+BodyBridge intentionally does not compare raw ValueIds or create a second
+observation. This closes the current fast slice without opening publication.
 
 ### 16. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
 
@@ -697,6 +745,54 @@ BoxShape:
       an explicitly migration-scoped adapter after caller census
 
 This cleanup is not a prerequisite for the selected I9 transaction boundary.
+
+## Follow-up task map from the latest audit
+
+These tasks are parked in order after the current Bridge P0. They do not reopen
+the landed I9 transaction or create parallel production routes.
+
+### F1 — MIR-CALLABLE-LOOP-STRUCTURAL-LEASE-RETIRE-D0
+
+Run the dedicated caller-zero design card
+`mirbuilder-callable-loop-structural-lease-retire-d0-2026-08-23.md`. If
+production callers are zero, choose exactly one retirement shape: delete,
+`cfg(test)`, or move under an explicit experimental namespace. Keep the
+source-Facts -> semantic Recipe path as the only production Ready authority.
+No implementation before that Decision.
+
+### F2 — MIR-CALLABLE-LOOP-OUTSIDE-OBSERVED-CLASS-D0
+
+Separate observed binding rows from admitted Ready classes. Preserve the exact
+binding-to-receipt relation in Outside rows, add a private remainder validator,
+and do not issue/drop a `Verified*` schedule merely to validate an Outside
+remainder. Outside remains terminal until a named consumer is accepted.
+
+### F3 — MIR-CALLABLE-LOOP-UNPUBLISHED-SESSION-CAPABILITY-D0
+
+Audit the physical adapter boundary. Decide whether the current unpublished
+outer session can be represented by an existing capability without creating a
+second Builder owner. The minimum target is to prevent an adapter from receiving
+an externally publishable `&mut MirBuilder`; pure-plan work is not assumed.
+
+### F4 — MIR-CALLABLE-LOOP-PURE-PLAN-BEFORE-EFFECT-D0
+
+Only if F3 or a production caller requires it, split symbolic LoopValueKey plan
+composition/verification from ValueId materialization. This is a larger BoxCount
+slice and must not be smuggled into F1-F3.
+
+### F5 — MIRBUILDER-BARREL-BOXSHAPE-D0
+
+Behavior-neutral audit of `builder.rs`, `builder_init.rs`, and caller-zero
+modules. Introduce production/compatibility/experimental barrel labels only
+after caller census; no route or authority change. Keep every touched source
+below 760 lines.
+
+### F6 — MIRBUILDER-CI-REQUIRED-CHECKS-D0
+
+Operational task outside local code: require `cargo check`, focused MIRBuilder
+tests, critical guards, and `git diff --check` on the canonical main integration
+path. Do not claim this is complete until repository settings independently show
+the required checks.
 
 ## Finite state table
 
@@ -721,7 +817,8 @@ private aggregate immediately, just like the strict writer plan.
     V13 reserve is after every fallible writer/preclaim step
     pending V13 commit has no assert_eq! pairing
     destination and Bool plan have no Clone/Copy derives
-    OuterReturn/Header-current physical equality is checked
+    sealed After/Header-current PHI relation is checked by canonical SSA
+    raw OuterReturn/Header-current and OuterReturn/V17 equality is absent
     selected Dynamic has one writer/ledger route and zero fallback
     generic old leaf remains explicitly caller-zero if untouched
     all touched production files < 760 lines; 800 is a hard stop
@@ -734,11 +831,12 @@ Keep live publication closed if any of these remains:
     claim failure can be caught and route execution can continue
     writer preparation can fail after V13 reservation
     pending definition/ledger pairing still relies on assert or arbitrary input
-    OuterReturn relation is only owner/name/block-based
+    OuterReturn relation is only owner/name/block-based or skips the sealed PHI edge
     strict I9 can reach generic emit/fallback/retry
     DraftAdmission/ModuleDrain/ExternalCommit evidence is still missing
 
-Cursor EOF P0 and the I8/I9/If preclaim I0 are closed. Enter the CallOut
-preclaim D0 below before opening prepare/reserve/commit or live publication.
-The generic caller-zero leaf and all unrelated import/publication work remain
-parked.
+Cursor EOF, all selected Dynamic preclaim cells, Compare prepare/reserve/commit,
+and the sealed BodyBridge relation are closed. The structural-lease D0 is now
+the sole next design stop. The generic caller-zero leaf, Outside consumer,
+unpublished-session capability, pure plan, publication, parser, and performance
+work remain parked.

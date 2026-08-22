@@ -480,6 +480,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &mut canonical,
             &mut outer,
             &self.demand,
+            &self.formal_header,
             &self.targets,
             &self.callout_corridor,
             &self.lifecycle,

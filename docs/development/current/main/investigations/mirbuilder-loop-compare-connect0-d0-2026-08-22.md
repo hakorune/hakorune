@@ -298,6 +298,12 @@ consumption cardinality, not the source-site/physical-value relation. A
 bridge that treats `V17` and Header current as interchangeable, or that uses
 operation-cursor claims without a state relation, remains `NoSafeSlice`.
 
+The existing canonical SSA owner closes the physical relation without raw
+ValueId equality: after `After` is sealed, its OuterReturn PHI must have exactly
+one `Header` predecessor/input carrying the already-issued Header-current
+receipt. The bridge consumes the resulting existing receipt and does not
+reread or reconstruct the PHI.
+
 This audit changes no runtime route and adds no semantic receipt. The working
 tree was clean before the audit; the only intended changes are this card and
 the compact `CURRENT_STATE.toml` pointer.
@@ -359,7 +365,9 @@ site, W6 producer row, and physical block for each relation. It does not assert
 `V1 == Header current`, `V14 == Header current`, `V17 == Header current`, or
 `OuterReturn == V17`. I11 adds V14 to the existing physical value ledger without
 emitting an instruction; `profile_close` returns its already-issued After
-receipt so the bridge cannot create a second PHI/read observation.
+receipt so the bridge cannot create a second PHI/read observation. The
+profile-close canonical SSA check separately verifies that this After receipt
+is the single Header-current PHI edge.
 
 The existing Dynamic `Rc` is transported through A-prime demand by cloning the
 already-issued handle before the selected input is consumed. The bridge may
