@@ -813,15 +813,18 @@ wire results, duplicate body rows, and owner/segment/plan drift reject before
 the next physical effect. The next design stop is the V9+ExactText V1
 residence co-seal.
 
-## Common V2 structure R0 (2026-08-18)
+## Common V2 structure R0 (2026-08-23)
 
 `CommonV2CanonicalSessionRefV1` remains the single session owner. Its
-length-specific projections are implemented in the private
-`common_v2_session_length.rs` child, while segment/condition/continuation
-projections are in `common_v2_session_segments.rs`; both extend the same
+facade now lives at `common_v2_session/mod.rs`; its private
+length-specific projections are implemented in the
+`common_v2_session/session_length.rs` child, while segment/condition/continuation
+projections are in `common_v2_session/session_segments.rs`; both extend the same
 parent type and cannot create a sibling session or semantic receipt. The
-facade is now well below the 800-line source ceiling, and this refactor emits
-no new MIR, runtime wire, TextEq, CFG, publication, fallback, or retry.
+remaining private projections are ordinary children of that facade rather than
+path-glued siblings. The facade is now well below the 800-line source ceiling,
+and this refactor emits no new MIR, runtime wire, TextEq, CFG, publication,
+fallback, or retry.
 
 ## Pinned Text Residence lifecycle authority I0 (2026-08-18)
 
@@ -844,7 +847,7 @@ the compiler-side V9 lifecycle consumer. It co-seals the source-backed
 Substring target, the checked single-site plan, the V6/V8 operand receipt, the
 Body segment, and the existing source TextEq occurrence/ExactText sidecar in
 the same canonical session before any callout mutation. The private
-`common_v2_s6c_substring_callout_materializer.rs` child then installs that plan
+`common_v2_session/s6c_substring_callout_materializer.rs` child then installs that plan
 and delegates all MIR writes to the existing canonical CFG/SSA writers:
 
 ```text

@@ -327,7 +327,7 @@ mod tests {
 
     fn final_source() -> VerifiedFinalCallableProgramSourceV1 {
         let parsed = NyashParser::parse_normal_callable_program_with_build_config(
-            include_str!("../../../../apps/tests/scan_with_init_typed_ok_min.hako"),
+            include_str!("../../../../../apps/tests/scan_with_init_typed_ok_min.hako"),
             ParserBuildConfig::default(),
         )
         .expect("S6C issuer source");

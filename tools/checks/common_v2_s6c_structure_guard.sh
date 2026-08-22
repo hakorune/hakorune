@@ -11,14 +11,14 @@ guard_require_command "$TAG" wc
 files=(
   "$ROOT_DIR/src/mir/loop_recipe_contract/s6c_prephysical_ingress.rs"
   "$ROOT_DIR/src/mir/loop_recipe_contract/s6c_prephysical_ingress_validation.rs"
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session.rs"
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_length.rs"
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_segments.rs"
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_substring_callout_materializer.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/mod.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/session_length.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/session_segments.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/s6c_substring_callout_materializer.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_content_root_admission.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_cursor_preheader.rs"
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_scalar_equality_leaf.rs"
-  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/s6c_scalar_equality_leaf.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/s6c_cursor_cfg.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/physical_entry_draftseal.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_exit.rs"
   "$ROOT_DIR/src/mir/builder/resolved_lowering/draft_seal/text_residence_ingress.rs"
@@ -45,14 +45,37 @@ for file in "${files[@]}"; do
 done
 
 ingress="$ROOT_DIR/src/mir/loop_recipe_contract/s6c_prephysical_ingress.rs"
-session="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session.rs"
+session="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/mod.rs"
+legacy_flat_files=(
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_length_call.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_initial_index_seed.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_return_read.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_condition_bool.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_operand_issuer.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_eq_occurrence.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_substring_v9_issuer.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_substring_callout_materializer.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_length.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session_segments.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_scalar_equality_leaf.rs"
+  "$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg.rs"
+)
+for legacy_file in "${legacy_flat_files[@]}"; do
+  if [[ -e "$legacy_file" ]]; then
+    guard_fail "$TAG" "session child escaped back to the flat legacy path: ${legacy_file#"$ROOT_DIR/"}"
+  fi
+done
+if rg -n '^#\[path = ' "$session"; then
+  guard_fail "$TAG" "session facade still uses path glue"
+fi
 guard_expect_fixed_in_file "$TAG" 's6c_prephysical_ingress_validation.rs' "$ingress" \
   "ingress must retain the private source-anchor validation child"
-guard_expect_fixed_in_file "$TAG" 'common_v2_session_length.rs' "$session" \
+guard_expect_fixed_in_file "$TAG" 'mod session_length;' "$session" \
   "session must retain the private Length child"
-guard_expect_fixed_in_file "$TAG" 'common_v2_session_segments.rs' "$session" \
+guard_expect_fixed_in_file "$TAG" 'mod session_segments;' "$session" \
   "session must retain the private segment child"
-guard_expect_fixed_in_file "$TAG" 's6c_substring_callout_materializer.rs' "$session" \
+guard_expect_fixed_in_file "$TAG" 'mod s6c_substring_callout_materializer;' "$session" \
   "session must retain the private canonical V9 materializer child"
 content_admission="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_text_content_root_admission.rs"
 guard_expect_fixed_in_file "$TAG" 'issue_common_v2_s6c_text_content_root_admission_v1' "$content_admission" \
@@ -71,13 +94,13 @@ guard_expect_fixed_in_file "$TAG" 'byte_offset: 0' "$cursor_preheader" \
 if rg -n '^(use|pub|impl|struct|enum|fn).*\b(ValueId|MirInstruction|PinnedTextOp)\b' "$cursor_preheader"; then
   guard_fail "$TAG" "cursor/preheader I0 must not issue MIR/ValueId/PinnedTextOp"
 fi
-scalar_leaf="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_scalar_equality_leaf.rs"
+scalar_leaf="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/s6c_scalar_equality_leaf.rs"
 guard_expect_fixed_in_file "$TAG" 'issue_common_v2_s6c_text_scalar_equality_leaf_v1' "$scalar_leaf" \
   "scalar-equality I0 must have one named effect-free issuer"
 if rg -n '^(use|pub|impl|struct|enum|fn).*\b(ValueId|MirInstruction|PinnedTextOp)\b' "$scalar_leaf"; then
   guard_fail "$TAG" "scalar-equality I0 must not issue MIR/ValueId/PinnedTextOp"
 fi
-cursor_cfg="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_s6c_cursor_cfg.rs"
+cursor_cfg="$ROOT_DIR/src/mir/builder/resolved_lowering/common_v2_session/s6c_cursor_cfg.rs"
 guard_expect_fixed_in_file "$TAG" 'materialize_common_v2_s6c_cursor_cfg_v1' "$cursor_cfg" \
   "cursor CFG must have one named canonical materializer"
 guard_expect_fixed_in_file "$TAG" 'emit_branch' "$cursor_cfg" \

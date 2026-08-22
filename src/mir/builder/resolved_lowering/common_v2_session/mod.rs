@@ -23,59 +23,48 @@ use super::common_v2_s6c_substring_callout_admission::{
 };
 use super::draft_seal::ReadyFunctionDraftSealV1;
 
-#[path = "common_v2_length_call.rs"]
 mod length_call;
 pub(in crate::mir::builder) use length_call::{
     CanonicalLengthCallResultReceiptV1, LengthCallDirectEmitterRejectV1,
 };
 
-#[path = "common_v2_initial_index_seed.rs"]
 mod initial_index_seed;
 pub(in crate::mir::builder) use initial_index_seed::{
     CanonicalInitialIndexSeedReceiptV1, InitialIndexSeedMaterializationRejectV1,
 };
 
-#[path = "common_v2_return_read.rs"]
 mod return_read;
 pub(in crate::mir::builder) use return_read::{
     CommonV2ReturnReadPhysicalReceiptV1, ReturnReadPhysicalReceiptRejectV1,
 };
 
-#[path = "common_v2_condition_bool.rs"]
 mod condition_bool;
 pub(in crate::mir::builder) use condition_bool::{
     CanonicalConditionBoolResultReceiptV1, ConditionBoolMaterializationRejectV1,
     ConditionBoolReturnReadRejectV1,
 };
 
-#[path = "common_v2_s6c_operand_issuer.rs"]
 mod s6c_operand_issuer;
 pub(in crate::mir::builder) use s6c_operand_issuer::S6CTextEqOperandIssuerRejectV1;
 
-#[path = "common_v2_s6c_text_eq_occurrence.rs"]
 mod s6c_text_eq_occurrence;
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrencePhysicalViewV1;
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrenceViewRejectV1;
 
-#[path = "common_v2_s6c_substring_v9_issuer.rs"]
 mod s6c_substring_v9_issuer;
 pub(in crate::mir::builder) use s6c_substring_v9_issuer::{
     CommonV2SubstringV9IssuerRejectV1, CommonV2SubstringV9MaterializationV1,
 };
 
-#[path = "common_v2_s6c_substring_callout_materializer.rs"]
 mod s6c_substring_callout_materializer;
 pub(in crate::mir::builder) use s6c_substring_callout_materializer::{
     CommonV2SubstringCallOutExactTextCoSealRefV1, CommonV2SubstringCallOutMirMaterializerRejectV1,
 };
 
-#[path = "common_v2_session_length.rs"]
 mod session_length;
 
-#[path = "common_v2_session_segments.rs"]
 mod session_segments;
 
-#[path = "common_v2_s6c_scalar_equality_leaf.rs"]
 mod s6c_scalar_equality_leaf;
 pub(in crate::mir::builder) use s6c_scalar_equality_leaf::{
     issue_common_v2_s6c_text_scalar_equality_leaf_v1,
@@ -83,7 +72,6 @@ pub(in crate::mir::builder) use s6c_scalar_equality_leaf::{
     CommonV2S6CTextScalarEqualityLeafRejectV1, CommonV2S6CTextScalarEqualityLeafShapeV1,
 };
 
-#[path = "common_v2_s6c_cursor_cfg.rs"]
 mod s6c_cursor_cfg;
 pub(in crate::mir::builder::resolved_lowering) use s6c_cursor_cfg::{
     CommonV2S6CCursorCfgReceiptV1, CommonV2S6CCursorCfgRejectV1,

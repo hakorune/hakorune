@@ -1,7 +1,7 @@
-Status: common_v2 session home D0 complete; selected behavior-neutral common_v2 session home R0
+Status: common_v2 session home R0 complete; selected if_control owner-split design audit
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-COMMON-V2-SESSION-HOME-R0`
+Current row: `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,9 +56,9 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-COMMON-V2-SESSION-HOME-R0` — move only the
-audited session parent and its 12 private children behind a `mod.rs` facade,
-preserving logical module paths, visibility, re-exports, and behavior.
+Smallest next slice: `MIRBUILDER-IF-CONTROL-OWNER-SPLIT-D0` — audit the live
+if_control.rs analyzer/use-ledger/product ownership and all callers before any
+BoxShape split; preserve one control authority and behavior.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -100,7 +100,7 @@ src/mir/function/metadata.rs: 804 lines, explicitly excluded
 operation_emitter.rs: 491 lines, supplied 794-line claim is stale
 if_control.rs: 798 lines, architecture D0, not a mechanical split
 dynamic_full_body_recipe/mod.rs: 287 lines, 53 vocabulary references
-common_v2_session.rs: 12 #[path] child declarations
+pre-R0 snapshot: common_v2_session.rs had 12 #[path] child declarations
 ```
 
 The live README stale references are limited to
@@ -276,7 +276,7 @@ existing compiler↔builder type dependency is pre-existing and is not changed
 by this BoxShape move. The supplied broad `common_v2` file count is therefore
 not a move scope.
 
-#### `MIRBUILDER-COMMON-V2-SESSION-HOME-R0` — selected next
+#### `MIRBUILDER-COMMON-V2-SESSION-HOME-R0` — complete
 
 Create `src/mir/builder/resolved_lowering/common_v2_session/mod.rs` and move
 the audited parent plus its 12 children into that directory. Replace the
@@ -297,6 +297,21 @@ focused common_v2 session tests and cargo check --profile quick pass
 git diff --check is clean
 no non-session common_v2 file moves, semantic edits, new authority, route,
   fallback, physical effect, or production switch
+```
+
+Evidence:
+
+```text
+common_v2_session/mod.rs = 533 lines; 12 moved children, all < 800
+largest moved child: s6c_cursor_cfg.rs = 687 lines
+flat legacy session/child paths = 0; facade path attributes = 0
+logical module/re-export/visibility/owner boundary unchanged
+one moved fixture include_str path adjusted for the new physical depth
+focused common_v2 suite = 63 passed, 0 failed, 0 ignored
+common_v2_s6c_structure_guard.sh = passed
+cargo check --profile quick = passed (existing warning baseline retained)
+focused rustfmt, git diff --check, and current-state pointer guard = passed
+no sibling common_v2 move, semantic edit, route, fallback, or production switch
 ```
 
 #### `MIRBUILDER-BUILDER-TEST-HOME-R0` — complete
@@ -410,7 +425,7 @@ brief before implementation:
 | `MIRBUILDER-NORMAL-MODULE-SHELF-D0` | broad current filename counts are 103 `normal_*` and 63 `module_*`; an ownership map is needed, not a directory-only rename |
 | `MIRBUILDER-RAW-ROOT-BOUNDARY-D0` | compiler/builder split affects source, physical, and publication edges |
 | `MIRBUILDER-RING0-LOGGER-INJECTION-D0` | a broad scan finds 223 ring0-containing files, not dependency edges; measure the actual graph and forbid a hidden global observer |
-| `MIRBUILDER-AST-VIEW-MIGRATION-D0` | the broad current scan finds 893 AST-importing files, not 617; staged source-view authority is needed, and the synthetic AST construction in `recipe_tree/matcher` is a separate correctness review |
+| `MIRBUILDER-AST-VIEW-MIGRATION-D0` | the broad current scan finds 893 AST-importing files, not 617; staged source-view authority is needed, and any synthetic AST construction is a separate correctness review |
 
 ## Guard and closeout contract
 
