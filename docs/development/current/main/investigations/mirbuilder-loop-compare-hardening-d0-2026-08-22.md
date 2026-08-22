@@ -1,11 +1,11 @@
-Status: preclaim Decision accepted; I0 is the active bounded cell
+Status: I8/I9/If preclaim I0 landed; CallOut preclaim D0 is the next design stop
 Task: MIR-LOOP-COMPARE-TRANSACTION-HARDENING-D0
-Current execution row: MIR-DYNAMIC-PHYSICAL-PRECLAIM-I0
+Current execution row: MIR-DYNAMIC-CALLOUT-PRECLAIM-D0
 Date: 2026-08-22
 Priority: harden the selected Dynamic I9 transaction boundary before live publication
 Parent: MIR-LOOP-COMPARE-LIVE-PUBLICATION-BOUNDARY-D0
 CurrentCard: docs/development/current/main/investigations/mirbuilder-loop-compare-hardening-d0-2026-08-22.md
-NextCard: MIR-DYNAMIC-PHYSICAL-PRECLAIM-I0 (after the accepted preclaim Decision)
+NextCard: MIR-DYNAMIC-CALLOUT-PRECLAIM-D0 (after I8/I9/If preclaim I0)
 ---
 
 # Selected Dynamic Compare hardening D0
@@ -16,7 +16,7 @@ Decision: accept the feedback as four ordered hardening cells. The cursor EOF P0
 Source authority + canonical issuer: the verified Dynamic operation/cleanup rows own claim order; CanonicalSsaFunctionSessionV2 owns destination/type facts; CanonicalLoopCompareI64WriterV1 owns the single physical append; DynamicV2PhysicalValueLedgerV1 owns V13 publication. A private I9 commit aggregate may co-seal these existing products but must not issue new source meaning.
 Non-authority: append-time census claims, raw ValueId equality, post-append type/ledger checks, assert-based pairing, the generic caller-zero Loop ledger, AST/name/ordinal lookup, and fallback/retry.
 Fail-fast boundary: for I8/I9/If, pure row/corridor/owner validation is followed by three existing census claims before `issue_physical_value_id` or the first I8 Const effect. A claim failure is terminal and the unpublished outer session is discarded; no rollback, retry, or fallback exists. Writer preparation, bridge checks, and result reservation remain in their later transaction cell.
-Smallest next slice: MIR-DYNAMIC-PHYSICAL-PRECLAIM-I0, move the I8/I9/If claims before the I8 physical effect and add effect-zero/line-order evidence. It does not open Backedge/Fault/InnerReturn claims, live publication, or the broader writer transaction.
+Smallest next slice: MIR-DYNAMIC-CALLOUT-PRECLAIM-D0, a design-only census of I0..I7 CallOut claims before selecting its implementation cell. It does not open Backedge/Fault/InnerReturn claims, live publication, or the broader writer transaction.
 Non-claims: no imported target authority, no DraftAdmission/ModuleDrain/ExternalCommit proof, no generic Loop activation/retirement, no cross-block dominance, no backend, and no performance work.
 
 ## Audit result
@@ -162,6 +162,15 @@ Acceptance:
     no fallback/retry catches a claim rejection
     one existing claim owner and one terminal discard path are named
 
+I0 closeout evidence: the three claims now occur once, before the first I8
+`issue_physical_value_id`/Const effect; the old post-Compare/Branch claim edge
+is gone. The selected Dynamic focused suite is 10/10, CONNECT0 and strict-
+writer guards are green, the pointer guard and diff check are green, and
+`i8_i9_control.rs` is 298 lines. The line-order guard is the structural
+effect-zero proof: a claim rejection is encountered before any cohort ValueId
+or instruction mutation, and the existing `reject_begin()` remains the only
+terminal discard path.
+
 NoSafeSlice: I8/I9/If claims cannot be placed before the first cohort effect,
 preflight requires a second order authority, claim failure can continue into a
 fallback/retry, or the unpublished outer session discard cannot be proven.
@@ -171,7 +180,34 @@ effect census, selected `preflight-and-consume` for I8/I9/If, and kept
 Backedge/Fault/InnerReturn outside this I0. The audit found no need for a new
 receipt or second authority.
 
-### 3. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
+The next design stop is `MIR-DYNAMIC-CALLOUT-PRECLAIM-D0`, covering the I0..I7
+CallOut operation claims only. It must audit the pure pre-effect boundary
+before any CallOut ValueId/Const/Add/CallOut effect; cleanup and terminal
+claims remain separate.
+
+### 3. MIR-DYNAMIC-CALLOUT-PRECLAIM-D0
+
+Design-only next cell. Audit the I0..I7 operation claims currently consumed
+at the end of `callout_corridor/emission.rs`. Decide whether the same existing
+`DynamicV2PhysicalOperationCensusV1` can preflight-and-consume the exact
+ordered claims after pure row/site/brand validation and before the first
+CallOut ValueId, Const, Add, or CallOut effect. Do not add a batch receipt or
+second order authority.
+
+Acceptance:
+
+    every I0..I7 claim site and preceding physical effect is recorded
+    one bounded pre-effect boundary or an explicit NoSafeSlice is named
+    operation census and cleanup cursor remain separate owners
+    outer unpublished discard and no-fallback behavior are proven
+    a focused positive/negative test and reusable line-order/effect-zero guard
+      can be specified without touching Backedge/Fault/InnerReturn
+
+NoSafeSlice: CallOut claims need a second source/order authority, the pure
+boundary cannot be placed before the first CallOut effect, or preclaiming them
+would require changing the selected Dynamic route or generic Loop authority.
+
+### 4. MIR-LOOP-COMPARE-PREPARE-RESERVE-I0
 
 Implement only after the preclaim D0 is accepted. Split the current writer
 front door into:
@@ -217,7 +253,7 @@ Acceptance:
 NoSafeSlice: the aggregate cannot make definition/slot pairing private and
 move-only, or the writer still needs a repair-capable legacy front door.
 
-### 4. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
+### 5. MIR-LOOP-BODY-BRIDGE-RETURN-AFFINITY-P0
 
 Keep this separate from the physical transaction rewrite.
 
@@ -233,7 +269,7 @@ negative test that changes only the physical value and rejects before any
 publication. Type affinity must be verified by compile/guard evidence rather
 than runtime behavior.
 
-### 5. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
+### 6. Parked cleanup: MIR-LOOP-GENERIC-COMPARE-RETIRE-D0
 
 Do not touch the generic caller-zero leaf in the selected Dynamic hardening
 series. Its old append-then-publish behavior remains a known baseline debt
@@ -290,6 +326,7 @@ Keep live publication closed if any of these remains:
     strict I9 can reach generic emit/fallback/retry
     DraftAdmission/ModuleDrain/ExternalCommit evidence is still missing
 
-Cursor EOF P0 is closed. Return to the preclaim D0 below before opening
-prepare/reserve/commit or live publication. The generic caller-zero leaf and
-all unrelated import/publication work remain parked.
+Cursor EOF P0 and the I8/I9/If preclaim I0 are closed. Enter the CallOut
+preclaim D0 below before opening prepare/reserve/commit or live publication.
+The generic caller-zero leaf and all unrelated import/publication work remain
+parked.

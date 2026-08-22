@@ -188,85 +188,86 @@ impl SelectedDynamicI9CompareHandoffIssuerV1 {
             ));
         }
 
-        corridor
-            .with_i7_normal(|normal| {
-                let block = normal.block();
-                let value_v12 = canonical
-                    .issue_physical_value_id(outer.builder_view_mut_for_lowering())
-                    .map_err(reject)?;
-                let _receipt = i64_const::emit_with_dst(
+        // Consume the existing physical census before the first I8 ValueId or
+        // instruction effect.  The outer unpublished session is the only
+        // recovery boundary; a failed claim is terminal and never retried.
+        operation_census
+            .claim_operation(I8)
+            .map_err(|error| reject(format!("I8 physical operation claim: {error:?}")))?;
+        operation_census
+            .claim_operation(I9)
+            .map_err(|error| reject(format!("I9 physical operation claim: {error:?}")))?;
+        operation_census
+            .claim_if()
+            .map_err(|error| reject(format!("If physical claim: {error:?}")))?;
+
+        corridor.with_i7_normal(|normal| {
+            let block = normal.block();
+            let value_v12 = canonical
+                .issue_physical_value_id(outer.builder_view_mut_for_lowering())
+                .map_err(reject)?;
+            let _receipt = i64_const::emit_with_dst(
+                outer.builder_view_mut_for_lowering(),
+                normal,
+                evidence,
+                brand,
+                values,
+                value_v12,
+            )?;
+            let value_v11 = value_at(values, compare_i64.v11().producer(), V11, block)?;
+            let value_v12 = value_at(values, compare_i64.v12().producer(), V12, block)?;
+            let lhs = canonical
+                .prepare_existing_same_block_integer(
                     outer.builder_view_mut_for_lowering(),
+                    CanonicalSameBlockIntegerRequestV1::from_parts(owner, block, value_v11),
+                )
+                .map_err(|error| reject(format!("I9 lhs canonical witness: {error:?}")))?;
+            let rhs = canonical
+                .prepare_existing_same_block_integer(
+                    outer.builder_view_mut_for_lowering(),
+                    CanonicalSameBlockIntegerRequestV1::from_parts(owner, block, value_v12),
+                )
+                .map_err(|error| reject(format!("I9 rhs canonical witness: {error:?}")))?;
+            let destination = canonical
+                .reserve_compare_destination(outer.builder_view_mut_for_lowering())
+                .map_err(reject)?;
+            let bool_plan = PreparedCanonicalCompareBoolTypeV1::prepare(
+                outer
+                    .builder_view_mut_for_lowering()
+                    .function_state
+                    .type_ctx
+                    .get_type(destination.value()),
+            )
+            .map_err(|error| reject(format!("I9 Bool plan: {error:?}")))?;
+            let pending = values
+                .reserve_result(
+                    I9,
+                    V13,
                     normal,
-                    evidence,
-                    brand,
-                    values,
-                    value_v12,
-                )?;
-                let value_v11 = value_at(values, compare_i64.v11().producer(), V11, block)?;
-                let value_v12 = value_at(values, compare_i64.v12().producer(), V12, block)?;
-                let lhs = canonical
-                    .prepare_existing_same_block_integer(
-                        outer.builder_view_mut_for_lowering(),
-                        CanonicalSameBlockIntegerRequestV1::from_parts(owner, block, value_v11),
-                    )
-                    .map_err(|error| reject(format!("I9 lhs canonical witness: {error:?}")))?;
-                let rhs = canonical
-                    .prepare_existing_same_block_integer(
-                        outer.builder_view_mut_for_lowering(),
-                        CanonicalSameBlockIntegerRequestV1::from_parts(owner, block, value_v12),
-                    )
-                    .map_err(|error| reject(format!("I9 rhs canonical witness: {error:?}")))?;
-                let destination = canonical
-                    .reserve_compare_destination(outer.builder_view_mut_for_lowering())
-                    .map_err(reject)?;
-                let bool_plan = PreparedCanonicalCompareBoolTypeV1::prepare(
-                    outer
-                        .builder_view_mut_for_lowering()
-                        .function_state
-                        .type_ctx
-                        .get_type(destination.value()),
+                    destination.value(),
+                    DynamicV2PhysicalRepresentationV1::ImmediateBool,
                 )
-                .map_err(|error| reject(format!("I9 Bool plan: {error:?}")))?;
-                let pending = values
-                    .reserve_result(
-                        I9,
-                        V13,
-                        normal,
-                        destination.value(),
-                        DynamicV2PhysicalRepresentationV1::ImmediateBool,
-                    )
-                    .map_err(|error| reject(format!("I9 result reservation: {error:?}")))?;
-                let target = lhs.target();
-                let definition = CanonicalLoopCompareI64WriterV1::emit(
-                    outer.builder_view_mut_for_lowering(),
-                    target,
-                    lhs,
-                    rhs,
-                    destination,
-                    CompareOp::Lt,
-                    bool_plan,
-                )
-                .map_err(|error| reject(format!("I9 strict Compare writer: {error:?}")))?;
-                let _published = pending.commit(&definition);
-                emit_branch(
-                    canonical,
-                    outer,
-                    block,
-                    definition.physical_value(),
-                    targets,
-                )
-            })
-            .and_then(|()| {
-                operation_census
-                    .claim_operation(I8)
-                    .map_err(|error| reject(format!("I8 physical operation claim: {error:?}")))?;
-                operation_census
-                    .claim_operation(I9)
-                    .map_err(|error| reject(format!("I9 physical operation claim: {error:?}")))?;
-                operation_census
-                    .claim_if()
-                    .map_err(|error| reject(format!("If physical claim: {error:?}")))
-            })
+                .map_err(|error| reject(format!("I9 result reservation: {error:?}")))?;
+            let target = lhs.target();
+            let definition = CanonicalLoopCompareI64WriterV1::emit(
+                outer.builder_view_mut_for_lowering(),
+                target,
+                lhs,
+                rhs,
+                destination,
+                CompareOp::Lt,
+                bool_plan,
+            )
+            .map_err(|error| reject(format!("I9 strict Compare writer: {error:?}")))?;
+            let _published = pending.commit(&definition);
+            emit_branch(
+                canonical,
+                outer,
+                block,
+                definition.physical_value(),
+                targets,
+            )
+        })
     }
 }
 

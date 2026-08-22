@@ -10,6 +10,7 @@ VALUE_LEDGER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physi
 BRAND="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
 WRITER="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_compare_writer.rs"
 OPERAND="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session/same_block_operand.rs"
+OPERATION_CURSOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/operation_cursor.rs"
 CARD="$ROOT_DIR/docs/development/current/main/investigations/mirbuilder-loop-compare-connect0-d0-2026-08-22.md"
 README="$ROOT_DIR/src/mir/builder/resolved_lowering/README.md"
 REFERENCE="$ROOT_DIR/docs/reference/mir/canonical-loop-compare-same-block.md"
@@ -18,8 +19,9 @@ SELF_SCRIPT="tools/checks/rust_mirbuilder_loop_compare_connect0_guard.sh"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
+guard_require_command "$TAG" python3
 guard_require_files "$TAG" "$I9_CONTROL" "$VALUE_LEDGER" "$BRAND" "$WRITER" \
-  "$OPERAND" "$CARD" "$README" "$REFERENCE" "$INDEX"
+  "$OPERAND" "$OPERATION_CURSOR" "$CARD" "$README" "$REFERENCE" "$INDEX"
 
 guard_expect_fixed_in_file "$TAG" "CanonicalLoopCompareI64WriterV1::emit(" "$I9_CONTROL" \
   "selected Dynamic I9 must call the named strict writer"
@@ -29,6 +31,8 @@ guard_expect_fixed_in_file "$TAG" "prepare_existing_same_block_integer" "$I9_CON
   "I9 operands must be rebound through canonical same-block witnesses"
 guard_expect_fixed_in_file "$TAG" "reserve_result(" "$I9_CONTROL" \
   "Dynamic V13 must reserve before the strict append"
+guard_expect_fixed_in_file "$TAG" "Consume the existing physical census before the first I8 ValueId" "$I9_CONTROL" \
+  "I8/I9/If claims must be explicitly pre-effect"
 guard_expect_fixed_in_file "$TAG" "pending.commit(&definition)" "$I9_CONTROL" \
   "Dynamic V13 must commit from the writer definition source"
 guard_expect_fixed_in_file "$TAG" "for_owner(demand.identity().owner())" "$BRAND" \
@@ -61,6 +65,23 @@ if [[ "${#production_callers[@]}" -ne 1 || "${production_callers[0]:-}" != "$I9_
   guard_fail "$TAG" "expected exactly one selected I9 production writer caller; found ${production_callers[*]:-none}"
 fi
 
+python3 - "$I9_CONTROL" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text()
+first_effect = text.find("issue_physical_value_id(")
+if first_effect < 0:
+    raise SystemExit("missing first I9 physical ValueId effect")
+for claim in ("claim_operation(I8)", "claim_operation(I9)", "claim_if()"):
+    positions = [index for index in range(len(text)) if text.startswith(claim, index)]
+    if len(positions) != 1:
+        raise SystemExit(f"expected exactly one {claim}, found {len(positions)}")
+    if positions[0] > first_effect:
+        raise SystemExit(f"{claim} occurs after the first I9 physical effect")
+PY
+
 # The selected I9 row must not fall back to the generic Loop ledger or legacy
 # Compare leaf. Other canary/compatibility rows remain outside this guard.
 for forbidden in \
@@ -75,7 +96,7 @@ do
   fi
 done
 
-for file in "$I9_CONTROL" "$VALUE_LEDGER" "$BRAND" "$WRITER" "$OPERAND"; do
+for file in "$I9_CONTROL" "$VALUE_LEDGER" "$BRAND" "$WRITER" "$OPERAND" "$OPERATION_CURSOR"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "CONNECT0 source reached the 800-line hard boundary: ${file#"$ROOT_DIR/"}=$lines"
@@ -85,4 +106,4 @@ for file in "$I9_CONTROL" "$VALUE_LEDGER" "$BRAND" "$WRITER" "$OPERAND"; do
   fi
 done
 
-echo "[$TAG] ok (one selected I9 writer caller, Dynamic-only V13 commit, no legacy fallback)"
+echo "[$TAG] ok (one selected I9 writer caller, I8/I9/If pre-effect claims, Dynamic-only V13 commit, no legacy fallback)"
