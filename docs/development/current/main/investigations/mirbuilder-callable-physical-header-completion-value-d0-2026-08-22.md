@@ -1,11 +1,11 @@
 ---
-Status: S0 BoxShape complete; D1 accepted; next P0
-Task: MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0
+Status: S0 BoxShape complete; D1 accepted; P0 NoSafeSlice; next D0
+Task: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0
 Date: 2026-08-22
-Priority: preserve one exact callable source-to-GenericLoop Recipe relation before ordinary effects
+Priority: design one source-aware callable Facts/Recipe issuer before ordinary effects
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-static-import-target-authority-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0 (this rolling card)
 ---
 
 # Callable physical-header eligibility D0
@@ -1255,6 +1255,144 @@ nested Loop delegation without a child-context/reborrow owner;
 post-walk repair, finish relaxation, fallback, or retry.
 ```
 
-The immediate current task is `MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0`.
-It may add only the caller-zero source-located transport named above; it may
-not consume the relation in ordinary lowering or add a production edge.
+The former immediate task `MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0` is
+superseded by the worker-verified `NoSafeSlice` below. The current task is
+`MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0`; no Rust implementation or
+production edge is authorized until that design stop is accepted.
+
+## P0 worker closure — NoSafeSlice and recovery order
+
+The requested source-to-Recipe P0 was audited again by a read-only worker and
+the local call graph. The result is **NoSafeSlice** under the current
+contracts. This is a design stop, not an implementation failure.
+
+The blocker is concrete:
+
+```text
+PreparedLocatedRawLoopChildEntryV1
+  -> source contexts are retained
+  -> lower_loop_or_freeze_v1 transports only MirBuilder + AST
+  -> try_extract_generic_loop_v1 accepts AST only and clones into Facts
+  -> LoopRouteContext carries no source context or final callable policy
+  -> GenericLoop is classified as PostEffectRetryDebt
+  -> execution witness advances to the legacy suffix
+```
+
+Adding the relation at this point would necessarily do one of the forbidden
+things: extract Facts once at the source entry and again in the route, attach
+an unbranded Facts product by name/ordinal/AST shape/ValueId, or add a
+production source edge into the retry-capable route. None is an acceptable
+source authority.
+
+### Corrected six-line brief
+
+```text
+Decision: keep body-only-rebind Outside terminal and return to design_stop; do not implement the current P0 until one source-aware Facts issuer and one terminal route transport are designed.
+Source authority + canonical issuer: CallableSemanticLoweringState + CallableLoopSourceProjectionV1 own owner/binding/role/class/grouped coverage; RawInvocationSourceContextV1 supplies exact location; the future CallableGenericLoopSourceFactsIssuerV1 must co-seal the exact AST input, one GenericLoop Facts/Recipe extraction, final policy, and front-selected terminal route.
+Non-authority: OutsideReason's separate bindings[]/sites[], AST-only GenericLoopV1Facts, cloned Recipe bodies, batch/name/ordinal/AST pointer/ValueId joins, Builder variable_map, LoopRouteContext without a source field, structural expression ports, and PostEffectRetryDebt continuation.
+Fail-fast boundary: source ownership, exact condition/body relation, grouped coverage, one Facts extraction, final RecipeOnly/ExitAllowed policy, and terminal route must close before CorePlan composition, normalizer, Builder mutation, or PlanLowerer; any failure is a typed terminal with no retry.
+Smallest next slice: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0; design the one-shot source-aware issuer and the route transport contract only. After acceptance, add grouped Outside rows as caller-zero preparation, then issue the private source-Recipe relation.
+Non-claims: no Rust implementation in this D0, no ordinary consumer, no body-only admission, no GenericLoop production switch, no fallback/retry, no finish weakening, no physical/publication/backend/performance work, and no main integration.
+```
+
+### Authority decision for the next D0
+
+The existing Facts extractor remains the semantic owner of GenericLoop shape,
+Recipe construction, and the final `BodyLoweringPolicy`. The new D0 must not
+make a second policy decision. It must specify an invocation-scoped issuer
+whose input is already source-bound:
+
+```text
+CallableGenericLoopSourceInputV1<'source>
+  = callable owner
+  + exact RawInvocationSourceContextV1 for loop/condition/body
+  + exact condition/body AST references from that same entry
+  + grouped callable coverage rows
+
+CallableGenericLoopSourceFactsIssuerV1::issue(...)
+  -> one GenericLoopV1ExtractionV1
+  -> final RecipeOnly / ExitAllowed policy retained verbatim
+  -> front-selected terminal route retained verbatim
+  -> private source-located Facts/Recipe relation
+```
+
+The issuer may invoke the existing AST-based Facts extractor once, but the
+result must never be handed to another route that extracts it again. The D0
+must therefore also specify how the relation crosses the source entry into
+the route as a move-only transport. `LoopRouteContext` may transport such a
+relation later, but it must not become the source-semantic issuer.
+
+`RawInvocationSourceContextV1` is location/lineage evidence, not callable
+binding authority. The callable state/projection remains the only owner of
+binding role/class relations. The relation issuer only co-seals these already
+issued facts; it must not invent roles from the cloned AST.
+
+### Correct task order
+
+1. `MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0` — current design stop.
+   Fix the source-to-Facts issuance boundary on paper and in the active card:
+   exact input lifetime, one extraction count, final policy transport,
+   front-terminal route, typed deferred/error states, and no legacy suffix.
+
+2. `MIR-CALLABLE-LOOP-OUTSIDE-COVERAGE-ROWS-P0` — caller-zero BoxShape.
+   Replace the diagnostic-only split `bindings[]`/`sites[]` representation with
+   the existing grouped `CallableLoopBindingCoverageRowV1` relation plus owner
+   and loop site. Do not admit the row to ordinary lowering and do not add a
+   consumer. If this requires new semantic meaning rather than a transport
+   shape, return to D0.
+
+3. `MIR-CALLABLE-LOOP-SOURCE-RECIPE-RELATION-P0` — caller-zero only after
+   D0 and grouped rows are accepted. Add a sibling module with a private,
+   non-`Clone` source-located relation and a sole issuer. It must carry the
+   exact final policy and terminal route and must be unconsumed by production.
+
+4. `MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0` — caller-zero terminal
+   infrastructure. The selected GenericLoop family must have a terminal named
+   port; `PostEffectRetryDebt`, legacy suffix advancement, fallback, and retry
+   are inaccessible from it.
+
+5. `MIR-CALLABLE-LOOP-ORDINARY-READY-PORT-P0` — caller-zero infrastructure
+   for one already-Ready, non-nested fixture. Structural expression lookup and
+   callable semantic reads/rebinds stay separate ports.
+
+6. `MIR-CALLABLE-LOOP-BODY-ONLY-REBIND-I0` — first admitted BoxCount. Consume
+   grouped BodyRead/BodyRebind rows through the named ordinary consumer and
+   prove strict `CallableSemanticLoweringState::finish`; all other Outside
+   reasons remain terminal.
+
+7. `MIR-CALLABLE-LOOP-ORDINARY-BRIDGE-R0` — atomic production cutover:
+   named consumer caller = 1, old Outside bypass = 0, retry/fallback = 0,
+   and the merged probe passes the former Outside boundary.
+
+### D0 acceptance and NoSafeSlice
+
+The D0 is accepted only when it can state all of the following without code
+guesswork:
+
+```text
+source AST and source context are issued by one invocation-scoped input
+Facts extraction count = 1
+final RecipeOnly/ExitAllowed policy is carried from the Facts issuer
+front-selected terminal route is carried without a legacy suffix
+relation construction is private, move-only, and sole-issued
+normalizer/Builder/PlanLowerer are downstream only
+```
+
+Remain in `design_stop` if any proposal requires:
+
+```text
+Facts without source-located provenance
+Outside arrays joined after the fact
+second Facts/Recipe extraction
+name/ordinal/AST-shape/ValueId pairing
+ambient policy recomputation
+source consumption before route terminality
+PostEffectRetryDebt, fallback, or retry after source consumption
+body-only rebind relabeled as the existing Ready carrier
+finish relaxation or Builder-map repair
+```
+
+The current execution row is therefore
+`MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-D0`; no Rust implementation or
+production claim is authorized until that design stop receives an accepted
+Decision.
