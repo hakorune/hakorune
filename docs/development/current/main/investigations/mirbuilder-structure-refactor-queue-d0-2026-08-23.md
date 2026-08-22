@@ -1,7 +1,7 @@
-Status: builder test-home R0 complete; selected next behavior-neutral BoxShape R0
+Status: loop physical prepare test-home R0 complete; selected next live README path receipt P0
 Date: 2026-08-23
 Parent: `CURRENT_STATE.toml` and `mirbuilder-post-audit-follow-up-queue-2026-08-21.md`
-Current row: `MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0`
+Current row: `MIRBUILDER-LIVE-README-PATH-RECEIPT-P0`
 ---
 
 # MirBuilder structure refactor queue D0
@@ -56,9 +56,9 @@ visibility, re-export edges, test ownership, and dependency direction. Any
 new public API, semantic reorder, second dispatcher, fallback, or owner drift
 returns the row to design stop.
 
-Smallest next slice: `MIRBUILDER-BUILDER-TEST-HOME-R0` — extract the existing
-test-only `binding_id_tests` cluster from the production barrel without changing
-module registration, semantic ownership, or runtime behavior.
+Smallest next slice: `MIRBUILDER-LIVE-README-PATH-RECEIPT-P0` — correct only the
+two stale live navigation claims in `src/mir/builder/README.md`; no Rust module,
+semantic owner, or runtime route changes.
 
 Non-claims: no I9 transaction completion, no pure symbolic CorePlan, no
 ordinary Outside consumer, no production switch, no legacy semantic retirement,
@@ -135,10 +135,36 @@ git diff --check = passed
 ```
 
 The full-workspace formatter still reports unrelated pre-existing formatting
-drift outside this slice; it is not used as a current-change failure. The next
-bounded cell is the already test-only/caller-zero `loop_physical_prepare.rs`
-test-home split. `compiler/tests.rs`, README correction, common_v2 relocation,
-and all live semantic architecture rows remain separate.
+drift outside this slice; it is not used as a current-change failure. The
+following loop physical prepare test-home receipt records the next cell that
+was selected at that time. `compiler/tests.rs`, README correction, common_v2
+relocation, and all live semantic architecture rows remain separate.
+
+## Loop physical prepare test-home R0 receipt — 2026-08-23
+
+`MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0` is complete. The six existing tests
+remain under the logical `mir::compiler::loop_physical_prepare::tests` module,
+while their bodies now live in
+`src/mir/compiler/loop_physical_prepare_tests.rs` behind the parent
+`#[cfg(test)]` path declaration. The owner remains test-only/caller-zero; no
+production registration, semantic owner, fallback, publication, or runtime
+route changed.
+
+Evidence:
+
+```text
+loop_physical_prepare.rs = 481 lines
+loop_physical_prepare_tests.rs = 319 lines
+focused loop_physical_prepare = 6 passed
+cargo check --profile quick = passed (existing warning baseline retained)
+loop physical prepare home R0 guard = passed
+git diff --check = passed
+```
+
+The new guard preserves the parent `#![cfg(test)]`, registry `#[cfg(test)]`,
+logical module path, and all six test symbols. The next bounded cell is the
+documentation-only live README path receipt; `compiler/tests.rs`, common_v2
+relocation, and all live semantic architecture rows remain separate.
 
 ## Ordered task queue
 
@@ -211,7 +237,7 @@ Acceptance: production `builder.rs < 760` lines after the extraction, no
 production module registration changes, focused builder tests green, and the
 pre/post test symbol census is equal.
 
-#### `MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0` — selected next
+#### `MIRBUILDER-LOOP-PHYSICAL-PREPARE-HOME-R0` — complete
 
 Split `src/mir/compiler/loop_physical_prepare.rs` before semantic growth. Keep
 the existing test-only/caller-zero contract and assign each moved function to
@@ -219,6 +245,11 @@ one owner. This row is not permission to activate the Loop physicalizer.
 
 Acceptance: no file reaches 800 lines; the caller-zero guard, focused canaries,
 and fresh-session discard evidence remain unchanged.
+
+Evidence: the six focused tests, `cargo check --profile quick`, the dedicated
+home guard, and `git diff --check` passed. The parent is 481 lines and the
+test child is 319 lines; the original logical module and `cfg(test)` scope are
+unchanged.
 
 #### `MIRBUILDER-COMPILER-TESTS-HOME-D0`
 
