@@ -92,6 +92,87 @@ src/backend/mir_interpreter/strict_json_session.rs
 definition has no root-reachable caller in the current bounded census. It is
 not counted as a selected normal production construction site.
 
+## 2026-08-23 source-authority census receipt
+
+The current code confirms that the normal/default gap is an ownership gap, not
+an absent transport type:
+
+| Current surface | Evidence | D0 classification |
+| --- | --- | --- |
+| request transport | `src/mir/compiler/normal_default_pipeline.rs` — `NormalCompileRequestV1` owns prepared Program root, source hint, imports, admission, and result contract | transport only; it does not classify declarations or issue module meaning |
+| selected normal compiler | `NormalDefaultPublishedPipelineV1::compile` opens `ModuleBuilderInvocationSessionV1` and calls `complete_normal_default_program_root_catalog_lifecycle_with_target` | first Builder-effect boundary; no source-family redecision may remain below it |
+| existing source-plan issuer | `NormalSourcePlanClassifierV1::seal` in `src/mir/compiler/normal_source_plan/classifier.rs` | existing issuer, but its production caller is only `runner/reference/normal_file_vm_frontdoor/source_plan_input.rs`; it is not the normal/default issuer |
+| existing source inventory | `NormalSourceSurfaceInventoryV1::collect` | observes Script/top-level callable/Main/non-Main Box/unsupported rows, but currently retains AST-derived sites and rejects the residual module surface |
+| existing module product | `VerifiedNormalModuleSourceV1` in `normal_source_plan/module_source.rs` | bounded Main + plain instance-box shape; no normal/default production caller, and not a general module authority |
+| default public entry | `MirCompiler::compile_with_source*` -> `NormalCompileRequestV1::for_mir_mode` -> `compile_normal` | still reaches the selected normal root lifecycle without the missing Program/module source co-seal |
+
+Therefore the missing issuer must be named in D0 as a design owner, but no new
+Rust `Verified*`/`Prepared*` product is authorized yet:
+
+```text
+NormalGeneralProgramModuleSourceIssuerV1   // design name only in D0
+  consumes one parser/source-backed Program plus one import/config snapshot
+  co-seals exact top-level declaration, entry, and callable/member rows
+  emits a finite source disposition before Builder effects
+```
+
+`NormalCompileRequestV1` remains transport, and `NormalSourcePlanClassifierV1`
+must not silently become a second default classifier through an adapter. D0
+must decide whether the existing parser-backed handoff can be transferred into
+the normal request once, or whether the missing source owner must be opened at
+the frontdoor. AST-only request construction, source-hint names, backend
+strings, and `build_module` observations are not authority.
+
+### Finite D0 disposition table
+
+This table is a design inventory, not a runtime enum. Every row has an owner,
+pre-effect behavior, continuation, and no fallback:
+
+| State | Sole owner to be named/used | Pre-effect behavior | Continuation | Fallback |
+| --- | --- | --- | --- | --- |
+| `SourceAuthorityUnavailable` | parser/source handoff validator | stop; no Builder effect | typed terminal | never Legacy retry |
+| `CompatibilityOutOfScope` | explicit admission constructor | leave normal classifier; preserve compatibility provenance | separate compatibility owner | never normal reclassification |
+| `CanonicalCore` | existing source-plan family issuer after D0 transfer decision | source facts only | existing Script/Main0/Callable plan owner | no residual probe |
+| `GeneralModuleSource` | future `NormalGeneralProgramModuleSourceIssuerV1` | source/module facts only | later function-plan slices | no bare AST descent |
+| `UnsupportedNormalSurface` | source inventory owner | reject exact top-level kind before effects | typed terminal | no `Other`/`Unknown` bucket |
+| `Incomplete` | module-source coverage validator | reject missing declaration/entry/callable relation | typed terminal | no default/empty row |
+| `IntegrityInvalid` | source identity/co-seal validator | reject foreign/duplicate/contradictory rows | typed terminal | no relookup/reparse |
+
+The `GeneralModuleSource` row is not accepted merely because Legacy can lower
+it. It becomes admissible only after the D0 corpus and source-backed
+declaration/entry/member relation are complete. Until then it is a named
+design target, not a production candidate.
+
+### Bounded D0 task cells
+
+```text
+D0.1 corpus census
+  Script: scalar, If, Loop, Return, call/new/field/index
+  Main: main/0, main(args), helpers, user boxes, fields, constructors
+  Callable: top-level/Main helpers, acyclic and bounded recursive topology
+  Module: imports and currently evidenced declaration rows
+
+D0.2 source relation census
+  source identity + parser invocation + imports/config
+  top-level declaration site/cardinality
+  entry site/arity
+  user-box/member callable identity and declaration site
+  first rejection stage and current-normal result parity
+
+D0.3 issuer decision
+  choose one Program-owned issuer location and one move/loan chain
+  keep request transport, parser source authority, and Builder session distinct
+  record NoSafeSlice if parser provenance cannot reach the issuer exactly once
+
+D0.4 acceptance packet
+  finite/disjoint table, no residual Other/Unknown/Legacy state,
+  Builder-effect count = 0 during classification, production caller = 0,
+  fallback/retry/reselection = 0, and all touched design artifacts named
+```
+
+No implementation, fixture, guard-as-permission, production switch, or
+`VerifiedNormalGeneralProgramPlanV1` aggregate belongs to these D0 cells.
+
 ## Why Candidate A cannot be implemented now
 
 ### Existing substrate
