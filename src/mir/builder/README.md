@@ -303,6 +303,24 @@ private row builder is used for `Ready` and `Outside` classification, while
 JoinIR consumer, Builder effect, fallback, retry, or source-to-Recipe relation
 is opened by this transport slice.
 
+### Callable Loop source-aware Facts issuer P0
+
+`normal_callable_loop_source_facts.rs` is the caller-zero source/Facts seam. It
+accepts only the private move-only
+`PreparedCallableGenericLoopSourceFactsPayloadV1` assembled by
+`PreparedLocatedRawLoopChildEntryV1`; AST and source contexts are not supplied
+as independent peer arguments. The issuer passes one captured
+`GenericLoopFactsPolicyFrameV1` through the existing planner, including the
+GenericLoop V0 extractor and body validator, then selects from that retained
+`PlanBuildOutcome` exactly once. It accepts only exact `[GenericLoopV1]` and
+returns a private `Ready` aggregate or a typed terminal.
+
+This P0 has no production caller, ordinary consumer, Builder/ledger effect,
+retry, fallback, or registry suffix. The raw port currently proves only the
+same prepared raw-root lineage; it does not claim opaque parser-invocation
+identity. A parser witness must be added in a separate design slice before
+stronger identity claims are allowed.
+
 `normal_callable_dynamic_operation_source.rs` owns the next source-only S0
 co-seal. It combines the existing resolver ledger, source-backed Dynamic
 callable product, and R0 binding schedule to issue one move-only exact

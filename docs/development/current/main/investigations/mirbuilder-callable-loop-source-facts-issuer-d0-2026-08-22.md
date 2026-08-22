@@ -1,11 +1,11 @@
 ---
-Status: D0 accepted; next caller-zero source-aware Facts issuer P0
-Task: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-P0
+Status: D0 and caller-zero issuer P0 complete; next terminal-only port P0
+Task: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-P0 (complete)
 Date: 2026-08-22
 Priority: carry one source-bound GenericLoop Facts/Recipe outcome before any consumer
 Parent: MIR-CALLABLE-PROGRAM-REGION-CONTAINMENT-P0
 PreviousCard: mirbuilder-callable-physical-header-completion-value-d0-2026-08-22
-NextCard: MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-P0 (this rolling card)
+NextCard: MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0
 ---
 
 # Callable Loop source-aware Facts issuer D0
@@ -72,7 +72,7 @@ The input is invocation-scoped and non-reconstructible from a later AST walk:
 
 ```text
 owner
-root lineage / parser provenance
+root lineage from the prepared raw invocation
 exact parent Loop source context
 exact condition child source context
 exact body-root source context
@@ -80,6 +80,16 @@ condition AST reference and body AST slice from the same prepared Loop
 VerifiedCallableSemanticLoopBindingScheduleV1 (Ready only)
 GenericLoopFactsPolicyFrameV1
 ```
+
+This bounded raw port does not yet carry an opaque parser-invocation witness.
+Therefore P0 claims same prepared raw-root lineage only; it must not claim
+parser-invocation identity from path, name, digest, ordinal, or AST pointer.
+Adding that stronger identity is a separate NoSafeSlice/Design-stop condition.
+
+The raw child entry moves these fields into one private
+`PreparedCallableGenericLoopSourceFactsPayloadV1`. The issuer accepts that
+aggregate only; there is no public/peer API that accepts independently supplied
+AST and source-context parts.
 
 The issuer performs one explicit-policy planner/Facts call that returns the
 existing `PlanBuildOutcome` (including its canonical Facts and Recipe contract)
@@ -131,7 +141,7 @@ All of these must finish before `lower_loop_or_freeze_v1`,
 effect:
 
 ```text
-same invocation/root lineage
+same prepared raw-root lineage
 exact parent/condition/body ownership
 Ready grouped coverage validation
 explicit policy frame identity
@@ -148,9 +158,10 @@ AST-only `LoopRouteContext` and could re-enter the old schedule.
 
 ## Ordered tasks
 
-1. `MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-P0` — caller-zero foundation.
+1. `MIR-CALLABLE-LOOP-SOURCE-FACTS-ISSUER-P0` — caller-zero foundation
+   (complete).
    Add the private input/aggregate and the sole issuer around an explicit
-   policy-aware planner call. Prove one extraction, same-invocation source
+   policy-aware planner call. Prove one extraction, same prepared raw-root source
    ownership, exact GenericLoop-only selection, Ready move-only shape, and
    typed terminal states. Do not call it from the production raw Loop port.
 2. `MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0` — caller-zero route seam.
@@ -182,7 +193,7 @@ existing non-callable route behavior is unchanged
 Negative/no-effect:
 
 ```text
-foreign owner or parser lineage
+foreign owner or raw-root lineage
 foreign/missing/duplicate child source context
 Outside rows passed as Ready
 Facts extraction None
@@ -191,6 +202,11 @@ policy frame drift or ambient policy reread
 GenericLoop overlap or non-front selection
 attempt to enter lower_loop_or_freeze_v1 or registry suffix
 ```
+
+The explicit-policy planner path also passes the captured frame through the
+GenericLoop V0 extractor and body validator. Their legacy environment wrappers
+remain only for legacy/test callers; the source-aware issuer does not enter
+those wrappers.
 
 Every negative must show zero Builder/ledger/route effects. The reusable guard
 must enforce issuer call site=1, explicit policy input, extraction call count=1,
@@ -207,6 +223,7 @@ Return to design stop if any implementation requires:
 constructing the policy frame inside the issuer from ambient environment
 calling try_build_outcome and a lower-level GenericLoop extractor separately
 rebuilding source rows from cloned Facts, names, ordinals, pointers, or ValueId
+claiming parser-invocation identity without an opaque parser witness
 adding an optional callable relation to LoopRouteContext
 passing Ready into the existing retry-capable registry witness
 mapping FactsAbsent to SourceUnavailable or a default/empty Facts product
@@ -216,5 +233,46 @@ inventing a second GenericLoop/Recipe authority
 ```
 
 This D0 is accepted by the top-down review and the source-boundary audit. The
-next authorized work is the caller-zero P0 only; no ordinary consumer or
-production switch is implied by this acceptance.
+next authorized work is the terminal-only P0 below; no ordinary consumer or
+production switch is implied by this completion.
+
+## Caller-zero P0 implementation receipt (2026-08-22)
+
+The caller-zero foundation is complete on
+`codex/dynamic-v2-aot-activation`; it is not a production switch.
+
+```text
+PreparedLocatedRawLoopChildEntryV1
+  -> private PreparedCallableGenericLoopSourceFactsPayloadV1
+  -> CallableGenericLoopSourceFactsIssuerV1::issue_once
+  -> one explicit-policy planner/Facts outcome
+  -> one retained RecipeFirstRouteSelectionV1
+  -> exact [GenericLoopV1] Ready or typed terminal
+```
+
+The payload is move-only and has no constructor that accepts independently
+supplied AST/source-context parts. The explicit policy frame is passed through
+the planner, GenericLoop V0 extraction, and body validator; the issuer does
+not reread the environment. The issuer has no production caller, no Builder
+or ledger effect, no registry suffix, fallback, retry, or parser-invocation
+identity claim. The bounded identity claim remains the same prepared raw-root
+lineage only.
+
+Evidence recorded for this slice:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check --profile quick --lib                 PASS
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib \\
+  normal_callable_loop_source_facts -- --nocapture                  3 passed
+bash tools/checks/rust_mirbuilder_callable_loop_source_facts_issuer_p0_guard.sh PASS
+bash tools/checks/rust_mirbuilder_callable_loop_generic_facts_policy_p0_guard.sh PASS
+bash tools/checks/rust_mirbuilder_callable_loop_outside_disposition_p0_guard.sh PASS
+bash tools/checks/current_state_pointer_guard.sh                     PASS
+git diff --check                                                     PASS
+```
+
+The next authorized cell is
+`MIR-CALLABLE-LOOP-GENERIC-TERMINAL-PORT-P0`: consume the private `Ready`
+aggregate through one terminal-only named seam. Ordinary lowering, body-only
+rebind admission, route cutover, fallback/retry, physical/publication work,
+parser witness strengthening, and main integration remain closed.

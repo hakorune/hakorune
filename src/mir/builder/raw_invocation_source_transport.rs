@@ -371,6 +371,38 @@ impl RawInvocationSourceContextV1 {
         }
     }
 
+    pub(in crate::mir::builder) fn shares_root_lineage(
+        &self,
+        other: &RawInvocationSourceContextV1,
+    ) -> bool {
+        match (self, other) {
+            (Self::Located { root: left, .. }, Self::Located { root: right, .. }) => left == right,
+            _ => false,
+        }
+    }
+
+    pub(in crate::mir::builder) fn is_exact_loop_condition(&self) -> bool {
+        matches!(
+            self,
+            Self::Located {
+                site,
+                body_kind: None,
+                ..
+            } if site.segments().last() == Some(&SourcePathSegmentV1::LoopCondition)
+        )
+    }
+
+    pub(in crate::mir::builder) fn is_exact_loop_body_root(&self) -> bool {
+        matches!(
+            self,
+            Self::Located {
+                site,
+                body_kind: Some(SourceBodyKindV1::Loop),
+                ..
+            } if site.segments().last() == Some(&SourcePathSegmentV1::LoopBodyRoot)
+        )
+    }
+
     fn child_call_argument(&self, index: usize) -> Self {
         match self {
             Self::Located { root, site, .. } => Self::Located {

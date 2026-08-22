@@ -312,6 +312,10 @@ impl CallableSemanticLoopHandoffPreEffectReceiptV1 {
 }
 
 impl VerifiedCallableSemanticLoopBindingScheduleV1 {
+    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
+        self.owner
+    }
+
     pub(super) fn seal(
         owner: FunctionOwnerIdV1,
         loop_site: SourceNodeSiteV1,

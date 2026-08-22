@@ -1,6 +1,7 @@
 //! Compatibility entry for generic loop body validation and shape resolution.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::control_flow::plan::generic_loop::facts::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::policies::GenericLoopV1ShapeId;
 
@@ -25,6 +26,24 @@ pub(in crate::mir::builder) fn check_body_generic_v1(
         loop_increment,
         condition,
         require_shape,
+    )
+}
+
+pub(in crate::mir::builder) fn check_body_generic_v1_with_policy(
+    body: &[ASTNode],
+    loop_var: &str,
+    loop_increment: &ASTNode,
+    condition: &ASTNode,
+    require_shape: bool,
+    policy: GenericLoopFactsPolicyFrameV1,
+) -> Result<Option<&'static str>, Freeze> {
+    super::validation_v1::check_body_generic_v1_with_policy(
+        body,
+        loop_var,
+        loop_increment,
+        condition,
+        require_shape,
+        policy,
     )
 }
 

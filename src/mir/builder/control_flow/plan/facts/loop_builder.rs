@@ -25,7 +25,7 @@ use crate::mir::builder::control_flow::facts::loop_cond_continue_only::try_extra
 use crate::mir::builder::control_flow::facts::loop_cond_continue_with_return::try_extract_loop_cond_continue_with_return_facts;
 use crate::mir::builder::control_flow::facts::loop_cond_return_in_body::try_extract_loop_cond_return_in_body_facts;
 use crate::mir::builder::control_flow::plan::generic_loop::facts::extract::{
-    try_extract_generic_loop_v0_facts, try_extract_generic_loop_v1_with_policy,
+    try_extract_generic_loop_v0_facts_with_policy, try_extract_generic_loop_v1_with_policy,
 };
 use crate::mir::builder::control_flow::plan::generic_loop::facts::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::loop_break::facts::try_extract_loop_break_body_local_facts;
@@ -192,7 +192,7 @@ fn try_build_loop_facts_inner(
     let generic_loop_v0 = if loop_cond_any_matched {
         None
     } else {
-        try_extract_generic_loop_v0_facts(condition, body)?
+        try_extract_generic_loop_v0_facts_with_policy(condition, body, generic_loop_policy)?
     };
     let generic_loop_v1 = if loop_cond_any_matched {
         None

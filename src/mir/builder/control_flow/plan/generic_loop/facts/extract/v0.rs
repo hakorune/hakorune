@@ -7,12 +7,13 @@ use crate::mir::builder::control_flow::generic_loop_canon::{
 use crate::mir::builder::control_flow::plan::facts::reject_reason::{
     handoff_tables, log_reject, RejectReason,
 };
+use crate::mir::builder::control_flow::plan::generic_loop::facts::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 use crate::mir::builder::control_flow::recipes::RecipeBody;
 use crate::mir::policies::generic_loop_overlap_policy::v1_shape_blocks_v0;
 
 use super::super::super::body_check::shape_resolution::{
-    check_body_generic_v1, detect_generic_loop_v1_shape,
+    check_body_generic_v1_with_policy, detect_generic_loop_v1_shape,
 };
 use super::super::super::body_check::step_validation::{
     has_control_flow_after_step, validate_break_else_if_step, validate_continue_if_step,
@@ -27,11 +28,18 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts(
     condition: &ASTNode,
     body: &[ASTNode],
 ) -> Result<Option<GenericLoopV0Facts>, Freeze> {
+    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    try_extract_generic_loop_v0_facts_with_policy(condition, body, policy)
+}
+
+pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts_with_policy(
+    condition: &ASTNode,
+    body: &[ASTNode],
+    policy: GenericLoopFactsPolicyFrameV1,
+) -> Result<Option<GenericLoopV0Facts>, Freeze> {
     let flat_body = flatten_scope_boxes(body);
-    let strict = crate::config::env::joinir_dev::strict_enabled();
-    let strict_or_dev = strict || crate::config::env::joinir_dev_enabled();
-    let planner_required =
-        strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
+    let strict = policy.strict();
+    let planner_required = policy.planner_required();
     if planner_required {
         return Ok(None);
     }
@@ -92,7 +100,15 @@ pub(in crate::mir::builder) fn try_extract_generic_loop_v0_facts(
             continue;
         }
 
-        if check_body_generic_v1(&flat_body, loop_var, &loop_increment, condition, false)?.is_some()
+        if check_body_generic_v1_with_policy(
+            &flat_body,
+            loop_var,
+            &loop_increment,
+            condition,
+            false,
+            policy,
+        )?
+        .is_some()
         {
             continue;
         }

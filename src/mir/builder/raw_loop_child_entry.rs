@@ -17,6 +17,8 @@ use super::normal_callable_loop_handoff::{
     VerifiedCallableSemanticLoopBindingScheduleV1,
 };
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
+use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
+use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
 /// Exact child-entry result for one raw Loop syntax surface.
@@ -46,6 +48,72 @@ pub(in crate::mir::builder) struct PreparedLocatedRawLoopChildEntryV1<'source> {
     callable_handoff: Option<CallableLoopBindingProjectionDispositionV1>,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
     admission_observation: Option<GenericLoopAdmissionObservationV1>,
+}
+
+/// Opaque move-only payload assembled from one prepared Loop entry.
+///
+/// The source-aware issuer receives this aggregate, not independently
+/// supplied AST/source fragments.  Its fields are private to this module and
+/// the only constructor is the exact `PreparedLocatedRawLoopChildEntryV1`
+/// move below.
+#[derive(Debug)]
+pub(in crate::mir::builder) struct PreparedCallableGenericLoopSourceFactsPayloadV1<'source> {
+    parent_source: &'source RawInvocationSourceContextV1,
+    condition_source: RawInvocationSourceContextV1,
+    body_source: RawInvocationSourceContextV1,
+    condition: ASTNode,
+    body: Vec<ASTNode>,
+    owner: FunctionOwnerIdV1,
+    schedule: VerifiedCallableSemanticLoopBindingScheduleV1,
+    function_name: Box<str>,
+    debug: bool,
+    in_static_box: bool,
+    policy: GenericLoopFactsPolicyFrameV1,
+}
+
+impl<'source> PreparedCallableGenericLoopSourceFactsPayloadV1<'source> {
+    pub(in crate::mir::builder) fn into_parts(
+        self,
+    ) -> (
+        &'source RawInvocationSourceContextV1,
+        RawInvocationSourceContextV1,
+        RawInvocationSourceContextV1,
+        ASTNode,
+        Vec<ASTNode>,
+        FunctionOwnerIdV1,
+        VerifiedCallableSemanticLoopBindingScheduleV1,
+        Box<str>,
+        bool,
+        bool,
+        GenericLoopFactsPolicyFrameV1,
+    ) {
+        let Self {
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            owner,
+            schedule,
+            function_name,
+            debug,
+            in_static_box,
+            policy,
+        } = self;
+        (
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            owner,
+            schedule,
+            function_name,
+            debug,
+            in_static_box,
+            policy,
+        )
+    }
 }
 
 impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
@@ -175,6 +243,61 @@ impl<'source> PreparedLocatedRawLoopChildEntryV1<'source> {
                 .to_string(),
             ),
         }
+    }
+
+    /// Move the exact prepared Loop into the caller-zero source-aware Facts
+    /// issuer. This is a seam only; no production caller is connected in P0.
+    #[allow(dead_code)]
+    pub(in crate::mir::builder) fn into_callable_generic_loop_source_facts_payload(
+        self,
+        owner: FunctionOwnerIdV1,
+        function_name: &str,
+        debug: bool,
+        in_static_box: bool,
+        policy: GenericLoopFactsPolicyFrameV1,
+    ) -> Result<PreparedCallableGenericLoopSourceFactsPayloadV1<'source>, String> {
+        let Self {
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            disposition,
+            callable_handoff,
+            method_source_observation: _,
+            admission_observation: _,
+        } = self;
+        if disposition != RawLoopChildEntryDispositionV1::NoChildFunctionEntry {
+            return Err(
+                "[freeze:contract][callable-loop-source-facts/reachable-child-entry]".to_owned(),
+            );
+        }
+        let schedule = match callable_handoff {
+            Some(CallableLoopBindingProjectionDispositionV1::Ready(schedule)) => schedule,
+            Some(CallableLoopBindingProjectionDispositionV1::Outside(_)) => {
+                return Err(
+                    "[freeze:contract][callable-loop-source-facts/outside-schedule]".to_owned(),
+                )
+            }
+            None => {
+                return Err(
+                    "[freeze:contract][callable-loop-source-facts/missing-schedule]".to_owned(),
+                )
+            }
+        };
+        Ok(PreparedCallableGenericLoopSourceFactsPayloadV1 {
+            parent_source,
+            condition_source,
+            body_source,
+            condition,
+            body,
+            owner,
+            schedule,
+            function_name: function_name.into(),
+            debug,
+            in_static_box,
+            policy,
+        })
     }
 }
 

@@ -2,6 +2,7 @@ use crate::ast::ASTNode;
 use crate::mir::builder::control_flow::generic_loop_canon::{
     is_break_else_if_with_increment, is_continue_if_with_increment, matches_loop_increment,
 };
+use crate::mir::builder::control_flow::plan::generic_loop::facts::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::plan::planner::Freeze;
 
 use super::super::body_check_extractors::collect_next_step_vars;
@@ -18,10 +19,26 @@ pub(in crate::mir::builder) fn check_body_generic_v1(
     condition: &ASTNode,
     require_shape: bool,
 ) -> Result<Option<&'static str>, Freeze> {
-    let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
-        || crate::config::env::joinir_dev_enabled();
-    let planner_required =
-        strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
+    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    check_body_generic_v1_with_policy(
+        body,
+        loop_var,
+        loop_increment,
+        condition,
+        require_shape,
+        policy,
+    )
+}
+
+pub(in crate::mir::builder) fn check_body_generic_v1_with_policy(
+    body: &[ASTNode],
+    loop_var: &str,
+    loop_increment: &ASTNode,
+    condition: &ASTNode,
+    require_shape: bool,
+    policy: GenericLoopFactsPolicyFrameV1,
+) -> Result<Option<&'static str>, Freeze> {
+    let planner_required = policy.planner_required();
 
     let shape_id = detect_generic_loop_v1_shape(body, loop_var, loop_increment, condition)?;
     if shape_id.is_some() {

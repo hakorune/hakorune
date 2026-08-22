@@ -8,6 +8,7 @@ use crate::mir::builder::control_flow::joinir::route_entry::router::LoopRouteCon
 use crate::mir::builder::control_flow::plan::loop_break::facts::LoopBodyLocalShape;
 use crate::mir::builder::control_flow::plan::planner::{self, PlanBuildOutcome, PlannerContext};
 use crate::mir::builder::control_flow::plan::trace as plan_trace;
+use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::builder::control_flow::verify::diagnostics::planner_reject_detail;
 
 use super::rule_order::{planner_rule_semantic_label, rule_name, PlanRuleId, PLAN_RULE_ORDER};
@@ -18,14 +19,10 @@ struct PlannerGate {
 }
 
 impl PlannerGate {
-    fn new() -> Self {
-        let strict_or_dev = crate::config::env::joinir_dev::strict_enabled()
-            || crate::config::env::joinir_dev_enabled();
-        let planner_required =
-            strict_or_dev && crate::config::env::joinir_dev::planner_required_enabled();
+    fn from_policy(policy: GenericLoopFactsPolicyFrameV1) -> Self {
         Self {
-            strict_or_dev,
-            planner_required,
+            strict_or_dev: policy.strict_or_dev(),
+            planner_required: policy.planner_required(),
         }
     }
 
@@ -64,8 +61,8 @@ fn is_recipe_only_rule(rule_id: PlanRuleId) -> bool {
     matches!(rule_id, PlanRuleId::LoopCondContinueWithReturn)
 }
 
-fn debug_log_recipe_only_entry(rule_id: PlanRuleId) {
-    if !crate::config::env::joinir_dev::debug_enabled() {
+fn debug_log_recipe_only_entry(rule_id: PlanRuleId, debug_enabled: bool) {
+    if !debug_enabled {
         return;
     }
     let ring0 = crate::runtime::get_global_ring0();
@@ -82,11 +79,14 @@ fn promotion_hint_tag(shape: &LoopBodyLocalShape) -> &'static str {
     }
 }
 
-fn emit_loop_break_promotion_hint_tag(promotion_shape: Option<&LoopBodyLocalShape>) {
+fn emit_loop_break_promotion_hint_tag(
+    promotion_shape: Option<&LoopBodyLocalShape>,
+    strict_enabled: bool,
+) {
     let Some(shape) = promotion_shape else {
         return;
     };
-    if !crate::config::env::joinir_dev::strict_enabled() {
+    if !strict_enabled {
         return;
     }
 
@@ -105,11 +105,19 @@ fn planner_candidate_present(outcome: &PlanBuildOutcome) -> bool {
 }
 
 pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutcome, String> {
+    let policy = GenericLoopFactsPolicyFrameV1::from_environment();
+    try_build_outcome_with_policy(ctx, policy)
+}
+
+pub(super) fn try_build_outcome_with_policy(
+    ctx: &LoopRouteContext,
+    policy: GenericLoopFactsPolicyFrameV1,
+) -> Result<PlanBuildOutcome, String> {
     use crate::mir::builder::control_flow::joinir::trace;
 
-    let gate = PlannerGate::new();
+    let gate = PlannerGate::from_policy(policy);
 
-    let planner_ctx = PlannerContext::from_environment();
+    let planner_ctx = PlannerContext::from_generic_loop_policy(policy);
     let mut outcome = planner::build_plan_with_facts_ctx(&planner_ctx, ctx.condition, ctx.body)
         .map_err(|freeze| freeze.to_string())?;
     let planner_present = planner_candidate_present(&outcome);
@@ -123,7 +131,7 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
 
             let contract =
                 RecipeMatcher::try_match_loop(facts).map_err(|freeze| freeze.to_string())?;
-            if crate::config::env::joinir_dev::debug_enabled() {
+            if policy.debug_enabled() {
                 if let Some(ref c) = contract {
                     let RecipeContractKind::LoopWithExit {
                         has_break,
@@ -166,7 +174,7 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
         .and_then(|facts| facts.facts.loop_break_body_local())
         .map(|facts| &facts.shape);
 
-    emit_loop_break_promotion_hint_tag(promotion_facts);
+    emit_loop_break_promotion_hint_tag(promotion_facts, policy.strict());
 
     for rule_id in PLAN_RULE_ORDER {
         let rule_id = *rule_id;
@@ -176,7 +184,7 @@ pub(super) fn try_build_outcome(ctx: &LoopRouteContext) -> Result<PlanBuildOutco
         // Recipe-only rules route through compose path.
         if planner_hit && is_recipe_only_rule(rule_id) {
             gate.log_planner_first(rule_id);
-            debug_log_recipe_only_entry(rule_id);
+            debug_log_recipe_only_entry(rule_id, policy.debug_enabled());
             return Ok(outcome);
         }
 
