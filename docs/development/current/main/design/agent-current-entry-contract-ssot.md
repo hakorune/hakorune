@@ -118,6 +118,20 @@ Smallest next slice:
 Non-claims:
 ```
 
+When a card makes an `all`, `zero`, `complete`, or exhaustive census claim,
+add one line immediately after the brief:
+
+```text
+Census boundary: <first owner/entry> -> <last owner/terminal>;
+  includes <branch families>; excludes <out-of-scope owners>.
+```
+
+An unbounded phrase such as `all consumers` is not acceptance evidence. The
+card must name the first boundary crossed, the last terminal counted, every
+parallel branch family included, and any deliberate exclusion. A later caller
+outside that declared boundary is a scope correction, while a caller inside it
+is a failed census. This distinction must be resolved before implementation.
+
 ### Classification-completeness check
 
 Every routing, claim, publication, admission, or lifecycle design card must

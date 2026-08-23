@@ -1,24 +1,23 @@
 status = """
-The normal root execution design is closed top-down. Raw/compatibility parity,
-all source-backed consumers, the exact nested parser relation, final
-preservation, and the one pre-effect consumer boundary are finite. P0 is the
-only authorized Fast slice and adds parser source/preservation only."""
+The total normal-root source authority is fixed, but parser-product census
+found two distinct reference leaves. Canonical source-plan needs a named
+role-bound consumer; only Raw VM may discard. P0 has not started."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "NORMAL-ROOT-EXECUTION-SOURCE-P0"
-current_design_stop = "none: NORMAL-ROOT-EXECUTION-DISPOSITION-D0 is accepted. The parser relation is nested by Program statement, preserves exact callable identity/slot/site and helper schedule, and has one affine pre-effect consumer boundary."
-current_blocker_token = "NORMAL-ROOT-EXECUTION-SOURCE-P0: implement only parser model/issuer, paired private loan, required move chain, exact preservation, focused tests, README receipt, and reusable guard. Builder consumer/cutover remains forbidden."
+work_mode = "design_stop"
+current_execution_row = "NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0"
+current_design_stop = "Freeze canonical source-plan parity and its named total-root consumer, plus a Raw-only Ready discard typestate, before resuming parser P0."
+current_blocker_token = "P0 has not started. The canonical reference must consume total root roles before its AST inventory; Raw VM alone may explicitly discard Ready. Generic source-backed AST extraction must retire."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — total normal root execution source P0"
+active_lane = "MirBuilder in-place replacement — normal root reference-route closure"
 active_lane_status = """
-Current: implement one parser-owned App/ProgramRuntime relation and preserve it
-through the exact final callable transform. Authorized: parser-only P0 plus
-focused tests/docs/guard. Forbidden: Builder consumer/effect, lifecycle cutover,
+Current: design only route-specific parser-product exits found before P0 code.
+Authorized: source-plan parity/consumer and Raw-discard finite-state Decisions.
+Forbidden: Rust/fixture work, Builder consumer/effect, lifecycle cutover,
 fallback, compatibility fabrication, production switch, or raw-role inference."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -27,14 +26,14 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/normal-root-execution-source-p0-2026-08-23.md"
+current_execution_design = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "normal-root-execution-source-p0"
-latest_card_path = "docs/development/current/main/investigations/normal-root-execution-source-p0-2026-08-23.md"
-latest_card_summary = "The top-down D0 is accepted. P0 adds only the nested parser-owned total root relation and exact final preservation; the Builder consumer is the mandatory immediate successor."
-next_design_card = "none-until-P0-closeout"
-next_execution_card = "NORMAL-ROOT-EXECUTION-SOURCE-P0"
-next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-source-p0-2026-08-23.md"
+latest_card = "normal-root-execution-reference-route-closure-d0"
+latest_card_path = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
+latest_card_summary = "The source authority remains accepted. Canonical source-plan must consume total roles; Raw VM alone gets a Ready-only discard receipt."
+next_design_card = "NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0"
+next_execution_card = "none-until-reference-route-closure-Decision"
+next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

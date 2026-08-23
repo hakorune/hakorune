@@ -1,6 +1,6 @@
 # Normal root execution source P0
 
-Status: selected Fast slice
+Status: paused before implementation — reference-route closure D0 is active
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-SOURCE-P0
 Owner: parser callable source -> exact final callable transform
@@ -25,6 +25,11 @@ Smallest next slice:
 Non-claims:
   No Builder consumer, lifecycle cutover, catalog/work-plan rewrite, fixture,
   fallback, compatibility change, raw retirement, Recipe, MIR, or publication.
+
+Census boundary: parser product construction -> exact final source,
+canonical-source-plan consumption, Raw-only discard, or retained terminal;
+includes both reference leaves and test-only consuming helpers; excludes
+Builder lifecycle consumers after exact final source.
 
 ## Change
 
@@ -106,6 +111,9 @@ guard, and `git diff --check` must be green.
 
 ## Stop
 
+- Do not start Rust changes until
+  `NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0` freezes route-specific
+  discard transition and every parser-product exit.
 - Do not add a Builder getter or consumer in P0.
 - Do not edit `VerifiedRawRootExpansionV1`, work-plan APIs, or `root_is_app_mode`.
 - Do not change helper order or App/ProgramRuntime language behavior.

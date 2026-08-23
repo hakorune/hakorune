@@ -1,12 +1,15 @@
 # Normal root execution disposition
 
-Status: accepted — total execution authority and consumer boundary frozen
+Status: authority core accepted — parser-product transport closure reopened
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-DISPOSITION-D0
 Owner: parser source authority -> normal/default root lifecycle
 
 This D0 closed parity before authority, and authority before substrate. It
-authorizes only the parser-owned P0 recorded below.
+selected only the parser-owned P0 recorded below. Before Rust work began, the
+shared reference parser-product exit exposed two distinct route obligations.
+`NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0` must close that state before P0
+resumes; the source authority decision itself remains unchanged.
 
 ## Six-line brief
 
@@ -33,6 +36,12 @@ Smallest next slice:
 Non-claims:
   No lifecycle cutover, compatibility change, App-shape expansion, Script-A
   change, Recipe/lowering/publication work, raw retirement, or performance work.
+
+Census boundary: normal/default source-backed lifecycle entry -> root-role
+catalog, work-plan, and lowering consumers; includes all three raw semantic
+reclassification sites; excludes parser-product exits and all explicit
+reference/Raw/compatibility owners. Those exits are now owned by
+`NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0`.
 
 ## Why the previous order was wrong
 
