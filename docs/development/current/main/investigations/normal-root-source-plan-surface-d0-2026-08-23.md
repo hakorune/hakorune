@@ -319,6 +319,34 @@ postpass source product must retain the same projected source-path set before
 the current finalizer discards it. No `Arc<AST>`, parallel arrays, or
 `Option`-as-missing-state is allowed.
 
+The second long audit accepts this as the only current B-prime ownership
+shape:
+
+```text
+postpass finalizer
+  -> SeedSlot::Ready(seed)
+  -> initial callable source borrows seed's projected slots
+  -> CompletedParserPostpass owns the seed slot
+  -> ParsedProgram...::new consumes Ready(seed) exactly once
+  -> seed + parameter catalog + source authority
+  -> ParserBackedNormalSourcePlanBoundV1
+```
+
+The seed is created before initial callable source issuance, so the projected
+slot set is not cloned or reissued. The existing narrow
+`ParserStaticBoxSourceSealV1` is a projection from the same parser relation;
+the full member rows remain owned by the seed and are not retained twice.
+The handoff later transports the bound inside the existing SourceBacked
+product; it does not add a parallel seed field or a second output family.
+
+The concrete owner files for the next design/implementation manifest are
+`source_seal/model.rs`, `source_seal/finalize.rs`,
+`source_seal/gate_projection.rs`, `initial_callable_program_source/{issue,model}.rs`,
+`callable_parameter_source/static_box_source.rs`,
+`postpass_envelope.rs`, and `callable_parameter_source/product.rs`. The
+production edge remains closed until these files can satisfy the above move
+without an optional missing state or a self-referential borrow.
+
 This D0-E design is the only permitted way to reopen I0. If the seed cannot
 be moved into `new` without clone/reissue/self-reference, keep `NoSafeSlice`
 and do not change `work_mode`.
