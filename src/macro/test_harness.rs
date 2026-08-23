@@ -1,8 +1,19 @@
 use nyash_rust::ASTNode;
 
-pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
+/// Macro-owned disposition for the one test-harness source transformation.
+///
+/// `GeneratedTail` is issued only when this invocation appended real rows.
+#[derive(Debug)]
+pub(super) enum TestHarnessTransformDispositionV1 {
+    Unchanged,
+    GeneratedTail(ASTNode),
+}
+
+/// Observe and perform test-tail generation once without fabricating a changed AST
+/// for the unchanged case.
+pub(super) fn issue_test_harness_transform_v1(ast: &ASTNode) -> TestHarnessTransformDispositionV1 {
     if !crate::config::env::test_run() {
-        return ast.clone();
+        return TestHarnessTransformDispositionV1::Unchanged;
     }
     // Test call plan
     #[derive(Clone)]
@@ -491,7 +502,7 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
         }
     }
     if tests.is_empty() {
-        return ast.clone();
+        return TestHarnessTransformDispositionV1::Unchanged;
     }
     if let nyash_rust::ASTNode::Program { statements, .. } = ast {
         let mut out = statements.clone();
@@ -503,10 +514,10 @@ pub fn maybe_inject_test_harness(ast: &ASTNode) -> ASTNode {
             extra.push(t.call);
         }
         out.extend(extra);
-        return nyash_rust::ASTNode::Program {
+        return TestHarnessTransformDispositionV1::GeneratedTail(nyash_rust::ASTNode::Program {
             statements: out,
             span: nyash_rust::ast::Span::unknown(),
-        };
+        });
     }
-    ast.clone()
+    TestHarnessTransformDispositionV1::Unchanged
 }

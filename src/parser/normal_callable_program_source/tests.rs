@@ -1,9 +1,9 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::CanonicalSourceBytesDigestV1;
-use crate::parser::{BuildMode, GrammarProfile, NyashParser, ParserBuildConfig};
 use crate::parser::callable_parameter_source::{
     ParserNormalRootPreservationV1, ParserNormalRootRoleV1,
 };
+use crate::parser::{BuildMode, GrammarProfile, NyashParser, ParserBuildConfig};
 
 use super::*;
 
@@ -22,7 +22,7 @@ fn transform(
     let ParsedNormalCallableProgramV1::SourceBacked(initial) = parsed else {
         panic!("fixture must be source-backed")
     };
-    initial.begin_transform().finish(|ast| {
+    initial.begin_transform().finish_test_transform(|ast| {
         let mut output = ast.clone();
         mutate(&mut output);
         output
@@ -36,7 +36,9 @@ fn transform_with_output(
     let ParsedNormalCallableProgramV1::SourceBacked(initial) = parsed else {
         panic!("fixture must be source-backed")
     };
-    initial.begin_transform().finish(move |_| output)
+    initial
+        .begin_transform()
+        .finish_test_transform(move |_| output)
 }
 
 fn first_program_statement(program: ASTNode) -> ASTNode {
@@ -85,11 +87,8 @@ fn exact_static_callable_set_survives_one_transform() {
 
 #[test]
 fn main_app_disposition_moves_through_prepared_and_final_source() {
-    let final_source = transform(
-        parse("static box Main { main() { return 1 } }"),
-        |_| {},
-    )
-    .expect("exact Main source transform");
+    let final_source = transform(parse("static box Main { main() { return 1 } }"), |_| {})
+        .expect("exact Main source transform");
     assert!(matches!(
         final_source.normal_root_source(),
         ParserNormalRootPreservationV1::Ready(preserved)
@@ -99,11 +98,7 @@ fn main_app_disposition_moves_through_prepared_and_final_source() {
 
 #[test]
 fn normal_script_root_role_moves_through_final_source() {
-    let final_source = transform(
-        parse("print(1)"),
-        |_| {},
-    )
-    .expect("exact Script source transform");
+    let final_source = transform(parse("print(1)"), |_| {}).expect("exact Script source transform");
     assert!(matches!(
         final_source.normal_root_source(),
         ParserNormalRootPreservationV1::Ready(preserved)
@@ -113,18 +108,15 @@ fn normal_script_root_role_moves_through_final_source() {
 
 #[test]
 fn root_prefix_structural_drift_is_rejected_before_final_source() {
-    let result = transform(
-        parse("print(1)"),
-        |ast| {
-            let ASTNode::Program { statements, .. } = ast else {
-                unreachable!()
-            };
-            let ASTNode::Print { span, .. } = &mut statements[0] else {
-                unreachable!()
-            };
-            *span = Span::new(span.start, span.end, span.line + 1, span.column);
-        },
-    );
+    let result = transform(parse("print(1)"), |ast| {
+        let ASTNode::Program { statements, .. } = ast else {
+            unreachable!()
+        };
+        let ASTNode::Print { span, .. } = &mut statements[0] else {
+            unreachable!()
+        };
+        *span = Span::new(span.start, span.end, span.line + 1, span.column);
+    });
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
@@ -151,15 +143,12 @@ fn second_static_main_in_transform_suffix_is_rejected() {
         NyashParser::parse_from_string("static box Main { main() { return 1 } }")
             .expect("Main fixture"),
     );
-    let result = transform(
-        parse("print(1)"),
-        move |ast| {
-            let ASTNode::Program { statements, .. } = ast else {
-                unreachable!()
-            };
-            statements.push(extra_main);
-        },
-    );
+    let result = transform(parse("print(1)"), move |ast| {
+        let ASTNode::Program { statements, .. } = ast else {
+            unreachable!()
+        };
+        statements.push(extra_main);
+    });
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
@@ -184,9 +173,7 @@ fn main_app_non_ready_disposition_moves_without_reclassification() {
 #[test]
 fn composite_source_ready_moves_through_final_source_for_root_return_call() {
     let final_source = transform(
-        parse(
-            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
-        ),
+        parse("static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)"),
         |_| {},
     )
     .expect("bounded composite source");
@@ -225,16 +212,13 @@ fn instance_provider_stays_outside_composite_first_cohort() {
 #[test]
 fn composite_source_rejects_root_receiver_drift() {
     let result = transform(
-        parse(
-            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
-        ),
+        parse("static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)"),
         |ast| {
             let ASTNode::Program { statements, .. } = ast else {
                 unreachable!()
             };
             let ASTNode::Return {
-                value: Some(value),
-                ..
+                value: Some(value), ..
             } = &mut statements[1]
             else {
                 unreachable!()
@@ -259,16 +243,13 @@ fn composite_source_rejects_root_receiver_drift() {
 #[test]
 fn composite_source_rejects_root_argument_drift() {
     let result = transform(
-        parse(
-            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
-        ),
+        parse("static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)"),
         |ast| {
             let ASTNode::Program { statements, .. } = ast else {
                 unreachable!()
             };
             let ASTNode::Return {
-                value: Some(value),
-                ..
+                value: Some(value), ..
             } = &mut statements[1]
             else {
                 unreachable!()
@@ -295,9 +276,7 @@ fn composite_source_rejects_root_argument_drift() {
 #[test]
 fn composite_source_rejects_provider_result_syntax_drift() {
     let result = transform(
-        parse(
-            "static box Helpers { run(): i64 { return 1 } }\nreturn Helpers.run()",
-        ),
+        parse("static box Helpers { run(): i64 { return 1 } }\nreturn Helpers.run()"),
         |ast| {
             let ASTNode::Program { statements, .. } = ast else {
                 unreachable!()
@@ -330,16 +309,13 @@ fn composite_source_rejects_provider_result_syntax_drift() {
 #[test]
 fn composite_source_rejects_root_method_drift() {
     let result = transform(
-        parse(
-            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
-        ),
+        parse("static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)"),
         |ast| {
             let ASTNode::Program { statements, .. } = ast else {
                 unreachable!()
             };
             let ASTNode::Return {
-                value: Some(value),
-                ..
+                value: Some(value), ..
             } = &mut statements[1]
             else {
                 unreachable!()
@@ -361,16 +337,13 @@ fn composite_source_rejects_root_method_drift() {
 #[test]
 fn composite_source_rejects_root_argument_cardinality_drift() {
     let result = transform(
-        parse(
-            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
-        ),
+        parse("static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)"),
         |ast| {
             let ASTNode::Program { statements, .. } = ast else {
                 unreachable!()
             };
             let ASTNode::Return {
-                value: Some(value),
-                ..
+                value: Some(value), ..
             } = &mut statements[1]
             else {
                 unreachable!()
@@ -398,9 +371,7 @@ fn composite_source_rejects_root_argument_cardinality_drift() {
 #[test]
 fn composite_source_rejects_root_terminal_drift() {
     let result = transform(
-        parse(
-            "static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)",
-        ),
+        parse("static box Helpers { run(value) { return value } }\nreturn Helpers.run(1)"),
         |ast| {
             let ASTNode::Program { statements, .. } = ast else {
                 unreachable!()
@@ -630,7 +601,12 @@ fn parser_program_source_authority_lends_one_paired_body_cursor() {
     let rows = final_source
         .with_normal_program_source_loan(|loan| {
             loan.statements()
-                .map(|row| (row.position(), matches!(row.statement(), ASTNode::BoxDeclaration { .. })))
+                .map(|row| {
+                    (
+                        row.position(),
+                        matches!(row.statement(), ASTNode::BoxDeclaration { .. }),
+                    )
+                })
                 .collect::<Vec<_>>()
         })
         .expect("parser source authority loan");

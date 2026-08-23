@@ -1,9 +1,9 @@
 use crate::ast::ASTNode;
 
 use super::super::callable_parameter_source::{
-    ParserNormalRootPreservationIssuerV1, ParserNormalRootPreservationRejectV1,
-    validate_parser_normal_program_source_transform_v1,
-    ParserCompositeTransformRejectV1, ParserNormalProgramSourceTransformRejectV1,
+    validate_parser_normal_program_source_transform_v1, ParserCompositeTransformRejectV1,
+    ParserNormalProgramSourceTransformRejectV1, ParserNormalRootPreservationIssuerV1,
+    ParserNormalRootPreservationRejectV1,
 };
 use super::super::initial_callable_program_source::{declaration_at, expected_callable_slots};
 use super::{PreparedNormalCallableProgramSourceV1, VerifiedFinalCallableProgramSourceV1};
@@ -18,9 +18,23 @@ pub(crate) enum FinalCallableProgramSourceRejectV1 {
     RootPreservation(ParserNormalRootPreservationRejectV1),
 }
 
-pub(super) fn issue_final_callable_program_source_v1(
+pub(super) fn issue_exact_callable_program_source_v1(
+    initial: PreparedNormalCallableProgramSourceV1,
+) -> Result<VerifiedFinalCallableProgramSourceV1, FinalCallableProgramSourceRejectV1> {
+    issue_callable_program_source_v1(initial, None)
+}
+
+#[cfg(test)]
+pub(super) fn issue_test_callable_program_source_v1(
     initial: PreparedNormalCallableProgramSourceV1,
     transformed: ASTNode,
+) -> Result<VerifiedFinalCallableProgramSourceV1, FinalCallableProgramSourceRejectV1> {
+    issue_callable_program_source_v1(initial, Some(transformed))
+}
+
+fn issue_callable_program_source_v1(
+    initial: PreparedNormalCallableProgramSourceV1,
+    transformed: Option<ASTNode>,
 ) -> Result<VerifiedFinalCallableProgramSourceV1, FinalCallableProgramSourceRejectV1> {
     let (
         initial_ast,
@@ -30,12 +44,12 @@ pub(super) fn issue_final_callable_program_source_v1(
         source_authority,
         constructor_source,
         normal_root_source,
-    ) =
-        initial.into_transform_parts();
+    ) = initial.into_transform_parts();
+    let transformed_ast = transformed.as_ref().unwrap_or(&initial_ast);
     let source_authority = validate_parser_normal_program_source_transform_v1(
         source_authority,
         &initial_ast,
-        &transformed,
+        transformed_ast,
     )
     .map_err(|error| match error {
         ParserNormalProgramSourceTransformRejectV1::Composite(error) => {
@@ -47,24 +61,25 @@ pub(super) fn issue_final_callable_program_source_v1(
         normal_root_source,
         &source_authority,
         &initial_ast,
-        &transformed,
+        transformed_ast,
     )
     .map_err(FinalCallableProgramSourceRejectV1::RootPreservation)?;
-    let transformed_slots = expected_callable_slots(&transformed)
+    let transformed_slots = expected_callable_slots(transformed_ast)
         .map_err(|_| FinalCallableProgramSourceRejectV1::CallableCoverage)?;
     if transformed_slots.as_slice() != slots.as_ref() || sources.len() != slots.len() {
         return Err(FinalCallableProgramSourceRejectV1::CallableCoverage);
     }
     for (row, slot) in slots.iter().copied().enumerate() {
-        if declaration_at(&initial_ast, slot) != declaration_at(&transformed, slot) {
+        if declaration_at(&initial_ast, slot) != declaration_at(transformed_ast, slot) {
             return Err(FinalCallableProgramSourceRejectV1::CallableDeclarationChanged { row });
         }
     }
     constructor_source
-        .validate_transform(&initial_ast, &transformed)
+        .validate_transform(&initial_ast, transformed_ast)
         .map_err(|_| FinalCallableProgramSourceRejectV1::ConstructorSourceChanged)?;
+    let final_ast = transformed.unwrap_or(initial_ast);
     Ok(VerifiedFinalCallableProgramSourceV1::issue(
-        transformed,
+        final_ast,
         sources,
         slots,
         parameter_source,

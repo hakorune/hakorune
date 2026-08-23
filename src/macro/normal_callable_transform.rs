@@ -2,9 +2,9 @@
 
 use crate::ast::ASTNode;
 use crate::parser::{
-    FinalCallableProgramSourceRejectV1,
-    NormalCallableParserCompatibilityV1, ParsedNormalCallableProgramV1,
-    ParserNormalCallableTransformSessionV1, VerifiedFinalCallableProgramSourceV1,
+    FinalCallableProgramSourceRejectV1, NormalCallableParserCompatibilityV1,
+    ParsedNormalCallableProgramV1, ParserNormalCallableTransformSessionV1,
+    VerifiedFinalCallableProgramSourceV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -12,6 +12,7 @@ pub(crate) enum NormalCallableTransformCompatibilityV1 {
     Parser(NormalCallableParserCompatibilityV1),
     DefaultDeriveWouldGenerateCallable,
     RegisteredMacroBox,
+    TestHarnessGeneratedTail,
 }
 
 #[derive(Debug)]
@@ -26,6 +27,7 @@ pub(crate) enum NormalCallableTransformOutcomeV1 {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) enum NormalCallableTransformRejectV1 {
     ExactSourceChanged(FinalCallableProgramSourceRejectV1),
+    UnclassifiedSourceMutation,
 }
 
 pub(crate) fn transform_normal_callable_program_v1(
@@ -41,7 +43,8 @@ pub(crate) fn transform_normal_callable_program_v1(
         ParsedNormalCallableProgramV1::SourceBacked(initial) => {
             super::macro_box::init_builtin();
             super::macro_box_ny::init_from_env();
-            let compatibility = if !super::enabled() {
+            let macro_enabled = super::enabled();
+            let compatibility = if !macro_enabled {
                 None
             } else if super::macro_box::has_registered_transform() {
                 Some(NormalCallableTransformCompatibilityV1::RegisteredMacroBox)
@@ -65,11 +68,57 @@ pub(crate) fn transform_normal_callable_program_v1(
                     reason,
                 });
             }
+            if macro_enabled {
+                let trace = crate::config::env::macro_trace();
+                if trace {
+                    crate::macro_log!("[macro] input AST: {:?}", initial.ast());
+                }
+                let (expanded, _patches) = super::engine::MacroEngine::new().expand(initial.ast());
+                require_unchanged_source_macro_output_v1(initial.ast(), &expanded)?;
+                match super::test_harness::issue_test_harness_transform_v1(&expanded) {
+                    super::test_harness::TestHarnessTransformDispositionV1::Unchanged => {
+                        if trace {
+                            crate::macro_log!("[macro] output AST: {:?}", expanded);
+                        }
+                    }
+                    super::test_harness::TestHarnessTransformDispositionV1::GeneratedTail(
+                        transformed,
+                    ) => {
+                        if trace {
+                            crate::macro_log!("[macro] output AST: {:?}", transformed);
+                        }
+                        if initial.composite_source_is_ready() {
+                            return Err(NormalCallableTransformRejectV1::ExactSourceChanged(
+                                FinalCallableProgramSourceRejectV1::Composite(
+                                    crate::parser::callable_parameter_source::
+                                        ParserCompositeTransformRejectV1::CompatibilityLoss,
+                                ),
+                            ));
+                        }
+                        return Ok(NormalCallableTransformOutcomeV1::Compatibility {
+                            ast: transformed,
+                            reason:
+                                NormalCallableTransformCompatibilityV1::TestHarnessGeneratedTail,
+                        });
+                    }
+                }
+            }
+
             let session: ParserNormalCallableTransformSessionV1 = initial.begin_transform();
             session
-                .finish(|ast| super::maybe_expand_and_dump(ast, false))
+                .finish_exact()
                 .map(NormalCallableTransformOutcomeV1::SourceBacked)
                 .map_err(NormalCallableTransformRejectV1::ExactSourceChanged)
         }
     }
+}
+
+pub(super) fn require_unchanged_source_macro_output_v1(
+    source: &ASTNode,
+    expanded: &ASTNode,
+) -> Result<(), NormalCallableTransformRejectV1> {
+    if source != expanded {
+        return Err(NormalCallableTransformRejectV1::UnclassifiedSourceMutation);
+    }
+    Ok(())
 }

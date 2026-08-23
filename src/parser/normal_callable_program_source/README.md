@@ -116,12 +116,34 @@ source prefix, keeps the same root role, and does not append a second static
 `DiscardedBeforeA` states remain typed terminal transport rather than a
 guessed role.
 
-The final source can only be issued through
-`ParserNormalCallableTransformSessionV1::finish`; the old free raw-AST
-production entry is intentionally absent. The token moves through
+The production final source can only be issued through
+`ParserNormalCallableTransformSessionV1::finish_exact`; this entry accepts no
+raw AST callback and moves the unchanged parser Program into the final product
+without a deep clone. A `#[cfg(test)]` transform hook exists only for the
+parser preservation rejection matrix. The old free raw-AST production entry
+is intentionally absent. The token moves through
 `VerifiedFinalCallableProgramSourceV1` and the existing prepared root wrapper.
 Root consumption, lowering, raw classifier retirement, Builder effects,
 fallback, and production switching remain a later bounded slice.
+
+The macro/test-harness owner classifies its own work before this exact finish:
+
+```text
+Unchanged
+  -> finish_exact
+
+GeneratedTail(AST)
+  -> Compatibility(TestHarnessGeneratedTail)
+  -> no parser final source or root token
+```
+
+If composite preservation is already `Ready`, `GeneratedTail` is a typed
+`CompatibilityLoss` rejection instead of an authority drop. A macro-engine
+mutation not owned by a named transform is `UnclassifiedSourceMutation`; it
+does not enter either the exact or compatibility lane. The parser never reads
+the test-harness environment or infers generated-tail provenance from AST
+shape. Exact full-root cardinality and statement preservation remain the next
+bounded root-cohort slice.
 
 ## Composite preservation transport
 

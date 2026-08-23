@@ -53,7 +53,10 @@ pub fn maybe_expand_and_dump(ast: &ASTNode, _dump_only: bool) -> ASTNode {
     }
     let mut eng = self::engine::MacroEngine::new();
     let (out, _patches) = eng.expand(ast);
-    let out2 = test_harness::maybe_inject_test_harness(&out);
+    let out2 = match test_harness::issue_test_harness_transform_v1(&out) {
+        test_harness::TestHarnessTransformDispositionV1::Unchanged => out,
+        test_harness::TestHarnessTransformDispositionV1::GeneratedTail(transformed) => transformed,
+    };
     if crate::config::env::macro_trace() {
         crate::macro_log!("[macro] output AST: {:?}", out2);
     }

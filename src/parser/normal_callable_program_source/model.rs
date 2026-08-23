@@ -3,14 +3,13 @@ use crate::mir::CanonicalSourceBytesDigestV1;
 use hakorune_frontend_parser::parser::GrammarProfile;
 
 use super::super::callable_parameter_source::{
-    borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
+    borrow_callable_declaration_syntax_v1, with_parser_composite_source_loan_from_normal_authority,
+    with_parser_normal_program_source_loan, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-    ParserNormalRootPreservationV1, ParserNormalRootSourceDispositionV1,
-    with_parser_composite_source_loan_from_normal_authority,
-    with_parser_normal_program_source_loan, ParserNormalProgramSourceAuthorityDispositionV1,
-    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
     ParserCallableSyntaxLoanErrorV1, ParserCompositeSourceLoanRejectV1,
-    ParserCompositeSourceLoanV1,
+    ParserCompositeSourceLoanV1, ParserNormalProgramSourceAuthorityDispositionV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
+    ParserNormalRootPreservationV1, ParserNormalRootSourceDispositionV1,
 };
 use super::super::callable_source_anchor::{
     DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
@@ -238,18 +237,21 @@ impl PreparedNormalCallableProgramSourceV1 {
 }
 
 impl ParserNormalCallableTransformSessionV1 {
-    /// Finish the named parser transform and issue the final source product.
-    ///
-    /// The transform callback receives only the session's initial AST view;
-    /// all preservation, callable, constructor, and root checks happen after
-    /// the callback and before a `VerifiedFinalCallableProgramSourceV1` can
-    /// exist.
-    pub(crate) fn finish(
+    /// Finish an unchanged source-backed transform without accepting a raw AST.
+    pub(crate) fn finish_exact(
+        self,
+    ) -> Result<VerifiedFinalCallableProgramSourceV1, FinalCallableProgramSourceRejectV1> {
+        super::transform::issue_exact_callable_program_source_v1(self.initial)
+    }
+
+    /// Test-only transform hook for the parser preservation rejection matrix.
+    #[cfg(test)]
+    pub(super) fn finish_test_transform(
         self,
         transform: impl FnOnce(&ASTNode) -> ASTNode,
     ) -> Result<VerifiedFinalCallableProgramSourceV1, FinalCallableProgramSourceRejectV1> {
         let transformed = transform(self.initial.ast());
-        super::transform::issue_final_callable_program_source_v1(self.initial, transformed)
+        super::transform::issue_test_callable_program_source_v1(self.initial, transformed)
     }
 }
 
