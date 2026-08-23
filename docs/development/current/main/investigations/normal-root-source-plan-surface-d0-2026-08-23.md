@@ -551,3 +551,35 @@ compatibility expansion, source-plan performance fusion, Builder barrel
 cleanup, or production branch cutover. Those remain `ParkedSealed` until a
 named trigger reopens them. The C0 atomic cutover remains closed until this
 surface, output boundary, and guard manifest are accepted together.
+
+## Current premise-audit status — 2026-08-23
+
+The primary census after seed-retention I0 confirms that this design stop is
+still live:
+
+```text
+ordinary finalizer -> ParserNormalSourcePlanSeedV1 -> CompletedParserPostpass
+  = retained transport only; `new` does not consume or issue the full bound
+
+PreparedParserStaticBoxParentSourceV1 inside ParserStaticBoxSourceSealV1
+  = full static-member rows are still retained by the narrow seal
+
+ParserNormalModuleSourceAuthorityIssuerV1
+  = top-level placement/kind rows only; not the complete Main/member surface
+
+normal_default_root_catalog_lifecycle
+  = still performs the raw-root classification/classifier comparison
+```
+
+Therefore D0-A/B/C remains the next task: one common parser-owned relation,
+one full-surface issuer, one narrow projection, and one existing policy-output
+family must be specified before the source-plan I0 can reopen. The seed
+retention commit `a30a4ffb72` does not satisfy those conditions and makes no
+claim that it does.
+
+A read-only worker audit was dispatched for this exact D0 boundary. It was
+given two 180-second wait windows and returned no report; the agent was closed
+after the declared waiting budget. This is recorded as `pending/cancelled`
+with no negative inference, not as a blocker finding and not as implementation
+permission. The primary census above remains the accepted evidence for this
+card, and no duplicate worker is opened for the same premise.
