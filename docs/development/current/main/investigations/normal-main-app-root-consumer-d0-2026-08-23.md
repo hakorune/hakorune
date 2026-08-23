@@ -1,9 +1,9 @@
-Status: G0-G1 complete — App root-relation I0 is ready; root consumer remains closed
+Status: G0-H1 complete — HRTB root-consumer loan is the next design stop
 Date: 2026-08-23
 Decision: NORMAL-MAIN-APP-ROOT-CONSUMER-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-root-source-disposition-d0-2026-08-23.md
-ProductionCaller: root consumer 0; G0 replaced one existing normal callable transform edge as `198560b0e0`
-ProductionEdit: next slice is limited to the parser-private App root relation; root consumer, raw classifier retirement, and root lowering remain closed
+ProductionCaller: root consumer 0; H1 extended the existing final-source issuer at its sole production call as `b96d3f17b3`
+ProductionEdit: no implementation is authorized until the HRTB root-consumer loan D0 chooses one narrow App/Script view; root consumer, raw classifier retirement, and root lowering remain closed
 CeremonyTier: D0 — source-root consumer boundary before Builder effects
 ---
 
@@ -108,8 +108,8 @@ transform guard permits an appended root suffix.  The future root boundary
 must therefore use a narrower root-only view and must not hand raw AST access
 to the Builder consumer.
 
-The ordered prerequisite series is fixed below. G0-G1 are complete and H1
-alone is open; until J0
+The ordered prerequisite series is fixed below. G0-H1 are complete and the
+HRTB loan Decision alone is open; until J0
 lands, the production root consumer count remains zero.
 
 ### Second top-down worker audit — the transform boundary is the real predecessor
@@ -289,8 +289,9 @@ name, ordinal, digest, pointer, or AST shape equality.
 
 ## Accepted bounded task series after both worker audits
 
-The series is ordered by authority. G0-G1 are complete and only H1 is open. A later
-row does not become executable merely because an earlier focused test is green.
+The series is ordered by authority. G0-H1 are complete; I0 implementation is
+closed behind `NORMAL-ROOT-CONSUMER-LOAN-D0`. A later row does not become
+executable merely because an earlier focused test is green.
 
 ```text
 G0 / NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0  [complete: 198560b0e0]
@@ -304,13 +305,13 @@ G1 / NORMAL-MAIN-ROOT-EXACT-COHORT-I0                 [complete: 0b9d4eb43d]
       statement preservation.  Addition, removal, reorder, or replacement is
       a typed reject.  Do not add logic to main_expansion.rs.
 
-H1 / NORMAL-MAIN-APP-ROOT-RELATION-I0                 [open, BoxCount]
+H1 / NORMAL-MAIN-APP-ROOT-RELATION-I0                 [complete: b96d3f17b3]
       In the existing final-source issuer, co-seal the private App admission,
       exactly one matching callable identity, its paired final slot, the same
       invocation, Main-only-member relation, and NoStaticChildren.  Do not
       expose parser sites, anchors, names, or ordinals.
 
-I0 / NORMAL-ROOT-CONSUMER-LOAN-I0                     [closed behind H1]
+I0 / NORMAL-ROOT-CONSUMER-LOAN-I0                     [design stop before implementation]
       Add one parser-owned HRTB root view.  App lends only typed root body plus
       CallableMainIsRoot/NoStaticChildren; Script lends a paired statement
       cursor.  There is no raw Program getter and no Script-A row.
@@ -367,7 +368,7 @@ static box Main { main(argument) { return argument } }
   required result: typed terminal, no Builder effect
 
 static box Main { main() {} helper() {} }
-  parser: IntegrityInvalid(StaticParentMemberCoverageMismatch)
+  parser: Outside(StaticParent(DirectMethodCohort))
   raw expansion: may accept extra static children
   required result: typed terminal, no Builder effect
 
@@ -542,6 +543,83 @@ normal_callable_program_source/tests.rs 652 lines
 No App relation, HRTB loan, root consumer, Builder effect, fallback, or raw
 observer retirement was added in G1.
 
+### H1 closeout evidence
+
+H1 is implemented and pushed on `main` as `b96d3f17b3`. The existing sole
+`ParserNormalRootPreservationIssuerV1` now turns its ready state into one closed
+private relation:
+
+```text
+App admission seal
+  + exactly one opaque-identity-matching callable row
+  + that row's already-paired final slot
+  + same parser invocation
+  + exact unchanged root cohort
+  -> private App root relation
+```
+
+The relation moves the original non-`Clone` App admission seal and privately
+retains the paired BoxMethod slot, `CallableMainIsRoot`, and
+`NoStaticChildren`. Identity is the primary pairing authority; source path and
+placement are private redundant integrity checks. No parser site, anchor, name,
+or ordinal is exposed, and neither `main_expansion.rs` nor Builder was changed.
+
+Focused counterexamples prove that structurally identical rows from another
+parse do not pair, a foreign parser witness rejects before pairing, a TopLevel
+slot cannot replace the paired BoxMethod slot, callable/slot cardinality drift
+rejects, and a Main helper remains terminal before relation issuance. A
+top-level callable sibling remains accepted because `NoStaticChildren` applies
+to the admitted Main parent rather than the whole Program callable set.
+
+Acceptance evidence:
+
+```text
+cargo test parser::normal_callable_program_source --lib -- --nocapture
+  -> 34 passed
+
+cargo test normal_callable_transform --lib -- --nocapture
+  -> 7 passed
+
+cargo check
+parser_normal_root_preservation_a_i0_guard.sh
+current_state_pointer_guard.sh
+targeted rustfmt --check
+git diff --check
+  -> passed
+
+normal_root_preservation.rs 299 lines
+normal_root_preservation_tests.rs 136 lines
+normal_callable_program_source/transform.rs 92 lines
+  -> all below 760
+```
+
+No HRTB loan, root body exposure, lifecycle consumer, Builder effect, fallback,
+production switch, or raw observer retirement was added in H1.
+
+## Next design stop — NORMAL-ROOT-CONSUMER-LOAN-D0
+
+```text
+Decision:
+  choose one parser-owned HRTB root loan before implementing I0; do not expose
+  a self-referential owner/borrow product or a raw Program getter.
+Source authority + canonical issuer:
+  the H1 private App relation and existing Script Program-body authority remain
+  the only source owners; one method on the final parser source must issue the
+  scoped view exactly once.
+Non-authority:
+  role() alone, raw AST/name/ordinal classification, Script-A rows,
+  VerifiedRawRootExpansionV1, Builder state, Recipe, and MIR.
+Fail-fast boundary:
+  loan rejection and every terminal root disposition stop before the named
+  lifecycle consumer can install target/module/catalog/work-plan effects.
+Smallest next slice:
+  specify the paired App root-body view and Script statement cursor, callback
+  lifetime, typed errors, and sole future consumer; implementation remains 0.
+Non-claims:
+  root lowering, production switch, raw observer retirement, ABI/result
+  semantics, static-child expansion, fallback, publication, and performance.
+```
+
 ## Non-claims
 
 This card does not authorize:
@@ -549,7 +627,7 @@ This card does not authorize:
 ```text
 root consumer implementation
 VerifiedMainExpansionV1 API changes
-new root semantic receipt
+HRTB root view or consumer implementation beyond the accepted D0
 canonical semantics for generated test-harness rows
 root/static-child/body lowering
 ProgramRootWorkPlan bool removal
@@ -561,7 +639,7 @@ production switch
 performance work
 ```
 
-The next execution is only
-`NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0`.  The previous root transport
-I0 remains complete, and the root consumer remains intentionally caller-zero
-until the ordered prerequisite series reaches J0.
+The next work item is design-only
+`NORMAL-ROOT-CONSUMER-LOAN-D0`. The previous root transport and G0-H1 rows
+remain complete, and the root consumer remains intentionally caller-zero until
+the ordered prerequisite series reaches J0.
