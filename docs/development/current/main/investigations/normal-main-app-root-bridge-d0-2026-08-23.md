@@ -1,4 +1,4 @@
-Status: Design stop — RepresentationDecisionMissing
+Status: Closed as NoSafeSlice — root-source disposition is missing
 Date: 2026-08-23
 Decision: NORMAL-MAIN-APP-ROOT-BRIDGE-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-consumer-d0-2026-08-23.md
@@ -142,3 +142,46 @@ positive/negative fixture plan and reusable guard
 Until then, implementation, fixtures, new semantic `Verified*`/`Prepared*`
 products, request changes, root writes, and production switching are forbidden.
 
+## Worker and source audit decision
+
+Three read-only audits and the direct source inspection agree on the following
+boundary:
+
+```text
+AppMainReady(seal)
+  -> may become an App-root candidate after an exact structural co-seal
+
+Outside(any reason)
+  -> typed Main/App outside terminal
+  -> never Script by default
+
+SourceAuthorityUnavailable / Incomplete / IntegrityInvalid
+  -> typed source terminal
+```
+
+The existing `ParserMainAppEntryDispositionV1` does not contain a positive
+Script-root witness. The repository has a separate parser-owned
+`CanonicalScriptCohortAdmissionV1` / `CanonicalScriptSourceRowsV1` pair for
+the pure Script cohort, but that pair is not transported through
+`VerifiedFinalCallableProgramSourceV1` into the normal root lifecycle. The
+root bridge therefore cannot safely decide Script by taking the negation of
+Main/App, by inspecting `VerifiedRawRootExpansionV1`, or by reading the raw
+`root_is_app_mode` boolean.
+
+This closes the bridge D0 as a design finding rather than authorizing an I0:
+
+```text
+Missing authority:
+  one parser-owned, same-invocation total root-source disposition that
+  co-seals the positive App witness, the positive Script witness when one
+  exists, and typed terminal reasons for every other state.
+
+Forbidden repair:
+  Outside -> Script fallback, AST reclassification, raw bool reconstruction,
+  name/ordinal pairing, compatibility retry, or a second parser scan.
+```
+
+The successor design task is recorded in
+`normal-main-app-root-source-disposition-d0-2026-08-23.md`. No Rust code,
+fixture, request field, root write, or new semantic receipt was added by this
+audit.
