@@ -1,22 +1,23 @@
 status = """
 R3/R4 design is frozen and the behavior-neutral frontdoor split is landed.
-Semantic C0 remains blocked while its exact owner-file, test-file, and reusable
-guard manifest is frozen."""
+Atomic C0 remains closed because its canonical source-plan row has no safe
+AST-free policy boundary until the parser-backed surface is designed."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
-current_execution_row = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
-current_design_stop = "Freeze the exact atomic C0 owner-file/test-file/reusable-guard manifest; semantic Rust, fixtures, fallback, production switch, and new semantic receipts are forbidden."
-current_blocker_token = "Six C0 implementation blockers are bounded but not yet bound to one exact atomic file/test/guard manifest."
+current_execution_row = "NORMAL-ROOT-SOURCE-PLAN-SURFACE-D0"
+current_design_stop = "Freeze the parser-backed AST-free source-plan surface, full static-Main/member relation, and SealedNormal output boundary; semantic Rust, fixtures, fallback, production switch, and new semantic receipts are forbidden."
+current_blocker_token = "C0 row 3 is NoSafeSlice: parser-backed policy input and full Main/member source relation are missing; row 5 must close as an explicit retained test terminal."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — normal root reference-route closure"
+active_lane = "MirBuilder in-place replacement — normal root parser-backed source-plan surface"
 active_lane_status = """
-Current: exact atomic C0 manifest design only.
-Authorized: census, owner/caller audit, counterexamples, and one bounded brief.
+Current: parser-backed source-plan surface design only.
+Authorized: source-authority design, output-boundary comparison, counterexamples,
+and one bounded brief.
 Forbidden: semantic Rust, fixtures, fallback, standalone P0/S0, production
 switch, or any new Verified/Prepared receipt."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
@@ -26,13 +27,13 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
+current_execution_design = "docs/development/current/main/investigations/normal-root-source-plan-surface-d0-2026-08-23.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "normal-root-execution-reference-route-closure-d0"
-latest_card_path = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
-latest_card_summary = "R3/R4 are frozen and T0 is landed; C0 awaits one exact atomic owner/test/guard manifest."
-next_design_card = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
-next_execution_card = "none-until-atomic-cutover-manifest-Decision"
+latest_card = "normal-root-source-plan-surface-d0"
+latest_card_path = "docs/development/current/main/investigations/normal-root-source-plan-surface-d0-2026-08-23.md"
+latest_card_summary = "C0 row 3 has a real NoSafeSlice; freeze parser-backed source-plan surface and output boundary before cutover."
+next_design_card = "NORMAL-ROOT-SOURCE-PLAN-SURFACE-D0"
+next_execution_card = "none-until-source-plan-surface-Decision"
 next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
