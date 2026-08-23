@@ -1,4 +1,4 @@
-//! Production-caller-zero NormalFile front-door forge.
+//! Production NormalFile front-door forge.
 //!
 //! This owner prepares one UTF-8 file and hands its AST to the existing Raw
 //! VM-reference invocation contract. It deliberately does not execute, select
@@ -13,6 +13,7 @@ use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 
 mod parser_source_handoff;
+mod raw_source_handoff;
 mod script_source_input;
 mod source_plan_input;
 
@@ -20,7 +21,8 @@ pub(crate) use parser_source_handoff::CanonicalParserSourceHandoffV1;
 #[allow(unused_imports)]
 pub(crate) use source_plan_input::{
     CanonicalCoreSourcePlanHandoffErrorV1, ClassifiedNormalFileSourcePlanV1,
-    PreparedNormalFileSourcePlanRequestV1, RejectedCanonicalCoreSourcePlanHandoffV1,
+    NormalFileSourcePlanRouteErrorV1, PreparedNormalFileSourcePlanRequestV1,
+    RejectedCanonicalCoreSourcePlanHandoffV1, RejectedNormalFileSourcePlanRouteV1,
     RejectedNormalFileSourcePlanningV1,
 };
 
@@ -213,13 +215,26 @@ struct LoadedNormalFileSourceSealV1;
 
 #[derive(Debug)]
 pub(crate) struct PreparedNormalFileSourceV1 {
-    source_file: Box<Path>,
-    parser_source_handoff: CanonicalParserSourceHandoffV1,
+    route: PreparedNormalFileParsedRouteV1,
     _seal: PreparedNormalFileSourceSealV1,
 }
 
 #[derive(Debug)]
 struct PreparedNormalFileSourceSealV1;
+
+/// Profile-selected parser route. The split happens before Script-A co-seal,
+/// so Raw can close the parser sibling without constructing canonical input.
+#[derive(Debug)]
+enum PreparedNormalFileParsedRouteV1 {
+    Raw {
+        source_file: Box<Path>,
+        source: raw_source_handoff::PreparedCanonicalParserRawSourceV1,
+    },
+    Canonical {
+        source_file: Box<Path>,
+        source: CanonicalParserSourceHandoffV1,
+    },
+}
 
 #[derive(Debug)]
 pub(crate) struct PreparedNormalFileVmHandoffV1 {
@@ -234,12 +249,31 @@ struct PreparedNormalFileVmHandoffSealV1;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalFileVmHandoffErrorV1 {
     ProfileExcludesRawVmReference,
+    SourceAuthorityUnavailable,
+    SourceIncomplete,
+    SourceIntegrityInvalid,
+    CompatibilityClosure,
+    UsingStatement,
+    ImportStatement,
 }
 
 #[derive(Debug)]
 pub(crate) struct RejectedNormalFileVmHandoffV1 {
-    source: PreparedNormalFileSourceV1,
+    owner: RejectedNormalFileVmHandoffOwnerV1,
     error: NormalFileVmHandoffErrorV1,
+}
+
+#[derive(Debug)]
+enum RejectedNormalFileVmHandoffOwnerV1 {
+    Prepared(PreparedNormalFileSourceV1),
+    Parser {
+        source_file: Box<Path>,
+        rejected: raw_source_handoff::RejectedRawVmSourceExtractionV1,
+    },
+    Extracted {
+        source_file: Box<Path>,
+        extracted: raw_source_handoff::PreparedRawVmSourceExtractionV1,
+    },
 }
 
 impl RejectedNormalFileVmHandoffV1 {
@@ -247,7 +281,27 @@ impl RejectedNormalFileVmHandoffV1 {
         self.error
     }
 
-    pub(crate) fn discard(self) {}
+    pub(crate) fn discard(self) {
+        match self.owner {
+            RejectedNormalFileVmHandoffOwnerV1::Prepared(source) => {
+                source.discard_at_named_terminal()
+            }
+            RejectedNormalFileVmHandoffOwnerV1::Parser {
+                source_file,
+                rejected,
+            } => {
+                drop(source_file);
+                rejected.discard();
+            }
+            RejectedNormalFileVmHandoffOwnerV1::Extracted {
+                source_file,
+                extracted,
+            } => {
+                drop(source_file);
+                extracted.discard();
+            }
+        }
+    }
 }
 
 impl NormalFileRequestV1 {
@@ -339,45 +393,30 @@ impl LoadedNormalFileSourceV1 {
                     });
                 }
             };
-        let (disposition, script_rows) = product.into_source_disposition_with_script_rows();
-        let disposition = match disposition.discard_root_before_a() {
-            Ok(disposition) => disposition,
-            Err(error) => {
-                return Err(RejectedNormalFileSourceV1::Parse {
-                    loaded: LoadedNormalFileSourceV1 {
-                        source_file,
-                        source_text,
+        let product = product.into_normal_file_source();
+        let route =
+            product.consume_once(|source, script_rows| match profile.into_raw_downstream() {
+                Ok(downstream) => PreparedNormalFileParsedRouteV1::Raw {
+                    source_file,
+                    source: raw_source_handoff::PreparedCanonicalParserRawSourceV1::new(
+                        source,
+                        script_rows,
+                        downstream,
+                        receipt,
+                    ),
+                },
+                Err(profile) => PreparedNormalFileParsedRouteV1::Canonical {
+                    source_file,
+                    source: CanonicalParserSourceHandoffV1::new(
+                        source,
+                        script_rows,
                         profile,
                         receipt,
-                        _seal: LoadedNormalFileSourceSealV1,
-                    },
-                    error: NormalFileParseErrorV1 {
-                        detail: format!("normal source root rejected before Script A: {error:?}")
-                            .into_boxed_str(),
-                    },
-                });
-            }
-        };
-        if let Some(error) = find_no_import_violation(disposition.ast()) {
-            return Err(RejectedNormalFileSourceV1::SourceProfile {
-                loaded: LoadedNormalFileSourceV1 {
-                    source_file,
-                    source_text,
-                    profile,
-                    receipt,
-                    _seal: LoadedNormalFileSourceSealV1,
+                    ),
                 },
-                error,
             });
-        }
         Ok(PreparedNormalFileSourceV1 {
-            source_file,
-            parser_source_handoff: CanonicalParserSourceHandoffV1::new(
-                disposition,
-                script_rows,
-                profile,
-                receipt,
-            ),
+            route,
             _seal: PreparedNormalFileSourceSealV1,
         })
     }
@@ -387,48 +426,120 @@ impl PreparedNormalFileSourceV1 {
     pub(crate) fn prepare_raw_vm_handoff(
         self,
     ) -> Result<PreparedNormalFileVmHandoffV1, RejectedNormalFileVmHandoffV1> {
-        let Self {
-            source_file,
-            parser_source_handoff,
-            _seal: _,
-        } = self;
-        if parser_source_handoff.profile_is_canonical_core() {
+        let Self { route, _seal } = self;
+        drop(_seal);
+        let (source_file, raw_source) = match route {
+            PreparedNormalFileParsedRouteV1::Raw {
+                source_file,
+                source,
+            } => (source_file, source),
+            PreparedNormalFileParsedRouteV1::Canonical {
+                source_file,
+                source,
+            } => {
+                return Err(RejectedNormalFileVmHandoffV1 {
+                    owner: RejectedNormalFileVmHandoffOwnerV1::Prepared(
+                        PreparedNormalFileSourceV1 {
+                            route: PreparedNormalFileParsedRouteV1::Canonical {
+                                source_file,
+                                source,
+                            },
+                            _seal: PreparedNormalFileSourceSealV1,
+                        },
+                    ),
+                    error: NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference,
+                });
+            }
+        };
+        let extracted = match raw_source.extract_once() {
+            Ok(extracted) => extracted,
+            Err(rejected) => {
+                let error = match rejected.error() {
+                    crate::parser::ParserNormalRawVmSourceExtractionErrorV1::SourceAuthorityUnavailable => {
+                        NormalFileVmHandoffErrorV1::SourceAuthorityUnavailable
+                    }
+                    crate::parser::ParserNormalRawVmSourceExtractionErrorV1::Incomplete => {
+                        NormalFileVmHandoffErrorV1::SourceIncomplete
+                    }
+                    crate::parser::ParserNormalRawVmSourceExtractionErrorV1::IntegrityInvalid => {
+                        NormalFileVmHandoffErrorV1::SourceIntegrityInvalid
+                    }
+                    crate::parser::ParserNormalRawVmSourceExtractionErrorV1::CompatibilityClosure => {
+                        NormalFileVmHandoffErrorV1::CompatibilityClosure
+                    }
+                };
+                return Err(RejectedNormalFileVmHandoffV1 {
+                    owner: RejectedNormalFileVmHandoffOwnerV1::Parser {
+                        source_file,
+                        rejected,
+                    },
+                    error,
+                });
+            }
+        };
+        if let Some(error) = find_no_import_violation(extracted.ast()) {
+            let error = match error {
+                NormalFileSourceProfileErrorV1::UsingStatement => {
+                    NormalFileVmHandoffErrorV1::UsingStatement
+                }
+                NormalFileSourceProfileErrorV1::ImportStatement => {
+                    NormalFileVmHandoffErrorV1::ImportStatement
+                }
+            };
             return Err(RejectedNormalFileVmHandoffV1 {
-                source: PreparedNormalFileSourceV1 {
+                owner: RejectedNormalFileVmHandoffOwnerV1::Extracted {
                     source_file,
-                    parser_source_handoff,
-                    _seal: PreparedNormalFileSourceSealV1,
+                    extracted,
                 },
-                error: NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference,
+                error,
             });
         }
-        let (callable_source, _script_input, profile, receipt) = parser_source_handoff.into_parts();
-        match profile.into_raw_downstream() {
-            Ok(downstream) => {
-                let source_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
-                Ok(PreparedNormalFileVmHandoffV1 {
-                    invocation: downstream
-                        .into_invocation(callable_source.into_ast(), Some(source_identity)),
-                    source: receipt,
-                    _seal: PreparedNormalFileVmHandoffSealV1,
-                })
-            }
-            Err(_) => {
-                unreachable!("canonical profile was rejected before consuming the parser handoff")
-            }
-        }
+        let source_identity = source_file.to_string_lossy().into_owned().into_boxed_str();
+        let (invocation, receipt) = extracted.into_invocation(source_identity);
+        Ok(PreparedNormalFileVmHandoffV1 {
+            invocation,
+            source: receipt,
+            _seal: PreparedNormalFileVmHandoffSealV1,
+        })
     }
 }
 
 impl PreparedNormalFileSourceV1 {
+    fn discard_at_named_terminal(self) {
+        let Self { route, _seal } = self;
+        drop(_seal);
+        match route {
+            PreparedNormalFileParsedRouteV1::Raw {
+                source_file,
+                source,
+            } => {
+                drop(source_file);
+                source.discard_at_wrong_route_terminal();
+            }
+            PreparedNormalFileParsedRouteV1::Canonical {
+                source_file,
+                source,
+            } => {
+                drop(source_file);
+                source.discard_at_wrong_route_terminal();
+            }
+        }
+    }
+
     #[cfg(test)]
     fn receipt(&self) -> &NormalFileSourceReceiptV1 {
-        self.parser_source_handoff.receipt()
+        match &self.route {
+            PreparedNormalFileParsedRouteV1::Raw { source, .. } => source.receipt(),
+            PreparedNormalFileParsedRouteV1::Canonical { source, .. } => source.receipt(),
+        }
     }
 
     #[cfg(test)]
     fn profile_is_canonical_core(&self) -> bool {
-        self.parser_source_handoff.profile_is_canonical_core()
+        matches!(
+            &self.route,
+            PreparedNormalFileParsedRouteV1::Canonical { .. }
+        )
     }
 }
 
@@ -476,6 +587,10 @@ impl SealedNormalEntryProfileV1 {
 #[cfg(test)]
 #[path = "normal_file_vm_frontdoor/tests.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "normal_file_vm_frontdoor/atomic_root_cutover_tests.rs"]
+mod atomic_root_cutover_tests;
 
 #[cfg(test)]
 #[path = "normal_file_vm_frontdoor/result_carrier_p0.rs"]

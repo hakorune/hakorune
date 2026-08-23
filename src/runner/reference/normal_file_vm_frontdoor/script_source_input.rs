@@ -5,9 +5,7 @@
 //! meaning.
 
 use super::{NormalFileSourceReceiptV1, SealedNormalEntryProfileV1};
-use crate::mir::{
-    CanonicalScriptSourceAInputTransportV1, CanonicalSourceBytesDigestV1,
-};
+use crate::mir::{CanonicalScriptSourceAInputTransportV1, CanonicalSourceBytesDigestV1};
 use crate::parser::callable_parameter_source::{
     CanonicalScriptSourceRowsDispositionV1, CanonicalScriptSourceRowsV1,
 };
@@ -35,6 +33,7 @@ impl CanonicalScriptSourceInputDispositionV1 {
     /// future A input owner before any row can affect compilation.
     pub(super) fn discard_before_a_consumer(self) {
         match self {
+            Self::HandoffReady(handoff) => handoff.discard_before_a_consumer(),
             Self::NotApplicable
             | Self::CompatibilitySource
             | Self::Deferred
@@ -44,15 +43,12 @@ impl CanonicalScriptSourceInputDispositionV1 {
             | Self::ObservationIncomplete
             | Self::IntegrityInvalid
             | Self::NonCandidate
-            | Self::HandoffReady(_)
             | Self::MovedToParallelHandoff
             | Self::DispositionTransported => {}
         }
     }
 
-    pub(super) fn into_compiler_transport(
-        self,
-    ) -> CanonicalScriptSourceAInputTransportV1 {
+    pub(super) fn into_compiler_transport(self) -> CanonicalScriptSourceAInputTransportV1 {
         match self {
             Self::NotApplicable => CanonicalScriptSourceAInputTransportV1::NotApplicable,
             Self::CompatibilitySource => {
@@ -149,8 +145,9 @@ impl CanonicalScriptSourceInputHandoffV1 {
             utf8_len,
             read_count,
             parse_count,
-            _seal: _,
+            _seal,
         } = self;
+        drop(_seal);
         CanonicalScriptSourceAInputTransportV1::from_frontdoor_parts(
             rows,
             hakorune_frontend_parser::parser::GrammarProfile::Canonical,
@@ -160,6 +157,10 @@ impl CanonicalScriptSourceInputHandoffV1 {
             read_count,
             parse_count,
         )
+    }
+
+    fn discard_before_a_consumer(self) {
+        drop(self);
     }
 }
 

@@ -11,13 +11,12 @@ mod transform_guard;
 
 pub(crate) use issuer::issue_parser_composite_source_v1;
 pub(crate) use loan::{
-    parser_composite_source_loan_from_statements,
-    ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
+    parser_composite_source_loan_from_statements, ParserCompositeSourceLoanRejectV1,
+    ParserCompositeSourceLoanV1,
 };
 pub(crate) use model::{
-    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
-    ParserCompositeOutsideReasonV1, ParserCompositeSourceDispositionV1,
-    ParserCompositeSourceUnavailableV1,
+    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1, ParserCompositeOutsideReasonV1,
+    ParserCompositeSourceDispositionV1, ParserCompositeSourceUnavailableV1,
     ParserCompositeTransformRejectV1,
 };
 pub(crate) use transform_guard::validate_parser_composite_transform_v1;

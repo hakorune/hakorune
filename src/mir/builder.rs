@@ -47,17 +47,19 @@ mod normal_callable_semantic_source; // Co-sealed selected callable source autho
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
 mod normal_cataloged_box_method_lowering;
 mod variable_read;
+pub(in crate::mir) use callable_declaration_catalog::issue_source_backed_same_module_callable_catalog_v1;
 pub(crate) use callable_declaration_catalog::{
-    issue_source_backed_same_module_callable_catalog_v1, CanonicalSameModuleCallableKeyV1,
-    SameModuleCallableCatalogBrandV1, SameModuleCallableNamespaceV1,
-    SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
+    CanonicalSameModuleCallableKeyV1, SameModuleCallableCatalogBrandV1,
+    SameModuleCallableNamespaceV1, SelectedCallableConsumptionRoleV1, SelectedNormalCallableKeyV1,
     SourceBackedCallableCatalogIssueV1, VerifiedSameModuleCallableDeclarationCatalogV1,
     VerifiedSameModuleCallableDeclarationV1, VerifiedSelectedNormalCallableSourceInventoryV1,
     VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 #[cfg(test)]
-pub(crate) use main_expansion::with_test_main_static_children;
-pub(in crate::mir) use main_expansion::VerifiedMainStaticChildV1;
+pub(in crate::mir) use main_expansion::with_test_main_static_children;
+pub(in crate::mir) use main_expansion::{
+    MainExpansionErrorV1, PreparedAdmittedNormalRootExpansionV1, VerifiedMainStaticChildV1,
+};
 pub(in crate::mir) use normal_callable_catalog_owner_link::{
     issue_catalog_callable_owner_link_v1, CatalogCallableOwnerLinkIssueV1,
     VerifiedCatalogCallableOwnerLinkV1,
@@ -109,10 +111,11 @@ mod nested_box_method_source;
 mod normal_instance_constructor_admission;
 mod normal_instance_constructor_demand_loan;
 mod normal_instance_constructor_semantic_scope;
+mod normal_root_execution;
 mod normal_runtime_inputs; // selected normal ingress runtime snapshot
-mod normal_script_instance_box_transfer;
 mod normal_script_composite_partition;
 mod normal_script_direct_static_lookup;
+mod normal_script_instance_box_transfer;
 mod normal_script_neutral_window;
 mod raw_required_condition_draft; // ROOTBATCH0-S0b typed condition producer
 #[cfg(test)]
@@ -167,6 +170,10 @@ mod raw_root_static_child_admission;
 pub(in crate::mir) use entry_materialization::{
     CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
     NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
+};
+pub(in crate::mir) use normal_root_execution::{
+    AdmittedNormalRootExecutionModeV1, ConsumedNormalRootCallableSourceV1,
+    NormalRootExecutionConsumerRejectV1, NormalRootExecutionConsumerV1,
 };
 pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
 pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
@@ -281,12 +288,12 @@ mod module_invocation_collect0_s0_p0; // CUT0-I0-COLLECT0-S0 fixtures
 mod module_invocation_collection; // CUT0-I0-COLLECT0-S0 co-seal terminal
 mod module_invocation_session; // Shared isolated Builder transaction
 mod pinned_text_invocation_binding; // Session-owned pinned-Text target/brand ingress
+pub(in crate::mir::builder) use module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 pub(in crate::mir) use module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
     PreparedBuilderExternalCommitV1, PreparedBuilderModuleSessionV1,
     RejectedPreparedBuilderModuleSessionV1,
 };
-pub(in crate::mir::builder) use module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
 mod normal_cataloged_box_method_admission; // Selected normal cataloged-child identity
@@ -294,6 +301,7 @@ pub(in crate::mir) use normal_cataloged_box_method_admission::{
     CatalogedBoxMethodPhysicalHeaderProjectionV1, NormalCatalogedBoxMethodAdmissionErrorV1,
     NormalCatalogedBoxMethodDraftAdmissionV1,
 };
+mod normal_default_program_root; // Closed source-backed/compatibility root ingress
 mod normal_default_root_catalog_lifecycle; // Selected normal root/catalog lifecycle
 mod normal_default_root_catalog_post_install; // Existing post-install lowering consumer
 mod normal_script_boundary_receipt_pack; // Script retained boundary receipts
@@ -315,10 +323,10 @@ mod normal_script_source_continuation; // Resolver-issued Script source continua
 #[path = "builder/normal_script_source_continuation_tests.rs"]
 mod normal_script_source_continuation_tests;
 mod program_root_lowering; // Shared typed/generic Program root owner
+pub(in crate::mir) use normal_default_program_root::PreparedNormalDefaultProgramRootV1;
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
     CompletedNormalDefaultRootCatalogLifecycleV1, NormalDefaultRootCatalogLifecycleErrorV1,
-    NormalDefaultRootCatalogLifecycleStageV1, PreparedNormalDefaultProgramRootV1,
-    RejectedNormalDefaultRootCatalogLifecycleV1,
+    NormalDefaultRootCatalogLifecycleStageV1, RejectedNormalDefaultRootCatalogLifecycleV1,
 };
 #[allow(dead_code)]
 mod cataloged_box_method_collector_handoff;
@@ -382,11 +390,10 @@ mod raw_invocation_body;
 mod raw_invocation_source_item_site;
 mod raw_invocation_source_statement_classification;
 mod raw_invocation_source_transport;
-mod static_result_publication_ingress;
 mod raw_structured_child_scope;
 mod record_literal_source_demand;
-mod recursive_child_lowering_port;
 mod recursive_child_lowering;
+mod recursive_child_lowering_port;
 #[cfg(test)]
 mod recursive_child_lowering_port_tests;
 #[cfg(test)]
@@ -407,6 +414,7 @@ mod root_draft_batch_commit_p0; // HEADERPORT0 BORROW-P0-ROOT-P0b proof
 mod root_draft_batch_p0; // HEADERPORT0-I0-ROOTBATCH0-P0 fixtures
 #[allow(dead_code)]
 mod route_owned_invocation_inventory; // HEADERPORT0 WIRING-I0-ROUTEINV-S0 policy
+mod static_result_publication_ingress;
 mod variable_context; // Phase 136 follow-up (Step 5/7): VariableContext extraction // Method call handler separation (Phase 3) // call(expr)
                       // include lowering removed (using is handled in runner)
 mod control_flow; // thin wrappers to centralize control-flow entrypoints
@@ -596,12 +604,12 @@ mod module_lifecycle_capture_tests;
 mod normal_script_deferred_residual_registry; // named selected-Script residual ownership
 mod normal_script_direct_statement_owner; // Selected Script direct statement terminals
 mod normal_script_program_item_admission; // Selected Script Program-item source admission
+mod normal_script_resolution; // typed Script resolver outcome transport
 #[cfg(test)]
 mod normal_script_root_admission_witness; // selected Script root shape/disposition proof
 mod normal_script_root_demand_window; // Selected Script source-only semantic demand receipt
 mod normal_script_runtime_block_port;
 mod normal_script_runtime_work; // Selected Script runtime Box callable admission
-mod normal_script_resolution; // typed Script resolver outcome transport
 #[cfg(test)]
 mod normal_script_selected_occurrence; // typed selected-Script work-plan-to-semantics handoff
 mod normal_top_level_function_admission; // Selected top-level callable source/physical admission

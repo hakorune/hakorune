@@ -1,8 +1,11 @@
 use crate::analysis::brand_program_declaration_catalog::VerifiedBrandProgramDeclarationCatalogV1;
 use crate::mir::builder::{
     issue_source_backed_same_module_callable_catalog_v1,
-    CatalogedBoxMethodPhysicalHeaderProjectionV1, SourceBackedCallableCatalogIssueV1,
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, ConsumedNormalRootCallableSourceV1,
+    SourceBackedCallableCatalogIssueV1,
 };
+#[cfg(test)]
+use crate::mir::builder::{NormalRootExecutionConsumerRejectV1, NormalRootExecutionConsumerV1};
 use crate::mir::callable_parameter_contract::{
     issue_callable_parameter_contract_v1, CallableParameterContractIssueV1,
 };
@@ -22,6 +25,7 @@ use crate::mir::compiler::dynamic_full_body_recipe::{
     DynamicInvocationCleanupProjectionRejectV1,
 };
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
+#[cfg(test)]
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
 use std::rc::Rc;
 
@@ -50,7 +54,9 @@ use super::selected_mapping::{
 };
 
 #[derive(Debug)]
-pub(crate) enum NormalCallableSemanticPackageIssueV1 {
+pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
+    #[cfg(test)]
+    RootExecution(NormalRootExecutionConsumerRejectV1),
     SourceBackedCatalog(SourceBackedCallableCatalogIssueV1),
     Batch(ResolvedCallableSemanticBatchIssueV1),
     InstanceConstructors(InstanceConstructorSemanticBatchIssueV1),
@@ -77,29 +83,41 @@ pub(crate) enum NormalCallableSemanticPackageIssueV1 {
     MissingS6CStorageHeader,
 }
 
-pub(crate) fn issue_normal_callable_semantic_package_v1(
+#[cfg(test)]
+pub(in crate::mir) fn issue_normal_callable_semantic_package_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
     source: VerifiedFinalCallableProgramSourceV1,
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    let source = NormalRootExecutionConsumerV1::consume_once(source)
+        .map_err(|rejected| {
+            let error = rejected.into_error_after_discard();
+            NormalCallableSemanticPackageIssueV1::RootExecution(error)
+        })?
+        .into_consumed_source();
     issue_normal_callable_semantic_package_with_brand_catalog_v1(resolver, source, None)
 }
 
-pub(crate) fn issue_normal_callable_semantic_package_with_brand_catalog_v1(
+pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_v1(
     resolver: &mut FunctionSemanticResolverSessionV1,
-    source: VerifiedFinalCallableProgramSourceV1,
+    source: ConsumedNormalRootCallableSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
+    let root_execution_mode = source.mode();
     let instance_constructors =
-        issue_instance_constructor_semantic_batch_v1(resolver, &source, brand_catalog)
+        issue_instance_constructor_semantic_batch_v1(resolver, source.source(), brand_catalog)
             .map_err(NormalCallableSemanticPackageIssueV1::InstanceConstructors)?;
     let catalog = issue_source_backed_same_module_callable_catalog_v1(&source)
         .map_err(NormalCallableSemanticPackageIssueV1::SourceBackedCatalog)?;
-    let batch = issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
-        resolver,
-        source,
-        brand_catalog,
-    )
-    .map_err(NormalCallableSemanticPackageIssueV1::Batch)?;
+    let (batch, root_execution) = source
+        .consume_into_semantic_package(|source, root_execution| {
+            issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
+                resolver,
+                source,
+                brand_catalog,
+            )
+            .map(|batch| (batch, root_execution))
+        })
+        .map_err(NormalCallableSemanticPackageIssueV1::Batch)?;
     let selected = issue_selected_callable_batch_map_v1(&catalog, &batch)
         .map_err(NormalCallableSemanticPackageIssueV1::SelectedMapping)?;
     let parameter_contracts = {
@@ -256,6 +274,8 @@ pub(crate) fn issue_normal_callable_semantic_package_with_brand_catalog_v1(
     .map_err(NormalCallableSemanticPackageIssueV1::PhysicalSignature)?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
+        root_execution_mode,
+        root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
         catalog,
         batch,
         instance_constructors,

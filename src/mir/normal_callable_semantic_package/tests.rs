@@ -1,6 +1,6 @@
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, CompilationContext, NormalCatalogedBoxMethodDraftAdmissionV1,
-    SelectedNormalCallableKeyV1,
+    NormalRootExecutionConsumerRejectV1, SelectedNormalCallableKeyV1,
 };
 use crate::mir::callable_semantic_batch::ResolvedCallableDeclarationModeV1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -53,57 +53,6 @@ fn issue(
 ) -> Result<super::VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
     let mut resolver = FunctionSemanticResolverSessionV1::new(91).unwrap();
     issue_normal_callable_semantic_package_v1(&mut resolver, final_source(source))
-}
-
-fn issue_with_brand_catalog(
-    source: &str,
-) -> Result<super::VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
-    let source = final_source(source);
-    let catalog = crate::analysis::brand_program_declaration_catalog::issue_brand_program_declaration_catalog_v1(
-        source.ast(),
-    )
-    .expect("brand catalog");
-    let mut resolver = FunctionSemanticResolverSessionV1::new(93).unwrap();
-    super::issue_normal_callable_semantic_package_with_brand_catalog_v1(
-        &mut resolver,
-        source,
-        Some(&catalog),
-    )
-}
-
-#[test]
-fn instance_constructor_semantics_keep_parser_identity_and_nested_brand_relations() {
-    let package = issue_with_brand_catalog(
-        r#"
-brand Id: i64
-
-box Holder {
-    init(value) {
-        local direct = Id(value)
-        local nested = fn(x) { Id(x) }
-    }
-    pack(other) {
-        local second = Id(other)
-    }
-}
-"#,
-    )
-    .expect("constructor semantic package");
-
-    let rows = package.instance_constructors().rows();
-    assert_eq!(rows.len(), 2);
-    assert_eq!(rows[0].box_name(), "Holder");
-    assert_eq!(rows[0].key(), "init/1");
-    assert!(rows[0].source_id().same_as(rows[0].source_id()));
-    assert_eq!(rows[0].forest().owner_count(), 2);
-    assert_eq!(rows[1].key(), "pack/1");
-    assert_eq!(
-        rows.iter()
-            .flat_map(|row| row.forest().owners())
-            .map(|(_, owner)| owner.brand_call_relations().count())
-            .sum::<usize>(),
-        3
-    );
 }
 
 #[test]
@@ -680,7 +629,7 @@ fn unselected_main_candidate_does_not_duplicate_one_selected_dynamic_candidate()
 }
 
 #[test]
-fn selected_gate_dynamic_candidate_rejects_without_parameter_authority() {
+fn selected_gate_without_total_root_authority_rejects_before_dynamic_classification() {
     let source = r#"
 gate Build.test {
   static box ParserScanLoopBox {
@@ -696,16 +645,22 @@ gate Build.test {
   }
 }
 "#;
-    assert!(matches!(
-        issue_with_config(
-            source,
-            ParserBuildConfig {
-                mode: BuildMode::Test,
-                ..ParserBuildConfig::default()
-            },
+    let result = issue_with_config(
+        source,
+        ParserBuildConfig {
+            mode: BuildMode::Test,
+            ..ParserBuildConfig::default()
+        },
+    );
+    assert!(
+        matches!(
+            &result,
+            Err(NormalCallableSemanticPackageIssueV1::RootExecution(
+                NormalRootExecutionConsumerRejectV1::SourceAuthorityUnavailable
+            ))
         ),
-        Err(NormalCallableSemanticPackageIssueV1::MissingDynamicParameterContract)
-    ));
+        "unexpected semantic package result: {result:?}"
+    );
 }
 
 #[test]

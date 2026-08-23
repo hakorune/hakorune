@@ -1,55 +1,79 @@
 //! Retained parser source for one future resolved callable semantic batch.
 //!
-//! The completed postpass and complete parameter catalog stay atomic.  This
-//! owner lends exact declaration syntax only within a callback and carries no
-//! resolver, Home, Recipe, or physical meaning.
+//! The completed postpass and complete parameter catalog stay atomic. This
+//! owner reaches one consuming test terminal without issuing resolver, Home,
+//! Recipe, or physical meaning.
 
 use super::catalog::ParserCallableParameterSourceCatalogV1;
-use super::normal_root_source::ParserNormalRootSourceDispositionV1;
-use super::syntax_loan::{
-    borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
-    ParserCallableSyntaxLoanErrorV1,
-};
+use super::normal_root_execution::ParserNormalRootExecutionSourceDispositionV1;
+use super::script_source_authority::ParserNormalProgramSourceAuthorityDispositionV1;
+use super::script_source_rows::CanonicalScriptSourceRowsDispositionV1;
+#[cfg(test)]
+use super::syntax_loan::{borrow_callable_declaration_syntax_v1, ParserCallableSyntaxLoanErrorV1};
 use crate::parser::postpass_envelope::CompletedParserPostpassV1;
 
 #[derive(Debug)]
 pub(crate) struct RetainedParserCallableSemanticSourceV1 {
     completed: CompletedParserPostpassV1,
     parameter_source: ParserCallableParameterSourceCatalogV1,
-    normal_root_source: ParserNormalRootSourceDispositionV1,
+    source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
+    canonical_script_source_rows: CanonicalScriptSourceRowsDispositionV1,
+    normal_root_execution: ParserNormalRootExecutionSourceDispositionV1,
 }
 
 impl RetainedParserCallableSemanticSourceV1 {
     pub(super) const fn new(
         completed: CompletedParserPostpassV1,
         parameter_source: ParserCallableParameterSourceCatalogV1,
-        normal_root_source: ParserNormalRootSourceDispositionV1,
+        source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
+        canonical_script_source_rows: CanonicalScriptSourceRowsDispositionV1,
+        normal_root_execution: ParserNormalRootExecutionSourceDispositionV1,
     ) -> Self {
         Self {
             completed,
             parameter_source,
-            normal_root_source,
+            source_authority,
+            canonical_script_source_rows,
+            normal_root_execution,
         }
     }
 
-    pub(in crate::parser) fn normal_root_source(&self) -> &ParserNormalRootSourceDispositionV1 {
-        &self.normal_root_source
-    }
-
-    /// Lend the exact parser source repeatedly without splitting its owners.
-    ///
-    /// The higher-ranked callback prevents AST-backed declaration references
-    /// from escaping.  The future semantic-batch issuer may resolve once and
-    /// retain only its owned forests/projections beside this source owner.
-    pub(crate) fn with_callable_declaration_syntax<R>(
-        &self,
+    #[cfg(test)]
+    pub(super) fn consume_retained_test_terminal_once<R>(
+        self,
         callback: impl for<'source> FnOnce(
-            &'source ParserCallableParameterSourceCatalogV1,
-            ParserCallableDeclarationSyntaxLoanV1<'source>,
+            super::normal_root_execution::ParserRetainedCallableSemanticSourceTestLoanV1<'source>,
         ) -> R,
     ) -> Result<R, ParserCallableSyntaxLoanErrorV1> {
-        let loan =
-            borrow_callable_declaration_syntax_v1(self.completed.ast(), &self.parameter_source)?;
-        Ok(callback(&self.parameter_source, loan))
+        let Self {
+            completed,
+            parameter_source,
+            source_authority,
+            canonical_script_source_rows,
+            normal_root_execution,
+        } = self;
+        let observation = match borrow_callable_declaration_syntax_v1(
+            completed.ast(),
+            &parameter_source,
+        ) {
+            Ok(syntax) => Ok(callback(
+                super::normal_root_execution::ParserRetainedCallableSemanticSourceTestLoanV1::issue(
+                    &parameter_source,
+                    &source_authority,
+                    &canonical_script_source_rows,
+                    &normal_root_execution,
+                    syntax,
+                ),
+            )),
+            Err(error) => Err(error),
+        };
+        super::product::consume_retained_fields_at_named_test_terminal(
+            completed,
+            parameter_source,
+            source_authority,
+            canonical_script_source_rows,
+            normal_root_execution,
+        );
+        observation
     }
 }

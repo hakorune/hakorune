@@ -1,4 +1,4 @@
-use super::product::PreparedNormalSourcePlanInputV1;
+use super::product::NormalSourcePlanOwnerV1;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum NormalSourcePlanStageV1 {
@@ -35,11 +35,15 @@ pub(crate) enum NormalUnsupportedTopLevelKindV1 {
 pub(crate) enum NormalSourcePlanErrorV1 {
     SourceAuthorityUnavailable,
     CompatibilitySourceUnavailable,
+    ParserSourceIncomplete,
+    ParserSourceIntegrityInvalid,
     SourceLineageUnavailable,
     SourceIdentityMismatch {
         field: NormalSourcePlanIdentityFieldV1,
     },
     RootNotProgram,
+    ParserSurfaceObservation(crate::parser::NormalSourcePlanSurfaceLoanErrorV1),
+    RootExecutionRelationMismatch,
     MissingSourceEntry,
     DuplicateMain,
     MainMustBeStatic,
@@ -52,6 +56,10 @@ pub(crate) enum NormalSourcePlanErrorV1 {
     },
     MainArityMismatch {
         actual: usize,
+    },
+    MainMemberCoverageMismatch {
+        observed: u32,
+        callable: usize,
     },
     MainHelperMustBeFunction {
         method_key: Box<str>,
@@ -68,13 +76,17 @@ pub(crate) enum NormalSourcePlanErrorV1 {
 }
 
 impl NormalSourcePlanErrorV1 {
-    fn stage(&self) -> NormalSourcePlanStageV1 {
+    pub(crate) fn stage(&self) -> NormalSourcePlanStageV1 {
         match self {
             Self::SourceAuthorityUnavailable
             | Self::CompatibilitySourceUnavailable
+            | Self::ParserSourceIncomplete
+            | Self::ParserSourceIntegrityInvalid
             | Self::SourceLineageUnavailable
             | Self::SourceIdentityMismatch { .. }
             | Self::RootNotProgram
+            | Self::ParserSurfaceObservation(_)
+            | Self::RootExecutionRelationMismatch
             | Self::UnsupportedTopLevelSurface { .. } => NormalSourcePlanStageV1::RootSurface,
             Self::MixedSourceFamilies => NormalSourcePlanStageV1::FamilyClosure,
             Self::MissingSourceEntry
@@ -85,6 +97,7 @@ impl NormalSourcePlanErrorV1 {
             | Self::MainMethodMustBeStatic
             | Self::MainMethodNameMismatch { .. }
             | Self::MainArityMismatch { .. }
+            | Self::MainMemberCoverageMismatch { .. }
             | Self::MainHelperMustBeFunction { .. }
             | Self::MainHelperNameMismatch { .. } => NormalSourcePlanStageV1::SourceEntry,
         }
@@ -93,14 +106,26 @@ impl NormalSourcePlanErrorV1 {
 
 #[derive(Debug)]
 pub(crate) struct RejectedNormalSourcePlanV1 {
-    owner: PreparedNormalSourcePlanInputV1,
+    owner: NormalSourcePlanOwnerV1,
     stage: NormalSourcePlanStageV1,
     error: NormalSourcePlanErrorV1,
 }
 
 impl RejectedNormalSourcePlanV1 {
-    pub(crate) fn new(
-        owner: PreparedNormalSourcePlanInputV1,
+    pub(super) fn new(
+        owner: impl Into<NormalSourcePlanOwnerV1>,
+        error: NormalSourcePlanErrorV1,
+    ) -> Self {
+        let stage = error.stage();
+        Self {
+            owner: owner.into(),
+            stage,
+            error,
+        }
+    }
+
+    pub(super) fn from_owner(
+        owner: NormalSourcePlanOwnerV1,
         error: NormalSourcePlanErrorV1,
     ) -> Self {
         let stage = error.stage();
@@ -120,7 +145,13 @@ impl RejectedNormalSourcePlanV1 {
     }
 
     pub(crate) fn discard(self) {
-        drop(self);
+        let Self {
+            owner,
+            stage,
+            error,
+        } = self;
+        owner.discard_after_source_plan_terminal();
+        drop((stage, error));
     }
 }
 

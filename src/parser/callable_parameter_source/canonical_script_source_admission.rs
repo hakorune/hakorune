@@ -8,10 +8,10 @@
 use super::catalog::{
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
 };
+use super::parser_invocation_witness::ParserInvocationWitnessV1;
 use crate::ast::ASTNode;
 use crate::parser::postpass_envelope::{CompletedParserPostpassV1, ParserPostpassProgramCohortV1};
 use crate::parser::source_authority::ParserInvocationBrandV1;
-use super::parser_invocation_witness::ParserInvocationWitnessV1;
 
 #[derive(Debug)]
 pub(crate) enum CanonicalScriptCohortDispositionV1 {
@@ -170,11 +170,9 @@ fn classify_no_box_program(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use super::super::normal_root_source::{
-        ParserNormalRootScriptTerminalV1, ParserNormalRootSourceDispositionV1,
-    };
-    use crate::parser::{NyashParser, ParserBuildConfig};
+    use super::super::normal_root_execution::ParserNormalRootExecutionTestTerminalV1;
+    use super::super::script_source_rows::CanonicalScriptSourceRowsDispositionV1;
+    use crate::parser::{NyashParser, ParserBuildConfig, ParserNormalRootExecutionRoleV1};
 
     fn parse(
         source: &str,
@@ -189,52 +187,68 @@ mod tests {
     #[test]
     fn pure_script_requires_the_exhaustive_shape_and_issues_once() {
         let parsed = parse("print(1)\n");
-        let ParserNormalRootSourceDispositionV1::ScriptReady(admission) =
-            parsed.normal_root_source()
-        else {
-            panic!("pure Script source should be admitted")
-        };
-        assert!(admission.same_parser_source(&admission));
+        ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+            assert!(matches!(
+                loan.canonical_script_source_rows(),
+                CanonicalScriptSourceRowsDispositionV1::HandoffReady(_)
+            ));
+            assert_eq!(
+                loan.normal_root_execution_role(),
+                Some(ParserNormalRootExecutionRoleV1::ProgramRuntime)
+            );
+        });
     }
 
     #[test]
     fn typed_admission_controls_source_disposition_not_the_old_boolean() {
         let parsed = parse("print(1)\n");
-        let disposition = parsed.into_source_disposition();
-        assert!(disposition.is_source_backed());
+        ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+            assert!(matches!(
+                loan.canonical_script_source_rows(),
+                CanonicalScriptSourceRowsDispositionV1::HandoffReady(_)
+            ));
+        });
     }
 
     #[test]
     fn boxes_remain_compatibility_and_using_is_unresolved() {
         let boxed = parse("box Plain { run() { return 1 } }\n");
-        assert!(matches!(
-            boxed.normal_root_source(),
-            ParserNormalRootSourceDispositionV1::Outside(_)
-        ));
+        ParserNormalRootExecutionTestTerminalV1::observe_once(boxed, |loan| {
+            assert!(matches!(
+                loan.canonical_script_source_rows(),
+                CanonicalScriptSourceRowsDispositionV1::CompatibilitySource
+            ));
+        });
 
         let using = parse("using plain\nprint(1)\n");
-        assert!(matches!(
-            using.normal_root_source(),
-            ParserNormalRootSourceDispositionV1::ScriptTerminal(
-                ParserNormalRootScriptTerminalV1::CohortUnresolved
-            )
-        ));
+        ParserNormalRootExecutionTestTerminalV1::observe_once(using, |loan| {
+            assert!(matches!(
+                loan.canonical_script_source_rows(),
+                CanonicalScriptSourceRowsDispositionV1::CohortUnresolved
+            ));
+        });
     }
 
     #[test]
     fn independent_parser_invocations_have_distinct_admission_seals() {
         let left = parse("print(1)\n");
         let right = parse("print(1)\n");
-        let ParserNormalRootSourceDispositionV1::ScriptReady(left) =
-            left.normal_root_source()
-        else {
-            panic!("left admission")
-        };
-        let ParserNormalRootSourceDispositionV1::ScriptReady(right) =
-            right.normal_root_source()
-        else {
-            panic!("right admission")
-        };
-        assert!(!left.same_parser_source(&right));
+        let left = ParserNormalRootExecutionTestTerminalV1::observe_once(left, |loan| {
+            let CanonicalScriptSourceRowsDispositionV1::HandoffReady(rows) =
+                loan.canonical_script_source_rows()
+            else {
+                panic!("left admission")
+            };
+            rows.parser_invocation_witness().clone()
+        });
+        let right = ParserNormalRootExecutionTestTerminalV1::observe_once(right, |loan| {
+            let CanonicalScriptSourceRowsDispositionV1::HandoffReady(rows) =
+                loan.canonical_script_source_rows()
+            else {
+                panic!("right admission")
+            };
+            rows.parser_invocation_witness().clone()
+        });
+        assert!(!left.same_as(&right));
     }
 }

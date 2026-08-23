@@ -20,14 +20,10 @@ pub(crate) use loan::{
 pub(crate) use model::{
     ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     ParserNormalProgramSourceAuthorityDispositionV1,
-    ParserNormalProgramSourceAuthorityIncompleteV1,
-    ParserNormalProgramSourceAuthorityIntegrityIssueV1,
-    ParserNormalProgramSourceAuthorityUnavailableV1,
 };
 pub(in crate::parser) use module_rows::ParserNormalModuleSourceRowsDispositionV1;
 pub(crate) use transform_guard::{
-    validate_parser_normal_program_source_transform_v1,
-    ParserNormalProgramSourceTransformRejectV1,
+    validate_parser_normal_program_source_transform_v1, ParserNormalProgramSourceTransformRejectV1,
 };
 
 #[cfg(test)]

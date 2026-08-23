@@ -9,7 +9,7 @@ use super::super::callable_parameter_source::{
     ParserCallableSyntaxLoanErrorV1, ParserCompositeSourceLoanRejectV1,
     ParserCompositeSourceLoanV1, ParserNormalProgramSourceAuthorityDispositionV1,
     ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
-    ParserNormalRootPreservationV1, ParserNormalRootSourceDispositionV1,
+    ParserNormalRootExecutionSourceDispositionV1,
 };
 use super::super::callable_source_anchor::{
     DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
@@ -18,6 +18,9 @@ use super::super::initial_callable_program_source::{
     InitialCallableFinalSlotV1, VerifiedInitialCallableProgramSourceV1,
 };
 use super::super::source_path::SourceProgramCallablePathV1;
+use super::normal_root_execution_preservation::{
+    ParserNormalRootExecutionPreservationIssuerV1, ParserNormalRootExecutionPreservationV1,
+};
 use super::semantic_syntax_loan::{
     build_final_callable_semantic_syntax_loan_v1, FinalCallableSemanticSyntaxLoanErrorV1,
     FinalCallableSemanticSyntaxLoanV1,
@@ -134,7 +137,7 @@ pub(crate) struct PreparedNormalCallableProgramSourceV1 {
     initial: VerifiedInitialCallableProgramSourceV1,
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
-    normal_root_source: ParserNormalRootSourceDispositionV1,
+    normal_root_execution: ParserNormalRootExecutionSourceDispositionV1,
 }
 
 /// Parser-owned boundary for the one final transform of a source-backed
@@ -154,22 +157,39 @@ impl PreparedNormalCallableProgramSourceV1 {
         initial: VerifiedInitialCallableProgramSourceV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
-        normal_root_source: ParserNormalRootSourceDispositionV1,
+        normal_root_execution: ParserNormalRootExecutionSourceDispositionV1,
     ) -> Result<Self, NormalCallableParameterSourceRejectV1> {
-        if let ParserCallableParameterSourceDispositionV1::Complete(catalog) = &parameter_source {
-            validate_direct_parameter_coverage(initial.callable_rows(), catalog)?;
-            borrow_callable_declaration_syntax_v1(initial.ast(), catalog)
-                .map_err(|_| NormalCallableParameterSourceRejectV1::SyntaxMismatch)?;
-        }
-        if initial.constructor_source_is_missing() {
-            return Err(NormalCallableParameterSourceRejectV1::ConstructorSourceMissing);
-        }
-        Ok(Self {
+        let candidate = Self {
             initial,
             parameter_source,
             source_authority,
-            normal_root_source,
-        })
+            normal_root_execution,
+        };
+        let error = if let ParserCallableParameterSourceDispositionV1::Complete(catalog) =
+            &candidate.parameter_source
+        {
+            match validate_direct_parameter_coverage(candidate.initial.callable_rows(), catalog) {
+                Err(error) => Some(error),
+                Ok(()) => borrow_callable_declaration_syntax_v1(candidate.initial.ast(), catalog)
+                    .err()
+                    .map(|_| NormalCallableParameterSourceRejectV1::SyntaxMismatch),
+            }
+        } else {
+            None
+        }
+        .or_else(|| {
+            candidate
+                .initial
+                .constructor_source_is_missing()
+                .then_some(NormalCallableParameterSourceRejectV1::ConstructorSourceMissing)
+        });
+        match error {
+            Some(error) => {
+                candidate.discard_at_named_transform_reject_terminal();
+                Err(error)
+            }
+            None => Ok(candidate),
+        }
     }
 
     pub(crate) fn ast(&self) -> &ASTNode {
@@ -180,16 +200,27 @@ impl PreparedNormalCallableProgramSourceV1 {
         ParserNormalCallableTransformSessionV1 { initial: self }
     }
 
-    pub(crate) fn into_ast(self) -> ASTNode {
-        self.initial.into_ast()
+    pub(crate) fn discard_at_named_transform_reject_terminal(self) {
+        let Self {
+            initial,
+            parameter_source,
+            source_authority,
+            normal_root_execution,
+        } = self;
+        ParserNormalRootExecutionPreservationIssuerV1::discard_at_named_transform_reject_terminal(
+            normal_root_execution,
+        );
+        drop((initial, parameter_source, source_authority));
     }
 
     pub(crate) fn composite_source_is_ready(&self) -> bool {
         self.source_authority.composite_source_is_ready()
     }
 
-    pub(in crate::parser) fn normal_root_source(&self) -> &ParserNormalRootSourceDispositionV1 {
-        &self.normal_root_source
+    pub(in crate::parser) fn normal_root_execution(
+        &self,
+    ) -> &ParserNormalRootExecutionSourceDispositionV1 {
+        &self.normal_root_execution
     }
 
     /// Lend the parser-issued composite source at the named admission
@@ -212,26 +243,18 @@ impl PreparedNormalCallableProgramSourceV1 {
         with_parser_normal_program_source_loan(&self.source_authority, self.ast(), callback)
     }
 
-    pub(in crate::parser) fn into_transform_parts(
+    pub(super) fn into_transform_input(
         self,
-    ) -> (
-        ASTNode,
-        Box<[PreparedCallableSourceV1]>,
-        Box<[InitialCallableFinalSlotV1]>,
-        ParserCallableParameterSourceDispositionV1,
-        ParserNormalProgramSourceAuthorityDispositionV1,
-        super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
-        ParserNormalRootSourceDispositionV1,
-    ) {
+    ) -> super::transform::PreparedNormalCallableTransformInputV1 {
         let (ast, sources, slots, constructor_source) = self.initial.into_transform_parts();
-        (
+        super::transform::PreparedNormalCallableTransformInputV1::issue(
             ast,
             sources,
             slots,
             self.parameter_source,
             self.source_authority,
             constructor_source.expect("constructor source checked at issue"),
-            self.normal_root_source,
+            self.normal_root_execution,
         )
     }
 }
@@ -272,7 +295,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
-    normal_root_source: ParserNormalRootPreservationV1,
+    normal_root_execution: ParserNormalRootExecutionPreservationV1,
     source_lineage: Option<NormalParserSourceLineageV1>,
     _lineage: ExactCallablePreservingTransformReceiptV1,
 }
@@ -288,7 +311,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
         parameter_source: ParserCallableParameterSourceDispositionV1,
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
-        normal_root_source: ParserNormalRootPreservationV1,
+        normal_root_execution: ParserNormalRootExecutionPreservationV1,
     ) -> Self {
         Self {
             ast,
@@ -297,7 +320,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             parameter_source,
             source_authority,
             constructor_source,
-            normal_root_source,
+            normal_root_execution,
             source_lineage: None,
             _lineage: ExactCallablePreservingTransformReceiptV1,
         }
@@ -324,8 +347,33 @@ impl VerifiedFinalCallableProgramSourceV1 {
         self.source_authority.composite_source_is_ready()
     }
 
-    pub(in crate::parser) fn normal_root_source(&self) -> &ParserNormalRootPreservationV1 {
-        &self.normal_root_source
+    pub(crate) fn normal_root_execution(&self) -> &ParserNormalRootExecutionPreservationV1 {
+        &self.normal_root_execution
+    }
+
+    pub(crate) fn discard_at_named_root_execution_terminal(self) {
+        let Self {
+            ast,
+            sources,
+            slots,
+            parameter_source,
+            source_authority,
+            constructor_source,
+            normal_root_execution,
+            source_lineage,
+            _lineage,
+        } = self;
+        normal_root_execution.discard_at_named_terminal();
+        drop((
+            ast,
+            sources,
+            slots,
+            parameter_source,
+            source_authority,
+            constructor_source,
+            source_lineage,
+            _lineage,
+        ));
     }
 
     /// Lend the parser-issued composite source at the final source owner.

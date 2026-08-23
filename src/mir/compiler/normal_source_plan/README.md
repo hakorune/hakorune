@@ -21,10 +21,14 @@ do not add a second issuer.  The active contract is the
 
 The normal-file front door carries one non-`Clone`
 `NormalParserSourceLineageV1` from `CanonicalParserSourceHandoffV1` through
-`PreparedNormalSourcePlanInputV1` and validates it before source-family
-classification.  The plan only lends the existing source identity, digest,
+`SourcePlanBoundNormalCallableSourceV1` and validates it before source-family
+classification. The bound owner lends the existing source identity, digest,
 grammar profile, UTF-8 length, and read/parse counts; it never reparses,
 rereads, or reconstructs identity from the AST or display path.
+
+`PreparedNormalSourcePlanInputV1` is the separate AST-only fixture authority.
+It is not a production parser-lineage carrier and cannot enter the
+parser-bound policy entry.
 
 The validator keeps the finite outcomes distinct: AST-only input is
 `SourceAuthorityUnavailable`, a parser compatibility cohort is

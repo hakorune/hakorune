@@ -74,6 +74,12 @@ fn invocation_from_handoff_rejection(
         super::normal_file_vm_frontdoor::NormalFileVmHandoffErrorV1::ProfileExcludesRawVmReference => {
             "profile-excludes-raw-vm-reference"
         }
+        super::normal_file_vm_frontdoor::NormalFileVmHandoffErrorV1::SourceAuthorityUnavailable => "source-authority-unavailable",
+        super::normal_file_vm_frontdoor::NormalFileVmHandoffErrorV1::SourceIncomplete => "source-incomplete",
+        super::normal_file_vm_frontdoor::NormalFileVmHandoffErrorV1::SourceIntegrityInvalid => "source-integrity-invalid",
+        super::normal_file_vm_frontdoor::NormalFileVmHandoffErrorV1::CompatibilityClosure => "compatibility-closure",
+        super::normal_file_vm_frontdoor::NormalFileVmHandoffErrorV1::UsingStatement => "using-not-supported",
+        super::normal_file_vm_frontdoor::NormalFileVmHandoffErrorV1::ImportStatement => "import-not-supported",
     };
     rejected.discard();
     ReferenceRunOutcomeV1::Invocation(ReferenceInvocationReportV1::new(format!(

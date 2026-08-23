@@ -83,6 +83,10 @@ pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
 }
 
 impl VerifiedResolvedCallableSemanticBatchV1 {
+    pub(crate) fn source(&self) -> &VerifiedFinalCallableProgramSourceV1 {
+        &self.source
+    }
+
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.source.ast()
     }

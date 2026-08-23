@@ -196,7 +196,7 @@ fn duplicate_main_boxes_are_rejected_without_order_dependence() {
     };
     let ASTNode::BoxDeclaration {
         name,
-        methods,
+        methods: _,
         is_static,
         fields,
         field_decls,

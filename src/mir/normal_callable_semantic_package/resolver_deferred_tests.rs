@@ -1,3 +1,4 @@
+use crate::mir::builder::NormalRootExecutionConsumerV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveFunctionErrorV1, ResolveOwnerForestErrorV1,
     ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ShadowResolveErrorV0,
@@ -85,6 +86,9 @@ fn constructor_construction_reject_keeps_the_exact_parser_source_id() {
         source.ast(),
     )
     .expect("brand catalog");
+    let source = NormalRootExecutionConsumerV1::consume_once(source)
+        .expect("root execution")
+        .into_consumed_source();
     let mut resolver = FunctionSemanticResolverSessionV1::new(95).unwrap();
     let reject = match issue_normal_callable_semantic_package_with_brand_catalog_v1(
         &mut resolver,

@@ -16,8 +16,7 @@ Current I0 boundary:
   `Complete | SelectedBuildGateUnsupported` parameter-source disposition and
   moves the pair atomically into the retained source owner;
 - `retained.rs` keeps the completed postpass and complete catalog non-Clone
-  and non-splittable while lending repeatable callback-scoped declaration
-  syntax to the future sole resolved semantic batch;
+  and non-splittable until one consuming callback-scoped declaration loan;
 - `syntax_loan.rs` consumes that pair into one callback-scoped exact
   declaration loan using only sealed statement/inventory placement; the loan
   cannot escape and never searches by name;
@@ -104,10 +103,10 @@ only downstream purpose is to let a parser-owned loan locate the already
 committed declaration without reconstructing source order.
 
 The retained source keeps the completed parser postpass and parameter catalog
-together. Its scoped loan validates Box kind, explicit/direct provenance,
-method identity, parameter order/name/type coverage, and static mode before
-lending syntax. The same retained owner may lend the exact rows again, but no
-AST reference can escape and there is no AST/catalog `into_parts` surface.
+together. Its sole consuming scoped loan validates Box kind, explicit/direct
+provenance, method identity, parameter order/name/type coverage, and static
+mode before lending syntax. No AST reference can escape, no second loan is
+available, and there is no AST/catalog `into_parts` surface.
 
 The older consuming callback remains only for the already-landed standalone
 parameter-contract path. It retires when the contract becomes a borrowed projection
@@ -151,10 +150,12 @@ transported through source-plan classification only.  The canonical compiler
 request still has no A consumer in this I0, so it must not reconstruct or
 silently promote the parser rows; a later A slice owns that boundary.
 
-`normal_source_plan::NormalParserCallableSourceHandoffV1` is the next
-Builder-free carrier. It co-seals this parser product with one source
-digest/profile/read-parse lineage and stays non-Clone; selected-gate or other
-compatibility outcomes remain explicit and never become an empty catalog.
+The normal-file front door moves that Script-A sibling beside, but never into,
+the total root owner. Canonical source planning binds the parser product to one
+read/parse lineage in `SourcePlanBoundNormalCallableSourceV1`; Raw extraction
+consumes the sibling and the root through one route-specific named issuer.
+Selected-gate or other compatibility outcomes remain explicit and never
+become an empty catalog.
 
 This module issues no Home demand, receiver/result ABI, resolver BindingRef,
 Recipe key, MIR value, fallback, or production activation. The next owner
@@ -175,23 +176,53 @@ duration needed to create owned initial slots. The seed itself then moves
 through `ParsedProgramWithSourceV1` into `CompletedParserPostpassV1`; it is not
 split into parallel source products and no borrow is retained by the initial
 source. Legacy AST/compatibility terminals explicitly call
-`discard_unconnected()` until the later source-plan consumer is admitted. The
-next cell, and not this one, decides how `Ready` is consumed and how a full
-Main structural projection is formed.
+`discard_unconnected()` until the total surface issuer consumes the seed.
+`ParsedProgramWithCallableParameterSourceV1::new` now performs that one
+consumption; no later owner may reissue the seed from AST syntax.
 
-## Main/App entry admission I0
+## Total normal-root execution and source-plan cutover C0
 
-`main_app_entry.rs` is the parser-only admission owner for exactly one
-top-level static `Main` with one direct static `main/0`. Its sole issuer is
-`issue_parser_main_app_entry_v1`, called once from
-`ParsedProgramWithCallableParameterSourceV1::new` after the static-parent and
-parameter products already exist.
+The production authority chain is:
 
-The issuer compares the existing `CallableDeclarationIdentityV1` and exact
-`SourceBoxMethodSiteV1` relation, then emits the sibling disposition
-`AppMainReady | Outside | SourceAuthorityUnavailable | Incomplete |
-IntegrityInvalid`. It never scans the AST, pairs by name/ordinal, writes
-`root_is_app_mode`, enters Builder/raw-root, or retries a legacy route. The
-ready seal owns only the parser source site and comparison identity; semantic
-Main meaning, result/ABI, normal ingress, and downstream consumption remain
-closed for this I0.
+```text
+Parser SourceSurface
+  -> total ParserNormalRootExecutionSourceV1
+  -> exact final-transform preservation
+  -> one Compiler SourcePlan
+  -> one admitted RootExecutionInput
+  -> Builder effect
+```
+
+`ParserNormalSourcePlanSurfaceIssuerV1::issue_once` is the sole observed-facts
+issuer. Its `CompleteEmpty | CompleteRows` surface keeps every top-level row,
+ordinary/static Box observation, direct callable identity, and complete member
+coverage under one parser invocation. `ParserNormalRootExecutionIssuerV1`
+consumes that surface once and co-seals only the total `App | ProgramRuntime`
+relation. Its App relation retains the observed Main Box staticness as a fact;
+the shared compiler policy, never Builder projection, turns a false value into
+the existing typed `MainMustBeStatic` rejection. It does not issue
+`Script | Main0 | CallableModule` policy, Recipe, Join, MIR, or Builder state.
+
+The exact transform moves the same aggregate into
+`ParserNormalRootExecutionPreservationV1`; it rejects foreign invocation,
+cardinality, slot, or statement drift and never reconstructs the relation from
+the transformed AST. Canonical source planning receives one opaque
+`SourcePlanBoundNormalCallableSourceV1` and one consuming HRTB observation.
+Only the `Ok` result of that observation moves into the internal
+`AdmittedSourcePlanBoundNormalCallableSourceV1` syntax state; the raw bound
+owner and every rejected state have no AST accessor. `NormalSourcePlanClassifierV1::seal_parser_bound`
+is the production policy entry; the AST inventory classifier remains
+fixture-only.
+
+Normal/default lowering consumes the preserved relation through
+`NormalRootExecutionConsumerV1` before selected-normal Builder effects. Raw
+source-backed extraction and explicit compatibility extraction have separate
+named affine issuers. Only `PostpassNotSourceBacked` may issue the compatibility
+closure; source-authority, incomplete, and integrity failures remain typed
+terminal errors and never retry Raw or compatibility.
+
+The retired narrow `main_app_entry`, generic root disposition, and generic
+parser handoff are not parallel authorities. Names and ordinals are syntax or
+coverage data inside the parser-owned surface; they are not cross-product
+pairing keys. The downstream `root_is_app_mode` field is a derived physical
+projection pending its separate R0 retirement, not a source-role issuer.

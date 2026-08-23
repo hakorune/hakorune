@@ -1,27 +1,28 @@
 status = """
-The corrected atomic root manifest is accepted after independent audit. The
-behavior-neutral main_expansion split is closed as 3cf1188b20. The clean main
-base still matches the 12-open/2-parked manifest, so atomic semantic C0 is now
-explicitly selected."""
-date = "2026-08-23"
+Atomic normal-root C0 is closed: all 14 inventoried rows are exhausted, the two
+declared boundary-outside owners remain ParkedSealed, focused Cargo/direct
+tests and five guards are green, and the old authorities/fallback edges are at
+zero. Derived bool/mode retirement R0 is now explicitly selected."""
+date = "2026-08-24"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "fast"
-current_execution_row = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0"
-current_design_stop = "Resolved: T0 is closed and the corrected owner/file/test/guard manifest matches clean main. C0 is authorized only as one atomic semantic working set."
-current_blocker_token = "Stop C0 if a second source issuer, AST/name/ordinal re-pairing, silent product drop, compatibility fabrication/retry, partial landed route, post-admission reclassification, or another >=760-line edit becomes necessary."
+current_execution_row = "NORMAL-ROOT-EXECUTION-BOOL-RETIREMENT-R0"
+current_design_stop = "Resolved: atomic C0 is closed with Exhausted(14), CutoverBlockerOpen=0, ParkedSealed=2, and Unclassified=0. R0 is authorized only as derived bool/mode and stale compatibility presentation retirement."
+current_blocker_token = "Stop R0 if bool retirement requires a new source issuer, AST/name/ordinal root reclassification, fallback/retry, a production behavior change, Recipe/Join/MIR expansion, or another unplanned semantic owner."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — normal root atomic C0"
+active_lane = "MirBuilder in-place replacement — normal root bool retirement R0"
 active_lane_status = """
-Current: atomic C0 is selected on clean main base 3cf1188b20.
-Authorized: the exact total issuer, transform preservation, route-specific
-consumers, parser-bound policy, old-edge retirement, focused tests, and one
-reusable guard frozen in the manifest.
-Forbidden: partial landed cutover, parallel issuer, fallback/retry, unrelated
-cleanup, language expansion, Recipe/Join/MIR, or physical publication work."""
+Current: atomic C0 is closed with every in-bound route on the one total root
+relation and every old authority/fallback edge at zero.
+Authorized: replace bool-shaped work-plan transport with the admitted mode or
+aggregate, retire root_is_app_mode when caller-zero, and make stale Raw
+comments/classifier presentation explicitly compatibility/fixture-only.
+Forbidden: new source meaning, AST root classification, fallback/retry,
+language expansion, Recipe/Join/MIR, or physical publication work."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -33,9 +34,9 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-root-execution-atomic-cutover-manifest-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
-latest_card_summary = "Atomic C0 is selected on 3cf1188b20: replace all twelve in-bound routes and old authorities in one semantic working set with no second issuer or fallback."
-next_design_card = "none while atomic C0 is active"
-next_execution_card = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0"
+latest_card_summary = "Atomic C0 is closed with Exhausted(14), zero open/unclassified blockers, two declared parked owners, all focused gates green, and no new warning signatures; derived bool/mode retirement R0 is selected."
+next_design_card = "none while R0 is active"
+next_execution_card = "NORMAL-ROOT-EXECUTION-BOOL-RETIREMENT-R0"
 next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -48,7 +49,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-23: NORMAL-ROOT-SOURCE-PLAN-SEED-RETENTION-I0 closed and pushed as a30a4ffb72; the seed is retained through finalizer -> initial-source borrow -> CompletedParserPostpass with no source-plan cutover.",
   "2026-08-23: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0 is frozen as af6bd89eae with a finite 14-row inventory and explicit parking valve.",
-  "2026-08-23: NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0 is pushed as 7e94c531dc98; production/test hashes and 14/9 census are preserved."
+  "2026-08-23: NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0 is pushed as 7e94c531dc98; production/test hashes and 14/9 census are preserved.",
+  "2026-08-24: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0 closed with Exhausted(14), CutoverBlockerOpen=0, ParkedSealed=2, Unclassified=0; R0 is selected next."
 ]

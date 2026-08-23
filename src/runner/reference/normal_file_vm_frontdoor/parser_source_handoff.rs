@@ -7,14 +7,15 @@
 use super::script_source_input::{
     co_seal_script_source_input, CanonicalScriptSourceInputDispositionV1,
 };
+use super::source_plan_input::PreparedNormalFileSourcePlanRequestV1;
 use super::{NormalFileSourceReceiptV1, SealedNormalEntryProfileV1};
-use crate::mir::normal_source_plan::NormalParserCallableSourceHandoffV1;
-use crate::parser::callable_parameter_source::CanonicalScriptSourceRowsDispositionV1;
-use crate::parser::{NormalParserSourceLineageV1, ParserCallableSourceDispositionV1};
+use crate::parser::callable_parameter_source::{
+    CanonicalScriptSourceRowsDispositionV1, ParsedProgramWithCallableParameterSourceV1,
+};
 
 #[derive(Debug)]
 pub(crate) struct CanonicalParserSourceHandoffV1 {
-    callable_source: NormalParserCallableSourceHandoffV1,
+    source: ParsedProgramWithCallableParameterSourceV1,
     script_input: CanonicalScriptSourceInputDispositionV1,
     profile: SealedNormalEntryProfileV1,
     receipt: NormalFileSourceReceiptV1,
@@ -26,40 +27,18 @@ struct CanonicalParserSourceHandoffSealV1;
 
 impl CanonicalParserSourceHandoffV1 {
     pub(super) fn new(
-        disposition: ParserCallableSourceDispositionV1,
+        source: ParsedProgramWithCallableParameterSourceV1,
         script_rows: CanonicalScriptSourceRowsDispositionV1,
         profile: SealedNormalEntryProfileV1,
         receipt: NormalFileSourceReceiptV1,
     ) -> Self {
-        debug_assert!(
-            disposition.root_is_discarded_before_a(),
-            "reference Script handoff must explicitly close root disposition first"
-        );
-        let parser_invocation_witness = script_rows.parser_invocation_witness();
-        let lineage = NormalParserSourceLineageV1::issue(
-            receipt.source_identity.clone(),
-            receipt.source_digest,
-            hakorune_frontend_parser::parser::GrammarProfile::Canonical,
-            receipt.utf8_len,
-            receipt.read_count,
-            receipt.parse_count,
-        )
-        .expect("sealed normal-file receipt must be one-read/one-parse");
         Self {
-            callable_source: NormalParserCallableSourceHandoffV1::new(
-                disposition,
-                lineage,
-                parser_invocation_witness,
-            ),
+            source,
             script_input: co_seal_script_source_input(script_rows, &profile, &receipt),
             profile,
             receipt,
             _seal: CanonicalParserSourceHandoffSealV1,
         }
-    }
-
-    pub(super) fn ast(&self) -> &crate::ast::ASTNode {
-        self.callable_source.ast()
     }
 
     pub(super) fn profile_is_canonical_core(&self) -> bool {
@@ -70,20 +49,36 @@ impl CanonicalParserSourceHandoffV1 {
         &self.receipt
     }
 
-    pub(super) fn into_parts(
-        self,
-    ) -> (
-        NormalParserCallableSourceHandoffV1,
-        CanonicalScriptSourceInputDispositionV1,
-        SealedNormalEntryProfileV1,
-        NormalFileSourceReceiptV1,
-    ) {
-        (
-            self.callable_source,
-            self.script_input,
-            self.profile,
-            self.receipt,
+    pub(super) fn into_source_plan_request(self) -> PreparedNormalFileSourcePlanRequestV1 {
+        let Self {
+            source,
+            script_input,
+            profile,
+            receipt,
+            _seal,
+        } = self;
+        drop(_seal);
+        PreparedNormalFileSourcePlanRequestV1::from_parser_product(
+            source,
+            script_input,
+            profile,
+            receipt,
         )
+    }
+
+    pub(super) fn discard_at_wrong_route_terminal(self) {
+        let Self {
+            source,
+            script_input,
+            profile,
+            receipt,
+            _seal,
+        } = self;
+        source.discard_after_source_plan_rejection();
+        script_input.discard_before_a_consumer();
+        profile.discard_after_source_plan_terminal();
+        receipt.discard_after_source_plan_terminal();
+        drop(_seal);
     }
 
     pub(super) fn script_input(&self) -> &CanonicalScriptSourceInputDispositionV1 {

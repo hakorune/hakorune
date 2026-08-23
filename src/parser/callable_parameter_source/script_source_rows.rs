@@ -4,6 +4,7 @@ use super::canonical_script_source_admission::{
     CanonicalScriptCohortAdmissionV1, CanonicalScriptCohortDispositionV1,
 };
 use super::catalog::ParserCallableParameterSourceCatalogV1;
+use super::parser_invocation_witness::ParserInvocationWitnessV1;
 use super::script_source_rows_model::{
     BrandSyntaxSnapshotV1, CanonicalScriptSourceRowsSealV1, ScriptBodyRowV1,
     ScriptBodySyntaxKindV1, ScriptDeclarationSyntaxSnapshotV1, ScriptImportConfigSnapshotV1,
@@ -14,7 +15,6 @@ pub(crate) use super::script_source_rows_model::{
 };
 use crate::ast::{ASTNode, ParamDecl};
 use crate::parser::postpass_envelope::CompletedParserPostpassV1;
-use super::parser_invocation_witness::ParserInvocationWitnessV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum ScriptRowsIssueV1 {

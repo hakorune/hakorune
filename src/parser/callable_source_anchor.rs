@@ -341,7 +341,7 @@ impl ParserCallableSourceSessionV1 {
     ) -> (
         Vec<PreparedDirectCallableSourceV1>,
         Vec<super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1>,
-    ) {
+    ){
         (self.rows, self.static_box_sources)
     }
 
@@ -463,7 +463,12 @@ impl NyashParser {
                 diagnostic_name.clone(),
             )
             .map_err(|error| map_issue(error, line))?;
-        Ok((inventory_ordinal, diagnostic_name, parameter_source, identity))
+        Ok((
+            inventory_ordinal,
+            diagnostic_name,
+            parameter_source,
+            identity,
+        ))
     }
 
     pub(super) fn issue_committed_instance_box_method(

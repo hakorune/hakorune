@@ -217,6 +217,8 @@ impl OpenParserPostpassProductV1 {
                 explain,
                 static_box_parent_source,
                 super::super::callable_parameter_source::ParserNormalSourcePlanSeedDispositionV1::Ready(seed),
+                seals,
+                final_box_ordinals,
             )
             .map_err(|error| error.into_parse_error());
         }
@@ -240,7 +242,7 @@ impl OpenParserPostpassProductV1 {
         Vec<PreparedBoxSourceSealV1>,
         Vec<super::super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1>,
         Vec<SourceBoxDeclarationPathV1>,
-    ) {
+    ){
         let (prepared_seals, prepared_static_box_sources, callable_rows) =
             self.source_session.into_parts();
         (

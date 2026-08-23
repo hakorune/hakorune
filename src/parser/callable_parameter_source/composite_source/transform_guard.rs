@@ -7,16 +7,16 @@ use super::model::{
 };
 
 pub(crate) fn validate_parser_composite_transform_v1(
-    disposition: ParserCompositeSourceDispositionV1,
+    disposition: &ParserCompositeSourceDispositionV1,
     initial: &ASTNode,
     transformed: &ASTNode,
-) -> Result<ParserCompositeSourceDispositionV1, ParserCompositeTransformRejectV1> {
+) -> Result<(), ParserCompositeTransformRejectV1> {
     let ParserCompositeSourceDispositionV1::Ready(source) = disposition else {
-        return Ok(disposition);
+        return Ok(());
     };
-    validate_provider(&source, initial, transformed)?;
-    validate_terminal(&source, initial, transformed)?;
-    Ok(ParserCompositeSourceDispositionV1::Ready(source))
+    validate_provider(source, initial, transformed)?;
+    validate_terminal(source, initial, transformed)?;
+    Ok(())
 }
 
 fn validate_provider(

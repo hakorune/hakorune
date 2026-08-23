@@ -6,12 +6,11 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ast::ASTNode;
-use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
+use crate::mir::builder::ConsumedNormalRootCallableSourceV1;
 use crate::parser::{
     CallableDeclarationIdentityV1, FinalCallableDeclarationModeV1,
-    FinalCallableSemanticSyntaxLoanErrorV1, VerifiedFinalCallableProgramSourceV1,
+    FinalCallableSemanticSyntaxLoanErrorV1,
 };
-use std::ptr;
 
 use super::catalog::validate_parameters;
 use super::{
@@ -68,13 +67,13 @@ impl VerifiedSourceBackedSameModuleCallableCatalogV1 {
     }
 }
 
-pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
-    source: &VerifiedFinalCallableProgramSourceV1,
+pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
+    source: &ConsumedNormalRootCallableSourceV1,
 ) -> Result<VerifiedSourceBackedSameModuleCallableCatalogV1, SourceBackedCallableCatalogIssueV1> {
+    let app_relation = source.root_source().app_relation();
     source
+        .source()
         .with_callable_semantic_syntax(|loan| {
-            let main_expansion = VerifiedRawRootExpansionV1::from_program(source.ast())
-                .map_err(|_| SourceBackedCallableCatalogIssueV1::SourceShape)?;
             let brand = SameModuleCallableCatalogBrandV1::fresh();
             let mut rows_by_key = BTreeMap::new();
             let mut static_lookup =
@@ -82,6 +81,8 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
             let mut selected_rows = Vec::new();
             let mut selected_identities = Vec::new();
             let mut selected_keys = BTreeSet::new();
+            let mut matched_app_main = false;
+            let mut matched_app_static_children = 0usize;
 
             for row in loan.rows() {
                 let ASTNode::FunctionDeclaration {
@@ -155,14 +156,15 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
                                 .or_default()
                                 .push(key.clone());
                         }
-                        let role = if let VerifiedRawRootExpansionV1::App(main) = &main_expansion {
-                            if ptr::eq(main.root().source(), row.declaration()) {
+                        let role = if let Some(main) = app_relation {
+                            if main.main_callable().same_as(row.identity()) {
+                                matched_app_main = true;
                                 continue;
                             }
-                            if let Some(child) = main
+                            if main
                                 .static_children()
                                 .iter()
-                                .find(|child| ptr::eq(child.source(), row.declaration()))
+                                .any(|child| child.same_as(row.identity()))
                             {
                                 if row.mode() != FinalCallableDeclarationModeV1::StaticBoxMethod {
                                     return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
@@ -181,11 +183,11 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
                                 if !observation.identity().same_as(row.identity())
                                     || source_site.box_statement_ordinal() != statement
                                     || source_site.member_ordinal() != method.inventory_ordinal()
-                                    || statement != child.statement_index()
-                                    || method != child.method_ordinal()
+                                    || statement != main.main_statement()
                                 {
                                     return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
                                 }
+                                matched_app_static_children += 1;
                                 SelectedCallableConsumptionRoleV1::app_main_static_child(
                                     statement, method,
                                 )
@@ -220,6 +222,13 @@ pub(crate) fn issue_source_backed_same_module_callable_catalog_v1(
                     identity: row.identity().clone(),
                     role,
                 });
+            }
+
+            if let Some(main) = app_relation {
+                if !matched_app_main || matched_app_static_children != main.static_children().len()
+                {
+                    return Err(SourceBackedCallableCatalogIssueV1::SourceShape);
+                }
             }
 
             let static_keys_by_method_and_arity = static_lookup

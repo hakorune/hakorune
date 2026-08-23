@@ -20,6 +20,8 @@ mod s6c_storage_header;
 mod selected_mapping;
 
 #[cfg(test)]
+mod brand_catalog_tests;
+#[cfg(test)]
 mod main_static_child_tests;
 #[cfg(test)]
 mod physical_header_tests;
@@ -40,8 +42,9 @@ pub(crate) use install::{
     S6CCommonV2PreSessionLoanRefV1, SelectedCallableLoweringInputRefV1,
     SelectedCallableSemanticRefV1, SelectedCatalogedCallableLoweringInputV1,
 };
-pub(crate) use issuer::{
-    issue_normal_callable_semantic_package_v1,
+#[cfg(test)]
+pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_v1;
+pub(in crate::mir) use issuer::{
     issue_normal_callable_semantic_package_with_brand_catalog_v1,
     NormalCallableSemanticPackageIssueV1,
 };
@@ -51,6 +54,5 @@ pub(crate) use model::{
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
     PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,
-    VerifiedCallablePhysicalSignatureCohortV1,
 };
 pub(crate) use s6c_effects::VerifiedS6CPhysicalFunctionEffectsV1;

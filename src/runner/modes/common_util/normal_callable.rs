@@ -6,7 +6,6 @@
 
 use crate::mir::normal_source_plan::{
     NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
-    NormalParserCallableSourceHandoffV1,
 };
 use crate::mir::CanonicalSourceBytesDigestV1;
 use crate::parser::{
@@ -63,13 +62,7 @@ pub(crate) fn materialize_normal_callable_program_with_identity_v1(
     let product =
         NyashParser::parse_from_string_with_callable_parameter_source(input, build_config)
             .map_err(NormalCallableMaterializationErrorV1::Parse)?;
-    let handoff =
-        NormalParserCallableSourceHandoffV1::new(
-            product.into_source_disposition(),
-            source_lineage,
-            None,
-        );
-    let (parsed, source_lineage) = handoff
+    let parsed = product
         .into_normal_callable_program()
         .map_err(NormalCallableMaterializationErrorV1::Parse)?;
     let transformed = transform_normal_callable_program_v1(parsed)
@@ -110,6 +103,7 @@ mod tests {
         let lineage = source.source_lineage().expect("parser lineage");
         assert_eq!(lineage.source_identity(), "<selected-normal>");
         assert_eq!(lineage.receipt_counts(), (1, 1));
+        source.discard_at_named_root_execution_terminal();
     }
 
     #[test]

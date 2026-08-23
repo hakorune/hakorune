@@ -183,6 +183,34 @@ impl PreparedParserStaticBoxParentSourceV1 {
     pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
         &self.box_site
     }
+
+    pub(in crate::parser) fn declaration_syntax(&self) -> &ParserStaticBoxDeclarationSyntaxV1 {
+        &self.syntax
+    }
+
+    pub(in crate::parser) fn member_count(&self) -> u32 {
+        self.member_count
+    }
+
+    pub(in crate::parser) fn member_kinds(
+        &self,
+    ) -> impl ExactSizeIterator<Item = ParserStaticBoxMemberKindV1> + '_ {
+        self.rows
+            .iter()
+            .map(PreparedParserStaticBoxMemberSourceRowV1::kind)
+    }
+
+    pub(in crate::parser) fn direct_method_relations(
+        &self,
+    ) -> impl Iterator<Item = (&SourceBoxMethodSiteV1, &CallableDeclarationIdentityV1)> + '_ {
+        self.rows.iter().filter_map(|row| match row {
+            PreparedParserStaticBoxMemberSourceRowV1::DirectMethod {
+                site,
+                callable_identity,
+            } => Some((site, callable_identity)),
+            PreparedParserStaticBoxMemberSourceRowV1::Unsupported { .. } => None,
+        })
+    }
 }
 
 #[derive(Debug)]
@@ -345,7 +373,9 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
             .iter()
             .filter_map(PreparedCallableSourceV1::direct)
             .filter(|row| row.kind() == DirectCallableDeclarationKindV1::StaticBoxMethod)
-            .filter(|row| callable_row_matches(row, prepared.box_site.path(), method_site.member_site()))
+            .filter(|row| {
+                callable_row_matches(row, prepared.box_site.path(), method_site.member_site())
+            })
             .collect::<Vec<_>>();
         if coordinate_matches.len() > 1 {
             return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid(

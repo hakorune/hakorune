@@ -145,7 +145,7 @@ impl ParserSourceSessionV1 {
         Vec<PreparedBoxSourceSealV1>,
         Vec<super::super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1>,
         Vec<PreparedCallableSourceV1>,
-    ) {
+    ){
         (
             self.prepared_source_seals,
             self.prepared_static_box_sources,

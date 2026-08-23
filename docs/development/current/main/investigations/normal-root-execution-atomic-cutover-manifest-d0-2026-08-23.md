@@ -1,7 +1,7 @@
 # Normal root execution atomic cutover manifest D0
 
-Status: accepted design — T0 closed; atomic C0 selected
-Date: 2026-08-23
+Status: accepted design — C0 closed; R0 selected
+Date: 2026-08-24
 Decision: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0
 Parent: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0
 
@@ -63,6 +63,35 @@ terms. A parser source surface owns observed facts; compiler policy owns the
 Script/Main0/CallableModule decision; Builder only consumes admitted execution
 input. No later stage may reissue an earlier meaning.
 
+### C0 premise correction before policy implementation
+
+The long read-only premise audit found one pre-policy omission in the
+unlanded C0 implementation. This correction narrows the existing C0; it does
+not add another issuer or another execution row.
+
+- the same `ParserNormalSourcePlanSurfaceIssuerV1` must preserve a
+  policy-total Box row for ordinary/non-static and static Box declarations;
+  `Unsupported(Box)` may remain a policy outcome, but may not be the parser's
+  lossy source representation;
+- Box declaration mode/name plus the exact direct-callable relations and
+  observed member coverage remain one same-invocation row. Names, ordinals,
+  and paths are coverage/diagnostic data, never downstream pairing keys;
+- a non-static `Main` remains a complete observed Main surface. Compiler
+  policy, not the parser surface issuer or Builder, returns
+  `MainMustBeStatic`;
+- source-backed `SourceAuthorityUnavailable`, `Incomplete`, and
+  `IntegrityInvalid` are typed terminal failures. Only an explicit outer
+  `CompatibilityAbsence` route may enter compatibility extraction;
+- normal/default, canonical, Raw, retained, and test exits each consume the
+  root relation and Script-A sibling through a named affine terminal. `_`,
+  `..`, and implicit product drop are not terminals;
+- the parser-to-MIR source-plan boundary exposes an opaque owner and one
+  one-shot scoped visitor. It does not re-export parser surface rows or expose
+  a general `into_parts()` tuple.
+
+If policy parity requires a second AST scan or a second Box/source issuer
+after this correction, C0 returns to `NoSafeSlice`.
+
 ## Census boundary — corrected after independent audit
 
 This census covers the following exact boundary:
@@ -93,11 +122,12 @@ Excludes:
 - Raw runtime/compiler after one authorized extraction;
 - Recipe/module/physical work after it receives a consumed typed terminal.
 
-The parent D0's earlier `open=6, parked=8` classification was too narrow.
-Rows 7–9 and 11–13 still receive or drop an unconsumed parser relation, or
-reclassify from `PreparedNormalSourcePlanInputV1`, so they are C0 blockers.
+At C0 selection, the parent D0's earlier `open=6, parked=8` classification was
+too narrow. Rows 7–9 and 11–13 still received or dropped an unconsumed parser
+relation, or reclassified from `PreparedNormalSourcePlanInputV1`, so they were
+C0 blockers.
 
-| # | Entry | Current state | C0 terminal |
+| # | Entry | Pre-C0 state | C0 terminal |
 | ---: | --- | --- | --- |
 | 1 | parser product `new` | open | one aggregate total issuer |
 | 2 | source-backed `into_normal_callable_program` | open | exact preserved relation |
@@ -114,7 +144,7 @@ reclassify from `PreparedNormalSourcePlanInputV1`, so they are C0 blockers.
 | 13 | sealed CallableModule terminal | open | consumed bound module owner |
 | 14 | Raw runtime after authorized extraction | parked | unchanged execution owner |
 
-Current classification is:
+The pre-C0 classification was:
 
 ```text
 Exhausted(14)
@@ -123,13 +153,13 @@ ParkedSealed = 2
 Unclassified = 0
 ```
 
-C0 closes only at `CutoverBlockerOpen = 0`. Rows 11–13 become parkable only
-after their source-backed input no longer owns `PreparedNormalSourcePlanInputV1`
-and cannot classify from AST.
+The C0 acceptance condition was `CutoverBlockerOpen = 0`. Rows 11–13 became
+closed only after their source-backed input no longer owned
+`PreparedNormalSourcePlanInputV1` and could not classify from AST.
 
-## Current owner/caller census
+## Pre-C0 owner/caller census
 
-The landed source-surface owner is retained in place:
+The already-landed source-surface owner was retained in place:
 
 ```text
 ParserNormalSourcePlanSurfaceIssuerV1::issue_once
@@ -137,9 +167,9 @@ ParserNormalSourcePlanSurfaceIssuerV1::issue_once
   production caller = 1
 ```
 
-Current open exits are:
+The pre-C0 open exits were:
 
-| Row | Current owner / symbol | Current caller evidence | Defect |
+| Row | Pre-C0 owner / symbol | Pre-C0 caller evidence | Defect |
 | ---: | --- | --- | --- |
 | 1 | `ParsedProgramWithCallableParameterSourceV1::new` | direct 1 | total execution issuer absent |
 | 2 | `ParserCallableSourceDispositionV1::into_normal_callable_program` | direct production callsites 2 | `normal_source_plan_surface: _` |
@@ -148,7 +178,7 @@ Current open exits are:
 | 5 | `into_retained_source` | production 0, test 1 | `..` drops the surface |
 | 6 | parser test helpers | 15 callsites in 9 files | no named terminal |
 
-The source-backed normal/default lifecycle also performs three raw-root
+The pre-C0 source-backed normal/default lifecycle also performed three raw-root
 classifications before its semantic package is complete:
 
 ```text
@@ -205,7 +235,7 @@ surface and is explicitly non-authoritative for App/ProgramRuntime.
 | pre-effect consumer | `NormalRootExecutionConsumerV1::consume_once` | `src/mir/builder/normal_root_execution/consumer.rs` | `normal_root_execution/tests.rs` |
 | admitted aggregate | `PreparedNormalRootExecutionConsumptionV1` | `src/mir/builder/normal_root_execution/model.rs` | same |
 | consumed callable source | `ConsumedNormalRootCallableSourceV1` | same | same |
-| lifecycle facade | `PreparedNormalDefaultProgramRootV1::consume_source_backed_root_once` | `normal_default_root_catalog_lifecycle.rs` | new consumer tests |
+| lifecycle facade | `PreparedNormalDefaultProgramRootV1::consume_source_backed_root_once` | `normal_default_program_root.rs` | `normal_default_root_catalog_lifecycle_tests.rs` |
 
 The consumer uses one scoped syntax loan only to project already-paired App
 root/static-child or ProgramRuntime body syntax. It does not call
@@ -325,7 +355,7 @@ semantic-package test module.
 | Raw/compat | source-backed Ready one discard/extraction; compatibility one extraction | wrong route, source failure extraction, retry | `atomic_root_cutover_tests.rs` |
 | retained/test | all fields moved and consumed | silent drop or second loan | `retained_tests.rs` + named parser tests |
 
-The current frontdoor baseline is 21 passing and 8 known
+The pre-C0 frontdoor baseline was 21 passing and 8 known
 `AppReadyRequiresNormalRootConsumer` failures. C0 must turn those eight green;
 it may not reclassify them as baseline debt or route them through AST fixture
 or compatibility fallback.
@@ -364,11 +394,11 @@ authority:
 
 | Guard | C0 action |
 | --- | --- |
-| `frontend_normal_source_plan_surface_i0_a_guard.sh` | evolve from compiler-caller zero to exactly one named consumer |
-| `frontend_main_app_entry_transport_i0_guard.sh` | retire with old narrow transport |
-| `parser_normal_root_preservation_a_i0_guard.sh` | replace with total preservation checks |
-| `frontend_main_app_entry_i0_guard.sh` | retire or restrict to an explicitly narrow non-authority projection |
-| `script_direct_static_canonical_parser_source_handoff_guard.sh` | remove requirements for old generic handoff/input |
+| `frontend_normal_source_plan_surface_i0_a_guard.sh` | retired into the reusable total-route guard; compiler caller is now exactly one named consumer |
+| `frontend_main_app_entry_transport_i0_guard.sh` | retired with old narrow transport |
+| `parser_normal_root_preservation_a_i0_guard.sh` | retired; total preservation checks moved into the reusable total-route guard |
+| `frontend_main_app_entry_i0_guard.sh` | retired with the narrow Main/App authority |
+| `script_direct_static_canonical_parser_source_handoff_guard.sh` | retired; root/front-door invariants moved into the reusable total-route guard and composite invariants remain in the composite-source guard |
 | `mir_root_app_mode_failfast_guard.sh` | keep only derived-mode integrity in C0; retire in R0 |
 
 `docs/tools/check-scripts-index.md` records the reusable guard and removals.
@@ -488,7 +518,80 @@ unclassified product exit                     0
 additional pre-split required                 0
 ```
 
-This manifest closes the design question and now selects
-`NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0`. The implementation must remain one
+This selection evidence closed the design question and selected
+`NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0`. The implementation remained one
 unlanded semantic working set until every route, terminal, test, guard
-migration, and old-edge zero in this card closes together.
+migration, and old-edge zero in this card closed together.
+
+## C0 closeout evidence — 2026-08-24
+
+The manifest boundary is exhausted:
+
+```text
+Exhausted(14)
+CutoverBlockerOpen = 0
+ParkedSealed = 2
+Unclassified = 0
+```
+
+Rows 1–9 and 11–13 now terminate through the one total relation and their
+named affine consumers. Rows 10 and 14 remain the two declared boundary-outside
+owners: the typed AST-only fixture and Raw runtime after authorized extraction.
+Neither can re-enter the C0 source-authority boundary. The production chain is:
+
+```text
+Parser SourceSurface
+  -> ParserNormalRootExecutionIssuerV1
+  -> exact transform preservation or one route-specific typed terminal
+  -> parser-bound policy / NormalRootExecutionConsumerV1
+  -> first Builder effect or authorized Raw extraction
+```
+
+The old narrow Main/App authority, generic parser handoff, source-backed AST
+reclassification, silent sibling drops, and the five superseded guards are at
+caller zero. Canonical-to-Raw fallback/retry and a second source-plan loan
+remain zero. The reusable route guard pins the issuer/consumer census, old-edge
+retirement, focused evidence, and the `< 760` source limit; the largest touched
+Rust source is `src/parser/mod.rs` at 757 lines.
+
+Acceptance results:
+
+```text
+CARGO_INCREMENTAL=0 CARGO_BUILD_JOBS=4 \
+  cargo test --profile quick --lib normal_callable_semantic_package \
+  --message-format short
+  -> 39 passed; 0 failed; 7303 filtered out
+
+direct focused filters:
+  atomic_root_cutover_tests                 5 passed
+  normal_root_execution                    19 passed
+  normal_root_execution_preservation        7 passed
+  normal_source_plan_surface                7 passed
+  parser_bound_policy                       9 passed
+  normal_callable_program_source           36 passed
+  normal_callable_transform                 7 passed
+  normal_file_vm_frontdoor                 33 passed
+  retained                                 27 passed
+  canonical_script_source_admission         4 passed
+  static_box_source                         6 passed
+  script_source_rows                        3 passed
+  script_source_authority                   3 passed
+
+normal_root_execution_reference_route_guard.sh          PASS
+normal_callable_source_carrier_cutover_guard.sh          PASS
+frontend_normal_source_plan_seed_retention_i0_guard.sh   PASS
+mir_root_app_mode_failfast_guard.sh                      PASS
+current_state_pointer_guard.sh                           PASS
+git diff --check                                         PASS
+```
+
+The bounded warning cleanup reduced the same C0 build from 1088 to 1063
+warnings and left zero new warning signatures against the immediately
+preceding stored C0 fingerprint. Remaining warnings are not acceptance
+evidence: the derived `root_execution_mode` dead transport is explicitly owned
+by R0, and broader pre-existing warning debt stays outside this atomic commit.
+
+C0 is closed. The next selected row is
+`NORMAL-ROOT-EXECUTION-BOOL-RETIREMENT-R0`; it may remove only derived bool/mode
+transport and stale compatibility comments/classifier presentation, and must
+not issue source meaning or reopen AST classification.

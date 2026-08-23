@@ -7,6 +7,7 @@
 use crate::mir::compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;
 use crate::parser::callable_parameter_source::CanonicalScriptSourceRowsV1;
 use hakorune_frontend_parser::parser::GrammarProfile;
+
 use super::canonical_script_source_plan_envelope::CanonicalScriptSourcePlanEnvelopeV1;
 
 #[derive(Debug)]
@@ -77,7 +78,7 @@ impl CanonicalScriptSourceAInputTransportV1 {
     /// reserved for a named A consumer; this method never issues that state.
     pub(crate) fn discard_before_a_consumer(self) {
         match self {
-            Self::HandoffReady(_) => drop(Self::DiscardedBeforeA),
+            Self::HandoffReady(handoff) => handoff.discard_before_a_consumer(),
             Self::NotApplicable
             | Self::CompatibilitySource
             | Self::Deferred
@@ -116,6 +117,10 @@ impl CanonicalScriptSourceAInputTransportV1 {
 }
 
 impl CanonicalScriptSourceAInputHandoffV1 {
+    fn discard_before_a_consumer(self) {
+        drop(self);
+    }
+
     pub(crate) fn rows(&self) -> &CanonicalScriptSourceRowsV1 {
         &self.rows
     }
@@ -149,7 +154,6 @@ impl CanonicalScriptSourceAInputHandoffV1 {
             (self.read_count, self.parse_count),
         )
     }
-
 }
 
 #[cfg(test)]

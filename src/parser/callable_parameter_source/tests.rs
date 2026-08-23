@@ -1,13 +1,14 @@
 use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, ParamDecl};
+use crate::parser::callable_source_anchor::CallableDeclarationAnchorV1;
 use crate::parser::source_authority::{
     ParserInvocationBrandV1, SourceBoxDeclarationSiteV1, SourceBoxMemberSiteV1,
     SourceBoxMethodSiteV1,
 };
-use crate::parser::callable_source_anchor::CallableDeclarationAnchorV1;
 use crate::parser::source_path::SourceBoxDeclarationPathV1;
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 
 use super::model::ParserCallableDeclarationKindV1;
+use super::normal_root_execution::ParserNormalRootExecutionTestTerminalV1;
 use super::parse_product::ParsedCallableParameterListV1;
 use super::project_neutral_parameter_syntax_v1;
 use super::session::{CallableParameterSourceIssueV1, ParserCallableParameterSourceSessionV1};
@@ -82,44 +83,43 @@ box InstanceApi {
         ParserBuildConfig::default(),
     )
     .unwrap();
-    parsed
-        .with_callable_declaration_syntax(|catalog, _| {
-            let declarations = catalog.declarations();
+    ParserNormalRootExecutionTestTerminalV1::consume_once(parsed, |catalog, _| {
+        let declarations = catalog.declarations();
 
-            assert_eq!(declarations.len(), 2);
-            assert_eq!(
-                declarations[0].kind(),
-                ParserCallableDeclarationKindV1::StaticBoxMethod
-            );
-            assert_eq!(declarations[0].box_statement_ordinal(), 0);
-            assert_eq!(declarations[0].source_member_ordinal(), 1);
-            assert_eq!(declarations[0].inventory_ordinal().inventory_ordinal(), 0);
-            assert_eq!(declarations[0].diagnostic_name(), "run");
-            assert_eq!(declarations[0].parameters().len(), 2);
-            assert_eq!(declarations[0].parameters()[0].name(), "source");
-            assert_eq!(
-                declarations[0].parameters()[0].declared_type().as_deref(),
-                None
-            );
-            assert_eq!(
-                declarations[0].parameters()[1].declared_type().as_deref(),
-                Some("i64")
-            );
-            assert!(declarations[0]
-                .parameters()
-                .iter()
-                .all(|row| row.transfer().is_ordinary()));
+        assert_eq!(declarations.len(), 2);
+        assert_eq!(
+            declarations[0].kind(),
+            ParserCallableDeclarationKindV1::StaticBoxMethod
+        );
+        assert_eq!(declarations[0].box_statement_ordinal(), 0);
+        assert_eq!(declarations[0].source_member_ordinal(), 1);
+        assert_eq!(declarations[0].inventory_ordinal().inventory_ordinal(), 0);
+        assert_eq!(declarations[0].diagnostic_name(), "run");
+        assert_eq!(declarations[0].parameters().len(), 2);
+        assert_eq!(declarations[0].parameters()[0].name(), "source");
+        assert_eq!(
+            declarations[0].parameters()[0].declared_type().as_deref(),
+            None
+        );
+        assert_eq!(
+            declarations[0].parameters()[1].declared_type().as_deref(),
+            Some("i64")
+        );
+        assert!(declarations[0]
+            .parameters()
+            .iter()
+            .all(|row| row.transfer().is_ordinary()));
 
-            assert_eq!(
-                declarations[1].kind(),
-                ParserCallableDeclarationKindV1::InstanceBoxMethod
-            );
-            assert_eq!(declarations[1].box_statement_ordinal(), 1);
-            assert_eq!(declarations[1].source_member_ordinal(), 1);
-            assert_eq!(declarations[1].inventory_ordinal().inventory_ordinal(), 0);
-            assert_eq!(declarations[1].parameters()[0].ordinal(), 0);
-        })
-        .unwrap();
+        assert_eq!(
+            declarations[1].kind(),
+            ParserCallableDeclarationKindV1::InstanceBoxMethod
+        );
+        assert_eq!(declarations[1].box_statement_ordinal(), 1);
+        assert_eq!(declarations[1].source_member_ordinal(), 1);
+        assert_eq!(declarations[1].inventory_ordinal().inventory_ordinal(), 0);
+        assert_eq!(declarations[1].parameters()[0].ordinal(), 0);
+    })
+    .unwrap();
 }
 
 #[test]
@@ -139,8 +139,8 @@ box InstanceApi {
     )
     .unwrap();
 
-    let observed = parsed
-        .with_callable_declaration_syntax(|catalog, loan| {
+    let observed =
+        ParserNormalRootExecutionTestTerminalV1::consume_once(parsed, |catalog, loan| {
             assert_eq!(catalog.declarations().len(), loan.declarations().len());
             loan.declarations()
                 .iter()
@@ -181,35 +181,34 @@ fn unchanged_parser_scan_loop_box_has_four_methods_and_fifteen_rows() {
         ParserBuildConfig::default(),
     )
     .unwrap();
-    parsed
-        .with_callable_declaration_syntax(|catalog, _| {
-            let declarations = catalog.declarations();
-            assert_eq!(
-                declarations
-                    .iter()
-                    .map(|row| (row.diagnostic_name(), row.parameters().len()))
-                    .collect::<Vec<_>>(),
-                [
-                    ("skip_while", 4),
-                    ("scan_until_newline", 3),
-                    ("scan_escape", 4),
-                    ("scan_escape_piece_and_skip", 4),
-                ]
-            );
-            assert_eq!(
-                declarations
-                    .iter()
-                    .map(|row| row.parameters().len())
-                    .sum::<usize>(),
-                15
-            );
-            assert_eq!(declarations[0].parameters()[1].name(), "pos");
-            assert_eq!(
-                declarations[0].parameters()[1].declared_type().as_deref(),
-                None
-            );
-        })
-        .unwrap();
+    ParserNormalRootExecutionTestTerminalV1::consume_once(parsed, |catalog, _| {
+        let declarations = catalog.declarations();
+        assert_eq!(
+            declarations
+                .iter()
+                .map(|row| (row.diagnostic_name(), row.parameters().len()))
+                .collect::<Vec<_>>(),
+            [
+                ("skip_while", 4),
+                ("scan_until_newline", 3),
+                ("scan_escape", 4),
+                ("scan_escape_piece_and_skip", 4),
+            ]
+        );
+        assert_eq!(
+            declarations
+                .iter()
+                .map(|row| row.parameters().len())
+                .sum::<usize>(),
+            15
+        );
+        assert_eq!(declarations[0].parameters()[1].name(), "pos");
+        assert_eq!(
+            declarations[0].parameters()[1].declared_type().as_deref(),
+            Some("i64")
+        );
+    })
+    .unwrap();
 }
 
 #[test]
@@ -220,13 +219,15 @@ fn parameter_catalogs_keep_parser_invocation_identity() {
             ParserBuildConfig::default(),
         )
         .unwrap()
-        .with_callable_declaration_syntax(|catalog, _| catalog)
-        .unwrap()
     };
-    let first = parse();
-    let second = parse();
-    assert!(first.same_parser_source(&first));
-    assert!(!first.same_parser_source(&second));
+    ParserNormalRootExecutionTestTerminalV1::consume_once(parse(), |first, _| {
+        ParserNormalRootExecutionTestTerminalV1::consume_once(parse(), |second, _| {
+            assert!(first.same_parser_source(first));
+            assert!(!first.same_parser_source(second));
+        })
+        .unwrap();
+    })
+    .unwrap();
 }
 
 #[test]
@@ -302,8 +303,7 @@ fn selected_build_gate_stays_outside_the_parameter_catalog_cohort() {
         },
     )
     .expect("total parser product keeps the explicit unsupported disposition");
-    let error = parsed
-        .with_callable_declaration_syntax(|_, _| ())
+    let error = ParserNormalRootExecutionTestTerminalV1::consume_once(parsed, |_, _| ())
         .expect_err("unsupported gate must not expose an empty catalog");
     assert_eq!(
         error,

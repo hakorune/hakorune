@@ -1,6 +1,6 @@
 use crate::mir::builder::{
-    CatalogedBoxMethodPhysicalHeaderProjectionV1, VerifiedSourceBackedDynamicCallableV1,
-    VerifiedSourceBackedSameModuleCallableCatalogV1,
+    AdmittedNormalRootExecutionModeV1, CatalogedBoxMethodPhysicalHeaderProjectionV1,
+    VerifiedSourceBackedDynamicCallableV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
@@ -33,6 +33,8 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
 /// parameter catalog, Dynamic candidate, or private batch slot.
 #[derive(Debug)]
 pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
+    pub(super) root_execution_mode: AdmittedNormalRootExecutionModeV1,
+    pub(super) root_execution: NormalRootExecutionPackageStateV1,
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
     pub(super) instance_constructors:
@@ -47,6 +49,12 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) physical_header: super::physical_header::VerifiedCallablePhysicalHeaderCohortV1,
     pub(super) dynamic: NormalCallableDynamicProjectionV1,
     pub(super) dynamic_physical_header: Option<CatalogedBoxMethodPhysicalHeaderProjectionV1>,
+}
+
+#[derive(Debug)]
+pub(super) enum NormalRootExecutionPackageStateV1 {
+    Prepared(crate::mir::builder::PreparedAdmittedNormalRootExpansionV1),
+    MovedToLowering,
 }
 
 #[derive(Debug)]
@@ -69,6 +77,22 @@ pub(crate) enum NormalCallableDynamicProjectionRefV1<'package> {
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
+    pub(in crate::mir) const fn root_execution_mode(&self) -> AdmittedNormalRootExecutionModeV1 {
+        self.root_execution_mode
+    }
+
+    pub(in crate::mir) fn take_root_execution(
+        &mut self,
+    ) -> Result<crate::mir::builder::PreparedAdmittedNormalRootExpansionV1, ()> {
+        match std::mem::replace(
+            &mut self.root_execution,
+            NormalRootExecutionPackageStateV1::MovedToLowering,
+        ) {
+            NormalRootExecutionPackageStateV1::Prepared(root) => Ok(root),
+            NormalRootExecutionPackageStateV1::MovedToLowering => Err(()),
+        }
+    }
+
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.batch.source_ast()
     }

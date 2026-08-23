@@ -43,7 +43,9 @@ pub(crate) fn with_parser_normal_program_source_loan<R>(
     callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
 ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
     let ParserNormalProgramSourceAuthorityDispositionV1::Ready(authority) = disposition else {
-        return Err(ParserNormalProgramSourceLoanRejectV1::from_disposition(disposition));
+        return Err(ParserNormalProgramSourceLoanRejectV1::from_disposition(
+            disposition,
+        ));
     };
     let ASTNode::Program { statements, .. } = ast else {
         return Err(ParserNormalProgramSourceLoanRejectV1::Incomplete(
@@ -104,17 +106,13 @@ pub(crate) fn with_parser_composite_source_loan_from_normal_authority<R>(
             super::super::composite_source::ParserCompositeIncompleteV1::ProgramBodyMissing,
         ));
     };
-    let loan = parser_composite_source_loan_from_statements(
-        authority.composite_source(),
-        statements,
-    )?;
+    let loan =
+        parser_composite_source_loan_from_statements(authority.composite_source(), statements)?;
     Ok(callback(loan))
 }
 
 impl ParserNormalProgramSourceLoanRejectV1 {
-    fn from_disposition(
-        disposition: &ParserNormalProgramSourceAuthorityDispositionV1,
-    ) -> Self {
+    fn from_disposition(disposition: &ParserNormalProgramSourceAuthorityDispositionV1) -> Self {
         match disposition {
             ParserNormalProgramSourceAuthorityDispositionV1::Ready(_) => {
                 unreachable!("ready source authority must enter its scoped loan")
@@ -133,9 +131,7 @@ impl ParserNormalProgramSourceLoanRejectV1 {
 }
 
 impl<'source> ParserNormalProgramSourceLoanV1<'source> {
-    pub(crate) fn invocation_witness(
-        &self,
-    ) -> &crate::parser::ParserInvocationWitnessV1 {
+    pub(crate) fn invocation_witness(&self) -> &crate::parser::ParserInvocationWitnessV1 {
         self.authority.invocation_witness()
     }
 

@@ -9,7 +9,7 @@ use crate::mir::resolved_semantics::CallableFunctionSyntaxViewV1;
 
 use super::inventory::{NormalMainBoxSurfaceV1, NormalMethodSurfaceV1};
 use super::product::{
-    NormalMainMethodSiteV1, NormalTopLevelSiteV1, PreparedNormalSourcePlanInputV1,
+    NormalMainMethodSiteV1, NormalSourcePlanSyntaxV1, NormalTopLevelSiteV1,
     SealedNormalMainSourceV1,
 };
 use super::rejection::NormalSourcePlanErrorV1;
@@ -219,12 +219,12 @@ pub(super) fn verify_main_source_relation(
     verify_main_source_parts(source.input(), source.main_box(), source.main_method())
 }
 
-pub(super) fn verify_main_source_parts(
-    input: &PreparedNormalSourcePlanInputV1,
+pub(super) fn verify_main_source_parts<Input: NormalSourcePlanSyntaxV1>(
+    input: &Input,
     main_box: &NormalTopLevelSiteV1,
     main_method: &NormalMainMethodSiteV1,
 ) -> Result<(), NormalMainFunctionSourceErrorV1> {
-    let ASTNode::Program { statements, .. } = input.source() else {
+    let ASTNode::Program { statements, .. } = input.source_ast() else {
         return Err(NormalMainFunctionSourceErrorV1::RootNotProgram);
     };
     let Some(statement) = statements.get(main_box.statement_index()) else {
@@ -267,8 +267,8 @@ pub(super) fn verify_main_source_parts(
     Ok(())
 }
 
-pub(super) fn borrow_exact_main_function_v1<'src>(
-    input: &'src PreparedNormalSourcePlanInputV1,
+pub(super) fn borrow_exact_main_function_v1<'src, Input: NormalSourcePlanSyntaxV1>(
+    input: &'src Input,
     main_box: &'src NormalTopLevelSiteV1,
     main_method: &'src NormalMainMethodSiteV1,
 ) -> Result<NormalMainFunctionSourceViewV1<'src>, NormalMainFunctionSourceErrorV1> {
@@ -282,12 +282,12 @@ pub(super) fn borrow_exact_main_function_v1<'src>(
     })
 }
 
-fn locate_main_function<'src>(
-    input: &'src PreparedNormalSourcePlanInputV1,
+fn locate_main_function<'src, Input: NormalSourcePlanSyntaxV1>(
+    input: &'src Input,
     main_box: &NormalTopLevelSiteV1,
     main_method: &NormalMainMethodSiteV1,
 ) -> Option<&'src ASTNode> {
-    let ASTNode::Program { statements, .. } = input.source() else {
+    let ASTNode::Program { statements, .. } = input.source_ast() else {
         return None;
     };
     let ASTNode::BoxDeclaration { methods, .. } = statements.get(main_box.statement_index())?

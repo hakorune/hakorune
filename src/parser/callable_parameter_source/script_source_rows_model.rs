@@ -227,4 +227,23 @@ impl CanonicalScriptSourceRowsDispositionV1 {
             | Self::DispositionTransported => None,
         }
     }
+
+    /// Explicit terminal for a parser-issued Script-A sibling that has no
+    /// consumer on the selected route.
+    pub(crate) fn discard_at_named_terminal(self) {
+        match self {
+            Self::HandoffReady(rows) => drop(rows),
+            Self::NotApplicable
+            | Self::CompatibilitySource
+            | Self::Deferred
+            | Self::AdmissionMissing
+            | Self::SourceAuthorityUnavailable
+            | Self::CohortUnresolved
+            | Self::ObservationIncomplete
+            | Self::IntegrityInvalid
+            | Self::NonCandidate
+            | Self::MovedToParallelHandoff
+            | Self::DispositionTransported => {}
+        }
+    }
 }

@@ -6,12 +6,12 @@
 
 use crate::ast::ASTNode;
 
-use super::model::{
-    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
-    ParserCompositeOutsideReasonV1, ParserCompositeSourceDispositionV1,
-    ParserCompositeSourcePreservationV1, ParserCompositeSourceUnavailableV1,
-};
 use super::super::parser_invocation_witness::ParserInvocationWitnessV1;
+use super::model::{
+    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1, ParserCompositeOutsideReasonV1,
+    ParserCompositeSourceDispositionV1, ParserCompositeSourcePreservationV1,
+    ParserCompositeSourceUnavailableV1,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum ParserCompositeSourceLoanRejectV1 {
@@ -58,7 +58,9 @@ pub(crate) fn parser_composite_source_loan_from_statements<'source>(
     statements: &'source [ASTNode],
 ) -> Result<ParserCompositeSourceLoanV1<'source>, ParserCompositeSourceLoanRejectV1> {
     let ParserCompositeSourceDispositionV1::Ready(source) = disposition else {
-        return Err(ParserCompositeSourceLoanRejectV1::from_disposition(disposition));
+        return Err(ParserCompositeSourceLoanRejectV1::from_disposition(
+            disposition,
+        ));
     };
     Ok(ParserCompositeSourceLoanV1 { source, statements })
 }
@@ -66,9 +68,9 @@ pub(crate) fn parser_composite_source_loan_from_statements<'source>(
 impl ParserCompositeSourceLoanRejectV1 {
     fn from_disposition(disposition: &ParserCompositeSourceDispositionV1) -> Self {
         match disposition {
-            ParserCompositeSourceDispositionV1::Ready(_) => unreachable!(
-                "ready composite source must enter the scoped source loan"
-            ),
+            ParserCompositeSourceDispositionV1::Ready(_) => {
+                unreachable!("ready composite source must enter the scoped source loan")
+            }
             ParserCompositeSourceDispositionV1::OutsideBoundedCohort(reason) => {
                 Self::Outside(*reason)
             }

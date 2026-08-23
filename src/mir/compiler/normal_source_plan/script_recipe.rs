@@ -9,9 +9,7 @@ use crate::mir::compiler::raw_root_source_facts::{
 };
 use crate::mir::raw_root_body_recipe::RawScriptBodyRecipeV1;
 
-use super::product::{
-    NormalTopLevelSiteV1, PreparedNormalSourcePlanInputV1, SealedNormalScriptSourceV1,
-};
+use super::product::{NormalSourcePlanOwnerV1, NormalTopLevelSiteV1, SealedNormalScriptSourceV1};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalScriptRecipeStageV1 {
@@ -33,7 +31,7 @@ struct VerifiedNormalScriptRecipeSealV1;
 /// recipe was issued.
 #[derive(Debug)]
 pub(crate) struct RetainedNormalScriptSourceV1 {
-    input: PreparedNormalSourcePlanInputV1,
+    input: NormalSourcePlanOwnerV1,
     statements: Box<[NormalTopLevelSiteV1]>,
     _seal: RetainedNormalScriptSourceSealV1,
 }

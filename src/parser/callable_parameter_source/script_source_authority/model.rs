@@ -137,20 +137,4 @@ impl ParserNormalProgramSourceAuthorityV1 {
     pub(crate) fn composite_source(&self) -> &ParserCompositeSourceDispositionV1 {
         &self.composite
     }
-
-    pub(super) fn into_parts(
-        self,
-    ) -> (
-        ParserInvocationWitnessV1,
-        Box<[ParserNormalProgramBodySourceRowV1]>,
-        ParserCompositeSourceDispositionV1,
-        ParserNormalModuleSourceRowsDispositionV1,
-    ) {
-        (
-            self.invocation,
-            self.body_rows,
-            self.composite,
-            self.module_rows,
-        )
-    }
 }

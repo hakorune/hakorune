@@ -38,7 +38,15 @@ pub(crate) fn run(
             Ok(source) => source,
             Err(rejected) => return invocation_from_source_rejection(rejected),
         };
-        let classified = match source.prepare_source_plan_request().classify() {
+        let plan_request = match source.prepare_source_plan_request() {
+            Ok(request) => request,
+            Err(rejected) => {
+                let detail = format!("error={:?}", rejected.error());
+                rejected.discard();
+                return invocation("source-plan-route-rejected", detail);
+            }
+        };
+        let classified = match plan_request.classify() {
             Ok(classified) => classified,
             Err(rejected) => {
                 let detail = format!("stage={:?} error={:?}", rejected.stage(), rejected.error());

@@ -5,6 +5,9 @@
 //! source seal exists. Cohort classification is structural and runs once on
 //! the already-pruned AST; it is not a name lookup or source re-scan.
 
+mod normal_callable_program;
+mod source_rows;
+
 use crate::ast::ASTNode;
 
 use super::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceDispositionV1;
@@ -12,6 +15,7 @@ use super::callable_parameter_source::ParserNormalSourcePlanSeedDispositionV1;
 use super::callable_source_anchor::PreparedCallableSourceV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{BuildGateExplainReport, ParseError, ParserMetadata};
+use source_rows::{compatibility_rows, source_backed_compatibility_rows};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ParserCompatibilityCohortV1 {
@@ -116,11 +120,31 @@ enum CompletedParserProgramV1 {
     },
 }
 
+impl CompletedParserProgramV1 {
+    fn is_compatibility(&self) -> bool {
+        matches!(
+            self,
+            Self::Compatibility {
+                ast: _,
+                callable_rows: _
+            }
+        )
+    }
+
+    fn into_ast_at_named_terminal(self) -> ASTNode {
+        match self {
+            Self::Initial(program) => program.into_ast(),
+            Self::Compatibility { ast, callable_rows } => {
+                consume_compatibility_callable_rows_at_named_terminal(callable_rows);
+                ast
+            }
+        }
+    }
+}
+
 enum NormalCallableProgramAdmissionV1 {
     Compatibility,
-    SourceBacked(
-        super::callable_parameter_source::ParserNormalRootSourceDispositionV1,
-    ),
+    SourceBacked(super::callable_parameter_source::ParserNormalRootExecutionSourceDispositionV1),
 }
 
 impl CompletedParserPostpassV1 {
@@ -218,13 +242,20 @@ impl CompletedParserPostpassV1 {
         explain: Option<BuildGateExplainReport>,
         static_box_parent_source: ParserStaticBoxParentSourceDispositionV1,
         normal_source_plan_seed: ParserNormalSourcePlanSeedDispositionV1,
+        source_seals: Box<[ParserBoxSourceSealV1]>,
+        final_box_ordinals: Box<[usize]>,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
         let program_cohort = classify_program(program.ast());
         if program_cohort.is_ordinary() {
             return Err(ParserPostpassEnvelopeErrorV1::CompatibilityForOrdinary);
         }
         let cohort = program_cohort.compatibility();
-        let rows = compatibility_rows(program.ast(), cohort);
+        let rows = source_backed_compatibility_rows(
+            program.ast(),
+            cohort,
+            source_seals,
+            final_box_ordinals,
+        )?;
         Ok(Self {
             program: CompletedParserProgramV1::Initial(program),
             metadata,
@@ -241,116 +272,18 @@ impl CompletedParserPostpassV1 {
     pub(crate) fn into_ast(self) -> ASTNode {
         let Self {
             program,
-            normal_source_plan_seed,
-            ..
-        } = self;
-        normal_source_plan_seed.discard_unconnected();
-        match program {
-            CompletedParserProgramV1::Initial(program) => program.into_ast(),
-            CompletedParserProgramV1::Compatibility { ast, .. } => ast,
-        }
-    }
-
-    pub(super) fn into_normal_callable_program(
-        self,
-        parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
-        source_authority: super::callable_parameter_source::ParserNormalProgramSourceAuthorityDispositionV1,
-    ) -> Result<
-        super::normal_callable_program_source::ParsedNormalCallableProgramV1,
-        super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
-    > {
-        self.into_normal_callable_program_with_admission(
-            parameter_source,
-            source_authority,
-            NormalCallableProgramAdmissionV1::Compatibility,
-        )
-    }
-
-    pub(super) fn into_normal_callable_program_with_root_source(
-        self,
-        parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
-        source_authority: super::callable_parameter_source::ParserNormalProgramSourceAuthorityDispositionV1,
-        normal_root_source: super::callable_parameter_source::ParserNormalRootSourceDispositionV1,
-    ) -> Result<
-        super::normal_callable_program_source::ParsedNormalCallableProgramV1,
-        super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
-    > {
-        self.into_normal_callable_program_with_admission(
-            parameter_source,
-            source_authority,
-            NormalCallableProgramAdmissionV1::SourceBacked(normal_root_source),
-        )
-    }
-
-    fn into_normal_callable_program_with_admission(
-        self,
-        parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
-        source_authority: super::callable_parameter_source::ParserNormalProgramSourceAuthorityDispositionV1,
-        admission: NormalCallableProgramAdmissionV1,
-    ) -> Result<
-        super::normal_callable_program_source::ParsedNormalCallableProgramV1,
-        super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
-    > {
-        use super::normal_callable_program_source::{
-            NormalCallableParserCompatibilityV1 as Compatibility,
-            ParsedNormalCallableProgramV1 as Program, PreparedNormalCallableProgramSourceV1,
-        };
-
-        let Self {
-            program,
+            metadata,
+            explain,
             box_coverage,
+            static_box_parent_source,
             normal_source_plan_seed,
-            ..
         } = self;
+        consume_metadata_at_named_terminal(metadata);
+        consume_explain_at_named_terminal(explain);
+        consume_box_coverage_at_named_terminal(box_coverage);
+        consume_static_box_parent_source_at_named_terminal(static_box_parent_source);
         normal_source_plan_seed.discard_unconnected();
-
-        if source_authority.composite_source_is_ready()
-            && matches!(program, CompletedParserProgramV1::Compatibility { .. })
-        {
-            return Err(
-                super::normal_callable_program_source::NormalCallableParameterSourceRejectV1::CompositeSourceCompatibilityLoss,
-            );
-        }
-
-        match program {
-            CompletedParserProgramV1::Initial(program) => {
-                let NormalCallableProgramAdmissionV1::SourceBacked(normal_root_source) = admission
-                else {
-                    return Err(super::normal_callable_program_source::
-                        NormalCallableParameterSourceRejectV1::MainAppEntryCompatibilityLoss);
-                };
-                PreparedNormalCallableProgramSourceV1::issue(
-                    program,
-                    parameter_source,
-                    source_authority,
-                    normal_root_source,
-                )
-                .map(Program::SourceBacked)
-            }
-            CompletedParserProgramV1::Compatibility { ast, .. } => {
-                if let NormalCallableProgramAdmissionV1::SourceBacked(_) = admission {
-                    return Err(super::normal_callable_program_source::
-                        NormalCallableParameterSourceRejectV1::MainAppEntryCompatibilityLoss);
-                }
-                let cohort = match box_coverage.program_cohort {
-                    ParserPostpassProgramCohortV1::InterfaceBox => Compatibility::InterfaceBox,
-                    ParserPostpassProgramCohortV1::RecordBox => Compatibility::RecordBox,
-                    ParserPostpassProgramCohortV1::MixedProgram
-                    | ParserPostpassProgramCohortV1::StaticBox => Compatibility::MixedProgram,
-                    ParserPostpassProgramCohortV1::TopLevelBuildGate => {
-                        Compatibility::TopLevelBuildGate
-                    }
-                    ParserPostpassProgramCohortV1::NoBoxDeclarations => {
-                        Compatibility::NoBoxDeclarations
-                    }
-                    ParserPostpassProgramCohortV1::NonProgram => Compatibility::NonProgram,
-                    ParserPostpassProgramCohortV1::OrdinaryTopLevelBox => {
-                        Compatibility::UnsupportedCallableSource
-                    }
-                };
-                Ok(Program::Compatibility { ast, cohort })
-            }
-        }
+        program.into_ast_at_named_terminal()
     }
 
     pub(super) fn into_ast_and_explain(
@@ -358,16 +291,18 @@ impl CompletedParserPostpassV1 {
     ) -> Result<(ASTNode, BuildGateExplainReport), ParserPostpassEnvelopeErrorV1> {
         let Self {
             program,
+            metadata,
             explain,
+            box_coverage,
+            static_box_parent_source,
             normal_source_plan_seed,
-            ..
         } = self;
+        consume_metadata_at_named_terminal(metadata);
+        consume_box_coverage_at_named_terminal(box_coverage);
+        consume_static_box_parent_source_at_named_terminal(static_box_parent_source);
         normal_source_plan_seed.discard_unconnected();
         let explain = explain.ok_or(ParserPostpassEnvelopeErrorV1::ExplainDecisionSetNotReady)?;
-        let ast = match program {
-            CompletedParserProgramV1::Initial(program) => program.into_ast(),
-            CompletedParserProgramV1::Compatibility { ast, .. } => ast,
-        };
+        let ast = program.into_ast_at_named_terminal();
         Ok((ast, explain))
     }
 
@@ -377,14 +312,16 @@ impl CompletedParserPostpassV1 {
         let Self {
             program,
             metadata,
+            explain,
+            box_coverage,
+            static_box_parent_source,
             normal_source_plan_seed,
-            ..
         } = self;
+        consume_explain_at_named_terminal(explain);
+        consume_box_coverage_at_named_terminal(box_coverage);
+        consume_static_box_parent_source_at_named_terminal(static_box_parent_source);
         normal_source_plan_seed.discard_unconnected();
-        let ast = match program {
-            CompletedParserProgramV1::Initial(program) => program.into_ast(),
-            CompletedParserProgramV1::Compatibility { ast, .. } => ast,
-        };
+        let ast = program.into_ast_at_named_terminal();
         (ast, metadata)
     }
 
@@ -433,6 +370,28 @@ impl CompletedParserPostpassV1 {
     }
 }
 
+fn consume_metadata_at_named_terminal(metadata: ParserMetadata) {
+    drop(metadata);
+}
+
+fn consume_explain_at_named_terminal(explain: Option<BuildGateExplainReport>) {
+    drop(explain);
+}
+
+fn consume_box_coverage_at_named_terminal(coverage: ParserBoxPostpassCoverageV1) {
+    drop(coverage);
+}
+
+fn consume_static_box_parent_source_at_named_terminal(
+    source: ParserStaticBoxParentSourceDispositionV1,
+) {
+    drop(source);
+}
+
+fn consume_compatibility_callable_rows_at_named_terminal(rows: Box<[PreparedCallableSourceV1]>) {
+    drop(rows);
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum ExplainDemandV1 {
     None,
@@ -461,6 +420,7 @@ pub(super) enum ParserPostpassEnvelopeErrorV1 {
     SourceSealForCompatibility {
         cohort: ParserPostpassProgramCohortV1,
     },
+    SourceOrdinalMismatch,
     CompatibilityForOrdinary,
     ExplainDecisionSetNotReady,
 }
@@ -477,6 +437,9 @@ impl ParserPostpassEnvelopeErrorV1 {
             ),
             Self::SourceSealForCompatibility { cohort } => {
                 format!("source seal issued for compatibility cohort: {cohort:?}")
+            }
+            Self::SourceOrdinalMismatch => {
+                "source-backed compatibility row ordinal mismatch".to_owned()
             }
             Self::CompatibilityForOrdinary => {
                 "compatibility postpass selected for an ordinary cohort".to_owned()
@@ -524,28 +487,6 @@ pub(super) fn classify_program(ast: &ASTNode) -> ParserPostpassProgramCohortV1 {
     } else {
         ParserPostpassProgramCohortV1::MixedProgram
     }
-}
-
-fn compatibility_rows(
-    ast: &ASTNode,
-    program_cohort: ParserCompatibilityCohortV1,
-) -> Box<[ParserBoxPostpassRowV1]> {
-    let ASTNode::Program { statements, .. } = ast else {
-        return Box::new([]);
-    };
-    statements
-        .iter()
-        .enumerate()
-        .filter_map(|(final_box_ordinal, statement)| {
-            matches!(statement, ASTNode::BoxDeclaration { .. }).then_some(
-                ParserBoxPostpassRowV1::AstOnlyCompatibility {
-                    final_box_ordinal,
-                    cohort: program_cohort,
-                },
-            )
-        })
-        .collect::<Vec<_>>()
-        .into_boxed_slice()
 }
 
 #[cfg(test)]
@@ -679,11 +620,13 @@ mod tests {
             envelope.box_coverage().program_cohort(),
             ParserPostpassProgramCohortV1::MixedProgram
         );
-        assert!(envelope
-            .box_coverage()
-            .rows()
-            .iter()
-            .all(|row| matches!(row, ParserBoxPostpassRowV1::AstOnlyCompatibility { .. })));
+        assert!(matches!(
+            envelope.box_coverage().rows(),
+            [
+                ParserBoxPostpassRowV1::SourceSealedOrdinary { .. },
+                ParserBoxPostpassRowV1::AstOnlyCompatibility { .. }
+            ]
+        ));
         assert!(envelope.explain().is_none());
     }
 

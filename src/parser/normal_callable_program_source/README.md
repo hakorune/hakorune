@@ -73,59 +73,34 @@ The first cohort accepts exact callable-preserving transforms. Added, removed,
 reordered, or changed callable declarations reject. Broader transform receipts
 must be added as explicit source transactions rather than AST reconstruction.
 
-## Normal source-root disposition transport I0
+## Total root-execution preservation C0
 
-The parser-only `ParserNormalRootSourceDispositionV1` is issued exactly once
-by the private parser facade inside
-`ParsedProgramWithCallableParameterSourceV1::new`. It co-seals the existing
-opaque App seal or positive pure-Script cohort witness. It does not own or
-clone `CanonicalScriptSourceRowsV1`; those rows remain the separate A-handoff
-product.
+`ParserNormalRootExecutionIssuerV1::issue_once` consumes the complete parser
+SourceSurface exactly once and issues one required, non-`Clone`
+`ParserNormalRootExecutionSourceV1`. The closed relation is
+`App | ProgramRuntime`; the App variant retains the exact parser-issued Main
+callable identity and static-child identities under the same invocation. The
+independent `CanonicalScriptSourceRowsV1` remains a Script-A sibling and is
+never absorbed into root authority.
 
-The unified root product is transported as one required, non-`Clone` field
-through the existing source-backed owners:
+The total product moves through the source-backed owners:
 
 ```text
 ParsedProgramWithCallableParameterSourceV1
   -> PreparedNormalCallableProgramSourceV1
+  -> ParserNormalRootExecutionPreservationV1
   -> VerifiedFinalCallableProgramSourceV1
 ```
 
-The retained parser-source lane carries the same unified disposition. A
-reference Script-A frontdoor explicitly moves it to `DiscardedBeforeA` before
-moving the independent Script rows; `AppReady` on that route is a typed reject.
-`Compatibility` remains a separate AST-only lane and never receives a
-synthetic Main/App or Script row. The transform moves the existing root
-disposition without re-running parser observation or classifying the root
-again. No root selection, `NormalCompileRequestV1`, Builder, Recipe, Join,
-MIR, publication, or fallback consumer is connected by this transport cell.
-
-## Final root preservation A-I0
-
-`ParserNormalRootPreservationIssuerV1::seal_after_transform` is the sole
-parser issuer for the final root-preservation token. It consumes the already
-issued `ParserNormalRootSourceDispositionV1`, the same
-`ParserNormalProgramSourceAuthorityV1`, and the parser-owned transform session;
-it does not reclassify App/Script from the transformed AST.
-
-`ParserNormalRootPreservationV1::Ready` is a non-`Clone` opaque token carrying
-one closed `App | Script` relation and parser invocation witness. Before it is
-issued, the parser checks that the parser-owned body-row count, initial Program
-statement count, and final Program statement count are identical, then compares
-every statement at its exact position. Addition, removal, reorder, or
-replacement is a typed rejection. `Outside`, unavailable, incomplete, invalid,
-terminal, and `DiscardedBeforeA` states remain typed terminal transport rather
-than a guessed role.
-
-For `App`, the same final-source issuer also moves the existing private
-`ParserMainAppEntrySealV1` into one private relation with the exactly one
-opaque-identity-matching callable row and that row's already-paired final slot.
-The row must belong to the same parser invocation, remain a direct static-Box
-method at the App seal's private source relation, and retain its exact BoxMethod
-placement. The App admission's sole-constructor contract supplies
-`CallableMainIsRoot` and `NoStaticChildren`; the final issuer does not rescan
-`Main`/`main`, recreate identity from ordinals, or call the raw Builder root
-classifier. The relation exposes no parser site, anchor, name, or ordinal.
+`ParserNormalRootExecutionPreservationIssuerV1::seal_after_transform` is the
+sole final-transform issuer. It consumes the already-issued relation and the
+same `ParserNormalProgramSourceAuthorityV1`; it does not reclassify App or
+ProgramRuntime from the transformed AST. Before issuing `Ready`, it checks the
+parser witness, complete source-row count, initial/final Program cardinality,
+exact slot sequence, and every statement at its exact position. Addition,
+removal, reorder, replacement, or foreign invocation is a typed rejection.
+Unavailable, incomplete, and invalid source states remain one typed terminal
+and never become guessed roles or compatibility.
 
 The production final source can only be issued through
 `ParserNormalCallableTransformSessionV1::finish_exact`; this entry accepts no
@@ -133,28 +108,32 @@ raw AST callback and moves the unchanged parser Program into the final product
 without a deep clone. A `#[cfg(test)]` transform hook exists only for the
 parser preservation rejection matrix. The old free raw-AST production entry
 is intentionally absent. The token moves through
-`VerifiedFinalCallableProgramSourceV1` and the existing prepared root wrapper.
-Root consumption, lowering, raw classifier retirement, Builder effects,
-fallback, and production switching remain a later bounded slice.
+`VerifiedFinalCallableProgramSourceV1` into the named pre-effect Builder
+consumer. Canonical source planning consumes the original parser aggregate
+through a separate opaque one-shot boundary; Raw source-backed and explicit
+compatibility extraction use distinct named issuers. None may reconstruct
+root meaning from names, ordinals, pointers, or a raw-root classifier, and no
+source-backed failure may retry compatibility.
 
-The macro/test-harness owner classifies its own work before this exact finish:
+The macro/test-harness owner still classifies its own work before exact finish:
 
 ```text
 Unchanged
   -> finish_exact
 
 GeneratedTail(AST)
-  -> Compatibility(TestHarnessGeneratedTail)
-  -> no parser final source or root token
+  -> ExactSourceChanged(Composite CompatibilityLoss
+                        | RootPreservation CompatibilityLoss)
+  -> named transform-reject terminal
 ```
 
-If composite preservation is already `Ready`, `GeneratedTail` is a typed
-`CompatibilityLoss` rejection instead of an authority drop. A macro-engine
+`GeneratedTail` is always a typed `CompatibilityLoss` rejection instead of an
+authority drop; the composite-ready state selects the existing composite
+reason, otherwise total-root preservation supplies the reason. A macro-engine
 mutation not owned by a named transform is `UnclassifiedSourceMutation`; it
 does not enter either the exact or compatibility lane. The parser never reads
 the test-harness environment or infers generated-tail provenance from AST
-shape. The next bounded prerequisite is the parser-owned HRTB root-consumer
-loan; root consumption and Builder effects remain closed.
+shape.
 
 ## Composite preservation transport
 

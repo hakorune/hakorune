@@ -1,10 +1,10 @@
 //! Callable-aware whole-Program source transport for normal compilation.
 
 mod model;
+mod normal_root_execution_preservation;
 mod semantic_syntax_loan;
 mod transform;
 
-pub(crate) use super::callable_parameter_source::ParserCallableSourceDispositionV1;
 pub(in crate::parser) use model::NormalCallableParameterSourceRejectV1;
 pub(crate) use model::{
     NormalCallableParserCompatibilityV1, NormalParserSourceLineageErrorV1,
@@ -12,9 +12,13 @@ pub(crate) use model::{
     ParserNormalCallableTransformSessionV1, PreparedNormalCallableProgramSourceV1,
     VerifiedFinalCallableProgramSourceV1,
 };
+pub(crate) use normal_root_execution_preservation::{
+    ParserNormalRootExecutionPreservationIssuerV1, ParserNormalRootExecutionPreservationRejectV1,
+    ParserNormalRootExecutionPreservationV1,
+};
 pub(crate) use semantic_syntax_loan::{
     CallableMethodSourceObservationV1, FinalCallableDeclarationModeV1,
-    FinalCallableSemanticSyntaxLoanErrorV1,
+    FinalCallableSemanticSyntaxLoanErrorV1, FinalCallableSemanticSyntaxRowRefV1,
 };
 pub(crate) use transform::FinalCallableProgramSourceRejectV1;
 
@@ -32,6 +36,6 @@ impl super::NyashParser {
 }
 
 #[cfg(test)]
-mod normal_root_preservation_tests;
+mod normal_root_execution_preservation_tests;
 #[cfg(test)]
 mod tests;

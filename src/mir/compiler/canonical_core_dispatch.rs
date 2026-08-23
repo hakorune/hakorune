@@ -10,7 +10,7 @@ mod callable;
 mod source_plan_request;
 
 pub(crate) use source_plan_request::{
-    CanonicalCoreSourcePlanCompileRequestV1, CanonicalCoreSourcePlanInputV1,
+    CanonicalCoreSourcePlanCompileRequestV1, CanonicalCoreSourcePlanDispatchV1,
     CanonicalScriptSourcePlanInputV1, NormalSourcePlanReceiptV1,
     VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
@@ -318,19 +318,23 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
         request: CanonicalCoreSourcePlanCompileRequestV1,
     ) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCoreNormalDispatchV1>
     {
-        let (plan, admission, receipt, source_input) = request.into_parts();
-        match plan {
-            SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Main0(main)) => {
-                source_input.discard_before_a_consumer();
-                Self::compile_main0(compiler, main, admission, receipt)
-            }
-            SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)) => {
-                Self::compile_script(compiler, script, admission, receipt, source_input)
-            }
-            SealedNormalSourcePlanV1::CallableModule(source) => {
-                source_input.discard_before_a_consumer();
-                callable::compile(compiler, source, admission, receipt).map_err(reject_callable)
-            }
+        match request.into_dispatch() {
+            CanonicalCoreSourcePlanDispatchV1::Main {
+                source,
+                admission,
+                receipt,
+            } => Self::compile_main0(compiler, source, admission, receipt),
+            CanonicalCoreSourcePlanDispatchV1::Script {
+                source,
+                admission,
+                receipt,
+                source_input,
+            } => Self::compile_script(compiler, source, admission, receipt, source_input),
+            CanonicalCoreSourcePlanDispatchV1::Callable {
+                source,
+                admission,
+                receipt,
+            } => callable::compile(compiler, source, admission, receipt).map_err(reject_callable),
         }
     }
 
@@ -438,17 +442,15 @@ impl NormalCanonicalCoreSourcePlanCompilerV1 {
         script: crate::mir::compiler::normal_source_plan::SealedNormalScriptSourceV1,
         admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
         receipt: NormalSourcePlanReceiptV1,
-        source_input: CanonicalCoreSourcePlanInputV1,
+        source_input: CanonicalScriptSourcePlanInputV1,
     ) -> Result<CompletedCanonicalCoreSourceEntryCandidateV1, RejectedCanonicalCoreNormalDispatchV1>
     {
         match source_input {
-            CanonicalCoreSourcePlanInputV1::Script(
-                CanonicalScriptSourcePlanInputV1::SourceEnvelopeReady(envelope),
-            ) => {
+            CanonicalScriptSourcePlanInputV1::SourceEnvelopeReady(envelope) => {
                 envelope.discard_before_a_consumer();
             }
-            other => {
-                other.discard_before_a_consumer();
+            CanonicalScriptSourcePlanInputV1::Rejected(rejected) => {
+                rejected.discard_before_a_consumer();
                 return Err(reject(
                     SealedNormalSourcePlanV1::ScalarRoot(SealedNormalScalarRootV1::Script(script)),
                     admission,

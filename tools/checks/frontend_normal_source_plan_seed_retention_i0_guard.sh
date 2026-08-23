@@ -26,7 +26,7 @@ guard_require_files "$TAG" "$SEED" "$CALLABLE_MOD" "$INITIAL_ISSUE" \
 
 [[ "$(rg -c 'pub\(in crate::parser\) struct ParserNormalSourcePlanSeedV1' "$SEED")" == 1 ]]
 [[ "$(rg -c 'pub\(in crate::parser\) fn issue\(' "$SEED")" == 1 ]]
-[[ "$(rg -c 'ParserNormalSourcePlanSeedV1::issue\(' "$FINALIZER")" == 1 ]]
+[[ "$(rg -c 'ParserNormalSourcePlanSeedV1::issue\(' "$FINALIZER")" == 2 ]]
 [[ "$(rg -c 'normal_source_plan_seed: ParserNormalSourcePlanSeedV1' "$SOURCE_MODEL")" == 1 ]]
 [[ "$(rg -c 'normal_source_plan_seed: ParserNormalSourcePlanSeedDispositionV1' "$POSTPASS")" == 4 ]]
 [[ "$(rg -c 'program_slots: &ProjectedProgramItemSlotSetV1' "$INITIAL_ISSUE")" == 2 ]]
@@ -76,7 +76,7 @@ done
 rg -q 'frontend_normal_source_plan_seed_retention_i0_guard.sh' "$INDEX" || \
   guard_fail "$TAG" "check index does not list the seed-retention guard"
 
-echo "[$TAG] sole seed issuer=1"
+echo "[$TAG] sole finalizer owner=1; explicit source/compat branch callsites=2"
 echo "[$TAG] projected slots borrowed, initial rows owned"
 echo "[$TAG] prepared static rows are retained, not discarded"
 echo "[$TAG] seed semantic/physical/fallback authority=0"

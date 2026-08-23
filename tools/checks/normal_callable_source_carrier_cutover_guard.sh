@@ -7,14 +7,15 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 
 RUNNER="$ROOT_DIR/src/runner/modes/mir.rs"
 LLVM_RUNNER="$ROOT_DIR/src/runner/product/llvm/mod.rs"
+LLVM_COMPILER="$ROOT_DIR/src/runner/product/llvm/mir_compiler.rs"
 HELPER="$ROOT_DIR/src/runner/modes/common_util/normal_callable.rs"
-ROOT_OWNER="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+ROOT_OWNER="$ROOT_DIR/src/mir/builder/normal_default_program_root.rs"
 REQUEST="$ROOT_DIR/src/mir/compiler/normal_default_pipeline.rs"
 
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$RUNNER" "$LLVM_RUNNER" "$HELPER" "$ROOT_OWNER" "$REQUEST"
+guard_require_files "$TAG" "$RUNNER" "$LLVM_RUNNER" "$LLVM_COMPILER" "$HELPER" "$ROOT_OWNER" "$REQUEST"
 
 runner_region="$({
   awk '
@@ -38,11 +39,11 @@ reject_runner_token() {
   fi
 }
 
-expect_runner_token "materialize_normal_callable_program_v1"
-expect_runner_token "NormalCallableTransformOutcomeV1::SourceBacked"
+expect_runner_token "materialize_normal_callable_program_with_identity_v1"
+expect_runner_token "NormalCallableMaterializationOutcomeV1::SourceBacked"
 expect_runner_token "for_mir_mode_callable_source"
-expect_runner_token "NormalCallableTransformOutcomeV1::Compatibility"
-expect_runner_token "for_mir_mode(ast"
+expect_runner_token "NormalCallableMaterializationOutcomeV1::Compatibility"
+expect_runner_token "for_mir_mode_compatibility"
 
 reject_runner_token "parse_normal_callable_program_with_build_config"
 reject_runner_token "transform_normal_callable_program_v1"
@@ -55,7 +56,7 @@ llvm_region="$({
     active { print }
   ' "$LLVM_RUNNER"
 })"
-if ! rg -q -F "materialize_normal_callable_program_v1" <<<"$llvm_region"; then
+if ! rg -q -F "materialize_normal_callable_program_with_identity_v1" <<<"$llvm_region"; then
   guard_fail "$TAG" "LLVM mode must use the shared normal-callable materialization helper"
 fi
 if rg -q -F "normalize_core_pass" <<<"$llvm_region"; then
@@ -63,7 +64,7 @@ if rg -q -F "normalize_core_pass" <<<"$llvm_region"; then
 fi
 
 guard_expect_fixed_in_file "$TAG" \
-  "parse_normal_callable_program_with_build_config" \
+  "parse_from_string_with_callable_parameter_source" \
   "$HELPER" \
   "shared helper must own the callable parser frontdoor"
 guard_expect_fixed_in_file "$TAG" \
@@ -85,8 +86,12 @@ if [[ -z "$source_line" || -z "$normalize_line" || "$source_line" -ge "$normaliz
 fi
 guard_expect_fixed_in_file "$TAG" \
   "for_llvm_callable_source" \
-  "$REQUEST" \
-  "normal compile request missing LLVM callable source constructor"
+  "$LLVM_COMPILER" \
+  "LLVM compiler missing callable source constructor"
+guard_expect_fixed_in_file "$TAG" \
+  "for_llvm_compatibility" \
+  "$LLVM_COMPILER" \
+  "LLVM compiler missing typed compatibility constructor"
 
 guard_expect_fixed_in_file "$TAG" \
   "source: PreparedNormalDefaultProgramSourceV1" \
@@ -105,7 +110,7 @@ guard_expect_fixed_in_file "$TAG" \
   "$REQUEST" \
   "normal compile request missing callable source constructor"
 
-for file in "$RUNNER" "$LLVM_RUNNER" "$HELPER" "$ROOT_OWNER" "$REQUEST"; do
+for file in "$RUNNER" "$LLVM_RUNNER" "$LLVM_COMPILER" "$HELPER" "$ROOT_OWNER" "$REQUEST"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "source file reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"

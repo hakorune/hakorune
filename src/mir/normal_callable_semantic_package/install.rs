@@ -1,6 +1,7 @@
 //! Consuming source-backed catalog installation and scoped selected loans.
 
-use std::ptr;
+mod signature_loan;
+
 use std::{cell::RefCell, collections::BTreeSet};
 
 use crate::mir::builder::{
@@ -19,8 +20,8 @@ use crate::parser::{
 };
 
 use super::model::{
-    NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
-    VerifiedNormalCallableSemanticPackageV1,
+    NormalCallableDynamicProjectionV1, NormalRootExecutionPackageStateV1,
+    OwnedCallableParameterContractDeclarationV1, VerifiedNormalCallableSemanticPackageV1,
 };
 use super::physical_header::{CallablePhysicalHeaderRefV1, VerifiedCallablePhysicalHeaderCohortV1};
 use super::physical_signature::{
@@ -28,6 +29,8 @@ use super::physical_signature::{
 };
 use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
+
+pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
@@ -42,7 +45,6 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     ParameterContractOwnerMismatch,
     PhysicalSignatureMismatch,
     MainChildUnavailable,
-    MainChildSourceMismatch,
     MainChildIdentityMismatch,
     MainChildRoleMismatch,
     MainChildAdmissionRequired,
@@ -55,6 +57,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
 
 #[derive(Debug)]
 pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
+    root_execution_mode: crate::mir::builder::AdmittedNormalRootExecutionModeV1,
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     instance_constructors:
@@ -77,74 +80,6 @@ pub(crate) struct SelectedCallableLoweringInputRefV1<'loan> {
     semantic: SelectedCallableSemanticRefV1<'loan>,
     source_identity: VerifiedResolvedCallableSourceIdentityV1,
     selected_key: SelectedNormalCallableKeyV1,
-}
-
-/// Non-owning, non-Clone signature sibling for one resolved lowering loan.
-/// The package issuer is the only constructor; the module handoff consumes
-/// this view before the surrounding HRTB callback returns.
-pub(crate) struct ResolvedCallablePhysicalSignatureLoanV1<'loan> {
-    row: PhysicalCallableSignatureRowRefV1<'loan>,
-    _seal: ResolvedCallablePhysicalSignatureLoanSealV1,
-}
-
-struct ResolvedCallablePhysicalSignatureLoanSealV1;
-
-impl<'loan> ResolvedCallablePhysicalSignatureLoanV1<'loan> {
-    fn new(row: PhysicalCallableSignatureRowRefV1<'loan>) -> Self {
-        Self {
-            row,
-            _seal: ResolvedCallablePhysicalSignatureLoanSealV1,
-        }
-    }
-
-    /// Internal adapter for the S6C loan.  It preserves the package-owned
-    /// signature row and does not create a second signature authority.
-    pub(crate) fn from_s6c_row(row: PhysicalCallableSignatureRowRefV1<'loan>) -> Self {
-        Self::new(row)
-    }
-
-    pub(crate) const fn owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
-        self.row.owner()
-    }
-
-    pub(crate) fn identity(&self) -> &crate::parser::CallableDeclarationIdentityV1 {
-        self.row.identity()
-    }
-
-    pub(crate) const fn physical_callable_lane_count(&self) -> u32 {
-        self.row.physical_callable_lane_count()
-    }
-
-    pub(crate) const fn receiver_lane_count(&self) -> u32 {
-        self.row.receiver_lane_count()
-    }
-
-    pub(crate) const fn source_logical_arity(&self) -> u32 {
-        self.row.source_logical_arity()
-    }
-
-    pub(crate) const fn physical_formal_lane_count(&self) -> u32 {
-        self.row.physical_formal_lane_count()
-    }
-
-    pub(crate) fn has_exact_text_formal(&self) -> bool {
-        self.row.lanes().iter().any(|lane| {
-            matches!(
-                lane.role(),
-                crate::mir::normal_callable_semantic_package::PhysicalCallableLaneRoleV1::
-                    ExactTextSlot
-            )
-        })
-    }
-
-    /// Borrow the complete lane rows from the package-owned cohort.  This is
-    /// a scoped sibling view; it never copies or reissues the signature rows.
-    pub(crate) fn lanes(
-        &self,
-    ) -> &[crate::mir::normal_callable_semantic_package::physical_signature::PhysicalCallableLaneV1]
-    {
-        self.row.lanes()
-    }
 }
 
 /// Exactly-once selected input paired with the catalog admission that already
@@ -344,6 +279,8 @@ impl VerifiedNormalCallableSemanticPackageV1 {
 impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
     pub(crate) fn commit(self) -> InstalledNormalCallableSemanticPackageV1 {
         let VerifiedNormalCallableSemanticPackageV1 {
+            root_execution_mode,
+            root_execution,
             catalog,
             batch,
             instance_constructors,
@@ -356,10 +293,15 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             dynamic,
             dynamic_physical_header,
         } = self.package;
+        match root_execution {
+            NormalRootExecutionPackageStateV1::Prepared(root) => root.discard_unconnected(),
+            NormalRootExecutionPackageStateV1::MovedToLowering => {}
+        }
         let catalog_brand = catalog.catalog().brand().clone();
         self.context
             .install_callable_declaration_catalog_preflighted(catalog.into_catalog());
         InstalledNormalCallableSemanticPackageV1 {
+            root_execution_mode,
             catalog_brand,
             batch,
             instance_constructors,
@@ -376,6 +318,12 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
+    pub(in crate::mir) const fn root_execution_mode(
+        &self,
+    ) -> crate::mir::builder::AdmittedNormalRootExecutionModeV1 {
+        self.root_execution_mode
+    }
+
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.batch.source_ast()
     }
@@ -670,6 +618,12 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         };
         let key = key.clone();
         let identity = identity.clone();
+        let child_identity = child
+            .parser_identity()
+            .ok_or(NormalCallableSemanticPackageInstallIssueV1::MainChildIdentityMismatch)?;
+        if !identity.same_as(child_identity) {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildIdentityMismatch);
+        }
         if !role.is_main_static_child() {
             return Err(NormalCallableSemanticPackageInstallIssueV1::MainChildRoleMismatch);
         }
@@ -679,14 +633,13 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         let result = self
             .installed
             .with_selected_lowering_input(&key, |selected| {
-                if !selected.source_identity().identity().same_as(&identity) {
+                if !selected
+                    .source_identity()
+                    .identity()
+                    .same_as(child_identity)
+                {
                     return Err(
                         NormalCallableSemanticPackageInstallIssueV1::MainChildIdentityMismatch,
-                    );
-                }
-                if !ptr::eq(selected.source().source().root(), child.source()) {
-                    return Err(
-                        NormalCallableSemanticPackageInstallIssueV1::MainChildSourceMismatch,
                     );
                 }
                 let admission = NormalCatalogedBoxMethodDraftAdmissionV1::seal(match &key {

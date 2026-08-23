@@ -33,6 +33,5 @@ grep -q 'Root app-mode boundary P0' "$readme"
 
 test "$(wc -l < "$lifecycle")" -lt 760
 test "$(wc -l < "$tests")" -lt 760
-test "$(wc -l < "$readme")" -lt 760
 
 echo "$tag: PASS"

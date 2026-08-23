@@ -1,3 +1,4 @@
+use super::super::normal_root_execution::ParserNormalRootExecutionTestTerminalV1;
 use crate::parser::{NyashParser, ParserBuildConfig};
 
 use super::module_rows::{
@@ -13,16 +14,18 @@ fn ordinary_box_and_direct_instance_method_form_one_source_row() {
     )
     .unwrap();
 
-    let Some(disposition) = parsed.normal_module_source_rows() else {
-        panic!("source-backed ordinary parser product must expose module rows")
-    };
-    let ParserNormalModuleSourceRowsDispositionV1::Ready(rows) = disposition else {
-        panic!("ordinary one-box/one-method cohort must be Ready")
-    };
-    assert_eq!(rows.box_row().program_position(), 0);
-    assert_eq!(rows.box_row().declaration_syntax().name(), "Plain");
-    assert_eq!(rows.box_row().method().diagnostic_name(), "run");
-    assert_eq!(rows.box_row().method().arity(), 0);
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        let Some(disposition) = loan.normal_module_source_rows() else {
+            panic!("source-backed ordinary parser product must expose module rows")
+        };
+        let ParserNormalModuleSourceRowsDispositionV1::Ready(rows) = disposition else {
+            panic!("ordinary one-box/one-method cohort must be Ready")
+        };
+        assert_eq!(rows.box_row().program_position(), 0);
+        assert_eq!(rows.box_row().declaration_syntax().name(), "Plain");
+        assert_eq!(rows.box_row().method().diagnostic_name(), "run");
+        assert_eq!(rows.box_row().method().arity(), 0);
+    });
 }
 
 #[test]
@@ -33,15 +36,17 @@ fn multiple_ordinary_boxes_are_outside_the_bounded_row_cohort() {
     )
     .unwrap();
 
-    let Some(disposition) = parsed.normal_module_source_rows() else {
-        panic!("ordinary source authority must be present")
-    };
-    assert!(matches!(
-        disposition,
-        ParserNormalModuleSourceRowsDispositionV1::Outside(
-            ParserNormalModuleSourceRowsOutsideReasonV1::UnsupportedProgramBody
-        )
-    ));
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        let Some(disposition) = loan.normal_module_source_rows() else {
+            panic!("ordinary source authority must be present")
+        };
+        assert!(matches!(
+            disposition,
+            ParserNormalModuleSourceRowsDispositionV1::Outside(
+                ParserNormalModuleSourceRowsOutsideReasonV1::UnsupportedProgramBody
+            )
+        ));
+    });
 }
 
 #[test]
@@ -52,13 +57,15 @@ fn static_box_entry_stops_on_missing_ordinary_source_seal() {
     )
     .unwrap();
 
-    let Some(disposition) = parsed.normal_module_source_rows() else {
-        panic!("source-backed program must retain the typed module-row disposition")
-    };
-    assert!(matches!(
-        disposition,
-        ParserNormalModuleSourceRowsDispositionV1::Incomplete(
-            ParserNormalModuleSourceRowsIncompleteV1::BoxSourceSealMissing
-        )
-    ));
+    ParserNormalRootExecutionTestTerminalV1::observe_once(parsed, |loan| {
+        let Some(disposition) = loan.normal_module_source_rows() else {
+            panic!("source-backed program must retain the typed module-row disposition")
+        };
+        assert!(matches!(
+            disposition,
+            ParserNormalModuleSourceRowsDispositionV1::Incomplete(
+                ParserNormalModuleSourceRowsIncompleteV1::BoxSourceSealMissing
+            )
+        ));
+    });
 }

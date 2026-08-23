@@ -22,7 +22,9 @@ mod main_thunk_plan;
 mod module_source;
 mod normal_acyclic_module_plan;
 mod normal_callable_transaction_handoff;
-mod parser_callable_source_handoff;
+mod parser_bound_policy;
+#[cfg(test)]
+mod parser_bound_policy_tests;
 mod product;
 mod rejection;
 mod script_physical_entry;
@@ -122,7 +124,7 @@ pub(crate) use normal_callable_transaction_handoff::{
     RejectedNormalCallableHandoffV1, RejectedNormalMainProofBindingV1,
     RetainedNormalCallableSourceAuthorityV1,
 };
-pub(crate) use parser_callable_source_handoff::NormalParserCallableSourceHandoffV1;
+pub(in crate::mir) use parser_bound_policy::require_static_main_v1;
 #[allow(unused_imports)]
 pub(crate) use product::{
     PreparedNormalSourcePlanInputV1, SealedNormalCallableModuleSourceV1, SealedNormalMainSourceV1,
@@ -130,7 +132,7 @@ pub(crate) use product::{
 };
 pub(crate) use rejection::{
     NormalSourcePlanErrorV1, NormalSourcePlanIdentityFieldV1, NormalSourcePlanStageV1,
-    RejectedNormalSourcePlanV1,
+    NormalUnsupportedTopLevelKindV1, RejectedNormalSourcePlanV1,
 };
 pub(crate) use script_physical_entry::{
     CompletedScriptPhysicalExitV1, NormalScriptPhysicalEntryStageV1, OpenScriptPhysicalEntryV1,

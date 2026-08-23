@@ -50,6 +50,21 @@ An internal candidate connection with production callers at zero is not I0.
 Stage-B-specific source routes must not be connected here; only their
 source-neutral reusable parts may enter a named production replacement cell.
 
+### Normal-root pre-effect consumer (C0)
+
+The selected normal/default source-backed path enters
+`PreparedNormalDefaultProgramRootV1::consume_source_backed_root_once` in
+`normal_default_program_root.rs` before module preparation, catalog install,
+or any Builder mutation. `NormalRootExecutionConsumerV1` is the sole consumer
+of the parser-preserved App/ProgramRuntime relation. Its exact syntax projector
+requires a private, non-duplicable permit whose only constructor call is in
+that consumer, so a raw final parser source cannot bypass policy or admission.
+
+Source-backed rejection owns the intact final source until its named terminal.
+The separate compatibility owner may use the legacy AST projection only after
+typed source-authority absence; it cannot fabricate a parser-backed Ready
+state, enter canonical policy, or retry the source-backed consumer.
+
 ### Callable Loop root Ready unpublished scope (D0)
 
 The live root `Ready` Loop path is owned by the existing

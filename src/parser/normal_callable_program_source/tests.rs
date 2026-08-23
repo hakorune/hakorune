@@ -1,9 +1,8 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::CanonicalSourceBytesDigestV1;
-use crate::parser::callable_parameter_source::{
-    ParserNormalRootPreservationRejectV1, ParserNormalRootPreservationV1, ParserNormalRootRoleV1,
+use crate::parser::{
+    BuildMode, GrammarProfile, NyashParser, ParserBuildConfig, ParserNormalRootExecutionRoleV1,
 };
-use crate::parser::{BuildMode, GrammarProfile, NyashParser, ParserBuildConfig};
 
 use super::*;
 
@@ -76,6 +75,7 @@ fn exact_static_callable_set_survives_one_transform() {
         .with_constructor_semantic_syntax(|loan| loan.rows().len())
         .expect("static-only source must carry an empty constructor catalog");
     assert_eq!(constructor_count, 0);
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -83,20 +83,20 @@ fn main_app_disposition_moves_through_prepared_and_final_source() {
     let final_source = transform(parse("static box Main { main() { return 1 } }"), |_| {})
         .expect("exact Main source transform");
     assert!(matches!(
-        final_source.normal_root_source(),
-        ParserNormalRootPreservationV1::Ready(preserved)
-            if preserved.role() == ParserNormalRootRoleV1::App
+        final_source.normal_root_execution().ready_source(),
+        Some(source) if source.role() == ParserNormalRootExecutionRoleV1::App
     ));
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
 fn normal_script_root_role_moves_through_final_source() {
     let final_source = transform(parse("print(1)"), |_| {}).expect("exact Script source transform");
     assert!(matches!(
-        final_source.normal_root_source(),
-        ParserNormalRootPreservationV1::Ready(preserved)
-            if preserved.role() == ParserNormalRootRoleV1::Script
+        final_source.normal_root_execution().ready_source(),
+        Some(source) if source.role() == ParserNormalRootExecutionRoleV1::ProgramRuntime
     ));
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -113,7 +113,7 @@ fn root_statement_replacement_is_rejected_before_final_source() {
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
-            ParserNormalRootPreservationRejectV1::SourceStatementChanged { position: 0 }
+            ParserNormalRootExecutionPreservationRejectV1::SourceStatementChanged { position: 0 }
         ))
     ));
 }
@@ -125,7 +125,7 @@ fn foreign_transform_output_is_rejected_by_parser_session() {
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
-            ParserNormalRootPreservationRejectV1::SourceStatementChanged { position: 0 }
+            ParserNormalRootExecutionPreservationRejectV1::SourceStatementChanged { position: 0 }
         ))
     ));
 }
@@ -144,7 +144,7 @@ fn root_statement_addition_is_rejected_before_final_source() {
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
-            ParserNormalRootPreservationRejectV1::SourceBodyCardinalityMismatch {
+            ParserNormalRootExecutionPreservationRejectV1::SourceBodyCardinalityMismatch {
                 source: 1,
                 initial: 1,
                 transformed: 2,
@@ -181,22 +181,23 @@ fn root_statement_reorder_is_rejected_before_final_source() {
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
-            ParserNormalRootPreservationRejectV1::SourceStatementChanged { position: 0 }
+            ParserNormalRootExecutionPreservationRejectV1::SourceStatementChanged { position: 0 }
         ))
     ));
 }
 
 #[test]
-fn main_app_non_ready_disposition_moves_without_reclassification() {
+fn main_with_argument_remains_app_source_relation_until_policy() {
     let final_source = transform(
         parse("static box Main { main(argument) { return argument } }"),
         |_| {},
     )
-    .expect("typed non-ready Main source transform");
+    .expect("exact Main source transform");
     assert!(matches!(
-        final_source.normal_root_source(),
-        ParserNormalRootPreservationV1::Terminal(_)
+        final_source.normal_root_execution().ready_source(),
+        Some(source) if source.role() == ParserNormalRootExecutionRoleV1::App
     ));
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -207,6 +208,7 @@ fn composite_source_ready_moves_through_final_source_for_root_return_call() {
     )
     .expect("bounded composite source");
     assert!(final_source.composite_source_is_ready());
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -217,6 +219,7 @@ fn composite_source_ready_covers_final_sequence_call() {
     )
     .expect("bounded final-sequence composite source");
     assert!(final_source.composite_source_is_ready());
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -229,6 +232,7 @@ fn composite_source_ready_covers_ordered_multi_argument_call() {
     )
     .expect("bounded multi-argument composite source");
     assert!(final_source.composite_source_is_ready());
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -236,6 +240,7 @@ fn instance_provider_stays_outside_composite_first_cohort() {
     let final_source = transform(parse("box Helpers { run() { return 1 } }"), |_| {})
         .expect("ordinary callable source remains transportable");
     assert!(!final_source.composite_source_is_ready());
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -453,6 +458,7 @@ fn mixed_compatibility_source_carries_constructor_catalog_without_widening_cohor
         .with_constructor_semantic_syntax(|loan| loan.rows().len())
         .expect("mixed source must carry the parser-owned catalog");
     assert_eq!(constructor_count, 0);
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -471,6 +477,7 @@ fn ordinary_constructor_source_catalog_survives_normal_source_transform() {
         })
         .expect("constructor semantic syntax loan");
     assert_eq!(keys, ["init/1", "pack/1", "birth/0"]);
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -492,6 +499,7 @@ fn top_level_callable_does_not_fabricate_parameter_source() {
             assert!(loan.rows()[0].parameters().is_none());
         })
         .expect("semantic syntax loan");
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -509,6 +517,7 @@ fn direct_instance_method_carries_one_co_sealed_source_observation() {
             assert!(observation.identity().same_as(row.identity()));
         })
         .expect("semantic syntax loan");
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -533,6 +542,7 @@ fn selected_member_gate_retains_callable_anchors_without_forging_parameter_sourc
             assert!(loan.rows()[0].method_source_observation().is_none());
         })
         .expect("semantic syntax loan");
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]
@@ -625,6 +635,7 @@ fn parser_program_source_authority_lends_one_paired_body_cursor() {
         })
         .expect("parser source authority loan");
     assert_eq!(rows, vec![(0, true), (1, false)]);
+    final_source.discard_at_named_root_execution_terminal();
 }
 
 #[test]

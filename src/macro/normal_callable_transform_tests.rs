@@ -1,4 +1,3 @@
-use crate::ast::ASTNode;
 use crate::parser::{
     NormalCallableParserCompatibilityV1, NyashParser, ParsedNormalCallableProgramV1,
     ParserBuildConfig,
@@ -6,8 +5,8 @@ use crate::parser::{
 
 use super::normal_callable_transform::require_unchanged_source_macro_output_v1;
 use super::{
-    transform_normal_callable_program_v1, NormalCallableTransformCompatibilityV1,
-    NormalCallableTransformOutcomeV1, NormalCallableTransformRejectV1,
+    transform_normal_callable_program_v1, NormalCallableTransformOutcomeV1,
+    NormalCallableTransformRejectV1,
 };
 
 fn parse(source: &str) -> ParsedNormalCallableProgramV1 {
@@ -25,15 +24,15 @@ fn disabled_macro_keeps_static_source_backed() {
             "static box ParserScanLoopBox { skip_while(a, b, c, d) { return b } }",
         ))
         .expect("exact source transform");
-        assert!(matches!(
-            transformed,
-            NormalCallableTransformOutcomeV1::SourceBacked(_)
-        ));
+        let NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+            panic!("disabled macro must preserve the source-backed owner")
+        };
+        source.discard_at_named_root_execution_terminal();
     });
 }
 
 #[test]
-fn instance_default_derive_selects_compatibility_before_transform() {
+fn source_backed_default_derive_rejects_root_authority_loss() {
     crate::test_support::with_env_vars(
         &[
             ("NYASH_MACRO_DISABLE", Some("0")),
@@ -42,11 +41,14 @@ fn instance_default_derive_selects_compatibility_before_transform() {
         || {
             let transformed = transform_normal_callable_program_v1(parse(
                 "box Node { value: i64 run() { return me.value } }",
-            ))
-            .expect("typed compatibility transform");
+            ));
             assert!(matches!(
                 transformed,
-                NormalCallableTransformOutcomeV1::Compatibility { .. }
+                Err(NormalCallableTransformRejectV1::ExactSourceChanged(
+                    crate::parser::FinalCallableProgramSourceRejectV1::RootPreservation(
+                        crate::parser::ParserNormalRootExecutionPreservationRejectV1::CompatibilityLoss
+                    )
+                ))
             ));
         },
     );
@@ -78,16 +80,16 @@ fn enabled_macro_with_no_actual_test_tail_stays_source_backed() {
             let transformed =
                 transform_normal_callable_program_v1(parse("function helper() { return 0 }"))
                     .expect("actual no-op remains exact");
-            assert!(matches!(
-                transformed,
-                NormalCallableTransformOutcomeV1::SourceBacked(_)
-            ));
+            let NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
+                panic!("no-op macro must preserve the source-backed owner")
+            };
+            source.discard_at_named_root_execution_terminal();
         },
     );
 }
 
 #[test]
-fn actual_test_harness_tail_enters_typed_compatibility() {
+fn source_backed_test_harness_tail_rejects_root_authority_loss() {
     crate::test_support::with_env_vars(
         &[
             ("NYASH_MACRO_DISABLE", Some("0")),
@@ -97,25 +99,13 @@ fn actual_test_harness_tail_enters_typed_compatibility() {
             ("NYASH_MACRO_PATHS", None),
         ],
         || {
-            let transformed =
-                transform_normal_callable_program_v1(parse("function test_zero() { return 0 }"))
-                    .expect("generated test tail has an explicit compatibility owner");
-            let NormalCallableTransformOutcomeV1::Compatibility { ast, reason } = transformed
-            else {
-                panic!("generated test tail must not receive a parser root token")
-            };
-            assert_eq!(
-                reason,
-                NormalCallableTransformCompatibilityV1::TestHarnessGeneratedTail
-            );
-            let ASTNode::Program { statements, .. } = ast else {
-                panic!("compatibility output must remain a Program")
-            };
-            assert_eq!(statements.len(), 2);
             assert!(matches!(
-                statements.last(),
-                Some(ASTNode::FunctionCall { name, arguments, .. })
-                    if name == "test_zero" && arguments.is_empty()
+                transform_normal_callable_program_v1(parse("function test_zero() { return 0 }")),
+                Err(NormalCallableTransformRejectV1::ExactSourceChanged(
+                    crate::parser::FinalCallableProgramSourceRejectV1::RootPreservation(
+                        crate::parser::ParserNormalRootExecutionPreservationRejectV1::CompatibilityLoss
+                    )
+                ))
             ));
         },
     );

@@ -35,9 +35,9 @@ pub(crate) use selected_source_inventory::{
     SelectedCallableSemanticBlockerV1, SelectedNormalCallableSourceSiteV1,
     SelectedTopLevelFunctionKeyV1, VerifiedSelectedNormalCallableSourceInventoryV1,
 };
+pub(in crate::mir) use source_backed::issue_source_backed_same_module_callable_catalog_v1;
 pub(crate) use source_backed::{
-    issue_source_backed_same_module_callable_catalog_v1, SourceBackedCallableCatalogIssueV1,
-    VerifiedSourceBackedSameModuleCallableCatalogV1,
+    SourceBackedCallableCatalogIssueV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 
 #[cfg(test)]

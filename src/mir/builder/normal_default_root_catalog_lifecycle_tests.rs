@@ -1,3 +1,4 @@
+use super::{NormalDefaultProgramRootConsumptionV1, RejectedNormalDefaultRootOwnerV1};
 use crate::ast::{ASTNode, Span};
 use crate::mir::builder::{
     BuilderInvocationConfigV1, CallableMainMaterializationPolicyV1, MirBuilder,
@@ -48,6 +49,37 @@ fn verified_expansion_disposition_reaches_script_and_app_root_lowering() {
 }
 
 #[test]
+fn source_backed_lifecycle_facade_consumes_program_runtime_and_app_once() {
+    for (source, expected) in [
+        (
+            "print(1)",
+            crate::mir::builder::AdmittedNormalRootExecutionModeV1::ProgramRuntime,
+        ),
+        (
+            "static box Main { main() { return 0 } }",
+            crate::mir::builder::AdmittedNormalRootExecutionModeV1::App,
+        ),
+    ] {
+        match callable_source(source, ParserBuildConfig::default())
+            .consume_source_backed_root_once()
+        {
+            NormalDefaultProgramRootConsumptionV1::SourceBacked(Ok(consumed)) => {
+                assert_eq!(consumed.consume_at_named_test_terminal(), expected);
+            }
+            NormalDefaultProgramRootConsumptionV1::SourceBacked(Err(rejected)) => {
+                rejected.discard_at_named_root_execution_terminal();
+                panic!("source-backed facade unexpectedly rejected")
+            }
+            NormalDefaultProgramRootConsumptionV1::Compatibility(source) => {
+                RejectedNormalDefaultRootOwnerV1::Compatibility(source)
+                    .discard_at_named_lifecycle_terminal();
+                panic!("source-backed fixture entered compatibility")
+            }
+        }
+    }
+}
+
+#[test]
 fn root_expansion_failure_precedes_prepare_and_retains_source() {
     let source = NyashParser::parse_from_string(
         r#"
@@ -78,6 +110,34 @@ fn root_expansion_failure_precedes_prepare_and_retains_source() {
             .source_ast(),
         crate::ast::ASTNode::Program { .. }
     ));
+    rejected.discard();
+}
+
+#[test]
+fn source_backed_non_static_main_rejects_with_policy_before_builder_effects() {
+    let source = callable_source(
+        "box Main { main() { return 0 } }",
+        ParserBuildConfig::default(),
+    );
+    let rejected = session()
+        .complete_normal_default_program_root_catalog_lifecycle(
+            source,
+            CallableMainMaterializationPolicyV1::Omitted,
+            NormalRuntimeInputSnapshotV1::empty(),
+        )
+        .expect_err("non-static Main must reject at source policy");
+
+    assert_eq!(
+        rejected.stage(),
+        NormalDefaultRootCatalogLifecycleStageV1::RootExpansion
+    );
+    assert!(rejected.session.builder().current_module.is_none());
+    assert!(rejected
+        .error()
+        .to_string()
+        .contains("SourcePolicy(MainMustBeStatic)"));
+    assert!(rejected._source.is_some());
+    rejected.discard();
 }
 
 #[test]
@@ -122,6 +182,7 @@ fn catalog_failure_follows_prepare_and_retains_source() {
             .source_ast(),
         crate::ast::ASTNode::Program { .. }
     ));
+    rejected.discard();
 }
 
 #[test]
@@ -210,6 +271,7 @@ fn parser_scan_package_passes_callable_source_handoff_without_fallback() {
         .to_string()
         .contains("callable-semantic-lowering/missing-variable-site"));
     assert!(rejected._source.is_none());
+    rejected.discard();
 }
 
 #[test]
@@ -249,6 +311,7 @@ gate Build.test {
     );
     assert!(rejected.session.builder().current_module.is_none());
     assert!(rejected._source.is_none());
+    rejected.discard();
 }
 
 #[test]

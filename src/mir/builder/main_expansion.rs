@@ -5,7 +5,12 @@
 //! product owns only source references and deterministic symbols.  It has no
 //! Builder, collector, ValueId, metadata, header cache, or publication route.
 
+mod admitted_projection;
+
+pub(in crate::mir) use admitted_projection::PreparedAdmittedNormalRootExpansionV1;
+
 use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, DeclarationAttrs, ParamDecl};
+use crate::parser::{CallableDeclarationIdentityV1, FinalCallableSemanticSyntaxLoanErrorV1};
 
 #[derive(Debug, PartialEq, Eq)]
 pub(in crate::mir) enum MainExpansionErrorV1 {
@@ -17,6 +22,11 @@ pub(in crate::mir) enum MainExpansionErrorV1 {
     MainMethodMustBeFunction,
     StaticChildMustBeFunction { method: String },
     StaticChildMustBeStatic { method: String },
+    PreservedRootUnavailable,
+    RootRelationMismatch,
+    CallableIdentityMissing,
+    CallableIdentityDuplicate,
+    ParserSyntax(FinalCallableSemanticSyntaxLoanErrorV1),
 }
 
 impl std::fmt::Display for MainExpansionErrorV1 {
@@ -107,7 +117,14 @@ pub(in crate::mir) struct VerifiedMainStaticChildV1<'src> {
     parts: VerifiedMainStaticChildPartsV1<'src>,
     symbol: Box<str>,
     arity: usize,
+    identity: MainStaticChildSourceIdentityV1,
     _seal: MainStaticChildSealV1,
+}
+
+#[derive(Debug)]
+enum MainStaticChildSourceIdentityV1 {
+    Parser(CallableDeclarationIdentityV1),
+    Compatibility,
 }
 
 #[derive(Debug)]
@@ -157,6 +174,13 @@ impl VerifiedMainStaticChildV1<'_> {
 
     pub(in crate::mir::builder) fn arity(&self) -> usize {
         self.arity
+    }
+
+    pub(in crate::mir) fn parser_identity(&self) -> Option<&CallableDeclarationIdentityV1> {
+        match &self.identity {
+            MainStaticChildSourceIdentityV1::Parser(identity) => Some(identity),
+            MainStaticChildSourceIdentityV1::Compatibility => None,
+        }
     }
 
     pub(in crate::mir::builder) fn to_owned_lowering(
@@ -213,8 +237,12 @@ pub(in crate::mir::builder) struct VerifiedMainExpansionV1<'src> {
 #[derive(Debug)]
 struct MainExpansionSealV1;
 
-/// One source-only root selector.  Script and App are classified once before
-/// any Builder, candidate, collector, or receipt effect is possible.
+/// Borrowed lowering projection for either an admitted source-backed root or
+/// the isolated compatibility classifier.
+///
+/// This type is not the App/ProgramRuntime authority. Production source-backed
+/// callers project it from the parser-preserved relation; only compatibility
+/// callers may construct it by scanning a raw Program.
 #[derive(Debug)]
 pub(in crate::mir::builder) enum VerifiedRawRootExpansionV1<'src> {
     Script,
@@ -248,9 +276,9 @@ impl<'src> VerifiedRawRootExpansionV1<'src> {
         }
     }
 
-    /// The verified expansion is the only selected normal Script/App route
-    /// authority. Program lowering consumes this disposition without
-    /// inspecting the source again.
+    /// Derive the execution-mode bit from an already selected projection.
+    /// Source-backed callers have already consumed the parser authority;
+    /// compatibility callers are explicitly isolated at their front door.
     pub(in crate::mir::builder) const fn is_app_mode(&self) -> bool {
         matches!(self, Self::App(_))
     }
@@ -365,6 +393,7 @@ impl<'src> VerifiedMainExpansionV1<'src> {
                 )
                 .into_boxed_str(),
                 arity: params.len(),
+                identity: MainStaticChildSourceIdentityV1::Compatibility,
                 _seal: MainStaticChildSealV1,
             });
         }
@@ -385,6 +414,7 @@ impl<'src> VerifiedMainExpansionV1<'src> {
             symbol: crate::mir::naming::encode_static_method(box_name, "main", params.len())
                 .into_boxed_str(),
             arity: params.len(),
+            identity: MainStaticChildSourceIdentityV1::Compatibility,
             _seal: MainStaticChildSealV1,
         });
 
@@ -442,16 +472,16 @@ impl<'src> VerifiedMainExpansionV1<'src> {
 }
 
 #[cfg(test)]
-pub(crate) fn with_test_main_static_children<R>(
-    source: &ASTNode,
+pub(in crate::mir) fn with_test_main_static_children<R>(
+    root: PreparedAdmittedNormalRootExpansionV1,
     callback: impl for<'src> FnOnce(&[VerifiedMainStaticChildV1<'src>]) -> R,
 ) -> Result<R, MainExpansionErrorV1> {
-    let VerifiedRawRootExpansionV1::App(expansion) =
-        VerifiedRawRootExpansionV1::from_program(source)?
-    else {
-        return Err(MainExpansionErrorV1::MainBoxMissing);
-    };
-    Ok(callback(expansion.static_children()))
+    root.consume_lowering_view_once(|expansion| {
+        let VerifiedRawRootExpansionV1::App(expansion) = expansion else {
+            return Err(MainExpansionErrorV1::MainBoxMissing);
+        };
+        Ok(callback(expansion.static_children()))
+    })
 }
 
 #[cfg(test)]

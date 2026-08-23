@@ -12,7 +12,6 @@ pub(crate) enum NormalCallableTransformCompatibilityV1 {
     Parser(NormalCallableParserCompatibilityV1),
     DefaultDeriveWouldGenerateCallable,
     RegisteredMacroBox,
-    TestHarnessGeneratedTail,
 }
 
 #[derive(Debug)]
@@ -54,19 +53,23 @@ pub(crate) fn transform_normal_callable_program_v1(
                 None
             };
             if let Some(reason) = compatibility {
-                if initial.composite_source_is_ready() {
-                    return Err(NormalCallableTransformRejectV1::ExactSourceChanged(
+                let error = if initial.composite_source_is_ready() {
+                    NormalCallableTransformRejectV1::ExactSourceChanged(
                         FinalCallableProgramSourceRejectV1::Composite(
                             crate::parser::callable_parameter_source::
                                 ParserCompositeTransformRejectV1::CompatibilityLoss,
                         ),
-                    ));
-                }
-                let ast = initial.into_ast();
-                return Ok(NormalCallableTransformOutcomeV1::Compatibility {
-                    ast: super::maybe_expand_and_dump(&ast, false),
-                    reason,
-                });
+                    )
+                } else {
+                    NormalCallableTransformRejectV1::ExactSourceChanged(
+                        FinalCallableProgramSourceRejectV1::RootPreservation(
+                            crate::parser::ParserNormalRootExecutionPreservationRejectV1::CompatibilityLoss,
+                        ),
+                    )
+                };
+                drop(reason);
+                initial.discard_at_named_transform_reject_terminal();
+                return Err(error);
             }
             if macro_enabled {
                 let trace = crate::config::env::macro_trace();
@@ -74,7 +77,13 @@ pub(crate) fn transform_normal_callable_program_v1(
                     crate::macro_log!("[macro] input AST: {:?}", initial.ast());
                 }
                 let (expanded, _patches) = super::engine::MacroEngine::new().expand(initial.ast());
-                require_unchanged_source_macro_output_v1(initial.ast(), &expanded)?;
+                if let Err(error) =
+                    require_unchanged_source_macro_output_v1(initial.ast(), &expanded)
+                {
+                    drop(expanded);
+                    initial.discard_at_named_transform_reject_terminal();
+                    return Err(error);
+                }
                 match super::test_harness::issue_test_harness_transform_v1(&expanded) {
                     super::test_harness::TestHarnessTransformDispositionV1::Unchanged => {
                         if trace {
@@ -87,21 +96,27 @@ pub(crate) fn transform_normal_callable_program_v1(
                         if trace {
                             crate::macro_log!("[macro] output AST: {:?}", transformed);
                         }
-                        if initial.composite_source_is_ready() {
-                            return Err(NormalCallableTransformRejectV1::ExactSourceChanged(
+                        let error = if initial.composite_source_is_ready() {
+                            NormalCallableTransformRejectV1::ExactSourceChanged(
                                 FinalCallableProgramSourceRejectV1::Composite(
                                     crate::parser::callable_parameter_source::
                                         ParserCompositeTransformRejectV1::CompatibilityLoss,
                                 ),
-                            ));
-                        }
-                        return Ok(NormalCallableTransformOutcomeV1::Compatibility {
-                            ast: transformed,
-                            reason:
-                                NormalCallableTransformCompatibilityV1::TestHarnessGeneratedTail,
-                        });
+                            )
+                        } else {
+                            NormalCallableTransformRejectV1::ExactSourceChanged(
+                                FinalCallableProgramSourceRejectV1::RootPreservation(
+                                    crate::parser::ParserNormalRootExecutionPreservationRejectV1::CompatibilityLoss,
+                                ),
+                            )
+                        };
+                        drop(transformed);
+                        drop(expanded);
+                        initial.discard_at_named_transform_reject_terminal();
+                        return Err(error);
                     }
                 }
+                drop(expanded);
             }
 
             let session: ParserNormalCallableTransformSessionV1 = initial.begin_transform();

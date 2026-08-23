@@ -167,13 +167,13 @@ fn parameters_match(
 #[cfg(test)]
 mod tests {
     use crate::ast::{ASTNode, ParamDecl};
+    use crate::parser::callable_source_anchor::CallableDeclarationAnchorV1;
     use crate::parser::source_authority::{
         ParserInvocationBrandV1, SourceBoxDeclarationSiteV1, SourceBoxMemberSiteV1,
         SourceBoxMethodSiteV1,
     };
     use crate::parser::source_path::SourceBoxDeclarationPathV1;
     use crate::parser::NyashParser;
-    use crate::parser::callable_source_anchor::CallableDeclarationAnchorV1;
 
     use super::*;
     use crate::parser::callable_parameter_source::model::ParserCallableParameterSourceRowV1;

@@ -27,6 +27,7 @@ impl NormalSourcePlanClassifierV1 {
             non_main_box_sites: _,
             unsupported,
         } = inventory;
+        let input = super::product::NormalSourcePlanOwnerV1::from(input);
 
         if main_boxes.len() > 1 {
             return Err(RejectedNormalSourcePlanV1::new(

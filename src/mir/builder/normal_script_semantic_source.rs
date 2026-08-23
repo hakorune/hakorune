@@ -17,16 +17,17 @@ use super::normal_script_semantic_source_core::{
 use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, SemanticOwnerForestDraftV1, SourceNodeSiteV1, VerifiedResolvedScriptV1,
-    VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
-    VerifiedSemanticOwnerProductV1,
+    BindingRefV1, SourceNodeSiteV1, VerifiedScriptRootDemandWindowV1,
+    VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
 };
 #[cfg(test)]
 use crate::mir::resolved_semantics::{
-    EnumVariantAdmissionV1, ScriptDiagnosticBoundaryV1, SourceExprSiteV1, SourceStmtSiteV1,
+    EnumVariantAdmissionV1, ScriptDiagnosticBoundaryV1, SemanticOwnerForestDraftV1,
+    SourceExprSiteV1, SourceStmtSiteV1, VerifiedResolvedScriptV1,
 };
 
-use super::normal_default_root_catalog_lifecycle::PreparedNormalDefaultProgramRootV1;
+#[cfg(test)]
+use super::normal_default_program_root::PreparedNormalDefaultProgramRootV1;
 
 #[derive(Debug)]
 pub(super) struct VerifiedScriptSemanticSourceV1<'source> {
@@ -47,6 +48,7 @@ pub(super) struct ScriptSemanticSourcePreEffectPartsV1 {
 }
 
 impl<'source> VerifiedScriptSemanticSourceV1<'source> {
+    #[cfg(test)]
     pub(super) fn seal(
         source: &'source PreparedNormalDefaultProgramRootV1,
         product: VerifiedResolvedScriptV1,
@@ -63,6 +65,7 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
         Self::seal_with_forest(source, forest, window)
     }
 
+    #[cfg(test)]
     pub(super) fn seal_with_forest(
         source: &'source PreparedNormalDefaultProgramRootV1,
         forest: VerifiedSemanticOwnerForestV1,
