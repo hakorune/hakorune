@@ -1,10 +1,10 @@
 ---
-Status: Ready for implementation — parser-only I0; no downstream consumer
+Status: Design stop — missing opaque source relation; no implementation
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-ADMISSION-I0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-admission-d0-2026-08-23.md
 ProductionCaller: 0 before and after I0
-ProductionEdit: parser source disposition and sibling transport only
+ProductionEdit: none until the source relation slice closes
 CeremonyTier: I0 — bounded source admission
 ---
 
@@ -37,9 +37,10 @@ Non-claims:
   old-authority retirement, production switch, and performance.
 ```
 
-## Implementation contract
+## Implementation contract (parked behind source relation D0)
 
-The I0 must add one parser source product, not a semantic or physical plan:
+The planned I0 must add one parser source product, not a semantic or physical
+plan. It is not authorized until the missing relation card closes:
 
 ```rust
 enum ParserMainAppEntryDispositionV1 {
@@ -158,6 +159,20 @@ ordinary or mixed postpass policy must change
 old raw-root authority must be retired atomically with parser I0
 the new module or touched source exceeds the 760-line split trigger
 ```
+
+## Current NoSafeSlice finding
+
+The existing exact `SourceBoxMethodSiteV1` relation is useful coverage
+evidence, but it is not yet the opaque declaration relation required by this
+card. `ParserCallableParameterDeclarationSourceV1` carries the source site,
+kind, name, and parameter rows but not the existing parser-issued callable
+anchor. The static parent seal retains the direct method site but does not
+retain that anchor either. Constructing `MainAppReady` by joining those two
+products would therefore reopen a coordinate-based pairing boundary.
+
+Do not implement the entry issuer until the separate
+`NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-D0` closes
+this gap. The old raw-root authority remains unchanged while this is resolved.
 
 ## Commit sequence
 
