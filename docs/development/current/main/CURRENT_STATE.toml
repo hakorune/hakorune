@@ -1,26 +1,27 @@
 status = """
 The corrected atomic root manifest is accepted after independent audit. The
-behavior-neutral main_expansion test split is verified and ready to land.
-Work returns to design_stop for one explicit atomic C0 selection; semantic C0
-Rust is not yet authorized."""
+behavior-neutral main_expansion split is closed as 3cf1188b20. The clean main
+base still matches the 12-open/2-parked manifest, so atomic semantic C0 is now
+explicitly selected."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
-current_design_stop = "T0 is closed. Before selecting atomic C0, confirm the T0 commit is the current clean main base and that the frozen 12-open/2-parked owner, test, retirement, and guard manifest still matches production."
-current_blocker_token = "Do not begin C0 if main drifted, a second source issuer is needed, any product exit remains unowned, a touched file needs another pre-split, or the cutover cannot retire every named old edge atomically."
+work_mode = "fast"
+current_execution_row = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0"
+current_design_stop = "Resolved: T0 is closed and the corrected owner/file/test/guard manifest matches clean main. C0 is authorized only as one atomic semantic working set."
+current_blocker_token = "Stop C0 if a second source issuer, AST/name/ordinal re-pairing, silent product drop, compatibility fabrication/retry, partial landed route, post-admission reclassification, or another >=760-line edit becomes necessary."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — normal root atomic C0 selection"
+active_lane = "MirBuilder in-place replacement — normal root atomic C0"
 active_lane_status = """
-Current: T0 is verified; the corrected 12-open/2-parked C0 manifest is the
-sole design authority.
-Authorized: clean-base recount and explicit C0 selection only.
-Forbidden: semantic Rust before selection, partial route cutover, parallel
-issuer, fallback/retry, unrelated cleanup, or physical publication work."""
+Current: atomic C0 is selected on clean main base 3cf1188b20.
+Authorized: the exact total issuer, transform preservation, route-specific
+consumers, parser-bound policy, old-edge retirement, focused tests, and one
+reusable guard frozen in the manifest.
+Forbidden: partial landed cutover, parallel issuer, fallback/retry, unrelated
+cleanup, language expansion, Recipe/Join/MIR, or physical publication work."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -32,10 +33,10 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-root-execution-atomic-cutover-manifest-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
-latest_card_summary = "T0 is closed; revalidate the clean main base against the frozen 12-open/2-parked manifest, then explicitly select or reject one atomic C0."
-next_design_card = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
-next_execution_card = "none until atomic C0 is explicitly selected"
-next_execution_card_path = "none"
+latest_card_summary = "Atomic C0 is selected on 3cf1188b20: replace all twelve in-bound routes and old authorities in one semantic working set with no second issuer or fallback."
+next_design_card = "none while atomic C0 is active"
+next_execution_card = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0"
+next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"

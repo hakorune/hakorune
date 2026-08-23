@@ -1,6 +1,6 @@
 # Normal root execution atomic cutover manifest D0
 
-Status: accepted design — T0 selected; semantic C0 remains closed until T0
+Status: accepted design — T0 closed; atomic C0 selected
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0
 Parent: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0
@@ -20,8 +20,8 @@ Fail-fast boundary:
   One typed route consumer must consume the total relation before AST
   extraction, source-plan policy, retained/test exit, or the first Builder effect.
 Smallest next slice:
-  `NORMAL-ROOT-EXECUTION-PRE-CUTOVER-SPLIT-T0`: extract only the inline tests
-  from `main_expansion.rs`; preserve behavior and all authority/caller edges.
+  `NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0`: replace all twelve in-bound
+  routes and old authorities in one semantic commit.
 Non-claims:
   No semantic Rust in T0; no language-cohort, Recipe/Join/MIR, compatibility,
   fallback, performance, or physical-shelf expansion in C0.
@@ -474,6 +474,21 @@ Do not begin or continue C0 if any of these is true:
 - three existing focused guards: passed;
 - reusable C0 guard: intentionally not created before semantic C0.
 
-This manifest closes the design question. The selected executable next cell is
-T0 only; semantic C0 remains forbidden until T0 closes and `CURRENT_STATE`
-selects C0 explicitly.
+## C0 selection evidence
+
+```text
+selected main base                            3cf1188b20d6
+worktree / remote parity                      clean / exact
+T0 production/test files                      459 / 284 lines
+T0 production-prefix and test-body hashes     exact
+12 open / 2 parked census                     unchanged
+old edge and guard inventory                  unchanged
+new or second source issuer                   0
+unclassified product exit                     0
+additional pre-split required                 0
+```
+
+This manifest closes the design question and now selects
+`NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0`. The implementation must remain one
+unlanded semantic working set until every route, terminal, test, guard
+migration, and old-edge zero in this card closes together.
