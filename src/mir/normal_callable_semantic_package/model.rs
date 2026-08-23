@@ -68,7 +68,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub(crate) enum NormalCallableDynamicProjectionRefV1<'package> {
+pub(in crate::mir) enum NormalCallableDynamicProjectionRefV1<'package> {
     ValidUnselected,
     Selected {
         program: &'package VerifiedDynamicExitTransactionCoSealV1,
@@ -146,7 +146,7 @@ impl VerifiedNormalCallableSemanticPackageV1 {
     }
 
     #[cfg(test)]
-    pub(crate) fn dynamic_projection(&self) -> NormalCallableDynamicProjectionRefV1<'_> {
+    pub(in crate::mir) fn dynamic_projection(&self) -> NormalCallableDynamicProjectionRefV1<'_> {
         match &self.dynamic {
             NormalCallableDynamicProjectionV1::ValidUnselected => {
                 NormalCallableDynamicProjectionRefV1::ValidUnselected

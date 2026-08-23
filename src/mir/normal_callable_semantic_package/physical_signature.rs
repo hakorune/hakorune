@@ -152,7 +152,7 @@ impl VerifiedCallablePhysicalSignatureCohortV1 {
 }
 
 #[derive(Debug)]
-pub(super) enum CallablePhysicalSignatureIssueV1 {
+pub(in crate::mir) enum CallablePhysicalSignatureIssueV1 {
     BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
     MissingSelectedIdentity,
     MissingParameterContract,

@@ -36,11 +36,12 @@ mod s6c_child_tests;
 #[cfg(test)]
 mod tests;
 
+pub(in crate::mir) use install::SelectedCallableSemanticRefV1;
 pub(crate) use install::{
     InstalledNormalCallableSemanticPackageV1, NormalCallableSemanticPackageInstallIssueV1,
     NormalCallableSemanticPackagePortV1, ResolvedCallablePhysicalSignatureLoanV1,
     S6CCommonV2PreSessionLoanRefV1, SelectedCallableLoweringInputRefV1,
-    SelectedCallableSemanticRefV1, SelectedCatalogedCallableLoweringInputV1,
+    SelectedCatalogedCallableLoweringInputV1,
 };
 #[cfg(test)]
 pub(in crate::mir) use issuer::issue_normal_callable_semantic_package_v1;
@@ -48,9 +49,8 @@ pub(in crate::mir) use issuer::{
     issue_normal_callable_semantic_package_with_brand_catalog_v1,
     NormalCallableSemanticPackageIssueV1,
 };
-pub(crate) use model::{
-    NormalCallableDynamicProjectionRefV1, VerifiedNormalCallableSemanticPackageV1,
-};
+pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
+pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
     PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,

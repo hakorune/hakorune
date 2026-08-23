@@ -10,7 +10,7 @@ use crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1
 use crate::parser::CallableDeclarationIdentityV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum SelectedCallableBatchMapIssueV1 {
+pub(in crate::mir) enum SelectedCallableBatchMapIssueV1 {
     MissingBatchRow,
     DuplicateBatchIdentity,
     DuplicateBatchSlot,
@@ -52,10 +52,6 @@ impl VerifiedSelectedCallableBatchMapV1 {
             .binary_search_by(|row| row.key.cmp(key))
             .ok()
             .is_some_and(|index| self.rows[index].role.is_main_static_child())
-    }
-
-    pub(super) fn contains_batch_slot(&self, batch_slot: u32) -> bool {
-        self.rows.iter().any(|row| row.batch_slot == batch_slot)
     }
 
     pub(super) fn dynamic_eligible_batch_slot(&self, batch_slot: u32) -> bool {

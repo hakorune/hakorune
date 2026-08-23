@@ -39,7 +39,7 @@ pub(super) enum DynamicCallableAdmissionV1 {
 }
 
 #[derive(Debug)]
-pub(super) enum DynamicCallableAdmissionIssueV1 {
+pub(in crate::mir) enum DynamicCallableAdmissionIssueV1 {
     Unresolved(DynamicFullBodySourceIssueV1),
     Rejected(DynamicFullBodySourceIssueV1),
     Completion(FunctionCompletionVerificationErrorV1),

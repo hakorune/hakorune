@@ -11,7 +11,7 @@ use crate::mir::EffectMask;
 use crate::mir::loop_recipe_contract::VerifiedS6CPrephysicalIngressV2;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum S6CPhysicalFunctionEffectsRejectV1 {
+pub(in crate::mir) enum S6CPhysicalFunctionEffectsRejectV1 {
     OwnerMismatch,
     ExternalCallCount,
     NonReadExternalCall,

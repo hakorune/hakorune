@@ -195,7 +195,7 @@ pub(crate) struct MainStaticChildLoweringInputV1<'loan> {
 }
 
 impl<'loan> MainStaticChildLoweringInputV1<'loan> {
-    pub(crate) fn into_lowering_and_admission(
+    pub(in crate::mir) fn into_lowering_and_admission(
         self,
     ) -> (
         SelectedCallableLoweringInputRefV1<'loan>,
@@ -214,7 +214,7 @@ impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
     /// admission together for one bounded cross-check. Neither borrowed view
     /// can escape this callback, and the wrapper remains the only consuming
     /// path for the admission.
-    pub(crate) fn with_selected_and_admission<R>(
+    pub(in crate::mir) fn with_selected_and_admission<R>(
         &self,
         callback: impl for<'view> FnOnce(
             &'view SelectedCallableLoweringInputRefV1<'loan>,
@@ -224,7 +224,7 @@ impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
         callback(&self.selected, &self.admission)
     }
 
-    pub(crate) fn into_lowering_and_admission(
+    pub(in crate::mir) fn into_lowering_and_admission(
         self,
     ) -> (
         SelectedCallableLoweringInputRefV1<'loan>,
@@ -236,7 +236,7 @@ impl<'loan> SelectedCatalogedCallableLoweringInputV1<'loan> {
 }
 
 #[derive(Clone, Copy)]
-pub(crate) enum SelectedCallableSemanticRefV1<'loan> {
+pub(in crate::mir) enum SelectedCallableSemanticRefV1<'loan> {
     Ordinary,
     Dynamic {
         program: &'loan VerifiedDynamicExitTransactionCoSealV1,
@@ -537,7 +537,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         Ok(result)
     }
 
-    pub(crate) fn with_selected_cataloged_lowering_input<R>(
+    pub(in crate::mir) fn with_selected_cataloged_lowering_input<R>(
         &mut self,
         admission: NormalCatalogedBoxMethodDraftAdmissionV1,
         callback: impl for<'loan> FnOnce(SelectedCatalogedCallableLoweringInputV1<'loan>) -> R,
@@ -568,7 +568,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
     /// signature as sibling views for one synchronous resolved handoff.
     /// Neither view may escape the callback, and the admission remains the
     /// identity-only collector owner.
-    pub(crate) fn with_selected_cataloged_lowering_input_and_signature<R>(
+    pub(in crate::mir) fn with_selected_cataloged_lowering_input_and_signature<R>(
         &mut self,
         admission: NormalCatalogedBoxMethodDraftAdmissionV1,
         callback: impl for<'loan> FnOnce(
@@ -595,7 +595,7 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         })
     }
 
-    pub(crate) fn with_main_static_child_lowering_input<R>(
+    pub(in crate::mir) fn with_main_static_child_lowering_input<R>(
         &mut self,
         child: &VerifiedMainStaticChildV1<'_>,
         callback: impl for<'loan> FnOnce(MainStaticChildLoweringInputV1<'loan>) -> R,
@@ -692,7 +692,7 @@ impl<'loan> SelectedCallableLoweringInputRefV1<'loan> {
         self.physical_header
     }
 
-    pub(crate) fn semantic(&self) -> SelectedCallableSemanticRefV1<'loan> {
+    pub(in crate::mir) fn semantic(&self) -> SelectedCallableSemanticRefV1<'loan> {
         self.semantic
     }
 

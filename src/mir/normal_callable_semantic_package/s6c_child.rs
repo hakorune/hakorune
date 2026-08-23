@@ -40,7 +40,7 @@ use crate::mir::builder::SelectedCallableConsumptionRoleV1;
 use crate::parser::CallableDeclarationIdentityV1;
 
 #[derive(Debug)]
-pub(super) enum S6CSemanticChildIssueV1 {
+pub(in crate::mir) enum S6CSemanticChildIssueV1 {
     BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
     TypedSource(S6CTypedInputRelationRejectV1),
     CallRelation(S6CSourceBoundCallRelationRejectV1),

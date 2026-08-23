@@ -13,7 +13,7 @@ use crate::mir::resolved_control_flow::{
 use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
 
 #[derive(Debug)]
-pub(super) enum CallablePhysicalHeaderIssueV1 {
+pub(in crate::mir) enum CallablePhysicalHeaderIssueV1 {
     BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
     SelectedBatchSlotUnavailable,
     DuplicateParameterContract {
