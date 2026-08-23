@@ -351,6 +351,71 @@ This D0-E design is the only permitted way to reopen I0. If the seed cannot
 be moved into `new` without clone/reissue/self-reference, keep `NoSafeSlice`
 and do not change `work_mode`.
 
+### D0-E audit result — design remains stopped
+
+The long read-only premise audit confirms that B-prime is the right shape,
+but the current code has not yet earned `fast`. The missing proof is now
+bounded to four ownership contracts; it is not permission to start a wider
+source-plan implementation.
+
+1. **Typed seed consume.** `CompletedParserPostpassV1` must own a required
+   `ParserNormalSourcePlanSeedSlotV1`. The slot is a closed state such as
+   `Ready(seed)`, `Consumed`, `SourceAuthorityUnavailable`, `Incomplete`, or
+   `IntegrityInvalid`; it is not `Option`, a default row, or a resettable
+   cache. `ParsedProgramWithCallableParameterSourceV1::new` is the only
+   consumer of the completed postpass and must consume `Ready(seed)` exactly
+   once. If a seed terminal can be reached there, `new` must return a typed
+   product error rather than silently constructing a product without the
+   source surface.
+
+2. **Full relation versus narrow projection.** The seed alone owns the full
+   static-parent/member relation. `ParserStaticBoxSourceSealV1` may retain
+   only an owned narrow projection (box relation, Main method relation, and
+   complete-member coverage witness) emitted from that same co-sealed source
+   relation. It must not retain `PreparedParserStaticBoxParentSourceV1`, a
+   borrow into the seed, or a cloned copy of the full rows. This prevents both
+   duplicate authority and a self-referential `CompletedParserPostpass`.
+
+3. **One issuer for both postpass routes.** Ordinary and compatibility/static
+   postpass paths are inside this D0 census. Both must enter the same seed
+   issuer before initial-source issuance or narrow static projection. If one
+   path cannot provide the relation, it needs an explicit typed terminal and
+   the census must be narrowed before implementation; a silent drop in one
+   path is not an accepted partial slice.
+
+4. **Scoped initial-source borrow.** Initial callable-source issuance may
+   borrow `seed.projected_program_slots()` only for producing owned
+   `InitialCallableFinalSlotV1` values. The returned initial source must not
+   store a seed or slot-set reference. The existing `Option<Projected...>`
+   transport must be normalized into an explicit complete-empty versus
+   unavailable/invalid disposition before it reaches the accepted seed path.
+
+The existing `expected_callable_slots(&ast)` and body-row AST walk are not
+allowed to become source-plan authority. They must be classified in the next
+execution card as either (a) replaced by the parser-owned relation, or (b) a
+named source-preservation consistency check outside the source-plan census,
+with a guard proving that they emit no root role, Recipe key, selector, or
+source-plan membership. Leaving their authority ambiguous is a
+`NoSafeSlice`, not a reason to widen the implementation.
+
+The fast-I0 reopen packet therefore requires these exact observations:
+
+```text
+seed issuer definition/call = 1
+Ready -> Consumed transition = 1
+new() handles every seed terminal = typed, no omission
+full static rows owned by seed = 1
+narrow Main projection owns full rows = 0
+initial source stores seed/slot-set borrow = 0
+ordinary/static path silently drops seed = 0
+accepted path uses Option/default for missing = 0
+source-plan AST/name/ordinal authority scan = 0
+```
+
+Until this packet is true, `CURRENT_STATE.toml.work_mode` stays
+`design_stop`, the I0 card stays parked, and no parser semantic receipt,
+fixture, fallback, or production switch may be added.
+
 ### D0 acceptance / stop rule
 
 The design may advance only when one packet proves all of the following:

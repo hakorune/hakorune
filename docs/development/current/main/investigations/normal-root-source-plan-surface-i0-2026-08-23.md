@@ -46,6 +46,15 @@ is premise evidence, not implementation permission. If the full relation
 cannot be issued from one parser invocation, return to `NoSafeSlice` instead
 of adding an adapter.
 
+The D0-E reopen gate is now explicit: before switching to `fast`, the
+implementation plan must show a typed seed slot owned by
+`CompletedParserPostpassV1`, a one-shot `new` consume that returns a typed
+error for every non-Ready terminal, a seed-only full static member relation,
+an owned narrow Main projection, one common seed issuer for ordinary and
+compatibility/static postpass paths, and a scoped borrow of projected slots
+that produces only owned initial-source rows. Any persistent seed/slot borrow,
+full-row copy, silent path drop, or ambiguous AST scan is `NoSafeSlice`.
+
 ## Required product shape
 
 The production edge must retain one opaque aggregate:
