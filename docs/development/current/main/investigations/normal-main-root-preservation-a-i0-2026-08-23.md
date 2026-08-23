@@ -1,4 +1,4 @@
-Status: Implementation slice — parser root preservation only
+Status: Implementation complete — closeout pending; parser root preservation only
 Date: 2026-08-23
 Decision: NORMAL-MAIN-ROOT-PRESERVATION-A-I0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-root-consumer-d0-2026-08-23.md
@@ -131,3 +131,29 @@ main is clean and synchronized before closeout
 
 This card does not authorize the normal-root consumer. That is the next
 separate slice after this parser preservation product is complete.
+
+## Implementation evidence
+
+```text
+ParserNormalCallableTransformSessionV1 is the only production transform path.
+ParserNormalRootPreservationIssuerV1::seal_after_transform has one caller.
+Ready carries a non-Clone parser witness and admitted App/Script role.
+Prefix drift, foreign transform output, and static-Main suffix drift reject
+before VerifiedFinalCallableProgramSourceV1 is issued.
+Root consumer, lowering, raw classifier retirement, fallback, and production
+switch remain closed by design.
+```
+
+Evidence commands:
+
+```text
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib parser::normal_callable_program_source
+bash tools/checks/parser_normal_root_preservation_a_i0_guard.sh
+bash tools/checks/current_state_pointer_guard.sh
+git diff --check
+```
+
+Observed result: focused parser suite 28/28 passed; preservation guard,
+pointer guard, and diff check passed. Repository-wide formatting remains a
+pre-existing baseline concern and was not used as this slice's acceptance
+gate.

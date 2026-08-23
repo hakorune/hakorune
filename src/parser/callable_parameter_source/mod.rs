@@ -11,6 +11,7 @@ mod issuer;
 mod main_app_entry;
 mod model;
 mod normal_root_source;
+mod normal_root_preservation;
 mod parse_product;
 mod parser_invocation_witness;
 mod product;
@@ -32,6 +33,12 @@ pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;
 pub(crate) use parser_invocation_witness::ParserInvocationWitnessV1;
 pub(in crate::parser) use normal_root_source::ParserNormalRootSourceDispositionV1;
+pub(in crate::parser) use normal_root_preservation::{
+    ParserNormalRootPreservationIssuerV1, ParserNormalRootPreservationRejectV1,
+    ParserNormalRootPreservationV1,
+};
+#[cfg(test)]
+pub(in crate::parser) use normal_root_preservation::ParserNormalRootRoleV1;
 pub(in crate::parser) use model::{
     ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
 };

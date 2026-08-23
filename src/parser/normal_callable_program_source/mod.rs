@@ -9,14 +9,15 @@ pub(in crate::parser) use model::NormalCallableParameterSourceRejectV1;
 pub(crate) use model::{
     NormalCallableParserCompatibilityV1, NormalParserSourceLineageErrorV1,
     NormalParserSourceLineageV1, ParsedNormalCallableProgramV1,
-    PreparedNormalCallableProgramSourceV1, VerifiedFinalCallableProgramSourceV1,
+    PreparedNormalCallableProgramSourceV1, ParserNormalCallableTransformSessionV1,
+    VerifiedFinalCallableProgramSourceV1,
 };
 pub(crate) use semantic_syntax_loan::{
     CallableMethodSourceObservationV1, FinalCallableDeclarationModeV1,
     FinalCallableSemanticSyntaxLoanErrorV1,
 };
 pub(crate) use transform::{
-    issue_final_callable_program_source_v1, FinalCallableProgramSourceRejectV1,
+    FinalCallableProgramSourceRejectV1,
 };
 
 impl super::NyashParser {

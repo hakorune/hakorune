@@ -1,7 +1,9 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::CanonicalSourceBytesDigestV1;
 use crate::parser::{BuildMode, GrammarProfile, NyashParser, ParserBuildConfig};
-use crate::parser::callable_parameter_source::ParserNormalRootSourceDispositionV1;
+use crate::parser::callable_parameter_source::{
+    ParserNormalRootPreservationV1, ParserNormalRootRoleV1,
+};
 
 use super::*;
 
@@ -20,9 +22,28 @@ fn transform(
     let ParsedNormalCallableProgramV1::SourceBacked(initial) = parsed else {
         panic!("fixture must be source-backed")
     };
-    let mut output = initial.ast().clone();
-    mutate(&mut output);
-    issue_final_callable_program_source_v1(initial, output)
+    initial.begin_transform().finish(|ast| {
+        let mut output = ast.clone();
+        mutate(&mut output);
+        output
+    })
+}
+
+fn transform_with_output(
+    parsed: ParsedNormalCallableProgramV1,
+    output: ASTNode,
+) -> Result<VerifiedFinalCallableProgramSourceV1, FinalCallableProgramSourceRejectV1> {
+    let ParsedNormalCallableProgramV1::SourceBacked(initial) = parsed else {
+        panic!("fixture must be source-backed")
+    };
+    initial.begin_transform().finish(move |_| output)
+}
+
+fn first_program_statement(program: ASTNode) -> ASTNode {
+    let ASTNode::Program { mut statements, .. } = program else {
+        panic!("fixture must be a Program")
+    };
+    statements.remove(0)
 }
 
 #[test]
@@ -71,7 +92,79 @@ fn main_app_disposition_moves_through_prepared_and_final_source() {
     .expect("exact Main source transform");
     assert!(matches!(
         final_source.normal_root_source(),
-        ParserNormalRootSourceDispositionV1::AppReady(_)
+        ParserNormalRootPreservationV1::Ready(preserved)
+            if preserved.role() == ParserNormalRootRoleV1::App
+    ));
+}
+
+#[test]
+fn normal_script_root_role_moves_through_final_source() {
+    let final_source = transform(
+        parse("print(1)"),
+        |_| {},
+    )
+    .expect("exact Script source transform");
+    assert!(matches!(
+        final_source.normal_root_source(),
+        ParserNormalRootPreservationV1::Ready(preserved)
+            if preserved.role() == ParserNormalRootRoleV1::Script
+    ));
+}
+
+#[test]
+fn root_prefix_structural_drift_is_rejected_before_final_source() {
+    let result = transform(
+        parse("print(1)"),
+        |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            let ASTNode::Print { span, .. } = &mut statements[0] else {
+                unreachable!()
+            };
+            *span = Span::new(span.start, span.end, span.line + 1, span.column);
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::RootPreservation(
+            crate::parser::callable_parameter_source::ParserNormalRootPreservationRejectV1::SourcePrefixChanged
+        ))
+    ));
+}
+
+#[test]
+fn foreign_transform_output_is_rejected_by_parser_session() {
+    let foreign = NyashParser::parse_from_string("print(2)").expect("foreign fixture");
+    let result = transform_with_output(parse("print(1)"), foreign);
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::RootPreservation(
+            crate::parser::callable_parameter_source::ParserNormalRootPreservationRejectV1::SourcePrefixChanged
+        ))
+    ));
+}
+
+#[test]
+fn second_static_main_in_transform_suffix_is_rejected() {
+    let extra_main = first_program_statement(
+        NyashParser::parse_from_string("static box Main { main() { return 1 } }")
+            .expect("Main fixture"),
+    );
+    let result = transform(
+        parse("print(1)"),
+        move |ast| {
+            let ASTNode::Program { statements, .. } = ast else {
+                unreachable!()
+            };
+            statements.push(extra_main);
+        },
+    );
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::RootPreservation(
+            crate::parser::callable_parameter_source::ParserNormalRootPreservationRejectV1::RootRoleDrift
+        ))
     ));
 }
 
@@ -84,7 +177,7 @@ fn main_app_non_ready_disposition_moves_without_reclassification() {
     .expect("typed non-ready Main source transform");
     assert!(matches!(
         final_source.normal_root_source(),
-        ParserNormalRootSourceDispositionV1::Outside(_)
+        ParserNormalRootPreservationV1::Terminal(_)
     ));
 }
 

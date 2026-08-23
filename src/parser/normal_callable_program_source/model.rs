@@ -5,7 +5,7 @@ use hakorune_frontend_parser::parser::GrammarProfile;
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-    ParserNormalRootSourceDispositionV1,
+    ParserNormalRootPreservationV1, ParserNormalRootSourceDispositionV1,
     with_parser_composite_source_loan_from_normal_authority,
     with_parser_normal_program_source_loan, ParserNormalProgramSourceAuthorityDispositionV1,
     ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
@@ -23,6 +23,7 @@ use super::semantic_syntax_loan::{
     build_final_callable_semantic_syntax_loan_v1, FinalCallableSemanticSyntaxLoanErrorV1,
     FinalCallableSemanticSyntaxLoanV1,
 };
+use super::transform::FinalCallableProgramSourceRejectV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum NormalCallableParserCompatibilityV1 {
@@ -137,6 +138,18 @@ pub(crate) struct PreparedNormalCallableProgramSourceV1 {
     normal_root_source: ParserNormalRootSourceDispositionV1,
 }
 
+/// Parser-owned boundary for the one final transform of a source-backed
+/// callable program.
+///
+/// The session keeps the prepared source product attached while the macro
+/// layer computes the transformed AST.  The final-source issuer is reachable
+/// only through this session, so an unrelated AST cannot be paired with a
+/// free-standing source product by a production caller.
+#[derive(Debug)]
+pub(crate) struct ParserNormalCallableTransformSessionV1 {
+    initial: PreparedNormalCallableProgramSourceV1,
+}
+
 impl PreparedNormalCallableProgramSourceV1 {
     pub(in crate::parser) fn issue(
         initial: VerifiedInitialCallableProgramSourceV1,
@@ -162,6 +175,10 @@ impl PreparedNormalCallableProgramSourceV1 {
 
     pub(crate) fn ast(&self) -> &ASTNode {
         self.initial.ast()
+    }
+
+    pub(crate) fn begin_transform(self) -> ParserNormalCallableTransformSessionV1 {
+        ParserNormalCallableTransformSessionV1 { initial: self }
     }
 
     pub(crate) fn into_ast(self) -> ASTNode {
@@ -220,6 +237,22 @@ impl PreparedNormalCallableProgramSourceV1 {
     }
 }
 
+impl ParserNormalCallableTransformSessionV1 {
+    /// Finish the named parser transform and issue the final source product.
+    ///
+    /// The transform callback receives only the session's initial AST view;
+    /// all preservation, callable, constructor, and root checks happen after
+    /// the callback and before a `VerifiedFinalCallableProgramSourceV1` can
+    /// exist.
+    pub(crate) fn finish(
+        self,
+        transform: impl FnOnce(&ASTNode) -> ASTNode,
+    ) -> Result<VerifiedFinalCallableProgramSourceV1, FinalCallableProgramSourceRejectV1> {
+        let transformed = transform(self.initial.ast());
+        super::transform::issue_final_callable_program_source_v1(self.initial, transformed)
+    }
+}
+
 impl ParsedNormalCallableProgramV1 {
     pub(crate) fn ast(&self) -> &ASTNode {
         match self {
@@ -237,7 +270,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
-    normal_root_source: ParserNormalRootSourceDispositionV1,
+    normal_root_source: ParserNormalRootPreservationV1,
     source_lineage: Option<NormalParserSourceLineageV1>,
     _lineage: ExactCallablePreservingTransformReceiptV1,
 }
@@ -253,7 +286,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
         parameter_source: ParserCallableParameterSourceDispositionV1,
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
-        normal_root_source: ParserNormalRootSourceDispositionV1,
+        normal_root_source: ParserNormalRootPreservationV1,
     ) -> Self {
         Self {
             ast,
@@ -289,7 +322,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
         self.source_authority.composite_source_is_ready()
     }
 
-    pub(in crate::parser) fn normal_root_source(&self) -> &ParserNormalRootSourceDispositionV1 {
+    pub(in crate::parser) fn normal_root_source(&self) -> &ParserNormalRootPreservationV1 {
         &self.normal_root_source
     }
 

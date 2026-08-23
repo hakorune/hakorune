@@ -2,9 +2,9 @@
 
 use crate::ast::ASTNode;
 use crate::parser::{
-    issue_final_callable_program_source_v1, FinalCallableProgramSourceRejectV1,
+    FinalCallableProgramSourceRejectV1,
     NormalCallableParserCompatibilityV1, ParsedNormalCallableProgramV1,
-    VerifiedFinalCallableProgramSourceV1,
+    ParserNormalCallableTransformSessionV1, VerifiedFinalCallableProgramSourceV1,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,8 +65,9 @@ pub(crate) fn transform_normal_callable_program_v1(
                     reason,
                 });
             }
-            let output = super::maybe_expand_and_dump(initial.ast(), false);
-            issue_final_callable_program_source_v1(initial, output)
+            let session: ParserNormalCallableTransformSessionV1 = initial.begin_transform();
+            session
+                .finish(|ast| super::maybe_expand_and_dump(ast, false))
                 .map(NormalCallableTransformOutcomeV1::SourceBacked)
                 .map_err(NormalCallableTransformRejectV1::ExactSourceChanged)
         }

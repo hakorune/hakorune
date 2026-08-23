@@ -100,6 +100,29 @@ disposition without re-running parser observation or classifying the root
 again. No root selection, `NormalCompileRequestV1`, Builder, Recipe, Join,
 MIR, publication, or fallback consumer is connected by this transport cell.
 
+## Final root preservation A-I0
+
+`ParserNormalRootPreservationIssuerV1::seal_after_transform` is the sole
+parser issuer for the final root-preservation token. It consumes the already
+issued `ParserNormalRootSourceDispositionV1`, the same
+`ParserNormalProgramSourceAuthorityV1`, and the parser-owned transform session;
+it does not reclassify App/Script from the transformed AST.
+
+`ParserNormalRootPreservationV1::Ready` is a non-`Clone` opaque token carrying
+only the admitted `App | Script` role and parser invocation witness. Before it
+is issued, the parser checks that the transformed Program preserves the exact
+source prefix, keeps the same root role, and does not append a second static
+`Main`. `Outside`, unavailable, incomplete, invalid, terminal, and
+`DiscardedBeforeA` states remain typed terminal transport rather than a
+guessed role.
+
+The final source can only be issued through
+`ParserNormalCallableTransformSessionV1::finish`; the old free raw-AST
+production entry is intentionally absent. The token moves through
+`VerifiedFinalCallableProgramSourceV1` and the existing prepared root wrapper.
+Root consumption, lowering, raw classifier retirement, Builder effects,
+fallback, and production switching remain a later bounded slice.
+
 ## Composite preservation transport
 
 The parser's bounded composite disposition is a required field of
