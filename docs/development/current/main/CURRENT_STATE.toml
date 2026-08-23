@@ -7,19 +7,19 @@ development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
 current_execution_row = "NORMAL-ROOT-SOURCE-PLAN-SURFACE-D0"
-current_design_stop = "D0 now selects one parser-bound source surface and one existing SealedNormal result family; implementation, fixtures, fallback, production switch, and new semantic receipts remain forbidden until the acceptance packet closes the full relation, transform handoff, and retained terminal."
-current_blocker_token = "D0-A/B/C is design-selected but not accepted: full static-Main/member coverage, one bound through final transform, parser-bound policy consumer, and explicit retained terminal still need a bounded evidence packet before fast mode."
+current_design_stop = "D0 selects one parser-bound source surface and one existing SealedNormal result family, but D0-E must close the one-shot postpass seed move into the sole bound issuer; implementation, fixtures, fallback, production switch, and new semantic receipts remain forbidden until then."
+current_blocker_token = "D0-E NoSafeSlice remains: postpass owns full static-member rows while new owns the parameter catalog; define one-shot seed move into the sole bound issuer without clone, reissue, AST rescan, or self-reference before fast mode."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — normal root parser-backed source-plan surface"
 active_lane_status = """
-Current: parser-backed source-plan surface design only.
-Authorized: source-authority design, output-boundary comparison, counterexamples,
-and one bounded brief.
+Current: parser-backed source-plan seed ownership design only.
+Authorized: one-shot postpass-to-parser-product ownership design, worker premise
+audit, counterexamples, and bounded task docs.
 Forbidden: semantic Rust, fixtures, fallback, standalone P0/S0, production
-switch, or any new Verified/Prepared receipt."""
+switch, or any new Verified/Prepared receipt until D0-E closes."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -31,7 +31,7 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-root-source-plan-surface-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-root-source-plan-surface-d0-2026-08-23.md"
-latest_card_summary = "D0 selects one parser-bound surface and one existing SealedNormal family; acceptance evidence is still required before implementation."
+latest_card_summary = "D0-E NoSafeSlice: full static-member rows and parameter catalog have different owners; seed ownership must close before I0."
 next_design_card = "NORMAL-ROOT-SOURCE-PLAN-SURFACE-D0"
 next_execution_card = "none-until-source-plan-surface-D0-acceptance"
 next_execution_card_path = ""

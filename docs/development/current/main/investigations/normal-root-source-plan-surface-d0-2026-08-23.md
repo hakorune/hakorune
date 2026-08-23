@@ -242,6 +242,10 @@ would make the current raw/compatibility distinction a new production fork.
 When the design stop is explicitly closed, implementation is split into these
 bounded cells; no cell may silently include the next one:
 
+Worker premise: this is not Fast path until the parser-owned full member
+relation and its exact handoff into the existing product family are verified;
+the worker may audit that premise read-only, but cannot authorize code.
+
 1. Parser surface: add the full member/statement relation under the parser
    sole issuer; add focused positive/negative evidence for invocation,
    coverage, Main/member, empty-vs-missing, and unsupported rows.
@@ -262,6 +266,62 @@ bounded cells; no cell may silently include the next one:
 The first four cells are still design-frozen in this card. Their production
 implementation requires a later `fast` mode decision and a fresh focused
 execution card. No implementation is authorized by this manifest alone.
+
+## Worker premise audit integrated — ownership remains the blocker
+
+The long read-only audit confirms the issuer location but also confirms that
+I0 is not yet a safe implementation slice. `new` has the completed postpass,
+callable rows, source authority, and parameter catalog together, but the full
+static-member rows are currently hidden inside the postpass-side prepared
+source and are discarded by the narrow `ParserStaticBoxSourceSealV1` path.
+The top-level rows currently expose only `position + kind`. Moving forward
+without a new ownership boundary would require one of the forbidden forms:
+
+```text
+clone/reissue full member rows
+AST/name/ordinal re-scan
+second parser authority
+parallel output family
+self-referential borrow
+```
+
+The worker was given a long wait window and returned `NoSafeSlice`; this is
+integrated as evidence, not as a negative timeout. The I0 draft card remains a
+task manifest, not the active execution pointer.
+
+### D0-E — one-shot seed ownership design
+
+Before Fast mode, fix the handoff between the postpass finalizer and
+`ParsedProgramWithCallableParameterSourceV1::new`:
+
+```text
+postpass finalizer
+  -> one ParserNormalSourcePlanSeedV1
+     (projected source paths + full static-parent/member rows)
+  -> one parser product seed slot
+     Ready(seed) -> Consumed
+  -> new(seed + parameter catalog + existing source authority)
+  -> one ParserBackedNormalSourcePlanBoundV1
+```
+
+`ParserNormalSourcePlanSeedSlotV1` is an internal affine transport state with
+explicit `Ready`, `Consumed`, and typed unavailable/invalid terminals. It is
+not an optional semantic field and cannot be reset. The finalizer issues the
+seed from the parser-owned source relation it already owns; the narrow
+`Main.main/0` seal is a small projection from the same relation and does not
+copy or consume the full rows. `new` is the sole issuer of the final bound
+because only it also owns the complete parameter source.
+
+The seed must retain exact projected top-level source paths/slots and the full
+static-parent/member relation. `position`, name, arity, and ordinal remain
+coverage evidence; they are not a join key. For the ordinary source path, the
+postpass source product must retain the same projected source-path set before
+the current finalizer discards it. No `Arc<AST>`, parallel arrays, or
+`Option`-as-missing-state is allowed.
+
+This D0-E design is the only permitted way to reopen I0. If the seed cannot
+be moved into `new` without clone/reissue/self-reference, keep `NoSafeSlice`
+and do not change `work_mode`.
 
 ### D0 acceptance / stop rule
 
