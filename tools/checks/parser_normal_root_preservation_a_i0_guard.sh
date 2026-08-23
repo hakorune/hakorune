@@ -10,7 +10,6 @@ TRANSFORM="$ROOT_DIR/src/parser/normal_callable_program_source/transform.rs"
 TRANSFORM_TESTS="$ROOT_DIR/src/parser/normal_callable_program_source/tests.rs"
 ROOT_RELATION_TESTS="$ROOT_DIR/src/parser/normal_callable_program_source/normal_root_preservation_tests.rs"
 PRESERVATION="$ROOT_DIR/src/parser/callable_parameter_source/normal_root_preservation.rs"
-CONSUMER_LOAN="$ROOT_DIR/src/parser/callable_parameter_source/normal_root_preservation/consumer_loan.rs"
 MACRO_TRANSFORM="$ROOT_DIR/src/macro/normal_callable_transform.rs"
 MACRO_TRANSFORM_TESTS="$ROOT_DIR/src/macro/normal_callable_transform_tests.rs"
 TEST_HARNESS="$ROOT_DIR/src/macro/test_harness.rs"
@@ -19,91 +18,20 @@ SOURCE_MOD="$ROOT_DIR/src/parser/normal_callable_program_source/mod.rs"
 PARAM_MOD="$ROOT_DIR/src/parser/callable_parameter_source/mod.rs"
 README="$ROOT_DIR/src/parser/normal_callable_program_source/README.md"
 CARD="$ROOT_DIR/docs/development/current/main/investigations/normal-main-root-preservation-a-i0-2026-08-23.md"
-ACTIVE_CARD="$ROOT_DIR/docs/development/current/main/investigations/normal-main-app-root-consumer-d0-2026-08-23.md"
-STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
-LIFECYCLE="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$MODEL" "$TRANSFORM" "$TRANSFORM_TESTS" "$ROOT_RELATION_TESTS" "$PRESERVATION" \
   "$MACRO_TRANSFORM" "$MACRO_TRANSFORM_TESTS" "$TEST_HARNESS" "$PARSER_MOD" \
-  "$SOURCE_MOD" "$PARAM_MOD" "$README" "$CARD" "$ACTIVE_CARD" "$STATE" \
-  "$CONSUMER_LOAN" "$LIFECYCLE"
+  "$SOURCE_MOD" "$PARAM_MOD" "$README" "$CARD"
 
 for file in "$MODEL" "$TRANSFORM" "$TRANSFORM_TESTS" "$ROOT_RELATION_TESTS" "$PRESERVATION" \
-  "$MACRO_TRANSFORM" "$MACRO_TRANSFORM_TESTS" "$TEST_HARNESS" "$CONSUMER_LOAN"; do
+  "$MACRO_TRANSFORM" "$MACRO_TRANSFORM_TESTS" "$TEST_HARNESS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 760 )); then
     guard_fail "$TAG" "760-line split boundary exceeded: ${file#"$ROOT_DIR/"}=$lines"
   fi
 done
-
-guard_expect_fixed_in_file "$TAG" \
-  "pub(crate) fn with_parser_normal_root_consumer_loan<R>" \
-  "$CONSUMER_LOAN" "root view must have one parser-owned scoped issuer"
-if (( "$(rg -c 'pub\(crate\) fn with_parser_normal_root_consumer_loan<R>' "$CONSUMER_LOAN")" != 1 )); then
-  guard_fail "$TAG" "parser root-loan issuer definition must be exactly one"
-fi
-guard_expect_fixed_in_file "$TAG" \
-  "pub(crate) fn with_normal_root_consumer_loan<R>" \
-  "$MODEL" "final source owner must expose one thin root-loan facade"
-if (( "$(rg -c 'pub\(crate\) fn with_normal_root_consumer_loan<R>' "$MODEL")" != 1 )); then
-  guard_fail "$TAG" "final-source root-loan facade definition must be exactly one"
-fi
-guard_expect_fixed_in_file "$TAG" \
-  "impl for<'source> FnOnce(ParserNormalRootConsumerLoanV1<'source>) -> R" \
-  "$MODEL" "root-loan facade must retain the HRTB callback"
-
-root_loan_callers="$(rg -n '\.with_normal_root_consumer_loan\(' "$ROOT_DIR/src" \
-  --glob '*.rs' --glob '!*tests.rs' || true)"
-root_loan_caller_count="$(printf '%s\n' "$root_loan_callers" | sed '/^$/d' | wc -l | tr -d '[:space:]')"
-if rg -Fq 'struct PreparedNormalDefaultProgramRootAfterLoanV1' "$LIFECYCLE"; then
-  if (( root_loan_caller_count != 1 )); then
-    printf '%s\n' "$root_loan_callers" >&2
-    guard_fail "$TAG" "I0 lifecycle must own exactly one production root-loan call"
-  fi
-elif (( root_loan_caller_count != 0 )); then
-  printf '%s\n' "$root_loan_callers" >&2
-  guard_fail "$TAG" "caller-zero S0 must not have a production root-loan call"
-fi
-
-for symbol in \
-  ParserNormalRootConsumerLoanV1 \
-  ParserNormalAppRootLoanV1 \
-  ParserNormalAppProgramCursorV1 \
-  ParserNormalScriptRootLoanV1 \
-  ParserNormalScriptStatementCursorV1; do
-  if rg -U -n "derive\\([^)]*Clone[^)]*\\)[[:space:]]*pub\\(crate\\) (enum|struct) ${symbol}" \
-    "$CONSUMER_LOAN"; then
-    guard_fail "$TAG" "root loan/cursor must remain non-Clone: $symbol"
-  fi
-done
-if rg -n 'pub\(crate\).*fn (program|source_row|position|parser_[a-z_]*|[a-z_]*ordinal)\(|as \*const|usize_from_ptr' \
-  "$CONSUMER_LOAN"; then
-  guard_fail "$TAG" "root view must not expose Program, source-row, identity, ordinal, or pointer access"
-fi
-if rg -n 'crate::mir|CanonicalScript|ValueId|BasicBlockId|MirType|Recipe|Join' "$CONSUMER_LOAN"; then
-  guard_fail "$TAG" "parser root loan must not import Script-A, Recipe, Join, or MIR authority"
-fi
-guard_expect_fixed_in_file "$TAG" \
-  "ParserNormalAppProgramItemLoanV1::RootMain" "$CONSUMER_LOAN" \
-  "App cursor must hide the admitted Main declaration"
-guard_expect_fixed_in_file "$TAG" \
-  "ParserNormalScriptStatementLoanV1" "$CONSUMER_LOAN" \
-  "Script root must expose one paired statement loan"
-for test_name in \
-  app_root_consumer_loan_hides_main_and_lends_only_root_body \
-  app_root_consumer_loan_preserves_sibling_then_root_main_order \
-  empty_script_root_consumer_loan_is_complete_zero \
-  nonempty_script_root_consumer_loan_keeps_paired_statement_order \
-  nonzero_main_arity_rejects_before_root_consumer_callback; do
-  guard_expect_fixed_in_file "$TAG" "$test_name" "$ROOT_RELATION_TESTS" \
-    "focused root-loan evidence is missing: $test_name"
-done
-guard_expect_fixed_in_file "$TAG" "## Root consumer loan S0" "$README" \
-  "normal callable README must document the scoped root view"
-guard_expect_fixed_in_file "$TAG" "RootMain" "$README" \
-  "normal callable README must document the opaque App cursor item"
 
 guard_expect_fixed_in_file "$TAG" \
   "ParserNormalRootPreservationIssuerV1::seal_after_transform" \
@@ -265,21 +193,4 @@ guard_expect_fixed_in_file "$TAG" \
 guard_expect_fixed_in_file "$TAG" \
   "a906f4aec2" "$CARD" \
   "A-I0 closeout commit is missing from the active card"
-guard_expect_fixed_in_file "$TAG" \
-  "NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0" "$ACTIVE_CARD" \
-  "active root-consumer card must retain the G0 prerequisite"
-guard_expect_fixed_in_file "$TAG" \
-  "TestHarnessGeneratedTail" "$ACTIVE_CARD" \
-  "active card must retain the generated-tail compatibility contract"
-
-if rg -Fq 'current_execution_row = "NORMAL-MAIN-ROOT-PRESERVATION-A-I0"' "$STATE"; then
-  guard_expect_fixed_in_file "$TAG" \
-    'current_design_stop = "none: guarded parser root-preservation I0 is authorized' "$STATE" \
-    "fast A-I0 state must keep the root consumer outside this slice"
-else
-  guard_expect_fixed_in_file "$TAG" \
-    'current_execution_design = "docs/development/current/main/investigations/normal-main-app-root-consumer-d0-2026-08-23.md"' \
-    "$STATE" "closed A-I0 state must remain in the accepted root-consumer series"
-fi
-
 echo "[$TAG] ok"

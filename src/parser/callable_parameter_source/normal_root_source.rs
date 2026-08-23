@@ -34,7 +34,7 @@ pub(in crate::parser) enum ParserNormalRootSourceDispositionV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ParserNormalRootScriptTerminalV1 {
+pub(in crate::parser) enum ParserNormalRootScriptTerminalV1 {
     NotApplicable,
     CompatibilitySource,
     Deferred,
@@ -47,7 +47,7 @@ pub(crate) enum ParserNormalRootScriptTerminalV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ParserNormalRootSourceUnavailableV1 {
+pub(in crate::parser) enum ParserNormalRootSourceUnavailableV1 {
     SourceAuthority(ParserNormalProgramSourceAuthorityUnavailableV1),
     AppEntry(ParserMainAppEntryUnavailableV1),
     ScriptAdmission,
@@ -55,7 +55,7 @@ pub(crate) enum ParserNormalRootSourceUnavailableV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ParserNormalRootSourceIncompleteV1 {
+pub(in crate::parser) enum ParserNormalRootSourceIncompleteV1 {
     SourceAuthority(ParserNormalProgramSourceAuthorityIncompleteV1),
     AppEntry(ParserMainAppEntryIncompleteV1),
     ScriptAdmission,
@@ -63,7 +63,7 @@ pub(crate) enum ParserNormalRootSourceIncompleteV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum ParserNormalRootSourceIntegrityIssueV1 {
+pub(in crate::parser) enum ParserNormalRootSourceIntegrityIssueV1 {
     SourceAuthority(ParserNormalProgramSourceAuthorityIntegrityIssueV1),
     AppEntry(ParserMainAppEntryIntegrityIssueV1),
     ScriptAdmission,
@@ -204,7 +204,10 @@ fn issue_outside_root(
                 script_rows,
             );
         }
-        return (map_script_admission_terminal(script_admission), script_rows);
+        return (
+            map_script_admission_terminal(script_admission),
+            script_rows,
+        );
     };
 
     let CanonicalScriptSourceRowsDispositionV1::HandoffReady(rows) = script_rows else {
@@ -354,9 +357,9 @@ impl ParserNormalRootSourceDispositionV1 {
         self,
     ) -> Result<Self, ParserNormalRootSourceDiscardErrorV1> {
         match self {
-            Self::AppReady(_) => {
-                Err(ParserNormalRootSourceDiscardErrorV1::AppReadyRequiresNormalRootConsumer)
-            }
+            Self::AppReady(_) => Err(
+                ParserNormalRootSourceDiscardErrorV1::AppReadyRequiresNormalRootConsumer,
+            ),
             Self::DiscardedBeforeA => Ok(Self::DiscardedBeforeA),
             Self::ScriptReady(_)
             | Self::Outside(_)

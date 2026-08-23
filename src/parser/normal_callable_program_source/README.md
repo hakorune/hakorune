@@ -153,37 +153,8 @@ If composite preservation is already `Ready`, `GeneratedTail` is a typed
 mutation not owned by a named transform is `UnclassifiedSourceMutation`; it
 does not enter either the exact or compatibility lane. The parser never reads
 the test-harness environment or infers generated-tail provenance from AST
-shape.
-
-## Root consumer loan S0
-
-The parser-owned HRTB root-consumer loan is available at the final source
-owner. `ParserNormalRootConsumerLoanV1` has exactly two ready views:
-
-```text
-App
-  -> root body/result/uses/attrs
-  -> one Program-order cursor
-       RootMain
-       Sibling { syntax kind, borrowed statement }
-
-Script
-  -> one paired { syntax kind, borrowed statement } cursor
-```
-
-The App cursor replaces the already-admitted Main statement at its exact
-Program position; it never exposes the raw Main declaration, parser locator,
-name, or ordinal. The Script cursor never separates source rows from AST
-statements. Both views are issued from the existing non-Clone
-`ParserNormalRootPreservationV1` relation and complete Program authority under
-one parser witness. Their higher-ranked callback cannot return borrowed
-syntax. Outside, Script terminal, unavailable, incomplete, invalid, and
-discarded states reject with typed causes before the callback.
-
-`NORMAL-ROOT-CONSUMER-LOAN-S0` deliberately has no production caller. Its only
-permitted successor is the move-consuming lifecycle facade in
-`NORMAL-ROOT-CONSUMER-I0`; Builder effects, compatibility behavior, remaining
-raw observers, Recipe, and physical lowering remain closed in S0.
+shape. The next bounded prerequisite is the parser-owned HRTB root-consumer
+loan; root consumption and Builder effects remain closed.
 
 ## Composite preservation transport
 

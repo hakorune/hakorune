@@ -6,8 +6,8 @@ TAG="current-state-pointer-guard"
 source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 MAX_ACTIVE_DOC_LINES=1000
 MAX_TASK_ORDER_LINE_CHARS=500
-MAX_LANDED_TAIL_ROWS=12
-MAX_CURRENT_STATE_LINES=120
+MAX_LANDED_TAIL_ROWS=3
+MAX_CURRENT_STATE_LINES=80
 MAX_CURRENT_STATE_TOP_LEVEL_FIELDS=40
 MAX_CURRENT_STATE_LINE_CHARS=1000
 
@@ -25,6 +25,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" sed
 guard_require_command "$TAG" awk
 guard_require_command "$TAG" wc
+guard_require_command "$TAG" python3
 guard_require_files "$TAG" \
   "$STATE_DOC" \
   "$CURRENT_TASK_DOC" \
@@ -119,6 +120,17 @@ require_repo_file() {
 }
 
 echo "[$TAG] checking compact current state"
+
+if ! python3 - "$STATE_DOC" <<'PY'
+import sys
+import tomllib
+
+with open(sys.argv[1], "rb") as stream:
+    tomllib.load(stream)
+PY
+then
+  guard_fail "$TAG" "CURRENT_STATE.toml is not valid TOML"
+fi
 
 state_lines="$(wc -l < "$STATE_DOC" | tr -d '[:space:]')"
 if (( state_lines > MAX_CURRENT_STATE_LINES )); then

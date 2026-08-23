@@ -10,16 +10,16 @@ mod composite_source;
 mod issuer;
 mod main_app_entry;
 mod model;
-mod normal_root_preservation;
 mod normal_root_source;
+mod normal_root_preservation;
 mod parse_product;
 mod parser_invocation_witness;
 mod product;
 mod retained;
-mod script_source_authority;
 mod script_source_rows;
 mod script_source_rows_model;
 mod session;
+mod script_source_authority;
 pub(in crate::parser) mod static_box_source;
 #[cfg(test)]
 #[path = "static_box_source_tests.rs"]
@@ -31,64 +31,56 @@ pub(in crate::parser) use catalog::{
 };
 pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;
-pub(in crate::parser) use model::{
-    ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
-};
-#[cfg(test)]
-pub(in crate::parser) use normal_root_preservation::ParserNormalRootRoleV1;
-pub(crate) use normal_root_preservation::{
-    with_parser_normal_root_consumer_loan, ParserNormalAppProgramCursorV1,
-    ParserNormalAppProgramItemLoanV1, ParserNormalAppResultSyntaxV1,
-    ParserNormalAppRootBodyLoanV1, ParserNormalAppRootLoanV1,
-    ParserNormalRootConsumerIncompleteV1, ParserNormalRootConsumerIntegrityIssueV1,
-    ParserNormalRootConsumerLoanRejectV1, ParserNormalRootConsumerLoanV1,
-    ParserNormalRootConsumerSourceUnavailableV1, ParserNormalScriptRootLoanV1,
-    ParserNormalScriptStatementCursorV1, ParserNormalScriptStatementLoanV1,
-};
+pub(crate) use parser_invocation_witness::ParserInvocationWitnessV1;
+pub(in crate::parser) use normal_root_source::ParserNormalRootSourceDispositionV1;
 pub(in crate::parser) use normal_root_preservation::{
     ParserNormalRootPreservationIssuerV1, ParserNormalRootPreservationRejectV1,
     ParserNormalRootPreservationV1,
 };
-pub(in crate::parser) use normal_root_source::ParserNormalRootSourceDispositionV1;
+#[cfg(test)]
+pub(in crate::parser) use normal_root_preservation::ParserNormalRootRoleV1;
+pub(in crate::parser) use model::{
+    ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
+};
 pub(in crate::parser) use parse_product::ParsedCallableParameterListV1;
-pub(crate) use parser_invocation_witness::ParserInvocationWitnessV1;
 pub(crate) use script_source_rows::{
     CanonicalScriptSourceRowsDispositionV1, CanonicalScriptSourceRowsV1,
 };
 #[cfg(test)]
 #[path = "script_source_rows_tests.rs"]
 mod script_source_rows_tests;
-pub(crate) use composite_source::ParserCompositeSourceLoanV1;
 pub(crate) use composite_source::{
-    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1, ParserCompositeOutsideReasonV1,
+    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
+    ParserCompositeOutsideReasonV1,
     ParserCompositeSourceLoanRejectV1, ParserCompositeSourceUnavailableV1,
     ParserCompositeTransformRejectV1,
 };
+pub(crate) use composite_source::ParserCompositeSourceLoanV1;
 pub(crate) use product::{
     ParsedProgramWithCallableParameterSourceV1, ParserCallableSourceDispositionV1,
 };
-#[cfg(test)]
-pub(super) use retained::RetainedParserCallableSemanticSourceV1;
 pub(crate) use script_source_authority::{
+    ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     validate_parser_normal_program_source_transform_v1,
     with_parser_composite_source_loan_from_normal_authority,
-    with_parser_normal_program_source_loan, ParserNormalProgramBodySourceRowV1,
-    ParserNormalProgramBodySyntaxKindV1, ParserNormalProgramSourceAuthorityDispositionV1,
+    with_parser_normal_program_source_loan, ParserNormalProgramSourceAuthorityDispositionV1,
     ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
     ParserNormalProgramSourceTransformRejectV1,
 };
+#[cfg(test)]
+pub(super) use retained::RetainedParserCallableSemanticSourceV1;
 pub(in crate::parser) use session::ParserCallableParameterSourceSessionV1;
 pub(in crate::parser) use syntax_loan::borrow_callable_declaration_syntax_v1;
 pub(crate) use syntax_loan::{
     ParserCallableDeclarationSyntaxLoanV1, ParserCallableSyntaxLoanErrorV1,
 };
 #[cfg(test)]
+mod retained_tests;
+#[cfg(test)]
 #[path = "main_app_entry_tests.rs"]
 mod main_app_entry_tests;
 #[cfg(test)]
 #[path = "normal_root_source_tests.rs"]
 mod normal_root_source_tests;
-#[cfg(test)]
-mod retained_tests;
 #[cfg(test)]
 mod tests;

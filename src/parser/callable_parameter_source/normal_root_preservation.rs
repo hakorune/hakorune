@@ -5,18 +5,6 @@
 //! survives the final callable transform and seals an opaque, non-Clone
 //! handoff token.
 
-mod consumer_loan;
-
-pub(crate) use consumer_loan::{
-    with_parser_normal_root_consumer_loan, ParserNormalAppProgramCursorV1,
-    ParserNormalAppProgramItemLoanV1, ParserNormalAppResultSyntaxV1,
-    ParserNormalAppRootBodyLoanV1, ParserNormalAppRootLoanV1,
-    ParserNormalRootConsumerIncompleteV1, ParserNormalRootConsumerIntegrityIssueV1,
-    ParserNormalRootConsumerLoanRejectV1, ParserNormalRootConsumerLoanV1,
-    ParserNormalRootConsumerSourceUnavailableV1, ParserNormalScriptRootLoanV1,
-    ParserNormalScriptStatementCursorV1, ParserNormalScriptStatementLoanV1,
-};
-
 use crate::ast::ASTNode;
 use crate::parser::callable_source_anchor::{
     DirectCallableCommitPlacementV1, DirectCallableDeclarationKindV1, PreparedCallableSourceV1,

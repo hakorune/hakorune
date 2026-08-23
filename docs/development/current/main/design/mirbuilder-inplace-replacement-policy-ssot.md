@@ -107,6 +107,26 @@ S0を分ける場合の上限は一つのlanded commitである。次のlanded c
 I0/R0へ安全に進めないS0は、mainへ積み続けずrevertまたはstashして設計へ
 戻す。
 
+## Design before substrate
+
+S0や新しい`Verified*` / `Prepared*`を作る前に、対象責務の
+production意味を次の順で閉じる。
+
+```text
+all production consumers
+  -> all accepted / rejected states and counterexamples
+  -> source authority + sole issuer
+  -> preservation / scoped loan
+  -> atomic production cutover
+  -> old authority retirement
+```
+
+subset用のadmission productの`Outside`、`Deferred`、或いはbooleanを、
+total execution roleの既定値として読み替えない。consumer censusは直接caller
+だけでなく、そのproductから派生するrole、catalog、work plan、
+dispatch、physical entryまで閉じる。一つでも未分類のstateまたはconsumerが
+残る間はT2 `design_stop`であり、transportやloanを先に作らない。
+
 ### I0 — production integration
 
 `I0 closed`は次の全条件を意味する。
