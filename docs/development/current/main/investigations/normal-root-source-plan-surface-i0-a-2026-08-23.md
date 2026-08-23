@@ -1,6 +1,6 @@
 # Normal root parser-backed source-plan surface I0-A
 
-Status: fast — parser surface bound only
+Status: closed — parser surface bound only; C0 remains a separate design stop
 Date: 2026-08-23
 Decision: NORMAL-ROOT-SOURCE-PLAN-SURFACE-I0-A
 Parent: NORMAL-ROOT-SOURCE-PLAN-SURFACE-D0
@@ -140,3 +140,14 @@ following appears:
 `SealedNormal*` evolution, retained-source production use, raw-root classifier
 retirement, root work-plan typing, and the C0 production switch are separate
 cards. This cell may land only the parser product and its focused evidence.
+
+## Closeout — 2026-08-23
+
+- Implementation: `1a6915bbcf` (`parser: issue normal source-plan surface bound`), pushed on `main`.
+- Focused evidence: `cargo test -p nyash-rust normal_source_plan_surface --lib` — 6 passed.
+- Reusable guard: `frontend_normal_source_plan_surface_i0_a_guard.sh` — PASS.
+- Build evidence: `cargo check -p nyash-rust` — PASS; 2343 existing baseline warnings remain.
+- Wider callable-source filter: 47/48 current and 42/43 baseline; the same existing `unchanged_parser_scan_loop_box_has_four_methods_and_fifteen_rows` failure is classified as baseline debt, not an I0-A regression.
+- `git diff --check` passed; touched source/test files remain below the 760-line split trigger.
+- No policy, transform, root lifecycle, Builder effect, fallback, or production root switch was included.
+- Next design stop: `NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0`.
