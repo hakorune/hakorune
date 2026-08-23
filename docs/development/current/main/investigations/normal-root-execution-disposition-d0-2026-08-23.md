@@ -5,9 +5,9 @@ Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-DISPOSITION-D0
 Owner: parser source authority -> normal/default root lifecycle
 
-This D0 closed parity before authority, and authority before substrate. It
-selected only the parser-owned P0 recorded below. Before Rust work began, the
-shared reference parser-product exit exposed two distinct route obligations.
+This D0 closed parity before authority, and authority before substrate. Its
+former standalone parser P0 is now only an atomic-C0 component. Before Rust
+work began, the shared reference parser-product exit exposed two distinct route obligations.
 `NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0` must close that state before P0
 resumes; the source authority decision itself remains unchanged.
 
@@ -30,9 +30,8 @@ Fail-fast boundary:
   transform and consumed before declaration, resolver, target, module, catalog,
   work-plan, or Builder effects.
 Smallest next slice:
-  NORMAL-ROOT-EXECUTION-SOURCE-P0: implement only the parser relation, paired
-  issuer input, required move chain, exact preservation, tests, docs, and one
-  reusable guard.
+  Let the active reference-route D0 freeze the exact paired source-plan
+  consumer; then run the behavior-neutral T0 split before atomic C0.
 Non-claims:
   No lifecycle cutover, compatibility change, App-shape expansion, Script-A
   change, Recipe/lowering/publication work, raw retirement, or performance work.
@@ -494,7 +493,8 @@ Current decision state is:
 ~~~text
 D0-A parity/consumer closure = accepted
 D0-B exact authority/API     = accepted
-next implementation          = parser-only P0
+reference-route closure      = active design stop
+next implementation          = T0 split, then atomic C0 only
 ~~~
 
 ## Final preservation and loan contract
@@ -583,10 +583,13 @@ D0-B is executed in this order:
    - done when source-backed zeroes and compatibility/Raw preserved callers
      are mechanically distinguishable.
 
-No B-cell authorized production Rust changes. D0-B acceptance selects only P0
-as the next implementation slice; S0/C0 remain unauthorized until P0 closes.
+No B-cell authorized production Rust changes. The later parser-product exit
+census superseded standalone P0/S0 ordering: no new total authority may land
+before all named consumers and selected old-edge retirements in atomic C0.
 
 ### P0 — NORMAL-ROOT-EXECUTION-SOURCE-P0
+
+Status: component contract only; standalone execution superseded.
 
 Change:
   Implement the total parser product and exact transform preservation only
@@ -595,10 +598,11 @@ Done:
   Sole issuer = 1; product is required, AST-free, non-Clone, and transported by
   move; focused positive/negative tests and one reusable guard are green.
 Stop:
-  No Builder caller or production claim. The immediately reserved successor is
-  the consumer/cutover series or P0 is reverted.
+  Do not land caller-zero. This component is committed only inside atomic C0.
 
 ### S0 — NORMAL-ROOT-EXECUTION-CONSUMER-S0
+
+Status: component contract only; standalone execution superseded.
 
 Change:
   Add the private move-consuming scoped consumer and role-bearing callable
@@ -606,7 +610,7 @@ Change:
 Done:
   No borrow escape, reloan, pointer pairing, bool role, or generic parts escape.
 Stop:
-  Must be immediately followed by C0 or reverted.
+  Do not land separately from C0.
 
 ### C0 — NORMAL-ROOT-EXECUTION-CUTOVER-C0
 

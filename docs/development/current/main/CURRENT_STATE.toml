@@ -1,24 +1,24 @@
 status = """
-The total normal-root source authority is fixed, but parser-product census
-found two distinct reference leaves. Canonical source-plan needs a named
-role-bound consumer; only Raw VM may discard. P0 has not started."""
+Route-specific root handoffs are selected. Canonical source-plan still needs
+an exact paired-syntax projection, and its currently valid Main/Callable rows
+stop at the pre-profile discard. Standalone parser P0 is not authorized."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
 current_execution_row = "NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0"
-current_design_stop = "Freeze canonical source-plan parity and its named total-root consumer, plus a Raw-only Ready discard typestate, before resuming parser P0."
-current_blocker_token = "P0 has not started. The canonical reference must consume total root roles before its AST inventory; Raw VM alone may explicitly discard Ready. Generic source-backed AST extraction must retire."
+current_design_stop = "Freeze the exact parser-backed source-plan projection and one atomic issuer/consumer/discard/retirement cutover; standalone parser P0 is forbidden."
+current_blocker_token = "Current App/Main0/Callable source-plan rows fail at the shared pre-profile discard. App/ProgramRuntime alone is insufficient; the named consumer also needs same-invocation paired syntax without the old AST inventory."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — normal root reference-route closure"
 active_lane_status = """
-Current: design only route-specific parser-product exits found before P0 code.
-Authorized: source-plan parity/consumer and Raw-discard finite-state Decisions.
-Forbidden: Rust/fixture work, Builder consumer/effect, lifecycle cutover,
-fallback, compatibility fabrication, production switch, or raw-role inference."""
+Current: route split and parity matrix selected; exact consumer/cutover design open.
+Authorized: source-plan paired-surface and atomic-cutover design evidence only.
+Forbidden: Rust/fixture work, standalone P0, Builder effect, fallback,
+compatibility fabrication, production switch, or raw-role reclassification."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -30,7 +30,7 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-root-execution-reference-route-closure-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
-latest_card_summary = "The source authority remains accepted. Canonical source-plan must consume total roles; Raw VM alone gets a Ready-only discard receipt."
+latest_card_summary = "Canonical consumes total roles plus paired syntax, Raw alone may discard Ready, and no caller-zero parser P0 may precede the atomic cutover."
 next_design_card = "NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0"
 next_execution_card = "none-until-reference-route-closure-Decision"
 next_execution_card_path = ""

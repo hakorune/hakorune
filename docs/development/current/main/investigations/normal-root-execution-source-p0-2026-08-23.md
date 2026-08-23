@@ -1,6 +1,6 @@
 # Normal root execution source P0
 
-Status: paused before implementation — reference-route closure D0 is active
+Status: superseded as a standalone row — component contract for atomic C0 only
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-SOURCE-P0
 Owner: parser callable source -> exact final callable transform
@@ -8,8 +8,8 @@ Owner: parser callable source -> exact final callable transform
 ## Six-line brief
 
 Decision:
-  Add only the parser-owned total App/ProgramRuntime execution relation and
-  move it through the exact final transform. This is one BoxCount.
+  Add the parser-owned total App/ProgramRuntime relation and exact transform
+  preservation only inside the atomic route-consumer cutover.
 Source authority + canonical issuer:
   Exact initial callable Program + normal Program authority + complete
   parameter catalog; ParserNormalRootExecutionIssuerV1::issue_once, caller 1.
@@ -20,8 +20,8 @@ Fail-fast boundary:
   Issue in ParsedProgramWithCallableParameterSourceV1::new; reject transform
   drift before VerifiedFinalCallableProgramSourceV1 is created.
 Smallest next slice:
-  Parser model/issuer, paired private loan, required move chain, preservation,
-  focused tests, parser README receipt, and one reusable lane guard.
+  Do not execute this card alone. After the behavior-neutral frontdoor split,
+  use its checklist as the parser-owned component of C0.
 Non-claims:
   No Builder consumer, lifecycle cutover, catalog/work-plan rewrite, fixture,
   fallback, compatibility change, raw retirement, Recipe, MIR, or publication.
@@ -32,6 +32,10 @@ includes both reference leaves and test-only consuming helpers; excludes
 Builder lifecycle consumers after exact final source.
 
 ## Change
+
+This file no longer authorizes a commit or current row. The active
+`NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0` card owns execution order;
+the source model below is retained only as the parser component contract.
 
 Add:
 
@@ -114,12 +118,13 @@ guard, and `git diff --check` must be green.
 - Do not start Rust changes until
   `NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0` freezes route-specific
   discard transition and every parser-product exit.
-- Do not add a Builder getter or consumer in P0.
+- Do not land this parser product without every named consumer and selected
+  old-authority retirement in the same atomic C0.
 - Do not edit `VerifiedRawRootExpansionV1`, work-plan APIs, or `root_is_app_mode`.
 - Do not change helper order or App/ProgramRuntime language behavior.
 - If the initial callable owner cannot lend statement + identity + final slot
   as one paired row, return to NoSafeSlice; do not zip raw slices.
 - If a Ready product cannot move through the exact transform without re-scan or
   reissue, return to NoSafeSlice.
-- P0 may remain caller-zero only for this one commit. Its mandatory immediate
-  successor is NORMAL-ROOT-EXECUTION-CONSUMER-S0; otherwise revert P0.
+- A standalone or caller-zero P0 is forbidden; there is no one-commit grace
+  period.
