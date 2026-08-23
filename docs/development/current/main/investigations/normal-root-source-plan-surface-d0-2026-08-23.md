@@ -1,6 +1,6 @@
 # Normal root parser-backed source-plan surface D0
 
-Status: design_stop — D0 shape selected; acceptance packet is still open
+Status: design accepted for bounded I0-A; C0 root cutover remains closed
 Date: 2026-08-23
 Decision: NORMAL-ROOT-SOURCE-PLAN-SURFACE-D0
 Owner: parser source relation -> pure normal source-plan policy boundary
@@ -24,7 +24,8 @@ Fail-fast boundary:
 Smallest next slice:
   Close one D0 acceptance packet for the full parser static-Main/member
   relation, transform handoff, single `SealedNormal*` family, and retained
-  terminal; no semantic Rust is authorized yet.
+  terminal. The first implementation cell is the parser-only I0-A card;
+  policy, transform, and root cutover remain separately gated.
 Non-claims:
   No C0 production switch, normal/default consumer, Raw discard change,
   physical lowering, fallback, fixture expansion, or policy behavior change.
@@ -443,14 +444,24 @@ accepted path uses Option/default for missing = 0
 source-plan AST/name/ordinal authority scan = 0
 ```
 
-Until this packet is true, the full source-plan I0 stays parked and no parser
-semantic receipt, fixture, fallback, compatibility expansion, or production
-switch may be added. The active seed-retention cell is the only permitted
-fast exception; it must not consume the seed in `new` or issue the bound.
+Until the later C0 packet is true, no policy switch, transform cutover,
+fixture expansion, fallback, compatibility expansion, or production root
+switch may be added. I0-A may consume the parser seed only to issue the one
+private parser source bound described in its execution card; it may not issue
+a policy/physical receipt or lower anything.
 
 ### D0 acceptance / stop rule
 
-The design may advance only when one packet proves all of the following:
+The design is accepted for the following bounded re-entry only:
+
+```text
+I0-A:
+  parser-owned top-level/member surface -> one private source bound
+  no policy consumer, transform transport, Builder effect, or root switch
+```
+
+This is not C0 acceptance. The full production cutover still requires one
+later packet proving all of the following:
 
 ```text
 one parser surface issuer = 1
