@@ -1,5 +1,5 @@
 ---
-Status: Design stop — worker audit accepted; no implementation authorized
+Status: Design accepted — policy frozen; no implementation authorized
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-STATIC-MIXED-POSTPASS-POLICY-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-static-box-parent-source-d0-2026-08-23.md
@@ -18,9 +18,8 @@ CeremonyTier: T2 — postpass cohort policy boundary
 - **Current implementation status:** parser-only static-parent I0 is complete
   and transported as a `CompletedParserPostpassV1` sibling. This card only
   freezes the next postpass policy; it adds no code or production caller.
-- **Next ordered task:** write and accept the finite static/ordinary/mixed
-  postpass policy and its caller/bypass census, then open a separate
-  `Main.main`/App admission D0.
+- **Next ordered task:** open the separate `Main.main`/App admission D0. This
+  policy remains parser/postpass-only and does not authorize a consumer.
 - **Production stop line:** no `NormalCompileRequest`, normal source-plan
   promotion, Builder effect, Recipe/Join, MIR, fallback, or compatibility
   reclassification is open.
@@ -86,7 +85,7 @@ ordinary seal.
 | one bounded static Box, one direct static method | not ordinary | `Ready` | static sibling transport only | zero |
 | static Box with unsupported member kind | not ordinary | `Outside(UnsupportedMemberKind)` | typed static terminal | zero |
 | static Box with multiple/invalid direct methods | not ordinary | `Outside`/`Incomplete`/`IntegrityInvalid` | typed static terminal | zero |
-| mixed ordinary + static program | compatibility row | `Outside(ProgramCohort)` | `AstOnlyCompatibility`; no partial promotion | zero |
+| mixed ordinary + static program | compatibility row | `Outside(ProgramCohort)` | existing typed compatibility arm (`AstOnlyCompatibility` or `InitialCompatibility`); no partial promotion | zero |
 | interface/record/build-gate cohort | compatibility row | explicit non-static disposition | existing compatibility only | zero |
 | no-box Script cohort | no ordinary/static row | not applicable to static parent | existing Script policy; no static promotion | zero |
 | non-program input | no ordinary/static row | not applicable | existing non-program policy | zero |
@@ -107,8 +106,9 @@ mixed source
 
 The static parent source currently has no production semantic consumer. Its
 known current uses are parser sibling transport, typed accessors, and focused
-tests. Existing static/mixed compilation continues through compatibility arms;
-that route is not evidence that the static parent seal has been consumed.
+tests. Existing static/mixed compilation continues through the existing typed
+compatibility arms (`AstOnlyCompatibility` or `InitialCompatibility`); that
+route is not evidence that the static parent seal has been consumed.
 
 The D0 census must record, by symbol and file:
 
@@ -238,3 +238,52 @@ fallback/retry/reselection change = 0
 Main/App implementation = 0
 worker audits = 3, recommendation unanimous
 ```
+
+## Read-only census receipt
+
+The current `main` census supports this policy without opening a consumer:
+
+```text
+static issuer definition/call site
+  = 1 / 1
+  = static_box_source.rs:255 / source_seal/finalize.rs:175
+
+static parent production consumers outside parser/tests
+  = 0
+
+ordinary source-seal construction for the ordinary cohort
+  = source_seal/finalize.rs:152-163 -> from_source_product
+
+static/mixed postpass route
+  = source_seal/finalize.rs:164-219 -> existing typed compatibility arm
+    (AstOnlyCompatibility or InitialCompatibility)
+
+static/mixed canonical Script admission
+  = canonical_script_source_admission.rs:73-79 -> CompatibilitySource
+
+mixed partial static Ready
+  = 0 by issue_once requiring StaticBox cohort and exactly one prepared parent
+
+static-to-ordinary-seal promotion
+  = 0; ordinary constructor marks the static sibling unavailable-for-ordinary
+
+Main/App authority in this card
+  = 0; existing raw-root/Main-child selectors remain separate
+
+new fallback/retry/reselection edge
+  = 0
+```
+
+The `InitialCompatibility` arm is intentionally included in the evidence:
+some existing compatibility-shaped programs can enter the historical initial
+callable transport after `postpass_compatibility::lower`, but that transport
+does not consume or reissue the static parent seal. It is therefore not a
+canonical static source consumer and must not be promoted by this D0.
+
+## D0 decision result
+
+**Accepted as a policy contract, not as an implementation switch.** The
+static sibling, ordinary seal, and existing compatibility arms remain
+separate. Mixed partial promotion is forbidden. The next design card is the
+independent `Main.main`/App admission boundary; no downstream static consumer
+is authorized by this acceptance.
