@@ -126,11 +126,22 @@ Census boundary: <first owner/entry> -> <last owner/terminal>;
   includes <branch families>; excludes <out-of-scope owners>.
 ```
 
-An unbounded phrase such as `all consumers` is not acceptance evidence. The
-card must name the first boundary crossed, the last terminal counted, every
-parallel branch family included, and any deliberate exclusion. A later caller
-outside that declared boundary is a scope correction, while a caller inside it
-is a failed census. This distinction must be resolved before implementation.
+An unbounded phrase such as `all consumers` is not acceptance evidence. Before
+auditing, name the finite owner/terminal inventory, first boundary, last
+terminal, parallel branches, and exclusions. Findings have finite states:
+
+```text
+Observed -> CutoverBlockerOpen -> CutoverBlockerClosed
+Observed -> ParkedSealed -> Reopened -> (CutoverBlockerOpen | ParkedSealed)
+```
+
+A finding is a blocker if it is inside the boundary, can issue, drop, consume,
+reclassify, or bypass the selected authority, receives an unconsumed authority
+product/sibling, re-enters an old generic observer, or is required by selected
+acceptance. Only an outside finding satisfying none may be `ParkedSealed`;
+record owner, evidence, observable reopen trigger, and non-authority. Census
+closes only when the inventory is `Exhausted`, open/reopened blockers are zero,
+and every outside finding is `ParkedSealed`. Parked means classified, not fixed.
 
 ### Classification-completeness check
 
@@ -290,13 +301,15 @@ block keeps its blocker and next action; it is not closed as “partially landed
 
 Workers are a bounded review resource, not a second implementation stream.
 
-- Keep exactly one serial authority/current-execution spine. Up to two
-  workers may inspect independent premises concurrently, but under the current
-  policy they remain read-only and the primary agent integrates one Decision.
-- Do not infer ceremony from a task suffix. T0 is a fully censused private
-  mechanical move with unchanged authority/identity/failure/ABI/route; T1 adds
-  one bounded witness to an existing owner; every unknown or changed truth,
-  failure, publication, lifetime, rollback, or schema boundary is T2.
+- Keep one serial authority/current-execution spine. Up to two workers may
+  inspect independent premises; they remain read-only and one Decision is integrated.
+- Once dispatched, do not rush a worker with short polling, close it for
+  silence, or duplicate its audit. Do non-overlapping work, then make one
+  sufficiently long wait at the integration boundary. A timeout means pending,
+  not negative evidence; close only after integration or explicit cancellation.
+- Do not infer ceremony from a suffix. T0 is a censused private mechanical move
+  with unchanged authority/identity/failure/ABI/route; T1 adds one bounded
+  witness; any changed truth, lifetime, rollback, or schema boundary is T2.
 - An audit finding interrupts the unlocked product row only when a named live
   reproducer reaches effect/publication, the exact selected cutover reaches
   the owner and its unchanged gate fails, or that path has reachable UB,
@@ -306,11 +319,9 @@ Workers are a bounded review resource, not a second implementation stream.
   policy. It is not authorized by independent T0 work and must not be
   improvised in a shared worktree.
 
-- Use a worker for a genuinely difficult design/authority audit or an
-  independent premise review; mechanical T0 work does not need one.
-- The worker receives a read-only question covering source authority,
-  non-authority, candidate boundary, fail-fast owner, explicit non-claims, and
-  acceptance evidence. It must not edit the same files as the primary agent.
+- Use a worker for difficult design/authority or independent premise review;
+  mechanical T0 work does not need one. Ask read-only about authority,
+  non-authority, boundary, fail-fast, non-claims, and acceptance; no shared edits.
 - For a new semantic receipt, the worker must also audit issuer availability
   and distinguish semantic facts from physical MIR projections. A worker may
   report that an issuer is missing, but that report never authorizes a guessed

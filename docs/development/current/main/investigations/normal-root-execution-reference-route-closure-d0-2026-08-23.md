@@ -1,6 +1,6 @@
 # Normal root execution reference-route closure D0
 
-Status: design stop — route/parity selected; exact source-plan consumer open
+Status: design freeze accepted — behavior-neutral T0 next; C0 remains blocked
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0
 Owner: parser callable-source product -> route-specific affine handoff
@@ -21,17 +21,76 @@ Fail-fast boundary:
   Normal/default rejects before exact transform, canonical source-plan rejects
   before source inventory, and Raw VM rejects/discards before AST extraction.
 Smallest next slice:
-  Freeze the exact paired source-plan surface and atomic cutover contract;
-  reserve one behavior-neutral frontdoor split before semantic edits.
+  Move the inline frontdoor tests byte-identically in T0, then return to
+  design_stop for the exact atomic C0 file/test manifest.
 Non-claims:
-  No Rust/fixture work, Builder lifecycle consumer, default-route cutover,
-  fallback, compatibility fabrication, Recipe, MIR, or publication in this D0.
+  No semantic Rust, fixture behavior change, lifecycle/default cutover,
+  fallback, compatibility fabrication, Recipe, MIR, or publication; T0 is
+  BoxShape only.
 
 Census boundary: `ParsedProgramWithCallableParameterSourceV1::new` -> every
 terminal move, destructure, retained owner, source-plan classification, or
 source-backed AST extraction of that product; includes normal/default,
 canonical-core reference, Raw VM reference, retained owners, and test-only
 helpers; excludes downstream Builder consumers after exact final source.
+
+## Census parking valve
+
+The declared owner/terminal inventory is finite. Every finding enters one of
+these states before it may affect this D0:
+
+~~~text
+Observed
+  -> CutoverBlockerOpen -> CutoverBlockerClosed
+  -> ParkedSealed -> Reopened -> CutoverBlockerOpen | ParkedSealed
+~~~
+
+A finding is `CutoverBlockerOpen` if it is inside the declared boundary, can
+issue/drop/consume/reclassify/bypass App/ProgramRuntime or
+Script/Main0/CallableModule, receives the unconsumed parser product, total-root
+relation, or Script-A sibling, can re-enter generic source extraction/old
+inventory, or is required by C0 build/test/guard/retirement acceptance. Only a
+boundary-external finding satisfying none of those predicates may become
+`ParkedSealed`; its row records owner, evidence, observable reopen trigger, and
+non-authority.
+
+The census closes only when the declared inventory is `Exhausted`,
+`CutoverBlockerOpen | Reopened = 0`, and every external finding is
+`ParkedSealed`. `ParkedSealed` means classification is closed, not that the
+follow-up implementation is complete; a named trigger reopens it.
+
+Finding a later AST getter is therefore not enough to widen the cutover. Raw
+cleanup after the one authorized extraction and semantic/physical cleanup
+after a sealed terminal are parkable only when the complete predicate above is
+demonstrated.
+
+### R1 owner/terminal inventory
+
+The D0 discovery inventory is exactly these 14 rows. “Inside” rows are C0
+blockers until their replacement/retirement evidence closes; “outside” rows
+cannot receive the unconsumed total relation or Script-A sibling.
+
+| # | Entry owner / symbol | Route and terminal | Boundary | Finding state |
+| ---: | --- | --- | --- | --- |
+| 1 | `ParsedProgramWithCallableParameterSourceV1::new` | source-backed parser owner with total relation + Script-A sibling | inside | `CutoverBlockerOpen(C0)` |
+| 2 | `ParserCallableSourceDispositionV1::into_normal_callable_program` | normal/default -> exact final source/root lifecycle | inside | `CutoverBlockerOpen(C0)` |
+| 3 | `PreparedNormalFileSourceV1::prepare_source_plan_request` | canonical source-backed -> Classified/RootReject/PolicyReject | inside | `CutoverBlockerOpen(C0)` |
+| 4 | `PreparedNormalFileSourceV1::prepare_raw_vm_handoff` | Raw source-backed -> one Raw invocation | inside | `CutoverBlockerOpen(C0)` |
+| 5 | `ParsedProgramWithCallableParameterSourceV1::into_retained_source` | retained semantic owner | inside | `CutoverBlockerOpen(C0)` |
+| 6 | direct parser-product test helpers | source disposition/retained test terminals | inside | `CutoverBlockerOpen(C0 tests)` |
+| 7 | compatibility `into_normal_callable_program` | normal/default compatibility terminal | outside | `ParkedSealed` |
+| 8 | compatibility Raw route | named compatibility extraction -> Raw invocation | outside | `ParkedSealed` |
+| 9 | compatibility canonical route | `CompatibilitySourceUnavailable` | outside | `ParkedSealed` |
+| 10 | `PreparedNormalSourcePlanInputV1::new` | AST-only fixture -> plan/reject | outside | `ParkedSealed` |
+| 11 | `SealedNormalScriptSourceV1::prepare_script_recipe` | sealed Script terminal consumer | outside | `ParkedSealed` |
+| 12 | `SealedNormalMainSourceV1::prepare_function_source` | sealed Main0 terminal consumer | outside | `ParkedSealed` |
+| 13 | `SealedNormalCallableModuleSourceV1::prepare_callable_source` | sealed CallableModule consumer | outside | `ParkedSealed` |
+| 14 | Raw runtime/compiler after authorized extraction | execution/publication terminal | outside | `ParkedSealed` |
+
+Inventory state is `Exhausted(14)` for this D0: open blockers = 6 and parked
+rows = 8. C0 may close only at open blockers = 0. A newly observed entry or
+terminal returns the inventory to Open and must be classified before work
+continues.
 
 ## Why P0 paused before code
 
@@ -185,14 +244,162 @@ single HRTB loan keeps every statement/callable role paired:
 ParserNormalRootSourcePlanConsumerV1::consume_once
   (total relation + same-invocation source loan)
     -> ParserBackedNormalSourcePlanSurfaceV1
-       + consumed parser source owner
+       + SourcePlanBound parser source owner
     -> Script | Main0 | CallableModule | typed reject
 ~~~
 
 No public role getter, repeated `&self` loan, parallel role/syntax arrays, or
 generic parts tuple is permitted. `NormalSourceSurfaceInventoryV1::collect()`
-remains available only to AST-only fixture/explicit compatibility ownership;
-its parser-backed production caller becomes zero.
+remains available only to AST-only fixtures; compatibility does not enter this
+classifier, and its parser-backed production caller becomes zero.
+
+### R3 authority and source-plan surface freeze
+
+R3 has two named authorities and does not call both merely “the canonical
+issuer”:
+
+- `ParserNormalRootExecutionIssuerV1::issue_once` is the total execution-role
+  issuer for `App | ProgramRuntime`.
+- `ParserNormalRootSourcePlanConsumerV1::consume_once` is the sole production
+  source-plan observation issuer for the canonical reference route.
+
+The source authority is the whole
+`ParserCallableSourceDispositionV1::SourceBacked(ParsedProgramWithCallableParameterSourceV1)`
+with Ready Program authority, total execution relation, and complete callable
+relation. The existing `ParserNormalProgramSourceLoanV1` is only a temporary
+HRTB observation mechanism inside the move-consuming issuer: its whole-Program
+and statement AST borrows cannot escape, and its repeatable `&self` API is not
+authority. Opaque parser identity pairs rows only; it cannot issue root role,
+source-plan family, surface meaning, or Recipe.
+
+The canonical route performs one affine transition before its source-plan
+terminal:
+
+~~~text
+Available source-backed parser owner
+  -> ParserNormalRootSourcePlanConsumerV1::consume_once
+       -> one ParserNormalProgramSourceLoanV1 callback
+       -> AST-free complete surface
+  -> SourcePlanBoundNormalCallableSourceV1 { owner + surface }
+  -> pure policy kernel
+  -> Script | Main0 | CallableModule | typed reject
+~~~
+
+`SourcePlanBoundNormalCallableSourceV1` is a route-specific co-sealed owner,
+not a `(surface, source)` tuple. It cannot issue a second source-plan loan,
+expose role getters, or yield generic AST parts. This canonical classification
+occurs on the parsed source before the normal/default exact-transform route;
+the separate normal/default branch alone moves the total relation through that
+transform and lifecycle consumer.
+
+The surface distinguishes an actual empty Program from missing coverage:
+
+~~~text
+ParserBackedNormalSourcePlanSurfaceV1
+  = CompleteEmpty(exact zero-coverage witness)
+  | CompleteRows(NonEmptyCompleteRowsV1)
+
+StatementRow
+  = parser body row
+  + root statement role tag (Ordinary | AppMain)
+  + exactly one observation:
+      Executable
+      TopLevelCallable(exact callable relation)
+      MainBoxSyntax {
+        is_static,
+        ordered members:
+          Function { inventory key, declaration name, arity, is_static,
+                     exact callable relation }
+          | NonFunction { inventory key, existing kind }
+      }
+      Unsupported(existing NormalUnsupportedTopLevelKindV1)
+~~~
+
+`NonEmptyCompleteRowsV1` has a private constructor that proves row count > 0;
+an empty slice cannot represent `CompleteRows`. `AppMain` is only a tag on the
+same row: the exact root/child callable relations are moved once into that
+row's `MainBoxSyntax` members and are not copied into the tag. The issuer
+co-seals `AppMain` with exactly one `RootMain` member and ordered child roles.
+Parallel syntax/role arrays, empty-as-default, name/ordinal re-pairing, pointer
+identity, and a public parts constructor are forbidden. Names, arity, and
+compatibility-order ordinals remain policy/schedule evidence only.
+
+The pure policy kernel receives only the closed AST-free surface and admitted
+total role. The parser-backed issuer is its sole production caller. A separate
+AST-only surface issuer is fixture-only; compatibility remains on its Raw
+owner and cannot issue canonical source-plan authority.
+`PreparedNormalSourcePlanInputV1::new` has production caller zero (or is
+compiled only under `cfg(test)`); an AST-only classifier production caller is
+a hard guard failure.
+
+Total-root failures do not enter the policy kernel or get collapsed into a
+generic source-plan error. The reference-route rejection envelope preserves
+the moved owner and exact reason:
+
+~~~text
+RejectedParserBackedNormalSourcePlanningV1
+  = RootExecution {
+      owner: source-plan-unbound parser owner,
+      script_a: CanonicalScriptSourceRowsDispositionV1,
+      exact_reason: ParserNormalRootExecutionSourceRejectV1,
+      profile,
+      receipt,
+    }
+  | Policy {
+      rejected_plan,
+      script_a: CanonicalScriptSourceInputDispositionV1,
+      profile,
+      receipt,
+    }
+~~~
+
+The variants are constructor-private and non-Clone. Root failure keeps raw
+Script-A ownership for its named canonical discard terminal; policy failure
+keeps the already co-sealed canonical sibling. Neither may retry another
+profile.
+
+| Input state | Route-level rejection / policy result |
+| --- | --- |
+| `Ready(App | ProgramRuntime)` | enter the pure policy kernel once |
+| `SourceAuthorityUnavailable(reason)` | typed root-execution reject retaining `reason` |
+| `Incomplete(MainMethodMissing)` | typed root reject with exact diagnostic projection `MainMethodMissing` |
+| other `Incomplete(reason)` | typed root-execution reject retaining `reason` |
+| `IntegrityInvalid(DuplicateMain)` | typed root reject with exact diagnostic projection `DuplicateMain` |
+| other `IntegrityInvalid(reason)` | typed root-execution reject retaining `reason` |
+| Ready surface policy failure | unchanged `NormalSourcePlanErrorV1` |
+
+Thus existing policy results stay stable without mapping foreign, missing, or
+contradictory parser relations to an inexact default. Source-backed-unreachable
+malformed AST errors remain fixture/compatibility-only.
+
+R3 parity is closed by these rows:
+
+| Role + complete observation | Terminal |
+| --- | --- |
+| ProgramRuntime + `CompleteEmpty`/Executable only | Script |
+| ProgramRuntime + top-level callable but no Main | `MissingSourceEntry` |
+| ProgramRuntime + non-static `MainBoxSyntax` | `MainMustBeStatic` |
+| App + exact main/0 only | Main0 |
+| App + top-level callable or Main helper | CallableModule |
+| App + executable sibling | `MixedSourceFamilies` |
+| App + main/N | `MainArityMismatch` |
+| unsupported row | existing typed unsupported reject |
+
+The pure kernel preserves the existing finite precedence:
+
+~~~text
+DuplicateMain
+  -> first Unsupported row in Program order
+  -> MixedSourceFamilies
+  -> MissingSourceEntry / Script split
+  -> Main static/method/arity/helper validation
+  -> Main0 | CallableModule
+~~~
+
+Therefore ProgramRuntime + executable + top-level callable is Mixed;
+ProgramRuntime + executable + non-static Main is also Mixed before
+`MainMustBeStatic`; and Unsupported wins over Mixed. No map iteration order,
+wildcard, or “first successful classifier” may alter this order.
 
 ## Raw VM discard contract
 
@@ -208,6 +415,158 @@ cannot enter canonical source-plan. Source failures reject before the receipt.
 The profile is sealed before file I/O, so this is an explicit alternate route,
 not fallback.
 
+### R4 exact route typestate
+
+The route is bound only after one read, one parse, and source-profile closure.
+Feature-disabled Usage is an earlier terminal and does not enter this table.
+
+| State | Input | Next state / terminal | Source effect |
+| --- | --- | --- | --- |
+| Requested | empty path | `Rejected(Profile)` | none |
+| Requested | valid Raw/Canonical profile | `PreparedRead(profile)` | none |
+| PreparedRead | read failure | `Rejected(Read)` | none |
+| PreparedRead | UTF-8 success | `Loaded(read=1, parse=0)` | one read |
+| Loaded | parse failure | `Rejected(Parse)` | no AST product |
+| Loaded | source-backed parse | `ParsedSourceBacked(root, script_a)` | one parse |
+| Loaded | compatibility parse | `ParsedCompatibility(ast, sibling)` | one parse |
+| Parsed | Using/Import present | `Rejected(SourceProfile)` | no route handoff |
+| Parsed | no-import complete | `RouteBound(profile, product)` | none |
+| Raw + SourceBacked | root Ready | sibling close -> root discard -> `RawSourceBackedExtracted` | one AST extraction |
+| Raw + SourceBacked | root failure | typed Raw source reject | zero extraction |
+| Raw + Compatibility | exact compatibility owner | `RawCompatibilityExtracted` | one compatibility extraction |
+| Canonical + SourceBacked | root Ready | R3 -> Classified or policy reject | old inventory zero |
+| Canonical + SourceBacked | root failure | typed canonical root reject | classifier zero |
+| Canonical + Compatibility | compatibility owner | `CompatibilitySourceUnavailable` | inventory zero |
+| wrong-route API | any owner | typed reject retaining owner | fallback/retry zero |
+
+The no-import check observes the intact source-backed product through a scoped
+Program loan and may issue only the source-profile violation. It cannot issue
+root roles, source-plan rows, or discard. Compatibility uses its separately
+owned syntax check; it never borrows source-backed authority.
+
+After `RouteBound`, the outer type is closed:
+
+~~~text
+PreparedNormalFileParsedRouteV1
+  = Raw(PreparedRawVmParsedSourceV1)
+  | Canonical(PreparedCanonicalCoreParsedSourceV1)
+~~~
+
+For source-backed Raw, the sealed Raw profile and the whole Script-A sibling
+move into one private `RawUnselectedScriptASiblingClosureV1`. It accepts every
+current sibling state opaquely:
+
+~~~text
+NotApplicable | CompatibilitySource | Deferred | AdmissionMissing
+| SourceAuthorityUnavailable | CohortUnresolved | ObservationIncomplete
+| IntegrityInvalid | NonCandidate | HandoffReady(rows)
+| MovedToParallelHandoff | DispositionTransported
+~~~
+
+Raw never matches those states into an A outcome, converts `HandoffReady` to
+an error, issues candidate/noncandidate, or creates compiler transport. The
+sibling closure and Ready-only root discard are consumed immediately in the
+same private scope before the one source-backed AST extraction.
+
+Compatibility Raw is a different route:
+
+~~~text
+compatibility AST owner + CompatibilitySource sibling
+  -> RawCompatibilitySourceExtractionIssuerV1::issue_once
+  -> RawCompatibilityExtracted
+~~~
+
+It cannot issue a root receipt, enter R3, or call source-backed extraction.
+Unexpected compatibility/sibling combinations are typed parser integrity
+rejects. Canonical compatibility ends at `CompatibilitySourceUnavailable`;
+neither route retries the other.
+
+Canonical keeps the Script-A sibling in the same move chain through every R3
+terminal:
+
+~~~text
+PreparedCanonicalCoreParsedSourceV1 { root, script_a, profile, receipt }
+  -> Classified(Script, script_a)       -> existing named A transport once
+  -> Classified(Main0, script_a)        -> named non-Script sibling discard
+  -> Classified(CallableModule, script_a) -> named non-Script sibling discard
+  -> RootExecutionReject(script_a)      -> rejection-owner discard
+  -> PolicyReject(script_a)             -> rejection-owner discard
+~~~
+
+The sibling is never cloned, implicitly dropped, re-paired, or converted by a
+second co-seal. Only the Script terminal may create compiler A transport.
+Main0, CallableModule, root reject, and policy reject consume it in their
+named terminal with Builder/compiler effect zero. Every reject forbids
+Raw/Compatibility retry.
+
+The C0 retirement/allowlist is symbol-specific:
+
+~~~text
+shared production discard_root_before_a                          = 0
+root-discard-required generic handoff constructor/assert         = 0
+CanonicalParserSourceHandoffV1::into_parts                       = 0
+route-before no-import disposition.ast observation               = 0
+Raw `_script_input` drop                                         = 0
+Raw pre-terminal NormalParserCallableSourceHandoffV1::into_ast   = 0
+PreparedNormalSourcePlanInputV1::from_parser_callable_source     = 0
+parser-backed NormalSourceSurfaceInventoryV1::collect            = 0
+parser-backed pre-terminal PreparedNormalSourcePlanInput source  = 0
+PreparedNormalSourcePlanInputV1::new production caller           = 0
+co_seal_script_source_input Raw caller                            = 0
+AST-only classifier production caller                            = 0
+pre-terminal generic source-backed AST extraction                = 0
+canonical reject -> Raw/compatibility fallback or retry          = 0
+production source-plan observation issuer                        = 1
+second source-plan loan after SourcePlanBound                    = 0
+~~~
+
+The pre-cutover production census is fixed to these concrete edges:
+
+| Edge | Current count | C0 count |
+| --- | ---: | ---: |
+| frontdoor `discard_root_before_a` | 1 | 0 |
+| `CanonicalParserSourceHandoffV1::new` root-discard precondition | 1 | 0 |
+| frontdoor no-import `disposition.ast()` | 1 | 0 |
+| `CanonicalParserSourceHandoffV1::into_parts` | 2 | 0 |
+| Raw `_script_input` discard | 1 | 0 |
+| Raw `NormalParserCallableSourceHandoffV1::into_ast` | 1 | 0 |
+| parser-backed `PreparedNormalSourcePlanInputV1::from_parser_callable_source` | 1 | 0 |
+| classifier -> `NormalSourceSurfaceInventoryV1::collect` | 1 | 0 |
+
+The owning files are `normal_file_vm_frontdoor.rs`, its
+`parser_source_handoff.rs` and `source_plan_input.rs` siblings, and
+`normal_source_plan/classifier.rs`. T0 moves no line in this census.
+
+Global `ParserCallableSourceDispositionV1::into_ast = 0` is deliberately not
+claimed: post-terminal consumers may still lower syntax. Exactly these named
+source-family consumers are allowed, once each, and may not reclassify:
+
+~~~text
+Script          -> SealedNormalScriptSourceV1::prepare_script_recipe
+Main0           -> SealedNormalMainSourceV1::prepare_function_source
+CallableModule  -> SealedNormalCallableModuleSourceV1::prepare_callable_source
+~~~
+
+The reusable guard therefore checks pre-terminal generic extraction zero,
+production caller = 1 for each named post-terminal consumer, other production
+callers = 0, and post-terminal reclassification = 0. Test-only callers are
+allowed only inside the named fixture owner and are counted separately; their
+existence never satisfies the production cardinality.
+
+## Parked follow-up ledger
+
+| State | Owner | Evidence | Observable reopen trigger | Non-authority claim |
+| --- | --- | --- | --- | --- |
+| `ParkedSealed` | sealed Script/Main0/CallableModule consumers | run only after an exact source-plan terminal | re-entry to classification, unconsumed total relation, or a second generic extraction | Recipe/module/physical consumers cannot issue execution role or source-plan family |
+| `ParkedSealed` | Raw VM after authorized extraction | begins only after Raw sibling closure and root discard are consumed | second extraction, source reclassification, or fallback | Raw runtime owns execution, not parser source meaning |
+| `ParkedSealed` | future no-import/source-plan scan-fusion optimization | begins only after C0 fixes the current no-import observer; D0 has no performance claim | compile-time evidence identifies the sealed boundary as hot | optimization cannot own source-profile or root/source-plan meaning |
+| `ParkedSealed` | AST-only source-plan fixture retirement | typed separately and has no parser witness | a production caller or parser-backed authority fabrication appears | AST-only input is fixture evidence, not compatibility or canonical authority |
+
+These rows do not close the six in-bound blockers. The manifest above is
+`Exhausted(14)`, while C0 still requires every old pre-terminal edge below to
+reach zero. The current no-import observation itself belongs to in-bound
+inventory rows 3/4 and is not parked.
+
 ## Retained/test and compatibility closure
 
 - `into_retained_source()` carries the relation as a required field.
@@ -221,55 +580,112 @@ not fallback.
   profile caller.
 - Source-backed and compatibility products remain different outer enum arms;
   compatibility receives no `Option`, empty/default state, or discard receipt.
-- Generic source-backed `into_ast()` retires once both reference leaves use
-  their route-specific handoff.
+- Pre-terminal generic source-backed `into_ast()` retires once both reference
+  leaves use route-specific handoffs; only the three named post-terminal
+  syntax consumers may retain a bounded internal extraction.
 
 ## Bounded task sequence
 
-1. `R1-ROUTE-CENSUS` — closed
+1. `R0-PARKING-CLOSURE-D1` — design rule frozen
+   - tracked policy owns the finite finding states and parking predicate;
+   - C0 requires inventory `Exhausted`, open/reopened blockers zero, and every
+     outside row `ParkedSealed`;
+   - parked work need not be implemented before C0.
+2. `R1-OWNER-TERMINAL-MANIFEST-D1` — frozen
    - normal/default, canonical source-plan, Raw VM, retained/test, and
-     compatibility exits are named through their terminals.
-2. `R2-SOURCE-PLAN-PARITY` — closed as a design matrix
+     compatibility exits are the 14-row `Exhausted` inventory above.
+3. `R2-SOURCE-PLAN-PARITY` — closed as a design matrix
    - Script/empty currently reach classification; valid Main0 and
      CallableModule rows are classified current-change red at the shared
      discard;
    - freeze every positive/reject against total role plus paired source syntax.
-3. `R3-SOURCE-PLAN-CONSUMER`
-   - freeze the exact owned surface rows, one named HRTB consumer, typed result
-     mapping, old parser-backed inventory retirement, and no-reissue guard.
-4. `R4-RAW-DISCARD` — route selected; concrete typestate open
-   - freeze Raw-profile capability, Ready-only discard, source-failure reject,
-     and one AST extraction.
-5. `T0-FRONTDOOR-SPLIT`
-   - before semantic growth, move the inline tests/route responsibilities out
-     of the 748-line frontdoor without changing type, caller, or behavior;
-   - every production file remains below the 760-line design trigger.
-6. `C0-ATOMIC-ROOT-CUTOVER`
+4. `R3-AUTHORITY-NAMING-D1` — frozen
+   - total execution issuer and production source-plan observation issuer are
+     distinct and each unique;
+   - narrow root, AST-only fixture, and parser witness are explicit
+     non-authorities.
+5. `R3-SURFACE-SCHEMA-D1` — frozen
+   - `CompleteEmpty | CompleteRows` and exclusive statement observations;
+   - exact callable relations are nested with syntax; parallel pairing is
+     impossible.
+6. `R3-ERROR-CLOSURE-D1` — frozen
+   - total-root failures remain exact route-level typed rejects;
+   - only Ready enters unchanged `NormalSourcePlanErrorV1` policy vocabulary.
+7. `R3-MOVE-POLICY-MANIFEST-D1` — frozen
+   - whole source-backed parser owner moves into one HRTB consumer;
+   - `SourcePlanBound` is co-sealed, reloan is impossible, parser-backed old
+     inventory/pre-terminal extraction retire in C0.
+8. `R4-ROUTE-TYPESTATE-D1` — frozen
+   - profile/read/parse/source-profile/Raw/Canonical/Compatibility transitions
+     are the finite table above; wrong-route and every failure are terminal.
+9. `R4-RAW-SCRIPT-A-CLOSURE-D1` — frozen
+   - all 12 Script-A sibling variants move opaquely; Raw A interpretation and
+     compiler transport are zero.
+10. `R4-COMPATIBILITY-SPLIT-D1` — frozen
+    - compatibility has a separately named extraction issuer and cannot reach
+      source-backed Raw, R3, root discard, or canonical retry.
+11. `R4-CALLER-ZERO-D1` — frozen
+    - every old pre-terminal symbol is listed above;
+    - only three named post-terminal syntax consumers remain.
+12. `T0-FRONTDOOR-SPLIT` — next behavior-neutral BoxShape
+    - execution row: `NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0`;
+    - move only the inline `#[cfg(test)] mod tests` body from the 748-line
+      `normal_file_vm_frontdoor.rs` to
+      `normal_file_vm_frontdoor/tests.rs`;
+    - preserve the inner test-body bytes exactly (baseline SHA-256
+      `752ad7a4cbf262cd53efdf66100e36de84ada6dde0b24f4d09267345016af28c`)
+      and replace only the wrapper with
+      `#[path = "normal_file_vm_frontdoor/tests.rs"] mod tests;`;
+    - preserve logical module identity, 14 function names/9 test names,
+      imports, the production-prefix hash
+      `43a64b93561b77a1b34d1cc9cab85cb3639da7cd279ed67510e6db5c462b5592`,
+      route callers, and behavior; leave `result_carrier_p0.rs` untouched;
+    - parent production source becomes about 480 lines and both files remain
+      below 760;
+    - verify `CARGO_BUILD_JOBS=4 cargo test --profile quick --lib
+      runner::reference::normal_file_vm_frontdoor -- --test-threads=1`,
+      `git diff --check`, and before/after test-name census.
+13. `C0-ATOMIC-ROOT-CUTOVER`
    - land issuer, exact-transform preservation, normal/default consumer,
      canonical source-plan consumer, Raw-only discard, retained/test closure,
      compatibility absence, and all selected old-edge retirements atomically;
    - standalone or caller-zero P0/S0 commits are forbidden.
 
-## Done
+## D0 exit evidence
 
-- route census has an explicit start/end and all branch families;
-- source meaning and route lifecycle are separate;
-- canonical source-plan has one named role-bound consumer and does not rescan
-  total root role;
-- Raw VM alone has a non-Clone Ready-only discard receipt;
-- typed source failures reject before every source-backed route effect;
-- retained/test helpers cannot drop the required field;
-- compatibility has structural absence rather than an empty state;
-- T0 has an exact behavior-neutral move manifest;
-- C0 has exact files, callers, retirement edges, positive/negative tests, and
-  reusable guard checks; no intermediate commit exposes a second authority.
+- the 14-row owner/terminal inventory is `Exhausted`; six implementation
+  blockers are assigned to atomic C0 and eight outside rows are `ParkedSealed`;
+- total execution issuer, production source-plan observation issuer, and
+  parser pairing witness have non-overlapping authority;
+- the source-plan surface has exact empty/non-empty coverage, one ownership of
+  every relation, fixed policy precedence, and exact typed rejection;
+- Raw, Canonical, and Compatibility have a finite route table; Script-A
+  sibling ownership reaches every terminal without clone, implicit drop, or
+  retry;
+- production/test caller guards and the three allowed post-terminal consumers
+  are separate;
+- T0 has a byte-identical, hash-backed behavior-neutral move manifest.
+
+## C0 acceptance — not yet claimed
+
+After T0, a short design-stop closeout must bind the frozen contracts to exact
+new owner files, positive/negative test files, and one reusable lane guard.
+C0 then requires every in-bound old edge above to reach zero, every new issuer
+and named consumer to have its production cardinality, all six blockers to be
+`CutoverBlockerClosed`, and no intermediate commit to expose a second
+authority. Until that manifest exists, semantic Rust remains forbidden.
 
 ## Stop / NoSafeSlice
 
 - canonical source-plan still classifies Main/Script from raw AST alone;
 - reference is treated as one Script-A or one discard route;
 - Main0, main/N, Main helper, CallableModule, or ProgramRuntime parity is open;
-- source-backed generic `into_ast()` remains a bypass;
+- `CompleteEmpty` and missing source rows cannot be distinguished;
+- source-plan surface and moved source owner can be independently re-paired;
+- source-backed pre-terminal generic `into_ast()` remains a bypass;
+- post-terminal syntax use is not limited to the three named consumers;
+- compatibility and source-backed Raw share one generic extraction authority;
+- Raw must interpret a Script-A variant or issue an A/compiler result;
 - compatibility needs an empty/default/optional total product;
 - typed source failure reaches Raw AST or source-plan inventory;
 - narrow and total roots require separately observable partial transitions;
@@ -277,5 +693,8 @@ not fallback.
 - source-plan consumer uses name, ordinal, span, or pointer to reissue total
   role or pair independently transported rows;
 - Raw discard receipt can enter canonical source-plan;
+- `SourcePlanBound` can issue a second source-plan loan;
+- parked closure is prose-only or the declared inventory cannot become
+  `Exhausted`;
 - parser P0 or consumer S0 must exist caller-zero in a landed intermediate;
 - fallback/retry or Builder work is required.

@@ -1,24 +1,24 @@
 status = """
-Route-specific root handoffs are selected. Canonical source-plan still needs
-an exact paired-syntax projection, and its currently valid Main/Callable rows
-stop at the pre-profile discard. Standalone parser P0 is not authorized."""
+R3/R4 design is frozen with a finite 14-row inventory. The next row is only a
+byte-identical extraction of inline frontdoor tests; semantic C0 remains
+blocked until its exact file/test/guard manifest is frozen after T0."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0"
-current_design_stop = "Freeze the exact parser-backed source-plan projection and one atomic issuer/consumer/discard/retirement cutover; standalone parser P0 is forbidden."
-current_blocker_token = "Current App/Main0/Callable source-plan rows fail at the shared pre-profile discard. App/ProgramRuntime alone is insufficient; the named consumer also needs same-invocation paired syntax without the old AST inventory."
+work_mode = "fast"
+current_execution_row = "NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0"
+current_design_stop = "After T0, return to design_stop for the atomic C0 file/test/guard manifest; this text does not override work_mode."
+current_blocker_token = "T0 has no semantic blocker; C0 remains blocked on its exact atomic file/test/guard manifest and may not begin during this row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — normal root reference-route closure"
 active_lane_status = """
-Current: route split and parity matrix selected; exact consumer/cutover design open.
-Authorized: source-plan paired-surface and atomic-cutover design evidence only.
-Forbidden: Rust/fixture work, standalone P0, Builder effect, fallback,
-compatibility fabrication, production switch, or raw-role reclassification."""
+Current: byte-identical inline-test extraction from the reference frontdoor.
+Authorized: the card's one behavior-neutral BoxShape and focused evidence.
+Forbidden: production-body edits, semantic types, fixtures, fallback,
+standalone P0/S0, production switch, or C0 implementation."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -30,10 +30,10 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-root-execution-reference-route-closure-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
-latest_card_summary = "Canonical consumes total roles plus paired syntax, Raw alone may discard Ready, and no caller-zero parser P0 may precede the atomic cutover."
-next_design_card = "NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0"
-next_execution_card = "none-until-reference-route-closure-Decision"
-next_execution_card_path = ""
+latest_card_summary = "R3/R4 are frozen; T0 moves only inline tests, then C0 returns to design_stop for an exact atomic manifest."
+next_design_card = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
+next_execution_card = "NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0"
+next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
