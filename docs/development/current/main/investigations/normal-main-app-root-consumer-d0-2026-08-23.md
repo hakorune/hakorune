@@ -1,9 +1,9 @@
-Status: Design stop — `NamedConsumerMissing` / root structural relation is not closed
+Status: Prerequisite design accepted — exact-transform I0 is ready; root consumer remains closed
 Date: 2026-08-23
 Decision: NORMAL-MAIN-APP-ROOT-CONSUMER-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-root-source-disposition-d0-2026-08-23.md
-ProductionCaller: 0; design only
-ProductionEdit: none; root consumer, raw classifier retirement, and root lowering remain closed
+ProductionCaller: root consumer 0; G0 replaces one existing normal callable transform edge
+ProductionEdit: next slice is limited to the source-transform disposition; root consumer, raw classifier retirement, and root lowering remain closed
 CeremonyTier: D0 — source-root consumer boundary before Builder effects
 ---
 
@@ -13,27 +13,31 @@ CeremonyTier: D0 — source-root consumer boundary before Builder effects
 
 ```text
 Decision:
-  select ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle_with_target
-  as the only future named consumer of the parser-owned root disposition.
+  keep ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle_with_target
+  as the only future root consumer, but first close the normal callable macro
+  boundary as ExactUnchanged versus an actual generated-tail compatibility row.
 Source authority + canonical issuer:
   issue_parser_normal_root_source_v1 remains the sole source-root issuer;
-  ParserNormalProgramSourceAuthorityV1 remains the exact body-coverage owner.
-  The exact App structural projection issuer is still missing and must be named
-  before any new Verified* product or root bridge implementation.
+  ParserNormalProgramSourceAuthorityV1 remains the exact body-coverage owner;
+  the macro/test-harness owner alone may issue GeneratedTail, and the existing
+  parser final-source issuer alone may seal ExactUnchanged source.
 Non-authority:
   VerifiedRawRootExpansionV1::from_program as a classifier, root_is_app_mode,
-  bool flags, AST/name/ordinal rescans, NormalCompileRequest, Builder state,
-  semantic-package presence, compatibility retry, and raw fallback.
+  env flags, AST equality or a raw AST callback as transform authority,
+  AST/name/ordinal rescans, NormalCompileRequest, Builder state, compatibility
+  retry, and raw fallback.
 Fail-fast boundary:
-  consume the root disposition and complete its structural relation before
-  target installation, module preparation, catalog installation, work-plan
-  admission, MIR effects, or publication.
+  classify an actual generated tail before ParserNormalRootPreservedV1 or any
+  final source product can exist; later root consume still precedes target,
+  module, catalog, work-plan, MIR, and publication effects.
 Smallest next slice:
-  design the move-only root-consumer input and exact App/Script structural
-  projection relation; do not implement the consumer until both are closed.
+  NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0: replace the production raw
+  AST callback with ExactUnchanged and route only an actually generated test
+  tail to typed compatibility; do not implement the root consumer.
 Non-claims:
-  root lowering, ABI/result semantics, child scheduling, MIR/ValueId, raw
-  retirement, compatibility policy, fallback, production switch, and perf.
+  generated-tail canonical semantics, root lowering, ABI/result semantics,
+  child scheduling, MIR/ValueId, raw retirement, fallback, root production
+  switch, test-flag semantics, and performance.
 ```
 
 ## Current evidence
@@ -104,41 +108,72 @@ transform guard permits an appended root suffix.  The future root boundary
 must therefore use a narrower root-only view and must not hand raw AST access
 to the Builder consumer.
 
-The active design-only tasks are consolidated below as D0-G through D0-L.
-Until that packet closes, the production root consumer count remains zero.
+The ordered prerequisite series is fixed below.  G0 alone is open; until J0
+lands, the production root consumer count remains zero.
 
-### Concrete D0-G/H outcome
+### Second top-down worker audit — the transform boundary is the real predecessor
 
-The current data model cannot close this relation by inspection alone:
+The App admission data is stronger than the first audit needed to assume:
+`ParserMainAppEntrySealV1` already proves exact static `Main`, exactly one
+direct member, `main/0`, and one callable identity under the parser invocation.
+The remaining unsafe input is the final transform itself:
 
 ```text
-ASTNode::Program top-level rows
-  -> no parser invocation/source anchor
-BoxMethodInventoryV1
-  -> method placement/provenance, not top-level source identity
-transform guard
-  -> preserves the covered prefix but permits appended statements
+parser-owned source prefix
+  -> ParserNormalCallableTransformSessionV1::finish(FnOnce -> ASTNode)
+  -> maybe_expand_and_dump
+  -> test harness may append top-level setup/call rows
+  -> prefix-only root preservation currently accepts the unowned suffix
 ```
 
-The active design decision is the narrowed A-prime described below: a
-parser-owned, non-Clone exact root-cohort relation followed by a move-only
-consumer.  A transformed top-level addition is a typed terminal in this
-bounded lane; it is not silently admitted and it does not open a compatibility
-fallback.  If A-prime cannot be issued by one parser authority, the result is
-`NoSafeSlice`; do not switch to a Builder classifier or quietly broaden the
-root policy.
+The direct counterexample is a Script-ready top-level `test_*` function.  The
+test harness can append its call after all parser-owned rows.  The appended row
+has no parser invocation relation, yet the current prefix check can still issue
+a Ready root token.  Conversely, changing only the check to exact length would
+silently reject the existing test-harness feature.
+
+The accepted correction is an upstream transform disposition:
+
+```text
+normal callable macro owner
+  ├─ ExactUnchanged
+  │    -> ParserNormalCallableTransformSessionV1::finish_exact(self)
+  │    -> exact final source/root preservation
+  │
+  └─ TestHarnessGeneratedTail(transformed AST)
+       -> explicit Compatibility(TestHarnessGeneratedTail)
+       -> parser final source/root token count = 0
+```
+
+This is not a retry after canonical rejection.  The macro owner issues the
+disposition while performing the transform, before the parser final-source
+attempt starts.  The parser does not reread `NYASH_TEST_RUN`, infer suffix
+origin from AST shape, or compare a foreign AST to recover authority.
+
+If composite source preservation is Ready, an actual generated tail remains a
+typed `CompatibilityLoss` rejection, matching the existing registered-macro
+and default-derive rule.  It may not discard that stronger source authority to
+enter compatibility.  If the macro engine mutates the AST despite no named
+registered/default transform, the result is a typed unclassified-mutation
+reject, not `ExactUnchanged` and not an anonymous compatibility row.
+
+Canonicalizing generated test rows in the root token is rejected for this
+slice.  That would require a second macro-generated source authority, complete
+generated rows, and Recipe coverage for those rows.  The bounded root lane
+instead contains parser source only.
 
 The following are not valid repairs: using the current raw expansion,
 comparing names or ordinals in MIR, treating appended rows as default
 Script/App state, or exposing `ParserMainAppEntrySealV1` to Builder.
 
-## Recommended design — conditional A-prime, implementation still stopped
+## Recommended design — A-prime behind one exact-transform gate
 
-Choose a narrowed A-prime, conditional on the following preservation contract:
+Choose a narrowed A-prime after the accepted transform prerequisite:
 
 ```text
 one parser-owned source product
-  -> one final-transform validation
+  -> one macro-owned ExactUnchanged disposition
+  -> one parser finish_exact move
   -> one opaque, non-Clone root-preservation token
   -> one move-only normal-root consumer
 ```
@@ -160,16 +195,13 @@ both:
 
 App/Script structural extraction in Builder may then be a projection under an
 already-admitted role.  It must not decide the role, reissue source facts, or
-scan a second AST to override the token.  For this bounded root lane, an added
-transformed top-level tail is a typed terminal (`RootCohortOutside` or an
-equivalent source-owned terminal), not an implicitly accepted App/Script row.
-Compatibility handling, if needed later, is a separate policy decision.
+scan a second AST to override the token.  An actual generated test tail never
+enters this bounded root lane: it is classified by its generator before parser
+finalization.  Unknown additions, removals, reorderings, or replacements remain
+typed rejects.
 
-The implementation slice remains closed until the contract can be represented
-without a foreign raw `ASTNode` transform input.  If the transform boundary
-cannot carry the same-invocation witness into this final validation, remain at
-`NoSafeSlice` and choose a separate transform-session design before adding the
-root consumer.
+The first implementation slice is now bounded and accepted.  The root consumer
+itself remains closed until exact-root co-seal and the narrow HRTB view land.
 
 ## Authority map
 
@@ -179,6 +211,9 @@ root consumer.
 | `issue_canonical_script_cohort` / Script-row issuer | positive Script cohort and A rows | App selection or root effects |
 | `issue_parser_normal_root_source_v1` | same-invocation App/Script disposition and typed terminals | structural lowering or Builder state |
 | `ParserNormalProgramSourceAuthorityV1` | exact Program-body coverage and HRTB AST/source loan | App/Script selection, target, MIR |
+| normal callable macro/test-harness transform issuer | whether this invocation actually generated a test tail and its transformed compatibility AST | parser/source authority or root admission |
+| `ParserNormalCallableTransformSessionV1::finish_exact` | one-shot transition from unchanged parser source to final source issuance | arbitrary foreign AST acceptance or compatibility selection |
+| `ParserNormalRootPreservationIssuerV1` | exact final App/Script preservation after the transform gate | macro-tail provenance or Builder projection |
 | `PreparedNormalDefaultProgramRootV1` | move-only transport wrapper | source reclassification |
 | `ModuleBuilderInvocationSessionV1` lifecycle | future one-time root consumer and unpublished session | parser truth or second root classifier |
 | `VerifiedRawRootExpansionV1` | legacy structural projection candidate only | App/Script authority |
@@ -251,56 +286,58 @@ If this relation cannot be supplied without exposing parser anchors or adding a
 second source issuer, the result is `NoSafeSlice`; do not weaken the check to
 name, ordinal, digest, pointer, or AST shape equality.
 
-## Consolidated design tasks after the worker audit
+## Accepted bounded task series after both worker audits
 
-These tasks supersede the earlier informal D0-B/C wording. They are design
-tasks only while `work_mode = design_stop`; no code, fixture, fallback, or
-semantic `Verified*`/`Prepared*` product may be added yet.
+The series is ordered by authority.  Only the first row is open.  A later row
+does not become executable merely because an earlier focused test is green.
 
 ```text
-D0-G  Exact final root-cohort policy
-      Decide whether the source-backed normal root lane admits only an exact
-      final Program root cohort. Define typed handling for any transformed
-      top-level addition, removal, or role drift. Ready must never include a
-      silently accepted suffix.
+G0 / NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0  [open, BoxCount]
+      Make the macro/test-harness owner return Unchanged or actual
+      GeneratedTail.  Only Unchanged may call a no-argument finish_exact;
+      GeneratedTail enters the existing typed compatibility lane before root
+      token issuance.  Remove the production FnOnce -> ASTNode finish API.
 
-D0-H  Parser-owned App structural co-seal
-      Name the one parser-side issuer that co-seals Main admission, exact
-      root/static-child relation, same invocation witness, and final-transform
-      preservation. Keep ParserMainAppEntrySealV1 and all parser anchors
-      private. If the existing issuer family cannot do this without a second
-      authority, record NoSafeSlice instead of creating a Builder receipt.
+G1 / NORMAL-MAIN-ROOT-EXACT-COHORT-I0                 [closed behind G0]
+      Require source body count == initial count == final count and exact full
+      statement preservation.  Addition, removal, reorder, or replacement is
+      a typed reject.  Do not add logic to main_expansion.rs.
 
-D0-I  Narrow Script root view
-      Define a paired HRTB root-consumer view from
-      ParserNormalProgramSourceAuthorityV1. It must exclude raw Program
-      access, Script-A rows, names, ordinals, pointers, and absence-based
-      App/Script selection. Specify the exact final-root coverage it proves.
+H1 / NORMAL-MAIN-APP-ROOT-RELATION-I0                 [closed behind G1]
+      In the existing final-source issuer, co-seal the private App admission,
+      exactly one matching callable identity, its paired final slot, the same
+      invocation, Main-only-member relation, and NoStaticChildren.  Do not
+      expose parser sites, anchors, names, or ordinals.
 
-D0-J  Move-only named consumer boundary
-      Choose consume(self) or a scoped HRTB callback from
-      PreparedNormalDefaultProgramRootV1 into the single lifecycle consumer.
-      Avoid self-referential borrowed/owned input, parallel Option state, and
-      public getters. Specify AppReady, ScriptReady, and every typed terminal.
+I0 / NORMAL-ROOT-CONSUMER-LOAN-I0                     [closed behind H1]
+      Add one parser-owned HRTB root view.  App lends only typed root body plus
+      CallableMainIsRoot/NoStaticChildren; Script lends a paired statement
+      cursor.  There is no raw Program getter and no Script-A row.
 
-D0-K  Raw-observer retirement census
-      Enumerate every production caller of VerifiedRawRootExpansionV1::from_program,
-      VerifiedMainExpansionV1::from_program, root_is_app_mode, and the second
-      post-catalog scan. Define the exact caller-zero and fallback-zero proof
-      required after the future consumer is connected.
+J0 / NORMAL-MAIN-APP-ROOT-CONSUMER-I0                 [closed behind I0]
+      Move the final root source once into the named lifecycle consumer before
+      target/module/catalog/work-plan effects.  All non-ready states terminate
+      typed; Ready cannot return to the old raw route.
 
-D0-L  Pre-effect acceptance packet
-      Fix positive App/Script cases, foreign invocation, foreign final AST,
-      prefix/root drift, Main arity, extra static child, appended root tail,
-      AppReady-on-Script-A, and missing/duplicate rows. Every reject must
-      prove zero target/module/catalog/work-plan/MIR/publication effects.
-      Include one reusable structural guard and the 760/800-line budget.
+K0 / NORMAL-MAIN-APP-RAW-ROOT-OBSERVER-R0             [closed behind J0]
+      Remove the three selected-normal raw root observers: lifecycle preflight,
+      source-backed callable-catalog classification, and post-catalog rescan.
+      Remove bool-based selection and prove fallback/retry zero.  Compatibility
+      and test-owned raw observers remain under their existing owner.
 ```
 
-`D0-G` through `D0-L` close only when the source-to-Recipe sentence is
-deterministic and the named consumer can be described without a raw AST
-classifier. Until then, the correct status is `NoSafeSlice`, not a partial
-consumer implementation.
+The deterministic source sentence is:
+
+```text
+parser exact App/Script source
+  -> macro owner ExactUnchanged
+  -> parser exact-root relation
+  -> narrow HRTB root view
+  -> one pre-effect lifecycle consumer
+  -> existing root Recipe/work plan
+```
+
+Generated test tails leave this sentence before parser final-source issuance.
 
 ## Finite state table
 
@@ -338,6 +375,15 @@ parser App/Script witness from invocation P1 + final AST/source from P2
 
 AppReady on Script-A frontdoor
   required result: existing typed reject, never Script discard
+
+top-level test_* function with an actual generated harness call
+  required result: Compatibility(TestHarnessGeneratedTail), root token count 0
+
+composite-ready source with an actual generated harness tail
+  required result: CompatibilityLoss, no compatibility origin and no root token
+
+P1 source session + a structurally identical raw AST produced independently
+  required result: impossible on the production exact API; no raw callback
 ```
 
 ## NoSafeSlice conditions
@@ -347,6 +393,11 @@ Remain at `design_stop` if any one holds:
 ```text
 no single named root consumer can be connected before Builder effects
 App structural projection has no source-owned exact relation
+actual generated tail cannot be distinguished by the generator itself
+the parser must reread an env flag or infer suffix origin from AST structure
+the production final-source API still accepts FnOnce(&ASTNode) -> ASTNode
+an unclassified macro mutation can enter ExactUnchanged or compatibility
+composite Ready can be discarded for generated-tail compatibility
 VerifiedRawRootExpansionV1::from_program must remain the App/Script classifier
 root disposition must be exposed through parser anchors, names, or ordinals
 root consumer needs Script-A rows or clones them
@@ -358,14 +409,39 @@ the source-to-Recipe sentence cannot be stated in one deterministic line
 the bounded slice needs root lowering, ABI, publication, fallback, or switch
 ```
 
-## Task status and execution gate
+## G0 acceptance and execution gate
 
-The earlier D0-A through D0-F outline is retained as history in the parent
-card, but the active task list is now the consolidated D0-G through D0-L
-packet above.  The fresh worker audit did not authorize implementation: the
-production root consumer count remains `0`, and this card remains
-`design_stop` until the App co-seal, narrow Script view, and raw-observer
-retirement contract are all closed.
+The main-thread source audit and the independent top-down worker audit agree on
+the same finite G0 mapping.  The following evidence is required for the bounded
+implementation:
+
+```text
+macro disabled or actual no-op
+  -> SourceBacked via finish_exact; transformed AST argument count = 0
+
+actual nonempty test-harness tail, composite source not Ready
+  -> Compatibility(TestHarnessGeneratedTail); root token count = 0
+
+actual nonempty test-harness tail, composite source Ready
+  -> typed CompatibilityLoss; compatibility origin count = 0
+
+registered macro/default derive
+  -> existing disposition unchanged
+
+unexpected macro-engine mutation outside named dispositions
+  -> typed reject; no source-backed/compatibility fallback
+```
+
+Structural guards must prove one production `finish_exact` caller, zero
+production raw transform callbacks, one GeneratedTail issuer, zero parser env
+reads, zero post-reject retry, and zero root token issuance on generated-tail
+paths.  Focused positive/negative tests, `cargo check`, pointer guard, and
+`git diff --check` close G0.  Production source remains below the 760-line split
+trigger and 800-line hard stop; `main_expansion.rs` (743 lines) and
+`program_root_work_plan.rs` (721 lines) are forbidden edit targets in G0-H1.
+
+G0 changes one bounded transform disposition and is therefore the selected
+BoxCount.  It does not authorize G1, H1, I0, J0, or K0 in the same change.
 
 ## Non-claims
 
@@ -375,17 +451,18 @@ This card does not authorize:
 root consumer implementation
 VerifiedMainExpansionV1 API changes
 new root semantic receipt
+canonical semantics for generated test-harness rows
 root/static-child/body lowering
 ProgramRootWorkPlan bool removal
 root_is_app_mode removal
 MIR/ValueId/CFG/publication changes
-compatibility/raw retirement
+compatibility retirement
 fallback/retry
 production switch
 performance work
 ```
 
-The next execution may begin only after D0-G through D0-L are accepted and the
-exact source authority for App structural projection is named. Until then, the
-previous transport I0 remains the complete bounded result and the root
-consumer remains intentionally closed.
+The next execution is only
+`NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0`.  The previous root transport
+I0 remains complete, and the root consumer remains intentionally caller-zero
+until the ordered prerequisite series reaches J0.
