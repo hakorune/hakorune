@@ -1,9 +1,9 @@
-Status: G0 complete — exact-root cohort I0 is ready; root consumer remains closed
+Status: G0-G1 complete — App root-relation I0 is ready; root consumer remains closed
 Date: 2026-08-23
 Decision: NORMAL-MAIN-APP-ROOT-CONSUMER-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-root-source-disposition-d0-2026-08-23.md
 ProductionCaller: root consumer 0; G0 replaced one existing normal callable transform edge as `198560b0e0`
-ProductionEdit: next slice is limited to exact full-root cohort preservation; root consumer, raw classifier retirement, and root lowering remain closed
+ProductionEdit: next slice is limited to the parser-private App root relation; root consumer, raw classifier retirement, and root lowering remain closed
 CeremonyTier: D0 — source-root consumer boundary before Builder effects
 ---
 
@@ -108,8 +108,8 @@ transform guard permits an appended root suffix.  The future root boundary
 must therefore use a narrower root-only view and must not hand raw AST access
 to the Builder consumer.
 
-The ordered prerequisite series is fixed below.  G0 is complete and G1 alone
-is open; until J0
+The ordered prerequisite series is fixed below. G0-G1 are complete and H1
+alone is open; until J0
 lands, the production root consumer count remains zero.
 
 ### Second top-down worker audit — the transform boundary is the real predecessor
@@ -289,7 +289,7 @@ name, ordinal, digest, pointer, or AST shape equality.
 
 ## Accepted bounded task series after both worker audits
 
-The series is ordered by authority. G0 is complete and only G1 is open. A later
+The series is ordered by authority. G0-G1 are complete and only H1 is open. A later
 row does not become executable merely because an earlier focused test is green.
 
 ```text
@@ -299,12 +299,12 @@ G0 / NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0  [complete: 198560b0e0]
       GeneratedTail enters the existing typed compatibility lane before root
       token issuance.  Remove the production FnOnce -> ASTNode finish API.
 
-G1 / NORMAL-MAIN-ROOT-EXACT-COHORT-I0                 [open, BoxCount]
+G1 / NORMAL-MAIN-ROOT-EXACT-COHORT-I0                 [complete: 0b9d4eb43d]
       Require source body count == initial count == final count and exact full
       statement preservation.  Addition, removal, reorder, or replacement is
       a typed reject.  Do not add logic to main_expansion.rs.
 
-H1 / NORMAL-MAIN-APP-ROOT-RELATION-I0                 [closed behind G1]
+H1 / NORMAL-MAIN-APP-ROOT-RELATION-I0                 [open, BoxCount]
       In the existing final-source issuer, co-seal the private App admission,
       exactly one matching callable identity, its paired final slot, the same
       invocation, Main-only-member relation, and NoStaticChildren.  Do not
@@ -495,6 +495,52 @@ The repository-wide `cargo fmt --all -- --check` still reports the existing
 format baseline in 79 untouched files; its intersection with this change's
 file set is zero. All touched Rust files were formatted directly. This is
 classified as known baseline debt, not a G0 failure.
+
+### G1 closeout evidence
+
+G1 is implemented and pushed on `main` as `0b9d4eb43d`. The existing sole
+`ParserNormalRootPreservationIssuerV1` now requires one exact root cohort:
+
+```text
+parser-owned body-row count
+  == initial Program statement count
+  == final Program statement count
+
+initial statement[position]
+  == final statement[position]
+```
+
+The old prefix/suffix model, static-`Main` name scan, and non-callable-tail
+acceptance are removed. Addition is rejected by the root cardinality check;
+removal is rejected even earlier by the existing parser program-source owner;
+reorder and replacement return the exact changed position. Existing callable,
+constructor, and composite drift validators retain their earlier typed errors
+before the final root co-seal.
+
+Acceptance evidence:
+
+```text
+cargo test parser::normal_callable_program_source::tests --lib -- --nocapture
+  -> 29 passed
+
+cargo test normal_callable_transform --lib -- --nocapture
+  -> 7 passed
+
+cargo check
+parser_normal_root_preservation_a_i0_guard.sh
+current_state_pointer_guard.sh
+targeted rustfmt --check
+git diff --check
+  -> passed
+
+normal_root_preservation.rs 165 lines
+normal_callable_program_source/transform.rs 90 lines
+normal_callable_program_source/tests.rs 652 lines
+  -> all below 760
+```
+
+No App relation, HRTB loan, root consumer, Builder effect, fallback, or raw
+observer retirement was added in G1.
 
 ## Non-claims
 
