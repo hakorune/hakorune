@@ -138,6 +138,42 @@ ordinals in MIR, treating appended rows as default Script/App state, or
 exposing `ParserMainAppEntrySealV1` to Builder.  D0-G must choose A or B and
 name its sole parser issuer before D0-I can reopen implementation.
 
+## Recommended Decision — conditional A
+
+Choose A, conditional on the following preservation contract:
+
+```text
+one parser-owned source product
+  -> one final-transform validation
+  -> one opaque, non-Clone root-preservation token
+  -> one move-only normal-root consumer
+```
+
+The token is issued inside the existing parser root-source authority family;
+it is not a Builder classifier and it exposes no parser anchor, name, ordinal,
+digest, pointer, or Script-A row.  Its private proof must establish:
+
+```text
+AppReady:
+  initial App seal + unchanged source-root prefix + no App role drift
+ScriptReady:
+  unchanged source-root prefix + no new static Main in the transformed tail
+both:
+  same source product, same parser witness, Program shape, typed drift errors
+```
+
+App/Script structural extraction in Builder may then be a projection under an
+already-admitted role.  It must not decide the role, reissue source facts, or
+scan a second AST to override the token.  Added transformed tail rows remain
+outside the source prefix and need an explicit typed policy; they are never
+silently folded into the source cohort.
+
+The implementation slice remains closed until the contract can be represented
+without a foreign raw `ASTNode` transform input.  If the transform boundary
+cannot carry the same-invocation witness into this final validation, revert to
+NoSafeSlice and choose a separate transform-session design before adding the
+root consumer.
+
 ## Authority map
 
 | Owner | Owns | Must not own |
