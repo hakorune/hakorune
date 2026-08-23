@@ -595,3 +595,27 @@ C0 is closed. The next selected row is
 `NORMAL-ROOT-EXECUTION-BOOL-RETIREMENT-R0`; it may remove only derived bool/mode
 transport and stale compatibility comments/classifier presentation, and must
 not issue source meaning or reopen AST classification.
+
+## R0 warning cleanup evidence — 2026-08-24
+
+The first behavior-neutral R0 warning slice is landed as three separate commits:
+
+```text
+cdcde58d12  refactor: retire unused root mode transport
+d1895b6ded  refactor: remove unused parser source accessors
+a0699f977e  refactor: align semantic package warning visibility
+```
+
+The slice removed only caller-zero mode/accessor transport, stale parser source
+accessors, and package-internal visibility mismatches. It did not remove typed
+reject payloads or introduce a new source authority. The final focused package
+test remains green:
+
+```text
+cargo test --profile quick --lib normal_callable_semantic_package
+  -> 39 passed; 0 failed; 7303 filtered out
+```
+
+The same test fingerprint moved from 1063 to 1044 warnings. The remaining
+warnings are pre-existing broad debt (including intentionally retained typed
+reject payloads); they are not claimed as cleared by this R0 slice.
