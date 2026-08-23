@@ -13,6 +13,7 @@ mod model;
 mod normal_root_source;
 mod normal_root_preservation;
 mod normal_source_plan_seed;
+mod normal_source_plan_surface;
 mod parse_product;
 mod parser_invocation_witness;
 mod product;
@@ -87,5 +88,8 @@ mod main_app_entry_tests;
 #[cfg(test)]
 #[path = "normal_root_source_tests.rs"]
 mod normal_root_source_tests;
+#[cfg(test)]
+#[path = "normal_source_plan_surface_tests.rs"]
+mod normal_source_plan_surface_tests;
 #[cfg(test)]
 mod tests;

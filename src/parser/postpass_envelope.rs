@@ -217,6 +217,7 @@ impl CompletedParserPostpassV1 {
         metadata: ParserMetadata,
         explain: Option<BuildGateExplainReport>,
         static_box_parent_source: ParserStaticBoxParentSourceDispositionV1,
+        normal_source_plan_seed: ParserNormalSourcePlanSeedDispositionV1,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
         let program_cohort = classify_program(program.ast());
         if program_cohort.is_ordinary() {
@@ -233,7 +234,7 @@ impl CompletedParserPostpassV1 {
                 rows,
             },
             static_box_parent_source,
-            normal_source_plan_seed: ParserNormalSourcePlanSeedDispositionV1::CompatibilityOutside,
+            normal_source_plan_seed,
         })
     }
 
@@ -410,6 +411,15 @@ impl CompletedParserPostpassV1 {
         &self,
     ) -> &ParserStaticBoxParentSourceDispositionV1 {
         &self.static_box_parent_source
+    }
+
+    pub(in crate::parser) fn consume_normal_source_plan_seed(
+        &mut self,
+    ) -> ParserNormalSourcePlanSeedDispositionV1 {
+        std::mem::replace(
+            &mut self.normal_source_plan_seed,
+            ParserNormalSourcePlanSeedDispositionV1::Consumed,
+        )
     }
 
     pub(super) fn initial_callable_source(

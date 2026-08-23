@@ -52,6 +52,15 @@ impl ParserNormalSourcePlanSeedV1 {
         &self.projected_program_slots
     }
 
+    pub(in crate::parser) fn into_parts(
+        self,
+    ) -> (
+        ProjectedProgramItemSlotSetV1,
+        Box<[PreparedParserStaticBoxParentSourceV1]>,
+    ) {
+        (self.projected_program_slots, self.static_parent_sources)
+    }
+
     #[cfg(test)]
     pub(in crate::parser) fn static_parent_sources(
         &self,
@@ -87,13 +96,14 @@ mod tests {
 pub(in crate::parser) enum ParserNormalSourcePlanSeedDispositionV1 {
     Ready(ParserNormalSourcePlanSeedV1),
     CompatibilityOutside,
+    Consumed,
 }
 
 impl ParserNormalSourcePlanSeedDispositionV1 {
     pub(in crate::parser) fn discard_unconnected(self) {
         match self {
             Self::Ready(seed) => seed.discard_unconnected(),
-            Self::CompatibilityOutside => {}
+            Self::CompatibilityOutside | Self::Consumed => {}
         }
     }
 }

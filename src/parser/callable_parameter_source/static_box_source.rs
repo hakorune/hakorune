@@ -187,31 +187,31 @@ impl PreparedParserStaticBoxParentSourceV1 {
 
 #[derive(Debug)]
 pub(in crate::parser) struct ParserStaticBoxSourceSealV1 {
-    prepared: PreparedParserStaticBoxParentSourceV1,
+    box_site: SourceBoxDeclarationSiteV1,
+    syntax: ParserStaticBoxDeclarationSyntaxV1,
+    member_count: u32,
+    member_kinds: Box<[ParserStaticBoxMemberKindV1]>,
     method_site: SourceBoxMethodSiteV1,
     method_identity: CallableDeclarationIdentityV1,
 }
 
 impl ParserStaticBoxSourceSealV1 {
     pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
-        &self.prepared.box_site
+        &self.box_site
     }
 
     pub(in crate::parser) fn declaration_syntax(&self) -> &ParserStaticBoxDeclarationSyntaxV1 {
-        &self.prepared.syntax
+        &self.syntax
     }
 
     pub(in crate::parser) fn member_count(&self) -> u32 {
-        self.prepared.member_count
+        self.member_count
     }
 
     pub(in crate::parser) fn member_kinds(
         &self,
     ) -> impl Iterator<Item = ParserStaticBoxMemberKindV1> + '_ {
-        self.prepared
-            .rows
-            .iter()
-            .map(PreparedParserStaticBoxMemberSourceRowV1::kind)
+        self.member_kinds.iter().copied()
     }
 
     pub(in crate::parser) fn method_site(&self) -> &SourceBoxMethodSiteV1 {
@@ -273,7 +273,7 @@ pub(in crate::parser) struct ParserStaticBoxParentSourceAuthorityIssuerV1;
 impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
     pub(in crate::parser) fn issue_once(
         cohort: ParserPostpassProgramCohortV1,
-        prepared: Vec<PreparedParserStaticBoxParentSourceV1>,
+        prepared: &[PreparedParserStaticBoxParentSourceV1],
         callable_rows: &[PreparedCallableSourceV1],
     ) -> ParserStaticBoxParentSourceDispositionV1 {
         if !matches!(cohort, ParserPostpassProgramCohortV1::StaticBox) {
@@ -287,7 +287,7 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                     ParserStaticBoxParentSourceUnavailableV1::NoPreparedParent,
                 )
             }
-            1 => prepared.into_iter().next(),
+            1 => prepared.first(),
             _ => {
                 return ParserStaticBoxParentSourceDispositionV1::Outside(
                     ParserStaticBoxParentOutsideReasonV1::MultipleParentRows,
@@ -377,8 +377,17 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                         ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
                     );
                 }
+                let member_kinds = prepared
+                    .rows
+                    .iter()
+                    .map(PreparedParserStaticBoxMemberSourceRowV1::kind)
+                    .collect::<Vec<_>>()
+                    .into_boxed_slice();
                 ParserStaticBoxParentSourceDispositionV1::Ready(ParserStaticBoxSourceSealV1 {
-                    prepared,
+                    box_site: prepared.box_site.clone(),
+                    syntax: prepared.syntax.clone(),
+                    member_count: prepared.member_count,
+                    member_kinds,
                     method_site,
                     method_identity: method_identity.clone(),
                 })

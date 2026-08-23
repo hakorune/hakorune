@@ -175,20 +175,22 @@ impl OpenParserPostpassProductV1 {
         let static_box_parent_source =
             super::super::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once(
                 cohort,
-                prepared_static_box_sources,
+                &prepared_static_box_sources,
                 &callable_rows,
             );
         let ast = super::super::postpass_compatibility::lower(ast)?;
         if semantic_candidate {
-            let program_slots = program_slots.ok_or_else(|| {
-                map_error(SourceSealFinalizationErrorV1::InitialCallableProgramSource(
-                    super::super::initial_callable_program_source::InitialCallableProgramSourceRejectV1::MissingProgramSlotSet,
-                ))
-            })?;
+            let seed =
+                super::super::callable_parameter_source::ParserNormalSourcePlanSeedV1::issue(
+                    program_slots,
+                    prepared_static_box_sources,
+                )
+                .map_err(SourceSealFinalizationErrorV1::NormalSourcePlanSeed)
+                .map_err(map_error)?;
             let mut program = super::super::initial_callable_program_source::issue_initial_callable_program_source_v1(
                 ast,
                 callable_rows,
-                &program_slots,
+                seed.projected_program_slots(),
                 &prepared_seals,
             )
             .map_err(|error| {
@@ -214,6 +216,7 @@ impl OpenParserPostpassProductV1 {
                 metadata,
                 explain,
                 static_box_parent_source,
+                super::super::callable_parameter_source::ParserNormalSourcePlanSeedDispositionV1::Ready(seed),
             )
             .map_err(|error| error.into_parse_error());
         }

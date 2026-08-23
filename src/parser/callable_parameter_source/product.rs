@@ -12,6 +12,9 @@ use super::normal_root_source::{
     issue_parser_normal_root_source_v1, ParserNormalRootSourceDiscardErrorV1,
     ParserNormalRootSourceDispositionV1,
 };
+use super::normal_source_plan_surface::{
+    ParserNormalSourcePlanSurfaceDispositionV1, ParserNormalSourcePlanSurfaceIssuerV1,
+};
 use super::retained::RetainedParserCallableSemanticSourceV1;
 use super::script_source_authority::{
     issue_parser_normal_program_source_authority_v1,
@@ -56,6 +59,7 @@ pub(crate) struct ParsedProgramWithCallableParameterSourceV1 {
     canonical_script_source_rows: CanonicalScriptSourceRowsDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     normal_root_source: ParserNormalRootSourceDispositionV1,
+    normal_source_plan_surface: ParserNormalSourcePlanSurfaceDispositionV1,
 }
 
 impl NyashParser {
@@ -88,10 +92,24 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         &self.normal_root_source
     }
 
+    #[cfg(test)]
+    pub(in crate::parser) fn normal_source_plan_surface(
+        &self,
+    ) -> &ParserNormalSourcePlanSurfaceDispositionV1 {
+        &self.normal_source_plan_surface
+    }
+
     pub(in crate::parser) fn new(
         completed: CompletedParserPostpassV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,
     ) -> Self {
+        let mut completed = completed;
+        let source_plan_seed = completed.consume_normal_source_plan_seed();
+        let normal_source_plan_surface = ParserNormalSourcePlanSurfaceIssuerV1::issue_once(
+            &completed,
+            &parameter_source,
+            source_plan_seed,
+        );
         let canonical_script_admission =
             issue_canonical_script_cohort(&completed, &parameter_source);
         let canonical_script_source_rows = match &parameter_source {
@@ -122,6 +140,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             canonical_script_source_rows,
             source_authority,
             normal_root_source,
+            normal_source_plan_surface,
         }
     }
 
@@ -190,6 +209,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             canonical_script_source_rows,
             source_authority,
             normal_root_source,
+            normal_source_plan_surface,
         } = self;
         // Preserve the pre-existing source-backed disposition for the
         // already-sealed callable cohort.  The unified root disposition is
@@ -210,6 +230,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
                             CanonicalScriptSourceRowsDispositionV1::MovedToParallelHandoff,
                         source_authority,
                         normal_root_source,
+                        normal_source_plan_surface,
                     },
                 ),
                 canonical_script_source_rows,
@@ -238,6 +259,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             canonical_script_source_rows,
             source_authority,
             normal_root_source,
+            normal_source_plan_surface,
         } = self;
         let normal_root_source = normal_root_source
             .discard_before_a()
@@ -250,6 +272,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             canonical_script_source_rows,
             source_authority,
             normal_root_source,
+            normal_source_plan_surface,
         })
     }
 
@@ -271,6 +294,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             canonical_script_source_rows: _,
             source_authority,
             normal_root_source: _,
+            normal_source_plan_surface: _,
         } = self;
         if source_authority.composite_source_is_ready() {
             return Err(ParserCallableSyntaxLoanErrorV1::CompositeSourceReadyCannotBeDiscarded);
@@ -344,6 +368,7 @@ impl ParserCallableSourceDispositionV1 {
                     canonical_script_source_rows: _,
                     source_authority,
                     normal_root_source,
+                    normal_source_plan_surface: _,
                 } = product;
                 completed.into_normal_callable_program_with_root_source(
                     parameter_source,

@@ -114,6 +114,11 @@ fallback/retry = 0
 touched production/test source < 760 lines; hard stop at 800
 ```
 
+Reusable guard: `tools/checks/frontend_normal_source_plan_surface_i0_a_guard.sh`.
+It checks the single parser issuer/product consumer, one-shot seed consumption,
+narrow static-seal ownership, compiler/policy isolation, focused evidence, and
+the source-size limits.
+
 ## Stop
 
 Return to `design_stop` without adding a compatibility adapter if any of the
