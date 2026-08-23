@@ -1,7 +1,7 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::CanonicalSourceBytesDigestV1;
 use crate::parser::{BuildMode, GrammarProfile, NyashParser, ParserBuildConfig};
-use crate::parser::callable_parameter_source::ParserMainAppEntryDispositionV1;
+use crate::parser::callable_parameter_source::ParserNormalRootSourceDispositionV1;
 
 use super::*;
 
@@ -70,8 +70,8 @@ fn main_app_disposition_moves_through_prepared_and_final_source() {
     )
     .expect("exact Main source transform");
     assert!(matches!(
-        final_source.main_app_entry(),
-        ParserMainAppEntryDispositionV1::AppMainReady(_)
+        final_source.normal_root_source(),
+        ParserNormalRootSourceDispositionV1::AppReady(_)
     ));
 }
 
@@ -83,10 +83,8 @@ fn main_app_non_ready_disposition_moves_without_reclassification() {
     )
     .expect("typed non-ready Main source transform");
     assert!(matches!(
-        final_source.main_app_entry(),
-        ParserMainAppEntryDispositionV1::Outside(
-            crate::parser::callable_parameter_source::ParserMainAppEntryOutsideReasonV1::NonZeroMainArity
-        )
+        final_source.normal_root_source(),
+        ParserNormalRootSourceDispositionV1::Outside(_)
     ));
 }
 

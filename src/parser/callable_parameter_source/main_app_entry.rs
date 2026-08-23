@@ -19,6 +19,7 @@ use crate::parser::callable_source_anchor::CallableDeclarationIdentityV1;
 use crate::parser::postpass_envelope::{
     CompletedParserPostpassV1, ParserPostpassProgramCohortV1,
 };
+use crate::parser::callable_parameter_source::ParserInvocationWitnessV1;
 use crate::parser::source_authority::{SourceBoxDeclarationSiteV1, SourceBoxMethodSiteV1};
 
 #[derive(Debug)]
@@ -29,6 +30,13 @@ pub(in crate::parser) struct ParserMainAppEntrySealV1 {
 }
 
 impl ParserMainAppEntrySealV1 {
+    pub(in crate::parser) fn same_parser_source(
+        &self,
+        witness: &ParserInvocationWitnessV1,
+    ) -> bool {
+        witness.same_parser_brand(self.box_site.path().brand())
+    }
+
     pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
         &self.box_site
     }

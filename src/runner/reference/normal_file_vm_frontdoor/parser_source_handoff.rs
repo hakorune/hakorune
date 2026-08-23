@@ -31,6 +31,10 @@ impl CanonicalParserSourceHandoffV1 {
         profile: SealedNormalEntryProfileV1,
         receipt: NormalFileSourceReceiptV1,
     ) -> Self {
+        debug_assert!(
+            disposition.root_is_discarded_before_a(),
+            "reference Script handoff must explicitly close root disposition first"
+        );
         let parser_invocation_witness = script_rows.parser_invocation_witness();
         let lineage = NormalParserSourceLineageV1::issue(
             receipt.source_identity.clone(),

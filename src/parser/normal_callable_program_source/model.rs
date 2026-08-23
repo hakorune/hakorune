@@ -5,7 +5,7 @@ use hakorune_frontend_parser::parser::GrammarProfile;
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-    ParserMainAppEntryDispositionV1,
+    ParserNormalRootSourceDispositionV1,
     with_parser_composite_source_loan_from_normal_authority,
     with_parser_normal_program_source_loan, ParserNormalProgramSourceAuthorityDispositionV1,
     ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
@@ -134,7 +134,7 @@ pub(crate) struct PreparedNormalCallableProgramSourceV1 {
     initial: VerifiedInitialCallableProgramSourceV1,
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
-    main_app_entry: ParserMainAppEntryDispositionV1,
+    normal_root_source: ParserNormalRootSourceDispositionV1,
 }
 
 impl PreparedNormalCallableProgramSourceV1 {
@@ -142,7 +142,7 @@ impl PreparedNormalCallableProgramSourceV1 {
         initial: VerifiedInitialCallableProgramSourceV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
-        main_app_entry: ParserMainAppEntryDispositionV1,
+        normal_root_source: ParserNormalRootSourceDispositionV1,
     ) -> Result<Self, NormalCallableParameterSourceRejectV1> {
         if let ParserCallableParameterSourceDispositionV1::Complete(catalog) = &parameter_source {
             validate_direct_parameter_coverage(initial.callable_rows(), catalog)?;
@@ -156,7 +156,7 @@ impl PreparedNormalCallableProgramSourceV1 {
             initial,
             parameter_source,
             source_authority,
-            main_app_entry,
+            normal_root_source,
         })
     }
 
@@ -172,8 +172,8 @@ impl PreparedNormalCallableProgramSourceV1 {
         self.source_authority.composite_source_is_ready()
     }
 
-    pub(in crate::parser) fn main_app_entry(&self) -> &ParserMainAppEntryDispositionV1 {
-        &self.main_app_entry
+    pub(in crate::parser) fn normal_root_source(&self) -> &ParserNormalRootSourceDispositionV1 {
+        &self.normal_root_source
     }
 
     /// Lend the parser-issued composite source at the named admission
@@ -205,7 +205,7 @@ impl PreparedNormalCallableProgramSourceV1 {
         ParserCallableParameterSourceDispositionV1,
         ParserNormalProgramSourceAuthorityDispositionV1,
         super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
-        ParserMainAppEntryDispositionV1,
+        ParserNormalRootSourceDispositionV1,
     ) {
         let (ast, sources, slots, constructor_source) = self.initial.into_transform_parts();
         (
@@ -215,7 +215,7 @@ impl PreparedNormalCallableProgramSourceV1 {
             self.parameter_source,
             self.source_authority,
             constructor_source.expect("constructor source checked at issue"),
-            self.main_app_entry,
+            self.normal_root_source,
         )
     }
 }
@@ -237,7 +237,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
-    main_app_entry: ParserMainAppEntryDispositionV1,
+    normal_root_source: ParserNormalRootSourceDispositionV1,
     source_lineage: Option<NormalParserSourceLineageV1>,
     _lineage: ExactCallablePreservingTransformReceiptV1,
 }
@@ -253,7 +253,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
         parameter_source: ParserCallableParameterSourceDispositionV1,
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
-        main_app_entry: ParserMainAppEntryDispositionV1,
+        normal_root_source: ParserNormalRootSourceDispositionV1,
     ) -> Self {
         Self {
             ast,
@@ -262,7 +262,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             parameter_source,
             source_authority,
             constructor_source,
-            main_app_entry,
+            normal_root_source,
             source_lineage: None,
             _lineage: ExactCallablePreservingTransformReceiptV1,
         }
@@ -289,8 +289,8 @@ impl VerifiedFinalCallableProgramSourceV1 {
         self.source_authority.composite_source_is_ready()
     }
 
-    pub(in crate::parser) fn main_app_entry(&self) -> &ParserMainAppEntryDispositionV1 {
-        &self.main_app_entry
+    pub(in crate::parser) fn normal_root_source(&self) -> &ParserNormalRootSourceDispositionV1 {
+        &self.normal_root_source
     }
 
     /// Lend the parser-issued composite source at the final source owner.

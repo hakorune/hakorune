@@ -1,12 +1,16 @@
 use super::canonical_script_source_admission::{
-    issue_canonical_script_cohort, CanonicalScriptCohortDispositionV1,
+    issue_canonical_script_cohort,
 };
 use super::catalog::{
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
 };
 use super::composite_source::issue_parser_composite_source_v1;
 use super::main_app_entry::{
-    issue_parser_main_app_entry_v1, ParserMainAppEntryDispositionV1,
+    issue_parser_main_app_entry_v1,
+};
+use super::normal_root_source::{
+    issue_parser_normal_root_source_v1, ParserNormalRootSourceDiscardErrorV1,
+    ParserNormalRootSourceDispositionV1,
 };
 use super::retained::RetainedParserCallableSemanticSourceV1;
 use super::script_source_authority::{
@@ -38,16 +42,20 @@ pub(crate) enum ParserCallableSourceRetentionErrorV1 {
     CompositeSourceReadyCannotBeDiscarded,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum ParserCallableSourceRootRouteRejectV1 {
+    AppReadyRequiresNormalRootConsumer,
+}
+
 /// One-shot total parser result plus its sibling callable parameter source
 /// catalog. Neither side can be paired with a product from another invocation.
 #[derive(Debug)]
 pub(crate) struct ParsedProgramWithCallableParameterSourceV1 {
     completed: CompletedParserPostpassV1,
     parameter_source: ParserCallableParameterSourceDispositionV1,
-    canonical_script_admission: CanonicalScriptCohortDispositionV1,
     canonical_script_source_rows: CanonicalScriptSourceRowsDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
-    main_app_entry: ParserMainAppEntryDispositionV1,
+    normal_root_source: ParserNormalRootSourceDispositionV1,
 }
 
 impl NyashParser {
@@ -76,8 +84,8 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         &self.parameter_source
     }
 
-    pub(in crate::parser) fn main_app_entry(&self) -> &ParserMainAppEntryDispositionV1 {
-        &self.main_app_entry
+    pub(in crate::parser) fn normal_root_source(&self) -> &ParserNormalRootSourceDispositionV1 {
+        &self.normal_root_source
     }
 
     pub(in crate::parser) fn new(
@@ -101,18 +109,20 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             composite_source,
         );
         let main_app_entry = issue_parser_main_app_entry_v1(&completed, &parameter_source);
+        let (normal_root_source, canonical_script_source_rows) =
+            issue_parser_normal_root_source_v1(
+                main_app_entry,
+                canonical_script_admission,
+                canonical_script_source_rows,
+                &source_authority,
+            );
         Self {
             completed,
             parameter_source,
-            canonical_script_admission,
             canonical_script_source_rows,
             source_authority,
-            main_app_entry,
+            normal_root_source,
         }
-    }
-
-    pub(crate) fn canonical_script_admission(&self) -> &CanonicalScriptCohortDispositionV1 {
-        &self.canonical_script_admission
     }
 
     pub(in crate::parser) fn normal_module_source_rows(
@@ -140,7 +150,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             completed,
             parameter_source,
             source_authority,
-            main_app_entry,
+            normal_root_source,
             ..
         } = self;
         let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source else {
@@ -154,7 +164,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         Ok(RetainedParserCallableSemanticSourceV1::new(
             completed,
             catalog,
-            main_app_entry,
+            normal_root_source,
         ))
     }
 
@@ -177,19 +187,18 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         let Self {
             completed,
             parameter_source,
-            canonical_script_admission,
             canonical_script_source_rows,
             source_authority,
-            main_app_entry,
+            normal_root_source,
         } = self;
         // Preserve the pre-existing source-backed disposition for the
-        // already-sealed callable cohort.  The old boolean is deliberately
-        // not consulted by the admission issuer above; it is only a
-        // compatibility-preserving projection here.
+        // already-sealed callable cohort.  The unified root disposition is
+        // not re-issued here; this is only a compatibility-preserving
+        // projection for the existing source handoff.
         let is_canonical_source = completed.is_source_backed()
             || matches!(
-                &canonical_script_admission,
-                CanonicalScriptCohortDispositionV1::CanonicalScriptCohortAdmitted(_)
+                &normal_root_source,
+                ParserNormalRootSourceDispositionV1::ScriptReady(_)
             );
         if is_canonical_source {
             (
@@ -197,11 +206,10 @@ impl ParsedProgramWithCallableParameterSourceV1 {
                     ParsedProgramWithCallableParameterSourceV1 {
                         completed,
                         parameter_source,
-                        canonical_script_admission,
                         canonical_script_source_rows:
                             CanonicalScriptSourceRowsDispositionV1::MovedToParallelHandoff,
                         source_authority,
-                        main_app_entry,
+                        normal_root_source,
                     },
                 ),
                 canonical_script_source_rows,
@@ -221,6 +229,30 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         disposition.into_normal_callable_program()
     }
 
+    pub(crate) fn discard_root_before_a(
+        self,
+    ) -> Result<Self, ParserCallableSourceRootRouteRejectV1> {
+        let Self {
+            completed,
+            parameter_source,
+            canonical_script_source_rows,
+            source_authority,
+            normal_root_source,
+        } = self;
+        let normal_root_source = normal_root_source
+            .discard_before_a()
+            .map_err(|ParserNormalRootSourceDiscardErrorV1::AppReadyRequiresNormalRootConsumer| {
+                ParserCallableSourceRootRouteRejectV1::AppReadyRequiresNormalRootConsumer
+            })?;
+        Ok(Self {
+            completed,
+            parameter_source,
+            canonical_script_source_rows,
+            source_authority,
+            normal_root_source,
+        })
+    }
+
     /// Borrow exact callable declarations while consuming the parser product.
     ///
     /// The loan cannot escape the callback. The owned catalog moves into the
@@ -236,10 +268,9 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         let Self {
             completed,
             parameter_source,
-            canonical_script_admission: _,
             canonical_script_source_rows: _,
             source_authority,
-            main_app_entry: _,
+            normal_root_source: _,
         } = self;
         if source_authority.composite_source_is_ready() {
             return Err(ParserCallableSyntaxLoanErrorV1::CompositeSourceReadyCannotBeDiscarded);
@@ -253,6 +284,24 @@ impl ParsedProgramWithCallableParameterSourceV1 {
 }
 
 impl ParserCallableSourceDispositionV1 {
+    pub(crate) fn discard_root_before_a(
+        self,
+    ) -> Result<Self, ParserCallableSourceRootRouteRejectV1> {
+        match self {
+            Self::SourceBacked(product) => product
+                .discard_root_before_a()
+                .map(Self::SourceBacked),
+            Self::Compatibility(postpass) => Ok(Self::Compatibility(postpass)),
+        }
+    }
+
+    pub(crate) fn root_is_discarded_before_a(&self) -> bool {
+        match self {
+            Self::SourceBacked(product) => product.normal_root_source.is_discarded_before_a(),
+            Self::Compatibility(_) => true,
+        }
+    }
+
     pub(crate) fn ast(&self) -> &crate::ast::ASTNode {
         match self {
             Self::SourceBacked(product) => product.completed.ast(),
@@ -292,15 +341,14 @@ impl ParserCallableSourceDispositionV1 {
                 let ParsedProgramWithCallableParameterSourceV1 {
                     completed,
                     parameter_source,
-                    canonical_script_admission: _,
                     canonical_script_source_rows: _,
                     source_authority,
-                    main_app_entry,
+                    normal_root_source,
                 } = product;
-                completed.into_normal_callable_program_with_main_app_entry(
+                completed.into_normal_callable_program_with_root_source(
                     parameter_source,
                     source_authority,
-                    main_app_entry,
+                    normal_root_source,
                 )
             }
             Self::Compatibility(postpass) => postpass.into_normal_callable_program(

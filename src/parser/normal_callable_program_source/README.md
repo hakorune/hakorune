@@ -73,11 +73,17 @@ The first cohort accepts exact callable-preserving transforms. Added, removed,
 reordered, or changed callable declarations reject. Broader transform receipts
 must be added as explicit source transactions rather than AST reconstruction.
 
-## Main/App parser disposition transport I0
+## Normal source-root disposition transport I0
 
-The parser-only `ParserMainAppEntryDispositionV1` is issued exactly once by
-`issue_parser_main_app_entry_v1`. This source product is transported as a
-required, non-`Clone` field through the existing source-backed owners:
+The parser-only `ParserNormalRootSourceDispositionV1` is issued exactly once
+by the private parser facade inside
+`ParsedProgramWithCallableParameterSourceV1::new`. It co-seals the existing
+opaque App seal or positive pure-Script cohort witness. It does not own or
+clone `CanonicalScriptSourceRowsV1`; those rows remain the separate A-handoff
+product.
+
+The unified root product is transported as one required, non-`Clone` field
+through the existing source-backed owners:
 
 ```text
 ParsedProgramWithCallableParameterSourceV1
@@ -85,12 +91,14 @@ ParsedProgramWithCallableParameterSourceV1
   -> VerifiedFinalCallableProgramSourceV1
 ```
 
-The retained parser-source lane carries the same disposition as a sibling
-field. `Compatibility` remains a separate AST-only lane and never receives a
-synthetic Main/App row. The transform moves the existing disposition without
-re-running parser observation or classifying Main again. No root selection,
-`NormalCompileRequestV1`, Builder, Recipe, Join, MIR, publication, or fallback
-consumer is connected by this transport cell.
+The retained parser-source lane carries the same unified disposition. A
+reference Script-A frontdoor explicitly moves it to `DiscardedBeforeA` before
+moving the independent Script rows; `AppReady` on that route is a typed reject.
+`Compatibility` remains a separate AST-only lane and never receives a
+synthetic Main/App or Script row. The transform moves the existing root
+disposition without re-running parser observation or classifying the root
+again. No root selection, `NormalCompileRequestV1`, Builder, Recipe, Join,
+MIR, publication, or fallback consumer is connected by this transport cell.
 
 ## Composite preservation transport
 

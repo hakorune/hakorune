@@ -117,7 +117,7 @@ enum CompletedParserProgramV1 {
 enum NormalCallableProgramAdmissionV1 {
     Compatibility,
     SourceBacked(
-        super::callable_parameter_source::ParserMainAppEntryDispositionV1,
+        super::callable_parameter_source::ParserNormalRootSourceDispositionV1,
     ),
 }
 
@@ -252,11 +252,11 @@ impl CompletedParserPostpassV1 {
         )
     }
 
-    pub(super) fn into_normal_callable_program_with_main_app_entry(
+    pub(super) fn into_normal_callable_program_with_root_source(
         self,
         parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
         source_authority: super::callable_parameter_source::ParserNormalProgramSourceAuthorityDispositionV1,
-        main_app_entry: super::callable_parameter_source::ParserMainAppEntryDispositionV1,
+        normal_root_source: super::callable_parameter_source::ParserNormalRootSourceDispositionV1,
     ) -> Result<
         super::normal_callable_program_source::ParsedNormalCallableProgramV1,
         super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
@@ -264,7 +264,7 @@ impl CompletedParserPostpassV1 {
         self.into_normal_callable_program_with_admission(
             parameter_source,
             source_authority,
-            NormalCallableProgramAdmissionV1::SourceBacked(main_app_entry),
+            NormalCallableProgramAdmissionV1::SourceBacked(normal_root_source),
         )
     }
 
@@ -292,7 +292,7 @@ impl CompletedParserPostpassV1 {
 
         match self.program {
             CompletedParserProgramV1::Initial(program) => {
-                let NormalCallableProgramAdmissionV1::SourceBacked(main_app_entry) = admission
+                let NormalCallableProgramAdmissionV1::SourceBacked(normal_root_source) = admission
                 else {
                     return Err(super::normal_callable_program_source::
                         NormalCallableParameterSourceRejectV1::MainAppEntryCompatibilityLoss);
@@ -301,7 +301,7 @@ impl CompletedParserPostpassV1 {
                     program,
                     parameter_source,
                     source_authority,
-                    main_app_entry,
+                    normal_root_source,
                 )
                 .map(Program::SourceBacked)
             }

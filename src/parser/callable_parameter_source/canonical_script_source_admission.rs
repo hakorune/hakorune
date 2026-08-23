@@ -11,6 +11,7 @@ use super::catalog::{
 use crate::ast::ASTNode;
 use crate::parser::postpass_envelope::{CompletedParserPostpassV1, ParserPostpassProgramCohortV1};
 use crate::parser::source_authority::ParserInvocationBrandV1;
+use super::parser_invocation_witness::ParserInvocationWitnessV1;
 
 #[derive(Debug)]
 pub(crate) enum CanonicalScriptCohortDispositionV1 {
@@ -47,6 +48,13 @@ impl CanonicalScriptCohortAdmissionV1 {
 
     pub(crate) fn same_parser_source(&self, other: &Self) -> bool {
         self.parser_brand.same_as(&other.parser_brand)
+    }
+
+    pub(in crate::parser) fn same_parser_source_witness(
+        &self,
+        other: &ParserInvocationWitnessV1,
+    ) -> bool {
+        other.same_parser_brand(&self.parser_brand)
     }
 
     pub(super) fn parser_brand(&self) -> &ParserInvocationBrandV1 {
@@ -163,6 +171,9 @@ fn classify_no_box_program(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::normal_root_source::{
+        ParserNormalRootScriptTerminalV1, ParserNormalRootSourceDispositionV1,
+    };
     use crate::parser::{NyashParser, ParserBuildConfig};
 
     fn parse(
@@ -178,12 +189,12 @@ mod tests {
     #[test]
     fn pure_script_requires_the_exhaustive_shape_and_issues_once() {
         let parsed = parse("print(1)\n");
-        let CanonicalScriptCohortDispositionV1::CanonicalScriptCohortAdmitted(admission) =
-            parsed.canonical_script_admission()
+        let ParserNormalRootSourceDispositionV1::ScriptReady(admission) =
+            parsed.normal_root_source()
         else {
             panic!("pure Script source should be admitted")
         };
-        assert!(admission.same_parser_source(admission));
+        assert!(admission.same_parser_source(&admission));
     }
 
     #[test]
@@ -197,14 +208,16 @@ mod tests {
     fn boxes_remain_compatibility_and_using_is_unresolved() {
         let boxed = parse("box Plain { run() { return 1 } }\n");
         assert!(matches!(
-            boxed.canonical_script_admission(),
-            CanonicalScriptCohortDispositionV1::CompatibilitySource
+            boxed.normal_root_source(),
+            ParserNormalRootSourceDispositionV1::Outside(_)
         ));
 
         let using = parse("using plain\nprint(1)\n");
         assert!(matches!(
-            using.canonical_script_admission(),
-            CanonicalScriptCohortDispositionV1::CohortUnresolved
+            using.normal_root_source(),
+            ParserNormalRootSourceDispositionV1::ScriptTerminal(
+                ParserNormalRootScriptTerminalV1::CohortUnresolved
+            )
         ));
     }
 
@@ -212,16 +225,16 @@ mod tests {
     fn independent_parser_invocations_have_distinct_admission_seals() {
         let left = parse("print(1)\n");
         let right = parse("print(1)\n");
-        let CanonicalScriptCohortDispositionV1::CanonicalScriptCohortAdmitted(left) =
-            left.canonical_script_admission()
+        let ParserNormalRootSourceDispositionV1::ScriptReady(left) =
+            left.normal_root_source()
         else {
             panic!("left admission")
         };
-        let CanonicalScriptCohortDispositionV1::CanonicalScriptCohortAdmitted(right) =
-            right.canonical_script_admission()
+        let ParserNormalRootSourceDispositionV1::ScriptReady(right) =
+            right.normal_root_source()
         else {
             panic!("right admission")
         };
-        assert!(!left.same_parser_source(right));
+        assert!(!left.same_parser_source(&right));
     }
 }

@@ -340,6 +340,24 @@ impl LoadedNormalFileSourceV1 {
                 }
             };
         let (disposition, script_rows) = product.into_source_disposition_with_script_rows();
+        let disposition = match disposition.discard_root_before_a() {
+            Ok(disposition) => disposition,
+            Err(error) => {
+                return Err(RejectedNormalFileSourceV1::Parse {
+                    loaded: LoadedNormalFileSourceV1 {
+                        source_file,
+                        source_text,
+                        profile,
+                        receipt,
+                        _seal: LoadedNormalFileSourceSealV1,
+                    },
+                    error: NormalFileParseErrorV1 {
+                        detail: format!("normal source root rejected before Script A: {error:?}")
+                            .into_boxed_str(),
+                    },
+                });
+            }
+        };
         if let Some(error) = find_no_import_violation(disposition.ast()) {
             return Err(RejectedNormalFileSourceV1::SourceProfile {
                 loaded: LoadedNormalFileSourceV1 {

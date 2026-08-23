@@ -20,6 +20,8 @@ pub(crate) use loan::{
 pub(crate) use model::{
     ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     ParserNormalProgramSourceAuthorityDispositionV1,
+    ParserNormalProgramSourceAuthorityIncompleteV1,
+    ParserNormalProgramSourceAuthorityIntegrityIssueV1,
     ParserNormalProgramSourceAuthorityUnavailableV1,
 };
 pub(in crate::parser) use module_rows::ParserNormalModuleSourceRowsDispositionV1;

@@ -10,6 +10,7 @@ mod composite_source;
 mod issuer;
 mod main_app_entry;
 mod model;
+mod normal_root_source;
 mod parse_product;
 mod parser_invocation_witness;
 mod product;
@@ -30,9 +31,7 @@ pub(in crate::parser) use catalog::{
 pub(super) use issuer::project_neutral_parameter_syntax_v1;
 pub(crate) use model::ResolverMethodParameterSyntaxV1;
 pub(crate) use parser_invocation_witness::ParserInvocationWitnessV1;
-pub(in crate::parser) use main_app_entry::{
-    ParserMainAppEntryDispositionV1, ParserMainAppEntryOutsideReasonV1,
-};
+pub(in crate::parser) use normal_root_source::ParserNormalRootSourceDispositionV1;
 pub(in crate::parser) use model::{
     ParserCallableDeclarationKindV1, ParserCallableParameterDeclarationSourceV1,
 };
@@ -73,5 +72,8 @@ mod retained_tests;
 #[cfg(test)]
 #[path = "main_app_entry_tests.rs"]
 mod main_app_entry_tests;
+#[cfg(test)]
+#[path = "normal_root_source_tests.rs"]
+mod normal_root_source_tests;
 #[cfg(test)]
 mod tests;

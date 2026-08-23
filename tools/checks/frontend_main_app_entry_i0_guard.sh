@@ -20,8 +20,8 @@ guard_require_files "$TAG" "$SOURCE" "$TESTS" "$PRODUCT" "$STATIC_SOURCE" \
 
 [[ "$(rg -c 'pub\(in crate::parser\) fn issue_parser_main_app_entry_v1' "$SOURCE")" == 1 ]]
 [[ "$(rg -c 'issue_parser_main_app_entry_v1\(&completed, &parameter_source\)' "$PRODUCT")" == 1 ]]
-[[ "$(rg -c 'main_app_entry: ParserMainAppEntryDispositionV1' "$PRODUCT")" == 1 ]]
-[[ "$(rg -c 'fn main_app_entry\(' "$PRODUCT")" == 1 ]]
+[[ "$(rg -c 'normal_root_source: ParserNormalRootSourceDispositionV1' "$PRODUCT")" == 1 ]]
+[[ "$(rg -c 'fn normal_root_source\(' "$PRODUCT")" == 1 ]]
 [[ "$(rg -c 'method_site: SourceBoxMethodSiteV1' "$STATIC_SOURCE")" == 1 ]]
 [[ "$(rg -c 'callable_identity: CallableDeclarationIdentityV1' "$PARAM_MODEL")" == 2 ]]
 
