@@ -1,5 +1,5 @@
 ---
-Status: Design stop — policy boundary opened; no implementation authorized
+Status: Design accepted — Candidate A selected; parser-only I0 opened
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-ADMISSION-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-static-mixed-postpass-policy-d0-2026-08-23.md
@@ -18,9 +18,9 @@ CeremonyTier: T2 — program entry authority boundary
 - **Current implementation status:** static parent parser-only I0 and the
   static/mixed postpass policy are accepted. No entry consumer or production
   switch is open.
-- **Next ordered task:** prove a same-invocation, program-wide unique static
-  `Main` plus direct `main/0` relation, then decide whether a parser-owned
-  entry disposition can replace or wrap the old raw-root authority.
+- **Next ordered task:** implement the parser-only I0 at the completed
+  callable-source product boundary, then verify the disposition without a
+  downstream consumer.
 - **Production stop line:** no `root_is_app_mode` mutation, Main child/body
   lowering, NormalCompileRequest, Builder effect, Recipe/Join, MIR, runner
   entry selection, fallback, or compatibility retirement.
@@ -38,8 +38,9 @@ Decision:
   expansion; keep the entry slice at one exact Main/main/0 cohort.
 Source authority + canonical issuer:
   one same-invocation static-parent seal plus exact program-level uniqueness
-  and direct callable relation; the sole proposed issuer is the private
-  ParserMainAppEntryAuthorityIssuerV1::issue_once at the postpass boundary.
+  and direct callable relation; the sole issuer is the private
+  ParserMainAppEntryAuthorityIssuerV1::issue_once at
+  ParsedProgramWithCallableParameterSourceV1::new.
 Non-authority:
   Main or main names alone, AST re-scan, raw VerifiedRawRootExpansionV1,
   root_is_app_mode, normal source-plan classification, Main-child selection,
@@ -295,6 +296,36 @@ Main child selection or runner entry selection must be moved at the same time
 the exact relation cannot stay below the 760-line split trigger
 ```
 
+## D0.1 relation decision
+
+The read-only source audit closes the exact-relation question for the bounded
+I0. The existing parser products already carry the required facts without an
+AST re-scan:
+
+```text
+ParserStaticBoxSourceSealV1
+  -> exact Box declaration syntax/name
+  -> same-invocation Box path/brand
+  -> total member coverage
+  -> one exact direct method site for the bounded cohort
+
+ParserCallableParameterSourceCatalogV1
+  -> same-invocation method source site
+  -> static declaration kind
+  -> diagnostic method syntax name
+  -> exact parameter rows and arity
+```
+
+The only source-side addition allowed by I0 is a parser-private accessor for
+the already co-sealed direct method site. It is not a new source scan, identity
+key, or second issuer. `ParserMainAppEntryAuthorityIssuerV1::issue_once` can
+then compare the `Main`/`main`/zero-parameter admission rules against those
+same-brand/path facts at the completed callable-source product boundary.
+
+Therefore Candidate A is accepted for a parser-only I0. The old
+`VerifiedRawRootExpansionV1` remains a noncanonical compatibility owner until
+a later retirement card; it is not wrapped or invoked by the new issuer.
+
 ## Acceptance packet for this design stop
 
 ```text
@@ -302,7 +333,7 @@ Decision brief = 1
 source authority and sole proposed issuer named = 1
 candidate comparison = 3
 program-wide uniqueness cases = 0/1/multiple specified
-old raw-root callers inventoried = required before implementation
+old raw-root callers inventoried = 10 non-test references recorded
 Builder/runner effects before admission = 0
 AST/name/ordinal repair = 0
 fallback/retry/reselection = 0
@@ -311,9 +342,6 @@ production caller = 0
 
 ## Current Decision
 
-The recommended Candidate A remains a design candidate only. The next
-implementation slice is not open until D0.1 proves that the parser static
-parent seal can expose the exact `Main`/`main/0` relation without a second
-source scan or a name/ordinal join. If that proof cannot be made inside the
-parser source authority, keep this card at `NoSafeSlice` and design the missing
-source relation instead of adapting the Builder selector.
+Candidate A is accepted only for the bounded parser-only I0 described below.
+No semantic, Builder, runner, or production entry switch is accepted by this
+D0. The next card owns implementation and evidence.
