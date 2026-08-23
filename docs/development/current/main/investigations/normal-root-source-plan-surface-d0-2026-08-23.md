@@ -347,16 +347,20 @@ The concrete owner files for the next design/implementation manifest are
 production edge remains closed until these files can satisfy the above move
 without an optional missing state or a self-referential borrow.
 
-This D0-E design is the only permitted way to reopen I0. If the seed cannot
-be moved into `new` without clone/reissue/self-reference, keep `NoSafeSlice`
-and do not change `work_mode`.
+This D0-E design is the only permitted way to reopen the full source-plan I0.
+The staged transport-only cell
+`normal-root-source-plan-seed-retention-i0-2026-08-23.md` is allowed in
+`fast` because it stops before `new` consumes the seed and makes no semantic
+source-plan claim. If that cell needs to cross its declared boundary, keep
+the full I0 in `NoSafeSlice` and return to `design_stop`.
 
-### D0-E audit result — design remains stopped
+### D0-E audit result — full source-plan remains stopped; seed retention is bounded
 
-The long read-only premise audit confirms that B-prime is the right shape,
-but the current code has not yet earned `fast`. The missing proof is now
-bounded to four ownership contracts; it is not permission to start a wider
-source-plan implementation.
+The long read-only premise audit confirms that B-prime is the right shape.
+The full source-plan implementation has not yet earned `fast`, but the first
+transport-only ownership cell is now separately bounded. The missing proof for
+the full route remains bounded to four ownership contracts; the active cell
+may address only the scoped initial-source borrow and finalizer retention.
 
 1. **Typed seed consume.** `CompletedParserPostpassV1` must own a required
    `ParserNormalSourcePlanSeedSlotV1`. The slot is a closed state such as
@@ -412,9 +416,10 @@ accepted path uses Option/default for missing = 0
 source-plan AST/name/ordinal authority scan = 0
 ```
 
-Until this packet is true, `CURRENT_STATE.toml.work_mode` stays
-`design_stop`, the I0 card stays parked, and no parser semantic receipt,
-fixture, fallback, or production switch may be added.
+Until this packet is true, the full source-plan I0 stays parked and no parser
+semantic receipt, fixture, fallback, compatibility expansion, or production
+switch may be added. The active seed-retention cell is the only permitted
+fast exception; it must not consume the seed in `new` or issue the bound.
 
 ### D0 acceptance / stop rule
 
