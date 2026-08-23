@@ -1,6 +1,6 @@
 # Normal root source-plan seed retention I0
 
-Status: active fast — one parser postpass ownership edge
+Status: closed fast — seed retained; next cell is source-plan surface D0
 Date: 2026-08-23
 Decision: NORMAL-ROOT-SOURCE-PLAN-SEED-RETENTION-I0
 Owner: parser postpass finalizer -> completed parser product
@@ -103,3 +103,24 @@ Return to `design_stop` immediately if this slice requires:
 - a new semantic `Verified*`/`Prepared*` product;
 - a touched source/test file reaching 760 lines.
 
+## Closeout evidence
+
+The bounded cell landed as `a30a4ffb72` and was pushed to `hakorune/main`.
+
+```text
+cargo check -p nyash-rust                                      PASS
+cargo test -p nyash-rust normal_source_plan_seed... --lib      PASS
+cargo test -p nyash-rust postpass_envelope --lib              PASS
+cargo test -p nyash-rust source_seal_finalizer --lib           PASS
+cargo test -p nyash-rust initial_callable_program_source --lib  PASS
+frontend_normal_source_plan_seed_retention_i0_guard.sh        PASS
+current_state_pointer_guard.sh                                PASS
+git diff --check                                               PASS
+```
+
+The repository-wide `cargo fmt --all -- --check` remains a pre-existing
+baseline red outside this cell; the new seed file and the changed test
+fragments pass focused `rustfmt --check`. No source-plan consumer, policy
+selection, compatibility change, fallback, Builder effect, or root cutover
+was included. The next decision is the full parser-backed source-plan surface
+D0, not seed consumption by implication.
