@@ -17,15 +17,15 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged 185
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-I0"
-current_design_stop = "Static Box parent D0 is accepted: use a separate parser-owned parent seal with bundled header/member coverage and same-brand/path static method relation. I0 remains parser-only; Main.main and downstream effects stay closed."
-current_blocker_token = "NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-I0: issue and transport one static parent source seal with no ordinary-seal extension, AST rescan, fallback, or downstream caller."
+work_mode = "design_stop"
+current_execution_row = "NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-D0"
+current_design_stop = "Static parent parser-only I0 is complete: one separate parent seal, bundled header/member coverage, same-brand/path callable relation, focused evidence, and no downstream caller. Keep static/mixed postpass policy and Main.main/App admission as separate decisions; do not implement downstream work yet."
+current_blocker_token = "NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-D0: decide the next static/mixed postpass or Main.main/App consumer boundary before opening downstream effects."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — static Box parent parser source I0"
+active_lane = "MirBuilder in-place replacement — static Box parent parser source D0 (I0 complete; next decision)"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -91,9 +91,9 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-static-box-parent-source-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-static-box-parent-source-d0-2026-08-23.md"
-latest_card_summary = "Static Box parent D0 is accepted; I0 issues one separate parser-owned parent seal with bundled header/member coverage and same-brand/path static method relation, with no downstream caller."
-next_design_card = "none-until-Decision"
-next_execution_card = "NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-I0"
+latest_card_summary = "Static Box parent parser-only I0 is complete: one separate parser-owned parent seal with bundled header/member coverage and same-brand/path static method relation, five focused tests, one reusable guard, and no downstream caller."
+next_design_card = "NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-D0"
+next_execution_card = "none-until-Decision"
 next_execution_card_path = "docs/development/current/main/investigations/normal-static-box-parent-source-d0-2026-08-23.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -116,5 +116,5 @@ landed_tail = [
   "2026-08-23: MIR-DYNAMIC-FAULT-CLEANUP-PRECLAIM-I0 is landed. Existing I6/I7 cleanup claims now occur once before Fault/CallOut-End effects; the dedicated Fault guard, selected Dynamic suite (10/10), CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-BACKEDGE-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0 is landed. Header validation and existing Backedge cleanup/I13..I16 claims now occur before `select_block` and the first physical effect; the dedicated Backedge guard, selected Dynamic suite (10/10), Fault/CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-INNER-RETURN-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: Compare/Bridge hardening (0f3a1c821d, 91bc0923d9), structural-lease cfg(test) retirement (40e862c3dc), callable-loop Outside observed/Ready row I0 (5365985372), root unpublished scope I0 (4757bcbd1c), and structure baseline taskification (7157bc6f23) are landed/pushed on main. Root I0 threads one same-brand unpublished candidate/collector through one private Ready edge; builder test-home R0 is the next closed BoxShape cell. Pure plan, ordinary Outside consumer, publication, parser, fallback, and performance remain closed.",
-  "2026-08-23: Structure R0s through if_control are complete. dynamic_full_body_recipe relocation remains NoSafeSlice. The Script direct-static four-flow/six-root D0 landed as narrowed B-prime: four byte-identical Recipe/claim-ledger files moved with two parent path edits and no re-export, body, caller, route, fallback, or authority change. The 333/424-line production pair remains below 760 (757 combined); the semantic-shelf structure/A-C/pointer guards and focused tests are green. The unchanged 775-line raw_invocation_source_transport.rs target-guard result is recorded as parent baseline debt. Parser Box declaration syntax I0 and ordinary module source-row I0 are both implemented and pushed; module rows use one parser issuer, existing ordinary source/callable relations, typed missing-seal stop, and no downstream effect. Static Box parent source/Main admission, pure-plan, ordinary Outside, publication, fallback, and performance remain closed."
+  "2026-08-23: Structure R0s through if_control are complete. dynamic_full_body_recipe relocation remains NoSafeSlice. The Script direct-static four-flow/six-root D0 landed as narrowed B-prime: four byte-identical Recipe/claim-ledger files moved with two parent path edits and no re-export, body, caller, route, fallback, or authority change. The 333/424-line production pair remains below 760 (757 combined); the semantic-shelf structure/A-C/pointer guards and focused tests are green. The unchanged 775-line raw_invocation_source_transport.rs target-guard result is recorded as parent baseline debt. Parser Box declaration syntax I0, ordinary module source-row I0, and static Box parent parser-only I0 are implemented and pushed; each uses one parser-owned source issuer, typed bounded states, focused evidence, and no downstream effect. Static/mixed consumer policy, Main/App admission, pure-plan, ordinary Outside, publication, fallback, and performance remain design-stopped."
 ]
