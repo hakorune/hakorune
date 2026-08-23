@@ -66,6 +66,43 @@ The second scan occurs after catalog installation, before lowerer invocation.
 This is a second root observer and is not allowed to become the canonical
 consumer of the parser disposition.
 
+## Worker audit decision — D0-B/C remains open
+
+The read-only audit converged on `NoSafeSlice` for the consumer implementation.
+The parser-side App admission is a Keeper, and the normal Program-body loan is
+the correct candidate authority for Script.  Neither currently proves the
+final transformed root structure required by the existing App/Script lowerer:
+
+```text
+AppReady(P1) + final root AST(P2)
+  -> exact root/static-child relation is not yet source-sealed
+```
+
+In particular, `validate_parser_normal_program_source_transform_v1` preserves
+the covered body prefix and composite relation but currently permits additional
+transformed root statements.  It therefore cannot yet be used as the root
+cohort-preservation proof.  `VerifiedMainExpansionV1::from_program` remains a
+second AST/name/ordinal classifier and is not an acceptable repair.
+
+The next design-only tasks are consequently:
+
+```text
+D0-G  Root-cohort transform contract
+      Decide how the existing parser root issuer rejects App/Script root
+      additions, removals, and structural drift after the final transform.
+
+D0-H  Parser-side App/Script structural issuer
+      Extend the existing root issuer (not a Builder classifier) with a
+      private structural relation: App seal + exact Main relation, or normal
+      Program-body HRTB coverage for Script.  Keep parser anchors opaque and
+      keep Script-A rows out of the normal-root path.
+
+D0-I  Re-open the consumer decision
+      Only after D0-G/H close, select the move-only lifecycle handoff and
+      specify its typed zero-effect terminal mapping.  Until then, production
+      root consumer count remains zero.
+```
+
 ## Authority map
 
 | Owner | Owns | Must not own |
