@@ -217,32 +217,6 @@ impl PreparedNormalCallableProgramSourceV1 {
         self.source_authority.composite_source_is_ready()
     }
 
-    pub(in crate::parser) fn normal_root_execution(
-        &self,
-    ) -> &ParserNormalRootExecutionSourceDispositionV1 {
-        &self.normal_root_execution
-    }
-
-    /// Lend the parser-issued composite source at the named admission
-    /// boundary. The higher-ranked callback cannot return an AST reference.
-    pub(crate) fn with_composite_source_loan<R>(
-        &self,
-        callback: impl for<'source> FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
-    ) -> Result<R, ParserCompositeSourceLoanRejectV1> {
-        with_parser_composite_source_loan_from_normal_authority(
-            &self.source_authority,
-            self.ast(),
-            callback,
-        )
-    }
-
-    pub(crate) fn with_normal_program_source_loan<R>(
-        &self,
-        callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
-    ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
-        with_parser_normal_program_source_loan(&self.source_authority, self.ast(), callback)
-    }
-
     pub(super) fn into_transform_input(
         self,
     ) -> super::transform::PreparedNormalCallableTransformInputV1 {
@@ -275,15 +249,6 @@ impl ParserNormalCallableTransformSessionV1 {
     ) -> Result<VerifiedFinalCallableProgramSourceV1, FinalCallableProgramSourceRejectV1> {
         let transformed = transform(self.initial.ast());
         super::transform::issue_test_callable_program_source_v1(self.initial, transformed)
-    }
-}
-
-impl ParsedNormalCallableProgramV1 {
-    pub(crate) fn ast(&self) -> &ASTNode {
-        match self {
-            Self::SourceBacked(source) => source.ast(),
-            Self::Compatibility { ast, .. } => ast,
-        }
     }
 }
 
