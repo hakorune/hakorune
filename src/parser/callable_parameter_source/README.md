@@ -161,6 +161,24 @@ Recipe key, MIR value, fallback, or production activation. The next owner
 retains this whole source, resolves its declarations exactly once, and owns the
 only forest/projection batch used by normal-source and parameter-contract views.
 
+## Normal source-plan seed retention I0
+
+`normal_source_plan_seed.rs` is the bounded transport owner for the ordinary
+postpass handoff. `OpenParserPostpassProductV1::finalize` is its sole issuer for
+the current cell: it co-seals the parser-issued projected program slots with
+the full prepared static-parent/member rows already owned by that invocation.
+The accepted seed is non-`Clone` and stores no AST reference, semantic policy,
+Recipe, Join, MIR, Builder effect, fallback, or compatibility retry.
+
+The initial callable-source issuer borrows only the projected slot set for the
+duration needed to create owned initial slots. The seed itself then moves
+through `ParsedProgramWithSourceV1` into `CompletedParserPostpassV1`; it is not
+split into parallel source products and no borrow is retained by the initial
+source. Legacy AST/compatibility terminals explicitly call
+`discard_unconnected()` until the later source-plan consumer is admitted. The
+next cell, and not this one, decides how `Ready` is consumed and how a full
+Main structural projection is formed.
+
 ## Main/App entry admission I0
 
 `main_app_entry.rs` is the parser-only admission owner for exactly one

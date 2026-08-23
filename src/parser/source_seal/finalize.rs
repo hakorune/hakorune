@@ -122,10 +122,11 @@ impl OpenParserPostpassProductV1 {
             metadata,
             ..
         } = self;
-        let (prepared, _prepared_static_box_sources, callable_rows) = source_session.into_parts();
+        let (prepared, prepared_static_box_sources, callable_rows) = source_session.into_parts();
         finalize_program(
             ast,
             prepared,
+            prepared_static_box_sources,
             callable_rows.into_boxed_slice(),
             final_box_paths,
             projected_program_item_slots,
@@ -179,10 +180,15 @@ impl OpenParserPostpassProductV1 {
             );
         let ast = super::super::postpass_compatibility::lower(ast)?;
         if semantic_candidate {
+            let program_slots = program_slots.ok_or_else(|| {
+                map_error(SourceSealFinalizationErrorV1::InitialCallableProgramSource(
+                    super::super::initial_callable_program_source::InitialCallableProgramSourceRejectV1::MissingProgramSlotSet,
+                ))
+            })?;
             let mut program = super::super::initial_callable_program_source::issue_initial_callable_program_source_v1(
                 ast,
                 callable_rows,
-                program_slots,
+                &program_slots,
                 &prepared_seals,
             )
             .map_err(|error| {
@@ -301,6 +307,9 @@ impl FinalizerCoveragePlanV1 {
 fn finalize_program(
     ast: ASTNode,
     prepared: Vec<PreparedBoxSourceSealV1>,
+    prepared_static_box_sources: Vec<
+        super::super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1,
+    >,
     callable_rows: Box<[super::super::callable_source_anchor::PreparedCallableSourceV1]>,
     final_box_paths: Vec<SourceBoxDeclarationPathV1>,
     projected_program_item_slots: Option<
@@ -310,6 +319,12 @@ fn finalize_program(
 ) -> Result<ParsedProgramWithSourceV1, SourceSealFinalizationErrorV1> {
     let coverage = FinalizerCoveragePlanV1::issue(&prepared, &final_box_paths)?;
     validate_ordinary_source_seals(&ast, &prepared, &coverage)?;
+    let normal_source_plan_seed =
+        super::super::callable_parameter_source::ParserNormalSourcePlanSeedV1::issue(
+            projected_program_item_slots,
+            prepared_static_box_sources,
+        )
+        .map_err(SourceSealFinalizationErrorV1::NormalSourcePlanSeed)?;
     let generated_delegate_source_relations = prepared
         .iter()
         .flat_map(PreparedBoxSourceSealV1::generated_delegate_source_relations)
@@ -320,7 +335,7 @@ fn finalize_program(
         super::super::initial_callable_program_source::issue_initial_callable_program_source_v1(
             ast,
             callable_rows,
-            projected_program_item_slots,
+            normal_source_plan_seed.projected_program_slots(),
             &prepared,
         )
         .map_err(SourceSealFinalizationErrorV1::InitialCallableProgramSource)?;
@@ -360,6 +375,7 @@ fn finalize_program(
         source_seals,
         final_box_ordinals: final_box_ordinals.into_boxed_slice(),
         generated_delegate_source_relations,
+        normal_source_plan_seed,
         metadata,
     })
 }
@@ -523,6 +539,9 @@ pub(in crate::parser) fn map_error(
         }
         SourceSealFinalizationErrorV1::ConstructorSourceCatalog(error) => {
             format!("parser constructor source catalog rejected: {error:?}")
+        }
+        SourceSealFinalizationErrorV1::NormalSourcePlanSeed(error) => {
+            format!("normal source-plan seed relation rejected: {error:?}")
         }
         SourceSealFinalizationErrorV1::InitialCallableProgramSource(error) => {
             format!("initial callable Program source co-seal rejected: {error:?}")

@@ -120,10 +120,11 @@ fn issuer_rejects_missing_rows_and_arbitrary_ast() {
     let (_parser, product) = open_pruned("box Plain { run() {} }\n", BuildMode::Release);
     let mut rows = product.source_session.callable_rows;
     rows.clear();
+    let program_slots = product.projected_program_item_slots.as_ref().unwrap();
     let error = issue_initial_callable_program_source_v1(
         product.ast,
         rows.into_boxed_slice(),
-        product.projected_program_item_slots,
+        program_slots,
         &product.source_session.prepared_source_seals,
     )
     .unwrap_err();
@@ -136,13 +137,14 @@ fn issuer_rejects_missing_rows_and_arbitrary_ast() {
     ));
 
     let (_parser, product) = open_pruned("function run() {}\n", BuildMode::Release);
+    let program_slots = product.projected_program_item_slots.as_ref().unwrap();
     let error = issue_initial_callable_program_source_v1(
         ASTNode::Literal {
             value: crate::ast::LiteralValue::Integer(1),
             span: crate::ast::Span::unknown(),
         },
         product.source_session.callable_rows.into_boxed_slice(),
-        product.projected_program_item_slots,
+        program_slots,
         &product.source_session.prepared_source_seals,
     )
     .unwrap_err();
@@ -153,16 +155,18 @@ fn issuer_rejects_missing_rows_and_arbitrary_ast() {
 fn issuer_rejects_foreign_slots_and_compatibility_only_methods() {
     let (_left_parser, left) = open_pruned("function left() {}\n", BuildMode::Release);
     let (_right_parser, right) = open_pruned("function right() {}\n", BuildMode::Release);
+    let right_slots = right.projected_program_item_slots.as_ref().unwrap();
     let error = issue_initial_callable_program_source_v1(
         left.ast,
         left.source_session.callable_rows.into_boxed_slice(),
-        right.projected_program_item_slots,
+        right_slots,
         &left.source_session.prepared_source_seals,
     )
     .unwrap_err();
     assert_eq!(error, InitialCallableProgramSourceRejectV1::ForeignParser);
 
     let (_parser, mut product) = open_pruned("box Plain { run() {} }\n", BuildMode::Release);
+    let program_slots = product.projected_program_item_slots.as_ref().unwrap();
     let ASTNode::Program { statements, .. } = &mut product.ast else {
         unreachable!()
     };
@@ -183,7 +187,7 @@ fn issuer_rejects_foreign_slots_and_compatibility_only_methods() {
     let error = issue_initial_callable_program_source_v1(
         product.ast,
         product.source_session.callable_rows.into_boxed_slice(),
-        product.projected_program_item_slots,
+        program_slots,
         &product.source_session.prepared_source_seals,
     )
     .unwrap_err();

@@ -3,6 +3,9 @@ use crate::parser::ParserMetadata;
 
 use super::super::build_cfg::decision_set::PreparedBuildGateDecisionSetV1;
 use super::super::callable_gate_projection::MemberGateSelectionReceiptV1;
+use super::super::callable_parameter_source::{
+    ParserNormalSourcePlanSeedIssueV1, ParserNormalSourcePlanSeedV1,
+};
 use super::super::callable_source_anchor::{
     PreparedCallableSourceV1, PreparedGeneratedCallableSourceV1,
 };
@@ -63,6 +66,7 @@ pub(in crate::parser) enum SourceSealFinalizationErrorV1 {
     ConstructorSourceCatalog(
         super::super::constructor_source_catalog::ConstructorSourceCatalogIssueErrorV1,
     ),
+    NormalSourcePlanSeed(ParserNormalSourcePlanSeedIssueV1),
     InitialCallableProgramSource(
         super::super::initial_callable_program_source::InitialCallableProgramSourceRejectV1,
     ),
@@ -214,6 +218,7 @@ pub(in crate::parser) struct ParsedProgramWithSourceV1 {
     pub(in crate::parser) final_box_ordinals: Box<[usize]>,
     pub(in crate::parser) generated_delegate_source_relations:
         Box<[GeneratedDelegateSourceRelationV1]>,
+    pub(in crate::parser) normal_source_plan_seed: ParserNormalSourcePlanSeedV1,
     pub(in crate::parser) metadata: ParserMetadata,
 }
 
@@ -223,7 +228,17 @@ impl ParsedProgramWithSourceV1 {
     }
 
     pub(in crate::parser) fn into_ast(self) -> ASTNode {
-        self.initial_callable_source.into_ast()
+        let Self {
+            initial_callable_source,
+            normal_source_plan_seed,
+            ..
+        } = self;
+        normal_source_plan_seed.discard_unconnected();
+        initial_callable_source.into_ast()
+    }
+
+    pub(in crate::parser) fn normal_source_plan_seed(&self) -> &ParserNormalSourcePlanSeedV1 {
+        &self.normal_source_plan_seed
     }
 
     pub(in crate::parser) fn source_seals(&self) -> &[ParserBoxSourceSealV1] {
@@ -246,12 +261,14 @@ impl ParsedProgramWithSourceV1 {
         super::super::initial_callable_program_source::VerifiedInitialCallableProgramSourceV1,
         Box<[ParserBoxSourceSealV1]>,
         Box<[usize]>,
+        ParserNormalSourcePlanSeedV1,
         ParserMetadata,
     ) {
         (
             self.initial_callable_source,
             self.source_seals,
             self.final_box_ordinals,
+            self.normal_source_plan_seed,
             self.metadata,
         )
     }

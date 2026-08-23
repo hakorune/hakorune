@@ -8,6 +8,7 @@
 use crate::ast::ASTNode;
 
 use super::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceDispositionV1;
+use super::callable_parameter_source::ParserNormalSourcePlanSeedDispositionV1;
 use super::callable_source_anchor::PreparedCallableSourceV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{BuildGateExplainReport, ParseError, ParserMetadata};
@@ -103,6 +104,7 @@ pub(crate) struct CompletedParserPostpassV1 {
     explain: Option<BuildGateExplainReport>,
     box_coverage: ParserBoxPostpassCoverageV1,
     static_box_parent_source: ParserStaticBoxParentSourceDispositionV1,
+    normal_source_plan_seed: ParserNormalSourcePlanSeedDispositionV1,
 }
 
 #[derive(Debug)]
@@ -141,7 +143,7 @@ impl CompletedParserPostpassV1 {
         product: ParsedProgramWithSourceV1,
         explain: Option<BuildGateExplainReport>,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
-        let (initial_callable_source, seals, final_box_ordinals, metadata) =
+        let (initial_callable_source, seals, final_box_ordinals, normal_source_plan_seed, metadata) =
             product.into_postpass_parts();
         let ast = initial_callable_source.ast();
         if seals.len() != final_box_ordinals.len() {
@@ -178,6 +180,9 @@ impl CompletedParserPostpassV1 {
             },
             static_box_parent_source:
                 ParserStaticBoxParentSourceDispositionV1::unavailable_for_ordinary(),
+            normal_source_plan_seed: ParserNormalSourcePlanSeedDispositionV1::Ready(
+                normal_source_plan_seed,
+            ),
         })
     }
 
@@ -203,6 +208,7 @@ impl CompletedParserPostpassV1 {
                 rows,
             },
             static_box_parent_source,
+            normal_source_plan_seed: ParserNormalSourcePlanSeedDispositionV1::CompatibilityOutside,
         })
     }
 
@@ -227,11 +233,18 @@ impl CompletedParserPostpassV1 {
                 rows,
             },
             static_box_parent_source,
+            normal_source_plan_seed: ParserNormalSourcePlanSeedDispositionV1::CompatibilityOutside,
         })
     }
 
     pub(crate) fn into_ast(self) -> ASTNode {
-        match self.program {
+        let Self {
+            program,
+            normal_source_plan_seed,
+            ..
+        } = self;
+        normal_source_plan_seed.discard_unconnected();
+        match program {
             CompletedParserProgramV1::Initial(program) => program.into_ast(),
             CompletedParserProgramV1::Compatibility { ast, .. } => ast,
         }
@@ -282,15 +295,23 @@ impl CompletedParserPostpassV1 {
             ParsedNormalCallableProgramV1 as Program, PreparedNormalCallableProgramSourceV1,
         };
 
+        let Self {
+            program,
+            box_coverage,
+            normal_source_plan_seed,
+            ..
+        } = self;
+        normal_source_plan_seed.discard_unconnected();
+
         if source_authority.composite_source_is_ready()
-            && matches!(self.program, CompletedParserProgramV1::Compatibility { .. })
+            && matches!(program, CompletedParserProgramV1::Compatibility { .. })
         {
             return Err(
                 super::normal_callable_program_source::NormalCallableParameterSourceRejectV1::CompositeSourceCompatibilityLoss,
             );
         }
 
-        match self.program {
+        match program {
             CompletedParserProgramV1::Initial(program) => {
                 let NormalCallableProgramAdmissionV1::SourceBacked(normal_root_source) = admission
                 else {
@@ -310,7 +331,7 @@ impl CompletedParserPostpassV1 {
                     return Err(super::normal_callable_program_source::
                         NormalCallableParameterSourceRejectV1::MainAppEntryCompatibilityLoss);
                 }
-                let cohort = match self.box_coverage.program_cohort {
+                let cohort = match box_coverage.program_cohort {
                     ParserPostpassProgramCohortV1::InterfaceBox => Compatibility::InterfaceBox,
                     ParserPostpassProgramCohortV1::RecordBox => Compatibility::RecordBox,
                     ParserPostpassProgramCohortV1::MixedProgram
@@ -335,8 +356,12 @@ impl CompletedParserPostpassV1 {
         self,
     ) -> Result<(ASTNode, BuildGateExplainReport), ParserPostpassEnvelopeErrorV1> {
         let Self {
-            program, explain, ..
+            program,
+            explain,
+            normal_source_plan_seed,
+            ..
         } = self;
+        normal_source_plan_seed.discard_unconnected();
         let explain = explain.ok_or(ParserPostpassEnvelopeErrorV1::ExplainDecisionSetNotReady)?;
         let ast = match program {
             CompletedParserProgramV1::Initial(program) => program.into_ast(),
@@ -349,8 +374,12 @@ impl CompletedParserPostpassV1 {
         // This is the sole consuming pair projection. Metadata is moved from
         // the completed product; it is never reconstructed from AST nodes.
         let Self {
-            program, metadata, ..
+            program,
+            metadata,
+            normal_source_plan_seed,
+            ..
         } = self;
+        normal_source_plan_seed.discard_unconnected();
         let ast = match program {
             CompletedParserProgramV1::Initial(program) => program.into_ast(),
             CompletedParserProgramV1::Compatibility { ast, .. } => ast,
@@ -558,6 +587,10 @@ mod tests {
             envelope.box_coverage().rows(),
             [ParserBoxPostpassRowV1::SourceSealedOrdinary { .. }]
         ));
+        assert!(matches!(
+            &envelope.normal_source_plan_seed,
+            crate::parser::callable_parameter_source::ParserNormalSourcePlanSeedDispositionV1::Ready(_)
+        ));
         assert!(envelope.explain().is_none());
         assert!(envelope.metadata().runes.is_empty());
     }
@@ -586,6 +619,10 @@ mod tests {
                 cohort: ParserCompatibilityCohortV1::StaticBox,
                 ..
             }]
+        ));
+        assert!(matches!(
+            &envelope.normal_source_plan_seed,
+            crate::parser::callable_parameter_source::ParserNormalSourcePlanSeedDispositionV1::CompatibilityOutside
         ));
     }
 

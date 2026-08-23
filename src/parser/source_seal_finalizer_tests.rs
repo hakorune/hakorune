@@ -43,6 +43,18 @@ box Plain {
     );
     assert!(!seal.declaration_syntax().is_sync());
     assert!(matches!(parsed.ast(), ASTNode::Program { .. }));
+    assert_eq!(
+        parsed
+            .normal_source_plan_seed()
+            .projected_program_slots()
+            .rows()
+            .len(),
+        1
+    );
+    assert!(parsed
+        .normal_source_plan_seed()
+        .static_parent_sources()
+        .is_empty());
 }
 
 #[test]

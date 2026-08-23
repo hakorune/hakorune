@@ -12,6 +12,7 @@ mod main_app_entry;
 mod model;
 mod normal_root_source;
 mod normal_root_preservation;
+mod normal_source_plan_seed;
 mod parse_product;
 mod parser_invocation_witness;
 mod product;
@@ -36,6 +37,10 @@ pub(in crate::parser) use normal_root_source::ParserNormalRootSourceDispositionV
 pub(in crate::parser) use normal_root_preservation::{
     ParserNormalRootPreservationIssuerV1, ParserNormalRootPreservationRejectV1,
     ParserNormalRootPreservationV1,
+};
+pub(in crate::parser) use normal_source_plan_seed::{
+    ParserNormalSourcePlanSeedDispositionV1, ParserNormalSourcePlanSeedIssueV1,
+    ParserNormalSourcePlanSeedV1,
 };
 #[cfg(test)]
 pub(in crate::parser) use normal_root_preservation::ParserNormalRootRoleV1;

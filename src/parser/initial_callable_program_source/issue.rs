@@ -38,11 +38,9 @@ pub(in crate::parser) enum InitialCallableProgramSourceRejectV1 {
 pub(in crate::parser) fn issue_initial_callable_program_source_v1(
     ast: ASTNode,
     callable_rows: Box<[PreparedCallableSourceV1]>,
-    program_slots: Option<ProjectedProgramItemSlotSetV1>,
+    program_slots: &ProjectedProgramItemSlotSetV1,
     box_seals: &[PreparedBoxSourceSealV1],
 ) -> Result<VerifiedInitialCallableProgramSourceV1, InitialCallableProgramSourceRejectV1> {
-    let program_slots =
-        program_slots.ok_or(InitialCallableProgramSourceRejectV1::MissingProgramSlotSet)?;
     let program_brand = program_slots.brand();
     for (index, row) in callable_rows.iter().enumerate() {
         if !row.parser_brand().same_as(program_brand)
