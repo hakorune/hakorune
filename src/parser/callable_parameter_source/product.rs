@@ -5,6 +5,9 @@ use super::catalog::{
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
 };
 use super::composite_source::issue_parser_composite_source_v1;
+use super::main_app_entry::{
+    issue_parser_main_app_entry_v1, ParserMainAppEntryDispositionV1,
+};
 use super::retained::RetainedParserCallableSemanticSourceV1;
 use super::script_source_authority::{
     issue_parser_normal_program_source_authority_v1,
@@ -44,6 +47,7 @@ pub(crate) struct ParsedProgramWithCallableParameterSourceV1 {
     canonical_script_admission: CanonicalScriptCohortDispositionV1,
     canonical_script_source_rows: CanonicalScriptSourceRowsDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
+    main_app_entry: ParserMainAppEntryDispositionV1,
 }
 
 impl NyashParser {
@@ -72,6 +76,10 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         &self.parameter_source
     }
 
+    pub(in crate::parser) fn main_app_entry(&self) -> &ParserMainAppEntryDispositionV1 {
+        &self.main_app_entry
+    }
+
     pub(in crate::parser) fn new(
         completed: CompletedParserPostpassV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,
@@ -92,12 +100,14 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             &parameter_source,
             composite_source,
         );
+        let main_app_entry = issue_parser_main_app_entry_v1(&completed, &parameter_source);
         Self {
             completed,
             parameter_source,
             canonical_script_admission,
             canonical_script_source_rows,
             source_authority,
+            main_app_entry,
         }
     }
 
@@ -167,6 +177,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             canonical_script_admission,
             canonical_script_source_rows,
             source_authority,
+            main_app_entry,
         } = self;
         // Preserve the pre-existing source-backed disposition for the
         // already-sealed callable cohort.  The old boolean is deliberately
@@ -187,6 +198,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
                         canonical_script_source_rows:
                             CanonicalScriptSourceRowsDispositionV1::MovedToParallelHandoff,
                         source_authority,
+                        main_app_entry,
                     },
                 ),
                 canonical_script_source_rows,
@@ -224,6 +236,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             canonical_script_admission: _,
             canonical_script_source_rows: _,
             source_authority,
+            main_app_entry: _,
         } = self;
         if source_authority.composite_source_is_ready() {
             return Err(ParserCallableSyntaxLoanErrorV1::CompositeSourceReadyCannotBeDiscarded);
@@ -279,6 +292,7 @@ impl ParserCallableSourceDispositionV1 {
                     canonical_script_admission: _,
                     canonical_script_source_rows: _,
                     source_authority,
+                    main_app_entry: _,
                 } = product;
                 completed.into_normal_callable_program(parameter_source, source_authority)
             }

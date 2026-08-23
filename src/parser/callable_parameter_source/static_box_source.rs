@@ -188,6 +188,7 @@ impl PreparedParserStaticBoxParentSourceV1 {
 #[derive(Debug)]
 pub(in crate::parser) struct ParserStaticBoxSourceSealV1 {
     prepared: PreparedParserStaticBoxParentSourceV1,
+    method_site: SourceBoxMethodSiteV1,
     method_identity: CallableDeclarationIdentityV1,
 }
 
@@ -211,6 +212,10 @@ impl ParserStaticBoxSourceSealV1 {
             .rows
             .iter()
             .map(PreparedParserStaticBoxMemberSourceRowV1::kind)
+    }
+
+    pub(in crate::parser) fn method_site(&self) -> &SourceBoxMethodSiteV1 {
+        &self.method_site
     }
 
     pub(in crate::parser) fn method_identity(&self) -> &CallableDeclarationIdentityV1 {
@@ -374,6 +379,7 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                 }
                 ParserStaticBoxParentSourceDispositionV1::Ready(ParserStaticBoxSourceSealV1 {
                     prepared,
+                    method_site,
                     method_identity: method_identity.clone(),
                 })
             }

@@ -8,6 +8,7 @@ mod canonical_script_source_admission;
 mod catalog;
 mod composite_source;
 mod issuer;
+mod main_app_entry;
 mod model;
 mod parse_product;
 mod parser_invocation_witness;
@@ -66,5 +67,8 @@ pub(crate) use syntax_loan::{
 };
 #[cfg(test)]
 mod retained_tests;
+#[cfg(test)]
+#[path = "main_app_entry_tests.rs"]
+mod main_app_entry_tests;
 #[cfg(test)]
 mod tests;
