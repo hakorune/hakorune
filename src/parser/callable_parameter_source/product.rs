@@ -60,6 +60,12 @@ impl NyashParser {
 }
 
 impl ParsedProgramWithCallableParameterSourceV1 {
+    pub(in crate::parser) fn static_box_parent_source(
+        &self,
+    ) -> &super::static_box_source::ParserStaticBoxParentSourceDispositionV1 {
+        self.completed.static_box_parent_source()
+    }
+
     pub(in crate::parser) fn new(
         completed: CompletedParserPostpassV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,

@@ -1,5 +1,5 @@
 ---
-Status: Accepted design; parser-only I0 selected
+Status: Parser-only I0 implemented; closeout evidence recorded
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-D0
 Exception: independent parser source-authority boundary; ordinary module-row card is closed
@@ -15,10 +15,11 @@ CeremonyTier: T2 — new parser source authority and identity boundary
 
 - **Current decision:** static Box parent source is a separate parser authority;
   it is not an extension of the ordinary `ParserBoxSourceSealV1`.
-- **Current implementation status:** D0 accepted; the existing static path still
-  produces an AST-only compatibility row and no static parent seal.
-- **Next ordered task:** issue and transport one parser-only static parent seal
-  with exact header/member coverage.
+- **Current implementation status:** parser-only I0 now issues one separate
+  static parent disposition and transports it as a `CompletedParserPostpassV1`
+  sibling; no downstream caller was added.
+- **Next ordered task:** keep static/mixed postpass policy and `Main.main`/App
+  admission as separate design decisions; no downstream implementation is open.
 - **Production stop line:** no `NormalCompileRequest`, `Main.main` admission,
   Builder effect, Recipe/Join, fallback, or compatibility reclassification.
 - **Retirement finish line:** one static parent authority is named, all old
@@ -34,7 +35,8 @@ Decision:
 Source authority + canonical issuer:
   parse_static_box header + parser invocation brand/path + exact member cursor
   coverage + existing direct static callable source rows; one private
-  ParserStaticBoxParentSourceAuthorityIssuerV1 at the parser source boundary.
+  ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once at the postpass
+  finalizer boundary.
 Non-authority:
   Main name/entry selection, AST rescans, method names/ordinals/pointers,
   runtime registries, NormalSourcePlan, MIR, Builder, Recipe/Join, compatibility
@@ -105,10 +107,11 @@ The design is now closed at the following two-stage parser boundary:
 parse_static_box
   -> one ParserStaticBoxSourceTransactionV1
   -> one opaque PreparedParserStaticBoxParentSourceV1
-  -> existing postpass source-session move
-  -> ParsedProgramWithCallableParameterSourceV1::new
+  -> existing parser callable-source/postpass move
+  -> finish_total_s0
   -> ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once
-  -> ParserStaticBoxSourceSealV1
+  -> CompletedParserPostpassV1 static sibling disposition
+  -> ParsedProgramWithCallableParameterSourceV1::new moves that sibling
 ```
 
 The transaction emits one bundled row per source member. A row contains its
@@ -136,8 +139,10 @@ not consumed and remains a separate `Outside` boundary at its later consumer.
 The static prepared payload must survive the existing postpass prune move by
 the same parser brand/path. It is carried as a sibling of ordinary prepared
 seals, never inserted into `prepared_source_seals` and never converted into
-`SourceSealedOrdinary`. The final static issuer runs once at the same parser
-product boundary as the ordinary module issuer; no AST rescan is permitted.
+`SourceSealedOrdinary`. The final static issuer runs once in
+`OpenParserPostpassProductV1::finish_total_s0`;
+`ParsedProgramWithCallableParameterSourceV1::new` only transports the completed
+sibling and does not reissue it. No AST rescan is permitted.
 
 ## Bounded cohort
 
@@ -208,9 +213,10 @@ source cursor is an observation primitive, not a seal by itself. The aggregate
 may co-seal existing parser receipts but may not invent method semantics,
 target membership, result type, or entry meaning.
 
-## Acceptance evidence for the future I0
+## Acceptance evidence for parser-only I0
 
-No implementation is authorized until the following are fixed and observable:
+The parser-only implementation is accepted when the following remain fixed and
+observable:
 
 ```text
 static parent issuer definition/call site                 = 1
@@ -226,8 +232,8 @@ fallback/retry/reselection                                  = 0
 source files                                                < 760 lines
 ```
 
-The later I0 must have a parser-focused positive/negative gate and one reusable
-structural guard. It must prove the product moves through parser source
+The implementation has one parser-focused positive/negative gate and one
+reusable structural guard. It proves the product moves through parser source
 transport without adding a downstream field or a production caller.
 
 ## NoSafeSlice conditions
@@ -253,17 +259,41 @@ the source schema cannot stay below the 760-line split trigger
 ```text
 D0  this card: freeze static parent authority, cohort, states, and hard stops
 NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-I0:
-    issue one parser-owned static parent seal only
+    complete: issue one parser-owned static parent seal only
 D0  separate: decide static/mixed postpass transport policy
 D0  separate: decide Main.main/App entry admission from the parent source
 later: normal ingress -> Facts -> Recipe -> Verify -> Lower, only after those
        source and consumer authorities are independently named
 ```
 
-The D0 is accepted. The next task is the parser-only I0 above. It may add the
+The D0 is accepted and the parser-only I0 is implemented. The change adds the
 new parser source transaction, sibling transport field, final static issuer,
-focused parser tests, and one reusable guard. It may not connect normal ingress,
-add a production caller, or open Main/App/Builder/Recipe/Join/MIR/fallback.
+focused parser tests, and one reusable guard. It does not connect normal
+ingress, add a production caller, or open Main/App/Builder/Recipe/Join/MIR/
+fallback.
+
+## I0 implementation receipt
+
+```text
+issuer definition/call site              = 1 / 1
+ordinary ParserBoxSourceSealV1 extension = 0
+static source sibling transport          = 1
+AST/name/reparse/downstream authority    = 0
+production caller                        = 0
+focused static-parent tests               = 5 passed
+postpass envelope tests                   = 7 passed
+cargo check                               = passed
+reusable static-parent guard              = passed
+current-state pointer guard               = passed
+git diff --check                          = passed
+source/fixture files                      < 760 lines
+```
+
+The broader callable-parameter suite has one pre-existing baseline failure:
+`unchanged_parser_scan_loop_box_has_four_methods_and_fifteen_rows` expects an
+untyped `pos`, while the checked-in fixture declares `pos: i64`. It is outside
+this static-parent diff and remains classified as baseline debt; this I0 does
+not alter that fixture or test.
 
 ## Worker/census receipt
 

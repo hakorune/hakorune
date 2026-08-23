@@ -122,7 +122,7 @@ impl OpenParserPostpassProductV1 {
             metadata,
             ..
         } = self;
-        let (prepared, callable_rows) = source_session.into_parts();
+        let (prepared, _prepared_static_box_sources, callable_rows) = source_session.into_parts();
         finalize_program(
             ast,
             prepared,
@@ -162,8 +162,21 @@ impl OpenParserPostpassProductV1 {
         }
 
         let semantic_candidate = super::super::initial_callable_program_source::compatibility_program_can_enter_initial_callable_lane_v1(&product.ast);
-        let (ast, metadata, callable_rows, program_slots, prepared_seals, final_box_paths) =
-            product.into_compatibility_parts();
+        let (
+            ast,
+            metadata,
+            callable_rows,
+            program_slots,
+            prepared_seals,
+            prepared_static_box_sources,
+            final_box_paths,
+        ) = product.into_compatibility_parts();
+        let static_box_parent_source =
+            super::super::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once(
+                cohort,
+                prepared_static_box_sources,
+                &callable_rows,
+            );
         let ast = super::super::postpass_compatibility::lower(ast)?;
         if semantic_candidate {
             let mut program = super::super::initial_callable_program_source::issue_initial_callable_program_source_v1(
@@ -194,6 +207,7 @@ impl OpenParserPostpassProductV1 {
                 program,
                 metadata,
                 explain,
+                static_box_parent_source,
             )
             .map_err(|error| error.into_parse_error());
         }
@@ -202,6 +216,7 @@ impl OpenParserPostpassProductV1 {
             metadata,
             explain,
             callable_rows,
+            static_box_parent_source,
         )
         .map_err(|error| error.into_parse_error())
     }
@@ -214,15 +229,18 @@ impl OpenParserPostpassProductV1 {
         Box<[super::super::callable_source_anchor::PreparedCallableSourceV1]>,
         Option<super::super::build_cfg::program_item_slots::ProjectedProgramItemSlotSetV1>,
         Vec<PreparedBoxSourceSealV1>,
+        Vec<super::super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1>,
         Vec<SourceBoxDeclarationPathV1>,
     ) {
-        let (prepared_seals, callable_rows) = self.source_session.into_parts();
+        let (prepared_seals, prepared_static_box_sources, callable_rows) =
+            self.source_session.into_parts();
         (
             self.ast,
             self.metadata,
             callable_rows.into_boxed_slice(),
             self.projected_program_item_slots,
             prepared_seals,
+            prepared_static_box_sources,
             self.final_box_paths,
         )
     }

@@ -114,6 +114,26 @@ parameter-contract path. It retires when the contract becomes a borrowed project
 of `VerifiedResolvedCallableSemanticBatchV1`; new semantic owners must use the
 retained source instead of consuming and independently resolving the catalog.
 
+## Static parent source I0
+
+`static_box_source.rs` is a separate parser-owned source authority for one
+top-level static `Box` with exactly one direct static method. The parser opens
+one `OpenParserStaticBoxSourceTransactionV1`, records every member through the
+same parser-branded member cursor, and moves one opaque prepared parent into the
+postpass source session. Fields, init/static-init members, multiple methods,
+build-gate paths, mixed programs, and multiple static parents remain explicit
+`Outside`/typed terminal states; they are never omitted or defaulted.
+
+`ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once` is the sole issuer.
+It runs once in `finish_total_s0`, co-sealing the prepared parent with the
+existing same-invocation direct static callable row by parser brand, exact Box
+path, and member site. The resulting `Ready | Outside | SourceAuthorityUnavailable
+| Incomplete | IntegrityInvalid` disposition is stored as a sibling field on
+`CompletedParserPostpassV1`; it is not an ordinary `ParserBoxSourceSealV1`,
+`SourceSealedOrdinary` row, resolver fact, entry selection, Builder input,
+Recipe, Join, MIR, or fallback. The later callable-parameter product only moves
+this completed sibling and does not re-scan or reissue it.
+
 The admitted no-import pure-Script cohort has a separate parser-only row owner:
 `script_source_rows.rs` issues one exhaustive `ProgramBody`/declaration/Brand
 syntax snapshot and `script_source_rows_model.rs` contains only its AST-free

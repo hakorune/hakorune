@@ -17,6 +17,10 @@ mod script_source_rows;
 mod script_source_rows_model;
 mod session;
 mod script_source_authority;
+pub(in crate::parser) mod static_box_source;
+#[cfg(test)]
+#[path = "static_box_source_tests.rs"]
+mod static_box_source_tests;
 mod syntax_loan;
 
 pub(in crate::parser) use catalog::{
@@ -35,9 +39,6 @@ pub(crate) use script_source_rows::{
 #[cfg(test)]
 #[path = "script_source_rows_tests.rs"]
 mod script_source_rows_tests;
-pub(crate) use product::{
-    ParsedProgramWithCallableParameterSourceV1, ParserCallableSourceDispositionV1,
-};
 pub(crate) use composite_source::{
     ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
     ParserCompositeOutsideReasonV1,
@@ -45,6 +46,9 @@ pub(crate) use composite_source::{
     ParserCompositeTransformRejectV1,
 };
 pub(crate) use composite_source::ParserCompositeSourceLoanV1;
+pub(crate) use product::{
+    ParsedProgramWithCallableParameterSourceV1, ParserCallableSourceDispositionV1,
+};
 pub(crate) use script_source_authority::{
     ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,
     validate_parser_normal_program_source_transform_v1,

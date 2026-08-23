@@ -21,11 +21,15 @@ use super::model::{
 impl ParserSourceSessionV1 {
     pub(in crate::parser) fn from_prepared(
         prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+        prepared_static_box_sources: Vec<
+            super::super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1,
+        >,
         gate_records: Vec<PreparedBuildGateSourceRecordV1>,
         direct_callable_rows: Vec<PreparedDirectCallableSourceV1>,
     ) -> Self {
         Self {
             prepared_source_seals,
+            prepared_static_box_sources,
             gate_records,
             selection_receipts: Vec::new(),
             callable_rows: direct_callable_rows
@@ -74,6 +78,18 @@ impl ParserSourceSessionV1 {
                 retained.push(seal);
             }
         }
+        let mut retained_static_box_sources =
+            Vec::with_capacity(self.prepared_static_box_sources.len());
+        for source in self.prepared_static_box_sources {
+            if declaration_path_survives(
+                source.box_site().path(),
+                &self.gate_records,
+                &receipts,
+                Some(source.box_site().path().brand()),
+            )? {
+                retained_static_box_sources.push(source);
+            }
+        }
         let direct_rows = self
             .callable_rows
             .into_iter()
@@ -106,6 +122,7 @@ impl ParserSourceSessionV1 {
         }
         Ok(PreparedParserSourcePruneV1 {
             prepared_source_seals: retained,
+            prepared_static_box_sources: retained_static_box_sources,
             gate_records: self.gate_records,
             selection_receipts: receipts,
             callable_rows,
@@ -115,6 +132,7 @@ impl ParserSourceSessionV1 {
     pub(in crate::parser) fn commit_prune(prepared: PreparedParserSourcePruneV1) -> Self {
         Self {
             prepared_source_seals: prepared.prepared_source_seals,
+            prepared_static_box_sources: prepared.prepared_static_box_sources,
             gate_records: prepared.gate_records,
             selection_receipts: prepared.selection_receipts,
             callable_rows: prepared.callable_rows,
@@ -123,8 +141,16 @@ impl ParserSourceSessionV1 {
 
     pub(in crate::parser) fn into_parts(
         self,
-    ) -> (Vec<PreparedBoxSourceSealV1>, Vec<PreparedCallableSourceV1>) {
-        (self.prepared_source_seals, self.callable_rows)
+    ) -> (
+        Vec<PreparedBoxSourceSealV1>,
+        Vec<super::super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1>,
+        Vec<PreparedCallableSourceV1>,
+    ) {
+        (
+            self.prepared_source_seals,
+            self.prepared_static_box_sources,
+            self.callable_rows,
+        )
     }
 
     pub(in crate::parser) fn callable_rows(&self) -> &[PreparedCallableSourceV1] {
@@ -226,6 +252,9 @@ impl OpenParserPostpassProductV1 {
     pub(in crate::parser) fn new(
         ast: ASTNode,
         prepared_source_seals: Vec<PreparedBoxSourceSealV1>,
+        prepared_static_box_sources: Vec<
+            super::super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1,
+        >,
         gate_records: Vec<PreparedBuildGateSourceRecordV1>,
         direct_callable_rows: Vec<PreparedDirectCallableSourceV1>,
         metadata: ParserMetadata,
@@ -235,6 +264,7 @@ impl OpenParserPostpassProductV1 {
             ast,
             source_session: ParserSourceSessionV1::from_prepared(
                 prepared_source_seals,
+                prepared_static_box_sources,
                 gate_records,
                 direct_callable_rows,
             ),

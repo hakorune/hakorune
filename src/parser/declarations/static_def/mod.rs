@@ -1,10 +1,12 @@
 //! Static Box Definition (staged split)
 
 use crate::ast::{ASTNode, BoxMethodInventoryOrdinalV1, BoxMethodInventoryV1, FieldDecl, Span};
+use crate::parser::callable_parameter_source::static_box_source::{
+    OpenParserStaticBoxSourceTransactionV1, ParserStaticBoxMemberKindV1,
+};
 use crate::parser::common::ParserUtils;
 use crate::parser::declarations::box_def::members::pending_method::PendingExplicitMethodV1;
 use crate::parser::source_authority::{DirectExplicitMethodSinkV1, ExplicitMethodSink};
-use crate::parser::source_member_cursor::ParserBoxMemberSourceCursorV1;
 use crate::parser::source_path::SourceProgramCallablePathV1;
 use crate::parser::{NyashParser, ParseError};
 use crate::tokenizer::TokenType;
@@ -15,7 +17,7 @@ pub mod members;
 
 struct StaticDirectMethodSinkV1<'a> {
     methods: &'a mut BoxMethodInventoryV1,
-    cursor: &'a ParserBoxMemberSourceCursorV1,
+    source: &'a OpenParserStaticBoxSourceTransactionV1,
 }
 
 impl ExplicitMethodSink for StaticDirectMethodSinkV1<'_> {
@@ -32,7 +34,7 @@ impl ExplicitMethodSink for StaticDirectMethodSinkV1<'_> {
 
 impl DirectExplicitMethodSinkV1 for StaticDirectMethodSinkV1<'_> {
     fn current_program_callable_path(&self) -> SourceProgramCallablePathV1 {
-        self.cursor.current_program_callable_path()
+        self.source.current_program_callable_path()
     }
 }
 
@@ -52,8 +54,11 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                     .to_owned(),
                 line: p.current_token().line,
             })?;
-    let mut source_cursor =
-        ParserBoxMemberSourceCursorV1::open_with_path(p.source_invocation_brand(), source_path);
+    let mut source_transaction = OpenParserStaticBoxSourceTransactionV1::open(
+        p.source_invocation_brand(),
+        source_path,
+        name.clone(),
+    );
 
     let mut fields = Vec::new();
     let mut methods = BoxMethodInventoryV1::empty();
@@ -73,7 +78,12 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                 continue;
             }
         }
-        commit_pending_static_method(p, &mut pending_method, &mut methods, &mut source_cursor)?;
+        commit_pending_static_method(
+            p,
+            &mut pending_method,
+            &mut methods,
+            &mut source_transaction,
+        )?;
         if p.maybe_parse_opt_annotation_noop(
             crate::parser::statements::helpers::AnnotationSite::Member,
         )? {
@@ -96,7 +106,9 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         if let Some(body) = members::parse_static_initializer_if_any(p)? {
             p.ensure_no_pending_runes("static initializer")?;
             static_init = Some(body);
-            finish_static_source_member(&mut source_cursor)?;
+            source_transaction
+                .commit_unsupported_member(ParserStaticBoxMemberKindV1::StaticInitializer)
+                .map_err(static_source_issue)?;
             continue;
         } else if p.match_token(&TokenType::STATIC) {
             // 互換用の暫定ガード（既定OFF）: using テキスト結合の継ぎ目で誤って 'static' が入った場合に
@@ -116,7 +128,9 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
             &mut weak_fields,
         )? {
             p.ensure_no_pending_runes("init block")?;
-            finish_static_source_member(&mut source_cursor)?;
+            source_transaction
+                .commit_unsupported_member(ParserStaticBoxMemberKindV1::InitBlock)
+                .map_err(static_source_issue)?;
             continue;
         }
 
@@ -180,7 +194,9 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
                 match members::try_parse_method_or_field(p, field_or_method, declaration_span)? {
                     members::ParsedStaticMemberV1::Field(field) => {
                         fields.push(field);
-                        finish_static_source_member(&mut source_cursor)?;
+                        source_transaction
+                            .commit_unsupported_member(ParserStaticBoxMemberKindV1::Field)
+                            .map_err(static_source_issue)?;
                     }
                     members::ParsedStaticMemberV1::Method(method) => pending_method = Some(method),
                 }
@@ -195,7 +211,12 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
         }
     }
 
-    commit_pending_static_method(p, &mut pending_method, &mut methods, &mut source_cursor)?;
+    commit_pending_static_method(
+        p,
+        &mut pending_method,
+        &mut methods,
+        &mut source_transaction,
+    )?;
 
     // Tolerate trailing NEWLINE(s) before the closing '}' of the static box
     while p.match_token(&TokenType::NEWLINE) {
@@ -210,6 +231,9 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
 
     // Consume the closing RBRACE of the static box
     p.consume(TokenType::RBRACE)?;
+
+    let prepared_static_source = source_transaction.finish().map_err(static_source_issue)?;
+    p.register_prepared_static_box_source(prepared_static_source)?;
 
     if crate::parser::env::parser_static_trace_enabled() {
         crate::parser::log::debug(&format!(
@@ -264,40 +288,41 @@ pub fn parse_static_box(p: &mut NyashParser) -> Result<ASTNode, ParseError> {
     })
 }
 
-fn finish_static_source_member(
-    cursor: &mut ParserBoxMemberSourceCursorV1,
-) -> Result<(), ParseError> {
-    cursor
-        .finish_member()
-        .map_err(|error| ParseError::BuildCfg {
-            message: format!("static Box member source cursor failed: {error:?}"),
-            line: 0,
-        })
-}
-
 fn commit_pending_static_method(
     parser: &mut NyashParser,
     pending: &mut Option<PendingExplicitMethodV1>,
     methods: &mut BoxMethodInventoryV1,
-    cursor: &mut ParserBoxMemberSourceCursorV1,
+    source: &mut OpenParserStaticBoxSourceTransactionV1,
 ) -> Result<(), ParseError> {
     let Some(method) = pending.take() else {
         return Ok(());
     };
     let source_site = crate::parser::source_authority::SourceBoxMethodSiteV1::Direct {
-        member: cursor.current_member_site(),
+        member: source.current_member_site(),
     };
-    let committed = method.commit_direct(&mut StaticDirectMethodSinkV1 { methods, cursor })?;
+    let committed = method.commit_direct(&mut StaticDirectMethodSinkV1 { methods, source })?;
     let (inventory_ordinal, diagnostic_name, parameter_source) =
         parser.issue_committed_static_box_method(committed)?;
     if let Some(parameters) = parameter_source {
         parser.commit_callable_parameter_source(
-            source_site,
+            source_site.clone(),
             inventory_ordinal,
             crate::parser::callable_parameter_source::ParserCallableDeclarationKindV1::StaticBoxMethod,
             diagnostic_name,
             parameters,
         )?;
     }
-    finish_static_source_member(cursor)
+    source
+        .commit_direct_method(source_site)
+        .map_err(static_source_issue)
+}
+
+fn static_source_issue(
+    error: crate::parser::callable_parameter_source::static_box_source::ParserStaticBoxSourceIssueV1,
+) -> ParseError {
+    ParseError::GrammarContract {
+        stable_reject_tag: "parser/static-box-source",
+        detail: format!("static Box source coverage rejected: {error:?}"),
+        line: 0,
+    }
 }

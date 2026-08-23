@@ -7,6 +7,7 @@
 
 use crate::ast::ASTNode;
 
+use super::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceDispositionV1;
 use super::callable_source_anchor::PreparedCallableSourceV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{BuildGateExplainReport, ParseError, ParserMetadata};
@@ -101,6 +102,7 @@ pub(crate) struct CompletedParserPostpassV1 {
     metadata: ParserMetadata,
     explain: Option<BuildGateExplainReport>,
     box_coverage: ParserBoxPostpassCoverageV1,
+    static_box_parent_source: ParserStaticBoxParentSourceDispositionV1,
 }
 
 #[derive(Debug)]
@@ -167,6 +169,8 @@ impl CompletedParserPostpassV1 {
                 program_cohort,
                 rows,
             },
+            static_box_parent_source:
+                ParserStaticBoxParentSourceDispositionV1::unavailable_for_ordinary(),
         })
     }
 
@@ -175,6 +179,7 @@ impl CompletedParserPostpassV1 {
         metadata: ParserMetadata,
         explain: Option<BuildGateExplainReport>,
         callable_rows: Box<[PreparedCallableSourceV1]>,
+        static_box_parent_source: ParserStaticBoxParentSourceDispositionV1,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
         let program_cohort = classify_program(&ast);
         if program_cohort.is_ordinary() {
@@ -190,6 +195,7 @@ impl CompletedParserPostpassV1 {
                 program_cohort,
                 rows,
             },
+            static_box_parent_source,
         })
     }
 
@@ -197,6 +203,7 @@ impl CompletedParserPostpassV1 {
         program: super::initial_callable_program_source::VerifiedInitialCallableProgramSourceV1,
         metadata: ParserMetadata,
         explain: Option<BuildGateExplainReport>,
+        static_box_parent_source: ParserStaticBoxParentSourceDispositionV1,
     ) -> Result<Self, ParserPostpassEnvelopeErrorV1> {
         let program_cohort = classify_program(program.ast());
         if program_cohort.is_ordinary() {
@@ -212,6 +219,7 @@ impl CompletedParserPostpassV1 {
                 program_cohort,
                 rows,
             },
+            static_box_parent_source,
         })
     }
 
@@ -318,6 +326,12 @@ impl CompletedParserPostpassV1 {
             CompletedParserProgramV1::Initial(program) => program.callable_rows(),
             CompletedParserProgramV1::Compatibility { callable_rows, .. } => callable_rows,
         }
+    }
+
+    pub(in crate::parser) fn static_box_parent_source(
+        &self,
+    ) -> &ParserStaticBoxParentSourceDispositionV1 {
+        &self.static_box_parent_source
     }
 
     pub(super) fn initial_callable_source(
@@ -507,6 +521,9 @@ mod tests {
             ParserMetadata::default(),
             None,
             Box::new([]),
+            crate::parser::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceDispositionV1::Outside(
+                crate::parser::callable_parameter_source::static_box_source::ParserStaticBoxParentOutsideReasonV1::ProgramCohort,
+            ),
         )
         .unwrap();
 
@@ -531,6 +548,9 @@ mod tests {
             ParserMetadata::default(),
             None,
             Box::new([]),
+            crate::parser::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceDispositionV1::Outside(
+                crate::parser::callable_parameter_source::static_box_source::ParserStaticBoxParentOutsideReasonV1::ProgramCohort,
+            ),
         )
         .unwrap_err();
         assert_eq!(

@@ -266,6 +266,9 @@ pub(super) enum DirectCallableSourceIssueV1 {
 pub(super) struct ParserCallableSourceSessionV1 {
     brand: ParserInvocationBrandV1,
     rows: Vec<PreparedDirectCallableSourceV1>,
+    static_box_sources: Vec<
+        super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1,
+    >,
 }
 
 impl ParserCallableSourceSessionV1 {
@@ -273,6 +276,7 @@ impl ParserCallableSourceSessionV1 {
         Self {
             brand,
             rows: Vec::new(),
+            static_box_sources: Vec::new(),
         }
     }
 
@@ -330,6 +334,22 @@ impl ParserCallableSourceSessionV1 {
     pub(super) fn into_rows(self) -> Vec<PreparedDirectCallableSourceV1> {
         self.rows
     }
+
+    pub(super) fn into_postpass_parts(
+        self,
+    ) -> (
+        Vec<PreparedDirectCallableSourceV1>,
+        Vec<super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1>,
+    ) {
+        (self.rows, self.static_box_sources)
+    }
+
+    pub(super) fn register_static_box_source(
+        &mut self,
+        prepared: super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1,
+    ) {
+        self.static_box_sources.push(prepared);
+    }
 }
 
 pub(super) fn map_issue(error: DirectCallableSourceIssueV1, line: usize) -> ParseError {
@@ -352,6 +372,19 @@ pub(super) fn map_issue(error: DirectCallableSourceIssueV1, line: usize) -> Pars
 }
 
 impl NyashParser {
+    pub(super) fn register_prepared_static_box_source(
+        &mut self,
+        prepared: super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1,
+    ) -> Result<(), ParseError> {
+        let line = self.current_token().line;
+        self.callable_source_session
+            .as_mut()
+            .ok_or(DirectCallableSourceIssueV1::SessionAlreadyMoved)
+            .map_err(|error| map_issue(error, line))?
+            .register_static_box_source(prepared);
+        Ok(())
+    }
+
     fn issue_direct_top_level_callable(
         &mut self,
         kind: DirectCallableDeclarationKindV1,
