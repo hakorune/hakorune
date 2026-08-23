@@ -57,13 +57,6 @@ fn issue_callable_program_source_v1(
         }
         other => FinalCallableProgramSourceRejectV1::ProgramSource(other),
     })?;
-    let normal_root_source = ParserNormalRootPreservationIssuerV1::seal_after_transform(
-        normal_root_source,
-        &source_authority,
-        &initial_ast,
-        transformed_ast,
-    )
-    .map_err(FinalCallableProgramSourceRejectV1::RootPreservation)?;
     let transformed_slots = expected_callable_slots(transformed_ast)
         .map_err(|_| FinalCallableProgramSourceRejectV1::CallableCoverage)?;
     if transformed_slots.as_slice() != slots.as_ref() || sources.len() != slots.len() {
@@ -77,6 +70,13 @@ fn issue_callable_program_source_v1(
     constructor_source
         .validate_transform(&initial_ast, transformed_ast)
         .map_err(|_| FinalCallableProgramSourceRejectV1::ConstructorSourceChanged)?;
+    let normal_root_source = ParserNormalRootPreservationIssuerV1::seal_after_transform(
+        normal_root_source,
+        &source_authority,
+        &initial_ast,
+        transformed_ast,
+    )
+    .map_err(FinalCallableProgramSourceRejectV1::RootPreservation)?;
     let final_ast = transformed.unwrap_or(initial_ast);
     Ok(VerifiedFinalCallableProgramSourceV1::issue(
         final_ast,

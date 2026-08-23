@@ -1,7 +1,7 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::CanonicalSourceBytesDigestV1;
 use crate::parser::callable_parameter_source::{
-    ParserNormalRootPreservationV1, ParserNormalRootRoleV1,
+    ParserNormalRootPreservationRejectV1, ParserNormalRootPreservationV1, ParserNormalRootRoleV1,
 };
 use crate::parser::{BuildMode, GrammarProfile, NyashParser, ParserBuildConfig};
 
@@ -39,13 +39,6 @@ fn transform_with_output(
     initial
         .begin_transform()
         .finish_test_transform(move |_| output)
-}
-
-fn first_program_statement(program: ASTNode) -> ASTNode {
-    let ASTNode::Program { mut statements, .. } = program else {
-        panic!("fixture must be a Program")
-    };
-    statements.remove(0)
 }
 
 #[test]
@@ -107,7 +100,7 @@ fn normal_script_root_role_moves_through_final_source() {
 }
 
 #[test]
-fn root_prefix_structural_drift_is_rejected_before_final_source() {
+fn root_statement_replacement_is_rejected_before_final_source() {
     let result = transform(parse("print(1)"), |ast| {
         let ASTNode::Program { statements, .. } = ast else {
             unreachable!()
@@ -120,7 +113,7 @@ fn root_prefix_structural_drift_is_rejected_before_final_source() {
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
-            crate::parser::callable_parameter_source::ParserNormalRootPreservationRejectV1::SourcePrefixChanged
+            ParserNormalRootPreservationRejectV1::SourceStatementChanged { position: 0 }
         ))
     ));
 }
@@ -132,27 +125,63 @@ fn foreign_transform_output_is_rejected_by_parser_session() {
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
-            crate::parser::callable_parameter_source::ParserNormalRootPreservationRejectV1::SourcePrefixChanged
+            ParserNormalRootPreservationRejectV1::SourceStatementChanged { position: 0 }
         ))
     ));
 }
 
 #[test]
-fn second_static_main_in_transform_suffix_is_rejected() {
-    let extra_main = first_program_statement(
-        NyashParser::parse_from_string("static box Main { main() { return 1 } }")
-            .expect("Main fixture"),
-    );
-    let result = transform(parse("print(1)"), move |ast| {
+fn root_statement_addition_is_rejected_before_final_source() {
+    let result = transform(parse("print(1)"), |ast| {
         let ASTNode::Program { statements, .. } = ast else {
             unreachable!()
         };
-        statements.push(extra_main);
+        statements.push(ASTNode::Literal {
+            value: LiteralValue::Integer(2),
+            span: Span::unknown(),
+        });
     });
     assert!(matches!(
         result,
         Err(FinalCallableProgramSourceRejectV1::RootPreservation(
-            crate::parser::callable_parameter_source::ParserNormalRootPreservationRejectV1::RootRoleDrift
+            ParserNormalRootPreservationRejectV1::SourceBodyCardinalityMismatch {
+                source: 1,
+                initial: 1,
+                transformed: 2,
+            }
+        ))
+    ));
+}
+
+#[test]
+fn root_statement_removal_is_rejected_before_final_source() {
+    let result = transform(parse("print(1)\nprint(2)"), |ast| {
+        let ASTNode::Program { statements, .. } = ast else {
+            unreachable!()
+        };
+        statements.pop();
+    });
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::ProgramSource(
+            crate::parser::callable_parameter_source::
+                ParserNormalProgramSourceTransformRejectV1::BodyCountChanged
+        ))
+    ));
+}
+
+#[test]
+fn root_statement_reorder_is_rejected_before_final_source() {
+    let result = transform(parse("print(1)\nprint(2)"), |ast| {
+        let ASTNode::Program { statements, .. } = ast else {
+            unreachable!()
+        };
+        statements.swap(0, 1);
+    });
+    assert!(matches!(
+        result,
+        Err(FinalCallableProgramSourceRejectV1::RootPreservation(
+            ParserNormalRootPreservationRejectV1::SourceStatementChanged { position: 0 }
         ))
     ));
 }
@@ -504,21 +533,6 @@ fn selected_member_gate_retains_callable_anchors_without_forging_parameter_sourc
             assert!(loan.rows()[0].method_source_observation().is_none());
         })
         .expect("semantic syntax loan");
-}
-
-#[test]
-fn non_callable_tail_may_change_without_reissuing_callable_identity() {
-    let final_source = transform(parse("static box Scan { run(x) { return x } }"), |ast| {
-        let ASTNode::Program { statements, .. } = ast else {
-            unreachable!()
-        };
-        statements.push(ASTNode::Literal {
-            value: LiteralValue::Integer(1),
-            span: Span::unknown(),
-        });
-    })
-    .expect("tail does not change callable set");
-    assert_eq!(final_source.callable_count(), 1);
 }
 
 #[test]

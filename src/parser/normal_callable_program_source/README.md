@@ -52,8 +52,8 @@ Transform validation preserves the parser token by move. It checks the initial
 body coverage/kind and the bounded composite role tree, returning typed
 `ProgramSource`/`Composite` rejection. Existing callable declaration checks
 remain responsible for callable-set/body changes, and the established
-non-callable-tail compatibility remains explicit. A `Ready` authority cannot
-be discarded into the compatibility AST lane.
+macro-generated test-tail compatibility remains explicit. A `Ready` authority
+cannot be discarded into the compatibility AST lane.
 
 Selected-normal materialization may attach one `NormalParserSourceLineageV1`
 projection: source identity, digest, grammar profile, UTF-8 length, and the
@@ -110,11 +110,12 @@ it does not reclassify App/Script from the transformed AST.
 
 `ParserNormalRootPreservationV1::Ready` is a non-`Clone` opaque token carrying
 only the admitted `App | Script` role and parser invocation witness. Before it
-is issued, the parser checks that the transformed Program preserves the exact
-source prefix, keeps the same root role, and does not append a second static
-`Main`. `Outside`, unavailable, incomplete, invalid, terminal, and
-`DiscardedBeforeA` states remain typed terminal transport rather than a
-guessed role.
+is issued, the parser checks that the parser-owned body-row count, initial
+Program statement count, and final Program statement count are identical, then
+compares every statement at its exact position. Addition, removal, reorder, or
+replacement is a typed rejection. `Outside`, unavailable, incomplete, invalid,
+terminal, and `DiscardedBeforeA` states remain typed terminal transport rather
+than a guessed role.
 
 The production final source can only be issued through
 `ParserNormalCallableTransformSessionV1::finish_exact`; this entry accepts no

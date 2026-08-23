@@ -109,12 +109,23 @@ guard_expect_fixed_in_file "$TAG" \
   "ParserNormalRootPreservationV1::Ready" "$TRANSFORM_TESTS" \
   "positive root-preservation evidence is missing"
 for test_name in \
-  root_prefix_structural_drift_is_rejected_before_final_source \
-  foreign_transform_output_is_rejected_by_parser_session \
-  second_static_main_in_transform_suffix_is_rejected; do
+  root_statement_replacement_is_rejected_before_final_source \
+  root_statement_addition_is_rejected_before_final_source \
+  root_statement_removal_is_rejected_before_final_source \
+  root_statement_reorder_is_rejected_before_final_source \
+  foreign_transform_output_is_rejected_by_parser_session; do
   guard_expect_fixed_in_file "$TAG" "$test_name" "$TRANSFORM_TESTS" \
     "focused negative evidence is missing: $test_name"
 done
+guard_expect_fixed_in_file "$TAG" \
+  "SourceBodyCardinalityMismatch" "$PRESERVATION" \
+  "root issuer must compare source, initial, and transformed cardinality"
+guard_expect_fixed_in_file "$TAG" \
+  "SourceStatementChanged" "$PRESERVATION" \
+  "root issuer must reject exact statement drift"
+if rg -n 'SourcePrefix|is_static_main_box|transformed_statements\[[^]]*\.\.' "$PRESERVATION"; then
+  guard_fail "$TAG" "prefix-only or name-based suffix preservation must remain retired"
+fi
 for test_name in \
   enabled_macro_with_no_actual_test_tail_stays_source_backed \
   actual_test_harness_tail_enters_typed_compatibility \

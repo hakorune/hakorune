@@ -1,8 +1,9 @@
 //! Parser-owned final-transform preservation for the normal root role.
 //!
 //! The initial App/Script admission is issued by `normal_root_source.rs`.
-//! This module only validates that the same source-root prefix survives the
-//! final callable transform and seals an opaque, non-Clone handoff token.
+//! This module only validates that the exact source-root statement cohort
+//! survives the final callable transform and seals an opaque, non-Clone
+//! handoff token.
 
 use crate::ast::ASTNode;
 
@@ -37,9 +38,14 @@ pub(crate) enum ParserNormalRootPreservationRejectV1 {
     SourceWitnessMissing,
     InitialProgramMissing,
     TransformedProgramMissing,
-    SourcePrefixLengthMismatch,
-    SourcePrefixChanged,
-    RootRoleDrift,
+    SourceBodyCardinalityMismatch {
+        source: usize,
+        initial: usize,
+        transformed: usize,
+    },
+    SourceStatementChanged {
+        position: usize,
+    },
     ParserWitnessMismatch,
 }
 
@@ -96,10 +102,6 @@ impl ParserNormalRootPreservationIssuerV1 {
             return Err(ParserNormalRootPreservationRejectV1::TransformedProgramMissing);
         };
 
-        let expected_prefix_len = source_authority
-            .invocation_witness()
-            .map(|_| initial_statements.len())
-            .ok_or(ParserNormalRootPreservationRejectV1::SourceWitnessMissing)?;
         let source_body_count = match source_authority {
             ParserNormalProgramSourceAuthorityDispositionV1::Ready(authority) => {
                 authority.body_rows().len()
@@ -108,19 +110,23 @@ impl ParserNormalRootPreservationIssuerV1 {
             | ParserNormalProgramSourceAuthorityDispositionV1::Incomplete(_)
             | ParserNormalProgramSourceAuthorityDispositionV1::IntegrityInvalid(_) => 0,
         };
-        if source_body_count != expected_prefix_len
-            || transformed_statements.len() < expected_prefix_len
-        {
-            return Err(ParserNormalRootPreservationRejectV1::SourcePrefixLengthMismatch);
+        let initial_body_count = initial_statements.len();
+        let transformed_body_count = transformed_statements.len();
+        if source_body_count != initial_body_count || initial_body_count != transformed_body_count {
+            return Err(
+                ParserNormalRootPreservationRejectV1::SourceBodyCardinalityMismatch {
+                    source: source_body_count,
+                    initial: initial_body_count,
+                    transformed: transformed_body_count,
+                },
+            );
         }
-        if transformed_statements[..expected_prefix_len] != initial_statements[..] {
-            return Err(ParserNormalRootPreservationRejectV1::SourcePrefixChanged);
-        }
-        if transformed_statements[expected_prefix_len..]
+        if let Some(position) = initial_statements
             .iter()
-            .any(is_static_main_box)
+            .zip(transformed_statements)
+            .position(|(source, transformed)| source != transformed)
         {
-            return Err(ParserNormalRootPreservationRejectV1::RootRoleDrift);
+            return Err(ParserNormalRootPreservationRejectV1::SourceStatementChanged { position });
         }
 
         let witness = source_authority
@@ -157,15 +163,4 @@ impl ParserNormalRootPreservationV1 {
             Self::Terminal(ParserNormalRootSourceDispositionV1::DiscardedBeforeA)
         )
     }
-}
-
-fn is_static_main_box(statement: &ASTNode) -> bool {
-    matches!(
-        statement,
-        ASTNode::BoxDeclaration {
-            name,
-            is_static: true,
-            ..
-        } if name == "Main"
-    )
 }
