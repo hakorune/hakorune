@@ -1,10 +1,10 @@
-Status: G0-H1 complete — HRTB root-consumer loan is the next design stop
+Status: G0-H1 complete — affine HRTB root-loan S0 selected
 Date: 2026-08-23
 Decision: NORMAL-MAIN-APP-ROOT-CONSUMER-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-root-source-disposition-d0-2026-08-23.md
-ProductionCaller: root consumer 0; H1 extended the existing final-source issuer at its sole production call as `b96d3f17b3`
-ProductionEdit: no implementation is authorized until the HRTB root-consumer loan D0 chooses one narrow App/Script view; root consumer, raw classifier retirement, and root lowering remain closed
-CeremonyTier: D0 — source-root consumer boundary before Builder effects
+ProductionCaller: root consumer 0; S0 may remain caller-zero for one commit only, and its immediately reserved successor connects the sole lifecycle caller
+ProductionEdit: only the parser-owned loan substrate is authorized in S0; no Builder effect, lowering, fallback, or production switch is part of that commit
+CeremonyTier: accepted T2 Decision -> one-commit S0, then mandatory production I0
 ---
 
 # NORMAL-MAIN-APP-ROOT-CONSUMER-D0
@@ -13,31 +13,27 @@ CeremonyTier: D0 — source-root consumer boundary before Builder effects
 
 ```text
 Decision:
-  keep ModuleBuilderInvocationSessionV1::complete_normal_default_program_root_catalog_lifecycle_with_target
-  as the only future root consumer, but first close the normal callable macro
-  boundary as ExactUnchanged versus an actual generated-tail compatibility row.
+  accept one parser-owned HRTB root view and one move-consuming lifecycle
+  facade; App uses a typed Program cursor with a hidden RootMain item rather
+  than a raw Program or root-body-only projection.
 Source authority + canonical issuer:
-  issue_parser_normal_root_source_v1 remains the sole source-root issuer;
-  ParserNormalProgramSourceAuthorityV1 remains the exact body-coverage owner;
-  the macro/test-harness owner alone may issue GeneratedTail, and the existing
-  parser final-source issuer alone may seal ExactUnchanged source.
+  the H1 private App relation and ParserNormalProgramSourceAuthorityV1 remain
+  the only owners; VerifiedFinalCallableProgramSourceV1 is the sole scoped
+  view issuer, and PreparedNormalDefaultProgramRootV1 owns production affinity.
 Non-authority:
-  VerifiedRawRootExpansionV1::from_program as a classifier, root_is_app_mode,
-  env flags, AST equality or a raw AST callback as transform authority,
-  AST/name/ordinal rescans, NormalCompileRequest, Builder state, compatibility
-  retry, and raw fallback.
+  raw Program access, names, ordinals, pointers, AST role rescans, Script-A
+  rows, VerifiedRawRootExpansionV1, semantic package presence, Builder, and MIR.
 Fail-fast boundary:
-  classify an actual generated tail before ParserNormalRootPreservedV1 or any
-  final source product can exist; later root consume still precedes target,
-  module, catalog, work-plan, MIR, and publication effects.
+  the sole source-backed consume starts at the lifecycle entry before raw
+  preflight, declaration/resolver work, target install, module, catalog, or
+  work-plan effects; every terminal and loan-integrity error stops there.
 Smallest next slice:
-  NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0: replace the production raw
-  AST callback with ExactUnchanged and route only an actually generated test
-  tail to typed compatibility; do not implement the root consumer.
+  NORMAL-ROOT-CONSUMER-LOAN-S0 adds only the parser loan, typed states, tests,
+  guard, and README receipt; it is one caller-zero commit whose immediate next
+  commit must be NORMAL-ROOT-CONSUMER-I0 or the S0 is reverted.
 Non-claims:
-  generated-tail canonical semantics, root lowering, ABI/result semantics,
-  child scheduling, MIR/ValueId, raw retirement, fallback, root production
-  switch, test-flag semantics, and performance.
+  root lowering, Recipe/work-plan changes, raw observer retirement, ABI/result
+  semantics, static-child expansion, MIR/publication, fallback, and performance.
 ```
 
 ## Current evidence
@@ -311,21 +307,24 @@ H1 / NORMAL-MAIN-APP-ROOT-RELATION-I0                 [complete: b96d3f17b3]
       invocation, Main-only-member relation, and NoStaticChildren.  Do not
       expose parser sites, anchors, names, or ordinals.
 
-I0 / NORMAL-ROOT-CONSUMER-LOAN-I0                     [design stop before implementation]
-      Add one parser-owned HRTB root view.  App lends only typed root body plus
-      CallableMainIsRoot/NoStaticChildren; Script lends a paired statement
-      cursor.  There is no raw Program getter and no Script-A row.
+S0 / NORMAL-ROOT-CONSUMER-LOAN-S0                     [selected fast cell]
+      Add one parser-owned HRTB root view. App lends a typed root body plus an
+      exact Program-order cursor whose Main row is an opaque RootMain marker;
+      Script lends a paired statement cursor. No raw Program getter, parser
+      identity, placement ordinal, or Script-A row escapes. Caller-zero is
+      permitted for this one commit only.
 
-J0 / NORMAL-MAIN-APP-ROOT-CONSUMER-I0                 [closed behind I0]
-      Move the final root source once into the named lifecycle consumer before
-      target/module/catalog/work-plan effects.  All non-ready states terminate
-      typed; Ready cannot return to the old raw route.
+I0 / NORMAL-ROOT-CONSUMER-I0                          [reserved immediately after S0]
+      Consume PreparedNormalDefaultProgramRootV1 by move at the beginning of
+      the named lifecycle. Source-backed root role/terminal authority comes
+      only from the loan; the old callable raw preflight edge becomes zero.
+      The post-loan wrapper exposes no reloan or generic parts escape.
 
-K0 / NORMAL-MAIN-APP-RAW-ROOT-OBSERVER-R0             [closed behind J0]
-      Remove the three selected-normal raw root observers: lifecycle preflight,
-      source-backed callable-catalog classification, and post-catalog rescan.
-      Remove bool-based selection and prove fallback/retry zero.  Compatibility
-      and test-owned raw observers remain under their existing owner.
+R0 / NORMAL-RAW-ROOT-OBSERVER-R0                      [closed behind I0]
+      Replace the remaining source-backed callable-catalog and post-catalog
+      raw observers with admitted projections, remove bool-based selection,
+      and prove fallback/retry zero. Compatibility and test-owned raw observers
+      remain under their existing owner.
 ```
 
 The deterministic source sentence is:
@@ -596,38 +595,208 @@ normal_callable_program_source/transform.rs 92 lines
 No HRTB loan, root body exposure, lifecycle consumer, Builder effect, fallback,
 production switch, or raw observer retirement was added in H1.
 
-## Next design stop — NORMAL-ROOT-CONSUMER-LOAN-D0
+## Accepted D0 — affine HRTB root-consumer loan
+
+The main-thread source audit and the independent read-only top-down audit agree
+on a conditional Accept. The earlier root-body-only App sketch was incomplete:
+H1 forbids static children inside `Main`, but an App may still contain a
+top-level callable or another top-level declaration. Dropping those rows would
+change the Program work-plan cohort.
+
+The corrected App view therefore preserves exact Program order while hiding
+the admitted Main declaration itself:
 
 ```text
-Decision:
-  choose one parser-owned HRTB root loan before implementing I0; do not expose
-  a self-referential owner/borrow product or a raw Program getter.
-Source authority + canonical issuer:
-  the H1 private App relation and existing Script Program-body authority remain
-  the only source owners; one method on the final parser source must issue the
-  scoped view exactly once.
-Non-authority:
-  role() alone, raw AST/name/ordinal classification, Script-A rows,
-  VerifiedRawRootExpansionV1, Builder state, Recipe, and MIR.
-Fail-fast boundary:
-  loan rejection and every terminal root disposition stop before the named
-  lifecycle consumer can install target/module/catalog/work-plan effects.
-Smallest next slice:
-  specify the paired App root-body view and Script statement cursor, callback
-  lifetime, typed errors, and sole future consumer; implementation remains 0.
-Non-claims:
-  root lowering, production switch, raw observer retirement, ABI/result
-  semantics, static-child expansion, fallback, publication, and performance.
+parser body row + exact final statement
+  -> RootMain                         when it is the H1 App root statement
+  -> Sibling { kind, statement }      for every other exact Program row
 ```
+
+`RootMain` occupies the original cursor position. A consumer may enumerate the
+cursor without shifting later source indices, but it cannot inspect the raw
+Main Box, recover its source locator, or classify it again.
+
+### Ownership and API shape
+
+The parser view issuer is read-only source observation. Production affinity is
+owned separately by the move-only prepared-root facade:
+
+```rust
+impl VerifiedFinalCallableProgramSourceV1 {
+    pub(crate) fn with_normal_root_consumer_loan<R>(
+        &self,
+        consume: impl for<'src> FnOnce(
+            ParserNormalRootConsumerLoanV1<'src>,
+        ) -> R,
+    ) -> Result<R, ParserNormalRootConsumerLoanRejectV1>;
+}
+
+impl PreparedNormalDefaultProgramRootV1 {
+    fn consume_callable_root_loan<R>(
+        self,
+        consume: impl for<'src> FnOnce(
+            ParserNormalRootConsumerLoanV1<'src>,
+        ) -> R,
+    ) -> Result<
+        (PreparedNormalDefaultProgramRootAfterLoanV1, R),
+        NormalRootConsumerRejectV1,
+    >;
+}
+```
+
+`PreparedNormalDefaultProgramRootAfterLoanV1` is lifecycle-private, non-Clone,
+and has no root-loan method, raw-parts escape, or generic inner-source getter.
+It may only continue into the existing semantic-package issuance. Thus the
+parser remains the source-view issuer while the named lifecycle owns exactly
+one production consume. No self-referential owner-plus-borrow product exists.
+
+### Borrowed view
+
+```rust
+enum ParserNormalRootConsumerLoanV1<'src> {
+    App(ParserNormalAppRootLoanV1<'src>),
+    Script(ParserNormalScriptRootLoanV1<'src>),
+}
+
+struct ParserNormalAppRootLoanV1<'src> {
+    root: ParserNormalAppRootBodyLoanV1<'src>,
+    program: ParserNormalAppProgramCursorV1<'src>,
+    callable_relation: ParserNormalAppRootCallableRelationRefV1<'src>,
+    // private CallableMainIsRoot / NoStaticChildren proofs
+}
+
+enum ParserNormalAppProgramItemLoanV1<'src> {
+    RootMain,
+    Sibling {
+        kind: ParserNormalProgramBodySyntaxKindV1,
+        statement: &'src ASTNode,
+    },
+}
+
+struct ParserNormalScriptStatementLoanV1<'src> {
+    kind: ParserNormalProgramBodySyntaxKindV1,
+    statement: &'src ASTNode,
+}
+```
+
+The App root body exposes only `body`, `uses`, `attrs`, and a closed
+`Implicit | Explicit(&str)` result-syntax view. Static Main, zero arity,
+Main-is-root, and no-static-children are represented by the admitted App loan,
+not by names or empty defaults. `params`, `param_decls`, the raw function node,
+parser anchors, source sites, and final-slot ordinals do not escape.
+
+The opaque callable relation may answer whether an already paired final
+callable row is this root. It returns no identity, name, pointer, or locator.
+Script exposes only one non-Clone paired cursor; source rows and AST statements
+are never returned as parallel slices. The existing general Program loan and
+its `program()` accessor remain valid for their existing Script authorities,
+but are not reachable through this root-consumer view.
+
+The HRTB makes `R` independent of `'src`, so a callback cannot return an AST
+reference, cursor item, root body, or callable relation. An owned lowering or
+semantic product may be returned only after consuming the scoped view.
+
+### Finite state table
+
+| Input state | Loan result | Pre-terminal effect | Next | Fallback |
+| --- | --- | ---: | --- | --- |
+| `Ready(App)` | exact App body + RootMain Program cursor + opaque callable relation | 0 | callback once | none |
+| `Ready(Script)` | exact paired Script statement cursor | 0 | callback once | none |
+| `Outside(reason)` | typed terminal retaining reason | 0 | discard | none |
+| `ScriptTerminal(reason)` | typed terminal retaining the exact existing subreason | 0 | discard | none |
+| `SourceAuthorityUnavailable(reason)` | typed terminal | 0 | discard | none |
+| `Incomplete(reason)` | typed terminal | 0 | discard | none |
+| `IntegrityInvalid(reason)` | typed terminal | 0 | discard | none |
+| `DiscardedBeforeA` | typed route-mismatch terminal | 0 | discard | none |
+| ready relation / final syntax contradiction | typed loan integrity reject | 0 | discard | repair forbidden |
+| typed/raw compatibility | outside this parser loan | existing compatibility policy | compatibility only | no synthetic root state |
+
+`ScriptTerminal` retains `NotApplicable`, `CompatibilitySource`, `Deferred`,
+`AdmissionMissing`, `CohortUnresolved`, `ObservationIncomplete`,
+`NonCandidate`, `DispositionTransported`, and `RowsNotHandoffReady` without a
+wildcard, default, or early conversion to `String`.
+
+The sole future production callpoint is the first source-backed operation in
+`complete_normal_default_program_root_catalog_lifecycle_with_target`. It is
+before the current raw preflight, declaration-facts collection, resolver
+session, target installation, module preparation, catalog installation, and
+work-plan creation. I0 removes the source-backed old raw-preflight selection
+edge; compatibility retains its existing owner. Remaining source-backed raw
+catalog/post-install observers belong to the later R0 and cannot override the
+parser-issued role meanwhile.
+
+### Selected execution series
+
+```text
+S0  parser consumer-loan types + sole issuer + focused tests + guard + README
+    production callers = 0; maximum lifetime = one landed commit
+
+I0  move-only prepared-root consume at lifecycle entry
+    source-backed loan caller = 1
+    old source-backed raw-preflight selector = 0
+    terminal Builder effects = 0
+    fallback/retry = 0
+
+R0  replace the remaining source-backed raw catalog/post-install observers
+    and remove bool selection; compatibility/test raw owners remain explicit
+```
+
+S0 and I0 are one reserved replacement series. No unrelated task, proof row,
+or consultation may land between them. If I0 cannot immediately consume the
+S0 surface, S0 is reverted or the lane returns to `NoSafeSlice`; caller-zero
+S0 is never called a completed I0.
+
+### S0 acceptance and guard
+
+```text
+positive:
+  App-only
+  App + top-level sibling with exact [Sibling, RootMain] order
+  empty Script
+  nonempty Script with exact paired kind/statement order
+
+negative/terminal:
+  nonzero-arity Main stays Outside
+  Main helper stays terminal
+  foreign parser/final relation and transform drift stay rejected
+  every top-level terminal variant maps exhaustively without callback
+
+structural:
+  root-loan issuer definition = 1
+  root-loan production caller = 0 in S0, reserved to become 1 in I0
+  root view program() / raw Main AST accessor = 0
+  parser anchor / source site / ordinal / pointer accessor = 0
+  Script-A type reference = 0
+  loan/cursor/AfterLoan Clone = 0
+  HRTB callback signature = 1
+  production source files < 760 lines; 800 hard stop
+```
+
+Likely S0 ownership is one new
+`normal_root_preservation/consumer_loan.rs` sibling, a thin final-source facade,
+a dedicated physical test file, parser re-exports, the parser README, and one
+reusable guard. `main_expansion.rs`, `program_root_work_plan.rs`, lifecycle
+code, fixtures outside the focused parser tests, and all physical owners are
+forbidden S0 edit targets.
+
+### NoSafeSlice conditions
+
+Return to `NoSafeSlice` if App siblings require a raw Program getter, the Main
+statement must escape instead of becoming `RootMain`, names/ordinals/pointers
+are needed outside the private issuer, rows and statements must be split and
+re-paired, the callback can return a borrow, `AfterLoanV1` can reloan or expose
+generic parts, a terminal reaches any lifecycle effect, S0 cannot be followed
+immediately by I0, or S0 requires semantic edits to `main_expansion.rs` or
+`program_root_work_plan.rs`.
 
 ## Non-claims
 
 This card does not authorize:
 
 ```text
-root consumer implementation
+production lifecycle root consumption during S0
 VerifiedMainExpansionV1 API changes
-HRTB root view or consumer implementation beyond the accepted D0
+production lifecycle edits during S0
 canonical semantics for generated test-harness rows
 root/static-child/body lowering
 ProgramRootWorkPlan bool removal
@@ -639,7 +808,7 @@ production switch
 performance work
 ```
 
-The next work item is design-only
-`NORMAL-ROOT-CONSUMER-LOAN-D0`. The previous root transport and G0-H1 rows
-remain complete, and the root consumer remains intentionally caller-zero until
-the ordered prerequisite series reaches J0.
+The selected next work item is caller-zero substrate
+`NORMAL-ROOT-CONSUMER-LOAN-S0`. The previous root transport and G0-H1 rows
+remain complete. S0 has a one-commit lifetime and reserves
+`NORMAL-ROOT-CONSUMER-I0` as its mandatory immediate successor.
