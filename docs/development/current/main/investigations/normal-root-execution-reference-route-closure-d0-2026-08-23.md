@@ -1,6 +1,6 @@
 # Normal root execution reference-route closure D0
 
-Status: T0 landed — atomic C0 manifest design stop
+Status: frozen parent — corrected atomic C0 manifest accepted
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0
 Owner: parser callable-source product -> route-specific affine handoff
@@ -28,10 +28,12 @@ Non-claims:
   fallback, compatibility fabrication, Recipe, MIR, or publication.
 
 Census boundary: `ParsedProgramWithCallableParameterSourceV1::new` -> every
-terminal move, destructure, retained owner, source-plan classification, or
-source-backed AST extraction of that product; includes normal/default,
-canonical-core reference, Raw VM reference, retained owners, and test-only
-helpers; excludes downstream Builder consumers after exact final source.
+terminal move, destructure, retained owner, source-plan classification,
+source-backed AST extraction, exact final-source transport, and the first
+typed normal/default Builder consumer; includes compatibility and the three
+sealed source-plan terminals until they consume a bound source owner; excludes
+the AST-only fixture, Raw runtime after one authorized extraction, and
+post-admission Recipe/module/physical work.
 
 ## Census parking valve
 
@@ -77,17 +79,21 @@ cannot receive the unconsumed total relation or Script-A sibling.
 | 4 | `PreparedNormalFileSourceV1::prepare_raw_vm_handoff` | Raw source-backed -> one Raw invocation | inside | `CutoverBlockerOpen(C0)` |
 | 5 | `ParsedProgramWithCallableParameterSourceV1::into_retained_source` | retained semantic owner | inside | `CutoverBlockerOpen(C0)` |
 | 6 | direct parser-product test helpers | source disposition/retained test terminals | inside | `CutoverBlockerOpen(C0 tests)` |
-| 7 | compatibility `into_normal_callable_program` | normal/default compatibility terminal | outside | `ParkedSealed` |
-| 8 | compatibility Raw route | named compatibility extraction -> Raw invocation | outside | `ParkedSealed` |
-| 9 | compatibility canonical route | `CompatibilitySourceUnavailable` | outside | `ParkedSealed` |
+| 7 | compatibility `into_normal_callable_program` | normal/default compatibility terminal | inside | `CutoverBlockerOpen(C0)` |
+| 8 | compatibility Raw route | named compatibility extraction -> Raw invocation | inside | `CutoverBlockerOpen(C0)` |
+| 9 | compatibility canonical route | `CompatibilitySourceUnavailable` | inside | `CutoverBlockerOpen(C0)` |
 | 10 | `PreparedNormalSourcePlanInputV1::new` | AST-only fixture -> plan/reject | outside | `ParkedSealed` |
-| 11 | `SealedNormalScriptSourceV1::prepare_script_recipe` | sealed Script terminal consumer | outside | `ParkedSealed` |
-| 12 | `SealedNormalMainSourceV1::prepare_function_source` | sealed Main0 terminal consumer | outside | `ParkedSealed` |
-| 13 | `SealedNormalCallableModuleSourceV1::prepare_callable_source` | sealed CallableModule consumer | outside | `ParkedSealed` |
+| 11 | `SealedNormalScriptSourceV1::prepare_script_recipe` | sealed Script terminal consumer | inside | `CutoverBlockerOpen(C0)` |
+| 12 | `SealedNormalMainSourceV1::prepare_function_source` | sealed Main0 terminal consumer | inside | `CutoverBlockerOpen(C0)` |
+| 13 | `SealedNormalCallableModuleSourceV1::prepare_callable_source` | sealed CallableModule consumer | inside | `CutoverBlockerOpen(C0)` |
 | 14 | Raw runtime/compiler after authorized extraction | execution/publication terminal | outside | `ParkedSealed` |
 
-Inventory state is `Exhausted(14)` for this D0: open blockers = 6 and parked
-rows = 8. C0 may close only at open blockers = 0. A newly observed entry or
+Inventory state is `Exhausted(14)` for this D0: open blockers = 12 and parked
+rows = 2. The independent manifest audit reopened compatibility because its
+shared split silently drops the unavailable surface state, and reopened the
+three sealed source-plan terminals because they still own
+`PreparedNormalSourcePlanInputV1` and reclassify from AST. C0 may close only at
+open blockers = 0. A newly observed entry or
 terminal returns the inventory to Open and must be classified before work
 continues.
 
@@ -242,7 +248,7 @@ single HRTB loan keeps every statement/callable role paired:
 ~~~text
 ParserNormalRootSourcePlanConsumerV1::consume_once
   (total relation + same-invocation source loan)
-    -> ParserBackedNormalSourcePlanSurfaceV1
+    -> existing ParserBackedNormalSourcePlanBoundV1
        + SourcePlanBound parser source owner
     -> Script | Main0 | CallableModule | typed reject
 ~~~
@@ -294,9 +300,9 @@ transform and lifecycle consumer.
 The surface distinguishes an actual empty Program from missing coverage:
 
 ~~~text
-ParserBackedNormalSourcePlanSurfaceV1
+ParserNormalSourcePlanSurfaceV1
   = CompleteEmpty(exact zero-coverage witness)
-  | CompleteRows(NonEmptyCompleteRowsV1)
+  | CompleteRows(NonEmptyParserNormalSourcePlanRowsV1)
 
 StatementRow
   = parser body row
@@ -314,7 +320,8 @@ StatementRow
       Unsupported(existing NormalUnsupportedTopLevelKindV1)
 ~~~
 
-`NonEmptyCompleteRowsV1` has a private constructor that proves row count > 0;
+`NonEmptyParserNormalSourcePlanRowsV1` is the C0 strengthening of the landed
+boxed-row payload. It has a private constructor that proves row count > 0;
 an empty slice cannot represent `CompleteRows`. `AppMain` is only a tag on the
 same row: the exact root/child callable relations are moved once into that
 row's `MainBoxSyntax` members and are not copied into the tag. The issuer
@@ -556,15 +563,16 @@ existence never satisfies the production cardinality.
 
 | State | Owner | Evidence | Observable reopen trigger | Non-authority claim |
 | --- | --- | --- | --- | --- |
-| `ParkedSealed` | sealed Script/Main0/CallableModule consumers | run only after an exact source-plan terminal | re-entry to classification, unconsumed total relation, or a second generic extraction | Recipe/module/physical consumers cannot issue execution role or source-plan family |
+| `CutoverBlockerOpen` until C0, then `ParkedSealed` | sealed Script/Main0/CallableModule consumers | currently own old AST-classifying input; park only after replacement with a consumed bound owner | re-entry to classification, unconsumed total relation, or a second generic extraction | Recipe/module/physical consumers cannot issue execution role or source-plan family |
 | `ParkedSealed` | Raw VM after authorized extraction | begins only after Raw sibling closure and root discard are consumed | second extraction, source reclassification, or fallback | Raw runtime owns execution, not parser source meaning |
 | `ParkedSealed` | future no-import/source-plan scan-fusion optimization | begins only after C0 fixes the current no-import observer; D0 has no performance claim | compile-time evidence identifies the sealed boundary as hot | optimization cannot own source-profile or root/source-plan meaning |
 | `ParkedSealed` | AST-only source-plan fixture retirement | typed separately and has no parser witness | a production caller or parser-backed authority fabrication appears | AST-only input is fixture evidence, not compatibility or canonical authority |
 
-These rows do not close the six in-bound blockers. The manifest above is
+These rows do not close the twelve in-bound blockers. The inventory above is
 `Exhausted(14)`, while C0 still requires every old pre-terminal edge below to
 reach zero. The current no-import observation itself belongs to in-bound
-inventory rows 3/4 and is not parked.
+inventory rows 3/4 and is not parked. Compatibility rows 7–9 are also in-bound
+until their unavailable source state is consumed by named route closures.
 
 ## Retained/test and compatibility closure
 
@@ -590,9 +598,11 @@ inventory rows 3/4 and is not parked.
    - C0 requires inventory `Exhausted`, open/reopened blockers zero, and every
      outside row `ParkedSealed`;
    - parked work need not be implemented before C0.
-2. `R1-OWNER-TERMINAL-MANIFEST-D1` — frozen
+2. `R1-OWNER-TERMINAL-MANIFEST-D1` — corrected by the atomic manifest audit
    - normal/default, canonical source-plan, Raw VM, retained/test, and
-     compatibility exits are the 14-row `Exhausted` inventory above.
+     compatibility exits are the 14-row `Exhausted` inventory above;
+   - twelve rows are C0 blockers and only the AST-only fixture plus authorized
+     post-extraction Raw runtime are currently parked.
 3. `R2-SOURCE-PLAN-PARITY` — closed as a design matrix
    - Script/empty currently reach classification; valid Main0 and
      CallableModule rows are classified current-change red at the shared
@@ -655,8 +665,8 @@ inventory rows 3/4 and is not parked.
 
 ## D0 exit evidence
 
-- the 14-row owner/terminal inventory is `Exhausted`; six implementation
-  blockers are assigned to atomic C0 and eight outside rows are `ParkedSealed`;
+- the 14-row owner/terminal inventory is `Exhausted`; twelve implementation
+  blockers are assigned to atomic C0 and two outside rows are `ParkedSealed`;
 - total execution issuer, production source-plan observation issuer, and
   parser pairing witness have non-overlapping authority;
 - the source-plan surface has exact empty/non-empty coverage, one ownership of
@@ -680,14 +690,16 @@ inventory rows 3/4 and is not parked.
 - `git diff --check`: passed. The broad red is classified as known baseline
   debt and is the semantic C0 boundary, not a T0 regression.
 
-## C0 acceptance — not yet claimed
+## C0 acceptance — manifest frozen, implementation not yet selected
 
-After T0, a short design-stop closeout must bind the frozen contracts to exact
-new owner files, positive/negative test files, and one reusable lane guard.
-C0 then requires every in-bound old edge above to reach zero, every new issuer
-and named consumer to have its production cardinality, all six blockers to be
-`CutoverBlockerClosed`, and no intermediate commit to expose a second
-authority. Until that manifest exists, semantic Rust remains forbidden.
+`NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0` now binds the corrected
+boundary, exact owner files, positive/negative test owners, old-guard migration,
+and one reusable lane guard. It selects a behavior-neutral `main_expansion.rs`
+test split first. After that T0 closes and `CURRENT_STATE` explicitly selects
+C0, every in-bound old edge must reach zero, every new issuer and named
+consumer must have its production cardinality, all twelve blockers must be
+`CutoverBlockerClosed`, and no intermediate commit may expose a second
+authority. Semantic C0 Rust remains forbidden before that selection.
 
 ## Stop / NoSafeSlice
 

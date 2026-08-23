@@ -1,26 +1,26 @@
 status = """
-R3/R4 design is frozen, the behavior-neutral frontdoor split is landed, and
-the bounded parser source-plan surface I0-A is closed and pushed as 1a6915bbcf.
-The total-root atomic C0 remains a design stop until its owner/file/test/guard
-manifest is accepted."""
+The corrected atomic root manifest is accepted after independent audit. Its
+boundary now includes compatibility, all three source-plan terminals, and the
+first typed Builder consumer. The selected row is a behavior-neutral
+main_expansion test split; semantic C0 is not yet selected."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
-current_design_stop = "Parser source-surface I0-A is closed. Atomic C0 remains design-only until every in-bound parser-product exit, total-root/source-plan consumer, Raw-only discard, retained/test terminal, old edge, exact test owner, and reusable guard is frozen in one manifest."
-current_blocker_token = "Do not implement if the C0 manifest needs a second issuer, AST/name/ordinal re-pairing, silent field drop, compatibility retry, unbounded census expansion, or Builder physical work before typed admission."
+work_mode = "fast"
+current_execution_row = "NORMAL-ROOT-EXECUTION-PRE-CUTOVER-SPLIT-T0"
+current_design_stop = "Semantic C0 remains closed. The current fast row may only extract the inline main_expansion tests with byte/hash/caller preservation."
+current_blocker_token = "Stop T0 on any semantic diff, caller/visibility change, baseline-only red, adjacent cleanup, or need to edit another over-limit file. After T0, return to design_stop before selecting atomic C0."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — normal root atomic cutover manifest"
+active_lane = "MirBuilder in-place replacement — normal root pre-cutover BoxShape"
 active_lane_status = """
-Current: parser source-surface I0-A is closed; the next frontier is a design-only
-atomic C0 owner/file/test/guard manifest.
-Authorized: freeze the declared census boundary, route-specific owners, exact
-retirement edges, parking classifications, and acceptance guard.
-Forbidden: semantic Rust, policy/transform/root cutover, compatibility expansion,
+Current: the corrected atomic C0 manifest is frozen; T0 extracts only the
+main_expansion inline tests.
+Authorized: one behavior-neutral module attachment move plus focused test,
+hash, line-count, cargo-check, and diff evidence.
+Forbidden: semantic Rust, classifier/lifecycle/root cutover, adjacent cleanup,
 fallback/retry, Builder effect, physical receipt, or production switch."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -29,14 +29,14 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
+current_execution_design = "docs/development/current/main/investigations/normal-root-execution-pre-cutover-split-t0-2026-08-23.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "normal-root-execution-atomic-cutover-manifest-d0"
-latest_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
-latest_card_summary = "I0-A is closed; the next design-only cell freezes the atomic C0 owner/file/test/guard manifest with a bounded census and parking valve."
-next_design_card = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
-next_execution_card = "none until design stop is accepted"
-next_execution_card_path = "none"
+latest_card = "normal-root-execution-pre-cutover-split-t0"
+latest_card_path = "docs/development/current/main/investigations/normal-root-execution-pre-cutover-split-t0-2026-08-23.md"
+latest_card_summary = "Extract the main_expansion inline tests without semantic, caller, visibility, or behavior change; then return to design_stop before atomic C0."
+next_design_card = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0-SELECTION"
+next_execution_card = "NORMAL-ROOT-EXECUTION-PRE-CUTOVER-SPLIT-T0"
+next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-pre-cutover-split-t0-2026-08-23.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
