@@ -1,14 +1,16 @@
-Status: Design stop — ready for Decision
+Status: Decision accepted — bounded transport I0 authorized
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-TRANSPORT-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-admission-i0-2026-08-23.md
 PrerequisiteExecutionRow: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-ADMISSION-I0
 ProductionCaller: 0; transport-only parser/source slice
-ProductionEdit: none until this D0 is accepted
+ProductionEdit: transport-only I0 authorized; Main/App consumers remain closed
 CeremonyTier: D0 — source-product transport design
 ---
 
 # NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-TRANSPORT-D0
+
+CurrentExecutionRow: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-TRANSPORT-I0
 
 ## Six-line brief
 
@@ -52,6 +54,15 @@ This D0 treats that as a transport boundary, not as permission to select or
 lower an App root. The parser issuer has already made the only source
 observation. The next product must preserve that observation or stop; it must
 not reconstruct it from the AST after the drop point.
+
+## Decision result
+
+Candidate A is accepted for this bounded I0. The existing parser disposition
+will be moved into the two source-backed callable products and through the
+existing transform parts tuple. No new semantic `Verified*` or `Prepared*`
+product is introduced; this is preservation of an already-issued parser fact.
+The compatibility variant remains separate and does not receive a fabricated
+Main/App state.
 
 ## Proposed move chain
 
@@ -140,7 +151,7 @@ the touched production file reaches the 760-line split trigger
 ## Bounded task sequence
 
 ```text
-D0  accept the move-only transport contract and exact field owners
+D0  accepted: move-only transport contract and exact field owners are fixed
 I0  add the required field to Prepared and VerifiedFinal source products,
     thread it through the existing parser-to-transform move chain, and add
     transport-only positive/typed-negative tests
