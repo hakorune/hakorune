@@ -1,27 +1,25 @@
 status = """
-The normal root lane is in design_stop. The existing parser root disposition
-owns narrow Main.main/0 and canonical Script-A admission, not the total
-App/ProgramRuntime execution role. The caller-zero loan S0 was reverted after
-a valid non-Main provider counterexample and a third raw classifier/pointer
-pairing were found. The next work is read-only parity and consumer closure."""
+The normal root lane is in design_stop. Raw/compatibility parity and the full
+source-backed consumer/retirement closure are now finite. The active NoSafeSlice
+is the exact parser-owned App/ProgramRuntime relation and its one pre-effect
+consumer; implementation remains forbidden until that authority/API freezes."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
 current_execution_row = "NORMAL-ROOT-EXECUTION-DISPOSITION-D0"
-current_design_stop = "SemanticAuthorityMissing: the parser has no total normal-root App/ProgramRuntime execution disposition covering provider Programs, broad App forms, and exact callable roles."
-current_blocker_token = "NORMAL-ROOT-EXECUTION-PARITY-D0: census every raw classifier consumer and accepted/rejected shape, then freeze one total parser issuer before any new receipt, loan, lifecycle effect, or cutover."
+current_design_stop = "SemanticAuthorityMissing: no frozen parser-owned total App/ProgramRuntime relation yet co-seals complete Program statements, Main root, static children, every callable role, and exact final preservation."
+current_blocker_token = "NORMAL-ROOT-EXECUTION-AUTHORITY-FREEZE-D0: freeze the exact total relation and one pre-effect scoped consumer that issues catalog roles and typed root work together."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — total normal root execution authority"
 active_lane_status = """
-Current: narrow Script-A/Main.main/0 admission is separated from total root
-execution semantics. Blocker: total App/ProgramRuntime source authority and
-its three-consumer closure are not frozen. Authorized next work: parity census,
-authority map, finite state table, and retirement manifest only. Forbidden:
-new semantic receipt/loan, Builder effect, fallback, compatibility fabrication,
+Current: D0-A raw parity and consumer closure are accepted. Blocker: the total
+parser-owned root relation and single pre-effect consumer API are not frozen.
+Authorized: authority/API design and counterexample audit only. Forbidden: new
+semantic receipt/loan, Builder effect, fallback, compatibility fabrication,
 production switch, or raw-role inference."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -34,7 +32,7 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-root-execution-disposition-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-root-execution-disposition-d0-2026-08-23.md"
-latest_card_summary = "The previous loan S0 is reverted. A separate total parser-owned App/ProgramRuntime execution disposition is selected in principle, but exhaustive raw parity and three-consumer closure remain design work."
+latest_card_summary = "D0-A closes raw parity and the complete source-backed retirement manifest. D0-B remains NoSafeSlice until one total parser relation and one pre-effect consumer API are frozen."
 next_design_card = "NORMAL-ROOT-EXECUTION-DISPOSITION-D0"
 next_execution_card = "none-until-Decision"
 next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-disposition-d0-2026-08-23.md"

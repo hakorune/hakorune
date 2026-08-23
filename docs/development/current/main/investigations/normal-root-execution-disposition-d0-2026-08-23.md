@@ -5,12 +5,15 @@ Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-DISPOSITION-D0
 Owner: parser source authority -> normal/default root lifecycle
 
+This row is not Fast path because parity and retirement are now finite, but the
+exact total source relation and its one pre-effect consumer API are not frozen.
+
 ## Six-line brief
 
 Decision:
-  Separate the total normal-root execution role from the narrow canonical
-  Script-A/Main.main/0 admission products. Do not reinterpret their Outside
-  states as Script execution.
+  D0-A parity is accepted. Keep NoSafeSlice while freezing a total normal-root
+  execution relation distinct from narrow Script-A/Main.main/0 admission. Do
+  not reinterpret narrow Outside states as ProgramRuntime.
 Source authority + canonical issuer:
   The complete same-invocation parser Program authority plus callable source
   catalog; ParserNormalRootExecutionIssuerV1::issue_once, called only inside
@@ -24,9 +27,9 @@ Fail-fast boundary:
   transform and consumed before declaration, resolver, target, module, catalog,
   work-plan, or Builder effects.
 Smallest next slice:
-  NORMAL-ROOT-EXECUTION-PARITY-D0: freeze every old raw classifier arm, every
-  production consumer, and the exact App/ProgramRuntime source relation. No
-  code, fixture, fallback, or new semantic receipt is authorized.
+  NORMAL-ROOT-EXECUTION-AUTHORITY-FREEZE-D0: freeze exact fields, errors,
+  preservation, and the one scoped consumer API. No code, fixture, fallback,
+  or new semantic receipt is authorized.
 Non-claims:
   No lifecycle cutover, compatibility change, App-shape expansion, Script-A
   change, Recipe/lowering/publication work, raw retirement, or performance work.
@@ -206,6 +209,162 @@ duplicate top-level static Main declarations reject
 The current raw classifier does not use the narrow Main.main/0/no-child
 admission policy. The new total issuer must not silently tighten to that cohort.
 
+## D0-A parity census result
+
+The old raw classifier has a finite policy. It examines only the top-level
+Program and the method inventory of the unique top-level static Box named
+`Main`:
+
+| Raw observation | Raw result | Source-backed total result |
+| --- | --- | --- |
+| root is not Program | `RootMustBeProgram` | no product; never fabricate Program authority |
+| no top-level `static box Main` | Script | Ready(ProgramRuntime) when exact initial source exists |
+| one top-level `static box Main` | continue Main validation | continue total App issuance when exact initial source exists |
+| more than one top-level `static box Main` | `DuplicateMainBox` | IntegrityInvalid(DuplicateMain) |
+| Main has no `main` inventory entry | `MainMethodMissing` | Incomplete(MainMethodMissing) when source-backed reachable |
+| Main `main` is not a function | `MainMethodMustBeFunction` | compatibility/raw only under current initial-source contract |
+| Main `main` is not static | `StaticChildMustBeStatic(main)` | IntegrityInvalid(MainMethodNotStatic) when source-backed reachable |
+| Main `main` has any arity | App | Ready(App) with exact identity/site/arity |
+| every non-main inventory row is a static function | App | Ready(App) with complete child relation |
+| helper is non-function | `StaticChildMustBeFunction` | compatibility/raw only under current initial-source contract |
+| helper is non-static | `StaticChildMustBeStatic` | IntegrityInvalid(ChildNotStatic) when source-backed reachable |
+| expected callable relation is missing | not a raw-classifier state | Incomplete(CallableRelationMissing) |
+| relation is foreign/duplicate/contradictory | not a raw-classifier state | IntegrityInvalid(CallableRelation) |
+
+Raw error vocabulary and source-backed execution vocabulary are deliberately
+separate. Explicit parser inventory construction rejects some malformed method
+shapes before an initial callable source can exist; compatibility ASTs may
+still reach the historical raw errors. The total issuer must not import those
+compatibility-only shapes merely to duplicate the raw enum.
+
+The following are parity constraints, not new language claims:
+
+- a non-static Box named `Main` is ignored by the role selector;
+- one static Main plus any number of non-static Main declarations is App;
+- nested Main, case-different names, and non-Box declarations named Main do not
+  count as top-level static Main;
+- a static Main may coexist with top-level executable statements, ordinary
+  Boxes, top-level functions, and other static Boxes;
+- fields, constructors, static initializers, and other Box flags do not select
+  App versus ProgramRuntime in this classifier;
+- Main static children currently execute in compatibility-name order. The new
+  issuer must preserve an owned execution ordinal for parity, while identity
+  and source site remain the pairing authority;
+- App instance-Box and top-level-function siblings retain their immediate
+  handling; non-Main static Boxes retain their App no-op/deferred behavior;
+  App runtime-only statements remain outside the App terminal consumer;
+- compatibility inventory may contain a map key and declaration name that do
+  not agree. That historical raw behavior remains compatibility-only and is
+  not a canonical source relation;
+- an initial callable source that is unavailable because of BuildGate,
+  delegate, interface/record, macro/import, or another explicit compatibility
+  condition stays on the compatibility owner and receives no source-backed
+  execution product.
+
+`CompletedParserPostpassV1::initial_callable_source()` plus the complete
+parameter catalog is the minimum admissible source boundary. The existing
+single-parent static-Box seal is not total: it rejects additional static
+parents and additional members that the old App policy accepts. It is therefore
+non-authority for this row.
+
+## D0-A consumer and retirement manifest
+
+| Old semantic edge | Current use | Replacement input | Retirement condition |
+| --- | --- | --- | --- |
+| lifecycle raw scan #1 | pre-effect App bool | typed App/ProgramRuntime disposition | source-backed caller zero |
+| `preflight_is_app_mode` | Script lookup and A-observation gate | typed root role projection | bool selector zero |
+| callable-catalog raw scan | root Main exclusion and child role assignment | complete parser callable-role map | scan caller zero |
+| catalog AST pointer comparisons | pair root/children with final callable rows | opaque identity + exact final slot/site | source-backed pointer pairing zero |
+| catalog child ordinal lookup | feed Completion/signature/S6C/Dynamic roles | same role row carried through selected mapping | ordinal-only lookup zero |
+| lifecycle raw scan #2 | retained-source drift check | exact transform-preserved disposition | second scan zero |
+| entry materialization seal | optional `Main.main/N` target | admitted App root identity + canonical callable key | raw expansion input zero |
+| bool work-plan API | statement schedule and terminal | admitted execution-mode enum | selected-normal bool parameter zero |
+| work-plan index/name/arity pairing | pair statements with selected callables | paired Program cursor + callable identity map | selected-normal re-pairing zero |
+| selected Main/name classifiers | hide Main from Script/runtime work | parser-issued RootMain statement role | source-backed Main name checks zero |
+| installed-package child pointer check | pair selected child with source syntax | parser role identity + selected batch mapping | pointer pairing zero |
+| `root_is_app_mode: Option<bool>` | non-Main static-Box runtime behavior | already-admitted execution mode carried by work | production field reader zero |
+| terminal expansion match | Script runtime versus App root lowering | typed terminal carrying its exact projection | raw expansion parameter zero |
+| `VerifiedMainExpansionV1` child/root views | App helper and root-body lowering | one scoped typed App loan | source-backed consumer zero |
+| stale sole-authority comment | claims raw expansion is canonical | compatibility-only contract | comment corrected with R0 |
+
+These edges are one atomic cutover closure. In particular, replacing both
+lifecycle scans while retaining either catalog pointer pairing would leave a
+second source authority alive.
+
+Production cardinality before cutover is three raw classifications per
+source-backed Normal compile: lifecycle preflight, callable-catalog issuance,
+and retained-source verification. Normal compatibility retains its existing
+two lifecycle classifications; explicit Raw retains its separate one. C0
+changes only the source-backed set.
+
+## D0-B authority freeze candidate
+
+`ParserNormalRootExecutionIssuerV1::issue_once` is called once from
+`ParsedProgramWithCallableParameterSourceV1::new`. It may inspect names and
+syntax only inside that parser-owned call. Its accepted inputs are exactly:
+
+~~~text
+CompletedParserPostpassV1::initial_callable_source()
++ ParserNormalProgramSourceAuthorityV1
++ complete ParserCallableParameterSourceCatalogV1
+~~~
+
+The initial callable product already owns the complete `(source identity,
+final slot, declaration)` relation. The issuer must consume a parser-private
+loan over those paired rows; it must not zip independently exposed arrays.
+
+The total relation covers every callable exactly once:
+
+~~~text
+AppRootMain
+AppStaticChild { execution_ordinal }
+Ordinary
+~~~
+
+For App, exactly one row is `AppRootMain`; every non-main method in the same
+static Main is an `AppStaticChild`; every other callable is `Ordinary`. For
+ProgramRuntime every callable is `Ordinary`, beside a source-backed
+`NoTopLevelStaticMain` witness. The role row stores opaque callable identity,
+exact final slot/source site, and its role. It stores no AST reference, encoded
+symbol, Builder key, Recipe key, ValueId, or MIR type.
+
+The relation also covers every Program statement exactly once. App marks the
+unique static Main statement as `RootMain` and all siblings as `Ordinary`; a
+ProgramRuntime marks every statement `Ordinary`. These are root-consumption
+roles only. The parser does not issue immediate/deferred/runtime work-plan
+meaning; existing declaration, Script-item, constructor, and Recipe owners
+consume the paired statement cursor inside the named root consumer.
+
+Main materialization symbol selection remains downstream of the source
+relation. The parser carries main identity, final slot/site, and declared
+arity; the canonical callable catalog supplies the key used to derive the
+encoded symbol. An encoded backend or Builder symbol does not enter this
+product.
+
+The final transform moves the same disposition after the existing exact
+Program/cardinality and callable-declaration checks. It may verify identity and
+slot coverage, but may not rescan `Main`, re-sort methods, or reissue roles.
+
+Current decision state is:
+
+~~~text
+D0-A parity/consumer closure = accepted
+D0-B exact authority/API     = NoSafeSlice until frozen
+implementation               = forbidden
+~~~
+
+D0-B closes only when one private consumer can, under one final-source loan and
+before `PreparedNormalProgramDeclarationFactsV1::collect`, issue all three
+owned downstream inputs:
+
+~~~text
+typed pre-effect App/ProgramRuntime gate
+source-backed callable catalog with complete root/child/ordinary roles
+typed Program-root work/materialization input
+~~~
+
+No second getter or later source reloan may issue one of these siblings.
+
 ## Final preservation and loan contract
 
 The source product moves through the existing exact final-transform boundary.
@@ -238,6 +397,10 @@ generic parts tuple are forbidden.
 
 ### D0-A — NORMAL-ROOT-EXECUTION-PARITY-D0
 
+Status: accepted 2026-08-23. The raw/compatibility state table is separated
+from the source-backed reachable state table, and the complete production
+retirement closure is recorded above.
+
 Change:
   Census every `VerifiedRawRootExpansionV1::from_program` production caller,
   every `root_is_app_mode` semantic reader, and every old accepted/rejected
@@ -252,14 +415,44 @@ Stop:
 
 ### D0-B — NORMAL-ROOT-EXECUTION-AUTHORITY-FREEZE-D0
 
+Status: active NoSafeSlice. Read-only design work only.
+
 Change:
   Freeze the sole issuer, exact fields, typed errors, and relation with callable
   identities/final slots.
 Done:
   Parser source authority and final preservation can issue every mapped state
-  without Builder, pointer, raw fallback, or narrow A-state inference.
+  without Builder, pointer, raw fallback, or narrow A-state inference; one
+  pre-effect consumer issues catalog roles and typed root work in the same
+  scoped loan.
 Stop:
   Missing source/callable relation is NoSafeSlice, not an empty/default row.
+
+D0-B is executed in this order:
+
+1. `B1-SOURCE-MODEL`
+   - freeze App/ProgramRuntime statement rows, callable roles, helper execution
+     order, and source-backed versus compatibility boundary;
+   - done when every required field has exactly one existing parser owner.
+2. `B2-ISSUER-INPUT`
+   - freeze one parser-private paired loan from the initial callable source;
+   - done when identity, declaration, and final slot cannot be independently
+     zipped or rebuilt.
+3. `B3-PRESERVATION`
+   - freeze move-through validation at the exact final callable transform;
+   - done when all statement/callable drift is typed and no role is reissued.
+4. `B4-CONSUMER-AGGREGATE`
+   - freeze one `PreparedNormalDefaultProgramRootV1` consuming facade that
+     creates gate, catalog roles, and typed work/materialization siblings in
+     one HRTB callback before declaration facts;
+   - done when no AST reference, second getter, or later source reloan escapes.
+5. `B5-CUTOVER-PROOF`
+   - bind every retirement edge above to C0 and one reusable lane guard;
+   - done when source-backed zeroes and compatibility/Raw preserved callers
+     are mechanically distinguishable.
+
+No B-cell authorizes production Rust changes. D0-B acceptance selects only P0
+as the next implementation slice.
 
 ### P0 — NORMAL-ROOT-EXECUTION-SOURCE-P0
 
@@ -314,7 +507,10 @@ The eventual lane guard must prove:
 total execution issuer definition/caller                 = 1 / 1
 narrow A product used as execution selector              = 0
 source-backed raw root classifier callers                = 0 after C0
+explicit Raw classifier caller                           = 1 unchanged
+Normal compatibility classifier caller set               = unchanged
 source-backed AST pointer role pairing                    = 0 after C0
+source-backed name/ordinal role pairing                   = 0 after C0
 root execution bool selector                             = 0 after R0
 named move-consuming lifecycle consumer                  = 1
 Builder effect before consume                            = 0
@@ -336,7 +532,17 @@ Return to NoSafeSlice if:
 - any App child/root role needs pointer, name, or ordinal pairing downstream;
 - final transform cannot preserve the total relation exactly;
 - one scoped consumer cannot serve lifecycle, callable catalog, and work-plan;
+- complete Program statement coverage cannot be consumed without a second
+  root-role scan;
+- Main child role cannot flow through Completion, physical signature, S6C,
+  Dynamic exclusion, and installed-package lookup by opaque identity;
+- selected work-plan construction still needs index/name/arity or Main-name
+  re-pairing;
+- helper execution order is not frozen to the current compatibility-name order;
+- disposition consumption occurs after declaration/package/module effects;
 - one of the three raw semantic callers must remain after cutover;
+- Normal compatibility or explicit Raw must receive a fabricated parser
+  product or be changed in the same cutover;
 - compatibility requires a fabricated source-backed product;
 - a narrow A state must decide execution role;
 - the production switch cannot remove fallback and old callers atomically.
