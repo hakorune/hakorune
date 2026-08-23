@@ -1,6 +1,6 @@
 # Normal root execution pre-cutover split T0
 
-Status: selected — fast BoxShape only
+Status: closed — behavior-neutral BoxShape verified
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-PRE-CUTOVER-SPLIT-T0
 Parent: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0
@@ -64,6 +64,24 @@ git diff --check
 Commit and push this BoxShape row independently. Then set `work_mode` back to
 `design_stop` unless the atomic C0 is explicitly selected from its frozen
 manifest.
+
+## Closeout evidence
+
+```text
+main_expansion.rs                         743 -> 459 lines
+main_expansion_tests.rs                   new 284 lines
+production-prefix SHA-256                 exact
+test-body SHA-256                         exact
+test-name census                          8 -> 8
+focused main_expansion tests              8 passed / 0 failed
+cargo check --profile quick               passed
+git diff --check                          passed
+authority/caller/visibility/behavior diff 0
+```
+
+The selected semantic C0 was not entered. `CURRENT_STATE` returns to
+`design_stop` and points back to the frozen atomic manifest for explicit C0
+selection.
 
 ## Stop
 
