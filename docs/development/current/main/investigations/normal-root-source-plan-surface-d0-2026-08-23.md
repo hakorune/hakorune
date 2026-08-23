@@ -1,6 +1,6 @@
 # Normal root parser-backed source-plan surface D0
 
-Status: design_stop — C0 row 3 is `NoSafeSlice`
+Status: design_stop — D0 shape selected; acceptance packet is still open
 Date: 2026-08-23
 Decision: NORMAL-ROOT-SOURCE-PLAN-SURFACE-D0
 Owner: parser source relation -> pure normal source-plan policy boundary
@@ -22,8 +22,9 @@ Fail-fast boundary:
   Missing/foreign/duplicate relation, incomplete member coverage, or a
   second source-plan loan rejects before policy selection and Builder effect.
 Smallest next slice:
-  Decide the full parser static-Main/member relation and the output boundary
-  for existing `SealedNormal*` products; no semantic Rust is authorized yet.
+  Close one D0 acceptance packet for the full parser static-Main/member
+  relation, transform handoff, single `SealedNormal*` family, and retained
+  terminal; no semantic Rust is authorized yet.
 Non-claims:
   No C0 production switch, normal/default consumer, Raw discard change,
   physical lowering, fallback, fixture expansion, or policy behavior change.
@@ -140,8 +141,8 @@ Pure Main validation helpers may be reused only after they accept parser-owned
 relations; `locate_main_function`, raw `statement_index` lookup, and method
 name discovery are not reusable authority on the parser-backed route.
 
-The output boundary is still a design decision and must be closed before
-implementation:
+The output boundary was the remaining design decision and is closed below;
+implementation remains forbidden until the acceptance packet is complete:
 
 1. Convert existing `SealedNormal*` sites to parser-bound source relations,
    with a scoped HRTB source loan for exact syntax; or
@@ -150,6 +151,137 @@ implementation:
 
 The design must choose exactly one. A parser surface adapter that feeds the
 current index/name-based `SealedNormal*` products is forbidden.
+
+## D0 decision after premise audit
+
+The bounded design is now fixed as a narrowed single-source route. This is a
+design decision and task contract; it does not authorize semantic Rust while
+`CURRENT_STATE.toml.work_mode` remains `design_stop`.
+
+### D0-A — Full parser relation
+
+`ParserNormalRootSourcePlanConsumerV1` is the sole composer of the full
+parser-backed source-plan surface. It is called from the parser product while
+the completed postpass, callable anchors, parser invocation witness, and
+static-parent/member relations are still under one parser invocation.
+
+It may reuse existing parser-owned relation issuers, including the narrow
+`Main.main/0` admission, but it must not treat that narrow admission as the
+whole source-plan classifier. The full product must retain, in one ordered
+relation, every top-level statement and every static-Main member needed to
+distinguish:
+
+```text
+Main.main/0
+Main.main/0 + Main helper
+Main.main/0 + top-level callable
+Main.main/0 + executable sibling
+Script executable rows
+unsupported/non-Main rows
+```
+
+The narrow App entry remains a projection/consumer of parser evidence. It is
+not expanded into a second policy authority. A missing member, duplicate
+relation, foreign invocation, or unsupported parser row is a typed terminal of
+the full issuer before any policy product is emitted.
+
+### D0-B — One bound, one transform handoff
+
+The parser emits exactly one private,
+non-`Clone` `ParserBackedNormalSourcePlanBoundV1`. The aggregate owns the
+invocation witness, complete surface, and source-loan relation; callers never
+receive parallel row arrays or an independently pairable root role.
+
+The bound is carried through the source-backed final-transform product as a
+required field. The transform validates that the same parser relation and
+coverage survive; it does not recreate the bound from the transformed AST.
+Compatibility and incomplete/invalid parser dispositions terminate before a
+normal source-plan consumer. They cannot drop the bound and retry Raw.
+
+The policy boundary is one pure consumer:
+
+```text
+ParserBackedNormalSourcePlanBoundV1
+  -> NormalSourcePlanClassifierV1::seal_parser_bound
+  -> one existing SealedNormalSourcePlanV1 authority
+```
+
+`NormalSourceSurfaceInventoryV1::collect` remains an AST-only fixture route
+and is not called by the parser-bound consumer.
+
+### D0-C — Output boundary: choose the single existing product family
+
+Choose strategy **1**: evolve the existing `SealedNormal*` output family to
+retain opaque parser-bound source relations. Do not add a parallel production
+`ParserBackedSealedNormal*` family.
+
+The resulting shape is:
+
+```text
+parser bound
+  -> one SealedNormalSourcePlanV1 family
+     (Script / Main0 / CallableModule / typed rejection)
+  -> scoped HRTB source loan for exact syntax only
+```
+
+The existing AST-only constructor is fixture/test-only after cutover. It may
+feed test evidence into the same policy result kernel, but it cannot be a
+production source-plan issuer. The production `SealedNormal*` site products
+must carry parser-issued source relations; statement indices, names, arity,
+and ordinals remain coverage/diagnostic evidence and never become pairing
+keys. Lowering may borrow exact syntax through the source owner, but it may
+not scan the AST to decide Script/App/CallableModule again.
+
+This choice is preferred over a second output family because it preserves one
+policy result authority, one downstream lifecycle contract, and one eventual
+root cutover. A second family would require duplicate terminal handling and
+would make the current raw/compatibility distinction a new production fork.
+
+### D0-D — Execution manifest after design acceptance
+
+When the design stop is explicitly closed, implementation is split into these
+bounded cells; no cell may silently include the next one:
+
+1. Parser surface: add the full member/statement relation under the parser
+   sole issuer; add focused positive/negative evidence for invocation,
+   coverage, Main/member, empty-vs-missing, and unsupported rows.
+2. Transform transport: make the bound required across the existing
+   source-backed final-transform handoff; prove no AST reconstruction and no
+   second loan.
+3. Pure policy: add `seal_parser_bound`, preserve existing precedence, and
+   make AST inventory production-caller-zero. Emit the existing single
+   `SealedNormal*` family with parser relations.
+4. Retained terminal: close `into_retained_source` as an explicit
+   test-only terminal with named field movement/discard; do not invent a
+   production consumer.
+5. Root consumer: only after cells 1–4 pass, replace the lifecycle's two raw
+   root classifications with one move-only admitted root input before the
+   first Builder effect. The work plan receives a typed admitted root, never a
+   classifier `bool`.
+
+The first four cells are still design-frozen in this card. Their production
+implementation requires a later `fast` mode decision and a fresh focused
+execution card. No implementation is authorized by this manifest alone.
+
+### D0 acceptance / stop rule
+
+The design may advance only when one packet proves all of the following:
+
+```text
+one parser surface issuer = 1
+one parser-bound policy consumer = 1
+one production SealedNormal* result family
+full Main/member and top-level coverage is co-sealed
+transform preserves the same invocation relation
+AST inventory production caller = 0
+AST-only constructor production caller = 0
+no second loan, fallback, retry, or raw reclassification
+retained source has an explicit named terminal
+```
+
+If any item requires a second source authority, a parallel production output
+family, name/ordinal re-pairing, or a compatibility bridge, return to
+`NoSafeSlice` and park that finding with its owner and reopen trigger.
 
 ## Finite states
 

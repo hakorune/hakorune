@@ -307,6 +307,13 @@ Workers are a bounded review resource, not a second implementation stream.
   silence, or duplicate its audit. Do non-overlapping work, then make one
   sufficiently long wait at the integration boundary. A timeout means pending,
   not negative evidence; close only after integration or explicit cancellation.
+- A non-trivial design audit receives a real waiting budget: use multiple long
+  wait windows rather than one short timeout, normally several minutes per
+  window and longer when the worker is still making progress. Resource safety,
+  user cancellation, or a confirmed scope error may end the wait earlier; mere
+  latency may not. If a worker remains pending after the budget, record
+  `pending/cancelled` with the reason, never treat silence as rejection, and
+  resume from the primary evidence without spawning a duplicate audit.
 - Do not infer ceremony from a suffix. T0 is a censused private mechanical move
   with unchanged authority/identity/failure/ABI/route; T1 adds one bounded
   witness; any changed truth, lifetime, rollback, or schema boundary is T2.
