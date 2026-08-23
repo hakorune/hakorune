@@ -103,6 +103,41 @@ D0-I  Re-open the consumer decision
       root consumer count remains zero.
 ```
 
+### Concrete D0-G/H outcome
+
+The current data model cannot close this relation by inspection alone:
+
+```text
+ASTNode::Program top-level rows
+  -> no parser invocation/source anchor
+BoxMethodInventoryV1
+  -> method placement/provenance, not top-level source identity
+transform guard
+  -> preserves the covered prefix but permits appended statements
+```
+
+Therefore the next design decision has only two honest directions:
+
+```text
+A. Parser final-transform preservation
+   Issue a parser-owned, non-Clone root-cohort preservation token at the
+   final transform boundary.  It keeps App/Script structural relation
+   opaque and is the only input the future root consumer may move.
+
+B. Exact source-backed root cohort
+   Tighten the source-backed root transform contract to an exact root cohort;
+   route any added root statements through an explicitly typed compatibility
+   or Outside terminal before the normal-root consumer.  This is a policy
+   change and needs its own Decision; it must not be smuggled into the
+   consumer implementation.
+```
+
+Neither option is a consumer SafeSlice yet.  In particular, the following
+are not valid repairs: using the current raw expansion, comparing names or
+ordinals in MIR, treating appended rows as default Script/App state, or
+exposing `ParserMainAppEntrySealV1` to Builder.  D0-G must choose A or B and
+name its sole parser issuer before D0-I can reopen implementation.
+
 ## Authority map
 
 | Owner | Owns | Must not own |
