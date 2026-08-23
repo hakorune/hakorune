@@ -1,5 +1,8 @@
 use crate::ast::ASTNode;
 use crate::parser::{NyashParser, ParserBuildConfig};
+use super::main_app_entry::{
+    ParserMainAppEntryDispositionV1, ParserMainAppEntryOutsideReasonV1,
+};
 
 fn retained(source: &str) -> super::RetainedParserCallableSemanticSourceV1 {
     NyashParser::parse_from_string_with_callable_parameter_source(
@@ -37,6 +40,26 @@ fn repeated_scoped_loans_retain_the_exact_declaration_rows() {
     assert_eq!(first, second);
     assert_eq!(first.0, 0);
     assert_eq!(first.1, "run");
+}
+
+#[test]
+fn retained_source_keeps_main_app_disposition() {
+    let source = retained("static box Main { main() { return 1 } }");
+    assert!(matches!(
+        source.main_app_entry(),
+        ParserMainAppEntryDispositionV1::AppMainReady(_)
+    ));
+}
+
+#[test]
+fn retained_source_keeps_typed_non_ready_disposition() {
+    let source = retained("static box Main { main(argument) { return argument } }");
+    assert!(matches!(
+        source.main_app_entry(),
+        ParserMainAppEntryDispositionV1::Outside(
+            ParserMainAppEntryOutsideReasonV1::NonZeroMainArity
+        )
+    ));
 }
 
 #[test]

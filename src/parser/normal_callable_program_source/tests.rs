@@ -1,6 +1,7 @@
 use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::CanonicalSourceBytesDigestV1;
 use crate::parser::{BuildMode, GrammarProfile, NyashParser, ParserBuildConfig};
+use crate::parser::callable_parameter_source::ParserMainAppEntryDispositionV1;
 
 use super::*;
 
@@ -59,6 +60,34 @@ fn exact_static_callable_set_survives_one_transform() {
         .with_constructor_semantic_syntax(|loan| loan.rows().len())
         .expect("static-only source must carry an empty constructor catalog");
     assert_eq!(constructor_count, 0);
+}
+
+#[test]
+fn main_app_disposition_moves_through_prepared_and_final_source() {
+    let final_source = transform(
+        parse("static box Main { main() { return 1 } }"),
+        |_| {},
+    )
+    .expect("exact Main source transform");
+    assert!(matches!(
+        final_source.main_app_entry(),
+        ParserMainAppEntryDispositionV1::AppMainReady(_)
+    ));
+}
+
+#[test]
+fn main_app_non_ready_disposition_moves_without_reclassification() {
+    let final_source = transform(
+        parse("static box Main { main(argument) { return argument } }"),
+        |_| {},
+    )
+    .expect("typed non-ready Main source transform");
+    assert!(matches!(
+        final_source.main_app_entry(),
+        ParserMainAppEntryDispositionV1::Outside(
+            crate::parser::callable_parameter_source::ParserMainAppEntryOutsideReasonV1::NonZeroMainArity
+        )
+    ));
 }
 
 #[test]

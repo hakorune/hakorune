@@ -5,6 +5,7 @@
 //! resolver, Home, Recipe, or physical meaning.
 
 use super::catalog::ParserCallableParameterSourceCatalogV1;
+use super::main_app_entry::ParserMainAppEntryDispositionV1;
 use super::syntax_loan::{
     borrow_callable_declaration_syntax_v1, ParserCallableDeclarationSyntaxLoanV1,
     ParserCallableSyntaxLoanErrorV1,
@@ -15,17 +16,24 @@ use crate::parser::postpass_envelope::CompletedParserPostpassV1;
 pub(crate) struct RetainedParserCallableSemanticSourceV1 {
     completed: CompletedParserPostpassV1,
     parameter_source: ParserCallableParameterSourceCatalogV1,
+    main_app_entry: ParserMainAppEntryDispositionV1,
 }
 
 impl RetainedParserCallableSemanticSourceV1 {
     pub(super) const fn new(
         completed: CompletedParserPostpassV1,
         parameter_source: ParserCallableParameterSourceCatalogV1,
+        main_app_entry: ParserMainAppEntryDispositionV1,
     ) -> Self {
         Self {
             completed,
             parameter_source,
+            main_app_entry,
         }
+    }
+
+    pub(in crate::parser) fn main_app_entry(&self) -> &ParserMainAppEntryDispositionV1 {
+        &self.main_app_entry
     }
 
     /// Lend the exact parser source repeatedly without splitting its owners.

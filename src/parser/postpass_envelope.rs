@@ -114,6 +114,13 @@ enum CompletedParserProgramV1 {
     },
 }
 
+enum NormalCallableProgramAdmissionV1 {
+    Compatibility,
+    SourceBacked(
+        super::callable_parameter_source::ParserMainAppEntryDispositionV1,
+    ),
+}
+
 impl CompletedParserPostpassV1 {
     pub(crate) fn is_source_backed(&self) -> bool {
         matches!(self.program, CompletedParserProgramV1::Initial(_))
@@ -238,6 +245,38 @@ impl CompletedParserPostpassV1 {
         super::normal_callable_program_source::ParsedNormalCallableProgramV1,
         super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
     > {
+        self.into_normal_callable_program_with_admission(
+            parameter_source,
+            source_authority,
+            NormalCallableProgramAdmissionV1::Compatibility,
+        )
+    }
+
+    pub(super) fn into_normal_callable_program_with_main_app_entry(
+        self,
+        parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
+        source_authority: super::callable_parameter_source::ParserNormalProgramSourceAuthorityDispositionV1,
+        main_app_entry: super::callable_parameter_source::ParserMainAppEntryDispositionV1,
+    ) -> Result<
+        super::normal_callable_program_source::ParsedNormalCallableProgramV1,
+        super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
+    > {
+        self.into_normal_callable_program_with_admission(
+            parameter_source,
+            source_authority,
+            NormalCallableProgramAdmissionV1::SourceBacked(main_app_entry),
+        )
+    }
+
+    fn into_normal_callable_program_with_admission(
+        self,
+        parameter_source: super::callable_parameter_source::ParserCallableParameterSourceDispositionV1,
+        source_authority: super::callable_parameter_source::ParserNormalProgramSourceAuthorityDispositionV1,
+        admission: NormalCallableProgramAdmissionV1,
+    ) -> Result<
+        super::normal_callable_program_source::ParsedNormalCallableProgramV1,
+        super::normal_callable_program_source::NormalCallableParameterSourceRejectV1,
+    > {
         use super::normal_callable_program_source::{
             NormalCallableParserCompatibilityV1 as Compatibility,
             ParsedNormalCallableProgramV1 as Program, PreparedNormalCallableProgramSourceV1,
@@ -253,14 +292,24 @@ impl CompletedParserPostpassV1 {
 
         match self.program {
             CompletedParserProgramV1::Initial(program) => {
+                let NormalCallableProgramAdmissionV1::SourceBacked(main_app_entry) = admission
+                else {
+                    return Err(super::normal_callable_program_source::
+                        NormalCallableParameterSourceRejectV1::MainAppEntryCompatibilityLoss);
+                };
                 PreparedNormalCallableProgramSourceV1::issue(
                     program,
                     parameter_source,
                     source_authority,
+                    main_app_entry,
                 )
                 .map(Program::SourceBacked)
             }
             CompletedParserProgramV1::Compatibility { ast, .. } => {
+                if let NormalCallableProgramAdmissionV1::SourceBacked(_) = admission {
+                    return Err(super::normal_callable_program_source::
+                        NormalCallableParameterSourceRejectV1::MainAppEntryCompatibilityLoss);
+                }
                 let cohort = match self.box_coverage.program_cohort {
                     ParserPostpassProgramCohortV1::InterfaceBox => Compatibility::InterfaceBox,
                     ParserPostpassProgramCohortV1::RecordBox => Compatibility::RecordBox,

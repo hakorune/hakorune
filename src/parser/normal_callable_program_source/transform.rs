@@ -27,6 +27,7 @@ pub(crate) fn issue_final_callable_program_source_v1(
         parameter_source,
         source_authority,
         constructor_source,
+        main_app_entry,
     ) =
         initial.into_transform_parts();
     let source_authority = validate_parser_normal_program_source_transform_v1(
@@ -60,5 +61,6 @@ pub(crate) fn issue_final_callable_program_source_v1(
         parameter_source,
         source_authority,
         constructor_source,
+        main_app_entry,
     ))
 }

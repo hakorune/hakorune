@@ -140,6 +140,7 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             completed,
             parameter_source,
             source_authority,
+            main_app_entry,
             ..
         } = self;
         let ParserCallableParameterSourceDispositionV1::Complete(catalog) = parameter_source else {
@@ -151,7 +152,9 @@ impl ParsedProgramWithCallableParameterSourceV1 {
             );
         }
         Ok(RetainedParserCallableSemanticSourceV1::new(
-            completed, catalog,
+            completed,
+            catalog,
+            main_app_entry,
         ))
     }
 
@@ -292,9 +295,13 @@ impl ParserCallableSourceDispositionV1 {
                     canonical_script_admission: _,
                     canonical_script_source_rows: _,
                     source_authority,
-                    main_app_entry: _,
+                    main_app_entry,
                 } = product;
-                completed.into_normal_callable_program(parameter_source, source_authority)
+                completed.into_normal_callable_program_with_main_app_entry(
+                    parameter_source,
+                    source_authority,
+                    main_app_entry,
+                )
             }
             Self::Compatibility(postpass) => postpass.into_normal_callable_program(
                 ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported,

@@ -1,4 +1,4 @@
-Status: Decision accepted — bounded transport I0 authorized
+Status: Implementation complete — bounded transport I0 closed
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-TRANSPORT-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-admission-i0-2026-08-23.md
@@ -69,10 +69,11 @@ Main/App state.
 ```text
 ParsedProgramWithCallableParameterSourceV1.main_app_entry
   -> ParserCallableSourceDispositionV1::SourceBacked
-  -> PreparedNormalCallableProgramSourceV1.main_app_entry
-  -> into_transform_parts()
-  -> VerifiedFinalCallableProgramSourceV1.main_app_entry
-  -> later named consumer design stop
+       ├-> RetainedParserCallableSemanticSourceV1 (retained source lane)
+       └-> PreparedNormalCallableProgramSourceV1.main_app_entry
+            -> into_transform_parts()
+            -> VerifiedFinalCallableProgramSourceV1.main_app_entry
+            -> later named consumer design stop
 ```
 
 The `Compatibility` variant has no parser source-backed Main/App product and
@@ -91,6 +92,7 @@ the existing source authority and constructor products.
 | --- | --- | --- |
 | `issue_parser_main_app_entry_v1` | one parser-issued Main/App disposition | semantic Main, ABI, root selection |
 | `ParsedProgramWithCallableParameterSourceV1` | same-invocation parser product | downstream route |
+| `RetainedParserCallableSemanticSourceV1` | required retained-source transport field | resolver/Recipe meaning |
 | `PreparedNormalCallableProgramSourceV1` | required source-backed transport field | new Main observation |
 | `VerifiedFinalCallableProgramSourceV1` | transform-preserved transport field | root/Builder effect |
 | normal transform validator | preservation and drift rejection | Main/App reclassification |
@@ -163,3 +165,45 @@ No Main/App consumer is selected by this card. After R0, a separate design
 card must decide whether an existing root authority can consume the parser
 disposition without re-observation; until then the disposition is allowed to
 remain an unconsumed source product.
+
+## I0/R0 closeout evidence
+
+The bounded transport was implemented without opening a Main/App consumer:
+
+```text
+sole parser issuer                                      = 1
+source-backed Prepared field                            = required
+source-backed VerifiedFinal field                       = required
+retained source field                                   = required
+compatibility synthetic Main/App state                  = 0
+downstream root/Builder/NormalCompileRequest edge       = 0
+```
+
+The existing parser-issued disposition now moves through the source-backed
+Prepared and VerifiedFinal products and is also retained by the parser source
+lane. The transform path passes the same owned disposition through its existing
+parts handoff; no AST/name/ordinal re-observation or second issuer was added.
+
+Focused evidence:
+
+```text
+parser::callable_parameter_source::main_app_entry_tests       7 passed
+parser::normal_callable_program_source::tests                 24 passed
+parser::callable_parameter_source::retained_tests               4 passed
+cargo check                                                   passed
+frontend_main_app_entry_transport_i0_guard.sh                passed
+current_state_pointer_guard.sh                                passed
+git diff --check                                               passed
+all touched source files                                      < 760 lines
+```
+
+The broader `parser::callable_parameter_source::` filter had one red test,
+`unchanged_parser_scan_loop_box_has_four_methods_and_fifteen_rows`. It is
+classified as known baseline debt for this slice: the test file and its parser
+scan logic are unchanged by this transport diff; the transport-focused suites
+above remain green. This card does not claim that unrelated baseline debt is
+fixed.
+
+The next permitted work is a separate design stop for a named Main/App
+consumer. This card does not authorize root selection, semantic Main meaning,
+Builder effects, compatibility retry, or production switching.

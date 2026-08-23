@@ -73,6 +73,25 @@ The first cohort accepts exact callable-preserving transforms. Added, removed,
 reordered, or changed callable declarations reject. Broader transform receipts
 must be added as explicit source transactions rather than AST reconstruction.
 
+## Main/App parser disposition transport I0
+
+The parser-only `ParserMainAppEntryDispositionV1` is issued exactly once by
+`issue_parser_main_app_entry_v1`. This source product is transported as a
+required, non-`Clone` field through the existing source-backed owners:
+
+```text
+ParsedProgramWithCallableParameterSourceV1
+  -> PreparedNormalCallableProgramSourceV1
+  -> VerifiedFinalCallableProgramSourceV1
+```
+
+The retained parser-source lane carries the same disposition as a sibling
+field. `Compatibility` remains a separate AST-only lane and never receives a
+synthetic Main/App row. The transform moves the existing disposition without
+re-running parser observation or classifying Main again. No root selection,
+`NormalCompileRequestV1`, Builder, Recipe, Join, MIR, publication, or fallback
+consumer is connected by this transport cell.
+
 ## Composite preservation transport
 
 The parser's bounded composite disposition is a required field of
