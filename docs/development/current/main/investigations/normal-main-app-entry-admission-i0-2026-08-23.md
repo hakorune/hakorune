@@ -1,10 +1,11 @@
 ---
-Status: Design stop — missing opaque source relation; no implementation
+Status: Waiting for relation I0 — implementation remains closed
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-ADMISSION-I0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-admission-d0-2026-08-23.md
+PrerequisiteExecutionRow: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-I0
 ProductionCaller: 0 before and after I0
-ProductionEdit: none until the source relation slice closes
+ProductionEdit: none; parser-only admission remains after relation I0
 CeremonyTier: I0 — bounded source admission
 ---
 
@@ -37,7 +38,7 @@ Non-claims:
   old-authority retirement, production switch, and performance.
 ```
 
-## Implementation contract (parked behind source relation D0)
+## Implementation contract (reopens after source relation I0)
 
 The planned I0 must add one parser source product, not a semantic or physical
 plan. It is not authorized until the missing relation card closes:

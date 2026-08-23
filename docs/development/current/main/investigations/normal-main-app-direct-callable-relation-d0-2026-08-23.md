@@ -1,10 +1,10 @@
 ---
-Status: Design stop — missing parser relation to be co-sealed
+Status: Design accepted — bounded relation I0 authorized
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-admission-i0-2026-08-23.md
 ProductionCaller: 0
-ProductionEdit: none; source-relation design only
+ProductionEdit: none; parser-only relation I0
 CeremonyTier: T2 — parser declaration relation boundary
 ---
 
@@ -26,6 +26,29 @@ CeremonyTier: T2 — parser declaration relation boundary
 - **Retirement finish line:** one parser-issued relation is created at the
   direct declaration commit, every consumer compares that relation, and no
   later product reconstructs it from path/name/ordinal.
+
+## Decision accepted
+
+The read-only worker audit found this to be a conditional safe slice. The
+condition is now fixed as part of the contract: `CallableDeclarationAnchorV1`
+remains owned and issued only by the existing direct callable source session.
+The parameter and static-parent products receive only its cloneable
+comparison view, `CallableDeclarationIdentityV1`; they never receive, clone,
+or issue the opaque anchor itself.
+
+The relation I0 is authorized with this bounded handoff:
+
+```text
+one direct static declaration commit
+  -> existing callable row keeps the opaque anchor
+  -> parameter row stores comparison identity
+  -> static direct-member row stores comparison identity
+  -> parser postpass co-seals same_as + same brand/site coverage
+```
+
+The I0 must add a distinct relation-mismatch/integrity outcome for same-brand
+but different-anchor rows. It must not widen that case into a foreign-parser
+error. No Main/App admission or downstream consumer is part of this slice.
 
 ## Six-line brief
 
