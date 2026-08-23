@@ -1,6 +1,6 @@
 # Normal root execution reference-route closure D0
 
-Status: design freeze accepted — behavior-neutral T0 next; C0 remains blocked
+Status: T0 landed — atomic C0 manifest design stop
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0
 Owner: parser callable-source product -> route-specific affine handoff
@@ -21,12 +21,11 @@ Fail-fast boundary:
   Normal/default rejects before exact transform, canonical source-plan rejects
   before source inventory, and Raw VM rejects/discards before AST extraction.
 Smallest next slice:
-  Move the inline frontdoor tests byte-identically in T0, then return to
-  design_stop for the exact atomic C0 file/test manifest.
+  Freeze the exact atomic C0 owner-file, test-file, and reusable-guard
+  manifest; do not begin semantic Rust before that Decision is accepted.
 Non-claims:
   No semantic Rust, fixture behavior change, lifecycle/default cutover,
-  fallback, compatibility fabrication, Recipe, MIR, or publication; T0 is
-  BoxShape only.
+  fallback, compatibility fabrication, Recipe, MIR, or publication.
 
 Census boundary: `ParsedProgramWithCallableParameterSourceV1::new` -> every
 terminal move, destructure, retained owner, source-plan classification, or
@@ -627,7 +626,7 @@ inventory rows 3/4 and is not parked.
 11. `R4-CALLER-ZERO-D1` — frozen
     - every old pre-terminal symbol is listed above;
     - only three named post-terminal syntax consumers remain.
-12. `T0-FRONTDOOR-SPLIT` — next behavior-neutral BoxShape
+12. `T0-FRONTDOOR-SPLIT` — landed as `7e94c531dc98`
     - execution row: `NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0`;
     - move only the inline `#[cfg(test)] mod tests` body from the 748-line
       `normal_file_vm_frontdoor.rs` to
@@ -646,6 +645,9 @@ inventory rows 3/4 and is not parked.
       runner::reference::normal_file_vm_frontdoor -- --test-threads=1`,
       `git diff --check`, and before/after test-name census.
 13. `C0-ATOMIC-ROOT-CUTOVER`
+   - design row: `NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0`;
+   - before implementation, bind every new owner and retired edge to exact
+     production files, positive/negative test files, and one reusable guard;
    - land issuer, exact-transform preservation, normal/default consumer,
      canonical source-plan consumer, Raw-only discard, retained/test closure,
      compatibility absence, and all selected old-edge retirements atomically;
@@ -665,6 +667,18 @@ inventory rows 3/4 and is not parked.
 - production/test caller guards and the three allowed post-terminal consumers
   are separate;
 - T0 has a byte-identical, hash-backed behavior-neutral move manifest.
+
+## T0 execution evidence
+
+- commit: `7e94c531dc98` on `main`;
+- parent: 748 -> 482 lines; extracted tests: 266 lines;
+- production prefix and extracted body match their frozen SHA-256 values;
+- function/test census remains 14/9 and `result_carrier_p0.rs` is unchanged;
+- direct module tests: 6 passed, 0 failed;
+- broad frontdoor filter: 21 passed and the same 8
+  `AppReadyRequiresNormalRootConsumer` failures on both the parent and T0;
+- `git diff --check`: passed. The broad red is classified as known baseline
+  debt and is the semantic C0 boundary, not a T0 regression.
 
 ## C0 acceptance — not yet claimed
 

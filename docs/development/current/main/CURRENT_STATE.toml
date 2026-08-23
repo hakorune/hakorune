@@ -1,24 +1,24 @@
 status = """
-R3/R4 design is frozen with a finite 14-row inventory. The next row is only a
-byte-identical extraction of inline frontdoor tests; semantic C0 remains
-blocked until its exact file/test/guard manifest is frozen after T0."""
+R3/R4 design is frozen and the behavior-neutral frontdoor split is landed.
+Semantic C0 remains blocked while its exact owner-file, test-file, and reusable
+guard manifest is frozen."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0"
-current_design_stop = "After T0, return to design_stop for the atomic C0 file/test/guard manifest; this text does not override work_mode."
-current_blocker_token = "T0 has no semantic blocker; C0 remains blocked on its exact atomic file/test/guard manifest and may not begin during this row."
+work_mode = "design_stop"
+current_execution_row = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
+current_design_stop = "Freeze the exact atomic C0 owner-file/test-file/reusable-guard manifest; semantic Rust, fixtures, fallback, production switch, and new semantic receipts are forbidden."
+current_blocker_token = "Six C0 implementation blockers are bounded but not yet bound to one exact atomic file/test/guard manifest."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — normal root reference-route closure"
 active_lane_status = """
-Current: byte-identical inline-test extraction from the reference frontdoor.
-Authorized: the card's one behavior-neutral BoxShape and focused evidence.
-Forbidden: production-body edits, semantic types, fixtures, fallback,
-standalone P0/S0, production switch, or C0 implementation."""
+Current: exact atomic C0 manifest design only.
+Authorized: census, owner/caller audit, counterexamples, and one bounded brief.
+Forbidden: semantic Rust, fixtures, fallback, standalone P0/S0, production
+switch, or any new Verified/Prepared receipt."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -30,10 +30,10 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-root-execution-reference-route-closure-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
-latest_card_summary = "R3/R4 are frozen; T0 moves only inline tests, then C0 returns to design_stop for an exact atomic manifest."
+latest_card_summary = "R3/R4 are frozen and T0 is landed; C0 awaits one exact atomic owner/test/guard manifest."
 next_design_card = "NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0"
-next_execution_card = "NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0"
-next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-reference-route-closure-d0-2026-08-23.md"
+next_execution_card = "none-until-atomic-cutover-manifest-Decision"
+next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -45,7 +45,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-23: NORMAL-MAIN-APP-ROOT-RELATION-I0 is pushed as b96d3f17b3. It remains a narrow Main.main/0/no-static-child relation and is not total execution authority.",
-  "2026-08-23: The caller-zero NORMAL-ROOT-CONSUMER-LOAN-S0 was reverted after I0 exposed valid provider Programs as Outside and hidden source-backed reclassification/pointer pairing.",
-  "2026-08-23: NORMAL-ROOT-EXECUTION-PARITY-D0 is pushed as 363ecdecd6. Raw parity, all source-backed consumers, and the atomic retirement closure are finite."
+  "2026-08-23: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0 is frozen as af6bd89eae with a finite 14-row inventory and explicit parking valve.",
+  "2026-08-23: NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0 is pushed as 7e94c531dc98; production/test hashes and 14/9 census are preserved."
 ]
