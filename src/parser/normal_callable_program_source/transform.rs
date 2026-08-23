@@ -75,6 +75,8 @@ fn issue_callable_program_source_v1(
         &source_authority,
         &initial_ast,
         transformed_ast,
+        &sources,
+        &slots,
     )
     .map_err(FinalCallableProgramSourceRejectV1::RootPreservation)?;
     let final_ast = transformed.unwrap_or(initial_ast);

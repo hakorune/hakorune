@@ -8,6 +8,7 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 MODEL="$ROOT_DIR/src/parser/normal_callable_program_source/model.rs"
 TRANSFORM="$ROOT_DIR/src/parser/normal_callable_program_source/transform.rs"
 TRANSFORM_TESTS="$ROOT_DIR/src/parser/normal_callable_program_source/tests.rs"
+ROOT_RELATION_TESTS="$ROOT_DIR/src/parser/normal_callable_program_source/normal_root_preservation_tests.rs"
 PRESERVATION="$ROOT_DIR/src/parser/callable_parameter_source/normal_root_preservation.rs"
 MACRO_TRANSFORM="$ROOT_DIR/src/macro/normal_callable_transform.rs"
 MACRO_TRANSFORM_TESTS="$ROOT_DIR/src/macro/normal_callable_transform_tests.rs"
@@ -22,11 +23,11 @@ STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$MODEL" "$TRANSFORM" "$TRANSFORM_TESTS" "$PRESERVATION" \
+guard_require_files "$TAG" "$MODEL" "$TRANSFORM" "$TRANSFORM_TESTS" "$ROOT_RELATION_TESTS" "$PRESERVATION" \
   "$MACRO_TRANSFORM" "$MACRO_TRANSFORM_TESTS" "$TEST_HARNESS" "$PARSER_MOD" \
   "$SOURCE_MOD" "$PARAM_MOD" "$README" "$CARD" "$ACTIVE_CARD" "$STATE"
 
-for file in "$MODEL" "$TRANSFORM" "$TRANSFORM_TESTS" "$PRESERVATION" \
+for file in "$MODEL" "$TRANSFORM" "$TRANSFORM_TESTS" "$ROOT_RELATION_TESTS" "$PRESERVATION" \
   "$MACRO_TRANSFORM" "$MACRO_TRANSFORM_TESTS" "$TEST_HARNESS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 760 )); then
@@ -126,6 +127,50 @@ guard_expect_fixed_in_file "$TAG" \
 if rg -n 'SourcePrefix|is_static_main_box|transformed_statements\[[^]]*\.\.' "$PRESERVATION"; then
   guard_fail "$TAG" "prefix-only or name-based suffix preservation must remain retired"
 fi
+guard_expect_fixed_in_file "$TAG" \
+  "enum ParserNormalRootRelationV1" "$PRESERVATION" \
+  "root token must use one closed App/Script relation"
+guard_expect_fixed_in_file "$TAG" \
+  "_app_entry: ParserMainAppEntrySealV1" "$PRESERVATION" \
+  "App relation must move the existing private admission seal"
+guard_expect_fixed_in_file "$TAG" \
+  "_final_slot: InitialCallableFinalSlotV1" "$PRESERVATION" \
+  "App relation must retain the already-paired final slot privately"
+guard_expect_fixed_in_file "$TAG" \
+  "_main_is_root: ParserCallableMainIsRootV1" "$PRESERVATION" \
+  "App relation must co-seal callable Main as root"
+guard_expect_fixed_in_file "$TAG" \
+  "_no_static_children: ParserNoStaticChildrenV1" "$PRESERVATION" \
+  "App relation must retain the no-static-children proof"
+for error_name in \
+  CallablePairingCardinalityMismatch \
+  AppCallableIdentityMissing \
+  AppCallableIdentityDuplicate \
+  AppCallableParserMismatch \
+  AppCallableKindMismatch \
+  AppCallableSourceRelationMismatch \
+  AppCallableFinalSlotMismatch; do
+  guard_expect_fixed_in_file "$TAG" "$error_name" "$PRESERVATION" \
+    "typed App relation rejection is missing: $error_name"
+done
+if rg -n 'Option<ParserNormalAppRootRelationV1>|derive\([^)]*Clone[^)]*\).*ParserNormalAppRootRelationV1' \
+  "$PRESERVATION"; then
+  guard_fail "$TAG" "App relation must remain closed and move-only"
+fi
+if rg -n 'diagnostic_name|==[[:space:]]*"(Main|main)"|Verified(Main|RawRoot)ExpansionV1|crate::mir' \
+  "$PRESERVATION"; then
+  guard_fail "$TAG" "App relation must not reclassify by name or depend on Builder/MIR"
+fi
+for test_name in \
+  app_root_relation_accepts_exact_main_with_top_level_callable_sibling \
+  app_root_relation_rejects_structurally_equal_foreign_callable_identity \
+  app_root_relation_rejects_foreign_parser_witness_before_pairing \
+  app_root_relation_rejects_unpaired_final_slot \
+  app_root_relation_rejects_callable_pairing_cardinality_drift \
+  main_helper_stays_terminal_before_app_root_relation; do
+  guard_expect_fixed_in_file "$TAG" "$test_name" "$ROOT_RELATION_TESTS" \
+    "focused App root-relation evidence is missing: $test_name"
+done
 for test_name in \
   enabled_macro_with_no_actual_test_tail_stays_source_backed \
   actual_test_harness_tail_enters_typed_compatibility \

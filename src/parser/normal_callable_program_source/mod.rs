@@ -9,16 +9,14 @@ pub(in crate::parser) use model::NormalCallableParameterSourceRejectV1;
 pub(crate) use model::{
     NormalCallableParserCompatibilityV1, NormalParserSourceLineageErrorV1,
     NormalParserSourceLineageV1, ParsedNormalCallableProgramV1,
-    PreparedNormalCallableProgramSourceV1, ParserNormalCallableTransformSessionV1,
+    ParserNormalCallableTransformSessionV1, PreparedNormalCallableProgramSourceV1,
     VerifiedFinalCallableProgramSourceV1,
 };
 pub(crate) use semantic_syntax_loan::{
     CallableMethodSourceObservationV1, FinalCallableDeclarationModeV1,
     FinalCallableSemanticSyntaxLoanErrorV1,
 };
-pub(crate) use transform::{
-    FinalCallableProgramSourceRejectV1,
-};
+pub(crate) use transform::FinalCallableProgramSourceRejectV1;
 
 impl super::NyashParser {
     pub(crate) fn parse_normal_callable_program_with_build_config(
@@ -33,5 +31,7 @@ impl super::NyashParser {
     }
 }
 
+#[cfg(test)]
+mod normal_root_preservation_tests;
 #[cfg(test)]
 mod tests;
