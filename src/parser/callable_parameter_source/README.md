@@ -160,3 +160,20 @@ This module issues no Home demand, receiver/result ABI, resolver BindingRef,
 Recipe key, MIR value, fallback, or production activation. The next owner
 retains this whole source, resolves its declarations exactly once, and owns the
 only forest/projection batch used by normal-source and parameter-contract views.
+
+## Main/App entry admission I0
+
+`main_app_entry.rs` is the parser-only admission owner for exactly one
+top-level static `Main` with one direct static `main/0`. Its sole issuer is
+`issue_parser_main_app_entry_v1`, called once from
+`ParsedProgramWithCallableParameterSourceV1::new` after the static-parent and
+parameter products already exist.
+
+The issuer compares the existing `CallableDeclarationIdentityV1` and exact
+`SourceBoxMethodSiteV1` relation, then emits the sibling disposition
+`AppMainReady | Outside | SourceAuthorityUnavailable | Incomplete |
+IntegrityInvalid`. It never scans the AST, pairs by name/ordinal, writes
+`root_is_app_mode`, enters Builder/raw-root, or retries a legacy route. The
+ready seal owns only the parser source site and comparison identity; semantic
+Main meaning, result/ABI, normal ingress, and downstream consumption remain
+closed for this I0.
