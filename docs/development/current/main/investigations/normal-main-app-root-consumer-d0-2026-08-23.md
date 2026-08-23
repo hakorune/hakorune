@@ -1,9 +1,9 @@
-Status: Prerequisite design accepted — exact-transform I0 is ready; root consumer remains closed
+Status: G0 complete — exact-root cohort I0 is ready; root consumer remains closed
 Date: 2026-08-23
 Decision: NORMAL-MAIN-APP-ROOT-CONSUMER-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-root-source-disposition-d0-2026-08-23.md
-ProductionCaller: root consumer 0; G0 replaces one existing normal callable transform edge
-ProductionEdit: next slice is limited to the source-transform disposition; root consumer, raw classifier retirement, and root lowering remain closed
+ProductionCaller: root consumer 0; G0 replaced one existing normal callable transform edge as `198560b0e0`
+ProductionEdit: next slice is limited to exact full-root cohort preservation; root consumer, raw classifier retirement, and root lowering remain closed
 CeremonyTier: D0 — source-root consumer boundary before Builder effects
 ---
 
@@ -108,7 +108,8 @@ transform guard permits an appended root suffix.  The future root boundary
 must therefore use a narrower root-only view and must not hand raw AST access
 to the Builder consumer.
 
-The ordered prerequisite series is fixed below.  G0 alone is open; until J0
+The ordered prerequisite series is fixed below.  G0 is complete and G1 alone
+is open; until J0
 lands, the production root consumer count remains zero.
 
 ### Second top-down worker audit — the transform boundary is the real predecessor
@@ -288,17 +289,17 @@ name, ordinal, digest, pointer, or AST shape equality.
 
 ## Accepted bounded task series after both worker audits
 
-The series is ordered by authority.  Only the first row is open.  A later row
-does not become executable merely because an earlier focused test is green.
+The series is ordered by authority. G0 is complete and only G1 is open. A later
+row does not become executable merely because an earlier focused test is green.
 
 ```text
-G0 / NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0  [open, BoxCount]
+G0 / NORMAL-CALLABLE-SOURCE-TRANSFORM-DISPOSITION-I0  [complete: 198560b0e0]
       Make the macro/test-harness owner return Unchanged or actual
       GeneratedTail.  Only Unchanged may call a no-argument finish_exact;
       GeneratedTail enters the existing typed compatibility lane before root
       token issuance.  Remove the production FnOnce -> ASTNode finish API.
 
-G1 / NORMAL-MAIN-ROOT-EXACT-COHORT-I0                 [closed behind G0]
+G1 / NORMAL-MAIN-ROOT-EXACT-COHORT-I0                 [open, BoxCount]
       Require source body count == initial count == final count and exact full
       statement preservation.  Addition, removal, reorder, or replacement is
       a typed reject.  Do not add logic to main_expansion.rs.
@@ -442,6 +443,58 @@ trigger and 800-line hard stop; `main_expansion.rs` (743 lines) and
 
 G0 changes one bounded transform disposition and is therefore the selected
 BoxCount.  It does not authorize G1, H1, I0, J0, or K0 in the same change.
+
+### G0 closeout evidence
+
+G0 is implemented and pushed on `main` as `198560b0e0`:
+
+```text
+actual no-op
+  -> one production finish_exact caller
+
+actual generated tail
+  -> one macro-owned GeneratedTail issuer
+  -> typed TestHarnessGeneratedTail compatibility before parser finalization
+
+composite Ready + generated tail
+  -> typed CompatibilityLoss
+
+unknown macro mutation
+  -> typed UnclassifiedSourceMutation
+```
+
+The production raw-AST callback and the retired AST-only test-harness wrapper
+are both caller-zero and removed. The parser callback survives only behind
+`#[cfg(test)]` for the existing preservation drift matrix. No root consumer,
+root lowering, fallback, or production switch was added.
+
+Acceptance evidence:
+
+```text
+cargo test normal_callable_transform --lib -- --nocapture
+  -> 7 passed
+
+cargo test parser::normal_callable_program_source::tests --lib -- --nocapture
+  -> 28 passed
+
+cargo check
+  -> passed (existing warning baseline only)
+
+parser_normal_root_preservation_a_i0_guard.sh
+current_state_pointer_guard.sh
+git diff --check
+  -> passed
+
+production source maxima in the touched owners
+  -> test_harness.rs 523 lines
+  -> normal_callable_program_source/model.rs 482 lines
+  -> all touched source below 760
+```
+
+The repository-wide `cargo fmt --all -- --check` still reports the existing
+format baseline in 79 untouched files; its intersection with this change's
+file set is zero. All touched Rust files were formatted directly. This is
+classified as known baseline debt, not a G0 failure.
 
 ## Non-claims
 
