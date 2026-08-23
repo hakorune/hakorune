@@ -4,12 +4,14 @@ use hakorune_frontend_parser::parser::GrammarProfile;
 
 use super::super::callable_parameter_source::{
     borrow_callable_declaration_syntax_v1, with_parser_composite_source_loan_from_normal_authority,
-    with_parser_normal_program_source_loan, ParserCallableDeclarationSyntaxLoanV1,
-    ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
-    ParserCallableSyntaxLoanErrorV1, ParserCompositeSourceLoanRejectV1,
-    ParserCompositeSourceLoanV1, ParserNormalProgramSourceAuthorityDispositionV1,
-    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
-    ParserNormalRootPreservationV1, ParserNormalRootSourceDispositionV1,
+    with_parser_normal_program_source_loan, with_parser_normal_root_consumer_loan,
+    ParserCallableDeclarationSyntaxLoanV1, ParserCallableParameterSourceCatalogV1,
+    ParserCallableParameterSourceDispositionV1, ParserCallableSyntaxLoanErrorV1,
+    ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
+    ParserNormalProgramSourceAuthorityDispositionV1, ParserNormalProgramSourceLoanRejectV1,
+    ParserNormalProgramSourceLoanV1, ParserNormalRootConsumerLoanRejectV1,
+    ParserNormalRootConsumerLoanV1, ParserNormalRootPreservationV1,
+    ParserNormalRootSourceDispositionV1,
 };
 use super::super::callable_source_anchor::{
     DirectCallableDeclarationKindV1, PreparedCallableSourceV1,
@@ -347,6 +349,23 @@ impl VerifiedFinalCallableProgramSourceV1 {
         callback: impl for<'source> FnOnce(ParserNormalProgramSourceLoanV1<'source>) -> R,
     ) -> Result<R, ParserNormalProgramSourceLoanRejectV1> {
         with_parser_normal_program_source_loan(&self.source_authority, &self.ast, callback)
+    }
+
+    /// Lend only the parser-admitted App/Script root view.
+    ///
+    /// App hides its raw Main declaration behind an order-preserving
+    /// `RootMain` cursor item. Script lends one paired statement cursor. The
+    /// higher-ranked callback prevents either syntax view from escaping.
+    pub(crate) fn with_normal_root_consumer_loan<R>(
+        &self,
+        callback: impl for<'source> FnOnce(ParserNormalRootConsumerLoanV1<'source>) -> R,
+    ) -> Result<R, ParserNormalRootConsumerLoanRejectV1> {
+        with_parser_normal_root_consumer_loan(
+            &self.normal_root_source,
+            &self.source_authority,
+            &self.ast,
+            callback,
+        )
     }
 
     pub(in crate::parser) fn callable_count(&self) -> usize {

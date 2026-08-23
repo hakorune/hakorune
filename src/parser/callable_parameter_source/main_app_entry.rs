@@ -15,11 +15,9 @@ use super::static_box_source::{
     ParserStaticBoxParentSourceIntegrityIssueV1, ParserStaticBoxParentSourceUnavailableV1,
     ParserStaticBoxSourceSealV1,
 };
-use crate::parser::callable_source_anchor::CallableDeclarationIdentityV1;
-use crate::parser::postpass_envelope::{
-    CompletedParserPostpassV1, ParserPostpassProgramCohortV1,
-};
 use crate::parser::callable_parameter_source::ParserInvocationWitnessV1;
+use crate::parser::callable_source_anchor::CallableDeclarationIdentityV1;
+use crate::parser::postpass_envelope::{CompletedParserPostpassV1, ParserPostpassProgramCohortV1};
 use crate::parser::source_authority::{SourceBoxDeclarationSiteV1, SourceBoxMethodSiteV1};
 
 #[derive(Debug)]
@@ -60,7 +58,7 @@ pub(in crate::parser) enum ParserMainAppEntryDispositionV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum ParserMainAppEntryOutsideReasonV1 {
+pub(crate) enum ParserMainAppEntryOutsideReasonV1 {
     ProgramCohort,
     StaticParent(ParserStaticBoxParentOutsideReasonV1),
     NonMainStaticBox,
@@ -69,19 +67,19 @@ pub(in crate::parser) enum ParserMainAppEntryOutsideReasonV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum ParserMainAppEntryUnavailableV1 {
+pub(crate) enum ParserMainAppEntryUnavailableV1 {
     StaticParent(ParserStaticBoxParentSourceUnavailableV1),
     SelectedBuildGateUnsupported,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum ParserMainAppEntryIncompleteV1 {
+pub(crate) enum ParserMainAppEntryIncompleteV1 {
     StaticParent(ParserStaticBoxParentSourceIncompleteV1),
     CallableCatalogRowMissing,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum ParserMainAppEntryIntegrityIssueV1 {
+pub(crate) enum ParserMainAppEntryIntegrityIssueV1 {
     ForeignParameterCatalog,
     StaticParent(ParserStaticBoxParentSourceIntegrityIssueV1),
     DuplicateCallableCatalogRow,

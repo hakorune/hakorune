@@ -15,7 +15,7 @@ pub(super) use issuer::issue_parser_normal_program_source_authority_v1;
 pub(crate) use loan::{
     with_parser_composite_source_loan_from_normal_authority,
     with_parser_normal_program_source_loan, ParserNormalProgramSourceLoanRejectV1,
-    ParserNormalProgramSourceLoanV1,
+    ParserNormalProgramSourceLoanV1, ParserNormalProgramStatementCursorV1,
 };
 pub(crate) use model::{
     ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySyntaxKindV1,

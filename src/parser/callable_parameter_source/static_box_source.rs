@@ -233,7 +233,7 @@ pub(in crate::parser) enum ParserStaticBoxParentSourceDispositionV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum ParserStaticBoxParentOutsideReasonV1 {
+pub(crate) enum ParserStaticBoxParentOutsideReasonV1 {
     ProgramCohort,
     MultipleParentRows,
     BuildGatePath,
@@ -242,18 +242,18 @@ pub(in crate::parser) enum ParserStaticBoxParentOutsideReasonV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum ParserStaticBoxParentSourceUnavailableV1 {
+pub(crate) enum ParserStaticBoxParentSourceUnavailableV1 {
     NoPreparedParent,
     OrdinarySourcePath,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum ParserStaticBoxParentSourceIncompleteV1 {
+pub(crate) enum ParserStaticBoxParentSourceIncompleteV1 {
     StaticMethodSourceMissing,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::parser) enum ParserStaticBoxParentSourceIntegrityIssueV1 {
+pub(crate) enum ParserStaticBoxParentSourceIntegrityIssueV1 {
     ForeignParserBrand,
     MemberCoverageMismatch,
     MethodRelationMismatch,
@@ -345,7 +345,9 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
             .iter()
             .filter_map(PreparedCallableSourceV1::direct)
             .filter(|row| row.kind() == DirectCallableDeclarationKindV1::StaticBoxMethod)
-            .filter(|row| callable_row_matches(row, prepared.box_site.path(), method_site.member_site()))
+            .filter(|row| {
+                callable_row_matches(row, prepared.box_site.path(), method_site.member_site())
+            })
             .collect::<Vec<_>>();
         if coordinate_matches.len() > 1 {
             return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid(
