@@ -17,15 +17,15 @@ selected Dynamic generic active walk is now a 575-line parent plus unchanged 185
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "NORMAL-MAIN-ROOT-PRESERVATION-A-I0"
-current_design_stop = "none: guarded parser root-preservation I0 is authorized; root consumer remains a later bounded slice."
-current_blocker_token = "NORMAL-MAIN-ROOT-PRESERVATION-A-I0: seal final root prefix and role preservation under one parser transform session before Builder consumption."
+work_mode = "design_stop"
+current_execution_row = "NORMAL-MAIN-APP-ROOT-CONSUMER-D0"
+current_design_stop = "NamedConsumerMissing: parser root preservation is landed, but the exact App/Script structural projection and move-only root-consumer input are not closed."
+current_blocker_token = "NORMAL-MAIN-APP-ROOT-CONSUMER-D0: close the parser-owned App/Script structural relation and named zero-effect consumer before any Builder root effect."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — parser root preservation A I0"
+active_lane = "MirBuilder in-place replacement — normal root consumer design"
 active_lane_status = """
 Landed caller-zero: source/Facts/Recipe/Join corridor, Subject/Needle roots,
 private byte cursor plus canonical index SSA, exact lifecycle carrier,
@@ -87,14 +87,14 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/normal-main-root-preservation-a-i0-2026-08-23.md"
+current_execution_design = "docs/development/current/main/investigations/normal-main-app-root-consumer-d0-2026-08-23.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "normal-main-root-preservation-a-i0"
-latest_card_path = "docs/development/current/main/investigations/normal-main-root-preservation-a-i0-2026-08-23.md"
-latest_card_summary = "A guarded parser-owned non-Clone root-preservation token is the next bounded I0; root consumer, lowering, raw retirement, and fallback remain closed."
-next_design_card = "none-until-I0-evidence"
-next_execution_card = "NORMAL-MAIN-ROOT-PRESERVATION-A-I0"
-next_execution_card_path = "docs/development/current/main/investigations/normal-main-root-preservation-a-i0-2026-08-23.md"
+latest_card = "normal-main-app-root-consumer-d0"
+latest_card_path = "docs/development/current/main/investigations/normal-main-app-root-consumer-d0-2026-08-23.md"
+latest_card_summary = "Parser root-preservation A-I0 is pushed as a906f4aec2; the next design stop is the exact App/Script structural projection and named root consumer."
+next_design_card = "NORMAL-MAIN-APP-ROOT-CONSUMER-D0"
+next_execution_card = "none-until-design-decision"
+next_execution_card_path = "docs/development/current/main/investigations/normal-main-app-root-consumer-d0-2026-08-23.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -106,7 +106,6 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-22: MIR-CALLABLE-RESOLVER-LEXICAL-PROGRAM-BLOCK-I0 is complete. Nested parser Program statements resolve under the existing LexicalScope/LexicalBlock and ProgramBody coordinates without flattening or a new control target; Script profiles remain closed. Scope 5, vocabulary 5, and callable 9 tests plus cargo check/build are green. The real probe removes both StringHelpers Program deferrals and reaches IfRegion(ControlContractMismatch); source-bound hard-reject P0 is next because owner slot/name/order are non-authorities.",
   "2026-08-22: Program-region/header P0 and loop-control projection P0 are pushed as a7935344dc, 9bdd557b6c, and bc052cb60d. Focused gates and quick check/build evidence are green; trim/1's old TerminalSiteIsNotReturn is gone. The current probe stops at incomplete-binding-coverage for esc_json/1 body-only rebinds (`out`, `handled`) treated as carriers. MIR-CALLABLE-LOOP-HANDOFF-BINDING-COVERAGE-D0 is the next design stop; Builder, ABI, fallback, publication, and performance remain closed.",
   "2026-08-22: MIR-CALLABLE-LOOP-READY-STRUCTURAL-LEASE-I0 is pushed as 8492bdd509. One source-facts receipt now moves into a private route-neutral structural seed and HRTB view; focused structural-lease 3 and source-facts 8 tests, quick check, reusable guard, pointer guard, rustfmt, and diff checks are green. The production ingress audit then closed NoSafeSlice: existing RecipeComposer is physical, while PlanBuildOutcome plus selection is not a semantic Recipe/Join product. MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-RECIPE-AUTHORITY-D0 is the next design stop; raw Ready, physical/publication, fallback, and production switch remain closed.",
   "2026-08-22: MIR-CALLABLE-LOOP-READY-GENERIC-LOOP-V1-SEMANTIC-RECIPE-PHYSICAL-ADAPTER-R0 is checkpointed as 4a8f86bf9c. Ready now reaches one semantic Recipe and one named physical adapter; the source-Facts suite is 10/10, positive adapter lowering and effect-zero rejection pass, and the reusable issuer/consumer, pointer, and diff guards pass. The old Ready route remains unreachable.",
@@ -117,4 +116,5 @@ landed_tail = [
   "2026-08-23: MIR-DYNAMIC-BACKEDGE-PRECLAIM-I0 is landed. Header validation and existing Backedge cleanup/I13..I16 claims now occur before `select_block` and the first physical effect; the dedicated Backedge guard, selected Dynamic suite (10/10), Fault/CallOut/CONNECT0/strict-writer guards, pointer guard, and diff check are green. MIR-DYNAMIC-INNER-RETURN-PRECLAIM-D0 is the next design stop.",
   "2026-08-23: Compare/Bridge hardening (0f3a1c821d, 91bc0923d9), structural-lease cfg(test) retirement (40e862c3dc), callable-loop Outside observed/Ready row I0 (5365985372), root unpublished scope I0 (4757bcbd1c), and structure baseline taskification (7157bc6f23) are landed/pushed on main. Root I0 threads one same-brand unpublished candidate/collector through one private Ready edge; builder test-home R0 is the next closed BoxShape cell. Pure plan, ordinary Outside consumer, publication, parser, fallback, and performance remain closed.",
   "2026-08-23: Structure R0s through if_control are complete. dynamic_full_body_recipe relocation remains NoSafeSlice. The Script direct-static four-flow/six-root D0 landed as narrowed B-prime: four byte-identical Recipe/claim-ledger files moved with two parent path edits and no re-export, body, caller, route, fallback, or authority change. The 333/424-line production pair remains below 760 (757 combined); the semantic-shelf structure/A-C/pointer guards and focused tests are green. The unchanged 775-line raw_invocation_source_transport.rs target-guard result is recorded as parent baseline debt. Parser Box declaration syntax I0, ordinary module source-row I0, and static Box parent parser-only I0 are implemented and pushed; each uses one parser-owned source issuer, typed bounded states, focused evidence, and no downstream effect. Static/mixed consumer policy, Main/App admission, pure-plan, ordinary Outside, publication, fallback, and performance remain design-stopped."
+  "2026-08-23: Parser normal root preservation A-I0 is pushed as a906f4aec2. One parser-owned transform session now seals a non-Clone App/Script preservation token after exact prefix and static-Main-tail checks; focused parser 28/28, source guard, pointer guard, and diff check are green. The named root consumer and App/Script structural projection remain the next design stop; no Builder effect or fallback opened."
 ]

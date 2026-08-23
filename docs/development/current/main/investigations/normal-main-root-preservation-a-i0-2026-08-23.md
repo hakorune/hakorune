@@ -153,7 +153,7 @@ bash tools/checks/current_state_pointer_guard.sh
 git diff --check
 ```
 
-Observed result: focused parser suite 28/28 passed; preservation guard,
+Observed result: commit `a906f4aec2` is pushed on `main`; focused parser suite 28/28 passed; preservation guard,
 pointer guard, and diff check passed. Repository-wide formatting remains a
 pre-existing baseline concern and was not used as this slice's acceptance
 gate.

@@ -68,12 +68,28 @@ guard_expect_fixed_in_file "$TAG" \
   "normal callable README must document the preserved root token"
 guard_expect_fixed_in_file "$TAG" \
   "NORMAL-MAIN-ROOT-PRESERVATION-A-I0" "$CARD" \
-  "active A-I0 card is missing"
+  "A-I0 card is missing"
 guard_expect_fixed_in_file "$TAG" \
-  'current_execution_row = "NORMAL-MAIN-ROOT-PRESERVATION-A-I0"' "$STATE" \
-  "CURRENT_STATE must select the active A-I0 row"
+  "ParserNormalRootPreservationV1" "$CARD" \
+  "A-I0 card must retain the parser preservation contract"
 guard_expect_fixed_in_file "$TAG" \
-  'current_design_stop = "none: guarded parser root-preservation I0 is authorized' "$STATE" \
-  "CURRENT_STATE must keep the root consumer outside this slice"
+  "root consumer" "$CARD" \
+  "A-I0 card must keep the root consumer outside this slice"
+guard_expect_fixed_in_file "$TAG" \
+  "a906f4aec2" "$CARD" \
+  "A-I0 closeout commit is missing from the active card"
+
+if rg -Fq 'current_execution_row = "NORMAL-MAIN-ROOT-PRESERVATION-A-I0"' "$STATE"; then
+  guard_expect_fixed_in_file "$TAG" \
+    'current_design_stop = "none: guarded parser root-preservation I0 is authorized' "$STATE" \
+    "fast A-I0 state must keep the root consumer outside this slice"
+else
+  guard_expect_fixed_in_file "$TAG" \
+    'current_execution_row = "NORMAL-MAIN-APP-ROOT-CONSUMER-D0"' "$STATE" \
+    "closed A-I0 state must point to the next root-consumer design stop"
+  guard_expect_fixed_in_file "$TAG" \
+    'work_mode = "design_stop"' "$STATE" \
+    "closed A-I0 state must return to design_stop"
+fi
 
 echo "[$TAG] ok"
