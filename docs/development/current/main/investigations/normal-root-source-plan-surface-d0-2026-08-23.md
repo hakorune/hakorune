@@ -34,6 +34,33 @@ source-plan policy selection, including every Main/member, top-level callable,
 executable, unsupported, retained, and AST-only fixture handoff; excludes
 post-terminal lowering/publication after a sealed plan.
 
+## Audit budget and parking valve
+
+The census boundary above is closed. A finding blocks this D0 only when it
+changes the selected source-plan handoff or can reach the selected policy
+terminal with a second authority, missing coverage, foreign pairing, silent
+fallback, or effect before rejection. Everything else is classified before
+it is recorded:
+
+```text
+blocks this D0:
+  parser surface membership, Main/member relation, invocation identity,
+  transform preservation, policy input/output, retained terminal, or any
+  raw/compatibility retry reachable from this boundary
+
+parked:
+  AST-only fixture ergonomics, non-selected profile/raw typestate cleanup,
+  post-terminal lowering details, Builder barrel topology, and performance
+  work that cannot alter this source-plan handoff
+```
+
+One complete census plus one independent premise audit is the review budget
+for this card. Do not widen the boundary because a parked finding exists.
+Reopen the census only for a named counterexample that crosses the boundary;
+otherwise record the finding in the parked ledger and continue to the bounded
+decision. This prevents “全部数える” from becoming an unbounded
+precondition for implementation.
+
 ## Why C0 is stopped
 
 The current canonical production path is:
@@ -483,6 +510,39 @@ static Main parent, including Main0, Main helper, non-function members,
 foreign invocation, duplicate, missing, and unsupported rows. Do not change
 `main_app_entry` to guess the result; its narrow App admission remains a
 consumer of the fuller relation.
+
+The ownership contract is concrete:
+
+```text
+parser finalizer
+  -> one co-sealed top-level source-row stream
+       each row = exact parser relation + final slot + observation
+       MainBox row = exact parent relation + all ordered member rows
+  -> one ParserNormalSourcePlanSeedV1 transport
+  -> one ParsedProgramWithCallableParameterSourceV1::new consumer
+```
+
+The accepted surface may use an internal closed enum such as
+`TopLevelExecutable`, `TopLevelCallable`, `StaticMainBox`, and
+`Unsupported`, but it must not expose parallel `body_rows` and
+`static_parent_sources` for a later join. The `StaticMainBox` variant owns
+its full member relation as a nested product. `ProjectedProgramItemSlotV1`
+and the parser-issued source path are fields of that same row; neither is a
+join key reconstructed downstream.
+
+The parser issuer may inspect the completed parser AST once while the parser
+source path and projected slot are still in scope. That inspection is source
+observation only. It emits the owned row relation and must not expose an AST
+view, name lookup, ordinal join, Recipe key, root-role bool, or physical
+identity to the compiler. After this handoff, policy consumes rows and never
+calls `from_program`, `expected_callable_slots`, or an AST surface inventory.
+
+`PreparedParserStaticBoxParentSourceV1` remains the full relation owner until
+the common issuer consumes it. `ParserStaticBoxSourceSealV1` is reduced to a
+narrow projection (parent relation, Main method relation, and complete-member
+coverage witness); it must not retain the full prepared rows, borrow the seed,
+or clone them. This is the single way to avoid both duplicate authority and a
+self-referential postpass product.
 
 ### D0-B — Bound surface issuer
 
