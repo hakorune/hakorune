@@ -1,26 +1,25 @@
 status = """
-The normal root lane is in design_stop. Raw/compatibility parity and the full
-source-backed consumer/retirement closure are now finite. The active NoSafeSlice
-is the exact parser-owned App/ProgramRuntime relation and its one pre-effect
-consumer; implementation remains forbidden until that authority/API freezes."""
+The normal root execution design is closed top-down. Raw/compatibility parity,
+all source-backed consumers, the exact nested parser relation, final
+preservation, and the one pre-effect consumer boundary are finite. P0 is the
+only authorized Fast slice and adds parser source/preservation only."""
 date = "2026-08-23"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "NORMAL-ROOT-EXECUTION-DISPOSITION-D0"
-current_design_stop = "SemanticAuthorityMissing: no frozen parser-owned total App/ProgramRuntime relation yet co-seals complete Program statements, Main root, static children, every callable role, and exact final preservation."
-current_blocker_token = "NORMAL-ROOT-EXECUTION-AUTHORITY-FREEZE-D0: freeze the exact total relation and one pre-effect scoped consumer that issues catalog roles and typed root work together."
+work_mode = "fast"
+current_execution_row = "NORMAL-ROOT-EXECUTION-SOURCE-P0"
+current_design_stop = "none: NORMAL-ROOT-EXECUTION-DISPOSITION-D0 is accepted. The parser relation is nested by Program statement, preserves exact callable identity/slot/site and helper schedule, and has one affine pre-effect consumer boundary."
+current_blocker_token = "NORMAL-ROOT-EXECUTION-SOURCE-P0: implement only parser model/issuer, paired private loan, required move chain, exact preservation, focused tests, README receipt, and reusable guard. Builder consumer/cutover remains forbidden."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — total normal root execution authority"
+active_lane = "MirBuilder in-place replacement — total normal root execution source P0"
 active_lane_status = """
-Current: D0-A raw parity and consumer closure are accepted. Blocker: the total
-parser-owned root relation and single pre-effect consumer API are not frozen.
-Authorized: authority/API design and counterexample audit only. Forbidden: new
-semantic receipt/loan, Builder effect, fallback, compatibility fabrication,
-production switch, or raw-role inference."""
+Current: implement one parser-owned App/ProgramRuntime relation and preserve it
+through the exact final callable transform. Authorized: parser-only P0 plus
+focused tests/docs/guard. Forbidden: Builder consumer/effect, lifecycle cutover,
+fallback, compatibility fabrication, production switch, or raw-role inference."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -28,14 +27,14 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/normal-root-execution-disposition-d0-2026-08-23.md"
+current_execution_design = "docs/development/current/main/investigations/normal-root-execution-source-p0-2026-08-23.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "normal-root-execution-disposition-d0"
-latest_card_path = "docs/development/current/main/investigations/normal-root-execution-disposition-d0-2026-08-23.md"
-latest_card_summary = "D0-A closes raw parity and the complete source-backed retirement manifest. D0-B remains NoSafeSlice until one total parser relation and one pre-effect consumer API are frozen."
-next_design_card = "NORMAL-ROOT-EXECUTION-DISPOSITION-D0"
-next_execution_card = "none-until-Decision"
-next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-disposition-d0-2026-08-23.md"
+latest_card = "normal-root-execution-source-p0"
+latest_card_path = "docs/development/current/main/investigations/normal-root-execution-source-p0-2026-08-23.md"
+latest_card_summary = "The top-down D0 is accepted. P0 adds only the nested parser-owned total root relation and exact final preservation; the Builder consumer is the mandatory immediate successor."
+next_design_card = "none-until-P0-closeout"
+next_execution_card = "NORMAL-ROOT-EXECUTION-SOURCE-P0"
+next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-source-p0-2026-08-23.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -47,7 +46,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-23: NORMAL-MAIN-ROOT-EXACT-COHORT-I0 is pushed as 0b9d4eb43d. The parser root issuer requires exact source/initial/final Program cardinality and statement preservation.",
   "2026-08-23: NORMAL-MAIN-APP-ROOT-RELATION-I0 is pushed as b96d3f17b3. It remains a narrow Main.main/0/no-static-child relation and is not total execution authority.",
-  "2026-08-23: The caller-zero NORMAL-ROOT-CONSUMER-LOAN-S0 was reverted after I0 exposed valid provider Programs as Outside and a hidden callable-catalog raw scan/pointer pairing. NORMAL-ROOT-EXECUTION-DISPOSITION-D0 is the sole active design row."
+  "2026-08-23: The caller-zero NORMAL-ROOT-CONSUMER-LOAN-S0 was reverted after I0 exposed valid provider Programs as Outside and hidden source-backed reclassification/pointer pairing.",
+  "2026-08-23: NORMAL-ROOT-EXECUTION-PARITY-D0 is pushed as 363ecdecd6. Raw parity, all source-backed consumers, and the atomic retirement closure are finite."
 ]

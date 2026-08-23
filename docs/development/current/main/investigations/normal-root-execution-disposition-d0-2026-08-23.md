@@ -1,19 +1,19 @@
 # Normal root execution disposition
 
-Status: design stop — total execution authority not yet frozen
+Status: accepted — total execution authority and consumer boundary frozen
 Date: 2026-08-23
 Decision: NORMAL-ROOT-EXECUTION-DISPOSITION-D0
 Owner: parser source authority -> normal/default root lifecycle
 
-This row is not Fast path because parity and retirement are now finite, but the
-exact total source relation and its one pre-effect consumer API are not frozen.
+This D0 closed parity before authority, and authority before substrate. It
+authorizes only the parser-owned P0 recorded below.
 
 ## Six-line brief
 
 Decision:
-  D0-A parity is accepted. Keep NoSafeSlice while freezing a total normal-root
-  execution relation distinct from narrow Script-A/Main.main/0 admission. Do
-  not reinterpret narrow Outside states as ProgramRuntime.
+  Accept one total normal-root execution relation distinct from narrow
+  Script-A/Main.main/0 admission. Never reinterpret narrow Outside states as
+  ProgramRuntime.
 Source authority + canonical issuer:
   The complete same-invocation parser Program authority plus callable source
   catalog; ParserNormalRootExecutionIssuerV1::issue_once, called only inside
@@ -27,9 +27,9 @@ Fail-fast boundary:
   transform and consumed before declaration, resolver, target, module, catalog,
   work-plan, or Builder effects.
 Smallest next slice:
-  NORMAL-ROOT-EXECUTION-AUTHORITY-FREEZE-D0: freeze exact fields, errors,
-  preservation, and the one scoped consumer API. No code, fixture, fallback,
-  or new semantic receipt is authorized.
+  NORMAL-ROOT-EXECUTION-SOURCE-P0: implement only the parser relation, paired
+  issuer input, required move chain, exact preservation, tests, docs, and one
+  reusable guard.
 Non-claims:
   No lifecycle cutover, compatibility change, App-shape expansion, Script-A
   change, Recipe/lowering/publication work, raw retirement, or performance work.
@@ -345,25 +345,148 @@ The final transform moves the same disposition after the existing exact
 Program/cardinality and callable-declaration checks. It may verify identity and
 slot coverage, but may not rescan `Main`, re-sort methods, or reissue roles.
 
+The accepted source model is nested by Program statement, so independent
+statement/callable arrays cannot be re-paired:
+
+~~~rust
+struct ParserNormalRootExecutionSourceV1 {
+    invocation: ParserInvocationWitnessV1,
+    program: ParserNormalRootExecutionProgramV1,
+}
+
+enum ParserNormalRootExecutionProgramV1 {
+    App(ParserNormalAppExecutionProgramV1),
+    ProgramRuntime(ParserNormalProgramRuntimeExecutionProgramV1),
+}
+
+struct ParserNormalRootStatementRelationV1 {
+    source: ParserNormalProgramBodySourceRowV1,
+    role: ParserNormalRootStatementRoleV1,
+}
+
+enum ParserNormalRootStatementRoleV1 {
+    Ordinary {
+        callables: Box<[ParserNormalRootCallableRelationV1]>,
+    },
+    AppMain {
+        root: ParserNormalRootCallableRelationV1,
+        children: Box<[ParserNormalAppStaticChildRelationV1]>,
+    },
+}
+~~~
+
+Every callable relation owns its opaque parser identity, exact final slot and
+source coordinate, declaration kind, and declared arity. A child additionally
+owns a contiguous compatibility-name execution ordinal. Array position and
+ordinal are schedule/coverage evidence only; opaque identity remains pairing
+authority.
+
+The closed source-backed errors are:
+
+~~~text
+SourceAuthorityUnavailable:
+  initial callable source / complete parameter catalog / Program authority absent
+
+Incomplete:
+  Program body or Main main relation missing
+  statement/callable row or representable ordinal missing
+
+IntegrityInvalid:
+  duplicate static Main
+  non-static required Main method/helper when source-backed reachable
+  foreign parser witness
+  duplicate/contradictory identity, slot, site, role, or coverage
+~~~
+
+Compatibility-only malformed AST errors remain owned by raw expansion and are
+not copied into this enum.
+
+## Accepted paired issuer input
+
+`VerifiedInitialCallableProgramSourceV1` gains one parser-private HRTB issuer
+loan. Each callable row contains, as one item:
+
+~~~text
+opaque callable identity
++ PreparedCallableSourceV1 relation
++ InitialCallableFinalSlotV1
++ borrowed exact declaration
+~~~
+
+The same loan includes the paired Program statement cursor from
+`ParserNormalProgramSourceAuthorityV1`. The loan constructor verifies the
+initial source, Program authority, and parameter catalog share one parser
+invocation before `ParserNormalRootExecutionIssuerV1::issue_once` runs. No raw
+slice pair, `zip`, public constructor, or second static-parent authority is
+exposed.
+
+The issuer performs exactly one top-level Main classification and one Main
+method inventory walk. It may sort child observations by diagnostic name only
+to preserve the old schedule, then stores the resulting execution ordinal.
+Names never leave as pairing keys.
+
+## Accepted final preservation
+
+The total disposition is a required, non-Clone field through:
+
+~~~text
+ParsedProgramWithCallableParameterSourceV1
+-> PreparedNormalCallableProgramSourceV1
+-> exact callable transform
+-> VerifiedFinalCallableProgramSourceV1
+-> PreparedNormalDefaultProgramRootV1
+~~~
+
+The existing exact Program cardinality/statement equality, callable slot, and
+declaration equality checks run before the field moves into the final source.
+Preservation may verify witness/coverage, but cannot classify Main, sort
+children, or construct new role rows. A Ready relation that would enter
+compatibility is a typed hard reject.
+
+## Accepted one-shot consumer aggregate
+
+The sole source-backed consumer is
+`NormalRootExecutionConsumerV1::consume_once`, called at lifecycle entry before
+`PreparedNormalProgramDeclarationFactsV1::collect`.
+
+Conceptually it performs this affine transition:
+
+~~~text
+VerifiedFinalCallableProgramSourceV1
+  -> one HRTB root-execution loan
+       -> owned role-bound callable catalog
+       -> owned typed Program-root work source
+       -> owned Main materialization source relation
+  -> ConsumedNormalRootCallableSourceV1
+     (same final source, no root-execution getter)
+  -> PreparedNormalRootExecutionConsumptionV1
+~~~
+
+The callback result cannot borrow from the source. After the callback returns,
+the original AST/callable/source owners are moved into
+`ConsumedNormalRootCallableSourceV1`, which is the only source type accepted by
+the revised callable semantic-package issuer. This makes a second root-role
+loan impossible without cloning or reconstructing authority.
+
+`PreparedNormalRootExecutionConsumptionV1` is a private aggregate, not a parts
+tuple. Its App/ProgramRuntime variant is the sole pre-effect gate. It carries
+the preissued catalog and typed work/materialization source through named
+methods. Later resolver/source loans may resolve other semantics, but cannot
+issue or alter root roles.
+
+The typed work source owns the current one-time AST lowering projection. App's
+RootMain statement is opaque and nests exact root/children syntax; ordinary
+siblings remain paired statement rows. ProgramRuntime carries every paired
+statement row. Existing declaration, constructor, Script-item, Recipe, and
+physical owners still decide their own meanings.
+
 Current decision state is:
 
 ~~~text
 D0-A parity/consumer closure = accepted
-D0-B exact authority/API     = NoSafeSlice until frozen
-implementation               = forbidden
+D0-B exact authority/API     = accepted
+next implementation          = parser-only P0
 ~~~
-
-D0-B closes only when one private consumer can, under one final-source loan and
-before `PreparedNormalProgramDeclarationFactsV1::collect`, issue all three
-owned downstream inputs:
-
-~~~text
-typed pre-effect App/ProgramRuntime gate
-source-backed callable catalog with complete root/child/ordinary roles
-typed Program-root work/materialization input
-~~~
-
-No second getter or later source reloan may issue one of these siblings.
 
 ## Final preservation and loan contract
 
@@ -415,7 +538,7 @@ Stop:
 
 ### D0-B — NORMAL-ROOT-EXECUTION-AUTHORITY-FREEZE-D0
 
-Status: active NoSafeSlice. Read-only design work only.
+Status: accepted 2026-08-23 after two independent read-only audits.
 
 Change:
   Freeze the sole issuer, exact fields, typed errors, and relation with callable
@@ -451,8 +574,8 @@ D0-B is executed in this order:
    - done when source-backed zeroes and compatibility/Raw preserved callers
      are mechanically distinguishable.
 
-No B-cell authorizes production Rust changes. D0-B acceptance selects only P0
-as the next implementation slice.
+No B-cell authorized production Rust changes. D0-B acceptance selects only P0
+as the next implementation slice; S0/C0 remain unauthorized until P0 closes.
 
 ### P0 — NORMAL-ROOT-EXECUTION-SOURCE-P0
 
