@@ -1,6 +1,6 @@
 use crate::mir::builder::{
-    AdmittedNormalRootExecutionModeV1, CatalogedBoxMethodPhysicalHeaderProjectionV1,
-    VerifiedSourceBackedDynamicCallableV1, VerifiedSourceBackedSameModuleCallableCatalogV1,
+    CatalogedBoxMethodPhysicalHeaderProjectionV1, VerifiedSourceBackedDynamicCallableV1,
+    VerifiedSourceBackedSameModuleCallableCatalogV1,
 };
 use crate::mir::callable_parameter_contract::{
     CallableParameterContractKindV1, CallableParameterDeclarationModeV1,
@@ -33,7 +33,6 @@ pub(super) struct OwnedCallableParameterContractDeclarationV1 {
 /// parameter catalog, Dynamic candidate, or private batch slot.
 #[derive(Debug)]
 pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
-    pub(super) root_execution_mode: AdmittedNormalRootExecutionModeV1,
     pub(super) root_execution: NormalRootExecutionPackageStateV1,
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
@@ -77,10 +76,6 @@ pub(crate) enum NormalCallableDynamicProjectionRefV1<'package> {
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
-    pub(in crate::mir) const fn root_execution_mode(&self) -> AdmittedNormalRootExecutionModeV1 {
-        self.root_execution_mode
-    }
-
     pub(in crate::mir) fn take_root_execution(
         &mut self,
     ) -> Result<crate::mir::builder::PreparedAdmittedNormalRootExpansionV1, ()> {

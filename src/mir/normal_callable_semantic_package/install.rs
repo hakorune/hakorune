@@ -57,7 +57,6 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
 
 #[derive(Debug)]
 pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
-    root_execution_mode: crate::mir::builder::AdmittedNormalRootExecutionModeV1,
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
     instance_constructors:
@@ -279,7 +278,6 @@ impl VerifiedNormalCallableSemanticPackageV1 {
 impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
     pub(crate) fn commit(self) -> InstalledNormalCallableSemanticPackageV1 {
         let VerifiedNormalCallableSemanticPackageV1 {
-            root_execution_mode,
             root_execution,
             catalog,
             batch,
@@ -301,7 +299,6 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
         self.context
             .install_callable_declaration_catalog_preflighted(catalog.into_catalog());
         InstalledNormalCallableSemanticPackageV1 {
-            root_execution_mode,
             catalog_brand,
             batch,
             instance_constructors,
@@ -318,12 +315,6 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
-    pub(in crate::mir) const fn root_execution_mode(
-        &self,
-    ) -> crate::mir::builder::AdmittedNormalRootExecutionModeV1 {
-        self.root_execution_mode
-    }
-
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.batch.source_ast()
     }

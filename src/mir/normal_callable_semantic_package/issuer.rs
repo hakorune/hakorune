@@ -102,7 +102,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     source: ConsumedNormalRootCallableSourceV1,
     brand_catalog: Option<&VerifiedBrandProgramDeclarationCatalogV1>,
 ) -> Result<VerifiedNormalCallableSemanticPackageV1, NormalCallableSemanticPackageIssueV1> {
-    let root_execution_mode = source.mode();
     let instance_constructors =
         issue_instance_constructor_semantic_batch_v1(resolver, source.source(), brand_catalog)
             .map_err(NormalCallableSemanticPackageIssueV1::InstanceConstructors)?;
@@ -274,7 +273,6 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
     .map_err(NormalCallableSemanticPackageIssueV1::PhysicalSignature)?;
 
     Ok(VerifiedNormalCallableSemanticPackageV1 {
-        root_execution_mode,
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
         catalog,
         batch,
