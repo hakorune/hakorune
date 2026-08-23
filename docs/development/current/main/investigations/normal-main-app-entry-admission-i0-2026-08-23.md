@@ -1,11 +1,11 @@
 ---
-Status: Ready to reopen — relation I0 closed
+Status: Implementation complete — parser-only admission I0 closed
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-ADMISSION-I0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-admission-d0-2026-08-23.md
 PrerequisiteExecutionRow: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-I0
 ProductionCaller: 0 before and after I0
-ProductionEdit: none; parser-only admission I0 is the next bounded slice
+ProductionEdit: parser-only admission I0 complete; downstream consumers remain closed
 CeremonyTier: I0 — bounded source admission
 ---
 
@@ -20,8 +20,8 @@ Decision:
   selection noncanonical and unchanged.
 Source authority + canonical issuer:
   ParserStaticBoxSourceSealV1 plus the same-invocation complete parameter
-  catalog; one private ParserMainAppEntryAuthorityIssuerV1::issue_once called
-  from ParsedProgramWithCallableParameterSourceV1::new.
+  catalog; one private issue_parser_main_app_entry_v1 call from
+  ParsedProgramWithCallableParameterSourceV1::new.
 Non-authority:
   AST re-scan, Main/name-only lookup, method ordinal, raw
   VerifiedRawRootExpansionV1, root_is_app_mode, semantic Main plans, Builder,
@@ -40,8 +40,8 @@ Non-claims:
 
 ## Implementation contract (authorized after source relation I0)
 
-The planned I0 must add one parser source product, not a semantic or physical
-plan. It is not authorized until the missing relation card closes:
+The completed I0 adds one parser source product, not a semantic or physical
+plan. The relation prerequisite is closed; this product remains parser-only:
 
 ```rust
 enum ParserMainAppEntryDispositionV1 {
@@ -82,7 +82,7 @@ evidence retains the distinction between `SourceAuthorityUnavailable`,
 ```text
 CompletedParserPostpassV1.static_box_parent_source
   + Complete(ParserCallableParameterSourceCatalogV1)
-  -> ParserMainAppEntryAuthorityIssuerV1::issue_once
+  -> issue_parser_main_app_entry_v1
   -> ParsedProgramWithCallableParameterSourceV1.main_app_entry
 ```
 
@@ -134,7 +134,7 @@ normal lowering, runner, or compatibility retry.
 ## Structural guards
 
 ```text
-ParserMainAppEntryAuthorityIssuerV1 definition = 1
+issue_parser_main_app_entry_v1 definition = 1
 issuer production call site = 1
 ParserMainAppEntryDispositionV1 construction outside issuer = 0
 AST scan in issuer = 0
@@ -182,3 +182,41 @@ unchanged for this next slice.
 
 No production switch, downstream consumer, old-route removal, or fallback
 change belongs in these commits.
+
+## Implementation evidence
+
+```text
+parser issuer call sites                         = 1
+Main/App disposition construction outside issuer = 0
+focused Main/App parser tests                     = 7 passed, 0 failed
+focused static-parent source tests                = 6 passed, 0 failed
+downstream Main/App consumer                      = 0
+Builder / NormalCompileRequest / MIR edges       = 0
+fallback / retry / reselection edges              = 0
+```
+
+The positive fixture proves one static `Main` with one direct `main/0` reaches
+`AppMainReady` while retaining the exact method site and callable comparison
+identity. Ordinary, non-Main, mixed, multiple-parent, unsupported-member, and
+non-zero-arity shapes remain typed non-ready outcomes. The issuer contains the
+typed missing/foreign/duplicate relation branches; no synthetic catalog
+mutation or downstream consumer was added merely to manufacture those cases.
+
+Verification completed for this slice:
+
+```text
+CARGO_BUILD_JOBS=4 cargo check                         = passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib \
+  parser::callable_parameter_source::main_app_entry_tests::
+                                                       = 7 passed
+CARGO_BUILD_JOBS=4 cargo test --profile quick --lib \
+  parser::callable_parameter_source::static_box_source_tests::
+                                                       = 6 passed
+frontend_main_app_entry_i0_guard.sh                   = passed
+current_state_pointer_guard.sh                         = passed
+```
+
+The remaining warning volume is existing repository baseline warning debt; it
+does not belong to this parser-only I0. The next decision must design a named
+Main/App consumer before any Builder, root, semantic, physical, publication,
+fallback, or old-route change is permitted.
