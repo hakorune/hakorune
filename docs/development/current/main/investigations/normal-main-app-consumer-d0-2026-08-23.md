@@ -1,4 +1,4 @@
-Status: Design stop — NamedConsumerMissing
+Status: NoSafeSlice — existing Main/App consumer is missing
 Date: 2026-08-23
 Decision: NORMAL-MAIN-APP-CONSUMER-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-transport-d0-2026-08-23.md
@@ -134,3 +134,56 @@ fallback/retry/reselection = 0
 production caller = 0
 ```
 
+## Read-only census result
+
+The census was completed without editing code. The result is `NoSafeSlice` for
+this card: no existing MIR/Builder consumer currently accepts
+`ParserMainAppEntryDispositionV1`.
+
+```text
+parser sole issuer                                      = 1
+transport references outside parser transport          = 0
+named Main/App consumer                                 = 0
+NormalCompileRequest Main/App field                     = 0
+root_is_app_mode writes                                 = 1 legacy raw write
+VerifiedRawRootExpansionV1 Main/App classifier         = existing, unbound
+AST root reclassification in live lifecycle             = 2 calls
+legacy Main/App entry fallback/selection                = existing runner/raw edges
+```
+
+The live selected-normal path is currently:
+
+```text
+VerifiedFinalCallableProgramSourceV1
+  -> PreparedNormalDefaultProgramRootV1
+  -> NormalCompileRequestV1
+  -> NormalDefaultRootCatalogLifecycle
+  -> VerifiedRawRootExpansionV1::from_program(source_ast)
+  -> expansion.is_app_mode()
+  -> ProgramRootWorkPlan / root_is_app_mode
+```
+
+`PreparedNormalDefaultProgramRootV1::from_callable_source` and
+`NormalCompileRequestV1::for_mir_mode_callable_source` only transport the
+source. `NormalDefaultRootCatalogLifecycle` is the only existing root
+orchestrator, but it currently reclassifies the AST before effects and does not
+consume the parser disposition. `VerifiedRawRootExpansionV1` is therefore a
+structural expansion candidate, not a parser Main/App authority.
+
+Three read-only worker audits reached the same result: keep this card at
+`NamedConsumerMissing / NoSafeSlice`, and open a separate root-admission bridge
+design before adding any field, receipt, root write, or production edge.
+
+## Closeout decision
+
+This card is closed as a design finding, not as a production implementation:
+
+```text
+Decision:
+  existing transport/root owners are insufficient as a Main/App consumer.
+  The next card must design one root-admission bridge.
+
+Forbidden next step:
+  do not make NormalCompileRequest, root_is_app_mode, or raw expansion consume
+  the disposition by re-reading AST or reconstructing a bool.
+```
