@@ -303,7 +303,7 @@ impl ParserCallableSourceSessionV1 {
     fn commit_direct(
         &mut self,
         prepared: PreparedDirectCallableSourceV1,
-    ) -> Result<(), DirectCallableSourceIssueV1> {
+    ) -> Result<CallableDeclarationIdentityV1, DirectCallableSourceIssueV1> {
         if !prepared.parser_brand.same_as(&self.brand)
             || !prepared.path.declaration().brand().same_as(&self.brand)
         {
@@ -312,8 +312,9 @@ impl ParserCallableSourceSessionV1 {
         if self.rows.iter().any(|row| row.path == prepared.path) {
             return Err(DirectCallableSourceIssueV1::DuplicatePath);
         }
+        let identity = prepared.anchor.identity();
         self.rows.push(prepared);
-        Ok(())
+        Ok(identity)
     }
 
     fn issue_direct(
@@ -322,7 +323,7 @@ impl ParserCallableSourceSessionV1 {
         kind: DirectCallableDeclarationKindV1,
         commit_placement: DirectCallableCommitPlacementV1,
         diagnostic_name: impl Into<Box<str>>,
-    ) -> Result<(), DirectCallableSourceIssueV1> {
+    ) -> Result<CallableDeclarationIdentityV1, DirectCallableSourceIssueV1> {
         let prepared = self.prepare_direct(path, kind, commit_placement, diagnostic_name)?;
         self.commit_direct(prepared)
     }
@@ -410,6 +411,7 @@ impl NyashParser {
                 diagnostic_name,
             )
             .map_err(|error| map_issue(error, line))
+            .map(|_| ())
     }
 
     pub(super) fn issue_direct_free_function(
@@ -441,12 +443,14 @@ impl NyashParser {
             BoxMethodInventoryOrdinalV1,
             String,
             Option<super::callable_parameter_source::ParsedCallableParameterListV1>,
+            CallableDeclarationIdentityV1,
         ),
         ParseError,
     > {
         let line = self.current_token().line;
         let (path, inventory_ordinal, diagnostic_name, parameter_source) = committed.into_parts();
-        self.callable_source_session
+        let identity = self
+            .callable_source_session
             .as_mut()
             .ok_or(DirectCallableSourceIssueV1::SessionAlreadyMoved)
             .map_err(|error| map_issue(error, line))?
@@ -459,7 +463,7 @@ impl NyashParser {
                 diagnostic_name.clone(),
             )
             .map_err(|error| map_issue(error, line))?;
-        Ok((inventory_ordinal, diagnostic_name, parameter_source))
+        Ok((inventory_ordinal, diagnostic_name, parameter_source, identity))
     }
 
     pub(super) fn issue_committed_instance_box_method(
@@ -470,6 +474,7 @@ impl NyashParser {
             BoxMethodInventoryOrdinalV1,
             String,
             Option<super::callable_parameter_source::ParsedCallableParameterListV1>,
+            CallableDeclarationIdentityV1,
         ),
         ParseError,
     > {
@@ -487,6 +492,7 @@ impl NyashParser {
             BoxMethodInventoryOrdinalV1,
             String,
             Option<super::callable_parameter_source::ParsedCallableParameterListV1>,
+            CallableDeclarationIdentityV1,
         ),
         ParseError,
     > {

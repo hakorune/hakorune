@@ -301,19 +301,20 @@ fn commit_pending_static_method(
         member: source.current_member_site(),
     };
     let committed = method.commit_direct(&mut StaticDirectMethodSinkV1 { methods, source })?;
-    let (inventory_ordinal, diagnostic_name, parameter_source) =
+    let (inventory_ordinal, diagnostic_name, parameter_source, callable_identity) =
         parser.issue_committed_static_box_method(committed)?;
     if let Some(parameters) = parameter_source {
         parser.commit_callable_parameter_source(
             source_site.clone(),
             inventory_ordinal,
+            callable_identity.clone(),
             crate::parser::callable_parameter_source::ParserCallableDeclarationKindV1::StaticBoxMethod,
             diagnostic_name,
             parameters,
         )?;
     }
     source
-        .commit_direct_method(source_site)
+        .commit_direct_method(source_site, callable_identity)
         .map_err(static_source_issue)
 }
 

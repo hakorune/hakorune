@@ -1,10 +1,10 @@
 ---
-Status: Design accepted — bounded relation I0 authorized
+Status: Implementation complete — bounded relation I0 closed
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-D0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-admission-i0-2026-08-23.md
 ProductionCaller: 0
-ProductionEdit: none; parser-only relation I0
+ProductionEdit: parser-only relation I0 complete; Main/App remains closed
 CeremonyTier: T2 — parser declaration relation boundary
 ---
 
@@ -15,11 +15,11 @@ CeremonyTier: T2 — parser declaration relation boundary
 - **Current decision:** a direct static declaration must carry one opaque
   parser-issued callable relation into the callable anchor row, parameter
   catalog row, and static-parent member row before Main/App admission can run.
-- **Current implementation status:** Main/App Candidate A is selected, but its
-  I0 is correctly stopped because exact source coordinates alone would require
-  a new pairing boundary.
-- **Next ordered task:** design the one declaration-commit handoff that shares
-  the existing parser-issued callable identity across those three products.
+- **Current implementation status:** the parser-only relation I0 is complete;
+  Main/App Candidate A remains closed until this evidence is committed and the
+  Main/App I0 is explicitly reopened.
+- **Next ordered task:** close out this relation evidence, then reopen the
+  already-designed Main/App I0 without adding a downstream consumer.
 - **Production stop line:** no Main/App disposition, NormalCompileRequest,
   Builder root state, Main child lowering, Recipe/Join, MIR, fallback, or
   raw-root retirement.
@@ -237,3 +237,49 @@ the source relation exceeds the 760-line split trigger
 Only after this D0 is accepted may the Main/App I0 reopen. Its issuer will
 consume the co-sealed relation and issue the typed `AppMainReady` disposition;
 it will still not set `root_is_app_mode` or invoke any Builder/runner consumer.
+
+## Relation I0 implementation evidence
+
+The bounded parser-only implementation is complete in the working tree:
+
+```text
+direct callable source session
+  -> one existing CallableDeclarationAnchorV1
+  -> CallableDeclarationIdentityV1 comparison view
+  -> parameter declaration row
+  -> static-parent direct-member row
+  -> static-parent identity/coverage co-seal
+```
+
+The callable anchor remains non-Clone and has one production issuer. The
+parameter catalog and static-parent seal store only the comparison identity.
+The static-parent issuer checks identity first and retains brand/path/member
+coordinates as coverage evidence. Same-brand but different-anchor rows return
+`MethodRelationMismatch`; missing and duplicate rows remain distinct typed
+outcomes. The composite source lookup also requires the same comparison
+identity before using coordinate coverage.
+
+Observed evidence:
+
+```text
+focused relation test                                      = 1 passed
+static-parent source suite                                 = 6 passed
+cargo check                                                = passed
+frontend_static_box_parent_source_i0_guard.sh              = passed
+current_state_pointer_guard.sh                             = passed
+git diff --check                                           = passed
+source-size checks                                         = passed
+```
+
+The broader parameter-source suite is `7 passed / 1 failed`. The single red
+test is the pre-existing
+`unchanged_parser_scan_loop_box_has_four_methods_and_fifteen_rows` expectation
+of `None` for `pos`, while the unchanged fixture declares `pos: i64` in both
+`HEAD` and the working tree. The relation change only adds identity transport
+and does not alter parameter syntax. This is recorded as known baseline debt,
+not a relation-I0 failure; the stale expectation is outside this slice and is
+not changed here.
+
+The repository-wide `cargo fmt --all -- --check` also reports pre-existing
+formatting differences in unrelated unchanged files. It is not used as the
+relation-I0 acceptance gate; no formatting sweep is included in this slice.

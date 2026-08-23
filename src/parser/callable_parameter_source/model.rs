@@ -1,4 +1,5 @@
 use crate::ast::{BoxMethodInventoryOrdinalV1, ParamDecl};
+use crate::parser::callable_source_anchor::CallableDeclarationIdentityV1;
 
 use super::super::source_authority::SourceBoxMethodSiteV1;
 
@@ -99,6 +100,7 @@ pub(crate) enum ParserCallableDeclarationKindV1 {
 pub(crate) struct ParserCallableParameterDeclarationSourceV1 {
     source_site: SourceBoxMethodSiteV1,
     inventory_ordinal: BoxMethodInventoryOrdinalV1,
+    callable_identity: CallableDeclarationIdentityV1,
     kind: ParserCallableDeclarationKindV1,
     diagnostic_name: Box<str>,
     parameters: Box<[ParserCallableParameterSourceRowV1]>,
@@ -108,6 +110,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
     pub(super) fn new(
         source_site: SourceBoxMethodSiteV1,
         inventory_ordinal: BoxMethodInventoryOrdinalV1,
+        callable_identity: CallableDeclarationIdentityV1,
         kind: ParserCallableDeclarationKindV1,
         diagnostic_name: String,
         parameters: Box<[ParserCallableParameterSourceRowV1]>,
@@ -115,6 +118,7 @@ impl ParserCallableParameterDeclarationSourceV1 {
         Self {
             source_site,
             inventory_ordinal,
+            callable_identity,
             kind,
             diagnostic_name: diagnostic_name.into_boxed_str(),
             parameters,
@@ -123,6 +127,11 @@ impl ParserCallableParameterDeclarationSourceV1 {
 
     pub(in crate::parser) fn source_site(&self) -> &SourceBoxMethodSiteV1 {
         &self.source_site
+    }
+
+    /// Comparison-only identity from the sole direct callable anchor issuer.
+    pub(in crate::parser) fn callable_identity(&self) -> &CallableDeclarationIdentityV1 {
+        &self.callable_identity
     }
 
     /// Descriptive placement inside the selected method inventory.

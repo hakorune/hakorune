@@ -8,16 +8,22 @@ source "$ROOT/tools/checks/lib/guard_common.sh"
 SOURCE="$ROOT/src/parser/callable_parameter_source/static_box_source.rs"
 TESTS="$ROOT/src/parser/callable_parameter_source/static_box_source_tests.rs"
 PARSER="$ROOT/src/parser/declarations/static_def/mod.rs"
+CALLABLE_SOURCE="$ROOT/src/parser/callable_source_anchor.rs"
+PARAM_MODEL="$ROOT/src/parser/callable_parameter_source/model.rs"
+PARAM_SESSION="$ROOT/src/parser/callable_parameter_source/session.rs"
+COMPOSITE="$ROOT/src/parser/callable_parameter_source/composite_source/issuer.rs"
 FINALIZER="$ROOT/src/parser/source_seal/finalize.rs"
 POSTPASS="$ROOT/src/parser/postpass_envelope.rs"
 README="$ROOT/src/parser/callable_parameter_source/README.md"
 CARD="$ROOT/docs/development/current/main/investigations/normal-static-box-parent-source-d0-2026-08-23.md"
+RELATION_CARD="$ROOT/docs/development/current/main/investigations/normal-main-app-direct-callable-relation-d0-2026-08-23.md"
 INDEX="$ROOT/docs/tools/check-scripts-index.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
-guard_require_files "$TAG" "$SOURCE" "$TESTS" "$PARSER" "$FINALIZER" \
-  "$POSTPASS" "$README" "$CARD" "$INDEX"
+guard_require_files "$TAG" "$SOURCE" "$TESTS" "$PARSER" "$CALLABLE_SOURCE" \
+  "$PARAM_MODEL" "$PARAM_SESSION" "$COMPOSITE" "$FINALIZER" "$POSTPASS" \
+  "$README" "$CARD" "$RELATION_CARD" "$INDEX"
 
 [[ "$(rg -c 'struct ParserStaticBoxParentSourceAuthorityIssuerV1' "$SOURCE")" == 1 ]]
 [[ "$(rg -c 'pub\(in crate::parser\) fn issue_once' "$SOURCE")" == 1 ]]
@@ -25,6 +31,13 @@ guard_require_files "$TAG" "$SOURCE" "$TESTS" "$PARSER" "$FINALIZER" \
 [[ "$(rg -c 'OpenParserStaticBoxSourceTransactionV1::open' "$PARSER")" == 1 ]]
 [[ "$(rg -c 'register_prepared_static_box_source' "$PARSER")" == 1 ]]
 rg -q 'static_box_parent_source: ParserStaticBoxParentSourceDispositionV1' "$POSTPASS"
+rg -q 'CallableDeclarationIdentityV1' "$CALLABLE_SOURCE"
+rg -q 'callable_identity: CallableDeclarationIdentityV1' "$PARAM_MODEL"
+rg -q 'callable_identity: CallableDeclarationIdentityV1' "$SOURCE"
+rg -q 'commit_direct_method\(' "$SOURCE"
+rg -q 'commit_direct_method\(source_site, callable_identity\)' "$PARSER"
+rg -q 'callable_identity.clone\(\)' "$PARSER"
+rg -q 'same_as\(provider.callable_identity\(\)\)' "$COMPOSITE"
 
 if rg -n 'ASTNode|NormalCompileRequest|MirBuilder|ValueId|BasicBlockId|MirType|Recipe|Join|fallback|retry|parse_from_string|static[[:space:]]+Main' "$SOURCE"; then
   guard_fail "$TAG" "static parent issuer leaked downstream/name/reparse authority"
@@ -39,12 +52,15 @@ for needle in \
   'unsupported_static_parent_member_is_explicit_outside' \
   'multiple_static_methods_are_outside_the_first_cohort' \
   'ordinary_source_path_does_not_reuse_static_parent_seal' \
-  'mixed_program_is_outside_without_static_parent_repair'; do
+  'mixed_program_is_outside_without_static_parent_repair' \
+  'static_parent_and_parameter_row_share_the_existing_callable_identity'; do
   rg -q "$needle" "$TESTS" || guard_fail "$TAG" "missing focused evidence: $needle"
 done
 
 rg -q 'ParserStaticBoxParentSourceAuthorityIssuerV1::issue_once' "$README"
+rg -q 'CallableDeclarationIdentityV1' "$README"
 rg -q 'NORMAL-GENERAL-PROGRAM-PARSER-STATIC-BOX-PARENT-SOURCE-I0' "$CARD"
+rg -q 'NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-D0' "$RELATION_CARD"
 rg -q 'frontend_static_box_parent_source_i0_guard.sh' "$INDEX"
 
 for file in "$SOURCE" "$TESTS"; do

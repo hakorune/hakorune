@@ -1,4 +1,5 @@
 use crate::ast::BoxMethodInventoryOrdinalV1;
+use crate::parser::callable_source_anchor::CallableDeclarationIdentityV1;
 use crate::parser::source_authority::{ParserInvocationBrandV1, SourceBoxMethodSiteV1};
 use crate::parser::{NyashParser, ParseError};
 
@@ -30,6 +31,7 @@ impl ParserCallableParameterSourceSessionV1 {
         &mut self,
         source_site: SourceBoxMethodSiteV1,
         inventory_ordinal: BoxMethodInventoryOrdinalV1,
+        callable_identity: CallableDeclarationIdentityV1,
         kind: ParserCallableDeclarationKindV1,
         diagnostic_name: String,
         parameters: ParsedCallableParameterListV1,
@@ -66,6 +68,7 @@ impl ParserCallableParameterSourceSessionV1 {
             .push(ParserCallableParameterDeclarationSourceV1::new(
                 source_site,
                 inventory_ordinal,
+                callable_identity,
                 kind,
                 diagnostic_name,
                 rows,
@@ -112,6 +115,7 @@ impl NyashParser {
         &mut self,
         source_site: SourceBoxMethodSiteV1,
         inventory_ordinal: BoxMethodInventoryOrdinalV1,
+        callable_identity: CallableDeclarationIdentityV1,
         kind: ParserCallableDeclarationKindV1,
         diagnostic_name: String,
         parameters: ParsedCallableParameterListV1,
@@ -122,6 +126,7 @@ impl NyashParser {
             .commit(
                 source_site,
                 inventory_ordinal,
+                callable_identity,
                 kind,
                 diagnostic_name,
                 parameters,

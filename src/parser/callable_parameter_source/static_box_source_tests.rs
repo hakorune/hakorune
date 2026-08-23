@@ -30,6 +30,23 @@ fn bounded_static_box_parent_issues_one_parser_owned_ready_seal() {
 }
 
 #[test]
+fn static_parent_and_parameter_row_share_the_existing_callable_identity() {
+    let parsed = parse("static box Api { run(value) { return value } }");
+    let super::ParserCallableParameterSourceDispositionV1::Complete(catalog) =
+        parsed.callable_parameter_source()
+    else {
+        panic!("parameter catalog should be complete");
+    };
+    let parameter_identity = catalog.declarations()[0].callable_identity();
+    let ParserStaticBoxParentSourceDispositionV1::Ready(seal) = parsed.static_box_parent_source()
+    else {
+        panic!("bounded static Box parent should be source-ready");
+    };
+
+    assert!(seal.method_identity().same_as(parameter_identity));
+}
+
+#[test]
 fn unsupported_static_parent_member_is_explicit_outside() {
     let parsed = parse("static box Api { field run() { return 1 } }");
     assert!(matches!(

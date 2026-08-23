@@ -36,12 +36,13 @@ fn commit_pending_ordinary_method(
         member: state.source_tx.current_member_site(),
     };
     let committed = method.commit_direct(&mut state.source_tx)?;
-    let (inventory_ordinal, diagnostic_name, parameter_source) =
+    let (inventory_ordinal, diagnostic_name, parameter_source, callable_identity) =
         p.issue_committed_instance_box_method(committed)?;
     if let Some(parameters) = parameter_source.filter(|_| admit_direct_parameter_source) {
         p.commit_callable_parameter_source(
             source_site,
             inventory_ordinal,
+            callable_identity,
             crate::parser::callable_parameter_source::ParserCallableDeclarationKindV1::InstanceBoxMethod,
             diagnostic_name,
             parameters,

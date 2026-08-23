@@ -66,6 +66,12 @@ impl ParsedProgramWithCallableParameterSourceV1 {
         self.completed.static_box_parent_source()
     }
 
+    pub(in crate::parser) fn callable_parameter_source(
+        &self,
+    ) -> &ParserCallableParameterSourceDispositionV1 {
+        &self.parameter_source
+    }
+
     pub(in crate::parser) fn new(
         completed: CompletedParserPostpassV1,
         parameter_source: ParserCallableParameterSourceDispositionV1,

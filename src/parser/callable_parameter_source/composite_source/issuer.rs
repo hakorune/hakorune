@@ -179,6 +179,13 @@ fn find_source_row<'a>(
         if direct.kind() != DirectCallableDeclarationKindV1::StaticBoxMethod {
             return false;
         }
+        if !direct
+            .anchor()
+            .identity()
+            .same_as(provider.callable_identity())
+        {
+            return false;
+        }
         let SourceProgramCallablePathV1::BoxMethod {
             declaration,
             gate_path,

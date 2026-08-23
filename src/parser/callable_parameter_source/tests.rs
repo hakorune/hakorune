@@ -3,6 +3,7 @@ use crate::parser::source_authority::{
     ParserInvocationBrandV1, SourceBoxDeclarationSiteV1, SourceBoxMemberSiteV1,
     SourceBoxMethodSiteV1,
 };
+use crate::parser::callable_source_anchor::CallableDeclarationAnchorV1;
 use crate::parser::source_path::SourceBoxDeclarationPathV1;
 use crate::parser::{BuildMode, NyashParser, ParserBuildConfig};
 
@@ -27,6 +28,10 @@ fn first_method_inventory_ordinal() -> BoxMethodInventoryOrdinalV1 {
         .expect("fixture method")
         .site();
     ordinal
+}
+
+fn test_callable_identity() -> crate::parser::CallableDeclarationIdentityV1 {
+    CallableDeclarationAnchorV1::issue().identity()
 }
 
 #[test]
@@ -247,6 +252,7 @@ fn source_session_rejects_foreign_and_duplicate_method_sites() {
         .commit(
             site(foreign),
             first_method_inventory_ordinal(),
+            test_callable_identity(),
             ParserCallableDeclarationKindV1::StaticBoxMethod,
             "run".to_owned(),
             list(),
@@ -261,6 +267,7 @@ fn source_session_rejects_foreign_and_duplicate_method_sites() {
         .commit(
             site(brand.clone()),
             first_method_inventory_ordinal(),
+            test_callable_identity(),
             ParserCallableDeclarationKindV1::StaticBoxMethod,
             "run".to_owned(),
             list(),
@@ -270,6 +277,7 @@ fn source_session_rejects_foreign_and_duplicate_method_sites() {
         .commit(
             site(brand),
             first_method_inventory_ordinal(),
+            test_callable_identity(),
             ParserCallableDeclarationKindV1::StaticBoxMethod,
             "again".to_owned(),
             list(),

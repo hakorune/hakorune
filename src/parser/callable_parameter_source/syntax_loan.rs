@@ -173,6 +173,7 @@ mod tests {
     };
     use crate::parser::source_path::SourceBoxDeclarationPathV1;
     use crate::parser::NyashParser;
+    use crate::parser::callable_source_anchor::CallableDeclarationAnchorV1;
 
     use super::*;
     use crate::parser::callable_parameter_source::model::ParserCallableParameterSourceRowV1;
@@ -213,6 +214,7 @@ mod tests {
         let declaration = ParserCallableParameterDeclarationSourceV1::new(
             source_site,
             inventory_ordinal,
+            CallableDeclarationAnchorV1::issue().identity(),
             kind,
             diagnostic_name.to_owned(),
             vec![ParserCallableParameterSourceRowV1::ordinary(0, &parameter)].into_boxed_slice(),

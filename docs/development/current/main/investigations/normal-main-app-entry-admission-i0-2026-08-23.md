@@ -1,11 +1,11 @@
 ---
-Status: Waiting for relation I0 — implementation remains closed
+Status: Ready to reopen — relation I0 closed
 Date: 2026-08-23
 Decision: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-ENTRY-ADMISSION-I0
 ParentCurrentCard: docs/development/current/main/investigations/normal-main-app-entry-admission-d0-2026-08-23.md
 PrerequisiteExecutionRow: NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-I0
 ProductionCaller: 0 before and after I0
-ProductionEdit: none; parser-only admission remains after relation I0
+ProductionEdit: none; parser-only admission I0 is the next bounded slice
 CeremonyTier: I0 — bounded source admission
 ---
 
@@ -38,7 +38,7 @@ Non-claims:
   old-authority retirement, production switch, and performance.
 ```
 
-## Implementation contract (reopens after source relation I0)
+## Implementation contract (authorized after source relation I0)
 
 The planned I0 must add one parser source product, not a semantic or physical
 plan. It is not authorized until the missing relation card closes:
@@ -161,19 +161,16 @@ old raw-root authority must be retired atomically with parser I0
 the new module or touched source exceeds the 760-line split trigger
 ```
 
-## Current NoSafeSlice finding
+## Relation prerequisite closed
 
-The existing exact `SourceBoxMethodSiteV1` relation is useful coverage
-evidence, but it is not yet the opaque declaration relation required by this
-card. `ParserCallableParameterDeclarationSourceV1` carries the source site,
-kind, name, and parameter rows but not the existing parser-issued callable
-anchor. The static parent seal retains the direct method site but does not
-retain that anchor either. Constructing `MainAppReady` by joining those two
-products would therefore reopen a coordinate-based pairing boundary.
-
-Do not implement the entry issuer until the separate
-`NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-D0` closes
-this gap. The old raw-root authority remains unchanged while this is resolved.
+`NORMAL-GENERAL-PROGRAM-PARSER-MAIN-APP-DIRECT-CALLABLE-RELATION-D0` is now
+closed by the parser-only relation I0. The existing direct callable issuer
+remains the sole owner of `CallableDeclarationAnchorV1`; the parameter row
+and static-parent direct-member row carry only its comparison identity, and
+the static-parent issuer distinguishes relation mismatch from missing,
+foreign, and duplicate evidence. No Main/App issuer, Builder effect, or
+downstream consumer has been opened yet. The old raw-root authority remains
+unchanged for this next slice.
 
 ## Commit sequence
 
