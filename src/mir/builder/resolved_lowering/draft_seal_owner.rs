@@ -53,9 +53,9 @@ pub(in crate::mir::builder) struct CompletedFunctionDraftV1 {
 }
 
 pub(super) struct FunctionDraftSealReceiptV1 {
-    pub(super) signature: super::draft_seal::PreparedFunctionSignatureV1,
-    pub(super) phi: super::draft_seal::PreparedFunctionPhiClosureReceiptV1,
-    pub(super) stale_fact_count: usize,
+    pub(super) _signature: super::draft_seal::PreparedFunctionSignatureV1,
+    pub(super) _phi: super::draft_seal::PreparedFunctionPhiClosureReceiptV1,
+    pub(super) _stale_fact_count: usize,
 }
 
 /// Move-only candidate metadata that crosses the DraftSeal clone boundary.
@@ -110,16 +110,6 @@ impl CompletedCatalogedBoxCallableDraftV1 {
         }
     }
 
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn draft(&self) -> &MirFunction {
-        self.completed.draft()
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn key(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        &self.key
-    }
-
     pub(in crate::mir::builder) fn into_collector_parts(
         self,
     ) -> (FunctionDraftKeyV1, String, usize, MirFunction) {
@@ -147,9 +137,15 @@ pub(in crate::mir) enum FunctionDraftSealStageV1 {
 
 #[derive(Debug)]
 pub(super) enum FunctionDraftSealErrorV1 {
-    Exit(FunctionDraftSealPreparationErrorV1),
-    Projection(FunctionDraftSealProjectionErrorV1),
-    SessionClose(String),
+    Exit {
+        _error: FunctionDraftSealPreparationErrorV1,
+    },
+    Projection {
+        _error: FunctionDraftSealProjectionErrorV1,
+    },
+    SessionClose {
+        _detail: String,
+    },
 }
 
 pub(super) struct RejectedFunctionDraftSealV1<'builder> {
@@ -198,16 +194,18 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
             Err(error) => {
                 return Err(self.reject(
                     FunctionDraftSealStageV1::SessionClose,
-                    FunctionDraftSealErrorV1::SessionClose(error.to_string()),
+                    FunctionDraftSealErrorV1::SessionClose {
+                        _detail: error.to_string(),
+                    },
                 ))
             }
         };
         if self.session.builder_view().function_state.current_block != Some(exit_block(exit)) {
             return Err(self.reject(
                 FunctionDraftSealStageV1::SessionClose,
-                FunctionDraftSealErrorV1::SessionClose(
-                    "current block does not match the prepared exit block".to_string(),
-                ),
+                FunctionDraftSealErrorV1::SessionClose {
+                    _detail: "current block does not match the prepared exit block".to_string(),
+                },
             ));
         }
 
@@ -262,17 +260,19 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         let Some(expected_outer_block) = exit_plan.exit_block_for_site(outer_site) else {
             return Err(self.reject(
                 FunctionDraftSealStageV1::Exit,
-                FunctionDraftSealErrorV1::SessionClose(
-                    "exact-two outer Completion site is absent from the exit claim set".to_owned(),
-                ),
+                FunctionDraftSealErrorV1::SessionClose {
+                    _detail: "exact-two outer Completion site is absent from the exit claim set"
+                        .to_owned(),
+                },
             ));
         };
         if self.session.builder_view().function_state.current_block != Some(expected_outer_block) {
             return Err(self.reject(
                 FunctionDraftSealStageV1::SessionClose,
-                FunctionDraftSealErrorV1::SessionClose(
-                    "current block does not match the site-keyed outer exit claim".to_owned(),
-                ),
+                FunctionDraftSealErrorV1::SessionClose {
+                    _detail: "current block does not match the site-keyed outer exit claim"
+                        .to_owned(),
+                },
             ));
         }
 
@@ -282,9 +282,9 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
             let result: Result<_, (FunctionDraftSealStageV1, FunctionDraftSealErrorV1)> = (|| {
                 let function = builder.function_state.current_function.as_ref().ok_or((
                     FunctionDraftSealStageV1::Exit,
-                    FunctionDraftSealErrorV1::Projection(
-                        FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing,
-                    ),
+                    FunctionDraftSealErrorV1::Projection {
+                        _error: FunctionDraftSealProjectionErrorV1::CurrentFunctionMissing,
+                    },
                 ))?;
                 let frame_contract = function
                     .metadata
@@ -292,11 +292,11 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
                     .as_ref()
                     .ok_or((
                         FunctionDraftSealStageV1::Exit,
-                        FunctionDraftSealErrorV1::Projection(
-                            FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                        FunctionDraftSealErrorV1::Projection {
+                            _error: FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
                                 "pinned-Text frame is missing before DraftSeal".to_owned(),
                             ),
-                        ),
+                        },
                     ))?;
                 let plans = &function.metadata.pinned_text_access_plans;
                 let mut finish_blocks = Vec::new();
@@ -315,19 +315,21 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
                     .map_err(|error| {
                         (
                             FunctionDraftSealStageV1::Exit,
-                            FunctionDraftSealErrorV1::Projection(
-                                FunctionDraftSealProjectionErrorV1::PinnedTextResidence(error),
-                            ),
+                            FunctionDraftSealErrorV1::Projection {
+                                _error: FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                                    error,
+                                ),
+                            },
                         )
                     })?;
                 let normal_exit_count = u32::try_from(finish_blocks.len()).map_err(|_| {
                     (
                         FunctionDraftSealStageV1::Exit,
-                        FunctionDraftSealErrorV1::Projection(
-                            FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                        FunctionDraftSealErrorV1::Projection {
+                            _error: FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
                                 "pinned-Text normal exit count exceeds u32".to_owned(),
                             ),
-                        ),
+                        },
                     )
                 })?;
                 let backend_carrier = backend_carrier_lineage
@@ -339,11 +341,11 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
                     .map_err(|error| {
                         (
                             FunctionDraftSealStageV1::Exit,
-                            FunctionDraftSealErrorV1::Projection(
-                                FunctionDraftSealProjectionErrorV1::PinnedTextResidence(format!(
-                                    "{error:?}"
-                                )),
-                            ),
+                            FunctionDraftSealErrorV1::Projection {
+                                _error: FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                                    format!("{error:?}"),
+                                ),
+                            },
                         )
                     })?;
                 let frame_for_admission: PinnedTextBackendFrameBorrowV1<'_> =
@@ -359,11 +361,11 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
                     .map_err(|error| {
                         (
                             FunctionDraftSealStageV1::Exit,
-                            FunctionDraftSealErrorV1::Projection(
-                                FunctionDraftSealProjectionErrorV1::PinnedTextResidence(format!(
-                                    "{error:?}"
-                                )),
-                            ),
+                            FunctionDraftSealErrorV1::Projection {
+                                _error: FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                                    format!("{error:?}"),
+                                ),
+                            },
                         )
                     })?;
                 let frame_for_projection: PinnedTextBackendFrameBorrowV1<'_> =
@@ -378,9 +380,11 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
                         .map_err(|error| {
                             (
                                 FunctionDraftSealStageV1::Exit,
-                                FunctionDraftSealErrorV1::Projection(
-                                    FunctionDraftSealProjectionErrorV1::PinnedTextResidence(error),
-                                ),
+                                FunctionDraftSealErrorV1::Projection {
+                                    _error: FunctionDraftSealProjectionErrorV1::PinnedTextResidence(
+                                        error,
+                                    ),
+                                },
                             )
                         })?;
                 prepare_plan_from_projection(builder, projection, None)?
@@ -388,7 +392,7 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
                     .map_err(|error| {
                         (
                             FunctionDraftSealStageV1::Metadata,
-                            FunctionDraftSealErrorV1::Projection(error),
+                            FunctionDraftSealErrorV1::Projection { _error: error },
                         )
                     })
             })(
@@ -404,7 +408,9 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
             Err(error) => {
                 return Err(self.reject(
                     FunctionDraftSealStageV1::SessionClose,
-                    FunctionDraftSealErrorV1::SessionClose(error.to_string()),
+                    FunctionDraftSealErrorV1::SessionClose {
+                        _detail: error.to_string(),
+                    },
                 ))
             }
         };
@@ -434,17 +440,19 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         let Some(expected_outer_block) = exit_plan.exit_block_for_site(outer_site) else {
             return Err(self.reject(
                 FunctionDraftSealStageV1::Exit,
-                FunctionDraftSealErrorV1::SessionClose(
-                    "exact-two outer Completion site is absent from the exit claim set".to_string(),
-                ),
+                FunctionDraftSealErrorV1::SessionClose {
+                    _detail: "exact-two outer Completion site is absent from the exit claim set"
+                        .to_string(),
+                },
             ));
         };
         if self.session.builder_view().function_state.current_block != Some(expected_outer_block) {
             return Err(self.reject(
                 FunctionDraftSealStageV1::SessionClose,
-                FunctionDraftSealErrorV1::SessionClose(
-                    "current block does not match the site-keyed outer exit claim".to_string(),
-                ),
+                FunctionDraftSealErrorV1::SessionClose {
+                    _detail: "current block does not match the site-keyed outer exit claim"
+                        .to_string(),
+                },
             ));
         }
 
@@ -462,7 +470,9 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
             Err(error) => {
                 return Err(self.reject(
                     FunctionDraftSealStageV1::SessionClose,
-                    FunctionDraftSealErrorV1::SessionClose(error.to_string()),
+                    FunctionDraftSealErrorV1::SessionClose {
+                        _detail: error.to_string(),
+                    },
                 ))
             }
         };
@@ -598,7 +608,7 @@ fn stage_for_projection_error(
 
 impl From<FunctionDraftSealPreparationErrorV1> for FunctionDraftSealErrorV1 {
     fn from(error: FunctionDraftSealPreparationErrorV1) -> Self {
-        Self::Exit(error)
+        Self::Exit { _error: error }
     }
 }
 
@@ -618,7 +628,7 @@ fn prepare_detached_plan_with_exit_set(
         .map_err(|(_exit, error)| {
             (
                 stage_for_projection_error(&error),
-                FunctionDraftSealErrorV1::Projection(error),
+                FunctionDraftSealErrorV1::Projection { _error: error },
             )
         })?;
     prepare_plan_from_projection(builder, projection, candidate)
@@ -632,7 +642,7 @@ fn prepare_plan_from_projection(
     let phi = projection.prepare_phi_closure().map_err(|error| {
         (
             FunctionDraftSealStageV1::PhiClosure,
-            FunctionDraftSealErrorV1::Projection(error),
+            FunctionDraftSealErrorV1::Projection { _error: error },
         )
     })?;
     let lookup = builder.current_module.as_ref().map(|module| {
@@ -643,13 +653,13 @@ fn prepare_plan_from_projection(
         .map_err(|error| {
             (
                 FunctionDraftSealStageV1::TypeAnalysis,
-                FunctionDraftSealErrorV1::Projection(error),
+                FunctionDraftSealErrorV1::Projection { _error: error },
             )
         })?;
     let metadata = type_facts.prepare_metadata().map_err(|error| {
         (
             stage_for_projection_error(&error),
-            FunctionDraftSealErrorV1::Projection(error),
+            FunctionDraftSealErrorV1::Projection { _error: error },
         )
     })?;
     let stale = metadata
@@ -657,13 +667,13 @@ fn prepare_plan_from_projection(
         .map_err(|(_metadata, error)| {
             (
                 FunctionDraftSealStageV1::StaleFacts,
-                FunctionDraftSealErrorV1::Projection(error),
+                FunctionDraftSealErrorV1::Projection { _error: error },
             )
         })?;
     let mut plan = stale.verify().map_err(|error| {
         (
             FunctionDraftSealStageV1::Verification,
-            FunctionDraftSealErrorV1::Projection(error),
+            FunctionDraftSealErrorV1::Projection { _error: error },
         )
     })?;
     if let Some(candidate) = candidate {
@@ -672,7 +682,7 @@ fn prepare_plan_from_projection(
             .map_err(|error| {
                 (
                     FunctionDraftSealStageV1::Metadata,
-                    FunctionDraftSealErrorV1::Projection(error),
+                    FunctionDraftSealErrorV1::Projection { _error: error },
                 )
             })?;
     }

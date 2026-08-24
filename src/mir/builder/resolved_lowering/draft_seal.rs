@@ -571,9 +571,9 @@ impl PreparedFunctionDraftSealPlanV1 {
         super::draft_seal_owner::FunctionDraftSealReceiptV1,
     ) {
         let receipt = super::draft_seal_owner::FunctionDraftSealReceiptV1 {
-            signature: self.metadata.signature.clone(),
-            phi: self.metadata.phi,
-            stale_fact_count: self.stale.len(),
+            _signature: self.metadata.signature.clone(),
+            _phi: self.metadata.phi,
+            _stale_fact_count: self.stale.len(),
         };
         (self.into_session_commit_input(), receipt)
     }
