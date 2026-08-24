@@ -29,8 +29,8 @@ pub(super) struct ScriptSemanticLoweringState {
 enum ScriptDirectStaticLoweringProductsV1 {
     CompleteNoDirect,
     Direct {
-        publication_owner: VerifiedScriptDirectStaticResultPublicationOwnerV1,
-        recipe: VerifiedScriptDirectStaticRecipeV1,
+        _publication_owner: VerifiedScriptDirectStaticResultPublicationOwnerV1,
+        _recipe: VerifiedScriptDirectStaticRecipeV1,
     },
 }
 
@@ -55,8 +55,8 @@ impl ScriptSemanticLoweringState {
                     })?;
                 (
                     ScriptDirectStaticLoweringProductsV1::Direct {
-                        publication_owner,
-                        recipe,
+                        _publication_owner: publication_owner,
+                        _recipe: recipe,
                     },
                     ledger,
                 )
