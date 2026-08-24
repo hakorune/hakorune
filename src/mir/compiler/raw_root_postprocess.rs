@@ -43,7 +43,7 @@ pub(in crate::mir) struct RawAppPostprocessReadyInvocationV1 {
 struct RawPostprocessReadyCoreV1 {
     continuation: RawPostCallableMainContinuationV1,
     module_name: Box<str>,
-    runtime_inputs: RawRuntimeInputSnapshotV1,
+    _runtime_inputs: RawRuntimeInputSnapshotV1,
     completion: RawPreRootChildrenCompletionV1,
     helper_receipts: Box<[RawRootChildReceiptV1]>,
     physical: RawPostprocessPhysicalOwnerV1,
@@ -54,14 +54,14 @@ pub(in crate::mir) enum RawPostprocessRouteEvidenceV1 {
     Script {
         continuation: RawPostCallableMainContinuationV1,
         module_name: Box<str>,
-        runtime_inputs: RawRuntimeInputSnapshotV1,
+        _runtime_inputs: RawRuntimeInputSnapshotV1,
         completion: RawPreRootChildrenCompletionV1,
         helpers: Box<[RawRootChildReceiptV1]>,
     },
     App {
         continuation: RawPostCallableMainContinuationV1,
         module_name: Box<str>,
-        runtime_inputs: RawRuntimeInputSnapshotV1,
+        _runtime_inputs: RawRuntimeInputSnapshotV1,
         completion: RawPreRootChildrenCompletionV1,
         helpers: Box<[RawRootChildReceiptV1]>,
         callable_main: RawAppCallableMainOutcomeV1,
@@ -100,6 +100,7 @@ impl RawPostprocessEvidenceV1 {
         }
     }
 
+    #[cfg(feature = "vm-reference")]
     pub(in crate::mir) fn vm_decode_plan(
         &self,
     ) -> Result<super::source_entry_vm_reference::VmSourceEntryDecodePlanV1, ()> {
@@ -108,6 +109,7 @@ impl RawPostprocessEvidenceV1 {
             .map(super::source_entry_vm_reference::VmSourceEntryDecodePlanV1::from_builder)
     }
 
+    #[cfg(feature = "vm-reference")]
     pub(in crate::mir) fn main_entry_target_matches(&self) -> bool {
         self.selected_entry()
             .target_matches(self.witness.main_entry_target())
@@ -272,7 +274,7 @@ impl RawPostprocessReadyInvocationV1 {
             core: RawPostprocessReadyCoreV1 {
                 continuation,
                 module_name,
-                runtime_inputs,
+                _runtime_inputs: runtime_inputs,
                 completion,
                 helper_receipts,
                 physical,
@@ -293,7 +295,7 @@ impl RawPostprocessReadyInvocationV1 {
             core: RawPostprocessReadyCoreV1 {
                 continuation,
                 module_name,
-                runtime_inputs,
+                _runtime_inputs: runtime_inputs,
                 completion,
                 helper_receipts,
                 physical,
@@ -390,7 +392,7 @@ fn run_script_ready<'a>(
     let RawPostprocessReadyCoreV1 {
         continuation,
         module_name,
-        runtime_inputs,
+        _runtime_inputs: runtime_inputs,
         completion,
         helper_receipts,
         mut physical,
@@ -439,7 +441,7 @@ fn run_script_ready<'a>(
     let route = RawPostprocessRouteEvidenceV1::Script {
         continuation,
         module_name,
-        runtime_inputs,
+        _runtime_inputs: runtime_inputs,
         completion,
         helpers: helper_receipts,
     };
@@ -471,7 +473,7 @@ fn run_app_ready<'a>(
     let RawPostprocessReadyCoreV1 {
         continuation,
         module_name,
-        runtime_inputs,
+        _runtime_inputs: runtime_inputs,
         completion,
         helper_receipts,
         mut physical,
@@ -522,7 +524,7 @@ fn run_app_ready<'a>(
     let route = RawPostprocessRouteEvidenceV1::App {
         continuation,
         module_name,
-        runtime_inputs,
+        _runtime_inputs: runtime_inputs,
         completion,
         helpers: helper_receipts,
         callable_main,
