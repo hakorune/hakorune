@@ -185,14 +185,6 @@ impl<'builder> CanonicalFunctionLoweringSessionV1<'builder> {
         .map_err(CanonicalFunctionSessionErrorV1::Publication)
     }
 
-    fn capture(
-        mut self,
-        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
-    ) -> Result<MirFunction, CanonicalFunctionSessionErrorV1> {
-        let outcome = operation(self.builder);
-        self.close_unpublished(outcome)
-    }
-
     fn capture_pending_payload<P, E>(
         mut self,
         operation: impl FnOnce(&mut MirBuilder) -> Result<(MirFunction, P), E>,
@@ -489,20 +481,6 @@ impl MirBuilder {
             FunctionBodyCaptureV1::CanonicalClosedFamily,
         )
         .run(operation)
-    }
-
-    /// Return one restored canonical function draft without module publication.
-    pub(in crate::mir::builder) fn with_resolved_function_draft_session(
-        &mut self,
-        function_name: &str,
-        operation: impl FnOnce(&mut MirBuilder) -> Result<MirFunction, String>,
-    ) -> Result<MirFunction, CanonicalFunctionSessionErrorV1> {
-        CanonicalFunctionLoweringSessionV1::open(
-            self,
-            function_name,
-            FunctionBodyCaptureV1::CanonicalClosedFamily,
-        )
-        .capture(operation)
     }
 
     /// Open the canonical session without closing or extracting its
