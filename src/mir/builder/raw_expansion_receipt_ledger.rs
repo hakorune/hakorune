@@ -22,7 +22,7 @@ mod preflight;
 mod root_pair;
 
 pub(in crate::mir::builder) use root_pair::{
-    PreparedRawRootLedgerPairV1, RawRootMainCommitDispositionV1,
+    RawRootMainCommitDispositionV1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

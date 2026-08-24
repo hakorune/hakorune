@@ -4,7 +4,7 @@
 //! preserves the catalog's source identity while deriving the existing physical
 //! draft symbol and arity used by the normal collector compatibility boundary.
 
-use super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1};
+use super::calls::LegacyFunctionPendingSessionV1;
 use super::module_draft_collector::FunctionDraftKeyV1;
 use super::module_lowering_invocation::{ModuleLoweringPortChildErrorV1, ModuleLoweringPortV1};
 use crate::ast::{DeclarationAttrs, ParamDecl};

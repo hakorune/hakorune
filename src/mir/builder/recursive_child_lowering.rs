@@ -28,7 +28,6 @@ use super::raw_invocation_source_transport::{
     RawSourceTransportPortV1,
 };
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
-use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
 #[path = "normal_script_direct_static_claim_transport.rs"]

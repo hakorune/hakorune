@@ -7,7 +7,7 @@ use super::module_draft_collector::{
 use super::module_invocation_collection::{
     canonical_source_from_parts, physical_receipt_from_test, raw_source_from_parts,
     seal_canonical_single, seal_raw, CanonicalSingleCollectedInvocationDraftSetV1,
-    InvocationCollectionSealErrorV1, InvocationPhysicalReceiptV1, RawCollectedInvocationDraftSetV1,
+    InvocationCollectionSealErrorV1, InvocationPhysicalReceiptV1,
 };
 use super::module_invocation_identity::TestInvocationPreflightFactoryV1;
 use super::module_invocation_owner_chain::InvocationBranded;

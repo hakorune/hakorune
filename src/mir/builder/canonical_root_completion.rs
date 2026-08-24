@@ -15,7 +15,6 @@ use super::module_draft_collector::{
     RejectedCollectedDraftAdmissionV1,
 };
 use super::module_invocation_brand0::ActiveModuleInvocationV1;
-use super::module_invocation_callable_batch::CallableBatchShellFactV1;
 use super::module_invocation_identity::{ModuleInvocationFamilyV1, ModuleInvocationTokenV1};
 use super::module_invocation_owner_chain::{BrandedCollectorV1, BrandedShellV1, InvocationBranded};
 use super::module_invocation_session::{
