@@ -17,11 +17,11 @@ use crate::mir::source_call_target::{
 
 #[derive(Debug)]
 pub(super) enum NormalScriptDirectStaticLookupIssueV1 {
-    Import(Box<str>),
-    Targets(Box<str>),
-    Results(Box<str>),
-    PublicationOwner(Box<str>),
-    SourceLoan(Box<str>),
+    Import { _detail: Box<str> },
+    Targets { _detail: Box<str> },
+    Results { _detail: Box<str> },
+    PublicationOwner { _detail: Box<str> },
+    SourceLoan { _detail: Box<str> },
     Lookup(ScriptDirectStaticCallLookupErrorV1),
 }
 
@@ -45,27 +45,29 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
         let declarations = package.declaration_catalog();
         let imports =
             VerifiedStaticImportAliasViewV1::seal(declarations, import_rows.iter().cloned())
-                .map_err(|error| {
-                    NormalScriptDirectStaticLookupIssueV1::Import(format!("{error:?}").into())
+                .map_err(|error| NormalScriptDirectStaticLookupIssueV1::Import {
+                    _detail: format!("{error:?}").into(),
                 })?;
         let inventory =
             VerifiedWholeSourceStaticCallTargetInventoryV1::verify(declarations, &imports)
-                .map_err(|error| {
-                    NormalScriptDirectStaticLookupIssueV1::Targets(format!("{error:?}").into())
+                .map_err(|error| NormalScriptDirectStaticLookupIssueV1::Targets {
+                    _detail: format!("{error:?}").into(),
                 })?;
         let targets = inventory.into_targets();
         let results = crate::mir::callable_result_representation::VerifiedSameModuleCallableResultCatalogV1::verify(
             declarations,
             &targets,
         )
-        .map_err(|error| NormalScriptDirectStaticLookupIssueV1::Results(format!("{error:?}").into()))?;
+        .map_err(|error| NormalScriptDirectStaticLookupIssueV1::Results {
+            _detail: format!("{error:?}").into(),
+        })?;
         let publication_owner =
             VerifiedStaticCallResultPublicationOwnerV1::issue(declarations, &targets, &results)
-                .map_err(|error| {
-                    NormalScriptDirectStaticLookupIssueV1::PublicationOwner(
-                        format!("{error:?}").into(),
-                    )
-                })?;
+                .map_err(
+                    |error| NormalScriptDirectStaticLookupIssueV1::PublicationOwner {
+                        _detail: format!("{error:?}").into(),
+                    },
+                )?;
 
         let Some(neutral_window) = neutral_window else {
             return Ok((None, publication_owner));
@@ -89,8 +91,8 @@ impl ScriptDirectStaticCallLookupIssuerV1 {
                 )
                 .map_err(NormalScriptDirectStaticLookupIssueV1::Lookup)
             })
-            .map_err(|error| {
-                NormalScriptDirectStaticLookupIssueV1::SourceLoan(format!("{error:?}").into())
+            .map_err(|error| NormalScriptDirectStaticLookupIssueV1::SourceLoan {
+                _detail: format!("{error:?}").into(),
             })??;
 
         Ok((Some(lookup), publication_owner))
