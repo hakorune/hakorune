@@ -2536,3 +2536,7 @@ Focused tests remain 19/19; warnings are 493→485
 `94bed0540b` applies the same typed-evidence cleanup to parser module-row
 authority rejects; warnings are 485→483 (`private_interfaces=11`,
 `dead_code=472`), with 19/19 focused tests and all five guards green.
+
+`dc78128d1f` removes five caller-zero callable-result/parameter accessors while
+retaining the sealed fields; warnings are 483→478 (`private_interfaces=11`,
+`dead_code=467`), with 19/19 focused tests and all five guards green.
