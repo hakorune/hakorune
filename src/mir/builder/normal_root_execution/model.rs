@@ -26,7 +26,6 @@ struct PreparedNormalRootExecutionConsumptionSealV1;
 #[derive(Debug)]
 pub(in crate::mir) struct ConsumedNormalRootCallableSourceV1 {
     source: VerifiedFinalCallableProgramSourceV1,
-    mode: AdmittedNormalRootExecutionModeV1,
     root_execution: PreparedAdmittedNormalRootExpansionV1,
     _seal: ConsumedNormalRootCallableSourceSealV1,
 }
@@ -55,7 +54,6 @@ impl PreparedNormalRootExecutionConsumptionV1 {
     pub(in crate::mir) fn into_consumed_source(self) -> ConsumedNormalRootCallableSourceV1 {
         ConsumedNormalRootCallableSourceV1 {
             source: self.source,
-            mode: self.mode,
             root_execution: self.root_execution,
             _seal: ConsumedNormalRootCallableSourceSealV1,
         }
@@ -67,10 +65,23 @@ impl PreparedNormalRootExecutionConsumptionV1 {
     ) -> AdmittedNormalRootExecutionModeV1 {
         let Self {
             source,
-            mode,
+            mode: _,
             root_execution,
             _seal,
         } = self;
+        let mode = match source
+            .normal_root_execution()
+            .ready_source()
+            .expect("consumed normal-root source stores only preserved Ready")
+            .role()
+        {
+            crate::parser::ParserNormalRootExecutionRoleV1::App => {
+                AdmittedNormalRootExecutionModeV1::App
+            }
+            crate::parser::ParserNormalRootExecutionRoleV1::ProgramRuntime => {
+                AdmittedNormalRootExecutionModeV1::ProgramRuntime
+            }
+        };
         root_execution.discard_unconnected();
         source.discard_at_named_root_execution_terminal();
         mode
@@ -78,10 +89,6 @@ impl PreparedNormalRootExecutionConsumptionV1 {
 }
 
 impl ConsumedNormalRootCallableSourceV1 {
-    pub(in crate::mir) const fn mode(&self) -> AdmittedNormalRootExecutionModeV1 {
-        self.mode
-    }
-
     pub(in crate::mir) fn source(&self) -> &VerifiedFinalCallableProgramSourceV1 {
         &self.source
     }

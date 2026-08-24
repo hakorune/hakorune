@@ -13,8 +13,7 @@ use super::module_lifecycle::RootCallableCapturePortV1;
 use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::normal_callable_semantic_loan_port::NormalCallableSemanticPackagePortAdapterV1;
-use super::normal_script_pre_effect_source_observation::
-    CanonicalScriptCPreparedLoweringSourceV1;
+use super::normal_script_pre_effect_source_observation::CanonicalScriptCPreparedLoweringSourceV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
     PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanPartsV1,
@@ -31,7 +30,6 @@ use super::{
 };
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
 use crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1;
-use crate::mir::resolved_semantics::ScriptResolverDeferredV1;
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -81,7 +79,6 @@ pub(super) struct ProgramDeferredStaticBoxLifecycleV1 {
 
 pub(super) enum NormalScriptRootLoweringMode<'source> {
     Complete(CanonicalScriptCPreparedLoweringSourceV1<'source>),
-    Deferred(ScriptResolverDeferredV1),
     Unavailable,
 }
 
@@ -180,11 +177,12 @@ impl MirBuilder {
         collector.install_static_result_publication_owner(static_result_publication_owner)?;
         let result = {
             let mut module_port = ModuleLoweringPortV1::from_collector(&mut collector);
-            let mut port = RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope(
-                &mut module_port,
-                runtime_inputs.cleanup_exit_policy(),
-                callable_loop_root_scope,
-            );
+            let mut port =
+                RawInvocationChildPortV1::new_with_cleanup_exit_policy_and_callable_loop_scope(
+                    &mut module_port,
+                    runtime_inputs.cleanup_exit_policy(),
+                    callable_loop_root_scope,
+                );
             match script_mode {
                 NormalScriptRootLoweringMode::Complete(source) => port
                     .with_script_semantic_source_v1(source, |port| {
@@ -200,26 +198,6 @@ impl MirBuilder {
                             target_capability,
                         )
                     }),
-                NormalScriptRootLoweringMode::Deferred(observation) => {
-                    port.with_script_deferred_observation(observation, |port| {
-                        port.with_source_transport_v1(
-                            RawInvocationSourceTransportV1::script_root(()),
-                            |port, ()| {
-                                self.lower_prepared_program_root_with_callable_mode_v1(
-                                    work,
-                                    snapshot,
-                                    expansion,
-                                    materialization,
-                                    runtime_inputs,
-                                    declaration_facts,
-                                    callable_mode,
-                                    port,
-                                    target_capability,
-                                )
-                            },
-                        )
-                    })
-                }
                 NormalScriptRootLoweringMode::Unavailable => port.with_source_transport_v1(
                     RawInvocationSourceTransportV1::script_root(()),
                     |port, ()| {

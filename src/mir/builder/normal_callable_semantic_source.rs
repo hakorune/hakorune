@@ -314,12 +314,6 @@ impl<'source, 'loan> VerifiedNormalCallableSemanticLoanV1<'source, 'loan> {
     ) {
         (self.lineage, self.source_ingress)
     }
-
-    pub(super) fn lineage(
-        &self,
-    ) -> &super::raw_invocation_source_transport::RawInvocationRootLineageV1 {
-        &self.lineage
-    }
 }
 
 impl<'source> PreparedCallableLoopIngressV1<'source> {

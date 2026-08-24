@@ -4,19 +4,17 @@
 //! that existing admission into the work plan and performs the old root
 //! statement classification; it does not issue Script semantic rows.
 
-use super::super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
-use super::super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
-use super::{
-    classify_statement, collect_constructor_demand_expectations,
-    issue_manifest_for_disposition,
-    PreparedProgramRootImmediateWorkV1, PreparedProgramRootRuntimeStatementV1,
-    PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanSealV1,
-    PreparedProgramRootWorkPlanV1, ProgramRootStatementDispositionV1,
-    ProgramRootTerminalScheduleV1, ProgramRootWorkPlanAdmissionV1,
-};
 use super::super::callable_declaration_catalog::VerifiedSelectedNormalCallableSourceInventoryV1;
 use super::super::normal_instance_constructor_admission::{
     InstanceConstructorDemandManifestBuilderV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
+};
+use super::super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
+use super::super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
+use super::{
+    classify_statement, collect_constructor_demand_expectations, issue_manifest_for_disposition,
+    PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanSealV1,
+    PreparedProgramRootWorkPlanV1, ProgramRootStatementDispositionV1,
+    ProgramRootTerminalScheduleV1, ProgramRootWorkPlanAdmissionV1,
 };
 use crate::ast::ASTNode;
 
@@ -106,7 +104,8 @@ impl PreparedProgramRootWorkPlanV1 {
                 }
             }
         }
-        let runtime = PreparedProgramRootRuntimeWorkV1::prepare(runtime_statements, work_plan_admission);
+        let runtime =
+            PreparedProgramRootRuntimeWorkV1::prepare(runtime_statements, work_plan_admission);
         let constructor_demand_manifest = match work_plan_admission {
             ProgramRootWorkPlanAdmissionV1::RawCompatibility => None,
             ProgramRootWorkPlanAdmissionV1::SelectedNormal => Some(demand_manifest.finish()),
