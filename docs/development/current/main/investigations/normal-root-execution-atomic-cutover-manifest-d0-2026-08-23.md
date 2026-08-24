@@ -1759,11 +1759,25 @@ and the test fingerprint moved from 661 to 657 warnings
 (`private_interfaces=11`, `dead_code=646`; all non-structural lint categories
 remain zero).
 
+The following collection-literal facade cleanup is landed as `40b9b1350d`:
+
+```text
+40b9b1350d  refactor: remove unused collection literal facades
+```
+
+The unreferenced non-port array/map convenience wrappers were removed; the
+port-aware literal owners used by production and tests remain unchanged. No
+array/map lowering, recursive child-port, or collection instruction behavior
+changed. The focused `normal_root_execution` suite passes 19 tests, and the
+test fingerprint moved from 657 to 656 warnings
+(`private_interfaces=11`, `dead_code=645`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 646 `dead_code` warnings are existing disconnected
+visibility. The remaining 645 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
