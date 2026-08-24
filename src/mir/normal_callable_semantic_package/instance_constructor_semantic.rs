@@ -21,7 +21,7 @@ pub(crate) enum InstanceConstructorSemanticBatchIssueV1 {
     ResolverDeferred(SelectedCallableResolverDeferredBatchV1),
     MissingRoot,
     RootProfileMismatch,
-    SourceProjection(String),
+    SourceProjection { _error: String },
 }
 
 #[derive(Debug)]
@@ -191,7 +191,9 @@ pub(crate) fn issue_instance_constructor_semantic_batch_v1(
                     view.root_profile(),
                 )
                 .map_err(|error| {
-                    InstanceConstructorSemanticBatchIssueV1::SourceProjection(error.to_string())
+                    InstanceConstructorSemanticBatchIssueV1::SourceProjection {
+                        _error: error.to_string(),
+                    }
                 })?;
                 rows.push(VerifiedInstanceConstructorSemanticRowV1 {
                     source_id,

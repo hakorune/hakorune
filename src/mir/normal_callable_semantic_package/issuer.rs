@@ -311,7 +311,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             (
                 NormalCallableDynamicProjectionV1::Selected {
                     batch_slot: dynamic_batch_slot,
-                    owner: dynamic_owner,
+                    _owner: dynamic_owner,
                     source: Rc::new(dynamic_source),
                     program,
                 },

@@ -61,7 +61,7 @@ pub(super) enum NormalCallableDynamicProjectionV1 {
     ValidUnselected,
     Selected {
         batch_slot: u32,
-        owner: FunctionOwnerIdV1,
+        _owner: FunctionOwnerIdV1,
         source: Rc<VerifiedSourceBackedDynamicCallableV1>,
         program: VerifiedDynamicExitTransactionCoSealV1,
     },
