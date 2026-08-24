@@ -1288,3 +1288,18 @@ changed. The focused `normal_root_execution` suite passes 19 tests, all five
 reusable guards remain green, and the test fingerprint moved from 806 to 805
 warnings (`private_interfaces=79`, `private_bounds=0`; non-structural lint
 categories remain zero).
+
+The following Raw-root physical parts visibility slice is landed as
+`ec2801c134`:
+
+```text
+ec2801c134  refactor: narrow raw root physical parts
+```
+
+The Raw-root post-body physical `into_parts` handoff is consumed only by the
+same module's root-batch terminal, so its boundary now matches the
+module-private ledger product. No root-batch or physical-drain behavior
+changed. The focused `normal_root_execution` suite passes 19 tests, all five
+reusable guards remain green, and the test fingerprint moved from 805 to 804
+warnings (`private_interfaces=78`, `private_bounds=0`; non-structural lint
+categories remain zero).
