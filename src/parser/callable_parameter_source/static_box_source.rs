@@ -250,7 +250,9 @@ pub(in crate::parser) enum ParserStaticBoxParentSourceDispositionV1 {
     Outside(ParserStaticBoxParentOutsideReasonV1),
     SourceAuthorityUnavailable(ParserStaticBoxParentSourceUnavailableV1),
     Incomplete(ParserStaticBoxParentSourceIncompleteV1),
-    IntegrityInvalid(ParserStaticBoxParentSourceIntegrityIssueV1),
+    IntegrityInvalid {
+        _error: ParserStaticBoxParentSourceIntegrityIssueV1,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -324,14 +326,14 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
             );
         }
         if !prepared.brand.same_as(prepared.box_site.path().brand()) {
-            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid(
-                ParserStaticBoxParentSourceIntegrityIssueV1::ForeignParserBrand,
-            );
+            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                _error: ParserStaticBoxParentSourceIntegrityIssueV1::ForeignParserBrand,
+            };
         }
         if usize::try_from(prepared.member_count).ok() != Some(prepared.rows.len()) {
-            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid(
-                ParserStaticBoxParentSourceIntegrityIssueV1::MemberCoverageMismatch,
-            );
+            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                _error: ParserStaticBoxParentSourceIntegrityIssueV1::MemberCoverageMismatch,
+            };
         }
         if prepared
             .rows
@@ -371,9 +373,9 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
             })
             .collect::<Vec<_>>();
         if coordinate_matches.len() > 1 {
-            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid(
-                ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
-            );
+            return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                _error: ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
+            };
         }
         let identity_matches = callable_rows
             .iter()
@@ -387,18 +389,18 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                     ParserStaticBoxParentSourceIncompleteV1::StaticMethodSourceMissing,
                 )
             }
-            0 => ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid(
-                ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
-            ),
+            0 => ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                _error: ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
+            },
             1 => {
                 if !callable_row_matches(
                     identity_matches[0],
                     prepared.box_site.path(),
                     method_site.member_site(),
                 ) {
-                    return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid(
-                        ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
-                    );
+                    return ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                        _error: ParserStaticBoxParentSourceIntegrityIssueV1::MethodRelationMismatch,
+                    };
                 }
                 let member_kinds = prepared
                     .rows
@@ -415,9 +417,9 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                     method_identity: method_identity.clone(),
                 })
             }
-            _ => ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid(
-                ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
-            ),
+            _ => ParserStaticBoxParentSourceDispositionV1::IntegrityInvalid {
+                _error: ParserStaticBoxParentSourceIntegrityIssueV1::DuplicateStaticMethodSource,
+            },
         }
     }
 }

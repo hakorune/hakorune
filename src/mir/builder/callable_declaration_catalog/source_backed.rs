@@ -23,7 +23,9 @@ use super::{
 
 #[derive(Debug)]
 pub(crate) enum SourceBackedCallableCatalogIssueV1 {
-    ParserSyntax(FinalCallableSemanticSyntaxLoanErrorV1),
+    ParserSyntax {
+        _error: FinalCallableSemanticSyntaxLoanErrorV1,
+    },
     SourceShape,
     ArityOverflow,
     DuplicateCanonicalKey,
@@ -254,5 +256,5 @@ pub(in crate::mir) fn issue_source_backed_same_module_callable_catalog_v1(
                 selected: selected_identities.into_boxed_slice(),
             })
         })
-        .map_err(SourceBackedCallableCatalogIssueV1::ParserSyntax)?
+        .map_err(|_error| SourceBackedCallableCatalogIssueV1::ParserSyntax { _error })?
 }
