@@ -619,3 +619,31 @@ cargo test --profile quick --lib normal_callable_semantic_package
 The same test fingerprint moved from 1063 to 1044 warnings. The remaining
 warnings are pre-existing broad debt (including intentionally retained typed
 reject payloads); they are not claimed as cleared by this R0 slice.
+
+The next bounded R0 slice is landed as `17f3757c36`:
+
+```text
+17f3757c36  refactor: retire stale root warning transport
+```
+
+It removes the caller-zero semantic lineage accessor, the duplicate mode field
+from the consumed source receipt, the unconstructed deferred root-lowering
+variant, and two unused production imports. The prepared receipt still owns
+the test-terminal mode observation, which is derived from the preserved parser
+root relation; no source authority or production route was added.
+
+Acceptance for this slice:
+
+```text
+normal_root_execution                 -> 19 passed; 0 failed
+normal_callable_semantic_package      -> 39 passed; 0 failed
+normal_default_root_catalog_lifecycle -> current 6/10; parent 6/10
+program_root_work_plan                -> current 2/9; parent 2/9
+```
+
+The two partial focused suites reproduce their existing baseline failures
+(`mir/script-neutral-window/work-plan-edge` and
+`mir/instance-constructor-source/cohort-missing`); they are classified as
+known baseline debt, not current-change failures. The same test fingerprint
+moved from 1044 to 1040 warnings, with zero warning records in all four
+touched files. The five reusable guards and `git diff --check` are green.
