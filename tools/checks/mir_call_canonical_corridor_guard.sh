@@ -20,6 +20,8 @@ CALLEE_DEFS="$ROOT_DIR/crates/hakorune_mir_defs/src/call_unified.rs"
 SIMPLIFY_FLOW="$ROOT_DIR/src/mir/passes/simplify_cfg/flow.rs"
 VALUE_CONSUMER="$ROOT_DIR/src/mir/value_consumer.rs"
 ESCAPE_BARRIER="$ROOT_DIR/src/mir/escape_barrier.rs"
+OWNERSHIP_VERIFY="$ROOT_DIR/src/mir/ownership_ssa/verify.rs"
+OWNERSHIP_TESTS="$ROOT_DIR/src/mir/ownership_ssa/tests.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -32,7 +34,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -80,6 +82,18 @@ require "$ESCAPE_BARRIER" "targetless_typed_callees_add_no_target_barrier"
 require "$ROOT_DIR/src/mir/verification/fastmem/tests.rs" "rejects_memop_value_escape_to_typed_value_target"
 require "$ROOT_DIR/src/mir/verification/fastmem/tests.rs" "rejects_memop_value_escape_to_closure_capture"
 require "$ROOT_DIR/src/mir/verification/fastmem/tests.rs" "keeps_legacy_func_as_fastmem_ordinary_use"
+require "$OWNERSHIP_VERIFY" "fn verify_call_ownership"
+require "$OWNERSHIP_VERIFY" "None => Some(func)"
+require "$OWNERSHIP_VERIFY" "Callee::Method {"
+require "$OWNERSHIP_VERIFY" "Callee::Value(receiver)"
+require "$OWNERSHIP_VERIFY" "Callee::Closure { .. }"
+require "$OWNERSHIP_VERIFY" "instruction.used_values()"
+require "$OWNERSHIP_TESTS" "typed_targetless_call_ignores_legacy_func"
+require "$OWNERSHIP_TESTS" "typed_method_and_value_targets_accept_known_trivial_values"
+require "$OWNERSHIP_TESTS" "typed_method_and_value_targets_reject_managed_or_unknown_values"
+require "$OWNERSHIP_TESTS" "typed_managed_target_fails_before_generic_liveness"
+require "$OWNERSHIP_TESTS" "typed_closure_operands_use_generic_liveness_not_managed_call_policy"
+require "$OWNERSHIP_TESTS" "legacy_call_still_requires_a_known_trivial_func"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -121,6 +135,8 @@ for relative in (
     "src/mir/passes/simplify_cfg/flow.rs",
     "src/mir/value_consumer.rs",
     "src/mir/escape_barrier.rs",
+    "src/mir/ownership_ssa/verify.rs",
+    "src/mir/ownership_ssa/tests.rs",
     "src/mir/instruction/tests.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
@@ -235,6 +251,29 @@ if role_window.count("EscapeBarrier::Capture") != 1 or role_window.count("Escape
     raise SystemExit("escape Call arm lost the accepted Call/Capture role matrix")
 if "func" in role_window:
     raise SystemExit("escape Call arm reintroduced legacy func as a shared barrier")
+
+ownership = (root / "src/mir/ownership_ssa/verify.rs").read_text()
+ownership_start = ownership.index("fn verify_call_ownership")
+ownership_end = ownership.index("fn process_instruction", ownership_start)
+ownership_window = ownership[ownership_start:ownership_end]
+for token in (
+    "None => Some(func)",
+    "Callee::Global",
+    "Callee::Extern",
+    "Callee::Constructor",
+    "Callee::Method",
+    "Callee::Closure",
+    "Callee::Value",
+    "MirOwnershipKindV1::None",
+    "ManagedCallOwnershipUnsupported",
+):
+    if token not in ownership_window:
+        raise SystemExit(f"ownership Call policy lost {token}")
+typed_window = ownership_window[ownership_window.index("Some(Callee::"):]
+if "func" in typed_window:
+    raise SystemExit("typed ownership Call policy re-read legacy func")
+if "instruction.used_values()" not in ownership[ownership.index("fn process_instruction"):]:
+    raise SystemExit("ownership verifier lost generic used_values liveness")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

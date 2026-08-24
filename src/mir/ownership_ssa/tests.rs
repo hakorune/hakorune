@@ -1,8 +1,9 @@
 use super::*;
+use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::edge_args::JumpArgsLayout;
 use crate::mir::{
-    BasicBlock, BasicBlockId, EdgeArgs, EffectMask, FunctionSignature, MirFunction, MirInstruction,
-    MirType, ValueId,
+    BasicBlock, BasicBlockId, Callee, ConstValue, EdgeArgs, EffectMask, FunctionSignature,
+    MirFunction, MirInstruction, MirType, ValueId,
 };
 
 fn bb(raw: u32) -> BasicBlockId {
@@ -81,6 +82,41 @@ fn ret(function: &mut MirFunction, block: u32, result: u32) {
         .unwrap()
         .set_terminator(MirInstruction::Return {
             value: Some(value(result)),
+        });
+}
+
+fn none_result_call(
+    callee: Option<Callee>,
+    func: ValueId,
+    args: Vec<ValueId>,
+    dst: Option<ValueId>,
+) -> (MirFunction, OwnershipFunctionAbiV1) {
+    let (mut function, abi) = function(&[], 1);
+    let abi = OwnershipFunctionAbiV1::new(abi.owner(), Vec::new(), FunctionResultOwnershipV1::None);
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .add_instruction(MirInstruction::Call {
+            dst,
+            func,
+            callee,
+            args,
+            effects: EffectMask::PURE,
+        });
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    (function, abi)
+}
+
+fn define_trivial_value(function: &mut MirFunction, raw: u32) {
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .add_instruction(MirInstruction::Const {
+            dst: value(raw),
+            value: ConstValue::Integer(0),
         });
 }
 
@@ -402,6 +438,174 @@ fn managed_call_shape_without_abi_witness_is_rejected() {
         .get_block_mut(bb(0))
         .unwrap()
         .set_terminator(MirInstruction::Return { value: None });
+    assert!(matches!(
+        verify_ownership_ssa_v1(&function, &abi),
+        Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { .. })
+    ));
+}
+
+#[test]
+fn typed_targetless_call_ignores_legacy_func() {
+    let shapes = [
+        Callee::Global("owner/0".to_string()),
+        Callee::Extern("env.owner/0".to_string()),
+        Callee::Constructor {
+            box_type: "OwnerBox".to_string(),
+        },
+        Callee::Method {
+            box_name: "OwnerBox".to_string(),
+            method: "owner".to_string(),
+            receiver: None,
+            certainty: TypeCertainty::Known,
+            box_kind: CalleeBoxKind::UserDefined,
+        },
+    ];
+    for callee in shapes {
+        let (function, abi) = none_result_call(Some(callee), ValueId::new(999), vec![], None);
+        assert!(verify_ownership_ssa_v1(&function, &abi).is_ok());
+    }
+}
+
+#[test]
+fn typed_method_and_value_targets_accept_known_trivial_values() {
+    let shapes = [
+        Callee::Method {
+            box_name: "OwnerBox".to_string(),
+            method: "owner".to_string(),
+            receiver: Some(value(10)),
+            certainty: TypeCertainty::Known,
+            box_kind: CalleeBoxKind::RuntimeData,
+        },
+        Callee::Value(value(10)),
+    ];
+    for callee in shapes {
+        let (mut function, abi) = none_result_call(Some(callee), ValueId::INVALID, vec![], None);
+        define_trivial_value(&mut function, 10);
+        assert!(verify_ownership_ssa_v1(&function, &abi).is_ok());
+    }
+}
+
+#[test]
+fn typed_method_and_value_targets_reject_managed_or_unknown_values() {
+    let (mut borrowed_function, borrowed_abi) = function(&[MirOwnershipKindV1::Borrowed], 1);
+    let borrowed_abi = OwnershipFunctionAbiV1::new(
+        borrowed_abi.owner(),
+        vec![MirOwnershipKindV1::Borrowed],
+        FunctionResultOwnershipV1::None,
+    );
+    borrowed_function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Method {
+                box_name: "OwnerBox".to_string(),
+                method: "owner".to_string(),
+                receiver: Some(value(0)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+    borrowed_function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    assert!(matches!(
+        verify_ownership_ssa_v1(&borrowed_function, &borrowed_abi),
+        Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { .. })
+    ));
+
+    let (unknown_function, unknown_abi) = none_result_call(
+        Some(Callee::Value(value(999))),
+        ValueId::INVALID,
+        vec![],
+        None,
+    );
+    assert!(matches!(
+        verify_ownership_ssa_v1(&unknown_function, &unknown_abi),
+        Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { .. })
+    ));
+}
+
+#[test]
+fn typed_managed_target_fails_before_generic_liveness() {
+    let (mut function, abi) = function(&[MirOwnershipKindV1::Owned], 1);
+    let abi = OwnershipFunctionAbiV1::new(
+        abi.owner(),
+        vec![MirOwnershipKindV1::Owned],
+        FunctionResultOwnershipV1::None,
+    );
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Value(value(0))),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    assert!(matches!(
+        verify_ownership_ssa_v1(&function, &abi),
+        Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { .. })
+    ));
+}
+
+#[test]
+fn typed_call_arguments_keep_the_existing_trivial_only_policy() {
+    let (mut function, abi) = function(&[MirOwnershipKindV1::Borrowed], 1);
+    let abi = OwnershipFunctionAbiV1::new(
+        abi.owner(),
+        vec![MirOwnershipKindV1::Borrowed],
+        FunctionResultOwnershipV1::None,
+    );
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .add_instruction(MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Global("owner/1".to_string())),
+            args: vec![value(0)],
+            effects: EffectMask::PURE,
+        });
+    function
+        .get_block_mut(bb(0))
+        .unwrap()
+        .set_terminator(MirInstruction::Return { value: None });
+    assert!(matches!(
+        verify_ownership_ssa_v1(&function, &abi),
+        Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { .. })
+    ));
+}
+
+#[test]
+fn typed_closure_operands_use_generic_liveness_not_managed_call_policy() {
+    let (mut function, abi) = none_result_call(
+        Some(Callee::Closure {
+            params: vec!["x".to_string()],
+            captures: vec![("capture".to_string(), value(10))],
+            me_capture: Some(value(11)),
+        }),
+        ValueId::new(999),
+        vec![],
+        None,
+    );
+    define_trivial_value(&mut function, 10);
+    define_trivial_value(&mut function, 11);
+    assert!(verify_ownership_ssa_v1(&function, &abi).is_ok());
+}
+
+#[test]
+fn legacy_call_still_requires_a_known_trivial_func() {
+    let (function, abi) = none_result_call(None, ValueId::new(999), vec![], None);
     assert!(matches!(
         verify_ownership_ssa_v1(&function, &abi),
         Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { .. })

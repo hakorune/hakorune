@@ -250,13 +250,28 @@ expressions, one FastMem shared extraction plus three FastMem allowlist arms, an
 one opt-in Rust escape consumer. The structural helper supplies occurrences;
 each consumer retains its barrier/allowlist policy.
 
-R4e ownership policy design stop — `MIR-CALL-CANONICAL-OWNERSHIP-POLICY-D0`:
-Decision: do not mechanically apply generic Callee occurrences to Ownership SSA; seal an explicit managed/unknown role matrix first.
+R4e D0 accepted — `MIR-CALL-CANONICAL-OWNERSHIP-POLICY-D0`:
+Decision: do not mechanically apply generic Callee occurrences to Ownership SSA; use the explicit managed/unknown role matrix below.
 Source authority + canonical issuer: `Callee` projection owns occurrences; Ownership SSA classification/ABI owns kinds and policy; no callee ABI issuer exists yet.
 Non-authority: typed `func`/`INVALID`, `used_values`, variant spelling, backend/runtime inference, JoinIR/Query/CallLike, PyVM/reference/Python.
-Fail-fast boundary: selected managed or unknown roles reject before liveness/witness seal; legacy `None` may read `func` once, typed `Some` never does.
-Smallest next slice: seven-shape role matrix, caller-zero scheduling, exact positive/negative/error-precedence tests, and shared guard; no verifier activation before acceptance.
+Fail-fast boundary: managed or unknown typed targets reject before liveness/witness seal; legacy `None` retains its `func` check once, typed `Some` never reads `func`; verifier activation remains zero.
+Smallest next slice: replace only the Call arm in `verify_instruction_kinds`, add exact positive/negative/error-precedence tests, and extend the shared guard; no production witness installer.
 Non-claims: ownership ABI/witness activation, managed-call support, R5/R6, backend changes, JoinIR/query/CallLike retirement, and warning cleanup; census is `ownership_ssa/verify.rs` Call scan -> liveness/witness and conditional backend preflight.
+
+### R4e accepted ownership role matrix
+
+| Call shape | target authority | ownership treatment | legacy field |
+| --- | --- | --- | --- |
+| `None` | legacy `func` | preserve current known-`None` requirement; args/dst keep current `None`-only policy | `func` is read once |
+| `Some(Global/Extern/Constructor)` | no target operand | args/dst keep current `None`-only policy | ignored, including `INVALID` |
+| `Some(Method { receiver: None, .. })` | no target operand | args/dst keep current `None`-only policy; static final form remains qualified `Global` | ignored |
+| `Some(Method { receiver: Some(v), .. })` | receiver `v` | receiver, args, and dst must be known `None`; managed/unknown rejects before liveness | ignored |
+| `Some(Value(v))` | target value `v` | target, args, and dst must be known `None`; managed/unknown rejects before liveness | ignored |
+| `Some(Closure { captures, me_capture, .. })` | pre-canonical constructor operands | captures/me use generic `used_values` liveness; no managed-call target predicate; existing closure-shape canonicalization remains authoritative | ignored |
+
+The matrix is a policy over the structural occurrence projection, not a new
+ownership receipt. `ManagedCallOwnershipUnsupported` remains the fail-fast
+terminal until a separately named managed-call ABI issuer exists.
 
 R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
 `Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`

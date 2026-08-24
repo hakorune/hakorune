@@ -4,7 +4,7 @@ use super::model::{
     collect_ownership_operations, FunctionResultOwnershipV1, MirOwnershipKindV1,
     OwnershipDispositionV1, OwnershipFunctionAbiV1, VerifiedOwnershipSsaV1,
 };
-use crate::mir::{BasicBlockId, MirFunction, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, Callee, MirFunction, MirInstruction, ValueId};
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 type LiveSet = BTreeSet<ValueId>;
@@ -110,22 +110,52 @@ fn verify_instruction_kinds(
                     });
                 }
                 MirInstruction::Call {
-                    dst, func, args, ..
-                } if kinds.get(func) != Some(&MirOwnershipKindV1::None)
-                    || args
-                        .iter()
-                        .any(|value| kinds.get(value) != Some(&MirOwnershipKindV1::None))
-                    || dst.is_some_and(|value| {
-                        kinds.get(&value) != Some(&MirOwnershipKindV1::None)
-                    }) =>
-                {
-                    return Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported {
-                        block: block.id,
-                    });
-                }
+                    dst,
+                    func,
+                    callee,
+                    args,
+                    ..
+                } => verify_call_ownership(block.id, *func, callee.as_ref(), args, *dst, kinds)?,
                 _ => {}
             }
         }
+    }
+    Ok(())
+}
+
+fn verify_call_ownership(
+    block: BasicBlockId,
+    func: ValueId,
+    callee: Option<&Callee>,
+    args: &[ValueId],
+    dst: Option<ValueId>,
+    kinds: &BTreeMap<ValueId, MirOwnershipKindV1>,
+) -> Result<(), OwnershipSsaErrorV1> {
+    let target = match callee {
+        None => Some(func),
+        Some(Callee::Method {
+            receiver: Some(receiver),
+            ..
+        })
+        | Some(Callee::Value(receiver)) => Some(*receiver),
+        Some(
+            Callee::Global(_)
+            | Callee::Extern(_)
+            | Callee::Constructor { .. }
+            | Callee::Method { receiver: None, .. }
+            | Callee::Closure { .. },
+        ) => None,
+    };
+
+    let target_is_managed =
+        target.is_some_and(|value| kinds.get(&value) != Some(&MirOwnershipKindV1::None));
+    let args_are_managed = args
+        .iter()
+        .any(|value| kinds.get(value) != Some(&MirOwnershipKindV1::None));
+    let destination_is_managed =
+        dst.is_some_and(|value| kinds.get(&value) != Some(&MirOwnershipKindV1::None));
+    if target_is_managed || args_are_managed || destination_is_managed {
+        return Err(OwnershipSsaErrorV1::ManagedCallOwnershipUnsupported { block });
     }
     Ok(())
 }

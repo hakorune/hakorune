@@ -3,15 +3,15 @@ Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
 ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
 and owner-private JSON-v0 input state as compatibility ingress. R1, D1,
-Topology-I0, R2-I0, R3a, R3b, R4a, R4b, R4c, and R4d escape policy are closed;
-ownership policy is the selected design-stop row."""
+Topology-I0, R2-I0, R3a, R3b, R4a, R4b, R4c, R4d escape policy, and ownership
+policy are closed; the ownership verifier row is active."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-CANONICAL-OWNERSHIP-POLICY-D0"
-current_design_stop = "Ownership D0 design stop: Callee projection supplies occurrences, but Ownership SSA must decide managed/unknown roles for seven typed/legacy Call shapes before reading away func. Production verifier callers/installers remain caller-zero; PyVM/reference/Python and JoinIR remain outside this row."
-current_blocker_token = "Ownership design stop: seal the Call ownership role matrix and fail-fast witness boundary; do not mechanically project used_values into ABI policy or activate the zero-caller verifier."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-CANONICAL-OWNERSHIP-VERIFIER-I0-R0"
+current_design_stop = "Ownership D0 accepted: legacy None keeps the existing func/args/dst None-only policy; typed Global/Extern/Constructor/Method(None) have no target; typed Method(Some)/Value targets require known None; Closure remains pre-canonical generic liveness. Production verifier callers/installers remain caller-zero."
+current_blocker_token = "Ownership fast row: replace only verify_instruction_kinds Call policy with the accepted matrix; typed Some never reads func, managed/unknown target rejects before liveness, and no production witness installer is added."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -20,12 +20,13 @@ active_lane = "MirBuilder in-place replacement — canonical MIR Call target ret
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
-and R4d escape classifier are closed. Ownership is the selected design stop;
-JoinIR remap is
+R4d escape, and ownership policy are closed. The ownership verifier is the
+active bounded row. JoinIR remap is
 NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
-ParkedSealed outside this lane. R4d exit: exact Call/Capture role matrix,
-classifier parity tests, shared guard, and no retry or fallback."""
+ParkedSealed outside this lane. Ownership exit: exact target-role matrix,
+fail-fast/error-precedence tests, shared guard, caller-zero witness policy,
+and no retry or fallback."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -37,9 +38,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, and R4d escape are closed; ownership policy is the selected design stop. JoinIR remap is NoSafeSlice; PyVM/reference/Python remain ParkedSealed outside this lane."
-next_design_card = "MIR-CALL-CANONICAL-OWNERSHIP-POLICY-D0"
-next_execution_card = "none — design_stop"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d escape, and ownership policy are closed; the ownership verifier is active. JoinIR remap is NoSafeSlice; PyVM/reference/Python remain ParkedSealed outside this lane."
+next_design_card = "none — ownership D0 accepted; Query/CallLike rows require separate design"
+next_execution_card = "MIR-CALL-CANONICAL-OWNERSHIP-VERIFIER-I0-R0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
