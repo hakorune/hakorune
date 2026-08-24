@@ -62,8 +62,8 @@ pub(super) struct VerifiedCallablePhysicalSignatureRowV1 {
     identity: CallableDeclarationIdentityV1,
     owner: FunctionOwnerIdV1,
     mode: CallableParameterDeclarationModeV1,
-    role: SelectedCallableConsumptionRoleV1,
-    receiver: Option<BindingRefV1>,
+    _role: SelectedCallableConsumptionRoleV1,
+    _receiver: Option<BindingRefV1>,
     source_logical_arity: u32,
     receiver_lane_count: u32,
     physical_formal_lane_count: u32,
@@ -77,10 +77,6 @@ pub(crate) struct PhysicalCallableSignatureRowRefV1<'a> {
 }
 
 impl<'a> PhysicalCallableSignatureRowRefV1<'a> {
-    pub(crate) const fn batch_slot(self) -> u32 {
-        self.row.batch_slot
-    }
-
     pub(crate) fn identity(self) -> &'a CallableDeclarationIdentityV1 {
         &self.row.identity
     }
@@ -91,14 +87,6 @@ impl<'a> PhysicalCallableSignatureRowRefV1<'a> {
 
     pub(crate) const fn mode(self) -> CallableParameterDeclarationModeV1 {
         self.row.mode
-    }
-
-    pub(crate) const fn role(self) -> SelectedCallableConsumptionRoleV1 {
-        self.row.role
-    }
-
-    pub(crate) const fn receiver(self) -> Option<BindingRefV1> {
-        self.row.receiver
     }
 
     pub(crate) const fn source_logical_arity(self) -> u32 {
@@ -124,15 +112,11 @@ impl<'a> PhysicalCallableSignatureRowRefV1<'a> {
 
 #[derive(Debug)]
 pub(crate) struct VerifiedCallablePhysicalSignatureCohortV1 {
-    brand: SameModuleCallableCatalogBrandV1,
+    _brand: SameModuleCallableCatalogBrandV1,
     rows: Box<[VerifiedCallablePhysicalSignatureRowV1]>,
 }
 
 impl VerifiedCallablePhysicalSignatureCohortV1 {
-    pub(crate) fn brand(&self) -> &SameModuleCallableCatalogBrandV1 {
-        &self.brand
-    }
-
     pub(crate) fn rows(
         &self,
     ) -> impl ExactSizeIterator<Item = PhysicalCallableSignatureRowRefV1<'_>> {
@@ -153,7 +137,9 @@ impl VerifiedCallablePhysicalSignatureCohortV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) enum CallablePhysicalSignatureIssueV1 {
-    BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
+    BatchLoan {
+        _error: ResolvedCallableSemanticBatchLoanErrorV1,
+    },
     MissingSelectedIdentity,
     MissingParameterContract,
     DuplicateParameterContract,
@@ -335,8 +321,8 @@ pub(super) fn issue_callable_physical_signature_v1(
                     identity: declaration.identity().clone(),
                     owner: declaration.owner(),
                     mode,
-                    role,
-                    receiver,
+                    _role: role,
+                    _receiver: receiver,
                     source_logical_arity,
                     receiver_lane_count,
                     physical_formal_lane_count,
@@ -347,6 +333,9 @@ pub(super) fn issue_callable_physical_signature_v1(
             rows.sort_by_key(|row| row.batch_slot);
             Ok(rows.into_boxed_slice())
         })
-        .map_err(CallablePhysicalSignatureIssueV1::BatchLoan)??;
-    Ok(VerifiedCallablePhysicalSignatureCohortV1 { brand, rows })
+        .map_err(|error| CallablePhysicalSignatureIssueV1::BatchLoan { _error: error })??;
+    Ok(VerifiedCallablePhysicalSignatureCohortV1 {
+        _brand: brand,
+        rows,
+    })
 }
