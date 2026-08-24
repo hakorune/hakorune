@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast (selected ny-llvmc C owner split I0)
+Status: Active workstream — design stop (selected exact Extern link-proof D0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-C-OWNER-SPLIT-I0-R0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, profile threading I0, strict-adapter I0 closed at 40559cceef, and native D1 capability boundary accepted; native D0 remains NoSafeSlice and JoinIR D0/R4c remains NoSafeSlice
-  mode              = fast
-  production stop   = inside a behavior-invariant path-preserving split of the selected 778-line C extern shell owner; no native switch, route expansion, or link-policy change; Method(None)/Closure/Constructor gates, R6 field deletion, and JoinIR remain outside
-  exit              = parent include path and all child owners compile with identical route behavior, each below 800 lines, and shared guard/parity evidence is green
+  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, profile threading I0, strict-adapter I0 closed at 40559cceef, native D1 capability boundary accepted, and C owner split I0 closed at 03b06622eb; native D0 remains NoSafeSlice and JoinIR D0/R4c remains NoSafeSlice
+  mode              = design_stop
+  production stop   = before exact Extern native proof: existing route metadata and static-artifact seams must be co-sealed without hand-authored JSON or Hako probe repair; no native switch, route expansion, or link-policy change; Method(None)/Closure/Constructor gates, R6 field deletion, and JoinIR remain outside
+  exit              = accepted finite link-proof D0 or explicit NoSafeSlice; no code before the production-generated JSON/object/archive/executable boundary is fixed
 fallback / retry  = 0
 ```
 
@@ -366,11 +366,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-C-OWNER-SPLIT-I0-R0
-  -> split the selected 778-line shell owner into rule/validation and emission children without semantic changes; no native switch
+ MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0
+  -> census the production-generated JSON route seam and static-artifact link seam for exact `extern.env.now_ms/0`; no code before D0 acceptance
 
 Next (not selected)
-  -> exact Extern link-proof row after the split; R6 remains separate and R4c remains NoSafeSlice unless a caller reopens
+  -> exact Extern link-proof I0 after D0; R6 remains separate and R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

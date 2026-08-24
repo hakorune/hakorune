@@ -830,6 +830,39 @@ Non-claims: native switch, route projection co-seal, seven String routes,
   Global/Method/Constructor semantics, link proof, R6, and warning cleanup.
 ```
 
+The C owner split is closed by `03b06622eb`. The parent facade still includes
+the same two children in the same order, the rule/validation and emitter
+contents were moved without semantic edits, `build_hako_llvmc_ffi.sh` and
+`cargo check -p nyash-llvm-compiler --bin ny-llvmc` are green, the existing
+`env.now_ms/0` JSON route test is green, and the shared corridor guard now
+checks both child owners. The facade is 2 lines; the children are 465 and 312
+lines. A temporary Hako source probe was not acceptance evidence: the current
+MIR compiler stopped at `PhysicalHeader(CompletionNotValue { batch_slot: 1 })`,
+so no AST workaround or native link claim is made.
+
+The next design stop is
+`MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0`:
+
+```text
+Decision: design one production-generated JSON to object→archive→executable
+  proof for exact `extern.env.now_ms/0`; do not hand-author a semantic fixture
+  or bypass the route metadata issuer.
+Source authority + canonical issuer: ExternCallRouteSpec plus the existing
+  route metadata/lowering-plan projection; JsonEgressProfile selects
+  CanonicalV1, and hako_llvmc_link_obj_v2 owns the explicit archive edge.
+Non-authority: temporary Hako probes, hand-authored route JSON, raw
+  externcall, C name lookup, kernel export alone, fallback/retry, and parked
+  backends.
+Fail-fast boundary: production route metadata must publish exact route,
+  arity=0, result_value, symbol and return shape before C emission; missing
+  plan/wrong arity/missing archive rejects before object or executable publish.
+Smallest next slice: D0 census the existing route-test/JSON-emitter seam and
+  static-artifact publication seam, then define positive object/archive/exe
+  symbol evidence plus negative malformed-plan evidence; no code yet.
+Non-claims: native switch, seven String routes, Global/Method/Constructor
+  expansion, R6, warning cleanup, and Hako source-probe repair.
+```
+
 Feedback reconciliation and deferred task queue (not selected):
 
 ```text
