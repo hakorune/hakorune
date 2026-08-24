@@ -8,6 +8,7 @@ mod phi;
 mod sum;
 mod weak;
 
+use super::root::JsonEgressProfile;
 use crate::mir::function::ExactNumericRuntimeCheckContractKind;
 use crate::mir::MirInstruction as I;
 
@@ -30,6 +31,7 @@ pub(crate) fn emit_non_phi_instructions(
     func: &crate::mir::MirFunction,
     block: &crate::mir::BasicBlock,
     pinned_text_residence_transport: bool,
+    profile: JsonEgressProfile,
     boxed_sum_abi_plans: &[crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1],
     boxed_sum_site_plans: &std::collections::BTreeMap<
         (crate::mir::BasicBlockId, usize),
@@ -47,6 +49,7 @@ pub(crate) fn emit_non_phi_instructions(
             instruction_index,
             inst,
             pinned_text_residence_transport,
+            profile,
             boxed_sum_abi_plans,
             boxed_sum_site_plans,
         )?;
@@ -73,6 +76,7 @@ fn emit_instruction(
     instruction_index: usize,
     inst: &crate::mir::MirInstruction,
     pinned_text_residence_transport: bool,
+    profile: JsonEgressProfile,
     boxed_sum_abi_plans: &[crate::mir::boxed_sum_abi_plan::BoxedSumAbiPlanV1],
     boxed_sum_site_plans: &std::collections::BTreeMap<
         (crate::mir::BasicBlockId, usize),
@@ -313,7 +317,7 @@ fn emit_instruction(
             args,
             effects,
             ..
-        } => calls::emit_call(dst, func, callee.as_ref(), args, effects)
+        } => calls::emit_call(dst, func, callee.as_ref(), args, effects, profile)
             .ok_or_else(|| "MIR JSON emit contract violation: failed to emit Call".to_string()),
         I::CheckedCallOutNormalResult { site_id, dst } => Ok(
             control_flow::emit_checked_callout_normal_result(site_id, dst),

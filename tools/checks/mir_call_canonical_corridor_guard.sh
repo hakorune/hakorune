@@ -30,6 +30,9 @@ PRINTER_HELPERS="$ROOT_DIR/src/mir/printer_helpers.rs"
 PRINTER_DISPLAY="$ROOT_DIR/src/mir/instruction/display.rs"
 PRINTER_TESTS="$ROOT_DIR/src/mir/printer/tests.rs"
 JSON_CALLS="$ROOT_DIR/src/runner/mir_json_emit/emitters/calls.rs"
+JSON_ROOT="$ROOT_DIR/src/runner/mir_json_emit/root.rs"
+JSON_EMITTERS="$ROOT_DIR/src/runner/mir_json_emit/emitters/mod.rs"
+JSON_HELPERS="$ROOT_DIR/src/runner/mir_json_emit/helpers.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -42,7 +45,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -123,6 +126,10 @@ require "$JSON_CALLS" "fn emit_call_with_callee_v0"
 require "$JSON_CALLS" "v0_typed_call_variants_ignore_stale_numeric_func_decoration"
 require "$JSON_CALLS" "v0_legacy_call_preserves_explicit_numeric_func_decoration"
 require "$JSON_CALLS" "method_none_keeps_legacy_receiver_func_until_r6"
+require "$JSON_ROOT" "pub(crate) enum JsonEgressProfile"
+require "$JSON_ROOT" "json_profile_selector_matrix_is_finite_and_root_owned"
+require "$JSON_ROOT" "json_profile_selector_rejects_mixed_and_invalid_values"
+require "$JSON_EMITTERS" "profile: JsonEgressProfile"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -175,6 +182,9 @@ for relative in (
     "src/mir/instruction/display.rs",
     "src/mir/printer/tests.rs",
     "src/runner/mir_json_emit/emitters/calls.rs",
+    "src/runner/mir_json_emit/emitters/mod.rs",
+    "src/runner/mir_json_emit/helpers.rs",
+    "src/runner/mir_json_emit/root.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
     lines = (root / relative).read_text().splitlines()
@@ -417,6 +427,29 @@ if re.search(r"emit_call_with_callee_v0\s*\(\s*dst\s*,\s*func\b", json_calls):
     raise SystemExit("typed v0 JSON call site still forwards legacy func")
 if "fn emit_call_with_optional_func" not in json_calls:
     raise SystemExit("legacy v0 JSON call helper was removed before its compatibility row")
+
+json_root = (root / "src/runner/mir_json_emit/root.rs").read_text()
+if json_root.count("JsonEgressProfile::from_env()") != 1:
+    raise SystemExit("JSON root does not select exactly one egress profile")
+if json_root.count("let use_v1_schema = profile.is_canonical_v1()") != 1:
+    raise SystemExit("JSON root schema kind is not projected from the selected profile")
+root_emit_start = json_root.index("emitters::emit_non_phi_instructions")
+if "profile," not in json_root[root_emit_start:]:
+    raise SystemExit("JSON root does not pass the selected profile to emitters")
+for relative in (
+    "src/runner/mir_json_emit/emitters/calls.rs",
+    "src/runner/mir_json_emit/emitters/mod.rs",
+    "src/runner/mir_json_emit/helpers.rs",
+):
+    owner = (root / relative).read_text()
+    if any(token in owner for token in (
+        "NYASH_JSON_SCHEMA_V1",
+        "NYASH_MIR_UNIFIED_CALL",
+        "HAKO_MIR_BUILDER_METHODIZE",
+    )):
+        raise SystemExit(f"{relative} retained an independent JSON profile selector read")
+if "calls::emit_call(dst, func, callee.as_ref(), args, effects, profile)" not in (root / "src/runner/mir_json_emit/emitters/mod.rs").read_text():
+    raise SystemExit("Call emitter lost the root-selected profile argument")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

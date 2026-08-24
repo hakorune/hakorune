@@ -23,6 +23,68 @@ use super::order::ordered_harness_functions;
 use crate::runner::mir_json_export_model;
 use serde_json::{json, Value};
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum JsonEgressProfile {
+    CanonicalV1,
+    CompatibilityV0 { methodize: bool },
+}
+
+impl JsonEgressProfile {
+    fn parse_selector(name: &str, raw: Option<&str>) -> Result<Option<bool>, String> {
+        let Some(raw) = raw else {
+            return Ok(None);
+        };
+        match raw.to_ascii_lowercase().as_str() {
+            "1" | "true" | "on" => Ok(Some(true)),
+            "0" | "false" | "off" => Ok(Some(false)),
+            _ => Err(format!("[mir-json/profile] invalid {name} selector: {raw}")),
+        }
+    }
+
+    fn from_values(
+        schema: Option<&str>,
+        unified: Option<&str>,
+        methodize: Option<&str>,
+    ) -> Result<Self, String> {
+        let schema = Self::parse_selector("NYASH_JSON_SCHEMA_V1", schema)?;
+        let unified = Self::parse_selector("NYASH_MIR_UNIFIED_CALL", unified)?;
+        let methodize = Self::parse_selector("HAKO_MIR_BUILDER_METHODIZE", methodize)?;
+
+        if matches!(
+            (schema, unified),
+            (Some(true), Some(false)) | (Some(false), Some(true))
+        ) {
+            return Err("[mir-json/profile] mixed_profile selectors".to_string());
+        }
+
+        match (schema, unified) {
+            (Some(false), _) | (None, Some(false)) => Ok(Self::CompatibilityV0 {
+                methodize: methodize.unwrap_or(true),
+            }),
+            _ => Ok(Self::CanonicalV1),
+        }
+    }
+
+    pub(crate) fn from_env() -> Result<Self, String> {
+        Self::from_values(
+            std::env::var("NYASH_JSON_SCHEMA_V1").ok().as_deref(),
+            std::env::var("NYASH_MIR_UNIFIED_CALL").ok().as_deref(),
+            std::env::var("HAKO_MIR_BUILDER_METHODIZE").ok().as_deref(),
+        )
+    }
+
+    pub(crate) const fn is_canonical_v1(self) -> bool {
+        matches!(self, Self::CanonicalV1)
+    }
+
+    pub(crate) const fn methodize(self) -> bool {
+        match self {
+            Self::CanonicalV1 => false,
+            Self::CompatibilityV0 { methodize } => methodize,
+        }
+    }
+}
+
 fn insert_root_metadata(
     root: &mut serde_json::Value,
     entries: Vec<(&'static str, serde_json::Value)>,
@@ -50,6 +112,8 @@ fn export_surfaces_from_object(value: &Value) -> Vec<mir_json_export_model::MirJ
 pub(super) fn build_mir_json_root(
     module: &crate::mir::MirModule,
 ) -> Result<serde_json::Value, String> {
+    let profile = JsonEgressProfile::from_env()?;
+    let use_v1_schema = profile.is_canonical_v1();
     let boxed_sum_abi_plans = crate::mir::boxed_sum_abi_plan::build_boxed_sum_abi_plans(module);
     let mut funs = Vec::new();
     let mut export_functions = Vec::new();
@@ -102,6 +166,7 @@ pub(super) fn build_mir_json_root(
                     f,
                     bb,
                     pinned_text_residence_transport,
+                    profile,
                     &boxed_sum_abi_plans,
                     &boxed_sum_site_plans,
                     &mut insts,
@@ -173,17 +238,6 @@ pub(super) fn build_mir_json_root(
             "attrs": attrs_json
         }));
     }
-
-    // Phase 15.5: JSON v1 schema with environment variable control
-    let use_v1_schema = std::env::var("NYASH_JSON_SCHEMA_V1").unwrap_or_default() == "1"
-        || match std::env::var("NYASH_MIR_UNIFIED_CALL")
-            .ok()
-            .as_deref()
-            .map(|s| s.to_ascii_lowercase())
-        {
-            Some(s) if s == "0" || s == "false" || s == "off" => false,
-            _ => true,
-        };
 
     // Phase 155: Extract CFG information for hako_check
     let cfg_info = nyash_rust::mir::cfg_extractor::extract_cfg_info(module);
@@ -318,4 +372,48 @@ pub(super) fn build_mir_json_root(
     // pre-AotPrep MIR emission usable even when BoxCall(MatI64, mul_naive) is
     // still present.
     Ok(serialized_export_document)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::JsonEgressProfile;
+
+    #[test]
+    fn json_profile_selector_matrix_is_finite_and_root_owned() {
+        assert_eq!(
+            JsonEgressProfile::from_values(None, None, None).expect("default profile"),
+            JsonEgressProfile::CanonicalV1
+        );
+        assert_eq!(
+            JsonEgressProfile::from_values(Some("1"), Some("1"), Some("0"))
+                .expect("canonical profile"),
+            JsonEgressProfile::CanonicalV1
+        );
+        assert_eq!(
+            JsonEgressProfile::from_values(None, Some("0"), Some("0"))
+                .expect("compatibility profile"),
+            JsonEgressProfile::CompatibilityV0 { methodize: false }
+        );
+        assert_eq!(
+            JsonEgressProfile::from_values(Some("0"), None, None)
+                .expect("explicit compatibility profile"),
+            JsonEgressProfile::CompatibilityV0 { methodize: true }
+        );
+    }
+
+    #[test]
+    fn json_profile_selector_rejects_mixed_and_invalid_values() {
+        for selectors in [
+            (Some("1"), Some("0"), Some("1")),
+            (Some("0"), Some("1"), Some("0")),
+            (Some("maybe"), None, None),
+            (None, Some("maybe"), None),
+            (None, None, Some("maybe")),
+        ] {
+            assert!(
+                JsonEgressProfile::from_values(selectors.0, selectors.1, selectors.2).is_err(),
+                "selectors must fail fast: {selectors:?}"
+            );
+        }
+    }
 }
