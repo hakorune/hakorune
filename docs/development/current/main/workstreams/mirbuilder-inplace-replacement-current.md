@@ -1,6 +1,6 @@
 ---
-Status: Active workstream
-Date: 2026-08-02
+Status: Active workstream — design stop
+Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -29,24 +29,19 @@ Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
 `CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
 diffs and proof transcripts; this card keeps the live task and boundaries.
 
-## Parked follow-ups from external architecture review
+Current capsule:
 
-The review supplied on 2026-08-18 was based on old HEAD `8237906da0`; the
-current A0 StringEquals/1 DesignOnly rejection is already landed at the live
-HEAD. It does not reopen A or change the B blocker. Five bounded follow-up tasks
-are recorded for later selection only:
+```text
+current decision  = NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
+implementation    = none selected
+mode              = design_stop / read-only census
+production stop   = before ModuleBuilderInvocationSessionV1::open
+exit              = one caller + one existing owner + one exact delete set
+fallback / retry  = 0
+```
 
-| task | evidence now | acceptance when selected |
-| --- | --- | --- |
-| `LOOP-GENERIC-PREFLIGHT-CONSUME-SHAPE-D0` | `PreparedGenericG0PhysicalEmitterSessionPreflightV1` has borrowed getters plus `take_layout`/control extraction; canonical consumer is test-only and production callers are 0 | choose one opaque session consumer or typed duplicate rejection; no re-pairing and no Generic production switch |
-| `LOOP-CALLABLE-OPAQUE-DEMAND-CONSUME-D0` | `PreparedCallableOperationDemandV1::consume<R>` has two test-only direct callsites; wrapper `into_parts` has no caller | census callers, then hide tuple-like escape behind one private/opaque aggregate; preserve source co-seal |
-| `LOOP-COMMON-DISPATCHER-ENTRY-CENSUS-D0` | target-explicit and block-receipt dispatcher functions share leaf emitters; target path is mechanical, block path has tests | name one keeper, classify test-only callers, and retire/restrict duplicates at production cutover |
-| `STATE-PARSER-INTEGRITY-I0` | shell pointer guard was green while standard `tomllib` rejected missing commas; the array is now repaired | add standard-parser validation to the reusable state guard and make parse failure blocking |
-| `CURRENT-POINTER-COMPACTNESS-D0` | active lane drift was corrected; pointer is 115 lines and still contains bounded status/tail | only if selected, compact current pointers without copying history or changing semantic authority |
-
-All four are `design_stop` follow-ups. They may not add a `Verified*`/
-`Prepared*` receipt, production selector, fallback/retry, or physical effect
-until the current TextEq B/C boundary is explicitly closed.
+The post-root task-order audit is closed. Historical queues cannot select a
+row; only the six-line brief and ordered frontier below may do so.
 
 ## Closed chronology (archived)
 
@@ -67,8 +62,8 @@ NoSafeSlice remains a development state;
 legacy retirement requires caller-zero evidence.
 ```
 
-The current Dynamic AOT activation is tracked only by CURRENT_STATE.toml and
-the active investigation card. Do not restore closed chronology here.
+The completed Dynamic AOT activation is historical evidence only. Do not
+restore its task order or any other closed chronology here.
 
 ## Protected-region control-state design
 
@@ -154,29 +149,56 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active task pointer
 
-The sole current row is `CURRENT_STATE.toml.current_execution_row`. The active
-JoinIR contract and ordered convergence map live in
-`design/joinir-loop-selfhost-recipe-pipeline-ssot.md`. Closed route-local provenance
-records below are evidence only and must not schedule another route.
+`MIRBUILDER-POST-ROOT-TASK-ORDER-D0` is closed. FunctionCall is closed
+`NoSafeSlice`; H2/W6 is already complete; Script convergence has canonical
+consumer caller zero; and the Loop queue is historical/parked. The sole valid
+parent lane is canonical/default ingress, but its old `compile_legacy*` delete
+set no longer describes the post-C0 source graph. Therefore no implementation
+row is selected.
 
-Current decision and execution brief:
+Decision:
+  Re-census post-C0 normal/default ingress read-only; do not select an
+  implementation until one exact replacement-cell contract closes.
+Source authority + canonical issuer:
+  Existing Parser SourceSurface -> `ParserNormalRootExecutionIssuerV1`
+  -> `NormalRootExecutionConsumerV1`; this D0 issues no new meaning.
+Non-authority:
+  Warning counts, the old `compile_legacy*` task map, AST/path/name,
+  detached Script input, and historical FunctionCall/Loop queues.
+Fail-fast boundary:
+  Before `ModuleBuilderInvocationSessionV1::open` / the first Builder effect;
+  a non-singleton caller, owner, or delete set is `NoSafeSlice`.
+Smallest next slice:
+  Census every non-test caller of the MIR/LLVM runner
+  `SourceBacked | TypedCompatibility` requests and public
+  `compile_with_source*` AST-only Compatibility ingress.
+Non-claims:
+  No code, fixture, new `Verified*`/`Prepared*`, route switch, compatibility
+  retirement, FunctionCall, Script physical, Loop/H2, Recipe/Join/MIR,
+  backend, performance, or fallback change.
 
-This workstream is a historical convergence ledger, not a second live
-pointer. The sole current decision is read from:
+Acceptance is one conjunction, not three independent hints:
 
 ```text
-docs/development/current/main/CURRENT_STATE.toml
-  -> current_execution_row
-  -> current_blocker_token
-  -> latest_card_path
+reachable caller_before = exactly 1 bounded production cell
+selected new owner       = exactly 1 existing authority
+old-edge delete set      = exact and finite
+fallback / retry         = 0
+unchanged parity gate    = named
 ```
 
-For every active lane, resolve the card and row only from `latest_card_path`
-and `current_execution_row` above. `current_blocker_token` describes the stop
-condition for that selected row; it never selects a different task. This
-historical ledger does not mirror those values. Older S6C/S6D/S6G briefs and
-route chronology remain evidence in git history or their owning cards; they
-do not schedule a new route from this workstream.
+If it closes, D0 may name one bounded next cell. If any member is absent,
+multiple, or requires a new issuer, record `NoSafeSlice` and remain in
+`design_stop`.
+
+Guard classification at the 2026-08-25 docs boundary:
+
+- `current_state_pointer_guard.sh` is green.
+- `mirbuilder_inplace_replacement_guard.sh` reports
+  `raw Loop callers must share one JoinIR route/freeze owner` identically in
+  the edited tree and clean parent `7ff31ac304`.
+- That red is known baseline debt, not current-change failure, D0 acceptance,
+  or permission to reopen Loop.
 
 ## Production invariants
 ```text
@@ -246,13 +268,46 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
   state: closed; owner / residual / execution callers = 0
 ```
 
-## Compact queue
+## Ordered frontier
 
 ```text
-selected design stop
+Now
+  NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
+  -> read-only caller / owner / old-edge / unchanged-gate census
+
+Next (conditional; not selected)
+  -> exactly one bounded replacement cell named by D0
+  -> focused positive + negative + reusable guard + owner docs
+  -> same-series selected old-edge deletion; fallback/retry stays zero
+
+After the selected default-ingress cutover
+  1. MIR-CALL-LEGACY-TARGET-RETIREMENT-D0/R0
+  2. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
+  3. MIR-PHYSICAL-TYPE-INPUT-D0
+  4. MIRBUILDER-PR-STRUCTURAL-GATES-I0
+  5. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
+  6. mimalloc promotion gate, then .hako selfhost migration
+
+Parked
+  -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
+  -> Loop common/Generic/callable physical follow-ups until a named caller
+  -> semantic dead_code/private_interfaces cleanup and broad cleanup program
+  -> performance, converter, llvmlite, Home/language, and selfhost work
+
+Closed / do not reopen from a mirror
+  -> normal-root T0/C0/R0 and 68/68 replacement manifest
+  -> H2 selected Dynamic cutover through W6
+  -> FunctionCall lexical/special rows as NoSafeSlice
+  -> result-discard closure and normal-root caller-zero warning projections
+  -> state TOML parser integrity, pointer compactness, and builder test-home split
+```
+
+## Historical evidence queue (non-authoritative)
+
+```text
+closed NoSafeSlice
   FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0
-  -> name one resolver-issued explicit-special/direct-FreeStatic/lexical-value
-     classification before arguments and select one bounded first cohort.
+  -> no shared pre-effect issuer or aggregate old-edge delete set exists.
 
 landed BoxShape
   FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0
@@ -643,7 +698,7 @@ R4
 After final-pipeline Complete only: refresh missing-feature/Home readiness,
 resume OWNERSHIP-HOME-RESUME-D0, then select later language features.
 ```
-## Parked
+## Historical parked boundary
 ```text
 source-level Home ownership and unimplemented language features until the
 repository-wide final pipeline is Complete; .hako selfhost MirBuilder/parser

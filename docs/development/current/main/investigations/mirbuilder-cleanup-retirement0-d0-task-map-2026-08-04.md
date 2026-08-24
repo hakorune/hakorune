@@ -5,12 +5,11 @@ If D0-D3 boundary is landed separately; this lane remains behavior-neutral and
 must not alter Recipe, route, or PHI/SSA authority. T5 records the parked
 post-cutover debt/governance cleanup. The 2026-08-20 architecture review is
 taskized below as P0-P5 convergence order and does not preempt the active
-Script row.
-Date: 2026-08-04
+MirBuilder design row.
+Date: 2026-08-25
 
 This card records the cleanup opportunities raised by the dead-code audit. It
-is deliberately separate from the active
-`JOINIR-IF-RECIPE-D0-D1-D2-PHYSICALIZER-IMPLEMENTATION` execution row. The
+is deliberately parked outside the row selected by `CURRENT_STATE.toml`. The
 goal is to reduce duplicate shells and retire proven disconnected code without
 changing route selection, Recipe semantics, SSA/PHI authority, or the JSON-v0
 compatibility contract.
@@ -342,8 +341,8 @@ hard-delete the bridge.
 
 This is one parked cleanup program, not four new active cards. It records the
 repository-wide debt reported after the Dynamic/AOT hardening series without
-making that debt a blocker for the active Loop product row. Promotion requires
-an explicit `CURRENT_STATE.toml` retarget after the current Loop/cutover gate
+making that debt a blocker for the active MirBuilder row. Promotion requires
+an explicit `CURRENT_STATE.toml` retarget after its named production gate
 and a fresh integration census. A newly reproduced current-change regression
 may still preempt under the normal red-classification policy; a historical or
 grep-only concern may not.
@@ -455,9 +454,11 @@ T5-D6  MIRBUILDER-COMMON-FINISH-CONVERGENCE-D0
   schedules by spelling or create a second Return/publication writer.
 
 T5-D7  MIRBUILDER-WARNING-SURFACE-CENSUS-R0
-  collect cargo JSON diagnostics at an exact HEAD and parent, classify
-  current-change versus inherited by owner, then narrow module-level allows in
-  bounded rows. Blanket allow removal and warning-driven semantic edits are
+  A/mechanical unused import or re-export rows batch under cargo check, then
+  run the reusable guard once. B/dead code owned by a named retirement stays
+  with that retirement. C/live dead_code or private-interface rows require one
+  semantic owner decision and the full focused ceremony. Record exact-HEAD
+  diagnostics; blanket allow removal and warning-driven semantic edits remain
   forbidden.
 
 T5-D8  MIRBUILDER-PHYSICAL-STRUCTURE-CLEANUP-D0
@@ -466,22 +467,22 @@ T5-D8  MIRBUILDER-PHYSICAL-STRUCTURE-CLEANUP-D0
   trigger/800-line hard stop, and validate links/guards before deletion.
 ```
 
-These rows are parked behind the active Loop production/cutover gate. Their
+These rows are parked behind an explicit `CURRENT_STATE.toml` retarget. Their
 acceptance requires an explicit pointer retarget, a source/owner census, and
-one bounded commit per responsibility. Local focused green on the current
-work branch does not close main integration or whole-builder convergence.
+one bounded commit per responsibility. Local focused green does not close a
+future production cutover or whole-builder convergence.
 
 ## Architecture-convergence queue (2026-08-20)
 
 The external architecture review is accepted as a convergence audit, not as
 permission for a broad rewrite. Most concerns already have owners: Script
-cutover belongs to the active Script card, canonical Call belongs to
+cutover belongs to its owning Script cards, canonical Call belongs to
 `mir-canonical-callsite-lane-ssot.md`, physical representation/ABI belongs to
 `value-repr-and-abi-manifest-ssot.md`, and optimization selection belongs to
 `perf-owner-first-optimization-ssot.md`. This card owns only the ordered debt
 queue and retirement finish lines.
 
-Current read-only snapshot at `2cd880295c`:
+Historical read-only snapshot at `2cd880295c`:
 
 ```text
 src/mir/builder.rs                                      = 815 lines
@@ -507,7 +508,7 @@ evidence produced by this documentation change and not a waiver for P4.
 ### Fixed priority
 
 ```text
-P0  close the current Script direct-static family
+P0  close the Script direct-static family finish line (blocked; not current)
       selected-normal bridge
         -> canonical Script input
         -> canonical physical consumer
@@ -518,34 +519,19 @@ P1  retire the dual Call target representation
 P2  inventory metadata consumers and compress caller-zero proof surfaces
 P3  converge backend physical-type input from the existing four authorities
 P4  add required structural CI gates
-P5  integrate the exact branch into main and enable branch protection
+P5  main integration closed; branch protection remains external/parked
 ```
 
 No other Script call BoxCount, general optimizer pass, SIMD leaf, or metadata
-family activation may preempt P0. A measured owner may still reopen one
+family activation may bypass P0 once its canonical consumer exists. A measured owner may still reopen one
 bounded perf row under the perf SSOT; this queue does not manufacture one.
 
-### `MIRBUILDER-ROOT-TEST-TAIL-SPLIT-P0` — T5-D8 first bounded split
+### `MIRBUILDER-ROOT-TEST-TAIL-SPLIT-P0` — T5-D8 closed prerequisite
 
-`builder.rs` is already above the 800-line hard stop and mixes module
-registration, outward re-exports, the root struct, and about 120 lines of
-owner-local tests. Keep it no-growth while the active Script row is open.
-After T5-D4 integration and T5-D7's exact owner/mask census, move only the
-existing `#[cfg(test)]` tail into a child test module. This is a behavior-neutral
-BoxShape; preserve test names, privacy, and filters, and do not change module
-registration/re-exports or delete `#[allow(dead_code)]` rows in the same slice.
-Done means `builder.rs < 760`, every touched Rust/check file remains `< 800`,
-the exact tests and existing MIR root/builder guards are green, and production
-diff is zero. Broader root topology remains owned by
-`MIR-TOPOLOGY-REBASE0-P0`; disconnected module retirement remains the existing
-T1/T3 leaf-to-root program.
-
-The 2026-08-21 external census measured `src/mir/builder.rs` at 819 lines and
-confirmed that this existing T5-D8 row is the correct first physical cleanup;
-it does not open a second barrel task. Keep it parked until the named
-Script production cutover and T5-D4/T5-D7 prerequisites are closed. Do not
-mix the split with Source-only A observation, direct-static package assembly,
-or `#[allow(dead_code)]` retirement.
+The builder test-home split is closed: `src/mir/builder.rs` is 741 lines at
+the 2026-08-25 census, below the 760-line design trigger. Broader barrel/module
+cleanup and semantic `dead_code` decisions remain separate parked rows; this
+closed BoxShape cannot authorize either one.
 
 The barrel row uses this finite physical state inventory:
 
@@ -557,9 +543,8 @@ The barrel row uses this finite physical state inventory:
 | `CompatibilityKeep` | a compatibility/test caller still requires the surface | preserve the registration and document owner | later named retirement row | never delete by `allow(dead_code)` |
 | `Retired` | child module owns the moved tests and the root is below the line budget | no old tail or duplicate owner | topology cleanup may continue separately | no reintroduction without a new owner decision |
 
-No state table entry authorizes deleting disconnected registrations. The
-`CallerZeroRetireEligible` transition is blocked until the Script family has a
-named production cutover and the exact T5-D4/T5-D7 census is green.
+This table is historical evidence for the closed split. It does not reopen a
+barrel, module-mask, or warning-retirement row.
 
 ### `SCRIPT-DIRECT-STATIC-SEMANTIC-PACKAGE-COSEAL-D0` — parked type cleanup
 
@@ -648,13 +633,12 @@ source-A observation or to treat a local guard pass as an implementation gate.
 
 ### `SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0` — P0 family finish line
 
-The active selected-normal bridge is an intermediate proof, not production
-closure. Its ordered successors are already named by the active Script card:
-canonical AST-free physical input D0, canonical consumer I0, one production
-cutover, then raw/compat caller-zero retirement. The family closes only when
-one canonical physical owner remains, the selected old edge is zero, and
-fallback/retry/reselection are zero. Do not count another receipt or a
-candidate-only green as replacement progress.
+The selected-normal bridge and detached canonical physical input are
+intermediate evidence, not production closure. The canonical physical consumer
+has production caller zero, so this finish line is blocked and not current.
+It closes only after a named consumer, one production cutover, raw/compat
+caller-zero retirement, one physical owner, and fallback/retry/reselection
+zero. Another receipt or candidate-only green is not replacement progress.
 
 ### `MIR-CALL-LEGACY-TARGET-RETIREMENT-D0/R0` — P1
 
@@ -714,24 +698,21 @@ be required only when their owning corridor supplies a stable manifest.
 
 ### `MIRBUILDER-MAIN-INTEGRATION-R0` — P5
 
-Reuse T5-D4 rather than opening a second integration task. The exact branch
-HEAD must pass the selected required gates, synchronize current pointers,
-record the production old-edge census, and preserve evidence/binary commit
-identity before integration. After the merge/fast-forward is observed on
-`main`, configure branch protection to require the named stable checks. Branch
-protection is an external repository mutation and needs an explicitly
-authorized GitHub operation; a docs commit cannot claim it complete.
+T5-D4/main integration is closed at merge commit `aafda19d86`; do not open a
+second integration task. Branch protection remains an external parked action
+requiring explicit GitHub authorization and named stable checks. Documentation
+cannot claim that external mutation complete.
 
 ### Non-claims and stop conditions
 
-- This queue does not change the current Script execution row or authorize a
+- This queue does not change the current MirBuilder design row or authorize a
   cleanup implementation while that row is active.
 - It does not turn `builder.rs` text hits into delete candidates.
 - It does not treat metadata production as backend consumption.
 - It does not add optimizer, SIMD, SROA, GVN, LICM, or inlining work without
   owner-first attribution.
-- It does not claim C parity, canonical production, main integration, or
-  branch protection from documentation alone.
+- It does not claim C parity, canonical production, or branch protection from
+  documentation alone.
 - Any row that requires a new source authority, accepted source form, ABI, or
   behavior change returns to its own D0; BoxShape cleanup cannot absorb it.
 
@@ -742,8 +723,8 @@ authorized GitHub operation; a docs commit cannot claim it complete.
   owner), but exclusive production physicalization is not yet complete.
 - Every refactor series is behavior-neutral, buildable, and below 800 lines;
   BoxCount and BoxShape changes are not mixed.
-- T5 remains parked while the active Loop product row is open. Its census may
-  be refreshed read-only, but implementation requires an explicit pointer
+- T5 remains parked while another row is selected. Its census may be refreshed
+  read-only, but implementation requires an explicit pointer
   retarget and must not become another hardening tail.
 - Each deletion has a stable replacement proof, caller/guard census, focused
   gate, and explicit rollback boundary.

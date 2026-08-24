@@ -1,6 +1,6 @@
 # Normal root execution atomic cutover manifest D0
 
-Status: accepted design — C0 closed; R0 selected
+Status: closed — T0/C0/R0 complete; scheduling returned to the workstream
 Date: 2026-08-24
 Decision: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-MANIFEST-D0
 Parent: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0
@@ -20,8 +20,8 @@ Fail-fast boundary:
   One typed route consumer must consume the total relation before AST
   extraction, source-plan policy, retained/test exit, or the first Builder effect.
 Smallest next slice:
-  `NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0`: replace all twelve in-bound
-  routes and old authorities in one semantic commit.
+  None in this card. R0 exhausted its caller-zero projections; resolve the
+  current row only from the MirBuilder workstream and `CURRENT_STATE.toml`.
 Non-claims:
   No semantic Rust in T0; no language-cohort, Recipe/Join/MIR, compatibility,
   fallback, performance, or physical-shelf expansion in C0.

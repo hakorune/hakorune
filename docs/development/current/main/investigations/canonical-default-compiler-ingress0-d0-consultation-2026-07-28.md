@@ -1,13 +1,13 @@
 ---
-Status: active design stop; bounded module-source census selected
-Date: 2026-07-28
+Status: historical parent design; post-C0 caller/delete-set revalidation required
+Date: 2026-08-25
 Decision: NORMAL-GENERAL-PROGRAM-MODULE-SOURCE0-D0
 ParentDecision: CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
-Candidate: B
+CurrentRebase: NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
 Pack: COMPILER-RESIDUE0
 Ceremony: T2 prerequisite design
 ReplacementCell: no
-ProductionCaller: 0
+ProductionCaller: post-C0 census required
 ProductionEdit: forbidden during D0
 Parent:
   - docs/development/current/main/investigations/mirbuilder-next-edge-design-stop-2026-07-28.md
@@ -21,7 +21,8 @@ NorthStar:
 
 ## Decision
 
-Candidate B remains accepted. Candidate A is not executable yet.
+Candidate B was accepted in this historical graph. It is not executable after
+the normal-root C0 cutover without the current workstream's caller/edge census.
 
 ```text
 Candidate A                         = rejected for now
@@ -987,13 +988,8 @@ current-normal result contract, and only then reopen Candidate A.
 
 The Script direct-static semantic-shelf R0 is a completed BoxShape refactor;
 it does not widen this design or authorize a default-ingress implementation.
-The repository-artifact interlude is also closed at `RETURN0`, so this existing
-card is now the current design frontier. The next work is still census-only:
-freeze the finite normal corpus, name the Program/module source authority and
-issuer, and prove the total pre-effect family boundary before any code,
-fixture, fallback, aggregate, or production switch.
-
-A read-only worker review on 2026-08-23 selected this row over
-`dynamic_full_body_recipe` relocation. The latter remains compiler-owned and
-its Builder move is `NoSafeSlice`; its existing source/Recipe boundary is not
-to be reopened by this D0.
+This card was the frontier before normal-root C0. Its `compile_legacy*` delete
+set no longer names the live graph, so it is now a historical parent only.
+`NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0` must re-census actual runner
+`SourceBacked | TypedCompatibility` and public AST-only Compatibility callers.
+That read-only rebase grants no implementation permission.

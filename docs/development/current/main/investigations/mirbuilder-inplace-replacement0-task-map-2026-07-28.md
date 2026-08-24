@@ -1,6 +1,6 @@
 ---
-Status: accepted execution task map
-Date: 2026-08-16
+Status: historical execution map; current row resolves only from CURRENT_STATE
+Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Historical first executable replacement row (closed; not current):
   - CALLABLE-DRAFT-PORT-CUTOVER0-I0-R0
@@ -8,12 +8,12 @@ Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
 Workstream:
   - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
-Final convergence pointer (serial, after Loop retirement):
+Final convergence pointer (parked until current production closure):
   - docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
 Closed design-stop correction:
   - docs/development/current/main/investigations/loop-physical-prepare-design-correction-r0-task-2026-08-07.md
-Current Loop product-frontier mirror (non-authoritative):
-  - `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0` (caller-zero T2 BoxCount)
+Parked Loop product-frontier mirror (non-authoritative):
+  - `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0` (closed caller-zero evidence)
 Resume gate:
   - always resolve `current_execution_row` and `latest_card_path` from
     `CURRENT_STATE.toml`; this frontmatter is only a product-frontier summary
@@ -101,13 +101,13 @@ explicit pointer retarget.
     ExactText formal occurrence, defers retirement, and finishes through one
     move-only lease-set; compiler, C entry, session, and production callers are
     still zero.
-18. CURRENT caller-zero BoxCount:
+18. CLOSED caller-zero BoxCount:
     `CALLABLE-TEXT-FORMAL-PHYSICAL-SIGNATURE-I0` implements the accepted
     Completion-independent package mapping: one logical ExactText
     ordinal/BindingRef -> adjacent scalar `[slot,generation]` lanes, with
     logical `/N` separate from physical lane count. It transports the same row
     through one combined Installed S6C loan and opens no call edge or residence.
-19a. OPEN route-free common-program branch after 18:
+19a. PARKED historical route-free common-program branch:
     `LOOP-S6C-COMMON-V2-PRESESSION-CONTRACT-D0` then closes the neutral exact
     disjoint `13 operations + If + Exit = 15 placements` envelope, followed by
     semantic-program co-seal,
@@ -115,41 +115,39 @@ explicit pointer retarget.
     `LOOP-COMMON-V2-PRESESSION-TRANSPORT-R0`, then caller-zero
     `LOOP-S6C-COMMON-V2-PRESESSION-I0`; detached ingress/header/Completion,
     route policy, and session authority remain zero.
-19b. OPEN Text residence/execution branch after 18:
+19b. PARKED historical Text residence/execution branch:
     `TEXT-FORMAL-PINNED-RESIDENCE-D0/I0` closes exact call edge, pair-based
     pinned UTF-8 roots, Canonical composite adoption, and Completion-backed
     finish coverage; `LOOP-TEXT-SLICE-EXECUTION-D0/I0` then adds CP-correct
     slices, one generic sequential code-point cursor, and inline byte equality.
     Root/token separation, raw ptr/len escape, and per-iteration registry entry
     are `NoSafeSlice`.
-19c. OPEN static route-admission branch after exact/meso/whole evidence:
+19c. PARKED historical static route-admission branch:
     strict scalar probe, pinned-slice/cursor probes, tracked route decision,
     canonical Trap owner, then only the selected route's lifecycle demand;
     runtime fallback/retry remains zero.
-20. OPEN fan-in structural/session coverage: the common envelope, selected
+20. PARKED fan-in structural/session coverage: the common envelope, selected
     route, and admitted residence meet after Always, If, Exit, then the first
     common V2 physical session under `CanonicalSsaFunctionSessionV2`
-21. OPEN gated production selection: pre-cutover authority proof, then M10b
+21. PARKED gated production selection: pre-cutover authority proof, then M10b
     activation and M11/M12 legacy retirement
 22. PARKED post-cutover convergence: main integration, whole-builder typed
     ingress, common finish convergence, warning/allow census, and physical
     docs/module cleanup (see the current physical-header card's parked rows)
-23. OPEN: REPO-FINAL-CONVERGENCE-AUDIT0-G0
+23. PARKED: REPO-FINAL-CONVERGENCE-AUDIT0-G0
 ```
 
 The selected-Dynamic `skip_while/4` lane is a reusable authority/physical
 precedent, not S6C source truth: it owns `substring/indexOf`, while forward
 `ScanWithInit` requires its own exact `length/substring/TextEq` source-bound
 relations. The old live general-Loop edge remains one registry/legacy route;
-portable/common production selection remains zero until the current header
-cohort and later common/session rows close.
+portable/common production selection remains zero unless a future explicit
+pointer retarget revalidates the common/session prerequisites.
 
-Decision B forbids taking one operation from a full demand. The current demand
-row and every later leaf row have one acceptance claim each. No current row
-claims Return, Completion, DraftSeal, publication, backend performance,
-production selection, retry/fallback removal, or legacy deletion. Each later
-item requires its own task receipt and same-commit reference/README/current-
-mirror updates.
+Decision B forbids taking one operation from a full demand. These historical
+Loop rows have one acceptance claim each but no current scheduling authority.
+No row here claims Return, Completion, DraftSeal, publication, backend
+performance, production selection, retry/fallback removal, or legacy deletion.
 
 ## First executable replacement
 
@@ -781,30 +779,27 @@ COMPILER-RESIDUE0
 
 No new macro pack may be inserted.
 
-### Active default compiler ingress D0
+### Post-root default compiler ingress design
 
-The current normal runners, including ordinary `--backend vm`, still enter
-`compile_with_source* -> compile_legacy_request`. Existing canonical
-entrypoints admit narrower explicit families and have no normal/default
-production caller.
+The old `compile_with_source* -> compile_legacy_request` graph recorded here
+was superseded by normal-root C0. The live runner now transports
+`SourceBacked | TypedCompatibility` requests, while public
+`compile_with_source*` retains an AST-only Compatibility ingress.
 
-Active authority:
+Current authority:
 
 ```text
-CANONICAL-DEFAULT-COMPILER-INGRESS0-D0
-docs/development/current/main/investigations/
-canonical-default-compiler-ingress0-d0-consultation-2026-07-28.md
+NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
+docs/development/current/main/workstreams/
+mirbuilder-inplace-replacement-current.md
 ```
 
-Before a tenth row, the D0 must accept one typed request carrying AST, source
-identity, imports, configuration, and compatibility provenance; one total
-source-family classifier before Builder effects; one backend-neutral result;
-the exact normal/default caller family; and one atomic old-edge delete set.
-
-`COMPILER-RESIDUE0` cannot close until normal/default route selection is once,
-`compile_with_source*` Legacy production callers are zero, family-specific
-canonical entrypoints are internal or retired, full corpus/backend parity is
-green, and canonical rejection never retries Legacy.
+This row is census-only. It must prove exactly one reachable production cell,
+one existing replacement owner, one exact old-edge delete set, fallback/retry
+zero, and one unchanged parity gate before selecting implementation. The old
+canonical-default consultation remains parent evidence, not execution
+authority. `COMPILER-RESIDUE0` stays open until an eventual selected cutover
+makes its named old edge caller-zero.
 
 ## Shared replacement ledger
 

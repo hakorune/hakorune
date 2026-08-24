@@ -1,28 +1,25 @@
 status = """
-Atomic normal-root C0 is closed: all 14 inventoried rows are exhausted, the two
-declared boundary-outside owners remain ParkedSealed, focused Cargo/direct
-tests and five guards are green, and the old authorities/fallback edges are at
-zero. Derived bool/mode retirement R0 is now explicitly selected."""
-date = "2026-08-24"
+Normal-root T0/C0/R0 is closed. The post-root ordering audit found no safe
+production implementation row: FunctionCall and Loop cannot reopen, H2 is
+already complete, and Script convergence has no production consumer. One
+post-C0 normal/default ingress authority census is selected as design-only."""
+date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "NORMAL-ROOT-EXECUTION-BOOL-RETIREMENT-R0"
-current_design_stop = "Resolved: atomic C0 is closed with Exhausted(14), CutoverBlockerOpen=0, ParkedSealed=2, and Unclassified=0. R0 is authorized only as derived bool/mode and stale compatibility presentation retirement."
-current_blocker_token = "Stop R0 if bool retirement requires a new source issuer, AST/name/ordinal root reclassification, fallback/retry, a production behavior change, Recipe/Join/MIR expansion, or another unplanned semantic owner."
+work_mode = "design_stop"
+current_execution_row = "NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0"
+current_design_stop = "Read-only census only: close one current normal/default caller, existing replacement owner, exact old-edge delete set, and unchanged parity gate before selecting any implementation row."
+current_blocker_token = "NoSafeSlice unless exactly one reachable caller_before, one existing new owner, and one exact old-edge delete set close before ModuleBuilderInvocationSessionV1::open / the first Builder effect; do not issue new Verified* or Prepared* meaning."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — normal root bool retirement R0"
+active_lane = "MirBuilder in-place replacement — post-root default ingress authority"
 active_lane_status = """
-Current: atomic C0 is closed with every in-bound route on the one total root
-relation and every old authority/fallback edge at zero.
-Authorized: replace bool-shaped work-plan transport with the admitted mode or
-aggregate, retire root_is_app_mode when caller-zero, and make stale Raw
-comments/classifier presentation explicitly compatibility/fixture-only.
-Forbidden: new source meaning, AST root classification, fallback/retry,
-language expansion, Recipe/Join/MIR, or physical publication work."""
+Current: census the real MIR/LLVM runner SourceBacked or TypedCompatibility
+requests and public compile_with_source* AST-only Compatibility callers.
+Exit: select one bounded cell only if caller, existing owner, delete set, and
+unchanged gate are exact; otherwise record NoSafeSlice. Code is forbidden."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -30,14 +27,14 @@ taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replac
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
-current_execution_design = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
+current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
-latest_card = "normal-root-execution-atomic-cutover-manifest-d0"
-latest_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
-latest_card_summary = "Atomic C0 is closed with Exhausted(14), zero open/unclassified blockers, two declared parked owners, all focused gates green, and no new warning signatures; derived bool/mode retirement R0 is selected. Behavior-neutral R0 warning cleanup is pushed through 0811b69d9d (1063 -> 433 test warnings); active caller-zero projections in the selected R0 scope are exhausted, while broader dead-code/private-visibility debt remains parked outside this lane."
-next_design_card = "none while R0 is active"
-next_execution_card = "NORMAL-ROOT-EXECUTION-BOOL-RETIREMENT-R0"
-next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
+latest_card = "mirbuilder-inplace-replacement-current"
+latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+latest_card_summary = "The post-root task-order audit is closed. NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0 is the sole design row; no production implementation is authorized until its singleton replacement-cell contract closes."
+next_design_card = "NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0"
+next_execution_card = "none until NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0 accepts exactly one bounded replacement cell"
+next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -49,24 +46,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-23: NORMAL-ROOT-EXECUTION-REFERENCE-ROUTE-CLOSURE-D0 is frozen as af6bd89eae with a finite 14-row inventory and explicit parking valve.",
-  "2026-08-23: NORMAL-ROOT-REFERENCE-FRONTDOOR-TEST-SPLIT-T0 is pushed as 7e94c531dc98; production/test hashes and 14/9 census are preserved.",
-  """2026-08-24: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0 closed with Exhausted(14),
-  CutoverBlockerOpen=0, ParkedSealed=2, Unclassified=0; R0 is selected next.
-  R0 warning cleanup landed as cdcde58d12, d1895b6ded, a0699f977e,
-  17f3757c36, b96eeb93ad, 4ddea83a17, 2a95dd9463, 3f6b42e7d7,
-  9f082bc47c, d336750521, 8e904d8cb8, 3a2422a8c9, 47f2e77cec,
-  053e23aa8e, 61565ffc7c, d41c782782, 54cc08c097, 8f450bbfb9,
-  23b9b3877d, 8fdf548783, 8e391725cd, 1a2db35a2d, 8e7edb391e,
-  57bdbf4971, 1c47cc8f92, 868dafe161, ee668f0f95, bfba3ab775,
-  cbf4bec31f, d40c601363, 737db8c777, d96e52761e, 38b3f1641d,
-  ebc9fd6350, a8eff51aa6, fd838c4745, 716ec2a2fb, f038089c28,
-  eea766b5c1, 3b448fecf7, 9248c82faa, fa4b65ea09, e9c7386848, db0b90ce08, 9e4710a08, 1918b24106, 0f011cbf52, 473625d903, f779341360, 2fdbf4b508, 40da90c2f1, 26a6bacdb1, ec2801c134, 95758c9050, bb65fd5f53, 978c9ce0c1, f135329711, e9afd400a3, bf3d80cf4c, 41ed4112d6, 2fbddaafd6, 21c34c6d34, 18c04de50b, fd2789bca2, 8b4d2cd395, 919936b0f1, ed8d783368, 19697fbd93, 969bf64e66, 57803513ea, 58d26e404e, deff1fd24d, a35c0c00a2, fa1bc72658, 92f158f2ba, 50526dc168, f81297108d, df0b954931, 61b1ab68fc, 3c4408c311, 9ead4d091b, d700cab8a5, 036fde3d3d, 40b9b1350d, 9503ff23bb, 0a18f88c84, abf2752d4a9, 7dcf4952a9, 15be0caaa4, 45f1eaa790, 89803fa919, 4f64bcc7fe, 958e574f1e, 7bf4a1a2a1, ab777f1dcf, c9224cbd04, 0eb8cb7389, 94bdf18079, 6e54cfcfeb, 71b45d262e, 37714c1e34, 1bb310ebd2, a50ca34379, b3c33e0a06, 933aae284f, 174efbdbcd, 74475c2762, 922e0e2b6d, d3ba45f198, e22d2122e2, ac7e5255d7, a8445d6357, and 6a512394c7, 1b13730447, 7a6286064c, a683f74723, e43411c0c7, b5e3067fdb, e4d1e3347e; focused tests
-  dc72a9495e, aad01affd5, 9bd7704b06, b2375a5370, 9dd9eaf768, c2e23f12d5, 94bed0540b, dc78128d1f, 820816bcba, ade217eadc, ffb0f6a660, e16399eff8, 7a9819bf71, f135853115, aa22d63ea6, 0811b69d9d are included in the latest cleanup tail; focused tests and five
-  guards plus MIR root facade/import hygiene guards are green,
-  test warnings are 1063 -> 433 with unused_imports=0, unused_mut=0,
-  unused_variables=0, unreachable_patterns=0, private_interfaces=11,
-  private_bounds=0, dead_code=422, while broad calls/root/work-plan suites retain parent
-  baseline failures. Latest cleanup commit is 0811b69d9d; focused tests remain
-  19/19 and all non-structural lint categories remain zero.""",
+  "2026-08-24: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0 landed as b0a9e849eb with Exhausted(14), CutoverBlockerOpen=0, ParkedSealed=2, and Unclassified=0.",
+  "2026-08-24: behavior-neutral R0 cleanup ended at 0811b69d9d with focused tests 19/19; unused imports/mut/variables/unreachable patterns/private bounds are zero, while 422 dead_code and 11 private_interfaces remain parked.",
+  "2026-08-24: R0 closeout and its caller-zero exhaustion were recorded by 7ff31ac304.",
 ]
