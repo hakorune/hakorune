@@ -168,7 +168,7 @@ impl<'loan, 'source> GenericG0PhysicalEmitterAdmissionRefV1<'loan, 'source> {
         &self.admission.shell_plan
     }
 
-    pub(crate) fn control(&self) -> &PreparedGenericG0EntryControlFactsV1 {
+    pub(in crate::mir::compiler) fn control(&self) -> &PreparedGenericG0EntryControlFactsV1 {
         &self.admission.control
     }
 

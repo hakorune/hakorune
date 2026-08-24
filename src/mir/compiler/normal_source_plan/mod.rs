@@ -47,7 +47,7 @@ pub(crate) use compatibility_origin::{
     NormalCallableCompatibilityOriginErrorV1, NormalCallableCompatibilityOriginV1,
 };
 #[allow(unused_imports)]
-pub(crate) use instance_function_plan::{
+pub(in crate::mir::compiler) use instance_function_plan::{
     GeneralFunctionPlanErrorV1, GeneralFunctionPlanStageV1, GeneralFunctionSignatureStopV1,
     RejectedGeneralFunctionPlanSetV1, VerifiedNormalInstanceFunctionFactsV1,
     VerifiedNormalInstanceFunctionPlanSetV1, VerifiedNormalInstanceFunctionPlanV1,

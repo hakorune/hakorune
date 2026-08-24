@@ -153,7 +153,7 @@ impl ResolvedIfControlMaterializationV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(super) struct IfControlCoverageClaimV1 {
+pub(in crate::mir::resolved_control_flow) struct IfControlCoverageClaimV1 {
     pub(super) row: u32,
     pub(super) site: CoveredSourceSiteV1,
 }

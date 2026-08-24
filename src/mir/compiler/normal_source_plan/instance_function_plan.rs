@@ -181,7 +181,7 @@ pub(crate) enum GeneralFunctionSignatureStopV1 {
 }
 
 #[derive(Debug)]
-pub(crate) enum GeneralFunctionPlanErrorV1 {
+pub(in crate::mir::compiler) enum GeneralFunctionPlanErrorV1 {
     NoInstanceMethod,
     Source {
         key: CanonicalSameModuleCallableKeyV1,
@@ -262,7 +262,7 @@ impl RejectedGeneralFunctionPlanSetV1 {
         self.error.stage()
     }
 
-    pub(crate) const fn error(&self) -> &GeneralFunctionPlanErrorV1 {
+    pub(in crate::mir::compiler) const fn error(&self) -> &GeneralFunctionPlanErrorV1 {
         &self.error
     }
 

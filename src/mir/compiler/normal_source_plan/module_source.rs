@@ -66,7 +66,7 @@ impl<'source> NormalInstanceMethodSourceViewV1<'source> {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum NormalInstanceMethodSourceLoanErrorV1 {
+pub(in crate::mir::compiler) enum NormalInstanceMethodSourceLoanErrorV1 {
     WrongNamespace,
     MissingBoxSite,
     SourceDrift,
