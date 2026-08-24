@@ -250,10 +250,18 @@ expressions, one FastMem shared extraction plus three FastMem allowlist arms, an
 one opt-in Rust escape consumer. The structural helper supplies occurrences;
 each consumer retains its barrier/allowlist policy.
 
+R4e ownership policy design stop — `MIR-CALL-CANONICAL-OWNERSHIP-POLICY-D0`:
+Decision: do not mechanically apply generic Callee occurrences to Ownership SSA; seal an explicit managed/unknown role matrix first.
+Source authority + canonical issuer: `Callee` projection owns occurrences; Ownership SSA classification/ABI owns kinds and policy; no callee ABI issuer exists yet.
+Non-authority: typed `func`/`INVALID`, `used_values`, variant spelling, backend/runtime inference, JoinIR/Query/CallLike, PyVM/reference/Python.
+Fail-fast boundary: selected managed or unknown roles reject before liveness/witness seal; legacy `None` may read `func` once, typed `Some` never does.
+Smallest next slice: seven-shape role matrix, caller-zero scheduling, exact positive/negative/error-precedence tests, and shared guard; no verifier activation before acceptance.
+Non-claims: ownership ABI/witness activation, managed-call support, R5/R6, backend changes, JoinIR/query/CallLike retirement, and warning cleanup; census is `ownership_ssa/verify.rs` Call scan -> liveness/witness and conditional backend preflight.
+
 R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
 `Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`
 to pre-canonical construction before `NewClosure`; and decide the Constructor /
-NewBox boundary explicitly. Do not implement these in R4d.
+NewBox boundary explicitly. Do not implement these before R6.
 
 retirement seriesの固定順は次。
 
