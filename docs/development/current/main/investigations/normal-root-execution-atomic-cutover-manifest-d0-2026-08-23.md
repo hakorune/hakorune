@@ -1935,11 +1935,26 @@ test fingerprint moved from 640 to 638 warnings
 (`private_interfaces=11`, `dead_code=627`; all non-structural lint categories
 remain zero).
 
+The following callable-module invocation-facade cleanup is landed as
+`0eb8cb7389`:
+
+```text
+0eb8cb7389  refactor: trim callable module invocation facades
+```
+
+Caller-free `source()` accessors were removed from the prepared and rejected
+collector invocation facades. The rejected facade still retains its verified
+module source as explicit `_source` evidence, while collector/error and
+publication routes remain unchanged. The focused `normal_root_execution`
+suite passes 19 tests, and the test fingerprint moved from 638 to 635 warnings
+(`private_interfaces=11`, `dead_code=624`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 627 `dead_code` warnings are existing disconnected
+visibility. The remaining 624 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
