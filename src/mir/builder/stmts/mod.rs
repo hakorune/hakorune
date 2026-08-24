@@ -107,7 +107,7 @@ mod local_statement_descent;
 pub(in crate::mir::builder) use local_statement_descent::{
     drive_local_statement_v1, drive_local_statement_with_receipt_v1, CompletedLocalBindingV1,
     CompletedLocalStatementV1, LocalInitializerObservationSinkV1, LocalInitializerObservationV1,
-    LocalStatementDescentPortV1, LocalStatementSyntaxViewV1, RawLegacyLocalInputV1,
+    LocalStatementDescentPortV1, RawLegacyLocalInputV1,
 };
 pub(super) mod print_stmt;
 pub(in crate::mir::builder) mod return_statement_descent;
@@ -120,13 +120,9 @@ pub(super) mod task_scope_stmt;
 mod variable_assignment_descent;
 pub(in crate::mir::builder) use variable_assignment_descent::{
     drive_variable_assignment_v1, RawLegacyVariableAssignmentInputV1,
-    VariableAssignmentDescentPortV1, VariableAssignmentSyntaxViewV1,
+    VariableAssignmentDescentPortV1,
 };
 mod variable_assignment_completion;
-pub(in crate::mir::builder) use variable_assignment_completion::{
-    build_variable_assignment_with_completion_v1, CompletedVariableAssignmentV1,
-    RejectedVariableAssignmentCompletionV1,
-};
 pub(super) mod variable_stmt;
 
 #[cfg(test)]
