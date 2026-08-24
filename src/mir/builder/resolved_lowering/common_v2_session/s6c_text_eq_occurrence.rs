@@ -106,7 +106,7 @@ impl S6CTextEqOccurrencePhysicalViewV1<'_> {
 }
 
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
-    pub(in crate::mir::builder) fn with_s6c_text_eq_occurrence<R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_s6c_text_eq_occurrence<R>(
         &mut self,
         segment: &PreparedSegmentBlockReceiptV1,
         callback: impl for<'view> FnOnce(

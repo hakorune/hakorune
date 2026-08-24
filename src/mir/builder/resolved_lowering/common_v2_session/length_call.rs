@@ -80,13 +80,13 @@ impl<'call, 'source, 'envelope> CanonicalLengthCallResultReceiptV1<'call, 'sourc
         self.destination
     }
 
-    pub(in crate::mir::builder) fn segment_brand(
+    pub(in crate::mir::builder::resolved_lowering) fn segment_brand(
         &self,
     ) -> super::super::common_v2_segment_block_allocation::SegmentBlockAllocationBrandV1 {
         self.segment_brand.clone()
     }
 
-    pub(in crate::mir::builder) fn into_condition_bool_parts(
+    pub(in crate::mir::builder::resolved_lowering) fn into_condition_bool_parts(
         self,
     ) -> (
         &'call mut CommonV2CanonicalSessionRefV1<'source, 'envelope>,
@@ -126,7 +126,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
 
     /// Emit Length from the exact session-owned segment allocation. This is
     /// the only API that can feed the shared Bool -> Return-read transition.
-    pub(in crate::mir::builder) fn emit_length_call_result_from_scope<'call>(
+    pub(in crate::mir::builder::resolved_lowering) fn emit_length_call_result_from_scope<'call>(
         &'call mut self,
         builder: &mut crate::mir::builder::MirBuilder,
         scope: &super::super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,

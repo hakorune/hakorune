@@ -108,7 +108,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
 
     /// Lend one source-backed Length receiver operand without opening the
     /// Length Call. The canonical identity/SSA seam remains the sole issuer.
-    pub(in crate::mir::builder) fn with_length_receiver_operand<R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_length_receiver_operand<R>(
         &mut self,
         builder: &mut crate::mir::builder::MirBuilder,
         receipt: &super::super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,

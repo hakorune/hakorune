@@ -115,7 +115,7 @@ impl<'bool_result, 'source, 'envelope>
 
     /// Consume this Bool receipt and the exact shared segment scope into the
     /// existing Return-read physical receipt. No branch or Return is written.
-    pub(in crate::mir::builder) fn with_return_read_physical_receipt<R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_return_read_physical_receipt<R>(
         self,
         builder: &mut MirBuilder,
         scope: super::super::common_v2_segment_block_allocation::CommonV2SharedSegmentScopeV1,

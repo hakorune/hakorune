@@ -105,7 +105,7 @@ impl S6CTextEqOperandReceiptV1<'_, '_, '_> {
         self.substring_result
     }
 
-    pub(in crate::mir::builder) fn with_s6c_substring_callout_exact_text_co_seal<R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_s6c_substring_callout_exact_text_co_seal<R>(
         self,
         builder: &mut MirBuilder,
         segment_receipt: &PreparedSegmentBlockReceiptV1,
@@ -148,7 +148,7 @@ impl S6CTextEqOperandReceiptV1<'_, '_, '_> {
         )
     }
 
-    pub(in crate::mir::builder) fn segment_brand(&self) -> SegmentBlockAllocationBrandV1 {
+    pub(in crate::mir::builder::resolved_lowering) fn segment_brand(&self) -> SegmentBlockAllocationBrandV1 {
         self.segment_brand.clone()
     }
 }
@@ -156,7 +156,7 @@ impl S6CTextEqOperandReceiptV1<'_, '_, '_> {
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     /// Emit exactly the S6C body prefix required by the later Substring row.
     /// All source/Recipe/layout checks happen before the first MIR effect.
-    pub(in crate::mir::builder) fn with_s6c_text_eq_operands<R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_s6c_text_eq_operands<R>(
         &mut self,
         builder: &mut MirBuilder,
         segment_receipt: &PreparedSegmentBlockReceiptV1,

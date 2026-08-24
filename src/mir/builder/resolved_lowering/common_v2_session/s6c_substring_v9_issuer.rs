@@ -191,7 +191,7 @@ impl<'source, 'envelope> super::CommonV2CanonicalSessionRefV1<'source, 'envelope
     /// Thread one caller-zero V9 issuer through the existing common admission
     /// and operand receipt.  The callback receives only the scoped operand
     /// proof and the move-only runtime result; no MIR callout is emitted.
-    pub(in crate::mir::builder) fn with_s6c_substring_v9_issuer<R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_s6c_substring_v9_issuer<R>(
         &mut self,
         builder: &mut crate::mir::builder::MirBuilder,
         segment: &PreparedSegmentBlockReceiptV1,
