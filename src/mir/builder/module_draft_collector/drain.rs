@@ -24,7 +24,7 @@ pub(in crate::mir::builder) enum CanonicalCollectorReceiptViewV1<'a> {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CanonicalCollectorDrainErrorV1 {
+pub(in crate::mir) enum CanonicalCollectorDrainErrorV1 {
     BrandMismatch,
     ReceiptCountMismatch {
         expected: usize,

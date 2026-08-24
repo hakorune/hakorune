@@ -196,6 +196,6 @@ impl CanonicalDrainManifestV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum CanonicalDrainManifestErrorV1 {
+pub(in crate::mir) enum CanonicalDrainManifestErrorV1 {
     MissingCallableHeader(CanonicalCallableKeyV1),
 }
