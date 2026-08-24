@@ -231,16 +231,6 @@ impl CallableSemanticLoweringState {
         self.explicit_extern_calls.get(site).map(Box::as_ref)
     }
 
-    pub(super) fn brand_constructor_disposition(
-        &self,
-        site: &SourceNodeSiteV1,
-    ) -> Result<
-        super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1<'_>,
-        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
-    > {
-        self.brand_constructors.disposition(site)
-    }
-
     pub(super) fn take_brand_constructor(
         &mut self,
         site: &SourceNodeSiteV1,
@@ -524,20 +514,6 @@ impl CallableSemanticLoweringState {
             return Err(freeze("duplicate-value"));
         }
         Ok(())
-    }
-
-    #[cfg(test)]
-    pub(super) fn dynamic_current_origin_for_test(
-        &self,
-        binding: BindingRefV1,
-        value: ValueId,
-    ) -> Option<BindingRefV1> {
-        self.dynamic_origins.current_origin(binding, value)
-    }
-
-    #[cfg(test)]
-    pub(super) fn dynamic_value_origin_for_test(&self, value: ValueId) -> Option<BindingRefV1> {
-        self.dynamic_origins.value_origin(value)
     }
 
     #[cfg(test)]
