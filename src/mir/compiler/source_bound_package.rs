@@ -435,7 +435,7 @@ impl<'a> CanonicalSourceContinuationV1<'a> {
     /// authority.  This is the only manifest producer; physical evidence is
     /// intentionally not consulted here.  DRAIN0 consumes this projection
     /// once while consuming the complete invocation.
-    pub(in crate::mir) fn project_drain_manifest(
+    pub(super) fn project_drain_manifest(
         &self,
         brand: ModuleInvocationBrandV1,
     ) -> Result<CanonicalDrainManifestV1, CanonicalDrainManifestErrorV1> {
@@ -691,7 +691,7 @@ pub(in crate::mir) struct RejectedCanonicalSourceBindingV1<'a> {
 }
 
 impl<'a> RejectedCanonicalSourceBindingV1<'a> {
-    pub(crate) const fn error(&self) -> &SourceBindingErrorV1 {
+    pub(super) const fn error(&self) -> &SourceBindingErrorV1 {
         &self.error
     }
 
