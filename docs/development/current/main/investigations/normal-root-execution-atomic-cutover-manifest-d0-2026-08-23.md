@@ -1156,3 +1156,18 @@ behavior. The focused `normal_root_execution` suite passes 19 tests, all five
 reusable guards remain green, and the test fingerprint moved from 831 to 827
 warnings (`private_interfaces=95`, `private_bounds=6`; non-structural lint
 categories remain zero).
+
+The following receiver-accessor visibility slice is landed as `db0b90ce08`:
+
+```text
+db0b90ce08  refactor: narrow receiver accessor visibility
+```
+
+The source-call receiver projection and semantic owner-profile accessor are
+consumed only inside `crate::mir`, so their method boundaries now match the
+existing receiver-policy products. The focused `normal_root_execution` suite
+passes 19 tests, all five reusable guards remain green, and the test
+fingerprint moved from 827 to 824 warnings (`private_interfaces=92`,
+`private_bounds=6`; non-structural lint categories remain zero). The remaining
+owner-profile enum-field warning is intentionally left for a separate census,
+because narrowing that enum would widen the affected field/accessor surface.
