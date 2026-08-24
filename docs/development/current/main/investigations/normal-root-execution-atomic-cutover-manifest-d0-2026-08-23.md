@@ -1006,3 +1006,16 @@ If, JoinSig/S6C, JoinIR lowering, resolved-value, source-call, and Raw
 builder facades; all source and Recipe authorities remain unchanged. The
 focused `normal_root_execution` suite passes 19 tests, all five reusable
 guards remain green, and the test fingerprint moved from 904 to 892 warnings.
+
+The following MIR-root facade import slice is landed as `38b3f1641d`:
+
+```text
+38b3f1641d  refactor: prune mir root warning exports
+```
+
+It removes caller-zero root exports, gates VM-reference-only report/profile
+exports behind `vm-reference`, and leaves the allowlisted core MIR facade
+unchanged. The focused `normal_root_execution` suite passes 19 tests, all
+five reusable guards plus MIR root facade/import-hygiene guards remain green,
+and the test fingerprint moved from 892 to 888 warnings with
+`unused_imports=0`.
