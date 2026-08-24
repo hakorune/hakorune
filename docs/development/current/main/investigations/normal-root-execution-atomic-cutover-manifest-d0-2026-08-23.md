@@ -1481,3 +1481,19 @@ The focused `normal_root_execution` suite passes 19 tests, all five reusable
 guards remain green, and the test fingerprint moved from 752 to 747 warnings
 (`private_interfaces=21`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following canonical-core dispatch facade visibility slice is landed as
+`8b4d2cd395`:
+
+```text
+8b4d2cd395  refactor: narrow canonical core dispatch facade
+```
+
+The retained canonical dispatch owner, internal error enum, callable reject
+product, and published-entry method now stay inside the `crate::mir` owner.
+Runner tests consume the existing Callable stage projection rather than the
+internal error payload. No family selection, rejection stage, publication, or
+execution behavior changed. The focused `normal_root_execution` suite passes
+19 tests, all five reusable guards remain green, and the test fingerprint
+moved from 747 to 741 warnings (`private_interfaces=15`, `private_bounds=0`;
+non-structural lint categories remain zero).
