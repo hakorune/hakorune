@@ -205,43 +205,6 @@ impl RawRootBodyPhysicalDriveV1 {
         )
     }
 
-    pub(in crate::mir::builder) fn seal_root_body_preserving(
-        self,
-        result: RootBodyResultV1,
-    ) -> Result<
-        (RawRootPostBodyPhysicalStateV1, CompletedRootBodyV1),
-        (Self, RawRootBodyPhysicalErrorV1),
-    > {
-        let Self {
-            physical,
-            ledger,
-            tracker,
-            callable_main,
-        } = self;
-        let completed = match tracker.seal_root_body_preserving(result) {
-            Ok(completed) => completed,
-            Err((_tracker, error)) => {
-                return Err((
-                    Self {
-                        physical,
-                        ledger,
-                        tracker: _tracker,
-                        callable_main,
-                    },
-                    RawRootBodyPhysicalErrorV1::SealTracker(error),
-                ));
-            }
-        };
-        Ok((
-            RawRootPostBodyPhysicalStateV1 {
-                physical,
-                ledger,
-                callable_main,
-            },
-            completed,
-        ))
-    }
-
     pub(in crate::mir::builder) fn brand(&self) -> ModuleInvocationBrandV1 {
         self.physical.brand()
     }

@@ -44,7 +44,7 @@ struct RawPublicationSealInnerV1;
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawPublishedInvocationCoreV1 {
-    pub(in crate::mir) token: ModuleInvocationTokenV1,
+    pub(in crate::mir) _token: ModuleInvocationTokenV1,
     pub(in crate::mir) module: RawPublishedModuleV1,
     pub(in crate::mir) evidence: super::raw_root_postprocess::RawPostprocessEvidenceV1,
     pub(in crate::mir) publication: RawPublicationSealV1,
@@ -62,8 +62,8 @@ impl RawPublishedInvocationV1 {
         &self,
     ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
         match self {
-            Self::Script(value) => value.core.token.brand(),
-            Self::App(value) => value.core.token.brand(),
+            Self::Script(value) => value.core._token.brand(),
+            Self::App(value) => value.core._token.brand(),
         }
     }
 
@@ -136,7 +136,7 @@ impl SealedPublicationPayloadV1 for RawDirectPublicationPayload {
         module: PublishedModuleTransferV1,
     ) -> Self::Published {
         let core = RawPublishedInvocationCoreV1 {
-            token: self.token,
+            _token: self.token,
             module: match module {
                 PublishedModuleTransferV1::Raw(module) => module,
                 PublishedModuleTransferV1::None => {

@@ -71,7 +71,7 @@ impl RawPublicationCompatibilityEnvelopeV1 {
 
 fn envelope_from_core(core: RawPublishedInvocationCoreV1) -> RawPublicationCompatibilityEnvelopeV1 {
     let RawPublishedInvocationCoreV1 {
-        token: _,
+        _token: _,
         module,
         evidence,
         publication,

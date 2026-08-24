@@ -92,7 +92,7 @@ struct PreparedScriptPhysicalExitCoreSealV1;
 #[derive(Debug)]
 pub(in crate::mir) struct CompletedScriptPhysicalExitCoreV1 {
     block: BasicBlockId,
-    completion: CompletedScriptBodyCompletionV1,
+    _completion: CompletedScriptBodyCompletionV1,
     _seal: CompletedScriptPhysicalExitCoreSealV1,
 }
 
@@ -285,7 +285,7 @@ impl ScriptPhysicalExitCommitV1 {
             });
         CompletedScriptPhysicalExitCoreV1 {
             block,
-            completion: CompletedScriptBodyCompletionV1 {
+            _completion: CompletedScriptBodyCompletionV1 {
                 source,
                 physical,
                 _seal: CompletedScriptBodyCompletionSealV1,
@@ -301,25 +301,11 @@ impl CompletedScriptPhysicalExitCoreV1 {
     }
 
     pub(in crate::mir) const fn source(&self) -> ScriptSourceCompletionV1 {
-        self.completion.source
+        self._completion.source
     }
 
     pub(in crate::mir) fn physical(&self) -> &ScriptPhysicalResultV1 {
-        &self.completion.physical
-    }
-
-    pub(in crate::mir) fn completion(&self) -> &CompletedScriptBodyCompletionV1 {
-        &self.completion
-    }
-}
-
-impl CompletedScriptBodyCompletionV1 {
-    pub(in crate::mir) const fn source(&self) -> ScriptSourceCompletionV1 {
-        self.source
-    }
-
-    pub(in crate::mir) fn physical(&self) -> &ScriptPhysicalResultV1 {
-        &self.physical
+        &self._completion.physical
     }
 }
 

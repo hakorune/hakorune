@@ -99,14 +99,14 @@ impl RawRootBodyEntryContractV1 {
 #[derive(Debug, Clone, PartialEq)]
 pub(crate) struct RawRootBodySourceSiteV1 {
     path: Box<[usize]>,
-    span: Span,
+    _span: Span,
 }
 
 impl RawRootBodySourceSiteV1 {
     pub(crate) fn new(path: &[usize], span: Span) -> Self {
         Self {
             path: path.to_vec().into_boxed_slice(),
-            span,
+            _span: span,
         }
     }
 
@@ -114,9 +114,6 @@ impl RawRootBodySourceSiteV1 {
         &self.path
     }
 
-    pub(crate) const fn span(&self) -> Span {
-        self.span
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

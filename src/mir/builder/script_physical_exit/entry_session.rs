@@ -18,12 +18,12 @@ use super::{
 #[derive(Debug)]
 pub(in crate::mir) enum ScriptPhysicalEntrySessionErrorV1 {
     TargetIsNotMain,
-    TargetArityMismatch { actual: usize },
+    TargetArityMismatch { _actual: usize },
     CandidateFunctionAlreadyOpen,
     MissingCompletedFunction,
-    Lowering(String),
-    Exit(ScriptPhysicalExitErrorV1),
-    Verification(Box<[VerificationError]>),
+    Lowering { _error: String },
+    Exit { _error: ScriptPhysicalExitErrorV1 },
+    Verification { _errors: Box<[VerificationError]> },
 }
 
 pub(in crate::mir) struct OpenScriptPhysicalEntrySessionV1 {
@@ -57,7 +57,7 @@ impl OpenScriptPhysicalEntrySessionV1 {
         }
         if target.arity() != 0 {
             return Err(ScriptPhysicalEntrySessionErrorV1::TargetArityMismatch {
-                actual: target.arity(),
+                _actual: target.arity(),
             });
         }
         let mut candidate = MirBuilder::new();
@@ -118,7 +118,9 @@ impl OpenScriptPhysicalEntrySessionV1 {
             Err(error) => {
                 return Err((
                     self,
-                    ScriptPhysicalEntrySessionErrorV1::Lowering(error.to_string()),
+                    ScriptPhysicalEntrySessionErrorV1::Lowering {
+                        _error: error.to_string(),
+                    },
                 ))
             }
         };
@@ -138,7 +140,12 @@ impl OpenScriptPhysicalEntrySessionV1 {
             ScriptPhysicalExitOpenContractV1::ProvisionalUnknown,
         ) {
             Ok(prepared) => prepared,
-            Err(error) => return Err((self, ScriptPhysicalEntrySessionErrorV1::Exit(error))),
+            Err(error) => {
+                return Err((
+                    self,
+                    ScriptPhysicalEntrySessionErrorV1::Exit { _error: error },
+                ))
+            }
         };
         let completed = ScriptPhysicalExitCommitV1::commit_projected(&mut self.candidate, prepared);
         let verification = {
@@ -153,7 +160,9 @@ impl OpenScriptPhysicalEntrySessionV1 {
         if let Err(errors) = verification {
             return Err((
                 self,
-                ScriptPhysicalEntrySessionErrorV1::Verification(errors.into_boxed_slice()),
+                ScriptPhysicalEntrySessionErrorV1::Verification {
+                    _errors: errors.into_boxed_slice(),
+                },
             ));
         }
         self.finish(completed).map_err(|session| {

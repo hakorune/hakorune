@@ -20,7 +20,7 @@ pub(in crate::mir::builder) enum RawRootStaticChildSourceRoleV1 {
 #[derive(Debug)]
 pub(in crate::mir::builder) struct RawRootStaticChildDraftAdmissionV1 {
     locator: RawSourceLocatorV1,
-    role: RawRootStaticChildSourceRoleV1,
+    _role: RawRootStaticChildSourceRoleV1,
     _seal: RawRootStaticChildDraftAdmissionSealV1,
 }
 
@@ -64,7 +64,7 @@ impl PreparedRawRootStaticChildDraftV1 {
         Self {
             admission: RawRootStaticChildDraftAdmissionV1 {
                 locator,
-                role,
+                _role: role,
                 _seal: RawRootStaticChildDraftAdmissionSealV1,
             },
             lowering,
@@ -99,7 +99,7 @@ impl RawRootStaticChildDraftAdmissionV1 {
     ) -> (FunctionDraftKeyV1, String, usize) {
         let Self {
             locator,
-            role: _,
+            _role: _,
             _seal: _,
         } = self;
         let symbol = locator.symbol().to_owned();
@@ -119,7 +119,7 @@ mod tests {
     fn admission(role: RawRootStaticChildSourceRoleV1) -> RawRootStaticChildDraftAdmissionV1 {
         RawRootStaticChildDraftAdmissionV1 {
             locator: RawSourceLocatorV1::for_test(3, "Main", "helper", "Main.helper/2", 2),
-            role,
+            _role: role,
             _seal: RawRootStaticChildDraftAdmissionSealV1,
         }
     }
