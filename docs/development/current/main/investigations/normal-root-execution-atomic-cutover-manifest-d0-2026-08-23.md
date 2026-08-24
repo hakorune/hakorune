@@ -943,3 +943,16 @@ terminality facades; the coordinator and logical-product owners remain in
 place. The focused `normal_root_execution` suite passes 19 tests, all five
 reusable guards remain green, and the test fingerprint moved from 926 to 924
 warnings.
+
+The following resolved-lowering import slice is landed as `bfba3ab775`:
+
+```text
+bfba3ab775  refactor: prune resolved lowering imports
+```
+
+It removes five compiler-reported caller-zero imports from the generic
+carrier bridge test, loop operation physicalizer, read-emitter test, and
+nested-predicate adapter test; lowering behavior and test fixtures are
+unchanged. The focused `normal_root_execution` suite passes 19 tests, all
+five reusable guards remain green, and the test fingerprint moved from 924
+to 919 warnings.
