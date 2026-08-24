@@ -20,7 +20,6 @@ use crate::mir::resolved_semantics::{
 use super::product::{TrivialRepresentationV1, VerifiedTrivialCanonicalOwnerV1};
 use super::recipe_facts::{
     IfEntryWitnessV1, TrivialRecipeBinaryOpV1, TrivialRecipeExprFactV1, TrivialRecipeExprKindV1,
-    VerifiedTrivialIfRecipeFactsV1,
 };
 use super::recipe_source_paths::{root_body_index, source_binding, verify_entry_definition};
 

@@ -6,7 +6,6 @@
 
 #![cfg(test)]
 
-use super::*;
 use crate::mir::builder::control_flow::plan::loop_phi_materializer::LoopPhiMaterializationHandleV1;
 use crate::mir::builder::control_flow::plan::loop_phi_materializer_test_support::{
     bb, standard5_builder,

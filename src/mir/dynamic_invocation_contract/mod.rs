@@ -7,8 +7,7 @@ mod catalog;
 mod model;
 
 pub(crate) use catalog::{
-    DynamicInvocationEnvelopeIssueV1, DynamicInvocationEnvelopeLookupV1,
-    VerifiedDynamicInvocationEnvelopeCatalogV1,
+    DynamicInvocationEnvelopeIssueV1, VerifiedDynamicInvocationEnvelopeCatalogV1,
 };
 #[allow(unused_imports)]
 pub(crate) use model::{

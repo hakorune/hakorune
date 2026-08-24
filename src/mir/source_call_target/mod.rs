@@ -79,9 +79,7 @@ pub(crate) use script_direct_static::{
 };
 #[cfg(test)]
 pub(crate) use script_direct_static::{
-    ScriptDirectStaticCallTargetErrorV1, ScriptStaticCallSourceOwnerIdV1,
-    VerifiedScriptDirectStaticCallSiteV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
-    VerifiedScriptDirectStaticCallTargetV1,
+    ScriptDirectStaticCallTargetErrorV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
 };
 #[allow(unused_imports)]
 pub(crate) use source_method_call_site::VerifiedSourceMethodCallSiteV1;

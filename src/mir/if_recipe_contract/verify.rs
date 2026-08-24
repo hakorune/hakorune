@@ -3,7 +3,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use super::error::IfRecipeRejectReasonV1 as Reject;
-use super::ids::{IfBindingKeyV1, IfBlockKeyV1, IfValueKeyV1};
+use super::ids::{IfBindingKeyV1, IfValueKeyV1};
 use super::schema::{
     IfBlockRoleV1, IfContinuationV1, IfElseDispositionV1, IfOperationV1, IfRecipeArtifactV1,
     IfRecipeBlockV1, IfRecipeV1, IfValueClassV1, IF_RECIPE_SCHEMA_VERSION_V1,

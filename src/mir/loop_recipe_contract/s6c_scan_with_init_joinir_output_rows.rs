@@ -10,14 +10,13 @@ use super::ids::{
     LoopNodeKeyV1, LoopValueKeyV1,
 };
 use super::s6c_scan_with_init::{
-    DefinedRoleV2, ExitRoleV2, S6CScanWithInitRecipeRolesRefV2, WriteRoleV2,
+    DefinedRoleV2, S6CScanWithInitRecipeRolesRefV2,
 };
 use super::s6c_scan_with_init_joinir::{
     S6CLogicalCallRoleV1, S6CScanWithInitLogicalJoinInputRefV1,
 };
 use super::s6c_scan_with_init_rows::{
-    S6CRecipeBlockRowRefV2, S6CRecipeOperationRowRefV2, S6CRecipeValueRowRefV2,
-    S6CScanWithInitRecipeRowsRefV2,
+    S6CRecipeBlockRowRefV2, S6CRecipeOperationRowRefV2, S6CScanWithInitRecipeRowsRefV2,
 };
 use super::schema_v2::{
     LoopBinaryI64OpV2, LoopCompareI64OpV2, LoopConditionV2, LoopExitKindV2, LoopValueClassV2,

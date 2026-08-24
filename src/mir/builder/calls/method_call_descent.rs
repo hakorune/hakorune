@@ -9,7 +9,7 @@ use crate::ast::ASTNode;
 use crate::mir::{MirBuilder, ValueId};
 
 use super::super::me_call_header_observation::{
-    MeCallHeaderObservationPortV1, MeCallParameterObservationV1, MethodCallLoweringPortV1,
+    MeCallParameterObservationV1, MethodCallLoweringPortV1,
 };
 use super::super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::super::recursive_child_lowering::{

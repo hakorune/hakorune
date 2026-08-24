@@ -21,7 +21,7 @@ use crate::mir::builder::indexing::{
 };
 use crate::mir::builder::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use crate::mir::builder::recursive_child_lowering::{
-    drive_legacy_body_v1, RecursiveChildLoweringPortV1,
+    drive_legacy_body_v1,
 };
 use crate::mir::builder::stmts::task_scope_stmt::{
     lower_prepared_raw_task_scope_with_port_v1, PreparedRawTaskScopeV1,
