@@ -1730,11 +1730,25 @@ suite passes 19 tests, and the test fingerprint moved from 666 to 664 warnings
 (`private_interfaces=11`, `dead_code=653`; all non-structural lint categories
 remain zero).
 
+The following callable-source accessor cleanup is landed as `d700cab8a5`:
+
+```text
+d700cab8a5  refactor: trim unused callable source accessors
+```
+
+The unused catalog-callable getter and instance-constructor ticket comparator
+were removed, while the dynamic-local initializer remains retained as
+`_initializer` evidence after its unused getter was removed. No callable source
+validation, constructor demand issuance, or builder ownership behavior changed.
+The focused `normal_root_execution` suite passes 19 tests, and the test
+fingerprint moved from 664 to 661 warnings (`private_interfaces=11`,
+`dead_code=650`; all non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 653 `dead_code` warnings are existing disconnected
+visibility. The remaining 650 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
