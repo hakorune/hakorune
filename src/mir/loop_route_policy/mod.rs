@@ -55,19 +55,19 @@ pub(crate) use direct_accum_observation::{
 pub(crate) use evaluate::freeze_loop_route_schedule_v1;
 pub(crate) use family_admission::{
     assemble_loop_family_admission_window_v1, LoopFamilyAdmissionAssemblyOutcomeV1,
-    LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionFailureEvidenceV1,
-    LoopFamilyAdmissionIssueV1, LoopFamilyAdmissionModeV1, LoopFamilyObservationRowV1,
+    LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionIssueV1, LoopFamilyAdmissionModeV1,
+    LoopFamilyObservationRowV1,
     LoopFamilyTagV1, VerifiedLoopFamilyAdmissionRowsV1, VerifiedLoopFamilyAdmissionWindowV1,
 };
 #[cfg(test)]
 pub(crate) use family_selection::{
     select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,
-    CanonicalFamilySelectorInputV1, FamilySelectionRejectV1, FamilySelectionUnresolvedV1,
+    CanonicalFamilySelectorInputV1, FamilySelectionUnresolvedV1,
     GenericFamilyEvidenceV1,
 };
 pub(crate) use family_selector::{
     select_canonical_loop_family_v1, CanonicalLoopFamilyCandidateV1,
-    CanonicalLoopFamilySelectionFailureV1, CanonicalLoopFamilySelectionOutcomeV1,
+    CanonicalLoopFamilySelectionOutcomeV1,
     CanonicalLoopFamilySelectionReasonV1, CanonicalLoopFamilySelectionV1,
 };
 #[allow(unused_imports)]
@@ -85,9 +85,8 @@ pub(crate) use generic_g0_observation::{
 };
 pub(crate) use loop_cond_break_continue_observation::{
     issue_loop_cond_family_observation_v1, LoopCondFamilyObservationV1,
-    LoopCondObservationContextV1, LoopCondObservationDeclineV1, LoopCondObservationEvidenceV1,
-    LoopCondObservationRejectV1, LoopCondObservationUnresolvedV1,
-    VerifiedLoopCondFamilyCandidateV1,
+    LoopCondObservationContextV1, LoopCondObservationDeclineV1, LoopCondObservationRejectV1,
+    LoopCondObservationUnresolvedV1,
 };
 #[allow(unused_imports)]
 pub(crate) use loop_true_break_continue::{
@@ -96,9 +95,8 @@ pub(crate) use loop_true_break_continue::{
 };
 pub(crate) use loop_true_break_continue_observation::{
     issue_loop_true_family_observation_v1, LoopTrueFamilyObservationV1,
-    LoopTrueObservationContextV1, LoopTrueObservationDeclineV1, LoopTrueObservationEvidenceV1,
-    LoopTrueObservationRejectV1, LoopTrueObservationUnresolvedV1,
-    VerifiedLoopTrueFamilyCandidateV1,
+    LoopTrueObservationContextV1, LoopTrueObservationDeclineV1, LoopTrueObservationRejectV1,
+    LoopTrueObservationUnresolvedV1,
 };
 #[allow(unused_imports)]
 pub(crate) use nested_predicate_observation::{
@@ -116,7 +114,7 @@ pub(crate) use policy::{
     VerifiedLoopPolicyWinnerV1,
 };
 #[cfg(test)]
-pub(crate) use policy::{issue_policy_winner_for_test, issue_policy_winner_for_test_with_frame};
+pub(crate) use policy::issue_policy_winner_for_test_with_frame;
 #[allow(unused_imports)]
 pub(crate) use policy_evidence::{
     LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,
