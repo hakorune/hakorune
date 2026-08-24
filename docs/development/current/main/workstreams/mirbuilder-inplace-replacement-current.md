@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (R4a closed; R4b used_values boundary)
+Status: Active workstream — fast path (R4b used_values)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-OPERAND-USED-VALUES-D0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, and R4a closed; R4b design stop
-  mode              = design_stop
+  current decision  = MIR-CALL-CANONICAL-OPERAND-USED-VALUES-I0-R0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, and R4a closed; R4b active
+  mode              = fast
   production stop   = before Call core field deletion
-  exit              = accepted R4b brief and exact consumer boundary; no Call field deletion yet
+  exit              = immutable projection + methods.rs delegation, exact parity tests, and shared guard; no Call field deletion yet
 fallback / retry  = 0
 ```
 
@@ -263,8 +263,8 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    Const authority, `maybe_resolve_calls`, and all remaining Program late edges
    (closed).
 6. R4a: exhaustive `Callee` operand rewrite projection into SimplifyCFG
-   Call-use rewrite (closed); R4b `used_values` fanout is the next separate
-   design-stop row, and later R4 consumers remain separate rows.
+   Call-use rewrite (closed); R4b `used_values` immutable projection and
+   methods.rs delegation are active, while later R4 consumers remain separate rows.
 7. R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
    with no by-name fallback/retry. Python/PyVM/reference remain
    boundary-outside `ParkedSealed`; they are not an active retirement edge.
@@ -288,7 +288,7 @@ late issuer retirement (closed). Non-claims: core field
 cutover, operand SSOT, selected terminal closure, and historical backend re-entry.
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
-R4b D0 design stop; Decision: `used_values` emits typed Callee occurrences in canonical order, then args; `None` keeps func->args and duplicates.
+R4b D0 accepted; I0/R0 brief. Decision: `used_values` emits typed Callee occurrences in canonical order, then args; `None` keeps func->args and duplicates.
 Source + issuer: exact Callee fields -> `Callee::for_each_value_operand`; `used_values` adds args.
 Non-authority: typed func/INVALID, dst, dedup, consumer-local matches, ownership/escape, optimizer/backend text, PyVM/reference/Python.
 Fail-fast: all six variants exhaustive; `Some(callee)` never reads func; `None` reads it once.

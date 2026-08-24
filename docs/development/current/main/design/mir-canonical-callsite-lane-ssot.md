@@ -213,10 +213,10 @@ retained. The match is exhaustive with explicit empty Global/Extern/Constructor/
 Method(None). SimplifyCFG is migrated and parity/guard evidence is green; `func`,
 Call args, ownership, escape, JoinIR, and field deletion remain separate rows.
 
-R4b design stop: `used_values` has 56 direct non-test expressions across 37 files
+R4b D0 accepted: `used_values` has 56 direct non-test expressions across 37 files
 plus one BasicBlock edge. Its accepted law is typed Callee occurrences in the same
 order, then args; legacy `None` keeps func once before args and duplicates remain.
-The next bounded row is an immutable exhaustive `Callee::for_each_value_operand`
+The active bounded row is an immutable exhaustive `Callee::for_each_value_operand`
 facet plus only the `methods.rs` Call arm, exact tests, and the shared guard. The
 fanout, MirQuery/CallLike/value_consumer/JoinIR/ownership/escape consumers,
 warning cleanup, PyVM/reference/Python, and Call field deletion are not in R4b.

@@ -4,14 +4,14 @@ ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
 and owner-private JSON-v0 input state as compatibility ingress. R1, D1,
 Topology-I0, R2-I0, R3a, R3b, and R4a are closed; R4b used_values
-projection is the active design-stop boundary."""
+projection is the active bounded implementation row."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-CANONICAL-OPERAND-USED-VALUES-D0"
-current_design_stop = "R4b design stop: used_values has 56 direct expressions across 37 files plus a BasicBlock edge; accept the typed Callee occurrence law and exact consumer boundary before migration."
-current_blocker_token = "R4b design stop: accept the six-line used_values brief; immutable Callee projection and methods.rs delegation are the next bounded slice; do not migrate the fanout or delete Call fields yet."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-CANONICAL-OPERAND-USED-VALUES-I0-R0"
+current_design_stop = "R4b D0 accepted: used_values has 56 direct expressions across 37 files plus a BasicBlock edge; immutable Callee occurrence order and exact methods.rs boundary are fixed."
+current_blocker_token = "R4b fast row: add immutable Callee::for_each_value_operand and delegate only methods.rs Call used_values; preserve legacy func/args parity, add shared guard evidence, and do not migrate other consumers or delete Call fields."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -20,10 +20,10 @@ active_lane = "MirBuilder in-place replacement — canonical MIR Call target ret
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, and R4a are
-closed. R4b is a design stop for the typed used_values fanout; later consumers
-and core field deletion remain blocked by their own rows. PyVM/reference/
-Python remain ParkedSealed outside this lane. Exit: accepted R4b brief before
-any consumer migration, with no retry or fallback."""
+closed. R4b is the active typed used_values consumer row; later consumers and
+core field deletion remain blocked by their own rows. PyVM/reference/Python
+remain ParkedSealed outside this lane. Exit: immutable projection, methods.rs
+delegation, exact parity tests, and shared guard with no retry or fallback."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -35,9 +35,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, and R4a are closed; R4b used_values fanout is the design-stop boundary. PyVM/reference/Python remain ParkedSealed outside this lane."
-next_design_card = "MIR-CALL-CANONICAL-OPERAND-USED-VALUES-D0"
-next_execution_card = "none — R4b design stop until the brief is accepted"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, and R4a are closed; R4b immutable used_values projection is active. PyVM/reference/Python remain ParkedSealed outside this lane."
+next_design_card = "none — R4b D0 accepted; later R4 consumers require separate design rows"
+next_execution_card = "MIR-CALL-CANONICAL-OPERAND-USED-VALUES-I0-R0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
