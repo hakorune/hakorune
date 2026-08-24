@@ -1113,3 +1113,17 @@ callback scopes. The focused `normal_root_execution` suite passes 19 tests, all
 five reusable guards remain green, and the test fingerprint moved from 845 to
 838 warnings (`private_interfaces=106`, `private_bounds=6`; non-structural
 lint categories remain zero).
+
+The following callable-main helper visibility slice is landed as
+`9248c82faa`:
+
+```text
+9248c82faa  refactor: narrow callable main helper visibility
+```
+
+The source/physical getters and evidence decomposition are consumed only by
+the Builder transaction tree; the rejection enum remains at its compiler
+boundary. The focused `normal_root_execution` suite passes 19 tests, all five
+reusable guards remain green, and the test fingerprint moved from 838 to 834
+warnings (`private_interfaces=102`, `private_bounds=6`; non-structural lint
+categories remain zero).
