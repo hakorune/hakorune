@@ -511,7 +511,7 @@ Source authority + canonical issuer: root selector parses S/U/M once; stored Cal
 Non-authority: func/INVALID except explicit V0 legacy ingress, wire text, independent env reads, backend_shape mutation, post-wire lookup/retry, and parked backends.
 Fail-fast boundary: invalid/mixed selector, targetless Call, and unsupported profile/target combinations reject before root or instruction publication; malformed explicit targets never retry through legacy fields.
 Completed slice: MIR-CALL-JSON-PROFILE-I0-R0 landed at `db350b81c9`; the immutable profile is threaded from root through emitters/mod.rs to calls.rs, per-call selector reads are gone, root tests are 2/2, calls tests are 8/8, and the shared guards are green.
-Next design stop: MIR-CALL-JOINIR-OPERAND-REMAP-D0; no backend_shape, native, or R6 implementation is implied.
+Next design stop: MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1; no R4c, backend_shape, native, or R6 implementation is implied.
 Non-claims: backend_shape removal, Method(None) retirement, Closure/NewBox decision, loader fallback split, native, or R6 core schema cutover.
 ```
 
@@ -549,7 +549,8 @@ parity: root schema kind, callee, receiver, args, dst, and existing effects
         outside the I0 claim.
 ```
 
-JoinIR operand-remap D0 (next design stop: `MIR-CALL-JOINIR-OPERAND-REMAP-D0`):
+JoinIR operand-remap D0 result (`NoSafeSlice`; next design stop:
+`MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1`):
 
 ```text
 Decision: JoinIR Call collection/remap may delegate target ValueIds to the
@@ -579,11 +580,56 @@ instructions, and all backend/native/parked routes. Completion requires a
 finite owner/caller inventory, one lifecycle authority, and zero open or
 reopened JoinIR remap blockers; otherwise the row remains `NoSafeSlice`.
 
+D0 census result (read-only audit at current HEAD):
+
+```text
+collect_values_in_block -> merge/value_collector.rs plus two value-lifecycle
+  owners; remap_instruction -> merge instruction and terminator rewriters.
+The JoinIR merge graph has no non-test production caller (caller-zero), while
+value_lifecycle.rs::verify_typed_values_are_defined and
+value_lifecycle_definition.rs::prepare_transient_stale_value_facts_v1 have
+different reachable/stale/retention and fail-fast semantics. Therefore a
+shared Callee projection is observable, but a shared lifecycle authority is
+not issued. R4c remains NoSafeSlice and no JoinIR code/test edit is allowed.
+```
+
+Next design task: `MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1`.
+
+```text
+Decision: classify caller-zero merge reachability and the two lifecycle
+  owners before any Callee operand delegation; keep collection/remap policy
+  separate from value retention/finalization policy.
+Source authority + canonical issuer: JoinIR merge coordinator owns merge
+  reachability; each lifecycle owner issues its own retention/fail-fast facts;
+  Callee remains the sole target operand projection authority.
+Non-authority: local remap_callee, typed func/INVALID, generic used_values,
+  caller-zero fixtures, backend/runtime names, and lifecycle cross-inference.
+Fail-fast boundary: before Phase 1-2 collection or Phase 4-5 rewrite, every
+  non-test edge must be classified; missing caller/lifecycle issuer is
+  NoSafeSlice and cannot be filled by a default or partial delegation.
+Smallest next slice: finite D1 census of merge caller reachability, both
+  lifecycle owners, direct remap/collection edges, and reopen triggers; only
+  after D1 acceptance may R4c replace the local Callee match.
+Non-claims: Method(None), Closure/Constructor shape, MirCall/CallFlags, R6,
+  backend/native, PyVM/reference/Python, and warning cleanup.
+```
+
+D1 finite state matrix:
+
+| State | Authority | Terminal | Fallback |
+| --- | --- | --- | --- |
+| `LiveMergeCaller` | merge coordinator | named production boundary | none |
+| `CallerZero` | bounded source census | `NoSafeSlice` | no route invention |
+| `VerifyLifecycle` | `value_lifecycle.rs` | separate retention contract | no stale-fact reuse |
+| `StaleFactsLifecycle` | `value_lifecycle_definition.rs` | separate prepare/fail-fast contract | no verify reuse |
+| `SharedBoundaryUnresolved` | D1 design owner | `NoSafeSlice` | no partial helper replacement |
+| `TestOrDisconnected` | test/parked owner | `ParkedSealed` | excluded from production claim |
+
 Feedback reconciliation and deferred task queue (not selected):
 
 ```text
 R4b status: HEAD already delegates Call used_values to Callee::for_each_value_operand; Value, Method receiver, Closure captures/me, args order, duplicates, and legacy None parity are covered by the shared tests. Escape, value-consumer, ownership, and query now reuse the occurrence projection where their separate policies allow it.
-Remaining duplicate: JoinIrIdRemapper still owns a local Callee match and its collect_values Call arm is incomplete for Value/Closure. Queue MIR-CALL-JOINIR-OPERAND-REMAP-D0 after the current JSON D1; authority is Callee::rewrite_value_operands/for_each_value_operand, but production selection stays NoSafeSlice until a named JoinIR caller and shared lifecycle boundary are proven.
+Remaining duplicate: JoinIrIdRemapper still owns a local Callee match and its collect_values Call arm is incomplete for Value/Closure. D0 census found caller-zero merge reachability and two distinct lifecycle owners; queue MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1, and keep R4c NoSafeSlice until a named JoinIR caller and lifecycle boundary are proven.
 R6 gate: decide MirCall/CallFlags retirement, mandatory Method receiver with static calls as qualified Global, Closure pre-canonical construction versus Callee::Value call, and Constructor/NewBox boundary in one schema decision.
 Post-R7 cleanup: normal-root mode/projection sum, MainObserved naming, identity-based syntax loan, and builder.rs production/compatibility/test barrel census remain separate cleanup rows; PyVM/reference/Python/native_driver remain ParkedSealed.
 ```
