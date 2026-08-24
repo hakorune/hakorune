@@ -43,8 +43,7 @@ pub(crate) use direct_accum_effect_plan::{
     VerifiedDirectAccumBindingEffectPlanV1,
 };
 pub(crate) use direct_accum_exclusivity::{
-    issue_direct_accum_disjointness_v1, DirectAccumDisjointnessRejectV1,
-    VerifiedDirectAccumDisjointnessV1,
+    DirectAccumDisjointnessRejectV1,
 };
 pub(crate) use direct_accum_observation::{
     DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
@@ -59,7 +58,6 @@ pub(crate) use generic_g0_observation::{
 #[cfg(test)]
 pub(crate) use generic_resolved_carrier_facts_snapshot::{
     issue_generic_resolved_carrier_facts_v1, ResolvedCarrierDispositionV1,
-    VerifiedGenericResolvedCarrierFactsV1,
 };
 pub(crate) use loop_cond_break_continue_observation::{
     LoopCondObservationCoverageV1, LoopCondObservationModeV1, LoopCondSourceAttemptOutcomeV1,
@@ -139,7 +137,7 @@ pub(crate) use variable_accum_recurrence_validation::source_coherence_is_exact;
 
 #[cfg(test)]
 pub(crate) use selected_demand::{
-    verified_loop_structural_facts_for_test, verified_loop_structural_facts_for_test_with_frame,
+    verified_loop_structural_facts_for_test_with_frame,
 };
 
 #[cfg(test)]
