@@ -1894,11 +1894,24 @@ test fingerprint moved from 645 to 644 warnings
 (`private_interfaces=11`, `dead_code=633`; all non-structural lint categories
 remain zero).
 
+The following unified-emitter alias cleanup is landed as `7bf4a1a2a1`:
+
+```text
+7bf4a1a2a1  refactor: remove unused unified emitter alias
+```
+
+The caller-free lookup-less map-replay alias was removed; the shared
+lookup/map-replay emitter remains the sole implementation. No call emission,
+map-write replay, or result publication behavior changed. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 644 to 643 warnings (`private_interfaces=11`, `dead_code=632`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 633 `dead_code` warnings are existing disconnected
+visibility. The remaining 632 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
