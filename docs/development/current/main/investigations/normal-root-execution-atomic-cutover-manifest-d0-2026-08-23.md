@@ -1658,11 +1658,26 @@ fingerprint moved from 685 to 679 warnings
 (`private_interfaces=11`, `dead_code=668`; all non-structural lint categories
 remain zero).
 
+The following static source-seal accessor cleanup is landed as `f81297108d`:
+
+```text
+f81297108d  refactor: trim static source seal accessors
+```
+
+The unreferenced static-parent seal accessors were removed, and unsupported
+member sites plus the static seal's box/method evidence remain stored under
+explicit `_` fields. Typed static-parent dispositions and their payloads are
+unchanged. No static source issuance, member coverage, source-seal validation,
+or parser ownership behavior changed. The focused `normal_root_execution`
+suite passes 19 tests, and the test fingerprint moved from 679 to 676 warnings
+(`private_interfaces=11`, `dead_code=665`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 668 `dead_code` warnings are existing disconnected
+visibility. The remaining 665 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
