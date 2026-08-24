@@ -63,15 +63,11 @@ pub(super) struct PreparedCallableCollectorInvocationV1<'a> {
 
 #[derive(Debug)]
 pub(super) struct RejectedCallableCollectorInvocationV1<'a> {
-    source: &'a VerifiedResolvedCallableModuleV1,
+    _source: &'a VerifiedResolvedCallableModuleV1,
     rejected: RejectedCallableCollectorBatchV1,
 }
 
 impl<'a> PreparedCallableCollectorInvocationV1<'a> {
-    pub(super) const fn source(&self) -> &'a VerifiedResolvedCallableModuleV1 {
-        self.source
-    }
-
     pub(super) fn collect_all(
         self,
     ) -> (
@@ -86,10 +82,6 @@ impl<'a> PreparedCallableCollectorInvocationV1<'a> {
 }
 
 impl<'a> RejectedCallableCollectorInvocationV1<'a> {
-    pub(super) const fn source(&self) -> &'a VerifiedResolvedCallableModuleV1 {
-        self.source
-    }
-
     pub(super) fn collector(&self) -> &ModuleDraftCollectorV1 {
         self.rejected.collector()
     }
@@ -250,7 +242,10 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
         collector
             .prepare_callable_batch(entries)
             .map(|batch| PreparedCallableCollectorInvocationV1 { source, batch })
-            .map_err(|rejected| RejectedCallableCollectorInvocationV1 { source, rejected })
+            .map_err(|rejected| RejectedCallableCollectorInvocationV1 {
+                _source: source,
+                rejected,
+            })
     }
 
     pub(super) fn publish_into(
