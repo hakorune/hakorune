@@ -2251,3 +2251,24 @@ The updated residual warning boundary is explicit: the eleven
 MIR/semantic API authority decision described above, while the remaining 562
 `dead_code` warnings are existing disconnected scaffolding and are not
 mass-deleted in this R0 lane.
+
+The following Raw child-terminal error-evidence cleanup is landed as
+`c1f8ed429c`:
+
+```text
+c1f8ed429c  refactor: retain raw child error evidence
+```
+
+The Request, Reservation, Child, Ledger, and Abort payloads remain typed and
+are still returned through the static-helper terminal; only unread tuple
+fields become named underscore evidence. Child reservation, abort, ledger
+completion, and coarse abort-reason mapping are unchanged. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 573 to 568 warnings (`private_interfaces=11`, `dead_code=557`; all
+non-structural lint categories remain zero).
+
+The updated residual warning boundary is explicit: the eleven
+`private_interfaces` warnings remain deferred pending the deliberate public
+MIR/semantic API authority decision described above, while the remaining 557
+`dead_code` warnings are existing disconnected scaffolding and are not
+mass-deleted in this R0 lane.
