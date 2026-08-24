@@ -1060,3 +1060,16 @@ Recipe, physical, or visibility authority changes. The focused
 `normal_root_execution` suite passes 19 tests, all five reusable guards remain
 green, and the test fingerprint moved from 869 to 855 warnings
 (`unused_imports=0`, `unused_mut=0`, `unused_variables=0`).
+
+The final non-structural lint slice in this pass is landed as `716ec2a2fb`:
+
+```text
+716ec2a2fb  test: remove unreachable destination arm
+```
+
+The destination enum currently has one authoritative variant, so the test's
+unreachable fallback arm was removed without changing the issued destination
+or any production route. The focused `normal_root_execution` suite passes 19
+tests, all five reusable guards remain green, and the test fingerprint moved
+from 855 to 854 warnings (`unused_imports=0`, `unused_mut=0`,
+`unused_variables=0`, `unreachable_patterns=0`).
