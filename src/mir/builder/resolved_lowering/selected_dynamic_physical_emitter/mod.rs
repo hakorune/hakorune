@@ -664,7 +664,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     }
 
     #[cfg(test)]
-    pub(super) fn with_physical_value_for_test<R>(
+    fn with_physical_value_for_test<R>(
         &self,
         result: crate::mir::loop_recipe_contract::LoopValueKeyV1,
         callback: impl for<'a> FnOnce(&'a DynamicV2PhysicalValueViewV1) -> R,
@@ -677,7 +677,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     }
 
     #[cfg(test)]
-    pub(super) fn with_physical_value_for_test_as<R>(
+    fn with_physical_value_for_test_as<R>(
         &self,
         result: crate::mir::loop_recipe_contract::LoopValueKeyV1,
         representation: DynamicV2PhysicalRepresentationV1,

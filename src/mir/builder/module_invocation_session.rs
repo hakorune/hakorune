@@ -446,7 +446,7 @@ impl ModuleBuilderInvocationSessionV1 {
     /// Lend the unpublished candidate together with the one root Ready-scope
     /// permission. The scope cannot outlive this callback and cannot be
     /// constructed from a bare Builder.
-    pub(in crate::mir) fn with_builder_and_pinned_text_invocation_binding_and_callable_loop_scope<R>(
+    pub(in crate::mir::builder) fn with_builder_and_pinned_text_invocation_binding_and_callable_loop_scope<R>(
         &mut self,
         callback: impl FnOnce(
             &mut MirBuilder,

@@ -66,7 +66,7 @@ fn with_dispatch_input<R>(
 /// shell/entry/segment preflight, and lend one branded dispatcher input.  The
 /// callback remains caller-zero: it cannot publish a module, and every late
 /// failure returns through the outer discard owner.
-pub(in crate::mir::builder) fn with_generic_g0_physical_emitter_session_preflight<R>(
+fn with_generic_g0_physical_emitter_session_preflight<R>(
     builder: &mut MirBuilder,
     admission: PreparedGenericG0PhysicalEmitterAdmissionV1<'_>,
     callback: impl for<'scope> FnOnce(

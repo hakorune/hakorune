@@ -5,7 +5,7 @@ use super::super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::super::recursive_child_lowering::RawInvocationChildPortV1;
 use super::super::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 
-pub(super) trait ExplicitExternSourcePortV1 {
+pub(in crate::mir::builder) trait ExplicitExternSourcePortV1 {
     fn resolved_explicit_extern_symbol_v1(&self) -> Result<Option<Box<str>>, String> {
         Ok(None)
     }
