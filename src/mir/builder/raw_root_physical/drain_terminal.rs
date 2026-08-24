@@ -49,20 +49,21 @@ pub(in crate::mir) enum RawPhysicalDrainErrorV1 {
 
 #[derive(Debug)]
 enum RejectedRawDrainOwnerV1 {
-    Parts(RawDrainPhysicalPartsV1),
+    Parts { _parts: RawDrainPhysicalPartsV1 },
     Split {
-        session: ModuleBuilderInvocationSessionV1,
-        shell: BrandedShellV1<super::super::module_lowering_shell::ModuleLoweringShellV1>,
-        token: ModuleInvocationTokenV1,
-        collector: BrandedCollectorV1<super::super::module_draft_collector::ModuleDraftCollectorV1>,
-        ledger: SealedRawExpansionReceiptLedgerV1,
-        root: RawInvocationRootWitnessV1,
+        _session: ModuleBuilderInvocationSessionV1,
+        _shell: BrandedShellV1<super::super::module_lowering_shell::ModuleLoweringShellV1>,
+        _token: ModuleInvocationTokenV1,
+        _collector:
+            BrandedCollectorV1<super::super::module_draft_collector::ModuleDraftCollectorV1>,
+        _ledger: SealedRawExpansionReceiptLedgerV1,
+        _root: RawInvocationRootWitnessV1,
     },
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawPhysicalDrainV1 {
-    owner: RejectedRawDrainOwnerV1,
+    _owner: RejectedRawDrainOwnerV1,
     error: RawPhysicalDrainErrorV1,
     _seal: RejectedRawPhysicalDrainSealV1,
 }
@@ -235,12 +236,14 @@ impl RawDrainWitnessV1 {
         &self.ledger
     }
 
+    #[cfg(feature = "vm-reference")]
     pub(in crate::mir) fn vm_decode_plan(
         &self,
     ) -> Result<super::super::raw_root_body_exit::RawVmSourceEntryDecodeKindV1, ()> {
         self.root.exit().vm_decode_plan()
     }
 
+    #[cfg(feature = "vm-reference")]
     pub(in crate::mir) fn main_entry_target(
         &self,
     ) -> &super::super::root_batch_slot::RawMainEntryTargetV1 {
@@ -302,13 +305,13 @@ pub(in crate::mir::builder) fn prepare_from_parts(
         Ok(collector) => collector,
         Err((collector, error)) => {
             return Err(RejectedRawPhysicalDrainV1 {
-                owner: RejectedRawDrainOwnerV1::Split {
-                    session,
-                    shell,
-                    token,
-                    collector,
-                    ledger,
-                    root,
+                _owner: RejectedRawDrainOwnerV1::Split {
+                    _session: session,
+                    _shell: shell,
+                    _token: token,
+                    _collector: collector,
+                    _ledger: ledger,
+                    _root: root,
                 },
                 error: RawPhysicalDrainErrorV1::Collector(error),
                 _seal: RejectedRawPhysicalDrainSealV1,
@@ -373,7 +376,7 @@ fn reject(
     error: RawPhysicalDrainErrorV1,
 ) -> RejectedRawPhysicalDrainV1 {
     RejectedRawPhysicalDrainV1 {
-        owner: RejectedRawDrainOwnerV1::Parts(parts),
+        _owner: RejectedRawDrainOwnerV1::Parts { _parts: parts },
         error,
         _seal: RejectedRawPhysicalDrainSealV1,
     }
