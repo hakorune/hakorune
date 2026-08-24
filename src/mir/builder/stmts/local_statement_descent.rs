@@ -305,7 +305,7 @@ fn prepare_nested_expression_sources(
 pub(in crate::mir::builder) fn drive_local_statement_v1<Port>(
     builder: &mut MirBuilder,
     port: &mut Port,
-    mut input: Port::LocalInput,
+    input: Port::LocalInput,
 ) -> Result<ValueId, String>
 where
     Port: LocalStatementDescentPortV1,

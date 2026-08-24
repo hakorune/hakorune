@@ -211,7 +211,7 @@ fn continue_live_and_fresh_seed_all_five_core_cursors() {
 
 #[test]
 fn dropping_failed_candidate_leaves_live_builder_unchanged() {
-    let mut live = advanced_builder();
+    let live = advanced_builder();
     let before = (
         live.repl_mode,
         live.comp_ctx.quiet_internal_logs,
@@ -245,7 +245,7 @@ fn dropping_failed_candidate_leaves_live_builder_unchanged() {
 
 #[test]
 fn commit_readiness_rejects_open_slot_state_before_external_commit() {
-    let mut live = MirBuilder::new();
+    let live = MirBuilder::new();
     let config =
         BuilderInvocationConfigV1::snapshot_with_policy(&live, BuilderCoreSeedPolicyV1::Fresh);
     let mut session = ModuleBuilderInvocationSessionV1::open(&live, config);

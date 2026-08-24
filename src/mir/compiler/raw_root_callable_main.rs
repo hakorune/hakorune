@@ -385,7 +385,7 @@ fn finish_app(
         completion,
         receipts,
     } = complete;
-    let (mut core, disposition, locator) = split_core(core);
+    let (core, disposition, locator) = split_core(core);
     if core.physical.callable_main() != disposition {
         return Err(reject(
             core,

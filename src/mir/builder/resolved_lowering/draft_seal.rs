@@ -310,7 +310,7 @@ impl FunctionDraftSealProjectionV1 {
 
     /// Run the shared type propagation order on the private projection only.
     /// No live `TypeContext` or `MirFunction` is passed to this entry.
-    pub(super) fn prepare_type_facts(mut self) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
+    pub(super) fn prepare_type_facts(self) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
         self.prepare_type_facts_with_lookup(None)
     }
 

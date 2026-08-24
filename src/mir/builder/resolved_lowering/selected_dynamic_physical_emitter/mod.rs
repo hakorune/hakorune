@@ -504,7 +504,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 "selected Dynamic body-state bridge rejected: {error}"
             )));
         }
-        let mut canonical = self
+        let canonical = self
             .canonical
             .take()
             .expect("unpublished emitter must retain canonical session");

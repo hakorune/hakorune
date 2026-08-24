@@ -583,7 +583,7 @@ impl TrivialIfRecipeFactsDraftV1 {
         if self.unsupported || self.ifs.len() != 1 {
             return None;
         }
-        let mut if_fact = self.ifs.into_iter().next()?;
+        let if_fact = self.ifs.into_iter().next()?;
         let branch_shape_ok = if if_fact.explicit_else {
             if_fact.then_assignments.len() == 1
                 && if_fact.else_assignments.len() == 1

@@ -82,7 +82,7 @@ impl InstalledRawRootEnvironmentV1 {
             physical,
             _seal: _,
         } = self;
-        let mut physical = match physical.begin_root_body() {
+        let physical = match physical.begin_root_body() {
             Ok(physical) => physical,
             Err((physical, error)) => {
                 return Err(RejectedRawRootBodyPhysicalV1 {

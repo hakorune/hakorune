@@ -170,7 +170,7 @@ mod tests {
 
     #[test]
     fn legacy_profile_rejects_with_exact_carrier() {
-        let mut rejected = carrier(
+        let rejected = carrier(
             RawRootSourceRouteV1::Script,
             SourceEntryResultV1::Integer(7),
         )

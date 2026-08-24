@@ -33,7 +33,7 @@ fn actual_default_direct_preflight_is_builder_free_and_collects_value_target() {
             .bind_lowering_port(&port)
             .expect("bound direct lowering view");
 
-        let mut builder = MirBuilder::new();
+        let builder = MirBuilder::new();
         let variable_map = builder.function_state.variable_ctx.variable_map.clone();
         let value_types = builder.function_state.type_ctx.value_types.clone();
         let origin = builder.function_state.type_ctx.value_origin_newbox.clone();

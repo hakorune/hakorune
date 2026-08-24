@@ -283,7 +283,7 @@ mod tests {
         let (input, _loop_stmt, _receipt, _prefix, _recipe, plan, _completion) =
             profile.into_parts();
         let mut identity = ResolvedSsaIdentityStateV2::new(input.function());
-        let mut port = CanonicalDirectAccumBindingPort::new(
+        let port = CanonicalDirectAccumBindingPort::new(
             &mut identity,
             &plan,
             input.owner(),

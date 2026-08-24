@@ -470,7 +470,7 @@ fn open_instruction_target_rejects_sealed_and_terminated_blocks() {
 #[test]
 fn named_return_owner_is_checked_and_updates_terminator_truth() {
     let mut function = function(1);
-    let mut session = CanonicalCfgSessionV1::new();
+    let session = CanonicalCfgSessionV1::new();
     session.emit_return(&mut function, block(0), None).unwrap();
     assert!(function.get_block(block(0)).unwrap().is_terminated());
     assert_eq!(

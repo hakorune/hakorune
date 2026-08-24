@@ -79,7 +79,7 @@ fn rewrite_call_args_for_signature(
     builder: &MirBuilder,
     fname: &str,
     object_value: ValueId,
-    mut arg_values: Vec<ValueId>,
+    arg_values: Vec<ValueId>,
 ) -> Vec<ValueId> {
     rewrite_call_args_for_signature_with_lookup(builder, fname, object_value, arg_values, None)
 }
