@@ -3,15 +3,15 @@ Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
 ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
 and owner-private JSON-v0 input state as compatibility ingress. R1, D1,
-Topology-I0, R2-I0, R3a, R3b, R4a, R4b, R4c, R4d escape policy, and ownership
-policy are closed; the ownership verifier row is active."""
+Topology-I0, R2-I0, R3a, R3b, R4a, R4b, R4c, R4d escape policy, and R4e
+ownership verifier are closed; the CallLike observer retirement is active."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-CANONICAL-OWNERSHIP-VERIFIER-I0-R0"
-current_design_stop = "Ownership D0 accepted: legacy None keeps the existing func/args/dst None-only policy; typed Global/Extern/Constructor/Method(None) have no target; typed Method(Some)/Value targets require known None; Closure remains pre-canonical generic liveness. Production verifier callers/installers remain caller-zero."
-current_blocker_token = "Ownership fast row: replace only verify_instruction_kinds Call policy with the accepted matrix; typed Some never reads func, managed/unknown target rejects before liveness, and no production witness installer is added."
+current_execution_row = "MIR-CALL-CANONICAL-CALLLIKE-T0-R0"
+current_design_stop = "none — CallLike T0 is a mechanical observer retirement; canonical MirInstruction::dst_value/used_values remain the sole metadata authority."
+current_blocker_token = "CallLike fast row: remove only instruction_kinds::CallLikeInst and delegate Call metadata to canonical MirInstruction methods; do not change Call schema, func field, or production callers."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -20,13 +20,12 @@ active_lane = "MirBuilder in-place replacement — canonical MIR Call target ret
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
-R4d escape, and ownership policy are closed. The ownership verifier is the
-active bounded row. JoinIR remap is
+R4d escape and R4e ownership verifier are closed. CallLike observer retirement
+is the active bounded row. JoinIR remap is
 NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
-ParkedSealed outside this lane. Ownership exit: exact target-role matrix,
-fail-fast/error-precedence tests, shared guard, caller-zero witness policy,
-and no retry or fallback."""
+ParkedSealed outside this lane. CallLike exit: direct canonical metadata
+delegation, parity tests, shared guard, and no Call-shape expansion or retry."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -38,9 +37,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d escape, and ownership policy are closed; the ownership verifier is active. JoinIR remap is NoSafeSlice; PyVM/reference/Python remain ParkedSealed outside this lane."
-next_design_card = "none — ownership D0 accepted; Query/CallLike rows require separate design"
-next_execution_card = "MIR-CALL-CANONICAL-OWNERSHIP-VERIFIER-I0-R0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d escape, and R4e ownership are closed; the CallLike observer retirement is active. JoinIR remap is NoSafeSlice; PyVM/reference/Python remain ParkedSealed outside this lane."
+next_design_card = "none — CallLike T0 is mechanical; Query requires a separate R6 policy decision"
+next_execution_card = "MIR-CALL-CANONICAL-CALLLIKE-T0-R0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -53,7 +52,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-25: MIR-CALL-CANONICAL-OPERAND-ESCAPE-CLASSIFIER-I0-R0 closed Callee-backed Call/Capture escape roles; escape 8/8, FastMem 17/17, VM 7/7, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; ownership policy is next design stop.",
+  "2026-08-25: MIR-CALL-CANONICAL-OWNERSHIP-VERIFIER-I0-R0 closed the Callee-aware ownership Call role matrix; ownership 24/24, corridor/pointer/diff green, 433 warnings remain baseline; CallLike observer retirement is next.",
   "2026-08-25: MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-I0-R0 closed value_consumer Call membership via one used_values delegation; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4d escape was next.",
   "2026-08-25: MIR-CALL-CANONICAL-OPERAND-USED-VALUES-I0-R0 closed immutable Callee read projection and methods.rs delegation; hakorune-mir-defs 4/4, typed/legacy root tests 1/1 each, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4c value_consumer was next.",
 ]

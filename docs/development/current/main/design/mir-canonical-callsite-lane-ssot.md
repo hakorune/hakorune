@@ -273,6 +273,19 @@ The matrix is a policy over the structural occurrence projection, not a new
 ownership receipt. `ManagedCallOwnershipUnsupported` remains the fail-fast
 terminal until a separately named managed-call ABI issuer exists.
 
+R4f T0 selected — `MIR-CALL-CANONICAL-CALLLIKE-T0-R0`:
+Decision: retire the private `CallLikeInst` metadata adapter; canonical
+`MirInstruction::dst_value`/`used_values` remain the only Call metadata owner.
+Source authority + canonical issuer: `MirInstruction::Call` plus the existing
+`Callee` operand projection; `instruction_kinds` is observation-only.
+Non-authority: `CallLikeInst`, duplicated receiver/func reconstruction, and
+metadata-local target inference. Fail-fast boundary: `dst_via_meta` and
+`used_via_meta` delegate/directly project canonical Call shape without changing
+the Call schema or reading a typed legacy `func`. Smallest next slice: remove
+the enum/impl, replace its two metadata arms with canonical delegation, add
+parity tests and extend the shared guard. Non-claims: `func`/`Option<Callee>`
+cutover, Query policy, JoinIR, backend activation, and warning cleanup.
+
 R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
 `Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`
 to pre-canonical construction before `NewClosure`; and decide the Constructor /
