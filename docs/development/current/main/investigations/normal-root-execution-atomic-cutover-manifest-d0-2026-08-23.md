@@ -2446,3 +2446,23 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 499 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following Dynamic-admission rejection-evidence cleanup is landed as
+`aad01affd5`:
+
+```text
+aad01affd5  refactor: retain dynamic admission evidence
+```
+
+The declined reason and unresolved, rejected, completion, call, and
+source-backed error payloads remain typed and are carried as named underscore
+evidence. The Recipe rejection remains in its existing consumed tuple form;
+Dynamic admission classification, source authority, and fallback behavior are
+unchanged. The focused `normal_root_execution` suite passes 19 tests, and the
+test fingerprint moved from 510 to 504 warnings (`private_interfaces=11`,
+`dead_code=493`; all non-structural lint categories remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 493 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
