@@ -245,8 +245,9 @@ baseline; it is outside this Call ingress slice.
    `maybe_resolve_calls`, and all remaining missing-target edges.
 6. R4: one `Callee` operand/remap projection; migrate semantic consumers before
    field deletion.
-7. R5a/R5b/R5c: optimizer, Rust VM/printer/JSON, then Python/PyVM/reference
-   closure with no by-name fallback/retry.
+7. R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
+   with no by-name fallback/retry. Python/PyVM/reference remain
+   boundary-outside `ParkedSealed`; they are not an active retirement edge.
 8. R6: atomic `Call { callee: Callee }` cutover; remove dummy `func` payloads.
 9. R7: structural guards, README/reference sync, and census closeout.
 

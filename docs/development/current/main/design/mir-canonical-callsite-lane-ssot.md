@@ -180,8 +180,10 @@ args/effects、outer nodeが`dst` overrideを所有する。
 
 このcanonical production boundaryはdirect MIR-v0、selected Rust VM/JSON/LLVMまでを
 覆う。Program-v0はR3の別catalog owner、PyVM（daily route 0・diagnostic-only）、
-reference-vm、Python/llvmliteは歴史/互換ownerとして`ParkedSealed`に分類し、canonical
-acceptanceへ再入場するのはselected backend policyが明示的に再開した時だけとする。
+reference-vm、Python/llvmliteは歴史/互換ownerとして`ParkedSealed`に分類する。これらは
+現行R5の実装対象でもterminal closure edgeでもなく、canonical acceptanceへ再入場するのは
+selected backend policyが明示的に再開した時だけとする。PyVMの物理削除は別SSOTの
+removal conditionで扱う。
 
 literal censusに加え、`runner/mir_json_v0/call.rs`が入力依存でmissing-callee Callを
 構築できるdynamic edgeを必ず数える。retirement完了はliteral zeroだけでなく、
@@ -200,7 +202,7 @@ R1  exact qualified Program JSON-v0 producers
 R2  owner-private MIR JSON-v0 input state
 R3  Program/MIR JSON-v0 exact pre-core resolution; late issuer retirement
 R4  Callee operand/remap SSOT and semantic consumer migration
-R5  optimizer/interpreter/printer/JSON/Python/PyVM/reference terminal closure
+R5  optimizer/interpreter/printer/JSON/selected backend terminal closure
 R6  Call core schema atomic cutover
 R7  impossible-state guard and docs/reference closeout
 ```
