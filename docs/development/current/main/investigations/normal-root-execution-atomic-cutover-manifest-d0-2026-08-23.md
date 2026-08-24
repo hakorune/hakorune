@@ -2230,3 +2230,24 @@ The updated residual warning boundary is explicit: the eleven
 MIR/semantic API authority decision described above, while the remaining 567
 `dead_code` warnings are existing disconnected scaffolding and are not
 mass-deleted in this R0 lane.
+
+The following Raw callable-main terminal error-evidence cleanup is landed as
+`01bfb86665`:
+
+```text
+01bfb86665  refactor: retain raw callable main error evidence
+```
+
+The Request, Reservation, Child, Ledger, and Abort payloads remain typed and
+are still carried through the physical rejection product; only unread tuple
+fields become named underscore evidence. Callable-main reservation, abort,
+ledger completion, and upper-layer error routing are unchanged. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 578 to 573 warnings (`private_interfaces=11`, `dead_code=562`; all
+non-structural lint categories remain zero).
+
+The updated residual warning boundary is explicit: the eleven
+`private_interfaces` warnings remain deferred pending the deliberate public
+MIR/semantic API authority decision described above, while the remaining 562
+`dead_code` warnings are existing disconnected scaffolding and are not
+mass-deleted in this R0 lane.
