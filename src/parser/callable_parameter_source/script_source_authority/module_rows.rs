@@ -19,9 +19,13 @@ use super::model::{ParserNormalProgramBodySourceRowV1, ParserNormalProgramBodySy
 #[derive(Debug)]
 pub(in crate::parser) enum ParserNormalModuleSourceRowsDispositionV1 {
     Ready(ParserNormalModuleSourceRowsV1),
-    SourceAuthorityUnavailable(ParserNormalModuleSourceRowsUnavailableV1),
+    SourceAuthorityUnavailable {
+        _error: ParserNormalModuleSourceRowsUnavailableV1,
+    },
     Incomplete(ParserNormalModuleSourceRowsIncompleteV1),
-    IntegrityInvalid(ParserNormalModuleSourceRowsIntegrityIssueV1),
+    IntegrityInvalid {
+        _error: ParserNormalModuleSourceRowsIntegrityIssueV1,
+    },
     Outside(ParserNormalModuleSourceRowsOutsideReasonV1),
 }
 
@@ -118,7 +122,6 @@ impl ParserNormalModuleMethodSourceRowV1 {
     pub(in crate::parser) fn arity(&self) -> u32 {
         self.arity
     }
-
 }
 
 pub(super) struct ParserNormalModuleSourceAuthorityIssuerV1;
@@ -131,9 +134,9 @@ impl ParserNormalModuleSourceAuthorityIssuerV1 {
         invocation: ParserInvocationWitnessV1,
     ) -> ParserNormalModuleSourceRowsDispositionV1 {
         if !completed.is_source_backed() {
-            return ParserNormalModuleSourceRowsDispositionV1::SourceAuthorityUnavailable(
-                ParserNormalModuleSourceRowsUnavailableV1::PostpassNotSourceBacked,
-            );
+            return ParserNormalModuleSourceRowsDispositionV1::SourceAuthorityUnavailable {
+                _error: ParserNormalModuleSourceRowsUnavailableV1::PostpassNotSourceBacked,
+            };
         }
         if body_rows.len() != 1
             || body_rows[0].position() != 0
@@ -157,9 +160,9 @@ impl ParserNormalModuleSourceAuthorityIssuerV1 {
             );
         }
         if rows.len() != 1 || final_box_ordinal != body_rows[0].position() as usize {
-            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid(
-                ParserNormalModuleSourceRowsIntegrityIssueV1::BoxCoverageMismatch,
-            );
+            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid {
+                _error: ParserNormalModuleSourceRowsIntegrityIssueV1::BoxCoverageMismatch,
+            };
         }
         if seal.declaration_syntax().kind() != ParserBoxDeclarationKindV1::Ordinary {
             return ParserNormalModuleSourceRowsDispositionV1::Outside(
@@ -167,9 +170,9 @@ impl ParserNormalModuleSourceAuthorityIssuerV1 {
             );
         }
         if !catalog.same_parser_brand(seal.box_site().path().brand()) {
-            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid(
-                ParserNormalModuleSourceRowsIntegrityIssueV1::ForeignParser,
-            );
+            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid {
+                _error: ParserNormalModuleSourceRowsIntegrityIssueV1::ForeignParser,
+            };
         }
 
         let Some(catalog_row) = catalog.declarations().first() else {
@@ -207,9 +210,9 @@ impl ParserNormalModuleSourceAuthorityIssuerV1 {
             );
         };
         if catalog_row.source_site().box_site() != seal.box_site() {
-            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid(
-                ParserNormalModuleSourceRowsIntegrityIssueV1::MethodSourceRelationMismatch,
-            );
+            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid {
+                _error: ParserNormalModuleSourceRowsIntegrityIssueV1::MethodSourceRelationMismatch,
+            };
         }
 
         let Some(relation) = seal.method_relations().first() else {
@@ -221,9 +224,9 @@ impl ParserNormalModuleSourceAuthorityIssuerV1 {
             || relation.source_site() != Some(catalog_row.source_site())
             || relation.inventory_ordinal() != catalog_row.inventory_ordinal()
         {
-            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid(
-                ParserNormalModuleSourceRowsIntegrityIssueV1::MethodSourceRelationMismatch,
-            );
+            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid {
+                _error: ParserNormalModuleSourceRowsIntegrityIssueV1::MethodSourceRelationMismatch,
+            };
         }
 
         if completed.callable_rows().len() != 1 {
@@ -253,17 +256,17 @@ impl ParserNormalModuleSourceAuthorityIssuerV1 {
         }
         let Some((declaration, gate_path, member_ordinal)) = direct.path().box_method_parts()
         else {
-            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid(
-                ParserNormalModuleSourceRowsIntegrityIssueV1::CallableSourceMismatch,
-            );
+            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid {
+                _error: ParserNormalModuleSourceRowsIntegrityIssueV1::CallableSourceMismatch,
+            };
         };
         if !gate_path.is_empty()
             || declaration.compatibility_box_path() != seal.box_site().path()
             || member_ordinal != catalog_row.source_site().source_member_ordinal()
         {
-            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid(
-                ParserNormalModuleSourceRowsIntegrityIssueV1::CallableSourceMismatch,
-            );
+            return ParserNormalModuleSourceRowsDispositionV1::IntegrityInvalid {
+                _error: ParserNormalModuleSourceRowsIntegrityIssueV1::CallableSourceMismatch,
+            };
         }
 
         ParserNormalModuleSourceRowsDispositionV1::Ready(ParserNormalModuleSourceRowsV1 {
