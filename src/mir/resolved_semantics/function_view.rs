@@ -86,7 +86,7 @@ impl<'a> FunctionSyntaxViewV1<'a> {
         self.body
     }
 
-    pub(crate) const fn receiver_policy(self) -> ReceiverPolicyV1 {
+    pub(in crate::mir) const fn receiver_policy(self) -> ReceiverPolicyV1 {
         self.receiver_policy
     }
 

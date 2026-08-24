@@ -37,7 +37,7 @@ pub(crate) struct VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog> {
 impl<'catalog> VerifiedQualifiedReceiverLexicalDispositionsV1<'catalog> {
     /// Seals the existing lexical vocabulary from one complete MethodCall
     /// observation. This adapter performs no second source traversal.
-    pub(crate) fn seal_from_complete_inventory<'rows>(
+    pub(in crate::mir) fn seal_from_complete_inventory<'rows>(
         caller: &'catalog CanonicalSameModuleCallableKeyV1,
         declaration: &'catalog VerifiedSameModuleCallableDeclarationV1,
         rows: impl IntoIterator<
