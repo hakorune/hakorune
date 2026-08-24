@@ -254,7 +254,7 @@ impl InvocationPhysicalStateV1 {
         child.complete_raw_root_static_child_branded(builder, work)
     }
 
-    pub(in crate::mir) fn into_parts(
+    pub(in crate::mir::builder) fn into_parts(
         self,
     ) -> (
         ModuleInvocationBrandV1,
