@@ -1611,11 +1611,27 @@ focused `normal_root_execution` suite passes 19 tests, and the test fingerprint
 moved from 697 to 690 warnings (`private_interfaces=11`, `dead_code=679`; all
 non-structural lint categories remain zero).
 
+The following unused callable-source finalizer cleanup is landed as
+`fa1bc72658`:
+
+```text
+fa1bc72658  refactor: remove unused callable source finalizer
+```
+
+The unreferenced catalog finalizer, its parser wrapper, and their dedicated
+unused error arm were removed. The active normal disposition finalizer and the
+typed `SelectedBuildGateUnsupported` disposition remain unchanged. No source
+session admission, build-gate rejection, catalog issuance, or parser ownership
+behavior changed. The focused `normal_root_execution` suite passes 19 tests,
+and the test fingerprint moved from 690 to 687 warnings
+(`private_interfaces=11`, `dead_code=676`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 679 `dead_code` warnings are existing disconnected
+visibility. The remaining 676 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
