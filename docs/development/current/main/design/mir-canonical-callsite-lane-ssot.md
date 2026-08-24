@@ -406,6 +406,16 @@ green. The optimizer filter also retains two unrelated known baseline freezes
 (`mir/instance-constructor-source/cohort-missing`), so they are not attributed
 to this row. Warning count remains the 433-item baseline.
 
+R5b-B0 implementation evidence: `handlers/calls::handle_call` now rejects
+`None` before `reg_load(func)` or module lookup; the owner test and shared
+corridor guard encode that boundary, and `cargo check --profile quick
+--features vm-reference --lib` is green. The focused test command is currently
+blocked by the known baseline compile error at
+`src/mir/compiler/source_entry_vm_execution_tests.rs:145`
+(`HashMap<_, ASTNode>` no longer matches `BoxMethodInventoryV1`); this is
+classified as baseline red, not a row failure. R5b keeps the instruction fields
+and all typed dispatch/method-fallback boundaries unchanged.
+
 R5 row rules: each task owns one old edge and reuses the shared corridor
 guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field
 editing. The census includes direct callers, dynamic construction, wire

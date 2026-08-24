@@ -1,6 +1,6 @@
 //! Call handling (split from handlers/calls.rs)
 //! - Route by Callee kind
-//! - By-name fallback remains for compatibility when Callee is absent
+//! - Missing Callee is a terminal compatibility reject; no by-name lookup
 
 use super::*;
 use crate::boxes::array::ArrayBox;
@@ -13,7 +13,7 @@ impl MirInterpreter {
     pub(crate) fn handle_call(
         &mut self,
         dst: Option<ValueId>,
-        func: ValueId,
+        _func: ValueId,
         callee: Option<&Callee>,
         args: &[ValueId],
         block: Option<BasicBlockId>,
@@ -62,8 +62,7 @@ impl MirInterpreter {
                     ));
                 }
                 None => crate::runtime::get_global_ring0().log.debug(&format!(
-                    "[hb:path] call Legacy func_id={:?} argc={}",
-                    func,
+                    "[hb:path] call missing-callee argc={}",
                     args.len()
                 )),
             }
@@ -110,31 +109,10 @@ impl MirInterpreter {
                 }
             }
         }
-        let call_result = if let Some(callee_type) = callee {
-            self.execute_callee_call(callee_type, args)?
-        } else {
-            // Fast path: allow exact module function calls when Callee is absent.
-            let name_val = self.reg_load(func)?;
-            if let VMValue::String(ref s) = name_val {
-                if let Some(f) = self.functions.get(s).cloned() {
-                    let mut argv: Vec<VMValue> = Vec::with_capacity(args.len());
-                    for a in args {
-                        argv.push(self.reg_load(*a)?);
-                    }
-                    self.exec_function_inner(&f, Some(&argv))?
-                } else {
-                    return Err(self.err_with_context("call", &format!(
-                        "unknown function '{}' (by-name calls unsupported). attach Callee in builder or define the function",
-                        s
-                    )));
-                }
-            } else {
-                return Err(self.err_with_context(
-                    "call",
-                    "by-name calls unsupported without Callee attachment",
-                ));
-            }
+        let Some(callee_type) = callee else {
+            return Err(self.err_with_context("call", "call-missing-callee: typed Callee required"));
         };
+        let call_result = self.execute_callee_call(callee_type, args)?;
         self.write_result(dst, call_result);
         Ok(())
     }
@@ -261,6 +239,32 @@ impl MirInterpreter {
                 Err(self.err_unsupported("First-class function calls in VM"))
             }
             Callee::Extern(extern_name) => self.execute_extern_function(extern_name, args),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::backend::vm_types::VMError;
+
+    #[test]
+    fn missing_callee_rejects_before_legacy_register_lookup() {
+        let mut interp = MirInterpreter::new();
+        let func = ValueId::new(7);
+        interp
+            .regs
+            .insert(func, VMValue::String("Main.hidden/0".to_string()));
+
+        let err = interp
+            .handle_call(None, func, None, &[], None, None)
+            .expect_err("missing Callee must reject before by-name lookup");
+
+        match err {
+            VMError::InvalidInstruction(msg) => {
+                assert_eq!(msg, "call: call-missing-callee: typed Callee required");
+            }
+            other => panic!("unexpected error kind: {:?}", other),
         }
     }
 }
