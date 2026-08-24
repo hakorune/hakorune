@@ -201,23 +201,6 @@ where
             .emit_typeop_value_terminal(builder, value, op, ty)
     }
 
-    pub(in crate::mir::builder) fn finish_static_global_value_terminal(
-        &mut self,
-        builder: &mut MirBuilder,
-        owner: &str,
-        method: &str,
-        checked_source_arity: u32,
-        arguments: Vec<ValueId>,
-    ) -> Result<ValueId, String> {
-        self.terminal_port().emit_static_global_value_terminal(
-            builder,
-            owner,
-            method,
-            checked_source_arity,
-            arguments,
-        )
-    }
-
     pub(in crate::mir::builder) fn finish_me_lowered_global_value_terminal(
         &mut self,
         builder: &mut MirBuilder,
