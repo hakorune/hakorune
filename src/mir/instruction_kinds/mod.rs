@@ -215,8 +215,8 @@ pub fn dst_via_meta(i: &MirInstruction) -> Option<ValueId> {
     if let Some(_k) = DebugInst::from_mir(i) {
         return None;
     }
-    if let Some(k) = CallLikeInst::from_mir(i) {
-        return k.dst();
+    if let MirInstruction::Call { dst, .. } = i {
+        return *dst;
     }
     if let Some(k) = CopyInst::from_mir(i) {
         return k.dst();
@@ -276,8 +276,8 @@ pub fn used_via_meta(i: &MirInstruction) -> Option<Vec<ValueId>> {
     if let Some(k) = DebugInst::from_mir(i) {
         return Some(k.used());
     }
-    if let Some(k) = CallLikeInst::from_mir(i) {
-        return Some(k.used());
+    if matches!(i, MirInstruction::Call { .. }) {
+        return Some(i.used_values());
     }
     if let Some(k) = CopyInst::from_mir(i) {
         return Some(k.used());
@@ -532,68 +532,5 @@ inst_meta! {
         effects = |_: &Self| EffectMask::PURE;
         dst = |_: &Self| None;
         used = |_: &Self| Vec::new();
-    }
-}
-
-// ---- Call-like (dst/used only; effects fallback in MirInstruction) ----
-#[derive(Debug, Clone)]
-pub enum CallLikeInst {
-    Call {
-        dst: Option<ValueId>,
-        func: ValueId,
-        receiver: Option<ValueId>,
-        args: Vec<ValueId>,
-    },
-}
-
-impl CallLikeInst {
-    pub fn from_mir(i: &MirInstruction) -> Option<Self> {
-        match i {
-            MirInstruction::Call {
-                dst,
-                func,
-                callee,
-                args,
-                ..
-            } => Some(CallLikeInst::Call {
-                dst: *dst,
-                func: *func,
-                receiver: match callee {
-                    Some(crate::mir::definitions::call_unified::Callee::Method {
-                        receiver: Some(r),
-                        ..
-                    }) => Some(*r),
-                    _ => None,
-                },
-                args: args.clone(),
-            }),
-            _ => None,
-        }
-    }
-
-    pub fn dst(&self) -> Option<ValueId> {
-        match self {
-            CallLikeInst::Call { dst, .. } => *dst,
-        }
-    }
-
-    pub fn used(&self) -> Vec<ValueId> {
-        match self {
-            CallLikeInst::Call {
-                func,
-                receiver,
-                args,
-                ..
-            } => {
-                let mut v = Vec::new();
-                if let Some(r) = receiver {
-                    v.push(*r);
-                } else if *func != ValueId::INVALID {
-                    v.push(*func);
-                }
-                v.extend(args.iter().copied());
-                v
-            }
-        }
     }
 }

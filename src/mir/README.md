@@ -91,6 +91,10 @@ separate policy: typed Method receivers/Value targets and args are `Call`,
 Closure captures and `me_capture` are `Capture`, and legacy `func` remains an
 ordinary generic use for FastMem fail-closed handling.
 
+`instruction_kinds` is an observation facade only. Call `dst`/use metadata
+delegates to the canonical `MirInstruction` methods; the retired `CallLikeInst`
+adapter must not reconstruct receiver or legacy `func` operands.
+
 ## Boundary Rules
 
 - Add shared policy once under `policies/` and reuse it from the other subtrees.

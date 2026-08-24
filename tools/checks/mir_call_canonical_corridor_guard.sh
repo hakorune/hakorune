@@ -94,6 +94,7 @@ require "$OWNERSHIP_TESTS" "typed_method_and_value_targets_reject_managed_or_unk
 require "$OWNERSHIP_TESTS" "typed_managed_target_fails_before_generic_liveness"
 require "$OWNERSHIP_TESTS" "typed_closure_operands_use_generic_liveness_not_managed_call_policy"
 require "$OWNERSHIP_TESTS" "legacy_call_still_requires_a_known_trivial_func"
+require "$ROOT_DIR/src/mir/instruction/tests.rs" "call_kind_metadata_delegates_to_canonical_call_methods"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -274,6 +275,14 @@ if "func" in typed_window:
     raise SystemExit("typed ownership Call policy re-read legacy func")
 if "instruction.used_values()" not in ownership[ownership.index("fn process_instruction"):]:
     raise SystemExit("ownership verifier lost generic used_values liveness")
+
+instruction_kinds = (root / "src/mir/instruction_kinds/mod.rs").read_text()
+if "CallLikeInst" in instruction_kinds:
+    raise SystemExit("instruction_kinds retained the retired CallLike adapter")
+if instruction_kinds.count("MirInstruction::Call") < 2:
+    raise SystemExit("instruction_kinds lost direct Call metadata arms")
+if "Some(i.used_values())" not in instruction_kinds:
+    raise SystemExit("instruction_kinds Call use metadata lost canonical delegation")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

@@ -208,9 +208,8 @@ impl MirInstruction {
 
     /// Get all ValueIds used by this instruction
     pub fn used_values(&self) -> Vec<ValueId> {
-        // Handle Call instructions here (not in inst_meta) because CallLikeInst
-        // doesn't have the callee field needed for Callee::Method receiver handling.
-        // This is the single source of truth for Call's used values.
+        // Handle Call instructions here (not through generic metadata) so the
+        // Callee projection remains the single source of truth for operands.
         if let MirInstruction::Call {
             callee, func, args, ..
         } = self

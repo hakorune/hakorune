@@ -165,6 +165,28 @@ fn typed_call_used_values_project_callee_operands_before_args() {
 }
 
 #[test]
+fn call_kind_metadata_delegates_to_canonical_call_methods() {
+    use crate::mir::definitions::Callee;
+
+    let inst = MirInstruction::Call {
+        dst: Some(ValueId::new(1)),
+        func: ValueId::new(99),
+        callee: Some(Callee::Value(ValueId::new(7))),
+        args: vec![ValueId::new(8)],
+        effects: EffectMask::PURE,
+    };
+
+    assert_eq!(
+        crate::mir::instruction_kinds::dst_via_meta(&inst),
+        Some(ValueId::new(1))
+    );
+    assert_eq!(
+        crate::mir::instruction_kinds::used_via_meta(&inst),
+        Some(vec![ValueId::new(7), ValueId::new(8)])
+    );
+}
+
+#[test]
 fn test_call_instruction_extern_name() {
     let inst = MirInstruction::Call {
         dst: None,
