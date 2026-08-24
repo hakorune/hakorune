@@ -1393,3 +1393,17 @@ consumption, or physical emission behavior changed. The focused
 green, and the test fingerprint moved from 778 to 766 warnings
 (`private_interfaces=40`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following capability-witness visibility slice is landed as `bf3d80cf4c`:
+
+```text
+bf3d80cf4c  refactor: align capability witness visibility
+```
+
+The recursive capability-install receipt and acyclic capability-absence
+witness already cross the compiler-facing `crate::mir` aggregate, so their
+struct boundaries now match that owner. No capability selection or install
+behavior changed. The focused `normal_root_execution` suite passes 19 tests,
+all five reusable guards remain green, and the test fingerprint moved from 766
+to 764 warnings (`private_interfaces=38`, `private_bounds=0`; non-structural
+lint categories remain zero).
