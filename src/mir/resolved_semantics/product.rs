@@ -64,8 +64,8 @@ pub(crate) struct VerifiedResolvedOwnerCoreV1 {
     source_sites: VerifiedResolvedSourceSiteInventoryV1,
     normalized: NormalizedResolvedFunctionGraphV1,
     lowering_roots: ResolvedFunctionLoweringRootsV1,
-    pub(crate) if_regions: ResolvedIfRegionIndexV1,
-    pub(crate) loop_regions: ResolvedLoopRegionIndexV1,
+    pub(in crate::mir::resolved_semantics) if_regions: ResolvedIfRegionIndexV1,
+    pub(in crate::mir::resolved_semantics) loop_regions: ResolvedLoopRegionIndexV1,
 }
 
 impl VerifiedResolvedOwnerCoreV1 {
