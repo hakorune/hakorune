@@ -770,3 +770,14 @@ all five reusable guards remain green, and the test fingerprint moved from
 because its existing fixture parser rejects `grouped_assignment` at
 `normal_script_binding_rebind_tests.rs:102`; that failure is outside this
 import-only diff and is not counted as current-change evidence.
+
+The next builder-barrel import slice is landed as `053e23aa8e`:
+
+```text
+053e23aa8e  refactor: prune builder barrel imports
+```
+
+It removes 13 compiler-reported caller-zero reexports from `builder.rs` while
+leaving the remaining cross-module interfaces intact. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 1009 to 996 warnings.
