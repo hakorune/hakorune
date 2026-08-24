@@ -1702,11 +1702,25 @@ suite passes 19 tests, and the test fingerprint moved from 672 to 670 warnings
 (`private_interfaces=11`, `dead_code=659`; all non-structural lint categories
 remain zero).
 
+The following Builder receipt-accessor cleanup is landed as `3c4408c311`:
+
+```text
+3c4408c311  refactor: trim unused builder receipt accessors
+```
+
+Unused Brand projection owner, Compare proof, and publication receipt accessors
+were removed; their owner/proof/receipt data remains retained for existing
+validation and future named consumers. No Brand relation validation, Compare
+append, publication quiescence, or Builder ownership behavior changed. The
+focused `normal_root_execution` suite passes 19 tests, and the test fingerprint
+moved from 670 to 666 warnings (`private_interfaces=11`, `dead_code=655`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 659 `dead_code` warnings are existing disconnected
+visibility. The remaining 655 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
