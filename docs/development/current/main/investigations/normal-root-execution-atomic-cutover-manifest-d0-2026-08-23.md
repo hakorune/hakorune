@@ -1046,3 +1046,17 @@ No source, Recipe, physical, or visibility authority changes. The focused
 `normal_root_execution` suite passes 19 tests, all five reusable guards remain
 green, and the test fingerprint moved from 882 to 869 warnings
 (`unused_imports=0`, `unused_mut=0`).
+
+The following behavior-neutral unused-binding cleanup slice is landed as
+`fd838c4745`:
+
+```text
+fd838c4745  refactor: silence unused variable bindings
+```
+
+It preserves the existing admission, reject, and lowering calls while marking
+fourteen intentionally unused local/field bindings explicitly. No source,
+Recipe, physical, or visibility authority changes. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 869 to 855 warnings
+(`unused_imports=0`, `unused_mut=0`, `unused_variables=0`).
