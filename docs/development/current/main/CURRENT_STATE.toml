@@ -2,26 +2,27 @@ status = """
 Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
 ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
-and owner-private JSON-v0 input state as compatibility ingress. R1 and D1 are
-closed; the next bounded slice is the path-preserving MIR-v0 loader split."""
+and owner-private JSON-v0 input state as compatibility ingress. R1, D1, and
+Topology-I0 are closed; the next bounded slice is R2 input-state resolution."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-JSONV0-LOADER-TOPOLOGY-SPLIT-I0"
+current_execution_row = "MIR-CALL-JSONV0-INPUT-STATE-I0"
 current_design_stop = "D1 accepted: direct MIR-v0 uses an immutable function-local Const(String) catalog with exact Global projection; PyVM/reference/Python are boundary-outside ParkedSealed."
-current_blocker_token = "Fast row: move the 755-line MIR-v0 function/instruction loop into a private child while preserving public API, block publication order, ownership witness, and post-loop canonicalizer order. No semantic target change in this slice."
+current_blocker_token = "Fast row: introduce owner-private MIR-v0 call input state and a function-local exact Const(String) catalog; resolve before block publication, reject malformed/ambiguous/missing targets, and publish no Call(callee=None). No Program-v0 or core field cutover in this slice."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — canonical MIR Call target retirement"
 active_lane_status = """
-Current: MIR Call R1 and legacy-target-catalog D1 are closed; the selected fast
-row is the path-preserving loader topology split. Core field deletion remains
-blocked by ingress, operand, and selected-terminal closure.
-Exit: facade/child owners below 760/800, unchanged parser behavior, and a
-single next R2-I0 boundary with no retry/fallback."""
+Current: MIR Call R1, legacy-target-catalog D1, and the path-preserving
+MIR-v0 loader topology split are closed; the selected fast row is R2 input
+state/catalog resolution. Core field deletion remains blocked by ingress,
+operand, and selected-terminal closure.
+Exit: total owner-private input state, exact function-local resolution before
+publication, typed reject on invalid legacy evidence, and no retry/fallback."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -33,9 +34,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1 and D1 are closed; direct MIR-v0 catalog policy is exact Const(String)->Global, while PyVM/reference/Python remain boundary-outside ParkedSealed."
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, and Topology-I0 are closed; direct MIR-v0 catalog policy is exact Const(String)->Global, while PyVM/reference/Python remain boundary-outside ParkedSealed."
 next_design_card = "MIR-CALL-JSONV0-INPUT-STATE-I0"
-next_execution_card = "MIR-CALL-JSONV0-LOADER-TOPOLOGY-SPLIT-I0"
+next_execution_card = "MIR-CALL-JSONV0-INPUT-STATE-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

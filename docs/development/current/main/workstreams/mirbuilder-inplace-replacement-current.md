@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop
+Status: Active workstream — fast implementation
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-current decision  = MIR-CALL-JSONV0-LOADER-TOPOLOGY-SPLIT-I0
-implementation    = D1 accepted; BoxShape split not started
+current decision  = MIR-CALL-JSONV0-INPUT-STATE-I0
+implementation    = D1 and Topology-I0 closed; R2 input state is next
 mode              = fast
 production stop   = before MirInstruction::Call publication
-exit              = thin facade + child owner below 760/800
+exit              = owner-private input state/catalog; no Call(callee=None) publication
 fallback / retry  = 0
 ```
 
@@ -224,7 +224,9 @@ this lane; Program-v0 is R3. PyVM (`daily_route=0`, diagnostic-only),
 reference-vm, and Python/llvmlite are boundary-outside `ParkedSealed` owners.
 Census boundary: MIR-v0 raw function draft -> `call`/`mir_call` builder ->
 block publication; `boxcall`, `externcall`, historical terminals excluded.
-Next fast slice: path-preserving facade/child split; semantic I0 follows.
+Topology-I0 closed: root 165, child 599, call 198; facade/API, block publication,
+ownership witness, and post-loop canonicalizer order are unchanged. MIR-v0 tests
+13/13, rustfmt/diff/pointer/Call guards are green; 433 warnings remain baseline.
 
 ## Ordered MIR Call retirement series
 
@@ -232,7 +234,7 @@ Next fast slice: path-preserving facade/child split; semantic I0 follows.
 2. D1: direct catalog, policy, state matrix, and compatibility boundary
    accepted (closed).
 3. Topology-I0: move the 755-line loader loop behind a thin facade; behavior
-   and existing canonicalizer order stay unchanged.
+   and existing canonicalizer order stay unchanged (closed).
 4. R2-I0: `call.rs` parses total state, resolves once, and publishes no
    `Call(callee=None)` or partial block.
 5. R3a/R3b: pre-core Program JSON-v0 catalog/resolution; delete target Const,
@@ -244,7 +246,7 @@ Next fast slice: path-preserving facade/child split; semantic I0 follows.
 8. R6: atomic `Call { callee: Callee }` cutover; remove dummy `func` payloads.
 9. R7: structural guards, README/reference sync, and census closeout.
 
-R2 I0 is not yet selected. R6 remains `CutoverBlockerOpen` until the catalog,
+R2-I0 is selected as the next fast row. R6 remains `CutoverBlockerOpen` until the catalog,
 ingress, operand, and selected-terminal rows are green; historical routes do
 not count as canonical production acceptance.
 
