@@ -90,6 +90,37 @@ impl Callee {
             _ => None,
         }
     }
+
+    /// Rewrite every embedded ValueId in the canonical occurrence order.
+    ///
+    /// The order is part of the call-shape contract: a method receiver, a
+    /// first-class value target, or closure captures in stored order followed
+    /// by the optional `me` capture.  Duplicate occurrences are intentional
+    /// and are visited independently.  Target-less variants are explicit
+    /// no-ops so adding a new variant cannot silently drop an operand.
+    pub fn rewrite_value_operands(&mut self, mut rewrite: impl FnMut(&mut ValueId)) {
+        match self {
+            Callee::Global(_) | Callee::Extern(_) | Callee::Constructor { .. } => {}
+            Callee::Method { receiver, .. } => {
+                if let Some(receiver) = receiver {
+                    rewrite(receiver);
+                }
+            }
+            Callee::Closure {
+                captures,
+                me_capture,
+                ..
+            } => {
+                for (_, capture) in captures {
+                    rewrite(capture);
+                }
+                if let Some(me_capture) = me_capture {
+                    rewrite(me_capture);
+                }
+            }
+            Callee::Value(value) => rewrite(value),
+        }
+    }
 }
 
 /// Call flags for unified MIR Call instruction
@@ -144,6 +175,70 @@ impl CallFlags {
 impl Default for CallFlags {
     fn default() -> Self {
         CallFlags::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{Callee, CalleeBoxKind, TypeCertainty};
+    use hakorune_mir_core::ValueId;
+
+    #[test]
+    fn callee_rewrite_value_operands_preserves_occurrence_order_and_duplicates() {
+        let mut callee = Callee::Closure {
+            params: vec!["x".to_string()],
+            captures: vec![
+                ("a".to_string(), ValueId::new(7)),
+                ("b".to_string(), ValueId::new(7)),
+            ],
+            me_capture: Some(ValueId::new(9)),
+        };
+        let mut visited = Vec::new();
+        callee.rewrite_value_operands(|value| {
+            visited.push(*value);
+            if *value == ValueId::new(7) {
+                *value = ValueId::new(17);
+            }
+        });
+
+        assert_eq!(
+            visited,
+            vec![ValueId::new(7), ValueId::new(7), ValueId::new(9)]
+        );
+        assert_eq!(
+            callee,
+            Callee::Closure {
+                params: vec!["x".to_string()],
+                captures: vec![
+                    ("a".to_string(), ValueId::new(17)),
+                    ("b".to_string(), ValueId::new(17)),
+                ],
+                me_capture: Some(ValueId::new(9)),
+            }
+        );
+    }
+
+    #[test]
+    fn callee_rewrite_value_operands_is_empty_for_targetless_and_missing_receiver_shapes() {
+        let mut shapes = vec![
+            Callee::Global("f".to_string()),
+            Callee::Extern("env.f".to_string()),
+            Callee::Constructor {
+                box_type: "Box".to_string(),
+            },
+            Callee::Method {
+                box_name: "Box".to_string(),
+                method: "f".to_string(),
+                receiver: None,
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            },
+        ];
+        for shape in &mut shapes {
+            let mut calls = 0;
+            shape.rewrite_value_operands(|_| calls += 1);
+            assert_eq!(calls, 0);
+        }
     }
 }
 

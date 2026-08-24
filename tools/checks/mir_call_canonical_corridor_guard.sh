@@ -16,6 +16,8 @@ METHODS="$ROOT_DIR/src/mir/instruction/methods.rs"
 MIR_V0_CALL="$ROOT_DIR/src/runner/mir_json_v0/call.rs"
 MIR_V0_CATALOG="$ROOT_DIR/src/runner/mir_json_v0/catalog.rs"
 MIR_V0_MODULE="$ROOT_DIR/src/runner/mir_json_v0/module.rs"
+CALLEE_DEFS="$ROOT_DIR/crates/hakorune_mir_defs/src/call_unified.rs"
+SIMPLIFY_FLOW="$ROOT_DIR/src/mir/passes/simplify_cfg/flow.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -28,7 +30,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -55,6 +57,11 @@ require "$MIR_V0_CALL" "MirInstruction::call("
 require "$MIR_V0_CATALOG" "JsonV0FunctionCatalog"
 require "$MIR_V0_CATALOG" "ConstValue::String"
 require "$MIR_V0_MODULE" "JsonV0FunctionCatalog::from_function"
+require "$CALLEE_DEFS" "pub fn rewrite_value_operands"
+require "$SIMPLIFY_FLOW" "callee.rewrite_value_operands"
+require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_preserves_typed_targets_and_args"
+require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_keeps_targetless_callees_empty"
+require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_preserves_legacy_func_parity"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -92,6 +99,8 @@ for relative in (
     "src/mir/passes/callsite_canonicalize/schedule.rs",
     "src/mir/contracts/backend_core_ops/allowlists.rs",
     "src/runner/product/llvm/mod.rs",
+    "crates/hakorune_mir_defs/src/call_unified.rs",
+    "src/mir/passes/simplify_cfg/flow.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
     lines = (root / relative).read_text().splitlines()
@@ -139,6 +148,33 @@ window = constructor[start:end]
 for required in ("func: ValueId::INVALID", "callee: Some(callee)"):
     if required not in window:
         raise SystemExit(f"canonical Call constructor drifted: {required}")
+
+callee = (root / "crates/hakorune_mir_defs/src/call_unified.rs").read_text()
+projection_start = callee.index("pub fn rewrite_value_operands")
+projection_end = callee.index("/// Call flags", projection_start)
+projection = callee[projection_start:projection_end]
+for token in (
+    "Callee::Global",
+    "Callee::Extern",
+    "Callee::Constructor",
+    "Callee::Method",
+    "Callee::Closure",
+    "Callee::Value",
+):
+    if token not in projection:
+        raise SystemExit(f"Callee projection lost explicit variant: {token}")
+if "_ =>" in projection:
+    raise SystemExit("Callee projection introduced a wildcard variant arm")
+
+flow = (root / "src/mir/passes/simplify_cfg/flow.rs").read_text()
+rewrite_start = flow.index("fn rewrite_value_uses_in_instruction")
+call_start = flow.index("MirInstruction::Call {", rewrite_start)
+call_end = flow.index("MirInstruction::NewClosure", call_start)
+call_window = flow[call_start:call_end]
+if "Callee::" in call_window:
+    raise SystemExit("SimplifyCFG retained a pass-local Callee match")
+if call_window.count("rewrite_value_operands") != 1:
+    raise SystemExit("SimplifyCFG Call arm does not delegate exactly once")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

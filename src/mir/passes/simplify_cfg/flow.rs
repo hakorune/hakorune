@@ -1,4 +1,3 @@
-use crate::mir::definitions::call_unified::Callee;
 use crate::mir::{BasicBlock, BasicBlockId, EffectMask, MirFunction, MirInstruction, ValueId};
 use std::collections::HashSet;
 
@@ -491,27 +490,7 @@ fn rewrite_value_uses_in_instruction(instruction: &mut MirInstruction, from: Val
                 rewrite_value_use(func, from, to);
             }
             if let Some(callee) = callee {
-                match callee {
-                    Callee::Method { receiver, .. } => {
-                        if let Some(receiver) = receiver {
-                            rewrite_value_use(receiver, from, to);
-                        }
-                    }
-                    Callee::Closure {
-                        captures,
-                        me_capture,
-                        ..
-                    } => {
-                        for (_, capture) in captures {
-                            rewrite_value_use(capture, from, to);
-                        }
-                        if let Some(me_capture) = me_capture {
-                            rewrite_value_use(me_capture, from, to);
-                        }
-                    }
-                    Callee::Value(value) => rewrite_value_use(value, from, to),
-                    Callee::Global(_) | Callee::Constructor { .. } | Callee::Extern(_) => {}
-                }
+                callee.rewrite_value_operands(|value| rewrite_value_use(value, from, to));
             }
             for arg in args {
                 rewrite_value_use(arg, from, to);
@@ -610,6 +589,126 @@ fn rewrite_edge_args_values(
 fn rewrite_value_use(value: &mut ValueId, from: ValueId, to: ValueId) {
     if *value == from {
         *value = to;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::rewrite_value_uses_in_instruction;
+    use crate::mir::definitions::call_unified::{Callee, CalleeBoxKind, TypeCertainty};
+    use crate::mir::{EffectMask, MirInstruction, ValueId};
+
+    #[test]
+    fn simplify_cfg_call_use_rewrite_preserves_typed_targets_and_args() {
+        let from = ValueId::new(1);
+        let to = ValueId::new(2);
+        let mut instruction = MirInstruction::Call {
+            dst: Some(ValueId::new(30)),
+            func: ValueId::new(99),
+            callee: Some(Callee::Closure {
+                params: vec!["x".to_string()],
+                captures: vec![("a".to_string(), from), ("b".to_string(), from)],
+                me_capture: Some(from),
+            }),
+            args: vec![from, ValueId::new(4)],
+            effects: EffectMask::PURE,
+        };
+
+        rewrite_value_uses_in_instruction(&mut instruction, from, to);
+
+        let MirInstruction::Call {
+            dst,
+            func,
+            callee:
+                Some(Callee::Closure {
+                    captures,
+                    me_capture,
+                    ..
+                }),
+            args,
+            ..
+        } = instruction
+        else {
+            panic!("typed Call shape changed");
+        };
+        assert_eq!(dst, Some(ValueId::new(30)));
+        assert_eq!(func, ValueId::new(99));
+        assert_eq!(
+            captures
+                .into_iter()
+                .map(|(_, value)| value)
+                .collect::<Vec<_>>(),
+            vec![to, to]
+        );
+        assert_eq!(me_capture, Some(to));
+        assert_eq!(args, vec![to, ValueId::new(4)]);
+    }
+
+    #[test]
+    fn simplify_cfg_call_use_rewrite_keeps_targetless_callees_empty() {
+        let from = ValueId::new(1);
+        let to = ValueId::new(2);
+        let mut shapes = vec![
+            Callee::Global("f".to_string()),
+            Callee::Extern("env.f".to_string()),
+            Callee::Constructor {
+                box_type: "Box".to_string(),
+            },
+            Callee::Method {
+                box_name: "Box".to_string(),
+                method: "f".to_string(),
+                receiver: None,
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            },
+        ];
+        for callee in &mut shapes {
+            let mut instruction = MirInstruction::Call {
+                dst: None,
+                func: ValueId::new(99),
+                callee: Some(callee.clone()),
+                args: vec![from],
+                effects: EffectMask::PURE,
+            };
+            rewrite_value_uses_in_instruction(&mut instruction, from, to);
+            let MirInstruction::Call {
+                func,
+                callee: Some(actual),
+                args,
+                ..
+            } = instruction
+            else {
+                panic!("targetless Call shape changed");
+            };
+            assert_eq!(func, ValueId::new(99));
+            assert_eq!(actual, *callee);
+            assert_eq!(args, vec![to]);
+        }
+    }
+
+    #[test]
+    fn simplify_cfg_call_use_rewrite_preserves_legacy_func_parity() {
+        let from = ValueId::new(1);
+        let to = ValueId::new(2);
+        let mut instruction = MirInstruction::Call {
+            dst: None,
+            func: from,
+            callee: None,
+            args: vec![from],
+            effects: EffectMask::PURE,
+        };
+
+        rewrite_value_uses_in_instruction(&mut instruction, from, to);
+
+        let MirInstruction::Call {
+            func, callee, args, ..
+        } = instruction
+        else {
+            panic!("legacy Call shape changed");
+        };
+        assert_eq!(func, to);
+        assert!(callee.is_none());
+        assert_eq!(args, vec![to]);
     }
 }
 
