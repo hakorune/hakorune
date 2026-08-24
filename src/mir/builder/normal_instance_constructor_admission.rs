@@ -27,7 +27,7 @@ pub(super) use demand_manifest::{
 
 #[derive(Debug)]
 pub(super) struct VerifiedInstanceConstructorPhysicalSourceCohortV1 {
-    invocation: ParserInvocationWitnessV1,
+    _invocation: ParserInvocationWitnessV1,
     rows: Box<[VerifiedInstanceConstructorPhysicalSourceRowV1]>,
 }
 
@@ -131,13 +131,9 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
             });
         }
         Ok(Self {
-            invocation,
+            _invocation: invocation,
             rows: rows.into_boxed_slice(),
         })
-    }
-
-    pub(super) fn invocation_witness(&self) -> &ParserInvocationWitnessV1 {
-        &self.invocation
     }
 
     fn row_for(
