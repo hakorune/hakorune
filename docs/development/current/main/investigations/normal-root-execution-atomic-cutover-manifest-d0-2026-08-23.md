@@ -931,3 +931,15 @@ test branches; the default reference front doors and the feature-enabled
 owners are unchanged. The focused `normal_root_execution` suite passes 19
 tests, all five reusable guards remain green, and the test fingerprint moved
 from 930 to 926 warnings.
+
+The following JoinIR reexport slice is landed as `ee668f0f95`:
+
+```text
+ee668f0f95  refactor: prune unused joinir reexports
+```
+
+It removes two caller-zero JoinIR reexports from the merge and live ordered
+terminality facades; the coordinator and logical-product owners remain in
+place. The focused `normal_root_execution` suite passes 19 tests, all five
+reusable guards remain green, and the test fingerprint moved from 926 to 924
+warnings.
