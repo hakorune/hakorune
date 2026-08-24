@@ -8,6 +8,7 @@ OPTIMIZER="$ROOT_DIR/src/mir/optimizer/core.rs"
 SCHEDULE="$ROOT_DIR/src/mir/passes/callsite_canonicalize/schedule.rs"
 REJECT="$ROOT_DIR/src/mir/contracts/backend_core_ops/allowlists.rs"
 JSON="$ROOT_DIR/src/runner/json_v0_bridge/core.rs"
+PROGRAM_LOWERING="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program.rs"
 EXEC="$ROOT_DIR/src/runner/modes/common_util/exec.rs"
 CALL_OPS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/expr/call_ops.rs"
 PROGRAM_CALL_TARGETS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program_call_targets.rs"
@@ -27,7 +28,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -38,10 +39,16 @@ require "$LLVM" "fn reject_selected_dynamic_legacy_callsites"
 require "$LLVM" "legacy_callsite_reject_code"
 require "$LLVM" "boundary_executor::BoundaryExecutorBox::try_execute_selected_dynamic"
 require "$JSON" "CallsiteCanonicalizeScheduleSite::ProgramJsonV0Bridge"
+require "$PROGRAM_LOWERING" "lower_defs_into_module"
+if rg -F -q "maybe_resolve_calls" "$PROGRAM_LOWERING" || rg -F -q "func_map" "$PROGRAM_LOWERING"; then
+  fail "Program lowering retained a late func_map/maybe_resolve_calls authority"
+fi
 require "$EXEC" "project_module_to_legacy_calls"
 require "$METHODS" "pub(crate) fn call("
 require "$PROGRAM_CALL_TARGETS" "ProgramCallTargetCatalog"
 require "$PROGRAM_CALL_TARGETS" "ambiguous-name"
+require "$SCHEDULE" "allow_legacy_target_rewrite"
+require "$SCHEDULE" "ProgramJsonV0Bridge"
 require "$MIR_V0_CALL" "enum JsonV0CallInput"
 require "$MIR_V0_CALL" "struct JsonV0CallInputError"
 require "$MIR_V0_CALL" "MirInstruction::call("

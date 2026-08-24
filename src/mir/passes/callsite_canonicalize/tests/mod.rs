@@ -74,3 +74,49 @@ fn schedule_facade_delegates_to_canonical_transform() {
         } if *func == ValueId::INVALID && name == "Known.run/1"
     ));
 }
+
+#[test]
+fn program_json_v0_site_does_not_issue_a_late_legacy_target() {
+    let mut module = MirModule::new("program_site_policy".to_string());
+    let signature = FunctionSignature {
+        name: "main/0".to_string(),
+        params: vec![],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut func = MirFunction::new(signature, BasicBlockId(0));
+    let block = func
+        .blocks
+        .get_mut(&BasicBlockId(0))
+        .expect("entry block exists");
+    block.instructions.push(MirInstruction::Const {
+        dst: ValueId(1),
+        value: crate::mir::ConstValue::String("Known.run/0".to_string()),
+    });
+    block.instruction_spans.push(Span::unknown());
+    block.instructions.push(MirInstruction::Call {
+        dst: Some(ValueId(2)),
+        func: ValueId(1),
+        callee: None,
+        args: vec![],
+        effects: EffectMask::PURE,
+    });
+    block.instruction_spans.push(Span::unknown());
+    module.add_function(func);
+
+    let rewritten = canonicalize_for_site(
+        &mut module,
+        CallsiteCanonicalizeScheduleSite::ProgramJsonV0Bridge,
+    );
+    assert_eq!(rewritten, 0);
+    assert!(matches!(
+        &module
+            .get_function("main/0")
+            .expect("function exists")
+            .blocks
+            .get(&BasicBlockId(0))
+            .expect("entry block exists")
+            .instructions[1],
+        MirInstruction::Call { callee: None, .. }
+    ));
+}

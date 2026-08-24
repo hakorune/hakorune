@@ -18,6 +18,13 @@ use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
 ///
 /// Returns number of rewritten instructions.
 pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
+    canonicalize_callsites_for_site(module, true)
+}
+
+pub(super) fn canonicalize_callsites_for_site(
+    module: &mut MirModule,
+    allow_legacy_target_rewrite: bool,
+) -> usize {
     let mut rewritten = 0usize;
     let mut closure_bodies = std::mem::take(&mut module.metadata.closure_bodies);
     let mut next_closure_body_id = module.metadata.next_closure_body_id;
@@ -38,6 +45,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
                     &known_user_boxes,
                     &mut closure_bodies,
                     &mut next_closure_body_id,
+                    allow_legacy_target_rewrite,
                 );
             }
             if let Some(term) = block.terminator.as_mut() {
@@ -49,6 +57,7 @@ pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
                     &known_user_boxes,
                     &mut closure_bodies,
                     &mut next_closure_body_id,
+                    allow_legacy_target_rewrite,
                 );
             }
         }
@@ -69,6 +78,7 @@ fn canonicalize_callsite_instruction(
     known_user_boxes: &BTreeSet<String>,
     closure_bodies: &mut BTreeMap<ClosureBodyId, Vec<ASTNode>>,
     next_closure_body_id: &mut ClosureBodyId,
+    allow_legacy_target_rewrite: bool,
 ) -> usize {
     match inst {
         MirInstruction::NewClosure { body_id, body, .. }
@@ -113,6 +123,9 @@ fn canonicalize_callsite_instruction(
             args,
             effects,
         } => {
+            if !allow_legacy_target_rewrite {
+                return 0;
+            }
             if let Some(name) = const_strings.get(func) {
                 let canonical_name =
                     canonicalize_legacy_global_name(name, args.len(), function_names);

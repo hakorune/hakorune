@@ -292,8 +292,7 @@ pub(super) fn lower_program(
             crate::mir::rune_plan_refresh::refresh_function_rune_plans(main_fn);
         }
     }
-    let func_map = program::lower_defs_into_module(&mut module, prog.defs, &env)?;
-    program::maybe_resolve_calls(&mut module, &func_map);
+    program::lower_defs_into_module(&mut module, prog.defs, &env)?;
 
     Ok(module)
 }

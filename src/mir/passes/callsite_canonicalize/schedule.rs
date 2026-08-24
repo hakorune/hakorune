@@ -14,7 +14,9 @@ pub enum CallsiteCanonicalizeScheduleSite {
 
 pub fn canonicalize_for_site(
     module: &mut MirModule,
-    _site: CallsiteCanonicalizeScheduleSite,
+    site: CallsiteCanonicalizeScheduleSite,
 ) -> usize {
-    super::pass::canonicalize_callsites(module)
+    let allow_legacy_target_rewrite =
+        !matches!(site, CallsiteCanonicalizeScheduleSite::ProgramJsonV0Bridge);
+    super::pass::canonicalize_callsites_for_site(module, allow_legacy_target_rewrite)
 }
