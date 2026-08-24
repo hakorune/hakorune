@@ -224,18 +224,18 @@ pub(in crate::mir) enum RawPostprocessFailureStageV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) enum RawPostprocessErrorV1 {
-    OptimizerDiagnostics { count: usize },
-    ContractRefresh(String),
-    CarrierParity(RawPostprocessCarrierParityErrorV1),
-    FinalVerification(Box<[VerificationError]>),
+    OptimizerDiagnostics { _count: usize },
+    ContractRefresh { _detail: String },
+    CarrierParity { _error: RawPostprocessCarrierParityErrorV1 },
+    FinalVerification { _errors: Box<[VerificationError]> },
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawPostprocessInvocationV1 {
-    owner: RawPostprocessReadyInvocationV1,
-    stage: RawPostprocessFailureStageV1,
-    error: RawPostprocessErrorV1,
-    verification: Option<ModuleVerificationEvidenceV1>,
+    _owner: RawPostprocessReadyInvocationV1,
+    _stage: RawPostprocessFailureStageV1,
+    _error: RawPostprocessErrorV1,
+    _verification: Option<ModuleVerificationEvidenceV1>,
 }
 
 impl RejectedRawPostprocessInvocationV1 {
@@ -340,26 +340,32 @@ fn map_stage_failure(
             match failure.error {
                 super::module_postprocess::ModulePostprocessErrorV1::OptimizerDiagnostics {
                     count,
-                } => RawPostprocessErrorV1::OptimizerDiagnostics { count },
-                other => RawPostprocessErrorV1::ContractRefresh(format!("{other:?}")),
+                } => RawPostprocessErrorV1::OptimizerDiagnostics { _count: count },
+                other => RawPostprocessErrorV1::ContractRefresh {
+                    _detail: format!("{other:?}"),
+                },
             },
         ),
         PostprocessFailureStageV1::ContractRefresh => (
             RawPostprocessFailureStageV1::ContractRefresh,
             match failure.error {
                 super::module_postprocess::ModulePostprocessErrorV1::ContractRefresh(detail) => {
-                    RawPostprocessErrorV1::ContractRefresh(detail)
+                    RawPostprocessErrorV1::ContractRefresh { _detail: detail }
                 }
-                other => RawPostprocessErrorV1::ContractRefresh(format!("{other:?}")),
+                other => RawPostprocessErrorV1::ContractRefresh {
+                    _detail: format!("{other:?}"),
+                },
             },
         ),
         PostprocessFailureStageV1::FinalVerification => (
             RawPostprocessFailureStageV1::FinalVerification,
             match failure.error {
                 super::module_postprocess::ModulePostprocessErrorV1::FinalVerification(errors) => {
-                    RawPostprocessErrorV1::FinalVerification(errors)
+                    RawPostprocessErrorV1::FinalVerification { _errors: errors }
                 }
-                other => RawPostprocessErrorV1::ContractRefresh(format!("{other:?}")),
+                other => RawPostprocessErrorV1::ContractRefresh {
+                    _detail: format!("{other:?}"),
+                },
             },
         ),
     }
@@ -387,7 +393,7 @@ fn run_script_ready<'a>(
         Err(failure) => {
             let (stage, error) = map_stage_failure(failure);
             return Err(RejectedRawPostprocessInvocationV1 {
-                owner: RawPostprocessReadyInvocationV1::from_script(
+                _owner: RawPostprocessReadyInvocationV1::from_script(
                     continuation,
                     module_name,
                     runtime_inputs,
@@ -395,9 +401,9 @@ fn run_script_ready<'a>(
                     helper_receipts,
                     physical,
                 ),
-                stage,
-                error,
-                verification: None,
+                _stage: stage,
+                _error: error,
+                _verification: None,
             });
         }
     };
@@ -405,7 +411,7 @@ fn run_script_ready<'a>(
         Ok(parity) => parity,
         Err(error) => {
             return Err(RejectedRawPostprocessInvocationV1 {
-                owner: RawPostprocessReadyInvocationV1::from_script(
+                _owner: RawPostprocessReadyInvocationV1::from_script(
                     continuation,
                     module_name,
                     runtime_inputs,
@@ -413,9 +419,9 @@ fn run_script_ready<'a>(
                     helper_receipts,
                     physical,
                 ),
-                stage: RawPostprocessFailureStageV1::CarrierParity,
-                error: RawPostprocessErrorV1::CarrierParity(error),
-                verification: Some(verification),
+                _stage: RawPostprocessFailureStageV1::CarrierParity,
+                _error: RawPostprocessErrorV1::CarrierParity { _error: error },
+                _verification: Some(verification),
             });
         }
     };
@@ -468,7 +474,7 @@ fn run_app_ready<'a>(
         Err(failure) => {
             let (stage, error) = map_stage_failure(failure);
             return Err(RejectedRawPostprocessInvocationV1 {
-                owner: RawPostprocessReadyInvocationV1::from_app(
+                _owner: RawPostprocessReadyInvocationV1::from_app(
                     continuation,
                     module_name,
                     runtime_inputs,
@@ -477,9 +483,9 @@ fn run_app_ready<'a>(
                     callable_main,
                     physical,
                 ),
-                stage,
-                error,
-                verification: None,
+                _stage: stage,
+                _error: error,
+                _verification: None,
             });
         }
     };
@@ -487,7 +493,7 @@ fn run_app_ready<'a>(
         Ok(parity) => parity,
         Err(error) => {
             return Err(RejectedRawPostprocessInvocationV1 {
-                owner: RawPostprocessReadyInvocationV1::from_app(
+                _owner: RawPostprocessReadyInvocationV1::from_app(
                     continuation,
                     module_name,
                     runtime_inputs,
@@ -496,9 +502,9 @@ fn run_app_ready<'a>(
                     callable_main,
                     physical,
                 ),
-                stage: RawPostprocessFailureStageV1::CarrierParity,
-                error: RawPostprocessErrorV1::CarrierParity(error),
-                verification: Some(verification),
+                _stage: RawPostprocessFailureStageV1::CarrierParity,
+                _error: RawPostprocessErrorV1::CarrierParity { _error: error },
+                _verification: Some(verification),
             });
         }
     };
