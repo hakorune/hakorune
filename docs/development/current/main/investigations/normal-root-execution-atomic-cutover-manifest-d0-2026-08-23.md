@@ -1333,3 +1333,17 @@ focused `normal_root_execution` suite passes 19 tests, all five reusable
 guards remain green, and the test fingerprint moved from 803 to 802 warnings
 (`private_interfaces=76`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following Main source-view visibility slice is landed as `978c9ce0c1`:
+
+```text
+978c9ce0c1  refactor: narrow main source view access
+```
+
+The verified Main source unit's exact-function view accessor is consumed only
+inside the compiler-owned normal source-plan tree, so its boundary now matches
+the existing `pub(super)` view. No source verification or lookup behavior
+changed. The focused `normal_root_execution` suite passes 19 tests, all five
+reusable guards remain green, and the test fingerprint moved from 802 to 801
+warnings (`private_interfaces=75`, `private_bounds=0`; non-structural lint
+categories remain zero).
