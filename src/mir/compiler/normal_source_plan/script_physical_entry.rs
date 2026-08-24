@@ -104,7 +104,7 @@ impl RejectedNormalScriptPhysicalEntryV1 {
         self.stage
     }
 
-    pub(crate) fn cause(&self) -> &ScriptPhysicalEntrySessionErrorV1 {
+    pub(in crate::mir::compiler) fn cause(&self) -> &ScriptPhysicalEntrySessionErrorV1 {
         &self.cause
     }
 
