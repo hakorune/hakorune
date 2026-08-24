@@ -123,7 +123,7 @@ pub(crate) struct RejectedCanonicalSourceEntryPublicationV1 {
 }
 
 impl CompletedCanonicalCoreSourceEntryCandidateV1 {
-    pub(crate) fn prepare_canonical_publication(
+    pub(in crate::mir::compiler) fn prepare_canonical_publication(
         self,
     ) -> Result<PreparedCanonicalSourceEntryPublicationV1, RejectedCanonicalSourceEntryPublicationV1>
     {
