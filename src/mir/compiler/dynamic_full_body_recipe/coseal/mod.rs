@@ -32,10 +32,9 @@ use physical_evidence::issue_physical_evidence_v2;
 use physical_evidence::issue_recipe_relations;
 pub(in crate::mir) use physical_evidence::{
     DynamicFullLoopOperationEffectV2, DynamicFullLoopOperationPhysicalRefV2,
-    DynamicFullLoopOperationSourceEffectV2, DynamicFullLoopPhysicalEvidenceRejectV2,
-    DynamicFullLoopPhysicalItemKindV2, DynamicFullLoopPhysicalItemPlacementV2,
-    DynamicFullLoopPhysicalRecipeRelationsViewV2, DynamicLoopPhysicalArmV2,
-    DynamicLoopPhysicalBranchControlV2, DynamicLoopPhysicalControlRowV2,
+    DynamicFullLoopPhysicalEvidenceRejectV2, DynamicFullLoopPhysicalItemKindV2,
+    DynamicFullLoopPhysicalItemPlacementV2, DynamicFullLoopPhysicalRecipeRelationsViewV2,
+    DynamicLoopPhysicalArmV2, DynamicLoopPhysicalControlRowV2,
     VerifiedDynamicFullLoopPhysicalEvidenceV2, DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2,
     DYNAMIC_FULL_LOOP_PHYSICAL_OPERATION_COUNT_V2,
 };

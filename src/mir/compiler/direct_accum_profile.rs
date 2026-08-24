@@ -13,11 +13,10 @@ use crate::mir::loop_route_policy::{
 };
 use crate::mir::loop_structural_facts::{
     issue_selected_loop_recipe_demand_v1, DirectAccumBindingEffectEntryV1,
-    DirectAccumBindingEffectRoleV1, DirectAccumStructuralShapeV1, SelectedLoopDemandRejectV1,
-    VerifiedDirectAccumBindingEffectPlanV1, VerifiedLoopStructuralFactsV1,
+    DirectAccumBindingEffectRoleV1, SelectedLoopDemandRejectV1,
+    VerifiedDirectAccumBindingEffectPlanV1,
 };
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
-use crate::mir::resolved_semantics::BindingRefV1;
 
 use super::capability::{
     seal_direct_accum_owner_header_v1, ResolvedOwnerHeaderSealErrorV1,

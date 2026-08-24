@@ -12,7 +12,6 @@ use crate::mir::numeric_substrate::generic_g0::{
     issue_generic_g0_numeric_fact_lease_v1, GenericG0NumericIssueV1,
     GenericG0NumericLiteralInputV1, GenericG0NumericLiteralRoleV1,
     GenericG0NumericParameterInputV1, GenericG0NumericSourceViewV1,
-    VerifiedGenericNumericFactLeaseG0,
 };
 use crate::mir::numeric_substrate::NumericTarget;
 use crate::mir::resolved_semantics::generic_g0::{

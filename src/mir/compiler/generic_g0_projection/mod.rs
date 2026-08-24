@@ -31,7 +31,7 @@ use super::located::LocatedStmtV1;
 pub(crate) mod handoff;
 mod numeric;
 pub(crate) use crate::mir::loop_structural_facts::generic_g0::{
-    VerifiedGenericSourceBundleG0, VerifiedGenericTypedSourceBundleG0,
+    VerifiedGenericSourceBundleG0,
 };
 pub(crate) use numeric::{
     issue_generic_g0_typed_source_bundle_v1, GenericG0NumericProjectionRejectV1,

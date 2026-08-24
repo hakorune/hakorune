@@ -6,9 +6,7 @@ use crate::mir::builder::{
 };
 use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
-use crate::mir::resolved_semantics::{
-    CallableSemanticSourceLedgerView, FunctionSemanticResolverSessionV1,
-};
+use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 use crate::mir::source_call_target::{
     issue_source_bound_dynamic_member_calls_v1, VerifiedSourceBoundDynamicMemberCallV1,
 };
