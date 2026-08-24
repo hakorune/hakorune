@@ -242,7 +242,7 @@ impl TextFormalCallResidenceV1 {
     /// Move the runtime-owned token and root rows into the private C frame
     /// projection.  The caller must publish all rows or finish the raw token
     /// for rollback; no partial owner is retained here.
-    pub(crate) fn into_raw_parts(
+    pub(in crate::runtime) fn into_raw_parts(
         self,
     ) -> (
         u64,
