@@ -1200,3 +1200,17 @@ changed. The focused `normal_root_execution` suite passes 19 tests, all five
 reusable guards remain green, and the test fingerprint moved from 822 to 815
 warnings (`private_interfaces=89`, `private_bounds=0`; non-structural lint
 categories remain zero).
+
+The following Raw source-binding visibility slice is landed as `0f011cbf52`:
+
+```text
+0f011cbf52  refactor: narrow raw source binding visibility
+```
+
+The Raw binding error, identity issuer entry, and reject accessor are consumed
+only inside `crate::mir::compiler`; their boundaries now match the compiler
+source-bound products without changing the Raw ingress surface. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 815 to 813 warnings
+(`private_interfaces=87`, `private_bounds=0`; non-structural lint categories
+remain zero).
