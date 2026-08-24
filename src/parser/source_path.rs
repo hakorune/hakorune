@@ -216,16 +216,6 @@ pub(super) enum SourceBuildGatePathSegmentV1 {
 }
 
 impl SourceBuildGatePathV1 {
-    pub(super) fn root(brand: ParserInvocationBrandV1, ordinal: u32) -> Self {
-        Self {
-            brand,
-            segments: vec![SourceBuildGatePathSegmentV1::RootTopLevel {
-                statement_ordinal: ordinal,
-            }]
-            .into_boxed_slice(),
-        }
-    }
-
     pub(super) fn from_box_path(path: &SourceBoxDeclarationPathV1) -> Option<Self> {
         Self::from_box_prefix(path, path.segments().len())
     }
@@ -262,30 +252,8 @@ impl SourceBuildGatePathV1 {
         })
     }
 
-    pub(super) fn child(
-        &self,
-        parent_gate_id: SourceBuildGateIdV1,
-        branch: SourceBuildGateBranchV1,
-        child_ordinal: u32,
-    ) -> Self {
-        let mut segments = self.segments.to_vec();
-        segments.push(SourceBuildGatePathSegmentV1::BranchChild {
-            parent_gate_id,
-            branch,
-            child_ordinal,
-        });
-        Self {
-            brand: self.brand.clone(),
-            segments: segments.into_boxed_slice(),
-        }
-    }
-
     pub(super) fn brand(&self) -> &ParserInvocationBrandV1 {
         &self.brand
-    }
-
-    pub(super) fn segments(&self) -> &[SourceBuildGatePathSegmentV1] {
-        &self.segments
     }
 }
 

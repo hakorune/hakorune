@@ -113,10 +113,6 @@ impl PreparedBoxSourceSealV1 {
         &self.box_site
     }
 
-    pub(in crate::parser) fn declaration_syntax(&self) -> &ParserBoxDeclarationSyntaxV1 {
-        &self.declaration_syntax
-    }
-
     pub(in crate::parser) fn member_gate_selection_receipts(
         &self,
     ) -> &[MemberGateSelectionReceiptV1] {
@@ -249,10 +245,6 @@ impl ParsedProgramWithSourceV1 {
         &self,
     ) -> &[GeneratedDelegateSourceRelationV1] {
         &self.generated_delegate_source_relations
-    }
-
-    pub(in crate::parser) fn callable_rows(&self) -> &[PreparedCallableSourceV1] {
-        self.initial_callable_source.callable_rows()
     }
 
     pub(in crate::parser) fn into_postpass_parts(

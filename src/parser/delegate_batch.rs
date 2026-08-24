@@ -6,7 +6,7 @@
 
 use crate::ast::{
     ASTNode, BoxMethodGeneratedProvenanceV1, BoxMethodInventoryPlacementReceiptV1,
-    BoxMethodInventoryV1, DelegateDecl, FieldDecl, PreparedGeneratedBoxMethodBatchV1,
+    BoxMethodInventoryV1, DelegateDecl, PreparedGeneratedBoxMethodBatchV1,
     PreparedGeneratedBoxMethodV1,
 };
 use crate::parser::ParseError;
@@ -45,7 +45,6 @@ impl BatchFailureV1 {
 #[derive(Debug)]
 struct HostView<'product> {
     path: &'product SourceBoxDeclarationPathV1,
-    fields: &'product [FieldDecl],
     delegates: &'product [DelegateDecl],
     methods: &'product BoxMethodInventoryV1,
 }
@@ -145,7 +144,6 @@ fn collect_hosts<'product>(
     let mut hosts = Vec::new();
     for (index, statement) in statements.iter().enumerate() {
         let ASTNode::BoxDeclaration {
-            field_decls,
             delegates,
             methods,
             is_interface,
@@ -166,7 +164,6 @@ fn collect_hosts<'product>(
         })?;
         hosts.push(HostView {
             path,
-            fields: field_decls,
             delegates,
             methods,
         });
