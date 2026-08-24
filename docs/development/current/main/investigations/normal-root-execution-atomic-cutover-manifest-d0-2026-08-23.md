@@ -781,3 +781,15 @@ It removes 13 compiler-reported caller-zero reexports from `builder.rs` while
 leaving the remaining cross-module interfaces intact. The focused
 `normal_root_execution` suite passes 19 tests, all five reusable guards remain
 green, and the test fingerprint moved from 1009 to 996 warnings.
+
+The following resolved-lowering import slice is landed as `61565ffc7c`:
+
+```text
+61565ffc7c  refactor: prune resolved lowering exports
+```
+
+It retires six caller-zero export groups from
+`resolved_lowering/mod.rs`; the remaining lowering owners and selected routes
+are unchanged. The focused `normal_root_execution` suite passes 19 tests, all
+five reusable guards remain green, and the test fingerprint moved from 996 to
+991 warnings.
