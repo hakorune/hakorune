@@ -1584,11 +1584,24 @@ suite passes 19 tests, and the test fingerprint moved from 705 to 702 warnings
 (`private_interfaces=11`, `dead_code=691`; all non-structural lint categories
 remain zero).
 
+The following unreferenced parser-facade cleanup is landed as `deff1fd24d`:
+
+```text
+deff1fd24d  refactor: remove unreferenced parser facades
+```
+
+Unused TextScan row/slot accessors, program-slot and gate projections, and an
+unconnected composite-source loan wrapper were removed. No provider admission,
+parser placement, gate selection, or composite source behavior changed. The
+focused `normal_root_execution` suite passes 19 tests, and the test fingerprint
+moved from 702 to 697 warnings (`private_interfaces=11`, `dead_code=686`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 691 `dead_code` warnings are existing disconnected
+visibility. The remaining 686 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
