@@ -174,7 +174,7 @@ fn atomic_publication_failure_preserves_the_preexisting_module_prefix() {
 
     assert!(matches!(
         error,
-        CallableModuleTransactionErrorV1::Publication(_)
+        CallableModuleTransactionErrorV1::Publication { .. }
     ));
     assert_eq!(module.functions.len(), 1);
     assert_eq!(

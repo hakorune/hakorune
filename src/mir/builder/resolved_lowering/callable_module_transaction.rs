@@ -23,29 +23,39 @@ use crate::mir::builder::module_draft_collector::{
 pub(in crate::mir) enum CallableModuleTransactionErrorV1 {
     FunctionDraft {
         key: CanonicalCallableKeyV1,
-        source: CanonicalResolvedBuildErrorV1,
+        _source: CanonicalResolvedBuildErrorV1,
     },
-    MissingHeader(CanonicalCallableKeyV1),
+    MissingHeader {
+        _key: CanonicalCallableKeyV1,
+    },
     SymbolMismatch {
-        key: CanonicalCallableKeyV1,
-        expected: String,
-        actual: String,
+        _key: CanonicalCallableKeyV1,
+        _expected: String,
+        _actual: String,
     },
     SignatureArityMismatch {
-        key: CanonicalCallableKeyV1,
-        expected: usize,
-        actual: usize,
+        _key: CanonicalCallableKeyV1,
+        _expected: usize,
+        _actual: usize,
     },
-    DuplicateDraftKey(CanonicalCallableKeyV1),
-    DuplicateDraftSymbol(String),
+    DuplicateDraftKey {
+        _key: CanonicalCallableKeyV1,
+    },
+    DuplicateDraftSymbol {
+        _symbol: String,
+    },
     CardinalityMismatch {
-        catalog: usize,
-        functions: usize,
-        plans: usize,
-        drafts: usize,
+        _catalog: usize,
+        _functions: usize,
+        _plans: usize,
+        _drafts: usize,
     },
-    Publication(FunctionPublicationErrorV1),
-    BuilderContract(String),
+    Publication {
+        _error: FunctionPublicationErrorV1,
+    },
+    BuilderContract {
+        _detail: String,
+    },
 }
 
 /// Complete, individually verified drafts which are still absent from MIR.
@@ -157,7 +167,7 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
             let draft = lower(&key, plan).map_err(|source| {
                 CallableModuleTransactionErrorV1::FunctionDraft {
                     key: key.clone(),
-                    source,
+                    _source: source,
                 }
             })?;
             let header = source
@@ -165,30 +175,32 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
                 .catalog()
                 .index()
                 .lookup(&key)
-                .ok_or_else(|| CallableModuleTransactionErrorV1::MissingHeader(key.clone()))?;
+                .ok_or_else(|| CallableModuleTransactionErrorV1::MissingHeader {
+                    _key: key.clone(),
+                })?;
             let expected_symbol = header.symbol().as_mir_name();
             if draft.signature.name != expected_symbol {
                 return Err(CallableModuleTransactionErrorV1::SymbolMismatch {
-                    key,
-                    expected: expected_symbol.to_string(),
-                    actual: draft.signature.name,
+                    _key: key,
+                    _expected: expected_symbol.to_string(),
+                    _actual: draft.signature.name,
                 });
             }
             let expected_arity = header.signature().arity();
             if draft.signature.params.len() != expected_arity {
                 return Err(CallableModuleTransactionErrorV1::SignatureArityMismatch {
-                    key,
-                    expected: expected_arity,
-                    actual: draft.signature.params.len(),
+                    _key: key,
+                    _expected: expected_arity,
+                    _actual: draft.signature.params.len(),
                 });
             }
             if !symbols.insert(draft.signature.name.clone()) {
-                return Err(CallableModuleTransactionErrorV1::DuplicateDraftSymbol(
-                    draft.signature.name,
-                ));
+                return Err(CallableModuleTransactionErrorV1::DuplicateDraftSymbol {
+                    _symbol: draft.signature.name,
+                });
             }
             if drafts_by_key.insert(key.clone(), draft).is_some() {
-                return Err(CallableModuleTransactionErrorV1::DuplicateDraftKey(key));
+                return Err(CallableModuleTransactionErrorV1::DuplicateDraftKey { _key: key });
             }
         }
 
@@ -197,10 +209,10 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
         let drafts = drafts_by_key.len();
         if catalog != functions || functions != plan_count || plan_count != drafts {
             return Err(CallableModuleTransactionErrorV1::CardinalityMismatch {
-                catalog,
-                functions,
-                plans: plan_count,
-                drafts,
+                _catalog: catalog,
+                _functions: functions,
+                _plans: plan_count,
+                _drafts: drafts,
             });
         }
         Ok(Self {
@@ -255,7 +267,7 @@ impl<'a> VerifiedUnpublishedCallableDraftSetV1<'a> {
         let _source = self.source;
         module
             .try_add_functions_atomic(self.drafts_by_key.into_values().collect())
-            .map_err(CallableModuleTransactionErrorV1::Publication)
+            .map_err(|_error| CallableModuleTransactionErrorV1::Publication { _error })
     }
 }
 
@@ -301,7 +313,7 @@ impl MirBuilder {
         ) -> Result<MirFunction, CanonicalResolvedBuildErrorV1>,
     ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
         self.prepare_module()
-            .map_err(CallableModuleTransactionErrorV1::BuilderContract)?;
+            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })?;
         let drafts =
             VerifiedUnpublishedCallableDraftSetV1::collect_acyclic_with(plan, |key, plan| {
                 lower(self, key, plan)
@@ -314,7 +326,7 @@ impl MirBuilder {
         plan: VerifiedRecursiveCallableModulePlanV1<'_>,
     ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
         self.prepare_module()
-            .map_err(CallableModuleTransactionErrorV1::BuilderContract)?;
+            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })?;
         let drafts =
             VerifiedUnpublishedCallableDraftSetV1::collect_recursive_with(plan, |_key, plan| {
                 self.lower_resolved_trivial_function_draft(plan)
@@ -327,30 +339,34 @@ impl MirBuilder {
         drafts: VerifiedUnpublishedCallableDraftSetV1<'_>,
     ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
         let module = self.current_module.as_mut().ok_or_else(|| {
-            CallableModuleTransactionErrorV1::BuilderContract(
-                "[freeze:contract][callable_module_transaction/module_missing]".to_string(),
-            )
+            CallableModuleTransactionErrorV1::BuilderContract {
+                _detail: "[freeze:contract][callable_module_transaction/module_missing]"
+                    .to_string(),
+            }
         })?;
         if module
             .metadata
             .canonical_recursive_callable_module_capability
             .is_some()
         {
-            return Err(CallableModuleTransactionErrorV1::BuilderContract(
-                "[freeze:contract][canonical_recursive_module/capability_preexisting]".to_string(),
-            ));
+            return Err(CallableModuleTransactionErrorV1::BuilderContract {
+                _detail: "[freeze:contract][canonical_recursive_module/capability_preexisting]"
+                    .to_string(),
+            });
         }
         drafts.publish_into(module)?;
         crate::mir::canonical_recursive_callable_module_capability::CanonicalRecursiveCallableModuleCapabilityV1::install_for_module(
             &mut module.metadata.canonical_recursive_callable_module_capability,
             true,
         )
-        .map_err(|error| CallableModuleTransactionErrorV1::BuilderContract(error.to_string()))?;
+        .map_err(|error| CallableModuleTransactionErrorV1::BuilderContract {
+            _detail: error.to_string(),
+        })?;
 
         let entry = crate::mir::builder::emission::constant::emit_void(self)
-            .map_err(CallableModuleTransactionErrorV1::BuilderContract)?;
+            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })?;
         self.finalize_module(entry)
-            .map_err(CallableModuleTransactionErrorV1::BuilderContract)
+            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })
     }
 
     fn publish_callable_drafts(
@@ -358,16 +374,17 @@ impl MirBuilder {
         drafts: VerifiedUnpublishedCallableDraftSetV1<'_>,
     ) -> Result<MirModule, CallableModuleTransactionErrorV1> {
         let module = self.current_module.as_mut().ok_or_else(|| {
-            CallableModuleTransactionErrorV1::BuilderContract(
-                "[freeze:contract][callable_module_transaction/module_missing]".to_string(),
-            )
+            CallableModuleTransactionErrorV1::BuilderContract {
+                _detail: "[freeze:contract][callable_module_transaction/module_missing]"
+                    .to_string(),
+            }
         })?;
         drafts.publish_into(module)?;
 
         let entry = crate::mir::builder::emission::constant::emit_void(self)
-            .map_err(CallableModuleTransactionErrorV1::BuilderContract)?;
+            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })?;
         self.finalize_module(entry)
-            .map_err(CallableModuleTransactionErrorV1::BuilderContract)
+            .map_err(|_detail| CallableModuleTransactionErrorV1::BuilderContract { _detail })
     }
 }
 
