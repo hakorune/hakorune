@@ -18,9 +18,15 @@ use crate::parser::{
 pub(in crate::mir::builder) enum CanonicalScriptCompositeProgramPartitionDispositionV1 {
     Ready(CanonicalScriptCompositeProgramPartitionV1),
     Outside(CanonicalScriptCompositePartitionOutsideReasonV1),
-    SourceAuthorityUnavailable(ParserCompositeSourceUnavailableV1),
-    Incomplete(ParserCompositeIncompleteV1),
-    IntegrityInvalid(ParserCompositeIntegrityIssueV1),
+    SourceAuthorityUnavailable {
+        _reason: ParserCompositeSourceUnavailableV1,
+    },
+    Incomplete {
+        _reason: ParserCompositeIncompleteV1,
+    },
+    IntegrityInvalid {
+        _reason: ParserCompositeIntegrityIssueV1,
+    },
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -109,16 +115,16 @@ impl CanonicalScriptCompositeProgramPartitionIssuerV1 {
 
         if !is_bounded_static_provider(items[0].statement()) {
             return Err(
-                CanonicalScriptCompositeProgramPartitionDispositionV1::IntegrityInvalid(
-                    ParserCompositeIntegrityIssueV1::ProviderPlacementMismatch,
-                ),
+                CanonicalScriptCompositeProgramPartitionDispositionV1::IntegrityInvalid {
+                    _reason: ParserCompositeIntegrityIssueV1::ProviderPlacementMismatch,
+                },
             );
         }
         if !is_bounded_terminal(items[1].statement(), loan.terminal_is_root_return()) {
             return Err(
-                CanonicalScriptCompositeProgramPartitionDispositionV1::IntegrityInvalid(
-                    ParserCompositeIntegrityIssueV1::CallTreeContradiction,
-                ),
+                CanonicalScriptCompositeProgramPartitionDispositionV1::IntegrityInvalid {
+                    _reason: ParserCompositeIntegrityIssueV1::CallTreeContradiction,
+                },
             );
         }
 
@@ -168,15 +174,17 @@ fn map_loan_reject(
             )
         }
         ParserCompositeSourceLoanRejectV1::SourceAuthorityUnavailable(reason) => {
-            CanonicalScriptCompositeProgramPartitionDispositionV1::SourceAuthorityUnavailable(
-                reason,
-            )
+            CanonicalScriptCompositeProgramPartitionDispositionV1::SourceAuthorityUnavailable {
+                _reason: reason,
+            }
         }
         ParserCompositeSourceLoanRejectV1::Incomplete(reason) => {
-            CanonicalScriptCompositeProgramPartitionDispositionV1::Incomplete(reason)
+            CanonicalScriptCompositeProgramPartitionDispositionV1::Incomplete { _reason: reason }
         }
         ParserCompositeSourceLoanRejectV1::IntegrityInvalid(reason) => {
-            CanonicalScriptCompositeProgramPartitionDispositionV1::IntegrityInvalid(reason)
+            CanonicalScriptCompositeProgramPartitionDispositionV1::IntegrityInvalid {
+                _reason: reason,
+            }
         }
     }
 }
