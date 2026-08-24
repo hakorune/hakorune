@@ -30,18 +30,6 @@ impl MirBuilder {
             .collect()
     }
 
-    pub(in crate::mir) fn current_function_instruction_blocks(
-        &self,
-    ) -> Vec<(super::BasicBlockId, Vec<super::MirInstruction>)> {
-        self.function_state
-            .current_function
-            .as_ref()
-            .into_iter()
-            .flat_map(|function| function.blocks.iter())
-            .map(|(block, data)| (*block, data.instructions.clone()))
-            .collect()
-    }
-
     pub(in crate::mir) fn current_variable(&self, name: &str) -> Option<super::ValueId> {
         self.function_state.variable_ctx.lookup(name)
     }
@@ -85,31 +73,6 @@ impl MirBuilder {
             .as_ref()
             .and_then(|function| function.get_block(block))
             .is_some_and(|block| block.is_terminated()))
-    }
-
-    pub(in crate::mir) fn capture_current_predecessor_and_jump(
-        &mut self,
-        target: super::BasicBlockId,
-    ) -> Result<Option<super::BasicBlockId>, String> {
-        let current = self
-            .current_block_id()
-            .ok_or_else(|| "No current block".to_string())?;
-        if self.checked_current_block_terminated()? {
-            return Ok(None);
-        }
-        let function = self
-            .function_state
-            .current_function
-            .as_mut()
-            .ok_or_else(|| {
-                crate::mir::diagnostics::FreezeContract::new(
-                    "builder/capture_jump_without_function",
-                )
-                .field("target_bb", format!("{:?}", target))
-                .build()
-            })?;
-        crate::mir::ssot::cf_common::set_jump(function, current, target);
-        Ok(Some(current))
     }
 
     pub(in crate::mir) fn next_function_value_id_or_core(&mut self) -> super::ValueId {

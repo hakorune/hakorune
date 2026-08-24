@@ -39,19 +39,6 @@ impl MirBuilder {
             .or_else(|| crate::config::env::builder_source_file_hint())
     }
 
-    /// NCL-1: Externalize closure body into module metadata and return body_id.
-    pub(super) fn intern_closure_body(
-        &mut self,
-        body: Vec<crate::ast::ASTNode>,
-    ) -> Option<crate::mir::function::ClosureBodyId> {
-        if body.is_empty() {
-            return None;
-        }
-        self.current_module
-            .as_mut()
-            .map(|module| module.intern_closure_body(body))
-    }
-
     /// Create a new MirFunction with source metadata applied.
     pub(in crate::mir::builder) fn new_function_with_metadata(
         &self,
