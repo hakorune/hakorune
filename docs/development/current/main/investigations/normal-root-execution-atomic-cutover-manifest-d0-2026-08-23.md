@@ -805,3 +805,16 @@ It retires five caller-zero reexport groups from
 input owners remain unchanged. The focused `if_recipe_contract` suite passes
 10 tests, all five reusable guards remain green, and the test fingerprint
 moved from 991 to 986 warnings.
+
+The following loop-route policy import slice is landed as `54cc08c097`:
+
+```text
+54cc08c097  refactor: prune loop route exports
+```
+
+It retires six caller-zero export groups from `loop_route_policy/mod.rs`; the
+policy evaluator and route owners are unchanged. The focused loop-route suite
+ran 80 tests with 79 passing; its one failure is the existing
+`policy_evidence.rs:75` Candidate assertion outside this import-only diff.
+All five reusable guards remain green, and the test fingerprint moved from 986
+to 980 warnings.
