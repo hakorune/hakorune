@@ -46,19 +46,6 @@ pub(in crate::mir::builder) struct RawRootStaticChildLoweringPartsV1 {
 }
 
 impl RawRootStaticChildWorkV1 {
-    pub(in crate::mir) fn ordinal(&self) -> usize {
-        self.ordinal
-    }
-    pub(in crate::mir) fn locator(&self) -> &RawSourceLocatorV1 {
-        &self.locator
-    }
-    pub(in crate::mir) fn symbol(&self) -> &str {
-        self.locator.symbol()
-    }
-    pub(in crate::mir) const fn arity(&self) -> usize {
-        self.locator.arity()
-    }
-
     pub(in crate::mir::builder) fn into_source_parts(
         self,
     ) -> (usize, RawSourceLocatorV1, RawRootStaticChildLoweringPartsV1) {
@@ -104,14 +91,6 @@ pub(in crate::mir) struct RawCallableMainWorkV1 {
 }
 
 impl RawCallableMainWorkV1 {
-    pub(in crate::mir) fn symbol(&self) -> &str {
-        self.inner.symbol()
-    }
-
-    pub(in crate::mir) const fn arity(&self) -> usize {
-        self.inner.arity()
-    }
-
     pub(in crate::mir::builder) fn into_inner(self) -> RawRootStaticChildWorkV1 {
         self.inner
     }
