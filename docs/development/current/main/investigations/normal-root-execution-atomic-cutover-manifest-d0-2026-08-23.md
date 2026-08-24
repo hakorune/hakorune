@@ -1073,3 +1073,16 @@ or any production route. The focused `normal_root_execution` suite passes 19
 tests, all five reusable guards remain green, and the test fingerprint moved
 from 855 to 854 warnings (`unused_imports=0`, `unused_mut=0`,
 `unused_variables=0`, `unreachable_patterns=0`).
+
+The following parser visibility cleanup slice is landed as `f038089c28`:
+
+```text
+f038089c28  refactor: narrow parser source visibility
+```
+
+The parser source-session fields and postpass entrypoints are consumed only by
+the parser module tree, so their crate-wide visibility was narrowed to private
+without changing source sealing or compatibility entrypoints. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 854 to 847 warnings
+(`private_interfaces=114`; non-structural lint categories remain zero).
