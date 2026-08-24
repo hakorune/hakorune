@@ -206,12 +206,20 @@ Global/Extern/Constructorはtarget operandを持たない。Call argsは全varia
 保ってoperandになる。escape判定はこのprojectionを再利用してよいが、別policyの
 まま保つ。
 
-R4a accepted: `Callee` itself owns the ordered occurrence rewrite API
+R4a closed: `Callee` owns the ordered occurrence rewrite API
 `rewrite_value_operands(&mut self, FnMut(&mut ValueId))`. The order is
 Method.receiver, Value, Closure captures in stored order, then me; duplicates are
 retained. The match is exhaustive with explicit empty Global/Extern/Constructor/
-Method(None). The first consumer is only SimplifyCFG Call-use rewrite; `func`,
+Method(None). SimplifyCFG is migrated and parity/guard evidence is green; `func`,
 Call args, ownership, escape, JoinIR, and field deletion remain separate rows.
+
+R4b design stop: `used_values` has 56 direct non-test expressions across 37 files
+plus one BasicBlock edge. Its accepted law is typed Callee occurrences in the same
+order, then args; legacy `None` keeps func once before args and duplicates remain.
+The next bounded row is an immutable exhaustive `Callee::for_each_value_operand`
+facet plus only the `methods.rs` Call arm, exact tests, and the shared guard. The
+fanout, MirQuery/CallLike/value_consumer/JoinIR/ownership/escape consumers,
+warning cleanup, PyVM/reference/Python, and Call field deletion are not in R4b.
 
 retirement seriesの固定順は次。
 

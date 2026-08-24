@@ -3,15 +3,15 @@ Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
 ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
 and owner-private JSON-v0 input state as compatibility ingress. R1, D1,
-Topology-I0, R2-I0, R3a, and R3b are closed; R4a Callee operand projection
-is the active bounded row."""
+Topology-I0, R2-I0, R3a, R3b, and R4a are closed; R4b used_values
+projection is the active design-stop boundary."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-CANONICAL-CALLEE-PROJECTION-SIMPLIFYCFG-I0"
-current_design_stop = "R4 D0 accepted: Callee occurrence order and exhaustive projection are fixed; ownership/escape and Call field deletion remain later rows."
-current_blocker_token = "R4a fast row: add Callee::rewrite_value_operands at the type authority and delegate only SimplifyCFG Call-use rewrite; preserve legacy func/args parity, add shared guard evidence, and do not touch used_values, JoinIR, ownership, escape, or Call fields."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-CANONICAL-OPERAND-USED-VALUES-D0"
+current_design_stop = "R4b design stop: used_values has 56 direct expressions across 37 files plus a BasicBlock edge; accept the typed Callee occurrence law and exact consumer boundary before migration."
+current_blocker_token = "R4b design stop: accept the six-line used_values brief; immutable Callee projection and methods.rs delegation are the next bounded slice; do not migrate the fanout or delete Call fields yet."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -19,10 +19,11 @@ ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/
 active_lane = "MirBuilder in-place replacement — canonical MIR Call target retirement"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
-topology, R2 input-state/catalog resolution, R3 D0, R3a, and R3b are closed.
-R4a projects Callee operands into SimplifyCFG; later consumers and core field
-deletion remain blocked by their own rows. Exit: focused R4a evidence, shared
-guard, owner docs, and commit/push with no retry or fallback."""
+topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, and R4a are
+closed. R4b is a design stop for the typed used_values fanout; later consumers
+and core field deletion remain blocked by their own rows. PyVM/reference/
+Python remain ParkedSealed outside this lane. Exit: accepted R4b brief before
+any consumer migration, with no retry or fallback."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -34,9 +35,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, and R3b are closed; R4a projects Callee operands in SimplifyCFG, while later consumers and PyVM/reference/Python remain outside this row."
-next_design_card = "none — R4 D0 accepted; later R4 consumers require separate design rows"
-next_execution_card = "MIR-CALL-CANONICAL-CALLEE-PROJECTION-SIMPLIFYCFG-I0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, and R4a are closed; R4b used_values fanout is the design-stop boundary. PyVM/reference/Python remain ParkedSealed outside this lane."
+next_design_card = "MIR-CALL-CANONICAL-OPERAND-USED-VALUES-D0"
+next_execution_card = "none — R4b design stop until the brief is accepted"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -49,7 +50,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-25: MIR-CALL-CANONICAL-CALLEE-PROJECTION-SIMPLIFYCFG-I0 closed Callee::rewrite_value_operands ownership; owner tests 2/2, SimplifyCFG tests 3/3, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4b used_values fanout is the next design stop.",
   "2026-08-25: MIR-CALL-JSONV0-PROGRAM-LATE-RETIRE-I0 removed Program func_map/maybe_resolve_calls and fenced Program bridge late target rewrite; callsite 14/14, bridge 23/23, corridor/pointer guards green; 433 warnings remain baseline.",
   "2026-08-25: MIR-CALL-JSONV0-PROGRAM-CATALOG-I0 closed immutable ProgramCallTargetCatalog issuance; qualified/instance bridge 9/9 and bridge suite 22/22, format/diff/pointer/Call guards green; 433 warnings remain baseline.",
-  "2026-08-25: MIR-CALL-JSONV0-INPUT-STATE-I0 closed owner-private input state and exact function-local Const(String) resolution; focused tests 26/26, format/pointer/Call guards green; broad emit red is the recorded cohort-missing baseline.",
 ]
