@@ -285,7 +285,7 @@ impl RawRootPostBodyPhysicalStateV1 {
         self.physical.collector()
     }
 
-    pub(in crate::mir::builder) fn into_parts(
+    pub(in crate::mir::builder::raw_root_physical) fn into_parts(
         self,
     ) -> (
         InvocationPhysicalStateV1,
