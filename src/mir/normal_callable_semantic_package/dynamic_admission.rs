@@ -35,17 +35,29 @@ pub(super) enum DynamicCallableAdmissionV1 {
         inventory: VerifiedDynamicLoopFullBodySourceInventoryV1,
         calls: Box<[VerifiedSourceBoundDynamicMemberCallV1]>,
     },
-    Declined(DynamicCallableDeclineV1),
+    Declined {
+        _reason: DynamicCallableDeclineV1,
+    },
 }
 
 #[derive(Debug)]
 pub(in crate::mir) enum DynamicCallableAdmissionIssueV1 {
-    Unresolved(DynamicFullBodySourceIssueV1),
-    Rejected(DynamicFullBodySourceIssueV1),
-    Completion(FunctionCompletionVerificationErrorV1),
+    Unresolved {
+        _error: DynamicFullBodySourceIssueV1,
+    },
+    Rejected {
+        _error: DynamicFullBodySourceIssueV1,
+    },
+    Completion {
+        _error: FunctionCompletionVerificationErrorV1,
+    },
     Recipe(DynamicFullLoopRecipeProducerRejectV2),
-    Calls(DynamicMemberSourceIssueV1),
-    SourceBacked(String),
+    Calls {
+        _error: DynamicMemberSourceIssueV1,
+    },
+    SourceBacked {
+        _error: String,
+    },
 }
 
 pub(super) fn admit_dynamic_callable_v1(
@@ -54,41 +66,39 @@ pub(super) fn admit_dynamic_callable_v1(
     let ledger = input
         .forest()
         .callable_source_ledger(input.owner())
-        .map_err(|_| {
-            DynamicCallableAdmissionIssueV1::Unresolved(
-                DynamicFullBodySourceIssueV1::SourceNavigation,
-            )
+        .map_err(|_| DynamicCallableAdmissionIssueV1::Unresolved {
+            _error: DynamicFullBodySourceIssueV1::SourceNavigation,
         })?;
     let membership = match ledger.only_loop_site() {
         Ok(membership) => membership,
         Err(ResolvedLoopRegionLookupErrorV1::NoUniqueLoopSite { .. }) => {
-            return Ok(DynamicCallableAdmissionV1::Declined(
-                DynamicCallableDeclineV1::NoExactSingleLoop,
-            ))
+            return Ok(DynamicCallableAdmissionV1::Declined {
+                _reason: DynamicCallableDeclineV1::NoExactSingleLoop,
+            })
         }
         Err(
             ResolvedLoopRegionLookupErrorV1::MissingExactBundle(_)
             | ResolvedLoopRegionLookupErrorV1::PairContractMismatch,
         ) => {
-            return Err(DynamicCallableAdmissionIssueV1::Unresolved(
-                DynamicFullBodySourceIssueV1::SourceNavigation,
-            ))
+            return Err(DynamicCallableAdmissionIssueV1::Unresolved {
+                _error: DynamicFullBodySourceIssueV1::SourceNavigation,
+            })
         }
     };
     let completion = verify_function_completion_v1(input)
-        .map_err(DynamicCallableAdmissionIssueV1::Completion)?;
+        .map_err(|error| DynamicCallableAdmissionIssueV1::Completion { _error: error })?;
     let source = match DynamicFullBodySourceIssuerV1::issue(input, membership, completion) {
         Ok(source) => source,
         Err(error) => {
             return match classify_source_issue(error) {
                 ClassifiedDynamicSourceIssueV1::Declined(reason) => {
-                    Ok(DynamicCallableAdmissionV1::Declined(reason))
+                    Ok(DynamicCallableAdmissionV1::Declined { _reason: reason })
                 }
                 ClassifiedDynamicSourceIssueV1::Unresolved(error) => {
-                    Err(DynamicCallableAdmissionIssueV1::Unresolved(error))
+                    Err(DynamicCallableAdmissionIssueV1::Unresolved { _error: error })
                 }
                 ClassifiedDynamicSourceIssueV1::Rejected(error) => {
-                    Err(DynamicCallableAdmissionIssueV1::Rejected(error))
+                    Err(DynamicCallableAdmissionIssueV1::Rejected { _error: error })
                 }
             }
         }
@@ -98,9 +108,9 @@ pub(super) fn admit_dynamic_callable_v1(
     // classification. Lowering later borrows the retained product instead of
     // reissuing it from the resolved AST a second time.
     let source_backed = issue_source_backed_dynamic_callable_v1(input)
-        .map_err(DynamicCallableAdmissionIssueV1::SourceBacked)?;
+        .map_err(|error| DynamicCallableAdmissionIssueV1::SourceBacked { _error: error })?;
     let calls = issue_source_bound_dynamic_member_calls_v1(input, &source_backed)
-        .map_err(DynamicCallableAdmissionIssueV1::Calls)?;
+        .map_err(|error| DynamicCallableAdmissionIssueV1::Calls { _error: error })?;
     Ok(DynamicCallableAdmissionV1::Candidate {
         owner,
         source: source_backed,
