@@ -1744,11 +1744,26 @@ The focused `normal_root_execution` suite passes 19 tests, and the test
 fingerprint moved from 664 to 661 warnings (`private_interfaces=11`,
 `dead_code=650`; all non-structural lint categories remain zero).
 
+The following Dynamic Loop source-accessor cleanup is landed as `036fde3d3d`:
+
+```text
+036fde3d3d  refactor: trim dynamic loop source accessors
+```
+
+Unused prepared-entry/source-coverage and operation/read accessors were
+removed. The source coverage, read-site, operation, and binding-class evidence
+remains retained explicitly in `_...` fields where no named consumer exists.
+No Dynamic Loop source validation, handoff, operation relation, or lowering
+behavior changed. The focused `normal_root_execution` suite passes 19 tests,
+and the test fingerprint moved from 661 to 657 warnings
+(`private_interfaces=11`, `dead_code=646`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 650 `dead_code` warnings are existing disconnected
+visibility. The remaining 646 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
