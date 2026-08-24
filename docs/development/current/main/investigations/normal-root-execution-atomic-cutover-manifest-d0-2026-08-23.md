@@ -2486,3 +2486,23 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 491 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following physical-drain caller-zero probe cleanup is landed as
+`b2375a5370`:
+
+```text
+b2375a5370  refactor: trim physical drain probes
+```
+
+The canonical disposition and Raw ordinal/provenance accessors had no
+production or test callers and are removed. The canonical/Raw row fields,
+policy, provenance, and drain manifests remain intact; no physical publication
+or compatibility route changes. The focused `normal_root_execution` suite
+passes 19 tests, and the test fingerprint moved from 502 to 499 warnings
+(`private_interfaces=11`, `dead_code=488`; all non-structural lint categories
+remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 488 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
