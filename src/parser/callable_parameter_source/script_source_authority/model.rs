@@ -85,10 +85,6 @@ pub(crate) enum ParserNormalProgramSourceAuthorityIntegrityIssueV1 {
 }
 
 impl ParserNormalProgramSourceAuthorityDispositionV1 {
-    pub(crate) fn is_ready(&self) -> bool {
-        matches!(self, Self::Ready(_))
-    }
-
     pub(crate) fn composite_source_is_ready(&self) -> bool {
         matches!(
             self,
