@@ -291,12 +291,6 @@ impl FunctionDraftSealProjectionV1 {
         })
     }
 
-    /// Run the shared type propagation order on the private projection only.
-    /// No live `TypeContext` or `MirFunction` is passed to this entry.
-    pub(super) fn prepare_type_facts(self) -> Result<Self, FunctionDraftSealProjectionErrorV1> {
-        self.prepare_type_facts_with_lookup(None)
-    }
-
     pub(super) fn prepare_type_facts_with_lookup(
         mut self,
         lookup: Option<&dyn FunctionSignatureLookupV1>,
@@ -387,11 +381,6 @@ impl PreparedFunctionTypeFactsV1 {
         let mut metadata = self.projection.prepare_metadata()?;
         metadata.phi = self.phi;
         Ok(metadata)
-    }
-
-    #[cfg(test)]
-    pub(super) fn projection(&self) -> &FunctionDraftSealProjectionV1 {
-        &self.projection
     }
 }
 
@@ -563,16 +552,6 @@ impl PreparedFunctionDraftSealPlanV1 {
                 ))
             })?;
         Ok(self)
-    }
-
-    #[cfg(test)]
-    pub(super) fn exit(&self) -> PreparedFunctionExitV1 {
-        match &self.metadata.projection.exit {
-            PreparedFunctionExitSetV1::Single(exit) => *exit,
-            PreparedFunctionExitSetV1::ExactTwo(_) => {
-                panic!("single-site test accessor used for an exact-two exit set")
-            }
-        }
     }
 
     /// Move the final projected function/type facts into the neutral session
