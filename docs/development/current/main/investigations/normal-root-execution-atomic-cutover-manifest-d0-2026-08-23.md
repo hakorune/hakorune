@@ -2165,3 +2165,24 @@ eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
 visibility. The remaining 577 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
+
+The following Raw postprocess rejection-evidence cleanup is landed as
+`6a512394c7`:
+
+```text
+6a512394c7  refactor: retain raw postprocess rejection evidence
+```
+
+The optimizer, contract-refresh, carrier-parity, and final-verification
+payloads remain typed and owned by the rejection receipt, while unread tuple
+fields and rejection-owner fields become named underscore evidence. Raw
+postprocess stage ordering, failure mapping, and explicit discard behavior are
+unchanged. The focused `normal_root_execution` suite passes 19 tests, and the
+test fingerprint moved from 588 to 583 warnings (`private_interfaces=11`,
+`dead_code=572`; all non-structural lint categories remain zero).
+
+The updated residual warning boundary is explicit: the eleven
+`private_interfaces` warnings remain deferred pending the deliberate public
+MIR/semantic API authority decision described above, while the remaining 572
+`dead_code` warnings are existing disconnected scaffolding and are not
+mass-deleted in this R0 lane.
