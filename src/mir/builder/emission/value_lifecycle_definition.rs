@@ -164,7 +164,7 @@ pub(in crate::mir::builder) fn verify_completed_draft_typed_value_definitions_v1
 
 /// A completed-draft failure: no repair or source-semantic inference follows.
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub(in crate::mir::builder) enum CompletedDraftTypedValueDefinitionErrorV1 {
+pub(in crate::mir) enum CompletedDraftTypedValueDefinitionErrorV1 {
     MissingDefinition {
         value: ValueId,
         value_type: MirType,

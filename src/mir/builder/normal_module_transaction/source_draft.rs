@@ -6,7 +6,7 @@ use crate::mir::{MirFunction, MirType};
 use super::result_type::normal_main_result_mir_type;
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum NormalMainSourceDraftErrorV1 {
+pub(in crate::mir) enum NormalMainSourceDraftErrorV1 {
     SymbolMismatch {
         expected: Box<str>,
         actual: Box<str>,
@@ -22,7 +22,7 @@ pub(in crate::mir::builder) enum NormalMainSourceDraftErrorV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct VerifiedNormalMainSourceDraftV1 {
+pub(in crate::mir) struct VerifiedNormalMainSourceDraftV1 {
     draft: MirFunction,
     _seal: VerifiedNormalMainSourceDraftSealV1,
 }

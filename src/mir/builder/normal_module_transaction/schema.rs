@@ -175,7 +175,7 @@ impl NormalModuleTransactionDraftV1 {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) struct NormalModuleTransactionSchemaV1 {
+pub(in crate::mir) struct NormalModuleTransactionSchemaV1 {
     rows: Box<[NormalModuleDraftExpectationV1]>,
     source_entry: NormalModuleEntryRelationV1,
     _seal: NormalModuleTransactionSchemaSealV1,

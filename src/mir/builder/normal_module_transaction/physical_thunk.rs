@@ -19,7 +19,7 @@ use crate::mir::{BasicBlockId, Callee, FunctionSignature, MirFunction, MirInstru
 use super::result_type::normal_main_result_mir_type;
 
 #[derive(Debug, PartialEq)]
-pub(in crate::mir::builder) enum NormalMainPhysicalThunkErrorV1 {
+pub(in crate::mir) enum NormalMainPhysicalThunkErrorV1 {
     SourceArityMismatch { actual: usize },
     PhysicalArityMismatch { actual: usize },
     TypedDefinition(CompletedDraftTypedValueDefinitionErrorV1),

@@ -4,7 +4,7 @@ use super::schema::NormalModuleTransactionDraftV1;
 use crate::mir::builder::module_draft_collector::FunctionDraftKeyV1;
 
 #[derive(Debug, PartialEq, Eq)]
-pub(in crate::mir::builder) enum NormalModuleTransactionSchemaErrorV1 {
+pub(in crate::mir) enum NormalModuleTransactionSchemaErrorV1 {
     MissingSourceMain,
     DuplicateSourceMain,
     MissingPhysicalEntry,

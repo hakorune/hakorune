@@ -52,7 +52,7 @@ pub(in crate::mir::builder) use root_batch::{
 /// Semantic identity for one draft admission, distinct from fact generation.
 #[allow(dead_code)] // S0 exposes every future physical identity before I0 connects callers.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub(in crate::mir::builder) enum FunctionDraftKeyV1 {
+pub(in crate::mir) enum FunctionDraftKeyV1 {
     Main,
     LegacySymbol(String),
     CanonicalResolvedOwner(FunctionOwnerIdV1),
@@ -72,7 +72,7 @@ pub(in crate::mir::builder) enum DraftPublicationPolicyV1 {
 
 /// Typed preflight failure before a completed draft enters the collector.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum ModuleDraftAdmissionErrorV1 {
+pub(in crate::mir) enum ModuleDraftAdmissionErrorV1 {
     DuplicateKey(FunctionDraftKeyV1),
     DuplicateSymbol(String),
     IndexDrift {
@@ -91,7 +91,7 @@ pub(in crate::mir::builder) enum ModuleDraftAdmissionErrorV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum CollectorReceiptBrandErrorV1 {
+pub(in crate::mir) enum CollectorReceiptBrandErrorV1 {
     CollectorUnbranded,
 }
 
