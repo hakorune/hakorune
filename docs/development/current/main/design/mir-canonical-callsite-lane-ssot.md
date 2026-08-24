@@ -318,10 +318,76 @@ remap/merge, PyVM/reference/Python, and R6 schema ownership. The Query methods
 return observations rather than rejects: malformed or unsupported target
 meaning is rejected by its upstream canonical ingress, never retried here.
 
-R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
-`Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`
-to pre-canonical construction before `NewClosure`; and decide the Constructor /
-NewBox boundary explicitly. Do not implement these before R6.
+Query T0 closeout (`981ec1d583`): `MirQueryBox::reads_of(Call)` now delegates
+to `MirInstruction::used_values`, and `writes_of(Call)` delegates to
+`dst_value`. The finite matrix above is covered by two focused tests; the
+shared corridor guard also rejects a local `callee`/`func` reconstruction.
+This is an observation closeout, not a production caller switch.
+
+R5 design stop — `MIR-CALL-CANONICAL-TERMINAL-CLOSURE-D0`:
+
+```text
+Decision: close every selected terminal as a typed-Callee consumer, then cut
+the core schema only after R5 evidence; split R5 into optimizer, selected Rust
+interpreter, printer/JSON, and selected-native-backend owners.
+Source authority + canonical issuer: typed producers or one compatibility
+ingress issue Callee; MirInstruction::Call stores it; terminals only dispatch
+or project that stored target.
+Non-authority: func/ValueId::INVALID, target Const(String), optimizer scans,
+backend symbol lookup, MirCall/CallFlags before the R6 gate, PyVM/reference/
+Python, and warning counts.
+Fail-fast boundary: malformed/missing legacy input rejects before Call publish;
+terminal unsupported-target errors do not retry another target or by-name path.
+Smallest next slice: R5a bounded optimizer target-issuer census and decision;
+no code or production switch until its caller/producer boundary is closed.
+Non-claims: R6 field deletion, JoinIR remap, Method(None), Closure/Constructor
+shape retirement, normal-root cleanup, and non-selected backend activation.
+```
+
+R5 finite terminal task matrix:
+
+| Task | owner boundary | old edge to delete | acceptance evidence |
+| --- | --- | --- | --- |
+| R5a optimizer | `callsite_canonicalize` plus call/CSE/diagnostic consumers | Const/String target reclassification, legacy key, `func`-based target inference | production caller census; canonical `Callee` key parity; target issuer/retry = 0 |
+| R5b selected Rust interpreter | `handlers/calls`, both instruction execution loops | `func` parameter, `callee=None` register load, module by-name fallback | Global/Method/Extern/Value/Closure matrix; unsupported is terminal; selected Rust route parity |
+| R5c printer/JSON | MIR printer and selected JSON writer; v0 ingress stays owner-private | `callee=None` legacy rendering/emission and semantic target reconstruction | typed target round-trip; v0 compatibility only at ingress/egress; no target guessing |
+| R5d selected native backend | backend allowlist/codegen chosen by `CURRENT_STATE` | missing-callee arm, symbol retry, backend name fallback | selected backend negative guard; all other backends remain `ParkedSealed` |
+
+R5 row rules: each task owns one old edge and reuses the shared corridor
+guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field
+editing. The R5 census must include direct callers, dynamic construction,
+wire writers, and selected backend preflight; literal `callee: None = 0` is
+not sufficient evidence.
+
+R6 decision gate (not selected):
+
+1. Prefer retiring exported `MirCall` and `CallFlags`; the canonical physical
+   shape remains `Call { dst, callee, args, effects }`. Keeping them requires a
+   named flag authority and backend semantics, not a compatibility re-export.
+2. Make `Method { receiver: None }` impossible by issuing qualified `Global`;
+   `Method` then owns a required receiver. A new `StaticMethod` variant is not
+   admitted without a source-backed producer.
+3. Restrict `Callee::Closure` to the pre-canonical construction input that
+   becomes `NewClosure`; a closure call uses `Callee::Value(closure_value)`.
+   Constructor versus `NewBox` remains an explicit boundary decision.
+
+R6 acceptance requires the R5 matrix green, all direct/dynamic `func` readers
+   classified, and no unresolved issuer. Until then, do not change
+   `Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, or
+   `MirCall`/`CallFlags` in code.
+
+Post-R7 normal-root cleanup (parked, separate lane):
+
+```text
+NORMAL-ROOT-PROJECTION-SUM-D0
+  combine mode + root projection into one App/ProgramRuntime sum; remove bool drift checks
+NORMAL-ROOT-SOURCE-NOMENCLATURE-D0
+  Parser MainObserved -> compiler static-main admission -> App; rename the source-backed lowering view
+NORMAL-ROOT-SYNTAX-LOAN-D0
+  replace index/name AST rediscovery with an admitted opaque identity loan
+```
+
+These rows do not reopen normal-root production or the 2000-line manifest.
 
 retirement seriesの固定順は次。
 

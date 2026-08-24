@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast path (Query observer)
+Status: Active workstream — design stop (R5 terminal closure)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, and Query D0 closed; Query observer active
-  mode              = fast
-  production stop   = before Call core field deletion
-  exit              = canonical Query Call delegation, parity/negative tests, shared guard, and no production I0 claim; no Call field deletion
+  current decision  = MIR-CALL-CANONICAL-TERMINAL-CLOSURE-D0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0 closed; R5 not started
+  mode              = design_stop
+  production stop   = before R5 terminal migration and Call core field deletion
+  exit              = accepted R5 terminal matrix plus one bounded R5a next slice; no code or production switch during design stop
 fallback / retry  = 0
 ```
 
@@ -264,13 +264,13 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    (closed).
 6. R4a: exhaustive `Callee` operand rewrite projection into SimplifyCFG
    Call-use rewrite (closed); R4b `used_values` immutable projection and
-   methods.rs delegation (closed); R4c `value_consumer` Call membership is
-   closed; R4d escape classifier, R4e ownership verifier, and R4f CallLike
-   observer retirement are closed; Query D0 is accepted and its observer T0 is active.
-7. R4d: escape classifier Call/Capture role projection, R4e ownership verifier, and R4f CallLike observer retirement are closed; Query observer T0 is active; R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
-   with no by-name fallback/retry. Python/PyVM/reference remain
-   boundary-outside `ParkedSealed`; they are not an active retirement edge.
-8. R6: atomic `Call { callee: Callee }` cutover; remove dummy `func` payloads.
+   methods.rs delegation (closed); R4c `value_consumer` Call membership,
+   R4d escape, R4e ownership, R4f CallLike, and Query T0 are closed.
+7. R5 D0 is the active design stop: finite optimizer, selected Rust
+   interpreter, printer/JSON, and selected-native terminal matrix; PyVM,
+   reference, and Python remain boundary-outside `ParkedSealed`.
+8. R6 is parked until R5 evidence: atomic `Call { callee: Callee }`,
+   `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox gates.
 9. R7: structural guards, README/reference sync, and census closeout.
 
 R3 D0 accepted boundary:
@@ -291,8 +291,7 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c closed (`4c6d9ce9a2`): `value_consumer` delegates Call membership once to `MirInstruction::used_values`; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green, warning baseline 433.
-R4d closed (`4e71066e57`): Call/Capture roles and legacy ordinary-use parity; escape 8/8, FastMem 17/17, VM 7/7, shared guard green. R4e ownership verifier closed (`6c957a48c7`): target matrix, fail-fast tests 24/24, corridor/pointer/diff green, callers/installers zero. R4f CallLike closed (`6fc4abbe0f`): adapter removed, instruction parity 18/18, shared guard green. Query D0 accepted; T0 is limited to the one observer owner.
+R4c closed (`4c6d9ce9a2`), R4d escape (`4e71066e57`), R4e ownership (`6c957a48c7`), R4f CallLike (`6fc4abbe0f`), and Query T0 (`981ec1d583`) are closed; focused matrices, shared corridor/pointer guards, and the 433-warning baseline are recorded in the owning SSOT.
 
 ## Production invariants
 ```text
@@ -366,11 +365,12 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0
-  -> delegate Query Call reads/writes to canonical MirInstruction methods
+ MIR-CALL-CANONICAL-TERMINAL-CLOSURE-D0
+  -> close R5 authority/terminal matrix; design only
 
 Next (not selected)
-  -> R5-R7 after Query observer closeout
+  -> R5a optimizer target-issuer census, then R5b interpreter, R5c printer/JSON,
+     and R5d selected-native backend; each is separately selected after D0
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
