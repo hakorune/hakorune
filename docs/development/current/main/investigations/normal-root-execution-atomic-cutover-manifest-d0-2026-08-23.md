@@ -831,3 +831,15 @@ suite ran 98 tests with 97 passing; its one failure is the existing
 `variable_assignment_completion.rs:119` `No current basic block` rejection
 outside this import-only diff. All five reusable guards remain green, and the
 test fingerprint moved from 980 to 977 warnings.
+
+The following structural-facts import slice is landed as `23b9b3877d`:
+
+```text
+23b9b3877d  refactor: prune structural facts exports
+```
+
+It retires three caller-zero export groups from
+`loop_structural_facts/mod.rs`; structural observation and source projection
+owners remain unchanged. The focused loop-structural-facts suite passes 27
+tests, all five reusable guards remain green, and the test fingerprint moved
+from 977 to 974 warnings.
