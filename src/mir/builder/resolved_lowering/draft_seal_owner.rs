@@ -482,10 +482,6 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
         self.session.discard_unpublished()
     }
 
-    pub(super) fn discard(self) {
-        let _ = self.discard_with_restoration_receipt();
-    }
-
     fn reject(
         self,
         stage: FunctionDraftSealStageV1,
@@ -499,20 +495,8 @@ impl<'builder> OpenFunctionDraftSealV1<'builder> {
     }
 
     #[cfg(test)]
-    pub(super) fn builder(&self) -> &MirBuilder {
-        self.session.builder_view()
-    }
-
-    #[cfg(test)]
     pub(super) fn builder_mut(&mut self) -> &mut MirBuilder {
         self.session.builder_view_mut_for_test()
-    }
-
-    #[cfg(test)]
-    pub(super) fn ready(&self) -> &ReadyFunctionDraftSealV1 {
-        self.ready
-            .as_ref()
-            .expect("ready completion is consumed once prepare begins")
     }
 }
 
