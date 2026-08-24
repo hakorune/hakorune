@@ -7,10 +7,7 @@
 
 use crate::ast::ASTNode;
 use crate::mir::numeric_substrate::is_numeric_integer_type_name;
-use crate::mir::policies::source_method_typeop_route::{
-    classify_source_method_typeop_route_v1, extract_source_string_literal_v1,
-    SourceMethodTypeOpDispositionV1,
-};
+use crate::mir::policies::source_method_typeop_route::extract_source_string_literal_v1;
 use crate::mir::MirType;
 
 /// Check if a function is a math function
@@ -19,14 +16,6 @@ pub fn is_math_function(name: &str) -> bool {
         name,
         "sin" | "cos" | "abs" | "min" | "max" | "sqrt" | "pow" | "floor" | "ceil"
     )
-}
-
-/// Check if a method is a type operation (.is() or .as())
-pub fn is_typeop_method(method: &str, arguments: &[ASTNode]) -> Option<String> {
-    match classify_source_method_typeop_route_v1(method, arguments) {
-        SourceMethodTypeOpDispositionV1::TypeOp { type_name, .. } => Some(type_name.to_string()),
-        SourceMethodTypeOpDispositionV1::Ordinary => None,
-    }
 }
 
 /// Extract string literal from AST node if possible
