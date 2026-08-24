@@ -687,3 +687,16 @@ five reusable guards remain green, and the test fingerprint moved from 1032
 to 1029 warnings with zero warning records in `calls/mod.rs`. The broad
 `--lib calls` suite remains baseline-red in both current and parent builds;
 its route/emitter/constructor failures are outside this import-only slice.
+
+The latest bounded import-only R0 slice is landed as `3f6b42e7d7`:
+
+```text
+3f6b42e7d7  refactor: prune normal transaction exports
+```
+
+It retires eight caller-zero normal-module transaction reexports (including
+helper-prefix, callable-main, main-transaction, and script-transaction
+products) without changing the child-module owners. The focused transaction
+tests pass 4 tests, all five reusable guards remain green, and the test
+fingerprint moved from 1023 to 1022 warnings with zero warning records in the
+touched module.
