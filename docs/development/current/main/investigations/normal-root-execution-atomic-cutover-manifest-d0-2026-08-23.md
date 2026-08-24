@@ -1570,11 +1570,25 @@ source admission, or parser ownership behavior changed. The focused
 from 711 to 705 warnings (`private_interfaces=11`, `dead_code=694`; all
 non-structural lint categories remain zero).
 
+The following parser composite/accessor cleanup is landed as `58d26e404e`:
+
+```text
+58d26e404e  refactor: trim parser composite accessors
+```
+
+Unused parser-cohort identity accessors were removed, and the composite
+provider's retained identity/source-site evidence is now explicitly `_`-named
+until a named consumer exists. No cohort disposition, source identity check,
+or composite issuance behavior changed. The focused `normal_root_execution`
+suite passes 19 tests, and the test fingerprint moved from 705 to 702 warnings
+(`private_interfaces=11`, `dead_code=691`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 694 `dead_code` warnings are existing disconnected
+visibility. The remaining 691 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
