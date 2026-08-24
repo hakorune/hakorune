@@ -29,7 +29,9 @@ use super::model::{
 
 #[derive(Debug)]
 pub(in crate::mir::builder) enum CanonicalScriptCBindIssueV1 {
-    Loan(ParserNormalProgramSourceLoanRejectV1),
+    Loan {
+        _error: ParserNormalProgramSourceLoanRejectV1,
+    },
     InvocationMismatch,
 }
 
@@ -57,7 +59,7 @@ impl CanonicalScriptCPostWindowTransportV1 {
             .with_normal_program_source_loan(|loan| {
                 bind_source(invocation, parts, disposition, loan, callback)
             })
-            .map_err(CanonicalScriptCBindIssueV1::Loan)?
+            .map_err(|_error| CanonicalScriptCBindIssueV1::Loan { _error })?
     }
 }
 

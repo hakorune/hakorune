@@ -52,7 +52,7 @@ pub(in crate::mir::builder) enum CanonicalScriptAIssueV1 {
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CanonicalScriptADirectRowsV1 {
     source_owner: FunctionOwnerIdV1,
-    observed_method_calls: usize,
+    _observed_method_calls: usize,
     lookup_rows: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallLookupRowV1>,
     non_direct_rows: BTreeMap<SourceExprSiteV1, CanonicalScriptANonDirectRowV1>,
     required_argument_rows: BTreeMap<
@@ -74,7 +74,7 @@ impl CanonicalScriptADirectRowsV1 {
     ) -> Self {
         Self {
             source_owner,
-            observed_method_calls,
+            _observed_method_calls: observed_method_calls,
             lookup_rows,
             non_direct_rows,
             required_argument_rows,
@@ -103,11 +103,6 @@ impl CanonicalScriptADirectRowsV1 {
     #[cfg(test)]
     pub(super) fn candidate_count(&self) -> usize {
         self.lookup_rows.len()
-    }
-
-    #[cfg(test)]
-    pub(super) const fn observed_method_calls(&self) -> usize {
-        self.observed_method_calls
     }
 
     #[cfg(test)]
