@@ -844,31 +844,48 @@ The next design stop is
 `MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0`:
 
 ```text
-Decision: design one production-generated JSON to object→archive→executable
-  proof for exact `extern.env.now_ms/0`; do not hand-author a semantic fixture
-  or bypass the route metadata issuer.
-Source authority + canonical issuer: ExternCallRouteSpec plus the existing
+Decision: design one production-generated CanonicalV1 JSON to
+  object→explicit archive→executable proof for exact `extern.env.now_ms/0`;
+  never hand-author a semantic fixture or bypass the route issuer.
+Source authority + canonical issuer: ExternCallRouteSpec and its existing
   route metadata/lowering-plan projection; JsonEgressProfile selects
   CanonicalV1, and hako_llvmc_link_obj_v2 owns the explicit archive edge.
-Non-authority: temporary Hako probes, hand-authored route JSON, raw
-  externcall, C name lookup, kernel export alone, fallback/retry, and parked
-  backends.
-Fail-fast boundary: production route metadata must publish exact route,
-  arity=0, result_value, symbol and return shape before C emission; missing
-  plan/wrong arity/missing archive rejects before object or executable publish.
-Smallest next slice: D0 census the existing route-test/JSON-emitter seam and
-  static-artifact publication seam, then define positive object/archive/exe
-  symbol evidence plus negative malformed-plan evidence; no code yet.
+Non-authority: Hako probes, hand-authored JSON, the hand-built route test,
+  raw externcall, C name lookup, kernel export alone, fallback/retry, parked.
+Fail-fast boundary: exact route/arity=0/result_value/symbol/return shape
+  must be co-sealed before C emission; malformed plan or missing archive
+  rejects before object/executable publication.
+Smallest next slice: D0-A capture production JSON; D0-B derive malformed
+  plan inputs (row deletion and arity=1); D0-C census undefined object,
+  one archive definition, and final executable definition; D0-D record
+  explicit nonzero rejection with no fallback or partial publication.
+NoSafeSlice until production JSON is captured, the generic publication seam
+  is selected without a new semantic receipt, C validates source_symbol too,
+  and missing-plan/tuple failures are route-specific rejects.
 Non-claims: native switch, seven String routes, Global/Method/Constructor
-  expansion, R6, warning cleanup, and Hako source-probe repair.
+  expansion, R4c/R6, warning cleanup, Hako repair, or parked backends.
 ```
+
+The read-only D0 audit keeps this row `NoSafeSlice` for five finite reasons:
+(1) the existing route test builds a hand-made MIR and no production-generated
+CanonicalV1 JSON artifact has been captured; (2) the Dynamic-V2 static
+publication receipt is descriptor-specific and cannot be reused as EnvNowMs
+semantic evidence; (3) the Hako probe stops at `PhysicalHeader` and is not a
+repair target; (4) the route metadata has no typed capability receipt and C
+does not yet compare `source_symbol`; and (5) missing-plan handling is
+nonzero only through a generic unsupported path, not a route-specific
+fail-fast rejection. These are design blockers, not negative evidence against
+the route. The first accepted I0 may reuse the existing object/archive/exe
+publication shape, but it must not mint a new semantic receipt or broaden the
+route family.
 
 Feedback reconciliation and deferred task queue (not selected):
 
 ```text
 R4b status: HEAD already delegates Call used_values to Callee::for_each_value_operand; Value, Method receiver, Closure captures/me, args order, duplicates, and legacy None parity are covered by the shared tests. Escape, value-consumer, ownership, and query now reuse the occurrence projection where their separate policies allow it.
-Remaining duplicate: JoinIrIdRemapper still owns a local Callee match and its collect_values Call arm is incomplete for Value/Closure. D0/D1 closed the bounded census as caller-zero plus two distinct lifecycle owners; R4c remains NoSafeSlice with no production switch. Backend-shape strict-adapter I0 is closed; native capability D0 is NoSafeSlice and D1 is the next design stop.
-R6 gate: decide MirCall/CallFlags retirement, mandatory Method receiver with static calls as qualified Global, Closure pre-canonical construction versus Callee::Value call, and Constructor/NewBox boundary in one schema decision.
+R4c task (not selected): `MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1` must first name a live merge caller, classify both lifecycle owners, and prove that `Callee::rewrite_value_operands` can replace the local remap without changing retention policy. Until then JoinIrIdRemapper's duplicate match is parked; no code or production switch.
+R6 task (not selected): one schema decision must retire or justify MirCall/CallFlags, make Method.receiver required with static calls as qualified Global, restrict Closure to pre-canonical construction with closure calls as Callee::Value, and state the Constructor/NewBox boundary. No field deletion or type cleanup before the R5 matrix is closed.
+Backend exact-Extern D0 is the selected row; its D0-A/B/C/D tasks and five NoSafeSlice conditions are recorded above. Backend-shape strict-adapter I0 and native D1/C owner split are closed.
 Post-R7 cleanup: normal-root mode/projection sum, MainObserved naming, identity-based syntax loan, and builder.rs production/compatibility/test barrel census remain separate cleanup rows; PyVM/reference/Python/native_driver remain ParkedSealed.
 ```
 

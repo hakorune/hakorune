@@ -367,7 +367,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
  MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0
-  -> census the production-generated JSON route seam and static-artifact link seam for exact `extern.env.now_ms/0`; no code before D0 acceptance
+  -> D0-A capture production CanonicalV1 JSON; D0-B derive missing-plan/arity=1 negatives; D0-C census object/archive/executable symbols; D0-D require route-specific nonzero rejection; no code before D0 acceptance
 
 Next (not selected)
   -> exact Extern link-proof I0 after D0; R6 remains separate and R4c remains NoSafeSlice unless a caller reopens
