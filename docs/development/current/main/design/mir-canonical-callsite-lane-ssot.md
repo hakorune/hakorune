@@ -466,15 +466,42 @@ and compatibility loader. The finite target matrix is:
 | `None + valid func` | incompatible | explicit legacy `call(func)` | compatibility ingress only |
 | `None + INVALID` | incompatible | targetless legacy shape | reject before publish |
 
-The profile census must include `root.rs` schema selection, per-call dialect
+The profile census includes `root.rs` schema selection, per-call dialect
 switches (`NYASH_JSON_SCHEMA_V1`, `NYASH_MIR_UNIFIED_CALL`, and methodize),
 `emit_call_with_optional_func`, `Method(None)` receiver reuse, unconditional
 closure projection, and `backend_shape` mutation. Existing v0/print/methodize
 parity is positive evidence; typed `func` decoration ignored, `None+INVALID`,
 Method(None) fallback, Constructor/Closure mismatch, and post-wire target
-reclassification are negative evidence. This row is not implementation-safe
-until the profile matrix names one egress authority and one terminal reject per
-unsupported combination; it must not reopen R5c printer, R5d native, or R6.
+reclassification are negative evidence. The accepted D0 boundary keeps the
+current root/profile selector and compatibility owners unchanged while
+retiring one typed-path decoration edge first.
+
+R5c JSON D0 closeout — first fast row:
+
+```text
+Decision: v0 JSON projections of an explicit Callee must not emit the stale
+numeric func decoration; legacy None and Method(None) compatibility remain.
+Source authority + canonical issuer: stored Call.callee -> calls.rs typed v0
+projection; root profile selection remains the existing compatibility owner.
+Non-authority: func/INVALID for typed Global/Extern/Constructor/Value/Closure,
+wire strings, backend_shape mutation, and target reclassification.
+Fail-fast boundary: typed projection never reads func; only explicit legacy
+None uses emit_call_with_optional_func, while Method(None) stays R6-gated.
+Smallest next slice: MIR-CALL-JSON-TYPED-DECORATION-I0-R0; remove the typed
+helper's func parameter, add v0 typed/legacy/Method receiver parity, and guard.
+Non-claims: profile split D1, Method(None) retirement, Closure/NewBox,
+backend_shape, native, R6, and PyVM/reference/Python/native_driver.
+```
+
+Exact old edge: `emit_call_with_callee_v0` forwards `func` to
+`emit_call_with_optional_func`, which emits a numeric `func` whenever the
+decoration is non-`INVALID`. The I0 removes that forwarding only for explicit
+typed variants. `Method(Some(receiver))` retains receiver projection;
+`Method(None)` retains its compatibility `receiver <- func` edge until R6.
+Positive acceptance is v0 typed Global/Extern/Constructor/Value/Closure output
+without numeric `func`, plus unchanged v1 output. Negative acceptance is stale
+typed `func` ignored, explicit legacy `None` still emitted, and no change to
+Method(None), root profile, or backend_shape behavior.
 
 R5 row rules: each task owns one old edge and reuses the shared corridor
 guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field

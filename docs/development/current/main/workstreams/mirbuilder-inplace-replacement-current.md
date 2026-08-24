@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (R5c JSON egress)
+Status: Active workstream — fast path (R5c JSON typed decoration)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-JSON-EGRESS-D0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, and R5c printer closed; JSON egress design stop active
-  mode              = design_stop
-  production stop   = before JSON/native implementation and Call core field deletion
-  exit              = one JSON profile/authority decision with bounded next I0; no code or R6 claim
+  current decision  = MIR-CALL-JSON-TYPED-DECORATION-I0-R0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, and JSON egress D0 closed; typed decoration I0 active
+  mode              = fast
+  production stop   = before JSON profile split, Method(None)/Closure/Constructor gates, native, and Call core field deletion
+  exit              = typed v0 decoration removed, legacy rendering explicit, focused parity/guard green, and no profile/R6 claim
 fallback / retry  = 0
 ```
 
@@ -268,8 +268,8 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    R4d escape, R4e ownership, R4f CallLike, and Query T0 are closed.
 7. R5 D0 is accepted; R5a is closed at `e36f86e869`, R5b-B0 Rust VM
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
-   is closed at `09f0e51143`; JSON egress is the active design-stop row, native
-   remains separate, and PyVM/reference/Python are `ParkedSealed`.
+   is closed at `09f0e51143`; JSON egress D0 is accepted and typed decoration
+   I0 is active, while profile split/native remain separate; PyVM/reference/Python are `ParkedSealed`.
 8. R6 is parked until R5 evidence: atomic `Call { callee: Callee }`,
    `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox gates.
 9. R7: structural guards, README/reference sync, and census closeout.
@@ -292,7 +292,7 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c closed (`4c6d9ce9a2`), R4d escape (`4e71066e57`), R4e ownership (`6c957a48c7`), R4f CallLike (`6fc4abbe0f`), and Query T0 (`981ec1d583`) are closed; focused matrices, shared corridor/pointer guards, and the 433-warning baseline are recorded in the owning SSOT. R5c printer closes at `09f0e51143`: typed `Call.callee` is projected by one helper, explicit `None` remains `call_legacy`, printer parity is 2/2, and JSON/native/R6 stay outside the row.
+R4c closed (`4c6d9ce9a2`), R4d escape (`4e71066e57`), R4e ownership (`6c957a48c7`), R4f CallLike (`6fc4abbe0f`), and Query T0 (`981ec1d583`) are closed; focused matrices, shared corridor/pointer guards, and the 433-warning baseline are recorded in the owning SSOT. R5c printer closes at `09f0e51143`; JSON egress D0 accepts typed `Callee` as authority and selects the narrow decoration-retirement I0, leaving profile/Method(None)/native/R6 boundaries untouched.
 
 ## Production invariants
 ```text
@@ -365,12 +365,12 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now (design stop)
- MIR-CALL-CANONICAL-JSON-EGRESS-D0
-  -> split v1 typed output from v0/legacy compatibility egress and name one authority
+Now
+ MIR-CALL-JSON-TYPED-DECORATION-I0-R0
+  -> remove stale v0 numeric func decoration from explicit typed Callee output
 
 Next (not selected)
-  -> native D0; then R6 gate
+  -> JSON profile split D1, native D0; then R6 gate
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
