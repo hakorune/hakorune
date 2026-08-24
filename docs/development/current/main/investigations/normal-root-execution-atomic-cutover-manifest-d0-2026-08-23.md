@@ -1258,3 +1258,18 @@ behavior changed. The focused `normal_root_execution` suite passes 19 tests,
 all five reusable guards remain green, and the test fingerprint moved from 809
 to 807 warnings (`private_interfaces=81`, `private_bounds=0`; non-structural
 lint categories remain zero).
+
+The following Raw callable environment-handoff visibility slice is landed as
+`40da90c2f1`:
+
+```text
+40da90c2f1  refactor: narrow raw callable environment handoff
+```
+
+The consuming `into_environment_parts` handoff is used only by the compiler's
+declaration-access route, so its method boundary now matches the existing
+compiler-private parts product. No callable-main or declaration-access
+behavior changed. The focused `normal_root_execution` suite passes 19 tests,
+all five reusable guards remain green, and the test fingerprint moved from 807
+to 806 warnings (`private_interfaces=80`, `private_bounds=0`; non-structural
+lint categories remain zero).
