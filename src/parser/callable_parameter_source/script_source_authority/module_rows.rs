@@ -63,7 +63,7 @@ pub(in crate::parser) enum ParserNormalModuleSourceRowsOutsideReasonV1 {
 
 #[derive(Debug)]
 pub(in crate::parser) struct ParserNormalModuleSourceRowsV1 {
-    invocation: ParserInvocationWitnessV1,
+    _invocation: ParserInvocationWitnessV1,
     box_row: ParserNormalModuleBoxSourceRowV1,
     _seal: ParserNormalModuleSourceRowsSealV1,
 }
@@ -71,34 +71,24 @@ pub(in crate::parser) struct ParserNormalModuleSourceRowsV1 {
 #[derive(Debug)]
 pub(in crate::parser) struct ParserNormalModuleBoxSourceRowV1 {
     program_position: u32,
-    final_box_ordinal: usize,
-    box_site: SourceBoxDeclarationSiteV1,
+    _final_box_ordinal: usize,
+    _box_site: SourceBoxDeclarationSiteV1,
     declaration_syntax: crate::parser::source_authority::ParserBoxDeclarationSyntaxV1,
     method: ParserNormalModuleMethodSourceRowV1,
 }
 
 #[derive(Debug)]
 pub(in crate::parser) struct ParserNormalModuleMethodSourceRowV1 {
-    source_site: SourceBoxMethodSiteV1,
+    _source_site: SourceBoxMethodSiteV1,
     diagnostic_name: Box<str>,
     arity: u32,
-    callable_identity: CallableDeclarationIdentityV1,
+    _callable_identity: CallableDeclarationIdentityV1,
 }
 
 #[derive(Debug)]
 pub(in crate::parser) struct ParserNormalModuleSourceRowsSealV1;
 
-impl ParserNormalModuleSourceRowsDispositionV1 {
-    pub(in crate::parser) fn is_ready(&self) -> bool {
-        matches!(self, Self::Ready(_))
-    }
-}
-
 impl ParserNormalModuleSourceRowsV1 {
-    pub(in crate::parser) fn invocation(&self) -> &ParserInvocationWitnessV1 {
-        &self.invocation
-    }
-
     pub(in crate::parser) fn box_row(&self) -> &ParserNormalModuleBoxSourceRowV1 {
         &self.box_row
     }
@@ -107,14 +97,6 @@ impl ParserNormalModuleSourceRowsV1 {
 impl ParserNormalModuleBoxSourceRowV1 {
     pub(in crate::parser) fn program_position(&self) -> u32 {
         self.program_position
-    }
-
-    pub(in crate::parser) fn final_box_ordinal(&self) -> usize {
-        self.final_box_ordinal
-    }
-
-    pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
-        &self.box_site
     }
 
     pub(in crate::parser) fn declaration_syntax(
@@ -129,10 +111,6 @@ impl ParserNormalModuleBoxSourceRowV1 {
 }
 
 impl ParserNormalModuleMethodSourceRowV1 {
-    pub(in crate::parser) fn source_site(&self) -> &SourceBoxMethodSiteV1 {
-        &self.source_site
-    }
-
     pub(in crate::parser) fn diagnostic_name(&self) -> &str {
         &self.diagnostic_name
     }
@@ -141,9 +119,6 @@ impl ParserNormalModuleMethodSourceRowV1 {
         self.arity
     }
 
-    pub(in crate::parser) fn callable_identity(&self) -> &CallableDeclarationIdentityV1 {
-        &self.callable_identity
-    }
 }
 
 pub(super) struct ParserNormalModuleSourceAuthorityIssuerV1;
@@ -292,17 +267,17 @@ impl ParserNormalModuleSourceAuthorityIssuerV1 {
         }
 
         ParserNormalModuleSourceRowsDispositionV1::Ready(ParserNormalModuleSourceRowsV1 {
-            invocation,
+            _invocation: invocation,
             box_row: ParserNormalModuleBoxSourceRowV1 {
                 program_position: body_rows[0].position(),
-                final_box_ordinal,
-                box_site: seal.box_site().clone(),
+                _final_box_ordinal: final_box_ordinal,
+                _box_site: seal.box_site().clone(),
                 declaration_syntax: seal.declaration_syntax().clone(),
                 method: ParserNormalModuleMethodSourceRowV1 {
-                    source_site: catalog_row.source_site().clone(),
+                    _source_site: catalog_row.source_site().clone(),
                     diagnostic_name: catalog_row.diagnostic_name().into(),
                     arity,
-                    callable_identity: direct.anchor().identity(),
+                    _callable_identity: direct.anchor().identity(),
                 },
             },
             _seal: ParserNormalModuleSourceRowsSealV1,
