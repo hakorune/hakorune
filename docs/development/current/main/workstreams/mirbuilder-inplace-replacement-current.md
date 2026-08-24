@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (JSON backend_shape capability D1)
+Status: Active workstream — fast (JSON backend_shape strict-adapter I0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, and profile threading I0 closed; JoinIR D0/R4c and backend_shape D0 are NoSafeSlice
-  mode              = design_stop
-  production stop   = before backend_shape capability/authority D1 acceptance; R4c remains NoSafeSlice, and Method(None)/Closure/Constructor gates, native, and Call core field deletion remain outside
-  exit              = one authority/terminal decision with raw extern capability evidence, or explicit NoSafeSlice; no code edit before D1 acceptance
+  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-STRICT-ADAPTER-I0-R0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, profile threading I0, and backend_shape capability D1 accepted; JoinIR D0/R4c remains NoSafeSlice
+  mode              = fast
+  production stop   = inside the owner-local strict adapter: typed Callee/profile is fixed before publish; Method(None)/Closure/Constructor gates, native, and Call core field deletion remain outside
+  exit              = one strict projection edge with positive/negative/parity/shared-guard evidence; no raw externcall capability expansion or retry/fallback
 fallback / retry  = 0
 ```
 
@@ -366,11 +366,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY
-  -> choose strict adapter ownership or atomic retirement with raw extern capability evidence
+ MIR-CALL-JSON-BACKEND-SHAPE-STRICT-ADAPTER-I0-R0
+  -> remove typed pre-wire mutation, validate complete v0 adapter shape, fence profile, and prove selected structured terminal rejection
 
 Next (not selected)
-  -> backend_shape I0 only after D1; then native D0 and R6 gate; R4c remains NoSafeSlice unless a caller reopens
+  -> native D0 and R6 gate after I0; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

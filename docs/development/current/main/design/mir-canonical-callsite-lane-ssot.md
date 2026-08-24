@@ -635,26 +635,47 @@ is `MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY`.
 Backend-shape D0 result (`NoSafeSlice`): the bounded audit found both typed
 pre-wire mutation and post-wire JSON mutation, a v0/v1 profile mismatch, and
 silent field/default handling. The selected terminal capability for raw
-`externcall` is not proven, so deleting or moving either normalizer would
-change authority without a safe replacement.
+`externcall` was not proven, so deleting or moving either normalizer would
+have changed authority without a safe replacement.
 
-Next design task: `MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY`.
+Feedback reconciliation at the current source boundary:
 
 ```text
-Decision: choose one authority and one projection boundary for console
-  mapping, or prove an atomic adapter retirement; no backend_shape I0 is
-  admitted while typed and wire mutations coexist.
+used_values()       = closed by 8eca2dd048; it delegates every Callee operand
+                      (Value, Method receiver, Closure captures/me) then args
+escape projection   = closed by 4e71066e57; it reuses the same occurrence
+                      projection while retaining its own barrier policy
+JoinIR remap        = local Callee match remains; caller/lifecycle D1 census
+                      closed as NoSafeSlice, so no production R4c switch exists
+R6 design debt      = MirCall/CallFlags, Method(None), Closure construction,
+                      and Constructor/NewBox remain one future schema gate
+PyVM/reference/etc. = retired/diagnostic-only boundary; ParkedSealed and not
+                      evidence for this selected production terminal
+```
+
+Backend D1 is accepted as a strict adapter boundary. `backend_shape` is not a
+second semantic issuer and is not atomically retired in this row:
+
+```text
+Decision: retain one strict compatibility projection for the Program JSON-v0
+  bridge, and fence the selected ny-llvmc terminal to structured canonical
+  calls; raw externcall capability is not widened by this decision.
 Source authority + canonical issuer: typed Callee plus root-owned
-  JsonEgressProfile; backend_shape may be a strict bridge projection only,
-  while selected ny-llvmc capability owns terminal acceptance.
-Non-authority: wire strings, func, backend symbol lookup, post-wire target
-  inference, defaults, extra-field dropping, and parked backend behavior.
-Fail-fast boundary: profile and typed target are fixed before publish; missing
-  or malformed externcall fields reject without default, retry, or fallback.
-Smallest next slice: finite D1 decision between strict adapter maintenance and
-  atomic adapter retirement, including raw externcall capability and exact
-  selected-terminal boundary; implementation remains forbidden until accepted.
-Non-claims: R4c JoinIR, Method(None), Closure/Constructor, R6, C backend edits,
+  JsonEgressProfile; `MirInstruction::call` owns the typed target, while the
+  owner-local adapter only projects an explicitly validated compatibility
+  payload once.
+Non-authority: raw wire strings, func, backend symbol lookup, post-wire target
+  inference, defaulted dst/args, dropped extra fields, retry/fallback, and
+  PyVM/reference/Python/WASM behavior.
+Fail-fast boundary: profile, structured callee, extern route, and arity are
+  fixed before publish; malformed or profile-mismatched input rejects without
+  retry or alternate target search.
+Smallest next slice: `MIR-CALL-JSON-BACKEND-SHAPE-STRICT-ADAPTER-I0-R0` —
+  remove typed pre-wire console mutation, require the complete v0 adapter
+  shape, move the handoff projection inside the Phase0 profile fence, and add
+  positive/negative/shared-guard evidence for the selected structured terminal.
+Non-claims: JoinIR R4c, Method(None), Closure/Constructor, MirCall/CallFlags,
+  R6 field deletion, generic raw externcall support, C backend expansion,
   native/PyVM/reference/Python/WASM, and warning cleanup.
 ```
 
@@ -669,6 +690,24 @@ Backend D1 finite state matrix:
 | `MalformedWire` | JSON/profile validator | typed reject before publish | no default/retry |
 | `RawExternCapabilityUnproven` | D1 authority owner | `NoSafeSlice` | no backend expansion |
 | `DirectMirFirst` | direct route owner | unchanged, out of bridge census | excluded |
+
+D1 result: the finite backend census is accepted. Canonical structured
+`mir_call`/typed `Callee` is the selected terminal input; compatibility
+`externcall` remains owner-local and is never treated as generic selected
+terminal capability. The adapter must validate `op`, `func`, `dst`, and `args`
+before the one console projection, preserve unknown compatibility routes
+without target inference, and reject malformed/defaulted shapes. The next
+execution row is the bounded strict-adapter I0 above; no other backend or
+schema row is selected.
+
+I0 acceptance matrix:
+
+| Input | Authority | Terminal | Outcome |
+| --- | --- | --- | --- |
+| typed `Callee::Extern` console route | typed Callee + profile | structured `mir_call` projection | one canonical Global projection, parity green |
+| valid compatibility `externcall` with exact `op/func/dst/args` | owner-local v0 adapter | compatibility projection only | known console maps once; unknown route is preserved |
+| missing/non-array `args`, missing `dst`, non-string `func`, or extra field | profile validator | before publish | typed reject, no default/drop/retry |
+| raw `externcall` at selected ny-llvmc terminal | selected terminal capability | structured-call preflight | reject as profile mismatch |
 
 Feedback reconciliation and deferred task queue (not selected):
 
