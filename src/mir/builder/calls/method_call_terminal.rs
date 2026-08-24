@@ -295,23 +295,6 @@ pub(in crate::mir::builder) fn emit_typeop_value_terminal_raw_v1(
     Ok(dst)
 }
 
-pub(in crate::mir::builder) fn emit_global_value_terminal_raw_v1(
-    builder: &mut MirBuilder,
-    owner: &str,
-    method: &str,
-    checked_source_arity: u32,
-    arguments: Vec<ValueId>,
-) -> Result<(ValueId, String), String> {
-    emit_global_value_terminal_with_lookup_v1(
-        builder,
-        owner,
-        method,
-        checked_source_arity,
-        arguments,
-        None,
-    )
-}
-
 fn emit_global_value_terminal_with_lookup_v1(
     builder: &mut MirBuilder,
     owner: &str,
