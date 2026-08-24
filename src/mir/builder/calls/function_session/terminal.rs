@@ -260,13 +260,6 @@ impl LegacyFunctionPendingSessionV1<'_> {
 }
 
 impl PreparedFunctionSessionCloseV1<'_> {
-    /// Consume the prepared close and return the unpublished function.  All
-    /// checks have already happened, so extraction and caller restoration are
-    /// deliberately infallible ownership transitions.
-    pub(in crate::mir::builder) fn commit(self) -> MirFunction {
-        self.commit_with_input(None)
-    }
-
     /// Apply one prepared projected function/type payload and then perform the
     /// same infallible extraction/restore terminal.  This is the only session
     /// path that may install a draft-seal projection into the live function
