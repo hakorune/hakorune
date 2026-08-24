@@ -1318,3 +1318,18 @@ root-batch behavior changed. The focused `normal_root_execution` suite passes
 19 tests, all five reusable guards remain green, and the test fingerprint
 moved from 804 to 803 warnings (`private_interfaces=77`, `private_bounds=0`;
 non-structural lint categories remain zero).
+
+The following canonical-publication handoff visibility slice is landed as
+`bb65fd5f53`:
+
+```text
+bb65fd5f53  refactor: narrow canonical publication handoff
+```
+
+The canonical publication preparation method is consumed only within the
+compiler dispatch route, so its boundary now matches the prepared publication
+owner. No target, membership, pairing, or commit behavior changed. The
+focused `normal_root_execution` suite passes 19 tests, all five reusable
+guards remain green, and the test fingerprint moved from 803 to 802 warnings
+(`private_interfaces=76`, `private_bounds=0`; non-structural lint categories
+remain zero).
