@@ -1787,11 +1787,24 @@ passes 19 tests, and the test fingerprint moved from 656 to 654 warnings
 (`private_interfaces=11`, `dead_code=643`; all non-structural lint categories
 remain zero).
 
+The following callable-lowering accessor cleanup is landed as `0a18f88c84`:
+
+```text
+0a18f88c84  refactor: trim unused callable lowering accessors
+```
+
+The unreferenced brand-disposition and Dynamic-origin test accessors were
+removed. Brand projection ownership, dynamic-origin tracking, value
+materialization, and final consumption checks remain unchanged. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 654 to 653 warnings (`private_interfaces=11`, `dead_code=642`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 643 `dead_code` warnings are existing disconnected
+visibility. The remaining 642 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
