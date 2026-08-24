@@ -19,6 +19,7 @@ MIR_V0_MODULE="$ROOT_DIR/src/runner/mir_json_v0/module.rs"
 CALLEE_DEFS="$ROOT_DIR/crates/hakorune_mir_defs/src/call_unified.rs"
 SIMPLIFY_FLOW="$ROOT_DIR/src/mir/passes/simplify_cfg/flow.rs"
 VALUE_CONSUMER="$ROOT_DIR/src/mir/value_consumer.rs"
+ESCAPE_BARRIER="$ROOT_DIR/src/mir/escape_barrier.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -31,7 +32,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -72,6 +73,13 @@ require "$VALUE_CONSUMER" "MirInstruction::Call { .. } => inst.used_values()"
 require "$VALUE_CONSUMER" "refresh_value_consumer_facts_counts_typed_callee_targets_as_other_uses"
 require "$VALUE_CONSUMER" "refresh_value_consumer_facts_ignores_typed_func_and_dst_decoration"
 require "$VALUE_CONSUMER" "refresh_value_consumer_facts_preserves_legacy_func_use"
+require "$ESCAPE_BARRIER" "typed_value_target_is_a_call_barrier_and_stale_func_is_ignored"
+require "$ESCAPE_BARRIER" "closure_target_marks_captures_as_capture_before_call_args"
+require "$ESCAPE_BARRIER" "legacy_missing_callee_keeps_func_out_of_shared_barriers"
+require "$ESCAPE_BARRIER" "targetless_typed_callees_add_no_target_barrier"
+require "$ROOT_DIR/src/mir/verification/fastmem/tests.rs" "rejects_memop_value_escape_to_typed_value_target"
+require "$ROOT_DIR/src/mir/verification/fastmem/tests.rs" "rejects_memop_value_escape_to_closure_capture"
+require "$ROOT_DIR/src/mir/verification/fastmem/tests.rs" "keeps_legacy_func_as_fastmem_ordinary_use"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -112,6 +120,7 @@ for relative in (
     "crates/hakorune_mir_defs/src/call_unified.rs",
     "src/mir/passes/simplify_cfg/flow.rs",
     "src/mir/value_consumer.rs",
+    "src/mir/escape_barrier.rs",
     "src/mir/instruction/tests.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
@@ -211,6 +220,21 @@ if "MirInstruction::Call { func" in consumer_window:
 for token in ("match_method_set_call", "record_direct_set_consumer_use", "record_other_uses"):
     if token not in value_consumer:
         raise SystemExit(f"value_consumer lost fact boundary helper: {token}")
+
+escape = (root / "src/mir/escape_barrier.rs").read_text()
+role_start = escape.index("MirInstruction::Call { callee, args, .. }")
+role_end = escape.index("MirInstruction::Store", role_start)
+role_window = escape[role_start:role_end]
+if role_window.count("callee.for_each_value_operand") != 1:
+    raise SystemExit("escape Call arm does not delegate Callee occurrence projection exactly once")
+if "Callee::Method" in role_window or "receiver:" in role_window:
+    raise SystemExit("escape Call arm retained a field-level Callee/receiver scan")
+if "Callee::Closure { .. }" not in role_window:
+    raise SystemExit("escape Call arm lost the Closure Capture role boundary")
+if role_window.count("EscapeBarrier::Capture") != 1 or role_window.count("EscapeBarrier::Call") < 2:
+    raise SystemExit("escape Call arm lost the accepted Call/Capture role matrix")
+if "func" in role_window:
+    raise SystemExit("escape Call arm reintroduced legacy func as a shared barrier")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

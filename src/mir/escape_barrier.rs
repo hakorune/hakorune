@@ -62,12 +62,15 @@ pub fn classify_escape_uses(inst: &MirInstruction) -> Vec<EscapeUse> {
         }
         MirInstruction::Call { callee, args, .. } => {
             let mut uses = Vec::with_capacity(args.len() + 1);
-            if let Some(Callee::Method {
-                receiver: Some(receiver),
-                ..
-            }) = callee
-            {
-                uses.push(EscapeUse::new(*receiver, EscapeBarrier::Call));
+            if let Some(callee) = callee {
+                let barrier = if matches!(callee, Callee::Closure { .. }) {
+                    EscapeBarrier::Capture
+                } else {
+                    EscapeBarrier::Call
+                };
+                callee.for_each_value_operand(|value| {
+                    uses.push(EscapeUse::new(value, barrier));
+                });
             }
             uses.extend(
                 args.iter()
@@ -140,6 +143,134 @@ mod tests {
                 },
             ]
         );
+    }
+
+    #[test]
+    fn typed_value_target_is_a_call_barrier_and_stale_func_is_ignored() {
+        let target = ValueId::new(12);
+        let arg = ValueId::new(13);
+        let uses = classify_escape_uses(&MirInstruction::Call {
+            dst: Some(ValueId::new(14)),
+            func: ValueId::new(99),
+            callee: Some(crate::mir::Callee::Value(target)),
+            args: vec![arg],
+            effects: EffectMask::PURE,
+        });
+
+        assert_eq!(
+            uses,
+            vec![
+                EscapeUse {
+                    value: target,
+                    barrier: EscapeBarrier::Call,
+                },
+                EscapeUse {
+                    value: arg,
+                    barrier: EscapeBarrier::Call,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn closure_target_marks_captures_as_capture_before_call_args() {
+        let capture = ValueId::new(20);
+        let me = ValueId::new(21);
+        let arg = ValueId::new(22);
+        let uses = classify_escape_uses(&MirInstruction::Call {
+            dst: Some(ValueId::new(23)),
+            func: ValueId::new(98),
+            callee: Some(crate::mir::Callee::Closure {
+                params: vec!["x".to_string()],
+                captures: vec![
+                    ("capture".to_string(), capture),
+                    ("duplicate".to_string(), capture),
+                ],
+                me_capture: Some(me),
+            }),
+            args: vec![arg],
+            effects: EffectMask::PURE,
+        });
+
+        assert_eq!(
+            uses,
+            vec![
+                EscapeUse {
+                    value: capture,
+                    barrier: EscapeBarrier::Capture,
+                },
+                EscapeUse {
+                    value: capture,
+                    barrier: EscapeBarrier::Capture,
+                },
+                EscapeUse {
+                    value: me,
+                    barrier: EscapeBarrier::Capture,
+                },
+                EscapeUse {
+                    value: arg,
+                    barrier: EscapeBarrier::Call,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn legacy_missing_callee_keeps_func_out_of_shared_barriers() {
+        let legacy_func = ValueId::new(30);
+        let arg = ValueId::new(31);
+        let uses = classify_escape_uses(&MirInstruction::Call {
+            dst: None,
+            func: legacy_func,
+            callee: None,
+            args: vec![arg],
+            effects: EffectMask::PURE,
+        });
+
+        assert_eq!(
+            uses,
+            vec![EscapeUse {
+                value: arg,
+                barrier: EscapeBarrier::Call,
+            }]
+        );
+        assert!(!uses.iter().any(|use_site| use_site.value == legacy_func));
+    }
+
+    #[test]
+    fn targetless_typed_callees_add_no_target_barrier() {
+        let arg = ValueId::new(40);
+        let callees = [
+            crate::mir::Callee::Global("global".to_string()),
+            crate::mir::Callee::Extern("env.test".to_string()),
+            crate::mir::Callee::Constructor {
+                box_type: "Point".to_string(),
+            },
+            crate::mir::Callee::Method {
+                box_name: "Point".to_string(),
+                method: "static_sum".to_string(),
+                receiver: None,
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            },
+        ];
+
+        for callee in callees {
+            let uses = classify_escape_uses(&MirInstruction::Call {
+                dst: None,
+                func: ValueId::new(99),
+                callee: Some(callee),
+                args: vec![arg],
+                effects: EffectMask::PURE,
+            });
+            assert_eq!(
+                uses,
+                vec![EscapeUse {
+                    value: arg,
+                    barrier: EscapeBarrier::Call,
+                }]
+            );
+        }
     }
 
     #[test]

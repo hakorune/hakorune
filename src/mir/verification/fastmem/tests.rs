@@ -3,7 +3,7 @@ use crate::ast::Span;
 use crate::mir::function::{FastMemRegionMetadata, FastMemRegionOrigin};
 use crate::mir::instruction::{FastMemRegionId, MemOpAccess, MemOpKind};
 use crate::mir::types::BinaryOp;
-use crate::mir::{EffectMask, MirInstruction};
+use crate::mir::{Callee, EffectMask, MirInstruction};
 use crate::mir::{FunctionSignature, MirType};
 
 fn test_function(instructions: Vec<MirInstruction>) -> MirFunction {
@@ -185,6 +185,82 @@ fn rejects_memop_value_escape_to_call_arg() {
     let text = error_text(&function);
     assert!(text.contains("memop-value-escapes"), "{}", text);
     assert!(text.contains("barrier=call"), "{}", text);
+}
+
+#[test]
+fn rejects_memop_value_escape_to_typed_value_target() {
+    let function = test_function(vec![
+        memop(
+            MemOpKind::AddrOf,
+            Some(ValueId::new(1)),
+            vec![ValueId::new(0)],
+            None,
+            EffectMask::PURE,
+        ),
+        MirInstruction::Call {
+            dst: None,
+            func: ValueId::INVALID,
+            callee: Some(Callee::Value(ValueId::new(1))),
+            args: vec![],
+            effects: EffectMask::IO,
+        },
+    ]);
+
+    let text = error_text(&function);
+    assert!(text.contains("memop-value-escapes"), "{}", text);
+    assert!(text.contains("barrier=call"), "{}", text);
+}
+
+#[test]
+fn rejects_memop_value_escape_to_closure_capture() {
+    let function = test_function(vec![
+        memop(
+            MemOpKind::AddrOf,
+            Some(ValueId::new(1)),
+            vec![ValueId::new(0)],
+            None,
+            EffectMask::PURE,
+        ),
+        MirInstruction::Call {
+            dst: Some(ValueId::new(2)),
+            func: ValueId::INVALID,
+            callee: Some(Callee::Closure {
+                params: vec!["x".to_string()],
+                captures: vec![("capture".to_string(), ValueId::new(1))],
+                me_capture: None,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        },
+    ]);
+
+    let text = error_text(&function);
+    assert!(text.contains("memop-value-escapes"), "{}", text);
+    assert!(text.contains("barrier=capture"), "{}", text);
+}
+
+#[test]
+fn keeps_legacy_func_as_fastmem_ordinary_use() {
+    let function = test_function(vec![
+        memop(
+            MemOpKind::TableIndex,
+            Some(ValueId::new(1)),
+            vec![ValueId::new(0), ValueId::new(9)],
+            None,
+            EffectMask::PURE,
+        ),
+        MirInstruction::Call {
+            dst: None,
+            func: ValueId::new(1),
+            callee: None,
+            args: vec![],
+            effects: EffectMask::IO,
+        },
+    ]);
+
+    let text = error_text(&function);
+    assert!(text.contains("memop-value-escapes"), "{}", text);
+    assert!(text.contains("barrier=ordinary_use"), "{}", text);
 }
 
 #[test]

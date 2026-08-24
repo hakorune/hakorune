@@ -86,7 +86,10 @@ projects typed `Callee` operands before the stored argument order. The local
 consumer keeps only its direct-set classification and per-instruction
 deduplication policy; it does not read the legacy `func` decoration when a
 typed callee is present. Legacy `callee: None` keeps its compatibility `func`
-use until the later atomic Call schema cutover.
+use until the later atomic Call schema cutover. Escape classification is a
+separate policy: typed Method receivers/Value targets and args are `Call`,
+Closure captures and `me_capture` are `Capture`, and legacy `func` remains an
+ordinary generic use for FastMem fail-closed handling.
 
 ## Boundary Rules
 
