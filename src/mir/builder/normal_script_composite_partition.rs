@@ -6,14 +6,13 @@
 //! selection, A/C, Recipe, and physical lowering remain downstream owners.
 
 use crate::ast::ASTNode;
-use crate::parser::{
-    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1,
-    ParserCompositeOutsideReasonV1, ParserCompositeSourceLoanRejectV1,
-    ParserCompositeSourceUnavailableV1, ParserCompositeSourceLoanV1,
-    ParserInvocationWitnessV1, ParserNormalProgramSourceLoanV1,
-};
 #[cfg(test)]
 use crate::parser::VerifiedFinalCallableProgramSourceV1;
+use crate::parser::{
+    ParserCompositeIncompleteV1, ParserCompositeIntegrityIssueV1, ParserCompositeOutsideReasonV1,
+    ParserCompositeSourceLoanRejectV1, ParserCompositeSourceLoanV1,
+    ParserCompositeSourceUnavailableV1, ParserInvocationWitnessV1, ParserNormalProgramSourceLoanV1,
+};
 
 #[derive(Debug)]
 pub(in crate::mir::builder) enum CanonicalScriptCompositeProgramPartitionDispositionV1 {
@@ -24,34 +23,6 @@ pub(in crate::mir::builder) enum CanonicalScriptCompositeProgramPartitionDisposi
     IntegrityInvalid(ParserCompositeIntegrityIssueV1),
 }
 
-impl CanonicalScriptCompositeProgramPartitionDispositionV1 {
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn ready_partition(
-        &self,
-    ) -> Option<&CanonicalScriptCompositeProgramPartitionV1> {
-        match self {
-            Self::Ready(partition) => Some(partition),
-            Self::Outside(_)
-            | Self::SourceAuthorityUnavailable(_)
-            | Self::Incomplete(_)
-            | Self::IntegrityInvalid(_) => None,
-        }
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) fn fail_fast_error(&self) -> Option<Box<str>> {
-        match self {
-            Self::Ready(_) | Self::Outside(_) => None,
-            Self::SourceAuthorityUnavailable(_)
-            | Self::Incomplete(_)
-            | Self::IntegrityInvalid(_) => Some(format!(
-                "[mir/script-composite-admission] {self:?}"
-            )
-            .into()),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum CanonicalScriptCompositePartitionOutsideReasonV1 {
     Parser(ParserCompositeOutsideReasonV1),
@@ -60,7 +31,7 @@ pub(in crate::mir::builder) enum CanonicalScriptCompositePartitionOutsideReasonV
 
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CanonicalScriptCompositeProgramPartitionV1 {
-    invocation: ParserInvocationWitnessV1,
+    _invocation: ParserInvocationWitnessV1,
     rows: Box<[CanonicalScriptCompositeProgramItemRowV1]>,
     _seal: CanonicalScriptCompositeProgramPartitionSealV1,
 }
@@ -165,7 +136,7 @@ impl CanonicalScriptCompositeProgramPartitionIssuerV1 {
         ]
         .into_boxed_slice();
         Ok(CanonicalScriptCompositeProgramPartitionV1 {
-            invocation: loan.invocation_witness().clone(),
+            _invocation: loan.invocation_witness().clone(),
             rows,
             _seal: CanonicalScriptCompositeProgramPartitionSealV1,
         })
@@ -179,10 +150,6 @@ impl CanonicalScriptCompositeProgramPartitionV1 {
                 && row.semantic
                     == CanonicalScriptCompositeSemanticRoleV1::StaticCallableCatalogTransfer
         })
-    }
-
-    pub(in crate::mir::builder) fn invocation(&self) -> &ParserInvocationWitnessV1 {
-        &self.invocation
     }
 
     #[cfg(test)]
@@ -277,8 +244,14 @@ mod tests {
         };
         assert!(partition.is_static_provider_at(0));
         assert_eq!(partition.rows().len(), 2);
-        assert_eq!(partition.rows()[0].runtime, CanonicalScriptCompositeRuntimeRoleV1::RetainedExistingTerminal);
-        assert_eq!(partition.rows()[1].semantic, CanonicalScriptCompositeSemanticRoleV1::ExistingRootMethodCall);
+        assert_eq!(
+            partition.rows()[0].runtime,
+            CanonicalScriptCompositeRuntimeRoleV1::RetainedExistingTerminal
+        );
+        assert_eq!(
+            partition.rows()[1].semantic,
+            CanonicalScriptCompositeSemanticRoleV1::ExistingRootMethodCall
+        );
     }
 
     #[test]
