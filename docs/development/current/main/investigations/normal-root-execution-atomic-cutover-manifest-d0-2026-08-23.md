@@ -1347,3 +1347,17 @@ changed. The focused `normal_root_execution` suite passes 19 tests, all five
 reusable guards remain green, and the test fingerprint moved from 802 to 801
 warnings (`private_interfaces=75`, `private_bounds=0`; non-structural lint
 categories remain zero).
+
+The following Raw-ledger error boundary slice is landed as `f135329711`:
+
+```text
+f135329711  refactor: align raw ledger error visibility
+```
+
+The Raw expansion role and receipt-ledger error are shared by the compiler
+facing Raw physical rejection products, so both now use the existing
+`crate::mir` boundary. No reservation, receipt, abort, or root-batch behavior
+changed. The focused `normal_root_execution` suite passes 19 tests, all five
+reusable guards remain green, and the test fingerprint moved from 801 to 792
+warnings (`private_interfaces=66`, `private_bounds=0`; non-structural lint
+categories remain zero).
