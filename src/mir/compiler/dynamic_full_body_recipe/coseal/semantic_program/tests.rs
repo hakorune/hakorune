@@ -166,7 +166,6 @@ fn exact_envelope_issues_one_atomic_dynamic_semantic_program() {
                 crate::mir::dynamic_invocation_contract::DynamicInvocationInputHomeV1::BorrowedNoEscapeForInvocation
             );
         }
-        other => panic!("unexpected local destination: {other:?}"),
     }
     assert!(rows.iter().all(|row| {
         row.lifecycle()
