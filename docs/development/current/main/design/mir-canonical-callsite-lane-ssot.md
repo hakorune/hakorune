@@ -219,15 +219,19 @@ order, then args; legacy `None` keeps func once before args and duplicates remai
 The immutable exhaustive `Callee::for_each_value_operand` facet and `methods.rs`
 Call arm are now green with owner/typed/legacy tests and the shared guard.
 
-R4c D0 accepted: `value_consumer` is the active bounded production row. Its single
-Call membership arm must delegate once to `MirInstruction::used_values`; the
-existing direct-set and per-instruction dedup policy remains its authority. The
-finite boundary is that arm -> `record_other_uses` -> three semantic refresh
-edges; other instruction arms and match-method policy are excluded. JoinIR
-collection/remap is `NoSafeSlice` for the next I0 because its merge caller is
-zero while live lifecycle and tail-target compatibility still consume old `func`.
-MirQuery/CallLike, ownership, escape, R5/R6, warning cleanup, and
-PyVM/reference/Python remain separate boundaries.
+R4c closed (`4c6d9ce9a2`): `value_consumer` delegates Call membership once to
+`MirInstruction::used_values`; focused refresh/fact-omission/legacy suite 5/5,
+shared corridor/pointer/rustfmt/diff green, and 433 warnings remain baseline.
+Its direct-set and per-instruction dedup policy stays local; typed `Callee`
+targets are counted before args while legacy `None` keeps one `func` use.
+
+R4d design stop — `MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0`:
+Decision: Callee enumerates target operands; escape assigns Call to Method.receiver/Value/args and Capture to Closure captures/me.
+Source authority + canonical issuer: `MirInstruction::Call`/`Callee` -> `classify_escape_uses` -> DCE, escape, and FastMem consumers.
+Non-authority: `used_values` generic uses, ownership SSA, FastMem allowlists, JoinIR/Query/CallLike, optimizer/backend text, PyVM/reference/Python.
+Fail-fast boundary: missing or ambiguous role policy is rejected or ordinary-use fail-closed; no blanket Call barrier or target re-inference.
+Smallest next slice: finite role matrix, exact classifier/consumer parity tests, and the shared corridor guard; no code before this stop closes.
+Non-claims: ownership activation, JoinIR remap, CallLike retirement, R5/R6, Method(None)/Closure/NewBox/Constructor finalization, warning cleanup; census is `classify_escape_uses` Call/Closure -> DCE/escape/FastMem, all other policies excluded.
 
 R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
 `Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`

@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast path (R4c value_consumer)
+Status: Active workstream — design stop (R4d escape policy)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-I0-R0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, and R4b closed; R4c active
-  mode              = fast
+  current decision  = MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, and R4c closed; R4d design stop
+  mode              = design_stop
   production stop   = before Call core field deletion
-  exit              = Call arm delegation, fact-omission/legacy parity tests, and shared guard; no ownership/escape/JoinIR or Call field deletion yet
+  exit              = R4c value-consumer delegation and fact-omission/legacy parity closed; R4d role matrix is pending; no ownership/JoinIR or Call field deletion
 fallback / retry  = 0
 ```
 
@@ -290,9 +290,8 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c D0 accepted; I0/R0 brief. Decision: `value_consumer` Call membership delegates once to `MirInstruction::used_values`; existing direct-set and per-instruction dedup policy stays local.
-Source + issuer: Callee -> `for_each_value_operand` -> Call `used_values` -> `record_other_uses`; three normal refresh edges consume the fact. Non-authority: Some(callee) func, dst, ownership/escape roles, MirQuery/JoinIR/CallLike, optimizer/backend text, PyVM/reference/Python.
-Fail-fast: other-use/direct-set mismatch is fact omission; `None` reads func once and `Some` never does. Smallest next: Call arm + exact fact tests + shared guard/reference. Census boundary: `value_consumer` Call arm -> `record_other_uses` -> semantic refresh; JoinIR is NoSafeSlice until live lifecycle/tail-target authority is named.
+R4c closed (`4c6d9ce9a2`): `value_consumer` delegates Call membership once to `MirInstruction::used_values`; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green, warning baseline 433.
+R4d D0 selected design stop: the six-line escape role brief and finite classifier/consumer census live in `mir-canonical-callsite-lane-ssot.md`; JoinIR remains `NoSafeSlice` until live lifecycle/tail-target authority is named.
 
 ## Production invariants
 ```text
@@ -366,11 +365,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-D0
-  -> design stop: select the one normal-production Call membership edge
+ MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0
+  -> design stop: fix the finite Callee target-to-escape role matrix
 
 Next (not selected)
-  -> R4d escape/ownership/query policy D0; R4e CallLike T0 retirement; then R5-R7
+  -> ownership/query policy D0; R4e CallLike T0 retirement; then R5-R7
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
