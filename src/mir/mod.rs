@@ -78,17 +78,20 @@ pub(crate) use compiler::canonical_core_dispatch::{
     NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };
 pub(crate) use compiler::canonical_script_source_a_input::CanonicalScriptSourceAInputTransportV1;
-pub(crate) use compiler::canonical_script_source_plan_envelope::CanonicalScriptSourcePlanEnvelopeV1;
 pub(crate) use compiler::canonical_source_identity::CanonicalSourceBytesDigestV1;
 pub(crate) use compiler::normal_source_plan;
+#[cfg(feature = "vm-reference")]
 pub(crate) use compiler::source_entry_vm_reference::RawVmReferenceRunReportV1;
 #[cfg(feature = "vm-reference")]
 pub(crate) use compiler::source_entry_vm_runner_adapter::RawVmReferenceInvocationFailureReportV1;
 pub(crate) use raw_vm_reference_contract::{
-    RawPublishedCompileProfileV1, RawPublishedCompileRequestV1,
-    RawVmReferenceCallableMainProfileV1, RawVmReferenceExecutionProfileV1,
-    RawVmReferenceImportProfileV1, RawVmReferenceInvocationV1, RawVmReferenceSourceProfileV1,
+    RawPublishedCompileProfileV1, RawPublishedCompileRequestV1, RawVmReferenceInvocationV1,
     RawVmReferenceSupportProfileV1,
+};
+#[cfg(feature = "vm-reference")]
+pub(crate) use raw_vm_reference_contract::{
+    RawVmReferenceCallableMainProfileV1, RawVmReferenceExecutionProfileV1,
+    RawVmReferenceImportProfileV1, RawVmReferenceSourceProfileV1,
 };
 pub(crate) mod checked_callout; // canonical MIR-owned checked Normal/Fault callout vocabulary
 pub mod concat_const_suffix_micro_seed_plan; // MIR-owned route plan for temporary concat const-suffix micro seed bridge
@@ -262,8 +265,7 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 pub use basic_block::BasicBlock;
 pub use builder::MirBuilder;
 pub(crate) use compiler::selected_dynamic_w6_activation::{
-    PreparedSelectedDynamicW6ActivationV1, PreparedSelectedDynamicW6RootReadyV1,
-    SelectedDynamicW6RootPreflightErrorV1, StaticArtifactReceiptConsumedFenceV1,
+    StaticArtifactReceiptConsumedFenceV1,
 };
 pub use compiler::{
     CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
