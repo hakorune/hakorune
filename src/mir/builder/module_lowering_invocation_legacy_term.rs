@@ -3,7 +3,7 @@
 //! Keeping these terminals in a sibling keeps the shared port vocabulary below
 //! the source-file size cap while preserving one collector admission owner.
 
-use super::calls::{LegacyFunctionPendingSessionV1, PendingFunctionSessionCloseV1};
+use super::calls::LegacyFunctionPendingSessionV1;
 use super::module_draft_collector::CollectedDraftAdmissionReceiptV1;
 use super::module_draft_collector::DraftPublicationPolicyV1;
 use super::module_invocation_owner_chain::InvocationBranded;

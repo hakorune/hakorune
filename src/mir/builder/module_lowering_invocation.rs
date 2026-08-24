@@ -496,7 +496,7 @@ mod tests {
         FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, VerifiedResolvedFunctionV1,
     };
     use crate::mir::{
-        BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType,
+        BasicBlockId, EffectMask, FunctionSignature, MirBuilder, MirFunction, MirType,
     };
     use std::sync::Arc;
 

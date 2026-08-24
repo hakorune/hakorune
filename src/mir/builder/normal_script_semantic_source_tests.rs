@@ -1,10 +1,6 @@
 use super::VerifiedScriptSemanticSourceV1;
 use crate::ast::{ASTNode, LiteralValue, Span};
-use crate::mir::builder::raw_invocation_source_transport::{
-    RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
-};
 use crate::mir::builder::PreparedNormalDefaultProgramRootV1;
-use crate::mir::builder::RawSourceLocatorV1;
 use crate::mir::resolved_semantics::{
     FunctionSemanticResolverSessionV1, ResolveScriptOutcomeV1, ScriptDiagnosticBoundaryV1,
     ScriptRootRuntimeDispositionV1, ScriptRootSemanticDispositionV1, ScriptSyntaxViewV1,
