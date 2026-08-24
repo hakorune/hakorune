@@ -68,7 +68,7 @@ pub(super) enum ParserBoxPostpassRowV1 {
         seal: ParserBoxSourceSealV1,
     },
     AstOnlyCompatibility {
-        final_box_ordinal: usize,
+        _final_box_ordinal: usize,
         cohort: ParserCompatibilityCohortV1,
     },
 }

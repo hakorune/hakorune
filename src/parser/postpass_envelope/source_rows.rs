@@ -18,7 +18,7 @@ pub(super) fn compatibility_rows(
         .filter_map(|(final_box_ordinal, statement)| {
             matches!(statement, ASTNode::BoxDeclaration { .. }).then_some(
                 ParserBoxPostpassRowV1::AstOnlyCompatibility {
-                    final_box_ordinal,
+                    _final_box_ordinal: final_box_ordinal,
                     cohort,
                 },
             )
@@ -81,7 +81,7 @@ pub(super) fn source_backed_compatibility_rows(
                         seal,
                     })
                     .unwrap_or(ParserBoxPostpassRowV1::AstOnlyCompatibility {
-                        final_box_ordinal,
+                        _final_box_ordinal: final_box_ordinal,
                         cohort,
                     })
             })

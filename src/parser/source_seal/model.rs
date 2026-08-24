@@ -146,7 +146,7 @@ pub(in crate::parser) struct ParserSourceSessionV1 {
     pub(in crate::parser) prepared_static_box_sources:
         Vec<super::super::callable_parameter_source::static_box_source::PreparedParserStaticBoxParentSourceV1>,
     pub(in crate::parser) gate_records: Vec<PreparedBuildGateSourceRecordV1>,
-    pub(in crate::parser) selection_receipts: Vec<BuildGateSelectionReceiptV1>,
+    pub(in crate::parser) _selection_receipts: Vec<BuildGateSelectionReceiptV1>,
     pub(in crate::parser) callable_rows: Vec<PreparedCallableSourceV1>,
 }
 

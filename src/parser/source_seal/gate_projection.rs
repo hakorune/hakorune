@@ -31,7 +31,7 @@ impl ParserSourceSessionV1 {
             prepared_source_seals,
             prepared_static_box_sources,
             gate_records,
-            selection_receipts: Vec::new(),
+            _selection_receipts: Vec::new(),
             callable_rows: direct_callable_rows
                 .into_iter()
                 .map(PreparedCallableSourceV1::Direct)
@@ -134,7 +134,7 @@ impl ParserSourceSessionV1 {
             prepared_source_seals: prepared.prepared_source_seals,
             prepared_static_box_sources: prepared.prepared_static_box_sources,
             gate_records: prepared.gate_records,
-            selection_receipts: prepared.selection_receipts,
+            _selection_receipts: prepared.selection_receipts,
             callable_rows: prepared.callable_rows,
         }
     }
