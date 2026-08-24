@@ -324,7 +324,7 @@ to `MirInstruction::used_values`, and `writes_of(Call)` delegates to
 shared corridor guard also rejects a local `callee`/`func` reconstruction.
 This is an observation closeout, not a production caller switch.
 
-R5 design stop — `MIR-CALL-CANONICAL-TERMINAL-CLOSURE-D0`:
+R5 design decision accepted — `MIR-CALL-CANONICAL-TERMINAL-CLOSURE-D0`:
 
 ```text
 Decision: close every selected terminal as a typed-Callee consumer, then cut
@@ -344,20 +344,46 @@ Non-claims: R6 field deletion, JoinIR remap, Method(None), Closure/Constructor
 shape retirement, normal-root cleanup, and non-selected backend activation.
 ```
 
+Worker census result: R5 is not one atomic implementation. R5a is selected as
+an optimizer-only I0; R5b is split so its first row only rejects the selected
+Rust VM `None -> func` execution edge; R5c printer is separable but JSON
+writer remains a compatibility-mixed design stop; R5d native is a design stop
+because the selected pure-first route still has pattern fallback and its C
+owners are at the 760/793-line boundary. PyVM/reference/Python/WASM and
+`native_driver` remain `ParkedSealed`.
+
 R5 finite terminal task matrix:
 
 | Task | owner boundary | old edge to delete | acceptance evidence |
 | --- | --- | --- | --- |
-| R5a optimizer | `callsite_canonicalize` plus call/CSE/diagnostic consumers | Const/String target reclassification, legacy key, `func`-based target inference | production caller census; canonical `Callee` key parity; target issuer/retry = 0 |
-| R5b selected Rust interpreter | `handlers/calls`, both instruction execution loops | `func` parameter, `callee=None` register load, module by-name fallback | Global/Method/Extern/Value/Closure matrix; unsupported is terminal; selected Rust route parity |
-| R5c printer/JSON | MIR printer and selected JSON writer; v0 ingress stays owner-private | `callee=None` legacy rendering/emission and semantic target reconstruction | typed target round-trip; v0 compatibility only at ingress/egress; no target guessing |
-| R5d selected native backend | backend allowlist/codegen chosen by `CURRENT_STATE` | missing-callee arm, symbol retry, backend name fallback | selected backend negative guard; all other backends remain `ParkedSealed` |
+| R5a optimizer (selected) | optimizer-only schedule, CSE key, optimizer diagnostic | optimizer canonicalizer call, typed `func` key/scan, Const/String target issuer | optimizer caller/issuer/retry = 0; post-RC/JSON compatibility issuer remains outside; key and diagnostic parity |
+| R5b-B0 Rust interpreter (next) | `handlers/calls`, both instruction execution loops | `None -> func` register load and module by-name execution | `None` is typed terminal reject; typed Global/Method/Extern parity; no field deletion or method fallback claim |
+| R5c printer (later) | MIR printer observers only | legacy `func` rendering and typed-call dummy display | typed target projection parity; JSON remains separate |
+| R5c JSON (design stop) | v1 writer, v0 projection, legacy wire/profile switches | mixed canonical/compatibility emission and `Method(None)` receiver reuse | profile split and egress authority decision before code |
+| R5d native (design stop) | selected `ny-llvmc` pure-first route | missing structured callee abort boundary and pattern fallback | route/profile decision plus C-owner split before implementation |
+
+R5a selected brief:
+
+```text
+Decision: retire only the optimizer's target-issuing/legacy-observer edges;
+shared compiler post-RC and JSON compatibility canonicalizers stay outside.
+Source authority + canonical issuer: typed producer or compatibility ingress
+-> Callee -> MirInstruction::Call; optimizer stores/keys/diagnoses only.
+Non-authority: optimizer func/INVALID, Const(String), value-type inference,
+module membership, backend/runtime lookup, and CSE legacy target keys.
+Fail-fast boundary: optimizer never repairs/retries a target; residual legacy
+input remains an explicit compatibility observation until R6.
+Smallest next slice: remove optimizer schedule call, make CSE keys Callee-based,
+and remove diagnostic func->Const scan; add matrix tests and shared guard.
+Non-claims: shared canonicalizer retirement, R5b/c/d, R6 fields, Method(None),
+Closure/Constructor, JoinIR, PyVM/reference/Python, and warning cleanup.
+```
 
 R5 row rules: each task owns one old edge and reuses the shared corridor
 guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field
-editing. The R5 census must include direct callers, dynamic construction,
-wire writers, and selected backend preflight; literal `callee: None = 0` is
-not sufficient evidence.
+editing. The census includes direct callers, dynamic construction, wire
+writers, and selected backend preflight; literal `callee: None = 0` is not
+sufficient evidence.
 
 R6 decision gate (not selected):
 

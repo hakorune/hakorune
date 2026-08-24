@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (R5 terminal closure)
+Status: Active workstream — fast path (R5a optimizer terminal)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-TERMINAL-CLOSURE-D0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0 closed; R5 not started
-  mode              = design_stop
-  production stop   = before R5 terminal migration and Call core field deletion
-  exit              = accepted R5 terminal matrix plus one bounded R5a next slice; no code or production switch during design stop
+  current decision  = MIR-CALL-CANONICAL-OPTIMIZER-TERMINAL-I0-R0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, and R5 D0 closed; R5a active
+  mode              = fast
+  production stop   = before R5b/R5c/R5d and Call core field deletion
+  exit              = optimizer caller/issuer/retry zero, canonical CSE/diagnostic parity, shared guard, and no shared compatibility or R6 claim
 fallback / retry  = 0
 ```
 
@@ -266,9 +266,9 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    Call-use rewrite (closed); R4b `used_values` immutable projection and
    methods.rs delegation (closed); R4c `value_consumer` Call membership,
    R4d escape, R4e ownership, R4f CallLike, and Query T0 are closed.
-7. R5 D0 is the active design stop: finite optimizer, selected Rust
-   interpreter, printer/JSON, and selected-native terminal matrix; PyVM,
-   reference, and Python remain boundary-outside `ParkedSealed`.
+7. R5 D0 is accepted from the worker census; R5a optimizer-only is selected.
+   R5b-B0 Rust VM `None -> func` rejection is next; printer/JSON/native remain
+   separately bounded or design-stop rows; PyVM/reference/Python are `ParkedSealed`.
 8. R6 is parked until R5 evidence: atomic `Call { callee: Callee }`,
    `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox gates.
 9. R7: structural guards, README/reference sync, and census closeout.
@@ -365,12 +365,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CANONICAL-TERMINAL-CLOSURE-D0
-  -> close R5 authority/terminal matrix; design only
+ MIR-CALL-CANONICAL-OPTIMIZER-TERMINAL-I0-R0
+  -> remove optimizer target issuer/legacy observers; keep shared compatibility owners
 
 Next (not selected)
-  -> R5a optimizer target-issuer census, then R5b interpreter, R5c printer/JSON,
-     and R5d selected-native backend; each is separately selected after D0
+  -> R5b-B0 selected Rust VM None rejection; then printer-only, JSON D0, native D0
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
