@@ -218,14 +218,43 @@ failure        = typed parser/transform/lineage reject before request; C0 root
                  rejection and MIR text/verification parity remain named gates
 ```
 
-The public-API parity tests are not independent proof of an old production
-owner: the remaining calls are test/test-home coverage of the same
-`Compatibility(ASTNode)` route. Therefore D0 closes as `NoSafeSlice`, not as
-an implementation row. The next design-only decision must either name an
-authority-backed compatibility replacement with an exact finite old edge, or
-explicitly park the public AST compatibility contract. Until that decision,
-do not change code, fixtures, routes, fallback/retry, or issue a new
-`Verified*`/`Prepared*` receipt.
+## D0 disposition: public AST compatibility (ParkedSealed)
+
+The worker authority audit rejects merging public AST into SourceBacked or
+TypedCompatibility: the parser/macro lineage and reason are unavailable, and
+reconstructing them would issue synthetic meaning. The bounded decision is
+`MIRCOMPILER-PUBLIC-AST-COMPAT-PARK-D0` = `ParkedSealed`.
+
+```text
+public compile_with_source* = whole-file AST Compatibility adapter
+source authority           = AST payload only; no parser/macro issuer
+existing owner             = PreparedNormalDefaultProgramRootV1::seal
+                            + NormalDefaultRootCatalogLifecycle
+retained edge              = public AST -> Compatibility(ASTNode)
+old-edge delete set        = empty by contract
+fallback / retry           = 0
+canonical claim            = not MIR/LLVM SourceBacked ingress
+```
+
+Finite outcomes are fixed: non-`Program` AST rejects before request effects;
+a `Program` AST (with or without imports) stays on the existing compatibility
+lifecycle; lifecycle failure discards the isolated candidate; parser/macro
+origin is `Unavailable`; SourceBacked and TypedCompatibility are outside this
+API. No state fabricates lineage, reason, semantic package, Recipe, Join, or
+physical target.
+
+Reopen only on a non-test `compile_with_source*` caller, an explicit public
+API change/removal request, a new source-bearing public ingress, a public
+parser/macro origin contract, or a satisfied compatibility sunset condition.
+This park preserves the public API and does not authorize code, fixtures, new
+`Verified*`/`Prepared*`, route switches, fallback changes, or compatibility
+retirement.
+
+The actual MIR/LLVM production singleton remains unselected. The next task is
+to name one real MIR/LLVM responsibility with one non-test caller, one existing
+owner, one exact removable old edge, zero fallback/retry, and one unchanged
+parity/failure/reuse gate. A public AST edge or historical `compile_legacy*`,
+Loop, or Script queue cannot satisfy that contract.
 
 Guard classification at the 2026-08-25 docs boundary:
 
@@ -308,9 +337,9 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
-  NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
-  -> finite census recorded; review the NoSafeSlice boundary and name the
-     next authority decision (design-only)
+ NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
+  -> public AST compatibility is ParkedSealed; identify the next actual
+     MIR/LLVM production singleton (design-only until its tuple closes)
 
 Next (conditional; not selected)
   -> exactly one bounded replacement cell named by D0

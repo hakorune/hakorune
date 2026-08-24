@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-07-28
+Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT-POLICY-v1
 Scope: Rust MirBuilderを稼働させたまま、責務単位で本番内部を交換する
 Related:
@@ -77,6 +77,15 @@ MirCompiler::compile_with_source_and_imports
   -> candidate root/catalog lifecycle
   -> typed Program lowering and atomic publication
 ```
+
+The post-C0 current decision explicitly classifies the repository-public
+`compile_with_source*` surface as a retained whole-file AST Compatibility
+adapter (`MIRCOMPILER-PUBLIC-AST-COMPAT-PARK-D0`). It is not the canonical
+MIR/LLVM production ingress while the finite census has zero non-test
+downstream callers. This is a scoped `ParkedSealed` classification, not API
+removal or permission to synthesize parser/macro source facts. Any future
+production cell must name a separate actual caller family and preserve the
+adapter edge until its own exact sunset contract closes.
 
 AST JSON、runtime `env.mirbuilder.emit`、明示的なVM-reference backendなどを
 対象にするcellは、caller familyを別に明記する。
