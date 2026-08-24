@@ -20,14 +20,6 @@ impl CallableParameterContractKindV1 {
             Self::ExactText(_) => HomeDemandV1::Handle,
         }
     }
-
-    pub(crate) const fn exact_trivial_abi(self) -> Option<ExactTrivialParameterAbiV1> {
-        match self {
-            Self::OpaqueHandle => None,
-            Self::ExactTrivial(abi) => Some(abi),
-            Self::ExactText(_) => None,
-        }
-    }
 }
 
 #[derive(Debug)]

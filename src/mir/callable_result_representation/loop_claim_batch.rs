@@ -39,7 +39,7 @@ enum LoopClaimSlotV1<'plan> {
 pub(crate) struct ClaimedCallableResultLoopBatchV1<'plan> {
     activation_plan: &'plan VerifiedCallableResultActivationPlanV1,
     caller: &'plan CanonicalSameModuleCallableKeyV1,
-    loop_root: SourceStmtSiteV1,
+    _loop_root: SourceStmtSiteV1,
     source_order: Box<[&'plan SourceExprSiteV1]>,
     claims_by_site: BTreeMap<SourceExprSiteV1, LoopClaimSlotV1<'plan>>,
 }
@@ -67,7 +67,7 @@ impl<'plan> ClaimedCallableResultLoopBatchV1<'plan> {
         Self {
             activation_plan: parts.activation_plan,
             caller: parts.caller,
-            loop_root: parts.loop_root,
+            _loop_root: parts.loop_root,
             source_order,
             claims_by_site,
         }
@@ -111,10 +111,6 @@ impl<'plan> ClaimedCallableResultLoopBatchV1<'plan> {
 
     pub(crate) const fn caller(&self) -> &CanonicalSameModuleCallableKeyV1 {
         self.caller
-    }
-
-    pub(crate) const fn loop_root(&self) -> &SourceStmtSiteV1 {
-        &self.loop_root
     }
 
     pub(crate) fn is_branded_by(

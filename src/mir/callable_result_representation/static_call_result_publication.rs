@@ -126,13 +126,6 @@ impl VerifiedStaticCallResultPublicationHandoffV1 {
         &self.required_i64_arguments
     }
 
-    pub(crate) fn is_branded_by(
-        &self,
-        declarations: &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
-    ) -> bool {
-        self.catalog_identity == declarations as *const _ as usize
-    }
-
     pub(crate) fn consume(self) -> (VerifiedStaticCallResultPublicationDemandV1, Box<[u32]>) {
         (self.demand, self.required_i64_arguments)
     }

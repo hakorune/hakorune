@@ -61,30 +61,8 @@ impl<'result, 'catalog> VerifiedStaticExactI64RequirementV1<'result, 'catalog> {
         self.required_i64_arguments
     }
 
-    pub(crate) fn is_branded_by(
-        &self,
-        declarations: &VerifiedSameModuleCallableDeclarationCatalogV1,
-    ) -> bool {
-        std::ptr::eq(self.declarations, declarations)
-    }
-
     pub(crate) fn catalog_identity(&self) -> usize {
         self.declarations as *const _ as usize
-    }
-
-    #[cfg(test)]
-    pub(crate) fn with_required_i64_arguments_for_test<'override_result>(
-        self,
-        required_i64_arguments: &'override_result [u32],
-    ) -> VerifiedStaticExactI64RequirementV1<'override_result, 'catalog> {
-        VerifiedStaticExactI64RequirementV1 {
-            declarations: self.declarations,
-            caller: self.caller,
-            site: self.site,
-            target: self.target,
-            required_i64_arguments,
-            _seal: VerifiedStaticExactI64RequirementSealV1::new(),
-        }
     }
 }
 
