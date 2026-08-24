@@ -894,3 +894,15 @@ tests are unchanged. The focused completion filter passes 21 tests, all five
 reusable guards remain green, and the test fingerprint moved from 954 to 940
 warnings. An initial compile exposed three imports that were actually used;
 they were restored before the green rerun and are not part of the final diff.
+
+The following callable-contract import slice is landed as `57bdbf4971`:
+
+```text
+57bdbf4971  refactor: prune callable contract imports
+```
+
+It removes four caller-zero import groups across the callable parameter,
+result-representation, and semantic-batch facades; contract owners and proof
+issuers are unchanged. The focused `normal_root_execution` suite passes 19
+tests, all five reusable guards remain green, and the test fingerprint moved
+from 940 to 936 warnings.
