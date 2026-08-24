@@ -19,13 +19,13 @@ pub(in crate::mir) use a_prime_source::{
     DynamicAPrimeI64SourceRelationViewV1,
 };
 use calls::{
-    verify_dynamic_call_relations_v2, DynamicFullLoopCallRelationRejectV2,
-    VerifiedDynamicFullLoopCallRelationsV2,
+    verify_dynamic_call_relations_v2, VerifiedDynamicFullLoopCallRelationsV2,
 };
+pub(in crate::mir) use calls::DynamicFullLoopCallRelationRejectV2;
 use coverage::{
-    verify_complete_claim_coverage_v2, DynamicFullLoopCoverageRejectV2,
-    VerifiedDynamicFullLoopClaimCoverageV2,
+    verify_complete_claim_coverage_v2, VerifiedDynamicFullLoopClaimCoverageV2,
 };
+pub(in crate::mir) use coverage::DynamicFullLoopCoverageRejectV2;
 pub(in crate::mir) use local::DynamicIterationLocalValueRefV2;
 use local::{verify_iteration_local_relation_v2, DynamicIterationLocalRelationV2};
 use physical_evidence::issue_physical_evidence_v2;

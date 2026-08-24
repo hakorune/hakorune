@@ -16,7 +16,7 @@ use super::super::claims::{
 use super::super::DynamicFullLoopRetainedSourceV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum DynamicFullLoopCoverageRejectV2 {
+pub(in crate::mir) enum DynamicFullLoopCoverageRejectV2 {
     BindingCardinality,
     SourceCardinality,
     MissingOrDuplicateBindingRole,

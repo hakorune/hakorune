@@ -17,7 +17,7 @@ use super::super::super::dynamic_full_body_source::{
 use super::super::DynamicFullLoopRetainedSourceV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum DynamicFullLoopCallRelationRejectV2 {
+pub(in crate::mir) enum DynamicFullLoopCallRelationRejectV2 {
     MissingTarget,
     AmbiguousTarget,
     DifferentOwner,

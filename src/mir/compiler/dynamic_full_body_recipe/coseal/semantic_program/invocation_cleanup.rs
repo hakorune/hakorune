@@ -171,7 +171,7 @@ impl VerifiedDynamicInvocationCleanupProjectionV1 {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) fn rows(&self) -> &[InvocationCleanupCutPointV1; 4] {
+    fn rows(&self) -> &[InvocationCleanupCutPointV1; 4] {
         &self.rows
     }
 }

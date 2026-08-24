@@ -116,12 +116,12 @@ impl VerifiedDynamicExitTransactionCoSealV1 {
     }
 
     #[cfg(test)]
-    pub(in crate::mir) fn routes(&self) -> &[DynamicExitTransactionRouteV1; 2] {
+    fn routes(&self) -> &[DynamicExitTransactionRouteV1; 2] {
         &self.routes
     }
 
     #[cfg(test)]
-    pub(in crate::mir) fn target(&self) -> DynamicCallableFunctionExitTargetV1 {
+    fn target(&self) -> DynamicCallableFunctionExitTargetV1 {
         self.target
     }
 
