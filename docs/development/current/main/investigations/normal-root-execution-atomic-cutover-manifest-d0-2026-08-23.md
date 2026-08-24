@@ -2569,3 +2569,8 @@ evidence, and typed C-binding loan reject while removing only caller-zero
 accessors/tuple payload probes; warnings are 445→440
 (`private_interfaces=11`, `dead_code=429`), with 19/19 focused tests and all
 five guards green.
+
+`f135853115` removes caller-zero R0 runtime projection accessors and keeps the
+Script direct-static publication owner/Recipe as underscore evidence; warnings
+are 440→437 (`private_interfaces=11`, `dead_code=426`), with 19/19 focused
+tests and all five guards green.
