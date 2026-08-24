@@ -2425,3 +2425,24 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 504 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following callable physical-signature rejection-evidence cleanup is landed
+as `dc72a9495e`:
+
+```text
+dc72a9495e  refactor: trim physical signature probes
+```
+
+The verified physical-signature row retains role and receiver evidence, and
+the cohort retains its brand, as named underscore fields. Caller-zero row and
+cohort accessors are removed; the typed batch-loan issue remains named
+underscore evidence. Signature row issuance, physical shape, and rejection
+authority are unchanged. The focused `normal_root_execution` suite passes 19
+tests, and the test fingerprint moved from 522 to 510 warnings
+(`private_interfaces=11`, `dead_code=499`; all non-structural lint categories
+remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 499 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
