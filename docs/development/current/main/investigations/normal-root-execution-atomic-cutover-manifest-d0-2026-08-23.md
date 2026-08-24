@@ -1528,11 +1528,26 @@ remain green, and the test fingerprint moved from 738 to 737 warnings
 (`private_interfaces=11`, `private_bounds=0`; non-structural lint categories
 remain zero).
 
-The residual warning boundary is explicit after these sixty-eight
-behavior-neutral slices: ten `private_interfaces` warnings belong to the
+The following runner feature-ownership slice is landed as `19697fbd93`:
+
+```text
+19697fbd93  refactor: align runner feature ownership
+```
+
+VM-reference invocation/report types and front-door handoffs now compile only
+inside the `vm-reference` owner, selected Dynamic bundle helpers now compile
+only inside the `llvm-boundary` owner, and two unreferenced LLVM AST compile
+helpers were removed. No runner selection, source reading, publication, or
+execution behavior changed. The focused `normal_root_execution` suite passes
+19 tests, and the test fingerprint moved from 737 to 718 warnings
+(`private_interfaces=11`, `dead_code=707`; all non-structural lint categories
+remain zero).
+
+The residual warning boundary is explicit after these behavior-neutral slices:
+ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 726 `dead_code` warnings are existing disconnected
+visibility. The remaining 707 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
