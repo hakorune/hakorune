@@ -91,17 +91,6 @@ impl ParserCallableParameterSourceSessionV1 {
             ),
         )
     }
-
-    fn finish(
-        self,
-    ) -> Result<ParserCallableParameterSourceCatalogV1, CallableParameterSourceIssueV1> {
-        match self.finish_for_normal() {
-            ParserCallableParameterSourceDispositionV1::Complete(catalog) => Ok(catalog),
-            ParserCallableParameterSourceDispositionV1::SelectedBuildGateUnsupported => {
-                Err(CallableParameterSourceIssueV1::SelectedBuildGateUnsupported)
-            }
-        }
-    }
 }
 
 impl NyashParser {
@@ -134,15 +123,6 @@ impl NyashParser {
             .map_err(parameter_source_error)
     }
 
-    pub(in crate::parser) fn finish_callable_parameter_source_catalog(
-        &mut self,
-    ) -> Result<ParserCallableParameterSourceCatalogV1, ParseError> {
-        self.callable_parameter_source_session
-            .take()
-            .ok_or_else(|| parameter_source_error(CallableParameterSourceIssueV1::SessionClosed))
-            .and_then(|session| session.finish().map_err(parameter_source_error))
-    }
-
     pub(in crate::parser) fn finish_callable_parameter_source_for_normal(
         &mut self,
     ) -> Result<ParserCallableParameterSourceDispositionV1, ParseError> {
@@ -157,7 +137,6 @@ impl NyashParser {
 pub(super) enum CallableParameterSourceIssueV1 {
     SessionClosed,
     ForeignOrNonDirectMethod,
-    SelectedBuildGateUnsupported,
     DuplicateMethodSite { statement: u32, member: u32 },
     ParameterCoverageMismatch { statement: u32, member: u32 },
 }
