@@ -74,21 +74,6 @@ impl MemberGateSelectionReceiptV1 {
         self.brand.same_as(brand) && self.declaration.brand().same_as(brand)
     }
 
-    pub(super) fn exact_selected_path_for(
-        &self,
-        declaration: &SourceProgramDeclarationPathV1,
-        selection: &crate::ast::BoxMethodSourceSelectionV1,
-    ) -> Option<&[SourceProgramMemberGateStepV1]> {
-        let crate::ast::BoxMethodSourceSelectionV1::SelectedBuildGate { path } = selection else {
-            return None;
-        };
-        self.exact_selected_path_for_gate_ordinals(
-            declaration,
-            path.iter()
-                .map(|step| step.gate_site().box_member_ordinal()),
-        )
-    }
-
     pub(super) fn exact_selected_path_for_method_site(
         &self,
         declaration: &SourceProgramDeclarationPathV1,

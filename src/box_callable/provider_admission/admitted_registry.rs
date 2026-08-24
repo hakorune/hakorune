@@ -17,14 +17,6 @@ pub(crate) struct AdmittedTextScanRowV1 {
 }
 
 impl AdmittedTextScanRowV1 {
-    pub(crate) const fn role(self) -> TextScanAdmittedRoleV1 {
-        self.role
-    }
-
-    pub(crate) const fn slot(self) -> u16 {
-        self.slot
-    }
-
     pub(crate) const fn entry(self) -> TextScanAotEntryIdV1 {
         self.entry
     }

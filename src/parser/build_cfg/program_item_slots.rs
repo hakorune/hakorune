@@ -53,10 +53,6 @@ impl ProjectedProgramItemSlotSetV1 {
         self.rows
     }
 
-    pub(in crate::parser) fn brand_matches(&self, brand: &ParserInvocationBrandV1) -> bool {
-        self.brand.same_as(brand)
-    }
-
     pub(in crate::parser) fn exact_final_slot(
         &self,
         source_path: &SourceProgramDeclarationPathV1,

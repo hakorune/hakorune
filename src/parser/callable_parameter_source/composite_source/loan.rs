@@ -39,20 +39,6 @@ pub(crate) struct ParserCompositeProgramItemLoanV1<'source> {
     statement: &'source ASTNode,
 }
 
-pub(crate) fn with_parser_composite_source_loan<'source, R>(
-    disposition: &'source ParserCompositeSourceDispositionV1,
-    ast: &'source ASTNode,
-    callback: impl FnOnce(ParserCompositeSourceLoanV1<'source>) -> R,
-) -> Result<R, ParserCompositeSourceLoanRejectV1> {
-    let ASTNode::Program { statements, .. } = ast else {
-        return Err(ParserCompositeSourceLoanRejectV1::Incomplete(
-            ParserCompositeIncompleteV1::ProgramBodyMissing,
-        ));
-    };
-    let loan = parser_composite_source_loan_from_statements(disposition, statements)?;
-    Ok(callback(loan))
-}
-
 pub(crate) fn parser_composite_source_loan_from_statements<'source>(
     disposition: &'source ParserCompositeSourceDispositionV1,
     statements: &'source [ASTNode],

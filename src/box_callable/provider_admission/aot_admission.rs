@@ -157,10 +157,6 @@ impl PreparedAotExecutableAdmissionV1 {
         self.registry.generation()
     }
 
-    pub(crate) fn registry_slot_for(&self, role: TextScanAdmittedRoleV1) -> u16 {
-        self.registry.row(role).slot()
-    }
-
     pub(crate) const fn plan_stamp(&self) -> ModuleInvocationBrandV1 {
         self.plan_stamp
     }
