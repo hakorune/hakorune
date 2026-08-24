@@ -1407,3 +1407,18 @@ behavior changed. The focused `normal_root_execution` suite passes 19 tests,
 all five reusable guards remain green, and the test fingerprint moved from 766
 to 764 warnings (`private_interfaces=38`, `private_bounds=0`; non-structural
 lint categories remain zero).
+
+The following Raw-drain error-boundary visibility slice is landed as
+`41ed4112d6`:
+
+```text
+41ed4112d6  refactor: align raw drain error visibility
+```
+
+The Raw manifest and collector drain errors are carried by the existing
+compiler-facing `RawPhysicalDrainErrorV1`, so their enum boundaries now match
+that `crate::mir` owner. No drain validation, rejection, or publication
+behavior changed. The focused `normal_root_execution` suite passes 19 tests,
+all five reusable guards remain green, and the test fingerprint moved from 764
+to 762 warnings (`private_interfaces=36`, `private_bounds=0`; non-structural
+lint categories remain zero).
