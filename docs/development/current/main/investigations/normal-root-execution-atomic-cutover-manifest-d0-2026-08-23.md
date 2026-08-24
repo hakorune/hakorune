@@ -1922,11 +1922,24 @@ from 643 to 640 warnings (`private_interfaces=11`, `dead_code=629`; all
 non-structural lint categories remain zero). No source-facts claim, recipe
 selection, or lowering behavior changed.
 
+The follow-up test-only structural-view cleanup is landed as `c9224cbd04`:
+
+```text
+c9224cbd04  refactor: trim unused loop structural view field
+```
+
+The callback view no longer carries its unobserved selected-location field or
+accessor; the source receipt and semantic view retain their typed selection
+evidence. The direct `normal_root_execution` binary passes 19 tests, and the
+test fingerprint moved from 640 to 638 warnings
+(`private_interfaces=11`, `dead_code=627`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 629 `dead_code` warnings are existing disconnected
+visibility. The remaining 627 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
