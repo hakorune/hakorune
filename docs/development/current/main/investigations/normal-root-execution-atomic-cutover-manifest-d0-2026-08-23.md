@@ -2115,11 +2115,25 @@ tests, and the test fingerprint moved from 606 to 603 warnings
 (`private_interfaces=11`, `dead_code=592`; all non-structural lint categories
 remain zero).
 
+The following If-recipe reject-detail cleanup is landed as `e22d2122e2`:
+
+```text
+e22d2122e2  refactor: retain if recipe reject details
+```
+
+The five producer reject payloads and two cardinality counts become named
+underscore fields, retaining mapper/join/input/correspondence errors and the
+observed counts. If-recipe production and admission ownership are unchanged;
+the intentionally unconstructed future correspondence variant remains. The
+focused `normal_root_execution` suite passes 19 tests, and the test fingerprint
+moved from 603 to 596 warnings (`private_interfaces=11`, `dead_code=585`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 592 `dead_code` warnings are existing disconnected
+visibility. The remaining 585 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
