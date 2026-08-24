@@ -2129,11 +2129,25 @@ focused `normal_root_execution` suite passes 19 tests, and the test fingerprint
 moved from 603 to 596 warnings (`private_interfaces=11`, `dead_code=585`; all
 non-structural lint categories remain zero).
 
+The following completion-consumption probe cleanup is landed as `ac7e5255d7`:
+
+```text
+ac7e5255d7  refactor: trim completion consumption probes
+```
+
+Four caller-zero helpers are removed: explicit-unit inspection, test-only unit
+and implicit-void constructors, and an unused consumer-side implicit-void
+probe. The semantic Completion `is_implicit_void` route and physical claim
+consumption remain unchanged. The focused `normal_root_execution` suite passes
+19 tests, and the test fingerprint moved from 596 to 592 warnings
+(`private_interfaces=11`, `dead_code=581`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 585 `dead_code` warnings are existing disconnected
+visibility. The remaining 581 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
