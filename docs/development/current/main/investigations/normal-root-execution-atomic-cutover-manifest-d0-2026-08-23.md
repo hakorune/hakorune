@@ -2019,11 +2019,24 @@ test fingerprint moved from 627 to 626 warnings
 (`private_interfaces=11`, `dead_code=615`; all non-structural lint categories
 remain zero).
 
+The following DraftSeal projection-facade cleanup is landed as `a50ca34379`:
+
+```text
+a50ca34379  refactor: trim draft seal projection facades
+```
+
+The disconnected `project_exit` helper and rejection `error/discard`
+adapters are removed; the typed projection error and move-only rejection
+object remain owned by the existing DraftSeal flow. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 626 to 624 warnings (`private_interfaces=11`, `dead_code=613`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 615 `dead_code` warnings are existing disconnected
+visibility. The remaining 613 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
