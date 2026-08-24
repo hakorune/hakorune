@@ -2386,3 +2386,23 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 526 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following normal-callable semantic-package rejection-evidence cleanup is
+landed as `b5e3067fdb`:
+
+```text
+b5e3067fdb  refactor: retain semantic package rejection evidence
+```
+
+The package-level issue keeps each typed source, batch, mapping, contract,
+physical, S6C, and Dynamic cause as named underscore evidence. Dynamic batch
+slot and issue data remain retained, and the existing resolver/physical-header
+tests now match the named variants. No issue is flattened, reclassified, or
+removed. The focused `normal_root_execution` suite passes 19 tests, and the
+test fingerprint moved from 537 to 522 warnings (`private_interfaces=11`,
+`dead_code=511`; all non-structural lint categories remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 511 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
