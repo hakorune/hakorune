@@ -497,7 +497,7 @@ impl ModuleBuilderInvocationSessionV1 {
                             };
                         let work = PreparedProgramRootWorkPlanV1::prepare_with_script_root_admission_and_constructor_sources(
                             lowering_statements,
-                            expansion.is_app_mode(),
+                            preflight_is_app_mode,
                             ProgramRootWorkPlanAdmissionV1::SelectedNormal,
                             Some(declarations.selected_source_inventory()),
                             constructor_source_cohort.as_ref(),

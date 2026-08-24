@@ -250,11 +250,21 @@ This park preserves the public API and does not authorize code, fixtures, new
 `Verified*`/`Prepared*`, route switches, fallback changes, or compatibility
 retirement.
 
-The actual MIR/LLVM production singleton remains unselected. The next task is
-to name one real MIR/LLVM responsibility with one non-test caller, one existing
-owner, one exact removable old edge, zero fallback/retry, and one unchanged
-parity/failure/reuse gate. A public AST edge or historical `compile_legacy*`,
-Loop, or Script queue cannot satisfy that contract.
+## Selected bounded cell: NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0
+
+Decision: BoxShape-only cutover; the work plan reuses the existing pre-effect
+`preflight_is_app_mode` transport and drops its later raw-expansion reread.
+Source authority: admitted SourceBacked root mode or explicit Compatibility
+`VerifiedRawRootExpansionV1`; the lifecycle owns their disjoint projection.
+Non-authority: the bool transport itself, work-plan lowering, AST/path/name,
+public AST compatibility, Loop/Script queues, and backend fallback.
+Fail-fast: unchanged terminal rejects remain before the first
+`with_builder...` effect; no new receipt or route. Caller:
+`NormalDefaultPublishedPipelineV1::compile` -> root/catalog lifecycle.
+Old-edge delete: the single `expansion.is_app_mode()` work-plan selector;
+fallback/retry = 0. Guarded by the selected `preflight_is_app_mode` argument,
+the compatibility drift check, and existing root-mode/rejection tests.
+Source files remain below 760/800 lines.
 
 Guard classification at the 2026-08-25 docs boundary:
 
@@ -262,6 +272,9 @@ Guard classification at the 2026-08-25 docs boundary:
 - `mirbuilder_inplace_replacement_guard.sh` reports
   `raw Loop callers must share one JoinIR route/freeze owner` identically in
   the edited tree and clean parent `7ff31ac304`.
+- The lifecycle focused command is a parent-baseline red at `435d4fbf2f` (6
+  passed, 4 existing failures); the I0 diff adds no new failure names and is
+  not used to waive that debt.
 - That red is known baseline debt, not current-change failure, D0 acceptance,
   or permission to reopen Loop.
 
@@ -323,7 +336,7 @@ RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
   state: closed; runtime Program(JSON v0) admission rejects before Builder
 
 SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001
-  state: active; Complete fixture set may only grow; every Deferred reason is typed
+  state: Parked; Compatibility origin lacks a canonical replacement owner
 
 STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001
   state: closed
@@ -337,14 +350,13 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
-  -> public AST compatibility is ParkedSealed; identify the next actual
-     MIR/LLVM production singleton (design-only until its tuple closes)
+ NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0
+  -> reuse the lifecycle pre-effect mode projection at work-plan selection;
+     public AST compatibility remains ParkedSealed
 
-Next (conditional; not selected)
-  -> exactly one bounded replacement cell named by D0
-  -> focused positive + negative + reusable guard + owner docs
-  -> same-series selected old-edge deletion; fallback/retry stays zero
+Next (after I0; not selected)
+  -> close the baseline classification, then census the next production family
+  -> require one caller/owner/delete tuple, focused gates, and zero fallback/retry
 
 After the selected default-ingress cutover
   1. MIR-CALL-LEGACY-TARGET-RETIREMENT-D0/R0

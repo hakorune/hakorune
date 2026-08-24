@@ -1,28 +1,26 @@
 status = """
-Normal-root T0/C0/R0 is closed. The finite post-C0 ingress census is recorded:
-MIR/LLVM SourceBacked already reaches the canonical consumer, while public
-compile_with_source* has zero non-test callers and is now explicitly
-ParkedSealed as a whole-file AST Compatibility adapter. The next actual
-MIR/LLVM production singleton is still unselected; no implementation row is
-authorized."""
+Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
+ParkedSealed whole-file AST Compatibility adapter. The bounded next edge is
+selected: NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0 removes one
+post-effect mode re-read and reuses the pre-effect root-mode projection; no
+new semantic receipt or route is introduced."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0"
-current_design_stop = "Public AST Compatibility is ParkedSealed; do not implement until a separate MIR/LLVM caller family has exactly one reachable production caller, one existing replacement owner, one exact removable old edge, and an unchanged parity gate before ModuleBuilderInvocationSessionV1::open / the first Builder effect."
-current_blocker_token = "NoSafeSlice for implementation: SourceBacked is already canonical and public compile_with_source* is a retained compatibility adapter with old-edge delete set empty; do not issue new Verified*/Prepared*, retire the API, or alter fallback/retry."
+work_mode = "fast"
+current_execution_row = "NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0"
+current_design_stop = "Selected BoxShape is closed: reuse the lifecycle's pre-effect mode projection at work-plan selection and delete only the later expansion.is_app_mode selector; return to design_stop if owner, edge, or parity drifts."
+current_blocker_token = "Fast cell: caller=NormalDefaultPublishedPipelineV1::compile, owner=NormalDefaultRootCatalogLifecycle pre-effect mode projection, delete=edge expansion.is_app_mode at work-plan selection, fallback/retry=0; no new Verified*/Prepared* or route."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — post-root default ingress authority"
 active_lane_status = """
-Current: the finite ingress census is recorded; public AST-only Compatibility
-is ParkedSealed and remains on its existing owner/edge.
-Exit: name one separate MIR/LLVM production caller, existing owner, exact
-old edge, and unchanged gate. Until then this is NoSafeSlice and code is
-forbidden."""
+Current: one bounded BoxShape cell is selected; public AST Compatibility
+remains ParkedSealed outside the production cutover.
+Exit: same caller remains, the selected old edge is zero, parity/failure/reuse
+evidence is green, and source/check files remain below 760/800 lines."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -34,9 +32,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "The post-root task-order audit is closed and public AST Compatibility is ParkedSealed as a retained adapter. MIR/LLVM SourceBacked is already canonical; the next actual production singleton is unselected and implementation remains blocked by NoSafeSlice."
-next_design_card = "NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0"
-next_execution_card = "none until NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0 accepts exactly one bounded replacement cell"
+latest_card_summary = "Public AST Compatibility is ParkedSealed. NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0 is the selected BoxShape cell: one post-effect mode re-read is removed using the existing preflight projection."
+next_design_card = "NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0"
+next_execution_card = "NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

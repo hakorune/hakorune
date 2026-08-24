@@ -321,6 +321,12 @@ fi
 expect_fixed_count 2 \
   "VerifiedRawRootExpansionV1::from_program" \
   "$LIFECYCLE" "only the two explicit compatibility projections may retain raw expansion"
+expect_fixed_count 2 \
+  "expansion.is_app_mode()" \
+  "$LIFECYCLE" "raw expansion mode reads must stay limited to compatibility preflight and drift check"
+expect_fixed_count 1 \
+  "                            preflight_is_app_mode," \
+  "$LIFECYCLE" "selected work-plan mode must reuse the pre-effect projection"
 expect_fixed_count 1 \
   "[mir/main-expansion/compatibility-preflight]" \
   "$LIFECYCLE" "compatibility preflight marker is missing"
