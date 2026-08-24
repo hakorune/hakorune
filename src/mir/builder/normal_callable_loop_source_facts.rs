@@ -345,7 +345,6 @@ pub(in crate::mir::builder) struct CallableLoopReadyStructuralViewV1<'view> {
     pre_effect: &'view CallableSemanticLoopHandoffPreEffectReceiptV1,
     outcome: &'view PlanBuildOutcome,
     selection: &'view RecipeFirstRouteSelectionV1,
-    selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
     port: CallableLoopSourceBoundStructuralPortV1<'view>,
 }
 
@@ -371,10 +370,6 @@ impl CallableLoopReadyStructuralViewV1<'_> {
 
     pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
         self.selection
-    }
-
-    pub(in crate::mir::builder) fn selected(&self) -> &VerifiedLocatedGenericLoopV1SelectionV1 {
-        self.selected
     }
 
     pub(in crate::mir::builder) fn structural_port(
@@ -420,7 +415,6 @@ impl<'source> PreparedCallableLoopStructuralHandoffV1<'source> {
             pre_effect: &receipt.pre_effect,
             outcome: &receipt.outcome,
             selection: &receipt.selection,
-            selected: &receipt.selected,
             port: CallableLoopSourceBoundStructuralPortV1::from_seed(&seed),
         };
         use_view(view)
