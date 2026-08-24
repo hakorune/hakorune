@@ -1141,3 +1141,18 @@ manifest/error products. The focused `normal_root_execution` suite passes 19
 tests, all five reusable guards remain green, and the test fingerprint moved
 from 834 to 831 warnings (`private_interfaces=99`, `private_bounds=6`; all
 non-structural lint categories remain zero).
+
+The following dynamic source-target visibility slice is landed as
+`e9c7386848`:
+
+```text
+e9c7386848  refactor: narrow dynamic source target visibility
+```
+
+The dynamic-member issue/reject products and their three source-call entry
+points are consumed only inside `crate::mir`; their visibility and re-export
+boundary now match that owner without changing source relations or catalog
+behavior. The focused `normal_root_execution` suite passes 19 tests, all five
+reusable guards remain green, and the test fingerprint moved from 831 to 827
+warnings (`private_interfaces=95`, `private_bounds=6`; non-structural lint
+categories remain zero).
