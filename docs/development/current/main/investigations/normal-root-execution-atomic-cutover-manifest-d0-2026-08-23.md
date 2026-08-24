@@ -660,3 +660,16 @@ those modules are private-interface and dead-code observations and remain a
 separate bounded family. `raw_root_environment_install` is green with 6
 passed tests, all five reusable guards remain green, and the test fingerprint
 moved from 1040 to 1034 warnings.
+
+The next import-only R0 slice is landed as `4ddea83a17`:
+
+```text
+4ddea83a17  refactor: prune script physical exit imports
+```
+
+It retires the caller-zero `CompletedScriptBodyCompletionV1` and detached
+direct-static helper reexports from the Script physical-exit module. The
+direct-static kernel and its local tests remain intact; `script_physical_exit`
+passes all 9 focused tests, all five reusable guards remain green, and the
+test fingerprint moved from 1034 to 1032 warnings with zero warning records in
+the touched module.
