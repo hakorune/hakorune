@@ -11,6 +11,9 @@ JSON="$ROOT_DIR/src/runner/json_v0_bridge/core.rs"
 EXEC="$ROOT_DIR/src/runner/modes/common_util/exec.rs"
 CALL_OPS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/expr/call_ops.rs"
 METHODS="$ROOT_DIR/src/mir/instruction/methods.rs"
+MIR_V0_CALL="$ROOT_DIR/src/runner/mir_json_v0/call.rs"
+MIR_V0_CATALOG="$ROOT_DIR/src/runner/mir_json_v0/catalog.rs"
+MIR_V0_MODULE="$ROOT_DIR/src/runner/mir_json_v0/module.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -23,7 +26,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$EXEC" "$CALL_OPS" "$METHODS"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$EXEC" "$CALL_OPS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -36,6 +39,16 @@ require "$LLVM" "boundary_executor::BoundaryExecutorBox::try_execute_selected_dy
 require "$JSON" "CallsiteCanonicalizeScheduleSite::ProgramJsonV0Bridge"
 require "$EXEC" "project_module_to_legacy_calls"
 require "$METHODS" "pub(crate) fn call("
+require "$MIR_V0_CALL" "enum JsonV0CallInput"
+require "$MIR_V0_CALL" "struct JsonV0CallInputError"
+require "$MIR_V0_CALL" "MirInstruction::call("
+require "$MIR_V0_CATALOG" "JsonV0FunctionCatalog"
+require "$MIR_V0_CATALOG" "ConstValue::String"
+require "$MIR_V0_MODULE" "JsonV0FunctionCatalog::from_function"
+
+if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
+  fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
+fi
 
 python3 - "$LLVM" "$ROOT_DIR" <<'PY'
 from pathlib import Path

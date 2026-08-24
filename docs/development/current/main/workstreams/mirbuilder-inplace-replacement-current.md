@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast implementation
+Status: Active workstream — design stop
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-current decision  = MIR-CALL-JSONV0-INPUT-STATE-I0
-implementation    = D1 and Topology-I0 closed; R2 input state is next
-mode              = fast
-production stop   = before MirInstruction::Call publication
-exit              = owner-private input state/catalog; no Call(callee=None) publication
+current decision  = MIR-CALL-JSONV0-PROGRAM-CATALOG-D0
+implementation    = R1, D1, Topology-I0, and R2-I0 closed; R3 design stop
+mode              = design_stop
+production stop   = before Program-v0 Call publication
+exit              = accepted six-line brief; no Program-v0 code or late resolver removal yet
 fallback / retry  = 0
 ```
 
@@ -227,6 +227,10 @@ block publication; `boxcall`, `externcall`, historical terminals excluded.
 Topology-I0 closed: root 165, child 599, call 198; facade/API, block publication,
 ownership witness, and post-loop canonicalizer order are unchanged. MIR-v0 tests
 13/13, rustfmt/diff/pointer/Call guards are green; 433 warnings remain baseline.
+R2-I0 closed: owner-private input state and function-local direct Const(String)
+catalog now resolve before publication; MIR-v0 tests 26/26 and the shared guard
+are green. The broader emit census remains red only at the recorded cohort-missing
+baseline; it is outside this Call ingress slice.
 
 ## Ordered MIR Call retirement series
 
@@ -236,7 +240,7 @@ ownership witness, and post-loop canonicalizer order are unchanged. MIR-v0 tests
 3. Topology-I0: move the 755-line loader loop behind a thin facade; behavior
    and existing canonicalizer order stay unchanged (closed).
 4. R2-I0: `call.rs` parses total state, resolves once, and publishes no
-   `Call(callee=None)` or partial block.
+   `Call(callee=None)` or partial block (closed).
 5. R3a/R3b: pre-core Program JSON-v0 catalog/resolution; delete target Const,
    `maybe_resolve_calls`, and all remaining missing-target edges.
 6. R4: one `Callee` operand/remap projection; migrate semantic consumers before
@@ -246,9 +250,16 @@ ownership witness, and post-loop canonicalizer order are unchanged. MIR-v0 tests
 8. R6: atomic `Call { callee: Callee }` cutover; remove dummy `func` payloads.
 9. R7: structural guards, README/reference sync, and census closeout.
 
-R2-I0 is selected as the next fast row. R6 remains `CutoverBlockerOpen` until the catalog,
-ingress, operand, and selected-terminal rows are green; historical routes do
-not count as canonical production acceptance.
+R3 D0 six-line brief (`NoSafeSlice`):
+Decision: defer Program-v0 implementation until import scope, plain-name policy,
+pre-effect target order, and Program-bridge site isolation are co-sealed.
+Source authority + canonical issuer: Program defs/import facts + source call name/arity
+-> immutable catalog -> generic lowerer -> `MirInstruction::call`.
+Non-authority: `func_map`, `maybe_resolve_calls`, target Const, late pass, merge scan,
+optimizer/backend/runtime lookup. Fail-fast boundary: catalog before main/defs lowering,
+then target before argument effects and block publication. Smallest next slice: accept
+the boundary, then R3a one generic producer family. Non-claims: no code, core cutover,
+VM/JSON terminal, operand SSOT, or PyVM/reference/Python re-entry. R6 remains blocked.
 
 ## Production invariants
 ```text

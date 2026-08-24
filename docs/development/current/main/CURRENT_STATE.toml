@@ -2,27 +2,28 @@ status = """
 Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
 ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
-and owner-private JSON-v0 input state as compatibility ingress. R1, D1, and
-Topology-I0 are closed; the next bounded slice is R2 input-state resolution."""
+and owner-private JSON-v0 input state as compatibility ingress. R1, D1,
+Topology-I0, and R2-I0 are closed; R3 Program-v0 catalog design is a
+NoSafeSlice until its source boundary is co-sealed."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-JSONV0-INPUT-STATE-I0"
-current_design_stop = "D1 accepted: direct MIR-v0 uses an immutable function-local Const(String) catalog with exact Global projection; PyVM/reference/Python are boundary-outside ParkedSealed."
-current_blocker_token = "Fast row: introduce owner-private MIR-v0 call input state and a function-local exact Const(String) catalog; resolve before block publication, reject malformed/ambiguous/missing targets, and publish no Call(callee=None). No Program-v0 or core field cutover in this slice."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-JSONV0-PROGRAM-CATALOG-D0"
+current_design_stop = "R3 NoSafeSlice: Program-v0 import catalog scope, plain-name policy, pre-effect target resolution, and ProgramJsonV0Bridge late-target site isolation are not co-sealed; PyVM/reference/Python remain boundary-outside ParkedSealed."
+current_blocker_token = "Design stop: produce the six-line R3 brief naming Program source authority/canonical issuer, non-authority, fail-fast boundary, smallest bounded slice, and non-claims. Do not edit Program-v0 code until import scope, unknown Global policy, ambiguity policy, and bridge route policy are accepted."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — canonical MIR Call target retirement"
 active_lane_status = """
-Current: MIR Call R1, legacy-target-catalog D1, and the path-preserving
-MIR-v0 loader topology split are closed; the selected fast row is R2 input
-state/catalog resolution. Core field deletion remains blocked by ingress,
-operand, and selected-terminal closure.
-Exit: total owner-private input state, exact function-local resolution before
-publication, typed reject on invalid legacy evidence, and no retry/fallback."""
+Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
+topology, and R2 input-state/catalog resolution are closed. R3 Program-v0
+catalog design is a NoSafeSlice; core field deletion remains blocked by
+Program ingress, operand, and selected-terminal closure.
+Exit: accepted R3 authority/import/ambiguity/fail-fast brief, then one bounded
+Program producer edge with no retry/fallback."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -34,9 +35,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, and Topology-I0 are closed; direct MIR-v0 catalog policy is exact Const(String)->Global, while PyVM/reference/Python remain boundary-outside ParkedSealed."
-next_design_card = "MIR-CALL-JSONV0-INPUT-STATE-I0"
-next_execution_card = "MIR-CALL-JSONV0-INPUT-STATE-I0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, and R2-I0 are closed; R3 Program-v0 catalog design is NoSafeSlice, direct MIR-v0 policy is exact Const(String)->Global, and PyVM/reference/Python remain boundary-outside ParkedSealed."
+next_design_card = "MIR-CALL-JSONV0-PROGRAM-CATALOG-D0"
+next_execution_card = "none — design stop until R3 source boundary is accepted"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -49,7 +50,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-25: MIR-CALL-JSONV0-INPUT-STATE-I0 closed owner-private input state and exact function-local Const(String) resolution; focused tests 26/26, format/pointer/Call guards green; broad emit red is the recorded cohort-missing baseline.",
   "2026-08-25: MIR-CALL-JSONV0-QUALIFIED-PRODUCER-I0-R0 closed two exact Program JSON-v0 missing-callee edges; focused tests 2/2, legacy resolver tests 7/7, Call/pointer guards green.",
   "2026-08-25: NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0 landed as c152f9f883; the existing pre-effect root-mode projection now owns work-plan mode selection.",
-  "2026-08-24: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0 landed as b0a9e849eb with Exhausted(14), CutoverBlockerOpen=0, ParkedSealed=2, and Unclassified=0.",
 ]

@@ -5,6 +5,8 @@ use serde_json::Value;
 mod array_write;
 #[path = "mir_json_v0/call.rs"]
 mod call;
+#[path = "mir_json_v0/catalog.rs"]
+mod catalog;
 #[path = "mir_json_v0/checked_callout.rs"]
 mod checked_callout;
 #[path = "mir_json_v0/module.rs"]

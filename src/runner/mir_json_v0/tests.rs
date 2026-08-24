@@ -1,6 +1,13 @@
 use super::parse_mir_v0_to_module;
 use crate::mir::{BasicBlockId, Callee, Effect, MirInstruction, ValueId};
 
+fn single_block_json(instructions: &str) -> String {
+    format!(
+        r#"{{"functions":[{{"name":"main","blocks":[{{"id":0,"instructions":[{}]}}]}}]}}"#,
+        instructions
+    )
+}
+
 fn ownership_json(value_types: &str, storage_classes: &str) -> String {
     format!(
         r#"{{
@@ -363,6 +370,198 @@ fn parse_params_rejects_duplicate_ids() {
     let err = parse_mir_v0_to_module(json).expect_err("must reject duplicated params");
     assert!(
         err.contains("params contains duplicate"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn parse_legacy_func_resolves_exact_local_string_const() {
+    let json = single_block_json(
+        r#"
+          {"op":"const","dst":9,"value":{"type":"string","value":"target"}},
+          {"op":"call","func":9,"args":[]},
+          {"op":"ret"}
+        "#,
+    );
+    let module = parse_mir_v0_to_module(&json).expect("legacy func must resolve");
+    let instructions = &module
+        .get_function("main")
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .instructions;
+    assert!(matches!(
+        &instructions[1],
+        MirInstruction::Call {
+            func,
+            callee: Some(Callee::Global(name)),
+            ..
+        } if *func == ValueId::INVALID && name == "target"
+    ));
+}
+
+#[test]
+fn parse_legacy_func_resolves_const_from_later_block() {
+    let json = r#"{
+      "functions":[{"name":"main","blocks":[
+        {"id":0,"instructions":[{"op":"call","func":9,"args":[]}]},
+        {"id":1,"instructions":[{"op":"const","dst":9,"value":{"type":"string","value":"later"}}]}
+      ]}]
+    }"#;
+    let module = parse_mir_v0_to_module(json).expect("catalog must cover all blocks");
+    let instructions = &module
+        .get_function("main")
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .instructions;
+    assert!(matches!(
+        &instructions[0],
+        MirInstruction::Call {
+            callee: Some(Callee::Global(name)),
+            ..
+        } if name == "later"
+    ));
+}
+
+#[test]
+fn parse_nested_legacy_mir_call_uses_same_catalog_and_outer_dst() {
+    let json = single_block_json(
+        r#"{"op":"const","dst":9,"value":{"type":"string","value":"nested"}}, {"op":"mir_call","dst":4,"mir_call":{"func":9,"args":[],"effects":[]}}"#,
+    );
+    let module = parse_mir_v0_to_module(&json).expect("nested legacy call must resolve");
+    let instructions = &module
+        .get_function("main")
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .instructions;
+    assert!(matches!(
+        &instructions[1],
+        MirInstruction::Call {
+            dst: Some(dst),
+            callee: Some(Callee::Global(name)),
+            ..
+        } if *dst == ValueId::new(4) && name == "nested"
+    ));
+}
+
+#[test]
+fn parse_explicit_callee_ignores_legacy_decoration() {
+    let json = single_block_json(
+        r#"{"op":"call","callee":{"type":"Global","name":"exact"},"name":7,"func":"ignored","args":[]}"#,
+    );
+    let module = parse_mir_v0_to_module(&json).expect("explicit callee is authoritative");
+    let instructions = &module
+        .get_function("main")
+        .unwrap()
+        .get_block(BasicBlockId::new(0))
+        .unwrap()
+        .instructions;
+    assert!(matches!(
+        &instructions[0],
+        MirInstruction::Call {
+            func,
+            callee: Some(Callee::Global(name)),
+            ..
+        } if *func == ValueId::INVALID && name == "exact"
+    ));
+}
+
+#[test]
+fn parse_call_rejects_missing_target_before_publication() {
+    let json = single_block_json(r#"{"op":"call","args":[]}"#);
+    let err = parse_mir_v0_to_module(&json).expect_err("missing target must reject");
+    assert!(
+        err.contains("call missing target"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn parse_call_rejects_malformed_explicit_without_legacy_fallback() {
+    let json = single_block_json(r#"{"op":"call","callee":null,"name":"fallback","args":[]}"#);
+    let err = parse_mir_v0_to_module(&json).expect_err("malformed explicit target must reject");
+    assert!(
+        err.contains("callee must be an object"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn parse_call_rejects_conflicting_legacy_name_and_func() {
+    let json = single_block_json(r#"{"op":"call","name":"target","func":9,"args":[]}"#);
+    let err = parse_mir_v0_to_module(&json).expect_err("conflicting legacy sources must reject");
+    assert!(
+        err.contains("name and func cannot both"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn parse_call_rejects_undefined_legacy_func() {
+    let json = single_block_json(r#"{"op":"call","func":9,"args":[]}"#);
+    let err = parse_mir_v0_to_module(&json).expect_err("undefined legacy func must reject");
+    assert!(
+        err.contains("no function-local Const(String)"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn parse_call_rejects_invalid_legacy_func_value_id() {
+    let json = single_block_json(r#"{"op":"call","func":4294967295,"args":[]}"#);
+    let err = parse_mir_v0_to_module(&json).expect_err("invalid legacy func must reject");
+    assert!(err.contains("ValueId::INVALID"), "unexpected error: {err}");
+}
+
+#[test]
+fn parse_call_rejects_non_string_legacy_func() {
+    let json = single_block_json(
+        r#"{"op":"const","dst":9,"value":{"type":"i64","value":7}}, {"op":"call","func":9,"args":[]}"#,
+    );
+    let err = parse_mir_v0_to_module(&json).expect_err("non-string legacy func must reject");
+    assert!(
+        err.contains("not a Const(String)"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn parse_call_rejects_duplicate_const_relation() {
+    let json = single_block_json(
+        r#"{"op":"const","dst":9,"value":{"type":"string","value":"a"}}, {"op":"const","dst":9,"value":{"type":"string","value":"b"}}, {"op":"call","func":9,"args":[]}"#,
+    );
+    let err = parse_mir_v0_to_module(&json).expect_err("duplicate relation must reject");
+    assert!(
+        err.contains("multiple Const definitions"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn parse_call_rejects_foreign_function_const_relation() {
+    let json = r#"{
+      "functions":[
+        {"name":"main","blocks":[{"id":0,"instructions":[{"op":"call","func":9,"args":[]}]}]},
+        {"name":"other","blocks":[{"id":0,"instructions":[{"op":"const","dst":9,"value":{"type":"string","value":"foreign"}}]}]}
+      ]
+    }"#;
+    let err = parse_mir_v0_to_module(json).expect_err("foreign relation must reject");
+    assert!(
+        err.contains("no function-local Const(String)"),
+        "unexpected error: {err}"
+    );
+}
+
+#[test]
+fn parse_call_rejects_explicit_alias_conflict() {
+    let json = single_block_json(
+        r#"{"op":"call","callee":{"type":"Method","method":"length","name":"size"},"args":[]}"#,
+    );
+    let err = parse_mir_v0_to_module(&json).expect_err("callee aliases must agree");
+    assert!(
+        err.contains("method and name conflict"),
         "unexpected error: {err}"
     );
 }
