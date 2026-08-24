@@ -18,8 +18,8 @@ use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1
 #[derive(Debug)]
 pub(super) struct ScriptSemanticLoweringState {
     projection: VerifiedScriptLoweringProjectionV1,
-    continuation: VerifiedScriptSourceContinuationV1,
-    direct_static_products: ScriptDirectStaticLoweringProductsV1,
+    _continuation: VerifiedScriptSourceContinuationV1,
+    _direct_static_products: ScriptDirectStaticLoweringProductsV1,
     direct_static_claim_ledger: direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1,
     variable_values: BTreeMap<BindingRefV1, ValueId>,
     materialized_outboxes: BTreeSet<SourceNodeSiteV1>,
@@ -37,10 +37,7 @@ enum ScriptDirectStaticLoweringProductsV1 {
 impl ScriptSemanticLoweringState {
     pub(super) fn new(input: VerifiedScriptSemanticLoweringInputV1) -> Result<Self, String> {
         let (projection, continuation, direct_static_claim_input) = input.into_parts();
-        let (
-            direct_static_products,
-            direct_static_claim_ledger,
-        ) = match direct_static_claim_input {
+        let (direct_static_products, direct_static_claim_ledger) = match direct_static_claim_input {
             ScriptDirectStaticClaimInputV1::CompleteNoDirectStaticClaims(witness) => (
                 ScriptDirectStaticLoweringProductsV1::CompleteNoDirect,
                 direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1::complete_no_direct(
@@ -48,8 +45,7 @@ impl ScriptSemanticLoweringState {
                 ),
             ),
             ScriptDirectStaticClaimInputV1::DirectStaticClaims(products) => {
-                let (bundle, publication_owner, recipe, handoff, proof) =
-                    products.into_parts();
+                let (bundle, publication_owner, recipe, handoff, proof) = products.into_parts();
                 let ledger =
                     direct_static_claim_ledger::ScriptDirectStaticClaimLedgerV1::issue_direct(
                         bundle, handoff, proof,
@@ -68,8 +64,8 @@ impl ScriptSemanticLoweringState {
         };
         Ok(Self {
             projection,
-            continuation,
-            direct_static_products,
+            _continuation: continuation,
+            _direct_static_products: direct_static_products,
             direct_static_claim_ledger,
             variable_values: BTreeMap::new(),
             materialized_outboxes: BTreeSet::new(),
@@ -78,10 +74,6 @@ impl ScriptSemanticLoweringState {
 
     fn projection(&self) -> &VerifiedScriptLoweringProjectionV1 {
         &self.projection
-    }
-
-    pub(super) fn source_continuation(&self) -> &VerifiedScriptSourceContinuationV1 {
-        &self.continuation
     }
 
     pub(super) fn lambda_captures(
@@ -157,16 +149,6 @@ impl ScriptSemanticLoweringState {
         self.projection().explicit_extern_symbol_at(site)
     }
 
-    pub(super) fn brand_constructor_disposition(
-        &self,
-        site: &SourceNodeSiteV1,
-    ) -> Result<
-        super::brand_constructor_lowering_projection::BrandConstructorDispositionRefV1<'_>,
-        super::brand_constructor_lowering_projection::BrandConstructorProjectionErrorV1,
-    > {
-        self.projection().brand_constructor_disposition_at(site)
-    }
-
     pub(super) fn take_direct_static_claim(
         &mut self,
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
@@ -181,9 +163,12 @@ impl ScriptSemanticLoweringState {
         site: &crate::mir::resolved_semantics::SourceExprSiteV1,
         validate: impl FnOnce(&VerifiedScriptDirectStaticJoinRowV1) -> Result<(), String>,
     ) -> Result<(), String> {
-        let row = self.direct_static_claim_ledger.peek(site).map_err(|error| {
-            format!("[freeze:contract][script-direct-static/claim-peek] {error:?}")
-        })?;
+        let row = self
+            .direct_static_claim_ledger
+            .peek(site)
+            .map_err(|error| {
+                format!("[freeze:contract][script-direct-static/claim-peek] {error:?}")
+            })?;
         let Some(row) = row else {
             return Err(
                 "[freeze:contract][script-direct-static/claim-site-not-covered]".to_owned(),
@@ -196,9 +181,11 @@ impl ScriptSemanticLoweringState {
         &mut self,
         claimed: direct_static_claim_ledger::ScriptDirectStaticClaimedRowV1,
     ) -> Result<(), String> {
-        self.direct_static_claim_ledger.complete(claimed).map_err(|error| {
-            format!("[freeze:contract][script-direct-static/claim-complete] {error:?}")
-        })
+        self.direct_static_claim_ledger
+            .complete(claimed)
+            .map_err(|error| {
+                format!("[freeze:contract][script-direct-static/claim-complete] {error:?}")
+            })
     }
 
     pub(super) fn finish_direct_static_claims(&mut self) -> Result<(), String> {

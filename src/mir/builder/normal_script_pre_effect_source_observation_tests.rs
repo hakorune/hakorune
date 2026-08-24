@@ -4,8 +4,7 @@ use crate::mir::builder::normal_script_direct_static_lookup::ScriptDirectStaticC
 use crate::mir::builder::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWindowV1;
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ScriptRootResolvedDemandV1,
-    ScriptRootSemanticDispositionV1,
+    FunctionSemanticResolverSessionV1, ScriptRootResolvedDemandV1, ScriptRootSemanticDispositionV1,
 };
 use crate::parser::{NyashParser, ParserBuildConfig};
 
@@ -87,7 +86,7 @@ fn foreign_neutral_window_is_rejected_before_resolver_observation() {
             &facts,
             &mut resolver,
         ),
-        Err(NormalScriptPreEffectSourceObservationIssueV1::IntegrityInvalid(_))
+        Err(NormalScriptPreEffectSourceObservationIssueV1::IntegrityInvalid { .. })
     ));
 }
 
