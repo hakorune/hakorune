@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JSONV0-PROGRAM-CATALOG-I0
-  implementation    = R1, D1, Topology-I0, R2-I0, and R3 D0 closed; R3a active
+  current decision  = MIR-CALL-JSONV0-PROGRAM-LATE-RETIRE-I0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, and R3a closed; R3b active
   mode              = fast
 production stop   = before Program-v0 Call publication
-  exit              = focused R3a evidence, reusable guard, docs, commit/push
+  exit              = focused R3b evidence, reusable guard, docs, commit/push
 fallback / retry  = 0
 ```
 
@@ -232,6 +232,17 @@ catalog now resolve before publication; MIR-v0 tests 26/26 and the shared guard
 are green. The broader emit census remains red only at the recorded cohort-missing
 baseline; it is outside this Call ingress slice.
 
+## Closed bounded cell: MIR-CALL-JSONV0-PROGRAM-CATALOG-I0
+
+`ProgramCallTargetCatalog` is built once from local defs before main/defs lowering.
+Generic `ExprV0::Call` resolves target before argument lowering and emits only the
+thin canonical constructor; target Const and Program `callee=None` issuance are 0.
+Unique short-name/arity, qualified, Extern, unknown Global, ambiguity, duplicate,
+and empty-name cases are covered by 9/9 focused tests; the bridge suite is 22/22.
+The shared Call corridor, pointer, diff, and rustfmt guards are green; 433 warnings
+remain the known baseline. Late `func_map`/`maybe_resolve_calls` and Program-site
+canonicalizer retirement remain R3b, not an R3a claim.
+
 ## Ordered MIR Call retirement series
 
 1. R1: qualified Program JSON-v0 producers (closed).
@@ -241,8 +252,8 @@ baseline; it is outside this Call ingress slice.
    and existing canonicalizer order stay unchanged (closed).
 4. R2-I0: `call.rs` parses total state, resolves once, and publishes no
    `Call(callee=None)` or partial block (closed).
-5. R3a/R3b: pre-core Program JSON-v0 catalog/resolution; delete target Const,
-   `maybe_resolve_calls`, and all remaining missing-target edges.
+5. R3a: pre-core Program JSON-v0 catalog/resolution (closed); R3b deletes target
+   Const authority, `maybe_resolve_calls`, and all remaining Program late edges.
 6. R4: one `Callee` operand/remap projection; migrate semantic consumers before
    field deletion.
 7. R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure

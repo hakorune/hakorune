@@ -3,15 +3,15 @@ Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
 ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
 and owner-private JSON-v0 input state as compatibility ingress. R1, D1,
-Topology-I0, and R2-I0 are closed; R3 D0 is accepted and R3a Program-v0
-catalog implementation is the active bounded row."""
+Topology-I0, R2-I0, and R3a are closed; R3b Program-v0 late-issuer
+retirement is the active bounded row."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "fast"
-current_execution_row = "MIR-CALL-JSONV0-PROGRAM-CATALOG-I0"
-current_design_stop = "R3 D0 accepted: local Program defs and source call name/arity are the generic authority; import aliases stay fenced existing producers; late Program target issuers remain the next R3b row."
-current_blocker_token = "R3a fast row: build one immutable ProgramCallTargetCatalog before main/defs lowering and issue generic ExprV0::Call as canonical Callee before argument effects; no late resolver deletion in this row."
+current_execution_row = "MIR-CALL-JSONV0-PROGRAM-LATE-RETIRE-I0"
+current_design_stop = "R3 D0 accepted: local Program defs and source call name/arity are the generic authority; R3a is closed, and R3b now retires the late Program target issuers and isolates the Program bridge site."
+current_blocker_token = "R3b fast row: remove Program func_map/maybe_resolve_calls authority and prevent ProgramJsonV0Bridge legacy Const-to-target rewrites; preserve non-Program canonicalizer sites and alias producers."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -19,11 +19,11 @@ ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/
 active_lane = "MirBuilder in-place replacement — canonical MIR Call target retirement"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
-topology, R2 input-state/catalog resolution, and R3 D0 are closed. R3a is
-implementing the immutable Program-v0 catalog and the generic canonical Call
-issuer; core field deletion remains blocked by R3b, operand, and selected-
-terminal closure.
-Exit: focused R3a positive/negative evidence, reusable guard, owner docs, and
+topology, R2 input-state/catalog resolution, R3 D0, and R3a are closed. R3b
+is retiring the remaining Program-v0 late target issuers and isolating the
+Program bridge site; core field deletion remains blocked by operand and
+selected-terminal closure.
+Exit: focused R3b positive/negative evidence, reusable guard, owner docs, and
 commit/push with no retry or fallback."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -36,9 +36,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, and R3 D0 are closed; R3a is the active immutable Program-v0 catalog row, and PyVM/reference/Python remain boundary-outside ParkedSealed."
-next_design_card = "MIR-CALL-JSONV0-PROGRAM-LATE-RETIRE-D0"
-next_execution_card = "MIR-CALL-JSONV0-PROGRAM-CATALOG-I0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, and R3a are closed; R3b retires Program late issuers, while PyVM/reference/Python remain boundary-outside ParkedSealed."
+next_design_card = "none — R3b boundary is covered by accepted R3 D0"
+next_execution_card = "MIR-CALL-JSONV0-PROGRAM-LATE-RETIRE-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -51,7 +51,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-25: MIR-CALL-JSONV0-PROGRAM-CATALOG-I0 closed immutable ProgramCallTargetCatalog issuance; qualified/instance bridge 9/9 and bridge suite 22/22, format/diff/pointer/Call guards green; 433 warnings remain baseline.",
   "2026-08-25: MIR-CALL-JSONV0-INPUT-STATE-I0 closed owner-private input state and exact function-local Const(String) resolution; focused tests 26/26, format/pointer/Call guards green; broad emit red is the recorded cohort-missing baseline.",
   "2026-08-25: MIR-CALL-JSONV0-QUALIFIED-PRODUCER-I0-R0 closed two exact Program JSON-v0 missing-callee edges; focused tests 2/2, legacy resolver tests 7/7, Call/pointer guards green.",
-  "2026-08-25: NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0 landed as c152f9f883; the existing pre-effect root-mode projection now owns work-plan mode selection.",
 ]
