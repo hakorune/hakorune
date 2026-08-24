@@ -2563,3 +2563,9 @@ with 19/19 focused tests and all five guards green.
 probes while retaining source owner, row, argument, representation, and
 publication products; warnings are 458→445 (`private_interfaces=11`,
 `dead_code=434`), with 19/19 focused tests and all five guards green.
+
+`7a9819bf71` retains the normal Script brand projection, observed method
+evidence, and typed C-binding loan reject while removing only caller-zero
+accessors/tuple payload probes; warnings are 445→440
+(`private_interfaces=11`, `dead_code=429`), with 19/19 focused tests and all
+five guards green.
