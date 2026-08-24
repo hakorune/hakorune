@@ -291,20 +291,15 @@ mod required_argument_proof;
 mod scalar_operand_recipe;
 
 pub(in crate::mir) use physical_input::{
-    VerifiedScriptDirectStaticPhysicalInputIssueV1,
     VerifiedScriptDirectStaticPhysicalInputRowV1,
     VerifiedScriptDirectStaticPhysicalInputV1,
 };
 pub(in crate::mir) use scalar_operand_recipe::{
     ScalarBinaryOperatorV1, ScalarOperandRecipeArgumentV1,
     ScalarOperandRecipeNodeV1, ScalarUnaryOperatorV1,
-    VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
-    VerifiedScriptDirectStaticScalarOperandRecipeV1,
 };
 pub(in crate::mir::builder) use scalar_operand_recipe::issue_node;
 pub(in crate::mir) use required_argument_proof::{
     RequiredArgumentProofArgumentV1, ScriptDirectStaticRequiredArgumentProofDispositionV1,
-    ScriptDirectStaticRequiredArgumentProofIssueV1,
-    ScriptDirectStaticRequiredArgumentProofRowV1,
     VerifiedScriptDirectStaticRequiredArgumentProofV1,
 };
