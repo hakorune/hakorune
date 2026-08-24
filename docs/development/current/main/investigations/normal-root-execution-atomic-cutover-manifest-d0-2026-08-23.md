@@ -1964,11 +1964,24 @@ row validation and admission ownership are unchanged. The focused
 from 635 to 633 warnings (`private_interfaces=11`, `dead_code=622`; all
 non-structural lint categories remain zero).
 
+The following raw brand-arity evidence cleanup is landed as `6e54cfcfeb`:
+
+```text
+6e54cfcfeb  refactor: retain brand arity source evidence
+```
+
+The arity-mismatch branch retains its exact-source relation as
+`_exact_source`, while the error terminal continues to use only the arity
+fact and no source fallback. The focused `normal_root_execution` suite passes
+19 tests, and the test fingerprint moved from 633 to 632 warnings
+(`private_interfaces=11`, `dead_code=621`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 622 `dead_code` warnings are existing disconnected
+visibility. The remaining 621 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
