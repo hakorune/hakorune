@@ -144,17 +144,15 @@ pub(in crate::mir) use script_physical_exit::{
 };
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
-pub(in crate::mir) use raw_required_condition_draft::RawRequiredConditionDraftV1;
 pub(in crate::mir) use raw_root_environment_install::{
     CompletedRawRootBodyPhysicalV1, InstalledRawRootEnvironmentV1,
-    PreparedRawRootEnvironmentInstallV1, RawRootBodyLoweringErrorV1,
+    RawRootBodyLoweringErrorV1,
     RawRootEnvironmentInstallErrorV1, RawRootEnvironmentInstallOwnerV1,
     RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1,
     RejectedRawRootBodyPhysicalV1, RejectedRawRootEnvironmentInstallV1,
 };
 pub(in crate::mir) use raw_root_physical::callable_main_terminal::{
-    CompletedRawCallableMainPhysicalV1, RawRootPhysicalCallableMainErrorV1,
-    RejectedRawCallableMainPhysicalV1,
+    RawRootPhysicalCallableMainErrorV1,
 };
 pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
 pub(in crate::mir) use raw_root_physical::root_batch_terminal::{
@@ -164,12 +162,12 @@ pub(in crate::mir) use raw_root_physical::RawRootBodyPhysicalErrorV1;
 pub(in crate::mir) use raw_root_physical::RawRootPhysicalStateV1;
 mod raw_root_child_work; // RAW-SOURCE0-LOWER0-ROOT0-CHILDREN0 source-bound helper work
 pub(in crate::mir) use raw_root_child_work::{
-    RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1, RawRootStaticChildWorkV1,
+    RawCallableMainWorkV1, RawRootStaticChildWorkErrorV1,
 };
 mod raw_root_static_child_admission;
 pub(in crate::mir) use entry_materialization::{
     CallableMainMaterializationPolicyV1, CallableMainMaterializationTargetV1,
-    NormalEntryMaterializationSourceReceiptV1, RawEntryMaterializationSourceReceiptV1,
+    NormalEntryMaterializationSourceReceiptV1,
 };
 pub(in crate::mir) use normal_root_execution::{
     AdmittedNormalRootExecutionModeV1, ConsumedNormalRootCallableSourceV1,
@@ -178,7 +176,7 @@ pub(in crate::mir) use normal_root_execution::{
 pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
 pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
 pub(in crate::mir) use raw_source_projection::{
-    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawRootProjectionPartsV1, RawSourceLocatorV1,
+    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1,
     RawSourceOriginV1, RawSourceProjectionErrorV1,
 };
 #[allow(dead_code)]
@@ -247,7 +245,6 @@ pub(in crate::mir) use module_invocation_brand0::{
     InvocationPhysicalStateV1, RejectedCanonicalPhysicalCollectionV1,
 };
 pub(in crate::mir) use module_invocation_owner_chain::InvocationBranded;
-pub(in crate::mir) use module_lowering_invocation::ModuleLoweringPortChildErrorV1;
 pub(in crate::mir) use module_lowering_shell::ModuleLoweringShellErrorV1;
 #[cfg(test)]
 pub(in crate::mir) use normal_module_transaction::completed_for_main_physical;
@@ -268,14 +265,14 @@ pub(in crate::mir) use raw_root_physical::drain_terminal::{
     RejectedRawPhysicalDrainV1,
 };
 pub(in crate::mir) use raw_root_physical::finalization_terminal::{
-    PreparedRawDrainedPhysicalFinalizationV1, RawFinalizationParitySealV1, RawFinalizedPhysicalV1,
+    RawFinalizationParitySealV1, RawFinalizedPhysicalV1,
     RawPhysicalFinalizationErrorV1 as RawRootPhysicalFinalizationErrorV1,
     RejectedRawPhysicalFinalizationV1,
 };
 pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
     RawExternalCommitModuleV1, RawExternalCommitPhysicalErrorV1,
     RawExternalCommitPhysicalHandoffV1, RawPostprocessCarrierParityErrorV1,
-    RawPostprocessModuleLoanV1, RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1,
+    RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1,
     RawPostprocessProgressV1, RawPostprocessedPhysicalV1,
 };
 mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
@@ -292,7 +289,6 @@ pub(in crate::mir::builder) use module_invocation_session::UnpublishedCallableLo
 pub(in crate::mir) use module_invocation_session::{
     BuilderCommitReadinessErrorV1, BuilderInvocationConfigV1, ModuleBuilderInvocationSessionV1,
     PreparedBuilderExternalCommitV1, PreparedBuilderModuleSessionV1,
-    RejectedPreparedBuilderModuleSessionV1,
 };
 #[cfg(test)]
 mod module_invocation_session_p0; // CUT0-I0-SESSION0 fixtures
@@ -325,8 +321,7 @@ mod normal_script_source_continuation_tests;
 mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_program_root::PreparedNormalDefaultProgramRootV1;
 pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
-    CompletedNormalDefaultRootCatalogLifecycleV1, NormalDefaultRootCatalogLifecycleErrorV1,
-    NormalDefaultRootCatalogLifecycleStageV1, RejectedNormalDefaultRootCatalogLifecycleV1,
+    NormalDefaultRootCatalogLifecycleStageV1,
 };
 #[allow(dead_code)]
 mod cataloged_box_method_collector_handoff;
@@ -362,7 +357,7 @@ mod nonmain_static_box_method_batch;
 #[allow(dead_code)]
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
 pub(in crate::mir) use raw_expansion_receipt_ledger::{
-    RawCallableMainCompatibilityDispositionV1, SealedRawExpansionReceiptLedgerV1,
+    RawCallableMainCompatibilityDispositionV1,
 };
 #[cfg(test)]
 mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
@@ -374,7 +369,6 @@ mod raw_loop_child_entry; // LOOPBRIDGE0-S0 pure raw Loop child-entry quarantine
 mod raw_loop_child_port; // CALLABLE-LOOP-ORDINARY-BRIDGE-S0 behavior-neutral port boundary
 #[allow(dead_code)]
 mod raw_root_completion; // CUT0-I0-ROOT0-RAW0 retained raw root witness
-pub(in crate::mir) use raw_root_completion::RawInvocationRootWitnessV1;
 #[allow(dead_code)]
 mod raw_root_completion_preflight; // ROOT-RETENTION0-PREFLIGHT borrowed owner checks
 #[cfg(test)]
