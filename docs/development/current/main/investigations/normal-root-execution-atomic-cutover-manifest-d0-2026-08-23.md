@@ -727,3 +727,17 @@ reusable guards remain green, and the test fingerprint moved from 1018 to 1015
 warnings. The two remaining warnings in that module are separate unused
 accessors (`source_owner`/`result_site`/`parent_relations` and `row`), not
 imports.
+
+The next import-only R0 slice is landed as `8e904d8cb8`:
+
+```text
+8e904d8cb8  refactor: prune direct static ledger exports
+```
+
+It retires the two caller-zero direct-static claim-ledger reexports from
+`normal_script_semantic_lowering_state.rs`; the child ledger remains the sole
+owner and its internal module-path uses are unchanged. The focused
+`direct_static_claim_ledger` suite passes 7 tests, all five reusable guards
+remain green, and the test fingerprint moved from 1015 to 1014 warnings.
+The touched file has no remaining unused-import warning records; its separate
+dead-code rows are outside this import-only slice.
