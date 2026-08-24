@@ -1436,3 +1436,18 @@ target behavior changed. The focused `normal_root_execution` suite passes 19
 tests, all five reusable guards remain green, and the test fingerprint moved
 from 762 to 758 warnings (`private_interfaces=32`, `private_bounds=0`;
 non-structural lint categories remain zero).
+
+The following canonical drain-error visibility slice is landed as
+`21c34c6d34`:
+
+```text
+21c34c6d34  refactor: align canonical drain error visibility
+```
+
+The canonical collector and manifest errors are carried by the existing
+compiler-facing drain rejection products, so their enum boundaries now match
+the `crate::mir` owner. No canonical drain validation, rejection, or
+publication behavior changed. The focused `normal_root_execution` suite
+passes 19 tests, all five reusable guards remain green, and the test
+fingerprint moved from 758 to 756 warnings (`private_interfaces=30`,
+`private_bounds=0`; non-structural lint categories remain zero).
