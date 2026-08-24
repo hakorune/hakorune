@@ -1814,11 +1814,24 @@ fingerprint moved from 653 to 652 warnings
 (`private_interfaces=11`, `dead_code=641`; all non-structural lint categories
 remain zero).
 
+The following call-session test-helper cleanup is landed as `7dcf4952a9`:
+
+```text
+7dcf4952a9  refactor: trim unused call test helpers
+```
+
+The unused outer payload-session capture probe and an unused integer fixture
+were removed. The inner parent-capture assertion used by the session terminal
+test remains intact, as does the production session restoration path. The
+focused `normal_root_execution` suite passes 19 tests, and the test fingerprint
+moved from 652 to 650 warnings (`private_interfaces=11`, `dead_code=639`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 641 `dead_code` warnings are existing disconnected
+visibility. The remaining 639 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
