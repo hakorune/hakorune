@@ -31,11 +31,13 @@ pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipePreflightV1
 
 #[derive(Debug)]
 pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipeProducerRejectV1 {
-    Mapper(IfRecipeMapRejectV1),
-    NestedMapper(NestedIfRecipeMapRejectV1),
-    NestedJoin(NestedIfJoinSigRejectReasonV1),
-    PhysicalInput(IfPhysicalInputRejectReasonV1),
-    Correspondence(CanonicalIfRecipeCorrespondenceRejectV1),
+    Mapper { _reason: IfRecipeMapRejectV1 },
+    NestedMapper { _reason: NestedIfRecipeMapRejectV1 },
+    NestedJoin { _reason: NestedIfJoinSigRejectReasonV1 },
+    PhysicalInput { _reason: IfPhysicalInputRejectReasonV1 },
+    Correspondence {
+        _reason: CanonicalIfRecipeCorrespondenceRejectV1,
+    },
 }
 
 #[derive(Debug)]
@@ -53,12 +55,12 @@ pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipeAdmissionRe
     SourceOwnerMismatch,
     MissingIfClaim,
     InvalidIfClaimPath,
-    IfControlCardinality { found: usize },
+    IfControlCardinality { _found: usize },
     IfControlSiteMismatch,
     SelectedIfNotConsumed,
     SelectedIfConsumedTwice,
     UnexpectedIfSite,
-    NestedIfControlCardinality { found: usize },
+    NestedIfControlCardinality { _found: usize },
     NestedIfSiteMismatch,
     NestedIfNodeConsumedTwice,
     NestedIfNodeNotConsumed,
@@ -266,9 +268,9 @@ pub(in crate::mir::builder::resolved_lowering) fn produce_trivial_if_physical_in
             return Ok(CanonicalIfRecipePreflightV1::NotThisShape);
         };
         let artifact = map_nested_trivial_if_recipe_v1(profile, source_function)
-            .map_err(CanonicalIfRecipeProducerRejectV1::NestedMapper)?;
+            .map_err(|_reason| CanonicalIfRecipeProducerRejectV1::NestedMapper { _reason })?;
         let join_sig = NestedIfJoinSigComposerV1::compose(&artifact)
-            .map_err(CanonicalIfRecipeProducerRejectV1::NestedJoin)?;
+            .map_err(|_reason| CanonicalIfRecipeProducerRejectV1::NestedJoin { _reason })?;
         return Ok(CanonicalIfRecipePreflightV1::NestedSelected(
             NestedIfRecipeDemandV1 {
                 _artifact: artifact,
@@ -282,11 +284,11 @@ pub(in crate::mir::builder::resolved_lowering) fn produce_trivial_if_physical_in
         ));
     };
     let correspondence = correspondence_from_facts(facts)
-        .map_err(CanonicalIfRecipeProducerRejectV1::Correspondence)?;
+        .map_err(|_reason| CanonicalIfRecipeProducerRejectV1::Correspondence { _reason })?;
     let artifact = map_trivial_if_recipe_v1(profile, source_function)
-        .map_err(CanonicalIfRecipeProducerRejectV1::Mapper)?;
+        .map_err(|_reason| CanonicalIfRecipeProducerRejectV1::Mapper { _reason })?;
     let physical_input = VerifiedIfPhysicalInputV1::from_artifact(artifact)
-        .map_err(CanonicalIfRecipeProducerRejectV1::PhysicalInput)?;
+        .map_err(|_reason| CanonicalIfRecipeProducerRejectV1::PhysicalInput { _reason })?;
     Ok(CanonicalIfRecipePreflightV1::Selected(
         CanonicalIfPhysicalDemandV1 {
             physical_input,
@@ -339,10 +341,10 @@ pub(in crate::mir::builder::resolved_lowering) fn admit_trivial_if_recipe_v1(
     let expected_site = sites
         .next()
         .cloned()
-        .ok_or(CanonicalIfRecipeAdmissionRejectV1::IfControlCardinality { found: 0 })?;
+        .ok_or(CanonicalIfRecipeAdmissionRejectV1::IfControlCardinality { _found: 0 })?;
     if sites.next().is_some() {
         return Err(CanonicalIfRecipeAdmissionRejectV1::IfControlCardinality {
-            found: if_control.row_count(),
+            _found: if_control.row_count(),
         });
     }
     if !matches!(
@@ -368,15 +370,15 @@ fn admit_nested_if_recipe_v1(
     let outer = sites
         .next()
         .cloned()
-        .ok_or(CanonicalIfRecipeAdmissionRejectV1::NestedIfControlCardinality { found: 0 })?;
+        .ok_or(CanonicalIfRecipeAdmissionRejectV1::NestedIfControlCardinality { _found: 0 })?;
     let inner = sites
         .next()
         .cloned()
-        .ok_or(CanonicalIfRecipeAdmissionRejectV1::NestedIfControlCardinality { found: 1 })?;
+        .ok_or(CanonicalIfRecipeAdmissionRejectV1::NestedIfControlCardinality { _found: 1 })?;
     if sites.next().is_some() {
         return Err(
             CanonicalIfRecipeAdmissionRejectV1::NestedIfControlCardinality {
-                found: if_control.row_count(),
+                _found: if_control.row_count(),
             },
         );
     }
