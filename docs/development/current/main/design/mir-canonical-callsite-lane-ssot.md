@@ -503,15 +503,49 @@ without numeric `func`, plus unchanged v1 output. Negative acceptance is stale
 typed `func` ignored, explicit legacy `None` still emitted, and no change to
 Method(None), root profile, or backend_shape behavior.
 
-JSON profile D1 design stop:
+JSON profile D1 accepted decision:
 
 ```text
-Decision: choose one root/per-call profile authority and a finite typed-v0 compatibility matrix before another emitter change.
-Source authority + canonical issuer: root schema/profile owner selects the wire profile; stored Call.callee remains the semantic issuer.
-Non-authority: func/INVALID, wire strings, backend_shape mutation, post-wire target lookup, and parked PyVM/reference/Python/native_driver.
-Fail-fast boundary: unsupported profile/target combinations reject before JSON publish; no malformed explicit target retries through legacy fields.
-Smallest next slice: MIR-CALL-JSON-PROFILE-D1; census root.rs, calls.rs, helpers.rs, backend_shape.rs, and compatibility loader with positive/negative/parity rows.
-Non-claims: profile implementation, Method(None) retirement, Closure/NewBox, native, or R6 core schema cutover.
+Decision: root selects exactly one JsonEgressProfile; CanonicalV1 is the mainline profile and CompatibilityV0{methodize} is the owner-private legacy profile. Mixed selectors reject.
+Source authority + canonical issuer: root selector parses S/U/M once; stored Call.callee remains the semantic issuer; emitters only project the selected profile.
+Non-authority: func/INVALID except explicit V0 legacy ingress, wire text, independent env reads, backend_shape mutation, post-wire lookup/retry, and parked backends.
+Fail-fast boundary: invalid/mixed selector, targetless Call, and unsupported profile/target combinations reject before root or instruction publication; malformed explicit targets never retry through legacy fields.
+Smallest next slice: MIR-CALL-JSON-PROFILE-I0-R0; thread the immutable profile from root through emitters/mod.rs to calls.rs and remove per-call selector reads.
+Non-claims: backend_shape removal, Method(None) retirement, Closure/NewBox decision, loader fallback split, native, or R6 core schema cutover.
+```
+
+Selector state matrix (`S=NYASH_JSON_SCHEMA_V1`, `U=NYASH_MIR_UNIFIED_CALL`,
+`M=HAKO_MIR_BUILDER_METHODIZE`):
+
+| S | U | M | outcome |
+| --- | --- | --- | --- |
+| Unset/On | Unset/On | valid or ignored | `CanonicalV1` |
+| Unset | Off | valid (`Unset` defaults true) | `CompatibilityV0{methodize}` |
+| Off | Unset/Off | valid (`Unset` defaults true) | `CompatibilityV0{methodize}` |
+| On | Off | any valid | typed reject `mixed_profile` |
+| Off | On | any valid | typed reject `mixed_profile` |
+| Invalid | any | any | typed reject `invalid_selector` |
+| any | Invalid | any | typed reject `invalid_selector` |
+| any | any | Invalid | typed reject `invalid_selector` |
+
+The first row includes `S=Unset,U=Unset`, which is the canonical default. `M`
+is parsed for validity once; it is semantically ignored by `CanonicalV1` and is
+carried only by `CompatibilityV0`. The profile is immutable after selection.
+`backend_shape` remains an explicitly separate compatibility owner and is not
+silently folded into this profile decision.
+
+I0 acceptance:
+
+```text
+positive: one root profile reaches every production Call emitter; CanonicalV1
+         preserves typed mir_call output; CompatibilityV0 preserves v0
+         Global/Extern/Method/Value/Constructor/Closure projections.
+negative: calls.rs/helpers.rs read no selector env; mixed/invalid selectors,
+          targetless production Call, and profile mismatch fail before publish.
+parity: root schema kind, callee, receiver, args, dst, and existing effects
+        projection are unchanged for each accepted profile; backend_shape,
+        loader retry/fallback, Method(None), and construction boundaries stay
+        outside the I0 claim.
 ```
 
 Feedback reconciliation and deferred task queue (not selected):
