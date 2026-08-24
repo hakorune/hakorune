@@ -2314,3 +2314,22 @@ The updated residual warning boundary is explicit: the eleven
 MIR/semantic API authority decision described above, while the remaining 551
 `dead_code` warnings are existing disconnected scaffolding and are not
 mass-deleted in this R0 lane.
+
+The following Raw postprocess owner-progress probe cleanup is landed as
+`1b13730447`:
+
+```text
+1b13730447  refactor: trim raw postprocess progress probe
+```
+
+The owner-side `progress()` accessor was caller-zero and is removed. The
+postprocessed physical progress proof and stage evidence remain unchanged,
+with no authority or handoff change. The focused `normal_root_execution`
+suite passes 19 tests, and the test fingerprint moved from 562 to 561
+warnings (`private_interfaces=11`, `dead_code=550`; all non-structural lint
+categories remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 550 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
