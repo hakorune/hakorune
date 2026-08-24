@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (JoinIR caller/lifecycle boundary D1)
+Status: Active workstream — design stop (JSON backend_shape capability D1)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, and profile threading I0 closed; JoinIR remap D0 is NoSafeSlice
+  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, and profile threading I0 closed; JoinIR D0/R4c and backend_shape D0 are NoSafeSlice
   mode              = design_stop
-  production stop   = before JoinIR caller/lifecycle D1 acceptance, R4c delegation, backend_shape, Method(None)/Closure/Constructor gates, native, and Call core field deletion
-  exit              = finite caller-zero/lifecycle matrix with reopen triggers, or explicit NoSafeSlice; no code edit before D1 acceptance
+  production stop   = before backend_shape capability/authority D1 acceptance; R4c remains NoSafeSlice, and Method(None)/Closure/Constructor gates, native, and Call core field deletion remain outside
+  exit              = one authority/terminal decision with raw extern capability evidence, or explicit NoSafeSlice; no code edit before D1 acceptance
 fallback / retry  = 0
 ```
 
@@ -292,7 +292,7 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c closed (`4c6d9ce9a2`), R4d escape (`4e71066e57`), R4e ownership (`6c957a48c7`), R4f CallLike (`6fc4abbe0f`), and Query T0 (`981ec1d583`) are closed; matrices/guards and the 433-warning baseline are recorded in the owning SSOT. R5c printer closes at `09f0e51143`; JSON egress D0, typed decoration I0, profile D1, and profile-threading I0 (`db350b81c9`) are closed; JoinIR remap D0 is NoSafeSlice and caller/lifecycle D1 is the design stop, with Method(None)/backend_shape/native/R6 outside.
+R4c closed (`4c6d9ce9a2`), R4d escape (`4e71066e57`), R4e ownership (`6c957a48c7`), R4f CallLike (`6fc4abbe0f`), and Query T0 (`981ec1d583`) are closed; matrix/guards + 433 warnings are recorded in SSOT. R5c printer closes at `09f0e51143`; JSON egress D0, typed decoration I0, profile D1, and profile-threading I0 (`db350b81c9`) are closed; JoinIR remap/R4c and backend_shape D0 are NoSafeSlice, with backend capability D1 selected and Method(None)/native/R6 outside.
 
 ## Production invariants
 ```text
@@ -366,11 +366,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1
-  -> classify caller-zero merge reachability and the two lifecycle owners
+ MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY
+  -> choose strict adapter ownership or atomic retirement with raw extern capability evidence
 
 Next (not selected)
-  -> R4c JoinIR delegation only if D1 closes; otherwise retain NoSafeSlice; then backend_shape D0, native D0, and R6 gate
+  -> backend_shape I0 only after D1; then native D0 and R6 gate; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

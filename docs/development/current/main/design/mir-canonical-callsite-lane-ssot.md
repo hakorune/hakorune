@@ -511,7 +511,7 @@ Source authority + canonical issuer: root selector parses S/U/M once; stored Cal
 Non-authority: func/INVALID except explicit V0 legacy ingress, wire text, independent env reads, backend_shape mutation, post-wire lookup/retry, and parked backends.
 Fail-fast boundary: invalid/mixed selector, targetless Call, and unsupported profile/target combinations reject before root or instruction publication; malformed explicit targets never retry through legacy fields.
 Completed slice: MIR-CALL-JSON-PROFILE-I0-R0 landed at `db350b81c9`; the immutable profile is threaded from root through emitters/mod.rs to calls.rs, per-call selector reads are gone, root tests are 2/2, calls tests are 8/8, and the shared guards are green.
-Next design stop: MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1; no R4c, backend_shape, native, or R6 implementation is implied.
+Next design stop: MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY; no R4c, native, or R6 implementation is implied.
 Non-claims: backend_shape removal, Method(None) retirement, Closure/NewBox decision, loader fallback split, native, or R6 core schema cutover.
 ```
 
@@ -625,11 +625,56 @@ D1 finite state matrix:
 | `SharedBoundaryUnresolved` | D1 design owner | `NoSafeSlice` | no partial helper replacement |
 | `TestOrDisconnected` | test/parked owner | `ParkedSealed` | excluded from production claim |
 
+D1 result: the finite census is accepted. The JoinIR merge graph is
+`CallerZero`, the two lifecycle owners remain separate policies, and the
+Callee projection is reusable only as an occurrence helper; no production
+caller or shared lifecycle issuer exists for an R4c switch. R4c is therefore
+closed as `NoSafeSlice` rather than implemented. The next selected design stop
+is `MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY`.
+
+Backend-shape D0 result (`NoSafeSlice`): the bounded audit found both typed
+pre-wire mutation and post-wire JSON mutation, a v0/v1 profile mismatch, and
+silent field/default handling. The selected terminal capability for raw
+`externcall` is not proven, so deleting or moving either normalizer would
+change authority without a safe replacement.
+
+Next design task: `MIR-CALL-JSON-BACKEND-SHAPE-D1-CAPABILITY-AUTHORITY`.
+
+```text
+Decision: choose one authority and one projection boundary for console
+  mapping, or prove an atomic adapter retirement; no backend_shape I0 is
+  admitted while typed and wire mutations coexist.
+Source authority + canonical issuer: typed Callee plus root-owned
+  JsonEgressProfile; backend_shape may be a strict bridge projection only,
+  while selected ny-llvmc capability owns terminal acceptance.
+Non-authority: wire strings, func, backend symbol lookup, post-wire target
+  inference, defaults, extra-field dropping, and parked backend behavior.
+Fail-fast boundary: profile and typed target are fixed before publish; missing
+  or malformed externcall fields reject without default, retry, or fallback.
+Smallest next slice: finite D1 decision between strict adapter maintenance and
+  atomic adapter retirement, including raw externcall capability and exact
+  selected-terminal boundary; implementation remains forbidden until accepted.
+Non-claims: R4c JoinIR, Method(None), Closure/Constructor, R6, C backend edits,
+  native/PyVM/reference/Python/WASM, and warning cleanup.
+```
+
+Backend D1 finite state matrix:
+
+| State | Authority | Terminal | Fallback |
+| --- | --- | --- | --- |
+| `TypedExternConsole` | typed Callee/profile owner | one strict bridge projection or native typed terminal | none |
+| `TypedExternOther` | typed Callee | preserve typed target | no console mapping |
+| `PostWireRecognized` | selected bridge owner | strict typed projection | no second mutation |
+| `PostWireUnknown` | selected terminal capability | reject or preserve by explicit profile | no lookup |
+| `MalformedWire` | JSON/profile validator | typed reject before publish | no default/retry |
+| `RawExternCapabilityUnproven` | D1 authority owner | `NoSafeSlice` | no backend expansion |
+| `DirectMirFirst` | direct route owner | unchanged, out of bridge census | excluded |
+
 Feedback reconciliation and deferred task queue (not selected):
 
 ```text
 R4b status: HEAD already delegates Call used_values to Callee::for_each_value_operand; Value, Method receiver, Closure captures/me, args order, duplicates, and legacy None parity are covered by the shared tests. Escape, value-consumer, ownership, and query now reuse the occurrence projection where their separate policies allow it.
-Remaining duplicate: JoinIrIdRemapper still owns a local Callee match and its collect_values Call arm is incomplete for Value/Closure. D0 census found caller-zero merge reachability and two distinct lifecycle owners; queue MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1, and keep R4c NoSafeSlice until a named JoinIR caller and lifecycle boundary are proven.
+Remaining duplicate: JoinIrIdRemapper still owns a local Callee match and its collect_values Call arm is incomplete for Value/Closure. D0/D1 closed the bounded census as caller-zero plus two distinct lifecycle owners; R4c remains NoSafeSlice with no production switch. Backend-shape D0 is NoSafeSlice; capability/authority D1 is the selected design stop.
 R6 gate: decide MirCall/CallFlags retirement, mandatory Method receiver with static calls as qualified Global, Closure pre-canonical construction versus Callee::Value call, and Constructor/NewBox boundary in one schema decision.
 Post-R7 cleanup: normal-root mode/projection sum, MainObserved naming, identity-based syntax loan, and builder.rs production/compatibility/test barrel census remain separate cleanup rows; PyVM/reference/Python/native_driver remain ParkedSealed.
 ```
