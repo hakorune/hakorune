@@ -2073,11 +2073,25 @@ from 620 to 617 warnings
 (`private_interfaces=11`, `dead_code=606`; all non-structural lint categories
 remain zero).
 
+The following static-lookup error-detail cleanup is landed as `74475c2762`:
+
+```text
+74475c2762  refactor: retain static lookup error details
+```
+
+The five tuple error payloads become named `_detail` fields, preserving their
+diagnostic text while removing unread tuple-field warnings. Lookup admission,
+typed rejection, and publication-owner routing remain unchanged. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 617 to 612 warnings
+(`private_interfaces=11`, `dead_code=601`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 606 `dead_code` warnings are existing disconnected
+visibility. The remaining 601 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
