@@ -86,7 +86,7 @@ pub(in crate::mir::builder) struct PreparedModuleLoweringShellDrainV1 {
 struct ModuleLoweringShellDrainSealV1;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct RecursiveCapabilityInstallReceiptV1 {
+pub(in crate::mir) struct RecursiveCapabilityInstallReceiptV1 {
     brand: ModuleInvocationBrandV1,
     family: ModuleInvocationFamilyV1,
     _seal: RecursiveCapabilityInstallReceiptSealV1,
@@ -96,7 +96,7 @@ pub(in crate::mir::builder) struct RecursiveCapabilityInstallReceiptV1 {
 struct RecursiveCapabilityInstallReceiptSealV1;
 
 #[derive(Debug)]
-pub(in crate::mir::builder) struct AcyclicCapabilityAbsenceWitnessV1 {
+pub(in crate::mir) struct AcyclicCapabilityAbsenceWitnessV1 {
     brand: ModuleInvocationBrandV1,
     family: ModuleInvocationFamilyV1,
     _seal: AcyclicCapabilityAbsenceWitnessSealV1,
