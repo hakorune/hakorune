@@ -56,7 +56,7 @@ enum PreparedParserStaticBoxMemberSourceRowV1 {
         callable_identity: CallableDeclarationIdentityV1,
     },
     Unsupported {
-        site: SourceBoxMemberSiteV1,
+        _site: SourceBoxMemberSiteV1,
         kind: ParserStaticBoxMemberKindV1,
     },
 }
@@ -113,8 +113,9 @@ impl OpenParserStaticBoxSourceTransactionV1 {
             return Err(ParserStaticBoxSourceIssueV1::DirectMethodNeedsRelation);
         }
         let site = self.current_member_site();
-        self.rows
-            .push(PreparedParserStaticBoxMemberSourceRowV1::Unsupported { site, kind });
+        self.rows.push(
+            PreparedParserStaticBoxMemberSourceRowV1::Unsupported { _site: site, kind },
+        );
         self.finish_member()
     }
 
@@ -215,19 +216,15 @@ impl PreparedParserStaticBoxParentSourceV1 {
 
 #[derive(Debug)]
 pub(in crate::parser) struct ParserStaticBoxSourceSealV1 {
-    box_site: SourceBoxDeclarationSiteV1,
+    _box_site: SourceBoxDeclarationSiteV1,
     syntax: ParserStaticBoxDeclarationSyntaxV1,
     member_count: u32,
     member_kinds: Box<[ParserStaticBoxMemberKindV1]>,
-    method_site: SourceBoxMethodSiteV1,
+    _method_site: SourceBoxMethodSiteV1,
     method_identity: CallableDeclarationIdentityV1,
 }
 
 impl ParserStaticBoxSourceSealV1 {
-    pub(in crate::parser) fn box_site(&self) -> &SourceBoxDeclarationSiteV1 {
-        &self.box_site
-    }
-
     pub(in crate::parser) fn declaration_syntax(&self) -> &ParserStaticBoxDeclarationSyntaxV1 {
         &self.syntax
     }
@@ -240,10 +237,6 @@ impl ParserStaticBoxSourceSealV1 {
         &self,
     ) -> impl Iterator<Item = ParserStaticBoxMemberKindV1> + '_ {
         self.member_kinds.iter().copied()
-    }
-
-    pub(in crate::parser) fn method_site(&self) -> &SourceBoxMethodSiteV1 {
-        &self.method_site
     }
 
     pub(in crate::parser) fn method_identity(&self) -> &CallableDeclarationIdentityV1 {
@@ -414,11 +407,11 @@ impl ParserStaticBoxParentSourceAuthorityIssuerV1 {
                     .collect::<Vec<_>>()
                     .into_boxed_slice();
                 ParserStaticBoxParentSourceDispositionV1::Ready(ParserStaticBoxSourceSealV1 {
-                    box_site: prepared.box_site.clone(),
+                    _box_site: prepared.box_site.clone(),
                     syntax: prepared.syntax.clone(),
                     member_count: prepared.member_count,
                     member_kinds,
-                    method_site,
+                    _method_site: method_site,
                     method_identity: method_identity.clone(),
                 })
             }
