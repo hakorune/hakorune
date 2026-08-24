@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (Query policy)
+Status: Active workstream — fast path (Query observer)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-QUERY-POLICY-D0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, and R4f closed; Query policy design stop
-  mode              = design_stop
+  current decision  = MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, and Query D0 closed; Query observer active
+  mode              = fast
   production stop   = before Call core field deletion
-  exit              = finite Query reads/writes matrix, consumer census, fail-fast boundary, and one bounded next slice; no Query code or Call field deletion
+  exit              = canonical Query Call delegation, parity/negative tests, shared guard, and no production I0 claim; no Call field deletion
 fallback / retry  = 0
 ```
 
@@ -266,8 +266,8 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    Call-use rewrite (closed); R4b `used_values` immutable projection and
    methods.rs delegation (closed); R4c `value_consumer` Call membership is
    closed; R4d escape classifier, R4e ownership verifier, and R4f CallLike
-   observer retirement are closed; Query remains a separate design blocker.
-7. R4d: escape classifier Call/Capture role projection, R4e ownership verifier, and R4f CallLike observer retirement are closed; Query policy D0 is active; R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
+   observer retirement are closed; Query D0 is accepted and its observer T0 is active.
+7. R4d: escape classifier Call/Capture role projection, R4e ownership verifier, and R4f CallLike observer retirement are closed; Query observer T0 is active; R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
    with no by-name fallback/retry. Python/PyVM/reference remain
    boundary-outside `ParkedSealed`; they are not an active retirement edge.
 8. R6: atomic `Call { callee: Callee }` cutover; remove dummy `func` payloads.
@@ -292,7 +292,7 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
 R4c closed (`4c6d9ce9a2`): `value_consumer` delegates Call membership once to `MirInstruction::used_values`; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green, warning baseline 433.
-R4d closed (`4e71066e57`): Call/Capture roles and legacy ordinary-use parity; escape 8/8, FastMem 17/17, VM 7/7, shared guard green. R4e ownership verifier closed (`6c957a48c7`): target matrix, fail-fast tests 24/24, corridor/pointer/diff green, callers/installers zero. R4f CallLike closed (`6fc4abbe0f`): adapter removed, instruction parity 18/18, shared guard green.
+R4d closed (`4e71066e57`): Call/Capture roles and legacy ordinary-use parity; escape 8/8, FastMem 17/17, VM 7/7, shared guard green. R4e ownership verifier closed (`6c957a48c7`): target matrix, fail-fast tests 24/24, corridor/pointer/diff green, callers/installers zero. R4f CallLike closed (`6fc4abbe0f`): adapter removed, instruction parity 18/18, shared guard green. Query D0 accepted; T0 is limited to the one observer owner.
 
 ## Production invariants
 ```text
@@ -366,11 +366,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CANONICAL-QUERY-POLICY-D0
-  -> seal Query read/write authority before its next bounded consumer slice
+ MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0
+  -> delegate Query Call reads/writes to canonical MirInstruction methods
 
 Next (not selected)
-  -> R5-R7 after Query policy acceptance
+  -> R5-R7 after Query observer closeout
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

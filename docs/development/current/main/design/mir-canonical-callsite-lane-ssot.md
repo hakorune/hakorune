@@ -286,7 +286,7 @@ the enum/impl, replace its two metadata arms with canonical delegation, add
 parity tests and extend the shared guard. Non-claims: `func`/`Option<Callee>`
 cutover, Query policy, JoinIR, backend activation, and warning cleanup.
 
-Query D0 design stop — `MIR-CALL-CANONICAL-QUERY-POLICY-D0`:
+Query D0 accepted — `MIR-CALL-CANONICAL-QUERY-POLICY-D0`:
 Decision: treat `MirQuery` as an observation facade and do not let its Call arm
 reconstruct target meaning. Source authority + canonical issuer: the existing
 `MirInstruction::used_values`/`dst_value` plus `Callee` projection; Query only
@@ -295,11 +295,28 @@ projects the result to its read/write view. Non-authority: the local
 and backend/runtime fallback. Fail-fast boundary: `MirQueryBox::reads_of` and
 `writes_of` must have one finite Call policy before R6; typed Value/Closure
 operands are not optional decorations, and legacy `None.func` remains explicit
-compatibility only. Smallest next slice: census this one Query owner and its
-JoinIR/loop consumers, accept the read/write matrix, then update one direct
-delegation with parity/negative tests and the shared guard. Non-claims: R6
+compatibility only. Smallest next slice: replace the one Query Call arm with
+direct canonical delegation, add parity/negative tests, and extend the shared
+guard; this is a non-production T0, not an I0 caller switch. Non-claims: R6
 schema cutover, ownership ABI, JoinIR remap, PyVM/reference/Python, and warning
 cleanup.
+
+Query D0 finite state matrix:
+
+| Query observation | Read authority/result | Write authority/result | Local terminal/fallback |
+| --- | --- | --- | --- |
+| typed `Some(Global/Extern/Constructor/Method(None))` | `MirInstruction::used_values`: args in stored order | `MirInstruction::dst_value`: `dst` or empty | project only; no target inference |
+| typed `Some(Method(Some(v))/Value(v))` | `used_values`: target operands, then args | `dst_value`: `dst` or empty | project only; no receiver/name retry |
+| typed `Some(Closure { captures, me_capture })` | `used_values`: captures, `me_capture`, then args | `dst_value`: `dst` or empty | preserve occurrence order/duplicates; no constructor reclassification |
+| legacy `None` | `used_values`: `func` once, then args | `dst_value`: `dst` or empty | compatibility observation only; no retry |
+| non-Call instruction | existing canonical instruction methods/arms | existing canonical instruction methods/arms | unchanged; Query does not issue semantic facts |
+
+Census boundary: `MirQueryBox::reads_of`/`writes_of` -> the single non-test
+`loop_form_intake` reader -> `loop_to_join` and toggle-gated skip/trim probes;
+includes the one production impl and test-only alternate impl, excludes JoinIR
+remap/merge, PyVM/reference/Python, and R6 schema ownership. The Query methods
+return observations rather than rejects: malformed or unsupported target
+meaning is rejected by its upstream canonical ingress, never retried here.
 
 R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
 `Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`
