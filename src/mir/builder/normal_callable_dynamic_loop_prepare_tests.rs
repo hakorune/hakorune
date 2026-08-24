@@ -41,7 +41,7 @@ fn production_skip_while_prepares_dynamic_ingress_before_loop_effects() {
     let function = parsed_skip_while();
     let syntax = CallableFunctionSyntaxViewV1::from_function_ast(&function).unwrap();
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let ResolveSelectedCallableForestsOutcomeV1::Complete(mut forests) = resolver
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
         .resolve_selected_callable_forests(&[syntax.function()])
         .unwrap()
     else {

@@ -351,7 +351,7 @@ fn production_skip_while_keeps_one_carrier_and_variable_operand_rows() {
     let syntax =
         CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax view");
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let ResolveSelectedCallableForestsOutcomeV1::Complete(mut forests) = resolver
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
         .resolve_selected_callable_forests(&[syntax.function()])
         .expect("resolved production function")
     else {
@@ -413,7 +413,7 @@ fn production_esc_json_uses_explicit_outside_for_body_only_rebinds() {
     let syntax =
         CallableFunctionSyntaxViewV1::from_function_ast(&function).expect("callable syntax view");
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).unwrap();
-    let ResolveSelectedCallableForestsOutcomeV1::Complete(mut forests) = resolver
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
         .resolve_selected_callable_forests(&[syntax.function()])
         .expect("resolved production function")
     else {

@@ -33,7 +33,7 @@ fn issue(
     let syntax =
         CallableFunctionSyntaxViewV1::from_function_ast(function).expect("function syntax view");
     let mut resolver = FunctionSemanticResolverSessionV1::new(0).expect("resolver session");
-    let ResolveSelectedCallableForestsOutcomeV1::Complete(mut forests) = resolver
+    let ResolveSelectedCallableForestsOutcomeV1::Complete(forests) = resolver
         .resolve_selected_callable_forests(&[syntax.function()])
         .expect("resolved forest")
     else {
