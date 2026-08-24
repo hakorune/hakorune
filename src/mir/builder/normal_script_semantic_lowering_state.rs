@@ -265,6 +265,5 @@ mod binding_materialization;
 mod direct_static_claim_ledger;
 
 pub(in crate::mir::builder) use direct_static_claim_ledger::{
-    ScriptDirectStaticClaimLedgerIssueV1, ScriptDirectStaticClaimLedgerV1,
     ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
 };
