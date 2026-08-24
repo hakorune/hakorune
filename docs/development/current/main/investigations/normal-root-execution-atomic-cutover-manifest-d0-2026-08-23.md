@@ -1950,11 +1950,25 @@ suite passes 19 tests, and the test fingerprint moved from 638 to 635 warnings
 (`private_interfaces=11`, `dead_code=624`; all non-structural lint categories
 remain zero).
 
+The following instance-constructor source-cohort cleanup is landed as
+`94bdf18079`:
+
+```text
+94bdf18079  refactor: trim unused constructor cohort accessor
+```
+
+The cohort keeps its parser invocation witness as `_invocation` evidence, but
+the caller-free `invocation_witness()` accessor is removed. Constructor source
+row validation and admission ownership are unchanged. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 635 to 633 warnings (`private_interfaces=11`, `dead_code=622`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 624 `dead_code` warnings are existing disconnected
+visibility. The remaining 622 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
