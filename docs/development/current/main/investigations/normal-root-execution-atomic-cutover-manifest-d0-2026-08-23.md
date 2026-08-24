@@ -1273,3 +1273,18 @@ behavior changed. The focused `normal_root_execution` suite passes 19 tests,
 all five reusable guards remain green, and the test fingerprint moved from 807
 to 806 warnings (`private_interfaces=80`, `private_bounds=0`; non-structural
 lint categories remain zero).
+
+The following Script physical-entry rejection visibility slice is landed as
+`26a6bacdb1`:
+
+```text
+26a6bacdb1  refactor: narrow script entry rejection access
+```
+
+The Script physical-entry rejection cause accessor is consumed only by the
+compiler source-plan/dispatch route, so its boundary now matches that
+compiler-owned handoff. No Script physical-entry or rejection behavior
+changed. The focused `normal_root_execution` suite passes 19 tests, all five
+reusable guards remain green, and the test fingerprint moved from 806 to 805
+warnings (`private_interfaces=79`, `private_bounds=0`; non-structural lint
+categories remain zero).
