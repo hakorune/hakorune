@@ -793,3 +793,15 @@ It retires six caller-zero export groups from
 are unchanged. The focused `normal_root_execution` suite passes 19 tests, all
 five reusable guards remain green, and the test fingerprint moved from 996 to
 991 warnings.
+
+The following if-recipe contract import slice is landed as `d41c782782`:
+
+```text
+d41c782782  refactor: prune if recipe exports
+```
+
+It retires five caller-zero reexport groups from
+`if_recipe_contract/mod.rs`; recipe verification, normalization, and physical
+input owners remain unchanged. The focused `if_recipe_contract` suite passes
+10 tests, all five reusable guards remain green, and the test fingerprint
+moved from 991 to 986 warnings.
