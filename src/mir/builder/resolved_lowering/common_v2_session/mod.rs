@@ -30,7 +30,7 @@ pub(in crate::mir::builder) use length_call::{
 
 mod initial_index_seed;
 pub(in crate::mir::builder) use initial_index_seed::{
-    CanonicalInitialIndexSeedReceiptV1, InitialIndexSeedMaterializationRejectV1,
+    InitialIndexSeedMaterializationRejectV1,
 };
 
 mod return_read;
@@ -40,8 +40,7 @@ pub(in crate::mir::builder) use return_read::{
 
 mod condition_bool;
 pub(in crate::mir::builder) use condition_bool::{
-    CanonicalConditionBoolResultReceiptV1, ConditionBoolMaterializationRejectV1,
-    ConditionBoolReturnReadRejectV1,
+    ConditionBoolMaterializationRejectV1, ConditionBoolReturnReadRejectV1,
 };
 
 mod s6c_operand_issuer;
@@ -52,14 +51,7 @@ pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrencePhysi
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrenceViewRejectV1;
 
 mod s6c_substring_v9_issuer;
-pub(in crate::mir::builder) use s6c_substring_v9_issuer::{
-    CommonV2SubstringV9IssuerRejectV1, CommonV2SubstringV9MaterializationV1,
-};
-
 mod s6c_substring_callout_materializer;
-pub(in crate::mir::builder) use s6c_substring_callout_materializer::{
-    CommonV2SubstringCallOutExactTextCoSealRefV1, CommonV2SubstringCallOutMirMaterializerRejectV1,
-};
 
 mod session_length;
 
@@ -68,8 +60,7 @@ mod session_segments;
 mod s6c_scalar_equality_leaf;
 pub(in crate::mir::builder) use s6c_scalar_equality_leaf::{
     issue_common_v2_s6c_text_scalar_equality_leaf_v1,
-    CommonV2S6CTextScalarEqualityLeafCapabilityV1, CommonV2S6CTextScalarEqualityLeafReceiptV1,
-    CommonV2S6CTextScalarEqualityLeafRejectV1, CommonV2S6CTextScalarEqualityLeafShapeV1,
+    CommonV2S6CTextScalarEqualityLeafShapeV1,
 };
 
 mod s6c_cursor_cfg;
