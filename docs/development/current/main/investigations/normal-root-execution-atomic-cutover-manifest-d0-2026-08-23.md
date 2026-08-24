@@ -1879,11 +1879,26 @@ focused `normal_root_execution` suite passes 19 tests, and the test fingerprint
 moved from 646 to 645 warnings (`private_interfaces=11`, `dead_code=634`; all
 non-structural lint categories remain zero).
 
+The following duplicate static-terminal wrapper cleanup is landed as
+`958e574f1e`:
+
+```text
+958e574f1e  refactor: remove duplicate static terminal wrapper
+```
+
+The uncalled inherent static-terminal adapter was removed; the existing
+`StaticMethodCallCompletionV1` trait implementation remains the sole active
+completion route. No static-call emission or terminal ownership behavior
+changed. The focused `normal_root_execution` suite passes 19 tests, and the
+test fingerprint moved from 645 to 644 warnings
+(`private_interfaces=11`, `dead_code=633`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 634 `dead_code` warnings are existing disconnected
+visibility. The remaining 633 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
