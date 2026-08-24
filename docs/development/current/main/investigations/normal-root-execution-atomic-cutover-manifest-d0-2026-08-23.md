@@ -919,3 +919,15 @@ ledger, and recursive child-lowering support modules; source, recipe, and
 physical authorities are unchanged. The focused `normal_root_execution`
 suite passes 19 tests, all five reusable guards remain green, and the test
 fingerprint moved from 936 to 930 warnings.
+
+The following reference-lane feature import slice is landed as `868dafe161`:
+
+```text
+868dafe161  refactor: gate reference imports by feature
+```
+
+It gates four imports that are only used by the `vm-reference` execution or
+test branches; the default reference front doors and the feature-enabled
+owners are unchanged. The focused `normal_root_execution` suite passes 19
+tests, all five reusable guards remain green, and the test fingerprint moved
+from 930 to 926 warnings.
