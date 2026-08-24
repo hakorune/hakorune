@@ -13,7 +13,7 @@ use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::definitions::Callee;
 use crate::mir::function::StaticDataPlan;
-use crate::mir::{EffectMask, MirInstruction, ValueId};
+use crate::mir::{EffectMask, MirInstruction};
 use std::ffi::OsString;
 use std::sync::{Mutex, MutexGuard, OnceLock};
 

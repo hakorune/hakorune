@@ -11,8 +11,7 @@ mod emitter_admission_tests;
 
 pub(crate) use emitter_admission::{
     issue_generic_g0_physical_emitter_admission_v1,
-    GenericG0PhysicalEmitterAdmissionRefV1, GenericG0PhysicalEmitterAdmissionRejectV1,
-    PreparedGenericG0FunctionShellPlanV1, PreparedGenericG0PhysicalEmitterAdmissionV1,
+    GenericG0PhysicalEmitterAdmissionRejectV1, PreparedGenericG0PhysicalEmitterAdmissionV1,
 };
 
 use crate::mir::loop_recipe_contract::{

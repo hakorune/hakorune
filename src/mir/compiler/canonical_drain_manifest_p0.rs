@@ -4,7 +4,6 @@ use super::acyclic_callable_module_plan::VerifiedAcyclicCallableModulePlanV1;
 use super::source_bound_package::ExactCanonicalPreflightPlanV1;
 use super::{MirCompiler, VerifiedResolvedCallableProgramV1, VerifiedResolvedSourceUnitV1};
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
-use crate::mir::canonical_physical_drain::CanonicalPhysicalDrainManifestV1;
 use crate::mir::compiler::canonical_drain_manifest::CanonicalDrainIdentityV1;
 use crate::mir::module_invocation_identity::ModuleInvocationFamilyV1;
 use crate::mir::module_invocation_policy::{

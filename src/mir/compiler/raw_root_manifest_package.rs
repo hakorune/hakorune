@@ -6,7 +6,7 @@
 
 use super::raw_root_eligibility::RawRootEligibilityV1;
 use super::raw_root_environment_manifest::{
-    RawRootEnvironmentManifestV1, RawRootPhysicalManifestV1,
+    RawRootEnvironmentManifestV1,
 };
 use super::raw_root_plan0::RawRootPlanV1;
 use super::raw_source_binding::RawRootContinuationV1;

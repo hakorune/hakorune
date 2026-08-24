@@ -135,7 +135,7 @@ pub(crate) use rejection::{
     NormalUnsupportedTopLevelKindV1, RejectedNormalSourcePlanV1,
 };
 pub(crate) use script_physical_entry::{
-    CompletedScriptPhysicalExitV1, NormalScriptPhysicalEntryStageV1, OpenScriptPhysicalEntryV1,
+    CompletedScriptPhysicalExitV1, OpenScriptPhysicalEntryV1,
     RejectedNormalScriptPhysicalEntryV1,
 };
 #[allow(unused_imports)]

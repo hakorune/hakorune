@@ -9,7 +9,6 @@ use super::raw_root_children::{
     RawPreRootChildrenCompletionV1, RawRootChildCoreV1, RawRootChildReceiptV1,
     RawScriptChildrenCompleteInvocationV1,
 };
-use super::raw_root_eligibility::RawRootInvocationV1;
 use super::raw_root_environment_manifest::RawRootPhysicalManifestV1;
 use super::raw_root_plan0::RawPostCallableMainPlanV1;
 use super::raw_source_binding::RawPostCallableMainContinuationV1;
