@@ -713,3 +713,17 @@ the collector-owned prepared products and commit-facing receipt. The focused
 green, and the test fingerprint moved from 1022 to 1018 warnings. The only
 remaining warning in that module is the separate unused lifecycle method
 `seal_after_exact_signature_preflight`.
+
+The next import-only R0 slice is landed as `d336750521`:
+
+```text
+d336750521  refactor: prune direct static exports
+```
+
+It retires three caller-zero direct-static issue/recipe/proof reexport groups
+while leaving their child-module authorities and focused tests untouched. The
+`normal_script_direct_static_join_handoff` suite passes 10 tests, all five
+reusable guards remain green, and the test fingerprint moved from 1018 to 1015
+warnings. The two remaining warnings in that module are separate unused
+accessors (`source_owner`/`result_site`/`parent_relations` and `row`), not
+imports.
