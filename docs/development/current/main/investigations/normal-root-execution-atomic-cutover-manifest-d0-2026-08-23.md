@@ -1467,3 +1467,17 @@ draft sealing, or rejection behavior changed. The focused
 green, and the test fingerprint moved from 756 to 752 warnings
 (`private_interfaces=26`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following Dynamic co-seal visibility slice is landed as `fd2789bca2`:
+
+```text
+fd2789bca2  refactor: align dynamic coseal visibility
+```
+
+The Dynamic source/Recipe reject enums now match the existing coseal envelope
+owner, while test-only route/target/cleanup accessors remain module-private.
+No source coverage, call relation, cleanup, or exit co-seal behavior changed.
+The focused `normal_root_execution` suite passes 19 tests, all five reusable
+guards remain green, and the test fingerprint moved from 752 to 747 warnings
+(`private_interfaces=21`, `private_bounds=0`; non-structural lint categories
+remain zero).
