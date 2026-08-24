@@ -1171,3 +1171,17 @@ fingerprint moved from 827 to 824 warnings (`private_interfaces=92`,
 `private_bounds=6`; non-structural lint categories remain zero). The remaining
 owner-profile enum-field warning is intentionally left for a separate census,
 because narrowing that enum would widen the affected field/accessor surface.
+
+The following qualified-receiver boundary slice is landed as `9e4710a08a`:
+
+```text
+9e4710a08a  refactor: narrow qualified receiver boundaries
+```
+
+The canonical function-view receiver accessor and complete-inventory lexical
+sealer are consumed only inside `crate::mir`; their method visibility now
+matches the existing receiver-policy and shadow products. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 824 to 822 warnings
+(`private_interfaces=91`, `private_bounds=5`; non-structural lint categories
+remain zero).
