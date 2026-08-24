@@ -2553,3 +2553,8 @@ fields and removes two unused test-only handoff helpers; warnings are 469→464
 (`private_interfaces=11`, `dead_code=453`), with 19/19 focused tests and all
 five guards green. Future `Authority`/`Signature` stage vocabulary remains
 parked and is not mass-deleted.
+
+`ffb0f6a660` retains normal Script pre-effect reject payloads and semantic
+state products as underscore-named evidence while removing caller-zero state
+accessors; warnings are 464→458 (`private_interfaces=11`, `dead_code=447`),
+with 19/19 focused tests and all five guards green.
