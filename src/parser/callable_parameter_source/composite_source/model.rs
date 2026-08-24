@@ -68,8 +68,8 @@ pub(super) struct ParserCompositeSourcePreservationSealV1;
 pub(super) struct ParserCompositeStaticProviderV1 {
     statement: u32,
     method_inventory: u32,
-    identity: CallableDeclarationIdentityV1,
-    source_site: SourceBoxMethodSiteV1,
+    _identity: CallableDeclarationIdentityV1,
+    _source_site: SourceBoxMethodSiteV1,
     diagnostic_name: Box<str>,
     result_syntax: ParserCompositeResultSyntaxV1,
 }
@@ -154,8 +154,8 @@ impl ParserCompositeStaticProviderV1 {
         Self {
             statement,
             method_inventory,
-            identity,
-            source_site,
+            _identity: identity,
+            _source_site: source_site,
             diagnostic_name: diagnostic_name.into(),
             result_syntax,
         }
@@ -167,14 +167,6 @@ impl ParserCompositeStaticProviderV1 {
 
     pub(super) const fn method_inventory(&self) -> u32 {
         self.method_inventory
-    }
-
-    pub(super) fn identity(&self) -> &CallableDeclarationIdentityV1 {
-        &self.identity
-    }
-
-    pub(super) fn source_site(&self) -> &SourceBoxMethodSiteV1 {
-        &self.source_site
     }
 
     pub(super) fn diagnostic_name(&self) -> &str {

@@ -8,7 +8,6 @@
 use super::catalog::{
     ParserCallableParameterSourceCatalogV1, ParserCallableParameterSourceDispositionV1,
 };
-use super::parser_invocation_witness::ParserInvocationWitnessV1;
 use crate::ast::ASTNode;
 use crate::parser::postpass_envelope::{CompletedParserPostpassV1, ParserPostpassProgramCohortV1};
 use crate::parser::source_authority::ParserInvocationBrandV1;
@@ -44,17 +43,6 @@ impl CanonicalScriptCohortAdmissionV1 {
             parser_brand: catalog.parser_brand().clone(),
             _seal: CanonicalScriptCohortAdmissionSealV1,
         }
-    }
-
-    pub(crate) fn same_parser_source(&self, other: &Self) -> bool {
-        self.parser_brand.same_as(&other.parser_brand)
-    }
-
-    pub(in crate::parser) fn same_parser_source_witness(
-        &self,
-        other: &ParserInvocationWitnessV1,
-    ) -> bool {
-        other.same_parser_brand(&self.parser_brand)
     }
 
     pub(super) fn parser_brand(&self) -> &ParserInvocationBrandV1 {
