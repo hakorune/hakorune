@@ -741,3 +741,15 @@ owner and its internal module-path uses are unchanged. The focused
 remain green, and the test fingerprint moved from 1015 to 1014 warnings.
 The touched file has no remaining unused-import warning records; its separate
 dead-code rows are outside this import-only slice.
+
+The following import-only R0 slice is landed as `3a2422a8c9`:
+
+```text
+3a2422a8c9  refactor: prune callable prefix import
+```
+
+It removes the caller-zero `NormalCallableHandoffStageV1` import from
+`normal_module_transaction/callable_draft_prefix.rs`; the helper-draft
+transaction and its child authorities are unchanged. The focused normal-module
+transaction suite passes 20 tests, all five reusable guards remain green, and
+the test fingerprint moved from 1014 to 1013 warnings.
