@@ -94,22 +94,7 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             PinnedTextResidenceFinish { .. }
             | PinnedTextResidenceEnter { .. }
             | PinnedTextResidenceTrap { .. } => Vec::new(),
-            Call {
-                callee, func, args, ..
-            } => {
-                let mut used = Vec::new();
-                if let Some(crate::mir::definitions::call_unified::Callee::Method {
-                    receiver: Some(r),
-                    ..
-                }) = callee
-                {
-                    used.push(*r);
-                } else if callee.is_none() {
-                    used.push(*func);
-                }
-                used.extend(args.iter().copied());
-                used
-            }
+            Call { .. } => inst.used_values(),
             Return { value } => value.iter().copied().collect(),
             CheckedCallOut {
                 receiver,
@@ -160,6 +145,10 @@ impl<'m> MirQuery for MirQueryBox<'m> {
     }
 
     fn writes_of(&self, inst: &MirInstruction) -> Vec<ValueId> {
+        if matches!(inst, MirInstruction::Call { .. }) {
+            return inst.dst_value().into_iter().collect();
+        }
+
         use MirInstruction::*;
         match inst {
             Const { dst, .. }
@@ -176,7 +165,6 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | MemOp { dst: Some(dst), .. }
             | PinnedTextOp { dst, .. }
             | ArrayElementWrite { dst: Some(dst), .. }
-            | Call { dst: Some(dst), .. }
             | Phi { dst, .. }
             | NewBox { dst, .. }
             | RefNew { dst, .. }
@@ -194,7 +182,6 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             Store { .. }
             | MemOp { dst: None, .. }
             | FieldSet { .. }
-            | Call { dst: None, .. }
             | Return { .. }
             | CheckedCallOut { .. }
             | PinnedTextResidenceEnter { .. }
@@ -211,6 +198,120 @@ impl<'m> MirQuery for MirQueryBox<'m> {
             | RecordFieldContractCheck { .. }
             | Safepoint => Vec::new(),
             _ => Vec::new(),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{MirQuery, MirQueryBox};
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::{
+        BasicBlockId, Callee, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType,
+        ValueId,
+    };
+
+    fn query_function() -> MirFunction {
+        MirFunction::new(
+            FunctionSignature {
+                name: "query_call_test/0".into(),
+                params: Vec::new(),
+                return_type: MirType::Box("QueryTestBox".into()),
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        )
+    }
+
+    fn call(callee: Option<Callee>, dst: Option<ValueId>) -> MirInstruction {
+        MirInstruction::Call {
+            dst,
+            func: ValueId::new(99),
+            callee,
+            args: vec![ValueId::new(40), ValueId::new(41)],
+            effects: EffectMask::PURE,
+        }
+    }
+
+    #[test]
+    fn query_call_reads_match_canonical_used_values_for_every_shape() {
+        let function = query_function();
+        let query = MirQueryBox::new(&function);
+        let cases = [
+            (Callee::Global("global/2".to_string()), vec![]),
+            (Callee::Extern("env.global/2".to_string()), vec![]),
+            (
+                Callee::Constructor {
+                    box_type: "QueryTestBox".to_string(),
+                },
+                vec![],
+            ),
+            (
+                Callee::Method {
+                    box_name: "QueryTestBox".to_string(),
+                    method: "read".to_string(),
+                    receiver: None,
+                    certainty: TypeCertainty::Known,
+                    box_kind: CalleeBoxKind::UserDefined,
+                },
+                vec![],
+            ),
+            (
+                Callee::Method {
+                    box_name: "QueryTestBox".to_string(),
+                    method: "read".to_string(),
+                    receiver: Some(ValueId::new(10)),
+                    certainty: TypeCertainty::Known,
+                    box_kind: CalleeBoxKind::RuntimeData,
+                },
+                vec![ValueId::new(10)],
+            ),
+            (Callee::Value(ValueId::new(20)), vec![ValueId::new(20)]),
+            (
+                Callee::Closure {
+                    params: vec!["x".to_string()],
+                    captures: vec![
+                        ("a".to_string(), ValueId::new(30)),
+                        ("b".to_string(), ValueId::new(30)),
+                    ],
+                    me_capture: Some(ValueId::new(31)),
+                },
+                vec![ValueId::new(30), ValueId::new(30), ValueId::new(31)],
+            ),
+        ];
+
+        for (callee, target_operands) in cases {
+            let instruction = call(Some(callee), Some(ValueId::new(1)));
+            let mut expected = target_operands;
+            expected.extend([ValueId::new(40), ValueId::new(41)]);
+            assert_eq!(query.reads_of(&instruction), expected);
+            assert_eq!(query.reads_of(&instruction), instruction.used_values());
+        }
+
+        let legacy = call(None, None);
+        assert_eq!(
+            query.reads_of(&legacy),
+            vec![ValueId::new(99), ValueId::new(40), ValueId::new(41)]
+        );
+        assert_eq!(query.reads_of(&legacy), legacy.used_values());
+    }
+
+    #[test]
+    fn query_call_writes_match_canonical_dst_value_and_ignore_target_shape() {
+        let function = query_function();
+        let query = MirQueryBox::new(&function);
+        for callee in [
+            Some(Callee::Global("global/0".to_string())),
+            Some(Callee::Value(ValueId::new(20))),
+            None,
+        ] {
+            for dst in [Some(ValueId::new(1)), None] {
+                let instruction = call(callee.clone(), dst);
+                assert_eq!(
+                    query.writes_of(&instruction),
+                    instruction.dst_value().into_iter().collect::<Vec<_>>()
+                );
+            }
         }
     }
 }

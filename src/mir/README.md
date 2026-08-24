@@ -95,6 +95,11 @@ ordinary generic use for FastMem fail-closed handling.
 delegates to the canonical `MirInstruction` methods; the retired `CallLikeInst`
 adapter must not reconstruct receiver or legacy `func` operands.
 
+`MirQueryBox` follows the same boundary: `reads_of(Call)` delegates to
+`used_values`, and `writes_of(Call)` delegates to `dst_value`. Query is a
+read-only projection; it does not classify targets, retry missing targets, or
+re-enter the retired by-name path.
+
 ## Boundary Rules
 
 - Add shared policy once under `policies/` and reuse it from the other subtrees.

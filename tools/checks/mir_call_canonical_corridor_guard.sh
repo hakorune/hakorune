@@ -22,6 +22,7 @@ VALUE_CONSUMER="$ROOT_DIR/src/mir/value_consumer.rs"
 ESCAPE_BARRIER="$ROOT_DIR/src/mir/escape_barrier.rs"
 OWNERSHIP_VERIFY="$ROOT_DIR/src/mir/ownership_ssa/verify.rs"
 OWNERSHIP_TESTS="$ROOT_DIR/src/mir/ownership_ssa/tests.rs"
+QUERY="$ROOT_DIR/src/mir/query.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -34,7 +35,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -95,6 +96,10 @@ require "$OWNERSHIP_TESTS" "typed_managed_target_fails_before_generic_liveness"
 require "$OWNERSHIP_TESTS" "typed_closure_operands_use_generic_liveness_not_managed_call_policy"
 require "$OWNERSHIP_TESTS" "legacy_call_still_requires_a_known_trivial_func"
 require "$ROOT_DIR/src/mir/instruction/tests.rs" "call_kind_metadata_delegates_to_canonical_call_methods"
+require "$QUERY" "Call { .. } => inst.used_values()"
+require "$QUERY" "return inst.dst_value().into_iter().collect()"
+require "$QUERY" "query_call_reads_match_canonical_used_values_for_every_shape"
+require "$QUERY" "query_call_writes_match_canonical_dst_value_and_ignore_target_shape"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -138,6 +143,7 @@ for relative in (
     "src/mir/escape_barrier.rs",
     "src/mir/ownership_ssa/verify.rs",
     "src/mir/ownership_ssa/tests.rs",
+    "src/mir/query.rs",
     "src/mir/instruction/tests.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
@@ -283,6 +289,20 @@ if instruction_kinds.count("MirInstruction::Call") < 2:
     raise SystemExit("instruction_kinds lost direct Call metadata arms")
 if "Some(i.used_values())" not in instruction_kinds:
     raise SystemExit("instruction_kinds Call use metadata lost canonical delegation")
+
+query = (root / "src/mir/query.rs").read_text()
+query_impl = query.index("impl<'m> MirQuery for MirQueryBox")
+reads_start = query.index("fn reads_of", query_impl)
+writes_start = query.index("fn writes_of", reads_start)
+reads_window = query[reads_start:writes_start]
+if "Call { .. } => inst.used_values()" not in reads_window:
+    raise SystemExit("MirQuery reads_of lost canonical Call delegation")
+if "callee" in reads_window or "func" in reads_window:
+    raise SystemExit("MirQuery reads_of retained local target/func reconstruction")
+writes_end = query.index("#[cfg(test)]", writes_start)
+writes_window = query[writes_start:writes_end]
+if "return inst.dst_value().into_iter().collect()" not in writes_window:
+    raise SystemExit("MirQuery writes_of lost canonical Call delegation")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY
