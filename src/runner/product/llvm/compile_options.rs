@@ -4,8 +4,7 @@
 //! variables ad hoc.
 
 use nyash_rust::{
-    ast::ASTNode,
-    mir::{compile_target_capability::*, MirCompileResult, MirModule},
+    mir::{compile_target_capability::*, MirCompileResult},
 };
 use std::collections::HashMap;
 
@@ -66,12 +65,4 @@ impl CompileOptionsBox {
         MirCompilerBox::compile_normal_callable(outcome, filename, imports, options)
     }
 
-    pub fn compile(
-        ast: ASTNode,
-        filename: Option<&str>,
-        imports: HashMap<String, String>,
-        options: LlvmCompileOptions,
-    ) -> Result<MirModule, String> {
-        MirCompilerBox::compile(ast, filename, imports, options)
-    }
 }

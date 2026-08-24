@@ -20,11 +20,13 @@ impl ReferenceUsageReportV1 {
     }
 }
 
+#[cfg(feature = "vm-reference")]
 #[derive(Debug)]
 pub(crate) struct ReferenceInvocationReportV1 {
     line: Box<str>,
 }
 
+#[cfg(feature = "vm-reference")]
 impl ReferenceInvocationReportV1 {
     pub(crate) fn new(line: impl Into<Box<str>>) -> Self {
         Self { line: line.into() }
@@ -39,6 +41,7 @@ impl ReferenceInvocationReportV1 {
 #[derive(Debug)]
 pub(crate) enum ReferenceRunOutcomeV1 {
     Usage(ReferenceUsageReportV1),
+    #[cfg(feature = "vm-reference")]
     Invocation(ReferenceInvocationReportV1),
     #[cfg(feature = "vm-reference")]
     Program(RawVmReferenceRunReportV1),
@@ -53,6 +56,7 @@ impl ReferenceRunTerminalV1 {
                 write_stderr_line(&report.line);
                 2
             }
+            #[cfg(feature = "vm-reference")]
             ReferenceRunOutcomeV1::Invocation(report) => {
                 write_stderr_line(&report.line);
                 1

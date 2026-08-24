@@ -5,13 +5,16 @@
 //! execution, and process-status projection to their existing owners.
 
 use super::normal_file_canonical_core_request::NormalFileCanonicalCoreVmReferenceProductionRequestV1;
+#[cfg(feature = "vm-reference")]
 use super::normal_file_vm_frontdoor::{
     NormalFileReadErrorV1, NormalFileSourceErrorV1, NormalFileSourceProfileErrorV1,
     NormalFileSourceStageV1, RejectedNormalFileSourceV1,
 };
 #[cfg(not(feature = "vm-reference"))]
 use super::terminal::ReferenceUsageReportV1;
-use super::terminal::{ReferenceInvocationReportV1, ReferenceRunOutcomeV1};
+#[cfg(feature = "vm-reference")]
+use super::terminal::ReferenceInvocationReportV1;
+use super::terminal::ReferenceRunOutcomeV1;
 
 pub(crate) fn run(
     request: NormalFileCanonicalCoreVmReferenceProductionRequestV1,
@@ -73,18 +76,21 @@ pub(crate) fn run(
     }
 }
 
+#[cfg(feature = "vm-reference")]
 fn invocation_from_source_rejection(rejected: RejectedNormalFileSourceV1) -> ReferenceRunOutcomeV1 {
     let code = normal_source_error_code(rejected.stage(), rejected.error());
     rejected.discard();
     invocation("source-rejected", code)
 }
 
+#[cfg(feature = "vm-reference")]
 fn invocation(code: &str, detail: impl std::fmt::Display) -> ReferenceRunOutcomeV1 {
     ReferenceRunOutcomeV1::Invocation(ReferenceInvocationReportV1::new(format!(
         "[normal-file-canonical-core-vm-reference/{code}] {detail}"
     )))
 }
 
+#[cfg(feature = "vm-reference")]
 fn normal_source_error_code(
     _stage: NormalFileSourceStageV1,
     error: NormalFileSourceErrorV1<'_>,

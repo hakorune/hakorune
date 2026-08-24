@@ -3,8 +3,7 @@
 //! Handles AST → MIR compilation.
 
 use nyash_rust::{
-    ast::ASTNode,
-    mir::{MirCompileResult, MirCompiler, MirModule, NormalCompileRequestV1},
+    mir::{MirCompileResult, MirCompiler, NormalCompileRequestV1},
 };
 use std::collections::HashMap;
 
@@ -61,25 +60,6 @@ impl MirCompilerBox {
             request.with_compile_target_capability(target_capability),
             options,
         )
-    }
-
-    /// Compile AST to MIR
-    ///
-    /// This function compiles the AST to MIR using source hint for better error messages.
-    pub fn compile(
-        ast: ASTNode,
-        filename: Option<&str>,
-        imports: HashMap<String, String>,
-        options: LlvmCompileOptions,
-    ) -> Result<MirModule, String> {
-        let target_capability = options.issue_pinned_text_target_capability()?;
-        let request = NormalCompileRequestV1::for_llvm_source(ast, filename, imports)
-            .map_err(|error| format!("MIR compilation error: {error}"))?;
-        Self::compile_request(
-            request.with_compile_target_capability(target_capability),
-            options,
-        )
-        .map(|result| result.module)
     }
 
     fn compile_request(

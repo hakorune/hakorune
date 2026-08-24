@@ -29,7 +29,7 @@ impl NormalFileCanonicalCoreVmReferenceProfileErrorV1 {
 /// One explicit request owns one existing canonical-core front-door request.
 #[derive(Debug)]
 pub(crate) struct NormalFileCanonicalCoreVmReferenceProductionRequestV1 {
-    request: NormalFileRequestV1,
+    _request: NormalFileRequestV1,
     _seal: NormalFileCanonicalCoreVmReferenceProductionRequestSealV1,
 }
 
@@ -54,15 +54,16 @@ impl NormalFileCanonicalCoreVmReferenceProductionRequestV1 {
             );
         }
         Ok(Self {
-            request: NormalFileVmFrontDoorV1::file_canonical_core_request(PathBuf::from(
+            _request: NormalFileVmFrontDoorV1::file_canonical_core_request(PathBuf::from(
                 String::from(source_file),
             )),
             _seal: NormalFileCanonicalCoreVmReferenceProductionRequestSealV1,
         })
     }
 
+    #[cfg(feature = "vm-reference")]
     pub(crate) fn into_frontdoor_request(self) -> NormalFileRequestV1 {
-        self.request
+        self._request
     }
 }
 

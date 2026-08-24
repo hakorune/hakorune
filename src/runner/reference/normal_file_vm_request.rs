@@ -24,7 +24,7 @@ impl NormalFileVmReferenceProfileErrorV1 {
 
 #[derive(Debug)]
 pub(crate) struct NormalFileVmReferenceProductionRequestV1 {
-    request: NormalFileRequestV1,
+    _request: NormalFileRequestV1,
     _seal: NormalFileVmReferenceProductionRequestSealV1,
 }
 
@@ -48,15 +48,16 @@ impl NormalFileVmReferenceProductionRequestV1 {
             return Err(NormalFileVmReferenceProfileErrorV1::NonDefaultOptimizationRequested);
         }
         Ok(Self {
-            request: NormalFileVmFrontDoorV1::file_no_import_request(PathBuf::from(String::from(
+            _request: NormalFileVmFrontDoorV1::file_no_import_request(PathBuf::from(String::from(
                 source_file,
             ))),
             _seal: NormalFileVmReferenceProductionRequestSealV1,
         })
     }
 
+    #[cfg(feature = "vm-reference")]
     pub(super) fn into_frontdoor_request(self) -> NormalFileRequestV1 {
-        self.request
+        self._request
     }
 }
 

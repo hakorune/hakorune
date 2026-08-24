@@ -5,7 +5,9 @@
 
 use std::path::PathBuf;
 
+#[cfg(feature = "llvm-boundary")]
 use super::exec;
+#[cfg(feature = "llvm-boundary")]
 use super::static_artifact_receipt::VerifiedStaticArtifactBundleLaunchFenceV1;
 
 pub(crate) fn selected_dynamic_bundle_path(exe_out: &str) -> PathBuf {
@@ -16,6 +18,7 @@ pub(crate) fn selected_dynamic_bundle_path(exe_out: &str) -> PathBuf {
     ))
 }
 
+#[cfg(feature = "llvm-boundary")]
 pub(crate) fn emit_selected_dynamic(
     module: &crate::mir::MirModule,
     artifact_bundle: &str,

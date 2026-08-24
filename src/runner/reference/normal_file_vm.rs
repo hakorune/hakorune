@@ -1,11 +1,14 @@
 //! Production runner owner for the explicit normal-file VM-reference lane.
 
+#[cfg(feature = "vm-reference")]
 use super::normal_file_vm_frontdoor::{
     NormalFileReadErrorV1, NormalFileSourceErrorV1, NormalFileSourceProfileErrorV1,
     NormalFileSourceStageV1, RejectedNormalFileSourceV1,
 };
 use super::normal_file_vm_request::NormalFileVmReferenceProductionRequestV1;
-use super::terminal::{ReferenceInvocationReportV1, ReferenceRunOutcomeV1, ReferenceUsageReportV1};
+#[cfg(feature = "vm-reference")]
+use super::terminal::ReferenceInvocationReportV1;
+use super::terminal::{ReferenceRunOutcomeV1, ReferenceUsageReportV1};
 
 /// Consume one sealed normal request through the existing front door and the
 /// bounded MIR runner adapter. This owner has no CLI selection or process exit.
@@ -51,6 +54,7 @@ pub(crate) fn run(request: NormalFileVmReferenceProductionRequestV1) -> Referenc
     }
 }
 
+#[cfg(feature = "vm-reference")]
 fn usage_from_source_rejection(rejected: RejectedNormalFileSourceV1) -> ReferenceRunOutcomeV1 {
     let code = normal_source_error_code(rejected.stage(), rejected.error());
     rejected.discard();
@@ -59,6 +63,7 @@ fn usage_from_source_rejection(rejected: RejectedNormalFileSourceV1) -> Referenc
     )))
 }
 
+#[cfg(feature = "vm-reference")]
 fn invocation_from_source_rejection(rejected: RejectedNormalFileSourceV1) -> ReferenceRunOutcomeV1 {
     let code = normal_source_error_code(rejected.stage(), rejected.error());
     rejected.discard();
@@ -67,6 +72,7 @@ fn invocation_from_source_rejection(rejected: RejectedNormalFileSourceV1) -> Ref
     )))
 }
 
+#[cfg(feature = "vm-reference")]
 fn invocation_from_handoff_rejection(
     rejected: super::normal_file_vm_frontdoor::RejectedNormalFileVmHandoffV1,
 ) -> ReferenceRunOutcomeV1 {
@@ -87,6 +93,7 @@ fn invocation_from_handoff_rejection(
     )))
 }
 
+#[cfg(feature = "vm-reference")]
 fn normal_source_error_code(
     _stage: NormalFileSourceStageV1,
     error: NormalFileSourceErrorV1<'_>,
@@ -127,9 +134,7 @@ mod tests {
         let outcome = run(selected_request(std::path::Path::new(
             "does-not-exist.hako",
         )));
-        let ReferenceRunOutcomeV1::Usage(report) = outcome else {
-            panic!("feature-disabled normal route must report usage");
-        };
+        let ReferenceRunOutcomeV1::Usage(report) = outcome;
         assert!(report.line().contains("feature-unavailable"));
     }
 

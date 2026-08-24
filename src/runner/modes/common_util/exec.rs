@@ -241,6 +241,7 @@ fn validate_selected_dynamic_boundary_route_values(
     Ok(())
 }
 
+#[cfg(feature = "llvm-boundary")]
 pub(crate) fn validate_selected_dynamic_boundary_route_request() -> Result<(), String> {
     validate_selected_dynamic_boundary_route_values(
         std::env::var("HAKO_BACKEND_COMPILE_RECIPE").ok().as_deref(),
@@ -430,6 +431,7 @@ fn emit_json_and_run_ny_llvmc_emit_exe_with_receipt(
     }
 }
 
+#[cfg(feature = "llvm-boundary")]
 pub(crate) fn emit_json_and_run_ny_llvmc_emit_exe_with_bundle(
     emit_json: impl FnOnce(&std::path::Path) -> Result<(), String>,
     bundle_path: &str,
@@ -453,6 +455,7 @@ pub(crate) fn emit_json_and_run_ny_llvmc_emit_exe_with_bundle(
     }
 }
 
+#[cfg(feature = "llvm-boundary")]
 fn run_ny_llvmc_emit_exe_with_bundle(
     json_path: &std::path::Path,
     bundle_path: &str,
