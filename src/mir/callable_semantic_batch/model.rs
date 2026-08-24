@@ -52,7 +52,7 @@ pub(crate) struct VerifiedResolvedCallableSourceIdentityV1 {
     identity: CallableDeclarationIdentityV1,
     mode: ResolvedCallableDeclarationModeV1,
     owner: FunctionOwnerIdV1,
-    function_origin: FunctionOriginV1,
+    _function_origin: FunctionOriginV1,
     method_source_observation: Option<CallableMethodSourceObservationV1>,
 }
 
@@ -83,10 +83,6 @@ pub(crate) struct VerifiedResolvedCallableParameterSourceRefV1<'batch> {
 }
 
 impl VerifiedResolvedCallableSemanticBatchV1 {
-    pub(crate) fn source(&self) -> &VerifiedFinalCallableProgramSourceV1 {
-        &self.source
-    }
-
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.source.ast()
     }
@@ -154,7 +150,7 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
             identity: semantic.identity.clone(),
             mode: semantic.mode,
             owner: semantic.owner,
-            function_origin: semantic.function_origin,
+            _function_origin: semantic.function_origin,
             method_source_observation: semantic.method_source_observation.clone(),
         };
         self.with_lowering_input(batch_slot, |input| callback(input, identity))
@@ -188,13 +184,17 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                     &semantic.forest,
                     &semantic.projection,
                 )
-                .map_err(ResolvedCallableSemanticBatchLoanErrorV1::LoweringInput)?;
+                .map_err(|error| {
+                    ResolvedCallableSemanticBatchLoanErrorV1::LoweringInput { _error: error }
+                })?;
                 if input.owner() != semantic.owner {
                     return Err(ResolvedCallableSemanticBatchLoanErrorV1::OwnerMismatch);
                 }
                 Ok(callback(input, semantic.method_source_observation.clone()))
             })
-            .map_err(ResolvedCallableSemanticBatchLoanErrorV1::ParserSyntax)?
+            .map_err(
+                |error| ResolvedCallableSemanticBatchLoanErrorV1::ParserSyntax { _error: error },
+            )?
     }
 
     pub(crate) fn with_declaration_semantics<R>(
@@ -263,7 +263,9 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
                     rows: rows.into_boxed_slice(),
                 }))
             })
-            .map_err(ResolvedCallableSemanticBatchLoanErrorV1::ParserSyntax)?
+            .map_err(
+                |error| ResolvedCallableSemanticBatchLoanErrorV1::ParserSyntax { _error: error },
+            )?
     }
 }
 
@@ -278,10 +280,6 @@ impl VerifiedResolvedCallableSourceIdentityV1 {
 
     pub(crate) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
-    }
-
-    pub(crate) const fn function_origin(&self) -> FunctionOriginV1 {
-        self.function_origin
     }
 
     pub(crate) fn method_source_observation(&self) -> Option<&CallableMethodSourceObservationV1> {
@@ -410,9 +408,13 @@ impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
 
 #[derive(Debug)]
 pub(crate) enum ResolvedCallableSemanticBatchLoanErrorV1 {
-    ParserSyntax(FinalCallableSemanticSyntaxLoanErrorV1),
+    ParserSyntax {
+        _error: FinalCallableSemanticSyntaxLoanErrorV1,
+    },
     MissingSourceRow,
     SourceCoverage,
-    LoweringInput(CanonicalLoweringErrorV1),
+    LoweringInput {
+        _error: CanonicalLoweringErrorV1,
+    },
     OwnerMismatch,
 }

@@ -26,7 +26,9 @@ use super::model::{
 
 #[derive(Debug)]
 pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
-    ParserSyntax(FinalCallableSemanticSyntaxLoanErrorV1),
+    ParserSyntax {
+        _error: FinalCallableSemanticSyntaxLoanErrorV1,
+    },
     SourceCoverage,
     Resolver(SourceBoundSelectedCallableResolverRejectV1),
     ResolverDeferred(SelectedCallableResolverDeferredBatchV1),
@@ -34,9 +36,13 @@ pub(crate) enum ResolvedCallableSemanticBatchIssueV1 {
     RootProfileMismatch,
     BodyShapeMissing,
     BodyShapeOwnerMismatch,
-    BlockExprExpectation(ResolvedBlockExpressionExpectationIssueV1),
+    BlockExprExpectation {
+        _error: ResolvedBlockExpressionExpectationIssueV1,
+    },
     DuplicateOwner,
-    Projection(SourceNavigationErrorV1),
+    Projection {
+        _error: SourceNavigationErrorV1,
+    },
     ParameterCountOverflow,
 }
 
@@ -167,14 +173,19 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
                     return Err(ResolvedCallableSemanticBatchIssueV1::DuplicateOwner);
                 }
                 let block_expr_expectation =
-                    issue_resolved_block_expr_expectation_v1(function, &body_shape)
-                        .map_err(ResolvedCallableSemanticBatchIssueV1::BlockExprExpectation)?;
+                    issue_resolved_block_expr_expectation_v1(function, &body_shape).map_err(
+                        |error| ResolvedCallableSemanticBatchIssueV1::BlockExprExpectation {
+                            _error: error,
+                        },
+                    )?;
                 let projection = VerifiedSourceProjectionV1::seal_with_root_profile(
                     declaration,
                     &forest,
                     view.root_profile(),
                 )
-                .map_err(ResolvedCallableSemanticBatchIssueV1::Projection)?;
+                .map_err(|error| {
+                    ResolvedCallableSemanticBatchIssueV1::Projection { _error: error }
+                })?;
                 resolved.push(VerifiedResolvedCallableSemanticRowV1 {
                     batch_slot,
                     identity,
@@ -191,7 +202,7 @@ pub(crate) fn issue_resolved_callable_semantic_batch_with_brand_catalog_v1(
             }
             Ok(resolved.into_boxed_slice())
         })
-        .map_err(ResolvedCallableSemanticBatchIssueV1::ParserSyntax)??;
+        .map_err(|error| ResolvedCallableSemanticBatchIssueV1::ParserSyntax { _error: error })??;
 
     Ok(VerifiedResolvedCallableSemanticBatchV1 { source, rows })
 }
