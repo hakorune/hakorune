@@ -270,23 +270,6 @@ impl PreparedFunctionExitPlanV1 {
             }),
         }
     }
-
-    pub(super) fn project_exit(
-        builder: &MirBuilder,
-        exit: PreparedFunctionExitV1,
-    ) -> Result<FunctionDraftSealProjectionV1, FunctionDraftSealProjectionErrorV1> {
-        FunctionDraftSealProjectionV1::project_from_builder(builder, exit)
-    }
-}
-
-impl RejectedFunctionDraftProjectionV1 {
-    pub(super) fn error(&self) -> &FunctionDraftSealProjectionErrorV1 {
-        &self.error
-    }
-
-    pub(super) fn discard(self) {
-        let _ = self.owner;
-    }
 }
 
 impl FunctionDraftSealProjectionV1 {
