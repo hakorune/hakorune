@@ -137,8 +137,7 @@ mod generic_g0;
 pub(crate) use direct_accum_producer_tests::direct_accum_product_for_test;
 
 pub(crate) use generic_g0_demand::{
-    issue_generic_g0_recipe_demand_v1, GenericG0RecipeDemandIssueV1, GenericG0RoleLeaseRejectV1,
-    VerifiedGenericG0RoleLeaseV1, VerifiedGenericRecipeDemandG0,
+    issue_generic_g0_recipe_demand_v1, GenericG0RecipeDemandIssueV1,
 };
 
 #[allow(unused_imports)]
@@ -149,9 +148,6 @@ pub(crate) use generic_g0::{
 
 #[cfg(test)]
 pub(crate) use generic_g0::generic_operation_demand_parts_for_test;
-
-#[cfg(test)]
-pub(crate) use source_bound_core::issue_source_bound_core_for_test;
 
 #[cfg(test)]
 mod tests;
@@ -178,12 +174,6 @@ mod typed_schema_v2_dynamic_operation_tests;
 #[cfg(test)]
 #[path = "typed_schema_v2_structure_tests.rs"]
 mod typed_schema_v2_structure_tests;
-
-#[cfg(test)]
-pub(crate) use operation_effect_parity::{
-    issue_operation_effect_parity_receipt_v1, LoopOperationEffectParityReceiptV1,
-    LoopOperationEffectParityRejectV1, LoopOperationEffectParitySideV1,
-};
 
 // Keep one stable facade for the caller-zero common-V2 parent; the products
 // remain source-only and do not open the physical session.
@@ -338,7 +328,6 @@ pub(crate) use s6c_scan_with_init_logical_consumer::{
     S6CLogicalConsumerResultV1,
 };
 pub(crate) use s6c_text_eq_occurrence::{
-    issue_s6c_text_eq_occurrence_source_v1, S6CTextEqOccurrenceSourceRejectV1,
     S6CTextEqOccurrenceSourceViewV1,
 };
 #[allow(unused_imports)]
