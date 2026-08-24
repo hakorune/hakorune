@@ -179,7 +179,7 @@ fn issue_rows(
         declarations: declarations.into_boxed_slice(),
         brands: brands.into_boxed_slice(),
         import_config: ScriptImportConfigSnapshotV1::no_imports(),
-        seal: CanonicalScriptSourceRowsSealV1,
+        _seal: CanonicalScriptSourceRowsSealV1,
     })
 }
 

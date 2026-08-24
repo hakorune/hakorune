@@ -28,9 +28,6 @@ impl ScriptBodyRowV1 {
         self.ordinal
     }
 
-    pub(crate) const fn kind(&self) -> ScriptBodySyntaxKindV1 {
-        self.kind
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -53,13 +50,6 @@ impl ScriptParameterSyntaxRowV1 {
         &self.name
     }
 
-    pub(crate) const fn ordinal(&self) -> u32 {
-        self.ordinal
-    }
-
-    pub(crate) fn declared_type_name(&self) -> Option<&str> {
-        self.declared_type_name.as_deref()
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -85,14 +75,6 @@ impl ScriptDeclarationSyntaxSnapshotV1 {
         }
     }
 
-    pub(crate) const fn ordinal(&self) -> u32 {
-        self.ordinal
-    }
-
-    pub(crate) const fn kind(&self) -> ScriptBodySyntaxKindV1 {
-        self.kind
-    }
-
     pub(crate) fn name(&self) -> &str {
         &self.name
     }
@@ -116,10 +98,6 @@ impl BrandSyntaxSnapshotV1 {
             name,
             underlying_type_name,
         }
-    }
-
-    pub(crate) const fn ordinal(&self) -> u32 {
-        self.ordinal
     }
 
     pub(crate) fn name(&self) -> &str {
@@ -162,7 +140,7 @@ pub(crate) struct CanonicalScriptSourceRowsV1 {
     pub(super) declarations: Box<[ScriptDeclarationSyntaxSnapshotV1]>,
     pub(super) brands: Box<[BrandSyntaxSnapshotV1]>,
     pub(super) import_config: ScriptImportConfigSnapshotV1,
-    pub(super) seal: CanonicalScriptSourceRowsSealV1,
+    pub(super) _seal: CanonicalScriptSourceRowsSealV1,
 }
 
 #[derive(Debug)]
@@ -211,23 +189,6 @@ pub(crate) enum CanonicalScriptSourceRowsDispositionV1 {
 }
 
 impl CanonicalScriptSourceRowsDispositionV1 {
-    pub(crate) fn parser_invocation_witness(&self) -> Option<ParserInvocationWitnessV1> {
-        match self {
-            Self::HandoffReady(rows) => Some(rows.parser_brand.clone()),
-            Self::NotApplicable
-            | Self::CompatibilitySource
-            | Self::Deferred
-            | Self::AdmissionMissing
-            | Self::SourceAuthorityUnavailable
-            | Self::CohortUnresolved
-            | Self::ObservationIncomplete
-            | Self::IntegrityInvalid
-            | Self::NonCandidate
-            | Self::MovedToParallelHandoff
-            | Self::DispositionTransported => None,
-        }
-    }
-
     /// Explicit terminal for a parser-issued Script-A sibling that has no
     /// consumer on the selected route.
     pub(crate) fn discard_at_named_terminal(self) {
