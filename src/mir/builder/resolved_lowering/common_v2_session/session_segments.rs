@@ -20,7 +20,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::loop_recipe_contract::issue_v2_segment_allocation_plan;
 
 impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
-    pub(in crate::mir::builder) fn allocate_v2_segment_blocks(
+    pub(in crate::mir::builder::resolved_lowering) fn allocate_v2_segment_blocks(
         &mut self,
         builder: &mut MirBuilder,
     ) -> Result<
@@ -38,7 +38,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     }
 
     /// Open one private, one-shot segment scope for this canonical session.
-    pub(in crate::mir::builder) fn with_shared_segment_scope<R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_shared_segment_scope<R>(
         &mut self,
         builder: &mut MirBuilder,
         callback: impl FnOnce(
@@ -59,7 +59,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
 
     /// Reserve one unpublished physical target for the exact source
     /// fallthrough item. No edge or instruction API escapes this callback.
-    pub(in crate::mir::builder) fn with_if_continuation_target<R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_if_continuation_target<R>(
         &mut self,
         builder: &mut MirBuilder,
         segment_receipt: &super::super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
@@ -145,7 +145,7 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
         })
     }
 
-    pub(in crate::mir::builder) fn allocate_v2_after_block<'session>(
+    pub(in crate::mir::builder::resolved_lowering) fn allocate_v2_after_block<'session>(
         &'session mut self,
         builder: &mut MirBuilder,
         segment_receipt: &super::super::common_v2_segment_block_allocation::PreparedSegmentBlockReceiptV1,
