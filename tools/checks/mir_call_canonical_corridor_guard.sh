@@ -29,6 +29,7 @@ QUERY="$ROOT_DIR/src/mir/query.rs"
 PRINTER_HELPERS="$ROOT_DIR/src/mir/printer_helpers.rs"
 PRINTER_DISPLAY="$ROOT_DIR/src/mir/instruction/display.rs"
 PRINTER_TESTS="$ROOT_DIR/src/mir/printer/tests.rs"
+JSON_CALLS="$ROOT_DIR/src/runner/mir_json_emit/emitters/calls.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -41,7 +42,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -118,6 +119,10 @@ require "$PRINTER_HELPERS" "pub(crate) fn format_call_target"
 require "$PRINTER_DISPLAY" "format_call_target(callee.as_ref(), *func, args)"
 require "$PRINTER_TESTS" "typed_printer_projects_callee_and_ignores_stale_func"
 require "$PRINTER_TESTS" "printer_preserves_explicit_legacy_call_rendering"
+require "$JSON_CALLS" "fn emit_call_with_callee_v0"
+require "$JSON_CALLS" "v0_typed_call_variants_ignore_stale_numeric_func_decoration"
+require "$JSON_CALLS" "v0_legacy_call_preserves_explicit_numeric_func_decoration"
+require "$JSON_CALLS" "method_none_keeps_legacy_receiver_func_until_r6"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -169,6 +174,7 @@ for relative in (
     "src/mir/printer_helpers.rs",
     "src/mir/instruction/display.rs",
     "src/mir/printer/tests.rs",
+    "src/runner/mir_json_emit/emitters/calls.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
     lines = (root / relative).read_text().splitlines()
@@ -395,6 +401,22 @@ for token in (
 ):
     if token not in printer_tests:
         raise SystemExit(f"printer parity tests lost {token}")
+
+json_calls = (root / "src/runner/mir_json_emit/emitters/calls.rs").read_text()
+typed_start = json_calls.index("fn emit_call_with_callee_v0")
+typed_end = json_calls.index("fn emit_call_with_optional_func", typed_start)
+typed_helper = json_calls[typed_start:typed_end]
+if "func" in typed_helper or "emit_call_with_optional_func" in typed_helper:
+    raise SystemExit("typed v0 JSON projection retained legacy func decoration")
+if '"callee": callee' not in typed_helper:
+    raise SystemExit("typed v0 JSON projection lost explicit callee emission")
+if "receiver.unwrap_or(*func)" not in json_calls:
+    raise SystemExit("Method(None) compatibility receiver projection was removed before R6")
+import re
+if re.search(r"emit_call_with_callee_v0\s*\(\s*dst\s*,\s*func\b", json_calls):
+    raise SystemExit("typed v0 JSON call site still forwards legacy func")
+if "fn emit_call_with_optional_func" not in json_calls:
+    raise SystemExit("legacy v0 JSON call helper was removed before its compatibility row")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

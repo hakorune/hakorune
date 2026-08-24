@@ -101,7 +101,6 @@ pub(crate) fn emit_call(
                 } else {
                     Some(emit_call_with_callee_v0(
                         dst,
-                        func,
                         args,
                         json!({"type":"Global","name":name}),
                     ))
@@ -113,13 +112,11 @@ pub(crate) fn emit_call(
             }
             Callee::Constructor { box_type } => Some(emit_call_with_callee_v0(
                 dst,
-                func,
                 args,
                 json!({"type":"Constructor","name":box_type}),
             )),
             Callee::Value(value) => Some(emit_call_with_callee_v0(
                 dst,
-                func,
                 args,
                 json!({"type":"Value","value":value.as_u32()}),
             )),
@@ -134,7 +131,6 @@ pub(crate) fn emit_call(
                     .collect();
                 Some(emit_call_with_callee_v0(
                     dst,
-                    func,
                     args,
                     json!({
                         "type":"Closure",
@@ -153,11 +149,16 @@ pub(crate) fn emit_call(
 
 fn emit_call_with_callee_v0(
     dst: &Option<ValueId>,
-    func: &ValueId,
     args: &[ValueId],
     callee: serde_json::Value,
 ) -> serde_json::Value {
-    emit_call_with_optional_func(dst, func, args, Some(callee))
+    let args_a: Vec<_> = args.iter().map(|v| json!(v.as_u32())).collect();
+    json!({
+        "op":"call",
+        "args": args_a,
+        "dst": dst.map(|d| d.as_u32()),
+        "callee": callee
+    })
 }
 
 fn emit_call_with_optional_func(
@@ -275,12 +276,12 @@ mod tests {
     }
 
     #[test]
-    fn v0_global_call_with_invalid_func_omits_numeric_func_field() {
+    fn v0_typed_global_call_ignores_stale_numeric_func_decoration() {
         let _lock = env_lock().lock().expect("env lock poisoned");
         let _env = EnvGuard::set_unified_off();
         let v = emit_call(
             &Some(ValueId::new(3)),
-            &ValueId::INVALID,
+            &ValueId::new(99),
             Some(&Callee::Global("my_func/0".to_string())),
             &[ValueId::new(1)],
             &EffectMask::PURE,
@@ -288,13 +289,84 @@ mod tests {
         .expect("must emit call");
 
         assert_eq!(v.get("op").and_then(|x| x.as_str()), Some("call"));
-        assert!(v.get("func").is_none(), "func must be omitted when INVALID");
+        assert!(
+            v.get("func").is_none(),
+            "typed func decoration must be omitted"
+        );
         let callee = v.get("callee").expect("callee must exist");
         assert_eq!(callee.get("type").and_then(|x| x.as_str()), Some("Global"));
         assert_eq!(
             callee.get("name").and_then(|x| x.as_str()),
             Some("my_func/0")
         );
+    }
+
+    #[test]
+    fn v0_typed_call_variants_ignore_stale_numeric_func_decoration() {
+        let _lock = env_lock().lock().expect("env lock poisoned");
+        let _env = EnvGuard::set_unified_off();
+        let typed = vec![
+            Callee::Global("worker/0".to_string()),
+            Callee::Constructor {
+                box_type: "WorkerBox".to_string(),
+            },
+            Callee::Value(ValueId::new(7)),
+            Callee::Closure {
+                params: vec!["value".to_string()],
+                captures: vec![("captured".to_string(), ValueId::new(8))],
+                me_capture: Some(ValueId::new(9)),
+            },
+        ];
+
+        for callee in typed {
+            let v = emit_call(
+                &Some(ValueId::new(3)),
+                &ValueId::new(99),
+                Some(&callee),
+                &[ValueId::new(1)],
+                &EffectMask::PURE,
+            )
+            .expect("must emit typed call");
+
+            assert_eq!(v.get("op").and_then(|x| x.as_str()), Some("call"));
+            assert!(
+                v.get("func").is_none(),
+                "typed v0 call must not copy stale numeric func: {v}"
+            );
+            assert!(v.get("callee").is_some(), "typed callee must be emitted");
+        }
+
+        let extern_call = emit_call(
+            &None,
+            &ValueId::new(99),
+            Some(&Callee::Extern("env.worker.run".to_string())),
+            &[ValueId::new(1)],
+            &EffectMask::IO,
+        )
+        .expect("must emit extern call");
+        assert_eq!(
+            extern_call.get("op").and_then(|x| x.as_str()),
+            Some("externcall")
+        );
+        assert!(extern_call["func"].is_string());
+    }
+
+    #[test]
+    fn v0_legacy_call_preserves_explicit_numeric_func_decoration() {
+        let _lock = env_lock().lock().expect("env lock poisoned");
+        let _env = EnvGuard::set_unified_off();
+        let v = emit_call(
+            &None,
+            &ValueId::new(99),
+            None,
+            &[ValueId::new(1)],
+            &EffectMask::PURE,
+        )
+        .expect("must emit legacy call");
+
+        assert_eq!(v.get("op").and_then(|x| x.as_str()), Some("call"));
+        assert_eq!(v.get("func").and_then(|x| x.as_u64()), Some(99));
+        assert!(v.get("callee").is_none());
     }
 
     #[test]
@@ -396,5 +468,31 @@ mod tests {
         .expect("must emit call");
 
         assert_eq!(v.get("op").and_then(|x| x.as_str()), Some("boxcall"));
+    }
+
+    #[test]
+    fn method_none_keeps_legacy_receiver_func_until_r6() {
+        let _lock = env_lock().lock().expect("env lock poisoned");
+        let _env = EnvGuard::set(&[
+            ("NYASH_MIR_UNIFIED_CALL", "0"),
+            ("HAKO_MIR_BUILDER_METHODIZE", "0"),
+        ]);
+        let v = emit_call(
+            &None,
+            &ValueId::new(12),
+            Some(&Callee::Method {
+                box_name: "FileBox".to_string(),
+                method: "open".to_string(),
+                receiver: None,
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            }),
+            &[ValueId::new(2)],
+            &EffectMask::IO,
+        )
+        .expect("must emit compatibility method call");
+
+        assert_eq!(v.get("op").and_then(|x| x.as_str()), Some("boxcall"));
+        assert_eq!(v.get("box").and_then(|x| x.as_u64()), Some(12));
     }
 }
