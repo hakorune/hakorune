@@ -510,7 +510,8 @@ Decision: root selects exactly one JsonEgressProfile; CanonicalV1 is the mainlin
 Source authority + canonical issuer: root selector parses S/U/M once; stored Call.callee remains the semantic issuer; emitters only project the selected profile.
 Non-authority: func/INVALID except explicit V0 legacy ingress, wire text, independent env reads, backend_shape mutation, post-wire lookup/retry, and parked backends.
 Fail-fast boundary: invalid/mixed selector, targetless Call, and unsupported profile/target combinations reject before root or instruction publication; malformed explicit targets never retry through legacy fields.
-Smallest next slice: MIR-CALL-JSON-PROFILE-I0-R0; thread the immutable profile from root through emitters/mod.rs to calls.rs and remove per-call selector reads.
+Completed slice: MIR-CALL-JSON-PROFILE-I0-R0 landed at `db350b81c9`; the immutable profile is threaded from root through emitters/mod.rs to calls.rs, per-call selector reads are gone, root tests are 2/2, calls tests are 8/8, and the shared guards are green.
+Next design stop: MIR-CALL-JOINIR-OPERAND-REMAP-D0; no backend_shape, native, or R6 implementation is implied.
 Non-claims: backend_shape removal, Method(None) retirement, Closure/NewBox decision, loader fallback split, native, or R6 core schema cutover.
 ```
 
@@ -547,6 +548,36 @@ parity: root schema kind, callee, receiver, args, dst, and existing effects
         loader retry/fallback, Method(None), and construction boundaries stay
         outside the I0 claim.
 ```
+
+JoinIR operand-remap D0 (next design stop: `MIR-CALL-JOINIR-OPERAND-REMAP-D0`):
+
+```text
+Decision: JoinIR Call collection/remap may delegate target ValueIds to the
+  Callee operand projection, but no production edit is admitted until its
+  named merge caller and shared lifecycle boundary are finite and observed.
+Source authority + canonical issuer: Callee::for_each_value_operand and
+  Callee::rewrite_value_operands own target occurrence order; MirInstruction
+  ::Call owns args/dst; JoinIR only remaps IDs and never reclassifies targets.
+Non-authority: local remap_callee matches, func/INVALID, generic used_values
+  policy, target strings, backend lookup, and caller-zero/test fixtures.
+Fail-fast boundary: collect/remap must be classified for every non-test
+  JoinIR merge caller before delegation; an unowned or shared-lifecycle edge
+  is NoSafeSlice, with no partial helper replacement or fallback.
+Smallest next slice: read-only census of JoinIrIdRemapper Call arms and all
+  direct merge/lifecycle callers; if the boundary closes, one R4c row replaces
+  the local match and incomplete Call collection, with positive/negative/
+  parity evidence and the shared corridor guard.
+Non-claims: Method(None), Closure/Constructor shape, MirCall/CallFlags,
+  mandatory-Callee schema, backend/native, PyVM/reference/Python, or warnings.
+```
+
+Finite D0 boundary: start at `src/mir/builder/joinir_id_remapper.rs` Call
+collection/remap arms; include non-test direct consumers in
+`builder/control_flow/joinir/merge/**` and value-lifecycle callers; exclude
+phase test modules, disconnected/caller-zero fixtures, unrelated MIR
+instructions, and all backend/native/parked routes. Completion requires a
+finite owner/caller inventory, one lifecycle authority, and zero open or
+reopened JoinIR remap blockers; otherwise the row remains `NoSafeSlice`.
 
 Feedback reconciliation and deferred task queue (not selected):
 
