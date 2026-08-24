@@ -753,3 +753,20 @@ It removes the caller-zero `NormalCallableHandoffStageV1` import from
 transaction and its child authorities are unchanged. The focused normal-module
 transaction suite passes 20 tests, all five reusable guards remain green, and
 the test fingerprint moved from 1014 to 1013 warnings.
+
+The following caller-zero import slice is landed as `47f2e77cec`:
+
+```text
+47f2e77cec  refactor: prune semantic invocation imports
+```
+
+It removes only unused test/legacy imports from
+`normal_script_semantic_source_tests.rs`,
+`module_lowering_invocation_legacy_term.rs`, and the invocation test support
+module. The focused `module_lowering_invocation::tests` suite passes 7 tests;
+all five reusable guards remain green, and the test fingerprint moved from
+1013 to 1009 warnings. A broad exploratory
+`normal_script_semantic_source` filter remains baseline-red (17/67 passed)
+because its existing fixture parser rejects `grouped_assignment` at
+`normal_script_binding_rebind_tests.rs:102`; that failure is outside this
+import-only diff and is not counted as current-change evidence.
