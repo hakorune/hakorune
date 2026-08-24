@@ -194,25 +194,6 @@ impl UnifiedCallEmitterBox {
         )
     }
 
-    fn emit_unified_call_impl_with_map_replay(
-        builder: &mut MirBuilder,
-        dst: Option<ValueId>,
-        target: CallTarget,
-        args: Vec<ValueId>,
-        map_write_replay: Option<
-            crate::mir::builder::types::map_value::post_success::PreparedMapWriteReplayV1,
-        >,
-    ) -> Result<(), String> {
-        Self::emit_unified_call_impl_with_lookup_and_map_replay(
-            builder,
-            dst,
-            target,
-            args,
-            None,
-            map_write_replay,
-        )
-    }
-
     fn emit_unified_call_impl_with_lookup_and_map_replay(
         builder: &mut MirBuilder,
         dst: Option<ValueId>,
