@@ -956,3 +956,16 @@ nested-predicate adapter test; lowering behavior and test fixtures are
 unchanged. The focused `normal_root_execution` suite passes 19 tests, all
 five reusable guards remain green, and the test fingerprint moved from 924
 to 919 warnings.
+
+The following loop-physicalizer facade import slice is landed as
+`cbf4bec31f`:
+
+```text
+cbf4bec31f  refactor: tighten loop physicalizer imports
+```
+
+It removes two caller-zero facade imports and changes one test-support
+reexport to a private parent import so child test modules retain their
+existing names without widening the facade. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 919 to 916 warnings.
