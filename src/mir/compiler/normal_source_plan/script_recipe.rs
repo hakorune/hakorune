@@ -108,7 +108,7 @@ impl RetainedNormalScriptSourceV1 {
 }
 
 impl RejectedNormalScriptRecipeV1 {
-    pub(crate) fn into_parts(
+    pub(in crate::mir) fn into_parts(
         self,
     ) -> (SealedNormalScriptSourceV1, RawScriptRecipeProjectionErrorV1) {
         (self.source, self.error)
@@ -118,7 +118,7 @@ impl RejectedNormalScriptRecipeV1 {
         self.stage
     }
 
-    pub(crate) fn error(&self) -> &RawScriptRecipeProjectionErrorV1 {
+    pub(in crate::mir) fn error(&self) -> &RawScriptRecipeProjectionErrorV1 {
         &self.error
     }
 
