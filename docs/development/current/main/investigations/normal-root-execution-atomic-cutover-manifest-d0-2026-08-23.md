@@ -2540,3 +2540,10 @@ authority rejects; warnings are 485→483 (`private_interfaces=11`,
 `dc78128d1f` removes five caller-zero callable-result/parameter accessors while
 retaining the sealed fields; warnings are 483→478 (`private_interfaces=11`,
 `dead_code=467`), with 19/19 focused tests and all five guards green.
+
+`820816bcba` retains the callable transaction's typed reject payloads while
+making its caller-zero enum fields underscore-named evidence; warnings are
+478→469 (`private_interfaces=11`, `dead_code=458`), with 19/19 focused tests
+and all five guards green. The remaining boundary is unchanged: B-class
+retirement scaffolding stays parked, and public-interface debt still awaits a
+separate authority decision.
