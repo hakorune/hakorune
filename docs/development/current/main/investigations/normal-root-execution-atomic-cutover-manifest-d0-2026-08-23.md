@@ -2293,3 +2293,24 @@ The updated residual warning boundary is explicit: the eleven
 MIR/semantic API authority decision described above, while the remaining 553
 `dead_code` warnings are existing disconnected scaffolding and are not
 mass-deleted in this R0 lane.
+
+The following Raw finalization rejection-probe cleanup is landed as
+`24ce822e19`:
+
+```text
+24ce822e19  refactor: trim raw finalization rejection probe
+```
+
+The physical rejection still retains its drained owner for the upper-layer
+error route, and `error()` remains the sole evidence accessor. The unused
+physical-level `discard` probe is removed; the existing unconstructed typed
+failure vocabulary is preserved. Finalization validation and handoff are
+unchanged. The focused `normal_root_execution` suite passes 19 tests, and the
+test fingerprint moved from 564 to 562 warnings (`private_interfaces=11`,
+`dead_code=551`; all non-structural lint categories remain zero).
+
+The updated residual warning boundary is explicit: the eleven
+`private_interfaces` warnings remain deferred pending the deliberate public
+MIR/semantic API authority decision described above, while the remaining 551
+`dead_code` warnings are existing disconnected scaffolding and are not
+mass-deleted in this R0 lane.
