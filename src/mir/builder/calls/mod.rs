@@ -19,9 +19,7 @@
 // Existing modules (already implemented elsewhere)
 pub mod annotation;
 mod call_argument_descent;
-pub(in crate::mir::builder) use call_argument_descent::{
-    drive_call_arguments_v1, CallArgumentDescentPortV1,
-};
+pub(in crate::mir::builder) use call_argument_descent::drive_call_arguments_v1;
 #[cfg(test)]
 mod call_argument_descent_tests;
 pub mod call_target;
@@ -77,15 +75,11 @@ mod method_call_terminal;
 pub(in crate::mir::builder) mod static_result_publication;
 pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, CatalogHelperChildV1,
-    MethodCallArgumentDescentV1, MethodCallDescentPortV1, MethodCallSyntaxViewV1,
-    RawLegacyMethodCallInputV1,
+    MethodCallArgumentDescentV1, MethodCallDescentPortV1, RawLegacyMethodCallInputV1,
 };
 pub(in crate::mir::builder) use method_call_terminal::emit_static_global_value_terminal_with_receipt_v1;
 pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPortV1;
-pub(in crate::mir::builder) use method_call_terminal::{
-    emit_env_value_terminal_raw_v1, emit_global_value_terminal_raw_v1,
-    emit_standard_value_terminal_raw_v1, emit_typeop_value_terminal_raw_v1,
-};
+pub(in crate::mir::builder) use method_call_terminal::emit_standard_value_terminal_raw_v1;
 pub(in crate::mir::builder) use method_call_terminal::{
     StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
