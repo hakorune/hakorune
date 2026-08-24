@@ -1977,11 +1977,25 @@ fact and no source fallback. The focused `normal_root_execution` suite passes
 (`private_interfaces=11`, `dead_code=621`; all non-structural lint categories
 remain zero).
 
+The following Raw root-exit facade cleanup is landed as `71b45d262e`:
+
+```text
+71b45d262e  refactor: trim raw root exit facade evidence
+```
+
+The AppVoid disposition retains its discarded-tail relation as
+`_discarded_tail`, and the uncalled witness `brand()` adapter is removed;
+brand validation and route/Return checks remain the existing owners. The
+focused `normal_root_execution` suite passes 19 tests, and the test
+fingerprint moved from 632 to 630 warnings
+(`private_interfaces=11`, `dead_code=619`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 621 `dead_code` warnings are existing disconnected
+visibility. The remaining 619 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
