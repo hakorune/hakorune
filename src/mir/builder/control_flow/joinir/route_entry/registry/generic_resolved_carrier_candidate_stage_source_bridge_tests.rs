@@ -32,8 +32,7 @@ use crate::mir::builder::control_flow::verify::PlanVerifier;
 use crate::mir::builder::vars::lexical_scope::LexicalScopeGuard;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourcePathSegmentV1,
-    SourceStmtSiteV1, VerifiedResolvedFunctionV1,
+    BindingRefV1, FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1,
 };
 use crate::mir::{MirType, ValueId};
 

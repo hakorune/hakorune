@@ -12,7 +12,7 @@ use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_ssa::ResolvedSsaIdentityStateV2;
 use crate::mir::builder::resolved_lowering::semantic_stack::{
-    ResolvedScopeRetirementV1, ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1,
+    ResolvedSemanticExpectedCountsV1, ResolvedSemanticStackV1,
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::nested_predicate_effect_plan::{

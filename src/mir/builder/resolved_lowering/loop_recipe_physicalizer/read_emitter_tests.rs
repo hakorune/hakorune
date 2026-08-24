@@ -6,7 +6,7 @@ use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::callable_single_loop_operation_effect::callable_operation_fixture_for_test;
 use crate::mir::loop_recipe_contract::{
     generic_operation_demand_parts_for_test, LoopBlockKeyV1, LoopNodeKeyV1,
-    LoopOperationPhysicalDemandRejectV1, VerifiedLoopOperationPhysicalDemandV1,
+    VerifiedLoopOperationPhysicalDemandV1,
 };
 use crate::mir::resolved_semantics::BindingOriginV1;
 use crate::mir::{BasicBlock, BasicBlockId, MirType, ValueId};

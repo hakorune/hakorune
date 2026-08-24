@@ -7,8 +7,7 @@
 
 use super::operation_emitter::map_target_reject;
 use super::operation_ledger::{LoopOperationValueLedgerV1, LoopOperationValueReceiptV1};
-use super::operation_target::{LoopOperationTargetRejectV1, VerifiedLoopOperationTargetBlockV1};
-use super::operation_type::{ensure_provisional_value_class, expected_mir_type};
+use super::operation_target::VerifiedLoopOperationTargetBlockV1;
 use super::topology::{LoopPhysicalBlockReceiptV1, LoopPhysicalBlockRoleV1, ReadyLoopEntryV1};
 use crate::mir::builder::emission::constant;
 use crate::mir::builder::emission::loop_operation;
