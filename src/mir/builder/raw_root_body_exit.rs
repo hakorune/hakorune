@@ -125,7 +125,7 @@ enum RawRootBodyExitDispositionV1 {
     AppVoid {
         block: BasicBlockId,
         returned_void: ValueId,
-        discarded_tail: Option<ValueId>,
+        _discarded_tail: Option<ValueId>,
     },
     LegacyUnverified,
 }
@@ -284,7 +284,7 @@ impl MirBuilder {
                     RawRootBodyExitDispositionV1::AppVoid {
                         block,
                         returned_void: void_value,
-                        discarded_tail,
+                        _discarded_tail: discarded_tail,
                     },
                     Some(void_value),
                 )
@@ -477,10 +477,6 @@ impl RawRootBodyExitWitnessV1 {
             disposition: RawRootBodyExitDispositionV1::LegacyUnverified,
             _seal: RawRootBodyExitWitnessSealV1,
         }
-    }
-
-    pub(in crate::mir) const fn brand(&self) -> ModuleInvocationBrandV1 {
-        self.brand
     }
 
     pub(in crate::mir) const fn route(&self) -> RawRootBodyRouteV1 {
