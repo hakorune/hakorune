@@ -2032,11 +2032,24 @@ object remain owned by the existing DraftSeal flow. The focused
 from 626 to 624 warnings (`private_interfaces=11`, `dead_code=613`; all
 non-structural lint categories remain zero).
 
+The following OpenDraftSeal probe cleanup is landed as `b3c33e0a06`:
+
+```text
+b3c33e0a06  refactor: trim draft seal owner probes
+```
+
+Caller-zero `discard`, immutable builder, and ready-completion inspection
+probes are removed from the open owner; the mutable test builder probe and all
+prepare/commit/rejection restoration routes remain. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 624 to 623 warnings (`private_interfaces=11`, `dead_code=612`; all
+non-structural lint categories remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 613 `dead_code` warnings are existing disconnected
+visibility. The remaining 612 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
