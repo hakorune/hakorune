@@ -24,11 +24,10 @@ pub(crate) use error::IfRecipeRejectReasonV1;
 pub(crate) use ids::{IfBindingKeyV1, IfBlockKeyV1, IfItemKeyV1, IfValueKeyV1};
 pub(crate) use join_sig::{
     IfJoinEdgeRoleV1, IfJoinEdgeV1, IfJoinObligationV1, IfJoinPortV1, IfJoinSigElaboratorV1,
-    IfJoinSigRejectReasonV1, IfJoinSigV1, IfJoinValueEdgeV1, VerifiedIfJoinSigV1,
+    IfJoinSigV1, IfJoinValueEdgeV1,
 };
 pub(crate) use nested_join_sig::{
-    NestedIfJoinCompositionRoleV1, NestedIfJoinCompositionV1, NestedIfJoinNodeSigV1,
-    NestedIfJoinSigComposerV1, NestedIfJoinSigRejectReasonV1, NestedIfJoinSigV1,
+    NestedIfJoinCompositionRoleV1, NestedIfJoinSigComposerV1, NestedIfJoinSigRejectReasonV1,
     VerifiedNestedIfJoinSigV1,
 };
 pub(crate) use nested_schema::{
@@ -38,7 +37,6 @@ pub(crate) use nested_schema::{
     NestedIfRecipeProvenanceV1, NestedIfRecipeSourceBindingV1, NestedIfRecipeV1,
     NestedIfSourceClaimRoleV1, NestedIfSourceClaimV1, NestedIfSourcePathStepV1,
     NestedIfSourcePathV1, NestedIfValueClassV1, NestedIfValueKeyV1,
-    NESTED_IF_RECIPE_SCHEMA_VERSION_V1,
 };
 pub(crate) use nested_verify::{
     NestedIfRecipeRejectReasonV1, NestedIfRecipeVerifierV1, VerifiedNestedIfRecipeArtifactV1,
@@ -51,6 +49,5 @@ pub(crate) use schema::{
     IfRecipeBlockV1, IfRecipeItemRowV1, IfRecipeProfileV1, IfRecipeProvenanceV1,
     IfRecipeSourceBindingV1, IfRecipeSourceOwnerV1, IfRecipeV1, IfRecipeValueV1,
     IfSourceClaimRoleV1, IfSourceClaimV1, IfSourcePathStepV1, IfSourcePathV1, IfValueClassV1,
-    IF_RECIPE_SCHEMA_VERSION_V1,
 };
-pub(crate) use verify::{IfRecipeVerifierV1, VerifiedIfRecipeArtifactV1, VerifiedIfRecipeV1};
+pub(crate) use verify::{IfRecipeVerifierV1, VerifiedIfRecipeArtifactV1};
