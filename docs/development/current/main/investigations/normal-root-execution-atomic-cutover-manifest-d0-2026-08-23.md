@@ -881,3 +881,16 @@ control-flow and resolved-lowering support modules; no source or physical
 authority changes. The focused `normal_root_execution` suite passes 19 tests,
 all five reusable guards remain green, and the test fingerprint moved from 965
 to 954 warnings.
+
+The following completion-test import slice is landed as `8e7edb391e`:
+
+```text
+8e7edb391e  refactor: prune completion test imports
+```
+
+It removes caller-zero imports from the completion-consumption, draft-seal,
+and shared completion-test support modules; the completion authorities and
+tests are unchanged. The focused completion filter passes 21 tests, all five
+reusable guards remain green, and the test fingerprint moved from 954 to 940
+warnings. An initial compile exposed three imports that were actually used;
+they were restored before the green rerun and are not part of the final diff.
