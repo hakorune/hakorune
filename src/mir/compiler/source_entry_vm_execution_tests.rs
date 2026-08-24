@@ -1,5 +1,5 @@
 use super::*;
-use crate::ast::{ASTNode, BinaryOperator, DeclarationAttrs, Span};
+use crate::ast::{ASTNode, BinaryOperator, BoxMethodInventoryV1, DeclarationAttrs, Span};
 use crate::backend::vm_types::VMValue;
 use crate::mir::compiler::source_entry_result::SourceEntryResultV1;
 use crate::mir::compiler::source_entry_vm_invocation::decode_vm_value;
@@ -142,7 +142,7 @@ fn app_with_body(body: Vec<ASTNode>) -> ASTNode {
             field_decls: Vec::new(),
             public_fields: Vec::new(),
             private_fields: Vec::new(),
-            methods,
+            methods: BoxMethodInventoryV1::from_legacy_ast_map(methods),
             constructors: HashMap::new(),
             init_fields: Vec::new(),
             weak_fields: Vec::new(),
