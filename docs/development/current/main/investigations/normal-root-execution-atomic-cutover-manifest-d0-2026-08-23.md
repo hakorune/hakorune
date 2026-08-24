@@ -906,3 +906,16 @@ result-representation, and semantic-batch facades; contract owners and proof
 issuers are unchanged. The focused `normal_root_execution` suite passes 19
 tests, all five reusable guards remain green, and the test fingerprint moved
 from 940 to 936 warnings.
+
+The following builder import-shim slice is landed as `1c47cc8f92`:
+
+```text
+1c47cc8f92  refactor: prune builder import shims
+```
+
+It removes six caller-zero imports or internal reexports from the canonical
+completion, invocation collection, module shell, cataloged admission, raw
+ledger, and recursive child-lowering support modules; source, recipe, and
+physical authorities are unchanged. The focused `normal_root_execution`
+suite passes 19 tests, all five reusable guards remain green, and the test
+fingerprint moved from 936 to 930 warnings.
