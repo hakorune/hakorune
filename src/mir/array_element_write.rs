@@ -15,19 +15,12 @@ use crate::mir::{
 };
 use hakorune_mir_defs::{CalleeBoxKind, TypeCertainty};
 
-pub(crate) const UNCLASSIFIED_SURFACE_TAG: &str = "[mir/array_write/unclassified_surface]";
 pub(crate) const INVALID_SHAPE_TAG: &str = "[mir/array_write/invalid_shape]";
 pub(crate) const RESIDUAL_CALL_TAG: &str = "[mir/array_write/residual_call]";
-pub(crate) const IDENTITY_MISSING_TAG: &str = "[mir/array_write/identity_missing]";
 pub(crate) const IDENTITY_DRIFT_TAG: &str = "[mir/array_write/identity_drift]";
-pub(crate) const REPRESENTATION_AS_IDENTITY_TAG: &str =
-    "[mir/array_write/representation_as_identity]";
-pub(crate) const PLANNER_BYPASS_TAG: &str = "[mir/array_write/planner_bypass]";
 pub(crate) const COVERED_SITE_DRIFT_TAG: &str = "[mir/array_write/covered_site_drift]";
-pub(crate) const OVERLAPPING_ROUTES_TAG: &str = "[mir/array_write/overlapping_selected_routes]";
 pub(crate) const PROJECTION_DRIFT_TAG: &str = "[mir/array_write/projection_drift]";
 pub(crate) const BACKEND_UNSUPPORTED_TAG: &str = "[mir/array_write/backend_unsupported]";
-pub(crate) const RAW_RUNTIME_BYPASS_TAG: &str = "[mir/array_write/raw_runtime_bypass]";
 pub(crate) const TYPED_ARRAY_LEGACY_PROJECTION_FORBIDDEN_TAG: &str =
     "[type/typed_array_contract_legacy_projection_forbidden]";
 
