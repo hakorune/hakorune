@@ -406,15 +406,33 @@ green. The optimizer filter also retains two unrelated known baseline freezes
 (`mir/instance-constructor-source/cohort-missing`), so they are not attributed
 to this row. Warning count remains the 433-item baseline.
 
-R5b-B0 implementation evidence: `handlers/calls::handle_call` now rejects
-`None` before `reg_load(func)` or module lookup; the owner test and shared
-corridor guard encode that boundary, and `cargo check --profile quick
---features vm-reference --lib` is green. The focused test command is currently
-blocked by the known baseline compile error at
-`src/mir/compiler/source_entry_vm_execution_tests.rs:145`
-(`HashMap<_, ASTNode>` no longer matches `BoxMethodInventoryV1`); this is
-classified as baseline red, not a row failure. R5b keeps the instruction fields
-and all typed dispatch/method-fallback boundaries unchanged.
+R5b-B0 closeout evidence: commits `95427f2cd6` and `67dd7e400a` make
+`handlers/calls::handle_call` reject `None` before `reg_load(func)` or module
+lookup, and update the vm-reference fixture to the typed method carrier. The
+negative test is 1/1, typed Method parity is 18/18, typed Global call-contract
+coverage is 8/8, and typed Extern provider coverage is 4/4. The shared
+corridor/pointer guards and feature lib check are green; feature test warnings
+are the 437-item vm-reference baseline (the default lane remains 433). R5b
+keeps the instruction fields and all typed dispatch/method-fallback boundaries
+unchanged.
+
+R5c printer-only selected brief:
+
+```text
+Decision: printer observers project the stored typed Callee; they do not read
+func or reconstruct a target. This row changes display only.
+Source authority + canonical issuer: MirInstruction::Call.callee is issued by
+the existing producer/compatibility ingress and is the printer's sole target.
+Non-authority: func/INVALID, Const(String), JSON wire profiles, backend lookup,
+and any target classification or retry.
+Fail-fast boundary: typed Call display succeeds from Callee; legacy None keeps
+an explicit compatibility rendering and is not silently presented as typed.
+Smallest next slice: remove the display observer that always prints func,
+route typed/legacy rendering through one printer projection, and add parity
+tests plus the shared corridor guard.
+Non-claims: JSON writer, Method(None), Closure/Constructor, interpreter,
+native/other backends, core field deletion, JoinIR, PyVM/reference/Python.
+```
 
 R5 row rules: each task owns one old edge and reuses the shared corridor
 guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field
