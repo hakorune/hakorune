@@ -18,11 +18,11 @@ use super::{RawRootLedgerStateV1, RawRootPhysicalStateV1};
 
 #[derive(Debug)]
 pub(in crate::mir) enum RawRootPhysicalCallableMainErrorV1 {
-    Request(RawExpansionReceiptLedgerErrorV1),
-    Reservation(RawExpansionReceiptLedgerErrorV1),
-    Child(ModuleLoweringPortChildErrorV1),
-    Ledger(RawExpansionReceiptLedgerErrorV1),
-    Abort(RawExpansionReceiptLedgerErrorV1),
+    Request { _error: RawExpansionReceiptLedgerErrorV1 },
+    Reservation { _error: RawExpansionReceiptLedgerErrorV1 },
+    Child { _error: ModuleLoweringPortChildErrorV1 },
+    Ledger { _error: RawExpansionReceiptLedgerErrorV1 },
+    Abort { _error: RawExpansionReceiptLedgerErrorV1 },
 }
 
 #[derive(Debug)]
@@ -77,7 +77,7 @@ impl RawRootPhysicalStateV1 {
                 return Err(rejected(
                     self,
                     None,
-                    RawRootPhysicalCallableMainErrorV1::Request(error),
+                    RawRootPhysicalCallableMainErrorV1::Request { _error: error },
                 ))
             }
         };
@@ -88,7 +88,7 @@ impl RawRootPhysicalStateV1 {
                     return Err(rejected(
                         self,
                         None,
-                        RawRootPhysicalCallableMainErrorV1::Reservation(error),
+                        RawRootPhysicalCallableMainErrorV1::Reservation { _error: error },
                     ))
                 }
             },
@@ -96,9 +96,9 @@ impl RawRootPhysicalStateV1 {
                 return Err(rejected(
                     self,
                     None,
-                    RawRootPhysicalCallableMainErrorV1::Request(
-                        RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
-                    ),
+                    RawRootPhysicalCallableMainErrorV1::Request {
+                        _error: RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
+                    },
                 ))
             }
         };
@@ -116,7 +116,9 @@ impl RawRootPhysicalStateV1 {
                                 return Err(rejected(
                                     self,
                                     None,
-                                    RawRootPhysicalCallableMainErrorV1::Abort(abort_error),
+                                    RawRootPhysicalCallableMainErrorV1::Abort {
+                                        _error: abort_error,
+                                    },
                                 ))
                             }
                         }
@@ -125,9 +127,9 @@ impl RawRootPhysicalStateV1 {
                         return Err(rejected(
                             self,
                             None,
-                            RawRootPhysicalCallableMainErrorV1::Request(
-                                RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
-                            ),
+                            RawRootPhysicalCallableMainErrorV1::Request {
+                                _error: RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
+                            },
                         ))
                     }
                 };
@@ -135,7 +137,7 @@ impl RawRootPhysicalStateV1 {
                 return Err(rejected(
                     self,
                     None,
-                    RawRootPhysicalCallableMainErrorV1::Child(error),
+                    RawRootPhysicalCallableMainErrorV1::Child { _error: error },
                 ));
             }
         };
@@ -145,16 +147,16 @@ impl RawRootPhysicalStateV1 {
                 return Err(rejected(
                     self,
                     Some(receipt),
-                    RawRootPhysicalCallableMainErrorV1::Ledger(
-                        RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
-                    ),
+                    RawRootPhysicalCallableMainErrorV1::Ledger {
+                        _error: RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
+                    },
                 ))
             }
         } {
             return Err(rejected(
                 self,
                 Some(receipt),
-                RawRootPhysicalCallableMainErrorV1::Ledger(error),
+                RawRootPhysicalCallableMainErrorV1::Ledger { _error: error },
             ));
         }
         Ok(CompletedRawCallableMainPhysicalV1 {
