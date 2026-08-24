@@ -33,7 +33,7 @@ impl<'catalog> VerifiedWholeSourceMethodCallSiteV1<'catalog> {
         &self.call
     }
 
-    pub(crate) const fn receiver(&self) -> ShadowMethodCallReceiverV0 {
+    pub(in crate::mir) const fn receiver(&self) -> ShadowMethodCallReceiverV0 {
         self.receiver
     }
 }

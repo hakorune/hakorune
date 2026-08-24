@@ -22,7 +22,7 @@ impl SameModuleCallableSourceReceiverPolicyV1 {
         }
     }
 
-    pub(crate) const fn into_shadow_policy(self) -> ReceiverPolicyV1 {
+    pub(in crate::mir) const fn into_shadow_policy(self) -> ReceiverPolicyV1 {
         match self {
             Self::StaticCurrentOwner => ReceiverPolicyV1::StaticCurrentOwner,
             Self::DeclaredInstance => ReceiverPolicyV1::DeclaredInstance,

@@ -31,7 +31,7 @@ impl SemanticOwnerRootProfileV1 {
         }
     }
 
-    pub(crate) const fn receiver_policy(self) -> ReceiverPolicyV1 {
+    pub(in crate::mir) const fn receiver_policy(self) -> ReceiverPolicyV1 {
         match self {
             Self::DeclaredFunction { receiver_policy } => receiver_policy,
             Self::Script | Self::Lambda => ReceiverPolicyV1::Absent,
