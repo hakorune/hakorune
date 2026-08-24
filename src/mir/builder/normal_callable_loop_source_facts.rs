@@ -140,8 +140,8 @@ impl<'source> CallableGenericLoopSourceFactsV1<'source> {
             parent_source,
             condition_source,
             body_source,
-            condition,
-            body,
+            _condition: condition,
+            _body: body,
             pre_effect,
             policy,
             debug,
@@ -169,8 +169,8 @@ pub(in crate::mir::builder) struct CallableGenericLoopSourceFactsReceiptV1<'sour
     parent_source: &'source RawInvocationSourceContextV1,
     condition_source: RawInvocationSourceContextV1,
     body_source: RawInvocationSourceContextV1,
-    condition: ASTNode,
-    body: Vec<ASTNode>,
+    _condition: ASTNode,
+    _body: Vec<ASTNode>,
     pre_effect: CallableSemanticLoopHandoffPreEffectReceiptV1,
     policy: GenericLoopFactsPolicyFrameV1,
     debug: bool,
@@ -236,12 +236,12 @@ pub(in crate::mir::builder) enum CallableGenericLoopV1SemanticRecipeViewRejectV1
 #[derive(Debug)]
 pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticViewV1<'view> {
     owner: FunctionOwnerIdV1,
-    loop_site: &'view SourceNodeSiteV1,
+    _loop_site: &'view SourceNodeSiteV1,
     pre_effect: &'view CallableSemanticLoopHandoffPreEffectReceiptV1,
     facts: &'view CanonicalLoopFacts,
-    generic: &'view GenericLoopV1Facts,
-    selection: &'view RecipeFirstRouteSelectionV1,
-    selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
+    _generic: &'view GenericLoopV1Facts,
+    _selection: &'view RecipeFirstRouteSelectionV1,
+    _selected: &'view VerifiedLocatedGenericLoopV1SelectionV1,
     debug: bool,
     in_static_box: bool,
 }
@@ -249,10 +249,6 @@ pub(in crate::mir::builder) struct CallableGenericLoopV1SemanticViewV1<'view> {
 impl CallableGenericLoopV1SemanticViewV1<'_> {
     pub(in crate::mir::builder) const fn owner(&self) -> FunctionOwnerIdV1 {
         self.owner
-    }
-
-    pub(in crate::mir::builder) fn loop_site(&self) -> &SourceNodeSiteV1 {
-        self.loop_site
     }
 
     pub(in crate::mir::builder) fn pre_effect(
@@ -263,18 +259,6 @@ impl CallableGenericLoopV1SemanticViewV1<'_> {
 
     pub(in crate::mir::builder) fn facts(&self) -> &CanonicalLoopFacts {
         self.facts
-    }
-
-    pub(in crate::mir::builder) fn generic(&self) -> &GenericLoopV1Facts {
-        self.generic
-    }
-
-    pub(in crate::mir::builder) fn selection(&self) -> &RecipeFirstRouteSelectionV1 {
-        self.selection
-    }
-
-    pub(in crate::mir::builder) fn selected(&self) -> &VerifiedLocatedGenericLoopV1SelectionV1 {
-        self.selected
     }
 
     pub(in crate::mir::builder) const fn debug(&self) -> bool {
@@ -300,12 +284,12 @@ impl<'source> CallableGenericLoopV1SemanticRecipeV1<'source> {
         };
         let view = CallableGenericLoopV1SemanticViewV1 {
             owner: receipt.owner,
-            loop_site: receipt.pre_effect.loop_site(),
+            _loop_site: receipt.pre_effect.loop_site(),
             pre_effect: &receipt.pre_effect,
             facts,
-            generic,
-            selection: &receipt.selection,
-            selected: &receipt.selected,
+            _generic: generic,
+            _selection: &receipt.selection,
+            _selected: &receipt.selected,
             debug: receipt.debug,
             in_static_box: receipt.in_static_box,
         };
