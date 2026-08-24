@@ -2208,3 +2208,25 @@ The updated residual warning boundary is explicit: the eleven
 MIR/semantic API authority decision described above, while the remaining 570
 `dead_code` warnings are existing disconnected scaffolding and are not
 mass-deleted in this R0 lane.
+
+The following Raw publication-adapter evidence cleanup is landed as
+`e2a1498690`:
+
+```text
+e2a1498690  refactor: retain raw publication adapter evidence
+```
+
+The compatibility envelope still holds the complete route, witness, parity,
+schedule, progress, publication, and verification projection evidence until
+its sole result-erasure terminal. Its unread nested fields are named underscore
+evidence rather than deleted. Raw verification projection and compatibility
+conversion are unchanged. The focused `normal_root_execution` suite passes 19
+tests, and the test fingerprint moved from 581 to 578 warnings
+(`private_interfaces=11`, `dead_code=567`; all non-structural lint categories
+remain zero).
+
+The updated residual warning boundary is explicit: the eleven
+`private_interfaces` warnings remain deferred pending the deliberate public
+MIR/semantic API authority decision described above, while the remaining 567
+`dead_code` warnings are existing disconnected scaffolding and are not
+mass-deleted in this R0 lane.
