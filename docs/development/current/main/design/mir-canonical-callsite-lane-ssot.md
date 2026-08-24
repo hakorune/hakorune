@@ -286,6 +286,21 @@ the enum/impl, replace its two metadata arms with canonical delegation, add
 parity tests and extend the shared guard. Non-claims: `func`/`Option<Callee>`
 cutover, Query policy, JoinIR, backend activation, and warning cleanup.
 
+Query D0 design stop — `MIR-CALL-CANONICAL-QUERY-POLICY-D0`:
+Decision: treat `MirQuery` as an observation facade and do not let its Call arm
+reconstruct target meaning. Source authority + canonical issuer: the existing
+`MirInstruction::used_values`/`dst_value` plus `Callee` projection; Query only
+projects the result to its read/write view. Non-authority: the local
+`Callee::Method`/legacy-`func` match, Query variant spelling, JoinIR inference,
+and backend/runtime fallback. Fail-fast boundary: `MirQueryBox::reads_of` and
+`writes_of` must have one finite Call policy before R6; typed Value/Closure
+operands are not optional decorations, and legacy `None.func` remains explicit
+compatibility only. Smallest next slice: census this one Query owner and its
+JoinIR/loop consumers, accept the read/write matrix, then update one direct
+delegation with parity/negative tests and the shared guard. Non-claims: R6
+schema cutover, ownership ABI, JoinIR remap, PyVM/reference/Python, and warning
+cleanup.
+
 R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
 `Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`
 to pre-canonical construction before `NewClosure`; and decide the Constructor /
