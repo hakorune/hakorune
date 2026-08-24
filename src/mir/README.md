@@ -105,6 +105,11 @@ issues callsite target canonicalization. CSE keys typed calls from `Callee`,
 and the type-op diagnostic observes typed methods only; shared post-RC and
 JSON-v0 compatibility canonicalizers remain their own ingress owners.
 
+MIR printer observers use the same stored-target boundary. `format_call_target`
+projects `Call.callee` for typed output and renders `func` only as explicit
+`call_legacy` compatibility output for `callee: None`; it never reconstructs,
+classifies, or retries a target.
+
 ## Boundary Rules
 
 - Add shared policy once under `policies/` and reuse it from the other subtrees.

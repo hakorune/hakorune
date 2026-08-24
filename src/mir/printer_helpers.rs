@@ -1,4 +1,4 @@
-use super::{MirInstruction, MirType, ValueId};
+use super::{Callee, MirInstruction, MirType, ValueId};
 use std::collections::BTreeMap;
 
 pub fn format_type(mir_type: &MirType) -> String {
@@ -23,6 +23,73 @@ pub fn format_dst(dst: &ValueId, types: &BTreeMap<ValueId, MirType>) -> String {
         format!("{}: {:?} =", dst, ty)
     } else {
         format!("{} =", dst)
+    }
+}
+
+/// Project the stored call target for human-readable MIR observers.
+///
+/// A typed target is displayed exactly as issued by the canonical producer;
+/// the legacy `func` carrier is rendered only for an explicit `None` call.
+/// This helper does not classify, resolve, or retry a target.
+pub(crate) fn format_call_target(
+    callee: Option<&Callee>,
+    func: ValueId,
+    args: &[ValueId],
+) -> String {
+    let args_str = args
+        .iter()
+        .map(|value| format!("{}", value))
+        .collect::<Vec<_>>()
+        .join(", ");
+
+    match callee {
+        Some(Callee::Global(name)) => format!("call_global {}({})", name, args_str),
+        Some(Callee::Method {
+            box_name,
+            method,
+            receiver,
+            certainty,
+            ..
+        }) => {
+            let certainty = match certainty {
+                crate::mir::definitions::call_unified::TypeCertainty::Known => "Known",
+                crate::mir::definitions::call_unified::TypeCertainty::Union => "Union",
+            };
+            if let Some(receiver) = receiver {
+                format!(
+                    "call_method {}.{}({}) [recv: {}] [{}]",
+                    box_name, method, args_str, receiver, certainty
+                )
+            } else {
+                format!(
+                    "call_method {}.{}({}) [{}]",
+                    box_name, method, args_str, certainty
+                )
+            }
+        }
+        Some(Callee::Constructor { box_type }) => {
+            format!("call_constructor {}({})", box_type, args_str)
+        }
+        Some(Callee::Closure {
+            params,
+            captures,
+            me_capture,
+        }) => {
+            let params_str = params.join(", ");
+            let captures_str = captures
+                .iter()
+                .map(|(name, value)| format!("{}={}", name, value))
+                .collect::<Vec<_>>()
+                .join(", ");
+            let me_str = me_capture.map_or(String::new(), |value| format!(" [me={}]", value));
+            format!(
+                "call_closure ({}) [captures: {}]{}",
+                params_str, captures_str, me_str
+            )
+        }
+        Some(Callee::Value(value)) => format!("call_value {}({})", value, args_str),
+        Some(Callee::Extern(name)) => format!("call_extern {}({})", name, args_str),
+        None => format!("call_legacy {}({})", func, args_str),
     }
 }
 
@@ -278,85 +345,7 @@ pub fn format_instruction(
             args,
             effects: _,
         } => {
-            let args_str = args
-                .iter()
-                .map(|v| format!("{}", v))
-                .collect::<Vec<_>>()
-                .join(", ");
-
-            // ✅ MIRダンプCallee表示改良 - ChatGPT5 Pro革命！
-            let call_display = if let Some(callee_info) = callee {
-                match callee_info {
-                    super::Callee::Global(name) => {
-                        format!("call_global {}({})", name, args_str)
-                    }
-                    super::Callee::Method {
-                        box_name,
-                        method,
-                        receiver,
-                        certainty,
-                        ..
-                    } => {
-                        if let Some(recv) = receiver {
-                            format!(
-                                "call_method {}.{}({}) [recv: {}] [{}]",
-                                box_name,
-                                method,
-                                args_str,
-                                recv,
-                                match certainty {
-                                    crate::mir::definitions::call_unified::TypeCertainty::Known =>
-                                        "Known",
-                                    crate::mir::definitions::call_unified::TypeCertainty::Union =>
-                                        "Union",
-                                }
-                            )
-                        } else {
-                            format!(
-                                "call_method {}.{}({}) [{}]",
-                                box_name,
-                                method,
-                                args_str,
-                                match certainty {
-                                    crate::mir::definitions::call_unified::TypeCertainty::Known =>
-                                        "Known",
-                                    crate::mir::definitions::call_unified::TypeCertainty::Union =>
-                                        "Union",
-                                }
-                            )
-                        }
-                    }
-                    super::Callee::Constructor { box_type } => {
-                        format!("call_constructor {}({})", box_type, args_str)
-                    }
-                    super::Callee::Closure {
-                        params,
-                        captures,
-                        me_capture,
-                    } => {
-                        let params_str = params.join(", ");
-                        let captures_str = captures
-                            .iter()
-                            .map(|(name, val)| format!("{}={}", name, val))
-                            .collect::<Vec<_>>()
-                            .join(", ");
-                        let me_str = me_capture.map_or(String::new(), |v| format!(" [me={}]", v));
-                        format!(
-                            "call_closure ({}) [captures: {}]{}",
-                            params_str, captures_str, me_str
-                        )
-                    }
-                    super::Callee::Value(func_val) => {
-                        format!("call_value {}({})", func_val, args_str)
-                    }
-                    super::Callee::Extern(extern_name) => {
-                        format!("call_extern {}({})", extern_name, args_str)
-                    }
-                }
-            } else {
-                // LEGACY: 従来の表示（後方互換性）
-                format!("call_legacy {}({})", func, args_str)
-            };
+            let call_display = format_call_target(callee.as_ref(), *func, args);
 
             if let Some(dst) = dst {
                 format!("{} {}", format_dst(dst, types), call_display)

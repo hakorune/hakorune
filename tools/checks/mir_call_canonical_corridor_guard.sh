@@ -26,6 +26,9 @@ ESCAPE_BARRIER="$ROOT_DIR/src/mir/escape_barrier.rs"
 OWNERSHIP_VERIFY="$ROOT_DIR/src/mir/ownership_ssa/verify.rs"
 OWNERSHIP_TESTS="$ROOT_DIR/src/mir/ownership_ssa/tests.rs"
 QUERY="$ROOT_DIR/src/mir/query.rs"
+PRINTER_HELPERS="$ROOT_DIR/src/mir/printer_helpers.rs"
+PRINTER_DISPLAY="$ROOT_DIR/src/mir/instruction/display.rs"
+PRINTER_TESTS="$ROOT_DIR/src/mir/printer/tests.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -38,7 +41,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -111,6 +114,10 @@ require "$QUERY" "Call { .. } => inst.used_values()"
 require "$QUERY" "return inst.dst_value().into_iter().collect()"
 require "$QUERY" "query_call_reads_match_canonical_used_values_for_every_shape"
 require "$QUERY" "query_call_writes_match_canonical_dst_value_and_ignore_target_shape"
+require "$PRINTER_HELPERS" "pub(crate) fn format_call_target"
+require "$PRINTER_DISPLAY" "format_call_target(callee.as_ref(), *func, args)"
+require "$PRINTER_TESTS" "typed_printer_projects_callee_and_ignores_stale_func"
+require "$PRINTER_TESTS" "printer_preserves_explicit_legacy_call_rendering"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -159,6 +166,9 @@ for relative in (
     "src/mir/ownership_ssa/tests.rs",
     "src/mir/query.rs",
     "src/mir/instruction/tests.rs",
+    "src/mir/printer_helpers.rs",
+    "src/mir/instruction/display.rs",
+    "src/mir/printer/tests.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
     lines = (root / relative).read_text().splitlines()
@@ -349,6 +359,42 @@ writes_end = query.index("#[cfg(test)]", writes_start)
 writes_window = query[writes_start:writes_end]
 if "return inst.dst_value().into_iter().collect()" not in writes_window:
     raise SystemExit("MirQuery writes_of lost canonical Call delegation")
+
+printer_helpers = (root / "src/mir/printer_helpers.rs").read_text()
+helper_start = printer_helpers.index("pub(crate) fn format_call_target")
+helper_end = printer_helpers.index("pub fn format_instruction", helper_start)
+helper_window = printer_helpers[helper_start:helper_end]
+for token in (
+    "Some(Callee::Global",
+    "Some(Callee::Method",
+    "Some(Callee::Constructor",
+    "Some(Callee::Closure",
+    "Some(Callee::Value",
+    "Some(Callee::Extern",
+    "None => format!(\"call_legacy",
+):
+    if token not in helper_window:
+        raise SystemExit(f"printer target projection lost {token}")
+if "resolve" in helper_window or "retry" in helper_window or "ConstValue" in helper_window:
+    raise SystemExit("printer target projection retained semantic target reconstruction")
+
+display = (root / "src/mir/instruction/display.rs").read_text()
+call_start = display.index("MirInstruction::Call {")
+call_end = display.index("MirInstruction::Return", call_start)
+display_call = display[call_start:call_end]
+if "callee: _" in display_call or "TODO: Use callee" in display_call:
+    raise SystemExit("MIR Display retained the stale func-only Call observer")
+if display_call.count("format_call_target(callee.as_ref(), *func, args)") != 1:
+    raise SystemExit("MIR Display does not delegate Call rendering exactly once")
+
+printer_tests = (root / "src/mir/printer/tests.rs").read_text()
+for token in (
+    '"%1 = call_value %7(%2)"',
+    '"call_legacy %99(%2)"',
+    '"%99"',
+):
+    if token not in printer_tests:
+        raise SystemExit(f"printer parity tests lost {token}")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

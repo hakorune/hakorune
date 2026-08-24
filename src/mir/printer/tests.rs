@@ -16,8 +16,10 @@ use crate::mir::thin_entry::{
 };
 use crate::mir::thin_entry_selection::{ThinEntrySelection, ThinEntrySelectionState};
 use crate::mir::{
-    BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirModule, MirType, ValueId,
+    BasicBlockId, Callee, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirModule,
+    MirType, ValueId,
 };
+use std::collections::BTreeMap;
 
 #[test]
 fn test_empty_module_printing() {
@@ -46,6 +48,45 @@ fn test_function_printing() {
 
     assert!(output.contains("define void @test_func(i64 %0)"));
     assert!(output.contains("bb0:"));
+}
+
+#[test]
+fn typed_printer_projects_callee_and_ignores_stale_func() {
+    let instruction = MirInstruction::Call {
+        dst: Some(ValueId::new(1)),
+        func: ValueId::new(99),
+        callee: Some(Callee::Value(ValueId::new(7))),
+        args: vec![ValueId::new(2)],
+        effects: EffectMask::IO,
+    };
+
+    let helper_output =
+        crate::mir::printer_helpers::format_instruction(&instruction, &BTreeMap::new());
+    assert_eq!(helper_output, "%1 = call_value %7(%2)");
+    assert_eq!(
+        instruction.to_string(),
+        "%1 = call_value %7(%2); effects: 0x0004"
+    );
+    assert!(!instruction.to_string().contains("%99"));
+}
+
+#[test]
+fn printer_preserves_explicit_legacy_call_rendering() {
+    let instruction = MirInstruction::Call {
+        dst: None,
+        func: ValueId::new(99),
+        callee: None,
+        args: vec![ValueId::new(2)],
+        effects: EffectMask::IO,
+    };
+
+    let helper_output =
+        crate::mir::printer_helpers::format_instruction(&instruction, &BTreeMap::new());
+    assert_eq!(helper_output, "call_legacy %99(%2)");
+    assert_eq!(
+        instruction.to_string(),
+        "call_legacy %99(%2); effects: 0x0004"
+    );
 }
 
 #[test]

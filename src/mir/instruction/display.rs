@@ -3,6 +3,7 @@
 //! Provides human-readable string representation of MIR instructions for debugging and analysis.
 
 use crate::mir::instruction::MirInstruction;
+use crate::mir::printer_helpers::format_call_target;
 use std::fmt;
 
 impl fmt::Display for MirInstruction {
@@ -78,33 +79,15 @@ impl fmt::Display for MirInstruction {
             MirInstruction::Call {
                 dst,
                 func,
-                callee: _, // TODO: Use callee for type-safe resolution display
+                callee,
                 args,
                 effects,
             } => {
+                let call_display = format_call_target(callee.as_ref(), *func, args);
                 if let Some(dst) = dst {
-                    write!(
-                        f,
-                        "{} = call {}({}); effects: {}",
-                        dst,
-                        func,
-                        args.iter()
-                            .map(|v| format!("{}", v))
-                            .collect::<Vec<_>>()
-                            .join(", "),
-                        effects
-                    )
+                    write!(f, "{} = {}; effects: {}", dst, call_display, effects)
                 } else {
-                    write!(
-                        f,
-                        "call {}({}); effects: {}",
-                        func,
-                        args.iter()
-                            .map(|v| format!("{}", v))
-                            .collect::<Vec<_>>()
-                            .join(", "),
-                        effects
-                    )
+                    write!(f, "{}; effects: {}", call_display, effects)
                 }
             }
             MirInstruction::Return { value } => {
