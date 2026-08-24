@@ -1422,3 +1422,17 @@ behavior changed. The focused `normal_root_execution` suite passes 19 tests,
 all five reusable guards remain green, and the test fingerprint moved from 764
 to 762 warnings (`private_interfaces=36`, `private_bounds=0`; non-structural
 lint categories remain zero).
+
+The following loop-physicalizer visibility slice is landed as `2fbddaafd6`:
+
+```text
+2fbddaafd6  refactor: align loop physicalizer visibility
+```
+
+The loop topology/segment reject products and operation-target receipt now
+share the existing `crate::mir::builder::resolved_lowering` boundary used by
+the allocator and service façade. No topology, block allocation, or operation
+target behavior changed. The focused `normal_root_execution` suite passes 19
+tests, all five reusable guards remain green, and the test fingerprint moved
+from 762 to 758 warnings (`private_interfaces=32`, `private_bounds=0`;
+non-structural lint categories remain zero).
