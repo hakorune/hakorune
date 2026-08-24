@@ -843,3 +843,16 @@ It retires three caller-zero export groups from
 owners remain unchanged. The focused loop-structural-facts suite passes 27
 tests, all five reusable guards remain green, and the test fingerprint moved
 from 977 to 974 warnings.
+
+The following loop-recipe contract import slice is landed as `8fdf548783`:
+
+```text
+8fdf548783  refactor: prune loop recipe exports
+```
+
+It retires four caller-zero export groups from `loop_recipe_contract/mod.rs`;
+recipe and source-bound owners remain unchanged. The focused loop-recipe suite
+ran 156 tests with 155 passing; its one failure is the existing
+`source_bound_core_tests.rs:181` typed-reject assertion outside this
+import-only diff. All five reusable guards remain green, and the test
+fingerprint moved from 974 to 970 warnings.
