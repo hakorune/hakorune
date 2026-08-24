@@ -818,3 +818,16 @@ ran 80 tests with 79 passing; its one failure is the existing
 `policy_evidence.rs:75` Candidate assertion outside this import-only diff.
 All five reusable guards remain green, and the test fingerprint moved from 986
 to 980 warnings.
+
+The following statement-export import slice is landed as `8f450bbfb9`:
+
+```text
+8f450bbfb9  refactor: prune statement exports
+```
+
+It retires three caller-zero export groups from `builder/stmts/mod.rs`; the
+statement descent and completion owners remain unchanged. The focused stmts
+suite ran 98 tests with 97 passing; its one failure is the existing
+`variable_assignment_completion.rs:119` `No current basic block` rejection
+outside this import-only diff. All five reusable guards remain green, and the
+test fingerprint moved from 980 to 977 warnings.
