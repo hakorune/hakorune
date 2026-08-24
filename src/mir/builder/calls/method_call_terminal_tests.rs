@@ -1,4 +1,3 @@
-use crate::ast::{ASTNode, LiteralValue, Span};
 use crate::mir::builder::callable_declaration_catalog::VerifiedSameModuleCallableDeclarationCatalogV1;
 use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 use crate::mir::{Callee, ConstValue, EffectMask, MirBuilder, MirInstruction, MirType};
@@ -9,13 +8,6 @@ use super::method_call_terminal::{
     emit_static_global_value_terminal_with_receipt_v1, MethodCallValueTerminalPortV1,
 };
 use super::unified_emitter::UnifiedValueCallReceiptErrorV1;
-
-fn integer(value: i64) -> ASTNode {
-    ASTNode::Literal {
-        value: LiteralValue::Integer(value),
-        span: Span::unknown(),
-    }
-}
 
 fn builder(name: &str) -> MirBuilder {
     let mut builder = MirBuilder::new();
