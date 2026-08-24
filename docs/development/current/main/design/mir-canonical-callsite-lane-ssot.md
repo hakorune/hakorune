@@ -170,6 +170,19 @@ JSON-v0 compatibilityはcanonical MIR外のowner-private
 `MirInstruction::LegacyCall`、`Option<Callee>`、`func`、default/sentinel Callee、
 optimizer target再推論、backend string fallback/retryは最終形に残さない。
 
+Direct MIR JSON-v0のlegacy `func`は、raw function draftから先に作る
+owner-private immutable catalogだけをsource authorityにする。catalogは同一関数内の
+直接`Const(String)`定義をValueIdへ対応付け、解決時に一意性・非String・foreign・
+`ValueId::INVALID`を検証する。成功時は文字列をそのまま`Callee::Global`へ投影し、
+module membership、arity suffix、Extern分類、alias追跡、optimizer/backend lookupは
+行わない。`call`とnested `mir_call`は同じinput ownerを使い、nested nodeがtarget/
+args/effects、outer nodeが`dst` overrideを所有する。
+
+このcanonical production boundaryはdirect MIR-v0、selected Rust VM/JSON/LLVMまでを
+覆う。Program-v0はR3の別catalog owner、PyVM（daily route 0・diagnostic-only）、
+reference-vm、Python/llvmliteは歴史/互換ownerとして`ParkedSealed`に分類し、canonical
+acceptanceへ再入場するのはselected backend policyが明示的に再開した時だけとする。
+
 literal censusに加え、`runner/mir_json_v0/call.rs`が入力依存でmissing-callee Callを
 構築できるdynamic edgeを必ず数える。retirement完了はliteral zeroだけでなく、
 runtime missing-target issuance zeroを要求する。
