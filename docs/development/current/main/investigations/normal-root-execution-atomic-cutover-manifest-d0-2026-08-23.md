@@ -1019,3 +1019,16 @@ unchanged. The focused `normal_root_execution` suite passes 19 tests, all
 five reusable guards plus MIR root facade/import-hygiene guards remain green,
 and the test fingerprint moved from 892 to 888 warnings with
 `unused_imports=0`.
+
+The following behavior-neutral callable-test mutability slice is landed as
+`ebc9fd6350`:
+
+```text
+ebc9fd6350  refactor: remove needless callable test mutability
+```
+
+It removes six unnecessary `mut` bindings from `Complete(forests)` in five
+normal-callable test modules. The source, Recipe, and physical owners are
+unchanged. The focused `normal_root_execution` suite passes 19 tests, all
+five reusable guards remain green, and the test fingerprint moved from 888
+to 882 warnings (`unused_imports=0`, `unused_mut=13`).
