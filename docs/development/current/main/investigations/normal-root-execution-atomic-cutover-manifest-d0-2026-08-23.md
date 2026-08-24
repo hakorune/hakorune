@@ -1688,11 +1688,25 @@ passes 19 tests, and the test fingerprint moved from 676 to 672 warnings
 (`private_interfaces=11`, `dead_code=661`; all non-structural lint categories
 remain zero).
 
+The following parser evidence-retention cleanup is landed as `61b1ab68fc`:
+
+```text
+61b1ab68fc  refactor: retain unused parser evidence explicitly
+```
+
+Unused compatibility-row placement and pre-prune selection-receipt reads were
+made explicit `_` fields while retaining their source evidence for a future
+named consumer. No compatibility disposition, gate receipt, postpass coverage,
+or parser ownership behavior changed. The focused `normal_root_execution`
+suite passes 19 tests, and the test fingerprint moved from 672 to 670 warnings
+(`private_interfaces=11`, `dead_code=659`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 661 `dead_code` warnings are existing disconnected
+visibility. The remaining 659 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
