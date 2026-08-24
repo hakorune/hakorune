@@ -74,9 +74,9 @@ pub(in crate::mir) struct PreparedRawAppExternalCommitV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawExternalCommitInvocationV1 {
-    owner: RawPostprocessedInvocationV1,
+    _owner: RawPostprocessedInvocationV1,
     stage: RawExternalCommitFailureStageV1,
-    error: RawExternalCommitErrorV1,
+    _error: RawExternalCommitErrorV1,
 }
 
 pub(super) struct RawExternalCommitPublicationPartsV1 {
@@ -167,10 +167,6 @@ impl RejectedRawExternalCommitInvocationV1 {
         self.stage
     }
 
-    pub(in crate::mir) fn error(&self) -> &RawExternalCommitErrorV1 {
-        &self.error
-    }
-
     pub(in crate::mir) fn discard(self) {}
 }
 
@@ -180,9 +176,9 @@ impl RawPostprocessedInvocationV1 {
     ) -> Result<PreparedRawExternalCommitV1, RejectedRawExternalCommitInvocationV1> {
         if let Err((stage, error)) = validate_invocation(&self) {
             return Err(RejectedRawExternalCommitInvocationV1 {
-                owner: self,
+                _owner: self,
                 stage,
-                error,
+                _error: error,
             });
         }
         match self {
