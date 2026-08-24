@@ -50,24 +50,24 @@ pub(in crate::mir) enum RawRootBatchPhysicalErrorV1 {
 #[derive(Debug)]
 enum RejectedRawRootBatchOwnerV1 {
     BeforePrepare {
-        session: ModuleBuilderInvocationSessionV1,
-        physical: RawRootPostBodyPhysicalStateV1,
-        draft: MirFunction,
-        completion: CompletedRootBodyV1,
-        exit: RawRootBodyExitWitnessV1,
+        _session: ModuleBuilderInvocationSessionV1,
+        _physical: RawRootPostBodyPhysicalStateV1,
+        _draft: MirFunction,
+        _completion: CompletedRootBodyV1,
+        _exit: RawRootBodyExitWitnessV1,
     },
     Prepared {
-        session: ModuleBuilderInvocationSessionV1,
-        physical: RawRootPostBodyPhysicalStateV1,
-        batch: PreparedRootDraftBatchV1,
-        exit: RawRootBodyExitWitnessV1,
+        _session: ModuleBuilderInvocationSessionV1,
+        _physical: RawRootPostBodyPhysicalStateV1,
+        _batch: PreparedRootDraftBatchV1,
+        _exit: RawRootBodyExitWitnessV1,
     },
 }
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawRootBatchPhysicalV1 {
-    token: ModuleInvocationTokenV1,
-    owner: RejectedRawRootBatchOwnerV1,
+    _token: ModuleInvocationTokenV1,
+    _owner: RejectedRawRootBatchOwnerV1,
     error: RawRootBatchPhysicalErrorV1,
     _seal: RejectedRawRootBatchPhysicalSealV1,
 }
@@ -101,13 +101,13 @@ impl RawRootBatchPhysicalInputV1 {
         let brand = token.brand();
         let reject = |token, session, physical, draft, completion, exit, error| {
             Err(RejectedRawRootBatchPhysicalV1 {
-                token,
-                owner: RejectedRawRootBatchOwnerV1::BeforePrepare {
-                    session,
-                    physical,
-                    draft,
-                    completion,
-                    exit,
+                _token: token,
+                _owner: RejectedRawRootBatchOwnerV1::BeforePrepare {
+                    _session: session,
+                    _physical: physical,
+                    _draft: draft,
+                    _completion: completion,
+                    _exit: exit,
                 },
                 error,
                 _seal: RejectedRawRootBatchPhysicalSealV1,
@@ -234,12 +234,12 @@ impl RawRootBatchPhysicalInputV1 {
         let batch = PreparedRootDraftBatchV1::prepare_raw_required(draft, completion, condition);
         if let Err(error) = collector.payload().validate_root_batch(&batch, brand) {
             return Err(RejectedRawRootBatchPhysicalV1 {
-                token,
-                owner: RejectedRawRootBatchOwnerV1::Prepared {
-                    session,
-                    physical,
-                    batch,
-                    exit,
+                _token: token,
+                _owner: RejectedRawRootBatchOwnerV1::Prepared {
+                    _session: session,
+                    _physical: physical,
+                    _batch: batch,
+                    _exit: exit,
                 },
                 error: RawRootBatchPhysicalErrorV1::Collector(error.to_string()),
                 _seal: RejectedRawRootBatchPhysicalSealV1,
@@ -249,12 +249,12 @@ impl RawRootBatchPhysicalInputV1 {
             Ok(disposition) => disposition,
             Err(error) => {
                 return Err(RejectedRawRootBatchPhysicalV1 {
-                    token,
-                    owner: RejectedRawRootBatchOwnerV1::Prepared {
-                        session,
-                        physical,
-                        batch,
-                        exit,
+                    _token: token,
+                    _owner: RejectedRawRootBatchOwnerV1::Prepared {
+                        _session: session,
+                        _physical: physical,
+                        _batch: batch,
+                        _exit: exit,
                     },
                     error: RawRootBatchPhysicalErrorV1::Collector(error.to_string()),
                     _seal: RejectedRawRootBatchPhysicalSealV1,
@@ -263,12 +263,12 @@ impl RawRootBatchPhysicalInputV1 {
         };
         if collector_disposition != *ledger_plan.main_disposition() {
             return Err(RejectedRawRootBatchPhysicalV1 {
-                token,
-                owner: RejectedRawRootBatchOwnerV1::Prepared {
-                    session,
-                    physical,
-                    batch,
-                    exit,
+                _token: token,
+                _owner: RejectedRawRootBatchOwnerV1::Prepared {
+                    _session: session,
+                    _physical: physical,
+                    _batch: batch,
+                    _exit: exit,
                 },
                 error: RawRootBatchPhysicalErrorV1::MainDispositionMismatch,
                 _seal: RejectedRawRootBatchPhysicalSealV1,
