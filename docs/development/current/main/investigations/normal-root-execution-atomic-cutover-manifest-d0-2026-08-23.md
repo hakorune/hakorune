@@ -1907,11 +1907,26 @@ map-write replay, or result publication behavior changed. The focused
 from 644 to 643 warnings (`private_interfaces=11`, `dead_code=632`; all
 non-structural lint categories remain zero).
 
+The following GenericLoop source-facts/view cleanup is landed as
+`ab777f1dcf`:
+
+```text
+ab777f1dcf  refactor: trim unused generic loop view accessors
+```
+
+The receipt's unread condition/body evidence is retained explicitly, while
+caller-free semantic-view accessors for loop site, generic facts, route
+selection, and selected location are removed. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 643 to 640 warnings (`private_interfaces=11`, `dead_code=629`; all
+non-structural lint categories remain zero). No source-facts claim, recipe
+selection, or lowering behavior changed.
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 632 `dead_code` warnings are existing disconnected
+visibility. The remaining 629 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
