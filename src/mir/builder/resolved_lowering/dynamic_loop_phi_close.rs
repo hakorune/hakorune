@@ -9,7 +9,7 @@ use crate::mir::builder::normal_callable_dynamic_loop_prepare::PreparedLoopIncom
 use crate::mir::builder::normal_callable_dynamic_loop_rebind::CompletedSourceBackedDynamicLoopOperationsV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::resolved_semantics::{BindingRefV1, FunctionOwnerIdV1, SourceNodeSiteV1};
-use crate::mir::{BasicBlockId, ValueId};
+use crate::mir::ValueId;
 
 use super::canonical_ssa::CanonicalSsaFunctionSessionV2;
 

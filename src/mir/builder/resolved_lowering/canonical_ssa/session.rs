@@ -2,7 +2,6 @@
 
 use crate::mir::builder::emission::phi_lifecycle::PhiTxn;
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;
-use crate::mir::builder::resolved_lowering::draft_seal::ReadyFunctionDraftSealV1;
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::{CheckedCallOutNormalResultProjectionV1, CheckedCallOutSiteIdV1};
 use crate::mir::compiler::common_v2_physical_function_skeleton::PhysicalFunctionEntryCohortStampV1;

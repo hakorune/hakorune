@@ -16,11 +16,10 @@ use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::generic_g0_physical_function_entry_input::GenericG0PhysicalLaneRoleV1;
 use crate::mir::compiler::generic_g0_physical_operation_cohort::{
-    issue_generic_g0_physical_emitter_admission_v1, PreparedGenericG0PhysicalEmitterAdmissionV1,
+    PreparedGenericG0PhysicalEmitterAdmissionV1,
 };
 use crate::mir::function::MirParamDecl;
 use crate::mir::loop_recipe_contract::PreparedLoopPhysicalLayoutV1;
-use crate::mir::loop_route_policy::CanonicalLoopFamilySelectionV1;
 use std::marker::PhantomData;
 
 /// Mechanical dispatch inputs branded to one callback scope.  The input owns

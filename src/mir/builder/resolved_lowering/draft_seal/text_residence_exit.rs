@@ -8,7 +8,6 @@
 use crate::mir::compiler::pinned_text_backend_frame::PinnedTextBackendFrameBorrowV1;
 use crate::mir::pinned_text_access_plan::PinnedTextAccessPlanTableV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
-use crate::mir::ValueId;
 
 use super::super::completion_consumption::{ExplicitReturnWitnessV1, ReadyFunctionCompletionV1};
 use super::{PreparedFunctionExitSetV1, PreparedFunctionExitV1};

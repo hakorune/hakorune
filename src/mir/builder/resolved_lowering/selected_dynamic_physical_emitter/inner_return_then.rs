@@ -18,7 +18,7 @@ use crate::mir::builder::resolved_lowering::canonical_ssa::CanonicalSsaFunctionS
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2PhysicalRepresentationV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
 use crate::mir::compiler::dynamic_full_body_recipe::DynamicInvocationCleanupRowKindV1;
-use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopOperationV2, LoopValueKeyV1};
+use crate::mir::loop_recipe_contract::{LoopItemKeyV1, LoopValueKeyV1};
 use crate::mir::resolved_semantics::ResolvedExitSiteV1;
 use crate::mir::{BasicBlockId, MirInstruction};
 

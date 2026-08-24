@@ -4,7 +4,7 @@
 //! candidate owns the CFG/SSA/PHI finish and drops the candidate on failure.
 
 use crate::mir::builder::control_flow::plan::loop_accum_physicalizer::{
-    LoopPhysicalSuccessReceiptV1, LoopPhysicalizeErrorV1,
+    LoopPhysicalizeErrorV1,
 };
 use crate::mir::builder::emission::phi_lifecycle::{PhiToken, PhiTxn};
 use crate::mir::builder::resolved_lowering::canonical_cfg::CanonicalCfgSessionV1;

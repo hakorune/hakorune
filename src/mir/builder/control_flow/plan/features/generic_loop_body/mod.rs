@@ -37,7 +37,7 @@ pub(in crate::mir::builder) use v1::lower_generic_loop_v1_body;
 
 #[cfg(test)]
 pub(in crate::mir::builder) use nested_depth_observer_tests::{
-    observe_nested_depth1, NestedBuilderSnapshotV1, NestedDepthObservationV1, NestedStageResultV1,
+    observe_nested_depth1, NestedBuilderSnapshotV1, NestedStageResultV1,
 };
 
 const GENERIC_LOOP_ERR: &str = "[normalizer] generic loop v0";
