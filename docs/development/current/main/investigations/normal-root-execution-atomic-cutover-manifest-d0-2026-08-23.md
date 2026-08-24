@@ -2143,11 +2143,25 @@ consumption remain unchanged. The focused `normal_root_execution` suite passes
 (`private_interfaces=11`, `dead_code=581`; all non-structural lint categories
 remain zero).
 
+The following Raw publication probe cleanup is landed as `a8445d6357`:
+
+```text
+a8445d6357  refactor: trim raw publication probes
+```
+
+The VM-reference-only invocation-brand helper is feature-gated, the unused
+rejection error adapter is removed, and publication/rejection payloads retain
+their receipt and owner/error evidence under underscore fields. Raw publication
+and compatibility erasure remain unchanged. The focused `normal_root_execution`
+suite passes 19 tests, and the test fingerprint moved from 592 to 588 warnings
+(`private_interfaces=11`, `dead_code=577`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 581 `dead_code` warnings are existing disconnected
+visibility. The remaining 577 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
