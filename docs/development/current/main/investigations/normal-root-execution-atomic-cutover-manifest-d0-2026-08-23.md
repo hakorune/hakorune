@@ -1244,3 +1244,17 @@ The focused `normal_root_execution` suite passes 19 tests, all five reusable
 guards remain green, and the test fingerprint moved from 811 to 809 warnings
 (`private_interfaces=83`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following Raw-drain owner visibility slice is landed as `2fdbf4b508`:
+
+```text
+2fdbf4b508  refactor: align raw drain owner visibility
+```
+
+The prepared Raw drain aggregate and its nested Script/App owners now share
+the compiler-owned visibility boundary, and `prepare_drain` exposes the same
+boundary to its compiler consumers. No drain, rejection, or publication
+behavior changed. The focused `normal_root_execution` suite passes 19 tests,
+all five reusable guards remain green, and the test fingerprint moved from 809
+to 807 warnings (`private_interfaces=81`, `private_bounds=0`; non-structural
+lint categories remain zero).
