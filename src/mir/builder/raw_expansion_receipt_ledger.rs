@@ -48,7 +48,7 @@ const RAW_EXPANSION_CUTOVER_STOPS: [RawExpansionCutoverStopV1; 2] = [
 ];
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RawExpansionDraftRoleV1 {
+pub(in crate::mir) enum RawExpansionDraftRoleV1 {
     RootMain,
     SyntheticConditionFn,
     TopLevelFunction,
@@ -238,7 +238,7 @@ pub(in crate::mir::builder) enum RawExpansionAbortReasonV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RawExpansionReceiptLedgerErrorV1 {
+pub(in crate::mir) enum RawExpansionReceiptLedgerErrorV1 {
     InvalidLegacyRole(RawExpansionDraftRoleV1),
     EmptySymbol,
     ReservationOrdinalOverflow,
