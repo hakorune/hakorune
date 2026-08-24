@@ -1099,3 +1099,17 @@ module tree, so its return types no longer cross the wider MIR boundary. The
 focused `normal_root_execution` suite passes 19 tests, all five reusable guards
 remain green, and the test fingerprint moved from 847 to 845 warnings
 (`private_interfaces=112`; non-structural lint categories remain zero).
+
+The following common-V2 session boundary cleanup slice is landed as
+`3b448fecf7`:
+
+```text
+3b448fecf7  refactor: narrow common v2 session visibility
+```
+
+All four segment/continuation allocation helpers are called only within the
+`resolved_lowering` owner tree, matching the visibility of their receipts and
+callback scopes. The focused `normal_root_execution` suite passes 19 tests, all
+five reusable guards remain green, and the test fingerprint moved from 845 to
+838 warnings (`private_interfaces=106`, `private_bounds=6`; non-structural
+lint categories remain zero).
