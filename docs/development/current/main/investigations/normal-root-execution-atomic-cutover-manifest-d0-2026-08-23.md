@@ -1303,3 +1303,18 @@ changed. The focused `normal_root_execution` suite passes 19 tests, all five
 reusable guards remain green, and the test fingerprint moved from 805 to 804
 warnings (`private_interfaces=78`, `private_bounds=0`; non-structural lint
 categories remain zero).
+
+The following Raw body-parts handoff visibility slice is landed as
+`95758c9050`:
+
+```text
+95758c9050  refactor: narrow raw body parts handoff
+```
+
+The completed Raw root-body `into_parts` handoff is consumed by the parent
+environment-install module and its own batch-input adapter, so its boundary
+now matches the existing environment-install owner. No body completion or
+root-batch behavior changed. The focused `normal_root_execution` suite passes
+19 tests, all five reusable guards remain green, and the test fingerprint
+moved from 804 to 803 warnings (`private_interfaces=77`, `private_bounds=0`;
+non-structural lint categories remain zero).
