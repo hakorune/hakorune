@@ -969,3 +969,15 @@ reexport to a private parent import so child test modules retain their
 existing names without widening the facade. The focused
 `normal_root_execution` suite passes 19 tests, all five reusable guards remain
 green, and the test fingerprint moved from 919 to 916 warnings.
+
+The following compiler import-shim slice is landed as `d40c601363`:
+
+```text
+d40c601363  refactor: prune compiler import shims
+```
+
+It removes six caller-zero imports or bounded internal reexports from the
+DirectAccum, Dynamic full-body co-seal, and Generic G0 projection facades;
+source/Recipe issuers and physical owners are unchanged. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 916 to 910 warnings.
