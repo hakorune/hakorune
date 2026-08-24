@@ -100,6 +100,11 @@ adapter must not reconstruct receiver or legacy `func` operands.
 read-only projection; it does not classify targets, retry missing targets, or
 re-enter the retired by-name path.
 
+The optimizer follows the same terminal boundary: its late schedule no longer
+issues callsite target canonicalization. CSE keys typed calls from `Callee`,
+and the type-op diagnostic observes typed methods only; shared post-RC and
+JSON-v0 compatibility canonicalizers remain their own ingress owners.
+
 ## Boundary Rules
 
 - Add shared policy once under `policies/` and reuse it from the other subtrees.

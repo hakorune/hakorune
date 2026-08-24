@@ -6,6 +6,8 @@ TAG="mir-call-canonical-corridor-guard"
 LLVM="$ROOT_DIR/src/runner/product/llvm/mod.rs"
 OPTIMIZER="$ROOT_DIR/src/mir/optimizer/core.rs"
 SCHEDULE="$ROOT_DIR/src/mir/passes/callsite_canonicalize/schedule.rs"
+CSE="$ROOT_DIR/src/mir/passes/cse.rs"
+DIAGNOSTICS="$ROOT_DIR/src/mir/optimizer_passes/diagnostics.rs"
 REJECT="$ROOT_DIR/src/mir/contracts/backend_core_ops/allowlists.rs"
 JSON="$ROOT_DIR/src/runner/json_v0_bridge/core.rs"
 PROGRAM_LOWERING="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program.rs"
@@ -35,12 +37,18 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
-require "$OPTIMIZER" "CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline"
-require "$SCHEDULE" "MirOptimizerLateCallAndInline"
+if rg -F -q "CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline" "$OPTIMIZER" || rg -F -q "MirOptimizerLateCallAndInline" "$SCHEDULE"; then
+  fail "optimizer retained the retired callsite-canonicalize schedule"
+fi
+require "$OPTIMIZER" "call_callee_{:?}_"
+require "$CSE" "cse_call_key_uses_typed_callee_and_ignores_stale_func"
+require "$CSE" "cse_closure_key_does_not_use_legacy_func"
+require "$CSE" "cse_call_key_keeps_legacy_func_compatibility_distinct"
+require "$DIAGNOSTICS" "diagnostics_observe_typed_method_without_legacy_func_const_scan"
 require "$REJECT" "Some(\"call-missing-callee\")"
 require "$LLVM" "fn reject_selected_dynamic_legacy_callsites"
 require "$LLVM" "legacy_callsite_reject_code"
@@ -135,6 +143,8 @@ for relative in (
     "src/mir/instruction/methods.rs",
     "src/mir/optimizer/core.rs",
     "src/mir/passes/callsite_canonicalize/schedule.rs",
+    "src/mir/passes/cse.rs",
+    "src/mir/optimizer_passes/diagnostics.rs",
     "src/mir/contracts/backend_core_ops/allowlists.rs",
     "src/runner/product/llvm/mod.rs",
     "crates/hakorune_mir_defs/src/call_unified.rs",
@@ -289,6 +299,28 @@ if instruction_kinds.count("MirInstruction::Call") < 2:
     raise SystemExit("instruction_kinds lost direct Call metadata arms")
 if "Some(i.used_values())" not in instruction_kinds:
     raise SystemExit("instruction_kinds Call use metadata lost canonical delegation")
+
+optimizer = (root / "src/mir/optimizer/core.rs").read_text()
+if "MirOptimizerLateCallAndInline" in optimizer:
+    raise SystemExit("optimizer retained the retired callsite schedule")
+if "call_callee_{:?}_" not in optimizer:
+    raise SystemExit("optimizer key lost canonical Callee projection")
+
+cse = (root / "src/mir/passes/cse.rs").read_text()
+if "call_closure_{}_" in cse or "Use func as distinguisher" in cse:
+    raise SystemExit("CSE retained a Closure key based on legacy func")
+if "call_callee_{:?}_" not in cse:
+    raise SystemExit("CSE lost canonical Callee key projection")
+
+diagnostics = (root / "src/mir/optimizer_passes/diagnostics.rs").read_text()
+diag_end = diagnostics.index("#[cfg(test)]")
+diag_owner = diagnostics[:diag_end]
+if (
+    "def_map" in diag_owner
+    or "ConstValue::String" in diag_owner
+    or "MirInstruction::Call { func" in diag_owner
+):
+    raise SystemExit("optimizer diagnostics retained legacy func-to-Const target observation")
 
 query = (root / "src/mir/query.rs").read_text()
 query_impl = query.index("impl<'m> MirQuery for MirQueryBox")

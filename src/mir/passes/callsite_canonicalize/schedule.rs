@@ -1,13 +1,12 @@
 use crate::mir::MirModule;
 
-/// Production pipeline sites that schedule callsite canonicalization.
+/// Production pipeline sites that schedule compatibility/canonicalization.
 ///
 /// The transform itself remains owned by `canonicalize_callsites`; this enum
 /// names the timing seam so callers do not each own an implicit schedule rule.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CallsiteCanonicalizeScheduleSite {
     MirCompilerPostRc,
-    MirOptimizerLateCallAndInline,
     ProgramJsonV0Bridge,
     MirJsonV0Loader,
 }

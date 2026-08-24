@@ -1,6 +1,6 @@
 use crate::mir::optimizer::MirOptimizer;
 use crate::mir::optimizer_stats::OptimizationStats;
-use crate::mir::{BasicBlockId, MirInstruction, MirModule, ValueId};
+use crate::mir::{MirInstruction, MirModule};
 
 /// Diagnostic: detect unlowered is/as/isType/asType after Builder
 pub fn diagnose_unlowered_type_ops(
@@ -10,20 +10,6 @@ pub fn diagnose_unlowered_type_ops(
     let mut stats = OptimizationStats::new();
     let diag_on = opt.debug_enabled() || crate::config::env::opt_diag();
     for (fname, function) in &module.functions {
-        let mut def_map: std::collections::HashMap<ValueId, (BasicBlockId, usize)> =
-            std::collections::HashMap::new();
-        for (bb_id, block) in &function.blocks {
-            for (i, inst) in block.instructions.iter().enumerate() {
-                if let Some(dst) = inst.dst_value() {
-                    def_map.insert(dst, (*bb_id, i));
-                }
-            }
-            if let Some(term) = &block.terminator {
-                if let Some(dst) = term.dst_value() {
-                    def_map.insert(dst, (*bb_id, usize::MAX));
-                }
-            }
-        }
         let mut count = 0usize;
         for (_bb, block) in &function.blocks {
             for inst in &block.instructions {
@@ -37,23 +23,6 @@ pub fn diagnose_unlowered_type_ops(
                         || method == "asType" =>
                     {
                         count += 1;
-                    }
-                    MirInstruction::Call { func, .. } => {
-                        if let Some((bb, idx)) = def_map.get(func).copied() {
-                            if let Some(b) = function.blocks.get(&bb) {
-                                if idx < b.instructions.len() {
-                                    if let MirInstruction::Const {
-                                        value: crate::mir::ConstValue::String(s),
-                                        ..
-                                    } = &b.instructions[idx]
-                                    {
-                                        if s == "isType" || s == "asType" {
-                                            count += 1;
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                     _ => {}
                 }
@@ -71,6 +40,63 @@ pub fn diagnose_unlowered_type_ops(
         }
     }
     stats
+}
+
+#[cfg(test)]
+mod tests {
+    use super::diagnose_unlowered_type_ops;
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::{
+        BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirFunction,
+        MirInstruction, MirModule, MirType, ValueId,
+    };
+
+    #[test]
+    fn diagnostics_observe_typed_method_without_legacy_func_const_scan() {
+        let mut function = MirFunction::new(
+            FunctionSignature {
+                name: "diagnostic_call_test/0".to_string(),
+                params: vec![],
+                return_type: MirType::Void,
+                effects: EffectMask::PURE,
+            },
+            BasicBlockId::new(0),
+        );
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry block");
+        block.instructions.push(MirInstruction::Const {
+            dst: ValueId::new(9),
+            value: ConstValue::String("isType".to_string()),
+        });
+        block.instructions.push(MirInstruction::Call {
+            dst: None,
+            func: ValueId::new(9),
+            callee: None,
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        block.instructions.push(MirInstruction::Call {
+            dst: None,
+            func: ValueId::new(99),
+            callee: Some(Callee::Method {
+                box_name: "Box".to_string(),
+                method: "isType".to_string(),
+                receiver: None,
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            }),
+            args: vec![],
+            effects: EffectMask::PURE,
+        });
+        let mut module = MirModule::new("diagnostic_call_test".to_string());
+        module.add_function(function);
+
+        let mut optimizer = crate::mir::optimizer::MirOptimizer::new();
+        let stats = diagnose_unlowered_type_ops(&mut optimizer, &module);
+        assert_eq!(stats.diagnostics_reported, 1);
+    }
 }
 
 /// Diagnostic: detect lowered-away instructions that must not survive normalize pass.

@@ -181,14 +181,6 @@ impl MirOptimizer {
             stats.intrinsic_optimizations += updates as usize;
         }
 
-        let canonicalized = crate::mir::passes::callsite_canonicalize::canonicalize_for_site(
-            module,
-            crate::mir::passes::callsite_canonicalize::CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline,
-        );
-        if canonicalized > 0 {
-            stats.intrinsic_optimizations += canonicalized;
-        }
-
         // Inline consumes refreshed MIR InlinePlan metadata only.
         crate::mir::rune_plan_refresh::refresh_module_rune_plans(module);
         let inline_soft_leaf = crate::mir::passes::inline_soft_leaf::apply(module);
@@ -248,13 +240,18 @@ impl MirOptimizer {
                 format!("cmp_{:?}_{}_{}", op, lhs.as_u32(), rhs.as_u32())
             }
             // MirInstruction::BoxFieldLoad { box_val, field, .. } => format!("boxload_{}_{}", box_val.as_u32(), field),
-            MirInstruction::Call { func, args, .. } => {
+            MirInstruction::Call {
+                callee, func, args, ..
+            } => {
                 let args_str = args
                     .iter()
                     .map(|v| v.as_u32().to_string())
                     .collect::<Vec<_>>()
                     .join(",");
-                format!("call_{}_{}", func.as_u32(), args_str)
+                match callee {
+                    Some(callee) => format!("call_callee_{:?}_{}", callee, args_str),
+                    None => format!("call_legacy_{}_{}", func.as_u32(), args_str),
+                }
             }
             _ => format!("other_{:?}", instruction),
         }

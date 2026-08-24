@@ -108,47 +108,67 @@ fn instruction_key(i: &MirInstruction) -> String {
                 .collect::<Vec<_>>()
                 .join(",");
 
-            // Include callee information to distinguish different call targets
-            if let Some(c) = callee {
-                use crate::mir::Callee;
-                match c {
-                    Callee::Global(name) => {
-                        format!("call_global_{}_{}", name, args_str)
-                    }
-                    Callee::Method {
-                        box_name,
-                        method,
-                        receiver,
-                        ..
-                    } => {
-                        let recv_str = receiver
-                            .map(|r| r.as_u32().to_string())
-                            .unwrap_or_else(|| "static".to_string());
-                        format!(
-                            "call_method_{}.{}_{}_{}",
-                            box_name, method, recv_str, args_str
-                        )
-                    }
-                    Callee::Value(v) => {
-                        format!("call_value_{}_{}", v.as_u32(), args_str)
-                    }
-                    Callee::Extern(name) => {
-                        format!("call_extern_{}_{}", name, args_str)
-                    }
-                    Callee::Constructor { box_type } => {
-                        format!("call_ctor_{}_{}", box_type, args_str)
-                    }
-                    Callee::Closure { .. } => {
-                        // Closures are unique by definition (captures, params may differ)
-                        // Use func as distinguisher
-                        format!("call_closure_{}_{}", func.as_u32(), args_str)
-                    }
-                }
-            } else {
-                // Legacy path: no callee information, use func
-                format!("call_legacy_{}_{}", func.as_u32(), args_str)
-            }
+            // The typed Callee is the target key. Legacy None remains an
+            // explicit compatibility key until the core field cutover.
+            callee.as_ref().map_or_else(
+                || format!("call_legacy_{}_{}", func.as_u32(), args_str),
+                |callee| format!("call_callee_{:?}_{}", callee, args_str),
+            )
         }
         other => format!("other_{:?}", other),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::instruction_key;
+    use crate::mir::{Callee, EffectMask, MirInstruction, ValueId};
+
+    fn call(callee: Option<Callee>, func: ValueId) -> MirInstruction {
+        MirInstruction::Call {
+            dst: Some(ValueId::new(1)),
+            func,
+            callee,
+            args: vec![ValueId::new(2)],
+            effects: EffectMask::PURE,
+        }
+    }
+
+    #[test]
+    fn cse_call_key_uses_typed_callee_and_ignores_stale_func() {
+        let typed_a = call(
+            Some(Callee::Global("target/1".to_string())),
+            ValueId::new(10),
+        );
+        let typed_b = call(
+            Some(Callee::Global("target/1".to_string())),
+            ValueId::new(11),
+        );
+        assert_eq!(instruction_key(&typed_a), instruction_key(&typed_b));
+    }
+
+    #[test]
+    fn cse_closure_key_does_not_use_legacy_func() {
+        let make = |func| {
+            call(
+                Some(Callee::Closure {
+                    params: vec!["x".to_string()],
+                    captures: vec![("x".to_string(), ValueId::new(7))],
+                    me_capture: None,
+                }),
+                func,
+            )
+        };
+        assert_eq!(
+            instruction_key(&make(ValueId::new(10))),
+            instruction_key(&make(ValueId::new(11)))
+        );
+    }
+
+    #[test]
+    fn cse_call_key_keeps_legacy_func_compatibility_distinct() {
+        let legacy_a = call(None, ValueId::new(10));
+        let legacy_b = call(None, ValueId::new(11));
+        assert_ne!(instruction_key(&legacy_a), instruction_key(&legacy_b));
     }
 }
