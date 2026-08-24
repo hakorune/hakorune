@@ -2005,11 +2005,25 @@ tests, and the test fingerprint moved from 630 to 627 warnings
 (`private_interfaces=11`, `dead_code=616`; all non-structural lint categories
 remain zero).
 
+The following rejected Raw postprocess facade cleanup is landed as
+`1bb310ebd2`:
+
+```text
+1bb310ebd2  refactor: trim rejected postprocess accessors
+```
+
+The rejected receipt keeps its typed owner, stage, error, and verification
+payloads for one-shot `discard()`, while removing four caller-zero inspection
+adapters. The focused `normal_root_execution` suite passes 19 tests, and the
+test fingerprint moved from 627 to 626 warnings
+(`private_interfaces=11`, `dead_code=615`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 616 `dead_code` warnings are existing disconnected
+visibility. The remaining 615 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
