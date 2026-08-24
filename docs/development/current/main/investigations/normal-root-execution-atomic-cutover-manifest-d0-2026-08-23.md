@@ -2558,3 +2558,8 @@ parked and is not mass-deleted.
 state products as underscore-named evidence while removing caller-zero state
 accessors; warnings are 464→458 (`private_interfaces=11`, `dead_code=447`),
 with 19/19 focused tests and all five guards green.
+
+`e16399eff8` trims caller-zero normal Script direct-static semantic/physical
+probes while retaining source owner, row, argument, representation, and
+publication products; warnings are 458→445 (`private_interfaces=11`,
+`dead_code=434`), with 19/19 focused tests and all five guards green.
