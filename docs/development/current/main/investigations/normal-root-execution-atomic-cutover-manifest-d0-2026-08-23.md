@@ -2574,3 +2574,8 @@ five guards green.
 Script direct-static publication owner/Recipe as underscore evidence; warnings
 are 440→437 (`private_interfaces=11`, `dead_code=426`), with 19/19 focused
 tests and all five guards green.
+
+`aa22d63ea6` retains static-box integrity and source-backed catalog parser
+syntax reject payloads as named `_error` evidence; warnings are 437→435
+(`private_interfaces=11`, `dead_code=424`), with 19/19 focused tests and all
+five guards green.
