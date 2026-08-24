@@ -61,7 +61,7 @@ pub(super) enum PreparedLoopIncomingRoleV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) struct PreparedDynamicLoopEntryBindingV1 {
     binding: BindingRefV1,
-    class: CallableLoopReadyBindingClassV1,
+    _class: CallableLoopReadyBindingClassV1,
     current: ValueId,
     representation: PreparedLoopCarrierRepresentationV1,
 }
@@ -69,10 +69,6 @@ pub(super) struct PreparedDynamicLoopEntryBindingV1 {
 impl PreparedDynamicLoopEntryBindingV1 {
     pub(super) const fn binding(self) -> BindingRefV1 {
         self.binding
-    }
-
-    pub(super) const fn class(self) -> CallableLoopReadyBindingClassV1 {
-        self.class
     }
 
     pub(super) const fn current(self) -> ValueId {
@@ -151,7 +147,7 @@ impl PreparedDynamicLoopCarrierV1 {
 pub(super) struct PreparedSourceBackedDynamicLoopIngressV1 {
     owner: FunctionOwnerIdV1,
     loop_site: SourceNodeSiteV1,
-    source_coverage: CallableSemanticLoopHandoffPreEffectReceiptV1,
+    _source_coverage: CallableSemanticLoopHandoffPreEffectReceiptV1,
     operations: VerifiedDynamicLoopOperationSourceSetV1,
     entry_bindings: Box<[PreparedDynamicLoopEntryBindingV1]>,
     carrier: PreparedDynamicLoopCarrierV1,
@@ -165,10 +161,6 @@ impl PreparedSourceBackedDynamicLoopIngressV1 {
 
     pub(super) const fn loop_site(&self) -> &SourceNodeSiteV1 {
         &self.loop_site
-    }
-
-    pub(super) const fn source_coverage(&self) -> &CallableSemanticLoopHandoffPreEffectReceiptV1 {
-        &self.source_coverage
     }
 
     pub(super) const fn operations(&self) -> &VerifiedDynamicLoopOperationSourceSetV1 {
@@ -263,7 +255,7 @@ impl DynamicLoopPrepareIssuerV1 {
             }
             entry_bindings.push(PreparedDynamicLoopEntryBindingV1 {
                 binding: row.binding(),
-                class: row.class(),
+                _class: row.class(),
                 current,
                 representation: PreparedLoopCarrierRepresentationV1::source_backed_dynamic(origin),
             });
@@ -310,7 +302,7 @@ impl DynamicLoopPrepareIssuerV1 {
         Ok(PreparedSourceBackedDynamicLoopIngressV1 {
             owner: origins.owner(),
             loop_site: parent_site.clone(),
-            source_coverage,
+            _source_coverage: source_coverage,
             operations,
             entry_bindings: entry_bindings.into_boxed_slice(),
             carrier,

@@ -35,8 +35,8 @@ pub(super) enum DynamicLoopOperationResultClassV1 {
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct VerifiedDynamicLoopComparisonSourceV1 {
     operation: SourceExprSiteV1,
-    carrier_read: SourceExprSiteV1,
-    operand_read: SourceExprSiteV1,
+    _carrier_read: SourceExprSiteV1,
+    _operand_read: SourceExprSiteV1,
     carrier: BindingRefV1,
     operand: BindingRefV1,
     kind: DynamicLoopComparisonKindV1,
@@ -50,14 +50,6 @@ impl VerifiedDynamicLoopComparisonSourceV1 {
 
     pub(super) const fn carrier(&self) -> BindingRefV1 {
         self.carrier
-    }
-
-    pub(super) const fn carrier_read(&self) -> &SourceExprSiteV1 {
-        &self.carrier_read
-    }
-
-    pub(super) const fn operand_read(&self) -> &SourceExprSiteV1 {
-        &self.operand_read
     }
 
     pub(super) const fn operand(&self) -> BindingRefV1 {
@@ -75,9 +67,9 @@ impl VerifiedDynamicLoopComparisonSourceV1 {
 
 #[derive(Debug, PartialEq, Eq)]
 pub(super) struct VerifiedDynamicLoopAddRebindSourceV1 {
-    operation: SourceExprSiteV1,
-    carrier_read: SourceExprSiteV1,
-    exact_literal: SourceExprSiteV1,
+    _operation: SourceExprSiteV1,
+    _carrier_read: SourceExprSiteV1,
+    _exact_literal: SourceExprSiteV1,
     target: SourceExprSiteV1,
     carrier: BindingRefV1,
     delta: i64,
@@ -85,20 +77,8 @@ pub(super) struct VerifiedDynamicLoopAddRebindSourceV1 {
 }
 
 impl VerifiedDynamicLoopAddRebindSourceV1 {
-    pub(super) const fn operation(&self) -> &SourceExprSiteV1 {
-        &self.operation
-    }
-
     pub(super) const fn target(&self) -> &SourceExprSiteV1 {
         &self.target
-    }
-
-    pub(super) const fn carrier_read(&self) -> &SourceExprSiteV1 {
-        &self.carrier_read
-    }
-
-    pub(super) const fn exact_literal(&self) -> &SourceExprSiteV1 {
-        &self.exact_literal
     }
 
     pub(super) const fn carrier(&self) -> BindingRefV1 {
@@ -290,8 +270,8 @@ fn issue_comparison(
     require_inventory(ledger, [&operation, &carrier_read, &operand_read])?;
     Ok(VerifiedDynamicLoopComparisonSourceV1 {
         operation,
-        carrier_read,
-        operand_read,
+        _carrier_read: carrier_read,
+        _operand_read: operand_read,
         carrier,
         operand,
         kind: DynamicLoopComparisonKindV1::Less,
@@ -366,9 +346,9 @@ fn issue_add_rebind(
     }
     require_inventory(ledger, [&operation, &carrier_read, &exact_literal, &target])?;
     Ok(VerifiedDynamicLoopAddRebindSourceV1 {
-        operation,
-        carrier_read,
-        exact_literal,
+        _operation: operation,
+        _carrier_read: carrier_read,
+        _exact_literal: exact_literal,
         target,
         carrier,
         delta: *delta,
