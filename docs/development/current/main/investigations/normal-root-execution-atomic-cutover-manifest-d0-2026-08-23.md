@@ -1627,11 +1627,26 @@ and the test fingerprint moved from 690 to 687 warnings
 (`private_interfaces=11`, `dead_code=676`; all non-structural lint categories
 remain zero).
 
+The following parser-source accessor cleanup is landed as `92f158f2ba`:
+
+```text
+92f158f2ba  refactor: trim unused parser source accessors
+```
+
+The unreferenced parser-invocation brand comparison and source-authority
+readiness accessor were removed. The used witness comparison, composite
+readiness check, and all typed source-authority terminal states remain intact.
+No parser identity, source-row admission, disposition, or ownership behavior
+changed. The focused `normal_root_execution` suite passes 19 tests, and the
+test fingerprint moved from 687 to 685 warnings
+(`private_interfaces=11`, `dead_code=674`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 676 `dead_code` warnings are existing disconnected
+visibility. The remaining 674 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
