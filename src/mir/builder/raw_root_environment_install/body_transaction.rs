@@ -297,7 +297,7 @@ impl CompletedRawRootBodyPhysicalV1 {
         }
     }
 
-    pub(in crate::mir) fn into_parts(
+    pub(in crate::mir::builder::raw_root_environment_install) fn into_parts(
         self,
     ) -> (
         ModuleBuilderInvocationSessionV1,
