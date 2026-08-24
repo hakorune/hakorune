@@ -14,7 +14,7 @@ use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 use crate::mir::BasicBlockId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) struct VerifiedLoopOperationTargetBlockV1 {
+pub(in crate::mir::builder::resolved_lowering) struct VerifiedLoopOperationTargetBlockV1 {
     owner: FunctionOwnerIdV1,
     item: LoopItemKeyV1,
     loop_key: LoopNodeKeyV1,

@@ -102,7 +102,7 @@ pub(in crate::mir::builder::resolved_lowering) fn ready_loop_entry_from_canonica
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub(super) enum LoopPhysicalBlockRoleV1 {
+pub(in crate::mir::builder::resolved_lowering) enum LoopPhysicalBlockRoleV1 {
     Preheader,
     Header,
     Body,
@@ -153,7 +153,7 @@ impl LoopPhysicalBlockRowV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum LoopPhysicalBlockReceiptRejectV1 {
+pub(in crate::mir::builder::resolved_lowering) enum LoopPhysicalBlockReceiptRejectV1 {
     ForeignLoop {
         loop_key: crate::mir::loop_recipe_contract::LoopNodeKeyV1,
     },
@@ -284,7 +284,7 @@ impl LoopPhysicalBlockReceiptV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum LoopPhysicalizerRejectV1 {
+pub(in crate::mir::builder::resolved_lowering) enum LoopPhysicalizerRejectV1 {
     MissingFunction,
     PreheaderMissing(BasicBlockId),
     EntryOwnerMismatch,

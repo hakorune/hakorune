@@ -33,7 +33,7 @@ impl LoopPhysicalSegmentBlockRowV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(super) enum LoopPhysicalSegmentBlockReceiptRejectV1 {
+pub(in crate::mir::builder::resolved_lowering) enum LoopPhysicalSegmentBlockReceiptRejectV1 {
     EmptySegments,
     ForeignSegment(LoopPhysicalSegmentKeyV1),
     DuplicateSegment(LoopPhysicalSegmentKeyV1),
