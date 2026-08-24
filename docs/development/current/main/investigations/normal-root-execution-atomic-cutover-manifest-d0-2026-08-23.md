@@ -1185,3 +1185,18 @@ matches the existing receiver-policy and shadow products. The focused
 green, and the test fingerprint moved from 824 to 822 warnings
 (`private_interfaces=91`, `private_bounds=5`; non-structural lint categories
 remain zero).
+
+The following Builder callback/test-surface visibility slice is landed as
+`1918b24106`:
+
+```text
+1918b24106  refactor: narrow builder callback visibility
+```
+
+The selected-Dynamic test helpers and Generic G0 preflight are file-local,
+the invocation callback stays inside the Builder tree, and the explicit-extern
+port now shares that same Builder boundary. No lowering or publication route
+changed. The focused `normal_root_execution` suite passes 19 tests, all five
+reusable guards remain green, and the test fingerprint moved from 822 to 815
+warnings (`private_interfaces=89`, `private_bounds=0`; non-structural lint
+categories remain zero).
