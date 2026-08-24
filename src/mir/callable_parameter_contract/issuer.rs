@@ -16,14 +16,34 @@ use super::model::{
 
 #[derive(Debug)]
 pub(crate) enum CallableParameterContractIssueV1 {
-    BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
+    BatchLoan {
+        _error: ResolvedCallableSemanticBatchLoanErrorV1,
+    },
     DeclarationCoverage,
-    MissingParameterBinding { declaration: u32, parameter: u32 },
-    ForeignParameterBinding { declaration: u32, parameter: u32 },
-    ParameterRecordMismatch { declaration: u32, parameter: u32 },
-    DuplicateParameterBinding { declaration: u32, parameter: u32 },
-    UnsupportedTransfer { declaration: u32, parameter: u32 },
-    UnsupportedDeclaredType { declaration: u32, parameter: u32 },
+    MissingParameterBinding {
+        _declaration: u32,
+        _parameter: u32,
+    },
+    ForeignParameterBinding {
+        _declaration: u32,
+        _parameter: u32,
+    },
+    ParameterRecordMismatch {
+        _declaration: u32,
+        _parameter: u32,
+    },
+    DuplicateParameterBinding {
+        _declaration: u32,
+        _parameter: u32,
+    },
+    UnsupportedTransfer {
+        _declaration: u32,
+        _parameter: u32,
+    },
+    UnsupportedDeclaredType {
+        declaration: u32,
+        parameter: u32,
+    },
 }
 
 pub(crate) fn issue_callable_parameter_contract_v1(
@@ -51,8 +71,8 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                     let parameter = source_parameter.ordinal();
                     if !source_parameter.is_ordinary() {
                         return Err(CallableParameterContractIssueV1::UnsupportedTransfer {
-                            declaration,
-                            parameter,
+                            _declaration: declaration,
+                            _parameter: parameter,
                         });
                     }
                     let kind = match source_parameter.declared_type_name() {
@@ -77,20 +97,20 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                     let site = SourceBindingSiteV1::Parameter { index: parameter };
                     let binding = function.declaration_binding(&site).ok_or(
                         CallableParameterContractIssueV1::MissingParameterBinding {
-                            declaration,
-                            parameter,
+                            _declaration: declaration,
+                            _parameter: parameter,
                         },
                     )?;
                     if binding.owner() != row.owner() {
                         return Err(CallableParameterContractIssueV1::ForeignParameterBinding {
-                            declaration,
-                            parameter,
+                            _declaration: declaration,
+                            _parameter: parameter,
                         });
                     }
                     let record = function.binding(binding).ok_or(
                         CallableParameterContractIssueV1::ForeignParameterBinding {
-                            declaration,
-                            parameter,
+                            _declaration: declaration,
+                            _parameter: parameter,
                         },
                     )?;
                     if record.kind() != (BindingKindV1::Parameter { index: parameter })
@@ -98,15 +118,15 @@ pub(crate) fn issue_callable_parameter_contract_v1(
                         || record.diagnostic_name() != source_parameter.name()
                     {
                         return Err(CallableParameterContractIssueV1::ParameterRecordMismatch {
-                            declaration,
-                            parameter,
+                            _declaration: declaration,
+                            _parameter: parameter,
                         });
                     }
                     if !bindings.insert(binding) {
                         return Err(
                             CallableParameterContractIssueV1::DuplicateParameterBinding {
-                                declaration,
-                                parameter,
+                                _declaration: declaration,
+                                _parameter: parameter,
                             },
                         );
                     }
@@ -134,7 +154,7 @@ pub(crate) fn issue_callable_parameter_contract_v1(
             }
             Ok(declarations.into_boxed_slice())
         })
-        .map_err(CallableParameterContractIssueV1::BatchLoan)??;
+        .map_err(|error| CallableParameterContractIssueV1::BatchLoan { _error: error })??;
 
     Ok(VerifiedCallableParameterContractCatalogV1::new(
         batch,
