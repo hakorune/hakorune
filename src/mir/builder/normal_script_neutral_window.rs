@@ -67,14 +67,16 @@ struct PreparedCanonicalScriptNeutralProgramWindowSealV1;
 
 #[derive(Debug)]
 pub(super) enum CanonicalScriptNeutralProgramWindowIssueV1 {
-    SourceLoan(ParserNormalProgramSourceLoanRejectV1),
-    Composite(CanonicalScriptCompositeProgramPartitionDispositionV1),
-    InstanceTransfer(ScriptInstanceBoxTransferIssueV1),
-    ConstructorSource(InstanceConstructorPhysicalSourceIssueV1),
-    CatalogedStaticBoxSource(Box<str>),
+    SourceLoan { _reject: ParserNormalProgramSourceLoanRejectV1 },
+    Composite {
+        _disposition: CanonicalScriptCompositeProgramPartitionDispositionV1,
+    },
+    InstanceTransfer { _issue: ScriptInstanceBoxTransferIssueV1 },
+    ConstructorSource { _issue: InstanceConstructorPhysicalSourceIssueV1 },
+    CatalogedStaticBoxSource { _detail: Box<str> },
     StatementPositionOverflow,
     StatementBoundaryMismatch,
-    Window(ScriptRootDemandWindowSealErrorV1),
+    Window { _error: ScriptRootDemandWindowSealErrorV1 },
 }
 
 impl PreparedCanonicalScriptNeutralProgramWindowV1 {
@@ -83,7 +85,9 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
     ) -> Result<Self, CanonicalScriptNeutralProgramWindowIssueV1> {
         package
             .with_normal_program_source_loan(|loan| Self::issue_from_program_loan(&loan, package))
-            .map_err(CanonicalScriptNeutralProgramWindowIssueV1::SourceLoan)?
+            .map_err(|_reject| {
+                CanonicalScriptNeutralProgramWindowIssueV1::SourceLoan { _reject }
+            })?
     }
 
     fn issue_from_program_loan(
@@ -98,19 +102,23 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
             }
             CanonicalScriptCompositeProgramPartitionDispositionV1::Outside(_) => None,
             disposition => {
-                return Err(CanonicalScriptNeutralProgramWindowIssueV1::Composite(
-                    disposition,
-                ))
+                return Err(CanonicalScriptNeutralProgramWindowIssueV1::Composite {
+                    _disposition: disposition,
+                })
             }
         };
         let instance_box_transfers =
             VerifiedScriptInstanceBoxTransferCohortV1::issue_from_program_loan(loan, package)
-                .map_err(CanonicalScriptNeutralProgramWindowIssueV1::InstanceTransfer)?;
+                .map_err(|_issue| {
+                    CanonicalScriptNeutralProgramWindowIssueV1::InstanceTransfer { _issue }
+                })?;
         let constructor_source_cohort =
             VerifiedInstanceConstructorPhysicalSourceCohortV1::issue_from_program_loan(
                 loan, package,
             )
-            .map_err(CanonicalScriptNeutralProgramWindowIssueV1::ConstructorSource)?;
+            .map_err(|_issue| {
+                CanonicalScriptNeutralProgramWindowIssueV1::ConstructorSource { _issue }
+            })?;
 
         let statement_count = loan.statement_count();
         let declaration_catalog = package.declaration_catalog();
@@ -149,7 +157,7 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
             ));
         }
         let window = VerifiedScriptRootDemandWindowV1::seal(entries, statement_count)
-            .map_err(CanonicalScriptNeutralProgramWindowIssueV1::Window)?;
+            .map_err(|_error| CanonicalScriptNeutralProgramWindowIssueV1::Window { _error })?;
         Ok(Self {
             admission: PreparedScriptRootAdmissionV1::from_neutral_issuer(
                 window,
@@ -371,9 +379,11 @@ fn validate_cataloged_static_box_source(
         ..
     } = statement
     else {
-        return Err(CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
-            "cataloged static-box transfer shape mismatch".into(),
-        ));
+        return Err(
+            CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
+                _detail: "cataloged static-box transfer shape mismatch".into(),
+            },
+        );
     };
 
     let expected = methods
@@ -381,15 +391,17 @@ fn validate_cataloged_static_box_source(
         .map(|entry| {
             let ASTNode::FunctionDeclaration { params, .. } = entry.declaration() else {
                 return Err(
-                    CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
-                        format!("cataloged method is not a FunctionDeclaration: {name}").into(),
-                    ),
+                    CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
+                        _detail: format!("cataloged method is not a FunctionDeclaration: {name}")
+                            .into(),
+                    },
                 );
             };
             let arity = u32::try_from(params.len()).map_err(|_| {
-                CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
-                    format!("cataloged method arity overflow: {name}.{}", entry.name()).into(),
-                )
+                CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
+                    _detail: format!("cataloged method arity overflow: {name}.{}", entry.name())
+                        .into(),
+                }
             })?;
             Ok((entry.name().to_owned(), arity))
         })
@@ -417,13 +429,15 @@ fn validate_cataloged_static_box_source(
         })
         .count();
     if selected_count != expected.len() {
-        return Err(CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
-            format!(
-                "cataloged source inventory cardinality mismatch for {name}: expected={} actual={selected_count}",
-                expected.len()
-            )
-            .into(),
-        ));
+        return Err(
+            CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
+                _detail: format!(
+                    "cataloged source inventory cardinality mismatch for {name}: expected={} actual={selected_count}",
+                    expected.len()
+                )
+                .into(),
+            },
+        );
     }
 
     for (key, _) in declaration_catalog.declarations().filter(|(key, _)| {
@@ -437,35 +451,39 @@ fn validate_cataloged_static_box_source(
         }) = selected_callable_sources.site(&selected_key)
         else {
             return Err(
-                CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
-                    format!(
+                CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
+                    _detail: format!(
                         "cataloged source inventory missing {}.{}",
                         key.owner(),
                         key.name()
                     )
                     .into(),
-                ),
+                },
             );
         };
         if *selected_statement_index != statement_index || method_key.as_ref() != key.name() {
-            return Err(CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
-                format!(
-                    "cataloged source inventory site mismatch for {}.{}",
-                    key.owner(),
-                    key.name()
-                )
-                .into(),
-            ));
+            return Err(
+                CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
+                    _detail: format!(
+                        "cataloged source inventory site mismatch for {}.{}",
+                        key.owner(),
+                        key.name()
+                    )
+                    .into(),
+                },
+            );
         }
     }
 
     if expected != actual {
-        return Err(CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource(
-            format!(
-                "cataloged method partition mismatch for {name}: expected={expected:?} actual={actual:?}"
-            )
-            .into(),
-        ));
+        return Err(
+            CanonicalScriptNeutralProgramWindowIssueV1::CatalogedStaticBoxSource {
+                _detail: format!(
+                    "cataloged method partition mismatch for {name}: expected={expected:?} actual={actual:?}"
+                )
+                .into(),
+            },
+        );
     }
     Ok(())
 }
