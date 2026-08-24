@@ -2,25 +2,26 @@ status = """
 Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
 ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
-and owner-private JSON-v0 input state as compatibility ingress. R1 is closed:
-two qualified missing-callee producers are canonical and the next row is the
-read-only MIR JSON-v0 input-state design."""
+and owner-private JSON-v0 input state as compatibility ingress. R1 is closed;
+R2 input-state D0 is NoSafeSlice because the legacy func catalog/target policy
+has no named source-backed issuer yet."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-JSONV0-INPUT-STATE-D0"
-current_design_stop = "Read-only only: fix explicit-callee precedence, legacy name/func states, typed errors, one-shot consumption, and the exact pre-publication fail-fast boundary in runner/mir_json_v0/call.rs. No code, fixture, fallback, route, or semantic receipt until one bounded I0 delete tuple is accepted."
-current_blocker_token = "Design stop: R1 deleted two exact Program JSON-v0 edges; remaining CutoverBlockerOpen includes generic Program JSON-v0 and dynamic MIR JSON-v0 missing-target issuance. R2 must name one private input owner and prove malformed explicit target never retries legacy fields."
+current_execution_row = "MIR-CALL-JSONV0-LEGACY-TARGET-CATALOG-D1"
+current_design_stop = "Read-only only: name the immutable function-local func catalog, module target policy, explicit/name/func precedence and alias/conflict errors, Method default policy, and direct/reference/Python/PyVM compatibility owners. No parser code, fixture, fallback, route, receipt, or semantic acceptance until the source-backed issuer and exact I0 delete tuple are accepted."
+current_blocker_token = "NoSafeSlice: R1 closed two exact Program JSON-v0 edges; generic Program JSON-v0 and dynamic MIR JSON-v0 missing-target issuance remain. D1 must name a source-backed func catalog and prove malformed explicit target never retries legacy fields."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — canonical MIR Call target retirement"
 active_lane_status = """
-Current: MIR Call D0 and R1 are closed; MIR JSON-v0 input-state D0 is the sole
-design row. Core field deletion remains blocked by ingress, operand, and terminal closure.
-Exit: one private input owner, total state matrix, typed first-error boundary,
+Current: MIR Call R1 is closed; legacy-target-catalog D1 is the sole design row
+after R2 input-state D0 reached NoSafeSlice. Core field deletion remains blocked
+by ingress, operand, and terminal closure.
+Exit: source-backed func catalog, total state matrix, typed first-error boundary,
 exact I0 delete set, no retry/fallback, and source/check files below 760/800."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -33,8 +34,8 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1 is green at 2 focused + 7 resolver tests; Program JSON-v0 literal missing-callee producers are 3 -> 1."
-next_design_card = "MIR-CALL-JSONV0-INPUT-STATE-D0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1 is green at 2 focused + 7 resolver tests; R2 D0 is NoSafeSlice until the legacy func catalog, target policy, alias/conflict rules, and compatibility owners are named."
+next_design_card = "MIR-CALL-JSONV0-LEGACY-TARGET-CATALOG-D1"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"

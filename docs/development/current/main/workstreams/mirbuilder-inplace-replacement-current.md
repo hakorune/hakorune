@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-current decision  = NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
-implementation    = none selected
+current decision  = MIR-CALL-JSONV0-LEGACY-TARGET-CATALOG-D1
+implementation    = R1 closed; R2 I0 not selected
 mode              = design_stop / read-only census
-production stop   = before ModuleBuilderInvocationSessionV1::open
-exit              = one caller + one existing owner + one exact delete set
+production stop   = before MirInstruction::Call publication
+exit              = one catalog owner + one exact relation + one delete set
 fallback / retry  = 0
 ```
 
@@ -206,36 +206,46 @@ constructor owner 385, guard 105. The 433 warnings remain the parked baseline
 The shared MirBuilder guard retains its known parent Loop-owner red and is not
 an R1 waiver or failure.
 
-## Next design stop: MIR-CALL-JSONV0-INPUT-STATE-D0
+## D0 verdict: MIR-CALL-JSONV0-INPUT-STATE-D0
 
-Decision: define one total owner-private MIR JSON-v0 Call input state; no code yet.
-Source authority + canonical issuer: explicit callee, legacy name, or one exact
-function-local func relation; D0 itself issues no Callee or Call.
-Non-authority: `Option<Callee>`, numeric func alone, Const scan, optimizer/backend lookup.
-Fail-fast boundary: before block publication; malformed explicit callee never tries legacy.
-Smallest next slice: fix states/errors/one-shot owner and one exact I0 delete tuple.
-Non-claims: no fixture, fallback, route, acceptance, optimizer/backend, or schema change.
+Decision: `NoSafeSlice`. The total owner-private state is accepted as the
+destination, but R2 I0 cannot open until the legacy `func` relation has a
+source-backed catalog and target policy.
+Source authority + canonical issuer: explicit `callee`, legacy `name`, or one
+exact function-local `func -> Const(String)` relation; only
+`MirInstruction::call` issues canonical Call. Non-authority: `Option<Callee>`,
+numeric `func`, post-MIR Const scans, printer text, optimizer/backend lookup,
+and runtime String registers.
+Fail-fast boundary: resolve/validate before `call`/`mir_call` publication;
+malformed explicit input never retries `name` or `func`.
+Smallest next slice: `MIR-CALL-JSONV0-LEGACY-TARGET-CATALOG-D1`, read-only.
+Non-claims: no parser/fixture/fallback/route/receipt/core deletion or acceptance.
+
+D1 must close four facts before I0: (1) immutable function-local
+`ValueId -> unique String` catalog and module target policy, (2) explicit/name/
+func precedence, alias/conflict and Method default policies, and (3) direct
+MIR-v0 versus reference/Python/PyVM compatibility ownership. Runtime or
+post-MIR inference keeps the row `NoSafeSlice` and must name the missing issuer.
 
 ## Ordered MIR Call retirement series
 
 1. R1: qualified Program JSON-v0 producers (closed).
-2. R2: owner-private MIR JSON-v0 input-state parser; invalid explicit target
-   rejects without legacy fallback and no partial block publication occurs.
-3. R3a/R3b: Program JSON-v0 immutable target catalog and direct MIR JSON-v0
-   exact legacy resolution; delete generic target Const/late mutation and all
-   runtime missing-target issuance.
-4. R4: `Callee` operand/remap SSOT; migrate def-use, ownership, escape,
-   publication, CSE, and remappers before any field delete.
-5. R5a/R5b/R5c: optimizer preservation; Rust VM/printer/JSON closure; then
-   Python LLVM/PyVM/reference-VM compatibility disposition with no by-name
-   fallback or retry.
-6. R6: atomic core schema cutover to mandatory `Callee`; update every direct
-   constructor/destructure and remove dummy `func` payloads.
-7. R7: replace impossible-state runtime guards with structural ingress/core/
-   terminal guards; synchronize module README/reference and close the census.
+2. D1: name the direct MIR-v0 catalog issuer, target policy, alias/conflict
+   states, and compatibility owner; no code until accepted.
+3. R2-I0: `call.rs` parses total state, resolves once, and publishes no
+   `Call(callee=None)` or partial block.
+4. R3a/R3b: pre-core Program JSON-v0 catalog/resolution; delete target Const,
+   `maybe_resolve_calls`, and all remaining missing-target edges.
+5. R4: one `Callee` operand/remap projection; migrate semantic consumers before
+   field deletion.
+6. R5a/R5b/R5c: optimizer, Rust VM/printer/JSON, then Python/PyVM/reference
+   closure with no by-name fallback/retry.
+7. R6: atomic `Call { callee: Callee }` cutover; remove dummy `func` payloads.
+8. R7: structural guards, README/reference sync, and census closeout.
 
-R2 implementation is not selected. R6 remains `CutoverBlockerOpen` until R2-R5 are
-green; selected-native local green cannot waive a repository-wide blocker.
+R2 I0 is not selected. R6 remains `CutoverBlockerOpen` until the catalog,
+ingress, operand, and terminal rows are green; selected-native local green
+cannot waive a repository-wide blocker.
 
 ## Production invariants
 ```text
@@ -309,8 +319,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JSONV0-INPUT-STATE-D0
-  -> read-only total state/error/publication-boundary design
+ MIR-CALL-JSONV0-LEGACY-TARGET-CATALOG-D1
+  -> read-only catalog, policy, and compatibility-owner design
 
 Next (not selected)
   -> MIR-CALL-JSONV0-INPUT-STATE-I0, then ordered R3-R7
