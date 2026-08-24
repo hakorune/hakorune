@@ -4,8 +4,12 @@
 //! Raw request. It owns only source-file read, canonical parse, and the
 //! already-sealed Raw VM-reference compiler entry.
 
-use super::raw_vm_reference_request::{RawVmReferenceGrammarV1, RawVmReferenceProductionRequestV1};
-use super::terminal::{ReferenceInvocationReportV1, ReferenceRunOutcomeV1, ReferenceUsageReportV1};
+#[cfg(feature = "vm-reference")]
+use super::raw_vm_reference_request::RawVmReferenceGrammarV1;
+use super::raw_vm_reference_request::RawVmReferenceProductionRequestV1;
+#[cfg(feature = "vm-reference")]
+use super::terminal::ReferenceInvocationReportV1;
+use super::terminal::{ReferenceRunOutcomeV1, ReferenceUsageReportV1};
 
 /// Run the supported reference lane from its one sealed request.
 pub(crate) fn run(request: RawVmReferenceProductionRequestV1) -> ReferenceRunOutcomeV1 {

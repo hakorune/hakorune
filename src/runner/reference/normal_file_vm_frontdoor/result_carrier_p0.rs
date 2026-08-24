@@ -4,6 +4,7 @@
 //! not classify AST results or construct source/process results itself.
 
 use super::*;
+#[cfg(feature = "vm-reference")]
 use tempfile::tempdir;
 
 fn request(path: PathBuf) -> NormalFileRequestV1 {

@@ -110,6 +110,7 @@ fn normal_source_error_code(
 mod tests {
     use super::*;
     use crate::cli::CliConfig;
+    #[cfg(feature = "vm-reference")]
     use tempfile::tempdir;
 
     fn selected_request(path: &std::path::Path) -> NormalFileVmReferenceProductionRequestV1 {
