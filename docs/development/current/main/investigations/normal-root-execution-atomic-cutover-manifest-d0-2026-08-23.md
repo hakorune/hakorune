@@ -673,3 +673,17 @@ direct-static kernel and its local tests remain intact; `script_physical_exit`
 passes all 9 focused tests, all five reusable guards remain green, and the
 test fingerprint moved from 1034 to 1032 warnings with zero warning records in
 the touched module.
+
+The following import-only R0 slice is landed as `2a95dd9463`:
+
+```text
+2a95dd9463  refactor: prune calls module imports
+```
+
+It removes three caller-zero import groups from `calls/mod.rs` while retaining
+the one `emit_standard_value_terminal_raw_v1` interface that still has a
+builder caller. The focused `call_argument_descent` suite passes 5 tests, all
+five reusable guards remain green, and the test fingerprint moved from 1032
+to 1029 warnings with zero warning records in `calls/mod.rs`. The broad
+`--lib calls` suite remains baseline-red in both current and parent builds;
+its route/emitter/constructor failures are outside this import-only slice.
