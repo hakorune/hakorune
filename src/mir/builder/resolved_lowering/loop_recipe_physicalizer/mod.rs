@@ -38,11 +38,9 @@ mod tail_completion;
 mod tests;
 mod topology;
 
-use carrier_emitter::*;
-pub(in crate::mir::builder::resolved_lowering) use compare_i64_writer::CanonicalLoopCompareI64WriterV1;
 pub(super) use operation_dispatcher::LoopOperationDispatchServicesV1;
 use operation_dispatcher::*;
-pub(super) use operation_emitter::*;
+use operation_emitter::*;
 use operation_ledger::*;
 pub(super) use segment_allocator::allocate_for_layout;
 pub(super) use segment_dispatcher::emit_loop_segment_operation_dispatch_v1;
