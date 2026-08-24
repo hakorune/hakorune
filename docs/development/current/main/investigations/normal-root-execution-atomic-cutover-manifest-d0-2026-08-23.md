@@ -2087,11 +2087,25 @@ from 617 to 612 warnings
 (`private_interfaces=11`, `dead_code=601`; all non-structural lint categories
 remain zero).
 
+The following neutral-window reject-detail cleanup is landed as `922e0e2b6d`:
+
+```text
+922e0e2b6d  refactor: retain neutral window reject details
+```
+
+The six tuple reject payloads become named underscore fields, retaining parser,
+composite, transfer, constructor, catalog, and window-seal diagnostics while
+removing unread tuple-field warnings. Neutral source admission and its
+downstream split remain unchanged. The focused `normal_root_execution` suite
+passes 19 tests, and the test fingerprint moved from 612 to 606 warnings
+(`private_interfaces=11`, `dead_code=595`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 601 `dead_code` warnings are existing disconnected
+visibility. The remaining 595 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
