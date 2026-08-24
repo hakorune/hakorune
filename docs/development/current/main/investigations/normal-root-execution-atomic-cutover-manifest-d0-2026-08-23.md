@@ -2366,3 +2366,23 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 537 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following S6C semantic-child rejection-evidence cleanup is landed as
+`e43411c0c7`:
+
+```text
+e43411c0c7  refactor: retain s6c child rejection evidence
+```
+
+The child issue keeps every typed cause and detail as named underscore
+evidence; no rejection is flattened or reclassified. The unused child
+identity/role accessors are removed while the retained identity/role fields
+remain in the verified product. The unconstructed `ResultMismatch` vocabulary
+is preserved. The focused `normal_root_execution` suite passes 19 tests, and
+the test fingerprint moved from 548 to 537 warnings (`private_interfaces=11`,
+`dead_code=526`; all non-structural lint categories remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 526 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
