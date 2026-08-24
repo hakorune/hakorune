@@ -1377,3 +1377,19 @@ transaction, or physical-thunk behavior changed. The focused
 green, and the test fingerprint moved from 792 to 778 warnings
 (`private_interfaces=52`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following Common V2 segment-handoff visibility slice is landed as
+`e9afd400a3`:
+
+```text
+e9afd400a3  refactor: narrow common v2 segment handoffs
+```
+
+The Common V2 session callbacks that consume segment brands, prepared segment
+receipts, and shared segment scopes now use the existing
+`crate::mir::builder::resolved_lowering` boundary. No lowering, receipt
+consumption, or physical emission behavior changed. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 778 to 766 warnings
+(`private_interfaces=40`, `private_bounds=0`; non-structural lint categories
+remain zero).
