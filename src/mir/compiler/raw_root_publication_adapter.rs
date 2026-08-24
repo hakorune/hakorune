@@ -20,7 +20,7 @@ use crate::mir::builder::{
 #[derive(Debug)]
 pub(in crate::mir) struct RawPublicationCompatibilityEnvelopeV1 {
     result: MirCompileResult,
-    evidence: RawPublicationToResultEvidenceV1,
+    _evidence: RawPublicationToResultEvidenceV1,
     _seal: RawPublicationCompatibilityEnvelopeSealV1,
 }
 
@@ -29,20 +29,20 @@ struct RawPublicationCompatibilityEnvelopeSealV1;
 
 #[derive(Debug)]
 struct RawPublicationToResultEvidenceV1 {
-    route: RawPostprocessRouteEvidenceV1,
-    witness: RawDrainWitnessV1,
-    finalization_parity: RawFinalizationParitySealV1,
-    postprocess_parity: RawPostprocessParitySealV1,
-    schedule: ModulePostprocessScheduleV1,
-    progress: RawPostprocessProgressV1,
-    publication: super::raw_root_publication::RawPublicationSealV1,
-    verification_projection: RawVerificationProjectionSealV1,
+    _route: RawPostprocessRouteEvidenceV1,
+    _witness: RawDrainWitnessV1,
+    _finalization_parity: RawFinalizationParitySealV1,
+    _postprocess_parity: RawPostprocessParitySealV1,
+    _schedule: ModulePostprocessScheduleV1,
+    _progress: RawPostprocessProgressV1,
+    _publication: super::raw_root_publication::RawPublicationSealV1,
+    _verification_projection: RawVerificationProjectionSealV1,
 }
 
 #[derive(Debug)]
 struct RawVerificationProjectionSealV1 {
-    disposition: RawVerificationDispositionV1,
-    error_count: usize,
+    _disposition: RawVerificationDispositionV1,
+    _error_count: usize,
 }
 
 #[derive(Debug)]
@@ -91,18 +91,18 @@ fn envelope_from_core(core: RawPublishedInvocationCoreV1) -> RawPublicationCompa
         verification_result,
     };
     let evidence = RawPublicationToResultEvidenceV1 {
-        route,
-        witness,
-        finalization_parity,
-        postprocess_parity,
-        schedule,
-        progress,
-        publication,
-        verification_projection,
+        _route: route,
+        _witness: witness,
+        _finalization_parity: finalization_parity,
+        _postprocess_parity: postprocess_parity,
+        _schedule: schedule,
+        _progress: progress,
+        _publication: publication,
+        _verification_projection: verification_projection,
     };
     RawPublicationCompatibilityEnvelopeV1 {
         result,
-        evidence,
+        _evidence: evidence,
         _seal: RawPublicationCompatibilityEnvelopeSealV1,
     }
 }
@@ -118,8 +118,8 @@ fn project_verification(
             Ok(()) => (
                 Ok(()),
                 RawVerificationProjectionSealV1 {
-                    disposition: RawVerificationDispositionV1::Passed,
-                    error_count: 0,
+                    _disposition: RawVerificationDispositionV1::Passed,
+                    _error_count: 0,
                 },
             ),
             Err(errors) => {
@@ -127,8 +127,8 @@ fn project_verification(
                 (
                     Err(errors.into_vec()),
                     RawVerificationProjectionSealV1 {
-                        disposition: RawVerificationDispositionV1::ReportableFailure,
-                        error_count,
+                        _disposition: RawVerificationDispositionV1::ReportableFailure,
+                        _error_count: error_count,
                     },
                 )
             }
