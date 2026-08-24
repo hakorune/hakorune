@@ -2333,3 +2333,36 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 550 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following Raw root-batch rejection-probe cleanup is landed as
+`7a6286064c`:
+
+```text
+7a6286064c  refactor: trim raw root batch rejection probes
+```
+
+The rejected batch owner still retains the session, physical carrier, draft,
+completion, exit witness, token, and owner product for the existing discard
+boundary. They are named underscore evidence because no accessor consumes them;
+the root-batch validation and handoff remain unchanged.
+
+The following Raw/source-site and canonical Script-exit probe cleanup is
+landed as `a683f74723`:
+
+```text
+a683f74723  refactor: trim raw and script exit probes
+```
+
+The unused Raw physical preserving wrapper and source-site span accessor are
+removed, while the span evidence, publication token, and static-child role
+remain retained. Script entry error payloads are named underscore evidence,
+and only caller-zero completion accessors are removed; the sole Script exit
+source/physical projection remains. The focused `normal_root_execution`
+suite passes 19 tests, and the test fingerprint moved from 561 to 548
+warnings (`private_interfaces=11`, `dead_code=537`; all non-structural lint
+categories remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 537 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
