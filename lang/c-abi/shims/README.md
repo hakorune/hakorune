@@ -268,6 +268,12 @@ Current partitions:
 - `hako_llvmc_ffi_generic_method_lowering.inc`
   - non-`indexOf` generic method lowering helpers used by pure-first `mir_call`
 - `hako_llvmc_ffi_mir_call_shell.inc`
+- `hako_llvmc_ffi_mir_call_shell_extern_emit.inc` remains the thin facade for
+  the selected extern-call shell; its behavior-invariant owner split keeps the
+  rule/validation table in `hako_llvmc_ffi_mir_call_shell_extern_rules.inc`
+  and the emitter body in
+  `hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc`. Keep the include path
+  stable and do not add semantic route inference to either child.
   - shared `mir_call` emit-shell helpers for constructor/global/string-extern lowering
   - constructor/global/extern emit validation is now table-driven; the next
     structural move is the uniform MIR emitter, not another branch ladder

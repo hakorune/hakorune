@@ -40,6 +40,8 @@ LLVM_GENERIC_CALLS="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_gener
 LLVM_MIR_CALL_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_dispatch.inc"
 LLVM_MIR_CALL_SURFACE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_surface_policy.inc"
 LLVM_MIR_CALL_EXTERN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc"
+LLVM_MIR_CALL_EXTERN_RULES="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_rules.inc"
+LLVM_MIR_CALL_EXTERN_BODY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -52,7 +54,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -147,7 +149,11 @@ require "$HANDOFF" "super::normalize_program_json_bridge_backend_shape(&mir_json
 require "$LLVM_GENERIC_CALLS" "legacy_call_missing_structured_callee"
 require "$LLVM_MIR_CALL_DISPATCH" 'strcmp(ctype, "Extern")'
 require "$LLVM_MIR_CALL_SURFACE" "classify_mir_call_string_extern_surface"
-require "$LLVM_MIR_CALL_EXTERN" "lowering_plan_extern_emit_rule_matches"
+require "$LLVM_MIR_CALL_EXTERN" "hako_llvmc_ffi_mir_call_shell_extern_rules.inc"
+require "$LLVM_MIR_CALL_EXTERN" "hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc"
+require "$LLVM_MIR_CALL_EXTERN_RULES" "lowering_plan_extern_emit_rule_matches"
+require "$LLVM_MIR_CALL_EXTERN_RULES" "struct MirCallExternEmitRule"
+require "$LLVM_MIR_CALL_EXTERN_BODY" "emit_extern_call_lowering_plan_mir_call"
 
 if rg -F -q "normalize_program_json_bridge_backend_module_shape" "$BACKEND_SHAPE" "$MIR_BUILDER"; then
   fail "typed backend_shape mutation retained a second semantic authority"
@@ -214,6 +220,9 @@ for relative in (
     "src/host_providers/mir_builder/backend_shape.rs",
     "src/host_providers/mir_builder/handoff.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
+    "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc",
+    "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_rules.inc",
+    "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc",
 ):
     lines = (root / relative).read_text().splitlines()
     if len(lines) >= 800:
