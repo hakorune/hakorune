@@ -49,7 +49,7 @@ impl RawIngressRequestV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir) enum RawSourceBindingErrorV1 {
+pub(in crate::mir::compiler) enum RawSourceBindingErrorV1 {
     Projection(RawSourceProjectionErrorV1),
     CallableMainRequiredForScript,
     Identity(SourceBindingErrorV1),
@@ -163,7 +163,7 @@ pub(in crate::mir) struct SourceBoundRawPackageV1 {
 }
 
 impl SourceBoundRawPackageV1 {
-    pub(in crate::mir) fn bind(
+    pub(in crate::mir::compiler) fn bind(
         issuer: &mut InvocationIdentityIssuerV1,
         request: RawIngressRequestV1,
     ) -> Result<Self, RejectedRawSourceBindingV1> {
@@ -366,7 +366,7 @@ impl RejectedRawSourceBindingV1 {
         }
     }
 
-    pub(in crate::mir) const fn error(&self) -> &RawSourceBindingErrorV1 {
+    pub(in crate::mir::compiler) const fn error(&self) -> &RawSourceBindingErrorV1 {
         &self.error
     }
 
