@@ -35,7 +35,7 @@ pub(in crate::mir) enum RawPublicationErrorV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct RawPublicationSealV1 {
-    receipt: BuilderPublicationReceiptV1,
+    _receipt: BuilderPublicationReceiptV1,
     _seal: RawPublicationSealInnerV1,
 }
 
@@ -57,6 +57,7 @@ impl RawPublishedInvocationCoreV1 {
 }
 
 impl RawPublishedInvocationV1 {
+    #[cfg(feature = "vm-reference")]
     pub(in crate::mir) fn invocation_brand(
         &self,
     ) -> crate::mir::module_invocation_identity::ModuleInvocationBrandV1 {
@@ -144,7 +145,7 @@ impl SealedPublicationPayloadV1 for RawDirectPublicationPayload {
             },
             evidence: self.evidence,
             publication: RawPublicationSealV1 {
-                receipt,
+                _receipt: receipt,
                 _seal: RawPublicationSealInnerV1,
             },
         };
@@ -174,18 +175,14 @@ impl PreparedRawPublicationV1<'_> {
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawPublicationInvocationV1 {
-    owner: PreparedRawExternalCommitV1,
+    _owner: PreparedRawExternalCommitV1,
     stage: RawPublicationFailureStageV1,
-    error: RawPublicationErrorV1,
+    _error: RawPublicationErrorV1,
 }
 
 impl RejectedRawPublicationInvocationV1 {
     pub(in crate::mir) fn stage(&self) -> RawPublicationFailureStageV1 {
         self.stage
-    }
-
-    pub(in crate::mir) fn error(&self) -> &RawPublicationErrorV1 {
-        &self.error
     }
 
     pub(in crate::mir) fn discard(self) {}
@@ -198,17 +195,17 @@ impl super::MirCompiler {
     ) -> Result<RawPublishedInvocationV1, RejectedRawPublicationInvocationV1> {
         if let Err(error) = check_builder_external_commit_quiescence(&self.builder) {
             return Err(RejectedRawPublicationInvocationV1 {
-                owner: prepared,
+                _owner: prepared,
                 stage: RawPublicationFailureStageV1::Target,
-                error: RawPublicationErrorV1::TargetNotQuiescent(error),
+                _error: RawPublicationErrorV1::TargetNotQuiescent(error),
             });
         }
         let facts = prepared.publication_facts();
         if let Err((stage, error)) = validate_facts(&facts) {
             return Err(RejectedRawPublicationInvocationV1 {
-                owner: prepared,
+                _owner: prepared,
                 stage,
-                error,
+                _error: error,
             });
         }
         let (route, parts) = prepared.into_publication_parts();
