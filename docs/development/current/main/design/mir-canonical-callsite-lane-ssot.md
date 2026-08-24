@@ -434,6 +434,48 @@ Non-claims: JSON writer, Method(None), Closure/Constructor, interpreter,
 native/other backends, core field deletion, JoinIR, PyVM/reference/Python.
 ```
 
+R5c JSON egress design stop (`MIR-CALL-JSON-EGRESS-D0`):
+
+```text
+Decision: JSON egress uses typed Callee as the sole meaning source; v1 writer
+and owner-private v0 compatibility projection are separate profiles.
+Source authority + canonical issuer: existing producer/JsonV0 ingress issues
+MirInstruction::Call.callee; writer projects it without reclassification.
+Non-authority: func/INVALID, Const(String), wire strings, environment switches,
+backend lookup, backend_shape post-wire reclassification, and parked backends.
+Fail-fast boundary: targetless None+INVALID, Method(None), unsupported
+Global, and profile-incompatible Closure/Constructor reject before JSON publish;
+no func fallback or retry.
+Smallest next slice: profile authority, finite input matrix,
+Method(None)/Closure/Constructor boundary, and post-wire mutation census.
+Non-claims: R6 field deletion, Method(None) retirement, Closure/NewBox
+integration, native implementation, or PyVM/reference/Python/native_driver.
+```
+
+The census boundary is `MirInstruction::Call` producer ->
+`mir_json_emit::emitters::{mod,calls,helpers}` -> `root/io` -> CLI, ny-llvmc,
+and compatibility loader. The finite target matrix is:
+
+| Stored target | v1 profile | v0 compatibility profile | D0 blocker |
+| --- | --- | --- | --- |
+| `Global` / `Extern` | typed `mir_call` | `call` / `externcall` projection | Global(print) and `backend_shape` reclassification |
+| `Method(Some(r))` | typed receiver | typed or `boxcall` projection | profile-specific receiver authority |
+| `Method(None)` | nullable receiver | `boxcall(box=func)` today | old `func` receiver reuse must reject |
+| `Value` | typed `mir_call` | legacy `call(callee)` | profile round-trip only |
+| `Constructor` / `Closure` | `NewBox` / `NewClosure` projection | Call-shaped compatibility | construction-versus-call boundary |
+| `None + valid func` | incompatible | explicit legacy `call(func)` | compatibility ingress only |
+| `None + INVALID` | incompatible | targetless legacy shape | reject before publish |
+
+The profile census must include `root.rs` schema selection, per-call dialect
+switches (`NYASH_JSON_SCHEMA_V1`, `NYASH_MIR_UNIFIED_CALL`, and methodize),
+`emit_call_with_optional_func`, `Method(None)` receiver reuse, unconditional
+closure projection, and `backend_shape` mutation. Existing v0/print/methodize
+parity is positive evidence; typed `func` decoration ignored, `None+INVALID`,
+Method(None) fallback, Constructor/Closure mismatch, and post-wire target
+reclassification are negative evidence. This row is not implementation-safe
+until the profile matrix names one egress authority and one terminal reject per
+unsupported combination; it must not reopen R5c printer, R5d native, or R6.
+
 R5 row rules: each task owns one old edge and reuses the shared corridor
 guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field
 editing. The census includes direct callers, dynamic construction, wire
