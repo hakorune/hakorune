@@ -158,10 +158,6 @@ impl ParserBoxResolverSourceHandoffV1 {
         (ResolverSourceInvocationProvenanceV1(self.brand), self.boxes)
     }
 
-    pub(crate) fn same_source_invocation(&self, other: &Self) -> bool {
-        self.brand == other.brand
-    }
-
     pub(crate) fn parser_provenance(&self) -> ResolverSourceInvocationProvenanceV1 {
         ResolverSourceInvocationProvenanceV1(self.brand.clone())
     }

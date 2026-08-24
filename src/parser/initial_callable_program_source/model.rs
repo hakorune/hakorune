@@ -33,10 +33,6 @@ impl VerifiedInitialCallableSourceRowV1 {
         Self { source, final_slot }
     }
 
-    pub(super) fn source(&self) -> &PreparedCallableSourceV1 {
-        &self.source
-    }
-
     pub(super) fn final_slot(&self) -> InitialCallableFinalSlotV1 {
         self.final_slot
     }

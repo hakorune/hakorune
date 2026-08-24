@@ -13,7 +13,7 @@ use super::source_path::SourceBoxDeclarationPathV1;
 pub(super) struct ExistingTargetMethodSourceRefV1 {
     target_box_path: SourceBoxDeclarationPathV1,
     source_site: SourceBoxMethodSiteV1,
-    inventory_ordinal: crate::ast::BoxMethodInventoryOrdinalV1,
+    _inventory_ordinal: crate::ast::BoxMethodInventoryOrdinalV1,
     name: Box<str>,
 }
 
@@ -27,7 +27,7 @@ impl ExistingTargetMethodSourceRefV1 {
         Self {
             target_box_path,
             source_site,
-            inventory_ordinal,
+            _inventory_ordinal: inventory_ordinal,
             name: name.into(),
         }
     }
@@ -38,10 +38,6 @@ impl ExistingTargetMethodSourceRefV1 {
 
     pub(super) fn source_site(&self) -> &SourceBoxMethodSiteV1 {
         &self.source_site
-    }
-
-    pub(super) fn inventory_ordinal(self) -> crate::ast::BoxMethodInventoryOrdinalV1 {
-        self.inventory_ordinal
     }
 
     pub(super) fn name(&self) -> &str {

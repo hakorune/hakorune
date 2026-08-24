@@ -32,15 +32,11 @@ impl ParserReleaseStatementSourceV1 {
 /// Non-Clone authority emitted once from the rich parser transaction.
 #[derive(Debug)]
 pub(crate) struct ParserReleaseStatementSourceCatalogV1 {
-    parser_provenance: ResolverSourceInvocationProvenanceV1,
+    _parser_provenance: ResolverSourceInvocationProvenanceV1,
     rows: Box<[ParserReleaseStatementSourceV1]>,
 }
 
 impl ParserReleaseStatementSourceCatalogV1 {
-    pub(crate) fn parser_provenance(&self) -> &ResolverSourceInvocationProvenanceV1 {
-        &self.parser_provenance
-    }
-
     pub(crate) fn rows(&self) -> &[ParserReleaseStatementSourceV1] {
         &self.rows
     }
@@ -92,7 +88,7 @@ pub(super) fn collect_release_sources(
         }
     }
     Ok(ParserReleaseStatementSourceCatalogV1 {
-        parser_provenance: syntax.parser_provenance().clone(),
+        _parser_provenance: syntax.parser_provenance().clone(),
         rows: rows.into_boxed_slice(),
     })
 }
