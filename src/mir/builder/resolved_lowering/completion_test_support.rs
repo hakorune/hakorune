@@ -2,19 +2,11 @@ use std::sync::Arc;
 
 use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
-use crate::mir::resolved_control_flow::verify_function_completion_v1;
-use crate::mir::resolved_semantics::RegionId;
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1, SourceNodeSiteV1, SourcePathSegmentV1,
-    SourceStmtSiteV1,
+    FunctionSemanticResolverSessionV1, FunctionSyntaxViewV1,
 };
-use crate::mir::{BasicBlockId, MirBuilder, MirCompiler, MirInstruction, MirType, ValueId};
+use crate::mir::{MirCompiler, MirInstruction};
 
-use super::completion_consumption::ResolvedFunctionCompletionConsumptionV1;
-use super::draft_seal::{
-    DetachedFunctionExitClaimSetV1, FunctionDraftSealPreparationErrorV1,
-    MultiSiteExitPreparationErrorV1, PreparedFunctionExitV1, ReadyFunctionDraftSealV1,
-};
 
 pub(super) fn resolved_product(
     name: &str,
