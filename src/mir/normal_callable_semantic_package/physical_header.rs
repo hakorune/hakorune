@@ -14,27 +14,29 @@ use crate::mir::resolved_semantics::{FunctionOwnerIdV1, RegionId};
 
 #[derive(Debug)]
 pub(in crate::mir) enum CallablePhysicalHeaderIssueV1 {
-    BatchLoan(ResolvedCallableSemanticBatchLoanErrorV1),
+    BatchLoan {
+        _error: ResolvedCallableSemanticBatchLoanErrorV1,
+    },
     SelectedBatchSlotUnavailable,
     DuplicateParameterContract {
-        batch_slot: u32,
+        _batch_slot: u32,
     },
     ParameterCoverage {
-        batch_slot: u32,
+        _batch_slot: u32,
     },
     ParameterOwnerMismatch {
-        batch_slot: u32,
+        _batch_slot: u32,
     },
     UnsupportedResultAnnotation {
-        batch_slot: u32,
-        name: Box<str>,
+        _batch_slot: u32,
+        _name: Box<str>,
     },
     Completion {
-        batch_slot: u32,
-        issue: FunctionCompletionVerificationErrorV1,
+        _batch_slot: u32,
+        _issue: FunctionCompletionVerificationErrorV1,
     },
     CompletionOwnerMismatch {
-        batch_slot: u32,
+        _batch_slot: u32,
     },
 }
 

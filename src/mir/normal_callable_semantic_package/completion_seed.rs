@@ -116,13 +116,19 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
             continue;
         };
         if contracts.next().is_some() {
-            return Err(CallablePhysicalHeaderIssueV1::DuplicateParameterContract { batch_slot });
+            return Err(CallablePhysicalHeaderIssueV1::DuplicateParameterContract {
+                _batch_slot: batch_slot,
+            });
         }
         if contract.owner != declaration.owner() {
-            return Err(CallablePhysicalHeaderIssueV1::ParameterOwnerMismatch { batch_slot });
+            return Err(CallablePhysicalHeaderIssueV1::ParameterOwnerMismatch {
+                _batch_slot: batch_slot,
+            });
         }
         if contract.parameters.len() != declaration.parameter_count() as usize {
-            return Err(CallablePhysicalHeaderIssueV1::ParameterCoverage { batch_slot });
+            return Err(CallablePhysicalHeaderIssueV1::ParameterCoverage {
+                _batch_slot: batch_slot,
+            });
         }
         let role = selected
             .role_for_batch_slot(batch_slot)
@@ -131,14 +137,17 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
         let result = batch
             .with_lowering_input(batch_slot, |input| {
                 let completion = verify_function_completion_v1(input).map_err(|issue| {
-                    CallablePhysicalHeaderIssueV1::Completion { batch_slot, issue }
+                    CallablePhysicalHeaderIssueV1::Completion {
+                        _batch_slot: batch_slot,
+                        _issue: issue,
+                    }
                 })?;
                 let result = match completion.function_exit_contract().declared_result() {
                     DeclaredFunctionResultContractV1::Annotated(name) => {
                         Some(ExactTrivialScalarAbiV1::classify(name).ok_or_else(|| {
                             CallablePhysicalHeaderIssueV1::UnsupportedResultAnnotation {
-                                batch_slot,
-                                name: name.clone(),
+                                _batch_slot: batch_slot,
+                                _name: name.clone(),
                             }
                         })?)
                     }
@@ -147,12 +156,12 @@ pub(super) fn issue_callable_completion_seed_cohort_v1(
                 };
                 if completion.owner() != input.owner() {
                     return Err(CallablePhysicalHeaderIssueV1::CompletionOwnerMismatch {
-                        batch_slot,
+                        _batch_slot: batch_slot,
                     });
                 }
                 Ok((result, completion))
             })
-            .map_err(CallablePhysicalHeaderIssueV1::BatchLoan)??;
+            .map_err(|error| CallablePhysicalHeaderIssueV1::BatchLoan { _error: error })??;
         rows.push(VerifiedCallableCompletionSeedV1 {
             batch_slot,
             owner: declaration.owner(),
