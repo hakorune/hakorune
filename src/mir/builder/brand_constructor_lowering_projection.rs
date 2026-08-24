@@ -75,7 +75,7 @@ pub(super) enum BrandConstructorProjectionErrorV1 {
 
 #[derive(Debug)]
 pub(super) struct BrandConstructorLoweringProjectionV1 {
-    owner: FunctionOwnerIdV1,
+    _owner: FunctionOwnerIdV1,
     expression_sites: BTreeSet<SourceNodeSiteV1>,
     constructors: BTreeMap<SourceNodeSiteV1, ProjectedBrandConstructorV1>,
 }
@@ -124,14 +124,10 @@ impl BrandConstructorLoweringProjectionV1 {
             }
         }
         Ok(Self {
-            owner,
+            _owner: owner,
             expression_sites,
             constructors,
         })
-    }
-
-    pub(super) const fn owner(&self) -> FunctionOwnerIdV1 {
-        self.owner
     }
 
     pub(super) fn disposition(

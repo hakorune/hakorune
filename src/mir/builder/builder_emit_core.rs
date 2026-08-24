@@ -42,9 +42,6 @@ impl CanonicalCompareDefinitionSourceV1 {
         self.physical_value
     }
 
-    pub(in crate::mir::builder) const fn proof(&self) -> &CanonicalCompareAppendProofV1 {
-        &self.proof
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

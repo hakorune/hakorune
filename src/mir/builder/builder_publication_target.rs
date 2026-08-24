@@ -14,16 +14,6 @@ pub(in crate::mir) struct BuilderPublicationReceiptV1 {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) struct BuilderPublicationReceiptSealV1;
 
-impl BuilderPublicationReceiptV1 {
-    pub(in crate::mir) const fn brand(self) -> ModuleInvocationBrandV1 {
-        self.brand
-    }
-
-    pub(in crate::mir) const fn family(self) -> ModuleInvocationFamilyV1 {
-        self.family
-    }
-}
-
 pub(in crate::mir) fn check_builder_external_commit_quiescence(
     builder: &MirBuilder,
 ) -> Result<(), BuilderCommitReadinessErrorV1> {
