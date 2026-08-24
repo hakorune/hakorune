@@ -2527,3 +2527,8 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 482 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+`c2e23f12d5` trims caller-zero callable-batch source/origin accessors and
+loan/reject payload probes while retaining identity origin and typed errors.
+Focused tests remain 19/19; warnings are 493→485
+(`private_interfaces=11`, `dead_code=474`).
