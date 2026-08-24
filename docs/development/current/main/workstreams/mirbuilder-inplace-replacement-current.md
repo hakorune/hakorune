@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop
+Status: Active workstream — fast path
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-OPERAND-SSOT-D0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, and R3b closed
-  mode              = design_stop
+  current decision  = MIR-CALL-CANONICAL-CALLEE-PROJECTION-SIMPLIFYCFG-I0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, and R3b closed; R4a active
+  mode              = fast
   production stop   = before Call core field deletion
-  exit              = accepted R4 six-line brief; no Call field deletion yet
+  exit              = R4a focused parity/guard/docs evidence; no Call field deletion yet
 fallback / retry  = 0
 ```
 
@@ -262,8 +262,8 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
 5. R3a: pre-core Program JSON-v0 catalog/resolution (closed); R3b deletes target
    Const authority, `maybe_resolve_calls`, and all remaining Program late edges
    (closed).
-6. R4: one `Callee` operand/remap projection; migrate semantic consumers before
-   field deletion (design stop).
+6. R4a: exhaustive `Callee` operand rewrite projection into SimplifyCFG
+   Call-use rewrite (active); later R4 consumers remain separate rows.
 7. R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
    with no by-name fallback/retry. Python/PyVM/reference remain
    boundary-outside `ParkedSealed`; they are not an active retirement edge.
@@ -286,13 +286,13 @@ ambiguous target rejects without retry. Smallest next slice: R3a catalog + R3b
 late issuer retirement (closed). Non-claims: core field
 cutover, operand SSOT, selected terminal closure, and historical backend re-entry.
 
-R4 D0 six-line brief (`NoSafeSlice`):
-Decision: one `Callee` ValueId operand/remap projection before `func` deletion; no new receipt or second Call shape. Source + issuer: exact `Callee` -> shared
-projection -> existing consumers; `MirInstruction::call` remains the physical
-issuer. Non-authority: dummy `func`/`INVALID`, per-consumer scans, optimizer/
-backend/printer text, and PyVM/reference/Python. Fail-fast: all used/remap/
-ownership/escape consumers share the projection; missing variant coverage rejects.
-Smallest next: one consumer family with positive/negative/parity evidence. Non-claims: field cutover, VM fallback, PyVM re-entry, and new receipts.
+R4 D0 accepted; R4a six-line brief:
+Decision: `Callee` owns ordered ValueId occurrences (Method.receiver, Value, Closure captures then me); duplicates remain. Source + issuer: exact enum ->
+`Callee::rewrite_value_operands`; `MirInstruction::call` remains physical issuer.
+Non-authority: `func`/`INVALID`, pass-local matches, dst/args policy, dedup, ownership/escape, optimizer/backend text, and PyVM/reference/Python. Fail-fast:
+all six variants are exhaustive; empty Global/Extern/Constructor/Method(None) is
+explicit. Smallest next: migrate only SimplifyCFG Call-use rewrite, preserving legacy func and args parity. Non-claims: used_values, JoinIR, ownership, escape,
+R5/R6, field deletion, fallback, new receipts.
 
 ## Production invariants
 ```text

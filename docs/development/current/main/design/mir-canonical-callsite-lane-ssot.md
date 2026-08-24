@@ -206,6 +206,13 @@ Global/Extern/Constructorはtarget operandを持たない。Call argsは全varia
 保ってoperandになる。escape判定はこのprojectionを再利用してよいが、別policyの
 まま保つ。
 
+R4a accepted: `Callee` itself owns the ordered occurrence rewrite API
+`rewrite_value_operands(&mut self, FnMut(&mut ValueId))`. The order is
+Method.receiver, Value, Closure captures in stored order, then me; duplicates are
+retained. The match is exhaustive with explicit empty Global/Extern/Constructor/
+Method(None). The first consumer is only SimplifyCFG Call-use rewrite; `func`,
+Call args, ownership, escape, JoinIR, and field deletion remain separate rows.
+
 retirement seriesの固定順は次。
 
 ```text
