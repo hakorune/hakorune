@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (R4d escape policy)
+Status: Active workstream — fast path (R4d escape classifier)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, and R4c closed; R4d design stop
-  mode              = design_stop
+  current decision  = MIR-CALL-CANONICAL-OPERAND-ESCAPE-CLASSIFIER-I0-R0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, and R4c closed; R4d active
+  mode              = fast
   production stop   = before Call core field deletion
-  exit              = R4c value-consumer delegation and fact-omission/legacy parity closed; R4d role matrix is pending; no ownership/JoinIR or Call field deletion
+  exit              = classify_escape_uses Call role matrix, exact parity tests, and shared guard; no DCE/FastMem policy rewrite, ownership/JoinIR, or Call field deletion
 fallback / retry  = 0
 ```
 
@@ -265,8 +265,9 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
 6. R4a: exhaustive `Callee` operand rewrite projection into SimplifyCFG
    Call-use rewrite (closed); R4b `used_values` immutable projection and
    methods.rs delegation (closed); R4c `value_consumer` Call membership is
-   active, while JoinIR/ownership/escape/query remain separate blockers.
-7. R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
+   closed; R4d escape classifier is active, while JoinIR/ownership/query
+   remain separate blockers.
+7. R4d: escape classifier Call/Capture role projection; R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
    with no by-name fallback/retry. Python/PyVM/reference remain
    boundary-outside `ParkedSealed`; they are not an active retirement edge.
 8. R6: atomic `Call { callee: Callee }` cutover; remove dummy `func` payloads.
@@ -291,7 +292,7 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
 R4c closed (`4c6d9ce9a2`): `value_consumer` delegates Call membership once to `MirInstruction::used_values`; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green, warning baseline 433.
-R4d D0 selected design stop: the six-line escape role brief and finite classifier/consumer census live in `mir-canonical-callsite-lane-ssot.md`; JoinIR remains `NoSafeSlice` until live lifecycle/tail-target authority is named.
+R4d D0 accepted (`mir-canonical-callsite-lane-ssot.md`): typed Method.receiver/Value and args are `Call`, Closure captures/me are `Capture`, and legacy `None.func` stays generic ordinary use; implementation is limited to `classify_escape_uses` plus parity/guard evidence.
 
 ## Production invariants
 ```text
@@ -365,8 +366,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0
-  -> design stop: fix the finite Callee target-to-escape role matrix
+ MIR-CALL-CANONICAL-OPERAND-ESCAPE-CLASSIFIER-I0-R0
+  -> replace the local Call target scan with the accepted role matrix
 
 Next (not selected)
   -> ownership/query policy D0; R4e CallLike T0 retirement; then R5-R7

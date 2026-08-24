@@ -225,18 +225,35 @@ shared corridor/pointer/rustfmt/diff green, and 433 warnings remain baseline.
 Its direct-set and per-instruction dedup policy stays local; typed `Callee`
 targets are counted before args while legacy `None` keeps one `func` use.
 
-R4d design stop — `MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0`:
+R4d D0 accepted — `MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0`:
 Decision: Callee enumerates target operands; escape assigns Call to Method.receiver/Value/args and Capture to Closure captures/me.
 Source authority + canonical issuer: `MirInstruction::Call`/`Callee` -> `classify_escape_uses` -> DCE, escape, and FastMem consumers.
 Non-authority: `used_values` generic uses, ownership SSA, FastMem allowlists, JoinIR/Query/CallLike, optimizer/backend text, PyVM/reference/Python.
-Fail-fast boundary: missing or ambiguous role policy is rejected or ordinary-use fail-closed; no blanket Call barrier or target re-inference.
-Smallest next slice: finite role matrix, exact classifier/consumer parity tests, and the shared corridor guard; no code before this stop closes.
+Fail-fast boundary: invalid Closure shape remains the existing canonicalization reject; legacy `None.func` stays unclassified by the shared barrier and ordinary-use fail-closed in FastMem; no target re-inference.
+Smallest next slice: update only `classify_escape_uses` Call membership, add the finite matrix tests, and extend the shared corridor guard; DCE/FastMem/VM policies remain consumers.
 Non-claims: ownership activation, JoinIR remap, CallLike retirement, R5/R6, Method(None)/Closure/NewBox/Constructor finalization, warning cleanup; census is `classify_escape_uses` Call/Closure -> DCE/escape/FastMem, all other policies excluded.
+
+### R4d accepted escape role matrix
+
+| Call shape | projected values | shared escape role | compatibility note |
+| --- | --- | --- | --- |
+| `Some(Method { receiver: Some(v), .. })` | receiver | `Call` | instance receiver is the target operand |
+| `Some(Method { receiver: None, .. })` | none | none | static form remains non-authoritative; qualified `Global` is the final form |
+| `Some(Value(v))` | target value | `Call` | first-class callable target is a call barrier |
+| `Some(Closure { captures, me_capture, .. })` | captures, then `me_capture` | `Capture` | pre-canonical constructor; same role as `NewClosure` |
+| `Some(Global/Extern/Constructor)` | none | none for target | stored `args` still receive `Call` role |
+| `None` legacy | `func` remains generic use only | no shared barrier | `used_values` preserves `func`; FastMem stays `ordinary_use` and fail-closed |
+| every shape | `args` in stored order | `Call` | duplicates remain occurrences; each consumer keeps its own dedup policy |
+
+Finite production census: one classifier Call arm, seven DCE local-field
+expressions, one FastMem shared extraction plus three FastMem allowlist arms, and
+one opt-in Rust escape consumer. The structural helper supplies occurrences;
+each consumer retains its barrier/allowlist policy.
 
 R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
 `Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`
 to pre-canonical construction before `NewClosure`; and decide the Constructor /
-NewBox boundary explicitly. Do not implement these in R4c.
+NewBox boundary explicitly. Do not implement these in R4d.
 
 retirement seriesの固定順は次。
 

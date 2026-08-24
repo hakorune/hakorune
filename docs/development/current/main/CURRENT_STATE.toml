@@ -4,14 +4,14 @@ ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
 as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
 and owner-private JSON-v0 input state as compatibility ingress. R1, D1,
 Topology-I0, R2-I0, R3a, R3b, R4a, R4b, and R4c are closed; R4d escape policy
-is the selected design-stop row."""
+is the active bounded classifier row."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0"
-current_design_stop = "R4d D0 design stop: decide the finite escape role matrix that reuses Callee operand enumeration without merging generic use, ownership, or FastMem allowlist policy. PyVM/reference/Python remain ParkedSealed; JoinIR remap remains NoSafeSlice until live lifecycle/tail-target authority is named."
-current_blocker_token = "R4d design stop: Callee enumerates target operands; escape_barrier assigns Call/Capture roles; classify_escape_uses, DCE, normal escape, and FastMem consumers need one exact parity matrix before code."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-CANONICAL-OPERAND-ESCAPE-CLASSIFIER-I0-R0"
+current_design_stop = "R4d D0 accepted: typed Call target roles are Call for Method.receiver/Value and Capture for Closure captures/me; args remain Call, legacy None.func remains generic ordinary use. PyVM/reference/Python remain ParkedSealed; JoinIR remap remains NoSafeSlice until live lifecycle/tail-target authority is named."
+current_blocker_token = "R4d fast row: update only classify_escape_uses Call membership through Callee occurrence projection; preserve DCE/FastMem/VM policy, legacy ordinary-use fail-closed, and no target retry or re-inference."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -20,11 +20,11 @@ active_lane = "MirBuilder in-place replacement — canonical MIR Call target ret
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, and
-R4c are closed. R4d escape policy is the selected design stop. JoinIR remap is
+R4c are closed. R4d escape classifier is the active bounded row. JoinIR remap is
 NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
-ParkedSealed outside this lane. R4c exit: one-shot value_consumer delegation,
-fact-omission/legacy parity tests, shared guard, and no retry or fallback."""
+ParkedSealed outside this lane. R4d exit: exact Call/Capture role matrix,
+classifier parity tests, shared guard, and no retry or fallback."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -36,9 +36,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, and R4c are closed; R4d escape policy is the selected design stop. JoinIR remap is NoSafeSlice; PyVM/reference/Python remain ParkedSealed outside this lane."
-next_design_card = "MIR-CALL-CANONICAL-OPERAND-ESCAPE-POLICY-D0"
-next_execution_card = "none — design_stop"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, and R4c are closed; R4d escape classifier is active after its role matrix was accepted. JoinIR remap is NoSafeSlice; PyVM/reference/Python remain ParkedSealed outside this lane."
+next_design_card = "none — R4d D0 accepted; ownership/query rows require separate design"
+next_execution_card = "MIR-CALL-CANONICAL-OPERAND-ESCAPE-CLASSIFIER-I0-R0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
