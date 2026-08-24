@@ -2547,3 +2547,9 @@ making its caller-zero enum fields underscore-named evidence; warnings are
 and all five guards green. The remaining boundary is unchanged: B-class
 retirement scaffolding stays parked, and public-interface debt still awaits a
 separate authority decision.
+
+`ade217eadc` retains DraftSeal receipt/reject evidence with underscore-named
+fields and removes two unused test-only handoff helpers; warnings are 469→464
+(`private_interfaces=11`, `dead_code=453`), with 19/19 focused tests and all
+five guards green. Future `Authority`/`Signature` stage vocabulary remains
+parked and is not mass-deleted.
