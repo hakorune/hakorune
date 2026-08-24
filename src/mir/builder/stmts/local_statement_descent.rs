@@ -396,14 +396,14 @@ where
         let initializer = initial_values.get(index).and_then(|value| value.as_deref());
         let mut preclaimed = None;
         let value = match initializer {
-            Some(ASTNode::ArrayLiteral { elements, .. }) if typed_spec.is_some() => {
+            Some(ASTNode::ArrayLiteral { elements: _, .. }) if typed_spec.is_some() => {
                 let (value, contract_id) =
                     port.lower_typed_array_literal_initializer(builder, &mut input, index)?;
                 preclaimed = Some((contract_id, typed_spec.expect("guarded typed spec")));
                 value
             }
             Some(ASTNode::New {
-                class, arguments, ..
+                class, arguments: _, ..
             }) if builder.is_record_constructor_class(class) => {
                 let class = class.clone();
                 port.lower_record_constructor_initializer(builder, &mut input, index, &class)?

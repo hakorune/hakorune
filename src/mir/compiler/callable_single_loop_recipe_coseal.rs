@@ -536,7 +536,7 @@ fn relations(
     step_write: &CallableSourceMapRowV1,
     binding: BindingRefV1,
     loop_site: SourceStmtSiteV1,
-    declaration_statement: SourceStmtSiteV1,
+    _declaration_statement: SourceStmtSiteV1,
     declaration: SourceBindingSiteV1,
 ) -> Result<
     (

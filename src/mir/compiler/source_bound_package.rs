@@ -315,8 +315,8 @@ impl<'a> LoweredCanonicalPhysicalInvocationV1<'a> {
                     }),
                 }
             }
-            LoweredCanonicalPlanV1::Single { continuation, .. }
-            | LoweredCanonicalPlanV1::Callable { continuation, .. } => {
+            LoweredCanonicalPlanV1::Single { .. }
+            | LoweredCanonicalPlanV1::Callable { .. } => {
                 unreachable!("source-bound plan and continuation family diverged")
             }
         }

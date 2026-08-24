@@ -331,7 +331,7 @@ pub(crate) fn map_trivial_if_recipe_v1(
     let continuation_site = facts
         .continuation_read()
         .ok_or(IfRecipeMapRejectV1::ContinuationMismatch)?;
-    let continuation_value = state.visit(
+    let _continuation_value = state.visit(
         continuation_site,
         RegionV1::Continuation,
         &mut continuation_items,

@@ -758,7 +758,7 @@ mod tests {
             .into_root_package()
             .unwrap();
         let plan = root.plan();
-        let RawRootKindV1::App(app) = plan.kind() else {
+        let RawRootKindV1::App(_) = plan.kind() else {
             panic!("expected app plan");
         };
         assert_eq!(

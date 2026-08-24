@@ -88,8 +88,8 @@ fn projection_rejects_signature_and_formal_drift() {
 
 #[test]
 fn projection_rejects_missing_or_duplicate_normal_result() {
-    let admission = admission();
-    let receipt = receipt();
+    let _admission = admission();
+    let _receipt = receipt();
     let site_plans = site_plans();
     let mut missing = function();
     missing

@@ -73,7 +73,7 @@ fn s6c_operand_issuer_emits_only_v6_v7_v8_in_one_body_segment() {
                     drop(seed);
                     canonical
                         .with_shared_segment_scope(draft, |canonical, draft, scope| {
-                            let receipt = canonical
+                            let _receipt = canonical
                                 .with_s6c_text_eq_operands(
                                     draft,
                                     scope.receipt(),
@@ -438,7 +438,7 @@ fn s6c_operand_issuer_missing_seed_rejects_before_const_or_add() {
             &mut builder,
             skeleton.into_session_input(),
             |canonical, draft| {
-                let rejected = canonical
+                let _rejected = canonical
                     .with_shared_segment_scope(draft, |canonical, draft, scope| {
                         let rejected = canonical.with_s6c_text_eq_operands(
                             draft,

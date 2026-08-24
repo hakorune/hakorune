@@ -140,9 +140,9 @@ impl PhysicalAllocationV1 {
                     LoopRecipeItemV1::Operation { operation } => match operation {
                         LoopOperationV1::ReadBinding { .. }
                         | LoopOperationV1::WriteBinding { .. } => None,
-                        LoopOperationV1::ConstI64 { result, .. }
-                        | LoopOperationV1::BinaryI64 { result, .. }
-                        | LoopOperationV1::CompareI64 { result, .. } => {
+                        LoopOperationV1::ConstI64 { result: _, .. }
+                        | LoopOperationV1::BinaryI64 { result: _, .. }
+                        | LoopOperationV1::CompareI64 { result: _, .. } => {
                             let ty = if matches!(operation, LoopOperationV1::CompareI64 { .. }) {
                                 MirType::Bool
                             } else {

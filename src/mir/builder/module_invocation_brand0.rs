@@ -269,7 +269,7 @@ impl InvocationPhysicalStateV1 {
         header: &VerifiedResolvedOwnerHeaderV1,
         draft: crate::mir::MirFunction,
     ) -> Result<CollectedCanonicalSinglePhysicalV1, RejectedCanonicalPhysicalCollectionV1> {
-        let (brand, shell, collector) = self.into_parts();
+        let (_brand, shell, collector) = self.into_parts();
         let key = FunctionDraftKeyV1::CanonicalResolvedOwner(header.owner());
         let symbol = header.symbol().as_mir_name().to_owned();
         match collector.collect_canonical_single(key, symbol, header.arity(), draft) {
@@ -317,7 +317,7 @@ impl InvocationPhysicalStateV1 {
     }
 
     pub(in crate::mir) fn reject_capability_missing(self) -> RejectedCanonicalPhysicalCollectionV1 {
-        let (brand, shell, collector) = self.into_parts();
+        let (_brand, shell, collector) = self.into_parts();
         RejectedCanonicalPhysicalCollectionV1 {
             shell,
             collector,

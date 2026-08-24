@@ -299,7 +299,7 @@ fn shared_segment_scope_rejects_return_read_condition_mismatch() {
         let skeleton =
             reserve_common_v2_physical_function_skeleton(prepared).expect("physical skeleton");
         let mut builder = MirBuilder::new();
-        let rejected = with_common_v2_physical_entry_session(
+        let _rejected = with_common_v2_physical_entry_session(
             &mut builder,
             skeleton.into_session_input(),
             |canonical, draft| {
