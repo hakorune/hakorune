@@ -53,7 +53,7 @@ pub(in crate::mir::builder) enum PreparedRawExplicitExternCallV1 {
 enum PreparedRawBrandConstructorV1 {
     ArityMismatch {
         actual: usize,
-        exact_source: bool,
+        _exact_source: bool,
     },
     Ready {
         argument: ASTNode,
@@ -66,7 +66,7 @@ impl PreparedRawBrandConstructorV1 {
         if arguments.len() != 1 {
             return Self::ArityMismatch {
                 actual: arguments.len(),
-                exact_source,
+                _exact_source: exact_source,
             };
         }
         Self::Ready {
@@ -272,7 +272,7 @@ where
     let (argument, exact_source) = match prepared {
         PreparedRawBrandConstructorV1::ArityMismatch {
             actual,
-            exact_source: _,
+            _exact_source: _,
         } => {
             return Err(format!(
                 "[brand/constructor-arity] {} expects exactly one value, got {}",
