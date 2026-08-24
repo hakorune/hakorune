@@ -55,7 +55,7 @@ pub(super) struct VerifiedDynamicLocalInitializationSourceV1 {
     formal: BindingRefV1,
     local: BindingRefV1,
     declaration: SourceBindingSiteV1,
-    initializer: SourceExprSiteV1,
+    _initializer: SourceExprSiteV1,
 }
 
 impl VerifiedDynamicLocalInitializationSourceV1 {
@@ -71,9 +71,6 @@ impl VerifiedDynamicLocalInitializationSourceV1 {
         &self.declaration
     }
 
-    pub(super) const fn initializer(&self) -> &SourceExprSiteV1 {
-        &self.initializer
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -334,7 +331,7 @@ fn issue_local_initializations(
             formal,
             local,
             declaration: declaration.clone(),
-            initializer,
+            _initializer: initializer,
         });
     }
     Ok(rows)

@@ -70,9 +70,6 @@ impl InstanceConstructorDemandTicketV1 {
         self.role
     }
 
-    pub(in crate::mir::builder) fn same_as(&self, other: &Self) -> bool {
-        self.role == other.role && self.source_id.same_as(&other.source_id)
-    }
 }
 
 #[derive(Debug, Default)]

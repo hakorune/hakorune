@@ -26,10 +26,6 @@ pub(in crate::mir) struct VerifiedCatalogCallableOwnerLinkV1<'source> {
 }
 
 impl<'source> VerifiedCatalogCallableOwnerLinkV1<'source> {
-    pub(in crate::mir) fn callable(&self) -> &CanonicalSameModuleCallableKeyV1 {
-        &self.callable
-    }
-
     pub(in crate::mir) fn into_parts(
         self,
     ) -> (
