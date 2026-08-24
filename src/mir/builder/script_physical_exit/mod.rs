@@ -5,26 +5,24 @@
 //! and commit are added by later cells in this module; Raw lifecycle remains
 //! outside this boundary.
 
+mod direct_static_entry_kernel;
 mod entry_session;
 mod exit;
 mod terminal;
-mod direct_static_entry_kernel;
 
 pub(in crate::mir) use entry_session::{
     CompletedScriptPhysicalFunctionV1, OpenScriptPhysicalEntrySessionV1,
     ScriptPhysicalEntrySessionErrorV1,
 };
 pub(in crate::mir) use exit::{
-    CompletedScriptBodyCompletionV1, CompletedScriptPhysicalExitCoreV1,
-    PreparedScriptBodyCompletionV1, PreparedScriptPhysicalExitCoreV1,
-    PreparedScriptPhysicalResultV1, ScriptPhysicalExitCommitV1, ScriptPhysicalExitErrorV1,
-    ScriptPhysicalExitOpenContractV1, ScriptPhysicalResultV1, ScriptSourceCompletionV1,
+    CompletedScriptPhysicalExitCoreV1, PreparedScriptBodyCompletionV1,
+    PreparedScriptPhysicalExitCoreV1, PreparedScriptPhysicalResultV1, ScriptPhysicalExitCommitV1,
+    ScriptPhysicalExitErrorV1, ScriptPhysicalExitOpenContractV1, ScriptPhysicalResultV1,
+    ScriptSourceCompletionV1,
 };
 pub(in crate::mir) use terminal::{
     LoweredScriptTerminalV1, LoweredScriptUnitPayloadV1, ScriptRecipeLoweringErrorV1,
     ScriptRecipeLoweringOperationV1,
 };
-pub(in crate::mir) use direct_static_entry_kernel::lower_direct_static_physical_input_v1;
-
 #[cfg(test)]
 mod tests;
