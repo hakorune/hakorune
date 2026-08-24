@@ -1229,3 +1229,18 @@ Recipe classification or physical entry behavior changed. The focused
 green, and the test fingerprint moved from 813 to 811 warnings
 (`private_interfaces=85`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following resolved-region field visibility slice is landed as
+`f779341360`:
+
+```text
+f779341360  refactor: narrow resolved region field visibility
+```
+
+The owner-core if/loop region indexes are consumed only inside
+`crate::mir::resolved_semantics`, so their field boundaries now match the
+existing region-index owners without changing verification or lookup behavior.
+The focused `normal_root_execution` suite passes 19 tests, all five reusable
+guards remain green, and the test fingerprint moved from 811 to 809 warnings
+(`private_interfaces=83`, `private_bounds=0`; non-structural lint categories
+remain zero).
