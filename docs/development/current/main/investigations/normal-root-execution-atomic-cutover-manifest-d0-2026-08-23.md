@@ -2045,11 +2045,25 @@ prepare/commit/rejection restoration routes remain. The focused
 from 624 to 623 warnings (`private_interfaces=11`, `dead_code=612`; all
 non-structural lint categories remain zero).
 
+The following detached DraftSeal probe cleanup is landed as `933aae284f`:
+
+```text
+933aae284f  refactor: trim unused draft seal probes
+```
+
+The caller-free projection type-facts wrapper, intermediate projection probe,
+and draft-plan exit probe are removed. The lookup-aware type-facts route,
+typed projection receipts, and owner prepare/commit flow remain unchanged.
+The focused `normal_root_execution` suite passes 19 tests, and the test
+fingerprint moved from 623 to 620 warnings
+(`private_interfaces=11`, `dead_code=609`; all non-structural lint categories
+remain zero).
+
 The residual warning boundary is explicit after these behavior-neutral slices:
 ten `private_interfaces` warnings belong to the
 public `MirInstruction` pinned-Text/checked-callout fields, and one belongs to
 the semantic owner root profile's `ReceiverPolicy` field. Clearing those
 eleven requires a deliberate public MIR/semantic API authority decision, so
 they remain deferred rather than being hidden with an allow or a synthetic
-visibility. The remaining 612 `dead_code` warnings are existing disconnected
+visibility. The remaining 609 `dead_code` warnings are existing disconnected
 scaffolding and are not mass-deleted in this R0 lane.
