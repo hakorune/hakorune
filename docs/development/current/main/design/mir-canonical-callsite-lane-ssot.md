@@ -786,28 +786,48 @@ are also at the physical boundary (`760`, `778`, `793` lines), and the generic
 method owner is already `1104` lines; any future implementation requires a
 path-preserving split before semantic changes.
 
-The next design task is
-`MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D1-CAPABILITY-COSEAL`:
+Native D1 result: `MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D1-CAPABILITY-COSEAL`
+is accepted as the capability boundary, but it does not authorize a native
+switch or make unproved routes positive. The authority split is fixed:
 
 ```text
-Decision: choose one owner for every in-scope route, then classify each row as
-  NativePositive, ExplicitTrap, or PreflightReject; do not switch native while
-  projection drift remains.
-Source authority + canonical issuer: typed Callee plus root-owned
-  JsonEgressProfile; the Rust route spec/LoweringPlan issues route id, arity,
-  result and symbol facts, while C only verifies and emits that exact plan.
-Non-authority: generated counts alone, raw externcall, C name lookup, kernel
-  export presence alone, string fallback, ambient replay, retry, and parked
-  backends.
-Fail-fast boundary: before JSON/object publish, profile, route, arity, result,
-  target, args, dst and symbol readiness must agree; otherwise typed reject or
-  an explicitly named trap terminal is published.
-Smallest next slice: D1 census the seven String gaps, Global print,
-  Constructor, generic Method arity owners, and object→archive→executable
-  evidence; no code or native switch.
-Non-claims: raw externcall capability, R6, MirCall/CallFlags, Method(None),
-  Closure/Constructor redesign, JoinIR, warning cleanup, and non-selected
-  backends.
+root JsonEgressProfile
+  = selects CanonicalV1 versus owner-private CompatibilityV0 only
+typed Callee + GlobalCallRoute / constructor_call_routes /
+generic_method_routes / ExternCallRouteSpec
+  = issues route, arity, result, symbol and proof facts
+selected C registry and emit table
+  = validates and emits the exact issued plan; it never reclassifies or looks up
+hako_llvmc_link_obj_v2 + explicit libnyash_kernel.a
+  = owns the physical link edge
+```
+
+Every selected row must be `NativePositive`, `ExplicitTrap`, or
+`PreflightReject`. Unknown or missing Global/Constructor/Method plans are
+`PreflightReject`; only an existing plan-declared trap (currently the
+hostbridge route) is `ExplicitTrap`. The seven String rows, generic Method,
+Constructor, Global print arity/result ownership, and route-wide link proof
+remain unaccepted until their facts are co-sealed. Rust route specs currently
+enumerate 47 rows, while generated C has 35 capability rows, 28 emit rules,
+and the old test observer expects 29; the generator gap and old count are
+drift evidence, not acceptance.
+
+The next execution row is the behavior-invariant
+`MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-C-OWNER-SPLIT-I0-R0`:
+
+```text
+Decision: split the selected 778-line C extern shell owner path-preservingly
+  into rule/validation and emission children before semantic capability work.
+Source authority + canonical issuer: no authority changes; the existing Rust
+  route plans and C table remain byte-for-byte behavior owners.
+Non-authority: new route rows, C name lookup, arity inference, raw externcall,
+  fallback/retry, and link policy changes.
+Fail-fast boundary: include topology must compile with identical symbols and
+  route table behavior; no semantic call output may change.
+Smallest next slice: move the existing rule table/validator and emitter body
+  into children, keep the parent include path, add line-cap/compile evidence.
+Non-claims: native switch, route projection co-seal, seven String routes,
+  Global/Method/Constructor semantics, link proof, R6, and warning cleanup.
 ```
 
 Feedback reconciliation and deferred task queue (not selected):
