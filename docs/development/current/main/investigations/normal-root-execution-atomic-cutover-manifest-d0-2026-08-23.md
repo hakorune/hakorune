@@ -2466,3 +2466,23 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 493 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following remaining semantic-package probe cleanup is landed as
+`9bd7704b06`:
+
+```text
+9bd7704b06  refactor: trim semantic package probes
+```
+
+The instance-constructor source-projection text remains typed underscore
+evidence, and the selected Dynamic projection retains its owner identity as an
+underscore field. No projection, owner check, source route, or Dynamic
+selection behavior changed. The focused `normal_root_execution` suite passes
+19 tests, and the test fingerprint moved from 504 to 502 warnings
+(`private_interfaces=11`, `dead_code=491`; all non-structural lint categories
+remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 491 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
