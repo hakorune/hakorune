@@ -20,12 +20,12 @@ use crate::mir::resolved_semantics::{
 use super::{VerifiedSourceCallTargetCatalogV1, VerifiedSourceCallTargetV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum DynamicMemberSourceUnresolvedV1 {
+pub(in crate::mir) enum DynamicMemberSourceUnresolvedV1 {
     DynamicOriginEvidenceUnavailable(Box<str>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum DynamicMemberSourceRejectV1 {
+pub(in crate::mir) enum DynamicMemberSourceRejectV1 {
     ForeignCatalogCallable(CanonicalSameModuleCallableKeyV1),
     CallerOwnerMismatch {
         expected: FunctionOwnerIdV1,
@@ -45,7 +45,7 @@ pub(crate) enum DynamicMemberSourceRejectV1 {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) enum DynamicMemberSourceIssueV1 {
+pub(in crate::mir) enum DynamicMemberSourceIssueV1 {
     Unresolved(DynamicMemberSourceUnresolvedV1),
     Rejected(DynamicMemberSourceRejectV1),
 }
@@ -134,7 +134,7 @@ impl VerifiedSourceBoundDynamicMemberCallV1 {
 /// The returned rows carry no callable-catalog key or borrow. A later catalog
 /// adapter may add placement, while the canonical Recipe co-seal consumes the
 /// same source relations directly.
-pub(crate) fn issue_source_bound_dynamic_member_calls_v1(
+pub(in crate::mir) fn issue_source_bound_dynamic_member_calls_v1(
     input: ResolvedFunctionLoweringInputV1<'_>,
     dynamic: &VerifiedSourceBackedDynamicCallableV1,
 ) -> Result<Box<[VerifiedSourceBoundDynamicMemberCallV1]>, DynamicMemberSourceIssueV1> {
@@ -229,7 +229,7 @@ impl<'catalog> VerifiedSourceCallTargetCatalogV1<'catalog> {
     /// Extends the production catalog from every cataloged callable in one
     /// complete semantic-source batch. Top-level functions are deliberately
     /// outside the same-module callable catalog and remain untouched.
-    pub(crate) fn extend_complete_dynamic_sources(
+    pub(in crate::mir) fn extend_complete_dynamic_sources(
         mut self,
         source: &VerifiedNormalCallableSemanticSourceV1<'_>,
     ) -> Result<Self, DynamicMemberSourceIssueV1> {
@@ -258,7 +258,7 @@ impl<'catalog> VerifiedSourceCallTargetCatalogV1<'catalog> {
     /// The caller identity comes only from `link`; selector, arity, receiver,
     /// argument order, and result site come only from the resolver-owned call
     /// rows. Any failure drops this unpublished catalog value.
-    pub(crate) fn extend_dynamic_members(
+    pub(in crate::mir) fn extend_dynamic_members(
         mut self,
         link: VerifiedCatalogCallableOwnerLinkV1<'_>,
     ) -> Result<Self, DynamicMemberSourceIssueV1> {

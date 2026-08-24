@@ -31,7 +31,7 @@ pub(crate) use core_method::{
     VerifiedSourceBoundS6CCallRelationV1,
 };
 #[allow(unused_imports)]
-pub(crate) use dynamic_member::{
+pub(in crate::mir) use dynamic_member::{
     issue_source_bound_dynamic_member_calls_v1, DynamicMemberArgumentSourceV1,
     DynamicMemberDispatchKeyV1, DynamicMemberSourceIssueV1, DynamicMemberSourceRejectV1,
     DynamicMemberSourceUnresolvedV1, VerifiedSourceBoundDynamicMemberCallV1,
