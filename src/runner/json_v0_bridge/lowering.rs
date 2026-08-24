@@ -24,6 +24,7 @@ pub(super) mod loop_range;
 pub(super) mod loop_runtime;
 pub(super) mod match_expr;
 pub(super) mod program;
+pub(super) mod program_call_targets;
 pub(super) mod scope_exit;
 pub(super) mod stmts;
 pub(super) mod ternary;
@@ -66,10 +67,15 @@ pub(super) struct BridgeEnv {
     pub(super) user_box_decls: BTreeMap<String, UserBoxDeclV0>,
     /// Record declarations stay metadata-only until record lowering consumes them.
     pub(super) record_decls: BTreeMap<String, RecordDeclV0>,
+    /// Immutable source-bound target authority for generic Program calls.
+    program_call_targets: program_call_targets::ProgramCallTargetCatalog,
 }
 
 impl BridgeEnv {
-    pub(super) fn with_imports(imports: BTreeMap<String, String>) -> Self {
+    fn with_imports(
+        imports: BTreeMap<String, String>,
+        program_call_targets: program_call_targets::ProgramCallTargetCatalog,
+    ) -> Self {
         let trm = crate::config::env::try_result_mode();
         // フェーズM.2: no_phi変数削除
         if crate::config::env::cli_verbose() {
@@ -89,6 +95,7 @@ impl BridgeEnv {
             enum_decls: BTreeMap::new(),
             user_box_decls: BTreeMap::new(),
             record_decls: BTreeMap::new(),
+            program_call_targets,
         }
     }
 }
@@ -123,12 +130,7 @@ impl FunctionDefBuilder {
 
     /// 関数シグネチャの構築
     pub(super) fn build_signature(&self) -> FunctionSignature {
-        let func_name = format!(
-            "{}.{}/{}",
-            self.def.box_name,
-            self.def.name,
-            self.def.params.len()
-        );
+        let func_name = program_call_targets::qualified_function_name(&self.def);
 
         let param_types: Vec<MirType> = (0..self.def.params.len())
             .map(|_| MirType::Unknown)
@@ -178,7 +180,9 @@ pub(super) fn lower_program(
     if prog.body.is_empty() {
         return Err("empty body".into());
     }
-    let mut env = BridgeEnv::with_imports(imports);
+    let program_call_targets =
+        program_call_targets::ProgramCallTargetCatalog::from_defs(&prog.defs)?;
+    let mut env = BridgeEnv::with_imports(imports, program_call_targets);
     env.user_box_decls = prog
         .user_box_decls
         .iter()
@@ -197,12 +201,7 @@ pub(super) fn lower_program(
     // Precompute static-box method table from defs, so Expr lowering can resolve `BoxName.method()`
     // even when `BoxName` isn't a runtime variable in JSON v0.
     for def in &prog.defs {
-        let q = format!(
-            "{}.{}{}",
-            def.box_name,
-            def.name,
-            format!("/{}", def.params.len())
-        );
+        let q = program_call_targets::qualified_function_name(def);
         env.static_methods.insert(q, ());
     }
     let mut module = MirModule::new("ny_json_v0".into());

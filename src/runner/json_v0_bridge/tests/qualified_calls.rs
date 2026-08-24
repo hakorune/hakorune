@@ -167,3 +167,217 @@ fn qualified_instance_method_keeps_me_arg_and_issues_canonical_global_without_ta
     assert_integer_def(&instructions, args[1], 7);
     assert_no_target_const(&instructions, "Helper.id/2");
 }
+
+#[test]
+fn generic_unqualified_call_uses_unique_local_name_and_arity() {
+    let module = parse(json!({
+        "version": 0,
+        "kind": "Program",
+        "body": [{
+            "type": "Return",
+            "expr": {
+                "type": "Call",
+                "name": "id",
+                "args": [{ "type": "Int", "value": 7 }]
+            }
+        }],
+        "defs": [{
+            "name": "id",
+            "params": ["value"],
+            "box": "Helper",
+            "body": {
+                "version": 0,
+                "kind": "Program",
+                "body": [{ "type": "Return", "expr": { "type": "Var", "name": "value" } }]
+            }
+        }]
+    }));
+    let instructions = instructions(&module, "main");
+    let MirInstruction::Call {
+        func, callee, args, ..
+    } = instructions
+        .iter()
+        .find(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .expect("main contains the generic call")
+    else {
+        unreachable!()
+    };
+    assert_eq!(*func, ValueId::INVALID);
+    assert_eq!(callee, &Some(Callee::Global("Helper.id/1".to_string())));
+    assert_eq!(args.len(), 1);
+    assert_no_target_const(&instructions, "Helper.id/1");
+}
+
+#[test]
+fn generic_qualified_unsuffixed_call_uses_local_arity_once() {
+    let module = parse(json!({
+        "version": 0,
+        "kind": "Program",
+        "body": [{
+            "type": "Return",
+            "expr": {
+                "type": "Call",
+                "name": "Helper.id",
+                "args": [{ "type": "Int", "value": 7 }]
+            }
+        }],
+        "defs": [{
+            "name": "id",
+            "params": ["value"],
+            "box": "Helper",
+            "body": {
+                "version": 0,
+                "kind": "Program",
+                "body": [{ "type": "Return", "expr": { "type": "Var", "name": "value" } }]
+            }
+        }]
+    }));
+    let instructions = instructions(&module, "main");
+    let call = instructions
+        .iter()
+        .find_map(|instruction| match instruction {
+            MirInstruction::Call { callee, .. } => Some(callee),
+            _ => None,
+        })
+        .expect("main contains the generic call");
+    assert_eq!(call, &Some(Callee::Global("Helper.id/1".to_string())));
+    assert_no_target_const(&instructions, "Helper.id/1");
+}
+
+#[test]
+fn generic_extern_call_strips_only_numeric_arity_suffix() {
+    let module = parse(json!({
+        "version": 0,
+        "kind": "Program",
+        "body": [{
+            "type": "Return",
+            "expr": {
+                "type": "Call",
+                "name": "env.console.log/1",
+                "args": [{ "type": "Int", "value": 7 }]
+            }
+        }]
+    }));
+    let instructions = instructions(&module, "main");
+    assert!(instructions.iter().any(|instruction| {
+        matches!(
+            instruction,
+            MirInstruction::Call {
+                func,
+                callee: Some(Callee::Extern(name)),
+                ..
+            } if *func == ValueId::INVALID && name == "env.console.log"
+        )
+    }));
+}
+
+#[test]
+fn generic_unknown_name_is_an_exact_global_terminal() {
+    let module = parse_json_v0_to_module(
+        &json!({
+            "version": 0,
+            "kind": "Program",
+            "body": [{
+                "type": "Return",
+                "expr": { "type": "Call", "name": "unknown/0", "args": [] }
+            }]
+        })
+        .to_string(),
+    )
+    .expect("unknown source global remains a typed terminal");
+    let instructions = instructions(&module, "main");
+    assert!(instructions.iter().any(|instruction| {
+        matches!(
+            instruction,
+            MirInstruction::Call {
+                func,
+                callee: Some(Callee::Global(name)),
+                ..
+            } if *func == ValueId::INVALID && name == "unknown/0"
+        )
+    }));
+}
+
+#[test]
+fn ambiguous_local_name_rejects_before_program_lowering() {
+    let error = parse_json_v0_to_module(
+        &json!({
+            "version": 0,
+            "kind": "Program",
+            "body": [{
+                "type": "Return",
+                "expr": { "type": "Call", "name": "run", "args": [] }
+            }],
+            "defs": [
+                {
+                    "name": "run",
+                    "params": [],
+                    "box": "Left",
+                    "body": { "version": 0, "kind": "Program", "body": [{ "type": "Return", "expr": { "type": "Int", "value": 1 } }] }
+                },
+                {
+                    "name": "run",
+                    "params": [],
+                    "box": "Right",
+                    "body": { "version": 0, "kind": "Program", "body": [{ "type": "Return", "expr": { "type": "Int", "value": 2 } }] }
+                }
+            ]
+        })
+        .to_string(),
+    )
+    .expect_err("ambiguous short name must reject");
+    assert!(error.contains("ambiguous-name"), "error={error}");
+}
+
+#[test]
+fn duplicate_qualified_definition_rejects_before_lowering() {
+    let error = parse_json_v0_to_module(
+        &json!({
+            "version": 0,
+            "kind": "Program",
+            "body": [{ "type": "Return", "expr": { "type": "Int", "value": 0 } }],
+            "defs": [
+                {
+                    "name": "run",
+                    "params": [],
+                    "box": "Helper",
+                    "body": { "version": 0, "kind": "Program", "body": [{ "type": "Return", "expr": { "type": "Int", "value": 1 } }] }
+                },
+                {
+                    "name": "run",
+                    "params": [],
+                    "box": "Helper",
+                    "body": { "version": 0, "kind": "Program", "body": [{ "type": "Return", "expr": { "type": "Int", "value": 2 } }] }
+                }
+            ]
+        })
+        .to_string(),
+    )
+    .expect_err("duplicate qualified definition must reject");
+    assert!(error.contains("duplicate-definition"), "error={error}");
+}
+
+#[test]
+fn empty_generic_name_rejects_before_argument_effects() {
+    let error = parse_json_v0_to_module(
+        &json!({
+            "version": 0,
+            "kind": "Program",
+            "body": [{
+                "type": "Return",
+                "expr": {
+                    "type": "Call",
+                    "name": "",
+                    "args": [{ "type": "BlockExpr", "prelude": [], "tail": null }]
+                }
+            }]
+        })
+        .to_string(),
+    )
+    .expect_err("empty target must reject before lowering its argument");
+    assert!(error.contains("call-target/empty-name"), "error={error}");
+    assert!(
+        !error.contains("blockexpr"),
+        "argument was lowered: {error}"
+    );
+}

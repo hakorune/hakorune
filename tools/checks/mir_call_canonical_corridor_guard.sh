@@ -10,6 +10,7 @@ REJECT="$ROOT_DIR/src/mir/contracts/backend_core_ops/allowlists.rs"
 JSON="$ROOT_DIR/src/runner/json_v0_bridge/core.rs"
 EXEC="$ROOT_DIR/src/runner/modes/common_util/exec.rs"
 CALL_OPS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/expr/call_ops.rs"
+PROGRAM_CALL_TARGETS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program_call_targets.rs"
 METHODS="$ROOT_DIR/src/mir/instruction/methods.rs"
 MIR_V0_CALL="$ROOT_DIR/src/runner/mir_json_v0/call.rs"
 MIR_V0_CATALOG="$ROOT_DIR/src/runner/mir_json_v0/catalog.rs"
@@ -26,7 +27,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$EXEC" "$CALL_OPS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -39,6 +40,8 @@ require "$LLVM" "boundary_executor::BoundaryExecutorBox::try_execute_selected_dy
 require "$JSON" "CallsiteCanonicalizeScheduleSite::ProgramJsonV0Bridge"
 require "$EXEC" "project_module_to_legacy_calls"
 require "$METHODS" "pub(crate) fn call("
+require "$PROGRAM_CALL_TARGETS" "ProgramCallTargetCatalog"
+require "$PROGRAM_CALL_TARGETS" "ambiguous-name"
 require "$MIR_V0_CALL" "enum JsonV0CallInput"
 require "$MIR_V0_CALL" "struct JsonV0CallInputError"
 require "$MIR_V0_CALL" "MirInstruction::call("
@@ -89,8 +92,24 @@ for relative in (
         raise SystemExit(f"800-line hard stop reached: {relative} ({len(lines)})")
 
 call_ops = (root / "src/runner/json_v0_bridge/lowering/expr/call_ops.rs").read_text()
-if call_ops.count("callee: None") != 1:
-    raise SystemExit("Program JSON-v0 literal missing-callee producer count is not exactly 1")
+if call_ops.count("callee: None") != 0:
+    raise SystemExit("Program JSON-v0 missing-callee producer was reintroduced")
+
+generic_start = call_ops.index("pub(super) fn lower_call_expr")
+generic_end = call_ops.index("pub(super) fn lower_array_values_expr", generic_start)
+generic = call_ops[generic_start:generic_end]
+for required in (
+    "env.program_call_targets.resolve(name, args.len())?",
+    "MirInstruction::call(",
+    "EffectMask::READ",
+):
+    if required not in generic:
+        raise SystemExit(f"generic Program call lost catalog issuer evidence: {required}")
+if generic.index("program_call_targets.resolve") > generic.index("lower_args_with_scope"):
+    raise SystemExit("generic Program call resolves target after argument lowering")
+for forbidden in ("fun_value", "ConstValue::String(name", "callee: None"):
+    if forbidden in generic:
+        raise SystemExit(f"generic Program call retained legacy target carrier: {forbidden}")
 
 for name, next_name in (
     ("lower_stageb_static_call_for_box", "lower_stageb_instance_call_for_box"),

@@ -19,7 +19,7 @@ pub(super) fn rune_attrs_from_json_v0(attrs: &super::super::ast::FuncAttrsV0) ->
 }
 
 pub(super) fn is_stageb_entry_def(func_def: &super::super::ast::FuncDefV0) -> bool {
-    func_def.box_name == "Main" && func_def.name == "main"
+    super::program_call_targets::is_stageb_entry_def(func_def)
 }
 
 pub(super) fn lower_defs_into_module(
@@ -38,12 +38,7 @@ pub(super) fn lower_defs_into_module(
         // Phase 25.1p: FunctionDefBuilder で SSOT 化
         let builder = FunctionDefBuilder::new(func_def.clone());
 
-        let func_name = format!(
-            "{}.{}/{}",
-            func_def.box_name,
-            func_def.name,
-            func_def.params.len()
-        );
+        let func_name = super::program_call_targets::qualified_function_name(&func_def);
 
         // Register function in map for Call resolution
         func_map.insert(func_def.name.clone(), func_name);

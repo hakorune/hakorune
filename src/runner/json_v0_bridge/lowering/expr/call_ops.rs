@@ -67,23 +67,16 @@ pub(super) fn lower_call_expr<S: VarScope>(
         return Ok((mapv, cur));
     }
 
+    let callee = env.program_call_targets.resolve(name, args.len())?;
     let (arg_ids, cur) = super::lower_args_with_scope(env, f, cur_bb, args, vars)?;
-    let fun_value = f.next_value_id();
-    if let Some(bb) = f.get_block_mut(cur) {
-        bb.add_instruction(MirInstruction::Const {
-            dst: fun_value,
-            value: ConstValue::String(name.to_string()),
-        });
-    }
     let dst = f.next_value_id();
     if let Some(bb) = f.get_block_mut(cur) {
-        bb.add_instruction(MirInstruction::Call {
-            dst: Some(dst),
-            func: fun_value,
-            callee: None,
-            args: arg_ids,
-            effects: EffectMask::READ,
-        });
+        bb.add_instruction(MirInstruction::call(
+            Some(dst),
+            callee,
+            arg_ids,
+            EffectMask::READ,
+        ));
     }
     Ok((dst, cur))
 }
