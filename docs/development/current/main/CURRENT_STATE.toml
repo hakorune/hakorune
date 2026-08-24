@@ -34,7 +34,7 @@ current_execution_design = "docs/development/current/main/investigations/normal-
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "normal-root-execution-atomic-cutover-manifest-d0"
 latest_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
-latest_card_summary = "Atomic C0 is closed with Exhausted(14), zero open/unclassified blockers, two declared parked owners, all focused gates green, and no new warning signatures; derived bool/mode retirement R0 is selected. Behavior-neutral R0 warning cleanup is pushed through 71b45d262e (1063 -> 630 test warnings); non-structural lint warnings are retired and private-interface/bounds debt is reduced, while broader dead-code/private-visibility debt remains."
+latest_card_summary = "Atomic C0 is closed with Exhausted(14), zero open/unclassified blockers, two declared parked owners, all focused gates green, and no new warning signatures; derived bool/mode retirement R0 is selected. Behavior-neutral R0 warning cleanup is pushed through 37714c1e34 (1063 -> 627 test warnings); non-structural lint warnings are retired and private-interface/bounds debt is reduced, while broader dead-code/private-visibility debt remains."
 next_design_card = "none while R0 is active"
 next_execution_card = "NORMAL-ROOT-EXECUTION-BOOL-RETIREMENT-R0"
 next_execution_card_path = "docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md"
@@ -61,10 +61,10 @@ landed_tail = [
   57bdbf4971, 1c47cc8f92, 868dafe161, ee668f0f95, bfba3ab775,
   cbf4bec31f, d40c601363, 737db8c777, d96e52761e, 38b3f1641d,
   ebc9fd6350, a8eff51aa6, fd838c4745, 716ec2a2fb, f038089c28,
-  eea766b5c1, 3b448fecf7, 9248c82faa, fa4b65ea09, e9c7386848, db0b90ce08, 9e4710a08, 1918b24106, 0f011cbf52, 473625d903, f779341360, 2fdbf4b508, 40da90c2f1, 26a6bacdb1, ec2801c134, 95758c9050, bb65fd5f53, 978c9ce0c1, f135329711, bea17bd394, e9afd400a3, bf3d80cf4c, 41ed4112d6, 2fbddaafd6, 21c34c6d34, 18c04de50b, fd2789bca2, 8b4d2cd395, 919936b0f1, ed8d783368, 19697fbd93, 969bf64e66, 57803513ea, 58d26e404e, deff1fd24d, a35c0c00a2, fa1bc72658, 92f158f2ba, 50526dc168, f81297108d, df0b954931, 61b1ab68fc, 3c4408c311, 9ead4d091b, d700cab8a5, 036fde3d3d, 40b9b1350d, 9503ff23bb, 0a18f88c84, abf2752d4a, 7dcf4952a9, 15be0caaa4, 45f1eaa790, 89803fa919, 4f64bcc7fe, 958e574f1e, 7bf4a1a2a1, ab777f1dcf, c9224cbd04, 0eb8cb7389, 94bdf18079, 6e54cfcfeb, and 71b45d262e; focused tests
+  eea766b5c1, 3b448fecf7, 9248c82faa, fa4b65ea09, e9c7386848, db0b90ce08, 9e4710a08, 1918b24106, 0f011cbf52, 473625d903, f779341360, 2fdbf4b508, 40da90c2f1, 26a6bacdb1, ec2801c134, 95758c9050, bb65fd5f53, 978c9ce0c1, f135329711, bea17bd394, e9afd400a3, bf3d80cf4c, 41ed4112d6, 2fbddaafd6, 21c34c6d34, 18c04de50b, fd2789bca2, 8b4d2cd395, 919936b0f1, ed8d783368, 19697fbd93, 969bf64e66, 57803513ea, 58d26e404e, deff1fd24d, a35c0c00a2, fa1bc72658, 92f158f2ba, 50526dc168, f81297108d, df0b954931, 61b1ab68fc, 3c4408c311, 9ead4d091b, d700cab8a5, 036fde3d3d, 40b9b1350d, 9503ff23bb, 0a18f88c84, abf2752d4a, 7dcf4952a9, 15be0caaa4, 45f1eaa790, 89803fa919, 4f64bcc7fe, 958e574f1e, 7bf4a1a2a1, ab777f1dcf, c9224cbd04, 0eb8cb7389, 94bdf18079, 6e54cfcfeb, 71b45d262e, and 37714c1e34; focused tests
   and five guards plus MIR root facade/import hygiene guards are green,
-  test warnings are 1063 -> 630 with unused_imports=0, unused_mut=0,
+  test warnings are 1063 -> 627 with unused_imports=0, unused_mut=0,
   unused_variables=0, unreachable_patterns=0, private_interfaces=11,
-  private_bounds=0, dead_code=619, while broad calls/root/work-plan suites retain parent
+  private_bounds=0, dead_code=616, while broad calls/root/work-plan suites retain parent
   baseline failures.""",
 ]
