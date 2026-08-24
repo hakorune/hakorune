@@ -487,8 +487,8 @@ Non-authority: func/INVALID for typed Global/Extern/Constructor/Value/Closure,
 wire strings, backend_shape mutation, and target reclassification.
 Fail-fast boundary: typed projection never reads func; only explicit legacy
 None uses emit_call_with_optional_func, while Method(None) stays R6-gated.
-Smallest next slice: MIR-CALL-JSON-TYPED-DECORATION-I0-R0; remove the typed
-helper's func parameter, add v0 typed/legacy/Method receiver parity, and guard.
+Completed slice: MIR-CALL-JSON-TYPED-DECORATION-I0-R0; typed helper no longer
+forwards func, v0 typed/legacy/Method receiver parity is 8/8, and the guard is green.
 Non-claims: profile split D1, Method(None) retirement, Closure/NewBox,
 backend_shape, native, R6, and PyVM/reference/Python/native_driver.
 ```
@@ -502,6 +502,17 @@ Positive acceptance is v0 typed Global/Extern/Constructor/Value/Closure output
 without numeric `func`, plus unchanged v1 output. Negative acceptance is stale
 typed `func` ignored, explicit legacy `None` still emitted, and no change to
 Method(None), root profile, or backend_shape behavior.
+
+JSON profile D1 design stop:
+
+```text
+Decision: choose one root/per-call profile authority and a finite typed-v0 compatibility matrix before another emitter change.
+Source authority + canonical issuer: root schema/profile owner selects the wire profile; stored Call.callee remains the semantic issuer.
+Non-authority: func/INVALID, wire strings, backend_shape mutation, post-wire target lookup, and parked PyVM/reference/Python/native_driver.
+Fail-fast boundary: unsupported profile/target combinations reject before JSON publish; no malformed explicit target retries through legacy fields.
+Smallest next slice: MIR-CALL-JSON-PROFILE-D1; census root.rs, calls.rs, helpers.rs, backend_shape.rs, and compatibility loader with positive/negative/parity rows.
+Non-claims: profile implementation, Method(None) retirement, Closure/NewBox, native, or R6 core schema cutover.
+```
 
 R5 row rules: each task owns one old edge and reuses the shared corridor
 guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field
