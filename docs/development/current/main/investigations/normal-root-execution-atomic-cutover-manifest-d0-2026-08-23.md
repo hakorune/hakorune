@@ -856,3 +856,15 @@ ran 156 tests with 155 passing; its one failure is the existing
 `source_bound_core_tests.rs:181` typed-reject assertion outside this
 import-only diff. All five reusable guards remain green, and the test
 fingerprint moved from 974 to 970 warnings.
+
+The following common-v2 session import slice is landed as `8e391725cd`:
+
+```text
+8e391725cd  refactor: prune common v2 session exports
+```
+
+It retires five caller-zero export groups from
+`resolved_lowering/common_v2_session/mod.rs`; common-v2 issuers and selected
+physical session owners remain unchanged. The focused `normal_root_execution`
+suite passes 19 tests, all five reusable guards remain green, and the test
+fingerprint moved from 970 to 965 warnings.
