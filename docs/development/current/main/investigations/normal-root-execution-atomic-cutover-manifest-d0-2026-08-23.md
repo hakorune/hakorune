@@ -1512,3 +1512,18 @@ No entry-control, source-plan, or coverage behavior changed. The focused
 green, and the test fingerprint moved from 741 to 738 warnings
 (`private_interfaces=12`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following text-residence handoff visibility slice is landed as
+`ed8d783368`:
+
+```text
+ed8d783368  refactor: narrow text residence raw handoff
+```
+
+The runtime-owned `into_raw_parts` handoff is consumed only inside the
+runtime residence owner, so its method now matches the `crate::runtime`
+boundary. No root publication, lease, or rollback behavior changed. The
+focused `normal_root_execution` suite passes 19 tests, all five reusable guards
+remain green, and the test fingerprint moved from 738 to 737 warnings
+(`private_interfaces=11`, `private_bounds=0`; non-structural lint categories
+remain zero).
