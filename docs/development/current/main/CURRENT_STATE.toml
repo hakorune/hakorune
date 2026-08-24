@@ -1,25 +1,28 @@
 status = """
-Normal-root T0/C0/R0 is closed. The post-root ordering audit found no safe
-production implementation row: FunctionCall and Loop cannot reopen, H2 is
-already complete, and Script convergence has no production consumer. One
-post-C0 normal/default ingress authority census is selected as design-only."""
+Normal-root T0/C0/R0 is closed. The finite post-C0 normal/default ingress
+census is recorded: MIR/LLVM SourceBacked already reaches the canonical
+consumer, while public compile_with_source* has zero non-test callers and
+its Compatibility(AST) edge has no replacement owner. D0 remains NoSafeSlice
+and design-only; no production implementation row is selected."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
 current_execution_row = "NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0"
-current_design_stop = "Read-only census only: close one current normal/default caller, existing replacement owner, exact old-edge delete set, and unchanged parity gate before selecting any implementation row."
-current_blocker_token = "NoSafeSlice unless exactly one reachable caller_before, one existing new owner, and one exact old-edge delete set close before ModuleBuilderInvocationSessionV1::open / the first Builder effect; do not issue new Verified* or Prepared* meaning."
+current_design_stop = "Finite post-C0 census is recorded; do not implement until one caller family has exactly one reachable production caller, one existing replacement owner, one exact removable old edge, and an unchanged parity gate before ModuleBuilderInvocationSessionV1::open / the first Builder effect."
+current_blocker_token = "NoSafeSlice: SourceBacked is already canonical, public compile_with_source* has caller_before=0, and Compatibility(AST) has no authority-backed replacement owner; do not issue new Verified*/Prepared*, retire the public API, or alter fallback/retry."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
 active_lane = "MirBuilder in-place replacement — post-root default ingress authority"
 active_lane_status = """
-Current: census the real MIR/LLVM runner SourceBacked or TypedCompatibility
-requests and public compile_with_source* AST-only Compatibility callers.
-Exit: select one bounded cell only if caller, existing owner, delete set, and
-unchanged gate are exact; otherwise record NoSafeSlice. Code is forbidden."""
+Current: the finite MIR/LLVM and public compile_with_source* census is recorded.
+MIR/LLVM SourceBacked already uses the canonical owner; public AST-only
+Compatibility has no non-test caller and no replacement owner.
+Exit: name an authority-backed compatibility owner and exact old edge, or
+explicitly park that public contract. Until then this is NoSafeSlice and
+code is forbidden."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -31,7 +34,7 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "The post-root task-order audit is closed. NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0 is the sole design row; no production implementation is authorized until its singleton replacement-cell contract closes."
+latest_card_summary = "The post-root task-order audit and finite ingress census are closed. NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0 remains NoSafeSlice: MIR/LLVM SourceBacked is already canonical, public compile_with_source* has no non-test caller, and no replacement owner exists for its Compatibility(AST) edge."
 next_design_card = "NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0"
 next_execution_card = "none until NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0 accepts exactly one bounded replacement cell"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"

@@ -191,6 +191,42 @@ If it closes, D0 may name one bounded next cell. If any member is absent,
 multiple, or requires a new issuer, record `NoSafeSlice` and remain in
 `design_stop`.
 
+## Post-C0 census receipt (2026-08-25)
+
+The finite D0 boundary is now observed, not inferred from test names. It
+includes the non-test MIR and LLVM normal frontdoors, their shared callable
+materializer, request constructors, `compile_normal`, the root consumer and
+catalog lifecycle, plus definitions and all tracked Rust callsites of public
+`compile_with_source*`. It excludes minimal MIR JSON, WASM, REPL, JSON-v0,
+selfhost, VM keep/vm-hako, Stage1, tests/benchmarks, detached Script physical
+input, and post-MIR backend fallback.
+
+```text
+MIR runner     = one compiler call; two dispatch ingress edges
+LLVM runner    = one production compiler call via the shared materializer
+public API     = compile_with_source* has zero non-test downstream callers
+SourceBacked   = NormalRootExecutionConsumerV1::consume_once (existing owner)
+shared publish = NormalDefaultPublishedPipelineV1 (existing lifecycle owner)
+Compatibility  = VerifiedRawRootExpansionV1::from_program at preflight and
+                 retained lowering; no distinct replacement owner is named
+old symbols    = compile_legacy* and equivalent old symbols = 0
+source delete  = empty; SourceBacked is already on the canonical route
+compat delete  = unsafe; it would retire the public AST contract without owner
+fallback/retry = 0 at the pre-request boundary; LLVM post-MIR fallback is out
+                 of D0
+failure        = typed parser/transform/lineage reject before request; C0 root
+                 rejection and MIR text/verification parity remain named gates
+```
+
+The public-API parity tests are not independent proof of an old production
+owner: the remaining calls are test/test-home coverage of the same
+`Compatibility(ASTNode)` route. Therefore D0 closes as `NoSafeSlice`, not as
+an implementation row. The next design-only decision must either name an
+authority-backed compatibility replacement with an exact finite old edge, or
+explicitly park the public AST compatibility contract. Until that decision,
+do not change code, fixtures, routes, fallback/retry, or issue a new
+`Verified*`/`Prepared*` receipt.
+
 Guard classification at the 2026-08-25 docs boundary:
 
 - `current_state_pointer_guard.sh` is green.
@@ -273,7 +309,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
   NORMAL-DEFAULT-POST-ROOT-INGRESS-EDGE-D0
-  -> read-only caller / owner / old-edge / unchanged-gate census
+  -> finite census recorded; review the NoSafeSlice boundary and name the
+     next authority decision (design-only)
 
 Next (conditional; not selected)
   -> exactly one bounded replacement cell named by D0
