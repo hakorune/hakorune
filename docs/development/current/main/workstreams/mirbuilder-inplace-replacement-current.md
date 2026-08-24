@@ -265,7 +265,8 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
 6. R4a: exhaustive `Callee` operand rewrite projection into SimplifyCFG
    Call-use rewrite (closed); R4b `used_values` immutable projection and
    methods.rs delegation (closed); R4c `value_consumer` Call membership,
-   R4d escape, R4e ownership, R4f CallLike, and Query T0 are closed.
+   R4d escape, R4e ownership, R4f CallLike, and Query T0 are closed; JoinIR
+   remap remains `NoSafeSlice` pending a named caller/lifecycle boundary.
 7. R5 D0 is accepted; R5a is closed at `e36f86e869`, R5b-B0 Rust VM
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
    is closed at `09f0e51143`; JSON egress D0 and typed decoration I0 are closed at `5ce1b18904`; profile D1/native remain separate and PyVM/reference/Python are `ParkedSealed`.

@@ -514,6 +514,15 @@ Smallest next slice: MIR-CALL-JSON-PROFILE-D1; census root.rs, calls.rs, helpers
 Non-claims: profile implementation, Method(None) retirement, Closure/NewBox, native, or R6 core schema cutover.
 ```
 
+Feedback reconciliation and deferred task queue (not selected):
+
+```text
+R4b status: HEAD already delegates Call used_values to Callee::for_each_value_operand; Value, Method receiver, Closure captures/me, args order, duplicates, and legacy None parity are covered by the shared tests. Escape, value-consumer, ownership, and query now reuse the occurrence projection where their separate policies allow it.
+Remaining duplicate: JoinIrIdRemapper still owns a local Callee match and its collect_values Call arm is incomplete for Value/Closure. Queue MIR-CALL-JOINIR-OPERAND-REMAP-D0 after the current JSON D1; authority is Callee::rewrite_value_operands/for_each_value_operand, but production selection stays NoSafeSlice until a named JoinIR caller and shared lifecycle boundary are proven.
+R6 gate: decide MirCall/CallFlags retirement, mandatory Method receiver with static calls as qualified Global, Closure pre-canonical construction versus Callee::Value call, and Constructor/NewBox boundary in one schema decision.
+Post-R7 cleanup: normal-root mode/projection sum, MainObserved naming, identity-based syntax loan, and builder.rs production/compatibility/test barrel census remain separate cleanup rows; PyVM/reference/Python/native_driver remain ParkedSealed.
+```
+
 R5 row rules: each task owns one old edge and reuses the shared corridor
 guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field
 editing. The census includes direct callers, dynamic construction, wire
