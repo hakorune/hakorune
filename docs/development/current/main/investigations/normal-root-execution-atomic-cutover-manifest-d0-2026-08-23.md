@@ -2406,3 +2406,22 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 511 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following callable physical-header rejection-evidence cleanup is landed
+as `e4d1e3347e`:
+
+```text
+e4d1e3347e  refactor: retain physical header rejection evidence
+```
+
+The completion-seed/header boundary keeps batch slots, unsupported annotation
+names, and completion causes as named underscore evidence. No source or
+completion rejection is flattened, and header row issuance remains unchanged.
+The focused `normal_root_execution` suite passes 19 tests, and the test
+fingerprint moved from 522 to 515 warnings (`private_interfaces=11`,
+`dead_code=504`; all non-structural lint categories remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 504 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
