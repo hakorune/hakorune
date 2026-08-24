@@ -2506,3 +2506,24 @@ The residual boundary remains explicit: the eleven `private_interfaces`
 warnings await the deliberate public MIR/semantic API authority decision, and
 the remaining 488 `dead_code` warnings are existing disconnected scaffolding
 that is not mass-deleted in this R0 lane.
+
+The following callable-parameter contract rejection-evidence cleanup is
+landed as `9dd9eaf768`:
+
+```text
+9dd9eaf768  refactor: retain parameter contract evidence
+```
+
+The batch-loan error and caller-zero declaration/parameter ordinals remain
+typed named underscore evidence for the parameter-contract reject variants.
+The exercised `UnsupportedDeclaredType` payload remains unchanged because its
+test observes the exact fields. Contract classification, binding ownership,
+and ABI selection are unchanged. The focused `normal_root_execution` suite
+passes 19 tests, and the test fingerprint moved from 499 to 493 warnings
+(`private_interfaces=11`, `dead_code=482`; all non-structural lint categories
+remain zero).
+
+The residual boundary remains explicit: the eleven `private_interfaces`
+warnings await the deliberate public MIR/semantic API authority decision, and
+the remaining 482 `dead_code` warnings are existing disconnected scaffolding
+that is not mass-deleted in this R0 lane.
