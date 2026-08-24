@@ -1,7 +1,9 @@
 use super::super::super::ast::ExprV0;
 use super::super::BridgeEnv;
 use super::VarScope;
-use crate::mir::{BasicBlockId, ConstValue, EffectMask, MirFunction, MirInstruction, ValueId};
+use crate::mir::{
+    BasicBlockId, Callee, ConstValue, EffectMask, MirFunction, MirInstruction, ValueId,
+};
 
 pub(super) fn lower_call_expr<S: VarScope>(
     env: &BridgeEnv,
@@ -353,22 +355,14 @@ fn lower_stageb_static_call_for_box<S: VarScope>(
         return Ok(None);
     }
     let (arg_ids, cur2) = super::lower_args_with_scope(env, f, cur_bb, args, scope)?;
-    let fun_val = f.next_value_id();
-    if let Some(bb) = f.get_block_mut(cur2) {
-        bb.add_instruction(MirInstruction::Const {
-            dst: fun_val,
-            value: ConstValue::String(qualified),
-        });
-    }
     let dst = f.next_value_id();
     if let Some(bb) = f.get_block_mut(cur2) {
-        bb.add_instruction(MirInstruction::Call {
-            dst: Some(dst),
-            func: fun_val,
-            callee: None,
-            args: arg_ids,
-            effects: EffectMask::READ,
-        });
+        bb.add_instruction(MirInstruction::call(
+            Some(dst),
+            Callee::Global(qualified),
+            arg_ids,
+            EffectMask::READ,
+        ));
     }
     Ok(Some((dst, cur2)))
 }
@@ -397,22 +391,14 @@ fn lower_stageb_instance_call_for_box<S: VarScope>(
     }
     arg_ids.insert(0, me_v);
 
-    let fun_val = f.next_value_id();
-    if let Some(bb) = f.get_block_mut(cur2) {
-        bb.add_instruction(MirInstruction::Const {
-            dst: fun_val,
-            value: ConstValue::String(qualified),
-        });
-    }
     let dst = f.next_value_id();
     if let Some(bb) = f.get_block_mut(cur2) {
-        bb.add_instruction(MirInstruction::Call {
-            dst: Some(dst),
-            func: fun_val,
-            callee: None,
-            args: arg_ids,
-            effects: EffectMask::READ,
-        });
+        bb.add_instruction(MirInstruction::call(
+            Some(dst),
+            Callee::Global(qualified),
+            arg_ids,
+            EffectMask::READ,
+        ));
     }
     Ok(Some((dst, cur2)))
 }

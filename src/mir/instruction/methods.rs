@@ -12,6 +12,22 @@ use crate::mir::instruction_kinds as inst_meta;
 use crate::mir::types::{BarrierOp, WeakRefOp};
 
 impl MirInstruction {
+    /// Materialize an already-resolved canonical Call without classifying its target.
+    pub(crate) fn call(
+        dst: Option<ValueId>,
+        callee: Callee,
+        args: Vec<ValueId>,
+        effects: EffectMask,
+    ) -> Self {
+        Self::Call {
+            dst,
+            func: ValueId::INVALID,
+            callee: Some(callee),
+            args,
+            effects,
+        }
+    }
+
     /// Get the external callee name for unified extern call instructions.
     pub fn extern_name(&self) -> Option<&str> {
         match self {

@@ -2,7 +2,7 @@
 Status: SSOT
 Scope: MirInstruction の call-site 正規化（BoxShape lane, no behavior expansion）
 Decision: accepted (phase29y-safe lane)
-Updated: 2026-02-12 (RCL-3 synced)
+Updated: 2026-08-25 (MIR-CALL-RETIREMENT-v1 accepted)
 Related:
 - docs/reference/mir/INSTRUCTION_SET.md
 - docs/development/current/main/design/mir-instruction-diet-ledger-ssot.md
@@ -136,7 +136,7 @@ MIR 命令数そのものを急いで減らすのではなく、まず「call-si
 - NCL-1: done（`NewClosure.body` は `body_id -> module.metadata.closure_bodies` へ外出しし、canonical 形は `body=[]` を維持）
 - NCL-2: done（shape 判定を SSOT 化。`dst=Some + args=[]` のみ canonicalize、それ以外は shape-specific fail-fast）
 
-## Core Call target retirement successor (parked)
+## Core Call target retirement successor (active)
 
 MCL/RCLはbackend入口のcanonicalizationと旧instruction variant退役を閉じた。
 core `MirInstruction::Call` 自体は、なお
@@ -158,20 +158,47 @@ retirementを選ばない。`GUARD-I0`はまずselected native/canonical corrido
 証明するためだけの新しい`FunctionMetadata` semantic rowも追加しない。最初の
 consumerはmodule/backend境界のpure structural censusでなければならない。
 
-`RETIREMENT-R0`のend stateは、canonical MIRの
+`MIR-CALL-RETIREMENT-v1`はend stateを次の一つへ固定する。
 
 ```text
 Call { dst, callee: Callee, args, effects }
 ```
 
-への収束、またはcanonical MIR外に隔離した明示`LegacyCall` inputのどちらか一つ。
-`callee=None`をdefault/sentinel Calleeへ変換する案、backendのstring fallback、
-optimizerによるtarget再推論は不採用。loader、interpreter、optimizer、printer/JSON、
-backend、fixture/reference callerが同じretirement seriesで閉じるまでcore fieldは
-削除しない。
+JSON-v0 compatibilityはcanonical MIR外のowner-private
+`JsonV0CallInput`にだけ隔離し、exact targetを一度だけ`Callee`へ解決してからCallを
+構築する。このinputはsource evidenceであって第二Call authorityではない。
+`MirInstruction::LegacyCall`、`Option<Callee>`、`func`、default/sentinel Callee、
+optimizer target再推論、backend string fallback/retryは最終形に残さない。
 
-このsuccessorはcurrent Script convergence、JSON-v0 compatibility disposition、
-main integrationより先に自動起動しない。実行順は
+literal censusに加え、`runner/mir_json_v0/call.rs`が入力依存でmissing-callee Callを
+構築できるdynamic edgeを必ず数える。retirement完了はliteral zeroだけでなく、
+runtime missing-target issuance zeroを要求する。
+
+field削除前に`Callee`のValueId operand ownerを一つにする。Method.receiver、
+Value(value)、Closure.captures、Closure.me_captureをtarget operandとし、
+Global/Extern/Constructorはtarget operandを持たない。Call argsは全variantで順序を
+保ってoperandになる。escape判定はこのprojectionを再利用してよいが、別policyの
+まま保つ。
+
+retirement seriesの固定順は次。
+
+```text
+R1  exact qualified Program JSON-v0 producers
+R2  owner-private MIR JSON-v0 input state
+R3  Program/MIR JSON-v0 exact pre-core resolution; late issuer retirement
+R4  Callee operand/remap SSOT and semantic consumer migration
+R5  optimizer/interpreter/printer/JSON/Python/PyVM/reference terminal closure
+R6  Call core schema atomic cutover
+R7  impossible-state guard and docs/reference closeout
+```
+
+loader、interpreter、optimizer、printer/JSON、backend、fixture/reference callerが
+R2-R5で閉じるまでR6を選ばない。valid explicit calleeはlegacy decorationより優先し、
+malformed explicit callee、missing/ambiguous/non-String/foreign legacy relationはCall
+publication前にtyped rejectする。reject後に別target sourceをretryしてはならない。
+
+active rowの選択は`CURRENT_STATE.toml`とrolling workstream cardだけが行う。
+R1より後の行は前行のevidenceなしに自動起動しない。cleanup上位順は
 `mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md`が保持する。
 
 ## 作業分離ルール

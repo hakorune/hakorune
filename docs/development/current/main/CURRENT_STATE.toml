@@ -1,26 +1,27 @@
 status = """
 Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a
-ParkedSealed whole-file AST Compatibility adapter. The bounded next edge is
-selected: NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0 removes one
-post-effect mode re-read and reuses the pre-effect root-mode projection; no
-new semantic receipt or route is introduced."""
+ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
+as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core
+and owner-private JSON-v0 input state as compatibility ingress. R1 is closed:
+two qualified missing-callee producers are canonical and the next row is the
+read-only MIR JSON-v0 input-state design."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0"
-current_design_stop = "Selected BoxShape is closed: reuse the lifecycle's pre-effect mode projection at work-plan selection and delete only the later expansion.is_app_mode selector; return to design_stop if owner, edge, or parity drifts."
-current_blocker_token = "Fast cell: caller=NormalDefaultPublishedPipelineV1::compile, owner=NormalDefaultRootCatalogLifecycle pre-effect mode projection, delete=edge expansion.is_app_mode at work-plan selection, fallback/retry=0; no new Verified*/Prepared* or route."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-JSONV0-INPUT-STATE-D0"
+current_design_stop = "Read-only only: fix explicit-callee precedence, legacy name/func states, typed errors, one-shot consumption, and the exact pre-publication fail-fast boundary in runner/mir_json_v0/call.rs. No code, fixture, fallback, route, or semantic receipt until one bounded I0 delete tuple is accepted."
+current_blocker_token = "Design stop: R1 deleted two exact Program JSON-v0 edges; remaining CutoverBlockerOpen includes generic Program JSON-v0 and dynamic MIR JSON-v0 missing-target issuance. R2 must name one private input owner and prove malformed explicit target never retries legacy fields."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — post-root default ingress authority"
+active_lane = "MirBuilder in-place replacement — canonical MIR Call target retirement"
 active_lane_status = """
-Current: one bounded BoxShape cell is selected; public AST Compatibility
-remains ParkedSealed outside the production cutover.
-Exit: same caller remains, the selected old edge is zero, parity/failure/reuse
-evidence is green, and source/check files remain below 760/800 lines."""
+Current: MIR Call D0 and R1 are closed; MIR JSON-v0 input-state D0 is the sole
+design row. Core field deletion remains blocked by ingress, operand, and terminal closure.
+Exit: one private input owner, total state matrix, typed first-error boundary,
+exact I0 delete set, no retry/fallback, and source/check files below 760/800."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -32,9 +33,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "Public AST Compatibility is ParkedSealed. NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0 is the selected BoxShape cell: one post-effect mode re-read is removed using the existing preflight projection."
-next_design_card = "NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0"
-next_execution_card = "NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1 is green at 2 focused + 7 resolver tests; Program JSON-v0 literal missing-callee producers are 3 -> 1."
+next_design_card = "MIR-CALL-JSONV0-INPUT-STATE-D0"
+next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -47,7 +48,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-25: MIR-CALL-JSONV0-QUALIFIED-PRODUCER-I0-R0 closed two exact Program JSON-v0 missing-callee edges; focused tests 2/2, legacy resolver tests 7/7, Call/pointer guards green.",
+  "2026-08-25: NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0 landed as c152f9f883; the existing pre-effect root-mode projection now owns work-plan mode selection.",
   "2026-08-24: NORMAL-ROOT-EXECUTION-ATOMIC-CUTOVER-C0 landed as b0a9e849eb with Exhausted(14), CutoverBlockerOpen=0, ParkedSealed=2, and Unclassified=0.",
-  "2026-08-24: behavior-neutral R0 cleanup ended at 0811b69d9d with focused tests 19/19; unused imports/mut/variables/unreachable patterns/private bounds are zero, while 422 dead_code and 11 private_interfaces remain parked.",
-  "2026-08-24: R0 closeout and its caller-zero exhaustion were recorded by 7ff31ac304.",
 ]

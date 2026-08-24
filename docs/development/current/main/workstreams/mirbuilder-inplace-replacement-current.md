@@ -149,134 +149,93 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 ## Active task pointer
 
-`MIRBUILDER-POST-ROOT-TASK-ORDER-D0` is closed. FunctionCall is closed
-`NoSafeSlice`; H2/W6 is already complete; Script convergence has canonical
-consumer caller zero; and the Loop queue is historical/parked. The sole valid
-parent lane is canonical/default ingress, but its old `compile_legacy*` delete
-set no longer describes the post-C0 source graph. Therefore no implementation
-row is selected.
-
-Decision:
-  Re-census post-C0 normal/default ingress read-only; do not select an
-  implementation until one exact replacement-cell contract closes.
-Source authority + canonical issuer:
-  Existing Parser SourceSurface -> `ParserNormalRootExecutionIssuerV1`
-  -> `NormalRootExecutionConsumerV1`; this D0 issues no new meaning.
-Non-authority:
-  Warning counts, the old `compile_legacy*` task map, AST/path/name,
-  detached Script input, and historical FunctionCall/Loop queues.
-Fail-fast boundary:
-  Before `ModuleBuilderInvocationSessionV1::open` / the first Builder effect;
-  a non-singleton caller, owner, or delete set is `NoSafeSlice`.
-Smallest next slice:
-  Census every non-test caller of the MIR/LLVM runner
-  `SourceBacked | TypedCompatibility` requests and public
-  `compile_with_source*` AST-only Compatibility ingress.
-Non-claims:
-  No code, fixture, new `Verified*`/`Prepared*`, route switch, compatibility
-  retirement, FunctionCall, Script physical, Loop/H2, Recipe/Join/MIR,
-  backend, performance, or fallback change.
-
-Acceptance is one conjunction, not three independent hints:
+Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
+landed as `c152f9f883`. Public whole-file AST Compatibility remains
+`ParkedSealed`. The active Decision is now `MIR-CALL-RETIREMENT-v1`.
 
 ```text
-reachable caller_before = exactly 1 bounded production cell
-selected new owner       = exactly 1 existing authority
-old-edge delete set      = exact and finite
-fallback / retry         = 0
-unchanged parity gate    = named
+canonical core
+  Call { dst, callee: Callee, args, effects }
+
+JSON-v0 compatibility ingress
+  owner-private JsonV0CallInput -> resolve exactly once -> Callee -> Call
+
+forbidden
+  core LegacyCall; Option<Callee>; func field; sentinel/default Callee;
+  optimizer target inference; backend by-name fallback or retry
 ```
 
-If it closes, D0 may name one bounded next cell. If any member is absent,
-multiple, or requires a new issuer, record `NoSafeSlice` and remain in
-`design_stop`.
+`JsonV0CallInput` is evidence, not target authority, and never crosses into
+canonical MIR. Typed producers and each compatibility owner resolve an exact
+`Callee`; the thin `MirInstruction::call(dst, callee, args, effects)` physical
+constructor classifies nothing. `func`, `ValueId::INVALID`, target-name Const,
+printer/JSON text, optimizer scans, and runtime/backend lookup are non-authority.
 
-## Post-C0 census receipt (2026-08-25)
+The finite D0 boundary covers canonical Call production through all non-test
+constructors/reconstructors and interpreter/printer/JSON/backend terminals.
+It includes 49 direct sites (44 production-root, 5 compiled caller-zero) and
+four production edges able to issue missing-callee Call: three Program JSON-v0
+literals plus one dynamic MIR JSON-v0 loader edge. Tests/comments and unrelated
+MIR instructions are excluded. Therefore literal `callee: None = 0` alone is
+not a completion proof; runtime missing-target issuance must also be zero.
 
-The finite D0 boundary is now observed, not inferred from test names. It
-includes the non-test MIR and LLVM normal frontdoors, their shared callable
-materializer, request constructors, `compile_normal`, the root consumer and
-catalog lifecycle, plus definitions and all tracked Rust callsites of public
-`compile_with_source*`. It excludes minimal MIR JSON, WASM, REPL, JSON-v0,
-selfhost, VM keep/vm-hako, Stage1, tests/benchmarks, detached Script physical
-input, and post-MIR backend fallback.
+JSON-v0 input outcomes are total: valid explicit callee wins and legacy fields
+are decoration; malformed explicit callee rejects without fallback; legacy
+name or unique exact function-local `func -> Const(String)` may resolve once;
+undefined, non-String, duplicate, foreign, or missing target rejects before
+Call publication. No reject may retry another target source.
 
-```text
-MIR runner     = one compiler call; two dispatch ingress edges
-LLVM runner    = one production compiler call via the shared materializer
-public API     = compile_with_source* has zero non-test downstream callers
-SourceBacked   = NormalRootExecutionConsumerV1::consume_once (existing owner)
-shared publish = NormalDefaultPublishedPipelineV1 (existing lifecycle owner)
-Compatibility  = VerifiedRawRootExpansionV1::from_program at preflight and
-                 retained lowering; no distinct replacement owner is named
-old symbols    = compile_legacy* and equivalent old symbols = 0
-source delete  = empty; SourceBacked is already on the canonical route
-compat delete  = unsafe; it would retire the public AST contract without owner
-fallback/retry = 0 at the pre-request boundary; LLVM post-MIR fallback is out
-                 of D0
-failure        = typed parser/transform/lineage reject before request; C0 root
-                 rejection and MIR text/verification parity remain named gates
-```
+Before core field deletion, one `Callee` operand projection must own this law:
+Method.receiver, Value(value), Closure.captures and Closure.me_capture are
+ValueId operands; Global/Extern/Constructor add none; ordered Call args are
+always operands. Escape policy may consume that projection but remains a
+separate semantic policy.
 
-## D0 disposition: public AST compatibility (ParkedSealed)
+## Closed bounded cell: MIR-CALL-JSONV0-QUALIFIED-PRODUCER-I0-R0
 
-The worker authority audit rejects merging public AST into SourceBacked or
-TypedCompatibility: the parser/macro lineage and reason are unavailable, and
-reconstructing them would issue synthetic meaning. The bounded decision is
-`MIRCOMPILER-PUBLIC-AST-COMPAT-PARK-D0` = `ParkedSealed`.
+The two exact `static_methods` producers now use the thin canonical constructor
+with `Callee::Global(qualified)`. Their target Const, `fun_val`, and
+missing-callee edges are zero; instance `me_v`, argument order, dst, and READ
+effect are unchanged. Program JSON-v0 literal issuers are 3 -> 1 and the
+dynamic MIR JSON-v0 edge remains open.
 
-```text
-public compile_with_source* = whole-file AST Compatibility adapter
-source authority           = AST payload only; no parser/macro issuer
-existing owner             = PreparedNormalDefaultProgramRootV1::seal
-                            + NormalDefaultRootCatalogLifecycle
-retained edge              = public AST -> Compatibility(ASTNode)
-old-edge delete set        = empty by contract
-fallback / retry           = 0
-canonical claim            = not MIR/LLVM SourceBacked ingress
-```
+Evidence: focused static/instance tests 2/2, unchanged late-resolver tests 7/7,
+Call corridor and pointer guards green, touched-file rustfmt green, source 446,
+constructor owner 385, guard 105. The 433 warnings remain the parked baseline
+(422 dead_code + 11 private_interfaces); no new warning class was introduced.
+The shared MirBuilder guard retains its known parent Loop-owner red and is not
+an R1 waiver or failure.
 
-Finite outcomes are fixed: non-`Program` AST rejects before request effects;
-a `Program` AST (with or without imports) stays on the existing compatibility
-lifecycle; lifecycle failure discards the isolated candidate; parser/macro
-origin is `Unavailable`; SourceBacked and TypedCompatibility are outside this
-API. No state fabricates lineage, reason, semantic package, Recipe, Join, or
-physical target.
+## Next design stop: MIR-CALL-JSONV0-INPUT-STATE-D0
 
-Reopen only on a non-test `compile_with_source*` caller, an explicit public
-API change/removal request, a new source-bearing public ingress, a public
-parser/macro origin contract, or a satisfied compatibility sunset condition.
-This park preserves the public API and does not authorize code, fixtures, new
-`Verified*`/`Prepared*`, route switches, fallback changes, or compatibility
-retirement.
+Decision: define one total owner-private MIR JSON-v0 Call input state; no code yet.
+Source authority + canonical issuer: explicit callee, legacy name, or one exact
+function-local func relation; D0 itself issues no Callee or Call.
+Non-authority: `Option<Callee>`, numeric func alone, Const scan, optimizer/backend lookup.
+Fail-fast boundary: before block publication; malformed explicit callee never tries legacy.
+Smallest next slice: fix states/errors/one-shot owner and one exact I0 delete tuple.
+Non-claims: no fixture, fallback, route, acceptance, optimizer/backend, or schema change.
 
-## Selected bounded cell: NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0
+## Ordered MIR Call retirement series
 
-Decision: BoxShape-only cutover; the work plan reuses the existing pre-effect
-`preflight_is_app_mode` transport and drops its later raw-expansion reread.
-Source authority: admitted SourceBacked root mode or explicit Compatibility
-`VerifiedRawRootExpansionV1`; the lifecycle owns their disjoint projection.
-Non-authority: the bool transport itself, work-plan lowering, AST/path/name,
-public AST compatibility, Loop/Script queues, and backend fallback.
-Fail-fast: unchanged terminal rejects remain before the first
-`with_builder...` effect; no new receipt or route. Caller:
-`NormalDefaultPublishedPipelineV1::compile` -> root/catalog lifecycle.
-Old-edge delete: the single `expansion.is_app_mode()` work-plan selector;
-fallback/retry = 0. Guarded by the selected `preflight_is_app_mode` argument,
-the compatibility drift check, and existing root-mode/rejection tests.
-Source files remain below 760/800 lines.
+1. R1: qualified Program JSON-v0 producers (closed).
+2. R2: owner-private MIR JSON-v0 input-state parser; invalid explicit target
+   rejects without legacy fallback and no partial block publication occurs.
+3. R3a/R3b: Program JSON-v0 immutable target catalog and direct MIR JSON-v0
+   exact legacy resolution; delete generic target Const/late mutation and all
+   runtime missing-target issuance.
+4. R4: `Callee` operand/remap SSOT; migrate def-use, ownership, escape,
+   publication, CSE, and remappers before any field delete.
+5. R5a/R5b/R5c: optimizer preservation; Rust VM/printer/JSON closure; then
+   Python LLVM/PyVM/reference-VM compatibility disposition with no by-name
+   fallback or retry.
+6. R6: atomic core schema cutover to mandatory `Callee`; update every direct
+   constructor/destructure and remove dummy `func` payloads.
+7. R7: replace impossible-state runtime guards with structural ingress/core/
+   terminal guards; synchronize module README/reference and close the census.
 
-Guard classification at the 2026-08-25 docs boundary:
-
-- `current_state_pointer_guard.sh` is green.
-- `mirbuilder_inplace_replacement_guard.sh` reports
-  `raw Loop callers must share one JoinIR route/freeze owner` identically in
-  the edited tree and clean parent `7ff31ac304`.
-- The lifecycle focused command is a parent-baseline red at `435d4fbf2f` (6
-  passed, 4 existing failures); the I0 diff adds no new failure names and is
-  not used to waive that debt.
-- That red is known baseline debt, not current-change failure, D0 acceptance,
-  or permission to reopen Loop.
+R2 implementation is not selected. R6 remains `CutoverBlockerOpen` until R2-R5 are
+green; selected-native local green cannot waive a repository-wide blocker.
 
 ## Production invariants
 ```text
@@ -350,21 +309,18 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0
-  -> reuse the lifecycle pre-effect mode projection at work-plan selection;
-     public AST compatibility remains ParkedSealed
+ MIR-CALL-JSONV0-INPUT-STATE-D0
+  -> read-only total state/error/publication-boundary design
 
-Next (after I0; not selected)
-  -> close the baseline classification, then census the next production family
-  -> require one caller/owner/delete tuple, focused gates, and zero fallback/retry
+Next (not selected)
+  -> MIR-CALL-JSONV0-INPUT-STATE-I0, then ordered R3-R7
 
-After the selected default-ingress cutover
-  1. MIR-CALL-LEGACY-TARGET-RETIREMENT-D0/R0
-  2. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
-  3. MIR-PHYSICAL-TYPE-INPUT-D0
-  4. MIRBUILDER-PR-STRUCTURAL-GATES-I0
-  5. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
-  6. mimalloc promotion gate, then .hako selfhost migration
+After MIR Call retirement
+  1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
+  2. MIR-PHYSICAL-TYPE-INPUT-D0
+  3. MIRBUILDER-PR-STRUCTURAL-GATES-I0
+  4. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
+  5. mimalloc promotion gate, then .hako selfhost migration
 
 Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0

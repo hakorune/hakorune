@@ -9,6 +9,8 @@ SCHEDULE="$ROOT_DIR/src/mir/passes/callsite_canonicalize/schedule.rs"
 REJECT="$ROOT_DIR/src/mir/contracts/backend_core_ops/allowlists.rs"
 JSON="$ROOT_DIR/src/runner/json_v0_bridge/core.rs"
 EXEC="$ROOT_DIR/src/runner/modes/common_util/exec.rs"
+CALL_OPS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/expr/call_ops.rs"
+METHODS="$ROOT_DIR/src/mir/instruction/methods.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -21,7 +23,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$EXEC"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$EXEC" "$CALL_OPS" "$METHODS"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -33,6 +35,7 @@ require "$LLVM" "legacy_callsite_reject_code"
 require "$LLVM" "boundary_executor::BoundaryExecutorBox::try_execute_selected_dynamic"
 require "$JSON" "CallsiteCanonicalizeScheduleSite::ProgramJsonV0Bridge"
 require "$EXEC" "project_module_to_legacy_calls"
+require "$METHODS" "pub(crate) fn call("
 
 python3 - "$LLVM" "$ROOT_DIR" <<'PY'
 from pathlib import Path
@@ -61,6 +64,7 @@ for token in ("block.instructions", "block.terminator", "legacy_callsite_reject_
         raise SystemExit(f"selected legacy scanner lost {token}")
 
 for relative in (
+    "src/mir/instruction/methods.rs",
     "src/mir/optimizer/core.rs",
     "src/mir/passes/callsite_canonicalize/schedule.rs",
     "src/mir/contracts/backend_core_ops/allowlists.rs",
@@ -70,6 +74,32 @@ for relative in (
     lines = (root / relative).read_text().splitlines()
     if len(lines) >= 800:
         raise SystemExit(f"800-line hard stop reached: {relative} ({len(lines)})")
+
+call_ops = (root / "src/runner/json_v0_bridge/lowering/expr/call_ops.rs").read_text()
+if call_ops.count("callee: None") != 1:
+    raise SystemExit("Program JSON-v0 literal missing-callee producer count is not exactly 1")
+
+for name, next_name in (
+    ("lower_stageb_static_call_for_box", "lower_stageb_instance_call_for_box"),
+    ("lower_stageb_instance_call_for_box", "lower_stageb_static_method_call"),
+):
+    start = call_ops.index(f"fn {name}")
+    end = call_ops.index(f"fn {next_name}", start)
+    window = call_ops[start:end]
+    for forbidden in ("callee: None", "fun_val", "func:", "ConstValue::String(qualified)"):
+        if forbidden in window:
+            raise SystemExit(f"{name} retained legacy target edge: {forbidden}")
+    for required in ("MirInstruction::call(", "Callee::Global(qualified)", "EffectMask::READ"):
+        if required not in window:
+            raise SystemExit(f"{name} lost canonical qualified Call evidence: {required}")
+
+constructor = (root / "src/mir/instruction/methods.rs").read_text()
+start = constructor.index("pub(crate) fn call(")
+end = constructor.index("pub fn extern_name", start)
+window = constructor[start:end]
+for required in ("func: ValueId::INVALID", "callee: Some(callee)"):
+    if required not in window:
+        raise SystemExit(f"canonical Call constructor drifted: {required}")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

@@ -44,3 +44,6 @@ Current note:
 - current authority は `stage1-env-mir-source` であり、この bridge を current authority へ戻さない。
 - `Program(JSON v0)` route authority は退いているが、この bridge 自体は repo-wide retirement 完了ではない。
 - caller inventory が 0 になるまでは bootstrap-only keep として扱い、hard delete/read-path removal は `phase-29ci` の owner に従う。
+- `static_methods` で完全修飾targetが確定したCallは入口で一度だけ
+  `Callee::Global`へ変換する。target-name Const、legacy `func`、後段の
+  optimizer/backend lookupはtarget authorityではない。
