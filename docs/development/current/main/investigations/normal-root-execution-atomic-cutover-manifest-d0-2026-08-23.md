@@ -994,3 +994,15 @@ fixture, and root manifest package modules; ownership and compatibility
 boundaries are unchanged. The focused `normal_root_execution` suite passes
 19 tests, all five reusable guards remain green, and the test fingerprint
 moved from 910 to 904 warnings.
+
+The following contract-facade import slice is landed as `d96e52761e`:
+
+```text
+d96e52761e  refactor: prune contract facade imports
+```
+
+It removes twelve caller-zero imports or bounded reexports across Dynamic,
+If, JoinSig/S6C, JoinIR lowering, resolved-value, source-call, and Raw
+builder facades; all source and Recipe authorities remain unchanged. The
+focused `normal_root_execution` suite passes 19 tests, all five reusable
+guards remain green, and the test fingerprint moved from 904 to 892 warnings.
