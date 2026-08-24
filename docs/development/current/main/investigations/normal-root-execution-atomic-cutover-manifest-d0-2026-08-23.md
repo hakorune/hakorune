@@ -1361,3 +1361,19 @@ changed. The focused `normal_root_execution` suite passes 19 tests, all five
 reusable guards remain green, and the test fingerprint moved from 801 to 792
 warnings (`private_interfaces=66`, `private_bounds=0`; non-structural lint
 categories remain zero).
+
+The following normal transaction/collector error-boundary slice is landed as
+`bea17bd394`:
+
+```text
+bea17bd394  refactor: align normal transaction error visibility
+```
+
+The shared draft key, collector admission/brand errors, normal transaction
+schema, source draft, typed-definition, and physical-thunk products now match
+the existing `crate::mir` rejection boundary. No schema validation,
+transaction, or physical-thunk behavior changed. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 792 to 778 warnings
+(`private_interfaces=52`, `private_bounds=0`; non-structural lint categories
+remain zero).
