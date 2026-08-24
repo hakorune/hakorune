@@ -2186,3 +2186,25 @@ The updated residual warning boundary is explicit: the eleven
 MIR/semantic API authority decision described above, while the remaining 572
 `dead_code` warnings are existing disconnected scaffolding and are not
 mass-deleted in this R0 lane.
+
+The following Raw external-commit rejection-probe cleanup is landed as
+`2e38cad945`:
+
+```text
+2e38cad945  refactor: trim raw external commit rejection probe
+```
+
+The rejected owner and typed error remain retained for explicit discard, while
+the unused error accessor is removed and the fields become named underscore
+evidence. The two unconstructed typed failure variants remain as the bounded
+future rejection vocabulary; external-commit validation and publication
+handoff are unchanged. The focused `normal_root_execution` suite passes 19
+tests, and the test fingerprint moved from 583 to 581 warnings
+(`private_interfaces=11`, `dead_code=570`; all non-structural lint categories
+remain zero).
+
+The updated residual warning boundary is explicit: the eleven
+`private_interfaces` warnings remain deferred pending the deliberate public
+MIR/semantic API authority decision described above, while the remaining 570
+`dead_code` warnings are existing disconnected scaffolding and are not
+mass-deleted in this R0 lane.
