@@ -1214,3 +1214,18 @@ source-bound products without changing the Raw ingress surface. The focused
 green, and the test fingerprint moved from 815 to 813 warnings
 (`private_interfaces=87`, `private_bounds=0`; non-structural lint categories
 remain zero).
+
+The following Script-recipe rejection accessor slice is landed as
+`473625d903`:
+
+```text
+473625d903  refactor: narrow script recipe rejection accessors
+```
+
+The Script recipe reject accessors expose only the existing `crate::mir`
+projection error and remain inside the compiler-owned source-plan route. No
+Recipe classification or physical entry behavior changed. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 813 to 811 warnings
+(`private_interfaces=85`, `private_bounds=0`; non-structural lint categories
+remain zero).
