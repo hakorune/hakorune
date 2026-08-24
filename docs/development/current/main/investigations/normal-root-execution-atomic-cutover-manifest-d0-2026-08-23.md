@@ -1497,3 +1497,18 @@ execution behavior changed. The focused `normal_root_execution` suite passes
 19 tests, all five reusable guards remain green, and the test fingerprint
 moved from 747 to 741 warnings (`private_interfaces=15`, `private_bounds=0`;
 non-structural lint categories remain zero).
+
+The following compiler/control projection visibility slice is landed as
+`919936b0f1`:
+
+```text
+919936b0f1  refactor: align compiler control projection visibility
+```
+
+The Generic G0 control accessor, instance source-loan/error boundary, and If
+coverage claim now match their existing compiler or resolved-control owners.
+No entry-control, source-plan, or coverage behavior changed. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 741 to 738 warnings
+(`private_interfaces=12`, `private_bounds=0`; non-structural lint categories
+remain zero).
