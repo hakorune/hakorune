@@ -44,13 +44,13 @@ pub(in crate::mir) struct RawDrainedInvocationCoreV1 {
 }
 
 #[derive(Debug)]
-pub(in crate::mir) enum PreparedRawDrainInvocationV1 {
+pub(in crate::mir::compiler) enum PreparedRawDrainInvocationV1 {
     Script(PreparedRawScriptDrainInvocationV1),
     App(PreparedRawAppDrainInvocationV1),
 }
 
 #[derive(Debug)]
-struct PreparedRawScriptDrainInvocationV1 {
+pub(in crate::mir::compiler) struct PreparedRawScriptDrainInvocationV1 {
     continuation: RawPostCallableMainContinuationV1,
     module_name: Box<str>,
     runtime_inputs: RawRuntimeInputSnapshotV1,
@@ -60,7 +60,7 @@ struct PreparedRawScriptDrainInvocationV1 {
 }
 
 #[derive(Debug)]
-struct PreparedRawAppDrainInvocationV1 {
+pub(in crate::mir::compiler) struct PreparedRawAppDrainInvocationV1 {
     continuation: RawPostCallableMainContinuationV1,
     module_name: Box<str>,
     runtime_inputs: RawRuntimeInputSnapshotV1,
@@ -109,7 +109,7 @@ pub(in crate::mir) struct RejectedRawDrainInvocationV1 {
 }
 
 impl RawRootBatchCompleteInvocationV1 {
-    pub(in crate::mir) fn prepare_drain(
+    pub(in crate::mir::compiler) fn prepare_drain(
         self,
     ) -> Result<PreparedRawDrainInvocationV1, RejectedRawDrainInvocationV1> {
         match self {
