@@ -33,6 +33,13 @@ JSON_CALLS="$ROOT_DIR/src/runner/mir_json_emit/emitters/calls.rs"
 JSON_ROOT="$ROOT_DIR/src/runner/mir_json_emit/root.rs"
 JSON_EMITTERS="$ROOT_DIR/src/runner/mir_json_emit/emitters/mod.rs"
 JSON_HELPERS="$ROOT_DIR/src/runner/mir_json_emit/helpers.rs"
+BACKEND_SHAPE="$ROOT_DIR/src/host_providers/mir_builder/backend_shape.rs"
+MIR_BUILDER="$ROOT_DIR/src/host_providers/mir_builder.rs"
+HANDOFF="$ROOT_DIR/src/host_providers/mir_builder/handoff.rs"
+LLVM_GENERIC_CALLS="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch_calls.inc"
+LLVM_MIR_CALL_DISPATCH="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_dispatch.inc"
+LLVM_MIR_CALL_SURFACE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_surface_policy.inc"
+LLVM_MIR_CALL_EXTERN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -45,7 +52,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -130,6 +137,24 @@ require "$JSON_ROOT" "pub(crate) enum JsonEgressProfile"
 require "$JSON_ROOT" "json_profile_selector_matrix_is_finite_and_root_owned"
 require "$JSON_ROOT" "json_profile_selector_rejects_mixed_and_invalid_values"
 require "$JSON_EMITTERS" "profile: JsonEgressProfile"
+require "$BACKEND_SHAPE" "normalize_program_json_bridge_backend_shape"
+require "$BACKEND_SHAPE" "rejects_console_externcall_with_defaultable_fields_missing"
+require "$BACKEND_SHAPE" "rejects_console_externcall_with_malformed_values"
+require "$BACKEND_SHAPE" "rejects_externcall_with_unowned_extra_fields"
+require "$BACKEND_SHAPE" "bridge backend-shape missing functions array"
+require "$HANDOFF" "with_phase0_mir_json_env(|| {"
+require "$HANDOFF" "super::normalize_program_json_bridge_backend_shape(&mir_json)"
+require "$LLVM_GENERIC_CALLS" "legacy_call_missing_structured_callee"
+require "$LLVM_MIR_CALL_DISPATCH" 'strcmp(ctype, "Extern")'
+require "$LLVM_MIR_CALL_SURFACE" "classify_mir_call_string_extern_surface"
+require "$LLVM_MIR_CALL_EXTERN" "lowering_plan_extern_emit_rule_matches"
+
+if rg -F -q "normalize_program_json_bridge_backend_module_shape" "$BACKEND_SHAPE" "$MIR_BUILDER"; then
+  fail "typed backend_shape mutation retained a second semantic authority"
+fi
+if rg -F -q 'strcmp(op, "externcall")' "$LLVM_GENERIC_CALLS"; then
+  fail "selected structured ny-llvmc dispatcher gained a raw externcall terminal"
+fi
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -185,6 +210,9 @@ for relative in (
     "src/runner/mir_json_emit/emitters/mod.rs",
     "src/runner/mir_json_emit/helpers.rs",
     "src/runner/mir_json_emit/root.rs",
+    "src/host_providers/mir_builder.rs",
+    "src/host_providers/mir_builder/backend_shape.rs",
+    "src/host_providers/mir_builder/handoff.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
     lines = (root / relative).read_text().splitlines()
