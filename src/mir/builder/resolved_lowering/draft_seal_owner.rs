@@ -46,7 +46,7 @@ pub(super) struct PreparedFunctionDraftSealV1<'builder> {
     close: PreparedFunctionSessionCloseV1<'builder>,
 }
 
-pub(super) struct CompletedFunctionDraftV1 {
+pub(in crate::mir::builder) struct CompletedFunctionDraftV1 {
     draft: MirFunction,
     completion: ReadyFunctionCompletionV1,
     receipt: FunctionDraftSealReceiptV1,
@@ -133,7 +133,7 @@ impl CompletedCatalogedBoxCallableDraftV1 {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(super) enum FunctionDraftSealStageV1 {
+pub(in crate::mir) enum FunctionDraftSealStageV1 {
     Authority,
     Exit,
     PhiClosure,

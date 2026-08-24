@@ -55,7 +55,7 @@ mod s6c_textref_plan;
 #[path = "session/segment_scope.rs"]
 mod segment_scope;
 
-enum CanonicalIfControlConsumptionV1 {
+pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfControlConsumptionV1 {
     Resolved(FunctionIfControlUseLedgerV1),
     // The Dynamic profile's complete operation/control ledger is consumed by
     // the selected physical session before the common terminal is opened.

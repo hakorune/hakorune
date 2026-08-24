@@ -52,7 +52,7 @@ impl std::error::Error for CallableCollectorBatchPrepareErrorV1 {}
 /// Policy is fixed by this type's collector terminal; callers cannot select a
 /// legacy replacement policy for a canonical callable batch.
 #[derive(Debug)]
-pub(in crate::mir::builder) struct CallableCollectorDraftEntryV1 {
+pub(in crate::mir) struct CallableCollectorDraftEntryV1 {
     key: FunctionDraftKeyV1,
     symbol: String,
     arity: usize,
