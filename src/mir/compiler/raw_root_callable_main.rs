@@ -178,7 +178,7 @@ impl RawCallableMainReadyInvocationV1 {
         }
     }
 
-    pub(in crate::mir) fn into_environment_parts(self) -> RawCallableMainReadyEnvironmentPartsV1 {
+    pub(in crate::mir::compiler) fn into_environment_parts(self) -> RawCallableMainReadyEnvironmentPartsV1 {
         match self {
             Self::Script(ready) => {
                 let RawScriptCallableMainReadyInvocationV1 {
