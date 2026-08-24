@@ -15,11 +15,11 @@ use super::{RawRootLedgerStateV1, RawRootPhysicalStateV1};
 
 #[derive(Debug)]
 pub(in crate::mir) enum RawRootPhysicalChildErrorV1 {
-    Request(RawExpansionReceiptLedgerErrorV1),
-    Reservation(RawExpansionReceiptLedgerErrorV1),
-    Child(ModuleLoweringPortChildErrorV1),
-    Ledger(RawExpansionReceiptLedgerErrorV1),
-    Abort(RawExpansionReceiptLedgerErrorV1),
+    Request { _error: RawExpansionReceiptLedgerErrorV1 },
+    Reservation { _error: RawExpansionReceiptLedgerErrorV1 },
+    Child { _error: ModuleLoweringPortChildErrorV1 },
+    Ledger { _error: RawExpansionReceiptLedgerErrorV1 },
+    Abort { _error: RawExpansionReceiptLedgerErrorV1 },
 }
 
 impl RawRootPhysicalStateV1 {
@@ -36,20 +36,20 @@ impl RawRootPhysicalStateV1 {
         ) {
             Ok(request) => request,
             Err(error) => {
-                return Err(RawRootPhysicalChildErrorV1::Request(error));
+                return Err(RawRootPhysicalChildErrorV1::Request { _error: error });
             }
         };
         let reservation = match &mut self.ledger {
             RawRootLedgerStateV1::Open(ledger) => match ledger.reserve(request) {
                 Ok(reservation) => reservation,
                 Err(error) => {
-                    return Err(RawRootPhysicalChildErrorV1::Reservation(error));
+                    return Err(RawRootPhysicalChildErrorV1::Reservation { _error: error });
                 }
             },
             RawRootLedgerStateV1::Aborted(_) | RawRootLedgerStateV1::AbortedPlaceholder => {
-                return Err(RawRootPhysicalChildErrorV1::Request(
-                    RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
-                ));
+                return Err(RawRootPhysicalChildErrorV1::Request {
+                    _error: RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
+                });
             }
         };
         let receipt = match self.physical.complete_raw_static_child(builder, work) {
@@ -63,30 +63,32 @@ impl RawRootPhysicalStateV1 {
                         match ledger.abort(reservation, map_abort_reason(&error)) {
                             Ok(aborted) => aborted,
                             Err(abort_error) => {
-                                return Err(RawRootPhysicalChildErrorV1::Abort(abort_error));
+                                return Err(RawRootPhysicalChildErrorV1::Abort {
+                                    _error: abort_error,
+                                });
                             }
                         }
                     }
                     RawRootLedgerStateV1::Aborted(_) | RawRootLedgerStateV1::AbortedPlaceholder => {
-                        return Err(RawRootPhysicalChildErrorV1::Request(
-                            RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
-                        ));
+                        return Err(RawRootPhysicalChildErrorV1::Request {
+                            _error: RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
+                        });
                     }
                 };
                 self.ledger = RawRootLedgerStateV1::Aborted(aborted);
-                return Err(RawRootPhysicalChildErrorV1::Child(error));
+                return Err(RawRootPhysicalChildErrorV1::Child { _error: error });
             }
         };
         let ledger = match &mut self.ledger {
             RawRootLedgerStateV1::Open(ledger) => ledger,
             RawRootLedgerStateV1::Aborted(_) | RawRootLedgerStateV1::AbortedPlaceholder => {
-                return Err(RawRootPhysicalChildErrorV1::Ledger(
-                    RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
-                ));
+                return Err(RawRootPhysicalChildErrorV1::Ledger {
+                    _error: RawExpansionReceiptLedgerErrorV1::LedgerPoisoned,
+                });
             }
         };
         if let Err(error) = ledger.complete_branded(reservation, &receipt) {
-            return Err(RawRootPhysicalChildErrorV1::Ledger(error));
+            return Err(RawRootPhysicalChildErrorV1::Ledger { _error: error });
         }
         Ok(receipt)
     }
