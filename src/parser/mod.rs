@@ -159,7 +159,7 @@ pub struct NyashParser {
     pub(super) current: usize,
     /// Fresh identity for one parser invocation. Source authority products
     /// must never be reconstructed from token positions or AST names.
-    pub(super) source_invocation_brand: source_authority::ParserInvocationBrandV1,
+    source_invocation_brand: source_authority::ParserInvocationBrandV1,
     callable_parameter_source_session:
         Option<callable_parameter_source::ParserCallableParameterSourceSessionV1>,
     callable_source_session: Option<callable_source_anchor::ParserCallableSourceSessionV1>,
@@ -170,10 +170,10 @@ pub struct NyashParser {
     /// Parser-issued structural path for the currently parsed declaration.
     /// This is richer than the top-level statement cursor because multiple
     /// Boxes may occur inside one build-gate branch.
-    pub(super) active_source_declaration_path: Option<source_authority::SourceBoxDeclarationPathV1>,
+    active_source_declaration_path: Option<source_authority::SourceBoxDeclarationPathV1>,
     pub(super) next_source_build_gate_id: u32,
-    pub(super) source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1,
-    pub(super) prepared_source_build_gate_records:
+    source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1,
+    prepared_source_build_gate_records:
         Vec<source_gate_ledger::PreparedBuildGateSourceRecordV1>,
     pub(super) build_gate_observations: Vec<build_cfg::decision_set::BuildGateObservationV1>,
     /// 🔥 Static box依存関係追跡（循環依存検出用）
@@ -194,7 +194,7 @@ pub struct NyashParser {
     /// Prepared Box source payloads retained until the final postpass.
     /// `source_seal` consumes these exactly once; AST-only paths may discard
     /// them as compatibility projections.
-    pub(super) prepared_source_seals: Vec<source_authority::PreparedBoxSourceSealV1>,
+    prepared_source_seals: Vec<source_authority::PreparedBoxSourceSealV1>,
 }
 
 // ParserUtils trait implementation now lives here (legacy depth tracking removed)
@@ -284,7 +284,7 @@ impl NyashParser {
     /// cohort. The returned product is non-Clone and is finalized only after
     /// build-gate pruning and delegate lowering. Existing AST-only APIs remain
     /// compatibility projections until the later top-level-gate cutover.
-    pub(crate) fn parse_from_string_with_source_seal(
+    fn parse_from_string_with_source_seal(
         input: impl Into<String>,
         build_config: ParserBuildConfig,
     ) -> Result<source_seal::ParsedProgramWithSourceV1, ParseError> {
@@ -321,7 +321,7 @@ impl NyashParser {
         self.parse_postpass_with_demand(postpass_envelope::PostpassDemandV1::default())
     }
 
-    pub(super) fn parse_postpass_with_demand(
+    fn parse_postpass_with_demand(
         &mut self,
         demand: postpass_envelope::PostpassDemandV1,
     ) -> Result<postpass_envelope::CompletedParserPostpassV1, ParseError> {
