@@ -55,18 +55,6 @@ impl VerifiedScriptDirectStaticPhysicalInputRowV1 {
         self.key
     }
 
-    pub(in crate::mir) const fn source_owner(&self) -> FunctionOwnerIdV1 {
-        self.join.source_owner()
-    }
-
-    pub(in crate::mir) const fn call_site(&self) -> &SourceExprSiteV1 {
-        self.join.call_site()
-    }
-
-    pub(in crate::mir) fn argument_sites(&self) -> &[SourceExprSiteV1] {
-        self.join.argument_sites()
-    }
-
     pub(in crate::mir) const fn target(
         &self,
     ) -> &crate::mir::builder::CanonicalSameModuleCallableKeyV1 {
@@ -93,10 +81,7 @@ impl VerifiedScriptDirectStaticPhysicalInputRowV1 {
 pub(in crate::mir) struct VerifiedScriptDirectStaticPhysicalInputV1 {
     source_owner: FunctionOwnerIdV1,
     source_identity: usize,
-    rows: BTreeMap<
-        ScriptDirectStaticRecipeKeyV1,
-        VerifiedScriptDirectStaticPhysicalInputRowV1,
-    >,
+    rows: BTreeMap<ScriptDirectStaticRecipeKeyV1, VerifiedScriptDirectStaticPhysicalInputRowV1>,
 }
 
 impl VerifiedScriptDirectStaticPhysicalInputV1 {
@@ -104,10 +89,7 @@ impl VerifiedScriptDirectStaticPhysicalInputV1 {
     pub(in crate::mir) fn from_parts_for_test(
         source_owner: FunctionOwnerIdV1,
         source_identity: usize,
-        rows: BTreeMap<
-            ScriptDirectStaticRecipeKeyV1,
-            VerifiedScriptDirectStaticPhysicalInputRowV1,
-        >,
+        rows: BTreeMap<ScriptDirectStaticRecipeKeyV1, VerifiedScriptDirectStaticPhysicalInputRowV1>,
     ) -> Self {
         Self {
             source_owner,
@@ -132,9 +114,9 @@ impl VerifiedScriptDirectStaticPhysicalInputV1 {
         let mut rows = BTreeMap::new();
         for (key, join_row) in join.rows() {
             let Some(arguments) = operands.row(*key) else {
-                return Err(VerifiedScriptDirectStaticPhysicalInputIssueV1::OperandRowMissing(
-                    *key,
-                ));
+                return Err(
+                    VerifiedScriptDirectStaticPhysicalInputIssueV1::OperandRowMissing(*key),
+                );
             };
             if arguments.len() != join_row.argument_sites().len() {
                 return Err(
@@ -143,10 +125,8 @@ impl VerifiedScriptDirectStaticPhysicalInputV1 {
                     ),
                 );
             }
-            for (ordinal, (argument, expected_site)) in arguments
-                .iter()
-                .zip(join_row.argument_sites())
-                .enumerate()
+            for (ordinal, (argument, expected_site)) in
+                arguments.iter().zip(join_row.argument_sites()).enumerate()
             {
                 let ordinal = ordinal as u32;
                 if argument.ordinal() != ordinal {
@@ -172,9 +152,7 @@ impl VerifiedScriptDirectStaticPhysicalInputV1 {
                 arguments: arguments.to_vec().into_boxed_slice(),
             };
             if rows.insert(*key, row).is_some() {
-                return Err(VerifiedScriptDirectStaticPhysicalInputIssueV1::DuplicateKey(
-                    *key,
-                ));
+                return Err(VerifiedScriptDirectStaticPhysicalInputIssueV1::DuplicateKey(*key));
             }
         }
         Ok(Self {
@@ -184,46 +162,25 @@ impl VerifiedScriptDirectStaticPhysicalInputV1 {
         })
     }
 
-    pub(in crate::mir) const fn source_owner(&self) -> FunctionOwnerIdV1 {
-        self.source_owner
-    }
-
-    pub(in crate::mir) const fn source_identity(&self) -> usize {
-        self.source_identity
-    }
-
     pub(in crate::mir) fn row(
         &self,
         key: ScriptDirectStaticRecipeKeyV1,
     ) -> Option<&VerifiedScriptDirectStaticPhysicalInputRowV1> {
         self.rows.get(&key)
     }
-
-    pub(in crate::mir) fn rows(
-        &self,
-    ) -> impl Iterator<
-        Item = (
-            &ScriptDirectStaticRecipeKeyV1,
-            &VerifiedScriptDirectStaticPhysicalInputRowV1,
-        ),
-    > {
-        self.rows.iter()
-    }
-
-    pub(in crate::mir) fn len(&self) -> usize {
-        self.rows.len()
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::mir::builder::normal_script_direct_static_join_handoff::ScalarOperandRecipeNodeV1;
     use crate::mir::builder::normal_script_direct_static_recipe::{
         ScriptDirectStaticRecipeDestinationV1, ScriptDirectStaticRecipeKeyV1,
     };
-    use crate::mir::builder::normal_script_direct_static_join_handoff::ScalarOperandRecipeNodeV1;
     use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
-    use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourcePathSegmentV1, SourcePathV1};
+    use crate::mir::resolved_semantics::{
+        FunctionOwnerIssuerV1, SourcePathSegmentV1, SourcePathV1,
+    };
     use std::collections::BTreeMap;
 
     fn fixture() -> (
@@ -309,10 +266,12 @@ mod tests {
         let operands = operands.with_argument_site_for_test(key, wrong_site);
         assert_eq!(
             VerifiedScriptDirectStaticPhysicalInputV1::issue(&handoff, &operands),
-            Err(VerifiedScriptDirectStaticPhysicalInputIssueV1::ArgumentSiteMismatch {
-                key,
-                ordinal: 0,
-            })
+            Err(
+                VerifiedScriptDirectStaticPhysicalInputIssueV1::ArgumentSiteMismatch {
+                    key,
+                    ordinal: 0,
+                }
+            )
         );
     }
 }

@@ -74,14 +74,6 @@ impl VerifiedScriptDirectStaticResultDemandV1 {
         }
     }
 
-    pub(super) const fn source_owner(&self) -> FunctionOwnerIdV1 {
-        self.source_owner
-    }
-
-    pub(super) const fn site(&self) -> &SourceExprSiteV1 {
-        &self.site
-    }
-
     pub(super) const fn receiver_site(&self) -> &SourceExprSiteV1 {
         &self.receiver_site
     }
@@ -288,13 +280,6 @@ impl VerifiedScriptDirectStaticResultBundleV1 {
 
     pub(super) const fn source_owner(&self) -> FunctionOwnerIdV1 {
         self.source_owner
-    }
-
-    pub(super) fn demand(
-        &self,
-        site: &SourceExprSiteV1,
-    ) -> Option<&VerifiedScriptDirectStaticResultDemandV1> {
-        self.rows.get(site)
     }
 
     pub(super) fn rows(

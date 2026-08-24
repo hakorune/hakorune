@@ -17,8 +17,8 @@ use super::normal_script_semantic_source_core::{
 use super::normal_script_source_continuation::VerifiedScriptSourceContinuationV1;
 use crate::mir::compiler::source_projection::VerifiedSourceProjectionV1;
 use crate::mir::resolved_semantics::{
-    BindingRefV1, SourceNodeSiteV1, VerifiedScriptRootDemandWindowV1,
-    VerifiedSemanticOwnerForestV1, VerifiedSemanticOwnerProductV1,
+    BindingRefV1, VerifiedScriptRootDemandWindowV1, VerifiedSemanticOwnerForestV1,
+    VerifiedSemanticOwnerProductV1,
 };
 #[cfg(test)]
 use crate::mir::resolved_semantics::{
@@ -216,14 +216,6 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
     }
 
     #[cfg(test)]
-    pub(super) fn static_const_completion_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
-        self.boundaries
-            .static_const_completions()
-            .iter()
-            .map(|receipt| &receipt.site)
-    }
-
-    #[cfg(test)]
     pub(super) fn existing_diagnostic_sites(&self) -> impl Iterator<Item = &SourceStmtSiteV1> {
         self.boundaries
             .existing_diagnostic_boundaries()
@@ -259,14 +251,6 @@ impl<'source> VerifiedScriptSemanticSourceV1<'source> {
                 receipt.boundary == ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported
             })
             .map(|receipt| &receipt.site)
-    }
-
-    pub(super) fn local_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        self.lowering_projection.local_binding_at(site)
-    }
-
-    pub(super) fn variable_binding_at(&self, site: &SourceNodeSiteV1) -> Option<BindingRefV1> {
-        self.lowering_projection.variable_binding_at(site)
     }
 
     pub(super) fn into_lowering_parts(

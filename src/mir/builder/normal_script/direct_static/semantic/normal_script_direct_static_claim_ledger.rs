@@ -10,9 +10,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 
 use super::super::normal_script_direct_static_join_handoff::{
-    ScriptDirectStaticRequiredArgumentProofDispositionV1,
-    VerifiedScriptDirectStaticJoinHandoffV1, VerifiedScriptDirectStaticJoinRowV1,
-    VerifiedScriptDirectStaticRequiredArgumentProofV1,
+    ScriptDirectStaticRequiredArgumentProofDispositionV1, VerifiedScriptDirectStaticJoinHandoffV1,
+    VerifiedScriptDirectStaticJoinRowV1, VerifiedScriptDirectStaticRequiredArgumentProofV1,
 };
 use super::super::normal_script_direct_static_recipe::ScriptDirectStaticRecipeKeyV1;
 use super::super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
@@ -50,14 +49,6 @@ pub(in crate::mir::builder) struct ScriptDirectStaticClaimedRowV1 {
 }
 
 impl ScriptDirectStaticClaimedRowV1 {
-    /// Read-only handoff view for the future physical consumer.
-    ///
-    /// The row is still owned by this non-Clone claim token.  Exposing a
-    /// reference does not transfer, duplicate, or re-issue the semantic row.
-    pub(in crate::mir::builder) const fn row(&self) -> &VerifiedScriptDirectStaticJoinRowV1 {
-        &self.row
-    }
-
     pub(in crate::mir::builder) const fn site(&self) -> &SourceExprSiteV1 {
         self.row.call_site()
     }
@@ -80,12 +71,6 @@ impl ScriptDirectStaticClaimedRowV1 {
 
     pub(in crate::mir::builder) fn required_callee_i64_arguments(&self) -> &[u32] {
         self.row.required_callee_i64_arguments()
-    }
-
-    pub(in crate::mir::builder) const fn required_argument_proof(
-        &self,
-    ) -> &ScriptDirectStaticRequiredArgumentProofDispositionV1 {
-        &self.required_argument_proof
     }
 
     pub(in crate::mir::builder) fn consume_required_argument_proof(
@@ -234,9 +219,7 @@ impl ScriptDirectStaticClaimLedgerV1 {
             let required_argument_proof = if let Some(proof) = proof.as_ref() {
                 let Some(proof_row) = proof.row(*key) else {
                     return Err(
-                        ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofRowMissing(
-                            *key,
-                        ),
+                        ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofRowMissing(*key),
                     );
                 };
                 if proof_row.call_site() != &site {
@@ -266,12 +249,10 @@ impl ScriptDirectStaticClaimLedgerV1 {
             }
         }
         if let Some(proof) = proof.as_ref() {
-        for (key, _proof_row) in proof.rows() {
+            for (key, _proof_row) in proof.rows() {
                 if !handoff.rows().any(|(row_key, _)| row_key == key) {
                     return Err(
-                        ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofForeignKey(
-                            *key,
-                        ),
+                        ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofForeignKey(*key),
                     );
                 }
             }
@@ -361,9 +342,9 @@ impl ScriptDirectStaticClaimLedgerV1 {
     ) -> Result<(), ScriptDirectStaticClaimLedgerIssueV1> {
         let site = claimed.site().clone();
         if !claimed.required_argument_proof_consumed {
-            return Err(ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofUnconsumed(
-                site,
-            ));
+            return Err(
+                ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofUnconsumed(site),
+            );
         }
         let Self::DirectStaticClaims {
             in_flight,
@@ -371,7 +352,9 @@ impl ScriptDirectStaticClaimLedgerV1 {
             ..
         } = self
         else {
-            return Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(site));
+            return Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(
+                site,
+            ));
         };
         if !in_flight.remove(&site) {
             return Err(ScriptDirectStaticClaimLedgerIssueV1::UnknownClaimState);

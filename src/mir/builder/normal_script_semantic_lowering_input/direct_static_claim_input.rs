@@ -5,8 +5,7 @@
 //! complete nonempty downstream product pack.
 
 use super::super::normal_script_direct_static_join_handoff::{
-    VerifiedScriptDirectStaticJoinHandoffV1,
-    VerifiedScriptDirectStaticRequiredArgumentProofV1,
+    VerifiedScriptDirectStaticJoinHandoffV1, VerifiedScriptDirectStaticRequiredArgumentProofV1,
 };
 use super::super::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
 use super::super::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
@@ -45,11 +44,6 @@ impl CanonicalScriptANonDirectRowV1 {
     pub(in crate::mir::builder) fn site(&self) -> &SourceExprSiteV1 {
         &self.site
     }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) const fn reason(&self) -> VerifiedScriptNonDirectCallReasonV1 {
-        self.reason
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -84,16 +78,6 @@ impl CanonicalScriptCNoDirectClaimsV1 {
             non_direct_rows,
             _seal: CanonicalScriptCNoDirectClaimsSealV1,
         }
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) const fn kind(&self) -> CanonicalScriptACompleteZeroKindV1 {
-        self.kind
-    }
-
-    #[cfg(test)]
-    pub(in crate::mir::builder) const fn observed_method_calls(&self) -> usize {
-        self.observed_method_calls
     }
 
     #[cfg(test)]

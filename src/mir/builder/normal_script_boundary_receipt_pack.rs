@@ -10,7 +10,7 @@ use crate::mir::resolved_semantics::{
 #[derive(Debug)]
 pub(super) struct ScriptBoundaryReceiptPackV1 {
     outbox_materializations: Box<[VerifiedScriptOutboxMaterializationV1]>,
-    static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
+    _static_const_completions: Box<[VerifiedScriptStaticConstCompletionV1]>,
     using_directives: Box<[VerifiedScriptUsingDirectiveV1]>,
     existing_diagnostic_boundaries: Box<[VerifiedScriptExistingDiagnosticBoundaryV1]>,
     runtime_source_indices: Box<[usize]>,
@@ -18,7 +18,7 @@ pub(super) struct ScriptBoundaryReceiptPackV1 {
 
 #[derive(Debug)]
 pub(super) struct VerifiedScriptStaticConstCompletionV1 {
-    pub(super) site: SourceStmtSiteV1,
+    pub(super) _site: SourceStmtSiteV1,
 }
 
 #[derive(Debug)]
@@ -90,7 +90,7 @@ impl ScriptBoundaryReceiptPackV1 {
                     ScriptTransferredBoundaryV1::ProgramStaticMetadata,
                 ) if matches!(statement, ASTNode::StaticConstTable { .. }) => {
                     static_const_completions.push(VerifiedScriptStaticConstCompletionV1 {
-                        site: entry.site().clone(),
+                        _site: entry.site().clone(),
                     });
                 }
                 ScriptRootSemanticDispositionV1::Transferred(
@@ -170,7 +170,7 @@ impl ScriptBoundaryReceiptPackV1 {
         }
         Ok(Self {
             outbox_materializations: outbox_materializations.into_boxed_slice(),
-            static_const_completions: static_const_completions.into_boxed_slice(),
+            _static_const_completions: static_const_completions.into_boxed_slice(),
             using_directives: using_directives.into_boxed_slice(),
             existing_diagnostic_boundaries: existing_diagnostic_boundaries.into_boxed_slice(),
             runtime_source_indices: runtime_source_indices.into_boxed_slice(),
@@ -183,10 +183,6 @@ impl ScriptBoundaryReceiptPackV1 {
 
     pub(super) fn outbox_materializations(&self) -> &[VerifiedScriptOutboxMaterializationV1] {
         &self.outbox_materializations
-    }
-
-    pub(super) fn static_const_completions(&self) -> &[VerifiedScriptStaticConstCompletionV1] {
-        &self.static_const_completions
     }
 
     pub(super) fn using_directives(&self) -> &[VerifiedScriptUsingDirectiveV1] {

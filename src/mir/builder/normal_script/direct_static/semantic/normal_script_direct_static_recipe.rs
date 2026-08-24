@@ -37,10 +37,6 @@ impl ScriptDirectStaticRecipeKeyV1 {
     pub(super) const fn from_ordinal_for_test(ordinal: u32) -> Self {
         Self(ordinal)
     }
-
-    pub(super) const fn ordinal(self) -> u32 {
-        self.0
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -92,10 +88,6 @@ impl VerifiedScriptDirectStaticRecipeDemandV1 {
             representation,
             required_callee_i64_arguments,
         }
-    }
-
-    pub(super) const fn key(&self) -> ScriptDirectStaticRecipeKeyV1 {
-        self.key
     }
 
     pub(super) const fn source_owner(&self) -> FunctionOwnerIdV1 {
