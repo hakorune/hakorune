@@ -1127,3 +1127,17 @@ boundary. The focused `normal_root_execution` suite passes 19 tests, all five
 reusable guards remain green, and the test fingerprint moved from 838 to 834
 warnings (`private_interfaces=102`, `private_bounds=6`; non-structural lint
 categories remain zero).
+
+The following source-bound compiler visibility slice is landed as
+`fa4b65ea09`:
+
+```text
+fa4b65ea09  refactor: narrow source bound compiler visibility
+```
+
+Manifest projection and source-binding rejection accessors are consumed only
+inside the compiler module tree, so their visibility now matches the private
+manifest/error products. The focused `normal_root_execution` suite passes 19
+tests, all five reusable guards remain green, and the test fingerprint moved
+from 834 to 831 warnings (`private_interfaces=99`, `private_bounds=6`; all
+non-structural lint categories remain zero).
