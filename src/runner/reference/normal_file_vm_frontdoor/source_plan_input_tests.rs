@@ -490,12 +490,10 @@ fn canonical_core_callable_direct_call_rejects_at_its_existing_preflight_and_reu
         rejected.stage(),
         crate::mir::CanonicalCoreDispatchStageV1::Callable
     );
-    assert!(matches!(
-        rejected.cause(),
-        crate::mir::CanonicalCoreDispatchErrorV1::Callable(
-            crate::mir::CanonicalCallableDispatchStageV1::MainPlan
-        )
-    ));
+    assert_eq!(
+        rejected.callable_stage(),
+        Some(crate::mir::CanonicalCallableDispatchStageV1::MainPlan)
+    );
     assert_eq!(rejected.receipt_counts(), (1, 1));
     rejected.discard();
 
@@ -565,12 +563,10 @@ fn canonical_core_reuses_one_compiler_after_callable_rejection_and_program_fault
     let rejected = compiler
         .compile_canonical_core_source_plan(request("reuse-direct-call.hako", direct_call))
         .expect_err("direct call remains a typed capability rejection");
-    assert!(matches!(
-        rejected.cause(),
-        crate::mir::CanonicalCoreDispatchErrorV1::Callable(
-            crate::mir::CanonicalCallableDispatchStageV1::MainPlan
-        )
-    ));
+    assert_eq!(
+        rejected.callable_stage(),
+        Some(crate::mir::CanonicalCallableDispatchStageV1::MainPlan)
+    );
     rejected.discard();
 
     let fault = compiler

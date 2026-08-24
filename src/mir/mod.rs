@@ -73,7 +73,7 @@ pub(crate) mod shared_loop_source_window;
 pub(crate) mod test_support;
 #[allow(unused_imports)]
 pub(crate) use compiler::canonical_core_dispatch::{
-    CanonicalCallableDispatchStageV1, CanonicalCoreDispatchErrorV1, CanonicalCoreDispatchStageV1,
+    CanonicalCallableDispatchStageV1, CanonicalCoreDispatchStageV1,
     CanonicalCoreInvocationFailureReportV1, CanonicalCoreSourcePlanCompileRequestV1,
     NormalSourcePlanReceiptV1, VerifiedCanonicalCoreSourcePlanAdmissionV1,
 };

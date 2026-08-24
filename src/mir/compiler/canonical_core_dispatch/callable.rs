@@ -25,7 +25,7 @@ use super::{
 const CANONICAL_CORE_SINGLE_FILE_UNIT_ORDINAL: u32 = 0;
 
 #[derive(Debug)]
-pub(super) enum RejectedCanonicalCallableDispatchV1 {
+pub(in crate::mir) enum RejectedCanonicalCallableDispatchV1 {
     Source(RejectedNormalCallableSourceV1),
     Catalog(RejectedNormalCallableCatalogSourceV1),
     MainCatalog(RejectedNormalMainDirectCallSourceV1),

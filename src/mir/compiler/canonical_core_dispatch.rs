@@ -67,7 +67,7 @@ pub(crate) enum CanonicalCallableDispatchStageV1 {
 }
 
 #[derive(Debug)]
-pub(crate) enum CanonicalCoreDispatchErrorV1 {
+pub(in crate::mir) enum CanonicalCoreDispatchErrorV1 {
     MainSource(NormalMainFunctionSourceErrorV1),
     MainResolution(NormalMainResolvedSourceErrorV1),
     MainFunction(NormalMainFunctionPlanErrorV1),
@@ -83,7 +83,7 @@ pub(crate) enum CanonicalCoreDispatchErrorV1 {
 
 /// The complete source/profile/receipt owner retained by a dispatch rejection.
 #[derive(Debug)]
-pub(crate) enum RetainedCanonicalCoreSourcePlanOwnerV1 {
+pub(in crate::mir) enum RetainedCanonicalCoreSourcePlanOwnerV1 {
     Plan {
         plan: SealedNormalSourcePlanV1,
         admission: VerifiedCanonicalCoreSourcePlanAdmissionV1,
@@ -118,8 +118,15 @@ impl RejectedCanonicalCoreNormalDispatchV1 {
         self.stage
     }
 
-    pub(crate) fn cause(&self) -> &CanonicalCoreDispatchErrorV1 {
+    pub(in crate::mir) fn cause(&self) -> &CanonicalCoreDispatchErrorV1 {
         &self.cause
+    }
+
+    pub(crate) fn callable_stage(&self) -> Option<CanonicalCallableDispatchStageV1> {
+        match &self.cause {
+            CanonicalCoreDispatchErrorV1::Callable(stage) => Some(*stage),
+            _ => None,
+        }
     }
 
     pub(crate) fn discard(self) {
@@ -505,7 +512,7 @@ impl MirCompiler {
 
     /// Consume one sealed source plan through its sole family dispatch and
     /// the shared canonical publication core. VM execution remains later.
-    pub(crate) fn compile_canonical_core_source_plan_to_published(
+    pub(in crate::mir) fn compile_canonical_core_source_plan_to_published(
         &mut self,
         request: CanonicalCoreSourcePlanCompileRequestV1,
     ) -> Result<
