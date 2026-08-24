@@ -160,8 +160,6 @@ fn non_i64_result_annotation_is_not_reclassified_as_a_physical_header() {
     let issue = issue("static box Api { run(value: i64): i32 { return value } }");
     assert!(matches!(
         issue,
-        Err(super::NormalCallableSemanticPackageIssueV1::PhysicalHeader(
-            _
-        ))
+        Err(super::NormalCallableSemanticPackageIssueV1::PhysicalHeader { _error: _ })
     ));
 }

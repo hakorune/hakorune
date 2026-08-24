@@ -41,15 +41,33 @@ use crate::parser::CallableDeclarationIdentityV1;
 
 #[derive(Debug)]
 pub(in crate::mir) enum S6CSemanticChildIssueV1 {
-    BatchLoan { _error: ResolvedCallableSemanticBatchLoanErrorV1 },
-    TypedSource { _error: S6CTypedInputRelationRejectV1 },
-    CallRelation { _error: S6CSourceBoundCallRelationRejectV1 },
-    ExitTail { _error: S6CExitTailSourceCoSealRejectV1 },
-    Facts { _error: S6CScanWithInitFactsRejectV1 },
-    Recipe { _error: S6CScanWithInitRecipeProducerRejectV2 },
-    Logical { _detail: &'static str },
-    Ingress { _error: S6CPrephysicalIngressRejectV2 },
-    PhysicalEffects { _error: S6CPhysicalFunctionEffectsRejectV1 },
+    BatchLoan {
+        _error: ResolvedCallableSemanticBatchLoanErrorV1,
+    },
+    TypedSource {
+        _error: S6CTypedInputRelationRejectV1,
+    },
+    CallRelation {
+        _error: S6CSourceBoundCallRelationRejectV1,
+    },
+    ExitTail {
+        _error: S6CExitTailSourceCoSealRejectV1,
+    },
+    Facts {
+        _error: S6CScanWithInitFactsRejectV1,
+    },
+    Recipe {
+        _error: S6CScanWithInitRecipeProducerRejectV2,
+    },
+    Logical {
+        _detail: &'static str,
+    },
+    Ingress {
+        _error: S6CPrephysicalIngressRejectV2,
+    },
+    PhysicalEffects {
+        _error: S6CPhysicalFunctionEffectsRejectV1,
+    },
     MissingCompletionSeed,
     DuplicateCandidate,
     ResultMismatch,
@@ -219,10 +237,8 @@ fn issue_s6c_child_for_row(
             };
             let mut targets =
                 CoreMethodInstanceTargetIssuerV1::string_box_text(CORE_METHOD_MANIFEST_BRAND_V2)
-                    .map_err(|_| {
-                        S6CSemanticChildIssueV1::CallRelation {
-                            _error: S6CSourceBoundCallRelationRejectV1::MixedManifestBrand,
-                        }
+                    .map_err(|_| S6CSemanticChildIssueV1::CallRelation {
+                        _error: S6CSourceBoundCallRelationRejectV1::MixedManifestBrand,
                     })?;
             let length_row = issue_core_method_manifest_row_ref_v2(CoreMethodOp::StringLen, 0)
                 .ok_or(S6CSemanticChildIssueV1::CallRelation {
@@ -232,15 +248,16 @@ fn issue_s6c_child_for_row(
                         arity: 0,
                     },
                 })?;
-            let length = targets.issue(length_row).map_err(|_| {
-                S6CSemanticChildIssueV1::CallRelation {
-                    _error: S6CSourceBoundCallRelationRejectV1::WrongTargetRole {
-                        role: crate::mir::source_call_target::S6CSourceBoundCallRoleV1::Length,
-                        op: CoreMethodOp::StringLen,
-                        arity: 0,
-                    },
-                }
-            })?;
+            let length =
+                targets
+                    .issue(length_row)
+                    .map_err(|_| S6CSemanticChildIssueV1::CallRelation {
+                        _error: S6CSourceBoundCallRelationRejectV1::WrongTargetRole {
+                            role: crate::mir::source_call_target::S6CSourceBoundCallRoleV1::Length,
+                            op: CoreMethodOp::StringLen,
+                            arity: 0,
+                        },
+                    })?;
             let substring_row = issue_core_method_manifest_row_ref_v2(
                 CoreMethodOp::StringSubstring,
                 2,
@@ -272,29 +289,28 @@ fn issue_s6c_child_for_row(
                 .with_source_ledger(|ledger| {
                     let calls =
                         issue_source_bound_s6c_call_relation_v1(&ledger, typed, length, substring)
-                            .map_err(|error| S6CSemanticChildIssueV1::CallRelation { _error: error })?;
+                            .map_err(|error| S6CSemanticChildIssueV1::CallRelation {
+                                _error: error,
+                            })?;
                     issue_s6c_exit_tail_source_coseal_v1(&ledger, calls, seed.take_completion())
                         .map_err(|error| S6CSemanticChildIssueV1::ExitTail { _error: error })
                 })
-                .map_err(|issue| {
-                    S6CSemanticChildIssueV1::TypedSource {
-                        _error: S6CTypedInputRelationRejectV1::SourceLedger(issue),
-                    }
+                .map_err(|issue| S6CSemanticChildIssueV1::TypedSource {
+                    _error: S6CTypedInputRelationRejectV1::SourceLedger(issue),
                 })??;
             let facts = issue_s6c_scan_with_init_facts_v1(coseal)
                 .map_err(|error| S6CSemanticChildIssueV1::Facts { _error: error })?;
             let recipe = produce_s6c_scan_with_init_recipe_v2(facts)
                 .map_err(|error| S6CSemanticChildIssueV1::Recipe { _error: error })?;
-            let output = issue_s6c_scan_with_init_logical_output_v1(recipe)
-                .map_err(|_| S6CSemanticChildIssueV1::Logical {
+            let output = issue_s6c_scan_with_init_logical_output_v1(recipe).map_err(|_| {
+                S6CSemanticChildIssueV1::Logical {
                     _detail: "logical output",
-                })?;
+                }
+            })?;
             let ingress = issue_s6c_prephysical_ingress_v2(output)
                 .map_err(|error| S6CSemanticChildIssueV1::Ingress { _error: error })?;
             let physical_effects = issue_s6c_physical_function_effects_v1(&ingress, owner)
-                .map_err(|error| {
-                    S6CSemanticChildIssueV1::PhysicalEffects { _error: error }
-                })?;
+                .map_err(|error| S6CSemanticChildIssueV1::PhysicalEffects { _error: error })?;
             Ok(Some(VerifiedS6CSemanticChildV1 {
                 batch_slot,
                 owner,

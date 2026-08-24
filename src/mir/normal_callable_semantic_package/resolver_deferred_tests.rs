@@ -43,11 +43,12 @@ fn constructor_resolver_deferred_keeps_the_exact_parser_source_id() {
         .expect("constructor identity loan");
     let mut resolver = FunctionSemanticResolverSessionV1::new(94).unwrap();
     let deferred = match issue_normal_callable_semantic_package_v1(&mut resolver, source) {
-        Err(NormalCallableSemanticPackageIssueV1::InstanceConstructors(
-            super::instance_constructor_semantic::InstanceConstructorSemanticBatchIssueV1::ResolverDeferred(
-                deferred,
-            ),
-        )) => deferred,
+        Err(NormalCallableSemanticPackageIssueV1::InstanceConstructors {
+            _error:
+                super::instance_constructor_semantic::InstanceConstructorSemanticBatchIssueV1::ResolverDeferred(
+                    deferred,
+                ),
+        }) => deferred,
         other => panic!("expected constructor resolver deferral, got {other:?}"),
     };
 
@@ -95,11 +96,12 @@ fn constructor_construction_reject_keeps_the_exact_parser_source_id() {
         source,
         Some(&catalog),
     ) {
-        Err(NormalCallableSemanticPackageIssueV1::InstanceConstructors(
-            super::instance_constructor_semantic::InstanceConstructorSemanticBatchIssueV1::Resolver(
-                reject,
-            ),
-        )) => reject,
+        Err(NormalCallableSemanticPackageIssueV1::InstanceConstructors {
+            _error:
+                super::instance_constructor_semantic::InstanceConstructorSemanticBatchIssueV1::Resolver(
+                    reject,
+                ),
+        }) => reject,
         other => panic!("expected constructor construction reject, got {other:?}"),
     };
 
