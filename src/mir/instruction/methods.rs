@@ -215,21 +215,12 @@ impl MirInstruction {
             callee, func, args, ..
         } = self
         {
-            use crate::mir::definitions::call_unified::Callee;
             let mut used: Vec<ValueId> = Vec::new();
-            match callee {
-                // Unified path: Callee::Method with receiver
-                Some(Callee::Method {
-                    receiver: Some(r), ..
-                }) => {
-                    used.push(*r);
-                }
-                // Legacy path: func ValueId is the callable
-                None => {
-                    used.push(*func);
-                }
-                // Other Callee variants (Global, Value, Extern) - no extra used values
-                _ => {}
+            if let Some(callee) = callee {
+                callee.for_each_value_operand(|value| used.push(value));
+            } else {
+                // Legacy path: func ValueId is the callable.
+                used.push(*func);
             }
             used.extend(args.iter().copied());
             return used;

@@ -111,6 +111,60 @@ fn test_call_instruction() {
 }
 
 #[test]
+fn typed_call_used_values_project_callee_operands_before_args() {
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::definitions::Callee;
+
+    let typed_func_sentinel = ValueId::new(99);
+    let args = vec![ValueId::new(40), ValueId::new(41)];
+    let cases = vec![
+        (Callee::Global("global".to_string()), vec![]),
+        (Callee::Extern("env.extern".to_string()), vec![]),
+        (
+            Callee::Constructor {
+                box_type: "Box".to_string(),
+            },
+            vec![],
+        ),
+        (
+            Callee::Method {
+                box_name: "Box".to_string(),
+                method: "method".to_string(),
+                receiver: Some(ValueId::new(10)),
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::RuntimeData,
+            },
+            vec![ValueId::new(10)],
+        ),
+        (Callee::Value(ValueId::new(20)), vec![ValueId::new(20)]),
+        (
+            Callee::Closure {
+                params: vec!["x".to_string()],
+                captures: vec![
+                    ("a".to_string(), ValueId::new(30)),
+                    ("b".to_string(), ValueId::new(30)),
+                ],
+                me_capture: Some(ValueId::new(31)),
+            },
+            vec![ValueId::new(30), ValueId::new(30), ValueId::new(31)],
+        ),
+    ];
+
+    for (callee, target_values) in cases {
+        let inst = MirInstruction::Call {
+            dst: Some(ValueId::new(1)),
+            func: typed_func_sentinel,
+            callee: Some(callee),
+            args: args.clone(),
+            effects: EffectMask::PURE,
+        };
+        let mut expected = target_values;
+        expected.extend(args.iter().copied());
+        assert_eq!(inst.used_values(), expected);
+    }
+}
+
+#[test]
 fn test_call_instruction_extern_name() {
     let inst = MirInstruction::Call {
         dst: None,

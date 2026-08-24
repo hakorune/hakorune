@@ -91,6 +91,37 @@ impl Callee {
         }
     }
 
+    /// Visit every embedded ValueId in the canonical occurrence order.
+    ///
+    /// This is the immutable counterpart to `rewrite_value_operands`: method
+    /// receivers, first-class value targets, and closure captures are exposed
+    /// without allowing consumers to reinterpret the target shape. Duplicate
+    /// occurrences are visited independently, and target-less variants are
+    /// explicit no-ops.
+    pub fn for_each_value_operand(&self, mut visit: impl FnMut(ValueId)) {
+        match self {
+            Callee::Global(_) | Callee::Extern(_) | Callee::Constructor { .. } => {}
+            Callee::Method { receiver, .. } => {
+                if let Some(receiver) = receiver {
+                    visit(*receiver);
+                }
+            }
+            Callee::Closure {
+                captures,
+                me_capture,
+                ..
+            } => {
+                for (_, capture) in captures {
+                    visit(*capture);
+                }
+                if let Some(me_capture) = me_capture {
+                    visit(*me_capture);
+                }
+            }
+            Callee::Value(value) => visit(*value),
+        }
+    }
+
     /// Rewrite every embedded ValueId in the canonical occurrence order.
     ///
     /// The order is part of the call-shape contract: a method receiver, a
@@ -237,6 +268,48 @@ mod tests {
         for shape in &mut shapes {
             let mut calls = 0;
             shape.rewrite_value_operands(|_| calls += 1);
+            assert_eq!(calls, 0);
+        }
+    }
+
+    #[test]
+    fn callee_for_each_value_operand_preserves_occurrence_order_and_duplicates() {
+        let callee = Callee::Closure {
+            params: vec!["x".to_string()],
+            captures: vec![
+                ("a".to_string(), ValueId::new(7)),
+                ("b".to_string(), ValueId::new(7)),
+            ],
+            me_capture: Some(ValueId::new(9)),
+        };
+        let mut visited = Vec::new();
+        callee.for_each_value_operand(|value| visited.push(value));
+
+        assert_eq!(
+            visited,
+            vec![ValueId::new(7), ValueId::new(7), ValueId::new(9)]
+        );
+    }
+
+    #[test]
+    fn callee_for_each_value_operand_is_empty_for_targetless_and_missing_receiver_shapes() {
+        let shapes = vec![
+            Callee::Global("f".to_string()),
+            Callee::Extern("env.f".to_string()),
+            Callee::Constructor {
+                box_type: "Box".to_string(),
+            },
+            Callee::Method {
+                box_name: "Box".to_string(),
+                method: "f".to_string(),
+                receiver: None,
+                certainty: TypeCertainty::Known,
+                box_kind: CalleeBoxKind::UserDefined,
+            },
+        ];
+        for shape in &shapes {
+            let mut calls = 0;
+            shape.for_each_value_operand(|_| calls += 1);
             assert_eq!(calls, 0);
         }
     }

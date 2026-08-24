@@ -58,10 +58,15 @@ require "$MIR_V0_CATALOG" "JsonV0FunctionCatalog"
 require "$MIR_V0_CATALOG" "ConstValue::String"
 require "$MIR_V0_MODULE" "JsonV0FunctionCatalog::from_function"
 require "$CALLEE_DEFS" "pub fn rewrite_value_operands"
+require "$CALLEE_DEFS" "pub fn for_each_value_operand"
 require "$SIMPLIFY_FLOW" "callee.rewrite_value_operands"
 require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_preserves_typed_targets_and_args"
 require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_keeps_targetless_callees_empty"
 require "$SIMPLIFY_FLOW" "simplify_cfg_call_use_rewrite_preserves_legacy_func_parity"
+require "$METHODS" "callee.for_each_value_operand"
+require "$ROOT_DIR/src/mir/instruction/tests.rs" "typed_call_used_values_project_callee_operands_before_args"
+require "$CALLEE_DEFS" "callee_for_each_value_operand_preserves_occurrence_order_and_duplicates"
+require "$CALLEE_DEFS" "callee_for_each_value_operand_is_empty_for_targetless_and_missing_receiver_shapes"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -101,6 +106,7 @@ for relative in (
     "src/runner/product/llvm/mod.rs",
     "crates/hakorune_mir_defs/src/call_unified.rs",
     "src/mir/passes/simplify_cfg/flow.rs",
+    "src/mir/instruction/tests.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
     lines = (root / relative).read_text().splitlines()
@@ -150,7 +156,7 @@ for required in ("func: ValueId::INVALID", "callee: Some(callee)"):
         raise SystemExit(f"canonical Call constructor drifted: {required}")
 
 callee = (root / "crates/hakorune_mir_defs/src/call_unified.rs").read_text()
-projection_start = callee.index("pub fn rewrite_value_operands")
+projection_start = callee.index("pub fn for_each_value_operand")
 projection_end = callee.index("/// Call flags", projection_start)
 projection = callee[projection_start:projection_end]
 for token in (
@@ -165,6 +171,8 @@ for token in (
         raise SystemExit(f"Callee projection lost explicit variant: {token}")
 if "_ =>" in projection:
     raise SystemExit("Callee projection introduced a wildcard variant arm")
+if "pub fn rewrite_value_operands" not in projection:
+    raise SystemExit("Callee projection lost mutable rewrite facet")
 
 flow = (root / "src/mir/passes/simplify_cfg/flow.rs").read_text()
 rewrite_start = flow.index("fn rewrite_value_uses_in_instruction")
@@ -175,6 +183,16 @@ if "Callee::" in call_window:
     raise SystemExit("SimplifyCFG retained a pass-local Callee match")
 if call_window.count("rewrite_value_operands") != 1:
     raise SystemExit("SimplifyCFG Call arm does not delegate exactly once")
+
+methods = (root / "src/mir/instruction/methods.rs").read_text()
+used_start = methods.index("pub fn used_values")
+used_window = methods[used_start:]
+if used_window.count("callee.for_each_value_operand") != 1:
+    raise SystemExit("used_values Call arm does not delegate exactly once")
+if used_window.index("callee.for_each_value_operand") > used_window.index("used.extend(args"):
+    raise SystemExit("used_values emits args before typed Callee operands")
+if "match callee" in used_window:
+    raise SystemExit("used_values retained a consumer-local Callee match")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY
