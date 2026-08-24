@@ -362,7 +362,7 @@ R5 finite terminal task matrix:
 | R5c JSON (design stop) | v1 writer, v0 projection, legacy wire/profile switches | mixed canonical/compatibility emission and `Method(None)` receiver reuse | profile split and egress authority decision before code |
 | R5d native (design stop) | selected `ny-llvmc` pure-first route | missing structured callee abort boundary and pattern fallback | route/profile decision plus C-owner split before implementation |
 
-R5a selected brief:
+R5a selected brief (closed at `e36f86e869`):
 
 ```text
 Decision: retire only the optimizer's target-issuing/legacy-observer edges;
@@ -378,6 +378,33 @@ and remove diagnostic func->Const scan; add matrix tests and shared guard.
 Non-claims: shared canonicalizer retirement, R5b/c/d, R6 fields, Method(None),
 Closure/Constructor, JoinIR, PyVM/reference/Python, and warning cleanup.
 ```
+
+R5b-B0 selected brief:
+
+```text
+Decision: selected Rust interpreter treats missing Callee as a terminal typed
+reject; it does not load func or retry module lookup. Existing typed dispatch
+remains the only execution path for this row.
+Source authority + canonical issuer: typed producer or compatibility ingress
+-> Callee -> MirInstruction::Call; interpreter consumes the stored Callee.
+Non-authority: func, register String values, interpreter function-map lookup,
+Method(None) fallback, plugin/method recovery, and non-selected backends.
+Fail-fast boundary: before any `reg_load(func)` or module `functions.get`,
+`callee=None` returns the stable `call-missing-callee` terminal error.
+Smallest next slice: change `handlers/calls::handle_call` only, add a direct
+negative test and preserve both instruction-loop callers and current fields.
+Non-claims: `func`/Option deletion, Method(None), printer/JSON/native closure,
+JoinIR, PyVM/reference/Python, warning cleanup, and any VM method fallback.
+```
+
+R5a closeout evidence: `e36f86e869` removes the optimizer late schedule, makes
+typed CSE keys independent of stale `func`, and removes the diagnostic
+`func -> Const(String)` scan. The callsite compatibility suite is 14/14,
+CSE key tests are 3/3, and the optimizer filter includes the new diagnostic
+test; the shared corridor guard, pointer guard, and `git diff --check` are
+green. The optimizer filter also retains two unrelated known baseline freezes
+(`mir/instance-constructor-source/cohort-missing`), so they are not attributed
+to this row. Warning count remains the 433-item baseline.
 
 R5 row rules: each task owns one old edge and reuses the shared corridor
 guard; no new per-row shell guard, no fixture-only acceptance, and no R6 field
