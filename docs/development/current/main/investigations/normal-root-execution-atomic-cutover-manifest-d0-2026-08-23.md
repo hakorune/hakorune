@@ -1032,3 +1032,17 @@ normal-callable test modules. The source, Recipe, and physical owners are
 unchanged. The focused `normal_root_execution` suite passes 19 tests, all
 five reusable guards remain green, and the test fingerprint moved from 888
 to 882 warnings (`unused_imports=0`, `unused_mut=13`).
+
+The following behavior-neutral mutability cleanup slice is landed as
+`a8eff51aa6`:
+
+```text
+a8eff51aa6  refactor: remove needless mutability bindings
+```
+
+It removes the remaining thirteen unnecessary `mut` bindings across raw-root,
+builder, lowering, compiler, and resolved-value test/implementation helpers.
+No source, Recipe, physical, or visibility authority changes. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 882 to 869 warnings
+(`unused_imports=0`, `unused_mut=0`).
