@@ -115,21 +115,6 @@ impl<'source> PreparedInstanceBoxDeclarationLifecycleV1<'source> {
         methods.lower_raw_with_port_v1(builder, port)
     }
 
-    /// Preserves the runtime declaration prefix while leaving ordinary methods
-    /// to the Program-root catalog admission that already owns them.
-    pub(in crate::mir::builder) fn lower_runtime_prefix_with_port_v1<Port>(
-        self,
-        builder: &mut MirBuilder,
-        port: &mut Port,
-    ) -> Result<(), String>
-    where
-        Port: RawBoxMethodChildPortV1,
-    {
-        let (constructors, _) = self.lower_declaration_prefix_v1(builder)?;
-        constructors.lower_with_port_v1(builder, port)?;
-        Ok(())
-    }
-
     pub(in crate::mir::builder) fn lower_normal_runtime_prefix_with_port_v1<Port>(
         self,
         builder: &mut MirBuilder,
