@@ -123,7 +123,7 @@
       fprintf(f, "declare i64 @\"nyash.file.read_h\"(i64)\n");
       fprintf(f, "declare i64 @\"nyash.file.close_h\"(i64)\n");
       if (needs.hostbridge_extern_invoke_trap)
-        fprintf(f, "declare void @llvm.trap()\n");
+        hako_llvmc_emit_llvm_trap_declaration_once(f, &llvm_trap_decl_emitted);
       if (needs.printf || module_has_planned_same_module_function_definition())
         fprintf(f, "declare i32 @printf(ptr, ...)\n");
       if (needs.printf || module_has_planned_same_module_function_definition())

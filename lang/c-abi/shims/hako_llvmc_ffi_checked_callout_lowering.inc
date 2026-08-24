@@ -11,6 +11,16 @@
 #include "../../../include/nyrt_dynamic_text_scan_v1.h"
 #include "../../../include/nyrt_dynamic_v2_lease_v1.h"
 
+/* Physical module declaration owner.  Semantic route selection stays with
+ * the MIR-derived plan; this helper only co-seals one textual declaration. */
+static void hako_llvmc_emit_llvm_trap_declaration_once(
+    FILE* f,
+    int* emitted) {
+  if (!f || !emitted || *emitted) return;
+  fprintf(f, "declare void @llvm.trap()\n");
+  *emitted = 1;
+}
+
 static yyjson_val* hako_llvmc_c1_metadata(yyjson_val* fn) {
   yyjson_val* metadata = fn ? yyjson_obj_get(fn, "metadata") : NULL;
   yyjson_val* value = metadata
@@ -415,12 +425,15 @@ static int hako_llvmc_c1_validate_projection(yyjson_val* root) {
          end_seen[0] && end_seen[1] && end_seen[2];
 }
 
-static void hako_llvmc_c1_emit_declarations(FILE* f, yyjson_val* metadata) {
+static void hako_llvmc_c1_emit_declarations(
+    FILE* f,
+    yyjson_val* metadata,
+    int* trap_decl_emitted) {
   if (!f || !metadata) return;
   fprintf(f, "declare i32 @\"%s\"(i64, i64, i64, ptr)\n", HAKO_TEXT_SCAN_SYMBOL_SUBSTRING);
   fprintf(f, "declare i32 @\"%s\"(i64, i64, ptr)\n", HAKO_TEXT_SCAN_SYMBOL_INDEX_OF);
   fprintf(f, "declare i32 @\"nyrt_dynamic_v2_lease_consume_end_authorized_v1\"(i64)\n");
-  fprintf(f, "declare void @llvm.trap()\n");
+  hako_llvmc_emit_llvm_trap_declaration_once(f, trap_decl_emitted);
 }
 
 static int hako_llvmc_c1_format_predecessor_label_v1(

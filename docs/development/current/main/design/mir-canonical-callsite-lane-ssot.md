@@ -879,6 +879,47 @@ the route. The first accepted I0 may reuse the existing object/archive/exe
 publication shape, but it must not mint a new semantic receipt or broaden the
 route family.
 
+Accepted prerequisite I0: `MIR-CALL-LLVM-TRAP-DECLARATION-COSEAL-I0-R0`:
+
+```text
+Decision: give the selected C module one physical llvm.trap declaration owner
+  and emit it at most once per generated LLVM module; fence C1 declarations to
+  the existing selected-Dynamic profile.
+Source authority + canonical issuer: the C pure-compile module prepass owns
+  the declaration-once bit; `program.selected_dynamic` is the only C1 profile
+  selector, while MirCallNeedFlags/typed plans only request capabilities.
+Non-authority: EnvNowMs route or symbol metadata, fn_metadata presence alone,
+  individual trap call sites, opt/mem2reg, kernel exports, linker behavior,
+  raw externcall, and parked backends.
+Fail-fast boundary: declaration census must be one (or zero when no trap call
+  is emitted) before `opt -passes=mem2reg`; duplicate declarations reject and
+  no object is published.
+Smallest next slice: keep C1 declarations behind `program.selected_dynamic`,
+  route all prescan/hostbridge/C1 trap declarations through one once-helper,
+  preserve existing trap call sites and all non-trap declarations.
+Non-claims: EnvNowMs link proof, route/ABI/archive changes, Dynamic activation,
+  static receipts, R6, warning cleanup, or any non-selected backend.
+```
+
+The bounded owner census found two active declarations in the ordinary
+EnvNowMs path: boxed-sum/prescan declarations and unconditional C1 declarations
+from non-null function metadata. A third hostbridge declaration is conditional
+and must use the same once-helper. The prerequisite is now closed as a
+behavior-preserving physical refactor;
+exact Extern D0 remains unaccepted until the route-specific acceptance evidence
+is co-sealed.
+
+I0 evidence: `build_hako_llvmc_ffi.sh`, the selected C1 physicalizer smoke, the
+quick `ny-llvmc` check, the shared Call corridor guard, and the pointer guard are
+green. The same production-generated CanonicalV1 JSON now emits an object with
+an undefined `nyash.env.now_ms`, the explicit `libnyash_kernel.a` contains one
+`llvm-nm` definition, and the Boundary executable contains one final definition.
+The dumped optimized module has zero trap declarations when no trap call is
+needed; the helper therefore enforces the allowed zero-or-one census. Derived
+missing-plan and arity=1 inputs reject nonzero with no object, and a missing
+explicit archive rejects before executable publication. The exact D0 route
+specificity/source-symbol acceptance decision remains separate and unaccepted.
+
 Feedback reconciliation and deferred task queue (not selected):
 
 ```text

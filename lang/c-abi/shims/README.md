@@ -32,7 +32,10 @@ This directory keeps C-side ABI shims thin and responsibility-partitioned.
   preserves MIR-owned Normal/Fault successors, and calls the sole Rust lease
   End consumer through the versioned C ABI. It must not resolve coordinates,
   selectors, providers, registries, generic `mir_call`, VM routes, fallback,
-  or retry. Link/publication remains a later W6 transaction.
+  or retry. Its module-level `llvm.trap` declaration is emitted through one
+  once-owner shared with prescan/hostbridge declarations; C1 declarations are
+  gated only by the selected-Dynamic profile. Link/publication remains a later
+  W6 transaction.
 - The C1 projection also consumes the one non-Clone CheckedCallOut census
   view carried through AOT JSON. Per-site source/receiver/arguments,
   Normal/Fault landing, Normal-result position, effect, and the three End

@@ -87,6 +87,7 @@
       // Pre-scan: consts + phis + needed method decls
       struct MirCallNeedFlags needs;
       memset(&needs, 0, sizeof(needs));
+      int llvm_trap_decl_emitted = 0;
       size_t blen = generic_pure_block_count;
       for (size_t bi=0; bi<blen; bi++) {
         struct GenericPureBlockView block;
@@ -741,10 +742,13 @@
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_rmw_add_u64_hiii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_set_handle_hii\"(i64, i64, i64)\n");
         fprintf(f, "declare i64 @\"nyash.object.exact_slot_get_handle_hii\"(i64, i64)\n");
-        fprintf(f, "declare void @llvm.trap()\n");
+        hako_llvmc_emit_llvm_trap_declaration_once(f, &llvm_trap_decl_emitted);
       }
       #include "hako_llvmc_ffi_pure_compile_generic_declarations_emit.inc"
-      hako_llvmc_c1_emit_declarations(f, fn_metadata);
+      if (program.selected_dynamic) {
+        hako_llvmc_c1_emit_declarations(
+            f, fn_metadata, &llvm_trap_decl_emitted);
+      }
       fprintf(f, "\n");
       if (emit_module_function_leaf_definitions(f) < 0) {
         HAKO_LLVMC_CLOSE_GENERIC_OUTPUT();
