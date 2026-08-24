@@ -10,14 +10,6 @@ use crate::mir::{ArrayElementWriteKind, ArrayWriteProducerKind};
 use super::{EffectMask, MirInstruction, MirType, ValueId};
 
 impl super::MirBuilder {
-    pub(super) fn build_array_literal(
-        &mut self,
-        elements: Vec<ASTNode>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_array_literal_with_port_v1(&mut port, elements)
-    }
-
     /// Lower an array literal while retaining the caller's raw child port.
     pub(in crate::mir::builder) fn build_array_literal_with_port_v1<Port>(
         &mut self,
@@ -135,14 +127,6 @@ impl super::MirBuilder {
             &element_types,
         );
         Ok((arr_id, contract_id))
-    }
-
-    pub(super) fn build_map_literal(
-        &mut self,
-        entries: Vec<(String, ASTNode)>,
-    ) -> Result<ValueId, String> {
-        let mut port = RawLegacyChildLoweringPortV1;
-        self.build_map_literal_with_port_v1(&mut port, entries)
     }
 
     /// Lower a map literal while retaining the caller's raw child port.
