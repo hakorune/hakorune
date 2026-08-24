@@ -8,7 +8,6 @@ use crate::mir::builder::raw_expansion_receipt_ledger::{
     RawExpansionReceiptLedgerErrorV1, RawExpansionReplacementEventV1,
     SealedRawExpansionReceiptLedgerV1,
 };
-use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::raw_physical_drain::{
     RawPhysicalCallableMainDispositionV1, RawPhysicalDrainKeyV1, RawPhysicalDrainManifestV1,
     RawPhysicalDrainPolicyV1, RawPhysicalDrainRoleV1, RawPhysicalDrainRouteV1,
