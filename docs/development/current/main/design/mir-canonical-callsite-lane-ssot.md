@@ -219,7 +219,7 @@ order, then args; legacy `None` keeps func once before args and duplicates remai
 The immutable exhaustive `Callee::for_each_value_operand` facet and `methods.rs`
 Call arm are now green with owner/typed/legacy tests and the shared guard.
 
-R4c design stop: `value_consumer` is the next bounded production row. Its single
+R4c D0 accepted: `value_consumer` is the active bounded production row. Its single
 Call membership arm must delegate once to `MirInstruction::used_values`; the
 existing direct-set and per-instruction dedup policy remains its authority. The
 finite boundary is that arm -> `record_other_uses` -> three semantic refresh
