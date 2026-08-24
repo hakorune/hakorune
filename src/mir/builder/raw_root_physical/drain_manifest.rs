@@ -15,7 +15,7 @@ use crate::mir::raw_physical_drain::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RawDrainManifestErrorV1 {
+pub(in crate::mir) enum RawDrainManifestErrorV1 {
     Ledger(RawExpansionReceiptLedgerErrorV1),
     UnsupportedRole(RawExpansionDraftRoleV1),
     UnsupportedKey,

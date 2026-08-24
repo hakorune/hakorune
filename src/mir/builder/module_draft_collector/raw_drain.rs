@@ -10,7 +10,7 @@ use crate::mir::MirFunction;
 use super::{FunctionDraftKeyV1, ModuleDraftCollectorV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(in crate::mir::builder) enum RawCollectorDrainErrorV1 {
+pub(in crate::mir) enum RawCollectorDrainErrorV1 {
     BrandMismatch,
     CountMismatch {
         expected: usize,
