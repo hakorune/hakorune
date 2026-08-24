@@ -51,7 +51,7 @@ pub(in crate::mir) enum RawPhysicalFinalizationErrorV1 {
 
 #[derive(Debug)]
 pub(in crate::mir) struct RejectedRawPhysicalFinalizationV1 {
-    owner: RawDrainedPhysicalV1,
+    _owner: RawDrainedPhysicalV1,
     error: RawPhysicalFinalizationErrorV1,
     _seal: RejectedRawPhysicalFinalizationSealV1,
 }
@@ -215,8 +215,6 @@ impl RejectedRawPhysicalFinalizationV1 {
     pub(in crate::mir) fn error(&self) -> &RawPhysicalFinalizationErrorV1 {
         &self.error
     }
-
-    pub(in crate::mir) fn discard(self) {}
 }
 
 fn reject(
@@ -224,7 +222,7 @@ fn reject(
     error: RawPhysicalFinalizationErrorV1,
 ) -> RejectedRawPhysicalFinalizationV1 {
     RejectedRawPhysicalFinalizationV1 {
-        owner,
+        _owner: owner,
         error,
         _seal: RejectedRawPhysicalFinalizationSealV1,
     }
