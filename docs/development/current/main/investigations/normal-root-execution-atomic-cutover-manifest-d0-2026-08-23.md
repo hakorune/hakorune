@@ -2579,3 +2579,17 @@ tests and all five guards green.
 syntax reject payloads as named `_error` evidence; warnings are 437→435
 (`private_interfaces=11`, `dead_code=424`), with 19/19 focused tests and all
 five guards green.
+
+`0811b69d9d` removes caller-zero accessors from the Raw child work wrapper after
+the source-to-draft conversion; warnings are 435→433
+(`private_interfaces=11`, `dead_code=422`), with 19/19 focused tests and all
+five guards green.
+
+The post-`0811b69d9d` census is the R0 cleanup boundary: all mechanical and
+structural lint categories remain zero, the eleven private-interface warnings
+remain deliberate public-authority debt, and the 422 `dead_code` records are
+parked typed rejection vocabulary or disconnected/future Join/physical/backend
+scaffolding. The 22 records still in the normal-root file scope are all such
+parked/future evidence; no caller-zero active R0 projection remains. Further
+deletion requires a separate authority/retirement lane and is not inferred from
+the warning count alone.
