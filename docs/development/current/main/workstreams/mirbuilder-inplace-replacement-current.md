@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast path (R4b used_values)
+Status: Active workstream — design stop (R4c value_consumer)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-OPERAND-USED-VALUES-I0-R0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, and R4a closed; R4b active
-  mode              = fast
+  current decision  = MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-D0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, and R4b closed; R4c design stop
+  mode              = design_stop
   production stop   = before Call core field deletion
-  exit              = immutable projection + methods.rs delegation, exact parity tests, and shared guard; no Call field deletion yet
+  exit              = accepted R4c brief and exact consumer boundary; no ownership/escape/JoinIR or Call field deletion yet
 fallback / retry  = 0
 ```
 
@@ -264,7 +264,8 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    (closed).
 6. R4a: exhaustive `Callee` operand rewrite projection into SimplifyCFG
    Call-use rewrite (closed); R4b `used_values` immutable projection and
-   methods.rs delegation are active, while later R4 consumers remain separate rows.
+   methods.rs delegation (closed); R4c `value_consumer` is the next design-stop
+   row, while JoinIR/ownership/escape/query remain separate blockers.
 7. R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
    with no by-name fallback/retry. Python/PyVM/reference remain
    boundary-outside `ParkedSealed`; they are not an active retirement edge.
@@ -288,11 +289,10 @@ late issuer retirement (closed). Non-claims: core field
 cutover, operand SSOT, selected terminal closure, and historical backend re-entry.
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
-R4b D0 accepted; I0/R0 brief. Decision: `used_values` emits typed Callee occurrences in canonical order, then args; `None` keeps func->args and duplicates.
-Source + issuer: exact Callee fields -> `Callee::for_each_value_operand`; `used_values` adds args.
-Non-authority: typed func/INVALID, dst, dedup, consumer-local matches, ownership/escape, optimizer/backend text, PyVM/reference/Python.
-Fail-fast: all six variants exhaustive; `Some(callee)` never reads func; `None` reads it once.
-Smallest next: immutable facet + methods.rs Call arm + exact tests/shared guard. Non-claims: MirQuery, CallLike, value_consumer, JoinIR, ownership, escape, R5/R6, warning cleanup, or ParkedSealed re-entry.
+R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
+R4c D0 design stop; Decision: `value_consumer` Call membership delegates once to `MirInstruction::used_values`; existing direct-set and per-instruction dedup policy stays local.
+Source + issuer: Callee -> `for_each_value_operand` -> Call `used_values` -> `record_other_uses`; three normal refresh edges consume the fact. Non-authority: Some(callee) func, dst, ownership/escape roles, MirQuery/JoinIR/CallLike, optimizer/backend text, PyVM/reference/Python.
+Fail-fast: other-use/direct-set mismatch is fact omission; `None` reads func once and `Some` never does. Smallest next: Call arm + exact fact tests + shared guard/reference. Census boundary: `value_consumer` Call arm -> `record_other_uses` -> semantic refresh; JoinIR is NoSafeSlice until live lifecycle/tail-target authority is named.
 
 ## Production invariants
 ```text
@@ -366,11 +366,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JSONV0-LOADER-TOPOLOGY-SPLIT-I0
-  -> path-preserving facade/child split; no semantic change
+ MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-D0
+  -> design stop: select the one normal-production Call membership edge
 
 Next (not selected)
-  -> MIR-CALL-JSONV0-INPUT-STATE-I0, then ordered R3-R7
+  -> R4d escape/ownership/query policy D0; R4e CallLike T0 retirement; then R5-R7
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
@@ -383,7 +383,7 @@ Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
   -> Loop common/Generic/callable physical follow-ups until a named caller
   -> semantic dead_code/private_interfaces cleanup and broad cleanup program
-  -> performance, converter, llvmlite, Home/language, and selfhost work
+  -> normal-root mode/projection/type-name/syntax-loan cleanup after R7; performance, converter, llvmlite, Home/language, and selfhost work
 
 Closed / do not reopen from a mirror
   -> normal-root T0/C0/R0 and 68/68 replacement manifest

@@ -213,13 +213,26 @@ retained. The match is exhaustive with explicit empty Global/Extern/Constructor/
 Method(None). SimplifyCFG is migrated and parity/guard evidence is green; `func`,
 Call args, ownership, escape, JoinIR, and field deletion remain separate rows.
 
-R4b D0 accepted: `used_values` has 56 direct non-test expressions across 37 files
-plus one BasicBlock edge. Its accepted law is typed Callee occurrences in the same
+R4b closed: `used_values` has 56 direct non-test expressions across 37 files plus
+one BasicBlock edge. The accepted law is typed Callee occurrences in the same
 order, then args; legacy `None` keeps func once before args and duplicates remain.
-The active bounded row is an immutable exhaustive `Callee::for_each_value_operand`
-facet plus only the `methods.rs` Call arm, exact tests, and the shared guard. The
-fanout, MirQuery/CallLike/value_consumer/JoinIR/ownership/escape consumers,
-warning cleanup, PyVM/reference/Python, and Call field deletion are not in R4b.
+The immutable exhaustive `Callee::for_each_value_operand` facet and `methods.rs`
+Call arm are now green with owner/typed/legacy tests and the shared guard.
+
+R4c design stop: `value_consumer` is the next bounded production row. Its single
+Call membership arm must delegate once to `MirInstruction::used_values`; the
+existing direct-set and per-instruction dedup policy remains its authority. The
+finite boundary is that arm -> `record_other_uses` -> three semantic refresh
+edges; other instruction arms and match-method policy are excluded. JoinIR
+collection/remap is `NoSafeSlice` for the next I0 because its merge caller is
+zero while live lifecycle and tail-target compatibility still consume old `func`.
+MirQuery/CallLike, ownership, escape, R5/R6, warning cleanup, and
+PyVM/reference/Python remain separate boundaries.
+
+R6 decision gate (parked): prefer retiring `MirCall`/`CallFlags`; make
+`Method(None)` impossible by issuing qualified `Global`; limit `Callee::Closure`
+to pre-canonical construction before `NewClosure`; and decide the Constructor /
+NewBox boundary explicitly. Do not implement these in R4c.
 
 retirement seriesの固定順は次。
 
