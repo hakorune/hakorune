@@ -59,10 +59,6 @@ impl CanonicalPhysicalSingleRowV1 {
     pub(crate) const fn arity(&self) -> usize {
         self.arity
     }
-
-    pub(crate) const fn disposition(&self) -> CanonicalInsertedDispositionV1 {
-        self.disposition
-    }
 }
 
 /// A canonical physical row for one callable catalog entry.
@@ -99,10 +95,6 @@ impl CanonicalPhysicalCallableRowV1 {
 
     pub(crate) const fn arity(&self) -> usize {
         self.arity
-    }
-
-    pub(crate) const fn disposition(&self) -> CanonicalInsertedDispositionV1 {
-        self.disposition
     }
 }
 

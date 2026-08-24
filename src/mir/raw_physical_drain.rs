@@ -124,10 +124,6 @@ impl RawPhysicalDrainRowV1 {
         }
     }
 
-    pub(crate) const fn ordinal(&self) -> u32 {
-        self.ordinal
-    }
-
     pub(crate) const fn role(&self) -> RawPhysicalDrainRoleV1 {
         self.role
     }
@@ -146,9 +142,5 @@ impl RawPhysicalDrainRowV1 {
 
     pub(crate) const fn policy(&self) -> RawPhysicalDrainPolicyV1 {
         self.policy
-    }
-
-    pub(crate) fn provenance(&self) -> &RawPhysicalReceiptProvenanceV1 {
-        &self.provenance
     }
 }
