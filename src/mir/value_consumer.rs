@@ -101,12 +101,7 @@ fn value_consumer_used_values(inst: &MirInstruction) -> Vec<ValueId> {
         MirInstruction::FieldSet { base, value, .. } => vec![*base, *value],
         MirInstruction::WeakFieldWrite { base, value, .. } => vec![*base, *value],
         MirInstruction::VariantMake { payload, .. } => payload.iter().copied().collect(),
-        MirInstruction::Call { func, args, .. } => {
-            let mut used = Vec::with_capacity(1 + args.len());
-            used.push(*func);
-            used.extend(args.iter().copied());
-            used
-        }
+        MirInstruction::Call { .. } => inst.used_values(),
         MirInstruction::Phi { inputs, .. } => inputs.iter().map(|(_, value)| *value).collect(),
         MirInstruction::Branch {
             condition,
@@ -301,5 +296,124 @@ mod tests {
             .metadata
             .value_consumer_facts
             .contains_key(&ValueId::new(2)));
+    }
+
+    #[test]
+    fn refresh_value_consumer_facts_counts_typed_callee_targets_as_other_uses() {
+        let mut function = make_function();
+        let captured = ValueId::new(7);
+        let me = ValueId::new(8);
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.instructions.extend([
+            MirInstruction::Call {
+                dst: Some(ValueId::new(20)),
+                func: ValueId::new(99),
+                callee: Some(crate::mir::Callee::Value(captured)),
+                args: vec![],
+                effects: EffectMask::PURE,
+            },
+            MirInstruction::Call {
+                dst: Some(ValueId::new(21)),
+                func: ValueId::new(98),
+                callee: Some(crate::mir::Callee::Closure {
+                    params: vec!["x".to_string()],
+                    captures: vec![("captured".to_string(), captured)],
+                    me_capture: Some(me),
+                }),
+                args: vec![],
+                effects: EffectMask::PURE,
+            },
+            method_call(
+                None,
+                ValueId::new(0),
+                "set",
+                vec![ValueId::new(1), captured],
+            ),
+            method_call(None, ValueId::new(0), "set", vec![ValueId::new(2), me]),
+        ]);
+        block.instruction_spans.extend([Span::unknown(); 4]);
+
+        refresh_function_value_consumer_facts(&mut function);
+
+        assert!(!function
+            .metadata
+            .value_consumer_facts
+            .contains_key(&captured));
+        assert!(!function.metadata.value_consumer_facts.contains_key(&me));
+    }
+
+    #[test]
+    fn refresh_value_consumer_facts_ignores_typed_func_and_dst_decoration() {
+        let mut function = make_function();
+        let stale_func = ValueId::new(55);
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.instructions.extend([
+            MirInstruction::Call {
+                dst: Some(ValueId::new(56)),
+                func: stale_func,
+                callee: Some(crate::mir::Callee::Global("global".to_string())),
+                args: vec![],
+                effects: EffectMask::PURE,
+            },
+            method_call(
+                None,
+                ValueId::new(0),
+                "set",
+                vec![ValueId::new(1), stale_func],
+            ),
+        ]);
+        block.instruction_spans.extend([Span::unknown(); 2]);
+
+        refresh_function_value_consumer_facts(&mut function);
+
+        assert_eq!(
+            function.metadata.value_consumer_facts.get(&stale_func),
+            Some(&ValueConsumerFacts {
+                direct_set_consumer: true
+            })
+        );
+        assert!(!function
+            .metadata
+            .value_consumer_facts
+            .contains_key(&ValueId::new(56)));
+    }
+
+    #[test]
+    fn refresh_value_consumer_facts_preserves_legacy_func_use() {
+        let mut function = make_function();
+        let legacy_func = ValueId::new(66);
+        let block = function
+            .blocks
+            .get_mut(&BasicBlockId::new(0))
+            .expect("entry");
+        block.instructions.extend([
+            MirInstruction::Call {
+                dst: None,
+                func: legacy_func,
+                callee: None,
+                args: vec![],
+                effects: EffectMask::PURE,
+            },
+            method_call(
+                None,
+                ValueId::new(0),
+                "set",
+                vec![ValueId::new(1), legacy_func],
+            ),
+        ]);
+        block.instruction_spans.extend([Span::unknown(); 2]);
+
+        refresh_function_value_consumer_facts(&mut function);
+
+        assert!(!function
+            .metadata
+            .value_consumer_facts
+            .contains_key(&legacy_func));
     }
 }

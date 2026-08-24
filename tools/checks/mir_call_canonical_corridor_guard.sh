@@ -18,6 +18,7 @@ MIR_V0_CATALOG="$ROOT_DIR/src/runner/mir_json_v0/catalog.rs"
 MIR_V0_MODULE="$ROOT_DIR/src/runner/mir_json_v0/module.rs"
 CALLEE_DEFS="$ROOT_DIR/crates/hakorune_mir_defs/src/call_unified.rs"
 SIMPLIFY_FLOW="$ROOT_DIR/src/mir/passes/simplify_cfg/flow.rs"
+VALUE_CONSUMER="$ROOT_DIR/src/mir/value_consumer.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -30,7 +31,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -67,6 +68,10 @@ require "$METHODS" "callee.for_each_value_operand"
 require "$ROOT_DIR/src/mir/instruction/tests.rs" "typed_call_used_values_project_callee_operands_before_args"
 require "$CALLEE_DEFS" "callee_for_each_value_operand_preserves_occurrence_order_and_duplicates"
 require "$CALLEE_DEFS" "callee_for_each_value_operand_is_empty_for_targetless_and_missing_receiver_shapes"
+require "$VALUE_CONSUMER" "MirInstruction::Call { .. } => inst.used_values()"
+require "$VALUE_CONSUMER" "refresh_value_consumer_facts_counts_typed_callee_targets_as_other_uses"
+require "$VALUE_CONSUMER" "refresh_value_consumer_facts_ignores_typed_func_and_dst_decoration"
+require "$VALUE_CONSUMER" "refresh_value_consumer_facts_preserves_legacy_func_use"
 
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
@@ -106,6 +111,7 @@ for relative in (
     "src/runner/product/llvm/mod.rs",
     "crates/hakorune_mir_defs/src/call_unified.rs",
     "src/mir/passes/simplify_cfg/flow.rs",
+    "src/mir/value_consumer.rs",
     "src/mir/instruction/tests.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
 ):
@@ -193,6 +199,18 @@ if used_window.index("callee.for_each_value_operand") > used_window.index("used.
     raise SystemExit("used_values emits args before typed Callee operands")
 if "match callee" in used_window:
     raise SystemExit("used_values retained a consumer-local Callee match")
+
+value_consumer = (root / "src/mir/value_consumer.rs").read_text()
+consumer_start = value_consumer.index("fn value_consumer_used_values")
+consumer_end = value_consumer.index("pub fn refresh_function_value_consumer_facts", consumer_start)
+consumer_window = value_consumer[consumer_start:consumer_end]
+if consumer_window.count("MirInstruction::Call { .. } => inst.used_values()") != 1:
+    raise SystemExit("value_consumer Call arm does not delegate exactly once")
+if "MirInstruction::Call { func" in consumer_window:
+    raise SystemExit("value_consumer retained a direct legacy func carrier in the Call arm")
+for token in ("match_method_set_call", "record_direct_set_consumer_use", "record_other_uses"):
+    if token not in value_consumer:
+        raise SystemExit(f"value_consumer lost fact boundary helper: {token}")
 
 print("[mir-call-canonical-corridor-guard] ok")
 PY

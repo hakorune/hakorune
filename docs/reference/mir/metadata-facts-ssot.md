@@ -391,7 +391,7 @@ Contract:
 | Key | Shape | Purpose |
 | --- | --- | --- |
 | `value_types` | object map `{value_id: type_hint}` | Per-value type hints (`i64`, `i1`, `f64`, `void`, `{kind:"handle"}` etc.) |
-| `value_consumer_facts` | object map `{value_id: fact}` | Generic consumer facts derived from canonical MIR; backend consumers must not re-own legality scans |
+| `value_consumer_facts` | object map `{value_id: fact}` | Generic consumer facts derived from canonical MIR; Call operands come from `MirInstruction::used_values()` (typed `Callee` operands before args), while backend consumers must not re-own legality scans |
 | `loop_range_facts` | array | Stage1 LoopRange index/bound/step contract facts |
 | `runes` | array | Declaration-local `@rune` attrs carried into MIR |
 | `storage_classes` | object map `{value_id: storage_class}` | Current storage-class inventory for value lanes |

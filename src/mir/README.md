@@ -78,6 +78,16 @@ Do not collapse these categories into one `plans/` bucket without preserving the
 plan vs route vs seed distinction. The reference catalog owner remains
 `docs/reference/mir/metadata-facts-ssot.md`.
 
+## Canonical Call value-consumer boundary
+
+`value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
+delegates its operand membership once to `MirInstruction::used_values()`, which
+projects typed `Callee` operands before the stored argument order. The local
+consumer keeps only its direct-set classification and per-instruction
+deduplication policy; it does not read the legacy `func` decoration when a
+typed callee is present. Legacy `callee: None` keeps its compatibility `func`
+use until the later atomic Call schema cutover.
+
 ## Boundary Rules
 
 - Add shared policy once under `policies/` and reuse it from the other subtrees.
