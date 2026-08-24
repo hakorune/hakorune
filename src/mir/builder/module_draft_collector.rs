@@ -24,18 +24,16 @@ mod static_result_publication_owner;
 
 pub(in crate::mir::builder) use drain::{
     CanonicalCollectorDrainErrorV1, CanonicalCollectorReceiptViewV1,
-    PreparedCanonicalCollectorDrainV1, RejectedCanonicalCollectorDrainV1,
+    PreparedCanonicalCollectorDrainV1,
 };
 pub(in crate::mir::builder) use raw_drain::{
     raw_collector_from_branded, PreparedRawCollectorDrainV1, RawCollectorDrainErrorV1,
-    RejectedRawCollectorDrainV1,
 };
 
 pub(in crate::mir::builder) use callable_batch::{
-    CallableCollectorBatchBrandErrorV1, CallableCollectorBatchPrepareErrorV1,
-    CallableCollectorBatchReceiptV1, CallableCollectorDraftEntryV1,
-    CollectedCallableCollectorBatchV1, PreparedCallableCollectorBatchV1,
-    RejectedCallableCollectorBatchV1,
+    CallableCollectorBatchPrepareErrorV1, CallableCollectorBatchReceiptV1,
+    CallableCollectorDraftEntryV1, CollectedCallableCollectorBatchV1,
+    PreparedCallableCollectorBatchV1, RejectedCallableCollectorBatchV1,
 };
 
 pub(in crate::mir) use callable_batch::CallableCollectorBatchReceiptV1 as CommitCallableCollectorBatchReceiptV1;
@@ -48,8 +46,7 @@ pub(in crate::mir) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
 };
 pub(in crate::mir::builder) use root_batch::{
-    BrandedRootCollectorBatchReceiptV1, PreparedRootCollectorBatchV1, RejectedRootCollectorBatchV1,
-    RootCollectorBatchBrandErrorV1, RootCollectorBatchPrepareErrorV1, RootCollectorBatchReceiptV1,
+    RootCollectorBatchPrepareErrorV1,
 };
 
 /// Semantic identity for one draft admission, distinct from fact generation.
