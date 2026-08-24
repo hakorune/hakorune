@@ -1451,3 +1451,19 @@ publication behavior changed. The focused `normal_root_execution` suite
 passes 19 tests, all five reusable guards remain green, and the test
 fingerprint moved from 758 to 756 warnings (`private_interfaces=30`,
 `private_bounds=0`; non-structural lint categories remain zero).
+
+The following resolved-lowering receipt visibility slice is landed as
+`18c04de50b`:
+
+```text
+18c04de50b  refactor: align resolved lowering receipt visibility
+```
+
+The callable collector entry, canonical If-control consumption ledger,
+completed draft, and draft-seal stage now match the existing compiler/Builder
+owner boundaries that consume them. No callable collection, SSA control,
+draft sealing, or rejection behavior changed. The focused
+`normal_root_execution` suite passes 19 tests, all five reusable guards remain
+green, and the test fingerprint moved from 756 to 752 warnings
+(`private_interfaces=26`, `private_bounds=0`; non-structural lint categories
+remain zero).
