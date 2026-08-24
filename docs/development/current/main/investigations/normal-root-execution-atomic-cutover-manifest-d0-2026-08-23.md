@@ -868,3 +868,16 @@ It retires five caller-zero export groups from
 physical session owners remain unchanged. The focused `normal_root_execution`
 suite passes 19 tests, all five reusable guards remain green, and the test
 fingerprint moved from 970 to 965 warnings.
+
+The following control-flow/resolved-lowering import slice is landed as
+`1a2db35a2d`:
+
+```text
+1a2db35a2d  refactor: prune control flow imports
+```
+
+It removes 11 compiler-reported caller-zero import records across nine
+control-flow and resolved-lowering support modules; no source or physical
+authority changes. The focused `normal_root_execution` suite passes 19 tests,
+all five reusable guards remain green, and the test fingerprint moved from 965
+to 954 warnings.
