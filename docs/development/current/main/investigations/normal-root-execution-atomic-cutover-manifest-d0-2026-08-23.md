@@ -647,3 +647,16 @@ The two partial focused suites reproduce their existing baseline failures
 known baseline debt, not current-change failures. The same test fingerprint
 moved from 1044 to 1040 warnings, with zero warning records in all four
 touched files. The five reusable guards and `git diff --check` are green.
+
+The following import-only R0 slice is landed as `b96eeb93ad`:
+
+```text
+b96eeb93ad  refactor: prune raw root physical imports
+```
+
+It removes six compiler-reported unused-import groups from the Raw root
+physical drain/finalization/root-batch modules. The remaining warnings in
+those modules are private-interface and dead-code observations and remain a
+separate bounded family. `raw_root_environment_install` is green with 6
+passed tests, all five reusable guards remain green, and the test fingerprint
+moved from 1040 to 1034 warnings.
