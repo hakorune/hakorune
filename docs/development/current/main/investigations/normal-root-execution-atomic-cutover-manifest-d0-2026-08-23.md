@@ -2532,3 +2532,7 @@ that is not mass-deleted in this R0 lane.
 loan/reject payload probes while retaining identity origin and typed errors.
 Focused tests remain 19/19; warnings are 493→485
 (`private_interfaces=11`, `dead_code=474`).
+
+`94bed0540b` applies the same typed-evidence cleanup to parser module-row
+authority rejects; warnings are 485→483 (`private_interfaces=11`,
+`dead_code=472`), with 19/19 focused tests and all five guards green.
