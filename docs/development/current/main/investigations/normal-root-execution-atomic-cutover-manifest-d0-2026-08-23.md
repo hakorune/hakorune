@@ -1086,3 +1086,16 @@ without changing source sealing or compatibility entrypoints. The focused
 `normal_root_execution` suite passes 19 tests, all five reusable guards remain
 green, and the test fingerprint moved from 854 to 847 warnings
 (`private_interfaces=114`; non-structural lint categories remain zero).
+
+The following disconnected invocation-owner visibility slice is landed as
+`eea766b5c1`:
+
+```text
+eea766b5c1  refactor: narrow invocation physical parts visibility
+```
+
+`InvocationPhysicalStateV1::into_parts` is consumed only inside the Builder
+module tree, so its return types no longer cross the wider MIR boundary. The
+focused `normal_root_execution` suite passes 19 tests, all five reusable guards
+remain green, and the test fingerprint moved from 847 to 845 warnings
+(`private_interfaces=112`; non-structural lint categories remain zero).
