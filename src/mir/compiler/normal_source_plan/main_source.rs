@@ -161,7 +161,7 @@ impl VerifiedNormalMainFunctionSourceUnitV1 {
         }
     }
 
-    pub(crate) fn borrow_exact_function(&self) -> NormalMainFunctionSourceViewV1<'_> {
+    pub(super) fn borrow_exact_function(&self) -> NormalMainFunctionSourceViewV1<'_> {
         borrow_exact_main_function_v1(
             self.source.input(),
             self.source.main_box(),
