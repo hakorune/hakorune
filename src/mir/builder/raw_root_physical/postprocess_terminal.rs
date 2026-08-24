@@ -213,10 +213,6 @@ impl RawPostprocessPhysicalOwnerV1 {
             .map(|function| function.signature.name.as_str())
     }
 
-    pub(in crate::mir) fn progress(&self) -> RawPostprocessProgressV1 {
-        self.loan.progress
-    }
-
     pub(in crate::mir) fn symbols(&self) -> impl Iterator<Item = &String> {
         self.loan.module.symbols()
     }
