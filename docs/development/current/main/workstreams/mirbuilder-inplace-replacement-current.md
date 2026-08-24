@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast path
+Status: Active workstream — design stop
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JSONV0-PROGRAM-LATE-RETIRE-I0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, and R3a closed; R3b active
-  mode              = fast
-production stop   = before Program-v0 Call publication
-  exit              = focused R3b evidence, reusable guard, docs, commit/push
+  current decision  = MIR-CALL-CANONICAL-OPERAND-SSOT-D0
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, and R3b closed
+  mode              = design_stop
+  production stop   = before Call core field deletion
+  exit              = accepted R4 six-line brief; no Call field deletion yet
 fallback / retry  = 0
 ```
 
@@ -243,6 +243,13 @@ The shared Call corridor, pointer, diff, and rustfmt guards are green; 433 warni
 remain the known baseline. Late `func_map`/`maybe_resolve_calls` and Program-site
 canonicalizer retirement remain R3b, not an R3a claim.
 
+## Closed bounded cell: MIR-CALL-JSONV0-PROGRAM-LATE-RETIRE-I0
+
+Program `func_map`/`maybe_resolve_calls` are retired; the Program bridge refuses
+legacy Const-to-target issuance while other sites retain their policy. Evidence:
+callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
+121 lines, 433 warnings baseline. R4 operand/remap/ownership/escape SSOT follows.
+
 ## Ordered MIR Call retirement series
 
 1. R1: qualified Program JSON-v0 producers (closed).
@@ -253,9 +260,10 @@ canonicalizer retirement remain R3b, not an R3a claim.
 4. R2-I0: `call.rs` parses total state, resolves once, and publishes no
    `Call(callee=None)` or partial block (closed).
 5. R3a: pre-core Program JSON-v0 catalog/resolution (closed); R3b deletes target
-   Const authority, `maybe_resolve_calls`, and all remaining Program late edges.
+   Const authority, `maybe_resolve_calls`, and all remaining Program late edges
+   (closed).
 6. R4: one `Callee` operand/remap projection; migrate semantic consumers before
-   field deletion.
+   field deletion (design stop).
 7. R5a/R5b/R5c: optimizer, selected Rust VM/printer/JSON terminal closure
    with no by-name fallback/retry. Python/PyVM/reference remain
    boundary-outside `ParkedSealed`; they are not an active retirement edge.
@@ -264,8 +272,8 @@ canonicalizer retirement remain R3b, not an R3a claim.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
-import aliases retain their existing canonical producers and post-merge imports
-are not silently scanned. Unique `(name, arity)` candidates become qualified
+import aliases retain their existing canonical producers; post-merge imports are
+not silently scanned. Unique `(name, arity)` candidates become qualified
 `Global`; ambiguous candidates reject; unknown source names remain exact `Global`;
 `env.`/`nyash.` names become `Extern` with a numeric arity suffix removed.
 Source authority + issuer: Program defs plus source `ExprV0::Call` name/arity
@@ -274,9 +282,17 @@ Non-authority: `func_map`, `maybe_resolve_calls`, target Const, late Program
 canonicalization, import merge membership, optimizer/backend/runtime lookup,
 and PyVM/reference/Python (`ParkedSealed`). Fail-fast: catalog before main/defs,
 target before argument effects and block publication; empty, duplicate, or
-ambiguous target rejects without retry. Smallest next slice: R3a catalog plus
-generic producer only. Non-claims: R3b late issuer removal, core field cutover,
-operand SSOT, selected terminal closure, and historical backend re-entry.
+ambiguous target rejects without retry. Smallest next slice: R3a catalog + R3b
+late issuer retirement (closed). Non-claims: core field
+cutover, operand SSOT, selected terminal closure, and historical backend re-entry.
+
+R4 D0 six-line brief (`NoSafeSlice`):
+Decision: one `Callee` ValueId operand/remap projection before `func` deletion; no new receipt or second Call shape. Source + issuer: exact `Callee` -> shared
+projection -> existing consumers; `MirInstruction::call` remains the physical
+issuer. Non-authority: dummy `func`/`INVALID`, per-consumer scans, optimizer/
+backend/printer text, and PyVM/reference/Python. Fail-fast: all used/remap/
+ownership/escape consumers share the projection; missing variant coverage rejects.
+Smallest next: one consumer family with positive/negative/parity evidence. Non-claims: field cutover, VM fallback, PyVM re-entry, and new receipts.
 
 ## Production invariants
 ```text
