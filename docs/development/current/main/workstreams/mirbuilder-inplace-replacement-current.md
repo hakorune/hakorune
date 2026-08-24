@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, profile threading I0, and strict-adapter I0 closed at 40559cceef; JoinIR D0/R4c remains NoSafeSlice
+  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D1-CAPABILITY-COSEAL
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, profile threading I0, and strict-adapter I0 closed at 40559cceef; native D0 is NoSafeSlice, and JoinIR D0/R4c remains NoSafeSlice
   mode              = design_stop
-  production stop   = before any native switch: the strict adapter is closed, and the selected ny-llvmc route/profile/arity/symbol/link capability audit must be accepted first; Method(None)/Closure/Constructor gates, R6 field deletion, and JoinIR remain outside
-  exit              = accepted finite native D0 capability matrix or explicit NoSafeSlice; no code edit, raw externcall expansion, or retry/fallback
+  production stop   = before any native switch: D0 found projection drift and missing route/link co-seals; D1 must choose one owner or explicit reject/trap for every row; Method(None)/Closure/Constructor gates, R6 field deletion, and JoinIR remain outside
+  exit              = accepted finite NativePositive/ExplicitTrap/PreflightReject matrix or explicit NoSafeSlice; no code edit, raw externcall expansion, or retry/fallback
 fallback / retry  = 0
 ```
 
@@ -292,7 +292,7 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c closed (`4c6d9ce9a2`), R4d escape (`4e71066e57`), R4e ownership (`6c957a48c7`), R4f CallLike (`6fc4abbe0f`), and Query T0 (`981ec1d583`) are closed; matrix/guards + 433 warnings are recorded in SSOT. R5c printer closes at `09f0e51143`; JSON egress D0, typed decoration I0, profile D1, and profile-threading I0 (`db350b81c9`) are closed; JoinIR remap/R4c and backend_shape D0 are NoSafeSlice, with backend capability D1 selected and Method(None)/native/R6 outside.
+R4c closed (`4c6d9ce9a2`), R4d escape (`4e71066e57`), R4e ownership (`6c957a48c7`), R4f CallLike (`6fc4abbe0f`), and Query T0 (`981ec1d583`) are closed; matrix/guards + 433 warnings are recorded in SSOT. R5c printer closes at `09f0e51143`; JSON egress D0, typed decoration I0, profile D1, and profile-threading I0 (`db350b81c9`) are closed; JoinIR remap/R4c and native capability D0 are NoSafeSlice, backend strict-adapter I0 is closed, and native D1/Method(None)/R6 remain outside.
 
 ## Production invariants
 ```text
@@ -366,11 +366,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT
-  -> census the selected ny-llvmc structured terminal route/profile/arity/symbol/link matrix; no code before D0 acceptance
+ MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D1-CAPABILITY-COSEAL
+  -> close Rust47/C35/plan28/test29 projection drift, seven String plan gaps, arity owners, and object→archive→executable evidence; no code before D1 acceptance
 
 Next (not selected)
-  -> R6 gate after native D0; R4c remains NoSafeSlice unless a caller reopens
+  -> R6 gate after native D1; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

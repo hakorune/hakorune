@@ -706,8 +706,9 @@ are green. The selected C terminal retains structured-callee routing, rejects
 missing structured callee, and has no direct raw `externcall` arm or
 fallback/retry.
 
-The next selected design stop is
-`MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT`:
+The originally selected design stop was
+`MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT`; its result and the
+next D1 co-seal task are recorded below:
 
 ```text
 Decision: audit and choose the selected ny-llvmc structured terminal's exact
@@ -734,11 +735,86 @@ I0 acceptance matrix:
 | missing/non-array `args`, missing `dst`, non-string `func`, or extra field | profile validator | before publish | typed reject, no default/drop/retry |
 | raw `externcall` at selected ny-llvmc terminal | selected terminal capability | structured-call preflight | reject as profile mismatch |
 
+Native D0 result: `MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT`
+is `NoSafeSlice` for a native switch. The finite census boundary is:
+
+```text
+typed Callee + JsonEgressProfile
+  -> structured call/mir_call JSON
+  -> selected ny-llvmc Boundary/pure-first C dispatcher
+  -> LLVM object
+  -> hako_llvmc_link_obj_v2 + explicit libnyash_kernel.a
+  -> executable
+```
+
+Raw `externcall`, CompatibilityV0, PyVM/reference/Python/WASM, and
+`native_driver` are outside this terminal and remain `ParkedSealed`. The
+selected dispatcher has structured `call`/`mir_call` arms and rejects a
+missing structured callee; transport allowlists containing `externcall` are
+not evidence of a C terminal capability.
+
+Native D0 finite matrix:
+
+| Input family | Current evidence | D0 terminal | Missing proof / fallback |
+| --- | --- | --- | --- |
+| exact structured Global/Extern plan | route table and several kernel exports | candidate native route | exact plan/arity/result/symbol/link co-seal required |
+| `Global("print")` | direct string/scalar C surfaces | candidate native route | one owner for the arity and result contract |
+| exact Extern shell route | route id/core op/arity/dst/value checks | candidate native route or explicit trap | full object→archive→executable census |
+| generic Method family | helper symbols exist | `NoSafeSlice` | arity is split across family policies/registry |
+| Constructor Map/Array | birth symbols exist | `NoSafeSlice` | producer/plan arity authority is not fixed |
+| seven planned String routes | kernel/C surfaces exist | `NoSafeSlice` | C plan table has no rules; fallback is forbidden |
+| twelve analysis routes | explicit unsupported capability | preflight reject | preserve typed reject boundary |
+| missing/unknown/wrong-arity/malformed | structured preflight | typed reject | no lookup/retry |
+| raw `externcall` at selected terminal | no direct C arm | profile-mismatch reject | no post-wire mutation |
+
+The projection census currently reports Rust route specs `47`, generated C
+capability rows `35`, C plan emit rules `28`, and Rust test expectations `29`.
+The seven missing String plan rules are projection drift, not permission to
+add a C fallback. Source/kernel exports alone do not prove that a selected
+executable resolves every route: the required evidence is
+
+```text
+object undefined symbol
+  -> libnyash_kernel.a defined symbol
+  -> final executable defined symbol
+```
+
+for every accepted native row. Existing explicit archive linking through
+`hako_llvmc_link_obj_v2` is retained, but its current smoke evidence does not
+cover the full generic Method/Extern/Constructor/String set. Nearby C owners
+are also at the physical boundary (`760`, `778`, `793` lines), and the generic
+method owner is already `1104` lines; any future implementation requires a
+path-preserving split before semantic changes.
+
+The next design task is
+`MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D1-CAPABILITY-COSEAL`:
+
+```text
+Decision: choose one owner for every in-scope route, then classify each row as
+  NativePositive, ExplicitTrap, or PreflightReject; do not switch native while
+  projection drift remains.
+Source authority + canonical issuer: typed Callee plus root-owned
+  JsonEgressProfile; the Rust route spec/LoweringPlan issues route id, arity,
+  result and symbol facts, while C only verifies and emits that exact plan.
+Non-authority: generated counts alone, raw externcall, C name lookup, kernel
+  export presence alone, string fallback, ambient replay, retry, and parked
+  backends.
+Fail-fast boundary: before JSON/object publish, profile, route, arity, result,
+  target, args, dst and symbol readiness must agree; otherwise typed reject or
+  an explicitly named trap terminal is published.
+Smallest next slice: D1 census the seven String gaps, Global print,
+  Constructor, generic Method arity owners, and object→archive→executable
+  evidence; no code or native switch.
+Non-claims: raw externcall capability, R6, MirCall/CallFlags, Method(None),
+  Closure/Constructor redesign, JoinIR, warning cleanup, and non-selected
+  backends.
+```
+
 Feedback reconciliation and deferred task queue (not selected):
 
 ```text
 R4b status: HEAD already delegates Call used_values to Callee::for_each_value_operand; Value, Method receiver, Closure captures/me, args order, duplicates, and legacy None parity are covered by the shared tests. Escape, value-consumer, ownership, and query now reuse the occurrence projection where their separate policies allow it.
-Remaining duplicate: JoinIrIdRemapper still owns a local Callee match and its collect_values Call arm is incomplete for Value/Closure. D0/D1 closed the bounded census as caller-zero plus two distinct lifecycle owners; R4c remains NoSafeSlice with no production switch. Backend-shape D0 is NoSafeSlice; capability/authority D1 is the selected design stop.
+Remaining duplicate: JoinIrIdRemapper still owns a local Callee match and its collect_values Call arm is incomplete for Value/Closure. D0/D1 closed the bounded census as caller-zero plus two distinct lifecycle owners; R4c remains NoSafeSlice with no production switch. Backend-shape strict-adapter I0 is closed; native capability D0 is NoSafeSlice and D1 is the next design stop.
 R6 gate: decide MirCall/CallFlags retirement, mandatory Method receiver with static calls as qualified Global, Closure pre-canonical construction versus Callee::Value call, and Constructor/NewBox boundary in one schema decision.
 Post-R7 cleanup: normal-root mode/projection sum, MainObserved naming, identity-based syntax loan, and builder.rs production/compatibility/test barrel census remain separate cleanup rows; PyVM/reference/Python/native_driver remain ParkedSealed.
 ```
