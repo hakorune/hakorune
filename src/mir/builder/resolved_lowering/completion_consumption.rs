@@ -61,14 +61,6 @@ impl ReadyFunctionCompletionV1 {
         }
     }
 
-    pub(super) fn explicit_is_unit(&self) -> bool {
-        self.explicit_claims.len() == 1
-            && matches!(
-                self.explicit_claims[0].witness,
-                ExplicitReturnWitnessV1::Unit
-            )
-    }
-
     pub(super) fn returns_value(&self) -> bool {
         matches!(self.kind, CompletionPhysicalKindV1::ExplicitValue)
     }
@@ -138,10 +130,6 @@ impl ExplicitReturnClaimV1 {
         Self::value(site, block, value)
     }
 
-    #[cfg(test)]
-    pub(super) fn from_test_unit(site: SourceStmtSiteV1) -> Self {
-        Self::unit(site)
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -171,10 +159,6 @@ impl ResolvedFunctionCompletionConsumptionV1 {
 
     pub(super) fn returns_value(&self) -> bool {
         matches!(self.expected.kind, CompletionPhysicalKindV1::ExplicitValue)
-    }
-
-    pub(super) fn is_implicit_void(&self) -> bool {
-        matches!(self.expected.kind, CompletionPhysicalKindV1::ImplicitVoid)
     }
 
     pub(super) fn new(
@@ -359,13 +343,6 @@ impl ReadyFunctionCompletionV1 {
         }
     }
 
-    pub(super) fn from_test_implicit_void(owner: FunctionOwnerIdV1) -> Self {
-        Self {
-            owner,
-            kind: CompletionPhysicalKindV1::ImplicitVoid,
-            explicit_claims: Box::default(),
-        }
-    }
 }
 
 #[cfg(test)]
