@@ -2272,3 +2272,24 @@ The updated residual warning boundary is explicit: the eleven
 MIR/semantic API authority decision described above, while the remaining 557
 `dead_code` warnings are existing disconnected scaffolding and are not
 mass-deleted in this R0 lane.
+
+The following Raw drain rejection-probe cleanup is landed as `5a86d7f34d`:
+
+```text
+5a86d7f34d  refactor: trim raw drain rejection probes
+```
+
+The complete rejected owner split and typed drain error remain retained for
+the error accessor and explicit discard. Unread owner fields become named
+underscore evidence, and the decode-plan/entry-target helpers are gated to
+the existing `vm-reference` lane that consumes them. Drain validation,
+manifest projection, and physical handoff are unchanged. The focused
+`normal_root_execution` suite passes 19 tests, and the test fingerprint moved
+from 568 to 564 warnings (`private_interfaces=11`, `dead_code=553`; all
+non-structural lint categories remain zero).
+
+The updated residual warning boundary is explicit: the eleven
+`private_interfaces` warnings remain deferred pending the deliberate public
+MIR/semantic API authority decision described above, while the remaining 553
+`dead_code` warnings are existing disconnected scaffolding and are not
+mass-deleted in this R0 lane.
