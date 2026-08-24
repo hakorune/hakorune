@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop
+Status: Active workstream — fast path
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-current decision  = MIR-CALL-JSONV0-PROGRAM-CATALOG-D0
-implementation    = R1, D1, Topology-I0, and R2-I0 closed; R3 design stop
-mode              = design_stop
+  current decision  = MIR-CALL-JSONV0-PROGRAM-CATALOG-I0
+  implementation    = R1, D1, Topology-I0, R2-I0, and R3 D0 closed; R3a active
+  mode              = fast
 production stop   = before Program-v0 Call publication
-exit              = accepted six-line brief; no Program-v0 code or late resolver removal yet
+  exit              = focused R3a evidence, reusable guard, docs, commit/push
 fallback / retry  = 0
 ```
 
@@ -251,16 +251,21 @@ baseline; it is outside this Call ingress slice.
 8. R6: atomic `Call { callee: Callee }` cutover; remove dummy `func` payloads.
 9. R7: structural guards, README/reference sync, and census closeout.
 
-R3 D0 six-line brief (`NoSafeSlice`):
-Decision: defer Program-v0 implementation until import scope, plain-name policy,
-pre-effect target order, and Program-bridge site isolation are co-sealed.
-Source authority + canonical issuer: Program defs/import facts + source call name/arity
--> immutable catalog -> generic lowerer -> `MirInstruction::call`.
-Non-authority: `func_map`, `maybe_resolve_calls`, target Const, late pass, merge scan,
-optimizer/backend/runtime lookup. Fail-fast boundary: catalog before main/defs lowering,
-then target before argument effects and block publication. Smallest next slice: accept
-the boundary, then R3a one generic producer family. Non-claims: no code, core cutover,
-VM/JSON terminal, operand SSOT, or PyVM/reference/Python re-entry. R6 remains blocked.
+R3 D0 accepted boundary:
+Decision: Program generic calls use one immutable catalog built from local defs;
+import aliases retain their existing canonical producers and post-merge imports
+are not silently scanned. Unique `(name, arity)` candidates become qualified
+`Global`; ambiguous candidates reject; unknown source names remain exact `Global`;
+`env.`/`nyash.` names become `Extern` with a numeric arity suffix removed.
+Source authority + issuer: Program defs plus source `ExprV0::Call` name/arity
+-> `ProgramCallTargetCatalog` -> generic lowerer -> `MirInstruction::call`.
+Non-authority: `func_map`, `maybe_resolve_calls`, target Const, late Program
+canonicalization, import merge membership, optimizer/backend/runtime lookup,
+and PyVM/reference/Python (`ParkedSealed`). Fail-fast: catalog before main/defs,
+target before argument effects and block publication; empty, duplicate, or
+ambiguous target rejects without retry. Smallest next slice: R3a catalog plus
+generic producer only. Non-claims: R3b late issuer removal, core field cutover,
+operand SSOT, selected terminal closure, and historical backend re-entry.
 
 ## Production invariants
 ```text

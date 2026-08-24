@@ -178,6 +178,17 @@ module membership、arity suffix、Extern分類、alias追跡、optimizer/backen
 行わない。`call`とnested `mir_call`は同じinput ownerを使い、nested nodeがtarget/
 args/effects、outer nodeが`dst` overrideを所有する。
 
+Program JSON-v0のgeneric `ExprV0::Call`は、top-level local defsから先に作る
+owner-private immutable `ProgramCallTargetCatalog`を使う。import aliasのstatic/extern
+producerは既存ownerとしてcatalog外にfenceし、post-lowering import mergeをmembership
+authorityにしない。unique `(short name, arity)`はqualified `Callee::Global`へ一度だけ
+投影し、ambiguous local candidateはtyped reject、候補のないsource nameは文字列を保った
+exact `Global` terminalとする。`env.`/`nyash.`はnumeric arity suffixだけを除いて
+`Callee::Extern`へ投影する。空名・重複qualified definitionはCall/Block publication前に
+rejectする。catalogはmain/defs lowering前、targetはargument lowering前に確定し、
+`func_map`、`maybe_resolve_calls`、target Const、Program bridge late issuer、import
+merge scan、optimizer/backend/runtime lookupはauthorityではない。
+
 このcanonical production boundaryはdirect MIR-v0、selected Rust VM/JSON/LLVMまでを
 覆う。Program-v0はR3の別catalog owner、PyVM（daily route 0・diagnostic-only）、
 reference-vm、Python/llvmliteは歴史/互換ownerとして`ParkedSealed`に分類する。これらは
