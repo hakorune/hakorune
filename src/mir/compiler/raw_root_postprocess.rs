@@ -239,25 +239,6 @@ pub(in crate::mir) struct RejectedRawPostprocessInvocationV1 {
 }
 
 impl RejectedRawPostprocessInvocationV1 {
-    pub(in crate::mir) fn stage(&self) -> RawPostprocessFailureStageV1 {
-        self.stage.clone()
-    }
-
-    pub(in crate::mir) fn error(&self) -> &RawPostprocessErrorV1 {
-        &self.error
-    }
-
-    pub(in crate::mir) fn verification(&self) -> Option<&ModuleVerificationEvidenceV1> {
-        self.verification.as_ref()
-    }
-
-    pub(in crate::mir) fn progress(&self) -> RawPostprocessProgressV1 {
-        match &self.owner {
-            RawPostprocessReadyInvocationV1::Script(ready) => ready.core.physical.progress(),
-            RawPostprocessReadyInvocationV1::App(ready) => ready.core.physical.progress(),
-        }
-    }
-
     pub(in crate::mir) fn discard(self) {}
 }
 
