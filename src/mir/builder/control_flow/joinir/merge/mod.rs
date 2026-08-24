@@ -46,6 +46,4 @@ use crate::mir::builder::control_flow::joinir::trace;
 
 pub use loop_header_phi_builder::LoopHeaderPhiBuilder;
 pub use loop_header_phi_info::LoopHeaderPhiInfo;
-// Phase 131 P1 Task 1: Re-export MergeContracts for SSOT visibility
-pub(in crate::mir::builder) use coordinator::merge_joinir_mir_blocks;
 pub use merge_result::MergeContracts;
