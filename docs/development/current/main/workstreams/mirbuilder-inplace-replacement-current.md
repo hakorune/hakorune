@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast (JSON backend_shape strict-adapter I0)
+Status: Active workstream — design stop (selected ny-llvmc native D0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-STRICT-ADAPTER-I0-R0
-  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, profile threading I0, and backend_shape capability D1 accepted; JoinIR D0/R4c remains NoSafeSlice
-  mode              = fast
-  production stop   = inside the owner-local strict adapter: typed Callee/profile is fixed before publish; Method(None)/Closure/Constructor gates, native, and Call core field deletion remain outside
-  exit              = one strict projection edge with positive/negative/parity/shared-guard evidence; no raw externcall capability expansion or retry/fallback
+  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT
+  implementation    = R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d, R4e, R4f, Query D0/T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed decoration I0, JSON profile D1, profile threading I0, and strict-adapter I0 closed at 40559cceef; JoinIR D0/R4c remains NoSafeSlice
+  mode              = design_stop
+  production stop   = before any native switch: the strict adapter is closed, and the selected ny-llvmc route/profile/arity/symbol/link capability audit must be accepted first; Method(None)/Closure/Constructor gates, R6 field deletion, and JoinIR remain outside
+  exit              = accepted finite native D0 capability matrix or explicit NoSafeSlice; no code edit, raw externcall expansion, or retry/fallback
 fallback / retry  = 0
 ```
 
@@ -366,11 +366,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JSON-BACKEND-SHAPE-STRICT-ADAPTER-I0-R0
-  -> remove typed pre-wire mutation, validate complete v0 adapter shape, fence profile, and prove selected structured terminal rejection
+ MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT
+  -> census the selected ny-llvmc structured terminal route/profile/arity/symbol/link matrix; no code before D0 acceptance
 
 Next (not selected)
-  -> native D0 and R6 gate after I0; R4c remains NoSafeSlice unless a caller reopens
+  -> R6 gate after native D0; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

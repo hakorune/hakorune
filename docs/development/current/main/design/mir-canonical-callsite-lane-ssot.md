@@ -696,9 +696,34 @@ D1 result: the finite backend census is accepted. Canonical structured
 `externcall` remains owner-local and is never treated as generic selected
 terminal capability. The adapter must validate `op`, `func`, `dst`, and `args`
 before the one console projection, preserve unknown compatibility routes
-without target inference, and reject malformed/defaulted shapes. The next
-execution row is the bounded strict-adapter I0 above; no other backend or
-schema row is selected.
+without target inference, and reject malformed/defaulted shapes.
+
+Strict-adapter I0 is closed by `40559cceef`. Typed pre-wire backend mutation
+was removed; the owner-local adapter now validates the complete v0 shape,
+the handoff projection runs inside the Phase0 profile fence, and six focused
+`backend_shape` tests plus runtime/source parity and the shared corridor guard
+are green. The selected C terminal retains structured-callee routing, rejects
+missing structured callee, and has no direct raw `externcall` arm or
+fallback/retry.
+
+The next selected design stop is
+`MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT`:
+
+```text
+Decision: audit and choose the selected ny-llvmc structured terminal's exact
+  capability boundary before any native switch.
+Source authority + canonical issuer: typed Callee plus root-owned
+  JsonEgressProfile; the selected ny-llvmc C route table is terminal
+  capability authority.
+Non-authority: raw externcall wire, PyVM/reference/Python/WASM, generic
+  backend guesses, symbol lookup, fallback, and retry.
+Fail-fast boundary: route/profile/arity/symbol/link evidence is complete
+  before publish; unknown, wrong-arity, or missing structured callee rejects.
+Smallest next slice: finite native D0 census of the selected terminal route
+  matrix with positive/negative/parity evidence and reopen triggers; no code.
+Non-claims: JoinIR R4c, R6 field cutover, MirCall/CallFlags, Method(None),
+  Closure/Constructor, warning cleanup, and non-selected backends.
+```
 
 I0 acceptance matrix:
 

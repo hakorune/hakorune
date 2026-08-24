@@ -10,15 +10,15 @@ terminal closure are closed; R5b-B0 selected Rust interpreter rejection and
 R5c printer-only projection are closed; JSON egress D0 and typed v0
 decoration I0 are closed; JSON profile D1 and profile-threading I0 are closed;
 JoinIR operand-remap D0/caller-lifecycle D1 are closed as NoSafeSlice;
-JSON backend_shape capability/authority D1 is accepted and strict-adapter I0
-is the active execution row."""
+JSON backend_shape capability/authority D1 and strict-adapter I0 are closed;
+the selected ny-llvmc native capability D0 is the active design stop."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-JSON-BACKEND-SHAPE-STRICT-ADAPTER-I0-R0"
-current_design_stop = "backend_shape D1 is accepted as a strict owner-local adapter; I0 must remove typed pre-wire mutation, validate the complete v0 shape, and keep selected ny-llvmc structured-terminal rejection fail-fast."
-current_blocker_token = "backend_shape I0: typed Callee/profile is fixed before publish; malformed/defaulted raw externcall rejects with no retry/fallback."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT"
+current_design_stop = "backend_shape strict-adapter I0 is closed at 40559cceef; native D0 must census the selected ny-llvmc structured terminal route/profile/arity/symbol/link capability before any code or native switch."
+current_blocker_token = "backend_shape native D0: prove selected ny-llvmc structured terminal route/profile/arity/symbol/link matrix; raw externcall remains rejected with no retry/fallback."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -32,15 +32,15 @@ closed. Query D0/T0, R5 D0, R5a optimizer-only terminal closure, R5b-B0
 selected Rust interpreter rejection, and R5c printer-only projection are
 closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
 is accepted and profile-threading I0 is closed; JoinIR D0/caller-lifecycle D1
-are NoSafeSlice/closed, backend_shape capability D1 is accepted, and strict
-adapter I0 is the active execution row.
+are NoSafeSlice/closed, backend_shape capability D1 and strict-adapter I0 are
+closed, and native capability D0 is the active design stop.
 JoinIR remap is
 NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
 ParkedSealed outside this lane. R5 exit: finite terminal matrix, selected
 optimizer/interpreter/printer rows, JSON D0/I0, shared guard, and no R6 field
-deletion; JoinIR is fenced NoSafeSlice, native, and R6 remain separate while
-backend_shape strict-adapter I0 is active."""
+deletion; JoinIR is fenced NoSafeSlice, strict-adapter I0 is closed, and native
+and R6 remain separate while native D0 is unaccepted."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -52,9 +52,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d escape, R4e ownership, R4f CallLike retirement, Query T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, and profile-threading I0 are closed. JoinIR D0/caller-lifecycle D1 are NoSafeSlice; backend_shape capability D1 is accepted and strict-adapter I0 is active; PyVM/reference/Python remain ParkedSealed outside this lane."
-next_design_card = "none — backend_shape D1 accepted; R4c remains NoSafeSlice unless a caller reopens"
-next_execution_card = "MIR-CALL-JSON-BACKEND-SHAPE-STRICT-ADAPTER-I0-R0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d escape, R4e ownership, R4f CallLike retirement, Query T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, profile-threading I0, and backend_shape strict-adapter I0 at 40559cceef are closed. JoinIR D0/caller-lifecycle D1 are NoSafeSlice; native ny-llvmc capability D0 is the active design stop; PyVM/reference/Python remain ParkedSealed outside this lane."
+next_design_card = "MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-D0-CAPABILITY-AUDIT"
+next_execution_card = "none — native D0 is unaccepted; no code edit"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -67,7 +67,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-25: R5a optimizer, R5b-B0 Rust interpreter, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, and profile-threading I0 are closed (e36f86e869, 95427f2cd6, 67dd7e400a, 09f0e51143, 5ce1b18904, db350b81c9); JoinIR D0/caller-lifecycle D1 are NoSafeSlice, backend_shape capability D1 is accepted, and strict-adapter I0 is selected; PyVM/reference/Python stay ParkedSealed.",
+  "2026-08-25: R5a optimizer, R5b-B0 Rust interpreter, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, and profile-threading I0 are closed (e36f86e869, 95427f2cd6, 67dd7e400a, 09f0e51143, 5ce1b18904, db350b81c9); JoinIR D0/caller-lifecycle D1 are NoSafeSlice, backend_shape strict-adapter I0 is closed at 40559cceef, and native ny-llvmc capability D0 is the selected design stop; PyVM/reference/Python stay ParkedSealed.",
   "2026-08-25: MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0 closed Query Call read/write reconstruction via used_values/dst_value; 2 focused tests, pointer/corridor guards green, 433 warnings remain baseline.",
   "2026-08-25: MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-I0-R0 closed value_consumer Call membership via one used_values delegation; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4d escape was next.",
 ]
