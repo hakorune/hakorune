@@ -44,11 +44,11 @@ impl PreparedNormalCallableMainPhysicalV1 {
         &self.helpers
     }
 
-    pub(in crate::mir) const fn source(&self) -> &VerifiedNormalMainSourceDraftV1 {
+    pub(in crate::mir::builder) const fn source(&self) -> &VerifiedNormalMainSourceDraftV1 {
         &self.source
     }
 
-    pub(in crate::mir) const fn physical(&self) -> &VerifiedNormalMainPhysicalThunkDraftV1 {
+    pub(in crate::mir::builder) const fn physical(&self) -> &VerifiedNormalMainPhysicalThunkDraftV1 {
         &self.physical
     }
 
@@ -60,7 +60,7 @@ impl PreparedNormalCallableMainPhysicalV1 {
         self.transaction.source().source_identity()
     }
 
-    pub(in crate::mir) fn into_evidence_parts(
+    pub(in crate::mir::builder) fn into_evidence_parts(
         self,
     ) -> (
         PreparedNormalHelperTopologyReceiptV1,
