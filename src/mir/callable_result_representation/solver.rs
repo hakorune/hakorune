@@ -2,7 +2,6 @@ use std::collections::BTreeMap;
 
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
-    VerifiedSameModuleCallableDeclarationV1,
 };
 use crate::mir::resolved_semantics::SourceExprSiteV1;
 use crate::mir::source_call_target::VerifiedSourceStaticCallTargetCatalogV1;

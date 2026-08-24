@@ -34,7 +34,7 @@ pub(crate) use static_call_result_publication::{
     VerifiedStaticCallResultPublicationDemandV1, VerifiedStaticCallResultPublicationHandoffV1,
 };
 pub(crate) use static_call_result_publication_owner::{
-    StaticCallResultPublicationOwnerErrorV1, StaticCallResultPublicationOwnerTakeErrorV1,
+    StaticCallResultPublicationOwnerTakeErrorV1,
     StaticCallResultPublicationTakeV1, VerifiedStaticCallResultPublicationOwnerV1,
 };
 #[allow(unused_imports)]
