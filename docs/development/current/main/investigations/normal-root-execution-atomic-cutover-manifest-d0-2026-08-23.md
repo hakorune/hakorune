@@ -981,3 +981,16 @@ DirectAccum, Dynamic full-body co-seal, and Generic G0 projection facades;
 source/Recipe issuers and physical owners are unchanged. The focused
 `normal_root_execution` suite passes 19 tests, all five reusable guards remain
 green, and the test fingerprint moved from 916 to 910 warnings.
+
+The following root-compiler import slice is landed as `737db8c777`:
+
+```text
+737db8c777  refactor: prune root compiler imports
+```
+
+It removes six caller-zero imports or bounded reexports from the Generic G0
+cohort, normal source plan, Raw root, canonical drain fixture, postprocess
+fixture, and root manifest package modules; ownership and compatibility
+boundaries are unchanged. The focused `normal_root_execution` suite passes
+19 tests, all five reusable guards remain green, and the test fingerprint
+moved from 910 to 904 warnings.
