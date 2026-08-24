@@ -700,3 +700,16 @@ products) without changing the child-module owners. The focused transaction
 tests pass 4 tests, all five reusable guards remain green, and the test
 fingerprint moved from 1023 to 1022 warnings with zero warning records in the
 touched module.
+
+The following import-only R0 slice is landed as `9f082bc47c`:
+
+```text
+9f082bc47c  refactor: prune collector exports
+```
+
+It removes four caller-zero collector drain/batch export groups while keeping
+the collector-owned prepared products and commit-facing receipt. The focused
+`module_draft_collector` suite passes 32 tests, all five reusable guards remain
+green, and the test fingerprint moved from 1022 to 1018 warnings. The only
+remaining warning in that module is the separate unused lifecycle method
+`seal_after_exact_signature_preflight`.
