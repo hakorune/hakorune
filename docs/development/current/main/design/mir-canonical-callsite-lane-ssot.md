@@ -1542,6 +1542,18 @@ reject token family, focused positive/negative parser tests, the existing direct
 NewBox test, and the shared Call corridor guard. Full D1-D remains
 `NoSafeSlice` because no source/arity product reaches arbitrary `New` call sites.
 
+#### D1-D1 implementation acceptance — V1 shape boundary closed
+
+`parse_v1_mir_call` now rejects missing, non-array, or dual-placement `args`,
+and conflicting `name`/`box_type`, with stable
+`[freeze:contract][mir-json-v1/...]` errors before `NewBox` publication.
+Valid typed Constructor -> `NewBox` and direct `op=newbox` remain unchanged.
+The focused V1 parser suite is 9/9, the V0 compatibility suite is 28/28, and
+the shared Call corridor, pointer, individual rustfmt, diff, and line-limit
+checks are green in commit `640ac083a7`. No source/arity authority, R6 core
+field, native route, or positive Constructor producer was added. Full D1-D
+remains `NoSafeSlice`.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records

@@ -16,14 +16,14 @@ capability boundary, the path-preserving C owner split, and LLVM trap declaratio
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
 source/plan/arity/args/dst prepass evidence, and the next active state is the
-R6 core-schema D1-D design stop; D1-D0 V0 reject is closed and the bounded D1-D1 V1 Constructor shape-reject slice is selected for implementation."""
+R6 core-schema D1-D design stop; D1-D0 V0 reject and D1-D1 V1 shape rejects are closed, and the full source/arity handoff remains a design stop."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-R6-CORE-SCHEMA-D1-D1-V1-CONSTRUCTOR-SHAPE-REJECT-I0-R0"
-current_design_stop = "Full D1-D source/arity handoff remains NoSafeSlice; the bounded D1-D1 V1 compatibility row is selected: valid Constructor -> NewBox remains positive, while malformed/ambiguous args and conflicting aliases reject before publication."
-current_blocker_token = "MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN: Constructor/NewBox still lacks New-callsite source/arity/dst/args co-seal; D1-D1 only closes V1 wire-shape ambiguity, and Method(None) remains open."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN"
+current_design_stop = "D1-D1 V1 Constructor shape rejects closed at 640ac083a7 before NewBox publication; full D1-D source/arity handoff remains NoSafeSlice, and valid Constructor/direct op=newbox remain positive."
+current_blocker_token = "MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN: Constructor/NewBox still lacks New-callsite source/arity/dst/args co-seal; D1-D0/D1-D1 only close malformed compatibility edges, and Method(None) remains open."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -39,7 +39,7 @@ closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
 is accepted and profile-threading I0 is closed; JoinIR D0/caller-lifecycle D1
 are NoSafeSlice/closed, backend_shape capability D1 and strict-adapter I0 are
 closed, native capability D0 is NoSafeSlice, native D1 and the C owner split
-are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 rejection is closed, and the workstream is executing the bounded R6 D1-D1 V1 Constructor shape boundary.
+are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 and D1-D1 V1 negative Constructor edges are closed, and the workstream remains at the R6 D1-D design stop.
 JoinIR remap is NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
 ParkedSealed outside this lane. R5 exit: finite terminal matrix, selected
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON profile/threading, backend strict-adapter, native/C trap split, and exact Extern D0 are closed. R6 D0 fixed the shape; D1-A parked flags; D1-B-PARK design-closed the selected static/outside boundary; D1-C2-I0 closed lossy closure-body JSON egress; D1-D0 closed the V0 typed Constructor pre-publication reject; D1-D1 now owns the V1 malformed/ambiguous Constructor shape boundary. Full Constructor/NewBox handoff remains NoSafeSlice. JoinIR/native D0 remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON profile/threading, backend strict-adapter, native/C trap split, and exact Extern D0 are closed. R6 D0 fixed the shape; D1-A parked flags; D1-B-PARK design-closed the selected static/outside boundary; D1-C2-I0 closed lossy closure-body JSON egress; D1-D0 closed the V0 typed Constructor pre-publication reject; D1-D1 closed the V1 malformed/ambiguous Constructor shape boundary at 640ac083a7. Full Constructor/NewBox handoff remains NoSafeSlice. JoinIR/native D0 remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
 next_design_card = "MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN"
-next_execution_card = "MIR-CALL-R6-CORE-SCHEMA-D1-D1-V1-CONSTRUCTOR-SHAPE-REJECT-I0-R0"
+next_execution_card = "none — MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN is a design stop"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -76,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-25: R5a optimizer, R5b-B0 Rust interpreter, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, and profile-threading I0 are closed (e36f86e869, 95427f2cd6, 67dd7e400a, 09f0e51143, 5ce1b18904, db350b81c9); JoinIR D0/caller-lifecycle D1 are NoSafeSlice, backend_shape strict-adapter I0 is closed at 40559cceef, native capability D0 is NoSafeSlice, native D1 boundary and C owner split I0 at 03b06622eb are closed, and exact Extern D0 is accepted with production link/prepass evidence; closeout precedes the R6 design stop; PyVM/reference/Python stay ParkedSealed.",
   "2026-08-25: MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0 closed Query Call read/write reconstruction via used_values/dst_value; 2 focused tests, pointer/corridor guards green, 433 warnings remain baseline.",
-  "2026-08-25: MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-I0-R0 closed value_consumer Call membership via one used_values delegation; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4d escape was next. D1-D0 V0 typed Constructor rejection later closed at f3aa0c4721 with direct newbox positive, 28 mir_json_v0 tests, and corridor/pointer/rustfmt/diff guards green; full Constructor/NewBox source/arity handoff remains NoSafeSlice.",
+  "2026-08-25: MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-I0-R0 closed value_consumer Call membership via one used_values delegation; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4d escape was next. D1-D0 V0 typed Constructor rejection later closed at f3aa0c4721 with direct newbox positive, 28 mir_json_v0 tests, and corridor/pointer/rustfmt/diff guards green; D1-D1 V1 Constructor shape rejects closed at 640ac083a7 with V1 parser 9/9, V0 28/28, and shared guards green; full Constructor/NewBox source/arity handoff remains NoSafeSlice.",
 ]

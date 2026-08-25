@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast (R6 D1-D1 compatibility boundary)
+Status: Active workstream — design stop (R6 D1-D)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D1-V1-CONSTRUCTOR-SHAPE-REJECT-I0-R0
-  implementation    = preserve valid V1 typed Constructor -> NewBox; reject missing/non-array/dual-placement args and conflicting name/box_type before publication
-  mode              = fast
-  production stop   = D1-D0 V0 rejection is closed; full D1-D source/arity handoff remains NoSafeSlice while this V1 wire-shape boundary is closed
-  exit              = stable malformed/ambiguous rejects, valid Constructor/direct-newbox parity, shared guard, and no R6 field/source-route switch
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
+  implementation    = D1-D1 V1 Constructor shape reject closed at 640ac083a7; valid Constructor -> NewBox and direct op=newbox remain unchanged
+  mode              = design_stop
+  production stop   = D1-D0 V0 and D1-D1 V1 negative compatibility edges are closed; full D1-D source/arity handoff remains NoSafeSlice, with no R6 field/source-route switch
+  exit              = name the existing New-callsite source/arity product and co-seal the V0/V1 resolve-once-or-reject matrix; Method(None) remains open
 fallback / retry  = 0
 ```
 
@@ -271,8 +271,8 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
 8. R6 D0 is accepted; D1-D0 closed the negative V0 Constructor publication edge
-   at `f3aa0c4721`; the full `Call { callee: Callee }` issuer/cut matrix across
-   `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox remains a design stop.
+   at `f3aa0c4721`, and D1-D1 closed V1 malformed/ambiguous shape rejects at
+   `640ac083a7`; the full `Call { callee: Callee }` issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox remains a design stop.
 9. R7: structural guards, README/reference sync, and census closeout.
 
 R3 D0 accepted boundary:
@@ -367,8 +367,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-D1-V1-CONSTRUCTOR-SHAPE-REJECT-I0-R0
-  -> fast slice: keep valid V1 Constructor -> NewBox; reject malformed/ambiguous args and conflicting name/box_type before publication; D1-D0 closed the V0 negative edge without a schema change
+ MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
+  -> design stop: D1-D1 V1 Constructor shape reject closed at 640ac083a7; audit/name the existing New-callsite source/arity product before any positive Constructor/NewBox route; D1-D0 closed the V0 negative edge without a schema change
 Next (not selected)
   -> D1-D source-handoff/Constructor resolve-once outcome; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
