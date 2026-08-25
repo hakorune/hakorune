@@ -203,7 +203,9 @@ id = "phi_edge_rematerialization"
 partition = "live_selected"
 role = "reconstructor"
 sites = ["src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs:240"]
-caller_chain = "builder_emit.rs:93; control_flow/joinir/merge/rewriter/stages/apply.rs:75; control_flow/plan/features/if_join.rs:145,163; emission/phi_lifecycle.rs:427,548; emission/phi_lifecycle/batch_type_publication.rs:38; module_lifecycle.rs:466,577 -> phi_input_materializer -> edge rematerialization"
+caller_chain = "historical named sites: builder_emit.rs:93; control_flow/joinir/merge/rewriter/stages/apply.rs:75; control_flow/plan/features/if_join.rs:145,163; emission/phi_lifecycle.rs:427,548; emission/phi_lifecycle/batch_type_publication.rs:38; module_lifecycle.rs:466,577. Current production entry inventory is 7: six for_pred callsites plus function_repair.rs:36 direct rematerialization; orchestration callers are not duplicate writer entries."
+historical_named_caller_count = 9
+current_production_entry_count = 7
 lifecycle = "edge-local Call reconstruction before merge publication"
 target_authority = "source instruction Callee plus remapped operands"
 old_edge = "remaps and republishes func/Option<Callee>"
@@ -665,7 +667,7 @@ implementation_permission = false
 positive = [
   "38 direct literal sites occur exactly once in direct_writer rows",
   "canonical helper has 5/5 direct callers split into 1 live and 4 compatibility sites",
-  "active phi rematerialization has 9/9 named lifecycle caller sites",
+  "historical active phi rematerialization had 9 named lifecycle sites; the current re-census records 7 production entries (6 for_pred plus 1 function_repair)",
   "JSON-v0/v1 and selected pass families appear in the boundary",
 ]
 negative = [
@@ -725,6 +727,21 @@ parity = "4 method instruction/optimizer tests plus 3 operand-view tests passed;
 guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard green"
 source_risk = "147-line owner; no runtime caller fanout or consumer/backend changes"
 
+[receipts.d1g_builder_emit_reconstruction]
+status = "landed"
+commit = "c3c7e0ea65"
+source = "src/mir/builder/builder_emit.rs:140"
+old_edge = "direct Call reconstruction literal with func=INVALID and callee=Some after receiver localization"
+new_edge = "MirInstruction::call(*dst, localized Method(Some(receiver)), args.clone(), *effects)"
+baseline_direct_literal_sites = 35
+after_direct_literal_sites = 34
+baseline_direct_helper_callers = 8
+after_direct_helper_callers = 9
+parity = "disconnected_standard_terminal_preserves_method_identity_and_completed_destination: 1 passed; test_method_call_*: 4 passed"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; no new warning class introduced"
+source_risk = "518-line owner; no LocalSSA policy, schema, flags, fallback, or backend change"
+
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
 requires = [
@@ -733,7 +750,7 @@ requires = [
   "active PHI rematerialization retained as live, not parked",
 ]
 next_fast_candidates = [
-  "typed Extern SSOT helper delegation",
-  "internal MirCall/CallFlags transport retirement",
+  "MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-D0 (design stop first)",
+  "internal MirCall/CallFlags transport retirement after D1H boundary closure",
 ]
 selection_rule = "do not choose a fast candidate until this manifest is accepted and the candidate's old edge is isolated"
