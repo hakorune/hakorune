@@ -112,7 +112,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current row:
 
 ```text
-MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0
+MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -191,15 +191,22 @@ final schema, `Method(None)`, ingress, array projection, canonicalizer, and
 backend work remain separately gated. The focused physical receipt suite is
 7/7 and the shared guard remains 777 lines.
 
-Post-D1X census is a design stop, not another constructor row. Exactly two
-selected production writers remain: `array_element_write.rs` retains one
-ArrayElementWrite projection issuer with four live callers (three selected
-native and one ParkedSealed), while `callsite_canonicalize/pass.rs` retains
-one late `callee=None + Const(String)` target issuer admitted by two named
-schedules. A literal-only replacement would leave those authorities alive, so
-the safe fast-row count is zero. The next accepted Decision must close one
-authority/caller/schedule boundary with typed negative and parity evidence
-before implementation resumes.
+Post-D1X premise audit split the two writers. The canonicalizer row is now an
+accepted bounded retirement: ingress/source producers already issue exact
+`Callee`, all five named schedule entries are retained as timing seams, and
+the late `callee=None + Const(String)` issuer is the only authority removed.
+Its typed-only positive/negative/parity matrix forbids target repair, retry, or
+schedule-local inference. The ArrayElementWrite projection remains
+`NoSafeSlice`: four backend callers still depend on its legacy projection and
+selected native callers have no replacement consumer authority. It is not
+claimed retired by the canonicalizer row.
+
+The accepted implementation manifest is:
+
+```text
+docs/development/current/main/investigations/
+  mir-call-r6-late-legacy-target-issuer-retire-i0-2026-08-25.toml
+```
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

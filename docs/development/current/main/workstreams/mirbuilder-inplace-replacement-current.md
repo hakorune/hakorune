@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0
+Status: Fast — MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0
-  implementation    = D1X UnifiedPhysicalTerminal landed at cde490f75e (selected writers 3 -> 2; unified family 1 -> 0); remaining writers are array projection 1 and late canonicalizer 1
-  mode              = design_stop
-  production stop   = no implementation is permitted; one accepted authority/caller/schedule Decision must precede any new fast row
-  exit              = finite remaining-writer census, accepted Decision with fail-fast/negative/parity proof, then one bounded next slice
+  current decision  = MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0
+  implementation    = D1X UnifiedPhysicalTerminal landed at cde490f75e (selected writers 3 -> 2; unified family 1 -> 0); canonicalizer retirement is the accepted next edge and ArrayElementWrite remains NoSafeSlice
+  mode              = fast
+  production stop   = only the selected late target issuer row is open; ArrayElementWrite, final schema, ingress, backend, and cleanup remain closed
+  exit              = one typed-only pass, five schedule entries, zero late target issuer, focused positive/negative/parity proof, shared guard, then closeout
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: NoSafeSlice — D1X closed the final safe generic terminal writer; the two remaining writers each retain an authority/caller/schedule blocker.
-Source authority + canonical issuer: upstream exact Callee remains the sole target authority and MirInstruction::call stores only classified targets; array projection and late canonicalizer must be separately owned before retirement.
-Non-authority: array method mapping, legacy func/Const scan, function-name/arity reclassification, backend lookup, and literal counts alone.
-Fail-fast boundary: missing exact Callee or incomplete selected ArrayElementWrite projection rejects before Call publication; constructor/backend target inference is forbidden.
-Smallest next slice: design only — accept one Decision that closes either selected array projection callers/issuer or late callsite-canonicalizer schedule/issuer as a complete authority boundary.
-Non-claims: no code, fixture, fallback, production switch, final schema, Method(None), JSON ingress, array/backend implementation, canonicalizer retirement, metadata, or cleanup.
+Decision: Accept the late canonicalizer retirement row; ArrayElementWrite remains NoSafeSlice because selected native callers still lack a native consumer authority.
+Source authority + canonical issuer: ingress/source producers issue exact Callee; MirInstruction::call is the only new Call issuer, while this pass preserves typed arms and issues no missing-target repair.
+Non-authority: func/INVALID, Const(String) scans, name/arity lookup, schedule booleans, backend lookup, and literal counts alone.
+Fail-fast boundary: callee=None plus func->Const(String) is no longer repaired here; typed ingress/selected boundaries reject unresolved input before Call publication and no retry is added.
+Smallest next slice: remove the legacy target arm, Const collector, and allow flag; collapse schedules to typed-only behavior; delete only legacy-success fixtures; extend the existing guard.
+Non-claims: no ArrayElementWrite consumer adoption, final schema, Method(None), JSON ingress redesign, backend/VM changes, MirCall/CallFlags, metadata, warning, or cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0 -> NoSafeSlice after D1X: selected writer inventory is exactly array projection 1 plus late callsite canonicalizer 1; safe fast rows 0; await accepted authority/caller/schedule Decision
+Now MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0 -> accepted after premise audit: remove the one late `callee=None + Const(String)` issuer and its schedule opt-in; preserve five typed-only schedule entries and all six other canonicalizer arms; ArrayElementWrite projection 1 remains NoSafeSlice pending native consumer authority
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

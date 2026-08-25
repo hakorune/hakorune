@@ -1,0 +1,126 @@
+title = "MIR Call R6 late legacy target issuer retirement I0"
+status = "accepted_design"
+observed_at = "2026-08-25"
+observed_commit = "4d44027191"
+implementation_permission = true
+decision = "MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[boundary]
+starts = "existing typed CallsiteCanonicalize pass before its legacy target branch"
+ends = "canonicalizer pass return after closure, Method(Some), and Global normalization"
+includes = [
+  "src/mir/passes/callsite_canonicalize/pass.rs",
+  "src/mir/passes/callsite_canonicalize/schedule.rs",
+  "src/mir/passes/callsite_canonicalize/helpers.rs",
+  "src/mir/passes/callsite_canonicalize/tests/mcl.rs",
+  "src/mir/passes/callsite_canonicalize/tests/mod.rs",
+  "src/mir/passes/callsite_canonicalize/tests/ncl.rs",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/builder/README.md",
+]
+excludes = [
+  "ArrayElementWrite projection and its four backend callers",
+  "Call { func, Option<Callee> } schema cutover",
+  "Method(None), JSON ingress, VM/backend/wire, and optimizer policy",
+  "Closure/Constructor/CallFlags retirement",
+  "PyVM/reference/Python and non-selected backends",
+]
+
+[decision]
+summary = "Retire only the late callee=None plus func-to-Const(String) target issuer; typed CallsiteCanonicalize arms remain the sole pass behavior."
+source_authority = "JSON-v0 owner ingress or source/catalog producers resolve the target to an exact Callee before this pass; typed Call already carries that target."
+canonical_issuer = "MirInstruction::call at upstream producers; this pass may preserve or classify existing typed Callee arms but must issue no replacement target."
+non_authority = [
+  "func, ValueId::INVALID, Const(String), function-name scans, and argument arity as a missing-target resolver",
+  "allow_legacy_target_rewrite policy booleans and schedule-local retry",
+  "backend, VM, printer, JSON text, and test fixtures as target authority",
+]
+fail_fast = "A synthetic callee=None plus Const(String) input is not repaired here; it remains unchanged for the existing typed ingress/diagnostic boundary and no Call publication or retry is added."
+no_retry = "No name/arity lookup, Const scan, fallback, second schedule, or target reclassification is introduced; ProgramJsonV0Bridge remains the rejecting schedule."
+smallest_next_slice = "Delete the legacy target branch and its Const collection, collapse the schedule API to one typed-only path, remove only legacy-success fixtures, and extend the existing corridor guard."
+non_claims = [
+  "mandatory-Callee schema cutover",
+  "Method(None) retirement or static/instance classification",
+  "JSON-v0 ingress redesign or backend activation",
+  "ArrayElementWrite consumer adoption",
+  "MirCall/CallFlags, Closure/Constructor, metadata, warning, or cleanup work",
+]
+
+[state_matrix]
+typed_call = "Existing Global/Method(Some)/Closure Call follows the current six non-legacy arms unchanged."
+legacy_none = "callee=None plus func is no longer a success state of this pass; no rewrite and no retry."
+program_json_v0 = "ProgramJsonV0Bridge continues to disallow the late rewrite and relies on its ingress-owned typed resolution."
+mir_json_v0 = "MirJsonV0Loader keeps its schedule entry but receives only already-resolved typed calls; unresolved legacy input remains an ingress error."
+missing_or_ambiguous = "Typed ingress/selected boundary rejects before publication; the pass does not synthesize a target."
+non_call = "NewClosure externalization and all non-Call instructions retain existing behavior."
+
+[schedule_inventory]
+entries = [
+  "MirCompilerPostRc",
+  "ProgramJsonV0Bridge",
+  "MirJsonV0Loader",
+  "raw physical drain through MirCompilerPostRc",
+  "module postprocess through MirCompilerPostRc",
+]
+legacy_success_entries = 0
+typed_only_entries = 5
+schedule_authority = "CallsiteCanonicalizeScheduleSite names timing only; no entry may opt into a late target issuer after this row."
+
+[delete_set]
+pass = [
+  "callee=None plus func-to-Const(String) match arm",
+  "allow_legacy_target_rewrite parameter and schedule boolean",
+  "collect_const_string_literals call and helper",
+]
+fixtures = [
+  "legacy-success canonicalizer tests that assert func-to-Global repair",
+  "retain typed Global/Method/Closure positives and missing/unsupported negatives",
+]
+preserve = [
+  "closure body externalization",
+  "Method(Some) user/runtime normalization",
+  "Global name canonicalization and methodization for existing typed Global",
+  "receiver rewrite and post-canonicalization semantic refresh timing",
+]
+
+[proof]
+positive = [
+  "typed Global with explicit arity remains unchanged",
+  "typed Method(Some(receiver)) classification remains unchanged",
+  "Closure constructor externalization remains unchanged",
+  "all existing non-legacy rewrite counts and metadata parity remain unchanged",
+]
+negative = [
+  "synthetic callee=None plus Const(String) is not rewritten to Global",
+  "missing Const relation is not retried through a name or backend lookup",
+  "ProgramJsonV0Bridge remains a typed rejection boundary",
+]
+parity = [
+  "function-name normalization for already-typed Global",
+  "runtime/user Method(Some) normalization",
+  "closure metadata and receiver-rewrite timing",
+  "changed-count and semantic-refresh ordering at existing callers",
+]
+
+[acceptance]
+focused_tests = [
+  "typed-only canonicalizer positives and existing no-rewrite negatives",
+  "legacy None+Const negative fixture",
+  "ProgramJsonV0 schedule rejection",
+]
+guards = [
+  "mir_call_canonical_corridor_guard remains exactly 777 lines and checks zero late target issuer",
+  "current_state_pointer_guard",
+  "git diff --check",
+]
+inventory = "production late target issuer 1 -> 0; schedule boolean policy 0; Const-string collector use 0; ArrayElementWrite writer remains 1 and is not claimed retired"
+source_limits = "pass.rs 246 lines, helpers.rs remains below 760, shared guard 777 lines, active card 1000 lines"
+
+[reopen]
+triggers = [
+  "a production callee=None producer or external legacy caller is found",
+  "typed ingress cannot guarantee Callee before this pass",
+  "removal requires Method(None), schema, backend, or new target inference",
+  "another schedule-local rewrite or fallback is proposed",
+]
