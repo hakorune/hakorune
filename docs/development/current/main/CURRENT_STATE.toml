@@ -23,8 +23,8 @@ development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
-current_design_stop = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 is design-only: the two Builder Method(None) producer literals are counted, but catalog provenance, pre-effect precedence, RuntimeData Global cohort, and semantic delete set remain open; ArrayElementWrite is ParkedSealed."
-current_blocker_token = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 design_stop: do not delete producer literals or recovery edges until exact catalog handoff precedes argument descent and the finite state/parity/delete set is accepted."
+current_design_stop = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 is design-only: the two Builder Method(None) producer literals are counted and the six-level pre-effect precedence is accepted, but catalog transport, RuntimeData Global cohort, and semantic delete set remain open; ArrayElementWrite is ParkedSealed."
+current_blocker_token = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 design_stop: do not delete producer literals or recovery edges until existing preflight transport precedes argument descent and the remaining RuntimeData/recovery delete set and scoped parity are accepted."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -43,7 +43,7 @@ closed, and R6 remains separate; exact Extern D0 is accepted with generic-entry 
 metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7, D1 design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92; JoinIR remapper
 isolation I0 is landed at 0048c0176a, physical type D0 and exact-i64 I0 are closed at 7fd97a5344, while JSON/C/backend effects remain closed and R6 D0 plus
 direct-static issuer I0 are closed at 6302839770; R6-D1 manifest is accepted design-only, D1A typed Extern issuer I0 landed at 4b2fe7a7b6, D1B Method(None)
-census is accepted design-only, D1C/D1C1 remain NoSafeSlice, the Call SSOT docs-slim move is landed, D1E normal-main thunk issuer landed at 2150472c35,
+census and six-level precedence are accepted design-only, while catalog transport/RuntimeData/recovery remain open; D1C/D1C1 remain NoSafeSlice, the Call SSOT docs-slim move is landed, D1E normal-main thunk issuer landed at 2150472c35,
 D1F typed Method issuer landed at 572ec6f5b1, D1G builder emit reconstruction landed at c3c7e0ea65, D1H PHI reconstruction landed at b090f917b4, D1I
 concat3 Extern rewrite landed at 513a243be5, D1J BoxCall Method issuer landed at c927da4029, D1K retained-len Extern issuer landed at 8401f457ab, and D1L
 direct substring-len Extern issuer landed at 0be8a73420; D1M method-set value rewrite landed at f7a442f524 with focused 4/4 proof; recursion-depth
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 and canonicalizer closeout are landed; FUNCTION-METADATA-OWNER-SPLIT-R0 landed as a behavior-neutral 804→718-line owner split with 40/50-line nested children; D1B Row B is design-only because its catalog/pre-effect closure is incomplete, and ArrayElementWrite remains ParkedSealed."
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 and canonicalizer closeout are landed; FUNCTION-METADATA-OWNER-SPLIT-R0 landed as a behavior-neutral 804→718-line owner split with 40/50-line nested children; D1B Row B is design-only with its six-level precedence accepted but catalog transport/RuntimeData/recovery closure incomplete, and ArrayElementWrite remains ParkedSealed."
 next_design_card = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
-next_execution_card = "none (NoSafeSlice; await accepted D1B Row B catalog/pre-effect closure Decision)"
+next_execution_card = "none (NoSafeSlice; await accepted D1B Row B transport/RuntimeData/recovery closure Decision)"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
