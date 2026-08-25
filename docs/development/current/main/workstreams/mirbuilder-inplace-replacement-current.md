@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,15 +32,15 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
-  implementation    = one source-verified direct-static issuer delegates to MirInstruction::call
-  mode              = fast
+  current decision  = MIR-CALL-CORE-R6-D1
+  implementation    = direct-static issuer I0 landed at 6302839770
+  mode              = design_stop
   production stop   = full R6 field cutover remains blocked by stale func, Method(None), Closure, Constructor, and flags edges
-  exit              = positive/negative/parity tests, shared guard, README receipt, commit/push
+  exit              = exhaustive writer/reconstructor manifest and variant-boundary Decision; no field deletion yet
   fallback / retry  = 0
 ```
 
-Accepted R6 D0 brief:
+Closed R6 D0 brief:
 
 ```text
 Decision: mandatory-Callee Call is final; this row normalizes one issuer only.
@@ -159,8 +159,9 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains
-`ParkedSealed`. Exact-i64 physical input I0 landed at `7fd97a5344`; the active
-bounded row is now the direct-static issuer normalization below.
+`ParkedSealed`. Exact-i64 physical input I0 landed at `7fd97a5344`, and the
+direct-static issuer normalization I0 landed at `6302839770`; R6-D1 is now the
+writer/reconstructor census design stop.
 
 ```text
 canonical core
@@ -178,13 +179,11 @@ forbidden
 `Callee` before the thin, non-classifying `MirInstruction::call`; `func`, INVALID,
 target Const, printer/JSON text, optimizer scans, and runtime lookup are not authority.
 
-The full R6 census is 20 direct literals plus the helper (21 definitions), not
-exhausted: stale `func`, Method(None), Constructor, Closure wire, and flags remain.
-This row covers one source-verified direct-static writer; parked PyVM/reference/Python
-and tests/comments are outside it.
+The full R6 census is 20 direct literals plus the helper (21 definitions), not exhausted:
+stale `func`, Method(None), Constructor, Closure wire, and flags remain. The direct-static I0
+is closed; parked PyVM/reference/Python and tests/comments remain outside the full census boundary.
 
-JSON-v0 is total: explicit callee wins; malformed, missing, duplicate, foreign, or non-String
-targets reject before publication; legacy name/unique func-Const resolves once.
+JSON-v0 is total: explicit callee wins; malformed, missing, duplicate, foreign, or non-String targets reject before publication; legacy name/unique func-Const resolves once.
 
 Before field deletion, `Callee` owns target operands (Method receiver, Value, Closure captures/me);
 Global/Extern/Constructor add none, args follow in order.
@@ -569,9 +568,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D0
-  -> design_stop: name Call source authority, canonical issuer, consumer/lifecycle closure, finite rejection matrix, and exact old-edge delete set; no schema deletion yet
+ MIR-CALL-CORE-R6-D1
+  -> design_stop: exhaust all non-test writers/reconstructors and close Method(None), Closure, Constructor/NewBox, flags, and selected fallback boundaries; no schema deletion yet
 Closed immediately prior
+ MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
+  -> landed at 6302839770: source-verified direct-static issuer delegates once to MirInstruction::call; positive/negative/parity tests, shared guard, README, and pointer are green
  MIR-PHYSICAL-TYPE-INPUT-I0
   -> landed at 7fd97a5344: binding-preserving typed target-layout child, one selected Dynamic co-seal, existing AOT projection storage; JSON/C/backend remain ParkedSealed
 Call lane (after D0/I0): R6 canonical operand/escape projection and lifecycle inventory are closed; JoinIR remap is test/reference-only at 0048c0176a, so do not revive caller-zero code
