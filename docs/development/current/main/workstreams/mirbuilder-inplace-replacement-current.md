@@ -44,8 +44,8 @@ Next bounded design brief:
 
 ```text
 Decision: accept a D0 boundary for one PHI Call reconstruction writer, not full rematerialization policy or atomicity.
-Source authority + canonical issuer: source typed Callee/dst/args/effects plus edge-local remapped operands -> MirInstruction::call; non-authority is stale func, names, EffectMask, later scans, function_repair policy, and Method(None).
-Fail-fast boundary: extract Some(callee) before existing recursive rematerialization; after all operands succeed, use the infallible helper with no new error/retry. Smallest slice: edge_rematerialization.rs writer + local callee remapper, scoped guard, focused parity, README receipt.
+Source authority + canonical issuer: source typed Callee/dst/args/effects plus edge-local remapped operands -> MirInstruction::call; non-authority is stale func, names, EffectMask, later scans, function_repair policy, and Method(None). Current receiver wildcard admission is a legacy edge, not authority.
+Fail-fast boundary: accept only Some(Callee::Method { receiver: Some(_), .. }) before recursive work, preserve existing args-then-receiver order, then use the infallible helper with no new error/retry. Smallest slice: edge_rematerialization.rs writer + local callee remapper, scoped negative guard, focused parity, README receipt.
 Non-claims: PHI admission/purity, CFG preflight, partial rollback, seven caller conversion, field deletion, other variants, JSON/VM/native/backend, and warning cleanup.
 ```
 

@@ -35,7 +35,7 @@ non_authority = [
   "later MIR/CFG/name scan, function_repair policy, or edge_kind/context strings",
   "Method(None) repair or alternate-target retry",
 ]
-fail_fast = "the existing selected Call branch must extract Some(callee) before recursive rematerialization; existing errors remain unchanged, and the final canonical constructor is infallible after all rematerialized operands succeed"
+fail_fast = "before recursive work, the selected row structurally accepts only Some(Callee::Method { receiver: Some(_), .. }); once eligible, existing args-then-receiver rematerialization order is preserved, existing errors remain unchanged, and the final canonical constructor is infallible after all operands succeed"
 no_retry = "no new fallback/retry, target reclassification, purity admission, or caller policy; six for_pred entries and the function-repair API keep their current mutation/abort behavior"
 smallest_next_slice = "make the selected substring Method(Some(receiver)) branch and callee remapper non-optional, then delegate the final writer once to MirInstruction::call without changing operand allocation or insertion order"
 non_claims = [
@@ -49,9 +49,9 @@ non_claims = [
 
 [state_matrix]
 method_some_string_success = "existing RuntimeDataBox/StringBox substring Method(Some(receiver)) -> recursive operands -> remapped Callee -> canonical Call"
-method_none = "not eligible for D1H; no repair or static/instance guess"
-non_method_callee = "outside selected substring cohort and unchanged"
-callee_none = "outside selected cohort and unchanged"
+method_none = "currently admitted by the receiver wildcard in is_rematerializable_string_method_call; D0 records this legacy eligibility and changes the selected row to receiver: Some(_) only, after which the existing generic branch returns a dominated original or typed error"
+non_method_callee = "not eligible for the selected substring writer; existing generic branch returns a dominated original or typed error"
+callee_none = "not eligible for the selected substring writer; existing generic branch returns a dominated original or typed error"
 missing_predecessor = "existing typed error may follow prior allocation/insertion; D1H makes no rollback claim"
 recursive_remat_failure = "existing error terminal; D1H adds no new error after successful rematerialization"
 all_operands_ready = "one canonical Call writer before the existing predecessor terminator insertion"
@@ -63,6 +63,11 @@ production_entries = 7
 production_entry_partition = "six for_pred callsites plus one function_repair API; its three orchestration callers are not duplicate writer entries"
 historical_named_sites = 9
 source_risk = "edge_rematerialization.rs remains below the 760/800 split limits; no adjacent dirty source is in scope"
+legacy_edges = [
+  "receiver wildcard eligibility admits Method(None)",
+  "Option<Callee> rematerializer return shape",
+  "call_func forwarding in the reconstructed Call",
+]
 
 [proof]
 positive = [
@@ -71,7 +76,8 @@ positive = [
 ]
 negative = [
   "selected assignment has no direct MirInstruction::Call literal or func forwarding",
-  "Method(None), non-Method, and callee=None remain outside the selected cohort",
+  "Method(None) is excluded by the selected receiver: Some(_) structural guard",
+  "non-Method and callee=None remain in the existing generic branch, not the selected writer",
   "no new target lookup, purity gate, or rollback path is introduced",
 ]
 parity = [
@@ -96,8 +102,8 @@ stop_if = [
 
 [acceptance]
 status = "design_stop_until_d0_boundary_acceptance"
-focused_test = "existing rematerializes_runtime_data_substring_for_phi_pred plus structural guard for Some(callee), non-optional remapper, and canonical writer"
-required_before_fast = "Method(Some(receiver)) eligibility and Method(None)=0 are structurally proven; seven production entries and partial-failure non-claims are recorded"
+focused_test = "existing rematerializes_runtime_data_substring_for_phi_pred plus a structural negative guard for Method(None), Some(callee)/receiver: Some(_), non-optional remapper, and canonical writer"
+required_before_fast = "Method(Some(receiver)) eligibility and Method(None) exclusion are structurally proven; args-then-receiver order, seven production entries, and partial-failure non-claims are recorded"
 implementation_scope = "one edge_rematerialization writer plus its local callee remapper, one shared guard extension, one README receipt; no caller or policy edits"
 review = "upper-worker census and containment audit selected this as the next design-stop row; full PHI rematerialization remains NoSafeSlice"
 
