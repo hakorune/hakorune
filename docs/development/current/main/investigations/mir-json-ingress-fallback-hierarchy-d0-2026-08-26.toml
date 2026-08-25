@@ -1,6 +1,6 @@
 title = "MIR JSON ingress v1-to-v0 fallback hierarchy design"
 status = "parked_sealed_design_no_safe_slice"
-observed_commit = "f659d3f941"
+observed_commit = "fff5eaabb1"
 observed_at = "2026-08-26"
 active_pointer = "not selected; separate from D1B Row B producer closure"
 
