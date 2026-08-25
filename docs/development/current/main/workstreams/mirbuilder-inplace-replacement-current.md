@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0
+Status: Design stop — MIR-CALL-D1B-CALL-OBSERVATION-PROFILE-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,19 +32,19 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0
-  implementation    = GC exact-target child landed at fcb1e01376; direct-call inventory and its separate index-none safety child remain design-only
+  current decision  = MIR-CALL-D1B-CALL-OBSERVATION-PROFILE-D0
+  implementation    = GC exact-target child landed at fcb1e01376; FunctionCall observation profile, direct-call inventory, and index-none safety child remain design-only
   mode              = design_stop
-  production stop   = preserve TopLevel/InstanceConstructor lineage and make every FunctionCall disposition observable; no target synthesis, second resolver, or post-effect recovery closure
-  exit              = complete owner-qualified source inventory, then package-owned identity-only index, catalog-gated traversal, same-session owner/site bijection, and whole-package abort proof
+  production stop   = separate ordinary/Brand/special/Extern/ASTNode::Call observation and preserve caller identity; no target synthesis, second resolver, or post-effect recovery closure
+  exit              = observation contract, then complete owner-qualified source inventory, package-owned identity-only index, catalog-gated traversal, same-session owner/site bijection, and whole-package abort proof
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 — preserve source lineage and co-seal a complete owner-qualified direct-call inventory before any general index or ordinary direct-call effects.
-Source authority + canonical issuer: consumed normal-root source plus the semantic package/brand catalog; the same resolver/package issuer owns inventory co-seal, and existing preflight remains the canonical Call consumer.
-Non-authority: silent SelectedCallable drops, callable_index=None empty maps, caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, collector order, headers/suffixes, post-argument values, backend lookup, or GC child behavior as a general resolver.
+Decision: D1B-CALL-OBSERVATION-PROFILE-D0 — separate ordinary/Brand/special/Extern/ASTNode::Call observation and preserve caller identity before any general inventory or direct-call effects.
+Source authority + canonical issuer: source AST/site plus the Brand declaration catalog and SelectedCallable/Constructor identity; existing ShadowResolver observation is the candidate issuer, while package co-seal remains downstream.
+Non-authority: silent SelectedCallable drops, callable_index=None empty maps, ShadowDirectCallUseV0 as a target, caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, collector order, headers/suffixes, post-argument values, backend lookup, or GC child behavior as a general resolver.
 Fail-fast boundary: before package install, body lowering, argument descent, block mutation, or Call publication; any missing/foreign/ambiguous/deferred state aborts the unpublished package.
-Smallest next slice: design-only finite matrix for complete direct-call inventory, index-none-with-calls rejection, preserved TopLevel/InstanceConstructor lineage, and same-session owner/site bijection; the general index follows only after this child.
+Smallest next slice: design-only finite observation matrix and identity carriage for ordinary/Brand/special/Extern/ASTNode::Call; profile widening and source inventory follow only after this child.
 Non-claims: implementation, new public receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 -> every selected/constructor FunctionCall must remain observable with preserved lineage and same-session owner/site disposition; silent traversal drop and index-none empty maps are forbidden. The separate index-none DraftInvariant safety child does not claim source coverage; the general identity index, sibling/constructor target loans, RuntimeData Global methodize, and ArrayElementWrite remain downstream
+Now MIR-CALL-D1B-CALL-OBSERVATION-PROFILE-D0 -> ordinary/Brand/special/Extern/ASTNode::Call must have separate finite observation states and caller identity before SelectedCallable widening; the source inventory, index-none DraftInvariant safety child, general identity index, sibling/constructor target loans, RuntimeData Global methodize, and ArrayElementWrite remain downstream
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

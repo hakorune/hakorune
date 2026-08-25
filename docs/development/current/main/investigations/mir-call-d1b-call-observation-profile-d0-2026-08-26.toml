@@ -1,0 +1,101 @@
+title = "MIR Call D1B SelectedCallable FunctionCall observation profile design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "5805401f5a"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
+decision_id = "MIR-CALL-D1B-CALL-OBSERVATION-PROFILE-D0"
+decision = "SelectedCallable may eventually observe ordinary FunctionCall through the existing shadow branch, but only after an explicit finite observation contract separates Brand, ordinary/special, ExplicitExtern, and ASTNode::Call. Observation must not issue a target, borrow the exact-i64 index, or publish a package without the owner-qualified inventory co-seal."
+
+[boundary]
+starts = "SelectedCallableV1 and InstanceConstructor shadow traversal at resolve_expr before physical lowering"
+ends = "one owner-qualified observation/disposition row per FunctionCall, with source identity retained and no target issuance or package publication"
+includes = [
+  "ShadowTraversalProfileV1::SelectedCallableV1 allows_expression policy",
+  "existing FunctionCall branch: effect observation, Brand catalog precedence, record_direct_call, and argument shadow traversal",
+  "selected callable identity and ConstructorSourceIdV1 carriage into the same-session inventory",
+  "ordinary FunctionCall versus Brand constructor, special/builtin, ExplicitExternCall, and ASTNode::Call finite separation",
+  "Deferred versus typed reject ordering for Brand arity, duplicate site, unsupported source, and missing disposition",
+]
+excludes = [
+  "target issuance, Global/Method/Value/Extern inference, or exact-i64 index reuse",
+  "TopLevel/InstanceConstructor lineage transport implementation and package co-seal implementation",
+  "callable_index None safety implementation, Method(None), JSON, VM/native, Call schema, and recovery retirement",
+  "AST re-scan, Builder variable_map lookup, name/arity synthesis, and backend fallback",
+]
+
+[brief]
+decision = "The existing expr.rs FunctionCall branch is a potential observation owner, but the profile gate cannot be opened until the observation contract prevents ordinary names from becoming targets and preserves Brand precedence. This D0 fixes the contract only; it does not change allows_expression or resolver code."
+source_authority = "AST/source site plus VerifiedBrandProgramDeclarationCatalogV1 for Brand classification and caller identity supplied by SelectedCallableResolverInputV1 / ConstructorSourceIdV1"
+canonical_issuer = "existing ShadowResolverV0 observation branch produces ShadowDirectCallUseV0 or Brand relation; the parent same-session inventory co-seal later owns disposition"
+non_authority = [
+  "SelectedCallable rejection/defer as proof of coverage",
+  "ShadowDirectCallUseV0 name/arity as a Callee",
+  "SameModuleCallableCatalogBrandV1 treated as Brand declaration authority",
+  "local variable_map, current_static_box, methodize, physical symbol, backend lookup, or post-argument recovery",
+]
+fail_fast = "Brand arity/site conflicts and duplicate observations reject before shadow argument traversal; ordinary/special observations remain unpublished until owner-qualified inventory disposition and package co-seal."
+smallest_next_slice = "Design-only finite observation matrix and identity carriage contract for SelectedNormal and InstanceConstructor; no profile gate edit, no new receipt, no target, and no fixture."
+non_claims = [
+  "does not make ordinary FunctionCall accepted by SelectedCallable",
+  "does not prove target resolution before shadow argument descent",
+  "does not solve TopLevel/InstanceConstructor caller=None collapse",
+  "does not retire Resolved/recovery or close mandatory-Callee",
+]
+
+[observation_matrix]
+ordinary_function_call = "Observe as owner-qualified source row only; do not targetize. UnknownCallable and shadowable names remain unresolved until the parent inventory disposition."
+brand_constructor = "VerifiedBrandProgramDeclarationCatalogV1 match wins; arity mismatch is typed reject before argument traversal; valid relation enters brand_calls, never direct_calls."
+special_or_builtin = "Observe as a finite non-direct candidate only; GC/Math/typeop/string/console/env/mem names are not Callee issuance in this D0."
+explicit_extern = "Remain in the ExplicitExternCall ledger; do not merge into ordinary direct_calls."
+ast_node_call = "Remain outside this FunctionCall observation profile; no generic ASTNode::Call admission."
+brand_spelling_shadow = "Brand namespace precedence remains unchanged; lexical same-spelling variables cannot override the declaration catalog in this row."
+nested_function_call = "Nested calls must carry distinct SourceExprSiteV1 rows under the same owner; duplicate site insertion is typed reject."
+
+[identity]
+selected = "SelectedCallableResolverInputV1 callable identity -> FunctionOwnerIdV1 -> owner-qualified SourceExprSiteV1"
+constructor = "ConstructorSourceIdV1 -> InstanceConstructor semantic owner -> owner-qualified SourceExprSiteV1"
+lineage = "RawInvocationRootLineageV1 is provenance only and must remain available through the parent inventory; this profile cannot replace it with caller=None or a target."
+
+[finite_state]
+states = [
+  "ProfileObservationUnsealed",
+  "OrdinaryFunctionCallObserved",
+  "BrandConstructorObserved",
+  "BrandConstructorArityReject",
+  "SpecialNonDirectObserved",
+  "ExplicitExternOutsideProfile",
+  "ASTNodeCallOutsideProfile",
+  "NestedSiteObserved",
+  "DuplicateSiteReject",
+  "OwnerIdentityMissing",
+  "DeferredSourceError",
+  "TypedDispositionRequired",
+  "ObservationCoSealReady",
+]
+terminal_policy = "Only ObservationCoSealReady is terminal for this design. Ordinary observations without owner identity, special-form classification, duplicate sites, and profile gate changes remain CutoverBlockerOpen; ExplicitExtern and ASTNode::Call stay outside the cohort."
+
+[acceptance]
+positive = [
+  "ordinary FunctionCall, Brand constructor, and nested FunctionCall have distinct observable states and owner/site identity requirements",
+  "Brand declaration precedence and arity rejection remain explicit",
+  "ExplicitExternCall and ASTNode::Call cannot enter ordinary direct-call inventory",
+  "ShadowDirectCallUseV0 remains observation data and never becomes a target by itself",
+]
+negative = [
+  "no one-line allows_expression change is accepted as the whole contract",
+  "no name/arity/physical-symbol/local-value target synthesis",
+  "no exact-i64 index borrowing, package publication, or second resolver",
+  "no silent conversion of ordinary observations to a successful empty map",
+]
+parity = "Brand constructor/unwrap, ordinary unknown call, nested call, ExplicitExternCall, ASTNode::Call, and local same-spelling cases remain distinguishable; existing Brand arity and duplicate-site rejects stay before argument shadow traversal."
+guard = "future guard must assert observation profile coverage, Brand/direct separation, owner identity carriage, ExplicitExtern/ASTNode::Call exclusion, nested site uniqueness, and zero target/package publication from this profile."
+
+[reopen]
+triggers = [
+  "SelectedCallable allows ordinary FunctionCall without this finite matrix",
+  "ShadowDirectCallUseV0 is converted directly into Global/Method/Value/Extern",
+  "Brand declaration and same-module callable catalogs are conflated",
+  "ExplicitExternCall or ASTNode::Call enters ordinary direct-call inventory",
+  "a profile edit is used to claim package co-seal or physical pre-effect resolution",
+]
