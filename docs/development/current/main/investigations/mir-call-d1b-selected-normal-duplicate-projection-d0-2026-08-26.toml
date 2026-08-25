@@ -1,0 +1,88 @@
+title = "MIR Call D1B SelectedNormal duplicate physical projection decision"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a264a9d012"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+next_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-physical-relation-scoped-loan-d0-2026-08-26.toml"
+
+[boundary]
+starts = "VerifiedSelectedNormalCallableSourceInventoryV1 / NormalTopLevelFunctionDraftAdmissionV1 duplicate projections"
+ends = "ProgramRootWorkPlanAdmissionV1 SelectedNormal preparation before the first top-level body lowering"
+includes = [
+  "selected_source_inventory.rs duplicate same-name/same-arity source occurrences",
+  "NormalTopLevelFunctionDraftAdmissionV1 name/arity -> LegacySymbol projection",
+  "ProgramRootWorkPlanAdmissionV1::SelectedNormal versus RawCompatibility",
+  "module_draft_collector CanonicalRejectDuplicate versus LegacyReplaceWholePair",
+  "existing tests and reference acceptance that currently allow duplicate SelectedNormal symbols",
+]
+excludes = [
+  "exact self/sibling target loan after duplicate policy",
+  "InstanceConstructor ordinary target relation",
+  "Method(None), methodize, JSON/VM/backend, final Call schema, and CallFlags",
+  "collector implementation, fixture rewrite, or production switch in this design row",
+]
+
+[brief]
+decision = "Before any TopLevel target loan, decide whether duplicate SelectedNormal source occurrences that project to one physical LegacySymbol are a typed pre-body reject. Existing tests and work-plan preparation currently accept them, so duplicate-is-compatibility is not an observed fact. RawCompatibility may retain LegacyReplaceWholePair only under its existing owner; SelectedNormal requires an explicit acceptance Decision."
+source_authority = "SelectedNormal source inventory plus NormalTopLevelFunctionDraftAdmissionV1 physical projection and the existing program work-plan admission policy."
+canonical_issuer = "none in this design child; ProgramRootWorkPlan preparation is the candidate pre-body validator, while Call target issuance remains downstream and blocked."
+non_authority = [
+  "collector last-wins/replacement, LegacySymbol text, name/arity formatting, statement order, test success, or compatibility labels",
+]
+fail_fast = "Duplicate/conflicting SelectedNormal physical projections must be classified before any top-level body/argument lowering and before an ordinary Call target can be borrowed."
+smallest_next_slice = "Design-only reference/acceptance Decision for SelectedNormal duplicate projection; no code or fixture change until the compatibility impact and owner are accepted."
+non_claims = [
+  "duplicate SelectedNormal is already safe to reject",
+  "RawCompatibility is the only duplicate cohort",
+  "exact self/sibling target loans, constructor targets, or mandatory-Callee cutover",
+]
+
+[observed]
+source_inventory = "SelectedTopLevelFunctionKeyV1 distinguishes statement occurrence but does not own a MIR symbol."
+draft_projection = "NormalTopLevelFunctionDraftAdmissionV1 maps each source key to name/arity LegacySymbol; multiple occurrences can share it."
+selected_normal_acceptance = "ProgramRootWorkPlanAdmissionV1::SelectedNormal currently admits the cohort and tests permit duplicate same-name/same-arity projections."
+raw_compatibility_owner = "ProgramRootWorkPlanAdmissionV1::RawCompatibility plus LegacyReplaceWholePair is the existing legacy owner; it cannot silently authorize SelectedNormal."
+
+[finite_state]
+states = [
+  "SelectedNormalUniqueProjection",
+  "SelectedNormalDuplicateProjection",
+  "SelectedNormalPhysicalConflict",
+  "RawCompatibilityDuplicateProjection",
+  "ForeignOrMissingProjection",
+  "ReferenceDecisionPending",
+  "TypedRejectBeforeBodyLowering",
+  "ParkedRawCompatibility",
+  "TargetLoanDecisionUnblocked",
+]
+terminal_policy = "Only SelectedNormalUniqueProjection may proceed to a later target-loan design. SelectedNormalDuplicateProjection and SelectedNormalPhysicalConflict remain blocked until an explicit reference Decision; if rejection is accepted they terminate before body lowering. RawCompatibilityDuplicateProjection may remain ParkedRawCompatibility under its existing owner."
+
+[decision_matrix]
+unique = "one source occurrence -> one physical projection with no competing planned producer: candidate for later exact loan"
+duplicate_selected = "two or more SelectedNormal occurrences -> one physical projection: decision required; recommended candidate is typed reject before body lowering, but current acceptance must be amended explicitly"
+duplicate_raw = "RawCompatibility duplicate: retain only under existing LegacyReplaceWholePair owner with reopen trigger"
+conflict = "same occurrence has conflicting physical rows: typed reject before body lowering"
+missing = "source occurrence lacks physical relation: NoSafeSlice, no name/arity synthesis"
+
+[acceptance]
+design = [
+  "the Decision distinguishes SelectedNormal duplicate from RawCompatibility duplicate",
+  "the reference/acceptance owner explicitly records whether SelectedNormal duplicate is rejected or intentionally preserved",
+  "pre-body fail-fast boundary and impact on existing duplicate tests/fixtures are named",
+  "a later exact self/sibling target-loan child can rely on a unique SelectedNormal projection without collector last-wins",
+]
+negative = [
+  "no code, fixture, collector policy, or production switch in this design row",
+  "no implicit conversion of duplicate to RawCompatibility, no collector winner as authority, and no target inference",
+]
+implementation_gate = "false until the duplicate acceptance Decision is explicit and the next exact-loan owner is named."
+guard = "future guard must assert SelectedNormal duplicate projections are either explicitly rejected before body lowering or explicitly owned; no duplicate may reach canonical target loan by collector replacement"
+
+[reopen]
+triggers = [
+  "a new SelectedNormal duplicate producer/test appears",
+  "duplicate policy changes without reference/acceptance amendment",
+  "collector replacement or name/arity text is used as ordinary Call target authority",
+  "exact loan implementation starts before this Decision closes",
+]

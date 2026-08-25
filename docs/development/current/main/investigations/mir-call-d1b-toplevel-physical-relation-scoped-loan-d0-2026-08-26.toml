@@ -1,0 +1,106 @@
+title = "MIR Call D1B TopLevel physical relation scoped loan design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a264a9d012"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+prerequisite = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
+
+[boundary]
+starts = "unique SelectedNormal source occurrence and NormalTopLevelFunctionDraftAdmissionV1 physical relation"
+ends = "one scoped relation loan consumed by pre-effect FunctionCall disposition before argument descent"
+includes = [
+  "PreparedProgramRootWorkPlanV1 SelectedNormal admission cohort",
+  "NormalTopLevelFunctionDraftAdmissionV1 source key, physical symbol, and physical arity",
+  "program_root_lowering work-plan consumption lifecycle",
+  "normal_callable_semantic_loan_port selected-key co-seal",
+  "function_call_brand_source_demand lineage preservation and function_call_preflight_route consumption",
+  "scoped install/restore on success and error paths",
+  "760/800-line BoxShape split before implementation",
+]
+excludes = [
+  "duplicate SelectedNormal acceptance (prerequisite child)",
+  "sibling relation invention, constructor symbol as ordinary target, or name/arity synthesis",
+  "Method(None), methodize, CalleeGuard, UnknownBox, optimizer reclassification, JSON/VM/backend, and final Call schema",
+  "raw_invocation_source_transport.rs edits while it is at the 778-line boundary",
+]
+
+[brief]
+decision = "After duplicate SelectedNormal policy is explicitly accepted, keep the existing admission cohort in the program work-plan and lend a unique physical relation through a callback-scoped lookup. Preserve RawInvocationRootLineageV1 separately; never encode the target into the lineage or reformat a symbol from source text."
+source_authority = "NormalTopLevelFunctionDraftAdmissionV1 is the row authority; PreparedProgramRootWorkPlanV1 is the aggregate owner that can validate the cohort before body lowering."
+canonical_issuer = "Existing preflight -> CalleeResolverBox -> MirInstruction::call; this child issues no new semantic receipt or target authority."
+non_authority = [
+  "SelectedTopLevelFunctionKeyV1 name/arity alone",
+  "LegacySymbol formatting, collector last-wins, statement order, registry, current_static_box, methodize, receiver autoscan, or post-argument recovery",
+]
+fail_fast = "Duplicate/conflict/missing/foreign relation states terminate before the first top-level body or argument effect. Only a unique admission-owned physical symbol may produce Targeted."
+smallest_next_slice = "Design-only lifecycle and owner census for a callback-scoped SelectedNormal admission lookup; implementation remains blocked until the duplicate child and preflight precedence are accepted."
+non_claims = [
+  "no sibling target relation is invented",
+  "no new Verified*/Prepared* receipt or public transport is added",
+  "no Installed lineage may enter Resolved or post-argument recovery",
+]
+
+[existing_owner]
+row_authority = "src/mir/builder/program_root/normal_top_level_function_admission.rs: NormalTopLevelFunctionDraftAdmissionV1"
+aggregate_owner = "src/mir/builder/program_root/program_root_work_plan.rs: PreparedProgramRootWorkPlanV1 SelectedNormal cohort"
+co_seal = "src/mir/builder/program_root/normal_callable_semantic_loan_port.rs existing with_selected_lowering_input"
+lineage_owner = "RawInvocationRootLineageV1; preserve TopLevel key independently from the relation"
+target_consumer = "src/mir/builder/calls/function_call_preflight_route.rs existing Targeted path"
+
+[lifecycle]
+steps = [
+  "SelectedNormal preparation validates unique physical projections before body lowering",
+  "PreparedProgramRootWorkPlanV1 carries existing admission rows through work-plan parts",
+  "Installed selected lowering opens a callback-scoped relation loan",
+  "one FunctionCall borrows at most one exact admission row and co-seals the selected source key",
+  "preflight produces Targeted or typed terminal before drive_call_arguments_v1",
+  "callback completion restores the previous scope on success and error; the loan does not escape",
+]
+
+[split_plan]
+program_root_work_plan = "721 lines: move TopLevel work type/lowering/prepare helpers to program_root_work_plan/top_level_work.rs before adding scope behavior"
+normal_callable_semantic_loan_port = "710 lines: move RootCallableCapturePortV1 implementation to normal_callable_semantic_loan_port/root_callable_capture.rs"
+recursive_child_lowering = "731 lines: put install/restore/lookup in recursive_child_lowering/top_level_physical_relation_scope.rs; keep parent under 760"
+raw_invocation_source_transport = "778 lines: no edit in this row"
+
+[finite_state]
+states = [
+  "SelectedNormalUniqueRelation",
+  "SelectedNormalDuplicateRelation",
+  "SelectedNormalPhysicalConflict",
+  "SelectedNormalMissingRelation",
+  "ForeignSourceRelation",
+  "ScopedLoanReady",
+  "TargetedBeforeArguments",
+  "TypedRejectBeforeArguments",
+  "ParkedRawCompatibility",
+  "InstalledResolvedFallthroughForbidden",
+]
+terminal_policy = "Only ScopedLoanReady -> TargetedBeforeArguments may cross into argument descent. Duplicate/conflict/missing/foreign states reject before effects; RawCompatibility remains Parked under its own owner; InstalledResolvedFallthroughForbidden is a guard failure."
+
+[acceptance]
+design = [
+  "the duplicate child is accepted before this row reopens",
+  "the aggregate owner can retain the complete SelectedNormal cohort without a new semantic receipt",
+  "source occurrence and physical symbol remain separate co-sealed products",
+  "physical_symbol() is borrowed directly; declared name/arity is never reformatted into a target",
+  "callback scope restores on every Result path and cannot escape",
+  "preflight precedence and all negative states have named typed terminals",
+  "lineage cannot re-enter PreparedRawOrdinaryFunctionCompletionV1::Resolved",
+]
+negative = [
+  "no code, fixture, collector change, recovery deletion, or production switch in this design row",
+  "no sibling relation, constructor target, methodize repair, registry lookup, or optimizer issuer",
+]
+implementation_gate = "false until duplicate policy, relation owner lifecycle, preflight precedence, and split boundaries are accepted by the parent row"
+guard = "future guard must assert one admission-owned relation or typed terminal before argument descent and zero Installed->Resolved fallthrough"
+
+[reopen]
+triggers = [
+  "duplicate policy changes without updating this prerequisite",
+  "a target is reconstructed from source name/arity or collector winner",
+  "scope escapes the callback or fails to restore on error",
+  "a new receipt or public relation index is proposed",
+  "Installed TopLevel reaches Resolved or post-argument recovery",
+]

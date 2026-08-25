@@ -1,0 +1,72 @@
+title = "MIR Call D1B installed GC builtin exact-target row"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a264a9d012"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+
+[boundary]
+starts = "RawBrandCallAuthorityV1::InstalledNonBrand { caller: None } for non-unified gc_collect/gc_stats"
+ends = "existing CalleeResolverBox -> canonical Call Targeted state before argument descent"
+includes = [
+  "classify_call_name_v1 finite BuiltinGlobal classification",
+  "gc_collect and gc_stats only",
+  "raw_unified_admission=false branch",
+  "existing canonical Call issuer and argument/effect parity",
+]
+excludes = [
+  "SelectedNormal duplicate policy, TopLevel self/sibling, local/Extern/static precedence",
+  "unified builtins, ordinary calls, math/print/error/panic/exit/now",
+  "InstanceConstructor, Method(None), methodize, CalleeGuard, UnknownBox, optimizer, JSON/VM/backend",
+  "schema cutover, recovery family deletion outside the two names",
+]
+
+[brief]
+decision = "Treat only the two non-unified GC builtin names as a root-independent pre-effect target candidate. This is a future bounded row, not permission to alter the active duplicate design stop."
+source_authority = "classify_call_name_v1 BuiltinGlobal result with raw_unified_admission=false."
+canonical_issuer = "Existing CalleeResolverBox(CallTarget::Global) and MirInstruction::call terminal."
+non_authority = [
+  "root lineage, source key name formatting, current declaration, collector, post-argument resolver, or unified emitter recovery",
+]
+fail_fast = "For the two names only, classify Global before argument descent; RawCompatibility and every other builtin remain outside this row."
+smallest_next_slice = "Design-only finite parity and delete-set audit for gc_collect/gc_stats; implementation may be selected only after the active duplicate row and parent preflight precedence are closed."
+non_claims = [
+  "no other builtin or unified route is normalized",
+  "no global Resolved/recovery retirement is claimed",
+  "no duplicate/lineage decision is bypassed",
+]
+
+[finite_state]
+states = [
+  "InstalledGcCollectBuiltin",
+  "InstalledGcStatsBuiltin",
+  "RawCompatibilityExcluded",
+  "OtherBuiltinExcluded",
+  "TargetedBeforeArguments",
+  "EffectParityPending",
+  "TypedRejectOnShapeMismatch",
+  "NoSafeSliceOutsideCohort",
+]
+terminal_policy = "Only the two exact raw-installed names with proven effect/dst/args parity may become Targeted; all other names/cohorts remain outside this row or reject on mismatch."
+
+[acceptance]
+design = [
+  "both names are proven raw-unified=false and root-independent",
+  "callee Global(name), dst, argument order/count, and effects match the existing route",
+  "RawCompatibility cannot enter the row",
+  "post-argument resolver/name Const/direct Call delete set is limited to the two names",
+]
+negative = [
+  "no code, fixture, or production switch while design_stop is active",
+  "no broad builtin family census claimed from these two names",
+]
+implementation_gate = "false until the active duplicate and pre-effect precedence rows are accepted and a fast card selects this cohort."
+guard = "future guard must assert exactly two names, raw_unified=false, and zero unapproved names entering this row."
+
+[reopen]
+triggers = [
+  "a third builtin is added to the row",
+  "raw_unified_admission changes",
+  "RawCompatibility or unified builtin enters the candidate path",
+  "effect or argument parity is not exact",
+]

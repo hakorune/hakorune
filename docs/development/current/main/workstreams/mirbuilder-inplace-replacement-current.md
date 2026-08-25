@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
+Status: Design stop — MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
+  current decision  = MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-D0
   implementation    = D1B exact-target child landed at 6149d2692a; Global recovery retirement landed at c8089e5288; both are bounded non-schema changes
   mode              = design_stop
-  production stop   = root-lineage transport alone has no consumer: TopLevel/InstanceConstructor source keys lack an existing ordinary target relation; precedence and duplicate/constructor-only disposition remain open
-  exit              = name an existing exact target loan for every Targeted state, classify self/sibling/builtin/local/Extern/unique-static precedence, and reject/park all missing/conflict/duplicate states before effects; no code or new receipt while NoSafeSlice remains
+  production stop   = SelectedNormal currently admits duplicate same-name/same-arity physical projections; duplicate cannot be treated as RawCompatibility or collector last-wins, and the exact-target loan has no safe consumer until this Decision closes
+  exit              = explicitly reject duplicate/conflicting SelectedNormal projections before body lowering or name an owned compatibility path; no code or new receipt while NoSafeSlice remains
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — preserve each root lineage once, then lend only an existing exact callable target relation before deciding any recovery retirement.
-Source authority + canonical issuer: current source lineage plus an existing same-occurrence target relation from the catalog/work plan/draft package; only that relation may reach the existing `CalleeResolverBox` -> canonical Call issuer.
-Non-authority: source key name/arity alone, constructor box name, `caller=None`, `current_static_box`, hardcoded `has_method`, `StaticMethodId`/name/Const text, methodize env/trace, tail/module lookup, registry, receiver autoscan, args[0], JSON/VM/C fallback.
-Fail-fast boundary: root lineage, exact target loan, precedence, and duplicate policy are classified before `drive_call_arguments_v1`; missing/conflict/duplicate/constructor-only states reject or Park before child effects.
-Smallest next slice: design-only exact-target-loan matrix; no code until every Targeted state borrows an existing relation and every negative state has a typed terminal.
-Non-claims: parent producer closure, all Method(None) deletion, materialize_receiver_in_callee, compatibility/JSON/backend routes, final Call schema, new receipt, or warning cleanup.
+Decision: D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-D0 — close the duplicate physical projection policy before lending any root-lineage target.
+Source authority + canonical issuer: SelectedNormal source inventory plus `NormalTopLevelFunctionDraftAdmissionV1` and existing program work-plan admission; this child issues no Call target or receipt.
+Non-authority: collector last-wins/replacement, `LegacySymbol` text, name/arity formatting, statement order, test success, or compatibility labels.
+Fail-fast boundary: duplicate/conflicting SelectedNormal projections are classified before the first top-level body/argument lowering and before an ordinary Call target can be borrowed.
+Smallest next slice: design-only acceptance Decision distinguishing typed reject from explicitly owned compatibility; exact target loan remains downstream.
+Non-claims: exact self/sibling target loans, InstanceConstructor relations, Method(None), methodize, JSON/VM/backend, final Call schema, new receipt, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
@@ -340,7 +340,7 @@ Evidence:
   `FUNCTION-METADATA-OWNER-SPLIT-R0` landed: `metadata.rs` is 718 lines, nested checked-callout/linear-slot owners are 40/50 lines, no `#[path]` glue was added, method signatures/visibility/fields/callers/behavior are unchanged, focused `mir::function::tests` is 6 passed/2 ignored with the 441-warning baseline, and manifest/pointer/canonical-corridor/rustfmt/diff guards are green.
 
 Smallest next slice:
-  `MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0` is the active design-only row; ArrayElementWrite remains ParkedSealed until a selected-native consumer authority and finite caller closure are accepted.
+  `MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-D0` is the active design-only row; exact target loan and ArrayElementWrite remain downstream until their owners and finite caller closures are accepted.
   Physical/backend implementation remains separately gated.
 
 Non-claims:
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 -> parent NoSafeSlice after exact-target transport landed at 6149d2692a and unreachable Global recovery retirement landed at c8089e5288: existing target-loan relation, precedence, duplicate policy, and constructor-only rejection are the next design boundary; RuntimeData Global methodize and ArrayElementWrite remain downstream
+Now MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-D0 -> exact-target-loan design stop after exact-target transport landed at 6149d2692a and unreachable Global recovery retirement landed at c8089e5288: SelectedNormal duplicate/conflict disposition is the next design boundary; exact target relation, constructor-only rejection, RuntimeData Global methodize, and ArrayElementWrite remain downstream
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

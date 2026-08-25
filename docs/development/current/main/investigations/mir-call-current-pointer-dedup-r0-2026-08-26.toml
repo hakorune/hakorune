@@ -1,0 +1,74 @@
+title = "MIR Call current-pointer duplication cleanup"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a264a9d012"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+
+[boundary]
+starts = "durable MIR Call SSOT current-row prose and D1B status references"
+ends = "current pointer and active card as the sole live scheduler, with durable SSOT retaining only durable policy and landed evidence"
+includes = [
+  "mir-canonical-callsite-lane-ssot.md current-row and D1B status prose",
+  "CURRENT_STATE.toml / active workstream row agreement",
+  "stale concatenated D1B sentence and landed-child/recovery references",
+  "current-link and pointer guards",
+]
+excludes = [
+  "closed history/manifest rewrites",
+  "Call authority, schema, ingress, Method(None), backend, warning, or code changes",
+  "global SSOT chronology migration beyond the affected current-row prose",
+]
+
+[brief]
+decision = "Remove duplicated live-row scheduling from the durable Call SSOT. CURRENT_STATE.toml and the active workstream own the current row; the durable SSOT keeps policy, boundaries, and compact landed evidence only."
+source_authority = "CURRENT_STATE.toml current_execution_row plus the active workstream card; durable Call SSOT is a policy/reference consumer."
+canonical_issuer = "none; docs-only cleanup issues no semantic product."
+non_authority = [
+  "a copied row name in durable prose",
+  "closed chronology, archive filenames, test success, or a stale status sentence",
+]
+fail_fast = "Before any code or design-row switch, the affected docs must agree on the selected row and contain no durable duplicate current-row authority."
+smallest_next_slice = "Replace the durable SSOT current-row block with a compact pointer reference, repair the broken D1B sentence, and run pointer/link/diff checks."
+non_claims = [
+  "no Call schema or target semantics change",
+  "no closed history rewrite",
+  "no global docs compaction beyond the selected block",
+]
+
+[finite_state]
+states = [
+  "PointerOnlyCurrentRow",
+  "DurablePolicyOnly",
+  "StaleCurrentRowDuplicate",
+  "BrokenD1BProse",
+  "ClosedHistoryTouched",
+  "ReferenceGuardGreen",
+]
+terminal_policy = "Only PointerOnlyCurrentRow + DurablePolicyOnly + ReferenceGuardGreen may close this docs row. Stale duplicates, broken prose, or closed-history edits remain blocked."
+
+[acceptance]
+design = [
+  "CURRENT_STATE.toml and active workstream agree on MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-D0",
+  "durable Call SSOT has no copied current execution row",
+  "D1B landed child, Global recovery retirement, and current blocker are stated compactly",
+  "ArrayElementWrite remains explicitly ParkedSealed",
+]
+negative = [
+  "no code, fixture, production switch, semantic receipt, or closed manifest edit",
+  "no claim that the global investigation TOML corpus parses cleanly",
+]
+focused_checks = [
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+  "targeted markdown/link consistency check for the edited SSOT and active card",
+]
+implementation_gate = "false; docs-only closeout may be selected after the pointer row is committed."
+guard = "future guard should reject a durable Call SSOT current-row literal that differs from CURRENT_STATE.toml."
+
+[reopen]
+triggers = [
+  "durable Call SSOT reintroduces a current execution row",
+  "active card and CURRENT_STATE diverge",
+  "closed history is rewritten as part of a pointer cleanup",
+]

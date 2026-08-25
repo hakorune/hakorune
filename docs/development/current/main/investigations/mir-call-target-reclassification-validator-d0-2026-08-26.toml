@@ -1,0 +1,81 @@
+title = "MIR Call target reclassification validator-only closeout"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a264a9d012"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+ordering = "after relationless pre-effect target closure and before mandatory-Callee schema cutover"
+
+[boundary]
+starts = "typed Callee issued by resolver/preflight"
+ends = "canonical Call consumers that currently repair or reclassify target kind after issuance"
+includes = [
+  "unified_emitter Global -> RuntimeData Method(None) methodize",
+  "CalleeGuardBox box-name/target-kind repair",
+  "resolver UnknownBox string sentinel and success publication",
+  "optimizer callsite_canonicalize target reclassification",
+  "selected interpreter/native parity and preserve/reject guards",
+]
+excludes = [
+  "relationless producer closure and exact-target loan itself",
+  "new ReceiverClass type or new semantic receipt before an owner Decision",
+  "JSON-v0/v1 compatibility, PyVM/reference, backend activation, and final Call schema",
+]
+
+[brief]
+decision = "After producers issue exact Callee values, downstream validators may validate or reject but may not repair target kind, box name, or missing receiver. Unknown receiver class must be a typed state or typed reject, never a fabricated UnknownBox string. Optimizer preserves target class and operands without reclassification."
+source_authority = "the existing typed producer/preflight Callee relation and its source/receiver authority."
+canonical_issuer = "the existing preflight/resolver Call issuer; this child adds no target issuer."
+non_authority = [
+  "RuntimeData string, env methodize, StaticMethodId parsing, receiver MirType inference, registry fallback, UnknownBox text, optimizer args[0]/type facts, or backend symbol lookup",
+]
+fail_fast = "Target kind/receiver-class mismatch rejects at the validator boundary before any target repair or downstream execution effect."
+smallest_next_slice = "Design-only census of all post-issuer target reclassification edges, with a finite preserve/reject matrix and an owner for missing receiver class."
+non_claims = [
+  "no Method(None) producer deletion in this child",
+  "no mandatory-Callee schema cutover",
+  "no general new type system; a minimal typed absence state is optional and must be owner-approved",
+]
+
+[observed]
+methodize = "src/mir/builder/calls/unified_emitter.rs reclassifies Global using env/name/arity/box kind into RuntimeData Method(None)."
+guard_repair = "CalleeGuardBox changes box kind/name from receiver type or String method heuristics and trusts methodize for typeless non-string cases."
+unknown_sentinel = "resolver.rs fabricates UnknownBox when registry/type/origin is missing, and boxcall publication treats it as a successful class."
+optimizer = "callsite_canonicalize/pass.rs reclassifies RuntimeData Method and Global text using args[0]/type/name facts."
+
+[finite_state]
+states = [
+  "TypedTargetPreserved",
+  "ValidatorAcceptsExactMatch",
+  "ValidatorRejectsMismatch",
+  "TargetRepairObserved",
+  "UnknownClassTypedStatePending",
+  "UnknownBoxSentinelObserved",
+  "OptimizerReclassificationObserved",
+  "OwnerUnresolved",
+  "ParkedOutsideSelectedBackend",
+]
+terminal_policy = "Only exact typed target preservation or typed rejection may cross the selected terminal. Repair, sentinel success, optimizer reclassification, or unresolved owner remain NoSafeSlice; non-selected backends may be ParkedSealed with explicit reopen triggers."
+
+[acceptance]
+design = [
+  "every target reclassification edge has a named producer/validator/consumer owner",
+  "Method(None) is not created or repaired by this row; static/instance semantics remain producer-owned",
+  "Unknown receiver class is distinguishable from any real box name",
+  "optimizer has no target issuer or class inference",
+  "selected backend preserve/reject parity and negative guards are named",
+]
+negative = [
+  "no code, new semantic receipt, registry fallback, or backend retry",
+  "no fabricated Default/UnknownBox target accepted as canonical",
+]
+implementation_gate = "false until relationless producers and exact-target loan are closed and the reclassification census is Exhausted."
+guard = "future guard must reject target-kind mutation after canonical issuance and reject UnknownBox success publication."
+
+[reopen]
+triggers = [
+  "a new post-issuer target mutation appears",
+  "UnknownBox becomes a successful semantic class again",
+  "optimizer or backend reclassifies a canonical target",
+  "Method(None) is reintroduced as static or missing-receiver authority",
+]

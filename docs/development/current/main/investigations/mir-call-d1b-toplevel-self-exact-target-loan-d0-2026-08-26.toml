@@ -1,0 +1,79 @@
+title = "MIR Call D1B TopLevel self exact-target loan design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a264a9d012"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-physical-relation-scoped-loan-d0-2026-08-26.toml"
+prerequisite = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
+
+[boundary]
+starts = "a unique SelectedNormal TopLevel source occurrence with an existing NormalTopLevelFunctionDraftAdmissionV1 relation"
+ends = "same-occurrence self target disposition before drive_call_arguments_v1"
+includes = [
+  "NormalTopLevelFunctionDraftAdmissionV1 source occurrence and physical_symbol/arity",
+  "self occurrence versus local-value and builtin/Extern precedence",
+  "pre-effect Targeted or typed terminal states",
+  "existing CalleeResolverBox and MirInstruction::call issuer path",
+  "InstalledNonBrand Resolved fallthrough prohibition",
+]
+excludes = [
+  "SelectedNormal duplicate acceptance (prerequisite)",
+  "TopLevel sibling relation lookup, InstanceConstructor ordinary calls, and RawCompatibility",
+  "Method(None), methodize, CalleeGuard, UnknownBox, optimizer, JSON/VM/backend, and final Call schema",
+  "post-argument recovery deletion implementation",
+]
+
+[brief]
+decision = "Once duplicate SelectedNormal projections are explicitly rejected or owned, lend only the current same-occurrence admission relation to a TopLevel call. A source name/arity match alone is not a target; local/builtin/Extern conflicts must be resolved by an accepted finite precedence or rejected before effects."
+source_authority = "NormalTopLevelFunctionDraftAdmissionV1 plus the same source occurrence in the preserved RawInvocationRootLineageV1 and selected work-plan cohort."
+canonical_issuer = "Existing CalleeResolverBox -> MirInstruction::call; no new receipt or target issuer."
+non_authority = [
+  "SelectedTopLevelFunctionKeyV1 name/arity alone",
+  "LegacySymbol reformatting, collector winner, current_static_box, has_method, header/module suffix, args, name Const, or post-argument recovery",
+]
+fail_fast = "Occurrence mismatch, arity drift, foreign relation, or unresolved local/builtin/Extern precedence rejects before drive_call_arguments_v1; arguments lower exactly once only after Targeted."
+smallest_next_slice = "Design-only self-loan finite matrix after duplicate-policy acceptance; sibling, constructor, and recovery closure remain separate rows."
+non_claims = [
+  "no sibling catalog is invented",
+  "no constructor symbol becomes a Global",
+  "no global legacy-call zero claim outside this bounded cohort",
+]
+
+[finite_state]
+states = [
+  "TopLevelUniqueSelfExact",
+  "TopLevelSelfLocalConflict",
+  "TopLevelNameMatchArityDrift",
+  "TopLevelForeignOccurrence",
+  "TopLevelSiblingMissingLoan",
+  "TargetedBeforeArguments",
+  "TypedRejectBeforeArguments",
+  "SelectedNormalDuplicateBlocked",
+  "RawCompatibilityParked",
+  "ResolvedFallthroughForbidden",
+  "PostArgumentRecoveryForbidden",
+]
+terminal_policy = "Only TopLevelUniqueSelfExact may become TargetedBeforeArguments. Conflicts, drift, foreign/missing relation, and duplicate states reject or remain NoSafeSlice; RawCompatibility is ParkedSealed; Resolved/PostArgumentRecovery are guard failures."
+
+[acceptance]
+design = [
+  "duplicate SelectedNormal policy is accepted by the prerequisite row",
+  "self relation is same-occurrence and admission-owned, not synthesized from text",
+  "local/builtin/Extern precedence is explicit and finite",
+  "reject path has zero argument effects",
+  "Installed self lineage cannot enter Resolved or post-argument recovery",
+]
+negative = [
+  "no code, fixture, new receipt, collector change, or production switch",
+  "no sibling/constructor target inference and no Method(None) repair",
+]
+implementation_gate = "false until the parent scoped-loan lifecycle and duplicate decision are closed."
+guard = "future guard must assert self occurrence identity, exact admission physical symbol, and zero Installed->Resolved self fallthrough."
+
+[reopen]
+triggers = [
+  "self target is reconstructed from name/arity or collector replacement",
+  "local/builtin/Extern precedence changes without this Decision update",
+  "duplicate policy is bypassed",
+  "self call reaches post-argument recovery or a second target issuer",
+]
