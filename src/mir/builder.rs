@@ -29,6 +29,7 @@ mod literal_lowering;
 #[cfg(test)]
 mod literal_postemit_retirement_tests;
 mod new_expression;
+mod ordinary_new_admission;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
 mod normal_callable_catalog_owner_link; // exact catalog key/owner/source ingress co-seal
