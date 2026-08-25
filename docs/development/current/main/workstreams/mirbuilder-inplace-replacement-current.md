@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,18 +33,18 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0
-  implementation    = D1V paired InsertMidSubstring family landed at 738b0f9fcd; D1W selected for the final two Method/Extern reconstruction writers (5 -> 3; concat 2 -> 0)
-  mode              = fast
-  production stop   = only the two typed StoreSharedReceiverSubstring reconstruction issuers may change; collector/plan, suffix producer, schema, ingress, backend, and cleanup stay closed
-  exit              = canonical constructor pair, focused positive/negative/parity proof, reusable guard, README/reference receipt, commit, and push
+  implementation    = D1V paired InsertMidSubstring landed at 738b0f9fcd; D1W StoreSharedReceiverSubstring landed at 938e060028 (writers 5 -> 3; concat 2 -> 0)
+  mode              = closeout
+  production stop   = implementation is closed; only receipt, pointer, README/reference, and next-edge worker evidence may enter this closeout
+  exit              = receipt, pointer closeout, commit, push, and upper-worker next-edge census
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: replace only the two StoreSharedReceiverSubstring reconstruction Call literals with thin canonical constructors; preserve receiver/args[0] replacement, original typed Callee/dst/remaining args/effects, spans, remove indices, hints, DCE/CFG, and suffix/store order.
+Decision: landed — replace only the two StoreSharedReceiverSubstring reconstruction Call literals with thin canonical constructors; preserve receiver/args[0] replacement, original typed Callee/dst/remaining args/effects, spans, remove indices, hints, DCE/CFG, and suffix/store order.
 Source authority + canonical issuer: StoreSharedReceiverSubstringPlan owns the exact replacement receiver; the original typed Call owns destination, Callee attributes, args, and effects; MirInstruction::call is the sole issuer after the one receiver/arg replacement.
 Non-authority: legacy func, string lookup, apply-side target reconstruction, duplicate suffix producer, remove indices, spans, hints/DCE/CFG, backend lookup, Method(None) recovery, and retry.
 Fail-fast boundary: exact duplicate/store suffix relation plus typed Method(Some, substring|slice, two args) or exact Extern(substring_hii, three args); all other shapes remain plan/rewrite=0.
-Smallest next slice: `rewrite_substring_receiver` in `concat_corridor_apply.rs` only; replace its two direct Call literals and unused func plumbing, then prove Method/Extern and negative shape parity.
+Smallest next slice: closeout only — receipt records `938e060028`, 3/3 materialization tests, the 777-line guard, and the 441-warning baseline; no further implementation is admitted here.
 Non-claims: collector/plan relation, suffix producer removal, schema/mandatory Callee, Method(None), generic FunctionCall, ingress, MirCall/CallFlags, JSON, VM/native backend, metadata, and cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0 -> selected fast after the post-D1V worker census: the final two typed Method/Extern reconstruction writers will use canonical constructors; selected writers 5 -> 3 and concat family 2 -> 0; stop on collector/plan, suffix producer, schema, ingress, backend, metadata, or cleanup expansion
+Now MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0 -> landed at 938e060028: the final two typed Method/Extern reconstruction writers now use canonical constructors; selected writers 5 -> 3 and concat family 2 -> 0; focused 3/3, guard 777, and 441 warning baseline are recorded; full Call field retirement remains separate
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

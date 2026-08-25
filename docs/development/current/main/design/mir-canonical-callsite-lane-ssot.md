@@ -167,13 +167,14 @@ and insert/start/end operands, shared effects, profile admission, and producer
 removal. Selected writers are 7 -> 5 and the concat family is 4 -> 2; no other
 concat, unified, array, or canonicalizer writer is authorized.
 
-D1W is the selected paired `StoreSharedReceiverSubstring` reconstruction row:
-the existing typed `Method(Some)` and exact `nyash.string.substring_hii` Extern
-shapes will use `MirInstruction::call`, changing only the receiver or `args[0]`
-from the plan-owned replacement receiver. The original destination, typed
-callee attributes/name, remaining arguments, effects, spans, removal indices,
-hints, DCE/CFG, and suffix/store schedule remain unchanged. This is the final
-two selected reconstruction writers (5 -> 3; concat family 2 -> 0);
+D1W landed at `938e060028`: the paired `StoreSharedReceiverSubstring`
+reconstruction writers now use `MirInstruction::call` for the existing typed
+`Method(Some)` and exact `nyash.string.substring_hii` Extern shapes, changing
+only the receiver or `args[0]` from the plan-owned replacement receiver. The
+original destination, typed callee attributes/name, remaining arguments,
+effects, spans, removal indices, hints, DCE/CFG, and suffix/store schedule are
+unchanged. Selected writers are 5 -> 3 and the concat family is 2 -> 0; the
+focused materialization suite is 3/3 and the shared guard remains 777 lines.
 `Method(None)`, generic calls, ingress, schema, and backend/wire work remain
 NoSafeSlice or separately gated.
 

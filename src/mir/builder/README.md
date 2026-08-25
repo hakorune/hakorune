@@ -84,10 +84,10 @@ issuers, exact source/middle/split and insert/start/end operands, shared
 effects, and producer removal. `emit-mir` remains a negative profile for this
 plan; receiver rewrites and Call final-shape/ingress work stay outside.
 
-### MIR Call R6 D1W StoreSharedReceiverSubstring issuer (selected fast)
+### MIR Call R6 D1W StoreSharedReceiverSubstring issuer (landed)
 
 D1W is the bounded final reconstruction family selected after the D1V
-upper-worker census. The existing typed `Method(Some)` substring/slice call
+upper-worker census and landed at `938e060028`. The existing typed `Method(Some)` substring/slice call
 and exact `nyash.string.substring_hii` Extern call will delegate to
 `MirInstruction::call`, changing only the receiver or `args[0]` to the
 plan-owned replacement receiver. Destination, typed callee attributes/name,
