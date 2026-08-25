@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0
+Status: Fast — MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0
-  implementation    = D1P write-boundary writer landed at 6912edb287; D1Q Return-family selection is accepted design-only
-  mode              = design_stop
-  production stop   = no code, fixture, remaining writer, DCE/schedule, fallback, schema, backend, metadata, cleanup, or guard growth may enter this design stop
-  exit              = six-line brief, finite Return matrix, delete set, line budget, pointer, and upper-worker selection; then a separate fast switch
+  implementation    = D1P write-boundary writer landed at 6912edb287; D1Q Return-family fast I0 is selected
+  mode              = fast
+  production stop   = only the two Return issuers, their instruction/terminator proof, and the shared guard may enter this fast cell
+  exit              = positive/negative/parity evidence, README/reference receipt, pointer closeout, commit, and push
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 

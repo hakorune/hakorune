@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1Q publication return Extern issuer"
-status = "accepted_design"
+status = "fast"
 observed_at = "2026-08-25"
 observed_commit = "f13745d9e0"
-implementation_permission = false
+implementation_permission = true
 implementation_row = "MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0"
 decision = "MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
@@ -83,7 +83,7 @@ source_limits = "publication.rs is 658 lines; return fixture is 178 lines; corri
 
 [worker_review]
 selection = "/root/d2c_consumer_selection_audit: post-D1P census selected D1Q as one atomic Return family; remaining selected writers 14, publication Return family 2"
-implementation_permission = "design-only; a separate fast pointer switch is required after this finite state matrix, delete set, guard plan, and upper-worker review remain closed"
+implementation_permission = "fast I0 permitted after the finite Return matrix, delete set, guard plan, and upper-worker review; no other writer or consumer is admitted"
 
 [stop_if]
 conditions = [
