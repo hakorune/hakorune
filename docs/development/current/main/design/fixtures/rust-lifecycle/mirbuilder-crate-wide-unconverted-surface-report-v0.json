@@ -34845,8 +34845,8 @@
       "receiver": "None",
       "return_type": "Option<MirType>",
       "shape_signature": "shape.plan_normalizer",
-      "source_id": "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs::declared_field_type_for_base:L13",
-      "source_path": "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs",
+      "source_id": "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs::declared_field_type_for_base:L13",
+      "source_path": "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs",
       "stable_deny_reason": "UnsupportedDirectShape",
       "symbol": "declared_field_type_for_base",
       "visibility": "pub(in crate::mir::builder)"
@@ -34880,8 +34880,8 @@
       "receiver": "None",
       "return_type": "Result<(ValueId, Vec<CoreEffectPlan>), String>",
       "shape_signature": "shape.plan_normalizer",
-      "source_id": "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs::lower_value_ast:L71",
-      "source_path": "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs",
+      "source_id": "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs::lower_value_ast:L71",
+      "source_path": "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs",
       "stable_deny_reason": "UnsupportedDirectShape",
       "symbol": "lower_value_ast",
       "visibility": "pub(in crate::mir::builder)"

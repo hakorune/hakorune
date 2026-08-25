@@ -85,7 +85,7 @@ EXPECTED_SHARED_PROFILE_SETS = {
     ("compat_name_heuristic", "signature_annotation_mixed_legacy"),
     ("explicit_static_legacy", "receiver_param0_rcv0"),
 }
-EXPECTED_PARTITION_DIGEST = "8f85e1ee5db91b5b6f58f5a6d69ee37382722ac8e8e41d8153be245e45f80cde"
+EXPECTED_PARTITION_DIGEST = "344339695ca2d0cdc057fc014442c27e20bc22ac45929ba07f20567b60500b1c"
 
 # The P1 fixture remains the immutable pre-cutover census. These are the only
 # approved current source-level replacements landed by later independent rows.

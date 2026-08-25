@@ -15,12 +15,16 @@ from callable_result_i0_site0_r0_expr0_spine0_loop0 import (
 
 
 PORT_PATH = "src/mir/builder/control_flow/plan/expression_port.rs"
-HELPERS_VALUE_PATH = (
-    "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs"
+HELPERS_VALUE_FACADE_PATH = (
+    "src/mir/builder/control_flow/plan/normalizer/helpers_value/mod.rs"
+)
+HELPERS_VALUE_LOWER_PATH = (
+    "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs"
 )
 P0A_TOUCHED_PATHS = (
     PORT_PATH,
-    HELPERS_VALUE_PATH,
+    HELPERS_VALUE_FACADE_PATH,
+    HELPERS_VALUE_LOWER_PATH,
     "src/mir/builder/control_flow/plan/normalizer/helpers.rs",
     "src/mir/builder/control_flow/plan/normalizer/helpers_value_state.rs",
     "src/mir/builder/control_flow/plan/normalizer/common.rs",
@@ -92,7 +96,8 @@ def _production_plan_sources(root: Path) -> dict[str, str]:
 def check_loop0_p0a(root: Path) -> str:
     port = _read(root, PORT_PATH)
     port_production = _production(port)
-    helpers_value = _production(_read(root, HELPERS_VALUE_PATH))
+    helpers_value_facade = _production(_read(root, HELPERS_VALUE_FACADE_PATH))
+    helpers_value_lower = _production(_read(root, HELPERS_VALUE_LOWER_PATH))
 
     # One closed port vocabulary. O0-R0 promotes the located implementation to
     # a passive production schema while keeping execution callers at zero.
@@ -190,16 +195,16 @@ def check_loop0_p0a(root: Path) -> str:
 
     # The existing raw entry remains a facade over one recursive, port-driven
     # normalizer. Recursion must never jump back to the raw facade.
-    if len(re.findall(r"\bfn\s+lower_value_ast\s*\(", helpers_value)) != 1:
+    if len(re.findall(r"\bfn\s+lower_value_ast\s*\(", helpers_value_facade)) != 1:
         raise RuntimeError("LOOP0-P0a raw lower_value_ast facade drift")
-    if len(re.findall(r"\bfn\s+lower_value_input\s*<", helpers_value)) != 1:
+    if len(re.findall(r"\bfn\s+lower_value_input\s*<", helpers_value_lower)) != 1:
         raise RuntimeError("LOOP0-P0a port-driven value-lowering owner drift")
-    facade = _function_body(helpers_value, "lower_value_ast")
+    facade = _function_body(helpers_value_facade, "lower_value_ast")
     if facade.count("RawLoopPlanExpressionPortV1::new()") != 1:
         raise RuntimeError("LOOP0-P0a raw facade must construct one raw port")
     if facade.count("Self::lower_value_input(") != 1:
         raise RuntimeError("LOOP0-P0a raw facade must delegate exactly once")
-    recursive = _function_body(helpers_value, "lower_value_input")
+    recursive = _function_body(helpers_value_lower, "lower_value_input")
     if "Self::lower_value_ast(" in recursive:
         raise RuntimeError("LOOP0-P0a port-driven recursion escaped to raw facade")
     if recursive.count("Self::lower_value_input(") < 1:
@@ -243,7 +248,7 @@ def check_loop0_p0a(root: Path) -> str:
         ".claim(",
         ".finish(",
     ):
-        if forbidden in port + helpers_value:
+        if forbidden in port + helpers_value_facade + helpers_value_lower:
             raise RuntimeError(f"LOOP0-P0a claim authority leak: {forbidden}")
 
     plan_sources = _production_plan_sources(root)

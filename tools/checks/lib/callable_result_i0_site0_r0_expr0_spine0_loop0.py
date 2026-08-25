@@ -9,7 +9,7 @@ from pathlib import Path
 
 CONSTRUCTOR_PATHS = (
     "src/mir/builder/control_flow/plan/normalizer/common.rs",
-    "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs",
+    "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs",
     "src/mir/builder/control_flow/plan/normalizer/cond_lowering_prelude.rs",
     "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs",
     "src/mir/builder/control_flow/plan/parts/stmt.rs",

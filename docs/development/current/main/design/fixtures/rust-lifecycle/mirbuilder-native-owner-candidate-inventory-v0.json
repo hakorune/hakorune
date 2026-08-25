@@ -6409,7 +6409,7 @@
       "candidate_kind": "label_or_vocabulary_surface",
       "function": "runtime_variant_box_name",
       "line": 784,
-      "path": "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs",
+      "path": "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs",
       "reject_reasons": [],
       "status": "candidate"
     },

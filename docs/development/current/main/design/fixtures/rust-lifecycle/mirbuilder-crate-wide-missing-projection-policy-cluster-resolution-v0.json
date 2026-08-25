@@ -905,7 +905,7 @@
         "src/mir/builder/control_flow/plan/normalizer/cond_lowering_value_expr.rs",
         "src/mir/builder/control_flow/plan/normalizer/helpers.rs",
         "src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs",
-        "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs",
         "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs",
         "src/mir/builder/control_flow/plan/normalizer/mod.rs"
       ],
@@ -1664,7 +1664,7 @@
         "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/collector.rs",
         "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/utils.rs",
         "src/mir/builder/control_flow/plan/normalizer/cond_lowering_freshen/verifier.rs",
-        "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs",
         "src/mir/builder/control_flow/plan/normalizer/stmt_only_prelude_view.rs"
       ],
       "stable_deny_reason": "UnsupportedDirectShape",

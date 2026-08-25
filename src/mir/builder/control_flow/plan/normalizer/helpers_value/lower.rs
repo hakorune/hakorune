@@ -1,34 +1,6 @@
-use super::add_result_representation::prepare_coreplan_add_result_representation_v1;
-use super::common::lower_me_this_method_effect;
-use super::cond_lowering_prelude::lower_blockexpr_value_prelude_stmts;
-use super::helpers_pure_value::is_pure_value_expr;
-use super::newbox::record_newbox_metadata;
-use super::CoreEffectPlan;
-use crate::mir::builder::calls::extern_calls;
-use crate::mir::builder::control_flow::facts::canon::cond_block_view::CondBlockView;
-use crate::mir::builder::control_flow::plan::{
-    CoreCallSourceV1, LoopPlanExpressionPortV1, RawLoopPlanExpressionPortV1,
-};
-use crate::mir::builder::MirBuilder;
-use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
-use crate::mir::{BinaryOp, ConstValue, Effect, EffectMask, MirType, ValueId};
-use std::collections::BTreeMap;
+use super::*;
 
-impl super::PlanNormalizer {
-    /// Helper: Lower value AST to (ValueId, const_effects)
-    /// Returns the ValueId and any Const instructions needed to define literals
-    ///
-    /// phi_bindings: current logical bindings for plan lowering. `variable_map`
-    /// is a fallback/cache and may temporarily contain branch-local values.
-    pub(in crate::mir::builder) fn lower_value_ast(
-        ast: &crate::ast::ASTNode,
-        builder: &mut MirBuilder,
-        phi_bindings: &BTreeMap<String, ValueId>,
-    ) -> Result<(ValueId, Vec<CoreEffectPlan>), String> {
-        let port = RawLoopPlanExpressionPortV1::new();
-        Self::lower_value_input(&port, port.expr(ast), builder, phi_bindings)
-    }
-
+impl super::super::PlanNormalizer {
     pub(in crate::mir::builder) fn lower_value_input<'input, P>(
         port: &P,
         input: P::ExprInput<'input>,
@@ -194,7 +166,7 @@ impl super::PlanNormalizer {
                     });
                     Ok((dst, effects))
                 }
-                UnaryOperator::Not => super::loop_body_lowering::lower_bool_expr(
+                UnaryOperator::Not => super::super::loop_body_lowering::lower_bool_expr(
                     builder,
                     phi_bindings,
                     ast,
@@ -389,7 +361,7 @@ impl super::PlanNormalizer {
                 name, arguments, ..
             } => {
                 if name == "externcall" {
-                    return super::loop_body_lowering::lower_explicit_extern_call_value(
+                    return super::super::loop_body_lowering::lower_explicit_extern_call_value(
                         builder,
                         phi_bindings,
                         arguments,
@@ -444,7 +416,7 @@ impl super::PlanNormalizer {
                     .decl
                     .payload_type_name
                     .as_deref()
-                    .and_then(enum_payload_mir_type);
+                    .and_then(super::variant::enum_payload_mir_type);
                 let expected = resolved.decl.payload_arity();
                 if arguments.len() != expected {
                     return Err(format!(
@@ -475,10 +447,10 @@ impl super::PlanNormalizer {
                     None
                 };
                 let dst = builder.next_value_id();
-                builder
-                    .function_state
-                    .type_ctx
-                    .set_type(dst, MirType::Box(runtime_variant_box_name(parent)));
+                builder.function_state.type_ctx.set_type(
+                    dst,
+                    MirType::Box(super::variant::runtime_variant_box_name(parent)),
+                );
                 effects.push(CoreEffectPlan::VariantMake {
                     dst,
                     enum_name: parent.clone(),
@@ -691,7 +663,7 @@ impl super::PlanNormalizer {
                 | crate::ast::BinaryOperator::GreaterEqual
                 | crate::ast::BinaryOperator::Equal
                 | crate::ast::BinaryOperator::NotEqual => {
-                    super::loop_body_lowering::lower_bool_expr(
+                    super::super::loop_body_lowering::lower_bool_expr(
                         builder,
                         phi_bindings,
                         ast,
@@ -738,12 +710,13 @@ impl super::PlanNormalizer {
                     return Err("[normalizer] value-if requires pure expressions".to_string());
                 }
                 let cond_view = CondBlockView::from_expr(condition);
-                let (cond_id, mut effects) = super::cond_lowering_entry::lower_bool_expr_value_id(
-                    builder,
-                    phi_bindings,
-                    &cond_view,
-                    "[normalizer] value-if",
-                )?;
+                let (cond_id, mut effects) =
+                    super::super::cond_lowering_entry::lower_bool_expr_value_id(
+                        builder,
+                        phi_bindings,
+                        &cond_view,
+                        "[normalizer] value-if",
+                    )?;
                 let (then_id, mut then_effects) =
                     Self::lower_value_input(port, then_expr, builder, phi_bindings)?;
                 let (else_id, mut else_effects) =
@@ -768,19 +741,4 @@ impl super::PlanNormalizer {
             _ => Err(format!("[normalizer] Unsupported value AST: {:?}", ast)),
         }
     }
-}
-
-fn enum_payload_mir_type(raw: &str) -> Option<MirType> {
-    if raw.is_empty()
-        || raw
-            .chars()
-            .all(|ch| ch.is_ascii_uppercase() || ch.is_ascii_digit())
-    {
-        return None;
-    }
-    Some(MirBuilder::parse_type_name_to_mir(raw))
-}
-
-fn runtime_variant_box_name(enum_name: &str) -> String {
-    format!("__hako_sum_{}", enum_name)
 }

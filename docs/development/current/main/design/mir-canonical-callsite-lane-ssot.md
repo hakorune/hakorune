@@ -1774,7 +1774,7 @@ Its current finite inventory is:
 | New child paths | 2 roles + root classifier | `source_path_policy.rs:220,267` and `source_projection.rs:267,271`; `Argument(i)`/`Initializer(i)` |
 | raw New ingress | 1 | `raw_expression_dispatch/mod.rs:544-557`; class/args/initializers only |
 | raw ordinary path | 1 NewBox + 2 birth alternatives | `new_expression.rs:133-195`; class/arity/header inference, no source relation |
-| PlanNormalizer ordinary path | 1 AST branch + 1 effect emission | `control_flow/plan/normalizer/helpers_value.rs:523-552` -> `effect_emission.rs:180-190`; `CoreEffectPlan::NewBox` has no source relation/birth |
+| PlanNormalizer ordinary path | 1 AST branch + 1 effect emission | `control_flow/plan/normalizer/helpers_value/lower.rs:523-552` -> `effect_emission.rs:180-190`; `CoreEffectPlan::NewBox` has no source relation/birth |
 | direct NewBox writers | 6 total | 2 ordinary candidates (raw/plan), 4 specialized; do not claim global writer count = 1 |
 | catalog issue sites | 2 | `parser/source_seal/finalize.rs:203,368`; declaration rows only |
 | constructor semantic batch issuer | 1 | `normal_callable_semantic_package/instance_constructor_semantic.rs:113-210`; declaration/body only |
@@ -1970,7 +1970,7 @@ Finite authority inventory:
 | body-shape transport | `resolved_semantics/owner_resolver.rs:63-67,193-225,300-335` -> `compiler/lowering_input.rs:30-92` | product exists, but constructor semantic batch discards it at `instance_constructor_semantic.rs:153-156` |
 | constructor semantic row | `normal_callable_semantic_package/instance_constructor_semantic.rs:28-35,113-210` | source/forest/projection exists; body-shape/lifecycle field absent |
 | physical raw order | `builder/new_expression.rs:133-195` | NewBox -> birth -> explicit fields; no typed publish transaction |
-| physical plan order | `builder/control_flow/plan/normalizer/helpers_value.rs:523-555` -> `effect_emission.rs:180-190` | args-only NewBox; birth/publish absent |
+| physical plan order | `builder/control_flow/plan/normalizer/helpers_value/lower.rs:523-555` -> `effect_emission.rs:180-190` | args-only NewBox; birth/publish absent |
 | construction-wide effects | no joining product | absent; MIR `EffectMask` is non-authority |
 
 The bridge must retain or reborrow the declared birth owner's body-shape
@@ -2057,7 +2057,7 @@ Finite authority inventory:
 | argument relation | `shadow/expr.rs:566-585` | `Argument(i)` relation is recorded; initializer traversal is not |
 | owner identity | `resolved_semantics/ids.rs:27-65` | `FunctionOwnerIdV1` is resolver-session-local; slot equality is not a cross-pass proof |
 | raw physical path | `builder/raw_expression_dispatch/mod.rs:544-556`, `new_expression.rs:133-195` | live Builder mutation, NewBox, by-name birth recovery, then fields; no expression transaction |
-| plan physical path | `builder/control_flow/plan/normalizer/helpers_value.rs:523-556`, `plan/lowerer/effect_emission.rs:180-190` | args-only NewBox; field initializers reject; no birth/publish |
+| plan physical path | `builder/control_flow/plan/normalizer/helpers_value/lower.rs:523-556`, `plan/lowerer/effect_emission.rs:180-190` | args-only NewBox; field initializers reject; no birth/publish |
 | future admission owner | `builder/ordinary_new_admission.rs` (does not exist at HEAD) | must be private, shared, and sink-neutral until commit |
 
 There is no valid mapping from caller `ASTNode::New` to a constructor source
@@ -2127,10 +2127,10 @@ seed, foreign/duplicate owner or ID, site drift, missing initializer relation,
 birth/arity/order mismatch, effect gap, duplicate/unknown field, child failure,
 or relation reuse.
 
-Before any physical implementation, the selected plan normalizer file
-`src/mir/builder/control_flow/plan/normalizer/helpers_value.rs` is already
-786 lines. A separate behavior-neutral shelf split must bring each selected
-production child below the 760-line trigger; no D1-D6 implementation may add
+Before the D1-D8 physical move, the selected flat PlanNormalizer file
+`helpers_value.rs` was 786 lines. The accepted behavior-neutral shelf split
+brings each selected production child below the 760-line trigger; no D1-D6
+implementation may add
 semantic growth to that file or cross the 800-line hard stop.
 
 Until the parser relation seed, dual body-shape loan, `Initializer(i)` effect

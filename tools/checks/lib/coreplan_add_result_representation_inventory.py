@@ -72,7 +72,7 @@ def build(root: Path) -> dict[str, object]:
         "add_result_representation.rs"
     )
     normalizer_path = (
-        "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs"
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs"
     )
     direct_path = "src/mir/builder/ops/arithmetic.rs"
     pipeline_path = "src/mir/type_propagation/pipeline.rs"

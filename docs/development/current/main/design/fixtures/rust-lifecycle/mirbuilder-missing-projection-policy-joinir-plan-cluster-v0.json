@@ -340,7 +340,7 @@
         "src/mir/builder/control_flow/plan/normalizer/helpers.rs::lower_binop_ast:L62",
         "src/mir/builder/control_flow/plan/normalizer/helpers.rs::lower_compare_ast:L13",
         "src/mir/builder/control_flow/plan/normalizer/helpers_layout.rs::allocate:L21",
-        "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs::lower_value_ast:L71",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs::lower_value_ast:L71",
         "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs::lower_assignment_stmt:L13",
         "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs::lower_assignment_value:L66",
         "src/mir/builder/control_flow/plan/normalizer/loop_body_lowering.rs::lower_bool_expr:L379",
@@ -1244,7 +1244,7 @@
       "source_ids": [
         "src/mir/builder/control_flow/plan/normalizer/common.rs::empty_args:L9",
         "src/mir/builder/control_flow/plan/normalizer/common.rs::lower_me_this_method_effect:L37",
-        "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs::declared_field_type_for_base:L13",
+        "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs::declared_field_type_for_base:L13",
         "src/mir/builder/control_flow/plan/normalizer/stmt_only_prelude_view.rs::stmt_only_prelude_view:L28"
       ],
       "source_module": "src/mir/builder/control_flow/plan/normalizer",

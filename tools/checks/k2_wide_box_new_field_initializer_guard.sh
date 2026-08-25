@@ -52,7 +52,7 @@ require_grep "lower_prepared_raw_new_expression_with_port_v1" src/mir/builder/bu
 require_grep "build_box_field_initializers" src/mir/builder/fields.rs
 require_grep "\\[box-init/duplicate-field\\]" src/mir/builder/fields.rs
 require_grep "\\[box-init/unknown-field\\]" src/mir/builder/fields.rs
-require_grep "\\[box-init/coreplan-unsupported\\]" src/mir/builder/control_flow/plan/normalizer/helpers_value.rs
+require_grep "\\[box-init/coreplan-unsupported\\]" src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs
 require_grep "new Box \\{ field: expr \\}" docs/development/current/main/design/constructor-birth-new-lifecycle-ssot.md
 require_grep "box_init_block" docs/reference/language/EBNF.md
 require_grep "No wildcard copy" docs/development/current/main/phases/phase-293x/293x-992-BOX-INIT-001-NEW-BOX-FIELD-INITIALIZER.md

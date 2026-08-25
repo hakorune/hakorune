@@ -2,7 +2,7 @@
   "decision": {
     "all_symbol_rows": {
       "src/mir/builder/control_flow/plan/normalizer/add_result_representation.rs": 2,
-      "src/mir/builder/control_flow/plan/normalizer/helpers_value.rs": 1
+      "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs": 1
     },
     "clone_derives": 0,
     "definition_count": 1,
