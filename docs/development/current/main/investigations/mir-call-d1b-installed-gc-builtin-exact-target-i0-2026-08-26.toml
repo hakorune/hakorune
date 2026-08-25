@@ -1,0 +1,103 @@
+title = "MIR Call D1B installed GC builtin exact-target issuer I0"
+status = "selected_fast"
+observed_commit = "2666e86094"
+observed_at = "2026-08-26"
+implementation_permission = true
+selected_fast = true
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-installed-gc-builtin-exact-target-d0-2026-08-26.toml"
+decision = "Move only the finite InstalledNonBrand{caller=None} gc_collect/gc_stats cohort from post-argument Resolved to pre-effect Targeted, reusing the existing canonical issuer. Preserve any-arity and existing READ + ReadHeap parity; do not add an arity contract."
+
+[boundary]
+starts = "InstalledNonBrand { caller: None } entering ordinary preflight for exactly gc_collect or gc_stats"
+ends = "existing Targeted consume -> MirInstruction::call after one ordered argument descent"
+includes = [
+  "src/mir/builder/calls/function_call_preflight_route.rs prepare_ordinary_function_completion_v1",
+  "src/mir/builder/calls/build.rs existing Targeted consume and canonical issuer",
+  "classify_call_name_v1 BuiltinGlobal/raw_unified=false finite two-name classification",
+  "new child focused tests and the reusable exact-target guard",
+]
+excludes = [
+  "RawCompatibility with the same spelling",
+  "sin/cos Math route and every other builtin/Extern/unified route",
+  "TopLevel/self/sibling/constructor relation, general identity index, Method(None), schema, JSON/VM/backend, and warning cleanup",
+]
+
+[brief]
+source_authority = "classify_call_name_v1 -> BuiltinGlobal with raw_unified=false, restricted by exact names gc_collect/gc_stats; no caller, catalog, name/arity synthesis, or EffectsAnalyzerBox change"
+canonical_issuer = "existing PreparedRawOrdinaryFunctionCompletionV1::Targeted -> emit_prepared_cataloged_call_v1 -> MirInstruction::call"
+non_authority = [
+  "caller=None as a target signal",
+  "resolve_call_target, unique-static recovery, tail recovery, name Const, backend lookup, or RawCompatibility",
+  "EffectsAnalyzerBox as a reason to change the existing route effects",
+]
+fail_fast = "classify and prepare the exact two-name Targeted state before drive_call_arguments_v1; any non-matching cohort remains on its existing route and no new reject is inferred from arity."
+smallest_next_slice = "Add the exact two-name preflight arm, a child test module with positive/negative/parity witnesses, and extend the existing guard; remove only this cohort's post-argument Resolved/name-Const/direct-Call entry."
+non_claims = [
+  "no general relationless closure",
+  "no arity/effect policy improvement",
+  "no other builtin, Extern, unified, RawCompatibility, or backend behavior change",
+  "no mandatory-Callee schema cutover or new semantic receipt",
+]
+
+[state_matrix]
+states = [
+  "InstalledGcCollectBuiltin",
+  "InstalledGcStatsBuiltin",
+  "TargetedBeforeArguments",
+  "ExistingRouteParity",
+  "RawCompatibilityExcluded",
+  "OtherBuiltinExcluded",
+]
+terminal_policy = "Only the exact two Installed/raw-unified=false names reach TargetedBeforeArguments. All other cohorts stay outside this row; no shape/arity mismatch reject is added."
+
+[delete_set]
+remove = [
+  "the two-name caller=None -> PreparedRawOrdinaryFunctionCompletionV1::Resolved selection",
+  "the two-name post-argument build_resolved_function_call -> resolve_call_target/recovery -> name Const -> direct Call entry",
+]
+preserve = [
+  "shared build_resolved_function_call helper for non-selected cohorts",
+  "RawCompatibility same spelling, sin/cos Math, other builtin/Extern/unified routes",
+  "any-arity behavior, destination role, argument order/evaluation count, result, and READ + ReadHeap effects",
+]
+
+[proof]
+positive = [
+  "gc_collect InstalledNonBrand{caller=None} prepares Targeted(Global(gc_collect)) before argument descent",
+  "gc_stats InstalledNonBrand{caller=None} prepares Targeted(Global(gc_stats)) before argument descent",
+]
+negative = [
+  "same names through RawCompatibility do not enter this arm",
+  "sin/cos remain Math and ordinary/Extern/unified names remain outside",
+  "no name Const, late resolver/recovery, retry, or second Call is entered for the cohort",
+]
+parity = [
+  "callee Global(name)",
+  "dst and result role",
+  "source argument order and one evaluation each",
+  "existing READ + ReadHeap effects and Call count",
+]
+focused_checks = [
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick function_call_installed_gc_builtin_tests",
+  "bash tools/checks/mir_call_d1b_exact_target_child_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "cargo fmt --all -- --check",
+  "git diff --check",
+]
+guard = "mir_call_d1b_exact_target_child_guard.sh must assert exact two-name Installed-only Targeted preparation, child test presence, zero targeted name-Const/late recovery, and unchanged non-cohort routes"
+
+[line_budget]
+preflight = "512 lines before; keep below 760/800"
+build = "573 lines; no unrelated edits"
+existing_tests = "736 lines; do not append"
+child_tests = "new child module targeted below 180 lines"
+guard = "existing guard remains below 760; split only at the normal 760 design threshold"
+
+[reopen]
+triggers = [
+  "a third name, RawCompatibility, or unified route enters the cohort",
+  "an arity/effect policy change or new target authority is proposed",
+  "Targeted preparation is not before argument descent",
+  "existing non-cohort recovery or backend/wire behavior changes",
+  "any owner reaches the 760/800 line boundary",
+]

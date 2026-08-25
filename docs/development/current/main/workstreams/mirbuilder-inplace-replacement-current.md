@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
+Status: Fast — MIR-CALL-D1B-INSTALLED-GC-BUILTIN-EXACT-TARGET-I0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
-  implementation    = SelectedNormal duplicate-policy validator I0 landed at ffcae72725 with pre-body duplicate/unique witnesses and a reusable guard; direct-target index handoff remains a separate NoSafeSlice design; D1B exact-target child landed at 6149d2692a and Global recovery retirement at c8089e5288
-  mode              = design_stop
-  production stop   = name a same-source/same-resolver-continuation index co-seal owner for general SelectedNormal before any target handoff; no target issuance, relationless recovery, or argument-order implementation
-  exit              = accepted co-seal authority and finite rejection matrix for direct-target handoff; duplicate validator remains closed
+  current decision  = MIR-CALL-D1B-INSTALLED-GC-BUILTIN-EXACT-TARGET-I0
+  implementation    = selected two-name InstalledNonBrand builtin cohort only; duplicate validator I0 remains closed at ffcae72725; direct-target general index D0 remains the next design boundary
+  mode              = fast
+  production stop   = preserve non-cohort routes; no arity/effect repair, RawCompatibility entry, or broader relationless closure
+  exit              = pre-effect Targeted parity, focused positive/negative child evidence, reusable guard, and old two-name edge deletion
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 amendment — design an identity-only general callable index and catalog-gated FunctionCall disposition before any SelectedNormal target handoff.
-Source authority + canonical issuer: the package issuer/`VerifiedNormalCallableSemanticPackageV1` owns the consumed source, resolver batch, proposed direct index, and same-session owner reservation; existing `CalleeResolverBox` -> `MirInstruction::call` remains the eventual issuer.
-Non-authority: `NormalTopLevelFunctionDraftAdmissionV1` physical symbol/arity, root lineage, duplicate validator, exact-i64 index, second resolver, collector order, name synthesis, post-argument recovery, or physical ABI rows.
-Fail-fast boundary: catalog-gated traversal and whole-package co-seal complete before package install/body lowering/argument effects/publication; deferred, duplicate, missing, foreign, ambiguous, or second-session states abort unpublished.
-Smallest next slice: design-only finite matrix for self/sibling direct sites, known non-direct builtin/typeop/local/Extern/Brand forms, identity-index representation, owner/site bijection, and atomic abort; no code.
-Non-claims: direct-target implementation, new product issuance, self/sibling/constructor/GC acceptance, Method(None), methodize, JSON/VM/backend, final Call schema, CallFlags, or warning cleanup.
+Decision: D1B-INSTALLED-GC-BUILTIN-EXACT-TARGET-I0 — move only gc_collect/gc_stats from post-argument Resolved to pre-effect Targeted.
+Source authority + canonical issuer: `classify_call_name_v1` exact two-name BuiltinGlobal/raw_unified=false; existing `Targeted` -> `emit_prepared_cataloged_call_v1` -> `MirInstruction::call`.
+Non-authority: caller=None, name/arity synthesis, EffectsAnalyzerBox, resolve/recovery, name Const, RawCompatibility, other builtins, unified/Extern routes, or backend lookup.
+Fail-fast boundary: exact two-name classification before `drive_call_arguments_v1`; non-cohort routes remain unchanged and no new arity reject is introduced.
+Smallest next slice: one preflight arm, one child test module, existing guard extension, and deletion of only the two-name late edge; preserve any-arity and READ+ReadHeap parity.
+Non-claims: general relationless closure, direct-target index, self/sibling/constructor, Method(None), JSON/VM/backend, final Call schema, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
