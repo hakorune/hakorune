@@ -44,7 +44,7 @@ Decision: D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 — co-seal one owner-quali
 Source authority + canonical issuer: source AST/site, SelectedCallable/Constructor identity, existing Brand catalog, and the same resolver/package session; no target issuer is added by this design.
 Non-authority: silent SelectedCallable drops, callable_index=None empty maps, ShadowDirectCallUseV0 as a target, caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, collector order, headers/suffixes, post-argument values, backend lookup, or GC child behavior as a general resolver.
 Fail-fast boundary: before package install, body lowering, argument descent/effects, block mutation, or Call publication; missing/foreign/ambiguous/deferred disposition aborts the unpublished package.
-Smallest next slice: design-only finite inventory for SelectedNormal self/sibling, TopLevel, InstanceConstructor, special/non-direct, duplicate/foreign/missing/ambiguous sites, and index-none-with-calls; no code, fixture, receipt, or production switch.
+Smallest next slice: D0-C design-only boundary census at package prepare_install/commit for SelectedNormal self/sibling, TopLevel, InstanceConstructor, special/non-direct, duplicate/foreign/missing/ambiguous sites, and index-none-with-calls; no code, fixture, receipt, or production switch.
 Non-claims: implementation, new public receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,

@@ -57,10 +57,29 @@ lineage_source = "RawInvocationRootLineageV1 already carries Cataloged, TopLevel
 i0_connection = "The landed index-none safety I0 is a typed abort at canonicalize_draft; it is a child safety edge and does not replace the same-session owner/site inventory or pre-shadow observation design."
 
 [worker_audit]
-source = "six read-only worker audits at aeae60a55a; no code, fixture, or Cargo change"
+source = "six read-only worker audits at aeae60a55a plus focused D0-C re-audit at e08f656993; no code, fixture, or Cargo change"
 verdict = "NoSafeSlice remains: package issuer has no direct-call inventory/co-seal field, SelectedCallable closes ordinary FunctionCall traversal, and TopLevel/InstanceConstructor lineage still collapses to caller=None before disposition."
 next_bounded_design = "D0-C package co-seal boundary census: fix the exact prepare_install/commit boundary, finite SelectedNormal/Constructor/non-direct/missing/foreign/ambiguous/index-none matrix, one owner/site issuance point, and pre-effect abort contract."
 implementation_gate = "Keep implementation_permission=false; do not widen traversal, add a semantic receipt, change target resolution, or alter the active backend until D0-C closes."
+
+[boundary_census]
+package_issuer = "src/mir/normal_callable_semantic_package/issuer.rs:134-161 issues instance-constructor, source catalog, resolved batch, and selected mapping; src/mir/normal_callable_semantic_package/model.rs:35-52 has no direct-call inventory field."
+prepare_install = "src/mir/normal_callable_semantic_package/install.rs:272-284 checks only callable_declaration_catalog_vacant and returns the unpublished package; no direct-call coverage is validated."
+commit = "src/mir/normal_callable_semantic_package/install.rs:287-333 discards the root projection, installs the catalog, and creates the ordinary-new ledger; this is the package publication boundary to guard."
+normal_lifecycle = "src/mir/builder/normal_default_root_catalog_lifecycle.rs:247-267 issues the package, :271-395 consumes pre-effect projections, and :429-440 calls prepare_install/commit before the installed package is handed to lowering."
+installed_port = "src/mir/normal_callable_semantic_package/install.rs:723-737 only completes selected-key and ordinary-new claim consumption; it does not verify direct-call site coverage."
+raw_call_entry = "src/mir/builder/raw_expression_dispatch/mod.rs:341-353 asks Brand authority and immediately prepares/lowers the raw FunctionCall; src/mir/builder/calls/function_call_preflight_route.rs:141-178 maps caller=None to relationless/ordinary routes."
+post_effect_route = "src/mir/builder/calls/build.rs:90-125 lowers Targeted arguments safely, but Resolved arguments at :111-124 are lowered before :311-369 resolve_call_target, unique-static recovery, tail recovery, and name-Const publication."
+lineage_loss = "src/mir/builder/calls/function_call_brand_source_demand.rs:75-91 retains caller only for Cataloged and maps TopLevel/InstanceConstructor to InstalledNonBrand { caller: None }; D0-C must carry root/site without making it a target authority."
+co_seal_owner = "the existing semantic package issuer must validate the complete owner/site/disposition inventory before prepare_install; raw Builder ports, collector order, and a second resolver are non-authority."
+
+[boundary_matrix]
+selected_normal = "Observed FunctionCall + owner/site + same-session lineage -> disposition; closed traversal or missing relation -> PackageAbortBeforeEffects."
+instance_constructor = "Constructor-owned source lineage remains provenance; ordinary calls require owner/site coverage, while constructor-special rows use the existing constructor disposition and are not reclassified as ordinary targets."
+known_non_direct = "Builtin/typeop/math/fastmem/ExplicitExtern/Brand-special forms must use their existing typed route or an explicit KnownNonDirect disposition; no name synthesis."
+index_none = "non-empty direct_calls with callable_index=None is a typed abort (existing I0), not an empty successful inventory and not proof of observation."
+duplicates = "duplicate, missing, foreign, or ambiguous owner/site rows abort the unpublished package; no last-wins merge."
+post_effect = "ResolvedAfterArgumentsForbidden is a guard failure, never a terminal disposition."
 
 [finite_state]
 states = [
