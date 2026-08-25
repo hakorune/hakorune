@@ -2438,6 +2438,93 @@ Non-claims:
 Until D2a is accepted, D2 remains `NoSafeSlice`; implementing only one of the
 four issuer pieces would create an unconsumed authority sibling.
 
+#### D2a accepted design — ordinary-New target and containment — 18f05950b7
+
+The read-only D2a audit accepts the target/containment decision as a bounded
+design row. It does not issue a semantic receipt or authorize D2
+implementation.
+
+```text
+Decision:
+  ordinary New = final parser brand + exact New anchor + source-sealed nominal
+  ordinary Box + exact direct/generated birth relation or zero-arity
+  BirthAbsent + resolver-observed body-effect rows.
+  The package-adjacent issuer co-seals once, an affine claim is consumed by
+  raw/Plan, and the unpublished function is committed or aborted atomically.
+Source authority + canonical issuer:
+  ParserBoxSourceSealV1/final ordinary coverage owns nominal Box identity;
+  final-source owner lends the New seed; the package issuer joins nominal Box,
+  birth relation, and caller/birth observation loans. Raw/Plan only consume.
+Non-authority:
+  constructor-only catalog for nominal Box membership, class/name/arity alone,
+  AST rescan, `init`/`pack`, birth text, missing effect rows, MIR masks,
+  Builder metadata, backend lookup, fallback, retry, or local rollback.
+Fail-fast boundary:
+  cohort/nominal membership, birth state, observation coverage, and affine
+  claim are checked before child lowering and Builder mutation. After claim,
+  any failure drops the unpublished function; no retry or fallback.
+Smallest next slice:
+  D2b design-only co-seal of nominal Box loan, birth relation, observation
+  rows, and affine issue/drop/consume edges at the semantic package.
+Non-claims:
+  issuer implementation, Initializer(i) implementation, body-shape storage,
+  NewBox/lifecycle code, Method(None), Closure, R6, JSON/backend, warnings.
+```
+
+Finite target/birth/containment states:
+
+| stage | state | terminal/policy |
+|---|---|---|
+| cohort | `OutsideOrdinaryCohort` | named outside owner; no ordinary fallback |
+| nominal | `NominalReady` | exact final brand/anchor/unique seal; continue |
+| nominal | `NominalMissing` | typed reject before child lowering |
+| nominal | `NominalAmbiguous` | typed reject before child lowering |
+| nominal | `NominalForeignOrDrifted` | typed reject before child lowering |
+| birth | `BirthExactDirect` | use the unique direct `birth/N` relation |
+| birth | `BirthExactGeneratedZero` | use parser-issued source-backed `birth/0` |
+| birth | `BirthAbsentZeroArity` | no birth step; no synthetic row or Pure claim |
+| birth | `BirthAbsentWithArguments` | typed reject before child lowering |
+| birth | `BirthArityMismatch` | typed reject; no name/arity retry |
+| birth | `BirthForeignDuplicateProvenance` | typed reject |
+| observation | `ObservedRowsComplete` | exact positive observation inventory; not Pure |
+| observation | `NoObservedBodyEffectRows` | observation fact only; never Pure authority |
+| observation | `ObservationCoverageGap` | typed reject before child lowering |
+| claim | `ClaimAvailable` | claim once, then lower |
+| claim | `ClaimConsumed` | typed reject; no second consumer |
+| containment | `PostClaimFailure` | abort unpublished function and outer module candidate |
+| terminal | `Committed` | publish usable identity only after one lifecycle commit |
+
+`BodyEffectKindV1` rows are a finite positive observation inventory. An empty
+set means only that this traversal observed no row; it does not mean semantic
+`Pure`, effect permission, or a construction-wide effect summary. The existing
+constructor-only catalog cannot represent a user Box with no constructor row,
+so nominal membership must borrow the final ordinary Box seal/coverage instead.
+`init`/`pack` never replace birth: with `N=0` the state is
+`BirthAbsentZeroArity`; with `N>0` it is a typed reject.
+
+Containment is deliberately whole-unpublished-function abort, not a new
+expression-local snapshot authority:
+
+```text
+preflight all target/membership/arity/observation facts (Builder mutation 0)
+  -> affine claim
+  -> child lowering into unpublished function draft
+  -> existing function/module verification
+  -> atomic commit, or discard the whole attempt
+```
+
+This supersedes earlier tentative wording in the D1-D5/D1-D6 design notes:
+`generated birth mismatch` becomes source-backed exact generated `birth/0`;
+"birth is always required" becomes legal zero-arity `BirthAbsent`; and
+"local rollback is required" becomes preflight mutation zero plus
+whole-unpublished-function abort after claim. Runtime Home/fault cleanup is
+outside this target/containment census.
+
+The next design task is `MIR-CALL-NEW-PACKAGE-COSEAL-D2B`. D2a is accepted as
+design-only; D2 overall remains `NoSafeSlice` until D2b names the exact
+package issue/drop/consume edges and proves one co-seal without creating a
+second semantic authority.
+
 #### D1-D8 design Decision — behavior-neutral PlanNormalizer helper shelf
 
 D1-D7's source-seed contract is independent of the existing PlanNormalizer
