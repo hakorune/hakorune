@@ -12,6 +12,7 @@ includes = [
   "src/mir/builder/calls/unified_emitter.rs:409-463",
   "src/mir/builder/calls/build.rs:104,307-364",
   "src/mir/builder/calls/static_resolution.rs:87-171",
+  "src/mir/builder/normal_callable_semantic_package/install.rs:308-316,388-405 (source-authority observation only)",
   "same-brand catalog handoff, local-shadow precedence, and methodize profile parity",
 ]
 excludes = [
@@ -61,7 +62,7 @@ outside_blockers = [
 exact_catalog_static = "same-brand owner/method/exact arity -> preserve qualified Global"
 exact_receiver = "exact source/resolver receiver -> preserve Method(Some)"
 hardcoded_static_probe = "current_static_box + has_method without catalog key -> CutoverBlockerOpen; never publish Method(None)"
-local_shadow = "same-name local callable -> preserve Value precedence; deletion must not reorder this branch"
+local_shadow = "observed current order is hardcoded static Method(None) > local Value; this is parity evidence only, not the final precedence decision"
 catalog_absent = "absent/foreign/ambiguous/arity mismatch -> typed reject before argument effects"
 runtime_data_global = "incoming qualified Global without provenance -> cohort census required; methodize mutation cannot be deleted by guess"
 methodize_profile = "unset/0/1 -> canonical target and result parity; profile projection remains separate authority"
@@ -85,6 +86,7 @@ non_authority = "resolver shadow observation currently records non-Brand Functio
 
 [runtime_data_global]
 status = "CutoverBlockerOpen"
+scope = "census-only; families outside the stated preflight boundary are dispositioned as outside Row B and are not modified by this row"
 authority_gap = "CallTarget::Global(String) and resolver.rs:67-74 erase catalog provenance before unified_emitter.rs:409-463 methodize classification."
 producer_families = [
   "build/static_resolution",
@@ -100,8 +102,19 @@ required_disposition = "Inventory each family as preserve-qualified-Global, type
 [recovery_disposition]
 status = "CutoverBlockerOpen"
 materializer = "src/mir/builder/calls/materializer.rs:41-119"
-finding = "Global resolver is currently total, so the Err-side Global recovery is structurally unreachable but remains an old edge in the delete census."
+materializer_caller = "src/mir/builder/calls/unified_emitter.rs:384-405"
+finding = "The materializer caller and its Err-side Global recovery are separate from materializer.rs:81-119 unique-static recovery; both remain old edges in the delete census."
 next_decision = "Mark the edge RetainGuarded with a reopen trigger or include it in the finite delete set; either choice must be documented before fast."
+
+[closure_decision]
+name = "D1B-ROW-B-PRE-EFFECT-TARGET-CLOSURE-D0"
+subchecks = [
+  "existing same-brand product transport",
+  "total local-shadow order",
+  "RuntimeData qualified-Global adjacent census",
+  "materializer/unified-emitter recovery disposition",
+]
+implementation_permission = false
 
 [acceptance]
 required_before_fast = [
