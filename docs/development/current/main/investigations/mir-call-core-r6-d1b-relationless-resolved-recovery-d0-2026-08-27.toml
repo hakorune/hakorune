@@ -1,16 +1,16 @@
 title = "MIR Call D1B relationless Resolved recovery census"
 status = "accepted_design_no_safe_slice"
-observed_commit = "c42a26173b"
+observed_commit = "a214360982"
 observed_at = "2026-08-27"
 implementation_permission = false
 parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
 parent_child = "docs/development/current/main/investigations/mir-call-core-r6-d1b-methodize-provenance-disposition-d0-2026-08-27.toml"
 
 [boundary]
-starts = "RawBrandCallAuthorityV1::RelationlessCompatibility entering PreparedRawOrdinaryFunctionCompletionV1::Resolved"
+starts = "RawBrandCallAuthorityV1::{RelationlessCompatibility or InstalledNonBrand { caller: None }} entering PreparedRawOrdinaryFunctionCompletionV1::Resolved"
 ends = "the post-argument resolve_call_target/unique-static/tail/name-Const/direct-Call recovery chain, including shared Global transport callers"
 includes = [
-  "function_call_brand_source_demand.rs relationless production callers",
+  "function_call_brand_source_demand.rs RelationlessCompatibility and InstalledNonBrand{caller:None} production callers",
   "function_call_preflight_route.rs Resolved completion and build.rs argument descent",
   "method_resolution.rs static Method(None) arm",
   "build.rs unique-static recovery and direct legacy publication",
@@ -46,6 +46,7 @@ non_claims = [
 states = [
   "CatalogedTargetedClosed",
   "RelationlessBuiltinCandidate",
+  "InstalledNonBrandUnlocated",
   "RelationlessLocalValueCandidate",
   "RelationlessExternCandidate",
   "RelationlessStaticOrUnknown",
@@ -60,6 +61,7 @@ terminal_policy = "Only the first, ninth, or explicitly ParkedSealed state may b
 [caller_inventory]
 relationless_ingress = [
   "src/mir/builder/calls/function_call_brand_source_demand.rs::RawBrandCallAuthorityV1::RelationlessCompatibility",
+  "src/mir/builder/calls/function_call_brand_source_demand.rs::RawInvocationChildPortV1 -> InstalledNonBrand { caller: None } when source context is not Cataloged",
   "src/mir/builder/calls/function_call_preflight_route.rs::PreparedRawOrdinaryFunctionCompletionV1::Resolved",
 ]
 argument_and_recovery = [
@@ -72,7 +74,7 @@ transport_fanout = [
   "src/mir/builder/calls/emit.rs::emit_legacy_call(Global)",
   "static_resolution, ops, ordinary_new, and unified-disabled compatibility callers; each must be classified rather than assumed dead",
 ]
-caller_zero_rule = "Textual absence is insufficient; each listed function and its production callsites must be dispositioned by authority and lifecycle state."
+caller_zero_rule = "Textual absence is insufficient; the active RawInvocation route can enter Resolved through InstalledNonBrand{caller:None}, while RawLegacy is a compatibility facade. Each route and production callsite must be dispositioned by authority and lifecycle state."
 
 [required_disposition]
 builtin_local_extern = "Reuse an existing source-bound preflight state if one exists; otherwise remain NoSafeSlice rather than adding a name-based receipt."
