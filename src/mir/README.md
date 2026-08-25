@@ -146,6 +146,17 @@ effects/positive parity, and empty-apply no-publication test are the receipt;
 the D1K retained-len writer, shared method-set writer, other corridors,
 schedules, and full Call retirement remain outside this cell.
 
+The method-set D1M issuer cell replaces the one shared `rewrite_method_set_value`
+Call literal with `MirInstruction::call`, preserving the original typed
+`Callee`, destination, key, replacement value, and effects. The existing
+`match_method_set_call` matcher is the sole eligibility authority, so
+receiverless Method, non-Method, missing-callee, wrong-method/arity, and
+non-Call inputs return `None`; caller block swaps, `expect` premises, and
+whole-pass rollback remain outside this cell. The materialization/publication
+route parity tests, direct helper finite negative matrix, scoped guard, and
+this receipt cover D1M; other writers, schema cutover, and warning cleanup do
+not.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

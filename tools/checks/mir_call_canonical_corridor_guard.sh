@@ -403,6 +403,17 @@ for forbidden in ("MirInstruction::Call {", "func:", "callee: Some(", "EffectMas
 if window.index("MirInstruction::call(") > window.index("optimization_hints.push"):
     raise SystemExit("shared substring-len hint precedes canonical Call construction")
 
+method = shared[shared.index("pub(super) fn rewrite_method_set_value") : shared.index("pub(super) fn value_is_const_i64")]
+for token in ("match_method_set_call(inst)?", "new_args[1] = new_value", "MirInstruction::call(", "callee.clone()", "*dst", "*effects"):
+    if token not in method:
+        raise SystemExit(f"method-set rewrite lost {token}")
+if method.index("match_method_set_call(inst)?") > method.index("MirInstruction::call(") or method.count("MirInstruction::call(") != 1:
+    raise SystemExit("method-set rewrite must validate once and delegate once")
+output = method[method.index("new_args[1] = new_value") :]
+for forbidden in ("MirInstruction::Call {", "func,", "func:", "callee: Some("):
+    if forbidden in output:
+        raise SystemExit(f"method-set rewrite retained legacy output edge: {forbidden}")
+
 builder_emit = (root / "src/mir/builder/builder_emit.rs").read_text()
 builder_start = builder_emit.index("// CRITICAL: Final receiver materialization")
 builder_end = builder_emit.index("// Record caller", builder_start)

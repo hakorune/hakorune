@@ -515,31 +515,25 @@ pub(super) fn rewrite_method_set_value(
     inst: &MirInstruction,
     new_value: ValueId,
 ) -> Option<MirInstruction> {
-    match inst {
-        MirInstruction::Call {
-            dst,
-            func,
-            callee,
-            args,
-            effects,
-        } => {
-            if let Some(MethodSetCallShape { .. }) = match_method_set_call(inst) {
-                let mut new_args = args.clone();
-                if new_args.len() == 2 {
-                    new_args[1] = new_value;
-                    return Some(MirInstruction::Call {
-                        dst: *dst,
-                        func: *func,
-                        callee: callee.clone(),
-                        args: new_args,
-                        effects: *effects,
-                    });
-                }
-            }
-            None
-        }
-        _ => None,
-    }
+    let MirInstruction::Call {
+        dst,
+        callee: Some(callee),
+        args,
+        effects,
+        ..
+    } = inst
+    else {
+        return None;
+    };
+    let _ = match_method_set_call(inst)?;
+    let mut new_args = args.clone();
+    new_args[1] = new_value;
+    Some(MirInstruction::call(
+        *dst,
+        callee.clone(),
+        new_args,
+        *effects,
+    ))
 }
 
 pub(super) fn value_is_const_i64(

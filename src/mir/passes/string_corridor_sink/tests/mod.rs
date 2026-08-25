@@ -10,6 +10,7 @@ mod benchmarks;
 mod boundaries;
 mod concat_and_return;
 mod materialization;
+mod method_set;
 mod substring_len;
 
 fn method_call(
