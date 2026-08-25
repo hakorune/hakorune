@@ -14,6 +14,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1g-builder-emit-receiver-reconstruction-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1h-phi-call-rematerialization-d0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1i-concat3-extern-rewrite-issuer-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1k-retained-len-extern-issuer-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -96,13 +97,14 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current design-stop row:
 
 ```text
-MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
+MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
 ```
 
-D1K is the selected fast row after two upper-worker audits. D1J landed at
-`c927da4029`, limited to one BoxCall fallthrough writer; D1I landed at
-`513a243be5`. D1K implementation is limited to its one private-plan writer;
-its boundary and receipt are in:
+D1K landed at `8401f457ab` after two upper-worker audits. It was limited to
+one private-plan writer; D1J landed at `c927da4029`, and D1I landed at
+`513a243be5`. The next bounded row requires one upper-worker census; no new
+implementation is selected while `work_mode = design_stop`. D1K's boundary and
+receipt are in:
 
 ```text
 docs/development/current/main/investigations/

@@ -1,10 +1,11 @@
 title = "MIR Call core R6 D1K retained-len Extern issuer"
-status = "selected_fast"
-observed_commit = "b1e0f20a73"
+status = "landed"
+observed_commit = "8401f457ab"
 observed_at = "2026-08-25"
-implementation_permission = true
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0"
 fast_row_candidate = true
+implementation_commit = "8401f457ab"
 
 [boundary]
 starts = "RetainedSubstringLenPlan entering apply_retained_len_plans"
@@ -38,7 +39,7 @@ non_authority = [
 fail_fast = "collector admission remains read-only; empty/missing plan application keeps replacement, hint, count, CFG, and folded-metadata publication at zero for this owner"
 no_publication_claim = "retained-len apply with zero input plans publishes no Call, hint, rewrite count, CFG update, or folded-metadata refresh from this owner; earlier whole-pass phases are non-claims"
 no_retry = "one same-index replacement writer; no target lookup, re-planning, second writer, or fallback"
-smallest_next_slice = "replace retained_len.rs:100-106 with one canonical MirInstruction::call, extend the shared guard window, extend the existing retained-len parity test for effects/hint, add the empty-plan negative, update README, and run focused tests"
+smallest_next_slice = "landed at 8401f457ab; keep the next row separate from retained-len and request a fresh bounded census"
 non_claims = [
   "string-corridor family retirement or other 15 direct writers",
   "plan admission/matcher correctness beyond existing tests",
@@ -97,7 +98,7 @@ parity = [
 focused_tests = [
   "retained_slice_length_plan_reads_placement_effect_window_before_legacy_facts",
   "rewrites_retained_slice_length_consumer_across_blocks",
-  "new empty retained-len apply negative",
+  "empty_retained_len_apply_publishes_no_owner_effects",
 ]
 guards = [
   "bash tools/checks/mir_call_canonical_corridor_guard.sh",
@@ -109,7 +110,16 @@ guards = [
 [worker_review]
 issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1K is the smallest one-writer private-plan Extern candidate after D1J"
 containment_audit = "upper-worker /root/d2a_containment_audit: design-only safe; plan-0 claim narrowed to apply_retained_len_plans owner boundary"
-implementation_permission = true
+implementation_permission = false
+
+[receipt]
+implementation_commit = "8401f457ab"
+focused_result = "3/3 focused tests green"
+broader_result = "substring_len group 11/12; one pre-existing benchmark freeze cohort-missing failure"
+warning_baseline = "quick profile reports 441 existing warnings; no D1K-specific warning was introduced"
+guard_result = "canonical corridor guard, pointer guard, rustfmt touched-files check, and git diff --check green"
+source_lines = "retained_len.rs 127; canonical guard 739; both below the 760 design threshold and 800 hard stop"
+non_claim = "the broad substring_len benchmark baseline is not evidence against this one-writer cutover"
 
 [stop_if]
 conditions = [

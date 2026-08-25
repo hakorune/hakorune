@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
-  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029; D1K fast row selected after two upper-worker audits
-  mode              = fast
-  production stop   = D1K may change only the one retained-len plan writer and its focused proof surfaces
-  exit              = one canonical Extern issuer, effects/hint/empty-plan proof, scoped guard, README receipt, and pushed commit; full PHI admission/atomicity remains NoSafeSlice
+  current decision  = MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029; D1K landed at 8401f457ab after two upper-worker audits
+  mode              = design_stop
+  production stop   = D1K is closed; request one upper-worker census before selecting another fast row
+  exit              = one D1K canonical Extern issuer, effects/hint/empty-plan proof, scoped guard, README receipt, and pushed commit; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -566,9 +566,9 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> fast: one retained-len plan writer -> canonical Extern Call; one writer, two schedule entries; no family/schema expansion
+ MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0 -> design_stop: request one upper-worker bounded census after D1K; no code until a finite row is accepted
 Closed immediately prior
- MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0 -> landed at 4b2fe7a7b6: Extern SSOT delegates once to MirInstruction::call; parity 1/1, corridor guard, touched rustfmt, and diff green
+ MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact
  MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0 -> landed at 513a243be5: one direct rewrite literal -> canonical helper, 3/3 concat3 parity, shared guard/pointer/rustfmt/diff green; 441 warnings remain baseline
  MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
