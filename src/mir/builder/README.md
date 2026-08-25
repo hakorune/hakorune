@@ -108,6 +108,18 @@ value/no-destination receipts, alternate routes, `MirCall`/`CallFlags`, final
 Call schema, Method(None), ingress, array/canonicalizer, backend/wire, and
 cleanup remain outside this row.
 
+### MIR Call R6 remaining writer authority census (design stop)
+
+After D1X (`cde490f75e`), exactly two selected production Call writers remain,
+but no safe fast row is open. `array_element_write.rs` still combines one
+ArrayElementWrite projection issuer with four callers (three selected native,
+one ParkedSealed); `callsite_canonicalize/pass.rs` still owns a late
+`callee=None + Const(String)` target issuer admitted by two schedules. A
+constructor-only edit would leave old authority alive, so implementation is
+stopped until an accepted Decision closes one authority/caller/schedule
+boundary with typed negative and parity evidence. Final Call shape,
+Method(None), ingress, backend, and cleanup remain separately gated.
+
 ### Normal-root pre-effect consumer (C0)
 
 The selected normal/default source-backed path enters

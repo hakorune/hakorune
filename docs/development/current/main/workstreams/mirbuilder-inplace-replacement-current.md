@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0
+Status: Design stop — MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0
-  implementation    = D1V paired InsertMidSubstring landed at 738b0f9fcd; D1W StoreSharedReceiverSubstring landed at 938e060028; D1X UnifiedPhysicalTerminal landed at cde490f75e (3 -> 2; unified 1 -> 0)
-  mode              = closeout
-  production stop   = implementation is closed; only receipt, pointer, README/reference, and next-edge worker evidence may enter this closeout
-  exit              = receipt, pointer closeout, commit, push, and upper-worker next-edge census
+  current decision  = MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0
+  implementation    = D1X UnifiedPhysicalTerminal landed at cde490f75e (selected writers 3 -> 2; unified family 1 -> 0); remaining writers are array projection 1 and late canonicalizer 1
+  mode              = design_stop
+  production stop   = no implementation is permitted; one accepted authority/caller/schedule Decision must precede any new fast row
+  exit              = finite remaining-writer census, accepted Decision with fail-fast/negative/parity proof, then one bounded next slice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: landed — replace only the final generic physical-terminal Call literal with the thin canonical constructor; preserve finalized MirCall destination, typed Callee, args, effects, builder emission boundary, post-success commit, and receipts.
-Source authority + canonical issuer: finalized MirCall owns exact dst/callee/args/effects; emit_finalized_generic_call_v1 emits once through MirInstruction::call after builder.emit_instruction succeeds.
-Non-authority: legacy func, ValueId::INVALID, CallFlags, post-success facts, lookup/map replay, alternate route, backend lookup, target retry, and schema inference.
-Fail-fast boundary: existing builder.emit_instruction result; success emits one canonical Call then commits prepared post-success facts, failure emits no Call, receipt, or publication.
-Smallest next slice: closeout only — receipt records `cde490f75e`, 7/7 physical receipt tests, the 777-line guard, and the 441-warning baseline; no further implementation is admitted here.
-Non-claims: MirCall/CallFlags retirement, mandatory-Callee schema, Method(None), JSON ingress, array projection, callsite canonicalizer, metadata/backend, and cleanup.
+Decision: NoSafeSlice — D1X closed the final safe generic terminal writer; the two remaining writers each retain an authority/caller/schedule blocker.
+Source authority + canonical issuer: upstream exact Callee remains the sole target authority and MirInstruction::call stores only classified targets; array projection and late canonicalizer must be separately owned before retirement.
+Non-authority: array method mapping, legacy func/Const scan, function-name/arity reclassification, backend lookup, and literal counts alone.
+Fail-fast boundary: missing exact Callee or incomplete selected ArrayElementWrite projection rejects before Call publication; constructor/backend target inference is forbidden.
+Smallest next slice: design only — accept one Decision that closes either selected array projection callers/issuer or late callsite-canonicalizer schedule/issuer as a complete authority boundary.
+Non-claims: no code, fixture, fallback, production switch, final schema, Method(None), JSON ingress, array/backend implementation, canonicalizer retirement, metadata, or cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0 -> landed at cde490f75e: the final generic physical-terminal literal now uses the canonical constructor; selected writers 3 -> 2 and unified family 1 -> 0; focused 7/7, guard 777, and 441 warning baseline are recorded; full Call field retirement remains separate
+Now MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0 -> NoSafeSlice after D1X: selected writer inventory is exactly array projection 1 plus late callsite canonicalizer 1; safe fast rows 0; await accepted authority/caller/schedule Decision
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

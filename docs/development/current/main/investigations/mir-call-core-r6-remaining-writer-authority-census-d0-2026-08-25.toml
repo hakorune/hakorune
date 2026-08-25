@@ -1,0 +1,70 @@
+title = "MIR Call core R6 remaining writer authority census"
+status = "design_stop"
+observed_at = "2026-08-25"
+observed_commit = "4d44027191"
+implementation_permission = false
+decision = "MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "After D1X, retain design_stop: the finite selected production writer inventory is two, but neither is a safe constructor-only fast row because each still owns or depends on legacy target authority."
+source_authority_and_canonical_issuer = "Upstream exact Callee producers remain the only target authority; MirInstruction::call stores only a classified target. Array projection policy and late callsite canonicalization are separate authorities that must be closed before issuer retirement."
+non_authority = "Array method mapping, legacy func/Const scan, function-name/arity reclassification, backend lookup, and literal counts alone are not authority."
+fail_fast_boundary = "If an exact Callee or a complete selected ArrayElementWrite projection is unavailable, reject before Call publication; do not infer a target in the constructor or backend."
+smallest_next_slice = "No implementation. Produce one accepted Decision that closes either the selected array projection callers/issuer or the late callsite-canonicalizer schedule/issuer as a complete authority boundary."
+non_claims = "No Call final-shape cutover, Method(None), JSON ingress, array/backend implementation, canonicalizer retirement, metadata, cleanup, or fallback change is authorized by this census."
+
+[boundary]
+starts = "selected production Call writer inventory after D1X"
+ends = "physical Call publication and the authority/schedule/caller set that can still issue it"
+includes = [
+  "array_element_write.rs direct Call writer and its four projection callers",
+  "callsite_canonicalize/pass.rs direct late target-reconstruction writer and its named schedules",
+  "selected native versus ParkedSealed caller disposition",
+]
+excludes = [
+  "already-landed D1A-D1X issuers",
+  "final mandatory-Callee schema, Method(None), JSON ingress, metadata/backend, and cleanup",
+]
+
+[finite_inventory]
+selected_writer_count = 2
+array_element_write = "one writer at src/mir/array_element_write.rs:294; four live projection callers, three selected ny-llvmc and one ParkedSealed llvmlite"
+callsite_canonicalizer = "one writer at src/mir/passes/callsite_canonicalize/pass.rs:132; three named schedule states, with MirCompilerPostRc and MirJsonV0Loader still permitting late rewrite"
+safe_fast_rows = 0
+
+[array_projection_blocker]
+authority = "ArrayElementWrite method mapping/projection and selected caller ownership"
+required_retirement = "selected projection callers 3 -> 0 or a complete selected projection owner/issuer Decision with typed veto and parity"
+positive = "upstream exact Callee or complete native ArrayElementWrite selected projection owns the target and preserves Push/Set/Insert/LiteralAppend results"
+negative = "missing/ambiguous target, typed-array projection veto, or invalid index publishes no Call"
+parity = "selected native array Push/Set/Insert/LiteralAppend and existing compiler/MIR-v0 results remain unchanged"
+
+[canonicalizer_blocker]
+authority = "late callee=None + Const(String) -> Global target reconstruction and its schedule admission"
+required_retirement = "late target issuer and named schedule states reduced to zero before any constructor-only row"
+positive = "already-canonical typed Call passes through without target reconstruction"
+negative = "missing/ambiguous target and legacy Const scan publish no Call; ProgramJsonV0 rejection remains fail-fast"
+parity = "compiler and MIR-v0 compatibility behavior is preserved only through an explicitly owned ingress boundary"
+
+[acceptance]
+implementation_permission = "false"
+guards = [
+  "mir_call_canonical_corridor_guard remains exactly 777 lines and must check authority/caller/schedule closure before a future row",
+  "current_state_pointer_guard",
+  "worker read-only census with finite owner inventory",
+]
+reopen_trigger = "an accepted design Decision names one sole authority, exact caller/schedule closure, typed negative matrix, parity owner, and a bounded implementation edge"
+source_limits = "array owner 578 lines; canonicalizer owner 246 lines; shared guard 777 lines; active card 1000 lines"
+
+[worker_review]
+selection = "/root/d2c_consumer_selection_audit: post-D1X census found exactly two remaining selected writers and zero safe fast rows"
+implementation_permission = "NoSafeSlice; do not edit code, fixtures, fallback, or production switches"
+
+[stop_if]
+conditions = [
+  "literal-only constructor replacement leaves array projection callers or late canonicalizer schedule/authority alive",
+  "target classification, name/arity lookup, backend lookup, or compatibility retry is proposed without a new Decision",
+  "Call final shape, Method(None), JSON ingress, metadata/backend, or cleanup enters the diff",
+  "writer inventory is claimed exhausted without finite owner/caller/schedule evidence",
+]

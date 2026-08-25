@@ -28,6 +28,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1v-insert-mid-substring-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1w-store-shared-receiver-substring-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1x-unified-physical-terminal-issuer-i0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-remaining-writer-authority-census-d0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-final-shape-and-ingress-boundary-design-2026-08-25.md
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
@@ -111,7 +112,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current row:
 
 ```text
-MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0
+MIR-CALL-CORE-R6-REMAINING-WRITER-AUTHORITY-CENSUS-D0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -189,6 +190,16 @@ and the unified physical-terminal family is 1 -> 0; `MirCall`/`CallFlags`,
 final schema, `Method(None)`, ingress, array projection, canonicalizer, and
 backend work remain separately gated. The focused physical receipt suite is
 7/7 and the shared guard remains 777 lines.
+
+Post-D1X census is a design stop, not another constructor row. Exactly two
+selected production writers remain: `array_element_write.rs` retains one
+ArrayElementWrite projection issuer with four live callers (three selected
+native and one ParkedSealed), while `callsite_canonicalize/pass.rs` retains
+one late `callee=None + Const(String)` target issuer admitted by two named
+schedules. A literal-only replacement would leave those authorities alive, so
+the safe fast-row count is zero. The next accepted Decision must close one
+authority/caller/schedule boundary with typed negative and parity evidence
+before implementation resumes.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
