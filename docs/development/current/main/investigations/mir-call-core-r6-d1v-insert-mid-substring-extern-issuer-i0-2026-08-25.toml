@@ -1,0 +1,90 @@
+title = "MIR Call core R6 D1V InsertMid substring Extern issuer"
+status = "fast"
+observed_at = "2026-08-25"
+observed_commit = "9f3b185d09"
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0"
+decision = "MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "Replace only the paired InsertMid direct Call literals with thin canonical constructors as one atomic family, preserving insert_value allocation, RuntimeDataBox metadata, source/middle/split and insert/start/end order, effects, spans, remove indices, and DCE schedule."
+source_authority_and_canonical_issuer = "InsertMidSubstringPlan owns source, middle, split, outer window, outer destination, insert destination, and effects; the variant fixes INSERT_HSI_EXTERN and nyash.string.substring_hii, and MirInstruction::call is the issuer for both calls."
+non_authority = "apply-side fresh ValueId/type defaults, remove indices, emit-MIR selector, legacy func, hint/DCE/CFG, backend lookup, and PURE defaults are not target/effects authority."
+fail_fast_boundary = "outer substring, concat triplet, const middle, both substring shapes, default profile, ordered complementary pair, copy chain, and same-block/order proof must hold; otherwise InsertMid plan=0 and both Calls remain zero."
+smallest_next_slice = "concat_corridor_apply.rs:370 and 378 only; selected writers 7 -> 5 and concat family 4 -> 2."
+non_claims = "No receiver rewrite, unified/array/canonicalizer, collector/schema, fresh ValueId/type policy, remove/DCE schedule, Call final shape, Method(None), ingress contract, MirCall/CallFlags, backend/wire, fallback, or cleanup change."
+
+[boundary]
+starts = "collected InsertMidSubstringPlan entries from the concat corridor collector"
+ends = "existing insert_hsi and substring_hii Calls, spans, producer removal, hints, CFG, DCE, fusion, Return, and folded metadata refresh"
+includes = [
+  "the two direct Call writers for ResolvedConcatCorridorPlan::InsertMidSubstring",
+  "exact source/middle/split and insert_value/start/end operands, outer destination, and shared effects",
+  "existing remove_indices, RuntimeDataBox value-type registration, phase ordering, and producer cleanup",
+]
+excludes = [
+  "receiver rewrite, unified, array, canonicalizer, and remaining concat writers",
+  "collector/plan schema, fresh ValueId/type policy, remove set, phase/DCE/fusion scheduling",
+  "Call operand consumers, Method(None), Closure/Constructor, mandatory-Callee schema, MirCall/CallFlags",
+  "JSON, VM, native backend, ingress-contract queue, typed bridge errors, metadata split, and cleanup lanes",
+]
+
+[authority]
+source = "InsertMidSubstringPlan.source, middle, split, outer_dst, start, end, insert_value, and effects"
+issuer = "MirInstruction::call(Some(*insert_value), Callee::Extern(INSERT_HSI_EXTERN.to_string()), vec![*source, *middle, *split], *effects) followed by MirInstruction::call(Some(*outer_dst), Callee::Extern(\"nyash.string.substring_hii\".to_string()), vec![*insert_value, *start, *end], *effects)"
+non_authority = [
+  "apply-side fresh ValueId allocation, RuntimeDataBox metadata, remove_indices, spans, hints, CFG, DCE, and phase-9 fusion",
+  "legacy func, target Const, backend lookup, PURE inference, and retry",
+]
+
+[finite_matrix]
+positive = [
+  "default profile accepted InsertMid plan emits exactly one insert_hsi and one substring_hii Extern Call in order with exact args, destinations, and shared non-PURE effects",
+  "producer removal, RuntimeDataBox type registration, spans, hints/counts, CFG, DCE, fusion, Return, and folded metadata remain unchanged",
+]
+negative = [
+  "emit-mir profile, non-complementary pair, broken copy-chain/same-block/order proof, missing/foreign substring shape, or empty plan -> no InsertMid Calls",
+  "unsupported route proof -> typed non-selection with no one-sided fallback or retry",
+]
+parity = [
+  "InsertMidSubstringPlan remains the single target/effects authority; both physical issuers change together or neither changes",
+  "D1U Len, D1T ConcatSubstring, D1S PublicationSubstring, remaining families, final Return, and phase-9 fusion remain unchanged",
+]
+
+[delete_set]
+file = "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs"
+lines = "365-382"
+remove = [
+  "two direct transitional MirInstruction::Call literals",
+  "two func: ValueId::INVALID fields",
+  "two callee: Some(Callee::Extern(...)) wrappers",
+]
+replace_with = "two MirInstruction::call issuers preserving InsertMid source/middle/split and substring insert/start/end order with shared *effects"
+
+[acceptance]
+focused_tests = [
+  "rewrites_concat_slice_consumers_to_corridor_helpers: default positive final fusion/Return parity; HAKO_STAGE1_MODE=emit-mir negative leaves InsertMid route unselected",
+]
+static_evidence = [
+  "collector branches already reject emit-mir, non-complementary pair, copy-chain/order, and missing/foreign substring shapes before plan issue",
+  "the shared corridor guard must check the InsertMid arm has exactly two plan-owned canonical Calls in order and forbids direct transitional fields; no fallback/retry evidence is accepted",
+]
+guards = [
+  "mir_call_canonical_corridor_guard",
+  "current_state_pointer_guard",
+  "rustfmt on touched Rust and git diff --check",
+]
+source_limits = "concat_corridor_apply.rs remains below 760/800; concat parity test is 198 lines; corridor guard remains exactly 777 lines; active card remains exactly 1000 lines"
+
+[worker_review]
+selection = "/root/d2c_consumer_selection_audit: fresh post-D1U census selected the paired InsertMidSubstring writers; selected writers 7, concat family 4"
+implementation_permission = "fast I0 is permitted only for this paired plan-owned family; Call final shape, Method(None), ingress-contract, and broader cleanup remain closed"
+
+[stop_if]
+conditions = [
+  "two target/effect policies diverge, substring_hii Method/Extern policy must change, collector/schema/source/order changes, or fresh ValueId/type semantics change",
+  "only one side can be changed, or any receiver rewrite, unified, array, canonicalizer, schema, Method(None), ingress, metadata, backend, or cleanup row enters the diff",
+  "guard replacement/compaction cannot stay at 777 or any touched source reaches 760/800 without a split design",
+  "negative state produces either Call, retry, or late target inference",
+]
