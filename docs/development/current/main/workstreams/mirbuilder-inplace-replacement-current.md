@@ -33,11 +33,11 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-NEW-ATOMIC-RAW-COHORT-D2C
-  implementation    = fast; D1 seed/join, D2a target/containment, D2b package co-seal, and D2c Raw consumer selection are design-only accepted
-  mode              = fast
-  production stop   = selected direct-body Raw ordinary-New still needs final-source transport, one package co-seal, affine claim consumption, sole admission, and old-edge retirement; Plan remains outside this cohort
-  exit              = three bounded commits: BoxShape extraction, atomic Raw cutover, then closeout with shared guard and pointer sync; D2 overall remains NoSafeSlice outside the cohort
-fallback / retry  = 0
+  implementation    = closeout; D1 seed/join, D2a target/containment, D2b package co-seal, and D2c Raw consumer selection are accepted; the bounded D2c Raw cutover landed at 7c976ca8b9
+  mode              = closeout
+  production stop   = selected direct-body Raw ordinary-New now consumes one source claim and retires its by-name/header edge; Plan and other New cohorts remain outside this bounded cutover
+  exit              = three bounded commits: BoxShape extraction, atomic Raw cutover (7c976ca8b9), then closeout with shared guard and pointer sync; D2 overall remains NoSafeSlice outside the cohort
+  fallback / retry  = 0
 ```
 
 The post-root task-order audit is closed. Historical queues cannot select a
@@ -272,8 +272,49 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
 8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
    D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, D1-D4/D1-D5/D1-D6/D1-D7 the issuer/lifecycle/relation/seed design, and D1-D8 design accepted the exact helper shelf/path-observer boundary at `1434663966`;
-   the behavior-neutral shelf I0 landed at `b61f6895d2`; D1 and D2a design-only decisions are accepted at `625491fb25` and `18f05950b7`; D2b package co-seal and D2c Raw consumer selection are accepted as design-only, and the bounded Raw implementation now owns the next edge.
+   the behavior-neutral shelf I0 landed at `b61f6895d2`; D1 and D2a design-only decisions are accepted at `625491fb25` and `18f05950b7`; D2b package co-seal and D2c Raw consumer selection are accepted, and the bounded Raw implementation landed at `7c976ca8b9`.
 9. R7: structural guards, README/reference sync, and census closeout.
+
+## D2c atomic Raw ordinary-`New` cutover receipt (7c976ca8b9)
+
+Decision:
+  The selected direct-body Raw cohort uses one source-backed claim from the
+  installed normal-callable package. Non-selected New families and Plan remain
+  outside this row.
+
+Authority chain:
+  final parser ordinary-box coverage + resolver owner/site Allocation facts
+  -> package co-seal of exact `New` class/arity and optional `Class.birth/N`
+  -> one installed affine claim ledger
+  -> Raw direct-local admission -> existing NewBox physical owner.
+
+Non-authority and retired edge:
+  The claimed path does not consult Builder headers, by-name birth lookup,
+  post-lowering target inference, or a claimless NewBox fallback. Compatibility
+  rows retain their explicitly parked header route and cannot consume a source
+  claim.
+
+Evidence:
+  `RUSTFLAGS=-Awarnings cargo check -q` and `cargo check --tests -q` pass;
+  normal-callable semantic package tests pass 19/19 and the new affine/source
+  claim tests pass 4/4; the shared
+  `mir_call_canonical_corridor_guard.sh` passes; source owners remain below
+  the 800-line hard stop (`recursive_child_lowering.rs` 731,
+  `install.rs` 738). The broad `mir::builder::normal_callable` suite is
+  43/49; its six known baseline failures remain the existing
+  `script-neutral-window`/`DynamicCarrierMismatch` contracts and are not
+  current-change failures.
+
+  The selected row now has one package completion check for unconsumed claims;
+  source-backed integration probing reached claim consumption before the
+  unrelated existing canonical cleanup failure. No new production fallback,
+  retry, or non-selected backend edge was added.
+
+Non-claims:
+  Plan-owned/control-flow New, generated constructor bodies, Core13/
+  IntegerBox/record/builtin/JSON/op=newbox, Method(None), JoinIR/native,
+  PyVM/reference/Python/native_driver, full D2 outside this cohort, and R6
+  field deletion remain NoSafeSlice/ParkedSealed as already recorded.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
@@ -368,7 +409,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
  MIR-CALL-NEW-ATOMIC-RAW-COHORT-D2C
-  -> fast: direct-body Raw ordinary-New only; extract the owner, then atomically transport source, co-seal package/claim, consume once, and retire the old by-name/claimless edge
+  -> closeout: direct-body Raw ordinary-New cutover landed at 7c976ca8b9; verify the shared guard, pointer, and bounded evidence before selecting another cohort
 Next (not selected)
   -> Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
