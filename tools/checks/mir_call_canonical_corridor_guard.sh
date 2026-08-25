@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TAG="mir-call-canonical-corridor-guard"
 LLVM="$ROOT_DIR/src/runner/product/llvm/mod.rs"
@@ -74,13 +73,17 @@ require() {
   local token="$2"
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
-
 for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$RETAINED_LEN" "$SHARED_STRING_CORRIDOR" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 if rg -F -q "CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline" "$OPTIMIZER" || rg -F -q "MirOptimizerLateCallAndInline" "$SCHEDULE"; then
   fail "optimizer retained the retired callsite-canonicalize schedule"
 fi
+if rg -F -q -e "allow_legacy_target_rewrite" -e "collect_const_string_literals" -e "callee: None" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/pass.rs" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/schedule.rs" "$ROOT_DIR/src/mir/passes/callsite_canonicalize/helpers.rs"; then
+  fail "callsite canonicalizer retained a late legacy target issuer"
+fi
+require "$ROOT_DIR/src/mir/passes/callsite_canonicalize/tests/mcl.rs" "mcl5_does_not_rewrite_legacy_call_with_const_string_func"
+require "$ROOT_DIR/src/mir/passes/callsite_canonicalize/tests/mod.rs" "schedule_facade_rejects_late_legacy_target_repair"
 require "$OPTIMIZER" "call_callee_{:?}_"
 require "$CSE" "cse_call_key_uses_typed_callee_and_ignores_stale_func"
 require "$CSE" "cse_closure_key_does_not_use_legacy_func"
@@ -127,7 +130,7 @@ require "$ORDINARY_SOURCE_MODEL" "ordinary_box_coverage"
 require "$ORDINARY_SOURCE_COVERAGE" "ParserOrdinaryBoxSourceCoverageV1"
 require "$BUILDER_README" "Raw ordinary-\`New\` source claim consumer (D2c)"
 require "$PACKAGE_README" "Raw ordinary-\`New\` claim co-seal (D2c)"
-require "$SCHEDULE" "allow_legacy_target_rewrite"
+require "$SCHEDULE" "canonicalize_callsites_for_site(module)"
 require "$SCHEDULE" "ProgramJsonV0Bridge"
 require "$MIR_V0_CALL" "enum JsonV0CallInput"
 require "$MIR_V0_CALL" "struct JsonV0CallInputError"
@@ -213,7 +216,6 @@ require "$LLVM_MIR_CALL_EXTERN" "hako_llvmc_ffi_mir_call_shell_extern_emit_body.
 require "$LLVM_MIR_CALL_EXTERN_RULES" "lowering_plan_extern_emit_rule_matches"
 require "$LLVM_MIR_CALL_EXTERN_RULES" "struct MirCallExternEmitRule"
 require "$LLVM_MIR_CALL_EXTERN_BODY" "emit_extern_call_lowering_plan_mir_call"
-
 if rg -F -q "normalize_program_json_bridge_backend_module_shape" "$BACKEND_SHAPE" "$MIR_BUILDER"; then
   fail "typed backend_shape mutation retained a second semantic authority"
 fi
@@ -223,11 +225,9 @@ fi
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
 fi
-
 python3 - "$LLVM" "$ROOT_DIR" <<'PY'
 from pathlib import Path
 import sys
-
 llvm = Path(sys.argv[1]).read_text()
 root = Path(sys.argv[2])
 

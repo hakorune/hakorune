@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::{ConstValue, MirFunction, MirModule, MirType, ValueId};
+use crate::mir::{MirModule, MirType, ValueId};
 
 pub(super) fn canonicalize_legacy_global_name(
     name: &str,
@@ -25,22 +25,6 @@ fn has_explicit_arity(name: &str) -> bool {
         name.rsplit_once('/'),
         Some((_base, arity)) if arity.chars().all(|c| c.is_ascii_digit())
     )
-}
-
-pub(super) fn collect_const_string_literals(func: &MirFunction) -> BTreeMap<ValueId, String> {
-    let mut out = BTreeMap::new();
-    for block in func.blocks.values() {
-        for inst in &block.instructions {
-            if let crate::mir::MirInstruction::Const {
-                dst,
-                value: ConstValue::String(s),
-            } = inst
-            {
-                out.insert(*dst, s.clone());
-            }
-        }
-    }
-    out
 }
 
 pub(super) fn collect_known_user_boxes(module: &MirModule) -> BTreeSet<String> {

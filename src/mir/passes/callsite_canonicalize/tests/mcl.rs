@@ -1,7 +1,7 @@
 use super::*;
 
 #[test]
-fn mcl5_rewrites_legacy_call_with_const_string_func_to_global_callee() {
+fn mcl5_does_not_rewrite_legacy_call_with_const_string_func() {
     let mut module = MirModule::new("mcl5".to_string());
     let signature = FunctionSignature {
         name: "mcl5/0".to_string(),
@@ -40,7 +40,7 @@ fn mcl5_rewrites_legacy_call_with_const_string_func_to_global_callee() {
     module.add_function(func);
 
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("mcl5/0")
@@ -55,19 +55,18 @@ fn mcl5_rewrites_legacy_call_with_const_string_func_to_global_callee() {
         MirInstruction::Call {
             dst,
             func,
-            callee: Some(Callee::Global(name)),
+            callee: None,
             args,
             effects,
         } if *dst == Some(ValueId(3))
-            && *func == ValueId::INVALID
-            && name == "RewriteKnownMini.run/1"
+            && *func == ValueId(1)
             && args == &vec![ValueId(2)]
             && *effects == EffectMask::PURE
     ));
 }
 
 #[test]
-fn mcl5_suffixes_unsuffixed_qualified_global_name_when_matching_arity_exists() {
+fn mcl5_does_not_rewrite_unsuffixed_legacy_target_even_when_arity_matches() {
     let mut module = MirModule::new("mcl5_suffix".to_string());
     let callee_sig = FunctionSignature {
         name: "RewriteKnownMini.run/1".to_string(),
@@ -113,7 +112,7 @@ fn mcl5_suffixes_unsuffixed_qualified_global_name_when_matching_arity_exists() {
     module.add_function(func);
 
     let rewritten = canonicalize_callsites(&mut module);
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("mcl5_suffix/0")
@@ -126,9 +125,10 @@ fn mcl5_suffixes_unsuffixed_qualified_global_name_when_matching_arity_exists() {
     assert!(matches!(
         inst,
         MirInstruction::Call {
-            callee: Some(Callee::Global(name)),
+            func,
+            callee: None,
             ..
-        } if name == "RewriteKnownMini.run/1"
+        } if *func == ValueId(1)
     ));
 }
 

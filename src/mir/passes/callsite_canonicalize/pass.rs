@@ -8,9 +8,8 @@ use crate::mir::ssot::method_call::method_call;
 use crate::mir::{Callee, MirInstruction, MirModule, MirType, ValueId};
 
 use super::helpers::{
-    canonicalize_legacy_global_name, collect_const_string_literals, collect_known_user_boxes,
-    known_runtime_box_name_from_value, known_user_box_name_from_value,
-    parse_user_box_method_global_name, runtime_box_accepts_method,
+    canonicalize_legacy_global_name, collect_known_user_boxes, known_runtime_box_name_from_value,
+    known_user_box_name_from_value, parse_user_box_method_global_name, runtime_box_accepts_method,
 };
 use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
 
@@ -18,13 +17,10 @@ use super::receiver_operand::rewrite_cfg_stable_receiver_operands;
 ///
 /// Returns number of rewritten instructions.
 pub fn canonicalize_callsites(module: &mut MirModule) -> usize {
-    canonicalize_callsites_for_site(module, true)
+    canonicalize_callsites_for_site(module)
 }
 
-pub(super) fn canonicalize_callsites_for_site(
-    module: &mut MirModule,
-    allow_legacy_target_rewrite: bool,
-) -> usize {
+pub(super) fn canonicalize_callsites_for_site(module: &mut MirModule) -> usize {
     let mut rewritten = 0usize;
     let mut closure_bodies = std::mem::take(&mut module.metadata.closure_bodies);
     let mut next_closure_body_id = module.metadata.next_closure_body_id;
@@ -32,32 +28,27 @@ pub(super) fn canonicalize_callsites_for_site(
     let known_user_boxes = collect_known_user_boxes(module);
 
     for func in module.functions.values_mut() {
-        let const_strings = collect_const_string_literals(func);
         let value_types = func.metadata.value_types.clone();
 
         for block in func.blocks.values_mut() {
             for inst in &mut block.instructions {
                 rewritten += canonicalize_callsite_instruction(
                     inst,
-                    &const_strings,
                     &function_names,
                     &value_types,
                     &known_user_boxes,
                     &mut closure_bodies,
                     &mut next_closure_body_id,
-                    allow_legacy_target_rewrite,
                 );
             }
             if let Some(term) = block.terminator.as_mut() {
                 rewritten += canonicalize_callsite_instruction(
                     term,
-                    &const_strings,
                     &function_names,
                     &value_types,
                     &known_user_boxes,
                     &mut closure_bodies,
                     &mut next_closure_body_id,
-                    allow_legacy_target_rewrite,
                 );
             }
         }
@@ -72,13 +63,11 @@ pub(super) fn canonicalize_callsites_for_site(
 
 fn canonicalize_callsite_instruction(
     inst: &mut MirInstruction,
-    const_strings: &BTreeMap<ValueId, String>,
     function_names: &BTreeSet<String>,
     value_types: &BTreeMap<ValueId, MirType>,
     known_user_boxes: &BTreeSet<String>,
     closure_bodies: &mut BTreeMap<ClosureBodyId, Vec<ASTNode>>,
     next_closure_body_id: &mut ClosureBodyId,
-    allow_legacy_target_rewrite: bool,
 ) -> usize {
     match inst {
         MirInstruction::NewClosure { body_id, body, .. }
@@ -116,32 +105,6 @@ fn canonicalize_callsite_instruction(
             }
             ClosureCallShape::MissingDst | ClosureCallShape::RuntimeArgs => 0,
         },
-        MirInstruction::Call {
-            dst,
-            func,
-            callee: None,
-            args,
-            effects,
-        } => {
-            if !allow_legacy_target_rewrite {
-                return 0;
-            }
-            if let Some(name) = const_strings.get(func) {
-                let canonical_name =
-                    canonicalize_legacy_global_name(name, args.len(), function_names);
-                let rewritten = MirInstruction::Call {
-                    dst: *dst,
-                    func: ValueId::INVALID,
-                    callee: Some(Callee::Global(canonical_name)),
-                    args: args.clone(),
-                    effects: *effects,
-                };
-                *inst = rewritten;
-                1
-            } else {
-                0
-            }
-        }
         MirInstruction::Call {
             dst,
             callee:

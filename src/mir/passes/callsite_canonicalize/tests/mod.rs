@@ -11,7 +11,7 @@ mod ncl;
 mod ucm;
 
 #[test]
-fn schedule_facade_delegates_to_canonical_transform() {
+fn schedule_facade_rejects_late_legacy_target_repair() {
     let mut module = MirModule::new("schedule_facade".to_string());
     let callee_sig = FunctionSignature {
         name: "Known.run/1".to_string(),
@@ -56,7 +56,7 @@ fn schedule_facade_delegates_to_canonical_transform() {
         &mut module,
         CallsiteCanonicalizeScheduleSite::MirCompilerPostRc,
     );
-    assert_eq!(rewritten, 1);
+    assert_eq!(rewritten, 0);
 
     let inst = &module
         .get_function("main/0")
@@ -69,9 +69,9 @@ fn schedule_facade_delegates_to_canonical_transform() {
         inst,
         MirInstruction::Call {
             func,
-            callee: Some(Callee::Global(name)),
+            callee: None,
             ..
-        } if *func == ValueId::INVALID && name == "Known.run/1"
+        } if *func == ValueId(1)
     ));
 }
 

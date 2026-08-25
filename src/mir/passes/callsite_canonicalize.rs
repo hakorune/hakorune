@@ -2,8 +2,8 @@
 //!
 //! Post-RCL-3:
 //! - `MirInstruction::BoxCall` / `MirInstruction::ExternCall` are retired.
-//! - pass keeps MCL-5 compatibility rewrite only:
-//!   `Call(callee=None, func=<const-string>) -> Call(callee=Global, func=INVALID)`.
+//! - unresolved `callee=None` calls are no longer repaired here; ingress owns
+//!   target resolution and this pass consumes typed Call targets only.
 //! - NCL-0 keeps closure creation canonical as `NewClosure`:
 //!   `Call(callee=Closure, dst=Some(_)) -> NewClosure`.
 //! - NCL-1 keeps `NewClosure` thin by externalizing inline bodies:
