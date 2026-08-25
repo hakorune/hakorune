@@ -13,15 +13,17 @@ JoinIR operand-remap D0/caller-lifecycle D1 are closed as NoSafeSlice;
 JSON backend_shape capability/authority D1 and strict-adapter I0 are closed;
 selected ny-llvmc native capability D0 is audited as NoSafeSlice; native D1
 capability boundary, the path-preserving C owner split, and LLVM trap declaration
-co-seal I0 are closed; production CanonicalV1 JSON now reaches the exact Extern
-object/archive/executable boundary, with route-specific acceptance still open."""
+co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
+object/archive/executable boundary, exact Extern D0 is accepted with
+source/plan/arity/args/dst prepass evidence, and this workstream is in closeout
+before the next R6 design stop."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0"
-current_design_stop = "LLVM trap declaration co-seal I0 is green: production CanonicalV1 JSON emits an object, explicit libnyash_kernel.a resolves nyash.env.now_ms, and Boundary emits an executable; exact Extern D0 still needs C source_symbol validation and route-specific malformed-plan rejection before acceptance."
-current_blocker_token = "backend_shape exact Extern link-proof D0: D0-A production JSON, D0-B derived missing-plan/arity=1 rejects, and D0-C object/archive/executable symbol census are green; D0-D route-specific nonzero rejection and source_symbol co-seal remain open; raw externcall has no retry/fallback."
+current_design_stop = "Exact Extern D0 is accepted: production CanonicalV1 EnvNowMs reaches object/archive/executable, and generic-entry/same-module C prepasses consume Rust-issued source_symbol/route tuple/arity/args/dst with typed missing/mismatch rejection before publication; next design stop is R6 core-schema authority."
+current_blocker_token = "closeout: record Extern D0/I0 evidence, sync docs, commit/push, then design-stop on MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0; no R6 field deletion is authorized."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -37,17 +39,15 @@ closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
 is accepted and profile-threading I0 is closed; JoinIR D0/caller-lifecycle D1
 are NoSafeSlice/closed, backend_shape capability D1 and strict-adapter I0 are
 closed, native capability D0 is NoSafeSlice, native D1 and the C owner split
-are closed, including the LLVM trap declaration co-seal I0; exact Extern
-link-proof D0 is the active design stop for route-specific acceptance.
-JoinIR remap is
-NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
+are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted and the workstream is in closeout before the R6 core-schema design stop.
+JoinIR remap is NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
 ParkedSealed outside this lane. R5 exit: finite terminal matrix, selected
 optimizer/interpreter/printer rows, JSON D0/I0, shared guard, and no R6 field
 deletion; JoinIR is fenced NoSafeSlice, strict-adapter I0 is closed, native D0
 is NoSafeSlice, native D1/C owner split and trap declaration co-seal I0 are
-closed, and R6 remains separate; exact Extern D0 is still unaccepted until
-source_symbol and route-specific reject evidence are co-sealed."""
+closed, and R6 remains separate; exact Extern D0 is accepted with generic-entry
+and same-module prepass source/plan/arity/args/dst evidence."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d escape, R4e ownership, R4f CallLike retirement, Query T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, profile-threading I0, backend_shape strict-adapter I0 at 40559cceef, native D1 boundary, C owner split I0 at 03b06622eb, and LLVM trap declaration co-seal I0 are closed. Production CanonicalV1 JSON, derived negatives, and object/archive/executable proof are green for exact Extern D0; source_symbol validation and route-specific rejection remain the design stop. JoinIR D0/caller-lifecycle D1 and native D0 remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed outside this lane."
-next_design_card = "MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0"
-next_execution_card = "none — exact Extern D0 route-specific acceptance is unaccepted; design stop"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d escape, R4e ownership, R4f CallLike retirement, Query T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, profile-threading I0, backend_shape strict-adapter I0 at 40559cceef, native D1 boundary, C owner split I0 at 03b06622eb, LLVM trap declaration co-seal I0, and exact Extern D0 are closed. Production EnvNowMs object/archive/executable proof plus source/plan/arity/args/dst prepass negatives are green; closeout now precedes the R6 core-schema design stop. JoinIR D0/caller-lifecycle D1 and native D0 remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed outside this lane."
+next_design_card = "MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0 after exact Extern D0 closeout"
+next_execution_card = "MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0 (design stop; not selected)"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-25: R5a optimizer, R5b-B0 Rust interpreter, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, and profile-threading I0 are closed (e36f86e869, 95427f2cd6, 67dd7e400a, 09f0e51143, 5ce1b18904, db350b81c9); JoinIR D0/caller-lifecycle D1 are NoSafeSlice, backend_shape strict-adapter I0 is closed at 40559cceef, native capability D0 is NoSafeSlice, native D1 boundary and C owner split I0 at 03b06622eb are closed, and exact Extern link-proof D0 is the selected design stop; PyVM/reference/Python stay ParkedSealed.",
+  "2026-08-25: R5a optimizer, R5b-B0 Rust interpreter, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, and profile-threading I0 are closed (e36f86e869, 95427f2cd6, 67dd7e400a, 09f0e51143, 5ce1b18904, db350b81c9); JoinIR D0/caller-lifecycle D1 are NoSafeSlice, backend_shape strict-adapter I0 is closed at 40559cceef, native capability D0 is NoSafeSlice, native D1 boundary and C owner split I0 at 03b06622eb are closed, and exact Extern D0 is accepted with production link/prepass evidence; closeout precedes the R6 design stop; PyVM/reference/Python stay ParkedSealed.",
   "2026-08-25: MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0 closed Query Call read/write reconstruction via used_values/dst_value; 2 focused tests, pointer/corridor guards green, 433 warnings remain baseline.",
   "2026-08-25: MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-I0-R0 closed value_consumer Call membership via one used_values delegation; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4d escape was next.",
 ]

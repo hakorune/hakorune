@@ -444,3 +444,101 @@
       }
 
       #include "hako_llvmc_ffi_mir_call_shell_extern_emit.inc"
+
+      auto int pure_prepass_note_extern_reject(
+          long long bid,
+          size_t ii,
+          const char* op,
+          const char* reason,
+          const char* callee_name,
+          const char* route_id,
+          const char* hint) {
+        note_pure_unsupported_shape_route_detail(
+            bid,
+            ii,
+            op,
+            reason,
+            NULL,
+            "Extern",
+            NULL,
+            NULL,
+            callee_name,
+            NULL,
+            route_id,
+            NULL,
+            hint);
+        return 0;
+      }
+
+      auto int pure_prepass_extern_call_contract(
+          long long bid,
+          size_t ii,
+          const char* op,
+          const char* callee_name,
+          yyjson_val* args,
+          long long dst,
+          const struct LoweringPlanExternCallView* extern_view) {
+        const struct MirCallExternEmitRule* rule = NULL;
+        long long arity = -1;
+        if (!(extern_view && extern_view->entry &&
+              extern_view->source_symbol && callee_name &&
+              !strcmp(extern_view->source_symbol, callee_name))) {
+          return pure_prepass_note_extern_reject(
+              bid,
+              ii,
+              op,
+              "extern_call_source_symbol_mismatch",
+              callee_name,
+              extern_view ? extern_view->route_id : NULL,
+              "check Rust ExternCallRoute source_symbol");
+        }
+        rule = find_mir_call_extern_emit_rule(extern_view);
+        if (!rule) {
+          return pure_prepass_note_extern_reject(
+              bid,
+              ii,
+              op,
+              "extern_call_plan_contract_mismatch",
+              callee_name,
+              extern_view->route_id,
+              "check Rust extern_call_routes route tuple");
+        }
+        if (!lowering_plan_read_i64_field(
+                extern_view->entry,
+                "arity",
+                &arity) ||
+            arity < 0 || arity != rule->arity) {
+          return pure_prepass_note_extern_reject(
+              bid,
+              ii,
+              op,
+              "extern_call_arity_mismatch",
+              callee_name,
+              extern_view->route_id,
+              "check Rust ExternCallRoute arity");
+        }
+        if (!(args && yyjson_is_arr(args)) ||
+            yyjson_arr_size(args) != (size_t)arity) {
+          return pure_prepass_note_extern_reject(
+              bid,
+              ii,
+              op,
+              "extern_call_args_mismatch",
+              callee_name,
+              extern_view->route_id,
+              "check MIR call args against the issued route arity");
+        }
+        if ((extern_view->has_result_value &&
+             (!dst || extern_view->result_value != dst)) ||
+            (!extern_view->has_result_value && dst)) {
+          return pure_prepass_note_extern_reject(
+              bid,
+              ii,
+              op,
+              "extern_call_result_mismatch",
+              callee_name,
+              extern_view->route_id,
+              "check MIR dst against the issued result_value");
+        }
+        return 1;
+      }

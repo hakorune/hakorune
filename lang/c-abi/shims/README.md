@@ -187,7 +187,15 @@ Current partitions:
     orchestration/context plumbing, not a semantic planner
 - `hako_llvmc_ffi_same_module_prepass.inc`
   - same-module prepass helper partition; publishes backend-local reg/origin
-    facts from MIR-owned metadata before body emit
+    facts from MIR-owned metadata before body emit; structured `Extern` calls
+    are preflighted from the Rust-issued `source_symbol`, route tuple, arity,
+    args, and `dst` before any body/LLVM publication, with no C name fallback
+- `hako_llvmc_ffi_pure_prepass_extern_call.inc`
+  - generic-entry structured-`Extern` prepass wrapper; a missing or malformed
+    Rust-issued plan rejects with the original callee name
+- `hako_llvmc_ffi_pure_value_type_metadata.inc`
+  - pure prescan value-type projection partition; keeps the prescan source
+    below the 760-line design threshold without changing authority
 - `hako_llvmc_ffi_same_module_body_emit.inc`
   - same-module body instruction emitter partition; lowers accepted prepass
     shapes to LLVM text and must not add new legality rules

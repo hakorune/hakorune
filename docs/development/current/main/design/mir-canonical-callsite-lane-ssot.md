@@ -906,8 +906,8 @@ EnvNowMs path: boxed-sum/prescan declarations and unconditional C1 declarations
 from non-null function metadata. A third hostbridge declaration is conditional
 and must use the same once-helper. The prerequisite is now closed as a
 behavior-preserving physical refactor;
-exact Extern D0 remains unaccepted until the route-specific acceptance evidence
-is co-sealed.
+Before the next I0, exact Extern D0 remained unaccepted until the
+route-specific acceptance evidence was co-sealed.
 
 I0 evidence: `build_hako_llvmc_ffi.sh`, the selected C1 physicalizer smoke, the
 quick `ny-llvmc` check, the shared Call corridor guard, and the pointer guard are
@@ -918,7 +918,82 @@ The dumped optimized module has zero trap declarations when no trap call is
 needed; the helper therefore enforces the allowed zero-or-one census. Derived
 missing-plan and arity=1 inputs reject nonzero with no object, and a missing
 explicit archive rejects before executable publication. The exact D0 route
-specificity/source-symbol acceptance decision remains separate and unaccepted.
+specificity/source-symbol acceptance decision remained separate at that point.
+
+Accepted bounded next slice: `MIR-CALL-EXTERN-PLAN-COSEAL-I0-R0`:
+
+```text
+Decision: make the selected C generic/same-module prepasses a fail-fast
+  projection of an already-issued structured Extern plan; they must not
+  classify or recover a missing route by name.
+Source authority + canonical issuer: Rust ExternCallRouteSpec/classifier
+  issues Callee::Extern, ExternCallRoute, and the CanonicalV1 lowering-plan
+  row; C reads that row and compares the original structured callee name with
+  source_symbol, then checks the existing physical emit-rule tuple.
+Non-authority: C alias/name lookup, hand-written EnvNowMs acceptance, runtime
+  symbol lookup, key_value/INVALID inference, raw externcall, compatibility
+  replay, and parked backends.
+Fail-fast boundary: the generic entry prescan and
+  same_module_function_prepass_call_instruction, before body emission, LLVM
+  optimization, llc, object publication, or archive/executable linking.
+Smallest next slice: require source_symbol in the C view; for structured
+  Extern, reject missing/malformed plans with the original callee name, and
+  reject source-symbol, route-tuple, arity/args, or dst/result mismatches using
+  the existing unsupported-shape diagnostic; keep valid EnvNowMs emission
+  unchanged.
+Non-claims: EnvNowMs-specific missing-plan classification, alias projection,
+  other Extern routes, link-proof expansion, native switch, R6, or warnings.
+```
+
+Finite D0-D input matrix (boundary: structured MIR `Call` Extern payload at
+the generic entry prescan or `same_module_function_prepass_call_instruction`
+-> prepass failure or the existing emit rule; excludes raw `externcall`,
+CompatibilityV0, and parked backends):
+
+| Input state | Authority evidence | Required terminal |
+|---|---|---|
+| plan present, `callee.name == source_symbol`, tuple/arity/args/dst/result exact | Rust route row + C projection check | existing EnvNowMs call emission |
+| plan present, source symbol differs/missing | Rust row is not the callsite identity | typed nonzero prepass reject |
+| plan present, route tuple/proof/shape differs | C projection no longer matches issued route | typed nonzero prepass reject |
+| plan present, arity or args count differs | plan arity and MIR args disagree | typed nonzero prepass reject |
+| plan present, dst/result differs or is absent for scalar result | plan result relation disagrees | typed nonzero prepass reject |
+| structured Extern plan missing or non-Extern plan at site | no route product to consume | generic `extern_call_missing_plan` reject with callee name; no C reclassification |
+| raw `externcall`, CompatibilityV0, unknown non-selected route | outside selected boundary | existing reject/parked terminal; no new native path |
+
+The missing-plan row is intentionally callsite-scoped rather than
+EnvNowMs-specific: classifying it as EnvNowMs in C would require an alias
+projection or a new C authority. Alias projection is a separate future slice,
+not part of this I0.
+
+Exact Extern D0 acceptance — `MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0`:
+
+```text
+Decision: accept the selected CanonicalV1 EnvNowMs route only when the Rust
+  issued ExternCallRoute/lowering-plan row and the original MIR callee name
+  agree at the selected C prepass; no C alias classification or fallback is
+  part of the accepted route.
+Boundary: production MIR JSON capture -> generic entry/same-module prepass
+  -> object -> one kernel archive definition -> executable definition; derived
+  malformed rows terminate at prepass before object publication.
+Positive: production env.now_ms/0 reaches an object with U nyash.env.now_ms,
+  the selected archive has one T nyash.env.now_ms definition, and the linked
+  executable has one T definition and runs with a timestamp result.
+Negative: derived missing-plan, arity=1, source_symbol mismatch, and
+  result_value mismatch each return nonzero with no object; diagnostics retain
+  callee_symbol=env.now_ms/0 and use extern_call_* reasons.
+Guard: C shim rebuild, quick ny-llvmc check, selected Dynamic smoke, pointer
+  guard, canonical corridor guard, source/check line caps, and diff check are
+  green; the executable's timestamp-derived process status is not a parity
+  claim.
+Non-claims: native switch, other Extern route expansion, R6 field deletion,
+  MirCall/CallFlags cleanup, Method(None)/Closure/Constructor redesign,
+  JoinIR lifecycle, warnings, or parked backends.
+```
+
+The exact D0 finite boundary is now `Exhausted` with no open blocker. The next
+design stop is the R6 core-schema decision; it must first resolve the
+MirCall/CallFlags split, required Method receiver, Closure construction
+boundary, and Constructor/NewBox boundary before any field deletion.
 
 Feedback reconciliation and deferred task queue (not selected):
 

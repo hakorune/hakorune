@@ -36,7 +36,11 @@
                out->route_kind &&
                out->emit_kind &&
                out->symbol &&
-               out->proof;
+               out->proof &&
+               out->route_proof &&
+               out->return_shape &&
+               out->value_demand &&
+               out->source_symbol;
       }
 
       auto int lowering_plan_extern_call_view_matches_runtime_route(
@@ -126,4 +130,3 @@
                view->value_demand &&
                !strcmp(view->value_demand, "scalar_i64");
       }
-

@@ -209,6 +209,28 @@
           if (dst) set_type(dst, T_I64);
           return 1;
         }
+        if (ctype && !strcmp(ctype, "Extern")) {
+          if (!has_extern_view) {
+            return pure_prepass_note_extern_reject(
+                bid,
+                ii,
+                op,
+                "extern_call_missing_plan",
+                mname,
+                NULL,
+                "emit a Rust-issued extern_call_routes lowering plan");
+          }
+          if (!pure_prepass_extern_call_contract(
+                  bid,
+                  ii,
+                  op,
+                  mname,
+                  args,
+                  dst,
+                  &extern_view)) {
+            return 0;
+          }
+        }
         if (has_user_box_method_view &&
             (lowering_plan_user_box_method_view_is_direct_void_sentinel_i64_zero(
                  &user_box_method_view) ||

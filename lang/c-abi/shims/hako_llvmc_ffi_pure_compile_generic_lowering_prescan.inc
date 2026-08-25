@@ -1,3 +1,5 @@
+      #include "hako_llvmc_ffi_pure_prepass_extern_call.inc"
+
       auto void generic_pure_publish_origin(long long reg, int origin_kind) {
         set_origin(reg, origin_kind);
         set_scan_origin(reg, origin_kind);
@@ -9,61 +11,7 @@
       }
 
       #include "hako_llvmc_ffi_pure_typed_object_helpers.inc"
-
-      auto int generic_pure_publish_value_type_metadata(
-          long long reg,
-          yyjson_val* value_type) {
-        const char* scalar_type = NULL;
-        const char* kind = NULL;
-        const char* box_type = NULL;
-        if (!reg || !value_type) return 0;
-        if (yyjson_is_str(value_type)) {
-          scalar_type = yyjson_get_str(value_type);
-          if (scalar_type && !strcmp(scalar_type, "i1")) {
-            set_type(reg, T_I1);
-            return 1;
-          }
-          if (scalar_type && !strcmp(scalar_type, "i64")) {
-            publish_plain_i64_value(reg);
-            return 1;
-          }
-          if (scalar_type && !strcmp(scalar_type, "void")) {
-            set_type(reg, T_I64);
-            return 1;
-          }
-          return 0;
-        }
-        if (!yyjson_is_obj(value_type)) return 0;
-        kind = read_str(value_type, "kind");
-        box_type = read_str(value_type, "box_type");
-        if (kind && !strcmp(kind, "string")) {
-          generic_pure_publish_i64_origin(reg, ORG_STRING);
-          return 1;
-        }
-        if (!(kind && !strcmp(kind, "handle"))) return 0;
-        if (box_type && !strcmp(box_type, "StringBox")) {
-          generic_pure_publish_i64_origin(reg, ORG_STRING);
-          return 1;
-        }
-        if (box_type && (!strcmp(box_type, "ArrayBox") ||
-                         !strcmp(box_type, "DirectArrayI64"))) {
-          generic_pure_publish_i64_origin(reg, ORG_ARRAY_BIRTH);
-          return 1;
-        }
-        if (box_type && !strcmp(box_type, "MapBox")) {
-          generic_pure_publish_i64_origin(reg, ORG_MAP_BIRTH);
-          return 1;
-        }
-        if (box_type && !strcmp(box_type, "FileBox")) {
-          generic_pure_publish_i64_origin(reg, ORG_FILEBOX);
-          return 1;
-        }
-        if (generic_pure_publish_typed_object_if_plan(reg, box_type)) {
-          return 1;
-        }
-        set_type(reg, T_I64);
-        return 1;
-      }
+      #include "hako_llvmc_ffi_pure_value_type_metadata.inc"
 
       auto int generic_pure_publish_reg_metadata(long long reg) {
         char key[32];
@@ -391,6 +339,19 @@
             if (args && yyjson_is_arr(args)) {
               if (yyjson_arr_size(args) >= 1) a0 = (long long)yyjson_get_sint(yyjson_arr_get(args, 0));
               if (yyjson_arr_size(args) >= 2) a1 = (long long)yyjson_get_sint(yyjson_arr_get(args, 1));
+            }
+            if (ctype && !strcmp(ctype, "Extern")) {
+              if (!pure_prepass_validate_extern_call(
+                      bid,
+                      ii,
+                      op,
+                      mname,
+                      args,
+                      dst,
+                      find_lowering_plan_entry_for_site(bid, ii))) {
+                yyjson_doc_free(d);
+                goto GEN_ABORT;
+              }
             }
             if (dst && ctype && !strcmp(ctype, "Method") && recv &&
                 get_scan_origin(recv) == ORG_STRING) {

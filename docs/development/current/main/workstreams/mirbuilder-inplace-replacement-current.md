@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (selected exact Extern link-proof D0)
+Status: Active workstream — closeout (Extern plan co-seal I0 + exact D0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0
-  implementation    = LLVM trap declaration co-seal I0 is closed; production CanonicalV1 JSON reaches object/archive/executable and derived malformed-plan negatives reject without publication
-  mode              = design_stop
-  production stop   = exact Extern route-specific acceptance remains: C must co-seal source_symbol and reject malformed plan inputs by route before publication; no native switch, route expansion, or link-policy change; Method(None)/Closure/Constructor gates, R6 field deletion, and JoinIR remain outside
-  exit              = accepted finite link-proof D0 or explicit NoSafeSlice; object/archive/executable shape is green, but no D0 acceptance until source_symbol and route-specific reject evidence are fixed
+  implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
+  mode              = closeout
+  production stop   = exact Extern D0 is closed with no C alias/name classification, route fallback, or post-mismatch publication; native switch, route expansion, link-policy change, Method(None)/Closure/Constructor gates, R6 field deletion, and JoinIR remain outside
+  exit              = commit/push this evidence, then design-stop on R6 core-schema authority; no new semantic receipt or route family
 fallback / retry  = 0
 ```
 
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
  MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0
-  -> D0-A production JSON closed; D0-B derived missing-plan/arity=1 rejects green; D0-C object/archive/executable census green; D0-D source_symbol and route-specific reject remain
+  -> closed: production object/archive/executable proof and generic/same-module prepass source/plan/arity/args/dst negatives are green; no fallback/publication after mismatch
 
 Next (not selected)
-  -> exact Extern link-proof I0 after D0 acceptance; R6 remains separate and R4c remains NoSafeSlice unless a caller reopens
+  -> MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0: decide MirCall/CallFlags, Method.receiver, Closure construction, and Constructor/NewBox boundaries before field deletion; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
