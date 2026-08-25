@@ -1,7 +1,7 @@
 title = "MirBuilder investigation ledger identity and index design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-26"
-observed_commit = "f659d3f941"
+observed_commit = "aeae60a55a"
 implementation_permission = false
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
 related_current = "docs/development/current/main/CURRENT_STATE.toml"
@@ -45,6 +45,19 @@ future_filename_inventory = "four investigation filenames carry 2026-08-27 while
 guard_manifest = "tools/checks/guard_rows.toml currently reports 103 rows (29 root rows plus the included 74-row manifest). At least four referenced guards are not registered: mir_call_canonical_corridor_guard.sh, mir_call_d1b_exact_target_child_guard.sh, mir_call_d1b_selected_normal_duplicate_projection_guard.sh, and normal_source_plan0_transaction_guard.py; the externals retirement guard is referenced but absent. The newly landed index-none safety guard is registered."
 relation_drift = "current cards use mixed parent_row/parent_child/source_lineage_child/selected_child/next_child/evidence_child/supersedes forms (15 relation-key spellings); no single [edges] graph is yet machine-resolvable."
 identity_drift = "the bounded investigation cohort currently has zero top-level row_id fields and zero [edges] tables; identity and relation migration remain unstarted and must not accept a dual-format cutover."
+
+[verification]
+source = "read-only worker re-audit at aeae60a55a; no code, fixture, or Cargo change"
+terminal_policy = "the related relationless-recovery card already says first, tenth, or ParkedSealed; the old ninth wording is not a current blocker"
+remaining_tasks = [
+  "schema D0: freeze row_id, [edges] roles, status/date vocabulary, scope, and one-way cutover",
+  "parse repair: assign the duplicate scalar/table key to the Call-R6 closeout owner",
+  "date census: classify the four 2026-08-27 filenames before any rename",
+  "guard registration: route four unregistered guards and separately disposition the absent externals guard",
+  "INDEX guard: implement only after schema and scope are sealed",
+]
+task_order = "schema -> parse/date/guard ownership -> one-shot row_id/[edges] migration -> INDEX checker"
+implementation_gate = "design_stop only; no dual-format acceptance, no bulk TOML rewrite, and no semantic or production code change"
 
 [finite_state]
 states = [

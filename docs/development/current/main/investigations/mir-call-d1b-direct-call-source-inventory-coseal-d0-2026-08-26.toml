@@ -1,6 +1,6 @@
 title = "MIR Call D1B direct-call source inventory co-seal design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "01ea8c7df0"
+observed_commit = "aeae60a55a"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
@@ -56,6 +56,12 @@ resolver_entrances = "The selected/Brand resolver, InstanceConstructor semantic 
 lineage_source = "RawInvocationRootLineageV1 already carries Cataloged, TopLevel, and InstanceConstructor upstream; the bounded task is to preserve this provenance through disposition without turning names, box keys, or symbols into targets."
 i0_connection = "The landed index-none safety I0 is a typed abort at canonicalize_draft; it is a child safety edge and does not replace the same-session owner/site inventory or pre-shadow observation design."
 
+[worker_audit]
+source = "six read-only worker audits at aeae60a55a; no code, fixture, or Cargo change"
+verdict = "NoSafeSlice remains: package issuer has no direct-call inventory/co-seal field, SelectedCallable closes ordinary FunctionCall traversal, and TopLevel/InstanceConstructor lineage still collapses to caller=None before disposition."
+next_bounded_design = "D0-C package co-seal boundary census: fix the exact prepare_install/commit boundary, finite SelectedNormal/Constructor/non-direct/missing/foreign/ambiguous/index-none matrix, one owner/site issuance point, and pre-effect abort contract."
+implementation_gate = "Keep implementation_permission=false; do not widen traversal, add a semantic receipt, change target resolution, or alter the active backend until D0-C closes."
+
 [finite_state]
 states = [
   "SourceInventoryUnsealed",
@@ -82,7 +88,7 @@ terminal_policy = "Only InventoryCoSealed after same-session owner/site bijectio
 [subtasks]
 d0_a_observation_owner = "Design the single existing shadow/resolver observation point that records every ordinary FunctionCall before argument descent; no AST re-scan and no target receipt."
 d0_b_lineage = "Carry RawInvocationRootLineageV1::{Cataloged,TopLevel,InstanceConstructor} through brand authority without collapsing to caller=None; keep provenance separate from target authority."
-d0_c_co_seal = "Design the same-session owner-qualified (FunctionOwnerId, SourceExprSiteV1) inventory and require it before semantic package prepare_install/commit; include constructor forest owners, duplicate, missing, foreign, and ambiguous checks."
+d0_c_co_seal = "Next bounded design slice (D0-C): fix the same-session owner-qualified (FunctionOwnerId, SourceExprSiteV1) inventory boundary at semantic package prepare_install/commit; include constructor forest owners, SelectedNormal/non-direct, index-none, duplicate, missing, foreign, and ambiguous checks."
 d0_d_local_value = "Decide whether LocalValue has an existing exact source relation; otherwise disposition it as typed reject or explicit park rather than consulting Builder variable_map or a name fallback."
 d0_e_guard_matrix = "Specify one future guard and focused negative matrix for silent drop, index-none-with-calls, lineage collapse, second resolver, post-effect Resolved, and package/body/argument effects before co-seal."
 d0_f_index_none_safety = "Track MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-D0 separately: existing DraftInvariant can close the silent empty-map edge, but it cannot claim source observation, lineage, or pre-argument resolution."
