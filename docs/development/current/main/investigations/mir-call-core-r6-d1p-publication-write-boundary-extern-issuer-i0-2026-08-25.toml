@@ -1,9 +1,10 @@
 title = "MIR Call core R6 D1P publication write-boundary Extern issuer"
-status = "fast"
+status = "landed"
 observed_at = "2026-08-25"
-observed_commit = "28fdd2c8bc"
-implementation_permission = true
+observed_commit = "6912edb287"
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0"
+implementation_commit = "6912edb287"
 decision = "MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
 
@@ -12,7 +13,7 @@ decision = "Replace one publication write-boundary direct Call literal with the 
 source_authority_and_canonical_issuer = "The private PublicationWriteBoundaryPlan owns helper dst, exact Extern, five ordered operands, and effects; MirInstruction::call is the sole issuer."
 non_authority = "Store/FieldSet shape, apply-side metadata reread, legacy func, backend symbol lookup, PURE defaults, DCE/CFG policy, and hint/count bookkeeping are not target authority."
 fail_fast_boundary = "Copy-chain, explicit-cold reason/repr, helper, same-block, effect-safe, empty-plan, or missing-block failure produces zero plan/Call/hint/count publication."
-smallest_next_slice = "Change only publication.rs:469-475; add Store and FieldSet parity and compact the existing corridor guard rather than append beyond 777 lines."
+smallest_next_slice = "Landed: publication.rs:469-475 now uses MirInstruction::call with the existing plan-owned Extern, destination, five ordered operands, and effects; the shared guard remains 777 lines."
 non_claims = "No return writer, host writer, concat9, unified/array/canonicalizer, Method(None), bare FunctionCall, schema cutover, metadata split, typed-error, backend/wire, fallback, or cleanup change."
 
 [boundary]
@@ -74,18 +75,18 @@ focused_tests = [
 ]
 static_evidence = [
   "collector branches already reject unsupported boundary shapes, missing helper/block, copy-chain, reason/repr, and intervening-effect states before plan issue",
-  "existing D1O corridor guard must be compactly extended to the write-boundary window; no new fallback or retry evidence is accepted",
+  "the shared corridor guard now checks both host and write-boundary windows; no fallback or retry evidence was added",
 ]
 guards = [
   "mir_call_canonical_corridor_guard proves the write-boundary window has one plan-owned canonical Call and no direct transitional fields",
   "current_state_pointer_guard",
   "rustfmt on touched Rust and git diff --check",
 ]
-source_limits = "publication.rs is 659 lines and boundaries.rs is 632 lines; corridor guard is 777 lines and must stay <=777 by replacement/compaction; active card is 1000 lines"
+source_limits = "publication.rs is 658 lines and boundaries.rs is 644 lines; corridor guard is 777 lines; active card is 1000 lines; all remain below the 760/800 source and card limits"
 
 [worker_review]
 selection = "/root/d2c_consumer_selection_audit: post-D1O census selected D1P as the smallest remaining exact-target writer; remaining selected writers 15, publication family 3"
-implementation_permission = "fast I0 permitted after the finite matrix, delete set, guard plan, and upper-worker review; no other writer or consumer is admitted"
+implementation_permission = "fast I0 landed at 6912edb287; closeout is limited to receipt, README, pointer, and worker evidence"
 
 [stop_if]
 conditions = [
@@ -94,3 +95,20 @@ conditions = [
   "guard append would exceed 777 or any touched Rust file reaches 760/800 without a separate split design",
   "negative state produces any plan, Call, hint, count, or retry",
 ]
+
+[receipt]
+status = "landed"
+commit = "6912edb287"
+source = "src/mir/passes/string_corridor_sink/publication.rs:469-479; src/mir/passes/string_corridor_sink/tests/boundaries.rs:3-8,81-204,291-414; tools/checks/mir_call_canonical_corridor_guard.sh:606-616"
+old_edge = "publication write-boundary apply emitted a direct transitional Call literal with func: ValueId::INVALID and callee: Some(...)"
+new_edge = "the existing PublicationWriteBoundaryPlan emits one MirInstruction::call(Some(plan.helper_dst), Callee::Extern(plan.publish_extern.to_string()), [left, middle, right, start, end], plan.effects) before the unchanged Store/FieldSet rewrite"
+focused_tests = [
+  "sinks_publication_helper_to_same_block_store_boundary: exact Extern/dst/five-argument order/READ effects and Store adjacency passed",
+  "sinks_publication_helper_to_same_block_fieldset_boundary: exact Extern/dst/five-argument order/READ effects and FieldSet adjacency passed",
+  "string_corridor_sink::tests::boundaries: 3 passed, 0 failed",
+]
+warning_baseline = "quick profile emitted 441 pre-existing warnings; this cell neither suppresses nor claims to retire them"
+negative = "collector rejection and empty/unsupported/copy-chain/intervening-effect paths remain unchanged static no-publication evidence; no new fallback/retry path or whole-pass rollback claim"
+parity = "Store/FieldSet boundary fields, copy removal, spans, hint/count, CFG, folded metadata, D1O host writer, D1N consumer, and pre/post-DCE schedule remain unchanged"
+guards = "mir_call_canonical_corridor_guard (777 lines) + current_state_pointer_guard + rustfmt + git diff --check green"
+source_limits = "publication.rs 658 lines; boundaries.rs 644 lines; corridor guard 777 lines; active card 1000 lines"

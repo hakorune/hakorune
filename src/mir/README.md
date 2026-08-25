@@ -183,6 +183,15 @@ collector-owned, the guard stays at 777 lines, and the eight benchmark
 baseline; the D1O focused proof is green. Remaining publication writers,
 schema cutover, and whole-pass rollback are outside this cell.
 
+The publication-write D1P I0 writer now uses the same canonical constructor
+for both `Store` and `FieldSet` boundaries. `PublicationWriteBoundaryPlan`
+remains the sole owner of the Extern, helper destination, five operands, and
+effects; the focused boundary tests preserve a non-PURE `READ` effects
+sentinel, boundary adjacency, and copy removal. The shared corridor guard
+checks both host and write windows at 777 lines. Collector rejection,
+unsupported/copy-chain no-publication paths, remaining writers, schema
+cutover, and whole-pass rollback remain outside this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

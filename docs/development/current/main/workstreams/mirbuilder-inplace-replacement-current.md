@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0
-  implementation    = D1O publication-host writer landed at d2826802f3; D1P write-boundary fast I0 is selected
-  mode              = fast
-  production stop   = only the one write-boundary issuer, its Store/FieldSet proof, and the shared guard may enter this fast cell
-  exit              = positive/negative/parity evidence, README/reference receipt, pointer closeout, commit, and push
+  implementation    = D1O publication-host writer landed at d2826802f3; D1P write-boundary writer landed at 6912edb287
+  mode              = closeout
+  production stop   = no code, remaining writer, DCE/schedule, fallback, schema, backend, metadata, cleanup, or guard growth may enter this closeout
+  exit              = receipt, README, pointer synchronization, upper-worker evidence, commit, and push
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -46,7 +46,7 @@ Decision: replace one publication write-boundary direct Call literal with the th
 Source authority + canonical issuer: private PublicationWriteBoundaryPlan owns helper dst, exact Extern, five ordered args, and effects; MirInstruction::call is the issuer.
 Non-authority: Store/FieldSet shape, apply metadata reread, legacy func, backend lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping.
 Fail-fast boundary: copy-chain, cold-publish reason/repr, helper, same-block, effect-safe, missing block, or empty plan yields zero plan/Call/hint/count publication.
-Smallest next slice: publication.rs:469-475 only; add Store and FieldSet parity plus a compact structural guard replacement without crossing the 777-line guard or 800-line source stop.
+Landed receipt: publication.rs:469-475 now emits the plan-owned Extern Call through MirInstruction::call; Store/FieldSet tests preserve dst, five-argument order, READ effects, copy removal, and boundary adjacency. The shared guard checks both publication windows at 777 lines.
 Non-claims: return writers, host writer, concat9, unified/array/canonicalizer, Method(None), bare FunctionCall, schema cutover, MirCall/CallFlags, metadata split, typed errors, backend/wire, and cleanup.
 ## Closed chronology (archived)
 
