@@ -23,6 +23,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1q-publication-return-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1r-materialization-store-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1s-publication-substring-extern-issuer-i0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-final-shape-and-ingress-boundary-design-2026-08-25.md
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -146,7 +147,7 @@ delegate to `MirInstruction::call` as one atomic family. Selected writers are
 now 12 and the publication Return family is 0; the focused six-test proof and
 shared guard are green. D1R landed at `82be5daa97`: the one
 `MaterializationStorePlan` writer in `concat_corridor_apply.rs` now delegates to
-`MirInstruction::call`. D1S is the current fast row: the one
+`MirInstruction::call`. D1S landed at `5d5c564e82`: the one
 `PublicationHelperSubstringPlan` writer in the same file delegates to
 `MirInstruction::call`, preserving composed start/end Add roots and
 plan-owned effects. Selected writers are 11 -> 10 and the concat family is

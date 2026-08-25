@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,19 +33,19 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0
-  implementation    = D1R MaterializationStore landed at 82be5daa97; D1S is the selected PublicationSubstring writer (selected writers 11 -> 10, concat 8 -> 7)
-  mode              = fast
-  production stop   = one PublicationSubstring plan-owned writer, exact Extern/dst/args/effects, and no adjacent family
-  exit              = focused proof, shared guard, README/reference receipt, pointer sync, commit/push, then upper-worker census
+  implementation    = D1S PublicationSubstring writer landed at 5d5c564e82; selected writers 11 -> 10 and concat family 8 -> 7
+  mode              = closeout
+  production stop   = implementation is closed; only receipt, pointer, README/reference, and next-edge worker evidence may enter this closeout
+  exit              = receipt, pointer closeout, commit, push, and upper-worker next-edge census
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
 
-Decision: fast — replace only the PublicationSubstring direct Call literal with the thin canonical constructor, preserving composed start/end Add roots and the existing publication schedule.
+Decision: landed — replace only the PublicationSubstring direct Call literal with the thin canonical constructor, preserving composed start/end Add roots and the existing publication schedule.
 Source authority + canonical issuer: PublicationHelperSubstringPlan owns outer dst, left/middle/right, outer/inner bounds, and effects; MirInstruction::call is the issuer for the exact SUBSTRING_CONCAT3_EXTERN route.
 Non-authority: apply-side enum reconstruction, composed ValueIds, value metadata, legacy func, target-string lookup, publication conversion, hint/DCE/CFG policy, and backend/PURE inference.
 Fail-fast boundary: typed helper shape, folded route proof, exact copy/value-origin chain, or missing Callee yields no plan and zero Add/Call/hint publication or retry.
-Smallest next slice: `concat_corridor_apply.rs:433` only; selected writers 11 -> 10 and concat family 8 -> 7.
+Smallest next slice: closeout only — receipt records `5d5c564e82`, 1/1 focused test, the 777-line guard, and the 441-warning baseline; no further implementation is admitted here.
 Non-claims: remaining concat/unified/array/canonicalizer writers, MaterializationStore, Method(None), Closure/Constructor, MirCall/CallFlags, schema, collector/plan, publication schedule, metadata, typed errors, backend/wire, fallback, and cleanup.
 ## Closed chronology (archived)
 
@@ -564,7 +564,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0 -> fast selected: one PublicationSubstring writer in concat_corridor_apply.rs; exact Extern/dst/five args/effects and composed Add-root parity only; selected writers 11 -> 10 and concat family 8 -> 7
+ MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 5d5c564e82: one PublicationSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and composed Add-root parity are green; selected writers 11 -> 10 and concat family 8 -> 7
  MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0 -> landed at 82be5daa97: one MaterializationStore writer now uses the canonical constructor; selected writers 12 -> 11 and concat family 9 -> 8; closeout evidence is green
  MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> landed at 0738d722a3: canonical used_values delegation, typed/closure/arg positives, stale-func/dst-only negatives, legacy parity, guard and 5/5 module suite green
  MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim

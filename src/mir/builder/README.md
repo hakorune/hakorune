@@ -51,10 +51,11 @@ An internal candidate connection with production callers at zero is not I0.
 Stage-B-specific source routes must not be connected here; only their
 source-neutral reusable parts may enter a named production replacement cell.
 
-### MIR Call R6 D1S PublicationSubstring issuer (fast)
+### MIR Call R6 D1S PublicationSubstring issuer (landed)
 
-The current bounded Call row replaces only the `ResolvedConcatCorridorPlan::PublicationSubstring`
-writer in `src/mir/passes/string_corridor_sink/concat_corridor_apply.rs`. The
+The landed bounded Call row (`5d5c564e82`) replaced only the
+`ResolvedConcatCorridorPlan::PublicationSubstring` writer in
+`src/mir/passes/string_corridor_sink/concat_corridor_apply.rs`. The
 `PublicationHelperSubstringPlan` remains the source authority for destination,
 left/middle/right operands, composed bounds, and effects; the writer emits one
 `MirInstruction::call` to `SUBSTRING_CONCAT3_EXTERN` after the existing two Add

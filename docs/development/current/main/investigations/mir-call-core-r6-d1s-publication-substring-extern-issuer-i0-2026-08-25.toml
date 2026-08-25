@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1S publication substring Extern issuer"
-status = "fast"
+status = "landed"
 observed_at = "2026-08-25"
-observed_commit = "464b5a99d1"
-implementation_permission = true
+observed_commit = "5d5c564e82"
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0"
 decision = "MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
@@ -81,7 +81,7 @@ source_limits = "concat_corridor_apply.rs remains below 760/800; focused publica
 
 [worker_review]
 selection = "/root/d2c_consumer_selection_audit: fresh post-D1R census selected this one existing PublicationSubstring writer; selected writers 11, concat family 8"
-implementation_permission = "fast I0 is permitted only for this one plan-owned writer; all schema/producer/consumer and broader cleanup remains closed"
+implementation_permission = "fast I0 landed at 5d5c564e82; closeout is limited to receipt, pointer, README/reference synchronization, and the next-edge upper-worker census"
 
 [stop_if]
 conditions = [
@@ -90,3 +90,20 @@ conditions = [
   "guard cannot remain at 777 or any touched source reaches 760/800 without a split design",
   "negative state produces any plan, Add, Call, hint, count, retry, or late target inference",
 ]
+
+[receipt]
+status = "landed"
+commit = "5d5c564e82"
+source = "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs:433-441; src/mir/passes/string_corridor_sink/tests/concat_and_return_parts/rewrites_publication_helper_substring_via_plan_metadata.rs:1-181; tools/checks/mir_call_canonical_corridor_guard.sh:1-777"
+old_edge = "ResolvedConcatCorridorPlan::PublicationSubstring emitted one direct transitional Call literal with func: ValueId::INVALID and callee: Some(...)"
+new_edge = "PublicationHelperSubstringPlan fields emit one MirInstruction::call(Some(*outer_dst), Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string()), [left, middle, right, composed_start, composed_end], *effects) after the unchanged composed Add roots"
+writer_count_before = 1
+writer_count_after = 0
+focused_tests = [
+  "string_corridor_sink::tests::concat_and_return::rewrites_publication_helper_substring_via_plan_metadata: 1 passed, 0 failed",
+]
+warning_baseline = "quick profile emitted 441 pre-existing warnings; this cell neither suppresses nor claims to retire them"
+negative = "missing/foreign helper, wrong method/arity, broken copy/value-origin chain, or absent folded route remains a no-plan/no-publication state; no fallback/retry or whole-pass rollback claim"
+parity = "exact Extern/dst/five-argument order/composed Add roots/PURE effects, spans, hints/counts, CFG, DCE, and folded metadata remain green"
+guards = "mir_call_canonical_corridor_guard (777 lines) + current_state_pointer_guard + rustfmt + git diff --check green"
+source_limits = "concat_corridor_apply.rs 543 lines; publication-substring test 181 lines; corridor guard 777 lines; active card 1000 lines"
