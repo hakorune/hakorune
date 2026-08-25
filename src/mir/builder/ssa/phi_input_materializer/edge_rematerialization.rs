@@ -222,10 +222,10 @@ pub(super) fn rematerialize_for_pred(
         }
         MirInstruction::Call {
             dst: Some(_),
-            func: call_func,
-            callee,
+            callee: Some(callee),
             args,
             effects,
+            ..
         } if is_rematerializable_string_method_call(&callee) => {
             let args = args
                 .into_iter()
@@ -237,13 +237,7 @@ pub(super) fn rematerialize_for_pred(
                 func, analysis, callee, context, edge_kind, remat_ctx,
             )?;
             let dst = func.next_value_id();
-            MirInstruction::Call {
-                dst: Some(dst),
-                func: call_func,
-                callee,
-                args,
-                effects,
-            }
+            MirInstruction::call(Some(dst), callee, args, effects)
         }
         other => {
             if dominates_pred {
@@ -272,15 +266,16 @@ pub(super) fn rematerialize_for_pred(
     Ok(dst)
 }
 
-fn is_rematerializable_string_method_call(callee: &Option<Callee>) -> bool {
+fn is_rematerializable_string_method_call(callee: &Callee) -> bool {
     matches!(
         callee,
-        Some(Callee::Method {
+        Callee::Method {
             box_name,
             method,
+            receiver: Some(_),
             box_kind: CalleeBoxKind::RuntimeData,
             ..
-        }) if matches!(box_name.as_str(), "RuntimeDataBox" | "StringBox")
+        } if matches!(box_name.as_str(), "RuntimeDataBox" | "StringBox")
             && method == "substring"
     )
 }
@@ -288,31 +283,28 @@ fn is_rematerializable_string_method_call(callee: &Option<Callee>) -> bool {
 fn rematerialize_callee_for_pred(
     func: &mut MirFunction,
     analysis: &PhiInputMaterializationAnalysis,
-    callee: Option<Callee>,
+    callee: Callee,
     context: &str,
     edge_kind: &str,
     remat_ctx: &mut PhiInputRematContext,
-) -> Result<Option<Callee>, String> {
+) -> Result<Callee, String> {
     match callee {
-        Some(Callee::Method {
+        Callee::Method {
             box_name,
             method,
-            receiver,
+            receiver: Some(receiver),
             certainty,
             box_kind,
-        }) => {
-            let receiver = receiver
-                .map(|value| {
-                    rematerialize_for_pred(func, analysis, value, context, edge_kind, remat_ctx)
-                })
-                .transpose()?;
-            Ok(Some(Callee::Method {
+        } => {
+            let receiver =
+                rematerialize_for_pred(func, analysis, receiver, context, edge_kind, remat_ctx)?;
+            Ok(Callee::Method {
                 box_name,
                 method,
-                receiver,
+                receiver: Some(receiver),
                 certainty,
                 box_kind,
-            }))
+            })
         }
         other => Ok(other),
     }

@@ -19,6 +19,7 @@ EXTERN_CALL="$ROOT_DIR/src/mir/ssot/extern_call.rs"
 NORMAL_MAIN_THUNK="$ROOT_DIR/src/mir/builder/normal_module_transaction/physical_thunk.rs"
 METHOD_CALL="$ROOT_DIR/src/mir/ssot/method_call.rs"
 BUILDER_EMIT="$ROOT_DIR/src/mir/builder/builder_emit.rs"
+PHI_REMATERIALIZATION="$ROOT_DIR/src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs"
 PROGRAM_CALL_TARGETS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program_call_targets.rs"
 ORDINARY_NEW_ADMISSION="$ROOT_DIR/src/mir/builder/ordinary_new_admission.rs"
 RAW_CHILD_LOWERING="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
@@ -72,7 +73,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -269,6 +270,44 @@ if (
     raise SystemExit("typed Method SSOT helper retained legacy Call literal or decoration")
 if "Callee::Method {" not in method_call or "receiver: Some(receiver)" not in method_call:
     raise SystemExit("typed Method SSOT helper lost its explicit receiver target")
+
+phi = (root / "src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs").read_text()
+phi_start = phi.index("        MirInstruction::Call {\n            dst: Some(_),\n            callee: Some(callee),")
+phi_end = phi.index("        other =>", phi_start)
+phi_window = phi[phi_start:phi_end]
+for token in (
+    "is_rematerializable_string_method_call(&callee)",
+    "args\n                .into_iter()",
+    "rematerialize_callee_for_pred(",
+    "MirInstruction::call(Some(dst), callee, args, effects)",
+):
+    if token not in phi_window:
+        raise SystemExit(f"PHI Call reconstruction lost {token}")
+if phi_window.count("MirInstruction::call(") != 1:
+    raise SystemExit("PHI Call reconstruction must delegate exactly once")
+if phi_window.index("args\n                .into_iter()") > phi_window.index("rematerialize_callee_for_pred("):
+    raise SystemExit("PHI Call reconstruction changed args-before-receiver rematerialization order")
+assignment = phi_window[phi_window.index("let dst ="):]
+for forbidden in ("func:", "call_func", "MirInstruction::Call {"):
+    if forbidden in assignment:
+        raise SystemExit(f"PHI Call reconstruction retained legacy edge: {forbidden}")
+
+eligibility_start = phi.index("fn is_rematerializable_string_method_call")
+eligibility_end = phi.index("fn rematerialize_callee_for_pred", eligibility_start)
+eligibility = phi[eligibility_start:eligibility_end]
+if "receiver: Some(_)" not in eligibility or "receiver: None" in eligibility:
+    raise SystemExit("PHI substring eligibility does not exclude Method(None)")
+if "Option<Callee>" in eligibility:
+    raise SystemExit("PHI substring eligibility retained an optional Callee contract")
+
+callee_start = phi.index("fn rematerialize_callee_for_pred")
+callee_end = phi.index("pub(in crate::mir::builder) fn for_pred", callee_start)
+callee_window = phi[callee_start:callee_end]
+for token in ("callee: Callee", "Result<Callee, String>", "receiver: Some(receiver)"):
+    if token not in callee_window:
+        raise SystemExit(f"PHI callee remapper lost {token}")
+if "Option<Callee>" in callee_window or "Some(Callee::Method" in callee_window:
+    raise SystemExit("PHI callee remapper retained optional target state")
 
 builder_emit = (root / "src/mir/builder/builder_emit.rs").read_text()
 builder_start = builder_emit.index("// CRITICAL: Final receiver materialization")

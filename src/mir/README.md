@@ -110,6 +110,13 @@ guard proves receiver localization precedes the helper and that the selected
 assignment has no legacy `func`/`callee: Some` literal; Method(None), other
 callee variants, and LocalSSA fallback/atomicity remain outside this cell.
 
+The PHI D1H reconstruction cell is limited to the existing RuntimeDataBox/
+StringBox `substring` Call with `Method(Some(receiver))`. It preserves the
+existing args-then-receiver rematerialization order, excludes the legacy
+receiver wildcard that admitted `Method(None)`, and delegates the final writer
+through `MirInstruction::call`. PHI admission, purity, rollback, and the seven
+entry lifecycle remain outside this receipt.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local
