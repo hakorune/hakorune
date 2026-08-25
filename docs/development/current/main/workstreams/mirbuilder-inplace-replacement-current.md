@@ -356,12 +356,12 @@ Non-claims:
   No metadata promotion, field deletion, backend activation, ModuleMetadata
   census, physical-type input, seed retirement, or warning cleanup.
 
-## Accepted design and landed cell: MIR-PHYSICAL-TYPE-INPUT-D0 / I0
+## Accepted bounded cell: A-prime exact-i64 storage-policy I0 (not full physical-input D0)
 
 Decision:
   Select only the A-prime exact-`i64` family as the first physical-input
-  pilot. D0 is accepted, and I0 (`f94bb7f2a7`) now adds the named plain storage
-  policy and co-seals it without activating a physical backend input.
+  pilot. This bounded storage-policy row is accepted, and I0 (`f94bb7f2a7`)
+  adds the named plain policy and co-seals it without activating a physical backend input; the full four-authority physical-input D0 remains a design stop.
 
 Census boundary:
   Selected `ParserScanLoopBox.skip_while/4` final-source exact-`: i64` rows
