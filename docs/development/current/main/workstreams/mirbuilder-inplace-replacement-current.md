@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-MATERIALIZER-GLOBAL-RECOVERY-RETIRE-I0
-  implementation    = D1B exact-target prepare/consume child landed at 6149d2692a; this child deletes only resolver-total Global Err recovery and its alternate route
-  mode              = fast
-  production stop   = Remove GlobalPresenceAuthority/name-Const/legacy-Call recovery and AdditionalGlobalResolver; preserve resolver Result propagation, Method(Some) materialization, and RuntimeData Method(None) parent blocker
-  exit              = resolver/physical parity, recovery symbols and callers zero, focused tests, scoped guard, rustfmt, diff, README/reference receipt; no methodize or schema claim
+  current decision  = MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
+  implementation    = D1B exact-target child landed at 6149d2692a; Global recovery retirement landed at c8089e5288; both are bounded non-schema changes
+  mode              = design_stop
+  production stop   = Parent Row B remains blocked on RuntimeData Global methodize/provenance and remaining compatibility recovery disposition; the two bounded children do not close the parent
+  exit              = name the next finite producer/recovery boundary and its sole authority; no code or new receipt while NoSafeSlice remains
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-MATERIALIZER-GLOBAL-RECOVERY-RETIRE-I0 — an accepted bounded BoxShape child of the parent Row B design stop; delete only the unreachable Global Err-side alternate recovery proven impossible by the current total resolver.
+Decision: D1B-ROW-B-PRODUCER-CLOSURE-D0 — retain parent design_stop after exact-target transport and unreachable Global recovery retirement landed; next design must close RuntimeData methodize/provenance and remaining recovery disposition.
 Source authority + canonical issuer: same-brand declaration catalog -> CanonicalSameModuleCallableKeyV1 -> `mir_symbol_projection()` -> qualified `CallTarget::Global` -> `CalleeResolverBox` -> canonical Call.
 Non-authority: `current_static_box`, hardcoded `has_method`, `StaticMethodId`/name/Const text, methodize env/trace, tail/module lookup, registry, receiver autoscan, args[0], JSON/VM/C fallback.
-Fail-fast boundary: a future resolver error must propagate directly through `?` before header lookup, catalog/name-Const retry, or alternate Call publication; the current resolver has no Err arm.
-Smallest next slice: remove the recovery helper/Err branch/alternate enum, extend the existing D1B guard with scoped totality checks, and run the resolver plus unified physical-receipt suites.
-Non-claims: RuntimeData methodize/provenance, all Method(None) deletion, materialize_receiver_in_callee, compatibility/JSON/backend routes, final Call schema, new receipt, or warning cleanup.
+Fail-fast boundary: any next producer or recovery change must name its source authority and terminal before code; the landed Global child now propagates future resolver errors directly without alternate lookup.
+Smallest next slice: design-only finite disposition for RuntimeData Global methodize/provenance and remaining compatibility/recovery callers; no code until a sole issuer and delete/retain boundary are accepted.
+Non-claims: parent producer closure, all Method(None) deletion, materialize_receiver_in_callee, compatibility/JSON/backend routes, final Call schema, new receipt, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-D1B-MATERIALIZER-GLOBAL-RECOVERY-RETIRE-I0 -> accepted fast child after the exact-target child landed at 6149d2692a: resolver-total Global Err recovery, materializer presence/name-Const/legacy Call, and AdditionalGlobalResolver are the sole delete set; RuntimeData Global methodize/provenance and parent Row B remain NoSafeSlice; ArrayElementWrite remains ParkedSealed for a later selected-native authority row
+Now MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 -> parent NoSafeSlice after exact-target transport landed at 6149d2692a and unreachable Global recovery retirement landed at c8089e5288: RuntimeData Global methodize/provenance and remaining compatibility recovery disposition are the next design boundary; ArrayElementWrite remains ParkedSealed for a later selected-native authority row
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

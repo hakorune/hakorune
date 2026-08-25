@@ -17,19 +17,19 @@ exact-i64 I0 landed at 7fd97a5344 with typed target-row transport and selected
 Dynamic projection; R6 D0 accepted the bounded direct-static issuer
 normalization; D1L direct substring-len Extern issuer landed at 0be8a73420 and D1M
 method-set value rewrite landed at f7a442f524 with focused 4/4 proof; recursion-depth restore landed at 74829ee3d2; D1N user-box operand projection landed at 0738d722a3;
-D1O-D1X Call writers are landed through cde490f75e; MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0 landed at 371f75476e, FUNCTION-METADATA-OWNER-SPLIT-R0 landed in the implementation row, and ArrayElementWrite projection remains NoSafeSlice/ParkedSealed while the D1B exact-target prepare/consume child landed at 6149d2692a, the Global recovery child is selected, and parent Row B RuntimeData methodize remains design_stop."""
+D1O-D1X Call writers are landed through cde490f75e; MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0 landed at 371f75476e, FUNCTION-METADATA-OWNER-SPLIT-R0 landed in the implementation row, and ArrayElementWrite projection remains NoSafeSlice/ParkedSealed while the D1B exact-target prepare/consume child landed at 6149d2692a, Global recovery retirement landed at c8089e5288, and parent Row B RuntimeData methodize remains design_stop."""
 date = "2026-08-26"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-MATERIALIZER-GLOBAL-RECOVERY-RETIRE-I0"
-current_design_stop = "Parent Row B remains design_stop for RuntimeData Global methodize/provenance, but the unreachable Global Err-side recovery is an accepted bounded delete child."
-current_blocker_token = "MIR-CALL-D1B-MATERIALIZER-GLOBAL-RECOVERY-RETIRE-I0 fast: delete only resolver-total Global Err recovery and its alternate route; stop before RuntimeData methodize, compatibility recovery, or schema retirement."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
+current_design_stop = "D1B exact-target child landed at 6149d2692a and unreachable Global recovery retirement landed at c8089e5288; parent Row B remains design_stop for RuntimeData Global methodize/provenance and remaining compatibility recovery disposition."
+current_blocker_token = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 design_stop: no code; close RuntimeData methodize/provenance and remaining recovery/materializer dispositions before another implementation row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Mir Call R6 — D1B materializer Global recovery retire fast child"
+active_lane = "Mir Call R6 — D1B Row B producer closure design stop"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
 R4d escape, R4e ownership verifier, and R4f CallLike observer retirement are closed. Query D0/T0, R5 D0, R5a optimizer-only terminal closure, R5b-B0
@@ -47,7 +47,7 @@ census and six-level precedence are accepted design-only, while catalog transpor
 D1F typed Method issuer landed at 572ec6f5b1, D1G builder emit reconstruction landed at c3c7e0ea65, D1H PHI reconstruction landed at b090f917b4, D1I
 concat3 Extern rewrite landed at 513a243be5, D1J BoxCall Method issuer landed at c927da4029, D1K retained-len Extern issuer landed at 8401f457ab, and D1L
 direct substring-len Extern issuer landed at 0be8a73420; D1M method-set value rewrite landed at f7a442f524 with focused 4/4 proof; recursion-depth
-restore, D1N-D1X, and their focused proofs/guards are green through cde490f75e; late legacy-target issuer retirement landed at 371f75476e; FUNCTION-METADATA-OWNER-SPLIT-R0 landed with metadata.rs 718 lines and nested access owners 40/50; ArrayElementWrite remains NoSafeSlice/ParkedSealed, while the D1B materializer Global recovery retire child is the active fast row and RuntimeData methodize remains the parent design stop."""
+restore, D1N-D1X, and their focused proofs/guards are green through cde490f75e; late legacy-target issuer retirement landed at 371f75476e; FUNCTION-METADATA-OWNER-SPLIT-R0 landed with metadata.rs 718 lines and nested access owners 40/50; ArrayElementWrite remains NoSafeSlice/ParkedSealed, while D1B Global recovery retirement is landed and RuntimeData methodize remains the parent design stop."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 and canonicalizer closeout are landed; FUNCTION-METADATA-OWNER-SPLIT-R0 landed as a behavior-neutral 804→718-line owner split; D1B exact target child landed at 6149d2692a, and the bounded Global recovery retire child is selected while RuntimeData methodize and ArrayElementWrite remain outside."
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 and canonicalizer closeout are landed; FUNCTION-METADATA-OWNER-SPLIT-R0 landed as a behavior-neutral 804→718-line owner split; D1B exact target child landed at 6149d2692a and Global recovery retirement landed at c8089e5288, while RuntimeData methodize and ArrayElementWrite remain outside."
 next_design_card = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
-next_execution_card = "MIR-CALL-D1B-MATERIALIZER-GLOBAL-RECOVERY-RETIRE-I0"
+next_execution_card = "none (parent Row B remains NoSafeSlice; RuntimeData methodize/provenance design closure is required before another implementation row)"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-26: D1B materializer Global recovery retirement landed at c8089e5288; resolver totality matrix, direct Result propagation, materializer recovery/name-Const/legacy Call zero, AdditionalGlobalResolver zero, resolver 5/5, physical receipt 7/7, child/corridor/pointer guards, rustfmt, and diff checks are green; RuntimeData Method(None) methodize remains parent design_stop.",
   "2026-08-26: D1B exact-target prepare/consume child landed at 6149d2692a; Cataloged source lineage carries one exact target through existing preflight, build.rs consumes it once before one ordered argument descent, and one canonical Call is published; focused 8/8, child guard, corridor guard, pointer guard, fmt, and diff checks are green; parent Row B RuntimeData/recovery remains design_stop.",
-  "2026-08-25: D1F typed Method issuer landed at 572ec6f5b1 and D1G builder emit reconstruction landed at c3c7e0ea65; method/terminal parity, scoped corridor/pointer guards, rustfmt, and diff checks are green; the umbrella normal-source guard retains a known pre-existing module-registry baseline failure.",
   "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0. 2026-08-26: FUNCTION-METADATA-OWNER-SPLIT-R0 landed; fields/APIs unchanged, metadata.rs 718 lines, nested checked-callout/linear-slot owners 40/50 lines, focused mir::function::tests 6 passed/2 ignored with 441 baseline warnings, and ArrayElementWrite remains NoSafeSlice/ParkedSealed.",
 ]

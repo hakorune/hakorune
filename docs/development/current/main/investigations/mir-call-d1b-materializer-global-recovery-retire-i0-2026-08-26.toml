@@ -1,9 +1,15 @@
 title = "MIR Call D1B materializer Global recovery retirement"
-status = "accepted_bounded_child_row"
-observed_commit = "1ef12b84d8"
+status = "landed_bounded_child_row"
+observed_commit = "c8089e5288"
 observed_at = "2026-08-26"
-implementation_permission = true
+implementation_permission = false
 parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
+landed_commit = "c8089e5288"
+focused_test_results = [
+  "mir::builder::calls::resolver::tests: 5 passed",
+  "mir::builder::calls::unified_emitter::physical_receipt_tests: 7 passed",
+]
+focused_guard = "tools/checks/mir_call_d1b_exact_target_child_guard.sh"
 
 [boundary]
 starts = "UnifiedCallEmitterBox Global resolver Err arm after CalleeResolverBox::resolve"

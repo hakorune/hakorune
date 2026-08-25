@@ -143,7 +143,7 @@ Relationless compatibility, RuntimeData methodize/recovery, all Method(None)
 retirement, JSON/backend routes, and the final Call schema remain parent-row
 non-claims; see the Row B investigation TOML for the finite acceptance matrix.
 
-### MIR Call D1B materializer Global recovery retire child (active)
+### MIR Call D1B materializer Global recovery retire child (landed at c8089e5288)
 
 The selected bounded child `MIR-CALL-D1B-MATERIALIZER-GLOBAL-RECOVERY-RETIRE-I0`
 removes only the resolver-total Global Err-side recovery: the presence/header
