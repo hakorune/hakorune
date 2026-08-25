@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0
+Status: Fast — MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0
-  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029; D1K landed at 8401f457ab; D1L accepted design-only after two upper-worker audits
-  mode              = design_stop
-  production stop   = D1L may not change code until explicit fast-mode selection
-  exit              = one 672-line shared owner, private plan authority, exact delete set, plan-0 boundary, and <=20-line guard extension; full PHI admission/atomicity remains NoSafeSlice
+  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029; D1K landed at 8401f457ab; D1L fast row selected after two upper-worker audits
+  mode              = fast
+  production stop   = D1L may change only the one shared SubstringLenPlan writer and its focused proof surfaces
+  exit              = one canonical Extern issuer, removal/effects/hint/empty-plan proof, <=20-line scoped guard, README receipt, and pushed commit; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> design_stop: one shared SubstringLenPlan writer -> canonical Extern Call; one writer, two schedule entries; no code until fast-mode selection
+ MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> fast: one shared SubstringLenPlan writer -> canonical Extern Call; one writer, two schedule entries; no family/schema expansion
 Closed immediately prior
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact

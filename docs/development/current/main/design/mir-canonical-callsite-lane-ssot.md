@@ -101,10 +101,10 @@ receiver, registry, metadata, optimizer, or backend route.
 MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0
 ```
 
-D1L is accepted design-only after two upper-worker audits. D1K landed at
-`8401f457ab`, D1J at `c927da4029`, and D1I at `513a243be5`. D1L has no
-implementation permission while `work_mode = design_stop`; its boundary and
-receipt are in:
+D1L is the selected fast row after two upper-worker audits. D1K landed at
+`8401f457ab`, D1J at `c927da4029`, and D1I at `513a243be5`. D1L
+implementation is limited to its one shared private-plan writer; its boundary
+and receipt are in:
 
 ```text
 docs/development/current/main/investigations/

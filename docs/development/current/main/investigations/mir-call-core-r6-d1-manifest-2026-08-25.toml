@@ -823,14 +823,14 @@ warning_baseline = "quick profile reports 441 existing warnings; substring_len b
 source_risk = "retained_len.rs 127 lines; canonical guard 739 lines; below split and hard-stop limits"
 
 [candidates.d1l_direct_substring_len_extern_issuer]
-status = "accepted_design"
+status = "selected_fast"
 manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1l-direct-substring-len-extern-issuer-2026-08-25.toml"
 boundary = "one shared.rs same-invocation SubstringLenPlan writer"
 direct_writers_before = 1
 direct_writers_after = 0
 canonical_issuer = "MirInstruction::call"
-implementation_permission = false
-review = "two upper-worker audits agree; fast selection remains gated by design_stop"
+implementation_permission = true
+review = "two upper-worker audits agree; fast row selected for bounded implementation"
 
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
