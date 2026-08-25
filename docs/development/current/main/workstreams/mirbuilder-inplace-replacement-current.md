@@ -471,12 +471,12 @@ parent 652 (<760); no new edge/warning class.
 
 ## Ordered follow-ups (design/retirement, not selected)
 
-`MIR-CALL-JOINIR-REMAP-D0` census closed: lifecycle collection is active; the
-merge coordinator/remap APIs have no non-test caller and are queued for isolation.
-Next `MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0`: preserve collection semantics and prove the disconnected remap edge set before test/reference isolation or retire.
-`MIR-CALL-CORE-R6-D0`: after that disposition, mandatory `Callee`/func/Option,
-MirCall/CallFlags, Method(None), Closure/Constructor; root bool/session, shelf,
-warnings, stale D2c/R6 flags, and PyVM remain separate/parked.
+`MIR-CALL-JOINIR-REMAP-D0` census closed over Rust call sites: active lifecycle owners `emission/value_lifecycle.rs` and `value_lifecycle_definition.rs` consume
+only `collect_values_in_block`; disconnected `merge/coordinator` remap APIs have
+no non-test entry. Next `MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0`: preserve
+collection semantics and prove `get/set/remap_instruction/remap_value` edges
+before test/reference isolation or retire. `MIR-CALL-CORE-R6-D0` follows:
+mandatory `Callee`/func/Option, MirCall/CallFlags, Method(None), Closure/Constructor; root bool/session, shelf, warnings, stale D2c/R6 flags, and PyVM stay separate.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
