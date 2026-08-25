@@ -5,7 +5,7 @@ observed_at = "2026-08-25"
 implementation_permission = false
 
 [boundary]
-starts = "existing typed Callee::Method(Some(receiver)) entering MirBuilder::append_instruction"
+starts = "existing typed Callee::Method(Some(receiver)) entering MirBuilder::emit_instruction"
 ends = "the reconstructed instruction immediately before the existing append/metadata path"
 includes = [
   "src/mir/builder/builder_emit.rs:112-147",
@@ -26,7 +26,7 @@ excludes = [
 
 [decision]
 summary = "Replace the one Method(Some(receiver)) reconstruction literal in builder_emit with MirInstruction::call while preserving the LocalSSA receiver rematerialization and every other instruction field."
-source_authority = "existing Callee::Method(Some(receiver)) target; local::recv only supplies the remapped receiver ValueId"
+source_authority = "existing Callee::Method(Some(receiver)) target; local::recv owns operand localization and returns a cached/localized/original receiver ValueId"
 canonical_issuer = "MirInstruction::call(*dst, Callee::Method { receiver: Some(r_local), box_name, method, certainty, box_kind }, args.clone(), *effects)"
 non_authority = [
   "legacy func or INVALID decoration",
@@ -35,8 +35,8 @@ non_authority = [
   "Method(None), static fallback, or receiver retry",
   "builder_emit target inference, optimizer, backend, or runtime lookup",
 ]
-fail_fast = "current block and existing local::recv failure boundary remain unchanged; the selected match performs no target classification and no fallback/retry"
-no_retry = "no missing block recovery, name lookup, static conversion, Method(None) repair, or argument rewriting"
+fail_fast = "current block and current-function checks remain the only fail-fast boundary; local::recv keeps its LegacyFacade behavior, while the selected match performs no target classification or target fallback/retry"
+no_retry = "no target lookup, static conversion, Method(None) repair, argument rewriting, or alternate-target retry; local::recv's cached/localized/original-value fallback remains explicitly outside this row"
 smallest_next_slice = "replace builder_emit.rs:140-146 with one MirInstruction::call invocation; extend the existing corridor guard, focused Method parity/negative checks, and MIR README"
 non_claims = [
   "D1B Method(None) retirement",
@@ -47,15 +47,25 @@ non_claims = [
   "JSON/VM/native/backend changes",
   "CallFlags/Closure/Constructor changes",
   "warning cleanup",
+  "LocalSSA fallback retirement or atomicity",
+  "append/metadata transaction atomicity",
 ]
 
 [state_matrix]
 method_with_receiver = "existing Method(Some(receiver)) -> local::recv(receiver) -> canonical Method(Some(r_local)) Call"
 method_without_receiver = "outside D1G match -> preserve existing D1B boundary; no static/instance guess"
 non_method_callee = "Global/Extern/Value/Closure/Constructor are outside the selected match and remain unchanged"
-callee_none = "outside D1G -> preserve existing compatibility boundary; no legacy target repair"
-receiver_rematerialization_failure = "existing local::recv error remains the terminal; no retry or alternate target"
+callee_none = "outside D1G; existing builder invariant later rejects the missing target, with no legacy target repair"
+receiver_rematerialization_failure = "local::recv is an infallible LegacyFacade: cache/localization success returns the cached/localized receiver, while LegacyFacade failure returns the original receiver; D1G does not change that behavior or claim append atomicity"
 receiver_present_but_invalid = "D1G does not validate ValueId definition/ownership; existing verifier/caller policy remains authoritative"
+no_current_block = "existing builder error before the selected branch; no instruction mutation"
+no_current_function = "existing ensure_block_exists error before local::recv/call reconstruction; no selected-branch mutation"
+current_function_missing_named_block = "existing ensure_block_exists may create/recover the named block; D1G does not convert this to fail-fast"
+method_some_local_success = "local::recv returns the localized receiver and the canonical Method(Some(r_local)) Call is reconstructed"
+method_some_local_contract_failure = "LegacyFacade returns the original receiver and canonical Call reconstruction continues"
+method_none = "outside the selected inner match and unchanged; existing D1B boundary remains authoritative"
+typed_non_method_some = "outside the selected inner match and unchanged"
+local_mutation_then_later_failure = "possible under existing LocalSSA facade; D1G makes no atomicity claim for local mutation plus a later failure"
 
 [inventory]
 match_site = "src/mir/builder/builder_emit.rs:112-147: one Method(Some(receiver)) match"
@@ -71,10 +81,11 @@ positive = [
   "test_method_call_getfield_instruction",
   "test_method_call_setfield_instruction",
   "receiver is rematerialized through local::recv before canonical Call construction",
+  "disconnected_standard_terminal_preserves_method_identity_and_completed_destination",
 ]
 negative = [
-  "builder_emit Method branch contains no direct MirInstruction::Call literal after cutover",
-  "func: ValueId::INVALID and callee: Some( are absent from the selected branch",
+  "selected reconstruction assignment contains no direct MirInstruction::Call literal after cutover",
+  "func: ValueId::INVALID and callee: Some( are absent from the selected assignment",
   "non-Method and callee=None arms remain outside the D1G edit",
 ]
 parity = ["receiver local rematerialization", "box/method/certainty/kind", "dst", "args order", "effects"]
@@ -93,7 +104,7 @@ stop_if = [
 
 [acceptance]
 status = "design_stop_until_pointer_switch"
-focused_test = "instruction::tests::test_method_call_instruction plus getfield/setfield parity and non-Method preservation checks"
+focused_test = "disconnected_standard_terminal_preserves_method_identity_and_completed_destination plus instruction method parity; scoped guard covers non-Method/callee=None non-intervention"
 expected_inventory_delta = "direct literal 35 -> 34; canonical helper caller fanout 8 -> 9; no runtime caller fanout claim"
 implementation_scope = "one existing reconstruction branch, one shared guard extension, one README receipt; no new semantic receipt"
 review = "read-only upper-worker census selected this as the sole next bounded producer/reconstructor edge after D1F"

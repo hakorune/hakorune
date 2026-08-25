@@ -35,9 +35,9 @@ Current capsule:
   current decision  = MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0
   implementation    = D1F landed at 572ec6f5b1; D1G is design-only until pointer-selected fast entry
   mode              = design_stop
-  production stop   = D1G must preserve only Method(Some(receiver)) LocalSSA rematerialization
+  production stop   = D1G must preserve only Method(Some(receiver)) LocalSSA rematerialization; local::recv remains the LegacyFacade
   exit              = accepted D1G decision plus one bounded implementation slice
-  fallback / retry  = 0
+  target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
 Next bounded design brief:
@@ -45,8 +45,8 @@ Next bounded design brief:
 ```text
 Decision: audit one existing builder emit Method reconstruction branch as the next issuer-normalization slice.
 Source authority + canonical issuer: caller/resolver receiver ValueId plus box/method/certainty/kind -> Callee::Method(receiver) -> MirInstruction::call. Non-authority: func/INVALID, Method(None), receiver-prefixed args as target authority, lookup/retry, backend/JSON/optimizer recovery.
-Fail-fast boundary: current block and existing local::recv error boundary remain unchanged; no target classification or fallback. Smallest next slice: builder_emit.rs:112-147, shared corridor guard, focused Method/non-Method parity, and one README receipt; no code is authorized in design_stop.
-Non-claims: D1B/D1C1 terminals, other Method callers, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
+Fail-fast boundary: current block/current-function checks remain the only fail-fast boundary; local::recv keeps its LegacyFacade behavior and no target classification or target fallback/retry is added. Smallest next slice: builder_emit.rs:112-147, scoped corridor guard, focused Method parity/non-Method non-intervention, and one README receipt; no code is authorized in design_stop.
+Non-claims: D1B/D1C1 terminals, other Method callers, field deletion, flags, Closure/Constructor migration, backend switch, LocalSSA fallback retirement, append atomicity, warning cleanup.
 ```
 
 ## Closed chronology (archived)
