@@ -1,0 +1,112 @@
+title = "MIR Call final-shape CallFlags retirement census"
+status = "accepted_design_no_safe_slice"
+observed_commit = "183c1418d7"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-final-shape-and-ingress-boundary-design-2026-08-25.md"
+
+[boundary]
+starts = "MirCall/CallFlags definitions and create_mir_call() construction"
+ends = "the existing unified physical terminal that converts MirCall into MirInstruction::Call"
+includes = [
+  "crates/hakorune_mir_defs/src/call_unified.rs MirCall/CallFlags definitions and constructors",
+  "src/mir/builder/calls/call_unified.rs create_mir_call/create_call_flags",
+  "src/mir/builder/calls/unified_emitter.rs and unified_emitter/physical_terminal.rs transport consumers",
+  "crate re-exports and Rust test/reference construction sites",
+  "apps/rust-subset-to-hako expected .hako/.json projections and smoke consumer",
+  "tools/rust_lifecycle transport inventories that classify the types",
+  "all downstream reads of MirCall.flags or CallFlags semantics",
+]
+excludes = [
+  "MirInstruction::Call schema cutover",
+  "Method(None) producer closure or receiver non-optionalization",
+  "JSON-v0/v1 ingress, VM/native/backend behavior, and warning cleanup",
+  "deleting the live MirCall transport before its physical terminal is replaced",
+]
+
+[brief]
+decision = "Split the proposal: MirCall is a live transport and cannot be retired by a zero-text-reader claim; CallFlags is only a retirement candidate until its semantic readers, public exports, and construction sites are exhaustively classified. No code changes while the active root-lineage design stop remains selected."
+source_authority = "Callee and explicit EffectMask already carried by the canonical Call path; no flag-derived target or effect may be invented by this census."
+canonical_issuer = "existing MirInstruction::call() at the unified physical terminal; this child does not issue a new receipt or replace the terminal."
+non_authority = [
+  "CallFlags::constructor/default classification by itself",
+  "the existence of a public re-export",
+  "comments claiming a unified call replacement",
+  "MirCall transport shape as proof that flags have meaning",
+]
+fail_fast = "If any downstream reader, public contract, fixture, or external crate relies on CallFlags semantics, stop and name that owner; do not delete, default, or silently drop the field. MirCall remains until the physical terminal has an explicit replacement row."
+smallest_next_slice = "Design-only finite census of MirCall transport readers versus CallFlags semantic readers; select either CallFlags-only retirement or a retained owner, without editing code."
+non_claims = [
+  "MirCall is caller-zero (it is not: physical_terminal consumes it)",
+  "CallFlags has no semantic reader merely because rg finds no .flags access",
+  "the final Call schema is already cut over in source",
+  "constructor/closure policy, backend parity, or JSON compatibility is changed",
+]
+
+[observed]
+live_mircall_transport = [
+  "src/mir/builder/calls/unified_emitter/physical_terminal.rs::emit_finalized_generic_call_v1 accepts MirCall",
+  "src/mir/builder/calls/unified_emitter.rs constructs MirCall through call_unified::create_mir_call",
+]
+callflags_construction = [
+  "src/mir/builder/calls/call_unified.rs::create_call_flags and create_mir_call",
+  "crates/hakorune_mir_defs/src/call_unified.rs::MirCall constructors and CallFlags constructors",
+]
+callflags_read_status = "No downstream .flags semantic read was observed in the bounded Rust production census; writers and public methods still exist, and generated projections are references to co-update rather than semantic authority. This is an observation to verify, not a deletion authorization."
+public_surface = [
+  "crates/hakorune_mir_defs/src/lib.rs re-exports CallFlags, Callee, and MirCall",
+  "src/mir/definitions/mod.rs re-exports CallFlags and MirCall",
+]
+api_and_projection_rows = [
+  "CallFlags::{new,constructor,no_return,with_tail_call,with_inline,Default} are public constructors/methods requiring an API disposition",
+  "MirCall::new, constructor/closure flag assignments, and MirCall::with_tail_call are distinct writers",
+  "apps/rust-subset-to-hako/examples/hakorune_mir_defs_call_unified_expected.hako and modules/0000.json are generated projection fixtures",
+  "apps/rust-subset-to-hako/smoke.sh:299 consumes the expected projection; it is not a CallFlags semantic owner",
+  "tools/rust_lifecycle/mirbuilder_domain_object_id_transport_policy_inventory.py and mirbuilder_carrier_type_transport_unclassified_evidence_resolution.py classify the type names",
+]
+
+[finite_state]
+states = [
+  "MirCallLiveTransport",
+  "CallFlagsConstructedOnly",
+  "CallFlagsSemanticReader",
+  "CallFlagsPublicApiObligation",
+  "GeneratedProjectionFixture",
+  "ExternalSemanticReader",
+  "CensusExhausted",
+  "CallFlagsRetirementCandidate",
+  "RetainWithNamedOwner",
+  "NoSafeSlice",
+]
+terminal_policy = "Only CensusExhausted may select the next row. CallFlagsRetirementCandidate permits a later fast deletion of CallFlags-only construction/re-export edges only after the public API disposition is explicit; GeneratedProjectionFixture is co-updated at deletion and is not a semantic owner; ExternalSemanticReader, CallFlagsSemanticReader, or unresolved CallFlagsPublicApiObligation keeps the row NoSafeSlice. MirCallLiveTransport remains open until a separate physical-terminal replacement."
+
+[acceptance]
+design = [
+  "every MirCall and CallFlags definition, constructor, field read, public method, re-export, Rust/app fixture, smoke consumer, tool classifier, and external-crate reference is classified",
+  "MirCall's live physical-terminal consumer is recorded as preserved, not caller-zero",
+  "CallFlags-only construction is distinguished from semantic reads and public API obligations",
+  "generated .hako/.json projections are marked co-update obligations, not semantic readers",
+  "if no CallFlags reader exists, the exact delete set and one focused guard are named without changing MirCall transport",
+  "if a reader exists, its authority and a separate bounded owner row are named",
+]
+negative = [
+  "no MirCall deletion in this child",
+  "no default/sentinel CallFlags substitution",
+  "no schema, receiver, Method(None), JSON, backend, or VM change",
+  "no code or fixture edits while work_mode=design_stop",
+]
+focused_checks = [
+  "rg -n --glob '*.{rs,hako,json,sh,py}' '\\bMirCall\\b|\\bCallFlags\\b|MirCall\\.flags|with_tail_call' src crates apps tools",
+  "cargo metadata --no-deps --format-version 1 (only if a later selected card permits a build gate)",
+  "bash tools/checks/current_state_pointer_guard.sh",
+]
+implementation_gate = "false until the bounded census is Exhausted and CURRENT_STATE selects a fast child; this task itself is design-only."
+guard = "a future scoped guard must reject new CallFlags semantic reads/construction outside the selected owner and must assert MirCall remains owned by the existing physical terminal until the schema replacement row lands"
+
+[reopen]
+triggers = [
+  "a new MirCall or CallFlags reader/re-export appears",
+  "the unified physical terminal stops consuming MirCall or gains a second consumer",
+  "CallFlags begins carrying an effect/target decision not represented by canonical Call",
+  "a request attempts to delete MirCall transport together with the CallFlags candidate",
+]

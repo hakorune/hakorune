@@ -1,7 +1,7 @@
 title = "MIR Call D1B RuntimeData Global provenance disposition"
 status = "accepted_design_no_safe_slice"
 observed_commit = "004db40a7c"
-observed_at = "2026-08-27"
+observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
 
@@ -102,6 +102,7 @@ parity = "HAKO_MIR_BUILDER_METHODIZE unset/1/0 no longer changes target kind; ex
 [recovery]
 status = "CutoverBlockerOpen"
 child_task = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-resolved-recovery-d0-2026-08-27.toml"
+receiver_integrity_child = "docs/development/current/main/investigations/mir-call-r6-method-some-target-integrity-d0-2026-08-26.toml"
 remaining_edges = [
   "build.rs legacy resolved-function post-argument unique-static recovery",
   "static_resolution.rs tail/suffix recovery and direct legacy emission",

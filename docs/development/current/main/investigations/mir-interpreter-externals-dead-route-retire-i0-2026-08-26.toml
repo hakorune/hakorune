@@ -1,6 +1,6 @@
 title = "MIR interpreter unreachable externals handler retirement"
 status = "accepted_design_no_safe_slice"
-observed_commit = "412a1b8ad8"
+observed_commit = "183c1418d7"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
@@ -75,6 +75,16 @@ order = [
 lane_relation = "Keep this cleanup queued beside the active MIR-CALL-D1B relationless design stop; do not switch CURRENT_STATE or delete code while the evidence child is CutoverBlockerOpen."
 reason = "The generated inventory currently filters provider_status by the dead path and rejects an empty family; deleting the file first would turn a proven caller-zero observation into an unowned evidence gap."
 
+[review_2026_08_26_local_reconciliation]
+feedback_candidate = "Delete the 391-line handler immediately after the D1B child."
+decision = "Keep queued, but do not treat it as a fast row yet. The evidence-owner child must close first, and the active CURRENT_STATE root-lineage design stop still precedes switching to this cleanup lane."
+confirmed = [
+  "handle_extern_call and mod externals remain non-document caller-zero at observed_commit",
+  "calls/externs.rs -> extern_provider_dispatch remains the live route",
+  "provider_status ownership is still unresolved because the generated family is keyed to the dead path",
+]
+rejected_shortcut = "Do not delete the module and then repair generated manifests by dropping provider_status, widening a path filter without a contract, or inferring failure meaning from VMValue::Void."
+
 [baseline_evidence]
 observed_at = "2026-08-26"
 classification = "known_baseline_debt; not caused by this task's uncommitted documentation"
@@ -117,7 +127,7 @@ states = [
   "BlockedUnknownCaller",
   "BlockedProviderStatusOwner",
 ]
-terminal_policy = "Only the first five states permit the fast delete row; either blocked state is a NoSafeSlice and leaves code untouched."
+terminal_policy = "Only DeadRouteCallerZero, LiveProviderRouteRetained, EvidenceOwnerClosed, GeneratedEvidenceSynchronized, and CurrentReferenceSynchronized together permit the fast delete row; EvidenceOwnerDesignChildOpen and either blocked state remain NoSafeSlice and leave code untouched."
 
 [acceptance]
 positive = [

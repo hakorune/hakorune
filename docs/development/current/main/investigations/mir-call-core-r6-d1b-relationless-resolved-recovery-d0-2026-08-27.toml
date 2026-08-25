@@ -1,11 +1,12 @@
 title = "MIR Call D1B relationless Resolved recovery census"
 status = "accepted_design_no_safe_slice"
 observed_commit = "a214360982"
-observed_at = "2026-08-27"
+observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
 parent_child = "docs/development/current/main/investigations/mir-call-core-r6-d1b-methodize-provenance-disposition-d0-2026-08-27.toml"
 source_lineage_child = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-root-lineage-d0-2026-08-27.toml"
+method_some_integrity_child = "docs/development/current/main/investigations/mir-call-r6-method-some-target-integrity-d0-2026-08-26.toml"
 
 [boundary]
 starts = "RawBrandCallAuthorityV1::{RelationlessCompatibility or InstalledNonBrand { caller: None }} entering PreparedRawOrdinaryFunctionCompletionV1::Resolved"
@@ -57,7 +58,7 @@ states = [
   "TypedRejectBeforeArguments",
   "ParkedSealedCompatibilityBoundary",
 ]
-terminal_policy = "Only the first, ninth, or explicitly ParkedSealed state may be terminal; all other states require a named existing authority or a caller disposition before implementation."
+terminal_policy = "Only the first, tenth, or explicitly ParkedSealed state may be terminal; all other states require a named existing authority or a caller disposition before implementation."
 
 [caller_inventory]
 relationless_ingress = [
@@ -107,6 +108,20 @@ static_unknown = "TypedReject before argument/effect descent unless an existing 
 unique_tail = "Delete only when production caller-zero is proven; otherwise ParkedSealed with an observable reopen trigger or move to a pre-effect typed state in a later bounded row."
 legacy_name_const = "Zero in the closed boundary; no direct compatibility Call publication after target failure."
 transport = "Retain only as a dumb inherited transport while an upstream named producer remains; never use it as target authority."
+
+[pre_effect_totalization]
+decision = "After root-lineage transport and existing target disposition are closed, PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments } must not remain an effect-bearing target-search state. Every accepted route becomes Targeted, Rejected, or an explicitly owned ParkedCompatibility state before argument descent."
+delete_candidates = [
+  "post-argument resolve_call_target re-entry",
+  "unique-static recovery after argument effects",
+  "tail/suffix retry after argument effects",
+  "name Const target carrier and direct legacy Call publication",
+]
+fail_fast = "No relationless/static-unknown/missing-source state may call drive_call_arguments_v1; no argument ValueId/effect may be used to reconstruct a target."
+non_claims = [
+  "this is a later parent closure, not permission to edit the active root-lineage child",
+  "builtin/local/Extern target issuance without an already named source authority",
+]
 
 [acceptance]
 design = [

@@ -1,7 +1,7 @@
 title = "MIR interpreter externals provider-status evidence-owner handoff"
 status = "accepted_design_no_safe_slice"
-observed_commit = "412a1b8ad8"
-observed_at = "2026-08-27"
+observed_commit = "183c1418d7"
+observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-interpreter-externals-dead-route-retire-i0-2026-08-26.toml"
 

@@ -1,7 +1,7 @@
 title = "MIR Call D1B root-lineage transport disposition"
 status = "accepted_design_no_safe_slice"
 observed_commit = "412a1b8ad8"
-observed_at = "2026-08-27"
+observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-resolved-recovery-d0-2026-08-27.toml"
 

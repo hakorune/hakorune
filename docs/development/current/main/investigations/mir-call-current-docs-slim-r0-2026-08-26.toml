@@ -1,0 +1,84 @@
+title = "MIR Call current-docs shrink-only ghost task"
+status = "accepted_but_not_selected"
+observed_commit = "183c1418d7"
+observed_at = "2026-08-26"
+implementation_permission = false
+ghost_task = true
+pointer_selection = "none"
+
+[boundary]
+starts = "CURRENT_STATE.toml, the active rolling workstream, and the compact Call SSOT current sections"
+ends = "a compact current pointer plus active root-lineage capsule with historical detail left in owning investigations/git history"
+includes = [
+  "CURRENT_STATE status and active_lane_status duplicate closed chronology",
+  "mirbuilder-inplace-replacement-current.md Historical evidence queue and landed rows",
+  "mir-canonical-callsite-lane-ssot.md current selected row/Related chronology",
+  "the three Call D1B investigation filenames carrying future 2026-08-27 dates and all repository references",
+]
+excludes = [
+  "root-lineage finite matrix or target authority decisions",
+  "CallFlags census semantics or physical-terminal replacement",
+  "source code, fixtures, semantic receipts, pointer values, and Cargo/build gates",
+  "the separate externals evidence filename, which belongs to its own cleanup owner",
+]
+
+[brief]
+decision = "Treat documentation volume as a shrink-only Ghost Task. Remove duplicated landed chronology before the next current-card append, keep only current authority/next blockers in the pointer and active card, and leave investigation/history as the detail owners. Do not select this as the active execution row."
+source_authority = "current-docs-update-policy-ssot.md, DOCS_LAYOUT.md, CURRENT_STATE pointer contract, and owning investigation paths"
+canonical_issuer = "none; exact deletion/move of documentation prose and path references only"
+non_authority = [
+  "closed chronology in CURRENT_STATE/workstream/Call SSOT",
+  "future filename text without a live reference census",
+  "archive prose used as current scheduling authority",
+]
+fail_fast = "If a deleted paragraph is the sole owner of a live Decision, pointer token, acceptance condition, or reopen trigger, stop and restore it to the owning current card or investigation before shrinking."
+smallest_next_slice = "Design-only inventory and then one shrink-only docs commit: pointer capsule, workstream active frontier, Call SSOT capsule, and selected filename/reference normalization."
+non_claims = [
+  "no semantic decision, work-mode, active row, code, fixture, receipt, or production switch changes",
+  "no new archive file; git history and existing investigation cards remain detail owners",
+]
+
+[observed]
+current_state = "about 80 lines but status and active_lane_status duplicate closed R1-D1X chronology; landed_tail is already bounded"
+workstream = "exactly 1000 lines; Historical evidence queue is about 396 lines and Ordered frontier includes landed rows"
+call_ssot = "about 305 lines; current selected row/Related carry landed D1M-D1X chronology instead of a compact root-lineage capsule"
+future_call_names = [
+  "mir-call-core-r6-d1b-methodize-provenance-disposition-d0-2026-08-27.toml",
+  "mir-call-core-r6-d1b-relationless-resolved-recovery-d0-2026-08-27.toml",
+  "mir-call-core-r6-d1b-relationless-root-lineage-d0-2026-08-27.toml",
+]
+
+[delete_or_move_set]
+current_state = "replace duplicated closed chronology with current root-lineage stop, the two landed D1B child anchors, and downstream blockers; preserve scalar pointer values and landed_tail"
+workstream = "shrink Historical evidence queue and landed Ordered frontier rows; keep Now/next/Parked and owning investigation links; target roughly 580-620 lines before any new append"
+call_ssot = "replace current selected-row chronology with a 5-field capsule (decision, authority, non-authority, fail-fast, next slice) plus pointer/open-boundary links"
+filename_normalization = "when this ghost task is selected, git mv the three Call D1B files to -2026-08-26.toml and update every rg-discovered reference; preserve current dirty bodies"
+
+[acceptance]
+design = [
+  "current pointer still passes tools/checks/current_state_pointer_guard.sh",
+  "active root-lineage decision, blocker token, fail-fast boundary, and next pointer remain verbatim in an owning current card",
+  "workstream is below 1000 lines before any follow-up append and contains no duplicated landed chronology",
+  "Call SSOT retains only current capsule/open boundaries and five durable related owners",
+  "filename/reference normalization has zero stale 2026-08-27 Call D1B references after the rename",
+  "no source/fixture/Cargo/semantic receipt changes",
+]
+negative = [
+  "do not move the active pointer to this Ghost Task",
+  "do not rewrite root-lineage, Method(None), CallFlags, or target authority semantics",
+  "do not delete the only owner of an acceptance/reopen trigger",
+]
+checks = [
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "rg -n '2026-08-27|mir-call-core-r6-d1b-' docs tools",
+  "git diff --check",
+]
+implementation_gate = "false until a closeout/docs-only row is explicitly selected; this Ghost Task never opens code work."
+
+[reopen]
+triggers = [
+  "a current pointer value or active blocker would be lost",
+  "the workstream must grow beyond 1000 lines to retain active authority",
+  "a future filename is externally fixed or cannot be renamed without a separate compatibility decision",
+  "a semantic task attempts to use this shrink-only row as its implementation permission",
+]

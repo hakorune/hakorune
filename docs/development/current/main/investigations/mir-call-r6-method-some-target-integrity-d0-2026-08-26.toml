@@ -1,0 +1,79 @@
+title = "MIR Call Method(Some) target-integrity and receiver-class design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "183c1418d7"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-methodize-provenance-disposition-d0-2026-08-27.toml"
+
+[boundary]
+starts = "MemberCallRoutePlan / prepared method execution and CalleeResolverBox receiver classification"
+ends = "exact Method(Some) publication, an explicitly typed Dynamic handoff, or a pre-effect reject before alternate rewrite/block publication"
+includes = [
+  "src/mir/builder/calls/resolver.rs explicit/registry/value_types/origin class selection",
+  "src/mir/builder/calls/guard.rs::CalleeGuardBox::apply_static_runtime_guard",
+  "src/mir/builder/calls/unified_emitter.rs guard invocation and receiver materialization boundary",
+  "the two observed target repairs: mismatched static/runtime box name and string-method -> StringBox",
+  "UnknownBox success-string sentinel and registry ON/OFF parity",
+]
+excludes = [
+  "Method(None) producers and global methodize retirement (parent Row B)",
+  "JSON-v0/v1, VM/native/C backend, legacy BoxCall compatibility, and final Call schema",
+  "whole TypeRegistry redesign or a new general Verified*/Prepared* receipt",
+]
+
+[brief]
+decision = "CalleeGuardBox is not validator-only today: it rewrites target kind/box name in two branches, while CalleeResolverBox fabricates UnknownBox as a successful string class. Preserve exact Method(Some) when authority agrees; otherwise classify Exact, Dynamic, Conflict, or Missing before effects and reject or hand off through an existing typed owner. Do not invent a new semantic receipt while the root-lineage design stop is active."
+source_authority = "source member-route/exact method plan and exact receiver construction relation; an existing resolver/physical issuer may publish Method(Some) only when receiver class is proven"
+canonical_issuer = "the existing typed resolver/physical issuer that emits Callee and the existing Method(Some) publication path; this child does not issue a new target"
+non_authority = [
+  "value_types alone when it conflicts with source/receiver relation",
+  "TypeRegistry env mode, method spelling aliases, StaticMethodId, guard output, and UnknownBox text",
+  "post-guard observation, BoxCall retry, receiver autoscan, and backend behavior",
+]
+fail_fast = "After authoritative receiver facts exist and before argument descent, alternate rewrite, BoxCall retry, or block publication: exact agreement preserves the Callee; conflict/missing class rejects or uses an already-named Dynamic owner."
+smallest_next_slice = "Design-only finite matrix and owner census for the two guard repairs plus UnknownBox; no code, fixture, resolver priority, or target rewrite changes."
+non_claims = [
+  "Method(None) deletion, Global methodize closure, JSON/VM/C behavior, BoxCall retirement, Call schema, or TypeRegistry-wide sentinel migration",
+]
+
+[observed_repairs]
+static_runtime_mismatch = "guard.rs:82 rewrites StaticCompiler box_name to receiver MirType::Box and switches box_kind to RuntimeData"
+unknown_string_method = "guard.rs:107 rewrites type-less StaticCompiler length/substring family to StringBox"
+trust_methodize = "guard.rs:150 passes a type-less non-string StaticCompiler method through as 'trust methodize'"
+unknown_sentinel = "resolver.rs:213-268 falls back through explicit -> registry -> value_types -> origin -> String 'UnknownBox'"
+registry_parity = "registry ON/OFF and origin/type priority can change target class before the guard"
+
+[finite_state]
+states = [
+  "ExactMethodSome",
+  "ExplicitReceiverClassConflict",
+  "TypeLessStringMethod",
+  "TypeLessNonStringMethod",
+  "DynamicClassExplicit",
+  "ClassMissing",
+  "UnknownBoxSentinelInput",
+  "RegistryOriginConflict",
+  "TypedRejectBeforeEffects",
+  "ExistingDynamicOwner",
+  "MethodNoneOutsideThisBoundary",
+]
+terminal_policy = "Only ExactMethodSome may publish unchanged; DynamicClassExplicit may use an already-named ExistingDynamicOwner. Repairs, UnknownBox success strings, registry-dependent target changes, and unresolved class states are not canonical terminals and remain NoSafeSlice or typed reject. Method(None) remains the parent task's boundary."
+
+[acceptance]
+design = [
+  "guard output is either the same Callee or a named typed terminal; no target kind/box-name repair remains unowned",
+  "static/runtime mismatch, type-less string methods, and trust-methodize branches each have an explicit disposition",
+  "UnknownBox cannot be a successful canonical class; explicit real box name and sentinel are distinguishable or sentinel rejects",
+  "registry ON/OFF, origin/type conflict, missing class, and dynamic dispatch have finite parity/negative states",
+  "negative states reject before argument/effect/Call publication with no retry",
+]
+implementation_gate = "false until an existing pre-effect source/receiver owner is named and the finite matrix is accepted; no code change under current design_stop."
+guard = "future scoped guard must prove CalleeGuardBox does not mutate target kind/name and that UnknownBox success values are zero in the selected boundary"
+
+[reopen]
+triggers = [
+  "a new guard repair branch or UnknownBox producer appears",
+  "registry/env mode changes target kind or box name",
+  "a Dynamic handoff lacks an existing owner",
+  "Method(None) enters this boundary or a guard repair is used as a static target authority",
+]

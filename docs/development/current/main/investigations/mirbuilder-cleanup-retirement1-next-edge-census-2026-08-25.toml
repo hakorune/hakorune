@@ -5,6 +5,7 @@ observed_commit = "74829ee3d2"
 implementation_permission = false
 decision = "MIRBUILDER-CLEANUP-RETIREMENT1-NEXT-EDGE-CENSUS-D0"
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
+followup_census = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-followup-census-d0-2026-08-26.toml"
 
 [brief]
 decision = "Separate structural seam documentation, typed-error compression, and metadata owner splitting into independent bounded rows; do not turn a broad warning/runtime census into blanket edits."
@@ -82,15 +83,16 @@ id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
 status = "accepted_but_not_selected"
 kind = "typed_error_bounded_row"
 scope = "normal_script_direct_static_claim_ledger.rs:76-116 -> calls/script_direct_static_physical_bridge.rs:24-86"
-source_authority = "ScriptDirectStaticClaimLedgerV1::consume_required_argument_proof existing ScriptDirectStaticRequiredArgumentProofIssueV1"
-canonical_issuer = "existing ledger issue enum; bridge carries the typed issue until the existing outer String boundary"
-old_edge = "RequiredArgumentProof(String) and error.to_owned() erase proof issue variants before argument descent"
+source_authority = "ScriptDirectStaticClaimedRowV1::consume_required_argument_proof; a consume-owned issue enum, distinct from proof-issuance ScriptDirectStaticRequiredArgumentProofIssueV1"
+canonical_issuer = "claim-ledger-owned consume issue enum; bridge carries the typed issue until the existing outer String boundary"
+old_edge = "RequiredArgumentProof(String) and error.to_owned() erase consume-time proof issue variants before argument descent"
 delete_set = [
   "ScriptDirectStaticPhysicalBridgeErrorV1::RequiredArgumentProof(String)",
   "the bridge-local error.to_owned() conversion for proof consumption",
 ]
 acceptance = [
   "duplicate, empty-required, cardinality, ordinal-out-of-bounds, site mismatch, and non-exact proof failures remain distinguishable variants",
+  "proof-issuance issues and proof-consumption issues remain separate owners; the existing issuance enum is not reused as a consume authority",
   "target validation -> proof consume -> argument descent order is unchanged",
   "proof failure emits zero child effect, Call, publication, and claim completion; consumption marks success only",
   "ArgumentDescent(String), ClaimCompletion(String), constructor manifest/loan String boundaries are untouched",

@@ -1,0 +1,141 @@
+title = "MIR semantic error transport P1B follow-up child census"
+status = "accepted_design_no_safe_slice"
+observed_commit = "183c1418d7"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-semantic-error-type-compression-p1b-2026-08-21.md"
+
+[brief]
+decision = "Keep semantic issue variants at their detecting owner and split the remaining String boundaries into five independent children. Only C1, C4, and C5 are bounded candidates; C2 requires a path-preserving owner split and C3 requires a producer/partial-effect census. No child is selected while the active root-lineage design stop remains open."
+source_authority = "The ledger, manifest, loan, or recursive producer that detects each issue; diagnostic strings never classify or repair an issue."
+canonical_issuer = "No new semantic receipt. Each child transports an existing typed issue to the already-owned outer diagnostic boundary or remains NoSafeSlice."
+non_authority = [
+  "format!/Debug strings, Unavailable, Absent, ValueId/MirType, AST names/spans, compatibility success, and raw fallback",
+  "a bridge-local enum that merely wraps String without retaining the detecting variant",
+]
+fail_fast = "Typed issue state must survive the owner boundary; pre-effect proof/manifest errors reject before child effects, while post-publication completion errors remain terminal without retry or rollback claims."
+smallest_next_slice = "Select only one child after CURRENT_STATE leaves the root-lineage design stop; preferred order is C1 -> C4 -> C5, then C2 after owner split and C3 after producer census."
+non_claims = [
+  "common recursive port-wide typing",
+  "argument rollback or reorder",
+  "constructor manifest/loan simultaneous cutover",
+  "Call schema, backend, JSON, source admission, or production activation",
+]
+
+[ordering]
+recommended = [
+  "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0",
+  "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C4-CONSTRUCTOR-DEMAND-MANIFEST-I0",
+  "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C5-CONSTRUCTOR-DEMAND-LOAN-I0",
+  "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C2-CLAIM-COMPLETION-D0",
+  "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C3-ARGUMENT-DESCENT-D0",
+]
+selection_rule = "This file is a design ledger, not a pointer. A child becomes executable only when CURRENT_STATE names it and its implementation_permission is amended to true."
+
+[[child]]
+id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
+status = "accepted_but_not_selected"
+kind = "bounded_typed_error_row"
+boundary = "ScriptDirectStaticClaimedRowV1::consume_required_argument_proof -> calls/script_direct_static_physical_bridge.rs:24-86"
+source_authority = "consume-owned claim-ledger issue variants; do not reuse ScriptDirectStaticRequiredArgumentProofIssueV1, which belongs to proof issuance"
+canonical_issuer = "the existing claim ledger; bridge carries the typed consume issue to member_route.rs:133-135 for the single outer String mapping"
+fail_fast = "After target validation and before argument descent; proof failure emits zero child effect, Call, publication, and claim completion."
+old_edge = "RequiredArgumentProof(String) plus error.to_owned() erases duplicate, empty, cardinality, ordinal, site, and non-exact consume failures."
+acceptance = [
+  "consume-time variants remain distinct and are asserted by focused tests",
+  "issuance and consumption issue enums remain separate owners",
+  "target validation -> proof consume -> argument descent ordering is unchanged",
+  "ArgumentDescent, ClaimCompletion, constructor manifest/loan, and common ports are untouched",
+  "touched owners remain below 760 lines and no source reaches 800",
+]
+non_claims = [
+  "argument descent typing, claim-completion redesign, constructor demand, route, receipt, MIR, or backend changes",
+]
+
+[[child]]
+id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C2-CLAIM-COMPLETION-D0"
+status = "no_safe_slice"
+kind = "design_only_port_boundary"
+boundary = "ScriptDirectStaticClaimLedgerV1::complete -> normal_script_semantic_lowering_state.rs:180-188 -> recursive completion ports -> bridge ClaimCompletion(String)"
+source_authority = "ScriptDirectStaticClaimLedgerIssueV1 at the completion owner"
+canonical_issuer = "existing completion ledger; no new completion receipt"
+fail_fast = "Completion is terminal at its existing point after Call/publication commit; no rollback, reinsertion, or reorder is claimed."
+blocker = "raw_invocation_source_transport.rs is 778 lines; perform a path-preserving owner split before typed completion transport, then re-census the port fanout."
+acceptance = [
+  "ledger issue variants survive every forwarding boundary to the existing outer diagnostic edge",
+  "Unavailable/Absent remain distinct from a concrete ledger issue",
+  "no retry, rollback, publication reorder, or common recursive port rewrite",
+  "all touched sources stay below 760 and below the 800 hard stop",
+]
+non_claims = ["claim reinsertion, publication atomicity repair, constructor demand, or common recursive port-wide typing"]
+
+[[child]]
+id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C3-ARGUMENT-DESCENT-D0"
+status = "no_safe_slice"
+kind = "design_only_producer_census"
+boundary = "MethodCallArgumentDescentV1::lower_all -> CallArgumentDescentPortV1::argument_expression_input -> RecursiveChildLoweringPortV1::lower_expression"
+source_authority = "not yet named; all three current port contracts return String and no single typed producer issue is proven"
+canonical_issuer = "none until producer error owners and port fanout are enumerated"
+fail_fast = "The ordered driver stops at first error, but prior argument effects may already exist; partial-effect behavior must be modeled before any typed cutover."
+blocker = "A bridge-local wrapper would only rename String. First inventory every producer, typed source issue candidate, port caller, and partial-effect state."
+acceptance = [
+  "finite producer/error-owner census is Exhausted",
+  "partial-effect matrix and one outer diagnostic boundary are named",
+  "no argument reorder, rollback promise, bridge-only String wrapper, or common-port bulk rewrite",
+]
+non_claims = ["proof, claim completion, constructor demand, route, receipt, MIR, backend, or argument semantics changes"]
+
+[[child]]
+id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C4-CONSTRUCTOR-DEMAND-MANIFEST-I0"
+status = "accepted_but_not_selected"
+kind = "bounded_typed_error_candidate"
+boundary = "normal_instance_constructor_demand_manifest.rs::issue_batch and ::validate_exact"
+source_authority = "source batch expectations keyed by (source_id, role); manifest builder and verified manifest own issue/validation"
+canonical_issuer = "existing demand manifest builder/validator; no schema or ticket change"
+fail_fast = "Duplicate/count/coverage/foreign rows reject before work-plan publication; local partially-built manifest is discarded on error without an atomicity claim."
+line_budget = "manifest owner 151 lines; shared work-plan 721 lines; production child 131 lines; any change must keep every touched source <760 and <800 hard stop"
+acceptance = [
+  "issue_batch and validate_exact retain distinct typed issue variants through the existing outer diagnostic boundary",
+  "duplicate/count/coverage/foreign negatives reject before publication",
+  "manifest schema, work-plan classification, ticket role, and publication order remain unchanged",
+  "focused positive/negative tests and a scoped guard are named before implementation",
+]
+non_claims = ["loan consume/complete, RootCallableCapturePort typing, constructor admission, rollback, or simultaneous manifest/loan cutover"]
+
+[[child]]
+id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C5-CONSTRUCTOR-DEMAND-LOAN-I0"
+status = "accepted_but_not_selected"
+kind = "bounded_typed_error_candidate"
+boundary = "InstanceConstructorDemandConsumptionV1::consume and ::complete plus the existing package adapter"
+source_authority = "installed manifest, exact typed ticket (source_id, role), and consumption ledger"
+canonical_issuer = "existing demand loan; no new package receipt"
+fail_fast = "consume validates manifest/ticket before constructor body descent and sets consumption only on success; complete rejects incomplete state after root lowering. ManifestMissing on consume and successful completion with no manifest remain distinct existing states."
+line_budget = "loan owner 122 lines; package adapter 710 lines; any change must keep the adapter <760 and <800 hard stop, with a split returning to D0 if fanout expands"
+acceptance = [
+  "typed consume/complete variants survive the adapter to the existing outer diagnostic edge",
+  "no ticket rollback, constructor-body reorder, package error unification, or manifest/loan simultaneous cutover",
+  "positive/negative coverage includes missing, foreign, duplicate, reused, and incomplete tickets",
+]
+non_claims = ["RootCallableCapturePort-wide typing, package activation, constructor admission, rollback, or backend changes"]
+
+[guard]
+required = [
+  "one child selected at a time and no child is inferred from this ledger alone",
+  "typed issue variants remain distinct from Unavailable/Absent and diagnostic strings",
+  "C1/C4/C5 stay within line limits; C2/C3 remain blocked until their named design prerequisites close",
+  "no new semantic receipt, retry, fallback, or production switch appears",
+]
+checks = [
+  "python3 TOML parse for this file and parent P1B card",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+
+[reopen]
+triggers = [
+  "a child attempts to reuse a proof-issuance enum for consume-time errors",
+  "a String conversion appears before the existing outer diagnostic boundary",
+  "C2 proceeds without a path-preserving split of raw_invocation_source_transport.rs",
+  "C3 lacks a complete producer/partial-effect census",
+  "constructor manifest and loan children are combined into one cutover",
+]

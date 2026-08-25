@@ -2,7 +2,7 @@
 Status: Design queue — no implementation permission
 Date: 2026-08-25
 Decision: MIR-CALL-FINAL-SHAPE-AND-INGRESS-BOUNDARY-D0
-Observed commit: 5d5c564e82
+Observed commit: 183c1418d7
 Owner: MIR-CALL-RETIREMENT-v1
 ---
 
@@ -34,13 +34,18 @@ Call {
 
 The three surviving design rows are ordered, not competing alternatives.
 
-### Row A — `MIR-CALL-FINAL-SHAPE-MIR-CALL-FLAGS-RETIREMENT-D0`
+### Row A — `MIR-CALL-FINAL-SHAPE-CALLFLAGS-CENSUS-D0`
 
-First census `MirCall` and `CallFlags` readers and writers. The physical
-`MirInstruction::Call` path currently carries only `dst`, `callee`, `args`,
-and `effects`; a zero-reader result permits retirement of the intermediate
-`MirCall`/`CallFlags` transport before the schema cutover. If any reader owns
-meaning, stop and name that owner instead of deleting or defaulting the flags.
+The local HEAD does **not** support a blanket `MirCall` retirement claim:
+`unified_emitter/physical_terminal.rs` still consumes `MirCall` and converts it
+to the canonical `MirInstruction::Call`. Therefore the row is split. Census
+`CallFlags` semantic readers, public exports, and construction sites first. A
+zero-reader result may retire only the `CallFlags` field/constructor edges in a
+later bounded child; `MirCall` remains live transport until the physical
+terminal has its own replacement row. If any reader owns meaning, stop and
+name that owner instead of deleting or defaulting the flags.
+
+Evidence/task: `mir-call-final-shape-callflags-census-d0-2026-08-26.toml`.
 
 ### Row B — `MIR-CALL-METHOD-NONE-PRODUCER-FIRST-D0`
 
@@ -109,7 +114,7 @@ Row B, or the neutral-contract move.
 | missing/ambiguous/foreign target | typed reject; no retry |
 | `Method(None)` producer | producer census blocker; no enum cutover |
 | neutral-contract reference count increase | guard failure; move not accepted |
-| no `MirCall`/`CallFlags` reader | retirement candidate, followed by focused proof |
+| no `CallFlags` semantic reader after public/API and generated-projection disposition | `CallFlags`-only retirement candidate; `MirCall` remains live until its physical-terminal replacement row |
 
 ## Non-claims
 
