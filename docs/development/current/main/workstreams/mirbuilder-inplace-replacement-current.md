@@ -33,7 +33,7 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1C1-RAW-FUNCTION-CALL-CALLER-LOAN-BOUNDARY
-  implementation    = D1C generic catalog handoff audit accepted NoSafeSlice; no code switch
+  implementation    = D1C1 audit accepted NoSafeSlice; current Call SSOT slimmed to 185 lines, history moved to design/archive; no code switch
   mode              = design_stop
   production stop   = bare FunctionCall lacks a same-brand physical target row before argument descent
   exit              = finite caller/site loan census; no Method(None) repair or schema cutover
