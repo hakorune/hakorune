@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-PHYSICAL-TYPE-INPUT-I0
+Status: Design stop — MIR-CALL-CORE-R6-D0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-PHYSICAL-TYPE-INPUT-I0 (D0 accepted)
-  implementation    = JoinIR remapper isolation I0 landed at 0048c0176a
-  mode              = fast
+  current decision  = MIR-CALL-CORE-R6-D0 (physical I0 closed)
+  implementation    = exact-i64 physical input I0 landed at 7fd97a5344
+  mode              = design_stop
   production stop   = active lifecycle inventory is the sole production collector; old merge/remap is reference-only
-  exit              = preserve invocation binding; issue target-layout child; co-seal four rows once; then focused I0 proof
+  exit              = six-line R6 D0 brief; name Call authority/issuer/consumer closure; publish one bounded field-retirement slice
   fallback / retry  = 0
 ```
 
@@ -151,7 +151,7 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains
 `ParkedSealed`. The Call retirement design remains the long-term target, while
-the active Decision is now `MIR-PHYSICAL-TYPE-INPUT-D1-P0`.
+the active Decision is now `MIR-CALL-CORE-R6-D0`; exact-i64 physical input I0 landed at `7fd97a5344`.
 
 ```text
 canonical core
@@ -496,7 +496,7 @@ late issuer retirement (closed). Non-claims: core field
 cutover, operand SSOT, selected terminal closure, and historical backend re-entry.
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap isolation I0 landed at 0048c0176a; physical type D0 is accepted and exact-i64 I0 is selected; native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
+R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap isolation I0 landed at 0048c0176a; physical type D0 and exact-i64 I0 are closed at 7fd97a5344; native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
 
 ## Production invariants
 ```text
@@ -570,10 +570,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
+ MIR-CALL-CORE-R6-D0
+  -> design_stop: name Call source authority, canonical issuer, consumer/lifecycle closure, finite rejection matrix, and exact old-edge delete set; no schema deletion yet
+Closed immediately prior
  MIR-PHYSICAL-TYPE-INPUT-I0
-  -> fast: preserve invocation binding; project one exact-i64 target row; co-seal source/representation/ABI/target before publication; JSON/C/backend remain ParkedSealed
-Next (not selected)
-  -> MIR-CALL-CORE-R6-D0 after I0; remove `func`/`Option<Callee>` atomically, while backend/New and non-selected backends remain ParkedSealed
+  -> landed at 7fd97a5344: binding-preserving typed target-layout child, one selected Dynamic co-seal, existing AOT projection storage; JSON/C/backend remain ParkedSealed
 Call lane (after D0/I0): R6 canonical operand/escape projection and lifecycle inventory are closed; JoinIR remap is test/reference-only at 0048c0176a, so do not revive caller-zero code
   -> cutover: `Call { dst, callee: Callee, args, effects }`; remove `func`, `Option<Callee>`, INVALID sentinels; decide MirCall/CallFlags, Method(None), Closure construction, and Constructor/NewBox boundary together; then typed-only terminal consumers, fallback/retry/by-name lookup = 0, parity + one guard
 After MIR Call retirement

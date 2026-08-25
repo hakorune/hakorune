@@ -16,19 +16,19 @@ selected ny-llvmc native capability D0 is audited as NoSafeSlice; native D1
 capability boundary, the path-preserving C owner split, and LLVM trap declaration
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
-source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9; D2c and P2 metadata manifest closeout are complete, while D2 overall remains NoSafeSlice outside the bounded cohort and shelf semantic authorities remain NoSafeSlice. P3 I0 landed at f94bb7f2a7; D1 exact pair design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92, and physical type D0 is accepted; exact-i64 I0 is the selected execution row."""
+source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9; D2c and P2 metadata manifest closeout are complete, while D2 overall remains NoSafeSlice outside the bounded cohort and shelf semantic authorities remain NoSafeSlice. P3 I0 landed at f94bb7f2a7; D1 exact pair design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92, and physical type D0 is accepted; exact-i64 I0 landed at 7fd97a5344 with typed target-row transport and selected Dynamic projection; Call R6 is the next design-stop row."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIR-PHYSICAL-TYPE-INPUT-I0"
-current_design_stop = "Accepted D0: existing PinnedTextCompileTargetCapabilityV1 issues only a typed invocation-bound exact-i64 target-layout child; the selected Dynamic close co-seals source, representation, ABI, and target rows once. Residence/object/TargetMachine facts, defaults, strings, MIR inference, JSON/C/backend, and target-less fallback remain non-authority."
-current_blocker_token = "MIR-PHYSICAL-TYPE-INPUT-I0: preserve PinnedTextCompileInvocationBindingRefV1 through selected Dynamic assembly; issue and consume one typed target-layout row before session/publication effects."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-CORE-R6-D0"
+current_design_stop = "Exact-i64 physical input I0 landed at 7fd97a5344: the existing target capability now issues one typed invocation-bound target-layout child, binding survives selected Dynamic assembly, and the AOT projection stores it. Next R6 D0 must name the Call source authority, canonical issuer, consumer closure, and atomic delete set before func/Option<Callee> changes."
+current_blocker_token = "MIR-CALL-CORE-R6-D0: produce one accepted six-line brief and bounded field-retirement slice; no Call schema deletion before producer/consumer/lifecycle inventory is closed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — physical type input I0"
+active_lane = "MirBuilder in-place replacement — Call core R6 design"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
@@ -38,7 +38,7 @@ selected Rust interpreter rejection, and R5c printer-only projection are
 closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
 is accepted and profile-threading I0 is closed; JoinIR remap census is
 dispositioned with lifecycle collection retained and disconnected merge remap
-APIs isolated to test/reference at 0048c0176a; physical type D0 is accepted and exact-i64 I0 is selected; backend_shape capability D1 and strict-adapter I0 are
+APIs isolated to test/reference at 0048c0176a; physical type D0 and exact-i64 I0 are closed at 7fd97a5344; backend_shape capability D1 and strict-adapter I0 are
 closed, native capability D0 is NoSafeSlice, native D1 and the C owner split
 are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 and D1-D1 V1 negative Constructor edges are closed, D1-D8 design is accepted at 1434663966, shelf I0 landed at b61f6895d2, D1 seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal and D2c Raw consumer selection are accepted, and the bounded MIR-CALL-NEW-ATOMIC-RAW-COHORT-D2C cutover landed at 7c976ca8b9; physical type D0 is accepted and exact-i64 I0 is selected.
 JoinIR remap isolation I0 is landed at 0048c0176a: active lifecycle collection remains, disconnected merge remap APIs have no non-test caller and are test/reference-only; exact-i64 I0 is now the selected physical row, while ownership/query and core field deletion remain separate. PyVM/reference/Python remain
@@ -47,7 +47,7 @@ optimizer/interpreter/printer rows, JSON D0/I0, shared guard, and no R6 field
 deletion; JoinIR remap isolation is fenced, strict-adapter I0 is closed, native
 D0 is NoSafeSlice, native D1/C owner split and trap declaration co-seal I0 are
 closed, and R6 remains separate; exact Extern D0 is accepted with generic-entry
-and same-module prepass source/plan/arity/args/dst evidence. D2c and P2 metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7, D1 design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92; JoinIR remapper isolation I0 is landed at 0048c0176a, physical type D0 is accepted and exact-i64 I0 is selected, while JSON/C/backend effects remain closed."""
+and same-module prepass source/plan/arity/args/dst evidence. D2c and P2 metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7, D1 design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92; JoinIR remapper isolation I0 is landed at 0048c0176a, physical type D0 and exact-i64 I0 are closed at 7fd97a5344, while JSON/C/backend effects remain closed and Call R6 is the next design stop."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5 and JSON/profile/backend/native split are closed; exact Extern, D1-D8, shelf, source-seed/join, D2a/b/c, P2 closeout, physical D1-I0 pair transport (5bde4c6f92), and JoinIR remapper isolation I0 (0048c0176a) are recorded. Physical type D0 is accepted; exact-i64 I0 is selected, then Call R6, root mode, shelves, and warning retirement remain separate."
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5 and JSON/profile/backend/native split are closed; exact Extern, D1-D8, shelf, source-seed/join, D2a/b/c, P2 closeout, physical D1-I0 pair transport (5bde4c6f92), JoinIR remapper isolation I0 (0048c0176a), and exact-i64 physical input I0 (7fd97a5344) are recorded. Call R6 D0 is the next design stop; root mode, shelves, and warning retirement remain separate."
 next_design_card = "MIR-CALL-CORE-R6-D0"
-next_execution_card = "MIR-PHYSICAL-TYPE-INPUT-I0"
+next_execution_card = "none — await MIR-CALL-CORE-R6-D0 acceptance"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
