@@ -1,6 +1,6 @@
 ---
 Status: Design stop — MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0
-Date: 2026-08-25
+Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -33,19 +33,19 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0
-  implementation    = late canonicalizer retirement landed at 371f75476e (issuer 1 -> 0; five timing callers retained); ArrayElementWrite remains one writer with four callers
+  implementation    = FUNCTION-METADATA-OWNER-SPLIT-R0 landed: metadata.rs 804 -> 718; nested checked-callout/linear-slot owners are 40/50 lines, with no #[path]
   mode              = design_stop
-  production stop   = ArrayElementWrite has three selected-native callers and one ParkedSealed caller, but no selected native replacement consumer authority
-  exit              = accepted consumer authority, finite caller closure, fail-fast boundary, and one bounded implementation row; no array code before acceptance
+  production stop   = ArrayElementWrite has one legacy projection writer and four callers, but selected ny-llvmc has no decoder/lowerer/ABI consumer authority
+  exit              = accepted selected-native consumer authority, four-kind exe/obj parity, finite caller closure, and pre-publication fail-fast boundary; no array code before acceptance
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: NoSafeSlice — the late canonicalizer retirement landed; ArrayElementWrite projection still lacks a selected native consumer authority.
-Source authority + canonical issuer: typed ArrayElementWrite instruction/witness owner must name the consumer; compatibility projection is not target authority and cannot be upgraded by inference.
-Non-authority: func/INVALID, Const(String), method-name reconstruction, backend lookup, wire text, and caller counts without a finite owner/terminal inventory.
-Fail-fast boundary: typed array/index/witness rejection prevents projection publication; unresolved or foreign consumer demand rejects before any legacy Call projection.
-Smallest next slice: design only — census the four callers, selected-native terminal contracts, capability/ABI owner, and exact delete set for the legacy projection.
-Non-claims: no ArrayElementWrite code, final Call schema, Method(None), JSON ingress, backend/VM, MirCall/CallFlags, metadata, warning, or cleanup changes.
+Decision: NoSafeSlice — ArrayElementWrite projection remains design-only; the metadata owner split landed as a behavior-neutral BoxShape.
+Source authority + canonical issuer: typed ArrayElementWrite plus witness metadata remain the semantic source/issuer; the compatibility projection is not target authority.
+Non-authority: legacy Method Call, JSON text, backend allowlist, Rust VM/PyVM, caller counts without terminal ownership, `func/INVALID`, and metadata child placement.
+Fail-fast boundary: typed-array veto, shape/witness/route drift, or missing selected-native consumer must reject before projected clone publication; metadata compile/API drift is already closed.
+Smallest next slice: design only — name a selected ny-llvmc decoder/lowerer/ABI owner for `site_id/dst/kind/producer/receiver/index/value`, four-kind exe/obj parity, and the exact legacy delete set.
+Non-claims: no ArrayElementWrite code, final Call schema, Method(None), JSON ingress, backend/VM activation, MirCall/CallFlags, physical-type implementation, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
@@ -337,11 +337,11 @@ Evidence:
   observed revision `beb82a6756c6c0855dc76096be23b9eafe3c5ae5`. The reusable
   guard is green for positive coverage and missing/duplicate-row rejection;
   the metadata catalog guard and current-state pointer guard are green. The
-  existing `src/mir/function/metadata.rs` 804-line boundary is read-only.
+  `FUNCTION-METADATA-OWNER-SPLIT-R0` landed: `metadata.rs` is 718 lines, nested checked-callout/linear-slot owners are 40/50 lines, no `#[path]` glue was added, method signatures/visibility/fields/callers/behavior are unchanged, focused `mir::function::tests` is 6 passed/2 ignored with the 441-warning baseline, and manifest/pointer/canonical-corridor/rustfmt/diff guards are green.
 
 Smallest next slice:
-  Close out this observation row, then audit `MIR-PHYSICAL-TYPE-INPUT-D0`
-  before selecting any physical/backend implementation.
+  Reopen `MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0` only after a selected-native consumer authority and finite caller closure are accepted;
+  physical/backend implementation remains separately gated.
 
 Non-claims:
   No metadata promotion, field deletion, backend activation, ModuleMetadata
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0 -> NoSafeSlice after late canonicalizer retirement landed at 371f75476e: ArrayElementWrite has exactly one legacy projection writer and four callers (three selected native, one ParkedSealed); require selected-native consumer authority, finite caller closure, and a bounded implementation Decision before code
+Now MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0 -> NoSafeSlice/ParkedSealed after FUNCTION-METADATA-OWNER-SPLIT-R0 landed: ArrayElementWrite has exactly one legacy projection writer and four callers (three selected native, one ParkedSealed); require selected-native decoder/lowerer/ABI authority, four-kind exe/obj parity, and finite caller closure before code
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

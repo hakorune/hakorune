@@ -198,10 +198,14 @@ all five named schedule entries remain typed-only timing seams, and the late
 positive/negative/parity suite is 14/14, the quick warning baseline remains
 441, and the shared corridor guard remains 777 lines with exact schedule and
 ArrayElementWrite inventory checks. The ArrayElementWrite projection remains
-`NoSafeSlice`: its one legacy writer has four callers (three selected native,
-one ParkedSealed), and selected native callers have no replacement consumer
-authority. The next row is design-only until that authority and caller closure
-are named; no ArrayElementWrite implementation is authorized yet.
+`NoSafeSlice`: `array_element_write::instruction` plus its witness metadata are
+the semantic source/issuer, while the one legacy projection writer has four
+callers (three selected native, one ParkedSealed `llvmlite`). Selected ny-llvmc
+has no decoder/lowerer/ABI owner for
+`site_id/dst/kind/producer/receiver/index/value`; the Rust interpreter is not
+the selected native authority. The next row is design-only until a
+selected-native consumer, four-kind exe/obj parity, and caller-specific delete
+set are named; no ArrayElementWrite implementation is authorized yet.
 
 The landed implementation manifest is:
 

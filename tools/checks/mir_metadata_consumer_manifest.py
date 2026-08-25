@@ -79,7 +79,7 @@ def source_fields(path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8")
     try:
         start = text.index("pub struct FunctionMetadata {")
-        end = text.index("\n}\n\nimpl FunctionMetadata", start)
+        end = text.index("\n}\n", start)
     except ValueError as exc:
         fail(f"FunctionMetadata boundary missing in {path}: {exc}")
     fields: list[str] = []

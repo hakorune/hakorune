@@ -17,14 +17,14 @@ exact-i64 I0 landed at 7fd97a5344 with typed target-row transport and selected
 Dynamic projection; R6 D0 accepted the bounded direct-static issuer
 normalization; D1L direct substring-len Extern issuer landed at 0be8a73420 and D1M
 method-set value rewrite landed at f7a442f524 with focused 4/4 proof; recursion-depth restore landed at 74829ee3d2; D1N user-box operand projection landed at 0738d722a3;
-D1O-D1X Call writers are landed through cde490f75e; MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0 landed at 371f75476e, while ArrayElementWrite projection remains NoSafeSlice."""
-date = "2026-08-25"
+D1O-D1X Call writers are landed through cde490f75e; MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0 landed at 371f75476e, FUNCTION-METADATA-OWNER-SPLIT-R0 landed in the implementation row, and ArrayElementWrite projection remains NoSafeSlice/ParkedSealed outside the metadata row."""
+date = "2026-08-26"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0"
-current_design_stop = "MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0 landed at 371f75476e; ArrayElementWrite projection remains NoSafeSlice because selected native consumers have no replacement authority."
-current_blocker_token = "MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0 design_stop: do not edit ArrayElementWrite projection, final schema, Method(None), ingress, backend, metadata, or cleanup before a bounded consumer Decision."
+current_design_stop = "FUNCTION-METADATA-OWNER-SPLIT-R0 landed as a behavior-neutral BoxShape; ArrayElementWrite remains NoSafeSlice/ParkedSealed because selected ny-llvmc has no decoder/lowerer/ABI owner."
+current_blocker_token = "MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0 design_stop: no ArrayElementWrite code or final Call cutover until a selected-native decoder/lowerer/ABI consumer, four-kind parity, and finite caller delete set are accepted."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -47,7 +47,7 @@ census is accepted design-only, D1C/D1C1 remain NoSafeSlice, the Call SSOT docs-
 D1F typed Method issuer landed at 572ec6f5b1, D1G builder emit reconstruction landed at c3c7e0ea65, D1H PHI reconstruction landed at b090f917b4, D1I
 concat3 Extern rewrite landed at 513a243be5, D1J BoxCall Method issuer landed at c927da4029, D1K retained-len Extern issuer landed at 8401f457ab, and D1L
 direct substring-len Extern issuer landed at 0be8a73420; D1M method-set value rewrite landed at f7a442f524 with focused 4/4 proof; recursion-depth
-restore, D1N-D1X, and their focused proofs/guards are green through cde490f75e; late legacy-target issuer retirement landed at 371f75476e, and ArrayElementWrite projection remains NoSafeSlice."""
+restore, D1N-D1X, and their focused proofs/guards are green through cde490f75e; late legacy-target issuer retirement landed at 371f75476e; FUNCTION-METADATA-OWNER-SPLIT-R0 landed with metadata.rs 718 lines and nested access owners 40/50; ArrayElementWrite remains NoSafeSlice/ParkedSealed and is the next design stop."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, D1-D8, shelf/source-seed/join, D2a/b/c, P2, physical D1-I0, JoinIR isolation, exact-i64, R6 D0, D1A, D1E-X are closed; late canonicalizer retirement landed at 371f75476e; ArrayElementWrite projection is the only remaining selected writer (1) with four callers and no selected native consumer authority."
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 and canonicalizer closeout are landed; FUNCTION-METADATA-OWNER-SPLIT-R0 landed as a behavior-neutral 804→718-line owner split with 40/50-line nested children; ArrayElementWrite remains explicitly NoSafeSlice/ParkedSealed with no selected ny-llvmc decoder/lowerer/ABI owner."
 next_design_card = "MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0"
-next_execution_card = "none (NoSafeSlice; await accepted consumer authority Decision)"
+next_execution_card = "none (NoSafeSlice; await accepted selected-native consumer authority Decision)"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -76,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-25: D1F typed Method issuer landed at 572ec6f5b1 and D1G builder emit reconstruction landed at c3c7e0ea65; method/terminal parity, scoped corridor/pointer guards, rustfmt, and diff checks are green; the umbrella normal-source guard retains a known pre-existing module-registry baseline failure.",
   "2026-08-25: D1-I0 exact pos/end representation pair landed at 5bde4c6f92 after P3 f94bb7f2a7/P0 41f82d4be4; check, focused 1/1, guard, and diff are green; JSON/C/backend activation is 0.",
-  "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0.",
+  "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0. 2026-08-26: FUNCTION-METADATA-OWNER-SPLIT-R0 landed; fields/APIs unchanged, metadata.rs 718 lines, nested checked-callout/linear-slot owners 40/50 lines, focused mir::function::tests 6 passed/2 ignored with 441 baseline warnings, and ArrayElementWrite remains NoSafeSlice/ParkedSealed.",
 ]
