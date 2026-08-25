@@ -1,8 +1,9 @@
 title = "MIR Call D1B SelectedNormal duplicate projection pre-body validator"
-status = "accepted_design_no_safe_slice"
+status = "accepted_design"
 observed_commit = "a3088cce40"
 observed_at = "2026-08-26"
-implementation_permission = false
+implementation_permission = true
+selected_fast = true
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
 next_design_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-self-exact-target-loan-d0-2026-08-26.toml"
 
@@ -31,7 +32,7 @@ non_authority = [
   "statement order, collector last-wins, LegacySymbol text reconstruction, declaration name/arity formatting, RawCompatibility retry, or body/test success",
 ]
 fail_fast = "After SelectedNormal admission rows are prepared but before the first top-level body/argument lowering, reject duplicate physical symbols, conflicting rows, or missing relation with a typed preparation error."
-smallest_next_slice = "One validator at ProgramRootWorkPlan preparation, one negative duplicate work-plan test, one production-like preflight witness, and the stable guard/reference receipt; split program_root_work_plan.rs first if the 760-line budget would be crossed."
+smallest_next_slice = "One validator at ProgramRootWorkPlan preparation, one negative duplicate/mismatch work-plan test, one production-like preflight witness, and the stable guard/reference receipt; no callable-index or target handoff is needed for this row."
 non_claims = [
   "unique rows already provide an exact call target",
   "different arity is duplicate",
@@ -81,7 +82,7 @@ focused_checks = [
   "bash tools/checks/current_state_pointer_guard.sh",
   "git diff --check",
 ]
-implementation_gate = "false until a fast pointer selects this exact pre-body validator, the program_root_work_plan.rs split/line budget is recorded, and the reference/module README receipt is named."
+implementation_gate = "Fast selection is permitted for this isolated pre-body validator; do not add callable-index handoff, target issuance, or relationless recovery to the implementation diff."
 guard = "a reusable guard must assert SelectedNormal duplicate physical projections are rejected before body/argument effects and that no LegacyReplaceWholePair or collector winner is used in the SelectedNormal corridor"
 
 [line_budget]
