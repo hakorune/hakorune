@@ -159,8 +159,8 @@ issuer, preserving source-sharing, five arguments, effects, Return, and phase-10
 parity. D1U landed at `75427a9aa2`: the paired left/right
 `ConcatSubstringLenPlan` writers are changed together, preserving source
 windows, fresh destinations, middle arithmetic, effects, and phase-9 fusion.
-Selected writers are 9 -> 7 and the concat family is 6 -> 4. D1V is the
-current fast family: the paired `InsertMidSubstringPlan` writers are changed
+Selected writers are 9 -> 7 and the concat family is 6 -> 4. D1V landed at
+`738b0f9fcd`: the paired `InsertMidSubstringPlan` writers are changed
 together, preserving insert_hsi -> substring_hii order, source/middle/split
 and insert/start/end operands, shared effects, profile admission, and producer
 removal. Selected writers are 7 -> 5 and the concat family is 4 -> 2; no other

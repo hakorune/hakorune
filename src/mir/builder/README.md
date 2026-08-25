@@ -77,7 +77,8 @@ plan-owned source windows, fresh destinations, shared effects, middle
 arithmetic, and phase-9 fusion. A one-sided change or any InsertMid/receiver/
 schema/ingress expansion is outside this bounded row.
 
-The current D1V row is the paired `InsertMidSubstringPlan` family: default
+The landed D1V row (`738b0f9fcd`) is the paired `InsertMidSubstringPlan`
+family: default
 profile admission preserves the ordered `insert_hsi` -> `substring_hii`
 issuers, exact source/middle/split and insert/start/end operands, shared
 effects, and producer removal. `emit-mir` remains a negative profile for this

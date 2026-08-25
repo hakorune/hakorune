@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1V InsertMid substring Extern issuer"
-status = "fast"
+status = "landed"
 observed_at = "2026-08-25"
-observed_commit = "9f3b185d09"
-implementation_permission = true
+observed_commit = "738b0f9fcd"
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0"
 decision = "MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
@@ -79,7 +79,7 @@ source_limits = "concat_corridor_apply.rs remains below 760/800; concat parity t
 
 [worker_review]
 selection = "/root/d2c_consumer_selection_audit: fresh post-D1U census selected the paired InsertMidSubstring writers; selected writers 7, concat family 4"
-implementation_permission = "fast I0 is permitted only for this paired plan-owned family; Call final shape, Method(None), ingress-contract, and broader cleanup remain closed"
+implementation_permission = "fast I0 landed at 738b0f9fcd; closeout is limited to receipt, pointer, README/reference synchronization, and the next-edge upper-worker census"
 
 [stop_if]
 conditions = [
@@ -88,3 +88,21 @@ conditions = [
   "guard replacement/compaction cannot stay at 777 or any touched source reaches 760/800 without a split design",
   "negative state produces either Call, retry, or late target inference",
 ]
+
+[receipt]
+status = "landed"
+commit = "738b0f9fcd"
+source = "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs:365-382; src/mir/passes/string_corridor_sink/tests/concat_and_return_parts/rewrites_concat_slice_consumers_to_corridor_helpers.rs:1-198; tools/checks/mir_call_canonical_corridor_guard.sh:1-777"
+old_edge = "ResolvedConcatCorridorPlan::InsertMidSubstring emitted two direct transitional Call literals with func: ValueId::INVALID and callee: Some(...)"
+new_edge = "InsertMidSubstringPlan fields emit ordered MirInstruction::call insert_hsi then substring_hii with exact args, destinations, and shared effects"
+writer_count_before = 2
+writer_count_after = 0
+focused_tests = [
+  "string_corridor_sink::tests::concat_and_return::rewrites_concat_slice_consumers_to_corridor_helpers: 1 passed, 0 failed (default positive)",
+  "same test with HAKO_STAGE1_MODE=emit-mir: 1 passed, 0 failed (negative profile remains unselected)",
+]
+warning_baseline = "quick profile emitted 441 pre-existing warnings; this cell neither suppresses nor claims to retire them"
+negative = "emit-mir profile, non-complementary pair, broken copy-chain/same-block/order proof, missing/foreign shape, and empty plan remain no-plan/no-publication states; no one-sided fallback/retry or whole-pass rollback claim"
+parity = "exact insert_hsi/substring_hii targets, destinations, three-argument order, shared non-PURE effects, producer removal, spans, hints/counts, CFG, DCE, fusion, Return, and folded metadata remain green"
+guards = "mir_call_canonical_corridor_guard (777 lines) + current_state_pointer_guard + rustfmt + git diff --check green"
+source_limits = "concat_corridor_apply.rs 538 lines; concat parity test 198 lines; corridor guard 777 lines; active card 1000 lines"
