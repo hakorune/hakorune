@@ -1,8 +1,10 @@
 title = "MIR Call core R6 D1O publication host Extern issuer"
-status = "accepted_design"
+status = "landed"
 observed_at = "2026-08-25"
-observed_commit = "0738d722a3"
+observed_commit = "d2826802f3"
 implementation_permission = false
+implementation_row = "MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0"
+implementation_commit = "d2826802f3"
 decision = "MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
 
@@ -11,7 +13,7 @@ decision = "Replace one publication-host direct Call literal with the thin canon
 source_authority_and_canonical_issuer = "collect_publication_host_boundary_plans issues the private PublicationHostBoundaryPlan; publication_adapter_extern selects the exact Extern once from its finite reason/repr matrix; MirInstruction::call is the sole issuer."
 non_authority = "apply-side metadata reread, Method names, receiver/args reconstruction, legacy func, backend symbol lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping are not target authority."
 fail_fast_boundary = "unsupported host shape, copy-chain, receiver, reason/repr, intervening effect, missing block, or empty plan produces zero Call/hint/count publication before the existing block-swap boundary."
-smallest_next_slice = "Change only publication.rs:554-560 from the direct transitional Call literal to MirInstruction::call(plan.helper_dst, Callee::Extern(plan.publish_extern), five ordered args, plan.effects); compact an existing guard assertion rather than append past 800."
+smallest_next_slice = "Landed: publication.rs:551-560 now uses MirInstruction::call(Some(plan.helper_dst), Callee::Extern(plan.publish_extern.to_string()), five ordered args, plan.effects); the guard stayed within its 777-line budget."
 non_claims = "No remaining publication writers, Call schema deletion, Method(None), bare FunctionCall, MirCall/CallFlags, metadata cleanup, warning/runtime hygiene, backend/wire, DCE/schedule, or whole-pass rollback change."
 
 [boundary]
@@ -42,14 +44,15 @@ non_authority = [
 
 [finite_matrix]
 positive = [
-  "accepted explicit-owned host plan emits one Extern target with plan helper dst",
+  "ExplicitApiReplay/StableOwned emits SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN with plan helper dst",
+  "StableObjectDemand/StableOwned emits SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN with plan helper dst",
   "left, middle, right, start, end argument order remains exact",
-  "plan.effects is preserved and the existing D1M Method-set operation remains adjacent",
+  "plan.effects, including a non-PURE sentinel, is preserved exactly and the existing D1M Method-set operation remains adjacent",
   "span, hint/count, block swap, CFG, and folded metadata refresh parity remains green",
 ]
 negative = [
   "empty plan -> no Call/hint/count publication",
-  "missing or foreign block -> no owner Call/publication",
+  "function block map missing the plan bbid -> no owner Call/publication",
   "non-RuntimeDataBox.set, invalid receiver, broken copy chain, non-explicit cold publish, intervening impure instruction -> no publication",
   "unsupported reason/repr matrix -> no plan/Call publication and no retry",
 ]
@@ -71,21 +74,27 @@ replace_with = "MirInstruction::call(Some(plan.helper_dst), Callee::Extern(plan.
 
 [acceptance]
 focused_tests = [
-  "publication-host explicit Extern positive with dst/args/effects parity",
-  "empty plan and missing-block no-publication negatives",
-  "unsupported host shape/reason/repr/copy-chain negatives",
-  "D1M Method-set adjacency and span/hint/count parity",
+  "publication_adapter_extern_preserves_both_owned_reason_targets (one test function, two finite matrix rows)",
+  "sinks_publication_helper_to_same_block_runtime_data_set_boundary (dst/args/READ effects/adjacency parity)",
+]
+static_evidence = [
+  "unchanged collector rejection, empty-plan, missing-block, unsupported-shape/reason/repr, copy-chain, and intervening-effect branches in publication.rs:256-327 are structurally no-publication paths",
+  "mir_call_canonical_corridor_guard checks the one host writer window and forbids direct transitional Call fields; no new negative test is claimed",
 ]
 guards = [
-  "scoped Call corridor assertion removes this direct writer and preserves 800-line hard stop",
+  "scoped Call corridor assertion removes this direct writer, proves one plan-owned constructor, and preserves the <=777-line guard budget",
   "current_state_pointer_guard",
   "rustfmt on touched Rust and git diff --check",
 ]
-source_limits = "publication.rs is 584 lines and boundaries.rs is 626 lines; existing corridor guard is 777 lines, so guard changes must be compact replacement/Net-zero"
+source_limits = "publication.rs is 659 lines and boundaries.rs is 632 lines; corridor guard is 777 lines and the active card is 1000 lines; all remain below the 760/800 source and card limits"
+
+[atomicity]
+claim = "collector rejection, empty plan, and a function block map missing the plan bbid publish nothing before block replacement"
+non_claim = "whole-pass rollback after mem::take is not claimed; the existing D1M rewrite_method_set_value expect remains outside this writer replacement"
 
 [worker_review]
 selection = "/root/d2c_consumer_selection_audit: D1N landed; D1O is the smallest exact-target writer row, selected writers 16 -> 15 and publication family 4 -> 3"
-implementation_permission = "design-only until this finite matrix and pointer selection are closed; then a separate fast switch"
+implementation_permission = "fast I0 permitted after the finite matrix, pointer selection, and upper-worker containment review; landed at d2826802f3"
 
 [stop_if]
 conditions = [
@@ -94,3 +103,19 @@ conditions = [
   "guard append would reach 800 without compacting an existing assertion",
   "empty/missing/unsupported paths produce any Call, hint, count, or retry",
 ]
+
+[receipt]
+status = "landed"
+commit = "d2826802f3"
+source = "src/mir/passes/string_corridor_sink/publication.rs:551-560; src/mir/passes/string_corridor_sink/tests/boundaries.rs:421-633; tools/checks/mir_call_canonical_corridor_guard.sh:607-616"
+old_edge = "publication host-boundary apply emitted a direct transitional Call literal with func: ValueId::INVALID and callee: Some(...)"
+new_edge = "the accepted PublicationHostBoundaryPlan emits exactly one MirInstruction::call(Some(plan.helper_dst), Callee::Extern(plan.publish_extern.to_string()), [left, middle, right, start, end], plan.effects) before the existing method-set rewrite"
+focused_tests = [
+  "publication_adapter_extern_preserves_both_owned_reason_targets: 2 finite Extern states passed",
+  "sinks_publication_helper_to_same_block_runtime_data_set_boundary: dst/5-argument order/non-PURE READ effects/adjacency passed",
+  "string_corridor_sink::tests focused run: 24 passed; 8 benchmark cohort-missing failures are pre-existing baseline",
+]
+negative = "No new negative test was added; unchanged collector rejection, empty plans, unsupported host shapes, missing block, copy-chain, and intervening-effect paths remain static no-publication evidence; whole-pass rollback after mem::take is not claimed"
+parity = "plan destination, exact Extern, argument order, effects, spans, hint/count, method-set adjacency, block swap, CFG, and folded metadata refresh remain unchanged"
+guards = "mir_call_canonical_corridor_guard (777 lines) + current_state_pointer_guard + rustfmt + git diff --check green"
+source_limits = "publication.rs 659 lines; boundaries.rs 632 lines; corridor guard 777 lines; active card 1000 lines; all below 760/800 hard stops"

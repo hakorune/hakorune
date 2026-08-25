@@ -172,6 +172,17 @@ stale-`func` and dst-only negatives, and legacy-`func` compatibility parity
 are covered by the focused module tests and the shared Call corridor guard;
 writer, publication-policy, and mandatory-Callee schema changes remain outside.
 
+The publication-host D1O I0 writer now uses `MirInstruction::call` with the
+plan-owned Extern, helper destination, five ordered operands, and effects. The
+finite ExplicitApiReplay/StableOwned and StableObjectDemand/StableOwned target
+matrix is tested directly; the runtime-data `set` corridor also proves a
+non-PURE `READ` effects sentinel survives the rewrite and remains adjacent to
+the existing method-set operation. Empty/unsupported publication remains
+collector-owned, the guard stays at 777 lines, and the eight benchmark
+`cohort-missing` failures in the broader 32-test module run remain a known
+baseline; the D1O focused proof is green. Remaining publication writers,
+schema cutover, and whole-pass rollback are outside this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

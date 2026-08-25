@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
-  implementation    = D1N user-box operand projection landed at 0738d722a3; D1O is accepted design-only after the post-landed upper-worker census
-  mode              = design_stop
-  production stop   = no code, fixture, route, remaining writer, DCE/schedule, fallback, schema, backend, or cleanup change until D1O is selected fast
-  exit              = exact plan-owned issuer brief, finite host-boundary matrix, delete set, guard budget, and worker review; then a separate fast pointer
+  implementation    = D1N user-box operand projection landed at 0738d722a3; D1O publication-host writer landed at d2826802f3
+  mode              = closeout
+  production stop   = no code, remaining writer, DCE/schedule, fallback, schema, backend, cleanup, or guard growth may enter this closeout
+  exit              = receipt, README, pointer synchronization, upper-worker evidence, commit, and push
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -46,7 +46,7 @@ Decision: replace one publication-host direct Call literal with the thin canonic
 Source authority + canonical issuer: PublicationHostBoundaryPlan owns helper dst, exact Extern, five ordered args, and effects; MirInstruction::call is the issuer.
 Non-authority: apply metadata reread, Method names, receiver/args reconstruction, legacy func, backend lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping.
 Fail-fast boundary: unsupported host shape/reason/repr, copy-chain, receiver, effect, missing block, or empty plan yields zero Call/hint/count publication before block swap.
-Smallest next slice: change publication.rs:554-560 only, add plan-owned positive/negative parity, and compact an existing guard assertion without crossing 800 lines.
+Landed receipt: publication.rs:551-560 now emits the plan-owned Extern Call through MirInstruction::call; one matrix test covers both owned reason targets and the host-boundary test proves dst/argument/effects/adjacency parity. Static collector rejection paths remain unchanged and are not claimed as new focused tests.
 Non-claims: remaining publication writers, Method(None), bare FunctionCall, schema cutover, MirCall/CallFlags, metadata cleanup, warning/runtime hygiene, backend/wire, and DCE policy.
 ## Closed chronology (archived)
 
@@ -565,7 +565,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0 -> design_stop: one plan-owned publication host writer; selected writers 16 -> 15, publication family 4 -> 3 after fast switch
+ MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0 -> closeout: one plan-owned publication host writer landed at d2826802f3; selected writers 16 -> 15, publication family 4 -> 3
  MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> landed at 0738d722a3: canonical used_values delegation, typed/closure/arg positives, stale-func/dst-only negatives, legacy parity, guard and 5/5 module suite green
  MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline

@@ -99,7 +99,7 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` records the current design-stop row:
+`CURRENT_STATE.toml` records the current closeout row:
 
 ```text
 MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
@@ -131,8 +131,9 @@ D1N landed at `0738d722a3` after the operand-SSOT audit. The single user-box
 publication consumer now delegates Call membership to `MirInstruction::used_values()`
 and deletes its local `func`/receiver matcher; typed Method/Value/Closure/arg
 positives, stale-func/dst-only negatives, legacy-func parity, and the 5-test
-module suite are green. D1O is the next design-only plan-owned publication
-host Extern writer; selected writers remain 16 until its fast switch.
+module suite are green. D1O's plan-owned publication host Extern writer landed
+at `d2826802f3`; selected Call writers are now 15 (publication family 3), and
+the receipt closes this writer while full Call retirement remains separate.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
