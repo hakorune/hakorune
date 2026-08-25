@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,22 +32,22 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0
-  implementation    = D1O publication-host writer landed at d2826802f3; D1P write-boundary writer landed at 6912edb287
-  mode              = closeout
-  production stop   = no code, remaining writer, DCE/schedule, fallback, schema, backend, metadata, cleanup, or guard growth may enter this closeout
-  exit              = receipt, README, pointer synchronization, upper-worker evidence, commit, and push
+  current decision  = MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0
+  implementation    = D1P write-boundary writer landed at 6912edb287; D1Q Return-family selection is accepted design-only
+  mode              = design_stop
+  production stop   = no code, fixture, remaining writer, DCE/schedule, fallback, schema, backend, metadata, cleanup, or guard growth may enter this design stop
+  exit              = six-line brief, finite Return matrix, delete set, line budget, pointer, and upper-worker selection; then a separate fast switch
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
 Current design brief:
 
-Decision: replace one publication write-boundary direct Call literal with the thin canonical constructor while preserving Store/FieldSet rewrite and post-Call schedule.
-Source authority + canonical issuer: private PublicationWriteBoundaryPlan owns helper dst, exact Extern, five ordered args, and effects; MirInstruction::call is the issuer.
-Non-authority: Store/FieldSet shape, apply metadata reread, legacy func, backend lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping.
-Fail-fast boundary: copy-chain, cold-publish reason/repr, helper, same-block, effect-safe, missing block, or empty plan yields zero plan/Call/hint/count publication.
-Landed receipt: publication.rs:469-475 now emits the plan-owned Extern Call through MirInstruction::call; Store/FieldSet tests preserve dst, five-argument order, READ effects, copy removal, and boundary adjacency. The shared guard checks both publication windows at 777 lines.
-Non-claims: return writers, host writer, concat9, unified/array/canonicalizer, Method(None), bare FunctionCall, schema cutover, MirCall/CallFlags, metadata split, typed errors, backend/wire, and cleanup.
+Decision: replace the two publication-return direct Call literals with the thin canonical constructor as one atomic Return family while preserving both Return schedules.
+Source authority + canonical issuer: PublicationReturnPlan owns return position, exact Extern, helper dst, five ordered args, effects, copy indices, and helper span; MirInstruction::call is the issuer.
+Non-authority: return_idx representation, apply metadata reread, Return value, legacy func, backend lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping.
+Fail-fast boundary: missing/invalid Return relation, copy-chain, cold-publish reason/repr, helper, same-block, owned representation, or empty plan yields zero plan/Call/hint/count publication.
+Smallest next slice: publication.rs:359-365 and 389-395 only; add instruction/terminator Return parity and compact the existing guard without crossing 777/800 lines.
+Non-claims: write/host writers, concat9, unified/array/canonicalizer, Method(None), bare FunctionCall, schema cutover, MirCall/CallFlags, metadata split, typed errors, backend/wire, and cleanup.
 ## Closed chronology (archived)
 
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -565,7 +565,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0 -> closeout: one plan-owned publication host writer landed at d2826802f3; selected writers 16 -> 15, publication family 4 -> 3
+ MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0 -> design_stop: one atomic instruction/terminator Return family; D1P write-boundary landed at 6912edb287, selected writers 14 remain and publication Return family is 2
  MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> landed at 0738d722a3: canonical used_values delegation, typed/closure/arg positives, stale-func/dst-only negatives, legacy parity, guard and 5/5 module suite green
  MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
