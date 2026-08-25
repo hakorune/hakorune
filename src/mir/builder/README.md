@@ -64,11 +64,11 @@ family may enter this row. The shared Call corridor guard and the focused
 publication-substring test prove exact operand/effect parity; full
 `func`/`Option<Callee>` retirement remains a later atomic cutover.
 
-The next bounded row is D1T (`MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0`):
-one `ConcatSubstringPlan` writer only, with the collector-owned shared-source
-proof, exact five-argument order, and effects carried unchanged into
-`MirInstruction::call`. InsertMid, receiver rewrites, other concat families,
-and the Call final-shape/ingress design queue remain outside the row.
+D1T (`MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0`) landed at
+`a1e856fa25`: one `ConcatSubstringPlan` writer now uses the collector-owned
+shared-source proof, exact five-argument order, and effects carried unchanged
+into `MirInstruction::call`. InsertMid, receiver rewrites, other concat
+families, and the Call final-shape/ingress design queue remain outside the row.
 
 ### Normal-root pre-effect consumer (C0)
 

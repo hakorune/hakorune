@@ -151,9 +151,9 @@ shared guard are green. D1R landed at `82be5daa97`: the one
 `MirInstruction::call`. D1S landed at `5d5c564e82`: the one
 `PublicationHelperSubstringPlan` writer in the same file delegates to
 `MirInstruction::call`, preserving composed start/end Add roots and
-plan-owned effects. D1T is the current fast row: the one
-`ConcatSubstringPlan` writer in the same file is the only authorized next
-edge, preserving source-sharing, five arguments, effects, Return, and phase-10
+plan-owned effects. D1T landed at `a1e856fa25`: the one
+`ConcatSubstringPlan` writer in the same file now delegates to the canonical
+issuer, preserving source-sharing, five arguments, effects, Return, and phase-10
 parity. Selected writers are 10 -> 9 and the concat family is 7 -> 6; no other
 concat, unified, array, or canonicalizer writer is authorized.
 

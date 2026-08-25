@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,18 +33,18 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0
-  implementation    = D1S PublicationSubstring landed at 5d5c564e82; D1T is the selected ConcatSubstring writer (selected writers 10 -> 9, concat 7 -> 6)
-  mode              = fast
-  production stop   = one ConcatSubstring plan-owned writer, exact Extern/dst/args/effects, and no adjacent family
-  exit              = focused proof, shared guard, README/reference receipt, pointer sync, commit/push, then upper-worker census
+  implementation    = D1T ConcatSubstring writer landed at a1e856fa25; selected writers 10 -> 9 and concat family 7 -> 6
+  mode              = closeout
+  production stop   = implementation is closed; only receipt, pointer, README/reference, and next-edge worker evidence may enter this closeout
+  exit              = receipt, pointer closeout, commit, push, and upper-worker next-edge census
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: fast — replace only the ConcatSubstring direct Call literal with the thin canonical constructor, preserving source-sharing, five-argument order, effects, span, and phase-10 publication schedule.
+Decision: landed — replace only the ConcatSubstring direct Call literal with the thin canonical constructor, preserving source-sharing, five-argument order, effects, span, and phase-10 publication schedule.
 Source authority + canonical issuer: ConcatSubstringPlan owns outer dst, left/middle/right, resolved start/end, and effects; the variant fixes SUBSTRING_CONCAT3_EXTERN and MirInstruction::call is the issuer.
 Non-authority: apply-side enum reconstruction, emit-MIR selector, legacy func, second-pass/DCE, hint/CFG, backend lookup, PURE defaults, and retry.
 Fail-fast boundary: outer substring, concat triplet, const middle, both substring shapes, shared source, and InsertMid exclusion must all hold; otherwise plan=0 and Call publication=0.
-Smallest next slice: `concat_corridor_apply.rs:352` only; selected writers 10 -> 9 and concat family 7 -> 6.
+Smallest next slice: closeout only — receipt records `a1e856fa25`, default and emit-mir 1/1 focused tests, the 777-line guard, and the 441-warning baseline; no further implementation is admitted here.
 Non-claims: remaining concat/InsertMid/receiver/unified/array/canonicalizer writers, collector/plan, phase/DCE, Call final shape, Method(None), ingress contract, MirCall/CallFlags, schema, metadata, backend/wire, fallback, and cleanup.
 ## Closed chronology (archived)
 
@@ -563,7 +563,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> fast selected: one ConcatSubstring writer in concat_corridor_apply.rs; exact Extern/dst/five args/effects and source-sharing/Return parity only; selected writers 10 -> 9 and concat family 7 -> 6
+ MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6
  MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 5d5c564e82: one PublicationSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and composed Add-root parity are green; selected writers 11 -> 10 and concat family 8 -> 7
  MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0 -> landed at 82be5daa97: one MaterializationStore writer now uses the canonical constructor; selected writers 12 -> 11 and concat family 9 -> 8; closeout evidence is green
  MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> landed at 0738d722a3: canonical used_values delegation, typed/closure/arg positives, stale-func/dst-only negatives, legacy parity, guard and 5/5 module suite green
