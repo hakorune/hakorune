@@ -367,21 +367,19 @@ pub(crate) fn apply_concat_corridor_plans(
                     effects,
                     ..
                 } => {
-                    new_insts.push(MirInstruction::Call {
-                        dst: Some(*insert_value),
-                        func: ValueId::INVALID,
-                        callee: Some(Callee::Extern(INSERT_HSI_EXTERN.to_string())),
-                        args: vec![*source, *middle, *split],
-                        effects: *effects,
-                    });
+                    new_insts.push(MirInstruction::call(
+                        Some(*insert_value),
+                        Callee::Extern(INSERT_HSI_EXTERN.to_string()),
+                        vec![*source, *middle, *split],
+                        *effects,
+                    ));
                     new_spans.push(span.clone());
-                    new_insts.push(MirInstruction::Call {
-                        dst: Some(*outer_dst),
-                        func: ValueId::INVALID,
-                        callee: Some(Callee::Extern("nyash.string.substring_hii".to_string())),
-                        args: vec![*insert_value, *start, *end],
-                        effects: *effects,
-                    });
+                    new_insts.push(MirInstruction::call(
+                        Some(*outer_dst),
+                        Callee::Extern("nyash.string.substring_hii".to_string()),
+                        vec![*insert_value, *start, *end],
+                        *effects,
+                    ));
                     new_spans.push(span);
                     rewritten += 1;
                 }

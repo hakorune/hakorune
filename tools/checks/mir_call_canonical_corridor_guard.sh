@@ -358,7 +358,6 @@ if boxcall.index("let box_val = self.local_recv") > boxcall.index("crate::mir::s
     raise SystemExit("BoxCall issuer moved before receiver localization")
 if boxcall.index("finalize_args(self, &mut args)") > boxcall.index("crate::mir::ssot::method_call::method_call("):
     raise SystemExit("BoxCall issuer moved before argument finalization")
-
 retained_len = (root / "src/mir/passes/string_corridor_sink/retained_len.rs").read_text()
 apply_start = retained_len.index("pub(super) fn apply_retained_len_plans")
 replacement_start = retained_len.index("replacements.insert(", apply_start)
@@ -386,7 +385,6 @@ terminal = retained_len[terminal_start:]
 for token in ("function.update_cfg()", "refresh_function_string_corridor_folded_metadata(function)"):
     if token not in terminal:
         raise SystemExit(f"retained-len terminal lost {token}")
-
 shared = (root / "src/mir/passes/string_corridor_sink/shared.rs").read_text()
 apply_start = shared.index("pub(super) fn apply_plans")
 start = shared.index("replacements.insert(", apply_start)
@@ -413,7 +411,6 @@ output = method[method.index("new_args[1] = new_value") :]
 for forbidden in ("MirInstruction::Call {", "func,", "func:", "callee: Some("):
     if forbidden in output:
         raise SystemExit(f"method-set rewrite retained legacy output edge: {forbidden}")
-
 builder_emit = (root / "src/mir/builder/builder_emit.rs").read_text()
 builder_start = builder_emit.index("// CRITICAL: Final receiver materialization")
 builder_end = builder_emit.index("// Record caller", builder_start)
@@ -617,6 +614,9 @@ if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::I
 len_start = concat.index("ResolvedConcatCorridorPlan::Len {", concat.index("for (idx, (inst, span)", apply_start)); len_end = concat.index("ResolvedConcatCorridorPlan::Substring {", len_start); window = " ".join(concat[len_start:len_end].split())
 if (window.count("MirInstruction::call(") != 2 or any(token not in window for token in ("Some(*left_len_value)", "Some(*right_len_value)", "vec![*left_source, *left_start, *left_end]", "vec![*right_source, *right_start, *right_end]", "*effects"))): raise SystemExit("concat len family lost its paired plan-owned canonical Calls")
 if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("concat len family retained a legacy or inferred Call field")
+insert_start = concat.index("ResolvedConcatCorridorPlan::InsertMidSubstring {", concat.index("for (idx, (inst, span)", apply_start)); insert_end = concat.index("ResolvedConcatCorridorPlan::PublicationLen {", insert_start); window = " ".join(concat[insert_start:insert_end].split())
+if (window.count("MirInstruction::call(") != 2 or any(token not in window for token in ("Some(*insert_value)", "Callee::Extern(INSERT_HSI_EXTERN.to_string())", "vec![*source, *middle, *split]", "Some(*outer_dst)", "Callee::Extern(\"nyash.string.substring_hii\".to_string())", "vec![*insert_value, *start, *end]", "*effects"))): raise SystemExit("InsertMid family lost its ordered plan-owned canonical Calls")
+if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("InsertMid family retained a legacy or inferred Call field")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()
