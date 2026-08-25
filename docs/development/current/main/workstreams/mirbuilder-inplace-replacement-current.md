@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN
-  implementation    = design only; D1-D3 found raw/PlanNormalizer dual producers, D1-D4/D1-D5/D1-D6/D1-D7 bounded issuer/lifecycle/relation/seed gaps, and D1-D8 has no accepted helper shelf boundary
+  implementation    = design only; D1-D3 found raw/PlanNormalizer dual producers, D1-D4/D1-D5/D1-D6/D1-D7 bounded issuer/lifecycle/relation/seed gaps, and D1-D8 has no accepted shelf/path-observer boundary
   mode              = design_stop
   production stop   = raw and PlanNormalizer ordinary-New edges lack a final parser source seed, exact package join, Initializer(i) effects, dual body-shape loan, expression snapshot, and one physical owner; the helper shelf is 786 lines before the split
-  exit              = accept the exact facade/lower/variant shelf and budgets, then the seed loan, package join, initializer/effect coverage, dual body-shape loan, private admission snapshot, and one-owner NewBox commit; Method(None) remains open
+  exit              = accept the exact facade/lower/variant shelf, finite active path observers, and budgets, then the seed loan, package join, initializer/effect coverage, dual body-shape loan, private admission snapshot, and one-owner NewBox commit; Method(None) remains open
 fallback / retry  = 0
 ```
 

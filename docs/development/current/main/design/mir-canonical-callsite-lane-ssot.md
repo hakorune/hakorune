@@ -2340,6 +2340,54 @@ rejection, and `New` field-initializer rejection. Cargo or fixture changes are
 not part of the design row; the focused suite is selected only after the
 mechanical move is applied.
 
+#### D1-D8 path-observer census and path policy
+
+The shelf move also has a finite physical-observer boundary. These observers
+must be named before `fast` mode so the move cannot silently leave a guard or
+inventory coupled to the deleted flat file:
+
+```text
+active structural observers (updated in the shelf slice):
+  tools/checks/k2_wide_box_new_field_initializer_guard.sh
+    -> inspect normalizer/helpers_value/lower.rs for the New rejection arm
+  tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0.py
+  tools/checks/lib/callable_result_i0_site0_r0_expr0_spine0_loop0_p0.py
+    -> facade/module assertions read helpers_value/mod.rs;
+       recursive-body and AST-arm assertions read helpers_value/lower.rs
+  tools/checks/lib/coreplan_add_result_representation_inventory.py
+    -> inspect helpers_value/lower.rs for the Add branch
+  active fixtures consumed by those inventories:
+    coreplan_add_result_representation_g0_inventory_v1.json
+    coreplan_add_result_representation_i0_inventory_v1.json
+    mirbuilder_type_fact_producer_matrix_v1.json
+    -> record lower.rs as the normalizer owner
+
+parked or historical observers (not active shelf acceptance):
+  mirbuilder_fsession_direct_access_pre_s0b_v1.json
+    -> historical PRE-S0B baseline provenance only
+  failure_outcome_projection_binding_v0.json
+  failure_outcome_semantic_site_graph_v0.json
+  failure_outcome_site_inventory_v0.json
+    -> generated/historical failure evidence; retained as snapshots unless a
+       live guard is deliberately reopened
+  archived phase/current historical design fixtures and prose references
+    -> snapshot provenance only; they do not authorize an old-path guard
+```
+
+The path policy is therefore exact: `helpers_value/mod.rs` owns the facade,
+`helpers_value/lower.rs` owns the recursive value arms (including `New`,
+`Add`, and type-fact observations), and `helpers_value/variant.rs` owns only
+the two variant helpers. No active structural guard may require
+`normalizer/helpers_value.rs` after the move. Historical files may retain the
+deleted path only with the explicit snapshot status above and an observable
+reopen trigger: a live guard or inventory begins reading that path again.
+
+Path-observer acceptance is part of the same behavior-neutral BoxShape row:
+the finite active list is updated to the new owners, the parked list is
+explicitly excluded from acceptance, no semantic branch or fixture meaning
+changes, and the old flat path has zero active structural consumers. Until
+this census is recorded and accepted, D1-D8 remains `NoSafeSlice`.
+
 Until this exact shelf census and ownership contract are accepted, D1-D8
 remains `NoSafeSlice`; no file move or fast-mode code edit is authorized.
 
