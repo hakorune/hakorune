@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,23 +32,22 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0
-  implementation    = D1N design accepted at 8fb2d4bed2; fast I0 permitted after upper-worker operand-SSOT audit
-  mode              = fast
-  production stop   = only the Call arm delegation, method_receiver_is_alias removal, same-file import cleanup, and focused operand proofs may change
-  exit              = canonical used_values delegation, stale-func/dst-only negatives, legacy-func parity, scoped guard, README receipt, and pushed commit
+  current decision  = MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
+  implementation    = D1N user-box operand projection landed at 0738d722a3; D1O is accepted design-only after the post-landed upper-worker census
+  mode              = design_stop
+  production stop   = no code, fixture, route, remaining writer, DCE/schedule, fallback, schema, backend, or cleanup change until D1O is selected fast
+  exit              = exact plan-owned issuer brief, finite host-boundary matrix, delete set, guard budget, and worker review; then a separate fast pointer
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
 Current design brief:
 
-Decision: make user-box publication alias membership consume the existing MirInstruction::used_values() projection; do not create a second Call matcher.
-Source authority + canonical issuer: Callee::for_each_value_operand -> used_values() is the operand authority; this report-only row issues no receipt or Call.
-Non-authority: local callee/func/args reconstruction, stale func sentinels, target Const, method-name lookup, backend dispatch, and publication inference.
-Fail-fast boundary: each pre-site instruction returns the existing membership boolean from canonical operands; this row mutates no MIR, ValueId, metadata, or Call.
-Smallest next slice: replace one Call arm, delete method_receiver_is_alias, adjust the now-unused import, add finite positive/negative tests, and compactly guard the delegation.
-Non-claims: Method(None), bare FunctionCall target claim, schema cutover, JoinIR/escape policy, Closure/Constructor, MirCall/CallFlags, backend/wire, and warning cleanup.
-
+Decision: replace one publication-host direct Call literal with the thin canonical constructor while preserving the accepted plan and post-Call schedule.
+Source authority + canonical issuer: PublicationHostBoundaryPlan owns helper dst, exact Extern, five ordered args, and effects; MirInstruction::call is the issuer.
+Non-authority: apply metadata reread, Method names, receiver/args reconstruction, legacy func, backend lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping.
+Fail-fast boundary: unsupported host shape/reason/repr, copy-chain, receiver, effect, missing block, or empty plan yields zero Call/hint/count publication before block swap.
+Smallest next slice: change publication.rs:554-560 only, add plan-owned positive/negative parity, and compact an existing guard assertion without crossing 800 lines.
+Non-claims: remaining publication writers, Method(None), bare FunctionCall, schema cutover, MirCall/CallFlags, metadata cleanup, warning/runtime hygiene, backend/wire, and DCE policy.
 ## Closed chronology (archived)
 
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -566,7 +565,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> fast: one report-only Call consumer delegates to used_values(); no semantic issuer, writer, target, or schema change
+ MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0 -> design_stop: one plan-owned publication host writer; selected writers 16 -> 15, publication family 4 -> 3 after fast switch
+ MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> landed at 0738d722a3: canonical used_values delegation, typed/closure/arg positives, stale-func/dst-only negatives, legacy parity, guard and 5/5 module suite green
  MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
  MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> landed at 0be8a73420: one shared SubstringLenPlan writer -> canonical Extern Call; focused 4/4 green, cohort 12/13 with one pre-existing benchmark baseline, guard 757 lines

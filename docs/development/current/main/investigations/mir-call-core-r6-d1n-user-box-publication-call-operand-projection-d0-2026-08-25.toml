@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1N user-box publication operand projection"
-status = "selected_fast"
+status = "landed"
 observed_at = "2026-08-25"
 observed_commit = "74829ee3d2"
-implementation_permission = true
+implementation_permission = false
 decision = "MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0"
 owner = "MIR-CALL-RETIREMENT-v1"
 
@@ -99,9 +99,10 @@ selection = "/root/d2c_consumer_selection_audit: publication-host Extern writer 
 implementation_permission = "fast I0 permitted by /root/d2a_containment_audit at HEAD 8fb2d4bed2; code is limited to the Call arm, helper/import cleanup, and focused operand-boundary proofs"
 
 [selection]
-status = "selected_fast"
+status = "landed"
 implementation_row = "MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0"
 selected_at = "2026-08-25"
+implementation_commit = "0738d722a3"
 
 [stop_if]
 conditions = [
@@ -110,6 +111,25 @@ conditions = [
   "a new semantic receipt, fallback, retry, name lookup, or publication-policy rule is proposed",
   "the scoped guard would exceed the 800-line hard stop without compacting an existing assertion",
 ]
+
+[receipt]
+status = "landed"
+commit = "0738d722a3"
+source = "src/mir/user_box_method_publication.rs:241-257; tools/checks/mir_call_canonical_corridor_guard.sh:600-607"
+old_edge = "publication classifier reconstructed Call func, Method receiver, and args locally, allowing typed stale-func aliases to publish"
+new_edge = "Call publication membership delegates once to MirInstruction::used_values(); Callee target operands and args remain the sole liveness projection"
+focused_tests = [
+  "call_publication_consumes_canonical_typed_operands",
+  "call_publication_ignores_non_operands_and_targetless_shapes",
+  "legacy_func_remains_publication_operand_until_schema_cutover",
+  "user_box_method_publication module suite: 5 passed",
+]
+parity = "existing same-block NewBox and parameter publication classifier tests remain green; report rows, proof labels, and publication policy are unchanged"
+negative = "typed stale-func-only and dst-only aliases do not publish; Global/Constructor with unrelated operands do not publish; legacy callee=None func remains positive until schema cutover"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rustfmt + git diff --check green"
+source_limits = "user_box_method_publication.rs 501 lines; corridor guard 777 lines; active card 1000 lines; all below 760/800 limits"
+warning_baseline = "quick profile reports 441 existing warnings; no new warning claim"
+non_claims = "Call schema, Method(None), bare FunctionCall, writer retirement, escape/JoinIR/backend/wire policy, fallback/retry, and warning cleanup remain outside"
 
 [deferred_candidate]
 id = "MIR-CALL-CORE-R6-D1N-PUBLICATION-HOST-EXTERN-ISSUER-I0"

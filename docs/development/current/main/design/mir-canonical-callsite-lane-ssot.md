@@ -19,6 +19,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1m-method-set-value-rewrite-issuer-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1-next-edge-census-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1n-user-box-publication-call-operand-projection-d0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1o-publication-host-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -98,10 +99,10 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` records the current fast row:
+`CURRENT_STATE.toml` records the current design-stop row:
 
 ```text
-MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0
+MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -126,13 +127,12 @@ depth; focused overflow/success/error tests, the scoped guard, pointer/reference
 guards, rustfmt, and diff checks are green. Panic/unwind restoration is not
 claimed.
 
-D1N fast I0 is selected after an upper-worker operand-SSOT audit. The single
-user-box publication consumer delegates Call membership to
-`MirInstruction::used_values()` and deletes its local `func`/receiver matcher;
-no semantic receipt or new Call is issued. The finite proof includes typed
-Method/Value/Closure/argument positives, stale-func and dst-only negatives, and
-legacy-func parity. Method(None), bare FunctionCall, MirCall/CallFlags, and the
-mandatory-Callee schema remain separate blockers.
+D1N landed at `0738d722a3` after the operand-SSOT audit. The single user-box
+publication consumer now delegates Call membership to `MirInstruction::used_values()`
+and deletes its local `func`/receiver matcher; typed Method/Value/Closure/arg
+positives, stale-func/dst-only negatives, legacy-func parity, and the 5-test
+module suite are green. D1O is the next design-only plan-owned publication
+host Extern writer; selected writers remain 16 until its fast switch.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

@@ -1,0 +1,96 @@
+title = "MIR Call core R6 D1O publication host Extern issuer"
+status = "accepted_design"
+observed_at = "2026-08-25"
+observed_commit = "0738d722a3"
+implementation_permission = false
+decision = "MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "Replace one publication-host direct Call literal with the thin canonical constructor while preserving the accepted plan and post-Call publication schedule."
+source_authority_and_canonical_issuer = "collect_publication_host_boundary_plans issues the private PublicationHostBoundaryPlan; publication_adapter_extern selects the exact Extern once from its finite reason/repr matrix; MirInstruction::call is the sole issuer."
+non_authority = "apply-side metadata reread, Method names, receiver/args reconstruction, legacy func, backend symbol lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping are not target authority."
+fail_fast_boundary = "unsupported host shape, copy-chain, receiver, reason/repr, intervening effect, missing block, or empty plan produces zero Call/hint/count publication before the existing block-swap boundary."
+smallest_next_slice = "Change only publication.rs:554-560 from the direct transitional Call literal to MirInstruction::call(plan.helper_dst, Callee::Extern(plan.publish_extern), five ordered args, plan.effects); compact an existing guard assertion rather than append past 800."
+non_claims = "No remaining publication writers, Call schema deletion, Method(None), bare FunctionCall, MirCall/CallFlags, metadata cleanup, warning/runtime hygiene, backend/wire, DCE/schedule, or whole-pass rollback change."
+
+[boundary]
+starts = "accepted PublicationHostBoundaryPlan collection"
+ends = "existing host-boundary block replacement and metadata refresh after the canonical Call"
+includes = [
+  "one direct publication-host Call writer",
+  "explicit Extern target, helper destination, five-argument order, and plan effects",
+  "empty/missing/unsupported host-boundary no-publication paths",
+  "existing D1M Method-set adjacency and span/hint/count parity",
+]
+excludes = [
+  "the remaining three publication writers",
+  "string concat family, array projection, callsite canonicalizer, and unified terminal",
+  "Call operand consumer D1N, Method(None), Closure/Constructor, mandatory-Callee schema",
+  "cleanup census rows and non-selected backends",
+]
+
+[authority]
+source = "PublicationHostBoundaryPlan.helper_dst, publish_extern, left/middle/right/start/end operands, and effects"
+issuer = "MirInstruction::call(Some(plan.helper_dst), Callee::Extern(plan.publish_extern.to_string()), ordered_args, plan.effects)"
+non_authority = [
+  "apply_publication_host_boundary_plans metadata reread",
+  "original Method name or receiver/args[0] reconstruction",
+  "backend symbol lookup, retry, or PURE default",
+  "span/hint/count/CFG refresh and D1N used_values consumer",
+]
+
+[finite_matrix]
+positive = [
+  "accepted explicit-owned host plan emits one Extern target with plan helper dst",
+  "left, middle, right, start, end argument order remains exact",
+  "plan.effects is preserved and the existing D1M Method-set operation remains adjacent",
+  "span, hint/count, block swap, CFG, and folded metadata refresh parity remains green",
+]
+negative = [
+  "empty plan -> no Call/hint/count publication",
+  "missing or foreign block -> no owner Call/publication",
+  "non-RuntimeDataBox.set, invalid receiver, broken copy chain, non-explicit cold publish, intervening impure instruction -> no publication",
+  "unsupported reason/repr matrix -> no plan/Call publication and no retry",
+]
+parity = [
+  "pre/post-DCE schedule remains unchanged",
+  "D1N canonical operand consumer remains unchanged",
+  "no Method(None), Closure/Constructor, backend, wire, or target fallback edge is introduced",
+]
+
+[delete_set]
+file = "src/mir/passes/string_corridor_sink/publication.rs"
+lines = "554-560"
+remove = [
+  "direct transitional MirInstruction::Call literal",
+  "func: ValueId::INVALID",
+  "callee: Some(...) wrapper",
+]
+replace_with = "MirInstruction::call(Some(plan.helper_dst), Callee::Extern(plan.publish_extern.to_string()), vec![left, middle, right, start, end], plan.effects)"
+
+[acceptance]
+focused_tests = [
+  "publication-host explicit Extern positive with dst/args/effects parity",
+  "empty plan and missing-block no-publication negatives",
+  "unsupported host shape/reason/repr/copy-chain negatives",
+  "D1M Method-set adjacency and span/hint/count parity",
+]
+guards = [
+  "scoped Call corridor assertion removes this direct writer and preserves 800-line hard stop",
+  "current_state_pointer_guard",
+  "rustfmt on touched Rust and git diff --check",
+]
+source_limits = "publication.rs is 584 lines and boundaries.rs is 626 lines; existing corridor guard is 777 lines, so guard changes must be compact replacement/Net-zero"
+
+[worker_review]
+selection = "/root/d2c_consumer_selection_audit: D1N landed; D1O is the smallest exact-target writer row, selected writers 16 -> 15 and publication family 4 -> 3"
+implementation_permission = "design-only until this finite matrix and pointer selection are closed; then a separate fast switch"
+
+[stop_if]
+conditions = [
+  "plan target/dst/args/effects must be recomputed or a second resolver is introduced",
+  "any remaining publication writer, DCE/schedule, Method(None), schema, backend/wire, or cleanup row enters the diff",
+  "guard append would reach 800 without compacting an existing assertion",
+  "empty/missing/unsupported paths produce any Call, hint, count, or retry",
+]
