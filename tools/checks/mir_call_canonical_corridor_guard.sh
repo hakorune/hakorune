@@ -65,12 +65,10 @@ LLVM_MIR_CALL_SURFACE="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_surfac
 LLVM_MIR_CALL_EXTERN="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc"
 LLVM_MIR_CALL_EXTERN_RULES="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_rules.inc"
 LLVM_MIR_CALL_EXTERN_BODY="$ROOT_DIR/lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc"
-
 fail() {
   echo "[$TAG] $*" >&2
   exit 1
 }
-
 require() {
   local file="$1"
   local token="$2"
@@ -514,7 +512,6 @@ if generic.index("program_call_targets.resolve") > generic.index("lower_args_wit
 for forbidden in ("fun_value", "ConstValue::String(name", "callee: None"):
     if forbidden in generic:
         raise SystemExit(f"generic Program call retained legacy target carrier: {forbidden}")
-
 for name, next_name in (
     ("lower_stageb_static_call_for_box", "lower_stageb_instance_call_for_box"),
     ("lower_stageb_instance_call_for_box", "lower_stageb_static_method_call"),
@@ -617,6 +614,9 @@ if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::I
 insert_start = concat.index("ResolvedConcatCorridorPlan::InsertMidSubstring {", concat.index("for (idx, (inst, span)", apply_start)); insert_end = concat.index("ResolvedConcatCorridorPlan::PublicationLen {", insert_start); window = " ".join(concat[insert_start:insert_end].split())
 if (window.count("MirInstruction::call(") != 2 or any(token not in window for token in ("Some(*insert_value)", "Callee::Extern(INSERT_HSI_EXTERN.to_string())", "vec![*source, *middle, *split]", "Some(*outer_dst)", "Callee::Extern(\"nyash.string.substring_hii\".to_string())", "vec![*insert_value, *start, *end]", "*effects"))): raise SystemExit("InsertMid family lost its ordered plan-owned canonical Calls")
 if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("InsertMid family retained a legacy or inferred Call field")
+store_start = concat.index("fn rewrite_substring_receiver"); store_window = " ".join(concat[store_start:].split())
+if (store_window.count("MirInstruction::call(") != 2 or any(token not in store_window for token in ("*receiver = Some(new_receiver)", "args[0] = new_receiver", "nyash.string.substring_hii"))): raise SystemExit("StoreSharedReceiverSubstring lost its paired typed reconstruction issuers")
+if "Some(MirInstruction::Call" in store_window or "func" in store_window: raise SystemExit("StoreSharedReceiverSubstring retained a direct literal or legacy func carrier")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()

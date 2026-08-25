@@ -490,48 +490,44 @@ fn rewrite_substring_receiver(
     match inst {
         MirInstruction::Call {
             dst,
-            func,
             callee:
-                Some(Callee::Method {
-                    box_name,
-                    method,
-                    receiver: Some(_),
-                    certainty,
-                    box_kind,
-                }),
+                Some(
+                    callee @ Callee::Method {
+                        receiver: Some(_),
+                        method,
+                        ..
+                    },
+                ),
             args,
             effects,
+            ..
         } if args.len() == 2 && matches!(method.as_str(), "substring" | "slice") => {
-            Some(MirInstruction::Call {
-                dst: *dst,
-                func: *func,
-                callee: Some(Callee::Method {
-                    box_name: box_name.clone(),
-                    method: method.clone(),
-                    receiver: Some(new_receiver),
-                    certainty: *certainty,
-                    box_kind: *box_kind,
-                }),
-                args: args.clone(),
-                effects: *effects,
-            })
+            let mut rewritten_callee = callee.clone();
+            if let Callee::Method { receiver, .. } = &mut rewritten_callee {
+                *receiver = Some(new_receiver);
+            }
+            Some(MirInstruction::call(
+                *dst,
+                rewritten_callee,
+                args.clone(),
+                *effects,
+            ))
         }
         MirInstruction::Call {
             dst,
-            func,
-            callee: Some(Callee::Extern(name)),
+            callee: Some(callee @ Callee::Extern(name)),
             args,
             effects,
+            ..
         } if args.len() == 3 && name == "nyash.string.substring_hii" => {
             let mut new_args = args.clone();
             new_args[0] = new_receiver;
-            Some(MirInstruction::Call {
-                dst: *dst,
-                func: *func,
-                callee: Some(Callee::Extern(name.clone())),
-                args: new_args,
-                effects: *effects,
-            })
+            Some(MirInstruction::call(
+                *dst,
+                callee.clone(),
+                new_args,
+                *effects,
+            ))
         }
         _ => None,
     }
