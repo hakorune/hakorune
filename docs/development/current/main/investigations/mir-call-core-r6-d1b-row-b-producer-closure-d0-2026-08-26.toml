@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Row B producer closure design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "5b36855ae604"
+observed_commit = "2e95a9fd02"
 observed_at = "2026-08-26"
 implementation_permission = false
 
@@ -49,6 +49,7 @@ semantic_delete_boundary = [
   "build.rs post-argument unique-static recovery and direct publication",
   "build.rs target-name Const construction for this route",
   "static_resolution.rs tail/suffix alternate-target routes",
+  "materializer.rs:41-119 Global recovery/materialization edge",
 ]
 outside_blockers = [
   "JSON-v0 Method(None) ingress",
@@ -66,6 +67,42 @@ runtime_data_global = "incoming qualified Global without provenance -> cohort ce
 methodize_profile = "unset/0/1 -> canonical target and result parity; profile projection remains separate authority"
 outside_builder = "Builder-external Method(None) -> retain as D1B blocker, not this row's closure"
 
+[reaudit_2026_08_26]
+decision = "NoSafeSlice remains after the formatter-only cleanup commit; no implementation or guard expansion is authorized."
+head = "2e95a9fd02"
+worktree = "clean after style-only commit; pointer and Call corridor guards green"
+same_brand_product = "Normal package install co-seals the same-brand catalog (normal_callable_semantic_package/install.rs:308-316,388-405), but raw FunctionCall preflight has no existing transport for the brand and exact target."
+normal_direct_target = "ResolvedDirectCallTargetV1 is unavailable on this normal source path because the source package is built without a callable index (normal_callable_semantic_source.rs:142-169,203-215,499-504)."
+preflight_gap = "function_call_preflight_route.rs:14-42,103-203 and raw_expression_dispatch/mod.rs:341-353 reach build.rs:103-116 without an exact target product before drive_call_arguments_v1."
+required_design_amendment = "Decide whether an existing same-brand token can be lent into the raw scope and retained by the existing preflight owner; do not mint a new Verified/Prepared semantic receipt before that authority decision."
+
+[shadow_order]
+status = "CutoverBlockerOpen"
+observed_order = "builtin Global > hardcoded static Method(None) > local Value > Extern"
+evidence = "method_resolution.rs:26-65,126-154; current collision test preserves static-over-local"
+required_decision = "Choose and test one total order for builtin, local Value, exact catalog static, Extern, and reject; alternatively prove the collision cohort is zero."
+non_authority = "resolver shadow observation currently records non-Brand FunctionCall without a lexical shadow fact; it cannot justify a precedence change."
+
+[runtime_data_global]
+status = "CutoverBlockerOpen"
+authority_gap = "CallTarget::Global(String) and resolver.rs:67-74 erase catalog provenance before unified_emitter.rs:409-463 methodize classification."
+producer_families = [
+  "build/static_resolution",
+  "rewrite/known.rs",
+  "stmts/print_stmt.rs",
+  "ops/{arithmetic,comparison,unary}.rs",
+  "control_flow/plan/lowerer/{emission_port,effect_emission}.rs",
+  "calls/method_call_terminal.rs",
+  "calls/emit.rs",
+]
+required_disposition = "Inventory each family as preserve-qualified-Global, typed-reject, or outside Row B; do not delete methodize mutation by String/name inference."
+
+[recovery_disposition]
+status = "CutoverBlockerOpen"
+materializer = "src/mir/builder/calls/materializer.rs:41-119"
+finding = "Global resolver is currently total, so the Err-side Global recovery is structurally unreachable but remains an old edge in the delete census."
+next_decision = "Mark the edge RetainGuarded with a reopen trigger or include it in the finite delete set; either choice must be documented before fast."
+
 [acceptance]
 required_before_fast = [
   "exact catalog/owner handoff is available before build.rs argument descent",
@@ -74,7 +111,8 @@ required_before_fast = [
   "post-argument recovery, name Const, tail/suffix retry, and direct publication delete set is complete",
   "methodize unset/0/1 positive parity and missing/ambiguous/foreign/arity negative pre-effect rejection are available",
   "guard is function-window scoped and does not global-grep JSON compatibility or non-Callee receiver fields",
-  "dirty build.rs overlap is resolved before implementation permission",
+  "dirty build.rs overlap is resolved before implementation permission (observed clean at 2e95a9fd02)",
+  "the re-audit transport, shadow, RuntimeData Global, and materializer dispositions are accepted in this design card",
 ]
 positive = [
   "exact static catalog -> same qualified Global symbol, args, dst, effects, and result",
