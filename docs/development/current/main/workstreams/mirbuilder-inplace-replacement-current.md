@@ -370,7 +370,7 @@ Now
  MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK
   -> design stop: fence the existing source-bound static Global handoff and park/reopen the disconnected generic Method(None) route without a new receipt
 Next (not selected)
-  -> D1-C Closure/NewClosure parity; D1-D Constructor/NewBox owner; R6a remains NoSafeSlice until all D1 rows close; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-C Closure/NewClosure + D1-D Constructor/NewBox are design-only NoSafeSlice rows; R6a stays closed until all D1 rows close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
@@ -382,8 +382,8 @@ After MIR Call retirement
 Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
   -> Loop common/Generic/callable physical follow-ups until a named caller
-  -> semantic dead_code/private_interfaces cleanup and broad cleanup program
-  -> normal-root mode/projection/type-name/syntax-loan cleanup after R7; performance, converter, llvmlite, Home/language, and selfhost work
+  -> MIRBUILDER-WARNING-RETIREMENT-R0 (A/B/C) + physical shelves (normal_script #[path], six empty dirs, common_v2) after R7
+  -> normal-root R0 leftovers (old guard + root_is_app_mode/is_app_mode bool), then mode/projection/type-name/syntax-loan cleanup; performance/converter/llvmlite/Home/selfhost separate
 
 Closed / do not reopen from a mirror
   -> normal-root T0/C0/R0 and 68/68 replacement manifest

@@ -1156,12 +1156,16 @@ wire, or missing static catalog is found, the row returns to `NoSafeSlice`.
 ### D1-A result — `MirCall`/`CallFlags` policy accepted, implementation deferred
 
 ```text
+observed/current:
 selected Rust production flag field readers       = 0
 create_mir_call production caller                 = 1
 physical terminal semantic projection             = dst/callee/args/effects only
 public MirCall/CallFlags downstream consumers     = not observable in workspace
 JSON flags:{}                                     = compatibility shape retained
-JSON non-empty/unknown flags                      = typed reject before publication
+JSON v1 ingress flag handling                      = currently not read/validated
+
+required/not-yet-landed:
+non-empty/unknown flags                            = typed reject before publication
 ```
 
 The public `hakorune_mir_defs` and MIR facade exports remain an owner-local
@@ -1170,8 +1174,9 @@ downstream crates are `ParkedSealed` with the observable reopen trigger “a
 selected consumer reads a non-default flag or depends on the public fields”.
 `CallFlags::constructor` is decoration only and may not classify a Callee;
 `tail_call`, `no_return`, and `can_inline` have no selected semantic consumer.
-The selected JSON ingress must reject non-empty flag semantics rather than
-silently drop them. This closes D1-A as a design decision, but it does not
+The selected JSON ingress must, in a future implementation slice, reject
+non-empty flag semantics rather than silently drop them; the current ingress
+does not yet perform that validation. This closes D1-A as a design decision, but it does not
 permit the R6a code slice: Method(None), Closure, and Constructor remain D1-B/C-D
 blockers.
 
@@ -1239,6 +1244,171 @@ semantic receipt or thread raw text into it; keep the generic route
 `NoSafeSlice` until an existing-product handoff is proven. The bounded design
 follow-up is `MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK`: guard the selected static
 terminal and seal the generic route as an explicit outside/reopen boundary.
+
+### D1-C result — Closure construction/invocation boundary (design only)
+
+```text
+Decision: Callee::Closure is a pre-canonical construction descriptor;
+  NewClosure is the construction owner and runtime closure invocation is
+  Callee::Value(ValueId).
+Source authority + canonical issuer: AST Lambda plus the existing ordered
+  BindingRef/capture product -> NewClosure; an indirect callee value -> Call(Value).
+Non-authority: CallTarget::Closure generic resolver, MirCall::closure,
+  CallFlags::constructor, JSON field-presence guesses, runtime strings, and
+  parked backends.
+Fail-fast boundary: capture/site/dst and empty construction args are fixed
+  before NewClosure publication; missing dst or runtime args on Closure Call
+  reject before block/wire/backend publication.
+Smallest next slice: explicit Closure wire discriminator/body-metadata policy,
+  selected CallTarget::Closure caller census, and selected-backend unsupported
+  guard. No code or schema switch is authorized here.
+Non-claims: NewClosure retirement, closure runtime implementation, JSON schema
+  expansion, or PyVM/reference/Python/native activation.
+```
+
+Observed finite edge set:
+
+| edge | current observation | disposition |
+|---|---|---|
+| AST Lambda / v0 legacy lambda | existing capture product issues `NewClosure` | retain source owner |
+| indirect callee value | issues `Call(Callee::Value)` with ordered args | canonical invocation |
+| `CallTarget::Closure` / `MirCall::closure` | compatibility/pre-canonical arm; no selected canonical caller | park/reopen |
+| v1 Closure descriptor | parses to `NewClosure`; Value parses to `Call(Value)` | retain split |
+| mixed Closure descriptor + `func` | field-presence discriminator is ambiguous | typed reject until policy exists |
+| v0 explicit Closure | direct parser has no accepted arm | typed reject; no implicit reclassification |
+| NewClosure egress | current projection omits body/body_id wire relation | parity blocker; do not guess |
+| selected Rust/native terminals | Closure Call and NewClosure are unsupported | negative guard, no activation |
+
+NCL-1 keeps MIR closure bodies in module metadata; D1-C still requires the
+selected JSON profile to preserve or explicitly reject that relation before a
+core cut. D1-C is `NoSafeSlice` until the discriminator/body transport,
+selected caller census, and backend policy are co-sealed.
+
+### D1-D result — Constructor/NewBox boundary (design only)
+
+```text
+Decision: the selected physical construction owner is NewBox; Constructor is
+  pre-core/compatibility input only. A valid constructor must carry exact
+  box_type, dst, arity, ordered args, and construction effects before publish.
+Source authority + canonical issuer: parser constructor source/catalog plus the
+  existing normal admission -> NewBox; V0/V1 adapters resolve once or reject.
+Non-authority: Callee::Constructor as a core terminal, MirCall/CallFlags,
+  func/Option<Callee>, route metadata, C box_type scans, and backend by-name
+  recovery.
+Fail-fast boundary: validate before block.add_instruction, JSON publication,
+  native/object publication, or Rust NewBox dispatch; no args/dst/type default.
+Smallest next slice: connect the existing parser/source package to raw New and
+  fence the V0 typed Constructor resolve-once boundary. No code or route switch.
+Non-claims: native parity, NewBox unification across every backend, or R6 field
+  deletion.
+```
+
+Observed finite edge set:
+
+| edge | current observation | disposition |
+|---|---|---|
+| normal/raw `New` and direct collection constructors | existing `NewBox` producers | retain owner; source handoff still needs proof |
+| legacy builder Constructor | some paths direct `NewBox`, unified physical terminal still publishes `Call(Constructor)` | cut/reject before Call publication |
+| V0 typed Constructor | can reissue `Call(Constructor)` while V1 parses to `NewBox` | compatibility resolve once or typed reject |
+| `env.box.new`, IntegerBox shortcut | separate/compatibility semantics | park; not a new selected owner |
+| C/native `mir_call`/`newbox` string routes | hardcoded classification and/or dropped args | park/reject; no authority |
+| Rust `Call(Constructor)` handler | unsupported negative terminal | retain until issuer count is zero |
+
+D1-D is `NoSafeSlice`: the raw-New source/catalog handoff, V0/V1 parity,
+  exact arity/dst/args validation, and third physical routes are not co-sealed.
+
+### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
+
+This is a design-only task ledger outside the selected R6 boundary. It records
+observations and reopen conditions; it does not authorize code, fixture, guard,
+or production-switch work while `work_mode = design_stop`.
+
+```text
+census boundary:
+  current HEAD source/docs -> named physical shelf, root-mode, empty-dir, and
+  warning owners -> R7 closeout; includes tracked source and current guards;
+  excludes the 2000+ line normal-root manifest, PyVM/reference/Python, and any
+  broad warning-driven semantic edit.
+```
+
+#### Normal-root R0 leftovers
+
+```text
+NORMAL-ROOT-OLD-GUARD-RETIRE-R0
+  observed: tools/checks/mir_root_app_mode_failfast_guard.sh still exists;
+  the cutover manifest says it is a C0 integrity guard to retire in R0.
+  authority: the admitted typed root projection and its selected consumers.
+  non-authority: this old guard as a permanent production contract.
+  acceptance: finite reader/issuer census, replacement structural guard green,
+  then retire the old guard in one R0 cleanup slice. The manifest is not edited
+  by this feedback reconciliation.
+  reopen: a selected normal-root consumer still needs the old assertion.
+
+NORMAL-ROOT-BOOL-PROJECTION-RETIRE-R0
+  observed: MirBuilder::root_is_app_mode remains an Option<bool>, is written by
+  program_root_lowering.rs:396, and is read by raw/non-main lifecycle code and
+  tests; bool-shaped is_app_mode work-plan APIs remain as well. The older
+  investigation line claiming production writes = 0 is historical/stale, not
+  current evidence.
+  authority: the admitted root execution sum/projection; non-authority is the
+  legacy bool mirror and its drift checks.
+  acceptance: prove the remaining readers have a typed replacement, remove the
+  field and bool APIs together, and keep normal-root parity green.
+  reopen: a named selected consumer cannot consume the admitted typed root.
+```
+
+#### Physical shelf and empty-directory cleanup
+
+```text
+MIR-BUILDER-NORMAL-SCRIPT-MOD-SHELF-R0
+  observed: builder.rs:306-307 uses a new #[path] band-aid for
+  builder/normal_script/direct_static/semantic/normal_script_direct_static_recipe.rs;
+  the target directory has no mod.rs. This is a topology debt, not a semantic
+  Call decision.
+  issuer/owner: normal_script module tree; no new authority is issued.
+  acceptance: add the path-complete normal_script/mod.rs shelf and remove only
+  this root #[path] while preserving module paths, tests, and behavior; update
+  the path guard in the same bounded BoxShape slice.
+  reopen: another owner or privacy edge requires a root-level path attribute.
+
+MIR-EMPTY-DIR-CLEANUP-R0
+  observed: six empty directories have no current entries:
+  src/box_callable/generated;
+  src/mir/builder/normal_default_root_catalog_lifecycle;
+  src/mir/builder/resolved_lowering/dynamic_v2_aot_activation;
+  src/mir/callable_parameter_demand;
+  src/mir/compiler/dynamic_full_body_recipe/coseal/semantic_program/operator_carrier_lifecycle;
+  src/parser/callable_parameter_source/normal_root_preservation.
+  acceptance: rerun finite path/reference census, remove only empty physical
+  shelves, and record the six-path result; no recursive cleanup.
+  reopen: a generated-file rule or source owner recreates one of these shelves.
+
+MIR-COMMON-V2-SHELF-R0
+  observed: the reported flat 15-file set is not reproduced at HEAD: there are
+  14 top-level common_v2*.rs files and 13 files under resolved_lowering/
+  common_v2_session/. Treat the reported 15 as an inventory discrepancy until
+  the missing member and production/test ownership are named.
+  acceptance: reconcile the finite 14+13 inventory, then house only the named
+  common_v2 family behind one mod.rs without changing imports or semantics.
+  reopen: a fifteenth file or external path consumer is found.
+```
+
+#### Warning retirement lane
+
+```text
+MIRBUILDER-WARNING-RETIREMENT-R0 (existing T5-D7 row)
+  observed baseline in the current card/docs = 433 warnings (422 dead_code +
+  11 private_interfaces). The feedback's “17 unexplained allows” is not yet an
+  exact diagnostic census; a broad attribute grep is not equivalent to warning
+  count. Keep both claims separate until an exact HEAD diagnostic ledger names
+  the 17 or corrects the number.
+  authority: cargo diagnostics plus each live module owner; non-authority:
+  blanket #[allow] counts, retired-module noise, or warning-driven guesses.
+  acceptance: classify A mechanical unused import/re-export rows as one batch
+  with one end guard, skip B already-retiring modules, and give each C active
+  definition one semantic remove/retain decision with reason. No broad purge.
+  reopen: a new warning class or a live owner appears during the bounded batch.
+```
 
 | state / edge | source authority | D0 terminal classification |
 |---|---|---|
