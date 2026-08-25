@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1N user-box publication operand projection"
-status = "accepted_design"
+status = "selected_fast"
 observed_at = "2026-08-25"
 observed_commit = "74829ee3d2"
-implementation_permission = false
+implementation_permission = true
 decision = "MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0"
 owner = "MIR-CALL-RETIREMENT-v1"
 
@@ -57,6 +57,7 @@ positive = [
 ]
 negative = [
   "typed Call whose stale func alone is an alias but typed target/args are not -> not published",
+  "typed Call whose dst alone is an alias but typed target/args are not -> not published",
   "typed Global/Extern/Constructor with no aliased args -> not published",
   "unrelated non-Call instruction -> existing classification unchanged",
   "no local matcher or receiver-only special case remains after the delegation",
@@ -81,6 +82,7 @@ focused_tests = [
   "typed Method receiver alias",
   "typed Value and Closure capture/me aliases",
   "typed stale func-only alias is negative",
+  "typed dst-only alias is negative",
   "legacy func alias remains positive until schema cutover",
   "argument alias and unrelated target/argument negatives",
 ]
@@ -94,7 +96,12 @@ source_limits = "user_box_method_publication.rs remains below 760/800; existing 
 [worker_review]
 containment = "/root/d2a_containment_audit: accepted as the next operand-SSOT consumer row; one Call arm and one helper deletion only"
 selection = "/root/d2c_consumer_selection_audit: publication-host Extern writer is a separate exact-target fast candidate and is deferred behind this consumer-SSOT row"
-implementation_permission = "design-only; pointer must remain design_stop until the finite matrix and acceptance boundary are reviewed"
+implementation_permission = "fast I0 permitted by /root/d2a_containment_audit at HEAD 8fb2d4bed2; code is limited to the Call arm, helper/import cleanup, and focused operand-boundary proofs"
+
+[selection]
+status = "selected_fast"
+implementation_row = "MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0"
+selected_at = "2026-08-25"
 
 [stop_if]
 conditions = [

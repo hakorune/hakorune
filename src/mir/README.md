@@ -165,6 +165,13 @@ lifecycle remain unchanged. Focused overflow tests and
 `mirbuilder_call_recursion_depth_guard.sh` cover this state-balance boundary;
 panic/unwind restoration and recursion-policy changes are not claimed.
 
+The user-box publication D1N I0 consumer now delegates Call alias membership
+to `MirInstruction::used_values()` and removes its local receiver/`func`
+reconstruction. Typed Method/Value/Closure/capture/argument positives,
+stale-`func` and dst-only negatives, and legacy-`func` compatibility parity
+are covered by the focused module tests and the shared Call corridor guard;
+writer, publication-policy, and mandatory-Callee schema changes remain outside.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

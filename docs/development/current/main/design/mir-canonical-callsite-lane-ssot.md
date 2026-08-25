@@ -98,10 +98,10 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` records the current design-stop row:
+`CURRENT_STATE.toml` records the current fast row:
 
 ```text
-MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0
+MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -126,11 +126,13 @@ depth; focused overflow/success/error tests, the scoped guard, pointer/reference
 guards, rustfmt, and diff checks are green. Panic/unwind restoration is not
 claimed.
 
-D1N is the next design-only row after an upper-worker operand-SSOT audit. The
-single user-box publication consumer must delegate Call membership to
-`MirInstruction::used_values()` and delete its local `func`/receiver matcher;
-no semantic receipt or new Call is issued. Method(None), bare FunctionCall,
-MirCall/CallFlags, and the mandatory-Callee schema remain separate blockers.
+D1N fast I0 is selected after an upper-worker operand-SSOT audit. The single
+user-box publication consumer delegates Call membership to
+`MirInstruction::used_values()` and deletes its local `func`/receiver matcher;
+no semantic receipt or new Call is issued. The finite proof includes typed
+Method/Value/Closure/argument positives, stale-func and dst-only negatives, and
+legacy-func parity. Method(None), bare FunctionCall, MirCall/CallFlags, and the
+mandatory-Callee schema remain separate blockers.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

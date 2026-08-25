@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0
+Status: Fast — MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0
-  implementation    = recursion-depth restore landed at 74829ee3d2; D1N is accepted design-only after upper-worker operand-SSOT audit
-  mode              = design_stop
-  production stop   = no code, fixture, route, fallback, or new semantic receipt until the D1N finite matrix and acceptance boundary are closed
-  exit              = one six-line authority brief, scoped consumer delete set, positive/negative matrix, guard plan, and worker review; then a separate fast pointer
+  current decision  = MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0
+  implementation    = D1N design accepted at 8fb2d4bed2; fast I0 permitted after upper-worker operand-SSOT audit
+  mode              = fast
+  production stop   = only the Call arm delegation, method_receiver_is_alias removal, same-file import cleanup, and focused operand proofs may change
+  exit              = canonical used_values delegation, stale-func/dst-only negatives, legacy-func parity, scoped guard, README receipt, and pushed commit
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -46,7 +46,7 @@ Decision: make user-box publication alias membership consume the existing MirIns
 Source authority + canonical issuer: Callee::for_each_value_operand -> used_values() is the operand authority; this report-only row issues no receipt or Call.
 Non-authority: local callee/func/args reconstruction, stale func sentinels, target Const, method-name lookup, backend dispatch, and publication inference.
 Fail-fast boundary: each pre-site instruction returns the existing membership boolean from canonical operands; this row mutates no MIR, ValueId, metadata, or Call.
-Smallest next slice: replace one Call arm, delete method_receiver_is_alias, add finite positive/negative tests, and compactly guard the delegation.
+Smallest next slice: replace one Call arm, delete method_receiver_is_alias, adjust the now-unused import, add finite positive/negative tests, and compactly guard the delegation.
 Non-claims: Method(None), bare FunctionCall target claim, schema cutover, JoinIR/escape policy, Closure/Constructor, MirCall/CallFlags, backend/wire, and warning cleanup.
 
 ## Closed chronology (archived)
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0 -> design_stop: one report-only Call consumer delegates to used_values(); no semantic issuer, writer, target, or schema change
+ MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> fast: one report-only Call consumer delegates to used_values(); no semantic issuer, writer, target, or schema change
  MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
  MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> landed at 0be8a73420: one shared SubstringLenPlan writer -> canonical Extern Call; focused 4/4 green, cohort 12/13 with one pre-existing benchmark baseline, guard 757 lines

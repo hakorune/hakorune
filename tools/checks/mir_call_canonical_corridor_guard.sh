@@ -597,6 +597,15 @@ for token in ("match_method_set_call", "record_direct_set_consumer_use", "record
     if token not in value_consumer:
         raise SystemExit(f"value_consumer lost fact boundary helper: {token}")
 
+publication = (root / "src/mir/user_box_method_publication.rs").read_text()
+publication_start = publication.index("fn instruction_publishes_any_alias")
+publication_end = publication.index("#[cfg(test)]", publication_start)
+publication_window = " ".join(publication[publication_start:publication_end].split())
+if publication_window.count("MirInstruction::Call { .. } => inst") != 1 or publication_window.count("used_values()") != 1:
+    raise SystemExit("user-box publication Call arm does not delegate to used_values exactly once")
+if "method_receiver_is_alias" in publication_window or "callee" in publication_window:
+    raise SystemExit("user-box publication retained a local Callee/receiver matcher")
+
 escape = (root / "src/mir/escape_barrier.rs").read_text()
 role_start = escape.index("MirInstruction::Call { callee, args, .. }")
 role_end = escape.index("MirInstruction::Store", role_start)

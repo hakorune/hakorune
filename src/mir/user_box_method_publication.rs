@@ -9,7 +9,7 @@
 use std::collections::BTreeSet;
 
 use crate::mir::value_origin::{build_value_def_map, resolve_value_origin};
-use crate::mir::{Callee, MirFunction, MirInstruction, ValueId};
+use crate::mir::{MirFunction, MirInstruction, ValueId};
 use crate::object_storage_plan::PublicationState;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -245,25 +245,12 @@ fn instruction_publishes_any_alias(inst: &MirInstruction, aliases: &BTreeSet<Val
         }
         MirInstruction::Store { value, ptr } => aliases.contains(value) || aliases.contains(ptr),
         MirInstruction::Return { value } => value.is_some_and(|value| aliases.contains(&value)),
-        MirInstruction::Call {
-            callee, args, func, ..
-        } => {
-            aliases.contains(func)
-                || method_receiver_is_alias(callee, aliases)
-                || args.iter().any(|arg| aliases.contains(arg))
-        }
+        MirInstruction::Call { .. } => inst
+            .used_values()
+            .into_iter()
+            .any(|value| aliases.contains(&value)),
         _ => false,
     }
-}
-
-fn method_receiver_is_alias(callee: &Option<Callee>, aliases: &BTreeSet<ValueId>) -> bool {
-    matches!(
-        callee,
-        Some(Callee::Method {
-            receiver: Some(receiver),
-            ..
-        }) if aliases.contains(receiver)
-    )
 }
 
 #[cfg(test)]
@@ -272,7 +259,8 @@ mod tests {
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::function::TypedObjectPlan;
     use crate::mir::{
-        BasicBlock, BasicBlockId, ConstValue, EffectMask, FunctionSignature, MirModule, MirType,
+        BasicBlock, BasicBlockId, Callee, ConstValue, EffectMask, FunctionSignature, MirModule,
+        MirType,
     };
 
     fn add_pair_sum(module: &mut MirModule) {
@@ -324,6 +312,119 @@ mod tests {
             args: vec![],
             effects: EffectMask::PURE,
         }
+    }
+
+    fn call_for(
+        dst: Option<ValueId>,
+        func: ValueId,
+        callee: Option<Callee>,
+        args: Vec<ValueId>,
+    ) -> MirInstruction {
+        MirInstruction::Call {
+            dst,
+            func,
+            callee,
+            args,
+            effects: EffectMask::PURE,
+        }
+    }
+
+    fn aliases(values: &[u32]) -> BTreeSet<ValueId> {
+        values.iter().copied().map(ValueId::new).collect()
+    }
+
+    #[test]
+    fn call_publication_consumes_canonical_typed_operands() {
+        let aliases = aliases(&[7, 8, 9, 10, 11]);
+        assert!(instruction_publishes_any_alias(
+            &call_for(
+                None,
+                ValueId::INVALID,
+                Some(Callee::Method {
+                    box_name: "Pair".to_string(),
+                    method: "sum".to_string(),
+                    receiver: Some(ValueId::new(7)),
+                    certainty: TypeCertainty::Known,
+                    box_kind: CalleeBoxKind::UserDefined,
+                }),
+                vec![],
+            ),
+            &aliases,
+        ));
+        assert!(instruction_publishes_any_alias(
+            &call_for(
+                None,
+                ValueId::INVALID,
+                Some(Callee::Value(ValueId::new(8))),
+                vec![],
+            ),
+            &aliases,
+        ));
+        assert!(instruction_publishes_any_alias(
+            &call_for(
+                None,
+                ValueId::INVALID,
+                Some(Callee::Closure {
+                    params: vec!["x".to_string()],
+                    captures: vec![("capture".to_string(), ValueId::new(9))],
+                    me_capture: Some(ValueId::new(10)),
+                }),
+                vec![],
+            ),
+            &aliases,
+        ));
+        assert!(instruction_publishes_any_alias(
+            &call_for(
+                None,
+                ValueId::INVALID,
+                Some(Callee::Global("Pair.sum/0".to_string())),
+                vec![ValueId::new(11)],
+            ),
+            &aliases,
+        ));
+    }
+
+    #[test]
+    fn call_publication_ignores_non_operands_and_targetless_shapes() {
+        let aliases = aliases(&[1, 2]);
+        assert!(!instruction_publishes_any_alias(
+            &call_for(
+                Some(ValueId::new(2)),
+                ValueId::new(99),
+                Some(Callee::Value(ValueId::new(3))),
+                vec![],
+            ),
+            &aliases,
+        ));
+        assert!(!instruction_publishes_any_alias(
+            &call_for(
+                None,
+                ValueId::new(1),
+                Some(Callee::Global("Pair.sum/0".to_string())),
+                vec![],
+            ),
+            &aliases,
+        ));
+        assert!(!instruction_publishes_any_alias(
+            &call_for(
+                None,
+                ValueId::INVALID,
+                Some(Callee::Constructor {
+                    box_type: "Pair".to_string(),
+                }),
+                vec![ValueId::new(3)],
+            ),
+            &aliases,
+        ));
+    }
+
+    #[test]
+    fn legacy_func_remains_publication_operand_until_schema_cutover() {
+        let aliases = aliases(&[12]);
+        assert!(instruction_publishes_any_alias(
+            &call_for(None, ValueId::new(12), None, vec![]),
+            &aliases,
+        ));
     }
 
     #[test]
