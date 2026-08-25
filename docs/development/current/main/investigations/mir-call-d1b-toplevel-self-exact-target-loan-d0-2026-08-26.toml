@@ -25,7 +25,7 @@ excludes = [
 ]
 
 [brief]
-decision = "Once duplicate SelectedNormal projections are rejected, a TopLevel self call may borrow only the same source-site ResolvedDirectCallTargetV1 from VerifiedCallableIndexV1. The physical admission remains a co-sealed source relation, not a target issuer."
+decision = "With SelectedNormal duplicate/projection rejection closed at ffcae72725, a TopLevel self call remains parked behind the direct-target handoff D0 and may borrow only a same-source/same-resolver-continuation ResolvedDirectCallTargetV1. The physical admission remains a co-sealed source relation, not a target issuer."
 source_authority = "complete source callable inventory -> VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> ResolvedDirectCallTargetV1, with RawInvocationRootLineageV1 preserved as provenance."
 canonical_issuer = "Existing resolved target handoff -> CalleeResolverBox -> MirInstruction::call; no new receipt or target issuer."
 non_authority = [
@@ -58,7 +58,7 @@ terminal_policy = "Only TopLevelUniqueSelfExact may become TargetedBeforeArgumen
 
 [acceptance]
 design = [
-  "duplicate SelectedNormal policy is accepted by the prerequisite row",
+  "duplicate SelectedNormal policy is closed by I0 at ffcae72725",
   "self relation is same-source-site and index-owned, not synthesized from physical admission or text",
   "local/builtin/Extern precedence is explicit and finite",
   "reject path has zero argument effects",
@@ -68,7 +68,7 @@ negative = [
   "no code, fixture, new receipt, collector change, or production switch",
   "no sibling/constructor target inference and no Method(None) repair",
 ]
-implementation_gate = "false until the direct-target index-handoff D0, duplicate I0, and parent scoped-loan lifecycle are closed."
+implementation_gate = "false until the direct-target index-handoff D0 and parent scoped-loan lifecycle are closed; duplicate I0 is already closed at ffcae72725."
 guard = "future guard must assert self occurrence identity, exact index-owned target identity, and zero Installed->Resolved self fallthrough."
 
 [reopen]

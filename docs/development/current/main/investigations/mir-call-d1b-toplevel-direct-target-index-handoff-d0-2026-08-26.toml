@@ -4,17 +4,18 @@ observed_commit = "98e833b6a7"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-prerequisite = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
-queued_validator = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
+prerequisite = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
+completed_validator = "ffcae72725: SelectedNormal duplicate/projection validator I0 is closed"
 supersedes_candidate = "docs/development/current/main/investigations/mir-call-d1b-toplevel-self-exact-target-loan-d0-2026-08-26.toml"
 
 [boundary]
-starts = "SelectedNormal normal-source callable forest and its existing exact source-site products"
+starts = "SelectedNormal normal-source callable forest, the live source inventory, and its mutable resolver continuation"
 ends = "one exact same-source-site ResolvedDirectCallTargetV1 is available to preflight before drive_call_arguments_v1"
 includes = [
-  "VerifiedCallableIndexV1 membership and exact SourceExprSiteV1 lookup",
-  "ResolvedDirectCallTargetV1 issuance by resolved_semantics::resolver",
-  "SelectedNormal duplicate validator prerequisite",
+  "issue_normal_callable_semantic_package_with_brand_catalog_v1 co-seal and its VerifiedNormalCallableSemanticPackageV1 aggregate",
+  "issue_source_backed_same_module_callable_catalog_v1 source inventory and issue_resolved_callable_semantic_batch_with_brand_catalog_v1 resolver continuation",
+  "exact SourceExprSiteV1 lookup and ResolvedDirectCallTargetV1 issuance only after same-source co-seal",
+  "SelectedNormal duplicate validator I0 at ffcae72725",
   "TopLevel self source-site handoff and missing/foreign/ambiguous rejection",
   "preservation of RawInvocationRootLineageV1 without embedding a target",
 ]
@@ -26,37 +27,40 @@ excludes = [
 ]
 
 [brief]
-decision = "A TopLevel self call may become canonical only by borrowing an existing exact-site ResolvedDirectCallTargetV1 from the complete callable index. NormalTopLevelFunctionDraftAdmissionV1 remains physical/source admission data, not target selection authority."
-source_authority = "complete normal-source callable inventory -> VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> resolved_semantics::resolver -> ResolvedDirectCallTargetV1."
-canonical_issuer = "Existing preflight consumes the resolved target through CalleeResolverBox and the existing MirInstruction::call constructor; this design issues no new receipt."
+decision = "The general SelectedNormal direct-target handoff remains design-only until one same-source, same-resolver-continuation co-seal owns the callable index and its exact source-site target lookup. Do not borrow the exact-i64 index sideways or open a second resolver continuation."
+source_authority = "issue_normal_callable_semantic_package_with_brand_catalog_v1 -> VerifiedNormalCallableSemanticPackageV1, co-sealing issue_source_backed_same_module_callable_catalog_v1 with issue_resolved_callable_semantic_batch_with_brand_catalog_v1; only that same continuation may issue VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> ResolvedDirectCallTargetV1."
+canonical_issuer = "Existing preflight consumes a co-sealed resolved target through CalleeResolverBox and MirInstruction::call; this D0 issues no new receipt, index, or target."
 non_authority = [
   "NormalTopLevelFunctionDraftAdmissionV1 physical_symbol/arity alone",
   "SelectedTopLevelFunctionKeyV1 name/arity, caller=None, LegacySymbol formatting, collector replacement, current_static_box, has_method, GC name classification, header/suffix lookup, args, or post-argument values",
 ]
 fail_fast = "Duplicate policy, callable-index membership, exact source site, and target identity must be proven before semantic forest/body admission and before argument lowering. Missing, foreign, or ambiguous site rejects with zero argument effects."
-smallest_next_slice = "Do not implement this handoff yet. Select the independent SelectedNormal duplicate/projection validator I0 first; return here only after a general-normal index/co-seal owner is named or the exact-i64 cohort is explicitly bounded."
+smallest_next_slice = "Design-only finite census of issue/drop/consume boundaries, resolver lifetime, and same-source co-seal ownership. Name the package issuer/aggregate as the sole owner, then decide whether a general-normal index can be co-sealed; no code or exact-i64 sideways loan."
 non_claims = [
   "physical admission itself issues a target",
   "a source key can be formatted into Global",
-  "self handoff implementation or duplicate validator is landed",
+  "self handoff implementation is landed; duplicate validator I0 is already closed separately",
   "all relationless calls are resolved or all recovery is retired",
 ]
 
 [observed]
-current_lineage = "TopLevel is currently collapsed to caller=None before preflight and enters PreparedRawOrdinaryFunctionCompletionV1::Resolved."
+current_lineage = "TopLevel is currently collapsed to caller=None before preflight and enters PreparedRawOrdinaryFunctionCompletionV1::Resolved; the D0 must preserve RawInvocationRootLineageV1 until the co-sealed disposition."
 current_order = "drive_call_arguments_v1 currently precedes resolve_call_target, unique-static recovery, tail recovery, name Const, and direct legacy Call."
 admission_product = "NormalTopLevelFunctionDraftAdmissionV1 carries source occurrence and physical symbol/arity but is not a VerifiedCallableIndex target."
 index_product = "resolved_semantics::resolver can issue ResolvedDirectCallTargetV1 when an exact callable index and source site are present; normal source currently has callable_index=None in the observed path. The existing index is an exact-i64 callable catalog and cannot be borrowed sideways by the general normal semantic package."
-handoff_blocker = "A second resolver continuation would foreign-pair owners; adding a general-normal index/co-seal would be a new semantic product. Neither is permitted by this D0."
-duplicate_boundary = "SelectedNormal same effective name/arity duplicates are accepted by reference as pre-body typed rejects; queued I0 must land before handoff."
+handoff_blocker = "The observed normal source path has callable_index=None. A second resolver continuation would foreign-pair owners, while a general-normal index/co-seal must be named at the package issuer/aggregate boundary before implementation. Neither is permitted by this D0."
+duplicate_boundary = "SelectedNormal same effective name/arity duplicates are rejected before body lowering by the landed I0 at ffcae72725; duplicate policy is closed and is not reopened by this handoff."
 
 [finite_state]
 states = [
-  "DuplicateValidatorPending",
+  "DuplicateValidatorClosed",
+  "PackageCoSealOwnerMissing",
+  "PackageCoSealOwnerReady",
   "GeneralNormalCallableIndexMissing",
   "ExactI64IndexCohortOnly",
-  "ForeignResolverContinuation",
-  "GeneralIndexCoSealRequired",
+  "SecondResolverContinuationForbidden",
+  "OwnersNotReservedBeforeForestSeal",
+  "ExactSiteTargetIssuedBeforeForestPublication",
   "ExactSourceSiteMissing",
   "ExactSourceSiteForeign",
   "ExactTargetAmbiguous",
@@ -66,7 +70,7 @@ states = [
   "RawCompatibilityParked",
   "ResolvedFallthroughForbidden",
 ]
-terminal_policy = "No TopLevel self state may cross to TargetedBeforeArguments in this row: the general-normal index/co-seal is absent. ExactI64IndexCohortOnly remains outside until explicitly bounded; ForeignResolverContinuation and GeneralIndexCoSealRequired remain NoSafeSlice. RawCompatibility is Parked under its own owner; Resolved fallthrough is a guard failure."
+terminal_policy = "No TopLevel self state may cross to TargetedBeforeArguments until the package-owned same-source/same-resolver co-seal is ready and owners are reserved before forest publication. ExactI64IndexCohortOnly remains outside; a second resolver continuation, missing owner, foreign site, or unreserved owner remains NoSafeSlice. RawCompatibility is Parked under its own owner; Resolved fallthrough is a guard failure."
 
 [precedence]
 required_rows = [
@@ -81,6 +85,7 @@ unknown = "If local/builtin/Extern precedence cannot be proven at the same exact
 design = [
   "duplicate SelectedNormal rejection is an explicit prerequisite",
   "VerifiedCallableIndexV1 and ResolvedDirectCallTargetV1 remain the sole direct-target authority where their exact-i64 owner applies",
+  "the normal semantic package issuer/aggregate is the only proposed co-seal owner for a general-normal callable index and resolver continuation",
   "NormalTopLevelFunctionDraftAdmissionV1 remains a physical/source relation only",
   "the general-normal index/co-seal gap and foreign-continuation risk are explicit NoSafeSlice states",
   "root lineage remains provenance and never stores a synthesized Callee",
@@ -91,7 +96,7 @@ negative = [
   "no sibling/constructor/GC target is opened by the self row",
   "no name Const/direct legacy Call or post-argument retry is treated as canonical",
 ]
-implementation_gate = "false; duplicate I0 is independent and may be selected next. Reopen this row only after a general-normal index/co-seal owner or an explicitly bounded exact-i64 cohort is accepted."
+implementation_gate = "false; duplicate I0 is closed at ffcae72725. Reopen implementation only after the package-owned same-source/same-resolver co-seal and finite rejection matrix are accepted; an exact-i64 sideways loan or second resolver continuation is forbidden."
 guard = "future guard must assert exact index/site target issuance, zero caller=None->Resolved self fallthrough, zero target synthesis from physical_symbol/name/arity, and zero argument effects on missing/foreign/ambiguous states"
 
 [reopen]

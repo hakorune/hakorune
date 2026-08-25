@@ -34,8 +34,8 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity alone",
   "LegacySymbol formatting, collector last-wins, statement order, registry, current_static_box, methodize, receiver autoscan, or post-argument recovery",
 ]
-fail_fast = "Duplicate/conflict/missing/foreign relation states terminate before the first top-level body or argument effect. Only a unique admission-owned physical symbol may produce Targeted."
-smallest_next_slice = "Design-only lifecycle and owner census for a callback-scoped SelectedNormal admission lookup; implementation remains blocked until the duplicate child and preflight precedence are accepted."
+fail_fast = "Duplicate/conflict/missing/foreign relation states terminate before the first top-level body or argument effect. Only a unique index-owned exact target, co-sealed with the source relation, may produce Targeted; the physical symbol remains diagnostic/provenance data."
+smallest_next_slice = "Design-only lifecycle and owner census after duplicate I0 closed at ffcae72725: preserve the source lineage and decide whether the package-owned same-source/same-resolver co-seal can lend one exact target; implementation remains blocked by the direct-target D0."
 non_claims = [
   "no sibling target relation is invented",
   "no new Verified*/Prepared* receipt or public transport is added",
@@ -43,9 +43,9 @@ non_claims = [
 ]
 
 [existing_owner]
-row_authority = "src/mir/builder/program_root/normal_top_level_function_admission.rs: NormalTopLevelFunctionDraftAdmissionV1"
-aggregate_owner = "src/mir/builder/program_root/program_root_work_plan.rs: PreparedProgramRootWorkPlanV1 SelectedNormal cohort"
-co_seal = "src/mir/builder/program_root/normal_callable_semantic_loan_port.rs existing with_selected_lowering_input"
+row_authority = "src/mir/builder/normal_top_level_function_admission.rs: NormalTopLevelFunctionDraftAdmissionV1"
+aggregate_owner = "src/mir/builder/program_root_work_plan.rs: PreparedProgramRootWorkPlanV1 SelectedNormal cohort"
+co_seal = "src/mir/builder/normal_callable_semantic_loan_port.rs existing with_selected_lowering_input"
 lineage_owner = "RawInvocationRootLineageV1; preserve TopLevel key independently from the relation"
 target_consumer = "src/mir/builder/calls/function_call_preflight_route.rs existing Targeted path"
 
@@ -60,8 +60,8 @@ steps = [
 ]
 
 [split_plan]
-program_root_work_plan = "721 lines: move TopLevel work type/lowering/prepare helpers to program_root_work_plan/top_level_work.rs before adding scope behavior"
-normal_callable_semantic_loan_port = "710 lines: move RootCallableCapturePortV1 implementation to normal_callable_semantic_loan_port/root_callable_capture.rs"
+program_root_work_plan = "729 lines after duplicate validator delegation; do not split before 760-line trigger"
+normal_callable_semantic_loan_port = "existing owner is below the 760-line trigger; no split is selected"
 recursive_child_lowering = "731 lines: put install/restore/lookup in recursive_child_lowering/top_level_physical_relation_scope.rs; keep parent under 760"
 raw_invocation_source_transport = "778 lines: no edit in this row"
 
@@ -82,7 +82,7 @@ terminal_policy = "Only ScopedLoanReady -> TargetedBeforeArguments may cross int
 
 [acceptance]
 design = [
-  "the duplicate child is accepted before this row reopens",
+  "the duplicate validator I0 is closed at ffcae72725 before this row reopens",
   "the aggregate owner can retain the complete SelectedNormal cohort without a new semantic receipt",
   "source occurrence and physical symbol remain separate co-sealed products",
   "the index-owned target identity is borrowed directly; declared name/arity and physical_symbol() are never reformatted into a target",
@@ -94,7 +94,7 @@ negative = [
   "no code, fixture, collector change, recovery deletion, or production switch in this design row",
   "no sibling relation, constructor target, methodize repair, registry lookup, or optimizer issuer",
 ]
-implementation_gate = "false until duplicate policy, relation owner lifecycle, preflight precedence, and split boundaries are accepted by the parent row"
+implementation_gate = "false; duplicate policy is closed at ffcae72725, but direct-target co-seal ownership, preflight precedence, and split boundaries remain design blockers"
 guard = "future guard must assert one admission-owned relation or typed terminal before argument descent and zero Installed->Resolved fallthrough"
 
 [reopen]

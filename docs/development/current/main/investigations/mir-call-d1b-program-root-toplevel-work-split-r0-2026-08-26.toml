@@ -1,10 +1,11 @@
 title = "MIR Call D1B ProgramRoot TopLevel work BoxShape split"
-status = "accepted_but_not_selected"
+status = "superseded_not_needed"
 observed_commit = "98e833b6a7"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
-ordering = "before the duplicate validator if the validator would cross the 760-line design threshold"
+superseded_by = "ffcae72725: duplicate validator landed without crossing the 760-line split trigger"
+ordering = "not selected; reopen only if the surviving parent or child reaches the 760-line design threshold"
 
 [boundary]
 starts = "src/mir/builder/program_root_work_plan.rs TopLevel work declarations and helpers"
@@ -31,7 +32,7 @@ non_authority = [
   "new module path, re-export shape, line count, test placement, or compiler success by itself",
 ]
 fail_fast = "If path relocation requires semantic visibility changes, trait dispatch changes, or behavior edits, stop and return to design; do not mix the duplicate validator into this row."
-smallest_next_slice = "Move only the named TopLevel declarations/helpers into program_root_work_plan/top_level_work.rs, preserve parent API, run focused preparation tests, then record line counts."
+smallest_next_slice = "No implementation slice is pending. Keep the existing module shelf and reopen only at the 760-line design threshold; if reopened, re-census the surviving owner before any #[path] or semantic move."
 non_claims = [
   "no duplicate policy implementation",
   "no new semantic receipt or public transport",
@@ -55,7 +56,7 @@ focused_checks = [
   "bash tools/checks/current_state_pointer_guard.sh",
   "git diff --check",
 ]
-implementation_gate = "false; select only as a fast BoxShape row if the duplicate I0 would cross 760 lines."
+implementation_gate = "false; superseded by the landed duplicate validator at ffcae72725. Reopen only when the parent/child reaches 760 lines and a new path-preserving BoxShape design is accepted."
 guard = "future guard must compare moved public API/visibility and selected/raw preparation behavior, and reject #[path] or a second semantic owner"
 
 [line_budget]

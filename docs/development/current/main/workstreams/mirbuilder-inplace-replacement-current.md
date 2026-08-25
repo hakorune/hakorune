@@ -40,12 +40,12 @@ Current capsule:
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0 — validate existing SelectedNormal physical projections before body lowering.
-Source authority + canonical issuer: `VerifiedSelectedNormalCallableSourceInventoryV1` plus `NormalTopLevelFunctionDraftAdmissionV1`; this validator issues no target or Call and leaves the existing canonical issuer unchanged.
-Non-authority: callable-index handoff, collector last-wins/replacement, `LegacySymbol` text, name/arity synthesis outside the existing admission, statement order, test success, or RawCompatibility labels.
-Fail-fast boundary: after the complete SelectedNormal source cohort is available and before the first top-level body/argument lowering; duplicate or source/projection mismatch returns a structured freeze preparation error with zero effects.
-Smallest next slice: design-only audit of same-source/same-resolver-continuation direct-target index co-seal; do not borrow the existing exact-i64 index sideways.
-Non-claims: direct-target index co-seal, self/sibling target loans, Method(None), methodize, JSON/VM/backend, final Call schema, new receipt, or warning cleanup.
+Decision: D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 — name one same-source/same-resolver-continuation co-seal owner before any general SelectedNormal target handoff.
+Source authority + canonical issuer: `issue_normal_callable_semantic_package_with_brand_catalog_v1` / `VerifiedNormalCallableSemanticPackageV1` co-seals the source inventory and mutable resolver continuation; only the existing `CalleeResolverBox` -> `MirInstruction::call` issuer consumes an exact target.
+Non-authority: `NormalTopLevelFunctionDraftAdmissionV1` physical symbol/arity, root lineage, duplicate validator, exact-i64 sideways loan, second resolver, collector order, name synthesis, or post-argument recovery.
+Fail-fast boundary: preserve `RawInvocationRootLineageV1`, complete the same-source co-seal, and decide Targeted/TypedReject/Parked before body or argument effects; missing, foreign, duplicate, or conflicting relations never enter Resolved.
+Smallest next slice: design-only finite census of issue/drop/consume boundaries, resolver lifetime, and exact `SourceExprSiteV1` target ownership; no code or new receipt.
+Non-claims: direct-target implementation, self/sibling/constructor/GC rows, Method(None), methodize, JSON/VM/backend, final Call schema, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw

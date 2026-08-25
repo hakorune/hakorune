@@ -2,7 +2,7 @@
 Status: SSOT
 Scope: current MIR call-site authority and retirement contract
 Decision: accepted policy; R6 core field cutover remains design-gated
-Updated: 2026-08-25
+Updated: 2026-08-26
 Related:
 - docs/development/current/main/CURRENT_STATE.toml
 - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
@@ -112,7 +112,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current row:
 
 ```text
-MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
+MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -191,25 +191,24 @@ final schema, `Method(None)`, ingress, array projection, canonicalizer, and
 backend work remain separately gated. The focused physical receipt suite is
 7/7 and the shared guard remains 777 lines.
 
-Post-D1X premise audit split the two writers. The late canonicalizer retirement
-landed at `371f75476e`: ingress/source producers already issue exact `Callee`,
-all five named schedule entries remain typed-only timing seams, and the late
-`callee=None + Const(String)` issuer is gone. Its focused
-positive/negative/parity suite is 14/14, the quick warning baseline remains
-441, and the shared corridor guard remains 777 lines with exact schedule and
-ArrayElementWrite inventory checks. The ArrayElementWrite projection remains
-The active D1B Row B design-only task is recorded at
-`docs/development/current/main/investigations/mir-call-core-r6-d1b-row-b-producer-closure-d0-2026-08-26.toml`.
-The two Builder `Method(None)` producer literals are an exhausted syntactic
-census, but semantic closure remains `NoSafeSlice` until same-brand catalog
-provenance, local-shadow precedence, RuntimeData Global cohort, and the
-post-argument recovery/name-Const/tail delete set are closed before effects.
-The separate ArrayElementWrite projection remains `ParkedSealed`: its typed
-instruction/witness is the semantic issuer, its one legacy projector has four
-callers (three selected native, one ParkedSealed `llvmlite`), and selected
-ny-llvmc still has no decoder/lowerer/ABI owner for
-`site_id/dst/kind/producer/receiver/index/value`; no array implementation is
-authorized.
+Post-D1X premise audit and late canonicalizer retirement are landed at
+`371f75476e`; the legacy `callee=None + Const(String)` issuer is gone. The
+current D1B duplicate/projection validator is closed at `ffcae72725`.
+The active D1B row is now the direct-target index handoff D0:
+
+```text
+docs/development/current/main/investigations/
+  mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml
+```
+
+It is `NoSafeSlice` until a same-source/same-resolver-continuation co-seal
+owner is named; the exact-i64 index cannot be borrowed sideways and a second
+resolver continuation is forbidden. TopLevel self/scoped loans and the
+conditional `gc_collect`/`gc_stats` candidate remain downstream. `Method(None)`
+and methodize, mandatory-Callee schema, JSON/VM/backend fallback, and the
+ArrayElementWrite projection remain separate `NoSafeSlice`/`ParkedSealed`
+boundaries. The latter has no selected decoder/lowerer/ABI owner, so no array
+implementation is authorized.
 
 Separate ingress blocker: the direct MIR loader's
 `parse_direct_mir_json_text_with_v0_fallback` may reinterpret a v1 parse error

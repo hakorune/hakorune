@@ -24,13 +24,13 @@ excludes = [
 
 [brief]
 decision = "Preserve each live root lineage once, then lend only an already-existing exact callable target relation. TopLevel and InstanceConstructor source keys remain provenance; they never become Global/Value targets by formatting. A missing, duplicate, foreign, or constructor-only relation terminates before argument effects as TypedReject or an explicitly owned ParkedCompatibility state."
-source_authority = "current_source_context_v1.root plus an existing exact target relation: Cataloged uses CanonicalSameModuleCallableKeyV1; normal TopLevel direct calls must use VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> ResolvedDirectCallTargetV1. Physical draft packages remain provenance/co-seal data only."
+source_authority = "current_source_context_v1.root plus an existing exact target relation: Cataloged uses CanonicalSameModuleCallableKeyV1; general SelectedNormal direct calls first require the normal semantic package issuer/aggregate to co-seal the source inventory and resolver continuation, then use VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> ResolvedDirectCallTargetV1. Physical draft packages remain provenance/co-seal data only."
 canonical_issuer = "existing preflight -> CalleeResolverBox -> MirInstruction::call after the exact loan is proven; this child issues no new target or receipt."
 non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "First close the SelectedNormal duplicate-projection Decision and queued I0; then design the direct-target index handoff before any physical relation loan. No code until every Targeted state borrows an existing resolved target and every negative state has a typed terminal."
+smallest_next_slice = "SelectedNormal duplicate/projection I0 is closed at ffcae72725. The next design slice is the direct-target index handoff: name one same-source/same-resolver-continuation co-seal owner before any physical relation loan or code."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -43,7 +43,7 @@ top_level = "TopLevel(SelectedTopLevelFunctionKeyV1) carries statement occurrenc
 top_level_physical = "NormalTopLevelFunctionDraftAdmissionV1 projects a legacy symbol; duplicate source occurrences may share that symbol and collector replacement is not target authority. Direct target authority must come from VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> ResolvedDirectCallTargetV1."
 instance_constructor = "InstanceConstructor(NormalInstanceConstructorSourceKeyV1) identifies constructor emission and has no ordinary FunctionCall target relation by itself."
 resolver = "CalleeResolverBox preserves a supplied CallTarget; it does not prove physical uniqueness or source occurrence."
-duplicate_decision_child = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
+duplicate_decision_child = "ffcae72725: docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
 scoped_loan_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-physical-relation-scoped-loan-d0-2026-08-26.toml"
 self_loan_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-self-exact-target-loan-d0-2026-08-26.toml"
 direct_target_index_handoff_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
@@ -99,7 +99,7 @@ design = [
 negative = [
   "no code, fixture, new receipt, target inference, collector-authority change, or backend behavior change",
 ]
-implementation_gate = "false until the loan owner, all precedence rows, duplicate policy, and pre-effect terminals are accepted by the parent relationless recovery row."
+implementation_gate = "false; duplicate I0 is closed at ffcae72725, but direct-target co-seal ownership, precedence rows, and pre-effect terminals remain design blockers."
 guard = "future guard must prove one exact target loan or typed terminal for every admitted root lineage before drive_call_arguments_v1; InstalledNonBrand caller=None and Resolved fallthrough must be zero"
 
 [reopen]

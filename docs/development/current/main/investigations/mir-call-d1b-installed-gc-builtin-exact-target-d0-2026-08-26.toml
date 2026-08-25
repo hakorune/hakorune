@@ -4,6 +4,7 @@ observed_commit = "a264a9d012"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+queue_status = "conditional_fast_candidate; not selected while the direct-target D0 remains design_stop"
 
 [boundary]
 starts = "RawBrandCallAuthorityV1::InstalledNonBrand { caller: None } for non-unified gc_collect/gc_stats"
@@ -29,11 +30,32 @@ non_authority = [
   "root lineage, source key name formatting, current declaration, collector, post-argument resolver, or unified emitter recovery",
 ]
 fail_fast = "For the two names only, classify Global before argument descent; RawCompatibility and every other builtin remain outside this row."
-smallest_next_slice = "Design-only finite parity and delete-set audit for gc_collect/gc_stats; implementation may be selected only after the active duplicate row and parent preflight precedence are closed."
+smallest_next_slice = "After the direct-target D0 is accepted, implement only gc_collect/gc_stats in InstalledNonBrand{caller=None}: classify BuiltinGlobal before argument descent, reuse the existing Targeted/canonical issuer, and delete only their post-argument Resolved/name-Const edge. Do not add an arity reject: the current authority carries no arity contract, so preserve existing any-arity behavior."
 non_claims = [
   "no other builtin or unified route is normalized",
   "no global Resolved/recovery retirement is claimed",
   "no duplicate/lineage decision is bypassed",
+  "no arity/effect policy is invented; this row preserves the existing route's any-arity and READ + ReadHeap behavior",
+]
+
+[queued_fast]
+owner = "src/mir/builder/calls/function_call_preflight_route.rs::prepare_with_brand_authority"
+classification = "InstalledNonBrand{caller=None} -> !raw_unified && BuiltinGlobal && !is_math_function, with the exact finite names gc_collect and gc_stats"
+issuer = "existing Targeted consume at src/mir/builder/calls/build.rs -> CalleeResolverBox -> MirInstruction::call"
+delete_set = [
+  "the two-name caller=None -> Resolved selection",
+  "their post-argument build_resolved_function_call -> resolve_call_target/recovery -> name Const -> direct Call path",
+]
+preserve = [
+  "RawCompatibility with the same spelling",
+  "sin/cos Math handling and every other builtin/Extern/unified route",
+  "existing any-arity behavior and READ + ReadHeap effects",
+]
+proof_home = "new child test module under function_call_preflight_route; do not append the existing 736-line test file"
+stop_if = [
+  "arity authority or effect repair is required",
+  "a third name or RawCompatibility enters the cohort",
+  "a new receipt/catalog/target inference or second resolver is proposed",
 ]
 
 [finite_state]
@@ -43,11 +65,10 @@ states = [
   "RawCompatibilityExcluded",
   "OtherBuiltinExcluded",
   "TargetedBeforeArguments",
-  "EffectParityPending",
-  "TypedRejectOnShapeMismatch",
+  "ExistingRouteParity",
   "NoSafeSliceOutsideCohort",
 ]
-terminal_policy = "Only the two exact raw-installed names with proven effect/dst/args parity may become Targeted; all other names/cohorts remain outside this row or reject on mismatch."
+terminal_policy = "Only the two exact raw-installed names with the existing route's proven target/dst/args/effect parity may become Targeted; all other names/cohorts remain outside this row. No new shape or arity rejection is introduced."
 
 [acceptance]
 design = [
@@ -60,7 +81,7 @@ negative = [
   "no code, fixture, or production switch while design_stop is active",
   "no broad builtin family census claimed from these two names",
 ]
-implementation_gate = "false until the active duplicate and pre-effect precedence rows are accepted and a fast card selects this cohort."
+implementation_gate = "false while design_stop is active; after the direct-target D0 is accepted, a separate fast card may select this exact two-name cohort only."
 guard = "future guard must assert exactly two names, raw_unified=false, and zero unapproved names entering this row."
 
 [reopen]
