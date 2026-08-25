@@ -58,8 +58,9 @@ Related:
   - `calls.rs` はまだ `mir_call` と `boxcall` の choice を materialize している
   - したがって today の Rust seam は単なる serializer ではなく `dialect materializer with policy residue` だよ
   - current cutover slice:
-    - `Callee::Method` は `HAKO_MIR_BUILDER_METHODIZE=1` を authority signal として `mir_call` に固定する
-    - Phase0 keep/export lane は `HAKO_MIR_BUILDER_METHODIZE=0` を明示して legacy route を隔離する
+    - （旧Stage1移行時の記録）`HAKO_MIR_BUILDER_METHODIZE` は当時の投影切替フラグだった
+    - 現行MIR-CALL-R6では env/trace は authority ではなく、source/catalogで確定した `Callee` だけを `mir_call` へ渡す
+    - Phase0 keep/export lane の env 固定は互換境界の観測条件であり、target意味を発行しない
 
 ### 3. Native consumer boundary
 

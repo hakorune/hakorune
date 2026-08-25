@@ -116,6 +116,8 @@ collision_zero_claim = "not accepted; existing source facts do not prove zero an
 status = "CutoverBlockerOpen"
 scope = "census-only; families outside the stated preflight boundary are dispositioned as outside Row B and are not modified by this row"
 authority_gap = "CallTarget::Global(String) and resolver.rs:67-74 erase catalog provenance before unified_emitter.rs:409-463 methodize classification."
+disposition_child = "docs/development/current/main/investigations/mir-call-core-r6-d1b-methodize-provenance-disposition-d0-2026-08-27.toml"
+disposition_status = "accepted_design_no_safe_slice; seven-family table drafted, method_resolution arity/catalog and remaining recovery are still CutoverBlockerOpen"
 producer_families = [
   "build/static_resolution",
   "rewrite/known.rs",

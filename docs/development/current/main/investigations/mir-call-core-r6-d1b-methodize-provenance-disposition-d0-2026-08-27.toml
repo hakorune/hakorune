@@ -1,0 +1,124 @@
+title = "MIR Call D1B RuntimeData Global provenance disposition"
+status = "accepted_design_no_safe_slice"
+observed_commit = "004db40a7c"
+observed_at = "2026-08-27"
+implementation_permission = false
+parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
+
+[boundary]
+starts = "CallTarget::Global producers entering CalleeResolverBox/unified_emitter and bare-name method_resolution"
+ends = "a finite producer disposition that permits deleting Global -> Method(None) reclassification without name inference"
+includes = [
+  "the seven RuntimeData-adjacent Global producer families already listed by Row B",
+  "the two remaining Method(None) producer windows: method_resolution and unified_emitter methodize",
+  "post-argument unique-static/tail recovery disposition inside the Row B compatibility boundary",
+  "source/catalog provenance, pre-effect rejection, and methodize profile parity",
+]
+excludes = [
+  "JSON-v0/v1 ingress, Rust VM/native backend behavior, final Call schema, MirCall/CallFlags",
+  "Method(Some) execution and receiver materialization",
+  "fixed builtin/operation emitters outside the RuntimeData cohort",
+  "new Verified*/Prepared* semantic receipts or a new global name registry",
+]
+
+[brief]
+decision = "Exact source/catalog targets remain qualified Global; instance calls require Method(Some); authority-free RuntimeData-qualified targets reject before effects; the shared env/name methodize reissuer is not an authority."
+source_authority = "same-brand callable declaration catalog or an existing typed method/physical receipt; the existing CalleeResolverBox remains the canonical Callee issuer"
+canonical_issuer = "existing preflight/resolver -> MirInstruction::call; no producer may publish Method(None)"
+non_authority = [
+  "HAKO_MIR_BUILDER_METHODIZE and trace flags",
+  "StaticMethodId parsing, box-name tables, headers/suffix uniqueness without same-brand proof",
+  "current_static_box/has_method, registry membership, VM behavior, args[0], and name Const text",
+]
+fail_fast = "An authority-free Global or a static Method(None) candidate must terminate before argument/effect descent, name Const, block insertion, or physical publication; no retry or backend reclassification is allowed."
+smallest_next_slice = "Keep this child design-only: close the seven-family table and the method_resolution arity/source-catalog decision, then select a separate producer-first fast row."
+non_claims = [
+  "all qualified Global strings are already proven",
+  "deleting unified_emitter methodize alone closes the two Method(None) producers",
+  "the existing static registry is a source authority",
+  "Call field retirement or backend parity",
+]
+
+[finite_disposition]
+status = "AcceptedDecisionRemainingBlockers"
+rule = "Every incoming family must be exactly one of PreserveQualifiedGlobal, PreserveMethodSome, TypedReject, or OutsideRowB. A family cannot be accepted solely because a name parses or a header lookup returns one candidate."
+method_none_producers = [
+  "src/mir/builder/calls/method_resolution.rs: resolve_call_target static-box arm lacks source catalog and call arity",
+  "src/mir/builder/calls/unified_emitter.rs: methodize_on Global -> Method { receiver: None } window",
+]
+
+[family.build_static_resolution]
+disposition = "Split"
+preserve = "Cataloged BareStaticRecoveryDecisionV1::Unique(CanonicalSameModuleCallableKeyV1) preserves the exact qualified Global key; the landed preflight child covers this cohort before argument descent."
+reject = "relationless recovery and tail/suffix module lookup without same-brand catalog provenance are TypedReject candidates, not Global or Method(None) issuers."
+
+[family.rewrite_known]
+disposition = "Split"
+preserve = "Known user-defined rewrite may preserve qualified Global only when the existing same-brand declaration/signature product proves owner, method, and arity."
+reject = "unique suffix/header-only or env-gated candidates without that product are TypedReject; they may not be upgraded by StaticMethodId parsing."
+
+[family.print_stmt]
+disposition = "OutsideRowB"
+authority = "fixed builtin print terminal; it does not enter RuntimeData methodize"
+
+[family.ops]
+disposition = "OutsideRowB"
+authority = "fixed operator target emitted by the operation owner; no RuntimeData name classification"
+
+[family.plan_lowerer]
+disposition = "Split"
+preserve = "exact-i64 target-row receipt retains its existing qualified Global projection"
+reject = "generic CoreCallSourceV1 carrying only positional data has no target authority and must not be promoted by methodize"
+
+[family.method_call_terminal]
+disposition = "Split"
+preserve = "existing exact source/physical receipt callers retain their typed target"
+reject = "raw owner/method strings without the receipt are TypedReject before generic Call publication"
+
+[family.calls_emit_facade]
+disposition = "OutsideRowB"
+authority = "transport facade only; it is not a target issuer and must inherit the upstream disposition"
+
+[method_resolution_static_none]
+status = "CutoverBlockerOpen"
+current_contract = "resolve_call_target(name, current_static_box, variable_map) has no exact arity or same-brand declaration catalog"
+required_amendment = "Add an existing catalog/arity-bearing ingress or make the static-box arm typed-reject; do not synthesize a Global target from has_method alone."
+negative = [
+  "Method(None) publication = 0 for the selected producer",
+  "no fallback to local Value, Extern, unique static, or tail resolver after a catalog mismatch",
+]
+
+[unified_emitter_methodize]
+status = "CutoverBlockerOpen"
+delete_candidate = "the Global -> RuntimeData Method(None) mutation and methodize classifier/trace import"
+precondition = "all incoming Global families are dispositioned above and any authority-free family rejects before this shared emitter"
+parity = "HAKO_MIR_BUILDER_METHODIZE unset/1/0 no longer changes target kind; exact Global, Method(Some), args, dst, effects, and result remain identical"
+
+[recovery]
+status = "CutoverBlockerOpen"
+remaining_edges = [
+  "build.rs legacy resolved-function post-argument unique-static recovery",
+  "static_resolution.rs tail/suffix recovery and direct legacy emission",
+]
+required_disposition = "Delete only after each edge has a finite pre-effect source/candidate decision; unresolved recovery must typed-reject with no name Const or retry."
+
+[acceptance]
+design = [
+  "all seven families have one finite disposition and named source authority or explicit typed-reject boundary",
+  "method_resolution static arm has an exact arity/catalog plan or is explicitly rejected as NoSafeSlice",
+  "unified methodize deletion has a complete incoming-edge inventory and no Method(None) producer left unnamed",
+  "recovery edges have delete/retain dispositions and reopen triggers",
+]
+implementation_gate = [
+  "implementation_permission remains false until the design checks above are closed",
+  "no new receipt, fallback, registry lookup, backend change, or Call schema edit is introduced by this child",
+]
+guard = "future scoped D1B methodize guard must assert producer-window zero, source/catalog disposition coverage, Method(None)=0 in the selected boundary, and no retry/name-Const re-entry; do not grow the global corridor guard"
+
+[reopen]
+triggers = [
+  "a new CallTarget::Global producer family appears",
+  "a source/catalog product loses owner, method, or arity provenance",
+  "a selected route depends on Method(None), static registry, env methodize, or backend fallback",
+  "recovery is moved after argument/effect descent or a new semantic receipt is proposed",
+]

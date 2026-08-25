@@ -72,8 +72,9 @@ Related:
 - active Rust MIR JSON producer:
   - `src/runner/mir_json_emit/emitters/calls.rs`
 - current truth:
-  - current cutover keeps `Callee::Method` on `mir_call` when `HAKO_MIR_BUILDER_METHODIZE=1`
-  - Phase0 keep/export lane explicitly pins `HAKO_MIR_BUILDER_METHODIZE=0` together with `NYASH_MIR_UNIFIED_CALL=0`
+  - （旧Stage1移行時の記録）current cutover は `HAKO_MIR_BUILDER_METHODIZE` を投影条件として観測していた
+  - 現行MIR-CALL-R6では env 値は target authority ではなく、source/catalogで確定した `Callee` を保持する
+  - Phase0 keep/export lane の env pin は互換観測条件であり、`Callee` の再分類を許可しない
   - therefore `NYASH_MIR_UNIFIED_CALL=0` alone is no longer allowed to flip Stage1 method dialect back to `boxcall`
   - helper mainline route also pins `NYASH_MIR_UNIFIED_CALL=1` inside Stage-B / selfhost-first execution so caller env cannot force a direct-emit legacy downgrade
   - `Callee::Constructor` / `Callee::Global` は v0 `call` + `callee` を keep している
