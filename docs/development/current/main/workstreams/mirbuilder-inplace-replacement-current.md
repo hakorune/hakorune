@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-C2-I0
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
   implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
-  mode              = fast
-  production stop   = D1-C2 design accepted: JSON egress must reject body-backed NewClosure before wire publication and may project only an empty descriptor; Method(None), Closure runtime, and R6 field deletion remain outside this row
-  exit              = one egress owner change plus focused positive/negative tests; no schema, receipt, fallback, or production switch
+  mode              = design_stop
+  production stop   = D1-C2-I0 closed the lossy closure-body JSON egress edge; D1-D now owns the existing parser/source handoff and V0 typed Constructor resolve-once boundary, with no code or production switch selected
+  exit              = D1-D design acceptance with exact source/arity/dst/args/effects matrix; R6a remains NoSafeSlice until Constructor/NewBox and Method(None) blockers close
 fallback / retry  = 0
 ```
 
@@ -367,8 +367,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-C2-I0
-  -> fast: reject body-backed NewClosure at JSON egress before wire publication; D1-B-PARK design-closed the selected static handoff/outside route without a new receipt
+ MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
+  -> design stop: close the existing parser/source handoff and V0 typed Constructor resolve-once boundary; D1-C2-I0 rejected lossy body-backed closure egress without a schema change
 Next (not selected)
   -> D1-D Constructor/NewBox owner remains design-only NoSafeSlice; R6a stays closed until D1-C2/D and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 

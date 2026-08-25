@@ -1404,6 +1404,13 @@ module metadata relation, and the existing unsupported Closure/Value backend
 guards remain unchanged. This is a BoxShape fail-fast cleanup, not a new
 accepted closure shape.
 
+D1-C2-I0 is closed at `873765ba0e`: `emitters/mod.rs` now passes the existing
+`body_id/body` relation to the single JSON egress owner, which returns the
+stable `mir-json/closure-body-wire-unavailable` reject for body-backed closures.
+The empty projection and body-backed negative test are green (3/3 filtered
+`new_closure` tests); the shared Call corridor, pointer, rustfmt, and diff
+guards are green. No ingress/schema/backend or R6 field change was included.
+
 ### D1-D result — Constructor/NewBox boundary (design only)
 
 ```text
@@ -1561,14 +1568,14 @@ staging cleanup, but does not authorize deleting the public `MirCall`/
 by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
-Selected next design task: `MIR-CALL-R6-CORE-SCHEMA-D1-C2-DESIGN`. D1-B-PARK
-accepted the existing static handoff/outside boundary, but the generic
-Method(None) issuer remains a blocker. D1-C2 must decide the existing closure
-body-identity wire boundary and selected-backend rejection without inventing a
-receipt or schema. The current blocker is not a missing-callee literal. Until
-D1-C2/D and the remaining Method(None) edges are accepted, do not change
-`Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or
-`CallFlags` in code.
+Selected next design task: `MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN`. D1-B-PARK
+accepted the existing static handoff/outside boundary and D1-C2-I0 closed the
+lossy Closure body egress edge. The generic Method(None) issuer and the
+Constructor/NewBox dual route remain blockers. D1-D must close the existing
+parser/source handoff and V0 typed Constructor resolve-once boundary without
+inventing a receipt or native route. Until D1-D and the remaining Method(None)
+edges are accepted, do not change `Option<Callee>`, `func`, `Method(None)`,
+`Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
 Post-R7 normal-root cleanup (parked, separate lane):
 
