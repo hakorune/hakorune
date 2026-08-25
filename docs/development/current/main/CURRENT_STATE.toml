@@ -20,15 +20,15 @@ source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, 
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0"
-current_design_stop = "D1G and D1H-I0 are landed; D1I is the bounded concat3 Extern rewrite issuer row. Full PHI admission/atomicity remains NoSafeSlice."
-current_blocker_token = "MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0: one Concat3Plan replacement writer only; no target lookup, effect re-inference, string-corridor expansion, or field deletion."
+current_design_stop = "D1I landed at 513a243be5; no next fast row is selected until the upper-worker bounded census. Full PHI admission/atomicity remains NoSafeSlice."
+current_blocker_token = "D1I closeout: verify docs/pointer/commit/push; no target lookup, effect re-inference, string-corridor expansion, or field deletion."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — Call core R6I concat3 Extern rewrite issuer fast row"
+active_lane = "MirBuilder in-place replacement — Call core R6I concat3 Extern rewrite issuer closeout"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
@@ -47,7 +47,7 @@ optimizer/interpreter/printer rows, JSON D0/I0, shared guard, and no R6 field
 deletion; JoinIR remap isolation is fenced, strict-adapter I0 is closed, native
 D0 is NoSafeSlice, native D1/C owner split and trap declaration co-seal I0 are
 closed, and R6 remains separate; exact Extern D0 is accepted with generic-entry
-and same-module prepass source/plan/arity/args/dst evidence. D2c and P2 metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7, D1 design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92; JoinIR remapper isolation I0 is landed at 0048c0176a, physical type D0 and exact-i64 I0 are closed at 7fd97a5344, while JSON/C/backend effects remain closed and R6 D0 plus direct-static issuer I0 are closed at 6302839770; R6-D1 manifest is accepted design-only, D1A typed Extern issuer I0 landed at 4b2fe7a7b6, D1B Method(None) census is accepted design-only, D1C/D1C1 remain NoSafeSlice, the Call SSOT docs-slim move is landed, D1E normal-main thunk issuer landed at 2150472c35, and D1F typed Method issuer landed at 572ec6f5b1; full Call field retirement remains design-gated."""
+and same-module prepass source/plan/arity/args/dst evidence. D2c and P2 metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7, D1 design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92; JoinIR remapper isolation I0 is landed at 0048c0176a, physical type D0 and exact-i64 I0 are closed at 7fd97a5344, while JSON/C/backend effects remain closed and R6 D0 plus direct-static issuer I0 are closed at 6302839770; R6-D1 manifest is accepted design-only, D1A typed Extern issuer I0 landed at 4b2fe7a7b6, D1B Method(None) census is accepted design-only, D1C/D1C1 remain NoSafeSlice, the Call SSOT docs-slim move is landed, D1E normal-main thunk issuer landed at 2150472c35, D1F typed Method issuer landed at 572ec6f5b1, D1G builder emit reconstruction landed at c3c7e0ea65, D1H PHI reconstruction landed at b090f917b4, and D1I concat3 Extern rewrite landed at 513a243be5; full Call field retirement remains design-gated."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5 and JSON/profile/backend/native split are closed; exact Extern, D1-D8, shelf, source-seed/join, D2a/b/c, P2 closeout, physical D1-I0 pair transport (5bde4c6f92), JoinIR remapper isolation I0 (0048c0176a), exact-i64 physical input I0 (7fd97a5344), R6 D0/direct-static issuer I0 at 6302839770, accepted R6-D1 manifest, D1A Extern issuer I0 at 4b2fe7a7b6, D1B/D1C1 design stops, D1C1 NoSafeSlice, Call SSOT docs-slim, D1E normal-main thunk issuer at 2150472c35, D1F typed Method issuer at 572ec6f5b1, D1G builder emit reconstruction at c3c7e0ea65, and D1H-I0 PHI Call reconstruction at b090f917b4 are recorded. D1I concat3 Extern rewrite issuer is the selected fast row; full PHI admission/atomicity remains separate."
-next_design_card = "none — D1I fast row selected"
-next_execution_card = "MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5 and JSON/profile/backend/native split are closed; exact Extern, D1-D8, shelf, source-seed/join, D2a/b/c, P2 closeout, physical D1-I0 pair transport (5bde4c6f92), JoinIR remapper isolation I0 (0048c0176a), exact-i64 physical input I0 (7fd97a5344), R6 D0/direct-static issuer I0 at 6302839770, accepted R6-D1 manifest, D1A Extern issuer I0 at 4b2fe7a7b6, D1B/D1C1 design stops, D1C1 NoSafeSlice, Call SSOT docs-slim, D1E normal-main thunk issuer at 2150472c35, D1F typed Method issuer at 572ec6f5b1, D1G builder emit reconstruction at c3c7e0ea65, D1H-I0 PHI Call reconstruction at b090f917b4, and D1I concat3 Extern rewrite issuer at 513a243be5 are recorded. D1I closeout is pending only docs/pointer verification; full PHI admission/atomicity remains separate."
+next_design_card = "request upper-worker bounded next-edge census"
+next_execution_card = "none — D1I landed; wait for next-edge selection"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

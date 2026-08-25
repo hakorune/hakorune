@@ -755,6 +755,21 @@ guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rust
 warning_baseline = "quick profile reports 441 existing warnings; no new warning class introduced"
 non_claims = "PHI admission/purity, CFG preflight, partial rollback, seven-entry lifecycle conversion, and Call field deletion remain open"
 
+[receipts.d1i_concat3_extern_rewrite]
+status = "landed"
+commit = "513a243be5"
+source = "src/mir/passes/concat3_canonicalize/rewrite.rs:31-37"
+old_edge = "one direct MirInstruction::Call literal with func=INVALID and callee=Some(Extern)"
+new_edge = "MirInstruction::call(Some(plan.outer_dst), Callee::Extern(CONCAT3_EXTERN.to_string()), plan.args.to_vec(), EffectMask::PURE)"
+family_count_before = 1
+family_count_after = 0
+canonical_helper_fanout_before = 9
+canonical_helper_fanout_after = 10
+parity = "rewrites_left_assoc_chain_to_concat3, rewrites_right_assoc_chain_to_concat3, and keeps_non_chain_add_unchanged: 3 passed"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; no new warning class introduced"
+source_risk = "69-line owner; Concat3Plan target/dst/ordered args and existing replacement/span semantics unchanged; no schema, flags, fallback, or backend change"
+
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
 requires = [
@@ -763,7 +778,6 @@ requires = [
   "active PHI rematerialization retained as live, not parked",
 ]
 next_fast_candidates = [
-  "MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0",
   "internal MirCall/CallFlags transport retirement after D1I boundary closure",
 ]
 selection_rule = "do not choose a fast candidate until this manifest is accepted and the candidate's old edge is isolated"

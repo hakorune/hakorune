@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0 landed
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,19 +33,19 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0
-  implementation    = D1G landed at c3c7e0ea65; D1H-I0 landed at b090f917b4; D1I fast row selected by upper-worker census
-  mode              = fast
-  production stop   = D1I may touch only the concat3 plan replacement writer and its direct Call literal
-  exit              = canonical helper + three concat3 parity tests + scoped guard + README receipt; full PHI admission/atomicity remains NoSafeSlice
+  implementation    = D1G landed at c3c7e0ea65; D1H-I0 landed at b090f917b4; D1I landed at 513a243be5
+  mode              = closeout
+  production stop   = D1I implementation is closed; no next fast row is selected
+  exit              = canonical helper + three concat3 parity tests + scoped guard + README receipt + pushed commit; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
-Selected bounded fast row:
+Landed bounded fast row:
 
 ```text
-Decision: replace one concat3 Extern direct Call literal with the canonical helper; do not expand into string-corridor families or schedule policy.
+Decision: one concat3 Extern direct Call literal now uses the canonical helper; no expansion into string-corridor families or schedule policy.
 Source authority + canonical issuer: Concat3Plan target/dst/ordered args plus existing CONCAT3_EXTERN/PURE policy -> MirInstruction::call. Non-authority: legacy func, lookup, effect re-inference, backend, or other optimizer reconstruction.
-Fail-fast boundary: empty plans/missing blocks keep mutation-free skip; accepted plans use the existing block-wide replacement map. Smallest slice: rewrite.rs writer, shared guard, three concat3 parity tests, and README receipt.
+Fail-fast boundary: empty plans/missing blocks keep mutation-free skip; accepted plans use the existing block-wide replacement map. Receipt: rewrite.rs writer, shared guard, three concat3 parity tests, README, commit 513a243be5, and push are complete.
 Non-claims: Concat3Plan admission, other string families, PHI admission/atomicity, field deletion, JSON/VM/native/backend, and warning cleanup.
 ```
 
@@ -159,7 +159,7 @@ landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSeale
 exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
 closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, D1E is
 landed at `2150472c35`, D1F is landed at `572ec6f5b1`, and D1G is landed at
-`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; D1I is the selected fast row under its manifest.
+`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; D1I landed at `513a243be5` under its manifest.
 
 ```text
 canonical core
@@ -566,11 +566,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1B-METHOD-NONE-CENSUS
-  -> design_stop: exhaust Method(None) production/recovery owners and exact fail-fast states; no code or field deletion
+ D1I closeout is complete; request one upper-worker bounded next-edge census before selecting the next fast row
 Closed immediately prior
  MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0 -> landed at 4b2fe7a7b6: Extern SSOT delegates once to MirInstruction::call; parity 1/1, corridor guard, touched rustfmt, and diff green
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact
+ MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0 -> landed at 513a243be5: one direct rewrite literal -> canonical helper, 3/3 concat3 parity, shared guard/pointer/rustfmt/diff green; 441 warnings remain baseline
  MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
   -> landed at 6302839770: source-verified direct-static issuer delegates once to MirInstruction::call; positive/negative/parity tests, shared guard, README, and pointer are green
  MIR-PHYSICAL-TYPE-INPUT-I0

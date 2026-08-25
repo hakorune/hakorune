@@ -93,19 +93,25 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` currently selects:
+`CURRENT_STATE.toml` records the latest landed row:
 
 ```text
 MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0
 ```
 
-It is `fast`, limited to one concat3 Extern rewrite writer. D1G is landed at
-`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`, with the D1I boundary in:
+It landed at `513a243be5`, limited to one concat3 Extern rewrite writer. D1G
+is landed at `c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; the D1I boundary and
+receipt are in:
 
 ```text
 docs/development/current/main/investigations/
   mir-call-core-r6-d1i-concat3-extern-rewrite-issuer-2026-08-25.toml
 ```
+
+The three concat3 parity tests, the shared corridor guard, the pointer guard,
+rustfmt, and diff checks are green; the quick profile's 441 warnings remain
+the pre-existing baseline. No next fast row is selected until the upper-worker
+bounded census chooses one.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

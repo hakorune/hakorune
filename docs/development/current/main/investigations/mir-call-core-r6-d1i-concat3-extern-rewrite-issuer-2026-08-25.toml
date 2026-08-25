@@ -1,9 +1,10 @@
 title = "MIR Call core R6 D1I concat3 Extern rewrite issuer"
-status = "accepted_design_fast_row_selected"
-observed_commit = "ff665300c3"
+status = "landed"
+observed_commit = "513a243be5"
 observed_at = "2026-08-25"
-implementation_permission = true
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0"
+landed_commit = "513a243be5"
 
 [boundary]
 starts = "accepted Concat3Plan entering concat3_canonicalize::apply_plans"
@@ -36,7 +37,7 @@ non_authority = [
 ]
 fail_fast = "empty plans and missing blocks keep the existing mutation-free skip; an accepted plan enters the existing replacement map and the existing block-wide swap"
 no_retry = "no target lookup, fallback, re-planning, or second writer; replacement remains non-fallible after plan acceptance"
-smallest_next_slice = "replace rewrite.rs:31-37 with one MirInstruction::call invocation, remove only the now-unused Callee import, extend the shared guard, run the three concat3 tests, and add one README receipt"
+smallest_next_slice = "landed; no further D1I implementation is authorized"
 non_claims = [
   "Concat3Plan admission correctness or source semantics",
   "other concat/string corridor families",
@@ -93,11 +94,13 @@ stop_if = [
 ]
 
 [acceptance]
-status = "fast_row_selected"
+status = "landed"
 focused_test = "rewrites_left_assoc_chain_to_concat3 + rewrites_right_assoc_chain_to_concat3 + keeps_non_chain_add_unchanged"
 expected_inventory_delta = "one live concat3 direct writer -> zero; canonical helper caller fanout +1"
 implementation_scope = "one rewrite owner, one shared guard extension, one README receipt; no new semantic receipt"
 review = "upper-worker bounded next-edge census selected this sole live writer after D1H"
+landed_commit = "513a243be5"
+observed_result = "3 passed; 0 failed; quick profile reports 441 existing warnings as baseline"
 
 [reopen]
 triggers = [
