@@ -2424,12 +2424,23 @@ not a parked prose snapshot. The FACT0 observer is a fifth live boundary:
 normalizer rows must point at `helpers_value/lower.rs` while preserving the
 partition digest/anchor meaning.
 
-The pre-S0b baseline, failure-outcome manifests, and archived/current design
-fixtures outside these four live generators remain explicitly
-`ParkedSealed` snapshot provenance. A new live generator, checker, or
-guard-row that reads the deleted flat path is an observable reopen trigger;
-until the active five-boundary set is updated and checked, D1-D8 remains
-`NoSafeSlice`.
+Two current design documents are policy observers rather than generated
+fixtures:
+
+```text
+docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
+docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md
+```
+
+Their pre-move census references and cleanup target must be
+updated/annotated with the new shelf owners in the implementation slice.
+They are not allowed to become unqualified active old-path guards. The
+pre-S0b baseline, failure-outcome manifests, and the
+archived phase documents remain explicitly `ParkedSealed` snapshot provenance.
+A new live generator, checker, guard-row, or current policy document that
+reads the deleted flat path is an observable reopen trigger; until the active
+five-boundary set plus these two policy observers is updated and checked,
+D1-D8 remains `NoSafeSlice`.
 
 Until this exact shelf census and ownership contract are accepted, D1-D8
 remains `NoSafeSlice`; no file move or fast-mode code edit is authorized.
