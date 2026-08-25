@@ -64,14 +64,14 @@ semantic type
   -> storage layout
 ```
 
-The parked `MIR-PHYSICAL-TYPE-INPUT-D0` may select one already-exact scalar
-corridor and define a single verified backend input that consumes those four
-rows. It must not widen language types, change an ABI, infer layout from a Box
-name, or treat raw `MirType::Integer` as signedness/width/alignment authority.
-Missing or conflicting rows reject before backend effects. General integer
-widths, pointer-sized integers, overflow policy, aggregates, packing, and
-address spaces remain separate BoxCount decisions and cannot be smuggled into
-this BoxShape convergence row.
+The accepted `MIR-PHYSICAL-TYPE-INPUT-D0` selects one already-exact scalar
+corridor and defines one target-bound input that consumes those four rows. It
+must not widen language types, change an ABI, infer layout from a Box name, or
+treat raw `MirType::Integer` as signedness/width/alignment authority. Missing
+or conflicting rows reject before session/publication/backend effects. General
+integer widths, pointer-sized integers, overflow policy, aggregates, packing,
+and address spaces remain separate BoxCount decisions and cannot be smuggled
+into this BoxShape convergence row.
 
 ## A-prime exact-i64 storage-policy D0 / I0
 
@@ -98,11 +98,41 @@ authorities. `MirType::Integer`, `StorageClass::InlineI64`, raw-layout or
 fastmem classes, Generic-G0 callable carriers, JSON/C text, `ValueId`, and a
 receipt lane alone must not select this policy. Missing, foreign, duplicate,
 conflicting, addressable, or expanded rows reject before JSON/backend effects;
-there is no fallback, retry, re-inference, or layout synthesis. The I0 row
-does not claim the complete four-authority backend input: `pos`/`end` still lack
-independent physical-representation ledger rows. The next design stop is to
-audit those rows before any JSON/C/backend effect or broader physical-type
-acceptance.
+there is no fallback, retry, re-inference, or layout synthesis.
+
+### Accepted D0 target-layout boundary
+
+The target-layout authority is the existing move-only
+`PinnedTextCompileTargetCapabilityV1`, but A-prime may consume only a typed
+target-layout child projection from it. Residence ABI, root-count, object
+emitter, and TargetMachine facts remain outside this row. The capability is
+issued once by the outer LLVM compile request, moved through the same module
+invocation session, and related to the module brand only by the live
+`PinnedTextCompileInvocationBindingRefV1`; the two numeric ordinals are never
+compared. The binding must survive to the selected Dynamic physical close.
+
+The bounded I0 co-seal is:
+
+```text
+exact source i64 relation
+  + selected ImmediateI64 representation pair
+  + validated A-prime ABI rows
+  + invocation-bound typed target-layout child
+  -> one plain target-bound exact-i64 storage input
+```
+
+The child projection is issued by the existing target capability through an
+exhaustive profile mapping; it never parses `data_layout`, uses host/default
+facts, or reconstructs width/alignment from MIR/JSON/C. The selected emitter
+is the sole co-seal owner, and the existing AOT projection stores the row.
+JSON/C/backend consumers remain closed in this I0.
+
+Finite D0 states are `Outside`, `SourceMissing`, `RepresentationMissing`,
+`AbiMissing`, `TargetOwnerMissing`, `Foreign`, `Conflict`, `Unsupported`,
+`Ready`, and `Consumed`. Missing, foreign, stale, duplicate, conflicting, or
+unsupported rows are typed reject terminals with no repair, retry, fallback, or
+re-pair. Requiring a second target catalog, a new semantic receipt, or a
+target-less Dynamic cohort is `NoSafeSlice`.
 
 ## A-prime exact-i64 formal representation D1
 

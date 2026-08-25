@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-PHYSICAL-TYPE-INPUT-D0
+Status: Fast — MIR-PHYSICAL-TYPE-INPUT-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-PHYSICAL-TYPE-INPUT-D0
+  current decision  = MIR-PHYSICAL-TYPE-INPUT-I0 (D0 accepted)
   implementation    = JoinIR remapper isolation I0 landed at 0048c0176a
-  mode              = design_stop
+  mode              = fast
   production stop   = active lifecycle inventory is the sole production collector; old merge/remap is reference-only
-  exit              = accept D0 authority/matrix; then one exact-i64 implementation cell
+  exit              = preserve invocation binding; issue target-layout child; co-seal four rows once; then focused I0 proof
   fallback / retry  = 0
 ```
 
@@ -469,17 +469,16 @@ all negative states reject before effect, with no repair or re-pair.
 P0 receipt: `41f82d4be4` split emitter 587/185; D1 pair child 118, capability
 parent 652 (<760); no new edge/warning class.
 
-## Ordered follow-ups (design/retirement, not selected)
+## Ordered follow-ups (selected I0 / later retirement)
 
-`MIR-PHYSICAL-TYPE-INPUT-D0`: design_stop; Decision = exact source scalar,
-representation, ABI class, and target-layout rows co-seal once; no width/layout inference.
-Source authority + issuer = exact-i64 relation plus existing representation/ABI owners;
-select one invocation-bound target-layout owner (PinnedText only if the selected Dynamic invocation is proven identical, otherwise a common target-only row).
-Non-authority = `MirType::Integer`, `FunctionMetadata`/`StorageClass`, strings/defaults,
-backend/TargetMachine reconstruction, JSON/C/Python lanes. Fail-fast = bind/validate
-target before session effect, co-seal before publication, and reject missing/foreign/stale/conflicting/duplicate/unsupported rows with no retry.
-D0 tasks = states (`Outside`,`SourceMissing`,`RepresentationMissing`,`AbiMissing`,
-`TargetOwnerMissing`,`Foreign`,`Conflict`,`Unsupported`,`Ready`,`Consumed`) + four-row schema + old inference-edge delete set; I0 waits for this authority decision. Non-claims = other widths/pointers/aggregates, FunctionMetadata, backend activation, Call R6, VM/PyVM, warnings.
+`MIR-PHYSICAL-TYPE-INPUT-D0`: accepted; I0 is the selected exact-i64 cell.
+Decision = source scalar, representation, ABI class, and target-layout rows co-seal once; no width/layout inference. Source authority = exact-i64 relation plus existing representation/ABI owners. Target issuer = existing PinnedText compile capability,
+projected to a typed invocation-bound child; Residence/object facts stay outside.
+Non-authority = `MirType::Integer`, `FunctionMetadata`/`StorageClass`, strings/defaults, backend/TargetMachine reconstruction, JSON/C/Python lanes. Fail-fast = preserve the
+live binding, validate before session effect, co-seal before publication, and reject
+missing/foreign/stale/conflicting/duplicate/unsupported rows with no retry.
+I0 tasks = target child + binding transport + one close co-seal + existing projection; finite states are `Outside/Missing/Foreign/Conflict/Unsupported/Ready/Consumed`.
+Non-claims = other widths/pointers/aggregates, FunctionMetadata, backend activation, Call R6, VM/PyVM, warnings.
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
 import aliases retain their existing canonical producers; post-merge imports are
@@ -497,7 +496,7 @@ late issuer retirement (closed). Non-claims: core field
 cutover, operand SSOT, selected terminal closure, and historical backend re-entry.
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap isolation I0 landed at 0048c0176a; physical type D0 is the design stop; native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
+R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap isolation I0 landed at 0048c0176a; physical type D0 is accepted and exact-i64 I0 is selected; native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
 
 ## Production invariants
 ```text
@@ -571,10 +570,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-PHYSICAL-TYPE-INPUT-D0
-  -> design_stop: D0-A select one invocation-bound storage-layout owner; D0-B co-seal four rows; D0-C finite rejects; D0-D inventory old inference edges
+ MIR-PHYSICAL-TYPE-INPUT-I0
+  -> fast: preserve invocation binding; project one exact-i64 target row; co-seal source/representation/ABI/target before publication; JSON/C/backend remain ParkedSealed
 Next (not selected)
-  -> MIR-PHYSICAL-TYPE-INPUT-I0 after D0: one exact-i64 target row and one selected Dynamic consumer; JSON/C/backend remain ParkedSealed
+  -> MIR-CALL-CORE-R6-D0 after I0; remove `func`/`Option<Callee>` atomically, while backend/New and non-selected backends remain ParkedSealed
 Call lane (after D0/I0): R6 canonical operand/escape projection and lifecycle inventory are closed; JoinIR remap is test/reference-only at 0048c0176a, so do not revive caller-zero code
   -> cutover: `Call { dst, callee: Callee, args, effects }`; remove `func`, `Option<Callee>`, INVALID sentinels; decide MirCall/CallFlags, Method(None), Closure construction, and Constructor/NewBox boundary together; then typed-only terminal consumers, fallback/retry/by-name lookup = 0, parity + one guard
 After MIR Call retirement
