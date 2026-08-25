@@ -1,5 +1,13 @@
 use super::*;
 
+fn non_pure_extern_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInstruction {
+    let mut call = extern_call(dst, name, args);
+    if let MirInstruction::Call { effects, .. } = &mut call {
+        *effects = EffectMask::READ;
+    }
+    call
+}
+
 #[test]
 fn sinks_publication_helper_to_same_block_store_boundary() {
     let mut module = MirModule::new("substring_concat_publication_store".to_string());
@@ -73,7 +81,7 @@ fn sinks_publication_helper_to_same_block_store_boundary() {
         rhs: ValueId(9),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(extern_call(
+    block.instructions.push(non_pure_extern_call(
         ValueId(11),
         SUBSTRING_CONCAT3_EXTERN,
         vec![ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
@@ -174,11 +182,13 @@ fn sinks_publication_helper_to_same_block_store_boundary() {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
+                    effects,
                     ..
                 } if *dst == ValueId(11)
                     && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
                     && args.as_slice()
                         == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
+                    && *effects == EffectMask::READ
             )
         })
         .expect("sunk helper call");
@@ -281,7 +291,7 @@ fn sinks_publication_helper_to_same_block_fieldset_boundary() {
         rhs: ValueId(9),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(extern_call(
+    block.instructions.push(non_pure_extern_call(
         ValueId(11),
         SUBSTRING_CONCAT3_EXTERN,
         vec![ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
@@ -385,11 +395,13 @@ fn sinks_publication_helper_to_same_block_fieldset_boundary() {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
+                    effects,
                     ..
                 } if *dst == ValueId(11)
                     && name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN
                     && args.as_slice()
                         == [ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)]
+                    && *effects == EffectMask::READ
             )
         })
         .expect("sunk helper call");

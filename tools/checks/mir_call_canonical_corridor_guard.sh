@@ -602,15 +602,15 @@ publication_end = publication.index("#[cfg(test)]", publication_start)
 publication_window = " ".join(publication[publication_start:publication_end].split())
 if (publication_window.count("MirInstruction::Call { .. } => inst") != 1 or publication_window.count("used_values()") != 1 or "method_receiver_is_alias" in publication_window or "callee" in publication_window):
     raise SystemExit("user-box publication retained a local Callee/receiver matcher")
-
 host_writer = (root / "src/mir/passes/string_corridor_sink/publication.rs").read_text()
-host_start = host_writer.index("pub(super) fn apply_publication_host_boundary_plans")
-host_end = host_writer.index("if rewritten > 0", host_start)
-host_window = " ".join(host_writer[host_start:host_end].split())
-if (host_window.count("MirInstruction::call(") != 1 or host_window.index("MirInstruction::call(") > host_window.index("rewrite_method_set_value") or any(token not in host_window for token in ("Some(plan.helper_dst)", "Callee::Extern(plan.publish_extern.to_string())", "vec![plan.left, plan.middle, plan.right, plan.start, plan.end]", "plan.effects"))):
-    raise SystemExit("publication host writer lost its single plan-owned canonical Call")
-if any(token in host_window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")):
-    raise SystemExit("publication host writer retained a legacy or inferred Call field")
+for label, marker, rewrite in (("host", "apply_publication_host_boundary_plans", "rewrite_method_set_value"), ("write", "apply_publication_write_boundary_plans", "rewrite_publication_write_boundary_value")):
+    start = host_writer.index(marker)
+    end = host_writer.index("if rewritten > 0", start)
+    window = " ".join(host_writer[start:end].split())
+    if (window.count("MirInstruction::call(") != 1 or window.index("MirInstruction::call(") > window.index(rewrite) or any(token not in window for token in ("Some(plan.helper_dst)", "Callee::Extern(plan.publish_extern.to_string())", "vec![plan.left, plan.middle, plan.right, plan.start, plan.end]", "plan.effects"))):
+        raise SystemExit(f"publication {label} writer lost its single plan-owned canonical Call")
+    if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")):
+        raise SystemExit(f"publication {label} writer retained a legacy or inferred Call field")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()

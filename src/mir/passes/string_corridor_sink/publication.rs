@@ -466,13 +466,12 @@ pub(super) fn apply_publication_write_boundary_plans(
                 .get(&idx)
                 .cloned()
                 .unwrap_or_else(|| span.clone());
-            new_insts.push(MirInstruction::Call {
-                dst: Some(plan.helper_dst),
-                func: ValueId::INVALID,
-                callee: Some(Callee::Extern(plan.publish_extern.to_string())),
-                args: vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
-                effects: plan.effects,
-            });
+            new_insts.push(MirInstruction::call(
+                Some(plan.helper_dst),
+                Callee::Extern(plan.publish_extern.to_string()),
+                vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
+                plan.effects,
+            ));
             new_spans.push(helper_span);
             new_insts.push(
                 rewrite_publication_write_boundary_value(&inst, plan.helper_dst)
