@@ -155,16 +155,18 @@ fn rewrites_publication_helper_substring_via_plan_metadata() {
             dst: Some(dst),
             callee: Some(Callee::Extern(name)),
             args,
+            effects,
             ..
         } if *dst == ValueId(14)
             && (name == SUBSTRING_CONCAT3_EXTERN
                 || name == SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN) =>
         {
-            Some(args.clone())
+            Some((args.clone(), *effects))
         }
         _ => None,
     });
-    let helper_args = helper_call.expect("publication helper substring call");
+    let (helper_args, helper_effects) = helper_call.expect("publication helper substring call");
+    assert_eq!(helper_effects, EffectMask::PURE);
     assert_eq!(&helper_args[..3], &[ValueId(5), ValueId(7), ValueId(6)]);
     let composed_start = helper_args[3];
     let composed_end = helper_args[4];

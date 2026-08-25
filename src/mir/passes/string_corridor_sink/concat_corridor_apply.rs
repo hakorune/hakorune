@@ -430,13 +430,12 @@ pub(crate) fn apply_concat_corridor_plans(
                         rhs: *inner_end,
                     });
                     new_spans.push(span.clone());
-                    new_insts.push(MirInstruction::Call {
-                        dst: Some(*outer_dst),
-                        func: ValueId::INVALID,
-                        callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
-                        args: vec![*left, *middle, *right, *composed_start, *composed_end],
-                        effects: *effects,
-                    });
+                    new_insts.push(MirInstruction::call(
+                        Some(*outer_dst),
+                        Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string()),
+                        vec![*left, *middle, *right, *composed_start, *composed_end],
+                        *effects,
+                    ));
                     new_spans.push(span);
                     rewritten += 1;
                 }

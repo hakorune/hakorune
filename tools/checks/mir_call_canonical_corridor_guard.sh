@@ -562,7 +562,6 @@ if "_ =>" in projection:
     raise SystemExit("Callee projection introduced a wildcard variant arm")
 if "pub fn rewrite_value_operands" not in projection:
     raise SystemExit("Callee projection lost mutable rewrite facet")
-
 flow = (root / "src/mir/passes/simplify_cfg/flow.rs").read_text()
 rewrite_start = flow.index("fn rewrite_value_uses_in_instruction")
 call_start = flow.index("MirInstruction::Call {", rewrite_start)
@@ -572,7 +571,6 @@ if "Callee::" in call_window:
     raise SystemExit("SimplifyCFG retained a pass-local Callee match")
 if call_window.count("rewrite_value_operands") != 1:
     raise SystemExit("SimplifyCFG Call arm does not delegate exactly once")
-
 methods = (root / "src/mir/instruction/methods.rs").read_text()
 used_start = methods.index("pub fn used_values")
 used_window = methods[used_start:]
@@ -582,7 +580,6 @@ if used_window.index("callee.for_each_value_operand") > used_window.index("used.
     raise SystemExit("used_values emits args before typed Callee operands")
 if "match callee" in used_window:
     raise SystemExit("used_values retained a consumer-local Callee match")
-
 value_consumer = (root / "src/mir/value_consumer.rs").read_text()
 consumer_start = value_consumer.index("fn value_consumer_used_values")
 consumer_end = value_consumer.index("pub fn refresh_function_value_consumer_facts", consumer_start)
@@ -617,6 +614,9 @@ for label, marker, tail in (("instruction-return", "if plan.return_idx == Some(i
 concat = (root / "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs").read_text(); apply_start = concat.index("pub(crate) fn apply_concat_corridor_plans"); writer_start = concat.index("ResolvedConcatCorridorPlan::MaterializationStore {", concat.index("for (idx, (inst, span)", apply_start)); writer_end = concat.index("ResolvedConcatCorridorPlan::StoreSharedReceiverSubstring", writer_start); window = " ".join(concat[writer_start:writer_end].split())
 if (window.count("MirInstruction::call(") != 1 or any(token not in window for token in ("Some(*helper_dst)", "Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())", "vec![*left, *middle, *right, *start, *end]", "*helper_effects"))): raise SystemExit("materialization store writer lost its single plan-owned canonical Call")
 if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("materialization store writer retained a legacy or inferred Call field")
+substring_start = concat.index("ResolvedConcatCorridorPlan::PublicationSubstring {", concat.index("for (idx, (inst, span)", apply_start)); substring_end = concat.index("ResolvedConcatCorridorPlan::MaterializationStore {", substring_start); window = " ".join(concat[substring_start:substring_end].split())
+if (window.count("MirInstruction::call(") != 1 or any(token not in window for token in ("Some(*outer_dst)", "Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())", "vec![*left, *middle, *right, *composed_start, *composed_end]", "*effects"))): raise SystemExit("publication substring writer lost its single plan-owned canonical Call")
+if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("publication substring writer retained a legacy or inferred Call field")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()
