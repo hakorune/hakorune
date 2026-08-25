@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — closeout (MIR-METADATA-CONSUMER-MANIFEST-I0)
+Status: Active workstream — design stop (MIR-PHYSICAL-TYPE-INPUT-D0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-METADATA-CONSUMER-MANIFEST-I0
-  implementation    = landed at 5fb0277d91; D2c Raw direct-body closeout is complete and P2 remains observation-only
-  mode              = closeout
-  production stop   = all 127 FunctionMetadata stored fields are inventoried with owner/count evidence; no semantic authority, JSON schema, backend route, or field retirement changes
-  exit              = manifest + validator + reusable positive/negative guard + reference pointer; P2 does not activate or promote a consumer
+  current decision  = MIR-PHYSICAL-TYPE-INPUT-D0
+  implementation    = design stop; P2 metadata-manifest closeout landed at 618157cccb and the next candidate is A-prime exact-i64 only
+  mode              = design_stop
+  production stop   = no physical input may issue until a callable scalar storage-layout authority co-seals with source contracts, representation, and ABI
+  exit              = docs-only D0 Decision/state matrix naming the missing storage-layout owner and exact four-row schema; no code or backend effect
   fallback / retry  = 0
 ```
 
@@ -356,6 +356,62 @@ Non-claims:
   No metadata promotion, field deletion, backend activation, ModuleMetadata
   census, physical-type input, seed retirement, or warning cleanup.
 
+## Design stop: MIR-PHYSICAL-TYPE-INPUT-D0
+
+Decision:
+  Select only the A-prime exact-`i64` family as the first physical-input
+  pilot. The row is not implementation-safe yet: callable scalar
+  storage-layout authority is still unnamed, so the terminal is `NoSafeSlice`.
+
+Census boundary:
+  Selected `ParserScanLoopBox.skip_while/4` final-source exact-`: i64` rows
+  (`pos`, `end`, exact-i64 result) -> package parameter/result facts ->
+  `DynamicAPrimeI64SourceRelationViewV1` plus the complete Dynamic Recipe and
+  physical input -> `VerifiedAPrimeI64PhysicalDemandV1` -> session
+  `DynamicV2PhysicalRepresentationV1::ImmediateI64` ->
+  `APrimeI64PhysicalReceiptV1` / `DynamicV2AotCallMetadataProjectionV1` ->
+  selected C validation in `hako_llvmc_ffi_checked_callout_lowering.inc`.
+  Exact-i64 formals, call arguments/results, induction/return transport, and
+  the same-session receipt are included. Dynamic/opaque handles, ExactText,
+  generic `value_types`, boxed sums, raw/fastmem layout, other widths, other
+  backends, route/cutover/perf are excluded.
+
+Source authority + canonical issuer:
+  Exact source/package i64 contracts and the final A-prime source/Recipe
+  co-seal own semantic facts. A future physical-input co-sealer may aggregate
+  four same-cohort rows but may not issue new meaning. Usable representation
+  and ABI transport owners are the existing `ImmediateI64` capability and
+  A-prime receipt/call-metadata co-seal.
+
+Missing authority:
+  No dedicated callable scalar storage-layout row exists. `MirType::Integer`
+  and `StorageClass::InlineI64` are logical inventories, not layout/ABI truth;
+  raw-layout/fastmem vocabulary, JSON strings, ValueId, receipt lane alone,
+  C validation, and other backends are non-authority.
+
+Finite state / fail-fast:
+
+| State | Outcome | Fallback |
+| --- | --- | --- |
+| `OutsideCandidate` | existing owner continues; no physical issue | none |
+| `SourceExactButIncomplete` | missing representation/ABI/layout -> `NoSafeSlice` | none |
+| `CompleteSameCohort` | future one-shot input may be issued after owner decision | none |
+| `Conflict` | non-i64 or lane/layout mismatch typed reject before JSON/backend | none |
+| `ForeignDuplicateStale` | typed reject; no repair or re-pair | none |
+| `UnsupportedBackend` / `Consumed` | typed reject before effect or second take | none |
+
+Smallest next slice:
+  Docs-only D0 Decision/state matrix naming the dedicated callable scalar
+  storage-layout owner and exact four-row schema. No Rust, C, fixture, backend,
+  ABI, layout, type-width, caller, or performance change.
+
+Acceptance for a later implementation row:
+  Preserve existing i64/object parity for `pos`/`end` and inner/outer returns
+  through one input; reject bare `MirType::Integer`, `StorageClass::InlineI64`,
+  JSON `"i64"`, receipt-only lanes, and missing/conflicting/foreign rows; then
+  require one selected-backend consumer and caller-zero for the old independent
+  return-type/lane/parameter reconstructions.
+
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
 import aliases retain their existing canonical producers; post-merge imports are
@@ -448,16 +504,15 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-METADATA-CONSUMER-MANIFEST-I0
-  -> closeout: landed at 5fb0277d91; verify manifest, missing/duplicate guard, metadata catalog guard, and pointer receipt before selecting the P3 design audit
+ MIR-PHYSICAL-TYPE-INPUT-D0
+  -> design stop: A-prime exact-i64 is the sole candidate; callable scalar storage-layout authority is missing, so implementation/backend effects stay closed
 Next (not selected)
   -> Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
-  1. MIR-PHYSICAL-TYPE-INPUT-D0
-  2. MIRBUILDER-PR-STRUCTURAL-GATES-I0
-  3. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
-  4. mimalloc promotion gate, then .hako selfhost migration
+  1. MIRBUILDER-PR-STRUCTURAL-GATES-I0
+  2. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
+  3. mimalloc promotion gate, then .hako selfhost migration
 
 Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
