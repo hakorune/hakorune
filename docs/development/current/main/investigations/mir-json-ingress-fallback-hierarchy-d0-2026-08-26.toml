@@ -1,0 +1,68 @@
+title = "MIR JSON ingress v1-to-v0 fallback hierarchy design"
+status = "parked_sealed_design_no_safe_slice"
+observed_commit = "5b36855ae604"
+observed_at = "2026-08-26"
+active_pointer = "not selected; separate from D1B Row B producer closure"
+
+[boundary]
+starts = "--mir-json-file/core_executor direct MIR text intake"
+ends = "MirModule publication or terminal typed parse error"
+includes = [
+  "src/runner/json_artifact/mir_loader.rs:3-54",
+  "src/runner/json_artifact/mod.rs:31-55",
+  "src/runner/core_executor.rs:40-43,138-143",
+  "src/runner/json_v1_bridge/**",
+  "src/runner/mir_json_v0.rs and owner-local v0 call parsing",
+]
+excludes = [
+  "D1B Builder Method(None) producer closure",
+  "Program(JSON v0) import merge semantics after artifact classification",
+  "hv1 inline force route and non-MIR JSON inputs",
+  "Call schema, VM/native dispatch, and backend activation",
+]
+
+[brief]
+decision = "The primary direct-MIR intake has a fallback hierarchy where a v1 parse Err may be reinterpreted by v0 when the text also looks like v0; strict v1 rejection cannot be claimed until this hierarchy has one explicit owner and finite policy."
+source_authority = "wire schema/version discriminator plus the v1/v0 parser contracts at the artifact loader boundary"
+canonical_issuer = "json_artifact::mir_loader classification -> exactly one typed parser -> MirModule or typed terminal error"
+non_authority = [
+  "v0 parse success after a v1 rejection",
+  "looks_like_mir_v0 substring shape alone",
+  "error text, core_bridge reparse, or Program loader fallback",
+]
+fail_fast = "an explicitly v1-shaped payload that fails v1 validation must reject before v0 reinterpretation; an unmarked v0 payload may enter the owner-local compatibility parser only under an explicit state"
+smallest_next_slice = "Design-only census of direct/umbrella ingress callers, version-shape states, v1/v0 error precedence, and round-trip/profile parity; no parser or fallback code change yet."
+non_claims = [
+  "individual v1 field strictness changes",
+  "JSON-v0 schema retirement",
+  "D1B producer closure or ArrayElementWrite",
+  "backend/runtime activation or warning cleanup",
+]
+
+[finite_state]
+v1_ready = "schema/version explicitly v1 and typed parse succeeds -> publish v1 MirModule"
+v1_reject = "explicit v1 shape but typed validation fails -> typed v1 terminal reject; no v0 retry"
+v1_not_applicable = "no v1 discriminator and explicit v0 shape -> owner-local v0 parser"
+v0_ready = "v0 parser succeeds -> publish compatibility MirModule"
+both_reject = "eligible v0 compatibility parse also fails -> one combined diagnostic, no third parser"
+unsupported_shape = "neither v1 nor v0 shape -> typed unsupported-shape terminal"
+program_json = "Program(JSON v0) -> separate compatibility loader only after MIR artifact classification returns None"
+
+[acceptance]
+required_before_fast = [
+  "direct --mir-json-file and umbrella JSON artifact callers are separately inventoried",
+  "schema/version discriminator precedence is explicit and tested",
+  "v1 rejection cannot silently enter v0 parsing on the primary direct route",
+  "v0 compatibility remains available for genuinely unmarked v0 payloads",
+  "self-emitter round-trip, malformed-v1, valid-v0, and unsupported-shape parity are recorded",
+  "core_bridge/program fallback cannot re-enter the parser owner after a terminal reject",
+]
+positive = ["valid v1 -> v1 parser", "valid unmarked v0 -> v0 parser", "Program JSON -> Program compatibility owner"]
+negative = ["malformed explicit v1 -> v0 retry = 0", "unsupported shape -> no parser retry", "parse error -> no silent default or profile coercion"]
+guard = "a future guard must be loader-window scoped; it must not global-grep v0/v1 strings or conflate Program(JSON v0) compatibility"
+
+[disposition]
+state = "ParkedSealed"
+owner = "MIR JSON ingress lane, separate from the active D1B Row B card"
+reason = "The finding is classified and bounded but not selected by CURRENT_STATE.toml; implementing it now would mix ingress policy with Builder producer closure."
+reopen_trigger = "the active Call lane selects this ingress row or a new v1/v0 fallback caller appears"

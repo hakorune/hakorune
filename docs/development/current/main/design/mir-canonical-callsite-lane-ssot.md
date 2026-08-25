@@ -211,6 +211,13 @@ ny-llvmc still has no decoder/lowerer/ABI owner for
 `site_id/dst/kind/producer/receiver/index/value`; no array implementation is
 authorized.
 
+Separate ingress blocker: the direct MIR loader's
+`parse_direct_mir_json_text_with_v0_fallback` may reinterpret a v1 parse error
+through v0 when the payload also looks like v0. This is a distinct design-only
+hierarchy row, recorded at
+`docs/development/current/main/investigations/mir-json-ingress-fallback-hierarchy-d0-2026-08-26.toml`;
+it is not part of D1B producer closure and does not authorize parser changes.
+
 The landed implementation manifest is:
 
 ```text
