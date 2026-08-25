@@ -10,6 +10,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1c1-generic-function-call-handoff-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1e-normal-main-thunk-issuer-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1f-typed-method-issuer-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -92,22 +93,21 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` currently selects:
 
 ```text
-MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
+MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
 ```
 
-The row is now in closeout after commit `2150472c35`: the one exact
-normal-main physical thunk delegates to `MirInstruction::call` and preserves
-source/physical arity, result, destination, empty args, effects, and transaction
-publication. Its finite receipt is in:
+It is `design_stop`, not an implementation permission. The preceding D1E row
+is landed at `2150472c35`; the next bounded design slice is the existing typed
+Method SSOT helper, whose finite boundary and acceptance are in:
 
 ```text
 docs/development/current/main/investigations/
-  mir-call-core-r6-d1e-normal-main-thunk-issuer-2026-08-25.toml
+  mir-call-core-r6-d1f-typed-method-issuer-2026-08-25.toml
 ```
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
-`NoSafeSlice`/`CutoverBlockerOpen` boundaries; this receipt does not authorize
-field deletion, `Method(None)` repair, or generic FunctionCall changes.
+`NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1F does not authorize field
+deletion, `Method(None)` repair, or generic FunctionCall changes.
 
 ## R6 retirement order
 

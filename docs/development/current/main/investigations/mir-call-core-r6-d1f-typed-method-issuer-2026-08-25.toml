@@ -1,0 +1,95 @@
+title = "MIR Call core R6 D1F typed Method issuer"
+status = "accepted_design_next_slice"
+observed_commit = "bc15189bf8"
+observed_at = "2026-08-25"
+implementation_permission = false
+
+[boundary]
+starts = "caller-provided receiver ValueId and method metadata entering the existing method SSOT helper"
+ends = "one MirInstruction::Call draft returned by src/mir/ssot/method_call.rs"
+includes = [
+  "src/mir/ssot/method_call.rs:61-83",
+  "src/mir/instruction/tests.rs:267-356",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/README.md",
+]
+excludes = [
+  "D1B Method(None) issuers and recovery terminals",
+  "D1C1 bare FunctionCall lineage",
+  "normal-main D1E receipt already landed",
+  "runtime_method_call caller fanout",
+  "JSON, VM, native, optimizer, or backend consumers",
+  "func/Option<Callee> core schema deletion",
+  "CallFlags, Closure, Constructor, and warning retirement",
+]
+
+[decision]
+summary = "Normalize the existing typed Method(Some(receiver)) SSOT helper through MirInstruction::call without changing receiver/args encoding, metadata, effects, or callers."
+source_authority = "caller/resolver-issued receiver ValueId plus box_name, method, certainty, and box_kind already accepted by method_call"
+canonical_issuer = "MirInstruction::call(dst, Callee::Method { receiver, box_name, method, certainty, box_kind }, args, effects)"
+non_authority = [
+  "func: ValueId::INVALID",
+  "Method(None)",
+  "receiver-prefixed args as target authority",
+  "box/name lookup or static-method reclassification",
+  "optimizer/JSON/runtime/backend recovery",
+]
+fail_fast = "receiver is required by the helper signature; no target lookup or retry occurs inside the constructor, and existing caller validation remains before publication"
+no_retry = "no receiver synthesis, Method(None) conversion, name lookup, or argument rewriting"
+smallest_next_slice = "replace only method_call.rs:71-83 with one MirInstruction::call invocation; update the existing corridor guard, focused method parity receipt, and MIR README"
+non_claims = [
+  "D1B Method(None) retirement",
+  "D1C1 bare FunctionCall handoff",
+  "Call core field deletion",
+  "JSON/VM/native/backend changes",
+  "CallFlags/Closure/Constructor changes",
+  "warning cleanup",
+]
+
+[state_matrix]
+ready = "receiver ValueId plus method metadata are present -> canonical Method(receiver) Call"
+missing_receiver = "not representable at this helper boundary -> typed caller error before helper entry; no default"
+method_none = "outside this row -> remain D1B CutoverBlockerOpen; no static/instance guess"
+metadata_conflict = "outside this row -> existing caller/resolver rejection; no helper reclassification"
+unsupported_consumer = "outside selected backend/consumer -> ParkedSealed; no parity expansion"
+
+[proof]
+positive = [
+  "test_method_call_instruction",
+  "test_method_call_getfield_instruction",
+  "test_method_call_setfield_instruction",
+  "receiver, box_name, method, certainty, box_kind, dst, args, and effects parity",
+]
+negative = [
+  "method_call.rs contains no direct MirInstruction::Call literal after cutover",
+  "func: ValueId::INVALID and callee: Some( are absent from the helper",
+  "Method(None), lookup, retry, and fallback remain absent",
+]
+parity = ["callee", "receiver/args occurrence order", "dst", "effects", "instruction shape"]
+guards = [
+  "bash tools/checks/mir_call_canonical_corridor_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+stop_if = [
+  "optional receiver or static classification is required",
+  "caller fanout or receiver-prefixed argument order changes",
+  "runtime_method_call needs a separate target policy",
+  "JSON/VM/backend code must be edited",
+  "method_call.rs reaches 760/800 lines",
+]
+
+[acceptance]
+status = "design_stop_until_pointer_switch"
+focused_test = "instruction::tests::test_method_call_instruction plus getfield/setfield parity"
+expected_inventory_delta = "one canonical helper delegation; direct literal 36 -> 35; canonical helper caller fanout 7 -> 8"
+implementation_scope = "one existing owner, one shared guard extension, one README receipt; no new semantic receipt"
+review = "read-only upper-worker census selected this as the sole next bounded issuer after D1E"
+
+[reopen]
+triggers = [
+  "receiver becomes optional",
+  "Method(None) is emitted by the helper or a new caller",
+  "target classification or argument rewriting enters the helper",
+  "Constructor/Closure/CallFlags becomes a method helper concern",
+]

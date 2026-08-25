@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,21 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
-  implementation    = D1E landed at 2150472c35; receipt and pointer sync are the remaining closeout
-  mode              = closeout
-  production stop   = no semantic stop; classify evidence and publish the D1E receipt
-  exit              = focused parity + two reusable guards + manifest/README/pointer receipt
+  current decision  = MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
+  implementation    = D1E landed at 2150472c35; D1F is design-only until pointer-selected fast entry
+  mode              = design_stop
+  production stop   = D1F helper boundary must remain Method(Some(receiver)); no Method(None) repair
+  exit              = accepted D1F decision plus one bounded implementation slice
   fallback / retry  = 0
 ```
 
 Next bounded design brief:
 
 ```text
-Decision: close the landed D1E normal-main physical thunk issuer and record its evidence.
-Source authority + canonical issuer: VerifiedResolvedOwnerHeaderV1 + VerifiedNormalMainEntryRelationV1 -> exact Global -> MirInstruction::call. Non-authority: func/INVALID, text lookup, Method/Method(None), backend/JSON/optimizer recovery.
-Fail-fast boundary: source/physical arity before draft/block creation; typed-definition/MIR verification before module publication. Smallest next slice: manifest/pointer sync only; no further source edit.
-Non-claims: D1B/D1C1, Method issuer A, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
+Decision: audit one existing typed Method SSOT helper as the next issuer-normalization slice.
+Source authority + canonical issuer: caller/resolver receiver ValueId plus box/method/certainty/kind -> Callee::Method(receiver) -> MirInstruction::call. Non-authority: func/INVALID, Method(None), receiver-prefixed args as target authority, lookup/retry, backend/JSON/optimizer recovery.
+Fail-fast boundary: receiver is required at helper entry and existing caller validation remains before publication. Smallest next slice: method_call.rs:61-83, existing method parity tests, shared corridor guard, and one README receipt; no code is authorized in design_stop.
+Non-claims: D1B/D1C1 terminals, other Method callers, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
 ```
 
 ## Closed chronology (archived)
@@ -68,8 +68,7 @@ NoSafeSlice remains a development state;
 legacy retirement requires caller-zero evidence.
 ```
 
-The completed Dynamic AOT activation is historical evidence only. Do not
-restore its task order or any other closed chronology here.
+Closed activation chronology is historical evidence only; it does not select work.
 
 ## Protected-region control-state design
 
@@ -158,8 +157,9 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSealed`;
 exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
-closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, and D1E is
-selected at `mir-call-core-r6-d1e-normal-main-thunk-issuer-2026-08-25.toml`.
+closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, D1E is
+landed at `2150472c35`, and D1F is selected at
+`mir-call-core-r6-d1f-typed-method-issuer-2026-08-25.toml`.
 
 ```text
 canonical core
