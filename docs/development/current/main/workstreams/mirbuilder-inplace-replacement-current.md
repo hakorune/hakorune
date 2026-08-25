@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0 landed
+Status: Design stop — MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -34,8 +34,8 @@ Current capsule:
 ```text
   current decision  = MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0
   implementation    = D1G landed at c3c7e0ea65; D1H-I0 landed at b090f917b4; D1I landed at 513a243be5
-  mode              = closeout
-  production stop   = D1I implementation is closed; no next fast row is selected
+  mode              = design_stop
+  production stop   = D1I implementation is closed; no code or fast-row selection before upper-worker census
   exit              = canonical helper + three concat3 parity tests + scoped guard + README receipt + pushed commit; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
