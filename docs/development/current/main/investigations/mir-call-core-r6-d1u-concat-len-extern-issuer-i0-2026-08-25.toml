@@ -1,0 +1,91 @@
+title = "MIR Call core R6 D1U concat len Extern issuer"
+status = "fast"
+observed_at = "2026-08-25"
+observed_commit = "51e55e5de8"
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0"
+decision = "MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "Replace only the paired left/right ConcatSubstringLen direct Call literals with the thin canonical constructor as one atomic family, preserving fresh ValueIds, middle length Const/Add, outer destination, effects, spans, hints, and phase-9 fusion."
+source_authority_and_canonical_issuer = "ConcatSubstringLenPlan owns left/right source windows, outer destination, middle length, and effects; the Len variant fixes SUBSTRING_LEN_EXTERN and MirInstruction::call is the sole issuer for both calls."
+non_authority = "apply-side ValueId allocation, value-type metadata, middle Const/Add, legacy func, fusion/DCE, hint/CFG, backend lookup, and PURE defaults are not target/effects authority."
+fail_fast_boundary = "outer length, concat triplet, const middle, and both substring shapes must hold; otherwise Len plan=0 and both Calls, arithmetic, and hint publication remain zero."
+smallest_next_slice = "concat_corridor_apply.rs:305 and 325 only; selected writers 9 -> 7 and concat family 6 -> 4."
+non_claims = "No InsertMid, receiver rewrite, unified/array/canonicalizer, collector/schema, ValueId/fusion schedule, Call final shape, Method(None), ingress contract, MirCall/CallFlags, backend/wire, fallback, or cleanup change."
+
+[boundary]
+starts = "collected ConcatSubstringLenPlan entries from the concat corridor collector"
+ends = "existing left/right SUBSTRING_LEN_EXTERN Calls, middle Const/Add arithmetic, outer result, hints, CFG, DCE, fusion, and folded metadata refresh"
+includes = [
+  "the two direct Call writers for ResolvedConcatCorridorPlan::Len",
+  "exact left/right source/start/end operands, fresh destinations, shared effects, middle length, and outer destination",
+  "existing span duplication, hint/count, phase-9 fusion, and DCE schedule",
+]
+excludes = [
+  "InsertMid, receiver rewrite, unified, array, canonicalizer, and remaining concat writers",
+  "collector/plan schema, ValueId allocation, middle arithmetic, phase/DCE/fusion scheduling",
+  "Call operand consumers, Method(None), Closure/Constructor, mandatory-Callee schema, MirCall/CallFlags",
+  "JSON, VM, native backend, ingress-contract queue, typed bridge errors, metadata split, and cleanup lanes",
+]
+
+[authority]
+source = "ConcatSubstringLenPlan.left/right source windows, outer_dst, middle_len, and effects"
+issuer = "MirInstruction::call(Some(*left_len_value or *right_len_value), Callee::Extern(SUBSTRING_LEN_EXTERN.to_string()), ordered source/start/end args, *effects)"
+non_authority = [
+  "apply-side ValueId allocation and metadata value types",
+  "middle Const/Add, outer result, hints, spans, CFG, DCE, and phase-9 fusion",
+  "legacy func, target Const, backend lookup, PURE inference, and retry",
+]
+
+[finite_matrix]
+positive = [
+  "one Len plan emits exactly one left and one right Extern Call with source/start/end order, shared effects, and distinct fresh destinations",
+  "middle length Const, partial/outer Add, hint/count, spans, phase-9 fusion, DCE, and folded metadata remain unchanged",
+]
+negative = [
+  "non-const middle, missing/foreign left/right substring shape, non-concat receiver, or empty plan -> no plan, no pair of Calls, no arithmetic/hint publication",
+  "unsupported route proof -> typed non-selection with no one-sided fallback or retry",
+]
+parity = [
+  "ConcatSubstringLenPlan remains the single target/effects authority; both physical issuers change together or neither changes",
+  "D1T ConcatSubstring, D1S PublicationSubstring, D1R MaterializationStore, remaining families, final Return, and phase-9 fusion remain unchanged",
+]
+
+[delete_set]
+file = "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs"
+lines = "305-312,325-332"
+remove = [
+  "two direct transitional MirInstruction::Call literals",
+  "two func: ValueId::INVALID fields",
+  "two callee: Some(Callee::Extern(...)) wrappers",
+]
+replace_with = "two MirInstruction::call issuers preserving left/right destination, source/start/end args, and *effects"
+
+[acceptance]
+focused_tests = [
+  "rewrites_concat_slice_consumers_to_corridor_helpers: exact final concat-length fusion, Return, left/right source-window order, and shared effects parity",
+]
+static_evidence = [
+  "collector branches already reject non-const middle, non-concat receiver, and missing/foreign left/right substring shapes before plan issue",
+  "the shared corridor guard must check the Len arm has exactly two plan-owned canonical Calls and forbids direct transitional fields; no one-sided fallback/retry evidence is accepted",
+]
+guards = [
+  "mir_call_canonical_corridor_guard",
+  "current_state_pointer_guard",
+  "rustfmt on touched Rust and git diff --check",
+]
+source_limits = "concat_corridor_apply.rs remains below 760/800; concat parity test is 198 lines; corridor guard remains exactly 777 lines; active card remains exactly 1000 lines"
+
+[worker_review]
+selection = "/root/d2c_consumer_selection_audit: fresh post-D1T census selected the paired left/right ConcatSubstringLen writers; selected writers 9, concat family 6"
+implementation_permission = "fast I0 is permitted only for this paired plan-owned family; Call final shape, Method(None), ingress-contract, and broader cleanup remain closed"
+
+[stop_if]
+conditions = [
+  "left/right Calls require different authority/effects, collector/schema/source-window changes, or middle/fusion/DCE semantics change",
+  "only one side can be changed, or any InsertMid, receiver rewrite, unified, array, canonicalizer, schema, Method(None), ingress, metadata, backend, or cleanup row enters the diff",
+  "guard replacement/compaction cannot stay at 777 or any touched source reaches 760/800 without a split design",
+  "negative state produces either Call, any arithmetic/hint/count, retry, or late target inference",
+]
