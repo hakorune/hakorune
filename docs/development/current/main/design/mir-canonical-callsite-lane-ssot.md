@@ -1245,6 +1245,58 @@ semantic receipt or thread raw text into it; keep the generic route
 follow-up is `MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK`: guard the selected static
 terminal and seal the generic route as an explicit outside/reopen boundary.
 
+### D1-B-PARK result — boundary accepted; D1-B implementation remains closed
+
+```text
+Decision: accept the design boundary only. The selected static source row may
+  reuse the existing catalog/publication handoff to issue qualified Global;
+  the disconnected generic Method(None) route is outside/reopen, not a new
+  producer to be repaired by raw text or a new receipt.
+Source authority + canonical issuer: same-brand declaration/source-target
+  catalog -> existing static publication handoff -> CallTarget::Global ->
+  CalleeResolver -> Callee::Global -> existing physical Call terminal.
+Non-authority: current_static_box/has_method, StaticMethodId/text formatting,
+  func/INVALID, JSON profile, methodize, VM registry/by-name/args[0] recovery.
+Fail-fast boundary: source lineage, catalog brand, static namespace,
+  owner/method/exact arity, and receipt completion before block/wire/object
+  publication; absent/ambiguous/foreign/overflow rejects.
+Smallest next slice: D1-C Closure construction/invocation design; no code,
+  fixture, fallback, or production switch is authorized by this closure.
+Non-claims: Method(None) issuer retirement, Method(Some), JSON-v0 parity,
+  Closure/Constructor cutover, JoinIR, R6 field deletion, or parked backends.
+```
+
+Selected handoff (existing products only):
+
+```text
+Cataloged source context
+  -> declaration catalog brand check
+  -> StaticBoxMethod owner/method/arity lookup
+  -> VerifiedStaticCallResultPublicationHandoffV1 (one consume)
+  -> existing static physical bridge
+  -> CallTarget::Global(owner.method/arity)
+  -> receipt-required terminal
+  -> generic MirInstruction::Call
+```
+
+The selected structural guard must assert exact owner/method/arity, catalog
+brand, `Cataloged` lineage, argument-count parity, one handoff consume, and one
+publication/claim completion. Negative rows are missing source context/location,
+foreign lineage, absent catalog/target, namespace mismatch, ambiguity,
+overflow/mismatch, failed receipt, and any rewrite/BoxCall/legacy alternate.
+The selected production `Method(None)` issuer count is intentionally still a
+known blocker (at least `method_resolution.rs:45-54` and
+`unified_emitter.rs:435-442`); B-PARK does not claim it is zero.
+
+Existing guard reuse is bounded as follows: the canonical Call corridor and
+direct-static physical-input guard are reusable structural evidence; the
+direct-static target guard currently has stale `special_handlers.rs` expectations,
+and the ingress guard has a stale 775-vs-759 line-limit expectation. Those are
+baseline guard debt, not negative evidence against the handoff design, and are
+not repaired in this design row. D1-B as a whole remains `NoSafeSlice` until
+all Method(None) producers/recovery edges are cut, owner-private compatibility,
+or explicitly parked with reopen triggers.
+
 ### D1-C result — Closure construction/invocation boundary (design only)
 
 ```text
@@ -1283,6 +1335,46 @@ NCL-1 keeps MIR closure bodies in module metadata; D1-C still requires the
 selected JSON profile to preserve or explicitly reject that relation before a
 core cut. D1-C is `NoSafeSlice` until the discriminator/body transport,
 selected caller census, and backend policy are co-sealed.
+
+### D1-C2 result — existing closure-body product cannot close wire parity
+
+```text
+Decision: keep D1-C as NoSafeSlice. Existing products preserve the closure
+  capture descriptor, but no selected wire/profile path preserves the nonempty
+  closure body identity or selected execution parity.
+Source authority + canonical issuer: AST Lambda -> ordered capture product ->
+  PreparedRawLambdaClosureEmissionV1 -> NewClosure; module metadata owns
+  ClosureBodyId -> body, and an existing closure value issues Call(Callee::Value).
+Non-authority: Callee::Closure, CallTarget::Closure, MirCall::closure,
+  CallFlags::constructor, JSON field presence, func, runtime strings, and
+  parked Python/VM-hako backends.
+Fail-fast boundary: dst, captures, body relation, and empty construction args
+  must be coherent before NewClosure/wire/backend publication; missing dst,
+  runtime args, mixed Closure+func, or body/body_id mismatch rejects.
+Smallest next slice: design-only choice between transporting the existing module
+  body identity in the selected profile and typed-rejecting Closure wire, plus
+  selected Closure caller census and backend reject guard. Do not add a schema,
+  receipt, fixture, or production switch in this row.
+Non-claims: NewClosure retirement, closure runtime, JSON schema expansion,
+  native/PyVM/reference/Python activation, or R6 field cutover.
+```
+
+Finite wire matrix:
+
+| input/route | current observation | disposition |
+|---|---|---|
+| AST Lambda with nonempty body | body externalized to `module.metadata.closure_bodies`; MIR keeps body id | wire relation currently lost |
+| v1 Closure descriptor | reconstructs empty body/body_id=None | descriptor-only parity; blocker |
+| v1 Closure + func/captures mix | field presence prefers construction path | ambiguity; typed reject required |
+| v1 Value descriptor | issues `Call(Callee::Value)` | canonical invocation shape; selected backend unsupported |
+| v0 typed Closure egress | emits `op=call` descriptor without body relation | no complete round-trip |
+| selected Rust/LLVM terminals | Closure/Value call and NewClosure unsupported | retain negative guard |
+
+The existing anchors are `raw_lambda_closure_emission.rs:29-60`,
+`function/types.rs:392-397`, `mir_json_emit/emitters/calls.rs:189-203`, and
+`json_v1_bridge/parse/mir_call.rs:178-240`. D1-C2 remains `NoSafeSlice` until
+the body identity policy, Closure caller census, and selected-backend terminal
+are co-sealed without relying on non-selected Python/VM-hako behavior.
 
 ### D1-D result — Constructor/NewBox boundary (design only)
 
@@ -1441,14 +1533,14 @@ staging cleanup, but does not authorize deleting the public `MirCall`/
 by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
-Selected next design task: `MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK`. It must
-separate the existing selected static handoff from the generic raw route,
-record the outside/reopen boundary, and attach the remaining Method(None)
-producer/recovery edges to `cut`, `compat`, or `park` without inventing a
-receipt. The current blocker is the missing generic catalog handoff, not a
-missing-callee literal. Until D1-B-PARK and later D1-C/D are accepted, do not
-change `Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, `MirCall`,
-or `CallFlags` in code.
+Selected next design task: `MIR-CALL-R6-CORE-SCHEMA-D1-C2-DESIGN`. D1-B-PARK
+accepted the existing static handoff/outside boundary, but the generic
+Method(None) issuer remains a blocker. D1-C2 must decide the existing closure
+body-identity wire boundary and selected-backend rejection without inventing a
+receipt or schema. The current blocker is not a missing-callee literal. Until
+D1-C2/D and the remaining Method(None) edges are accepted, do not change
+`Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or
+`CallFlags` in code.
 
 Post-R7 normal-root cleanup (parked, separate lane):
 

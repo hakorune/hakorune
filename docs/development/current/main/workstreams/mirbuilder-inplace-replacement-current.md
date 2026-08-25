@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK
-  -> design stop: fence the existing source-bound static Global handoff and park/reopen the disconnected generic Method(None) route without a new receipt
+ MIR-CALL-R6-CORE-SCHEMA-D1-C2-DESIGN
+  -> design stop: decide existing closure body-identity wire policy and selected-backend rejection; D1-B-PARK design-closed the selected static handoff/outside route without a new receipt
 Next (not selected)
-  -> D1-C Closure/NewClosure + D1-D Constructor/NewBox are design-only NoSafeSlice rows; R6a stays closed until all D1 rows close; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-D Constructor/NewBox owner remains design-only NoSafeSlice; R6a stays closed until D1-C2/D and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
