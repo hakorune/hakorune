@@ -146,14 +146,86 @@ subchecks = [
 implementation_permission = false
 
 [preflight_transport]
-status = "AcceptedDesignAmendmentRemainingBlockers"
+status = "AcceptedDesignAmendmentChildRowSelected"
 existing_owner = "RawBrandCallAuthorityV1 + PreparedRawFunctionPreflightRouteV1::Ordinary"
 source_authority = "same-allocation VerifiedSameModuleCallableDeclarationCatalogV1 -> BareStaticRecoveryDecisionV1::Unique(CanonicalSameModuleCallableKeyV1) -> mir_symbol_projection()"
 candidate = "Extend the existing brand/lowering scope and Ordinary preflight payload to retain the canonical key or qualified Global target before drive_call_arguments_v1; do not introduce a new Verified*/Prepared* semantic receipt."
 evidence = "function_call_preflight_route.rs:14-42,103-143,189-202; raw_expression_dispatch/mod.rs:341-353; callable_declaration_catalog/recovery.rs:39-55; callable_declaration_catalog/key.rs:50-52"
 current_gap = "RawBrandCallAuthorityV1::InstalledNonBrand, CallableSemanticLoweringState, and RawInvocationChildPortV1 currently carry no catalog brand/target payload."
 fail_fast = "foreign, ambiguous, unresolved, or precedence-invalid target must terminalize at the dispatcher/preflight seal before argument lowering, child effects, name Const, or block publication"
-blocker = "Existing transport design is viable and precedence is accepted, but RuntimeData Global and recovery closure remain open; therefore implementation_permission remains false."
+blocker = "Transport-only would leave an unconsumed target product, so the selected child row must consume it in build.rs and publish the canonical Call in the same bounded series; parent Row B RuntimeData/recovery blockers remain open."
+
+[exact_target_prepare_consume_row]
+name = "D1B-ROW-B-EXACT-TARGET-PREPARE-CONSUME-I0"
+status = "accepted_bounded_child_row"
+implementation_permission = true
+parent_status = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 remains design_stop; this child does not close the parent row"
+boundary_starts = "RawInvocationRootLineageV1::Cataloged(caller) entering RawBrandCallAuthorityV1::InstalledNonBrand"
+boundary_ends = "the selected Cataloged ordinary FunctionCall emits one canonical MirInstruction::call after one ordered argument descent"
+includes = [
+  "src/mir/builder/calls/function_call_brand_source_demand.rs: caller transport from the existing located root",
+  "src/mir/builder/calls/function_call_preflight_route.rs: six-level target selection and existing Ordinary completion payload",
+  "src/mir/builder/calls/build.rs: by-value target consume, argument descent, and canonical publication",
+  "src/mir/builder/raw_expression_dispatch/mod.rs:341-353 existing production ingress",
+  "function_call_preflight_route_tests.rs: positive/negative target-selection evidence",
+]
+excludes = [
+  "relationless compatibility, non-Cataloged roots, Brand/TypeOp/Math/FastMem/str normalization routes",
+  "RuntimeData Global methodize and unified_emitter.rs shared reissuer",
+  "materializer and unique-static recovery outside the selected Cataloged cohort",
+  "JSON ingress, VM/C/non-selected backends, MirCall/CallFlags, and final Call schema cutover",
+  "new Verified*/Prepared* semantic receipts and global caller-zero claims",
+]
+source_authority = "RawInvocationRootLineageV1::Cataloged(caller) plus the same installed VerifiedSameModuleCallableDeclarationCatalogV1"
+canonical_issuer = "existing CalleeResolverBox for Global/Extern/Value target forms, then MirBuilder::call / MirInstruction::call as the physical issuer"
+non_authority = [
+  "current_static_box and hardcoded has_method",
+  "StaticMethodId, name Const text, methodize env/trace, tail/module/registry lookup, receiver autoscan, args[0] recovery",
+]
+fail_fast = "foreign/missing catalog, current-owner arity mismatch, ambiguous/overflow recovery, or any precedence conflict rejects at preflight before argument descent, child effects, name Const allocation, block insertion, or Call publication"
+one_pass = "same-brand authority -> existing Ordinary completion seals a canonical Callee -> build.rs consumes it once -> drive_call_arguments_v1 once left-to-right -> canonical Call publication"
+
+[exact_target_prepare_consume_row.precedence]
+order = [
+  "BuiltinGlobal",
+  "CurrentOwnerStatic(same-brand, exact owner/name/arity)",
+  "LocalValue",
+  "Extern",
+  "UniqueOtherStatic(same-brand, exact name/arity)",
+  "TypedReject",
+]
+issuer_rule = "Builtin/Extern use existing CalleeResolverBox classification; current-owner and unique static use CanonicalSameModuleCallableKeyV1::mir_symbol_projection() through the same Global resolver; local uses the existing variable ValueId through the resolver's Value route"
+arity_rule = "current-owner method family with no exact arity is TypedReject and may not fall through to local, Extern, or unique-static recovery"
+
+[exact_target_prepare_consume_row.states]
+states = [
+  "ReadyBuiltinGlobal",
+  "ReadyCurrentOwnerGlobal",
+  "ReadyLocalValue",
+  "ReadyExtern",
+  "ReadyUniqueOtherGlobal",
+  "RejectedForeignOrMissingCatalog",
+  "RejectedCurrentOwnerArityMismatch",
+  "RejectedAmbiguousOrOverflow",
+]
+terminal_policy = "every state is issued by the preflight owner; Ready states carry an exact Callee into the existing completion, Rejected states return a typed pre-effect error, and no state retries or defaults"
+
+[exact_target_prepare_consume_row.acceptance]
+positive = [
+  "Cataloged same-owner static resolves to the identical owner.method/arity Global key even when a same-name local exists",
+  "builtin beats catalog/local, local beats Extern and unique other static, and Extern is retained when no local exists",
+  "target is consumed exactly once, arguments descend exactly once in source order, and dst/effects/result parity is preserved",
+]
+negative = [
+  "foreign/missing catalog, current-owner wrong arity, ambiguous candidate, and arity overflow reject before child effect, name Const, block, or Call",
+  "argument failure produces no Call and no retry/reprepare after the target was consumed",
+]
+guard = "scoped child-row guard/test proves one target issue, one by-value consume, zero target drop, zero selected late resolver/recovery/name-Const re-entry, and one canonical MirInstruction::call"
+non_claims = [
+  "parent Row B RuntimeData Global provenance or unified-emitter methodize closure",
+  "all Builder Method(None) literals, all recovery callers, or final mandatory-Callee schema",
+  "JSON-v0/v1 ingress behavior, backend activation, and warning/panic cleanup",
+]
 
 [acceptance]
 required_before_fast = [

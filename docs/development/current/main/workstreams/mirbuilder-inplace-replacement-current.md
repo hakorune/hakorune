@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
+  current decision  = MIR-CALL-CORE-R6-D1B-EXACT-TARGET-PREPARE-CONSUME-I0
   implementation    = FUNCTION-METADATA-OWNER-SPLIT-R0 landed: metadata.rs 804 -> 718; nested checked-callout/linear-slot owners are 40/50 lines, with no #[path]; ArrayElementWrite remains ParkedSealed
-  mode              = design_stop
-  production stop   = Row B has exactly two Builder Method(None) producer literals; the six-level pre-effect precedence is accepted, while catalog transport, RuntimeData Global cohort, and recovery closure remain open; ArrayElementWrite has no selected-native consumer authority
-  exit              = accepted catalog handoff before argument descent, remaining RuntimeData/recovery delete set, and scoped parity/guard; no producer deletion before acceptance
+  mode              = fast
+  production stop   = The selected Cataloged Ordinary FunctionCall child must consume one exact target from the existing preflight product before argument descent and publish one canonical Call; parent RuntimeData/recovery blockers and ArrayElementWrite remain outside this slice
+  exit              = one target issue, one by-value consume, one ordered argument descent, one canonical publication, focused positive/negative/guard evidence; no parent producer/recovery retirement claim
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: NoSafeSlice — Row B's two Builder Method(None) literals are syntactically exhausted, and the six-level shadow/target precedence is accepted, but semantic closure is blocked by missing catalog transport, RuntimeData Global provenance, and post-argument recovery retirement; ArrayElementWrite is ParkedSealed.
+Decision: D1B-ROW-B-EXACT-TARGET-PREPARE-CONSUME-I0 — an accepted bounded child of the parent Row B design stop; carry the existing Cataloged source key through Ordinary preflight, consume it once in build.rs, descend arguments once, and publish one canonical Call.
 Source authority + canonical issuer: same-brand declaration catalog -> CanonicalSameModuleCallableKeyV1 -> `mir_symbol_projection()` -> qualified `CallTarget::Global` -> `CalleeResolverBox` -> canonical Call.
 Non-authority: `current_static_box`, hardcoded `has_method`, `StaticMethodId`/name/Const text, methodize env/trace, tail/module lookup, registry, receiver autoscan, args[0], JSON/VM/C fallback.
 Fail-fast boundary: the accepted six-level owner/method/arity/brand precedence must be carried into the existing preflight owner before `build.rs` argument descent, child effects, name Const allocation, block insertion, or physical publication.
-Smallest next slice: design-only amendment in `mir-call-core-r6-d1b-row-b-producer-closure-d0-2026-08-26.toml`; close existing preflight transport, RuntimeData Global disposition, and the full semantic delete set.
-Non-claims: no producer deletion, D1C1 resolution, Builder-external Method(None), JSON ingress/fallback hierarchy, backend/VM activation, final Call schema, new receipt, or warning cleanup.
+Smallest next slice: `D1B-ROW-B-EXACT-TARGET-PREPARE-CONSUME-I0` in the Row B investigation card; edit only the existing source transport/preflight/build consumer and its focused evidence.
+Non-claims: parent RuntimeData Global/methodize and recovery closure, all Method(None) deletion, D1C1 resolution, compatibility/JSON/backend routes, final Call schema, new receipt, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
