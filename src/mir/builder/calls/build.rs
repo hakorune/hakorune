@@ -211,10 +211,12 @@ impl MirBuilder {
                 .log
                 .error(&format!("[FATAL] Current depth: {}", self.recursion_depth));
             ring0.log.error(&format!("[FATAL] Method: {}", method));
-            return Err(format!(
+            let error = format!(
                 "build_method_call recursion depth exceeded: {}",
                 self.recursion_depth
-            ));
+            );
+            self.recursion_depth -= 1;
+            return Err(error);
         }
 
         let result = self.build_method_call_impl_with_route_v1(port, input, route);
@@ -386,6 +388,8 @@ impl MirBuilder {
 mod raw_from_route_tests {
     use super::*;
     use crate::ast::{EnumVariantDecl, FieldDecl, LiteralValue, Span};
+    use crate::mir::builder::calls::method_call_descent::RawLegacyMethodCallInputV1;
+    use crate::mir::builder::recursive_child_lowering::RawLegacyChildLoweringPortV1;
 
     fn int(value: i64) -> ASTNode {
         ASTNode::Literal {
@@ -498,5 +502,55 @@ mod raw_from_route_tests {
             vec![null()],
         ));
         assert!(nullish.contains("nullish"));
+    }
+
+    #[test]
+    fn method_depth_overflow_restores_entry_depth_without_publication() {
+        let _ = std::panic::catch_unwind(|| {
+            crate::runtime::ring0::init_global_ring0(crate::runtime::ring0::default_ring0())
+        });
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("method_depth_overflow/0".to_string());
+        builder.recursion_depth = 100;
+        let input = RawLegacyMethodCallInputV1::new(
+            ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            },
+            "routeMethod".to_string(),
+            vec![],
+        );
+        let mut port = RawLegacyChildLoweringPortV1;
+
+        let error = builder
+            .build_method_call_from_input_v1(&mut port, &input)
+            .expect_err("method depth overflow must reject");
+
+        assert!(error.contains("101"));
+        assert_eq!(builder.recursion_depth, 100);
+        assert!(builder.current_function_instructions().is_empty());
+    }
+
+    #[test]
+    fn method_call_error_restores_nonzero_entry_depth() {
+        let _ = std::panic::catch_unwind(|| {
+            crate::runtime::ring0::init_global_ring0(crate::runtime::ring0::default_ring0())
+        });
+        let mut builder = MirBuilder::new();
+        builder.enter_function_for_test("method_depth_error/0".to_string());
+        builder.recursion_depth = 7;
+        let input = RawLegacyMethodCallInputV1::new(
+            ASTNode::Literal {
+                value: LiteralValue::Integer(1),
+                span: Span::unknown(),
+            },
+            "routeMethod".to_string(),
+            vec![],
+        );
+        let mut port = RawLegacyChildLoweringPortV1;
+
+        let _ = builder.build_method_call_from_input_v1(&mut port, &input);
+
+        assert_eq!(builder.recursion_depth, 7);
     }
 }

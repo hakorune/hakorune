@@ -141,10 +141,12 @@ impl UnifiedCallEmitterBox {
                 builder.recursion_depth
             ));
             ring0.log.error(&format!("[FATAL] Target: {:?}", target));
-            return Err(UnifiedCallAttemptErrorV1::Emission(format!(
+            let error = UnifiedCallAttemptErrorV1::Emission(format!(
                 "emit_unified_call recursion depth exceeded: {}",
                 builder.recursion_depth
-            )));
+            ));
+            builder.recursion_depth -= 1;
+            return Err(error);
         }
 
         // Check environment variable for unified call usage

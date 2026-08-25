@@ -157,6 +157,14 @@ route parity tests, direct helper finite negative matrix, scoped guard, and
 this receipt cover D1M; other writers, schema cutover, and warning cleanup do
 not.
 
+The call-recursion-depth I0 fixes only the two overflow early returns in
+`calls/build.rs` and `calls/unified_emitter.rs`: each formats the entered-depth
+error, restores the caller-observed `recursion_depth`, and then returns. The
+existing common success/error decrement, raw-expression guard, and context
+lifecycle remain unchanged. Focused overflow tests and
+`mirbuilder_call_recursion_depth_guard.sh` cover this state-balance boundary;
+panic/unwind restoration and recursion-policy changes are not claimed.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

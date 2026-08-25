@@ -28,6 +28,7 @@ fn call_destinations(builder: &MirBuilder) -> Vec<Option<ValueId>> {
 fn generic_value_call_receipt_matches_the_emitted_final_destination() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         let mut builder = builder_with_entry("physical_receipt_success/0");
+        builder.recursion_depth = 7;
         let destination = builder.alloc_value_for_test();
 
         let receipt = UnifiedCallEmitterBox::emit_unified_value_call_with_lookup_receipt_v1(
@@ -41,6 +42,7 @@ fn generic_value_call_receipt_matches_the_emitted_final_destination() {
 
         assert_eq!(receipt.final_destination(), destination);
         assert_eq!(call_destinations(&builder), vec![Some(destination)]);
+        assert_eq!(builder.recursion_depth, 7);
     });
 }
 
@@ -48,6 +50,7 @@ fn generic_value_call_receipt_matches_the_emitted_final_destination() {
 fn failed_generic_call_emission_issues_no_receipt() {
     crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
         let mut builder = builder_with_entry("physical_receipt_failure/0");
+        builder.recursion_depth = 7;
         let destination = builder.alloc_value_for_test();
         builder.function_state.current_block = None;
 
@@ -66,6 +69,30 @@ fn failed_generic_call_emission_issues_no_receipt() {
                 detail: "No current basic block".into(),
             }
         );
+        assert!(call_destinations(&builder).is_empty());
+        assert_eq!(builder.recursion_depth, 7);
+    });
+}
+
+#[test]
+fn unified_depth_overflow_restores_entry_depth_without_publication() {
+    let _ = std::panic::catch_unwind(|| {
+        crate::runtime::ring0::init_global_ring0(crate::runtime::ring0::default_ring0())
+    });
+    crate::test_support::with_env_var("NYASH_MIR_UNIFIED_CALL", "1", || {
+        let mut builder = builder_with_entry("unified_depth_overflow/0");
+        builder.recursion_depth = 100;
+
+        let error = UnifiedCallEmitterBox::emit_unified_call(
+            &mut builder,
+            None,
+            CallTarget::Global("depth_overflow_probe/0".to_string()),
+            vec![],
+        )
+        .expect_err("unified depth overflow must reject");
+
+        assert!(error.contains("101"));
+        assert_eq!(builder.recursion_depth, 100);
         assert!(call_destinations(&builder).is_empty());
     });
 }
