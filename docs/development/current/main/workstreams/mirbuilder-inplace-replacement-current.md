@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-JOINIR-REMAP-D0
-  implementation    = D1-I0 exact pos/end pair transport is closed; next is caller/lifecycle census only
+  implementation    = D1-I0 exact pos/end pair transport is closed; remapper census is dispositioned
   mode              = design_stop
-  production stop   = JoinIR remapper has no named production caller/lifecycle owner; no remapper or Call R6 edit is authorized
-  exit              = choose production Callee-operand cutover or test/reference isolation from bounded evidence
+  production stop   = lifecycle collection is active; disconnected remap APIs have no non-test entry
+  exit              = isolate/retire disconnected remap APIs, preserving lifecycle collection; then reopen R6 separately
   fallback / retry  = 0
 ```
 
@@ -266,7 +266,7 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    Call-use rewrite (closed); R4b `used_values` immutable projection and
    methods.rs delegation (closed); R4c `value_consumer` Call membership,
    R4d escape, R4e ownership, R4f CallLike, and Query T0 are closed; JoinIR
-   remap remains `NoSafeSlice` pending a named caller/lifecycle boundary.
+   remap census is closed: lifecycle collection remains active, while disconnected merge remap APIs have no non-test entry and are queued for isolation.
 7. R5 D0 is accepted; R5a is closed at `e36f86e869`, R5b-B0 Rust VM
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
@@ -471,12 +471,12 @@ parent 652 (<760); no new edge/warning class.
 
 ## Ordered follow-ups (design/retirement, not selected)
 
-`MIR-CALL-JOINIR-REMAP-D0`: bounded caller/lifecycle census; caller -> atomic
-Callee operand design, otherwise test/reference isolate/retire.
-`MIR-CALL-CORE-R6-D0`: after remapper, mandatory `Callee`/func/Option,
-MirCall/CallFlags, Method(None), Closure/Constructor; root old-guard + bool
-session-localize; shelf `#[path]` -> mod.rs, empty-dir/common_v2 census.
-Warning A batch/B skip/C reason-retire; stale D2c/R6 flags closed; PyVM parked.
+`MIR-CALL-JOINIR-REMAP-D0` census closed: lifecycle collection is active; the
+merge coordinator/remap APIs have no non-test caller and are queued for isolation.
+Next `MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0`: preserve collection semantics and prove the disconnected remap edge set before test/reference isolation or retire.
+`MIR-CALL-CORE-R6-D0`: after that disposition, mandatory `Callee`/func/Option,
+MirCall/CallFlags, Method(None), Closure/Constructor; root bool/session, shelf,
+warnings, stale D2c/R6 flags, and PyVM remain separate/parked.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
@@ -496,7 +496,7 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c closed (`4c6d9ce9a2`), R4d escape (`4e71066e57`), R4e ownership (`6c957a48c7`), R4f CallLike (`6fc4abbe0f`), and Query T0 (`981ec1d583`) are closed; matrix/guards + 433 warnings are recorded in SSOT. R5c printer closes at `09f0e51143`; JSON egress D0, typed decoration I0, profile D1, and profile-threading I0 (`db350b81c9`) are closed; JoinIR remap/R4c and native capability D0 are NoSafeSlice, backend strict-adapter I0 is closed, and native D1/Method(None)/R6 remain outside.
+R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap census is dispositioned (lifecycle collection retained; disconnected remap APIs queued for isolation); native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
 
 ## Production invariants
 ```text
@@ -570,10 +570,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JOINIR-REMAP-D0
-  -> design stop: census the real production caller and lifecycle owner; no code
+ MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0
+  -> design stop: isolate disconnected remap APIs while preserving active lifecycle collection; no R6 edit
 Next (not selected)
-  -> MIR-CALL-CORE-R6-D0 after remapper disposition; physical/backend/New and non-selected backend rows remain ParkedSealed
+  -> MIR-CALL-CORE-R6-D0 after remapper isolation; physical/backend/New and non-selected backend rows remain ParkedSealed
 
 After MIR Call retirement
   1. MIRBUILDER-PR-STRUCTURAL-GATES-I0
