@@ -104,6 +104,32 @@ independent physical-representation ledger rows. The next design stop is to
 audit those rows before any JSON/C/backend effect or broader physical-type
 acceptance.
 
+## A-prime exact-i64 formal representation D1
+
+D1 closes the missing row without widening the physical type system:
+
+```text
+DirectExactI64 + exact source/Recipe pos/end rows
+  -> capability-owned exact two-row representation pair
+  -> same-session formal adoption
+  -> existing physical ledger/projection carrier
+```
+
+The sole issuer is the existing selected physical capability owner. Each
+pre-session row retains only the fixed ordinal, BindingRef, Recipe value, and
+`DynamicV2PhysicalRepresentationV1::ImmediateI64`; ValueId is attached only
+after same-brand formal adoption. The operation-result ledger must not receive
+a synthetic producer. The existing AOT projection stores the pair opaquely;
+JSON/C/backend remain outside this row.
+
+MIR type/storage spellings, ABI lane or receipt alone, formal index alone,
+generated-value ledger rows, JSON/C text, and backend reconstruction are
+non-authority. Missing, partial, swapped, foreign, duplicate, stale, or
+second-consume states reject before Builder/body effects with no fallback,
+retry, or re-inference. P0 is the path-preserving emitter split; D1-I0 is the
+later pair transport/co-seal implementation. Other formals, returns, widths,
+addressable layout, and Call R6 remain non-claims.
+
 ## Canonical Runtime Value Classes
 
 current repo の実態に寄せた canonical classes は次。

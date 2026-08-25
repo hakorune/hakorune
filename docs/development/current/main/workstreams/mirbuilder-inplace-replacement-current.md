@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (MIR-PHYSICAL-TYPE-INPUT-D1)
+Status: Active workstream — fast bounded row (MIR-PHYSICAL-TYPE-INPUT-D1-P0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-PHYSICAL-TYPE-INPUT-D1
-  implementation    = I0 landed the plain storage-policy owner and close-time co-seal; D1 now audits missing independent pos/end representation rows
-  mode              = design_stop
-  production stop   = no JSON/C/backend physical input or old-edge retirement; the I0 policy is not inferred from a MIR type, storage class, wire text, or receipt lane
-  exit              = name the four-row source/representation/ABI/storage owner and one co-sealer, or record NoSafeSlice
+  current decision  = MIR-PHYSICAL-TYPE-INPUT-D1-P0
+  implementation    = D1 accepted an exact pos/end representation pair; P0 now performs only the path-preserving session-open split before pair issuance
+  mode              = fast
+  production stop   = no JSON/C/backend physical input or old-edge retirement; the pair is not inferred from a MIR type, ABI lane, receipt, or synthetic producer
+  exit              = parent emitter split stays behavior-neutral and below 760 lines; then I0 may issue and transport exactly two rows
   fallback / retry  = 0
 ```
 
@@ -152,7 +152,7 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains
 `ParkedSealed`. The Call retirement design remains the long-term target, while
-the active Decision is now `MIR-PHYSICAL-TYPE-INPUT-D1`.
+the active Decision is now `MIR-PHYSICAL-TYPE-INPUT-D1-P0`.
 
 ```text
 canonical core
@@ -433,26 +433,47 @@ Evidence and boundary:
   require one selected-backend consumer and caller-zero for the old independent
   return-type/lane/parameter reconstructions.
 
-## Review follow-up task map (not selected)
+## Accepted design: MIR-PHYSICAL-TYPE-INPUT-D1
 
-1. `MIR-PHYSICAL-TYPE-INPUT-D1` — current design stop: census independent
-   representation rows for `pos`/`end`, name the four-row owner/co-sealer, and
-   keep backend effects closed if any row is absent or conflicting.
-2. `MIR-CALL-JOINIR-REMAP-D0` — after a fresh caller/lifecycle census, either
-   cut JoinIR over to `Callee` operand projection or isolate/retire caller-zero
-   utility code; do not repair a shared remapper without a production caller.
-3. `MIR-CALL-CORE-R6-D0` — only after terminal consumers and remapper lifecycle
-   are closed, decide atomic removal of `func`/`Option<Callee>` plus the
-   transitional `MirCall`/`CallFlags`, `Method(None)`, and `Callee::Closure`
-   boundaries. No field deletion is selected here.
-4. `MIRBUILDER-ROOT-SESSION-MODE-R0` — later localize `root_is_app_mode` and
-   retire the old guard/bool pair after Call R7; no semantic mode change.
-5. `MIRBUILDER-CLOSEOUT-HYGIENE-R0` — fix the stale D2c ordinary-New comment,
-   compact current/global docs without touching the 2000+ line manifest, then
-   run the shelf census: remove `#[path]` band-aids, empty dirs, common_v2
-   flat files, and classify warning retirement as A/B/C.
+Decision:
+  `selected_dynamic_physical_capability` is the sole issuer of an exact
+  two-row `pos/end` representation pair. Existing source/package contracts
+  already co-seal ordinal 1/2, BindingRef, Recipe value, and exact I64 class.
+Source authority + issuer:
+  `DirectExactI64` demand + `DynamicAPrimeI64SourceRelationViewV1` -> capability
+  pair -> same-session formal adoption -> existing ledger/projection carrier.
+Non-authority:
+  MIR type/storage, ABI lane/receipt alone, formal index alone, generated-value
+  ledger, synthetic producer, JSON/C text, and backend reconstruction.
+Fail-fast:
+  before Builder open, then before body emission; missing/partial/conflict,
+  foreign/stale/duplicate/second-consume, or ABI/representation mismatch rejects
+  and discards unpublished state. fallback/retry/re-inference = 0.
+Smallest next slice:
+  P0 path-preserving session-open split; I0 then issues/transports exact two rows,
+  installs them atomically after formal adoption, and stores them opaquely in the
+  existing projection. JSON/C/backend activation remains closed.
+Non-claims:
+  returns, generated values, handles, other widths/cohorts/backends, ABI/layout
+  changes, Call R6, and old reconstruction retirement.
 
-PyVM/reference/Python and non-selected backend work remain `ParkedSealed`.
+Census boundary: exact source `pos/end : i64` -> package contract -> A-prime
+relation -> capability pair -> formal header -> same-brand ledger/projection;
+includes only those two formals, excludes generated values/returns/handles and
+all JSON/C/backend terminals.
+
+Finite states: `OutsideCandidate`, `ExactPairReady`, `OpenedSameSession`,
+`Projected`, `MissingOrPartial`, `Conflict`, `ForeignStaleDuplicate`,
+`ProducedLedgerSubstitution`, and `Unsupported`. Only the first four proceed;
+all negative states reject before effect, with no repair or re-pair.
+
+## Deferred follow-ups (not selected)
+
+`MIR-CALL-JOINIR-REMAP-D0` and `MIR-CALL-CORE-R6-D0` remain after this row;
+`root_is_app_mode` session cleanup, stale D2c comment, compact docs (excluding
+the 2000+ line manifest), shelf/`#[path]`/empty-dir/common_v2 census, and A/B/C
+warning retirement remain later cleanup. PyVM/reference/Python and other
+non-selected backends remain `ParkedSealed`.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
@@ -546,10 +567,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-PHYSICAL-TYPE-INPUT-D1
-  -> design stop: account for independent pos/end representation rows before any four-authority backend input
+ MIR-PHYSICAL-TYPE-INPUT-D1-P0
+  -> fast bounded row: path-preserving session-open split; D1 pair issuer and JSON/C/backend activation stay closed
 Next (not selected)
-  -> Call JoinIR/remapper lifecycle and Call R6 schema design after D1; Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed
+  -> D1-I0 exact pair transport/ledger/projection, then Call JoinIR/remapper and R6 schema design; Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed
 
 After MIR Call retirement
   1. MIRBUILDER-PR-STRUCTURAL-GATES-I0
