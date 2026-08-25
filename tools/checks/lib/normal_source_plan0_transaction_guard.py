@@ -94,16 +94,25 @@ def check_transaction(root: Path, directory: Path, task_path: Path) -> None:
         require(transaction, fragment, f"TX0 owner chain {fragment}")
 
     for fragment in (
-        "MirInstruction::Call",
-        "func: ValueId::INVALID",
-        "Callee::Global(",
-        "args: Vec::new()",
+        "MirInstruction::call(",
+        "Callee::Global(source.symbol().as_mir_name().to_owned())",
+        "Vec::new(),",
         "MirInstruction::Return { value: returned }",
         "verify_completed_draft_typed_value_definitions_v1",
         "MirVerifier::new()",
         "VerifiedDirectCallEffectV1::ConservativeBarrier",
     ):
         require(physical, fragment, f"physical thunk contract {fragment}")
+
+    for forbidden in (
+        "MirInstruction::Call {",
+        "func: ValueId::INVALID",
+        "callee: Some(",
+    ):
+        if forbidden in physical:
+            raise AssertionError(
+                f"physical thunk retained legacy Call decoration: {forbidden}"
+            )
 
     for fragment in (
         "Unit { origin: FunctionUnitOriginV1 }",

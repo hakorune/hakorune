@@ -91,6 +91,12 @@ to the same canonical constructor. The helper/direct-literal guard and existing
 Extern parity test are the acceptance evidence; no core schema deletion is part
 of this cell.
 
+The exact normal-main physical thunk is the D1E issuer cell: sealed source and
+physical arity, result, destination, and effects remain unchanged while
+`physical_thunk` delegates one Call to `MirInstruction::call`. The transaction
+parity test, normal-source transaction guard, and Call corridor guard are the
+receipt; no schema, Method, JSON, or backend change is part of this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

@@ -14,7 +14,7 @@ use crate::mir::compiler::normal_source_plan::{
 };
 use crate::mir::verification::MirVerifier;
 use crate::mir::verification_types::VerificationError;
-use crate::mir::{BasicBlockId, Callee, FunctionSignature, MirFunction, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, Callee, FunctionSignature, MirFunction, MirInstruction};
 
 use super::result_type::normal_main_result_mir_type;
 
@@ -76,13 +76,12 @@ impl VerifiedNormalMainPhysicalThunkDraftV1 {
         let block = draft
             .get_block_mut(entry_block)
             .expect("MirFunction::new installs its entry block");
-        block.add_instruction(MirInstruction::Call {
-            dst: returned,
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global(source.symbol().as_mir_name().to_owned())),
-            args: Vec::new(),
+        block.add_instruction(MirInstruction::call(
+            returned,
+            Callee::Global(source.symbol().as_mir_name().to_owned()),
+            Vec::new(),
             effects,
-        });
+        ));
         block.set_terminator(MirInstruction::Return { value: returned });
 
         verify_completed_draft_typed_value_definitions_v1(&draft, &draft.metadata.value_types)
