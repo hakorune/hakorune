@@ -75,15 +75,12 @@ impl VerifiedCanonicalDirectCallEmissionV1 {
                 actual: args.len(),
             });
         }
-        Ok(MirInstruction::Call {
-            dst: Some(dst),
-            func: ValueId::INVALID,
-            callee: Some(Callee::Global(
-                self.target.symbol().as_mir_name().to_string(),
-            )),
+        Ok(MirInstruction::call(
+            Some(dst),
+            Callee::Global(self.target.symbol().as_mir_name().to_string()),
             args,
-            effects: materialize_direct_call_effect_v1(self.effect),
-        })
+            materialize_direct_call_effect_v1(self.effect),
+        ))
     }
 }
 

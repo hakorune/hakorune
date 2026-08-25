@@ -80,6 +80,11 @@ plan vs route vs seed distinction. The reference catalog owner remains
 
 ## Canonical Call value-consumer boundary
 
+The source-verified direct-static materializer delegates through
+`MirInstruction::call` as the first R6 issuer-normalization cell. It preserves
+the transitional `func`/`Option<Callee>` storage for now; field retirement is a
+separate, later cutover gated by the remaining producer census.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D0
+Status: Fast — MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,15 +32,24 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D0 (physical I0 closed)
-  implementation    = exact-i64 physical input I0 landed at 7fd97a5344
-  mode              = design_stop
-  production stop   = active lifecycle inventory is the sole production collector; old merge/remap is reference-only
-  exit              = six-line R6 D0 brief; name Call authority/issuer/consumer closure; publish one bounded field-retirement slice
+  current decision  = MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
+  implementation    = one source-verified direct-static issuer delegates to MirInstruction::call
+  mode              = fast
+  production stop   = full R6 field cutover remains blocked by stale func, Method(None), Closure, Constructor, and flags edges
+  exit              = positive/negative/parity tests, shared guard, README receipt, commit/push
   fallback / retry  = 0
 ```
 
-The post-root task-order audit is closed; historical queues cannot select a row; only the six-line brief and ordered frontier below may do so.
+Accepted R6 D0 brief:
+
+```text
+Decision: mandatory-Callee Call is final; this row normalizes one issuer only.
+Source authority + canonical issuer: verified direct-call row -> thin MirInstruction::call.
+Non-authority: func/INVALID, target Const, flags, optimizer/backend lookup, PyVM.
+Fail-fast boundary: exact arity and owner checks before instruction publication.
+Smallest next slice: canonical_direct_call.rs's one direct-static Call literal.
+Non-claims: field deletion, Method(None), Closure/Constructor, JSON/backend, warnings.
+```
 
 ## Closed chronology (archived)
 
@@ -150,8 +159,8 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains
-`ParkedSealed`. The Call retirement design remains the long-term target, while
-the active Decision is now `MIR-CALL-CORE-R6-D0`; exact-i64 physical input I0 landed at `7fd97a5344`.
+`ParkedSealed`. Exact-i64 physical input I0 landed at `7fd97a5344`; the active
+bounded row is now the direct-static issuer normalization below.
 
 ```text
 canonical core
@@ -165,31 +174,21 @@ forbidden
   optimizer target inference; backend by-name fallback or retry
 ```
 
-`JsonV0CallInput` is evidence, not target authority, and never crosses into
-canonical MIR. Typed producers and each compatibility owner resolve an exact
-`Callee`; the thin `MirInstruction::call(dst, callee, args, effects)` physical
-constructor classifies nothing. `func`, `ValueId::INVALID`, target-name Const,
-printer/JSON text, optimizer scans, and runtime/backend lookup are non-authority.
+`JsonV0CallInput` is ingress evidence only: each owner resolves one exact
+`Callee` before the thin, non-classifying `MirInstruction::call`; `func`, INVALID,
+target Const, printer/JSON text, optimizer scans, and runtime lookup are not authority.
 
-The finite D0 boundary covers canonical Call production through all non-test
-constructors/reconstructors and interpreter/printer/JSON/backend terminals.
-HEAD has 20 direct `MirInstruction::Call` literals plus the canonical helper (`MirInstruction::call`): 21 writer definitions; helper callers are grouped by owner
-family and never double-counted. The selected boundary has zero
-missing-callee publication edges: historical Program JSON-v0 literals were removed
-before HEAD and MIR JSON-v0 resolves/rejects before publication. Tests/comments and
-unrelated MIR are excluded; typed stale `func` and `Method(None)` remain blockers.
+The full R6 census is 20 direct literals plus the helper (21 definitions), not
+exhausted: stale `func`, Method(None), Constructor, Closure wire, and flags remain.
+This row covers one source-verified direct-static writer; parked PyVM/reference/Python
+and tests/comments are outside it.
 
-JSON-v0 input outcomes are total: valid explicit callee wins and legacy fields
-are decoration; malformed explicit callee rejects without fallback; legacy
-name or unique exact function-local `func -> Const(String)` may resolve once;
-undefined, non-String, duplicate, foreign, or missing target rejects before
-Call publication. No reject may retry another target source.
+JSON-v0 is total: explicit callee wins; malformed, missing, duplicate, foreign, or non-String
+targets reject before publication; legacy name/unique func-Const resolves once.
 
-Before core field deletion, one `Callee` operand projection must own this law:
-Method.receiver, Value(value), Closure.captures and Closure.me_capture are
-ValueId operands; Global/Extern/Constructor add none; ordered Call args are
-always operands. Escape policy may consume that projection but remains a
-separate semantic policy.
+Before field deletion, `Callee` owns target operands (Method receiver, Value, Closure captures/me);
+Global/Extern/Constructor add none, args follow in order.
+Escape consumes this projection but remains a separate policy.
 
 ## Closed bounded cell: MIR-CALL-JSONV0-QUALIFIED-PRODUCER-I0-R0
 
