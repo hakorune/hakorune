@@ -2388,6 +2388,49 @@ explicitly excluded from acceptance, no semantic branch or fixture meaning
 changes, and the old flat path has zero active structural consumers. Until
 this census is recorded and accepted, D1-D8 remains `NoSafeSlice`.
 
+The remaining live generator/checker boundary is also finite and is not a
+generic wildcard over every historical rust-lifecycle artifact:
+
+```text
+live rust-lifecycle source-path generators and their guards:
+  tools/rust_lifecycle/mirbuilder_crate_wide_unconverted_surface_report.py
+    -> tools/checks/rust_lifecycle_mirbuilder_crate_wide_unconverted_surface_report_guard.sh
+  tools/rust_lifecycle/mirbuilder_crate_wide_missing_projection_policy_cluster_resolution.py
+    -> tools/checks/rust_lifecycle_mirbuilder_crate_wide_missing_projection_policy_cluster_resolution_guard.sh
+  tools/rust_lifecycle/mirbuilder_missing_projection_policy_joinir_plan_cluster.py
+    -> tools/checks/rust_lifecycle_mirbuilder_missing_projection_policy_joinir_plan_cluster_guard.sh
+  tools/rust_lifecycle/mirbuilder_native_owner_candidate_inventory.py
+    -> its own --check mode against the checked-in native-owner candidate inventory
+```
+
+Their current checked-in path-bearing products are exactly:
+
+```text
+docs/development/current/main/design/fixtures/rust-lifecycle/
+  mirbuilder-crate-wide-unconverted-surface-report-v0.json
+  mirbuilder-crate-wide-missing-projection-policy-cluster-resolution-v0.json
+  mirbuilder-missing-projection-policy-joinir-plan-cluster-v0.json
+  mirbuilder-native-owner-candidate-inventory-v0.json
+```
+
+The shelf slice must regenerate or mechanically update only the path fields
+in these four live products (`helpers_value.rs` -> `helpers_value/lower.rs`)
+and keep their classification, counts, anchors, and decision fields stable.
+The `rust-lifecycle` generator/checker family is therefore an active observer,
+not a parked prose snapshot. The FACT0 observer is a fifth live boundary:
+`tools/checks/lib/mirbuilder_type_fact_partition_guard.py` (invoked by the
+`mirbuilder-type-fact-partition` row in `tools/checks/guard_rows.toml`) reads
+`tools/checks/fixtures/mirbuilder_type_fact_producer_matrix_v1.json`; its
+normalizer rows must point at `helpers_value/lower.rs` while preserving the
+partition digest/anchor meaning.
+
+The pre-S0b baseline, failure-outcome manifests, and archived/current design
+fixtures outside these four live generators remain explicitly
+`ParkedSealed` snapshot provenance. A new live generator, checker, or
+guard-row that reads the deleted flat path is an observable reopen trigger;
+until the active five-boundary set is updated and checked, D1-D8 remains
+`NoSafeSlice`.
+
 Until this exact shelf census and ownership contract are accepted, D1-D8
 remains `NoSafeSlice`; no file move or fast-mode code edit is authorized.
 
