@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1C1-RAW-FUNCTION-CALL-CALLER-LOAN-BOUNDARY
+Status: Fast — MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,21 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1C1-RAW-FUNCTION-CALL-CALLER-LOAN-BOUNDARY
-  implementation    = D1C1 audit accepted NoSafeSlice; current Call SSOT slimmed to 185 lines, history moved to design/archive; no code switch
-  mode              = design_stop
-  production stop   = bare FunctionCall lacks a same-brand physical target row before argument descent
-  exit              = finite caller/site loan census; no Method(None) repair or schema cutover
+  current decision  = MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
+  implementation    = D1E design accepted; one exact normal-main thunk literal remains to delegate
+  mode              = fast
+  production stop   = one normal-main physical thunk direct Call literal with stale func decoration
+  exit              = canonical helper delegation + focused parity + two reusable guards + manifest receipt
   fallback / retry  = 0
 ```
 
 Next bounded design brief:
 
 ```text
-Decision: classify whether an existing exact product can loan a bare FunctionCall target before argument descent.
-Source authority + canonical issuer: Cataloged(caller)+SourceExprSite plus same-brand callable key -> qualified Global -> CallTarget/CalleeResolver -> MirInstruction::call. Non-authority: bare name/current_static_box, has_method, variable_map probing, StaticMethodId, tail recovery, env methodize, backend lookup.
-Fail-fast boundary: exact caller/site/brand/owner/method/arity before drive_call_arguments_v1, block, wire, object, or backend effect. Smallest next slice: design-only finite handoff census; if no product qualifies, retain NoSafeSlice.
-Non-claims: Method(None) implementation, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
+Decision: delegate one sealed normal-main physical thunk literal to the canonical Call constructor.
+Source authority + canonical issuer: VerifiedResolvedOwnerHeaderV1 + VerifiedNormalMainEntryRelationV1 -> exact Global -> MirInstruction::call. Non-authority: func/INVALID, text lookup, Method/Method(None), backend/JSON/optimizer recovery.
+Fail-fast boundary: source/physical arity before draft/block creation; typed-definition/MIR verification before module publication. Smallest next slice: physical_thunk.rs:79, two existing guards, focused transaction parity, and one manifest/README receipt.
+Non-claims: D1B/D1C1, Method issuer A, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
 ```
 
 ## Closed chronology (archived)
@@ -158,8 +158,8 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSealed`;
 exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
-closed, D1B is accepted design-only, D1C is NoSafeSlice, and D1C1 is recorded
-at `mir-call-core-r6-d1c1-generic-function-call-handoff-2026-08-25.toml`.
+closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, and D1E is
+selected at `mir-call-core-r6-d1e-normal-main-thunk-issuer-2026-08-25.toml`.
 
 ```text
 canonical core

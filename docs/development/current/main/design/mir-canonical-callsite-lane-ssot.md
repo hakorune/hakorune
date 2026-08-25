@@ -9,6 +9,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1c1-generic-function-call-handoff-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1e-normal-main-thunk-issuer-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
