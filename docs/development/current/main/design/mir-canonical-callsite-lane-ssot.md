@@ -27,6 +27,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1u-concat-len-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1v-insert-mid-substring-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1w-store-shared-receiver-substring-issuer-i0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1x-unified-physical-terminal-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-final-shape-and-ingress-boundary-design-2026-08-25.md
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
@@ -110,7 +111,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current row:
 
 ```text
-MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0
+MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -177,6 +178,16 @@ unchanged. Selected writers are 5 -> 3 and the concat family is 2 -> 0; the
 focused materialization suite is 3/3 and the shared guard remains 777 lines.
 `Method(None)`, generic calls, ingress, schema, and backend/wire work remain
 NoSafeSlice or separately gated.
+
+D1X is the selected final generic physical-terminal writer. The existing
+`MirCall` already owns exact `dst`, typed `Callee`, `args`, and `effects`; only
+`emit_finalized_generic_call_v1`'s direct transitional `Call` literal is to be
+replaced by `MirInstruction::call`. The existing builder-emission fail-fast
+boundary, prepared post-success commit, value/no-destination receipt, and
+alternate-route split are unchanged. This row reduces selected writers 3 -> 2
+and the unified physical-terminal family 1 -> 0; `MirCall`/`CallFlags`, final
+schema, `Method(None)`, ingress, array projection, canonicalizer, and backend
+work remain separately gated.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

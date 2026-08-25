@@ -96,6 +96,17 @@ suffix/store schedule remain owned by their existing plans. `Method(None)`,
 wrong aliases/shapes, generic FunctionCall, Call schema retirement, ingress,
 backend/wire, and cleanup remain outside this row.
 
+### MIR Call R6 D1X unified physical terminal issuer (selected fast)
+
+D1X is the bounded next edge selected after the D1W closeout census. The
+finalized `MirCall` already owns exact destination, typed callee, arguments,
+and effects; only the one direct transitional `Call` literal in
+`unified_emitter/physical_terminal.rs` will delegate to
+`MirInstruction::call`. Builder emission failure, post-success commit,
+value/no-destination receipts, alternate routes, `MirCall`/`CallFlags`, final
+Call schema, Method(None), ingress, array/canonicalizer, backend/wire, and
+cleanup remain outside this row.
+
 ### Normal-root pre-effect consumer (C0)
 
 The selected normal/default source-backed path enters

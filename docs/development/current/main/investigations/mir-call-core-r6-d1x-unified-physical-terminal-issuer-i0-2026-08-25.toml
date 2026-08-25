@@ -1,0 +1,93 @@
+title = "MIR Call core R6 D1X unified physical terminal issuer"
+status = "fast"
+observed_at = "2026-08-25"
+observed_commit = "11b1499031"
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0"
+decision = "MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "Replace only the final generic physical terminal Call literal with the thin canonical constructor, preserving the finalized MirCall destination, typed Callee, argument order, effects, post-success preparation/commit, receipt, and alternate-route boundaries."
+source_authority_and_canonical_issuer = "The finalized MirCall owns exact dst/callee/args/effects; emit_finalized_generic_call_v1 emits exactly once through MirInstruction::call after builder emission succeeds."
+non_authority = "legacy func, ValueId::INVALID, CallFlags, post-success facts, lookup/map replay, alternate route, backend lookup, and target retry are not authority."
+fail_fast_boundary = "The existing builder.emit_instruction result is the only publication boundary: success emits one canonical Call and then commits prepared post-success facts; failure emits no Call, receipt, or post-success publication."
+smallest_next_slice = "src/mir/builder/calls/unified_emitter/physical_terminal.rs:94 direct generic Call literal only; selected writers 3 -> 2 and unified physical-terminal family 1 -> 0."
+non_claims = "No MirCall/CallFlags retirement, mandatory-Callee schema, Method(None), JSON ingress, array projection, callsite canonicalizer, metadata/backend, or cleanup change."
+
+[boundary]
+starts = "finalized MirCall entering emit_finalized_generic_call_v1"
+ends = "builder emission, post-success commit, and typed value/no-destination receipt outcome"
+includes = [
+  "generic route with Some and None destinations",
+  "Existing and ExternalSourceBound signature publication inputs",
+  "one canonical Call issuer preserving exact dst/callee/args/effects",
+  "emission failure before any Call or post-success publication",
+]
+excludes = [
+  "create_mir_call, effects/flags calculation, alternate route selection, BoxCall, compatibility, rewrite, array projection, and target classification",
+  "MirCall/CallFlags retirement, Call final-shape cutover, Method(None), JSON/VM/native backend, metadata, and cleanup",
+]
+
+[authority]
+source = "crate::mir::definitions::call_unified::MirCall finalized by the existing generic typed route"
+issuer = "MirInstruction::call(call.dst, call.callee, call.args, call.effects)"
+non_authority = [
+  "func: ValueId::INVALID and any legacy func carrier",
+  "CallFlags or post-success facts as target/effect authority",
+  "lookup/map replay, alternate route, backend lookup, and retry",
+]
+
+[finite_matrix]
+positive = [
+  "generic value Call preserves destination, typed Callee, argument order, and effects and yields the existing value receipt",
+  "generic no-destination Call preserves None destination and yields the existing NoDestination outcome",
+]
+negative = [
+  "builder emission failure -> no Call, no typed receipt, and no post-success publication",
+  "alternate route remains Alternate and never enters this generic physical terminal",
+]
+parity = [
+  "post-success preparation/commit ordering, map replay, signature publication, recursion depth, and destination/no-destination outcomes remain unchanged",
+  "Existing and ExternalSourceBound publication inputs retain their prior route behavior",
+]
+
+[delete_set]
+file = "src/mir/builder/calls/unified_emitter/physical_terminal.rs"
+lines = "94-101"
+remove = [
+  "one direct MirInstruction::Call literal",
+  "func: ValueId::INVALID compatibility carrier",
+  "callee: Some(call.callee) wrapper",
+]
+replace_with = "MirInstruction::call(call.dst, call.callee, call.args, call.effects)"
+
+[acceptance]
+focused_tests = [
+  "physical_receipt_success",
+  "failed_generic_call_emission_issues_no_receipt",
+  "generic_call_without_destination_has_no_value_receipt",
+  "existing alternate-route receipt proofs remain green",
+]
+static_evidence = [
+  "physical_terminal.rs remains 114 lines and the parent unified_emitter.rs remains outside the row",
+  "the shared corridor guard checks exactly one constructor and zero direct literal/func/callee wrapper in the terminal",
+]
+guards = [
+  "mir_call_canonical_corridor_guard",
+  "current_state_pointer_guard",
+  "rustfmt on touched Rust and git diff --check",
+]
+source_limits = "physical_terminal.rs remains below 760/800; physical_receipt_tests.rs remains below 760/800; corridor guard remains exactly 777 lines; active card remains exactly 1000 lines"
+
+[worker_review]
+selection = "/root/d2c_consumer_selection_audit: fresh post-D1W census found selected writers 3, with this unified physical terminal as the sole safe next edge; array projection and callsite canonicalizer remain separate"
+implementation_permission = "fast I0 is permitted only for this one physical-terminal literal; final Call shape, Method(None), JSON ingress, and broader cleanup remain closed"
+
+[stop_if]
+conditions = [
+  "MirCall, CallFlags, create_mir_call, effects/flags, or post-success contract must change",
+  "alternate route, target classification, lookup/retry, array projection, canonicalizer, or backend path enters the diff",
+  "emission failure would publish a Call/receipt or the constructor changes destination, Callee, args, effects, or ordering",
+  "source/test reaches 760/800, guard reaches 800, or unrelated dirty files appear staged",
+]
