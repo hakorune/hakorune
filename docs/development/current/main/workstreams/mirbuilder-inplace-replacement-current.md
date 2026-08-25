@@ -35,16 +35,16 @@ Current capsule:
   current decision  = MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
   implementation    = FUNCTION-METADATA-OWNER-SPLIT-R0 landed: metadata.rs 804 -> 718; nested checked-callout/linear-slot owners are 40/50 lines, with no #[path]; ArrayElementWrite remains ParkedSealed
   mode              = design_stop
-  production stop   = Row B has exactly two Builder Method(None) producer literals, but exact catalog provenance and pre-effect precedence are not closed; ArrayElementWrite has no selected-native consumer authority
-  exit              = accepted catalog handoff before argument descent, total precedence/state matrix, RuntimeData Global cohort, semantic delete set, and scoped parity/guard; no producer deletion before acceptance
+  production stop   = Row B has exactly two Builder Method(None) producer literals; the six-level pre-effect precedence is accepted, while catalog transport, RuntimeData Global cohort, and recovery closure remain open; ArrayElementWrite has no selected-native consumer authority
+  exit              = accepted catalog handoff before argument descent, remaining RuntimeData/recovery delete set, and scoped parity/guard; no producer deletion before acceptance
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: NoSafeSlice — Row B's two Builder Method(None) literals are syntactically exhausted, but semantic closure is blocked by missing catalog provenance, shadow precedence, and post-argument recovery retirement; ArrayElementWrite is ParkedSealed.
+Decision: NoSafeSlice — Row B's two Builder Method(None) literals are syntactically exhausted, and the six-level shadow/target precedence is accepted, but semantic closure is blocked by missing catalog transport, RuntimeData Global provenance, and post-argument recovery retirement; ArrayElementWrite is ParkedSealed.
 Source authority + canonical issuer: same-brand declaration catalog -> CanonicalSameModuleCallableKeyV1 -> `mir_symbol_projection()` -> qualified `CallTarget::Global` -> `CalleeResolverBox` -> canonical Call.
 Non-authority: `current_static_box`, hardcoded `has_method`, `StaticMethodId`/name/Const text, methodize env/trace, tail/module lookup, registry, receiver autoscan, args[0], JSON/VM/C fallback.
-Fail-fast boundary: exact owner/method/arity/brand and local-shadow precedence must settle before `build.rs` argument descent, child effects, name Const allocation, block insertion, or physical publication.
-Smallest next slice: design-only census in `mir-call-core-r6-d1b-row-b-producer-closure-d0-2026-08-26.toml`; classify two producer inputs, RuntimeData Global provenance, profile parity, and the full semantic delete set.
+Fail-fast boundary: the accepted six-level owner/method/arity/brand precedence must be carried into the existing preflight owner before `build.rs` argument descent, child effects, name Const allocation, block insertion, or physical publication.
+Smallest next slice: design-only amendment in `mir-call-core-r6-d1b-row-b-producer-closure-d0-2026-08-26.toml`; close existing preflight transport, RuntimeData Global disposition, and the full semantic delete set.
 Non-claims: no producer deletion, D1C1 resolution, Builder-external Method(None), JSON ingress/fallback hierarchy, backend/VM activation, final Call schema, new receipt, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 -> NoSafeSlice after the two Builder Method(None) producer literals were counted: require exact same-brand catalog provenance, pre-effect precedence, RuntimeData Global cohort, post-argument recovery/name-Const/tail delete set, and scoped parity before code; ArrayElementWrite remains ParkedSealed for a later selected-native authority row
+Now MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 -> NoSafeSlice after the two Builder Method(None) producer literals were counted: the six-level pre-effect precedence is accepted; require existing same-brand preflight transport, RuntimeData Global cohort, post-argument recovery/name-Const/tail delete set, and scoped parity before code; ArrayElementWrite remains ParkedSealed for a later selected-native authority row
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6
