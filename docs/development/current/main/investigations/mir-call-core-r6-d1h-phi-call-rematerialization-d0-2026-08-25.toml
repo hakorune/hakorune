@@ -1,8 +1,10 @@
 title = "MIR Call core R6 D1H PHI Call rematerialization D0"
-status = "accepted_design_next_slice"
+status = "accepted_design_fast_row_selected"
 observed_commit = "0d327fada9"
 observed_at = "2026-08-25"
-implementation_permission = false
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-I0"
+d0_accepted_commit = "6147135595"
 
 [boundary]
 starts = "existing rematerializable typed substring Call entering edge-local operand rematerialization"
@@ -101,7 +103,7 @@ stop_if = [
 ]
 
 [acceptance]
-status = "design_stop_until_d0_boundary_acceptance"
+status = "fast_row_selected"
 focused_test = "existing rematerializes_runtime_data_substring_for_phi_pred plus a structural negative guard for Method(None), Some(callee)/receiver: Some(_), non-optional remapper, and canonical writer"
 required_before_fast = "Method(Some(receiver)) eligibility and Method(None) exclusion are structurally proven; args-then-receiver order, seven production entries, and partial-failure non-claims are recorded"
 implementation_scope = "one edge_rematerialization writer plus its local callee remapper, one shared guard extension, one README receipt; no caller or policy edits"

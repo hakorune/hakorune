@@ -95,12 +95,12 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` currently selects:
 
 ```text
-MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-D0
+MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-I0
 ```
 
-It is `design_stop`, not an implementation permission. D1G is landed at
-`c3c7e0ea65`; D1H owns only the one PHI substring Call reconstruction writer,
-whose D0 boundary and acceptance are in:
+It is `fast`, limited to the one PHI substring Call reconstruction writer.
+D1G is landed at `c3c7e0ea65`; D1H D0 was accepted at `6147135595`, with the
+implementation boundary in:
 
 ```text
 docs/development/current/main/investigations/
