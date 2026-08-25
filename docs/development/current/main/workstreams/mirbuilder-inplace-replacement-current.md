@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0
+Status: Design stop — MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0
-  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; D1 owner-lineage mapping is design-only, while observation-boundary reconciliation remains NoSafeSlice
+  current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
+  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; FunctionCall boundary classification is design-accepted, while root-lineage exact-target co-seal remains NoSafeSlice
   mode              = design_stop
-  production stop   = classify all resolver entrances, separate semantic BodyEffect from physical effects, and define Raw lineage/special disposition ownership before any observation gate widening; no target synthesis or second resolver
-  exit              = finite production census including main_direct_call_source/FullFunction, explicit semantic-vs-physical effect boundary, lineage loan, special owner, old-ingress ParkedSealed trigger, and whole-package abort proof
+  production stop   = preserve Selected/Constructor lineage and lend only an existing exact target relation before argument effects; no target synthesis, caller=None collapse, or second resolver
+  exit              = finite target/lineage precedence, same-session owner/site co-seal, typed reject/Parked terminals, and zero Resolved/recovery fallthrough
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0 — reconcile the complete production resolver boundary before any observation gate widening.
-Source authority + canonical issuer: existing Selected/Constructor/main/FullFunction source identities plus parser sites; RawInvocationRootLineageV1 remains provenance; one reconciled resolver/package boundary must own disposition.
-Non-authority: incomplete three-entrance claims, ShadowDirectCallUseV0 names, semantic BodyEffect as physical effect, raw name policy, caller=None, exact-i64 borrowing, AST re-scan, collector order, physical symbol/name/arity synthesis, or a second resolver.
-Fail-fast boundary: unclassified entrance, missing lineage loan, missing special owner, closed traversal, or owner/site conflict blocks gate widening and physical effects before package install, block mutation, or Call publication.
-Smallest next slice: design-only census for main_direct_call_source/FullFunction, semantic-vs-physical effect order, Raw lineage loan, special owner, exact-i64 exclusion, and old-ingress ParkedSealed trigger; no code or profile gate change.
-Non-claims: observation implementation, target/Callee issuance, traversal widening, public semantic receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
+Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — preserve each in-boundary Selected/Constructor lineage once and lend only an existing exact target relation before argument effects.
+Source authority + canonical issuer: existing RawInvocationSourceTransportV1 provenance plus existing resolver/catalog/index relation; CalleeResolverBox and MirInstruction::call remain downstream issuers.
+Non-authority: source name/arity/box/symbol formatting, caller=None, constructor symbols, collector last-wins, BodyEffect/EffectMask, local variable maps, registry/name/args[0] recovery, or a second resolver.
+Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
+Smallest next slice: design-only exact relation/precedence matrix and same-session co-seal contract using existing lineage loans; no code, profile widening, or new receipt.
+Non-claims: observation gate implementation, target synthesis, relationless retirement, Method(None), JSON/VM/backend changes, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
@@ -340,7 +340,7 @@ Evidence:
   `FUNCTION-METADATA-OWNER-SPLIT-R0` landed: `metadata.rs` is 718 lines, nested checked-callout/linear-slot owners are 40/50 lines, no `#[path]` glue was added, method signatures/visibility/fields/callers/behavior are unchanged, focused `mir::function::tests` is 6 passed/2 ignored with the 441-warning baseline, and manifest/pointer/canonical-corridor/rustfmt/diff guards are green.
 
 Smallest next slice:
-  `MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0` and the bounded GC exact-target child are closed. The direct-call source-inventory co-seal D0 is the current NoSafeSlice; the general direct-target index, CallFlags-only retirement, self/sibling/constructor target loans, and ArrayElementWrite remain downstream until their owners and finite caller closures are accepted.
+  `MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0` and the bounded GC exact-target child are closed. The FunctionCall boundary classification is accepted; `MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0` is the current NoSafeSlice, while general direct-target index, self/sibling/constructor precedence, RuntimeData methodize, and ArrayElementWrite remain downstream until their owners and finite caller closures are accepted.
   Physical/backend implementation remains separately gated.
 
 Non-claims:
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 -> every observed FunctionCall must co-seal owner/site/lineage/disposition before package install or argument effects; observation profile is design-accepted, index-none safety is landed, and general identity index, sibling/constructor target loans, RuntimeData Global methodize, and ArrayElementWrite remain downstream
+Now MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 -> every in-boundary Selected/Constructor lineage must preserve owner/site/provenance and borrow one existing exact target relation before package install or argument effects; Main exact-i64, FullFunction, old ingress, ASTNode::Call, ExplicitExtern, and unowned special families are explicitly outside/parked
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

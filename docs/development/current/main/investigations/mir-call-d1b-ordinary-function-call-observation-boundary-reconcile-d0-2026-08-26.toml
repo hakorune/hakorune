@@ -1,7 +1,7 @@
 title = "MIR Call D1B ordinary FunctionCall observation boundary reconciliation"
-status = "accepted_design_no_safe_slice"
+status = "accepted_design"
 observed_at = "2026-08-26"
-observed_commit = "7c281ae39f"
+observed_commit = "f64e1730d0"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-ordinary-function-call-observation-issuer-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0"
@@ -33,7 +33,7 @@ non_authority = [
   "semantic BodyEffect(Call) treated as physical argument effect, or physical EffectMask used to decide semantic disposition",
 ]
 fail_fast = "Unclassified production entrance, missing Raw lineage bridge, missing special/non-direct owner, closed traversal, or owner/site conflict blocks profile widening and aborts before physical argument effects, package install, block mutation, or Call publication. Semantic BodyEffect is separately classified and never authorizes physical lowering."
-smallest_next_slice = "Design-only boundary matrix and disposition of exact-i64/FullFunction, semantic BodyEffect, Raw lineage loan, special/non-direct owner, and old ingress; no code or profile gate change."
+smallest_next_slice = "Hand the in-boundary Selected/Constructor lineage and exact-target relation to the existing root-lineage exact-target loan design row; keep all parked cohorts outside this observation contract and do not widen a profile gate."
 non_claims = [
   "this row does not implement observation, open a gate, or issue a target/Callee",
   "caller-zero is not inferred from absent text callers; old no-brand remains parked with a reopen trigger",
@@ -73,12 +73,27 @@ states = [
   "RawLineageLoanMissing",
   "SpecialDispositionOwnerMissing",
   "ExactI64Parked",
+  "FullFunctionParked",
+  "SpecialNonDirectParked",
+  "LineageLoanPending",
   "LegacyIngressParked",
   "OwnerSiteDispositionReady",
   "BoundaryReconciled",
   "PackageAbortBeforeEffects",
 ]
-terminal_policy = "Only BoundaryReconciled after every production entrance is classified, semantic/physical effect vocabularies are separated, Raw lineage boundary is explicit, and non-direct owner is named is terminal for this design. ExactI64/legacy may be ParkedSealed only with owner and reopen trigger; all unresolved states remain CutoverBlockerOpen."
+terminal_policy = "BoundaryReconciled is terminal for this classification row only after every entrance is classified, semantic/physical effect vocabularies are separated, Raw lineage ownership is named, and every outside cohort is ParkedSealed with an owner and reopen trigger. LineageLoanPending remains the downstream blocker; no implementation permission follows from this row."
+
+[entrance_disposition]
+selected_callable = "In-boundary ordinary observation candidate. Existing SelectedCallable identity is retained; exact target/lineage co-seal is delegated to the root-lineage exact-target loan row before any physical effects."
+instance_constructor = "In-boundary source identity candidate. ConstructorSourceIdV1 is retained; constructor symbols never become ordinary Globals and lineage/target relation remains a downstream blocker."
+main_direct_exact_i64 = "ParkedSealed under VerifiedCallableIndexV1 and main_direct_call_source; exact-i64 is a separate cohort and cannot lend its index to ordinary calls. Reopen when a named ordinary-source relation is added."
+full_function = "ParkedSealed under the FullFunction/resolve_forest owner; callable_index=None with direct_calls is a typed reject, not an empty successful inventory. Reopen only with a same-session FullFunction identity/lineage owner."
+brand = "KnownNonDirect only when the declared Brand catalog owns the relation; non-Cataloged lineage collapse remains a blocker and never becomes caller=None."
+explicit_extern = "Outside ordinary FunctionCall observation; retain the ExplicitExternCall owner and its source relation."
+ast_node_call = "Outside ordinary FunctionCall observation; retain ASTNode::Call path projection and do not merge it into direct-call inventory."
+special_builtin_extern = "GC/GC-stats retain their landed bounded owner; TypeOp, Math, FastMem, str, console/env, and name-based Extern families remain ParkedSealed under their existing special-namespace/compatibility owners until a source issuer is named."
+legacy_no_brand = "ParkedSealed under the old compatibility/disconnected ingress with a production-caller reopen trigger; absent text callers are not caller-zero proof."
+raw_bridge = "Physical bridge only; it may borrow provenance but cannot issue observation disposition or target authority."
 
 [subtasks]
 production_census = "Inventory main_direct_call_source, FullFunction, SelectedCallable, InstanceConstructor, old no-brand, and raw bridge entrances with finite production/compatibility/parked classification."
@@ -105,8 +120,8 @@ parity = "Existing exact-i64, FullFunction, SelectedCallable, constructor, Brand
 guard = "future guard must assert entrance inventory, exact-i64/FullFunction exclusion, semantic-vs-physical effect separation, explicit lineage loan, special owner, old-ingress ParkedSealed trigger, and zero physical effects before reconciliation."
 
 [worker_audit]
-source = "adversarial read-only D0a audit at 7c281ae39f; no code, fixture, or Cargo change"
-verdict = "D0a remains NoSafeSlice: main_direct_call_source/FullFunction are missing from the three-entrance claim, Raw lineage is absent from resolver input, semantic BodyEffect ordering is ambiguous, special disposition owner is missing, and old no-brand is only a compatibility/disconnected candidate."
+source = "three read-only D1B audits at f64e1730d0; no code, fixture, Cargo, or profile-gate change"
+verdict = "The classification boundary is reconciled: semantic BodyEffect is distinct from physical effects; Main exact-i64, FullFunction, old no-brand, ASTNode::Call, ExplicitExtern, and unowned special families have explicit outside dispositions. Selected/Constructor lineage loan and same-session target co-seal remain downstream NoSafeSlice; implementation_permission stays false."
 
 [reopen]
 triggers = [

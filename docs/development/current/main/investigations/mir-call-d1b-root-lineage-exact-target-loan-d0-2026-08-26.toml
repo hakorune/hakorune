@@ -1,9 +1,10 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "53f07fb844"
+observed_commit = "f64e1730d0"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-root-lineage-d0-2026-08-27.toml"
+decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 
 [boundary]
 starts = "RawInvocationRootLineageV1::Cataloged/TopLevel/InstanceConstructor at brand_call_authority_v1"
