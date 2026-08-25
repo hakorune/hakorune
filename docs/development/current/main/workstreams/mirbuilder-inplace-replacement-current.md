@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+Status: Fast — MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,21 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
-  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029; D1K landed at 8401f457ab; D1L landed at 0be8a73420 after two upper-worker audits
-  mode              = design_stop
-  production stop   = no code until an upper-worker census names one remaining production caller family and bounded old edge
-  exit              = one accepted next edge with source authority, canonical issuer, fail-fast boundary, parity gate, and non-claims; full PHI admission/atomicity remains NoSafeSlice
+  current decision  = MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0
+  implementation    = D1L landed at 0be8a73420; D1M selected after two upper-worker audits
+  mode              = fast
+  production stop   = D1M may change only rewrite_method_set_value and its focused proof surfaces
+  exit              = one canonical typed Call rewrite, finite negative matrix, two route parity proofs, <=20-line scoped guard, README receipt, and pushed commit; whole-pass rollback remains a non-claim
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
 Landed bounded fast row:
 
 ```text
-Decision: one shared SubstringLenPlan direct Call literal now uses the canonical Extern helper; no expansion into string-corridor families or schedule policy.
-Source authority + canonical issuer: plan-owned destination/source/start/end/effects plus existing SUBSTRING_LEN_EXTERN -> MirInstruction::call. Non-authority: legacy func, lookup, effect re-inference, backend, or other optimizer reconstruction.
-Fail-fast boundary: empty apply publishes no Call, hint, count, removal, or metadata; accepted plans use the existing replacement map. Receipt: shared.rs writer, scoped guard, four focused tests, README, commit 0be8a73420, and push are complete.
-Non-claims: plan admission, other string writers, PHI admission/atomicity, field deletion, JSON/VM/native/backend, and warning cleanup.
+Decision: one shared method-set value rewrite literal now uses the canonical Call helper; no expansion into corridor plans or block-swap policy.
+Source authority + canonical issuer: match_method_set_call plus original Callee/dst/key/effects and caller-owned new_value -> MirInstruction::call. Non-authority: legacy func, target reconstruction, lookup, backend, or ssot::method_call re-issuance.
+Fail-fast boundary: Method(Some)+set+2 args only; Method(None), non-Method, missing callee, wrong method/arity, and non-Call return None. Receipt: shared.rs writer, two route parity tests, direct helper positive/negative matrix, scoped guard, README, and push are the exit.
+Non-claims: caller plans/expect/block swaps, rollback, spans/hints/count/CFG/metadata schedule, other writers, schema, JSON/VM/native/backend, and warning cleanup.
 ```
 
 ## Closed chronology (archived)
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0 -> design stop: upper-worker bounded next-edge census; no code, fixture, fallback, or schema expansion
+ MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0 -> fast: one shared method-set value rewrite writer used by materialization/publication callers; matcher-only eligibility, no schema or fallback expansion
 Closed immediately prior
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
  MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> landed at 0be8a73420: one shared SubstringLenPlan writer -> canonical Extern Call; focused 4/4 green, cohort 12/13 with one pre-existing benchmark baseline, guard 757 lines

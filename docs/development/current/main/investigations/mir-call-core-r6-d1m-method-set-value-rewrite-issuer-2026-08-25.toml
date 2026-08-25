@@ -1,0 +1,135 @@
+title = "MIR Call core R6 D1M method-set value rewrite issuer"
+status = "selected_fast"
+observed_commit = "39249d5cdb"
+observed_at = "2026-08-25"
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0"
+fast_row_candidate = true
+
+[boundary]
+starts = "private rewrite_method_set_value input Call"
+ends = "Option<MirInstruction> replacement returned to the existing materialization/publication block swap"
+includes = [
+  "src/mir/passes/string_corridor_sink/shared.rs:514-543",
+  "src/mir/string_corridor_recognizer.rs:212-231",
+  "src/mir/passes/string_corridor_sink/concat_corridor_collect.rs:71-117",
+  "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs:461-464",
+  "src/mir/passes/string_corridor_sink/publication.rs:256-327,563-565",
+  "existing materialization/publication end-to-end tests",
+  "new direct helper positive/negative tests",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/README.md",
+]
+excludes = [
+  "shared.rs array/publication candidate recognition and all other writers",
+  "concat/publication plan admission, allocation, block swap, spans, hints, CFG, metadata, and schedule semantics",
+  "whole-pass rollback or atomicity repair around existing expect callsites",
+  "Call field cutover, MirCall/CallFlags, JSON, VM, backend, native, and warning retirement",
+  "unrelated dirty source and prior D1L/D1K writers",
+]
+
+[decision]
+summary = "Replace the one shared method-set value rewrite literal with MirInstruction::call while preserving the original typed Callee, dst, key argument, effects, and caller-owned replacement value in args[1]."
+source_authority = "existing match_method_set_call eligibility plus the original Call's exact Callee/dst/args/effects; MaterializationStorePlan.helper_dst or PublicationHostBoundaryPlan.helper_dst owns only new_value"
+canonical_issuer = "MirInstruction::call(*dst, callee.clone(), new_args, *effects)"
+non_authority = [
+  "legacy func or ValueId::INVALID decoration",
+  "box/method/receiver name reconstruction or ssot::method_call re-issuance",
+  "args[0] receiver substitution, target reclassification, runtime/backend lookup, or publication metadata",
+  "caller expect, block swap, spans, hints, CFG, and folded metadata as target authority",
+]
+fail_fast = "match_method_set_call remains the sole eligibility gate: only Call + Method(Some(receiver)) + method set + exactly two args reaches the canonical issuer; all other finite shapes return None before replacement construction"
+no_publication_claim = "rewrite_method_set_value is pure and publishes no replacement for a negative input; existing caller block swaps and expect-based unreachable premises remain unchanged and whole-pass rollback is not claimed"
+no_retry = "one matcher and one replacement constructor; no second writer, target lookup, target decomposition, or fallback"
+smallest_next_slice = "replace shared.rs:514-543 output literal with canonical helper, add direct helper parity/negative tests, extend the existing guard by <=20 lines, update README, and run two route plus helper-focused tests"
+non_claims = [
+  "plan admission, caller allocation, block swap, span/hint/count/CFG/metadata parity beyond existing route tests",
+  "whole-pass atomic rollback or removal of existing expect callsites",
+  "remaining 16 selected writers, string-corridor retirement, or optimizer schedule policy",
+  "Call schema field deletion, JSON/VM/backend closure, and warning cleanup",
+]
+
+[state_matrix]
+accepted_method_set = "Method(Some(receiver)) + method=set + args.len()==2 -> exact Callee/dst/key/effects retained and args[1]=new_value"
+method_none = "Method(None) -> None; no replacement"
+other_callee = "Global/Extern/Value/Closure/Constructor/callee=None -> None; no replacement"
+wrong_shape = "non-Call, method!=set, or args.len()!=2 -> None; no replacement"
+
+[inventory]
+direct_writers_before = 1
+direct_writers_after = 0
+production_callers = 2
+caller_sites = [
+  "concat_corridor_apply.rs:461 materialization store",
+  "publication.rs:563 publication host boundary",
+]
+matcher_owner = "src/mir/string_corridor_recognizer.rs:212-231"
+source_lines_before = 671
+guard_lines_before = 757
+guard_addition_budget = "<=20 lines; hard stop remains 800 and no new guard script"
+source_risk = "shared.rs should shrink after removing func binding, redundant arity decision, and direct literal; no adjacent semantic or schedule change"
+
+[delete_set]
+writer_site = "src/mir/passes/string_corridor_sink/shared.rs:514-543"
+remove = [
+  "local func binding/forwarding",
+  "direct MirInstruction::Call output literal",
+  "redundant new_args.len()==2 decision after matcher success",
+]
+retain = [
+  "original Call dst, full Callee clone, key args[0], caller-owned args[1] replacement, and effects",
+  "match_method_set_call as the only eligibility authority",
+  "Option return shape, both caller expect sites, spans/order/hints/count/CFG/metadata, and existing block swaps",
+]
+
+[proof]
+positive = [
+  "sinks_materialization_helper_to_array_store_boundary",
+  "sinks_publication_helper_to_same_block_runtime_data_set_boundary",
+  "direct helper preserves non-INVALID stale func decoration only by proving it is absent from output, full Callee, dst, key, replacement value, and non-PURE effects",
+]
+negative = [
+  "Method(None)",
+  "Global/Extern/Value/Closure/Constructor/callee=None",
+  "wrong method, wrong arity, and non-Call",
+]
+parity = [
+  "exact Callee fields including receiver/certainty/box_kind",
+  "dst, args[0], args[1] replacement, effects, instruction/span order, and existing route hints/count/CFG/folded metadata",
+  "no output func field or direct Call literal in selected helper window",
+]
+focused_tests = [
+  "sinks_materialization_helper_to_array_store_boundary",
+  "sinks_publication_helper_to_same_block_runtime_data_set_boundary",
+  "rewrite_method_set_value_preserves_typed_call_fields_and_replaces_only_value",
+  "rewrite_method_set_value_rejects_finite_non_method_set_shapes",
+]
+guards = [
+  "bash tools/checks/mir_call_canonical_corridor_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "rustfmt --check touched Rust files",
+  "git diff --check",
+]
+
+[worker_review]
+issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1M is the smallest remaining one-writer shared method-set rewrite after D1L; selected production writer count 17 -> 16"
+containment_audit = "upper-worker /root/d2a_containment_audit: safe bounded design; matcher is sole eligibility authority, Method(None)/other shapes return None, whole-pass rollback remains a non-claim, guard 757 -> at most 777"
+implementation_permission = true
+
+[stop_if]
+conditions = [
+  "matcher/admission changes, Method(None) acceptance, target decomposition/reclassification, or ssot::method_call re-issuance enters the diff",
+  "receiver/key/dst/effects/certainty/box_kind or caller plan changes are needed",
+  "either caller expect is moved/removed, rollback/transaction work appears, or spans/hints/count/CFG/metadata/schedule changes",
+  "a second direct writer or adjacent corridor enters the diff",
+  "shared.rs reaches 760 for split planning or the canonical guard reaches 800",
+  "Call schema, MirCall/CallFlags, backend, fallback, or warning changes enter the diff",
+]
+
+[reopen]
+triggers = [
+  "match_method_set_call no longer covers the full eligibility state",
+  "negative helper input publishes a replacement",
+  "the original Callee cannot be cloned without reconstruction",
+  "caller publication order or existing route parity changes",
+]

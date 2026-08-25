@@ -847,6 +847,16 @@ guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + touc
 warning_baseline = "quick profile reports 441 existing warnings; substring_len cohort is 12/13 with one pre-existing cohort-missing benchmark failure"
 source_risk = "shared.rs 671 lines; canonical guard 757 lines; no schema, flags, fallback, backend, or warning change"
 
+[candidates.d1m_method_set_value_rewrite_issuer]
+status = "selected_fast"
+manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1m-method-set-value-rewrite-issuer-2026-08-25.toml"
+boundary = "one shared rewrite_method_set_value writer used by materialization and publication host-boundary callers"
+direct_writers_before = 1
+direct_writers_after = 0
+canonical_issuer = "MirInstruction::call"
+implementation_permission = true
+review = "two upper-worker audits agree; fast row selected after D1L closeout"
+
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
 requires = [
@@ -855,6 +865,6 @@ requires = [
   "active PHI rematerialization retained as live, not parked",
 ]
 next_fast_candidates = [
-  "internal MirCall/CallFlags transport retirement after D1I boundary closure",
+  "internal MirCall/CallFlags transport retirement after D1M boundary closure",
 ]
 selection_rule = "do not choose a fast candidate until this manifest is accepted and the candidate's old edge is isolated"
