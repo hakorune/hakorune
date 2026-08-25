@@ -307,6 +307,11 @@ fn canonicalize_draft(
     ancestors: &BTreeMap<Box<str>, AncestorBindingV1>,
     callable_index: Option<&VerifiedCallableIndexV1>,
 ) -> Result<CanonicalizedDraftV1, ResolveFunctionErrorV1> {
+    if callable_index.is_none() && !draft.direct_calls.is_empty() {
+        return Err(ResolveFunctionErrorV1::DraftInvariant(
+            "direct calls require a callable index",
+        ));
+    }
     let binding_ids = draft
         .bindings
         .keys()

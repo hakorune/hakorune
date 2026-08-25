@@ -77,6 +77,36 @@ fn canonical_resolver_normalizes_across_compilation_sessions() {
 }
 
 #[test]
+fn canonical_resolver_rejects_unindexed_direct_call_draft() {
+    let tree = ASTNode::FunctionDeclaration {
+        name: "direct_call".into(),
+        params: Vec::new(),
+        param_decls: Vec::new(),
+        return_type_name: None,
+        body: vec![ASTNode::FunctionCall {
+            name: "helper".into(),
+            arguments: Vec::new(),
+            span: Span::unknown(),
+        }],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    };
+    let error = FunctionSemanticResolverSessionV1::new(0)
+        .unwrap()
+        .resolve(FunctionSyntaxViewV1::from_ast(&tree).unwrap())
+        .unwrap_err();
+
+    assert!(matches!(
+        error,
+        super::ResolveFunctionErrorV1::DraftInvariant("direct calls require a callable index")
+    ));
+}
+
+#[test]
 fn canonical_resolver_seals_atomic_top_level_return_record() {
     let tree = ASTNode::FunctionDeclaration {
         name: "returns".into(),

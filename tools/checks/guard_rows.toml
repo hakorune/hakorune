@@ -175,3 +175,9 @@ id = "normal-source-plan0"
 label = "NORMAL-SOURCE-PLAN0 source-family authority guard"
 profiles = ["pilot"]
 cmd = ["tools/checks/lib/normal_source_plan0_guard.py"]
+
+[[rows]]
+id = "mir-call-d1b-index-none-direct-calls"
+label = "MIR Call D1B index-none direct-call fail-fast guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mir_call_d1b_index_none_direct_calls_guard.sh"]
