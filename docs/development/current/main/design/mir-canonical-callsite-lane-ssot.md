@@ -2525,6 +2525,75 @@ design-only; D2 overall remains `NoSafeSlice` until D2b names the exact
 package issue/drop/consume edges and proves one co-seal without creating a
 second semantic authority.
 
+#### D2b accepted package co-seal and D2c implementation boundary
+
+D2b's read-only package audit accepts the co-seal design, but it does not
+land an issuer, claim, or physical switch. The finite production boundary is:
+
+```text
+final parser source
+  -> nominal Box / birth / caller+constructor observations
+  -> one semantic package co-seal
+  -> affine New-site claim
+  -> one selected physical consumer
+  -> lifecycle commit, or whole-unpublished-attempt abort
+```
+
+```text
+Decision:
+  the package co-seals the final-source seed, branded nominal Box, exact birth
+  relation (or legal zero-arity absence), caller/birth body-shape loans, and
+  resolver-observed effect rows once. A claim is available, moved once, and
+  complete only after the selected physical owner commits.
+Source authority + canonical issuer:
+  final parser source and constructor source catalog provide source relations;
+  resolver body-shape observations provide caller/birth rows; the
+  package-adjacent issuer co-seals only an exact callable/site relation.
+Non-authority:
+  Box/class/name/arity text, FunctionOwnerId, AST rescans, Builder headers,
+  raw or Plan metadata, MIR EffectMask/CoreEffectPlan, backend lookup, tests,
+  fallback, or retry.
+Fail-fast boundary:
+  all cohort, site, nominal, birth, argument/initializer, and observation
+  coverage is checked before child lowering or Builder mutation. A post-claim
+  failure drops the unpublished function/module attempt; it never retries.
+```
+
+The package census is finite and currently exhausted, with six old edges to
+close: final-source postpass drops nominal Box coverage; the final source
+model drops the New seed; constructor source loans drop origin/triggers;
+constructor semantic packaging drops body shapes; caller and constructor
+batches are not co-sealed; and the lowering port creates a fresh non-affine
+consumption context. The implementation audit also proves that a claim-only
+slice is unsafe: leaving Raw/Plan consumers untouched either rejects every
+existing ordinary-New or permits an unconsumed authority sibling.
+
+The first physical consumer is therefore a bounded **Raw** cohort only:
+`Local` initializers in the selected callable's direct body whose initializer
+root is an ordinary user-box `New`. Existing `RawInvocationChildPortV1` and
+`LocalInitializer(i)` preserve the exact site; Plan-owned control-flow New,
+Core13/IntegerBox/record/builtin/JSON/op=newbox, generated constructor-body
+sites, `Method(None)`, and non-selected backends remain outside the cohort.
+The selected old edge is the source-backed ordinary branch in
+`src/mir/builder/new_expression.rs`, including by-name `birth/N` reconstruction,
+header/module lookup, fallback/retry, and direct claimless `NewBox` issuance.
+
+The bounded implementation series is:
+
+1. behavior-neutral BoxShape extraction into a private
+   `ordinary_new_admission.rs` owner, with existing parity only;
+2. one atomic D2c cutover containing final-source transport, constructor
+   body-shape retention, package co-seal, affine claim ledger, Raw adapter,
+   sole admission, selected old-edge deletion, and positive/negative/parity
+   gates; and
+3. closeout of the pointer, owner docs, shared guard, and commit/push.
+
+The semantic producer, package, and physical consumer cannot be split into
+independent commits: doing so would publish an unconsumed authority sibling.
+The next task is `MIR-CALL-NEW-ATOMIC-RAW-COHORT-D2C`; D2b is accepted as
+design-only, D2 overall remains `NoSafeSlice` until the bounded cutover lands,
+and Plan remains `ParkedSealed` outside this Raw cohort.
+
 #### D1-D8 design Decision — behavior-neutral PlanNormalizer helper shelf
 
 D1-D7's source-seed contract is independent of the existing PlanNormalizer

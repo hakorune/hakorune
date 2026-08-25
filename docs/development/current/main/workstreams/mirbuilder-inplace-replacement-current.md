@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-NEW-PACKAGE-COSEAL-D2B
-  implementation    = design only; D1 seed/join contract and D2a target/containment design are accepted as design-only (625491fb25, 18f05950b7); D2b now owns package issue/drop/consume co-seal
-  mode              = design_stop
-  production stop   = raw and PlanNormalizer ordinary-New edges lack a final parser source seed, exact package join, Initializer(i) effects, dual body-shape loan, expression snapshot, and one physical owner; the helper shelf is 786 lines before the split
-  exit              = fix package co-seal ownership for nominal Box, birth relation, observed body-effect rows, and affine New-site claim; D2 overall remains NoSafeSlice and Method(None) remains open
+  current decision  = MIR-CALL-NEW-ATOMIC-RAW-COHORT-D2C
+  implementation    = fast; D1 seed/join, D2a target/containment, D2b package co-seal, and D2c Raw consumer selection are design-only accepted
+  mode              = fast
+  production stop   = selected direct-body Raw ordinary-New still needs final-source transport, one package co-seal, affine claim consumption, sole admission, and old-edge retirement; Plan remains outside this cohort
+  exit              = three bounded commits: BoxShape extraction, atomic Raw cutover, then closeout with shared guard and pointer sync; D2 overall remains NoSafeSlice outside the cohort
 fallback / retry  = 0
 ```
 
@@ -272,7 +272,7 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
 8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
    D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, D1-D4/D1-D5/D1-D6/D1-D7 the issuer/lifecycle/relation/seed design, and D1-D8 design accepted the exact helper shelf/path-observer boundary at `1434663966`;
-   the behavior-neutral shelf I0 landed at `b61f6895d2`; D1 and D2a design-only decisions are accepted at `625491fb25` and `18f05950b7`; D2b now owns the package co-seal decisions before any ordinary-New implementation.
+   the behavior-neutral shelf I0 landed at `b61f6895d2`; D1 and D2a design-only decisions are accepted at `625491fb25` and `18f05950b7`; D2b package co-seal and D2c Raw consumer selection are accepted as design-only, and the bounded Raw implementation now owns the next edge.
 9. R7: structural guards, README/reference sync, and census closeout.
 
 R3 D0 accepted boundary:
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-NEW-PACKAGE-COSEAL-D2B
-  -> design stop: fix package issue/drop/consume co-seal for nominal Box, birth, observations, and the affine New-site claim
+ MIR-CALL-NEW-ATOMIC-RAW-COHORT-D2C
+  -> fast: direct-body Raw ordinary-New only; extract the owner, then atomically transport source, co-seal package/claim, consume once, and retire the old by-name/claimless edge
 Next (not selected)
-  -> D2 issuer implementation only after D2b acceptance; implementation remains closed until source authority and fail-fast acceptance; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
