@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0
+Status: Design stop — MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0
-  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; FunctionCall observation profile is design-accepted, while direct-call inventory and lineage co-seal remain design-only
+  current decision  = MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1
+  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; FunctionCall observation profile is design-accepted and the D0-C package boundary census is recorded, while owner-lineage co-seal remains design-only
   mode              = design_stop
-  production stop   = co-seal every observed FunctionCall with owner/site/lineage/disposition before package install, body lowering, or argument effects; no target synthesis, second resolver, or post-effect recovery closure
-  exit              = same-session owner/site bijection, TopLevel/InstanceConstructor lineage preservation, finite disposition matrix, and whole-package abort proof
+  production stop   = map Cataloged/TopLevel/InstanceConstructor lineage through existing forest/site authorities and co-seal owner/site/lineage before package install, body lowering, or argument effects; no target synthesis or second resolver
+  exit              = existing batch/map/constructor-to-forest mapping, source-site membership, same-brand/session proof, lineage preservation, transient scratch drop, and whole-package abort proof
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 — co-seal one owner-qualified disposition for every observed FunctionCall before package publication or physical argument effects.
-Source authority + canonical issuer: source AST/site, SelectedCallable/Constructor identity, existing Brand catalog, and the same resolver/package session; no target issuer is added by this design.
-Non-authority: silent SelectedCallable drops, callable_index=None empty maps, ShadowDirectCallUseV0 as a target, caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, collector order, headers/suffixes, post-argument values, backend lookup, or GC child behavior as a general resolver.
-Fail-fast boundary: before package install, body lowering, argument descent/effects, block mutation, or Call publication; missing/foreign/ambiguous/deferred disposition aborts the unpublished package.
-Smallest next slice: D0-C design-only boundary census at package prepare_install/commit for SelectedNormal self/sibling, TopLevel, InstanceConstructor, special/non-direct, duplicate/foreign/missing/ambiguous sites, and index-none-with-calls; no code, fixture, receipt, or production switch.
-Non-claims: implementation, new public receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
+Decision: D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1 — reuse existing semantic owner/site authorities to preserve Cataloged/TopLevel/InstanceConstructor lineage through one same-session co-seal.
+Source authority + canonical issuer: VerifiedSemanticOwnerForestV1 owns FunctionOwnerIdV1, VerifiedResolvedSourceSiteInventoryV1 owns site membership, RawInvocationRootLineageV1 owns provenance, and the existing resolver/package issuer performs the mapping.
+Non-authority: caller=None, Selected source inventory alone, post-install ledger queries, builder variable_map, name/arity/box/key/physical symbol synthesis, AST re-scan, second resolver, target inference, or empty-map success.
+Fail-fast boundary: missing/foreign/mixed-brand/duplicate/collapsed owner-site-lineage rows abort before package prepare_install, body lowering, argument descent/effects, block mutation, or Call publication.
+Smallest next slice: design-only mapping matrix for Cataloged, TopLevel, and InstanceConstructor plus source-site membership, same-session brand, transient scratch drop, and out-of-scope reject/park states; no code, fixture, receipt, or production switch.
+Non-claims: FunctionCall observation implementation, target/Callee issuance, traversal widening, public semantic receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw

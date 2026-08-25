@@ -1,0 +1,100 @@
+title = "MIR Call D1B direct-call source owner-lineage co-seal design"
+status = "accepted_design_no_safe_slice"
+observed_at = "2026-08-26"
+observed_commit = "f76b80ed26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
+decision_id = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1"
+decision = "Reuse existing semantic owner and source-site authorities to carry Cataloged, TopLevel, and InstanceConstructor raw lineage to one same-session owner/site co-seal. This row issues no target, no Callee, and no public semantic receipt."
+
+[boundary]
+starts = "existing VerifiedSemanticOwnerForestV1, selected batch/map, constructor batch, VerifiedResolvedSourceSiteInventoryV1, OwnedExprSiteV1, and RawInvocationRootLineageV1 at the same resolver session"
+ends = "owner/site/lineage membership is verified and co-sealed before package prepare_install, body lowering, argument effects, block mutation, or Call publication; any transient scratch is consumed and dropped"
+includes = [
+  "Cataloged and TopLevel lineage mapped through the existing selected callable batch/map to the existing forest owner",
+  "InstanceConstructor lineage mapped through source_id and the existing constructor batch to the forest root owner",
+  "OwnedExprSiteV1 used only as a transient owner/site key and VerifiedResolvedSourceSiteInventoryV1 used for membership",
+  "same compilation brand and resolver-session identity checks",
+  "missing, foreign, mixed-brand, duplicate, and lineage-collapse rejection",
+]
+excludes = [
+  "Callee or target issuance, name/arity/box/symbol synthesis, callable-index generalization, and Method(None)",
+  "SelectedCallable traversal widening, AST re-scan, second resolver, JSON/VM/backend, and mandatory-Callee cutover",
+  "new public Verified*/Prepared* semantic receipt or package field",
+  "ScriptRoot, Main, NestedBoxMethod, RawCompatibility, and special-form implementation; they need explicit reject/park ownership outside this row",
+]
+
+[brief]
+source_authority = "VerifiedSemanticOwnerForestV1 is the sole FunctionOwnerId authority; VerifiedResolvedSourceSiteInventoryV1 is the site-membership authority; RawInvocationRootLineageV1 is provenance only."
+canonical_issuer = "the existing same-session semantic package/resolver issuer performs the three lineage-to-forest-owner joins and validates the transient owner/site rows before package install"
+non_authority = [
+  "Selected source inventory alone, CallableSemanticSourceLedgerView after install, caller=None, builder variable_map, collector order, name/arity/physical symbol, and constructor box/key spelling",
+  "AST re-discovery, a second resolver continuation, target inference, or an empty inventory treated as success",
+]
+fail_fast = "If owner, site, lineage, brand, or session identity is missing or conflicting, abort the unpublished package before prepare_install, body lowering, argument descent/effects, block mutation, or MIR Call publication."
+smallest_next_slice = "Design-only mapping matrix and co-seal proof for Cataloged, TopLevel, and InstanceConstructor; no code, fixture, receipt, or production switch."
+non_claims = [
+  "this row does not observe ordinary FunctionCall nodes, widen traversal, issue a Callee, or remove Resolved/post-argument recovery",
+  "ScriptRoot/Main/NestedBoxMethod and compatibility cohorts are not silently accepted by exclusion",
+]
+
+[existing_owner_map]
+cataloged = "RawInvocationRootLineageV1::Cataloged(key) -> VerifiedSelectedCallableBatchMapV1 -> selected batch row -> VerifiedSemanticOwnerForestV1 owner -> VerifiedResolvedSourceSiteInventoryV1 membership."
+top_level = "RawInvocationRootLineageV1::TopLevel(key) -> existing selected batch/map relation -> forest owner -> site membership; key name/arity/physical symbol never becomes a target."
+instance_constructor = "RawInvocationRootLineageV1::InstanceConstructor(source_key) -> constructor batch source_id/forest root -> site membership; constructor identity remains provenance and is not reclassified as an ordinary target."
+transient_key = "OwnedExprSiteV1 is a private validation key only; it is consumed after owner/site/lineage co-seal and is not stored as a new public package product."
+insufficient = "VerifiedSelectedNormalCallableSourceInventoryV1 lacks FunctionOwnerIdV1; CallableSemanticSourceLedgerView is a borrowed query and is too late after install; neither may become the D1 issuer."
+
+[finite_state]
+states = [
+  "OwnerLineageUnseen",
+  "CatalogedOwnerMapped",
+  "TopLevelOwnerMapped",
+  "InstanceConstructorOwnerMapped",
+  "SourceScopeOutside",
+  "MissingOwner",
+  "MissingSite",
+  "ForeignOwner",
+  "MixedBrand",
+  "DuplicateSite",
+  "LineageCollapsed",
+  "OwnerLineageCoSealed",
+  "PackageAbortBeforeEffects",
+  "ParkedCompatibility",
+]
+terminal_policy = "Only OwnerLineageCoSealed after the same-session owner/site/lineage checks is terminal. Missing/foreign/mixed-brand/duplicate/collapsed/outside states reject or require an explicit external owner; none may cross into package install or effects."
+
+[subtasks]
+map_selected = "Specify the existing selected batch/map lookup for Cataloged and TopLevel without deriving owner from names, arity, or symbols."
+map_constructor = "Specify the existing constructor source_id/forest-root lookup and keep constructor provenance separate from ordinary target authority."
+preserve_lineage = "Carry RawInvocationRootLineageV1 through the bridge; InstalledNonBrand { caller: None } is not a valid D1 terminal."
+verify_membership = "Use VerifiedResolvedSourceSiteInventoryV1 and compilation brand/session identity to reject missing, foreign, mixed, and duplicate rows."
+scratch_lifecycle = "If the existing products cannot carry the rows, allow only private transient scratch during issuer validation and require consume/drop before package publication; otherwise remain NoSafeSlice."
+negative_matrix = "Cover ScriptRoot/Main/NestedBoxMethod/out-of-scope, lineage collapse, source-site loss, second-session ownership, and empty-map success as typed reject or explicit ParkedSealed."
+
+[acceptance]
+positive = [
+  "Cataloged, TopLevel, and InstanceConstructor each map through an existing batch/forest authority with raw lineage intact",
+  "owner/site membership and same brand/session are checked exactly once before package prepare_install",
+  "transient validation rows are consumed and dropped; no new public semantic receipt or package field is introduced",
+]
+negative = [
+  "caller=None cannot represent a source-backed TopLevel or InstanceConstructor terminal",
+  "name/arity/box/key/physical symbol cannot synthesize owner or target",
+  "missing, foreign, mixed-brand, duplicate, collapsed, or second-session rows cannot reach body/argument effects",
+]
+parity = "Existing cataloged and constructor source identities remain unchanged; this design only fixes the ownership bridge and does not change call execution or target semantics."
+guard = "future guard must assert the three mapping paths, zero caller=None collapse for source-backed roots, owner/site uniqueness, same-session brand, scratch drop, and zero package/effect publication before co-seal."
+
+[worker_audit]
+source = "focused read-only owner-lineage audit at f76b80ed26; no code, fixture, or Cargo change"
+verdict = "Existing owners can be reused for the mapping, but no current issuer connects raw FunctionCall site to them; implementation remains NoSafeSlice until this design and pre-argument observation are closed."
+
+[reopen]
+triggers = [
+  "a producer derives owner or target from name, arity, box/key, or physical symbol",
+  "TopLevel/InstanceConstructor lineage is collapsed to caller=None",
+  "a second resolver or post-install ledger is used as the D1 authority",
+  "transient scratch escapes into a public semantic package product",
+  "package install, body lowering, argument effects, or Call publication precedes owner-lineage co-seal",
+]

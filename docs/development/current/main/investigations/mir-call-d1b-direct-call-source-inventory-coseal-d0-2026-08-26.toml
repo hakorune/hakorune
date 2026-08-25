@@ -57,10 +57,11 @@ lineage_source = "RawInvocationRootLineageV1 already carries Cataloged, TopLevel
 i0_connection = "The landed index-none safety I0 is a typed abort at canonicalize_draft; it is a child safety edge and does not replace the same-session owner/site inventory or pre-shadow observation design."
 
 [worker_audit]
-source = "six read-only worker audits at aeae60a55a plus focused D0-C re-audit at e08f656993; no code, fixture, or Cargo change"
+source = "six read-only worker audits at aeae60a55a, focused D0-C re-audit at e08f656993, and owner-lineage audit at f76b80ed26; no code, fixture, or Cargo change"
 verdict = "NoSafeSlice remains: package issuer has no direct-call inventory/co-seal field, SelectedCallable closes ordinary FunctionCall traversal, and TopLevel/InstanceConstructor lineage still collapses to caller=None before disposition."
 next_bounded_design = "D0-C package co-seal boundary census: fix the exact prepare_install/commit boundary, finite SelectedNormal/Constructor/non-direct/missing/foreign/ambiguous/index-none matrix, one owner/site issuance point, and pre-effect abort contract."
 implementation_gate = "Keep implementation_permission=false; do not widen traversal, add a semantic receipt, change target resolution, or alter the active backend until D0-C closes."
+next_design_row = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: reuse existing forest/site authorities for Cataloged, TopLevel, and InstanceConstructor; no target or public receipt."
 
 [boundary_census]
 package_issuer = "src/mir/normal_callable_semantic_package/issuer.rs:134-161 issues instance-constructor, source catalog, resolved batch, and selected mapping; src/mir/normal_callable_semantic_package/model.rs:35-52 has no direct-call inventory field."
