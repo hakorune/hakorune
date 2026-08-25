@@ -1,6 +1,6 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "4145663c2f"
+observed_commit = "32c7abd027"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-root-lineage-d0-2026-08-27.toml"
@@ -31,7 +31,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "Design the private pre-install direct-call inventory/co-seal handoff: one package/resolver owner must consume owner/site/lineage/disposition and lend an existing exact relation before any physical relation loan or code."
+smallest_next_slice = "Design the private pre-install direct-call inventory/co-seal handoff in four bounded steps: classify the three resolver entrances; observe ordinary FunctionCall owner/site/lineage before argument descent without widening a gate yet; validate an issuer-local transient disposition against the same-session owner/site/brand relation; and abort unpublished package installation when any row is missing, foreign, duplicate, ambiguous, or collapsed. Only after that design closes may a raw preflight consumer loan the disposition."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -47,6 +47,9 @@ resolver = "CalleeResolverBox preserves a supplied CallTarget; it does not prove
 package_gap = "normal_callable_semantic_package::issuer.rs:134-161 issues catalog/batch/selected/constructor products but no direct-call inventory; install.rs:273-333 checks catalog vacancy and publishes without direct-call coverage."
 lineage_collapse = "function_call_brand_source_demand.rs:75-91 keeps Cataloged caller identity but collapses TopLevel/InstanceConstructor into InstalledNonBrand { caller: None }, which can enter Resolved rather than a typed terminal."
 late_recovery = "function_call_preflight_route.rs:239-267 and calls/build.rs:104-124 still permit Resolved -> drive_call_arguments_v1 -> resolve/unique-static/tail/name-Const/legacy Call."
+selected_gate = "SelectedCallableV1 currently rejects ordinary FunctionCall before shadow child traversal, so a private scratch alone cannot close the inventory gap; package issuer must not rescan AST or infer a row from BodyEffect(Call)."
+same_session_index_limit = "ResolvedDirectCallTargetV1 is issued only by the exact-i64 callable-index cohort; Selected/Constructor batches run with callable_index=None and cannot borrow that relation across resolver sessions or brands."
+raw_consumer_gap = "RawInvocationChildPortV1 can expose owner/site, but no explicit package-to-raw disposition loan exists; adding a direct-call map to physical lowering or using post-install ledger queries would duplicate semantic authority."
 duplicate_decision_child = "ffcae72725: docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
 scoped_loan_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-physical-relation-scoped-loan-d0-2026-08-26.toml"
 self_loan_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-self-exact-target-loan-d0-2026-08-26.toml"
@@ -79,6 +82,14 @@ states = [
 ]
 terminal_policy = "Only TargetedExistingLoan may cross into argument descent. PackageInventoryUnsealed, CallerNoneCollapsed, source-only, duplicate SelectedNormal, conflict, missing, and constructor-only states reject before effects or enter an explicitly owned Parked state. ResolvedFallthroughForbidden is a guard failure, never a terminal."
 
+[subtasks]
+entrance_census = "Classify SelectedCallable, InstanceConstructor, and the older normal_callable_semantic_source ingress as production, compatibility, or caller-zero with finite evidence; raw Builder remains a consumer/bridge."
+observation_issuer = "Design one same-session pre-argument observation/disposition issuer for ordinary FunctionCall. Keep Brand, builtin/typeop/math/fastmem, ExplicitExtern, and ASTNode::Call cohorts outside ordinary inventory with explicit owners."
+owner_lineage_co_seal = "Map Cataloged and TopLevel through the existing selected batch/map and InstanceConstructor through source_id/forest root; use OwnedExprSiteV1 only as private validation key and preserve RawInvocationRootLineageV1 without caller=None collapse."
+transient_lifecycle = "If existing products cannot carry rows, allow only issuer-local scratch containing owner/site/lineage/brand/disposition; require consume/drop before package publication and forbid Callee, target synthesis, AST rescan, or second resolver."
+preinstall_abort = "Make prepare_install/commit impossible for an unconsumed or incomplete direct-call inventory; missing/foreign/mixed-brand/duplicate/ambiguous/lineage-collapsed rows reject or enter an explicit external ParkedSealed owner before body or argument effects."
+raw_loan_boundary = "After semantic co-seal only, design the single package-to-raw preflight loan. Physical lowering may consume an already-decided disposition once; it may not resolve, classify, or recover."
+
 [precedence]
 required_rows = [
   "exact same-occurrence relation versus local Value relation",
@@ -110,8 +121,11 @@ implementation_gate = "false; duplicate I0 is closed at ffcae72725, but package 
 guard = "future guard must prove one exact target loan or typed terminal for every admitted root lineage before drive_call_arguments_v1; InstalledNonBrand caller=None and Resolved fallthrough must be zero"
 
 [worker_audit]
-source = "three read-only root-lineage audits at 4145663c2f; no code, fixture, Cargo, or gate change"
-verdict = "RawInvocationSourceTransportV1 can preserve provenance, and exact-i64 Main has a separate same-session index. General Selected/TopLevel/InstanceConstructor target inventory is not co-sealed by the normal package issuer; caller=None collapse and Resolved/recovery/name-Const fallthrough remain CutoverBlockerOpen."
+source = "three read-only root-lineage/package/observation audits at 32c7abd027; no code, fixture, Cargo, or gate change"
+verdict = "NoSafeSlice remains. The exact-i64 cohort has a real same-session callable index, but Selected/Constructor batches have no general direct-call inventory and run without that index. SelectedCallable closes ordinary FunctionCall observation before traversal; TopLevel/InstanceConstructor are collapsed to caller=None in the raw bridge; and Resolved still permits post-argument resolve/unique-static/tail/name-Const/legacy-Call fallthrough. A private issuer-local scratch is safe only for finite owner/site/lineage/disposition validation, same-session package co-seal, pre-install abort, and consume/drop; it must not hold Callee, synthesize targets, widen a profile, rescan AST, or become a raw physical map."
+design_worker = "Existing forest, batch/map, constructor source_id, source-site, and RawInvocationRootLineageV1 authorities can be reused, but no current API connects an observed ordinary FunctionCall to them in the same session. The next design boundary is the observation issuer, followed by owner-lineage co-seal and only then a package-to-raw disposition loan."
+adversary_worker = "Borrowing ResolvedDirectCallTargetV1 sideways from exact-i64 is foreign-session/brand authority; BodyEffect(Call) lacks name/arity and cannot reconstruct a row; package install currently checks catalog vacancy only. Any physical map or post-install ledger bridge would duplicate semantic authority."
+tests_worker = "Existing package tests prove catalog/selected/constructor install and consume once, but no direct-call inventory, transient consume/drop, closed-gate negative, or pre-install incomplete-inventory rejection. Required future witnesses are one per entrance plus duplicate/foreign/ambiguous/lineage-collapse and zero effects before co-seal."
 
 [reopen]
 triggers = [
