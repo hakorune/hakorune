@@ -1,7 +1,7 @@
 title = "MirBuilder investigation ledger identity and index design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-26"
-observed_commit = "964def608b"
+observed_commit = "2bd876faf9"
 implementation_permission = false
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
 related_current = "docs/development/current/main/CURRENT_STATE.toml"
@@ -47,7 +47,7 @@ relation_drift = "current cards use mixed parent_row/parent_child/source_lineage
 identity_drift = "the bounded investigation cohort currently has zero top-level row_id fields and zero [edges] tables; identity and relation migration remain unstarted and must not accept a dual-format cutover."
 
 [verification]
-source = "read-only root-lineage/package/observation audits and D1B direct-call co-seal taskization at 964def608b; no code, fixture, or Cargo change"
+source = "six-worker D1B authority/entrance/target/consumer/proof/SSOT audit and accepted direct-call loan design at 2bd876faf9; no code, fixture, or Cargo change"
 terminal_policy = "the related relationless-recovery card already says first, tenth, or ParkedSealed; the old ninth wording is not a current blocker"
 remaining_tasks = [
   "schema D0: freeze row_id, [edges] roles, status/date vocabulary, scope, and one-way cutover",
