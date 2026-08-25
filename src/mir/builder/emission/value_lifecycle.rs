@@ -7,7 +7,7 @@
 //! - This is a **contract** check (no rewrite, no workaround).
 //! - Enabled only in strict/dev + planner_required to keep release default behavior unchanged.
 
-use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
+use crate::mir::builder::mir_value_id_inventory::MirValueIdInventory;
 use crate::mir::builder::MirBuilder;
 use crate::mir::verification::utils::compute_def_blocks;
 use crate::mir::{MirFunction, MirType, ValueId};
@@ -240,14 +240,14 @@ pub(in crate::mir::builder) fn verify_reserved_values_not_exposed(
 }
 
 fn collect_referenced_values(func: &MirFunction) -> HashSet<ValueId> {
-    let remapper = JoinIrIdRemapper::new();
+    let inventory = MirValueIdInventory::new();
     let mut out: HashSet<ValueId> = HashSet::new();
     let reachable = crate::mir::verification::utils::compute_reachable_blocks(func);
     for (block_id, block) in &func.blocks {
         if !reachable.contains(block_id) {
             continue;
         }
-        for v in remapper.collect_values_in_block(block) {
+        for v in inventory.collect_values_in_block(block) {
             out.insert(v);
         }
     }

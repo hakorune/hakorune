@@ -583,7 +583,9 @@ mod weak_field_write;
 // Phase 29bq+: sealing 層中立化
 use control_flow::edgecfg::api::FragEmitSession;
 mod declaration_order; // Deterministic box-member traversal owner
-pub mod joinir_id_remapper; // Phase 189: JoinIR ID remapping (ValueId/BlockId translation) - Public for tests
+mod mir_value_id_inventory; // Active lifecycle ValueId inventory; no remap authority
+#[cfg(test)]
+pub mod joinir_id_remapper; // Reference-only JoinIR ID remapping (ValueId/BlockId translation)
 mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instruction injector
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
 mod module_compat_policy; // CUT0-S0-COMPAT0 ingress policy snapshot

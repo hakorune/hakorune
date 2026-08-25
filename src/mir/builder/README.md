@@ -17,8 +17,9 @@ Pointers:
   - `src/mir/README.md`
 
 このディレクトリは Rust 側の MIR 生成（AST → canonical MIR emission）を担う。
-`control_flow/plan` と JoinIR merge は物理的にはここにあるが、builder core
-ではなく FlowPlanner / JoinIR glue として読む。
+`control_flow/plan` と JoinIR route は FlowPlanner / JoinIR glue として読む。
+旧 JoinIR merge/remap は `cfg(test)` の reference surface であり、production
+の ValueId lifecycle collection は `mir_value_id_inventory.rs` が所有する。
 
 ## Active replacement law
 
@@ -499,7 +500,7 @@ be narrowed or rewritten. The exact task order is in
 
 - **状態は Context が SSOT**: `MirBuilder` の状態は Context（箱）に分割され、二重管理をしない。
 - **ValueId 発行は SSOT**: 関数内の ValueId は `MirBuilder::next_value_id()` を唯一入口にする。
-- **境界は Fail-Fast**: JoinIR merge は `contract_checks.rs` で契約違反を早期検出する（debug-only）。
+- **境界は Fail-Fast**: active production path は canonical lifecycle inventory を使い、旧 JoinIR merge/remap は test/reference のみで契約違反を早期検出する。
 
 ## Context 構成（責務マップ）
 
@@ -592,9 +593,12 @@ be narrowed or rewritten. The exact task order is in
   - `src/mir/builder/fields.rs`
   - `src/mir/builder/property_reads.rs` (property getter lowering)
   - `src/mir/builder/properties.rs` (MIR-side property getter naming/registry)
-- JoinIR merge（契約検証を含む）
+- JoinIR merge（reference/test surface、production callerなし）
   - `src/mir/builder/control_flow/joinir/merge/mod.rs`
   - `src/mir/builder/control_flow/joinir/merge/contract_checks.rs`
+  - `src/mir/builder/joinir_id_remapper.rs`
+- active ValueId lifecycle inventory
+  - `src/mir/builder/mir_value_id_inventory.rs`
 - FlowPlanner public entry
   - `src/mir/builder/control_flow/joinir/route_entry/router.rs`
   - `src/mir/builder/control_flow/lower/planner_compat.rs`

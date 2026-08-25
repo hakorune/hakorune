@@ -12,7 +12,8 @@
 pub(in crate::mir::builder) mod control_tree_capability_guard;
 #[cfg(test)]
 pub(in crate::mir::builder) mod loop_context;
-pub(in crate::mir::builder) mod merge;
+#[cfg(test)]
+pub(in crate::mir::builder) mod merge; // Reference-only legacy JoinIR merger
 pub(in crate::mir::builder) mod parity_checker;
 pub(in crate::mir::builder) mod route_entry;
 pub(in crate::mir::builder) mod routing;

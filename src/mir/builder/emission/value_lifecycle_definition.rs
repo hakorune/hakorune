@@ -4,7 +4,7 @@
 //! from the legacy helper that also removes transient stale rows.  This module
 //! deliberately owns neither `MirBuilder` nor a MIR mutation path.
 
-use crate::mir::builder::joinir_id_remapper::JoinIrIdRemapper;
+use crate::mir::builder::mir_value_id_inventory::MirValueIdInventory;
 use crate::mir::builder::type_context::TypeContext;
 use crate::mir::verification::utils::compute_def_blocks;
 use crate::mir::{MirFunction, MirType, ValueId};
@@ -124,12 +124,12 @@ impl TypedValueDefinitionRowsV1 {
 pub(in crate::mir::builder) fn collect_referenced_typed_values_v1(
     function: &MirFunction,
 ) -> BTreeSet<ValueId> {
-    let remapper = JoinIrIdRemapper::new();
+    let inventory = MirValueIdInventory::new();
     let reachable = crate::mir::verification::utils::compute_reachable_blocks(function);
     let mut values = BTreeSet::new();
     for (block_id, block) in &function.blocks {
         if reachable.contains(block_id) {
-            values.extend(remapper.collect_values_in_block(block));
+            values.extend(inventory.collect_values_in_block(block));
         }
     }
     values.extend(function.params.iter().copied());

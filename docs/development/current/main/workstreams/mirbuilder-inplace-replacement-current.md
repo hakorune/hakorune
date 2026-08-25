@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast (MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0)
+Status: Active workstream — closeout (MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0
-  implementation    = D0 census accepted; collector extraction + cfg(test) isolation is selected
-  mode              = fast
+  implementation    = I0 landed in the worktree: named lifecycle inventory + cfg(test) isolation
+  mode              = closeout
   production stop   = active lifecycle inventory is the sole production collector; old merge/remap is reference-only
-  exit              = focused positive/negative proof, reusable guard, owner docs, commit/push; then R6 design
+  exit              = focused proof, reusable guard, owner docs, commit/push; then R6 design stop
   fallback / retry  = 0
 ```
 
@@ -471,10 +471,11 @@ parent 652 (<760); no new edge/warning class.
 
 ## Ordered follow-ups (design/retirement, not selected)
 
-`MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0`: extract the active lifecycle inventory,
-gate `joinir_id_remapper` and `joinir/merge` under `cfg(test)`, and prove old
-remap APIs have no production entry. Preserve target projection through
-`Callee::for_each_value_operand`; R6, root mode, shelves, warnings, and PyVM stay separate.
+`MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0` implementation receipt: lifecycle
+collection now uses `MirValueIdInventory`; disconnected `joinir_id_remapper`
+and `joinir/merge` are `cfg(test)` reference-only, with target projection
+preserved through `Callee::for_each_value_operand`. R6, root mode, shelves,
+warnings, and PyVM stay separate.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
@@ -494,7 +495,7 @@ cutover, operand SSOT, selected terminal closure, and historical backend re-entr
 
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap census is dispositioned (lifecycle collection retained; disconnected remap APIs queued for isolation); native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
+R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap isolation I0 is implemented and in closeout; native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
 
 ## Production invariants
 ```text
@@ -569,7 +570,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
  MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0
-  -> fast: extract active collector, cfg(test)-gate disconnected remap/merge, then guard and close
+  -> closeout: implementation and guards are green; record docs, commit/push
 Next (not selected)
   -> MIR-CALL-CORE-R6-D0 after remapper isolation; physical/backend/New and non-selected backend rows remain ParkedSealed
 
