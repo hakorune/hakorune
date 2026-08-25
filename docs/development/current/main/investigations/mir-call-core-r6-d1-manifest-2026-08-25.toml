@@ -115,9 +115,10 @@ caller_chain = "builder emission -> receiver localization -> instruction replace
 lifecycle = "in-place instruction replacement before block emission"
 target_authority = "existing typed Callee plus localized receiver"
 old_edge = "rebuilds typed Call with legacy func decoration"
-disposition = "CutoverBlockerOpen"
+disposition = "RetainGuarded"
 delete_set = ["direct Call literal", "legacy func transport"]
-reopen_trigger = "receiver localization requires target reclassification"
+reopen_trigger = "receiver localization requires target reclassification or the scoped guard loses its one-writer proof"
+guard = "mir_call_canonical_corridor_guard.sh scoped builder_emit reconstruction window"
 
 [[direct_writer]]
 id = "builder_raw_call"

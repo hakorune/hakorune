@@ -97,7 +97,7 @@ receiver, registry, metadata, optimizer, or backend route.
 MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0
 ```
 
-It is `fast`, with implementation limited to the bounded row below. The preceding D1F row
+It is in closeout after the bounded D1G row landed at `c3c7e0ea65`. The preceding D1F row
 is landed at `572ec6f5b1`; D1G owns only the one builder emit Method
 reconstruction branch, whose finite boundary and acceptance are in:
 

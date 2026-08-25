@@ -20,15 +20,15 @@ source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, 
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0"
-current_design_stop = "D1B/D1C1 design boundaries remain recorded NoSafeSlice/CutoverBlockerOpen; D1F is landed and D1G is the accepted one-writer fast reconstruction slice."
-current_blocker_token = "MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0: fast scope is one Method(Some(receiver)) reconstruction; no Method(None), args rewrite, LocalSSA policy change, or field deletion."
+current_design_stop = "D1B/D1C1 design boundaries remain recorded NoSafeSlice/CutoverBlockerOpen; D1G landed as one-writer reconstruction and the next edge requires upper-worker census."
+current_blocker_token = "MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0: implementation landed at c3c7e0ea65; closeout evidence is complete, with no Method(None), args rewrite, LocalSSA policy change, or field deletion."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — Call core R6G builder emit reconstruction fast row"
+active_lane = "MirBuilder in-place replacement — Call core R6G builder emit reconstruction closeout"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5 and JSON/profile/backend/native split are closed; exact Extern, D1-D8, shelf, source-seed/join, D2a/b/c, P2 closeout, physical D1-I0 pair transport (5bde4c6f92), JoinIR remapper isolation I0 (0048c0176a), exact-i64 physical input I0 (7fd97a5344), R6 D0/direct-static issuer I0 at 6302839770, accepted R6-D1 manifest, D1A Extern issuer I0 at 4b2fe7a7b6, D1B/D1C1 design stops, D1C1 NoSafeSlice, Call SSOT docs-slim, D1E normal-main thunk issuer at 2150472c35, and D1F typed Method issuer at 572ec6f5b1 are recorded. D1G builder emit reconstruction is the selected fast row; root mode, shelves, and warning retirement remain separate."
-next_design_card = "none — D1G fast row selected"
-next_execution_card = "MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5 and JSON/profile/backend/native split are closed; exact Extern, D1-D8, shelf, source-seed/join, D2a/b/c, P2 closeout, physical D1-I0 pair transport (5bde4c6f92), JoinIR remapper isolation I0 (0048c0176a), exact-i64 physical input I0 (7fd97a5344), R6 D0/direct-static issuer I0 at 6302839770, accepted R6-D1 manifest, D1A Extern issuer I0 at 4b2fe7a7b6, D1B/D1C1 design stops, D1C1 NoSafeSlice, Call SSOT docs-slim, D1E normal-main thunk issuer at 2150472c35, and D1F typed Method issuer at 572ec6f5b1 are recorded. D1G builder emit reconstruction landed at c3c7e0ea65; root mode, shelves, warning retirement, and next-edge selection remain separate."
+next_design_card = "none — request upper-worker bounded next-edge census"
+next_execution_card = "none — D1G landed; next-edge census pending"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-25: D1F typed Method issuer landed at 572ec6f5b1; 4 method instruction/optimizer tests plus 3 operand-view tests passed, dedicated corridor/pointer guards are green, and the umbrella normal-source guard retains a known pre-existing module-registry baseline failure.",
+  "2026-08-25: D1F typed Method issuer landed at 572ec6f5b1 and D1G builder emit reconstruction landed at c3c7e0ea65; method/terminal parity, scoped corridor/pointer guards, rustfmt, and diff checks are green; the umbrella normal-source guard retains a known pre-existing module-registry baseline failure.",
   "2026-08-25: D1-I0 exact pos/end representation pair landed at 5bde4c6f92 after P3 f94bb7f2a7/P0 41f82d4be4; check, focused 1/1, guard, and diff are green; JSON/C/backend activation is 0.",
   "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0.",
 ]

@@ -1,8 +1,9 @@
 title = "MIR Call core R6 D1G builder emit receiver reconstruction"
-status = "accepted_design_fast_row_selected"
+status = "landed"
 observed_commit = "e26a65bd85"
 observed_at = "2026-08-25"
-implementation_permission = true
+implementation_permission = false
+landed_commit = "c3c7e0ea65"
 
 [boundary]
 starts = "existing typed Callee::Method(Some(receiver)) entering MirBuilder::emit_instruction"
@@ -26,7 +27,7 @@ excludes = [
 
 [decision]
 summary = "Replace the one Method(Some(receiver)) reconstruction literal in builder_emit with MirInstruction::call while preserving the LocalSSA receiver rematerialization and every other instruction field."
-source_authority = "existing Callee::Method(Some(receiver)) target; local::recv owns operand localization and returns a cached/localized/original receiver ValueId"
+source_authority = "existing Callee::Method(Some(receiver)) target; local::recv owns operand localization, with cache/localization success yielding the localized receiver and LegacyFacade failure yielding the original ValueId"
 canonical_issuer = "MirInstruction::call(*dst, Callee::Method { receiver: Some(r_local), box_name, method, certainty, box_kind }, args.clone(), *effects)"
 non_authority = [
   "legacy func or INVALID decoration",
@@ -103,11 +104,22 @@ stop_if = [
 ]
 
 [acceptance]
-status = "fast_row_selected"
+status = "landed"
 focused_test = "disconnected_standard_terminal_preserves_method_identity_and_completed_destination plus instruction method parity; scoped guard covers non-Method/callee=None non-intervention"
 expected_inventory_delta = "direct literal 35 -> 34; canonical helper caller fanout 8 -> 9; no runtime caller fanout claim"
 implementation_scope = "one existing reconstruction branch, one shared guard extension, one README receipt; no new semantic receipt"
 review = "read-only upper-worker census selected this as the sole next bounded producer/reconstructor edge after D1F"
+
+[receipt]
+status = "landed"
+commit = "c3c7e0ea65"
+source = "src/mir/builder/builder_emit.rs:140"
+old_edge = "direct Call literal with func=INVALID and callee=Some after LocalSSA receiver rematerialization"
+new_edge = "MirInstruction::call(*dst, localized Method(Some(receiver)), args.clone(), *effects)"
+parity = "disconnected_standard_terminal_preserves_method_identity_and_completed_destination: 1 passed; test_method_call_*: 4 passed"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; no new warning class was introduced"
+source_risk = "builder_emit.rs is 518 lines; no adjacent dirty files staged; no schema/flags/fallback/backend switch"
 
 [reopen]
 triggers = [
