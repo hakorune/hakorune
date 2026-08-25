@@ -23,6 +23,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1q-publication-return-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1r-materialization-store-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1s-publication-substring-extern-issuer-i0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1t-concat-substring-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-final-shape-and-ingress-boundary-design-2026-08-25.md
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
@@ -106,7 +107,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current row:
 
 ```text
-MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0
+MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -150,8 +151,11 @@ shared guard are green. D1R landed at `82be5daa97`: the one
 `MirInstruction::call`. D1S landed at `5d5c564e82`: the one
 `PublicationHelperSubstringPlan` writer in the same file delegates to
 `MirInstruction::call`, preserving composed start/end Add roots and
-plan-owned effects. Selected writers are 11 -> 10 and the concat family is
-8 -> 7; no other concat, unified, array, or canonicalizer writer is authorized.
+plan-owned effects. D1T is the current fast row: the one
+`ConcatSubstringPlan` writer in the same file is the only authorized next
+edge, preserving source-sharing, five arguments, effects, Return, and phase-10
+parity. Selected writers are 10 -> 9 and the concat family is 7 -> 6; no other
+concat, unified, array, or canonicalizer writer is authorized.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

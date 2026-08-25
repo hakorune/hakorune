@@ -1,0 +1,91 @@
+title = "MIR Call core R6 D1T concat substring Extern issuer"
+status = "fast"
+observed_at = "2026-08-25"
+observed_commit = "73edec2887"
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0"
+decision = "MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "Replace only the ConcatSubstring direct Call literal with the thin canonical constructor, preserving accepted source-sharing, composed argument order, effects, span, and phase-10 publication schedule."
+source_authority_and_canonical_issuer = "ConcatSubstringPlan owns outer destination, left/middle/right triplet, resolved start/end, and effects; the plan variant fixes SUBSTRING_CONCAT3_EXTERN and MirInstruction::call is the sole issuer."
+non_authority = "apply-side enum reconstruction, emit-MIR selector, legacy func, second-pass/DCE, hint/CFG, backend lookup, and PURE defaults are not target/effects authority."
+fail_fast_boundary = "outer substring, concat triplet, const middle, both substring shapes, shared source, and InsertMid exclusion must all hold; otherwise plan=0 and Call publication=0."
+smallest_next_slice = "concat_corridor_apply.rs:352 ConcatSubstring writer only; selected writers 10 -> 9 and concat family 7 -> 6."
+non_claims = "No remaining concat, unified/array/canonicalizer, collector/schema, phase/DCE/schedule, Call final shape, Method(None), ingress contract, MirCall/CallFlags, backend/wire, fallback, or cleanup change."
+
+[boundary]
+starts = "collected ConcatSubstringPlan entries from the concat corridor collector"
+ends = "existing SUBSTRING_CONCAT3_EXTERN Call, span, hint/count, CFG, DCE, Return, and folded metadata refresh"
+includes = [
+  "the one direct Call writer for ResolvedConcatCorridorPlan::Substring",
+  "exact shared-source triplet, const-middle proof, destination, resolved bounds, five ordered operands, and plan effects",
+  "phase-10 apply order and existing remove/keep schedule for the accepted plan",
+]
+excludes = [
+  "remaining concat, InsertMid, receiver rewrite, unified, array, and canonicalizer writers",
+  "collector/plan schema, source-sharing policy, phase/DCE/schedule, and value allocation",
+  "Call operand consumers, Method(None), Closure/Constructor, mandatory-Callee schema, MirCall/CallFlags",
+  "JSON, VM, native backend, ingress-contract queue, typed bridge errors, metadata split, and cleanup lanes",
+]
+
+[authority]
+source = "ConcatSubstringPlan.outer_dst, left/middle/right, start, end, and effects"
+issuer = "MirInstruction::call(Some(*outer_dst), Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string()), vec![*left, *middle, *right, *start, *end], *effects)"
+non_authority = [
+  "apply_concat_corridor_plans target/effect recomputation",
+  "phase-10 selector, hints, counts, spans, CFG, DCE, and folded metadata",
+  "legacy func, target Const, backend lookup, PURE inference, and retry",
+]
+
+[finite_matrix]
+positive = [
+  "accepted ConcatSubstringPlan preserves exact Extern, outer dst, left-to-right triplet, five args, and non-PURE effects",
+  "existing final fusion result, Return, hint/count, span, CFG, DCE, and folded metadata remain unchanged",
+]
+negative = [
+  "non-const middle, missing substring shape, non-shared source, InsertMid-selected, empty plan, or foreign helper -> no plan and no Call publication",
+  "unsupported representation or missing route proof -> typed non-selection with no target retry or late inference",
+]
+parity = [
+  "ConcatSubstringPlan remains the single target/effects authority; only the physical issuer changes",
+  "D1S PublicationSubstring, D1R MaterializationStore, D1Q Return, remaining families, and pre/post-DCE schedule remain unchanged",
+]
+
+[delete_set]
+file = "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs"
+lines = "352-360"
+remove = [
+  "one direct transitional MirInstruction::Call literal",
+  "func: ValueId::INVALID",
+  "callee: Some(Callee::Extern(...)) wrapper",
+]
+replace_with = "MirInstruction::call(Some(*outer_dst), Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string()), vec![*left, *middle, *right, *start, *end], *effects)"
+
+[acceptance]
+focused_tests = [
+  "rewrites_concat_slice_consumers_to_corridor_helpers: exact final fusion result, Return, Extern/dst/five-argument order, and non-PURE effects parity",
+]
+static_evidence = [
+  "collector branches already reject non-const middle, missing/foreign substring shape, non-shared source, and InsertMid-selected states before plan issue",
+  "the shared corridor guard must check the ConcatSubstring writer window and forbid direct transitional fields; no fallback/retry evidence is accepted",
+]
+guards = [
+  "mir_call_canonical_corridor_guard",
+  "current_state_pointer_guard",
+  "rustfmt on touched Rust and git diff --check",
+]
+source_limits = "concat_corridor_apply.rs is 543 lines; focused concat parity test remains below 760/800; corridor guard remains exactly 777 lines; active card remains exactly 1000 lines"
+
+[worker_review]
+selection = "/root/d2c_consumer_selection_audit: fresh post-D1S census selected one ConcatSubstring writer; selected writers 10, concat family 7"
+implementation_permission = "fast I0 is permitted only for this one plan-owned writer; Call final shape, Method(None), ingress-contract, and broader cleanup remain closed"
+
+[stop_if]
+conditions = [
+  "ConcatSubstringPlan fields must be recomputed, collector/schema/source-sharing changes, or phase/DCE/publication semantics change",
+  "any other concat, InsertMid, receiver rewrite, unified, array, canonicalizer, schema, Method(None), ingress, metadata, backend, or cleanup row enters the diff",
+  "guard replacement/compaction cannot stay at 777 or any touched source reaches 760/800 without a split design",
+  "negative state produces any plan, Call, hint, count, retry, or late target inference",
+]
