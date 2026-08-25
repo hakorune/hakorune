@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::mir::{BasicBlockId, Callee, EffectMask, MirFunction, MirInstruction, ValueId};
+use crate::mir::{BasicBlockId, EffectMask, MirFunction, MirInstruction, ValueId};
 
 use super::planner::Concat3Plan;
 use super::CONCAT3_EXTERN;
@@ -28,13 +28,12 @@ pub(super) fn apply_plans(
             removed_values.push(plan.inner_dst);
             replacements.insert(
                 plan.outer_idx,
-                MirInstruction::Call {
-                    dst: Some(plan.outer_dst),
-                    func: ValueId::INVALID,
-                    callee: Some(Callee::Extern(CONCAT3_EXTERN.to_string())),
-                    args: plan.args.to_vec(),
-                    effects: EffectMask::PURE,
-                },
+                MirInstruction::call(
+                    Some(plan.outer_dst),
+                    crate::mir::Callee::Extern(CONCAT3_EXTERN.to_string()),
+                    plan.args.to_vec(),
+                    EffectMask::PURE,
+                ),
             );
             rewritten += 1;
         }

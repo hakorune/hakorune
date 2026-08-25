@@ -117,6 +117,12 @@ receiver wildcard that admitted `Method(None)`, and delegates the final writer
 through `MirInstruction::call`. PHI admission, purity, rollback, and the seven
 entry lifecycle remain outside this receipt.
 
+The concat3 D1I rewrite issuer keeps `Concat3Plan` as the sole target/dst/args
+authority and emits the existing `nyash.string.concat3_hhh` Extern with PURE
+effects through `MirInstruction::call`. Empty-plan/missing-block skips,
+replacement-map ordering, and span alignment remain unchanged; other string
+corridors and optimizer policy are outside this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

@@ -20,6 +20,7 @@ NORMAL_MAIN_THUNK="$ROOT_DIR/src/mir/builder/normal_module_transaction/physical_
 METHOD_CALL="$ROOT_DIR/src/mir/ssot/method_call.rs"
 BUILDER_EMIT="$ROOT_DIR/src/mir/builder/builder_emit.rs"
 PHI_REMATERIALIZATION="$ROOT_DIR/src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs"
+CONCAT3_REWRITE="$ROOT_DIR/src/mir/passes/concat3_canonicalize/rewrite.rs"
 PROGRAM_CALL_TARGETS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program_call_targets.rs"
 ORDINARY_NEW_ADMISSION="$ROOT_DIR/src/mir/builder/ordinary_new_admission.rs"
 RAW_CHILD_LOWERING="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
@@ -73,7 +74,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -308,6 +309,25 @@ for token in ("callee: Callee", "Result<Callee, String>", "receiver: Some(receiv
         raise SystemExit(f"PHI callee remapper lost {token}")
 if "Option<Callee>" in callee_window or "Some(Callee::Method" in callee_window:
     raise SystemExit("PHI callee remapper retained optional target state")
+
+concat3 = (root / "src/mir/passes/concat3_canonicalize/rewrite.rs").read_text()
+concat_start = concat3.index("replacements.insert(")
+concat_end = concat3.index("rewritten += 1", concat_start)
+concat_window = concat3[concat_start:concat_end]
+for token in (
+    "MirInstruction::call(",
+    "Some(plan.outer_dst)",
+    "Callee::Extern(CONCAT3_EXTERN.to_string())",
+    "plan.args.to_vec()",
+    "EffectMask::PURE",
+):
+    if token not in concat_window:
+        raise SystemExit(f"concat3 rewrite lost {token}")
+if concat_window.count("MirInstruction::call(") != 1:
+    raise SystemExit("concat3 rewrite must delegate exactly once")
+for forbidden in ("MirInstruction::Call {", "func:", "callee: Some("):
+    if forbidden in concat_window:
+        raise SystemExit(f"concat3 rewrite retained legacy edge: {forbidden}")
 
 builder_emit = (root / "src/mir/builder/builder_emit.rs").read_text()
 builder_start = builder_emit.index("// CRITICAL: Final receiver materialization")
