@@ -1814,6 +1814,114 @@ strict block-mutation-free fail-fast can be claimed. Until that proof exists,
 the ordinary Constructor issuer count and NewBox owner count remain
 cohort-qualified, and R6 field deletion is forbidden.
 
+#### D1-D4 design Decision — shared issuer, staging, lifecycle, and effect owners
+
+D1-D3 proves that raw and PlanNormalizer are two ordinary-capable producers,
+but no current module can issue the joined New-site relation without becoming a
+second authority. D1-D4 is therefore still design-only and closes the three
+authorities required before a production slice: transaction/staging, lifecycle
+ordering, and construction-wide effect co-seal.
+
+Six-line brief:
+
+```text
+Decision:
+  issue one borrowed ordinary-New relation at the semantic boundary, then
+  route raw and PlanNormalizer through one staged physical NewBox admission.
+Source authority + canonical issuer:
+  ParserConstructorSourceCatalogV1 supplies declaration identity and the
+  resolver supplies FunctionOwnerIdV1/SourceExprSiteV1/Allocation facts;
+  a new source-bound adapter is the single future relation issuer, while the
+  existing NewBox owner is the only physical issuer. Neither path owns it.
+Non-authority:
+  raw preparers, PlanNormalizer/CoreEffectPlan, class/arity/header lookup,
+  birth strings, MIR EffectMask, dst/ValueId, Recipe keys, JSON, backend, and
+  runtime registry.
+Fail-fast boundary:
+  relation validation precedes child lowering; a staging transaction holds
+  lowered children/initializers and destination until effect/lifecycle checks
+  pass, then commits NewBox -> birth/field publication exactly once.
+Smallest next slice:
+  design the adapter loan, staging owner, lifecycle order, and effect co-seal;
+  no semantic receipt, route switch, fixture, or code is issued in D1-D4.
+Non-claims:
+  specialized NewBox writers, all-New parity, JSON/native/PyVM/reference/
+  Python, Method(None), Closure, R6 field deletion, and warning cleanup.
+```
+
+The adapter must live at the source-bound semantic boundary, borrowing the
+existing catalog row and resolver facts once. It may validate and loan
+`ConstructorSourceIdV1`, `FunctionOwnerIdV1`, `SourceExprSiteV1`, source
+`birth/N`, ordered `Argument(i)`/`Initializer(i)` paths, constructor
+provenance, and the existing Allocation/effect products. It must not issue a
+Recipe key, physical ID, `dst`, `ValueId`, MIR `EffectMask`, backend handle, or
+runtime symbol. The loan is consumed and dropped at physical admission; raw and
+plan code cannot reissue or retry it.
+
+The staged admission contract is:
+
+```text
+source relation validation
+  -> lower ordered arguments and field initializers into a private transaction
+  -> resolve the already-declared birth body/effect product (no by-name retry)
+  -> validate lifecycle order and construction-wide effects
+  -> attach exact dst/ValueIds on the physical side
+  -> commit one existing NewBox owner and its matching birth/field sequence
+```
+
+No block, NewBox, birth Call, field write, wire, or object publication may be
+visible before commit. This is a design requirement because the current raw
+`drive_legacy_expression_v1` path and PlanNormalizer effect emission can mutate
+physical state while a later mismatch is still possible. A future transaction
+owner must be named before this can become a fast implementation slice.
+
+Lifecycle is an explicit authority, not a consequence of MIR instruction order.
+The accepted lifecycle is declaration field initializers -> matching `birth/N`
+-> publish usable identity. The current raw edge (`NewBox -> birth -> field
+initializer`) and any plan edge that omits birth are negative evidence for this
+row. D1-D4 may either identify an existing source-bound lifecycle product or
+return `NoSafeSlice`; it may not silently reorder instructions or infer parity
+from `EffectMask`.
+
+Construction-wide effect co-seal likewise remains separate from the New-site
+`BodyEffectKindV1::Allocation` observation. The adapter must name how child
+initializer effects and the declared birth-body effects are borrowed and
+validated together. If no existing product covers that union, the row stays
+`NoSafeSlice` rather than manufacturing a global effect boolean.
+
+After D1-D4 acceptance, the only permitted ordinary consumers are:
+
+```text
+raw PreparedRawNewExpressionV1
+  -> shared relation loan -> staged admission
+PlanNormalizer ordinary New
+  -> same shared relation loan -> staged admission
+staged admission
+  -> existing NewBox physical owner exactly once
+```
+
+Retirement candidates then become explicit: raw ordinary direct NewBox and
+class/arity/header birth recovery; PlanNormalizer `CoreEffectPlan::NewBox`
+without a relation and its second physical writer; ordinary
+`CallTarget::Constructor`/`Callee::Constructor`; and any by-name backend retry.
+Specialized Array/Map/Math/record/Core13/IntegerBox/direct JSON/V0/V1 owners
+remain separately counted and are not evidence for ordinary caller-zero.
+
+Acceptance for the future implementation gate is positive raw/plan parity with
+one relation issue, one relation consume, source `N` versus physical `N+1`,
+ordered child/initializer sites, lifecycle-correct birth, complete effects,
+and one NewBox commit. Negative states include missing/foreign/duplicate/stale
+relation, birth provenance or arity/order mismatch, effect/lifecycle mismatch,
+relation reuse, plan field initializer without lifecycle support, and any
+fallback to class text or `Callee::Constructor`; all must reject without block
+mutation. A reusable guard must count raw/plan producer convergence, ordinary
+writer zero outside the owner, relation issue/consume exactly once, and
+fallback/retry zero while keeping specialized cohorts separate.
+
+Until the adapter, staging owner, lifecycle authority, and effect co-seal are
+all named and accepted, D1-D4 remains `NoSafeSlice`; no production code or new
+semantic receipt is authorized.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records
@@ -1943,12 +2051,12 @@ by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
 Selected next design task is
-`MIR-CALL-R6-CORE-SCHEMA-D1-D3-ORDINARY-NEW-DUAL-PRODUCER-DESIGN`.
+`MIR-CALL-R6-CORE-SCHEMA-D1-D4-ORDINARY-NEW-SHARED-ISSUER-STAGING-DESIGN`.
 D1-B-PARK accepted the existing static handoff/outside boundary and D1-C2-I0
 closed the lossy Closure body egress edge; D1-D0/D1-D1 closed only negative
-V0/V1 publication and shape edges. The D1-D3 raw/plan relation issuer,
-effect staging, generic Method(None) issuer, and Constructor/NewBox dual route
-remain blockers. Until the full D1-D3 and remaining Method(None) edges are accepted,
+V0/V1 publication and shape edges. The D1-D4 shared issuer/staging/lifecycle/
+effect authorities, generic Method(None) issuer, and Constructor/NewBox dual
+route remain blockers. Until the full D1-D4 and remaining Method(None) edges are accepted,
 do not change `Option<Callee>`,
 `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
