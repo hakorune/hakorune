@@ -8,5 +8,7 @@ mod rewrites_publication_helper_length_via_plan_metadata;
 mod rewrites_publication_helper_substring_via_plan_metadata;
 #[path = "concat_and_return_parts/shared.rs"]
 mod shared;
+#[path = "concat_and_return_parts/sinks_publication_helper_to_same_block_instruction_return_boundary.rs"]
+mod sinks_publication_helper_to_same_block_instruction_return_boundary;
 #[path = "concat_and_return_parts/sinks_publication_helper_to_same_block_return_boundary.rs"]
 mod sinks_publication_helper_to_same_block_return_boundary;

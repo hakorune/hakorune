@@ -611,6 +611,11 @@ for label, marker, rewrite in (("host", "apply_publication_host_boundary_plans",
         raise SystemExit(f"publication {label} writer lost its single plan-owned canonical Call")
     if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")):
         raise SystemExit(f"publication {label} writer retained a legacy or inferred Call field")
+return_start = host_writer.index("apply_publication_return_plans"); return_end = host_writer.index("pub(super) fn apply_publication_write_boundary_plans", return_start); return_writer = host_writer[return_start:return_end]
+for label, marker, tail in (("instruction-return", "if plan.return_idx == Some(idx)", "new_insts.push(MirInstruction::Return"), ("terminator-return", "if plan.return_idx.is_none()", "*value = Some(plan.helper_dst)")):
+    start = return_writer.index(marker); end = return_writer.index(tail, start); window = " ".join(return_writer[start:end].split())
+    if (window.count("MirInstruction::call(") != 1 or any(token not in window for token in ("Some(plan.helper_dst)", "Callee::Extern(plan.publish_extern.to_string())", "vec![plan.left, plan.middle, plan.right, plan.start, plan.end]", "plan.effects"))): raise SystemExit(f"publication {label} writer lost its single plan-owned canonical Call")
+    if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit(f"publication {label} writer retained a legacy or inferred Call field")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()
@@ -649,7 +654,6 @@ if "func" in typed_window:
     raise SystemExit("typed ownership Call policy re-read legacy func")
 if "instruction.used_values()" not in ownership[ownership.index("fn process_instruction"):]:
     raise SystemExit("ownership verifier lost generic used_values liveness")
-
 instruction_kinds = (root / "src/mir/instruction_kinds/mod.rs").read_text()
 if "CallLikeInst" in instruction_kinds:
     raise SystemExit("instruction_kinds retained the retired CallLike adapter")
@@ -657,19 +661,16 @@ if instruction_kinds.count("MirInstruction::Call") < 2:
     raise SystemExit("instruction_kinds lost direct Call metadata arms")
 if "Some(i.used_values())" not in instruction_kinds:
     raise SystemExit("instruction_kinds Call use metadata lost canonical delegation")
-
 optimizer = (root / "src/mir/optimizer/core.rs").read_text()
 if "MirOptimizerLateCallAndInline" in optimizer:
     raise SystemExit("optimizer retained the retired callsite schedule")
 if "call_callee_{:?}_" not in optimizer:
     raise SystemExit("optimizer key lost canonical Callee projection")
-
 cse = (root / "src/mir/passes/cse.rs").read_text()
 if "call_closure_{}_" in cse or "Use func as distinguisher" in cse:
     raise SystemExit("CSE retained a Closure key based on legacy func")
 if "call_callee_{:?}_" not in cse:
     raise SystemExit("CSE lost canonical Callee key projection")
-
 diagnostics = (root / "src/mir/optimizer_passes/diagnostics.rs").read_text()
 diag_end = diagnostics.index("#[cfg(test)]")
 diag_owner = diagnostics[:diag_end]
@@ -679,7 +680,6 @@ if (
     or "MirInstruction::Call { func" in diag_owner
 ):
     raise SystemExit("optimizer diagnostics retained legacy func-to-Const target observation")
-
 interpreter = (root / "src/backend/mir_interpreter/handlers/calls/mod.rs").read_text()
 interpreter_end = interpreter.index("#[cfg(test)]")
 interpreter_owner = interpreter[:interpreter_end]

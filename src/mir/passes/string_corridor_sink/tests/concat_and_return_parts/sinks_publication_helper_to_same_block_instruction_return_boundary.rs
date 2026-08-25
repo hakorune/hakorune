@@ -10,8 +10,8 @@ fn non_pure_extern_call(dst: ValueId, name: &str, args: Vec<ValueId>) -> MirInst
 }
 
 #[test]
-fn sinks_publication_helper_to_same_block_return_boundary() {
-    let mut module = MirModule::new("substring_concat_publication_return".to_string());
+fn sinks_publication_helper_to_same_block_instruction_return_boundary() {
+    let mut module = MirModule::new("substring_concat_publication_instruction_return".to_string());
     let signature = FunctionSignature {
         name: "main".to_string(),
         params: vec![MirType::Box("RuntimeDataBox".to_string())],
@@ -110,9 +110,10 @@ fn sinks_publication_helper_to_same_block_return_boundary() {
         src: ValueId(11),
     });
     block.instruction_spans.push(Span::unknown());
-    block.set_terminator(MirInstruction::Return {
+    block.instructions.push(MirInstruction::Return {
         value: Some(ValueId(14)),
     });
+    block.instruction_spans.push(Span::unknown());
 
     for (vid, ty) in [
         (ValueId(1), MirType::Integer),
@@ -137,7 +138,7 @@ fn sinks_publication_helper_to_same_block_return_boundary() {
     let rewritten = sink_borrowed_string_corridors(&mut module);
     assert!(
         rewritten >= 1,
-        "publication helper return sink should rewrite, got {rewritten}"
+        "publication helper instruction return sink should rewrite, got {rewritten}"
     );
 
     let function = module.get_function("main").expect("main");
@@ -149,7 +150,7 @@ fn sinks_publication_helper_to_same_block_return_boundary() {
                 MirInstruction::Copy { dst, .. } if *dst == ValueId(11) || *dst == ValueId(14)
             )
         }),
-        "copy-only return chain should disappear: {:?}",
+        "copy-only instruction return chain should disappear: {:?}",
         block.instructions
     );
 
@@ -173,16 +174,20 @@ fn sinks_publication_helper_to_same_block_return_boundary() {
             )
         })
         .expect("sunk helper call");
-    assert_eq!(
-        helper_idx + 1,
-        block.instructions.len(),
-        "helper should end immediately before return: {:?}",
-        block.instructions
-    );
     assert!(matches!(
-        block.terminator,
+        block.instructions.get(helper_idx + 1),
         Some(MirInstruction::Return {
             value: Some(ValueId(10))
         })
     ));
+    assert_eq!(
+        helper_idx + 2,
+        block.instructions.len(),
+        "helper should be followed only by the instruction return: {:?}",
+        block.instructions
+    );
+    assert!(
+        block.terminator.is_none(),
+        "instruction-return fixture must not expose a separate terminator"
+    );
 }
