@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,19 +33,19 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
-  implementation    = D1E design accepted; one exact normal-main thunk literal remains to delegate
-  mode              = fast
-  production stop   = one normal-main physical thunk direct Call literal with stale func decoration
-  exit              = canonical helper delegation + focused parity + two reusable guards + manifest receipt
+  implementation    = D1E landed at 2150472c35; receipt and pointer sync are the remaining closeout
+  mode              = closeout
+  production stop   = no semantic stop; classify evidence and publish the D1E receipt
+  exit              = focused parity + two reusable guards + manifest/README/pointer receipt
   fallback / retry  = 0
 ```
 
 Next bounded design brief:
 
 ```text
-Decision: delegate one sealed normal-main physical thunk literal to the canonical Call constructor.
+Decision: close the landed D1E normal-main physical thunk issuer and record its evidence.
 Source authority + canonical issuer: VerifiedResolvedOwnerHeaderV1 + VerifiedNormalMainEntryRelationV1 -> exact Global -> MirInstruction::call. Non-authority: func/INVALID, text lookup, Method/Method(None), backend/JSON/optimizer recovery.
-Fail-fast boundary: source/physical arity before draft/block creation; typed-definition/MIR verification before module publication. Smallest next slice: physical_thunk.rs:79, two existing guards, focused transaction parity, and one manifest/README receipt.
+Fail-fast boundary: source/physical arity before draft/block creation; typed-definition/MIR verification before module publication. Smallest next slice: manifest/pointer sync only; no further source edit.
 Non-claims: D1B/D1C1, Method issuer A, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
 ```
 

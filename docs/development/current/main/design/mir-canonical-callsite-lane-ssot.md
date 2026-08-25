@@ -92,24 +92,22 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` currently selects:
 
 ```text
-MIR-CALL-CORE-R6-D1C1-RAW-FUNCTION-CALL-CALLER-LOAN-BOUNDARY
+MIR-CALL-CORE-R6-D1E-NORMAL-MAIN-THUNK-ISSUER-I0
 ```
 
-It is `design_stop`, not an implementation permission. Existing static
-publication is exact for `MethodCall`, but no existing product currently loans
-a same-brand physical target key from a bare `FunctionCall` site before
-`drive_call_arguments_v1`. The finite census and acceptance conditions are in:
+The row is now in closeout after commit `2150472c35`: the one exact
+normal-main physical thunk delegates to `MirInstruction::call` and preserves
+source/physical arity, result, destination, empty args, effects, and transaction
+publication. Its finite receipt is in:
 
 ```text
 docs/development/current/main/investigations/
-  mir-call-core-r6-d1c1-generic-function-call-handoff-2026-08-25.toml
+  mir-call-core-r6-d1e-normal-main-thunk-issuer-2026-08-25.toml
 ```
 
-The current decision is `NoSafeSlice` until all production bare-call callers
-are partitioned and one existing product proves caller/site/brand/owner/
-method/arity plus target identity before argument descent. Do not add a new
-semantic receipt, move target selection downstream, or repair `Method(None)`
-from the emitter/VM/backend.
+D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
+`NoSafeSlice`/`CutoverBlockerOpen` boundaries; this receipt does not authorize
+field deletion, `Method(None)` repair, or generic FunctionCall changes.
 
 ## R6 retirement order
 

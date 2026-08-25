@@ -1,8 +1,9 @@
 title = "MIR Call core R6 D1E normal-main physical thunk issuer"
-status = "accepted_design_fast_row_selected"
+status = "landed"
 observed_commit = "d79fba7a3d"
 observed_at = "2026-08-25"
-implementation_permission = true
+implementation_permission = false
+landed_commit = "2150472c35"
 
 [boundary]
 starts = "sealed VerifiedResolvedOwnerHeaderV1 and VerifiedNormalMainEntryRelationV1"
@@ -84,7 +85,8 @@ stop_if = [
 ]
 
 [acceptance]
-status = "selected_fast_row"
+status = "landed"
+implementation_commit = "2150472c35"
 focused_test = "transaction_commits_exact_source_main_and_physical_thunk"
 implementation_scope = "one source file, two existing guards, one README/manifest receipt"
 cargo_policy = "single focused cargo invocation only; no parallel cargo/rustc"
@@ -100,3 +102,10 @@ outstanding = [
   "D1B Method(None) issuer/recovery remains CutoverBlockerOpen",
   "typed Method issuer A is a later separate row",
 ]
+
+[receipt]
+status = "landed"
+parity = "transaction_commits_exact_source_main_and_physical_thunk: 1 passed; source/physical arity, result, dst, empty args, effects, and transaction publication unchanged"
+guards = "normal_source_plan0_transaction_guard + mir_call_canonical_corridor_guard + current_state_pointer_guard: green"
+baseline_guard = "normal_source_plan0_guard remains red on pre-existing compiler module-registry declaration expectation; this D1E owner guard passes"
+source_risk = "112-line exact leaf; adjacent dirty normal-module files were not staged; no schema, flags, fallback, JSON, backend, or Method change"
