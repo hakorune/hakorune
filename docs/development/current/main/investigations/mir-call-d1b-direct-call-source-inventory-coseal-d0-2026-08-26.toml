@@ -1,6 +1,6 @@
 title = "MIR Call D1B direct-call source inventory co-seal design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "f284801583"
+observed_commit = "f659d3f941"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
@@ -52,6 +52,9 @@ lineage_collapse = "function_call_brand_source_demand.rs preserves caller only f
 package_order = "normal_callable_semantic_package issuer co-seals catalog, selected batch, and constructor batch before prepare_install/commit, but no direct-call inventory field or completeness check exists before install/body lowering."
 late_route = "caller-less ordinary calls still enter PreparedRawOrdinaryFunctionCompletionV1::Resolved and can lower arguments before resolve_call_target, unique-static/tail recovery, and name-Const publication."
 existing_authority = "VerifiedSelectedNormalCallableSourceInventoryV1 and VerifiedResolvedSourceSiteInventoryV1 carry source/declaration facts but no body-call inventory; the exact-i64 VerifiedCallableIndexV1 is a separate cohort and cannot be generalized sideways."
+resolver_entrances = "The selected/Brand resolver, InstanceConstructor semantic batch, and older builder normal_callable_semantic_source ingress are distinct entrances; production/caller-zero classification of the older ingress is a prerequisite to any all-callers claim."
+lineage_source = "RawInvocationRootLineageV1 already carries Cataloged, TopLevel, and InstanceConstructor upstream; the bounded task is to preserve this provenance through disposition without turning names, box keys, or symbols into targets."
+i0_connection = "The landed index-none safety I0 is a typed abort at canonicalize_draft; it is a child safety edge and does not replace the same-session owner/site inventory or pre-shadow observation design."
 
 [finite_state]
 states = [

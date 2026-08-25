@@ -1,6 +1,6 @@
 title = "MIR Call D1B SelectedCallable FunctionCall observation profile design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "5805401f5a"
+observed_commit = "f659d3f941"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
@@ -42,6 +42,12 @@ non_claims = [
   "does not solve TopLevel/InstanceConstructor caller=None collapse",
   "does not retire Resolved/recovery or close mandatory-Callee",
 ]
+
+[observed]
+selected_callable_gate = "SelectedCallableV1 still rejects ordinary FunctionCall before the existing expr.rs observation branch, so a one-line profile widening would immediately hit the index-none safety reject without producing inventory."
+resolver_entrances = "The selected/Brand resolver, InstanceConstructor semantic batch, and an older builder normal_callable_semantic_source ingress must be classified separately; the last path is not yet proven production or caller-zero."
+lineage_requirement = "SelectedCallableResolverInputV1 and ConstructorSourceIdV1 can supply owner identity, while RawInvocationRootLineageV1::{Cataloged,TopLevel,InstanceConstructor} must survive until disposition; caller=None is not a target or identity authority."
+i0_boundary = "MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-I0 landed at c849307814 and only blocks silent canonical-map success; it does not prove observation coverage, lineage preservation, or argument-before-target resolution."
 
 [observation_matrix]
 ordinary_function_call = "Observe as owner-qualified source row only; do not targetize. UnknownCallable and shadowable names remain unresolved until the parent inventory disposition."

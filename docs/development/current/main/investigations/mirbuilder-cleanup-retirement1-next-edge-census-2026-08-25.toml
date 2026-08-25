@@ -1,7 +1,7 @@
 title = "MirBuilder cleanup retirement R1 next-edge census"
 status = "accepted_design"
 observed_at = "2026-08-26"
-observed_commit = "a0b319a2df"
+observed_commit = "f659d3f941"
 implementation_permission = false
 decision = "MIRBUILDER-CLEANUP-RETIREMENT1-NEXT-EDGE-CENSUS-D0"
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -37,7 +37,7 @@ metadata_rs_lines = 718
 metadata_hard_stop = "FunctionMetadata owner split landed before this observation at 5b36855ae6; metadata.rs is below the 760-line design threshold and no second split is selected."
 reverse_imports = "HEAD census: builder -> compiler direct use 343 lines/148 files including tests (production estimate 224 lines/99 files); compiler -> builder direct use 138 lines/59 files including tests (production estimate 129 lines/55 files); no semantic-new-edge claim is made until the seam ledger is refreshed."
 bridge_string_debt = "RequiredArgumentProof(String) and ClaimCompletion(String) lose typed issues; ArgumentDescent(String) is a common recursive port boundary with no bounded typed issue owner"
-runtime_hygiene = "finite lexical boundary src/mir/builder.rs + src/mir/builder/**/*.rs: panic 358, unwrap 2815, expect 2976, todo 0, allow(dead_code) 95, allow(unused_imports) 45; selected production count remains unclassified until module-registration-aware census"
+runtime_hygiene = "finite lexical boundary src/mir/builder.rs + src/mir/builder/**/*.rs: panic 358, unwrap 2798, expect 2976, todo 0, allow(dead_code) 95, allow(unused_imports) 45; test/fixture/debug-only paths remain mixed and selected production count is unclassified until a module-registration-aware census"
 
 [[candidate]]
 id = "MIRBUILDER-COMPILER-SEAM-CENSUS-D0"
@@ -138,12 +138,66 @@ acceptance = [
 ]
 non_claims = ["no module retirement", "no semantic dead_code deletion", "no automatic cargo-fix sweep", "not executable while CURRENT_STATE.toml remains design_stop"]
 
+[[candidate]]
+id = "MIRBUILDER-GUARD-REGISTRATION-INDEX-D0"
+status = "accepted_but_not_selected"
+kind = "docs_only_guard_inventory"
+scope = "current active MIR Call guards plus their guard_rows.toml routing"
+source_authority = "active card evidence and executable guard files; registration profile is routing metadata, not semantic authority"
+canonical_issuer = "none; classify registered, intentionally unregistered, missing, and stale guard references"
+old_edge = "recent child guards can exist in docs or the filesystem without appearing in the manifest profile used by CI"
+smallest_slice = "inventory only the active Call/normal-source guard family, update registration disposition, and name an owner for the absent externals guard; do not manifest every shell in tools/checks"
+acceptance = [
+  "active D1B guard registration is observed as positive parity",
+  "mir_call_canonical_corridor_guard.sh, mir_call_d1b_exact_target_child_guard.sh, mir_call_d1b_selected_normal_duplicate_projection_guard.sh, and normal_source_plan0_transaction_guard.py are each registered or explicitly owned outside the profile",
+  "missing externals guard is not represented as a passing command",
+  "no guard command or semantic code is changed in this row",
+]
+non_claims = ["no all-repository guard closure", "no CI policy rewrite", "no Call implementation"]
+
+[[candidate]]
+id = "MIRBUILDER-NORMAL-SCRIPT-FACADE-D0"
+status = "accepted_but_not_selected"
+kind = "design_only_topology"
+scope = "normal_script #[path] ingress at builder.rs and normal_script runtime/source child modules"
+source_authority = "existing logical normal_script owners and their current module paths; no new semantic receipt"
+canonical_issuer = "none; choose a facade/module topology before moving any source"
+old_edge = "builder.rs and child modules still use #[path] because normal_script/ has no mod.rs facade"
+smallest_slice = "census the six #[path] edges, choose normal_script/mod.rs facade versus ordinary child modules, and define a path-preserving delete/move set"
+acceptance = [
+  "every #[path] edge has one owner and a stable replacement path",
+  "the existing direct-static shelf guard prohibition is preserved",
+  "no source move, re-export, semantic change, or new #[path] is made in D0",
+]
+non_claims = ["no module move", "no direct-static recipe change", "no builder/compiler seam resolution"]
+
+[[candidate]]
+id = "MIRBUILDER-LINE-BUDGET-SPLIT-D0"
+status = "accepted_but_not_selected"
+kind = "design_only_line_budget"
+scope = "raw_invocation_source_transport.rs, normal_script_direct_statement_owner.rs, and normal_script_semantic_source_tests.rs"
+source_authority = "existing module ownership and current source line budget"
+canonical_issuer = "none; define path-preserving split ownership only"
+old_edge = "raw transport is 778 lines and two normal_script owners are above the 760 design threshold; compression is not an acceptable fix"
+smallest_slice = "write one split map per over-limit owner, preserving public paths and tests, with no semantic implementation"
+acceptance = [
+  "each over-limit owner has a named child boundary and no child is planned above 760 lines",
+  "builder.rs 737 and FunctionMetadata 718 remain outside this row",
+  "no test stuffing, #[path] band-aid, or source move lands during D0",
+]
+non_claims = ["no refactor implementation", "no warning cleanup", "no common_v2 relocation"]
+
 [selection]
 active_lane = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 remains the next design stop under the direct-target handoff"
 order_after_d1n = [
   "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 (direct-call coverage prerequisite)",
   "MIRBUILDER-COMPILER-SEAM-CENSUS-D0 (docs-only boundary ledger)",
   "MIRBUILDER-INVESTIGATION-LEDGER-SCOPE-AND-INDEX-D0 (schema/guard topology before index implementation)",
+  "MIRBUILDER-GUARD-REGISTRATION-INDEX-D0 (active-family routing closure)",
+  "MIR JSON ingress fallback/field-disposition D0 (parked compatibility policy)",
+  "MIR-CALL-R6-CALLFLAGS-RETIRE-D0 (census only; MirCall transport remains live)",
+  "MIRBUILDER-NORMAL-SCRIPT-FACADE-D0 (#[path] topology design)",
+  "MIRBUILDER-LINE-BUDGET-SPLIT-D0 (path-preserving split design)",
   "FUNCTION-METADATA-OWNER-SPLIT-R0 (landed at 5b36855ae6; no repeat split)",
   "MIRBUILDER-WARN-A-IMPORT-PRUNE-S0 (mechanical batch after fast mode opens)",
   "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0 (typed proof row)",

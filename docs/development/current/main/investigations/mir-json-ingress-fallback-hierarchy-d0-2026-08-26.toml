@@ -1,6 +1,6 @@
 title = "MIR JSON ingress v1-to-v0 fallback hierarchy design"
 status = "parked_sealed_design_no_safe_slice"
-observed_commit = "5b36855ae604"
+observed_commit = "f659d3f941"
 observed_at = "2026-08-26"
 active_pointer = "not selected; separate from D1B Row B producer closure"
 
@@ -11,6 +11,8 @@ includes = [
   "src/runner/json_artifact/mir_loader.rs:3-54",
   "src/runner/json_artifact/mod.rs:31-55",
   "src/runner/core_executor.rs:40-43,138-143",
+  "src/runner/mod.rs:164-176",
+  "src/runner/dispatch.rs:28-69",
   "src/runner/json_v1_bridge/**",
   "src/runner/mir_json_v0.rs and owner-local v0 call parsing",
 ]
@@ -31,13 +33,20 @@ non_authority = [
   "error text, core_bridge reparse, or Program loader fallback",
 ]
 fail_fast = "an explicitly v1-shaped payload that fails v1 validation must reject before v0 reinterpretation; an unmarked v0 payload may enter the owner-local compatibility parser only under an explicit state"
-smallest_next_slice = "Design-only census of direct/umbrella ingress callers, version-shape states, v1/v0 error precedence, and round-trip/profile parity; no parser or fallback code change yet."
+smallest_next_slice = "Amendment design-only census of direct/umbrella ingress callers, version-shape states, v1/v0 error precedence, and field disposition for v1 dummy func=0, flags, certainty/box_kind, Extern effects, warn/error aliases, and v0 effect defaults; no parser or fallback code change yet."
 non_claims = [
   "individual v1 field strictness changes",
   "JSON-v0 schema retirement",
   "D1B producer closure or ArrayElementWrite",
   "backend/runtime activation or warning cleanup",
 ]
+
+[observed]
+primary_fallback = "json_artifact::mir_loader may retry v0 after a v1 parse error when substring shape looks like functions/blocks; this is a live fallback-policy blocker, not an acceptance claim."
+secondary_callers = "runner::mod and runner::dispatch expose distinct --mir-json-file paths; direct and umbrella callers must be classified before a single classifier can be named."
+v1_disposition = "v1 currently writes func=ValueId::new(0) beside an explicit callee, does not read flags, fixes Method certainty/box_kind, defaults missing box_name, forces Extern effects to IO, and aliases env.console.warn/error to nyash.console.log. These are observed legacy edges, not typed-reject behavior."
+v0_disposition = "v0 effects default to READ for missing/null/non-array/empty/unknown-only inputs and silently skip unknown entries; Method fields also synthesize fallback box/certainty values. This remains compatibility behavior until an explicit owner policy is selected."
+retry_policy = "Explicit v1 rejection must never fall through to v0; genuinely unmarked v0 may enter its owner-local parser once; no third parser or bridge re-entry is permitted."
 
 [finite_state]
 v1_ready = "schema/version explicitly v1 and typed parse succeeds -> publish v1 MirModule"
@@ -56,6 +65,7 @@ required_before_fast = [
   "v0 compatibility remains available for genuinely unmarked v0 payloads",
   "self-emitter round-trip, malformed-v1, valid-v0, and unsupported-shape parity are recorded",
   "core_bridge/program fallback cannot re-enter the parser owner after a terminal reject",
+  "v1 field disposition and v0 effect disposition are named as observed behavior versus future acceptance conditions",
 ]
 positive = ["valid v1 -> v1 parser", "valid unmarked v0 -> v0 parser", "Program JSON -> Program compatibility owner"]
 negative = ["malformed explicit v1 -> v0 retry = 0", "unsupported shape -> no parser retry", "parse error -> no silent default or profile coercion"]

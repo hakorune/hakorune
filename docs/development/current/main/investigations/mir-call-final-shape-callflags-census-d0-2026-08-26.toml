@@ -1,6 +1,6 @@
 title = "MIR Call final-shape CallFlags retirement census"
 status = "accepted_design_no_safe_slice"
-observed_commit = "98e833b6a7"
+observed_commit = "f659d3f941"
 observed_at = "2026-08-26"
 implementation_permission = false
 queued_fast_candidate = "MIR-CALL-R6-CALLFLAGS-RETIRE-I0: CallFlags-only delete/re-export/fixture closure while MirCall transport remains live; do not select until the current direct-target design stop closes."
@@ -53,7 +53,7 @@ callflags_construction = [
   "src/mir/builder/calls/call_unified.rs::create_call_flags and create_mir_call",
   "crates/hakorune_mir_defs/src/call_unified.rs::MirCall constructors and CallFlags constructors",
 ]
-callflags_read_status = "No downstream .flags semantic read was observed in the bounded Rust production census; writers and public methods still exist, and generated projections are references to co-update rather than semantic authority. This is an observation to verify, not a deletion authorization."
+callflags_read_status = "No downstream .flags semantic read was observed in the bounded Rust production census; writers and public methods still exist. Public re-exports, generated Rust-subset projections, and parked Python/llvmlite readers remain external/API obligations to classify, so caller-zero is not claimed. This is an observation to verify, not a deletion authorization."
 public_surface = [
   "crates/hakorune_mir_defs/src/lib.rs re-exports CallFlags, Callee, and MirCall",
   "src/mir/definitions/mod.rs re-exports CallFlags and MirCall",
@@ -65,6 +65,7 @@ api_and_projection_rows = [
   "apps/rust-subset-to-hako/smoke.sh:299 consumes the expected projection; it is not a CallFlags semantic owner",
   "tools/rust_lifecycle/mirbuilder_domain_object_id_transport_policy_inventory.py and mirbuilder_carrier_type_transport_unclassified_evidence_resolution.py classify the type names",
 ]
+external_disposition = "MirCall remains live through unified_emitter/physical_terminal.rs; CallFlags-only deletion is a later candidate only if the public re-export, generated .hako/.json projections, and parked Python/llvmlite readers are explicitly co-updated or retained with named owners."
 
 [finite_state]
 states = [
