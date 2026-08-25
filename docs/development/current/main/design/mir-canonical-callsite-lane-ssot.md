@@ -15,6 +15,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1h-phi-call-rematerialization-d0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1i-concat3-extern-rewrite-issuer-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1k-retained-len-extern-issuer-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1l-direct-substring-len-extern-issuer-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -97,18 +98,17 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current design-stop row:
 
 ```text
-MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0
 ```
 
-D1K landed at `8401f457ab` after two upper-worker audits. It was limited to
-one private-plan writer; D1J landed at `c927da4029`, and D1I landed at
-`513a243be5`. The next bounded row requires one upper-worker census; no new
-implementation is selected while `work_mode = design_stop`. D1K's boundary and
+D1L is accepted design-only after two upper-worker audits. D1K landed at
+`8401f457ab`, D1J at `c927da4029`, and D1I at `513a243be5`. D1L has no
+implementation permission while `work_mode = design_stop`; its boundary and
 receipt are in:
 
 ```text
 docs/development/current/main/investigations/
-  mir-call-core-r6-d1k-retained-len-extern-issuer-2026-08-25.toml
+  mir-call-core-r6-d1l-direct-substring-len-extern-issuer-2026-08-25.toml
 ```
 
 D1J's field-parity test, Map/Array timing negatives, shared corridor guard,

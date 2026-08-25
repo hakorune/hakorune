@@ -1,0 +1,140 @@
+title = "MIR Call core R6 D1L direct substring-len Extern issuer"
+status = "accepted_design"
+observed_commit = "edd90bf25c"
+observed_at = "2026-08-25"
+implementation_permission = false
+implementation_row = "MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0"
+fast_row_candidate = true
+
+[boundary]
+starts = "SubstringLenPlan entering shared.rs apply_plans"
+ends = "same-index replacement plus inner removal/metadata cleanup before CFG and folded-metadata refresh"
+includes = [
+  "src/mir/passes/string_corridor_sink/shared.rs:154-218,602-670",
+  "src/mir/passes/string_corridor_sink/mod.rs:39,116-119,322-332",
+  "src/mir/passes/placement_effect_transform.rs:13-31",
+  "existing substring-len direct/planning/fusion tests",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/README.md",
+]
+excludes = [
+  "shared.rs method-set writer and other string-corridor writers",
+  "string-corridor admission, target reclassification, DCE/fusion, schedule semantics, and metadata authority",
+  "test-only public sink_borrowed_string_corridors callers",
+  "Call field cutover, MirCall/CallFlags, JSON, VM, backend, native, and warning retirement",
+  "unrelated dirty source and prior D1K retained-len writer",
+]
+
+[decision]
+summary = "Replace the one shared substring-len Extern direct Call literal with MirInstruction::call while preserving SubstringLenPlan authority, exact target, dst, ordered source/start/end args, effects, hint/count, inner removal, spans, metadata cleanup, CFG update, and folded-metadata refresh."
+source_authority = "private same-invocation SubstringLenPlan owns inner_idx, inner_dst, outer_idx, outer_dst, source, start, end, and effects; SUBSTRING_LEN_EXTERN is the existing owner-local target constant"
+canonical_issuer = "MirInstruction::call(Some(plan.outer_dst), Callee::Extern(SUBSTRING_LEN_EXTERN.to_string()), vec![plan.source, plan.start, plan.end], plan.effects)"
+non_authority = [
+  "legacy func or INVALID decoration",
+  "original Method/box metadata, output-MIR scan, runtime/backend lookup, or target reclassification",
+  "optimization hints/count, folded metadata, or adjacent shared.rs method-set writer",
+  "EffectMask::PURE override when plan.effects is supplied",
+]
+fail_fast = "collect_plans remains read-only; non-length, multi-use, missing/foreign def, substring mismatch, empty/missing plan application publishes no owner Call, hint, count, removal, or metadata change"
+no_publication_claim = "apply_plans with an empty map/vector or missing block publishes no Call, hint, rewrite count, inner removal, or metadata cleanup from this owner; earlier whole-pass Phase 1 mutations are non-claims"
+no_retry = "one same-invocation collect/apply writer; no target lookup, re-planning, second writer, or fallback"
+smallest_next_slice = "replace shared.rs:625-631 with one canonical MirInstruction::call, extend the existing shared guard by <=20 lines, add effects/empty-plan parity, update README, and run focused tests"
+non_claims = [
+  "retained-len D1K writer, shared method-set writer, concat/publication corridors, or the remaining 17 writers",
+  "plan admission/matcher correctness beyond existing tests",
+  "inner removal/span/metadata semantics beyond parity assertions",
+  "pre/post-DCE schedule, DCE/fusion/publication ordering, and whole-pass atomicity",
+  "Call schema field deletion, JSON/VM/backend closure, and warning cleanup",
+]
+
+[state_matrix]
+empty_plan = "apply owner sees empty map/vector; Call/hint/count/removal/metadata/CFG publication 0"
+missing_block = "existing continue; no replacement/hint/count/removal for that block"
+accepted_plan = "exact Extern target + Some(outer_dst) + [source,start,end] + plan.effects -> replacement, inner removal, and existing metadata terminal"
+non_length_or_window_mismatch = "collector emits no plan; existing instructions/spans/metadata remain unchanged"
+
+[inventory]
+plan_type = "src/mir/passes/string_corridor_sink/mod.rs:323 SubstringLenPlan"
+plan_collectors = 1
+plan_consumers = 1
+direct_writers_before = 1
+direct_writers_after = 0
+schedule_entries = 2
+public_wrapper_production_callers = 0
+public_wrapper_test_callers = "test-only"
+remaining_selected_direct_writers_before = 18
+remaining_selected_direct_writers_after = 17
+owner_lines = 672
+guard_lines_before = 739
+guard_line_budget = "<=20 added lines; remain below 760 design threshold and 800 hard stop"
+source_risk = "shared.rs remains below the 760 split threshold; no adjacent semantic or schedule change"
+
+[delete_set]
+writer_site = "src/mir/passes/string_corridor_sink/shared.rs:625-631"
+remove = [
+  "direct MirInstruction::Call literal",
+  "func: ValueId::INVALID decoration",
+  "callee: Some wrapper",
+]
+retain = [
+  "SubstringLenPlan shape and all collect_plans predicates",
+  "same-block inner/outer indices and deterministic BTreeMap ordering",
+  "SUBSTRING_LEN_EXTERN and args order",
+  "plan.effects, exact substring_len_hii hint text/order, rewritten count",
+  "inner instruction/span removal, outer replacement span, removed-value metadata cleanup",
+  "update_cfg, folded metadata refresh, and pre/post-DCE schedule",
+]
+
+[proof]
+positive = [
+  "rewrites_single_use_substring_length_chain_to_direct_extern",
+  "rewrites_runtime_data_substring_length_chain_through_copy_chain",
+  "substring_len_plan_reads_placement_effect_window_before_legacy_facts",
+]
+negative = [
+  "multi-use substring does not emit a direct Extern",
+  "empty apply_plans publishes no owner effects",
+  "selected window has no direct MirInstruction::Call literal, func field, callee: Some wrapper, PURE override, or ssot::extern_call",
+]
+parity = [
+  "SUBSTRING_LEN_EXTERN target",
+  "Some(plan.outer_dst) destination",
+  "[plan.source, plan.start, plan.end] argument order",
+  "plan.effects from outer length Call",
+  "substring_len_hii hint/count and Call-before-hint order",
+  "inner removal/span alignment, value_types/value_origin_callers cleanup, block order, CFG and folded-metadata timing",
+]
+focused_tests = [
+  "rewrites_single_use_substring_length_chain_to_direct_extern",
+  "rewrites_runtime_data_substring_length_chain_through_copy_chain",
+  "substring_len_plan_reads_placement_effect_window_before_legacy_facts",
+  "new empty apply_plans no-publication negative",
+]
+guards = [
+  "bash tools/checks/mir_call_canonical_corridor_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "rustfmt --check touched Rust files",
+  "git diff --check",
+]
+
+[worker_review]
+issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1L is the smallest remaining one-writer private-plan Extern candidate; current finite selected direct writers 18"
+containment_audit = "upper-worker /root/d2a_containment_audit: bounded design accepted; plan-0 claim narrowed to apply_plans and guard addition <=20 lines"
+implementation_permission = false
+
+[stop_if]
+conditions = [
+  "helper delegation changes plan shape, matcher, effects, hint, count, inner removal, spans, metadata cleanup, schedule, DCE, or another string writer",
+  "SubstringLenPlan is exported, cloned into a second production owner, or applied outside the same invocation",
+  "a second selected shared substring-len writer appears",
+  "guard reaches 760 lines or needs a new guard script",
+  "Call schema, MirCall/CallFlags, backend, or fallback changes enter the diff",
+]
+
+[reopen]
+triggers = [
+  "collect/apply boundary gains mutation or retry",
+  "target/effects need lookup or re-inference",
+  "empty plan starts changing whole-pass state outside apply_plans",
+  "inner removal/span/metadata/hint/count parity changes",
+]
