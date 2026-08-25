@@ -1,0 +1,134 @@
+title = "MIR Call D6 receiver operand encoding census"
+status = "accepted_design_no_safe_slice"
+observed_at = "2026-08-26"
+observed_commit = "7f290115d3"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+related_current = "docs/development/current/main/CURRENT_STATE.toml"
+decision_id = "MIR-CALL-D6-RECEIVER-OPERAND-ENCODING-CENSUS-D0"
+decision = "Inventory the live receiver-prefixed and explicit-argument encodings before retiring the lowering-to-VM strip roundtrip. Keep typed Callee::Method.receiver as target authority; classify compatibility carriers, recovery, post-pass re-entry, and parity fixtures without deleting code or widening a backend gate."
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[boundary]
+starts = "production receiver/argument issuance and compatibility shaping before a MIR Call reaches generic observers or the VM terminal"
+ends = "a finite owner/lifecycle/parity matrix exists for every receiver-prefixed edge, strip/recovery edge, and explicit-argument edge"
+includes = [
+  "src/runner/json_v0_bridge/lowering/expr/call_ops.rs:378-385,414-436 compatibility me_v and arg_ids insertion",
+  "src/mir/builder/calls/unified_emitter.rs:628-679 Method receiver ABI projection",
+  "src/mir/builder/rewrite/known.rs:87-115,192,310,409,518,588,633 signature/receiver rewrite helpers",
+  "src/backend/mir_interpreter/handlers/calls/method.rs receiver strip, autoscan, args[0] surrogate, and adjacent Method(None) recovery",
+  "src/mir/passes/callsite_canonicalize/pass.rs:148-205 receiver-prefixed reclassification",
+  "src/mir/ssot/method_call.rs:34-57 and its operand-view tests",
+  "VM method tests, generic method route fixtures, phase291x/phase29y shape fixtures",
+]
+excludes = [
+  "CallFlags/MirCall retirement and mandatory-Callee schema cutover",
+  "Method(None) semantic issuer redesign beyond the adjacent recovery boundary",
+  "JSON schema redesign, parser fallback hierarchy, selected native/backend activation",
+  "PyVM/reference/Python/non-selected backend behavior",
+  "any lowering, VM, test, or fixture deletion in this design row",
+]
+
+[brief]
+source_authority = "typed Callee::Method.receiver plus source-level explicit arguments; each physical encoding is an owned projection and never a target resolver"
+canonical_issuer = "existing typed MirInstruction::call and the selected ABI projection owner; this census issues no new Callee or argument meaning"
+non_authority = [
+  "me_v String carrier and its Const(box_name)",
+  "args[0] value equality, args.len()-1 arity inference, and receiver-prefixed shape as a universal contract",
+  "receiver autoscan, args[0] surrogate, Method(None) registry/name/singleton retry, and callsite canonicalize reclassification",
+  "VM surface loaders, environment switches, smoke fixtures, and operand-view readers as target authority",
+]
+fail_fast = "No strip/recovery deletion or producer switch is permitted until every live encoding is classified, its consumer lifecycle is owned, and phase291x/phase29y parity is resolved. Missing receiver materialization remains a typed terminal, not an autoscan or args[0] retry."
+smallest_next_slice = "Design-only matrix covering three production issuers, six strip functions plus four helpers, one autoscan, two args[0] surrogates, post-pass/operand-view re-entry, and shape-conflicting parity fixtures."
+non_claims = [
+  "receiver insertion is not proven removable by this census",
+  "VM strip is not deleted and no existing parity fixture is reinterpreted",
+  "Method(None), CallFlags, JSON, and backend schema decisions remain separate rows",
+  "the count of a lexical match is not a caller-zero or semantic-retirement proof",
+]
+
+[production_edge_matrix]
+json_v0_compatibility = "call_ops.rs:378-385 creates me_v, emits a box-name Const, and inserts me_v at args[0]; lower_stageb_static_method_call calls this family at :414-436. Compatibility carrier only; me_v is not target authority."
+unified_builder = "unified_emitter.rs:628-679 preserves Callee::Method.receiver and inserts the receiver at args_local[0] for instance ABI projection at :660-663."
+known_rewrite = "rewrite/known.rs:87-115 inserts object_value when signature arity differs; helper callers are :192, :310, :409, :518 with upper entries :588 and :633. This is a separate rewrite family, not proof of a single insertion site."
+canonical_target = "Callee::Method.receiver remains the sole target operand authority; explicit source arguments remain distinct from the selected physical ABI projection."
+
+[receiver_strip_inventory]
+strip_functions = [
+  "is_duplicate_receiver_arg: method.rs:139-199",
+  "strip_duplicate_receiver_arg_for_arity: method.rs:201-218",
+  "core_surface_args_match: method.rs:256-277",
+  "strip_duplicate_receiver_arg_for_core_surface: method.rs:308-338",
+  "is_duplicate_receiver_value_arg: method.rs:340-366",
+  "strip_duplicate_receiver_value_arg_for_core_surface: method.rs:368-392",
+]
+strip_helpers = [
+  "core_surface_expected_arity: method.rs:220-222",
+  "core_surface_arity_for: method.rs:224-254",
+  "string_surface_args_match: method.rs:279-299",
+  "arg_is_integer: method.rs:301-306",
+]
+strip_consumers = "Array surface :478-484; birth :488-493; core surface :495-502; direct method call :536-557. Surface loaders at :26-43, :61-78, :95-112 expect explicit user args, so strip cannot be removed independently."
+
+[recovery_inventory]
+receiver_autoscan = "method.rs:401-432 scans the current block for the last NewBox<box_name> when reg_load(receiver) fails; it is unconditional and not an authority."
+args_zero_surrogate = [
+  "method.rs:433-445, use at :437-438; guarded by NYASH_VM_RECV_ARG_FALLBACK",
+  "method.rs:453-465, use at :457-458; guarded by NYASH_VM_TOLERATE_VOID",
+]
+method_none_adjacent = "method.rs:517-532 retries through static registry, qualified name, and singleton instance; it shares the VM terminal boundary but is not a receiver-strip deletion target."
+post_pass_reentry = "callsite_canonicalize/pass.rs:148-205 treats args.first() as receiver at :165 and rebuilds Method from args[1..] at :170-182 and :191-203."
+operand_view_reentry = "mir/ssot/method_call.rs:34-57 accepts ReceiverPrefixed; direct tests at :112-123, :126-138, :140-145 include rematerialized receiver values."
+
+[parity]
+vm_direct_tests = "11 method tests in method/tests.rs: String/StringBox at :67,:80,:95,:134,:170,:205,:233; MapBox at :279,:303,:349; ArrayBox at :378,:421."
+generic_route_fixtures = "5 related fixtures: substring_routes.rs:174; collection_routes.rs:412,:466; keys_and_inst_fields.rs:4; runtime_data_routes.rs:4."
+shape_conflict = "phase291x MapBox.set multiarg expects args length 3 and duplicate-receiver stripping, while phase29y emitted MIR expects args length 2 without receiver; phase29y delete/get/has/keys/size/clear likewise pin receiver-excluded shapes."
+parity_rule = "Before any retirement, compare typed target, explicit user args, selected physical projection, execution result, and error result; do not use dummy func or value-equality stripping as parity authority."
+
+[finite_state]
+states = [
+  "UnclassifiedIssuer",
+  "ExplicitArgs",
+  "ReceiverPrefixed",
+  "JsonV0Compatibility",
+  "KnownRewrite",
+  "VmStrip",
+  "RecoveryForbidden",
+  "PostPassReentry",
+  "OperandViewReentry",
+  "TestOnlyShape",
+  "ParityConflict",
+  "DeletionReady",
+  "ParkedSealedCompatibility",
+]
+terminal_policy = "Only DeletionReady after every issuer, consumer, recovery, and parity shape is owned may authorize a later implementation row. RecoveryForbidden and ParityConflict remain CutoverBlockerOpen; compatibility/test-only rows require an owner and observable reopen trigger."
+
+[acceptance]
+positive = [
+  "JSON-v0, Unified Builder, and known rewrite edges each have distinct owner/lifecycle classification",
+  "six strip functions and four helpers have exact callsites and consumer closure",
+  "autoscan=1 and args[0] surrogate=2 are recorded as recovery/non-authority edges",
+  "post-pass and operand-view re-entry are explicit, not hidden under a strip count",
+  "phase291x/phase29y shape conflict and all pinned witness families have a parity owner",
+]
+negative = [
+  "no receiver strip deletion before surface loaders and explicit-argument semantics are closed",
+  "no autoscan, args[0] surrogate, Method(None), registry/name, or singleton retry is accepted as target authority",
+  "no value-equality or args.len()-1 inference is treated as a universal ABI contract",
+  "no CallFlags, JSON schema, or backend activation is smuggled into this row",
+]
+guard = "A future reusable guard must assert the three issuer families, strip/helper inventory, autoscan and surrogate counts, post-pass/operand-view re-entry, parity fixture ownership, and zero unclassified recovery edges; this card alone is not implementation permission."
+
+[worker_audit]
+source = "read-only adversarial receiver/recovery census at 7f290115d3; no code, fixture, Cargo, or backend change"
+verdict = "NoSafeSlice: production issuer count is greater than one, receiver-prefixed and explicit-argument shapes coexist in pinned tests/smoke, and autoscan/args[0]/post-pass recovery can hide missing materialization."
+
+[reopen]
+triggers = [
+  "a new args[0] insertion, strip helper, autoscan, or surrogate site appears outside this finite inventory",
+  "phase291x/phase29y or another selected parity cohort changes receiver shape",
+  "a recovery site begins issuing or reclassifying Callee targets",
+  "Method(None) becomes reachable through this terminal boundary without an owner row",
+  "a proposed deletion changes explicit user-argument semantics or surface arity",
+]
