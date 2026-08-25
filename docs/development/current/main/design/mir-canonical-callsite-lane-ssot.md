@@ -99,7 +99,7 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` records the current design-stop row:
+`CURRENT_STATE.toml` records the current fast row:
 
 ```text
 MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0
@@ -133,10 +133,9 @@ and deletes its local `func`/receiver matcher; typed Method/Value/Closure/arg
 positives, stale-func/dst-only negatives, legacy-func parity, and the 5-test
 module suite are green. D1O's plan-owned publication host Extern writer landed
 at `d2826802f3`; selected Call writers are now 15 (publication family 3). D1P
-is the next design-stop row: one Store/FieldSet publication writer will
-delegate its existing PublicationWriteBoundaryPlan to `MirInstruction::call`;
-fast implementation remains forbidden until its finite matrix and pointer
-switch.
+is the current fast row: one Store/FieldSet publication writer delegates its
+existing PublicationWriteBoundaryPlan to `MirInstruction::call`; only its
+focused proof and shared guard may change in this cell.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
