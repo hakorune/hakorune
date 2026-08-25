@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
+Status: Design stop — MIR-CALL-CORE-R6-D1B-RELATIONLESS-RESOLVED-RECOVERY-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,19 +32,19 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
+  current decision  = MIR-CALL-CORE-R6-D1B-RELATIONLESS-RESOLVED-RECOVERY-D0
   implementation    = D1B exact-target child landed at 6149d2692a; Global recovery retirement landed at c8089e5288; both are bounded non-schema changes
   mode              = design_stop
-  production stop   = Parent Row B remains blocked on RuntimeData Global methodize/provenance and remaining compatibility recovery disposition; the two bounded children do not close the parent
-  exit              = name the next finite producer/recovery boundary and its sole authority; no code or new receipt while NoSafeSlice remains
+  production stop   = the relationless/InstalledNonBrand recovery lifecycle remains blocked on finite source-context disposition; parent RuntimeData methodize remains downstream
+  exit              = exhaust relationless caller/recovery inventory and name its sole authority or ParkedSealed boundary; no code or new receipt while NoSafeSlice remains
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-ROW-B-PRODUCER-CLOSURE-D0 — retain parent design_stop after exact-target transport and unreachable Global recovery retirement landed; next design must close RuntimeData methodize/provenance and remaining recovery disposition.
+Decision: D1B-RELATIONLESS-RESOLVED-RECOVERY-D0 — select the finite relationless/InstalledNonBrand lifecycle after exact-target transport and unreachable Global recovery retirement landed; parent methodize remains downstream.
 Source authority + canonical issuer: same-brand declaration catalog -> CanonicalSameModuleCallableKeyV1 -> `mir_symbol_projection()` -> qualified `CallTarget::Global` -> `CalleeResolverBox` -> canonical Call.
 Non-authority: `current_static_box`, hardcoded `has_method`, `StaticMethodId`/name/Const text, methodize env/trace, tail/module lookup, registry, receiver autoscan, args[0], JSON/VM/C fallback.
 Fail-fast boundary: any next producer or recovery change must name its source authority and terminal before code; the landed Global child now propagates future resolver errors directly without alternate lookup.
-Smallest next slice: design-only finite disposition for RuntimeData Global methodize/provenance and remaining compatibility/recovery callers; no code until a sole issuer and delete/retain boundary are accepted.
+Smallest next slice: design-only relationless Resolved/recovery census; no code until source-context dispositions and a sole issuer/delete boundary are accepted.
 Non-claims: parent producer closure, all Method(None) deletion, materialize_receiver_in_callee, compatibility/JSON/backend routes, final Call schema, new receipt, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
