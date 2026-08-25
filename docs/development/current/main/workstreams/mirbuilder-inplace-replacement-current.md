@@ -35,7 +35,7 @@ Current capsule:
   current decision  = MIR-CALL-R6-CORE-SCHEMA-D1
   implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
   mode              = design_stop
-  production stop   = R6 D0 four-boundary audit is accepted; 49 direct sites and four dynamic missing-target edges are now fenced, while field deletion, Method(None), Closure/Constructor, and JoinIR remain outside until D1 names every issuer
+  production stop   = R6 D0 four-boundary audit is accepted; HEAD now has 21 direct writer definitions and zero missing-callee publication edges in the selected boundary, while typed func/Method(None), Closure/Constructor, and JoinIR remain outside until D1 names every issuer
   exit              = D1 cut/compat/park matrix with positive/negative/parity acceptance; no code, fixture, fallback, or production switch
 fallback / retry  = 0
 ```
@@ -173,11 +173,11 @@ printer/JSON text, optimizer scans, and runtime/backend lookup are non-authority
 
 The finite D0 boundary covers canonical Call production through all non-test
 constructors/reconstructors and interpreter/printer/JSON/backend terminals.
-It includes 49 direct sites (44 production-root, 5 compiled caller-zero) and
-four production edges able to issue missing-callee Call: three Program JSON-v0
-literals plus one dynamic MIR JSON-v0 loader edge. Tests/comments and unrelated
-MIR instructions are excluded. Therefore literal `callee: None = 0` alone is
-not a completion proof; runtime missing-target issuance must also be zero.
+HEAD has 20 direct `MirInstruction::Call` literals plus the canonical helper (`MirInstruction::call`): 21 writer definitions; helper callers are grouped by owner
+family and never double-counted. The selected boundary has zero
+missing-callee publication edges: historical Program JSON-v0 literals were removed
+before HEAD and MIR JSON-v0 resolves/rejects before publication. Tests/comments and
+unrelated MIR are excluded; typed stale `func` and `Method(None)` remain blockers.
 
 JSON-v0 input outcomes are total: valid explicit callee wins and legacy fields
 are decoration; malformed explicit callee rejects without fallback; legacy
@@ -368,7 +368,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
  MIR-CALL-R6-CORE-SCHEMA-D1
-  -> design stop: attach all 49 direct sites and four dynamic edges to cut/compat/park, then name sole issuers for Method/static, Closure/NewClosure, and Constructor/NewBox
+  -> design stop: classify 21 writer definitions plus helper families as cut/compat/park/reopen, then name sole issuers for Method/static, Closure/NewClosure, and Constructor/NewBox
 Next (not selected)
   -> R6a private staging cleanup only after D1 acceptance; R4c remains NoSafeSlice unless a caller reopens
 
