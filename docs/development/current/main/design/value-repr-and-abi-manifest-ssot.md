@@ -73,10 +73,11 @@ widths, pointer-sized integers, overflow policy, aggregates, packing, and
 address spaces remain separate BoxCount decisions and cannot be smuggled into
 this BoxShape convergence row.
 
-## A-prime exact-i64 storage-policy D0
+## A-prime exact-i64 storage-policy D0 / I0
 
 The first physical-input pilot is limited to the selected A-prime exact-`i64`
-cohort. D0 names, but does not yet activate, the fourth physical-policy row:
+cohort. D0 names the fourth physical-policy row, and I0 (`f94bb7f2a7`) now
+issues it at the selected emitter close without activating a backend input:
 
 ```text
 semantic exact-i64
@@ -86,7 +87,7 @@ semantic exact-i64
 ```
 
 `APrimeI64CallableStorageLayoutV1` is a plain policy enum owned by the selected
-emitter close. It must be issued only after the existing source/Recipe demand,
+emitter close. I0 issues it only after the existing source/Recipe demand,
 private physical-session brand, value ledger/formal rows, and A-prime receipt
 are proven same-brand; it is then stored on the existing
 `DynamicV2AotCallMetadataProjectionV1`. The co-seal aggregates those rows and
@@ -99,7 +100,9 @@ receipt lane alone must not select this policy. Missing, foreign, duplicate,
 conflicting, addressable, or expanded rows reject before JSON/backend effects;
 there is no fallback, retry, re-inference, or layout synthesis. The I0 row
 does not claim the complete four-authority backend input: `pos`/`end` still lack
-independent physical-representation ledger rows.
+independent physical-representation ledger rows. The next design stop is to
+audit those rows before any JSON/C/backend effect or broader physical-type
+acceptance.
 
 ## Canonical Runtime Value Classes
 

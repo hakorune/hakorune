@@ -15,19 +15,19 @@ selected ny-llvmc native capability D0 is audited as NoSafeSlice; native D1
 capability boundary, the path-preserving C owner split, and LLVM trap declaration
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
-source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9; D2c and P2 metadata manifest closeout are complete, while D2 overall remains NoSafeSlice outside the bounded cohort and shelf semantic authorities remain NoSafeSlice. P3 physical-type-input D0 is accepted as design-only; I0 is the next bounded owner/co-seal row."""
+source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9; D2c and P2 metadata manifest closeout are complete, while D2 overall remains NoSafeSlice outside the bounded cohort and shelf semantic authorities remain NoSafeSlice. P3 I0 landed at f94bb7f2a7; D1 now audits independent pos/end representation rows before any four-authority backend input."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIR-PHYSICAL-TYPE-INPUT-I0"
-current_design_stop = "Decision: select only A-prime exact-i64 for D0 and name APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64 as a plain policy row. Source authority + canonical issuer: existing exact source/Recipe, representation, ABI, and private session/ledger facts co-sealed at selected emitter close. Non-authority: MirType::Integer, StorageClass::InlineI64, raw-layout/fastmem, Generic-G0, callout wire, JSON/C text, ValueId, receipt lane alone, and other backends. Fail-fast: before JSON/backend effect; missing/conflicting/foreign/duplicate/addressable/expanded/unsupported/consumed rows reject with fallback/retry/re-inference 0. Smallest slice: owner enum + close-time co-seal + non-optional existing projection field, with focused guard; no JSON/C/backend activation. Non-claims: no new Verified/Prepared receipt, ABI/layout mechanics, type widening, other cohorts/backends, old-edge retirement, or performance claim."
-current_blocker_token = "MIR-PHYSICAL-TYPE-INPUT-I0: physical policy is named but must be issued only by same-brand close-time co-seal; JSON/C/backend activation remains closed."
+work_mode = "design_stop"
+current_execution_row = "MIR-PHYSICAL-TYPE-INPUT-D1"
+current_design_stop = "Decision: audit missing independent pos/end representation rows before widening the A-prime exact-i64 input. Source authority + canonical issuer: existing source/Recipe, representation, ABI, storage-policy, and same-brand session facts; a future D1 co-sealer may aggregate only those rows. Non-authority: MIR type/storage spelling, wire text, JSON/C/backend reconstruction, ValueId, receipt lane alone, and other backends. Fail-fast: before JSON/backend effect; missing/conflicting/foreign/duplicate/addressable/expanded/unsupported/consumed rows reject with fallback/retry/re-inference 0. Smallest next slice: bounded D1 owner/row census and finite rejection matrix, or NoSafeSlice if pos/end authority cannot be named. Non-claims: no code, new receipt, type widening, backend activation, Call R6 field deletion, root-mode cleanup, or warning sweep."
+current_blocker_token = "MIR-PHYSICAL-TYPE-INPUT-D1: pos/end have no independent DynamicV2PhysicalRepresentationV1 ledger rows; do not activate a four-authority backend input until the owner/co-sealer is named."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — physical type input I0"
+active_lane = "MirBuilder in-place replacement — physical type input D1 design stop"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
@@ -45,7 +45,7 @@ optimizer/interpreter/printer rows, JSON D0/I0, shared guard, and no R6 field
 deletion; JoinIR is fenced NoSafeSlice, strict-adapter I0 is closed, native D0
 is NoSafeSlice, native D1/C owner split and trap declaration co-seal I0 are
 closed, and R6 remains separate; exact Extern D0 is accepted with generic-entry
-and same-module prepass source/plan/arity/args/dst evidence. D2c and P2 metadata-manifest closeout are complete; P3 D0 named the plain A-prime storage policy and I0 is limited to same-brand close-time co-seal; JSON/C/backend effects remain closed."""
+and same-module prepass source/plan/arity/args/dst evidence. D2c and P2 metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7 and D1 now audits independent pos/end representation rows; JSON/C/backend effects remain closed."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -57,9 +57,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, exact Extern D0, R6 D0, D1-D0/D1-D1 rejects, and D1-D2 through D1-D7 design rows are closed. D1-D8 design closed at 1434663966; helper-shelf I0 landed at b61f6895d2 with Cargo check green. Focused unit linking hit baseline clang OOM. D1 source-seed/join design was accepted as design-only at 625491fb25; D2a target/containment and D2b package co-seal are accepted; D2c Raw direct-body ordinary-New cutover landed at 7c976ca8b9 and P2 metadata manifest closeout landed at 618157cccb. P3 D0 named APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64; I0 is a fast close-time co-seal only, with JSON/C/backend and old reconstruction edges closed. Constructor/NewBox outside the cohort, JoinIR/native, and Method(None) remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
-next_design_card = "MIR-PHYSICAL-TYPE-INPUT-I0"
-next_execution_card = "MIR-PHYSICAL-TYPE-INPUT-I0"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, exact Extern D0, R6 D0, D1-D0/D1-D1 rejects, and D1-D2 through D1-D7 design rows are closed. D1-D8 design closed at 1434663966; helper-shelf I0 landed at b61f6895d2; D1 source-seed/join design was accepted at 625491fb25; D2a/D2b accepted and D2c Raw landed at 7c976ca8b9; P2 metadata closeout landed at 618157cccb. P3 I0 landed at f94bb7f2a7: plain APrimeI64CallableStorageLayoutV1 co-seals at selected close and is stored on the existing projection, with JSON/C/backend activation closed. D1 is now a design stop for independent pos/end representation rows; Call R6/JoinIR, root mode, shelf/doc cleanup, and warning retirement remain separate."
+next_design_card = "MIR-PHYSICAL-TYPE-INPUT-D1"
+next_execution_card = "none — design stop; accept D1 before implementation"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -72,7 +72,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
+  "2026-08-25: P3 MIR-PHYSICAL-TYPE-INPUT-I0 landed at f94bb7f2a7; one plain A-prime storage policy, one same-brand close-time co-seal, non-optional projection storage, three exact focused tests, physical-input/pointer guards, and cargo check are green; 441 warnings and workspace fmt remain baseline, and JSON/C/backend activation is 0.",
   "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0.",
-  "2026-08-25: MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0 closed Query Call read/write reconstruction via used_values/dst_value; 2 focused tests, pointer/corridor guards green, 433 warnings remain baseline.",
   "2026-08-25: D2c Raw direct-body ordinary-New cutover landed at 7c976ca8b9; parser coverage, package co-seal, affine claim consumption, completion exhaustion, 4/4 source/claim tests, 19/19 package tests, shared guard, and README receipts are green; broad normal_callable remains 43/49 with six known baseline failures.",
 ]

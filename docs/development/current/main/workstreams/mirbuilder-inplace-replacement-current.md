@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast bounded row (MIR-PHYSICAL-TYPE-INPUT-I0)
+Status: Active workstream — design stop (MIR-PHYSICAL-TYPE-INPUT-D1)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-PHYSICAL-TYPE-INPUT-I0
-  implementation    = fast bounded BoxShape row; D0 names the plain storage-policy owner and I0 only co-seals it at the selected emitter close
-  mode              = fast
-  production stop   = no JSON/C/backend physical input or old-edge retirement; the new policy is not inferred from MirType, StorageClass, wire text, or a receipt lane
-  exit              = one non-optional policy field in the existing projection, one close-time co-seal, focused positive/negative tests, and reusable guard
+  current decision  = MIR-PHYSICAL-TYPE-INPUT-D1
+  implementation    = I0 landed the plain storage-policy owner and close-time co-seal; D1 now audits missing independent pos/end representation rows
+  mode              = design_stop
+  production stop   = no JSON/C/backend physical input or old-edge retirement; the I0 policy is not inferred from a MIR type, storage class, wire text, or receipt lane
+  exit              = name the four-row source/representation/ABI/storage owner and one co-sealer, or record NoSafeSlice
   fallback / retry  = 0
 ```
 
@@ -151,7 +151,8 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains
-`ParkedSealed`. The active Decision is now `MIR-CALL-RETIREMENT-v1`.
+`ParkedSealed`. The Call retirement design remains the long-term target, while
+the active Decision is now `MIR-PHYSICAL-TYPE-INPUT-D1`.
 
 ```text
 canonical core
@@ -356,13 +357,12 @@ Non-claims:
   No metadata promotion, field deletion, backend activation, ModuleMetadata
   census, physical-type input, seed retirement, or warning cleanup.
 
-## Accepted design: MIR-PHYSICAL-TYPE-INPUT-D0
+## Accepted design and landed cell: MIR-PHYSICAL-TYPE-INPUT-D0 / I0
 
 Decision:
   Select only the A-prime exact-`i64` family as the first physical-input
-  pilot. D0 is accepted as a design-only decision; the bounded I0 below adds
-  the named plain storage policy and co-seals it without activating a physical
-  backend input.
+  pilot. D0 is accepted, and I0 (`f94bb7f2a7`) now adds the named plain storage
+  policy and co-seals it without activating a physical backend input.
 
 Census boundary:
   Selected `ParserScanLoopBox.skip_while/4` final-source exact-`: i64` rows
@@ -388,11 +388,11 @@ Source authority + canonical issuer:
   and receipt rows have been proven same-brand.
 
 Missing authority:
-  The dedicated row is now named but not yet issued/co-sealed. `MirType::Integer`
-  and `StorageClass::InlineI64` are logical inventories, not layout/ABI truth;
-  raw-layout/fastmem vocabulary, Generic-G0 callable carriers, callout wire,
-  JSON strings, ValueId, receipt lane alone, C validation, and other backends
-  are non-authority.
+  I0 issues the dedicated row only at selected-emitter close. `MirType::Integer`
+  and `StorageClass::InlineI64` remain logical inventories, not layout/ABI
+  truth; raw-layout/fastmem vocabulary, Generic-G0 callable carriers, callout
+  wire, JSON strings, ValueId, receipt lane alone, C validation, and other
+  backends are non-authority.
 
 Finite state / fail-fast:
 
@@ -406,35 +406,53 @@ Finite state / fail-fast:
 | `ForeignStaleDuplicate` | typed reject; no repair or re-pair | none |
 | `UnsupportedBackend` / `Consumed` | typed reject before effect or second take | none |
 
-Smallest next slice (`MIR-PHYSICAL-TYPE-INPUT-I0`):
-  Add only the plain `APrimeI64CallableStorageLayoutV1` policy enum, a child
-  co-sealer at `finish_unpublished_draft` after receipt issue and before
-  projection, and a non-optional field on the existing projection. It borrows
-  existing demand/source-Recipe/session/ledger/formal/receipt rows, performs no
-  AST/Recipe/MIR scan, and does not publish JSON, call C, activate a backend, or
-  retire old reconstruction edges.
+I0 implementation receipt:
+  The plain `APrimeI64CallableStorageLayoutV1` enum, child co-sealer, and
+  non-optional projection field are landed. The co-sealer runs at
+  `finish_unpublished_draft` after receipt issue and before projection, borrows
+  existing same-brand rows, and performs no AST/Recipe/MIR scan or backend
+  activation. Parent emitter source is 751 lines (<760).
 
 I0 implementation contract:
-  `src/mir/policies/a_prime_i64_callable_storage_layout.rs` owns the singleton
-  enum; `selected_dynamic_physical_emitter/a_prime_callable_storage_layout.rs`
-  owns the typed co-seal; `call_metadata.rs` stores only the already-issued
-  policy. The co-seal requires DirectExactI64, same demand/relation/session
-  owner and brand, retained i64 formal rows, and validated receipt ImmediateI64
-  rows. The wire buffer and post-decode SSA remain separate. Parent emitter
-  logic stays below 760 lines; the existing physical-input authority guard is
-  extended rather than creating a second activation guard.
+  `src/mir/policies/a_prime_i64_callable_storage_layout.rs` owns the singleton;
+  `selected_dynamic_physical_emitter/a_prime_callable_storage_layout.rs` owns
+  the typed co-seal; `call_metadata.rs` stores only the issued policy. The
+  existing guard was extended rather than creating a second activation guard.
 
-Acceptance for I0 and the later implementation row:
-  I0 must prove one policy definition, one production co-seal, non-optional
-  projection storage, and typed rejection for foreign/duplicate/missing,
-  addressable/expanded, and lane/owner conflicts. It must not claim the full
-  four-authority backend input because `pos`/`end` do not yet have independent
+Evidence and boundary:
+  The exact projection positive, selected-emitter positive, and malformed-
+  receipt negative tests pass; the physical-input authority and pointer guards
+  pass; `cargo check --lib` passes. The quick profile reports 441 known
+  baseline warnings, and whole-workspace fmt remains a baseline failure; no
+  new warning class or backend edge was introduced. I0 does not claim the full
+  four-authority backend input because `pos`/`end` still lack independent
   `DynamicV2PhysicalRepresentationV1` ledger rows.
   Preserve existing i64/object parity for `pos`/`end` and inner/outer returns
   through one input; reject bare `MirType::Integer`, `StorageClass::InlineI64`,
   JSON `"i64"`, receipt-only lanes, and missing/conflicting/foreign rows; then
   require one selected-backend consumer and caller-zero for the old independent
   return-type/lane/parameter reconstructions.
+
+## Review follow-up task map (not selected)
+
+1. `MIR-PHYSICAL-TYPE-INPUT-D1` — current design stop: census independent
+   representation rows for `pos`/`end`, name the four-row owner/co-sealer, and
+   keep backend effects closed if any row is absent or conflicting.
+2. `MIR-CALL-JOINIR-REMAP-D0` — after a fresh caller/lifecycle census, either
+   cut JoinIR over to `Callee` operand projection or isolate/retire caller-zero
+   utility code; do not repair a shared remapper without a production caller.
+3. `MIR-CALL-CORE-R6-D0` — only after terminal consumers and remapper lifecycle
+   are closed, decide atomic removal of `func`/`Option<Callee>` plus the
+   transitional `MirCall`/`CallFlags`, `Method(None)`, and `Callee::Closure`
+   boundaries. No field deletion is selected here.
+4. `MIRBUILDER-ROOT-SESSION-MODE-R0` — later localize `root_is_app_mode` and
+   retire the old guard/bool pair after Call R7; no semantic mode change.
+5. `MIRBUILDER-CLOSEOUT-HYGIENE-R0` — fix the stale D2c ordinary-New comment,
+   compact current/global docs without touching the 2000+ line manifest, then
+   run the shelf census: remove `#[path]` band-aids, empty dirs, common_v2
+   flat files, and classify warning retirement as A/B/C.
+
+PyVM/reference/Python and non-selected backend work remain `ParkedSealed`.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
@@ -528,10 +546,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-PHYSICAL-TYPE-INPUT-I0
-  -> fast bounded row: add the named non-addressable SSA-i64 policy and co-seal it at the selected emitter close; JSON/C/backend activation remains closed
+ MIR-PHYSICAL-TYPE-INPUT-D1
+  -> design stop: account for independent pos/end representation rows before any four-authority backend input
 Next (not selected)
-  -> Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> Call JoinIR/remapper lifecycle and Call R6 schema design after D1; Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed
 
 After MIR Call retirement
   1. MIRBUILDER-PR-STRUCTURAL-GATES-I0
