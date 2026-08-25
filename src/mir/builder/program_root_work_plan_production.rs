@@ -10,6 +10,7 @@ use super::super::normal_instance_constructor_admission::{
 };
 use super::super::normal_script_program_item_admission::classify_normal_script_program_item_v1;
 use super::super::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
+use super::selected_projection_validator::validate_selected_normal_top_level_projections;
 use super::{
     classify_statement, collect_constructor_demand_expectations, issue_manifest_for_disposition,
     PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanSealV1,
@@ -62,6 +63,10 @@ impl PreparedProgramRootWorkPlanV1 {
             }
         }
         if work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal {
+            validate_selected_normal_top_level_projections(
+                &statements,
+                selected_callable_sources.expect("selected callable inventory"),
+            )?;
             let cohort = constructor_source_cohort.ok_or_else(|| {
                 "[freeze:contract][mir/instance-constructor-source/cohort-missing]".to_owned()
             })?;

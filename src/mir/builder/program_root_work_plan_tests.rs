@@ -243,24 +243,25 @@ fn raw_runtime_keeps_the_neutral_statement_carrier() {
 }
 
 #[test]
-fn selected_top_level_functions_keep_distinct_source_occurrences() {
-    let plan = selected_plan(vec![function("same"), function("same")], false);
-    let parts = plan.into_parts();
-    let admissions = parts
-        .immediate
-        .iter()
-        .map(|work| match work {
-            PreparedProgramRootImmediateWorkV1::TopLevelFunction(
-                PreparedProgramRootTopLevelFunctionWorkV1::SelectedNormal { admission, .. },
-            ) => admission,
-            other => panic!("expected selected top-level work, got {other:?}"),
-        })
-        .collect::<Vec<_>>();
-    assert_eq!(admissions.len(), 2);
-    assert_eq!(admissions[0].source_key().statement_index(), 0);
-    assert_eq!(admissions[1].source_key().statement_index(), 1);
-    assert_eq!(admissions[0].physical_symbol(), "same/0");
-    assert_eq!(admissions[1].physical_symbol(), "same/0");
+fn selected_top_level_functions_reject_duplicate_physical_projection() {
+    let root = ASTNode::Program {
+        statements: vec![function("same"), function("same")],
+        span: Span::unknown(),
+    };
+    let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&root)
+        .expect("selected callable catalog");
+    let ASTNode::Program { statements, .. } = root else {
+        unreachable!()
+    };
+    let error = super::validate_selected_normal_top_level_projections(
+        &statements,
+        catalog.selected_source_inventory(),
+    )
+    .expect_err("same-name/same-arity selected functions must reject");
+    assert!(error.contains("duplicate-physical-projection"));
+    assert!(error.contains("symbol=same/0"));
+    assert!(error.contains("first_statement=0"));
+    assert!(error.contains("second_statement=1"));
 }
 
 #[test]

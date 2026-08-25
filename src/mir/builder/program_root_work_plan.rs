@@ -29,6 +29,10 @@ use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
 use super::MirBuilder;
 use crate::ast::{ASTNode, DeclarationAttrs, FieldDecl, ParamDecl};
+
+mod selected_projection_validator;
+#[cfg(test)]
+use selected_projection_validator::validate_selected_normal_top_level_projections;
 #[derive(Debug)]
 pub(super) struct PreparedProgramRootWorkPlanV1 {
     immediate: Box<[PreparedProgramRootImmediateWorkV1]>,
@@ -249,6 +253,10 @@ impl PreparedProgramRootWorkPlanV1 {
             "selected callable inventory must match work-plan admission",
         );
         if work_plan_admission == ProgramRootWorkPlanAdmissionV1::SelectedNormal {
+            validate_selected_normal_top_level_projections(
+                &statements,
+                selected_callable_sources.expect("selected callable inventory"),
+            )?;
             let cohort = constructor_source_cohort.ok_or_else(|| {
                 "[freeze:contract][mir/instance-constructor-source/cohort-missing]".to_owned()
             })?;

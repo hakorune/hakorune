@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0
+Status: Design stop — MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,19 +32,19 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0
-  implementation    = duplicate-policy Decision accepted at a3088cce40; this isolated pre-body validator is selected fast; direct-target index handoff remains a separate NoSafeSlice design; D1B exact-target child landed at 6149d2692a and Global recovery retirement at c8089e5288
-  mode              = fast
-  production stop   = validate the complete SelectedNormal projection cohort before body lowering; no target issuance, callable-index handoff, RawCompatibility retry, or collector winner is allowed in this row
-  exit              = unique/different-arity parity, typed duplicate/mismatch rejection before effects, reusable guard, owner docs, commit/push; direct-target index handoff remains downstream
+  current decision  = MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
+  implementation    = SelectedNormal duplicate-policy validator I0 is landed with pre-body duplicate/unique witnesses and a reusable guard; direct-target index handoff remains a separate NoSafeSlice design; D1B exact-target child landed at 6149d2692a and Global recovery retirement at c8089e5288
+  mode              = design_stop
+  production stop   = name a same-source/same-resolver-continuation index co-seal owner for general SelectedNormal before any target handoff; no target issuance, relationless recovery, or argument-order implementation
+  exit              = accepted co-seal authority and finite rejection matrix for direct-target handoff; duplicate validator remains closed
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
 Decision: D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0 — validate existing SelectedNormal physical projections before body lowering.
 Source authority + canonical issuer: `VerifiedSelectedNormalCallableSourceInventoryV1` plus `NormalTopLevelFunctionDraftAdmissionV1`; this validator issues no target or Call and leaves the existing canonical issuer unchanged.
 Non-authority: callable-index handoff, collector last-wins/replacement, `LegacySymbol` text, name/arity synthesis outside the existing admission, statement order, test success, or RawCompatibility labels.
-Fail-fast boundary: after the complete SelectedNormal source cohort is available and before the first top-level body/argument lowering; duplicate or source/projection mismatch returns a typed preparation error with zero effects.
-Smallest next slice: add one child validator, replace the duplicate positive witness with negative duplicate/mismatch coverage, run focused preparation tests and guards, then close out this I0.
+Fail-fast boundary: after the complete SelectedNormal source cohort is available and before the first top-level body/argument lowering; duplicate or source/projection mismatch returns a structured freeze preparation error with zero effects.
+Smallest next slice: design-only audit of same-source/same-resolver-continuation direct-target index co-seal; do not borrow the existing exact-i64 index sideways.
 Non-claims: direct-target index co-seal, self/sibling target loans, Method(None), methodize, JSON/VM/backend, final Call schema, new receipt, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0 -> duplicate policy accepted at a3088cce40; selected validator must reject duplicates/mismatches before body lowering while preserving unique/different-arity parity; direct-target index co-seal remains NoSafeSlice, and sibling/constructor relation, RuntimeData Global methodize, and ArrayElementWrite remain downstream
+Now MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 -> duplicate projection validator I0 is landed; existing exact-i64 index cannot be borrowed sideways by the general SelectedNormal package, so same-source/same-continuation co-seal authority and finite missing/foreign/ambiguous rejection remain design-stop; sibling/constructor relation, RuntimeData Global methodize, and ArrayElementWrite remain downstream
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

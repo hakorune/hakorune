@@ -1,11 +1,12 @@
 title = "MIR Call D1B SelectedNormal duplicate projection pre-body validator"
-status = "accepted_design"
+status = "landed_bounded_row"
 observed_commit = "a3088cce40"
 observed_at = "2026-08-26"
-implementation_permission = true
-selected_fast = true
+implementation_permission = false
+selected_fast = false
+landed_commit = "PENDING-CLOSEOUT-COMMIT"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
-next_design_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-self-exact-target-loan-d0-2026-08-26.toml"
+next_design_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
 
 [boundary]
 starts = "PreparedProgramRootWorkPlanV1 SelectedNormal preparation after the complete admission cohort is assembled"
@@ -31,8 +32,8 @@ canonical_issuer = "none in this validator; successful unique rows remain availa
 non_authority = [
   "statement order, collector last-wins, LegacySymbol text reconstruction, declaration name/arity formatting, RawCompatibility retry, or body/test success",
 ]
-fail_fast = "After SelectedNormal admission rows are prepared but before the first top-level body/argument lowering, reject duplicate physical symbols, conflicting rows, or missing relation with a typed preparation error."
-smallest_next_slice = "One validator at ProgramRootWorkPlan preparation, one negative duplicate/mismatch work-plan test, one production-like preflight witness, and the stable guard/reference receipt; no callable-index or target handoff is needed for this row."
+fail_fast = "After SelectedNormal admission rows are prepared but before the first top-level body/argument lowering, reject duplicate physical symbols, conflicting rows, or missing relation with a structured freeze preparation error."
+smallest_next_slice = "One validator at ProgramRootWorkPlan preparation, focused unique/duplicate witnesses, and the stable guard/reference receipt; no callable-index or target handoff is needed for this row."
 non_claims = [
   "unique rows already provide an exact call target",
   "different arity is duplicate",
@@ -71,22 +72,31 @@ positive = [
   "RawCompatibility replacement tests remain unchanged",
 ]
 negative = [
-  "same-name/same-arity duplicate preparation returns a typed error before classify/body lowering",
+  "same-name/same-arity duplicate preparation returns a structured freeze error before classify/body lowering",
   "duplicate rejection produces zero argument effects and zero collector mutation",
   "diagnostic retains both source statement occurrences and the colliding physical symbol",
   "no duplicate is converted into RawCompatibility or a target-loan candidate",
 ]
 focused_checks = [
-  "cargo test --lib mir::builder::program_root_work_plan_tests",
-  "cargo test --lib mir::builder::program_root_work_plan_production",
+  "cargo test --profile quick selected_projection_validator",
+  "cargo test --profile quick selected_top_level_functions_reject_duplicate_physical_projection",
+  "tools/checks/mir_call_d1b_selected_normal_duplicate_projection_guard.sh",
   "bash tools/checks/current_state_pointer_guard.sh",
   "git diff --check",
 ]
-implementation_gate = "Fast selection is permitted for this isolated pre-body validator; do not add callable-index handoff, target issuance, or relationless recovery to the implementation diff."
+implementation_gate = "Landed bounded row: the isolated pre-body validator is closed; do not add callable-index handoff, target issuance, or relationless recovery to this row."
 guard = "a reusable guard must assert SelectedNormal duplicate physical projections are rejected before body/argument effects and that no LegacyReplaceWholePair or collector winner is used in the SelectedNormal corridor"
 
+[evidence]
+focused_test_results = [
+  "selected_projection_validator: 2 passed",
+  "selected_top_level_functions_reject_duplicate_physical_projection: 1 passed",
+]
+focused_guard = "tools/checks/mir_call_d1b_selected_normal_duplicate_projection_guard.sh"
+scope_note = "The production path invokes the validator before its work-plan mutation loop; focused unit witnesses exercise the same validator owner. Constructor-cohort and target-index handoff remain outside this bounded row."
+
 [line_budget]
-program_root_work_plan = "721 lines observed; split top-level work helpers before adding a validator if the change would cross 760, with 800 as hard stop"
+program_root_work_plan = "729 lines after the validator delegation; child validator is 134 lines; keep both below the 760 split trigger and 800 hard stop"
 raw_invocation_source_transport = "778 lines; do not edit in this row"
 active_workstream = "1000 lines; replace existing row prose, never append"
 
