@@ -2898,13 +2898,14 @@ staging cleanup, but does not authorize deleting the public `MirCall`/
 by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
-Selected next fast task is
-`MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0`: delegate
-`src/mir/ssot/extern_call.rs:26-32` to `MirInstruction::call`, preserving
-name/dst/args/effects and proving helper/direct-literal cardinality. The earlier
-D1-B/D1-C/D1-D notes remain design history; do not change
-`Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or
-`CallFlags` outside this exact writer row.
+The next design stop is
+`MIR-CALL-CORE-R6-D1B-METHOD-NONE-CENSUS`: exhaust the finite
+`Method(None)` issuer and recovery boundary before any core schema deletion or
+static/instance target rewrite. The earlier D1-A/D1-C/D1-D notes remain design
+history; do not change `Option<Callee>`, `func`, `Method(None)`,
+`Callee::Closure`, `MirCall`, or `CallFlags` until the D1B manifest names the
+canonical issuer, non-authority edges, fail-fast boundary, and acceptance
+guards.
 
 Post-R7 normal-root cleanup (parked, separate lane):
 
