@@ -15,14 +15,14 @@ selected ny-llvmc native capability D0 is audited as NoSafeSlice; native D1
 capability boundary, the path-preserving C owner split, and LLVM trap declaration
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
-source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9; the current state is D2c closeout, while D2 overall remains NoSafeSlice outside the bounded cohort and D1-D0 V0/D1-D1 V1 rejects are closed and shelf semantic authorities remain NoSafeSlice. The next bounded observation row is MIR-METADATA-CONSUMER-MANIFEST-I0; it does not activate a backend or change MIR behavior."""
+source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9; the current state is D2c closeout, while D2 overall remains NoSafeSlice outside the bounded cohort and D1-D0 V0/D1-D1 V1 rejects are closed and shelf semantic authorities remain NoSafeSlice. P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; closeout records static-only evidence and keeps backend activation at zero."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
+work_mode = "closeout"
 current_execution_row = "MIR-METADATA-CONSUMER-MANIFEST-I0"
-current_design_stop = "Decision: observe-only 127-row FunctionMetadata consumer manifest. Source authority + canonical issuer: FunctionMetadata stored fields and each field's existing producer/consumer owner files; the manifest issuer only records static evidence. Non-authority: metadata container, JSON emitter, field comments, token presence, backend reader names, tests, and fixtures. Fail-fast boundary: source-field/row 1:1 coverage, duplicate/missing rows, owner/count shape, anchor drift, backend-role separation, and producer-only retire_when. Smallest next slice: land the manifest, validator, reusable guard, and reference pointer without semantic/backend edits. Non-claims: field deletion, promotion, backend activation, ModuleMetadata, physical-type input, and warning cleanup."
-current_blocker_token = "MIR-METADATA-CONSUMER-MANIFEST-I0: static manifest/guard is selected; semantic authority, backend activation, and field retirement remain closed."
+current_design_stop = "P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91. Evidence: 127 source fields and rows, distinct owner/count observations, source anchors, selected/reference/non-selected split, and missing/duplicate negative guard. Semantic authority, backend activation, field retirement, ModuleMetadata, physical-type input, and warning cleanup remain outside this row."
+current_blocker_token = "MIR-METADATA-CONSUMER-MANIFEST-I0 closeout: static manifest and guards are green; no semantic/backend change is authorized by this row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -45,7 +45,7 @@ optimizer/interpreter/printer rows, JSON D0/I0, shared guard, and no R6 field
 deletion; JoinIR is fenced NoSafeSlice, strict-adapter I0 is closed, native D0
 is NoSafeSlice, native D1/C owner split and trap declaration co-seal I0 are
 closed, and R6 remains separate; exact Extern D0 is accepted with generic-entry
-and same-module prepass source/plan/arity/args/dst evidence. D2c closeout is complete; the current P2 row inventories all 127 FunctionMetadata fields with static owner/count evidence and keeps semantic/backend activation at zero."""
+and same-module prepass source/plan/arity/args/dst evidence. D2c closeout is complete; P2 landed at 5fb0277d91 with 127 FunctionMetadata rows, static owner/count evidence, missing/duplicate rejection, and semantic/backend activation at zero; this lane is in closeout."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -57,7 +57,7 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, exact Extern D0, R6 D0, D1-D0/D1-D1 rejects, and D1-D2 through D1-D7 design rows are closed. D1-D8 design closed at 1434663966; helper-shelf I0 landed at b61f6895d2 with Cargo check green. Focused unit linking hit baseline clang OOM. D1 source-seed/join design was accepted as design-only at 625491fb25; D2a target/containment and D2b package co-seal are accepted; D2c Raw direct-body ordinary-New cutover landed at 7c976ca8b9 and is closed. P2 MIR-METADATA-CONSUMER-MANIFEST-I0 is now the selected fast row: 127-field observation manifest, validator, reusable guard, and reference pointer only. Constructor/NewBox outside the cohort, JoinIR/native, and Method(None) remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, exact Extern D0, R6 D0, D1-D0/D1-D1 rejects, and D1-D2 through D1-D7 design rows are closed. D1-D8 design closed at 1434663966; helper-shelf I0 landed at b61f6895d2 with Cargo check green. Focused unit linking hit baseline clang OOM. D1 source-seed/join design was accepted as design-only at 625491fb25; D2a target/containment and D2b package co-seal are accepted; D2c Raw direct-body ordinary-New cutover landed at 7c976ca8b9 and is closed. P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91 with 127 rows, static owner/count evidence, reusable positive/negative guard, and reference receipt; closeout is current. Constructor/NewBox outside the cohort, JoinIR/native, and Method(None) remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
 next_design_card = "MIR-METADATA-CONSUMER-MANIFEST-I0"
 next_execution_card = "MIR-METADATA-CONSUMER-MANIFEST-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
@@ -72,7 +72,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-25: R5a optimizer, R5b-B0 Rust interpreter, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, and profile-threading I0 are closed (e36f86e869, 95427f2cd6, 67dd7e400a, 09f0e51143, 5ce1b18904, db350b81c9); JoinIR D0/caller-lifecycle D1 are NoSafeSlice, backend_shape strict-adapter I0 is closed at 40559cceef, native capability D0 is NoSafeSlice, native D1 boundary and C owner split I0 at 03b06622eb are closed, and exact Extern D0 is accepted with production link/prepass evidence; closeout precedes the R6 design stop; PyVM/reference/Python stay ParkedSealed.",
+  "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0.",
   "2026-08-25: MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0 closed Query Call read/write reconstruction via used_values/dst_value; 2 focused tests, pointer/corridor guards green, 433 warnings remain baseline.",
   "2026-08-25: D2c Raw direct-body ordinary-New cutover landed at 7c976ca8b9; parser coverage, package co-seal, affine claim consumption, completion exhaustion, 4/4 source/claim tests, 19/19 package tests, shared guard, and README receipts are green; broad normal_callable remains 43/49 with six known baseline failures.",
 ]

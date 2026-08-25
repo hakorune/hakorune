@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast (MIR-METADATA-CONSUMER-MANIFEST-I0)
+Status: Active workstream — closeout (MIR-METADATA-CONSUMER-MANIFEST-I0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,8 +33,8 @@ Current capsule:
 
 ```text
   current decision  = MIR-METADATA-CONSUMER-MANIFEST-I0
-  implementation    = fast; D2c Raw direct-body closeout is complete and the P2 row is observation-only
-  mode              = fast
+  implementation    = landed at 5fb0277d91; D2c Raw direct-body closeout is complete and P2 remains observation-only
+  mode              = closeout
   production stop   = all 127 FunctionMetadata stored fields are inventoried with owner/count evidence; no semantic authority, JSON schema, backend route, or field retirement changes
   exit              = manifest + validator + reusable positive/negative guard + reference pointer; P2 does not activate or promote a consumer
   fallback / retry  = 0
@@ -316,7 +316,7 @@ Non-claims:
   PyVM/reference/Python/native_driver, full D2 outside this cohort, and R6
   field deletion remain NoSafeSlice/ParkedSealed as already recorded.
 
-## Selected next bounded cell: MIR-METADATA-CONSUMER-MANIFEST-I0
+## P2 implementation receipt: MIR-METADATA-CONSUMER-MANIFEST-I0 (5fb0277d91)
 
 Decision:
   Add one observation-only, machine-readable inventory for all 127 stored
@@ -340,11 +340,17 @@ Fail-fast boundary:
   rows, owner/count mismatches, anchor drift, role mixing, and producer-only
   rows without a retention/caller-zero condition reject before success.
 
+Evidence:
+  The manifest and validator report 127/127 rows, 323 producer owner-files,
+  590 production consumer owner-files, and 83 selected-backend owner-files at
+  observed revision `beb82a6756c6c0855dc76096be23b9eafe3c5ae5`. The reusable
+  guard is green for positive coverage and missing/duplicate-row rejection;
+  the metadata catalog guard and current-state pointer guard are green. The
+  existing `src/mir/function/metadata.rs` 804-line boundary is read-only.
+
 Smallest next slice:
-  Land the 127-row manifest, validator, reusable positive/negative guard, and
-  this reference pointer. `src/mir/function/metadata.rs` is an existing
-  804-line boundary and remains read-only here; no Rust semantic, MIR JSON,
-  backend, or field-shape edit belongs in this row.
+  Close out this observation row, then audit `MIR-PHYSICAL-TYPE-INPUT-D0`
+  before selecting any physical/backend implementation.
 
 Non-claims:
   No metadata promotion, field deletion, backend activation, ModuleMetadata
@@ -443,7 +449,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
  MIR-METADATA-CONSUMER-MANIFEST-I0
-  -> fast: land the 127-field observation manifest, validator, reusable guard, and reference receipt; semantic/backend activation stays 0
+  -> closeout: landed at 5fb0277d91; verify manifest, missing/duplicate guard, metadata catalog guard, and pointer receipt before selecting the P3 design audit
 Next (not selected)
   -> Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
