@@ -16,19 +16,19 @@ selected ny-llvmc native capability D0 is audited as NoSafeSlice; native D1
 capability boundary, the path-preserving C owner split, and LLVM trap declaration
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
-source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9; D2c and P2 metadata manifest closeout are complete, while D2 overall remains NoSafeSlice outside the bounded cohort and shelf semantic authorities remain NoSafeSlice. P3 I0 landed at f94bb7f2a7; D1 exact pair design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92, and the next frontier is the JoinIR remapper isolation design stop."""
+source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9; D2c and P2 metadata manifest closeout are complete, while D2 overall remains NoSafeSlice outside the bounded cohort and shelf semantic authorities remain NoSafeSlice. P3 I0 landed at f94bb7f2a7; D1 exact pair design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92, and the next frontier is JoinIR remapper isolation I0."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0"
-current_design_stop = "Decision: disposition only the disconnected JoinIR remap APIs. Source authority + canonical issuer: Callee::for_each_value_operand/rewrite_value_operands own projection; active value-lifecycle collection remains its consumer. Non-authority: merge coordinator remap helper, tests, ValueId::INVALID, backend lookup. Fail-fast: no non-test caller exists for merge_joinir_mir_blocks/remap_instruction; no atomic remap or Call R6 edit. Smallest slice: exact edge-set proof for test/reference isolation or retirement, preserving collection semantics. Non-claims: Call R6 field deletion, Method(None), Closure, Constructor, root mode, shelves, and warning cleanup."
-current_blocker_token = "MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0: disconnected remap edge set needs a proof before test/reference isolation; active lifecycle collection is retained."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0"
+current_design_stop = "Accepted Decision: active lifecycle collection moves to one named inventory owner; the disconnected JoinIR merge/remap surface is test/reference-only. Source authority + canonical issuer: Callee::for_each_value_operand/rewrite_value_operands own target projection; no remap issuer exists. Non-authority: old maps, merge coordinator, tests as production proof, ValueId::INVALID, backend lookup. Fail-fast: production build contains no merge/remap entry; test/reference code may compile only under cfg(test). Smallest slice: collector extraction plus cfg(test) isolation, focused positive/negative proof, reusable guard, and owner docs. Non-claims: Call R6, Method(None), Closure, Constructor, root mode, shelves, and warning cleanup."
+current_blocker_token = "MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0: isolate disconnected merge/remap APIs while preserving canonical lifecycle collection."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "MirBuilder in-place replacement — MIR Call JoinIR remapper design stop"
+active_lane = "MirBuilder in-place replacement — MIR Call JoinIR remapper isolation I0"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0
 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
@@ -47,7 +47,7 @@ optimizer/interpreter/printer rows, JSON D0/I0, shared guard, and no R6 field
 deletion; JoinIR remap isolation is fenced, strict-adapter I0 is closed, native
 D0 is NoSafeSlice, native D1/C owner split and trap declaration co-seal I0 are
 closed, and R6 remains separate; exact Extern D0 is accepted with generic-entry
-and same-module prepass source/plan/arity/args/dst evidence. D2c and P2 metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7, D1 design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92; JoinIR remapper is now a design stop, and JSON/C/backend effects remain closed."""
+and same-module prepass source/plan/arity/args/dst evidence. D2c and P2 metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7, D1 design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92; JoinIR remapper isolation I0 is selected, and JSON/C/backend effects remain closed."""
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5 and JSON/profile/backend/native split are closed; exact Extern, D1-D8, shelf, source-seed/join, D2a/b/c, P2 closeout, and physical D1-I0 pair transport (5bde4c6f92) are recorded. JoinIR remap census is dispositioned; disconnected remap isolation is the design stop, while Call R6, root mode, shelf/doc cleanup, and warning retirement remain separate."
-next_design_card = "MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0"
-next_execution_card = "none (design_stop: disconnected remap edge-set proof required)"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5 and JSON/profile/backend/native split are closed; exact Extern, D1-D8, shelf, source-seed/join, D2a/b/c, P2 closeout, and physical D1-I0 pair transport (5bde4c6f92) are recorded. JoinIR remapper isolation I0 is the selected fast slice; Call R6, root mode, shelf/doc cleanup, and warning retirement remain separate."
+next_design_card = "MIR-CALL-CORE-R6-D0"
+next_execution_card = "MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

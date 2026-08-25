@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (MIR-CALL-JOINIR-REMAP-D0)
+Status: Active workstream — fast (MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JOINIR-REMAP-D0
-  implementation    = D1-I0 exact pos/end pair transport is closed; remapper census is dispositioned
-  mode              = design_stop
-  production stop   = lifecycle collection is active; disconnected remap APIs have no non-test entry
-  exit              = isolate/retire disconnected remap APIs, preserving lifecycle collection; then reopen R6 separately
+  current decision  = MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0
+  implementation    = D0 census accepted; collector extraction + cfg(test) isolation is selected
+  mode              = fast
+  production stop   = active lifecycle inventory is the sole production collector; old merge/remap is reference-only
+  exit              = focused positive/negative proof, reusable guard, owner docs, commit/push; then R6 design
   fallback / retry  = 0
 ```
 
@@ -471,12 +471,10 @@ parent 652 (<760); no new edge/warning class.
 
 ## Ordered follow-ups (design/retirement, not selected)
 
-`MIR-CALL-JOINIR-REMAP-D0` census closed over Rust call sites: active lifecycle owners `emission/value_lifecycle.rs` and `value_lifecycle_definition.rs` consume
-only `collect_values_in_block`; disconnected `merge/coordinator` remap APIs have
-no non-test entry. Next `MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0`: preserve
-collection semantics and prove `get/set/remap_instruction/remap_value` edges
-before test/reference isolation or retire. `MIR-CALL-CORE-R6-D0` follows:
-mandatory `Callee`/func/Option, MirCall/CallFlags, Method(None), Closure/Constructor; root bool/session, shelf, warnings, stale D2c/R6 flags, and PyVM stay separate.
+`MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0`: extract the active lifecycle inventory,
+gate `joinir_id_remapper` and `joinir/merge` under `cfg(test)`, and prove old
+remap APIs have no production entry. Preserve target projection through
+`Callee::for_each_value_operand`; R6, root mode, shelves, warnings, and PyVM stay separate.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
@@ -570,8 +568,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JOINIR-REMAPPER-ISOLATION-D0
-  -> design stop: isolate disconnected remap APIs while preserving active lifecycle collection; no R6 edit
+ MIR-CALL-JOINIR-REMAPPER-ISOLATION-I0
+  -> fast: extract active collector, cfg(test)-gate disconnected remap/merge, then guard and close
 Next (not selected)
   -> MIR-CALL-CORE-R6-D0 after remapper isolation; physical/backend/New and non-selected backend rows remain ParkedSealed
 
