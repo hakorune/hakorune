@@ -15,15 +15,15 @@ selected ny-llvmc native capability D0 is audited as NoSafeSlice; native D1
 capability boundary, the path-preserving C owner split, and LLVM trap declaration
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
-source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, and the next active state is the
-MIR-CALL-NEW-SOURCE-SEED-JOIN-D1 design stop; its finite HEAD census at 625491fb25 has seven CutoverBlockerOpen ordinary-New blockers, while D1-D0 V0/D1-D1 V1 rejects are closed and shelf semantic authorities remain NoSafeSlice."""
+source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, and the next active state is the
+MIR-CALL-NEW-ISSUER-BOUNDARY-D2 design stop; its four issuer/transaction contracts remain NoSafeSlice, while D1-D0 V0/D1-D1 V1 rejects are closed and shelf semantic authorities remain NoSafeSlice."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-NEW-SOURCE-SEED-JOIN-D1"
-current_design_stop = "D1-D8 shelf I0 is landed; the D1-D7 HEAD census found seven CutoverBlockerOpen ordinary-New gaps: final-source seed, exact package join, Initializer(i) effects, dual body-shape loan, raw/Plan lifecycle parity, private admission snapshot, and one physical owner. Valid Constructor/direct op=newbox stay positive and Method(None) remains outside this row."
-current_blocker_token = "MIR-CALL-NEW-SOURCE-SEED-JOIN-D1: keep NoSafeSlice until the finite seed/catalog mapping, dual body-shape/effect co-seal, and complete transaction surface are accepted; no ordinary-New issuer or Method(None) cutover."
+current_execution_row = "MIR-CALL-NEW-ISSUER-BOUNDARY-D2"
+current_design_stop = "D1 seed/join design is accepted as design-only; D2 must now co-seal final-source seed transport, New-field Initializer(i) effects, caller/birth body-shape retention, and the private expression snapshot plus one-shot NewBox/lifecycle consumer before any ordinary-New production switch. Valid Constructor/direct op=newbox stay positive and Method(None) remains outside this row."
+current_blocker_token = "MIR-CALL-NEW-ISSUER-BOUNDARY-D2: issuer ownership and transaction surface remain NoSafeSlice after D1 design acceptance; no semantic receipt, ordinary-New issuer, or Method(None) cutover."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -39,7 +39,7 @@ closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
 is accepted and profile-threading I0 is closed; JoinIR D0/caller-lifecycle D1
 are NoSafeSlice/closed, backend_shape capability D1 and strict-adapter I0 are
 closed, native capability D0 is NoSafeSlice, native D1 and the C owner split
-are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 and D1-D1 V1 negative Constructor edges are closed, D1-D8 design is accepted at 1434663966, shelf I0 landed at b61f6895d2, and the workstream is at the MIR-CALL-NEW-SOURCE-SEED-JOIN-D1 design stop with seven in-boundary CutoverBlockerOpen gaps.
+are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 and D1-D1 V1 negative Constructor edges are closed, D1-D8 design is accepted at 1434663966, shelf I0 landed at b61f6895d2, D1 seed/join design is accepted as design-only at 625491fb25, and the workstream is at the MIR-CALL-NEW-ISSUER-BOUNDARY-D2 design stop.
 JoinIR remap is NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
 ParkedSealed outside this lane. R5 exit: finite terminal matrix, selected
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, exact Extern D0, R6 D0, D1-D0/D1-D1 rejects, and D1-D2 through D1-D7 design rows are closed. D1-D8 design closed at 1434663966; helper-shelf I0 landed at b61f6895d2 with Cargo check green. Focused unit linking hit baseline clang OOM. D1-D7 census at 625491fb25 records seven in-boundary CutoverBlockerOpen gaps and no ParkedSealed findings. Next is the MIR-CALL-NEW-SOURCE-SEED-JOIN-D1 design stop; Constructor/NewBox, JoinIR/native, and Method(None) remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
-next_design_card = "MIR-CALL-NEW-SOURCE-SEED-JOIN-D1"
-next_execution_card = "none — MIR-CALL-NEW-SOURCE-SEED-JOIN-D1 is a design stop"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, exact Extern D0, R6 D0, D1-D0/D1-D1 rejects, and D1-D2 through D1-D7 design rows are closed. D1-D8 design closed at 1434663966; helper-shelf I0 landed at b61f6895d2 with Cargo check green. Focused unit linking hit baseline clang OOM. D1 source-seed/join design was accepted as design-only at 625491fb25; next is MIR-CALL-NEW-ISSUER-BOUNDARY-D2 for four issuer/transaction contracts, still NoSafeSlice. Constructor/NewBox, JoinIR/native, and Method(None) remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
+next_design_card = "MIR-CALL-NEW-ISSUER-BOUNDARY-D2"
+next_execution_card = "none — MIR-CALL-NEW-ISSUER-BOUNDARY-D2 is a design stop"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

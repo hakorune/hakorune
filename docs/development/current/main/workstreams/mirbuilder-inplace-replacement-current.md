@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-NEW-SOURCE-SEED-JOIN-D1
-  implementation    = design only; D1-D8 design accepted at 1434663966 and shelf I0 landed at b61f6895d2 (Cargo check green; active old path 0); the D1-D7 HEAD census at 625491fb25 records seven CutoverBlockerOpen ordinary-New gaps
+  current decision  = MIR-CALL-NEW-ISSUER-BOUNDARY-D2
+  implementation    = design only; D1 seed/join contract accepted as design-only at 625491fb25 after D1-D8 shelf I0 landed at b61f6895d2 (Cargo check green; active old path 0); D2 still has four issuer/transaction contracts open
   mode              = design_stop
   production stop   = raw and PlanNormalizer ordinary-New edges lack a final parser source seed, exact package join, Initializer(i) effects, dual body-shape loan, expression snapshot, and one physical owner; the helper shelf is 786 lines before the split
-  exit              = accept the finite seed/catalog mapping, Initializer(i) and dual body-shape/effect co-seal, complete admission snapshot, and one-owner NewBox handoff; Method(None) remains open
+  exit              = co-seal final-source seed transport, Initializer(i) effects, caller/birth body-shape retention, and the private snapshot plus one-shot NewBox/lifecycle consumer; Method(None) remains open
 fallback / retry  = 0
 ```
 
@@ -272,7 +272,7 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
 8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
    D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, D1-D4/D1-D5/D1-D6/D1-D7 the issuer/lifecycle/relation/seed design, and D1-D8 design accepted the exact helper shelf/path-observer boundary at `1434663966`;
-   the behavior-neutral shelf I0 landed at `b61f6895d2`; the D1-D7 HEAD census at `625491fb25` found seven in-boundary `CutoverBlockerOpen` gaps, so the next source-seed/join design stop still owns the full issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox.
+   the behavior-neutral shelf I0 landed at `b61f6895d2`; D1 source-seed/join design was accepted as design-only at `625491fb25`, and D2 now owns the four issuer/transaction contracts before any ordinary-New implementation.
 9. R7: structural guards, README/reference sync, and census closeout.
 
 R3 D0 accepted boundary:
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-NEW-SOURCE-SEED-JOIN-D1
-  -> design stop: refine the finite ordinary-New seed/catalog join and transaction boundary after the landed shelf I0; seven blockers remain open
+ MIR-CALL-NEW-ISSUER-BOUNDARY-D2
+  -> design stop: co-seal the four missing ordinary-New issuer and transaction contracts after D1 design acceptance
 Next (not selected)
-  -> implementation only after the seed/catalog mapping, body-shape/effect co-seal, and transaction surface are accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> implementation only after D2 source authority and fail-fast acceptance; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

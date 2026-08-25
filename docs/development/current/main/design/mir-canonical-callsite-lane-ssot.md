@@ -2308,6 +2308,59 @@ The next task token is `MIR-CALL-NEW-SOURCE-SEED-JOIN-D1`; it may only refine
 this design boundary. Fast mode is forbidden until the finite seed/catalog
 mapping, dual body-shape/effect co-seal, and transaction surface are accepted.
 
+#### D1 design-contract acceptance and D2 handoff — 625491fb25
+
+The worker review accepts the D1 source-seed/join contract as a bounded design
+decision, not as an implementation receipt. Existing products can be borrowed
+by callback, but they cannot yet issue the ordinary-New handoff: the final
+transform has no New-site/path seed, `Initializer(i)` is not emitted for New
+field children, constructor body-shape is discarded, and no expression-level
+admission snapshot or affine NewBox owner exists.
+
+```text
+D1 outcome:
+  Decision accepted; implementation remains NoSafeSlice.
+  No new Verified*/Prepared* semantic product, fixture, or route switch.
+
+Accepted finite states:
+  SeedReady
+  SeedMissingFinalSource
+  SeedForeignBrandOrAnchor
+  SeedCatalogAbsent
+  SeedProjectionDrift
+  SeedDuplicateOrReused
+  SeedOutsideSelectedCohort
+  SeedNestedCoverageGap
+  SeedAmbiguousOrUnresolvedConstructor
+  SeedBirthOrArityMismatch
+  InitializerCoverageGap
+  BodyShapeLoanMismatch
+  EffectCoverageGap
+  AdmissionSnapshotUnavailable
+  JoinConsumed
+
+Every negative state rejects before child lowering, ValueId/block/type/
+metadata mutation, NewBox emission, or publication; no retry, name/arity
+lookup, MIR EffectMask reuse, or fallback state is permitted.
+```
+
+The next design stop is `MIR-CALL-NEW-ISSUER-BOUNDARY-D2`. Its finite boundary
+is the same ordinary user-box cohort, but it focuses on four missing issuer
+contracts before any implementation: (1) final-source callback seed transport,
+(2) New-field `Initializer(i)` relation/effect authority, (3) constructor
+body-shape retention and caller/birth co-seal at the semantic package, and
+(4) the private expression admission snapshot plus one-shot NewBox/lifecycle
+consumer. The existing `ConstructorSourceCatalogV1`, caller batch, and
+constructor batch remain authorities; D2 may only specify their ownership and
+issue/drop/consume edges. It must not create a guessed handoff or physical
+transaction type.
+
+D2 acceptance requires a finite positive/negative witness for each issuer,
+an exact order of co-seal and one-shot consumption, an explicit outside state
+for the excluded cohorts, and a complete mutation surface for rollback. Until
+those are accepted, `work_mode` stays `design_stop`; the previous D1 census is
+not reused as implementation evidence.
+
 #### D1-D8 design Decision — behavior-neutral PlanNormalizer helper shelf
 
 D1-D7's source-seed contract is independent of the existing PlanNormalizer
