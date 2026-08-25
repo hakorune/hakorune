@@ -9,6 +9,8 @@ source "$ROOT_DIR/tools/checks/lib/guard_common.sh"
 source "$ROOT_DIR/tools/checks/lib/mir_metadata_catalog_sections.sh"
 
 DOC="$ROOT_DIR/docs/reference/mir/metadata-facts-ssot.md"
+METADATA_MANIFEST="$ROOT_DIR/tools/checks/manifests/mir_function_metadata_consumer_manifest_v1.json"
+METADATA_MANIFEST_CHECKER="$ROOT_DIR/tools/checks/mir_metadata_consumer_manifest.py"
 ROOT_EMIT="$ROOT_DIR/src/runner/mir_json_emit/root.rs"
 FUNCTION_METADATA="$ROOT_DIR/src/mir/function/metadata.rs"
 SEMANTIC_REFRESH="$ROOT_DIR/src/mir/semantic_refresh.rs"
@@ -33,8 +35,10 @@ INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
 
 guard_require_command "$TAG" rg
 guard_require_command "$TAG" realpath
+guard_require_command "$TAG" python3
 guard_require_files "$TAG" \
-  "$DOC" "$ROOT_EMIT" "$FUNCTION_METADATA" \
+  "$DOC" "$METADATA_MANIFEST" "$METADATA_MANIFEST_CHECKER" \
+  "$ROOT_EMIT" "$FUNCTION_METADATA" \
   "$SEMANTIC_REFRESH" "$RUNE_CONTRACTS" "$INLINE_REQUIRED" \
   "$STRING_KERNEL_VERIFIER" "$EXACT_NUMERIC_CONTRACTS" \
   "$EXACT_NUMERIC_BACKEND" "$EXACT_SEED_BACKEND" "$ARRAY_RECORD_BOUNDARY" \
@@ -43,6 +47,13 @@ guard_require_files "$TAG" \
   "$LLVM_SUM_LOCAL_SHIM" "$LLVM_STRING_CANDIDATE_SHIM" \
   "$LLVM_PURE_COMPILE_SHIM" "$PACKED_BACKEND_GUARD" \
   "$SOURCE_PACKED_AUTOUSE_GUARD" "$INDEX"
+
+guard_require_exec_files "$TAG" "$METADATA_MANIFEST_CHECKER"
+
+manifest_out="$(mktemp "/tmp/${TAG}.XXXXXX")"
+trap 'rm -f "$manifest_out"' EXIT
+python3 "$METADATA_MANIFEST_CHECKER" --root "$ROOT_DIR" >"$manifest_out"
+cat "$manifest_out"
 
 mir_metadata_catalog_check_all
 

@@ -575,6 +575,22 @@ Do not mix these similarly named structures:
 prefer a provenance/diagnostic name such as `BuilderProvenanceContext`, but do
 not do that as part of route or layout work.
 
+## FunctionMetadata Consumer Manifest (P2 observation)
+
+The exhaustive, machine-readable field census is
+[`mir_function_metadata_consumer_manifest_v1.json`](../../../tools/checks/manifests/mir_function_metadata_consumer_manifest_v1.json).
+It covers the 127 stored fields in `FunctionMetadata` at observed revision
+`beb82a6756c6c0855dc76096be23b9eafe3c5ae5`. Each row records the metadata
+class, producer owner/count, production consumer owner/count, selected-backend
+role and owner/count, Rust reference and non-selected owner/count, JSON egress,
+verification kind, caller state, and `retire_when`.
+
+Counts mean distinct owner files, not call frequency. Anchors are stable sample
+`path:line:token` observations; the manifest is not a semantic authority and
+does not activate a backend. Missing or duplicate rows, source field drift,
+anchor drift, or a producer-only row without an explicit retention/caller-zero
+condition fail [`mir_metadata_consumer_manifest_guard.sh`](../../../tools/checks/mir_metadata_consumer_manifest_guard.sh).
+
 ## Drift Guard
 
 `tools/checks/mir_metadata_catalog_guard.sh` keeps this catalog synchronized

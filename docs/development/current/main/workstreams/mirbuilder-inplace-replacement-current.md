@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (R6 D1-D)
+Status: Active workstream — fast (MIR-METADATA-CONSUMER-MANIFEST-I0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-NEW-ATOMIC-RAW-COHORT-D2C
-  implementation    = closeout; D1 seed/join, D2a target/containment, D2b package co-seal, and D2c Raw consumer selection are accepted; the bounded D2c Raw cutover landed at 7c976ca8b9
-  mode              = closeout
-  production stop   = selected direct-body Raw ordinary-New now consumes one source claim and retires its by-name/header edge; Plan and other New cohorts remain outside this bounded cutover
-  exit              = three bounded commits: BoxShape extraction, atomic Raw cutover (7c976ca8b9), then closeout with shared guard and pointer sync; D2 overall remains NoSafeSlice outside the cohort
+  current decision  = MIR-METADATA-CONSUMER-MANIFEST-I0
+  implementation    = fast; D2c Raw direct-body closeout is complete and the P2 row is observation-only
+  mode              = fast
+  production stop   = all 127 FunctionMetadata stored fields are inventoried with owner/count evidence; no semantic authority, JSON schema, backend route, or field retirement changes
+  exit              = manifest + validator + reusable positive/negative guard + reference pointer; P2 does not activate or promote a consumer
   fallback / retry  = 0
 ```
 
@@ -316,6 +316,40 @@ Non-claims:
   PyVM/reference/Python/native_driver, full D2 outside this cohort, and R6
   field deletion remain NoSafeSlice/ParkedSealed as already recorded.
 
+## Selected next bounded cell: MIR-METADATA-CONSUMER-MANIFEST-I0
+
+Decision:
+  Add one observation-only, machine-readable inventory for all 127 stored
+  `FunctionMetadata` fields. Each row records the metadata class, producer
+  owner/count, production consumer owner/count, selected backend role and
+  owner/count, Rust reference/non-selected observations, JSON egress, exact
+  observed revision, caller state, and `retire_when`.
+
+Source authority + canonical issuer:
+  The stored-field declaration and each existing owner file are the observed
+  source. `mir_metadata_consumer_manifest.py` is only the validator; it does
+  not issue semantic facts, routes, or backend capability.
+
+Non-authority:
+  `FunctionMetadata` as a container, JSON emitter, comments, token presence,
+  backend reader names, tests/fixtures, ModuleMetadata, and non-selected
+  PyVM/reference/Python surfaces are not semantic or selected-backend authority.
+
+Fail-fast boundary:
+  Source field count and manifest rows must be one-to-one; duplicate/missing
+  rows, owner/count mismatches, anchor drift, role mixing, and producer-only
+  rows without a retention/caller-zero condition reject before success.
+
+Smallest next slice:
+  Land the 127-row manifest, validator, reusable positive/negative guard, and
+  this reference pointer. `src/mir/function/metadata.rs` is an existing
+  804-line boundary and remains read-only here; no Rust semantic, MIR JSON,
+  backend, or field-shape edit belongs in this row.
+
+Non-claims:
+  No metadata promotion, field deletion, backend activation, ModuleMetadata
+  census, physical-type input, seed retirement, or warning cleanup.
+
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
 import aliases retain their existing canonical producers; post-merge imports are
@@ -408,17 +442,16 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-NEW-ATOMIC-RAW-COHORT-D2C
-  -> closeout: direct-body Raw ordinary-New cutover landed at 7c976ca8b9; verify the shared guard, pointer, and bounded evidence before selecting another cohort
+ MIR-METADATA-CONSUMER-MANIFEST-I0
+  -> fast: land the 127-field observation manifest, validator, reusable guard, and reference receipt; semantic/backend activation stays 0
 Next (not selected)
   -> Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
-  1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
-  2. MIR-PHYSICAL-TYPE-INPUT-D0
-  3. MIRBUILDER-PR-STRUCTURAL-GATES-I0
-  4. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
-  5. mimalloc promotion gate, then .hako selfhost migration
+  1. MIR-PHYSICAL-TYPE-INPUT-D0
+  2. MIRBUILDER-PR-STRUCTURAL-GATES-I0
+  3. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
+  4. mimalloc promotion gate, then .hako selfhost migration
 
 Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
