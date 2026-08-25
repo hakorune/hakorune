@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast bounded row (MIR-PHYSICAL-TYPE-INPUT-D1-P0)
+Status: Active workstream — fast bounded row (MIR-PHYSICAL-TYPE-INPUT-D1-I0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-PHYSICAL-TYPE-INPUT-D1-P0
-  implementation    = D1 accepted an exact pos/end representation pair; P0 now performs only the path-preserving session-open split before pair issuance
+  current decision  = MIR-PHYSICAL-TYPE-INPUT-D1-I0
+  implementation    = P0 landed a behavior-neutral session-open shelf; D1-I0 now issues and transports the exact pos/end representation pair
   mode              = fast
   production stop   = no JSON/C/backend physical input or old-edge retirement; the pair is not inferred from a MIR type, ABI lane, receipt, or synthetic producer
-  exit              = parent emitter split stays behavior-neutral and below 760 lines; then I0 may issue and transport exactly two rows
+  exit              = exact two rows move through same-session formal adoption into the existing ledger/projection, with no synthetic operation producer
   fallback / retry  = 0
 ```
 
@@ -450,9 +450,9 @@ Fail-fast:
   foreign/stale/duplicate/second-consume, or ABI/representation mismatch rejects
   and discards unpublished state. fallback/retry/re-inference = 0.
 Smallest next slice:
-  P0 path-preserving session-open split; I0 then issues/transports exact two rows,
-  installs them atomically after formal adoption, and stores them opaquely in the
-  existing projection. JSON/C/backend activation remains closed.
+  D1-I0 issues/transports exact two rows, installs them atomically after formal
+  adoption, and stores them opaquely in the existing projection. JSON/C/backend
+  activation remains closed.
 Non-claims:
   returns, generated values, handles, other widths/cohorts/backends, ABI/layout
   changes, Call R6, and old reconstruction retirement.
@@ -466,6 +466,9 @@ Finite states: `OutsideCandidate`, `ExactPairReady`, `OpenedSameSession`,
 `Projected`, `MissingOrPartial`, `Conflict`, `ForeignStaleDuplicate`,
 `ProducedLedgerSubstitution`, and `Unsupported`. Only the first four proceed;
 all negative states reject before effect, with no repair or re-pair.
+
+P0 receipt: `41f82d4be4` split the emitter parent to 587 / child to 185 lines;
+check, focused test, guard, and diff are green; 441 baseline warnings, no new edge.
 
 ## Deferred follow-ups (not selected)
 
@@ -567,10 +570,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-PHYSICAL-TYPE-INPUT-D1-P0
-  -> fast bounded row: path-preserving session-open split; D1 pair issuer and JSON/C/backend activation stay closed
+ MIR-PHYSICAL-TYPE-INPUT-D1-I0
+  -> fast bounded row: issue/transport the exact pos/end representation pair; JSON/C/backend activation stays closed
 Next (not selected)
-  -> D1-I0 exact pair transport/ledger/projection, then Call JoinIR/remapper and R6 schema design; Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed
+  -> Call JoinIR/remapper and R6 schema design; Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed
 
 After MIR Call retirement
   1. MIRBUILDER-PR-STRUCTURAL-GATES-I0
