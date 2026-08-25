@@ -1,0 +1,96 @@
+title = "MirBuilder investigation ledger identity and index design"
+status = "accepted_design_no_safe_slice"
+observed_at = "2026-08-26"
+observed_commit = "fcb1e01376"
+implementation_permission = false
+owner = "MIRBUILDER-FINAL-PIPELINE-v1"
+related_current = "docs/development/current/main/CURRENT_STATE.toml"
+decision = "Before selecting another documentation or guard row, define one bounded investigation-ledger schema with stable row_id, one [edges] relation form, an explicit scope inventory, and an INDEX guard. Repair known parse/date/registration defects only through that owner; do not bulk-edit every TOML in current/main."
+
+[boundary]
+starts = "selected active-row TOML cards under docs/development/current/main/investigations and their executable guard registrations"
+ends = "machine-verifiable inventory with parse success, unique row identity, resolved symmetric edges, allowed status/date values, and registered guard scripts"
+includes = [
+  "explicitly enumerated investigation-row cohort only; design/archive/history prose remains outside until added to scope",
+  "known duplicate-key TOML at mir-call-r6-late-legacy-target-issuer-retire-i0-2026-08-25.toml",
+  "future-dated 2026-08-27 filenames and their active/parked ownership classification",
+  "tools/checks/guard_rows.toml plus included manifests and recently landed child guards",
+]
+excludes = [
+  "normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md (large historical manifest; separate owner)",
+  "all design/archive TOML, fixture JSON row_id fields, and free-form markdown chronology",
+  "Call target authority, mandatory-Callee schema, Method(None), JSON ingress semantics, or performance implementation",
+]
+
+[brief]
+source_authority = "the explicitly declared investigation-card inventory and each card's own row metadata; filenames and prose links are observations, not identity authority"
+canonical_issuer = "a future ledger-index checker that parses the bounded inventory, resolves [edges], and reports typed failures; it issues no semantic product"
+non_authority = [
+  "filename dates, title text, line-number references, duplicate/legacy relation keys, guard script presence alone, and local green",
+  "a claimed count such as 41 cards or six unregistered guards before the scoped inventory is sealed",
+]
+fail_fast = "before a row is selected or marked terminal: parse every scoped card, reject duplicate/missing row_id, unresolved/asymmetric edge, unknown status, future date without owner, broken TOML, and executable guard absent from its declared profile"
+smallest_next_slice = "design-only schema D0: enumerate the bounded card set, choose row_id/edges keys and allowed status/date vocabulary, assign the duplicate-key repair owner, and specify the INDEX guard's finite checks"
+non_claims = [
+  "no rename or bulk rewrite of the 73 current-main TOMLs",
+  "no semantic acceptance or implementation permission for any child row",
+  "no automatic deletion of old relation fields before a complete migration map exists",
+  "no performance/native Linux run",
+]
+
+[observed]
+toml_inventory = "73 current-main TOML files were scanned; one known investigation card fails tomllib because a top-level decision key collides with a [decision] table. This is not a repository-wide green claim."
+known_parse_failure = "docs/development/current/main/investigations/mir-call-r6-late-legacy-target-issuer-retire-i0-2026-08-25.toml; repair owner is its Call-R6 closeout card, with decision identifier and [decision] summary preserved distinctly."
+future_filename_inventory = "four investigation filenames carry 2026-08-27 while observed_at remains 2026-08-26; classify active/parked/out-of-scope before any rename."
+guard_manifest = "tools/checks/guard_rows.toml currently has 28 root rows plus an include; mir_call_d1b_exact_target_child_guard.sh is not registered, while the exact number of other recent child omissions remains unsealed."
+relation_drift = "current cards use mixed parent_row/parent_child/source_lineage_child/selected_child/evidence/supersedes forms; no single [edges] graph is yet machine-resolvable."
+
+[finite_state]
+states = [
+  "ScopeUnsealed",
+  "ScopeSealed",
+  "ParseFailure",
+  "DuplicateRowId",
+  "MissingRowId",
+  "LegacyRelationKey",
+  "UnresolvedEdge",
+  "AsymmetricEdge",
+  "UnknownStatus",
+  "FutureDateOwned",
+  "FutureDateUnowned",
+  "GuardUnregistered",
+  "GuardRegistered",
+  "InventoryExhausted",
+  "IndexGuardReady",
+]
+terminal_policy = "Only InventoryExhausted -> IndexGuardReady is terminal for this design. ParseFailure, duplicate/missing identity, unresolved/asymmetric edges, unowned future dates, and unregistered guards remain CutoverBlockerOpen; historical/out-of-scope files require an explicit owner and reopen trigger before ParkedSealed."
+
+[subtasks]
+schema_d0 = "Define row_id, [edges] roles, status vocabulary, date relation, explicit scope include/exclude, and one-way migration rule; no dual-format acceptance after cutover."
+parse_repair = "Assign the duplicate decision key/table repair to the Call-R6 closeout owner; preserve the decision identifier and structured summary without changing the landed semantic claim."
+date_census = "Classify the four 2026-08-27 filenames as active, parked, or out-of-scope; rename only in a dedicated docs-slim row after owner and backlinks are known."
+guard_registration = "Inventory every executable child guard in the bounded scope, register it in the correct guard_rows profile or explicitly record why it is not a manifest row; do not infer a six-row count."
+index_guard = "Implement the checker only after schema D0: tomllib parse, unique row_id, edge target/symmetry, status vocabulary, date consistency, scope coverage, and guard registration."
+
+[acceptance]
+positive = [
+  "all scoped cards parse with tomllib",
+  "every scoped card has one stable row_id and all relations are represented in [edges]",
+  "every edge resolves within the declared scope or carries an explicit external-owner disposition",
+  "status/date and guard profile checks are machine-reported",
+]
+negative = [
+  "broken TOML cannot be hidden by excluding its file",
+  "future filename cannot become current authority by date spelling alone",
+  "new child guard cannot land outside the manifest without a recorded owner/reopen trigger",
+  "legacy relation keys cannot be silently accepted after migration",
+]
+parity = "existing current pointer and selected card semantics remain unchanged; this row only verifies ledger topology and guard routing"
+
+[reopen]
+triggers = [
+  "a new investigation card introduces a relation key outside [edges]",
+  "the scoped inventory changes without a corresponding INDEX update",
+  "a guard is added or removed without profile registration evidence",
+  "a filename date differs from observed_at/date without an owner disposition",
+]

@@ -1,9 +1,10 @@
 title = "MIR Call D1B installed GC builtin exact-target issuer I0"
-status = "selected_fast"
-observed_commit = "2666e86094"
+status = "landed_bounded_child_row"
+observed_commit = "fcb1e01376"
 observed_at = "2026-08-26"
-implementation_permission = true
+implementation_permission = false
 selected_fast = true
+landed_commit = "fcb1e01376"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-installed-gc-builtin-exact-target-d0-2026-08-26.toml"
 decision = "Move only the finite InstalledNonBrand{caller=None} gc_collect/gc_stats cohort from post-argument Resolved to pre-effect Targeted, reusing the existing canonical issuer. Preserve any-arity and existing READ + ReadHeap parity; do not add an arity contract."
 
@@ -78,13 +79,19 @@ parity = [
   "existing READ + ReadHeap effects and Call count",
 ]
 focused_checks = [
-  "CARGO_BUILD_JOBS=4 cargo test --profile quick function_call_installed_gc_builtin_tests",
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick installed_gc_builtin_tests (3 passed)",
   "bash tools/checks/mir_call_d1b_exact_target_child_guard.sh",
   "bash tools/checks/current_state_pointer_guard.sh",
   "cargo fmt --all -- --check",
   "git diff --check",
 ]
 guard = "mir_call_d1b_exact_target_child_guard.sh must assert exact two-name Installed-only Targeted preparation, child test presence, zero targeted name-Const/late recovery, and unchanged non-cohort routes"
+
+[evidence]
+implementation = "fcb1e01376: preflight exact gc_collect/gc_stats before argument descent; existing canonical consume and effects remain unchanged"
+focused_result = "installed_gc_builtin_tests: 3 passed, 0 failed"
+guard_result = "mir_call_d1b_exact_target_child_guard.sh: ok"
+hygiene_result = "rustfmt --check, current_state_pointer_guard, and git diff --check: ok"
 
 [line_budget]
 preflight = "512 lines before; keep below 760/800"

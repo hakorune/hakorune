@@ -4,8 +4,9 @@ observed_commit = "a264a9d012"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-queue_status = "conditional_fast_candidate; not selected while the direct-target D0 remains design_stop"
+queue_status = "bounded child landed at fcb1e01376; parent direct-target design remains NoSafeSlice"
 selected_child = "docs/development/current/main/investigations/mir-call-d1b-installed-gc-builtin-exact-target-i0-2026-08-26.toml"
+child_landed_commit = "fcb1e01376"
 
 [boundary]
 starts = "RawBrandCallAuthorityV1::InstalledNonBrand { caller: None } for non-unified gc_collect/gc_stats"

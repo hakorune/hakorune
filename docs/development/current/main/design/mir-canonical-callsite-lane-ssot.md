@@ -206,7 +206,8 @@ identity-only general index, catalog-gated ordinary-call traversal,
 self/sibling/special-form disposition, and same-session owner/site bijection
 are not yet designed. The exact-i64 index cannot be borrowed sideways and a
 second resolver continuation is forbidden. TopLevel self/scoped loans and the
-conditional `gc_collect`/`gc_stats` candidate remain downstream. `Method(None)`
+The bounded `gc_collect`/`gc_stats` exact-target child landed at
+`fcb1e01376`; the general direct-target D0 remains downstream. `Method(None)`
 and methodize, mandatory-Callee schema, JSON/VM/backend fallback, and the
 ArrayElementWrite projection remain separate `NoSafeSlice`/`ParkedSealed`
 boundaries. The latter has no selected decoder/lowerer/ABI owner, so no array

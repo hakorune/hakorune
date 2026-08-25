@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-D1B-INSTALLED-GC-BUILTIN-EXACT-TARGET-I0
+Status: Design stop — MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-INSTALLED-GC-BUILTIN-EXACT-TARGET-I0
-  implementation    = selected two-name InstalledNonBrand builtin cohort only; duplicate validator I0 remains closed at ffcae72725; direct-target general index D0 remains the next design boundary
-  mode              = fast
-  production stop   = preserve non-cohort routes; no arity/effect repair, RawCompatibility entry, or broader relationless closure
-  exit              = pre-effect Targeted parity, focused positive/negative child evidence, reusable guard, and old two-name edge deletion
+  current decision  = MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
+  implementation    = GC exact-target child landed at fcb1e01376; direct-target general index remains design-only
+  mode              = design_stop
+  production stop   = preserve TopLevel/InstanceConstructor lineage; no target synthesis, second resolver, or post-effect recovery closure
+  exit              = package-owned identity-only index, catalog-gated traversal, same-session owner/site bijection, and whole-package abort proof
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-INSTALLED-GC-BUILTIN-EXACT-TARGET-I0 — move only gc_collect/gc_stats from post-argument Resolved to pre-effect Targeted.
-Source authority + canonical issuer: `classify_call_name_v1` exact two-name BuiltinGlobal/raw_unified=false; existing `Targeted` -> `emit_prepared_cataloged_call_v1` -> `MirInstruction::call`.
-Non-authority: caller=None, name/arity synthesis, EffectsAnalyzerBox, resolve/recovery, name Const, RawCompatibility, other builtins, unified/Extern routes, or backend lookup.
-Fail-fast boundary: exact two-name classification before `drive_call_arguments_v1`; non-cohort routes remain unchanged and no new arity reject is introduced.
-Smallest next slice: one preflight arm, one child test module, existing guard extension, and deletion of only the two-name late edge; preserve any-arity and READ+ReadHeap parity.
-Non-claims: general relationless closure, direct-target index, self/sibling/constructor, Method(None), JSON/VM/backend, final Call schema, CallFlags, or warning cleanup.
+Decision: D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 — preserve source lineage and co-seal an identity-only general index before any ordinary direct-call effects.
+Source authority + canonical issuer: consumed normal-root source plus the semantic package/brand catalog; the package issuer is the sole co-seal owner, and existing preflight remains the canonical Call consumer.
+Non-authority: caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, collector order, headers/suffixes, post-argument values, backend lookup, or GC child behavior as a general resolver.
+Fail-fast boundary: before package install, body lowering, argument descent, block mutation, or Call publication; any missing/foreign/ambiguous/deferred state aborts the unpublished package.
+Smallest next slice: design-only finite matrix for identity-only index representation, catalog-gated ordinary FunctionCall traversal, self/sibling/special disposition, and same-session owner/site bijection.
+Non-claims: implementation, new public receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
@@ -340,7 +340,7 @@ Evidence:
   `FUNCTION-METADATA-OWNER-SPLIT-R0` landed: `metadata.rs` is 718 lines, nested checked-callout/linear-slot owners are 40/50 lines, no `#[path]` glue was added, method signatures/visibility/fields/callers/behavior are unchanged, focused `mir::function::tests` is 6 passed/2 ignored with the 441-warning baseline, and manifest/pointer/canonical-corridor/rustfmt/diff guards are green.
 
 Smallest next slice:
-  `MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0` is the active fast row; program-root BoxShape split is only selected if the validator would cross 760 lines. After closeout, the direct-target index co-seal D0 (currently NoSafeSlice), CallFlags-only retirement, self/sibling/constructor target loans, and ArrayElementWrite remain downstream until their owners and finite caller closures are accepted.
+  `MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0` and the bounded GC exact-target child are closed. The direct-target index co-seal D0 (currently NoSafeSlice), CallFlags-only retirement, self/sibling/constructor target loans, and ArrayElementWrite remain downstream until their owners and finite caller closures are accepted.
   Physical/backend implementation remains separately gated.
 
 Non-claims:

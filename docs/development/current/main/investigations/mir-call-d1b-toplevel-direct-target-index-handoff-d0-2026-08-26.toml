@@ -1,6 +1,6 @@
 title = "MIR Call D1B TopLevel direct-target index handoff design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "98e833b6a7"
+observed_commit = "fcb1e01376"
 observed_at = "2026-08-26"
 implementation_permission = false
 amendment = "general-normal identity-index and catalog-gated FunctionCall disposition remain unresolved; package co-seal owner is named but no implementation permission follows"
