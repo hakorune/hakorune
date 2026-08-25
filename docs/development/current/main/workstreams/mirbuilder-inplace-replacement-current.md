@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-A
   implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
   mode              = design_stop
-  production stop   = R6 D0 four-boundary audit is accepted; HEAD now has 21 direct writer definitions and zero missing-callee publication edges in the selected boundary, while typed func/Method(None), Closure/Constructor, and JoinIR remain outside until D1 names every issuer
-  exit              = D1 cut/compat/park matrix with positive/negative/parity acceptance; no code, fixture, fallback, or production switch
+  production stop   = R6 D0 policy is fixed and the HEAD ledger is 21 writer definitions with zero missing-callee publication edges; D1-A must close the public CallFlags/API boundary before issuer migration
+  exit              = D1-A acceptance with non-default flag conflict policy; no code, fixture, fallback, or production switch
 fallback / retry  = 0
 ```
 
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1
-  -> design stop: classify 21 writer definitions plus helper families as cut/compat/park/reopen, then name sole issuers for Method/static, Closure/NewClosure, and Constructor/NewBox
+ MIR-CALL-R6-CORE-SCHEMA-D1-A
+  -> design stop: classify public MirCall/CallFlags consumers and non-default conflict handling; no physical field deletion
 Next (not selected)
-  -> R6a private staging cleanup only after D1 acceptance; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-B static Global issuer; D1-C Closure/NewClosure parity; D1-D Constructor/NewBox owner; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

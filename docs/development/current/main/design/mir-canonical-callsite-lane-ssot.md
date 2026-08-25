@@ -1121,6 +1121,37 @@ lifecycle boundary is outside this selected R6 census; its observable reopen
 trigger is a live merge caller plus named lifecycle owner. It is not evidence
 for or against the selected core cutover.
 
+Four-boundary design consultation (D1 policy; implementation still stopped):
+
+| boundary | selected policy / canonical issuer | compatibility and fail-fast |
+|---|---|---|
+| `MirCall` / `CallFlags` | `CallTarget`/`CalleeResolver` issues target; `MirInstruction::call` issues physical Call. Keep public `MirCall`/`CallFlags` as owner-local transport until API consumers are proven absent. | default flags are discarded decoration; non-default or conflicting flags reject before `physical_terminal`; flags never classify Constructor/Closure |
+| `Method(None)` | verified static callable catalog (identity + exact arity) issues qualified `Callee::Global`; instance calls issue `Method { receiver: ValueId }`. Existing `current_static_box` text and formatter are not authority. | JSON-v0 optional receiver resolves once or rejects; methodize and VM receiver/args[0] recovery are cutover blockers; no `StaticMethod` variant |
+| Closure / Value | descriptor (`params/captures/me`, `dst`, empty construction args) issues `NewClosure`; an existing closure value issues `Callee::Value(ValueId)`. | Closure wire is compatibility projection only; mixed descriptor/value, missing dst, runtime args, or `Call(Callee::Closure)` at selected terminal rejects before publication |
+| Constructor / NewBox | constructor syntax/resolver/JSON verifies `box_type`, `dst`, arity and args, then the existing `NewBox` owner publishes construction. `Callee::Constructor` is pre-core/compat input only. | V0 Constructor-shaped Call resolves once to `NewBox` or rejects; backend/C name scans and `Call(Constructor)` execution are forbidden |
+
+The matrix is a policy Decision, not implementation evidence. The four
+production issuers are still open: Method(None) has real builder/V0 producers,
+Closure V0 parser/runtime parity is incomplete, Constructor has V0 Call and
+V1/NewBox routes, and public `MirCall`/`CallFlags` can be observed outside the
+selected builder. Therefore R6a remains a `NoSafeSlice` until the following
+bounded rows close their own old edge and acceptance:
+
+```text
+D1-A  CallFlags public/selected-consumer census; non-default conflict reject
+D1-B  verified static catalog -> qualified Global; Method(None) issuer count 0
+D1-C  Closure descriptor/value wire discriminator and NewClosure parity
+D1-D  Constructor input -> NewBox sole selected physical owner
+```
+
+Each row must keep the same fail-fast boundary (before block/wire/object
+publication), add no new semantic receipt, and preserve the selected
+non-closure/non-constructor call parity. A row is not accepted merely because
+its local test passes: its production issuer count, old-edge deletion, and
+positive/negative/parity evidence must be observable in the shared corridor
+guard. If a public flag consumer, third Constructor owner, ambiguous Closure
+wire, or missing static catalog is found, the row returns to `NoSafeSlice`.
+
 | state / edge | source authority | D0 terminal classification |
 |---|---|---|
 | `Global`, `Extern`, `Value`, `Method(Some(receiver))` | route resolver / `CallTarget` | canonical callable; preserve target operands then ordered args |
