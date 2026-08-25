@@ -1,0 +1,89 @@
+title = "MIR Call core R6 D1W store shared receiver substring issuer"
+status = "fast"
+observed_at = "2026-08-25"
+observed_commit = "583dd57ab7"
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0"
+decision = "MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "Replace only the two StoreSharedReceiverSubstring reconstruction Call literals with the thin canonical constructor as one atomic Method/Extern family, preserving replacement receiver/arg, original dst/Callee/args/effects, spans, remove indices, hints, DCE/CFG, and suffix-producer sharing."
+source_authority_and_canonical_issuer = "StoreSharedReceiverSubstringPlan owns the exact replacement receiver; the original typed Call owns dst, Callee attributes/name, args, and effects; MirInstruction::call is the sole issuer after replacing only the receiver or args[0]."
+non_authority = "legacy func, string re-search, apply-side reconstruction, duplicate suffix producer, remove indices, hint/DCE/CFG, backend lookup, and Method(None) recovery are not authority."
+fail_fast_boundary = "exact duplicate/store suffix relation plus Method(Some, substring|slice, two args) or exact Extern(substring_hii, three args) is required; all other shapes yield plan/rewrite=0."
+smallest_next_slice = "concat_corridor_apply.rs:491 StoreSharedReceiverSubstring reconstruction Method/Extern literals only; selected writers 5 -> 3 and concat family 2 -> 0."
+non_claims = "No unified/array/canonicalizer, collector relation, suffix-producer removal, Call final shape, Method(None), MirCall/CallFlags, ingress contract, backend/wire, fallback, or cleanup change."
+
+[boundary]
+starts = "collected StoreSharedReceiverSubstringPlan entries from the concat corridor collector"
+ends = "typed substring reconstruction Call, replacement receiver/arg, remove indices, hint/count, DCE/CFG, Return, and benchmark relation"
+includes = [
+  "the Method(Some) and exact substring_hii Extern reconstruction states",
+  "preservation of dst, Callee box/method/certainty/box_kind or Extern name, args, effects, and span",
+  "only receiver or args[0] replacement plus unchanged suffix-producer/store schedule",
+]
+excludes = [
+  "Method(None), wrong method/arity, wrong Extern alias, missing Callee, and non-Call inputs",
+  "collector relation, duplicate suffix producer ownership, remove set, hints, CFG, DCE, and benchmark shape policy",
+  "Call operand consumers, mandatory-Callee schema, MirCall/CallFlags, JSON, VM, native backend, ingress-contract, and cleanup",
+]
+
+[authority]
+source = "StoreSharedReceiverSubstringPlan.replacement_receiver plus original typed Call's dst/callee/args/effects"
+issuer = "MirInstruction::call(*dst, callee.clone(), args_with_replacement, *effects) with only Method.receiver or Extern args[0] changed"
+non_authority = [
+  "legacy func read/write, string lookup, target reclassification, and Method(None) recovery",
+  "remove indices, spans, hints, counts, CFG, DCE, suffix producer, and benchmark metadata",
+]
+
+[finite_matrix]
+positive = [
+  "Method(Some) reconstruction changes receiver only and preserves two args, dst, effects, and all Callee attributes",
+  "exact substring_hii Extern reconstruction changes args[0] only and preserves name, dst, effects, and argument order",
+]
+negative = [
+  "Method(None), wrong method/arity, wrong Extern alias/arity, missing Callee, non-Call, or foreign replacement -> rewrite=0 and no publication",
+  "unsupported duplicate/store suffix relation -> no plan and no receiver/arg retry",
+]
+parity = [
+  "duplicate suffix producer removal, store-side producer sharing, Return, benchmark relation, spans, hints/counts, CFG, and DCE remain unchanged",
+  "legacy func is not parity authority; canonical constructor keeps it transitional/INVALID without execution lookup",
+]
+
+[delete_set]
+file = "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs"
+lines = "486-544"
+remove = [
+  "two output-side transitional MirInstruction::Call literals",
+  "two unnecessary func captures and two func: *func writes",
+  "two callee: Some(...) wrappers",
+]
+replace_with = "two MirInstruction::call issuers preserving original typed Callee/dst/effects and changing only receiver or args[0]"
+
+[acceptance]
+focused_tests = [
+  "materialization StoreSharedReceiverSubstring Method/Extern positive and Method(None)/wrong-alias negative proofs, with existing suffix/store/Return parity",
+]
+static_evidence = [
+  "collector already limits the plan to exact duplicate/store suffix relations and typed substring/Extern shapes before publication",
+  "the shared corridor guard must check the reconstruction helper has exactly two constructor issuers and no direct output literal or func read/write",
+]
+guards = [
+  "mir_call_canonical_corridor_guard",
+  "current_state_pointer_guard",
+  "rustfmt on touched Rust and git diff --check",
+]
+source_limits = "concat_corridor_apply.rs remains below 760/800; materialization tests remain below 760/800; corridor guard remains exactly 777 lines; active card remains exactly 1000 lines"
+
+[worker_review]
+selection = "/root/d2c_consumer_selection_audit: fresh post-D1V census selected the final two StoreSharedReceiverSubstring reconstruction writers; selected writers 5, concat family 2"
+implementation_permission = "fast I0 is permitted only for this Method/Extern reconstruction family; Call final shape, Method(None), ingress-contract, and broader cleanup remain closed"
+
+[stop_if]
+conditions = [
+  "func is required for typed Call execution, Method(None)/alias acceptance, target reclassification, or name lookup appears necessary",
+  "collector relation, suffix producer, remove/DCE schedule, or Method/Extern shape policy changes",
+  "only one reconstruction state can be changed, or any unified, array, canonicalizer, schema, ingress, metadata, backend, or cleanup row enters the diff",
+  "materialization tests reach 760/800, guard reaches 800, or negative state emits any rewrite/publication/retry",
+]

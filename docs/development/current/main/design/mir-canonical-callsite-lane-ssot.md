@@ -26,6 +26,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1t-concat-substring-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1u-concat-len-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1v-insert-mid-substring-extern-issuer-i0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1w-store-shared-receiver-substring-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-final-shape-and-ingress-boundary-design-2026-08-25.md
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
@@ -109,7 +110,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current row:
 
 ```text
-MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0
+MIR-CALL-CORE-R6-D1W-STORE-SHARED-RECEIVER-SUBSTRING-ISSUER-I0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -165,6 +166,16 @@ together, preserving insert_hsi -> substring_hii order, source/middle/split
 and insert/start/end operands, shared effects, profile admission, and producer
 removal. Selected writers are 7 -> 5 and the concat family is 4 -> 2; no other
 concat, unified, array, or canonicalizer writer is authorized.
+
+D1W is the selected paired `StoreSharedReceiverSubstring` reconstruction row:
+the existing typed `Method(Some)` and exact `nyash.string.substring_hii` Extern
+shapes will use `MirInstruction::call`, changing only the receiver or `args[0]`
+from the plan-owned replacement receiver. The original destination, typed
+callee attributes/name, remaining arguments, effects, spans, removal indices,
+hints, DCE/CFG, and suffix/store schedule remain unchanged. This is the final
+two selected reconstruction writers (5 -> 3; concat family 2 -> 0);
+`Method(None)`, generic calls, ingress, schema, and backend/wire work remain
+NoSafeSlice or separately gated.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
