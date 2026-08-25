@@ -9,8 +9,7 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::mir::builder::normal_script_direct_static_recipe::validate_terminal_relation;
 use crate::mir::builder::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
-use crate::mir::builder::normal_script_semantic_lowering_input::
-    CanonicalScriptACompleteZeroKindV1;
+use crate::mir::builder::normal_script_semantic_lowering_input::CanonicalScriptACompleteZeroKindV1;
 use crate::mir::builder::normal_script_semantic_source::ScriptSemanticSourcePreEffectPartsV1;
 use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
 use crate::mir::resolved_semantics::{
@@ -24,8 +23,7 @@ use crate::mir::source_call_target::{
 use crate::parser::ParserInvocationWitnessV1;
 
 use super::model::{
-    CanonicalScriptADirectRowsV1,
-    CanonicalScriptAIntegrityInvalidV1, CanonicalScriptAIssueV1,
+    CanonicalScriptADirectRowsV1, CanonicalScriptAIntegrityInvalidV1, CanonicalScriptAIssueV1,
     CanonicalScriptCDispositionV1, CanonicalScriptCTransportV1,
 };
 use super::required_argument_source::issue_required_argument_source;
@@ -72,8 +70,7 @@ impl CanonicalScriptASourceCapabilityIssuerV1 {
         parts: ScriptSemanticSourcePreEffectPartsV1,
         lookup: VerifiedScriptDirectStaticCallLookupV1,
     ) -> Result<CanonicalScriptASourceCapabilityV1, CanonicalScriptAIssueV1> {
-        if !source_window.is_from_invocation(&invocation)
-            || !lookup.is_from_invocation(&invocation)
+        if !source_window.is_from_invocation(&invocation) || !lookup.is_from_invocation(&invocation)
         {
             return Err(CanonicalScriptAIssueV1::IntegrityInvalid(
                 CanonicalScriptAIntegrityInvalidV1::ForeignInvocation,
@@ -121,9 +118,7 @@ impl CanonicalScriptASourceCapabilityIssuerV1 {
                     ),
                 ));
             };
-            if continuation_row.owner() != source_owner
-                || continuation_row.call_site() != site
-            {
+            if continuation_row.owner() != source_owner || continuation_row.call_site() != site {
                 return Err(CanonicalScriptAIssueV1::IntegrityInvalid(
                     CanonicalScriptAIntegrityInvalidV1::CallSiteMismatch(site.clone()),
                 ));

@@ -3,9 +3,7 @@ use super::completion_test_support::*;
 use super::draft_seal::{PreparedFunctionExitV1, ReadyFunctionDraftSealV1};
 use crate::mir::compiler::VerifiedResolvedSourceUnitV1;
 use crate::mir::resolved_control_flow::verify_function_completion_v1;
-use crate::mir::resolved_semantics::{
-    SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1,
-};
+use crate::mir::resolved_semantics::{SourceNodeSiteV1, SourcePathSegmentV1, SourceStmtSiteV1};
 use crate::mir::{BasicBlockId, MirBuilder, MirInstruction, MirType, ValueId};
 
 #[test]

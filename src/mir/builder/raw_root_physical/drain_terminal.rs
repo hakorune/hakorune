@@ -49,7 +49,9 @@ pub(in crate::mir) enum RawPhysicalDrainErrorV1 {
 
 #[derive(Debug)]
 enum RejectedRawDrainOwnerV1 {
-    Parts { _parts: RawDrainPhysicalPartsV1 },
+    Parts {
+        _parts: RawDrainPhysicalPartsV1,
+    },
     Split {
         _session: ModuleBuilderInvocationSessionV1,
         _shell: BrandedShellV1<super::super::module_lowering_shell::ModuleLoweringShellV1>,

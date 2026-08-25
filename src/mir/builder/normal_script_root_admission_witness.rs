@@ -14,8 +14,8 @@ use crate::mir::resolved_semantics::{
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
 };
 
-use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
+use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissionV1;
 use super::normal_script_root_demand_window::ScriptRootDemandWindowBuildErrorV1;
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
 

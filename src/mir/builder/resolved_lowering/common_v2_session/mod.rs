@@ -29,9 +29,7 @@ pub(in crate::mir::builder) use length_call::{
 };
 
 mod initial_index_seed;
-pub(in crate::mir::builder) use initial_index_seed::{
-    InitialIndexSeedMaterializationRejectV1,
-};
+pub(in crate::mir::builder) use initial_index_seed::InitialIndexSeedMaterializationRejectV1;
 
 mod return_read;
 pub(in crate::mir::builder) use return_read::{
@@ -50,8 +48,8 @@ mod s6c_text_eq_occurrence;
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrencePhysicalViewV1;
 pub(in crate::mir::builder) use s6c_text_eq_occurrence::S6CTextEqOccurrenceViewRejectV1;
 
-mod s6c_substring_v9_issuer;
 mod s6c_substring_callout_materializer;
+mod s6c_substring_v9_issuer;
 
 mod session_length;
 
@@ -59,8 +57,7 @@ mod session_segments;
 
 mod s6c_scalar_equality_leaf;
 pub(in crate::mir::builder) use s6c_scalar_equality_leaf::{
-    issue_common_v2_s6c_text_scalar_equality_leaf_v1,
-    CommonV2S6CTextScalarEqualityLeafShapeV1,
+    issue_common_v2_s6c_text_scalar_equality_leaf_v1, CommonV2S6CTextScalarEqualityLeafShapeV1,
 };
 
 mod s6c_cursor_cfg;

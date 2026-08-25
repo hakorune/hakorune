@@ -43,19 +43,19 @@ fn unlocated_source_loss_retains_the_root_lineage_witness() {
     assert!(matches!(
         argument,
         RawInvocationSourceContextV1::UnlocatedCompatibility {
-            expected_lineage: Some(_), ..
+            expected_lineage: Some(_),
+            ..
         }
     ));
 }
 
 #[test]
 fn compatibility_unlocated_context_has_no_lineage_witness() {
-    let (_, context) = RawInvocationSourceContextV1::from_transport(
-        RawInvocationSourceTransportV1::unlocated(
+    let (_, context) =
+        RawInvocationSourceContextV1::from_transport(RawInvocationSourceTransportV1::unlocated(
             static_method_call(),
             RawUnlocatedPortalV1::CallObject,
-        ),
-    );
+        ));
 
     assert!(matches!(
         context,

@@ -113,9 +113,8 @@ impl OpenParserStaticBoxSourceTransactionV1 {
             return Err(ParserStaticBoxSourceIssueV1::DirectMethodNeedsRelation);
         }
         let site = self.current_member_site();
-        self.rows.push(
-            PreparedParserStaticBoxMemberSourceRowV1::Unsupported { _site: site, kind },
-        );
+        self.rows
+            .push(PreparedParserStaticBoxMemberSourceRowV1::Unsupported { _site: site, kind });
         self.finish_member()
     }
 

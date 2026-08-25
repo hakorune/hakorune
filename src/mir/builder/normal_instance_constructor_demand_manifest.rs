@@ -69,7 +69,6 @@ impl InstanceConstructorDemandTicketV1 {
     pub(in crate::mir::builder) const fn role(&self) -> InstanceConstructorDemandRoleV1 {
         self.role
     }
-
 }
 
 #[derive(Debug, Default)]

@@ -327,9 +327,7 @@ pub(crate) use s6c_scan_with_init_logical_consumer::{
     consume_s6c_scan_with_init_logical_output_v1, S6CLogicalConsumerRejectV1,
     S6CLogicalConsumerResultV1,
 };
-pub(crate) use s6c_text_eq_occurrence::{
-    S6CTextEqOccurrenceSourceViewV1,
-};
+pub(crate) use s6c_text_eq_occurrence::S6CTextEqOccurrenceSourceViewV1;
 #[allow(unused_imports)]
 pub(crate) use s6c_text_eq_site_contract::{
     issue_s6c_text_eq_source_binding_v1, LoopTextEqSiteRefV1, TextEqualityLawV1,

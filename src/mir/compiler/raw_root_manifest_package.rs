@@ -5,9 +5,7 @@
 //! config/runtime fields remain in the physical owner.
 
 use super::raw_root_eligibility::RawRootEligibilityV1;
-use super::raw_root_environment_manifest::{
-    RawRootEnvironmentManifestV1,
-};
+use super::raw_root_environment_manifest::RawRootEnvironmentManifestV1;
 use super::raw_root_plan0::RawRootPlanV1;
 use super::raw_source_binding::RawRootContinuationV1;
 use crate::mir::builder::OwnedRawSourceV1;

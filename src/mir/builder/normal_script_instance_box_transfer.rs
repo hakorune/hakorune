@@ -167,9 +167,9 @@ impl VerifiedScriptInstanceBoxTransferCohortV1 {
 
     #[cfg(test)]
     pub(super) fn contains_statement_ordinal(&self, statement_ordinal: usize) -> bool {
-        self.source_rows.iter().any(|row| {
-            usize::try_from(row.position()).ok() == Some(statement_ordinal)
-        })
+        self.source_rows
+            .iter()
+            .any(|row| usize::try_from(row.position()).ok() == Some(statement_ordinal))
     }
 
     pub(super) fn invocation_witness(&self) -> &ParserInvocationWitnessV1 {

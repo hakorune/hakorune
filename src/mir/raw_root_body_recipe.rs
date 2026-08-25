@@ -113,7 +113,6 @@ impl RawRootBodySourceSiteV1 {
     pub(crate) fn path(&self) -> &[usize] {
         &self.path
     }
-
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

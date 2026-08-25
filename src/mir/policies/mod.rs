@@ -9,8 +9,8 @@ pub enum PolicyDecision<T> {
     None,
 }
 
-pub mod balanced_depth_scan;
 pub(crate) mod a_prime_i64_callable_storage_layout;
+pub mod balanced_depth_scan;
 pub(crate) mod call_name_classification;
 pub(crate) mod callee_box_kind;
 pub mod cond_profile;

@@ -443,19 +443,15 @@ mod tests {
         }
 
         assert_eq!(
-            ShadowResolveErrorV0::SameScopeRedeclaration {
-                name: "x".into(),
-            }
-            .into_script_resolver_deferred(),
-            Some(ScriptResolverDeferredV1::UnlocatedSameScopeRedeclaration {
-                name: "x".into(),
-            })
+            ShadowResolveErrorV0::SameScopeRedeclaration { name: "x".into() }
+                .into_script_resolver_deferred(),
+            Some(ScriptResolverDeferredV1::UnlocatedSameScopeRedeclaration { name: "x".into() })
         );
-        assert!(ShadowResolveErrorV0::DuplicateEnumVariantDemand {
-            site: site(),
-        }
-        .into_script_resolver_deferred()
-        .is_none());
+        assert!(
+            ShadowResolveErrorV0::DuplicateEnumVariantDemand { site: site() }
+                .into_script_resolver_deferred()
+                .is_none()
+        );
     }
 }
 

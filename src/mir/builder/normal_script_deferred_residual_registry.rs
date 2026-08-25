@@ -120,10 +120,8 @@ impl ScriptDeferredResidualRegistryBuilderV1 {
 mod tests {
     use super::*;
     use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, Span};
-    use crate::mir::builder::normal_script_root_admission_witness::
-        ScriptRootSemanticDecisionV1;
-    use crate::mir::builder::normal_script_selected_occurrence::
-        SelectedScriptProgramOccurrenceV1;
+    use crate::mir::builder::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
+    use crate::mir::builder::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
     use std::collections::HashMap;
 
     fn integer(value: i64) -> ASTNode {

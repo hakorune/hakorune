@@ -33,15 +33,11 @@ pub(in crate::mir) use callable_commit::{
 };
 #[cfg(test)]
 pub(in crate::mir) use callable_draft_prefix::completed_for_main_physical;
-pub(in crate::mir) use callable_draft_prefix::{
-    RejectedNormalHelperDraftPrefixV1,
-};
+pub(in crate::mir) use callable_draft_prefix::RejectedNormalHelperDraftPrefixV1;
+pub(in crate::mir) use callable_main_physical::RejectedNormalCallableMainPhysicalV1;
 #[cfg(test)]
 pub(super) use callable_main_physical::{
     reject_normal_callable_main_physical_at_stage_for_test, NormalCallableMainPhysicalTestStageV1,
-};
-pub(in crate::mir) use callable_main_physical::{
-    RejectedNormalCallableMainPhysicalV1,
 };
 pub(in crate::mir) use canonical_batch::{
     NormalCanonicalModuleBatchErrorV1, NormalCanonicalModuleBatchV1,

@@ -6,10 +6,10 @@
 
 use std::collections::HashMap;
 
+use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::module_invocation_identity::{
     ModuleInvocationBrandV1, ModuleInvocationFamilyV1, ModuleInvocationTokenV1,
 };
-use super::module_draft_collector::ModuleDraftCollectorV1;
 use super::MirBuilder;
 use crate::mir::MirType;
 use hakorune_mir_builder::CoreContext;
@@ -446,7 +446,9 @@ impl ModuleBuilderInvocationSessionV1 {
     /// Lend the unpublished candidate together with the one root Ready-scope
     /// permission. The scope cannot outlive this callback and cannot be
     /// constructed from a bare Builder.
-    pub(in crate::mir::builder) fn with_builder_and_pinned_text_invocation_binding_and_callable_loop_scope<R>(
+    pub(in crate::mir::builder) fn with_builder_and_pinned_text_invocation_binding_and_callable_loop_scope<
+        R,
+    >(
         &mut self,
         callback: impl FnOnce(
             &mut MirBuilder,

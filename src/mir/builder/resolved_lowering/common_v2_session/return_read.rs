@@ -184,7 +184,10 @@ impl<'source, 'envelope> CommonV2CanonicalSessionRefV1<'source, 'envelope> {
     /// Consume the existing co-seal, segment allocation, and continuation
     /// target as one physical Return-read receipt. The canonical identity read
     /// and Completion/identity mark are the only effects in this slice.
-    pub(in crate::mir::builder::resolved_lowering) fn with_return_read_physical_receipt<'receipt, R>(
+    pub(in crate::mir::builder::resolved_lowering) fn with_return_read_physical_receipt<
+        'receipt,
+        R,
+    >(
         &'receipt mut self,
         builder: &mut MirBuilder,
         segment_receipt: &PreparedSegmentBlockReceiptV1,

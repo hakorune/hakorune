@@ -45,9 +45,7 @@ pub(in crate::mir) use receipt::CollectedDraftAdmissionReceiptV1 as CommitCollec
 pub(in crate::mir) use receipt::{
     CollectedDraftAdmissionReceiptV1, CollectedDraftReplacementDispositionV1,
 };
-pub(in crate::mir::builder) use root_batch::{
-    RootCollectorBatchPrepareErrorV1,
-};
+pub(in crate::mir::builder) use root_batch::RootCollectorBatchPrepareErrorV1;
 
 /// Semantic identity for one draft admission, distinct from fact generation.
 #[allow(dead_code)] // S0 exposes every future physical identity before I0 connects callers.

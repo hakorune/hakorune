@@ -15,9 +15,7 @@ use crate::mir::builder::resolved_lowering::loop_recipe_physicalizer::{
 };
 use crate::mir::builder::MirBuilder;
 use crate::mir::compiler::generic_g0_physical_function_entry_input::GenericG0PhysicalLaneRoleV1;
-use crate::mir::compiler::generic_g0_physical_operation_cohort::{
-    PreparedGenericG0PhysicalEmitterAdmissionV1,
-};
+use crate::mir::compiler::generic_g0_physical_operation_cohort::PreparedGenericG0PhysicalEmitterAdmissionV1;
 use crate::mir::function::MirParamDecl;
 use crate::mir::loop_recipe_contract::PreparedLoopPhysicalLayoutV1;
 use std::marker::PhantomData;

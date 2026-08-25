@@ -34,6 +34,10 @@ pub(super) use entry::{
 };
 pub(super) use ids::{ShadowBindingOrdinalV0, ShadowRegionIdV0, ShadowScopeIdV0};
 pub(super) use owner_boundary::ShadowLambdaSyntaxV0;
+pub(crate) use product::{
+    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ScriptResolverDeferredV1,
+    SourceResolverDeferredV1,
+};
 pub(super) use product::{
     ShadowAncestorCaptureAccessV0, ShadowAssignmentTargetV0, ShadowBindingKindV0,
     ShadowControlExitV0, ShadowDirectCallUseV0, ShadowExitOriginV0, ShadowExitRecordV0,
@@ -41,13 +45,7 @@ pub(super) use product::{
     ShadowResolvedOwnerV0, ShadowScopeKindV0,
 };
 pub(in crate::mir) use product::{ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0};
-pub(in crate::mir) use product::{
-    ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
-};
-pub(crate) use product::{
-    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1, ScriptResolverDeferredV1,
-    SourceResolverDeferredV1,
-};
+pub(in crate::mir) use product::{ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0};
 pub(crate) use script_root_window::{
     ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
     ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,

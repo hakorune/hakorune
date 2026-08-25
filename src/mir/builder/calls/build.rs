@@ -19,13 +19,13 @@
 //! - Net reduction: -444 lines of complexity in build.rs
 
 use super::super::me_call_header_observation::MethodCallLoweringPortV1;
+use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
+use super::super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::super::{Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 #[allow(unused_imports)]
 use super::debug_method_routing::*;
 use super::static_resolution::BareStaticRecoveryEmissionV1;
 use super::CallTarget;
-use super::super::recursive_child_lowering::RecursiveChildLoweringPortV1;
-use super::super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use crate::ast::ASTNode;
 use crate::mir::builder::callable_declaration_catalog::BareStaticRecoveryNoRecoveryReasonV1;
 use crate::mir::builder::calls::drive_call_arguments_v1;
@@ -167,11 +167,8 @@ impl MirBuilder {
     ) -> Result<ValueId, String>
     where
         Port: MethodCallLoweringPortV1,
-        Route: FnOnce(
-            &mut MirBuilder,
-            &mut Port,
-            &Port::MethodCallInput,
-        ) -> Result<ValueId, String>,
+        Route:
+            FnOnce(&mut MirBuilder, &mut Port, &Port::MethodCallInput) -> Result<ValueId, String>,
     {
         let typeop = {
             let syntax = port.method_call_syntax(input)?;
@@ -232,11 +229,8 @@ impl MirBuilder {
     ) -> Result<ValueId, String>
     where
         Port: MethodCallLoweringPortV1,
-        Route: FnOnce(
-            &mut MirBuilder,
-            &mut Port,
-            &Port::MethodCallInput,
-        ) -> Result<ValueId, String>,
+        Route:
+            FnOnce(&mut MirBuilder, &mut Port, &Port::MethodCallInput) -> Result<ValueId, String>,
     {
         {
             let syntax = port.method_call_syntax(input)?;

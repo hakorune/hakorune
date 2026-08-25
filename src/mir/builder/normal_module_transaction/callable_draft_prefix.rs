@@ -9,10 +9,9 @@ use crate::mir::builder::resolved_lowering::{
 };
 use crate::mir::compiler::capability::CanonicalTrivialBindingSsaPlanV1;
 use crate::mir::compiler::normal_source_plan::{
-    NormalHelperDraftAbiExpectationErrorV1,
-    OpenNormalCallableModuleTransactionV1, OwnedNormalHelperLoweringScheduleV1,
-    PreparedNormalHelperTopologyReceiptV1, RejectedNormalCallableHandoffV1,
-    RetainedNormalCallableSourceAuthorityV1,
+    NormalHelperDraftAbiExpectationErrorV1, OpenNormalCallableModuleTransactionV1,
+    OwnedNormalHelperLoweringScheduleV1, PreparedNormalHelperTopologyReceiptV1,
+    RejectedNormalCallableHandoffV1, RetainedNormalCallableSourceAuthorityV1,
 };
 use crate::mir::resolved_semantics::CanonicalCallableKeyV1;
 use crate::mir::MirFunction;

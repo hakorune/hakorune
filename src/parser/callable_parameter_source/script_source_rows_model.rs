@@ -27,7 +27,6 @@ impl ScriptBodyRowV1 {
     pub(crate) const fn ordinal(&self) -> u32 {
         self.ordinal
     }
-
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -49,7 +48,6 @@ impl ScriptParameterSyntaxRowV1 {
     pub(crate) fn name(&self) -> &str {
         &self.name
     }
-
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

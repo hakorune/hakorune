@@ -12,8 +12,9 @@ use super::error::{TrivialProfileContractErrorV1, TrivialProfileStopReasonV1};
 use super::product::{TrivialRepresentationV1, TrivialTerminalProfileV1};
 use super::{
     analyze_closed_for_test as analyze_closed,
-    analyze_closed_result_for_test as analyze_closed_result, analyze_trivial_canonical_with_mode_v1,
-    TrivialCanonicalAnalysisModeV1, TrivialCanonicalOwnerAnalysisV1,
+    analyze_closed_result_for_test as analyze_closed_result,
+    analyze_trivial_canonical_with_mode_v1, TrivialCanonicalAnalysisModeV1,
+    TrivialCanonicalOwnerAnalysisV1,
 };
 
 fn literal(value: LiteralValue) -> ASTNode {
@@ -294,8 +295,7 @@ fn same_pass_if_recipe_maps_to_verified_portable_artifact() {
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
-    let product = match analyze_closed(input, &completion, &if_control)
-    {
+    let product = match analyze_closed(input, &completion, &if_control) {
         TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
         TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
     };
@@ -341,8 +341,7 @@ fn recipe_mapper_maps_implicit_else_baseline_before_physicalization() {
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
-    let product = match analyze_closed(input, &completion, &if_control)
-    {
+    let product = match analyze_closed(input, &completion, &if_control) {
         TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
         TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
     };
@@ -383,8 +382,7 @@ fn recipe_mapper_rejects_foreign_source_owner_before_reading_facts() {
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
-    let product = match analyze_closed(input, &completion, &if_control)
-    {
+    let product = match analyze_closed(input, &completion, &if_control) {
         TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
         TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
     };
@@ -414,8 +412,7 @@ fn recipe_mapper_rejects_branch_cardinality_before_portable_mapping() {
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
-    let product = match analyze_closed(input, &completion, &if_control)
-    {
+    let product = match analyze_closed(input, &completion, &if_control) {
         TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
         TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
     };
@@ -442,8 +439,7 @@ fn recipe_mapper_rejects_entry_class_drift_before_portable_mapping() {
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
-    let product = match analyze_closed(input, &completion, &if_control)
-    {
+    let product = match analyze_closed(input, &completion, &if_control) {
         TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
         TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
     };
@@ -476,8 +472,7 @@ fn recipe_mapper_rejects_unsupported_branch_representation_before_mapping() {
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
-    let product = match analyze_closed(input, &completion, &if_control)
-    {
+    let product = match analyze_closed(input, &completion, &if_control) {
         TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
         TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
     };
@@ -504,8 +499,7 @@ fn recipe_mapper_rejects_missing_continuation_read_before_mapping() {
     let input = unit.root_function_input().unwrap();
     let completion = verify_function_completion_v1(input).unwrap();
     let if_control = verify_resolved_function_if_control_v1(input, &completion).unwrap();
-    let product = match analyze_closed(input, &completion, &if_control)
-    {
+    let product = match analyze_closed(input, &completion, &if_control) {
         TrivialCanonicalOwnerAnalysisV1::Admitted(product) => product,
         TrivialCanonicalOwnerAnalysisV1::NotAdmitted(_) => panic!("expected admitted profile"),
     };

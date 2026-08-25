@@ -18,11 +18,21 @@ use super::{RawRootLedgerStateV1, RawRootPhysicalStateV1};
 
 #[derive(Debug)]
 pub(in crate::mir) enum RawRootPhysicalCallableMainErrorV1 {
-    Request { _error: RawExpansionReceiptLedgerErrorV1 },
-    Reservation { _error: RawExpansionReceiptLedgerErrorV1 },
-    Child { _error: ModuleLoweringPortChildErrorV1 },
-    Ledger { _error: RawExpansionReceiptLedgerErrorV1 },
-    Abort { _error: RawExpansionReceiptLedgerErrorV1 },
+    Request {
+        _error: RawExpansionReceiptLedgerErrorV1,
+    },
+    Reservation {
+        _error: RawExpansionReceiptLedgerErrorV1,
+    },
+    Child {
+        _error: ModuleLoweringPortChildErrorV1,
+    },
+    Ledger {
+        _error: RawExpansionReceiptLedgerErrorV1,
+    },
+    Abort {
+        _error: RawExpansionReceiptLedgerErrorV1,
+    },
 }
 
 #[derive(Debug)]

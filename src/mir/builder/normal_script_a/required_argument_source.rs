@@ -2,10 +2,10 @@
 
 use std::collections::BTreeSet;
 
+use crate::mir::builder::normal_script_direct_static_join_handoff::issue_node;
 use crate::mir::builder::normal_script_direct_static_join_handoff::{
     RequiredArgumentProofArgumentV1, ScriptDirectStaticRequiredArgumentProofDispositionV1,
 };
-use crate::mir::builder::normal_script_direct_static_join_handoff::issue_node;
 use crate::mir::resolved_semantics::VerifiedResolvedScriptV1;
 use crate::mir::source_call_target::VerifiedScriptDirectStaticCallLookupRowV1;
 
@@ -39,8 +39,8 @@ pub(super) fn issue_required_argument_source(
                 },
             ));
         };
-        let tree = issue_node(product.expression_source(), site, &mut seen_sites).map_err(
-            |reason| {
+        let tree =
+            issue_node(product.expression_source(), site, &mut seen_sites).map_err(|reason| {
                 CanonicalScriptAIssueV1::Incomplete(
                     CanonicalScriptAIncompleteV1::RequiredArgumentOutsideI0 {
                         site: lookup.site().clone(),
@@ -48,8 +48,7 @@ pub(super) fn issue_required_argument_source(
                         reason: format!("{reason:?}").into(),
                     },
                 )
-            },
-        )?;
+            })?;
         rows.push(RequiredArgumentProofArgumentV1::from_canonical_source(
             *ordinal,
             site.clone(),

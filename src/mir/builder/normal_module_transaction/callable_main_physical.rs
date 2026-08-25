@@ -48,7 +48,9 @@ impl PreparedNormalCallableMainPhysicalV1 {
         &self.source
     }
 
-    pub(in crate::mir::builder) const fn physical(&self) -> &VerifiedNormalMainPhysicalThunkDraftV1 {
+    pub(in crate::mir::builder) const fn physical(
+        &self,
+    ) -> &VerifiedNormalMainPhysicalThunkDraftV1 {
         &self.physical
     }
 

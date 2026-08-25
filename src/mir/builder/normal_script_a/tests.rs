@@ -1,8 +1,8 @@
 use super::super::super::normal_script_direct_static_lookup::ScriptDirectStaticCallLookupIssuerV1;
 use super::super::super::normal_script_neutral_window::PreparedCanonicalScriptNeutralProgramWindowV1;
-use super::super::NormalScriptPreEffectSourceObservationIssuerV1;
 use super::super::super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::super::issue_into_c_transport;
+use super::super::NormalScriptPreEffectSourceObservationIssuerV1;
 use crate::mir::normal_callable_semantic_package::{
     issue_normal_callable_semantic_package_v1, VerifiedNormalCallableSemanticPackageV1,
 };

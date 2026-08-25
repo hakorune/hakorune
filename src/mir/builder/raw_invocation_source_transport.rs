@@ -18,12 +18,11 @@ use crate::mir::ValueId;
 
 use super::callable_declaration_catalog::SelectedTopLevelFunctionKeyV1;
 use super::normal_instance_constructor_admission::NormalInstanceConstructorSourceKeyV1;
+use super::normal_script_pre_effect_source_observation::CanonicalScriptCPreparedLoweringSourceV1;
 use super::normal_script_semantic_lowering_state::ScriptSemanticLoweringState;
 use super::normal_script_semantic_lowering_state::{
     ScriptDirectStaticClaimTakeV1, ScriptDirectStaticClaimedRowV1,
 };
-use super::normal_script_pre_effect_source_observation::
-    CanonicalScriptCPreparedLoweringSourceV1;
 use super::raw_invocation_source_item_site::body_item_site;
 use super::raw_invocation_source_statement_classification::{
     is_bare_function_call_statement, is_located_control_or_diagnostic_terminal,
@@ -249,12 +248,16 @@ impl RawInvocationChildPortV1<'_, '_> {
             .projection()
             .owner_root(source.source().source(), *root)
             .is_err()
-            || source.source().runtime_source_indices().iter().any(|index| {
-                !matches!(
-                    source.source().source(),
-                    ASTNode::Program { statements, .. } if statements.get(*index).is_some()
-                )
-            })
+            || source
+                .source()
+                .runtime_source_indices()
+                .iter()
+                .any(|index| {
+                    !matches!(
+                        source.source().source(),
+                        ASTNode::Program { statements, .. } if statements.get(*index).is_some()
+                    )
+                })
         {
             return Err("[freeze:contract][mir/script-semantic/source-proof]".to_owned());
         }

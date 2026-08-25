@@ -15,8 +15,7 @@ use crate::mir::resolved_semantics::{
 };
 use crate::mir::source_call_target::{
     VerifiedScriptDirectStaticCallLookupV1, VerifiedScriptDirectStaticCallTargetInventoryV1,
-    VerifiedStaticImportAliasViewV1,
-    VerifiedWholeSourceStaticCallTargetInventoryV1,
+    VerifiedStaticImportAliasViewV1, VerifiedWholeSourceStaticCallTargetInventoryV1,
 };
 use crate::parser::NyashParser;
 use std::collections::BTreeMap;
@@ -68,16 +67,10 @@ fn recipe_and_owner(
     let results = crate::mir::callable_result_representation::
         VerifiedSameModuleCallableResultCatalogV1::verify(declarations, &targets)
         .expect("result catalog");
-    let lookup = VerifiedScriptDirectStaticCallLookupV1::from_test_inventory(
-        &target_inventory,
-        &results,
-    );
-    let bundle = VerifiedScriptDirectStaticResultBundleV1::issue(
-        &source,
-        &window,
-        lookup,
-    )
-    .expect("result bundle");
+    let lookup =
+        VerifiedScriptDirectStaticCallLookupV1::from_test_inventory(&target_inventory, &results);
+    let bundle = VerifiedScriptDirectStaticResultBundleV1::issue(&source, &window, lookup)
+        .expect("result bundle");
     let publication_owner = VerifiedScriptDirectStaticResultPublicationOwnerV1::issue(
         &source,
         &bundle,

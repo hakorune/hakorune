@@ -56,19 +56,18 @@ pub(crate) use evaluate::freeze_loop_route_schedule_v1;
 pub(crate) use family_admission::{
     assemble_loop_family_admission_window_v1, LoopFamilyAdmissionAssemblyOutcomeV1,
     LoopFamilyAdmissionCoverageV1, LoopFamilyAdmissionIssueV1, LoopFamilyAdmissionModeV1,
-    LoopFamilyObservationRowV1,
-    LoopFamilyTagV1, VerifiedLoopFamilyAdmissionRowsV1, VerifiedLoopFamilyAdmissionWindowV1,
+    LoopFamilyObservationRowV1, LoopFamilyTagV1, VerifiedLoopFamilyAdmissionRowsV1,
+    VerifiedLoopFamilyAdmissionWindowV1,
 };
 #[cfg(test)]
 pub(crate) use family_selection::{
     select_canonical_family_for_test, CanonicalFamilySelectionOutcomeV1,
-    CanonicalFamilySelectorInputV1, FamilySelectionUnresolvedV1,
-    GenericFamilyEvidenceV1,
+    CanonicalFamilySelectorInputV1, FamilySelectionUnresolvedV1, GenericFamilyEvidenceV1,
 };
 pub(crate) use family_selector::{
     select_canonical_loop_family_v1, CanonicalLoopFamilyCandidateV1,
-    CanonicalLoopFamilySelectionOutcomeV1,
-    CanonicalLoopFamilySelectionReasonV1, CanonicalLoopFamilySelectionV1,
+    CanonicalLoopFamilySelectionOutcomeV1, CanonicalLoopFamilySelectionReasonV1,
+    CanonicalLoopFamilySelectionV1,
 };
 #[allow(unused_imports)]
 pub(crate) use generic_g0::{
@@ -105,6 +104,8 @@ pub(crate) use nested_predicate_observation::{
     NestedPredicateObservationEvidenceV1, NestedPredicateObservationRejectV1,
     NestedPredicateObservationUnresolvedV1, VerifiedNestedPredicateFamilyCandidateV1,
 };
+#[cfg(test)]
+pub(crate) use policy::issue_policy_winner_for_test_with_frame;
 #[allow(unused_imports)]
 pub(crate) use policy::{
     evaluate_frozen_loop_route_schedule_v1, issue_direct_accum_route_admission_v1,
@@ -113,8 +114,6 @@ pub(crate) use policy::{
     VerifiedDirectAccumPolicyReceiptV1, VerifiedDirectAccumRouteAdmissionV1,
     VerifiedLoopPolicyWinnerV1,
 };
-#[cfg(test)]
-pub(crate) use policy::issue_policy_winner_for_test_with_frame;
 #[allow(unused_imports)]
 pub(crate) use policy_evidence::{
     LoopGenericDebtKeyV1, LoopRouteCandidateFactsV1, LoopRoutePolicyBlockReasonV1,

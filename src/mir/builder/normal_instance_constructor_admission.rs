@@ -81,7 +81,9 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
                             statement,
                         )
                     })
-                    .map_err(|_| InstanceConstructorPhysicalSourceIssueV1::StatementPositionOverflow)
+                    .map_err(|_| {
+                        InstanceConstructorPhysicalSourceIssueV1::StatementPositionOverflow
+                    })
             })
             .collect::<Result<Vec<_>, _>>()?;
         let invocation = package
@@ -105,12 +107,15 @@ impl VerifiedInstanceConstructorPhysicalSourceCohortV1 {
             {
                 return Err(InstanceConstructorPhysicalSourceIssueV1::DuplicateSourceId);
             }
-            let Some((source_row, ASTNode::BoxDeclaration { name, constructors, .. })) = statements
-                .iter()
-                .find(|(source_row, _)| {
-                    usize::try_from(source_row.position()).ok()
-                        == Some(semantic.final_box_ordinal() as usize)
-                })
+            let Some((
+                source_row,
+                ASTNode::BoxDeclaration {
+                    name, constructors, ..
+                },
+            )) = statements.iter().find(|(source_row, _)| {
+                usize::try_from(source_row.position()).ok()
+                    == Some(semantic.final_box_ordinal() as usize)
+            })
             else {
                 return Err(InstanceConstructorPhysicalSourceIssueV1::ForeignRow);
             };

@@ -21,9 +21,7 @@ use super::root_batch_slot::RawRootBatchSlotV1;
 mod preflight;
 mod root_pair;
 
-pub(in crate::mir::builder) use root_pair::{
-    RawRootMainCommitDispositionV1,
-};
+pub(in crate::mir::builder) use root_pair::RawRootMainCommitDispositionV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawConditionDispositionV1 {

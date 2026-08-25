@@ -77,14 +77,13 @@ pub(in crate::mir::builder) use method_call_descent::{
     lower_method_call_argument_v1, AssociatedMethodCallArgumentsV1, CatalogHelperChildV1,
     MethodCallArgumentDescentV1, MethodCallDescentPortV1, RawLegacyMethodCallInputV1,
 };
+pub(in crate::mir::builder) use method_call_terminal::emit_standard_value_terminal_raw_v1;
 pub(in crate::mir::builder) use method_call_terminal::emit_static_global_value_terminal_with_receipt_v1;
 pub(in crate::mir::builder) use method_call_terminal::MethodCallValueTerminalPortV1;
-pub(in crate::mir::builder) use method_call_terminal::emit_standard_value_terminal_raw_v1;
 pub(in crate::mir::builder) use method_call_terminal::{
     StandardMethodCallCompletionV1, StaticMethodCallCompletionV1,
 };
-pub(in crate::mir::builder) use static_result_publication_physical_bridge::
-    lower_selected_static_result_publication_v1;
+pub(in crate::mir::builder) use static_result_publication_physical_bridge::lower_selected_static_result_publication_v1;
 #[cfg(test)]
 mod member_route_descent_tests;
 #[cfg(test)]
@@ -98,10 +97,10 @@ mod reserved_method_route; // shared reserved-route policy adapter + selected di
 mod reserved_method_route_tests;
 pub mod resolver; // Phase 25.1d: Callee resolution (CallTarget → Callee)
 mod script_direct_static_physical_bridge;
-mod static_result_publication_physical_bridge;
 pub mod skeleton_builder; // Step 5: Function/method skeleton creation
 pub mod special_method_handlers; // Special method handlers (TypeOp, math, str normalization)
 pub mod static_resolution; // Step 3: Static method resolution and unresolved-call recovery
+mod static_result_publication_physical_bridge;
 pub mod unified_emitter; // Phase 3-A: Unified call emitter (統一Call発行専用箱)
 pub mod utils; // Phase 3-C: Call materializer (Call前処理・準備専用箱)
 

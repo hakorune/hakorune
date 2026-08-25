@@ -116,14 +116,13 @@ fn admitted<'a>(
             &completion,
         )
         .expect("if control");
-    let analysis =
-        analyze_trivial_canonical_with_mode_v1(
-            input,
-            &completion,
-            &if_control,
-            TrivialCanonicalAnalysisModeV1::OrdinaryClosed,
-        )
-        .expect("analysis");
+    let analysis = analyze_trivial_canonical_with_mode_v1(
+        input,
+        &completion,
+        &if_control,
+        TrivialCanonicalAnalysisModeV1::OrdinaryClosed,
+    )
+    .expect("analysis");
     let TrivialCanonicalOwnerAnalysisV1::Admitted(product) = analysis else {
         panic!("nested shape is expected to be admitted by the whole trivial owner")
     };

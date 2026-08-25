@@ -141,9 +141,8 @@ impl VerifiedScriptDirectStaticRequiredArgumentProofV1 {
                     ),
                 );
             }
-            validate_argument_shape(row, product).map_err(
-                ScriptDirectStaticRequiredArgumentProofIssueV1::MethodShape,
-            )?;
+            validate_argument_shape(row, product)
+                .map_err(ScriptDirectStaticRequiredArgumentProofIssueV1::MethodShape)?;
             let disposition = issue_row(row, inventory)?;
             if rows
                 .insert(
@@ -201,9 +200,7 @@ impl VerifiedScriptDirectStaticRequiredArgumentProofV1 {
                 )
                 .is_some()
             {
-                return Err(
-                    ScriptDirectStaticRequiredArgumentProofIssueV1::DuplicateJoinKey(*key),
-                );
+                return Err(ScriptDirectStaticRequiredArgumentProofIssueV1::DuplicateJoinKey(*key));
             }
         }
         if let Some((site, _)) = source_rows.into_iter().next() {
@@ -304,8 +301,7 @@ fn issue_row(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::mir::builder::normal_script_direct_static_recipe::
-        ScriptDirectStaticRecipeDestinationV1;
+    use crate::mir::builder::normal_script_direct_static_recipe::ScriptDirectStaticRecipeDestinationV1;
     use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
     use crate::mir::resolved_semantics::{
         FunctionOwnerIssuerV1, ResolvedLiteralSourceV1, SourcePathSegmentV1, SourcePathV1,
@@ -325,10 +321,11 @@ mod tests {
         let receiver_site = SourcePathV1::from_node(call_site.node())
             .child(SourcePathSegmentV1::Receiver)
             .expr();
-        let target =
-            crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
-                "Helpers", "run", argument_sites.len(),
-            );
+        let target = crate::mir::builder::CanonicalSameModuleCallableKeyV1::test_static_box_method(
+            "Helpers",
+            "run",
+            argument_sites.len(),
+        );
         let row = VerifiedScriptDirectStaticJoinRowV1::from_parts_for_test(
             ScriptDirectStaticRecipeKeyV1::from_ordinal_for_test(1),
             owner,
@@ -405,8 +402,8 @@ mod tests {
             Err(
                 ScriptDirectStaticRequiredArgumentProofIssueV1::UnsupportedRequiredArgument {
                     ordinal: 0,
-                    source: VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::
-                        UnsupportedLiteral(_),
+                    source:
+                        VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::UnsupportedLiteral(_),
                     ..
                 }
             )
@@ -438,9 +435,11 @@ mod tests {
         );
         assert!(matches!(
             issue_row(&nominal, &inventory),
-            Ok(ScriptDirectStaticRequiredArgumentProofDispositionV1::NonExact(
-                VerifiedCallableResultRepresentationV1::ExactNominalBox { .. }
-            ))
+            Ok(
+                ScriptDirectStaticRequiredArgumentProofDispositionV1::NonExact(
+                    VerifiedCallableResultRepresentationV1::ExactNominalBox { .. }
+                )
+            )
         ));
     }
 }

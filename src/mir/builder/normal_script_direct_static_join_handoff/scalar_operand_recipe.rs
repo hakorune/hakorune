@@ -55,9 +55,9 @@ pub(in crate::mir) enum ScalarOperandRecipeNodeV1 {
 impl ScalarOperandRecipeNodeV1 {
     pub(in crate::mir) const fn site(&self) -> &SourceExprSiteV1 {
         match self {
-            Self::Literal { site, .. }
-            | Self::Unary { site, .. }
-            | Self::Binary { site, .. } => site,
+            Self::Literal { site, .. } | Self::Unary { site, .. } | Self::Binary { site, .. } => {
+                site
+            }
         }
     }
 }
@@ -76,7 +76,11 @@ impl ScalarOperandRecipeArgumentV1 {
         site: SourceExprSiteV1,
         tree: ScalarOperandRecipeNodeV1,
     ) -> Self {
-        Self { ordinal, site, tree }
+        Self {
+            ordinal,
+            site,
+            tree,
+        }
     }
 
     pub(in crate::mir) const fn ordinal(&self) -> u32 {
@@ -102,8 +106,14 @@ pub(in crate::mir) enum VerifiedScriptDirectStaticScalarOperandRecipeIssueV1 {
     MethodOwnerMismatch(SourceExprSiteV1),
     ReceiverSiteMismatch(SourceExprSiteV1),
     ArgumentCardinalityMismatch(SourceExprSiteV1),
-    ArgumentOrdinalMismatch { site: SourceExprSiteV1, ordinal: u32 },
-    ArgumentSiteMismatch { site: SourceExprSiteV1, ordinal: u32 },
+    ArgumentOrdinalMismatch {
+        site: SourceExprSiteV1,
+        ordinal: u32,
+    },
+    ArgumentSiteMismatch {
+        site: SourceExprSiteV1,
+        ordinal: u32,
+    },
     DuplicateArgumentSite(SourceExprSiteV1),
     DuplicateExpressionFact(SourceExprSiteV1),
     MissingExpressionFact(SourceExprSiteV1),
@@ -116,10 +126,7 @@ pub(in crate::mir) enum VerifiedScriptDirectStaticScalarOperandRecipeIssueV1 {
 pub(in crate::mir) struct VerifiedScriptDirectStaticScalarOperandRecipeV1 {
     source_owner: crate::mir::resolved_semantics::FunctionOwnerIdV1,
     source_identity: usize,
-    rows: BTreeMap<
-        ScriptDirectStaticRecipeKeyV1,
-        Box<[ScalarOperandRecipeArgumentV1]>,
-    >,
+    rows: BTreeMap<ScriptDirectStaticRecipeKeyV1, Box<[ScalarOperandRecipeArgumentV1]>>,
 }
 
 impl VerifiedScriptDirectStaticScalarOperandRecipeV1 {
@@ -127,10 +134,7 @@ impl VerifiedScriptDirectStaticScalarOperandRecipeV1 {
     pub(in crate::mir) fn from_parts_for_test(
         source_owner: FunctionOwnerIdV1,
         source_identity: usize,
-        rows: BTreeMap<
-            ScriptDirectStaticRecipeKeyV1,
-            Box<[ScalarOperandRecipeArgumentV1]>,
-        >,
+        rows: BTreeMap<ScriptDirectStaticRecipeKeyV1, Box<[ScalarOperandRecipeArgumentV1]>>,
     ) -> Self {
         Self {
             source_owner,
@@ -201,7 +205,9 @@ impl VerifiedScriptDirectStaticScalarOperandRecipeV1 {
         })
     }
 
-    pub(in crate::mir) const fn source_owner(&self) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
+    pub(in crate::mir) const fn source_owner(
+        &self,
+    ) -> crate::mir::resolved_semantics::FunctionOwnerIdV1 {
         self.source_owner
     }
 
@@ -236,8 +242,10 @@ fn issue_arguments(
     row: &VerifiedScriptDirectStaticJoinRowV1,
     product: &crate::mir::resolved_semantics::VerifiedResolvedScriptV1,
     inventory: &ResolvedExpressionSourceInventoryV1,
-) -> Result<Box<[ScalarOperandRecipeArgumentV1]>, VerifiedScriptDirectStaticScalarOperandRecipeIssueV1>
-{
+) -> Result<
+    Box<[ScalarOperandRecipeArgumentV1]>,
+    VerifiedScriptDirectStaticScalarOperandRecipeIssueV1,
+> {
     validate_argument_shape(row, product)?;
 
     let mut seen = BTreeSet::new();
@@ -321,8 +329,7 @@ pub(in crate::mir) fn issue_node(
     inventory: &ResolvedExpressionSourceInventoryV1,
     site: &SourceExprSiteV1,
     seen: &mut BTreeSet<SourceExprSiteV1>,
-) -> Result<ScalarOperandRecipeNodeV1, VerifiedScriptDirectStaticScalarOperandRecipeIssueV1>
-{
+) -> Result<ScalarOperandRecipeNodeV1, VerifiedScriptDirectStaticScalarOperandRecipeIssueV1> {
     let literal = inventory.literal(site);
     let unary = inventory.unary(site);
     let binary = inventory.binary(site);
@@ -467,9 +474,7 @@ mod tests {
         );
         assert_eq!(
             issue_node(&inventory, &site, &mut BTreeSet::new()),
-            Err(
-                VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::UnsupportedLiteral(site)
-            )
+            Err(VerifiedScriptDirectStaticScalarOperandRecipeIssueV1::UnsupportedLiteral(site))
         );
     }
 }

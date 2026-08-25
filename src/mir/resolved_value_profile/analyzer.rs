@@ -11,8 +11,8 @@ use crate::mir::resolved_control_flow::if_control::VerifiedResolvedFunctionIfCon
 use crate::mir::resolved_control_flow::VerifiedFunctionCompletionV1;
 use crate::mir::resolved_semantics::{BindingRefV1, SourceBindingSiteV1, SourceStmtSiteV1};
 
-use super::analyzer_policy::{DirectCallPolicyV1, ReturnPolicyV1, RootProfilePolicyV1};
 use super::analyzer_mode::TrivialCanonicalAnalysisModeV1;
+use super::analyzer_policy::{DirectCallPolicyV1, ReturnPolicyV1, RootProfilePolicyV1};
 use super::coverage::{
     verify_terminal_completion_co_seal_v1, ResolvedFactCoverageDraftV1, TrivialProfileDraftV1,
 };

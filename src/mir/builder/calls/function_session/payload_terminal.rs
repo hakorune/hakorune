@@ -109,7 +109,6 @@ impl<P> LegacyFunctionPayloadPendingSessionV1<'_, P> {
     ) -> Result<R, E> {
         self.pending.complete_before_restore(complete)
     }
-
 }
 
 impl MirBuilder {

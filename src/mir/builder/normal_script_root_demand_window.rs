@@ -5,19 +5,8 @@
 //! fixtures while its production caller is removed.
 
 #[cfg(test)]
-use crate::ast::ASTNode;
-use crate::mir::resolved_semantics::{
-    VerifiedScriptRootDemandWindowV1,
-};
-#[cfg(test)]
-use crate::mir::resolved_semantics::{
-    ScriptRootDemandWindowSealErrorV1, SourcePathSegmentV1, SourcePathV1,
-    VerifiedScriptRootDemandEntryV1,
-};
-use crate::parser::ParserInvocationWitnessV1;
-use super::normal_script_deferred_residual_registry::{
-    PreparedScriptDeferredResidualRegistryV1,
-};
+use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
+use super::normal_script_deferred_residual_registry::PreparedScriptDeferredResidualRegistryV1;
 #[cfg(test)]
 use super::normal_script_deferred_residual_registry::ScriptDeferredResidualRegistryBuilderV1;
 #[cfg(test)]
@@ -25,9 +14,16 @@ use super::normal_script_program_item_admission::NormalScriptProgramItemAdmissio
 #[cfg(test)]
 use super::normal_script_root_admission_witness::ScriptRootSemanticDecisionV1;
 #[cfg(test)]
-use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
-#[cfg(test)]
 use super::normal_script_selected_occurrence::SelectedScriptProgramOccurrenceV1;
+#[cfg(test)]
+use crate::ast::ASTNode;
+use crate::mir::resolved_semantics::VerifiedScriptRootDemandWindowV1;
+#[cfg(test)]
+use crate::mir::resolved_semantics::{
+    ScriptRootDemandWindowSealErrorV1, SourcePathSegmentV1, SourcePathV1,
+    VerifiedScriptRootDemandEntryV1,
+};
+use crate::parser::ParserInvocationWitnessV1;
 
 /// Complete/Deferred root admission evidence prepared from one Program pass.
 #[derive(Debug)]
@@ -112,13 +108,12 @@ impl ScriptRootDemandWindowBuilderV1 {
             occurrence,
             composite_partition,
         )?;
-        self.deferred_residuals
-            .record(
-                occurrence.source_statement_index(),
-                statement,
-                decision.admission(),
-                decision.semantic(),
-            );
+        self.deferred_residuals.record(
+            occurrence.source_statement_index(),
+            statement,
+            decision.admission(),
+            decision.semantic(),
+        );
         self.record_decision(occurrence.source_statement_index(), decision)
     }
 

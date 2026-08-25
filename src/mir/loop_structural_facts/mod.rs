@@ -42,9 +42,7 @@ pub(crate) use direct_accum_effect_plan::{
     DirectAccumBindingEffectEntryV1, DirectAccumBindingEffectRoleV1,
     VerifiedDirectAccumBindingEffectPlanV1,
 };
-pub(crate) use direct_accum_exclusivity::{
-    DirectAccumDisjointnessRejectV1,
-};
+pub(crate) use direct_accum_exclusivity::DirectAccumDisjointnessRejectV1;
 pub(crate) use direct_accum_observation::{
     DirectAccumObservationCoverageV1, DirectAccumObservationModeV1,
     DirectAccumSourceAttemptOutcomeV1, DirectAccumSourceDeclineV1, DirectAccumSourceIdentityV1,
@@ -136,9 +134,7 @@ pub(crate) use variable_accum_recurrence::{
 pub(crate) use variable_accum_recurrence_validation::source_coherence_is_exact;
 
 #[cfg(test)]
-pub(crate) use selected_demand::{
-    verified_loop_structural_facts_for_test_with_frame,
-};
+pub(crate) use selected_demand::verified_loop_structural_facts_for_test_with_frame;
 
 #[cfg(test)]
 mod s6c_exit_tail_tests;

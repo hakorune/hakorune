@@ -67,8 +67,7 @@ pub(in crate::mir::builder) use common_v2_s6c_text_cursor_preheader::{
 };
 pub(in crate::mir) use common_v2_session::with_common_v2_canonical_session;
 pub(in crate::mir::builder) use common_v2_session::{
-    issue_common_v2_s6c_text_scalar_equality_leaf_v1,
-    CommonV2S6CTextScalarEqualityLeafShapeV1,
+    issue_common_v2_s6c_text_scalar_equality_leaf_v1, CommonV2S6CTextScalarEqualityLeafShapeV1,
 };
 #[cfg(test)]
 pub(in crate::mir::builder) use physical_entry_draftseal::with_common_v2_s6c_physical_entry_draft_seal;
@@ -91,8 +90,7 @@ pub(in crate::mir) use selected_dynamic_physical_capability::{
     DynamicV2PhysicalCapabilityDispositionV1, DynamicV2PhysicalRepresentationV1,
     DynamicV2ProducerFamilyV1, SelectedDynamicV2PhysicalCapabilityRejectV1,
 };
-pub(in crate::mir::builder) use selected_dynamic_physical_emitter::
-    assemble_unpublished_selected_dynamic_w6_from_parts;
+pub(in crate::mir::builder) use selected_dynamic_physical_emitter::assemble_unpublished_selected_dynamic_w6_from_parts;
 
 #[cfg(test)]
 mod block_expr_tests;
@@ -168,9 +166,7 @@ use super::calls::CanonicalFunctionSessionErrorV1;
 use super::MirBuilder;
 use direct_accum_lowerer::CanonicalDirectAccumSsaLowererV1;
 use draft_seal_owner::{FunctionDraftSealStageV1, RejectedFunctionDraftSealV1};
-use if_recipe_adapter::{
-    admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1,
-};
+use if_recipe_adapter::{admit_trivial_if_recipe_v1, produce_trivial_if_physical_input_v1};
 use lowerer::CanonicalFunctionLowererV1;
 use trivial_ssa::{install_trivial_callable_abi_v1, CanonicalTrivialSsaLowererV1};
 

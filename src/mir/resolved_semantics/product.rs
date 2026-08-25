@@ -461,9 +461,7 @@ impl VerifiedResolvedScriptV1 {
         self.core.data.method_calls.iter()
     }
 
-    pub(crate) const fn expression_source(
-        &self,
-    ) -> &ResolvedExpressionSourceInventoryV1 {
+    pub(crate) const fn expression_source(&self) -> &ResolvedExpressionSourceInventoryV1 {
         &self.core.data.expression_source
     }
 

@@ -55,10 +55,8 @@ pub(in crate::mir::builder) struct CanonicalScriptADirectRowsV1 {
     _observed_method_calls: usize,
     lookup_rows: BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallLookupRowV1>,
     non_direct_rows: BTreeMap<SourceExprSiteV1, CanonicalScriptANonDirectRowV1>,
-    required_argument_rows: BTreeMap<
-        SourceExprSiteV1,
-        ScriptDirectStaticRequiredArgumentProofDispositionV1,
-    >,
+    required_argument_rows:
+        BTreeMap<SourceExprSiteV1, ScriptDirectStaticRequiredArgumentProofDispositionV1>,
 }
 
 impl CanonicalScriptADirectRowsV1 {
@@ -87,10 +85,7 @@ impl CanonicalScriptADirectRowsV1 {
         FunctionOwnerIdV1,
         BTreeMap<SourceExprSiteV1, VerifiedScriptDirectStaticCallLookupRowV1>,
         BTreeMap<SourceExprSiteV1, CanonicalScriptANonDirectRowV1>,
-        BTreeMap<
-            SourceExprSiteV1,
-            ScriptDirectStaticRequiredArgumentProofDispositionV1,
-        >,
+        BTreeMap<SourceExprSiteV1, ScriptDirectStaticRequiredArgumentProofDispositionV1>,
     ) {
         (
             self.source_owner,
@@ -171,9 +166,7 @@ impl CanonicalScriptCTransportV1 {
     #[cfg(test)]
     pub(super) fn disposition_counts(&self) -> (usize, usize) {
         match &self.disposition {
-            CanonicalScriptCDispositionV1::NonDirect(witness) => {
-                (0, witness.non_direct_count())
-            }
+            CanonicalScriptCDispositionV1::NonDirect(witness) => (0, witness.non_direct_count()),
             CanonicalScriptCDispositionV1::DirectStatic(rows) => {
                 (rows.candidate_count(), rows.non_direct_count())
             }

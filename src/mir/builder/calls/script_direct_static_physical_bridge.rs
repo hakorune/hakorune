@@ -100,11 +100,9 @@ where
     )
     .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::CallReceipt)?;
 
-    let publication = PreparedScriptDirectStaticResultPublicationV1::prepare(
-        claimed.representation(),
-        emission,
-    )
-    .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::Publication)?;
+    let publication =
+        PreparedScriptDirectStaticResultPublicationV1::prepare(claimed.representation(), emission)
+            .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::Publication)?;
     let value = publication
         .commit(builder)
         .map_err(ScriptDirectStaticPhysicalBridgeErrorV1::Publication)?;

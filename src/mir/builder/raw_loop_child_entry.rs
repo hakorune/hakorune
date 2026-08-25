@@ -12,6 +12,7 @@ use crate::mir::resolved_semantics::{
 use crate::mir::{MirBuilder, ValueId};
 
 use super::generic_loop_admission_observation::GenericLoopAdmissionObservationV1;
+use super::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 use super::normal_callable_loop_handoff::{
     CallableLoopBindingProjectionDispositionV1, CallableLoopOutsideReasonV1,
     VerifiedCallableSemanticLoopBindingScheduleV1,
@@ -20,7 +21,6 @@ use super::normal_callable_loop_physical_adapter::CallableGenericLoopV1PhysicalA
 use super::normal_callable_loop_source_facts::{
     CallableGenericLoopSourceFactsDispositionV1, CallableGenericLoopSourceFactsIssuerV1,
 };
-use super::module_invocation_session::UnpublishedCallableLoopRootScopeV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use crate::mir::builder::control_flow::plan::GenericLoopFactsPolicyFrameV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;

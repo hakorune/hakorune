@@ -1,10 +1,9 @@
 use super::*;
 
-use crate::mir::normal_callable_semantic_package::
-    issue_normal_callable_semantic_package_v1;
+use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
 use crate::mir::resolved_semantics::{
-    FunctionSemanticResolverSessionV1, ScriptRootResolvedDemandV1,
-    ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1,
+    FunctionSemanticResolverSessionV1, ScriptRootResolvedDemandV1, ScriptRootSemanticDispositionV1,
+    ScriptTransferredBoundaryV1,
 };
 use crate::parser::{NyashParser, ParserBuildConfig};
 
@@ -18,14 +17,12 @@ fn package(source: &str, session_id: u32) -> VerifiedNormalCallableSemanticPacka
         crate::r#macro::transform_normal_callable_program_v1(parsed)
             .expect("exact callable transform")
     });
-    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed
-    else {
+    let crate::r#macro::NormalCallableTransformOutcomeV1::SourceBacked(source) = transformed else {
         panic!("fixture must remain source-backed")
     };
-    let mut resolver = FunctionSemanticResolverSessionV1::new(session_id)
-        .expect("resolver session");
-    issue_normal_callable_semantic_package_v1(&mut resolver, source)
-        .expect("semantic package")
+    let mut resolver =
+        FunctionSemanticResolverSessionV1::new(session_id).expect("resolver session");
+    issue_normal_callable_semantic_package_v1(&mut resolver, source).expect("semantic package")
 }
 
 #[test]
@@ -45,13 +42,21 @@ fn neutral_issuer_co_seals_composite_provider_and_root_return_window() {
             .expect("source loan")
     ));
     assert!(matches!(
-        admission.window().entry_at(0).expect("provider entry").semantic(),
+        admission
+            .window()
+            .entry_at(0)
+            .expect("provider entry")
+            .semantic(),
         ScriptRootSemanticDispositionV1::Transferred(
             ScriptTransferredBoundaryV1::StaticCallableCatalogTransfer
         )
     ));
     assert!(matches!(
-        admission.window().entry_at(1).expect("return entry").semantic(),
+        admission
+            .window()
+            .entry_at(1)
+            .expect("return entry")
+            .semantic(),
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::ReturnExit(_))
     ));
 }
@@ -64,7 +69,11 @@ fn neutral_issuer_keeps_non_composite_source_explicitly_complete() {
     let (admission, _remainder) = neutral.split_for_pre_effect();
 
     assert!(matches!(
-        admission.window().entry_at(0).expect("ordinary entry").semantic(),
+        admission
+            .window()
+            .entry_at(0)
+            .expect("ordinary entry")
+            .semantic(),
         ScriptRootSemanticDispositionV1::Resolved(ScriptRootResolvedDemandV1::LexicalCore)
     ));
     assert!(admission.deferred_residuals().entries().is_empty());
@@ -85,11 +94,19 @@ fn parser_scan_loop_box_catalog_transfer() {
 
     assert_eq!(admission.window().entries().len(), 2);
     assert!(matches!(
-        admission.window().entry_at(0).expect("using entry").semantic(),
+        admission
+            .window()
+            .entry_at(0)
+            .expect("using entry")
+            .semantic(),
         ScriptRootSemanticDispositionV1::Transparent(_)
     ));
     assert!(matches!(
-        admission.window().entry_at(1).expect("cataloged box entry").semantic(),
+        admission
+            .window()
+            .entry_at(1)
+            .expect("cataloged box entry")
+            .semantic(),
         ScriptRootSemanticDispositionV1::Transferred(
             ScriptTransferredBoundaryV1::StaticCallableCatalogTransfer
         )
@@ -104,5 +121,8 @@ fn parser_scan_loop_box_catalog_transfer() {
                 && key.owner() == "ParserScanLoopBox"
         })
         .count();
-    assert_eq!(method_count, 4, "all cataloged method rows stay source-owned");
+    assert_eq!(
+        method_count, 4,
+        "all cataloged method rows stay source-owned"
+    );
 }

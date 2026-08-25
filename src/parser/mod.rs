@@ -174,8 +174,7 @@ pub struct NyashParser {
     active_source_declaration_path: Option<source_authority::SourceBoxDeclarationPathV1>,
     pub(super) next_source_build_gate_id: u32,
     source_build_gate_scope: source_gate_ledger::SourceBuildGateScopeV1,
-    prepared_source_build_gate_records:
-        Vec<source_gate_ledger::PreparedBuildGateSourceRecordV1>,
+    prepared_source_build_gate_records: Vec<source_gate_ledger::PreparedBuildGateSourceRecordV1>,
     pub(super) build_gate_observations: Vec<build_cfg::decision_set::BuildGateObservationV1>,
     /// 🔥 Static box依存関係追跡（循環依存検出用）
     pub(super) static_box_dependencies:

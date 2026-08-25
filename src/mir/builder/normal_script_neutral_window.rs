@@ -25,22 +25,21 @@ use crate::mir::resolved_semantics::{
     VerifiedScriptRootDemandWindowV1,
 };
 use crate::parser::{
-    ParserNormalProgramBodySourceRowV1, ParserNormalProgramSourceLoanRejectV1,
-    ParserNormalProgramSourceLoanV1, ParserInvocationWitnessV1,
+    ParserInvocationWitnessV1, ParserNormalProgramBodySourceRowV1,
+    ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1,
 };
 
+use super::callable_declaration_catalog::SelectedNormalCallableSourceSiteV1;
+use super::normal_instance_constructor_admission::{
+    InstanceConstructorPhysicalSourceIssueV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
+};
 use super::normal_script_composite_partition::{
     CanonicalScriptCompositeProgramPartitionDispositionV1,
-    CanonicalScriptCompositeProgramPartitionIssuerV1,
-    CanonicalScriptCompositeProgramPartitionV1,
+    CanonicalScriptCompositeProgramPartitionIssuerV1, CanonicalScriptCompositeProgramPartitionV1,
 };
-use super::callable_declaration_catalog::SelectedNormalCallableSourceSiteV1;
 use super::normal_script_deferred_residual_registry::ScriptDeferredResidualRegistryBuilderV1;
 use super::normal_script_instance_box_transfer::{
     ScriptInstanceBoxTransferIssueV1, VerifiedScriptInstanceBoxTransferCohortV1,
-};
-use super::normal_instance_constructor_admission::{
-    InstanceConstructorPhysicalSourceIssueV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
 };
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, is_direct_selected_unsupported_statement_v1,
@@ -67,16 +66,26 @@ struct PreparedCanonicalScriptNeutralProgramWindowSealV1;
 
 #[derive(Debug)]
 pub(super) enum CanonicalScriptNeutralProgramWindowIssueV1 {
-    SourceLoan { _reject: ParserNormalProgramSourceLoanRejectV1 },
+    SourceLoan {
+        _reject: ParserNormalProgramSourceLoanRejectV1,
+    },
     Composite {
         _disposition: CanonicalScriptCompositeProgramPartitionDispositionV1,
     },
-    InstanceTransfer { _issue: ScriptInstanceBoxTransferIssueV1 },
-    ConstructorSource { _issue: InstanceConstructorPhysicalSourceIssueV1 },
-    CatalogedStaticBoxSource { _detail: Box<str> },
+    InstanceTransfer {
+        _issue: ScriptInstanceBoxTransferIssueV1,
+    },
+    ConstructorSource {
+        _issue: InstanceConstructorPhysicalSourceIssueV1,
+    },
+    CatalogedStaticBoxSource {
+        _detail: Box<str>,
+    },
     StatementPositionOverflow,
     StatementBoundaryMismatch,
-    Window { _error: ScriptRootDemandWindowSealErrorV1 },
+    Window {
+        _error: ScriptRootDemandWindowSealErrorV1,
+    },
 }
 
 impl PreparedCanonicalScriptNeutralProgramWindowV1 {
@@ -85,33 +94,32 @@ impl PreparedCanonicalScriptNeutralProgramWindowV1 {
     ) -> Result<Self, CanonicalScriptNeutralProgramWindowIssueV1> {
         package
             .with_normal_program_source_loan(|loan| Self::issue_from_program_loan(&loan, package))
-            .map_err(|_reject| {
-                CanonicalScriptNeutralProgramWindowIssueV1::SourceLoan { _reject }
-            })?
+            .map_err(|_reject| CanonicalScriptNeutralProgramWindowIssueV1::SourceLoan { _reject })?
     }
 
     fn issue_from_program_loan(
         loan: &ParserNormalProgramSourceLoanV1<'_>,
         package: &VerifiedNormalCallableSemanticPackageV1,
     ) -> Result<Self, CanonicalScriptNeutralProgramWindowIssueV1> {
-        let composite_partition = match
-            CanonicalScriptCompositeProgramPartitionIssuerV1::issue_from_program_loan(loan)
-        {
-            CanonicalScriptCompositeProgramPartitionDispositionV1::Ready(partition) => {
-                Some(partition)
-            }
-            CanonicalScriptCompositeProgramPartitionDispositionV1::Outside(_) => None,
-            disposition => {
-                return Err(CanonicalScriptNeutralProgramWindowIssueV1::Composite {
-                    _disposition: disposition,
-                })
-            }
-        };
+        let composite_partition =
+            match CanonicalScriptCompositeProgramPartitionIssuerV1::issue_from_program_loan(loan) {
+                CanonicalScriptCompositeProgramPartitionDispositionV1::Ready(partition) => {
+                    Some(partition)
+                }
+                CanonicalScriptCompositeProgramPartitionDispositionV1::Outside(_) => None,
+                disposition => {
+                    return Err(CanonicalScriptNeutralProgramWindowIssueV1::Composite {
+                        _disposition: disposition,
+                    })
+                }
+            };
         let instance_box_transfers =
             VerifiedScriptInstanceBoxTransferCohortV1::issue_from_program_loan(loan, package)
-                .map_err(|_issue| {
-                    CanonicalScriptNeutralProgramWindowIssueV1::InstanceTransfer { _issue }
-                })?;
+                .map_err(
+                    |_issue| CanonicalScriptNeutralProgramWindowIssueV1::InstanceTransfer {
+                        _issue,
+                    },
+                )?;
         let constructor_source_cohort =
             VerifiedInstanceConstructorPhysicalSourceCohortV1::issue_from_program_loan(
                 loan, package,
@@ -276,57 +284,86 @@ impl NeutralScriptRootDecisionV1 {
                     Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported),
                     Runtime::RetainedExistingTerminal,
                 ),
-                Admission::DirectPortAwareExpression if matches!(statement, ASTNode::Me { .. }) => (
-                    Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent),
-                    Runtime::RetainedExistingTerminal,
-                ),
+                Admission::DirectPortAwareExpression if matches!(statement, ASTNode::Me { .. }) => {
+                    (
+                        Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingReceiverAbsent),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression
-                    if matches!(statement, ASTNode::This { .. }) => (
-                    Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported),
-                    Runtime::RetainedExistingTerminal,
-                ),
+                    if matches!(statement, ASTNode::This { .. }) =>
+                {
+                    (
+                        Semantic::Diagnostic(
+                            ScriptDiagnosticBoundaryV1::ExistingBareThisUnsupported,
+                        ),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression
-                    if matches!(statement, ASTNode::ContextScope { .. }) => (
-                    Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported),
-                    Runtime::RetainedExistingTerminal,
-                ),
+                    if matches!(statement, ASTNode::ContextScope { .. }) =>
+                {
+                    (
+                        Semantic::Diagnostic(
+                            ScriptDiagnosticBoundaryV1::ExistingContextScopeUnsupported,
+                        ),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression
-                    if matches!(statement, ASTNode::UsingStatement { .. }) => (
-                    Semantic::Transparent(ScriptTransparentBoundaryV1::UsingDirective),
-                    Runtime::RetainedExistingTerminal,
-                ),
+                    if matches!(statement, ASTNode::UsingStatement { .. }) =>
+                {
+                    (
+                        Semantic::Transparent(ScriptTransparentBoundaryV1::UsingDirective),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression
-                    if matches!(statement, ASTNode::QMarkPropagate { .. }) => (
-                    Semantic::Resolved(ScriptRootResolvedDemandV1::QMarkPropagation(
-                        ScriptRootQMarkPropagationAdmissionV1::new(),
-                    )),
-                    Runtime::RetainedExistingTerminal,
-                ),
+                    if matches!(statement, ASTNode::QMarkPropagate { .. }) =>
+                {
+                    (
+                        Semantic::Resolved(ScriptRootResolvedDemandV1::QMarkPropagation(
+                            ScriptRootQMarkPropagationAdmissionV1::new(),
+                        )),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression
-                    if matches!(statement, ASTNode::MatchExpr { .. }) => (
-                    Semantic::Resolved(ScriptRootResolvedDemandV1::MatchControl(
-                        ScriptRootMatchControlAdmissionV1::new(),
-                    )),
-                    Runtime::RetainedExistingTerminal,
-                ),
+                    if matches!(statement, ASTNode::MatchExpr { .. }) =>
+                {
+                    (
+                        Semantic::Resolved(ScriptRootResolvedDemandV1::MatchControl(
+                            ScriptRootMatchControlAdmissionV1::new(),
+                        )),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression
-                    if matches!(statement, ASTNode::Return { .. }) => (
-                    if statement_index + 1 == statement_count {
-                        Semantic::Resolved(ScriptRootResolvedDemandV1::ReturnExit(
-                            ScriptRootReturnExitAdmissionV1::new(),
-                        ))
-                    } else {
-                        Semantic::Deferred(ScriptDeferredBoundaryV1::ExistingRuntimeResponsibility)
-                    },
-                    Runtime::RetainedExistingTerminal,
-                ),
+                    if matches!(statement, ASTNode::Return { .. }) =>
+                {
+                    (
+                        if statement_index + 1 == statement_count {
+                            Semantic::Resolved(ScriptRootResolvedDemandV1::ReturnExit(
+                                ScriptRootReturnExitAdmissionV1::new(),
+                            ))
+                        } else {
+                            Semantic::Deferred(
+                                ScriptDeferredBoundaryV1::ExistingRuntimeResponsibility,
+                            )
+                        },
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression
-                    if is_variable_target_binding_rebind(statement) => (
-                    Semantic::Resolved(ScriptRootResolvedDemandV1::BindingRebind(
-                        ScriptRootBindingRebindAdmissionV1::new(),
-                    )),
-                    Runtime::RetainedExistingTerminal,
-                ),
+                    if is_variable_target_binding_rebind(statement) =>
+                {
+                    (
+                        Semantic::Resolved(ScriptRootResolvedDemandV1::BindingRebind(
+                            ScriptRootBindingRebindAdmissionV1::new(),
+                        )),
+                        Runtime::RetainedExistingTerminal,
+                    )
+                }
                 Admission::DirectPortAwareExpression if is_index_write_assignment(statement) => (
                     Semantic::Resolved(ScriptRootResolvedDemandV1::IndexWrite(
                         ScriptRootIndexWriteAdmissionV1::new(),
@@ -410,8 +447,7 @@ fn validate_cataloged_static_box_source(
     let actual = declaration_catalog
         .declarations()
         .filter(|(key, _)| {
-            key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
-                && key.owner() == name
+            key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod && key.owner() == name
         })
         .map(|(key, _)| (key.name().to_owned(), key.arity()))
         .collect::<BTreeSet<_>>();
@@ -441,8 +477,7 @@ fn validate_cataloged_static_box_source(
     }
 
     for (key, _) in declaration_catalog.declarations().filter(|(key, _)| {
-        key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod
-            && key.owner() == name
+        key.namespace() == SameModuleCallableNamespaceV1::StaticBoxMethod && key.owner() == name
     }) {
         let selected_key = SelectedNormalCallableKeyV1::Cataloged(key.clone());
         let Some(SelectedNormalCallableSourceSiteV1::ProgramBoxMethod {
@@ -535,7 +570,13 @@ fn validate_source_boundary(
             is_program_record_declaration(statement)
         }
         Semantic::Transferred(ScriptTransferredBoundaryV1::InstanceBoxSemanticOwner) => {
-            matches!(statement, ASTNode::BoxDeclaration { is_static: false, .. })
+            matches!(
+                statement,
+                ASTNode::BoxDeclaration {
+                    is_static: false,
+                    ..
+                }
+            )
         }
         Semantic::Diagnostic(ScriptDiagnosticBoundaryV1::ExistingSelectedUnsupported) => {
             is_direct_selected_unsupported_statement_v1(statement)

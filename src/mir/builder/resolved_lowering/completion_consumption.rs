@@ -129,7 +129,6 @@ impl ExplicitReturnClaimV1 {
     ) -> Self {
         Self::value(site, block, value)
     }
-
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -342,7 +341,6 @@ impl ReadyFunctionCompletionV1 {
             explicit_claims: claims,
         }
     }
-
 }
 
 #[cfg(test)]

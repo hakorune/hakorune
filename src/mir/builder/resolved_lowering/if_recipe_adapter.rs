@@ -31,10 +31,18 @@ pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipePreflightV1
 
 #[derive(Debug)]
 pub(in crate::mir::builder::resolved_lowering) enum CanonicalIfRecipeProducerRejectV1 {
-    Mapper { _reason: IfRecipeMapRejectV1 },
-    NestedMapper { _reason: NestedIfRecipeMapRejectV1 },
-    NestedJoin { _reason: NestedIfJoinSigRejectReasonV1 },
-    PhysicalInput { _reason: IfPhysicalInputRejectReasonV1 },
+    Mapper {
+        _reason: IfRecipeMapRejectV1,
+    },
+    NestedMapper {
+        _reason: NestedIfRecipeMapRejectV1,
+    },
+    NestedJoin {
+        _reason: NestedIfJoinSigRejectReasonV1,
+    },
+    PhysicalInput {
+        _reason: IfPhysicalInputRejectReasonV1,
+    },
     Correspondence {
         _reason: CanonicalIfRecipeCorrespondenceRejectV1,
     },

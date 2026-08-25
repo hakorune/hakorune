@@ -139,8 +139,8 @@ pub(crate) use enum_match_demand::{
 pub(crate) use enum_variant_demand::{EnumVariantAdmissionV1, EnumVariantDemandV1};
 pub(crate) use explicit_extern_call::ResolvedExplicitExternCallV1;
 pub(crate) use expression_source::{
-    ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1, ResolvedInitializerRelationV1,
-    ResolvedExpressionSourceInventoryV1, ResolvedLiteralSourceV1,
+    ResolvedBinaryExpressionSourceV1, ResolvedBinaryOperatorV1,
+    ResolvedExpressionSourceInventoryV1, ResolvedInitializerRelationV1, ResolvedLiteralSourceV1,
     ResolvedUnaryExpressionSourceV1, ResolvedUnaryOperatorV1,
 };
 pub(crate) use function_root::{
@@ -269,20 +269,18 @@ pub(crate) use selected_callable_deferred::{
 };
 pub(in crate::mir) use shadow::{
     observe_method_calls_shadow_view_v0, observe_qualified_receiver_shadow_view_v0,
-    observe_script_method_calls_shadow_view_v0,
-    ShadowMethodCallObservationV0, ShadowMethodCallReceiverV0,
-    ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
+    observe_script_method_calls_shadow_view_v0, ShadowMethodCallObservationV0,
+    ShadowMethodCallReceiverV0, ShadowQualifiedReceiverDispositionV0, ShadowResolveErrorV0,
 };
 pub(crate) use shadow::{
-    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptRootBindingRebindAdmissionV1,
+    ScriptDeferredBoundaryV1, ScriptDiagnosticBoundaryV1, ScriptResolverDeferredCauseV1,
+    ScriptResolverDeferredSiteV1, ScriptResolverDeferredV1, ScriptRootBindingRebindAdmissionV1,
     ScriptRootDemandWindowSealErrorV1, ScriptRootIfControlAdmissionV1,
     ScriptRootIndexWriteAdmissionV1, ScriptRootMatchControlAdmissionV1,
     ScriptRootQMarkPropagationAdmissionV1, ScriptRootResolvedDemandV1,
     ScriptRootReturnExitAdmissionV1, ScriptRootRuntimeDispositionV1,
     ScriptRootSemanticDispositionV1, ScriptTransferredBoundaryV1, ScriptTransparentBoundaryV1,
-    VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
-    ScriptResolverDeferredCauseV1, ScriptResolverDeferredSiteV1,
-    ScriptResolverDeferredV1, SourceResolverDeferredV1,
+    SourceResolverDeferredV1, VerifiedScriptRootDemandEntryV1, VerifiedScriptRootDemandWindowV1,
 };
 pub(crate) use source_path_policy::{
     assignment_value_sibling_v1, is_statement_expression_surface_v1, BodyChildRoleV1,

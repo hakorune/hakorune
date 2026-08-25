@@ -70,7 +70,6 @@ impl VerifiedDynamicLocalInitializationSourceV1 {
     pub(super) const fn declaration(&self) -> &SourceBindingSiteV1 {
         &self.declaration
     }
-
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

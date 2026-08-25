@@ -403,7 +403,9 @@ where
                 value
             }
             Some(ASTNode::New {
-                class, arguments: _, ..
+                class,
+                arguments: _,
+                ..
             }) if builder.is_record_constructor_class(class) => {
                 let class = class.clone();
                 port.lower_record_constructor_initializer(builder, &mut input, index, &class)?

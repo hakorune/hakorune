@@ -29,7 +29,6 @@ mod literal_lowering;
 #[cfg(test)]
 mod literal_postemit_retirement_tests;
 mod new_expression;
-mod ordinary_new_admission;
 mod normal_callable_binding_materialization;
 mod normal_callable_binding_materialization_port; // existing formal ValueId handoff
 mod normal_callable_catalog_owner_link; // exact catalog key/owner/source ingress co-seal
@@ -47,6 +46,7 @@ mod normal_callable_semantic_lowering_state; // Callable BindingRef-to-ValueId p
 mod normal_callable_semantic_source; // Co-sealed selected callable source authority
 mod normal_callable_semantic_source_lookup; // Exact legacy source-site/view lookup during cutover
 mod normal_cataloged_box_method_lowering;
+mod ordinary_new_admission;
 mod variable_read;
 pub(in crate::mir) use callable_declaration_catalog::issue_source_backed_same_module_callable_catalog_v1;
 pub(crate) use callable_declaration_catalog::{
@@ -146,15 +146,12 @@ pub(in crate::mir) use script_physical_exit::{
 #[allow(dead_code)]
 mod raw_source_projection; // RAW-SOURCE0-PLAN0 owned source locators
 pub(in crate::mir) use raw_root_environment_install::{
-    CompletedRawRootBodyPhysicalV1, InstalledRawRootEnvironmentV1,
-    RawRootBodyLoweringErrorV1,
+    CompletedRawRootBodyPhysicalV1, InstalledRawRootEnvironmentV1, RawRootBodyLoweringErrorV1,
     RawRootEnvironmentInstallErrorV1, RawRootEnvironmentInstallOwnerV1,
     RawRootEnvironmentInstallRouteV1, RawRootEnvironmentProjectionV1,
     RejectedRawRootBodyPhysicalV1, RejectedRawRootEnvironmentInstallV1,
 };
-pub(in crate::mir) use raw_root_physical::callable_main_terminal::{
-    RawRootPhysicalCallableMainErrorV1,
-};
+pub(in crate::mir) use raw_root_physical::callable_main_terminal::RawRootPhysicalCallableMainErrorV1;
 pub(in crate::mir) use raw_root_physical::child_terminal::RawRootPhysicalChildErrorV1;
 pub(in crate::mir) use raw_root_physical::root_batch_terminal::{
     CompletedRawRootBatchPhysicalV1, RawRootBatchPhysicalErrorV1, RejectedRawRootBatchPhysicalV1,
@@ -177,8 +174,8 @@ pub(in crate::mir) use normal_root_execution::{
 pub(in crate::mir) use normal_runtime_inputs::NormalRuntimeInputSnapshotV1;
 pub(in crate::mir) use raw_root_static_child_admission::PreparedRawRootStaticChildDraftV1;
 pub(in crate::mir) use raw_source_projection::{
-    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1,
-    RawSourceOriginV1, RawSourceProjectionErrorV1,
+    OwnedRawRootProjectionV1, OwnedRawSourceV1, RawSourceLocatorV1, RawSourceOriginV1,
+    RawSourceProjectionErrorV1,
 };
 #[allow(dead_code)]
 mod main_pending_draft; // HEADERPORT0-I0-MAINPENDING0-S0 disconnected handoff
@@ -273,8 +270,8 @@ pub(in crate::mir) use raw_root_physical::finalization_terminal::{
 pub(in crate::mir) use raw_root_physical::postprocess_terminal::{
     RawExternalCommitModuleV1, RawExternalCommitPhysicalErrorV1,
     RawExternalCommitPhysicalHandoffV1, RawPostprocessCarrierParityErrorV1,
-    RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1,
-    RawPostprocessProgressV1, RawPostprocessedPhysicalV1,
+    RawPostprocessParitySealV1, RawPostprocessPhysicalOwnerV1, RawPostprocessProgressV1,
+    RawPostprocessedPhysicalV1,
 };
 mod canonical_root_completion; // CUT0-I0-ROOT0-CANON0 route-specific completion
 mod canonical_root_completion_error; // CUT0-I0-ROOT0-CANON0 shared error vocabulary
@@ -321,9 +318,7 @@ mod normal_script_source_continuation; // Resolver-issued Script source continua
 mod normal_script_source_continuation_tests;
 mod program_root_lowering; // Shared typed/generic Program root owner
 pub(in crate::mir) use normal_default_program_root::PreparedNormalDefaultProgramRootV1;
-pub(in crate::mir) use normal_default_root_catalog_lifecycle::{
-    NormalDefaultRootCatalogLifecycleStageV1,
-};
+pub(in crate::mir) use normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleStageV1;
 #[allow(dead_code)]
 mod cataloged_box_method_collector_handoff;
 mod module_lowering_access_port; // HEADERPORT0 I0-ACCESS0-S0 disconnected vocabulary
@@ -357,9 +352,7 @@ mod module_wiring_route_matrix_p0e; // ROUTEINV-P0e test-only matrix closure
 mod nonmain_static_box_method_batch;
 #[allow(dead_code)]
 mod raw_expansion_receipt_ledger; // ROUTEINV-P0b-RAWLEDGER-S0 disconnected owner
-pub(in crate::mir) use raw_expansion_receipt_ledger::{
-    RawCallableMainCompatibilityDispositionV1,
-};
+pub(in crate::mir) use raw_expansion_receipt_ledger::RawCallableMainCompatibilityDispositionV1;
 #[cfg(test)]
 mod raw_expansion_receipt_ledger_p0; // ROUTEINV-P0b-RAWLEDGER-P0 proof matrix
 #[cfg(test)]
@@ -583,11 +576,11 @@ mod weak_field_write;
 // Phase 29bq+: sealing 層中立化
 use control_flow::edgecfg::api::FragEmitSession;
 mod declaration_order; // Deterministic box-member traversal owner
-mod mir_value_id_inventory; // Active lifecycle ValueId inventory; no remap authority
 #[cfg(test)]
 pub mod joinir_id_remapper; // Reference-only JoinIR ID remapping (ValueId/BlockId translation)
 mod joinir_inline_boundary_injector; // Phase 189: JoinInlineBoundary Copy instruction injector
 mod loop_api_impl; // CLEAN-D: LoopBuilderApi wiring kept inside builder layer
+mod mir_value_id_inventory; // Active lifecycle ValueId inventory; no remap authority
 mod module_compat_policy; // CUT0-S0-COMPAT0 ingress policy snapshot
 #[cfg(test)]
 mod module_compat_policy_p0; // CUT0-S0-COMPAT0 typed failure fixtures

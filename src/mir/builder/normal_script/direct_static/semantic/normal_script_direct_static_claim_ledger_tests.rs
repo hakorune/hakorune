@@ -6,15 +6,15 @@ use crate::mir::builder::normal_script_direct_static_recipe::{
     ScriptDirectStaticRecipeDestinationV1, ScriptDirectStaticRecipeKeyV1,
     VerifiedScriptDirectStaticRecipeDemandV1, VerifiedScriptDirectStaticRecipeV1,
 };
-use crate::mir::builder::normal_script_semantic_lowering_input::{
-    CanonicalScriptACompleteZeroKindV1, CanonicalScriptCNoDirectClaimsV1,
-};
 use crate::mir::builder::normal_script_direct_static_result_bundle::{
     VerifiedScriptDirectStaticResultBundleV1, VerifiedScriptDirectStaticResultDemandV1,
 };
 use crate::mir::builder::normal_script_direct_static_result_publication_owner::{
     VerifiedScriptDirectStaticResultPublicationDemandV1,
     VerifiedScriptDirectStaticResultPublicationOwnerV1,
+};
+use crate::mir::builder::normal_script_semantic_lowering_input::{
+    CanonicalScriptACompleteZeroKindV1, CanonicalScriptCNoDirectClaimsV1,
 };
 use crate::mir::builder::normal_script_source_continuation::ScriptSourceContinuationTerminalV1;
 use crate::mir::builder::CanonicalSameModuleCallableKeyV1;
@@ -123,7 +123,9 @@ fn empty_ledger_is_not_claimable_and_finishes() {
     assert_eq!(ledger.in_flight_len(), 0);
     assert_eq!(
         ledger.take(&site()),
-        Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(site()))
+        Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(
+            site()
+        ))
     );
     ledger.finish().expect("empty ledger finishes");
 }
@@ -133,7 +135,9 @@ fn unknown_site_does_not_mutate_empty_ledger() {
     let mut ledger = no_direct_ledger();
     assert_eq!(
         ledger.take(&site()),
-        Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(site()))
+        Err(ScriptDirectStaticClaimLedgerIssueV1::ClaimSiteNotCovered(
+            site()
+        ))
     );
     assert_eq!(ledger.pending_len(), 0);
     assert_eq!(ledger.in_flight_len(), 0);
@@ -197,9 +201,7 @@ fn proof_must_be_consumed_before_claim_completion() {
     };
     assert_eq!(
         ledger.complete(claimed),
-        Err(ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofUnconsumed(
-            call_site,
-        ))
+        Err(ScriptDirectStaticClaimLedgerIssueV1::RequiredArgumentProofUnconsumed(call_site,))
     );
     assert_eq!(ledger.in_flight_len(), 1);
 }

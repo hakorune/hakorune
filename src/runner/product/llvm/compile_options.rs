@@ -3,9 +3,7 @@
 //! This names LLVM compile-time policy without letting the runner mutate env
 //! variables ad hoc.
 
-use nyash_rust::{
-    mir::{compile_target_capability::*, MirCompileResult},
-};
+use nyash_rust::mir::{compile_target_capability::*, MirCompileResult};
 use std::collections::HashMap;
 
 use super::mir_compiler::MirCompilerBox;
@@ -64,5 +62,4 @@ impl CompileOptionsBox {
     ) -> Result<MirCompileResult, String> {
         MirCompilerBox::compile_normal_callable(outcome, filename, imports, options)
     }
-
 }

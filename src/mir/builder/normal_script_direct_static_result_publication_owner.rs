@@ -231,9 +231,7 @@ impl VerifiedScriptDirectStaticResultPublicationOwnerV1 {
             return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::BundleSourceMismatch);
         }
         if continuation.owner() != source_owner {
-            return Err(
-                ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationOwnerMismatch,
-            );
+            return Err(ScriptDirectStaticResultPublicationOwnerIssueV1::ContinuationOwnerMismatch);
         }
 
         let mut rows = BTreeMap::new();

@@ -4,14 +4,13 @@
 //! finish a session; the existing entry session remains the only candidate,
 //! Return, signature, verifier, and finish owner.
 
+use crate::mir::builder::calls::emit_static_global_value_terminal_with_receipt_v1;
 use crate::mir::builder::normal_script_direct_static_join_handoff::{
     ScalarBinaryOperatorV1, ScalarOperandRecipeNodeV1, ScalarUnaryOperatorV1,
     VerifiedScriptDirectStaticPhysicalInputV1,
 };
-use crate::mir::builder::normal_script_direct_static_physical_publication::
-    PreparedScriptDirectStaticResultPublicationV1;
+use crate::mir::builder::normal_script_direct_static_physical_publication::PreparedScriptDirectStaticResultPublicationV1;
 use crate::mir::builder::normal_script_direct_static_recipe::ScriptDirectStaticRecipeKeyV1;
-use crate::mir::builder::calls::emit_static_global_value_terminal_with_receipt_v1;
 use crate::mir::{BinaryOp, MirBuilder, MirInstruction, MirType, UnaryOp, ValueId};
 
 use super::{
@@ -94,7 +93,10 @@ pub(in crate::mir) fn lower_direct_static_physical_input_v1(
         .map_err(|(session, error)| (session, format_session_error(error)))
 }
 
-fn lower_node(builder: &mut MirBuilder, node: &ScalarOperandRecipeNodeV1) -> Result<ValueId, String> {
+fn lower_node(
+    builder: &mut MirBuilder,
+    node: &ScalarOperandRecipeNodeV1,
+) -> Result<ValueId, String> {
     match node {
         ScalarOperandRecipeNodeV1::Literal { value, .. } => {
             crate::mir::builder::emission::constant::emit_integer(builder, *value)
@@ -109,7 +111,10 @@ fn lower_node(builder: &mut MirBuilder, node: &ScalarOperandRecipeNodeV1) -> Res
                 ScalarUnaryOperatorV1::BitNot => UnaryOp::BitNot,
             };
             builder.emit_instruction(MirInstruction::UnaryOp { dst, op, operand })?;
-            builder.function_state.type_ctx.set_type(dst, MirType::Integer);
+            builder
+                .function_state
+                .type_ctx
+                .set_type(dst, MirType::Integer);
             Ok(dst)
         }
         ScalarOperandRecipeNodeV1::Binary {
@@ -127,7 +132,10 @@ fn lower_node(builder: &mut MirBuilder, node: &ScalarOperandRecipeNodeV1) -> Res
                 ScalarBinaryOperatorV1::BitXor => BinaryOp::BitXor,
             };
             builder.emit_instruction(MirInstruction::BinOp { dst, op, lhs, rhs })?;
-            builder.function_state.type_ctx.set_type(dst, MirType::Integer);
+            builder
+                .function_state
+                .type_ctx
+                .set_type(dst, MirType::Integer);
             Ok(dst)
         }
     }
@@ -147,9 +155,13 @@ mod tests {
     use crate::mir::builder::normal_script_direct_static_recipe::{
         ScriptDirectStaticRecipeDestinationV1, ScriptDirectStaticRecipeKeyV1,
     };
-    use crate::mir::builder::{canonical_normal_main_entry_target, CanonicalSameModuleCallableKeyV1};
+    use crate::mir::builder::{
+        canonical_normal_main_entry_target, CanonicalSameModuleCallableKeyV1,
+    };
     use crate::mir::callable_result_representation::VerifiedCallableResultRepresentationV1;
-    use crate::mir::resolved_semantics::{FunctionOwnerIssuerV1, SourcePathSegmentV1, SourcePathV1};
+    use crate::mir::resolved_semantics::{
+        FunctionOwnerIssuerV1, SourcePathSegmentV1, SourcePathV1,
+    };
     use std::collections::BTreeMap;
 
     #[test]
@@ -168,9 +180,8 @@ mod tests {
                 .child(SourcePathSegmentV1::Argument(0))
                 .expr();
             let key = ScriptDirectStaticRecipeKeyV1::from_ordinal_for_test(0);
-            let target = CanonicalSameModuleCallableKeyV1::test_static_box_method(
-                "Helpers", "run", 1,
-            );
+            let target =
+                CanonicalSameModuleCallableKeyV1::test_static_box_method("Helpers", "run", 1);
             let join = VerifiedScriptDirectStaticJoinRowV1::from_parts_for_test(
                 key,
                 owner,
@@ -203,21 +214,15 @@ mod tests {
                 BTreeMap::from([(key, row)]),
             );
             let live = MirBuilder::new();
-            let session = OpenScriptPhysicalEntrySessionV1::open(
-                &live,
-                canonical_normal_main_entry_target(),
-            )
-            .expect("detached Script session");
+            let session =
+                OpenScriptPhysicalEntrySessionV1::open(&live, canonical_normal_main_entry_target())
+                    .expect("detached Script session");
             let completed = match lower_direct_static_physical_input_v1(session, &input, key) {
                 Ok(completed) => completed,
                 Err((_session, error)) => panic!("detached direct-static lowering: {error}"),
             };
             let function = completed.draft();
-            let block = function
-                .blocks
-                .values()
-                .next()
-                .expect("entry block");
+            let block = function.blocks.values().next().expect("entry block");
             assert_eq!(
                 block
                     .instructions

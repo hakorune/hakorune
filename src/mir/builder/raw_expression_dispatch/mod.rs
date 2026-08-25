@@ -45,11 +45,11 @@ use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_lambda_capture_lifecycle::RawLambdaCaptureDemandPortV1;
 use super::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
-use super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
     RawLoopChildEntryPortV1, RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
 };
+use super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::stmts::{
     drive_variable_assignment_v1, LocalStatementDescentPortV1, RawLegacyLocalInputV1,
     RawLegacyValueReturnInputV1, RawLegacyVariableAssignmentInputV1, ReturnStatementDescentPortV1,

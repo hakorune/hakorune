@@ -5,14 +5,11 @@
 //! arm does not manufacture empty downstream products.
 
 use crate::mir::builder::normal_script_direct_static_join_handoff::{
-    VerifiedScriptDirectStaticJoinHandoffV1,
-    VerifiedScriptDirectStaticRequiredArgumentProofV1,
+    VerifiedScriptDirectStaticJoinHandoffV1, VerifiedScriptDirectStaticRequiredArgumentProofV1,
 };
 use crate::mir::builder::normal_script_direct_static_recipe::VerifiedScriptDirectStaticRecipeV1;
-use crate::mir::builder::normal_script_direct_static_result_bundle::
-    VerifiedScriptDirectStaticResultBundleV1;
-use crate::mir::builder::normal_script_direct_static_result_publication_owner::
-    VerifiedScriptDirectStaticResultPublicationOwnerV1;
+use crate::mir::builder::normal_script_direct_static_result_bundle::VerifiedScriptDirectStaticResultBundleV1;
+use crate::mir::builder::normal_script_direct_static_result_publication_owner::VerifiedScriptDirectStaticResultPublicationOwnerV1;
 use crate::mir::builder::normal_script_root_demand_window::PreparedScriptRootAdmissionV1;
 use crate::mir::builder::normal_script_semantic_lowering_input::{
     ScriptDirectStaticClaimInputV1, VerifiedScriptDirectStaticClaimProductsV1,
@@ -23,9 +20,7 @@ use crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanti
 use crate::mir::resolved_semantics::VerifiedSemanticOwnerProductV1;
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 
-use super::model::{
-    CanonicalScriptCDispositionV1, CanonicalScriptCPostWindowTransportV1,
-};
+use super::model::{CanonicalScriptCDispositionV1, CanonicalScriptCPostWindowTransportV1};
 
 #[derive(Debug)]
 pub(in crate::mir::builder) enum CanonicalScriptCBindIssueV1 {
@@ -65,8 +60,7 @@ impl CanonicalScriptCPostWindowTransportV1 {
 
 fn bind_source<'source, R>(
     invocation: crate::parser::ParserInvocationWitnessV1,
-    parts: crate::mir::builder::normal_script_semantic_source::
-        ScriptSemanticSourcePreEffectPartsV1,
+    parts: crate::mir::builder::normal_script_semantic_source::ScriptSemanticSourcePreEffectPartsV1,
     disposition: CanonicalScriptCDispositionV1,
     loan: ParserNormalProgramSourceLoanV1<'source>,
     callback: impl FnOnce(CanonicalScriptCBoundSourceV1<'source>) -> R,
@@ -107,16 +101,14 @@ impl<'source> CanonicalScriptCBoundSourceV1<'source> {
                     rows.into_parts();
                 if row_owner != source_owner {
                     return Err(
-                        "[freeze:contract][script-a-c/source-owner-rebind-mismatch]".to_owned(),
+                        "[freeze:contract][script-a-c/source-owner-rebind-mismatch]".to_owned()
                     );
                 }
                 if non_direct_rows
                     .iter()
                     .any(|(site, row)| row.site() != site || lookup_rows.contains_key(site))
                 {
-                    return Err(
-                        "[freeze:contract][script-a-c/non-direct-row-overlap]".to_owned(),
-                    );
+                    return Err("[freeze:contract][script-a-c/non-direct-row-overlap]".to_owned());
                 }
                 let bundle = VerifiedScriptDirectStaticResultBundleV1::from_canonical_a_rows(
                     source_owner,
@@ -137,16 +129,10 @@ impl<'source> CanonicalScriptCBoundSourceV1<'source> {
                     &publication_owner,
                     admission.window(),
                 )
-                .map_err(|error| {
-                    format!("[freeze:contract][script-a-c/recipe] {error:?}")
-                })?;
-                let join_handoff = VerifiedScriptDirectStaticJoinHandoffV1::issue(
-                    &recipe,
-                    &publication_owner,
-                )
-                .map_err(|error| {
-                    format!("[freeze:contract][script-a-c/join] {error:?}")
-                })?;
+                .map_err(|error| format!("[freeze:contract][script-a-c/recipe] {error:?}"))?;
+                let join_handoff =
+                    VerifiedScriptDirectStaticJoinHandoffV1::issue(&recipe, &publication_owner)
+                        .map_err(|error| format!("[freeze:contract][script-a-c/join] {error:?}"))?;
                 let required_argument_proof =
                     VerifiedScriptDirectStaticRequiredArgumentProofV1::from_canonical_source_rows(
                         source_owner,
@@ -192,7 +178,9 @@ impl<'source> CanonicalScriptCPreparedLoweringSourceV1<'source> {
     }
 }
 
-fn source_owner(source: &VerifiedScriptSemanticSourceV1<'_>) -> Result<crate::mir::resolved_semantics::FunctionOwnerIdV1, String> {
+fn source_owner(
+    source: &VerifiedScriptSemanticSourceV1<'_>,
+) -> Result<crate::mir::resolved_semantics::FunctionOwnerIdV1, String> {
     let [root] = source.forest().roots() else {
         return Err("[freeze:contract][script-a-c/source-root-cardinality]".to_owned());
     };

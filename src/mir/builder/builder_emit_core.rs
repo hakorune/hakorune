@@ -41,7 +41,6 @@ impl CanonicalCompareDefinitionSourceV1 {
     pub(in crate::mir::builder) const fn physical_value(&self) -> ValueId {
         self.physical_value
     }
-
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

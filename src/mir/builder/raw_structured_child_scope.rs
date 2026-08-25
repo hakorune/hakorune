@@ -248,20 +248,17 @@ where
 {
     fn take_static_result_publication_ingress_v1(
         &mut self,
-        declarations: Option<
-            &crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1,
-        >,
+        declarations: Option<&crate::mir::builder::VerifiedSameModuleCallableDeclarationCatalogV1>,
         owner: &str,
         method: &str,
         argument_count: usize,
     ) -> Result<StaticResultPublicationIngressV1, StaticResultPublicationIngressErrorV1> {
-        self.child
-            .take_static_result_publication_ingress_v1(
-                declarations,
-                owner,
-                method,
-                argument_count,
-            )
+        self.child.take_static_result_publication_ingress_v1(
+            declarations,
+            owner,
+            method,
+            argument_count,
+        )
     }
 }
 

@@ -10,9 +10,9 @@ use super::normal_instance_constructor_admission::{
     NormalInstanceConstructorSourceBatchV1, VerifiedInstanceConstructorPhysicalSourceCohortV1,
 };
 #[cfg(test)]
-use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
-#[cfg(test)]
 use super::normal_script_composite_partition::CanonicalScriptCompositeProgramPartitionV1;
+#[cfg(test)]
+use super::normal_script_instance_box_transfer::VerifiedScriptInstanceBoxTransferCohortV1;
 use super::normal_script_program_item_admission::{
     classify_normal_script_program_item_v1, NormalScriptProgramItemAdmissionV1,
 };

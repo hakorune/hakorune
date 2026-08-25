@@ -9,9 +9,7 @@ use super::ids::{
     LoopBindingKeyV1, LoopBlockKeyV1, LoopCarrierKeyV1, LoopExitKeyV1, LoopItemKeyV1,
     LoopNodeKeyV1, LoopValueKeyV1,
 };
-use super::s6c_scan_with_init::{
-    DefinedRoleV2, S6CScanWithInitRecipeRolesRefV2,
-};
+use super::s6c_scan_with_init::{DefinedRoleV2, S6CScanWithInitRecipeRolesRefV2};
 use super::s6c_scan_with_init_joinir::{
     S6CLogicalCallRoleV1, S6CScanWithInitLogicalJoinInputRefV1,
 };

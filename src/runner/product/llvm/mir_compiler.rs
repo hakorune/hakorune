@@ -2,9 +2,7 @@
 //!
 //! Handles AST → MIR compilation.
 
-use nyash_rust::{
-    mir::{MirCompileResult, MirCompiler, NormalCompileRequestV1},
-};
+use nyash_rust::mir::{MirCompileResult, MirCompiler, NormalCompileRequestV1};
 use std::collections::HashMap;
 
 use super::compile_options::{FutureRewriteRoute, LlvmCompileOptions};
