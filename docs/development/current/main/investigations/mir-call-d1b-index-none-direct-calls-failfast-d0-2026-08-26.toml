@@ -1,0 +1,84 @@
+title = "MIR Call D1B index-none direct-call fail-fast safety design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "f284801583"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
+decision_id = "MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-D0"
+decision = "The existing canonicalize_draft None arm must never turn non-empty direct_calls into a successful empty map. This safety row may use the existing ResolveFunctionErrorV1::DraftInvariant, but it is not the source-inventory solution: SelectedCallable observation, lineage preservation, and package co-seal remain separate blockers."
+
+[boundary]
+starts = "ResolvedFunctionDataV1 canonicalize_draft entry after the existing shadow draft has been produced"
+ends = "typed rejection or valid no-call canonicalization before binding/scope publication, package install, physical lowering, or MIR Call publication"
+includes = [
+  "resolver.rs callable_index Some/None branch",
+  "existing ResolveFunctionErrorV1::DraftInvariant transport",
+  "all resolve/resolve_with_body_shape/resolve_forest callers that pass None",
+  "non-empty draft.direct_calls negative witness and empty no-call positive witness",
+]
+excludes = [
+  "SelectedCallable ordinary FunctionCall observation and traversal profile",
+  "TopLevel/InstanceConstructor RawInvocationRootLineageV1 preservation",
+  "owner/site inventory, package co-seal, general identity index, or target issuance",
+  "post-shadow AST argument descent ordering; this row cannot claim argument-descent-before-target",
+  "Method(None), JSON, Call schema, VM/native, CallFlags, and recovery retirement",
+]
+
+[brief]
+decision = "Replace only the None + non-empty direct_calls success edge with the existing typed DraftInvariant; retain None + empty direct_calls as the valid no-call state and retain Some(index) resolution unchanged."
+source_authority = "ShadowResolver direct-call draft and the same resolver invocation; no name/arity or Builder-state inference"
+canonical_issuer = "existing canonicalize_draft / ResolvedFunctionDataV1 path, using ResolveFunctionErrorV1::DraftInvariant as the terminal"
+non_authority = [
+  "None => empty BTreeMap",
+  "canonicalized direct_call_targets() counts after the drop",
+  "SelectedCallable rejection as proof of complete observation",
+  "post-effect recovery, backend lookup, or a second resolver",
+]
+fail_fast = "At canonicalize_draft entry, if callable_index is None and draft.direct_calls is non-empty, return the existing typed DraftInvariant before binding/scope maps, body-shape publication, package install, physical lowering, or MIR mutation."
+smallest_next_slice = "Design-only caller/error/negative-witness closure for the existing None branch; implementation is allowed only after the source-inventory parent accepts that this safety row is a separate bounded contract."
+non_claims = [
+  "does not make SelectedCallable observe ordinary FunctionCall",
+  "does not preserve TopLevel/InstanceConstructor lineage",
+  "does not prove AST argument descent precedes target classification",
+  "does not close the source inventory or mandatory-Callee cutover",
+]
+
+[observed]
+none_success_edge = "src/mir/resolved_semantics/resolver.rs:507-522 converts callable_index=None to BTreeMap::new() without inspecting draft.direct_calls."
+existing_error = "src/mir/resolved_semantics/resolver.rs:53-63 already exposes ResolveFunctionErrorV1::DraftInvariant for typed transport."
+caller_families = "resolve(), resolve_with_body_shape(), resolve_forest(), resolve_forest_with_body_shapes(), and resolve_script_forest() pass None; resolve_forest_with_callable_index() is the existing Some(index) positive route."
+observation_limit = "src/mir/resolved_semantics/shadow/expr.rs records ordinary calls and descends arguments before canonicalize; therefore this row proves physical/package fail-fast, not pre-argument shadow traversal."
+
+[finite_state]
+states = [
+  "CanonicalizeNoCallWithoutIndex",
+  "CanonicalizeIndexedDirectCall",
+  "CanonicalizeUnindexedDirectCall",
+  "TypedDraftInvariantReject",
+  "SuccessfulEmptyMapForbiddenForNonEmptyDraft",
+  "SelectedCallableObservationOutsideScope",
+  "LineageCoSealOutsideScope",
+]
+terminal_policy = "Only CanonicalizeNoCallWithoutIndex and CanonicalizeIndexedDirectCall are successful states. CanonicalizeUnindexedDirectCall must reach TypedDraftInvariantReject; source-inventory and lineage states remain open outside this safety row."
+
+[acceptance]
+positive = [
+  "None + empty direct_calls remains a valid no-call canonicalization",
+  "Some(index) direct-call lookup and existing error behavior remain unchanged",
+  "the existing DraftInvariant reaches all relevant caller boundaries without a new semantic receipt",
+]
+negative = [
+  "None + non-empty direct_calls cannot return an empty successful map",
+  "no name/arity/physical-symbol inference or fallback is added",
+  "no SelectedCallable/lineage/package claim is inferred from this safety row",
+]
+parity = "No-call generic/forest/script callers preserve their current success behavior; indexed exact-target callers preserve their current resolution; only the previously silent unindexed direct-call case changes to typed rejection."
+guard = "future guard must assert the None + non-empty direct_calls branch is a typed terminal, the empty no-call branch remains accepted, and no package/physical/MIR mutation occurs after rejection."
+
+[reopen]
+triggers = [
+  "a caller relies on None + non-empty direct_calls as a successful empty map",
+  "DraftInvariant is replaced by a new semantic error/receipt without an owner decision",
+  "this row is used to claim SelectedCallable coverage, lineage preservation, or pre-argument target resolution",
+  "a second resolver or fallback is added to avoid the typed rejection",
+]

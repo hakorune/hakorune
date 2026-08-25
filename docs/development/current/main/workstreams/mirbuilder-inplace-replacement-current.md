@@ -33,7 +33,7 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0
-  implementation    = GC exact-target child landed at fcb1e01376; direct-target general index remains design-only
+  implementation    = GC exact-target child landed at fcb1e01376; direct-call inventory and its separate index-none safety child remain design-only
   mode              = design_stop
   production stop   = preserve TopLevel/InstanceConstructor lineage and make every FunctionCall disposition observable; no target synthesis, second resolver, or post-effect recovery closure
   exit              = complete owner-qualified source inventory, then package-owned identity-only index, catalog-gated traversal, same-session owner/site bijection, and whole-package abort proof
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 -> every selected/constructor FunctionCall must remain observable with preserved lineage and same-session owner/site disposition; silent traversal drop and index-none empty maps are forbidden; the general identity index, sibling/constructor target loans, RuntimeData Global methodize, and ArrayElementWrite remain downstream
+Now MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 -> every selected/constructor FunctionCall must remain observable with preserved lineage and same-session owner/site disposition; silent traversal drop and index-none empty maps are forbidden. The separate index-none DraftInvariant safety child does not claim source coverage; the general identity index, sibling/constructor target loans, RuntimeData Global methodize, and ArrayElementWrite remain downstream
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6
