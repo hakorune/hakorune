@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Row B producer closure design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "2e95a9fd02"
+observed_commit = "2ba2cdff97"
 observed_at = "2026-08-26"
 implementation_permission = false
 
@@ -23,7 +23,7 @@ excludes = [
 ]
 
 [brief]
-decision = "The two Builder Method(None) producer literals are an exhausted syntactic census, but Row B semantic closure is NoSafeSlice until exact catalog provenance and pre-effect precedence are supplied."
+decision = "The two Builder Method(None) producer literals are an exhausted syntactic census; the six-level pre-effect precedence is accepted, but Row B semantic closure is NoSafeSlice until exact catalog transport, RuntimeData disposition, and recovery retirement are supplied."
 source_authority = "same-brand declaration/source catalog -> CanonicalSameModuleCallableKeyV1 -> mir_symbol_projection()"
 canonical_issuer = "qualified CallTarget::Global(owner.method/arity) -> CalleeResolverBox -> MirInstruction::call"
 non_authority = [
@@ -31,8 +31,8 @@ non_authority = [
   "StaticMethodId parsing, methodize env/trace, variable/name/Const text",
   "tail/module lookup, registry, receiver autoscan, args[0] recovery",
 ]
-fail_fast = "owner/method/arity/brand and local-shadow precedence must settle before build.rs argument descent, child effects, name Const allocation, block insertion, or physical publication"
-smallest_next_slice = "Design-only census of the two producers' exact input provenance, precedence, RuntimeData Global cohort, and post-argument recovery delete set; no code or guard expansion yet."
+fail_fast = "the accepted owner/method/arity/brand precedence must be carried by the existing preflight owner before build.rs argument descent, child effects, name Const allocation, block insertion, or physical publication"
+smallest_next_slice = "Design-only closure of the existing preflight target transport, RuntimeData Global disposition, and post-argument recovery delete set; no code or guard expansion yet."
 non_claims = [
   "the two literal sites alone prove caller-zero or semantic closure",
   "D1C1 bare FunctionCall target claim",
@@ -71,12 +71,12 @@ outside_builder = "Builder-external Method(None) -> retain as D1B blocker, not t
 
 [reaudit_2026_08_26]
 decision = "NoSafeSlice remains after the formatter-only cleanup commit; no implementation or guard expansion is authorized."
-head = "2e95a9fd02"
-worktree = "clean after style-only commit; pointer and Call corridor guards green"
+head = "2ba2cdff97"
+worktree = "clean after style/docs commits; pointer and Call corridor guards green"
 same_brand_product = "Normal package install co-seals the same-brand catalog (normal_callable_semantic_package/install.rs:308-316,388-405), but raw FunctionCall preflight has no existing transport for the brand and exact target."
 normal_direct_target = "ResolvedDirectCallTargetV1 is unavailable on this normal source path because the source package is built without a callable index (normal_callable_semantic_source.rs:142-169,203-215,499-504)."
 preflight_gap = "function_call_preflight_route.rs:14-42,103-203 and raw_expression_dispatch/mod.rs:341-353 reach build.rs:103-116 without an exact target product before drive_call_arguments_v1."
-required_design_amendment = "Decide whether an existing same-brand token can be lent into the raw scope and retained by the existing preflight owner; do not mint a new Verified/Prepared semantic receipt before that authority decision."
+required_design_amendment = "Accepted candidate: lend the existing same-brand token through the raw scope and retain the canonical key or qualified Global in the existing preflight owner; no new Verified/Prepared semantic receipt is required."
 
 [shadow_order]
 status = "AcceptedDecisionRemainingBlockers"
@@ -146,14 +146,14 @@ subchecks = [
 implementation_permission = false
 
 [preflight_transport]
-status = "DesignAmendmentOpen"
+status = "AcceptedDesignAmendmentRemainingBlockers"
 existing_owner = "RawBrandCallAuthorityV1 + PreparedRawFunctionPreflightRouteV1::Ordinary"
 source_authority = "same-allocation VerifiedSameModuleCallableDeclarationCatalogV1 -> BareStaticRecoveryDecisionV1::Unique(CanonicalSameModuleCallableKeyV1) -> mir_symbol_projection()"
 candidate = "Extend the existing brand/lowering scope and Ordinary preflight payload to retain the canonical key or qualified Global target before drive_call_arguments_v1; do not introduce a new Verified*/Prepared* semantic receipt."
 evidence = "function_call_preflight_route.rs:14-42,103-143,189-202; raw_expression_dispatch/mod.rs:341-353; callable_declaration_catalog/recovery.rs:39-55; callable_declaration_catalog/key.rs:50-52"
 current_gap = "RawBrandCallAuthorityV1::InstalledNonBrand, CallableSemanticLoweringState, and RawInvocationChildPortV1 currently carry no catalog brand/target payload."
 fail_fast = "foreign, ambiguous, unresolved, or precedence-invalid target must terminalize at the dispatcher/preflight seal before argument lowering, child effects, name Const, or block publication"
-blocker = "Existing transport design is viable, but local Value versus catalog static precedence is not yet a total accepted Decision; therefore implementation_permission remains false."
+blocker = "Existing transport design is viable and precedence is accepted, but RuntimeData Global and recovery closure remain open; therefore implementation_permission remains false."
 
 [acceptance]
 required_before_fast = [
@@ -163,7 +163,7 @@ required_before_fast = [
   "post-argument recovery, name Const, tail/suffix retry, and direct publication delete set is complete",
   "methodize unset/0/1 positive parity and missing/ambiguous/foreign/arity negative pre-effect rejection are available",
   "guard is function-window scoped and does not global-grep JSON compatibility or non-Callee receiver fields",
-  "dirty build.rs overlap is resolved before implementation permission (observed clean at 2e95a9fd02)",
+  "dirty build.rs overlap is resolved before implementation permission (observed clean at 2ba2cdff97)",
   "the re-audit transport, shadow, RuntimeData Global, and materializer dispositions are accepted in this design card",
   "existing preflight transport amendment is accepted without minting a new semantic receipt",
   "the six-level precedence Decision and its positive/negative/parity matrix are accepted",
