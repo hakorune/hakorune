@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,22 +32,22 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1O-PUBLICATION-HOST-EXTERN-ISSUER-I0
-  implementation    = D1N user-box operand projection landed at 0738d722a3; D1O publication-host writer landed at d2826802f3
-  mode              = closeout
-  production stop   = no code, remaining writer, DCE/schedule, fallback, schema, backend, cleanup, or guard growth may enter this closeout
-  exit              = receipt, README, pointer synchronization, upper-worker evidence, commit, and push
+  current decision  = MIR-CALL-CORE-R6-D1P-PUBLICATION-WRITE-BOUNDARY-EXTERN-ISSUER-I0
+  implementation    = D1O publication-host writer landed at d2826802f3; D1P write-boundary selection is accepted design-only
+  mode              = design_stop
+  production stop   = no code, fixture, remaining writer, DCE/schedule, fallback, schema, backend, metadata, cleanup, or guard growth may enter this design stop
+  exit              = six-line brief, finite boundary/matrix, delete set, line budget, pointer, and upper-worker selection; then a separate fast switch
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
 Current design brief:
 
-Decision: replace one publication-host direct Call literal with the thin canonical constructor while preserving the accepted plan and post-Call schedule.
-Source authority + canonical issuer: PublicationHostBoundaryPlan owns helper dst, exact Extern, five ordered args, and effects; MirInstruction::call is the issuer.
-Non-authority: apply metadata reread, Method names, receiver/args reconstruction, legacy func, backend lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping.
-Fail-fast boundary: unsupported host shape/reason/repr, copy-chain, receiver, effect, missing block, or empty plan yields zero Call/hint/count publication before block swap.
-Landed receipt: publication.rs:551-560 now emits the plan-owned Extern Call through MirInstruction::call; one matrix test covers both owned reason targets and the host-boundary test proves dst/argument/effects/adjacency parity. Static collector rejection paths remain unchanged and are not claimed as new focused tests.
-Non-claims: remaining publication writers, Method(None), bare FunctionCall, schema cutover, MirCall/CallFlags, metadata cleanup, warning/runtime hygiene, backend/wire, and DCE policy.
+Decision: replace one publication write-boundary direct Call literal with the thin canonical constructor while preserving Store/FieldSet rewrite and post-Call schedule.
+Source authority + canonical issuer: private PublicationWriteBoundaryPlan owns helper dst, exact Extern, five ordered args, and effects; MirInstruction::call is the issuer.
+Non-authority: Store/FieldSet shape, apply metadata reread, legacy func, backend lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping.
+Fail-fast boundary: copy-chain, cold-publish reason/repr, helper, same-block, effect-safe, missing block, or empty plan yields zero plan/Call/hint/count publication.
+Smallest next slice: publication.rs:469-475 only; add Store and FieldSet parity plus a compact structural guard replacement without crossing the 777-line guard or 800-line source stop.
+Non-claims: return writers, host writer, concat9, unified/array/canonicalizer, Method(None), bare FunctionCall, schema cutover, MirCall/CallFlags, metadata split, typed errors, backend/wire, and cleanup.
 ## Closed chronology (archived)
 
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
