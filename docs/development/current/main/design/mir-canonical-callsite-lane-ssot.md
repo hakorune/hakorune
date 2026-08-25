@@ -97,10 +97,10 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` records the current design-stop row:
+`CURRENT_STATE.toml` records the current fast row:
 
 ```text
-MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -119,10 +119,11 @@ The matcher is the sole eligibility authority, and whole-pass rollback is not
 claimed. Full Call field retirement and string-corridor family retirement
 remain separate.
 
-The next-edge census is design-only. It keeps the independent recursion-depth
-restore candidate separate from the open Method(None), bare FunctionCall, and
-MirCall/CallFlags rows; no implementation or new semantic receipt is allowed
-until one candidate is accepted by an upper-worker authority audit.
+The next-edge census accepted the independent recursion-depth restore candidate
+after two upper-worker audits. Its implementation is restricted to the two
+overflow return windows; Method(None), bare FunctionCall, and MirCall/CallFlags
+remain separate blockers. No panic/unwind restoration or new semantic receipt
+is claimed.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

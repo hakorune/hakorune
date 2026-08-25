@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+Status: Fast — MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,21 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
-  implementation    = D1M landed at f7a442f524 with focused 4/4 proof; no new fast row is selected
-  mode              = design_stop
-  production stop   = census and worker authority audit only; no code, fixture, fallback, or new semantic receipt
-  exit              = finite next-edge inventory, authority/non-authority, fail-fast boundary, one bounded candidate, and accepted design brief
+  current decision  = MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0
+  implementation    = D1M landed at f7a442f524; recursion-depth row selected after two upper-worker audits
+  mode              = fast
+  production stop   = only the two overflow return windows in build.rs and unified_emitter.rs may change
+  exit              = exact depth restoration, focused overflow/success/error parity, scoped guard, README receipt, and pushed commit; panic/unwind remains a non-claim
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
 Current design brief:
 
-Decision: D1M is landed; census remaining selected Call edges and independent correctness candidates before another fast row.
-Source authority + canonical issuer: named existing owner/invariant; exact Callee -> MirInstruction::call, or owner-local state restoration for a non-Call bugfix.
-Non-authority: AST/name reconstruction, func/INVALID, Method(None), backend retry, local green as production claim, or new semantic receipts.
-Fail-fast boundary: target/state must be decided before irreversible argument, block, wire, object, or session mutation; overflow restores prior depth.
-Smallest next slice: upper-worker audit the recursion-depth restore candidate against the finite census, then accept or reject one bounded row.
+Decision: restore the caller-observed recursion_depth before the two overflow returns; no recursion policy or Call semantics change.
+Source authority + canonical issuer: MirBuilder.recursion_depth invariant; owner-local decrement before overflow Err, with existing common tail decrement retained.
+Non-authority: target/args/resolver, compatibility fallback, Call schema, panic/unwind, raw guard, context lifecycle, or unrelated dirty source.
+Fail-fast boundary: entry depth 100 -> increment/log -> typed overflow error -> exact prior depth before return; no MIR/ValueId/metadata publication.
+Smallest next slice: two source insertions, focused two-entrypoint regression proof, scoped structural guard, README receipt, and push.
 Non-claims: Method(None), bare FunctionCall target claim, MirCall/CallFlags, schema cutover, warnings, root mode, physical types, and shelf cleanup.
 
 ## Closed chronology (archived)
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0 -> design_stop: D1M landed at f7a442f524; census remaining selected Call edges and independent correctness candidates before another fast row; no implementation permission
+ MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> fast: two overflow early returns only; exact prior depth restoration, no target/Call/schema expansion, no panic/unwind claim
 Closed immediately prior
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
  MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> landed at 0be8a73420: one shared SubstringLenPlan writer -> canonical Extern Call; focused 4/4 green, cohort 12/13 with one pre-existing benchmark baseline, guard 757 lines

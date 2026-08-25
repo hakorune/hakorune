@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1 next-edge census"
-status = "design_stop"
+status = "selected_fast"
 observed_at = "2026-08-25"
 observed_commit = "f7a442f524"
-implementation_permission = false
+implementation_permission = true
 decision = "MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0"
 owner = "MIR-CALL-RETIREMENT-v1"
 
@@ -45,7 +45,7 @@ negative = [
 
 [[candidate]]
 id = "MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0"
-status = "candidate_design_only"
+status = "selected_fast"
 scope = "two broken increment owners: src/mir/builder/calls/build.rs:200-216 and src/mir/builder/calls/unified_emitter.rs:132-149"
 old_edge = "incremented recursion_depth is returned without decrement on the overflow early return in two call-depth owners"
 source_authority = "MirBuilder.recursion_depth session invariant: entry depth is restored after every terminal path"
@@ -66,7 +66,7 @@ non_claims = [
   "Call target resolution, Method(None), bare FunctionCall, MirCall/CallFlags, or backend behavior",
   "global Builder state refactor outside these two broken increment owners",
 ]
-implementation_permission = false
+implementation_permission = true
 
 broken_increment_owners = [
   "calls/build.rs:162-219, reached by ordinary and claim-ingress method-call siblings",
@@ -140,7 +140,7 @@ non_claims = ["no new core schema in next-edge census"]
 implementation_permission = false
 
 [selection]
-rule = "upper-worker census must name one bounded candidate; no fast implementation is authorized by this document"
+rule = "upper-worker census accepted one bounded candidate; implementation is restricted to its exact two overflow return windows"
 recommended = "MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0"
 reason = "independent correctness invariant, two broken increment owners, no target/producer/schema fanout, and existing raw-depth parity precedent"
 reopen_trigger = "new selected caller, changed target authority, hidden fallback, or a candidate whose acceptance needs a new semantic receipt"
@@ -154,5 +154,13 @@ consumer_blocker_policy = "legacy func, user-box alias, module lifecycle, Closur
 not_selected = "all 16 writers and all D1 consumer blockers are outside the recursion state-balance row"
 
 [worker_review]
-containment = "pending upper-worker finalization; required correction is two broken increment owners plus one retained balanced raw owner, with returned-terminal scope only"
-selection = "pending upper-worker finalization; recursion restore is a separate correctness row, not a Call writer retirement row"
+containment = "accepted by /root/d2a_containment_audit after correction: two broken increment owners plus one retained balanced raw owner, with returned-terminal scope only"
+selection = "accepted by /root/d2c_consumer_selection_audit: separate correctness row, exact two overflow edges, no Call writer retirement"
+implementation_permission = "fast row permitted; two owner-local restores only"
+
+[stop_if]
+conditions = [
+  "any change outside the two overflow return windows in build.rs:200-216 and unified_emitter.rs:132-149",
+  "RAII/shared counter/panic-unwind/usize::MAX recovery or recursion limit policy change enters the diff",
+  "target, args, compatibility route, Call schema, publication, context lifecycle, raw guard, or unrelated dirty source enters the diff",
+]
