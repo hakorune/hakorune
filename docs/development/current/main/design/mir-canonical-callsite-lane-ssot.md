@@ -98,9 +98,9 @@ receiver, registry, metadata, optimizer, or backend route.
 MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-I0
 ```
 
-It is `fast`, limited to the one PHI substring Call reconstruction writer.
-D1G is landed at `c3c7e0ea65`; D1H D0 was accepted at `6147135595`, with the
-implementation boundary in:
+It is in closeout after the one PHI substring Call reconstruction writer landed
+at `b090f917b4`. D1G is landed at `c3c7e0ea65`; D1H D0 was accepted at
+`6147135595`, with the implementation boundary in:
 
 ```text
 docs/development/current/main/investigations/

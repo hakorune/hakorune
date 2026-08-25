@@ -742,6 +742,19 @@ guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rust
 warning_baseline = "quick profile reports 441 existing warnings; no new warning class introduced"
 source_risk = "518-line owner; no LocalSSA policy, schema, flags, fallback, or backend change"
 
+[receipts.d1h_phi_call_rematerialization]
+status = "landed"
+commit = "b090f917b4"
+source = "src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs:223-245,288-319"
+old_edge = "receiver wildcard eligibility + Option<Callee> remapper + call_func forwarding"
+new_edge = "Method(Some(receiver)) selected + non-optional Callee remapper + canonical Call writer"
+production_entries = 7
+historical_named_sites = 9
+parity = "rematerializes_runtime_data_substring_for_phi_pred: 1 passed; args/receiver/dst/effects/memo/insertion parity preserved"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; no new warning class introduced"
+non_claims = "PHI admission/purity, CFG preflight, partial rollback, seven-entry lifecycle conversion, and Call field deletion remain open"
+
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
 requires = [
