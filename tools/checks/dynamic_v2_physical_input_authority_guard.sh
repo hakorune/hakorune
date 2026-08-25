@@ -21,6 +21,7 @@ PACKAGE_LOAN="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+SELECTED_SESSION_OPEN="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/session_open.rs"
 SELECTED_STORAGE_POLICY="$ROOT_DIR/src/mir/policies/a_prime_i64_callable_storage_layout.rs"
 SELECTED_STORAGE_COSEAL="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/a_prime_callable_storage_layout.rs"
 CALL_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
@@ -40,7 +41,7 @@ guard_require_command "$TAG" rg
 guard_require_command "$TAG" wc
 guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$APRIME_SOURCE" "$SELECTED_ABI" \
-  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
+  "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_SESSION_OPEN" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
   "$APRIME_ISSUER" "$CATALOG_ADMISSION" "$PACKAGE_INSTALL" "$PACKAGE_LOAN" "$SELECTED_FORMAL_HEADER" \
   "$SELECTED_OPERATION_CURSOR" "$SELECTED_STORAGE_POLICY" "$SELECTED_STORAGE_COSEAL" \
   "$CALL_METADATA" "$CALL_METADATA_TESTS" "$POLICIES_MOD" \
@@ -143,7 +144,7 @@ guard_expect_fixed_in_file "$TAG" "DynamicV2CallOutV1" "$WIRE_PY" \
 # paired session.
 guard_expect_fixed_in_file "$TAG" "with_canonical_session_authority" "$APRIME_MODEL" \
   "selected demand must expose only the scoped final-program authority view"
-guard_expect_fixed_in_file "$TAG" "new_selected_dynamic" "$SELECTED_EMITTER" \
+guard_expect_fixed_in_file "$TAG" "new_selected_dynamic" "$SELECTED_SESSION_OPEN" \
   "selected emitter must construct the Dynamic canonical session itself"
 if rg -n -A6 -- "fn new_selected_dynamic" "$CANONICAL_SESSION" | rg -q -- "block_expr_count"; then
   guard_fail "$TAG" "Dynamic canonical semantic block count must not be selected by the physical emitter"
@@ -201,9 +202,9 @@ if rg -F -q -- "DynamicV2ProducerLaneV1" "$SELECTED_CAPABILITY" || \
    rg -F -q -- ".lane()" "$SELECTED_CAPABILITY"; then
   guard_fail "$TAG" "producer family and physical representation must not be collapsed into a legacy lane"
 fi
-guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_EMITTER" \
+guard_expect_fixed_in_file "$TAG" "create_resolved_function_skeleton" "$SELECTED_SESSION_OPEN" \
   "canonical selected skeleton must consume an exact header without body inference"
-guard_expect_fixed_in_file "$TAG" "physical_header.effects()" "$SELECTED_EMITTER" \
+guard_expect_fixed_in_file "$TAG" "physical_header.effects()" "$SELECTED_SESSION_OPEN" \
   "canonical selected skeleton must consume the demand-owned physical-header effect projection"
 if rg -n -A35 -- "fn create_resolved_function_skeleton" "$SKELETON_BUILDER" \
   | rg -q -- "EffectMask::READ|Effect::ReadHeap"; then
@@ -362,19 +363,23 @@ for forbidden in \
     guard_fail "$TAG" "selected emitter retained the old singleton physical target: $forbidden"
   fi
 done
-for file in "$SELECTED_EMITTER" "$SELECTED_TARGETS"; do
+for file in "$SELECTED_EMITTER" "$SELECTED_SESSION_OPEN" "$SELECTED_TARGETS"; do
   lines="$(wc -l < "$file" | tr -d '[:space:]')"
   if (( lines >= 800 )); then
     guard_fail "$TAG" "selected physical target source reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
   fi
 done
+selected_emitter_lines="$(wc -l < "$SELECTED_EMITTER" | tr -d '[:space:]')"
+if (( selected_emitter_lines >= 760 )); then
+  guard_fail "$TAG" "selected physical emitter parent reached the 760-line split boundary: $selected_emitter_lines"
+fi
 if rg -F -q -- 'format!("{name}/' "$SELECTED_EMITTER"; then
   guard_fail "$TAG" "selected physical symbol was reconstructed from the raw method name"
 fi
 if rg -F -q -- "create_function_skeleton(" "$SELECTED_EMITTER"; then
   guard_fail "$TAG" "selected canonical emitter still uses the body-aware legacy skeleton"
 fi
-python3 - "$SELECTED_EMITTER" <<'PY'
+python3 - "$SELECTED_SESSION_OPEN" <<'PY'
 from pathlib import Path
 import sys
 
