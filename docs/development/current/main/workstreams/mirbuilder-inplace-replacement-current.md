@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D6-ORDINARY-NEW-CALLER-RELATION-DESIGN
-  implementation    = design only; D1-D3 found raw/PlanNormalizer dual producers, D1-D4/D1-D5 bounded issuer/lifecycle gaps, and D1-D6 has no accepted caller relation, initializer coverage, dual body-shape loan, or expression snapshot
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN
+  implementation    = design only; D1-D3 found raw/PlanNormalizer dual producers, D1-D4/D1-D5/D1-D6/D1-D7 bounded issuer/lifecycle/relation/seed gaps, and D1-D8 has no accepted helper shelf boundary
   mode              = design_stop
-  production stop   = raw and PlanNormalizer ordinary-New edges lack an exact caller-to-constructor source seed, Initializer(i) effects, dual body-shape loan, expression snapshot, and one physical owner; helpers_value.rs is already 786 lines
-  exit              = accept the caller relation, initializer/effect coverage, dual body-shape loan, private admission snapshot, and one-owner NewBox commit; Method(None) remains open
+  production stop   = raw and PlanNormalizer ordinary-New edges lack a final parser source seed, exact package join, Initializer(i) effects, dual body-shape loan, expression snapshot, and one physical owner; the helper shelf is 786 lines before the split
+  exit              = accept the exact facade/lower/variant shelf and budgets, then the seed loan, package join, initializer/effect coverage, dual body-shape loan, private admission snapshot, and one-owner NewBox commit; Method(None) remains open
 fallback / retry  = 0
 ```
 
@@ -271,7 +271,7 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
 8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
-   D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, D1-D4/D1-D5 the issuer/lifecycle design, and D1-D6 the caller relation, initializer coverage, body-shape loan, and admission snapshot boundary;
+   D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, D1-D4/D1-D5/D1-D6/D1-D7 the issuer/lifecycle/relation/seed design, and D1-D8 the exact helper shelf boundary;
    the full issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox remains a design stop.
 9. R7: structural guards, README/reference sync, and census closeout.
 
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-D6-ORDINARY-NEW-CALLER-RELATION-DESIGN
-  -> design stop: raw and PlanNormalizer ordinary-New edges lack an exact caller-to-constructor source seed, Initializer(i) effects, dual body-shape loan, and private admission snapshot; split helpers_value.rs before implementation
+ MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN
+  -> design stop: exact helpers_value facade/lower/variant shelf, recursive ownership, unchanged callers, and sub-760 budgets are not yet accepted
 Next (not selected)
-  -> D1-D ordinary source-handoff/Constructor resolve-once implementation only after D1-D6 authorities and the helper shelf split are accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-D ordinary source-handoff/Constructor resolve-once implementation only after D1-D8 shelf and D1-D7 seed authorities are accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

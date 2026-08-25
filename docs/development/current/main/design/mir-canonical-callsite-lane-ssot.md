@@ -2138,6 +2138,211 @@ coverage, and private admission snapshot are all accepted, D1-D6 remains
 `NoSafeSlice`; no production code, fixture, route switch, or semantic receipt
 is authorized.
 
+#### D1-D7 design Decision — final parser source-seed loan and package issuer
+
+D1-D6's final feasibility audit confirms that the existing parser products
+cannot transport an exact caller-`New` to `ConstructorSourceIdV1` relation.
+`ASTNode::New`, `SourceExprSiteV1`, and `ConstructorSourceCatalogV1` are each
+valid in their own authority, but they are separate loans. D1-D7 fixes the
+missing boundary without making the parser resolve constructor meaning or
+introducing a new semantic receipt during design stop.
+
+Six-line brief:
+
+```text
+Decision:
+  the final parser source owner lends one callback-scoped seed for each
+  selected ordinary New site; the semantic package joins it exactly once.
+Source authority + canonical issuer:
+  VerifiedFinalCallableProgramSourceV1/final transform owns the seed and
+  existing ConstructorSourceCatalogV1 owns declaration identity; a future
+  package issuer adjacent to normal_callable_semantic_package/issuer.rs
+  co-seals seed, caller/birth body shapes, and initializer effects.
+Non-authority:
+  parser seed target lookup, class/name/arity re-discovery, AST rescans,
+  resolver owner slots, generated birth text, MIR/CoreEffectPlan/EffectMask,
+  Builder headers, physical IDs, backend lookup, and fallback state.
+Fail-fast boundary:
+  validate final-source brand/anchor, path coverage, catalog loan, selected
+  cohort, and duplicate/drift state before semantic admission or child lower;
+  unresolved/ambiguous/foreign states reject without publication.
+Smallest next slice:
+  design-only seed-loan field/coverage contract and package consumer join;
+  no code, fixture, route switch, or new Verified*/Prepared* receipt.
+Non-claims:
+  parser target resolution, lifecycle/transaction implementation, raw/plan
+  parity, Method(None), Closure, JSON/backend, R6 cutover, or warnings.
+```
+
+The seed is a callback-scoped loan of the final parser source owner, not an
+owned semantic product and not a new Recipe key. Its conceptual fields are:
+
+```text
+parser invocation brand
+exact caller declaration path + final callable slot/anchor
+canonical structural New root path
+ordered Argument(i) and Initializer(i) child paths
+projected class/type-argument/field-name syntax observations
+selected-cohort coverage for nested New and field-initializer New sites
+borrow of the existing constructor catalog/declaration loan
+```
+
+The seed does not contain a resolved `ConstructorSourceIdV1` target chosen by
+class text. It carries the exact source anchor and a catalog loan; the future
+semantic-package issuer performs the one allowed join against the existing
+catalog. A missing catalog, foreign parser brand, final-AST/catalog drift,
+projection failure, duplicate/reused callsite, or an outside/generated site
+is a typed state. It is never repaired by `args.len()`, `birth/N`, name lookup,
+or a second parser scan.
+
+The issuer/consumer contract is finite:
+
+```text
+VerifiedFinalCallableProgramSourceV1 seed loan
+  + caller VerifiedResolvedCallableSemanticBatchV1/body-shape loan
+  + birth/constructor semantic row/body-shape loan
+  + existing ConstructorSourceCatalogV1
+  -> one ordinary-New relation/effect handoff
+  -> one selected raw or PlanNormalizer admission consumer
+  -> one private ordinary_new_admission transaction
+  -> one NewBox/lifecycle commit
+```
+
+The package issuer must join by exact final-source anchor and structural
+child paths, then verify the catalog brand, declaration/birth row, source
+arity `N`, caller/birth owner-branded body-shape loans, ordered `Argument(i)`
+and `Initializer(i)` coverage, declaration-default versus explicit-override
+provenance, and root/child/override/birth effect coverage. The raw and plan
+paths may borrow the immutable handoff, but neither may issue or reclassify
+it. One selected route consumes it once; an attempted second issue or a
+relation reuse is a typed reject.
+
+Finite source-seed states:
+
+```text
+SeedReady
+SeedMissingFinalSource
+SeedForeignBrandOrAnchor
+SeedCatalogAbsent
+SeedProjectionDrift
+SeedDuplicateOrReused
+SeedOutsideSelectedCohort
+SeedNestedCoverageGap
+SeedAmbiguousOrUnresolvedConstructor
+SeedBirthOrArityMismatch
+```
+
+`Core13`, `IntegerBox`, builtin/record, JSON compatibility, direct
+`op=newbox`, generated constructor-body sites, and nonselected backends are
+outside the ordinary cohort. They remain explicit outside/compatibility
+states, not fallback producers. All source-seed failures occur before child
+lowering, block mutation, NewBox emission, or wire/object publication.
+
+The parser issuer boundary is the existing final-source transform at
+`src/parser/normal_callable_program_source/transform.rs:90-195`, after final
+AST preservation and catalog validation. The semantic consumer boundary is
+adjacent to `src/mir/normal_callable_semantic_package/issuer.rs:130-155`; it
+is the only place allowed to combine the seed with caller and birth products.
+The future `src/mir/builder/ordinary_new_admission.rs` remains a physical
+consumer only: it cannot issue source identity, resolve constructors, or
+re-enter parser authority.
+
+D1-D7 design acceptance requires a finite selected-cohort seed census, exact
+one-to-one anchor/catalog mapping, explicit nested/initializer coverage,
+package join/reuse negatives, dual body-shape/effect co-seal, and the private
+transaction snapshot from D1-D6. It must also retain the pre-implementation
+`helpers_value.rs` shelf split as a separate behavior-neutral BoxShape row.
+Until that evidence is recorded, D1-D7 remains `NoSafeSlice`; after it is
+accepted, the next mode may switch to `fast` for the shelf split only.
+
+#### D1-D8 design Decision — behavior-neutral PlanNormalizer helper shelf
+
+D1-D7's source-seed contract is independent of the existing PlanNormalizer
+file topology, but the selected implementation cannot start while
+`helpers_value.rs` is 786 lines. D1-D8 fixes a physical BoxShape split only;
+it does not alter the value normalizer, New semantics, parser authority, or
+any caller contract.
+
+Six-line brief:
+
+```text
+Decision:
+  move the existing helpers_value implementation into a nested module shelf
+  while preserving the normalizer::helpers_value module and public methods.
+Source authority + canonical issuer:
+  existing PlanNormalizer::lower_value_ast/lower_value_input signatures and
+  current recursive implementation; no new semantic or physical issuer.
+Non-authority:
+  AST meaning, CoreEffectPlan, parser seed/package join, NewBox policy,
+  effects, caller/test topology, or any `#[path]` workaround.
+Fail-fast boundary:
+  exact moved arm inventory, one copy of each error string, old flat module
+  absent, unchanged callers, and every production child below 760/800 lines.
+Smallest next slice:
+  behavior-neutral file move plus facade/sibling module declarations and
+  structural/parity guard; no semantic branch edit or fixture change.
+Non-claims:
+  ordinary-New implementation, lifecycle/effect bridge, R6 cutover,
+  Method(None), Closure, JSON/backend, warning retirement, or parser seed.
+```
+
+The exact shelf is finite:
+
+| owner | moved/retained contents | projected budget |
+|---|---|---:|
+| `normalizer/helpers_value/mod.rs` | old `helpers_value.rs:1-31`: imports needed by the facade, `lower_value_ast`, and `mod lower; mod variant;` | ~22 |
+| `normalizer/helpers_value/lower.rs` | unchanged `lower_value_input` body from old `helpers_value.rs:32-770`; all recursive `Self::lower_value_input` calls and AST arms remain contiguous | 758 |
+| `normalizer/helpers_value/variant.rs` | old `helpers_value.rs:773-786`: `enum_payload_mir_type` and `runtime_variant_box_name`, private to the shelf | ~17 |
+| `normalizer/helpers_value_state.rs` | existing state helpers, unchanged and outside this move | 77 |
+
+The old flat `normalizer/helpers_value.rs` must be replaced by the directory
+`normalizer/helpers_value/mod.rs`; both forms cannot coexist. The existing
+`normalizer/mod.rs:23` declaration remains unchanged, so no `#[path]` attribute
+or root-level path band-aid is introduced. The child `lower.rs` adjusts only
+module-relative paths (`super::super::...` where required) and imports the two
+variant helpers from `super::variant`; it must not factor individual AST arms
+into new dispatch helpers.
+
+The moved arm inventory is exact and contiguous:
+
+```text
+scalar/receiver: Variable, Me/This, FieldAccess, Literal, UnaryOp
+method dispatch and receiver recovery
+FunctionCall, FromCall, Call
+New, ArrayLiteral, MapLiteral
+BlockExpr, BinaryOp, If, unsupported fallback
+```
+
+All existing callers remain untouched, including `plan/parts`,
+`plan/features`, `cond_lowering_prelude`, `loop_body_lowering`,
+`loop_body_lowering_associated_input`, `cond_lowering_value_expr`,
+`cond_lowering_loop_header_port`, `generic_loop_body/cleanup`,
+`normalizer/helpers.rs`, and the normalizer/port test suites. The facade keeps
+the same `PlanNormalizer::lower_value_ast` and `PlanNormalizer::lower_value_input`
+visibility and generic signature. There must be exactly one copy of every AST
+arm and rejection string after the move.
+
+Structural acceptance is required before any semantic New work:
+
+```text
+no #[path] added
+normalizer/mod.rs unchanged
+old flat helpers_value.rs absent; helpers_value/mod.rs present
+all production children <760 and hard stop <800
+caller/test diff = 0 except path-preserving module ownership
+one lower_value_input implementation and one variant helper pair
+```
+
+Positive/parity evidence is the existing facade/port equivalence, nested
+method and `If` lowering, map/field lowering, and unchanged direct callers.
+Negative evidence is preserved pure-`If` rejection, block-prelude exit
+rejection, and `New` field-initializer rejection. Cargo or fixture changes are
+not part of the design row; the focused suite is selected only after the
+mechanical move is applied.
+
+Until this exact shelf census and ownership contract are accepted, D1-D8
+remains `NoSafeSlice`; no file move or fast-mode code edit is authorized.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records
@@ -2267,13 +2472,14 @@ by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
 Selected next design task is
-`MIR-CALL-R6-CORE-SCHEMA-D1-D6-ORDINARY-NEW-CALLER-RELATION-DESIGN`.
+`MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN`.
 D1-B-PARK accepted the existing static handoff/outside boundary and D1-C2-I0
 closed the lossy Closure body egress edge; D1-D0/D1-D1 closed only negative
-V0/V1 publication and shape edges. The D1-D6 caller relation, initializer/
-effect coverage, dual body-shape loan, private admission snapshot, generic
-Method(None) issuer, and Constructor/NewBox dual route remain blockers. Until
-the full D1-D6 and remaining Method(None) edges are accepted,
+V0/V1 publication and shape edges. The D1-D8 helper shelf, D1-D7 final parser
+source seed and package join, initializer/effect coverage, dual body-shape
+loan, private admission snapshot, generic Method(None) issuer, and
+Constructor/NewBox dual route remain blockers. Until the full D1-D8 and
+remaining Method(None) edges are accepted,
 do not change `Option<Callee>`,
 `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
