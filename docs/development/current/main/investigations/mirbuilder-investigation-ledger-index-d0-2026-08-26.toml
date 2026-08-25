@@ -1,7 +1,7 @@
 title = "MirBuilder investigation ledger identity and index design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-26"
-observed_commit = "fcb1e01376"
+observed_commit = "a0b319a2df"
 implementation_permission = false
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
 related_current = "docs/development/current/main/CURRENT_STATE.toml"
@@ -32,18 +32,19 @@ non_authority = [
 fail_fast = "before a row is selected or marked terminal: parse every scoped card, reject duplicate/missing row_id, unresolved/asymmetric edge, unknown status, future date without owner, broken TOML, and executable guard absent from its declared profile"
 smallest_next_slice = "design-only schema D0: enumerate the bounded card set, choose row_id/edges keys and allowed status/date vocabulary, assign the duplicate-key repair owner, and specify the INDEX guard's finite checks"
 non_claims = [
-  "no rename or bulk rewrite of the 73 current-main TOMLs",
+  "no rename or bulk rewrite of the 74 current-main TOMLs",
   "no semantic acceptance or implementation permission for any child row",
   "no automatic deletion of old relation fields before a complete migration map exists",
   "no performance/native Linux run",
 ]
 
 [observed]
-toml_inventory = "73 current-main TOML files were scanned; one known investigation card fails tomllib because a top-level decision key collides with a [decision] table. This is not a repository-wide green claim."
-known_parse_failure = "docs/development/current/main/investigations/mir-call-r6-late-legacy-target-issuer-retire-i0-2026-08-25.toml; repair owner is its Call-R6 closeout card, with decision identifier and [decision] summary preserved distinctly."
-future_filename_inventory = "four investigation filenames carry 2026-08-27 while observed_at remains 2026-08-26; classify active/parked/out-of-scope before any rename."
-guard_manifest = "tools/checks/guard_rows.toml currently has 28 root rows plus an include; mir_call_d1b_exact_target_child_guard.sh is not registered, while the exact number of other recent child omissions remains unsealed."
-relation_drift = "current cards use mixed parent_row/parent_child/source_lineage_child/selected_child/evidence/supersedes forms; no single [edges] graph is yet machine-resolvable."
+toml_inventory = "74 current-main TOML files were scanned; the bounded investigation cohort is 51 cards, of which 50 parse and one fails tomllib. This is not a repository-wide green claim."
+known_parse_failure = "docs/development/current/main/investigations/mir-call-r6-late-legacy-target-issuer-retire-i0-2026-08-25.toml; a top-level decision scalar collides with the [decision] table. Repair belongs to its Call-R6 closeout owner, preserving the decision identifier and structured summary distinctly."
+future_filename_inventory = "four investigation filenames carry 2026-08-27 while observed_at remains 2026-08-26: three Call docs-slim rows and one interpreter-externals evidence row. Classify active/parked/out-of-scope before any rename."
+guard_manifest = "tools/checks/guard_rows.toml has 102 rows (28 root rows plus the included 74-row manifest). At least four referenced guards are not registered: mir_call_canonical_corridor_guard.sh, mir_call_d1b_exact_target_child_guard.sh, mir_call_d1b_selected_normal_duplicate_projection_guard.sh, and normal_source_plan0_transaction_guard.py; the externals retirement guard is referenced but absent."
+relation_drift = "current cards use mixed parent_row/parent_child/source_lineage_child/selected_child/next_child/evidence_child/supersedes forms; no single [edges] graph is yet machine-resolvable."
+identity_drift = "investigation cards currently have zero top-level row_id fields and zero [edges] tables; decision is a scalar in 17 cards, a table in 11, and absent in 22. Four cards point to a Row-B parent without a stable parent identity."
 
 [finite_state]
 states = [
@@ -69,7 +70,7 @@ terminal_policy = "Only InventoryExhausted -> IndexGuardReady is terminal for th
 schema_d0 = "Define row_id, [edges] roles, status vocabulary, date relation, explicit scope include/exclude, and one-way migration rule; no dual-format acceptance after cutover."
 parse_repair = "Assign the duplicate decision key/table repair to the Call-R6 closeout owner; preserve the decision identifier and structured summary without changing the landed semantic claim."
 date_census = "Classify the four 2026-08-27 filenames as active, parked, or out-of-scope; rename only in a dedicated docs-slim row after owner and backlinks are known."
-guard_registration = "Inventory every executable child guard in the bounded scope, register it in the correct guard_rows profile or explicitly record why it is not a manifest row; do not infer a six-row count."
+guard_registration = "Inventory every executable child guard in the bounded scope, register it in the correct guard_rows profile or explicitly record why it is not a manifest row; include the four unregistered references and the absent externals guard without asserting an unsealed six-row count."
 index_guard = "Implement the checker only after schema D0: tomllib parse, unique row_id, edge target/symmetry, status vocabulary, date consistency, scope coverage, and guard registration."
 
 [acceptance]

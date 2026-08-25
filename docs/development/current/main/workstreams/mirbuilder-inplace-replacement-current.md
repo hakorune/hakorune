@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
+Status: Design stop — MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,19 +32,19 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
+  current decision  = MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0
   implementation    = GC exact-target child landed at fcb1e01376; direct-target general index remains design-only
   mode              = design_stop
-  production stop   = preserve TopLevel/InstanceConstructor lineage; no target synthesis, second resolver, or post-effect recovery closure
-  exit              = package-owned identity-only index, catalog-gated traversal, same-session owner/site bijection, and whole-package abort proof
+  production stop   = preserve TopLevel/InstanceConstructor lineage and make every FunctionCall disposition observable; no target synthesis, second resolver, or post-effect recovery closure
+  exit              = complete owner-qualified source inventory, then package-owned identity-only index, catalog-gated traversal, same-session owner/site bijection, and whole-package abort proof
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 — preserve source lineage and co-seal an identity-only general index before any ordinary direct-call effects.
-Source authority + canonical issuer: consumed normal-root source plus the semantic package/brand catalog; the package issuer is the sole co-seal owner, and existing preflight remains the canonical Call consumer.
-Non-authority: caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, collector order, headers/suffixes, post-argument values, backend lookup, or GC child behavior as a general resolver.
+Decision: D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 — preserve source lineage and co-seal a complete owner-qualified direct-call inventory before any general index or ordinary direct-call effects.
+Source authority + canonical issuer: consumed normal-root source plus the semantic package/brand catalog; the same resolver/package issuer owns inventory co-seal, and existing preflight remains the canonical Call consumer.
+Non-authority: silent SelectedCallable drops, callable_index=None empty maps, caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, collector order, headers/suffixes, post-argument values, backend lookup, or GC child behavior as a general resolver.
 Fail-fast boundary: before package install, body lowering, argument descent, block mutation, or Call publication; any missing/foreign/ambiguous/deferred state aborts the unpublished package.
-Smallest next slice: design-only finite matrix for identity-only index representation, catalog-gated ordinary FunctionCall traversal, self/sibling/special disposition, and same-session owner/site bijection.
+Smallest next slice: design-only finite matrix for complete direct-call inventory, index-none-with-calls rejection, preserved TopLevel/InstanceConstructor lineage, and same-session owner/site bijection; the general index follows only after this child.
 Non-claims: implementation, new public receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -340,7 +340,7 @@ Evidence:
   `FUNCTION-METADATA-OWNER-SPLIT-R0` landed: `metadata.rs` is 718 lines, nested checked-callout/linear-slot owners are 40/50 lines, no `#[path]` glue was added, method signatures/visibility/fields/callers/behavior are unchanged, focused `mir::function::tests` is 6 passed/2 ignored with the 441-warning baseline, and manifest/pointer/canonical-corridor/rustfmt/diff guards are green.
 
 Smallest next slice:
-  `MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0` and the bounded GC exact-target child are closed. The direct-target index co-seal D0 (currently NoSafeSlice), CallFlags-only retirement, self/sibling/constructor target loans, and ArrayElementWrite remain downstream until their owners and finite caller closures are accepted.
+  `MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0` and the bounded GC exact-target child are closed. The direct-call source-inventory co-seal D0 is the current NoSafeSlice; the general direct-target index, CallFlags-only retirement, self/sibling/constructor target loans, and ArrayElementWrite remain downstream until their owners and finite caller closures are accepted.
   Physical/backend implementation remains separately gated.
 
 Non-claims:
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 -> duplicate projection validator I0 is landed; existing exact-i64 index cannot be borrowed sideways by the general SelectedNormal package, so same-source/same-continuation co-seal authority and finite missing/foreign/ambiguous rejection remain design-stop; sibling/constructor relation, RuntimeData Global methodize, and ArrayElementWrite remain downstream
+Now MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 -> every selected/constructor FunctionCall must remain observable with preserved lineage and same-session owner/site disposition; silent traversal drop and index-none empty maps are forbidden; the general identity index, sibling/constructor target loans, RuntimeData Global methodize, and ArrayElementWrite remain downstream
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

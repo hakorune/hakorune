@@ -4,6 +4,7 @@ observed_commit = "fcb1e01376"
 observed_at = "2026-08-26"
 implementation_permission = false
 amendment = "general-normal identity-index and catalog-gated FunctionCall disposition remain unresolved; package co-seal owner is named but no implementation permission follows"
+source_inventory_child = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 prerequisite = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
 completed_validator = "ffcae72725: SelectedNormal duplicate/projection validator I0 is closed"
@@ -38,7 +39,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, caller=None, LegacySymbol formatting, collector replacement, current_static_box, has_method, GC name classification, header/suffix lookup, args, or post-argument values",
 ]
 fail_fast = "Complete owner reservation, catalog-gated site disposition, exact source identity, and target precedence must be co-sealed before package publication; any duplicate, missing, foreign, ambiguous, deferred, or second-session state aborts the unpublished package before install/body lowering/argument effects/publication."
-smallest_next_slice = "Design-only finite matrix for exact direct self/sibling, known non-direct builtin/typeop/local/Extern/Brand, missing/foreign/ambiguous sites; name the identity-only index, same-session owner bijection, catalog-gated traversal, and whole-package abort. No code or new public receipt."
+smallest_next_slice = "First close the source-inventory child: make every selected/constructor FunctionCall observable in the same resolver session, reject index=None with non-empty direct_calls, and only then design the finite self/sibling/non-direct/missing/foreign/ambiguous index disposition matrix. No code or new public receipt."
 non_claims = [
   "physical admission itself issues a target",
   "a source key can be formatted into Global",

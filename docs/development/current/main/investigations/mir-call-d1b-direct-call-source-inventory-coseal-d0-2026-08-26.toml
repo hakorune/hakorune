@@ -1,0 +1,89 @@
+title = "MIR Call D1B direct-call source inventory co-seal design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a0b319a2df"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
+decision = "Before a general identity-only callable index can exist, the same resolver session must issue a complete owner-qualified direct-call source inventory. An observed FunctionCall may become Targeted, KnownNonDirect, TypedReject, or Parked, but it may not disappear when callable_index is absent or when SelectedCallable traversal is closed."
+
+[boundary]
+starts = "selected normal-source and InstanceConstructor source bodies entering the same resolver/semantic-package session"
+ends = "complete owner/site direct-call inventory and finite disposition co-sealed before package publication, body lowering, argument effects, or Call publication"
+includes = [
+  "SelectedCallable traversal and canonicalize_draft direct-call accounting",
+  "callable_index=None with non-empty direct_calls as an explicit typed failure",
+  "RawInvocationRootLineageV1 preservation for Cataloged, TopLevel, and InstanceConstructor",
+  "owner-qualified SourceExprSiteV1 inventory and same-session constructor forest/root relation",
+  "duplicate, missing, foreign, and ambiguous direct-call site disposition",
+]
+excludes = [
+  "target synthesis from name, arity, physical_symbol, constructor symbol, box name, or collector order",
+  "general callable-index representation or ResolvedDirectCallTargetV1 issuance",
+  "Method(None), methodize, CalleeGuard, UnknownBox, JSON ingress, Call schema, VM/native, and warning cleanup",
+  "RawCompatibility, special-form implementation, and existing exact-i64 index generalization",
+]
+
+[brief]
+decision = "Direct-call inventory is a prerequisite to the parent identity-index handoff. The inventory owner is the existing semantic package/resolver issuer; it records source identity and disposition only, and never reconstructs a Callee. A closed traversal or an empty callable index must not silently drop an observed FunctionCall."
+source_authority = "parser/source identity plus the same-brand source catalog and resolver compilation session; RawInvocationRootLineageV1 is provenance and remains intact until disposition"
+canonical_issuer = "the existing normal semantic package issuer and its same-session resolver continuation co-seal an owner-qualified direct-call inventory before package publication"
+non_authority = [
+  "SelectedCallable rejection by itself",
+  "callable_index=None -> empty map",
+  "NormalTopLevelFunctionDraftAdmissionV1 physical_symbol/arity",
+  "source name/arity formatting, collector last-wins, physical symbol lookup, or a second resolver continuation",
+]
+fail_fast = "If a FunctionCall is observed but cannot be assigned an owner-qualified disposition in the same resolver session, abort the unpublished package before install, body lowering, argument descent/effects, block mutation, or Call publication."
+smallest_next_slice = "Design-only inventory matrix for SelectedNormal self/sibling, InstanceConstructor, known non-direct forms, missing/foreign/ambiguous sites, and the index-none-with-calls failure. No code, fixture, receipt, or production switch."
+non_claims = [
+  "the inventory does not issue a target or generalize the exact-i64 index",
+  "lineage preservation does not authorize Global synthesis from names or arity",
+  "no post-argument recovery deletion or mandatory-Callee cutover",
+]
+
+[finite_state]
+states = [
+  "SourceInventoryUnsealed",
+  "FunctionCallObserved",
+  "FunctionCallDispositionMissing",
+  "SelectedTraversalClosedWithCalls",
+  "IndexNoneWithDirectCalls",
+  "OwnerQualifiedSiteReady",
+  "KnownNonDirectDisposition",
+  "TopLevelLineagePreserved",
+  "InstanceConstructorLineagePreserved",
+  "DuplicateSite",
+  "MissingSite",
+  "ForeignSite",
+  "AmbiguousSite",
+  "SameSessionOwnerSiteBijectionReady",
+  "PackageAbortBeforeEffects",
+  "InventoryCoSealed",
+  "ParkedCompatibility",
+]
+terminal_policy = "Only InventoryCoSealed after same-session owner/site bijection is terminal for this design. Observed-but-undispositioned calls, closed traversal, index-none-with-calls, duplicate/missing/foreign/ambiguous sites, and second-session ownership remain CutoverBlockerOpen; explicit compatibility-only cohorts may be ParkedSealed."
+
+[acceptance]
+positive = [
+  "every selected and InstanceConstructor FunctionCall is counted exactly once with an owner-qualified source site",
+  "Cataloged, TopLevel, and InstanceConstructor lineage reaches disposition without collapsing to caller=None",
+  "known builtin/typeop/local/Extern/Brand special forms receive an explicit non-direct or targeted disposition from existing authority",
+  "same resolver session co-seals the inventory and owner/site bijection before package publication",
+]
+negative = [
+  "callable_index=None with non-empty direct_calls cannot become an empty successful map",
+  "SelectedCallable traversal cannot silently drop FunctionCall",
+  "no name/arity/physical-symbol/constructor-symbol target synthesis",
+  "no second resolver continuation or post-effect recovery is introduced",
+]
+parity = "SelectedNormal self/sibling, InstanceConstructor, known special forms, missing/foreign/ambiguous, and an empty-call baseline remain distinguishable; no argument effect or MIR block mutation occurs for unresolved dispositions."
+guard = "future guard must assert direct-call inventory coverage, zero silent drop to empty index, preserved root lineage, same-session owner/site bijection, and zero package/body/argument effects before a complete inventory."
+
+[reopen]
+triggers = [
+  "SelectedCallable traversal remains closed while FunctionCall is present",
+  "canonicalize_draft converts direct_calls to an empty map without a typed terminal",
+  "TopLevel or InstanceConstructor lineage is collapsed to caller=None before disposition",
+  "a target is synthesized from a source name, arity, physical symbol, or constructor symbol",
+  "inventory is issued by a second resolver continuation or after argument effects",
+]

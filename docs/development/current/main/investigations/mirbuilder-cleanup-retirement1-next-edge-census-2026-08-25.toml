@@ -1,7 +1,7 @@
 title = "MirBuilder cleanup retirement R1 next-edge census"
 status = "accepted_design"
-observed_at = "2026-08-25"
-observed_commit = "74829ee3d2"
+observed_at = "2026-08-26"
+observed_commit = "a0b319a2df"
 implementation_permission = false
 decision = "MIRBUILDER-CLEANUP-RETIREMENT1-NEXT-EDGE-CENSUS-D0"
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
@@ -16,12 +16,12 @@ smallest_next_slice = "After the active D1N design stop, close the compiler-buil
 non_claims = "No broad warning cleanup, blanket panic removal, compiler/Builder move, common recursive-port redesign, metadata field change, backend activation, or Call schema change is authorized by this census."
 
 [boundary]
-starts = "MirBuilder/Compiler structural and error/metadata owner observations at HEAD 74829ee3d2"
+starts = "MirBuilder/Compiler structural and error/metadata owner observations at HEAD a0b319a2df"
 ends = "one named bounded cleanup row with owner, delete/move set, finite acceptance, and non-claims"
 includes = [
   "builder <-> compiler seam counts and the loop_structural_facts neutral-owner candidate",
   "ScriptDirectStaticPhysicalBridgeErrorV1 String variant boundaries",
-  "FunctionMetadata 804-line storage/checked-callout/linear-slot owner split",
+  "FunctionMetadata post-split storage/checked-callout/linear-slot owner census",
   "selected-scope runtime hygiene census as information only",
 ]
 excludes = [
@@ -33,11 +33,11 @@ excludes = [
 
 [observed]
 builder_rs_lines = 737
-metadata_rs_lines = 804
-metadata_hard_stop = "metadata.rs exceeds the 800-line hard stop by four lines; its field/storage schema is otherwise untouched in the current diff"
-reverse_imports = "HEAD census: builder -> compiler direct use 237 lines/80 files and compiler -> builder direct use 59 lines/47 files when test/reference text is included; semantic new reverse edge in 74829ee3d2 is 0"
+metadata_rs_lines = 718
+metadata_hard_stop = "FunctionMetadata owner split landed before this observation at 5b36855ae6; metadata.rs is below the 760-line design threshold and no second split is selected."
+reverse_imports = "HEAD census: builder -> compiler direct use 343 lines/148 files including tests (production estimate 224 lines/99 files); compiler -> builder direct use 138 lines/59 files including tests (production estimate 129 lines/55 files); no semantic-new-edge claim is made until the seam ledger is refreshed."
 bridge_string_debt = "RequiredArgumentProof(String) and ClaimCompletion(String) lose typed issues; ArgumentDescent(String) is a common recursive port boundary with no bounded typed issue owner"
-runtime_hygiene = "finite lexical boundary src/mir/builder.rs + src/mir/builder/**/*.rs: panic 359, unwrap 2809, expect 2970, todo 0, allow(dead_code) 96; selected production count remains unclassified until module-registration-aware census"
+runtime_hygiene = "finite lexical boundary src/mir/builder.rs + src/mir/builder/**/*.rs: panic 358, unwrap 2815, expect 2976, todo 0, allow(dead_code) 95, allow(unused_imports) 45; selected production count remains unclassified until module-registration-aware census"
 
 [[candidate]]
 id = "MIRBUILDER-COMPILER-SEAM-CENSUS-D0"
@@ -58,12 +58,13 @@ non_claims = ["no import migration", "no loop contract relocation", "no builder/
 
 [[candidate]]
 id = "FUNCTION-METADATA-OWNER-SPLIT-R0"
-status = "accepted_but_not_selected"
+status = "landed"
 kind = "BoxShape_behavior_neutral_refactor"
-scope = "src/mir/function/metadata.rs:1-804 and src/mir/function.rs module declarations"
+landed_commit = "5b36855ae6"
+scope = "src/mir/function/metadata.rs:1-718 and its split owner modules"
 source_authority = "existing FunctionMetadata storage schema; checked-callout table authority remains checked_callout/site_plan.rs; linear slot authority remains dynamic_v2_aot_metadata_slot.rs and a_prime_i64_physical_receipt.rs"
 canonical_issuer = "none; exact move of inherent impl blocks only"
-old_edge = "storage schema, checked-callout forwarding/lifecycle, and Dynamic/A-prime linear slot APIs share one 804-line file"
+old_edge = "storage schema, checked-callout forwarding/lifecycle, and Dynamic/A-prime linear slot APIs shared one oversized file; the behavior-neutral owner split is already landed"
 delete_set = [
   "move checked-callout admit/install/lookup/table/verify impl to function/checked_callout_metadata.rs",
   "move Dynamic/A-prime borrow/install/take impl to function/linear_metadata_access.rs",
@@ -71,7 +72,7 @@ delete_set = [
   "remove only now-unused metadata.rs imports",
 ]
 acceptance = [
-  "metadata.rs and each child remain below 760 lines; no source >=800 remains in this row",
+  "metadata.rs and each child remain below 760 lines; no source >=800 remains in this row (observed after 5b36855ae6)",
   "FunctionMetadata field set/order/visibility/derive/Default/Clone semantics are byte-for-byte equivalent",
   "method signatures, visibility, bodies, caller paths, and cfg(test) boundaries are unchanged",
   "no new #[path], no caller edits, cargo check and git diff --check green",
@@ -108,9 +109,9 @@ source_authority = "source tokens and module ownership; no cleanup issuer"
 canonical_issuer = "none"
 old_edge = "broad lexical panic/unwrap/expect/todo and dead_code totals are not yet a selected production claim; parent-gated fixtures and debug-only paths are mixed"
 observed_partition = "explicit test/fixture filenames: panic 251, unwrap 1969, expect 2004, todo 0, allow 1; production-named files with inline cfg(test): panic 84, unwrap 622, expect 857, todo 0, allow 66; file-local cfg(test)-free upper bound: panic 24, unwrap 218, expect 109, todo 0, allow 29"
-smallest_slice = "classify panic! 359 and todo! 0 only, with module-registration-aware states SelectedRelease, SelectedDebugOnly, CompatibilityKeep, CallerZeroDisconnected, TestFixture, NonSelected, and Unclassified"
+smallest_slice = "classify panic! 358 and todo! 0 only, with module-registration-aware states SelectedRelease, SelectedDebugOnly, CompatibilityKeep, CallerZeroDisconnected, TestFixture, NonSelected, and Unclassified"
 acceptance = [
-  "all 359 panic! and 0 todo! tokens enter exactly one state and selected Unclassified is 0",
+  "all 358 panic! and 0 todo! tokens enter exactly one state and selected Unclassified is 0",
   "root -> owner -> terminal is recorded for every SelectedRelease row",
   "debug-only panic paths and parent-gated fixtures do not enter the release claim",
   "Compatibility and caller-zero rows carry an owner and observable reopen trigger",
@@ -118,11 +119,33 @@ acceptance = [
 ]
 non_claims = ["no unwrap/expect census in this row", "no panic removal or blanket Result conversion", "no dead_code deletion", "no runtime policy change", "no production gate activation", "lexical counts are not a complete Rust AST census"]
 
+[[candidate]]
+id = "MIRBUILDER-WARN-A-IMPORT-PRUNE-S0"
+status = "accepted_but_not_selected"
+kind = "mechanical_warning_batch"
+scope = "src/mir/builder/calls/build.rs:25-26 and src/mir/generic_method_route_plan.rs:44-45 only"
+source_authority = "Rust compiler unused-import/re-export diagnostics; module/type/proof owners remain unchanged"
+canonical_issuer = "none; remove only stale import/re-export syntax and its local allow attributes"
+old_edge = "two unused import/re-export suppressions obscure the real owner without carrying semantic authority"
+delete_set = [
+  "build.rs debug_method_routing::* import and its allow(unused_imports)",
+  "generic_method_route_plan.rs ScalarI64MapGetStoreFact re-export and its allow(unused_imports)",
+]
+acceptance = [
+  "debug_method_routing module, ScalarI64MapGetStoreFact implementation, and map_set_scalar_get proof functions remain",
+  "no Call/resolver/effect/MIR shape change and no new warning suppression",
+  "one batch-end cargo check --lib and existing guards are green",
+]
+non_claims = ["no module retirement", "no semantic dead_code deletion", "no automatic cargo-fix sweep", "not executable while CURRENT_STATE.toml remains design_stop"]
+
 [selection]
-active_lane = "MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0 remains the current design stop"
+active_lane = "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 remains the next design stop under the direct-target handoff"
 order_after_d1n = [
+  "MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0 (direct-call coverage prerequisite)",
   "MIRBUILDER-COMPILER-SEAM-CENSUS-D0 (docs-only boundary ledger)",
-  "FUNCTION-METADATA-OWNER-SPLIT-R0 (first safe behavior-neutral code cleanup)",
+  "MIRBUILDER-INVESTIGATION-LEDGER-SCOPE-AND-INDEX-D0 (schema/guard topology before index implementation)",
+  "FUNCTION-METADATA-OWNER-SPLIT-R0 (landed at 5b36855ae6; no repeat split)",
+  "MIRBUILDER-WARN-A-IMPORT-PRUNE-S0 (mechanical batch after fast mode opens)",
   "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0 (typed proof row)",
   "MIRBUILDER-RUNTIME-HYGIENE-PANIC-TODO-CENSUS-D0 (finite panic/todo observation before any hygiene edits)",
 ]
