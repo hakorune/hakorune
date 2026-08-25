@@ -596,16 +596,23 @@ if "MirInstruction::Call { func" in consumer_window:
 for token in ("match_method_set_call", "record_direct_set_consumer_use", "record_other_uses"):
     if token not in value_consumer:
         raise SystemExit(f"value_consumer lost fact boundary helper: {token}")
-
 publication = (root / "src/mir/user_box_method_publication.rs").read_text()
 publication_start = publication.index("fn instruction_publishes_any_alias")
 publication_end = publication.index("#[cfg(test)]", publication_start)
 publication_window = " ".join(publication[publication_start:publication_end].split())
-if publication_window.count("MirInstruction::Call { .. } => inst") != 1 or publication_window.count("used_values()") != 1:
-    raise SystemExit("user-box publication Call arm does not delegate to used_values exactly once")
-if "method_receiver_is_alias" in publication_window or "callee" in publication_window:
+if (publication_window.count("MirInstruction::Call { .. } => inst") != 1 or publication_window.count("used_values()") != 1 or "method_receiver_is_alias" in publication_window or "callee" in publication_window):
     raise SystemExit("user-box publication retained a local Callee/receiver matcher")
 
+host_writer = (root / "src/mir/passes/string_corridor_sink/publication.rs").read_text()
+host_start = host_writer.index("pub(super) fn apply_publication_host_boundary_plans")
+host_end = host_writer.index("if rewritten > 0", host_start)
+host_window = " ".join(host_writer[host_start:host_end].split())
+if (host_window.count("MirInstruction::call(") != 1 or host_window.index("MirInstruction::call(") > host_window.index("rewrite_method_set_value") or any(token not in host_window for token in ("Some(plan.helper_dst)", "Callee::Extern(plan.publish_extern.to_string())", "vec![plan.left, plan.middle, plan.right, plan.start, plan.end]", "plan.effects"))):
+    raise SystemExit("publication host writer lost its single plan-owned canonical Call")
+if any(token in host_window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")):
+    raise SystemExit("publication host writer retained a legacy or inferred Call field")
+if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
+    raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()
 role_start = escape.index("MirInstruction::Call { callee, args, .. }")
 role_end = escape.index("MirInstruction::Store", role_start)
@@ -620,7 +627,6 @@ if role_window.count("EscapeBarrier::Capture") != 1 or role_window.count("Escape
     raise SystemExit("escape Call arm lost the accepted Call/Capture role matrix")
 if "func" in role_window:
     raise SystemExit("escape Call arm reintroduced legacy func as a shared barrier")
-
 ownership = (root / "src/mir/ownership_ssa/verify.rs").read_text()
 ownership_start = ownership.index("fn verify_call_ownership")
 ownership_end = ownership.index("fn process_instruction", ownership_start)
@@ -683,7 +689,6 @@ if "call-missing-callee: typed Callee required" not in interpreter_owner:
     raise SystemExit("Rust interpreter lost the typed missing-Callee terminal reject")
 if "self.execute_callee_call(callee_type, args)?" not in interpreter_owner:
     raise SystemExit("Rust interpreter lost the typed Callee execution path")
-
 query = (root / "src/mir/query.rs").read_text()
 query_impl = query.index("impl<'m> MirQuery for MirQueryBox")
 reads_start = query.index("fn reads_of", query_impl)
@@ -697,7 +702,6 @@ writes_end = query.index("#[cfg(test)]", writes_start)
 writes_window = query[writes_start:writes_end]
 if "return inst.dst_value().into_iter().collect()" not in writes_window:
     raise SystemExit("MirQuery writes_of lost canonical Call delegation")
-
 printer_helpers = (root / "src/mir/printer_helpers.rs").read_text()
 helper_start = printer_helpers.index("pub(crate) fn format_call_target")
 helper_end = printer_helpers.index("pub fn format_instruction", helper_start)
@@ -715,7 +719,6 @@ for token in (
         raise SystemExit(f"printer target projection lost {token}")
 if "resolve" in helper_window or "retry" in helper_window or "ConstValue" in helper_window:
     raise SystemExit("printer target projection retained semantic target reconstruction")
-
 display = (root / "src/mir/instruction/display.rs").read_text()
 call_start = display.index("MirInstruction::Call {")
 call_end = display.index("MirInstruction::Return", call_start)
@@ -724,7 +727,6 @@ if "callee: _" in display_call or "TODO: Use callee" in display_call:
     raise SystemExit("MIR Display retained the stale func-only Call observer")
 if display_call.count("format_call_target(callee.as_ref(), *func, args)") != 1:
     raise SystemExit("MIR Display does not delegate Call rendering exactly once")
-
 printer_tests = (root / "src/mir/printer/tests.rs").read_text()
 for token in (
     '"%1 = call_value %7(%2)"',
@@ -749,7 +751,6 @@ if re.search(r"emit_call_with_callee_v0\s*\(\s*dst\s*,\s*func\b", json_calls):
     raise SystemExit("typed v0 JSON call site still forwards legacy func")
 if "fn emit_call_with_optional_func" not in json_calls:
     raise SystemExit("legacy v0 JSON call helper was removed before its compatibility row")
-
 json_root = (root / "src/runner/mir_json_emit/root.rs").read_text()
 if json_root.count("JsonEgressProfile::from_env()") != 1:
     raise SystemExit("JSON root does not select exactly one egress profile")
@@ -772,6 +773,5 @@ for relative in (
         raise SystemExit(f"{relative} retained an independent JSON profile selector read")
 if "calls::emit_call(dst, func, callee.as_ref(), args, effects, profile)" not in (root / "src/runner/mir_json_emit/emitters/mod.rs").read_text():
     raise SystemExit("Call emitter lost the root-selected profile argument")
-
 print("[mir-call-canonical-corridor-guard] ok")
 PY

@@ -493,11 +493,13 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
         rhs: ValueId(9),
     });
     block.instruction_spans.push(Span::unknown());
-    block.instructions.push(extern_call(
-        ValueId(11),
-        SUBSTRING_CONCAT3_EXTERN,
-        vec![ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
-    ));
+    block.instructions.push(MirInstruction::Call {
+        dst: Some(ValueId(11)),
+        func: ValueId::INVALID,
+        callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
+        args: vec![ValueId(6), ValueId(8), ValueId(7), ValueId(9), ValueId(10)],
+        effects: EffectMask::READ,
+    });
     block.instruction_spans.push(Span::unknown());
     block.instructions.push(MirInstruction::Copy {
         dst: ValueId(12),
@@ -612,6 +614,10 @@ fn sinks_publication_helper_to_same_block_runtime_data_set_boundary() {
             )
         })
         .expect("rewritten runtime-data set");
+    assert!(matches!(
+        &block.instructions[helper_idx],
+        MirInstruction::Call { effects, .. } if *effects == EffectMask::READ
+    ));
     assert!(
         helper_idx < set_idx,
         "helper should appear before the set that consumes it: {:?}",

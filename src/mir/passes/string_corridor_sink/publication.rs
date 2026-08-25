@@ -551,13 +551,12 @@ pub(super) fn apply_publication_host_boundary_plans(
                 .get(&idx)
                 .cloned()
                 .unwrap_or_else(|| span.clone());
-            new_insts.push(MirInstruction::Call {
-                dst: Some(plan.helper_dst),
-                func: ValueId::INVALID,
-                callee: Some(Callee::Extern(plan.publish_extern.to_string())),
-                args: vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
-                effects: plan.effects,
-            });
+            new_insts.push(MirInstruction::call(
+                Some(plan.helper_dst),
+                Callee::Extern(plan.publish_extern.to_string()),
+                vec![plan.left, plan.middle, plan.right, plan.start, plan.end],
+                plan.effects,
+            ));
             new_spans.push(helper_span);
             new_insts.push(
                 rewrite_method_set_value(&inst, plan.helper_dst)
@@ -581,4 +580,80 @@ pub(super) fn apply_publication_host_boundary_plans(
     }
 
     rewritten
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::mir::string_corridor_placement::StringCorridorCandidateProof;
+    use crate::mir::string_kernel_plan::{
+        StringKernelPlan, StringKernelPlanBorrowContract, StringKernelPlanFamily,
+        StringKernelPlanRetainedForm,
+    };
+    use crate::mir::{EffectMask, FunctionSignature, MirType};
+
+    fn owned_publication_plan(reason: StringPublishReason) -> StringKernelPlan {
+        StringKernelPlan {
+            plan_value: ValueId(1),
+            version: 1,
+            family: StringKernelPlanFamily::ConcatTripletWindow,
+            corridor_root: ValueId(1),
+            source_root: Some(ValueId(0)),
+            borrow_contract: Some(StringKernelPlanBorrowContract::BorrowTextFromObject),
+            publish_reason: Some(reason),
+            publish_repr_policy: Some(StringPublishReprPolicy::StableOwned),
+            stable_view_provenance: None,
+            known_length: Some(1),
+            retained_form: StringKernelPlanRetainedForm::BorrowedText,
+            publication_boundary: None,
+            publication_contract: None,
+            publication: None,
+            materialization: None,
+            direct_kernel_entry: None,
+            consumer: None,
+            text_consumer: None,
+            carrier: None,
+            verifier_owner: None,
+            read_alias: Default::default(),
+            slot_hop_substring: None,
+            proof: StringCorridorCandidateProof::BorrowedSlice {
+                source: ValueId(0),
+                start: ValueId(2),
+                end: ValueId(3),
+            },
+            middle_literal: None,
+            loop_payload: None,
+        }
+    }
+
+    #[test]
+    fn publication_adapter_extern_preserves_both_owned_reason_targets() {
+        let signature = FunctionSignature {
+            name: "publication_matrix".to_string(),
+            params: Vec::new(),
+            return_type: MirType::Integer,
+            effects: EffectMask::PURE,
+        };
+        let mut function = MirFunction::new(signature, BasicBlockId(0));
+        for (reason, expected) in [
+            (
+                StringPublishReason::ExplicitApiReplay,
+                SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN,
+            ),
+            (
+                StringPublishReason::StableObjectDemand,
+                SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN,
+            ),
+        ] {
+            function
+                .metadata
+                .string_kernel_plans
+                .insert(ValueId(1), owned_publication_plan(reason));
+            assert_eq!(
+                publication_adapter_extern(&function, ValueId(1)),
+                Some(expected),
+                "reason {reason:?} must retain its plan-owned Extern"
+            );
+        }
+    }
 }
