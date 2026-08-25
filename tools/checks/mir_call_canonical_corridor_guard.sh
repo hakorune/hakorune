@@ -537,7 +537,6 @@ for name, next_name in (
     for required in ("MirInstruction::call(", "Callee::Global(qualified)", "EffectMask::READ"):
         if required not in window:
             raise SystemExit(f"{name} lost canonical qualified Call evidence: {required}")
-
 constructor = (root / "src/mir/instruction/methods.rs").read_text()
 start = constructor.index("pub(crate) fn call(")
 end = constructor.index("pub fn extern_name", start)
@@ -545,7 +544,6 @@ window = constructor[start:end]
 for required in ("func: ValueId::INVALID", "callee: Some(callee)"):
     if required not in window:
         raise SystemExit(f"canonical Call constructor drifted: {required}")
-
 callee = (root / "crates/hakorune_mir_defs/src/call_unified.rs").read_text()
 projection_start = callee.index("pub fn for_each_value_operand")
 projection_end = callee.index("/// Call flags", projection_start)
@@ -616,6 +614,9 @@ for label, marker, tail in (("instruction-return", "if plan.return_idx == Some(i
     start = return_writer.index(marker); end = return_writer.index(tail, start); window = " ".join(return_writer[start:end].split())
     if (window.count("MirInstruction::call(") != 1 or any(token not in window for token in ("Some(plan.helper_dst)", "Callee::Extern(plan.publish_extern.to_string())", "vec![plan.left, plan.middle, plan.right, plan.start, plan.end]", "plan.effects"))): raise SystemExit(f"publication {label} writer lost its single plan-owned canonical Call")
     if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit(f"publication {label} writer retained a legacy or inferred Call field")
+concat = (root / "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs").read_text(); apply_start = concat.index("pub(crate) fn apply_concat_corridor_plans"); writer_start = concat.index("ResolvedConcatCorridorPlan::MaterializationStore {", concat.index("for (idx, (inst, span)", apply_start)); writer_end = concat.index("ResolvedConcatCorridorPlan::StoreSharedReceiverSubstring", writer_start); window = " ".join(concat[writer_start:writer_end].split())
+if (window.count("MirInstruction::call(") != 1 or any(token not in window for token in ("Some(*helper_dst)", "Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())", "vec![*left, *middle, *right, *start, *end]", "*helper_effects"))): raise SystemExit("materialization store writer lost its single plan-owned canonical Call")
+if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("materialization store writer retained a legacy or inferred Call field")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()
@@ -735,7 +736,6 @@ for token in (
 ):
     if token not in printer_tests:
         raise SystemExit(f"printer parity tests lost {token}")
-
 json_calls = (root / "src/runner/mir_json_emit/emitters/calls.rs").read_text()
 typed_start = json_calls.index("fn emit_call_with_callee_v0")
 typed_end = json_calls.index("fn emit_call_with_optional_func", typed_start)

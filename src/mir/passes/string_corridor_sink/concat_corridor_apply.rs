@@ -450,13 +450,12 @@ pub(crate) fn apply_concat_corridor_plans(
                     helper_effects,
                     ..
                 } => {
-                    new_insts.push(MirInstruction::Call {
-                        dst: Some(*helper_dst),
-                        func: ValueId::INVALID,
-                        callee: Some(Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())),
-                        args: vec![*left, *middle, *right, *start, *end],
-                        effects: *helper_effects,
-                    });
+                    new_insts.push(MirInstruction::call(
+                        Some(*helper_dst),
+                        Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string()),
+                        vec![*left, *middle, *right, *start, *end],
+                        *helper_effects,
+                    ));
                     new_spans.push(span.clone());
                     let rewritten_store = rewrite_method_set_value(&inst, *helper_dst)
                         .expect("materialization store rewrite should preserve set call shape");
