@@ -1039,8 +1039,9 @@ Non-authority: func/INVALID, Option/Callee defaults, Method(None), target Const,
 Fail-fast boundary: before block.add_instruction and before wire/object publish;
   missing receiver, malformed construction, unresolved legacy, and profile
   mismatch reject with no alternate-target retry.
-Smallest next slice: MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0, one exact Extern
-  direct writer delegated to MirInstruction::call; no field deletion.
+Historical D1A slice: one exact Extern direct writer delegated to
+  MirInstruction::call; no field deletion. Current selection is the D1B
+  Method(None) design stop recorded by CURRENT_STATE; no field deletion.
 Non-claims: R6 implementation, JoinIR remap, JSON wire change, backend switch,
   PyVM/reference/Python/native_driver, and warning cleanup.
 ```
@@ -1159,7 +1160,7 @@ does not yet perform that validation. This closes D1-A as a design decision, but
 permit the R6a code slice: Method(None), Closure, and Constructor remain D1-B/C-D
 blockers.
 
-### D1-B design consultation — static Global issuer (not yet accepted)
+### Historical D1-B design consultation — static Global issuer (superseded by D1B census)
 
 ```text
 Decision: Method(None) is not a canonical state; static calls use a qualified
@@ -1177,7 +1178,14 @@ Non-claims: Method(Some) receiver recovery, backend fallback, V0 parity,
   PyVM/reference/Python/native_driver, or R6 field cutover.
 ```
 
-Finite D1-B producer/recovery ledger:
+The finite D1-B producer/recovery ledger below is historical context. The
+authoritative current census is
+`investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml`;
+it keeps the live generic issuers and selected terminal recovery rows
+`CutoverBlockerOpen` until their exact handoff and fail-fast boundary are
+proven.
+
+Historical D1-B producer/recovery ledger:
 
 | path | observed edge | disposition |
 |---|---|---|
@@ -1220,17 +1228,18 @@ to that handoff: it receives only `name`, `current_static_box`, and runtime
 state, then uses `has_method` or `StaticMethodId` formatting. The source-target
 module is currently disconnected for this generic route. Do not invent a new
 semantic receipt or thread raw text into it; keep the generic route
-`NoSafeSlice` until an existing-product handoff is proven. The bounded design
-follow-up is `MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK`: guard the selected static
-terminal and seal the generic route as an explicit outside/reopen boundary.
+`NoSafeSlice` until an existing-product handoff is proven. The current bounded
+follow-up is the D1B manifest, which retains the route as an open blocker
+rather than an outside park.
 
-### D1-B-PARK result — boundary accepted; D1-B implementation remains closed
+### Historical D1-B-PARK result — superseded; Method(None) remains open
 
 ```text
-Decision: accept the design boundary only. The selected static source row may
-  reuse the existing catalog/publication handoff to issue qualified Global;
-  the disconnected generic Method(None) route is outside/reopen, not a new
-  producer to be repaired by raw text or a new receipt.
+Decision: the prior park disposition is superseded. The selected static source
+  row may reuse the existing catalog/publication handoff to issue qualified
+  Global, but the generic Method(None) route and selected terminal recovery
+  remain live `CutoverBlockerOpen` rows in the D1B census; they are not outside
+  the current boundary and must not be repaired by raw text or a new receipt.
 Source authority + canonical issuer: same-brand declaration/source-target
   catalog -> existing static publication handoff -> CallTarget::Global ->
   CalleeResolver -> Callee::Global -> existing physical Call terminal.
@@ -1239,8 +1248,8 @@ Non-authority: current_static_box/has_method, StaticMethodId/text formatting,
 Fail-fast boundary: source lineage, catalog brand, static namespace,
   owner/method/exact arity, and receipt completion before block/wire/object
   publication; absent/ambiguous/foreign/overflow rejects.
-Smallest next slice: D1-C Closure construction/invocation design; no code,
-  fixture, fallback, or production switch is authorized by this closure.
+Smallest next slice: D1B Method(None) issuer/recovery census; no code, fixture,
+  fallback, or production switch is authorized by this historical note.
 Non-claims: Method(None) issuer retirement, Method(Some), JSON-v0 parity,
   Closure/Constructor cutover, JoinIR, R6 field deletion, or parked backends.
 ```

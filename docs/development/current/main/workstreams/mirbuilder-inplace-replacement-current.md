@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1B-METHOD-NONE-CENSUS
+Status: Design stop — MIR-CALL-CORE-R6-D1C-GENERIC-CATALOG-HANDOFF
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,21 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1B-METHOD-NONE-CENSUS
-  implementation    = D1A typed Extern issuer delegation landed at 4b2fe7a7b6
+  current decision  = MIR-CALL-CORE-R6-D1C-GENERIC-CATALOG-HANDOFF
+  implementation    = D1B Method(None) issuer/recovery census accepted design-only; no code switch
   mode              = design_stop
-  production stop   = Method(None) issuers/recovery and other R6 variant edges remain before core field deletion
-  exit              = finite Method(None) producer/recovery manifest; no methodize retry or schema cutover
+  production stop   = generic route lacks a proven same-brand catalog/publication handoff before target publication
+  exit              = one exact catalog handoff or an explicit NoSafeSlice; no Method(None) repair or schema cutover
   fallback / retry  = 0
 ```
 
 Next bounded design brief:
 
 ```text
-Decision: exhaust the Method(None) production/recovery family before any core cutover.
-Source authority + canonical issuer: verified static catalog -> qualified Global; instance receiver -> Method(receiver); V0 exact relation or typed reject. Non-authority: current_static_box text, has_method, receiver.unwrap_or(func), VM registry/name/args[0], post-wire Const scan.
-Fail-fast boundary: before block, wire, object, or in-place target rewrite. Smallest next slice: design-only census of method_resolution, unified_emitter, MIR-v0, core_bridge, JSON egress, and VM recovery.
-Non-claims: field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
+Decision: prove the existing same-brand catalog/publication handoff for the generic route before any producer cutover.
+Source authority + canonical issuer: exact declaration/source catalog -> qualified Global -> CallTarget/CalleeResolver -> MirInstruction::call; instance receiver -> Method(receiver). Non-authority: current_static_box text, has_method, receiver.unwrap_or(func), VM registry/name/args[0], post-wire Const scan.
+Fail-fast boundary: owner/method/arity/brand and receiver state before argument-effect descent, block, wire, object, or in-place target rewrite. Smallest next slice: design-only caller/loan census for the generic route; if the handoff is not exact, retain NoSafeSlice.
+Non-claims: Method(None) implementation, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
 ```
 
 ## Closed chronology (archived)
@@ -157,9 +157,9 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSealed`;
-exact-i64 physical input I0 landed at `7fd97a5344`, direct-static issuer
-normalization I0 at `6302839770`, D1 manifest is accepted, and D1A Extern issuer
-delegation landed at `4b2fe7a7b6`; next is the D1B Method(None) census.
+exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
+closed, D1B Method(None) is accepted design-only at
+`mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml`, and next is D1C.
 
 ```text
 canonical core

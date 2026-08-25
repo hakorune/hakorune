@@ -1,0 +1,224 @@
+title = "MIR Call core R6 D1B Method(None) issuer and recovery census"
+status = "accepted_design_no_safe_slice"
+observed_commit = "8f8f095f5f"
+observed_at = "2026-08-25"
+implementation_permission = false
+
+[boundary]
+starts = "selected source/builder target selection and typed MIR-v0 ingress"
+ends = "block publication, selected JSON egress, selected Rust VM dispatch, and selected ny-llvmc pre-effect terminal"
+includes = [
+  "src/mir/builder/calls/method_resolution.rs",
+  "src/mir/builder/calls/build.rs",
+  "src/mir/builder/calls/unified_emitter.rs",
+  "src/runner/mir_json_v0/call.rs",
+  "src/runner/modes/common_util/core_bridge.rs",
+  "src/runner/mir_json_emit/emitters/calls.rs",
+  "src/runner/mir_json_emit/helpers.rs",
+  "src/backend/mir_interpreter/handlers/calls/**",
+  "selected ny-llvmc mir-call and pure-compile dispatch shims",
+]
+excludes = [
+  "PyVM/reference/Python/WASM/non-selected backends",
+  "Closure/Constructor/CallFlags schema retirement",
+  "Method(Some) execution semantics except adjacent receiver-recovery observations",
+  "R6 func/Option<Callee> field deletion",
+]
+
+[decision]
+summary = "Method(None) is not a canonical static-call state. Static calls require a same-brand exact catalog row and issue qualified Global(owner.method/arity); instance calls require an exact receiver and issue Method(receiver)."
+source_authority = "same-brand declaration/source catalog plus exact receiver relation"
+canonical_issuer = "existing static publication handoff -> CallTarget -> CalleeResolver -> MirInstruction::call"
+non_authority = [
+  "current_static_box by itself",
+  "has_method and StaticMethodId/text formatting",
+  "func/ValueId::INVALID/Const/name/wire text",
+  "env/profile methodize switches",
+  "VM registry, singleton, by-name, or args[0] recovery",
+  "native metadata/surface retry",
+]
+fail_fast = "exact target, owner/method/arity, receiver presence/ownership, and profile shape must be settled before argument-effect publication, block insertion, JSON mutation/emission, VM dispatch, native need-scan, or object emission"
+no_retry = "Global failure, Method failure, malformed explicit target, and selected C plan miss never retry another target, name, registry, metadata, or singleton route"
+smallest_next_slice = "Keep design_stop; use this manifest to prove the generic catalog handoff and classify each issuer/recovery row before selecting one producer-first implementation cell"
+non_claims = [
+  "new semantic receipt",
+  "Method(Some) receiver repair",
+  "Closure/NewClosure",
+  "Constructor/NewBox",
+  "MirCall/CallFlags",
+  "JoinIR remap",
+  "backend activation",
+  "warning cleanup",
+]
+
+[counts]
+direct_or_dynamic_issuer_rows = 5
+selected_terminal_recovery_rows = 3
+adjacent_non_authority_rows = 3
+unclassified_rows = 0
+duplicate_row_ids = 0
+parked_selected_backend_rows = 0
+
+[[issuer]]
+id = "method_resolution_static_none"
+class = "direct_issuer"
+owner = "src/mir/builder/calls/method_resolution.rs:31-55"
+caller = "src/mir/builder/calls/build.rs:307-364"
+edge = "current_static_box + hardcoded has_method issues Callee::Method { receiver: None } and the builder publishes a target/name path"
+authority = "not available in this route; existing callable declaration catalog/publication handoff is the required authority"
+disposition = "CutoverBlockerOpen"
+replacement = "exact same-brand catalog key -> qualified Global(owner.method/arity) -> CalleeResolver -> MirInstruction::call"
+delete_set = ["Method(None) literal", "hardcoded has_method target classification", "name Const publication for this route", "tail/suffix alternate-target retry"]
+fail_fast = "before argument-effect publication and before build.rs block insertion"
+reopen_trigger = "generic caller receives an exact catalog/owner handoff, or a new production caller appears"
+
+[[issuer]]
+id = "unified_emitter_methodize_none"
+class = "direct_reissuer"
+owner = "src/mir/builder/calls/unified_emitter.rs:407-461"
+caller = "selected unified emission path; physical publication at :700-725"
+edge = "env/profile and StaticMethodId text parse rewrite an existing Global into Method(None) for RuntimeData"
+authority = "incoming exact Callee provenance; environment/profile/text cannot reclassify a canonical target"
+disposition = "CutoverBlockerOpen"
+replacement = "retain exact Global or exact Method(receiver); do not repair an unproven Global here"
+delete_set = ["HAKO_MIR_BUILDER_METHODIZE target mutation", "StaticMethodId text reclassification", "Method(None) trace/branch"]
+fail_fast = "before create_mir_call and physical terminal"
+reopen_trigger = "selected methodize caller census changes or exact upstream provenance is proven"
+
+[[issuer]]
+id = "mir_json_v0_optional_method_receiver"
+class = "compatibility_ingress"
+owner = "src/runner/mir_json_v0/call.rs:78-118,253-272"
+caller = "owner-private JSON-v0 loader"
+edge = "explicit Method receiver is optional and can publish Method(None); missing box name also receives a RuntimeDataBox default"
+authority = "JSON-v0 owner-local compatibility relation only; explicit malformed shape never falls back to name/func"
+disposition = "CutoverBlockerOpen"
+replacement = "explicit Method(Some) -> canonical Method; missing/invalid receiver or missing static relation -> typed reject before Call publication"
+delete_set = ["nullable Method receiver publication", "RuntimeDataBox default as target authority", "malformed-explicit retry through name/func"]
+fail_fast = "after input state is resolved and before args/block Call insertion"
+reopen_trigger = "an explicit receiverless V0 compatibility contract gains a unique exact static mapping"
+
+[[issuer]]
+id = "core_bridge_const_methodize"
+class = "post_wire_reissuer"
+owner = "src/runner/modes/common_util/core_bridge.rs:101-199"
+caller = "selected bridge wrapper when methodize env flag is active"
+edge = "Const(String) scan maps legacy func text Box.method/N to receiverless Method and drops arity"
+authority = "post-wire text, env flags, and register contents are non-authority"
+disposition = "CutoverBlockerOpen"
+replacement = "typed target is preserved; unsupported legacy payload rejects at compatibility boundary"
+delete_set = ["Const target scan", "arity-dropping Method(None) mutation", "func removal followed by target reissue"]
+fail_fast = "before JSON object mutation and bridge output publication"
+reopen_trigger = "selected bridge activation becomes zero with a durable guard, or an exact source handoff replaces it"
+
+[[issuer]]
+id = "core_bridge_module_singleton_methodize"
+class = "post_wire_reissuer"
+owner = "src/runner/modes/common_util/core_bridge.rs:200-245,290-335"
+caller = "selected bridge singleton/module-function compatibility path"
+edge = "ModuleFunction/static singleton metadata is rewritten to a receiverless Method"
+authority = "singleton table, metadata text, and missing receiver are not target authority"
+disposition = "CutoverBlockerOpen"
+replacement = "preserve typed Global/Method(Some), or typed reject the compatibility payload"
+delete_set = ["receiverless singleton Method mutation", "metadata/name target recovery"]
+fail_fast = "before bridge mutation and downstream VM/native dispatch"
+reopen_trigger = "bridge caller-zero is proven and guard is updated, or exact catalog handoff is connected"
+
+[[terminal]]
+id = "json_egress_method_none"
+owner = "src/runner/mir_json_emit/emitters/calls.rs:17-75; src/runner/mir_json_emit/helpers.rs:43-64"
+edge = "v0 uses receiver.unwrap_or(func); v1 can serialize nullable Method receiver"
+authority = "writer is projection-only and cannot turn func into a receiver"
+disposition = "CutoverBlockerOpen"
+fail_fast = "before JSON append/emission"
+positive = ["qualified Global projection", "Method(Some) exact receiver projection"]
+negative = ["v0 receiver <- func", "v1 null receiver", "post-wire static-to-instance reclassification"]
+reopen_trigger = "all upstream Method(None) producers are zero and egress has a typed error boundary"
+
+[[terminal]]
+id = "rust_vm_method_none_recovery"
+owner = "src/backend/mir_interpreter/handlers/calls/mod.rs:70-92,220-242; src/backend/mir_interpreter/handlers/calls/method.rs:394-532"
+edge = "HostBridge, registry, qualified-name retry, singleton fallback, and adjacent receiver autoscan/args[0] recovery"
+authority = "VM is a typed terminal consumer, not a target issuer"
+disposition = "CutoverBlockerOpen"
+fail_fast = "at call entry before HostBridge/registry/function execution"
+positive = ["Global static dispatch", "Method(Some) instance dispatch"]
+negative = ["Method(None) terminal reject", "registry/name/singleton retry zero", "receiver autoscan and args[0] surrogate isolated to a separate blocker"]
+reopen_trigger = "upstream issuer count reaches zero and selected parity covers terminal errors/results"
+
+[[terminal]]
+id = "selected_native_method_none_preflight"
+owner = "selected ny-llvmc pure/need/dispatch shims: hako_llvmc_ffi_pure_compile_generic_lowering_op_dispatch_calls.inc; hako_llvmc_ffi_mir_call_need_policy.inc; hako_llvmc_ffi_mir_call_dispatch.inc"
+edge = "missing/null receiver is read as numeric zero; plan miss can retry metadata/name/surface routes"
+authority = "selected typed plan/ABI rows; C metadata/name/surface are not target authority"
+disposition = "CutoverBlockerOpen"
+fail_fast = "before need-scan, plan/origin/declaration checks, LLVM IR emission, or object publication"
+positive = ["Method(nonzero receiver) with exact plan", "Global with exact static plan"]
+negative = ["missing/null receiver", "explicit receiver zero distinguished from missing", "plan miss/conflict retry zero"]
+reopen_trigger = "selected egress no longer emits receiverless Method and C presence/range guard is landed"
+
+[[adjacent]]
+id = "callsite_canonicalize_not_method_none_authority"
+owner = "src/mir/passes/callsite_canonicalize/pass.rs:119-240"
+edge = "None+Const -> Global and Global+args[0] -> Method(Some) observer/rewrite"
+disposition = "RetainGuarded"
+reason = "adjacent optimizer blocker; it must not be used to repair Method(None) or infer a receiver"
+reopen_trigger = "optimizer target issuer census changes"
+
+[[adjacent]]
+id = "global_route_arity_observer"
+owner = "src/mir/optimizer_passes/global_call_route_plan/generic_i64_body/refine.rs:359-362"
+edge = "None is observed as false"
+disposition = "RetainGuarded"
+reason = "observer only; no target issuance"
+reopen_trigger = "observer begins issuing or reclassifying a target"
+
+[[adjacent]]
+id = "method_v1_required_receiver"
+owner = "src/runner/json_v1_bridge/parse/mir_call.rs:183-224"
+edge = "JSON-v1 already requires receiver for Method"
+disposition = "RetainGuarded"
+reason = "positive boundary; preserve as a parity guard while V0 is narrowed"
+reopen_trigger = "schema change or receiver optionality is introduced"
+
+[state_matrix]
+ready_static = "unique same-brand owner/method/exact arity -> qualified Global"
+ready_instance = "exact source/resolver receiver -> Method(receiver)"
+explicit_method_some = "typed Method(Some) accepted and preserved"
+missing_static = "missing static identity/arity -> typed reject before effects/publication"
+missing_receiver = "Method(None)/null/absent receiver -> typed reject unless a future owner-private exact V0 relation is explicitly accepted"
+malformed_explicit = "typed reject; never retry name/func"
+foreign_or_ambiguous = "typed reject; no by-name, registry, metadata, or singleton retry"
+receiver_zero = "numeric zero is a value; distinguish explicit zero from missing presence in selected C"
+plan_miss = "typed terminal; no metadata/name/surface alternate route"
+outside_cohort = "named ParkedSealed only for non-selected backends and diagnostic/reference surfaces"
+
+[acceptance]
+status = "design_only_no_safe_slice"
+reviewers = ["d2_issuer_boundary_audit", "d2c_consumer_selection_audit", "d2b_impl_plan_audit"]
+review_scope = "independent read-only source census; no code, fixture, or Cargo evidence"
+required_before_fast = [
+  "five issuer/reissuer rows have exact caller, lifecycle, disposition, and delete set",
+  "selected JSON/Rust/native terminal rows are classified with no unclassified boundary edges",
+  "static/instance matrix is total for ready, absent, duplicate, foreign, ambiguous, and arity-mismatch inputs",
+  "generic route receives an exact catalog/owner handoff before argument descent, or remains NoSafeSlice",
+  "Method(None) producer/runtime edge reaches zero before any core field deletion",
+  "receiver.unwrap_or(func), receiver autoscan, registry/name/singleton retry, post-wire Const methodize, and selected C missing->0 retry are zero",
+  "positive target/receiver/args/dst/effects/result parity and negative pre-publication rejection are available",
+  "unified_emitter remains below 800 lines; any growth requires a path-preserving split before semantic edits",
+]
+guard = "extend the shared call corridor guard only after the producer-first row is selected; no guard is evidence of implementation permission by itself"
+reopen_triggers = [
+  "new Method(None) literal or dynamic issuer",
+  "new receiver/name/func/Const/registry/metadata retry",
+  "new selected backend consumer or egress profile",
+  "exact catalog handoff changes or a source brand becomes unavailable",
+]
+
+[docs]
+durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"
+active_pointer = "docs/development/current/main/CURRENT_STATE.toml"
+active_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+prior_writer_manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml"
+normal_root_manifest = "ParkedSealed: docs/development/current/main/investigations/normal-root-execution-atomic-cutover-manifest-d0-2026-08-23.md; do not copy or slim in this row"
+docs_slim_followup = "Move closed R1-R5/D1A/D1-D8 prose out of the 2970-line Call SSOT only after D1B acceptance; preserve this manifest as the finite D1B ledger"
