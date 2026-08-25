@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — fast bounded row (MIR-PHYSICAL-TYPE-INPUT-D1-I0)
+Status: Active workstream — design stop (MIR-CALL-JOINIR-REMAP-D0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,16 +32,15 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-PHYSICAL-TYPE-INPUT-D1-I0
-  implementation    = P0 landed a behavior-neutral session-open shelf; D1-I0 now issues and transports the exact pos/end representation pair
-  mode              = fast
-  production stop   = no JSON/C/backend physical input or old-edge retirement; the pair is not inferred from a MIR type, ABI lane, receipt, or synthetic producer
-  exit              = exact two rows move through same-session formal adoption into the existing ledger/projection, with no synthetic operation producer
+  current decision  = MIR-CALL-JOINIR-REMAP-D0
+  implementation    = D1-I0 exact pos/end pair transport is closed; next is caller/lifecycle census only
+  mode              = design_stop
+  production stop   = JoinIR remapper has no named production caller/lifecycle owner; no remapper or Call R6 edit is authorized
+  exit              = choose production Callee-operand cutover or test/reference isolation from bounded evidence
   fallback / retry  = 0
 ```
 
-The post-root task-order audit is closed. Historical queues cannot select a
-row; only the six-line brief and ordered frontier below may do so.
+The post-root task-order audit is closed; historical queues cannot select a row; only the six-line brief and ordered frontier below may do so.
 
 ## Closed chronology (archived)
 
@@ -449,13 +448,13 @@ Fail-fast:
   before Builder open, then before body emission; missing/partial/conflict,
   foreign/stale/duplicate/second-consume, or ABI/representation mismatch rejects
   and discards unpublished state. fallback/retry/re-inference = 0.
-Smallest next slice:
-  D1-I0 issues/transports exact two rows, installs them atomically after formal
-  adoption, and stores them opaquely in the existing projection. JSON/C/backend
-  activation remains closed.
+Implementation receipt:
+  `5bde4c6f92` issues/moves the exact pair through formal adoption, stores the
+  opaque carrier, and extends the guard; check/focused test (`1/1`)/diff green;
+  JSON/C/backend activation remains closed.
 Non-claims:
-  returns, generated values, handles, other widths/cohorts/backends, ABI/layout
-  changes, Call R6, and old reconstruction retirement.
+  returns/generated values/handles, other widths/cohorts/backends, ABI/layout,
+  Call R6, and old reconstruction retirement.
 
 Census boundary: exact source `pos/end : i64` -> package contract -> A-prime
 relation -> capability pair -> formal header -> same-brand ledger/projection;
@@ -467,16 +466,17 @@ Finite states: `OutsideCandidate`, `ExactPairReady`, `OpenedSameSession`,
 `ProducedLedgerSubstitution`, and `Unsupported`. Only the first four proceed;
 all negative states reject before effect, with no repair or re-pair.
 
-P0 receipt: `41f82d4be4` split the emitter parent to 587 / child to 185 lines;
-check, focused test, guard, and diff are green; 441 baseline warnings, no new edge.
+P0 receipt: `41f82d4be4` split emitter 587/185; D1 pair child 118, capability
+parent 652 (<760); no new edge/warning class.
 
-## Deferred follow-ups (not selected)
+## Ordered follow-ups (design/retirement, not selected)
 
-`MIR-CALL-JOINIR-REMAP-D0` and `MIR-CALL-CORE-R6-D0` remain after this row;
-`root_is_app_mode` session cleanup, stale D2c comment, compact docs (excluding
-the 2000+ line manifest), shelf/`#[path]`/empty-dir/common_v2 census, and A/B/C
-warning retirement remain later cleanup. PyVM/reference/Python and other
-non-selected backends remain `ParkedSealed`.
+`MIR-CALL-JOINIR-REMAP-D0`: bounded caller/lifecycle census; caller -> atomic
+Callee operand design, otherwise test/reference isolate/retire.
+`MIR-CALL-CORE-R6-D0`: after remapper, mandatory `Callee`/func/Option,
+MirCall/CallFlags, Method(None), Closure/Constructor; root old-guard + bool
+session-localize; shelf `#[path]` -> mod.rs, empty-dir/common_v2 census.
+Warning A batch/B skip/C reason-retire; stale D2c/R6 flags closed; PyVM parked.
 
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
@@ -570,10 +570,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-PHYSICAL-TYPE-INPUT-D1-I0
-  -> fast bounded row: issue/transport the exact pos/end representation pair; JSON/C/backend activation stays closed
+ MIR-CALL-JOINIR-REMAP-D0
+  -> design stop: census the real production caller and lifecycle owner; no code
 Next (not selected)
-  -> Call JoinIR/remapper and R6 schema design; Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed
+  -> MIR-CALL-CORE-R6-D0 after remapper disposition; physical/backend/New and non-selected backend rows remain ParkedSealed
 
 After MIR Call retirement
   1. MIRBUILDER-PR-STRUCTURAL-GATES-I0

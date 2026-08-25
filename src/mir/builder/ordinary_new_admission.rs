@@ -1,8 +1,8 @@
 //! Private physical owner for the legacy raw ordinary `new` body.
 //!
 //! This is a behavior-neutral BoxShape extraction. It owns no source or
-//! semantic admission; the later D2c cutover will replace this body with the
-//! package-claim consumer for the selected direct-body Raw cohort.
+//! semantic admission; the selected direct-body Raw cohort enters through the
+//! package-claim port before this physical consumer runs.
 
 use super::{CallTarget, Effect, EffectMask, MirBuilder, MirInstruction, ValueId};
 use crate::ast::ASTNode;

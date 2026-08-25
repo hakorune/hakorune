@@ -1162,10 +1162,10 @@ create_mir_call production caller                 = 1
 physical terminal semantic projection             = dst/callee/args/effects only
 public MirCall/CallFlags downstream consumers     = not observable in workspace
 JSON flags:{}                                     = compatibility shape retained
-JSON v1 ingress flag handling                      = ingress does not read/validate flags; no current reject is observed
+JSON v1 ingress flag handling                      = observation only: ingress does not read/validate flags; no reject is claimed
 
 acceptance/not-yet-landed:
-non-empty/unknown flags                            = typed reject before publication
+non-empty/unknown flags                            = required typed reject before publication; not yet landed
 ```
 
 The public `hakorune_mir_defs` and MIR facade exports remain an owner-local
