@@ -1,9 +1,10 @@
 title = "MIR Call core R6 D1Q publication return Extern issuer"
-status = "fast"
+status = "landed"
 observed_at = "2026-08-25"
-observed_commit = "f13745d9e0"
-implementation_permission = true
+observed_commit = "491e212e77"
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0"
+implementation_commit = "491e212e77"
 decision = "MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
 
@@ -12,7 +13,7 @@ decision = "Replace the two publication-return direct Call literals with the thi
 source_authority_and_canonical_issuer = "collect_publication_return_plans seals return position, exact Extern, helper dst, five ordered operands, effects, and copy indices in PublicationReturnPlan; MirInstruction::call is the sole issuer."
 non_authority = "return_idx representation, apply-side target/effect reread, Return value, legacy func, backend lookup, PURE defaults, hint/CFG/DCE policy, and block transaction behavior are not target authority."
 fail_fast_boundary = "value Return, single-use copy chain, explicit-cold publish, helper, same-block, owned representation, or exact adapter failure yields no plan and zero Call/hint/count publication."
-smallest_next_slice = "Change only publication.rs:359-365 and 389-395; add instruction/terminator Return parity and compact the existing guard without appending beyond 777 lines."
+smallest_next_slice = "Landed: publication.rs:359-365 and 389-395 now use MirInstruction::call; instruction/terminator Return parity and the shared guard are green at 777 lines."
 non_claims = "No write/host writer, concat9, unified/array/canonicalizer, Method(None), bare FunctionCall, Call schema, MirCall/CallFlags, metadata split, typed-error, backend/wire, fallback, or cleanup change."
 
 [boundary]
@@ -79,11 +80,11 @@ guards = [
   "current_state_pointer_guard",
   "rustfmt on touched Rust and git diff --check",
 ]
-source_limits = "publication.rs is 658 lines; return fixture is 178 lines; corridor guard is 777 lines and must stay <=777 by replacement/compaction; active card is 1000 lines"
+source_limits = "publication.rs is 656 lines; instruction-return fixture is 193 lines; terminator-return fixture is 188 lines; corridor guard is 777 lines; active card is 1000 lines"
 
 [worker_review]
 selection = "/root/d2c_consumer_selection_audit: post-D1P census selected D1Q as one atomic Return family; remaining selected writers 14, publication Return family 2"
-implementation_permission = "fast I0 permitted after the finite Return matrix, delete set, guard plan, and upper-worker review; no other writer or consumer is admitted"
+implementation_permission = "fast I0 landed at 491e212e77; closeout is limited to receipt, README, pointer, and next-edge worker evidence"
 
 [stop_if]
 conditions = [
@@ -92,3 +93,20 @@ conditions = [
   "guard append would exceed 777 or any touched Rust file reaches 760/800 without a separate split design",
   "negative state produces any plan, Call, hint, count, or retry",
 ]
+
+[receipt]
+status = "landed"
+commit = "491e212e77"
+source = "src/mir/passes/string_corridor_sink/publication.rs:359-365,389-395; src/mir/passes/string_corridor_sink/tests/concat_and_return_parts/sinks_publication_helper_to_same_block_instruction_return_boundary.rs; src/mir/passes/string_corridor_sink/tests/concat_and_return_parts/sinks_publication_helper_to_same_block_return_boundary.rs; tools/checks/mir_call_canonical_corridor_guard.sh"
+old_edge = "PublicationReturnPlan instruction/terminator paths emitted direct transitional Call literals with func: ValueId::INVALID and callee: Some(...)"
+new_edge = "the existing PublicationReturnPlan fields emit one MirInstruction::call(Some(plan.helper_dst), Callee::Extern(plan.publish_extern.to_string()), [left, middle, right, start, end], plan.effects) in each Return state"
+writer_count_before = 2
+writer_count_after = 0
+focused_tests = [
+  "string_corridor_sink::tests::concat_and_return: 6 passed, 0 failed",
+]
+warning_baseline = "quick profile emitted 441 pre-existing warnings; this cell neither suppresses nor claims to retire them"
+negative = "collector rejection and empty/unsupported/copy-chain paths remain unchanged static no-publication evidence; no fallback/retry path or whole-pass rollback claim"
+parity = "instruction Return and terminator Return preserve helper span, exact Extern/dst/five-argument order/READ effects, copy removal, hints/counts, CFG/folded metadata, and Return value placement"
+guards = "mir_call_canonical_corridor_guard (777 lines) + current_state_pointer_guard + rustfmt + git diff --check green"
+source_limits = "publication.rs 656 lines; instruction-return fixture 193 lines; terminator-return fixture 188 lines; corridor guard 777 lines; active card 1000 lines"

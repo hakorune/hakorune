@@ -192,6 +192,15 @@ checks both host and write windows at 777 lines. Collector rejection,
 unsupported/copy-chain no-publication paths, remaining writers, schema
 cutover, and whole-pass rollback remain outside this cell.
 
+The publication-return D1Q I0 writer now applies the same constructor to both
+`PublicationReturnPlan` states: an instruction `Return` and a terminator
+`Return`. The plan remains the sole owner of the Extern, helper destination,
+five ordered operands, effects, copy removal, and span; focused parity proves
+the exact Extern/destination/argument order with non-PURE `READ` effects and
+the unchanged Return placement. The shared guard checks both Return windows
+at 777 lines. Collector rejection, remaining non-publication writers, schema
+cutover, fallback/retry, and whole-pass rollback remain outside this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

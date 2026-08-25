@@ -20,6 +20,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1-next-edge-census-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1n-user-box-publication-call-operand-projection-d0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1o-publication-host-extern-issuer-i0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1q-publication-return-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -137,10 +138,11 @@ Store/FieldSet publication writer landed at `6912edb287`; the existing
 PublicationWriteBoundaryPlan now delegates to `MirInstruction::call`, with
 the two boundary proofs preserving destination, five-argument order, READ
 effects, copy removal, and adjacency. The receipt closes this writer while
-full Call retirement remains separate. D1Q is the current fast row: the two
+full Call retirement remains separate. D1Q landed at `491e212e77`: the two
 PublicationReturnPlan writers (instruction Return and terminator Return)
-delegate to `MirInstruction::call` as one atomic family; only their focused
-proof and shared guard may change in this cell.
+delegate to `MirInstruction::call` as one atomic family. Selected writers are
+now 12 and the publication Return family is 0; the focused six-test proof and
+shared guard are green.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
