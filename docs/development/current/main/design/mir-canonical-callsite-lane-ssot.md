@@ -2010,6 +2010,134 @@ coverage gap, unsupported explicit override, and relation reuse.
 Until those five inputs are co-sealed, D1-D5 remains `NoSafeSlice` and no
 production implementation or semantic receipt is authorized.
 
+#### D1-D6 design Decision — caller-New relation, initializer coverage, and admission snapshot
+
+D1-D5's candidate issuer is not sufficient. The constructor semantic batch
+owns declaration-side body shapes, while the resolved callable semantic batch
+owns caller-side `New` shapes; the package boundary currently has both
+products but issues no relation between them. D1-D6 therefore keeps the lane
+in design stop and closes the missing caller-to-constructor relation before
+any bridge or transaction can be implemented.
+
+Six-line brief:
+
+```text
+Decision:
+  issue one source-bound caller-New -> constructor/birth relation at the
+  semantic package boundary, then let raw and PlanNormalizer borrow it.
+Source authority + canonical issuer:
+  ParserConstructorSourceCatalogV1/StoredFieldInitializer and the caller's
+  VerifiedResolvedCallableSemanticBatchV1 body-shape loan are authorities;
+  a future package-bound relation issuer co-seals them exactly once.
+Non-authority:
+  FunctionOwnerIdV1 alone, class/name/arity lookup, AST reparse, raw/plan
+  carriers, CoreEffectPlan, EffectMask, physical IDs, N+1 arity, and sinks.
+Fail-fast boundary:
+  validate exact caller site, constructor source row, birth/body owners,
+  Argument(i)/Initializer(i) coverage, defaults/overrides, and effects before
+  child lowering; stage values/metadata and publish one selected sink.
+Smallest next slice:
+  design-only source-relation seed, Initializer(i) effect contract, duplicate
+  body-shape loan policy, and the private admission snapshot; no code/receipt.
+Non-claims:
+  lifecycle implementation, raw/plan parity, Method(None), Closure, JSON,
+  backend activation, R6 cutover, warning cleanup, or shelf moves.
+```
+
+Finite authority inventory:
+
+| boundary | current authority/product | D1-D6 gap |
+|---|---|---|
+| constructor declaration | `parser/constructor_source_catalog.rs:107-212`, `source_authority/constructor_source.rs:16-25,175-220` | declaration `ConstructorSourceIdV1` and generated birth coverage exist; no caller New relation |
+| stored defaults | `parser/declarations/box_def/members/fields.rs:99-137`, `property_emit.rs:331-357` | initializer provenance/order belongs to birth; no override carrier |
+| caller semantic batch | `mir/callable_semantic_batch/issuer.rs:112-197` and resolver body shapes | caller owner/site and child effects exist; no constructor source mapping |
+| package boundary | `mir/normal_callable_semantic_package/issuer.rs:130-155` | caller and constructor products coexist; no cross-owner issuer |
+| constructor semantic batch | `normal_callable_semantic_package/instance_constructor_semantic.rs:146-156` | body-shape map is discarded; row cannot co-seal birth effects |
+| New source shape | `parser/expr/primary.rs:259-278`, `shadow/expr.rs:307-327` | class/args/field initializers exist; field initializers have no sealed `Initializer(i)` relation |
+| argument relation | `shadow/expr.rs:566-585` | `Argument(i)` relation is recorded; initializer traversal is not |
+| owner identity | `resolved_semantics/ids.rs:27-65` | `FunctionOwnerIdV1` is resolver-session-local; slot equality is not a cross-pass proof |
+| raw physical path | `builder/raw_expression_dispatch/mod.rs:544-556`, `new_expression.rs:133-195` | live Builder mutation, NewBox, by-name birth recovery, then fields; no expression transaction |
+| plan physical path | `builder/control_flow/plan/normalizer/helpers_value.rs:523-556`, `plan/lowerer/effect_emission.rs:180-190` | args-only NewBox; field initializers reject; no birth/publish |
+| future admission owner | `builder/ordinary_new_admission.rs` (does not exist at HEAD) | must be private, shared, and sink-neutral until commit |
+
+There is no valid mapping from caller `ASTNode::New` to a constructor source
+row by class text, method name, or arity. The parser/source projection must
+carry either an exact `ConstructorSourceIdV1` relation seed or a typed missing
+state into the semantic package. Re-discovering a declaration from the MIR,
+`FunctionOwnerIdV1`, or generated `birth` text is not an issuer and cannot
+repair a missing seed.
+
+The conceptual handoff (design only; not a new receipt yet) must co-seal:
+
+```text
+caller owner + owner-branded New SourceExprSite
+constructor source id + declaration/birth provenance
+caller body-shape loan + birth-owner body-shape loan
+source argument arity N
+ordered Argument(i) sites
+ordered Initializer(i) sites and explicit field names/order
+declaration-default versus construction-site override provenance
+root Allocation + child + override + birth-body effect coverage
+```
+
+It must exclude `dst`, `ValueId`, physical constructor arity `N+1`, MIR
+instructions, `CoreEffectPlan`, `EffectMask`, Recipe keys, runtime symbols,
+backend handles, and fallback state. Stored declaration defaults are consumed
+by the birth owner; explicit `new Box { field: expr }` overrides are caller
+operations. The handoff must not duplicate either class or silently turn an
+override into a default.
+
+The missing initializer relation is a hard boundary. Every field initializer
+must receive one ordered `Initializer(i)` relation and an effect classification
+before its child is lowered. Missing, duplicate, foreign, or reordered
+initializer coverage is a typed reject. A child effect list that contains only
+root `Allocation` or only `EffectMask` is incomplete.
+
+The future private physical owner is tentatively named
+`src/mir/builder/ordinary_new_admission.rs`; the name is a design anchor, not
+an authorization to create it. It must borrow the co-sealed handoff and admit
+exactly one raw or plan sink. Its private transaction snapshot must cover the
+current function/block publication point, instruction lengths, `ValueId`
+allocation, `TypeContext` facts, `value_origin_newbox` metadata, value-origin
+caller/span facts, variable/binding/scope state, pending SSA/materialization
+state, and any module metadata touched by New. A rejected child or failed
+birth must restore the snapshot without leaving a block instruction, type fact,
+value origin, or reserved ID behind. The existing function/module sessions and
+`RawStructuredChildScopePortV1` are not implicit expression transactions.
+
+The physical sequence remains an acceptance contract, not current parity:
+
+```text
+validate source relation and field slots
+-> lower/evaluate source arguments and explicit overrides privately
+-> allocate NewBox exactly once
+-> consume the catalog-backed birth/N relation (declaration defaults)
+-> apply explicit overrides in source order
+-> publish usable identity exactly once
+```
+
+The current raw path (NewBox -> birth lookup/recovery -> fields) and current
+PlanNormalizer path (args-only NewBox) are observations proving that parity is
+not yet present. Positive acceptance requires one relation issue and consume,
+two body-shape loans with exact owner branding, source `N` versus physical
+`N+1`, complete `Argument(i)`/`Initializer(i)`/birth effect coverage, and one
+NewBox/lifecycle commit through the future owner. Negative acceptance requires
+pre-publication rejection with no live Builder mutation for missing source
+seed, foreign/duplicate owner or ID, site drift, missing initializer relation,
+birth/arity/order mismatch, effect gap, duplicate/unknown field, child failure,
+or relation reuse.
+
+Before any physical implementation, the selected plan normalizer file
+`src/mir/builder/control_flow/plan/normalizer/helpers_value.rs` is already
+786 lines. A separate behavior-neutral shelf split must bring each selected
+production child below the 760-line trigger; no D1-D6 implementation may add
+semantic growth to that file or cross the 800-line hard stop.
+
+Until the parser relation seed, dual body-shape loan, `Initializer(i)` effect
+coverage, and private admission snapshot are all accepted, D1-D6 remains
+`NoSafeSlice`; no production code, fixture, route switch, or semantic receipt
+is authorized.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records
@@ -2139,12 +2267,13 @@ by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
 Selected next design task is
-`MIR-CALL-R6-CORE-SCHEMA-D1-D5-ORDINARY-NEW-LIFECYCLE-EFFECT-DESIGN`.
+`MIR-CALL-R6-CORE-SCHEMA-D1-D6-ORDINARY-NEW-CALLER-RELATION-DESIGN`.
 D1-B-PARK accepted the existing static handoff/outside boundary and D1-C2-I0
 closed the lossy Closure body egress edge; D1-D0/D1-D1 closed only negative
-V0/V1 publication and shape edges. The D1-D5 lifecycle/effect bridge and
-expression transaction, generic Method(None) issuer, and Constructor/NewBox
-dual route remain blockers. Until the full D1-D5 and remaining Method(None) edges are accepted,
+V0/V1 publication and shape edges. The D1-D6 caller relation, initializer/
+effect coverage, dual body-shape loan, private admission snapshot, generic
+Method(None) issuer, and Constructor/NewBox dual route remain blockers. Until
+the full D1-D6 and remaining Method(None) edges are accepted,
 do not change `Option<Callee>`,
 `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
