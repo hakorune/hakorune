@@ -3,7 +3,7 @@ status = "landed"
 observed_at = "2026-08-25"
 observed_commit = "4d44027191"
 implementation_permission = true
-decision = "MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0"
+decision_id = "MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
 landed_commit = "371f75476e"
 
