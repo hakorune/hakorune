@@ -2,7 +2,7 @@
 //!
 //! RCL-3-min2:
 //! - Stop constructing legacy `MirInstruction::BoxCall` at emit sites.
-//! - Emit canonical `MirInstruction::Call { callee: Some(Callee::Method { .. }) }`.
+//! - Delegate typed `Method(Some(receiver))` through `MirInstruction::call`.
 
 use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
 use crate::mir::{Callee, EffectMask, MirInstruction, ValueId};
@@ -68,19 +68,18 @@ pub fn method_call(
     certainty: TypeCertainty,
     box_kind: CalleeBoxKind,
 ) -> MirInstruction {
-    MirInstruction::Call {
+    MirInstruction::call(
         dst,
-        func: ValueId::INVALID,
-        callee: Some(Callee::Method {
+        Callee::Method {
             box_name: box_name.into(),
             method: method.into(),
             receiver: Some(receiver),
             certainty,
             box_kind,
-        }),
+        },
         args,
         effects,
-    }
+    )
 }
 
 /// Runtime-dispatch method call helper with conservative box_kind.

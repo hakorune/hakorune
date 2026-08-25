@@ -97,6 +97,12 @@ physical arity, result, destination, and effects remain unchanged while
 parity test, normal-source transaction guard, and Call corridor guard are the
 receipt; no schema, Method, JSON, or backend change is part of this cell.
 
+The typed Method SSOT helper is the D1F issuer cell: a supplied receiver and
+opaque method metadata are preserved as `Callee::Method` while the helper
+delegates one Call to `MirInstruction::call`. Receiver validity, argument ABI
+prefixing, and Method(None) classification remain outside this helper; the
+method parity tests and shared Call corridor guard are the receipt.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local
