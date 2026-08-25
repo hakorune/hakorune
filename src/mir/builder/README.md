@@ -128,6 +128,21 @@ The next row is `MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0` and is
 design-only until a selected native consumer authority, capability/ABI
 handoff, fail-fast matrix, and finite caller-zero delete set are named.
 
+### MIR Call R6 D1B exact target prepare/consume child (active)
+
+The bounded child `D1B-ROW-B-EXACT-TARGET-PREPARE-CONSUME-I0` carries the
+existing `RawInvocationRootLineageV1::Cataloged` caller through the installed
+same-module catalog and the existing Ordinary preflight. The accepted order is
+`BuiltinGlobal > CurrentOwnerStatic > LocalValue > Extern > UniqueOtherStatic
+> TypedReject`. A ready `Callee` moves once into `build.rs`, arguments descend
+once in source order, and the child emits one `MirInstruction::call` through
+the existing canonical helper. Missing/foreign/ambiguous/wrong-arity targets
+fail before child effects, name constants, block insertion, or Call publication.
+The reusable guard is `tools/checks/mir_call_d1b_exact_target_child_guard.sh`.
+Relationless compatibility, RuntimeData methodize/recovery, all Method(None)
+retirement, JSON/backend routes, and the final Call schema remain parent-row
+non-claims; see the Row B investigation TOML for the finite acceptance matrix.
+
 ### Normal-root pre-effect consumer (C0)
 
 The selected normal/default source-backed path enters

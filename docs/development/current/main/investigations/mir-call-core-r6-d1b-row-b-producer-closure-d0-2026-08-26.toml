@@ -220,7 +220,7 @@ negative = [
   "foreign/missing catalog, current-owner wrong arity, ambiguous candidate, and arity overflow reject before child effect, name Const, block, or Call",
   "argument failure produces no Call and no retry/reprepare after the target was consumed",
 ]
-guard = "scoped child-row guard/test proves one target issue, one by-value consume, zero target drop, zero selected late resolver/recovery/name-Const re-entry, and one canonical MirInstruction::call"
+guard = "tools/checks/mir_call_d1b_exact_target_child_guard.sh plus focused tests prove one target issue, one by-value consume, zero target drop, zero selected late resolver/recovery/name-Const re-entry, and one canonical MirInstruction::call"
 non_claims = [
   "parent Row B RuntimeData Global provenance or unified-emitter methodize closure",
   "all Builder Method(None) literals, all recovery callers, or final mandatory-Callee schema",

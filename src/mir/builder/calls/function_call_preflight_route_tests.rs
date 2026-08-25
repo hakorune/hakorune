@@ -1,8 +1,13 @@
+use std::collections::HashMap;
+
 use super::{
     lower_prepared_raw_function_preflight_with_port_v1, PreparedRawFunctionPreflightRouteV1,
     PreparedRawFunctionPreflightV1, PreparedRawOrdinaryFunctionCompletionV1,
 };
-use crate::ast::{ASTNode, LiteralValue, Span};
+use crate::ast::{ASTNode, DeclarationAttrs, LiteralValue, ParamDecl, Span};
+use crate::mir::builder::callable_declaration_catalog::{
+    CanonicalSameModuleCallableKeyV1, VerifiedSameModuleCallableDeclarationCatalogV1,
+};
 use crate::mir::builder::recursive_child_lowering::{
     RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
 };
@@ -85,6 +90,75 @@ fn new_box(name: &str, arguments: Vec<ASTNode>) -> ASTNode {
         field_initializers: Vec::new(),
         span: Span::unknown(),
     }
+}
+
+fn static_function(name: &str, arity: usize) -> ASTNode {
+    let params = (0..arity).map(|index| format!("arg{index}")).collect();
+    let param_decls = (0..arity)
+        .map(|index| ParamDecl {
+            name: format!("arg{index}"),
+            declared_type_name: None,
+        })
+        .collect();
+    ASTNode::FunctionDeclaration {
+        name: name.to_owned(),
+        params,
+        param_decls,
+        return_type_name: None,
+        body: vec![ASTNode::Return {
+            value: None,
+            span: Span::unknown(),
+        }],
+        uses: Vec::new(),
+        contracts: Vec::new(),
+        is_static: true,
+        is_override: false,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    }
+}
+
+fn static_box(owner: &str, methods: &[(&str, usize)]) -> ASTNode {
+    let inventory = methods
+        .iter()
+        .map(|(name, arity)| ((*name).to_owned(), static_function(name, *arity)))
+        .collect::<HashMap<_, _>>();
+    ASTNode::BoxDeclaration {
+        name: owner.to_owned(),
+        fields: Vec::new(),
+        field_decls: Vec::new(),
+        public_fields: Vec::new(),
+        private_fields: Vec::new(),
+        methods: crate::ast::BoxMethodInventoryV1::from_legacy_ast_map(inventory),
+        constructors: HashMap::new(),
+        init_fields: Vec::new(),
+        weak_fields: Vec::new(),
+        delegates: Vec::new(),
+        invariants: Vec::new(),
+        transitions: Vec::new(),
+        is_interface: false,
+        is_record: false,
+        extends: Vec::new(),
+        implements: Vec::new(),
+        type_parameters: Vec::new(),
+        is_sync: false,
+        is_static: true,
+        static_init: None,
+        attrs: DeclarationAttrs::default(),
+        span: Span::unknown(),
+    }
+}
+
+fn install_catalog(builder: &mut MirBuilder, boxes: Vec<ASTNode>) {
+    let source = ASTNode::Program {
+        statements: boxes,
+        span: Span::unknown(),
+    };
+    let catalog = VerifiedSameModuleCallableDeclarationCatalogV1::seal_program(&source).unwrap();
+    builder
+        .comp_ctx
+        .install_callable_declaration_catalog(catalog)
+        .unwrap();
 }
 
 #[test]
@@ -234,7 +308,7 @@ fn installed_non_brand_never_reprobes_legacy_brand_map() {
         &builder,
         "sin".to_string(),
         vec![integer(1)],
-        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand,
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand { caller: None },
     );
     assert!(matches!(
         prepared.route,
@@ -251,8 +325,22 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         .register_brand_decl("Meter".to_string(), "Integer".to_string());
     let mut port = RecordingPortV1::default();
 
+    let compatibility_externcall = PreparedRawFunctionPreflightV1::prepare(
+        &builder,
+        "externcall".to_owned(),
+        vec![integer(1)],
+    );
+    assert!(lower_prepared_raw_function_preflight_with_port_v1(
+        &mut builder,
+        &mut port,
+        compatibility_externcall,
+    )
+    .is_err());
+    // Relationless compatibility has no pre-effect target product; its legacy
+    // route still descends the argument before the unresolved terminal.
+    assert_eq!(port.expression_count, 1);
+
     for (name, arguments) in [
-        ("externcall", vec![integer(1)]),
         ("Meter", Vec::new()),
         ("Meter", vec![integer(1), integer(2)]),
     ] {
@@ -264,7 +352,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
             prepared,
         )
         .is_err());
-        assert_eq!(port.expression_count, 0);
+        assert_eq!(port.expression_count, 1);
     }
 
     let typeop = PreparedRawFunctionPreflightV1::prepare(
@@ -276,7 +364,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         ],
     );
     lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, typeop).unwrap();
-    assert_eq!(port.expression_count, 1);
+    assert_eq!(port.expression_count, 2);
 
     let malformed_typeop = PreparedRawFunctionPreflightV1::prepare(
         &builder,
@@ -288,7 +376,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         &mut port,
         malformed_typeop,
     );
-    assert_eq!(port.expression_count, 3);
+    assert_eq!(port.expression_count, 4);
 
     let inactive_fastmem =
         PreparedRawFunctionPreflightV1::prepare(&builder, "mem.addr".to_string(), vec![integer(1)]);
@@ -297,7 +385,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         &mut port,
         inactive_fastmem,
     );
-    assert_eq!(port.expression_count, 4);
+    assert_eq!(port.expression_count, 5);
 
     builder.push_fastmem_region(FastMemRegionId::new(8));
     let unknown_fastmem = PreparedRawFunctionPreflightV1::prepare(
@@ -312,7 +400,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
     )
     .unwrap_err();
     assert!(error.contains("[fastmem/forbidden_call]"));
-    assert_eq!(port.expression_count, 4);
+    assert_eq!(port.expression_count, 5);
 
     let wrong_arity = PreparedRawFunctionPreflightV1::prepare(
         &builder,
@@ -323,7 +411,7 @@ fn rejecting_routes_precede_children_and_typeop_uses_one_child() {
         lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, wrong_arity)
             .unwrap_err();
     assert!(error.contains("[fastmem/arity] call=mem.addr expected=1 actual=2"));
-    assert_eq!(port.expression_count, 4);
+    assert_eq!(port.expression_count, 5);
 }
 
 #[test]
@@ -377,6 +465,247 @@ fn selected_math_and_ordinary_str_keep_child_and_completion_order() {
     let _ =
         lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, forged_weak);
     assert_eq!(port.events, vec!["child", "header"]);
+}
+
+#[test]
+fn cataloged_target_preflight_applies_total_shadow_order() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("BoxA.caller/0".to_owned());
+    install_catalog(
+        &mut builder,
+        vec![
+            static_box("BoxA", &[("caller", 0), ("run", 1), ("arity", 2)]),
+            static_box("BoxB", &[("other", 1)]),
+        ],
+    );
+    let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method("BoxA", "caller", 0);
+
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("run".to_owned(), ValueId::new(77));
+    let current_owner = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "run".to_owned(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller.clone()),
+        },
+    );
+    assert!(matches!(
+        current_owner.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+                callee: crate::mir::Callee::Global(ref symbol),
+                ..
+            }
+        } if symbol == "BoxA.run/1"
+    ));
+
+    let builtin = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "print".to_owned(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller.clone()),
+        },
+    );
+    assert!(matches!(
+        builtin.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+                callee: crate::mir::Callee::Global(ref symbol),
+                ..
+            }
+        } if symbol == "print"
+    ));
+
+    builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("env.console.log".to_owned(), ValueId::new(91));
+    let local_extern = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "env.console.log".to_owned(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller.clone()),
+        },
+    );
+    assert!(matches!(
+        local_extern.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+                callee: crate::mir::Callee::Value(value),
+                ..
+            }
+        } if value == ValueId::new(91)
+    ));
+
+    let unique_other = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "other".to_owned(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller),
+        },
+    );
+    assert!(matches!(
+        unique_other.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Targeted {
+                callee: crate::mir::Callee::Global(ref symbol),
+                ..
+            }
+        } if symbol == "BoxB.other/1"
+    ));
+}
+
+#[test]
+fn cataloged_target_rejects_before_children_on_missing_or_wrong_arity() {
+    let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method("BoxA", "caller", 0);
+
+    let missing_catalog = MirBuilder::new();
+    let missing = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &missing_catalog,
+        "run".to_owned(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller.clone()),
+        },
+    );
+    assert!(matches!(
+        missing.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { .. }
+        }
+    ));
+
+    let mut wrong_arity = MirBuilder::new();
+    wrong_arity.enter_function_for_test("BoxA.caller/0".to_owned());
+    install_catalog(
+        &mut wrong_arity,
+        vec![static_box("BoxA", &[("caller", 0), ("run", 2)])],
+    );
+    wrong_arity
+        .function_state
+        .variable_ctx
+        .variable_map
+        .insert("run".to_owned(), ValueId::new(88));
+    let rejected = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &wrong_arity,
+        "run".to_owned(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller),
+        },
+    );
+    assert!(matches!(
+        rejected.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
+        } if error.contains("current-owner-arity-mismatch")
+    ));
+
+    let foreign = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &wrong_arity,
+        "run".to_owned(),
+        vec![integer(1), integer(2)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(CanonicalSameModuleCallableKeyV1::test_static_box_method(
+                "Foreign", "caller", 0,
+            )),
+        },
+    );
+    assert!(matches!(
+        foreign.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
+        } if error.contains("foreign-caller")
+    ));
+
+    let mut ambiguous = MirBuilder::new();
+    ambiguous.enter_function_for_test("BoxA.caller/0".to_owned());
+    install_catalog(
+        &mut ambiguous,
+        vec![
+            static_box("BoxA", &[("caller", 0)]),
+            static_box("BoxB", &[("ambig", 1)]),
+            static_box("BoxC", &[("ambig", 1)]),
+        ],
+    );
+    let ambiguous = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &ambiguous,
+        "ambig".to_owned(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(CanonicalSameModuleCallableKeyV1::test_static_box_method(
+                "BoxA", "caller", 0,
+            )),
+        },
+    );
+    assert!(matches!(
+        ambiguous.route,
+        PreparedRawFunctionPreflightRouteV1::Ordinary {
+            completion: PreparedRawOrdinaryFunctionCompletionV1::Rejected { ref error }
+        } if error.contains("ambiguous-static")
+    ));
+
+    let mut port = RecordingPortV1::default();
+    assert!(lower_prepared_raw_function_preflight_with_port_v1(
+        &mut wrong_arity,
+        &mut port,
+        rejected,
+    )
+    .is_err());
+    assert_eq!(port.expression_count, 0);
+}
+
+#[test]
+fn cataloged_target_is_consumed_once_before_canonical_call_publication() {
+    let mut builder = MirBuilder::new();
+    builder.enter_function_for_test("BoxA.caller/0".to_owned());
+    install_catalog(
+        &mut builder,
+        vec![static_box("BoxA", &[("caller", 0), ("run", 1)])],
+    );
+    let caller = CanonicalSameModuleCallableKeyV1::test_static_box_method("BoxA", "caller", 0);
+    let prepared = PreparedRawFunctionPreflightV1::prepare_with_brand_authority(
+        &builder,
+        "run".to_owned(),
+        vec![integer(1)],
+        crate::mir::builder::calls::RawBrandCallAuthorityV1::InstalledNonBrand {
+            caller: Some(caller),
+        },
+    );
+    let mut port = RecordingPortV1::default();
+    let result =
+        lower_prepared_raw_function_preflight_with_port_v1(&mut builder, &mut port, prepared)
+            .unwrap();
+    assert_eq!(port.expression_count, 1);
+    assert_eq!(port.events, vec!["child", "header"]);
+    let calls = builder
+        .function_state
+        .current_function
+        .as_ref()
+        .unwrap()
+        .blocks
+        .values()
+        .flat_map(|block| block.all_instructions())
+        .filter(|instruction| matches!(instruction, MirInstruction::Call { .. }))
+        .collect::<Vec<_>>();
+    assert_eq!(calls.len(), 1);
+    assert!(matches!(
+        calls[0],
+        MirInstruction::Call {
+            dst: Some(dst),
+            callee: Some(crate::mir::Callee::Global(symbol)),
+            args,
+            ..
+        } if *dst == result && symbol == "BoxA.run/1" && args.len() == 1
+    ));
 }
 
 #[test]

@@ -5,7 +5,11 @@
 //! from an AST name or from the mutable compatibility map.
 
 use crate::ast::ASTNode;
+use crate::mir::builder::callable_declaration_catalog::CanonicalSameModuleCallableKeyV1;
 use crate::mir::builder::raw_invocation_source_transport::RawSourceTransportPortV1;
+use crate::mir::builder::raw_invocation_source_transport::{
+    RawInvocationRootLineageV1, RawInvocationSourceContextV1,
+};
 use crate::mir::builder::raw_structured_child_scope::RawStructuredChildScopePortV1;
 use crate::mir::builder::recursive_child_lowering::{
     RawInvocationChildPortV1, RawLegacyChildLoweringPortV1,
@@ -17,7 +21,9 @@ use super::super::brand_constructor_lowering_projection::ProjectedBrandConstruct
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(in crate::mir::builder) enum RawBrandCallAuthorityV1 {
     RelationlessCompatibility,
-    InstalledNonBrand,
+    InstalledNonBrand {
+        caller: Option<CanonicalSameModuleCallableKeyV1>,
+    },
     InstalledConstructor(ProjectedBrandConstructorV1),
 }
 
@@ -66,6 +72,13 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
         let context = self
             .current_source_context_v1()
             .ok_or_else(|| "[freeze:contract][callable-brand/missing-source-context]".to_owned())?;
+        let caller = match &context {
+            RawInvocationSourceContextV1::Located {
+                root: RawInvocationRootLineageV1::Cataloged(caller),
+                ..
+            } => Some(caller.clone()),
+            _ => None,
+        };
         let site = context
             .site()
             .cloned()
@@ -75,7 +88,7 @@ impl BrandConstructorSourcePortV1 for RawInvocationChildPortV1<'_, '_> {
             .take_brand_constructor(&site)
             .map_err(|error| format!("[freeze:contract][callable-brand/{error:?}]"))?;
         let Some(row) = row else {
-            return Ok(RawBrandCallAuthorityV1::InstalledNonBrand);
+            return Ok(RawBrandCallAuthorityV1::InstalledNonBrand { caller });
         };
         validate_constructor_call(&context, &site, call, name, arguments, &row)?;
         Ok(RawBrandCallAuthorityV1::InstalledConstructor(row))

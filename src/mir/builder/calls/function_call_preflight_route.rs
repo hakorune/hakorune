@@ -8,8 +8,15 @@ use super::super::recursive_child_lowering::{
 };
 use super::super::{EffectMask, MirBuilder, MirInstruction, MirType, ValueId};
 use crate::ast::ASTNode;
+use crate::mir::builder::callable_declaration_catalog::{
+    BareStaticRecoveryDecisionV1, BareStaticRecoveryNoRecoveryReasonV1,
+    SameModuleCallableNamespaceV1,
+};
+use crate::mir::builder::calls::resolver::CalleeResolverBox;
 use crate::mir::instruction::FastMemRegionId;
-use crate::mir::TypeOpKind;
+use crate::mir::{Callee, TypeOpKind};
+
+use super::CallTarget;
 
 pub(in crate::mir::builder) struct PreparedRawFunctionPreflightV1 {
     name: String,
@@ -37,8 +44,19 @@ enum PreparedRawFunctionPreflightRouteV1 {
 }
 
 pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
-    StrNormalization { argument: ASTNode },
-    Resolved { arguments: Vec<ASTNode> },
+    StrNormalization {
+        argument: ASTNode,
+    },
+    Resolved {
+        arguments: Vec<ASTNode>,
+    },
+    Targeted {
+        callee: Callee,
+        arguments: Vec<ASTNode>,
+    },
+    Rejected {
+        error: String,
+    },
 }
 
 pub(in crate::mir::builder) enum PreparedRawExplicitExternCallV1 {
@@ -126,8 +144,8 @@ impl PreparedRawFunctionPreflightV1 {
                     arguments, true,
                 ))
             }
-            super::RawBrandCallAuthorityV1::InstalledNonBrand => {
-                prepare_non_brand_route(builder, &name, arguments)
+            super::RawBrandCallAuthorityV1::InstalledNonBrand { caller } => {
+                prepare_non_brand_route(builder, &name, arguments, caller)
             }
             super::RawBrandCallAuthorityV1::RelationlessCompatibility => {
                 if builder.comp_ctx.is_brand_declared(&name) {
@@ -135,7 +153,7 @@ impl PreparedRawFunctionPreflightV1 {
                         PreparedRawBrandConstructorV1::prepare(arguments, false),
                     )
                 } else {
-                    prepare_non_brand_route(builder, &name, arguments)
+                    prepare_non_brand_route(builder, &name, arguments, None)
                 }
             }
         };
@@ -147,6 +165,7 @@ fn prepare_non_brand_route(
     builder: &MirBuilder,
     name: &str,
     arguments: Vec<ASTNode>,
+    caller: Option<crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
 ) -> PreparedRawFunctionPreflightRouteV1 {
     if let Some((raw_type_name, op)) = prepare_typeop_route(name, arguments.as_slice()) {
         let mut arguments = arguments.into_iter();
@@ -176,19 +195,31 @@ fn prepare_non_brand_route(
             }
         } else {
             PreparedRawFunctionPreflightRouteV1::Ordinary {
-                completion: prepare_ordinary_function_completion_v1(name, arguments),
+                completion: prepare_ordinary_function_completion_v1(
+                    builder,
+                    name,
+                    arguments,
+                    caller.as_ref(),
+                ),
             }
         }
     } else {
         PreparedRawFunctionPreflightRouteV1::Ordinary {
-            completion: prepare_ordinary_function_completion_v1(name, arguments),
+            completion: prepare_ordinary_function_completion_v1(
+                builder,
+                name,
+                arguments,
+                caller.as_ref(),
+            ),
         }
     }
 }
 
 fn prepare_ordinary_function_completion_v1(
+    builder: &MirBuilder,
     name: &str,
     arguments: Vec<ASTNode>,
+    caller: Option<&crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
 ) -> PreparedRawOrdinaryFunctionCompletionV1 {
     if name == "str" && arguments.len() == 1 {
         PreparedRawOrdinaryFunctionCompletionV1::StrNormalization {
@@ -197,9 +228,120 @@ fn prepare_ordinary_function_completion_v1(
                 .next()
                 .expect("exact str/1 route must retain one argument"),
         }
+    } else if let Some(caller) = caller {
+        match prepare_cataloged_target_v1(builder, caller, name, arguments.len()) {
+            Ok(callee) => PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments },
+            Err(error) => PreparedRawOrdinaryFunctionCompletionV1::Rejected { error },
+        }
     } else {
         PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }
     }
+}
+
+fn prepare_cataloged_target_v1(
+    builder: &MirBuilder,
+    caller: &crate::mir::builder::CanonicalSameModuleCallableKeyV1,
+    name: &str,
+    arity: usize,
+) -> Result<Callee, String> {
+    let catalog = builder
+        .comp_ctx
+        .callable_declaration_catalog()
+        .map_err(|error| format!("[freeze:contract][direct-call/catalog/{error:?}]"))?;
+    if catalog
+        .declaration_for(
+            caller.namespace(),
+            caller.owner(),
+            caller.name(),
+            caller.arity() as usize,
+        )
+        .is_none()
+    {
+        return Err(format!(
+            "[freeze:contract][direct-call/foreign-caller] owner={} name={} arity={}",
+            caller.owner(),
+            caller.name(),
+            caller.arity(),
+        ));
+    }
+
+    let classification =
+        crate::mir::policies::call_name_classification::classify_call_name_v1(name).callee_class();
+    if matches!(
+        classification,
+        crate::mir::policies::call_name_classification::CallNameCalleeClassV1::BuiltinGlobal
+    ) {
+        return resolve_catalog_call_target_v1(builder, CallTarget::Global(name.to_owned()));
+    }
+
+    if let Some(declaration) = catalog.declaration_for(
+        SameModuleCallableNamespaceV1::StaticBoxMethod,
+        caller.owner(),
+        name,
+        arity,
+    ) {
+        return resolve_catalog_call_target_v1(
+            builder,
+            CallTarget::Global(declaration.key().mir_symbol_projection()),
+        );
+    }
+
+    let current_owner_has_method = catalog
+        .static_declarations()
+        .any(|(key, _)| key.owner() == caller.owner() && key.name() == name);
+    if current_owner_has_method {
+        return Err(format!(
+            "[freeze:contract][direct-call/current-owner-arity-mismatch] owner={} name={} arity={arity}",
+            caller.owner(),
+            name,
+        ));
+    }
+
+    if let Some(value) = builder
+        .function_state
+        .variable_ctx
+        .variable_map
+        .get(name)
+        .copied()
+    {
+        return resolve_catalog_call_target_v1(builder, CallTarget::Value(value));
+    }
+
+    if matches!(
+        classification,
+        crate::mir::policies::call_name_classification::CallNameCalleeClassV1::Extern
+    ) {
+        return resolve_catalog_call_target_v1(builder, CallTarget::Global(name.to_owned()));
+    }
+
+    match BareStaticRecoveryDecisionV1::decide(catalog, name, arity)
+        .map_err(|error| format!("[freeze:contract][direct-call/{error}]"))?
+    {
+        BareStaticRecoveryDecisionV1::Unique(key) => resolve_catalog_call_target_v1(
+            builder,
+            CallTarget::Global(key.mir_symbol_projection()),
+        ),
+        BareStaticRecoveryDecisionV1::NoRecovery(reason) => Err(match reason {
+            BareStaticRecoveryNoRecoveryReasonV1::NoCandidate => format!(
+                "[freeze:contract][direct-call/no-candidate] name={name} arity={arity}"
+            ),
+            BareStaticRecoveryNoRecoveryReasonV1::Ambiguous { candidate_count } => format!(
+                "[freeze:contract][direct-call/ambiguous-static] name={name} arity={arity} candidates={candidate_count}"
+            ),
+        }),
+    }
+}
+
+fn resolve_catalog_call_target_v1(
+    builder: &MirBuilder,
+    target: CallTarget,
+) -> Result<Callee, String> {
+    let resolver = CalleeResolverBox::new(
+        &builder.function_state.type_ctx.value_origin_newbox,
+        &builder.function_state.type_ctx.value_types,
+        Some(&builder.comp_ctx.type_registry),
+    );
+    resolver.resolve(target)
 }
 
 fn prepare_typeop_route(name: &str, arguments: &[ASTNode]) -> Option<(String, TypeOpKind)> {

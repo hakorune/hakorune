@@ -40,6 +40,7 @@ use crate::mir::policies::call_name_classification::classify_call_name_v1;
 use crate::mir::policies::source_method_typeop_route::{
     classify_source_method_typeop_route_v1, SourceMethodTypeOpDispositionV1,
 };
+use crate::mir::Callee;
 
 pub(in crate::mir::builder) struct PreparedRawFromCallV1 {
     route: PreparedRawFromCallRouteV1,
@@ -100,6 +101,13 @@ impl MirBuilder {
                 let value = drive_legacy_expression_v1(self, port, argument)?;
                 self.build_str_normalization(value)
             }
+            PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments } => {
+                let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
+                port.with_function_headers(|_lookup| {
+                    self.emit_prepared_cataloged_call_v1(callee, arg_values)
+                })
+            }
+            PreparedRawOrdinaryFunctionCompletionV1::Rejected { error } => Err(error),
             PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments } => {
                 let arg_values = drive_call_arguments_v1(self, port, arguments.as_slice())?;
                 // Keep the completed invocation header authoritative through
@@ -357,6 +365,21 @@ impl MirBuilder {
             args: arg_values,
             effects: EffectMask::READ.add(Effect::ReadHeap),
         })?;
+        Ok(dst)
+    }
+
+    fn emit_prepared_cataloged_call_v1(
+        &mut self,
+        callee: Callee,
+        args: Vec<ValueId>,
+    ) -> Result<ValueId, String> {
+        let dst = self.next_value_id();
+        self.emit_instruction(MirInstruction::call(
+            Some(dst),
+            callee,
+            args,
+            EffectMask::READ.add(Effect::ReadHeap),
+        ))?;
         Ok(dst)
     }
 
