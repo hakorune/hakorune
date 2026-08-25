@@ -100,6 +100,7 @@ guard = "future guard must assert three-entrance classification, no closed-gate 
 [worker_audit]
 source = "focused read-only D0a audit at 9adb916b35; no code, fixture, or Cargo change"
 verdict = "NoSafeSlice: the observation branch exists but SelectedCallable gate closes it, package co-seal is absent, TopLevel/InstanceConstructor lineage collapses in the raw bridge, and old no-brand ingress is not caller-zero-proven."
+next_design_row = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0: include main_direct_call_source/FullFunction, semantic BodyEffect ordering, Raw lineage loan, special owner, and old-ingress ParkedSealed classification."
 
 [reopen]
 triggers = [

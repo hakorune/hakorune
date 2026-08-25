@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0
+Status: Design stop — MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,19 +32,19 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0
-  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; D1 owner-lineage mapping is design-only, while ordinary FunctionCall observation/co-seal remains NoSafeSlice
+  current decision  = MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0
+  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; D1 owner-lineage mapping is design-only, while observation-boundary reconciliation remains NoSafeSlice
   mode              = design_stop
-  production stop   = classify all resolver entrances and observe ordinary FunctionCall with owner/site/lineage before argument descent, then co-seal the disposition before package install or effects; no target synthesis or second resolver
-  exit              = three-entrance classification, one observation issuer, Brand/special/Extern/ASTNode::Call boundaries, owner/site bijection, lineage preservation, and whole-package abort proof
+  production stop   = classify all resolver entrances, separate semantic BodyEffect from physical effects, and define Raw lineage/special disposition ownership before any observation gate widening; no target synthesis or second resolver
+  exit              = finite production census including main_direct_call_source/FullFunction, explicit semantic-vs-physical effect boundary, lineage loan, special owner, old-ingress ParkedSealed trigger, and whole-package abort proof
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0 — classify all source-bound FunctionCall entrances and design one pre-argument observation/disposition issuer.
-Source authority + canonical issuer: SelectedCallable resolver identity, InstanceConstructor source identity, existing Brand catalog, parser source site, and RawInvocationRootLineageV1 in the same resolver/package session.
-Non-authority: ShadowDirectCallUseV0 as target authority, SelectedCallable rejection, callable_index=None empty maps, raw Builder brand bridge, old no-brand ingress without census, variable_map, AST re-scan, collector order, physical symbol/name/arity synthesis, or a second resolver.
-Fail-fast boundary: closed-gate, unclassified entrance, missing/foreign/duplicate/ambiguous owner/site, Brand/lineage conflict, or post-effect observation aborts before argument descent/effects, package install, block mutation, or Call publication.
-Smallest next slice: design-only three-entrance census and finite observation/disposition matrix for ordinary, Brand, special, ExplicitExtern, ASTNode::Call, nested, and out-of-scope roots; no gate widening, code, fixture, receipt, or production switch.
+Decision: D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-BOUNDARY-RECONCILE-D0 — reconcile the complete production resolver boundary before any observation gate widening.
+Source authority + canonical issuer: existing Selected/Constructor/main/FullFunction source identities plus parser sites; RawInvocationRootLineageV1 remains provenance; one reconciled resolver/package boundary must own disposition.
+Non-authority: incomplete three-entrance claims, ShadowDirectCallUseV0 names, semantic BodyEffect as physical effect, raw name policy, caller=None, exact-i64 borrowing, AST re-scan, collector order, physical symbol/name/arity synthesis, or a second resolver.
+Fail-fast boundary: unclassified entrance, missing lineage loan, missing special owner, closed traversal, or owner/site conflict blocks gate widening and physical effects before package install, block mutation, or Call publication.
+Smallest next slice: design-only census for main_direct_call_source/FullFunction, semantic-vs-physical effect order, Raw lineage loan, special owner, exact-i64 exclusion, and old-ingress ParkedSealed trigger; no code or profile gate change.
 Non-claims: observation implementation, target/Callee issuance, traversal widening, public semantic receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
