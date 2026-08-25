@@ -70,7 +70,8 @@ shared-source proof, exact five-argument order, and effects carried unchanged
 into `MirInstruction::call`. InsertMid, receiver rewrites, other concat
 families, and the Call final-shape/ingress design queue remain outside the row.
 
-The current D1U row is the paired `ConcatSubstringLenPlan` family: its left
+The landed D1U row (`75427a9aa2`) is the paired `ConcatSubstringLenPlan`
+family: its left
 and right `SUBSTRING_LEN_EXTERN` issuers are migrated together, retaining
 plan-owned source windows, fresh destinations, shared effects, middle
 arithmetic, and phase-9 fusion. A one-sided change or any InsertMid/receiver/

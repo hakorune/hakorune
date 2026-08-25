@@ -155,7 +155,7 @@ shared guard are green. D1R landed at `82be5daa97`: the one
 plan-owned effects. D1T landed at `a1e856fa25`: the one
 `ConcatSubstringPlan` writer in the same file now delegates to the canonical
 issuer, preserving source-sharing, five arguments, effects, Return, and phase-10
-parity. D1U is the current fast family: the paired left/right
+parity. D1U landed at `75427a9aa2`: the paired left/right
 `ConcatSubstringLenPlan` writers are changed together, preserving source
 windows, fresh destinations, middle arithmetic, effects, and phase-9 fusion.
 Selected writers are 9 -> 7 and the concat family is 6 -> 4; no other concat,
