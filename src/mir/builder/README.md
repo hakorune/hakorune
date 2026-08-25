@@ -128,7 +128,7 @@ The next row is `MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0` and is
 design-only until a selected native consumer authority, capability/ABI
 handoff, fail-fast matrix, and finite caller-zero delete set are named.
 
-### MIR Call R6 D1B exact target prepare/consume child (active)
+### MIR Call R6 D1B exact target prepare/consume child (landed at 6149d2692a)
 
 The bounded child `D1B-ROW-B-EXACT-TARGET-PREPARE-CONSUME-I0` carries the
 existing `RawInvocationRootLineageV1::Cataloged` caller through the installed
@@ -142,6 +142,19 @@ The reusable guard is `tools/checks/mir_call_d1b_exact_target_child_guard.sh`.
 Relationless compatibility, RuntimeData methodize/recovery, all Method(None)
 retirement, JSON/backend routes, and the final Call schema remain parent-row
 non-claims; see the Row B investigation TOML for the finite acceptance matrix.
+
+### MIR Call D1B materializer Global recovery retire child (active)
+
+The selected bounded child `MIR-CALL-D1B-MATERIALIZER-GLOBAL-RECOVERY-RETIRE-I0`
+removes only the resolver-total Global Err-side recovery: the presence/header
+probe, materializer name-Const/legacy Call publication, and
+`AdditionalGlobalResolver` alternate route. `CalleeResolverBox::resolve` keeps
+its `Result` boundary for future typed errors, but a future error propagates
+immediately and cannot trigger another target search. `Method(Some)` receiver
+materialization and RuntimeData `Method(None)` methodize remain outside this
+row. The existing D1B child guard is extended with scoped resolver-total,
+recovery-symbol, and alternate-route checks; see the dedicated investigation
+TOML for the finite delete set and non-claims.
 
 ### Normal-root pre-effect consumer (C0)
 

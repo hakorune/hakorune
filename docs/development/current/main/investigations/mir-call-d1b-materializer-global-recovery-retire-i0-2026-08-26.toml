@@ -1,0 +1,94 @@
+title = "MIR Call D1B materializer Global recovery retirement"
+status = "accepted_bounded_child_row"
+observed_commit = "1ef12b84d8"
+observed_at = "2026-08-26"
+implementation_permission = true
+parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
+
+[boundary]
+starts = "UnifiedCallEmitterBox Global resolver Err arm after CalleeResolverBox::resolve"
+ends = "the generic Global emission continues directly without additional-presence or alternate-target recovery"
+includes = [
+  "src/mir/builder/calls/unified_emitter.rs:384-405 resolver Err arm and its imports",
+  "src/mir/builder/calls/materializer.rs:34-119 GlobalPresenceAuthorityV1 and Global recovery helper",
+  "src/mir/builder/calls/unified_emitter/physical_terminal.rs:42-49 AdditionalGlobalResolver route",
+  "src/mir/builder/calls/resolver.rs:63-159 finite CallTarget resolution body and focused totality evidence",
+  "existing D1B child guard, unified physical-receipt tests, and resolver tests",
+]
+excludes = [
+  "unified_emitter.rs:409-463 RuntimeData methodize and every Method(None) producer",
+  "materialize_receiver_in_callee and active Method(Some) receiver handling",
+  "build.rs relationless compatibility late resolver, static_resolution tail recovery, and Cataloged child",
+  "JSON-v0/v1 ingress, VM/C/backend routes, MirCall/CallFlags, final Call schema, and ArrayElementWrite",
+  "new semantic Verified*/Prepared* receipts, synthetic unreachable-Err fixtures, and warning cleanup",
+]
+
+[brief]
+decision = "Delete only the unreachable Global Err-side alternate recovery; preserve the Result API as typed future-error propagation and leave RuntimeData methodize as the parent blocker."
+source_authority = "CallTarget owner supplies the target; CalleeResolverBox is the sole current resolver and its six finite arms all return Ok(Callee) at the observed commit."
+canonical_issuer = "existing CalleeResolverBox -> existing unified physical terminal; no alternate CallMaterializer publication"
+non_authority = [
+  "GlobalPresenceAuthorityV1 and invocation-header/module presence for canonical target selection",
+  "materializer name Const, legacy MirInstruction::Call, unique-static retry, AdditionalGlobalResolver enum",
+  "resolver Result error as permission to search another target",
+]
+fail_fast = "future resolver errors propagate immediately through ?, without name Const, header lookup, catalog retry, or alternate Call publication"
+smallest_next_slice = "Remove the Global recovery helper/Err arm/alternate route, extend the existing scoped D1B guard, and run resolver plus unified physical-receipt focused tests."
+non_claims = [
+  "RuntimeData qualified Global provenance or HAKO_MIR_BUILDER_METHODIZE behavior",
+  "Method(None) retirement, parent Row B closure, or mandatory-Callee schema cutover",
+  "late compatibility resolver, static_resolution tail recovery, JSON/backend behavior, or warning/panic census",
+]
+
+[finite_state]
+resolver_total_observed = "CallTarget::Global, Method, Constructor, Extern, Value, and Closure each return Ok(Callee) in resolver.rs:63-159; the body contains no Err arm."
+future_resolver_error = "retain Result<Callee, String>; a newly introduced Err must terminate the selected emitter with no alternate target search"
+global_err_recovery = "semantic caller-zero because resolver has no current Err state; delete the helper and its sole unified-emitter caller"
+methodize = "active RuntimeData Global -> Method(None) reissuer at unified_emitter.rs:409-463; CutoverBlockerOpen and outside this row"
+receiver_materialization = "active Method path; RetainGuarded and unchanged"
+
+[delete_set]
+materializer = [
+  "GlobalPresenceAuthorityV1",
+  "CallMaterializerBox::try_global_additional_resolvers_with_authority",
+  "header/legacy presence checks, name-Const creation, legacy Call emission, and unique-static retry inside that helper",
+  "recovery-only imports; retain CallMaterializerBox and materialize_receiver_in_callee",
+]
+unified_emitter = [
+  "resolver.resolve(target.clone()) match Err branch",
+  "GlobalPresenceAuthorityV1 and CallMaterializerBox recovery imports/references",
+  "UnifiedCallAlternateRouteV1::AdditionalGlobalResolver publication",
+]
+physical_terminal = [
+  "UnifiedCallAlternateRouteV1::AdditionalGlobalResolver only; retain all other alternate routes",
+]
+preserve = [
+  "resolver Result signature and all six finite target arms",
+  "RuntimeData methodize window, Method(Some) receiver materialization, and generic physical emission",
+]
+
+[acceptance]
+positive = [
+  "Global/Extern/Method/Constructor/Value/Closure resolver matrix remains green and produces the same Callee variants",
+  "existing unified physical-receipt and selected terminal tests preserve dst, args, effects, result, and annotations",
+  "generic Global emission no longer enters a presence/header/catalog alternate route",
+]
+negative = [
+  "GlobalPresenceAuthorityV1, try_global_additional_resolvers_with_authority, AdditionalGlobalResolver, and materializer Global name-Const/direct-Call recovery are zero",
+  "no resolver error is retried through header lookup, unique-static catalog lookup, name Const, or alternate Call publication",
+  "methodize receiver: None remains observable and is explicitly outside this row, not silently deleted",
+]
+parity = "before/after existing Global, Extern, Method(Some), Constructor, Value, and Closure physical receipt outcomes; no synthetic Err fixture"
+focused_tests = [
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib mir::builder::calls::resolver::tests",
+  "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib mir::builder::calls::unified_emitter::physical_receipt_tests",
+]
+guard = "extend tools/checks/mir_call_d1b_exact_target_child_guard.sh with scoped resolver-total, unified-emitter Err-arm, materializer-recovery, and AdditionalGlobalResolver zero checks; no global grep"
+
+[reopen]
+triggers = [
+  "resolver.rs gains an Err/return-Err arm or a new CallTarget variant",
+  "a second caller of GlobalPresenceAuthorityV1 or AdditionalGlobalResolver appears",
+  "materialize_receiver_in_callee changes from the active Method-only path",
+  "the row is asked to remove RuntimeData methodize or touch the final Call schema",
+]
