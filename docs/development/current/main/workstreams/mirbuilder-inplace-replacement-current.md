@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+Status: Design stop — MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
-  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029 after two upper-worker audits
+  current decision  = MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
+  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029; D1K accepted design-only after two upper-worker audits
   mode              = design_stop
-  production stop   = D1J implementation is closed; no code or fast-row selection before upper-worker census
-  exit              = D1J typed Method issuer + field/timing proof + scoped guard + README receipt + pushed commit; full PHI admission/atomicity remains NoSafeSlice
+  production stop   = D1K may not change code until explicit fast-mode selection
+  exit              = one 128-line retained-len writer, private plan authority, exact delete set, precise plan-0 boundary, and scoped guard; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0 -> design_stop: request one upper-worker bounded census after D1J; no code until a finite row is accepted
+ MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> design_stop: one retained-len plan writer -> canonical Extern Call; one writer, two schedule entries; no code until fast-mode selection
 Closed immediately prior
  MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0 -> landed at 4b2fe7a7b6: Extern SSOT delegates once to MirInstruction::call; parity 1/1, corridor guard, touched rustfmt, and diff green
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact

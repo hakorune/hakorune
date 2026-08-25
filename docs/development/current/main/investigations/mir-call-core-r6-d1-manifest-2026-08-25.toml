@@ -797,6 +797,16 @@ guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rust
 warning_baseline = "quick profile reports 441 existing warnings; broad boxcall filter shows 9 pre-existing cohort-missing failures outside D1J"
 source_risk = "boxcall_emit.rs 328 -> 372 lines; below split limits; no route, schema, fallback, backend, or LocalSSA policy change"
 
+[candidates.d1k_retained_len_extern_issuer]
+status = "accepted_design"
+manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1k-retained-len-extern-issuer-2026-08-25.toml"
+boundary = "one retained-len same-invocation plan writer"
+direct_writers_before = 1
+direct_writers_after = 0
+canonical_issuer = "MirInstruction::call"
+implementation_permission = false
+review = "two upper-worker audits agree; implementation waits for explicit fast-mode selection"
+
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
 requires = [
@@ -805,6 +815,7 @@ requires = [
   "active PHI rematerialization retained as live, not parked",
 ]
 next_fast_candidates = [
+  "MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0",
   "internal MirCall/CallFlags transport retirement after D1I boundary closure",
 ]
 selection_rule = "do not choose a fast candidate until this manifest is accepted and the candidate's old edge is isolated"

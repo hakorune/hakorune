@@ -96,22 +96,24 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current design-stop row:
 
 ```text
-MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
 ```
 
-D1J landed at `c927da4029`, limited to one BoxCall fallthrough writer. D1I
-landed at `513a243be5`; no next fast row is selected until the next
-upper-worker census. The D1J boundary and receipt are in:
+D1K is accepted design-only after two upper-worker audits. D1J landed at
+`c927da4029`, limited to one BoxCall fallthrough writer; D1I landed at
+`513a243be5`. D1K has no implementation permission while `work_mode =
+design_stop`; its boundary and receipt are in:
 
 ```text
 docs/development/current/main/investigations/
-  mir-call-core-r6-d1j-boxcall-method-issuer-2026-08-25.toml
+  mir-call-core-r6-d1k-retained-len-extern-issuer-2026-08-25.toml
 ```
 
 D1J's field-parity test, Map/Array timing negatives, shared corridor guard,
 pointer guard, rustfmt, and diff checks are green; the quick profile's 441
-warnings remain the pre-existing baseline. Full Call field retirement is not
-part of this row.
+warnings remain the pre-existing baseline. D1K is limited to its one private
+plan writer; full Call field retirement and string-corridor family retirement
+are not part of this row.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

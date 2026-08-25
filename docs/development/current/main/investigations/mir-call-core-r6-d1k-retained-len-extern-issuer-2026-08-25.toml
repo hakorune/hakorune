@@ -1,0 +1,128 @@
+title = "MIR Call core R6 D1K retained-len Extern issuer"
+status = "accepted_design"
+observed_commit = "b1e0f20a73"
+observed_at = "2026-08-25"
+implementation_permission = false
+implementation_row = "MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0"
+fast_row_candidate = true
+
+[boundary]
+starts = "RetainedSubstringLenPlan entering apply_retained_len_plans"
+ends = "same-index replacement plus existing hint/count terminal before CFG and folded-metadata refresh"
+includes = [
+  "src/mir/passes/string_corridor_sink/retained_len.rs:81-132",
+  "src/mir/passes/string_corridor_sink/mod.rs:39,121-124,335",
+  "src/mir/passes/placement_effect_transform.rs:13,24",
+  "existing retained-len planning/direct/fusion tests",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/README.md",
+]
+excludes = [
+  "concat corridor, publication corridor, and shared.rs writers using the same symbol",
+  "string-corridor admission, target reclassification, DCE/fusion, schedule semantics, and metadata authority",
+  "direct public sink_borrowed_string_corridors wrapper caller-zero surface",
+  "Call field cutover, MirCall/CallFlags, JSON, VM, backend, native, and warning retirement",
+  "test fixtures outside retained-len parity and unrelated dirty source",
+]
+
+[decision]
+summary = "Replace the one retained-len Extern direct Call literal with MirInstruction::call while preserving RetainedSubstringLenPlan authority, exact target, dst, ordered source/start/end args, effects, hint/count, same-index replacement, CFG update, and folded-metadata refresh."
+source_authority = "RetainedSubstringLenPlan owns outer_idx, outer_dst, source, start, end, and effects; SUBSTRING_LEN_EXTERN is the existing owner-local target constant"
+canonical_issuer = "MirInstruction::call(Some(plan.outer_dst), Callee::Extern(SUBSTRING_LEN_EXTERN.to_string()), vec![plan.source, plan.start, plan.end], plan.effects)"
+non_authority = [
+  "legacy func or INVALID decoration",
+  "outer Method/box metadata, runtime/backend lookup, or target reclassification",
+  "EffectMask::PURE override when plan.effects is supplied",
+  "optimization hints, DCE, metadata, or other string-corridor writers as target authority",
+]
+fail_fast = "collector admission remains read-only; empty/missing plan application keeps replacement, hint, count, CFG, and folded-metadata publication at zero for this owner"
+no_publication_claim = "retained-len apply with zero input plans publishes no Call, hint, rewrite count, CFG update, or folded-metadata refresh from this owner; earlier whole-pass phases are non-claims"
+no_retry = "one same-index replacement writer; no target lookup, re-planning, second writer, or fallback"
+smallest_next_slice = "replace retained_len.rs:100-106 with one canonical MirInstruction::call, extend the shared guard window, extend the existing retained-len parity test for effects/hint, add the empty-plan negative, update README, and run focused tests"
+non_claims = [
+  "string-corridor family retirement or other 15 direct writers",
+  "plan admission/matcher correctness beyond existing tests",
+  "pre/post-DCE schedule, DCE/fusion/publication ordering, or metadata policy",
+  "Call schema field deletion, JSON/VM/backend closure, and warning cleanup",
+]
+
+[state_matrix]
+empty_plan = "apply owner sees empty map; replacement/hint/count/CFG/folded refresh 0"
+missing_block = "existing continue; no replacement/hint/count for that block"
+accepted_plan = "exact Extern target + Some(outer_dst) + [source,start,end] + plan.effects -> same-index canonical Call"
+non_length_or_window_mismatch = "collector emits no plan; existing instructions and later phases remain unchanged"
+
+[inventory]
+plan_type = "src/mir/passes/string_corridor_sink/mod.rs:335 RetainedSubstringLenPlan"
+plan_collectors = 1
+plan_consumers = 1
+direct_writers_before = 1
+direct_writers_after = 0
+schedule_entries = 2
+public_wrapper_non_test_callers = 0
+owner_lines = 128
+source_risk = "128-line retained_len owner; parent string corridor module remains 514 lines; no split pressure or adjacent semantic change"
+
+[delete_set]
+writer_site = "src/mir/passes/string_corridor_sink/retained_len.rs:100-106"
+remove = [
+  "direct MirInstruction::Call literal",
+  "func: ValueId::INVALID decoration",
+  "callee: Some wrapper",
+]
+retain = [
+  "RetainedSubstringLenPlan shape and all collector predicates",
+  "outer_idx/block BTreeMap ordering and same invocation ownership",
+  "SUBSTRING_LEN_EXTERN and args order",
+  "plan.effects, exact hint text/order, rewritten count",
+  "same-index replacement, update_cfg, folded metadata refresh, and pre/post-DCE schedule",
+]
+
+[proof]
+positive = [
+  "retained_slice_length_plan_reads_placement_effect_window_before_legacy_facts",
+  "rewrites_retained_slice_length_consumer_across_blocks preserves exact target/dst/args/effects/count",
+]
+negative = [
+  "empty retained plan apply publishes no Call/hint/count/CFG/folded metadata from this owner",
+  "selected window has no direct MirInstruction::Call literal, func field, callee: Some wrapper, or PURE override",
+]
+parity = [
+  "SUBSTRING_LEN_EXTERN target",
+  "Some(plan.outer_dst) destination",
+  "[plan.source, plan.start, plan.end] argument order",
+  "plan.effects from outer length Call",
+  "borrowed_slice_len hint, rewrite count, same index/span, block order, CFG and folded metadata timing",
+]
+focused_tests = [
+  "retained_slice_length_plan_reads_placement_effect_window_before_legacy_facts",
+  "rewrites_retained_slice_length_consumer_across_blocks",
+  "new empty retained-len apply negative",
+]
+guards = [
+  "bash tools/checks/mir_call_canonical_corridor_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "rustfmt --check touched Rust files",
+  "git diff --check",
+]
+
+[worker_review]
+issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1K is the smallest one-writer private-plan Extern candidate after D1J"
+containment_audit = "upper-worker /root/d2a_containment_audit: design-only safe; plan-0 claim narrowed to apply_retained_len_plans owner boundary"
+implementation_permission = false
+
+[stop_if]
+conditions = [
+  "helper delegation changes plan shape, matcher, effects, hint, count, schedule, DCE, metadata refresh, or another string writer",
+  "RetainedSubstringLenPlan is exported, cloned into a second production owner, or applied outside the same invocation",
+  "a second selected retained-len writer appears",
+  "Call schema, MirCall/CallFlags, backend, or fallback changes enter the diff",
+]
+
+[reopen]
+triggers = [
+  "plan-to-apply boundary gains mutation or retry",
+  "target/effects need lookup or re-inference",
+  "empty plan starts changing whole-pass state outside this owner",
+  "the existing retained-len parity/span/hint/count behavior changes",
+]
