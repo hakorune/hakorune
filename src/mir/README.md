@@ -129,6 +129,14 @@ finalized argument order, box surface/certainty/kind, destination, effects, and
 post-success Map/type observations; Array/Unified early returns, LocalSSA
 mutation, route policy, and full Call retirement remain outside this receipt.
 
+The retained-len D1K issuer cell replaces the one same-invocation
+`RetainedSubstringLenPlan` Call literal with `MirInstruction::call` and the
+existing `SUBSTRING_LEN_EXTERN` target. It preserves plan-owned destination,
+source/start/end order, effects, same-index replacement, hint/count, CFG, and
+folded-metadata timing. The scoped guard, effects parity, and empty-plan
+no-publication test are the receipt; other string-corridor writers, schedules,
+and full Call field retirement remain outside this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

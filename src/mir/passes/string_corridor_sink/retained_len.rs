@@ -97,13 +97,12 @@ pub(super) fn apply_retained_len_plans(
         for plan in plans {
             replacements.insert(
                 plan.outer_idx,
-                MirInstruction::Call {
-                    dst: Some(plan.outer_dst),
-                    func: ValueId::INVALID,
-                    callee: Some(Callee::Extern(SUBSTRING_LEN_EXTERN.to_string())),
-                    args: vec![plan.source, plan.start, plan.end],
-                    effects: plan.effects,
-                },
+                MirInstruction::call(
+                    Some(plan.outer_dst),
+                    Callee::Extern(SUBSTRING_LEN_EXTERN.to_string()),
+                    vec![plan.source, plan.start, plan.end],
+                    plan.effects,
+                ),
             );
             function.metadata.optimization_hints.push(format!(
                 "string_corridor_sink:borrowed_slice_len:%{}:%{}",

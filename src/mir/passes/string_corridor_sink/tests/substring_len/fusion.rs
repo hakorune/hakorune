@@ -554,10 +554,12 @@ fn rewrites_retained_slice_length_consumer_across_blocks() {
                     dst: Some(dst),
                     callee: Some(Callee::Extern(name)),
                     args,
+                    effects,
                     ..
                 } if *dst == ValueId(8)
                     && name == SUBSTRING_LEN_EXTERN
                     && args.as_slice() == [ValueId(0), ValueId(4), ValueId(3)]
+                    && *effects == EffectMask::PURE
             )
         }),
         "retained slice length should rewrite to substring_len_hii: {:?}",

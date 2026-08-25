@@ -177,3 +177,34 @@ fn substring_len_plan_reads_placement_effect_window_before_legacy_facts() {
     assert_eq!(plan.start, ValueId(1));
     assert_eq!(plan.end, ValueId(2));
 }
+
+#[test]
+fn empty_retained_len_apply_publishes_no_owner_effects() {
+    let signature = FunctionSignature {
+        name: "empty_retained_len".to_string(),
+        params: vec![],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut function = MirFunction::new(signature, BasicBlockId(0));
+    let instructions_before = function
+        .blocks
+        .get(&BasicBlockId(0))
+        .expect("entry")
+        .instructions
+        .clone();
+    let hints_before = function.metadata.optimization_hints.clone();
+
+    let rewritten = apply_retained_len_plans(&mut function, std::collections::BTreeMap::new());
+
+    assert_eq!(rewritten, 0);
+    assert_eq!(
+        function
+            .blocks
+            .get(&BasicBlockId(0))
+            .expect("entry")
+            .instructions,
+        instructions_before
+    );
+    assert_eq!(function.metadata.optimization_hints, hints_before);
+}
