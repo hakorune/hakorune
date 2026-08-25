@@ -137,13 +137,7 @@ impl MirBuilder {
                     certainty,
                     box_kind,
                 };
-                instruction = MirInstruction::Call {
-                    dst: *dst,
-                    func: crate::mir::ValueId::INVALID, // Legacy dummy (not a real SSA use)
-                    callee: Some(new_callee),
-                    args: args.clone(),
-                    effects: *effects,
-                };
+                instruction = MirInstruction::call(*dst, new_callee, args.clone(), *effects);
             }
         }
 

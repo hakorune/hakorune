@@ -103,6 +103,13 @@ delegates one Call to `MirInstruction::call`. Receiver validity, argument ABI
 prefixing, and Method(None) classification remain outside this helper; the
 method parity tests and shared Call corridor guard are the receipt.
 
+The builder emit D1G reconstruction cell now preserves the existing
+`Method(Some(receiver))` LocalSSA `local::recv` behavior and delegates the
+reconstructed instruction through `MirInstruction::call`. The scoped corridor
+guard proves receiver localization precedes the helper and that the selected
+assignment has no legacy `func`/`callee: Some` literal; Method(None), other
+callee variants, and LocalSSA fallback/atomicity remain outside this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local
