@@ -444,14 +444,12 @@ start = llvm.index("let mut module = if selected_dynamic")
 reject = llvm.index("if let Err(error) = reject_selected_dynamic_legacy_callsites", start)
 backend = llvm.index("match execute_via_harness_or_fallback", reject)
 window = llvm[start:backend]
-
 if "into_verified_module" not in window:
     raise SystemExit("selected corridor does not verify the module")
 if "project_module_to_legacy_calls" in window:
     raise SystemExit("compatibility legacy projection crossed selected corridor")
 if not (window.index("into_verified_module") < window.index("reject_selected_dynamic_legacy_callsites")):
     raise SystemExit("selected verification/rejection order drifted")
-
 definition_start = llvm.index("fn reject_selected_dynamic_legacy_callsites")
 definition_end = llvm.index("struct LlvmExecutionOutcome", definition_start)
 definition = llvm[definition_start:definition_end]
@@ -507,7 +505,6 @@ for relative in (
 call_ops = (root / "src/runner/json_v0_bridge/lowering/expr/call_ops.rs").read_text()
 if call_ops.count("callee: None") != 0:
     raise SystemExit("Program JSON-v0 missing-callee producer was reintroduced")
-
 generic_start = call_ops.index("pub(super) fn lower_call_expr")
 generic_end = call_ops.index("pub(super) fn lower_array_values_expr", generic_start)
 generic = call_ops[generic_start:generic_end]
@@ -617,6 +614,9 @@ if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::I
 substring_start = concat.index("ResolvedConcatCorridorPlan::PublicationSubstring {", concat.index("for (idx, (inst, span)", apply_start)); substring_end = concat.index("ResolvedConcatCorridorPlan::MaterializationStore {", substring_start); window = " ".join(concat[substring_start:substring_end].split())
 if (window.count("MirInstruction::call(") != 1 or any(token not in window for token in ("Some(*outer_dst)", "Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())", "vec![*left, *middle, *right, *composed_start, *composed_end]", "*effects"))): raise SystemExit("publication substring writer lost its single plan-owned canonical Call")
 if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("publication substring writer retained a legacy or inferred Call field")
+substring_writer_start = concat.index("ResolvedConcatCorridorPlan::Substring {", concat.index("for (idx, (inst, span)", apply_start)); substring_writer_end = concat.index("ResolvedConcatCorridorPlan::InsertMidSubstring", substring_writer_start); window = " ".join(concat[substring_writer_start:substring_writer_end].split())
+if (window.count("MirInstruction::call(") != 1 or any(token not in window for token in ("Some(*outer_dst)", "Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string())", "vec![*left, *middle, *right, *start, *end]", "*effects"))): raise SystemExit("concat substring writer lost its single plan-owned canonical Call")
+if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::INVALID", "callee: Some(", "EffectMask::PURE")): raise SystemExit("concat substring writer retained a legacy or inferred Call field")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()
