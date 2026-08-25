@@ -13,6 +13,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1f-typed-method-issuer-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1g-builder-emit-receiver-reconstruction-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1h-phi-call-rematerialization-d0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1i-concat3-extern-rewrite-issuer-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -95,16 +96,15 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` currently selects:
 
 ```text
-MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-I0
+MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0
 ```
 
-It is in closeout after the one PHI substring Call reconstruction writer landed
-at `b090f917b4`. D1G is landed at `c3c7e0ea65`; D1H D0 was accepted at
-`6147135595`, with the implementation boundary in:
+It is `fast`, limited to one concat3 Extern rewrite writer. D1G is landed at
+`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`, with the D1I boundary in:
 
 ```text
 docs/development/current/main/investigations/
-  mir-call-core-r6-d1h-phi-call-rematerialization-d0-2026-08-25.toml
+  mir-call-core-r6-d1i-concat3-extern-rewrite-issuer-2026-08-25.toml
 ```
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate

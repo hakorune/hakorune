@@ -763,7 +763,7 @@ requires = [
   "active PHI rematerialization retained as live, not parked",
 ]
 next_fast_candidates = [
-  "MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-D0 (design stop first)",
-  "internal MirCall/CallFlags transport retirement after D1H boundary closure",
+  "MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0",
+  "internal MirCall/CallFlags transport retirement after D1I boundary closure",
 ]
 selection_rule = "do not choose a fast candidate until this manifest is accepted and the candidate's old edge is isolated"

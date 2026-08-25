@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-I0
+Status: Fast — MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,21 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-I0
-  implementation    = D1G landed at c3c7e0ea65; D1H-I0 landed at b090f917b4 after D0/upper-worker audits
-  mode              = closeout
-  production stop   = D1H preserves only the final PHI substring Call reconstruction leaf after existing args-then-receiver rematerialization succeeds
-  exit              = receipt, pointer sync, commit/push, then upper-worker next-edge census; full PHI admission/atomicity remains NoSafeSlice
+  current decision  = MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0
+  implementation    = D1G landed at c3c7e0ea65; D1H-I0 landed at b090f917b4; D1I fast row selected by upper-worker census
+  mode              = fast
+  production stop   = D1I may touch only the concat3 plan replacement writer and its direct Call literal
+  exit              = canonical helper + three concat3 parity tests + scoped guard + README receipt; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
-Landed bounded row:
+Selected bounded fast row:
 
 ```text
-Decision: D1H-I0 landed for only the accepted D0 boundary of one PHI Call reconstruction writer, not full rematerialization policy or atomicity.
-Source authority + canonical issuer: source typed Callee/dst/args/effects plus edge-local remapped operands -> MirInstruction::call; non-authority is stale func, names, EffectMask, later scans, function_repair policy, and Method(None). Current receiver wildcard admission is a legacy edge, not authority.
-Fail-fast boundary: accepted Some(Callee::Method { receiver: Some(_), .. }) before recursive work, preserved existing args-then-receiver order, then used the infallible helper with no new error/retry. Receipt: PHI parity 1/1, scoped Method(None) negative guard, corridor/pointer/rustfmt/diff green; existing 441 warnings are baseline.
-Non-claims: PHI admission/purity, CFG preflight, partial rollback, seven caller conversion, field deletion, other variants, JSON/VM/native/backend, and warning cleanup.
+Decision: replace one concat3 Extern direct Call literal with the canonical helper; do not expand into string-corridor families or schedule policy.
+Source authority + canonical issuer: Concat3Plan target/dst/ordered args plus existing CONCAT3_EXTERN/PURE policy -> MirInstruction::call. Non-authority: legacy func, lookup, effect re-inference, backend, or other optimizer reconstruction.
+Fail-fast boundary: empty plans/missing blocks keep mutation-free skip; accepted plans use the existing block-wide replacement map. Smallest slice: rewrite.rs writer, shared guard, three concat3 parity tests, and README receipt.
+Non-claims: Concat3Plan admission, other string families, PHI admission/atomicity, field deletion, JSON/VM/native/backend, and warning cleanup.
 ```
 
 ## Closed chronology (archived)
@@ -159,7 +159,7 @@ landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSeale
 exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
 closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, D1E is
 landed at `2150472c35`, D1F is landed at `572ec6f5b1`, and D1G is landed at
-`c3c7e0ea65`; D1H-I0 landed at `b090f917b4` under the accepted D0 manifest.
+`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; D1I is the selected fast row under its manifest.
 
 ```text
 canonical core

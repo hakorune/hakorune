@@ -1,0 +1,108 @@
+title = "MIR Call core R6 D1I concat3 Extern rewrite issuer"
+status = "accepted_design_fast_row_selected"
+observed_commit = "ff665300c3"
+observed_at = "2026-08-25"
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0"
+
+[boundary]
+starts = "accepted Concat3Plan entering concat3_canonicalize::apply_plans"
+ends = "the replacement instruction stored in the existing block replacement map before one block-wide swap"
+includes = [
+  "src/mir/passes/concat3_canonicalize/rewrite.rs:8-68",
+  "src/mir/optimizer/core.rs:197-203",
+  "src/mir/passes/concat3_canonicalize/tests.rs",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/README.md",
+]
+excludes = [
+  "Concat3Plan collection/stringish analysis and opt-in scheduling policy",
+  "string-corridor concat/publication/retained/shared families",
+  "backend, JSON, VM, native, and Call consumer closure",
+  "Call field deletion, MirCall/CallFlags, Method(None), PHI, Closure, Constructor/NewBox",
+  "warning retirement and unrelated dirty source",
+]
+
+[decision]
+summary = "Replace the one concat3 Extern direct Call literal with MirInstruction::call while preserving the plan-owned target, ordered arguments, PURE effect, block replacement order, and span alignment."
+source_authority = "Concat3Plan owns the exact outer destination and ordered three arguments; CONCAT3_EXTERN and PURE are the existing rewrite-owner policy"
+canonical_issuer = "MirInstruction::call(Some(plan.outer_dst), Callee::Extern(CONCAT3_EXTERN.to_string()), plan.args.to_vec(), EffectMask::PURE)"
+non_authority = [
+  "legacy func or INVALID decoration",
+  "Extern name lookup/reclassification or backend symbol search",
+  "argument reconstruction outside Concat3Plan",
+  "EffectMask re-inference",
+  "string-corridor families and optimizer fallback",
+]
+fail_fast = "empty plans and missing blocks keep the existing mutation-free skip; an accepted plan enters the existing replacement map and the existing block-wide swap"
+no_retry = "no target lookup, fallback, re-planning, or second writer; replacement remains non-fallible after plan acceptance"
+smallest_next_slice = "replace rewrite.rs:31-37 with one MirInstruction::call invocation, remove only the now-unused Callee import, extend the shared guard, run the three concat3 tests, and add one README receipt"
+non_claims = [
+  "Concat3Plan admission correctness or source semantics",
+  "other concat/string corridor families",
+  "optimizer schedule activation policy",
+  "Call core field deletion and consumer/backend closure",
+  "PHI/Method/Closure/Constructor changes and warning cleanup",
+]
+
+[state_matrix]
+empty_plan = "existing continue; mutation 0"
+missing_block = "existing continue; mutation 0"
+accepted_plan = "exact Extern target + ordered args + PURE -> canonical Call in replacement map"
+non_chain = "planner emits no plan; existing instructions/spans remain unchanged"
+left_assoc = "existing one rewrite and inner/outer Add removal"
+right_assoc = "existing one rewrite and inner/outer Add removal"
+
+[inventory]
+writer_site = "src/mir/passes/concat3_canonicalize/rewrite.rs:31-37"
+writer_count = 1
+family_count_before = 1
+family_count_after = 0
+owner_lines = 69
+source_risk = "owner remains below 760/800 split limits; no adjacent dirty file is in scope"
+
+[proof]
+positive = [
+  "rewrites_left_assoc_chain_to_concat3",
+  "rewrites_right_assoc_chain_to_concat3",
+  "exact nyash.string.concat3_hhh target, outer dst, [a,b,c] args, PURE, and span length parity",
+]
+negative = [
+  "keeps_non_chain_add_unchanged",
+  "selected assignment has no direct MirInstruction::Call literal, func field, or callee: Some decoration",
+]
+parity = [
+  "left/right association",
+  "target symbol",
+  "outer destination",
+  "ordered three arguments",
+  "PURE effect",
+  "inner/outer Add removal and instruction/span alignment",
+]
+guards = [
+  "bash tools/checks/mir_call_canonical_corridor_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+stop_if = [
+  "Concat3Plan no longer owns target/args/dst",
+  "target lookup or effect re-inference is needed",
+  "a second concat3 writer or string-corridor family enters the branch",
+  "block replacement/span order changes",
+  "Call field deletion or another consumer/backend edit is required",
+]
+
+[acceptance]
+status = "fast_row_selected"
+focused_test = "rewrites_left_assoc_chain_to_concat3 + rewrites_right_assoc_chain_to_concat3 + keeps_non_chain_add_unchanged"
+expected_inventory_delta = "one live concat3 direct writer -> zero; canonical helper caller fanout +1"
+implementation_scope = "one rewrite owner, one shared guard extension, one README receipt; no new semantic receipt"
+review = "upper-worker bounded next-edge census selected this sole live writer after D1H"
+
+[reopen]
+triggers = [
+  "Concat3Plan gains multiple targets or loses ordered args/dst",
+  "Extern target/effects are re-inferred or looked up",
+  "a second concat3/string corridor writer is discovered",
+  "non-chain parity or span alignment changes",
+]
