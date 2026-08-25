@@ -368,7 +368,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
  MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
-  -> design stop: close the existing parser/source handoff and V0 typed Constructor resolve-once boundary; D1-C2-I0 rejected lossy body-backed closure egress without a schema change
+  -> design stop: prove an existing parser/package product for AST New call sites and exact constructor arity, then close the V0 typed Constructor resolve-once boundary; D1-C2-I0 rejected lossy body-backed closure egress without a schema change
 Next (not selected)
   -> D1-D source-handoff/Constructor resolve-once outcome; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 

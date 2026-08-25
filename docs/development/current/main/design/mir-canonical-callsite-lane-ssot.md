@@ -1444,6 +1444,29 @@ Observed finite edge set:
 D1-D is `NoSafeSlice`: the raw-New source/catalog handoff, V0/V1 parity,
   exact arity/dst/args validation, and third physical routes are not co-sealed.
 
+#### D1-D source-handoff audit — `NoSafeSlice` (read-only, 2026-08-25)
+
+The existing `VerifiedInstanceConstructorPhysicalSourceCohortV1` is a real
+parser/package product, but it proves declaration rows only: final statement
+ordinal, box name, parser constructor key, and opaque `ConstructorSourceIdV1`.
+Its demand tickets are consumed by instance-box declaration/runtime lifecycle;
+they are not a call-site target catalog. `PreparedRawNewExpressionV1` receives
+only raw `class`, arguments, and field initializers, while
+`BrandConstructorSourcePortV1` covers `FunctionCall` brand rows and does not
+cover `ASTNode::New`. The V0 `JsonV0FunctionCatalog` proves only local
+`Const(String)` legacy-function relations; it supplies no constructor
+declaration/arity relation for an explicit V0 `Constructor` object.
+
+Therefore the next design task is not to thread raw text or issue a new
+receipt. It must first name an existing parser/package product that covers
+`New` call sites and exact constructor arity, then classify built-in/compat
+construction outside that boundary. Until that product and the V0/V1
+resolve-once-or-reject matrix are co-sealed, mapping V0 `Constructor` directly
+to `NewBox` would be an unproved target/arity guess and remains forbidden.
+Acceptance for the next design row is a finite New-callsite census, exact
+`box_type`/constructor key/arity/ordered args/dst/effects authority, and a
+typed reject or one-shot `NewBox` issuer; no code or route switch is selected.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records
