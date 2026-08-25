@@ -321,6 +321,13 @@ impl<'program> PreparedSelectedDynamicV2EmissionPlanV1<'program> {
         self.demand.with_operation_program(callback)
     }
 
+    pub(in crate::mir) fn source_relation(
+        &self,
+    ) -> &crate::mir::compiler::dynamic_full_body_recipe::DynamicAPrimeI64SourceRelationViewV1<'_>
+    {
+        self.demand.source_relation()
+    }
+
     pub(in crate::mir) const fn function_effects(&self) -> crate::mir::EffectMask {
         self.demand.function_effects()
     }

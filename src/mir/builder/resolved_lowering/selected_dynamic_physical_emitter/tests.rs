@@ -124,6 +124,10 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             .is_some());
         let formal_header = &session.formal_header;
         assert_eq!(
+            formal_header.physical_representation().owner(),
+            session.demand.identity().owner()
+        );
+        assert_eq!(
             formal_header
                 .formals()
                 .iter()

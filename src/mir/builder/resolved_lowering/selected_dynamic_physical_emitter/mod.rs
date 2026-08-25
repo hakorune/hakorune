@@ -134,17 +134,20 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         builder: &'builder mut MirBuilder,
         activation: PreparedSelectedDynamicV2AotActivationV1<'program>,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
-        activation.consume_for_session(|plan, compare_i64, cleanup, aot, site_plans, readiness| {
-            Self::begin_from_parts(
-                builder,
-                plan,
-                compare_i64,
-                cleanup,
-                aot,
-                site_plans,
-                readiness,
-            )
-        })
+        activation.consume_for_session(
+            |plan, compare_i64, cleanup, formal_representation, aot, site_plans, readiness| {
+                Self::begin_from_parts(
+                    builder,
+                    plan,
+                    compare_i64,
+                    cleanup,
+                    formal_representation,
+                    aot,
+                    site_plans,
+                    readiness,
+                )
+            },
+        )
     }
 
     fn begin_from_parts(
@@ -152,6 +155,9 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
         compare_i64: DynamicV2CompareI64CapabilityDemandV1,
         cleanup: [DynamicV2TemporaryDischargeRowV1; 4],
+        formal_representation:
+            crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::
+                DynamicV2APrimeFormalRepresentationPairV1,
         aot: PreparedAotExecutableAdmissionV1,
         site_plans: CheckedCallOutSitePlanPairV1,
         readiness: DynamicV2UnpublishedSessionReadinessV1,
@@ -194,6 +200,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             ledger.outer_tail_target(),
             demand.source_relation(),
             &brand,
+            formal_representation,
         ) {
             Ok(parts) => parts,
             Err(error) => return Self::reject_begin(outer, error),
@@ -436,6 +443,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 function.metadata.checked_callout_site_plan_table(),
                 function,
                 formal_parameters,
+                self.formal_header.physical_representation(),
                 callable_storage_layout,
                 expected_effects,
                 &census,

@@ -7,6 +7,7 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_abi::{
     DynamicV2I8EvidenceV1, DynamicV2NativePreflightLedgerV1, DynamicV2PhysicalBlockTargetV1,
     DynamicV2PhysicalScheduleRowV1,
 };
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2APrimeFormalRepresentationPairV1;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter::targets::DynamicV2PhysicalTargetSetV1;
 use crate::mir::builder::resolved_lowering::DynamicV2PhysicalScheduleSegmentV1;
 use crate::mir::builder::MirBuilder;
@@ -158,6 +159,7 @@ pub(super) fn issue_targets_and_formal_header(
     source_relation: &crate::mir::compiler::dynamic_full_body_recipe::
         DynamicAPrimeI64SourceRelationViewV1<'_>,
     brand: &DynamicV2PhysicalSessionBrandV1,
+    formal_representation: DynamicV2APrimeFormalRepresentationPairV1,
 ) -> Result<
     (
         DynamicV2PhysicalTargetSetV1,
@@ -179,6 +181,7 @@ pub(super) fn issue_targets_and_formal_header(
         source_relation,
         &targets,
         brand,
+        formal_representation,
     )
     .map_err(DynamicV2I8EmitterRejectV1::FormalHeader)?;
     Ok((targets, formal_header))

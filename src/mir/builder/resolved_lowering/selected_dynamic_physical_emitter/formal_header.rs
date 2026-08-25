@@ -6,11 +6,13 @@
 use crate::box_callable::provider_admission::{
     DynamicV2AotFormalProjectionV1, DynamicV2AotFormalRoleV1,
 };
+use crate::mir::a_prime_i64_formal_representation::APrimeI64FormalPhysicalRepresentationProjectionV1;
 use crate::mir::a_prime_i64_physical_receipt::APrimeI64LaneV1;
 use crate::mir::builder::normal_callable_binding_materialization_port::PreparedCallableEntryValuesV1;
 use crate::mir::builder::resolved_lowering::canonical_ssa::{
     CanonicalBindingReadReceiptV1, CanonicalSsaFunctionSessionV2,
 };
+use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability::DynamicV2APrimeFormalRepresentationPairV1;
 use crate::mir::builder::resolved_lowering::selected_dynamic_physical_emitter::{
     targets::DynamicV2PhysicalTargetSetV1, DynamicV2PhysicalSessionBrandV1,
 };
@@ -35,6 +37,7 @@ pub(super) struct DynamicV2OpenedFormalHeaderV1 {
     header: crate::mir::BasicBlockId,
     formals: [DynamicV2FormalSeedV1; 4],
     header_current: CanonicalBindingReadReceiptV1,
+    physical_representation: APrimeI64FormalPhysicalRepresentationProjectionV1,
 }
 
 impl DynamicV2OpenedFormalHeaderV1 {
@@ -91,6 +94,12 @@ impl DynamicV2OpenedFormalHeaderV1 {
         self.header_current
     }
 
+    pub(super) const fn physical_representation(
+        &self,
+    ) -> APrimeI64FormalPhysicalRepresentationProjectionV1 {
+        self.physical_representation
+    }
+
     pub(super) fn entry_values(&self) -> PreparedCallableEntryValuesV1 {
         PreparedCallableEntryValuesV1::static_from_values(self.formals.map(|row| row.value))
     }
@@ -121,6 +130,7 @@ pub(super) fn open(
     relation: &DynamicAPrimeI64SourceRelationViewV1<'_>,
     targets: &DynamicV2PhysicalTargetSetV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
+    formal_representation: DynamicV2APrimeFormalRepresentationPairV1,
 ) -> Result<DynamicV2OpenedFormalHeaderV1, String> {
     let rows = relation.formal_rows();
     for (index, row) in rows.iter().copied().enumerate() {
@@ -200,6 +210,13 @@ pub(super) fn open(
         return Err("[freeze:contract][formal_header/header_receipt_drift]".to_owned());
     }
 
+    let physical_representation = formal_representation
+        .adopt_after_formals(relation, values, brand.owner())
+        .map_err(|error| format!("[freeze:contract][formal_header/representation/{error:?}]"))?;
+    if physical_representation.owner() != brand.owner() {
+        return Err("[freeze:contract][formal_header/representation_owner]".to_owned());
+    }
+
     let formals = std::array::from_fn(|index| DynamicV2FormalSeedV1 {
         ordinal: rows[index].ordinal(),
         binding: rows[index].binding(),
@@ -211,5 +228,6 @@ pub(super) fn open(
         header,
         formals,
         header_current,
+        physical_representation,
     })
 }

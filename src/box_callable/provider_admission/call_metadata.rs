@@ -11,6 +11,7 @@ use crate::abi::text_scan_aot_export_facts::{
     TEXT_SCAN_CALL_OUT_WIRE_REVISION_V2, TEXT_SCAN_SYMBOL_INDEX_OF_V1,
     TEXT_SCAN_SYMBOL_SUBSTRING_V1,
 };
+use crate::mir::a_prime_i64_formal_representation::APrimeI64FormalPhysicalRepresentationProjectionV1;
 use crate::mir::a_prime_i64_physical_receipt::{
     APrimeI64LaneV1, APrimeI64PhysicalReceiptRejectV1, APrimeI64PhysicalReceiptV1,
 };
@@ -215,6 +216,7 @@ pub(crate) struct DynamicV2AotCallMetadataProjectionV1 {
     registry_generation: u64,
     plan_stamp: ModuleInvocationBrandV1,
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
+    formal_physical_representation: APrimeI64FormalPhysicalRepresentationProjectionV1,
     callable_storage_layout: APrimeI64CallableStorageLayoutV1,
     return_lane: APrimeI64LaneV1,
     function_effects: EffectMask,
@@ -357,6 +359,9 @@ impl DynamicV2AotCallMetadataProjectionV1 {
                     APrimeI64LaneV1::OpaqueHandle,
                 ),
             ],
+            formal_physical_representation:
+                crate::mir::a_prime_i64_formal_representation::
+                    APrimeI64FormalPhysicalRepresentationProjectionV1::for_test(),
             callable_storage_layout: APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64,
             return_lane: APrimeI64LaneV1::ImmediateI64,
             function_effects: EffectMask::READ,
@@ -435,6 +440,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
     site_plans: &CheckedCallOutPlanTableV1,
     function: &MirFunction,
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
+    formal_physical_representation: APrimeI64FormalPhysicalRepresentationProjectionV1,
     callable_storage_layout: APrimeI64CallableStorageLayoutV1,
     expected_effects: EffectMask,
     census: &VerifiedCheckedCallOutFunctionV1,
@@ -472,6 +478,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
         registry_generation: admission.registry_generation(),
         plan_stamp: admission.plan_stamp(),
         formal_parameters,
+        formal_physical_representation,
         callable_storage_layout,
         return_lane: APrimeI64LaneV1::ImmediateI64,
         function_effects: function.signature.effects,

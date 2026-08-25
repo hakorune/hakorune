@@ -31,6 +31,8 @@ SELECTED_TARGETS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_p
 SELECTED_FORMAL_HEADER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/formal_header.rs"
 SELECTED_VALUE_LEDGER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/value_ledger.rs"
 SELECTED_OPERATION_CURSOR="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/operation_cursor.rs"
+FORMAL_REPRESENTATION="$ROOT_DIR/src/mir/a_prime_i64_formal_representation.rs"
+FORMAL_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability/formal_representation.rs"
 SKELETON_BUILDER="$ROOT_DIR/src/mir/builder/calls/skeleton_builder.rs"
 CANONICAL_SESSION="$ROOT_DIR/src/mir/builder/resolved_lowering/canonical_ssa/session.rs"
 WIRE_RS="$ROOT_DIR/src/abi/dynamic_call_slot_wire.rs"
@@ -45,7 +47,7 @@ guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$APRIME_ISSUER" "$CATALOG_ADMISSION" "$PACKAGE_INSTALL" "$PACKAGE_LOAN" "$SELECTED_FORMAL_HEADER" \
   "$SELECTED_OPERATION_CURSOR" "$SELECTED_STORAGE_POLICY" "$SELECTED_STORAGE_COSEAL" \
   "$CALL_METADATA" "$CALL_METADATA_TESTS" "$POLICIES_MOD" \
-  "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
+  "$WIRE_RS" "$WIRE_PY" "$WIRE_C" "$FORMAL_REPRESENTATION" "$FORMAL_CAPABILITY"
 
 guard_expect_fixed_in_file "$TAG" \
   "DYNAMIC_FULL_LOOP_PHYSICAL_ITEM_COUNT_V2: usize = 17" "$EVIDENCE" \
@@ -426,6 +428,61 @@ for pair in \
   guard_expect_fixed_in_file "$TAG" "$pair" "$WIRE_PY" \
     "Python I0-A constant drifted: $pair"
 done
+
+# D1-I0 exact formal representation: the selected capability is the sole
+# issuer, formal adoption attaches ValueIds once, and downstream metadata only
+# carries the opaque co-sealed product.  No wire/backend surface may observe
+# or reconstruct this source-owned representation.
+for d1_fact in \
+  "DynamicV2APrimeFormalRepresentationPairV1" \
+  "DynamicV2APrimeFormalRepresentationRejectV1" \
+  "DynamicV2PhysicalRepresentationV1::ImmediateI64" \
+  "adopt_after_formals"; do
+  guard_expect_fixed_in_file "$TAG" "$d1_fact" "$FORMAL_CAPABILITY" \
+    "selected capability is missing the exact pos/end representation contract: $d1_fact"
+done
+for d1_fact in "formal_representation" "adopt_after_formals"; do
+  guard_expect_fixed_in_file "$TAG" "$d1_fact" "$SELECTED_FORMAL_HEADER" \
+    "formal header is missing the one-shot representation adoption: $d1_fact"
+done
+for d1_fact in "formal_representation" "DynamicV2APrimeFormalRepresentationPairV1"; do
+  guard_expect_fixed_in_file "$TAG" "$d1_fact" "$SELECTED_SESSION_OPEN" \
+    "selected session-open handoff is missing the exact representation product: $d1_fact"
+done
+guard_expect_fixed_in_file "$TAG" \
+  "APrimeI64FormalPhysicalRepresentationProjectionV1" "$FORMAL_REPRESENTATION" \
+  "opaque exact-i64 formal representation carrier is missing"
+guard_expect_fixed_in_file "$TAG" "formal_physical_representation" "$CALL_METADATA" \
+  "existing AOT metadata must carry the co-sealed formal representation opaquely"
+for file in "$SELECTED_CAPABILITY" "$SELECTED_SESSION_OPEN" "$SELECTED_FORMAL_HEADER" \
+  "$SELECTED_EMITTER" "$CALL_METADATA" "$FORMAL_REPRESENTATION" "$FORMAL_CAPABILITY"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "D1-I0 source reached hard 800-line boundary: ${file#"$ROOT_DIR/"} has $lines"
+  fi
+done
+for forbidden in \
+  "APrimeI64FormalPhysicalRepresentationProjectionV1" \
+  "DynamicV2APrimeFormalRepresentationPairV1" \
+  "DynamicV2PhysicalRepresentationV1::ImmediateI64"; do
+  if rg -F -q -- "$forbidden" "$ROOT_DIR/src/runner" "$ROOT_DIR/src/llvm_py" \
+    "$ROOT_DIR/lang" "$ROOT_DIR/include"; then
+    guard_fail "$TAG" "D1-I0 formal representation crossed into wire/backend activation: $forbidden"
+  fi
+done
+if rg -F -q -- "DynamicV2APrimeFormalRepresentationPairV1" "$SELECTED_VALUE_LEDGER" \
+  "$SELECTED_OPERATION_CURSOR"; then
+  guard_fail "$TAG" "D1-I0 pair must not become a synthetic operation/value-ledger producer"
+fi
+python3 - "$SELECTED_FORMAL_HEADER" <<'PY'
+from pathlib import Path
+import sys
+
+header = Path(sys.argv[1]).read_text(encoding="utf-8")
+if header.index("adopt_after_formals") < header.index("adopt_exact_formal_parameter"):
+    raise SystemExit("D1-I0 representation adoption must follow formal ValueId adoption")
+PY
+
 for forbidden in \
   "hako_dynamic_call_slot_v2" \
   "nyrt_host_call_slot" \

@@ -238,6 +238,8 @@ fn project(
         site_plans,
         function,
         formal_parameters,
+        crate::mir::a_prime_i64_formal_representation::
+            APrimeI64FormalPhysicalRepresentationProjectionV1::for_test(),
         APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64,
         EffectMask::READ,
         &census,

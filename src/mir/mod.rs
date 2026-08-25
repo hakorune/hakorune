@@ -8,6 +8,7 @@
  * docs/development/current/main/design/mir-root-facade-contract-ssot.md
  */
 
+pub(crate) mod a_prime_i64_formal_representation; // opaque selected A-prime formal representation carrier
 pub(crate) mod a_prime_i64_physical_receipt; // sealed post-session A-prime LLVM capability
 pub mod agg_local_scalarization; // generic agg_local scalarization owner seam folded from landed pilots
 pub mod analysis; // analysis-only views (no AST rewrite)
@@ -264,9 +265,7 @@ pub(crate) mod weak_field_backend_capability; // extracted error types // Optimi
 // tools/checks/mir_root_facade_allowlist.txt.
 pub use basic_block::BasicBlock;
 pub use builder::MirBuilder;
-pub(crate) use compiler::selected_dynamic_w6_activation::{
-    StaticArtifactReceiptConsumedFenceV1,
-};
+pub(crate) use compiler::selected_dynamic_w6_activation::StaticArtifactReceiptConsumedFenceV1;
 pub use compiler::{
     CanonicalLoweringErrorV1, MirCompileResult, MirCompiler, NormalCompileRequestV1,
     NormalProgramCompileRequestErrorV1, RejectedNormalProgramCompileRequestV1,

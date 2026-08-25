@@ -27,6 +27,11 @@ use crate::mir::resolved_semantics::SourceStmtSiteV1;
 
 use super::selected_dynamic_physical_abi::PreparedSelectedDynamicV2EmissionPlanV1;
 
+mod formal_representation;
+pub(in crate::mir) use formal_representation::{
+    DynamicV2APrimeFormalRepresentationPairV1, DynamicV2APrimeFormalRepresentationRejectV1,
+};
+
 const I6: u32 = 6;
 const I7: u32 = 7;
 const I8: u32 = 8;
@@ -46,6 +51,7 @@ pub(in crate::mir) enum SelectedDynamicV2PhysicalCapabilityRejectV1 {
     EndCapabilityUnavailable,
     TextScanAdmission(ProviderAdmissionRejectV1),
     CheckedCallOutSitePlan(CheckedCallOutSitePlanPairRejectV1),
+    FormalRepresentation(DynamicV2APrimeFormalRepresentationRejectV1),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -232,6 +238,7 @@ pub(in crate::mir) struct SelectedDynamicV2PhysicalCapabilityAdmissionV1<'progra
     plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
     compare_i64: DynamicV2CompareI64CapabilityDemandV1,
     cleanup: [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
+    formal_representation: DynamicV2APrimeFormalRepresentationPairV1,
     aot: PreparedAotExecutableAdmissionV1,
     disposition: DynamicV2PhysicalCapabilityDispositionV1,
 }
@@ -244,6 +251,7 @@ pub(in crate::mir) struct PreparedSelectedDynamicV2AotActivationV1<'program> {
     plan: PreparedSelectedDynamicV2EmissionPlanV1<'program>,
     compare_i64: DynamicV2CompareI64CapabilityDemandV1,
     cleanup: [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
+    formal_representation: DynamicV2APrimeFormalRepresentationPairV1,
     aot: PreparedAotExecutableAdmissionV1,
     site_plans: CheckedCallOutSitePlanPairV1,
     readiness: DynamicV2UnpublishedSessionReadinessV1,
@@ -300,6 +308,7 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
             plan,
             compare_i64,
             cleanup,
+            formal_representation,
             aot,
             disposition,
         } = self;
@@ -339,6 +348,7 @@ impl<'program> SelectedDynamicV2PhysicalCapabilityAdmissionV1<'program> {
             plan,
             compare_i64,
             cleanup,
+            formal_representation,
             aot,
             site_plans,
             readiness,
@@ -353,6 +363,7 @@ impl<'program> PreparedSelectedDynamicV2AotActivationV1<'program> {
             PreparedSelectedDynamicV2EmissionPlanV1<'program>,
             DynamicV2CompareI64CapabilityDemandV1,
             [DynamicV2TemporaryDischargeRowV1; CLEANUP_ROW_COUNT],
+            DynamicV2APrimeFormalRepresentationPairV1,
             PreparedAotExecutableAdmissionV1,
             CheckedCallOutSitePlanPairV1,
             DynamicV2UnpublishedSessionReadinessV1,
@@ -362,6 +373,7 @@ impl<'program> PreparedSelectedDynamicV2AotActivationV1<'program> {
             self.plan,
             self.compare_i64,
             self.cleanup,
+            self.formal_representation,
             self.aot,
             self.site_plans,
             self.readiness,
@@ -383,6 +395,9 @@ pub(in crate::mir::builder) fn issue_selected_dynamic_v2_physical_capability_adm
 > {
     let compare_i64 = issue_compare_i64_demand(&plan)?;
     let cleanup = issue_cleanup_demand(&plan)?;
+    let formal_representation =
+        DynamicV2APrimeFormalRepresentationPairV1::issue(plan.source_relation())
+            .map_err(SelectedDynamicV2PhysicalCapabilityRejectV1::FormalRepresentation)?;
     let aliases = TextScanAliasProjectionV1::from_type_registry()
         .map_err(SelectedDynamicV2PhysicalCapabilityRejectV1::TextScanAdmission)?;
     let aot = ProviderAdmissionSealV1::consume_text_scan(
@@ -396,6 +411,7 @@ pub(in crate::mir::builder) fn issue_selected_dynamic_v2_physical_capability_adm
         plan,
         compare_i64,
         cleanup,
+        formal_representation,
         aot,
         disposition: DynamicV2PhysicalCapabilityDispositionV1::RejectBeforeEffect,
     })
