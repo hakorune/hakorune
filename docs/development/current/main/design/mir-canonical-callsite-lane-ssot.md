@@ -96,9 +96,9 @@ receiver, registry, metadata, optimizer, or backend route.
 MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
 ```
 
-It is `design_stop`, not an implementation permission. The preceding D1E row
-is landed at `2150472c35`; the next bounded design slice is the existing typed
-Method SSOT helper, whose finite boundary and acceptance are in:
+The row is now in closeout after commit `572ec6f5b1`: the existing typed Method
+SSOT helper delegates once to `MirInstruction::call` while preserving receiver,
+metadata, args, dst, and effects. Its finite receipt is in:
 
 ```text
 docs/development/current/main/investigations/
@@ -107,7 +107,8 @@ docs/development/current/main/investigations/
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1F does not authorize field
-deletion, `Method(None)` repair, or generic FunctionCall changes.
+deletion, `Method(None)` repair, receiver/args ABI rewriting, or generic
+FunctionCall changes.
 
 ## R6 retirement order
 

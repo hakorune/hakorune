@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,19 +33,19 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
-  implementation    = D1E landed at 2150472c35; D1F is design-only until pointer-selected fast entry
-  mode              = design_stop
-  production stop   = D1F helper boundary must remain Method(Some(receiver)); no Method(None) repair
-  exit              = accepted D1F decision plus one bounded implementation slice
+  implementation    = D1F landed at 572ec6f5b1; receipt and pointer sync are the remaining closeout
+  mode              = closeout
+  production stop   = no semantic stop; classify D1F evidence and publish the receipt
+  exit              = focused parity + shared guard + manifest/README/pointer receipt
   fallback / retry  = 0
 ```
 
 Next bounded design brief:
 
 ```text
-Decision: audit one existing typed Method SSOT helper as the next issuer-normalization slice.
+Decision: close the landed typed Method SSOT issuer and record its evidence.
 Source authority + canonical issuer: caller/resolver receiver ValueId plus box/method/certainty/kind -> Callee::Method(receiver) -> MirInstruction::call. Non-authority: func/INVALID, Method(None), receiver-prefixed args as target authority, lookup/retry, backend/JSON/optimizer recovery.
-Fail-fast boundary: receiver is required at helper entry and existing caller validation remains before publication. Smallest next slice: method_call.rs:61-83, existing method parity tests, shared corridor guard, and one README receipt; no code is authorized in design_stop.
+Fail-fast boundary: helper preserves supplied receiver presence only; ValueId validity/ownership and metadata semantics remain existing verifier/caller policy. Smallest next slice: manifest/pointer sync only; no further source edit.
 Non-claims: D1B/D1C1 terminals, other Method callers, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
 ```
 

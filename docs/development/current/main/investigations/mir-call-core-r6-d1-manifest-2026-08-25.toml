@@ -231,8 +231,8 @@ sites = ["src/mir/ssot/method_call.rs:71"]
 caller_chain = "method SSOT helper -> builder/optimizer/JSON fanout"
 lifecycle = "instruction construction"
 target_authority = "Method(receiver)"
-old_edge = "direct typed literal retains INVALID func"
-disposition = "CutoverBlockerOpen"
+old_edge = "retired direct typed literal retained INVALID func"
+disposition = "RetainGuarded"
 delete_set = ["direct Call literal", "func decoration"]
 reopen_trigger = "helper starts classifying static or missing receivers"
 
@@ -709,6 +709,20 @@ after_direct_helper_callers = 7
 parity = "transaction_commits_exact_source_main_and_physical_thunk: 1 passed; source/physical arity, callee/dst/args/effects/result unchanged"
 guards = "normal_source_plan0_transaction_guard + mir_call_canonical_corridor_guard + current_state_pointer_guard green"
 source_risk = "112-line exact leaf; no adjacent dirty file staged; no schema/flags/fallback/backend switch"
+
+[receipts.d1f_typed_method_issuer]
+status = "landed"
+commit = "572ec6f5b1"
+source = "src/mir/ssot/method_call.rs:71"
+old_edge = "direct Method(Some(receiver)) Call literal with func INVALID"
+new_edge = "MirInstruction::call(dst, Callee::Method { receiver: Some(receiver), box_name, method, certainty, box_kind }, args, effects)"
+baseline_direct_literal_sites = 36
+after_direct_literal_sites = 35
+baseline_direct_helper_callers = 7
+after_direct_helper_callers = 8
+parity = "4 method instruction/optimizer tests plus 3 operand-view tests passed; receiver, metadata, args, dst, and effects unchanged"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard green"
+source_risk = "147-line owner; no runtime caller fanout or consumer/backend changes"
 
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
