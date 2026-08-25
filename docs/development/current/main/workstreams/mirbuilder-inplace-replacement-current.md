@@ -35,16 +35,16 @@ Current capsule:
   current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
   implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; FunctionCall boundary classification is design-accepted, while root-lineage exact-target co-seal remains NoSafeSlice
   mode              = design_stop
-  production stop   = preserve Selected/Constructor lineage and lend only an existing exact target relation before argument effects; no target synthesis, caller=None collapse, or second resolver
-  exit              = finite target/lineage precedence, same-session owner/site co-seal, typed reject/Parked terminals, and zero Resolved/recovery fallthrough
+  production stop   = co-seal a private direct-call inventory with preserved Selected/Constructor lineage, then lend only an existing exact target relation before argument effects; no target synthesis, caller=None collapse, or second resolver
+  exit              = package prepare/install rejects incomplete inventory; finite target/lineage precedence, typed reject/Parked terminals, and zero Resolved/recovery fallthrough
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — preserve each in-boundary Selected/Constructor lineage once and lend only an existing exact target relation before argument effects.
-Source authority + canonical issuer: existing RawInvocationSourceTransportV1 provenance plus existing resolver/catalog/index relation; CalleeResolverBox and MirInstruction::call remain downstream issuers.
+Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — co-seal one private direct-call inventory with each in-boundary Selected/Constructor lineage, then lend only an existing exact target relation before argument effects.
+Source authority + canonical issuer: existing RawInvocationSourceTransportV1 provenance plus existing resolver/catalog/index relation; the normal package issuer owns pre-install inventory validation, while CalleeResolverBox and MirInstruction::call remain downstream issuers.
 Non-authority: source name/arity/box/symbol formatting, caller=None, constructor symbols, collector last-wins, BodyEffect/EffectMask, local variable maps, registry/name/args[0] recovery, or a second resolver.
-Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
-Smallest next slice: design-only exact relation/precedence matrix and same-session co-seal contract using existing lineage loans; no code, profile widening, or new receipt.
+Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, package inventory, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
+Smallest next slice: design-only package inventory/co-seal contract, exact relation/precedence matrix, and caller=None/Resolved retirement boundary using existing lineage loans; no code, profile widening, or new receipt.
 Non-claims: observation gate implementation, target synthesis, relationless retirement, Method(None), JSON/VM/backend changes, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,

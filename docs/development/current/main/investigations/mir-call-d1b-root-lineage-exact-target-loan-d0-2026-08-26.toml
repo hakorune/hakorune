@@ -1,6 +1,6 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "f64e1730d0"
+observed_commit = "4145663c2f"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-root-lineage-d0-2026-08-27.toml"
@@ -31,7 +31,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "SelectedNormal duplicate/projection I0 is closed at ffcae72725. The next design slice is the direct-target index handoff: name one same-source/same-resolver-continuation co-seal owner before any physical relation loan or code."
+smallest_next_slice = "Design the private pre-install direct-call inventory/co-seal handoff: one package/resolver owner must consume owner/site/lineage/disposition and lend an existing exact relation before any physical relation loan or code."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -44,6 +44,9 @@ top_level = "TopLevel(SelectedTopLevelFunctionKeyV1) carries statement occurrenc
 top_level_physical = "NormalTopLevelFunctionDraftAdmissionV1 projects a legacy symbol; duplicate source occurrences may share that symbol and collector replacement is not target authority. Direct target authority must come from VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> ResolvedDirectCallTargetV1."
 instance_constructor = "InstanceConstructor(NormalInstanceConstructorSourceKeyV1) identifies constructor emission and has no ordinary FunctionCall target relation by itself."
 resolver = "CalleeResolverBox preserves a supplied CallTarget; it does not prove physical uniqueness or source occurrence."
+package_gap = "normal_callable_semantic_package::issuer.rs:134-161 issues catalog/batch/selected/constructor products but no direct-call inventory; install.rs:273-333 checks catalog vacancy and publishes without direct-call coverage."
+lineage_collapse = "function_call_brand_source_demand.rs:75-91 keeps Cataloged caller identity but collapses TopLevel/InstanceConstructor into InstalledNonBrand { caller: None }, which can enter Resolved rather than a typed terminal."
+late_recovery = "function_call_preflight_route.rs:239-267 and calls/build.rs:104-124 still permit Resolved -> drive_call_arguments_v1 -> resolve/unique-static/tail/name-Const/legacy Call."
 duplicate_decision_child = "ffcae72725: docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
 scoped_loan_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-physical-relation-scoped-loan-d0-2026-08-26.toml"
 self_loan_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-self-exact-target-loan-d0-2026-08-26.toml"
@@ -65,6 +68,8 @@ states = [
   "RawCompatibilityDuplicateProjection",
   "InstanceConstructorSourceOnly",
   "InstanceConstructorExistingOrdinaryLoan",
+  "PackageInventoryUnsealed",
+  "CallerNoneCollapsed",
   "PhysicalRelationConflict",
   "PhysicalRelationMissing",
   "TypedRejectBeforeArguments",
@@ -72,7 +77,7 @@ states = [
   "TargetedExistingLoan",
   "ResolvedFallthroughForbidden",
 ]
-terminal_policy = "Only TargetedExistingLoan may cross into argument descent. ParkedRawCompatibility stops at the existing program compatibility owner. Source-only, duplicate SelectedNormal, conflict, missing, and constructor-only states reject before effects. ResolvedFallthroughForbidden is a guard failure, never a terminal."
+terminal_policy = "Only TargetedExistingLoan may cross into argument descent. PackageInventoryUnsealed, CallerNoneCollapsed, source-only, duplicate SelectedNormal, conflict, missing, and constructor-only states reject before effects or enter an explicitly owned Parked state. ResolvedFallthroughForbidden is a guard failure, never a terminal."
 
 [precedence]
 required_rows = [
@@ -93,6 +98,7 @@ raw_compatibility = "Existing RawCompatibility work plan may remain ParkedRawCom
 design = [
   "RawInvocationRootLineageV1 is preserved once through brand authority and preflight without Option<Canonical...> information loss",
   "every Targeted state borrows an existing exact relation and every negative witness maps to one typed state",
+  "package prepare/install rejects an unconsumed or incomplete direct-call inventory before publication",
   "TopLevel self/sibling/builtin/local/Extern/unique-static precedence is explicit",
   "InstanceConstructor source-only and existing ordinary relation states are distinct; constructor symbols never synthesize Globals",
   "Installed lineage cannot enter Resolved, post-argument unique/tail recovery, name Const, or direct legacy Call",
@@ -100,8 +106,12 @@ design = [
 negative = [
   "no code, fixture, new receipt, target inference, collector-authority change, or backend behavior change",
 ]
-implementation_gate = "false; duplicate I0 is closed at ffcae72725, but direct-target co-seal ownership, precedence rows, and pre-effect terminals remain design blockers."
+implementation_gate = "false; duplicate I0 is closed at ffcae72725, but package direct-call inventory/co-seal ownership, precedence rows, and pre-effect terminals remain design blockers."
 guard = "future guard must prove one exact target loan or typed terminal for every admitted root lineage before drive_call_arguments_v1; InstalledNonBrand caller=None and Resolved fallthrough must be zero"
+
+[worker_audit]
+source = "three read-only root-lineage audits at 4145663c2f; no code, fixture, Cargo, or gate change"
+verdict = "RawInvocationSourceTransportV1 can preserve provenance, and exact-i64 Main has a separate same-session index. General Selected/TopLevel/InstanceConstructor target inventory is not co-sealed by the normal package issuer; caller=None collapse and Resolved/recovery/name-Const fallthrough remain CutoverBlockerOpen."
 
 [reopen]
 triggers = [
