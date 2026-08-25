@@ -1,0 +1,158 @@
+title = "MIR Call core R6 D1 next-edge census"
+status = "design_stop"
+observed_at = "2026-08-25"
+observed_commit = "f7a442f524"
+implementation_permission = false
+decision = "MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[boundary]
+starts = "D1M landed selected Rust Call writer inventory and its independent correctness obligations"
+ends = "named next fast candidate with source authority, canonical issuer, fail-fast boundary, and finite acceptance matrix"
+includes = [
+  "remaining selected Rust Call writers and consumers from mir-call-core-r6-d1-manifest",
+  "Method(None) producer/reissuer/recovery edges",
+  "bare FunctionCall target resolution before argument descent",
+  "recursion_depth mutation/restore paths in selected builder call emitters",
+  "MirCall/CallFlags internal transport boundary",
+]
+excludes = [
+  "PyVM/reference/Python/WASM and non-selected backends",
+  "normal-root 2,595-line manifest and unrelated shelf cleanup",
+  "warning retirement, physical-type naming, and root_is_app_mode session cleanup",
+  "implementation, fixture edits, fallback additions, or new semantic receipt issuance",
+]
+
+[policy]
+source_authority = "named existing producer/consumer owner or existing state invariant; no AST/name/metadata reconstruction"
+canonical_issuer = "existing exact Callee -> MirInstruction::call, or an explicitly named state-restoration owner for non-Call bugfixes"
+non_authority = [
+  "local green tests as production claim",
+  "target-name Const, func/INVALID, Method(None), backend/name lookup, retry, or default values",
+  "new Verified*/Prepared* receipt before source authority and issuer are named",
+]
+fail_fast = "each candidate must decide target/state before the first irreversible argument, block, wire, or session mutation; an invariant bug must restore the prior state on every terminal path"
+
+[finite_matrix]
+positive = [
+  "one recursion-depth entry whose success/error path restores the caller-observed entry depth",
+]
+negative = [
+  "Method(None), missing/ambiguous receiver, and bare FunctionCall without an exact pre-argument target claim remain typed reject/NoSafeSlice",
+  "recursion overflow, syntax error, compatibility alternate route, and nested emitter error do not poison builder recursion state",
+  "MirCall/CallFlags row is not selected while flags have no canonical reader",
+]
+
+[[candidate]]
+id = "MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0"
+status = "candidate_design_only"
+scope = "two broken increment owners: src/mir/builder/calls/build.rs:200-216 and src/mir/builder/calls/unified_emitter.rs:132-149"
+old_edge = "incremented recursion_depth is returned without decrement on the overflow early return in two call-depth owners"
+source_authority = "MirBuilder.recursion_depth session invariant: entry depth is restored after every terminal path"
+canonical_issuer = "owner-local decrement immediately before each overflow return; no new semantic receipt or shared counter abstraction"
+fail_fast = "increment, reject overflow after logging, and restore the prior depth before returning; normal success/error/alternate routes retain their existing common decrement"
+acceptance = [
+  "method overflow at entry depth 100 reports entered depth 101, restores exact depth 100, and publishes no MIR/ValueId/metadata",
+  "unified overflow at entry depth 100 reports entered depth 101, restores exact depth 100, and publishes no MIR/ValueId/metadata",
+  "normal success and post-entry error from a nonzero synthetic entry depth restore the exact prior depth",
+  "method pre-entry syntax error and TypeOp alternate leave depth untouched; unified disabled legacy alternate success/error and receipt-required disabled error restore depth",
+  "after the synthetic enclosing depth is reset/unwound, the same Builder can be reused without poisoned state",
+  "no target, argument order, compatibility policy, or Call schema change",
+  "focused existing recursion tests plus one overflow-reuse regression for each selected entrypoint",
+]
+non_claims = [
+  "recursion limit policy changes",
+  "panic/unwind restoration, usize::MAX recovery, raw-expression guard behavior, or context lifecycle save/reset/restore",
+  "Call target resolution, Method(None), bare FunctionCall, MirCall/CallFlags, or backend behavior",
+  "global Builder state refactor outside these two broken increment owners",
+]
+implementation_permission = false
+
+broken_increment_owners = [
+  "calls/build.rs:162-219, reached by ordinary and claim-ingress method-call siblings",
+  "calls/unified_emitter.rs:118-183, reached by ordinary/lookup/map-replay and receipt-required facades",
+]
+retained_balanced_owner = "src/mir/builder/raw_expression_recursion_guard.rs:8-44"
+session_boundary_owner = "src/mir/builder/calls/context_lifecycle.rs:70-105"
+fixture_assignments = "direct recursion_depth assignments in tests are fixtures, not production increment owners"
+
+[[selected_writer_family]]
+id = "unified_physical_terminal"
+count = 1
+status = "not_selected"
+reason = "Call schema/MirCall-CallFlags transport boundary remains open"
+
+[[selected_writer_family]]
+id = "array_projection"
+count = 1
+status = "not_selected"
+reason = "separate production writer and plan admission boundary"
+
+[[selected_writer_family]]
+id = "callsite_canonicalizer"
+count = 1
+status = "not_selected"
+reason = "target reclassification/legacy inference must remain outside a correctness row"
+
+[[selected_writer_family]]
+id = "string_concat"
+count = 9
+status = "not_selected"
+reason = "multiwriter corridor family; requires its own bounded census"
+
+[[selected_writer_family]]
+id = "string_publication"
+count = 4
+status = "not_selected"
+reason = "multiwriter publication family; requires its own bounded census"
+
+[[candidate]]
+id = "MIR-CALL-CORE-R6-D1B-METHOD-NONE-PRODUCER-RETIREMENT"
+status = "open_no_safe_slice"
+scope = "finite producer/reissuer/recovery census in D1B manifest"
+old_edge = "Method(None) still conflates static, instance, and missing receiver"
+source_authority = "producer-local exact static relation or real instance receiver"
+canonical_issuer = "qualified Global for static; Method(receiver) for instance; typed reject when receiver is absent"
+fail_fast = "before Call publication and before any retry/reclassification"
+non_claims = ["mandatory-Callee field deletion until all D1B/D1C1/writer blockers close"]
+implementation_permission = false
+
+[[candidate]]
+id = "MIR-CALL-CORE-R6-D1C1-BARE-FUNCTION-CALL-TARGET-CLAIM"
+status = "open_no_safe_slice"
+scope = "generic FunctionCall target resolution in the D1C1 handoff manifest"
+old_edge = "arguments are lowered and effects occur before exact target resolution/recovery"
+source_authority = "same-brand exact caller/site/owner/method/arity target claim"
+canonical_issuer = "one-shot exact Callee claim before argument descent, then MirInstruction::call"
+fail_fast = "no claim means design stop; no unique-static, tail, name-Const, or backend recovery"
+non_claims = ["inventing a new ambiguous receipt or changing generic FunctionCall behavior in this census"]
+implementation_permission = false
+
+[[candidate]]
+id = "MIR-CALL-CORE-R6-D1-INTERNAL-MIR-CALL-FLAGS-TRANSPORT"
+status = "deferred_after-producer-closure"
+scope = "unified physical terminal and hakorune_mir_defs MirCall/CallFlags transport"
+old_edge = "flags are computed but not represented in canonical physical Call"
+source_authority = "existing physical Call fields unless a real flags consumer is identified"
+canonical_issuer = "either retire MirCall/CallFlags or make MirInstruction::Call(MirCall) the sole core, as a separate decision"
+fail_fast = "do not cut fields while any producer, consumer, Closure/Constructor boundary, or writer row remains open"
+non_claims = ["no new core schema in next-edge census"]
+implementation_permission = false
+
+[selection]
+rule = "upper-worker census must name one bounded candidate; no fast implementation is authorized by this document"
+recommended = "MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0"
+reason = "independent correctness invariant, two broken increment owners, no target/producer/schema fanout, and existing raw-depth parity precedent"
+reopen_trigger = "new selected caller, changed target authority, hidden fallback, or a candidate whose acceptance needs a new semantic receipt"
+
+[consumer_census]
+source = "docs/development/current/main/investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml"
+remaining_selected_direct_writers = 16
+remaining_writer_families = "unified physical terminal 1; array projection 1; callsite canonicalizer 1; string concat 9; string publication 4"
+consumer_blocker_rows = 9
+consumer_blocker_policy = "legacy func, user-box alias, module lifecycle, Closure, Constructor, optimizer, backend/wire, and related rows remain referenced by the D1 manifest; this census does not duplicate their full ledger"
+not_selected = "all 16 writers and all D1 consumer blockers are outside the recursion state-balance row"
+
+[worker_review]
+containment = "pending upper-worker finalization; required correction is two broken increment owners plus one retained balanced raw owner, with returned-terminal scope only"
+selection = "pending upper-worker finalization; recursion restore is a separate correctness row, not a Call writer retirement row"

@@ -848,14 +848,28 @@ warning_baseline = "quick profile reports 441 existing warnings; substring_len c
 source_risk = "shared.rs 671 lines; canonical guard 757 lines; no schema, flags, fallback, backend, or warning change"
 
 [candidates.d1m_method_set_value_rewrite_issuer]
-status = "selected_fast"
+status = "landed"
 manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1m-method-set-value-rewrite-issuer-2026-08-25.toml"
 boundary = "one shared rewrite_method_set_value writer used by materialization and publication host-boundary callers"
 direct_writers_before = 1
 direct_writers_after = 0
 canonical_issuer = "MirInstruction::call"
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "f7a442f524"
 review = "two upper-worker audits agree; fast row selected after D1L closeout"
+
+[receipts.d1m_method_set_value_rewrite_issuer]
+status = "landed"
+commit = "f7a442f524"
+source = "src/mir/passes/string_corridor_sink/shared.rs:514-538"
+writer_count_before = 1
+writer_count_after = 0
+parity = "focused route/helper tests 4/4 green; typed Callee/dst/key/replacement/effects and existing route publication parity preserved"
+negative = "finite Method(None), non-Method, missing-callee, wrong-method/arity, and non-Call inputs return None"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + normal_root_execution_reference_route_guard + touched rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; no new warning claim"
+source_risk = "shared.rs 665 lines; canonical guard 768 lines; guard is above the 760-line split-planning threshold but below the 800-line hard stop"
+whole_pass_rollback = "not claimed; existing caller block swaps and expect premises are unchanged"
 
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"

@@ -1,10 +1,11 @@
 title = "MIR Call core R6 D1M method-set value rewrite issuer"
-status = "selected_fast"
-observed_commit = "39249d5cdb"
+status = "landed"
+observed_commit = "f7a442f524"
 observed_at = "2026-08-25"
-implementation_permission = true
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0"
 fast_row_candidate = true
+implementation_commit = "f7a442f524"
 
 [boundary]
 starts = "private rewrite_method_set_value input Call"
@@ -111,10 +112,23 @@ guards = [
   "git diff --check",
 ]
 
+[receipt]
+status = "landed"
+commit = "f7a442f524"
+source = "src/mir/passes/string_corridor_sink/shared.rs:514-538"
+writer_count_before = 1
+writer_count_after = 0
+parity = "focused route/helper tests 4/4 green; typed Callee/dst/key/replacement/effects and existing route publication parity preserved"
+negative = "finite Method(None), non-Method, missing-callee, wrong-method/arity, and non-Call inputs return None; no output func decoration or direct Call literal remains in the helper window"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + normal_root_execution_reference_route_guard + touched rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; no new warning claim"
+source_risk = "shared.rs 665 lines; canonical guard 768 lines; guard is above the 760-line split-planning threshold but below the 800-line hard stop"
+whole_pass_rollback = "not claimed; existing caller block swaps and expect premises are unchanged"
+
 [worker_review]
 issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1M is the smallest remaining one-writer shared method-set rewrite after D1L; selected production writer count 17 -> 16"
 containment_audit = "upper-worker /root/d2a_containment_audit: safe bounded design; matcher is sole eligibility authority, Method(None)/other shapes return None, whole-pass rollback remains a non-claim, guard 757 -> at most 777"
-implementation_permission = true
+implementation_permission = false
 
 [stop_if]
 conditions = [

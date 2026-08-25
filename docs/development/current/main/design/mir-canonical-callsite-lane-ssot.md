@@ -16,6 +16,8 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1i-concat3-extern-rewrite-issuer-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1k-retained-len-extern-issuer-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1l-direct-substring-len-extern-issuer-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1m-method-set-value-rewrite-issuer-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1-next-edge-census-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -98,13 +100,12 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current design-stop row:
 
 ```text
-MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0
+MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
 ```
 
-D1M is the selected fast row after two upper-worker audits. D1L landed at
-`0be8a73420`, D1K at `8401f457ab`, D1J at `c927da4029`, and D1I at
-`513a243be5`. D1M is limited to the one shared method-set value rewrite
-writer; its boundary and receipt are in:
+D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
+the one shared method-set value rewrite writer; its boundary and receipt are
+in:
 
 ```text
 docs/development/current/main/investigations/
@@ -112,11 +113,16 @@ docs/development/current/main/investigations/
 ```
 
 D1M's two existing route tests plus direct helper positive/negative matrix,
-shared corridor guard, pointer guard, rustfmt, and diff checks are the required
-receipt; the quick profile's 441 warnings remain the pre-existing baseline.
+shared corridor guard, pointer/reference-route guards, rustfmt, and diff checks
+are green; the quick profile's 441 warnings remain the pre-existing baseline.
 The matcher is the sole eligibility authority, and whole-pass rollback is not
 claimed. Full Call field retirement and string-corridor family retirement
 remain separate.
+
+The next-edge census is design-only. It keeps the independent recursion-depth
+restore candidate separate from the open Method(None), bare FunctionCall, and
+MirCall/CallFlags rows; no implementation or new semantic receipt is allowed
+until one candidate is accepted by an upper-worker authority audit.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

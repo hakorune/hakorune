@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,22 +32,22 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0
-  implementation    = D1L landed at 0be8a73420; D1M selected after two upper-worker audits
-  mode              = fast
-  production stop   = D1M may change only rewrite_method_set_value and its focused proof surfaces
-  exit              = one canonical typed Call rewrite, finite negative matrix, two route parity proofs, <=20-line scoped guard, README receipt, and pushed commit; whole-pass rollback remains a non-claim
+  current decision  = MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+  implementation    = D1M landed at f7a442f524 with focused 4/4 proof; no new fast row is selected
+  mode              = design_stop
+  production stop   = census and worker authority audit only; no code, fixture, fallback, or new semantic receipt
+  exit              = finite next-edge inventory, authority/non-authority, fail-fast boundary, one bounded candidate, and accepted design brief
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
-Landed bounded fast row:
+Current design brief:
 
-```text
-Decision: one shared method-set value rewrite literal now uses the canonical Call helper; no expansion into corridor plans or block-swap policy.
-Source authority + canonical issuer: match_method_set_call plus original Callee/dst/key/effects and caller-owned new_value -> MirInstruction::call. Non-authority: legacy func, target reconstruction, lookup, backend, or ssot::method_call re-issuance.
-Fail-fast boundary: Method(Some)+set+2 args only; Method(None), non-Method, missing callee, wrong method/arity, and non-Call return None. Receipt: shared.rs writer, two route parity tests, direct helper positive/negative matrix, scoped guard, README, and push are the exit.
-Non-claims: caller plans/expect/block swaps, rollback, spans/hints/count/CFG/metadata schedule, other writers, schema, JSON/VM/native/backend, and warning cleanup.
-```
+Decision: D1M is landed; census remaining selected Call edges and independent correctness candidates before another fast row.
+Source authority + canonical issuer: named existing owner/invariant; exact Callee -> MirInstruction::call, or owner-local state restoration for a non-Call bugfix.
+Non-authority: AST/name reconstruction, func/INVALID, Method(None), backend retry, local green as production claim, or new semantic receipts.
+Fail-fast boundary: target/state must be decided before irreversible argument, block, wire, object, or session mutation; overflow restores prior depth.
+Smallest next slice: upper-worker audit the recursion-depth restore candidate against the finite census, then accept or reject one bounded row.
+Non-claims: Method(None), bare FunctionCall target claim, MirCall/CallFlags, schema cutover, warnings, root mode, physical types, and shelf cleanup.
 
 ## Closed chronology (archived)
 
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1M-METHOD-SET-VALUE-REWRITE-ISSUER-I0 -> fast: one shared method-set value rewrite writer used by materialization/publication callers; matcher-only eligibility, no schema or fallback expansion
+ MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0 -> design_stop: D1M landed at f7a442f524; census remaining selected Call edges and independent correctness candidates before another fast row; no implementation permission
 Closed immediately prior
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
  MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> landed at 0be8a73420: one shared SubstringLenPlan writer -> canonical Extern Call; focused 4/4 green, cohort 12/13 with one pre-existing benchmark baseline, guard 757 lines
