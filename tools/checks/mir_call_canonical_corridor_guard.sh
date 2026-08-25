@@ -78,7 +78,6 @@ require() {
 for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$RETAINED_LEN" "$SHARED_STRING_CORRIDOR" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
-
 if rg -F -q "CallsiteCanonicalizeScheduleSite::MirOptimizerLateCallAndInline" "$OPTIMIZER" || rg -F -q "MirOptimizerLateCallAndInline" "$SCHEDULE"; then
   fail "optimizer retained the retired callsite-canonicalize schedule"
 fi
@@ -221,7 +220,6 @@ fi
 if rg -F -q 'strcmp(op, "externcall")' "$LLVM_GENERIC_CALLS"; then
   fail "selected structured ny-llvmc dispatcher gained a raw externcall terminal"
 fi
-
 if rg -F -q "Option<Callee>" "$MIR_V0_CALL" || rg -F -q "callee: None" "$MIR_V0_CALL" || rg -F -q "parse_call_callee" "$MIR_V0_CALL"; then
   fail "MIR JSON-v0 call owner retained an optional/missing-callee target state"
 fi
@@ -617,6 +615,8 @@ if any(token in window for token in ("MirInstruction::Call {", "func: ValueId::I
 store_start = concat.index("fn rewrite_substring_receiver"); store_window = " ".join(concat[store_start:].split())
 if (store_window.count("MirInstruction::call(") != 2 or any(token not in store_window for token in ("*receiver = Some(new_receiver)", "args[0] = new_receiver", "nyash.string.substring_hii"))): raise SystemExit("StoreSharedReceiverSubstring lost its paired typed reconstruction issuers")
 if "Some(MirInstruction::Call" in store_window or "func" in store_window: raise SystemExit("StoreSharedReceiverSubstring retained a direct literal or legacy func carrier")
+terminal = (root / "src/mir/builder/calls/unified_emitter/physical_terminal.rs").read_text(); terminal_start = terminal.index("pub(super) fn emit_finalized_generic_call_v1"); terminal_window = " ".join(terminal[terminal_start:].split())
+if terminal_window.count("MirInstruction::call(") != 1 or any(token in terminal_window for token in ("MirInstruction::Call {", "func:", "callee: Some(")): raise SystemExit("unified physical terminal retained a direct or legacy Call issuer")
 if any(token not in host_writer for token in ("SUBSTRING_CONCAT3_PUBLISH_EXPLICIT_API_OWNED_EXTERN", "SUBSTRING_CONCAT3_PUBLISH_NEED_STABLE_OWNED_EXTERN")):
     raise SystemExit("publication adapter lost one of its two owned Extern targets")
 escape = (root / "src/mir/escape_barrier.rs").read_text()

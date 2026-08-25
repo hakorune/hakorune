@@ -91,13 +91,7 @@ pub(super) fn emit_finalized_generic_call_v1(
         signature_publication,
     );
 
-    let call_inst = MirInstruction::Call {
-        dst: call.dst,
-        func: ValueId::INVALID, // Compatibility field; Callee is the call target SSOT.
-        callee: Some(call.callee),
-        args: call.args,
-        effects: call.effects,
-    };
+    let call_inst = MirInstruction::call(call.dst, call.callee, call.args, call.effects);
 
     builder.emit_instruction(call_inst)?;
     prepared_post_success.commit_after_success(builder);
