@@ -7,6 +7,7 @@ use crate::mir::checked_callout::{
     CheckedCallOutAdmittedSiteInputV1, CheckedCallOutLeaseSlotIdV1, CheckedCallOutNormalShapeV1,
     CheckedCallOutPlanTableV1, CheckedCallOutSitePlanPairV1,
 };
+use crate::mir::compile_target_capability::APrimeI64TargetStorageLayoutV1;
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::generated::core_method_contract_rows::CORE_METHOD_CONTRACT_ROWS_V2;
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
@@ -52,6 +53,9 @@ fn projection_keeps_exact_two_typed_sites_and_stamp() {
         projection.callable_storage_layout(),
         APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64
     );
+    assert!(projection
+        .target_storage_layout()
+        .is_exact_i64_non_addressable_ssa());
     assert_eq!(projection.function_effects(), EffectMask::READ);
     assert_eq!(
         projection.formal_parameters()[1].role(),
@@ -241,6 +245,7 @@ fn project(
         crate::mir::a_prime_i64_formal_representation::
             APrimeI64FormalPhysicalRepresentationProjectionV1::for_test(),
         APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64,
+        APrimeI64TargetStorageLayoutV1::for_test(),
         EffectMask::READ,
         &census,
     )

@@ -55,6 +55,7 @@ mod compiler;
 /// lives with the compiler owner; the runner sees only this narrow profile and
 /// move-only capability surface.
 pub mod compile_target_capability {
+    pub(crate) use super::compiler::target_capability::APrimeI64TargetStorageLayoutV1;
     pub use super::compiler::target_capability::{
         PinnedTextCompileTargetCapabilityIssueV1, PinnedTextCompileTargetCapabilityIssuerV1,
         PinnedTextCompileTargetCapabilityV1, PinnedTextCompileTargetProfileV1,

@@ -1,8 +1,12 @@
 use super::*;
 use crate::mir::builder::normal_callable_semantic_lowering_state::CallableSemanticLoweringState;
+use crate::mir::builder::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1;
 use crate::mir::builder::{
     CanonicalSameModuleCallableKeyV1, CompilationContext, MirBuilder,
     NormalCatalogedBoxMethodDraftAdmissionV1, SelectedNormalCallableKeyV1,
+};
+use crate::mir::compiler::target_capability::{
+    PinnedTextCompileTargetCapabilityIssuerV1, PinnedTextCompileTargetProfileV1,
 };
 use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_v1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
@@ -43,6 +47,14 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
     })
     .expect("catalog admission");
     let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
+    let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(
+        PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
+    )
+    .expect("target capability");
+    let binding = PinnedTextCompileInvocationBindingRefV1 {
+        brand,
+        target: &target,
+    };
     let mut builder = MirBuilder::new();
     let collector =
         crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
@@ -56,6 +68,7 @@ fn combined_corridor_emits_typed_prerequisites_and_callouts_in_unpublished_sessi
             let receipt = assemble_unpublished_selected_dynamic_w6(
                 builder,
                 module_port,
+                &binding,
                 input,
                 |session, _profile| {
         let target = |item| {
@@ -434,6 +447,14 @@ fn duplicate_body_bridge_rejects_and_discards_unpublished_effects() {
     })
     .expect("catalog admission");
     let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
+    let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(
+        PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
+    )
+    .expect("target capability");
+    let binding = PinnedTextCompileInvocationBindingRefV1 {
+        brand,
+        target: &target,
+    };
     let mut builder = MirBuilder::new();
     let collector =
         crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
@@ -450,6 +471,7 @@ fn duplicate_body_bridge_rejects_and_discards_unpublished_effects() {
                 let result = assemble_unpublished_selected_dynamic_w6_from_parts(
                     builder,
                     module_port,
+                    &binding,
                     &selected,
                     admission,
                     physical_header,
@@ -512,6 +534,14 @@ fn package_adapter_selected_dynamic_production_branch_uses_same_candidate_collec
     })
     .expect("catalog admission");
     let brand = crate::mir::module_invocation_identity::ModuleInvocationBrandV1::legacy_test();
+    let target = PinnedTextCompileTargetCapabilityIssuerV1::issue(
+        PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
+    )
+    .expect("target capability");
+    let binding = PinnedTextCompileInvocationBindingRefV1 {
+        brand,
+        target: &target,
+    };
     let mut builder = MirBuilder::new();
     let collector =
         crate::mir::builder::module_draft_collector::ModuleDraftCollectorV1::with_brand(brand);
@@ -530,7 +560,7 @@ fn package_adapter_selected_dynamic_production_branch_uses_same_candidate_collec
             NormalCallableSemanticPackagePortAdapterV1::new(
                 &mut raw_port,
                 package_port,
-                None,
+                Some(binding),
                 None,
             );
         use crate::mir::builder::module_lifecycle::RootCallableCapturePortV1;

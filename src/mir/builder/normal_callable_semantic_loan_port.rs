@@ -23,6 +23,7 @@ use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftA
 use super::normal_instance_constructor_demand_loan::InstanceConstructorDemandConsumptionV1;
 use super::normal_instance_constructor_semantic_scope::with_constructor_semantic_scope;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
+use super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1;
 use super::raw_invocation_source_transport::RawSourceTransportPortV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
@@ -30,7 +31,6 @@ use super::recursive_child_lowering::{
     RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
-use crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1;
 use crate::mir::compiler::CanonicalLoweringErrorV1;
 use crate::mir::normal_callable_semantic_package::{
     NormalCallableSemanticPackageInstallIssueV1, NormalCallableSemanticPackagePortV1,
@@ -46,7 +46,7 @@ pub(super) struct NormalCallableSemanticPackagePortAdapterV1<
 > {
     inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
     package: NormalCallableSemanticPackagePortV1<'package>,
-    target_capability: Option<&'target PinnedTextCompileTargetCapabilityV1>,
+    target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'target>>,
     constructor_demand: InstanceConstructorDemandConsumptionV1,
 }
 
@@ -56,13 +56,13 @@ impl<'package, 'loan, 'port, 'collector, 'target>
     pub(super) fn new(
         inner: &'loan mut RawInvocationChildPortV1<'port, 'collector>,
         package: NormalCallableSemanticPackagePortV1<'package>,
-        target_capability: Option<&'target PinnedTextCompileTargetCapabilityV1>,
+        target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'target>>,
         constructor_manifest: Option<super::normal_instance_constructor_admission::VerifiedInstanceConstructorPhysicalDemandManifestV1>,
     ) -> Self {
         Self {
             inner,
             package,
-            target_capability,
+            target_binding,
             constructor_demand: InstanceConstructorDemandConsumptionV1::new(constructor_manifest),
         }
     }
@@ -582,6 +582,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
+        let target_binding = self.target_binding.as_ref();
         let inner = &mut *self.inner;
         let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
@@ -594,10 +595,15 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 ) {
                     let (selected, admission, physical_header) =
                         input.into_lowering_and_admission();
+                    let target_binding = target_binding.ok_or_else(|| {
+                        "[freeze:contract][mir/selected-dynamic/target-binding] missing"
+                            .to_owned()
+                    })?;
                     let _collector_receipt =
                         crate::mir::builder::resolved_lowering::assemble_unpublished_selected_dynamic_w6_from_parts(
                             builder,
                             inner.module_port,
+                            target_binding,
                             &selected,
                             admission,
                             physical_header,
@@ -620,6 +626,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                 }
                 let (selected, admission, _physical_header) = input.into_lowering_and_admission();
                 let canonical_route = classify_canonical_trivial_route(selected.source())?;
+                let target_capability = target_binding.map(|binding| binding.target_capability());
                 let lineage =
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
@@ -631,7 +638,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             admission,
                             signature,
                             plan,
-                            self.target_capability,
+                            target_capability,
                         )
                         .map_err(|error| error.to_string()),
                     CanonicalTrivialRouteV1::Outside => {
@@ -674,7 +681,10 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         uses: Vec<String>,
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
-        let target_capability = self.target_capability;
+        let target_capability = self
+            .target_binding
+            .as_ref()
+            .map(|binding| binding.target_capability());
         self.with_cataloged_callable_source_scope(
             admission,
             |inner, transport, admission, signature| {

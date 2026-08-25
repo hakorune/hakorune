@@ -140,8 +140,61 @@ impl PinnedTextCompileTargetCapabilityV1 {
         self.invocation_ordinal
     }
 
+    /// Project the only target-layout row admitted by the selected A-prime
+    /// exact-i64 cohort.  The closed profile match is intentionally exhaustive:
+    /// no data-layout parsing or target-less default can enter the row.
+    pub(crate) const fn project_a_prime_i64_target_storage_layout(
+        &self,
+    ) -> APrimeI64TargetStorageLayoutV1 {
+        match self.profile {
+            PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1 => {
+                APrimeI64TargetStorageLayoutV1 {
+                    profile: self.profile,
+                    invocation_ordinal: self.invocation_ordinal,
+                }
+            }
+        }
+    }
+
     pub fn same_invocation(&self, other: &Self) -> bool {
         self.profile == other.profile && self.invocation_ordinal == other.invocation_ordinal
+    }
+}
+
+/// Invocation-bound target row consumed by the selected A-prime close.
+///
+/// This is a narrow child projection, not a second target catalog.  Its
+/// private fields preserve the existing capability issuer as the sole source
+/// of target identity while excluding residence, object, and TargetMachine
+/// facts from the physical storage contract.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub(crate) struct APrimeI64TargetStorageLayoutV1 {
+    profile: PinnedTextCompileTargetProfileV1,
+    invocation_ordinal: NonZeroU64,
+}
+
+impl APrimeI64TargetStorageLayoutV1 {
+    pub(crate) const fn profile(self) -> PinnedTextCompileTargetProfileV1 {
+        self.profile
+    }
+
+    pub(crate) const fn invocation_ordinal(self) -> NonZeroU64 {
+        self.invocation_ordinal
+    }
+
+    pub(crate) const fn is_exact_i64_non_addressable_ssa(self) -> bool {
+        matches!(
+            self.profile,
+            PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1
+        )
+    }
+
+    #[cfg(test)]
+    pub(crate) const fn for_test() -> Self {
+        Self {
+            profile: PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1,
+            invocation_ordinal: NonZeroU64::new(1).expect("non-zero test ordinal"),
+        }
     }
 }
 
@@ -191,5 +244,15 @@ mod tests {
         let second = PinnedTextCompileTargetCapabilityIssuerV1::issue(profile).unwrap();
         assert_ne!(first.invocation_ordinal(), second.invocation_ordinal());
         assert!(!first.same_invocation(&second));
+    }
+
+    #[test]
+    fn exact_i64_target_row_is_projected_from_the_capability() {
+        let profile = PinnedTextCompileTargetProfileV1::NyRtTextResidencePtr64As0V1;
+        let capability = PinnedTextCompileTargetCapabilityIssuerV1::issue(profile).unwrap();
+        let row = capability.project_a_prime_i64_target_storage_layout();
+        assert_eq!(row.profile(), profile);
+        assert_eq!(row.invocation_ordinal(), capability.invocation_ordinal());
+        assert!(row.is_exact_i64_non_addressable_ssa());
     }
 }

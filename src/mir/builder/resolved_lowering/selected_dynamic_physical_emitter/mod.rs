@@ -44,6 +44,7 @@ use crate::mir::builder::resolved_lowering::selected_dynamic_physical_capability
 use crate::mir::builder::MirBuilder;
 use crate::mir::checked_callout::CheckedCallOutSitePlanPairV1;
 use crate::mir::compiler::a_prime_i64_physical_capability::VerifiedAPrimeI64PhysicalDemandV1;
+use crate::mir::compiler::target_capability::APrimeI64TargetStorageLayoutV1;
 use crate::mir::resolved_semantics::FunctionOwnerIdV1;
 #[cfg(test)]
 use crate::mir::BasicBlockId;
@@ -109,6 +110,7 @@ pub(in crate::mir) struct DynamicV2PhysicalEmissionSessionV1<'program, 'builder>
     aot: PreparedAotExecutableAdmissionV1,
     lifecycle: lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1,
     callout_corridor: callout_corridor::DynamicV2CallOutCorridorV1,
+    target_layout: APrimeI64TargetStorageLayoutV1,
 }
 
 impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> {
@@ -133,6 +135,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
     pub(super) fn begin(
         builder: &'builder mut MirBuilder,
         activation: PreparedSelectedDynamicV2AotActivationV1<'program>,
+        target_layout: APrimeI64TargetStorageLayoutV1,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
         activation.consume_for_session(
             |plan, compare_i64, cleanup, formal_representation, aot, site_plans, readiness| {
@@ -145,6 +148,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                     aot,
                     site_plans,
                     readiness,
+                    target_layout,
                 )
             },
         )
@@ -161,6 +165,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
         aot: PreparedAotExecutableAdmissionV1,
         site_plans: CheckedCallOutSitePlanPairV1,
         readiness: DynamicV2UnpublishedSessionReadinessV1,
+        target_layout: APrimeI64TargetStorageLayoutV1,
     ) -> Result<Self, DynamicV2I8EmitterRejectV1> {
         let lifecycle = lifecycle_terminal::DynamicV2PhysicalLifecycleTerminalPlanV1::issue(
             &site_plans,
@@ -276,6 +281,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             aot,
             lifecycle,
             callout_corridor,
+            target_layout,
         };
         Ok(session)
     }
@@ -402,6 +408,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
             &self.values,
             &receipt,
             &self.brand,
+            &self.target_layout,
         ) {
             Ok(layout) => layout,
             Err(error) => {
@@ -445,6 +452,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 formal_parameters,
                 self.formal_header.physical_representation(),
                 callable_storage_layout,
+                self.target_layout,
                 expected_effects,
                 &census,
             )

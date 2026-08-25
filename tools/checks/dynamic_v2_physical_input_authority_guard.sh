@@ -24,6 +24,11 @@ SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_p
 SELECTED_SESSION_OPEN="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/session_open.rs"
 SELECTED_STORAGE_POLICY="$ROOT_DIR/src/mir/policies/a_prime_i64_callable_storage_layout.rs"
 SELECTED_STORAGE_COSEAL="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/a_prime_callable_storage_layout.rs"
+TARGET_CAPABILITY="$ROOT_DIR/src/mir/compiler/target_capability.rs"
+BINDING="$ROOT_DIR/src/mir/builder/pinned_text_invocation_binding.rs"
+SELECTED_ASSEMBLY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/assembly.rs"
+ROOT_LIFECYCLE="$ROOT_DIR/src/mir/builder/normal_default_root_catalog_lifecycle.rs"
+ROOT_LOWERING="$ROOT_DIR/src/mir/builder/program_root_lowering.rs"
 CALL_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
 CALL_METADATA_TESTS="$ROOT_DIR/src/box_callable/provider_admission/call_metadata_tests.rs"
 POLICIES_MOD="$ROOT_DIR/src/mir/policies/mod.rs"
@@ -46,7 +51,8 @@ guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_SESSION_OPEN" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
   "$APRIME_ISSUER" "$CATALOG_ADMISSION" "$PACKAGE_INSTALL" "$PACKAGE_LOAN" "$SELECTED_FORMAL_HEADER" \
   "$SELECTED_OPERATION_CURSOR" "$SELECTED_STORAGE_POLICY" "$SELECTED_STORAGE_COSEAL" \
-  "$CALL_METADATA" "$CALL_METADATA_TESTS" "$POLICIES_MOD" \
+  "$CALL_METADATA" "$CALL_METADATA_TESTS" "$POLICIES_MOD" "$TARGET_CAPABILITY" \
+  "$BINDING" "$SELECTED_ASSEMBLY" "$ROOT_LIFECYCLE" "$ROOT_LOWERING" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C" "$FORMAL_REPRESENTATION" "$FORMAL_CAPABILITY"
 
 guard_expect_fixed_in_file "$TAG" \
@@ -324,6 +330,47 @@ projection = text.index("project_dynamic_v2_aot_call_metadata(")
 if co_seal > projection:
     raise SystemExit("storage policy must be co-sealed before projection")
 PY
+
+# P3-I0 target row: the existing move-only compile capability is the sole
+# issuer.  The selected Dynamic route must retain its live invocation binding
+# through assembly and store the typed child on the existing AOT projection;
+# no data-layout parsing or target-less fallback is allowed.
+guard_expect_fixed_in_file "$TAG" \
+  "project_a_prime_i64_target_storage_layout" "$TARGET_CAPABILITY" \
+  "the compile-target capability must issue the exact-i64 target child"
+guard_expect_fixed_in_file "$TAG" \
+  "APrimeI64TargetStorageLayoutV1" "$TARGET_CAPABILITY" \
+  "the exact-i64 target child type is missing"
+guard_expect_fixed_in_file "$TAG" \
+  "target_binding" "$ROOT_LOWERING" \
+  "root lowering must preserve the invocation binding"
+guard_expect_fixed_in_file "$TAG" \
+  "target_binding" "$PACKAGE_LOAN" \
+  "the package adapter must retain the invocation binding"
+guard_expect_fixed_in_file "$TAG" \
+  "target_capability()" "$SELECTED_ASSEMBLY" \
+  "selected Dynamic assembly must project the target child from the binding"
+guard_expect_fixed_in_file "$TAG" \
+  "target_layout" "$SELECTED_ASSEMBLY" \
+  "selected Dynamic assembly must pass the typed target row into the session"
+guard_expect_fixed_in_file "$TAG" \
+  "target_storage_layout:" "$CALL_METADATA" \
+  "existing AOT metadata must store the target-bound row"
+guard_expect_fixed_in_file "$TAG" \
+  "fn target_storage_layout" "$CALL_METADATA" \
+  "target-bound metadata accessor is missing"
+if rg -F -q -- ".map(|binding| binding.target_capability())" "$ROOT_LIFECYCLE"; then
+  guard_fail "$TAG" "root lifecycle stripped the live invocation binding to a bare target"
+fi
+for forbidden in "data_layout()" "TargetMachine" "StorageClass" "MirType"; do
+  if rg -F -q -- "$forbidden" "$SELECTED_STORAGE_COSEAL" "$SELECTED_ASSEMBLY"; then
+    guard_fail "$TAG" "exact-i64 target/storage close inferred from forbidden authority: $forbidden"
+  fi
+done
+target_child_issuers="$(rg -n -F -- "pub(crate) const fn project_a_prime_i64_target_storage_layout(" "$TARGET_CAPABILITY" | wc -l | tr -d '[:space:]')"
+if [[ "$target_child_issuers" != 1 ]]; then
+  guard_fail "$TAG" "target child must have exactly one capability projection method: $target_child_issuers"
+fi
 for forbidden in \
   "loop_recipe_physicalizer" \
   "MirInstruction" \

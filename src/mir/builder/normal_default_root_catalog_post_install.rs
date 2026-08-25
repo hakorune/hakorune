@@ -8,8 +8,8 @@ use crate::ast::ASTNode;
 use crate::mir::builder::main_expansion::VerifiedRawRootExpansionV1;
 use crate::mir::builder::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::builder::normal_default_root_catalog_lifecycle::NormalDefaultRootCatalogLifecycleErrorV1;
-use crate::mir::builder::normal_script_pre_effect_source_observation::
-    CanonicalScriptCBoundSourceV1;
+use crate::mir::builder::normal_script_pre_effect_source_observation::CanonicalScriptCBoundSourceV1;
+use crate::mir::builder::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1;
 use crate::mir::builder::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use crate::mir::builder::program_root_lowering::{
     NormalCallableSemanticPackageMode, NormalScriptRootLoweringMode,
@@ -41,9 +41,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
         VerifiedStaticCallResultPublicationOwnerV1,
     >,
     import_rows: &[(String, String)],
-    target_capability: Option<
-        &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
-    >,
+    target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
     callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
 ) -> Result<MirModule, NormalDefaultRootCatalogLifecycleErrorV1> {
     let script_source = match script_source {
@@ -57,9 +55,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
                 bound
                     .consume_into_lowering_source(admission)
                     .map_err(|error| {
-                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                            error.into(),
-                        )
+                        NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(error.into())
                     })?,
             )
         }
@@ -123,7 +119,7 @@ pub(super) fn finish_normal_default_root_after_pre_effect_bind<'source, 'package
                 None => NormalScriptRootLoweringMode::Unavailable,
             },
             static_result_publication_owner,
-            target_capability,
+            target_binding,
             callable_loop_root_scope,
         )
         .map_err(|error| NormalDefaultRootCatalogLifecycleErrorV1::RootLower(error.into()))?;

@@ -419,9 +419,6 @@ impl ModuleBuilderInvocationSessionV1 {
         let result = self
             .with_builder_and_pinned_text_invocation_binding_and_callable_loop_scope(
                 |builder, binding, callable_loop_root_scope| {
-            let target_capability = binding
-                .as_ref()
-                .map(|binding| binding.target_capability());
             (|| {
                 builder
                     .prepare_normal_default_module(runtime_inputs.entry_safepoint_enabled())
@@ -523,7 +520,7 @@ impl ModuleBuilderInvocationSessionV1 {
                                         Some(source),
                                         &mut preflight_static_result_publication_owner,
                                         &import_rows,
-                                        target_capability,
+                                        binding,
                                         callable_loop_root_scope,
                                     )
                                 })
@@ -545,7 +542,7 @@ impl ModuleBuilderInvocationSessionV1 {
                                 None,
                                 &mut preflight_static_result_publication_owner,
                                 &import_rows,
-                                target_capability,
+                                binding,
                                 callable_loop_root_scope,
                             ),
                             (None, None) => finish_normal_default_root_after_pre_effect_bind(
@@ -561,7 +558,7 @@ impl ModuleBuilderInvocationSessionV1 {
                                 None,
                                 &mut preflight_static_result_publication_owner,
                                 &import_rows,
-                                target_capability,
+                                binding,
                                 callable_loop_root_scope,
                             ),
                             _ => Err(

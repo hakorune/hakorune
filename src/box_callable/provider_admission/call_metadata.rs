@@ -20,6 +20,7 @@ use crate::mir::checked_callout::{
     CheckedCallOutNormalShapeV1, CheckedCallOutPlanTableV1, CheckedCallOutSiteIdV1,
     VerifiedCheckedCallOutFunctionV1,
 };
+use crate::mir::compile_target_capability::APrimeI64TargetStorageLayoutV1;
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
 use crate::mir::policies::a_prime_i64_callable_storage_layout::APrimeI64CallableStorageLayoutV1;
 use crate::mir::{BasicBlockId, EffectMask, MirFunction, MirType, ValueId};
@@ -218,6 +219,7 @@ pub(crate) struct DynamicV2AotCallMetadataProjectionV1 {
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
     formal_physical_representation: APrimeI64FormalPhysicalRepresentationProjectionV1,
     callable_storage_layout: APrimeI64CallableStorageLayoutV1,
+    target_storage_layout: APrimeI64TargetStorageLayoutV1,
     return_lane: APrimeI64LaneV1,
     function_effects: EffectMask,
     calls: [DynamicV2AotCallSiteProjectionV1; 2],
@@ -271,6 +273,10 @@ impl DynamicV2AotCallMetadataProjectionV1 {
 
     pub(crate) const fn callable_storage_layout(&self) -> APrimeI64CallableStorageLayoutV1 {
         self.callable_storage_layout
+    }
+
+    pub(crate) const fn target_storage_layout(&self) -> APrimeI64TargetStorageLayoutV1 {
+        self.target_storage_layout
     }
 
     pub(crate) const fn function_effects(&self) -> EffectMask {
@@ -363,6 +369,7 @@ impl DynamicV2AotCallMetadataProjectionV1 {
                 crate::mir::a_prime_i64_formal_representation::
                     APrimeI64FormalPhysicalRepresentationProjectionV1::for_test(),
             callable_storage_layout: APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64,
+            target_storage_layout: APrimeI64TargetStorageLayoutV1::for_test(),
             return_lane: APrimeI64LaneV1::ImmediateI64,
             function_effects: EffectMask::READ,
             calls: [
@@ -442,6 +449,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
     formal_physical_representation: APrimeI64FormalPhysicalRepresentationProjectionV1,
     callable_storage_layout: APrimeI64CallableStorageLayoutV1,
+    target_storage_layout: APrimeI64TargetStorageLayoutV1,
     expected_effects: EffectMask,
     census: &VerifiedCheckedCallOutFunctionV1,
 ) -> Result<DynamicV2AotCallMetadataProjectionV1, DynamicV2AotCallMetadataRejectV1> {
@@ -480,6 +488,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
         formal_parameters,
         formal_physical_representation,
         callable_storage_layout,
+        target_storage_layout,
         return_lane: APrimeI64LaneV1::ImmediateI64,
         function_effects: function.signature.effects,
         calls: [substring, index_of],

@@ -14,6 +14,7 @@ use crate::mir::compiler::a_prime_i64_physical_capability::{
     APrimeI64PhysicalRequirementV1, VerifiedAPrimeI64PhysicalDemandV1,
 };
 use crate::mir::compiler::dynamic_full_body_recipe::DynamicFullLoopParameterClassV2;
+use crate::mir::compiler::target_capability::APrimeI64TargetStorageLayoutV1;
 use crate::mir::policies::a_prime_i64_callable_storage_layout::APrimeI64CallableStorageLayoutV1;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -24,6 +25,7 @@ pub(super) enum APrimeI64CallableStorageLayoutRejectV1 {
     FormalRelation,
     Receipt(APrimeI64PhysicalReceiptRejectV1),
     ReceiptFormal,
+    TargetLayout,
 }
 
 /// Issue the sole plain storage-policy row for the exact A-prime cohort.
@@ -37,6 +39,7 @@ pub(super) fn issue(
     values: &DynamicV2PhysicalValueLedgerV1,
     receipt: &APrimeI64PhysicalReceiptV1,
     brand: &DynamicV2PhysicalSessionBrandV1,
+    target_layout: &APrimeI64TargetStorageLayoutV1,
 ) -> Result<APrimeI64CallableStorageLayoutV1, APrimeI64CallableStorageLayoutRejectV1> {
     if demand.requirement() != APrimeI64PhysicalRequirementV1::DirectExactI64 {
         return Err(APrimeI64CallableStorageLayoutRejectV1::Requirement);
@@ -48,6 +51,9 @@ pub(super) fn issue(
     }
     if !values.matches_brand(brand) {
         return Err(APrimeI64CallableStorageLayoutRejectV1::SessionBrand);
+    }
+    if !target_layout.is_exact_i64_non_addressable_ssa() {
+        return Err(APrimeI64CallableStorageLayoutRejectV1::TargetLayout);
     }
 
     let expected_roles = [

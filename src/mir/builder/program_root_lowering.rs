@@ -14,6 +14,7 @@ use super::module_lowering_invocation::ModuleLoweringPortV1;
 use super::nonmain_static_box_method_batch::PreparedNonMainStaticBoxMethodBatchV1;
 use super::normal_callable_semantic_loan_port::NormalCallableSemanticPackagePortAdapterV1;
 use super::normal_script_pre_effect_source_observation::CanonicalScriptCPreparedLoweringSourceV1;
+use super::pinned_text_invocation_binding::PinnedTextCompileInvocationBindingRefV1;
 use super::program_declaration_facts::PreparedNormalProgramDeclarationFactsV1;
 use super::program_root_work_plan::{
     PreparedProgramRootRuntimeWorkV1, PreparedProgramRootWorkPlanPartsV1,
@@ -134,9 +135,7 @@ impl MirBuilder {
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
         static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
-        target_capability: Option<
-            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
-        >,
+        target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
     ) -> Result<ValueId, String> {
         self.lower_program_root_after_catalog_install_v1(
@@ -150,7 +149,7 @@ impl MirBuilder {
             callable_mode,
             script_mode,
             static_result_publication_owner,
-            target_capability,
+            target_binding,
             callable_loop_root_scope,
         )
     }
@@ -167,9 +166,7 @@ impl MirBuilder {
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         script_mode: NormalScriptRootLoweringMode<'_>,
         static_result_publication_owner: VerifiedStaticCallResultPublicationOwnerV1,
-        target_capability: Option<
-            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
-        >,
+        target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
         callable_loop_root_scope: &mut UnpublishedCallableLoopRootScopeV1,
     ) -> Result<ValueId, String> {
         let mut collector = ModuleDraftCollectorV1::with_brand(brand);
@@ -195,7 +192,7 @@ impl MirBuilder {
                             declaration_facts,
                             callable_mode,
                             port,
-                            target_capability,
+                            target_binding,
                         )
                     }),
                 NormalScriptRootLoweringMode::Unavailable => port.with_source_transport_v1(
@@ -210,7 +207,7 @@ impl MirBuilder {
                             declaration_facts,
                             callable_mode,
                             port,
-                            target_capability,
+                            target_binding,
                         )
                     },
                 ),
@@ -242,9 +239,7 @@ impl MirBuilder {
         declaration_facts: PreparedNormalProgramDeclarationFactsV1,
         callable_mode: NormalCallableSemanticPackageMode<'_>,
         port: &mut RawInvocationChildPortV1<'_, '_>,
-        target_capability: Option<
-            &crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1,
-        >,
+        target_binding: Option<PinnedTextCompileInvocationBindingRefV1<'_>>,
     ) -> Result<ValueId, String> {
         match callable_mode {
             NormalCallableSemanticPackageMode::Installed(package) => {
@@ -256,7 +251,7 @@ impl MirBuilder {
                 let mut loan = NormalCallableSemanticPackagePortAdapterV1::new(
                     port,
                     package_port,
-                    target_capability,
+                    target_binding,
                     constructor_manifest,
                 );
                 let result = self.lower_prepared_program_root_with_callable_port_v1(
