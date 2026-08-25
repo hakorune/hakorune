@@ -1000,7 +1000,10 @@ Feedback reconciliation and deferred task queue (not selected):
 ```text
 R4b status: HEAD already delegates Call used_values to Callee::for_each_value_operand; Value, Method receiver, Closure captures/me, args order, duplicates, and legacy None parity are covered by the shared tests. Escape, value-consumer, ownership, and query now reuse the occurrence projection where their separate policies allow it.
 R4c task (not selected): `MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1` must first name a live merge caller, classify both lifecycle owners, and prove that `Callee::rewrite_value_operands` can replace the local remap without changing retention policy. Until then JoinIrIdRemapper's duplicate match is parked; no code or production switch.
-R6 task (not selected): one schema decision must retire or justify MirCall/CallFlags, make Method.receiver required with static calls as qualified Global, restrict Closure to pre-canonical construction with closure calls as Callee::Value, and state the Constructor/NewBox boundary. No field deletion or type cleanup before the R5 matrix is closed.
+R6 D0/D1: the four-boundary schema decision is accepted as a design stop;
+`MIR-CALL-R6-CORE-SCHEMA-D1` now owns the finite reader/writer cut/compat/park
+matrix. No field deletion or type cleanup is selected until D1 names every
+issuer and acceptance edge.
 Backend exact-Extern D0 is the selected row; its D0-A/B/C/D tasks and five NoSafeSlice conditions are recorded above. Backend-shape strict-adapter I0 and native D1/C owner split are closed.
 Post-R7 cleanup: normal-root mode/projection sum, MainObserved naming, identity-based syntax loan, and builder.rs production/compatibility/test barrel census remain separate cleanup rows; PyVM/reference/Python/native_driver remain ParkedSealed.
 ```
@@ -1011,22 +1014,80 @@ editing. The census includes direct callers, dynamic construction, wire
 writers, and selected backend preflight; literal `callee: None = 0` is not
 sufficient evidence.
 
-R6 decision gate (not selected):
+R6 core-schema design-stop audit (D0 accepted; D1 selected):
 
-1. Prefer retiring exported `MirCall` and `CallFlags`; the canonical physical
-   shape remains `Call { dst, callee, args, effects }`. Keeping them requires a
-   named flag authority and backend semantics, not a compatibility re-export.
-2. Make `Method { receiver: None }` impossible by issuing qualified `Global`;
-   `Method` then owns a required receiver. A new `StaticMethod` variant is not
-   admitted without a source-backed producer.
-3. Restrict `Callee::Closure` to the pre-canonical construction input that
-   becomes `NewClosure`; a closure call uses `Callee::Value(closure_value)`.
-   Constructor versus `NewBox` remains an explicit boundary decision.
+The worker premise audit closed the four authority boundaries without opening a
+production switch. The final physical core remains:
 
-R6 acceptance requires the R5 matrix green, all direct/dynamic `func` readers
-   classified, and no unresolved issuer. Until then, do not change
-   `Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, or
-   `MirCall`/`CallFlags` in code.
+```text
+Call { dst: Option<ValueId>, callee: Callee, args: Vec<ValueId>, effects }
+```
+
+Six-line brief:
+
+```text
+Decision: keep the mandatory-Callee physical Call; MirCall/CallFlags are not
+  semantic authority unless a non-default flag consumer is found.
+Source authority + canonical issuer: route resolver/CallTarget issues Callee
+  once; MirInstruction::call is the sole physical issuer; NewBox/NewClosure
+  owners issue construction, not calls.
+Non-authority: func/INVALID, Option/Callee defaults, Method(None), target Const,
+  flags:{}, wire text, printer output, optimizer/backend lookup or retry.
+Fail-fast boundary: before block.add_instruction and before wire/object publish;
+  missing receiver, malformed construction, unresolved legacy, and profile
+  mismatch reject with no alternate-target retry.
+Smallest next slice: MIR-CALL-R6-CORE-SCHEMA-D1, a finite reader/writer census
+  and cut/compat/park matrix; no code, fixture, or field deletion.
+Non-claims: R6 implementation, JoinIR remap, JSON wire change, backend switch,
+  PyVM/reference/Python/native_driver, and warning cleanup.
+```
+
+Finite D0 boundary: selected Rust `CallTarget`/resolver issuance ->
+`MirInstruction::Call` -> selected JSON-v1/v0 bridge -> Rust interpreter and
+selected backend terminals. The census covers 49 non-test direct sites (44
+production-root and 5 compiled caller-zero) plus four dynamic missing-target
+edges (three Program JSON-v0 producers and one MIR JSON-v0 loader). It excludes
+PyVM/reference/Python/native_driver, C native D0, the JoinIR lifecycle boundary,
+and the complete Constructor ABI. This boundary is finite and does not claim
+that a literal `callee: None` search is complete.
+
+| state / edge | source authority | D0 terminal classification |
+|---|---|---|
+| `Global`, `Extern`, `Value`, `Method(Some(receiver))` | route resolver / `CallTarget` | canonical callable; preserve target operands then ordered args |
+| `Method(None)` | legacy/static producers and v0 projection | compatibility/transitional only; static must become qualified `Global`; core reject until migrated |
+| `Callee::Closure` with `dst=Some,args=[]` | closure construction owner | pre-core input -> `NewClosure`; runtime closure call is `Callee::Value` |
+| Closure with runtime args or missing destination | no valid construction relation | typed reject before publication |
+| `Constructor` | constructor resolver / route family | pre-core input until one `NewBox` or typed-Call owner is selected; no generic reclassification |
+| `NewBox`, `NewClosure` | existing construction owners | independent physical instructions; not Call target fallback |
+| `None + legacy name/func` | JSON-v0 owner-local catalog | resolve once to exact `Callee` or typed reject; never publish missing Call |
+| missing, `INVALID`, duplicate, foreign, non-String, malformed explicit target | none | typed reject before block/wire/object publication; no retry |
+| `MirCall.flags` / `CallFlags` | current builder intermediate only | physical terminal consumes no flag; non-default consumer would reopen the design |
+
+Exact edge classification for D1:
+
+```text
+cut       = semantic func readers, Option<Callee> terminal readers, target-Const
+            reconstruction, Method(None) recovery, and any backend/optimizer
+            by-name fallback once their canonical replacement is named;
+compat    = owner-local JSON-v0 raw draft/catalog only, with one resolve point;
+park      = JoinIR remap until a live caller and both lifecycle owners are named;
+reopen    = public MirCall/CallFlags use, non-default flag semantics, a second
+            Constructor/NewBox issuer, or a Closure wire/runtime consumer.
+```
+
+The audit found `MirCall.flags` is created and then discarded by the physical
+terminal; no production field reader was found. This permits a future private
+staging cleanup, but does not authorize deleting the public `MirCall`/
+`CallFlags` exports in D1. `Method(None)` still has real producers and a
+by-name/recovery consumer, while Closure and Constructor have split V0/V1
+construction paths. Those are schema blockers, not mechanical compiler fixes.
+
+Selected next design task: `MIR-CALL-R6-CORE-SCHEMA-D1`. It must attach every
+one of the 49 direct sites and four dynamic edges to `cut`, `compat`, or `park`,
+name the single issuer for Method/static, Closure/NewClosure, and
+Constructor/NewBox, and record positive/negative/parity acceptance before any
+R6a implementation. Until D1 is accepted, do not change `Option<Callee>`,
+`func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
 Post-R7 normal-root cleanup (parked, separate lane):
 

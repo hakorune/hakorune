@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1
   implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
   mode              = design_stop
-  production stop   = exact Extern D0 is closed with no C alias/name classification, route fallback, or post-mismatch publication; R6 field deletion, MirCall/CallFlags cleanup, Method(None)/Closure/Constructor gates, and JoinIR remain outside until authority is designed
-  exit              = six-line R6 authority brief, worker premise audit, and one accepted bounded next slice; no code, fixture, fallback, or production switch
+  production stop   = R6 D0 four-boundary audit is accepted; 49 direct sites and four dynamic missing-target edges are now fenced, while field deletion, Method(None), Closure/Constructor, and JoinIR remain outside until D1 names every issuer
+  exit              = D1 cut/compat/park matrix with positive/negative/parity acceptance; no code, fixture, fallback, or production switch
 fallback / retry  = 0
 ```
 
@@ -270,8 +270,9 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
 7. R5 D0 is accepted; R5a is closed at `e36f86e869`, R5b-B0 Rust VM
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
-8. R6 is parked until R5 evidence: atomic `Call { callee: Callee }`,
-   `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox gates.
+8. R6 D0 is accepted; D1 is a design stop for the final `Call { callee: Callee }`
+   issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and
+   Constructor/NewBox; no code or production switch is selected yet.
 9. R7: structural guards, README/reference sync, and census closeout.
 
 R3 D0 accepted boundary:
@@ -366,11 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0
-  -> design stop: name one source authority and canonical issuer for MirCall/CallFlags, Method.receiver, Closure construction, and Constructor/NewBox before any R6 implementation
-
+ MIR-CALL-R6-CORE-SCHEMA-D1
+  -> design stop: attach all 49 direct sites and four dynamic edges to cut/compat/park, then name sole issuers for Method/static, Closure/NewClosure, and Constructor/NewBox
 Next (not selected)
-  -> one bounded R6 operand/schema slice after worker premise audit; R4c remains NoSafeSlice unless a caller reopens
+  -> R6a private staging cleanup only after D1 acceptance; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
