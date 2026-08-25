@@ -40,15 +40,19 @@ non_claims = [
 [finite_state]
 states = [
   "CatalogedExistingCaller",
-  "TopLevelBorrowExistingCaller",
-  "InstanceConstructorBorrowExistingCaller",
+  "TopLevelCallerSource",
+  "TopLevelTargetUnique",
+  "TopLevelTargetDuplicate",
+  "DuplicateProgramCompatibility",
+  "InstanceConstructorCallerSource",
+  "InstanceConstructorNoOrdinaryTarget",
   "RelationlessCompatibility",
   "ExistingTargetRelationMissing",
   "TypedRejectBeforeArguments",
   "ParkedSealedCohort",
   "PostArgumentReentryForbidden",
 ]
-terminal_policy = "Only Cataloged/borrowed lineages with an existing exact relation, or explicit TypedReject/ParkedSealed cohort states, may cross into argument descent; true relationless and missing-relation states remain NoSafeSlice until dispositioned."
+terminal_policy = "Only Cataloged or TopLevelTargetUnique lineages with an existing exact relation may cross into argument descent. DuplicateProgramCompatibility is ParkedSealed at the program-work-plan boundary; duplicate/constructor-only/relationless states are TypedReject before effects unless a separately named existing relation is proven."
 
 [source_products]
 cataloged = "RawInvocationRootLineageV1::Cataloged(CanonicalSameModuleCallableKeyV1) already reaches the targeted child."
@@ -56,11 +60,21 @@ top_level = "RawInvocationRootLineageV1::TopLevel(SelectedTopLevelFunctionKeyV1)
 instance_constructor = "RawInvocationRootLineageV1::InstanceConstructor(NormalInstanceConstructorSourceKeyV1) is co-sealed by the existing normal-script semantic package and demand ticket; constructor identity is not static-call authority."
 relationless = "RawLegacyChildLoweringPortV1::RelationlessCompatibility has no source product and cannot be repaired with a name-only target."
 
+[target_relation_census]
+top_level_source_key = "selected_source_inventory.rs:10-36 owns statement_index/name/arity only; it is source identity, not a unique physical target."
+top_level_duplicate = "selected_source_inventory.rs tests allow two top-level declarations with the same name/arity; NormalTopLevelFunctionDraftAdmissionV1 projects both to the same legacy symbol and the collector uses LegacySymbol replacement. This makes name/arity-only Global issuance ambiguous."
+top_level_terminal = "A TopLevel target may borrow Global(name/arity) only when selected inventory projection count is one and no other planned producer owns that same LegacySymbol. Duplicate cohorts are AmbiguousPhysicalProjection: TypedReject for SelectedNormal, or ParkedSealed under the existing program-wide RawCompatibility work plan."
+constructor_physical = "NormalInstanceConstructorDraftAdmissionV1 projects box_name.parser_constructor_key to a constructor symbol with normalized arity; this is New/constructor emission identity, not ordinary FunctionCall target authority."
+constructor_terminal = "InstanceConstructor root lineage is caller provenance only. It may borrow an already-existing exact callable relation, otherwise it is TypedReject before argument descent; never issue a static Global from box_name or constructor symbol."
+program_compatibility = "program_root_work_plan.rs:76-101 already owns RawCompatibility versus SelectedNormal. Duplicate top-level physical projections may remain only in RawCompatibility with LegacyReplaceWholePair; collector winner/last replacement is not canonical target authority."
+post_argument_reentry = "No TopLevel or InstanceConstructor lineage may collapse to caller=None and then enter Resolved -> method_resolution/unique/tail recovery without an accepted compatibility boundary."
+
 [acceptance]
 design = [
   "RawInvocationRootLineageV1 is preserved through the preflight boundary exactly once; no Option<Canonical...> information loss is introduced",
-  "TopLevel and InstanceConstructor each have a separate disposition and same-occurrence/package validation rule",
+  "TopLevelCallerSource/TopLevelTargetUnique/TopLevelTargetDuplicate and InstanceConstructorCallerSource/InstanceConstructorNoOrdinaryTarget are separate total states",
   "source identity and target authority remain separate, with no fabricated Global or Callee::Value",
+  "duplicate top-level physical symbols are either RawCompatibility ParkedSealed or pre-effect TypedReject; collector replacement is never an issuer",
   "target disposition is complete before argument descent and no caller=None route reaches Resolved/recovery without an explicit accepted boundary",
 ]
 negative = [
