@@ -189,22 +189,29 @@ pub(crate) fn emit_new_box(dst: &ValueId, box_type: &str, args: &[ValueId]) -> s
 pub(crate) fn emit_new_closure(
     dst: &ValueId,
     params: &[String],
+    body_id: &Option<crate::mir::function::ClosureBodyId>,
+    body: &[crate::ast::ASTNode],
     captures: &[(String, ValueId)],
     me: &Option<ValueId>,
-) -> serde_json::Value {
+) -> Result<serde_json::Value, String> {
+    if body_id.is_some() || !body.is_empty() {
+        return Err("[freeze:contract][mir-json/closure-body-wire-unavailable]".to_string());
+    }
+
     // NewClosure is already canonicalized callsite shape.
-    // Emit as unified mir_call(callee=Closure) so vm-hako can dispatch via MirCallHandlerBox.
+    // Emit the empty descriptor only; a body-backed closure must not be
+    // silently projected without its module metadata relation.
     let callee = Callee::Closure {
         params: params.to_vec(),
         captures: captures.to_vec(),
         me_capture: *me,
     };
-    emit_unified_mir_call(Some(dst.as_u32()), &callee, &[], &[])
+    Ok(emit_unified_mir_call(Some(dst.as_u32()), &callee, &[], &[]))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::emit_call;
+    use super::{emit_call, emit_new_closure};
     use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
     use crate::mir::definitions::Callee;
     use crate::mir::{EffectMask, ValueId};
@@ -417,5 +424,25 @@ mod tests {
 
         assert_eq!(v.get("op").and_then(|x| x.as_str()), Some("boxcall"));
         assert_eq!(v.get("box").and_then(|x| x.as_u64()), Some(12));
+    }
+
+    #[test]
+    fn empty_new_closure_keeps_descriptor_projection() {
+        let value = emit_new_closure(&ValueId::new(3), &[], &None, &[], &[], &None)
+            .expect("empty closure descriptor is lossless");
+
+        assert_eq!(value["op"].as_str(), Some("mir_call"));
+        assert_eq!(
+            value["mir_call"]["callee"]["type"].as_str(),
+            Some("Closure")
+        );
+    }
+
+    #[test]
+    fn body_backed_new_closure_rejects_lossy_wire_projection() {
+        let error = emit_new_closure(&ValueId::new(3), &[], &Some(7), &[], &[], &None)
+            .expect_err("body identity must not be dropped");
+
+        assert!(error.contains("closure-body-wire-unavailable"));
     }
 }

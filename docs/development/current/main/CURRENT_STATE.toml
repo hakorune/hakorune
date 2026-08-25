@@ -16,14 +16,14 @@ capability boundary, the path-preserving C owner split, and LLVM trap declaratio
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
 source/plan/arity/args/dst prepass evidence, and the next active state is the
-R6 core-schema design stop."""
+R6 core-schema D1-C2 fast row."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R6-CORE-SCHEMA-D1-C2-DESIGN"
-current_design_stop = "R6 D0 and D1-A are accepted as design policies; D1-B-PARK closed the selected static handoff/outside boundary without a new receipt, while Method(None) issuer retirement remains open. D1-C2 now owns the existing closure-body identity wire choice and selected-backend rejection boundary; no code or production switch is selected."
-current_blocker_token = "MIR-CALL-R6-CORE-SCHEMA-D1-C2-DESIGN: existing closure body identity is lost across selected JSON wire and Closure/Value terminals are unsupported; D1-B selected handoff guard is design-closed, Method(None) issuer count is not zero, and HEAD has 21 writer definitions with zero missing-callee publication edges."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-R6-CORE-SCHEMA-D1-C2-I0"
+current_design_stop = "D1-C2 design is accepted: selected JSON egress rejects body-backed NewClosure before wire publication and preserves only the empty descriptor projection; the implementation is one egress owner plus focused positive/negative tests, while Method(None), Closure runtime, and R6 field deletion remain outside this row."
+current_blocker_token = "MIR-CALL-R6-CORE-SCHEMA-D1-C2-I0: body_id or inline closure body must never be silently dropped by JSON egress; selected backend remains unsupported and no schema/receipt/production switch is allowed."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -39,7 +39,7 @@ closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
 is accepted and profile-threading I0 is closed; JoinIR D0/caller-lifecycle D1
 are NoSafeSlice/closed, backend_shape capability D1 and strict-adapter I0 are
 closed, native capability D0 is NoSafeSlice, native D1 and the C owner split
-are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted and the workstream is now at the R6 core-schema design stop.
+are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted and the workstream is now on the R6 D1-C2 egress fast row.
 JoinIR remap is NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
 ParkedSealed outside this lane. R5 exit: finite terminal matrix, selected
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 fixes A as mandatory-Callee core and B as owner-private JSON-v0 ingress only. R1, D1, Topology-I0, R2-I0, R3 D0, R3a, R3b, R4a, R4b, R4c, R4d escape, R4e ownership, R4f CallLike retirement, Query T0, R5 D0, R5a, R5b-B0, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, profile-threading I0, backend_shape strict-adapter I0 at 40559cceef, native D1 boundary, C owner split I0 at 03b06622eb, LLVM trap declaration co-seal I0, and exact Extern D0 are closed. Production EnvNowMs object/archive/executable proof plus source/plan/arity/args/dst prepass negatives are green; R6 D0 fixed the canonical shape, D1-A parked the public CallFlags transport policy, D1-B-PARK design-closed the selected static handoff/outside boundary, and D1-C2 keeps closure wire/body parity as NoSafeSlice. JoinIR D0/caller-lifecycle D1 and native D0 remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed outside this lane."
-next_design_card = "MIR-CALL-R6-CORE-SCHEMA-D1-C2-DESIGN"
-next_execution_card = "none — MIR-CALL-R6-CORE-SCHEMA-D1-C2-DESIGN is a design stop"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON profile/threading, backend strict-adapter, native/C trap split, and exact Extern D0 are closed. R6 D0 fixed the shape; D1-A parked flags; D1-B-PARK design-closed the selected static/outside boundary; D1-C2 selects the lossless closure-body JSON egress reject slice. JoinIR/native D0 remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
+next_design_card = "none — MIR-CALL-R6-CORE-SCHEMA-D1-C2-I0 is a fast row"
+next_execution_card = "MIR-CALL-R6-CORE-SCHEMA-D1-C2-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"

@@ -1376,6 +1376,34 @@ The existing anchors are `raw_lambda_closure_emission.rs:29-60`,
 the body identity policy, Closure caller census, and selected-backend terminal
 are co-sealed without relying on non-selected Python/VM-hako behavior.
 
+### D1-C2-I0 design acceptance — lossless JSON egress boundary
+
+```text
+Decision: do not publish a lossy Closure construction wire. The selected JSON
+  egress accepts only an empty-body NewClosure (body_id=None, inline body empty)
+  and typed-rejects an external or inline body relation before wire publication.
+  Runtime closure invocation remains Callee::Value; Closure construction is
+  not a canonical Call terminal.
+Source authority + canonical issuer: NewClosure's existing body_id/body fields
+  and module closure-body metadata; the JSON egress is a projection/validator,
+  not a body re-issuer.
+Non-authority: JSON field presence, Callee::Closure reconstruction, func,
+  runtime strings, and non-selected backends.
+Fail-fast boundary: emitters/mod.rs -> emitters/calls.rs, before JSON append;
+  body_id.is_some() or nonempty inline body returns the stable typed reject
+  `mir-json/closure-body-wire-unavailable`.
+Smallest next slice: one egress-only implementation and focused positive /
+  negative tests; ingress/schema/backend behavior is outside this row.
+Non-claims: Closure runtime support, wire schema expansion, NewClosure retire,
+  V0/V1 full round-trip, native/PyVM/reference/Python activation, or R6 cutover.
+```
+
+Acceptance is intentionally narrow: an empty descriptor remains a positive
+projection, a body-backed closure is rejected rather than silently losing its
+module metadata relation, and the existing unsupported Closure/Value backend
+guards remain unchanged. This is a BoxShape fail-fast cleanup, not a new
+accepted closure shape.
+
 ### D1-D result — Constructor/NewBox boundary (design only)
 
 ```text

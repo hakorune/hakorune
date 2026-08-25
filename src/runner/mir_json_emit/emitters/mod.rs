@@ -334,10 +334,11 @@ fn emit_instruction(
         I::NewClosure {
             dst,
             params,
+            body_id,
+            body,
             captures,
             me,
-            ..
-        } => Ok(calls::emit_new_closure(dst, params, captures, me)),
+        } => calls::emit_new_closure(dst, params, body_id, body, captures, me),
         I::Branch {
             condition,
             then_bb,
