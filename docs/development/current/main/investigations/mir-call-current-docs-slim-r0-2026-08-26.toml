@@ -48,6 +48,10 @@ future_call_names = [
   "mir-call-core-r6-d1b-relationless-root-lineage-d0-2026-08-27.toml",
 ]
 
+[known_baseline]
+invalid_toml = "mir-call-r6-late-legacy-target-issuer-retire-i0-2026-08-25.toml repeats a top-level decision key and a [decision] table (line 31), so a repository-wide investigation TOML parse is currently red."
+disposition = "ParkedSealed baseline; this Ghost Task must not silently rewrite the landed card or claim global TOML green. A separate owner/consumer check is required before repair."
+
 [delete_or_move_set]
 current_state = "replace duplicated closed chronology with current root-lineage stop, the two landed D1B child anchors, and downstream blockers; preserve scalar pointer values and landed_tail"
 workstream = "shrink Historical evidence queue and landed Ordered frontier rows; keep Now/next/Parked and owning investigation links; target roughly 580-620 lines before any new append"
