@@ -1,0 +1,97 @@
+title = "MIR Call core R6 D1B Row B producer closure design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "5b36855ae604"
+observed_at = "2026-08-26"
+implementation_permission = false
+
+[boundary]
+starts = "function_call_preflight_route::Ordinary / Builder call target selection"
+ends = "Builder physical Call publication after resolver, recovery, and name-Const paths"
+includes = [
+  "src/mir/builder/calls/method_resolution.rs:31-55",
+  "src/mir/builder/calls/unified_emitter.rs:409-463",
+  "src/mir/builder/calls/build.rs:104,307-364",
+  "src/mir/builder/calls/static_resolution.rs:87-171",
+  "same-brand catalog handoff, local-shadow precedence, and methodize profile parity",
+]
+excludes = [
+  "ArrayElementWrite projection and selected-native decoder/ABI work",
+  "JSON-v0/v1 ingress and the v1-error-to-v0 fallback hierarchy",
+  "core_bridge, Rust VM, selected C terminal, and non-selected backends",
+  "Method(Some) execution, MirCall/CallFlags, final Call schema, and new receipts",
+]
+
+[brief]
+decision = "The two Builder Method(None) producer literals are an exhausted syntactic census, but Row B semantic closure is NoSafeSlice until exact catalog provenance and pre-effect precedence are supplied."
+source_authority = "same-brand declaration/source catalog -> CanonicalSameModuleCallableKeyV1 -> mir_symbol_projection()"
+canonical_issuer = "qualified CallTarget::Global(owner.method/arity) -> CalleeResolverBox -> MirInstruction::call"
+non_authority = [
+  "current_static_box and hardcoded has_method",
+  "StaticMethodId parsing, methodize env/trace, variable/name/Const text",
+  "tail/module lookup, registry, receiver autoscan, args[0] recovery",
+]
+fail_fast = "owner/method/arity/brand and local-shadow precedence must settle before build.rs argument descent, child effects, name Const allocation, block insertion, or physical publication"
+smallest_next_slice = "Design-only census of the two producers' exact input provenance, precedence, RuntimeData Global cohort, and post-argument recovery delete set; no code or guard expansion yet."
+non_claims = [
+  "the two literal sites alone prove caller-zero or semantic closure",
+  "D1C1 bare FunctionCall target claim",
+  "Builder-external Method(None) or ingress/runtime retirement",
+  "fallback removal, backend activation, warning cleanup, or schema cutover",
+]
+
+[census]
+syntactic_producer_count = 2
+syntactic_producers = [
+  "method_resolution_static_none",
+  "unified_emitter_methodize_none",
+]
+semantic_delete_boundary = [
+  "build.rs post-argument unique-static recovery and direct publication",
+  "build.rs target-name Const construction for this route",
+  "static_resolution.rs tail/suffix alternate-target routes",
+]
+outside_blockers = [
+  "JSON-v0 Method(None) ingress",
+  "core_bridge Const/singleton methodize reissuers",
+  "Rust VM and selected native terminal recovery",
+]
+
+[finite_state]
+exact_catalog_static = "same-brand owner/method/exact arity -> preserve qualified Global"
+exact_receiver = "exact source/resolver receiver -> preserve Method(Some)"
+hardcoded_static_probe = "current_static_box + has_method without catalog key -> CutoverBlockerOpen; never publish Method(None)"
+local_shadow = "same-name local callable -> preserve Value precedence; deletion must not reorder this branch"
+catalog_absent = "absent/foreign/ambiguous/arity mismatch -> typed reject before argument effects"
+runtime_data_global = "incoming qualified Global without provenance -> cohort census required; methodize mutation cannot be deleted by guess"
+methodize_profile = "unset/0/1 -> canonical target and result parity; profile projection remains separate authority"
+outside_builder = "Builder-external Method(None) -> retain as D1B blocker, not this row's closure"
+
+[acceptance]
+required_before_fast = [
+  "exact catalog/owner handoff is available before build.rs argument descent",
+  "local Value, builtin Global, Extern, and static catalog precedence is total and tested",
+  "RuntimeData qualified-Global provenance cohort is finite and its caller disposition is named",
+  "post-argument recovery, name Const, tail/suffix retry, and direct publication delete set is complete",
+  "methodize unset/0/1 positive parity and missing/ambiguous/foreign/arity negative pre-effect rejection are available",
+  "guard is function-window scoped and does not global-grep JSON compatibility or non-Callee receiver fields",
+  "dirty build.rs overlap is resolved before implementation permission",
+]
+positive = [
+  "exact static catalog -> same qualified Global symbol, args, dst, effects, and result",
+  "instance Method(Some), local Value, builtin Global, and Extern precedence unchanged",
+]
+negative = [
+  "hardcoded Method(None) publication = 0 for the selected Builder window",
+  "absent/ambiguous/foreign/arity mismatch rejects before child effect/name Const/block publication",
+  "tail/name/module/registry/receiver/args[0] retry = 0 inside the closed boundary",
+]
+parity = ["methodize unset vs 0 vs 1", "static/instance/local/builtin/extern target and result behavior"]
+guard = "extend only a scoped existing corridor guard after the row is fast; no 760-line guard growth and no global receiver/Method(None) grep"
+
+[reopen]
+triggers = [
+  "same-brand catalog product is issued before argument descent",
+  "local-shadow and RuntimeData Global cohorts gain exact owner evidence",
+  "a new Builder producer/recovery caller appears",
+  "D1B ingress or selected terminal disposition changes",
+]

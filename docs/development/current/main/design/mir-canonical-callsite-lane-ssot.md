@@ -112,7 +112,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current row:
 
 ```text
-MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0
+MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -198,14 +198,18 @@ all five named schedule entries remain typed-only timing seams, and the late
 positive/negative/parity suite is 14/14, the quick warning baseline remains
 441, and the shared corridor guard remains 777 lines with exact schedule and
 ArrayElementWrite inventory checks. The ArrayElementWrite projection remains
-`NoSafeSlice`: `array_element_write::instruction` plus its witness metadata are
-the semantic source/issuer, while the one legacy projection writer has four
-callers (three selected native, one ParkedSealed `llvmlite`). Selected ny-llvmc
-has no decoder/lowerer/ABI owner for
-`site_id/dst/kind/producer/receiver/index/value`; the Rust interpreter is not
-the selected native authority. The next row is design-only until a
-selected-native consumer, four-kind exe/obj parity, and caller-specific delete
-set are named; no ArrayElementWrite implementation is authorized yet.
+The active D1B Row B design-only task is recorded at
+`docs/development/current/main/investigations/mir-call-core-r6-d1b-row-b-producer-closure-d0-2026-08-26.toml`.
+The two Builder `Method(None)` producer literals are an exhausted syntactic
+census, but semantic closure remains `NoSafeSlice` until same-brand catalog
+provenance, local-shadow precedence, RuntimeData Global cohort, and the
+post-argument recovery/name-Const/tail delete set are closed before effects.
+The separate ArrayElementWrite projection remains `ParkedSealed`: its typed
+instruction/witness is the semantic issuer, its one legacy projector has four
+callers (three selected native, one ParkedSealed `llvmlite`), and selected
+ny-llvmc still has no decoder/lowerer/ABI owner for
+`site_id/dst/kind/producer/receiver/index/value`; no array implementation is
+authorized.
 
 The landed implementation manifest is:
 

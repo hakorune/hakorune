@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0
+Status: Design stop — MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0
-  implementation    = FUNCTION-METADATA-OWNER-SPLIT-R0 landed: metadata.rs 804 -> 718; nested checked-callout/linear-slot owners are 40/50 lines, with no #[path]
+  current decision  = MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0
+  implementation    = FUNCTION-METADATA-OWNER-SPLIT-R0 landed: metadata.rs 804 -> 718; nested checked-callout/linear-slot owners are 40/50 lines, with no #[path]; ArrayElementWrite remains ParkedSealed
   mode              = design_stop
-  production stop   = ArrayElementWrite has one legacy projection writer and four callers, but selected ny-llvmc has no decoder/lowerer/ABI consumer authority
-  exit              = accepted selected-native consumer authority, four-kind exe/obj parity, finite caller closure, and pre-publication fail-fast boundary; no array code before acceptance
+  production stop   = Row B has exactly two Builder Method(None) producer literals, but exact catalog provenance and pre-effect precedence are not closed; ArrayElementWrite has no selected-native consumer authority
+  exit              = accepted catalog handoff before argument descent, total precedence/state matrix, RuntimeData Global cohort, semantic delete set, and scoped parity/guard; no producer deletion before acceptance
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: NoSafeSlice — ArrayElementWrite projection remains design-only; the metadata owner split landed as a behavior-neutral BoxShape.
-Source authority + canonical issuer: typed ArrayElementWrite plus witness metadata remain the semantic source/issuer; the compatibility projection is not target authority.
-Non-authority: legacy Method Call, JSON text, backend allowlist, Rust VM/PyVM, caller counts without terminal ownership, `func/INVALID`, and metadata child placement.
-Fail-fast boundary: typed-array veto, shape/witness/route drift, or missing selected-native consumer must reject before projected clone publication; metadata compile/API drift is already closed.
-Smallest next slice: design only — name a selected ny-llvmc decoder/lowerer/ABI owner for `site_id/dst/kind/producer/receiver/index/value`, four-kind exe/obj parity, and the exact legacy delete set.
-Non-claims: no ArrayElementWrite code, final Call schema, Method(None), JSON ingress, backend/VM activation, MirCall/CallFlags, physical-type implementation, or warning cleanup.
+Decision: NoSafeSlice — Row B's two Builder Method(None) literals are syntactically exhausted, but semantic closure is blocked by missing catalog provenance, shadow precedence, and post-argument recovery retirement; ArrayElementWrite is ParkedSealed.
+Source authority + canonical issuer: same-brand declaration catalog -> CanonicalSameModuleCallableKeyV1 -> `mir_symbol_projection()` -> qualified `CallTarget::Global` -> `CalleeResolverBox` -> canonical Call.
+Non-authority: `current_static_box`, hardcoded `has_method`, `StaticMethodId`/name/Const text, methodize env/trace, tail/module lookup, registry, receiver autoscan, args[0], JSON/VM/C fallback.
+Fail-fast boundary: exact owner/method/arity/brand and local-shadow precedence must settle before `build.rs` argument descent, child effects, name Const allocation, block insertion, or physical publication.
+Smallest next slice: design-only census in `mir-call-core-r6-d1b-row-b-producer-closure-d0-2026-08-26.toml`; classify two producer inputs, RuntimeData Global provenance, profile parity, and the full semantic delete set.
+Non-claims: no producer deletion, D1C1 resolution, Builder-external Method(None), JSON ingress/fallback hierarchy, backend/VM activation, final Call schema, new receipt, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
@@ -340,8 +340,8 @@ Evidence:
   `FUNCTION-METADATA-OWNER-SPLIT-R0` landed: `metadata.rs` is 718 lines, nested checked-callout/linear-slot owners are 40/50 lines, no `#[path]` glue was added, method signatures/visibility/fields/callers/behavior are unchanged, focused `mir::function::tests` is 6 passed/2 ignored with the 441-warning baseline, and manifest/pointer/canonical-corridor/rustfmt/diff guards are green.
 
 Smallest next slice:
-  Reopen `MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0` only after a selected-native consumer authority and finite caller closure are accepted;
-  physical/backend implementation remains separately gated.
+  `MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0` is the active design-only row; ArrayElementWrite remains ParkedSealed until a selected-native consumer authority and finite caller closure are accepted.
+  Physical/backend implementation remains separately gated.
 
 Non-claims:
   No metadata promotion, field deletion, backend activation, ModuleMetadata
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0 -> NoSafeSlice/ParkedSealed after FUNCTION-METADATA-OWNER-SPLIT-R0 landed: ArrayElementWrite has exactly one legacy projection writer and four callers (three selected native, one ParkedSealed); require selected-native decoder/lowerer/ABI authority, four-kind exe/obj parity, and finite caller closure before code
+Now MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 -> NoSafeSlice after the two Builder Method(None) producer literals were counted: require exact same-brand catalog provenance, pre-effect precedence, RuntimeData Global cohort, post-argument recovery/name-Const/tail delete set, and scoped parity before code; ArrayElementWrite remains ParkedSealed for a later selected-native authority row
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6
