@@ -101,7 +101,7 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` records the current fast row:
+`CURRENT_STATE.toml` records the current row:
 
 ```text
 MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0
@@ -143,10 +143,11 @@ full Call retirement remains separate. D1Q landed at `491e212e77`: the two
 PublicationReturnPlan writers (instruction Return and terminator Return)
 delegate to `MirInstruction::call` as one atomic family. Selected writers are
 now 12 and the publication Return family is 0; the focused six-test proof and
-shared guard are green. D1R is the current fast row: the one
-`MaterializationStorePlan` writer in `concat_corridor_apply.rs` may delegate to
-`MirInstruction::call`; no other concat, unified, array, or canonicalizer
-writer may change in this cell.
+shared guard are green. D1R landed at `82be5daa97`: the one
+`MaterializationStorePlan` writer in `concat_corridor_apply.rs` now delegates to
+`MirInstruction::call`. Selected writers are 11 and the concat family is 8;
+the focused three-test materialization proof and shared guard are green. No
+other concat, unified, array, or canonicalizer writer changed.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
