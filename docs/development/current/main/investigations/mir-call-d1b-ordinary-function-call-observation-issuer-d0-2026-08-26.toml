@@ -1,0 +1,111 @@
+title = "MIR Call D1B ordinary FunctionCall observation issuer design"
+status = "accepted_design_no_safe_slice"
+observed_at = "2026-08-26"
+observed_commit = "9adb916b35"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-owner-lineage-coseal-d1-2026-08-26.toml"
+decision_id = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0"
+decision = "Before any profile gate is widened, classify all source-bound ordinary FunctionCall entrances and design one same-session observation/disposition issuer that records owner, site, and lineage before argument descent. Brand, special, ExplicitExtern, and ASTNode::Call cohorts remain separate."
+
+[boundary]
+starts = "source-bound SelectedCallable and InstanceConstructor resolver inputs entering the existing shadow FunctionCall observation candidate"
+ends = "one owner/site/lineage observation and explicit disposition is co-sealed by the same resolver/package session before package install, body lowering, argument effects, block mutation, or Call publication"
+includes = [
+  "callable_semantic_batch/issuer.rs production entrance with SelectedCallable identity and Brand catalog",
+  "normal_callable_semantic_package/instance_constructor_semantic.rs production entrance with ConstructorSourceIdV1",
+  "older builder/normal_callable_semantic_source.rs entrance classification as production, compatibility, or caller-zero",
+  "existing shadow/expr.rs FunctionCall branch, Brand precedence, nested source-site uniqueness, and RawInvocationRootLineageV1 carriage",
+  "ordinary direct, Brand-special, builtin/typeop/math/fastmem, ExplicitExtern, and ASTNode::Call cohort boundaries",
+]
+excludes = [
+  "Callee/target issuance, name/arity/box/symbol synthesis, exact-i64 index, post-argument recovery, and raw physical lowering",
+  "ASTNode::Call or ExplicitExtern integration into ordinary inventory",
+  "Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, and warning cleanup",
+  "one-line SelectedCallable gate opening without inventory/co-seal and old-ingress classification",
+]
+
+[brief]
+source_authority = "SelectedCallable resolver identity, InstanceConstructor source identity, existing Brand catalog, parser source site, and RawInvocationRootLineageV1 in the same resolver session"
+canonical_issuer = "one existing source-bound resolver/package issuer observes FunctionCall before argument traversal, assigns owner/site/lineage disposition, and hands only a co-sealed validation result to package install"
+non_authority = [
+  "ShadowDirectCallUseV0 name/arity rows as target authority",
+  "SelectedCallable rejection, callable_index=None empty maps, raw Builder brand port, variable_map, AST re-scan, collector order, physical symbol, or a second resolver",
+  "ExplicitExtern/ASTNode::Call observation and compatibility ingress unless explicitly classified and parked",
+]
+fail_fast = "A missing entrance classification, closed traversal with a call, missing/foreign/duplicate/ambiguous owner/site, lineage collapse, or mixed Brand must abort before argument descent/effects, package install, block mutation, or Call publication."
+smallest_next_slice = "Design-only entrance census and finite observation/disposition matrix; no profile widening, code, fixture, receipt, or production switch."
+non_claims = [
+  "ordinary FunctionCall observation is not yet implemented",
+  "this row does not issue a Callee, remove Resolved, or retire late recovery",
+  "caller-zero is not inferred from text references; the old no-brand ingress needs explicit classification",
+]
+
+[entrance_census]
+selected_callable = "production: callable_semantic_batch/issuer.rs source-bound resolver; identity and Brand catalog exist, but SelectedCallableV1 currently rejects ordinary FunctionCall before child traversal."
+instance_constructor = "production: normal_callable_semantic_package/instance_constructor_semantic.rs; ConstructorSourceIdV1 and constructor forest identity exist, but ordinary raw FunctionCall inventory is not co-sealed."
+legacy_source = "compatibility/disconnected candidate: builder/normal_callable_semantic_source.rs resolve_selected_callable_forests ingress; production reachability and caller-zero status are not yet proven."
+raw_builder = "production physical/raw ingress: function_call_brand_source_demand.rs and raw_expression_dispatch/mod.rs; this is a consumer/bridge, not the semantic observation issuer."
+separate_cohorts = "ExplicitExternCall and ASTNode::Call remain outside ordinary inventory; Brand constructor rows have precedence and must not become ordinary direct rows."
+
+[observation_order]
+current_candidate = "shadow/expr.rs records BodyEffect(Call), applies Brand precedence, records brand_calls or direct_calls, then descends arguments; traversal_profile.rs currently closes ordinary FunctionCall before this branch."
+required_order = "entrance classification -> source site and owner/lineage observation -> explicit disposition -> same-session co-seal -> argument traversal"
+forbidden_order = "profile gate close/drop -> empty map success; argument effects -> resolve/retry; raw brand bridge -> caller=None; second resolver -> inventory"
+
+[finite_state]
+states = [
+  "EntranceUnclassified",
+  "SelectedCallableGateClosed",
+  "FunctionCallObserved",
+  "BrandDisposition",
+  "DirectDisposition",
+  "KnownNonDirectDisposition",
+  "ExplicitExternOutside",
+  "ASTNodeCallOutside",
+  "OldIngressProductionUnclassified",
+  "MissingOwnerOrSite",
+  "ForeignOwnerOrSite",
+  "DuplicateSite",
+  "AmbiguousDisposition",
+  "LineageCollapsed",
+  "PackageAbortBeforeEffects",
+  "InventoryCoSealed",
+  "ParkedCompatibility",
+]
+terminal_policy = "Only InventoryCoSealed after all three resolver entrances are classified and owner/site/lineage rows are bijective is terminal. Closed-gate, old-ingress-unclassified, missing/foreign/duplicate/ambiguous, and post-effect states remain CutoverBlockerOpen; explicit compatibility may be ParkedSealed."
+
+[subtasks]
+entrance_owner = "Classify SelectedCallable, InstanceConstructor, old normal_callable_semantic_source, and raw Builder bridge as production, compatibility, or caller-zero using finite caller evidence."
+profile_gate = "Design the pre-argument observation contract; do not open the SelectedCallable gate until ordinary FunctionCall observation and package co-seal are specified together."
+observation_row = "Reuse existing owner/site/lineage authorities and define one same-session transient observation/disposition row; no new public receipt."
+brand_precedence = "Keep Brand catalog precedence and Brand arity/site rejection outside ordinary direct inventory."
+cohort_boundary = "Keep ExplicitExternCall and ASTNode::Call outside ordinary inventory and give out-of-scope roots explicit reject/park ownership."
+guard_witness = "Specify positive/negative witnesses for nested sites, Brand exclusion, constructor identity, old-ingress classification, lineage preservation, and zero effects before co-seal."
+
+[acceptance]
+positive = [
+  "all three resolver entrances have an explicit classification and one canonical observation issuer",
+  "ordinary FunctionCall observation carries owner/site/lineage before arguments and Brand calls remain separate",
+  "nested calls have distinct owner-qualified sites and InstanceConstructor source identity is preserved",
+]
+negative = [
+  "SelectedCallable cannot silently drop an ordinary FunctionCall through a closed profile gate",
+  "old no-brand ingress cannot be called production or caller-zero without evidence",
+  "ExplicitExtern/ASTNode::Call cannot enter ordinary inventory by name shape",
+  "missing/foreign/duplicate/ambiguous/lineage-collapsed rows cannot reach package install or effects",
+]
+parity = "Existing Cataloged and constructor source identities, Brand precedence, ExplicitExtern behavior, and ASTNode::Call handling remain unchanged; this row only fixes observation ownership and ordering."
+guard = "future guard must assert three-entrance classification, no closed-gate drop, one observation issuer, owner/site bijection, Brand/special/Extern/ASTNode::Call boundaries, preserved lineage, and zero pre-co-seal effects."
+
+[worker_audit]
+source = "focused read-only D0a audit at 9adb916b35; no code, fixture, or Cargo change"
+verdict = "NoSafeSlice: the observation branch exists but SelectedCallable gate closes it, package co-seal is absent, TopLevel/InstanceConstructor lineage collapses in the raw bridge, and old no-brand ingress is not caller-zero-proven."
+
+[reopen]
+triggers = [
+  "a one-line profile widening is proposed without inventory/co-seal",
+  "old normal_callable_semantic_source is treated as production or caller-zero without a finite census",
+  "Brand/direct/special/Extern/ASTNode::Call cohorts are merged by name shape",
+  "arguments or effects occur before owner/site/lineage observation and disposition",
+  "a second resolver or post-install ledger becomes the observation authority",
+]

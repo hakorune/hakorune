@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1
+Status: Design stop — MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1
-  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; FunctionCall observation profile is design-accepted and the D0-C package boundary census is recorded, while owner-lineage co-seal remains design-only
+  current decision  = MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0
+  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; D1 owner-lineage mapping is design-only, while ordinary FunctionCall observation/co-seal remains NoSafeSlice
   mode              = design_stop
-  production stop   = map Cataloged/TopLevel/InstanceConstructor lineage through existing forest/site authorities and co-seal owner/site/lineage before package install, body lowering, or argument effects; no target synthesis or second resolver
-  exit              = existing batch/map/constructor-to-forest mapping, source-site membership, same-brand/session proof, lineage preservation, transient scratch drop, and whole-package abort proof
+  production stop   = classify all resolver entrances and observe ordinary FunctionCall with owner/site/lineage before argument descent, then co-seal the disposition before package install or effects; no target synthesis or second resolver
+  exit              = three-entrance classification, one observation issuer, Brand/special/Extern/ASTNode::Call boundaries, owner/site bijection, lineage preservation, and whole-package abort proof
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1 — reuse existing semantic owner/site authorities to preserve Cataloged/TopLevel/InstanceConstructor lineage through one same-session co-seal.
-Source authority + canonical issuer: VerifiedSemanticOwnerForestV1 owns FunctionOwnerIdV1, VerifiedResolvedSourceSiteInventoryV1 owns site membership, RawInvocationRootLineageV1 owns provenance, and the existing resolver/package issuer performs the mapping.
-Non-authority: caller=None, Selected source inventory alone, post-install ledger queries, builder variable_map, name/arity/box/key/physical symbol synthesis, AST re-scan, second resolver, target inference, or empty-map success.
-Fail-fast boundary: missing/foreign/mixed-brand/duplicate/collapsed owner-site-lineage rows abort before package prepare_install, body lowering, argument descent/effects, block mutation, or Call publication.
-Smallest next slice: design-only mapping matrix for Cataloged, TopLevel, and InstanceConstructor plus source-site membership, same-session brand, transient scratch drop, and out-of-scope reject/park states; no code, fixture, receipt, or production switch.
-Non-claims: FunctionCall observation implementation, target/Callee issuance, traversal widening, public semantic receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
+Decision: D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0 — classify all source-bound FunctionCall entrances and design one pre-argument observation/disposition issuer.
+Source authority + canonical issuer: SelectedCallable resolver identity, InstanceConstructor source identity, existing Brand catalog, parser source site, and RawInvocationRootLineageV1 in the same resolver/package session.
+Non-authority: ShadowDirectCallUseV0 as target authority, SelectedCallable rejection, callable_index=None empty maps, raw Builder brand bridge, old no-brand ingress without census, variable_map, AST re-scan, collector order, physical symbol/name/arity synthesis, or a second resolver.
+Fail-fast boundary: closed-gate, unclassified entrance, missing/foreign/duplicate/ambiguous owner/site, Brand/lineage conflict, or post-effect observation aborts before argument descent/effects, package install, block mutation, or Call publication.
+Smallest next slice: design-only three-entrance census and finite observation/disposition matrix for ordinary, Brand, special, ExplicitExtern, ASTNode::Call, nested, and out-of-scope roots; no gate widening, code, fixture, receipt, or production switch.
+Non-claims: observation implementation, target/Callee issuance, traversal widening, public semantic receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw

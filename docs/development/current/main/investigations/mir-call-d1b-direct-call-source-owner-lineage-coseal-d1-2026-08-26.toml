@@ -89,6 +89,7 @@ guard = "future guard must assert the three mapping paths, zero caller=None coll
 [worker_audit]
 source = "focused read-only owner-lineage audit at f76b80ed26; no code, fixture, or Cargo change"
 verdict = "Existing owners can be reused for the mapping, but no current issuer connects raw FunctionCall site to them; implementation remains NoSafeSlice until this design and pre-argument observation are closed."
+next_design_row = "MIR-CALL-D1B-ORDINARY-FUNCTION-CALL-OBSERVATION-ISSUER-D0: classify the three resolver entrances and design one pre-argument observation/co-seal issuer."
 
 [reopen]
 triggers = [
