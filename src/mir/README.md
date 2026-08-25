@@ -137,6 +137,15 @@ folded-metadata timing. The scoped guard, effects parity, and empty-plan
 no-publication test are the receipt; other string-corridor writers, schedules,
 and full Call field retirement remain outside this cell.
 
+The direct substring-len D1L issuer cell replaces the one shared
+`SubstringLenPlan` Call literal with `MirInstruction::call` and the existing
+`SUBSTRING_LEN_EXTERN` target. It preserves plan-owned destination,
+source/start/end order, effects, `substring_len_hii` hint/count, inner removal,
+span/metadata cleanup, and CFG/folded-metadata timing. The scoped guard,
+effects/positive parity, and empty-apply no-publication test are the receipt;
+the D1K retained-len writer, shared method-set writer, other corridors,
+schedules, and full Call retirement remain outside this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

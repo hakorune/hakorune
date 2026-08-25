@@ -208,3 +208,36 @@ fn empty_retained_len_apply_publishes_no_owner_effects() {
     );
     assert_eq!(function.metadata.optimization_hints, hints_before);
 }
+
+#[test]
+fn empty_substring_len_apply_publishes_no_owner_effects() {
+    let signature = FunctionSignature {
+        name: "empty_substring_len".to_string(),
+        params: vec![],
+        return_type: MirType::Integer,
+        effects: EffectMask::PURE,
+    };
+    let mut function = MirFunction::new(signature, BasicBlockId(0));
+    let instructions_before = function
+        .blocks
+        .get(&BasicBlockId(0))
+        .expect("entry")
+        .instructions
+        .clone();
+    let hints_before = function.metadata.optimization_hints.clone();
+    let value_types_before = function.metadata.value_types.clone();
+
+    let rewritten = apply_plans(&mut function, std::collections::BTreeMap::new());
+
+    assert_eq!(rewritten, 0);
+    assert_eq!(
+        function
+            .blocks
+            .get(&BasicBlockId(0))
+            .expect("entry")
+            .instructions,
+        instructions_before
+    );
+    assert_eq!(function.metadata.optimization_hints, hints_before);
+    assert_eq!(function.metadata.value_types, value_types_before);
+}

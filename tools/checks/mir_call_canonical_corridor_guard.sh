@@ -23,6 +23,7 @@ PHI_REMATERIALIZATION="$ROOT_DIR/src/mir/builder/ssa/phi_input_materializer/edge
 CONCAT3_REWRITE="$ROOT_DIR/src/mir/passes/concat3_canonicalize/rewrite.rs"
 BOXCALL_EMIT="$ROOT_DIR/src/mir/builder/utils/boxcall_emit.rs"
 RETAINED_LEN="$ROOT_DIR/src/mir/passes/string_corridor_sink/retained_len.rs"
+SHARED_STRING_CORRIDOR="$ROOT_DIR/src/mir/passes/string_corridor_sink/shared.rs"
 PROGRAM_CALL_TARGETS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program_call_targets.rs"
 ORDINARY_NEW_ADMISSION="$ROOT_DIR/src/mir/builder/ordinary_new_admission.rs"
 RAW_CHILD_LOWERING="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
@@ -76,7 +77,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$RETAINED_LEN" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$RETAINED_LEN" "$SHARED_STRING_CORRIDOR" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -386,6 +387,22 @@ for token in ("function.update_cfg()", "refresh_function_string_corridor_folded_
     if token not in terminal:
         raise SystemExit(f"retained-len terminal lost {token}")
 
+shared = (root / "src/mir/passes/string_corridor_sink/shared.rs").read_text()
+apply_start = shared.index("pub(super) fn apply_plans")
+start = shared.index("replacements.insert(", apply_start)
+end = shared.index("rewritten += 1", start)
+window = shared[start:end]
+for token in ("MirInstruction::call(", "Some(plan.outer_dst)", "Callee::Extern(SUBSTRING_LEN_EXTERN.to_string())", "vec![plan.source, plan.start, plan.end]", "plan.effects"):
+    if token not in window:
+        raise SystemExit(f"shared substring-len issuer lost {token}")
+if window.count("MirInstruction::call(") != 1:
+    raise SystemExit("shared substring-len issuer must delegate exactly once")
+for forbidden in ("MirInstruction::Call {", "func:", "callee: Some(", "EffectMask::PURE", "ssot::extern_call"):
+    if forbidden in window:
+        raise SystemExit(f"shared substring-len issuer retained legacy edge: {forbidden}")
+if window.index("MirInstruction::call(") > window.index("optimization_hints.push"):
+    raise SystemExit("shared substring-len hint precedes canonical Call construction")
+
 builder_emit = (root / "src/mir/builder/builder_emit.rs").read_text()
 builder_start = builder_emit.index("// CRITICAL: Final receiver materialization")
 builder_end = builder_emit.index("// Record caller", builder_start)
@@ -467,6 +484,7 @@ for relative in (
     "src/host_providers/mir_builder/backend_shape.rs",
     "src/host_providers/mir_builder/handoff.rs",
     "tools/checks/mir_call_canonical_corridor_guard.sh",
+    "src/mir/passes/string_corridor_sink/shared.rs",
     "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc",
     "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_rules.inc",
     "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc",

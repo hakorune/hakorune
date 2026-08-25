@@ -60,11 +60,13 @@ fn rewrites_single_use_substring_length_chain_to_direct_extern() {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
+            effects,
             ..
         } => {
             assert_eq!(*dst, Some(ValueId(4)));
             assert_eq!(name, SUBSTRING_LEN_EXTERN);
             assert_eq!(args, &vec![ValueId(0), ValueId(1), ValueId(2)]);
+            assert_eq!(*effects, EffectMask::PURE);
         }
         other => panic!("expected direct extern rewrite, got {other:?}"),
     }
@@ -147,11 +149,13 @@ fn rewrites_runtime_data_substring_length_chain_through_copy_chain() {
             dst,
             callee: Some(Callee::Extern(name)),
             args,
+            effects,
             ..
         } => {
             assert_eq!(*dst, Some(ValueId(6)));
             assert_eq!(name, SUBSTRING_LEN_EXTERN);
             assert_eq!(args, &vec![ValueId(0), ValueId(1), ValueId(2)]);
+            assert_eq!(*effects, EffectMask::PURE);
         }
         other => panic!("expected direct extern rewrite, got {other:?}"),
     }
