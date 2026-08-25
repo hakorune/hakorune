@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-B
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK
   implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
   mode              = design_stop
-  production stop   = R6 D0 policy is fixed and D1-A accepted the parked CallFlags transport policy with zero selected flag readers; D1-B must close the verified static Global issuer before any issuer migration
-  exit              = D1-B acceptance with Method(None) issuer count zero; no code, fixture, fallback, or production switch
+  production stop   = R6 D0 policy is fixed and D1-A accepted the parked CallFlags transport policy; D1-B found the selected static handoff real but the generic raw route disconnected, so B-PARK must fence it without inventing a receipt
+  exit              = B-PARK outside/reopen boundary plus selected-terminal guard design; no code, fixture, fallback, or production switch
 fallback / retry  = 0
 ```
 
@@ -367,8 +367,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-B
-  -> design stop: name the verified static catalog issuer for qualified Global and close every Method(None) producer/recovery edge
+ MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK
+  -> design stop: fence the existing source-bound static Global handoff and park/reopen the disconnected generic Method(None) route without a new receipt
 Next (not selected)
   -> D1-C Closure/NewClosure parity; D1-D Constructor/NewBox owner; R6a remains NoSafeSlice until all D1 rows close; R4c remains NoSafeSlice unless a caller reopens
 

@@ -1175,6 +1175,71 @@ silently drop them. This closes D1-A as a design decision, but it does not
 permit the R6a code slice: Method(None), Closure, and Constructor remain D1-B/C-D
 blockers.
 
+### D1-B design consultation — static Global issuer (not yet accepted)
+
+```text
+Decision: Method(None) is not a canonical state; static calls use a qualified
+  Global(owner.method/arity), while instance calls require Method(receiver).
+Source authority + canonical issuer: verified declaration/source target catalog
+  -> canonical callable key -> existing static publication terminal
+  -> CallTarget::Global -> CalleeResolver -> Callee::Global.
+Non-authority: current_static_box/has_method, StaticMethodId/text formatting,
+  func/INVALID, wire/profile/methodize, VM registry/by-name/args[0] recovery.
+Fail-fast boundary: owner/method/exact arity and declaration brand before block,
+  wire, or object publication; unavailable/ambiguous/foreign/overflow rejects.
+Smallest next slice: design-only producer/recovery ledger and cut/compat/park
+  assignment; no Method(None) code migration until the issuer is closed.
+Non-claims: Method(Some) receiver recovery, backend fallback, V0 parity,
+  PyVM/reference/Python/native_driver, or R6 field cutover.
+```
+
+Finite D1-B producer/recovery ledger:
+
+| path | observed edge | disposition |
+|---|---|---|
+| `builder/calls/method_resolution.rs:19-55` | `current_static_box + has_method` issues `Method(None)` without verified arity | cut; verified catalog -> Global |
+| `builder/calls/build.rs:307-364` | publishes the unresolved Method(None) result | reject before publication; no alternate target |
+| `builder/calls/unified_emitter.rs:407-461` | `HAKO_MIR_BUILDER_METHODIZE` rewrites Global to Method(None) | cut; profile/env cannot alter core target |
+| `runner/mir_json_v0/call.rs:73-113,248-267` | V0 receiver omission | owner-private compat: resolve verified key once or reject |
+| `runner/modes/common_util/core_bridge.rs:101-199` | Const text -> receiverless Method, drops arity | park/cut; post-wire text is not authority |
+| `mir_json_emit/emitters/calls.rs:43-56` | `receiver.unwrap_or(func)` turns static into boxcall | cut; no static->instance reclassification |
+| `mir_json_emit/helpers.rs:51-64` | V1 nullable receiver serialization | V1 null reject before wire publish |
+| `backend/mir_interpreter/handlers/calls/method.rs:516-532` | registry/by-name/singleton recovery | cut/reject; backend is not issuer |
+| `backend/mir_interpreter/handlers/calls/mod.rs:80-91`, `global.rs:22-40` | HostBridge/static-name recovery and arity parsing | park/cut; no source authority |
+| `builder/calls/call_target.rs:13-22`, `resolver.rs:78-141` | valid instance target with receiver | retain separate `Method(Some)` path |
+
+The existing verified catalog/key authorities are
+`builder/callable_declaration_catalog/{catalog,recovery,key}.rs` and
+`source_call_target/{model,qualified}.rs`. The static publication family is
+`static_result_publication_physical_bridge.rs`, `method_call_terminal.rs`, and
+`resolver.rs`; raw `format!("{}.{}/{}")` fallback is not an issuer. D1-B is
+`NoSafeSlice` until every Method(None) producer and recovery row is either
+removed, owner-private compatibility, or an explicit outside park with a
+reopen trigger. Acceptance requires production Method(None) issuer count zero,
+static Global key/arity parity, instance receiver parity, and pre-publication
+negative coverage for absent/ambiguous/foreign/overflow targets.
+
+Existing selected static-result/direct-static handoff is real and may be
+reused without a new receipt:
+
+```text
+source MethodCall(site)
+  -> same-brand declaration/source-target catalog
+  -> static result publication owner
+  -> static publication physical bridge / method_call_terminal
+  -> CallTarget::Global(owner.method/arity)
+  -> CalleeResolver -> Callee::Global -> physical Call
+```
+
+The generic `method_resolution.rs` / `unified_emitter.rs` path is not connected
+to that handoff: it receives only `name`, `current_static_box`, and runtime
+state, then uses `has_method` or `StaticMethodId` formatting. The source-target
+module is currently disconnected for this generic route. Do not invent a new
+semantic receipt or thread raw text into it; keep the generic route
+`NoSafeSlice` until an existing-product handoff is proven. The bounded design
+follow-up is `MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK`: guard the selected static
+terminal and seal the generic route as an explicit outside/reopen boundary.
+
 | state / edge | source authority | D0 terminal classification |
 |---|---|---|
 | `Global`, `Extern`, `Value`, `Method(Some(receiver))` | route resolver / `CallTarget` | canonical callable; preserve target operands then ordered args |
@@ -1206,15 +1271,14 @@ staging cleanup, but does not authorize deleting the public `MirCall`/
 by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
-Selected next design task: `MIR-CALL-R6-CORE-SCHEMA-D1`. It must attach the 21
-writer definitions, the named helper families, and the zero missing-callee
-publication state to `cut`, `compat`, `park`, or `reopen`; name the single
-issuer for Method/static, Closure/NewClosure, and Constructor/NewBox; and
-record positive/negative/parity acceptance before any R6a implementation.
-The current blocker is typed stale-`func`/Method(None), public
-MirCall/CallFlags semantics, and dual construction ownership—not a missing
-callee literal. Until D1 is accepted, do not change `Option<Callee>`, `func`,
-`Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
+Selected next design task: `MIR-CALL-R6-CORE-SCHEMA-D1-B-PARK`. It must
+separate the existing selected static handoff from the generic raw route,
+record the outside/reopen boundary, and attach the remaining Method(None)
+producer/recovery edges to `cut`, `compat`, or `park` without inventing a
+receipt. The current blocker is the missing generic catalog handoff, not a
+missing-callee literal. Until D1-B-PARK and later D1-C/D are accepted, do not
+change `Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, `MirCall`,
+or `CallFlags` in code.
 
 Post-R7 normal-root cleanup (parked, separate lane):
 
