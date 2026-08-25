@@ -1,0 +1,74 @@
+title = "MIR Call D1B ProgramRoot TopLevel work BoxShape split"
+status = "accepted_but_not_selected"
+observed_commit = "98e833b6a7"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
+ordering = "before the duplicate validator if the validator would cross the 760-line design threshold"
+
+[boundary]
+starts = "src/mir/builder/program_root_work_plan.rs TopLevel work declarations and helpers"
+ends = "the same PreparedProgramRootWorkPlanV1 API and SelectedNormal/RawCompatibility preparation behavior after path-preserving relocation"
+includes = [
+  "PreparedProgramRootTopLevelFunctionWorkV1",
+  "PreparedProgramRootTopLevelFunctionPartsV1",
+  "their lowering/parts impls",
+  "TopLevel FunctionDeclaration work-generation helpers",
+  "module wiring and visibility required for the existing callers",
+]
+excludes = [
+  "duplicate validation, target authority, root lineage, exact index handoff, or any semantic admission change",
+  "RawInvocationRootSourceTransport.rs (778-line boundary)",
+  "normal_callable_semantic_loan_port.rs and recursive_child_lowering.rs future splits",
+  "fixtures, collector policy, warning cleanup, and final Call schema",
+]
+
+[brief]
+decision = "Use a path-preserving BoxShape-only split to keep program_root_work_plan.rs below the 760-line design threshold before adding the SelectedNormal duplicate validator. The split must not alter types, ordering, visibility, or behavior."
+source_authority = "existing ProgramRootWorkPlanV1 and its current module owner; no semantic authority is created."
+canonical_issuer = "none; this refactor issues no target, receipt, or Call."
+non_authority = [
+  "new module path, re-export shape, line count, test placement, or compiler success by itself",
+]
+fail_fast = "If path relocation requires semantic visibility changes, trait dispatch changes, or behavior edits, stop and return to design; do not mix the duplicate validator into this row."
+smallest_next_slice = "Move only the named TopLevel declarations/helpers into program_root_work_plan/top_level_work.rs, preserve parent API, run focused preparation tests, then record line counts."
+non_claims = [
+  "no duplicate policy implementation",
+  "no new semantic receipt or public transport",
+  "no exact target loan or relationless recovery closure",
+]
+
+[acceptance]
+positive = [
+  "program_root_work_plan.rs parent remains below 760 lines and child remains below 220",
+  "selected and raw work-plan tests preserve order, source occurrence, and publication policy",
+  "production preparation path compiles with unchanged module API",
+]
+negative = [
+  "no #[path] bandage or duplicate module owner",
+  "no visibility broadening beyond the existing owner contract",
+  "no semantic diff outside the moved declarations",
+]
+focused_checks = [
+  "cargo test --lib mir::builder::program_root_work_plan_tests",
+  "cargo test --lib mir::builder::program_root_work_plan_production",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+implementation_gate = "false; select only as a fast BoxShape row if the duplicate I0 would cross 760 lines."
+guard = "future guard must compare moved public API/visibility and selected/raw preparation behavior, and reject #[path] or a second semantic owner"
+
+[line_budget]
+parent_before = 721
+parent_target = "<620"
+child_target = "<220"
+hard_stop = 800
+active_workstream = "1000 lines; replace row prose, never append"
+
+[reopen]
+triggers = [
+  "moved code changes classification, ordering, visibility, or error behavior",
+  "a second TopLevel work owner is introduced",
+  "#[path] is added instead of a complete module shelf",
+  "parent or child reaches 760/800 thresholds",
+]

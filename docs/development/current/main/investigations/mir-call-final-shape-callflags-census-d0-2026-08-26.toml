@@ -1,8 +1,9 @@
 title = "MIR Call final-shape CallFlags retirement census"
 status = "accepted_design_no_safe_slice"
-observed_commit = "183c1418d7"
+observed_commit = "98e833b6a7"
 observed_at = "2026-08-26"
 implementation_permission = false
+queued_fast_candidate = "MIR-CALL-R6-CALLFLAGS-RETIRE-I0: CallFlags-only delete/re-export/fixture closure while MirCall transport remains live; do not select until the current direct-target design stop closes."
 parent_row = "docs/development/current/main/investigations/mir-call-final-shape-and-ingress-boundary-design-2026-08-25.md"
 
 [boundary]

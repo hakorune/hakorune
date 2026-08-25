@@ -1,10 +1,11 @@
 title = "MIR Call D1B TopLevel self exact-target loan design"
-status = "accepted_design_no_safe_slice"
-observed_commit = "a264a9d012"
+status = "accepted_but_not_selected"
+observed_commit = "98e833b6a7"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-physical-relation-scoped-loan-d0-2026-08-26.toml"
-prerequisite = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
+prerequisite = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
+authority_correction = "The prior admission-owned physical-loan candidate is not selected: NormalTopLevelFunctionDraftAdmissionV1 is physical/source data, not direct target authority. The index-handoff D0 must close first."
 
 [boundary]
 starts = "a unique SelectedNormal TopLevel source occurrence with an existing NormalTopLevelFunctionDraftAdmissionV1 relation"
@@ -24,15 +25,15 @@ excludes = [
 ]
 
 [brief]
-decision = "Once duplicate SelectedNormal projections are explicitly rejected or owned, lend only the current same-occurrence admission relation to a TopLevel call. A source name/arity match alone is not a target; local/builtin/Extern conflicts must be resolved by an accepted finite precedence or rejected before effects."
-source_authority = "NormalTopLevelFunctionDraftAdmissionV1 plus the same source occurrence in the preserved RawInvocationRootLineageV1 and selected work-plan cohort."
-canonical_issuer = "Existing CalleeResolverBox -> MirInstruction::call; no new receipt or target issuer."
+decision = "Once duplicate SelectedNormal projections are rejected, a TopLevel self call may borrow only the same source-site ResolvedDirectCallTargetV1 from VerifiedCallableIndexV1. The physical admission remains a co-sealed source relation, not a target issuer."
+source_authority = "complete source callable inventory -> VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> ResolvedDirectCallTargetV1, with RawInvocationRootLineageV1 preserved as provenance."
+canonical_issuer = "Existing resolved target handoff -> CalleeResolverBox -> MirInstruction::call; no new receipt or target issuer."
 non_authority = [
-  "SelectedTopLevelFunctionKeyV1 name/arity alone",
-  "LegacySymbol reformatting, collector winner, current_static_box, has_method, header/module suffix, args, name Const, or post-argument recovery",
+  "NormalTopLevelFunctionDraftAdmissionV1 physical_symbol/arity alone",
+  "SelectedTopLevelFunctionKeyV1 name/arity, LegacySymbol reformatting, collector winner, current_static_box, has_method, header/module suffix, args, name Const, or post-argument recovery",
 ]
 fail_fast = "Occurrence mismatch, arity drift, foreign relation, or unresolved local/builtin/Extern precedence rejects before drive_call_arguments_v1; arguments lower exactly once only after Targeted."
-smallest_next_slice = "Design-only self-loan finite matrix after duplicate-policy acceptance; sibling, constructor, and recovery closure remain separate rows."
+smallest_next_slice = "After the direct-target index-handoff D0 closes, design the self-site consume/precedence matrix; sibling, constructor, and recovery closure remain separate rows."
 non_claims = [
   "no sibling catalog is invented",
   "no constructor symbol becomes a Global",
@@ -58,7 +59,7 @@ terminal_policy = "Only TopLevelUniqueSelfExact may become TargetedBeforeArgumen
 [acceptance]
 design = [
   "duplicate SelectedNormal policy is accepted by the prerequisite row",
-  "self relation is same-occurrence and admission-owned, not synthesized from text",
+  "self relation is same-source-site and index-owned, not synthesized from physical admission or text",
   "local/builtin/Extern precedence is explicit and finite",
   "reject path has zero argument effects",
   "Installed self lineage cannot enter Resolved or post-argument recovery",
@@ -67,8 +68,8 @@ negative = [
   "no code, fixture, new receipt, collector change, or production switch",
   "no sibling/constructor target inference and no Method(None) repair",
 ]
-implementation_gate = "false until the parent scoped-loan lifecycle and duplicate decision are closed."
-guard = "future guard must assert self occurrence identity, exact admission physical symbol, and zero Installed->Resolved self fallthrough."
+implementation_gate = "false until the direct-target index-handoff D0, duplicate I0, and parent scoped-loan lifecycle are closed."
+guard = "future guard must assert self occurrence identity, exact index-owned target identity, and zero Installed->Resolved self fallthrough."
 
 [reopen]
 triggers = [

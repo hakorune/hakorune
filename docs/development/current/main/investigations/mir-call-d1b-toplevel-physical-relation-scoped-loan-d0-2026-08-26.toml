@@ -1,10 +1,11 @@
 title = "MIR Call D1B TopLevel physical relation scoped loan design"
-status = "accepted_design_no_safe_slice"
-observed_commit = "a264a9d012"
+status = "accepted_but_not_selected"
+observed_commit = "98e833b6a7"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-prerequisite = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
+prerequisite = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
+authority_correction = "The admission cohort can preserve provenance and co-seal physical rows, but it cannot issue a direct Call target. The index-handoff D0 must establish ResolvedDirectCallTargetV1 before this scoped transport row is reconsidered."
 
 [boundary]
 starts = "unique SelectedNormal source occurrence and NormalTopLevelFunctionDraftAdmissionV1 physical relation"
@@ -26,8 +27,8 @@ excludes = [
 ]
 
 [brief]
-decision = "After duplicate SelectedNormal policy is explicitly accepted, keep the existing admission cohort in the program work-plan and lend a unique physical relation through a callback-scoped lookup. Preserve RawInvocationRootLineageV1 separately; never encode the target into the lineage or reformat a symbol from source text."
-source_authority = "NormalTopLevelFunctionDraftAdmissionV1 is the row authority; PreparedProgramRootWorkPlanV1 is the aggregate owner that can validate the cohort before body lowering."
+decision = "After duplicate policy and direct-target index handoff are accepted, keep the existing admission cohort as provenance/co-seal data and lend only the exact index-owned target through a callback-scoped lookup. Preserve RawInvocationRootLineageV1 separately; never encode the target into the lineage or reformat a symbol from source text."
+source_authority = "VerifiedCallableIndexV1 -> exact SourceExprSiteV1 -> ResolvedDirectCallTargetV1 is target authority; NormalTopLevelFunctionDraftAdmissionV1 and PreparedProgramRootWorkPlanV1 preserve provenance/co-sealed physical rows and validate collisions."
 canonical_issuer = "Existing preflight -> CalleeResolverBox -> MirInstruction::call; this child issues no new semantic receipt or target authority."
 non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity alone",
@@ -84,7 +85,7 @@ design = [
   "the duplicate child is accepted before this row reopens",
   "the aggregate owner can retain the complete SelectedNormal cohort without a new semantic receipt",
   "source occurrence and physical symbol remain separate co-sealed products",
-  "physical_symbol() is borrowed directly; declared name/arity is never reformatted into a target",
+  "the index-owned target identity is borrowed directly; declared name/arity and physical_symbol() are never reformatted into a target",
   "callback scope restores on every Result path and cannot escape",
   "preflight precedence and all negative states have named typed terminals",
   "lineage cannot re-enter PreparedRawOrdinaryFunctionCompletionV1::Resolved",
