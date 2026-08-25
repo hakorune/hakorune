@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
+Status: Design stop — MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0
-  implementation    = D1G landed at c3c7e0ea65; D1H-I0 landed at b090f917b4; D1I landed at 513a243be5
+  current decision  = MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
+  implementation    = D1I landed at 513a243be5; D1J is accepted design-only after two upper-worker audits
   mode              = design_stop
-  production stop   = D1I implementation is closed; no code or fast-row selection before upper-worker census
-  exit              = canonical helper + three concat3 parity tests + scoped guard + README receipt + pushed commit; full PHI admission/atomicity remains NoSafeSlice
+  production stop   = D1J may not change code until explicit fast-mode selection
+  exit              = one 328-line BoxCall fallthrough writer, 6 production sites/5 families, typed Method issuer, exact delete set, and scoped guard; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -159,7 +159,7 @@ landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSeale
 exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
 closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, D1E is
 landed at `2150472c35`, D1F is landed at `572ec6f5b1`, and D1G is landed at
-`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; D1I landed at `513a243be5` under its manifest.
+`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; D1I landed at `513a243be5`; D1J is accepted design-only under its manifest.
 
 ```text
 canonical core
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- D1I closeout is complete; request one upper-worker bounded next-edge census before selecting the next fast row
+ MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0 -> design_stop: one BoxCall fallthrough writer -> existing typed Method issuer; 6 production sites/5 families; no code until fast-mode selection
 Closed immediately prior
  MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0 -> landed at 4b2fe7a7b6: Extern SSOT delegates once to MirInstruction::call; parity 1/1, corridor guard, touched rustfmt, and diff green
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact

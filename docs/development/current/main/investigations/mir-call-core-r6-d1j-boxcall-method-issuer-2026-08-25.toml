@@ -1,0 +1,130 @@
+title = "MIR Call core R6 D1J BoxCall Method issuer"
+status = "accepted_design"
+observed_commit = "704e01fee0"
+observed_at = "2026-08-25"
+implementation_permission = false
+implementation_row = "MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0"
+fast_row_candidate = true
+
+[boundary]
+starts = "the remaining BoxCall/plugin fallthrough after known Array writes and Unified early returns"
+ends = "the existing emit_instruction success followed by post-success Map replay and destination type publication"
+includes = [
+  "src/mir/builder/utils/boxcall_emit.rs:201-286",
+  "src/mir/ssot/method_call.rs:60-84",
+  "six production direct callers across five families: indexing(2), ordinary-New(1), raw-from(1), legacy Method adapter(1), unified BoxCall alternate(1)",
+  "existing Map/Array timing tests as negative publication evidence",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/README.md",
+]
+excludes = [
+  "known Array write early return and array_element_write ownership",
+  "Unified alternate MirCall/CallFlags terminal and re-entry policy",
+  "Map/Array observation authority and return-type heuristics",
+  "RouterPolicy classification and box_type=None compatibility policy",
+  "Method(None), Constructor/NewBox, Closure/NewClosure, PHI, and full Call schema cutover",
+  "LocalSSA rollback or whole-function mutation policy",
+  "string corridor families, JSON, VM, native, backend, and warning retirement",
+  "test-only direct callers (five) and unrelated dirty source",
+]
+
+[decision]
+summary = "Replace the one remaining BoxCall fallthrough direct Call literal with the existing typed Method issuer, preserving LocalSSA receiver/args, classified box surface/certainty/kind, caller dst/effects, and post-success observations."
+source_authority = "localized box_val from local_recv; finalized args; caller method, dst, and effects; boxcall_callee_surface; classify_callee_box_kind_v1"
+canonical_issuer = "crate::mir::ssot::method_call::method_call(dst, box_val, box_name_for_call, method.clone(), args, effects, certainty, box_kind)"
+non_authority = [
+  "legacy func or INVALID decoration at the writer",
+  "runtime_method_call (it would force RuntimeData box kind)",
+  "observed_receiver used for the physical receiver",
+  "result-type inference, backend lookup, string/name search, or route retry",
+  "Array/Map observations as target authority",
+]
+fail_fast = "local_recv/finalize_args and existing route/box-surface preparation retain their current errors; after the selected issuer succeeds, only the existing Call, Map replay, and destination type fact are published"
+no_publication_claim = "on selected terminal emission failure, this terminal publishes no Call, Map/Array observation, or destination type fact; prior caller/LocalSSA mutation and whole-function abort behavior are non-claims"
+no_retry = "one typed issuer call; no second writer, target lookup, runtime fallback, or alternate receiver"
+smallest_next_slice = "in boxcall_emit.rs replace only the selected MirInstruction::Call literal with ssot::method_call::method_call, extend the shared guard window, add one field-parity focused test, update README, and run the existing timing negatives"
+non_claims = [
+  "full BoxCall pipeline closure",
+  "MirCall/CallFlags retirement or mandatory-Callee schema deletion",
+  "route policy, receiver selection, argument encoding, box-kind classification, Array/Map timing, or LocalSSA behavior changes",
+  "ordinary-New lifecycle, Method(None), Constructor, Closure, PHI, JSON/VM/backend, and warnings",
+]
+
+[state_matrix]
+known_array_write = "existing ArrayElementWrite owner and early return; outside D1J writer"
+unified_route = "existing Unified emitter and map-replay owner; early return; outside D1J writer"
+boxcall_fallthrough = "existing localized receiver + finalized args + exact Method surface -> one typed Method issuer -> emit_instruction -> existing post-success observations"
+unknown_receiver = "RuntimeDataBox + Union compatibility facade; not recovered nominal truth"
+
+[inventory]
+production_direct_sites = 6
+production_caller_families = 5
+test_only_direct_sites = 5
+writer_sites = 1
+writer_site = "src/mir/builder/utils/boxcall_emit.rs:223-238"
+owner_lines = 328
+family_count_before = 1
+family_count_after = 0
+source_risk = "328-line owner below the 760/800 split limits; BoxShape-only issuer delegation"
+
+[delete_set]
+direct_literal = "src/mir/builder/utils/boxcall_emit.rs selected terminal MirInstruction::Call block"
+remove = [
+  "func: ValueId::INVALID at this writer",
+  "local callee: Some wrapper",
+  "direct Call construction in the selected terminal",
+]
+retain = [
+  "boxcall_callee_surface and RuntimeDataBox/Union compatibility facade",
+  "RouterPolicy and in_unified_boxcall_fallback guard",
+  "ArrayElementWrite alternate",
+  "Map replay preparation/publication",
+  "LocalSSA receiver/args finalization",
+  "return-type inference/publication and all six production callers",
+]
+
+[proof]
+positive = [
+  "one fallthrough BoxCall emits typed Method with localized receiver",
+  "known and unknown receiver surfaces preserve box_name/certainty/box_kind",
+  "existing caller dst, finalized args, method, and effects are preserved",
+]
+negative = [
+  "selected terminal contains no direct MirInstruction::Call literal, func field, callee: Some wrapper, or runtime_method_call",
+  "existing Map/Array emission-failure timing tests keep post-success observations at zero",
+  "Array/Unified early returns remain outside the selected writer window",
+]
+parity = [
+  "receiver is localized box_val, not observed_receiver",
+  "args remain finalized order with no receiver prefix insertion",
+  "box name, method, certainty, box kind, dst, and effects are unchanged",
+  "Call count and post-success Map replay/destination type publication timing are unchanged",
+]
+focused_test = "one direct BoxCall field-parity test plus existing map_write_timing and array_write_timing negative tests"
+guards = [
+  "bash tools/checks/mir_call_canonical_corridor_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "rustfmt --check touched Rust file",
+  "git diff --check",
+]
+
+[worker_review]
+issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1J is the sole remaining one-writer typed-Method fast candidate"
+containment_audit = "upper-worker /root/d2a_containment_audit: design-only safe; corrected count to 6 sites/5 families and narrowed no-publication claim"
+implementation_permission = false
+
+[stop_if]
+conditions = [
+  "helper delegation changes route policy, receiver selection, args encoding, box-kind classification, Array/Map observation, or LocalSSA",
+  "runtime_method_call becomes necessary",
+  "a second production writer or new target authority appears",
+  "MirCall/CallFlags, Method(None), Constructor/Closure, or core field deletion enters the diff",
+]
+
+[reopen]
+triggers = [
+  "a seventh production direct caller or second selected writer appears",
+  "RuntimeDataBox/Union is reclassified as nominal truth",
+  "Call failure starts publishing an observation/type fact from this terminal",
+  "the existing typed Method issuer cannot preserve box_kind or receiver parity",
+]
