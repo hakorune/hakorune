@@ -771,15 +771,31 @@ warning_baseline = "quick profile reports 441 existing warnings; no new warning 
 source_risk = "69-line owner; Concat3Plan target/dst/ordered args and existing replacement/span semantics unchanged; no schema, flags, fallback, or backend change"
 
 [candidates.d1j_boxcall_method_issuer]
-status = "accepted_design_fast_row_selected"
+status = "landed"
 manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1j-boxcall-method-issuer-2026-08-25.toml"
 boundary = "one BoxCall fallthrough writer after Array/Unified early returns"
 production_direct_sites = 6
 production_caller_families = 5
 writer_count = 1
 canonical_issuer = "ssot::method_call::method_call"
-implementation_permission = true
-review = "two upper-worker audits agree; fast row selected at docs commit 27403680a1"
+implementation_permission = false
+review = "two upper-worker audits agree; landed at c927da4029"
+
+[receipts.d1j_boxcall_method_issuer]
+status = "landed"
+commit = "c927da4029"
+source = "src/mir/builder/utils/boxcall_emit.rs:223-241"
+old_edge = "one BoxCall fallthrough direct MirInstruction::Call literal with func=INVALID and callee=Some(Method)"
+new_edge = "existing ssot::method_call::method_call(dst, localized box_val, box_name_for_call, method.clone(), args, effects, certainty, box_kind)"
+production_direct_sites = 6
+production_caller_families = 5
+writer_count_before = 1
+writer_count_after = 0
+parity = "canonical_boxcall_method_issuer_preserves_call_fields 1/1; terminal_boxcall timing 2/2; boxcall_array_write timing 2/2"
+negative = "selected terminal retains no direct Call literal, func, Some wrapper, runtime_method_call, or observed_receiver physical use"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; broad boxcall filter shows 9 pre-existing cohort-missing failures outside D1J"
+source_risk = "boxcall_emit.rs 328 -> 372 lines; below split limits; no route, schema, fallback, backend, or LocalSSA policy change"
 
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
@@ -789,7 +805,6 @@ requires = [
   "active PHI rematerialization retained as live, not parked",
 ]
 next_fast_candidates = [
-  "MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0",
   "internal MirCall/CallFlags transport retirement after D1I boundary closure",
 ]
 selection_rule = "do not choose a fast candidate until this manifest is accepted and the candidate's old edge is isolated"

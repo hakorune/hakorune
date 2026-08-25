@@ -93,31 +93,24 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` records the current design-stop row:
+`CURRENT_STATE.toml` records the latest landed row:
 
 ```text
 MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
 ```
 
-D1I landed at `513a243be5`, limited to one concat3 Extern rewrite writer. The
-accepted design-only next fast candidate is:
-
-```text
-MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
-```
-
-It is limited to the one BoxCall fallthrough writer and is selected as the
-current `fast` row. Its boundary and receipt are in:
+D1J landed at `c927da4029`, limited to one BoxCall fallthrough writer. D1I
+landed at `513a243be5`; the D1J boundary and receipt are in:
 
 ```text
 docs/development/current/main/investigations/
   mir-call-core-r6-d1j-boxcall-method-issuer-2026-08-25.toml
 ```
 
-D1I's three concat3 parity tests, shared corridor guard, pointer guard, rustfmt,
-and diff checks are green; the quick profile's 441 warnings remain the
-pre-existing baseline. D1J remains limited to its one writer and selected
-proof set; full Call field retirement is not part of this row.
+D1J's field-parity test, Map/Array timing negatives, shared corridor guard,
+pointer guard, rustfmt, and diff checks are green; the quick profile's 441
+warnings remain the pre-existing baseline. Full Call field retirement is not
+part of this row.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

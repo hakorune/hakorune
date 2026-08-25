@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0 landed
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
-  implementation    = D1I landed at 513a243be5; D1J fast row selected after two upper-worker audits
-  mode              = fast
-  production stop   = D1J may touch only the BoxCall fallthrough writer, its scoped guard, one parity test, and README receipt
-  exit              = typed Method issuer + field-parity test + timing negatives + scoped guard + README receipt; full PHI admission/atomicity remains NoSafeSlice
+  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029 after two upper-worker audits
+  mode              = closeout
+  production stop   = D1J implementation is closed; no next fast row is selected
+  exit              = typed Method issuer + field-parity test + timing negatives + scoped guard + README receipt + pushed commit; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -159,7 +159,7 @@ landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSeale
 exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
 closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, D1E is
 landed at `2150472c35`, D1F is landed at `572ec6f5b1`, and D1G is landed at
-`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; D1I landed at `513a243be5`; D1J is accepted design-only under its manifest.
+`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; D1I landed at `513a243be5`; D1J landed at `c927da4029` under its manifest.
 
 ```text
 canonical core
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0 -> fast: one BoxCall fallthrough writer -> existing typed Method issuer; 6 production sites/5 families; no route/schema/fallback expansion
+ MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0 -> landed at c927da4029: one BoxCall fallthrough writer -> existing typed Method issuer; 6 production sites/5 families; field/timing parity green, 441 warnings baseline
 Closed immediately prior
  MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0 -> landed at 4b2fe7a7b6: Extern SSOT delegates once to MirInstruction::call; parity 1/1, corridor guard, touched rustfmt, and diff green
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact

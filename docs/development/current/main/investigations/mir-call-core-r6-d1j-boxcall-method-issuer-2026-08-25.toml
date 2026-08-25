@@ -1,10 +1,11 @@
 title = "MIR Call core R6 D1J BoxCall Method issuer"
-status = "accepted_design_fast_row_selected"
-observed_commit = "27403680a1"
+status = "landed"
+observed_commit = "c927da4029"
 observed_at = "2026-08-25"
-implementation_permission = true
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0"
 fast_row_candidate = true
+landed_commit = "c927da4029"
 
 [boundary]
 starts = "the remaining BoxCall/plugin fallthrough after known Array writes and Unified early returns"
@@ -62,7 +63,8 @@ production_caller_families = 5
 test_only_direct_sites = 5
 writer_sites = 1
 writer_site = "src/mir/builder/utils/boxcall_emit.rs:223-238"
-owner_lines = 328
+owner_lines_before = 328
+owner_lines_after = 372
 family_count_before = 1
 family_count_after = 0
 source_risk = "328-line owner below the 760/800 split limits; BoxShape-only issuer delegation"
@@ -112,6 +114,7 @@ guards = [
 issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1J is the sole remaining one-writer typed-Method fast candidate"
 containment_audit = "upper-worker /root/d2a_containment_audit: design-only safe; corrected count to 6 sites/5 families and narrowed no-publication claim"
 implementation_permission = false
+landed_review = "implementation preserved the audited field order and selected terminal scope"
 
 [stop_if]
 conditions = [
@@ -120,6 +123,19 @@ conditions = [
   "a second production writer or new target authority appears",
   "MirCall/CallFlags, Method(None), Constructor/Closure, or core field deletion enters the diff",
 ]
+
+[acceptance]
+status = "landed"
+focused_tests = [
+  "canonical_boxcall_method_issuer_preserves_call_fields: 1 passed",
+  "terminal_boxcall_* timing tests: 2 passed",
+  "boxcall_array_write_* timing tests: 2 passed",
+]
+parity = "receiver, box name, method, certainty, box kind, args, dst, effects, Call count, and post-success observation timing preserved"
+negative = "selected terminal has no direct Call literal, func decoration, Some wrapper, runtime_method_call, or observed_receiver physical use"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; broad boxcall filter also exposes 9 pre-existing cohort-missing failures outside D1J"
+source_risk_after = "372-line owner remains below 760/800 split limits; no route, schema, fallback, backend, or LocalSSA policy change"
 
 [reopen]
 triggers = [
