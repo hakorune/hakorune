@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0
+Status: Fast — MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,22 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0
-  implementation    = D1R MaterializationStore writer landed at 82be5daa97; selected writers 12 -> 11 and concat family 9 -> 8
-  mode              = closeout
-  production stop   = implementation is closed; only receipt, pointer, and next-edge worker evidence may enter this closeout
-  exit              = README/reference receipt, pointer closeout, commit, push, and upper-worker next-edge census
+  current decision  = MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0
+  implementation    = D1R MaterializationStore landed at 82be5daa97; D1S is the selected PublicationSubstring writer (selected writers 11 -> 10, concat 8 -> 7)
+  mode              = fast
+  production stop   = one PublicationSubstring plan-owned writer, exact Extern/dst/args/effects, and no adjacent family
+  exit              = focused proof, shared guard, README/reference receipt, pointer sync, commit/push, then upper-worker census
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
-
 Current design brief:
 
-Decision: landed — replace only the MaterializationStore direct Call literal with the thin canonical constructor, preserving the existing ArrayBox set rewrite and observer schedule.
-Source authority + canonical issuer: MaterializationStorePlan owns helper dst, exact Extern, five ordered args, helper effects, store position, and copy/observer removal; MirInstruction::call is the issuer.
-Non-authority: apply-side enum reconstruction, ArrayBox set shape, resolved value types, legacy func, backend lookup, PURE defaults, DCE/CFG policy, and hint/count bookkeeping.
-Fail-fast boundary: typed ArrayBox set, copy chain, helper/same-block/order, helper use-count, or trailing observer proof failure yields zero plan/Call/store/hint publication.
-Smallest next slice: closeout only — receipt records `82be5daa97`, 3/3 focused tests, the 777-line guard, and the 441-warning baseline; no further implementation is admitted here.
-Non-claims: other concat/unified/array/canonicalizer writers, Method(None), Closure/Constructor, schema cutover, MirCall/CallFlags, collector/plan/schedule, metadata, typed errors, backend/wire, fallback, and cleanup.
+Decision: fast — replace only the PublicationSubstring direct Call literal with the thin canonical constructor, preserving composed start/end Add roots and the existing publication schedule.
+Source authority + canonical issuer: PublicationHelperSubstringPlan owns outer dst, left/middle/right, outer/inner bounds, and effects; MirInstruction::call is the issuer for the exact SUBSTRING_CONCAT3_EXTERN route.
+Non-authority: apply-side enum reconstruction, composed ValueIds, value metadata, legacy func, target-string lookup, publication conversion, hint/DCE/CFG policy, and backend/PURE inference.
+Fail-fast boundary: typed helper shape, folded route proof, exact copy/value-origin chain, or missing Callee yields no plan and zero Add/Call/hint publication or retry.
+Smallest next slice: `concat_corridor_apply.rs:433` only; selected writers 11 -> 10 and concat family 8 -> 7.
+Non-claims: remaining concat/unified/array/canonicalizer writers, MaterializationStore, Method(None), Closure/Constructor, MirCall/CallFlags, schema, collector/plan, publication schedule, metadata, typed errors, backend/wire, fallback, and cleanup.
 ## Closed chronology (archived)
 
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -565,7 +564,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0 -> landed at 82be5daa97: one MaterializationStore writer now uses the canonical constructor; selected writers 11 remain and concat family is 8; closeout evidence is green
+ MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0 -> fast selected: one PublicationSubstring writer in concat_corridor_apply.rs; exact Extern/dst/five args/effects and composed Add-root parity only; selected writers 11 -> 10 and concat family 8 -> 7
+ MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0 -> landed at 82be5daa97: one MaterializationStore writer now uses the canonical constructor; selected writers 12 -> 11 and concat family 9 -> 8; closeout evidence is green
  MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> landed at 0738d722a3: canonical used_values delegation, typed/closure/arg positives, stale-func/dst-only negatives, legacy parity, guard and 5/5 module suite green
  MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
