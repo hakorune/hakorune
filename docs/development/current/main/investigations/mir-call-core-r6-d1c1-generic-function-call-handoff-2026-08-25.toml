@@ -1,0 +1,196 @@
+title = "MIR Call core R6 D1C1 generic FunctionCall caller/site loan boundary"
+status = "accepted_design_no_safe_slice"
+observed_commit = "21baf13741"
+observed_at = "2026-08-25"
+implementation_permission = false
+
+[boundary]
+starts = "raw FunctionCall source context and same-brand callable products"
+ends = "exact target claim before drive_call_arguments_v1, then canonical Global physical publication"
+includes = [
+  "src/mir/builder/raw_expression_dispatch/mod.rs:341-354",
+  "src/mir/builder/calls/function_call_preflight_route.rs:14-42,103-203,218-260",
+  "src/mir/builder/calls/build.rs:89-117,307-381",
+  "src/mir/builder/calls/method_resolution.rs:19-78",
+  "src/mir/builder/calls/static_resolution.rs:71-171",
+  "src/mir/builder/calls/unified_emitter.rs:374-461",
+  "existing callable declaration/source-target/publication products",
+]
+excludes = [
+  "D1B JSON/Rust VM/selected C Method(None) terminals",
+  "resolved-SSA physicalizer and Script MethodCall lane",
+  "Closure/Constructor/CallFlags/R6 field cutover",
+  "PyVM/reference/Python/WASM/non-selected backends",
+  "new semantic receipt or compatibility adapter",
+]
+
+[decision]
+summary = "No existing product currently carries a same-brand physical target key from a bare FunctionCall site into the generic raw route before argument descent. Keep D1C1 in design_stop/NoSafeSlice."
+source_authority = "same-invocation Cataloged(caller) plus SourceExprSite, resolver-sealed target, and same-brand callable declaration key"
+canonical_issuer = "existing static publication handoff -> qualified CallTarget::Global -> CalleeResolver -> MirInstruction::call, only if the missing FunctionCall loan is proven"
+non_authority = [
+  "bare name/current_static_box/has_method",
+  "mutable variable_map probing by itself",
+  "CallTarget::Global(name) without a source key",
+  "StaticMethodId/text formatting",
+  "header/tail/unique-static recovery",
+  "HAKO_MIR_BUILDER_METHODIZE and unified profile",
+  "func Const, module/backend symbol lookup, or retry",
+]
+fail_fast = "exact caller/site/brand/owner/method/arity and target identity must be claimed before drive_call_arguments_v1; missing/foreign/ambiguous/duplicate/consumed/arity-drift inputs produce zero argument, block, wire, backend, and fallback effects"
+smallest_next_slice = "Design-only finite handoff census; do not select a fast row until one existing product exposes an exact FunctionCall physical key or symbol with the same compilation/catalog brand"
+non_claims = [
+  "Method(None) repair or terminal retirement",
+  "downstream Globalization of a missing receiver",
+  "unified_emitter edits",
+  "JSON/VM/native/backend changes",
+  "core field deletion",
+  "fixtures/tests/Cargo evidence",
+  "warning cleanup",
+]
+
+[counts]
+candidate_products = 4
+transport_rows = 4
+generic_consumer_rows = 3
+terminal_rows = 2
+unclassified_rows = 0
+duplicate_row_ids = 0
+
+[[candidate_product]]
+id = "static_publication_methodcall_only"
+owner = "src/mir/callable_result_representation/static_call_result_publication.rs:58-131; src/mir/builder/calls/static_result_publication_physical_bridge.rs:16-42"
+shape = "catalog identity + exact caller/site + CanonicalSameModuleCallableKeyV1 + one-shot consume before ordered argument descent"
+eligibility = "Not eligible for bare FunctionCall: source inventory and ingress are MethodCall-only"
+disposition = "NoSafeSlice"
+reopen_trigger = "existing source target inventory begins issuing a bare FunctionCall row with the same brand"
+
+[[candidate_product]]
+id = "resolved_direct_call_target"
+owner = "src/mir/callable_semantic_batch/model.rs:181-199"
+shape = "exact FunctionCall site and ResolvedCallableRefV1"
+eligibility = "Not eligible: no physical callable key/symbol and no raw package claim/take transport"
+disposition = "NoSafeSlice"
+reopen_trigger = "existing product gains a non-reclassified physical key loan without a new semantic receipt"
+
+[[candidate_product]]
+id = "verified_trivial_direct_call"
+owner = "src/mir/resolved_value_profile/direct_call.rs:13-54; src/mir/resolved_value_profile/consumption.rs:68-83"
+shape = "exact symbol/signature and one-shot trivial-SSA claim"
+eligibility = "Not eligible: separate resolved trivial-SSA lane and free-static index namespace"
+disposition = "ParkedSealed"
+reopen_trigger = "CURRENT_STATE selects the trivial-SSA lane for this raw production route"
+
+[[candidate_product]]
+id = "script_direct_static_claim"
+owner = "src/mir/builder/normal_script/direct_static/**"
+shape = "exact Script MethodCall/plan claim"
+eligibility = "Not eligible: Script MethodCall/Plan-only authority, not generic normal FunctionCall"
+disposition = "ParkedSealed"
+reopen_trigger = "generic raw FunctionCall is explicitly admitted into that owner"
+
+[[transport]]
+id = "raw_invocation_source_context"
+owner = "src/mir/builder/raw_expression_dispatch/mod.rs:341-354"
+edge = "FunctionCall carries name/args but no source target row or exact caller/site claim"
+disposition = "CutoverBlockerOpen"
+delete_set = ["name-only target authority", "target selection after child descent"]
+reopen_trigger = "Cataloged caller/site and same-brand target loan is observable at this boundary"
+
+[[transport]]
+id = "ordinary_function_preflight"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:39-42,189-202"
+edge = "ordinary completion retains Resolved { arguments } without a direct-call target claim"
+disposition = "CutoverBlockerOpen"
+delete_set = ["argument-only completion as target proof", "compatibility downgrade for missing target"]
+reopen_trigger = "preflight emits an exact source-bound target product"
+
+[[transport]]
+id = "normal_package_lowering_state"
+owner = "src/mir/normal_callable_semantic_lowering_state.rs:29-48,209-227"
+edge = "no direct-call rows/claims are installed for the normal raw package"
+disposition = "CutoverBlockerOpen"
+delete_set = ["re-pairing selected batch map with call site after the fact"]
+reopen_trigger = "existing package port exposes a same-brand direct-call claim"
+
+[[transport]]
+id = "static_publication_ingress"
+owner = "src/mir/builder/calls/static_result_publication_ingress.rs:114-194"
+edge = "one-shot Cataloged(caller) ingress checks StaticBoxMethod owner/method/arity, but only for MethodCall"
+disposition = "RetainGuarded"
+delete_set = ["none; preserve MethodCall owner while generic FunctionCall remains outside"]
+reopen_trigger = "ingress accepts a distinct exact FunctionCall source relation"
+
+[[generic_consumer]]
+id = "raw_function_call_dispatch"
+owner = "src/mir/builder/raw_expression_dispatch/mod.rs:341-354"
+edge = "raw name and AST arguments enter the ordinary FunctionCall path"
+disposition = "CutoverBlockerOpen"
+fail_fast = "before child descent once an exact claim exists"
+
+[[generic_consumer]]
+id = "function_call_preflight_and_build"
+owner = "src/mir/builder/calls/function_call_preflight_route.rs:103-203,218-260; src/mir/builder/calls/build.rs:89-117"
+edge = "drive_call_arguments_v1 currently runs at build.rs:104 before target selection"
+disposition = "CutoverBlockerOpen"
+fail_fast = "target claim/take must precede drive_call_arguments_v1; preserve one stored argument order"
+
+[[generic_consumer]]
+id = "ordinary_and_unified_target_recovery"
+owner = "src/mir/builder/calls/build.rs:307-381; src/mir/builder/calls/static_resolution.rs:71-171; src/mir/builder/calls/unified_emitter.rs:374-461"
+edge = "resolve_call_target -> Method(None), unique-static/tail retry, then Global text and methodize reissuer"
+disposition = "CutoverBlockerOpen"
+delete_set = ["post-argument resolve_call_target", "unique-static/tail recovery", "StaticMethodId/env methodize reclassification"]
+fail_fast = "no target retry after an exact claim or typed reject"
+
+[[terminal]]
+id = "qualified_global_canonical_terminal"
+owner = "src/mir/builder/calls/method_call_terminal.rs:312-359; src/mir/builder/calls/resolver.rs:63-75"
+edge = "exact key is projected to qualified Global text before the generic physical terminal"
+disposition = "RetainGuarded"
+parity = "owner/method/arity, callee, args, dst, effects, and result"
+reopen_trigger = "physical terminal no longer preserves exact key identity"
+
+[[terminal]]
+id = "unified_generic_reissuer"
+owner = "src/mir/builder/calls/unified_emitter.rs:407-461"
+edge = "Global(name) can be reparsed and reissued as Method(None)"
+disposition = "CutoverBlockerOpen"
+fail_fast = "canonical target identity must be preserved; no text/profile reclassification"
+reopen_trigger = "producer-first exact handoff is landed and reissuer has a zero-consumer guard"
+
+[state_matrix]
+cataloged_methodcall = "existing selected handoff; retain and do not generalize by inference"
+cataloged_bare_functioncall = "source context exists but no exact target row is issued; NoSafeSlice"
+unlocated_or_relationless = "compatibility/outside only; no catalog loan"
+missing_or_foreign = "typed reject before argument descent and publication"
+ambiguous_or_overflow = "typed reject; no static/instance preference"
+already_consumed = "typed reject; one-shot claim cannot be retried"
+exact_global_text_changed = "target-parity failure; text is not an authority"
+argument_failure_after_claim = "whole compilation failure/no retry; claim is not reused"
+
+[acceptance]
+status = "design_only_no_safe_slice"
+required_before_fast = [
+  "all production bare FunctionCall callers partitioned Cataloged/compatibility/foreign/unlocated with unclassified=0",
+  "one existing product exposes exact caller/site/target physical key or symbol with the same catalog brand",
+  "claim states Ready/Missing/Foreign/Duplicate/Consumed and completion exhaustion are named",
+  "claim/take precedes drive_call_arguments_v1, while args preserve source order and lower once",
+  "target absence, brand/site mismatch, arity drift, ambiguity, and consumed rows produce zero argument/block/wire/backend effects",
+  "resolve_call_target, unique/tail recovery, methodize, and raw-name fallback are removed or proven caller-zero for the selected row",
+  "positive callee/args/dst/effects/result parity and negative pre-effect rejection are available",
+  "unified_emitter.rs stays below 800 lines; additive logic requires a path-preserving child split before semantic edits",
+]
+reopen_triggers = [
+  "bare FunctionCall source-target product appears",
+  "generic caller becomes caller-zero",
+  "existing key is held from pre-effect claim through physical Call parity",
+  "a new generic caller or target re-pairing edge appears",
+]
+
+[docs]
+durable_policy = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"
+active_pointer = "docs/development/current/main/CURRENT_STATE.toml"
+active_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
+d1b_manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
+docs_slim_followup = "After D1C1 acceptance, compact the 2979-line Call SSOT by moving closed R1-R5/D1A/D1-D8 prose to existing history owners; keep the 2595-line normal-root manifest untouched"
