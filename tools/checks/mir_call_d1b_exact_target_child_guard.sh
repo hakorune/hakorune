@@ -7,6 +7,7 @@ BRAND="$ROOT_DIR/src/mir/builder/calls/function_call_brand_source_demand.rs"
 PREFLIGHT="$ROOT_DIR/src/mir/builder/calls/function_call_preflight_route.rs"
 BUILD="$ROOT_DIR/src/mir/builder/calls/build.rs"
 TESTS="$ROOT_DIR/src/mir/builder/calls/function_call_preflight_route_tests.rs"
+GC_TESTS="$ROOT_DIR/src/mir/builder/calls/function_call_installed_gc_builtin_tests.rs"
 RESOLVER="$ROOT_DIR/src/mir/builder/calls/resolver.rs"
 MATERIALIZER="$ROOT_DIR/src/mir/builder/calls/materializer.rs"
 UNIFIED="$ROOT_DIR/src/mir/builder/calls/unified_emitter.rs"
@@ -17,19 +18,20 @@ fail() {
   exit 1
 }
 
-for file in "$BRAND" "$PREFLIGHT" "$BUILD" "$TESTS"; do
+for file in "$BRAND" "$PREFLIGHT" "$BUILD" "$TESTS" "$GC_TESTS"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
-python3 - "$BRAND" "$PREFLIGHT" "$BUILD" "$TESTS" "$RESOLVER" "$MATERIALIZER" "$UNIFIED" "$TERMINAL" <<'PY'
+python3 - "$BRAND" "$PREFLIGHT" "$BUILD" "$TESTS" "$GC_TESTS" "$RESOLVER" "$MATERIALIZER" "$UNIFIED" "$TERMINAL" <<'PY'
 from pathlib import Path
 import sys
 
-brand, preflight, build, tests, resolver, materializer, unified, terminal = map(Path, sys.argv[1:])
+brand, preflight, build, tests, gc_tests, resolver, materializer, unified, terminal = map(Path, sys.argv[1:])
 brand_text = brand.read_text()
 preflight_text = preflight.read_text()
 build_text = build.read_text()
 tests_text = tests.read_text()
+gc_tests_text = gc_tests.read_text()
 resolver_text = resolver.read_text()
 materializer_text = materializer.read_text()
 unified_text = unified.read_text()
@@ -49,6 +51,20 @@ for token in (
 ):
     if token not in preflight_text:
         raise SystemExit(f"missing child target contract: {token}")
+
+if preflight_text.count("PreparedRawNonBrandRouteOriginV1::InstalledNonBrand") < 2:
+    raise SystemExit("InstalledNonBrand origin is not carried through the ordinary preflight")
+if preflight_text.count('"gc_collect" | "gc_stats"') != 1:
+    raise SystemExit("GC exact two-name cohort drifted")
+if "PreparedRawNonBrandRouteOriginV1::RelationlessCompatibility" not in preflight_text:
+    raise SystemExit("RawCompatibility origin boundary disappeared")
+for token in (
+    "installed_gc_names_are_targeted_before_arguments",
+    "gc_targeting_does_not_capture_compatibility_or_math_routes",
+    "installed_gc_target_is_consumed_once_with_existing_effect_parity",
+):
+    if token not in gc_tests_text:
+        raise SystemExit(f"missing GC focused evidence: {token}")
 
 target_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::Targeted")
 resolved_start = build_text.index("PreparedRawOrdinaryFunctionCompletionV1::Resolved", target_start)

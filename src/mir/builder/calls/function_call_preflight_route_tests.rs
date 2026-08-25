@@ -734,3 +734,6 @@ fn direct_str_child_failure_does_not_retry_or_observe_headers_and_reuses_builder
     assert_eq!(port.events, vec!["child"]);
     assert_eq!(port.expression_count, 2);
 }
+
+#[path = "function_call_installed_gc_builtin_tests.rs"]
+mod installed_gc_builtin_tests;

@@ -43,6 +43,12 @@ enum PreparedRawFunctionPreflightRouteV1 {
     },
 }
 
+#[derive(Clone, Copy)]
+enum PreparedRawNonBrandRouteOriginV1 {
+    InstalledNonBrand,
+    RelationlessCompatibility,
+}
+
 pub(super) enum PreparedRawOrdinaryFunctionCompletionV1 {
     StrNormalization {
         argument: ASTNode,
@@ -145,7 +151,13 @@ impl PreparedRawFunctionPreflightV1 {
                 ))
             }
             super::RawBrandCallAuthorityV1::InstalledNonBrand { caller } => {
-                prepare_non_brand_route(builder, &name, arguments, caller)
+                prepare_non_brand_route(
+                    builder,
+                    &name,
+                    arguments,
+                    caller,
+                    PreparedRawNonBrandRouteOriginV1::InstalledNonBrand,
+                )
             }
             super::RawBrandCallAuthorityV1::RelationlessCompatibility => {
                 if builder.comp_ctx.is_brand_declared(&name) {
@@ -153,7 +165,13 @@ impl PreparedRawFunctionPreflightV1 {
                         PreparedRawBrandConstructorV1::prepare(arguments, false),
                     )
                 } else {
-                    prepare_non_brand_route(builder, &name, arguments, None)
+                    prepare_non_brand_route(
+                        builder,
+                        &name,
+                        arguments,
+                        None,
+                        PreparedRawNonBrandRouteOriginV1::RelationlessCompatibility,
+                    )
                 }
             }
         };
@@ -166,6 +184,7 @@ fn prepare_non_brand_route(
     name: &str,
     arguments: Vec<ASTNode>,
     caller: Option<crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
+    origin: PreparedRawNonBrandRouteOriginV1,
 ) -> PreparedRawFunctionPreflightRouteV1 {
     if let Some((raw_type_name, op)) = prepare_typeop_route(name, arguments.as_slice()) {
         let mut arguments = arguments.into_iter();
@@ -200,6 +219,7 @@ fn prepare_non_brand_route(
                     name,
                     arguments,
                     caller.as_ref(),
+                    origin,
                 ),
             }
         }
@@ -210,6 +230,7 @@ fn prepare_non_brand_route(
                 name,
                 arguments,
                 caller.as_ref(),
+                origin,
             ),
         }
     }
@@ -220,6 +241,7 @@ fn prepare_ordinary_function_completion_v1(
     name: &str,
     arguments: Vec<ASTNode>,
     caller: Option<&crate::mir::builder::CanonicalSameModuleCallableKeyV1>,
+    origin: PreparedRawNonBrandRouteOriginV1,
 ) -> PreparedRawOrdinaryFunctionCompletionV1 {
     if name == "str" && arguments.len() == 1 {
         PreparedRawOrdinaryFunctionCompletionV1::StrNormalization {
@@ -233,9 +255,28 @@ fn prepare_ordinary_function_completion_v1(
             Ok(callee) => PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments },
             Err(error) => PreparedRawOrdinaryFunctionCompletionV1::Rejected { error },
         }
+    } else if matches!(origin, PreparedRawNonBrandRouteOriginV1::InstalledNonBrand)
+        && is_installed_non_unified_gc_builtin_v1(name)
+    {
+        match resolve_catalog_call_target_v1(builder, CallTarget::Global(name.to_owned())) {
+            Ok(callee) => PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments },
+            Err(error) => PreparedRawOrdinaryFunctionCompletionV1::Rejected { error },
+        }
     } else {
         PreparedRawOrdinaryFunctionCompletionV1::Resolved { arguments }
     }
+}
+
+fn is_installed_non_unified_gc_builtin_v1(name: &str) -> bool {
+    if !matches!(name, "gc_collect" | "gc_stats") {
+        return false;
+    }
+    let classification =
+        crate::mir::policies::call_name_classification::classify_call_name_v1(name);
+    matches!(
+        classification.callee_class(),
+        crate::mir::policies::call_name_classification::CallNameCalleeClassV1::BuiltinGlobal
+    ) && !classification.raw_unified_admission()
 }
 
 fn prepare_cataloged_target_v1(
