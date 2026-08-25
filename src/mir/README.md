@@ -123,6 +123,12 @@ effects through `MirInstruction::call`. Empty-plan/missing-block skips,
 replacement-map ordering, and span alignment remain unchanged; other string
 corridors and optimizer policy are outside this cell.
 
+The BoxCall D1J issuer cell replaces only the remaining fallthrough Call literal
+with the existing typed Method SSOT helper. It preserves the localized receiver,
+finalized argument order, box surface/certainty/kind, destination, effects, and
+post-success Map/type observations; Array/Unified early returns, LocalSSA
+mutation, route policy, and full Call retirement remain outside this receipt.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

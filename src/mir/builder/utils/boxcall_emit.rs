@@ -228,19 +228,16 @@ impl super::super::MirBuilder {
             CalleeBoxKindPolicyContextV1::GeneralEmission,
             &box_name_for_call,
         );
-        self.emit_instruction(super::super::MirInstruction::Call {
+        self.emit_instruction(crate::mir::ssot::method_call::method_call(
             dst,
-            func: super::super::ValueId::INVALID,
-            callee: Some(crate::mir::Callee::Method {
-                box_name: box_name_for_call,
-                method: method.clone(),
-                receiver: Some(box_val),
-                certainty,
-                box_kind,
-            }),
+            box_val,
+            box_name_for_call,
+            method.clone(),
             args,
             effects,
-        })?;
+            certainty,
+            box_kind,
+        ))?;
         if let Some(replay) = map_write_replay.take() {
             for observation in replay.into_observations().iter() {
                 crate::mir::builder::types::map_value::observe_map_write_call(
@@ -305,7 +302,8 @@ impl super::super::MirBuilder {
 mod tests {
     use super::*;
     use crate::mir::builder::router::policy::{choose_route, Route};
-    use crate::mir::definitions::call_unified::TypeCertainty;
+    use crate::mir::definitions::call_unified::{CalleeBoxKind, TypeCertainty};
+    use crate::mir::{Callee, EffectMask, MirInstruction, ValueId};
 
     #[test]
     fn unknown_receiver_uses_runtime_data_facade_with_union_certainty() {
@@ -324,5 +322,51 @@ mod tests {
         let (box_name, certainty) = boxcall_callee_surface(Some("ArrayBox"));
         assert_eq!(box_name, "ArrayBox");
         assert_eq!(certainty, TypeCertainty::Known);
+    }
+
+    #[test]
+    fn canonical_boxcall_method_issuer_preserves_call_fields() {
+        let dst = Some(ValueId::new(9));
+        let receiver = ValueId::new(3);
+        let args = vec![ValueId::new(20), ValueId::new(21)];
+        let effects = EffectMask::READ;
+
+        let instruction = crate::mir::ssot::method_call::method_call(
+            dst,
+            receiver,
+            "StringBox",
+            "substring",
+            args.clone(),
+            effects,
+            TypeCertainty::Known,
+            CalleeBoxKind::RuntimeData,
+        );
+
+        match instruction {
+            MirInstruction::Call {
+                dst: actual_dst,
+                callee:
+                    Some(Callee::Method {
+                        box_name,
+                        method,
+                        receiver: Some(actual_receiver),
+                        certainty,
+                        box_kind,
+                    }),
+                args: actual_args,
+                effects: actual_effects,
+                ..
+            } => {
+                assert_eq!(actual_dst, dst);
+                assert_eq!(actual_receiver, receiver);
+                assert_eq!(box_name, "StringBox");
+                assert_eq!(method, "substring");
+                assert_eq!(certainty, TypeCertainty::Known);
+                assert_eq!(box_kind, CalleeBoxKind::RuntimeData);
+                assert_eq!(actual_args, args);
+                assert_eq!(actual_effects, effects);
+            }
+            other => panic!("unexpected canonical BoxCall instruction: {other:?}"),
+        }
     }
 }

@@ -21,6 +21,7 @@ METHOD_CALL="$ROOT_DIR/src/mir/ssot/method_call.rs"
 BUILDER_EMIT="$ROOT_DIR/src/mir/builder/builder_emit.rs"
 PHI_REMATERIALIZATION="$ROOT_DIR/src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs"
 CONCAT3_REWRITE="$ROOT_DIR/src/mir/passes/concat3_canonicalize/rewrite.rs"
+BOXCALL_EMIT="$ROOT_DIR/src/mir/builder/utils/boxcall_emit.rs"
 PROGRAM_CALL_TARGETS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program_call_targets.rs"
 ORDINARY_NEW_ADMISSION="$ROOT_DIR/src/mir/builder/ordinary_new_admission.rs"
 RAW_CHILD_LOWERING="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
@@ -74,7 +75,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$CANONICAL_DIRECT_CALL" "$EXTERN_CALL" "$NORMAL_MAIN_THUNK" "$METHOD_CALL" "$BUILDER_EMIT" "$PHI_REMATERIALIZATION" "$CONCAT3_REWRITE" "$BOXCALL_EMIT" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -328,6 +329,33 @@ if concat_window.count("MirInstruction::call(") != 1:
 for forbidden in ("MirInstruction::Call {", "func:", "callee: Some("):
     if forbidden in concat_window:
         raise SystemExit(f"concat3 rewrite retained legacy edge: {forbidden}")
+
+boxcall = (root / "src/mir/builder/utils/boxcall_emit.rs").read_text()
+boxcall_start = boxcall.index("        // Canonical implementation (RCL-3-min3): emit Call(callee=Method)")
+boxcall_end = boxcall.index("        if let Some(replay)", boxcall_start)
+boxcall_window = boxcall[boxcall_start:boxcall_end]
+for token in (
+    "crate::mir::ssot::method_call::method_call(",
+    "dst,",
+    "box_val,",
+    "box_name_for_call,",
+    "method.clone(),",
+    "args,",
+    "effects,",
+    "certainty,",
+    "box_kind,",
+):
+    if token not in boxcall_window:
+        raise SystemExit(f"BoxCall issuer lost {token}")
+if boxcall_window.count("crate::mir::ssot::method_call::method_call(") != 1:
+    raise SystemExit("BoxCall issuer must delegate exactly once")
+for forbidden in ("MirInstruction::Call {", "func:", "callee: Some(", "runtime_method_call", "observed_receiver"):
+    if forbidden in boxcall_window:
+        raise SystemExit(f"BoxCall issuer retained legacy or non-authority edge: {forbidden}")
+if boxcall.index("let box_val = self.local_recv") > boxcall.index("crate::mir::ssot::method_call::method_call("):
+    raise SystemExit("BoxCall issuer moved before receiver localization")
+if boxcall.index("finalize_args(self, &mut args)") > boxcall.index("crate::mir::ssot::method_call::method_call("):
+    raise SystemExit("BoxCall issuer moved before argument finalization")
 
 builder_emit = (root / "src/mir/builder/builder_emit.rs").read_text()
 builder_start = builder_emit.index("// CRITICAL: Final receiver materialization")
