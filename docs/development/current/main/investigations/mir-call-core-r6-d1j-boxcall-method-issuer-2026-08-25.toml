@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1J BoxCall Method issuer"
-status = "accepted_design"
-observed_commit = "704e01fee0"
+status = "accepted_design_fast_row_selected"
+observed_commit = "27403680a1"
 observed_at = "2026-08-25"
-implementation_permission = false
+implementation_permission = true
 implementation_row = "MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0"
 fast_row_candidate = true
 

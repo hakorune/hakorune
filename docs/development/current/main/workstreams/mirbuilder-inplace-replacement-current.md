@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
+Status: Fast — MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
-  implementation    = D1I landed at 513a243be5; D1J is accepted design-only after two upper-worker audits
-  mode              = design_stop
-  production stop   = D1J may not change code until explicit fast-mode selection
-  exit              = one 328-line BoxCall fallthrough writer, 6 production sites/5 families, typed Method issuer, exact delete set, and scoped guard; full PHI admission/atomicity remains NoSafeSlice
+  implementation    = D1I landed at 513a243be5; D1J fast row selected after two upper-worker audits
+  mode              = fast
+  production stop   = D1J may touch only the BoxCall fallthrough writer, its scoped guard, one parity test, and README receipt
+  exit              = typed Method issuer + field-parity test + timing negatives + scoped guard + README receipt; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0 -> design_stop: one BoxCall fallthrough writer -> existing typed Method issuer; 6 production sites/5 families; no code until fast-mode selection
+ MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0 -> fast: one BoxCall fallthrough writer -> existing typed Method issuer; 6 production sites/5 families; no route/schema/fallback expansion
 Closed immediately prior
  MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0 -> landed at 4b2fe7a7b6: Extern SSOT delegates once to MirInstruction::call; parity 1/1, corridor guard, touched rustfmt, and diff green
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact

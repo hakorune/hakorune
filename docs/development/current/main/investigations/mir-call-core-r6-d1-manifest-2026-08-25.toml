@@ -771,15 +771,15 @@ warning_baseline = "quick profile reports 441 existing warnings; no new warning 
 source_risk = "69-line owner; Concat3Plan target/dst/ordered args and existing replacement/span semantics unchanged; no schema, flags, fallback, or backend change"
 
 [candidates.d1j_boxcall_method_issuer]
-status = "accepted_design"
+status = "accepted_design_fast_row_selected"
 manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1j-boxcall-method-issuer-2026-08-25.toml"
 boundary = "one BoxCall fallthrough writer after Array/Unified early returns"
 production_direct_sites = 6
 production_caller_families = 5
 writer_count = 1
 canonical_issuer = "ssot::method_call::method_call"
-implementation_permission = false
-review = "two upper-worker audits agree; implementation waits for explicit fast-mode selection"
+implementation_permission = true
+review = "two upper-worker audits agree; fast row selected at docs commit 27403680a1"
 
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"

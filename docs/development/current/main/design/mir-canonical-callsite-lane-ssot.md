@@ -106,8 +106,8 @@ accepted design-only next fast candidate is:
 MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
 ```
 
-It is limited to the one BoxCall fallthrough writer and has no implementation
-permission while `work_mode = design_stop`. Its boundary and receipt are in:
+It is limited to the one BoxCall fallthrough writer and is selected as the
+current `fast` row. Its boundary and receipt are in:
 
 ```text
 docs/development/current/main/investigations/
@@ -116,8 +116,8 @@ docs/development/current/main/investigations/
 
 D1I's three concat3 parity tests, shared corridor guard, pointer guard, rustfmt,
 and diff checks are green; the quick profile's 441 warnings remain the
-pre-existing baseline. D1J is not an implementation selection until the
-pointer moves to `fast`.
+pre-existing baseline. D1J remains limited to its one writer and selected
+proof set; full Call field retirement is not part of this row.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
