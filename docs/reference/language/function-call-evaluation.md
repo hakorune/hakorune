@@ -31,6 +31,14 @@ complete source callable inventory
 The resolved function retains only the exact callable identity for that source
 site. Lowering consumes it and does not search again by name.
 
+Within the SelectedNormal admission cohort, multiple source occurrences that
+project to the same effective top-level `name/arity` physical symbol are an
+ambiguous direct target. They reject before body lowering and before argument
+evaluation. Declaration order, collector replacement, and a retry through the
+RawCompatibility owner do not select a winner. Different arities remain
+distinct physical identities; RawCompatibility keeps its own explicitly owned
+legacy replacement policy and never re-enters SelectedNormal.
+
 For a value call, the callee expression is evaluated once before the arguments.
 Its resulting callable value is the callee authority. A Builder `ValueId` is a
 physical projection of that result, not source-semantic identity.

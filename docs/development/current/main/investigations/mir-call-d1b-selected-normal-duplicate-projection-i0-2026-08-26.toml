@@ -1,0 +1,99 @@
+title = "MIR Call D1B SelectedNormal duplicate projection pre-body validator"
+status = "accepted_design_no_safe_slice"
+observed_commit = "a3088cce40"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
+next_design_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-self-exact-target-loan-d0-2026-08-26.toml"
+
+[boundary]
+starts = "PreparedProgramRootWorkPlanV1 SelectedNormal preparation after the complete admission cohort is assembled"
+ends = "the first SelectedNormal top-level body lowering or any exact target loan"
+includes = [
+  "NormalTopLevelFunctionDraftAdmissionV1 physical_symbol/arity collision validation",
+  "same-name/same-arity duplicate and same-occurrence conflicting projection states",
+  "typed error propagation from ProgramRootWorkPlan preparation",
+  "zero body lowering, argument effects, and collector mutation on rejection",
+  "unique and different-arity parity witnesses",
+]
+excludes = [
+  "new Verified*/Prepared* semantic receipt or public relation index",
+  "RawCompatibility LegacyReplaceWholePair policy or retry",
+  "exact self/sibling target loan, root-lineage transport, relationless recovery, or Method(None)",
+  "collector redesign, parser grammar, fixture-wide rewrite, final Call schema, CallFlags, VM/backend, and warning cleanup",
+]
+
+[brief]
+decision = "Implement only the accepted SelectedNormal duplicate policy: validate the existing admission cohort before the first top-level body lowering and typed-reject duplicate effective physical projections. Do not change collector policy or invent a compatibility downgrade."
+source_authority = "VerifiedSelectedNormalCallableSourceInventoryV1 plus existing NormalTopLevelFunctionDraftAdmissionV1 rows carried by PreparedProgramRootWorkPlanV1."
+canonical_issuer = "none in this validator; successful unique rows remain available to the downstream scoped-loan/self-target design and existing MirInstruction::call issuer."
+non_authority = [
+  "statement order, collector last-wins, LegacySymbol text reconstruction, declaration name/arity formatting, RawCompatibility retry, or body/test success",
+]
+fail_fast = "After SelectedNormal admission rows are prepared but before the first top-level body/argument lowering, reject duplicate physical symbols, conflicting rows, or missing relation with a typed preparation error."
+smallest_next_slice = "One validator at ProgramRootWorkPlan preparation, one negative duplicate work-plan test, one production-like preflight witness, and the stable guard/reference receipt; split program_root_work_plan.rs first if the 760-line budget would be crossed."
+non_claims = [
+  "unique rows already provide an exact call target",
+  "different arity is duplicate",
+  "RawCompatibility duplicate behavior changes",
+  "the root-lineage or mandatory-Callee cutover is implemented",
+]
+
+[finite_state]
+states = [
+  "SelectedNormalUniqueProjection",
+  "SelectedNormalDifferentArityProjection",
+  "SelectedNormalDuplicateProjection",
+  "SelectedNormalPhysicalConflict",
+  "SelectedNormalMissingProjection",
+  "TypedRejectBeforeBodyLowering",
+  "RawCompatibilityOutsideBoundary",
+  "CollectorDuplicateGuardFailure",
+]
+terminal_policy = "Unique and different-arity SelectedNormal rows continue unchanged. Duplicate, conflicting, or missing rows become typed rejects before body lowering. RawCompatibility remains outside this validator; any SelectedNormal duplicate reaching the collector is a guard failure, never a winner."
+
+[delete_set]
+remove = [
+  "the positive SelectedNormal duplicate work-plan acceptance as a semantic success witness",
+  "any implicit reliance on LegacyReplaceWholePair for SelectedNormal",
+]
+preserve = [
+  "source occurrence identity and physical_symbol() values for diagnostics",
+  "RawCompatibility LegacyReplaceWholePair tests and owner",
+  "different-arity overload acceptance",
+]
+
+[acceptance]
+positive = [
+  "one unique SelectedNormal physical projection preserves work order, source occurrence, and physical symbol",
+  "same-name/different-arity rows remain distinct and accepted",
+  "RawCompatibility replacement tests remain unchanged",
+]
+negative = [
+  "same-name/same-arity duplicate preparation returns a typed error before classify/body lowering",
+  "duplicate rejection produces zero argument effects and zero collector mutation",
+  "diagnostic retains both source statement occurrences and the colliding physical symbol",
+  "no duplicate is converted into RawCompatibility or a target-loan candidate",
+]
+focused_checks = [
+  "cargo test --lib mir::builder::program_root_work_plan_tests",
+  "cargo test --lib mir::builder::program_root_work_plan_production",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+implementation_gate = "false until a fast pointer selects this exact pre-body validator, the program_root_work_plan.rs split/line budget is recorded, and the reference/module README receipt is named."
+guard = "a reusable guard must assert SelectedNormal duplicate physical projections are rejected before body/argument effects and that no LegacyReplaceWholePair or collector winner is used in the SelectedNormal corridor"
+
+[line_budget]
+program_root_work_plan = "721 lines observed; split top-level work helpers before adding a validator if the change would cross 760, with 800 as hard stop"
+raw_invocation_source_transport = "778 lines; do not edit in this row"
+active_workstream = "1000 lines; replace existing row prose, never append"
+
+[reopen]
+triggers = [
+  "a duplicate SelectedNormal row reaches body lowering or collector mutation",
+  "the validator synthesizes a target, new receipt, or RawCompatibility fallback",
+  "different-arity rows are rejected without a physical collision",
+  "source occurrence identity is lost from the diagnostic",
+  "line budget or unrelated dirty files enters the implementation diff",
+]

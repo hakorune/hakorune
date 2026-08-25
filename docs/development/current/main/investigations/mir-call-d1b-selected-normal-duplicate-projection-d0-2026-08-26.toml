@@ -1,10 +1,11 @@
 title = "MIR Call D1B SelectedNormal duplicate physical projection decision"
-status = "accepted_design_no_safe_slice"
-observed_commit = "a264a9d012"
+status = "accepted_design"
+observed_commit = "a3088cce40"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-next_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-physical-relation-scoped-loan-d0-2026-08-26.toml"
+next_child = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-i0-2026-08-26.toml"
+downstream_design_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-physical-relation-scoped-loan-d0-2026-08-26.toml"
 
 [boundary]
 starts = "VerifiedSelectedNormalCallableSourceInventoryV1 / NormalTopLevelFunctionDraftAdmissionV1 duplicate projections"
@@ -24,25 +25,27 @@ excludes = [
 ]
 
 [brief]
-decision = "Before any TopLevel target loan, decide whether duplicate SelectedNormal source occurrences that project to one physical LegacySymbol are a typed pre-body reject. Existing tests and work-plan preparation currently accept them, so duplicate-is-compatibility is not an observed fact. RawCompatibility may retain LegacyReplaceWholePair only under its existing owner; SelectedNormal requires an explicit acceptance Decision."
+decision = "SelectedNormal source occurrences that project to one effective same-name/same-arity LegacySymbol are an ambiguous direct target and must be typed-rejected before top-level body lowering. RawCompatibility may retain LegacyReplaceWholePair only under its existing owner; declaration order, collector last-wins, and retry into RawCompatibility are not SelectedNormal authority."
 source_authority = "SelectedNormal source inventory plus NormalTopLevelFunctionDraftAdmissionV1 physical projection and the existing program work-plan admission policy."
 canonical_issuer = "none in this design child; ProgramRootWorkPlan preparation is the candidate pre-body validator, while Call target issuance remains downstream and blocked."
 non_authority = [
   "collector last-wins/replacement, LegacySymbol text, name/arity formatting, statement order, test success, or compatibility labels",
 ]
 fail_fast = "Duplicate/conflicting SelectedNormal physical projections must be classified before any top-level body/argument lowering and before an ordinary Call target can be borrowed."
-smallest_next_slice = "Design-only reference/acceptance Decision for SelectedNormal duplicate projection; no code or fixture change until the compatibility impact and owner are accepted."
+smallest_next_slice = "A separate I0 may add one ProgramRootWorkPlan pre-body validator and convert the duplicate work-plan witness into a negative; exact target loan remains downstream."
 non_claims = [
-  "duplicate SelectedNormal is already safe to reject",
-  "RawCompatibility is the only duplicate cohort",
+  "the current implementation already rejects duplicate SelectedNormal work plans",
+  "RawCompatibility is the only duplicate cohort in the repository",
   "exact self/sibling target loans, constructor targets, or mandatory-Callee cutover",
 ]
 
 [observed]
 source_inventory = "SelectedTopLevelFunctionKeyV1 distinguishes statement occurrence but does not own a MIR symbol."
 draft_projection = "NormalTopLevelFunctionDraftAdmissionV1 maps each source key to name/arity LegacySymbol; multiple occurrences can share it."
-selected_normal_acceptance = "ProgramRootWorkPlanAdmissionV1::SelectedNormal currently admits the cohort and tests permit duplicate same-name/same-arity projections."
+selected_normal_acceptance = "ProgramRootWorkPlanAdmissionV1::SelectedNormal currently admits the cohort and tests permit duplicate same-name/same-arity projections; this is an observed migration behavior, not the accepted semantic contract."
 raw_compatibility_owner = "ProgramRootWorkPlanAdmissionV1::RawCompatibility plus LegacyReplaceWholePair is the existing legacy owner; it cannot silently authorize SelectedNormal."
+normative_reference = "docs/reference/language/function-call-evaluation.md: SelectedNormal same effective name/arity is ambiguous and rejects before body/argument evaluation; different arity remains distinct."
+compatibility_review = "Parser/AST transport may preserve duplicate occurrences, but no repository compatibility contract requires SelectedNormal last-wins execution; RawCompatibility remains the sole owner of legacy replacement."
 
 [finite_state]
 states = [
@@ -51,16 +54,15 @@ states = [
   "SelectedNormalPhysicalConflict",
   "RawCompatibilityDuplicateProjection",
   "ForeignOrMissingProjection",
-  "ReferenceDecisionPending",
   "TypedRejectBeforeBodyLowering",
   "ParkedRawCompatibility",
   "TargetLoanDecisionUnblocked",
 ]
-terminal_policy = "Only SelectedNormalUniqueProjection may proceed to a later target-loan design. SelectedNormalDuplicateProjection and SelectedNormalPhysicalConflict remain blocked until an explicit reference Decision; if rejection is accepted they terminate before body lowering. RawCompatibilityDuplicateProjection may remain ParkedRawCompatibility under its existing owner."
+terminal_policy = "Only SelectedNormalUniqueProjection may proceed to a later target-loan design. SelectedNormalDuplicateProjection and SelectedNormalPhysicalConflict terminate with a typed reject before body lowering. RawCompatibilityDuplicateProjection may remain ParkedRawCompatibility under its existing owner and cannot re-enter SelectedNormal."
 
 [decision_matrix]
 unique = "one source occurrence -> one physical projection with no competing planned producer: candidate for later exact loan"
-duplicate_selected = "two or more SelectedNormal occurrences -> one physical projection: decision required; recommended candidate is typed reject before body lowering, but current acceptance must be amended explicitly"
+duplicate_selected = "two or more SelectedNormal occurrences -> one effective physical projection: typed reject before body lowering; no declaration-order winner, collector replacement, or RawCompatibility retry"
 duplicate_raw = "RawCompatibility duplicate: retain only under existing LegacyReplaceWholePair owner with reopen trigger"
 conflict = "same occurrence has conflicting physical rows: typed reject before body lowering"
 missing = "source occurrence lacks physical relation: NoSafeSlice, no name/arity synthesis"
@@ -68,7 +70,7 @@ missing = "source occurrence lacks physical relation: NoSafeSlice, no name/arity
 [acceptance]
 design = [
   "the Decision distinguishes SelectedNormal duplicate from RawCompatibility duplicate",
-  "the reference/acceptance owner explicitly records whether SelectedNormal duplicate is rejected or intentionally preserved",
+  "the reference/acceptance owner records SelectedNormal duplicate as an ambiguous direct target rejected before body/argument evaluation",
   "pre-body fail-fast boundary and impact on existing duplicate tests/fixtures are named",
   "a later exact self/sibling target-loan child can rely on a unique SelectedNormal projection without collector last-wins",
 ]
@@ -76,8 +78,8 @@ negative = [
   "no code, fixture, collector policy, or production switch in this design row",
   "no implicit conversion of duplicate to RawCompatibility, no collector winner as authority, and no target inference",
 ]
-implementation_gate = "false until the duplicate acceptance Decision is explicit and the next exact-loan owner is named."
-guard = "future guard must assert SelectedNormal duplicate projections are either explicitly rejected before body lowering or explicitly owned; no duplicate may reach canonical target loan by collector replacement"
+implementation_gate = "false for this design row; the separate I0 card names the only permitted pre-body validator, while exact target loan remains a downstream design row."
+guard = "future guard must assert SelectedNormal duplicate projections are rejected before body lowering; no duplicate may reach canonical target loan by collector replacement or RawCompatibility retry"
 
 [reopen]
 triggers = [
