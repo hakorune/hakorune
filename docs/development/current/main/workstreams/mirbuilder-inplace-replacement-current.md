@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
+Status: Fast — MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,10 +33,10 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
-  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029; D1K accepted design-only after two upper-worker audits
-  mode              = design_stop
-  production stop   = D1K may not change code until explicit fast-mode selection
-  exit              = one 128-line retained-len writer, private plan authority, exact delete set, precise plan-0 boundary, and scoped guard; full PHI admission/atomicity remains NoSafeSlice
+  implementation    = D1I landed at 513a243be5; D1J landed at c927da4029; D1K fast row selected after two upper-worker audits
+  mode              = fast
+  production stop   = D1K may change only the one retained-len plan writer and its focused proof surfaces
+  exit              = one canonical Extern issuer, effects/hint/empty-plan proof, scoped guard, README receipt, and pushed commit; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> design_stop: one retained-len plan writer -> canonical Extern Call; one writer, two schedule entries; no code until fast-mode selection
+ MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> fast: one retained-len plan writer -> canonical Extern Call; one writer, two schedule entries; no family/schema expansion
 Closed immediately prior
  MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0 -> landed at 4b2fe7a7b6: Extern SSOT delegates once to MirInstruction::call; parity 1/1, corridor guard, touched rustfmt, and diff green
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact

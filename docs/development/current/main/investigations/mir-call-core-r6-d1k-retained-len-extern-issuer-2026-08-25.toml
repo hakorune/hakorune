@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1K retained-len Extern issuer"
-status = "accepted_design"
+status = "selected_fast"
 observed_commit = "b1e0f20a73"
 observed_at = "2026-08-25"
-implementation_permission = false
+implementation_permission = true
 implementation_row = "MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0"
 fast_row_candidate = true
 
@@ -109,7 +109,7 @@ guards = [
 [worker_review]
 issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1K is the smallest one-writer private-plan Extern candidate after D1J"
 containment_audit = "upper-worker /root/d2a_containment_audit: design-only safe; plan-0 claim narrowed to apply_retained_len_plans owner boundary"
-implementation_permission = false
+implementation_permission = true
 
 [stop_if]
 conditions = [

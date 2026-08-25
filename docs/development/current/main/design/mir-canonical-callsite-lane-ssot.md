@@ -99,10 +99,10 @@ receiver, registry, metadata, optimizer, or backend route.
 MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0
 ```
 
-D1K is accepted design-only after two upper-worker audits. D1J landed at
+D1K is the selected fast row after two upper-worker audits. D1J landed at
 `c927da4029`, limited to one BoxCall fallthrough writer; D1I landed at
-`513a243be5`. D1K has no implementation permission while `work_mode =
-design_stop`; its boundary and receipt are in:
+`513a243be5`. D1K implementation is limited to its one private-plan writer;
+its boundary and receipt are in:
 
 ```text
 docs/development/current/main/investigations/

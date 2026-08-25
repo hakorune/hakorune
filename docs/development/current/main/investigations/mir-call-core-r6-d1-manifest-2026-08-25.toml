@@ -798,14 +798,14 @@ warning_baseline = "quick profile reports 441 existing warnings; broad boxcall f
 source_risk = "boxcall_emit.rs 328 -> 372 lines; below split limits; no route, schema, fallback, backend, or LocalSSA policy change"
 
 [candidates.d1k_retained_len_extern_issuer]
-status = "accepted_design"
+status = "selected_fast"
 manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1k-retained-len-extern-issuer-2026-08-25.toml"
 boundary = "one retained-len same-invocation plan writer"
 direct_writers_before = 1
 direct_writers_after = 0
 canonical_issuer = "MirInstruction::call"
-implementation_permission = false
-review = "two upper-worker audits agree; implementation waits for explicit fast-mode selection"
+implementation_permission = true
+review = "two upper-worker audits agree; fast row selected for bounded implementation"
 
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
