@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0
+Status: Fast — MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,22 +32,22 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0
-  implementation    = D1Q Return-family writer landed at 491e212e77; selected writers 14 -> 12 and publication Return family 2 -> 0
-  mode              = closeout
-  production stop   = implementation is closed; only receipt, pointer, and next-edge worker evidence may enter this closeout
-  exit              = README/reference receipt, pointer closeout, commit, push, and upper-worker next-edge census
+  current decision  = MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0
+  implementation    = D1Q Return-family writer landed at 491e212e77; D1R MaterializationStore fast I0 is selected
+  mode              = fast
+  production stop   = only the one MaterializationStore issuer, its positive/negative/parity proof, and the shared guard may enter this fast cell
+  exit              = positive/negative/parity evidence, README/reference receipt, pointer closeout, commit, and push
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
 Current design brief:
 
-Decision: landed — replace the two publication-return direct Call literals with the thin canonical constructor as one atomic Return family while preserving both Return schedules.
-Source authority + canonical issuer: PublicationReturnPlan owns return position, exact Extern, helper dst, five ordered args, effects, copy indices, and helper span; MirInstruction::call is the issuer.
-Non-authority: return_idx representation, apply metadata reread, Return value, legacy func, backend lookup, PURE inference, DCE/CFG policy, and hint/count bookkeeping.
-Fail-fast boundary: missing/invalid Return relation, copy-chain, cold-publish reason/repr, helper, same-block, owned representation, or empty plan yields zero plan/Call/hint/count publication.
-Smallest next slice: closeout only — receipt records `491e212e77`, six focused tests, the 777-line guard, and the 441-warning baseline; no further implementation is admitted here.
-Non-claims: write/host writers, concat9, unified/array/canonicalizer, Method(None), bare FunctionCall, schema cutover, MirCall/CallFlags, metadata split, typed errors, backend/wire, and cleanup.
+Decision: replace only the MaterializationStore direct Call literal with the thin canonical constructor, preserving the existing ArrayBox set rewrite and observer schedule.
+Source authority + canonical issuer: MaterializationStorePlan owns helper dst, exact Extern, five ordered args, helper effects, store position, and copy/observer removal; MirInstruction::call is the issuer.
+Non-authority: apply-side enum reconstruction, ArrayBox set shape, resolved value types, legacy func, backend lookup, PURE defaults, DCE/CFG policy, and hint/count bookkeeping.
+Fail-fast boundary: typed ArrayBox set, copy chain, helper/same-block/order, helper use-count, or trailing observer proof failure yields zero plan/Call/store/hint publication.
+Smallest next slice: concat_corridor_apply.rs:453-461 only; add existing materialization positive parity and compact the shared guard without crossing 777/800 lines.
+Non-claims: other concat/unified/array/canonicalizer writers, Method(None), Closure/Constructor, schema cutover, MirCall/CallFlags, collector/plan/schedule, metadata, typed errors, backend/wire, fallback, and cleanup.
 ## Closed chronology (archived)
 
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -565,7 +565,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0 -> landed at 491e212e77: instruction/terminator Return issuers use one canonical constructor; selected writers 12 remain and publication Return family is 0; closeout evidence is green
+ MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0 -> fast selected after D1Q closeout: one MaterializationStore writer, selected writers 12 -> 11 and concat family 9 -> 8; exact plan fields and shared guard only
  MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> landed at 0738d722a3: canonical used_values delegation, typed/closure/arg positives, stale-func/dst-only negatives, legacy parity, guard and 5/5 module suite green
  MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline

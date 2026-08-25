@@ -21,6 +21,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1n-user-box-publication-call-operand-projection-d0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1o-publication-host-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1q-publication-return-extern-issuer-i0-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1r-materialization-store-extern-issuer-i0-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -103,7 +104,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current fast row:
 
 ```text
-MIR-CALL-CORE-R6-D1Q-PUBLICATION-RETURN-EXTERN-ISSUER-I0
+MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -142,7 +143,10 @@ full Call retirement remains separate. D1Q landed at `491e212e77`: the two
 PublicationReturnPlan writers (instruction Return and terminator Return)
 delegate to `MirInstruction::call` as one atomic family. Selected writers are
 now 12 and the publication Return family is 0; the focused six-test proof and
-shared guard are green.
+shared guard are green. D1R is the current fast row: the one
+`MaterializationStorePlan` writer in `concat_corridor_apply.rs` may delegate to
+`MirInstruction::call`; no other concat, unified, array, or canonicalizer
+writer may change in this cell.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

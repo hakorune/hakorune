@@ -201,6 +201,15 @@ the unchanged Return placement. The shared guard checks both Return windows
 at 777 lines. Collector rejection, remaining non-publication writers, schema
 cutover, fallback/retry, and whole-pass rollback remain outside this cell.
 
+The materialization-store D1R fast cell is limited to the one
+`ResolvedConcatCorridorPlan::MaterializationStore` writer. Its existing
+`MaterializationStorePlan` supplies the Extern, helper destination, five
+ordered operands, and effects to `MirInstruction::call`; the ArrayBox `set`,
+copy/observer removal, span, hint/count, CFG, and DCE schedule remain as-is.
+The focused materialization parity and shared guard are the receipt; other
+concat families, unified/array/canonicalizer writers, and Call schema
+retirement remain outside this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local

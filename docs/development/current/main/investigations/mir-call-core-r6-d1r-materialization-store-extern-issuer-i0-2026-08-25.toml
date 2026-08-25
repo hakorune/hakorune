@@ -1,0 +1,91 @@
+title = "MIR Call core R6 D1R materialization store Extern issuer"
+status = "fast"
+observed_at = "2026-08-25"
+observed_commit = "679d647cd6"
+implementation_permission = true
+implementation_row = "MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0"
+decision = "MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "Replace only the MaterializationStore direct Call literal with the thin canonical constructor, preserving the existing ArrayBox set rewrite and observer schedule."
+source_authority_and_canonical_issuer = "MaterializationStorePlan owns helper dst, exact SUBSTRING_CONCAT3_EXTERN, five ordered operands, helper effects, store position, and copy/observer removal; MirInstruction::call is the sole issuer."
+non_authority = "apply-side enum reconstruction, ArrayBox set shape, resolved value types, legacy func, backend lookup, PURE defaults, hint/DCE/CFG policy, and store rewrite are not target authority."
+fail_fast_boundary = "typed ArrayBox set, copy chain, helper/same-block/order, helper use-count, or exact trailing observer proof failure yields no plan and zero Call/store rewrite/hint publication."
+smallest_next_slice = "Change only concat_corridor_apply.rs:453-461; add exact Extern/dst/five-argument/READ parity to the existing materialization fixture and extend the shared guard by replacement within 777 lines."
+non_claims = "No other concat writer, unified/array/canonicalizer, Method(None), Closure/Constructor, Call schema, MirCall/CallFlags, collector/plan/schedule, metadata, backend/wire, fallback, or cleanup change."
+
+[boundary]
+starts = "collected MaterializationStorePlan entries from the concat corridor collector"
+ends = "existing helper Call, ArrayBox set rewrite, hint/count, CFG, DCE, and folded metadata refresh"
+includes = [
+  "the one direct Call writer for ResolvedConcatCorridorPlan::MaterializationStore",
+  "exact SUBSTRING_CONCAT3_EXTERN mapping, helper destination, five ordered operands, and helper effects",
+  "helper-before-store adjacency, copy/observer removal, span, and existing store rewrite",
+]
+excludes = [
+  "other concat writers, unified terminal, array projection, and callsite canonicalizer",
+  "Call operand consumers, Method(None), Closure/Constructor, and mandatory-Callee schema",
+  "collector/plan schema, DCE/schedule, metadata split, typed bridge errors, JSON, VM, backend, and cleanup lanes",
+]
+
+[authority]
+source = "MaterializationStorePlan.helper_dst, left/middle/right/start/end operands, helper_effects, store_idx, copy_indices, observer_copy_indices, and resolved store position"
+issuer = "MirInstruction::call(Some(*helper_dst), Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string()), ordered_args, *helper_effects)"
+non_authority = [
+  "apply_concat_corridor_plans target or effect recomputation",
+  "ArrayBox set fields, value types, and trailing observer shape as target authority",
+  "legacy func, backend lookup, PURE inference, and retry",
+  "rewrite_method_set_value, spans, hints, counts, CFG, DCE, and folded metadata",
+]
+
+[finite_matrix]
+positive = [
+  "ordinary MaterializationStore with trailing-length observer preserves exact Extern, helper dst, five args, non-PURE effects, helper-before-store adjacency, and store parity",
+  "existing copy/observer removal, span, hint/count, CFG, DCE, and folded metadata remain unchanged",
+]
+negative = [
+  "missing/foreign helper, wrong Method/arity, missing Callee, non-ArrayBox set, broken copy chain, or helper use-count != 1 -> no plan and no publication",
+  "unsupported representation/reason or missing exact trailing observer -> no Call/store/hint and no retry",
+]
+parity = [
+  "MaterializationStorePlan remains the single target/effects authority; only the physical issuer changes",
+  "D1Q Return, D1P Store/FieldSet, D1O host writers, remaining concat families, and pre/post-DCE schedule remain unchanged",
+]
+
+[delete_set]
+file = "src/mir/passes/string_corridor_sink/concat_corridor_apply.rs"
+lines = "453-461"
+remove = [
+  "one direct transitional MirInstruction::Call literal",
+  "func: ValueId::INVALID",
+  "callee: Some(Callee::Extern(...)) wrapper",
+]
+replace_with = "MirInstruction::call(Some(*helper_dst), Callee::Extern(SUBSTRING_CONCAT3_EXTERN.to_string()), vec![*left, *middle, *right, *start, *end], *helper_effects)"
+
+[acceptance]
+focused_tests = [
+  "sinks_materialization_helper_to_array_store_boundary: exact Extern/dst/five-argument order/READ effects, helper-before-store, and ArrayBox set parity",
+]
+static_evidence = [
+  "collector branches already reject unsupported set shape, missing helper/block, copy/observer chains, use-count, and trailing observer states before plan issue",
+  "the shared corridor guard must check the MaterializationStore writer window and forbid direct transitional fields; no fallback/retry evidence is accepted",
+]
+guards = [
+  "mir_call_canonical_corridor_guard proves the MaterializationStore window has one plan-owned canonical Call and no direct transitional fields",
+  "current_state_pointer_guard",
+  "rustfmt on touched Rust and git diff --check",
+]
+source_limits = "concat_corridor_apply.rs is 545 lines; materialization tests are 575 lines; corridor guard is 777 lines and must stay <=777; active card is 1000 lines"
+
+[worker_review]
+selection = "/root/d2c_consumer_selection_audit: fresh post-D1Q census selected this one existing MaterializationStore writer; selected writers 12, concat family 9"
+implementation_permission = "fast I0 permitted after the exact plan matrix, delete set, guard plan, and upper-worker review; no other writer or consumer is admitted"
+
+[stop_if]
+conditions = [
+  "MaterializationStorePlan fields must be recomputed, collector/schema changes, or ArrayBox store semantics change",
+  "any other concat, unified, array, canonicalizer, schema, Method(None), Closure/Constructor, metadata, backend, or cleanup row enters the diff",
+  "guard replacement/compaction cannot stay at 777 or any touched Rust file reaches 760/800 without a split design",
+  "negative state produces any plan, Call, store rewrite, hint, count, or retry",
+]
