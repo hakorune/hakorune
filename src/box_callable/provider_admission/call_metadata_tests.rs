@@ -10,6 +10,7 @@ use crate::mir::checked_callout::{
 use crate::mir::core_method_op::CoreMethodOp;
 use crate::mir::generated::core_method_contract_rows::CORE_METHOD_CONTRACT_ROWS_V2;
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::policies::a_prime_i64_callable_storage_layout::APrimeI64CallableStorageLayoutV1;
 use crate::mir::{
     BasicBlock, BasicBlockId, EffectMask, FunctionSignature, MirFunction, MirInstruction, MirType,
     ValueId,
@@ -47,6 +48,10 @@ fn projection_keeps_exact_two_typed_sites_and_stamp() {
         ModuleInvocationBrandV1::test_with_ordinal(7)
     );
     assert_eq!(projection.return_lane(), APrimeI64LaneV1::ImmediateI64);
+    assert_eq!(
+        projection.callable_storage_layout(),
+        APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64
+    );
     assert_eq!(projection.function_effects(), EffectMask::READ);
     assert_eq!(
         projection.formal_parameters()[1].role(),
@@ -233,6 +238,7 @@ fn project(
         site_plans,
         function,
         formal_parameters,
+        APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64,
         EffectMask::READ,
         &census,
     )

@@ -5,6 +5,7 @@
 //! owners inside its scoped entry, and never opens a second Builder/CFG owner
 //! or publication path.
 
+mod a_prime_callable_storage_layout;
 mod a_prime_receipt;
 mod assembly;
 mod body_state_bridge;
@@ -71,6 +72,7 @@ pub(in crate::mir) enum DynamicV2I8EmitterRejectV1 {
     InnerReturn(String),
     ProfileClose(String),
     DraftSeal(String),
+    CallableStorageLayout(String),
 }
 
 #[derive(Debug)]
@@ -551,6 +553,21 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 return Err(error);
             }
         };
+        let callable_storage_layout = match a_prime_callable_storage_layout::issue(
+            &self.demand,
+            &self.formal_header,
+            &self.values,
+            &receipt,
+            &self.brand,
+        ) {
+            Ok(layout) => layout,
+            Err(error) => {
+                outer.discard_unpublished();
+                return Err(DynamicV2I8EmitterRejectV1::CallableStorageLayout(format!(
+                    "{error:?}"
+                )));
+            }
+        };
         let projection = {
             let formal_parameters = self.formal_header.transport_rows();
             let expected_effects = self.demand.function_effects();
@@ -583,6 +600,7 @@ impl<'program, 'builder> DynamicV2PhysicalEmissionSessionV1<'program, 'builder> 
                 function.metadata.checked_callout_site_plan_table(),
                 function,
                 formal_parameters,
+                callable_storage_layout,
                 expected_effects,
                 &census,
             )

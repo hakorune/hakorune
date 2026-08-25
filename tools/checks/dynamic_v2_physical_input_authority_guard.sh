@@ -21,6 +21,11 @@ PACKAGE_LOAN="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
 SELECTED_ABI="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_abi.rs"
 SELECTED_CAPABILITY="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_capability.rs"
 SELECTED_EMITTER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/mod.rs"
+SELECTED_STORAGE_POLICY="$ROOT_DIR/src/mir/policies/a_prime_i64_callable_storage_layout.rs"
+SELECTED_STORAGE_COSEAL="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/a_prime_callable_storage_layout.rs"
+CALL_METADATA="$ROOT_DIR/src/box_callable/provider_admission/call_metadata.rs"
+CALL_METADATA_TESTS="$ROOT_DIR/src/box_callable/provider_admission/call_metadata_tests.rs"
+POLICIES_MOD="$ROOT_DIR/src/mir/policies/mod.rs"
 SELECTED_TARGETS="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/targets.rs"
 SELECTED_FORMAL_HEADER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/formal_header.rs"
 SELECTED_VALUE_LEDGER="$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/value_ledger.rs"
@@ -37,7 +42,8 @@ guard_require_files "$TAG" "$EVIDENCE" "$INPUT" "$EXIT_TX" "$COSEAL_TESTS" \
   "$DEMAND_MOD" "$DEMAND_MODEL" "$DEMAND_ISSUER" "$APRIME_SOURCE" "$SELECTED_ABI" \
   "$SELECTED_CAPABILITY" "$SELECTED_EMITTER" "$SELECTED_TARGETS" "$SELECTED_VALUE_LEDGER" "$SKELETON_BUILDER" "$CANONICAL_SESSION" "$APRIME_MODEL" \
   "$APRIME_ISSUER" "$CATALOG_ADMISSION" "$PACKAGE_INSTALL" "$PACKAGE_LOAN" "$SELECTED_FORMAL_HEADER" \
-  "$SELECTED_OPERATION_CURSOR" \
+  "$SELECTED_OPERATION_CURSOR" "$SELECTED_STORAGE_POLICY" "$SELECTED_STORAGE_COSEAL" \
+  "$CALL_METADATA" "$CALL_METADATA_TESTS" "$POLICIES_MOD" \
   "$WIRE_RS" "$WIRE_PY" "$WIRE_C"
 
 guard_expect_fixed_in_file "$TAG" \
@@ -264,6 +270,57 @@ for cursor_fact in \
 done
 guard_expect_fixed_in_file "$TAG" "operation_cursor::validate" "$SELECTED_EMITTER" \
   "selected session must run the exact-once V2 cursor before opening Builder state"
+
+# P3-I0 callable storage policy: one plain owner row is issued only at the
+# selected close, then stored on the existing projection.  This is not a
+# backend activation or a fourth semantic receipt.
+for file in "$SELECTED_STORAGE_POLICY" "$SELECTED_STORAGE_COSEAL" "$CALL_METADATA" "$CALL_METADATA_TESTS"; do
+  guard_expect_fixed_in_file "$TAG" "APrimeI64CallableStorageLayoutV1" "$file" \
+    "A-prime callable storage-policy owner is missing"
+done
+guard_expect_fixed_in_file "$TAG" "NonAddressableSsaI64" "$SELECTED_STORAGE_POLICY" \
+  "the A-prime storage policy must remain the non-addressable SSA-i64 singleton"
+guard_expect_fixed_in_file "$TAG" "a_prime_callable_storage_layout::issue" "$SELECTED_EMITTER" \
+  "selected emitter must issue the storage policy at close"
+guard_expect_fixed_in_file "$TAG" "callable_storage_layout:" "$CALL_METADATA" \
+  "existing AOT projection must carry a non-optional storage policy"
+guard_expect_fixed_in_file "$TAG" "fn callable_storage_layout" "$CALL_METADATA" \
+  "storage-policy projection accessor is missing"
+guard_expect_fixed_in_file "$TAG" "ReceiptFormal" "$SELECTED_STORAGE_COSEAL" \
+  "co-seal must reject formal/receipt drift"
+guard_expect_fixed_in_file "$TAG" "SessionBrand" "$SELECTED_STORAGE_COSEAL" \
+  "co-seal must reject a foreign physical session"
+guard_expect_fixed_in_file "$TAG" "projection.callable_storage_layout()" "$CALL_METADATA_TESTS" \
+  "positive projection test must observe the storage policy"
+for forbidden in "MirType" "StorageClass" "ASTNode" "as_recipe(" "serde"; do
+  if rg -F -q -- "$forbidden" "$SELECTED_STORAGE_POLICY" "$SELECTED_STORAGE_COSEAL"; then
+    guard_fail "$TAG" "storage policy/co-seal must not infer layout from non-authority: $forbidden"
+  fi
+done
+for forbidden in "APrimeI64CallableStorageLayoutV1" "NonAddressableSsaI64"; do
+  if rg -F -q -- "$forbidden" "$ROOT_DIR/src/runner" "$ROOT_DIR/src/llvm_py" "$ROOT_DIR/lang" "$ROOT_DIR/include"; then
+    guard_fail "$TAG" "storage policy must not cross into JSON/C/backend activation: $forbidden"
+  fi
+done
+policy_defs="$(rg -n -F -- "enum APrimeI64CallableStorageLayoutV1" "$SELECTED_STORAGE_POLICY" | wc -l | tr -d '[:space:]')"
+policy_variants="$(rg -n -F -- "NonAddressableSsaI64" "$SELECTED_STORAGE_POLICY" | wc -l | tr -d '[:space:]')"
+if [[ "$policy_defs" != 1 || "$policy_variants" != 1 ]]; then
+  guard_fail "$TAG" "storage policy must have exactly one enum definition and one singleton variant"
+fi
+co_seal_calls="$(rg -n -F -- "a_prime_callable_storage_layout::issue(" "$SELECTED_EMITTER" | wc -l | tr -d '[:space:]')"
+if [[ "$co_seal_calls" != 1 ]]; then
+  guard_fail "$TAG" "selected emitter must have exactly one storage-policy co-seal call: $co_seal_calls"
+fi
+python3 - "$SELECTED_EMITTER" <<'PY'
+from pathlib import Path
+import sys
+
+text = Path(sys.argv[1]).read_text(encoding="utf-8")
+co_seal = text.index("a_prime_callable_storage_layout::issue(")
+projection = text.index("project_dynamic_v2_aot_call_metadata(")
+if co_seal > projection:
+    raise SystemExit("storage policy must be co-sealed before projection")
+PY
 for forbidden in \
   "loop_recipe_physicalizer" \
   "MirInstruction" \
@@ -279,6 +336,12 @@ cursor_lines="$(wc -l < "$SELECTED_OPERATION_CURSOR" | tr -d '[:space:]')"
 if (( cursor_lines >= 800 )); then
   guard_fail "$TAG" "V2 operation cursor reached hard 800-line boundary: ${SELECTED_OPERATION_CURSOR#"$ROOT_DIR/"} has $cursor_lines"
 fi
+for file in "$SELECTED_STORAGE_POLICY" "$SELECTED_STORAGE_COSEAL" "$CALL_METADATA" "$CALL_METADATA_TESTS" "$SELECTED_EMITTER"; do
+  lines="$(wc -l < "$file" | tr -d '[:space:]')"
+  if (( lines >= 800 )); then
+    guard_fail "$TAG" "P3-I0 source reached hard 800-line boundary: $file has $lines"
+  fi
+done
 if rg -n -- "physical_value\(" "$SELECTED_EMITTER" "$ROOT_DIR/src/mir/builder/resolved_lowering/selected_dynamic_physical_emitter/i64_const.rs"; then
   guard_fail "$TAG" "production emitter must not expose a raw physical ValueId getter"
 fi

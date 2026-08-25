@@ -25,6 +25,8 @@ router-style consumers.
 - callee Box-kind classification shared by resolver and emission contexts
 - source `MethodCall` reserved-route classification shared by Builder and
   disconnected source-call proofs
+- selected A-prime exact-i64 callable storage policy; this is a plain physical
+  policy row issued at the selected emitter close, not a MIR/JSON layout fact
 
 ## Notes
 

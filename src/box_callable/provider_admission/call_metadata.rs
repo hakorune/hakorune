@@ -20,6 +20,7 @@ use crate::mir::checked_callout::{
     VerifiedCheckedCallOutFunctionV1,
 };
 use crate::mir::module_invocation_identity::ModuleInvocationBrandV1;
+use crate::mir::policies::a_prime_i64_callable_storage_layout::APrimeI64CallableStorageLayoutV1;
 use crate::mir::{BasicBlockId, EffectMask, MirFunction, MirType, ValueId};
 
 use super::admitted_registry::TextScanAdmittedRoleV1;
@@ -214,6 +215,7 @@ pub(crate) struct DynamicV2AotCallMetadataProjectionV1 {
     registry_generation: u64,
     plan_stamp: ModuleInvocationBrandV1,
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
+    callable_storage_layout: APrimeI64CallableStorageLayoutV1,
     return_lane: APrimeI64LaneV1,
     function_effects: EffectMask,
     calls: [DynamicV2AotCallSiteProjectionV1; 2],
@@ -263,6 +265,10 @@ impl DynamicV2AotCallMetadataProjectionV1 {
 
     pub(crate) const fn return_lane(&self) -> APrimeI64LaneV1 {
         self.return_lane
+    }
+
+    pub(crate) const fn callable_storage_layout(&self) -> APrimeI64CallableStorageLayoutV1 {
+        self.callable_storage_layout
     }
 
     pub(crate) const fn function_effects(&self) -> EffectMask {
@@ -351,6 +357,7 @@ impl DynamicV2AotCallMetadataProjectionV1 {
                     APrimeI64LaneV1::OpaqueHandle,
                 ),
             ],
+            callable_storage_layout: APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64,
             return_lane: APrimeI64LaneV1::ImmediateI64,
             function_effects: EffectMask::READ,
             calls: [
@@ -428,6 +435,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
     site_plans: &CheckedCallOutPlanTableV1,
     function: &MirFunction,
     formal_parameters: [DynamicV2AotFormalProjectionV1; 4],
+    callable_storage_layout: APrimeI64CallableStorageLayoutV1,
     expected_effects: EffectMask,
     census: &VerifiedCheckedCallOutFunctionV1,
 ) -> Result<DynamicV2AotCallMetadataProjectionV1, DynamicV2AotCallMetadataRejectV1> {
@@ -464,6 +472,7 @@ pub(crate) fn project_dynamic_v2_aot_call_metadata(
         registry_generation: admission.registry_generation(),
         plan_stamp: admission.plan_stamp(),
         formal_parameters,
+        callable_storage_layout,
         return_lane: APrimeI64LaneV1::ImmediateI64,
         function_effects: function.signature.effects,
         calls: [substring, index_of],
