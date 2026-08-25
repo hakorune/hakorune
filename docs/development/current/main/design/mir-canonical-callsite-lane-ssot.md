@@ -93,14 +93,15 @@ receiver, registry, metadata, optimizer, or backend route.
 
 ## Current selected row
 
-`CURRENT_STATE.toml` records the latest landed row:
+`CURRENT_STATE.toml` records the current design-stop row:
 
 ```text
-MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
+MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
 ```
 
 D1J landed at `c927da4029`, limited to one BoxCall fallthrough writer. D1I
-landed at `513a243be5`; the D1J boundary and receipt are in:
+landed at `513a243be5`; no next fast row is selected until the next
+upper-worker census. The D1J boundary and receipt are in:
 
 ```text
 docs/development/current/main/investigations/

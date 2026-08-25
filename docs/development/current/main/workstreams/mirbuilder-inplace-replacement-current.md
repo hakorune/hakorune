@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0 landed
+Status: Design stop — MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0
+  current decision  = MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
   implementation    = D1I landed at 513a243be5; D1J landed at c927da4029 after two upper-worker audits
-  mode              = closeout
-  production stop   = D1J implementation is closed; no next fast row is selected
-  exit              = typed Method issuer + field-parity test + timing negatives + scoped guard + README receipt + pushed commit; full PHI admission/atomicity remains NoSafeSlice
+  mode              = design_stop
+  production stop   = D1J implementation is closed; no code or fast-row selection before upper-worker census
+  exit              = D1J typed Method issuer + field/timing proof + scoped guard + README receipt + pushed commit; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
@@ -566,7 +566,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1J-BOXCALL-METHOD-ISSUER-I0 -> landed at c927da4029: one BoxCall fallthrough writer -> existing typed Method issuer; 6 production sites/5 families; field/timing parity green, 441 warnings baseline
+ MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0 -> design_stop: request one upper-worker bounded census after D1J; no code until a finite row is accepted
 Closed immediately prior
  MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0 -> landed at 4b2fe7a7b6: Extern SSOT delegates once to MirInstruction::call; parity 1/1, corridor guard, touched rustfmt, and diff green
  MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact
