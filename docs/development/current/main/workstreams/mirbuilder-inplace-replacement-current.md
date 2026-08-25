@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-I0
+Status: Design stop — MIR-CALL-D1B-CALL-OBSERVATION-PROFILE-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,19 +32,19 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-I0
-  implementation    = GC exact-target child landed at fcb1e01376; this I0 closes only the None+nonempty direct_calls silent-drop edge
-  mode              = fast
-  production stop   = preserve None+empty and Some(index) paths; reject None+nonempty before publication; no profile widening, target synthesis, or post-effect recovery closure
-  exit              = focused negative witness, reusable registered guard, parity for no-call/indexed callers, then return to the FunctionCall observation D0
+  current decision  = MIR-CALL-D1B-CALL-OBSERVATION-PROFILE-D0
+  implementation    = GC exact-target child landed at fcb1e01376; index-none direct-call safety I0 landed at c849307814; FunctionCall observation profile, direct-call inventory, and lineage co-seal remain design-only
+  mode              = design_stop
+  production stop   = separate ordinary/Brand/special/Extern/ASTNode::Call observation and preserve caller identity; no target synthesis, second resolver, or post-effect recovery closure
+  exit              = observation contract, then complete owner-qualified source inventory, package-owned identity-only index, catalog-gated traversal, same-session owner/site bijection, and whole-package abort proof
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-I0 — retire only the unconditional None+nonempty direct_calls empty-map success edge.
-Source authority + canonical issuer: existing ShadowResolver draft and canonicalize_draft error boundary; existing DraftInvariant type; no target issuer.
-Non-authority: callable_index=None empty maps, ShadowDirectCallUseV0 as a target, FunctionCall profile widening, caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, post-argument values, backend lookup, or GC child behavior as a general resolver.
-Fail-fast boundary: canonicalize_draft entry before canonical maps/package install/physical lowering/MIR publication; only this safety row is fast.
-Smallest next slice: one guard clause, one resolver negative witness, one registered reusable guard; then return to observation-profile design.
+Decision: D1B-CALL-OBSERVATION-PROFILE-D0 — separate ordinary/Brand/special/Extern/ASTNode::Call observation and preserve caller identity before any general inventory or direct-call effects.
+Source authority + canonical issuer: source AST/site plus the Brand declaration catalog and SelectedCallable/Constructor identity; existing ShadowResolver observation is the candidate issuer, while package co-seal remains downstream.
+Non-authority: silent SelectedCallable drops, callable_index=None empty maps, ShadowDirectCallUseV0 as a target, caller=None, physical symbol/name/arity synthesis, exact-i64 index borrowing, collector order, headers/suffixes, post-argument values, backend lookup, or GC child behavior as a general resolver.
+Fail-fast boundary: before package install, body lowering, argument descent, block mutation, or Call publication; any missing/foreign/ambiguous/deferred state aborts the unpublished package.
+Smallest next slice: design-only finite observation matrix and identity carriage for ordinary/Brand/special/Extern/ASTNode::Call; profile widening and source inventory follow only after this child.
 Non-claims: implementation, new public receipt, relationless closure, Method(None), JSON/VM/backend, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-I0 -> reject None+nonempty direct_calls with existing DraftInvariant while preserving None+empty and Some(index); observation profile, source inventory, general identity index, sibling/constructor target loans, RuntimeData Global methodize, and ArrayElementWrite remain downstream
+Now MIR-CALL-D1B-CALL-OBSERVATION-PROFILE-D0 -> ordinary/Brand/special/Extern/ASTNode::Call must have separate finite observation states and caller identity before SelectedCallable widening; the source inventory, index-none safety child, general identity index, sibling/constructor target loans, RuntimeData Global methodize, and ArrayElementWrite remain downstream
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

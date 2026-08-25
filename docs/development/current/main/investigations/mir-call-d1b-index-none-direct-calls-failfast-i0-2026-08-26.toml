@@ -1,8 +1,10 @@
 title = "MIR Call D1B index-none direct-call fail-fast safety I0"
-status = "selected_fast"
-observed_commit = "5805401f5a"
+status = "landed_bounded_child_row"
+observed_commit = "c849307814"
 observed_at = "2026-08-26"
-implementation_permission = true
+implementation_permission = false
+selected_fast = true
+landed_commit = "c849307814"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-index-none-direct-calls-failfast-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-I0"
 decision = "Retire the silent None + non-empty direct_calls success edge at the existing canonicalize_draft boundary. Use the existing ResolveFunctionErrorV1::DraftInvariant, preserve None + empty direct_calls and Some(index) behavior, and add one focused negative witness plus one reusable guard."
@@ -58,6 +60,12 @@ evidence = [
   "current-state-pointer-guard",
   "git diff --check",
 ]
+
+[evidence]
+implementation = "c849307814: canonicalize_draft now rejects None + non-empty direct_calls with the existing DraftInvariant before canonical map publication."
+focused_result = "canonical_resolver_rejects_unindexed_direct_call_draft: 1 passed; 0 failed; 7435 filtered out"
+guard_result = "mir_call_d1b_index_none_direct_calls_guard.sh: ok"
+hygiene_result = "cargo fmt --all -- --check, current_state_pointer_guard, and git diff --check: ok"
 
 [reopen]
 triggers = [
