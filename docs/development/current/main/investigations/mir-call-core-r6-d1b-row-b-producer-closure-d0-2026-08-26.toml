@@ -109,12 +109,23 @@ next_decision = "Mark the edge RetainGuarded with a reopen trigger or include it
 [closure_decision]
 name = "D1B-ROW-B-PRE-EFFECT-TARGET-CLOSURE-D0"
 subchecks = [
+  "existing preflight target transport without a new semantic receipt",
   "existing same-brand product transport",
   "total local-shadow order",
   "RuntimeData qualified-Global adjacent census",
   "materializer/unified-emitter recovery disposition",
 ]
 implementation_permission = false
+
+[preflight_transport]
+status = "DesignAmendmentOpen"
+existing_owner = "RawBrandCallAuthorityV1 + PreparedRawFunctionPreflightRouteV1::Ordinary"
+source_authority = "same-allocation VerifiedSameModuleCallableDeclarationCatalogV1 -> BareStaticRecoveryDecisionV1::Unique(CanonicalSameModuleCallableKeyV1) -> mir_symbol_projection()"
+candidate = "Extend the existing brand/lowering scope and Ordinary preflight payload to retain the canonical key or qualified Global target before drive_call_arguments_v1; do not introduce a new Verified*/Prepared* semantic receipt."
+evidence = "function_call_preflight_route.rs:14-42,103-143,189-202; raw_expression_dispatch/mod.rs:341-353; callable_declaration_catalog/recovery.rs:39-55; callable_declaration_catalog/key.rs:50-52"
+current_gap = "RawBrandCallAuthorityV1::InstalledNonBrand, CallableSemanticLoweringState, and RawInvocationChildPortV1 currently carry no catalog brand/target payload."
+fail_fast = "foreign, ambiguous, unresolved, or precedence-invalid target must terminalize at the dispatcher/preflight seal before argument lowering, child effects, name Const, or block publication"
+blocker = "Existing transport design is viable, but local Value versus catalog static precedence is not yet a total accepted Decision; therefore implementation_permission remains false."
 
 [acceptance]
 required_before_fast = [
@@ -126,6 +137,7 @@ required_before_fast = [
   "guard is function-window scoped and does not global-grep JSON compatibility or non-Callee receiver fields",
   "dirty build.rs overlap is resolved before implementation permission (observed clean at 2e95a9fd02)",
   "the re-audit transport, shadow, RuntimeData Global, and materializer dispositions are accepted in this design card",
+  "existing preflight transport amendment is accepted without minting a new semantic receipt",
 ]
 positive = [
   "exact static catalog -> same qualified Global symbol, args, dst, effects, and result",
