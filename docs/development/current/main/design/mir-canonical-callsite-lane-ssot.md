@@ -1130,15 +1130,16 @@ Four-boundary design consultation (D1 policy; implementation still stopped):
 | Closure / Value | descriptor (`params/captures/me`, `dst`, empty construction args) issues `NewClosure`; an existing closure value issues `Callee::Value(ValueId)`. | Closure wire is compatibility projection only; mixed descriptor/value, missing dst, runtime args, or `Call(Callee::Closure)` at selected terminal rejects before publication |
 | Constructor / NewBox | constructor syntax/resolver/JSON verifies `box_type`, `dst`, arity and args, then the existing `NewBox` owner publishes construction. `Callee::Constructor` is pre-core/compat input only. | V0 Constructor-shaped Call resolves once to `NewBox` or rejects; backend/C name scans and `Call(Constructor)` execution are forbidden |
 
-The matrix is a policy Decision, not implementation evidence. The four
-production issuers are still open: Method(None) has real builder/V0 producers,
-Closure V0 parser/runtime parity is incomplete, Constructor has V0 Call and
-V1/NewBox routes, and public `MirCall`/`CallFlags` can be observed outside the
-selected builder. Therefore R6a remains a `NoSafeSlice` until the following
-bounded rows close their own old edge and acceptance:
+The matrix is a policy Decision, not implementation evidence. Three physical
+issuer families are still open: Method(None) has real builder/V0 producers,
+Closure V0 parser/runtime parity is incomplete, and Constructor has V0 Call and
+V1/NewBox routes. Public `MirCall`/`CallFlags` is now a parked transport policy,
+with external use as its explicit reopen trigger. Therefore R6a remains a
+`NoSafeSlice` until the following bounded rows close their own old edge and
+acceptance:
 
 ```text
-D1-A  CallFlags public/selected-consumer census; non-default conflict reject
+D1-A  CallFlags public/selected-consumer census; non-default conflict reject (design closed)
 D1-B  verified static catalog -> qualified Global; Method(None) issuer count 0
 D1-C  Closure descriptor/value wire discriminator and NewClosure parity
 D1-D  Constructor input -> NewBox sole selected physical owner
@@ -1151,6 +1152,28 @@ its local test passes: its production issuer count, old-edge deletion, and
 positive/negative/parity evidence must be observable in the shared corridor
 guard. If a public flag consumer, third Constructor owner, ambiguous Closure
 wire, or missing static catalog is found, the row returns to `NoSafeSlice`.
+
+### D1-A result — `MirCall`/`CallFlags` policy accepted, implementation deferred
+
+```text
+selected Rust production flag field readers       = 0
+create_mir_call production caller                 = 1
+physical terminal semantic projection             = dst/callee/args/effects only
+public MirCall/CallFlags downstream consumers     = not observable in workspace
+JSON flags:{}                                     = compatibility shape retained
+JSON non-empty/unknown flags                      = typed reject before publication
+```
+
+The public `hakorune_mir_defs` and MIR facade exports remain an owner-local
+transport surface in this lane; they are not deleted or reinterpreted. Unknown
+downstream crates are `ParkedSealed` with the observable reopen trigger “a
+selected consumer reads a non-default flag or depends on the public fields”.
+`CallFlags::constructor` is decoration only and may not classify a Callee;
+`tail_call`, `no_return`, and `can_inline` have no selected semantic consumer.
+The selected JSON ingress must reject non-empty flag semantics rather than
+silently drop them. This closes D1-A as a design decision, but it does not
+permit the R6a code slice: Method(None), Closure, and Constructor remain D1-B/C-D
+blockers.
 
 | state / edge | source authority | D0 terminal classification |
 |---|---|---|

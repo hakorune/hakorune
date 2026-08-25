@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-A
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-B
   implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
   mode              = design_stop
-  production stop   = R6 D0 policy is fixed and the HEAD ledger is 21 writer definitions with zero missing-callee publication edges; D1-A must close the public CallFlags/API boundary before issuer migration
-  exit              = D1-A acceptance with non-default flag conflict policy; no code, fixture, fallback, or production switch
+  production stop   = R6 D0 policy is fixed and D1-A accepted the parked CallFlags transport policy with zero selected flag readers; D1-B must close the verified static Global issuer before any issuer migration
+  exit              = D1-B acceptance with Method(None) issuer count zero; no code, fixture, fallback, or production switch
 fallback / retry  = 0
 ```
 
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-A
-  -> design stop: classify public MirCall/CallFlags consumers and non-default conflict handling; no physical field deletion
+ MIR-CALL-R6-CORE-SCHEMA-D1-B
+  -> design stop: name the verified static catalog issuer for qualified Global and close every Method(None) producer/recovery edge
 Next (not selected)
-  -> D1-B static Global issuer; D1-C Closure/NewClosure parity; D1-D Constructor/NewBox owner; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-C Closure/NewClosure parity; D1-D Constructor/NewBox owner; R6a remains NoSafeSlice until all D1 rows close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
