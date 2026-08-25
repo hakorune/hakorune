@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — closeout (Extern plan co-seal I0 + exact D0)
+Status: Active workstream — design stop (R6 core schema)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0
   implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
-  mode              = closeout
-  production stop   = exact Extern D0 is closed with no C alias/name classification, route fallback, or post-mismatch publication; native switch, route expansion, link-policy change, Method(None)/Closure/Constructor gates, R6 field deletion, and JoinIR remain outside
-  exit              = commit/push this evidence, then design-stop on R6 core-schema authority; no new semantic receipt or route family
+  mode              = design_stop
+  production stop   = exact Extern D0 is closed with no C alias/name classification, route fallback, or post-mismatch publication; R6 field deletion, MirCall/CallFlags cleanup, Method(None)/Closure/Constructor gates, and JoinIR remain outside until authority is designed
+  exit              = six-line R6 authority brief, worker premise audit, and one accepted bounded next slice; no code, fixture, fallback, or production switch
 fallback / retry  = 0
 ```
 
@@ -366,11 +366,11 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-JSON-BACKEND-SHAPE-NATIVE-EXTERN-NOW-MS-LINK-PROOF-D0
-  -> closed: production object/archive/executable proof and generic/same-module prepass source/plan/arity/args/dst negatives are green; no fallback/publication after mismatch
+ MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0
+  -> design stop: name one source authority and canonical issuer for MirCall/CallFlags, Method.receiver, Closure construction, and Constructor/NewBox before any R6 implementation
 
 Next (not selected)
-  -> MIR-CALL-R6-CORE-SCHEMA-DESIGN-D0: decide MirCall/CallFlags, Method.receiver, Closure construction, and Constructor/NewBox boundaries before field deletion; R4c remains NoSafeSlice unless a caller reopens
+  -> one bounded R6 operand/schema slice after worker premise audit; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
