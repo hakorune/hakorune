@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (MIR-PHYSICAL-TYPE-INPUT-D0)
+Status: Active workstream — fast bounded row (MIR-PHYSICAL-TYPE-INPUT-I0)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-PHYSICAL-TYPE-INPUT-D0
-  implementation    = design stop; P2 metadata-manifest closeout landed at 618157cccb and the next candidate is A-prime exact-i64 only
-  mode              = design_stop
-  production stop   = no physical input may issue until a callable scalar storage-layout authority co-seals with source contracts, representation, and ABI
-  exit              = docs-only D0 Decision/state matrix naming the missing storage-layout owner and exact four-row schema; no code or backend effect
+  current decision  = MIR-PHYSICAL-TYPE-INPUT-I0
+  implementation    = fast bounded BoxShape row; D0 names the plain storage-policy owner and I0 only co-seals it at the selected emitter close
+  mode              = fast
+  production stop   = no JSON/C/backend physical input or old-edge retirement; the new policy is not inferred from MirType, StorageClass, wire text, or a receipt lane
+  exit              = one non-optional policy field in the existing projection, one close-time co-seal, focused positive/negative tests, and reusable guard
   fallback / retry  = 0
 ```
 
@@ -356,12 +356,13 @@ Non-claims:
   No metadata promotion, field deletion, backend activation, ModuleMetadata
   census, physical-type input, seed retirement, or warning cleanup.
 
-## Design stop: MIR-PHYSICAL-TYPE-INPUT-D0
+## Accepted design: MIR-PHYSICAL-TYPE-INPUT-D0
 
 Decision:
   Select only the A-prime exact-`i64` family as the first physical-input
-  pilot. The row is not implementation-safe yet: callable scalar
-  storage-layout authority is still unnamed, so the terminal is `NoSafeSlice`.
+  pilot. D0 is accepted as a design-only decision; the bounded I0 below adds
+  the named plain storage policy and co-seals it without activating a physical
+  backend input.
 
 Census boundary:
   Selected `ParserScanLoopBox.skip_while/4` final-source exact-`: i64` rows
@@ -381,13 +382,17 @@ Source authority + canonical issuer:
   co-seal own semantic facts. A future physical-input co-sealer may aggregate
   four same-cohort rows but may not issue new meaning. Usable representation
   and ABI transport owners are the existing `ImmediateI64` capability and
-  A-prime receipt/call-metadata co-seal.
+  A-prime receipt/call-metadata co-seal. The new plain policy owner is
+  `APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64`; its issuer is the
+  selected emitter close, after the existing demand, session, ledger, formal,
+  and receipt rows have been proven same-brand.
 
 Missing authority:
-  No dedicated callable scalar storage-layout row exists. `MirType::Integer`
+  The dedicated row is now named but not yet issued/co-sealed. `MirType::Integer`
   and `StorageClass::InlineI64` are logical inventories, not layout/ABI truth;
-  raw-layout/fastmem vocabulary, JSON strings, ValueId, receipt lane alone,
-  C validation, and other backends are non-authority.
+  raw-layout/fastmem vocabulary, Generic-G0 callable carriers, callout wire,
+  JSON strings, ValueId, receipt lane alone, C validation, and other backends
+  are non-authority.
 
 Finite state / fail-fast:
 
@@ -395,17 +400,36 @@ Finite state / fail-fast:
 | --- | --- | --- |
 | `OutsideCandidate` | existing owner continues; no physical issue | none |
 | `SourceExactButIncomplete` | missing representation/ABI/layout -> `NoSafeSlice` | none |
-| `CompleteSameCohort` | future one-shot input may be issued after owner decision | none |
-| `Conflict` | non-i64 or lane/layout mismatch typed reject before JSON/backend | none |
-| `ForeignDuplicateStale` | typed reject; no repair or re-pair | none |
+| `CompleteSameBrandNonAddressable` | I0 may attach the plain policy to the existing projection | none |
+| `MissingOrConflict` | typed reject before JSON/backend | none |
+| `AddressableOrExpanded` | outside D0; typed reject without layout synthesis | none |
+| `ForeignStaleDuplicate` | typed reject; no repair or re-pair | none |
 | `UnsupportedBackend` / `Consumed` | typed reject before effect or second take | none |
 
-Smallest next slice:
-  Docs-only D0 Decision/state matrix naming the dedicated callable scalar
-  storage-layout owner and exact four-row schema. No Rust, C, fixture, backend,
-  ABI, layout, type-width, caller, or performance change.
+Smallest next slice (`MIR-PHYSICAL-TYPE-INPUT-I0`):
+  Add only the plain `APrimeI64CallableStorageLayoutV1` policy enum, a child
+  co-sealer at `finish_unpublished_draft` after receipt issue and before
+  projection, and a non-optional field on the existing projection. It borrows
+  existing demand/source-Recipe/session/ledger/formal/receipt rows, performs no
+  AST/Recipe/MIR scan, and does not publish JSON, call C, activate a backend, or
+  retire old reconstruction edges.
 
-Acceptance for a later implementation row:
+I0 implementation contract:
+  `src/mir/policies/a_prime_i64_callable_storage_layout.rs` owns the singleton
+  enum; `selected_dynamic_physical_emitter/a_prime_callable_storage_layout.rs`
+  owns the typed co-seal; `call_metadata.rs` stores only the already-issued
+  policy. The co-seal requires DirectExactI64, same demand/relation/session
+  owner and brand, retained i64 formal rows, and validated receipt ImmediateI64
+  rows. The wire buffer and post-decode SSA remain separate. Parent emitter
+  logic stays below 760 lines; the existing physical-input authority guard is
+  extended rather than creating a second activation guard.
+
+Acceptance for I0 and the later implementation row:
+  I0 must prove one policy definition, one production co-seal, non-optional
+  projection storage, and typed rejection for foreign/duplicate/missing,
+  addressable/expanded, and lane/owner conflicts. It must not claim the full
+  four-authority backend input because `pos`/`end` do not yet have independent
+  `DynamicV2PhysicalRepresentationV1` ledger rows.
   Preserve existing i64/object parity for `pos`/`end` and inner/outer returns
   through one input; reject bare `MirType::Integer`, `StorageClass::InlineI64`,
   JSON `"i64"`, receipt-only lanes, and missing/conflicting/foreign rows; then
@@ -504,8 +528,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-PHYSICAL-TYPE-INPUT-D0
-  -> design stop: A-prime exact-i64 is the sole candidate; callable scalar storage-layout authority is missing, so implementation/backend effects stay closed
+ MIR-PHYSICAL-TYPE-INPUT-I0
+  -> fast bounded row: add the named non-addressable SSA-i64 policy and co-seal it at the selected emitter close; JSON/C/backend activation remains closed
 Next (not selected)
   -> Plan-owned/control-flow New, generated constructor-body sites, Core13/IntegerBox/record/builtin/JSON/op=newbox, Method(None), and non-selected backends remain ParkedSealed; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
