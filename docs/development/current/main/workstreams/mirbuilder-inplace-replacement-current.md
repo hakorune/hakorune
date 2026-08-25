@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D4-ORDINARY-NEW-SHARED-ISSUER-STAGING-DESIGN
-  implementation    = design only; D1-D3 found raw/PlanNormalizer dual producers, and D1-D4 has no accepted shared issuer, staging, lifecycle, or effect owner
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D5-ORDINARY-NEW-LIFECYCLE-EFFECT-DESIGN
+  implementation    = design only; D1-D3 found raw/PlanNormalizer dual producers, D1-D4 bounded the shared issuer/staging gap, and D1-D5 has no accepted lifecycle/effect bridge or expression transaction
   mode              = design_stop
-  production stop   = raw and PlanNormalizer ordinary-New edges lack one source/arity/effect relation, transaction staging, lifecycle order, and one physical owner; D1-D0 V0 and D1-D1 V1 negative edges remain closed
-  exit              = accept the semantic-boundary issuer, staging transaction, lifecycle/effect co-seal, and one-owner NewBox admission; Method(None) remains open
+  production stop   = raw and PlanNormalizer ordinary-New edges lack retained body-shape/lifecycle/effect handoff, expression transaction staging, and one physical owner; D1-D0 V0 and D1-D1 V1 negative edges remain closed
+  exit              = accept the lifecycle/effect bridge, named staging transaction, declaration-versus-override contract, and one-owner NewBox admission; Method(None) remains open
 fallback / retry  = 0
 ```
 
@@ -271,7 +271,7 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
 8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
-   D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, and D1-D4 the shared-issuer/staging design;
+   D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, D1-D4 the shared-issuer/staging design, and D1-D5 the lifecycle/effect bridge and transaction boundary;
    the full issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox remains a design stop.
 9. R7: structural guards, README/reference sync, and census closeout.
 
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-D4-ORDINARY-NEW-SHARED-ISSUER-STAGING-DESIGN
-  -> design stop: raw and PlanNormalizer both produce ordinary-capable NewBox shapes, but the semantic-boundary issuer, transaction staging, lifecycle/effect co-seal, and one owner are not accepted; close these before any positive Constructor/NewBox route
+ MIR-CALL-R6-CORE-SCHEMA-D1-D5-ORDINARY-NEW-LIFECYCLE-EFFECT-DESIGN
+  -> design stop: raw and PlanNormalizer ordinary-New edges lack retained body-shape/lifecycle/effect handoff and a named expression transaction; close these before any positive Constructor/NewBox route
 Next (not selected)
-  -> D1-D ordinary source-handoff/Constructor resolve-once implementation only after D1-D4 authorities are accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-D ordinary source-handoff/Constructor resolve-once implementation only after D1-D5 authorities are accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

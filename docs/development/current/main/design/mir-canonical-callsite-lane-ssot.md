@@ -1922,6 +1922,94 @@ Until the adapter, staging owner, lifecycle authority, and effect co-seal are
 all named and accepted, D1-D4 remains `NoSafeSlice`; no production code or new
 semantic receipt is authorized.
 
+#### D1-D5 design Decision — lifecycle/effect bridge and expression transaction
+
+D1-D4's remaining authorities are now bounded. The parser has declaration
+provenance, the resolver has per-owner New/child effects, and the constructor
+semantic row has source identity, but no product joins them; the constructor
+batch currently discards the body-shape map. D1-D5 keeps implementation stopped
+and designs that bridge without pretending the lifecycle contract is already a
+typed production product.
+
+Six-line brief:
+
+```text
+Decision:
+  ordinary New lifecycle/effect meaning is issued once at the semantic
+  constructor boundary and borrowed by both raw and PlanNormalizer paths.
+Source authority + canonical issuer:
+  parser StoredFieldInitializer/ConstructorSourceIdV1 and resolver
+  SourceExprSiteV1/BodyEffectShape products are the authorities; the future
+  constructor-semantic bridge retains the birth owner/body-shape relation and
+  issues one lifecycle/effect handoff. Builders do not issue it.
+Non-authority:
+  lifecycle prose alone, MIR instruction order, NewBox/CoreEffectPlan,
+  EffectMask, generated birth strings, physical arity, backend publication,
+  or a global boolean assembled from child effects.
+Fail-fast boundary:
+  distinguish declaration defaults from explicit `new Box { field: ... }`
+  overrides, validate New/birth/child effects, then stage all child lowering,
+  field writes, birth, and publish until one atomic commit.
+Smallest next slice:
+  design-only retention/reborrow of body-shape products plus the expression
+  transaction owner; no semantic receipt, route switch, fixture, or code.
+Non-claims:
+  lifecycle implementation, construction parity, specialized NewBox routes,
+  JSON/native/PyVM/reference/Python, Method(None), Closure, R6 cutover, and
+  warning/physical-shelf cleanup.
+```
+
+Finite authority inventory:
+
+| authority | current product | gap for ordinary New |
+|---|---|---|
+| stored declaration initializer | `parser/declarations/box_def/members/fields.rs:99-137` `StoredFieldInitializer` | provenance/order exists; no New-site relation |
+| constructor provenance | `parser/source_authority/constructor_source.rs:16-25,175-220` | generated-birth trigger validation exists; no publish edge |
+| constructor source row | `parser/constructor_source_catalog.rs:107-212` and semantic syntax loan | source id/key/declaration borrow exists; no lifecycle sequence |
+| New site/effect | `resolved_semantics/shadow/expr.rs:311-325` and `body_shape.rs:89-104,182-188` | Allocation and per-owner effects exist; no birth/publish join |
+| body-shape transport | `resolved_semantics/owner_resolver.rs:63-67,193-225,300-335` -> `compiler/lowering_input.rs:30-92` | product exists, but constructor semantic batch discards it at `instance_constructor_semantic.rs:153-156` |
+| constructor semantic row | `normal_callable_semantic_package/instance_constructor_semantic.rs:28-35,113-210` | source/forest/projection exists; body-shape/lifecycle field absent |
+| physical raw order | `builder/new_expression.rs:133-195` | NewBox -> birth -> explicit fields; no typed publish transaction |
+| physical plan order | `builder/control_flow/plan/normalizer/helpers_value.rs:523-555` -> `effect_emission.rs:180-190` | args-only NewBox; birth/publish absent |
+| construction-wide effects | no joining product | absent; MIR `EffectMask` is non-authority |
+
+The bridge must retain or reborrow the declared birth owner's body-shape
+product, the New-site Allocation, every ordered argument/initializer child
+effect, and the explicit override distinction. Declaration field initializers
+are not the same carrier as `new Box { field: expr }` overrides: the former
+belong to the birth lifecycle, while the latter are source-site operations. A
+missing birth row, `init/pack`-only alias, generated/direct provenance mismatch,
+foreign/duplicate source id, site drift, or incomplete child effect coverage is
+a typed reject, not a default effect.
+
+The expression transaction is a future source/physical boundary, not a MIR
+instruction wrapper. It must hold lowered child values and field writes without
+publishing them, validate the borrowed lifecycle/effect handoff, attach
+physical `dst`/`ValueId` operands only at admission, and commit the existing
+NewBox/birth/field/publish sequence exactly once. If an existing owner cannot
+provide this staging, D1-D5 stays `NoSafeSlice`; `drive_legacy_expression_v1`
+and PlanNormalizer must not be treated as implicit transactions.
+
+Lifecycle acceptance is explicit: declaration defaults -> matching `birth/N`
+-> explicit construction-site overrides where the language contract permits
+them -> publish usable identity. The current raw order and plan omission are
+observations to reconcile, not evidence of parity. Effect acceptance requires
+one joined semantic handoff over Allocation, child effects, field overrides,
+and birth-body effects; it must not read instruction masks or count only the
+root Allocation row.
+
+After D1-D5, the first possible implementation slice is still limited to one
+ordinary cohort only if the bridge retains body shapes, the transaction has a
+named owner, and both raw/plan paths borrow the same handoff. Positive evidence
+must show source id/site/birth `N`, declaration-versus-override distinction,
+ordered effects, lifecycle order, one relation consume, and one NewBox commit.
+Negative evidence must show pre-publication rejection without block mutation for
+missing/foreign/duplicate/drifted source, birth/arity/order mismatch, effect
+coverage gap, unsupported explicit override, and relation reuse.
+
+Until those five inputs are co-sealed, D1-D5 remains `NoSafeSlice` and no
+production implementation or semantic receipt is authorized.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records
@@ -2051,12 +2139,12 @@ by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
 Selected next design task is
-`MIR-CALL-R6-CORE-SCHEMA-D1-D4-ORDINARY-NEW-SHARED-ISSUER-STAGING-DESIGN`.
+`MIR-CALL-R6-CORE-SCHEMA-D1-D5-ORDINARY-NEW-LIFECYCLE-EFFECT-DESIGN`.
 D1-B-PARK accepted the existing static handoff/outside boundary and D1-C2-I0
 closed the lossy Closure body egress edge; D1-D0/D1-D1 closed only negative
-V0/V1 publication and shape edges. The D1-D4 shared issuer/staging/lifecycle/
-effect authorities, generic Method(None) issuer, and Constructor/NewBox dual
-route remain blockers. Until the full D1-D4 and remaining Method(None) edges are accepted,
+V0/V1 publication and shape edges. The D1-D5 lifecycle/effect bridge and
+expression transaction, generic Method(None) issuer, and Constructor/NewBox
+dual route remain blockers. Until the full D1-D5 and remaining Method(None) edges are accepted,
 do not change `Option<Callee>`,
 `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
