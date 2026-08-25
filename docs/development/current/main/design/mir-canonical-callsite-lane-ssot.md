@@ -1554,6 +1554,171 @@ checks are green in commit `640ac083a7`. No source/arity authority, R6 core
 field, native route, or positive Constructor producer was added. Full D1-D
 remains `NoSafeSlice`.
 
+#### D1-D2 design Decision — ordinary `New` source relation (implementation stop)
+
+This Decision narrows the remaining Constructor/NewBox blocker to the ordinary
+user-defined `New` cohort. It records a source relation only; it does not issue
+a new `Verified*`/`Prepared*` product, change a route, or authorize code in
+`work_mode = design_stop`.
+
+Six-line brief:
+
+```text
+Decision:
+  ordinary user-defined `New` is admissible only through a source-bound
+  relation to the declared `birth/N` hook; Core13, IntegerBox, builtins,
+  records, and JSON compatibility remain separate owners.
+Source authority + canonical issuer:
+  ParserConstructorSourceCatalogV1 and existing source/semantic products own
+  declaration identity; the missing New-callsite resolver must issue one
+  source relation, and the existing NewBox construction owner must consume it
+  once. No issuer is created in this design turn.
+Non-authority:
+  AST class text, `arguments.len()`, generated `<Class>.birth/N` strings,
+  header lookup, FunctionSignature, MIR EffectMask, JSON name/box_type,
+  runtime registry, backend symbol lookup, and post-MIR target inference.
+Fail-fast boundary:
+  source relation, ordered child/initializer sites, `birth/N`, Allocation
+  effect, and destination must be coherent before NewBox/birth Call, Const,
+  wire, block, or object publication; no retry or fallback is allowed.
+Smallest next slice:
+  design the relation and one-shot admission using existing SourceExprSiteV1,
+  BodyEffectKindV1::Allocation, and ParserConstructorSourceCatalogV1; no code,
+  fixture, receipt, or production switch until the missing issuer is accepted.
+Non-claims:
+  all-New coverage, Core13/IntegerBox/builtin/record routes, V0/V1 schema
+  changes, Method(None), Closure, backend activation, R6 field deletion, and
+  warning or physical-shelf cleanup.
+```
+
+Finite census boundary:
+
+```text
+ASTNode::New parse
+  -> raw New preparation
+  -> ordinary source relation
+  -> existing NewBox construction admission / selected Rust handle_new_box
+  -> construction publication
+```
+
+The boundary includes ordinary user-defined boxes and their declaration-side
+constructor products. It excludes `mir_core13_pure()`/`env.box.new`, the
+IntegerBox literal `Const` route, builtin/collection/plugin/MathBox owners,
+record construction, direct JSON `newbox`, V0/V1 compatibility input, and all
+PyVM/reference/Python/native_driver routes. The existing
+`constructor-birth-new-lifecycle-ssot.md` remains the lifecycle authority:
+allocate, declaration field initializers, matching `birth(args...)`, then
+publish usable identity.
+
+Current evidence and authority split:
+
+| evidence | current product | design classification |
+|---|---|---|
+| `src/parser/expr/primary.rs:272-278` | `ASTNode::New` carries class, arguments, field initializers, and type arguments | source syntax observation only |
+| `src/mir/builder/raw_expression_dispatch/mod.rs:544-557` | raw preparation forwards those same values | transport; no constructor identity |
+| `src/mir/builder/new_expression.rs:154-190` | ordinary lowering builds `<Class>.birth/N` from lowered arg count and header lookup | legacy downstream inference; cut candidate |
+| `src/parser/constructor_source_catalog.rs:107-205` | declaration rows and opaque `ConstructorSourceIdV1` | declaration authority; no New site relation |
+| `src/mir/normal_callable_semantic_package/instance_constructor_semantic.rs:113-175` | source-bound constructor body forest/projection | declaration/body authority; not call-site target authority |
+| `src/mir/resolved_semantics/shadow/expr.rs:307-327` | New site `Allocation` plus child traversal | reusable source fact; not physical effect authority |
+| `src/mir/resolved_semantics/source_projection.rs:262-275` | `Argument(i)` and `Initializer(i)` projections | reusable ordered source paths |
+
+Design relation (vocabulary only; not issued in this turn) must co-seal:
+
+```text
+FunctionOwnerIdV1                 owning source function
+SourceExprSiteV1                  exact New expression site
+ConstructorSourceIdV1             declaration/source identity
+final box ordinal + constructor key declaration coordinates
+canonical hook = birth, source arity N
+ordered Argument(i) sites and Initializer(i) sites
+existing BodyEffectKindV1::Allocation row
+constructor origin/provenance
+```
+
+It must not carry a physical symbol, Recipe key/selector, ValueId, backend
+handle, MIR `EffectMask`, or a runtime string. Source arity `N` is distinct
+from the receiver-inclusive physical birth function arity `N + 1`.
+
+The future one-shot physical admission is deliberately narrow: validate the
+relation once, lower ordered child expressions and field initializers, and
+co-seal the existing NewBox allocation with the matching `birth/N` call inputs
+and exact destination before publishing the existing lifecycle sequence. It
+must never rediscover a target from class text, argument count, or headers.
+`MirInstruction::Call` may only receive an already exact `Callee`; a
+`Callee::Constructor` Call is not a construction fallback. The existing
+NewBox handler remains the sole selected construction terminal.
+
+Two unresolved boundaries are intentionally left open by this design. First,
+the existing products expose the New-site `Allocation` fact, but not one
+single construction-wide effect row: initializer-child effects and `birth`
+body effects remain their own authorities and must be referenced/co-sealed,
+not reissued as MIR `EffectMask`. Second, current raw lowering writes a
+`NewBox`, then a by-name `birth` Call, then field initializers
+(`new_expression.rs:133-195`), while the lifecycle SSOT requires declaration
+field initializers before `birth` and publication. D1-D2 makes no parity claim
+for that ordering and does not silently change it; lifecycle-order correction
+is a separately named blocker.
+
+The source relation must keep `dst` and lowered `ValueId` arguments out of its
+Facts. They are physical admission inputs, attached only after the relation is
+borrowed once. Source validation can reject before child lowering; however,
+the current `drive_legacy_expression_v1` path may append child instructions
+before a later lowered-argument mismatch is known. An atomic no-block-mutation
+guarantee therefore needs a named staging/transaction owner and is not claimed
+by this design row.
+
+Finite source-relation states:
+
+| state | evidence | outcome |
+|---|---|---|
+| `OrdinaryReady` | unique source site/source id, user box, unique `birth/N`, ordered args/initializers, Allocation | future admission candidate; currently `NoSafeSlice` because issuer is absent |
+| `Missing` | box/declaration/catalog/birth row or source site absent | typed reject before child/object publication |
+| `ForeignChanged` | foreign owner/source id, changed declaration, or box/key mismatch | typed reject |
+| `DuplicateAmbiguous` | repeated site/source id or multiple constructor rows | typed reject |
+| `ArityOrderMismatch` | `args.len() != N`, missing/reordered child path, or initializer mismatch | typed reject before NewBox/birth publication |
+| `EffectDestinationMismatch` | missing Allocation fact, construction effect disagreement, or invalid destination | typed reject before publication |
+| `BirthProvenanceMismatch` | generated-birth initializer, direct birth, or `init/pack` alias is used as the ordinary hook | reject; only declared canonical `birth/N` is admissible |
+| `SiteDrift` | nested/initializer New path, transformed AST site, or constructor declaration no longer matches the catalog row | typed reject before publication |
+| `SpecializedCohort` | MathBox/collection/builtin NewBox or `CallTarget::Constructor` producer is observed | outside ordinary issuer census; retain its named owner |
+| `Core13Pure` / `IntegerBox` / `Builtin` / `Record` | named specialized route | outside this cohort; retain its existing owner |
+| `V0Compatibility` / `V1Compatibility` | typed JSON Constructor or direct `op=newbox` | owner-local compatibility; V0 reject and valid V1/direct NewBox remain unchanged |
+| `MalformedAbsent` | malformed source or unresolved relation | typed reject; no default or fallback |
+
+Old edges to retire only after this Decision is accepted and an issuer exists:
+
+```text
+ordinary raw-New class/arity inference and header lookup
+ordinary `CallTarget::Constructor` / `Callee::Constructor` publication
+post-lowering birth-name reconstruction or backend symbol lookup
+```
+
+Preserve the specialized Core13/IntegerBox/builtin/record owners, the current
+V0 typed Constructor reject, the valid V1/direct `NewBox` compatibility
+positive, the selected `handle_new_box` owner, and the unsupported Constructor
+terminal until its production issuer count is proven zero.
+
+The production count is cohort-qualified: `ordinary Constructor issuer = 0`
+does not mean `all NewBox writers = 1`. Builtin/collection producers, direct
+`op=newbox`, V1 compatibility, and MathBox constructor routes remain separate
+rows. A future census must also include nested `New`, field-initializer `New`,
+foreign/multi-module declarations, duplicate source ids, and constructor
+declaration drift without re-entering a by-name resolver.
+
+Future acceptance must show a positive ordinary New with one source relation,
+source `N`, ordered arguments/initializers, Allocation, exact `dst`, one
+construction publication, and the selected Rust NewBox owner; negative rows
+must reject missing/foreign/duplicate/birth/arity/order/effect/destination
+states before publication. A reusable guard should count relation/site
+uniqueness, ordinary Constructor issuer zero, NewBox owner one, and
+fallback/retry zero without counting compatibility or specialized cohorts.
+
+This row remains `NoSafeSlice`: the parser/resolver does not yet issue the
+New-callsite source relation, and the full source-effect-to-physical admission
+co-seal is not present. The next implementation row may be selected only after
+those two authorities are named and accepted; until then the R6 core schema,
+`Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, `MirCall`, and
+`CallFlags` remain untouched.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records
@@ -1682,12 +1847,14 @@ staging cleanup, but does not authorize deleting the public `MirCall`/
 by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
-Selected next design task remains `MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN`.
+Selected next design task is
+`MIR-CALL-R6-CORE-SCHEMA-D1-D2-ORDINARY-NEW-SOURCE-RELATION-DESIGN`.
 D1-B-PARK accepted the existing static handoff/outside boundary and D1-C2-I0
-closed the lossy Closure body egress edge; D1-D0 only closed the V0 negative
-publication edge. The generic Method(None) issuer, Constructor/NewBox dual
-route, and exact parser/source handoff remain blockers. Until the full D1-D
-and remaining Method(None) edges are accepted, do not change `Option<Callee>`,
+closed the lossy Closure body egress edge; D1-D0/D1-D1 closed only negative
+V0/V1 publication and shape edges. The D1-D2 New-site issuer/effect staging,
+generic Method(None) issuer, and Constructor/NewBox dual route remain
+blockers. Until the full D1-D2 and remaining Method(None) edges are accepted,
+do not change `Option<Callee>`,
 `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
 Post-R7 normal-root cleanup (parked, separate lane):

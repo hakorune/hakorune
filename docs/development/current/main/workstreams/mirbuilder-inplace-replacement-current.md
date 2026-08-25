@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
-  implementation    = D1-D1 V1 Constructor shape reject closed at 640ac083a7; valid Constructor -> NewBox and direct op=newbox remain unchanged
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D2-ORDINARY-NEW-SOURCE-RELATION-DESIGN
+  implementation    = design only; D1-D1 V1 shape reject closed at 640ac083a7, while the New-callsite source relation issuer is absent
   mode              = design_stop
-  production stop   = D1-D0 V0 and D1-D1 V1 negative compatibility edges are closed; full D1-D source/arity handoff remains NoSafeSlice, with no R6 field/source-route switch
-  exit              = name the existing New-callsite source/arity product and co-seal the V0/V1 resolve-once-or-reject matrix; Method(None) remains open
+  production stop   = ordinary New source/arity/effect handoff is a design-only NoSafeSlice; D1-D0 V0 and D1-D1 V1 negative edges remain closed, with no R6 field/source-route switch
+  exit              = accept one source-site -> birth/N relation issuer and one-shot NewBox admission contract; Method(None) remains open
 fallback / retry  = 0
 ```
 
@@ -270,9 +270,9 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
 7. R5 D0 is accepted; R5a is closed at `e36f86e869`, R5b-B0 Rust VM
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
-8. R6 D0 is accepted; D1-D0 closed the negative V0 Constructor publication edge
-   at `f3aa0c4721`, and D1-D1 closed V1 malformed/ambiguous shape rejects at
-   `640ac083a7`; the full `Call { callee: Callee }` issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox remains a design stop.
+8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
+   D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the ordinary-New source relation design;
+   the full issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox remains a design stop.
 9. R7: structural guards, README/reference sync, and census closeout.
 
 R3 D0 accepted boundary:
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
-  -> design stop: D1-D1 V1 Constructor shape reject closed at 640ac083a7; audit/name the existing New-callsite source/arity product before any positive Constructor/NewBox route; D1-D0 closed the V0 negative edge without a schema change
+ MIR-CALL-R6-CORE-SCHEMA-D1-D2-ORDINARY-NEW-SOURCE-RELATION-DESIGN
+  -> design stop: ordinary New has no source-site -> birth/N issuer or full effect co-seal; record the relation using existing source products before any positive Constructor/NewBox route; D1-D0/D1-D1 negative edges remain closed without a schema change
 Next (not selected)
-  -> D1-D source-handoff/Constructor resolve-once outcome; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-D ordinary source-handoff/Constructor resolve-once implementation after the relation issuer is accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
