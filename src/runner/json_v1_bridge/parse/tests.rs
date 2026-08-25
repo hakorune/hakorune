@@ -1,6 +1,13 @@
 use super::try_parse_v1_to_module;
 use crate::mir::{BasicBlockId, MirInstruction, ValueId};
 
+fn single_v1_instruction_payload(instruction: &str) -> String {
+    format!(
+        r#"{{"schema_version":"1.0","functions":[{{"name":"main","blocks":[{{"id":0,"instructions":[{}]}}]}}]}}"#,
+        instruction
+    )
+}
+
 #[test]
 fn parse_v1_ownership_transport_requires_exact_boxref_witness() {
     let payload = r#"{
@@ -166,4 +173,64 @@ fn parse_v1_accepts_newbox_and_field_get() {
                 && declared_type.is_none()
     ));
     assert!(func.next_value_id >= 3);
+}
+
+#[test]
+fn parse_v1_typed_constructor_preserves_valid_newbox_shape() {
+    let payload = single_v1_instruction_payload(
+        r#"{"op":"mir_call","dst":1,"callee":{"type":"Constructor","box_type":"ArrayBox"},"args":[]}"#,
+    );
+    let module = try_parse_v1_to_module(&payload)
+        .expect("valid Constructor must parse")
+        .expect("schema_version=1.0 must be handled");
+    let instructions = &module
+        .get_function("main")
+        .expect("main exists")
+        .get_block(BasicBlockId::new(0))
+        .expect("bb0 exists")
+        .instructions;
+    assert!(matches!(
+        &instructions[0],
+        MirInstruction::NewBox { dst, box_type, args }
+            if *dst == ValueId::new(1) && box_type == "ArrayBox" && args.is_empty()
+    ));
+}
+
+#[test]
+fn parse_v1_constructor_rejects_missing_args_before_publication() {
+    let payload = single_v1_instruction_payload(
+        r#"{"op":"mir_call","dst":1,"callee":{"type":"Constructor","box_type":"ArrayBox"}}"#,
+    );
+    let error = try_parse_v1_to_module(&payload).expect_err("missing Constructor args must reject");
+    assert!(error.contains("[freeze:contract][mir-json-v1/constructor-args-required]"));
+}
+
+#[test]
+fn parse_v1_constructor_rejects_non_array_args_before_publication() {
+    let payload = single_v1_instruction_payload(
+        r#"{"op":"mir_call","dst":1,"callee":{"type":"Constructor","box_type":"ArrayBox"},"args":null}"#,
+    );
+    let error =
+        try_parse_v1_to_module(&payload).expect_err("non-array Constructor args must reject");
+    assert!(error.contains("[freeze:contract][mir-json-v1/constructor-args-must-be-array]"));
+}
+
+#[test]
+fn parse_v1_constructor_rejects_conflicting_name_aliases_before_publication() {
+    let payload = single_v1_instruction_payload(
+        r#"{"op":"mir_call","dst":1,"callee":{"type":"Constructor","name":"ArrayBox","box_type":"MapBox"},"args":[]}"#,
+    );
+    let error = try_parse_v1_to_module(&payload).expect_err("conflicting aliases must reject");
+    assert!(error.contains("[freeze:contract][mir-json-v1/constructor-name-box-type-conflict]"));
+}
+
+#[test]
+fn parse_v1_constructor_rejects_dual_args_placement_before_publication() {
+    let payload = r#"{
+      "schema_version":"1.0","functions":[{"name":"main","blocks":[{"id":0,"instructions":[
+        {"op":"mir_call","dst":1,"args":[],"mir_call":{"args":[],"callee":{"type":"Constructor","box_type":"ArrayBox"}}}
+      ]}]}]
+    }"#;
+    let error = try_parse_v1_to_module(payload).expect_err("dual args placement must reject");
+    assert!(error.contains("[freeze:contract][mir-json-v1/constructor-args-ambiguous]"));
 }

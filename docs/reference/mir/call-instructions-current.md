@@ -9,6 +9,16 @@ SSOT: `docs/reference/mir/INSTRUCTION_SET.md`
 - `MirInstruction::ExternCall` は retired。
 - callsite は `MirInstruction::Call` に一本化し、呼び先種別は `Callee` で表す。
 
+## JSON-v1 Constructor ingress boundary
+
+V1 の typed `Constructor` は、valid shape（`name` または `box_type` の一方、
+`args` 配列、`dst`）を既存の `NewBox` owner へ渡す。`name` と `box_type` を
+同時に指定する場合は同一値でなければならない。args の欠落・非配列・flat と
+nested の同時指定、および alias conflict は、MIR block へ `NewBox` を追加する
+前に typed reject する。これは wire-shape の fail-fast 契約であり、constructor
+宣言の source/arity を解決する仕様ではない。AST `New` の source/arity handoff と
+R6 の core field cutover は別の設計停止に属する。
+
 ## Canonical 形
 
 ```rust

@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (R6 D1-D)
+Status: Active workstream — fast (R6 D1-D1 compatibility boundary)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
-  implementation    = D1-D0 V0 typed Constructor reject closed at f3aa0c4721 before MirInstruction::Call publication; direct op=newbox and existing non-Constructor calls remain unchanged
-  mode              = design_stop
-  production stop   = D1-D0 closed only the V0 negative publication edge; full D1-D source/arity handoff remains NoSafeSlice, with no R6 field or positive Constructor route switch
-  exit              = name the existing New-callsite source/arity product and co-seal the V0/V1 resolve-once-or-reject matrix; Method(None) remains open
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D1-V1-CONSTRUCTOR-SHAPE-REJECT-I0-R0
+  implementation    = preserve valid V1 typed Constructor -> NewBox; reject missing/non-array/dual-placement args and conflicting name/box_type before publication
+  mode              = fast
+  production stop   = D1-D0 V0 rejection is closed; full D1-D source/arity handoff remains NoSafeSlice while this V1 wire-shape boundary is closed
+  exit              = stable malformed/ambiguous rejects, valid Constructor/direct-newbox parity, shared guard, and no R6 field/source-route switch
 fallback / retry  = 0
 ```
 
@@ -367,8 +367,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
-  -> design stop: D1-D0 V0 typed Constructor reject is closed at f3aa0c4721; audit/name the existing New-callsite source/arity product before any positive Constructor/NewBox route; D1-C2-I0 rejected lossy body-backed closure egress without a schema change
+ MIR-CALL-R6-CORE-SCHEMA-D1-D1-V1-CONSTRUCTOR-SHAPE-REJECT-I0-R0
+  -> fast slice: keep valid V1 Constructor -> NewBox; reject malformed/ambiguous args and conflicting name/box_type before publication; D1-D0 closed the V0 negative edge without a schema change
 Next (not selected)
   -> D1-D source-handoff/Constructor resolve-once outcome; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 

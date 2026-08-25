@@ -1508,6 +1508,40 @@ diff check, and shared Call corridor guard are green. No V1/raw-New/native
 route, core field, or positive Constructor issuer changed. The full D1-D
 source/arity handoff remains `NoSafeSlice`.
 
+#### D1-D1 bounded negative row — V1 Constructor shape reject
+
+```text
+Decision: preserve valid V1 typed Constructor -> NewBox behavior, but reject
+  malformed or ambiguous Constructor shape before NewBox publication. Missing
+  or non-array args, conflicting name/box_type aliases, and simultaneous flat
+  and nested args are not silently defaulted or precedence-resolved.
+Source authority + canonical issuer: V1 parser owns wire-shape validation;
+  the existing V1 NewBox branch remains the sole positive issuer in this row.
+Non-authority: name/box_type precedence, absent-args-as-empty, args.len as
+  constructor arity, effects, backend registry, route metadata, and source
+  declaration catalogs not connected to the V1 call site.
+Fail-fast boundary: after typed Constructor recognition but before argument
+  defaulting/effect publication and before `block_ref.add_instruction`.
+Positive: valid Constructor with exactly one name/box_type alias and an array
+  args field keeps the existing NewBox shape; direct `op=newbox` is unchanged.
+Negative: missing/non-array/ambiguous args and conflicting aliases return stable
+  typed rejects and publish no NewBox. Existing missing name/dst/item rejects
+  remain unchanged.
+Non-claims: exact constructor source/arity, V1 Constructor semantic parity,
+  raw AST New, V0, native/HakoVM, Method(None), and R6 core-field cutover.
+```
+
+The finite V1 state boundary is `mir_json_v1_bridge` Constructor input through
+`NewBox` publication: absent/non-V1 input is outside; missing name/box_type,
+missing dst, and malformed arg items are existing rejects; valid-looking
+Constructor is a retained positive; missing/non-array/dual-placement args and
+conflicting aliases are the new negative states. The selected Rust core canary
+family and builder Constructor producer are positive evidence, so rejecting all
+valid V1 Constructors is explicitly not allowed. Acceptance is one stable
+reject token family, focused positive/negative parser tests, the existing direct
+NewBox test, and the shared Call corridor guard. Full D1-D remains
+`NoSafeSlice` because no source/arity product reaches arbitrary `New` call sites.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records

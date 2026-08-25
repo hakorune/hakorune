@@ -20,6 +20,8 @@ MIR_V0_CALL="$ROOT_DIR/src/runner/mir_json_v0/call.rs"
 MIR_V0_CATALOG="$ROOT_DIR/src/runner/mir_json_v0/catalog.rs"
 MIR_V0_MODULE="$ROOT_DIR/src/runner/mir_json_v0/module.rs"
 MIR_V0_TESTS="$ROOT_DIR/src/runner/mir_json_v0/tests.rs"
+MIR_V1_CALL="$ROOT_DIR/src/runner/json_v1_bridge/parse/mir_call.rs"
+MIR_V1_TESTS="$ROOT_DIR/src/runner/json_v1_bridge/parse/tests.rs"
 CALLEE_DEFS="$ROOT_DIR/crates/hakorune_mir_defs/src/call_unified.rs"
 SIMPLIFY_FLOW="$ROOT_DIR/src/mir/passes/simplify_cfg/flow.rs"
 VALUE_CONSUMER="$ROOT_DIR/src/mir/value_consumer.rs"
@@ -55,7 +57,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -93,6 +95,14 @@ require "$MIR_V0_CATALOG" "ConstValue::String"
 require "$MIR_V0_MODULE" "JsonV0FunctionCatalog::from_function"
 require "$MIR_V0_TESTS" "parse_typed_constructor_call_rejects_before_call_publication"
 require "$MIR_V0_TESTS" "parse_direct_newbox_remains_positive"
+require "$MIR_V1_CALL" "mir-json-v1/constructor-args-ambiguous"
+require "$MIR_V1_CALL" "mir-json-v1/constructor-args-required"
+require "$MIR_V1_CALL" "mir-json-v1/constructor-args-must-be-array"
+require "$MIR_V1_CALL" "mir-json-v1/constructor-name-box-type-conflict"
+require "$MIR_V1_TESTS" "parse_v1_typed_constructor_preserves_valid_newbox_shape"
+require "$MIR_V1_TESTS" "parse_v1_constructor_rejects_missing_args_before_publication"
+require "$MIR_V1_TESTS" "parse_v1_constructor_rejects_non_array_args_before_publication"
+require "$MIR_V1_TESTS" "parse_v1_constructor_rejects_conflicting_name_aliases_before_publication"
 require "$CALLEE_DEFS" "pub fn rewrite_value_operands"
 require "$CALLEE_DEFS" "pub fn for_each_value_operand"
 require "$SIMPLIFY_FLOW" "callee.rewrite_value_operands"

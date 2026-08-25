@@ -100,17 +100,69 @@ pub(super) fn parse_v1_mir_call(
             }
         }
         "Constructor" => {
+            let flat_args = inst.get("args");
+            let nested_args = inst.get("mir_call").and_then(|nested| nested.get("args"));
+            if flat_args.is_some() && nested_args.is_some() {
+                return Err(format!(
+                    "[freeze:contract][mir-json-v1/constructor-args-ambiguous] function '{}' provides both flat and nested args",
+                    func_name
+                ));
+            }
+            let args_node = flat_args.or(nested_args).ok_or_else(|| {
+                format!(
+                    "[freeze:contract][mir-json-v1/constructor-args-required] function '{}' requires an args array",
+                    func_name
+                )
+            })?;
+            if !args_node.is_array() {
+                return Err(format!(
+                    "[freeze:contract][mir-json-v1/constructor-args-must-be-array] function '{}' requires an args array",
+                    func_name
+                ));
+            }
+
             // new box instance: canonical key `name` (legacy: box_type)
-            let bt = callee_obj
-                .get("name")
-                .or_else(|| callee_obj.get("box_type"))
-                .and_then(Value::as_str)
-                .ok_or_else(|| {
+            let bt = match (callee_obj.get("name"), callee_obj.get("box_type")) {
+                (Some(name), Some(box_type)) => {
+                    let name = name.as_str().ok_or_else(|| {
+                        format!(
+                            "mir_call callee Constructor name must be a string in function '{}'",
+                            func_name
+                        )
+                    })?;
+                    let box_type = box_type.as_str().ok_or_else(|| {
+                        format!(
+                            "mir_call callee Constructor box_type must be a string in function '{}'",
+                            func_name
+                        )
+                    })?;
+                    if name != box_type {
+                        return Err(format!(
+                            "[freeze:contract][mir-json-v1/constructor-name-box-type-conflict] function '{}' has conflicting name/box_type",
+                            func_name
+                        ));
+                    }
+                    name
+                }
+                (Some(name), None) => name.as_str().ok_or_else(|| {
                     format!(
-                        "mir_call callee Constructor missing name/box_type in function '{}'",
+                        "mir_call callee Constructor name must be a string in function '{}'",
                         func_name
                     )
-                })?;
+                })?,
+                (None, Some(box_type)) => box_type.as_str().ok_or_else(|| {
+                    format!(
+                        "mir_call callee Constructor box_type must be a string in function '{}'",
+                        func_name
+                    )
+                })?,
+                (None, None) => {
+                    return Err(format!(
+                        "mir_call callee Constructor missing name/box_type in function '{}'",
+                        func_name
+                    ));
+                }
+            };
             // dst required for Constructor
             let dst = dst_opt.ok_or_else(|| {
                 format!(
