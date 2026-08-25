@@ -16,14 +16,14 @@ capability boundary, the path-preserving C owner split, and LLVM trap declaratio
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
 source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966, the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, and the next active state is the
-R6 D1-D7 ordinary-New source-handoff design stop; D1-D0 V0/D1-D1 V1 rejects are closed, while source-seed coverage, package join, initializer effects, dual body-shape loan, lifecycle, transaction, and shelf semantic authorities remain NoSafeSlice."""
+MIR-CALL-NEW-SOURCE-SEED-JOIN-D1 design stop; its finite HEAD census at 625491fb25 has seven CutoverBlockerOpen ordinary-New blockers, while D1-D0 V0/D1-D1 V1 rejects are closed and shelf semantic authorities remain NoSafeSlice."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R6-CORE-SCHEMA-D1-D7-ORDINARY-NEW-SOURCE-HANDOFF-DESIGN"
-current_design_stop = "D1-D8 shelf I0 is landed; D1-D7 must now fix the parser source-seed loan, exact Constructor package join, Initializer(i) effects, dual body-shape loan, and private admission snapshot before any ordinary-New production switch. Valid Constructor/direct op=newbox stay positive and Method(None) remains outside this row."
-current_blocker_token = "MIR-CALL-R6-CORE-SCHEMA-D1-D7-ORDINARY-NEW-SOURCE-HANDOFF-DESIGN: source-seed/package/lifecycle authority remains NoSafeSlice after shelf I0 b61f6895d2; no ordinary-New issuer or Method(None) cutover."
+current_execution_row = "MIR-CALL-NEW-SOURCE-SEED-JOIN-D1"
+current_design_stop = "D1-D8 shelf I0 is landed; the D1-D7 HEAD census found seven CutoverBlockerOpen ordinary-New gaps: final-source seed, exact package join, Initializer(i) effects, dual body-shape loan, raw/Plan lifecycle parity, private admission snapshot, and one physical owner. Valid Constructor/direct op=newbox stay positive and Method(None) remains outside this row."
+current_blocker_token = "MIR-CALL-NEW-SOURCE-SEED-JOIN-D1: keep NoSafeSlice until the finite seed/catalog mapping, dual body-shape/effect co-seal, and complete transaction surface are accepted; no ordinary-New issuer or Method(None) cutover."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -39,7 +39,7 @@ closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
 is accepted and profile-threading I0 is closed; JoinIR D0/caller-lifecycle D1
 are NoSafeSlice/closed, backend_shape capability D1 and strict-adapter I0 are
 closed, native capability D0 is NoSafeSlice, native D1 and the C owner split
-are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 and D1-D1 V1 negative Constructor edges are closed, D1-D8 design is accepted at 1434663966, shelf I0 landed at b61f6895d2, and the workstream is at the D1-D7 ordinary-New source-handoff design stop.
+are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 and D1-D1 V1 negative Constructor edges are closed, D1-D8 design is accepted at 1434663966, shelf I0 landed at b61f6895d2, and the workstream is at the MIR-CALL-NEW-SOURCE-SEED-JOIN-D1 design stop with seven in-boundary CutoverBlockerOpen gaps.
 JoinIR remap is NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
 ParkedSealed outside this lane. R5 exit: finite terminal matrix, selected
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, exact Extern D0, R6 D0, D1-D0/D1-D1 rejects, and D1-D2 through D1-D7 design rows are closed. D1-D8 design closed at 1434663966; helper-shelf I0 landed at b61f6895d2 with Cargo check green. Focused unit linking hit baseline clang OOM. Next is the D1-D7 ordinary-New source-handoff design stop; Constructor/NewBox, JoinIR/native, and Method(None) remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
-next_design_card = "MIR-CALL-R6-CORE-SCHEMA-D1-D7-ORDINARY-NEW-SOURCE-HANDOFF-DESIGN"
-next_execution_card = "none — MIR-CALL-R6-CORE-SCHEMA-D1-D7-ORDINARY-NEW-SOURCE-HANDOFF-DESIGN is a design stop"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON/profile/backend/native split, exact Extern D0, R6 D0, D1-D0/D1-D1 rejects, and D1-D2 through D1-D7 design rows are closed. D1-D8 design closed at 1434663966; helper-shelf I0 landed at b61f6895d2 with Cargo check green. Focused unit linking hit baseline clang OOM. D1-D7 census at 625491fb25 records seven in-boundary CutoverBlockerOpen gaps and no ParkedSealed findings. Next is the MIR-CALL-NEW-SOURCE-SEED-JOIN-D1 design stop; Constructor/NewBox, JoinIR/native, and Method(None) remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
+next_design_card = "MIR-CALL-NEW-SOURCE-SEED-JOIN-D1"
+next_execution_card = "none — MIR-CALL-NEW-SOURCE-SEED-JOIN-D1 is a design stop"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -76,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-25: R5a optimizer, R5b-B0 Rust interpreter, R5c printer, JSON egress D0, typed v0 decoration I0, JSON profile D1, and profile-threading I0 are closed (e36f86e869, 95427f2cd6, 67dd7e400a, 09f0e51143, 5ce1b18904, db350b81c9); JoinIR D0/caller-lifecycle D1 are NoSafeSlice, backend_shape strict-adapter I0 is closed at 40559cceef, native capability D0 is NoSafeSlice, native D1 boundary and C owner split I0 at 03b06622eb are closed, and exact Extern D0 is accepted with production link/prepass evidence; closeout precedes the R6 design stop; PyVM/reference/Python stay ParkedSealed.",
   "2026-08-25: MIR-CALL-CANONICAL-QUERY-OBSERVATION-T0-R0 closed Query Call read/write reconstruction via used_values/dst_value; 2 focused tests, pointer/corridor guards green, 433 warnings remain baseline.",
-  "2026-08-25: MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-I0-R0 closed value_consumer Call membership via one used_values delegation; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4d escape was next. D1-D0 V0 typed Constructor rejection later closed at f3aa0c4721 with direct newbox positive, 28 mir_json_v0 tests, and corridor/pointer/rustfmt/diff guards green; D1-D1 V1 Constructor shape rejects closed at 640ac083a7 with V1 parser 9/9, V0 28/28, and shared guards green; D1-D2 relation shape, D1-D3 raw/plan census, D1-D4 lifecycle/effect design, D1-D5 lifecycle bridge design, D1-D6 caller-relation design, D1-D7 parser-seed design, D1-D8 design closed at 1434663966, and helper-shelf I0 landed at b61f6895d2; Cargo check green, focused unit linking baseline clang OOM; full Constructor/NewBox source/arity handoff remains open.",
+  "2026-08-25: MIR-CALL-CANONICAL-OPERAND-VALUE-CONSUMER-I0-R0 closed value_consumer Call membership via one used_values delegation; focused refresh suite 5/5, corridor/pointer/rustfmt/diff green; 433 warnings remain baseline; R4d escape was next. D1-D0 V0 typed Constructor rejection later closed at f3aa0c4721 with direct newbox positive, 28 mir_json_v0 tests, and corridor/pointer/rustfmt/diff guards green; D1-D1 V1 Constructor shape rejects closed at 640ac083a7 with V1 parser 9/9, V0 28/28, and shared guards green; D1-D2 relation shape, D1-D3 raw/plan census, D1-D4 lifecycle/effect design, D1-D5 lifecycle bridge design, D1-D6 caller-relation design, D1-D7 parser-seed design, D1-D8 design closed at 1434663966, and helper-shelf I0 landed at b61f6895d2; Cargo check green, focused unit linking baseline clang OOM; D1-D7 census at 625491fb25 leaves seven in-boundary CutoverBlockerOpen gaps; full Constructor/NewBox source/arity handoff remains open.",
 ]

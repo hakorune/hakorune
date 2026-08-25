@@ -2255,6 +2255,59 @@ transaction snapshot from D1-D6. It must also retain the pre-implementation
 Until that evidence is recorded, D1-D7 remains `NoSafeSlice`; after it is
 accepted, the next mode may switch to `fast` for the shelf split only.
 
+#### D1-D7 HEAD feasibility census — 625491fb25
+
+The read-only worker census is now closed at the finite boundary
+`final parser transform -> final-source loans -> caller/constructor semantic
+batches -> semantic package -> selected raw or Plan admission -> expression
+transaction terminal`. It includes ordinary user-box `New`, nested arguments,
+explicit field initializers, declaration defaults, and birth-body effects. It
+excludes Core13, IntegerBox, record/builtin, direct `op=newbox`, JSON
+compatibility, generated constructor-body sites, non-selected backends, and
+`Method(None)`; those are explicit outside/compatibility owners.
+
+```text
+Decision:
+  keep D1-D7 at NoSafeSlice / SemanticAuthorityMissing; do not issue a
+  guessed source seed, relation, transaction receipt, or ordinary-New switch.
+Source authority + canonical issuer:
+  final-source callable anchor loan + ParserConstructorSourceCatalogV1 +
+  caller/birth body-shape/effect authorities; the package-adjacent issuer is
+  the only future join owner and does not exist at this HEAD.
+Non-authority:
+  class/name/arity, birth/N text, ordinal/key alone, resolver owner slots,
+  AST rescans, raw/Plan carriers, CoreEffectPlan, EffectMask, ValueId,
+  Builder headers, backend lookup, and fallback state.
+Fail-fast boundary:
+  SeedMissingFinalSource, ForeignBrandOrAnchor, CatalogAbsent,
+  ProjectionDrift, DuplicateOrReused, OutsideSelectedCohort,
+  NestedCoverageGap, AmbiguousOrUnresolvedConstructor, and
+  BirthOrArityMismatch reject before child lowering or any mutation.
+Smallest next slice:
+  design-only field/census contract for the seed loan, exact package
+  join/reuse states, dual body-shape plus Initializer(i) effects, and the
+  complete private admission snapshot surface.
+Non-claims:
+  lifecycle implementation, raw/Plan parity or switch, Method(None),
+  Closure, JSON/backend, R6 cutover, and warning cleanup.
+Census result:
+  inventory=Exhausted; CutoverBlockerOpen=7; ParkedSealed=0.
+```
+
+The seven in-boundary blockers are: (1) no callback-scoped final-source
+ordinary-New seed, (2) no exact one-to-one seed/catalog package join or
+one-shot reuse state, (3) no ordered `Initializer(i)` relation/effect
+coverage, (4) constructor body-shape is discarded while caller shape remains,
+(5) raw lowering uses by-name birth and partial field commits, (6) Plan
+lowering emits an args-only `NewBox` and mutates before fallible children, and
+(7) no expression-level snapshot/rollback or sole affine NewBox/lifecycle
+owner. Existing function/module sessions are coarser containment, not this
+admission transaction. No files or Cargo were changed by the census.
+
+The next task token is `MIR-CALL-NEW-SOURCE-SEED-JOIN-D1`; it may only refine
+this design boundary. Fast mode is forbidden until the finite seed/catalog
+mapping, dual body-shape/effect co-seal, and transaction surface are accepted.
+
 #### D1-D8 design Decision — behavior-neutral PlanNormalizer helper shelf
 
 D1-D7's source-seed contract is independent of the existing PlanNormalizer
