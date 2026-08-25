@@ -31,7 +31,7 @@ non_authority = [
   "current_static_box/has_method, registry membership, VM behavior, args[0], and name Const text",
 ]
 fail_fast = "An authority-free Global or a static Method(None) candidate must terminate before argument/effect descent, name Const, block insertion, or physical publication; no retry or backend reclassification is allowed."
-smallest_next_slice = "Keep this child design-only: close the seven-family table and the method_resolution arity/source-catalog decision, then select a separate producer-first fast row."
+smallest_next_slice = "Keep this child design-only: first census the relationless Resolved lifecycle in mir-call-core-r6-d1b-relationless-resolved-recovery-d0-2026-08-27.toml, then refine each split family into finite writer/admission subrows before selecting a producer-first fast row."
 non_claims = [
   "all qualified Global strings are already proven",
   "deleting unified_emitter methodize alone closes the two Method(None) producers",
@@ -48,14 +48,16 @@ method_none_producers = [
 ]
 
 [family.build_static_resolution]
-disposition = "Split"
+disposition = "Split; finite subrows required"
 preserve = "Cataloged BareStaticRecoveryDecisionV1::Unique(CanonicalSameModuleCallableKeyV1) preserves the exact qualified Global key; the landed preflight child covers this cohort before argument descent."
 reject = "relationless recovery and tail/suffix module lookup without same-brand catalog provenance are TypedReject candidates, not Global or Method(None) issuers."
+subrows = "Targeted is closed; RelationlessCompatibility -> Resolved -> post-argument recovery is the next named design boundary, not an implementation row."
 
 [family.rewrite_known]
-disposition = "Split"
+disposition = "Split; four writers and admission flags must be named"
 preserve = "Known user-defined rewrite may preserve qualified Global only when the existing same-brand declaration/signature product proves owner, method, and arity."
 reject = "unique suffix/header-only or env-gated candidates without that product are TypedReject; they may not be upgraded by StaticMethodId parsing."
+subrows = "The four known.rs writers and module/header/allow_userbox/from_new_origin admissions are separate census rows; a broad Split label is not Exhausted."
 
 [family.print_stmt]
 disposition = "OutsideRowB"
@@ -66,18 +68,21 @@ disposition = "OutsideRowB"
 authority = "fixed operator target emitted by the operation owner; no RuntimeData name classification"
 
 [family.plan_lowerer]
-disposition = "Split"
+disposition = "Split; source marker is not target authority"
 preserve = "exact-i64 target-row receipt retains its existing qualified Global projection"
-reject = "generic CoreCallSourceV1 carrying only positional data has no target authority and must not be promoted by methodize"
+reject = "generic CoreCallSourceV1 is only a LocatedMethodCall/Unlocated source marker; lowerer/effect emission already has argument/effect state, so any reject must be owned before this stage and cannot be claimed here as pre-effect"
+subrows = "Normalizer/common, helpers_value/lower, loop-body associated-input, and exact-i64 emission_port callers require separate owner classification."
 
 [family.method_call_terminal]
-disposition = "Split"
+disposition = "Split; exact receipt and ordinary terminal are separate"
 preserve = "existing exact source/physical receipt callers retain their typed target"
 reject = "raw owner/method strings without the receipt are TypedReject before generic Call publication"
+subrows = "The ordinary PreparedGlobalValueCallRequestV1 string terminal and the exact physical-receipt sibling require independent caller census."
 
 [family.calls_emit_facade]
-disposition = "OutsideRowB"
+disposition = "Split transport boundary"
 authority = "transport facade only; it is not a target issuer and must inherit the upstream disposition"
+subrows = "emit_global_call has no production caller; emit_legacy_call(Global) remains shared transport for static_resolution, ops, ordinary_new, and unified-disabled compatibility, so it is not caller-zero until those edges are classified."
 
 [method_resolution_static_none]
 status = "CutoverBlockerOpen"
@@ -96,6 +101,7 @@ parity = "HAKO_MIR_BUILDER_METHODIZE unset/1/0 no longer changes target kind; ex
 
 [recovery]
 status = "CutoverBlockerOpen"
+child_task = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-resolved-recovery-d0-2026-08-27.toml"
 remaining_edges = [
   "build.rs legacy resolved-function post-argument unique-static recovery",
   "static_resolution.rs tail/suffix recovery and direct legacy emission",

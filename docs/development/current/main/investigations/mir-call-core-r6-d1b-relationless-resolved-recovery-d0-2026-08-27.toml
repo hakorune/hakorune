@@ -1,0 +1,103 @@
+title = "MIR Call D1B relationless Resolved recovery census"
+status = "accepted_design_no_safe_slice"
+observed_commit = "c42a26173b"
+observed_at = "2026-08-27"
+implementation_permission = false
+parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
+parent_child = "docs/development/current/main/investigations/mir-call-core-r6-d1b-methodize-provenance-disposition-d0-2026-08-27.toml"
+
+[boundary]
+starts = "RawBrandCallAuthorityV1::RelationlessCompatibility entering PreparedRawOrdinaryFunctionCompletionV1::Resolved"
+ends = "the post-argument resolve_call_target/unique-static/tail/name-Const/direct-Call recovery chain, including shared Global transport callers"
+includes = [
+  "function_call_brand_source_demand.rs relationless production callers",
+  "function_call_preflight_route.rs Resolved completion and build.rs argument descent",
+  "method_resolution.rs static Method(None) arm",
+  "build.rs unique-static recovery and direct legacy publication",
+  "static_resolution.rs tail/suffix recovery and emit_legacy_call(Global) fanout",
+  "a finite caller disposition: retire, ParkedSealed, or pre-effect typed target state",
+]
+excludes = [
+  "Cataloged Targeted child already landed at 6149d2692a",
+  "unified_emitter RuntimeData methodize deletion before this lifecycle closes",
+  "JSON-v0/v1, VM/native backend, final Call schema, MirCall/CallFlags, and new receipts",
+  "generic plan-lowerer semantic redesign and unrelated static/operation emitters",
+]
+
+[brief]
+decision = "Treat relationless compatibility resolution and every post-argument recovery as one lifecycle; do not remove Method(None) or unique/tail recovery in isolation."
+source_authority = "Only the existing same-brand catalog can issue a target before argument descent; relationless input has no target authority until a finite existing product is identified."
+canonical_issuer = "existing Ordinary preflight -> existing CalleeResolverBox -> MirInstruction::call; unresolved relationless states must terminalize before child effects"
+non_authority = [
+  "current_static_box and has_method",
+  "module/header presence, suffix uniqueness, StaticMethodId parsing, name Const, registry, env flags",
+  "post-argument args/effects, VM lookup, or backend acceptance",
+]
+fail_fast = "A relationless call without a finite builtin/local/Extern/catalog target must reject before drive_call_arguments_v1; no Method(None), name Const, unique-static retry, tail retry, or direct legacy Call may be published."
+smallest_next_slice = "Read-only census and disposition only; no target transport or recovery deletion until production caller inventory is Exhausted."
+non_claims = [
+  "relationless calls are caller-zero",
+  "the generic target claim can be invented from function name or headers",
+  "methodize deletion is independently safe",
+  "all emit_legacy_call(Global) transport callers are legacy dead code",
+]
+
+[lifecycle]
+states = [
+  "CatalogedTargetedClosed",
+  "RelationlessBuiltinCandidate",
+  "RelationlessLocalValueCandidate",
+  "RelationlessExternCandidate",
+  "RelationlessStaticOrUnknown",
+  "PostArgumentUniqueStaticRecovery",
+  "PostArgumentTailRecovery",
+  "NameConstLegacyPublication",
+  "TypedRejectBeforeArguments",
+  "ParkedSealedCompatibilityBoundary",
+]
+terminal_policy = "Only the first, ninth, or explicitly ParkedSealed state may be terminal; all other states require a named existing authority or a caller disposition before implementation."
+
+[caller_inventory]
+relationless_ingress = [
+  "src/mir/builder/calls/function_call_brand_source_demand.rs::RawBrandCallAuthorityV1::RelationlessCompatibility",
+  "src/mir/builder/calls/function_call_preflight_route.rs::PreparedRawOrdinaryFunctionCompletionV1::Resolved",
+]
+argument_and_recovery = [
+  "src/mir/builder/calls/build.rs::lower_prepared_raw_ordinary_function_completion_with_port_v1",
+  "src/mir/builder/calls/build.rs::build_resolved_function_call",
+  "src/mir/builder/calls/static_resolution.rs::try_unique_static_method_recovery",
+  "src/mir/builder/calls/static_resolution.rs::try_tail_based_resolver",
+]
+transport_fanout = [
+  "src/mir/builder/calls/emit.rs::emit_legacy_call(Global)",
+  "static_resolution, ops, ordinary_new, and unified-disabled compatibility callers; each must be classified rather than assumed dead",
+]
+caller_zero_rule = "Textual absence is insufficient; each listed function and its production callsites must be dispositioned by authority and lifecycle state."
+
+[required_disposition]
+builtin_local_extern = "Reuse an existing source-bound preflight state if one exists; otherwise remain NoSafeSlice rather than adding a name-based receipt."
+static_unknown = "TypedReject before argument/effect descent unless an existing same-brand catalog product is already available."
+unique_tail = "Delete only when production caller-zero is proven; otherwise ParkedSealed with an observable reopen trigger or move to a pre-effect typed state in a later bounded row."
+legacy_name_const = "Zero in the closed boundary; no direct compatibility Call publication after target failure."
+transport = "Retain only as a dumb inherited transport while an upstream named producer remains; never use it as target authority."
+
+[acceptance]
+design = [
+  "finite production caller census covers relationless ingress, Resolved completion, Method(None), unique recovery, tail recovery, name Const, and Global transport",
+  "each caller has exactly one disposition: Retire, PreserveExact, TypedReject, ParkedSealed, or Outside with owner/non-authority/reopen trigger",
+  "positive/negative state matrix proves builtins/local/Extern only when an existing authority exists and rejects static/unknown before child effects",
+  "no remaining route can publish Method(None), name Const, or direct legacy Call after unresolved target without an explicit accepted compatibility boundary",
+]
+implementation_gate = [
+  "implementation_permission remains false until caller inventory is Exhausted and all open blockers are zero or ParkedSealed",
+  "no new Verified*/Prepared* semantic receipt, no backend fallback, and no methodize deletion in this census row",
+]
+guard = "future guard must prove relationless production caller inventory, pre-effect terminal ordering, zero post-argument recovery re-entry, and inherited transport-only semantics; keep it separate from the global Call corridor guard"
+
+[reopen]
+triggers = [
+  "a new RelationlessCompatibility producer or Resolved completion caller appears",
+  "target resolution occurs after argument/effect descent",
+  "unique/tail/name-Const recovery gains a production caller or a new fallback",
+  "emit_legacy_call(Global) is treated as an issuer rather than inherited transport",
+]
