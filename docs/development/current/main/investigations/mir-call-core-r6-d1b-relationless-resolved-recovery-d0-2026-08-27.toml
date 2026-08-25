@@ -76,6 +76,16 @@ transport_fanout = [
 ]
 caller_zero_rule = "Textual absence is insufficient; the active RawInvocation route can enter Resolved through InstalledNonBrand{caller:None}, while RawLegacy is a compatibility facade. Each route and production callsite must be dispositioned by authority and lifecycle state."
 
+[observed_census_2026_08_27]
+scope = "src/mir/builder non-test Rust callsites; tests and historical docs excluded from production disposition"
+raw_dispatch_entry = "raw_expression_dispatch/mod.rs:341-353 is the sole production FunctionCall match that asks BrandConstructorSourcePortV1 for authority and invokes the preflight lowerer"
+active_invocation = "RawInvocationChildPortV1 returns InstalledNonBrand{caller:None} when its callable ledger or Cataloged source lineage is absent; this is a live compatibility-shaped state, not caller-zero"
+legacy_facade = "RawLegacyChildLoweringPortV1 returns RelationlessCompatibility and remains used by direct compatibility helpers; its references cannot be classified from the enum spelling alone"
+resolved_completion = "build.rs:90-124 is the sole production Resolved completion callsite; it descends arguments before build_resolved_function_call"
+post_argument_recovery = "build.rs:312-353 is the sole production caller of unique-static and tail recovery; static_resolution.rs definitions have no second non-test caller"
+global_transport = "emit.rs::emit_legacy_call(Global) is shared transport: ordinary_new birth, fixed operator compatibility, tail recovery, and unified-disabled compatibility all enter it; transport is not target authority"
+inventory_status = "Observed but not Exhausted: source contexts and compatibility modes still require owner-by-owner disposition before implementation"
+
 [required_disposition]
 builtin_local_extern = "Reuse an existing source-bound preflight state if one exists; otherwise remain NoSafeSlice rather than adding a name-based receipt."
 static_unknown = "TypedReject before argument/effect descent unless an existing same-brand catalog product is already available."
