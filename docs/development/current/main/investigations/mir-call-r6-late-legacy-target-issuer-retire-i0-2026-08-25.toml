@@ -1,10 +1,11 @@
 title = "MIR Call R6 late legacy target issuer retirement I0"
-status = "accepted_design"
+status = "landed"
 observed_at = "2026-08-25"
 observed_commit = "4d44027191"
 implementation_permission = true
 decision = "MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
+landed_commit = "371f75476e"
 
 [boundary]
 starts = "existing typed CallsiteCanonicalize pass before its legacy target branch"
@@ -37,7 +38,7 @@ non_authority = [
   "backend, VM, printer, JSON text, and test fixtures as target authority",
 ]
 fail_fast = "A synthetic callee=None plus Const(String) input is not repaired here; it remains unchanged for the existing typed ingress/diagnostic boundary and no Call publication or retry is added."
-no_retry = "No name/arity lookup, Const scan, fallback, second schedule, or target reclassification is introduced; ProgramJsonV0Bridge remains the rejecting schedule."
+no_retry = "No name/arity lookup, Const scan, fallback, second schedule, or target reclassification is introduced; ProgramJsonV0Bridge remains a typed-only timing seam with no late repair."
 smallest_next_slice = "Delete the legacy target branch and its Const collection, collapse the schedule API to one typed-only path, remove only legacy-success fixtures, and extend the existing corridor guard."
 non_claims = [
   "mandatory-Callee schema cutover",
@@ -50,8 +51,8 @@ non_claims = [
 [state_matrix]
 typed_call = "Existing Global/Method(Some)/Closure Call follows the current six non-legacy arms unchanged."
 legacy_none = "callee=None plus func is no longer a success state of this pass; no rewrite and no retry."
-program_json_v0 = "ProgramJsonV0Bridge continues to disallow the late rewrite and relies on its ingress-owned typed resolution."
-mir_json_v0 = "MirJsonV0Loader keeps its schedule entry but receives only already-resolved typed calls; unresolved legacy input remains an ingress error."
+program_json_v0 = "ProgramJsonV0Bridge remains a typed-only timing seam and relies on its ingress-owned typed resolution."
+mir_json_v0 = "MirJsonV0Loader keeps its typed-only timing entry; unresolved legacy input remains an ingress error before this pass."
 missing_or_ambiguous = "Typed ingress/selected boundary rejects before publication; the pass does not synthesize a target."
 non_call = "NewClosure externalization and all non-Call instructions retain existing behavior."
 
@@ -115,7 +116,14 @@ guards = [
   "git diff --check",
 ]
 inventory = "production late target issuer 1 -> 0; schedule boolean policy 0; Const-string collector use 0; ArrayElementWrite writer remains 1 and is not claimed retired"
-source_limits = "pass.rs 246 lines, helpers.rs remains below 760, shared guard 777 lines, active card 1000 lines"
+source_limits = "pass.rs 209 lines, helpers.rs 108 lines, shared guard 777 lines, active card 1000 lines"
+
+[receipt]
+status = "landed"
+focused_tests = "mir::passes::callsite_canonicalize: 14 passed, 0 failed"
+guards = "mir_call_canonical_corridor_guard, current_state_pointer_guard, rustfmt check, and git diff --check green"
+warning_baseline = "quick profile reports 441 pre-existing warnings; no new warning class introduced"
+inventory = "production late target issuer 1 -> 0; collect_const_string_literals 0; allow_legacy_target_rewrite 0; five schedule callers remain typed-only; ArrayElementWrite writer remains exactly 1 and is outside this row"
 
 [reopen]
 triggers = [

@@ -108,21 +108,25 @@ value/no-destination receipts, alternate routes, `MirCall`/`CallFlags`, final
 Call schema, Method(None), ingress, array/canonicalizer, backend/wire, and
 cleanup remain outside this row.
 
-### MIR Call R6 late legacy-target issuer retirement (accepted fast row)
+### MIR Call R6 late legacy-target issuer retirement (landed)
 
-After D1X (`cde490f75e`), the upper-worker premise audit accepted
-`MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0`. Ingress/source producers
-already issue exact `Callee`; this pass keeps its typed Closure, Method(Some),
-and Global normalization arms, but no longer repairs `callee=None` by scanning
-`func -> Const(String)`. The five named schedule entries remain timing seams,
-not target authorities. The row's focused negative/parity proof and shared
-corridor guard must show zero late target issuer, zero schedule opt-in, and no
-retry or backend lookup.
+After D1X (`cde490f75e`), the upper-worker premise audit accepted and landed
+`MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0` at `371f75476e`.
+Ingress/source producers already issue exact `Callee`; this pass keeps its
+typed Closure, Method(Some), and Global normalization arms, but no longer
+repairs `callee=None` by scanning `func -> Const(String)`. The five named
+schedule entries remain timing seams, not target authorities. The focused
+14/14 suite and shared corridor guard show zero late target issuer, zero
+schedule opt-in, and no retry or backend lookup.
 
 `array_element_write.rs` still has one legacy projection issuer with four
 backend callers (three selected native, one ParkedSealed), so it remains
 `NoSafeSlice` and is not claimed retired here. Final Call shape, Method(None),
 ingress, backend, and cleanup remain separately gated.
+
+The next row is `MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0` and is
+design-only until a selected native consumer authority, capability/ABI
+handoff, fail-fast matrix, and finite caller-zero delete set are named.
 
 ### Normal-root pre-effect consumer (C0)
 

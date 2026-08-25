@@ -112,7 +112,7 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current row:
 
 ```text
-MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0
+MIR-CALL-CORE-R6-ARRAY-PROJECTION-CONSUMER-D0
 ```
 
 D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
@@ -191,17 +191,19 @@ final schema, `Method(None)`, ingress, array projection, canonicalizer, and
 backend work remain separately gated. The focused physical receipt suite is
 7/7 and the shared guard remains 777 lines.
 
-Post-D1X premise audit split the two writers. The canonicalizer row is now an
-accepted bounded retirement: ingress/source producers already issue exact
-`Callee`, all five named schedule entries are retained as timing seams, and
-the late `callee=None + Const(String)` issuer is the only authority removed.
-Its typed-only positive/negative/parity matrix forbids target repair, retry, or
-schedule-local inference. The ArrayElementWrite projection remains
-`NoSafeSlice`: four backend callers still depend on its legacy projection and
-selected native callers have no replacement consumer authority. It is not
-claimed retired by the canonicalizer row.
+Post-D1X premise audit split the two writers. The late canonicalizer retirement
+landed at `371f75476e`: ingress/source producers already issue exact `Callee`,
+all five named schedule entries remain typed-only timing seams, and the late
+`callee=None + Const(String)` issuer is gone. Its focused
+positive/negative/parity suite is 14/14, the quick warning baseline remains
+441, and the shared corridor guard remains 777 lines with exact schedule and
+ArrayElementWrite inventory checks. The ArrayElementWrite projection remains
+`NoSafeSlice`: its one legacy writer has four callers (three selected native,
+one ParkedSealed), and selected native callers have no replacement consumer
+authority. The next row is design-only until that authority and caller closure
+are named; no ArrayElementWrite implementation is authorized yet.
 
-The accepted implementation manifest is:
+The landed implementation manifest is:
 
 ```text
 docs/development/current/main/investigations/

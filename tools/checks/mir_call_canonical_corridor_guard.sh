@@ -230,13 +230,21 @@ from pathlib import Path
 import sys
 llvm = Path(sys.argv[1]).read_text()
 root = Path(sys.argv[2])
-
+schedule_callers = [
+    "src/mir/compiler/mod.rs",
+    "src/mir/compiler/module_postprocess.rs",
+    "src/mir/builder/raw_root_physical/drain_terminal.rs",
+    "src/runner/mir_json_v0.rs",
+    "src/runner/json_v0_bridge/core.rs",
+]
+if sum((root / path).read_text().count("canonicalize_for_site(") for path in schedule_callers) != 5: raise SystemExit("callsite canonicalizer schedule caller inventory drifted from five")
+array_writer = (root / "src/mir/array_element_write.rs").read_text()
+if array_writer.count("*instruction = MirInstruction::Call {") != 1: raise SystemExit("ArrayElementWrite legacy projection writer count drifted from one")
 direct_call = (root / "src/mir/canonical_direct_call.rs").read_text()
 if direct_call.count("MirInstruction::call(") != 1:
     raise SystemExit("direct-call issuer does not delegate exactly once to the canonical helper")
 if "MirInstruction::Call {" in direct_call or "func:" in direct_call or "callee: Some(" in direct_call:
     raise SystemExit("direct-call issuer retained a legacy Call literal or decoration")
-
 extern_call = (root / "src/mir/ssot/extern_call.rs").read_text()
 if extern_call.count("MirInstruction::call(") != 1:
     raise SystemExit("extern SSOT issuer does not delegate exactly once to the canonical helper")
@@ -244,7 +252,6 @@ if "MirInstruction::Call {" in extern_call or "func:" in extern_call or "callee:
     raise SystemExit("extern SSOT issuer retained a legacy Call literal or decoration")
 if "Callee::Extern(extern_name)" not in extern_call:
     raise SystemExit("extern SSOT issuer lost its exact Extern target")
-
 normal_main_thunk = (
     root / "src/mir/builder/normal_module_transaction/physical_thunk.rs"
 ).read_text()
@@ -258,7 +265,6 @@ if (
     raise SystemExit("normal-main thunk retained legacy Call literal or decoration")
 if "Callee::Global(source.symbol().as_mir_name().to_owned())" not in normal_main_thunk:
     raise SystemExit("normal-main thunk lost exact Global target")
-
 method_call = (root / "src/mir/ssot/method_call.rs").read_text()
 if method_call.count("MirInstruction::call(") != 1:
     raise SystemExit("typed Method SSOT helper does not delegate exactly once to canonical helper")
@@ -270,7 +276,6 @@ if (
     raise SystemExit("typed Method SSOT helper retained legacy Call literal or decoration")
 if "Callee::Method {" not in method_call or "receiver: Some(receiver)" not in method_call:
     raise SystemExit("typed Method SSOT helper lost its explicit receiver target")
-
 phi = (root / "src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs").read_text()
 phi_start = phi.index("        MirInstruction::Call {\n            dst: Some(_),\n            callee: Some(callee),")
 phi_end = phi.index("        other =>", phi_start)
@@ -291,7 +296,6 @@ assignment = phi_window[phi_window.index("let dst ="):]
 for forbidden in ("func:", "call_func", "MirInstruction::Call {"):
     if forbidden in assignment:
         raise SystemExit(f"PHI Call reconstruction retained legacy edge: {forbidden}")
-
 eligibility_start = phi.index("fn is_rematerializable_string_method_call")
 eligibility_end = phi.index("fn rematerialize_callee_for_pred", eligibility_start)
 eligibility = phi[eligibility_start:eligibility_end]
@@ -299,7 +303,6 @@ if "receiver: Some(_)" not in eligibility or "receiver: None" in eligibility:
     raise SystemExit("PHI substring eligibility does not exclude Method(None)")
 if "Option<Callee>" in eligibility:
     raise SystemExit("PHI substring eligibility retained an optional Callee contract")
-
 callee_start = phi.index("fn rematerialize_callee_for_pred")
 callee_end = phi.index("pub(in crate::mir::builder) fn for_pred", callee_start)
 callee_window = phi[callee_start:callee_end]
@@ -308,7 +311,6 @@ for token in ("callee: Callee", "Result<Callee, String>", "receiver: Some(receiv
         raise SystemExit(f"PHI callee remapper lost {token}")
 if "Option<Callee>" in callee_window or "Some(Callee::Method" in callee_window:
     raise SystemExit("PHI callee remapper retained optional target state")
-
 concat3 = (root / "src/mir/passes/concat3_canonicalize/rewrite.rs").read_text()
 concat_start = concat3.index("replacements.insert(")
 concat_end = concat3.index("rewritten += 1", concat_start)
@@ -327,7 +329,6 @@ if concat_window.count("MirInstruction::call(") != 1:
 for forbidden in ("MirInstruction::Call {", "func:", "callee: Some("):
     if forbidden in concat_window:
         raise SystemExit(f"concat3 rewrite retained legacy edge: {forbidden}")
-
 boxcall = (root / "src/mir/builder/utils/boxcall_emit.rs").read_text()
 boxcall_start = boxcall.index("        // Canonical implementation (RCL-3-min3): emit Call(callee=Method)")
 boxcall_end = boxcall.index("        if let Some(replay)", boxcall_start)
@@ -396,7 +397,6 @@ for forbidden in ("MirInstruction::Call {", "func:", "callee: Some(", "EffectMas
         raise SystemExit(f"shared substring-len issuer retained legacy edge: {forbidden}")
 if window.index("MirInstruction::call(") > window.index("optimization_hints.push"):
     raise SystemExit("shared substring-len hint precedes canonical Call construction")
-
 method = shared[shared.index("pub(super) fn rewrite_method_set_value") : shared.index("pub(super) fn value_is_const_i64")]
 for token in ("match_method_set_call(inst)?", "new_args[1] = new_value", "MirInstruction::call(", "callee.clone()", "*dst", "*effects"):
     if token not in method:
