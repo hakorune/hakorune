@@ -5,6 +5,7 @@ observed_at = "2026-08-27"
 implementation_permission = false
 parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
 parent_child = "docs/development/current/main/investigations/mir-call-core-r6-d1b-methodize-provenance-disposition-d0-2026-08-27.toml"
+source_lineage_child = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-root-lineage-d0-2026-08-27.toml"
 
 [boundary]
 starts = "RawBrandCallAuthorityV1::{RelationlessCompatibility or InstalledNonBrand { caller: None }} entering PreparedRawOrdinaryFunctionCompletionV1::Resolved"
@@ -76,6 +77,19 @@ transport_fanout = [
 ]
 caller_zero_rule = "Textual absence is insufficient; the active RawInvocation route can enter Resolved through InstalledNonBrand{caller:None}, while RawLegacy is a compatibility facade. Each route and production callsite must be dispositioned by authority and lifecycle state."
 
+[source_lineage_product]
+status = "CutoverBlockerOpen"
+cataloged = "RawInvocationRootLineageV1::Cataloged already carries CanonicalSameModuleCallableKeyV1 and is the only currently forwarded caller product."
+top_level = "RawInvocationRootLineageV1::TopLevel carries SelectedTopLevelFunctionKeyV1 (statement index, declared name, declared arity) and allows bare calls, but brand_call_authority_v1 currently collapses it to InstalledNonBrand{caller:None}."
+instance_constructor = "RawInvocationRootLineageV1::InstanceConstructor carries NormalInstanceConstructorSourceKeyV1 and allows bare calls, but the current authority port likewise does not forward a canonical caller product."
+authority_gap = "Existing source keys are evidence of source identity, not automatically callable catalog targets. No name-only Global, arity guess, or new receipt may be invented to bridge the gap."
+next_decision = "Preserve the existing RawInvocationRootLineageV1 through preflight exactly once; distinguish Cataloged, TopLevel, and InstanceConstructor from true RelationlessCompatibility, then either lend an existing target relation or terminalize before argument descent."
+non_claims = [
+  "TopLevel or InstanceConstructor source keys are already valid Callee targets",
+  "SelectedTopLevelFunctionKeyV1 name/arity alone proves a target catalog row",
+  "the source-key forwarding gap is caller-zero",
+]
+
 [observed_census_2026_08_27]
 scope = "src/mir/builder non-test Rust callsites; tests and historical docs excluded from production disposition"
 raw_dispatch_entry = "raw_expression_dispatch/mod.rs:341-353 is the sole production FunctionCall match that asks BrandConstructorSourcePortV1 for authority and invokes the preflight lowerer"
@@ -85,6 +99,7 @@ resolved_completion = "build.rs:90-124 is the sole production Resolved completio
 post_argument_recovery = "build.rs:312-353 is the sole production caller of unique-static and tail recovery; static_resolution.rs definitions have no second non-test caller"
 global_transport = "emit.rs::emit_legacy_call(Global) is shared transport: ordinary_new birth, fixed operator compatibility, tail recovery, and unified-disabled compatibility all enter it; transport is not target authority"
 inventory_status = "Observed but not Exhausted: source contexts and compatibility modes still require owner-by-owner disposition before implementation"
+source_lineage_status = "TopLevel and InstanceConstructor are live source-key lineages with bare-call admission, but their caller products are currently collapsed to caller=None; preserve the lineage in the child design row rather than treating these routes as caller-zero or deleting them."
 
 [required_disposition]
 builtin_local_extern = "Reuse an existing source-bound preflight state if one exists; otherwise remain NoSafeSlice rather than adding a name-based receipt."

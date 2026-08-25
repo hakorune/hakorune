@@ -1,0 +1,85 @@
+title = "MIR Call D1B root-lineage transport disposition"
+status = "accepted_design_no_safe_slice"
+observed_commit = "412a1b8ad8"
+observed_at = "2026-08-27"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-resolved-recovery-d0-2026-08-27.toml"
+
+[boundary]
+starts = "current_source_context_v1.root in function_call_brand_source_demand.rs:72-91"
+ends = "the ordinary preflight state immediately before argument descent"
+includes = [
+  "RawInvocationRootLineageV1::Cataloged, TopLevel, and InstanceConstructor",
+  "RawBrandCallAuthorityV1 and the current InstalledNonBrand{caller:None} collapse",
+  "SelectedTopLevelFunctionKeyV1 source inventory and NormalInstanceConstructorSourceKeyV1 package/cohort product",
+  "one-time transport into existing preflight without a new semantic receipt",
+]
+excludes = [
+  "target inference from source name, box name, current_static_box, or has_method",
+  "Method(None) deletion, methodize deletion, post-argument recovery removal, or final Call schema cutover",
+  "new Verified*/Prepared* receipt types and backend/VM behavior",
+]
+
+[brief]
+decision = "Do not collapse live TopLevel or InstanceConstructor source lineages into caller=None. Transport the existing RawInvocationRootLineageV1 through preflight once, keep source identity separate from target authority, and reject before effects when no existing exact target relation can be borrowed."
+source_authority = "Selected source inventory for TopLevel and the existing semantic package/demand-ticket co-seal for InstanceConstructor; Cataloged keeps its existing CanonicalSameModuleCallableKeyV1 authority."
+canonical_issuer = "Existing ordinary preflight and CalleeResolverBox only; this child transports provenance and does not issue a new target."
+non_authority = [
+  "SelectedTopLevelFunctionKeyV1 name/arity as a synthesized Global target",
+  "NormalInstanceConstructorSourceKeyV1 box_name as a static-call owner",
+  "caller=None, current_static_box, has_method, module/header presence, suffix uniqueness, registry, env, or post-argument values",
+]
+fail_fast = "Validate the root lineage and target disposition before drive_call_arguments_v1; if an existing catalog relation is not uniquely available, emit a typed reject or accepted ParkedSealed boundary and do not re-enter through method_resolution or recovery."
+smallest_next_slice = "Design-only finite matrix for Cataloged/TopLevel/InstanceConstructor versus true RelationlessCompatibility, with exact existing-product lookup and typed terminal states."
+non_claims = [
+  "TopLevel or InstanceConstructor source keys are themselves Call targets",
+  "caller provenance can be converted into CanonicalSameModuleCallableKeyV1 by name/arity",
+  "the root lineages are caller-zero or safe to park wholesale",
+]
+
+[finite_state]
+states = [
+  "CatalogedExistingCaller",
+  "TopLevelBorrowExistingCaller",
+  "InstanceConstructorBorrowExistingCaller",
+  "RelationlessCompatibility",
+  "ExistingTargetRelationMissing",
+  "TypedRejectBeforeArguments",
+  "ParkedSealedCohort",
+  "PostArgumentReentryForbidden",
+]
+terminal_policy = "Only Cataloged/borrowed lineages with an existing exact relation, or explicit TypedReject/ParkedSealed cohort states, may cross into argument descent; true relationless and missing-relation states remain NoSafeSlice until dispositioned."
+
+[source_products]
+cataloged = "RawInvocationRootLineageV1::Cataloged(CanonicalSameModuleCallableKeyV1) already reaches the targeted child."
+top_level = "RawInvocationRootLineageV1::TopLevel(SelectedTopLevelFunctionKeyV1) carries statement index, declared name, and declared arity; same-occurrence inventory validation is required before any target relation is borrowed."
+instance_constructor = "RawInvocationRootLineageV1::InstanceConstructor(NormalInstanceConstructorSourceKeyV1) is co-sealed by the existing normal-script semantic package and demand ticket; constructor identity is not static-call authority."
+relationless = "RawLegacyChildLoweringPortV1::RelationlessCompatibility has no source product and cannot be repaired with a name-only target."
+
+[acceptance]
+design = [
+  "RawInvocationRootLineageV1 is preserved through the preflight boundary exactly once; no Option<Canonical...> information loss is introduced",
+  "TopLevel and InstanceConstructor each have a separate disposition and same-occurrence/package validation rule",
+  "source identity and target authority remain separate, with no fabricated Global or Callee::Value",
+  "target disposition is complete before argument descent and no caller=None route reaches Resolved/recovery without an explicit accepted boundary",
+]
+negative = [
+  "no code or fixture change in this child",
+  "no new semantic receipt type",
+  "no post-argument target reconstruction, Method(None), name Const, unique/tail retry, or backend fallback",
+]
+focused_checks = [
+  "source census for function_call_brand_source_demand.rs and raw_invocation_source_transport.rs",
+  "selected source inventory/package co-seal references",
+  "bash tools/checks/current_state_pointer_guard.sh",
+]
+implementation_gate = "false until the finite lineage matrix and existing-product authority are accepted by the parent relationless recovery row"
+guard = "the parent relationless guard must prove TopLevel/InstanceConstructor are not collapsed to caller=None and that no post-argument re-entry is possible"
+
+[reopen]
+triggers = [
+  "a new root lineage is admitted for bare calls",
+  "TopLevel or InstanceConstructor loses its source product before preflight",
+  "a target is issued from name/arity, box name, current_static_box, or recovery",
+  "caller=None reaches Resolved or post-argument recovery without an accepted boundary",
+]

@@ -1,0 +1,92 @@
+title = "MIR interpreter externals provider-status evidence-owner handoff"
+status = "accepted_design_no_safe_slice"
+observed_commit = "412a1b8ad8"
+observed_at = "2026-08-27"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-interpreter-externals-dead-route-retire-i0-2026-08-26.toml"
+
+[boundary]
+starts = "failure-outcome evidence writers that currently observe provider_missing_fallback under src/backend/mir_interpreter/handlers/externals.rs"
+ends = "one reproducible non-semantic provider_status evidence owner that survives the dead-route deletion"
+includes = [
+  "runtime provider inventory path filter and six-family validation",
+  "projection binding, semantic-site graph, site inventory, control-flow inventory, conflict ledger, and exhaustiveness consumers of the source rows",
+  "the live calls/externs.rs -> extern_provider_dispatch boundary as a candidate observation owner",
+  "generated-manifest regeneration and --check reproducibility",
+]
+excludes = [
+  "deleting handlers/externals.rs or changing handlers/mod.rs",
+  "changing provider semantics, VMValue carriers, REPL state, or semantic activation",
+  "inferring provider meaning from VMValue::Void or from a provider registry",
+  "manual edits to generated JSON",
+]
+
+[brief]
+decision = "Split evidence ownership from dead-route deletion. Keep the cleanup in design_stop until provider_status has a named, deterministic, source-derived owner that remains valid after handlers/externals.rs disappears."
+source_authority = "Existing failure-outcome observation contracts and the live provider dispatch boundary; this child may select an evidence owner but may not issue runtime semantics."
+canonical_issuer = "The owning generator for each source-derived manifest; no Rust runtime issuer is created."
+non_authority = [
+  "handlers/externals.rs path survival by itself",
+  "VMValue::Void, unwrap_or defaults, provider registry membership, or empty-family acceptance",
+  "hand-edited generated rows or archive prose",
+]
+fail_fast = "If no deterministic owner can produce a non-empty provider_status family after the dead path is removed, remain NoSafeSlice and leave code untouched."
+smallest_next_slice = "Design-only compare the live provider boundary owner against a retained historical-evidence source; select exactly one and specify its token, pending classification, and generator path."
+non_claims = [
+  "provider failure semantics are repaired",
+  "the Rust interpreter becomes a selected backend",
+  "the dead route is already safe to delete",
+  "semantic activation changes from zero",
+]
+
+[candidate_owners]
+live_boundary = "calls/externs.rs::execute_extern_function -> extern_provider_dispatch, only if an existing deterministic observation token can be owned there without changing dispatch semantics"
+historical_source = "a retained non-runtime evidence source owned by the failure-outcome tooling, only if its provenance and regeneration are explicit"
+recommended_candidate = "Prefer the live boundary at calls/externs.rs:59 with token provider_dispatch_boundary, pending_reason ProviderContractMissing, and a generator-checked fixed non-zero cardinality. This is a design recommendation, not an implementation permission."
+forbidden = [
+  "keep the deleted path as a hidden regex anchor",
+  "widen a path filter without a documented contract and focused test",
+  "drop provider_status to satisfy the six-family validator",
+  "classify Void as provider failure without a provider contract",
+]
+
+[finite_state]
+states = [
+  "CandidateOwnerUnresolved",
+  "LiveBoundaryOwnerSpecified",
+  "HistoricalOwnerSpecified",
+  "GeneratorReproducible",
+  "GeneratedChecksGreen",
+  "TypedOwnerConflict",
+  "EmptyFamilyRejected",
+]
+terminal_policy = "Only one specified owner plus reproducible generated checks may hand control back to the parent deletion row; unresolved, conflicting, or empty-family states remain NoSafeSlice."
+
+[acceptance]
+design = [
+  "exactly one owner is selected from the finite candidates and its non-authority is recorded",
+  "provider_status remains non-empty, Pending with ProviderContractMissing, and semantic_activation=0",
+  "all source-derived generators consume the selected owner without a second observation path",
+  "the parent delete row has a finite regeneration command set and no hand-edited JSON step",
+]
+negative = [
+  "no code deletion in this child",
+  "no weakening of the six-family validator",
+  "no provider semantic activation or fallback rewrite",
+  "no hidden re-entry through handlers/externals.rs after the owner is selected",
+]
+focused_checks = [
+  "python3 -m unittest tools/docs/test_failure_outcome_runtime_provider_inventory.py",
+  "python3 tools/docs/failure_outcome_runtime_provider_inventory.py --check",
+  "python3 tools/docs/failure_outcome_exhaustiveness.py --check",
+]
+implementation_gate = "false until the owner, token, generator path, and generated-manifest checks are accepted by the parent row"
+guard = "parent tools/checks/mir_interpreter_externals_retire_guard.sh must assert the selected owner and reject an empty provider_status family"
+
+[reopen]
+triggers = [
+  "the selected owner requires runtime behavior changes",
+  "provider_status becomes empty, Linked, or semantically activated",
+  "a second source observation path appears",
+  "the generator cannot reproduce manifests after the dead route is removed",
+]

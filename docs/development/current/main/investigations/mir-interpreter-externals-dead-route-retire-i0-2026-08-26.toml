@@ -1,9 +1,10 @@
 title = "MIR interpreter unreachable externals handler retirement"
 status = "accepted_design_no_safe_slice"
-observed_commit = "6913eb8352"
+observed_commit = "412a1b8ad8"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0"
+evidence_child = "docs/development/current/main/investigations/mir-interpreter-externals-evidence-owner-d0-2026-08-27.toml"
 
 [boundary]
 starts = "src/backend/mir_interpreter/handlers/mod.rs:mod externals and handlers/externals.rs::handle_extern_call"
@@ -33,7 +34,7 @@ non_authority = [
   "the module name alone, provider registry presence, or REPL state as evidence of a live caller",
 ]
 fail_fast = "If a non-document caller of handle_extern_call or handlers::externals appears, or if the provider_status evidence owner is not closed before deletion, stop without removing the module."
-smallest_next_slice = "Design-only close the provider_status evidence handoff, then a one-file dead-route deletion plus mod declaration/doc/manifest synchronization."
+smallest_next_slice = "First close the evidence-owner child; only then run the one-file dead-route deletion plus mod declaration/doc/manifest synchronization."
 non_claims = [
   "all extern/provider failure outcomes are repaired",
   "provider missing-result fallback is semantically changed",
@@ -60,7 +61,19 @@ owner_gap = "tools/docs/failure_outcome_runtime_provider_inventory.py currently 
 secondary_gap = "failure_outcome_projection_binding.py, failure_outcome_site_inventory.py, semantic-site graph, control-flow inventory, conflict ledger, and exhaustiveness manifests also contain source-path evidence for the dead file."
 required_decision = "Before code deletion, choose one explicit non-semantic evidence owner for provider_status after the old file disappears: a live calls/externs.rs/provider boundary token, or a separate retained historical-evidence source. Do not silently drop the family, widen a regex without a contract, or infer provider meaning from VMValue::Void."
 candidate_live_owner = "calls/externs.rs provider dispatch boundary, only if a deterministic evidence token and pending ProviderContractMissing classification are specified and tested."
+recommended_owner_candidate = "calls/externs.rs:59 execute_extern_function -> extern_provider_dispatch"
+recommended_evidence_token = "provider_dispatch_boundary"
+recommended_expected_cardinality = "fixed non-zero count selected by the evidence generator; do not hardcode a count before the generator contract is amended"
 activation = 0
+
+[review_2026_08_27]
+decision = "The 391-line dead route is a high-value cleanup candidate, but it is not an immediately executable fast row. Caller-zero is strong for code; evidence ownership is not closed."
+order = [
+  "D0 evidence-owner handoff: choose and test one non-semantic provider_status owner while preserving semantic_activation=0",
+  "I0 dead-route deletion: remove mod externals and handlers/externals.rs, then regenerate every source-derived manifest with its owning writer",
+]
+lane_relation = "Keep this cleanup queued beside the active MIR-CALL-D1B relationless design stop; do not switch CURRENT_STATE or delete code while the evidence child is CutoverBlockerOpen."
+reason = "The generated inventory currently filters provider_status by the dead path and rejects an empty family; deleting the file first would turn a proven caller-zero observation into an unowned evidence gap."
 
 [baseline_evidence]
 observed_at = "2026-08-26"
@@ -97,6 +110,7 @@ preserve = [
 states = [
   "DeadRouteCallerZero",
   "LiveProviderRouteRetained",
+  "EvidenceOwnerDesignChildOpen",
   "EvidenceOwnerClosed",
   "GeneratedEvidenceSynchronized",
   "CurrentReferenceSynchronized",
