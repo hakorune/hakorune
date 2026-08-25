@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D2-ORDINARY-NEW-SOURCE-RELATION-DESIGN
-  implementation    = design only; D1-D1 V1 shape reject closed at 640ac083a7, while the New-callsite source relation issuer is absent
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D3-ORDINARY-NEW-DUAL-PRODUCER-DESIGN
+  implementation    = design only; D1-D2 relation shape is recorded, but the census found a second PlanNormalizer producer and no shared issuer
   mode              = design_stop
-  production stop   = ordinary New source/arity/effect handoff is a design-only NoSafeSlice; D1-D0 V0 and D1-D1 V1 negative edges remain closed, with no R6 field/source-route switch
-  exit              = accept one source-site -> birth/N relation issuer and one-shot NewBox admission contract; Method(None) remains open
+  production stop   = raw and PlanNormalizer ordinary-New edges lack one source/arity/effect relation and one physical owner; D1-D0 V0 and D1-D1 V1 negative edges remain closed, with no R6 field/source-route switch
+  exit              = accept raw+plan shared relation coverage, staging, and one-owner NewBox admission; Method(None) remains open
 fallback / retry  = 0
 ```
 
@@ -271,7 +271,7 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
 8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
-   D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the ordinary-New source relation design;
+   D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape and D1-D3 records the raw/plan dual-producer census;
    the full issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox remains a design stop.
 9. R7: structural guards, README/reference sync, and census closeout.
 
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-D2-ORDINARY-NEW-SOURCE-RELATION-DESIGN
-  -> design stop: ordinary New has no source-site -> birth/N issuer or full effect co-seal; record the relation using existing source products before any positive Constructor/NewBox route; D1-D0/D1-D1 negative edges remain closed without a schema change
+ MIR-CALL-R6-CORE-SCHEMA-D1-D3-ORDINARY-NEW-DUAL-PRODUCER-DESIGN
+  -> design stop: raw and PlanNormalizer both produce ordinary-capable NewBox shapes without a shared source relation or one owner; close the dual census and staging contract before any positive Constructor/NewBox route; D1-D0/D1-D1 negative edges remain closed without a schema change
 Next (not selected)
-  -> D1-D ordinary source-handoff/Constructor resolve-once implementation after the relation issuer is accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-D ordinary source-handoff/Constructor resolve-once implementation after D1-D3 relation coverage and one-owner admission are accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression

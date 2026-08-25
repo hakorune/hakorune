@@ -1719,6 +1719,101 @@ those two authorities are named and accepted; until then the R6 core schema,
 `Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, `MirCall`, and
 `CallFlags` remain untouched.
 
+#### D1-D3 design Decision — ordinary `New` dual-producer census
+
+D1-D2's relation shape is necessary but not sufficient. The finite census found
+an ordinary-capable `PlanNormalizer` path in addition to raw New lowering. This
+Decision keeps the lane at `NoSafeSlice` until both producers borrow one source
+relation and converge on one physical NewBox owner.
+
+Six-line brief:
+
+```text
+Decision:
+  ordinary user-defined New covers both raw lowering and PlanNormalizer;
+  neither may issue a target or NewBox without the same source relation.
+Source authority + canonical issuer:
+  ParserConstructorSourceCatalogV1 owns declaration identity; the semantic
+  resolver owns SourceExprSiteV1 and Allocation observation; a missing shared
+  New-site issuer must map each site once to catalog-backed birth/N, after
+  which one existing NewBox owner performs physical admission.
+Non-authority:
+  class/arguments.len(), generated birth strings, header lookup,
+  CoreEffectPlan::NewBox box_type/dst, FunctionSignature, MIR EffectMask,
+  JSON fields, runtime/backend lookup, and either current physical path.
+Fail-fast boundary:
+  owner/site/catalog/birth/N/ordered paths and effect relation are checked
+  before child lowering; lowered args and dst are co-sealed before NewBox,
+  birth, block, wire, or object publication. No retry or alternate producer.
+Smallest next slice:
+  design-only raw+plan producer census, shared relation issuer, and one-owner
+  convergence; do not add a receipt, route, fixture, or code in this turn.
+Non-claims:
+  specialized NewBox writers, lifecycle-order correction, all-New parity,
+  JSON/native/PyVM/reference/Python, Method(None), Closure, or R6 cutover.
+```
+
+Finite census boundary:
+
+```text
+ASTNode::New parse/source projection
+  -> raw New and PlanNormalizer ordinary-capable producers
+  -> shared source relation
+  -> one physical NewBox/birth admission
+  -> selected construction publication
+```
+
+The census excludes Core13Pure, IntegerBox, builtin/collection/plugin/MathBox,
+record, direct JSON `newbox`, V0/V1 compatibility, and non-selected backends.
+Its current finite inventory is:
+
+| edge | count | current authority/status |
+|---|---:|---|
+| parser `ASTNode::New` producer | 1 generic | `src/parser/expr/primary.rs:272-278`; no owner/catalog relation |
+| semantic New visitor | 1 recursive branch | `src/mir/resolved_semantics/shadow/expr.rs:307-325`; can record site + `Allocation` at nested depth |
+| New child paths | 2 roles + root classifier | `source_path_policy.rs:220,267` and `source_projection.rs:267,271`; `Argument(i)`/`Initializer(i)` |
+| raw New ingress | 1 | `raw_expression_dispatch/mod.rs:544-557`; class/args/initializers only |
+| raw ordinary path | 1 NewBox + 2 birth alternatives | `new_expression.rs:133-195`; class/arity/header inference, no source relation |
+| PlanNormalizer ordinary path | 1 AST branch + 1 effect emission | `control_flow/plan/normalizer/helpers_value.rs:523-552` -> `effect_emission.rs:180-190`; `CoreEffectPlan::NewBox` has no source relation/birth |
+| direct NewBox writers | 6 total | 2 ordinary candidates (raw/plan), 4 specialized; do not claim global writer count = 1 |
+| catalog issue sites | 2 | `parser/source_seal/finalize.rs:203,368`; declaration rows only |
+| constructor semantic batch issuer | 1 | `normal_callable_semantic_package/instance_constructor_semantic.rs:113-210`; declaration/body only |
+| New-site -> catalog relation | 0 | no issuer or consumer at HEAD |
+
+`FunctionOwnerIdV1 + SourceExprSiteV1` and `BodyEffectKindV1::Allocation` are
+available to semantic inventory, but neither raw `PreparedRawNewExpressionV1`
+nor plan `CoreEffectPlan::NewBox` transports them. Source arity is `N`,
+`NewBox.args.len()` is `N`, and receiver-inclusive physical birth arity is
+`N+1`; these values must not be collapsed.
+
+The shared relation must be source-only: owner/site, borrowed
+`ConstructorSourceIdV1`, final-box/source coordinates, declared `birth/N`,
+ordered argument/initializer paths, constructor provenance, and a reference to
+the existing effect observation. It must not contain `dst`, lowered `ValueId`,
+physical symbol, Recipe key, selector, MIR `EffectMask`, or backend handle.
+Both raw and PlanNormalizer must consume it exactly once. Their current
+physical products are not independent authorities; after validation they must
+feed one NewBox admission and one existing lifecycle publication owner.
+
+Additional blockers exposed by the dual census:
+
+```text
+PlanNormalizer args-only user-box New can bypass raw source relation and birth.
+raw child lowering may mutate the block before a later mismatch is known.
+Allocation is not a construction-wide effect authority; child and birth-body
+effects require their own existing semantic products.
+NewBox -> birth -> field initializer currently disagrees with lifecycle SSOT
+field initializer -> birth -> publish; D1-D3 makes no ordering claim.
+```
+
+The next design acceptance must prove relation coverage for every ordinary raw
+and plan site (including nested and field-initializer New), unique catalog-backed
+`birth/N`, foreign/duplicate/site-drift rejection, and one physical owner. A
+future implementation still requires a named staging/transaction owner before
+strict block-mutation-free fail-fast can be claimed. Until that proof exists,
+the ordinary Constructor issuer count and NewBox owner count remain
+cohort-qualified, and R6 field deletion is forbidden.
+
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
 This is a design-only task ledger outside the selected R6 boundary. It records
@@ -1848,12 +1943,12 @@ by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
 Selected next design task is
-`MIR-CALL-R6-CORE-SCHEMA-D1-D2-ORDINARY-NEW-SOURCE-RELATION-DESIGN`.
+`MIR-CALL-R6-CORE-SCHEMA-D1-D3-ORDINARY-NEW-DUAL-PRODUCER-DESIGN`.
 D1-B-PARK accepted the existing static handoff/outside boundary and D1-C2-I0
 closed the lossy Closure body egress edge; D1-D0/D1-D1 closed only negative
-V0/V1 publication and shape edges. The D1-D2 New-site issuer/effect staging,
-generic Method(None) issuer, and Constructor/NewBox dual route remain
-blockers. Until the full D1-D2 and remaining Method(None) edges are accepted,
+V0/V1 publication and shape edges. The D1-D3 raw/plan relation issuer,
+effect staging, generic Method(None) issuer, and Constructor/NewBox dual route
+remain blockers. Until the full D1-D3 and remaining Method(None) edges are accepted,
 do not change `Option<Callee>`,
 `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
