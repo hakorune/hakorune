@@ -373,38 +373,15 @@ impl UnifiedCallEmitterBox {
             }
         }
 
-        // Convert CallTarget to Callee using CalleeResolverBox
-        if let CallTarget::Global(ref _n) = target { /* dev trace removed */ }
-        // If a Global target is unresolved, try the additional global resolvers.
+        // Convert CallTarget to Callee using the sole typed resolver.  Its
+        // Result boundary remains for future typed failures; an error must
+        // terminate here rather than re-entering a name/header recovery path.
         let resolver = super::resolver::CalleeResolverBox::new(
             &builder.function_state.type_ctx.value_origin_newbox,
             &builder.function_state.type_ctx.value_types,
             Some(&builder.comp_ctx.type_registry), // 🎯 TypeRegistry を渡す
         );
-        let mut callee = match resolver.resolve(target.clone()) {
-            Ok(c) => c,
-            Err(e) => {
-                if let CallTarget::Global(ref name) = target {
-                    // Try additional resolvers (via CallMaterializerBox)
-                    let authority = lookup.map_or(
-                        super::materializer::GlobalPresenceAuthorityV1::LegacyCompatibility {
-                            present: false,
-                        },
-                        super::materializer::GlobalPresenceAuthorityV1::InvocationHeader,
-                    );
-                    if let Some(_result) =
-                        super::materializer::CallMaterializerBox::try_global_additional_resolvers_with_authority(
-                            builder, dst, name, &args, authority,
-                        )?
-                    {
-                        return Ok(UnifiedCallEmissionOutcomeV1::Alternate(
-                            UnifiedCallAlternateRouteV1::AdditionalGlobalResolver,
-                        ));
-                    }
-                }
-                return Err(e);
-            }
-        };
+        let mut callee = resolver.resolve(target.clone())?;
 
         // 🎯 Phase 21.7: Methodization (HAKO_MIR_BUILDER_METHODIZE=1)
         // Convert lowered static-method globals to Method calls only for

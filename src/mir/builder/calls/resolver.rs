@@ -340,6 +340,36 @@ mod tests {
     }
 
     #[test]
+    fn resolve_all_call_target_variants_without_alternate_recovery() {
+        let value_origin = BTreeMap::new();
+        let value_types = BTreeMap::new();
+        let resolver = CalleeResolverBox::new(&value_origin, &value_types, None);
+        let targets = [
+            CallTarget::Global("ordinary/0".to_string()),
+            CallTarget::Method {
+                box_type: Some("StringBox".to_string()),
+                method: "length".to_string(),
+                receiver: ValueId(1),
+            },
+            CallTarget::Constructor("StringBox".to_string()),
+            CallTarget::Extern("nyash.fs.read".to_string()),
+            CallTarget::Value(ValueId(2)),
+            CallTarget::Closure {
+                params: vec!["value".to_string()],
+                captures: vec![("captured".to_string(), ValueId(3))],
+                me_capture: Some(ValueId(4)),
+            },
+        ];
+
+        for target in targets {
+            assert!(
+                resolver.resolve(target).is_ok(),
+                "current CallTarget variant must resolve without alternate recovery"
+            );
+        }
+    }
+
+    #[test]
     fn test_resolve_string_value_receiver_without_newbox_origin() {
         let value_origin = BTreeMap::new();
         let mut value_types = BTreeMap::new();

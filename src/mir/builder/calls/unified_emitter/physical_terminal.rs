@@ -44,7 +44,6 @@ pub(in crate::mir::builder) enum UnifiedCallAlternateRouteV1 {
     EarlyStringLikeRewrite,
     SpecialEqualsRewrite,
     KnownOrUniqueRewrite,
-    AdditionalGlobalResolver,
     KnownArrayWrite,
     BoxCall,
 }

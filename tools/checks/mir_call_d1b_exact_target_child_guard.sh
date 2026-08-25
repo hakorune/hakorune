@@ -7,6 +7,10 @@ BRAND="$ROOT_DIR/src/mir/builder/calls/function_call_brand_source_demand.rs"
 PREFLIGHT="$ROOT_DIR/src/mir/builder/calls/function_call_preflight_route.rs"
 BUILD="$ROOT_DIR/src/mir/builder/calls/build.rs"
 TESTS="$ROOT_DIR/src/mir/builder/calls/function_call_preflight_route_tests.rs"
+RESOLVER="$ROOT_DIR/src/mir/builder/calls/resolver.rs"
+MATERIALIZER="$ROOT_DIR/src/mir/builder/calls/materializer.rs"
+UNIFIED="$ROOT_DIR/src/mir/builder/calls/unified_emitter.rs"
+TERMINAL="$ROOT_DIR/src/mir/builder/calls/unified_emitter/physical_terminal.rs"
 
 fail() {
   echo "[$TAG] $*" >&2
@@ -17,15 +21,19 @@ for file in "$BRAND" "$PREFLIGHT" "$BUILD" "$TESTS"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
-python3 - "$BRAND" "$PREFLIGHT" "$BUILD" "$TESTS" <<'PY'
+python3 - "$BRAND" "$PREFLIGHT" "$BUILD" "$TESTS" "$RESOLVER" "$MATERIALIZER" "$UNIFIED" "$TERMINAL" <<'PY'
 from pathlib import Path
 import sys
 
-brand, preflight, build, tests = map(Path, sys.argv[1:])
+brand, preflight, build, tests, resolver, materializer, unified, terminal = map(Path, sys.argv[1:])
 brand_text = brand.read_text()
 preflight_text = preflight.read_text()
 build_text = build.read_text()
 tests_text = tests.read_text()
+resolver_text = resolver.read_text()
+materializer_text = materializer.read_text()
+unified_text = unified.read_text()
+terminal_text = terminal.read_text()
 
 if brand_text.count("InstalledNonBrand {") != 2:
     raise SystemExit("InstalledNonBrand caller transport drifted")
@@ -65,6 +73,49 @@ for token in (
 ):
     if token not in tests_text:
         raise SystemExit(f"missing focused child evidence: {token}")
+
+resolve_start = resolver_text.index("pub fn resolve(&self, target: CallTarget)")
+resolve_end = resolver_text.index("    /// Call引数の検証", resolve_start)
+resolve_window = resolver_text[resolve_start:resolve_end]
+if any(token in resolve_window for token in ("Err(", "return Err")):
+    raise SystemExit("resolver totality changed: an Err arm needs a new design row")
+for token in (
+    "CallTarget::Global",
+    "CallTarget::Method",
+    "CallTarget::Constructor",
+    "CallTarget::Extern",
+    "CallTarget::Value",
+    "CallTarget::Closure",
+):
+    if token not in resolve_window:
+        raise SystemExit(f"resolver totality matrix lost {token}")
+
+unified_start = unified_text.index("let resolver = super::resolver::CalleeResolverBox::new")
+unified_end = unified_text.index("        // 🎯 Phase 21.7: Methodization", unified_start)
+unified_window = unified_text[unified_start:unified_end]
+if unified_window.count("resolver.resolve(target.clone())?") != 1:
+    raise SystemExit("unified emitter resolver consume is not exactly one direct propagation")
+for token in (
+    "try_global_additional_resolvers_with_authority",
+    "GlobalPresenceAuthorityV1",
+    "AdditionalGlobalResolver",
+):
+    if token in unified_window:
+        raise SystemExit(f"unified emitter retained deleted recovery token: {token}")
+
+for token in (
+    "GlobalPresenceAuthorityV1",
+    "try_global_additional_resolvers_with_authority",
+    "make_name_const_result",
+    "MirInstruction::Call",
+    "BareStaticRecoveryDecisionV1",
+):
+    if token in materializer_text:
+        raise SystemExit(f"materializer retained deleted Global recovery token: {token}")
+if materializer_text.count("materialize_receiver_in_callee") != 1:
+    raise SystemExit("active receiver materialization owner disappeared")
+if "AdditionalGlobalResolver" in terminal_text:
+    raise SystemExit("alternate Global recovery route remains in physical terminal")
 PY
 
 echo "[$TAG] ok"
