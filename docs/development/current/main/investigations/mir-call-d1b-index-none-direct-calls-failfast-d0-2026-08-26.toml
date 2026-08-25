@@ -4,6 +4,7 @@ observed_commit = "f284801583"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
+succeeding_i0 = "docs/development/current/main/investigations/mir-call-d1b-index-none-direct-calls-failfast-i0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-D0"
 decision = "The existing canonicalize_draft None arm must never turn non-empty direct_calls into a successful empty map. This safety row may use the existing ResolveFunctionErrorV1::DraftInvariant, but it is not the source-inventory solution: SelectedCallable observation, lineage preservation, and package co-seal remain separate blockers."
 

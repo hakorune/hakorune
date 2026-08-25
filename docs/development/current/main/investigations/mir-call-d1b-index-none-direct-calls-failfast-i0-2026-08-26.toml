@@ -1,0 +1,68 @@
+title = "MIR Call D1B index-none direct-call fail-fast safety I0"
+status = "selected_fast"
+observed_commit = "5805401f5a"
+observed_at = "2026-08-26"
+implementation_permission = true
+parent_row = "docs/development/current/main/investigations/mir-call-d1b-index-none-direct-calls-failfast-d0-2026-08-26.toml"
+decision_id = "MIR-CALL-D1B-INDEX-NONE-DIRECT-CALLS-FAILFAST-I0"
+decision = "Retire the silent None + non-empty direct_calls success edge at the existing canonicalize_draft boundary. Use the existing ResolveFunctionErrorV1::DraftInvariant, preserve None + empty direct_calls and Some(index) behavior, and add one focused negative witness plus one reusable guard."
+
+[boundary]
+starts = "src/mir/resolved_semantics/resolver.rs::canonicalize_draft entry"
+ends = "typed rejection or valid no-call canonicalization before package install, physical lowering, and MIR publication"
+includes = [
+  "callable_index=None and draft.direct_calls non-empty",
+  "existing ResolveFunctionErrorV1::DraftInvariant transport",
+  "resolver_tests focused negative witness",
+  "tools/checks/mir_call_d1b_index_none_direct_calls_guard.sh and guard_rows.toml registration",
+]
+excludes = [
+  "SelectedCallable ordinary FunctionCall observation",
+  "TopLevel/InstanceConstructor lineage and source-inventory co-seal",
+  "target issuance, general callable index, argument shadow traversal order, and Resolved recovery retirement",
+  "Method(None), JSON, VM/native, Call schema, CallFlags, and physical type",
+]
+
+[brief]
+source_authority = "existing ShadowResolver direct-call draft and canonicalize_draft caller contract"
+canonical_issuer = "existing canonicalize_draft error boundary; no new semantic product or target"
+non_authority = ["None => empty BTreeMap", "post-drop direct_call_targets counts", "name/arity inference", "second resolver", "backend fallback"]
+fail_fast = "At canonicalize_draft entry, reject None + non-empty direct_calls with existing DraftInvariant before canonical maps are built or package/physical/MIR publication."
+smallest_next_slice = "One guard clause, one resolver_tests negative witness, one registered reusable guard; retain indexed and empty no-call paths."
+non_claims = [
+  "does not make SelectedCallable observe ordinary FunctionCall",
+  "does not preserve TopLevel/InstanceConstructor lineage",
+  "does not claim target resolution before shadow argument traversal",
+  "does not close the parent source inventory or mandatory-Callee cutover",
+]
+
+[delete_set]
+remove = ["None => BTreeMap::new() as an unconditional success edge for non-empty draft.direct_calls"]
+retain = ["Some(index) direct-call lookup", "None + empty direct_calls valid no-call map", "ResolveFunctionErrorV1::DraftInvariant type"]
+
+[acceptance]
+positive = [
+  "empty direct_calls with None still resolves through existing no-call callers",
+  "Some(index) direct-call lookup remains unchanged",
+  "guard is registered in tools/checks/guard_rows.toml",
+]
+negative = [
+  "None + non-empty direct_calls returns DraftInvariant",
+  "no empty successful map is produced for the rejected draft",
+  "no new target, receipt, fallback, retry, or resolver continuation",
+]
+parity = "Only the previously silent unindexed direct-call case changes; existing generic no-call, indexed exact-target, script, Brand, and compatibility callers retain their current paths."
+evidence = [
+  "resolver_tests::canonical_resolver_rejects_unindexed_direct_call_draft",
+  "tools/checks/mir_call_d1b_index_none_direct_calls_guard.sh",
+  "current-state-pointer-guard",
+  "git diff --check",
+]
+
+[reopen]
+triggers = [
+  "the guard clause moves after canonical map/binding publication",
+  "None + empty direct_calls stops being a valid no-call path",
+  "the I0 is cited as proof of source inventory, lineage preservation, or pre-shadow-argument target resolution",
+  "a new error type/receipt or fallback is added to avoid DraftInvariant",
+]
