@@ -2361,6 +2361,83 @@ for the excluded cohorts, and a complete mutation surface for rollback. Until
 those are accepted, `work_mode` stays `design_stop`; the previous D1 census is
 not reused as implementation evidence.
 
+#### D2 issuer-boundary feasibility audit and D2a handoff — 4a5115eec8
+
+The read-only D2 audit is exhaustive for the boundary above but does **not**
+accept D2. Six blocker groups remain open, and two representation decisions
+must be fixed before any issuer is implemented:
+
+```text
+1. final-source callback seed and nominal-Box occurrence inventory are absent;
+2. New-field Initializer(i) relation/effect authority is not issued;
+3. constructor body-shape, provenance, and initializer triggers are discarded;
+4. BirthAbsent is not classified (implicit no-op versus typed reject);
+5. package New-site claim/consume/completion is not affine;
+6. expression rollback surface is not closed and raw/Plan mutate early;
+7. choose mutation-free staging -> infallible commit, or
+   whole-unpublished-function abort as the sole failure terminal;
+8. keep observed body-effect rows distinct from semantic Pure/effect authority.
+```
+
+The finite census result is `inventory=Exhausted`,
+`CutoverBlockerOpen=6`, `RepresentationDecisionOpen=2`, and
+`ParkedSealed=0`. The existing parser, caller, and constructor products remain
+non-authority until their issue/drop/consume edges are named. In particular,
+the declaration-side `ParserConstructorSourceCatalogV1` cannot identify a
+user Box with no constructor row; class text, arity, `birth/N` strings, and
+missing effect rows cannot fill that gap.
+
+The exact owner shape proposed by the audit is:
+
+```text
+issue:
+  final-source owner -> immutable New-site seed + nominal Box inventory
+join/co-seal:
+  semantic package issuer -> branded New anchor + nominal Box row
+    + optional/exact constructor row + caller/birth body shape/provenance
+consume:
+  installed package affine New-site claim -> shared ordinary-New admission
+    -> one-shot NewBox/lifecycle commit
+drop:
+  final-source reject, package issue reject, or whole-attempt abort
+```
+
+Positive preflight states are `SeedReady -> JoinReady -> ClaimAvailable ->
+Claimed -> Staged -> CommitReady -> Committed`. Negative states include
+foreign brand/anchor, projection drift, duplicate/reuse, nominal Box
+missing/ambiguous, `BirthAbsent` (policy still open), birth mismatch,
+initializer relation gap, body-shape/provenance mismatch, claim consumed, and
+staging unavailable. Preflight negatives reject before Builder mutation;
+post-claim failure has one abort terminal and no fallback/retry. Runtime Home
+and fault cleanup are outside this census.
+
+The next design task is `MIR-CALL-NEW-TARGET-CONTAINMENT-D2A`:
+
+```text
+Decision:
+  fix ordinary-New target/nominal-Box containment and failure policy before
+  issuing any seed, relation, body-shape, or physical transaction product.
+Source authority + canonical issuer:
+  final-source owner observes nominal Box occurrences; package issuer joins
+  only branded source/catalog/body products; no physical owner issues meaning.
+Non-authority:
+  class/name/arity alone, birth text, missing effect rows, MIR masks, Builder
+  state, backend lookup, and compatibility fallback.
+Fail-fast boundary:
+  target/nominal inventory, BirthAbsent policy, cohort/outside state, and
+  staging-versus-abort choice must be fixed before child lowering/mutation.
+Smallest next slice:
+  design-only target/counterexample matrix and containment decision; no code,
+  fixture, semantic receipt, or route switch.
+Non-claims:
+  issuer implementation, Initializer(i) implementation, body-shape retention,
+  admission snapshot, NewBox/lifecycle commit, Method(None), Closure, R6,
+  JSON/backend, and warning cleanup.
+```
+
+Until D2a is accepted, D2 remains `NoSafeSlice`; implementing only one of the
+four issuer pieces would create an unconsumed authority sibling.
+
 #### D1-D8 design Decision — behavior-neutral PlanNormalizer helper shelf
 
 D1-D7's source-seed contract is independent of the existing PlanNormalizer
