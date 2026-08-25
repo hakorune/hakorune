@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1
+Status: Fast — MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,22 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1
-  implementation    = direct-static issuer I0 landed at 6302839770
-  mode              = design_stop
-  production stop   = full R6 field cutover remains blocked by stale func, Method(None), Closure, Constructor, and flags edges
-  exit              = exhaustive writer/reconstructor manifest and variant-boundary Decision; no field deletion yet
+  current decision  = MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0
+  implementation    = R6-D1 manifest accepted design-only against HEAD 6b8e6c8f80
+  mode              = fast
+  production stop   = one exact Extern SSOT writer remains a direct legacy Call literal
+  exit              = delegate that writer to MirInstruction::call with parity and guard; no core field deletion
   fallback / retry  = 0
 ```
 
-Closed R6 D0 brief:
+Next bounded fast brief:
 
 ```text
-Decision: mandatory-Callee Call is final; this row normalizes one issuer only.
-Source authority + canonical issuer: verified direct-call row -> thin MirInstruction::call.
-Non-authority: func/INVALID, target Const, flags, optimizer/backend lookup, PyVM.
-Fail-fast boundary: exact arity and owner checks before instruction publication.
-Smallest next slice: canonical_direct_call.rs's one direct-static Call literal.
+Decision: normalize one exact Extern SSOT writer only.
+Source authority + canonical issuer: extern_call.rs exact Extern -> MirInstruction::call.
+Non-authority: func/INVALID, target text, flags, optimizer/backend lookup, fallback; fail-fast boundary preserves existing helper result before block publication.
+Smallest next slice: src/mir/ssot/extern_call.rs:26-32 direct literal replacement.
 Non-claims: field deletion, Method(None), Closure/Constructor, JSON/backend, warnings.
 ```
 
@@ -158,10 +157,10 @@ closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): 
 ## Active task pointer
 
 Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
-landed as `c152f9f883`. Public whole-file AST Compatibility remains
-`ParkedSealed`. Exact-i64 physical input I0 landed at `7fd97a5344`, and the
-direct-static issuer normalization I0 landed at `6302839770`; R6-D1 is now the
-writer/reconstructor census design stop.
+landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSealed`;
+exact-i64 physical input I0 landed at `7fd97a5344`, direct-static issuer
+normalization I0 at `6302839770`, and accepted R6-D1 manifest at
+`investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml`; next fast row is typed Extern delegation.
 
 ```text
 canonical core
@@ -179,9 +178,9 @@ forbidden
 `Callee` before the thin, non-classifying `MirInstruction::call`; `func`, INVALID,
 target Const, printer/JSON text, optimizer scans, and runtime lookup are not authority.
 
-The full R6 census is 20 direct literals plus the helper (21 definitions), not exhausted:
-stale `func`, Method(None), Constructor, Closure wire, and flags remain. The direct-static I0
-is closed; parked PyVM/reference/Python and tests/comments remain outside the full census boundary.
+The accepted D1 manifest supersedes the bounded 20/21 prose: it records 38
+in-boundary construction sites (26 live-selected and 12 owner-compatibility)
+plus one helper definition; readers, tests, and parked surfaces are separated. Stale `func`, Method(None), Constructor, Closure wire, and flags remain.
 
 JSON-v0 is total: explicit callee wins; malformed, missing, duplicate, foreign, or non-String targets reject before publication; legacy name/unique func-Const resolves once.
 
@@ -568,14 +567,15 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-CORE-R6-D1
-  -> design_stop: exhaust all non-test writers/reconstructors and close Method(None), Closure, Constructor/NewBox, flags, and selected fallback boundaries; no schema deletion yet
+ MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0
+  -> fast: replace one exact Extern direct Call literal with MirInstruction::call; preserve name/dst/args/effects and prove helper/direct-literal cardinality
 Closed immediately prior
+ MIR-CALL-CORE-R6-D1-MANIFEST -> accepted design-only: 38=26 live + 12 compatibility, helper 5/5, PHI 9/9, writer 4 partitions + consumer ledger, selected C owners exact
  MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
   -> landed at 6302839770: source-verified direct-static issuer delegates once to MirInstruction::call; positive/negative/parity tests, shared guard, README, and pointer are green
  MIR-PHYSICAL-TYPE-INPUT-I0
   -> landed at 7fd97a5344: binding-preserving typed target-layout child, one selected Dynamic co-seal, existing AOT projection storage; JSON/C/backend remain ParkedSealed
-Call lane (after D0/I0): R6 canonical operand/escape projection and lifecycle inventory are closed; JoinIR remap is test/reference-only at 0048c0176a, so do not revive caller-zero code
+Call lane (after D0/I0): R4 canonical operand/escape projection is closed; R6 writer/consumer lifecycle remains open. JoinIR remap is test/reference-only at 0048c0176a, so do not revive caller-zero code
   -> cutover: `Call { dst, callee: Callee, args, effects }`; remove `func`, `Option<Callee>`, INVALID sentinels; decide MirCall/CallFlags, Method(None), Closure construction, and Constructor/NewBox boundary together; then typed-only terminal consumers, fallback/retry/by-name lookup = 0, parity + one guard
 After MIR Call retirement
   1. MIRBUILDER-PR-STRUCTURAL-GATES-I0

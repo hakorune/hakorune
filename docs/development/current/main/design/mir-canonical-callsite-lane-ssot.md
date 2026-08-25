@@ -1002,10 +1002,11 @@ Feedback reconciliation and deferred task queue (not selected):
 ```text
 R4b status: HEAD already delegates Call used_values to Callee::for_each_value_operand; Value, Method receiver, Closure captures/me, args order, duplicates, and legacy None parity are covered by the shared tests. Escape, value-consumer, ownership, and query now reuse the occurrence projection where their separate policies allow it.
 R4c task (not selected): `MIR-CALL-JOINIR-CALLER-LIFECYCLE-BOUNDARY-D1` must first name a live merge caller, classify both lifecycle owners, and prove that `Callee::rewrite_value_operands` can replace the local remap without changing retention policy. Until then JoinIrIdRemapper's duplicate match is parked; no code or production switch.
-R6 D0/D1: the four-boundary schema decision is accepted as a design stop;
-`MIR-CALL-R6-CORE-SCHEMA-D1` now owns the finite reader/writer cut/compat/park
-matrix. No field deletion or type cleanup is selected until D1 names every
-issuer and acceptance edge.
+R6 D0/D1: the four-boundary schema decision and D1 manifest are accepted as
+design decisions;
+`MIR-CALL-CORE-R6-D1-MANIFEST` now owns the finite writer/reconstructor
+cut/compat/park matrix. The next bounded fast row is typed Extern SSOT issuer
+delegation; no field deletion or type cleanup is selected yet.
 Backend exact-Extern D0 is the selected row; its D0-A/B/C/D tasks and five NoSafeSlice conditions are recorded above. Backend-shape strict-adapter I0 and native D1/C owner split are closed.
 Post-R7 cleanup: normal-root mode/projection sum, MainObserved naming, identity-based syntax loan, and builder.rs production/compatibility/test barrel census remain separate cleanup rows; PyVM/reference/Python/native_driver remain ParkedSealed.
 ```
@@ -1038,109 +1039,87 @@ Non-authority: func/INVALID, Option/Callee defaults, Method(None), target Const,
 Fail-fast boundary: before block.add_instruction and before wire/object publish;
   missing receiver, malformed construction, unresolved legacy, and profile
   mismatch reject with no alternate-target retry.
-Smallest next slice: MIR-CALL-R6-CORE-SCHEMA-D1, a finite reader/writer census
-  and cut/compat/park matrix; no code, fixture, or field deletion.
+Smallest next slice: MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0, one exact Extern
+  direct writer delegated to MirInstruction::call; no field deletion.
 Non-claims: R6 implementation, JoinIR remap, JSON wire change, backend switch,
   PyVM/reference/Python/native_driver, and warning cleanup.
 ```
 
-Finite D0 boundary: selected Rust `CallTarget`/resolver issuance ->
-`MirInstruction::Call` -> selected JSON-v1/v0 bridge -> Rust interpreter and
-selected backend terminals. A fresh HEAD census finds 20 direct
-`MirInstruction::Call` literals plus the one canonical helper definition
-(`MirInstruction::call`): **21 writer definitions**. Helper callers are tracked
-by owner family below and are not double-counted as literals. Within this
-boundary, possible `callee: None` publication is **0**: the three historical
-Program JSON-v0 literals were removed before HEAD and MIR JSON-v0 resolves or
-rejects before publication. The old 49/4 numbers are historical ledger values,
-not current completion evidence. The boundary excludes
-PyVM/reference/Python/native_driver, C native D0, the JoinIR lifecycle boundary,
-and the complete Constructor ABI; a literal `callee: None` search alone still
-does not classify typed stale `func` or `Method(None)` edges.
+D1 manifest boundary: selected Rust `CallTarget`/resolver issuance -> every
+non-test `MirInstruction::Call` construction/reconstruction/publication. The
+selected interpreter, JSON egress, and native preflight are tracked as
+cross-boundary consumers, not as direct-writer rows. The exhaustive inventory is now tracked in
+`docs/development/current/main/investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml`.
+It supersedes the earlier bounded 20/21 ledger: the inventory observed against
+committed HEAD `6b8e6c8f80`
+contains 38 in-boundary direct construction sites (26 live-selected and 12
+owner-compatibility) plus one canonical helper definition, with helper fanout,
+readers, compatibility, caller-zero reference, and test-only surfaces
+explicitly classified or excluded. `callee: None` publication is still observed as zero,
+but is not completion evidence for stale `func` or `Method(None)`.
 
-Current direct-writer ledger (no duplicate helper-caller counting):
+The manifest is the sole D1 writer/reconstructor ledger. A new direct literal,
+helper caller, or lifecycle edge without a unique row is `CutoverBlockerOpen`;
+do not widen the boundary or discover the census through compiler errors.
 
-```text
-canonical helper: src/mir/instruction/methods.rs:22
-builder literals: builder_emit.rs:140; calls/build.rs:357;
-  calls/materializer.rs:57,95; calls/unified_emitter/compat_entrypoints.rs:22,42;
-  calls/unified_emitter/physical_terminal.rs:94;
-  exprs_call.rs:33; normal_module_transaction/physical_thunk.rs:79;
-  ssa/phi_input_materializer/edge_rematerialization.rs:240;
-  utils/boxcall_emit.rs:231
-shared/direct literals: ssot/method_call.rs:71; ssot/extern_call.rs:26;
-  canonical_direct_call.rs:78
-compat ingress literals: runner/mir_json_v0/module.rs:453;
-  runner/json_v1_bridge/parse/mir_call.rs:90,159,265,290,315
-helper ingress families: runtime_method_call; extern wrapper; JSON-v0
-  lowering expression/statement/module helpers; each resolves an exact Callee
-  before the helper publishes a Call and is counted only once at its writer.
-```
-
-Helper-family owner anchors are finite and explicit: `collection_literals.rs`,
-`exprs_qmark.rs`, `rewrite/special.rs`, `calls/emit.rs`, `decls.rs`,
-`control_flow/plan/lowerer/effect_emission.rs`, `new_expression.rs`,
-`function_call_preflight_route.rs`, `print_stmt.rs`,
-`debug_method_routing.rs`, `task_scope_stmt.rs`, `method_call_terminal.rs`,
-`json_v0_bridge/lowering/expr/call_ops.rs`, `expr.rs`, `stmts.rs`,
-`expr/block_expr.rs`, and `mir_json_v0/module.rs`. Any new helper caller is a
-cutover blocker rather than an implicit extension of this ledger.
-
-D1 consumer/terminal ledger (the 21 writers above are not re-counted here):
+D1 consumer/terminal ledger (direct construction sites are in the manifest; do not re-count them):
 
 | owner | observed edge | disposition |
 |---|---|---|
 | `unified_emitter/physical_terminal.rs:75-103` | rebuilds `func: INVALID` + `Option<Callee>` and drops flags | cut; thin `MirInstruction::call` becomes the sole issuer |
 | `instruction/methods.rs:15-28,209-225` | typed operand projection plus legacy `None -> func` | retain typed projection; cut legacy branch |
 | `passes/callsite_canonicalize/pass.rs:94-143` | Closure -> `NewClosure`; `None+func` -> `Global` | retain construction boundary; cut target inference |
-| `passes/simplify_cfg/flow.rs:486-498`, `ownership_ssa/verify.rs:112-147` | legacy `func` target/operand readers | cut after typed projection owner is named |
+| `passes/simplify_cfg/flow.rs:486-498`, `ownership_ssa/verify.rs:112-147`, `builder/mir_value_id_inventory.rs:34,71,96` | legacy `func` target/operand readers | cut after typed projection owner is named |
 | `passes/cse.rs:102-116`, `optimizer/core.rs:243-255` | `call_legacy_{func}` key reconstruction | cut on selected path; diagnostic-only readers park |
 | `query.rs:97`, `value_consumer.rs:104`, `escape_barrier.rs:63-80` | Callee occurrence projection | retain; policy remains owner-local |
 | `mir_json_emit/root.rs:26-84,112-117` | schema/profile selector and contradiction rejection | retain as profile authority, never target authority |
 | `mir_json_emit/emitters/mod.rs:313-340` | forwards `func` + `Option<Callee>` | V0 facade compat only; canonical path cut |
 | `mir_json_emit/emitters/calls.rs:9-203` | V1 typed projection; V0 legacy wire and `receiver.unwrap_or(func)` | V1 reject/retain; V0 compat; receiver fallback reopen |
 | `mir_json_emit/helpers.rs:25-102` | typed serialization, nullable receiver, unconditional `flags:{}` | typed projection retain; Method(None)/flags reopen |
-| `mir_json_v0/call.rs:8-130,248-267`, `catalog.rs:6-127` | explicit/name/func one-shot resolve or typed reject | owner-private compat; no missing Call publication |
-| `json_v1_bridge/parse/mir_call.rs:15-327` | typed ingress, dummy `func=0`, Constructor/NewBox, Closure split | ingress retain; dummy cut; construction reopen |
+| `mir_json_v0/call.rs:8-130,248-270`, `catalog.rs:6-127` | explicit/name/func one-shot resolve or typed reject | owner-private compat; no missing Call publication |
+| `json_v1_bridge/parse/mir_call.rs:15-367` | typed ingress, dummy `func=0`, Constructor/NewBox, Closure split | ingress retain; dummy cut; construction reopen |
 | `mir_json_v0/module.rs:420-475`, `common_util/core_bridge.rs:148-194` | compatibility Method and post-wire Const reclassification | compat/park; no selected semantic authority |
-| `backend/mir_interpreter/handlers/calls/{mod,method}.rs` | missing-callee preflight; Method(None) registry/by-name recovery | preflight retain; recovery reopen/cut |
+| `backend/mir_interpreter/handlers/calls/mod.rs`, `calls/method.rs` | missing-callee preflight; Method(None) registry/by-name recovery | preflight retain; recovery reopen/cut |
 | `contracts/backend_core_ops/allowlists.rs`, `runner/product/llvm/mod.rs` | None/Closure preflight before selected native object | retain as negative guard; shrink after core cut |
-| `lang/c-abi/shims/*mir_call*`, `constructor_call_route_plan.rs` | C by-name constructor/method classification; dual Constructor route | park/reopen; no new downstream authority |
-| `joinir_id_remapper.rs`, `edge_rematerialization.rs` | `func`/`Option` transport and rewrite | Parked NoSafeSlice until caller/lifecycle owner exists |
+| `investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml:consumer.selected_backend_and_wire_fallbacks`, `constructor_call_route_plan.rs` | selected C route policy plus constructor classification; dual Constructor route | selected C projection retain; constructor/name fallback cut or reopen |
+| `edge_rematerialization.rs` | active PHI lifecycle transports/remaps `func`/`Option` | live `CutoverBlockerOpen`; module/phi lifecycle callers are in the manifest |
+| `joinir_id_remapper.rs` | cfg(test) reference remap | ParkedSealed; reopen only with a named non-test caller |
 
 This ledger is the D1 cut/compat/park inventory. A path that cannot be placed
 in one row is a `CutoverBlockerOpen`, not a reason to widen the boundary or
 restore a default target.
 
-D1 is not yet accepted. The open blockers are typed stale-`func` observation
+D1 design is accepted; implementation blockers remain typed stale-`func` observation
 (`user_box_method_publication.rs` included), real `Method(None)` producers and
-receiver recovery, public `MirCall`/`CallFlags` with lossy non-default flags,
-Closure V0/runtime parity, and the dual Constructor/NewBox physical route.
-JoinIR/SSA rematerialization stays `ParkedSealed` only because its caller and
-lifecycle boundary is outside this selected R6 census; its observable reopen
-trigger is a live merge caller plus named lifecycle owner. It is not evidence
-for or against the selected core cutover.
+receiver recovery, selected internal `MirCall`/`CallFlags` transport and the
+unlanded non-empty-flags typed reject, Closure V0/runtime parity, and the dual
+Constructor/NewBox physical route. The public MirCall/CallFlags export is
+ParkedSealed with an external-consumer reopen trigger.
+JoinIR remapper stays `ParkedSealed` because its caller is cfg(test), while SSA
+edge rematerialization is live and remains a cutover blocker with its named
+module/phi lifecycle callers. Neither is completed by `callee: None = 0`.
 
 Four-boundary design consultation (D1 policy; implementation still stopped):
 
 | boundary | selected policy / canonical issuer | compatibility and fail-fast |
 |---|---|---|
-| `MirCall` / `CallFlags` | `CallTarget`/`CalleeResolver` issues target; `MirInstruction::call` issues physical Call. Keep public `MirCall`/`CallFlags` as owner-local transport until API consumers are proven absent. | default flags are discarded decoration; non-default or conflicting flags reject before `physical_terminal`; flags never classify Constructor/Closure |
+| `MirCall` / `CallFlags` | `CallTarget`/`CalleeResolver` issues target; `MirInstruction::call` issues physical Call. Selected internal transport remains open; the public `MirCall`/`CallFlags` surface is `ParkedSealed` until an external consumer is named. | default flags are discarded decoration; non-default or conflicting flags reject before `physical_terminal`; flags never classify Constructor/Closure |
 | `Method(None)` | verified static callable catalog (identity + exact arity) issues qualified `Callee::Global`; instance calls issue `Method { receiver: ValueId }`. Existing `current_static_box` text and formatter are not authority. | JSON-v0 optional receiver resolves once or rejects; methodize and VM receiver/args[0] recovery are cutover blockers; no `StaticMethod` variant |
 | Closure / Value | descriptor (`params/captures/me`, `dst`, empty construction args) issues `NewClosure`; an existing closure value issues `Callee::Value(ValueId)`. | Closure wire is compatibility projection only; mixed descriptor/value, missing dst, runtime args, or `Call(Callee::Closure)` at selected terminal rejects before publication |
-| Constructor / NewBox | constructor syntax/resolver/JSON verifies `box_type`, `dst`, arity and args, then the existing `NewBox` owner publishes construction. `Callee::Constructor` is pre-core/compat input only. | V0 Constructor-shaped Call resolves once to `NewBox` or rejects; backend/C name scans and `Call(Constructor)` execution are forbidden |
+| Constructor / NewBox | constructor syntax/resolver/JSON verifies `box_type`, `dst`, arity and args, then the existing `NewBox` owner publishes construction. `Callee::Constructor` is pre-core/compat input only. | explicit V0 Constructor-shaped Call rejects; direct `op=newbox` and valid V1/NewBox construction retain the existing owner; backend/C name scans and `Call(Constructor)` execution are forbidden |
 
 The matrix is a policy Decision, not implementation evidence. Three physical
 issuer families are still open: Method(None) has real builder/V0 producers,
-Closure V0 parser/runtime parity is incomplete, and Constructor has V0 Call and
-V1/NewBox routes. Public `MirCall`/`CallFlags` is now a parked transport policy,
+Closure V0 parser/runtime parity is incomplete, and Constructor has a generic
+builder `Call(Constructor)` blocker alongside V1/NewBox routes; the V0 Call
+publication edge is already closed. Public `MirCall`/`CallFlags` is now a parked transport policy,
 with external use as its explicit reopen trigger. Therefore R6a remains a
 `NoSafeSlice` until the following bounded rows close their own old edge and
 acceptance:
 
 ```text
 D1-A  CallFlags public/selected-consumer census; non-default conflict reject (design closed)
-D1-B  verified static catalog -> qualified Global; Method(None) issuer count 0
+D1-B  verified static catalog -> qualified Global; Method(None) issuer/recovery census remains open
 D1-C  Closure descriptor/value wire discriminator and NewClosure parity
 D1-D  Constructor input -> NewBox sole selected physical owner
 ```
@@ -1160,7 +1139,7 @@ observed/current:
 selected Rust production flag field readers       = 0
 create_mir_call production caller                 = 1
 physical terminal semantic projection             = dst/callee/args/effects only
-public MirCall/CallFlags downstream consumers     = not observable in workspace
+public MirCall/CallFlags external downstream consumers = not observable in workspace
 JSON flags:{}                                     = compatibility shape retained
 JSON v1 ingress flag handling                      = observation only: ingress does not read/validate flags; no reject is claimed
 
@@ -1438,7 +1417,7 @@ Observed finite edge set:
 |---|---|---|
 | normal/raw `New` and direct collection constructors | existing `NewBox` producers | retain owner; source handoff still needs proof |
 | legacy builder Constructor | some paths direct `NewBox`, unified physical terminal still publishes `Call(Constructor)` | cut/reject before Call publication |
-| V0 typed Constructor | can reissue `Call(Constructor)` while V1 parses to `NewBox` | compatibility resolve once or typed reject |
+| V0 typed Constructor | explicit V0 Constructor rejects; direct `op=newbox` remains positive | closed negative boundary; no `Call(Constructor)` publication |
 | `env.box.new`, IntegerBox shortcut | separate/compatibility semantics | park; not a new selected owner |
 | C/native `mir_call`/`newbox` string routes | hardcoded classification and/or dropped args | park/reject; no authority |
 | Rust `Call(Constructor)` handler | unsupported negative terminal | retain until issuer count is zero |
@@ -2893,7 +2872,7 @@ MIRBUILDER-WARNING-RETIREMENT-R0 (existing T5-D7 row)
 | `Method(None)` | legacy/static producers and v0 projection | compatibility/transitional only; static must become qualified `Global`; core reject until migrated |
 | `Callee::Closure` with `dst=Some,args=[]` | closure construction owner | pre-core input -> `NewClosure`; runtime closure call is `Callee::Value` |
 | Closure with runtime args or missing destination | no valid construction relation | typed reject before publication |
-| `Constructor` | constructor resolver / route family | pre-core input until one `NewBox` or typed-Call owner is selected; no generic reclassification |
+| `Constructor` | constructor resolver / route family | pre-core/compat input; existing `NewBox` is the sole selected construction owner; generic `Call(Constructor)` rejects until retired |
 | `NewBox`, `NewClosure` | existing construction owners | independent physical instructions; not Call target fallback |
 | `None + legacy name/func` | JSON-v0 owner-local catalog | resolve once to exact `Callee` or typed reject; never publish missing Call |
 | missing, `INVALID`, duplicate, foreign, non-String, malformed explicit target | none | typed reject before block/wire/object publication; no retry |
@@ -2906,7 +2885,8 @@ cut       = semantic func readers, Option<Callee> terminal readers, target-Const
             reconstruction, Method(None) recovery, and any backend/optimizer
             by-name fallback once their canonical replacement is named;
 compat    = owner-local JSON-v0 raw draft/catalog only, with one resolve point;
-park      = JoinIR remap until a live caller and both lifecycle owners are named;
+park      = JoinIR remapper cfg(test)/caller-zero is ParkedSealed; SSA edge
+            rematerialization is live in the R6 manifest;
 reopen    = public MirCall/CallFlags use, non-default flag semantics, a second
             Constructor/NewBox issuer, or a Closure wire/runtime consumer.
 ```
@@ -2918,17 +2898,13 @@ staging cleanup, but does not authorize deleting the public `MirCall`/
 by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
-Selected next design task is
-`MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN`.
-D1-B-PARK accepted the existing static handoff/outside boundary and D1-C2-I0
-closed the lossy Closure body egress edge; D1-D0/D1-D1 closed only negative
-V0/V1 publication and shape edges. The D1-D8 helper shelf, D1-D7 final parser
-source seed and package join, initializer/effect coverage, dual body-shape
-loan, private admission snapshot, generic Method(None) issuer, and
-Constructor/NewBox dual route remain blockers. Until the full D1-D8 and
-remaining Method(None) edges are accepted,
-do not change `Option<Callee>`,
-`func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
+Selected next fast task is
+`MIR-CALL-CORE-R6-D1A-EXTERN-ISSUER-I0`: delegate
+`src/mir/ssot/extern_call.rs:26-32` to `MirInstruction::call`, preserving
+name/dst/args/effects and proving helper/direct-literal cardinality. The earlier
+D1-B/D1-C/D1-D notes remain design history; do not change
+`Option<Callee>`, `func`, `Method(None)`, `Callee::Closure`, `MirCall`, or
+`CallFlags` outside this exact writer row.
 
 Post-R7 normal-root cleanup (parked, separate lane):
 

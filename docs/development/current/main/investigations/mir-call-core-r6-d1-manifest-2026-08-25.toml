@@ -1,0 +1,696 @@
+status = "accepted_design"
+date = "2026-08-25"
+decision = "MIR-CALL-CORE-R6-D1-MANIFEST"
+observed_commit = "6b8e6c8f80"
+owner = "MIR-CALL-RETIREMENT-v1"
+source_of_truth = "git show 6b8e6c8f80:<path>"
+
+# This is a design census, not implementation permission.  Every non-test
+# direct Call construction/reconstruction in the selected boundary must occur
+# in exactly one row below.  A missing or duplicate row is a blocker.
+[boundary]
+start = "selected Rust CallTarget/resolver or typed ingress"
+finish = "non-test MirInstruction::Call construction/reconstruction/publication"
+includes = [
+  "selected builder issuers and compatibility entrypoints",
+  "JSON-v0 and JSON-v1 ingress",
+  "optimizer/pass reconstruction that writes a Call",
+  "active SSA PHI rematerialization",
+]
+excludes = [
+  "cfg(test) and *_tests.rs fixtures",
+  "archive/**",
+  "PyVM/reference/Python/WASM/non-selected C-native routes",
+  "selected Rust interpreter, JSON egress, and native preflight consumers",
+  "pure Call readers that do not construct or rewrite a Call",
+]
+
+[consumer_ledger]
+scope = "cross-boundary consumer and fallback obligations; not counted in direct_literal_sites"
+authority = "this manifest [[consumer]] rows; durable policy mirror = docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md"
+
+[counts]
+direct_literal_sites = 38
+live_selected_literal_sites = 26
+owner_compatibility_literal_sites = 12
+canonical_helper_definitions = 1
+direct_helper_callers = 5
+old_bounded_ledger_direct_literals_remaining_at_head = 19
+unclassified_sites = 0
+duplicate_rows = 0
+writer_partitions = 4
+consumer_partitions = 1
+
+[policy]
+canonical_shape = "MirInstruction::Call { dst, callee: Callee, args, effects }"
+canonical_issuer = "MirInstruction::call(dst, callee, args, effects)"
+target_authority = "route-local resolver or typed ingress; exact Callee is issued once"
+non_authority = [
+  "func / ValueId::INVALID / numeric zero",
+  "target-name Const(String)",
+  "MirCall / CallFlags decoration",
+  "printer or wire text",
+  "optimizer, lifecycle, VM, C, or backend name lookup/retry",
+]
+fail_fast = "before block.add_instruction, in-place rewrite, wire emission, or object publication"
+forbidden_retry = "alternate target, by-name recovery, receiver autoscan, args[0] substitution, metadata re-inference"
+
+[[partition]]
+id = "live_selected"
+scope = "writer"
+disposition = "CutoverBlockerOpen"
+allowed_row_dispositions = ["CutoverBlockerOpen", "RetainGuarded"]
+meaning = "selected/non-test issuer or reconstructor; each old edge needs its own later cut"
+reopen_trigger = "none; this partition is in-boundary and must reach an explicit cut or compatibility owner"
+
+[[partition]]
+id = "owner_compatibility"
+scope = "writer"
+disposition = "OwnerScopedCompatibility"
+allowed_row_dispositions = ["Compat", "CutoverBlockerOpen"]
+meaning = "owner-local JSON-v0/raw ingress may interpret legacy input once, then publish exact Callee"
+reopen_trigger = "a compatibility path publishes Call(callee=None), retries another target, or becomes selected core"
+
+[[partition]]
+id = "compiled_caller_zero_reference"
+scope = "writer"
+disposition = "ParkedSealed"
+meaning = "compiled surface with no selected non-test caller; no semantic cut or production activation"
+reopen_trigger = "named live caller plus lifecycle owner re-enters the selected boundary"
+
+[[partition]]
+id = "cross_boundary_consumer"
+scope = "consumer"
+disposition = "CutoverBlockerOpen"
+meaning = "selected consumer/recovery obligation outside the finite writer census; it cannot issue a new Call target"
+reopen_trigger = "consumer becomes a writer, publishes an alternate target, or loses its named selected owner"
+
+[[partition]]
+id = "test_only"
+scope = "writer"
+disposition = "ParkedSealed"
+meaning = "fixtures, diagnostics, archives, and test-only constructors are not production evidence"
+reopen_trigger = "the owner becomes a selected production route, never a fixture-only green test"
+
+[[direct_writer]]
+id = "canonical_helper"
+partition = "live_selected"
+role = "canonical_issuer"
+sites = ["src/mir/instruction/methods.rs:15-29"]
+literal_count = 0
+caller_chain = "five exact direct helper callers -> MirInstruction::call; remaining direct writers await later delegation"
+lifecycle = "instruction construction"
+target_authority = "caller-supplied Callee"
+old_edge = "helper still stores func=INVALID and callee=Some"
+disposition = "CutoverBlockerOpen"
+delete_set = ["func field assignment", "Option<Callee> storage"]
+reopen_trigger = "none; this is the final physical issuer and changes only after all callers are closed"
+
+[[direct_writer]]
+id = "builder_emit_receiver_reconstruction"
+partition = "live_selected"
+role = "reconstructor"
+sites = ["src/mir/builder/builder_emit.rs:140"]
+caller_chain = "builder emission -> receiver localization -> instruction replacement"
+lifecycle = "in-place instruction replacement before block emission"
+target_authority = "existing typed Callee plus localized receiver"
+old_edge = "rebuilds typed Call with legacy func decoration"
+disposition = "CutoverBlockerOpen"
+delete_set = ["direct Call literal", "legacy func transport"]
+reopen_trigger = "receiver localization requires target reclassification"
+
+[[direct_writer]]
+id = "builder_raw_call"
+partition = "owner_compatibility"
+role = "compatibility_issuer"
+sites = ["src/mir/builder/calls/build.rs:357"]
+caller_chain = "raw call builder -> function/name compatibility route -> block emission"
+lifecycle = "builder emit_instruction"
+target_authority = "existing builder route; name Const is legacy input only"
+old_edge = "func carries a raw function value beside typed target"
+disposition = "CutoverBlockerOpen"
+delete_set = ["raw func/name carrier", "direct Call literal"]
+reopen_trigger = "route becomes selected canonical producer without exact Callee preflight"
+
+[[direct_writer]]
+id = "unified_materializer_recovery"
+partition = "owner_compatibility"
+role = "compatibility_issuer"
+sites = ["src/mir/builder/calls/materializer.rs:57", "src/mir/builder/calls/materializer.rs:95"]
+caller_chain = "unified unresolved Global recovery -> name Const -> Call"
+lifecycle = "builder emit_instruction"
+target_authority = "compatibility name resolution owner"
+old_edge = "name Const and typed target are emitted together"
+disposition = "CutoverBlockerOpen"
+delete_set = ["name Const target carrier", "direct Call literals"]
+reopen_trigger = "recovery path is used as canonical target authority"
+
+[[direct_writer]]
+id = "unified_compat_entrypoints"
+partition = "owner_compatibility"
+role = "compatibility_issuer"
+sites = ["src/mir/builder/calls/unified_emitter/compat_entrypoints.rs:22", "src/mir/builder/calls/unified_emitter/compat_entrypoints.rs:42"]
+caller_chain = "compatibility facade -> legacy/global or value route -> block emission"
+lifecycle = "builder emit_instruction"
+target_authority = "owner-local compatibility input"
+old_edge = "legacy func value survives beside typed callee"
+disposition = "CutoverBlockerOpen"
+delete_set = ["legacy func forwarding", "direct Call literals"]
+reopen_trigger = "facade is promoted to selected canonical issuer"
+
+[[direct_writer]]
+id = "unified_physical_terminal"
+partition = "live_selected"
+role = "canonical_issuer"
+sites = ["src/mir/builder/calls/unified_emitter/physical_terminal.rs:94"]
+caller_chain = "unified_emitter -> create_mir_call -> physical terminal"
+lifecycle = "block publication after post-success preparation"
+target_authority = "MirCall.callee, with flags currently unconsumed"
+old_edge = "rebuilds func=INVALID + Option<Callee> and drops flags"
+disposition = "CutoverBlockerOpen"
+delete_set = ["direct Call literal", "selected internal MirCall/CallFlags transport in a later row"]
+reopen_trigger = "non-default flag reader or Constructor/Closure meaning enters this terminal"
+
+[[direct_writer]]
+id = "unified_off_value_route"
+partition = "owner_compatibility"
+role = "compatibility_issuer"
+sites = ["src/mir/builder/exprs_call.rs:33"]
+caller_chain = "raw expression dispatch with unified mode disabled -> value callee -> Call"
+lifecycle = "builder emit_instruction"
+target_authority = "callee ValueId from the owner-local route"
+old_edge = "func stores the same value route as a legacy decoration"
+disposition = "CutoverBlockerOpen"
+delete_set = ["func forwarding", "direct Call literal"]
+reopen_trigger = "unified-off route becomes selected production authority"
+
+[[direct_writer]]
+id = "normal_module_physical_thunk"
+partition = "live_selected"
+role = "canonical_issuer"
+sites = ["src/mir/builder/normal_module_transaction/physical_thunk.rs:79"]
+caller_chain = "normal module transaction -> exact Global thunk -> entry block"
+lifecycle = "entry block insertion"
+target_authority = "transaction-issued qualified Global"
+old_edge = "direct literal retains compatibility func field"
+disposition = "CutoverBlockerOpen"
+delete_set = ["direct Call literal", "func decoration"]
+reopen_trigger = "thunk requires name recovery or target reclassification"
+
+[[direct_writer]]
+id = "phi_edge_rematerialization"
+partition = "live_selected"
+role = "reconstructor"
+sites = ["src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs:240"]
+caller_chain = "builder_emit.rs:93; control_flow/joinir/merge/rewriter/stages/apply.rs:75; control_flow/plan/features/if_join.rs:145,163; emission/phi_lifecycle.rs:427,548; emission/phi_lifecycle/batch_type_publication.rs:38; module_lifecycle.rs:466,577 -> phi_input_materializer -> edge rematerialization"
+lifecycle = "edge-local Call reconstruction before merge publication"
+target_authority = "source instruction Callee plus remapped operands"
+old_edge = "remaps and republishes func/Option<Callee>"
+disposition = "CutoverBlockerOpen"
+delete_set = ["legacy func remap", "local Callee match duplication"]
+reopen_trigger = "lifecycle caller disappears or rematerializer reclassifies target"
+
+[[direct_writer]]
+id = "boxcall_emit"
+partition = "live_selected"
+role = "canonical_issuer"
+sites = ["src/mir/builder/utils/boxcall_emit.rs:231"]
+caller_chain = "indexing/ordinary-New/router -> exact Method(receiver) -> Call"
+lifecycle = "builder emit_instruction"
+target_authority = "Method with a real receiver"
+old_edge = "direct typed Method literal retains INVALID func"
+disposition = "CutoverBlockerOpen"
+delete_set = ["direct Call literal", "func decoration"]
+reopen_trigger = "receiver becomes optional or static method is encoded as Method(None)"
+
+[[direct_writer]]
+id = "typed_method_ssot"
+partition = "live_selected"
+role = "canonical_issuer"
+sites = ["src/mir/ssot/method_call.rs:71"]
+caller_chain = "method SSOT helper -> builder/optimizer/JSON fanout"
+lifecycle = "instruction construction"
+target_authority = "Method(receiver)"
+old_edge = "direct typed literal retains INVALID func"
+disposition = "CutoverBlockerOpen"
+delete_set = ["direct Call literal", "func decoration"]
+reopen_trigger = "helper starts classifying static or missing receivers"
+
+[[direct_writer]]
+id = "typed_extern_ssot"
+partition = "live_selected"
+role = "canonical_issuer"
+sites = ["src/mir/ssot/extern_call.rs:26"]
+caller_chain = "extern SSOT helper -> builder/optimizer/JSON/JoinIR-print fanout"
+lifecycle = "instruction construction"
+target_authority = "Extern(iface.method)"
+old_edge = "direct typed literal retains INVALID func"
+disposition = "CutoverBlockerOpen"
+delete_set = ["direct Call literal", "func decoration"]
+reopen_trigger = "extern name is reconstructed downstream"
+
+[[direct_writer]]
+id = "mir_json_v0_boxcall"
+partition = "owner_compatibility"
+role = "compatibility_issuer"
+sites = ["src/runner/mir_json_v0/module.rs:453"]
+caller_chain = "MIR JSON-v0 boxcall -> required box receiver -> block publication"
+lifecycle = "JSON-v0 compatibility block insertion"
+target_authority = "required v0 box id plus method/name fields; receiver is never optional on this boxcall route"
+old_edge = "required box receiver becomes Method(Some); direct literal still carries INVALID func and defaults box_name to RuntimeDataBox"
+disposition = "Compat"
+delete_set = ["direct Call literal", "INVALID func decoration after core cutover"]
+reopen_trigger = "v0 path becomes selected canonical wire or receiver fallback leaks into core"
+
+[[direct_writer]]
+id = "json_v1_typed_ingress"
+partition = "owner_compatibility"
+role = "compatibility_issuer"
+sites = [
+  "src/runner/json_v1_bridge/parse/mir_call.rs:90",
+  "src/runner/json_v1_bridge/parse/mir_call.rs:211",
+  "src/runner/json_v1_bridge/parse/mir_call.rs:317",
+  "src/runner/json_v1_bridge/parse/mir_call.rs:342",
+  "src/runner/json_v1_bridge/parse/mir_call.rs:367",
+]
+literal_count = 5
+caller_chain = "JSON-v1 typed parser -> block insertion"
+lifecycle = "wire ingress publication"
+target_authority = "explicit typed JSON callee object"
+old_edge = "dummy func=0 remains beside typed target; Constructor/Closure are separate shapes"
+disposition = "CutoverBlockerOpen"
+delete_set = ["dummy func=0", "ambiguous construction Call publication"]
+reopen_trigger = "flags are accepted without typed validation or descriptor/value shapes mix"
+
+[[direct_writer]]
+id = "array_element_write_projection"
+partition = "live_selected"
+role = "compatibility_reconstructor"
+sites = ["src/mir/array_element_write.rs:294"]
+caller_chain = "project_module_to_legacy_calls -> four live callers in runtime execution"
+lifecycle = "module projection/in-place rewrite"
+target_authority = "existing array method relation"
+old_edge = "rebuilds a Call from legacy projected representation"
+disposition = "CutoverBlockerOpen"
+delete_set = ["legacy projection target reconstruction", "direct Call literal"]
+reopen_trigger = "projection remains selected after canonical module boundary is removed"
+
+[[direct_writer]]
+id = "callsite_canonicalize_pass"
+partition = "live_selected"
+role = "reconstructor"
+sites = ["src/mir/passes/callsite_canonicalize/pass.rs:132"]
+caller_chain = "compiler/MIR-v0 pass -> None+Const or Global/Method reclassification"
+lifecycle = "optimizer in-place rewrite"
+target_authority = "must be upstream Callee; pass currently guesses"
+old_edge = "None+Const -> Global and target reclassification"
+disposition = "CutoverBlockerOpen"
+delete_set = ["target issuer branch", "legacy Const scan"]
+reopen_trigger = "pass remains scheduled as semantic target authority"
+
+[[direct_writer]]
+id = "concat3_rewrite"
+partition = "live_selected"
+role = "reconstructor"
+sites = ["src/mir/passes/concat3_canonicalize/rewrite.rs:31"]
+caller_chain = "selected concat3 pass -> replacement map -> block rewrite"
+lifecycle = "optimizer replacement publication"
+target_authority = "plan-provided Extern target"
+old_edge = "rebuilds typed Extern with legacy fields"
+disposition = "CutoverBlockerOpen"
+delete_set = ["direct Call literal", "legacy func decoration"]
+reopen_trigger = "plan does not carry an exact Callee"
+
+[[direct_writer]]
+id = "string_corridor_concat"
+partition = "live_selected"
+role = "reconstructor"
+sites = ["src/mir/passes/string_corridor_sink/concat_corridor_apply.rs:305,325,352,373,381,433,453,512,535"]
+literal_count = 9
+caller_chain = "selected string corridor placement/effect pass -> replacement instruction list"
+lifecycle = "optimizer in-place replacement"
+target_authority = "existing corridor plan and source Call target"
+old_edge = "multiple Call rebuilds preserve func and may replace receiver/target locally"
+disposition = "CutoverBlockerOpen"
+delete_set = ["nine direct Call literals", "target reclassification branches"]
+reopen_trigger = "corridor plan lacks exact target operand relation"
+
+[[direct_writer]]
+id = "string_corridor_publication"
+partition = "live_selected"
+role = "reconstructor"
+sites = ["src/mir/passes/string_corridor_sink/publication.rs:359,389,469,554"]
+literal_count = 4
+caller_chain = "string corridor publication -> helper instruction list -> module publish"
+lifecycle = "publication replacement"
+target_authority = "publication plan-issued Extern"
+old_edge = "four direct typed Call rebuilds retain legacy field"
+disposition = "CutoverBlockerOpen"
+delete_set = ["four direct Call literals", "func decoration"]
+reopen_trigger = "publication plan performs name lookup"
+
+[[direct_writer]]
+id = "string_corridor_retained_len"
+partition = "live_selected"
+role = "reconstructor"
+sites = ["src/mir/passes/string_corridor_sink/retained_len.rs:100"]
+caller_chain = "retained-length pass -> replacement map"
+lifecycle = "optimizer replacement publication"
+target_authority = "existing plan-issued Call target"
+old_edge = "direct typed Call rebuild retains legacy field"
+disposition = "CutoverBlockerOpen"
+delete_set = ["direct Call literal", "func decoration"]
+reopen_trigger = "target is inferred from method/name text"
+
+[[direct_writer]]
+id = "string_corridor_shared"
+partition = "live_selected"
+role = "reconstructor"
+sites = ["src/mir/passes/string_corridor_sink/shared.rs:530,625"]
+literal_count = 2
+caller_chain = "shared corridor method/value rewrite -> replacement map"
+lifecycle = "optimizer replacement/publication"
+target_authority = "existing source Call target and plan"
+old_edge = "method receiver/value rewrite copies func and Option<Callee>"
+disposition = "CutoverBlockerOpen"
+delete_set = ["two direct Call literals", "local target recovery"]
+reopen_trigger = "rewrite needs target classification instead of operand remap"
+
+[[helper_fanout]]
+id = "direct_helper_callers_live"
+partition = "live_selected"
+role = "direct_canonical_helper_caller_inventory"
+owners = [
+  "src/mir/canonical_direct_call.rs:78",
+]
+direct_call_count = 1
+caller_chain = "exact Callee -> MirInstruction::call"
+lifecycle = "helper-owned instruction construction"
+target_authority = "owner-issued exact Callee"
+old_edge = "current canonical caller is retained; only an unclassified new caller would bypass the manifest"
+disposition = "RetainGuarded"
+delete_set = ["unclassified new direct helper caller"]
+reopen_trigger = "any new direct helper caller or target reclassification"
+
+[[helper_fanout]]
+id = "direct_helper_callers_compatibility"
+partition = "owner_compatibility"
+role = "direct_canonical_helper_caller_inventory"
+owners = [
+  "src/runner/json_v0_bridge/lowering/expr/call_ops.rs:74,353,389",
+  "src/runner/mir_json_v0/call.rs:270",
+]
+direct_call_count = 4
+caller_chain = "exact Callee -> MirInstruction::call"
+lifecycle = "helper-owned instruction construction"
+target_authority = "owner-issued exact Callee"
+old_edge = "a direct helper caller outside this row would bypass the manifest"
+disposition = "Compat"
+delete_set = ["unclassified direct helper caller"]
+reopen_trigger = "any new direct helper caller or target reclassification"
+
+[[consumer]]
+id = "legacy_func_def_use_projection"
+partition = "cross_boundary_consumer"
+owners = [
+  "src/mir/instruction/methods.rs:209-225",
+  "src/mir/builder/mir_value_id_inventory.rs:34,71,96",
+  "src/mir/value_consumer.rs",
+  "src/mir/ownership_ssa/verify.rs",
+  "src/mir/passes/simplify_cfg/flow.rs:486-498",
+  "src/mir/passes/cse.rs:102-116",
+  "src/mir/optimizer/core.rs:243-255",
+  "src/mir/query.rs",
+  "src/mir/escape_barrier.rs",
+]
+role = "consumer_and_def_use_projection"
+lifecycle = "used-values, remap, ownership, CSE, query, and escape observation"
+target_authority = "Callee::for_each_value_operand plus ordered args"
+old_edge = "typed Call consumers still carry legacy func branches or keys"
+disposition = "CutoverBlockerOpen"
+delete_set = ["legacy func use/key branches", "INVALID target decoration reads"]
+reopen_trigger = "a consumer reclassifies target instead of projecting Callee operands"
+
+[[consumer]]
+id = "user_box_method_publication_func_alias"
+partition = "cross_boundary_consumer"
+owners = ["src/mir/user_box_method_publication.rs:241-251"]
+role = "semantic_publication_reader"
+lifecycle = "typed Call publication/use alias"
+target_authority = "typed Callee target and its value operands"
+old_edge = "reads func as an alias even when a typed Callee is present"
+disposition = "CutoverBlockerOpen"
+delete_set = ["stale func alias publication use"]
+reopen_trigger = "publication owner receives a new target classifier"
+
+[[consumer]]
+id = "module_lifecycle_const_reobserve"
+partition = "cross_boundary_consumer"
+owners = ["src/mir/builder/module_lifecycle.rs:508-538"]
+role = "lifecycle_observer_and_reconstructor"
+lifecycle = "module completion and PHI/Call repair"
+target_authority = "source instruction Callee and lifecycle-issued operands"
+old_edge = "re-observes Const(String)+Call and transports stale func"
+disposition = "CutoverBlockerOpen"
+delete_set = ["Const(String) target heuristic", "stale func transport"]
+reopen_trigger = "lifecycle repair needs semantic target inference"
+
+[[consumer]]
+id = "method_none_issuer_and_recovery"
+partition = "cross_boundary_consumer"
+owners = [
+  "src/mir/builder/calls/method_resolution.rs:31-55",
+  "src/mir/builder/calls/unified_emitter.rs:407-461",
+  "src/runner/mir_json_v0/call.rs:97-270",
+  "src/runner/modes/common_util/core_bridge.rs:101-199",
+  "src/runner/mir_json_emit/emitters/calls.rs:45",
+  "src/backend/mir_interpreter/handlers/calls/mod.rs:80",
+  "src/backend/mir_interpreter/handlers/calls/method.rs:401,516-532",
+]
+role = "variant_issuer_and_runtime_recovery"
+lifecycle = "Call construction, wire projection, and interpreter dispatch"
+target_authority = "verified static catalog -> qualified Global; instance -> Method(receiver)"
+old_edge = "Method(None), receiver.unwrap_or(func), registry/name/args[0] recovery"
+disposition = "CutoverBlockerOpen"
+delete_set = ["Method(None) production issuer", "receiver autoscan", "by-name/static registry retry"]
+reopen_trigger = "no exact source/catalog handoff for a remaining producer"
+
+[[consumer]]
+id = "closure_descriptor_value_boundary"
+partition = "cross_boundary_consumer"
+owners = [
+  "src/mir/builder/calls/emit.rs:95-108",
+  "src/mir/builder/calls/resolver.rs:150",
+  "src/mir/passes/callsite_canonicalize/pass.rs:94-117",
+  "src/runner/json_v1_bridge/parse/mir_call.rs:317-367",
+  "src/runner/mir_json_emit/emitters/calls.rs:189-203",
+  "src/backend/mir_interpreter/handlers/calls/mod.rs:236",
+]
+role = "construction_vs_invocation_boundary"
+lifecycle = "NewClosure publication or closure-value Call dispatch"
+target_authority = "descriptor -> NewClosure; existing closure value -> Callee::Value"
+old_edge = "Callee::Closure remains type-accepted and Closure->NewClosure is inferred downstream"
+finite_states = [
+  "descriptor with dst and empty runtime args -> NewClosure owner",
+  "existing closure value -> Callee::Value(ValueId) ingress",
+  "missing dst or runtime args on Closure descriptor -> typed reject",
+  "body-backed or mixed Closure wire -> compatibility reject before publication",
+  "selected VM Callee::Value/Closure execution -> typed unsupported terminal, no fallback",
+]
+disposition = "CutoverBlockerOpen"
+delete_set = ["Call(Callee::Closure) selected terminal", "mixed descriptor/value wire acceptance"]
+reopen_trigger = "body-backed closure wire or runtime closure-value caller appears"
+
+[[consumer]]
+id = "constructor_newbox_boundary"
+partition = "cross_boundary_consumer"
+owners = [
+  "src/mir/builder/calls/emit.rs:63-70,145-151",
+  "src/mir/builder/calls/special_method_handlers.rs:92",
+  "src/mir/builder/calls/resolver.rs:144",
+  "src/mir/builder/calls/unified_emitter.rs:551-571",
+  "src/mir/constructor_call_route_plan.rs:123,167",
+  "src/runner/mir_json_v0/call.rs",
+  "src/runner/json_v1_bridge/parse/mir_call.rs",
+  "src/backend/mir_interpreter/handlers/calls/mod.rs",
+]
+role = "construction_owner_boundary"
+lifecycle = "NewBox publication versus Call(Constructor) terminal"
+target_authority = "state-specific constructor source/resolver/JSON owner; existing NewBox is the sole selected construction publisher"
+old_edge = "live builder route still issues Call(Constructor); V0/V1 routes diverge"
+finite_states = [
+  "bounded Raw constructor -> emit.rs NewBox owner",
+  "MIR JSON-v0 Constructor-shaped input -> typed reject before Call publication",
+  "JSON-v1 accepted construction shape -> existing NewBox owner",
+  "generic unified Callee::Constructor -> selected terminal blocker; no VM/C name retry",
+]
+disposition = "CutoverBlockerOpen"
+delete_set = ["Call(Constructor) selected terminal", "backend/C by-name constructor retry"]
+reopen_trigger = "second NewBox owner or constructor ABI consumer is found"
+
+[[consumer]]
+id = "mircall_flags_transport"
+partition = "cross_boundary_consumer"
+owners = [
+  "src/mir/builder/calls/call_unified.rs",
+  "src/mir/builder/calls/unified_emitter.rs:700",
+  "src/mir/builder/calls/unified_emitter/physical_terminal.rs:94",
+  "src/runner/json_v1_bridge/parse/mir_call.rs",
+]
+role = "intermediate_transport"
+lifecycle = "create_mir_call -> physical terminal -> Call"
+target_authority = "Callee; flags are decoration until a typed reader exists"
+old_edge = "CallFlags are created then discarded; JSON flags are currently unread"
+finite_states = [
+  "selected create_mir_call -> physical terminal -> Call transport remains open",
+  "JSON ingress flags are unread/unvalidated (observed fact)",
+  "future non-empty flags -> typed reject acceptance condition, not current behavior",
+]
+disposition = "CutoverBlockerOpen"
+delete_set = ["selected internal MirCall/CallFlags bridge", "implicit nonempty flags acceptance"]
+reopen_trigger = "non-default flag reader, external public consumer, or constructor/closure flag semantics"
+observation = "JSON ingress does not currently read/validate flags; future typed reject is an acceptance condition, not an observed fact"
+
+[[consumer]]
+id = "selected_optimizer_target_recovery"
+partition = "cross_boundary_consumer"
+owners = [
+  "src/mir/passes/callsite_canonicalize/pass.rs",
+  "src/mir/passes/cse.rs",
+  "src/mir/optimizer/core.rs",
+  "src/mir/optimizer_passes/normalize.rs",
+  "src/mir/optimizer_passes/normalize_core13_pure.rs",
+]
+role = "optimizer_reconstructor"
+lifecycle = "in-place pass rewrite or key construction"
+target_authority = "upstream exact Callee or plan-issued target"
+old_edge = "None+Const, Global/Method reclassification, and string-based target issuance"
+disposition = "CutoverBlockerOpen"
+delete_set = ["target reissue", "legacy CSE key", "name/Const scan"]
+reopen_trigger = "pass requires target classification or a new semantic receipt"
+
+[[consumer]]
+id = "selected_backend_and_wire_fallbacks"
+partition = "cross_boundary_consumer"
+owners = [
+  "src/runner/mir_json_emit/emitters/mod.rs",
+  "src/runner/mir_json_emit/emitters/calls.rs",
+  "src/runner/mir_json_emit/helpers.rs",
+  "src/mir/contracts/backend_core_ops/allowlists.rs",
+  "src/backend/mir_interpreter/handlers/calls/mod.rs",
+  "src/backend/mir_interpreter/handlers/calls/method.rs",
+  "src/runner/product/llvm/mod.rs",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_dispatch.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_apply.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_metadata_rules.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_policy.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_need_vocab.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_prepass.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_route_policy.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_emit_body.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_shell_extern_rules.inc",
+  "lang/c-abi/shims/hako_llvmc_ffi_mir_call_surface_policy.inc",
+]
+role = "wire_and_execution_terminal"
+lifecycle = "wire/object publication, interpreter dispatch, selected native preflight"
+target_authority = "typed Callee plus issued plan/ABI rows"
+old_edge = "None->func wire, Method(None) recovery, missing-plan metadata/name fallback"
+finite_states = [
+  "typed Global/Extern name projection -> legal terminal projection",
+  "plan miss or metadata conflict -> typed reject before alternate target selection",
+  "Method receiver missing -> typed reject; no registry/name/args[0] recovery",
+  "selected Rust/native preflight -> negative guard only until typed terminal closes",
+]
+disposition = "CutoverBlockerOpen"
+delete_set = ["by-name retry", "receiver fallback", "metadata re-inference after plan failure"]
+reopen_trigger = "selected route changes or a typed dispatch plan is missing"
+
+[[parked]]
+id = "mircall_flags_public_surface"
+partition = "compiled_caller_zero_reference"
+owners = ["crates/hakorune_mir_defs/src/lib.rs:3"]
+caller_chain = "public MirCall/CallFlags export surface; selected internal type consumers are tracked separately"
+lifecycle = "public transport/reference only"
+disposition = "ParkedSealed"
+reopen_trigger = "external consumer or selected non-default flag reader appears"
+
+[[parked]]
+id = "join_ir_to_mir_compiled_caller_zero"
+partition = "compiled_caller_zero_reference"
+owners = [
+  "src/mir/join_ir_to_mir/call_generator.rs:73",
+  "src/mir/join_ir_to_mir/convert.rs:80",
+  "src/mir/join_ir_to_mir/joinir_block_converter/handlers.rs:37,98",
+]
+caller_chain = "compiled conversion surface; no selected non-test bridge caller"
+lifecycle = "reference conversion only"
+disposition = "ParkedSealed"
+reopen_trigger = "named live bridge caller plus lifecycle owner"
+
+[[parked]]
+id = "legacy_phi_candidate"
+partition = "compiled_caller_zero_reference"
+owners = ["src/mir/builder/ssa/phi_input_materializer/legacy_candidate.rs:772"]
+caller_chain = "preparation API caller count is zero"
+lifecycle = "reference preparation only"
+disposition = "ParkedSealed"
+reopen_trigger = "a selected caller re-enters legacy_candidate"
+
+[[parked]]
+id = "joinir_id_remapper_test_reference"
+partition = "test_only"
+owners = ["src/mir/builder/joinir_id_remapper.rs", "src/mir/builder.rs:587-588"]
+caller_chain = "cfg(test) only"
+lifecycle = "test/reference remap"
+disposition = "ParkedSealed"
+reopen_trigger = "non-test caller and named lifecycle owner appear"
+
+[[parked]]
+id = "standalone_diagnostic_binary"
+partition = "compiled_caller_zero_reference"
+owners = ["src/bin/rc_insertion_selfcheck/cases/basic.rs:75"]
+caller_chain = "standalone diagnostic binary outside selected compiler lane"
+lifecycle = "diagnostic fixture construction"
+disposition = "ParkedSealed"
+reopen_trigger = "binary becomes a selected production backend or compiler route"
+
+[acceptance]
+status = "accepted_design"
+observed_at = "2026-08-25"
+review = "three independent read-only worker audits agree; no code or Cargo evidence used"
+implementation_permission = false
+positive = [
+  "38 direct literal sites occur exactly once in direct_writer rows",
+  "canonical helper has 5/5 direct callers split into 1 live and 4 compatibility sites",
+  "active phi rematerialization has 9/9 named lifecycle caller sites",
+  "JSON-v0/v1 and selected pass families appear in the boundary",
+]
+negative = [
+  "unclassified direct writer = 0",
+  "duplicate direct literal site = 0",
+  "caller-zero row mislabeled live = 0",
+  "callee=None publication count is not used as the sole completion proof",
+]
+parity = [
+  "construction-context review of direct Call blocks reconciles to 38; reader matches are excluded",
+  "git grep canonical helper definitions reconciles to one",
+  "each live row has caller and lifecycle evidence",
+]
+guard = "extend tools/checks/mir_call_canonical_corridor_guard.sh only after D1 acceptance; no new shell guard"
+no_cargo_evidence = true
+no_code_change = true
+
+[next_decision]
+name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
+requires = [
+  "manifest rows exhaustive and unique",
+  "Method(None), Closure, Constructor/NewBox, CallFlags, and stale-func boundaries explicitly dispositioned",
+  "active PHI rematerialization retained as live, not parked",
+]
+next_fast_candidates = [
+  "typed Extern SSOT helper delegation",
+  "internal MirCall/CallFlags transport retirement",
+]
+selection_rule = "do not choose a fast candidate until this manifest is accepted and the candidate's old edge is isolated"
