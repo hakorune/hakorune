@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1X unified physical terminal issuer"
-status = "fast"
+status = "landed"
 observed_at = "2026-08-25"
-observed_commit = "11b1499031"
-implementation_permission = true
+observed_commit = "cde490f75e"
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0"
 decision = "MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0"
 owner = "MIR-CALL-RETIREMENT-v1"
@@ -12,7 +12,7 @@ decision = "Replace only the final generic physical terminal Call literal with t
 source_authority_and_canonical_issuer = "The finalized MirCall owns exact dst/callee/args/effects; emit_finalized_generic_call_v1 emits exactly once through MirInstruction::call after builder emission succeeds."
 non_authority = "legacy func, ValueId::INVALID, CallFlags, post-success facts, lookup/map replay, alternate route, backend lookup, and target retry are not authority."
 fail_fast_boundary = "The existing builder.emit_instruction result is the only publication boundary: success emits one canonical Call and then commits prepared post-success facts; failure emits no Call, receipt, or post-success publication."
-smallest_next_slice = "src/mir/builder/calls/unified_emitter/physical_terminal.rs:94 direct generic Call literal only; selected writers 3 -> 2 and unified physical-terminal family 1 -> 0."
+smallest_next_slice = "landed at cde490f75e; no further implementation is admitted by this receipt."
 non_claims = "No MirCall/CallFlags retirement, mandatory-Callee schema, Method(None), JSON ingress, array projection, callsite canonicalizer, metadata/backend, or cleanup change."
 
 [boundary]
@@ -82,7 +82,27 @@ source_limits = "physical_terminal.rs remains below 760/800; physical_receipt_te
 
 [worker_review]
 selection = "/root/d2c_consumer_selection_audit: fresh post-D1W census found selected writers 3, with this unified physical terminal as the sole safe next edge; array projection and callsite canonicalizer remain separate"
-implementation_permission = "fast I0 is permitted only for this one physical-terminal literal; final Call shape, Method(None), JSON ingress, and broader cleanup remain closed"
+implementation_permission = "fast I0 was permitted only for this one physical-terminal literal; implementation is now closed, while final Call shape, Method(None), JSON ingress, and broader cleanup remain closed"
+
+[receipt]
+status = "landed"
+implementation_commit = "cde490f75e"
+source_owner = "src/mir/builder/calls/unified_emitter/physical_terminal.rs::emit_finalized_generic_call_v1"
+source_lines_after = 108
+focused_command = "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib mir::builder::calls::unified_emitter::physical_receipt_tests"
+focused_result = "7 passed; 0 failed; 7419 filtered out"
+warning_baseline = "441 warnings in quick profile; pre-existing and not attributed to this row"
+selected_writers_before = 3
+selected_writers_after = 2
+unified_terminal_family_before = 1
+unified_terminal_family_after = 0
+deleted_edge = "one direct MirInstruction::Call literal with func: ValueId::INVALID and callee: Some(call.callee)"
+replacement_edge = "MirInstruction::call(call.dst, call.callee, call.args, call.effects) after the existing builder emission boundary"
+guard = "tools/checks/mir_call_canonical_corridor_guard.sh: 777 lines, green"
+pointer_guard = "tools/checks/current_state_pointer_guard.sh: green"
+source_limits = "physical_terminal.rs 108 lines; physical_receipt_tests.rs 213 lines; guard 777 lines; active card 1000 lines"
+parity = "value/no-destination receipt, emission failure no-publication, alternate routes, recursion depth, map replay, and signature publication ordering remain green"
+non_claims = "MirCall/CallFlags retirement, Call final schema, Method(None), JSON ingress, array projection, callsite canonicalizer, metadata/backend, fallback/retry, and cleanup remain separate"
 
 [stop_if]
 conditions = [

@@ -179,15 +179,16 @@ focused materialization suite is 3/3 and the shared guard remains 777 lines.
 `Method(None)`, generic calls, ingress, schema, and backend/wire work remain
 NoSafeSlice or separately gated.
 
-D1X is the selected final generic physical-terminal writer. The existing
-`MirCall` already owns exact `dst`, typed `Callee`, `args`, and `effects`; only
-`emit_finalized_generic_call_v1`'s direct transitional `Call` literal is to be
-replaced by `MirInstruction::call`. The existing builder-emission fail-fast
-boundary, prepared post-success commit, value/no-destination receipt, and
-alternate-route split are unchanged. This row reduces selected writers 3 -> 2
-and the unified physical-terminal family 1 -> 0; `MirCall`/`CallFlags`, final
-schema, `Method(None)`, ingress, array projection, canonicalizer, and backend
-work remain separately gated.
+D1X landed at `cde490f75e` as the final generic physical-terminal writer. The
+existing `MirCall` already owns exact `dst`, typed `Callee`, `args`, and
+`effects`; `emit_finalized_generic_call_v1` now delegates its one transitional
+Call emission to `MirInstruction::call`. The existing builder-emission
+fail-fast boundary, prepared post-success commit, value/no-destination
+receipt, and alternate-route split are unchanged. Selected writers are 3 -> 2
+and the unified physical-terminal family is 1 -> 0; `MirCall`/`CallFlags`,
+final schema, `Method(None)`, ingress, array projection, canonicalizer, and
+backend work remain separately gated. The focused physical receipt suite is
+7/7 and the shared guard remains 777 lines.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

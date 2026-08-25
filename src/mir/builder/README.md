@@ -96,9 +96,10 @@ suffix/store schedule remain owned by their existing plans. `Method(None)`,
 wrong aliases/shapes, generic FunctionCall, Call schema retirement, ingress,
 backend/wire, and cleanup remain outside this row.
 
-### MIR Call R6 D1X unified physical terminal issuer (selected fast)
+### MIR Call R6 D1X unified physical terminal issuer (landed)
 
-D1X is the bounded next edge selected after the D1W closeout census. The
+D1X was the bounded next edge selected after the D1W closeout census and landed
+at `cde490f75e`. The
 finalized `MirCall` already owns exact destination, typed callee, arguments,
 and effects; only the one direct transitional `Call` literal in
 `unified_emitter/physical_terminal.rs` will delegate to

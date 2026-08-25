@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0
+Status: Closeout — MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -33,18 +33,18 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0
-  implementation    = D1V paired InsertMidSubstring landed at 738b0f9fcd; D1W StoreSharedReceiverSubstring landed at 938e060028; D1X is the final generic physical-terminal literal (3 -> 2; unified 1 -> 0)
-  mode              = fast
-  production stop   = only the final generic physical-terminal Call literal may change; MirCall/CallFlags, post-success, alternate routes, schema, ingress, backend, and cleanup stay closed
-  exit              = one canonical constructor, focused positive/negative/parity proof, reusable guard, README/reference receipt, commit, and push
+  implementation    = D1V paired InsertMidSubstring landed at 738b0f9fcd; D1W StoreSharedReceiverSubstring landed at 938e060028; D1X UnifiedPhysicalTerminal landed at cde490f75e (3 -> 2; unified 1 -> 0)
+  mode              = closeout
+  production stop   = implementation is closed; only receipt, pointer, README/reference, and next-edge worker evidence may enter this closeout
+  exit              = receipt, pointer closeout, commit, push, and upper-worker next-edge census
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: replace only the final generic physical-terminal Call literal with the thin canonical constructor; preserve finalized MirCall destination, typed Callee, args, effects, builder emission boundary, post-success commit, and receipts.
+Decision: landed — replace only the final generic physical-terminal Call literal with the thin canonical constructor; preserve finalized MirCall destination, typed Callee, args, effects, builder emission boundary, post-success commit, and receipts.
 Source authority + canonical issuer: finalized MirCall owns exact dst/callee/args/effects; emit_finalized_generic_call_v1 emits once through MirInstruction::call after builder.emit_instruction succeeds.
 Non-authority: legacy func, ValueId::INVALID, CallFlags, post-success facts, lookup/map replay, alternate route, backend lookup, target retry, and schema inference.
 Fail-fast boundary: existing builder.emit_instruction result; success emits one canonical Call then commits prepared post-success facts, failure emits no Call, receipt, or publication.
-Smallest next slice: `unified_emitter/physical_terminal.rs` direct Call literal only; selected writers 3 -> 2 and unified physical-terminal family 1 -> 0.
+Smallest next slice: closeout only — receipt records `cde490f75e`, 7/7 physical receipt tests, the 777-line guard, and the 441-warning baseline; no further implementation is admitted here.
 Non-claims: MirCall/CallFlags retirement, mandatory-Callee schema, Method(None), JSON ingress, array projection, callsite canonicalizer, metadata/backend, and cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0 -> selected fast after the post-D1W worker census: the final generic physical-terminal literal will use the canonical constructor; selected writers 3 -> 2 and unified family 1 -> 0; stop on MirCall/CallFlags, post-success, alternate routes, array/canonicalizer, schema, ingress, backend, metadata, or cleanup expansion
+Now MIR-CALL-CORE-R6-D1X-UNIFIED-PHYSICAL-TERMINAL-ISSUER-I0 -> landed at cde490f75e: the final generic physical-terminal literal now uses the canonical constructor; selected writers 3 -> 2 and unified family 1 -> 0; focused 7/7, guard 777, and 441 warning baseline are recorded; full Call field retirement remains separate
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6
