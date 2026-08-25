@@ -1,10 +1,11 @@
 title = "MIR Call core R6 D1L direct substring-len Extern issuer"
-status = "selected_fast"
-observed_commit = "edd90bf25c"
+status = "landed"
+observed_commit = "0be8a73420"
 observed_at = "2026-08-25"
-implementation_permission = true
+implementation_permission = false
 implementation_row = "MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0"
 fast_row_candidate = true
+implementation_commit = "0be8a73420"
 
 [boundary]
 starts = "SubstringLenPlan entering shared.rs apply_plans"
@@ -64,8 +65,9 @@ public_wrapper_production_callers = 0
 public_wrapper_test_callers = "test-only"
 remaining_selected_direct_writers_before = 18
 remaining_selected_direct_writers_after = 17
-owner_lines = 672
+owner_lines = 671
 guard_lines_before = 739
+guard_lines_after = 757
 guard_line_budget = "<=20 added lines; remain below 760 design threshold and 800 hard stop"
 source_risk = "shared.rs remains below the 760 split threshold; no adjacent semantic or schedule change"
 
@@ -120,7 +122,17 @@ guards = [
 [worker_review]
 issuer_census = "upper-worker /root/d2c_consumer_selection_audit: D1L is the smallest remaining one-writer private-plan Extern candidate; current finite selected direct writers 18"
 containment_audit = "upper-worker /root/d2a_containment_audit: bounded design accepted; plan-0 claim narrowed to apply_plans and guard addition <=20 lines"
-implementation_permission = true
+implementation_permission = false
+
+[receipt]
+status = "landed"
+commit = "0be8a73420"
+focused_tests = "4/4 green: single-use direct, runtime copy-chain direct, placement-effect planning, empty-apply no-publication"
+broad_test = "substring_len: 12 passed, 1 pre-existing cohort-missing benchmark failure"
+warnings = "quick profile reports 441 existing warnings; no new warning class"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + touched rustfmt + git diff --check green"
+source_risk = "shared.rs 671 lines; canonical guard 757 lines; both remain below 760 design threshold and 800 hard stop"
+scope = "one shared SubstringLenPlan writer only; remaining writers, schema cutover, backend, and warning retirement stay outside"
 
 [stop_if]
 conditions = [

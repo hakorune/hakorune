@@ -98,24 +98,24 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` records the current design-stop row:
 
 ```text
-MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0
+MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0
 ```
 
-D1L is the selected fast row after two upper-worker audits. D1K landed at
-`8401f457ab`, D1J at `c927da4029`, and D1I at `513a243be5`. D1L
-implementation is limited to its one shared private-plan writer; its boundary
-and receipt are in:
+D1L landed at `0be8a73420` after two upper-worker audits. D1K landed at
+`8401f457ab`, D1J at `c927da4029`, and D1I at `513a243be5`. D1L was limited
+to its one shared private-plan writer; its boundary and receipt are in:
 
 ```text
 docs/development/current/main/investigations/
   mir-call-core-r6-d1l-direct-substring-len-extern-issuer-2026-08-25.toml
 ```
 
-D1J's field-parity test, Map/Array timing negatives, shared corridor guard,
-pointer guard, rustfmt, and diff checks are green; the quick profile's 441
-warnings remain the pre-existing baseline. D1K is limited to its one private
-plan writer; full Call field retirement and string-corridor family retirement
-are not part of this row.
+D1L's four focused tests, shared corridor guard, pointer guard, rustfmt, and
+diff checks are green; the quick profile's 441 warnings remain the
+pre-existing baseline, and the substring_len cohort has one pre-existing
+cohort-missing benchmark failure. The next fast row is not selected until an
+upper-worker census names its production caller family and old edge; full Call
+field retirement and string-corridor family retirement remain separate.
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
 `NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI

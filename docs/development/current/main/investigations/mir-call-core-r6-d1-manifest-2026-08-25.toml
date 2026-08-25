@@ -823,14 +823,29 @@ warning_baseline = "quick profile reports 441 existing warnings; substring_len b
 source_risk = "retained_len.rs 127 lines; canonical guard 739 lines; below split and hard-stop limits"
 
 [candidates.d1l_direct_substring_len_extern_issuer]
-status = "selected_fast"
+status = "landed"
 manifest = "docs/development/current/main/investigations/mir-call-core-r6-d1l-direct-substring-len-extern-issuer-2026-08-25.toml"
 boundary = "one shared.rs same-invocation SubstringLenPlan writer"
 direct_writers_before = 1
 direct_writers_after = 0
 canonical_issuer = "MirInstruction::call"
-implementation_permission = true
-review = "two upper-worker audits agree; fast row selected for bounded implementation"
+implementation_permission = false
+implementation_commit = "0be8a73420"
+review = "two upper-worker audits agree; landed with focused 4/4 proof and scoped guard"
+
+[receipts.d1l_direct_substring_len_extern_issuer]
+status = "landed"
+commit = "0be8a73420"
+source = "src/mir/passes/string_corridor_sink/shared.rs:620-636"
+old_edge = "one shared SubstringLenPlan direct Call literal with func=INVALID and callee=Some(Extern)"
+new_edge = "MirInstruction::call(Some(plan.outer_dst), Callee::Extern(SUBSTRING_LEN_EXTERN.to_string()), vec![plan.source, plan.start, plan.end], plan.effects)"
+writer_count_before = 1
+writer_count_after = 0
+parity = "focused D1L tests 4/4 green; target/dst/args/effects/hint/count/removal/metadata/CFG timing preserved"
+negative = "empty apply publishes no owner instruction/hint/rewrite count; selected window has no direct Call literal, func, Some wrapper, PURE override, or ssot::extern_call"
+guards = "mir_call_canonical_corridor_guard + current_state_pointer_guard + touched rustfmt + git diff --check green"
+warning_baseline = "quick profile reports 441 existing warnings; substring_len cohort is 12/13 with one pre-existing cohort-missing benchmark failure"
+source_risk = "shared.rs 671 lines; canonical guard 757 lines; no schema, flags, fallback, backend, or warning change"
 
 [next_decision]
 name = "MIR-CALL-CORE-R6-D1-ACCEPTANCE"
@@ -840,7 +855,6 @@ requires = [
   "active PHI rematerialization retained as live, not parked",
 ]
 next_fast_candidates = [
-  "MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0",
   "internal MirCall/CallFlags transport retirement after D1I boundary closure",
 ]
 selection_rule = "do not choose a fast candidate until this manifest is accepted and the candidate's old edge is isolated"
