@@ -471,13 +471,15 @@ parent 652 (<760); no new edge/warning class.
 
 ## Ordered follow-ups (design/retirement, not selected)
 
-`MIR-PHYSICAL-TYPE-INPUT-D0`: Decision: exact source scalar, representation,
-ABI class, and target storage-layout rows co-seal once; no width/layout inference.
-Source authority + canonical issuer: exact-i64 relation plus existing representation/ABI owners; name the target-layout owner before implementation.
-Non-authority: `MirType::Integer`, `FunctionMetadata` optionals, strings, defaults, backend reconstruction.
-Fail-fast boundary: co-seal before session/backend effect; missing, foreign, or conflicting rows reject.
-Smallest next slice: finite D0 schema/matrix/delete set, then one exact-i64 pair. Non-claims: general widths, pointers/aggregates, FunctionMetadata, backend/JSON/C, Call R6, VM/PyVM, warnings.
-
+`MIR-PHYSICAL-TYPE-INPUT-D0`: design_stop; Decision = exact source scalar,
+representation, ABI class, and target-layout rows co-seal once; no width/layout inference.
+Source authority + issuer = exact-i64 relation plus existing representation/ABI owners;
+select one invocation-bound target-layout owner (PinnedText only if the selected Dynamic invocation is proven identical, otherwise a common target-only row).
+Non-authority = `MirType::Integer`, `FunctionMetadata`/`StorageClass`, strings/defaults,
+backend/TargetMachine reconstruction, JSON/C/Python lanes. Fail-fast = bind/validate
+target before session effect, co-seal before publication, and reject missing/foreign/stale/conflicting/duplicate/unsupported rows with no retry.
+D0 tasks = states (`Outside`,`SourceMissing`,`RepresentationMissing`,`AbiMissing`,
+`TargetOwnerMissing`,`Foreign`,`Conflict`,`Unsupported`,`Ready`,`Consumed`) + four-row schema + old inference-edge delete set; I0 waits for this authority decision. Non-claims = other widths/pointers/aggregates, FunctionMetadata, backend activation, Call R6, VM/PyVM, warnings.
 R3 D0 accepted boundary:
 Decision: Program generic calls use one immutable catalog built from local defs;
 import aliases retain their existing canonical producers; post-merge imports are
@@ -493,7 +495,6 @@ target before argument effects and block publication; empty, duplicate, or
 ambiguous target rejects without retry. Smallest next slice: R3a catalog + R3b
 late issuer retirement (closed). Non-claims: core field
 cutover, operand SSOT, selected terminal closure, and historical backend re-entry.
-
 R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
 R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
 R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap isolation I0 landed at 0048c0176a; physical type D0 is the design stop; native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
@@ -571,21 +572,20 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ```text
 Now
  MIR-PHYSICAL-TYPE-INPUT-D0
-  -> design_stop: name storage-layout owner, four-row co-seal, finite rejects, and old inference edges
+  -> design_stop: D0-A select one invocation-bound storage-layout owner; D0-B co-seal four rows; D0-C finite rejects; D0-D inventory old inference edges
 Next (not selected)
-  -> MIR-PHYSICAL-TYPE-INPUT-I0 after D0; MIR-CALL-CORE-R6-D0 follows, while backend/New and non-selected backends remain ParkedSealed
-
+  -> MIR-PHYSICAL-TYPE-INPUT-I0 after D0: one exact-i64 target row and one selected Dynamic consumer; JSON/C/backend remain ParkedSealed
+Call lane (after D0/I0): R6 canonical operand/escape projection and lifecycle inventory are closed; JoinIR remap is test/reference-only at 0048c0176a, so do not revive caller-zero code
+  -> cutover: `Call { dst, callee: Callee, args, effects }`; remove `func`, `Option<Callee>`, INVALID sentinels; decide MirCall/CallFlags, Method(None), Closure construction, and Constructor/NewBox boundary together; then typed-only terminal consumers, fallback/retry/by-name lookup = 0, parity + one guard
 After MIR Call retirement
   1. MIRBUILDER-PR-STRUCTURAL-GATES-I0
   2. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
-  3. mimalloc promotion gate, then .hako selfhost migration
-
+  3. root mode session-localization, stale ordinary-New comment, then mimalloc promotion gate and .hako selfhost migration
 Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
   -> Loop common/Generic/callable physical follow-ups until a named caller
   -> MIR-BUILDER-NORMAL-SCRIPT-MOD-SHELF-R0 first, then MIR-EMPTY-DIR-CLEANUP-R0 + MIR-COMMON-V2-SHELF-R0 (post-R7 physical shelf order)
   -> NORMAL-ROOT-OLD-GUARD-RETIRE-R0 + NORMAL-ROOT-BOOL-PROJECTION-RETIRE-R0, then MIRBUILDER-WARNING-RETIREMENT-R0 (A/B/C); mode/projection/type-name/syntax-loan and performance/converter/llvmlite/Home/selfhost stay separate
-
 Closed / do not reopen from a mirror
   -> normal-root T0/C0/R0 and 68/68 replacement manifest
   -> H2 selected Dynamic cutover through W6
