@@ -1162,9 +1162,9 @@ create_mir_call production caller                 = 1
 physical terminal semantic projection             = dst/callee/args/effects only
 public MirCall/CallFlags downstream consumers     = not observable in workspace
 JSON flags:{}                                     = compatibility shape retained
-JSON v1 ingress flag handling                      = currently not read/validated
+JSON v1 ingress flag handling                      = ingress does not read/validate flags; no current reject is observed
 
-required/not-yet-landed:
+acceptance/not-yet-landed:
 non-empty/unknown flags                            = typed reject before publication
 ```
 
@@ -1511,12 +1511,16 @@ MIR-EMPTY-DIR-CLEANUP-R0
   reopen: a generated-file rule or source owner recreates one of these shelves.
 
 MIR-COMMON-V2-SHELF-R0
-  observed: the reported flat 15-file set is not reproduced at HEAD: there are
-  14 top-level common_v2*.rs files and 13 files under resolved_lowering/
-  common_v2_session/. Treat the reported 15 as an inventory discrepancy until
-  the missing member and production/test ownership are named.
-  acceptance: reconcile the finite 14+13 inventory, then house only the named
-  common_v2 family behind one mod.rs without changing imports or semantics.
+  observed: the reported flat 15-file set is not reproduced at HEAD. The
+  selected builder shelf has 14 flat common_v2*.rs files under
+  src/mir/builder/resolved_lowering/ plus 13 files under its
+  common_v2_session/ child (including mod.rs); the separate
+  src/mir/loop_recipe_contract/ family has 16 common_v2*.rs files.
+  Treat the reported 15 as an inventory discrepancy until the intended family,
+  missing member, and production/test ownership are named.
+  acceptance: reconcile the finite selected-family inventory, then house only
+  the named common_v2 family behind one mod.rs without changing imports or
+  semantics.
   reopen: a fifteenth file or external path consumer is found.
 ```
 

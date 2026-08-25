@@ -370,7 +370,7 @@ Now
  MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
   -> design stop: close the existing parser/source handoff and V0 typed Constructor resolve-once boundary; D1-C2-I0 rejected lossy body-backed closure egress without a schema change
 Next (not selected)
-  -> D1-D Constructor/NewBox owner remains design-only NoSafeSlice; R6a stays closed until D1-C2/D and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-D source-handoff/Constructor resolve-once outcome; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
@@ -382,8 +382,8 @@ After MIR Call retirement
 Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
   -> Loop common/Generic/callable physical follow-ups until a named caller
-  -> MIRBUILDER-WARNING-RETIREMENT-R0 (A/B/C) + physical shelves (normal_script #[path], six empty dirs, common_v2) after R7
-  -> normal-root R0 leftovers (old guard + root_is_app_mode/is_app_mode bool), then mode/projection/type-name/syntax-loan cleanup; performance/converter/llvmlite/Home/selfhost separate
+  -> MIR-BUILDER-NORMAL-SCRIPT-MOD-SHELF-R0 first, then MIR-EMPTY-DIR-CLEANUP-R0 + MIR-COMMON-V2-SHELF-R0 (post-R7 physical shelf order)
+  -> NORMAL-ROOT-OLD-GUARD-RETIRE-R0 + NORMAL-ROOT-BOOL-PROJECTION-RETIRE-R0, then MIRBUILDER-WARNING-RETIREMENT-R0 (A/B/C); mode/projection/type-name/syntax-loan and performance/converter/llvmlite/Home/selfhost stay separate
 
 Closed / do not reopen from a mirror
   -> normal-root T0/C0/R0 and 68/68 replacement manifest
