@@ -4,7 +4,7 @@ observed_commit = "a3088cce40"
 observed_at = "2026-08-26"
 implementation_permission = false
 selected_fast = false
-landed_commit = "PENDING-CLOSEOUT-COMMIT"
+landed_commit = "ffcae72725"
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-selected-normal-duplicate-projection-d0-2026-08-26.toml"
 next_design_child = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"
 

@@ -33,7 +33,7 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
-  implementation    = SelectedNormal duplicate-policy validator I0 is landed with pre-body duplicate/unique witnesses and a reusable guard; direct-target index handoff remains a separate NoSafeSlice design; D1B exact-target child landed at 6149d2692a and Global recovery retirement at c8089e5288
+  implementation    = SelectedNormal duplicate-policy validator I0 landed at ffcae72725 with pre-body duplicate/unique witnesses and a reusable guard; direct-target index handoff remains a separate NoSafeSlice design; D1B exact-target child landed at 6149d2692a and Global recovery retirement at c8089e5288
   mode              = design_stop
   production stop   = name a same-source/same-resolver-continuation index co-seal owner for general SelectedNormal before any target handoff; no target issuance, relationless recovery, or argument-order implementation
   exit              = accepted co-seal authority and finite rejection matrix for direct-target handoff; duplicate validator remains closed
