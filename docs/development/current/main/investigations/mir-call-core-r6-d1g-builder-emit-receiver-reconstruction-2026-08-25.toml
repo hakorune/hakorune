@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1G builder emit receiver reconstruction"
-status = "accepted_design_next_slice"
+status = "accepted_design_fast_row_selected"
 observed_commit = "e26a65bd85"
 observed_at = "2026-08-25"
-implementation_permission = false
+implementation_permission = true
 
 [boundary]
 starts = "existing typed Callee::Method(Some(receiver)) entering MirBuilder::emit_instruction"
@@ -103,7 +103,7 @@ stop_if = [
 ]
 
 [acceptance]
-status = "design_stop_until_pointer_switch"
+status = "fast_row_selected"
 focused_test = "disconnected_standard_terminal_preserves_method_identity_and_completed_destination plus instruction method parity; scoped guard covers non-Method/callee=None non-intervention"
 expected_inventory_delta = "direct literal 35 -> 34; canonical helper caller fanout 8 -> 9; no runtime caller fanout claim"
 implementation_scope = "one existing reconstruction branch, one shared guard extension, one README receipt; no new semantic receipt"
