@@ -1,7 +1,7 @@
 title = "MirBuilder investigation ledger identity and index design"
 status = "accepted_design_no_safe_slice"
 observed_at = "2026-08-26"
-observed_commit = "7d7258ea73"
+observed_commit = "6f20547f21"
 implementation_permission = false
 owner = "MIRBUILDER-FINAL-PIPELINE-v1"
 related_current = "docs/development/current/main/CURRENT_STATE.toml"
@@ -39,7 +39,7 @@ non_claims = [
 ]
 
 [observed]
-toml_inventory = "The bounded investigation cohort is 58 TOML files under docs/development/current/main/investigations; all 58 parse with tomllib after the one-line decision_id repair. This is not a repository-wide green claim and does not include the large normal-root manifest."
+toml_inventory = "The bounded investigation cohort is 59 TOML files under docs/development/current/main/investigations; all 59 parse with tomllib after the one-line decision_id repair and receiver-encoding census card. This is not a repository-wide green claim and does not include the large normal-root manifest."
 known_parse_failure = "Resolved at 7d7258ea73: the Call-R6 late-legacy-target card now keeps its identifier as decision_id beside the structured [decision] table. Future INDEX checks must still reject duplicate keys and unclassified dates."
 future_filename_inventory = "four investigation filenames carry 2026-08-27 while observed_at remains 2026-08-26: three Call docs-slim rows and one interpreter-externals evidence row. Classify active/parked/out-of-scope before any rename."
 guard_manifest = "tools/checks/guard_rows.toml currently reports 103 rows (29 root rows plus the included 74-row manifest). At least four referenced guards are not registered: mir_call_canonical_corridor_guard.sh, mir_call_d1b_exact_target_child_guard.sh, mir_call_d1b_selected_normal_duplicate_projection_guard.sh, and normal_source_plan0_transaction_guard.py; the externals retirement guard is referenced but absent. The newly landed index-none safety guard is registered."
@@ -47,7 +47,7 @@ relation_drift = "current cards use mixed parent_row/parent_child/source_lineage
 identity_drift = "the bounded investigation cohort currently has zero top-level row_id fields and zero [edges] tables; identity and relation migration remain unstarted and must not accept a dual-format cutover."
 
 [verification]
-source = "read-only adversarial D0a audit plus boundary-reconcile card and one-line ledger repair at 7d7258ea73; no code, fixture, or Cargo change"
+source = "read-only adversarial D0a audit, one-line ledger repair, and receiver-encoding census at 6f20547f21; no code, fixture, or Cargo change"
 terminal_policy = "the related relationless-recovery card already says first, tenth, or ParkedSealed; the old ninth wording is not a current blocker"
 remaining_tasks = [
   "schema D0: freeze row_id, [edges] roles, status/date vocabulary, scope, and one-way cutover",
