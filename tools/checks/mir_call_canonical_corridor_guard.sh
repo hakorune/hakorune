@@ -19,6 +19,7 @@ METHODS="$ROOT_DIR/src/mir/instruction/methods.rs"
 MIR_V0_CALL="$ROOT_DIR/src/runner/mir_json_v0/call.rs"
 MIR_V0_CATALOG="$ROOT_DIR/src/runner/mir_json_v0/catalog.rs"
 MIR_V0_MODULE="$ROOT_DIR/src/runner/mir_json_v0/module.rs"
+MIR_V0_TESTS="$ROOT_DIR/src/runner/mir_json_v0/tests.rs"
 CALLEE_DEFS="$ROOT_DIR/crates/hakorune_mir_defs/src/call_unified.rs"
 SIMPLIFY_FLOW="$ROOT_DIR/src/mir/passes/simplify_cfg/flow.rs"
 VALUE_CONSUMER="$ROOT_DIR/src/mir/value_consumer.rs"
@@ -54,7 +55,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -85,10 +86,13 @@ require "$SCHEDULE" "allow_legacy_target_rewrite"
 require "$SCHEDULE" "ProgramJsonV0Bridge"
 require "$MIR_V0_CALL" "enum JsonV0CallInput"
 require "$MIR_V0_CALL" "struct JsonV0CallInputError"
+require "$MIR_V0_CALL" "mir-json-v0/constructor-call-requires-newbox"
 require "$MIR_V0_CALL" "MirInstruction::call("
 require "$MIR_V0_CATALOG" "JsonV0FunctionCatalog"
 require "$MIR_V0_CATALOG" "ConstValue::String"
 require "$MIR_V0_MODULE" "JsonV0FunctionCatalog::from_function"
+require "$MIR_V0_TESTS" "parse_typed_constructor_call_rejects_before_call_publication"
+require "$MIR_V0_TESTS" "parse_direct_newbox_remains_positive"
 require "$CALLEE_DEFS" "pub fn rewrite_value_operands"
 require "$CALLEE_DEFS" "pub fn for_each_value_operand"
 require "$SIMPLIFY_FLOW" "callee.rewrite_value_operands"

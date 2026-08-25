@@ -101,6 +101,50 @@ fn parse_call_accepts_extern_callee_without_func() {
 }
 
 #[test]
+fn parse_typed_constructor_call_rejects_before_call_publication() {
+    let json = r#"{
+      "functions":[
+        {"name":"main","blocks":[
+          {"id":0,"instructions":[
+            {"op":"call","dst":2,"callee":{"type":"Constructor","box_type":"MapBox"},"args":[]},
+            {"op":"ret","value":2}
+          ]}
+        ]}
+      ]
+    }"#;
+
+    let error = parse_mir_v0_to_module(json).expect_err("typed Constructor Call must reject");
+    assert!(error.contains("[freeze:contract][mir-json-v0/constructor-call-requires-newbox]"));
+}
+
+#[test]
+fn parse_direct_newbox_remains_positive() {
+    let json = r#"{
+      "functions":[
+        {"name":"main","blocks":[
+          {"id":0,"instructions":[
+            {"op":"newbox","dst":2,"type":"MapBox","args":[]},
+            {"op":"ret","value":2}
+          ]}
+        ]}
+      ]
+    }"#;
+
+    let module = parse_mir_v0_to_module(json).expect("direct newbox must remain supported");
+    let instructions = &module
+        .get_function("main")
+        .expect("main exists")
+        .get_block(BasicBlockId::new(0))
+        .expect("bb0 exists")
+        .instructions;
+    assert!(matches!(
+        &instructions[0],
+        MirInstruction::NewBox { dst, box_type, args }
+            if *dst == ValueId::new(2) && box_type == "MapBox" && args.is_empty()
+    ));
+}
+
+#[test]
 fn parse_call_accepts_top_level_name_as_global_callee_without_func() {
     let json = r#"{
       "functions":[

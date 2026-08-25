@@ -1424,8 +1424,10 @@ Non-authority: Callee::Constructor as a core terminal, MirCall/CallFlags,
   recovery.
 Fail-fast boundary: validate before block.add_instruction, JSON publication,
   native/object publication, or Rust NewBox dispatch; no args/dst/type default.
-Smallest next slice: connect the existing parser/source package to raw New and
-  fence the V0 typed Constructor resolve-once boundary. No code or route switch.
+Smallest next slice: keep the unproved raw-New/source handoff in design stop and
+  close only a negative V0 compatibility boundary: explicit typed Constructor
+  rejects before `MirInstruction::Call` publication; direct `op=newbox` remains
+  the existing positive construction route.
 Non-claims: native parity, NewBox unification across every backend, or R6 field
   deletion.
 ```
@@ -1441,8 +1443,10 @@ Observed finite edge set:
 | C/native `mir_call`/`newbox` string routes | hardcoded classification and/or dropped args | park/reject; no authority |
 | Rust `Call(Constructor)` handler | unsupported negative terminal | retain until issuer count is zero |
 
-D1-D is `NoSafeSlice`: the raw-New source/catalog handoff, V0/V1 parity,
-  exact arity/dst/args validation, and third physical routes are not co-sealed.
+D1-D as a whole remains `NoSafeSlice`: the raw-New source/catalog handoff,
+V0/V1 parity, exact arity/dst/args validation, and third physical routes are
+not co-sealed. The bounded negative compatibility row below is independently
+safe because it publishes neither a Call nor a guessed NewBox.
 
 #### D1-D source-handoff audit — `NoSafeSlice` (read-only, 2026-08-25)
 
@@ -1466,6 +1470,43 @@ to `NewBox` would be an unproved target/arity guess and remains forbidden.
 Acceptance for the next design row is a finite New-callsite census, exact
 `box_type`/constructor key/arity/ordered args/dst/effects authority, and a
 typed reject or one-shot `NewBox` issuer; no code or route switch is selected.
+
+#### D1-D0 bounded negative row — V0 typed Constructor reject
+
+```text
+Decision: accept only the V0 negative compatibility edge. An explicit typed
+  `Constructor` callee is rejected before `MirInstruction::Call` is built or
+  added to a block. The existing direct V0 `op=newbox` owner remains positive.
+Source authority + issuer: V0 call parser identifies the explicit Constructor;
+  no Constructor Call issuer is permitted. `mir_json_v0/module.rs` remains the
+  sole selected issuer for direct `NewBox` in this row.
+Non-authority: raw `box_type`, `args.len()`, declaration catalog rows without a
+  call-site relation, V1 parsing, backend/name lookup, retry, and defaults.
+Fail-fast boundary: `JsonV0CallInput::resolve` returns a stable typed error
+  before argument/effect construction, block publication, or runtime dispatch.
+Positive: direct V0 `newbox` and existing non-Constructor V0 call variants keep
+  their current parse/parity behavior.
+Negative: explicit V0 `Constructor` (including `call` and `mir_call`) rejects;
+  no `Call(Callee::Constructor)` can enter a block.
+Non-claims: valid Constructor execution/NewBox parity, raw AST `New`, V1,
+  native/backend activation, Method(None), and the R6 field cutover.
+```
+
+Acceptance is one stable reject token, one focused negative test, one direct
+`newbox` positive test, and the shared corridor guard. This closes only the
+publication edge; D1-D source handoff and the full Constructor/NewBox matrix
+remain a design stop.
+
+#### D1-D0 implementation acceptance — V0 publication edge closed
+
+`JsonV0CallInput::resolve` now rejects explicit `Callee::Constructor` with
+`[freeze:contract][mir-json-v0/constructor-call-requires-newbox]` before
+argument/effect construction and before `mir_json_v0/module.rs` adds an
+instruction. The focused typed-Constructor negative test, direct `newbox`
+positive test, all 28 `mir_json_v0` tests, pointer guard, individual rustfmt,
+diff check, and shared Call corridor guard are green. No V1/raw-New/native
+route, core field, or positive Constructor issuer changed. The full D1-D
+source/arity handoff remains `NoSafeSlice`.
 
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 
@@ -1595,14 +1636,13 @@ staging cleanup, but does not authorize deleting the public `MirCall`/
 by-name/recovery consumer, while Closure and Constructor have split V0/V1
 construction paths. Those are schema blockers, not mechanical compiler fixes.
 
-Selected next design task: `MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN`. D1-B-PARK
-accepted the existing static handoff/outside boundary and D1-C2-I0 closed the
-lossy Closure body egress edge. The generic Method(None) issuer and the
-Constructor/NewBox dual route remain blockers. D1-D must close the existing
-parser/source handoff and V0 typed Constructor resolve-once boundary without
-inventing a receipt or native route. Until D1-D and the remaining Method(None)
-edges are accepted, do not change `Option<Callee>`, `func`, `Method(None)`,
-`Callee::Closure`, `MirCall`, or `CallFlags` in code.
+Selected next design task remains `MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN`.
+D1-B-PARK accepted the existing static handoff/outside boundary and D1-C2-I0
+closed the lossy Closure body egress edge; D1-D0 only closed the V0 negative
+publication edge. The generic Method(None) issuer, Constructor/NewBox dual
+route, and exact parser/source handoff remain blockers. Until the full D1-D
+and remaining Method(None) edges are accepted, do not change `Option<Callee>`,
+`func`, `Method(None)`, `Callee::Closure`, `MirCall`, or `CallFlags` in code.
 
 Post-R7 normal-root cleanup (parked, separate lane):
 

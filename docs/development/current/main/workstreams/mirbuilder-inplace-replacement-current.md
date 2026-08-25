@@ -1,5 +1,5 @@
 ---
-Status: Active workstream — design stop (R6 core schema)
+Status: Active workstream — fast (R6 D1-D0 compatibility boundary)
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
-  implementation    = exact EnvNowMs D0 accepted: production CanonicalV1 reaches object/archive/executable, while generic-entry and same-module C prepasses consume Rust-issued source_symbol/route/arity/args/dst and reject malformed plans before publication
-  mode              = design_stop
-  production stop   = D1-C2-I0 closed the lossy closure-body JSON egress edge; D1-D now owns the existing parser/source handoff and V0 typed Constructor resolve-once boundary, with no code or production switch selected
-  exit              = D1-D design acceptance with exact source/arity/dst/args/effects matrix; R6a remains NoSafeSlice until Constructor/NewBox and Method(None) blockers close
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D0-V0-CONSTRUCTOR-REJECT-I0-R0
+  implementation    = V0 explicit typed Constructor rejects before MirInstruction::Call publication; direct op=newbox and existing non-Constructor calls remain unchanged
+  mode              = fast
+  production stop   = D1-C2-I0 closed the lossy closure-body JSON egress edge; D1-D full source/arity handoff remains NoSafeSlice while this negative compatibility edge is closed
+  exit              = stable typed reject, direct-newbox positive parity, shared corridor guard, and no R6 field/route switch
 fallback / retry  = 0
 ```
 
@@ -367,8 +367,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-CALL-R6-CORE-SCHEMA-D1-D-DESIGN
-  -> design stop: prove an existing parser/package product for AST New call sites and exact constructor arity, then close the V0 typed Constructor resolve-once boundary; D1-C2-I0 rejected lossy body-backed closure egress without a schema change
+ MIR-CALL-R6-CORE-SCHEMA-D1-D0-V0-CONSTRUCTOR-REJECT-I0-R0
+  -> fast slice: reject explicit V0 typed Constructor before Call publication; direct op=newbox stays the positive construction owner; D1-C2-I0 rejected lossy body-backed closure egress without a schema change
 Next (not selected)
   -> D1-D source-handoff/Constructor resolve-once outcome; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 

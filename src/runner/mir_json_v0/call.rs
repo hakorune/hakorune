@@ -30,6 +30,11 @@ impl fmt::Display for JsonV0CallInputError {
 impl JsonV0CallInput {
     fn resolve(self, catalog: &JsonV0FunctionCatalog) -> Result<Callee, JsonV0CallInputError> {
         match self {
+            Self::Explicit(Callee::Constructor { .. }) => Err(
+                "[freeze:contract][mir-json-v0/constructor-call-requires-newbox]"
+                    .to_string()
+                    .into(),
+            ),
             Self::Explicit(callee) => Ok(callee),
             Self::LegacyName(name) => Ok(Callee::Global(name.into_string())),
             Self::LegacyFunc(value_id) => {
