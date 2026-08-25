@@ -1,6 +1,6 @@
 title = "MIR Call D1B direct-call source inventory co-seal design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "f659d3f941"
+observed_commit = "01ea8c7df0"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml"

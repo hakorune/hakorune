@@ -1,8 +1,9 @@
 title = "MIR Call D1B SelectedCallable FunctionCall observation profile design"
-status = "accepted_design_no_safe_slice"
-observed_commit = "f659d3f941"
+status = "accepted_design"
+observed_commit = "01ea8c7df0"
 observed_at = "2026-08-26"
 implementation_permission = false
+design_closeout = "Finite ordinary/Brand/special/Extern/ASTNode::Call observation matrix, Brand precedence, owner identity carriage, and the three resolver-entrance census are fixed; profile widening remains a later implementation row after source-inventory co-seal."
 parent_row = "docs/development/current/main/investigations/mir-call-d1b-direct-call-source-inventory-coseal-d0-2026-08-26.toml"
 decision_id = "MIR-CALL-D1B-CALL-OBSERVATION-PROFILE-D0"
 decision = "SelectedCallable may eventually observe ordinary FunctionCall through the existing shadow branch, but only after an explicit finite observation contract separates Brand, ordinary/special, ExplicitExtern, and ASTNode::Call. Observation must not issue a target, borrow the exact-i64 index, or publish a package without the owner-qualified inventory co-seal."
