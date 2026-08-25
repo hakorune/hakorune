@@ -2,7 +2,7 @@
 //!
 //! RCL-3-min1:
 //! - Stop constructing legacy `MirInstruction::ExternCall` at source sites.
-//! - Emit canonical `MirInstruction::Call { callee: Some(Callee::Extern) }`.
+//! - Emit the canonical Call helper with a `Callee::Extern` target.
 //! - Keep external name as `<iface>.<method>` for runtime dispatch parity.
 
 use crate::mir::{Callee, EffectMask, MirInstruction, ValueId};
@@ -23,11 +23,5 @@ pub fn extern_call(
         format!("{}.{}", iface_name, method_name)
     };
 
-    MirInstruction::Call {
-        dst,
-        func: ValueId::INVALID,
-        callee: Some(Callee::Extern(extern_name)),
-        args,
-        effects,
-    }
+    MirInstruction::call(dst, Callee::Extern(extern_name), args, effects)
 }

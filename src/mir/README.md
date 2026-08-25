@@ -85,6 +85,12 @@ The source-verified direct-static materializer delegates through
 the transitional `func`/`Option<Callee>` storage for now; field retirement is a
 separate, later cutover gated by the remaining producer census.
 
+The exact Extern SSOT helper is the next bounded cell: it preserves the
+`iface.method` name, destination, argument order, and effects while delegating
+to the same canonical constructor. The helper/direct-literal guard and existing
+Extern parity test are the acceptance evidence; no core schema deletion is part
+of this cell.
+
 `value_consumer.rs` derives generic consumer facts from canonical MIR. A `Call`
 delegates its operand membership once to `MirInstruction::used_values()`, which
 projects typed `Callee` operands before the stored argument order. The local
