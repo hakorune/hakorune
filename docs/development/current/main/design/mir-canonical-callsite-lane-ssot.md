@@ -2337,8 +2337,8 @@ Positive/parity evidence is the existing facade/port equivalence, nested
 method and `If` lowering, map/field lowering, and unchanged direct callers.
 Negative evidence is preserved pure-`If` rejection, block-prelude exit
 rejection, and `New` field-initializer rejection. Cargo or fixture changes are
-not part of the design row; the focused suite is selected only after the
-mechanical move is applied.
+not part of the design row; the focused suite and path-field-only fixture
+updates are selected only after the mechanical move is applied.
 
 #### D1-D8 path-observer census and path policy
 
@@ -2385,8 +2385,9 @@ reopen trigger: a live guard or inventory begins reading that path again.
 Path-observer acceptance is part of the same behavior-neutral BoxShape row:
 the finite active list is updated to the new owners, the parked list is
 explicitly excluded from acceptance, no semantic branch or fixture meaning
-changes, and the old flat path has zero active structural consumers. Until
-this census is recorded and accepted, D1-D8 remains `NoSafeSlice`.
+changes, and the old flat path has zero active structural consumers. This
+census is now recorded and accepted as the D1-D8 design boundary; the next
+mode may implement only the mechanical shelf and path-field updates below.
 
 The remaining live generator/checker boundary is also finite and is not a
 generic wildcard over every historical rust-lifecycle artifact:
@@ -2438,12 +2439,17 @@ They are not allowed to become unqualified active old-path guards. The
 pre-S0b baseline, failure-outcome manifests, and the
 archived phase documents remain explicitly `ParkedSealed` snapshot provenance.
 A new live generator, checker, guard-row, or current policy document that
-reads the deleted flat path is an observable reopen trigger; until the active
-five-boundary set plus these two policy observers is updated and checked,
-D1-D8 remains `NoSafeSlice`.
+reads the deleted flat path is an observable reopen trigger. The active
+five-boundary set plus these two policy observers is the reusable acceptance
+guard for the implementation row; no semantic New, parser-seed, or Call
+schema work is authorized by this design acceptance.
 
-Until this exact shelf census and ownership contract are accepted, D1-D8
-remains `NoSafeSlice`; no file move or fast-mode code edit is authorized.
+D1-D8 design acceptance is closed at HEAD `1434663966`. The selected fast row
+is `MIR-BUILDER-PLAN-NORMALIZER-HELPER-SHELF-I0`: move the existing code into
+`helpers_value/mod.rs`, `lower.rs`, and `variant.rs`, update only the named
+active path observers and the two current policy documents, then run the
+focused structural/parity gates. If any count, anchor, caller, or semantic
+fixture field changes, return to design stop.
 
 ### Post-R7 physical cleanup ledger — 2026-08-25 feedback reconciliation
 

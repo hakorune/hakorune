@@ -15,15 +15,15 @@ selected ny-llvmc native capability D0 is audited as NoSafeSlice; native D1
 capability boundary, the path-preserving C owner split, and LLVM trap declaration
 co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
 object/archive/executable boundary, exact Extern D0 is accepted with
-source/plan/arity/args/dst prepass evidence, and the next active state is the
-R6 core-schema D1-D8 ordinary-New parser seed and helper-shelf design stop; D1-D0 V0 reject and D1-D1 V1 shape rejects are closed, while source-seed coverage, package join, initializer effects, dual body-shape loan, lifecycle, transaction, and shelf authorities remain NoSafeSlice."""
+source/plan/arity/args/dst prepass evidence, and the active fast state is the
+R6 D1-D8 behavior-neutral PlanNormalizer helper-shelf I0 after its design boundary closed at 1434663966; D1-D0 V0/D1-D1 V1 rejects are closed, while source-seed coverage, package join, initializer effects, dual body-shape loan, lifecycle, transaction, and shelf semantic authorities remain NoSafeSlice."""
 date = "2026-08-25"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN"
-current_design_stop = "D1-D8 must fix the exact helpers_value facade/lower/variant shelf, finite active path-observer census, unchanged callers, and sub-760 budgets before fast mode; D1-D7 parser seed remains unimplemented and valid Constructor/direct op=newbox stay positive."
-current_blocker_token = "MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN: shelf ownership/budget/path-observer acceptance is not yet accepted; parser seed, package join, and Method(None) remain open."
+work_mode = "fast"
+current_execution_row = "MIR-BUILDER-PLAN-NORMALIZER-HELPER-SHELF-I0"
+current_design_stop = "Fast row is limited to the behavior-neutral helpers_value facade/lower/variant shelf and named path-field observer updates; any semantic, count, anchor, caller, or fixture-meaning drift returns to design_stop. D1-D7 parser seed remains unimplemented and valid Constructor/direct op=newbox stay positive."
+current_blocker_token = "MIR-BUILDER-PLAN-NORMALIZER-HELPER-SHELF-I0: mechanical shelf/path-observer update only; parser seed, package join, ordinary-New issuer, and Method(None) remain outside this row."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -39,7 +39,7 @@ closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
 is accepted and profile-threading I0 is closed; JoinIR D0/caller-lifecycle D1
 are NoSafeSlice/closed, backend_shape capability D1 and strict-adapter I0 are
 closed, native capability D0 is NoSafeSlice, native D1 and the C owner split
-are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 and D1-D1 V1 negative Constructor edges are closed, and the workstream remains at the R6 D1-D8 ordinary-New helper-shelf design stop.
+are closed, including the LLVM trap declaration co-seal I0; exact Extern D0 is accepted, D1-D0 V0 and D1-D1 V1 negative Constructor edges are closed, D1-D8 design is accepted at 1434663966, and the workstream is executing the behavior-neutral helper-shelf I0.
 JoinIR remap is NoSafeSlice (caller-zero/shared lifecycle), while ownership/query and core
 field deletion remain separate blockers. PyVM/reference/Python remain
 ParkedSealed outside this lane. R5 exit: finite terminal matrix, selected
@@ -59,9 +59,9 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON profile/threading, backend strict-adapter, native/C trap split, and exact Extern D0 are closed. R6 D0 fixed the shape; D1-A parked flags; D1-B-PARK design-closed the selected static/outside boundary; D1-C2-I0 closed lossy closure-body JSON egress; D1-D0 closed the V0 typed Constructor pre-publication reject; D1-D1 closed the V1 malformed/ambiguous Constructor shape boundary at 640ac083a7; D1-D2 recorded the relation shape, D1-D3 found the raw/plan dual producer, D1-D4 bounded the shared issuer/staging gap, D1-D5 bounded lifecycle/effect bridge gaps, D1-D6 bounded caller mapping/initializer/body-shape gaps, D1-D7 fixed the parser seed/package join design, and D1-D8 keeps the helper shelf at NoSafeSlice. Full Constructor/NewBox handoff remains NoSafeSlice. JoinIR/native D0 remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
-next_design_card = "MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN"
-next_execution_card = "none — MIR-CALL-R6-CORE-SCHEMA-D1-D8-ORDINARY-NEW-HELPER-SHELF-DESIGN is a design stop"
+latest_card_summary = "MIR-CALL-RETIREMENT-v1: R1-R5, JSON profile/threading, backend strict-adapter, native/C trap split, and exact Extern D0 are closed. R6 D0 fixed the shape; D1-A parked flags; D1-B-PARK design-closed the selected static/outside boundary; D1-C2-I0 closed lossy closure-body JSON egress; D1-D0 closed the V0 typed Constructor pre-publication reject; D1-D1 closed the V1 malformed/ambiguous Constructor shape boundary at 640ac083a7; D1-D2 recorded the relation shape, D1-D3 found the raw/plan dual producer, D1-D4 bounded the shared issuer/staging gap, D1-D5 bounded lifecycle/effect bridge gaps, D1-D6 bounded caller mapping/initializer/body-shape gaps, D1-D7 fixed the parser seed/package join design, and D1-D8 design acceptance closed at 1434663966; the selected fast shelf I0 is now in progress. Full Constructor/NewBox handoff remains NoSafeSlice. JoinIR/native D0 remain NoSafeSlice; PyVM/reference/Python/native_driver remain ParkedSealed."
+next_design_card = "MIR-CALL-R6-CORE-SCHEMA-D1-D7-ORDINARY-NEW-SOURCE-HANDOFF-DESIGN"
+next_execution_card = "MIR-BUILDER-PLAN-NORMALIZER-HELPER-SHELF-I0"
 next_execution_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
