@@ -610,14 +610,18 @@ disposition = "CutoverBlockerOpen"
 delete_set = ["by-name retry", "receiver fallback", "metadata re-inference after plan failure"]
 reopen_trigger = "selected route changes or a typed dispatch plan is missing"
 
-[[parked]]
+[[consumer]]
 id = "mircall_flags_public_surface"
-partition = "compiled_caller_zero_reference"
+partition = "cross_boundary_consumer"
 owners = ["crates/hakorune_mir_defs/src/lib.rs:3"]
+role = "public_api_surface_obligation"
 caller_chain = "public MirCall/CallFlags export surface; selected internal type consumers are tracked separately"
-lifecycle = "public transport/reference only"
-disposition = "ParkedSealed"
-reopen_trigger = "external consumer or selected non-default flag reader appears"
+lifecycle = "public API/reference disposition for CallFlags-only retirement"
+target_authority = "none; public export is an API obligation, not a Call target issuer"
+old_edge = "CallFlags/MirCall re-export may be externally consumed even when selected Rust semantic readers are absent"
+disposition = "CutoverBlockerOpen"
+delete_set = ["CallFlags re-export only after external API disposition", "MirCall export remains while physical terminal consumes MirCall"]
+reopen_trigger = "named external consumer, public compatibility commitment, or selected non-default flag reader"
 
 [[parked]]
 id = "join_ir_to_mir_compiled_caller_zero"

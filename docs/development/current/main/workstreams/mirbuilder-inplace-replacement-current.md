@@ -40,12 +40,12 @@ Current capsule:
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 — name one same-source/same-resolver-continuation co-seal owner before any general SelectedNormal target handoff.
-Source authority + canonical issuer: `issue_normal_callable_semantic_package_with_brand_catalog_v1` / `VerifiedNormalCallableSemanticPackageV1` co-seals the source inventory and mutable resolver continuation; only the existing `CalleeResolverBox` -> `MirInstruction::call` issuer consumes an exact target.
-Non-authority: `NormalTopLevelFunctionDraftAdmissionV1` physical symbol/arity, root lineage, duplicate validator, exact-i64 sideways loan, second resolver, collector order, name synthesis, or post-argument recovery.
-Fail-fast boundary: preserve `RawInvocationRootLineageV1`, complete the same-source co-seal, and decide Targeted/TypedReject/Parked before body or argument effects; missing, foreign, duplicate, or conflicting relations never enter Resolved.
-Smallest next slice: design-only finite census of issue/drop/consume boundaries, resolver lifetime, and exact `SourceExprSiteV1` target ownership; no code or new receipt.
-Non-claims: direct-target implementation, self/sibling/constructor/GC rows, Method(None), methodize, JSON/VM/backend, final Call schema, CallFlags, or warning cleanup.
+Decision: D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 amendment — design an identity-only general callable index and catalog-gated FunctionCall disposition before any SelectedNormal target handoff.
+Source authority + canonical issuer: the package issuer/`VerifiedNormalCallableSemanticPackageV1` owns the consumed source, resolver batch, proposed direct index, and same-session owner reservation; existing `CalleeResolverBox` -> `MirInstruction::call` remains the eventual issuer.
+Non-authority: `NormalTopLevelFunctionDraftAdmissionV1` physical symbol/arity, root lineage, duplicate validator, exact-i64 index, second resolver, collector order, name synthesis, post-argument recovery, or physical ABI rows.
+Fail-fast boundary: catalog-gated traversal and whole-package co-seal complete before package install/body lowering/argument effects/publication; deferred, duplicate, missing, foreign, ambiguous, or second-session states abort unpublished.
+Smallest next slice: design-only finite matrix for self/sibling direct sites, known non-direct builtin/typeop/local/Extern/Brand forms, identity-index representation, owner/site bijection, and atomic abort; no code.
+Non-claims: direct-target implementation, new product issuance, self/sibling/constructor/GC acceptance, Method(None), methodize, JSON/VM/backend, final Call schema, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
 Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw

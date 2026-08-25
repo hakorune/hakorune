@@ -201,9 +201,11 @@ docs/development/current/main/investigations/
   mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml
 ```
 
-It is `NoSafeSlice` until a same-source/same-resolver-continuation co-seal
-owner is named; the exact-i64 index cannot be borrowed sideways and a second
-resolver continuation is forbidden. TopLevel self/scoped loans and the
+It is `NoSafeSlice`: the package issuer is the co-seal owner candidate, but an
+identity-only general index, catalog-gated ordinary-call traversal,
+self/sibling/special-form disposition, and same-session owner/site bijection
+are not yet designed. The exact-i64 index cannot be borrowed sideways and a
+second resolver continuation is forbidden. TopLevel self/scoped loans and the
 conditional `gc_collect`/`gc_stats` candidate remain downstream. `Method(None)`
 and methodize, mandatory-Callee schema, JSON/VM/backend fallback, and the
 ArrayElementWrite projection remain separate `NoSafeSlice`/`ParkedSealed`

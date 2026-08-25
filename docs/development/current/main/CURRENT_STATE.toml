@@ -23,8 +23,8 @@ development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
 current_execution_row = "MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0"
-current_design_stop = "MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0: existing exact-i64 index cannot be borrowed sideways by the general SelectedNormal semantic package; name a same-source/same-continuation co-seal owner before code."
-current_blocker_token = "MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 design_stop: audit general-normal index/co-seal authority; no target handoff, recovery, or argument-order implementation."
+current_design_stop = "MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0: package issuer is the co-seal owner candidate, but general identity-index representation, catalog-gated FunctionCall traversal, and self/sibling/special disposition are unresolved; no code."
+current_blocker_token = "MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0 design_stop: design identity-only index + same-session owner/site bijection + whole-package abort before install/body/args/publication; no target handoff or recovery implementation."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
@@ -59,7 +59,7 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mirbuilder-inplace-replacement-current"
 latest_card_path = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-latest_card_summary = "MIR-CALL-RETIREMENT-v1 and canonicalizer closeout are landed; SelectedNormal duplicate projection validator I0 is landed with pre-body duplicate rejection. Direct-target index handoff remains a separate NoSafeSlice design; CallFlags and Method(None) remain downstream."
+latest_card_summary = "MIR-CALL-RETIREMENT-v1 and canonicalizer closeout are landed; SelectedNormal duplicate projection validator I0 is closed. Direct-target D0 now requires a package-owned identity-only general index, catalog-gated FunctionCall disposition, same-session owner/site bijection, and whole-package abort; CallFlags and Method(None) remain downstream."
 next_design_card = "MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0"
 next_execution_card = "none"
 next_execution_card_path = ""
@@ -76,5 +76,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-26: D1B Global recovery retirement landed at c8089e5288 and exact-target prepare/consume child landed at 6149d2692a; resolver/physical receipt and focused corridor proofs are green, while RuntimeData Method(None) methodize and root-lineage transport remain parent design stops.",
   "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0. 2026-08-26: FUNCTION-METADATA-OWNER-SPLIT-R0 landed; fields/APIs unchanged, metadata.rs 718 lines, nested checked-callout/linear-slot owners 40/50 lines, focused mir::function::tests 6 passed/2 ignored with 441 baseline warnings, and ArrayElementWrite remains NoSafeSlice/ParkedSealed.",
-  "2026-08-26: SelectedNormal duplicate projection validator I0 landed at ffcae72725 in program-root work-plan preparation; unique/duplicate focused witnesses and the reusable pre-body guard are green. Direct-target index handoff remains NoSafeSlice until same-source/same-continuation co-seal authority is named.",
+  "2026-08-26: SelectedNormal duplicate projection validator I0 landed at ffcae72725 in program-root work-plan preparation; unique/duplicate focused witnesses and the reusable pre-body guard are green. Direct-target D0 remains NoSafeSlice after worker audit: package issuer is the owner candidate, but identity-only index representation, catalog-gated traversal, self/sibling/special disposition, and same-session owner/site bijection remain design work.",
 ]
