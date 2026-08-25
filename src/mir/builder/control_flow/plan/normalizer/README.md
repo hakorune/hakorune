@@ -25,6 +25,10 @@ Modules:
   table, target/ABI fact, ledger claim, or Builder state.
 - helpers.rs: shared block layouts, phi bindings, AST-to-ValueId lowering helpers.
 - common.rs: small normalizer helpers shared across loop-cond pipelines.
+- helpers_value/mod.rs: raw facade for the value normalizer; its recursive
+  implementation lives in helpers_value/lower.rs and the two variant helpers
+  live in helpers_value/variant.rs. The shelf is behavior-neutral and keeps
+  callers on `PlanNormalizer::lower_value_ast`/`lower_value_input`.
 - cond_lowering_*.rs: header/body/value condition lowering entry points.
 - loop_body_lowering.rs: statement/effect lowering helpers used by loop pipelines.
 

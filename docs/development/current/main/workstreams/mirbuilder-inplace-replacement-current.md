@@ -32,11 +32,11 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-BUILDER-PLAN-NORMALIZER-HELPER-SHELF-I0
-  implementation    = fast; D1-D8 design accepted at 1434663966, and this row is limited to the behavior-neutral facade/lower/variant shelf plus named path-field observer updates
-  mode              = fast
+  current decision  = MIR-CALL-R6-CORE-SCHEMA-D1-D7-ORDINARY-NEW-SOURCE-HANDOFF-DESIGN
+  implementation    = design only; D1-D8 design accepted at 1434663966 and shelf I0 landed at b61f6895d2 (Cargo check green; active old path 0); D1-D7 ordinary-New source handoff remains NoSafeSlice
+  mode              = design_stop
   production stop   = raw and PlanNormalizer ordinary-New edges lack a final parser source seed, exact package join, Initializer(i) effects, dual body-shape loan, expression snapshot, and one physical owner; the helper shelf is 786 lines before the split
-  exit              = complete the mechanical shelf, active path-field updates, structural/parity gates, and receipt commit; then return to design_stop for D1-D7 ordinary-New source handoff, package join, initializer/effect coverage, and one-owner NewBox; Method(None) remains open
+  exit              = fix the parser source-seed loan, exact Constructor package join, Initializer(i) effects, dual body-shape loan, private admission snapshot, and one-owner NewBox handoff; Method(None) remains open
 fallback / retry  = 0
 ```
 
@@ -272,7 +272,7 @@ callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
    is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
 8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
    D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, D1-D4/D1-D5/D1-D6/D1-D7 the issuer/lifecycle/relation/seed design, and D1-D8 design accepted the exact helper shelf/path-observer boundary at `1434663966`;
-   the current fast row is the behavior-neutral shelf I0, while the full issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox remains a design stop.
+   the behavior-neutral shelf I0 landed at `b61f6895d2`; the next D1-D7 ordinary-New source-handoff design stop still owns the full issuer/cut matrix across `MirCall`/`CallFlags`, `Method(None)`, Closure, and Constructor/NewBox.
 9. R7: structural guards, README/reference sync, and census closeout.
 
 R3 D0 accepted boundary:
@@ -367,10 +367,10 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIR-BUILDER-PLAN-NORMALIZER-HELPER-SHELF-I0
-  -> fast: move helpers_value into facade/lower/variant, update the finite active path observers, and preserve callers, counts, anchors, and fixture meaning
+ MIR-CALL-R6-CORE-SCHEMA-D1-D7-ORDINARY-NEW-SOURCE-HANDOFF-DESIGN
+  -> design stop: select the bounded ordinary-New source handoff after the landed shelf I0; parser seed, package join, lifecycle effects, and one physical owner remain open
 Next (not selected)
-  -> D1-D7 ordinary source-handoff/Constructor resolve-once design/implementation only after the shelf I0 receipt; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
+  -> D1-D7 implementation only after its source authority and fail-fast boundary are accepted; R6a stays closed until Constructor/NewBox and Method(None) edges close; R4c remains NoSafeSlice unless a caller reopens
 
 After MIR Call retirement
   1. MIR-METADATA-CONSUMER-MANIFEST-I0 and proof-surface compression
