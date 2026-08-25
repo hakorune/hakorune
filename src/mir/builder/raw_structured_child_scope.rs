@@ -19,7 +19,7 @@ use super::qmark_source_demand::QMarkPropagationSourceDemandPortV1;
 use super::raw_invocation_source_transport::RawInvocationSourceContextV1;
 use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::recursive_child_lowering::{
-    RawFunctionHeaderLookupPortV1, RecursiveChildLoweringPortV1,
+    RawFunctionHeaderLookupPortV1, RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
 };
 use super::recursive_child_lowering_port::ScriptDirectStaticClaimIngressV1;
 use super::static_result_publication_ingress::{
@@ -276,6 +276,23 @@ where
         ) -> R,
     ) -> R {
         self.child.with_function_headers(observe)
+    }
+}
+
+impl<Port> RawOrdinaryNewClaimPortV1 for RawStructuredChildScopePortV1<'_, Port>
+where
+    Port: RawOrdinaryNewClaimPortV1,
+{
+    fn try_take_ordinary_new_claim(
+        &mut self,
+        class: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1>,
+        String,
+    > {
+        self.child
+            .try_take_ordinary_new_claim(class, argument_count)
     }
 }
 

@@ -8,7 +8,9 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
-use crate::mir::resolved_semantics::{BodyChildRoleV1, ExprChildRoleV1};
+use crate::mir::resolved_semantics::{
+    BodyChildRoleV1, ExprChildRoleV1, OwnedExprSiteV1, SourceExprSiteV1, SourcePathSegmentV1,
+};
 use crate::mir::{MirBuilder, ValueId};
 
 use super::callable_declaration_catalog::{
@@ -21,9 +23,11 @@ use super::normal_cataloged_box_method_admission::NormalCatalogedBoxMethodDraftA
 use super::normal_instance_constructor_demand_loan::InstanceConstructorDemandConsumptionV1;
 use super::normal_instance_constructor_semantic_scope::with_constructor_semantic_scope;
 use super::normal_top_level_function_admission::NormalTopLevelFunctionDraftAdmissionV1;
+use super::raw_invocation_source_transport::RawSourceTransportPortV1;
 use super::raw_structured_child_scope::PreparedRawChildSourceV1;
 use super::recursive_child_lowering::{
-    RawBoxMethodChildPortV1, RawInvocationChildPortV1, RecursiveChildLoweringPortV1,
+    RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1, RawInvocationChildPortV1,
+    RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
 };
 use crate::mir::compiler::capability::{CanonicalFirstFamilyPlanV1, CanonicalLoweringPreflightV1};
 use crate::mir::compiler::target_capability::PinnedTextCompileTargetCapabilityV1;
@@ -89,9 +93,16 @@ impl<'package, 'loan, 'port, 'collector, 'target>
             }
         };
         let inner = &mut *self.inner;
+        let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
             .with_selected_lowering_input(&key, |input| {
-                with_selected_source_scope(inner, lineage, input, execute)
+                with_selected_source_scope(
+                    inner,
+                    lineage,
+                    input,
+                    Rc::clone(&ordinary_new_claim_ledger),
+                    execute,
+                )
             })
             .map_err(package_issue)?
     }
@@ -107,6 +118,7 @@ impl<'package, 'loan, 'port, 'collector, 'target>
         ) -> Result<R, String>,
     ) -> Result<R, String> {
         let inner = &mut *self.inner;
+        let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
             .with_selected_cataloged_lowering_input_and_signature(admission, |input, signature| {
                 validate_selected_cataloged_input(&input)?;
@@ -125,9 +137,15 @@ impl<'package, 'loan, 'port, 'collector, 'target>
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
-                with_selected_source_scope(inner, lineage, selected, |inner, transport| {
+                with_selected_source_scope(
+                    inner,
+                    lineage,
+                    selected,
+                    Rc::clone(&ordinary_new_claim_ledger),
+                    |inner, transport| {
                     execute(inner, transport, admission, signature)
-                })
+                    },
+                )
             })
             .map_err(package_issue)?
     }
@@ -215,6 +233,9 @@ fn with_selected_source_scope<'port, 'collector, R>(
     inner: &mut RawInvocationChildPortV1<'port, 'collector>,
     lineage: super::raw_invocation_source_transport::RawInvocationRootLineageV1,
     input: SelectedCallableLoweringInputRefV1<'_>,
+    ordinary_new_claim_ledger: Rc<
+        crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1,
+    >,
     execute: impl FnOnce(
         &mut RawInvocationChildPortV1<'port, 'collector>,
         super::raw_invocation_source_transport::RawInvocationSourceTransportV1<()>,
@@ -238,10 +259,14 @@ fn with_selected_source_scope<'port, 'collector, R>(
     let state = Rc::new(RefCell::new(state));
     let script_ledger = inner.semantic_ledger.take();
     let parent_callable = inner.callable_ledger.replace(state.clone());
+    let parent_ordinary_new_claim_ledger = inner
+        .ordinary_new_claim_ledger
+        .replace(ordinary_new_claim_ledger);
     let observation = input.method_source_observation().cloned();
     let result = inner
         .with_callable_method_source_observation(observation, |inner| execute(inner, transport));
     inner.callable_ledger = parent_callable;
+    inner.ordinary_new_claim_ledger = parent_ordinary_new_claim_ledger;
     inner.semantic_ledger = script_ledger;
     match result {
         Ok(value) => {
@@ -353,6 +378,52 @@ impl RawBoxMethodChildPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, 
     }
 }
 
+impl RawOrdinaryNewClaimPortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
+    fn try_take_ordinary_new_claim(
+        &mut self,
+        class: &str,
+        argument_count: usize,
+    ) -> Result<
+        Option<crate::mir::normal_callable_semantic_package::OrdinaryNewAdmissionClaimV1>,
+        String,
+    > {
+        let Some(owner) = self.inner.callable_owner_v1() else {
+            return Err("[freeze:contract][raw-ordinary-new/claim-owner-missing]".to_owned());
+        };
+        let Some(site) = self.inner.current_source_site_v1() else {
+            return Err("[freeze:contract][raw-ordinary-new/claim-site-missing]".to_owned());
+        };
+        if !matches!(
+            site.segments(),
+            [
+                SourcePathSegmentV1::Body(_),
+                SourcePathSegmentV1::Initializer(_)
+            ]
+        ) || !self.package.ordinary_box_is_covered(class)
+        {
+            return Ok(None);
+        }
+        let site = OwnedExprSiteV1::new(owner, SourceExprSiteV1::from_node(site));
+        self.package
+            .take_ordinary_new_claim(&site, class, argument_count)
+            .map(Some)
+            .map_err(package_issue)
+    }
+}
+
+impl RawFunctionHeaderLookupPortV1
+    for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_>
+{
+    fn with_function_headers<R>(
+        &mut self,
+        observe: impl for<'headers> FnOnce(
+            Option<&'headers dyn super::function_signature_lookup::FunctionSignatureLookupV1>,
+        ) -> R,
+    ) -> R {
+        self.inner.with_function_headers(observe)
+    }
+}
+
 impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_, '_, '_, '_, '_> {
     fn lower_app_main_static_child(
         &mut self,
@@ -362,6 +433,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         let (_symbol, params, param_decls, return_type_name, body, uses, attrs) =
             child.to_owned_lowering().into_parts();
         let inner = &mut *self.inner;
+        let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
             .with_main_static_child_lowering_input(child, |input| {
                 let (selected, admission) = input.into_lowering_and_admission();
@@ -377,7 +449,12 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                     super::raw_invocation_source_transport::RawInvocationRootLineageV1::Cataloged(
                         admission.source_key().clone(),
                     );
-                with_selected_source_scope(inner, lineage, selected, |inner, transport| {
+                with_selected_source_scope(
+                    inner,
+                    lineage,
+                    selected,
+                    Rc::clone(&ordinary_new_claim_ledger),
+                    |inner, transport| {
                     inner
                         .lower_normal_cataloged_static_box_method_with_source_v1(
                             builder,
@@ -391,7 +468,8 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                             transport,
                         )
                         .map_err(|error| error.to_string())
-                })
+                    },
+                )
             })
             .map_err(package_issue)?
     }
@@ -505,6 +583,7 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         attrs: DeclarationAttrs,
     ) -> Result<(), String> {
         let inner = &mut *self.inner;
+        let ordinary_new_claim_ledger = self.package.ordinary_new_claim_ledger();
         self.package
             .with_selected_cataloged_lowering_input_and_signature(admission, |input, signature| {
                 validate_selected_cataloged_input(&input)?;
@@ -556,7 +635,12 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                         )
                         .map_err(|error| error.to_string()),
                     CanonicalTrivialRouteV1::Outside => {
-                        with_selected_source_scope(inner, lineage, selected, |inner, transport| {
+                        with_selected_source_scope(
+                            inner,
+                            lineage,
+                            selected,
+                            Rc::clone(&ordinary_new_claim_ledger),
+                            |inner, transport| {
                             inner
                                 .lower_normal_cataloged_static_box_method_with_source_v1(
                                     builder,
@@ -570,7 +654,8 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
                                     transport,
                                 )
                                 .map_err(|error| error.to_string())
-                        })
+                            },
+                        )
                     }
                 }
             })
@@ -592,21 +677,23 @@ impl RootCallableCapturePortV1 for NormalCallableSemanticPackagePortAdapterV1<'_
         let target_capability = self.target_capability;
         self.with_cataloged_callable_source_scope(
             admission,
-            |inner, _transport, admission, signature| {
-                inner
-                    .lower_normal_cataloged_instance_box_method_with_signature_v1(
-                        builder,
-                        admission,
-                        signature,
-                        params,
-                        param_decls,
-                        return_type_name,
-                        body,
-                        uses,
-                        attrs,
-                        target_capability,
-                    )
-                    .map_err(|error| error.to_string())
+            |inner, transport, admission, signature| {
+                inner.with_source_transport_v1(transport, |inner, ()| {
+                    inner
+                        .lower_normal_cataloged_instance_box_method_with_signature_v1(
+                            builder,
+                            admission,
+                            signature,
+                            params,
+                            param_decls,
+                            return_type_name,
+                            body,
+                            uses,
+                            attrs,
+                            target_capability,
+                        )
+                        .map_err(|error| error.to_string())
+                })
             },
         )
     }

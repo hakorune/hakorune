@@ -48,7 +48,7 @@ use super::record_literal_source_demand::RecordLiteralSourceDemandPortV1;
 use super::static_result_publication_ingress::StaticResultPublicationIngressPortV1;
 use super::recursive_child_lowering::{
     RawAstChildLoweringPortV1, RawBoxMethodChildPortV1, RawFunctionHeaderLookupPortV1,
-    RawLoopChildEntryPortV1, RecursiveChildLoweringPortV1,
+    RawLoopChildEntryPortV1, RawOrdinaryNewClaimPortV1, RecursiveChildLoweringPortV1,
 };
 use super::stmts::{
     drive_variable_assignment_v1, LocalStatementDescentPortV1, RawLegacyLocalInputV1,
@@ -81,6 +81,7 @@ pub(in crate::mir::builder) trait RawExpressionDispatchPortV1:
     + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
     + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
     + RawFunctionHeaderLookupPortV1
+    + RawOrdinaryNewClaimPortV1
     + MethodCallLoweringPortV1
     + LocalStatementDescentPortV1<LocalInput = RawLegacyLocalInputV1>
     + VariableAssignmentDescentPortV1<VariableAssignmentInput = RawLegacyVariableAssignmentInputV1>
@@ -128,6 +129,7 @@ impl<Port> RawExpressionDispatchPortV1 for Port where
         + ShortCircuitExpressionDescentPortV1<ShortCircuitInput = RawLegacyShortCircuitInputV1>
         + MethodCallDescentPortV1<MethodCallInput = RawLegacyMethodCallInputV1>
         + RawFunctionHeaderLookupPortV1
+        + RawOrdinaryNewClaimPortV1
         + MethodCallLoweringPortV1
         + LocalStatementDescentPortV1<LocalInput = RawLegacyLocalInputV1>
         + VariableAssignmentDescentPortV1<

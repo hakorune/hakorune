@@ -2,6 +2,7 @@
 
 mod model;
 mod normal_root_execution_preservation;
+mod ordinary_new_source;
 mod semantic_syntax_loan;
 mod transform;
 
@@ -11,6 +12,9 @@ pub(crate) use model::{
     NormalParserSourceLineageV1, ParsedNormalCallableProgramV1,
     ParserNormalCallableTransformSessionV1, PreparedNormalCallableProgramSourceV1,
     VerifiedFinalCallableProgramSourceV1,
+};
+pub(crate) use ordinary_new_source::{
+    ParserOrdinaryBoxSourceCoverageV1, ParserOrdinaryBoxSourceRowV1,
 };
 pub(crate) use normal_root_execution_preservation::{
     ParserNormalRootExecutionPreservationIssuerV1, ParserNormalRootExecutionPreservationRejectV1,

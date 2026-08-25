@@ -7,6 +7,7 @@ use super::{ConstValue, EffectMask, MirBuilder, MirInstruction, ValueId};
 use crate::ast::{ASTNode, LiteralValue};
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
+    RawOrdinaryNewClaimPortV1,
 };
 
 pub(in crate::mir::builder) struct PreparedRawNewExpressionV1 {
@@ -75,7 +76,7 @@ impl MirBuilder {
         prepared: PreparedRawNewExpressionV1,
     ) -> Result<ValueId, String>
     where
-        Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
+        Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + RawOrdinaryNewClaimPortV1,
     {
         let PreparedRawNewExpressionV1 {
             class,

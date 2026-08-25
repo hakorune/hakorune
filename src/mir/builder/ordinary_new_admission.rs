@@ -8,6 +8,7 @@ use super::{CallTarget, Effect, EffectMask, MirBuilder, MirInstruction, ValueId}
 use crate::ast::ASTNode;
 use crate::mir::builder::recursive_child_lowering::{
     drive_legacy_expression_v1, RawAstChildLoweringPortV1, RawFunctionHeaderLookupPortV1,
+    RawOrdinaryNewClaimPortV1,
 };
 use crate::mir::slot_registry::resolve_slot_by_type_name;
 
@@ -18,8 +19,9 @@ pub(in crate::mir::builder) fn lower_ordinary_raw_new_with_port_v1<Port>(
     arguments: Vec<ASTNode>,
 ) -> Result<ValueId, String>
 where
-    Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1,
+    Port: RawAstChildLoweringPortV1 + RawFunctionHeaderLookupPortV1 + RawOrdinaryNewClaimPortV1,
 {
+    let claim = port.try_take_ordinary_new_claim(class, arguments.len())?;
     let mut arg_values = Vec::new();
     for arg in arguments {
         arg_values.push(drive_legacy_expression_v1(builder, port, arg)?);
@@ -41,6 +43,16 @@ where
         .type_ctx
         .value_origin_newbox
         .insert(dst, class.to_owned());
+
+    if let Some(claim) = claim {
+        if let Some(birth) = claim.birth() {
+            let mut argv: Vec<ValueId> = Vec::with_capacity(1 + arg_values.len());
+            argv.push(dst);
+            argv.extend(arg_values.iter().copied());
+            builder.emit_legacy_call(None, CallTarget::Global(birth.to_owned()), argv)?;
+        }
+        return Ok(dst);
+    }
 
     // Prefer a lowered global `<Class>.birth/Arity`; retain the
     // builtin/plugin compatibility policy otherwise.

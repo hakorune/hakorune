@@ -41,6 +41,7 @@ use super::model::{
     NormalCallableDynamicProjectionV1, OwnedCallableParameterContractDeclarationV1,
     OwnedCallableParameterContractV1, VerifiedNormalCallableSemanticPackageV1,
 };
+use super::ordinary_new_coseal::{issue_ordinary_new_claims_v1, OrdinaryNewCoSealIssueV1};
 use super::physical_header::{
     issue_callable_physical_header_from_seeds_v1, CallablePhysicalHeaderIssueV1,
 };
@@ -62,6 +63,9 @@ pub(in crate::mir) enum NormalCallableSemanticPackageIssueV1 {
     },
     Batch {
         _error: ResolvedCallableSemanticBatchIssueV1,
+    },
+    OrdinaryNew {
+        _error: OrdinaryNewCoSealIssueV1,
     },
     InstanceConstructors {
         _error: InstanceConstructorSemanticBatchIssueV1,
@@ -319,6 +323,13 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
             )
         }
     };
+    let dynamic_batch_slot = match &dynamic {
+        NormalCallableDynamicProjectionV1::Selected { batch_slot, .. } => Some(*batch_slot),
+        NormalCallableDynamicProjectionV1::ValidUnselected => None,
+    };
+    let ordinary_new_claims =
+        issue_ordinary_new_claims_v1(&batch, &selected, dynamic_batch_slot)
+            .map_err(|error| NormalCallableSemanticPackageIssueV1::OrdinaryNew { _error: error })?;
     let physical_signature = issue_callable_physical_signature_v1(
         catalog.catalog().brand().clone(),
         &batch,
@@ -331,6 +342,7 @@ pub(in crate::mir) fn issue_normal_callable_semantic_package_with_brand_catalog_
         root_execution: super::model::NormalRootExecutionPackageStateV1::Prepared(root_execution),
         catalog,
         batch,
+        ordinary_new_claims,
         instance_constructors,
         selected,
         parameter_contracts,

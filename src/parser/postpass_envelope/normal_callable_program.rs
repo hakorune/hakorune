@@ -80,12 +80,13 @@ impl CompletedParserPostpassV1 {
                 CompletedParserProgramV1::Initial(program),
                 NormalCallableProgramAdmissionV1::SourceBacked(normal_root_execution),
             ) => {
-                consume_box_coverage_at_named_terminal(box_coverage);
+                let ordinary_box_coverage = box_coverage.into_source_backed_ordinary_coverage();
                 PreparedNormalCallableProgramSourceV1::issue(
                     program,
                     parameter_source,
                     source_authority,
                     normal_root_execution,
+                    ordinary_box_coverage,
                 )
                 .map(Program::SourceBacked)
             }

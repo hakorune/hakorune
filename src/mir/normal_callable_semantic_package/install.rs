@@ -1,8 +1,10 @@
 //! Consuming source-backed catalog installation and scoped selected loans.
 
+#[path = "selected_input.rs"]
+mod selected_input;
 mod signature_loan;
 
-use std::{cell::RefCell, collections::BTreeSet};
+use std::{cell::RefCell, collections::BTreeSet, rc::Rc};
 
 use crate::mir::builder::{
     CatalogedBoxMethodPhysicalHeaderProjectionV1, CompilationContext,
@@ -23,6 +25,9 @@ use super::model::{
     NormalCallableDynamicProjectionV1, NormalRootExecutionPackageStateV1,
     OwnedCallableParameterContractDeclarationV1, VerifiedNormalCallableSemanticPackageV1,
 };
+use super::ordinary_new_coseal::{
+    OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewClaimTakeErrorV1,
+};
 use super::physical_header::{CallablePhysicalHeaderRefV1, VerifiedCallablePhysicalHeaderCohortV1};
 use super::physical_signature::{
     PhysicalCallableSignatureRowRefV1, VerifiedCallablePhysicalSignatureCohortV1,
@@ -38,6 +43,9 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     SelectedKeyUnavailable,
     DuplicateSelectedKey,
     IncompleteSelectedCoverage,
+    IncompleteOrdinaryNewCoverage,
+    OrdinaryNewClaimUnavailable,
+    OrdinaryNewClaimMismatch,
     BatchLoan,
     CatalogedAdmissionMismatch,
     MissingParameterContract,
@@ -59,6 +67,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
 pub(crate) struct InstalledNormalCallableSemanticPackageV1 {
     catalog_brand: SameModuleCallableCatalogBrandV1,
     batch: crate::mir::callable_semantic_batch::VerifiedResolvedCallableSemanticBatchV1,
+    ordinary_new_claim_ledger: Rc<OrdinaryNewClaimLedgerV1>,
     instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     selected: VerifiedSelectedCallableBatchMapV1,
@@ -281,6 +290,7 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             root_execution,
             catalog,
             batch,
+            ordinary_new_claims,
             instance_constructors,
             selected,
             parameter_contracts,
@@ -296,11 +306,21 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
             NormalRootExecutionPackageStateV1::MovedToLowering => {}
         }
         let catalog_brand = catalog.catalog().brand().clone();
+        let ordinary_box_names = batch
+            .ordinary_box_coverage()
+            .rows()
+            .iter()
+            .map(|row| row.name().to_owned().into_boxed_str())
+            .collect();
         self.context
             .install_callable_declaration_catalog_preflighted(catalog.into_catalog());
         InstalledNormalCallableSemanticPackageV1 {
             catalog_brand,
             batch,
+            ordinary_new_claim_ledger: Rc::new(OrdinaryNewClaimLedgerV1::issue(
+                ordinary_new_claims,
+                ordinary_box_names,
+            )),
             instance_constructors,
             selected,
             parameter_contracts,
@@ -317,6 +337,36 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 impl InstalledNormalCallableSemanticPackageV1 {
     pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
         self.batch.source_ast()
+    }
+
+    pub(crate) fn take_ordinary_new_claim(
+        &self,
+        site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        class: &str,
+        arity: usize,
+    ) -> Result<OrdinaryNewAdmissionClaimV1, NormalCallableSemanticPackageInstallIssueV1> {
+        match self
+            .ordinary_new_claim_ledger
+            .try_take(site, class, arity)
+            .map_err(|error| match error {
+                OrdinaryNewClaimTakeErrorV1::Unavailable => {
+                    NormalCallableSemanticPackageInstallIssueV1::OrdinaryNewClaimUnavailable
+                }
+                OrdinaryNewClaimTakeErrorV1::Mismatch => {
+                    NormalCallableSemanticPackageInstallIssueV1::OrdinaryNewClaimMismatch
+                }
+            })? {
+            Some(claim) => Ok(claim),
+            None => Err(NormalCallableSemanticPackageInstallIssueV1::OrdinaryNewClaimUnavailable),
+        }
+    }
+
+    pub(crate) fn ordinary_box_is_covered(&self, class: &str) -> bool {
+        self.batch.ordinary_box_coverage().contains_box(class)
+    }
+
+    pub(crate) fn ordinary_new_claim_ledger(&self) -> Rc<OrdinaryNewClaimLedgerV1> {
+        Rc::clone(&self.ordinary_new_claim_ledger)
     }
 
     /// Reborrow the same parser-owned Program source authority after install.
@@ -452,6 +502,23 @@ impl InstalledNormalCallableSemanticPackageV1 {
 }
 
 impl NormalCallableSemanticPackagePortV1<'_> {
+    pub(crate) fn ordinary_box_is_covered(&self, class: &str) -> bool {
+        self.installed.ordinary_box_is_covered(class)
+    }
+
+    pub(crate) fn ordinary_new_claim_ledger(&self) -> Rc<OrdinaryNewClaimLedgerV1> {
+        self.installed.ordinary_new_claim_ledger()
+    }
+
+    pub(crate) fn take_ordinary_new_claim(
+        &mut self,
+        site: &crate::mir::resolved_semantics::OwnedExprSiteV1,
+        class: &str,
+        arity: usize,
+    ) -> Result<OrdinaryNewAdmissionClaimV1, NormalCallableSemanticPackageInstallIssueV1> {
+        self.installed.take_ordinary_new_claim(site, class, arity)
+    }
+
     pub(crate) fn with_s6c_child<R>(
         &mut self,
         callback: impl for<'loan> FnOnce(S6CInstalledCallableLoanRefV1<'loan>) -> R,
@@ -663,48 +730,9 @@ impl NormalCallableSemanticPackagePortV1<'_> {
         {
             return Err(NormalCallableSemanticPackageInstallIssueV1::IncompleteSelectedCoverage);
         }
+        if !self.installed.ordinary_new_claim_ledger.is_empty() {
+            return Err(NormalCallableSemanticPackageInstallIssueV1::IncompleteOrdinaryNewCoverage);
+        }
         Ok(())
-    }
-}
-
-impl<'loan> SelectedCallableLoweringInputRefV1<'loan> {
-    pub(crate) fn source(&self) -> ResolvedFunctionLoweringInputV1<'loan> {
-        self.source
-    }
-
-    pub(crate) fn parameter_contracts(
-        &self,
-    ) -> impl ExactSizeIterator<Item = (u32, BindingRefV1, CallableParameterContractKindV1)> + '_
-    {
-        self.parameter_contracts
-            .iter()
-            .map(|row| (row.ordinal, row.binding, row.kind))
-    }
-
-    /// Borrow the resolver-owned BlockExpr expectation from the same batch
-    /// row. This is transport only: no count is recomputed and the receipt is
-    /// neither cloned nor reissued by the installed package.
-    pub(crate) fn block_expr_expectation(&self) -> &VerifiedResolvedBlockExpressionExpectationV1 {
-        self.block_expr_expectation
-    }
-
-    pub(crate) fn physical_header(&self) -> Option<CallablePhysicalHeaderRefV1<'_>> {
-        self.physical_header
-    }
-
-    pub(in crate::mir) fn semantic(&self) -> SelectedCallableSemanticRefV1<'loan> {
-        self.semantic
-    }
-
-    pub(crate) fn method_source_observation(&self) -> Option<&CallableMethodSourceObservationV1> {
-        self.source_identity.method_source_observation()
-    }
-
-    pub(crate) fn source_identity(&self) -> &VerifiedResolvedCallableSourceIdentityV1 {
-        &self.source_identity
-    }
-
-    pub(crate) fn selected_key(&self) -> &SelectedNormalCallableKeyV1 {
-        &self.selected_key
     }
 }

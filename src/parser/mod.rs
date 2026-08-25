@@ -53,6 +53,7 @@ mod items;
 mod lifecycle;
 pub(crate) mod log;
 mod normal_callable_program_source;
+pub(crate) use normal_callable_program_source::ParserOrdinaryBoxSourceCoverageV1;
 mod public_api;
 pub(crate) use public_api::*;
 mod postpass_compatibility;

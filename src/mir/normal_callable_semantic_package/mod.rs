@@ -12,6 +12,7 @@ mod instance_constructor_loan;
 mod instance_constructor_semantic;
 mod issuer;
 mod model;
+mod ordinary_new_coseal;
 mod physical_header;
 mod physical_signature;
 mod s6c_child;
@@ -51,6 +52,10 @@ pub(in crate::mir) use issuer::{
 };
 pub(in crate::mir) use model::NormalCallableDynamicProjectionRefV1;
 pub(crate) use model::VerifiedNormalCallableSemanticPackageV1;
+pub(crate) use ordinary_new_coseal::{
+    issue_ordinary_new_claims_v1, OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1,
+    OrdinaryNewClaimTakeErrorV1, OrdinaryNewCoSealIssueV1,
+};
 pub(crate) use physical_header::CallablePhysicalHeaderRefV1;
 pub(crate) use physical_signature::{
     PhysicalCallableLaneRoleV1, PhysicalCallableLaneV1, PhysicalCallableSignatureRowRefV1,

@@ -13,6 +13,7 @@ use crate::ast::ASTNode;
 use super::callable_parameter_source::static_box_source::ParserStaticBoxParentSourceDispositionV1;
 use super::callable_parameter_source::ParserNormalSourcePlanSeedDispositionV1;
 use super::callable_source_anchor::PreparedCallableSourceV1;
+use super::normal_callable_program_source::ParserOrdinaryBoxSourceCoverageV1;
 use super::source_seal::{ParsedProgramWithSourceV1, ParserBoxSourceSealV1};
 use super::{BuildGateExplainReport, ParseError, ParserMetadata};
 use source_rows::{compatibility_rows, source_backed_compatibility_rows};
@@ -98,6 +99,25 @@ impl ParserBoxPostpassCoverageV1 {
 
     pub(super) fn rows(&self) -> &[ParserBoxPostpassRowV1] {
         &self.rows
+    }
+
+    pub(super) fn into_source_backed_ordinary_coverage(self) -> ParserOrdinaryBoxSourceCoverageV1 {
+        let rows = self
+            .rows
+            .into_vec()
+            .into_iter()
+            .filter_map(|row| match row {
+                ParserBoxPostpassRowV1::SourceSealedOrdinary {
+                    final_box_ordinal,
+                    seal,
+                } => Some((
+                    final_box_ordinal,
+                    seal.declaration_syntax().name().to_owned().into_boxed_str(),
+                )),
+                ParserBoxPostpassRowV1::AstOnlyCompatibility { .. } => None,
+            })
+            .collect();
+        ParserOrdinaryBoxSourceCoverageV1::issue(rows)
     }
 }
 

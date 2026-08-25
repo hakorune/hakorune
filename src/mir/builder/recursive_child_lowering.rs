@@ -3,7 +3,7 @@
 //! It owns no source navigation, callable-result plan, location, ledger,
 //! MethodCall route, or result-publication policy.
 use crate::ast::{ASTNode, BoxMethodInventoryV1, DeclarationAttrs, ParamDecl};
-use crate::mir::resolved_semantics::ScriptResolverDeferredV1;
+use crate::mir::resolved_semantics::{ScriptResolverDeferredV1, SourceNodeSiteV1};
 use crate::mir::{MirBuilder, ValueId};
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -30,8 +30,12 @@ use super::raw_invocation_source_transport::{
 use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
+#[path = "raw_ordinary_new_claim.rs"]
+mod raw_ordinary_new_claim;
 #[path = "normal_script_direct_static_claim_transport.rs"]
 mod script_direct_static_claim_transport;
+
+pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV1;
 
 pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
 pub(in crate::mir::builder) use super::recursive_child_lowering_port::{
@@ -55,6 +59,7 @@ pub(in crate::mir::builder) trait RawFunctionHeaderLookupPortV1 {
         observe: impl for<'headers> FnOnce(Option<&'headers dyn FunctionSignatureLookupV1>) -> R,
     ) -> R;
 }
+
 pub(in crate::mir::builder) trait RawBoxMethodChildPortV1 {
     fn lower_static_main_box(
         &mut self,
@@ -204,6 +209,8 @@ pub(in crate::mir::builder) struct RawInvocationChildPortV1<'port, 'collector> {
     pub(in crate::mir::builder) active_source: Option<RawInvocationSourceContextV1>,
     pub(in crate::mir::builder) semantic_ledger: Option<Rc<RefCell<ScriptSemanticLoweringState>>>,
     pub(in crate::mir::builder) callable_ledger: Option<Rc<RefCell<CallableSemanticLoweringState>>>,
+    pub(in crate::mir::builder) ordinary_new_claim_ledger:
+        Option<Rc<crate::mir::normal_callable_semantic_package::OrdinaryNewClaimLedgerV1>>,
     pub(in crate::mir::builder) generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1,
     /// Source-only Script resolver deferral carried through the existing raw
     /// runtime owner. It does not select a route or issue a fallback.
@@ -236,11 +243,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
     ) -> Self {
-        Self::new_with_optional_callable_loop_root_scope(
-            module_port,
-            cleanup_exit_policy,
-            None,
-        )
+        Self::new_with_optional_callable_loop_root_scope(module_port, cleanup_exit_policy, None)
     }
 
     pub(in crate::mir::builder) fn new_with_cleanup_exit_policy_and_callable_loop_scope(
@@ -258,15 +261,14 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     fn new_with_optional_callable_loop_root_scope(
         module_port: &'port mut ModuleLoweringPortV1<'collector>,
         cleanup_exit_policy: CleanupExitPolicyV1,
-        callable_loop_root_scope: Option<
-            &'port mut super::UnpublishedCallableLoopRootScopeV1,
-        >,
+        callable_loop_root_scope: Option<&'port mut super::UnpublishedCallableLoopRootScopeV1>,
     ) -> Self {
         Self {
             module_port,
             active_source: None,
             semantic_ledger: None,
             callable_ledger: None,
+            ordinary_new_claim_ledger: None,
             generic_loop_diagnostic: GenericLoopAdmissionDiagnosticStateV1::new(),
             script_deferred_observation: None,
             callable_loop_root_scope,
@@ -285,6 +287,7 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
             active_source: self.active_source.clone(),
             semantic_ledger: self.semantic_ledger.clone(),
             callable_ledger: self.callable_ledger.clone(),
+            ordinary_new_claim_ledger: self.ordinary_new_claim_ledger.clone(),
             generic_loop_diagnostic: self.generic_loop_diagnostic.reborrow(),
             script_deferred_observation: self.script_deferred_observation.clone(),
             callable_loop_root_scope: self.callable_loop_root_scope.as_deref_mut(),
@@ -341,6 +344,21 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
         &self,
     ) -> super::stmts::LocalInitializerObservationSinkV1 {
         self.generic_loop_diagnostic.local_initializer_sink()
+    }
+
+    pub(in crate::mir::builder) fn current_source_site_v1(&self) -> Option<SourceNodeSiteV1> {
+        self.active_source
+            .as_ref()
+            .and_then(RawInvocationSourceContextV1::site)
+            .cloned()
+    }
+
+    pub(in crate::mir::builder) fn callable_owner_v1(
+        &self,
+    ) -> Option<crate::mir::resolved_semantics::FunctionOwnerIdV1> {
+        self.callable_ledger
+            .as_ref()
+            .map(|ledger| ledger.borrow().owner())
     }
 
     pub(in crate::mir::builder) fn issue_callable_loop_binding_schedule_v1(

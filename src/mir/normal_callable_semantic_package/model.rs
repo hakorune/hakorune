@@ -36,6 +36,7 @@ pub(crate) struct VerifiedNormalCallableSemanticPackageV1 {
     pub(super) root_execution: NormalRootExecutionPackageStateV1,
     pub(super) catalog: VerifiedSourceBackedSameModuleCallableCatalogV1,
     pub(super) batch: VerifiedResolvedCallableSemanticBatchV1,
+    pub(super) ordinary_new_claims: Box<[super::ordinary_new_coseal::OrdinaryNewAdmissionClaimV1]>,
     pub(super) instance_constructors:
         super::instance_constructor_semantic::VerifiedInstanceConstructorSemanticBatchV1,
     pub(super) selected: super::selected_mapping::VerifiedSelectedCallableBatchMapV1,

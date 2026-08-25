@@ -13,6 +13,7 @@ use super::super::initial_callable_program_source::{
 use super::normal_root_execution_preservation::{
     ParserNormalRootExecutionPreservationIssuerV1, ParserNormalRootExecutionPreservationRejectV1,
 };
+use super::ordinary_new_source::ParserOrdinaryBoxSourceCoverageV1;
 use super::{PreparedNormalCallableProgramSourceV1, VerifiedFinalCallableProgramSourceV1};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,6 +40,7 @@ pub(super) struct PreparedNormalCallableTransformInputV1 {
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: ParserConstructorSourceCatalogV1,
     normal_root_execution: ParserNormalRootExecutionSourceDispositionV1,
+    ordinary_box_coverage: ParserOrdinaryBoxSourceCoverageV1,
 }
 
 impl PreparedNormalCallableTransformInputV1 {
@@ -50,6 +52,7 @@ impl PreparedNormalCallableTransformInputV1 {
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         constructor_source: ParserConstructorSourceCatalogV1,
         normal_root_execution: ParserNormalRootExecutionSourceDispositionV1,
+        ordinary_box_coverage: ParserOrdinaryBoxSourceCoverageV1,
     ) -> Self {
         Self {
             initial_ast,
@@ -59,6 +62,7 @@ impl PreparedNormalCallableTransformInputV1 {
             source_authority,
             constructor_source,
             normal_root_execution,
+            ordinary_box_coverage,
         }
     }
 
@@ -71,6 +75,7 @@ impl PreparedNormalCallableTransformInputV1 {
             source_authority,
             constructor_source,
             normal_root_execution,
+            ordinary_box_coverage,
         } = self;
         ParserNormalRootExecutionPreservationIssuerV1::discard_at_named_transform_reject_terminal(
             normal_root_execution,
@@ -83,6 +88,7 @@ impl PreparedNormalCallableTransformInputV1 {
             parameter_source,
             source_authority,
             constructor_source,
+            ordinary_box_coverage,
         );
     }
 }
@@ -160,6 +166,7 @@ fn issue_callable_program_source_v1(
         source_authority,
         constructor_source,
         normal_root_execution,
+        ordinary_box_coverage,
     } = input;
     let transformed_ast = transformed.as_ref().unwrap_or(&initial_ast);
     let normal_root_execution =
@@ -179,6 +186,7 @@ fn issue_callable_program_source_v1(
                     parameter_source,
                     source_authority,
                     constructor_source,
+                    ordinary_box_coverage,
                 );
                 return Err(FinalCallableProgramSourceRejectV1::RootPreservation(error));
             }
@@ -192,6 +200,7 @@ fn issue_callable_program_source_v1(
         source_authority,
         constructor_source,
         normal_root_execution,
+        ordinary_box_coverage,
     ))
 }
 
@@ -203,6 +212,7 @@ fn discard_transform_remainder_at_named_terminal(
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: ParserConstructorSourceCatalogV1,
+    ordinary_box_coverage: ParserOrdinaryBoxSourceCoverageV1,
 ) {
     drop((
         initial_ast,
@@ -212,6 +222,7 @@ fn discard_transform_remainder_at_named_terminal(
         parameter_source,
         source_authority,
         constructor_source,
+        ordinary_box_coverage,
     ));
 }
 
@@ -228,6 +239,7 @@ pub(super) fn reject_foreign_root_authority_for_test(
         source_authority,
         constructor_source,
         normal_root_execution,
+        ordinary_box_coverage,
     } = source.into_transform_input();
     let PreparedNormalCallableTransformInputV1 {
         initial_ast: foreign_initial_ast,
@@ -237,6 +249,7 @@ pub(super) fn reject_foreign_root_authority_for_test(
         source_authority: foreign_authority,
         constructor_source: foreign_constructor_source,
         normal_root_execution: foreign_root_execution,
+        ordinary_box_coverage: foreign_ordinary_box_coverage,
     } = foreign.into_transform_input();
     ParserNormalRootExecutionPreservationIssuerV1::discard_at_named_transform_reject_terminal(
         foreign_root_execution,
@@ -247,11 +260,13 @@ pub(super) fn reject_foreign_root_authority_for_test(
         parameter_source,
         source_authority,
         constructor_source,
+        ordinary_box_coverage,
         foreign_initial_ast,
         foreign_sources,
         foreign_slots,
         foreign_parameter_source,
         foreign_constructor_source,
+        foreign_ordinary_box_coverage,
     ));
     let rejected = ParserNormalRootExecutionPreservationIssuerV1::seal_after_transform(
         normal_root_execution,

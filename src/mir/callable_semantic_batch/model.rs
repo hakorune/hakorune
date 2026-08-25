@@ -87,6 +87,12 @@ impl VerifiedResolvedCallableSemanticBatchV1 {
         self.source.ast()
     }
 
+    pub(crate) fn ordinary_box_coverage(
+        &self,
+    ) -> &crate::parser::ParserOrdinaryBoxSourceCoverageV1 {
+        self.source.ordinary_box_coverage()
+    }
+
     /// Borrow the parser-owned whole-Program source authority together with
     /// the batch-owned AST. The HRTB keeps the paired source/AST cursor inside
     /// the caller that owns the next source-bound admission.
@@ -403,6 +409,10 @@ impl VerifiedResolvedCallableSemanticDeclarationRefV1<'_> {
 
     pub(crate) const fn function_origin(self) -> FunctionOriginV1 {
         self.row.function_origin
+    }
+
+    pub(crate) fn body_shape(&self) -> &VerifiedResolvedBodyShapeInventoryV1 {
+        &self.row.body_shape
     }
 }
 

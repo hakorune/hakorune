@@ -15,6 +15,16 @@ PROGRAM_LOWERING="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program.rs"
 EXEC="$ROOT_DIR/src/runner/modes/common_util/exec.rs"
 CALL_OPS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/expr/call_ops.rs"
 PROGRAM_CALL_TARGETS="$ROOT_DIR/src/runner/json_v0_bridge/lowering/program_call_targets.rs"
+ORDINARY_NEW_ADMISSION="$ROOT_DIR/src/mir/builder/ordinary_new_admission.rs"
+RAW_CHILD_LOWERING="$ROOT_DIR/src/mir/builder/recursive_child_lowering.rs"
+RAW_CLAIM="$ROOT_DIR/src/mir/builder/raw_ordinary_new_claim.rs"
+RAW_LOAN_PORT="$ROOT_DIR/src/mir/builder/normal_callable_semantic_loan_port.rs"
+ORDINARY_NEW_COSEAL="$ROOT_DIR/src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs"
+ORDINARY_NEW_INSTALL="$ROOT_DIR/src/mir/normal_callable_semantic_package/install.rs"
+ORDINARY_SOURCE_MODEL="$ROOT_DIR/src/parser/normal_callable_program_source/model.rs"
+ORDINARY_SOURCE_COVERAGE="$ROOT_DIR/src/parser/normal_callable_program_source/ordinary_new_source.rs"
+BUILDER_README="$ROOT_DIR/src/mir/builder/README.md"
+PACKAGE_README="$ROOT_DIR/src/mir/normal_callable_semantic_package/README.md"
 METHODS="$ROOT_DIR/src/mir/instruction/methods.rs"
 MIR_V0_CALL="$ROOT_DIR/src/runner/mir_json_v0/call.rs"
 MIR_V0_CATALOG="$ROOT_DIR/src/runner/mir_json_v0/catalog.rs"
@@ -57,7 +67,7 @@ require() {
   rg -F -q -- "$token" "$file" || fail "missing '$token' in ${file#$ROOT_DIR/}"
 }
 
-for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
+for file in "$LLVM" "$OPTIMIZER" "$SCHEDULE" "$CSE" "$DIAGNOSTICS" "$INTERPRETER_CALLS" "$REJECT" "$JSON" "$PROGRAM_LOWERING" "$EXEC" "$CALL_OPS" "$PROGRAM_CALL_TARGETS" "$ORDINARY_NEW_ADMISSION" "$RAW_CHILD_LOWERING" "$RAW_CLAIM" "$RAW_LOAN_PORT" "$ORDINARY_NEW_COSEAL" "$ORDINARY_NEW_INSTALL" "$ORDINARY_SOURCE_MODEL" "$ORDINARY_SOURCE_COVERAGE" "$BUILDER_README" "$PACKAGE_README" "$METHODS" "$MIR_V0_CALL" "$MIR_V0_CATALOG" "$MIR_V0_MODULE" "$MIR_V0_TESTS" "$MIR_V1_CALL" "$MIR_V1_TESTS" "$CALLEE_DEFS" "$SIMPLIFY_FLOW" "$VALUE_CONSUMER" "$ESCAPE_BARRIER" "$OWNERSHIP_VERIFY" "$OWNERSHIP_TESTS" "$QUERY" "$PRINTER_HELPERS" "$PRINTER_DISPLAY" "$PRINTER_TESTS" "$JSON_CALLS" "$JSON_ROOT" "$JSON_EMITTERS" "$JSON_HELPERS" "$BACKEND_SHAPE" "$MIR_BUILDER" "$HANDOFF" "$LLVM_GENERIC_CALLS" "$LLVM_MIR_CALL_DISPATCH" "$LLVM_MIR_CALL_SURFACE" "$LLVM_MIR_CALL_EXTERN" "$LLVM_MIR_CALL_EXTERN_RULES" "$LLVM_MIR_CALL_EXTERN_BODY"; do
   [[ -f "$file" ]] || fail "missing owner ${file#$ROOT_DIR/}"
 done
 
@@ -84,6 +94,23 @@ require "$EXEC" "project_module_to_legacy_calls"
 require "$METHODS" "pub(crate) fn call("
 require "$PROGRAM_CALL_TARGETS" "ProgramCallTargetCatalog"
 require "$PROGRAM_CALL_TARGETS" "ambiguous-name"
+require "$ORDINARY_NEW_ADMISSION" "let claim = port.try_take_ordinary_new_claim(class, arguments.len())?;"
+require "$ORDINARY_NEW_ADMISSION" "if let Some(birth) = claim.birth()"
+require "$RAW_CHILD_LOWERING" "raw_ordinary_new_claim"
+require "$RAW_CLAIM" "trait RawOrdinaryNewClaimPortV1"
+require "$RAW_CLAIM" "try_take_ordinary_new_claim"
+require "$RAW_LOAN_PORT" "ordinary_new_claim_ledger"
+require "$ORDINARY_NEW_COSEAL" "issue_ordinary_new_claims_v1"
+require "$ORDINARY_NEW_COSEAL" "OrdinaryNewClaimLedgerV1"
+require "$ORDINARY_NEW_COSEAL" "SourcePathSegmentV1::Initializer"
+require "$ORDINARY_NEW_COSEAL" "exact_claim_is_consumed_once"
+require "$ORDINARY_NEW_COSEAL" "mismatched_shape_preserves_claim_for_the_correct_consumer"
+require "$ORDINARY_NEW_COSEAL" "source_birth_projection_is_exact_and_missing_arity_rejects"
+require "$ORDINARY_NEW_INSTALL" "IncompleteOrdinaryNewCoverage"
+require "$ORDINARY_SOURCE_MODEL" "ordinary_box_coverage"
+require "$ORDINARY_SOURCE_COVERAGE" "ParserOrdinaryBoxSourceCoverageV1"
+require "$BUILDER_README" "Raw ordinary-\`New\` source claim consumer (D2c)"
+require "$PACKAGE_README" "Raw ordinary-\`New\` claim co-seal (D2c)"
 require "$SCHEDULE" "allow_legacy_target_rewrite"
 require "$SCHEDULE" "ProgramJsonV0Bridge"
 require "$MIR_V0_CALL" "enum JsonV0CallInput"
@@ -216,6 +243,13 @@ for relative in (
     "src/mir/optimizer_passes/diagnostics.rs",
     "src/backend/mir_interpreter/handlers/calls/mod.rs",
     "src/mir/contracts/backend_core_ops/allowlists.rs",
+    "src/mir/builder/recursive_child_lowering.rs",
+    "src/mir/builder/raw_ordinary_new_claim.rs",
+    "src/mir/builder/normal_callable_semantic_loan_port.rs",
+    "src/mir/builder/ordinary_new_admission.rs",
+    "src/mir/normal_callable_semantic_package/install.rs",
+    "src/mir/normal_callable_semantic_package/ordinary_new_coseal.rs",
+    "src/parser/normal_callable_program_source/ordinary_new_source.rs",
     "src/runner/product/llvm/mod.rs",
     "crates/hakorune_mir_defs/src/call_unified.rs",
     "src/mir/passes/simplify_cfg/flow.rs",

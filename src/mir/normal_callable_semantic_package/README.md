@@ -60,6 +60,18 @@ seal, Dynamic target extension, Complete-source pairing, and semantic-loan port
 are absent from that production edge. Source-backed package failure is
 terminal; the AST-only compatibility catalog is not a retry route.
 
+## Raw ordinary-`New` claim co-seal (D2c)
+
+The final source transport now carries ordinary-box coverage into this same
+package. The issuer joins selected direct-body `Allocation` sites with the
+exact source `New` class/arity and its ordinary declaration; an optional
+`Class.birth/N` target is sealed there, not rediscovered by Builder headers.
+Install creates one affine claim ledger. The selected Raw adapter consumes a
+matching owner-branded site exactly once before `NewBox` emission, and package
+completion rejects leftover claims. Non-cohort and compatibility rows remain
+outside this claim surface and retain their explicitly parked compatibility
+behavior; they cannot issue or retry a source-backed claim.
+
 The package now carries the bounded `VerifiedDynamicExitTransactionCoSealV1`
 in the selected Dynamic row. This is the final semantic co-seal for the
 current bounded lane: it transitively owns the semantic program, carrier flow,

@@ -21,6 +21,7 @@ use super::super::source_path::SourceProgramCallablePathV1;
 use super::normal_root_execution_preservation::{
     ParserNormalRootExecutionPreservationIssuerV1, ParserNormalRootExecutionPreservationV1,
 };
+use super::ordinary_new_source::ParserOrdinaryBoxSourceCoverageV1;
 use super::semantic_syntax_loan::{
     build_final_callable_semantic_syntax_loan_v1, FinalCallableSemanticSyntaxLoanErrorV1,
     FinalCallableSemanticSyntaxLoanV1,
@@ -138,6 +139,7 @@ pub(crate) struct PreparedNormalCallableProgramSourceV1 {
     parameter_source: ParserCallableParameterSourceDispositionV1,
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     normal_root_execution: ParserNormalRootExecutionSourceDispositionV1,
+    ordinary_box_coverage: ParserOrdinaryBoxSourceCoverageV1,
 }
 
 /// Parser-owned boundary for the one final transform of a source-backed
@@ -158,12 +160,14 @@ impl PreparedNormalCallableProgramSourceV1 {
         parameter_source: ParserCallableParameterSourceDispositionV1,
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         normal_root_execution: ParserNormalRootExecutionSourceDispositionV1,
+        ordinary_box_coverage: ParserOrdinaryBoxSourceCoverageV1,
     ) -> Result<Self, NormalCallableParameterSourceRejectV1> {
         let candidate = Self {
             initial,
             parameter_source,
             source_authority,
             normal_root_execution,
+            ordinary_box_coverage,
         };
         let error = if let ParserCallableParameterSourceDispositionV1::Complete(catalog) =
             &candidate.parameter_source
@@ -206,11 +210,17 @@ impl PreparedNormalCallableProgramSourceV1 {
             parameter_source,
             source_authority,
             normal_root_execution,
+            ordinary_box_coverage,
         } = self;
         ParserNormalRootExecutionPreservationIssuerV1::discard_at_named_transform_reject_terminal(
             normal_root_execution,
         );
-        drop((initial, parameter_source, source_authority));
+        drop((
+            initial,
+            parameter_source,
+            source_authority,
+            ordinary_box_coverage,
+        ));
     }
 
     pub(crate) fn composite_source_is_ready(&self) -> bool {
@@ -229,6 +239,7 @@ impl PreparedNormalCallableProgramSourceV1 {
             self.source_authority,
             constructor_source.expect("constructor source checked at issue"),
             self.normal_root_execution,
+            self.ordinary_box_coverage,
         )
     }
 }
@@ -261,6 +272,7 @@ pub(crate) struct VerifiedFinalCallableProgramSourceV1 {
     source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
     constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
     normal_root_execution: ParserNormalRootExecutionPreservationV1,
+    ordinary_box_coverage: ParserOrdinaryBoxSourceCoverageV1,
     source_lineage: Option<NormalParserSourceLineageV1>,
     _lineage: ExactCallablePreservingTransformReceiptV1,
 }
@@ -277,6 +289,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
         source_authority: ParserNormalProgramSourceAuthorityDispositionV1,
         constructor_source: super::super::constructor_source_catalog::ParserConstructorSourceCatalogV1,
         normal_root_execution: ParserNormalRootExecutionPreservationV1,
+        ordinary_box_coverage: ParserOrdinaryBoxSourceCoverageV1,
     ) -> Self {
         Self {
             ast,
@@ -286,6 +299,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             source_authority,
             constructor_source,
             normal_root_execution,
+            ordinary_box_coverage,
             source_lineage: None,
             _lineage: ExactCallablePreservingTransformReceiptV1,
         }
@@ -316,6 +330,10 @@ impl VerifiedFinalCallableProgramSourceV1 {
         &self.normal_root_execution
     }
 
+    pub(crate) fn ordinary_box_coverage(&self) -> &ParserOrdinaryBoxSourceCoverageV1 {
+        &self.ordinary_box_coverage
+    }
+
     pub(crate) fn discard_at_named_root_execution_terminal(self) {
         let Self {
             ast,
@@ -325,6 +343,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             source_authority,
             constructor_source,
             normal_root_execution,
+            ordinary_box_coverage,
             source_lineage,
             _lineage,
         } = self;
@@ -336,6 +355,7 @@ impl VerifiedFinalCallableProgramSourceV1 {
             parameter_source,
             source_authority,
             constructor_source,
+            ordinary_box_coverage,
             source_lineage,
             _lineage,
         ));
