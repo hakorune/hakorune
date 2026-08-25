@@ -1,0 +1,107 @@
+title = "MIR Call core R6 D1G builder emit receiver reconstruction"
+status = "accepted_design_next_slice"
+observed_commit = "e26a65bd85"
+observed_at = "2026-08-25"
+implementation_permission = false
+
+[boundary]
+starts = "existing typed Callee::Method(Some(receiver)) entering MirBuilder::append_instruction"
+ends = "the reconstructed instruction immediately before the existing append/metadata path"
+includes = [
+  "src/mir/builder/builder_emit.rs:112-147",
+  "src/mir/instruction/tests.rs:267-356",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/README.md",
+]
+excludes = [
+  "D1B Method(None) issuers and recovery terminals",
+  "D1C1 bare FunctionCall lineage",
+  "D1F typed Method SSOT issuer, already landed",
+  "Global, Extern, Value, Closure, Constructor, and callee=None arms",
+  "receiver validity/ownership policy and LocalSSA implementation",
+  "JSON, VM, native, optimizer, or backend consumers",
+  "func/Option<Callee> core schema deletion",
+  "CallFlags and warning retirement",
+]
+
+[decision]
+summary = "Replace the one Method(Some(receiver)) reconstruction literal in builder_emit with MirInstruction::call while preserving the LocalSSA receiver rematerialization and every other instruction field."
+source_authority = "existing Callee::Method(Some(receiver)) target; local::recv only supplies the remapped receiver ValueId"
+canonical_issuer = "MirInstruction::call(*dst, Callee::Method { receiver: Some(r_local), box_name, method, certainty, box_kind }, args.clone(), *effects)"
+non_authority = [
+  "legacy func or INVALID decoration",
+  "args[0] as target authority",
+  "box/method string reclassification",
+  "Method(None), static fallback, or receiver retry",
+  "builder_emit target inference, optimizer, backend, or runtime lookup",
+]
+fail_fast = "current block and existing local::recv failure boundary remain unchanged; the selected match performs no target classification and no fallback/retry"
+no_retry = "no missing block recovery, name lookup, static conversion, Method(None) repair, or argument rewriting"
+smallest_next_slice = "replace builder_emit.rs:140-146 with one MirInstruction::call invocation; extend the existing corridor guard, focused Method parity/negative checks, and MIR README"
+non_claims = [
+  "D1B Method(None) retirement",
+  "D1C1 bare FunctionCall handoff",
+  "D1F issuer changes",
+  "Call core field deletion",
+  "receiver validity or ownership verification",
+  "JSON/VM/native/backend changes",
+  "CallFlags/Closure/Constructor changes",
+  "warning cleanup",
+]
+
+[state_matrix]
+method_with_receiver = "existing Method(Some(receiver)) -> local::recv(receiver) -> canonical Method(Some(r_local)) Call"
+method_without_receiver = "outside D1G match -> preserve existing D1B boundary; no static/instance guess"
+non_method_callee = "Global/Extern/Value/Closure/Constructor are outside the selected match and remain unchanged"
+callee_none = "outside D1G -> preserve existing compatibility boundary; no legacy target repair"
+receiver_rematerialization_failure = "existing local::recv error remains the terminal; no retry or alternate target"
+receiver_present_but_invalid = "D1G does not validate ValueId definition/ownership; existing verifier/caller policy remains authoritative"
+
+[inventory]
+match_site = "src/mir/builder/builder_emit.rs:112-147: one Method(Some(receiver)) match"
+direct_literal_before = 35
+direct_literal_after = 34
+canonical_helper_callers_before = 8
+canonical_helper_callers_after = 9
+source_risk = "builder_emit.rs is 518 lines; below 760/800 split limits"
+
+[proof]
+positive = [
+  "test_method_call_instruction",
+  "test_method_call_getfield_instruction",
+  "test_method_call_setfield_instruction",
+  "receiver is rematerialized through local::recv before canonical Call construction",
+]
+negative = [
+  "builder_emit Method branch contains no direct MirInstruction::Call literal after cutover",
+  "func: ValueId::INVALID and callee: Some( are absent from the selected branch",
+  "non-Method and callee=None arms remain outside the D1G edit",
+]
+parity = ["receiver local rematerialization", "box/method/certainty/kind", "dst", "args order", "effects"]
+guards = [
+  "bash tools/checks/mir_call_canonical_corridor_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+stop_if = [
+  "Method(None), another Callee variant, or callee=None enters the selected match",
+  "args are prefixed/stripped/deduplicated",
+  "local::recv behavior or receiver ownership must change",
+  "target lookup, static classification, or backend/JSON code must be edited",
+  "builder_emit.rs reaches 760/800 lines",
+]
+
+[acceptance]
+status = "design_stop_until_pointer_switch"
+focused_test = "instruction::tests::test_method_call_instruction plus getfield/setfield parity and non-Method preservation checks"
+expected_inventory_delta = "direct literal 35 -> 34; canonical helper caller fanout 8 -> 9; no runtime caller fanout claim"
+implementation_scope = "one existing reconstruction branch, one shared guard extension, one README receipt; no new semantic receipt"
+review = "read-only upper-worker census selected this as the sole next bounded producer/reconstructor edge after D1F"
+
+[reopen]
+triggers = [
+  "receiver rematerialization requires target reclassification",
+  "Method(None) or another Callee variant is added to the match",
+  "args or local::recv policy changes",
+  "a second builder emit reconstruction site is discovered",
+]

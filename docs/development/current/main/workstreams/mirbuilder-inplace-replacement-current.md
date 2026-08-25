@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,20 +32,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1F-TYPED-METHOD-ISSUER-I0
-  implementation    = D1F landed at 572ec6f5b1; receipt and pointer sync are the remaining closeout
-  mode              = closeout
-  production stop   = no semantic stop; classify D1F evidence and publish the receipt
-  exit              = focused parity + shared guard + manifest/README/pointer receipt
+  current decision  = MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0
+  implementation    = D1F landed at 572ec6f5b1; D1G is design-only until pointer-selected fast entry
+  mode              = design_stop
+  production stop   = D1G must preserve only Method(Some(receiver)) LocalSSA rematerialization
+  exit              = accepted D1G decision plus one bounded implementation slice
   fallback / retry  = 0
 ```
 
 Next bounded design brief:
 
 ```text
-Decision: close the landed typed Method SSOT issuer and record its evidence.
+Decision: audit one existing builder emit Method reconstruction branch as the next issuer-normalization slice.
 Source authority + canonical issuer: caller/resolver receiver ValueId plus box/method/certainty/kind -> Callee::Method(receiver) -> MirInstruction::call. Non-authority: func/INVALID, Method(None), receiver-prefixed args as target authority, lookup/retry, backend/JSON/optimizer recovery.
-Fail-fast boundary: helper preserves supplied receiver presence only; ValueId validity/ownership and metadata semantics remain existing verifier/caller policy. Smallest next slice: manifest/pointer sync only; no further source edit.
+Fail-fast boundary: current block and existing local::recv error boundary remain unchanged; no target classification or fallback. Smallest next slice: builder_emit.rs:112-147, shared corridor guard, focused Method/non-Method parity, and one README receipt; no code is authorized in design_stop.
 Non-claims: D1B/D1C1 terminals, other Method callers, field deletion, flags, Closure/Constructor migration, backend switch, warning cleanup.
 ```
 
@@ -158,8 +158,8 @@ Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
 landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSealed`;
 exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
 closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, D1E is
-landed at `2150472c35`, and D1F is selected at
-`mir-call-core-r6-d1f-typed-method-issuer-2026-08-25.toml`.
+landed at `2150472c35`, D1F is landed at `572ec6f5b1`, and D1G is selected at
+`mir-call-core-r6-d1g-builder-emit-receiver-reconstruction-2026-08-25.toml`.
 
 ```text
 canonical core
