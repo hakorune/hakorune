@@ -584,8 +584,8 @@ After MIR Call retirement
 Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
   -> Loop common/Generic/callable physical follow-ups until a named caller
-  -> MIR-BUILDER-NORMAL-SCRIPT-MOD-SHELF-R0 first, then MIR-EMPTY-DIR-CLEANUP-R0 + MIR-COMMON-V2-SHELF-R0 (post-R7 physical shelf order)
-  -> NORMAL-ROOT-OLD-GUARD-RETIRE-R0 + NORMAL-ROOT-BOOL-PROJECTION-RETIRE-R0, then MIRBUILDER-WARNING-RETIREMENT-R0 (A/B/C); mode/projection/type-name/syntax-loan and performance/converter/llvmlite/Home/selfhost stay separate
+  -> MIR-BUILDER-NORMAL-SCRIPT-MOD-SHELF-R0 first: replace the builder `#[path]` bridge with `normal_script/mod.rs`, then MIR-EMPTY-DIR-CLEANUP-R0 + MIR-COMMON-V2-SHELF-R0 (post-R7 physical shelf order)
+  -> NORMAL-ROOT-OLD-GUARD-RETIRE-R0 + NORMAL-ROOT-BOOL-PROJECTION-RETIRE-R0, then MIRBUILDER-WARNING-RETIREMENT-R0 (A/B/C; baseline dead_code/allow census gets reasons); mode/projection/type-name/syntax-loan and performance/converter/llvmlite/Home/selfhost stay separate
 Closed / do not reopen from a mirror
   -> normal-root T0/C0/R0 and 68/68 replacement manifest
   -> H2 selected Dynamic cutover through W6
