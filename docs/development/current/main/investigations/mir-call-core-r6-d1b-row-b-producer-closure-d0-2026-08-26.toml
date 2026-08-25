@@ -1,6 +1,6 @@
 title = "MIR Call core R6 D1B Row B producer closure design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "2ba2cdff97"
+observed_commit = "6149d2692a"
 observed_at = "2026-08-26"
 implementation_permission = false
 
@@ -70,12 +70,12 @@ methodize_profile = "unset/0/1 -> canonical target and result parity; profile pr
 outside_builder = "Builder-external Method(None) -> retain as D1B blocker, not this row's closure"
 
 [reaudit_2026_08_26]
-decision = "NoSafeSlice remains after the formatter-only cleanup commit; no implementation or guard expansion is authorized."
-head = "2ba2cdff97"
-worktree = "clean after style/docs commits; pointer and Call corridor guards green"
-same_brand_product = "Normal package install co-seals the same-brand catalog (normal_callable_semantic_package/install.rs:308-316,388-405), but raw FunctionCall preflight has no existing transport for the brand and exact target."
+decision = "Parent Row B remains NoSafeSlice after the bounded exact-target child landed; no parent implementation or guard expansion is authorized."
+head = "6149d2692a"
+worktree = "child implementation is landed; focused tests, child/corridor/pointer guards, rustfmt, and diff checks are green"
+same_brand_product = "Normal package install co-seals the same-brand catalog (normal_callable_semantic_package/install.rs:308-316,388-405); the landed child transports the Cataloged caller through RawBrandCallAuthorityV1 and the existing Ordinary preflight, while parent RuntimeData/recovery remains open."
 normal_direct_target = "ResolvedDirectCallTargetV1 is unavailable on this normal source path because the source package is built without a callable index (normal_callable_semantic_source.rs:142-169,203-215,499-504)."
-preflight_gap = "function_call_preflight_route.rs:14-42,103-203 and raw_expression_dispatch/mod.rs:341-353 reach build.rs:103-116 without an exact target product before drive_call_arguments_v1."
+preflight_gap = "The exact-target transport gap is closed by 6149d2692a; the remaining parent gap is RuntimeData Global provenance plus post-argument materializer/unified-emitter recovery disposition."
 required_design_amendment = "Accepted candidate: lend the existing same-brand token through the raw scope and retain the canonical key or qualified Global in the existing preflight owner; no new Verified/Prepared semantic receipt is required."
 
 [shadow_order]
@@ -146,19 +146,22 @@ subchecks = [
 implementation_permission = false
 
 [preflight_transport]
-status = "AcceptedDesignAmendmentChildRowSelected"
+status = "AcceptedDesignAmendmentChildRowLanded"
 existing_owner = "RawBrandCallAuthorityV1 + PreparedRawFunctionPreflightRouteV1::Ordinary"
 source_authority = "same-allocation VerifiedSameModuleCallableDeclarationCatalogV1 -> BareStaticRecoveryDecisionV1::Unique(CanonicalSameModuleCallableKeyV1) -> mir_symbol_projection()"
-candidate = "Extend the existing brand/lowering scope and Ordinary preflight payload to retain the canonical key or qualified Global target before drive_call_arguments_v1; do not introduce a new Verified*/Prepared* semantic receipt."
-evidence = "function_call_preflight_route.rs:14-42,103-143,189-202; raw_expression_dispatch/mod.rs:341-353; callable_declaration_catalog/recovery.rs:39-55; callable_declaration_catalog/key.rs:50-52"
-current_gap = "RawBrandCallAuthorityV1::InstalledNonBrand, CallableSemanticLoweringState, and RawInvocationChildPortV1 currently carry no catalog brand/target payload."
+candidate = "Landed bounded child: extend the existing brand/lowering scope and Ordinary preflight payload, then consume the canonical Callee once before drive_call_arguments_v1; no new Verified*/Prepared* semantic receipt was introduced."
+evidence = "6149d2692a; function_call_preflight_route.rs, build.rs, raw_expression_dispatch/mod.rs:341-353, callable_declaration_catalog/recovery.rs:39-55, callable_declaration_catalog/key.rs:50-52"
+current_gap = "The parent Row B gap is no longer target transport; RuntimeData Global provenance and materializer/unified-emitter recovery remain unresolved."
 fail_fast = "foreign, ambiguous, unresolved, or precedence-invalid target must terminalize at the dispatcher/preflight seal before argument lowering, child effects, name Const, or block publication"
-blocker = "Transport-only would leave an unconsumed target product, so the selected child row must consume it in build.rs and publish the canonical Call in the same bounded series; parent Row B RuntimeData/recovery blockers remain open."
+blocker = "The bounded child consumed the target in build.rs and published the canonical Call; parent Row B RuntimeData/recovery blockers remain open."
 
 [exact_target_prepare_consume_row]
 name = "D1B-ROW-B-EXACT-TARGET-PREPARE-CONSUME-I0"
-status = "accepted_bounded_child_row"
-implementation_permission = true
+status = "landed_bounded_child_row"
+implementation_permission = false
+landed_commit = "6149d2692a"
+focused_test = "CARGO_BUILD_JOBS=4 cargo test --profile quick --lib function_call_preflight_route::tests (8 passed)"
+focused_guard = "tools/checks/mir_call_d1b_exact_target_child_guard.sh"
 parent_status = "MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 remains design_stop; this child does not close the parent row"
 boundary_starts = "RawInvocationRootLineageV1::Cataloged(caller) entering RawBrandCallAuthorityV1::InstalledNonBrand"
 boundary_ends = "the selected Cataloged ordinary FunctionCall emits one canonical MirInstruction::call after one ordered argument descent"
