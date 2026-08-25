@@ -1,0 +1,107 @@
+title = "MIR Call D1B root-lineage exact-target loan design"
+status = "accepted_design_no_safe_slice"
+observed_commit = "53f07fb844"
+observed_at = "2026-08-26"
+implementation_permission = false
+parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-root-lineage-d0-2026-08-27.toml"
+
+[boundary]
+starts = "RawInvocationRootLineageV1::Cataloged/TopLevel/InstanceConstructor at brand_call_authority_v1"
+ends = "an existing exact target loan consumed into a total pre-effect Targeted/Rejected/Parked state immediately before drive_call_arguments_v1"
+includes = [
+  "function_call_brand_source_demand.rs InstalledNonBrand lineage collapse",
+  "function_call_preflight_route.rs caller/lineage consumption and Resolved fallthrough",
+  "SelectedTopLevelFunctionKeyV1 source occurrence and NormalTopLevelFunctionDraftAdmissionV1 physical projection",
+  "ProgramRootWorkPlanAdmissionV1 SelectedNormal versus RawCompatibility",
+  "NormalInstanceConstructorSourceKeyV1 constructor-only relation and existing callable relation lookup",
+  "finite precedence for exact self/sibling, builtin, local Value, Extern, and unique static relations",
+]
+excludes = [
+  "new Verified*/Prepared* semantic receipt, name/arity target synthesis, and collector replacement as authority",
+  "Method(None), methodize, JSON/VM/backend, final Call schema, CallFlags, and constructor emission changes",
+  "post-argument recovery deletion implementation; this design only forbids its re-entry",
+]
+
+[brief]
+decision = "Preserve each live root lineage once, then lend only an already-existing exact callable target relation. TopLevel and InstanceConstructor source keys remain provenance; they never become Global/Value targets by formatting. A missing, duplicate, foreign, or constructor-only relation terminates before argument effects as TypedReject or an explicitly owned ParkedCompatibility state."
+source_authority = "current_source_context_v1.root plus an existing same-occurrence target relation owned by the callable catalog, program work plan, or draft package; Cataloged already has CanonicalSameModuleCallableKeyV1."
+canonical_issuer = "existing preflight -> CalleeResolverBox -> MirInstruction::call after the exact loan is proven; this child issues no new target or receipt."
+non_authority = [
+  "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
+]
+fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
+smallest_next_slice = "Design-only loan matrix and owner census; no code until an existing physical relation can be named for every Targeted state and every negative state has a typed terminal."
+non_claims = [
+  "TopLevel/InstanceConstructor source keys become canonical targets",
+  "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
+  "InstanceConstructor ordinary calls can use constructor symbols as Globals",
+]
+
+[observed]
+cataloged = "Cataloged(CanonicalSameModuleCallableKeyV1) is the only root lineage currently forwarded into the landed exact-target child."
+top_level = "TopLevel(SelectedTopLevelFunctionKeyV1) carries statement occurrence/name/arity but is not registered as a CanonicalSameModuleCallableKeyV1 target."
+top_level_physical = "NormalTopLevelFunctionDraftAdmissionV1 projects a legacy symbol; duplicate source occurrences may share that symbol and collector replacement is not target authority."
+instance_constructor = "InstanceConstructor(NormalInstanceConstructorSourceKeyV1) identifies constructor emission and has no ordinary FunctionCall target relation by itself."
+resolver = "CalleeResolverBox preserves a supplied CallTarget; it does not prove physical uniqueness or source occurrence."
+
+[finite_state]
+states = [
+  "CatalogedExistingTargetLoan",
+  "TopLevelSourceOnly",
+  "TopLevelExactSameOccurrenceLoan",
+  "TopLevelExactSelfLoan",
+  "TopLevelExactSiblingLoan",
+  "BuiltinExistingTargetLoan",
+  "LocalValueExistingTargetLoan",
+  "ExternExistingTargetLoan",
+  "UniqueStaticExistingTargetLoan",
+  "SelectedNormalDuplicateProjection",
+  "RawCompatibilityDuplicateProjection",
+  "InstanceConstructorSourceOnly",
+  "InstanceConstructorExistingOrdinaryLoan",
+  "PhysicalRelationConflict",
+  "PhysicalRelationMissing",
+  "TypedRejectBeforeArguments",
+  "ParkedRawCompatibility",
+  "TargetedExistingLoan",
+  "ResolvedFallthroughForbidden",
+]
+terminal_policy = "Only TargetedExistingLoan may cross into argument descent. ParkedRawCompatibility stops at the existing program compatibility owner. Source-only, duplicate SelectedNormal, conflict, missing, and constructor-only states reject before effects. ResolvedFallthroughForbidden is a guard failure, never a terminal."
+
+[precedence]
+required_rows = [
+  "exact same-occurrence relation versus local Value relation",
+  "exact self versus exact sibling static relation",
+  "builtin and explicit Extern relation versus same-name static declaration",
+  "unique static catalog relation versus foreign/ambiguous relation",
+  "InstanceConstructor source-only versus an already-existing ordinary callable relation",
+]
+rule = "Precedence must borrow an existing owner relation and remain finite; it cannot be created from name spelling, collector order, or fallback success."
+unknown = "Until every row has a named owner and negative witness, remain NoSafeSlice and do not transport a lineage into Resolved."
+
+[duplicate_policy]
+selected_normal = "AmbiguousPhysicalProjection -> TypedRejectBeforeArguments; no LegacyReplaceWholePair and no collector winner as target issuer."
+raw_compatibility = "Existing RawCompatibility work plan may remain ParkedRawCompatibility with LegacyReplaceWholePair and an explicit reopen trigger; it never feeds canonical SelectedNormal calls."
+
+[acceptance]
+design = [
+  "RawInvocationRootLineageV1 is preserved once through brand authority and preflight without Option<Canonical...> information loss",
+  "every Targeted state borrows an existing exact relation and every negative witness maps to one typed state",
+  "TopLevel self/sibling/builtin/local/Extern/unique-static precedence is explicit",
+  "InstanceConstructor source-only and existing ordinary relation states are distinct; constructor symbols never synthesize Globals",
+  "Installed lineage cannot enter Resolved, post-argument unique/tail recovery, name Const, or direct legacy Call",
+]
+negative = [
+  "no code, fixture, new receipt, target inference, collector-authority change, or backend behavior change",
+]
+implementation_gate = "false until the loan owner, all precedence rows, duplicate policy, and pre-effect terminals are accepted by the parent relationless recovery row."
+guard = "future guard must prove one exact target loan or typed terminal for every admitted root lineage before drive_call_arguments_v1; InstalledNonBrand caller=None and Resolved fallthrough must be zero"
+
+[reopen]
+triggers = [
+  "a new root lineage or target-loan producer appears",
+  "a source key is converted to Global/Value without an existing relation",
+  "SelectedNormal duplicate policy or builtin/local/Extern/static precedence changes",
+  "InstanceConstructor reaches an ordinary Call through its constructor symbol",
+  "any installed lineage re-enters Resolved or post-argument recovery",
+]

@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-CORE-R6-D1B-RELATIONLESS-ROOT-LINEAGE-D0
+Status: Design stop — MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,19 +32,19 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1B-RELATIONLESS-ROOT-LINEAGE-D0
+  current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
   implementation    = D1B exact-target child landed at 6149d2692a; Global recovery retirement landed at c8089e5288; both are bounded non-schema changes
   mode              = design_stop
-  production stop   = TopLevel/InstanceConstructor root lineages are live but currently collapse to caller=None; duplicate top-level physical symbols and constructor-only targets block target disposition
-  exit              = preserve root lineage once, classify exact/duplicate/constructor-only relations, and name the pre-effect TypedReject or ParkedSealed boundary; no code or new receipt while NoSafeSlice remains
+  production stop   = root-lineage transport alone has no consumer: TopLevel/InstanceConstructor source keys lack an existing ordinary target relation; precedence and duplicate/constructor-only disposition remain open
+  exit              = name an existing exact target loan for every Targeted state, classify self/sibling/builtin/local/Extern/unique-static precedence, and reject/park all missing/conflict/duplicate states before effects; no code or new receipt while NoSafeSlice remains
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
-Decision: D1B-RELATIONLESS-ROOT-LINEAGE-D0 — preserve existing TopLevel/InstanceConstructor root products through preflight before deciding any target or recovery retirement.
-Source authority + canonical issuer: existing selected source inventory / constructor package co-seal carries provenance; only an existing exact callable relation may reach the existing `CalleeResolverBox` -> canonical Call issuer.
+Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — preserve each root lineage once, then lend only an existing exact callable target relation before deciding any recovery retirement.
+Source authority + canonical issuer: current source lineage plus an existing same-occurrence target relation from the catalog/work plan/draft package; only that relation may reach the existing `CalleeResolverBox` -> canonical Call issuer.
 Non-authority: source key name/arity alone, constructor box name, `caller=None`, `current_static_box`, hardcoded `has_method`, `StaticMethodId`/name/Const text, methodize env/trace, tail/module lookup, registry, receiver autoscan, args[0], JSON/VM/C fallback.
-Fail-fast boundary: root lineage and exact target relation are classified before `drive_call_arguments_v1`; duplicate physical symbols and constructor-only identities reject or Park before child effects.
-Smallest next slice: design-only finite root-lineage matrix; no code until transport, duplicate-symbol, constructor-only, and post-argument re-entry dispositions are accepted.
+Fail-fast boundary: root lineage, exact target loan, precedence, and duplicate policy are classified before `drive_call_arguments_v1`; missing/conflict/duplicate/constructor-only states reject or Park before child effects.
+Smallest next slice: design-only exact-target-loan matrix; no code until every Targeted state borrows an existing relation and every negative state has a typed terminal.
 Non-claims: parent producer closure, all Method(None) deletion, materialize_receiver_in_callee, compatibility/JSON/backend routes, final Call schema, new receipt, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -340,7 +340,7 @@ Evidence:
   `FUNCTION-METADATA-OWNER-SPLIT-R0` landed: `metadata.rs` is 718 lines, nested checked-callout/linear-slot owners are 40/50 lines, no `#[path]` glue was added, method signatures/visibility/fields/callers/behavior are unchanged, focused `mir::function::tests` is 6 passed/2 ignored with the 441-warning baseline, and manifest/pointer/canonical-corridor/rustfmt/diff guards are green.
 
 Smallest next slice:
-  `MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0` is the active design-only row; ArrayElementWrite remains ParkedSealed until a selected-native consumer authority and finite caller closure are accepted.
+  `MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0` is the active design-only row; ArrayElementWrite remains ParkedSealed until a selected-native consumer authority and finite caller closure are accepted.
   Physical/backend implementation remains separately gated.
 
 Non-claims:
@@ -560,7 +560,7 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 ## Ordered frontier
 
 ```text
-Now MIR-CALL-CORE-R6-D1B-ROW-B-PRODUCER-CLOSURE-D0 -> parent NoSafeSlice after exact-target transport landed at 6149d2692a and unreachable Global recovery retirement landed at c8089e5288: RuntimeData Global methodize/provenance and remaining compatibility recovery disposition are the next design boundary; ArrayElementWrite remains ParkedSealed for a later selected-native authority row
+Now MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 -> parent NoSafeSlice after exact-target transport landed at 6149d2692a and unreachable Global recovery retirement landed at c8089e5288: existing target-loan relation, precedence, duplicate policy, and constructor-only rejection are the next design boundary; RuntimeData Global methodize and ArrayElementWrite remain downstream
  MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
  MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
  MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6

@@ -1,9 +1,10 @@
 title = "MIR Call D1B root-lineage transport disposition"
 status = "accepted_design_no_safe_slice"
-observed_commit = "412a1b8ad8"
+observed_commit = "53f07fb844"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-relationless-resolved-recovery-d0-2026-08-27.toml"
+next_child = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 
 [boundary]
 starts = "current_source_context_v1.root in function_call_brand_source_demand.rs:72-91"
@@ -30,7 +31,7 @@ non_authority = [
   "caller=None, current_static_box, has_method, module/header presence, suffix uniqueness, registry, env, or post-argument values",
 ]
 fail_fast = "Validate the root lineage and target disposition before drive_call_arguments_v1; if an existing catalog relation is not uniquely available, emit a typed reject or accepted ParkedSealed boundary and do not re-enter through method_resolution or recovery."
-smallest_next_slice = "Design-only finite matrix for Cataloged/TopLevel/InstanceConstructor versus true RelationlessCompatibility, with exact existing-product lookup and typed terminal states."
+smallest_next_slice = "Design-only exact-target-loan matrix: preserve lineage once, name an existing relation for every Targeted state, and reject/park duplicate, constructor-only, missing, and precedence-conflict states before effects."
 non_claims = [
   "TopLevel or InstanceConstructor source keys are themselves Call targets",
   "caller provenance can be converted into CanonicalSameModuleCallableKeyV1 by name/arity",
