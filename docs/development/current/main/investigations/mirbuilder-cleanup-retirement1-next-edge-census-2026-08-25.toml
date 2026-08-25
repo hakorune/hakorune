@@ -1,0 +1,136 @@
+title = "MirBuilder cleanup retirement R1 next-edge census"
+status = "accepted_design"
+observed_at = "2026-08-25"
+observed_commit = "74829ee3d2"
+implementation_permission = false
+decision = "MIRBUILDER-CLEANUP-RETIREMENT1-NEXT-EDGE-CENSUS-D0"
+owner = "MIRBUILDER-FINAL-PIPELINE-v1"
+
+[brief]
+decision = "Separate structural seam documentation, typed-error compression, and metadata owner splitting into independent bounded rows; do not turn a broad warning/runtime census into blanket edits."
+source_authority_and_canonical_issuer = "Existing compiler issuers, typed issue owners, and FunctionMetadata storage/slot owners remain authorities; this census issues no new semantic product."
+non_authority = "Import counts, String formatting, line counts, panic/unwrap totals, dead_code attributes, tests, fixtures, and local green are observations only."
+fail_fast_boundary = "Each row must name its finite owner/consumer boundary and reject migration when a neutral owner, typed port, caller, or semantic preservation proof is missing."
+smallest_next_slice = "After the active D1N design stop, close the compiler-builder seam census first; then choose either the exact metadata owner split or the isolated RequiredArgumentProof typed row."
+non_claims = "No broad warning cleanup, blanket panic removal, compiler/Builder move, common recursive-port redesign, metadata field change, backend activation, or Call schema change is authorized by this census."
+
+[boundary]
+starts = "MirBuilder/Compiler structural and error/metadata owner observations at HEAD 74829ee3d2"
+ends = "one named bounded cleanup row with owner, delete/move set, finite acceptance, and non-claims"
+includes = [
+  "builder <-> compiler seam counts and the loop_structural_facts neutral-owner candidate",
+  "ScriptDirectStaticPhysicalBridgeErrorV1 String variant boundaries",
+  "FunctionMetadata 804-line storage/checked-callout/linear-slot owner split",
+  "selected-scope runtime hygiene census as information only",
+]
+excludes = [
+  "active MIR Call D1N operand-SSOT implementation",
+  "Method(None), bare FunctionCall, mandatory-Callee, MirCall/CallFlags, and writer retirement",
+  "PyVM/reference/Python/non-selected backend surfaces",
+  "automatic cargo fix, warning suppression, blanket unwrap/panic removal, and fixture churn",
+]
+
+[observed]
+builder_rs_lines = 737
+metadata_rs_lines = 804
+metadata_hard_stop = "metadata.rs exceeds the 800-line hard stop by four lines; its field/storage schema is otherwise untouched in the current diff"
+reverse_imports = "HEAD census: builder -> compiler direct use 237 lines/80 files and compiler -> builder direct use 59 lines/47 files when test/reference text is included; semantic new reverse edge in 74829ee3d2 is 0"
+bridge_string_debt = "RequiredArgumentProof(String) and ClaimCompletion(String) lose typed issues; ArgumentDescent(String) is a common recursive port boundary with no bounded typed issue owner"
+runtime_hygiene = "finite lexical boundary src/mir/builder.rs + src/mir/builder/**/*.rs: panic 359, unwrap 2809, expect 2970, todo 0, allow(dead_code) 96; selected production count remains unclassified until module-registration-aware census"
+
+[[candidate]]
+id = "MIRBUILDER-COMPILER-SEAM-CENSUS-D0"
+status = "accepted_design"
+kind = "docs_only"
+scope = "src/mir/compiler/** <-> src/mir/builder/** <-> src/mir/loop_recipe_contract/**"
+source_authority = "compiler resolver/cohort issuers; Builder is the physical/session consumer; loop_structural_facts is the candidate neutral owner for the true-break/continue shape"
+canonical_issuer = "none; record existing issuers and owners without moving or reissuing a product"
+old_edge = "existing builder -> compiler imports and compiler projections are structurally inverted in places; the current HEAD did not add a semantic new edge"
+smallest_slice = "add one seam ledger section to the durable in-place replacement policy with counts, owner map, ExistingApproved/FormattingOnly/NewReverseEdge/OwnerUnresolved states, and a no-new-import/re-export/receipt guard"
+acceptance = [
+  "semantic new reverse edge at HEAD is recorded as 0",
+  "PreparedGenericG0PhysicalEmitterAdmissionV1 remains compiler-issued and Builder-consumed",
+  "loop_structural_facts is recorded as a candidate neutral owner only; Generic admission remains OwnerUnresolved",
+  "no source move, production switch, new Verified*/Prepared* receipt, or Cargo claim",
+]
+non_claims = ["no import migration", "no loop contract relocation", "no builder/compiler module split", "no test-only edge deletion"]
+
+[[candidate]]
+id = "FUNCTION-METADATA-OWNER-SPLIT-R0"
+status = "accepted_but_not_selected"
+kind = "BoxShape_behavior_neutral_refactor"
+scope = "src/mir/function/metadata.rs:1-804 and src/mir/function.rs module declarations"
+source_authority = "existing FunctionMetadata storage schema; checked-callout table authority remains checked_callout/site_plan.rs; linear slot authority remains dynamic_v2_aot_metadata_slot.rs and a_prime_i64_physical_receipt.rs"
+canonical_issuer = "none; exact move of inherent impl blocks only"
+old_edge = "storage schema, checked-callout forwarding/lifecycle, and Dynamic/A-prime linear slot APIs share one 804-line file"
+delete_set = [
+  "move checked-callout admit/install/lookup/table/verify impl to function/checked_callout_metadata.rs",
+  "move Dynamic/A-prime borrow/install/take impl to function/linear_metadata_access.rs",
+  "add ordinary mod declarations in function.rs; do not add #[path]",
+  "remove only now-unused metadata.rs imports",
+]
+acceptance = [
+  "metadata.rs and each child remain below 760 lines; no source >=800 remains in this row",
+  "FunctionMetadata field set/order/visibility/derive/Default/Clone semantics are byte-for-byte equivalent",
+  "method signatures, visibility, bodies, caller paths, and cfg(test) boundaries are unchanged",
+  "no new #[path], no caller edits, cargo check and git diff --check green",
+]
+non_claims = ["no field deletion/substructing", "no slot-state or clone-scrubbing change", "no backend/JSON/performance change", "no warning retirement"]
+
+[[candidate]]
+id = "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0"
+status = "accepted_but_not_selected"
+kind = "typed_error_bounded_row"
+scope = "normal_script_direct_static_claim_ledger.rs:76-116 -> calls/script_direct_static_physical_bridge.rs:24-86"
+source_authority = "ScriptDirectStaticClaimLedgerV1::consume_required_argument_proof existing ScriptDirectStaticRequiredArgumentProofIssueV1"
+canonical_issuer = "existing ledger issue enum; bridge carries the typed issue until the existing outer String boundary"
+old_edge = "RequiredArgumentProof(String) and error.to_owned() erase proof issue variants before argument descent"
+delete_set = [
+  "ScriptDirectStaticPhysicalBridgeErrorV1::RequiredArgumentProof(String)",
+  "the bridge-local error.to_owned() conversion for proof consumption",
+]
+acceptance = [
+  "duplicate, empty-required, cardinality, ordinal-out-of-bounds, site mismatch, and non-exact proof failures remain distinguishable variants",
+  "target validation -> proof consume -> argument descent order is unchanged",
+  "proof failure emits zero child effect, Call, publication, and claim completion; consumption marks success only",
+  "ArgumentDescent(String), ClaimCompletion(String), constructor manifest/loan String boundaries are untouched",
+]
+non_claims = ["no common recursive port typing", "no claim-completion port redesign", "no constructor demand/loan change", "no route/receipt/MIR/backend change"]
+
+[[candidate]]
+id = "MIRBUILDER-RUNTIME-HYGIENE-PANIC-TODO-CENSUS-D0"
+status = "accepted_design"
+kind = "observation_only"
+scope = "selected MirBuilder production modules only; test/fixture/non-selected backend code excluded and counted separately"
+source_authority = "source tokens and module ownership; no cleanup issuer"
+canonical_issuer = "none"
+old_edge = "broad lexical panic/unwrap/expect/todo and dead_code totals are not yet a selected production claim; parent-gated fixtures and debug-only paths are mixed"
+observed_partition = "explicit test/fixture filenames: panic 251, unwrap 1969, expect 2004, todo 0, allow 1; production-named files with inline cfg(test): panic 84, unwrap 622, expect 857, todo 0, allow 66; file-local cfg(test)-free upper bound: panic 24, unwrap 218, expect 109, todo 0, allow 29"
+smallest_slice = "classify panic! 359 and todo! 0 only, with module-registration-aware states SelectedRelease, SelectedDebugOnly, CompatibilityKeep, CallerZeroDisconnected, TestFixture, NonSelected, and Unclassified"
+acceptance = [
+  "all 359 panic! and 0 todo! tokens enter exactly one state and selected Unclassified is 0",
+  "root -> owner -> terminal is recorded for every SelectedRelease row",
+  "debug-only panic paths and parent-gated fixtures do not enter the release claim",
+  "Compatibility and caller-zero rows carry an owner and observable reopen trigger",
+  "selected panic is split into invariant-terminal versus typed-error-required",
+]
+non_claims = ["no unwrap/expect census in this row", "no panic removal or blanket Result conversion", "no dead_code deletion", "no runtime policy change", "no production gate activation", "lexical counts are not a complete Rust AST census"]
+
+[selection]
+active_lane = "MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0 remains the current design stop"
+order_after_d1n = [
+  "MIRBUILDER-COMPILER-SEAM-CENSUS-D0 (docs-only boundary ledger)",
+  "FUNCTION-METADATA-OWNER-SPLIT-R0 (first safe behavior-neutral code cleanup)",
+  "MIR-SEMANTIC-ERROR-TYPE-COMPRESSION-P1B-C1-REQUIRED-ARGUMENT-PROOF-I0 (typed proof row)",
+  "MIRBUILDER-RUNTIME-HYGIENE-PANIC-TODO-CENSUS-D0 (finite panic/todo observation before any hygiene edits)",
+]
+not_selected = "ArgumentDescent and ClaimCompletion require distinct port rows; compiler/Builder relocation and broad warning/runtime cleanup remain design stops"
+
+[stop_if]
+conditions = [
+  "a cleanup row requires a new semantic receipt, default/sentinel, AST/name reconstruction, fallback/retry, or backend inference",
+  "metadata split changes a field, method body, caller, cfg(test), or introduces #[path]",
+  "typed-error work crosses the common recursive port or combines proof and completion in one row",
+  "runtime hygiene counts are used without a finite production boundary",
+  "active D1N Call consumer scope is modified by cleanup work",
+]

@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,22 +32,22 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0
-  implementation    = D1M landed at f7a442f524; recursion-depth row selected after two upper-worker audits
-  mode              = fast
-  production stop   = only the two overflow return windows in build.rs and unified_emitter.rs may change
-  exit              = exact depth restoration, focused overflow/success/error parity, scoped guard, README receipt, and pushed commit; panic/unwind remains a non-claim
+  current decision  = MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0
+  implementation    = recursion-depth restore landed at 74829ee3d2; D1N is accepted design-only after upper-worker operand-SSOT audit
+  mode              = design_stop
+  production stop   = no code, fixture, route, fallback, or new semantic receipt until the D1N finite matrix and acceptance boundary are closed
+  exit              = one six-line authority brief, scoped consumer delete set, positive/negative matrix, guard plan, and worker review; then a separate fast pointer
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
 Current design brief:
 
-Decision: restore the caller-observed recursion_depth before the two overflow returns; no recursion policy or Call semantics change.
-Source authority + canonical issuer: MirBuilder.recursion_depth invariant; owner-local decrement before overflow Err, with existing common tail decrement retained.
-Non-authority: target/args/resolver, compatibility fallback, Call schema, panic/unwind, raw guard, context lifecycle, or unrelated dirty source.
-Fail-fast boundary: entry depth 100 -> increment/log -> typed overflow error -> exact prior depth before return; no MIR/ValueId/metadata publication.
-Smallest next slice: two source insertions, focused two-entrypoint regression proof, scoped structural guard, README receipt, and push.
-Non-claims: Method(None), bare FunctionCall target claim, MirCall/CallFlags, schema cutover, warnings, root mode, physical types, and shelf cleanup.
+Decision: make user-box publication alias membership consume the existing MirInstruction::used_values() projection; do not create a second Call matcher.
+Source authority + canonical issuer: Callee::for_each_value_operand -> used_values() is the operand authority; this report-only row issues no receipt or Call.
+Non-authority: local callee/func/args reconstruction, stale func sentinels, target Const, method-name lookup, backend dispatch, and publication inference.
+Fail-fast boundary: each pre-site instruction returns the existing membership boolean from canonical operands; this row mutates no MIR, ValueId, metadata, or Call.
+Smallest next slice: replace one Call arm, delete method_receiver_is_alias, add finite positive/negative tests, and compactly guard the delegation.
+Non-claims: Method(None), bare FunctionCall target claim, schema cutover, JoinIR/escape policy, Closure/Constructor, MirCall/CallFlags, backend/wire, and warning cleanup.
 
 ## Closed chronology (archived)
 
@@ -566,8 +566,8 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 ```text
 Now
- MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> fast: two overflow early returns only; exact prior depth restoration, no target/Call/schema expansion, no panic/unwind claim
-Closed immediately prior
+ MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0 -> design_stop: one report-only Call consumer delegates to used_values(); no semantic issuer, writer, target, or schema change
+ MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim
  MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
  MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> landed at 0be8a73420: one shared SubstringLenPlan writer -> canonical Extern Call; focused 4/4 green, cohort 12/13 with one pre-existing benchmark baseline, guard 757 lines
  MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0 -> landed at 513a243be5: one direct rewrite literal -> canonical helper, 3/3 concat3 parity, shared guard/pointer/rustfmt/diff green; 441 warnings remain baseline

@@ -1,0 +1,110 @@
+title = "MIR Call core R6 D1N user-box publication operand projection"
+status = "accepted_design"
+observed_at = "2026-08-25"
+observed_commit = "74829ee3d2"
+implementation_permission = false
+decision = "MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-D0"
+owner = "MIR-CALL-RETIREMENT-v1"
+
+[brief]
+decision = "Make user-box publication alias membership consume the existing MirInstruction::used_values() projection; do not create a second Call operand matcher."
+source_authority_and_canonical_issuer = "Callee::for_each_value_operand -> MirInstruction::used_values() is the existing operand authority; this row is a report-only consumer and issues no new semantic receipt or Call."
+non_authority = "local callee/func/args reconstruction, stale func sentinels, target-name Const, method-name lookup, backend dispatch, and publication policy inference are not authority."
+fail_fast_boundary = "At each pre-site instruction, classify publication membership from the canonical used-values projection; the consumer mutates nothing and returns the existing boolean result."
+smallest_next_slice = "Replace only the Call arm in instruction_publishes_any_alias and delete method_receiver_is_alias; add the scoped structural guard and the finite positive/negative consumer tests."
+non_claims = "No writer retirement, target resolution, Method(None) repair, Closure/Constructor construction change, schema cutover, JoinIR remap, escape policy change, backend/wire change, or new receipt."
+
+[boundary]
+starts = "MirFunction block scan -> instruction_publishes_any_alias Call arm"
+ends = "same_block_alias_published_before_site publication-membership boolean"
+includes = [
+  "typed Call operand membership for Method, Value, and Closure Callee variants",
+  "legacy callee=None func membership until mandatory-Callee cutover",
+  "Call argument membership and existing non-Call publication arms",
+  "report-only alias classification and its scoped guard",
+]
+excludes = [
+  "Call construction or direct writer retirement",
+  "Method(None) producer/reissuer/recovery census",
+  "bare FunctionCall target claim before argument lowering",
+  "JoinIR remap, escape/ownership policy, optimizer, printer, JSON, VM, native backend",
+  "MirCall/CallFlags and mandatory-Callee schema cutover",
+]
+
+[authority]
+source = "MirInstruction::used_values(), whose Call branch already delegates target operands to Callee::for_each_value_operand and appends args in stored order."
+issuer = "none; this is a consumer-only projection row and must not issue a Verified*/Prepared* product."
+non_authority = [
+  "instruction_publishes_any_alias local destructuring",
+  "method_receiver_is_alias",
+  "Call.func when a typed Callee is present",
+  "target strings, printer output, metadata, backend lookup, and test fixtures",
+]
+
+[fail_fast]
+before = "the publication scan returns true or false for the current instruction"
+after = "the existing publication caller consumes that boolean; no MIR block, ValueId, metadata, or Call is emitted by this row"
+failure = "missing instruction/Block data preserves the existing conservative true result; no new fallback or second target interpretation is allowed"
+
+[finite_matrix]
+positive = [
+  "typed Callee::Method with receiver alias -> published",
+  "typed Callee::Value target alias -> published",
+  "typed Callee::Closure captures alias -> published",
+  "typed Callee::Closure me_capture alias -> published after captures in canonical order",
+  "typed Call argument alias -> published",
+  "legacy callee=None func alias -> published until R6 schema cutover",
+]
+negative = [
+  "typed Call whose stale func alone is an alias but typed target/args are not -> not published",
+  "typed Global/Extern/Constructor with no aliased args -> not published",
+  "unrelated non-Call instruction -> existing classification unchanged",
+  "no local matcher or receiver-only special case remains after the delegation",
+]
+parity = [
+  "same-block origin/receiver alias set and scan order remain unchanged",
+  "argument order and duplicate used-values remain owned by used_values(), not reconstructed here",
+  "report rows, proof labels, and publication policy remain unchanged except stale-func correction",
+]
+
+[delete_set]
+file = "src/mir/user_box_method_publication.rs"
+lines = "241-267"
+remove = [
+  "Call-arm destructuring that separately inspects callee, func, and args",
+  "method_receiver_is_alias helper",
+]
+replace_with = "MirInstruction::Call arm delegates membership to inst.used_values().into_iter().any(|value| aliases.contains(&value))"
+
+[acceptance]
+focused_tests = [
+  "typed Method receiver alias",
+  "typed Value and Closure capture/me aliases",
+  "typed stale func-only alias is negative",
+  "legacy func alias remains positive until schema cutover",
+  "argument alias and unrelated target/argument negatives",
+]
+guards = [
+  "scoped mir_call_canonical_corridor_guard assertion covers the consumer delegation",
+  "current_state_pointer_guard",
+  "rustfmt on touched Rust and git diff --check",
+]
+source_limits = "user_box_method_publication.rs remains below 760/800; existing corridor guard stays below 800 after compact replacement, with no append-only growth"
+
+[worker_review]
+containment = "/root/d2a_containment_audit: accepted as the next operand-SSOT consumer row; one Call arm and one helper deletion only"
+selection = "/root/d2c_consumer_selection_audit: publication-host Extern writer is a separate exact-target fast candidate and is deferred behind this consumer-SSOT row"
+implementation_permission = "design-only; pointer must remain design_stop until the finite matrix and acceptance boundary are reviewed"
+
+[stop_if]
+conditions = [
+  "used_values() or Callee projection must be changed to make this consumer work",
+  "any Call writer, target resolver, Method(None), Closure/Constructor, schema, backend, wire, JoinIR, or escape-policy change enters the diff",
+  "a new semantic receipt, fallback, retry, name lookup, or publication-policy rule is proposed",
+  "the scoped guard would exceed the 800-line hard stop without compacting an existing assertion",
+]
+
+[deferred_candidate]
+id = "MIR-CALL-CORE-R6-D1N-PUBLICATION-HOST-EXTERN-ISSUER-I0"
+status = "accepted_but_not_selected"
+reason = "existing PublicationHostBoundaryPlan is an exact-target single-writer candidate, but it does not close the explicitly reported Call operand consumer SSOT gap"

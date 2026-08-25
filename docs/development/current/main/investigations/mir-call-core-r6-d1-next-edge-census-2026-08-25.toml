@@ -1,8 +1,8 @@
 title = "MIR Call core R6 D1 next-edge census"
-status = "selected_fast"
+status = "landed"
 observed_at = "2026-08-25"
-observed_commit = "f7a442f524"
-implementation_permission = true
+observed_commit = "74829ee3d2"
+implementation_permission = false
 decision = "MIR-CALL-CORE-R6-D1-NEXT-EDGE-CENSUS-D0"
 owner = "MIR-CALL-RETIREMENT-v1"
 
@@ -45,7 +45,7 @@ negative = [
 
 [[candidate]]
 id = "MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0"
-status = "selected_fast"
+status = "landed"
 scope = "two broken increment owners: src/mir/builder/calls/build.rs:200-216 and src/mir/builder/calls/unified_emitter.rs:132-149"
 old_edge = "incremented recursion_depth is returned without decrement on the overflow early return in two call-depth owners"
 source_authority = "MirBuilder.recursion_depth session invariant: entry depth is restored after every terminal path"
@@ -66,7 +66,8 @@ non_claims = [
   "Call target resolution, Method(None), bare FunctionCall, MirCall/CallFlags, or backend behavior",
   "global Builder state refactor outside these two broken increment owners",
 ]
-implementation_permission = true
+implementation_permission = false
+implementation_commit = "74829ee3d2"
 
 broken_increment_owners = [
   "calls/build.rs:162-219, reached by ordinary and claim-ingress method-call siblings",
@@ -164,3 +165,24 @@ conditions = [
   "RAII/shared counter/panic-unwind/usize::MAX recovery or recursion limit policy change enters the diff",
   "target, args, compatibility route, Call schema, publication, context lifecycle, raw guard, or unrelated dirty source enters the diff",
 ]
+
+[receipt]
+status = "landed"
+commit = "74829ee3d2"
+source = "src/mir/builder/calls/build.rs:200-216; src/mir/builder/calls/unified_emitter.rs:132-149"
+old_edge = "overflow early returns left recursion_depth incremented"
+new_edge = "entered-depth error is formatted, owner-local decrement restores prior depth, then typed Err returns"
+focused_tests = [
+  "method_depth_overflow_restores_entry_depth_without_publication",
+  "method_call_error_restores_nonzero_entry_depth",
+  "unified_depth_overflow_restores_entry_depth_without_publication",
+  "physical_receipt_ filtered suite: 10 passed",
+  "expression_failure_restores_recursion_depth_for_reuse",
+  "raw_expression_depth_limit_rejects_without_poisoning_the_session",
+]
+parity = "existing common success/error/alternate route behavior remains green; unified physical receipt tests preserve destination/publication parity"
+negative = "entry depth 100 -> error reports 101, restores exact depth 100, and emits no Call; no MIR/ValueId/metadata publication"
+guards = "mirbuilder_call_recursion_depth_guard + current_state_pointer_guard + mir_call_canonical_corridor_guard + normal_root_execution_reference_route_guard + rustfmt + git diff --check green"
+source_limits = "build.rs 550 lines; unified_emitter.rs 734 lines; both below 760 split trigger and 800 hard stop"
+warning_baseline = "quick profile reports 441 existing warnings; no new warning claim"
+non_claims = "panic/unwind restoration, usize::MAX recovery, recursion policy, raw guard, context lifecycle, Call schema, target/args, and fallback changes"
