@@ -12,6 +12,7 @@ Related:
 - docs/development/current/main/investigations/mir-call-core-r6-d1e-normal-main-thunk-issuer-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1f-typed-method-issuer-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1g-builder-emit-receiver-reconstruction-2026-08-25.toml
+- docs/development/current/main/investigations/mir-call-core-r6-d1h-phi-call-rematerialization-d0-2026-08-25.toml
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
@@ -94,22 +95,22 @@ receiver, registry, metadata, optimizer, or backend route.
 `CURRENT_STATE.toml` currently selects:
 
 ```text
-MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0
+MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-D0
 ```
 
-It is in closeout after the bounded D1G row landed at `c3c7e0ea65`. The preceding D1F row
-is landed at `572ec6f5b1`; D1G owns only the one builder emit Method
-reconstruction branch, whose finite boundary and acceptance are in:
+It is `design_stop`, not an implementation permission. D1G is landed at
+`c3c7e0ea65`; D1H owns only the one PHI substring Call reconstruction writer,
+whose D0 boundary and acceptance are in:
 
 ```text
 docs/development/current/main/investigations/
-  mir-call-core-r6-d1g-builder-emit-receiver-reconstruction-2026-08-25.toml
+  mir-call-core-r6-d1h-phi-call-rematerialization-d0-2026-08-25.toml
 ```
 
 D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
-`NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1G does not authorize field
-deletion, `Method(None)` repair, receiver/args ABI rewriting, or generic
-FunctionCall changes.
+`NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
+admission/purity/rollback changes, field deletion, `Method(None)` repair,
+other Callee variants, or generic FunctionCall changes.
 
 ## R6 retirement order
 

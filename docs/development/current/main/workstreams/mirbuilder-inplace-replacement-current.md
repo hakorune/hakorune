@@ -1,5 +1,5 @@
 ---
-Status: Closeout — MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0
+Status: Design stop — MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-D0
 Date: 2026-08-25
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,21 +32,21 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 
 ```text
-  current decision  = MIR-CALL-CORE-R6-D1G-BUILDER-EMIT-RECEIVER-RECONSTRUCTION-I0
-  implementation    = D1F landed at 572ec6f5b1; D1G landed at c3c7e0ea65 after upper-worker boundary audit
-  mode              = closeout
-  production stop   = D1G preserves only Method(Some(receiver)) LocalSSA rematerialization; local::recv remains the LegacyFacade
-  exit              = receipt, pointer sync, commit/push, then upper-worker next-edge census
+  current decision  = MIR-CALL-CORE-R6-D1H-PHI-CALL-REMATERIALIZATION-D0
+  implementation    = D1G landed at c3c7e0ea65; D1H is design-only after upper-worker next-edge and containment audits
+  mode              = design_stop
+  production stop   = D1H may touch only the final PHI substring Call reconstruction leaf after existing rematerialization succeeds
+  exit              = accepted D0 boundary plus one bounded implementation slice; full PHI admission/atomicity remains NoSafeSlice
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 
-Landed bounded row:
+Next bounded design brief:
 
 ```text
-Decision: audit one existing builder emit Method reconstruction branch as the next issuer-normalization slice.
-Source authority + canonical issuer: caller/resolver receiver ValueId plus box/method/certainty/kind -> Callee::Method(receiver) -> MirInstruction::call. Non-authority: func/INVALID, Method(None), receiver-prefixed args as target authority, lookup/retry, backend/JSON/optimizer recovery.
-Fail-fast boundary: current block/current-function checks remain the only fail-fast boundary; local::recv keeps its LegacyFacade behavior and no target classification or target fallback/retry was added. Receipt: builder terminal parity 1/1, instruction method parity 4/4, scoped corridor/pointer/rustfmt/diff checks green; existing 441 warnings are baseline.
-Non-claims: D1B/D1C1 terminals, other Method callers, field deletion, flags, Closure/Constructor migration, backend switch, LocalSSA fallback retirement, append atomicity, warning cleanup.
+Decision: accept a D0 boundary for one PHI Call reconstruction writer, not full rematerialization policy or atomicity.
+Source authority + canonical issuer: source typed Callee/dst/args/effects plus edge-local remapped operands -> MirInstruction::call; non-authority is stale func, names, EffectMask, later scans, function_repair policy, and Method(None).
+Fail-fast boundary: extract Some(callee) before existing recursive rematerialization; after all operands succeed, use the infallible helper with no new error/retry. Smallest slice: edge_rematerialization.rs writer + local callee remapper, scoped guard, focused parity, README receipt.
+Non-claims: PHI admission/purity, CFG preflight, partial rollback, seven caller conversion, field deletion, other variants, JSON/VM/native/backend, and warning cleanup.
 ```
 
 ## Closed chronology (archived)
@@ -159,7 +159,7 @@ landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSeale
 exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
 closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, D1E is
 landed at `2150472c35`, D1F is landed at `572ec6f5b1`, and D1G is landed at
-`c3c7e0ea65`; its receipt is the linked D1G manifest.
+`c3c7e0ea65`; D1H is the selected design-stop D0 in its linked manifest.
 
 ```text
 canonical core

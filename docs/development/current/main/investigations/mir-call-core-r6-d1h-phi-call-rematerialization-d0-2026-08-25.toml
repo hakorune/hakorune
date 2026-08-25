@@ -1,0 +1,110 @@
+title = "MIR Call core R6 D1H PHI Call rematerialization D0"
+status = "accepted_design_next_slice"
+observed_commit = "0d327fada9"
+observed_at = "2026-08-25"
+implementation_permission = false
+
+[boundary]
+starts = "existing rematerializable typed substring Call entering edge-local operand rematerialization"
+ends = "the reconstructed Call writer immediately before existing predecessor terminator insertion"
+includes = [
+  "src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs:223-245,288-319",
+  "src/mir/builder/ssa/phi_input_materializer/edge_rematerialization_tests.rs",
+  "src/mir/builder/ssa/phi_input_materializer/function_repair.rs:12-38",
+  "tools/checks/mir_call_canonical_corridor_guard.sh",
+  "src/mir/README.md",
+]
+excludes = [
+  "six for_pred callers and the function-repair API lifecycle/mutation policy",
+  "PHI/CFG admission, purity, candidate receipts, and source cohort expansion",
+  "partial-failure rollback or whole-function atomicity redesign",
+  "Method(None), non-Method, callee=None, and non-substring Call admission",
+  "Call field deletion, JoinIR remap, JSON, VM, native, optimizer, or backend consumers",
+  "CallFlags, Closure, Constructor/NewBox, and warning retirement",
+]
+
+[decision]
+summary = "After the existing recursive rematerialization succeeds, replace the one PHI Call reconstruction literal with the canonical constructor and remove only the stale func decoration."
+source_authority = "source Call's already-selected typed Callee, dst, args, and effects; recursive operand rematerialization supplies only edge-local ValueIds"
+canonical_issuer = "MirInstruction::call(Some(dst), remapped_callee, args, effects)"
+non_authority = [
+  "legacy func or ValueId::INVALID decoration",
+  "substring/box-name heuristic as a new semantic issuer",
+  "args[0] as target authority",
+  "EffectMask as rematerialization admission proof",
+  "later MIR/CFG/name scan, function_repair policy, or edge_kind/context strings",
+  "Method(None) repair or alternate-target retry",
+]
+fail_fast = "the existing selected Call branch must extract Some(callee) before recursive rematerialization; existing errors remain unchanged, and the final canonical constructor is infallible after all rematerialized operands succeed"
+no_retry = "no new fallback/retry, target reclassification, purity admission, or caller policy; six for_pred entries and the function-repair API keep their current mutation/abort behavior"
+smallest_next_slice = "make the selected substring Method(Some(receiver)) branch and callee remapper non-optional, then delegate the final writer once to MirInstruction::call without changing operand allocation or insertion order"
+non_claims = [
+  "PHI rematerialization semantic admission is correct",
+  "CFG/dominator/source definition preflight or purity receipt",
+  "partial-failure rollback or atomic candidate publication",
+  "all seven production entries are converted",
+  "Call core field deletion or consumer closure",
+  "Method(None), other Callee variants, JSON/VM/native/backend, or warnings",
+]
+
+[state_matrix]
+method_some_string_success = "existing RuntimeDataBox/StringBox substring Method(Some(receiver)) -> recursive operands -> remapped Callee -> canonical Call"
+method_none = "not eligible for D1H; no repair or static/instance guess"
+non_method_callee = "outside selected substring cohort and unchanged"
+callee_none = "outside selected cohort and unchanged"
+missing_predecessor = "existing typed error may follow prior allocation/insertion; D1H makes no rollback claim"
+recursive_remat_failure = "existing error terminal; D1H adds no new error after successful rematerialization"
+all_operands_ready = "one canonical Call writer before the existing predecessor terminator insertion"
+
+[inventory]
+writer_site = "src/mir/builder/ssa/phi_input_materializer/edge_rematerialization.rs:240"
+writer_count = 1
+production_entries = 7
+production_entry_partition = "six for_pred callsites plus one function_repair API; its three orchestration callers are not duplicate writer entries"
+historical_named_sites = 9
+source_risk = "edge_rematerialization.rs remains below the 760/800 split limits; no adjacent dirty source is in scope"
+
+[proof]
+positive = [
+  "rematerializes_runtime_data_substring_for_phi_pred",
+  "receiver, duplicate-preserving args, dst, effects, ValueId allocation, and predecessor insertion order remain unchanged",
+]
+negative = [
+  "selected assignment has no direct MirInstruction::Call literal or func forwarding",
+  "Method(None), non-Method, and callee=None remain outside the selected cohort",
+  "no new target lookup, purity gate, or rollback path is introduced",
+]
+parity = [
+  "typed Callee metadata",
+  "receiver rematerialization",
+  "args order and duplicates",
+  "dst/effects",
+  "memo/allocation and insert-before-terminator order",
+]
+guards = [
+  "bash tools/checks/mir_call_canonical_corridor_guard.sh",
+  "bash tools/checks/current_state_pointer_guard.sh",
+  "git diff --check",
+]
+stop_if = [
+  "Method(None) or another Callee variant becomes eligible",
+  "effects.is_pure(), source receipt, or name heuristic policy changes",
+  "recursive rematerialization or caller mutation/rollback behavior changes",
+  "a second PHI Call writer is discovered",
+  "Call field deletion or another consumer/backend change is required",
+]
+
+[acceptance]
+status = "design_stop_until_d0_boundary_acceptance"
+focused_test = "existing rematerializes_runtime_data_substring_for_phi_pred plus structural guard for Some(callee), non-optional remapper, and canonical writer"
+required_before_fast = "Method(Some(receiver)) eligibility and Method(None)=0 are structurally proven; seven production entries and partial-failure non-claims are recorded"
+implementation_scope = "one edge_rematerialization writer plus its local callee remapper, one shared guard extension, one README receipt; no caller or policy edits"
+review = "upper-worker census and containment audit selected this as the next design-stop row; full PHI rematerialization remains NoSafeSlice"
+
+[reopen]
+triggers = [
+  "new rematerializable Call variant or caller",
+  "non-INVALID func becomes semantic",
+  "Method(None), target reclassification, purity admission, or rollback is required",
+  "the seven-entry inventory changes",
+]
