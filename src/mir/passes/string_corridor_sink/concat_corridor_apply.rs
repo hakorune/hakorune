@@ -302,13 +302,12 @@ pub(crate) fn apply_concat_corridor_plans(
                     effects,
                     ..
                 } => {
-                    new_insts.push(MirInstruction::Call {
-                        dst: Some(*left_len_value),
-                        func: ValueId::INVALID,
-                        callee: Some(Callee::Extern(SUBSTRING_LEN_EXTERN.to_string())),
-                        args: vec![*left_source, *left_start, *left_end],
-                        effects: *effects,
-                    });
+                    new_insts.push(MirInstruction::call(
+                        Some(*left_len_value),
+                        Callee::Extern(SUBSTRING_LEN_EXTERN.to_string()),
+                        vec![*left_source, *left_start, *left_end],
+                        *effects,
+                    ));
                     new_spans.push(span.clone());
                     new_insts.push(MirInstruction::Const {
                         dst: *middle_len_value,
@@ -322,13 +321,12 @@ pub(crate) fn apply_concat_corridor_plans(
                         rhs: *middle_len_value,
                     });
                     new_spans.push(span.clone());
-                    new_insts.push(MirInstruction::Call {
-                        dst: Some(*right_len_value),
-                        func: ValueId::INVALID,
-                        callee: Some(Callee::Extern(SUBSTRING_LEN_EXTERN.to_string())),
-                        args: vec![*right_source, *right_start, *right_end],
-                        effects: *effects,
-                    });
+                    new_insts.push(MirInstruction::call(
+                        Some(*right_len_value),
+                        Callee::Extern(SUBSTRING_LEN_EXTERN.to_string()),
+                        vec![*right_source, *right_start, *right_end],
+                        *effects,
+                    ));
                     new_spans.push(span.clone());
                     new_insts.push(MirInstruction::BinOp {
                         dst: *outer_dst,
