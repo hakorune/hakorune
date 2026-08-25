@@ -59,7 +59,8 @@ outside_blockers = [
 ]
 
 [finite_state]
-exact_catalog_static = "same-brand owner/method/exact arity -> preserve qualified Global"
+current_owner_exact_static = "same-brand current owner + exact method/arity -> qualified Global; this outranks a same-name local Value"
+unique_other_static = "same-brand unique other-owner static + exact name/arity -> qualified Global only after Local Value and Extern are absent"
 exact_receiver = "exact source/resolver receiver -> preserve Method(Some)"
 hardcoded_static_probe = "current_static_box + has_method without catalog key -> CutoverBlockerOpen; never publish Method(None)"
 local_shadow = "observed current order is hardcoded static Method(None) > local Value; this is parity evidence only, not the final precedence decision"
@@ -78,11 +79,38 @@ preflight_gap = "function_call_preflight_route.rs:14-42,103-203 and raw_expressi
 required_design_amendment = "Decide whether an existing same-brand token can be lent into the raw scope and retained by the existing preflight owner; do not mint a new Verified/Prepared semantic receipt before that authority decision."
 
 [shadow_order]
-status = "CutoverBlockerOpen"
+status = "AcceptedDecisionRemainingBlockers"
 observed_order = "builtin Global > hardcoded static Method(None) > local Value > Extern"
 evidence = "method_resolution.rs:26-65,126-154; current collision test preserves static-over-local"
-required_decision = "Choose and test one total order for builtin, local Value, exact catalog static, Extern, and reject; alternatively prove the collision cohort is zero."
+required_decision = "Accepted total order: BuiltinGlobal > exact same-brand CurrentOwnerStatic > Local Value > Extern > unique other-owner catalog static > typed reject."
 non_authority = "resolver shadow observation currently records non-Brand FunctionCall without a lexical shadow fact; it cannot justify a precedence change."
+
+[precedence_decision]
+name = "D1B-ROW-B-PRE-EFFECT-TARGET-PRECEDENCE-D0"
+status = "accepted_decision_with_remaining_row_blockers"
+order = [
+  "BuiltinGlobal",
+  "CurrentOwnerStatic(same-brand, exact owner/name/arity)",
+  "LocalValue",
+  "Extern",
+  "UniqueOtherStatic(same-brand, exact name/arity)",
+  "TypedReject",
+]
+source_rule = "CurrentOwnerStatic requires RawInvocationRootLineageV1::Cataloged caller owner plus catalog.declaration_for(StaticBoxMethod, owner, name, arity); UniqueOtherStatic reuses BareStaticRecoveryDecisionV1 only after LocalValue and Extern absence."
+positive = [
+  "builtin + same-name local/catalog -> BuiltinGlobal",
+  "current-owner exact + same-name local -> qualified current-owner Global",
+  "no current-owner exact + local + unique other-owner static -> LocalValue",
+  "local env.* + Extern spelling -> LocalValue; no local -> Extern",
+  "no local/Extern + unique static -> qualified Global",
+]
+negative = [
+  "foreign/missing brand or caller lineage -> pre-effect typed reject",
+  "current-owner method family with no exact arity -> no local/unique fallback",
+  "ambiguous or arity-overflow unique static -> typed reject; no retry",
+]
+parity = "Preserve builtin > current-static > local > Extern > unique-static semantics; only valid current-static representation changes from Method(None) to qualified Global."
+collision_zero_claim = "not accepted; existing source facts do not prove zero and method_resolution.rs:126-154 contains a real static/local collision."
 
 [runtime_data_global]
 status = "CutoverBlockerOpen"
@@ -138,6 +166,7 @@ required_before_fast = [
   "dirty build.rs overlap is resolved before implementation permission (observed clean at 2e95a9fd02)",
   "the re-audit transport, shadow, RuntimeData Global, and materializer dispositions are accepted in this design card",
   "existing preflight transport amendment is accepted without minting a new semantic receipt",
+  "the six-level precedence Decision and its positive/negative/parity matrix are accepted",
 ]
 positive = [
   "exact static catalog -> same qualified Global symbol, args, dst, effects, and result",
