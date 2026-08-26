@@ -24,6 +24,7 @@
   },
   "authority": {
     "selector_reader": "src/main.rs::HAKO_VERIFY_V1_FORCE_HAKOVM",
+    "payload_presence_gate": "src/main.rs::has_json / NYASH_VERIFY_JSON presence",
     "truthy_policy": "src/config/env.rs::env_bool (1|true|on, case-insensitive)",
     "direct_issuer": "tools/smokes/v2/lib/test_runner.sh::verify_v1_inline_file",
     "helper_issuer": "tools/smokes/v2/lib/test_runner_builder_helpers.sh::verify_mir_rc",
@@ -32,7 +33,7 @@
       "script names",
       "numeric rc",
       "raw 1* JSON shape",
-      "NYASH_VERIFY_JSON payload/presence",
+      "NYASH_VERIFY_JSON payload bytes/meaning",
       "HAKO_VERIFY_PRIMARY=hakovm",
       "HAKO_ROUTE_HAKOVM=1",
       "--backend vm",
