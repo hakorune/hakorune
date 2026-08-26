@@ -33,7 +33,7 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
-  implementation    = six-worker D1B audit is integrated; GC exact-target and index-none safety remain landed, but ordinary observation/inventory/affine loan have no implementation permission
+  implementation    = six-worker D1B audit is integrated and the F.1 issuer-facts reconcile is recorded at 1485af54a8; BridgeReady is package-only, while ordinary observation/inventory/affine loan still has no implementation permission
   mode              = design_stop
   production stop   = preserve the finite entrance classification, then issue one private semantic scratch and one affine raw loan around only an existing exact relation; no profile widening, target synthesis, caller=None collapse, cross-cohort index, or second resolver
   exit              = package prepare/install rejects incomplete inventory; owner/site/lineage and target precedence are finite; transient rows consume/drop; zero Resolved/recovery/name-Const/legacy-Call fallthrough
@@ -44,7 +44,7 @@ Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — co-seal one issuer-local Dir
 Source authority + canonical issuer: the same-session Shadow/package owner issues owner/site/source/session/brand disposition. Exact catalog and GC rows are final authorities. The Cataloged first cell preserves landed LocalValue/Extern parity only while moving its issued Callee; future rows cannot generalize it. Raw lineage maps once at the package-to-raw boundary; the consumer calls MirInstruction::call without rerunning the resolver.
 Non-authority: source name/arity/box/symbol formatting, caller=None, constructor symbols, collector last-wins, BodyEffect/EffectMask, local variable maps, registry/name/args[0] recovery, or a second resolver.
 Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, package inventory, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
-Smallest next slice: design-only I0-CATALOGED-AFFINE-LOAN-D0: enumerate all six RawInvocationRootLineageV1 old edges and the `_ => None` collapse, then freeze the Cataloged old-payload delete/retain matrix and guard owner before any RawDirectCallDispositionLoanV1 code; S0 shelf split landed at 4061c21f45.
+Smallest next slice: D0-SIG-CLOSE-F.1 issuer-facts reconcile: keep `prepare_cataloged_target_v1` explicitly transitional, name the missing non-empty same-session Cataloged issuer/co-seal, and freeze the pre-adapter owner before any RawDirectCallDispositionLoanV1 code; S0 shelf split landed at 4061c21f45.
 Non-claims: observation gate implementation, target synthesis, relationless retirement, Method(None), JSON/VM/backend changes, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
@@ -581,6 +581,8 @@ After MIR Call retirement
   1. MIRBUILDER-PR-STRUCTURAL-GATES-I0
   2. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
   3. root mode session-localization, stale ordinary-New comment, then mimalloc promotion gate and .hako selfhost migration
+  4. MIRBUILDER-POST-CALL-HUB-CLEANUP-D0 (ParkedSealed until Call R7/D1B I0 closeout): census surviving production callers of CompilationContext, RawExpressionDispatchPortV1, RawInvocationChildPortV1, and NormalCallableSemanticPackagePortAdapterV1; choose split/retain/retire per owner, with no new semantic issuer or active-lane change
+  5. MIRBUILDER-POST-CALL-GUARD-DOCS-CONVERGENCE-D0 (ParkedSealed until the same closeout): reconcile reusable guard registry/CI push coverage and compress CURRENT_STATE/workstream/active-card history into their owning SSOTs; reopen only on a guard drift, pointer contradiction, or new production caller
 Parked
   -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
   -> Loop common/Generic/callable physical follow-ups until a named caller
@@ -974,7 +976,6 @@ closed
   -> `FastMemRegion + DirectFastMemRegion` is Resolved only through a
      recursively lexical-safe body; existing FastMem lower remains owner
   -> focused semantic, direct-owner, transport, pointer, and shared guards green
-
 ordered after B-prime correction
   1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
   2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
@@ -983,7 +984,6 @@ ordered after B-prime correction
   5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
   6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
   7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance
-
 R4
   MIRBUILDER-R4-FINAL-CONFORMANCE0-C0 after all active rows have exact
   retire/reown/retain decisions.
