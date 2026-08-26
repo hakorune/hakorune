@@ -1,6 +1,6 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "50a60bbf27"
+observed_commit = "a9c24d7230"
 observed_at = "2026-08-26"
 implementation_permission = false
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
@@ -237,6 +237,22 @@ tests_worker = "Existing tests prove package selected/constructor lifecycle and 
 entrance_worker = "Finite boundary: Selected and Constructor are production; Main exact-i64 and FullFunction are separate production cohorts; old semantic-source seal is caller-zero candidate but ParkedSealed; raw dispatcher is the sole physical FunctionCall entry; typed non-direct families stay outside."
 target_worker = "Only Cataloged same-brand self/unique sibling and landed GC have current final exact relations. Cataloged local/Extern stay RetainGuarded for first-cell parity only; TopLevel, Constructor, non-Cataloged bare local/Extern, FullFunction, and other builtins reject/park until their own source-bound relation exists."
 ssot_worker = "Do not add another semantic card. Keep this active card as the integrated owner, treat observation/inventory/lineage cards as prerequisite evidence, and route future-date/edge-role/card-graph cleanup through the existing investigation-ledger topology D0."
+
+[d0_sig_readiness]
+review_source = "one follow-up read-only D0-SIG implementation-readiness audit at a9c24d7230; no code, fixture, Cargo, profile-gate, or backend change"
+verdict = "Architecture remains Accept, but implementation_permission stays false. The docs now name the required shape, while the current code has none of the sealed bundles or affine loan types, so fast-mode evidence is not yet present."
+sealed_lifecycle_gap = "VerifiedNormalCallableSemanticPackageV1::prepare_install and PreparedNormalCallableSemanticPackageInstallV1::commit remain pub(crate); InstalledNormalCallableSemanticPackageV1::begin_lowering takes &self; six production package-only callers and additional tests can still install without scratch/loan. A private sealed bundle must become the only production install route before fast mode."
+mapper_owner_gap = "The current order is package.begin_lowering -> NormalCallableSemanticPackagePortAdapterV1::new -> inline lineage construction. The mapper must be owned by the package lifecycle sibling and run before adapter construction; the adapter may only receive the installed wrapper."
+loan_lifetime_gap = "RawInvocationChildPortV1 has no direct-call loan field and reborrow() only forwards existing Rc ledgers. The implementation must prove one root-owned Option<&mut RawDirectCallDispositionLoanV1>, shorter recursive reborrow, structured-child forwarding, no clone/copy/child ledger, exact-site take_once, and residual-zero completion."
+cataloged_delete_gap = "PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments } remains the only production Callee handoff from prepare_cataloged_target_v1 through build.rs; replacing it requires a private loan storage/take seam before deleting the old payload, with production/tests/guard census showing zero old direct handoffs afterward."
+acceptance_gap = "Before fast mode, require Cataloged positive; missing/foreign/duplicate/ambiguous pre-effect negative; no argument/effect/block mutation before rejection; one take_once; zero residual; one canonical Call; zero Resolved re-entry; and package-only install impossible."
+next_design_tasks = [
+  "D0-SIG-CLOSE-A: choose the package-lifecycle sibling as the sole pre-adapter mapper owner and record its private signature; adapter construction is downstream only",
+  "D0-SIG-CLOSE-B: census all prepare_install/commit/begin_lowering production and test callers, then define the private sealed bundle boundary without public package-only escape",
+  "D0-SIG-CLOSE-C: freeze Installed wrapper mutability and RawInvocationChildPortV1 lifetime so the single loan is lent by &mut through structured recursive frames",
+  "D0-SIG-CLOSE-D: map the exact Cataloged old Targeted payload delete/replace sites and guard inventory before any code cell",
+  "D0-SIG-CLOSE-E: write the focused positive/negative/parity acceptance matrix and register the reusable guard owner",
+]
 
 [reopen]
 triggers = [
