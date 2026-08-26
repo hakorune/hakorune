@@ -312,6 +312,16 @@
       "status": "blocker"
     }
   ],
+  "task_order": [
+    "FORCE-HV1-CALLER-DISPOSITION-D0: freeze this named 116-leaf matrix and selector-alone terminal; no implementation",
+    "FORCE-HV1-PHASE2170-PRODUCT-AOT-S0: prove the two default-pack legacy duplicate rows through source-issued LLVM/EXE/AOT",
+    "FORCE-HV1-PHASE2170-PRODUCT-AOT-S1: migrate the remaining six ProductAot wrappers and update run_all atomically",
+    "FORCE-HV1-SELFHOST-STAGE1-AOT-S0: land the one exact selfhost emit-to-AOT successor for rc42",
+    "FORCE-HV1-HISTORICAL-DELETE-R0: remove the 69 named direct/helper/wrapper probes without touching 38 residual consumers",
+    "FORCE-HV1-NARROW-HELPER-CUT-R1: delete only force reachability, preserve residual helper behavior, and prove 78/80 caller-zero",
+    "FORCE-HV1-STARTUP-RETIRE-R2: replace the truthy selector with one stderr tombstone, parse/execute/retry/fallback zero",
+    "WPRE-I0: after force closeout, open strict root/one decoder; MirBuilder Call schema rows follow the durable order"
+  ],
   "terminal": {
     "selector": "HAKO_VERIFY_V1_FORCE_HAKOVM truthy",
     "stderr": "[force-hv1/retired]\\n",

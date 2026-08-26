@@ -347,7 +347,7 @@ canonical_issuer = "Each named suite owner issues ProductAot, Stage1Proof/AOT, o
 finite_census = "116 lexical leaves = 33 direct + 74 textual helper + 9 wrapper-only; 78 force reachers / 80 invocations; 38 non-force helper consumers remain residual."
 fates = "HistoricalDelete=69; migration_blocker=9 (8 phase2170 ProductAot rows + 1 Stage1Proof/AOT row); SemanticReference=0; residual=38 ParkedSealed."
 terminal = "Truthy force selector -> stderr exact [force-hv1/retired], stdout empty, rc=1, payload/parse/execute/retry/fallback=0; never redirect to standard-v1, raw-vm-reference, or another route."
-smallest_next_slice = "FORCE-HV1-CALLER-DISPOSITION-D0: co-seal the corrected census, all fates, narrow helper deletion boundary, wrapper aggregate, and selector-alone terminal matrix; keep implementation_permission=false."
+smallest_next_slice = "FORCE-HV1-CALLER-DISPOSITION-D0: the corrected census, named fates, narrow helper deletion boundary, wrapper aggregate, and selector-alone matrix are sidecar-frozen; keep implementation_permission=false until the 9 successor blockers have exact evidence."
 stop = "NoSafeSlice if any of the 116 leaves is unclassified, wrapper-only phase2170 or 38 residuals are omitted, force removal falls through to Core, or a successor requires standard-v1 reinterpretation, raw-vm-reference, payload parsing, or fallback."
 
 [core_direct_tag_rc_contract]
