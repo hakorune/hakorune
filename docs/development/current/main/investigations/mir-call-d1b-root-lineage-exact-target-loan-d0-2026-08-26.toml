@@ -253,7 +253,15 @@ next_design_tasks = [
   "D0-SIG-CLOSE-C: freeze Installed wrapper mutability and RawInvocationChildPortV1 lifetime so the single loan is lent by &mut through structured recursive frames",
   "D0-SIG-CLOSE-D: map the exact Cataloged old Targeted payload delete/replace sites and guard inventory before any code cell",
   "D0-SIG-CLOSE-E: write the focused positive/negative/parity acceptance matrix and register the reusable guard owner",
+  "D0-SIG-CLOSE-F: freeze the C' one-shot package-to-Builder callback/token: package-private prepare/commit performs semantic install, callback hands ownership by value into a Builder-private bundle, and no bare Installed package escapes",
 ]
+
+[d0_sig_resolution]
+install_boundary = "Adopt C': package module keeps prepare_install/commit private and owns semantic completeness/catalog publication; one crate::mir bridge callback is the only handoff. The callback transfers the installed package by value into a Builder-private sealed bundle with RawDirectCallDispositionLoanV1. A bare package-only install result is never returned to a caller."
+mapper_owner = "The sole mapper owner is the private sibling builder/normal_callable_semantic_loan_port/direct_call_handoff.rs, invoked by the C' callback before NormalCallableSemanticPackagePortAdapterV1::new. The adapter instance is a consumer of the installed bundle, not the mapper authority."
+raw_loan_owner = "RawDirectCallDispositionLoanV1 remains under Builder/calls and is never moved into the semantic package or a neutral crate. The Builder bundle owns package and loan by value; lowering lends only a short Option<&mut RawDirectCallDispositionLoanV1> to RawInvocationChildPortV1."
+callback_closure = "The C' bridge must be a one-shot, owner-private callback/token surface that accepts the whole installed package and returns only the Builder bundle/result. It must not expose prepare_install, commit, package-only getters, into_parts, Clone, or a second semantic receipt. Exact Rust visibility/token spelling is D0-SIG-CLOSE-F, not an implementation claim."
+rejected_shapes = "Builder bundle plus public pub(crate) package install is rejected; package-owned bundle containing raw lineage/loan is rejected; a bare callback returning InstalledNormalCallableSemanticPackageV1 is rejected unless immediately consumed into the Builder-private bundle within the same one-shot boundary."
 
 [reopen]
 triggers = [
