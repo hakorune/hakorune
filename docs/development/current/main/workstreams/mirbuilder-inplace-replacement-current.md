@@ -1,5 +1,5 @@
 ---
-Status: Fast path — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0
+Status: Design stop — CORE-DIRECT-RETIRE-D0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -32,41 +32,34 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 ## Current six-line brief
 
 Decision:
-  B0の機械censusは着地済み。canonical Globalは`Builtin(Print)`または
-  `SameModule(FreeFunction | StaticBoxMethod)`だけとし、共有runner Wpre入口を設計停止にする。
+  CanonicalV1 Value S0は着地済み。VM fate監査はRust engineの最終撤退を受理したが、
+  MirBuilder本線を優先し、WpreをbypassするCoreDirectとforce-hv1だけを先に閉じる。
 
 Source authority + canonical issuer:
-  B0のsource contractに加え、共有runnerのentrance profileがstrict JSON rootを一回parseし、
-  owner-private selectorが選択済みdecoderまたはtyped terminalを一回発行する。外部compatは別owner。
+  各suite ownerがproduct AOT、semantic reference、Stage1 proof、compile-only、retireの
+  どれを必要とするかを発行する。route selectorは選択済みterminalだけを一回発行する。
 
 Non-authority:
   raw text、alias map、physical symbol、function table、EffectMask、registry、
   `caller=None`、methodize、`args[0]`、optimizer/backend repair。
 
 Fail-fast boundary:
-  共有runnerのentrance profileがJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
-  schema、profile不一致、target関係不足はarguments、MIR、wire/backend effectより前にreject。
-  Stage1/direct arbitrationとforce-hv1 retirement fateは設計済み。reference-child transport、
-  strict-root/Value seamは実装閉鎖、core-directのfamily-level tag/rc fateも設計済みで
-  実装閉鎖。残る設計blockerはstrict-rootの実装owner固定だけ。
+  retired selectorはfamily-level tag/rcを一つだけ返し、retry/fallbackは0。Wpreは一つの
+  strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0`。
-  private reference-child transport I0はlanded。実装許可はactive cardの
-  `canonical_v1_value_s0` allowed filesだけに開き、同じowned ValueをCanonicalV1
-  egress、normalize、subset、projectionへ一方向に渡す。
+  `CORE-DIRECT-RETIRE-D0`。六つのactive smokeをProductAot、SemanticReference、
+  HistoricalDeleteへ有限分類し、exact R0 delete setを固定する。D0はコード変更なし。
 
 Non-claims:
-  schema selector実装、parser/fixture/codec、typed Global、observer/loan、
-  Method/receiver、EffectMask、backend parity、Stage1/selfhost migration、
-  performance、Loop/M8/M9、warning/dead-code cleanup。
+  broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
+  Method/receiver、Call schema、performance、Loop/M8/M9、warning cleanup。
 
 Census boundary:
-  production `Callee::Global` issuer -> optimizer/wire/all compiled core-schema
-  consumers -> selected VM/native terminal. Census has 271 matching lines in
-  143 `.rs` files (266 under `src`, five under `crates`) plus five matches in two
-  compiled `.inc` files. Tests/non-selected backends are not semantic authority,
-  but every compiled schema consumer remains in B1 closure.
+  public route selector -> selected executor/retirement terminal, plus external
+  Rust `MirInterpreter` constructor -> engine. The fate Decision covers
+  CoreDirect/force-hv1/fallback/broad/default/reference/vm-hako/PyVM; LLVM
+  internals、archive、llvmlite G3は境界外。
 
 ## Current architecture decision
 
@@ -239,25 +232,27 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    the three live reference monitors plus the active alias probe atomically. Guard and
    cleanup evidence are closed; no later row opens automatically.
 
-   1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (selected fast)
+1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (landed)
    after transport I0, emit one explicit CanonicalV1 serde_json::Value, normalize the same
-   owned Value once, subset-check once, and project once. Remove ambient profile selection,
-   temporary v1 file/readback, and production raw String parses; implementation stays closed.
+   owned Value once, subset-check once, and project once. Ambient profile selection,
+   temporary v1 file/readback, and production raw String parses are removed.
 
-1i. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE (design accepted, implementation closed)
-   use execute_loaded_mir_module once for normal decoded input; requested CoreDirect
-   becomes a family-level stderr terminal ([core-direct/retired|unavailable], rc=1) with
-   no retry. Treat old operation tags as historical, then delete
+1i. CORE-DIRECT-RETIRE-D0/R0 (D0 selected, implementation closed)
+   classify the six active smokes into ProductAot / SemanticReference /
+   HistoricalDelete. After the exhausted D0 ledger, the accepted R0 uses
+   execute_loaded_mir_module once for normal decoded input; requested CoreDirect
+   becomes a family-level stderr terminal ([core-direct/retired|unavailable], rc=1)
+   with no retry. Treat old operation tags as historical, then delete
    raw probe/child/in-proc reparse/VM fallback; compatibility transforms remain Value adapters.
 
-1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)
-   strict_root.rs owns recursive duplicate/trailing rejection; SelectedIngress is owned and
-   non-Clone; decode consumes it and borrows one Value without raw-string reparse or retry.
-
-1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
+1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design accepted, implementation closed)
    retire production force-hv1; the finite census is 33 direct verify_v1_inline_file rows
    plus 36 hv1-capable verify_mir_rc rows across 107 integration files. Migrate, retire,
    or archive each named caller and supersede the startup guard; standard-v1 reroute is forbidden.
+
+1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design accepted, implementation closed)
+   strict_root.rs owns recursive duplicate/trailing rejection; SelectedIngress is owned and
+   non-Clone; decode consumes it and borrows one Value without raw-string reparse or retry.
 
 2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
    shared runner parses JSON root once; selects exact v2/v1/MIR-v0/Program-v0 once; deletes raw
@@ -365,6 +360,20 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
 
 24. remaining selected pipeline rows -> final repository convergence audit
 ```
+
+The VM retirement sibling may perform read-only census work earlier, but its
+broad implementation begins only after row 23:
+
+```text
+route selection de-ambient
+  -> legacy vm-compat / PyVM product hook / current vm-hako retirement
+  -> broad/default Rust execution caller migration
+  -> independent AOT HMI artifact and reference cutover
+  -> Rust MirInterpreter caller zero and physical deletion
+```
+
+`vm-active-lane-retirement-ssot.md` owns that backend sequence. This workstream
+owns only the pre-Wpre CoreDirect/force-hv1 bypass closure and the Call spine.
 
 No later row can be pulled before an earlier authority boundary. Local green,
 worker review, textual caller-zero, or schema compile errors are not permission.

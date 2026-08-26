@@ -15,7 +15,7 @@ fail() {
 }
 
 [[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|canonical_v1_value_s0|wpre_readiness]"
-PHASE="${1:-canonical_v1_value_s0}"
+PHASE="${1:-wpre_readiness}"
 case "$PHASE" in
   wpre_readiness|reference_child_i0|canonical_v1_value_s0) ;;
   wpre_i0|typed_global_b1|r7_closeout)

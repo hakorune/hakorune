@@ -28,13 +28,13 @@ Related:
   writers are closed. B0 census/provenance guards are landed; outside fates and
   Stage1/direct arbitration are accepted design decisions. The bounded
   reference-child private transport I0 is landed with a guarded private one-of
-  handoff; CanonicalV1 Value flow is the selected fast row, while force-hv1 retirement, CoreDirect family-level
-  tag/rc fate, and strict-root ownership remain closed. Typed Global, late
-  recovery, receiver ABI, and mandatory-Callee remain closed.
-- **Next ordered task:** complete the selected fast row
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0`,
-  then the ordered Wpre D0 follow-ups without semantic implementation, and only
-  then open the bounded shared-runner I0.
+  handoff; CanonicalV1 Value flow is landed. Full Rust VM retirement is accepted
+  as a later sibling, while CoreDirect and force-hv1 remain the two pre-Wpre
+  bypass families. Typed Global, late recovery, receiver ABI, and
+  mandatory-Callee remain closed.
+- **Next ordered task:** close the six-smoke `CORE-DIRECT-RETIRE-D0`, then its
+  bounded no-retry R0, force-hv1 caller migration, and strict Value seams before
+  opening the shared-runner Wpre-I0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.
@@ -158,6 +158,12 @@ typed Global target family / issuer Decision
   -> remaining selected pipeline cutovers
   -> final repository convergence audit
 ```
+
+Backend retirement is a sibling program, not another semantic pipeline. Only
+CoreDirect and force-hv1 bypass closure precede Wpre. Broad/default Rust route
+retirement, current vm-hako retirement, independent AOT HMI construction, and
+Rust `MirInterpreter` physical deletion follow Call R7 and post-Call integration
+in the order owned by `vm-active-lane-retirement-ssot.md`.
 
 Canonical coreの最終targetはopaque IDやphysical symbolではなく、wire-stableな
 typed structural identityである。少なくともbuiltinとsame-module staticを有限に
