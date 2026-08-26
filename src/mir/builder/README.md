@@ -836,6 +836,13 @@ admission and no longer constructs or seals the Script window. The old
 their production callers are zero. The lifecycle also does not perform a
 second `package.source_ast()` source scan for constructor coverage.
 
+The package-only BridgeReady boundary is now consuming: the normal-root
+lifecycle calls `with_normal_callable_install_once`, receives a private
+`BuilderPrivateInstalledCallablePackageBundleV1`, and lends parser source only
+inside `with_normal_program_source_loan`. The bundle exposes no package getter
+or direct-call loan, and the Cataloged affine-loan issuer remains a later
+design-stopped row.
+
 This row is intentionally source-only. The neutral product issues no target,
 candidate/noncandidate, A/C, Recipe/Join, MIR ID, physical, fallback, or
 production-switch meaning. Source failure is returned before target install

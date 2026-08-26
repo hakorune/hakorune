@@ -52,6 +52,17 @@ owned owner/site/binding/argument rows. The Recipe co-seal no longer stores a
 callable catalog borrow, and the resulting semantic/lifecycle program carries
 no catalog lifetime.
 
+## BridgeReady package install boundary (2026-08-26)
+
+The selected normal-root production lifecycle now consumes the package through
+`with_normal_callable_install_once`. This one-shot bridge owns the semantic
+`prepare_install`/`commit` transition and returns only a Builder-private,
+non-`Clone` package bundle; a bare installed package cannot escape to the
+caller. Source-backed lowering borrows the parser Program through a scoped HRTB
+loan on that bundle, while compatibility roots keep their explicit compatibility
+source owner. This row carries no direct-call inventory or `Callee` loan;
+Cataloged affine direct-call provisioning remains a separate later row.
+
 The normal/default source-backed lifecycle issues this package before Builder
 effects, consumes its catalog through one typed install transition, and lowers
 selected callables through the package port. The Builder-side adapter owns only

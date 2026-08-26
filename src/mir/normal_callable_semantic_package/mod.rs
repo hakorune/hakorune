@@ -20,6 +20,19 @@ mod s6c_effects;
 mod s6c_storage_header;
 mod selected_mapping;
 
+/// Opaque capability created only by the package-owned install bridge.  The
+/// type name is visible to the Builder bridge, while its constructor and
+/// fields remain private to this package family.
+pub(in crate::mir) struct BuilderInstallTokenV1 {
+    _private: (),
+}
+
+impl BuilderInstallTokenV1 {
+    fn issue() -> Self {
+        Self { _private: () }
+    }
+}
+
 #[cfg(test)]
 mod brand_catalog_tests;
 #[cfg(test)]

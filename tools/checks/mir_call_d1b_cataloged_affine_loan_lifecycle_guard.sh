@@ -12,7 +12,7 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [readiness|cataloged_i0]"
+[[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|cataloged_i0]"
 PHASE="${1:-readiness}"
 case "$PHASE" in
   readiness|bridge_ready|cataloged_i0) ;;
@@ -98,9 +98,11 @@ if phase == "readiness":
     lifecycle = (mir_root / "builder/normal_default_root_catalog_lifecycle.rs").read_text()
     lowering = (mir_root / "builder/program_root_lowering.rs").read_text()
     post_install = (mir_root / "builder/normal_default_root_catalog_post_install.rs").read_text()
-    for token in ("prepare_install", ".commit()", "source_ast()", "with_bound_source"):
+    for token in ("prepare_install", ".commit()", "with_bound_source"):
         if token not in lifecycle:
             raise SystemExit(f"readiness caller census edge disappeared: {token}")
+    if "source_ast()" not in lifecycle:
+        raise SystemExit("readiness compatibility source edge disappeared")
     for token in ("NormalCallableSemanticPackageMode::Installed", "begin_lowering"):
         if token not in lowering:
             raise SystemExit(f"readiness lowering edge disappeared: {token}")
@@ -167,10 +169,16 @@ elif phase == "bridge_ready":
     constructor = constructor_path.read_text()
     loan_port = loan_port_path.read_text()
 
-    for token in ("prepare_install", "with_bound_source", "source_ast()"):
+    for token in ("prepare_install", "with_bound_source"):
         if token in lifecycle:
             raise SystemExit(f"bridge_ready package-only lifecycle escape remains: {token}")
-    for token in ("NormalCallableSemanticPackageMode::Installed(&", "begin_lowering(&self)"):
+    # Compatibility roots are the one explicit AST-retaining branch.  The
+    # forbidden package escape is specifically a source getter on the
+    # installed package, not the compatibility owner’s source view.
+    for token in ("package.source_ast()", "installed_package.source_ast()"):
+        if token in lifecycle:
+            raise SystemExit(f"bridge_ready installed package source getter remains: {token}")
+    for token in ("NormalCallableSemanticPackageMode::Installed(&", "begin_lowering(&self,"):
         if token in lowering or token in install:
             raise SystemExit(f"bridge_ready shared-reference lifecycle remains: {token}")
     if "NormalCallableSemanticPackageMode::Installed" in post_install:

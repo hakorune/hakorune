@@ -8,6 +8,7 @@ mod signature_loan;
 use std::{cell::RefCell, collections::BTreeSet, rc::Rc};
 
 use crate::mir::builder::{
+    BuilderInstallConsumerV1, BuilderPrivateInstalledCallablePackageBundleV1,
     CatalogedBoxMethodPhysicalHeaderProjectionV1, CompilationContext,
     NormalCatalogedBoxMethodDraftAdmissionV1, SameModuleCallableCatalogBrandV1,
     SelectedNormalCallableKeyV1, VerifiedSourceBackedDynamicCallableV1,
@@ -18,10 +19,6 @@ use crate::mir::compiler::function_input::ResolvedFunctionLoweringInputV1;
 use crate::mir::resolved_semantics::VerifiedResolvedBlockExpressionExpectationV1;
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 
-use super::model::{
-    NormalCallableDynamicProjectionV1, NormalRootExecutionPackageStateV1,
-    OwnedCallableParameterContractDeclarationV1, VerifiedNormalCallableSemanticPackageV1,
-};
 use super::ordinary_new_coseal::{
     OrdinaryNewAdmissionClaimV1, OrdinaryNewClaimLedgerV1, OrdinaryNewClaimTakeErrorV1,
 };
@@ -31,6 +28,13 @@ use super::physical_signature::{
 };
 use super::s6c_storage_header::VerifiedS6CStorageHeaderProjectionV1;
 use super::selected_mapping::VerifiedSelectedCallableBatchMapV1;
+use super::{
+    model::{
+        NormalCallableDynamicProjectionV1, NormalRootExecutionPackageStateV1,
+        OwnedCallableParameterContractDeclarationV1, VerifiedNormalCallableSemanticPackageV1,
+    },
+    BuilderInstallTokenV1,
+};
 
 pub(crate) use signature_loan::ResolvedCallablePhysicalSignatureLoanV1;
 
@@ -57,6 +61,7 @@ pub(crate) enum NormalCallableSemanticPackageInstallIssueV1 {
     S6CChildAlreadyConsumed,
     S6CChildKeyUnavailable,
     PhysicalSignatureUnavailable,
+    CatalogSlotOccupied,
     S6CCommonV2(crate::mir::loop_recipe_contract::CommonV2IssuerRejectV1),
 }
 
@@ -267,6 +272,21 @@ pub(crate) struct NormalCallableSemanticPackagePortV1<'package> {
 }
 
 impl VerifiedNormalCallableSemanticPackageV1 {
+    pub(in crate::mir) fn with_normal_callable_install_once(
+        self,
+        context: &mut CompilationContext,
+        consumer: BuilderInstallConsumerV1,
+    ) -> Result<
+        BuilderPrivateInstalledCallablePackageBundleV1,
+        NormalCallableSemanticPackageInstallIssueV1,
+    > {
+        let prepared = self
+            .prepare_install(context)
+            .map_err(|_package| NormalCallableSemanticPackageInstallIssueV1::CatalogSlotOccupied)?;
+        let installed = prepared.commit();
+        Ok(consumer.seal(installed, BuilderInstallTokenV1::issue()))
+    }
+
     pub(crate) fn prepare_install<'context>(
         self,
         context: &'context mut CompilationContext,
@@ -332,10 +352,6 @@ impl PreparedNormalCallableSemanticPackageInstallV1<'_> {
 }
 
 impl InstalledNormalCallableSemanticPackageV1 {
-    pub(crate) fn source_ast(&self) -> &crate::ast::ASTNode {
-        self.batch.source_ast()
-    }
-
     pub(crate) fn take_ordinary_new_claim(
         &self,
         site: &crate::mir::resolved_semantics::OwnedExprSiteV1,

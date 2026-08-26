@@ -25,12 +25,12 @@ use super::raw_invocation_source_transport::{
     RawInvocationSourceTransportV1, RawSourceTransportPortV1,
 };
 use super::recursive_child_lowering::RawInvocationChildPortV1;
+use super::BuilderPrivateInstalledCallablePackageBundleV1;
 use super::{
     MirBuilder, NormalEntryMaterializationSourceReceiptV1, UnpublishedCallableLoopRootScopeV1,
     ValueId,
 };
 use crate::mir::callable_result_representation::VerifiedStaticCallResultPublicationOwnerV1;
-use crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1;
 
 /// Scoped candidate context for one deferred non-Main static Box.
 ///
@@ -84,7 +84,7 @@ pub(super) enum NormalScriptRootLoweringMode<'source> {
 }
 
 pub(super) enum NormalCallableSemanticPackageMode<'package> {
-    Installed(&'package InstalledNormalCallableSemanticPackageV1),
+    Installed(&'package BuilderPrivateInstalledCallablePackageBundleV1),
     Compatibility,
 }
 

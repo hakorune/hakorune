@@ -16,7 +16,6 @@ use crate::mir::builder::normal_script_semantic_lowering_input::{
     VerifiedScriptSemanticLoweringInputV1,
 };
 use crate::mir::builder::normal_script_semantic_source::VerifiedScriptSemanticSourceV1;
-use crate::mir::normal_callable_semantic_package::InstalledNormalCallableSemanticPackageV1;
 use crate::mir::resolved_semantics::VerifiedSemanticOwnerProductV1;
 use crate::parser::{ParserNormalProgramSourceLoanRejectV1, ParserNormalProgramSourceLoanV1};
 
@@ -44,17 +43,13 @@ pub(in crate::mir::builder) struct CanonicalScriptCPreparedLoweringSourceV1<'sou
 }
 
 impl CanonicalScriptCPostWindowTransportV1 {
-    pub(in crate::mir::builder) fn with_bound_source<R>(
+    pub(in crate::mir::builder) fn bind_source_loan<'source, R>(
         self,
-        package: &InstalledNormalCallableSemanticPackageV1,
-        callback: impl for<'source> FnOnce(CanonicalScriptCBoundSourceV1<'source>) -> R,
+        loan: ParserNormalProgramSourceLoanV1<'source>,
+        callback: impl FnOnce(CanonicalScriptCBoundSourceV1<'source>) -> R,
     ) -> Result<R, CanonicalScriptCBindIssueV1> {
         let (invocation, parts, disposition) = self.into_parts();
-        package
-            .with_normal_program_source_loan(|loan| {
-                bind_source(invocation, parts, disposition, loan, callback)
-            })
-            .map_err(|_error| CanonicalScriptCBindIssueV1::Loan { _error })?
+        bind_source(invocation, parts, disposition, loan, callback)
     }
 }
 

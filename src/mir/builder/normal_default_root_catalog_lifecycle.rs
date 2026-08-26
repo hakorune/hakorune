@@ -25,11 +25,9 @@ use super::{
     ModuleBuilderInvocationSessionV1, NormalEntryMaterializationSourceReceiptV1,
     NormalRuntimeInputSnapshotV1,
 };
+use super::{BuilderInstallConsumerV1, BuilderPrivateInstalledCallablePackageBundleV1};
 use crate::ast::ASTNode;
-use crate::mir::normal_callable_semantic_package::{
-    issue_normal_callable_semantic_package_with_brand_catalog_v1,
-    InstalledNormalCallableSemanticPackageV1,
-};
+use crate::mir::normal_callable_semantic_package::issue_normal_callable_semantic_package_with_brand_catalog_v1;
 use crate::mir::resolved_semantics::FunctionSemanticResolverSessionV1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -426,18 +424,22 @@ impl ModuleBuilderInvocationSessionV1 {
                         NormalDefaultRootCatalogLifecycleErrorV1::PrepareModule(error.into())
                     })?;
 
-                let installed_package: Option<InstalledNormalCallableSemanticPackageV1> =
+                let installed_package: Option<BuilderPrivateInstalledCallablePackageBundleV1> =
                     match semantic_package.take() {
                         Some(package) => Some(
-                            package
-                                .prepare_install(&mut builder.comp_ctx)
-                                .map_err(|_package| {
+                            package.with_normal_callable_install_once(
+                                &mut builder.comp_ctx,
+                                BuilderInstallConsumerV1::new(),
+                            )
+                                .map_err(|error| {
                                     NormalDefaultRootCatalogLifecycleErrorV1::CatalogInstall(
-                                        "[mir/callable-semantic-package/install] catalog slot occupied"
-                                            .into(),
+                                        format!(
+                                            "[mir/callable-semantic-package/install] {error:?}"
+                                        )
+                                        .into(),
                                     )
-                                })?
-                                .commit(),
+                                })
+                                ?,
                         ),
                         None => {
                             let source = compatibility_source.as_ref().ok_or_else(|| {
@@ -505,30 +507,42 @@ impl ModuleBuilderInvocationSessionV1 {
                         })?
                         .into_parts();
                         match (installed_package.as_ref(), pre_effect_script_source.take()) {
-                            (Some(package), Some(observation)) => observation
-                                .with_bound_source(package, |source| {
-                                    finish_normal_default_root_after_pre_effect_bind(
-                                        builder,
-                                        work,
-                                        source_ast,
-                                        &expansion,
-                                        &receipt,
-                                        &runtime_inputs,
-                                        brand,
-                                        declaration_facts,
-                                        NormalCallableSemanticPackageMode::Installed(package),
-                                        Some(source),
-                                        &mut preflight_static_result_publication_owner,
-                                        &import_rows,
-                                        binding,
-                                        callable_loop_root_scope,
-                                    )
+                            (Some(package), Some(observation)) => package
+                                .with_normal_program_source_loan(|loan| {
+                                    observation
+                                        .bind_source_loan(loan, |source| {
+                                            finish_normal_default_root_after_pre_effect_bind(
+                                                builder,
+                                                work,
+                                                source_ast,
+                                                &expansion,
+                                                &receipt,
+                                                &runtime_inputs,
+                                                brand,
+                                                declaration_facts,
+                                                NormalCallableSemanticPackageMode::Installed(
+                                                    package,
+                                                ),
+                                                Some(source),
+                                                &mut preflight_static_result_publication_owner,
+                                                &import_rows,
+                                                binding,
+                                                callable_loop_root_scope,
+                                            )
+                                        })
+                                        .map_err(|error| {
+                                            NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
+                                                format!("[mir/script-pre-effect/rebind] {error:?}").into(),
+                                            )
+                                        })
+                                        .and_then(|result| result)
                                 })
                                 .map_err(|error| {
                                     NormalDefaultRootCatalogLifecycleErrorV1::ScriptSemanticSeal(
-                                        format!("[mir/script-pre-effect/rebind] {error:?}").into(),
+                                        format!("[mir/script-pre-effect/source-loan] {error:?}").into(),
                                     )
-                                })?,
+                                })
+                                .and_then(|result| result),
                             (Some(package), None) => finish_normal_default_root_after_pre_effect_bind(
                                 builder,
                                 work,
@@ -570,11 +584,20 @@ impl ModuleBuilderInvocationSessionV1 {
                         }
                 };
                 match installed_package.as_ref() {
-                    Some(package) => source_backed_root_execution
-                        .expect("source-backed package retained its pre-effect root projection")
-                        .consume_lowering_view_once(|expansion| {
-                            lower_with_expansion(package.source_ast(), expansion)
-                        }),
+                    Some(package) => package
+                        .with_normal_program_source_loan(|loan| {
+                            source_backed_root_execution
+                                .expect("source-backed package retained its pre-effect root projection")
+                                .consume_lowering_view_once(|expansion| {
+                                    lower_with_expansion(loan.program(), expansion)
+                                })
+                        })
+                        .map_err(|error| {
+                            NormalDefaultRootCatalogLifecycleErrorV1::RootExpansion(
+                                format!("[mir/main-expansion/source-loan] {error:?}").into(),
+                            )
+                        })
+                        .and_then(|result| result),
                     None => {
                         let source_ast = compatibility_source
                             .as_ref()

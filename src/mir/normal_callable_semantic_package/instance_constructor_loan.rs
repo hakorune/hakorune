@@ -20,7 +20,13 @@ impl NormalCallableSemanticPackagePortV1<'_> {
             .ok_or_else(|| {
                 "[freeze:contract][mir/instance-constructor-semantic/missing-row]".to_owned()
             })?;
-        let input = row.lowering_input(self.installed.source_ast())?;
-        Ok(callback(input))
+        self.installed
+            .with_normal_program_source_loan(|loan| {
+                let input = row.lowering_input(loan.program())?;
+                Ok(callback(input))
+            })
+            .map_err(|error| {
+                format!("[freeze:contract][mir/instance-constructor-semantic/source] {error:?}")
+            })?
     }
 }
