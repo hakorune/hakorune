@@ -1,16 +1,18 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
-status = "accepted_fast_s0_shelf_split"
-observed_commit = "4f55c29544"
+status = "accepted_design_no_safe_slice"
+observed_commit = "4061c21f45"
 observed_at = "2026-08-26"
-implementation_permission = true
-permission_scope = "S0-SHELF-SPLIT only: behavior-neutral install.rs port impl move; Cataloged I0 and all semantic/target/loan changes remain forbidden."
+implementation_permission = false
+permission_scope = "No implementation permission: S0 shelf split is landed; enumerate all root-lineage old edges and the Cataloged I0 delete/retain matrix before any loan code."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-S0-SHELF-SPLIT"
+execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+completed_execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-S0-SHELF-SPLIT"
+next_execution_row = "none"
 
 [boundary]
-starts = "RawInvocationRootLineageV1::Cataloged/TopLevel/InstanceConstructor at brand_call_authority_v1"
-ends = "an existing exact target loan consumed into a total pre-effect Targeted/Rejected/Parked state immediately before drive_call_arguments_v1"
+starts = "RawInvocationRootLineageV1::{ScriptRoot, Main, Cataloged, TopLevel, InstanceConstructor, NestedBoxMethod} plus Unlocated/Relationless compatibility at brand_call_authority_v1"
+ends = "a total pre-effect disposition: TargetedExistingLoan, BoundedGcPreEffectTargeted (existing affine-loan-external route), KnownNonDirect, TypedReject, ParkedCompatibility, or an explicitly tracked CutoverBlockerOpen old edge immediately before drive_call_arguments_v1"
 includes = [
   "function_call_brand_source_demand.rs InstalledNonBrand lineage collapse",
   "function_call_preflight_route.rs caller/lineage consumption and Resolved fallthrough",
@@ -33,7 +35,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "Fast S0 shelf split: move only the NormalCallableSemanticPackagePortV1 impl from install.rs:504-738 into install/lowering_port.rs with ordinary mod wiring, mechanical child-path fixes, unchanged API/behavior/production callers, no #[path] bridge, and every touched/new source below 760 lines."
+smallest_next_slice = "Design-only I0-CATALOGED-AFFINE-LOAN-D0: enumerate all six RawInvocationRootLineageV1 disposition edges, including the current `_ => None` collapse, and freeze the Cataloged old-payload delete/retain matrix before introducing RawDirectCallDispositionLoanV1. S0 shelf split is landed; no semantic code yet."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -78,7 +80,7 @@ target_issue_rule = "A future Targeted scratch row must reference an existing sa
 lineage_mapper = "NormalCallableSemanticPackagePortAdapterV1 owns one private map_direct_call_inventory_to_raw_loan_v1 boundary. It consumes semantic owner/site/source identity/session/brand plus the already-installed source scope lineage and validates exactly one Cataloged/TopLevel/InstanceConstructor mapping through the existing selected batch map or constructor source_id. Missing/foreign/mixed/duplicate mapping aborts; it never reconstructs lineage from name, arity, box, symbol, or collector order."
 sealed_bundle = "Use private sealed lifecycle bundles, not destructurable tuples: IssuedCallablePackageWithScratchV1 { package, scratch } -> InstallableCallablePackageWithDirectCallsV1 { package, direct_calls } -> InstalledCallablePackageWithDirectCallsV1 { package, direct_calls }. Fields stay private; no Clone, Copy, into_parts, package-only getter, or public semantic receipt; mark bundles #[must_use]."
 atomic_handoff = "The selected lifecycle consumes the whole private bundle at each boundary: issue creates IssuedCallablePackageWithScratchV1; seal_direct_call_handoff consumes it and returns either InstallableCallablePackageWithDirectCallsV1 or an error with no install; install consumes that bundle and returns InstalledCallablePackageWithDirectCallsV1 until begin_lowering. Scratch consumption and loan creation are one atomic operation, so scratch-consumed-without-loan is impossible."
-lifecycle = "same Shadow traversal -> IssuedCallablePackageWithScratchV1 -> owner/site/session/brand and finite disposition validation -> atomic seal_direct_call_handoff -> reject before prepare_install if incomplete -> InstallableCallablePackageWithDirectCallsV1 -> install -> InstalledCallablePackageWithDirectCallsV1 -> begin_lowering lends the loan through a scoped &mut raw-port reborrow -> exact site take_once -> TargetedExistingLoan only lowers arguments -> MirInstruction::call -> adapter completion proves zero residual rows."
+lifecycle = "same Shadow traversal -> IssuedCallablePackageWithScratchV1 -> owner/site/session/brand and finite disposition validation -> atomic seal_direct_call_handoff -> reject before prepare_install if incomplete -> InstallableCallablePackageWithDirectCallsV1 -> install -> InstalledCallablePackageWithDirectCallsV1 -> begin_lowering lends the loan through a scoped &mut raw-port reborrow -> exact site take_once -> TargetedExistingLoan consumes the affine loan and lowers arguments -> MirInstruction::call -> adapter completion proves zero residual rows. BoundedGcPreEffectTargeted is the existing GC route outside this loan and is not rewrapped."
 mapper_timing = "map_direct_call_inventory_to_raw_loan_v1 runs before the adapter instance is constructed, in an owner-specific sibling such as builder/normal_callable_semantic_loan_port/direct_call_handoff.rs. The adapter instance receives only the installed wrapper; it is not the pre-install mapper owner."
 raw_port_reborrow = "RawInvocationChildPortV1 receives Option<&mut RawDirectCallDispositionLoanV1> and reborrow() passes self.direct_call_dispositions.as_deref_mut() into recursive child frames. No Clone, Copy, Rc, Arc, RefCell, copied ledger, or per-child loan is permitted."
 cataloged_first_cell = "The first future code cell does not depend on SelectedCallable Shadow observation or semantic scratch. It wraps the existing production Cataloged preflight result Callee in RawDirectCallDispositionLoanV1, replaces the direct unguarded handoff, proves take-once/residual-zero, and preserves the landed BuiltinGlobal > CurrentOwnerStatic > LocalValue > Extern > UniqueOtherStatic > TypedReject behavior."
@@ -113,15 +115,18 @@ states = [
   "RawLoanConsumed",
   "RawLoanIncomplete",
   "RawLoanExhausted",
+  "SourceBackedRelationlessEntry",
   "CallerNoneCollapsed",
   "PhysicalRelationConflict",
   "PhysicalRelationMissing",
   "TypedRejectBeforeArguments",
   "ParkedRawCompatibility",
   "TargetedExistingLoan",
+  "BoundedGcPreEffectTargeted",
+  "CutoverBlockerOpen",
   "ResolvedFallthroughForbidden",
 ]
-terminal_policy = "ShadowCallObserved requires OwnerSiteSessionBrandMatched and one finite disposition. DispositionReady may only enter atomic scratch-to-loan construction. KnownNonDirectDisposition exits through its existing typed owner; ParkedCompatibility/ParkedRawCompatibility are explicit outside terminals. RawLoanIncomplete and every missing/foreign/duplicate/ambiguous/collapsed/source-only failure reach PackageAbortBeforeInstall or TypedRejectBeforeArguments. RawLoanInstalled requires exact-site take_once; RawLoanConsumed authorizes exactly one TargetedExistingLoan argument descent and Call; adapter completion reaches RawLoanExhausted. Only TargetedExistingLoan crosses into ordinary argument descent. ResolvedFallthroughForbidden and residual loan rows are guard failures, never terminals."
+terminal_policy = "ShadowCallObserved requires OwnerSiteSessionBrandMatched and one finite disposition. DispositionReady may only enter atomic scratch-to-loan construction. SourceBackedRelationlessEntry is nonterminal and must take one of its five explicit compatibility sub-branches. KnownNonDirectDisposition exits through its existing typed owner; ParkedCompatibility/ParkedRawCompatibility are explicit outside terminals. RawLoanIncomplete and every missing/foreign/duplicate/ambiguous/collapsed/source-only failure reach PackageAbortBeforeInstall or TypedRejectBeforeArguments. RawLoanInstalled requires exact-site take_once; RawLoanConsumed authorizes exactly one TargetedExistingLoan argument descent and Call; adapter completion reaches RawLoanExhausted. BoundedGcPreEffectTargeted is a retained existing GC path outside the affine loan. Only TargetedExistingLoan crosses the new ordinary loan boundary. ResolvedFallthroughForbidden and residual loan rows are guard failures, never terminals."
 
 [subtasks]
 entrance_census = "Classify SelectedCallable, InstanceConstructor, and the older normal_callable_semantic_source ingress as production, compatibility, or caller-zero with finite evidence; raw Builder remains a consumer/bridge."
@@ -145,11 +150,17 @@ s0_shape = "Fast implementation row: move the NormalCallableSemanticPackagePortV
 i0_cataloged = "First implementation cell only: move the already-issued Cataloged Callee into RawDirectCallDispositionLoanV1, delete the old Targeted { callee, arguments } direct payload, preserve BuiltinGlobal > CurrentOwnerStatic > LocalValue > Extern > UniqueOtherStatic > TypedReject, and prove take_once/residual-zero. No Shadow, Selected, TopLevel, Constructor, profile widening, or Call schema."
 i1_observation = "One atomic production family: Shadow observation -> DirectCallInventoryScratchV1 -> owner/site/source/session/brand co-seal -> unique lineage mapping -> RawDirectCallDispositionLoanV1 or typed terminal -> pre-install abort on incomplete inventory. Scratch-only publication is forbidden."
 i2_installed_loan = "Consume the installed wrapper into begin_lowering and lend RawDirectCallDispositionLoanV1 as &mut through RawInvocationChildPortV1::reborrow; exact-site take_once is the only raw target operation and completion requires zero residual rows."
-i3_promotion = "Promote Cataloged, then only independently accepted exact-relation rows (GC, exact TopLevel self/sibling, other Selected, InstanceConstructor ordinary relation). Source-only TopLevel/Constructor remains reject/park."
+i3_promotion = "Promote Cataloged, then only independently accepted exact-relation rows (exact TopLevel self/sibling, other Selected, InstanceConstructor ordinary relation); the landed GC rows remain a separate BoundedGcPreEffectTargeted owner and are not borrowed into this affine loan. Source-only TopLevel/Constructor remains reject/park."
 ret_source = "After all installed lineages are total, delete caller=None collapse, Resolved, post-argument resolve/unique-static/tail recovery, name-Const target carrier, and legacy Call publication in one retirement family."
 first_code_cell = "Only after D0-SIG/S0/I0 gates close: the Cataloged preflight Callee direct handoff is consumed once through RawDirectCallDispositionLoanV1 and the old direct payload is absent. This cell does not use Shadow observation, open SelectedCallable, add a general index, change Cataloged precedence, delete Resolved, or change Call schema."
 selected_cells = "Then admit one Selected or Constructor production edge per bounded row, each with exact relation, positive/negative/parity, registered guard, and old-edge deletion."
 retirement = "After installed source-backed callers are total, delete caller=None -> Resolved, post-argument resolve/unique-static/tail/name-Const/legacy-Call edges; Method(None)/methodize and mandatory-Callee remain later atomic rows."
+
+[cutover_stages]
+stage_1_design_close = "Current: close Row B/D1B design by enumerating all six lineage families plus Unlocated/Relationless compatibility, replacing the wildcard disposition on paper, and freezing old-edge delete/retain/guard ownership. No code permission until this matrix is accepted."
+stage_2_producer_disposition = "Next: dispose the four Method(None) producer lanes producer-first. Static routes keep qualified Global, instance routes require Method with a real receiver, and missing receiver is a typed reject; no name/arity/methodize synthesis or backend repair. MirCall/CallFlags retirement is a separate preceding BoxShape row."
+stage_3_atomic_schema = "Last: only after producer/recovery/terminal consumers are closed, atomically change Call to mandatory Callee and remove func/Option<Callee>/INVALID sentinels, then retire impossible-state guards."
+stage_order_guard = "The three stages are ordered; a schema cutover cannot be used to hide an unresolved producer or recovery edge, and producer disposal cannot be claimed from text-only caller-zero evidence."
 
 [card_graph]
 active_owner = "this root-lineage exact-target loan card is the sole active semantic integration owner"
@@ -179,7 +190,7 @@ unknown = "Until every remaining row has a named same-session relation and negat
 [exact_target_matrix]
 cataloged_self = "same-brand VerifiedSameModuleCallableDeclarationCatalogV1 current-owner exact row -> TargetedExistingLoan"
 cataloged_sibling = "same-brand static_candidates(name, arity) with exactly one canonical key -> TargetedExistingLoan; zero/multiple/foreign -> reject"
-gc_builtin = "landed gc_collect/gc_stats typed owner -> TargetedExistingLoan; no general builtin inference follows"
+gc_builtin = "landed gc_collect/gc_stats typed owner -> BoundedGcPreEffectTargeted through existing PreparedRaw Targeted; affine-loan external and no general builtin inference follows"
 local_value = "Cataloged first-cell parity retains the existing variable_map -> CallTarget::Value -> Callee::Value issuer as RetainGuarded transitional behavior. It is not package semantic authority; non-Cataloged or future general rows without a source-bound callable binding relation reject/park."
 explicit_extern = "Cataloged first-cell parity retains existing CallName classification -> Callee::Extern behavior as RetainGuarded transitional behavior. The exact source-site symbol relation remains ASTNode::ExplicitExternCall-only; non-Cataloged bare FunctionCall cannot borrow it."
 top_level = "SelectedTopLevelFunctionKeyV1 is source identity only; no exact target relation today -> reject/park"
@@ -205,24 +216,33 @@ design = [
 negative = [
   "no code, fixture, new receipt, target inference, collector-authority change, or backend behavior change",
 ]
-implementation_gate = "S0-only permission=true; prove ordinary module wiring, unchanged public/restricted signatures and production caller census, mechanical path correctness, install.rs/lowering_port.rs each <760, rustfmt/diff-check, and one focused compile gate. RawDirectCallDispositionLoanV1, sealed bundle, bridge, old Targeted payload deletion, semantic observation, Cataloged I0, and all target/recovery changes remain forbidden until a later explicit row."
-guard = "future guard must prove one exact target loan or typed terminal for every admitted root lineage before drive_call_arguments_v1; InstalledNonBrand caller=None and Resolved fallthrough must be zero"
+implementation_gate = "false; S0 shelf split is landed with ordinary module wiring, unchanged API/behavior/callers, install.rs=503 and lowering_port.rs=253, fmt/check, quick compile, and focused test 1/1. Before Cataloged I0, the six-lineage old-edge matrix, `_ => None` replacement policy, exact delete/retain set, and focused guard owner must be accepted. RawDirectCallDispositionLoanV1, sealed bundle, bridge, old Targeted payload deletion, semantic observation, and all target/recovery changes remain forbidden."
+guard = "future guard must prove one exact target loan or typed terminal for every admitted root lineage before drive_call_arguments_v1; source-backed ordinary non-GC caller=None and unapproved Resolved fallthrough must be zero, while the two explicitly named non-unified GC BoundedGcPreEffectTargeted rows remain retained evidence outside the affine loan"
 
 [old_edge_delete_set]
-source_backed_collapse = "function_call_brand_source_demand.rs: delete TopLevel/InstanceConstructor -> InstalledNonBrand { caller: None } after affine lineage/disposition loan replaces it"
+source_backed_collapse = "function_call_brand_source_demand.rs: delete every located non-Cataloged/ non-Constructor `_ => None` collapse (ScriptRoot, Main, TopLevel, NestedBoxMethod) and make Constructor/Brand arms explicit; Cataloged keeps its exact caller relation"
+source_backed_no_ledger = "function_call_brand_source_demand.rs:69-70 source-backed RawInvocationChildPortV1 with callable_ledger=None -> SourceBackedRelationlessEntry; classify its five downstream sub-branches explicitly, with only ordinary/Resolved as CutoverBlockerOpen, and forbid canonical success or recovery re-entry."
 source_backed_resolved = "function_call_preflight_route.rs: delete installed source-backed caller=None -> PreparedRawOrdinaryFunctionCompletionV1::Resolved"
 late_recovery = "calls/build.rs and static_resolution.rs: delete installed source-backed Resolved -> arguments -> resolve_call_target/post-argument unique-static/tail/name-Const/legacy Call; retain the distinct Cataloged pre-effect same-catalog UniqueOtherStatic row and keep explicitly owned compatibility rows until their finite census closes"
 package_bypass = "normal_callable_semantic_package install/port: delete publication/completion success that omits direct-call companion completeness and residual-zero validation"
 cataloged_direct_payload = "first Cataloged cell: delete PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments } direct handoff and replace it with exact-site RawDirectCallDispositionLoanV1 take; old direct payload must be zero"
 inline_lineage_mappers = "normal_callable_semantic_loan_port.rs and related package/constructor scopes: delegate inline Cataloged/TopLevel/InstanceConstructor lineage construction to the sole pre-adapter mapper; no second mapper or name/arity reconstruction"
 retain = "Cataloged exact-target and GC bounded issuers, Brand/special/ExplicitExtern/ASTNode::Call typed routes, Main exact-i64, FullFunction, and explicit RawCompatibility remain behaviorally unchanged in the first cells"
+lineage_totality = "The delete/retain inventory must cover all six RawInvocationRootLineageV1 families—ScriptRoot, Main, Cataloged, TopLevel, InstanceConstructor, and NestedBoxMethod—from brand_call_authority_v1 to terminal preflight. The current `_ => None` in function_call_brand_source_demand.rs is not a disposition: each family must receive an explicit TargetedExistingLoan, BoundedGcPreEffectTargeted, KnownNonDirect, TypedReject, ParkedCompatibility, or CutoverBlockerOpen outcome. No wildcard may hide a producer, drop lineage, or re-enter Resolved."
+producer_matrix = "Before I0, record for each family the issuer/consumer file, source identity preservation, exact target authority, old edge to delete or retain, and guard/evidence owner. A family with no exact relation is explicitly reject/park; it is not converted to Global, Value, constructor symbol, or legacy recovery."
+brand_authority_wildcard = "Delete the `_ => None` fold in function_call_brand_source_demand.rs by replacing the eight family/compatibility rows plus their 60 explicit authority/preflight sub-branches; an unlisted lineage or branch is a guard failure, not an implicit compatibility state."
+source_location_loss_gate = "UnlocatedCompatibility preserves expected lineage for diagnostics but terminates before source-backed target issuance; caller=None is not a successful disposition."
+relationless_compatibility_resolved = "RawLegacyChildLoweringPortV1 remains an explicit compatibility owner; ordinary Resolved is not an accepted terminal and any current re-entry is a tracked retirement edge."
+preflight_none_to_resolved = "Delete source-backed ordinary InstalledNonBrand { caller: None } -> Resolved for located ScriptRoot/Main/TopLevel/InstanceConstructor/NestedBoxMethod; explicit InstalledConstructor and typed special/str routes remain KnownNonDirect, the two non-unified GC rows remain BoundedGcPreEffectTargeted evidence outside the affine loan, and Cataloged is the only first-cell ordinary loan."
+unified_recovery_and_legacy_emit = "Track calls/build.rs, static_resolution.rs, unified_emitter.rs, emit.rs, and compat_entrypoints.rs by incoming lineage; retain only explicitly named compatibility rows and forbid new production entry."
+typed_owner_retains = "Retain Script direct-static, Main exact-i64/FullFunction, GC, Brand/special/ExplicitExtern/ASTNode::Call, and raw compatibility owners as separate cohorts; they do not authorize ordinary Cataloged loan widening."
 
 [source_budget]
 observed_lines = "function_call_brand_source_demand.rs=124, function_call_preflight_route.rs=553, calls/build.rs=573, normal_callable_semantic_source.rs=694, raw_expression_dispatch/mod.rs=706, normal_callable_semantic_loan_port.rs=710, recursive_child_lowering.rs=731, raw_invocation_source_transport.rs=778, normal package issuer.rs=356, install.rs=738"
-placement = "S0 first performs a behavior-neutral path-preserving split: move the NormalCallableSemanticPackagePortV1 impl from normal_callable_semantic_package/install.rs (~738 lines) to install/lowering_port.rs via an ordinary mod declaration, keeping install.rs ~560 and the child ~260-275. Then put future semantic scratch in a small sibling under normal_callable_semantic_package, raw affine loan in a small builder/calls sibling, mapper in the owner-specific loan-port sibling, and recursive reborrow in a child-lowering sibling. Do not add semantic code to the 778-line transport, 706-line dispatcher, 710-line loan port, 731-line recursive child, or the pre-split install owner; no new #[path] bridge. If the 778-line transport must change, first perform a behavior-neutral path-preserving split. Every touched/new source remains below 760, with 800 as hard stop and no compression escape."
+placement = "S0 landed: install.rs=503 and install/lowering_port.rs=253 after the behavior-neutral port move. Future semantic scratch belongs in a small sibling under normal_callable_semantic_package, raw affine loan in a small builder/calls sibling, mapper in the owner-specific loan-port sibling, and recursive reborrow in a child-lowering sibling. Do not add semantic code to the 778-line transport, 706-line dispatcher, 710-line loan port, 731-line recursive child, or the split install owner; no new #[path] bridge. If the 778-line transport must change, first perform a behavior-neutral path-preserving split. Every touched/new source remains below 760, with 800 as hard stop and no compression escape."
 
 [proof_plan]
-positive = "first implementation cell only: Cataloged existing target and landed GC bounded target; exact site/owner/session/brand -> take_once -> arguments once -> canonical Call once"
+positive = "first implementation cell only: Cataloged existing target -> affine loan exact site/owner/session/brand -> take_once -> arguments once -> canonical Call once; landed GC remains BoundedGcPreEffectTargeted parity outside this loan"
 observation_positive = "Selected, TopLevel, and InstanceConstructor may prove observation, owner/site/source identity, scratch completeness, and typed pre-effect disposition without Call publication; this is not target acceptance"
 negative = "TopLevel/InstanceConstructor without a distinct exact callable relation, closed-gate call, missing/foreign/mixed-brand/duplicate/ambiguous/constructor-only/lineage-collapse, loan duplicate, loan leftover, second consume, package install without complete inventory, and any source-backed Resolved re-entry"
 future_promotion = "Promote one Selected/TopLevel/InstanceConstructor row to positive Call execution only in a later bounded row after its source-bound exact relation is independently accepted"
@@ -262,7 +282,7 @@ next_design_tasks = [
 install_boundary = "Adopt C': normal_callable_semantic_package/install.rs keeps prepare_install/commit private and owns semantic completeness/catalog publication. The same module owns with_normal_callable_install_once and exposes it only as pub(in crate::mir); package/mod.rs re-exports that bridge with the same restricted visibility. The bridge transfers the installed package by value into a Builder-private sealed bundle with RawDirectCallDispositionLoanV1. A bare package-only install result is never returned to a caller."
 mapper_owner = "The sole mapper owner is the private sibling builder/normal_callable_semantic_loan_port/direct_call_handoff.rs, invoked by the C' callback before NormalCallableSemanticPackagePortAdapterV1::new. The adapter instance is a consumer of the installed bundle, not the mapper authority."
 raw_loan_owner = "RawDirectCallDispositionLoanV1 remains under Builder/calls and is never moved into the semantic package or a neutral crate. BuilderInstallConsumerV1 owns the raw loan field by value before sealing; seal(self, installed, token) moves that single field into the Builder bundle. Lowering lends only a short Option<&mut RawDirectCallDispositionLoanV1> to RawInvocationChildPortV1."
-callback_closure = "The C' bridge is a one-shot opaque consumer/token surface in install.rs, beside private prepare_install/commit. It accepts the whole installed package and returns only the Builder bundle/result. It must not expose prepare_install, commit, package-only getters, into_parts, Clone, or a second semantic receipt. Exact visibility is fixed by d0_sig_visibility below; this remains design-only until S0 is complete."
+callback_closure = "The C' bridge is a one-shot opaque consumer/token surface in install.rs, beside private prepare_install/commit. It accepts the whole installed package and returns only the Builder bundle/result. It must not expose prepare_install, commit, package-only getters, into_parts, Clone, or a second semantic receipt. Exact visibility is fixed by d0_sig_visibility below; the bridge remains future I2 work even though the S0 shelf is landed."
 rejected_shapes = "Builder bundle plus public pub(crate) package install is rejected; package-owned bundle containing raw lineage/loan is rejected; a bare callback returning InstalledNormalCallableSemanticPackageV1 is rejected unless immediately consumed into the Builder-private bundle within the same one-shot boundary."
 
 [d0_sig_callback]
@@ -282,7 +302,7 @@ consumer = "BuilderInstallConsumerV1 is pub(in crate::mir) by type name, constru
 bundle = "BuilderPrivateInstalledCallableBundleV1 is pub(in crate::mir) by type name, with Builder-private fields/constructor, #[must_use], no Clone/Copy/into_parts/package-only getter; begin_lowering and complete are pub(in crate::mir::builder) and enforce the single mutable loan lifetime."
 token = "BuilderInstallTokenV1 is pub(in crate::mir) only as a capability type named by the bridge; construction and fields remain install.rs-private, with no Clone/Copy and one consumption by seal."
 loan = "RawDirectCallDispositionLoanV1 remains Builder-private and is held by the consumer/bundle; it never appears in the package bridge signature, package fields, or a neutral crate."
-next_row = "D0-SIG-CLOSE-F is design-accepted. The next bounded row is S0-SHELF-SPLIT: move the NormalCallableSemanticPackagePortV1 impl (current install.rs ~504-738) to install/lowering_port.rs, preserve API/behavior/callers, avoid #[path], and keep install.rs below 760 before any Cataloged I0 code."
+next_row = "D0-SIG-CLOSE-F and S0-SHELF-SPLIT are closed. The next bounded design row is I0-CATALOGED-AFFINE-LOAN-D0: enumerate all six root-lineage old edges and wildcard collapses, then freeze the Cataloged old-payload delete/retain matrix before any RawDirectCallDispositionLoanV1 code."
 
 [s0_implementation]
 scope = "BoxShape-only path-preserving refactor. Source boundary is install.rs:504-738; terminal is the same NormalCallableSemanticPackagePortV1 API and all existing callers."
@@ -297,6 +317,179 @@ delete_set = [
 ]
 non_claims = "No install bridge, package lifecycle change, direct-call loan, Callee movement, Targeted payload change, observation, Cataloged precedence, Resolved retirement, or backend behavior."
 acceptance = "install.rs ~505 lines; lowering_port.rs ~255-270; both <760; `mod lowering_port;` is the only parent wiring; existing restricted/public signatures remain unchanged; production caller census is unchanged; rustfmt and diff-check pass; one focused compile gate passes; no #[path] added."
+status = "landed"
+commit = "4061c21f45"
+evidence = "install.rs=503 lines; install/lowering_port.rs=253 lines; cargo fmt --all -- --check; CARGO_BUILD_JOBS=4 cargo check --profile quick; exact focused test mir::normal_callable_semantic_package::tests::consuming_install_and_port_enforce_exact_selected_coverage = 1 passed; pointer guard and diff-check green."
+
+[i0_design]
+execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+source_boundary = "RawInvocationRootLineageV1 at function_call_brand_source_demand.rs -> function_call_preflight_route.rs -> build.rs/static_resolution.rs terminal; includes all six lineage families and excludes JSON, VM, backend, ASTNode::Call, ExplicitExtern, Main exact-i64, and FullFunction cohorts."
+required_before_code = "Enumerate every production edge and wildcard collapse; distinguish old edge delete, guarded retain, typed reject, and ParkedSealed; name one canonical issuer and one fail-fast terminal for each; prove Cataloged old Targeted { callee, arguments } is the sole first-cell payload to delete. Six family dispositions must be explicit, source-backed ordinary non-GC caller=None must be zero, the no-ledger source-backed edge must be explicit, UnlocatedCompatibility must reject/park, RelationlessCompatibility must never be a source-backed success, and every Resolved/name-Const/legacy-emission re-entry must be tracked by family."
+non_claims = "No general relationless target issuance, no Method(None) closure, no mandatory-Callee schema cutover, no late recovery deletion outside explicitly accepted rows, and no chronic-debt ledger expansion in CURRENT_STATE."
+
+[lineage_edge_matrix]
+families = [
+  "ScriptRoot",
+  "Main",
+  "Cataloged",
+  "TopLevel",
+  "InstanceConstructor",
+  "NestedBoxMethod",
+]
+script_root = "Issuer: program_root_lowering.rs/raw_invocation_source_transport.rs; unlocated -> TypedReject, located constructor/special/str -> KnownNonDirect, installed-nonbrand gc_collect/gc_stats -> BoundedGcPreEffectTargeted (affine-loan外), other located ordinary None/Resolved -> CutoverBlockerOpen; ordinary catalog loan: no. Retain separate Script direct-static owner."
+main = "Issuer: recursive_child_lowering.rs; constructor/special/str -> KnownNonDirect, installed-nonbrand gc_collect/gc_stats -> BoundedGcPreEffectTargeted (affine-loan外), other ordinary None/Resolved -> CutoverBlockerOpen; exact-i64/FullFunction are separate owners and cannot be borrowed sideways."
+cataloged = "Issuer: normal_cataloged_box_method_lowering.rs plus same-brand catalog preflight; constructor/special/str -> KnownNonDirect, exact ordinary -> TargetedExistingLoan, missing/foreign/duplicate/ambiguous ordinary -> TypedReject. First I0 positive only; delete direct Targeted payload after loan seam."
+top_level = "Issuer: normal_top_level_function_admission.rs/normal_callable_semantic_loan_port.rs; constructor/special/str -> KnownNonDirect, installed-nonbrand gc_collect/gc_stats -> BoundedGcPreEffectTargeted (affine-loan外), other ordinary wildcard None/Resolved -> CutoverBlockerOpen until a distinct exact relation; never synthesize Global from name/arity/symbol."
+instance_constructor = "Issuer: normal_instance_constructor_admission.rs; constructor/special/str -> KnownNonDirect, installed-nonbrand gc_collect/gc_stats -> BoundedGcPreEffectTargeted (affine-loan外), other ordinary wildcard None/Resolved -> CutoverBlockerOpen; constructor identity is not an ordinary Call target and needs a later exact relation."
+nested_box_method = "Issuer: nested_box_method_source.rs; unlocated -> TypedReject, located constructor/special/str -> KnownNonDirect, installed-nonbrand gc_collect/gc_stats -> BoundedGcPreEffectTargeted (affine-loan外), other located ordinary None/Resolved -> CutoverBlockerOpen; legacy method symbols are non-authority."
+unlocated_compatibility = "raw_invocation_source_transport.rs preserves expected lineage but loses source location; current_source_context.site() raises [freeze:contract][callable-brand/missing-source-site] -> TypedReject. It is not generic None and cannot enter source-backed Resolved."
+relationless_compatibility = "RawLegacyChildLoweringPortV1 has no lineage and enters RelationlessCompatibility; source-backed callable_ledger=None first enters SourceBackedRelationlessEntry, then brand valid/arity-mismatch -> KnownNonDirect/TypedReject, non-brand special/str -> KnownNonDirect, non-brand ordinary -> Resolved/CutoverBlockerOpen. The entry is nonterminal and none is canonical source-backed success."
+wildcard_policy = "function_call_brand_source_demand.rs:75-80 `Cataloged(_) => Some(caller), _ => None` is an open CutoverBlocker until replaced by explicit family arms or an explicit finite terminal classifier."
+
+[lineage_edge_matrix.branch_dispositions]
+unlocated = "RawInvocationChildPortV1 current_source_context.site() missing -> [freeze:contract][callable-brand/missing-source-site] -> TypedReject; no caller=None success or preflight route."
+source_backed_no_callable_ledger = "RawInvocationChildPortV1 + source-backed context but callable_ledger=None -> SourceBackedRelationlessEntry (nonterminal compatibility entry); dispatches only to the five explicit source-backed relationless sub-branches below and never counts as canonical success."
+source_backed_no_ledger_brand_valid = "SourceBackedRelationlessEntry + brand-declared name + exactly one argument -> Brand/Ready -> KnownNonDirect; compatibility owner only."
+source_backed_no_ledger_brand_arity = "SourceBackedRelationlessEntry + brand-declared name + argument count != one -> Brand/ArityMismatch -> TypedReject."
+source_backed_no_ledger_special = "SourceBackedRelationlessEntry + non-brand TypeOp/Math/FastMem -> typed special route -> KnownNonDirect; compatibility owner only."
+source_backed_no_ledger_str = "SourceBackedRelationlessEntry + non-brand str/1 -> StrNormalization -> KnownNonDirect; compatibility owner only."
+source_backed_no_ledger_ordinary = "SourceBackedRelationlessEntry + non-brand ordinary -> Resolved -> CutoverBlockerOpen; this is the only source-backed no-ledger retirement blocker."
+callable_ledger_missing_source_context = "RawInvocationChildPortV1 + callable_ledger=Some but current_source_context=None -> [freeze:contract][callable-brand/missing-source-context] -> TypedReject."
+script_root_installed_constructor = "ScriptRoot + valid ledger constructor row -> InstalledConstructor -> Brand -> KnownNonDirect; retain Script/constructor owner, ordinary loan forbidden."
+script_root_installed_constructor_invalid = "ScriptRoot + constructor call-site/name/operand drift -> callable-brand typed error -> TypedReject; no Brand route."
+script_root_installed_constructor_arity = "ScriptRoot + valid constructor row but wrong argument count -> brand/constructor-arity -> TypedReject; no argument descent for the ordinary loan."
+script_root_installed_nonbrand_special = "ScriptRoot + InstalledNonBrand(caller=None) + TypeOp/Math/FastMem -> typed special route -> KnownNonDirect; retain typed special owner."
+script_root_installed_nonbrand_str = "ScriptRoot + InstalledNonBrand(caller=None) + str/1 -> StrNormalization -> KnownNonDirect; no ordinary target loan."
+script_root_installed_nonbrand_gc = "ScriptRoot + InstalledNonBrand(caller=None) + gc_collect/gc_stats with non-unified GC classification -> existing typed GC Global/PreparedRaw Targeted -> BoundedGcPreEffectTargeted (affine-loan外); retain bounded GC owner only."
+script_root_installed_nonbrand_ordinary = "ScriptRoot + InstalledNonBrand(caller=None) + ordinary -> Resolved -> CutoverBlockerOpen; delete post-argument recovery/name-Const/legacy re-entry."
+main_installed_constructor = "Main + valid ledger constructor row -> InstalledConstructor -> Brand -> KnownNonDirect; exact-i64/FullFunction remain separate cohorts."
+main_installed_constructor_invalid = "Main + constructor call-site/name/operand drift -> callable-brand typed error -> TypedReject; no Brand route."
+main_installed_constructor_arity = "Main + valid constructor row but wrong argument count -> brand/constructor-arity -> TypedReject; no ordinary target loan."
+main_installed_nonbrand_special = "Main + InstalledNonBrand(caller=None) + TypeOp/Math/FastMem -> typed special route -> KnownNonDirect; no sideways exact-i64 loan."
+main_installed_nonbrand_str = "Main + InstalledNonBrand(caller=None) + str/1 -> StrNormalization -> KnownNonDirect; ordinary lane remains separate."
+main_installed_nonbrand_gc = "Main + InstalledNonBrand(caller=None) + gc_collect/gc_stats with non-unified GC classification -> existing typed GC Global/PreparedRaw Targeted -> BoundedGcPreEffectTargeted (affine-loan外); retain bounded GC owner and do not borrow Main exact-i64."
+main_installed_nonbrand_ordinary = "Main + InstalledNonBrand(caller=None) + ordinary -> Resolved -> CutoverBlockerOpen; delete ordinary wildcard/recovery edge, retain exact-i64/FullFunction owners."
+cataloged_installed_constructor = "Cataloged + valid ledger constructor row -> InstalledConstructor -> Brand -> KnownNonDirect; constructor row never replaces ordinary catalog target."
+cataloged_installed_constructor_invalid = "Cataloged + constructor call-site/name/operand drift -> callable-brand typed error -> TypedReject; no Brand route."
+cataloged_installed_constructor_arity = "Cataloged + valid constructor row but wrong argument count -> brand/constructor-arity -> TypedReject; no ordinary target loan."
+cataloged_installed_nonbrand_special = "Cataloged + InstalledNonBrand(caller=Some) + TypeOp/Math/FastMem -> typed special route -> KnownNonDirect; catalog ordinary precedence is not entered."
+cataloged_installed_nonbrand_str = "Cataloged + InstalledNonBrand(caller=Some) + str/1 -> StrNormalization -> KnownNonDirect; no loan for normalization."
+cataloged_ordinary_dispatch = "Cataloged + InstalledNonBrand(caller=Some) + ordinary splits into the five existing precedence issuers below; every successful issuer is TargetedExistingLoan for I0 and every failure is TypedReject."
+cataloged_builtin_global = "Cataloged ordinary + BuiltinGlobal classification -> resolve_catalog_call_target_v1(Global(name)) -> TargetedExistingLoan; retain typed builtin owner, no name inference beyond classification."
+cataloged_current_owner_static = "Cataloged ordinary + current-owner exact declaration/arity -> resolve_catalog_call_target_v1(Global(mir_symbol_projection)) -> TargetedExistingLoan; arity mismatch -> TypedReject."
+cataloged_local_value = "Cataloged ordinary + variable_map callable binding -> resolve_catalog_call_target_v1(Value(value)) -> TargetedExistingLoan; RetainGuarded parity only, not general package authority."
+cataloged_extern = "Cataloged ordinary + Extern classification -> resolve_catalog_call_target_v1(Global(name)) -> TargetedExistingLoan; RetainGuarded parity only, not bare FunctionCall authority."
+cataloged_unique_other_static = "Cataloged ordinary + BareStaticRecoveryDecision::Unique -> resolve_catalog_call_target_v1(Global(mir_symbol_projection)) -> TargetedExistingLoan; unique pre-effect relation only."
+cataloged_ordinary_rejected = "Cataloged ordinary + foreign caller, current-owner arity mismatch, no candidate, or ambiguous candidates -> Rejected -> TypedReject; arguments/effects do not start."
+top_level_installed_constructor = "TopLevel + valid ledger constructor row -> InstalledConstructor -> Brand -> KnownNonDirect; constructor identity is not a callable target."
+top_level_installed_constructor_invalid = "TopLevel + constructor call-site/name/operand drift -> callable-brand typed error -> TypedReject; no Brand route."
+top_level_installed_constructor_arity = "TopLevel + valid constructor row but wrong argument count -> brand/constructor-arity -> TypedReject; no ordinary target loan."
+top_level_installed_nonbrand_special = "TopLevel + InstalledNonBrand(caller=None) + TypeOp/Math/FastMem -> typed special route -> KnownNonDirect; source-only identity retained."
+top_level_installed_nonbrand_str = "TopLevel + InstalledNonBrand(caller=None) + str/1 -> StrNormalization -> KnownNonDirect; no Global synthesis."
+top_level_installed_nonbrand_gc = "TopLevel + InstalledNonBrand(caller=None) + gc_collect/gc_stats with non-unified GC classification -> existing typed GC Global/PreparedRaw Targeted -> BoundedGcPreEffectTargeted (affine-loan外); retain bounded GC owner, not TopLevel synthesis."
+top_level_installed_nonbrand_ordinary = "TopLevel + InstalledNonBrand(caller=None) + ordinary -> Resolved -> CutoverBlockerOpen; source-only until an independently issued exact relation exists."
+instance_constructor_installed_constructor = "InstanceConstructor + valid ledger constructor row -> InstalledConstructor -> Brand -> KnownNonDirect; retain constructor physical route."
+instance_constructor_installed_constructor_invalid = "InstanceConstructor + constructor call-site/name/operand drift -> callable-brand typed error -> TypedReject; no Brand route."
+instance_constructor_installed_constructor_arity = "InstanceConstructor + valid constructor row but wrong argument count -> brand/constructor-arity -> TypedReject; no ordinary target loan."
+instance_constructor_installed_nonbrand_special = "InstanceConstructor + InstalledNonBrand(caller=None) + TypeOp/Math/FastMem -> typed special route -> KnownNonDirect; constructor source is not ordinary Call authority."
+instance_constructor_installed_nonbrand_str = "InstanceConstructor + InstalledNonBrand(caller=None) + str/1 -> StrNormalization -> KnownNonDirect; no constructor-symbol target synthesis."
+instance_constructor_installed_nonbrand_gc = "InstanceConstructor + InstalledNonBrand(caller=None) + gc_collect/gc_stats with non-unified GC classification -> existing typed GC Global/PreparedRaw Targeted -> BoundedGcPreEffectTargeted (affine-loan外); retain bounded GC owner, not constructor synthesis."
+instance_constructor_installed_nonbrand_ordinary = "InstanceConstructor + InstalledNonBrand(caller=None) + ordinary -> Resolved -> CutoverBlockerOpen; delete ordinary re-entry and require a distinct exact relation for promotion."
+nested_box_method_installed_constructor = "NestedBoxMethod + valid ledger constructor row -> InstalledConstructor -> Brand -> KnownNonDirect; retain explicit constructor owner."
+nested_box_method_installed_constructor_invalid = "NestedBoxMethod + constructor call-site/name/operand drift -> callable-brand typed error -> TypedReject; no Brand route."
+nested_box_method_installed_constructor_arity = "NestedBoxMethod + valid constructor row but wrong argument count -> brand/constructor-arity -> TypedReject; no ordinary target loan."
+nested_box_method_installed_nonbrand_special = "NestedBoxMethod + InstalledNonBrand(caller=None) + TypeOp/Math/FastMem -> typed special route -> KnownNonDirect; legacy method symbol is non-authority."
+nested_box_method_installed_nonbrand_str = "NestedBoxMethod + InstalledNonBrand(caller=None) + str/1 -> StrNormalization -> KnownNonDirect; no methodize target."
+nested_box_method_installed_nonbrand_gc = "NestedBoxMethod + InstalledNonBrand(caller=None) + gc_collect/gc_stats with non-unified GC classification -> existing typed GC Global/PreparedRaw Targeted -> BoundedGcPreEffectTargeted (affine-loan外); retain bounded GC owner, not methodize."
+nested_box_method_installed_nonbrand_ordinary = "NestedBoxMethod + InstalledNonBrand(caller=None) + ordinary -> Resolved -> CutoverBlockerOpen; delete source-loss/late recovery re-entry."
+relationless_brand_valid = "RelationlessCompatibility + comp_ctx.is_brand_declared(name) + exactly one argument -> Brand/Ready -> KnownNonDirect; retain compatibility owner, never canonical ordinary success."
+relationless_brand_arity = "RelationlessCompatibility + comp_ctx.is_brand_declared(name) + argument count != one -> Brand/ArityMismatch -> TypedReject; no constructor argument descent."
+relationless_nonbrand_special = "RelationlessCompatibility + non-brand + TypeOp/Math/FastMem -> typed special route -> KnownNonDirect; compatibility owner only."
+relationless_nonbrand_str = "RelationlessCompatibility + non-brand + str/1 -> StrNormalization -> KnownNonDirect; no target authority."
+relationless_nonbrand_ordinary = "RelationlessCompatibility + non-brand + ordinary -> Resolved -> CutoverBlockerOpen; track retirement separately and never call it source-backed success."
+
+[[lineage_edge_matrix.rows]]
+lineage = "ScriptRoot"
+issuer = "program_root_lowering.rs:198-213 -> raw_invocation_source_transport.rs:135-150"
+brand_result = "UnlocatedCompatibility(expected_lineage=ScriptRoot), or located source-backed callable_ledger=None -> RelationlessCompatibility; no ordinary caller/site authority"
+preflight_terminal = "60-branch row summary: unlocated -> TypedReject; no-ledger source-backed -> SourceBackedRelationlessEntry (nonterminal; sub-branches below); valid constructor/special/str -> KnownNonDirect; bounded non-unified GC -> BoundedGcPreEffectTargeted (affine-loan外); other ordinary -> CutoverBlockerOpen."
+target_authority = "Script direct-static claim owner only; no ordinary FunctionCall relation"
+old_edge = "retain separate Script direct-static owner; delete generic None-to-Resolved/recovery re-entry when compatibility census closes"
+guard_owner = "raw invocation lineage/source-loss guard plus D1B all-lineage terminal guard"
+
+[[lineage_edge_matrix.rows]]
+lineage = "Main"
+issuer = "recursive_child_lowering.rs:477-494"
+brand_result = "UnlocatedCompatibility, located source-backed callable_ledger=None, or current wildcard None; exact-i64/FullFunction are separate cohorts"
+preflight_terminal = "60-branch row summary: no-ledger source-backed -> SourceBackedRelationlessEntry (nonterminal; sub-branches below); valid constructor/special/str -> KnownNonDirect; bounded non-unified GC -> BoundedGcPreEffectTargeted (affine-loan外); other ordinary -> CutoverBlockerOpen; exact-i64/FullFunction are separate owners."
+target_authority = "VerifiedCallableIndexV1 only for exact-i64/Main cohort; no sideways loan"
+old_edge = "retain exact-i64/FullFunction owners; delete ordinary wildcard collapse and any post-effect recovery re-entry"
+guard_owner = "D1B lineage guard plus existing index-none direct-call guard"
+
+[[lineage_edge_matrix.rows]]
+lineage = "Cataloged"
+issuer = "normal_cataloged_box_method_lowering.rs:31-41,88-98 -> catalog preflight"
+brand_result = "Located Some(CanonicalKey) with same-session brand/site relation"
+preflight_terminal = "60-branch row summary: five precedence issuers -> TargetedExistingLoan; constructor/special/str -> KnownNonDirect; missing/foreign/arity/ambiguous -> TypedReject."
+target_authority = "Existing same-brand catalog Callee; GC bounded issuer remains separate"
+old_edge = "I0 delete: PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments }; replace with exact-site affine loan take_once"
+guard_owner = "Cataloged affine-loan focused guard: one take, one argument descent, one canonical Call, zero residual"
+
+[[lineage_edge_matrix.rows]]
+lineage = "TopLevel"
+issuer = "normal_top_level_function_admission.rs:107-123 -> normal_callable_semantic_loan_port.rs:83-107"
+brand_result = "Located source identity but current authority arm folds to None, or callable_ledger=None enters RelationlessCompatibility"
+preflight_terminal = "60-branch row summary: no-ledger source-backed -> SourceBackedRelationlessEntry (nonterminal; sub-branches below); valid constructor/special/str -> KnownNonDirect; bounded non-unified GC -> BoundedGcPreEffectTargeted (affine-loan外); other ordinary -> CutoverBlockerOpen until an independent exact relation exists."
+target_authority = "No source name/arity/symbol synthesis; future exact relation must be independently issued"
+old_edge = "delete InstalledNonBrand { caller: None } -> Resolved -> late recovery; retain source observation only"
+guard_owner = "root-lineage matrix guard and source-backed-none-zero guard"
+
+[[lineage_edge_matrix.rows]]
+lineage = "InstanceConstructor"
+issuer = "normal_instance_constructor_admission.rs:451-479"
+brand_result = "Located constructor identity but current authority arm folds to None, or callable_ledger=None enters RelationlessCompatibility"
+preflight_terminal = "60-branch row summary: no-ledger source-backed -> SourceBackedRelationlessEntry (nonterminal; sub-branches below); valid constructor/special/str -> KnownNonDirect; bounded non-unified GC -> BoundedGcPreEffectTargeted (affine-loan外); other ordinary -> CutoverBlockerOpen; constructor-only is not ordinary Call."
+target_authority = "ConstructorSourceId/constructor owner only; no Global synthesis from constructor symbol"
+old_edge = "delete ordinary None-to-Resolved path; retain constructor demand/physical route and promote only via later exact ordinary relation"
+guard_owner = "constructor-vs-call boundary guard plus source-backed-none-zero guard"
+
+[[lineage_edge_matrix.rows]]
+lineage = "NestedBoxMethod"
+issuer = "nested_box_method_source.rs:115-130,134-188"
+brand_result = "Unlocated expected lineage, located source-backed callable_ledger=None, or located lineage currently folded by wildcard None"
+preflight_terminal = "60-branch row summary: unlocated -> TypedReject; no-ledger source-backed -> SourceBackedRelationlessEntry (nonterminal; sub-branches below); valid constructor/special/str -> KnownNonDirect; bounded non-unified GC -> BoundedGcPreEffectTargeted (affine-loan外); other ordinary -> CutoverBlockerOpen."
+target_authority = "No legacy symbol/name/arity authority; future exact same-brand relation only"
+old_edge = "delete source-loss/None-to-Resolved/recovery re-entry for ordinary lane; retain explicit compatibility owner until its census closes"
+guard_owner = "nested lineage/source-loss guard plus all-lineage recovery-zero evidence"
+
+[[lineage_edge_matrix.rows]]
+lineage = "UnlocatedCompatibility"
+issuer = "raw_invocation_source_transport.rs:321-367,494-529"
+brand_result = "Expected lineage preserved while source site is absent"
+preflight_terminal = "TypedReject at callable-brand/missing-source-site; no Parked or source-backed Resolved branch."
+target_authority = "None; source identity loss is not a target relation"
+old_edge = "delete any generic caller=None success/re-entry; retain owned compatibility terminal"
+guard_owner = "source-location-loss guard"
+
+[[lineage_edge_matrix.rows]]
+lineage = "RelationlessCompatibility"
+issuer = "RawLegacyChildLoweringPortV1 at function_call_brand_source_demand.rs:37-44, plus RawInvocationChildPortV1 callable_ledger=None at :69-70"
+brand_result = "No lineage for legacy child, or source-backed lineage loses ledger and enters compatibility owner"
+preflight_terminal = "Brand-valid -> KnownNonDirect; brand-arity-mismatch -> TypedReject; non-brand special/str -> KnownNonDirect; non-brand ordinary -> CutoverBlockerOpen; no source-backed success."
+target_authority = "Compatibility owner; no Callee/CallTarget/name carrier issued here"
+old_edge = "delete ordinary Resolved/recovery re-entry after compatibility sunset; retain until finite compatibility census closes"
+guard_owner = "relationless compatibility boundary guard"
+
+[lineage_edge_matrix.terminals]
+source_backed_none = "InstalledNonBrand { caller: None } is never an ordinary source-backed success; only the two explicitly named non-unified GC rows retain BoundedGcPreEffectTargeted evidence outside the affine loan."
+source_backed_no_ledger = "A source-backed context with callable_ledger=None is a nonterminal SourceBackedRelationlessEntry at the brand boundary, not the RawLegacyChildLoweringPortV1 compatibility row; only its ordinary/Resolved sub-branch is CutoverBlockerOpen and none is a successful source-backed terminal."
+constructor_branch = "InstalledConstructor -> Brand is KnownNonDirect for this ordinary Call lane; it does not become Targeted or a Global/Method Callee."
+special_branch = "TypeOp, Math, FastMem, and str/1 are KnownNonDirect typed routes; they do not consume the ordinary direct-call loan."
+gc_branch = "Only InstalledNonBrand non-unified gc_collect/gc_stats may use the existing bounded typed GC Global through PreparedRaw Targeted; this is BoundedGcPreEffectTargeted outside the affine loan, retained evidence, not a general builtin/name resolver."
+relationless_branch = "RelationlessCompatibility splits into brand-valid Brand/KnownNonDirect, brand-arity-mismatch TypedReject, or non-brand special/str/Resolved edges. Source-backed callable_ledger=None first enters SourceBackedRelationlessEntry and then uses the same five explicit sub-branches; only ordinary/Resolved is CutoverBlockerOpen."
+resolved_reentry = "function_call_preflight_route.rs:239-267 and calls/build.rs:111-124 are tracked as old edges, not accepted outcomes."
+late_recovery = "calls/build.rs:321-367/386-400 and calls/static_resolution.rs:71-171 remain explicit retirement or retain-later rows; no new production path may enter them."
+legacy_emit = "calls/unified_emitter.rs:152-171, calls/emit.rs:40-110, and calls/unified_emitter/compat_entrypoints.rs:12-48 are tracked as legacy transport edges, not target authority."
 
 [reopen]
 triggers = [
