@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE
+Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -216,12 +216,12 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    matrix, one parsed Value ownership, decoder signatures, strict duplicate-key owner,
    and exact delete set. No parser or fallback code changes.
 
-1d. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE (now, design stop)
+1d. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE (completed, docs-only)
    split Stage1 arbitration from captured payload, make core-direct an in-scope blocker,
    add reference child re-entry and actual C-ABI/LLVM/runtime callers, and give every
    outside row owner/status/reason/reopen/non-authority. No implementation.
 
-1e. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION (design stop)
+1e. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION (now, design stop)
    explicit Stage1 CLI + any JSON CLI conflicts; multiple JSON CLIs conflict; one explicit
    JSON CLI beats ambient Stage1; no explicit JSON CLI keeps existing Stage1 selection.
    Captured MIR-v0/Program-v0 stays family-selected compatibility.

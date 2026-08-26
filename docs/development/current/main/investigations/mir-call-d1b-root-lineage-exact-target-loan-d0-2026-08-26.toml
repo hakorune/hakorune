@@ -8,9 +8,9 @@ ingress_schema_guard_phase = "wpre_readiness"
 permission_scope = "Only docs-only Wpre D0 profile/root/decoder/outside-fate/arbitration/Value-seam reconciliation is authorized. Parser behavior, typed Global, observer, loan, resolver, wire codec, ABI, EffectMask, Method, backend, and Call schema code remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE"
+execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION"
 completed_execution_row = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
-next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION"
+next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -347,8 +347,8 @@ unlocated = "Missing source site is typed reject; it is not a generic caller=Non
 relationless = "Explicit compatibility owner only. Ordinary Resolved is an old edge to retire, not a canonical terminal."
 
 [task_spine]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE"
-next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION; Wpre-I0 remains closed until the ordered D0 follow-up blockers are reconciled"
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION"
+next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY; Wpre-I0 remains closed until the ordered D0 follow-up blockers are reconciled"
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
@@ -366,6 +366,21 @@ items = [
 ]
 acceptance = "Every row has a finite owner and explicit fate; Stage1 precedence and core-direct strategy are no longer double-classified; strict root and decoder signatures are exact; no retry/reparse/substring selector remains in the bounded I0 delete set; implementation_permission stays false until a separate pointer transition."
 stop = "Return to design if any follow-up requires a second raw parse, borrowed root carrier, semantic receipt, implicit route precedence, or a global all-ingress claim without a finite caller census."
+
+[wpre_d0_progress]
+completed = [
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE | docs-only complete | 17 outside rows carry owner/status/reason/reopen/non-authority; shared Wpre remains a bounded 9-row claim",
+]
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | docs-only active | explicit Stage1 CLI + any explicit JSON CLI conflicts; multiple JSON CLIs conflict; one explicit JSON CLI beats ambient Stage1; no explicit JSON CLI keeps Stage1"
+accepted_design = [
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | no code yet | captured MIR-v0/Program-v0 remains a family-preselected ParkedSealed owner",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | no code yet | normal decoded module uses execute_loaded_mir_module once; requested CoreDirect preserves tag/rc as typed retired/unavailable terminal",
+]
+open = [
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS",
+]
 
 [ingress_schema_guard_row]
 execution_row = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
