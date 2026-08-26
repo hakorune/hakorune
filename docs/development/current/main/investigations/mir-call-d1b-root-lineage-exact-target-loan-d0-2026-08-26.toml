@@ -279,7 +279,7 @@ non_claims = "No target/schema/parser/source/fixture/guard/backend change and no
 
 [b0_machine_census_guard_row]
 task_id = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
-status = "selected_fast_guard_only_after_provenance_before_wpre"
+status = "selected_fast_guard_only"
 inputs = "global_target_b0.family_matrix, compiled_consumer_owner_inventory, wpre_contract.entrance_owner_inventory, exact bounded-v2 wire objects/effect order, and exact print/1 attribution"
 change = "Create one machine-readable B0 census manifest and one reusable fail-closed guard; register/index it once for pilot and quick-static."
 contract = "Every named path exists and has one adapt/delete/isolate disposition; every Global family has one authority/terminal; print means exact print/1 and owner-private nyash.builtin.print compatibility only; unknown/stale/duplicate rows fail."
@@ -376,7 +376,7 @@ existing_guards = [
   "mir-call-ingress-schema-lifecycle-guard",
   "mir_call_d1b_selected_normal_duplicate_projection_guard.sh",
 ]
-future_guard_rows = "mir-call-ingress-schema-lifecycle-guard owns wpre_readiness/wpre_i0/typed_global_b1/r7_closeout without extending the 777-line corridor guard. D1B observer/loan phases remain in their existing reusable lifecycle guard."
+future_guard_rows = "mir-call-ingress-schema-lifecycle-guard owns wpre_readiness/wpre_i0/typed_global_b1/r7_closeout without extending the 777-line corridor guard; mir-call-global-target-b0-machine-census owns the finite B0 family/consumer/wire projection. D1B observer/loan phases remain in their existing reusable lifecycle guard."
 code_gate = "The selected guard-only row runs shell/TOML checks only; Cargo is neither required nor semantic implementation permission."
 
 [parked]

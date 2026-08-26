@@ -1,0 +1,479 @@
+schema_version = 1
+task_id = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
+guard_id = "mir-call-global-target-b0-machine-census"
+card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+source_of_truth = "The active card's global_target_b0 and wpre_contract arrays; this manifest is a guard projection, never a target issuer."
+boundary = "production Global issuers -> compiled core-schema consumers -> selected VM/native terminal, plus the Wpre artifact entrances that select one parser"
+allowed_dispositions = ["adapt", "delete", "isolate"]
+allowed_family_terminals = [
+  "typed_target",
+  "typed_extern_or_reject",
+  "typed_method_or_reject",
+  "typed_target_or_reject",
+  "typed_method_or_construction_or_reject",
+  "typed_construction_or_value",
+  "typed_reject",
+]
+family_row_count = 17
+consumer_row_count = 19
+wpre_row_count = 10
+wire_schema_version = "2.0"
+wire_ops = [
+  "const",
+  "copy",
+  "copy_owned",
+  "destroy_owned",
+  "newbox",
+  "field_get",
+  "binop",
+  "compare",
+  "branch",
+  "jump",
+  "phi",
+  "ret",
+  "mir_call",
+]
+effect_order = [
+  "pure",
+  "mut",
+  "io",
+  "control",
+  "read",
+  "write",
+  "p2p",
+  "ffi",
+  "panic",
+  "alloc",
+  "global",
+  "async",
+  "unsafe",
+  "debug",
+  "barrier",
+]
+print_source_contract = "exact print/1"
+print_compatibility_alias = "nyash.builtin.print"
+print_target = "Builtin(Print)"
+forbidden_canonical_identity = [
+  "GlobalTarget::Legacy(String)",
+  "String newtype",
+  "Unknown/Default/sentinel",
+  "source key formatted to a physical symbol and later reparsed",
+  "consumer-side target classification",
+  "alias repair",
+  "methodize",
+  "retry",
+]
+
+[[family_rows]]
+id = "global-family-print"
+card_index = 0
+card_sha256 = "7bbddd3ce50981c6972cc957531dae8d9b65e2fb3fa137dc52e8dd869e854ddf"
+key = "print|nyash.builtin.print at exact arity 1"
+expected_target = "Builtin(Print)"
+disposition = "adapt"
+terminal = "typed_target"
+
+[[family_rows]]
+id = "global-family-runtime-provider"
+card_index = 1
+card_sha256 = "aae59e0c1afda9b07dabf3bf6c435135dc492993659d7e5d0cd3a3e880a08cc5"
+key = "panic/1|exit/1"
+expected_target = "Extern(panic|exit)"
+disposition = "adapt"
+terminal = "typed_extern_or_reject"
+
+[[family_rows]]
+id = "global-family-bare-error"
+card_index = 2
+card_sha256 = "d0852111b9cfb7be2d4d7656bd61a8fae1b526bc8fbfcf379439e90c5f28569a"
+key = "bare error"
+expected_target = "typed reject"
+disposition = "delete"
+terminal = "typed_reject"
+
+[[family_rows]]
+id = "global-family-bare-now"
+card_index = 3
+card_sha256 = "2365eda0fa9acc8a948ebb636cb832c0338c9b0f8c64c4dcd99c5c2c2465fff7"
+key = "bare now"
+expected_target = "typed reject"
+disposition = "delete"
+terminal = "typed_reject"
+
+[[family_rows]]
+id = "global-family-extern-helper"
+card_index = 4
+card_sha256 = "b6e2205dc9138f777119559b512d3b016578bc599422d40d051ee9505b4fc610"
+key = "env.*|system.*|nyash.console.*|hostbridge.* and harness helpers"
+expected_target = "Extern or typed reject"
+disposition = "isolate"
+terminal = "typed_extern_or_reject"
+
+[[family_rows]]
+id = "global-family-math"
+card_index = 5
+card_sha256 = "bfa9b112e065a306bf29617ec2ff44bbe658556adc05d5b6cf3ce7668a31ead6"
+key = "abs|min|max|sin|cos and other math helpers"
+expected_target = "Method or typed reject"
+disposition = "adapt"
+terminal = "typed_method_or_reject"
+
+[[family_rows]]
+id = "global-family-gc"
+card_index = 6
+card_sha256 = "70fe7b62381536e246fa327cb94407e289b54429ad3911bad1d2b44ef2679715"
+key = "gc_collect|gc_stats"
+expected_target = "typed reject"
+disposition = "delete"
+terminal = "typed_reject"
+
+[[family_rows]]
+id = "global-family-same-module-free"
+card_index = 7
+card_sha256 = "432c9ac5d60003302dfebe8038af2d0d557231239b47d2d9d420e63795ac2a32"
+key = "same-module free function and Main"
+expected_target = "SameModule FreeFunction"
+disposition = "adapt"
+terminal = "typed_target"
+
+[[family_rows]]
+id = "global-family-same-module-static"
+card_index = 8
+card_sha256 = "76ad10f76dea03bdb50660036c7af4cb48b5b8abbee1fcf173a4bb176ce80305"
+key = "same-module static Box/operator/BuildBox helper"
+expected_target = "SameModule StaticBoxMethod"
+disposition = "adapt"
+terminal = "typed_target"
+
+[[family_rows]]
+id = "global-family-static-terminal"
+card_index = 9
+card_sha256 = "18fd701e5d54a38a9c01554fb25ff0a4a331c5a9de9d0c87066856f755be9163"
+key = "static method terminal formatting"
+expected_target = "SameModule StaticBoxMethod or typed reject"
+disposition = "adapt"
+terminal = "typed_target_or_reject"
+
+[[family_rows]]
+id = "global-family-coreplan"
+card_index = 10
+card_sha256 = "93b1b23d73a2392208da59bc12d29504b25b8a14ad8ca591ed6b400a3bd9603c"
+key = "generic CorePlan GlobalCall"
+expected_target = "corresponding SameModule target or typed reject"
+disposition = "delete"
+terminal = "typed_target_or_reject"
+
+[[family_rows]]
+id = "global-family-env-arithmetic"
+card_index = 11
+card_sha256 = "e7ba4e888779ca469b2992e7194fe5649a09e63746be7e9cf81b6e85ff01891a"
+key = "env-gated arithmetic/comparison/unary Global"
+expected_target = "corresponding SameModule target or typed reject"
+disposition = "delete"
+terminal = "typed_target_or_reject"
+
+[[family_rows]]
+id = "global-family-import"
+card_index = 12
+card_sha256 = "c7646b263cc2dafef8d28f2af827a14aa7d6a3e01d45deb68c6297f048a5f6cc"
+key = "import alias/static"
+expected_target = "corresponding SameModule target or reject"
+disposition = "isolate"
+terminal = "typed_target_or_reject"
+
+[[family_rows]]
+id = "global-family-joinir"
+card_index = 13
+card_sha256 = "c0c9569403ff032f318a87c2760f9ac99a511ea7cc2eed6bd4e7179b5910f6d5"
+key = "JoinIR generated function"
+expected_target = "SameModule FreeFunction"
+disposition = "adapt"
+terminal = "typed_target"
+
+[[family_rows]]
+id = "global-family-instance"
+card_index = 14
+card_sha256 = "94dd5e48926cffab999cb0492af065870feca62bbb1bf1fc1af4638889123099"
+key = "instance or birth-like value published as Global"
+expected_target = "Method(receiver) or construction owner; otherwise reject"
+disposition = "adapt"
+terminal = "typed_method_or_construction_or_reject"
+
+[[family_rows]]
+id = "global-family-construction"
+card_index = 15
+card_sha256 = "e816326d53b0fba2a05a59f82c1ab682f6af89a88f878935d38343c5d5f1a1a2"
+key = "Constructor|Closure creation or closure invocation"
+expected_target = "NewBox|NewClosure|Callee::Value"
+disposition = "isolate"
+terminal = "typed_construction_or_value"
+
+[[family_rows]]
+id = "global-family-unknown"
+card_index = 16
+card_sha256 = "4fe2dffcd31b4eae3096de6a6d769101c6073cd07e96af13d6111958481fada5"
+key = "unknown/relationless/foreign/ambiguous text"
+expected_target = "typed reject before arguments"
+disposition = "delete"
+terminal = "typed_reject"
+
+[[consumer_rows]]
+id = "core_schema"
+card_index = 0
+card_sha256 = "2a7d526479884702df73f2d812ee00f63ba76c5ac1c93a97e672964c4ed6970b"
+key = "core_schema"
+expected_path_count = 4
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "builder_target_issuers"
+card_index = 1
+card_sha256 = "6f4ed22ad9011d6ad79874efc6e428c21ce3b560443b3cf5989986c7fc026a78"
+key = "builder_target_issuers"
+expected_path_count = 12
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "remaining_static_producers"
+card_index = 2
+card_sha256 = "75aafa9d7f11007688ea99ae627a72ba8f0db99c24cc54ed7bcfa1cb7652e74b"
+key = "remaining_static_producers"
+expected_path_count = 11
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "builder_local_consumers"
+card_index = 3
+card_sha256 = "449a4fa4c91992faf02ea3f2118ae34413197a7312454e7c709d0564f86119f1"
+key = "builder_local_consumers"
+expected_path_count = 4
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "module_projection_lookup"
+card_index = 4
+card_sha256 = "b876da3562c075980f7384981336835c6ee10437d9ba8e787c4c0633899dca94"
+key = "module_projection_lookup"
+expected_path_count = 2
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "optimizer_preservers"
+card_index = 5
+card_sha256 = "aae80151a9d63d43f695c08904909738dc229f34a5958566dadc8ccc8383f3e0"
+key = "optimizer_preservers"
+expected_path_count = 7
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "global_route_analysis"
+card_index = 6
+card_sha256 = "02160167de40b1abaa7811d2418fc141c5c88afaf4cf1e09cd7fac7cbbc2d755"
+key = "global_route_analysis"
+expected_path_count = 12
+disposition = "isolate"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "secondary_semantic_analysis"
+card_index = 7
+card_sha256 = "f48d790575c2d63fe344d66c6988af49bbefa39794854c875dff1d3a1044758a"
+key = "secondary_semantic_analysis"
+expected_path_count = 10
+disposition = "isolate"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "string_and_storage_analysis"
+card_index = 8
+card_sha256 = "9a7a1619183aee853c77087e0bba3abfb71f665df034138f8988363fae41c92d"
+key = "string_and_storage_analysis"
+expected_path_count = 7
+disposition = "isolate"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "operand_remap_ownership"
+card_index = 9
+card_sha256 = "2c2ec45ec5c28ac57a1c734e91860f09c936c954de0ba639eb85836c664e1912"
+key = "operand_remap_ownership"
+expected_path_count = 7
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "joinir_producer"
+card_index = 10
+card_sha256 = "17e4f714baf3fec495c02354b85d8ba35566184f80b0641a92ee22f33d07fa12"
+key = "joinir_producer"
+expected_path_count = 4
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "human_projection"
+card_index = 11
+card_sha256 = "5d9e60db3886e8ad49d6e17427180535a71a6b03ee2b36beeccd441f85e80337"
+key = "human_projection"
+expected_path_count = 3
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "wire_ingress"
+card_index = 12
+card_sha256 = "45fefa41157b3702ce6bf731400633608796613e7d7c398c698b40a5415dd87f"
+key = "wire_ingress"
+expected_path_count = 6
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "wire_egress_bridge"
+card_index = 13
+card_sha256 = "f650e6d8d63607f756c0a06cf99a6616591fda133061af76d68b96e5ddfbd462"
+key = "wire_egress_bridge"
+expected_path_count = 3
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "selected_rust_vm"
+card_index = 14
+card_sha256 = "341c98e6fa2e64da15242a2719a8a20805809c1b566037f2150c1c8ed916803f"
+key = "selected_rust_vm"
+expected_path_count = 2
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "selected_native"
+card_index = 15
+card_sha256 = "00270db37d301668e2acc53ade99e27def530c3ca5b2d566eee07745e808baaa"
+key = "selected_native"
+expected_path_count = 1
+disposition = "adapt"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "feature_gated_wasm"
+card_index = 16
+card_sha256 = "de9886d55d85e4fc981930e056c3bb886341fba96535823e3434ca2d735cf5a0"
+key = "feature_gated_wasm"
+expected_path_count = 2
+disposition = "isolate"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "reference_compat_execution"
+card_index = 17
+card_sha256 = "ff08f0e3fd2e1240459a3778be2ba4c7e2213a3cc6354979e6ec60fa9096fd9f"
+key = "reference_compat_execution"
+expected_path_count = 4
+disposition = "isolate"
+terminal = "compiled_consumer"
+
+[[consumer_rows]]
+id = "fixtures_schema_tests"
+card_index = 18
+card_sha256 = "6519814656c363d34ad91a60cda7fb61c7a4922171979c53736b05c44a7f8433"
+key = "fixtures_schema_tests"
+expected_path_count = 4
+disposition = "isolate"
+terminal = "compiled_consumer"
+
+[[wpre_rows]]
+id = "public_artifact_entrances"
+card_index = 0
+card_sha256 = "b39f897b0143834e5b461f9665e2ad832055efd3e89bcf620e73a7ab0e0c1c92"
+key = "public_artifact_entrances"
+expected_path_count = 2
+disposition = "adapt"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "direct_mir_entrances"
+card_index = 1
+card_sha256 = "5fe5ce204fc0ed495e140c2b5717724c0fca14655301e7d1aea6cd957fd31b74"
+key = "direct_mir_entrances"
+expected_path_count = 2
+disposition = "delete"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "artifact_orchestrator"
+card_index = 2
+card_sha256 = "09be84815d1ae67c4e0ebc494fa475d01583f04de0187b423a6d4d16faca6d1a"
+key = "artifact_orchestrator"
+expected_path_count = 1
+disposition = "adapt"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "current_mir_selector"
+card_index = 3
+card_sha256 = "f62306ff8a979e2c82a45267bf4ce00db0c7f3dae62df7a17c5eeddfb42439d2"
+key = "current_mir_selector"
+expected_path_count = 1
+disposition = "delete"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "artifact_family_reload"
+card_index = 4
+card_sha256 = "807e33451a4368568ac9fe5c83f077c070fb5d6f06ca2264e42cfe8c24fac965"
+key = "artifact_family_reload"
+expected_path_count = 1
+disposition = "delete"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "canonicalize_methodize_downconvert"
+card_index = 5
+card_sha256 = "baa789d4076f27b3ffe64efaadb4aede9cb4ab82d37c715e6fff91371a510cc8"
+key = "canonicalize_methodize_downconvert"
+expected_path_count = 1
+disposition = "isolate"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "exact_decoders"
+card_index = 6
+card_sha256 = "32eaaa3bf555ac045cadd4a229274081bf8b23679f3fa2a1bbd2e7aba94d68d5"
+key = "exact_decoders"
+expected_path_count = 3
+disposition = "adapt"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "selfhost_compat_selector"
+card_index = 7
+card_sha256 = "c2b4e244a89d88aab43854009a16221a8bd5a7796fd71e5de6e692f35e19c52d"
+key = "selfhost_compat_selector"
+expected_path_count = 3
+disposition = "isolate"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "reference_downconvert"
+card_index = 8
+card_sha256 = "c6defbb8c9faf8b98d08439bd24d4b73c48da8756b48abee55363a917e9f4535"
+key = "reference_downconvert"
+expected_path_count = 1
+disposition = "isolate"
+terminal = "wpre_boundary"
+
+[[wpre_rows]]
+id = "host_wire_rewrite"
+card_index = 9
+card_sha256 = "9cb1e720f6b04cef0807119219ff19681c7f04f3a867150f70c6b8749e62adf0"
+key = "host_wire_rewrite"
+expected_path_count = 1
+disposition = "isolate"
+terminal = "wpre_boundary"

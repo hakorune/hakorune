@@ -468,6 +468,9 @@ bash tools/checks/run_row_guard.sh --only mir-call-d1b-targeted-variant-split
 bash tools/checks/run_row_guard.sh --only mir-call-d1b-cataloged-affine-loan-lifecycle
 # manifest row: mir-call-ingress-schema-lifecycle-guard
 bash tools/checks/mir_call_ingress_schema_lifecycle_guard.sh
+# manifest row: mir-call-global-target-b0-machine-census
+bash tools/checks/mir_call_global_target_b0_machine_census_guard.sh
+# manifest: tools/checks/manifests/mir_call_global_target_b0_machine_census.toml
 bash tools/checks/mir_call_d1b_selected_normal_duplicate_projection_guard.sh
 git diff --check
 ```
