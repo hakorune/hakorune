@@ -580,6 +580,84 @@ authorizes code until `CURRENT_STATE.toml` selects it.
    finite clone/env census first; only then consider a session snapshot or lazy
    clone removal. Keep this separate from semantic Call and reference transport.
 
+## Parked guard contract and retirement queue (2026-08-27)
+
+This is the sole successor queue for the existing
+`GUARD-SURFACE-CONSOLIDATION-D0`; do not create one card or shell guard per
+finding. It does not preempt the selected force-hv1 design stop.
+
+```text
+Decision: keep execution authority in guard_rows.toml plus typed specs, keep
+  reverse inventory as a non-authority projection, stop new unregistered public
+  guards first, and retire old guards only after successor coverage and
+  caller-zero are both observed.
+Source authority + canonical issuer: the git-tracked eligible surface, flattened
+  guard manifest/spec graph, and owner-reviewed disposition.
+Non-authority: raw LOC, filename prefixes, profile names, the hand-written index,
+  generated reverse output, historical thresholds, or executable mode alone.
+Fail-fast boundary: a new unregistered public guard, duplicate/dangling graph
+  edge, stale expectation, missing execution caller, or unproved retirement
+  stays red/retained.
+Smallest next slice: GUARD-CONTRACT-GRAPH-D0, then a structure-only registry
+  ratchet which executes no member guard.
+Non-claims: no full registry migration, quick-static activation, bulk chmod,
+  compiler behavior change, or grep/count-authorized deletion.
+```
+
+Current source-backed observation is 3,748 tracked check paths and 356,395
+shell lines. The full inventory classifies 92 stable entries, 106 manifest
+command paths, 212 proof-app paths, and 3,338 `unknown_retain` paths. The
+narrow public-guard boundary is 2,741 entries: 91 are manifest-mapped and 2,650
+are not. These are different denominators and must not be reported as one
+coverage percentage. `quick-static` has 19 declared rows and no profile caller;
+the profile name is not execution evidence.
+
+Required order:
+
+1. `GUARD-CONTRACT-GRAPH-D0` — freeze the two-plane model, contract-v1 metadata,
+   declared-profile versus reachable-gate distinction, and the existing six
+   inventory dispositions. Generated reverse output never becomes authority.
+2. `GUARD-REGISTRY-RATCHET-I0` — extend the existing inventory owner, register
+   the already-CI-reachable `ci_feedback_tier_policy_guard.sh`, lower the
+   public-unregistered cap from 2,650 to 2,649, reject newly added unregistered
+   public guards relative to the PR base, and wire only this structural check to
+   required CI. It must not run registry member commands.
+3. `DEAD-CODE-REMEASURE-D0` -> `CHRONIC-MEASUREMENT-EXPECTATION-I0` ->
+   `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0` — use one token-aware scanner and one
+   per-file expectation TSV. Exact-form 334/111 is diagnostic; inclusive
+   attribute grammar currently observes 351/126 and is the required D0 scope.
+   Remove the 13 obsolete source-wide numeric clauses rather than relaxing them;
+   retain living leaf checks, and explicitly supersede ASTCLEAN-007 by
+   ASTCLEAN-013 before deleting 007.
+4. `GUARD-MANIFEST-MODEL-R0` -> `GUARD-REGISTRY-HEALTH-R0` — BoxShape-consolidate
+   manifest loading, define argv-derived executable semantics, and classify the
+   44 non-manifest hako-alloc closeout wrappers as register, consolidate, retire,
+   or retain. No mass chmod follows from the current 0644 baseline.
+5. `GUARD-REVERSE-INDEX-I0` — extend
+   `tools/docs/guard_surface_inventory.py` with guard/invariant/path queries and
+   forward/reverse edge checks. Migrate two existing rows first. Keep
+   `check-scripts-index.md` human-facing and keep its legacy compatibility block
+   byte-stable until its callers reach zero.
+6. `SOURCE-LINE-BUDGET-CENSUS-D0` -> `SOURCE-LINE-BUDGET-SPEC-I0` — rederive
+   target, threshold, kind, and focused caller group; do not freeze the stale
+   estimate of 77 guards. Move one MIRBuilder family to the existing typed-spec
+   runner, then make old focused guards delegate exactly once before removing
+   their inline `wc`/threshold authority.
+7. `GUARD-FAMILY-RETIREMENT-R0` — process bounded families only. A guard may be
+   removed when its invariant is owned by a named successor or the guarded route
+   is physically impossible, all CI/manifest/parent/docs callers are zero, and
+   the supersede/retirement edge is recorded. Otherwise it remains
+   `unknown_retain`; inactivity and non-registration are not deletion evidence.
+8. `QUICK-STATIC-QUALIFY-D0/I0` — finite-classify all 19 rows for side effects,
+   latency, and current green status. Only after qualification may the existing
+   anti-wiring contract close and the whole profile become a CI entry.
+
+Acceptance for the series is monotonic: new public unregistered guards = 0;
+unknown inventory does not grow silently; each selected family loses its local
+duplicate expectation in the same slice that gains central coverage; deleted
+guards have named successors and caller-zero; generated forward/reverse edges
+round-trip; and no family migration changes compiler or test semantics.
+
 ## Short closed tail
 
 - normal-root T0/C0/R0 and atomic source-backed cutover are closed.
