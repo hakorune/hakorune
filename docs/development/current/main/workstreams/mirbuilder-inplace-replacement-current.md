@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY
+Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -46,12 +46,13 @@ Non-authority:
 Fail-fast boundary:
   共有runnerのentrance profileがJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
   schema、profile不一致、target関係不足はarguments、MIR、wire/backend effectより前にreject。
-  Stage1 precedence、core-direct fate、strict-root/Value seam未確定は実装前のblocker。
+  Stage1/direct arbitrationは設計済み。reference-child transport、core-direct fate、
+  force-hv1、strict-root/Value seam未確定は実装前のblocker。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY`。
-  vm-hako childのroute-env isolationとv1 emission familyをdocs-onlyで凍結する。
-  I0はまだ閉じる。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`。
+  vm-hako childのprivate payload transportとroute-env isolationは設計済みだが、
+  現在のdesign_stopでは実装を閉じる。I0の実装許可は別のpointer遷移で開く。
 
 Non-claims:
   schema selector実装、parser/fixture/codec、typed Global、observer/loan、
@@ -226,20 +227,29 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    JSON CLI beats ambient Stage1; no explicit JSON CLI keeps existing Stage1 selection.
    Captured MIR-v0/Program-v0 stays family-selected compatibility.
 
-1f. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY (now, design stop)
-   freeze vm-hako child route-environment isolation and v1 emission family; no public
-   Wpre/hv1 re-entry or retry is accepted.
+1f. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY (completed, design-only)
+   freeze vm-hako child route-environment isolation and canonical-v1 emission family; no
+   public Wpre/hv1 re-entry or retry is accepted.
 
-1g. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE (design stop)
+1g. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 (now, design stop)
+   move the reduced MiniVm payload to the two private one-of transport keys, scrub public
+   Wpre/hv1/Stage1/fallback selectors, pin TOML/VM policy, and migrate the three live
+   reference monitors atomically. Code remains closed until implementation permission opens.
+
+1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (queued, design stop)
+   replace ambient v1 env selection and the v1-string reparse with an owner-private explicit
+   CanonicalV1 Value seam; normalize once, subset-check once, and consume the private payload.
+
+1i. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE (design stop)
    use execute_loaded_mir_module once for normal decoded input; requested CoreDirect
    becomes a family-aware typed retired/unavailable terminal preserving tag/rc. Delete
    raw probe/child/in-proc reparse/VM fallback; compatibility transforms remain Value adapters.
 
-1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design stop)
+1j. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS (design stop)
    freeze strict_root.rs, recursive duplicate/trailing rejection, owned SelectedIngress,
    and by-value decoder ownership using the existing NyashRunner context.
 
-1i. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design stop)
+1k. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design stop)
    census verify_v1_inline/verify_mir_rc harness references, then select production
    retirement or owner-private Value compatibility. Standard-v1 reroute is forbidden;
    force-hv1 remains CutoverBlockerOpen until the choice is recorded.

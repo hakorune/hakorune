@@ -25,15 +25,17 @@ Related:
 - **Current decision:** the final pipeline remains one-way, and canonical MIR
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** the package/install bridge and many Call
-  writers are closed. B0 census/provenance guards are landed; shared-runner Wpre
-  boundary is bounded but its D0 follow-up blockers remain open: outside fates,
-  Stage1 precedence, core-direct strategy, reference child isolation, and exact
-  strict-root/Value seams. Typed Global, late recovery, receiver ABI, and
-  mandatory-Callee remain closed.
+  writers are closed. B0 census/provenance guards are landed; outside fates and
+  Stage1/direct arbitration are accepted design decisions. Shared-runner Wpre
+  remains bounded, while reference-child private transport I0, canonical-v1
+  Value seams, core-direct strategy, force-hv1 fate, and strict-root ownership
+  remain closed. Typed Global, late recovery, receiver ABI, and mandatory-Callee
+  remain closed.
 - **Next ordered task:** complete
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY` and its ordered
-  D0 design follow-ups without semantic implementation, then open only the
-  bounded shared-runner I0.
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`
+  after its design gate opens, then the canonical-v1 Value seam and ordered Wpre
+  D0 follow-ups without semantic implementation, and only then open the bounded
+  shared-runner I0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

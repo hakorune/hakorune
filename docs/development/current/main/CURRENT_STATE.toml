@@ -1,9 +1,9 @@
 date = "2026-08-27"
 development_branch_ssot = "main"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY"
-current_design_stop = "design stop; B0 machine census/provenance guard is landed and the 9-row shared Wpre boundary is bounded. Wpre-I0 is NoSafeSlice until outside fates, Stage1/direct precedence, core-direct strategy, reference child isolation, strict duplicate-key ownership, and exact Value-consuming decoder signatures are fixed."
-current_blocker_token = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY: docs-only — vm-hako child route-env isolation and v1 emission family are the current blockers; force-hv1/core-direct fate, strict root owner, and Value decoder seams remain unresolved; no parser, fallback, codec, typed Global, observer, loan, resolver, ABI, EffectMask, backend, or Call schema implementation is authorized."
+current_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0"
+current_design_stop = "design stop; B0 machine census/provenance guard is landed and the 9-row shared Wpre boundary is bounded. Reference-child D0 is accepted, but its private transport I0 is implementation-closed; Wpre-I0 remains NoSafeSlice until reference transport, canonical-v1 Value seams, core-direct fate, force-hv1 fate, strict duplicate-key ownership, and exact decoder signatures are fixed."
+current_blocker_token = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0: design accepted, implementation_permission=false — vm-hako child must move off public NYASH_VERIFY_JSON, scrub Wpre/hv1/Stage1/fallback selectors, and pin TOML/VM route policy; no parser, fallback, codec, typed Global, observer, loan, resolver, ABI, EffectMask, backend, or Call schema implementation is authorized."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "Mir Call R6 — strict ingress selection, typed Global identity, and D1B exact-target ownership"
@@ -15,8 +15,8 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "B0 machine census/provenance guard and D0 outside-fate/Stage1 arbitration design are landed. Wpre remains bounded to 9 shared-runner family-unknown entrances; reference child re-entry is the current docs-only row, with force-hv1/core-direct and Value seams still open; semantic implementation_permission stays false."
-next_design_card = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY"
+latest_card_summary = "B0 machine census/provenance guard, outside-fate/Stage1 arbitration, and reference-child transport design are recorded. Wpre remains bounded to 9 shared-runner family-unknown entrances; the next bounded row is private reference transport I0, while canonical-v1 Value, core-direct, and force-hv1 seams remain open; semantic implementation_permission stays false."
+next_design_card = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0"
 next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -31,5 +31,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-27: ingress schema lifecycle guard landed with frozen selector/retry inventory and typed-v2 surface absence; Wpre remains closed.",
   "2026-08-27: B0 provenance/tombstone evidence was restored against 9bff1a1ff2^; the reusable machine census guard was selected next.",
-  "2026-08-27: B0 machine census guard landed; Wpre profile/root/decoder contract is the next docs-only design stop after production caller audit.",
+  "2026-08-27: B0 machine census guard landed; Wpre outside/Stage1/reference design is recorded and private reference transport I0 is the next bounded row.",
 ]

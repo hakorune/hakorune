@@ -1,16 +1,16 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "wpre_d0_blockers_open"
+status = "wpre_d0_reference_design_accepted_followups_open"
 observed_commit = "9bff1a1ff2"
 observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "bridge_ready"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "Only docs-only Wpre D0 profile/root/decoder/outside-fate/arbitration/Value-seam reconciliation is authorized. Parser behavior, typed Global, observer, loan, resolver, wire codec, ABI, EffectMask, Method, backend, and Call schema code remain forbidden."
+permission_scope = "Only docs-only Wpre D0 profile/root/decoder/outside-fate/arbitration/reference-child reconciliation is authorized. Reference-child I0 implementation, parser behavior, typed Global, observer, loan, resolver, wire codec, ABI, EffectMask, Method, backend, and Call schema code remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY"
+execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0"
 completed_execution_row = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
-next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE"
+next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY: freeze vm-hako child route-environment isolation and v1 emission-family ownership; docs only, no child retry implementation."
+smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0: after the design gate opens, switch the vm-hako child to a private one-of payload transport and scrub public route selectors atomically; current mode keeps implementation closed."
 non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
 
 [final_architecture]
@@ -207,7 +207,7 @@ outside_owner_inventory = [
   "runtime_guest_program | src/runtime/mirbuilder_emit.rs; src/backend/mir_interpreter/handlers/extern_provider/mod.rs; src/runtime/plugin_loader_v2/enabled/extern_functions.rs | family-preselected guest Program APIs reparse and can swallow Err -> Ok(None) | status=ParkedSealed | owner=runtime guest Program API | reason=outside shared Wpre; local error debt remains | reopen=one-Value Program owner and typed plugin error | non_authority=Ok(None) as success evidence",
   "kernel_public_program | src/host_providers/mir_builder.rs; src/host_providers/mir_builder/handoff.rs; crates/nyash_kernel/src/plugin/module_string_dispatch.rs; crates/nyash_kernel/src/plugin/invoke/by_name.rs; crates/nyash_kernel/src/exports/stage1.rs | kernel public Program API and C-export handoff | status=ParkedSealed | owner=kernel Program API | reason=Program-only owner, not shared with runtime guest | reopen=one-Value handoff and typed ABI error | non_authority=String success/error handle",
   "hako_program_transport | src/main.rs; src/runner/child_env.rs; lang/src/mir/builder/compat/program_json_v0_entry.hako; lang/src/mir/builder/compat/emit_mir_json_v0.hako; lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako | file/env duplication around preselected Program-v0 | status=ParkedSealed | owner=Hako Program transport | reason=transport cannot become selector authority | reopen=private payload framing | non_authority=file/env ordering",
-  "reference_vm_hako | src/runner/dispatch.rs; src/runner/reference/vm_hako.rs; src/runner/reference/vm_hako/subset_check/mod.rs; src/runner/reference/vm_hako/payload_normalize.rs; src/runner/reference/vm_hako/driver_spawn.rs; src/runner/reference/vm_hako/compile_bridge.rs | reference child can inherit public route env and re-enter shared/hv1 selection | status=CutoverBlockerOpen | owner=reference child route | reason=route env isolation and v1 emission family are not fixed | reopen=private payload env or explicit env scrub plus typed family | non_authority=reference normalization as schema authority",
+  "reference_vm_hako | src/runner/dispatch.rs; src/runner/reference/vm_hako.rs; src/runner/reference/vm_hako/subset_check/mod.rs; src/runner/reference/vm_hako/payload_normalize.rs; src/runner/reference/vm_hako/driver_spawn.rs; src/runner/reference/vm_hako/compile_bridge.rs | reference child can inherit public route env and re-enter shared/hv1 selection | status=CutoverBlockerOpen | owner=reference child route | reason=private transport design is accepted but I0 implementation and live-monitor migration are not landed | reopen=reference_child_i0 guard turns green with private one-of keys, selector scrub/pins, and one spawn | non_authority=reference normalization as schema authority",
   "llvm_mir_compat | src/host_providers/llvm_codegen/mir_json_text_object.rs; src/host_providers/llvm_codegen/normalize.rs; src/runtime/plugin_loader_v2/enabled/compat_codegen_receiver.rs; crates/nyash_kernel/src/plugin/module_string_dispatch/compat/llvm_backend_surrogate.rs | raw text/schema guessing and reparse | status=ParkedSealed | owner=LLVM compatibility | reason=non-selected wire owner | reopen=explicit backend owner and typed input | non_authority=schema guessing",
   "provider_package_observer | src/main.rs; src/cli/provider_package_hako_derived_build/mir_json.rs | semantic observer/derived package handoff | status=ParkedSealed | owner=provider package observer | reason=observer cannot prove execution decoder selection | reopen=selected terminal contract | non_authority=observer output",
   "llvm_backend_binary | crates/nyash-llvm-compiler/src/compile_input.rs; crates/nyash-llvm-compiler/src/native_driver.rs | independent MIR backend ingress | status=ParkedSealed | owner=LLVM backend boundary | reason=outside selected runner Wpre | reopen=explicit backend owner and codec contract | non_authority=canary schema guessing",
@@ -274,11 +274,11 @@ execution_overlays = [
 ]
 known_inventory_scope = "B0 fingerprints 9 shared runner rows for the bounded Wpre-I0 entrance. Outside rows now have explicit owner, status, reason, reopen trigger, and non-authority; this is not a claim that global all-ingress strictness is closed."
 open_design_blockers = [
-  "Stage1 pre-Wpre precedence and explicit CLI conflict matrix for three JSON entrances",
+  "reference-child private transport I0 and live-monitor migration remain implementation-closed",
   "force-hv1 81-harness census followed by owner-private Value compatibility or retirement",
   "core-direct family-aware typed retired/unavailable terminal and Core tag/rc parity",
   "strict duplicate-aware root owner and exact Value-consuming decoder seams",
-  "reference child route-env isolation and remaining outside caller census",
+  "canonical-v1 Value seam and stale ambient emitter-profile selector retirement",
 ]
 root_matrix = [
   "strict JSON parse failure, non-object root, duplicate object key at any depth, or trailing input -> MalformedRootTypedReject",
@@ -303,9 +303,10 @@ compatibility_transform_signature = "fn apply_selected_compatibility_transform(f
 compatibility_owner = "CompatibilityV1, CompatibilityMirV0, and ProgramV0 remain owner-private decoder families. Canonicalization/downconvert may run only after selection against the owned Value and may not re-enter Wpre. Stage1/selfhost/EXE/runtime/kernel/reference/LLVM/observer/ABI are explicit ParkedSealed or CutoverBlockerOpen rows, never ParkedCompatibility."
 
 [wpre_d0_candidate_decisions]
-stage1_direct = "Accept with amendment: explicit Stage1 CLI + any explicit JSON CLI is a typed conflict; multiple explicit JSON CLIs are a typed conflict; exactly one explicit JSON CLI wins over ambient NYASH_USE_STAGE1_CLI; with no explicit JSON CLI, existing Stage1 selection remains. Macro/REPL/early force ordering is a non-claim."
+stage1_direct = "Accept with amendment: explicit Stage1 CLI (--hako-run/--hako-emit-mir-json) plus any explicit execution JSON CLI (--mir-json-file/--json-file/--ny-parser-pipe) is a typed conflict; multiple explicit execution JSON CLIs are a typed conflict; exactly one explicit JSON CLI wins over ambient NYASH_USE_STAGE1_CLI; with no explicit JSON CLI, existing Stage1 selection remains. Macro/REPL/early force ordering is a non-claim."
 core_direct = "Accept final direction: Wpre decodes once, then execute_loaded_mir_module is the only normal terminal. A requested CoreDirect family receives a typed retired/unavailable terminal preserving the existing Core tag/rc contract; raw probe, child wrapper, in-proc reparse, and VM fallback are deleted. No new Core consumer is invented."
 force_hv1 = "Unresolved by design: standard-v1 reroute is rejected because hv1 has distinct unop/typeop/default semantics. First census verify_v1_inline/verify_mir_rc harness references; then select production retirement (preferred for reduction) or owner-private Value compatibility. Until selected, force-hv1 remains CutoverBlockerOpen and implementation_permission=false."
+reference_child = "Accept with amendment: VmRouteAction::VmHako owns a family-preselected CanonicalMirJsonV1 full-module emission, then a private MiniVm payload. The child receives exactly one of HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON or HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE; public NYASH_VERIFY_JSON, HAKO_VERIFY_PRIMARY, HAKO_ROUTE_HAKOVM, force-hv1, Stage1 selectors, VM fallback, and TOML env bootstrap are scrubbed or pinned. Missing/both/empty/unreadable transport, wrong emission family, subset/projection failure, or spawn failure is terminal; no Wpre/hv1/Stage1 retry."
 candidate_stop = "NoSafeSlice if direct precedence silently discards an explicit Stage1 request, CoreDirect loses tag/rc or falls back to VM, or force-hv1 is mixed into standard v1 without the 81-reference census."
 
 exact_delete_set = [
@@ -323,7 +324,7 @@ outside_delete_set = [
   "runtime/plugin/kernel Program marker reparse and Err -> Ok(None) swallow",
   "reference/LLVM compatibility raw selector, schema guessing, and re-entry",
 ]
-missing_caller_census = "The 9-row shared-runner census is bounded and exhausted for Wpre-I0. Global all-ingress closure remains unclaimed: outside rows are explicitly fated, while Stage1 precedence, force-hv1, core-direct, reference re-entry, and Value seam ownership remain CutoverBlockerOpen design prerequisites. Wpre-I0 cannot open until the ordered follow-up rows below are reconciled."
+missing_caller_census = "The 9-row shared-runner census is bounded and exhausted for Wpre-I0. Outside rows and Stage1/direct arbitration are explicitly fated; the remaining blockers are reference-child private transport I0, canonical-v1 Value seams, force-hv1, core-direct, and strict-root ownership. Wpre-I0 cannot open until the ordered follow-up rows below are reconciled."
 order_sync = "Before Wpre I0, synchronize mirbuilder-final-pipeline-ssot, mir-canonical-callsite-lane-ssot, this card, and the workstream so Wpre profile/one-root selection precedes MirCall/CallFlags retirement, effect/source/recovery prerequisites, and typed Global B1 in one durable order."
 allowed_files = [
   "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
@@ -337,6 +338,95 @@ done = "B0 is landed guard-only; the shared Wpre-I0 boundary is bounded to 9 kno
 stop = "NoSafeSlice if one route requires decoder reparse, substring family selection, duplicate-key last-wins, instruction/body semantics for root choice, explicit-error retry, Stage1/hv1 bypass, same-line dual framing, or a new semantic receipt."
 non_claims = "No strict parser implementation, schema selector code, v2 codec, typed Global, effect/default policy, Call cutover, VM/native change, Stage1/selfhost migration, or runtime parity claim."
 
+[reference_child_reentry]
+task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-REENTRY"
+status = "accepted_design_implementation_closed"
+design_review_head = "907d3e2213"
+boundary = "VmRouteAction::VmHako -> execute_vm_hako_mode -> CanonicalMirJsonV1 full-module emission -> subset check -> private MiniVm payload projection -> driver_spawn -> driver_main.hako -> MiniVmS0EntryBox.run_min"
+source_authority = "The reference route's MirModule is the source; compile_bridge owns an explicit CanonicalMirJsonV1 emission profile, and payload_normalize owns one-way reduction to the reference-only MiniVm payload. Neither child environment nor payload shape is a Wpre schema authority."
+canonical_issuer = "execute_vm_hako_mode selects the reference family once; compile_bridge emits schema_version=1.0 CanonicalV1, payload_normalize projects the accepted subset, and driver_spawn consumes the private payload exactly once."
+private_transport_keys = [
+  "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON",
+  "HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE",
+]
+transport_cardinality = "Exactly one private key is set per child: inline JSON or file path. Neither, both, empty, write failure, unreadable file, and private-key fallback are typed terminal states; the old @file: sentinel and public NYASH_VERIFY_JSON carrier are deleted in the I0."
+child_env_remove = [
+  "NYASH_VERIFY_JSON",
+  "HAKO_VERIFY_PRIMARY",
+  "HAKO_ROUTE_HAKOVM",
+  "HAKO_VERIFY_V1_FORCE_HAKOVM",
+  "NYASH_USE_STAGE1_CLI",
+  "HAKO_STAGE1_ENABLE",
+  "HAKO_EMIT_PROGRAM_JSON",
+  "HAKO_EMIT_MIR_JSON",
+  "NYASH_STAGE1_CLI_CHILD",
+  "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON",
+  "HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE",
+]
+child_env_pin = [
+  "NYASH_SKIP_TOML_ENV=1",
+  "NYASH_VM_USE_FALLBACK=0",
+  "NYASH_VM_HAKO_PREFER_STRICT_DEV=0",
+  "NYASH_USE_NY_COMPILER=0",
+  "--backend vm",
+]
+non_authority = "Inherited environment, hako.toml [env], public NYASH_VERIFY_JSON, @file: syntax, optional functions, child rc, subset success, normalization success, ambient JsonEgressProfile selectors, and compile_*_v0 names are not route or schema authority."
+fail_fast = "Wrong emission family or profile, compile/emit/subset/projection/transport failure, missing/both/empty private payload, or child-spawn failure terminates before a second route. A child exit code is an opaque terminal; DriverEntered is not claimed without a future handshake row."
+finite_states = [
+  "ReferenceMirV1Ready",
+  "EmissionRejected",
+  "WrongEmissionFamilyRejected",
+  "SubsetAccepted",
+  "SubsetRejected",
+  "MiniVmPayloadReady",
+  "PayloadProjectionRejected",
+  "InlineTransportReady",
+  "FileTransportReady",
+  "MissingTransportRejected",
+  "ConflictingTransportRejected",
+  "EmptyTransportRejected",
+  "FileWriteOrReadRejected",
+  "ChildEnvSealed",
+  "SpawnRejected",
+  "ChildExited(rc)",
+]
+forbidden_states = [
+  "PublicHv1Reentry",
+  "Stage1Preemption",
+  "WpreReentry",
+  "VmCompatFallback",
+  "ParserRetry",
+]
+reference_delete_set = [
+  "driver_spawn public NYASH_VERIFY_JSON payload assignment and @file: carrier",
+  "driver_main public NYASH_VERIFY_JSON reader and missing-payload fallback",
+  "unsealed inheritance of HAKO_VERIFY_PRIMARY, HAKO_ROUTE_HAKOVM, HAKO_VERIFY_V1_FORCE_HAKOVM, Stage1 selectors, NYASH_VM_USE_FALLBACK, and TOML bootstrap",
+  "compile_source_to_mir_json_v0/emit_mir_json_v0_string family names and ambient profile issuance",
+  "child Wpre/hv1/Stage1/fallback re-entry and any retry after private transport failure",
+]
+retain_set = [
+  "explicit VmRouteAction::VmHako selection",
+  "source compile and existing verifier/safety gates",
+  "CanonicalMirJsonV1 full-module emission as the reference source family",
+  "reference-only subset check, one-way payload normalization, and MiniVmS0EntryBox.run_min",
+  "temporary inline/file transport cleanup and existing exit-code terminal",
+]
+production_census = "The bounded production/reference inventory includes src/runner/dispatch.rs, src/runner/route_orchestrator.rs, src/runner/reference/vm_hako.rs, compile_bridge.rs, driver_spawn.rs, driver_main.hako, payload_normalize.rs, shape_contract.rs, src/main.rs, src/config/env.rs, src/config/env/vm_backend_flags.rs, src/config/env/stage1.rs, src/runner/stage1_bridge/entry_guard.rs, src/runner/mod.rs, src/runner/mir_json_emit/{io,root,helpers}.rs, src/runner/hv1_inline.rs, src/runner/core_executor.rs, src/runner/json_artifact/{mod,mir_loader}.rs, and the three live vm-hako smoke monitors. Archive and test-local embedded drivers are separate compatibility rows."
+implementation_allowed_files = [
+  "src/runner/reference/vm_hako/driver_spawn.rs",
+  "src/runner/reference/vm_hako/driver_main.hako",
+  "tools/smokes/v2/profiles/integration/apps/lib/vm_hako_json_parity_common.sh",
+  "tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_non_future_reject_vm.sh",
+  "tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_newclosure_probe_vm.sh",
+  "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh",
+]
+implementation_order = "REF-CHILD-PRIVATE-TRANSPORT-I0 (private one-of keys plus env scrub/pins and three live monitors) -> REF-CANONICAL-V1-VALUE-S0 (explicit profile Value, normalize/subset/projection once, stale v0 names retired) -> closeout census -> CORE-DIRECT-FATE."
+future_guard_phase = "reference_child_i0 reuses mir_call_ingress_schema_lifecycle_guard; it must require private-key one-of, known selector scrub/pins, explicit CanonicalV1 entry, one spawn, and zero public Wpre/hv1/Stage1/fallback re-entry."
+positive = "Clean and poisoned parent environments both produce the same private-driver route; inline and file payloads execute once; cleanup occurs after wait; the three live monitors use the private contract."
+negative = "Public selector, Stage1 flag, force-hv1 flag, VM fallback, TOML reinjection, both/neither private keys, empty/unreadable file, wrong emission family, subset failure, and transport failure never reach child execution or another parser."
+stop = "Return to design if private ownership requires a public route key, a second raw parse, a family guess from optional functions, an env allowlist that cannot preserve runtime requirements, a retry/fallback, or a new semantic Verified*/Prepared* receipt."
+non_claims = "No Wpre selector implementation, force-hv1 fate, CoreDirect fate, MiniVm semantic expansion, backend promotion, JSON-v2 codec, Call schema, or production VM parity is included."
+
 [lineage_matrix]
 families = ["ScriptRoot", "Main", "Cataloged", "TopLevel", "InstanceConstructor", "NestedBoxMethod", "UnlocatedCompatibility", "RelationlessCompatibility"]
 cataloged = "First affine replacement only after an exact source disposition and late recovery zero; move the already-issued Callee once, then arguments once, Call once, residual zero, and direct CatalogedTargeted payload zero. B1 later types the retained exact Global payload."
@@ -347,8 +437,8 @@ unlocated = "Missing source site is typed reject; it is not a generic caller=Non
 relationless = "Explicit compatibility owner only. Ordinary Resolved is an old edge to retire, not a canonical terminal."
 
 [task_spine]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY"
-next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE; Wpre-I0 remains closed until the ordered D0 follow-up blockers are reconciled"
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0"
+next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0; implementation_permission=false and Wpre-I0 remains closed until the ordered reference/D0 follow-up blockers are reconciled"
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
@@ -358,7 +448,9 @@ implementation_permission = false
 items = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE | docs-only | split every outside family into owner/status/reason/reopen/non-authority rows; no global all-ingress closure claim",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | design-only | freeze three-way JSON CLI conflict/precedence: explicit Stage1 conflicts, multiple JSON CLIs conflict, one explicit JSON CLI beats ambient Stage1; no parser change",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design-only | freeze vm-hako child route-env isolation and v1 emission family; no child retry implementation",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design-only complete | choose private one-of payload keys, mandatory route scrub/pins, and CanonicalV1 family; no child retry implementation",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | fast only after permission opens | move payload off public NYASH_VERIFY_JSON, isolate route env, and migrate three live monitors atomically",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | fast only after transport I0 | replace ambient v1 env/profile and second string parse with one owner-private Value seam",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design-only | preserve Core tag/rc while replacing raw probe/child/in-proc/VM retry with one decoded-module terminal or family-aware typed retired/unavailable terminal; no new consumer",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design-only | census 81 harness references, then choose force-hv1 retirement or owner-private Value compatibility; never reroute into standard v1 implicitly",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design-only | freeze strict_root.rs owner, recursive duplicate/trailing rejection, owned SelectedIngress, and by-value decode(selected, &NyashRunner) seam",
@@ -372,12 +464,15 @@ completed = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE | docs-only complete | 17 outside rows carry owner/status/reason/reopen/non-authority; shared Wpre remains a bounded 9-row claim",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | design accepted | explicit Stage1/JSON conflict and ambient-env precedence matrix is fixed; implementation remains closed",
 ]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | docs-only active | vm-hako child must not inherit public Wpre/hv1 route env; v1 emission family and private payload transport are design-only"
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | design accepted, implementation_permission=false | private one-of payload, route scrub/pins, and CanonicalV1 family are fixed; code and monitor changes remain closed"
 accepted_design = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | no code yet | captured MIR-v0/Program-v0 remains a family-preselected ParkedSealed owner",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design accepted | private one-of payload, route scrub/pins, and CanonicalV1 family are fixed; implementation remains closed",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | no code yet | normal decoded module uses execute_loaded_mir_module once; requested CoreDirect preserves tag/rc as typed retired/unavailable terminal",
 ]
 open = [
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | implementation_permission=false",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS",
@@ -388,6 +483,7 @@ execution_row = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
 status = "landed_guard_only"
 phase = "wpre_readiness"
 reused_phases = ["wpre_readiness", "wpre_i0", "typed_global_b1", "r7_closeout"]
+future_reference_phase = "reference_child_i0 | reuse this guard; require private transport one-of, known route-selector scrub/pins, explicit CanonicalV1 entry, one spawn, and zero public Wpre/hv1/Stage1/fallback re-entry"
 allowed_files = [
   "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh",
   "tools/checks/guard_rows.toml",

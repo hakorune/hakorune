@@ -22,13 +22,15 @@ Related:
   `FreeFunction`/`StaticBoxMethod`; canonical MIR JSON is exact v2.0.
 - **Current implementation status:** core still stores `Global(String)`,
   `func`, `Option<Callee>`, and optional Method receivers. B0 census/provenance
-  guards are landed; the shared-runner Wpre boundary is bounded, but D0 follow-up
-  blockers (outside fates, Stage1 precedence, core-direct strategy, and exact
-  strict-root/Value seams) remain open before any parser implementation.
+  guards are landed; outside fates and Stage1/direct arbitration are closed as
+  design decisions. The reference-child design is accepted, but its private
+  transport I0, canonical-v1 Value seam, core-direct fate, force-hv1 fate, and
+  strict-root seams remain closed before parser implementation.
 - **Next ordered task:**
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY`;
-  it is docs-only and keeps parser/semantic behavior closed. Wpre-I0 follows only
-  after the ordered D0 follow-up rows are reconciled.
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`;
+  its design is recorded but implementation remains closed by the current
+  design-stop mode. Wpre-I0 follows only after this I0, the canonical-v1 Value
+  seam, and the remaining D0 follow-up rows are reconciled.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
