@@ -1,10 +1,12 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
-status = "accepted_design_no_safe_slice"
+status = "accepted_fast_s0_shelf_split"
 observed_commit = "4f55c29544"
 observed_at = "2026-08-26"
-implementation_permission = false
+implementation_permission = true
+permission_scope = "S0-SHELF-SPLIT only: behavior-neutral install.rs port impl move; Cataloged I0 and all semantic/target/loan changes remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
+execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-S0-SHELF-SPLIT"
 
 [boundary]
 starts = "RawInvocationRootLineageV1::Cataloged/TopLevel/InstanceConstructor at brand_call_authority_v1"
@@ -31,7 +33,7 @@ non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "Design-only S0 shelf split: freeze the path-preserving move of the NormalCallableSemanticPackagePortV1 impl out of the 738-line install.rs into install/lowering_port.rs, with no API/behavior/production-caller change, no #[path] bridge, and every touched/new source below 760 lines. D0-SIG-CLOSE-F is accepted, but fast implementation remains forbidden until this BoxShape boundary is recorded."
+smallest_next_slice = "Fast S0 shelf split: move only the NormalCallableSemanticPackagePortV1 impl from install.rs:504-738 into install/lowering_port.rs with ordinary mod wiring, mechanical child-path fixes, unchanged API/behavior/production callers, no #[path] bridge, and every touched/new source below 760 lines."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -139,7 +141,7 @@ inventory_d0 = "Continue MIR-CALL-D1B-DIRECT-CALL-SOURCE-INVENTORY-COSEAL-D0: ev
 lineage_d1 = "Continue MIR-CALL-D1B-DIRECT-CALL-SOURCE-OWNER-LINEAGE-COSEAL-D1: co-seal owner/site/source identity/session/brand and map to RawInvocationRootLineageV1 once at the package-to-raw boundary; caller=None is forbidden for source-backed roots."
 precedence_d1 = "Close this root-lineage exact-target matrix: only existing same-session relations may become Targeted; all other rows reject/park before drive_call_arguments_v1."
 d0_sig = "No code: freeze concrete DirectCallInventoryScratchV1 and RawDirectCallDispositionLoanV1 fields, finite disposition states, exact site/lineage key, named Callee issuer, sealed bundle signatures, pre-install abort result, and completion/residual proof. Generic RawDirectCallDispositionLoan<Callee> is forbidden."
-s0_shape = "Next bounded design row: move the NormalCallableSemanticPackagePortV1 impl currently around install.rs:504-738 into normal_callable_semantic_package/install/lowering_port.rs, add a normal module declaration, preserve API/behavior/production callers, and do not add #[path], semantic meaning, a public package field, or a new receipt. Target install.rs ~560 lines and lowering_port.rs ~260-275; every touched/new source stays below 760."
+s0_shape = "Fast implementation row: move the NormalCallableSemanticPackagePortV1 impl currently around install.rs:504-738 into normal_callable_semantic_package/install/lowering_port.rs, add only a normal mod declaration, mechanically fix child-relative paths (for example super::s6c_child -> super::super::s6c_child), preserve API/behavior/production callers, and do not add #[path], semantic meaning, a public package field, or a new receipt. Target install.rs ~505 lines and lowering_port.rs ~255-270; every touched/new source stays below 760."
 i0_cataloged = "First implementation cell only: move the already-issued Cataloged Callee into RawDirectCallDispositionLoanV1, delete the old Targeted { callee, arguments } direct payload, preserve BuiltinGlobal > CurrentOwnerStatic > LocalValue > Extern > UniqueOtherStatic > TypedReject, and prove take_once/residual-zero. No Shadow, Selected, TopLevel, Constructor, profile widening, or Call schema."
 i1_observation = "One atomic production family: Shadow observation -> DirectCallInventoryScratchV1 -> owner/site/source/session/brand co-seal -> unique lineage mapping -> RawDirectCallDispositionLoanV1 or typed terminal -> pre-install abort on incomplete inventory. Scratch-only publication is forbidden."
 i2_installed_loan = "Consume the installed wrapper into begin_lowering and lend RawDirectCallDispositionLoanV1 as &mut through RawInvocationChildPortV1::reborrow; exact-site take_once is the only raw target operation and completion requires zero residual rows."
@@ -203,7 +205,7 @@ design = [
 negative = [
   "no code, fixture, new receipt, target inference, collector-authority change, or backend behavior change",
 ]
-implementation_gate = "false; D0-SIG-CLOSE-F visibility is accepted, but the next row is behavior-neutral S0 shelf split in install.rs/install/lowering_port.rs. Only after S0 preserves API/behavior and stays below 760 may fast mode select the Cataloged guard cell. That cell still requires RawDirectCallDispositionLoanV1 ownership and direct-handoff delete set, private sealed-bundle lifecycle, pre-adapter unique lineage mapper, scoped &mut raw-port reborrow, take-once/residual-zero, and exact Cataloged parity. Before any Selected/Constructor cell, additionally close observation issuer, source inventory, owner/site/session/brand co-seal, total exact-target matrix, pre-install abort, and zero installed-lineage Resolved fallthrough."
+implementation_gate = "S0-only permission=true; prove ordinary module wiring, unchanged public/restricted signatures and production caller census, mechanical path correctness, install.rs/lowering_port.rs each <760, rustfmt/diff-check, and one focused compile gate. RawDirectCallDispositionLoanV1, sealed bundle, bridge, old Targeted payload deletion, semantic observation, Cataloged I0, and all target/recovery changes remain forbidden until a later explicit row."
 guard = "future guard must prove one exact target loan or typed terminal for every admitted root lineage before drive_call_arguments_v1; InstalledNonBrand caller=None and Resolved fallthrough must be zero"
 
 [old_edge_delete_set]
@@ -281,6 +283,20 @@ bundle = "BuilderPrivateInstalledCallableBundleV1 is pub(in crate::mir) by type 
 token = "BuilderInstallTokenV1 is pub(in crate::mir) only as a capability type named by the bridge; construction and fields remain install.rs-private, with no Clone/Copy and one consumption by seal."
 loan = "RawDirectCallDispositionLoanV1 remains Builder-private and is held by the consumer/bundle; it never appears in the package bridge signature, package fields, or a neutral crate."
 next_row = "D0-SIG-CLOSE-F is design-accepted. The next bounded row is S0-SHELF-SPLIT: move the NormalCallableSemanticPackagePortV1 impl (current install.rs ~504-738) to install/lowering_port.rs, preserve API/behavior/callers, avoid #[path], and keep install.rs below 760 before any Cataloged I0 code."
+
+[s0_implementation]
+scope = "BoxShape-only path-preserving refactor. Source boundary is install.rs:504-738; terminal is the same NormalCallableSemanticPackagePortV1 API and all existing callers."
+move_set = [
+  "add `mod lowering_port;` to install.rs",
+  "move the single `impl NormalCallableSemanticPackagePortV1<'_>` block to install/lowering_port.rs",
+  "add explicit child imports and mechanically change parent-relative paths required by the new module depth",
+]
+delete_set = [
+  "the original port impl block in install.rs",
+  "no semantic fields, variants, callers, fallback, target resolver, or test fixture deletion",
+]
+non_claims = "No install bridge, package lifecycle change, direct-call loan, Callee movement, Targeted payload change, observation, Cataloged precedence, Resolved retirement, or backend behavior."
+acceptance = "install.rs ~505 lines; lowering_port.rs ~255-270; both <760; `mod lowering_port;` is the only parent wiring; existing restricted/public signatures remain unchanged; production caller census is unchanged; rustfmt and diff-check pass; one focused compile gate passes; no #[path] added."
 
 [reopen]
 triggers = [
