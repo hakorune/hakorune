@@ -266,7 +266,7 @@ verdict = "Architecture remains Accept, but implementation_permission stays fals
 sealed_lifecycle_gap = "VerifiedNormalCallableSemanticPackageV1::prepare_install and PreparedNormalCallableSemanticPackageInstallV1::commit remain pub(crate); InstalledNormalCallableSemanticPackageV1::begin_lowering takes &self; the normal_default_root_catalog_lifecycle.rs production path can still install without scratch/loan, and many test/reference fixtures exercise the same escape. A private sealed bundle must become the only production install route before fast mode."
 mapper_owner_gap = "The current order is package.begin_lowering -> NormalCallableSemanticPackagePortAdapterV1::new -> inline lineage construction. The mapper must be owned by the package lifecycle sibling and run before adapter construction; the adapter may only receive the installed wrapper."
 loan_lifetime_gap = "RawInvocationChildPortV1 has no direct-call loan field and reborrow() only forwards existing Rc ledgers. The implementation must prove one root-owned Option<&mut RawDirectCallDispositionLoanV1>, shorter recursive reborrow, structured-child forwarding, no clone/copy/child ledger, exact-site take_once, and residual-zero completion."
-cataloged_delete_gap = "PreparedRawOrdinaryFunctionCompletionV1::Targeted { callee, arguments } remains the only production Callee handoff from prepare_cataloged_target_v1 through build.rs; replacing it requires a private loan storage/take seam before deleting the old payload, with production/tests/guard census showing zero old direct handoffs afterward."
+cataloged_delete_gap = "PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments } remains the production Callee handoff from prepare_cataloged_target_v1 through build.rs; BoundedGcTargeted is a separate retained GC route. Replacing CatalogedTargeted still requires a private loan storage/take seam before deleting its direct payload, with production/tests/guard census showing zero Cataloged direct handoffs afterward."
 acceptance_gap = "Before fast mode, require Cataloged positive; missing/foreign/duplicate/ambiguous pre-effect negative; no argument/effect/block mutation before rejection; one take_once; zero residual; one canonical Call; zero Resolved re-entry; and package-only install impossible."
 caller_census = "Direct textual census at a9c24d7230: one non-test prepare_install caller at normal_default_root_catalog_lifecycle.rs:433; begin_lowering production use is program_root_lowering.rs:248 plus the same installed package path; the remaining prepare_install/begin_lowering sites are cfg(test) or *_tests/reference fixtures. This boundary includes direct method calls only and excludes indirect facade calls, which require a separate caller audit before API restriction."
 next_design_tasks = [
@@ -276,6 +276,7 @@ next_design_tasks = [
   "D0-SIG-CLOSE-D: map the exact Cataloged old Targeted payload delete/replace sites and guard inventory before any code cell",
   "D0-SIG-CLOSE-E: write the focused positive/negative/parity acceptance matrix and register the reusable guard owner",
   "D0-SIG-CLOSE-F: freeze the C' one-shot package-to-Builder callback/token: package-private prepare/commit performs semantic install, callback hands ownership by value into a Builder-private bundle, and no bare Installed package escapes",
+  "D0-SIG-CLOSE-F-READINESS: move the four named production callers behind C', then prove callback/token single-use and raw-loan seam readiness before opening fast mode",
 ]
 
 [d0_sig_resolution]
@@ -294,7 +295,7 @@ visibility_rule = "Install.rs owns the bridge and re-exports it from package/mod
 mode_lifetime = "NormalCallableSemanticPackageMode::Installed becomes a mutable borrow of BuilderPrivateInstalledCallableBundleV1. The bundle's begin_lowering(&mut self, context, raw_port, target_binding, constructor_manifest) borrows package immutably for NormalCallableSemanticPackagePortV1 and raw_loan mutably for Option<&mut RawDirectCallDispositionLoanV1>; the adapter and recursive children cannot create a second bundle borrow."
 aliasing_rule = "The consumer object owns only the raw loan and token capability; it does not capture &mut MirBuilder or &mut CompilationContext. The package bridge's &mut CompilationContext ends before Builder lowers through the returned bundle, so the compiler need not accept overlapping Builder/comp_ctx borrows."
 test_boundary = "Package cfg(test) uses a package-owned closure helper or the same opaque consumer surface that keeps install, lowering, and completion inside the helper; it never returns InstalledNormalCallableSemanticPackageV1. External reference fixtures migrate after the single production bridge and remain outside the first production cell."
-callback_acceptance = "D0-SIG-CLOSE-F is accepted: install.rs owns the one production bridge beside private prepare/commit; package/mod.rs only re-exports it as pub(in crate::mir); consumer/bundle/token names are crate::mir-visible, fields and constructors are private, seal is pub(in crate::mir), and begin_lowering/complete are builder-visible. Package-only install call sites are zero outside package/test helper scope, and the compiler must reject a second mutable begin_lowering while the first adapter lives."
+callback_acceptance = "D0-SIG-CLOSE-F design is accepted but not landed: install.rs is the sole bridge owner beside private prepare/commit; package/mod.rs only re-exports it as pub(in crate::mir); consumer/bundle/token names are crate::mir-visible, fields and constructors are private, seal is pub(in crate::mir), and begin_lowering/complete are builder-visible. The current production path still calls prepare_install().commit() at normal_default_root_catalog_lifecycle.rs:429-440 and begin_lowering(&self) at program_root_lowering.rs:245-266, so package-only escape remains a CutoverBlockerOpen."
 
 [d0_sig_visibility]
 bridge_owner = "normal_callable_semantic_package/install.rs owns with_normal_callable_install_once because private prepare_install/commit live there; package/mod.rs re-exports the bridge with pub(in crate::mir) and does not become a second owner."
@@ -302,7 +303,7 @@ consumer = "BuilderInstallConsumerV1 is pub(in crate::mir) by type name, constru
 bundle = "BuilderPrivateInstalledCallableBundleV1 is pub(in crate::mir) by type name, with Builder-private fields/constructor, #[must_use], no Clone/Copy/into_parts/package-only getter; begin_lowering and complete are pub(in crate::mir::builder) and enforce the single mutable loan lifetime."
 token = "BuilderInstallTokenV1 is pub(in crate::mir) only as a capability type named by the bridge; construction and fields remain install.rs-private, with no Clone/Copy and one consumption by seal."
 loan = "RawDirectCallDispositionLoanV1 remains Builder-private and is held by the consumer/bundle; it never appears in the package bridge signature, package fields, or a neutral crate."
-next_row = "D0-SIG-CLOSE-F, S0-SHELF-SPLIT, and D0-SIG-CLOSE-DE-S0-TARGETED-VARIANT-SPLIT are closed. The next bounded design row is I0-CATALOGED-AFFINE-LOAN-D0: implement only after the package bridge, scoped loan lifetime, Cataloged old-payload seam, and reusable guard are ready."
+next_row = "S0-SHELF-SPLIT and D0-SIG-CLOSE-DE-S0-TARGETED-VARIANT-SPLIT are landed; D0-SIG-CLOSE-F is design-accepted but not implemented. The next bounded design row is D0-SIG-CLOSE-F-READINESS: close the package-only caller census, callback/token lifetime, and loan seam before any Cataloged affine-loan code."
 
 [d0_sig_close_de]
 status = "landed"
@@ -355,6 +356,40 @@ evidence = [
 ]
 non_claims = "No affine loan, package bridge, lineage transport, Resolved retirement, Method(None) change, mandatory-Callee cutover, or backend change."
 next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+
+[d0_sig_close_f_readiness]
+status = "design_stop"
+observed_commit = "b0a5187363"
+verdict = "NoSafeSlice: D0-SIG-CLOSE-F is the next design row, but current production callers still bypass the sealed package-to-Builder bridge. Do not create an empty loan or default Callee to make the bridge compile."
+boundary = "normal_callable_semantic_package/install.rs prepare_install/commit -> normal_default_root_catalog_lifecycle.rs production install and source handoff -> program_root_lowering.rs begin_lowering/adapter construction; test/reference callers are included for migration inventory but are not production authority."
+production_callers = [
+  "normal_default_root_catalog_lifecycle.rs:429-440 calls prepare_install().commit()",
+  "normal_default_root_catalog_lifecycle.rs:507-525 passes the installed package through with_bound_source",
+  "normal_default_root_catalog_lifecycle.rs:572-577 reads installed package source_ast()",
+  "program_root_lowering.rs:86-88 and :245-266 accept Installed package by shared reference and call begin_lowering(&self)",
+]
+decisions = [
+  "install.rs remains sole owner of semantic prepare/commit and the one-shot bridge",
+  "the bridge consumes an opaque BuilderInstallConsumerV1 and returns only BuilderPrivateInstalledCallableBundleV1; bare InstalledNormalCallableSemanticPackageV1 never escapes production",
+  "the pre-adapter mapper remains a private sibling and may only move an already-issued Callee; it cannot scan AST, synthesize name/arity/symbol, or rerun CalleeResolverBox",
+  "RawDirectCallDispositionLoanV1 stays Builder-owned and is not introduced until the package bridge and raw-port lifetime seam are ready",
+]
+old_edge_delete_set = [
+  "production prepare_install().commit() path at normal_default_root_catalog_lifecycle.rs:429-440",
+  "production package-only with_bound_source/source_ast handoff at normal_default_root_catalog_lifecycle.rs:507-525 and :572-577",
+  "shared-reference Installed package/begin_lowering path at program_root_lowering.rs:86-88 and :245-266",
+  "any alternate package-only getter, into_parts, Clone/Copy, generic FnOnce callback, or ignored install token",
+]
+acceptance = [
+  "all production install callers enter the one-shot bridge and no bare package result is returned",
+  "consumer/token/bundle are private, non-Clone/non-Copy, non-destructurable, and the token is single-use",
+  "the bridge rejects incomplete/foreign/duplicate direct-call inventory before body or argument effects",
+  "the future raw loan has one root owner and a short &mut recursive reborrow; no clone, Rc, Arc, RefCell, or child ledger",
+  "Cataloged/GC variant parity remains unchanged and the Cataloged direct payload seam is still a separate follow-up",
+]
+guard_owner = "A new mir-call-d1b-cataloged-affine-loan guard will own package-only escape, callback/bundle visibility, raw-loan lifetime, Cataloged direct-handoff zero, take_once, and residual-zero checks; it must be registered before implementation permission opens."
+source_budget = "Do not append bridge/lifetime code to recursive_child_lowering.rs=731, function_call_preflight_route_tests.rs=739, or raw_invocation_source_transport.rs=778. Use owner-specific siblings and preserve the existing ordinary module topology."
+next_row = "D0-SIG-CLOSE-F-IMPLEMENTATION-READINESS"
 
 [s0_implementation]
 scope = "BoxShape-only path-preserving refactor. Source boundary is install.rs:504-738; terminal is the same NormalCallableSemanticPackagePortV1 API and all existing callers."
