@@ -33,7 +33,7 @@ Current capsule:
 
 ```text
   current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
-  implementation    = eight-worker D1B audit is integrated and F.1 issuer-facts reconcile is closed; F.2 canonical issuer decision is the design stop. BridgeReady is package-only, while ordinary observation/inventory/affine loan still has no implementation permission
+  implementation    = ten-worker D1B audit is integrated and F.1 issuer-facts reconcile is closed; D0-SIG-G same-traversal observation is the design stop. BridgeReady is package-only, while ordinary observation/inventory/affine loan still has no implementation permission
   mode              = design_stop
   production stop   = preserve the finite entrance classification, then let one private canonical issuer co-seal an exact static relation and issue one Callee before the affine raw loan; no profile widening, target synthesis, caller=None collapse, cross-cohort index, or second resolver
   exit              = package prepare/install rejects incomplete inventory; owner/site/lineage and target precedence are finite; transient rows consume/drop; zero Resolved/recovery/name-Const/legacy-Call fallthrough
@@ -44,7 +44,7 @@ Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — choose one pre-adapter canon
 Source authority + canonical issuer: no final non-empty Cataloged issuer. A future private pre-adapter owner co-seals owner/site/source/session/brand with an exact static self/sibling relation and issues Callee exactly once. First I0 is same-brand CurrentOwnerStatic/self or unique sibling; declaration rows are not call targets. GC stays separate; BuiltinGlobal/LocalValue/Extern await their own issuer. Raw lineage maps once; the consumer emits MirInstruction::call without resolver retry.
 Non-authority: source name/arity/box/symbol formatting, caller=None, constructor symbols, collector last-wins, BodyEffect/EffectMask, local variable maps, registry/name/args[0] recovery, or a second resolver.
 Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, package inventory, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
-Smallest next slice: D0-SIG-CLOSE-F.2 canonical issuer decision: name the sole pre-adapter owner that turns exact same-brand static self/sibling relation facts into one Callee; keep `prepare_cataloged_target_v1` transitional and do not add loan code until F.2-F.6 close; S0 shelf split landed at 4061c21f45.
+Smallest next slice: D0-SIG-G same-traversal direct-call observation: preserve FunctionCall site/name/arity/source identity in issuer-local scratch without widening SelectedCallableV1 or rescanning AST; then close H/I/J/K before any loan code; S0 shelf split landed at 4061c21f45.
 Non-claims: observation gate implementation, target synthesis, relationless retirement, Method(None), JSON/VM/backend changes, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
