@@ -3,7 +3,7 @@ status = "accepted_design_no_safe_slice"
 observed_commit = "9813d8797c"
 observed_at = "2026-08-26"
 implementation_permission = false
-permission_scope = "Guard-only row landed at 9d8b4be35a: its lifecycle guard and registry entry are complete; semantic bridge/loan/lineage/Call implementation_permission remains false."
+permission_scope = "Guard-only row landed at 9d8b4be35a; F transition is design-only: split BridgeReadyPackageOnly from CatalogedI0Provision before any semantic bridge/loan/lineage/Call implementation_permission opens."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
@@ -409,6 +409,8 @@ source_handoff_decision = "Choose one Builder-private HRTB lowering scope: it in
 raw_capability_decision = "Add a dedicated RawDirectCallDispositionPortV1 capability and an explicit third loan lifetime on RawInvocationChildPortV1. The root owns one Option<&mut RawDirectCallDispositionLoanV1>; reborrow() lends a shorter borrow, RawStructuredChildScopePortV1/RawExpressionDispatchPortV1 forward it explicitly, and RawLegacyChildLoweringPortV1 returns a typed cannot-consume reject. No fallback, Rc/Arc/RefCell, copied ledgers, or per-child state."
 mapper_decision = "The pre-adapter direct-call mapper remains an owner-specific sibling and runs before NormalCallableSemanticPackagePortAdapterV1::new. It validates an existing source/owner/site/session/brand mapping and moves an already-issued Callee; it never rebuilds lineage, name, arity, symbol, or target."
 inventory_gap = "normal_callable_semantic_package/issuer.rs:134-161 and install.rs:269-331 currently have no direct-call inventory product or completeness check. The bridge cannot open until an issuer/coseal owner and pre-install abort for incomplete/foreign/duplicate/mixed-brand rows are named."
+loan_provisioning_gap = "The package issuer emits catalog/batch/selected/constructor products but no non-empty direct-call loan; the only Cataloged Callee issuer is raw preflight prepare_cataloged_target_v1. Empty loan, default/sentinel, name/arity carrier, install-after-attach, and raw-side factory are forbidden."
+phase_amendment = "Split the lifecycle into BridgeReadyPackageOnly (package-only sealed bundle, HRTB source scope, caller closure, raw capability contract, no loan) and CatalogedI0Provision (a separate named issuer co-seals a non-empty Callee loan before raw lowering). The existing WithDirectCalls bundle shape is not used in bridge_ready."
 missing_proofs = [
   "package-only prepare_install/commit and begin_lowering callers are all behind the bridge; bare package escape is impossible",
   "private non-destructurable bundle/token has single-use proof with no package-only getter or into_parts",
@@ -421,6 +423,7 @@ opening_conditions = [
   "D0-SIG-CLOSE-C: freeze the RawInvocationChildPortV1/RawStructuredChildScopePortV1 lifetime and capability forwarding seam",
   "D0-SIG-CLOSE-D/E: name the package direct-call inventory co-seal owner and register the single reusable guard with positive/negative/parity rows",
   "all touched/new sources remain below 760 lines; raw_invocation_source_transport.rs=778 remains untouched or is split behavior-neutrally first",
+  "D0-SIG-CLOSE-F-TRANSITION-AMEND: freeze the package-only bundle shape, non-empty loan provisioning owner, and bridge_ready guard phase before any F code",
 ]
 task_queue = [
   "D0-SIG-CLOSE-A: install.rs owns the C' one-shot bridge; the Builder-private HRTB lowering scope is selected and must remove the package-only source handoff shape from the production caller contract",
@@ -428,11 +431,54 @@ task_queue = [
   "D0-SIG-CLOSE-C: freeze RawDirectCallDispositionPortV1, the explicit third loan lifetime, structured-child forwarding, legacy typed reject, and failure/rollback completion semantics",
   "D0-SIG-CLOSE-D: name issuer.rs direct-call scratch/co-seal ownership, install.rs completeness abort, and the exact Cataloged old-payload replacement edge",
   "D0-SIG-CLOSE-E: register mir-call-d1b-cataloged-affine-loan-lifecycle with readiness and Cataloged-I0 phases plus focused positive/negative/parity proofs",
+  "D0-SIG-CLOSE-F-TRANSITION-AMEND: separate package-only BridgeReadyPackageOnly from CatalogedI0Provision; do not fabricate or carry a non-empty loan before an issuer exists",
 ]
-design_closure = "A/B: accepted with HRTB source scope and full caller delete set; C: accepted with third-lifetime/dedicated-capability amendment; D/E: accepted owner and guard shape. Implementation permission remains false until the guard is registered and the production bridge seam is mechanically closed."
-guard_spec = "One guard only: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh registered in tools/checks/guard_rows.toml. Readiness phase checks package-only escape, visibility, HRTB borrow closure, one root loan capability, and no empty/default inventory; Cataloged-I0 phase adds old Targeted payload zero, exact-site take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0. Unknown phase fails closed."
+design_closure = "A/B: accepted with HRTB source scope and full caller delete set; C: accepted with third-lifetime/dedicated-capability amendment; D/E: accepted owner and guard shape; F transition is amended to a package-only bridge phase because no non-empty Cataloged loan issuer exists at install time. Semantic implementation permission remains false."
+guard_spec = "One guard only: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh registered in tools/checks/guard_rows.toml. Phases are readiness (current pre-implementation boundary), bridge_ready (future package-only bridge closure with no loan provisioning), and cataloged_i0 (future non-empty issuer, take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0). Unknown phase fails closed; the current script lacks bridge_ready and must be amended before F implementation."
 non_claims = "This audit does not implement the bridge, add the loan, preserve source AST in a package, widen Selected/TopLevel/Constructor acceptance, retire Resolved, change Method(None), or cut over Call schema."
 next_design_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
+
+[d0_sig_close_f_transition_amendment_2026_08_26]
+status = "design_stop_no_safe_slice"
+observed_commit = "08e11b90f6"
+decision = "Amend F into two explicit lifecycle phases. BridgeReadyPackageOnly closes package-only escape and source/raw capability seams without claiming a direct-call loan. CatalogedI0Provision is a later row that introduces the first named non-empty Cataloged Callee issuer and affine loan."
+source_authority = "BridgeReadyPackageOnly uses the existing semantic package install owner and existing source HRTB only. CatalogedI0Provision must name a raw-preflight-owned issuer that co-seals all exact Cataloged rows before argument descent; package bridge, mapper, or raw port may not invent that authority."
+non_authority = "Empty/Option/default/sentinel loan, CallTarget/name/arity carrier, AST rescan, install-after-attach, raw-side factory, VerifiedCallableIndexV1 sideways borrow, and post-argument resolver/recovery are not authority."
+bridge_ready_shape = "Use a BuilderPrivateInstalledCallablePackageBundleV1 (package only, #[must_use], private, non-Clone/non-Copy, no into_parts/getter) with a Builder-private HRTB lowering scope. Do not name it WithDirectCalls and do not store RawDirectCallDispositionLoanV1 until CatalogedI0Provision."
+cataloged_provision_shape = "Existing prepare_cataloged_target_v1 remains the behavior reference but is not yet a package-install issuer. A later CatalogedI0 row must co-seal a non-empty exact-site loan keyed by (RawInvocationRootLineageV1, SourceExprSiteV1), then lend it through the raw capability before arguments."
+guard_amendment = "Extend mir-call-d1b-cataloged-affine-loan-lifecycle with bridge_ready between readiness and cataloged_i0. Readiness asserts the pre-implementation surface is absent; bridge_ready asserts all package-only escapes are zero while loan provisioning and CatalogedTargeted remain explicitly pending; cataloged_i0 alone asserts take/call/residual and old-payload retirement."
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "src/mir/normal_callable_semantic_package/install.rs",
+  "src/mir/normal_callable_semantic_package/mod.rs",
+  "src/mir/normal_callable_semantic_package/instance_constructor_loan.rs",
+  "src/mir/builder/normal_default_root_catalog_lifecycle.rs",
+  "src/mir/builder/normal_default_root_catalog_post_install.rs",
+  "src/mir/builder/program_root_lowering.rs",
+  "src/mir/builder/normal_callable_semantic_loan_port.rs",
+  "owner-specific bridge/raw-port siblings and focused tests",
+]
+delete_set = [
+  "bridge_ready: direct prepare_install().commit(), source_ast(), with_bound_source(), shared Installed(&Installed...) and hidden constructor source_ast() production escapes",
+  "bridge_ready: package-only bundle names/returns that imply or contain direct-call loan before a non-empty issuer exists",
+  "cataloged_i0: PreparedRawOrdinaryFunctionCompletionV1::CatalogedTargeted { callee, arguments } direct handoff after exact loan provisioning",
+]
+fail_fast = "If a non-empty issuer cannot be named, remain NoSafeSlice. BridgeReadyPackageOnly must reject/park direct-call inventory claims rather than publish an empty/default product; CatalogedI0 rejects missing/foreign/duplicate/mixed-brand rows before body/argument effects."
+acceptance = [
+  "bridge_ready guard phase is registered and passes with package-only escape zero, HRTB source closure, raw capability contract, and no loan provisioning claim",
+  "package-only bundle is private/non-split/non-Clone/non-Copy and no AST/source getter escapes",
+  "CatalogedI0 remains a separate design row until a named non-empty Callee issuer and co-seal owner exist",
+  "no semantic Call, Resolved, Method(None), mandatory-Callee, or backend changes are included",
+]
+no_safe_slice = [
+  "F attempts to put RawDirectCallDispositionLoanV1 in BridgeReadyPackageOnly without a non-empty issuer",
+  "a package-only bundle retains a WithDirectCalls name or exposes an empty/default loan",
+  "Cataloged Callee is reconstructed from package AST/name/arity or post-install values",
+  "bridge_ready guard phase is claimed without narrowing its checks to the package-only window",
+  "raw_invocation_source_transport.rs=778 or another 760+ owner receives semantic code without a behavior-neutral shelf split",
+]
+next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-TRANSITION-AMEND"
 
 [guard_registration_row]
 status = "landed_guard_only"
@@ -446,7 +492,8 @@ allowed_files = [
 ]
 phases = [
   "readiness: assert the package-only escape is still explicitly pending, affine surface is absent rather than partially wired, no generic Targeted drift exists, and the registry/script/card topology is coherent",
-  "cataloged_i0: future phase only; when the affine implementation lands, require take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0",
+  "bridge_ready: future phase only; package-only sealed bundle/HRTB caller closure and raw capability contract are complete, while no RawDirectCallDispositionLoanV1 or Cataloged direct payload claim is made",
+  "cataloged_i0: future phase only; when a non-empty affine issuer lands, require take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0",
 ]
 fail_closed = "Unknown phase, duplicate/missing registry row, missing script/card, partial semantic surface, generic callback/loan payload, or an accidental production switch exits nonzero. Known baseline warnings and unrelated manifest debt are outside this guard."
 acceptance = "run_row_guard --only mir-call-d1b-cataloged-affine-loan-lifecycle, current_state_pointer_guard, git diff --check, and TOML parse all pass; semantic implementation_permission remains false and the next semantic row remains Cataloged affine-loan I0."
@@ -454,6 +501,23 @@ non_claims = "This row does not implement C', move production callers, add RawDi
 implementation_commit = "9d8b4be35a"
 evidence = "readiness phase passes through run_row_guard; cataloged_i0 phase rejects before implementation; bash -n, current_state_pointer_guard, TOML parse, and git diff --check pass."
 closeout = "Guard-only row is closed. Return to D0-SIG-CLOSE-F-READINESS design_stop; semantic implementation_permission stays false."
+
+[guard_phase_amendment_row]
+status = "selected_fast_guard_only"
+execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-GUARD-PHASE-AMENDMENT"
+scope = "Extend the existing lifecycle guard from readiness/cataloged_i0 to readiness/bridge_ready/cataloged_i0. This row changes only guard phase coverage and registry/card references; it does not implement the package bridge or any direct-call loan."
+allowed_files = [
+  "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+]
+bridge_ready_contract = "The future bridge_ready phase must require package-only production escape zero, HRTB source closure, private package-only bundle (no WithDirectCalls/loan), and explicit CatalogedI0 pending. It must not require or infer a non-empty Callee loan."
+readiness_contract = "The current readiness phase remains green before bridge code and continues to reject partial semantic surface."
+fail_closed = "Unknown phase, duplicate/missing registry, phase/card mismatch, package-only escape still present in bridge_ready, any RawDirectCallDispositionLoanV1 or direct capability in bridge_ready, or CatalogedI0 checks run before its separate issuer row all fail closed."
+acceptance = "readiness remains green; bridge_ready is a strict future phase that fails until the package-only bridge is actually landed; cataloged_i0 remains fail-closed; registry/card/pointer/TOML/diff checks pass."
+non_claims = "No C' bridge, bundle/token, HRTB source implementation, raw capability, Cataloged payload deletion, Resolved retirement, Method(None) change, mandatory-Callee cutover, or backend change."
+next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-TRANSITION-AMEND"
 
 [recursive_compat_facade_shelf_s0]
 status = "landed"
