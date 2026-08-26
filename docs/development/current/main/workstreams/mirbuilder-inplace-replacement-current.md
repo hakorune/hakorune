@@ -31,20 +31,20 @@ diffs and proof transcripts; this card keeps the live task and boundaries.
 Current capsule:
 ```text
   current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
-  implementation    = G/H observation and session-witness audits are integrated; I/Ia issuer audits found no authoritative Callee-bearing Cataloged relation, so the static-only target-bearer decision is the design stop. BridgeReady is package-only, while ordinary observation/inventory/affine loan still has no implementation permission
+  implementation    = G/H observation and session-witness audits are integrated; I/Ia/Ib issuer audits found no authoritative Callee-bearing Cataloged relation, so the per-call-site static-only target-bearer and one-way source bridge remain the design stop. BridgeReady is package-only, while ordinary observation/inventory/affine loan still has no implementation permission
   mode              = design_stop
-  production stop   = preserve the finite entrance classification, let an external same-shadow sink survive the SelectedCallable deferred-error path, then select a source-owned static-only move-only target bearer that issues one Callee before the affine raw loan; no key/name/arity/symbol projection, profile widening, caller=None collapse, cross-cohort index, or second resolver
+  production stop   = preserve the finite entrance classification, let an external same-shadow sink survive the SelectedCallable deferred-error path, then name a one-way source-authority bridge and select a fresh source-owned static-only move-only target bearer per exact call site that issues one Callee before the affine raw loan; no key/name/arity/symbol projection, shared bearer, profile widening, caller=None collapse, cross-cohort index, or second resolver
   exit              = package prepare/install rejects incomplete inventory; owner/site/lineage and target precedence are finite; transient rows consume/drop; zero Resolved/recovery/name-Const/legacy-Call fallthrough
   target fallback / retry = 0; local::recv cached/localized/original fallback is retained
 ```
 Current design brief:
 Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — choose one pre-adapter canonical issuer, co-seal one issuer-local DirectCallInventoryScratchV1 with the exact static relation, issue one Callee, map it once to an affine RawDirectCallDispositionLoanV1, and lend only that issued target before argument effects.
 Source authority + canonical issuer: no final non-empty Cataloged issuer. H defines a private session witness retained opaquely through package/install; I/Ia found that the current catalog and MethodCall-only target products carry only key/name/arity or non-Callee target facts.
-Ib must choose a source-owned static-only move-only target bearer that already issues (or atomically co-seals) Callee; only then may the pre-adapter owner co-seal owner/site/source/session/brand, map lineage once, and lend it.
+Ib/Ic must choose a source-owned static-only move-only target bearer, fresh per exact call site, plus one explicit one-way bridge that already issues (or atomically co-seals) Callee; only then may the pre-adapter owner co-seal owner/site/source/session/brand, map lineage once, and lend it.
 GC stays separate and other precedence arms await their issuer. The consumer emits MirInstruction::call without retry.
 Non-authority: source name/arity/box/symbol formatting, caller=None, constructor symbols, collector last-wins, BodyEffect/EffectMask, local variable maps, registry/name/args[0] recovery, or a second resolver.
 Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, package inventory, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
-Smallest next slice: D0-SIG-Ib target-bearer boundary: freeze the source-authority owner and exact static-only move-only payload, or record the typed TargetPayloadMissing terminal. Do not open J/K or loan code until this decision closes; S0 shelf split landed at 4061c21f45.
+Smallest next slice: D0-SIG-Ic target-bearer boundary: name the source-authority owner/one-way bridge and exact static-only move-only payload, fresh per exact site, or record the typed TargetPayloadMissing terminal. Do not open J/K or loan code until this decision closes; S0 shelf split landed at 4061c21f45.
 Non-claims: observation gate implementation, target synthesis, relationless retirement, Method(None), JSON/VM/backend changes, mandatory-Callee, CallFlags, or warning cleanup.
 ## Closed chronology (archived)
 The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
