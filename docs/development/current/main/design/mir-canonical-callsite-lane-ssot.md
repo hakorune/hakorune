@@ -26,7 +26,7 @@ Related:
   blockers (outside fates, Stage1 precedence, core-direct strategy, and exact
   strict-root/Value seams) remain open before any parser implementation.
 - **Next ordered task:**
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION`;
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY`;
   it is docs-only and keeps parser/semantic behavior closed. Wpre-I0 follows only
   after the ordered D0 follow-up rows are reconciled.
 - **Production stop line:** no formatter, hidden registry, physical symbol,

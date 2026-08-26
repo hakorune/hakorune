@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION
+Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -49,9 +49,9 @@ Fail-fast boundary:
   Stage1 precedence、core-direct fate、strict-root/Value seam未確定は実装前のblocker。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE`。
-  9入口のboundednessは確認済みなので、外部fate、Stage1/direct precedence、
-  core-direct strategy、strict-root/Value seamをdocs-onlyで凍結する。I0はまだ閉じる。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY`。
+  vm-hako childのroute-env isolationとv1 emission familyをdocs-onlyで凍結する。
+  I0はまだ閉じる。
 
 Non-claims:
   schema selector実装、parser/fixture/codec、typed Global、observer/loan、
@@ -221,12 +221,12 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    add reference child re-entry and actual C-ABI/LLVM/runtime callers, and give every
    outside row owner/status/reason/reopen/non-authority. No implementation.
 
-1e. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION (now, design stop)
+1e. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION (completed, design-only)
    explicit Stage1 CLI + any JSON CLI conflicts; multiple JSON CLIs conflict; one explicit
    JSON CLI beats ambient Stage1; no explicit JSON CLI keeps existing Stage1 selection.
    Captured MIR-v0/Program-v0 stays family-selected compatibility.
 
-1f. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY (design stop)
+1f. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY (now, design stop)
    freeze vm-hako child route-environment isolation and v1 emission family; no public
    Wpre/hv1 re-entry or retry is accepted.
 

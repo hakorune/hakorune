@@ -8,9 +8,9 @@ ingress_schema_guard_phase = "wpre_readiness"
 permission_scope = "Only docs-only Wpre D0 profile/root/decoder/outside-fate/arbitration/Value-seam reconciliation is authorized. Parser behavior, typed Global, observer, loan, resolver, wire codec, ABI, EffectMask, Method, backend, and Call schema code remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION"
+execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY"
 completed_execution_row = "MIR-CALL-GLOBAL-TARGET-B0-MACHINE-CENSUS-G0"
-next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY"
+next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE: reconcile outside owner/status/reopen rows, Stage1/direct precedence, core-direct/reference blockers, and exact strict-root/Value seams; docs only."
+smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY: freeze vm-hako child route-environment isolation and v1 emission-family ownership; docs only, no child retry implementation."
 non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
 
 [final_architecture]
@@ -252,7 +252,7 @@ non_authority = [
 ]
 fail_fast = "Strictly parse JSON once; reject non-object, duplicate object keys at any depth, trailing input, malformed/conflicting marker, unsupported explicit schema, entrance/profile mismatch, and selected-decoder failure without another parser. Direct MIR entrance + Program marker is typed wrong-entrance reject; exact v2 before B1 is ParserUnavailable terminal."
 route_arbitration = [
-  "explicit Stage1 CLI plus any explicit JSON CLI (--mir-json-file, --json-file, --ny-parser-pipe) -> typed CLI conflict; multiple explicit JSON CLIs -> typed conflict; no code-order winner",
+  "explicit Stage1 CLI (--hako-run, --hako-emit-mir-json) plus any explicit execution JSON CLI (--mir-json-file, --json-file, --ny-parser-pipe) -> typed CLI conflict; multiple explicit execution JSON CLIs -> typed conflict; no code-order winner",
   "exactly one explicit JSON CLI plus ambient NYASH_USE_STAGE1_CLI -> explicit JSON entry wins and Stage1 child invocation is zero; no explicit JSON CLI -> existing Stage1 selection remains",
   "Stage1 captured MIR-v0/Program-v0 payloads are separate ParkedSealed owners and never a route-arbitration state; macro/REPL/early force routes are non-claims",
   "core-direct execution intent is an in-scope CutoverBlockerOpen overlay; decode once, then use execute_loaded_mir_module once or a family-aware typed retired/unavailable terminal preserving Core tag/rc; no VM fallback",
@@ -347,8 +347,8 @@ unlocated = "Missing source site is typed reject; it is not a generic caller=Non
 relationless = "Explicit compatibility owner only. Ordinary Resolved is an old edge to retire, not a canonical terminal."
 
 [task_spine]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION"
-next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY; Wpre-I0 remains closed until the ordered D0 follow-up blockers are reconciled"
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY"
+next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE; Wpre-I0 remains closed until the ordered D0 follow-up blockers are reconciled"
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
@@ -370,14 +370,15 @@ stop = "Return to design if any follow-up requires a second raw parse, borrowed 
 [wpre_d0_progress]
 completed = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE | docs-only complete | 17 outside rows carry owner/status/reason/reopen/non-authority; shared Wpre remains a bounded 9-row claim",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | design accepted | explicit Stage1/JSON conflict and ambient-env precedence matrix is fixed; implementation remains closed",
 ]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | docs-only active | explicit Stage1 CLI + any explicit JSON CLI conflicts; multiple JSON CLIs conflict; one explicit JSON CLI beats ambient Stage1; no explicit JSON CLI keeps Stage1"
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | docs-only active | vm-hako child must not inherit public Wpre/hv1 route env; v1 emission family and private payload transport are design-only"
 accepted_design = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | no code yet | captured MIR-v0/Program-v0 remains a family-preselected ParkedSealed owner",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | no code yet | normal decoded module uses execute_loaded_mir_module once; requested CoreDirect preserves tag/rc as typed retired/unavailable terminal",
 ]
 open = [
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS",
 ]

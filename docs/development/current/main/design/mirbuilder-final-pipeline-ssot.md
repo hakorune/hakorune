@@ -31,7 +31,7 @@ Related:
   strict-root/Value seams. Typed Global, late recovery, receiver ABI, and
   mandatory-Callee remain closed.
 - **Next ordered task:** complete
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION` and its ordered
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY` and its ordered
   D0 design follow-ups without semantic implementation, then open only the
   bounded shared-runner I0.
 - **Production stop line:** no String formatter, opaque registry, second AST
