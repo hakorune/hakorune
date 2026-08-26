@@ -1,16 +1,16 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "core_direct_r0_landed"
+status = "force_hv1_product_aot_s0_no_safe_slice"
 observed_commit = "e3a07434bd"
 observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "wpre_readiness"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "CORE-DIRECT-RETIRE-R0 is landed: post-decode one-state terminal, no-retry proof, old CoreDirect probe/child/in-proc/fallback deletion, six retired smoke removal, and reusable guard update. The next force-hv1 fate row is design-only; Wpre, typed-Global, observer, loan, method, and Call-schema work remain closed."
+permission_scope = "FORCE-HV1-PHASE2170-PRODUCT-AOT-S0 is design-only after pure-first rejected the attempted Array/Map source shape as array_element_write. Do not edit fixtures, old wrappers/run_all, Rust VM/helper routes, Wpre, typed-Global, observer/loan, method, or Call-schema surfaces until a source-backed capability owner is accepted."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "CORE-DIRECT-RETIRE-R0"
+execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 completed_execution_row = "CORE-DIRECT-RETIRE-R0"
-next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE (design stop; owner vm-active-lane-retirement-ssot)"
+next_execution_row = "FORCE-HV1-PHASE2170-PRODUCT-AOT-S0-DESIGN (source-backed collection lowering capability; owner vm-active-lane-retirement-ssot)"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -338,17 +338,17 @@ stop = "NoSafeSlice if one route requires decoder reparse, substring family sele
 non_claims = "No strict parser implementation, schema selector code, v2 codec, typed Global, effect/default policy, Call cutover, VM/native change, Stage1/selfhost migration, or runtime parity claim."
 
 [force_hv1_fate_d0]
-status = "design_stop_no_implementation"
+status = "product_aot_s0_no_safe_slice"
 manifest_path = "docs/development/current/main/investigations/force-hv1-caller-disposition-manifest-v0.json"
 guard_path = "tools/checks/lib/force_hv1_caller_manifest_guard.py"
 boundary = "HAKO_VERIFY_V1_FORCE_HAKOVM truthy selector through verify_v1_inline_file, verify_mir_rc, phase2170 wrapper-only callers, and the startup terminal; adjacent HAKO_VERIFY_PRIMARY/HAKO_ROUTE_HAKOVM, Wpre, and broad VM internals remain separate."
 source_authority = "The single production selector reader plus named checked-in caller bodies; raw 1* payload shape, script names, and numeric rc are non-authority."
 canonical_issuer = "Each named suite owner issues ProductAot, Stage1Proof/AOT, or HistoricalDelete; ProductAot is one combined source-issued collections family (push/Map/alias/flow/receiver/value claims); the truthy force selector issues one grace terminal before payload parse or execution."
-finite_census = "116 lexical leaves = 33 direct + 74 textual helper + 9 wrapper-only; 78 force reachers / 80 invocations; 38 non-force helper consumers remain residual."
+finite_census = "116 lexical leaves = 33 direct + 74 textual helper + 9 wrapper-only; 78 force reachers / 80 invocations; 38 non-force helper consumers remain residual. These counts remain arithmetic observations until FORCE-HV1-CENSUS-SEMANTIC-GUARD-D0 derives per-leaf route/fate attributes; hv1 failure -> Core fallback is non-authority."
 fates = "HistoricalDelete=69; migration_blocker=9 (8 phase2170 ProductAot rows + 1 Stage1Proof/AOT row); SemanticReference=0; residual=38 ParkedSealed."
 terminal = "Truthy force selector -> stderr exact [force-hv1/retired], stdout empty, rc=1, payload/parse/execute/retry/fallback=0; never redirect to standard-v1, raw-vm-reference, or another route."
-smallest_next_slice = "FORCE-HV1-PHASE2170-PRODUCT-AOT-S0: design one source-issued collections AOT family for Array pushx5 plus Map duplicate-key size (stdout 5\\n2\\n, empty stderr, rc=0); no exact existing successor is observed, so keep implementation_permission=false until its source/runner boundary is accepted."
-stop = "NoSafeSlice if any of the 116 leaves is unclassified, wrapper-only phase2170 or 38 residuals are omitted, force removal falls through to Core, or a successor requires standard-v1 reinterpretation, raw-vm-reference, payload parsing, or fallback."
+smallest_next_slice = "FORCE-HV1-CENSUS-SEMANTIC-GUARD-D0 (design-only): derive per-leaf route/fate attributes without the hv1 failure -> Core fallback edge, then return to FORCE-HV1-PHASE2170-PRODUCT-AOT-S0-DESIGN; pure-first rejected the attempted Array/Map source at array_element_write before EXE, so name the source-backed lowering owner or park ProductAot, with no VM fallback and implementation_permission=false."
+stop = "NoSafeSlice if any of the 116 leaves is unclassified, derived values do not match manifest attributes, the old fallback edge is used as authority, wrapper-only phase2170 or 38 residuals are omitted, force removal falls through to Core, or a successor requires standard-v1 reinterpretation, raw-vm-reference, payload parsing, or fallback."
 
 [core_direct_tag_rc_contract]
 task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-TAG-RC-CONTRACT"

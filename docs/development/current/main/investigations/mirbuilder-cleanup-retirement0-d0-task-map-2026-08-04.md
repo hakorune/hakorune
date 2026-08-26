@@ -703,42 +703,35 @@ second integration task. Branch protection remains an external parked action
 requiring explicit GitHub authorization and named stable checks. Documentation
 cannot claim that external mutation complete.
 
-## Chronic measurement queue (docs-only, parked)
+## Chronic measurement and retirement hygiene queue (docs-only, parked)
 
-`CHRONIC-MEASUREMENT-REFRESH-D0` is the single refresh gate for the four
-observations below. It is a census, not a production cleanup lane. The current
-evidence revision is HEAD `3a894650901547abd3848de4efc6e4bf72601371`; counts are
-upper bounds until ownership/cfg registration is classified. No code,
-`allow(dead_code)` removal, parser behavior, bridge conversion, or fallback
-change is authorized while the current D1B design stop is active. Do not copy
-these bullets into `CURRENT_STATE.toml` or create one card per file.
+`CHRONIC-MEASUREMENT-REFRESH-D0` is the single refresh gate for four observations;
+the two hygiene rows below are separate parked owners, not a production cleanup lane. Evidence is HEAD
+`3a894650901547abd3848de4efc6e4bf72601371`; counts are upper bounds until
+ownership/cfg is classified. No code, allow removal, parser/bridge behavior, or
+fallback change is authorized during the D1B design stop; do not copy these
+bullets into `CURRENT_STATE.toml` or create one card per file.
 
 Required order: `PANIC-SURFACE-CENSUS-D0` and `DEAD-CODE-REMEASURE-D0` first;
-only after those scopes are reproducible may a guard expectation TSV be pinned
-(the current exact dead-code observation is 334, not an accepted production
-baseline).
+pin one expectation TSV only after they are reproducible (334 is observation,
+not a production baseline). Retirement hygiene
+(`RETIREMENT-SENTINEL-NON-GROWTH-D0`) and ledger execution
+(`LEDGER-EXECUTION-INDEX-D0`) stay parked until owners/evidence are registered.
+The future evidence artifact is one refreshed TSV owned by this queue; do not use stale R1
+card `f659d3f941` or its panic partition. It is measurement output, not a semantic receipt
+or implementation gate.
 
-The future evidence artifact is a single refreshed TSV owned by this queue;
-do not create it from the stale R1 card (`f659d3f941`) or treat that card's
-panic partition as current. The TSV is a measurement output, not a semantic
-receipt or implementation gate.
-
-- `PANIC-SURFACE-CENSUS-D0` — finite boundary is registered
-  `src/mir/builder.rs` plus `src/mir/builder/**/*.rs`, from module roots to
-  each `panic!`/`unwrap`/`expect`/`todo!` owner and terminal. Current lexical
-  observation is panic 358, unwrap 2798, expect 2976, todo 0, and exact
-  `#[allow(dead_code)]` 95. Fixture/generated/compatibility/debug/nonselected
-  paths are included as separate states, not silently counted as release
-  production. The old panic partition 251+84+24=359 disagrees with aggregate
-  358, so no selected-production claim or deletion follows from it.
+- `PANIC-SURFACE-CENSUS-D0` — finite boundary is `src/mir/builder.rs` plus
+  `src/mir/builder/**/*.rs`, from roots to each panic/unwrap/expect/todo owner.
+  Observation is 358/2798/2976/0 and exact `#[allow(dead_code)]` is 95;
+  fixture/generated/compat/debug/nonselected paths are separate states, and the
+  disagreeing 251+84+24 partition is not a production claim.
 - `DEAD-CODE-REMEASURE-D0` — finite boundary is crate/module registration
-  (`src/lib.rs`, MIR roots, and included `module_registry.in.rs`) through each
-  exact or compound `dead_code`/`cfg_attr` allowance to its caller/consumer or
-  retirement owner. Current exact observation is 334 lines/111 files;
-  compound-inclusive is 351/126, `src/mir` contributes 266 exact lines,
-  selected Builder scope 95, and `module_registry.in.rs` 79. A module-aware
-  production-live count is not established yet; stale 210/239 baselines must
-  not be used to authorize deletion.
+  (`src/lib.rs`, MIR roots, included `module_registry.in.rs`) through each
+  allowance to its caller/consumer or retirement owner. Current exact
+  observation is 334 lines/111 files (compound-inclusive 351/126; `src/mir`
+  266; selected Builder 95; registry 79). A production-live count is not
+  established; stale 210/239 baselines cannot authorize deletion.
 - `EXTERN-NAME-PARSE-SINGLE-OWNER-D0` — finite boundary is explicit extern
   source/legacy ingress and JSON-v0 `externcall`/program-call input through
   canonical `(iface, method)` / `Callee::Extern` issuance, MIR Call, and the
@@ -753,11 +746,24 @@ receipt or implementation gate.
   needs a transport-owner split and C3 a producer/partial-effect census.
   Existing String variants remain explicit boundaries; typed errors must not be
   silently stringified.
+- `RETIREMENT-SENTINEL-NON-GROWTH-D0` (A④) — census production fixed `ValueId`
+  writes before deletion: JoinIR tail IDs `99991/99992` and Rust VM singleton
+  IDs `999999999/999999998`; test-only fixtures wait for caller proof. The
+  retirement guard proves selected `src` LOC/dead_code do not grow, then
+  replaces each live sentinel with an owner-issued ID or typed terminal.
+- `LEDGER-EXECUTION-INDEX-D0` (D) — one owner validates `guard_rows.toml`, the
+  public check index, and every referenced path before a row is landed. Four
+  missing compatibility names are currently observed:
+  `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_build_registry_exact_top_symbol_variability_guard.sh`,
+  `k2_wide_phase296x_perf_userbox_startup_executable_ret0_bucket_nyash_kernel_runtime_registry_create_default_registry_rebuild_cache_exact_top_symbol_variability_guard.sh`,
+  `rust_lifecycle_mirbuilder_loop_feature_facts_parity_gate.sh`, and
+  `rust_lifecycle_mirbuilder_loop_feature_facts_token_snapshot_hako_adoption_decision_guard.sh`.
+  Resolve or tombstone them explicitly, register the guard in CI, and keep
+  dead-link detection fail-closed; this row does not repair links implicitly.
 
-Each child remains `ParkedSealed` behind its D0 until the census is reproducible
-with owner, include/exclude set, evidence path, and reopen trigger. The future
-expectation TSV/guard may pin only refreshed values and may report drift; a
-passing guard cannot activate a compiler route or prove semantic retirement.
+Each child remains `ParkedSealed` behind its D0 until owner, include/exclude,
+evidence path, and reopen trigger are reproducible. The TSV/guard may report
+drift, but cannot activate a route or prove semantic retirement.
 
 ### Non-claims and stop conditions
 
@@ -786,10 +792,8 @@ passing guard cannot activate a compiler route or prove semantic retirement.
   gate, and explicit rollback boundary.
 - `phi_input_materializer.rs` and route-local PHI repair remain outside T1–T5;
   their size/authority split is a separate behavior-neutral SSA lane.
-- This cleanup card is parked behind active If D0-D1/D0-D2 implementation and
-  may run in parallel only as read-only audit/design work until a bounded row
-  is promoted after a clean-worktree boundary. T3/T4 must not move/delete `BindingSsaBuilderV1`,
-  `PhiTxn`, `CanonicalCfgSessionV1`, Loop/JoinIR PHI writers, or change
-  route/Recipe semantics. Existing semantic/lifecycle PHI/SSA owners are
-  authoritative, but exclusive production writer retirement remains a later
-  migration lane.
+- This cleanup card is parked behind active If D0-D1/D0-D2 implementation;
+  only read-only audit/design may run until promotion at a clean boundary.
+  T3/T4 must not move/delete `BindingSsaBuilderV1`, `PhiTxn`,
+  `CanonicalCfgSessionV1`, Loop/JoinIR PHI writers, or change route/Recipe
+  semantics; exclusive production writer retirement is a later lane.

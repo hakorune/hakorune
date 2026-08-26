@@ -35,9 +35,27 @@
       "NYASH_VERIFY_JSON payload/presence",
       "HAKO_VERIFY_PRIMARY=hakovm",
       "HAKO_ROUTE_HAKOVM=1",
-      "--backend vm"
+      "--backend vm",
+      "hv1 failure -> Core fallback routing"
     ]
   },
+  "census_contract": {
+    "status": "design_only",
+    "derivation": "Re-derive caller-family, reachability, invocation, and fate values from each named leaf script plus the selector reader; do not accept arithmetic constants as semantic evidence.",
+    "manifest_attributes": ["path", "caller_family", "invocation_count", "reachability", "fate"],
+    "authority": "Named leaf-script route text and the force selector reader, with the old helper failure path excluded from the proof boundary.",
+    "non_authority": ["hardcoded 78/80 constants", "numeric child rc alone", "verify_mir_rc failure -> Core fallback", "filtered or merged output", "script filename claims"],
+    "acceptance": "Derived values equal expected_counts, every leaf has a route/fate attribute, and the census remains valid when the deleted fallback edge is absent; mismatch is a fail-closed design result."
+  },
+  "cleanup_targets": [
+    {
+      "path": "tmp/core_exec_direct.hako",
+      "status": "untracked_residual",
+      "owner": "CoreDirect retirement",
+      "disposition": "register as a cleanup target, then remove only after the landed R0 evidence no longer needs the generated probe",
+      "non_authority": "ignored temporary artifact; not a live selector or product route"
+    }
+  ],
   "expected_counts": {
     "lexical_leaves": 116,
     "caller_family": {
@@ -314,7 +332,8 @@
   ],
   "task_order": [
     "FORCE-HV1-CALLER-DISPOSITION-D0: freeze this named 116-leaf matrix and selector-alone terminal; no implementation",
-    "FORCE-HV1-PHASE2170-PRODUCT-AOT-S0: prove array_push_size_5_vm.sh and map_set_dup_key_size_canary_vm.sh through source-issued LLVM/EXE/AOT",
+    "FORCE-HV1-CENSUS-SEMANTIC-GUARD-D0: derive per-leaf route/fate attributes and counts from leaf scripts; remove the old hv1-failure-to-Core edge from census authority; no implementation",
+    "FORCE-HV1-PHASE2170-PRODUCT-AOT-S0-DESIGN: name a source-backed Array/Map lowering capability after the first source shape hit pure-first array_element_write; no VM fallback",
     "FORCE-HV1-PHASE2170-PRODUCT-AOT-S1: migrate the remaining six ProductAot wrappers and update run_all atomically",
     "FORCE-HV1-SELFHOST-STAGE1-AOT-S0: land the one exact selfhost emit-to-AOT successor for rc42",
     "FORCE-HV1-HISTORICAL-DELETE-R0: remove the 69 named direct/helper/wrapper probes (including the two phase2170 hv1_mircall duplicates) without touching 38 residual consumers",
@@ -337,7 +356,9 @@
     "residual consumers = 38 and remain outside the narrow helper deletion",
     "HistoricalDelete/ProductAot/Stage1ProofAot/SemanticReference/ParkedSealedResidual = 69/8/1/0/38",
     "unclassified = 0",
-    "implementation_permission remains false until a successor guard consumes this manifest"
+    "implementation permission remains false after ProductAot S0 NoSafeSlice; old wrappers/run_all, Rust VM/helper routes, and 38 residual consumers remain unchanged",
+    "semantic census guard remains design-only until per-leaf derivation matches the manifest and does not use hv1 failure -> Core fallback",
+    "tmp/core_exec_direct.hako is registered as an ignored cleanup target, not treated as live evidence"
   ],
   "no_safe_slice": [
     "any path is omitted, duplicated, or unclassified",

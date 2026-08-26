@@ -34,7 +34,7 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 Decision:
   CanonicalV1 Value S0は着地済み。VM fate監査はRust engineの最終撤退を受理したが、
   MirBuilder本線を優先し、WpreをbypassするCoreDirectとforce-hv1だけを先に閉じる。
-  CoreDirect D0の6行分類、ProductAot substring S0、R0のone-state post-decode terminal/no-retry deletionは着地し、次はforce-hv1の有限caller fateを設計停止で閉じる。
+  CoreDirect D0の6行分類、ProductAot substring S0、R0のone-state post-decode terminal/no-retry deletionは着地し、force-hv1の有限caller fateを凍結した。ProductAot S0はsource attemptがarray_element_writeでpure-firstに拒否されたため、backend capability ownerを設計するまで停止する。
 
 Source authority + canonical issuer:
   各suite ownerがproduct AOT、semantic reference、Stage1 proof、compile-only、retireの
@@ -49,7 +49,12 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`。CoreDirect R0は着地済みで、116 leafの分類はsidecar/guardで凍結済み。次は既存の完全一致AOT証拠が無い8 phase2170 ProductAotを一つのsource-issued collections familyとして設計し、S0はArray push×5＋Map duplicate-key size（stdout `5\\n2\\n`、stderr空、rc0）に限定する。38 residualは保持する。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`。CoreDirect R0は着地済みで、116 leafの lexical matrix は sidecar/guard で固定済みだが、意味論的な leaf-derived census は設計中。phase2170 ProductAot S0は完全一致AOT証拠が無く、試行したArray push/Map sourceがpure-firstのarray_element_writeで停止した。次はsource-backed lowering capabilityのownerを設計し、38 residualは保持する。
+
+Design-only follow-up:
+  force-hv1 censusはleaf scriptからper-path属性とderived countを再計算し、旧
+  `hv1 failure -> Core fallback` edgeをauthorityから除外する。A④ sentinel/non-growthと
+  D ledger/index/dead-link checksはcleanup task mapへ登録済み。これらは実装許可ではない。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
@@ -251,7 +256,8 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    non-force residual consumers. Fates are HistoricalDelete=69, migration blockers=9,
    SemanticReference=0; migrate, retire, or archive each named caller and supersede
    the startup guard; standard-v1 reroute is forbidden.
-   Design order: phase2170 wrapper-only ProductAot pilot
+   Design order: force-hv1 semantic census guard (leaf-derived, old fallback independent)
+   -> phase2170 wrapper-only ProductAot pilot
    (array_push_size_5_vm.sh + map_set_dup_key_size_canary_vm.sh) -> remaining six
    ProductAot rows + run_all aggregate -> selfhost Stage1Proof/AOT -> 69
    HistoricalDelete rows (including the two hv1_mircall duplicates) -> narrow
@@ -504,10 +510,12 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
   ExplicitExtern, ASTNode::Call, and ArrayElementWrite until their owners select.
 - warning/dead-code/chronic measurement work in the cleanup map.
   Its fixed order is `CHRONIC-MEASUREMENT-REFRESH-D0` ->
-  `CHRONIC-MEASUREMENT-EXPECTATION-I0` ->
-  `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0`: reproduce and classify first, emit one
-  expectation TSV/refresh guard second, then tombstone the stale per-script
-  thresholds. Exact 334 is an observation, never an automatic production ceiling.
+  `PANIC-SURFACE-CENSUS-D0`/`DEAD-CODE-REMEASURE-D0` ->
+  `CHRONIC-MEASUREMENT-EXPECTATION-I0` -> `ASTCLEAN-STALE-GUARD-SUPERSEDE-R0`:
+  reproduce/classify first, emit one expectation TSV/refresh guard second, then
+  tombstone stale per-script thresholds. Exact 334 is observation, never a
+  production ceiling; A④ sentinel/non-growth and D ledger/index rows remain
+  parked until their owners/evidence are registered.
 - performance, mimalloc, llvmlite, Hako converter, Loop/M8/M9, and physical-type
   follow-ups until `CURRENT_STATE.toml` reselects them.
 - broad Context/metadata/port/barrel cleanup until Call R7.
