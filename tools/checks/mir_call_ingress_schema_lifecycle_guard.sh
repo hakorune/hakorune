@@ -15,10 +15,10 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0|force_hv1_fate_d0|wpre_readiness]"
+[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0|force_hv1_fate_d0|force_hv1_direct_historical_delete_r0|wpre_readiness]"
 PHASE="${1:-wpre_readiness}"
 case "$PHASE" in
-  wpre_readiness|reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0|force_hv1_fate_d0) ;;
+  wpre_readiness|reference_child_i0|canonical_v1_value_s0|core_direct_substring_product_aot_s0|core_direct_retire_r0|force_hv1_fate_d0|force_hv1_direct_historical_delete_r0) ;;
   wpre_i0|typed_global_b1|r7_closeout)
     fail "recognized future phase is not landed: $PHASE"
     ;;
@@ -31,7 +31,7 @@ for file in "$CARD" "$STATE" "$WORKSTREAM" "$MANIFEST" "$INDEX"; do
   [[ -f "$file" ]] || fail "required owner missing: ${file#$ROOT_DIR/}"
 done
 
-if [[ "$PHASE" == "force_hv1_fate_d0" ]]; then
+if [[ "$PHASE" == "force_hv1_fate_d0" || "$PHASE" == "force_hv1_direct_historical_delete_r0" ]]; then
   python3 "$ROOT_DIR/tools/checks/lib/force_hv1_caller_manifest_guard.py" \
     "$CARD" "$FORCE_MANIFEST" "$STATE" "$WORKSTREAM"
   exit 0

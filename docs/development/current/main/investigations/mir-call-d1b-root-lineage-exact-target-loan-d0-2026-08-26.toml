@@ -1,16 +1,16 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "force_hv1_census_per_leaf_schema_s0_landed"
+status = "direct_historical_delete_r0_fast_open"
 observed_commit = "e3a07434bd"
 observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "wpre_readiness"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0 landed: v1 body observation is closed. Route/env semantics, fate, fixtures, wrappers/run_all, Rust VM, Wpre, ProductAot, typed-Global, observer/loan, method, and Call-schema edits remain forbidden."
+permission_scope = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 fast-open: only the reviewed 30 direct leaves, their phase2047-2050 projections, manifest/guard, and current owner docs may change; PHI/provider exceptions, phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, VM, and Call-schema edits remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 completed_execution_row = "CORE-DIRECT-RETIRE-R0"
-next_execution_row = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 (owner-reviewed candidate; implementation remains closed)"
+next_execution_row = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -341,6 +341,8 @@ non_claims = "No strict parser implementation, schema selector code, v2 codec, t
 status = "census_s0_landed"
 census_s0_status = "landed"
 census_s0_implementation_permission = false
+direct_historical_delete_r0_status = "fast_open"
+direct_historical_delete_r0_implementation_permission = true
 manifest_path = "docs/development/current/main/investigations/force-hv1-caller-disposition-manifest-v1.json"
 guard_path = "tools/checks/lib/force_hv1_caller_manifest_guard.py"
 boundary = "HAKO_VERIFY_V1_FORCE_HAKOVM truthy selector through verify_v1_inline_file, verify_mir_rc, phase2170 wrapper-only callers, and the startup terminal; adjacent HAKO_VERIFY_PRIMARY/HAKO_ROUTE_HAKOVM, Wpre, and broad VM internals remain separate."
@@ -349,7 +351,7 @@ canonical_issuer = "Each named suite owner issues ProductAot, Stage1Proof/AOT, o
 finite_census = "Legacy arithmetic snapshot is non-authority. S0 parses only tracked leaf/helper bodies with a finite grammar: literal verify_v1_inline_file, literal verify_mir_rc, or the five literal run_verify_mir_via_hakovm_* wrapper callbacks; env/command/eval/pipeline/subshell/background/negation/alias/dynamic source and computed artifacts fail closed. sites[] is the sole lexical counter (120 total): direct-force sealed 33/33, helper-force conditional 44/45, explicit-core residual 35/35, dynamic-artifact open 4/7; potential-force 81/85 is observation only. Inherited selectors, fallback, rc, stdout, and runtime repetition are recorded as attributes or non-authority, never used to seal fate."
 fates = "Body route matrix: direct 33/33 = 30 design-accepted HistoricalDelete candidates, two explicit R0b exceptions, and one Stage1 AOT blocker; helper/wrapper 44/45 = CutoverBlockerOpen; explicit-core 35/35 = ParkedSealed candidates with broad verify_mir_rc retirement as reopen trigger; phase2034 dynamic 4/7 = CutoverBlockerOpen. The 30-path family review and body digest live in manifest.fate_review; legacy 69/9/0/38 totals remain non-authority."
 terminal = "Truthy force selector -> stderr exact [force-hv1/retired], stdout empty, rc=1, payload/parse/execute/retry/fallback=0; never redirect to standard-v1, raw-vm-reference, or another route."
-smallest_next_slice = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 (design-only): family review is recorded for 30 paths with a body digest and six projection owners; the PHI witness and provider route remain explicit R0b exceptions in manifest.fate_review. Before fast open, validate the 30-path selector and projections; keep both exceptions, the Stage1 blocker, 44/45 conditional, 35/35 explicit-core, and 4/7 dynamic sites active. No route, env, fallback, fixture, ProductAot, or Wpre change."
+smallest_next_slice = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 is fast-open: delete only the reviewed 30 direct leaves and update phase2047-2050 projections plus manifest/guard/owner docs; keep PHI/provider R0b exceptions, phase2051/phase2100, Stage1, 44/45 conditional, 35/35 explicit-core, and 4/7 dynamic sites active. No startup, fallback, Wpre, VM, or Call-schema change."
 stop = "NoSafeSlice if any of the 116 leaves or 120 lexical sites is omitted/duplicated, 78/80/38 is claimed as semantic closure, inherited ambient route settings are hidden, conditional or unresolved rows are ParkedSealed, derived values do not match reviewed attributes, the old fallback edge is used as authority, force removal falls through to Core, or Array/Map successors require standard-v1 reinterpretation, raw-vm-reference, payload parsing, or fallback."
 
 [core_direct_tag_rc_contract]

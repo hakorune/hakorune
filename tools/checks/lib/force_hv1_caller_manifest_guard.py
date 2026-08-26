@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import sys
 import tomllib
@@ -100,6 +101,104 @@ if state.get("current_execution_row") == "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0":
         "phase=force_hv1_census_s0 leaves=116 sites=120 "
         "direct=33/33 conditional=44/45 explicit_core=35/35 dynamic=4/7 "
         "fate=unmodified implementation=fast_open"
+    )
+    raise SystemExit(0)
+
+if state.get("current_execution_row") == "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0":
+    row = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
+    if state.get("work_mode") != "fast":
+        fail("direct HistoricalDelete R0a requires CURRENT_STATE work_mode=fast")
+    if state.get("next_execution_card") != row:
+        fail("direct HistoricalDelete R0a next execution card drifted")
+    if card.get("status") != "direct_historical_delete_r0_fast_open":
+        fail("active card is not marked direct HistoricalDelete R0a fast-open")
+    if fate.get("direct_historical_delete_r0_status") != "fast_open":
+        fail("direct HistoricalDelete R0a scoped status is not fast_open")
+    if fate.get("direct_historical_delete_r0_implementation_permission") is not True:
+        fail("direct HistoricalDelete R0a scoped permission is not set")
+    review = manifest.get("fate_review")
+    if not isinstance(review, dict) or review.get("task_id") != row:
+        fail("direct HistoricalDelete R0a fate review is missing")
+    if review.get("status") != "design_accepted_candidate":
+        fail("direct HistoricalDelete R0a fate review status drifted")
+    if review.get("implementation_permission") is not False:
+        fail("fate review must not expose implementation permission")
+    family = review.get("reviewed_family")
+    if not isinstance(family, dict) or family.get("path_count") != 30:
+        fail("direct HistoricalDelete R0a reviewed family must contain 30 paths")
+    groups = manifest.get("groups")
+    if not isinstance(groups, list):
+        fail("manifest groups are missing for direct HistoricalDelete R0a")
+    matches = [
+        group
+        for group in groups
+        if isinstance(group, dict)
+        and group.get("caller_family") == "direct"
+        and group.get("fate") == "HistoricalDelete"
+    ]
+    if len(matches) != 1:
+        fail("direct HistoricalDelete R0a source group is not unique")
+    group_paths = matches[0].get("paths")
+    exceptions = set(review.get("exception_paths") or [])
+    expected_exceptions = {
+        "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh",
+    }
+    if exceptions != expected_exceptions or not exceptions.issubset(set(group_paths or [])):
+        fail("direct HistoricalDelete R0a exception paths drifted")
+    candidate_paths = [path for path in group_paths if path not in exceptions]
+    if len(candidate_paths) != 30:
+        fail("direct HistoricalDelete R0a candidate set is not 30 paths")
+    observations = manifest.get("observations")
+    leaf_paths = manifest.get("leaf_paths")
+    if not isinstance(observations, dict) or not isinstance(leaf_paths, list):
+        fail("body-derived v1 inventory is missing for direct HistoricalDelete R0a")
+    if set(observations) != set(leaf_paths):
+        fail("body-derived observations do not cover the active leaf inventory")
+    for path in candidate_paths + sorted(exceptions):
+        if not (root / path).is_file():
+            fail(f"direct HistoricalDelete R0a source leaf is missing: {path}")
+    records = sorted((path, observations[path].get("body_sha256")) for path in candidate_paths)
+    if any(not isinstance(digest, str) for _, digest in records):
+        fail("direct HistoricalDelete R0a body digest is missing")
+    digest = hashlib.sha256("".join(f"{path}\0{body}\n" for path, body in records).encode()).hexdigest()
+    if family.get("body_digest_sha256") != digest:
+        fail("direct HistoricalDelete R0a body digest drifted")
+    projection_owners = review.get("projection_owners")
+    if not isinstance(projection_owners, list) or len(projection_owners) != 7:
+        fail("direct HistoricalDelete R0a projection owner inventory drifted")
+    missing_projection = [path for path in projection_owners if not (root / path).is_file()
+    ]
+    if missing_projection:
+        fail("direct HistoricalDelete R0a projection owner missing: " + ", ".join(missing_projection))
+    try:
+        derived = derive_inventory(root, leaf_paths)
+    except ValueError as error:
+        fail(str(error))
+    for item in derived:
+        if observations.get(item["path"]) != item:
+            fail(f"body-derived observation drifted: {item['path']}")
+    if manifest.get("observed_counts") != {
+        "lexical_leaves": 116,
+        "lexical_sites": 120,
+        "route_class": {
+            "DirectForceSealed": 33,
+            "HelperForceConditional": 44,
+            "ExplicitCoreResidualSealed": 35,
+            "DynamicArtifactOpen": 4,
+        },
+        "route_sites": {
+            "DirectForceSealed": 33,
+            "HelperForceConditional": 45,
+            "ExplicitCoreResidualSealed": 35,
+            "DynamicArtifactOpen": 7,
+        },
+    }:
+        fail("direct HistoricalDelete R0a must start from the landed 116/120 observation")
+    print(
+        f"[{TAG}] result_class=current-change failure status=pass "
+        "phase=force_hv1_direct_historical_delete_r0 candidate=30 "
+        "exceptions=2 active_leaves=116 active_sites=120 implementation=fast_open"
     )
     raise SystemExit(0)
 

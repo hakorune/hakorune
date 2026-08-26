@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE
+Status: Fast — FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -50,8 +50,8 @@ Fail-fast boundary:
 
 Smallest next slice:
   `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
-  30件のdirect HistoricalDeleteはbody digest・projection ownerつきのR0a候補レビューをmanifest.fate_reviewへ固定した。PHI witnessとprovider routeは実行証拠不足のためR0b例外として残し、実装許可は閉じたまま。legacy non-force residual consumersは旧算術の非authority。
-  phase2170 ProductAotはexact successor無し、Array pushはpure-firstのarray_element_writeで停止中。
+  `FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0` is fast-open for 30 direct HistoricalDelete leaves with a body digest and projection owner set. The PHI witness and provider route remain explicit R0b exceptions; legacy non-force residual consumers are still non-authority.
+  R0a may touch only phase2047-2050 projections and owner docs/guard; phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, and Call schema remain closed. phase2170 ProductAot is still blocked at array_element_write.
 
 Design-only follow-up:
   force-hv1 censusは各leaf本文とsealed environment contractからbody_sha256、

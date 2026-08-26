@@ -18,13 +18,17 @@ Related:
   are four separate lifecycle stages.
 - **Current implementation status:** `VM-RUNTIME-RETIREMENT-FATE-D0`, the
   six-row `CORE-DIRECT-RETIRE-D0`, ProductAot substring S0, and CoreDirect R0
-  are landed. No broad route or engine deletion is authorized; the MirBuilder
-  Call spine remains the serial implementation authority.
+  are landed. The direct force-hv1 R0a is fast-open for 30 reviewed historical
+  leaves only; PHI/provider exceptions and all broad route or engine deletion
+  remain closed. The MirBuilder Call spine remains the serial implementation
+  authority.
 - **Next ordered task:** the current row is
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`, a design stop for
-  the finite force-hv1 caller disposition and startup bypass terminal. The
-  pre-Wpre CoreDirect one-state terminal is closed; `unavailable` remains
-  parked until Wpre owns a family issuer.
+  `FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0`, a bounded fast row for the 30
+  reviewed direct leaves and phase2047-2050 projections. The PHI witness and
+  provider route remain R0b exceptions; Stage1, conditional/dynamic rows,
+  startup, fallback, and Wpre remain closed. The pre-Wpre CoreDirect one-state
+  terminal is closed; `unavailable` remains parked until Wpre owns a family
+  issuer.
 - **Production stop line:** existing VM code or tests never authorize product
   parity, fallback, or a new compatibility route; retirement must not redirect
   incompatible inputs to another parser or executor.
@@ -55,8 +59,9 @@ Fail-fast boundary:
   A retired selector has one stable terminal and retry/fallback zero. An HMI
   capability miss fails before effects and never retries in Rust.
 Smallest next slice:
-  CORE-DIRECT-RETIRE-R0: ProductAot S0 is landed; prove the one-state
-  post-decode retired terminal and retry/fallback=0 before CoreDirect deletion.
+  FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0: remove the 30 reviewed direct leaves
+  with phase2047-2050 projections and body-derived residual-zero evidence;
+  retain the PHI/provider exceptions and all non-direct families.
 Non-claims:
   No broad VM/default-mir/engine deletion, no vm-hako enhancement, no HMI
   carrier selection, no PyVM archive deletion, and no llvmlite G3 approval.
