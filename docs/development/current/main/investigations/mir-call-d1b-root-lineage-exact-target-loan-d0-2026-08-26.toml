@@ -233,7 +233,7 @@ outside = "hv1_inline has a production force route and is not test-only. Stage-A
 [wpre_profile_root_decoder_design_row]
 task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-PROFILE-ROOT-DECODER-CONTRACT"
 status = "selected_design_stop_no_implementation"
-boundary = "All compiled JSON artifact entrances that can select MIR-v2/v1/MIR-v0/Program-v0 -> one owner-private profile, one parsed root Value, one selected decoder or typed terminal. Selfhost/Stage1/core-direct routes are explicitly profiled; no route may silently bypass or retry the selector."
+boundary = "Shared-runner family-unknown JSON artifact entrances (the nine B0-projected rows) that can select MIR-v2/v1/MIR-v0/Program-v0 -> one owner-private profile, one parsed root Value, one selected decoder or typed terminal. Selfhost/Stage1/core-direct and other family-preselected routes have separate explicit fates; no in-scope route may silently bypass or retry the selector."
 source_authority = "Entrance profile supplied by the owning runner route plus one strict JSON-root parse. The parsed serde_json::Value is the only root handoff; selected decoders own schema/body semantics."
 canonical_issuer = "Owner-local Wpre selector consumes the entrance profile and parsed root once, returns a selected typed decoder terminal or a typed reject; no semantic Verified*/Prepared* receipt is introduced in this design row."
 non_authority = [
@@ -313,7 +313,7 @@ allowed_files = [
   "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md",
   "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md",
 ]
-done = "B0 is landed guard-only; the shared Wpre-I0 boundary is bounded to 9 known runner rows, outside routes have explicit owners/fates, one parsed-root/value contract and finite root matrix are recorded, and implementation remains forbidden. No parser or fallback code changes occur."
+done = "B0 is landed guard-only; the shared Wpre-I0 boundary is bounded to 9 known runner rows, outside routes have explicit owners/fates, one parsed-root/value contract and finite root matrix are recorded, order sync and fallback-card reconciliation are recorded, and implementation remains forbidden. No parser or fallback code changes occur."
 stop = "NoSafeSlice if one route requires decoder reparse, substring family selection, duplicate-key last-wins, instruction/body semantics for root choice, explicit-error retry, Stage1/hv1 bypass, same-line dual framing, or a new semantic receipt."
 non_claims = "No strict parser implementation, schema selector code, v2 codec, typed Global, effect/default policy, Call cutover, VM/native change, Stage1/selfhost migration, or runtime parity claim."
 
