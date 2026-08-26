@@ -2,9 +2,6 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../../../../../.." && pwd)"
 
-echo "[phase2049] Running hv1 inline minimal reps (binop/unop/copy)..."
-bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter 'phase2049/hv1_inline_*'
-
 echo "[phase2049] Running dev/prod resolver SSOT reps..."
 bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter 'phase2049/dev_preinclude_off_on_parity_canary_vm.sh'
 bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter 'phase2049/dev_alias_entry_canary_vm.sh'

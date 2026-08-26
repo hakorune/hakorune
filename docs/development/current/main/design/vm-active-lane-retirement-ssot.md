@@ -17,16 +17,15 @@ Related:
   current `vm-hako` retirement, and the future independent `.hako` artifact
   are four separate lifecycle stages.
 - **Current implementation status:** `VM-RUNTIME-RETIREMENT-FATE-D0`, the
-  six-row `CORE-DIRECT-RETIRE-D0`, ProductAot substring S0, and CoreDirect R0
-  are landed. The direct force-hv1 R0a is fast-open for 30 reviewed historical
-  leaves only; PHI/provider exceptions and all broad route or engine deletion
-  remain closed. The MirBuilder Call spine remains the serial implementation
-  authority.
-- **Next ordered task:** the current row is
-  `FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0`, a bounded fast row for the 30
-  reviewed direct leaves and phase2047-2050 projections. The PHI witness and
-  provider route remain R0b exceptions; Stage1, conditional/dynamic rows,
-  startup, fallback, and Wpre remain closed. The pre-Wpre CoreDirect one-state
+  six-row `CORE-DIRECT-RETIRE-D0`, ProductAot substring S0, CoreDirect R0, and
+  force-hv1 direct HistoricalDelete R0a are landed. R0a retired 30 reviewed
+  leaves with active 86/90 body-derived evidence. PHI/provider exceptions and
+  all broad route or engine deletion remain closed. The MirBuilder Call spine
+  remains the serial implementation authority.
+- **Next ordered task:** the current row is the force-hv1 fate design stop
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE`: review the PHI and
+  provider R0b exceptions and the remaining Stage1/conditional/dynamic rows.
+  Startup, fallback, and Wpre remain closed. The pre-Wpre CoreDirect one-state
   terminal is closed; `unavailable` remains parked until Wpre owns a family
   issuer.
 - **Production stop line:** existing VM code or tests never authorize product

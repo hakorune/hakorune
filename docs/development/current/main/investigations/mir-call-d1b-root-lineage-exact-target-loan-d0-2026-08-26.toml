@@ -1,16 +1,16 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "direct_historical_delete_r0_fast_open"
+status = "direct_historical_delete_r0_landed"
 observed_commit = "e3a07434bd"
 observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "wpre_readiness"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 fast-open: only the reviewed 30 direct leaves, their phase2047-2050 projections, manifest/guard, and current owner docs may change; PHI/provider exceptions, phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, VM, and Call-schema edits remain forbidden."
+permission_scope = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 landed: 30 reviewed direct leaves and their phase2047-2050 projections are retired with residual-zero evidence; PHI/provider exceptions, phase2051/phase2100, Stage1, conditional/dynamic families, startup, fallback, Wpre, VM, and Call-schema edits remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 completed_execution_row = "CORE-DIRECT-RETIRE-R0"
-next_execution_row = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
+next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE: replace the arithmetic caller snapshot with a body-derived leaf schema before choosing a startup-bypass fate; CoreDirect R0 is landed, while force-hv1 ProductAot successors remain design-only and have no exact existing AOT proof."
+smallest_next_slice = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE: review the two R0b exceptions and remaining Stage1/conditional/dynamic families; R0a retired 30 direct leaves with active 86/90 body-derived evidence, while force-hv1 ProductAot successors remain design-only."
 non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
 
 [final_architecture]
@@ -203,7 +203,7 @@ outside_owner_inventory = [
   "selfhost_python_route | src/runner/selfhost.rs | heuristic Python Program extraction and fallthrough | status=ParkedSealed | owner=selfhost Python compatibility | reason=route status is not a Wpre profile | reopen=typed status/error terminal | non_authority=heuristic line presence",
   "selfhost_inline_route | src/runner/selfhost.rs | inline empty Program payload production trigger | status=ParkedSealed | owner=selfhost inline compatibility | reason=retire-or-type decision is separate | reopen=explicit mode Decision | non_authority=empty-string parse success",
   "selfhost_compat_bridge | src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs | Program -> Hako MIR -> Rust bridge fallback | status=ParkedSealed | owner=selfhost compatibility bridge | reason=bridge cannot select or re-enter Wpre | reopen=typed one-way handoff | non_authority=bridge success/error text",
-  "hv1_production_force | src/main.rs; src/runner/hv1_inline.rs; src/config/env.rs; tools/smokes/v2/lib/test_runner.sh | force route directly executes raw v1-like text and accepts arbitrary 1* prefix; body/environment observation is 33 direct-force sealed leaves/33 lexical sites, 44 conditional-force candidate leaves/45 sites, 35 explicit-core residual leaves/35 sites, and 4 unresolved dynamic leaves/7 sites within 116 leaves/120 lexical sites | status=CutoverBlockerOpen | owner=force-hv1 route | reason=retirement is selected by design, but clean-env authority, per-leaf schema, unresolved dynamic review, ProductAot successors, wrapper closure, residual preservation, and startup-guard supersession are not landed | reopen=retirement guard green or a named active consumer proves a separate owner-private Value need | non_authority=legacy arithmetic 78/80/38 snapshot, raw payload bytes/meaning, standard-v1 decoder contract, numeric rc, or old 33+36/107 census; inherited ambient env remains competing authority until clean-env pin/unset lands",
+  "hv1_production_force | src/main.rs; src/runner/hv1_inline.rs; src/config/env.rs; tools/smokes/v2/lib/test_runner.sh | force route directly executes raw v1-like text and accepts arbitrary 1* prefix; the landed active body observation is 86 leaves/90 lexical sites with 3/3 direct-force sealed, 44/45 conditional candidates, 35/35 explicit-core residual, and 4/7 dynamic open; 30 retired direct leaves remain in retired_inventory | status=R0aLanded_R0bOpen | owner=force-hv1 route | reason=R0a direct HistoricalDelete is landed, while PHI/provider exceptions, unresolved dynamic review, ProductAot successors, wrapper closure, residual preservation, and startup-guard supersession remain open | reopen=R0b owner Decision or a named active consumer proves a separate owner-private Value need | non_authority=legacy arithmetic 78/80/38 snapshot, raw payload bytes/meaning, standard-v1 decoder contract, numeric rc, or old 33+36/107 census",
   "runtime_guest_program | src/runtime/mirbuilder_emit.rs; src/backend/mir_interpreter/handlers/extern_provider/mod.rs; src/runtime/plugin_loader_v2/enabled/extern_functions.rs | family-preselected guest Program APIs reparse and can swallow Err -> Ok(None) | status=ParkedSealed | owner=runtime guest Program API | reason=outside shared Wpre; local error debt remains | reopen=one-Value Program owner and typed plugin error | non_authority=Ok(None) as success evidence",
   "kernel_public_program | src/host_providers/mir_builder.rs; src/host_providers/mir_builder/handoff.rs; crates/nyash_kernel/src/plugin/module_string_dispatch.rs; crates/nyash_kernel/src/plugin/invoke/by_name.rs; crates/nyash_kernel/src/exports/stage1.rs | kernel public Program API and C-export handoff | status=ParkedSealed | owner=kernel Program API | reason=Program-only owner, not shared with runtime guest | reopen=one-Value handoff and typed ABI error | non_authority=String success/error handle",
   "hako_program_transport | src/main.rs; src/runner/child_env.rs; lang/src/mir/builder/compat/program_json_v0_entry.hako; lang/src/mir/builder/compat/emit_mir_json_v0.hako; lang/src/compiler/mirbuilder/emit_mir_json_v0_from_program_json_v0.hako | file/env duplication around preselected Program-v0 | status=ParkedSealed | owner=Hako Program transport | reason=transport cannot become selector authority | reopen=private payload framing | non_authority=file/env ordering",
@@ -302,11 +302,11 @@ compatibility_owner = "CompatibilityV1, CompatibilityMirV0, and ProgramV0 remain
 [wpre_d0_candidate_decisions]
 stage1_direct = "Accept with amendment: explicit Stage1 CLI (--hako-run/--hako-emit-mir-json) plus any explicit execution JSON CLI (--mir-json-file/--json-file/--ny-parser-pipe) is a typed conflict; multiple explicit execution JSON CLIs are a typed conflict; exactly one explicit JSON CLI wins over ambient NYASH_USE_STAGE1_CLI; with no explicit JSON CLI, existing Stage1 selection remains. Macro/REPL/early force ordering is a non-claim."
 core_direct = "Accept with one-state amendment: after successful existing decode, requested CoreDirect emits [core-direct/retired] on stderr with rc=1; malformed/wrong/decoder failures keep their existing terminal, and [core-direct/unavailable] is ParkedSealed until Wpre owns a family issuer. No raw probe, child wrapper, in-proc reparse, VM fallback, or new Core consumer."
-force_hv1 = "Accept retirement: standard-v1 reroute is forbidden because hv1 has distinct unop/typeop/default semantics. The legacy arithmetic snapshot is 116 lexical leaves (33 direct + 74 textual helper + 9 wrapper-only), 78 force reachers / 80 lexical sites, and 38 residual consumers; it is not semantic closure. Body/environment observation is 33/33 direct-force sealed, 44/45 conditional-force candidates, 35/35 explicit-core residual, and 4/7 unresolved dynamic, with conditional/unresolved rows CutoverBlockerOpen until clean-env authority is sealed. Migrate, retire, or archive each named caller, supersede the force startup guard, and park owner-private Value compatibility unless a named active consumer reopens it."
+force_hv1 = "Accept retirement: standard-v1 reroute is forbidden because hv1 has distinct unop/typeop/default semantics. The legacy arithmetic snapshot remains non-authority. R0a has retired 30 reviewed direct leaves; the active body observation is 86 leaves/90 sites with direct=3/3, conditional=44/45, explicit-core=35/35, and dynamic=4/7. PHI/provider exceptions, conditional/unresolved rows, ProductAot successors, and startup guard retirement remain separate R0b blockers."
 
 reference_child = "Accept with amendment: VmRouteAction::VmHako owns a family-preselected CanonicalMirJsonV1 full-module emission, then a private MiniVm payload. The child receives exactly one of HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON or HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE; public NYASH_VERIFY_JSON, HAKO_VERIFY_PRIMARY, HAKO_ROUTE_HAKOVM, force-hv1, Stage1 selectors, VM fallback, and TOML env bootstrap are scrubbed or pinned. Missing/both/empty/unreadable transport, wrong emission family, subset/projection failure, or spawn failure is terminal; no Wpre/hv1/Stage1 retry."
 reference_value = "Accept with amendment: after private transport I0, reference egress receives MirModule and emits one explicit CanonicalV1 serde_json::Value; the same owned Value is alias-normalized once, subset-checked once, and projected once into the private MiniVm payload. Remove ScopedEnvVar/profile selection, temporary v1 file/readback, and production raw String parses; other compatibility emitters may retain their owner-private profile API."
-candidate_stop = "NoSafeSlice if direct precedence silently discards an explicit Stage1 request, CoreDirect loses the family-level tag/rc or falls back to VM, force-hv1 is mixed into standard v1, inherited force-core or ambient primary settings are hidden, the clean-env/body-derived 116-leaf/120-site schema is absent, or the 33/33, 44/45, 35/35, and 4/7 observations cannot be independently reproduced."
+candidate_stop = "NoSafeSlice if direct precedence silently discards an explicit Stage1 request, CoreDirect loses the family-level tag/rc or falls back to VM, force-hv1 is mixed into standard v1, inherited force-core or ambient primary settings are hidden, the active/retired body schema is not independently reproduced, or the 3/3, 44/45, 35/35, and 4/7 observations cannot be independently reproduced."
 
 exact_delete_set = [
   "looks_like_mir_v0/raw contains selector",
@@ -323,7 +323,7 @@ outside_delete_set = [
   "runtime/plugin/kernel Program marker reparse and Err -> Ok(None) swallow",
   "reference/LLVM compatibility raw selector, schema guessing, and re-entry",
 ]
-missing_caller_census = "The 9-row shared-runner census is bounded and exhausted for Wpre-I0. Outside rows, Stage1/direct arbitration, force-hv1 retirement fate, and the CoreDirect family-level tag/rc contract are recorded. Reference-child private transport, CanonicalV1 Value, ProductAot S0, and CoreDirect R0 are landed; the remaining blockers are the body-derived force-hv1 census schema, unresolved dynamic row review, exact ProductAot successors, and strict-root/decoder implementation."
+missing_caller_census = "The 9-row shared-runner census is bounded and exhausted for Wpre-I0. Outside rows, Stage1/direct arbitration, force-hv1 R0a retirement, and the CoreDirect family-level tag/rc contract are recorded. Reference-child private transport, CanonicalV1 Value, ProductAot S0, CoreDirect R0, and the force-hv1 body-derived census are landed; the remaining blockers are R0b exception review, unresolved dynamic rows, exact ProductAot successors, and strict-root/decoder implementation."
 order_sync = "Before Wpre I0, synchronize mirbuilder-final-pipeline-ssot, mir-canonical-callsite-lane-ssot, this card, and the workstream so Wpre profile/one-root selection precedes MirCall/CallFlags retirement, effect/source/recovery prerequisites, and typed Global B1 in one durable order."
 allowed_files = [
   "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
@@ -341,17 +341,17 @@ non_claims = "No strict parser implementation, schema selector code, v2 codec, t
 status = "census_s0_landed"
 census_s0_status = "landed"
 census_s0_implementation_permission = false
-direct_historical_delete_r0_status = "fast_open"
-direct_historical_delete_r0_implementation_permission = true
+direct_historical_delete_r0_status = "landed"
+direct_historical_delete_r0_implementation_permission = false
 manifest_path = "docs/development/current/main/investigations/force-hv1-caller-disposition-manifest-v1.json"
 guard_path = "tools/checks/lib/force_hv1_caller_manifest_guard.py"
 boundary = "HAKO_VERIFY_V1_FORCE_HAKOVM truthy selector through verify_v1_inline_file, verify_mir_rc, phase2170 wrapper-only callers, and the startup terminal; adjacent HAKO_VERIFY_PRIMARY/HAKO_ROUTE_HAKOVM, Wpre, and broad VM internals remain separate."
 source_authority = "The single production selector reader plus named checked-in caller bodies; raw 1* payload shape, script names, and numeric rc are non-authority."
 canonical_issuer = "Each named suite owner issues ProductAot, Stage1Proof/AOT, or HistoricalDelete; ProductAot is one combined source-issued collections family (push/Map/alias/flow/receiver/value claims); the truthy force selector issues one grace terminal before payload parse or execution."
-finite_census = "Legacy arithmetic snapshot is non-authority. S0 parses only tracked leaf/helper bodies with a finite grammar: literal verify_v1_inline_file, literal verify_mir_rc, or the five literal run_verify_mir_via_hakovm_* wrapper callbacks; env/command/eval/pipeline/subshell/background/negation/alias/dynamic source and computed artifacts fail closed. sites[] is the sole lexical counter (120 total): direct-force sealed 33/33, helper-force conditional 44/45, explicit-core residual 35/35, dynamic-artifact open 4/7; potential-force 81/85 is observation only. Inherited selectors, fallback, rc, stdout, and runtime repetition are recorded as attributes or non-authority, never used to seal fate."
-fates = "Body route matrix: direct 33/33 = 30 design-accepted HistoricalDelete candidates, two explicit R0b exceptions, and one Stage1 AOT blocker; helper/wrapper 44/45 = CutoverBlockerOpen; explicit-core 35/35 = ParkedSealed candidates with broad verify_mir_rc retirement as reopen trigger; phase2034 dynamic 4/7 = CutoverBlockerOpen. The 30-path family review and body digest live in manifest.fate_review; legacy 69/9/0/38 totals remain non-authority."
+finite_census = "Legacy arithmetic snapshot is non-authority. S0 parses only tracked leaf/helper bodies with a finite grammar: literal verify_v1_inline_file, literal verify_mir_rc, or the five literal run_verify_mir_via_hakovm_* wrapper callbacks; env/command/eval/pipeline/subshell/background/negation/alias/dynamic source and computed artifacts fail closed. sites[] is the sole lexical counter for the active inventory (90 total): direct-force sealed 3/3, helper-force conditional 44/45, explicit-core residual 35/35, dynamic-artifact open 4/7; 30 retired direct leaves are retained in manifest.retired_inventory and potential-force 51/55 is observation only. Inherited selectors, fallback, rc, stdout, and runtime repetition are recorded as attributes or non-authority, never used to seal fate."
+fates = "Body route matrix: active direct 3/3 retains the PHI/provider R0b exceptions plus one Stage1 AOT blocker; 30 reviewed direct HistoricalDelete leaves are landed in retired_inventory; helper/wrapper 44/45 = CutoverBlockerOpen; explicit-core 35/35 = ParkedSealed candidates with broad verify_mir_rc retirement as reopen trigger; phase2034 dynamic 4/7 = CutoverBlockerOpen. The retired family review and body digest live in manifest.fate_review; legacy 69/9/0/38 totals remain non-authority."
 terminal = "Truthy force selector -> stderr exact [force-hv1/retired], stdout empty, rc=1, payload/parse/execute/retry/fallback=0; never redirect to standard-v1, raw-vm-reference, or another route."
-smallest_next_slice = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 is fast-open: delete only the reviewed 30 direct leaves and update phase2047-2050 projections plus manifest/guard/owner docs; keep PHI/provider R0b exceptions, phase2051/phase2100, Stage1, 44/45 conditional, 35/35 explicit-core, and 4/7 dynamic sites active. No startup, fallback, Wpre, VM, or Call-schema change."
+smallest_next_slice = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 is landed: 30 direct HistoricalDelete leaves are retired and active evidence is 86/90 with 3/3 direct, 44/45 conditional, 35/35 explicit-core, and 4/7 dynamic; PHI/provider remain R0b exceptions, and the next decision is their separate fate review. No startup, fallback, Wpre, VM, or Call-schema change."
 stop = "NoSafeSlice if any of the 116 leaves or 120 lexical sites is omitted/duplicated, 78/80/38 is claimed as semantic closure, inherited ambient route settings are hidden, conditional or unresolved rows are ParkedSealed, derived values do not match reviewed attributes, the old fallback edge is used as authority, force removal falls through to Core, or Array/Map successors require standard-v1 reinterpretation, raw-vm-reference, payload parsing, or fallback."
 
 [core_direct_tag_rc_contract]
@@ -581,21 +581,21 @@ stop = "Return to design if explicit profile issuance cannot be separated from c
 non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global, Call cutover, MiniVm semantic expansion, backend promotion, PyVM change, or new VM parity claim."
 
 [task_spine]
-current = "CanonicalV1 Value S0, ProductAot substring S0, and CoreDirect R0 are landed; MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE is the sole design stop on the pre-Wpre bypass family."
-next_prerequisite = "Seal clean-env authority and the body-derived force-hv1 leaf census (120 lexical sites; 33/33 direct sealed, 44/45 conditional, 35/35, 4/7 observations) and review four unresolved dynamic rows before choosing a startup-bypass fate; strict Value seams remain queued after that decision."
+current = "CanonicalV1 Value S0, ProductAot substring S0, CoreDirect R0, and force-hv1 direct HistoricalDelete R0a are landed; MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE is the sole design stop on the pre-Wpre bypass family."
+next_prerequisite = "Review the PHI/provider R0b exceptions and remaining Stage1/conditional/dynamic rows; active force-hv1 evidence is 86 leaves/90 sites with 30 retired records. Strict Value seams remain queued after that decision."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
 [wpre_d0_followup_task_order]
 status = "core_direct_d0_s0_landed_r0_landed"
 implementation_permission = false
-items = ["Outside fate and Stage1 arbitration are design-closed; private transport and CanonicalV1 Value are landed; CoreDirect is amended to one-state pre-Wpre retirement; force-hv1 and strict Value seams remain implementation-closed; Wpre-I0 waits for this frontier."]
-acceptance = "Every follow-up has a finite owner and explicit fate. CanonicalV1 Value, six-row CoreDirect D0, ProductAot S0, and CoreDirect R0 are landed; force-hv1 per-leaf census is the next design-only fate row and unresolved dynamic paths remain open."
+items = ["Outside fate and Stage1 arbitration are design-closed; private transport, CanonicalV1 Value, CoreDirect R0, and force-hv1 R0a are landed; force-hv1 R0b and strict Value seams remain implementation-closed; Wpre-I0 waits for this frontier."]
+acceptance = "Every follow-up has a finite owner and explicit fate. CanonicalV1 Value, six-row CoreDirect D0, ProductAot S0, CoreDirect R0, and the 30-leaf force-hv1 R0a are landed; PHI/provider exceptions and unresolved dynamic paths remain open."
 stop = "Return to design if any follow-up requires a second raw parse, borrowed root carrier, semantic receipt, implicit route precedence, or a global all-ingress claim without a finite caller census."
 
 [wpre_d0_progress]
 completed = ["Outside fate and Stage1 arbitration are design-closed; private transport I0, CanonicalV1 Value S0, ProductAot substring S0, and CoreDirect R0 are landed."]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design stop | CoreDirect R0 is landed; force-hv1 per-leaf census schema is next."
+current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design stop | CoreDirect R0 and force-hv1 R0a are landed; PHI/provider R0b review is next."
 accepted_design = ["Stage1/direct arbitration; private reference transport; one-state CoreDirect fate; force-hv1 retirement; strict Value seams."]
 open = [
   "CORE-DIRECT-SUBSTRING-PRODUCT-AOT-S0 | landed | exact release EXE/AOT evidence; no deletion",

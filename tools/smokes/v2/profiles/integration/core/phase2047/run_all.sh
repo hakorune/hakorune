@@ -2,9 +2,6 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../../../../../.." && pwd)"
 
-echo "[phase2047] Running PRIMARY no-fallback reps..."
-bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter 'phase2047/primary_no_fallback_*'
-
 echo "[phase2047] Checking provider v1 shape..."
 bash "$ROOT/tools/smokes/v2/run.sh" --profile quick --filter 'phase2047/provider_v1_shape_canary_vm.sh'
 

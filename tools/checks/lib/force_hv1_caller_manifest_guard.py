@@ -202,6 +202,122 @@ if state.get("current_execution_row") == "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
     )
     raise SystemExit(0)
 
+if fate.get("direct_historical_delete_r0_status") == "landed":
+    row = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
+    if state.get("work_mode") != "design_stop":
+        fail("landed direct HistoricalDelete R0a must return CURRENT_STATE to design_stop")
+    if state.get("current_execution_row") != "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE":
+        fail("landed direct HistoricalDelete R0a current row must return to the force-hv1 fate design stop")
+    if card.get("status") != "direct_historical_delete_r0_landed":
+        fail("active card is not marked direct HistoricalDelete R0a landed")
+    if fate.get("direct_historical_delete_r0_implementation_permission") is not False:
+        fail("landed direct HistoricalDelete R0a scoped permission must be closed")
+    review = manifest.get("fate_review")
+    if not isinstance(review, dict) or review.get("task_id") != row or review.get("status") != "r0a_landed":
+        fail("landed direct HistoricalDelete R0a fate review is missing")
+    if review.get("implementation_permission") is not False:
+        fail("landed fate review must not expose implementation permission")
+    family = review.get("reviewed_family")
+    if not isinstance(family, dict) or family.get("path_count") != 30:
+        fail("landed direct HistoricalDelete R0a reviewed family must contain 30 paths")
+    retired = manifest.get("retired_inventory")
+    if not isinstance(retired, dict) or retired.get("status") != "r0a_landed":
+        fail("retired R0a inventory is missing")
+    if retired.get("task_id") != row:
+        fail("retired R0a inventory task id drifted")
+    if retired.get("original_active_leaves") != 116 or retired.get("retired_leaves") != 30:
+        fail("retired R0a inventory arithmetic drifted")
+    if retired.get("active_leaves_after_cutover") != 86 or retired.get("active_sites_after_cutover") != 90:
+        fail("retired R0a active arithmetic drifted")
+    records = retired.get("records")
+    if not isinstance(records, list) or len(records) != 30:
+        fail("retired R0a inventory must retain exactly 30 records")
+    retired_paths = []
+    for record in records:
+        if not isinstance(record, dict) or set(("path", "body_sha256", "owner", "disposition")) - set(record):
+            fail("retired R0a record is incomplete")
+        if record.get("owner") != "force-hv1-retirement" or record.get("disposition") != "HistoricalDelete":
+            fail("retired R0a record ownership drifted")
+        retired_paths.append(record["path"])
+        if (root / record["path"]).exists():
+            fail(f"retired R0a source leaf still exists: {record['path']}")
+    if len(set(retired_paths)) != 30:
+        fail("retired R0a inventory contains duplicate paths")
+    if retired.get("body_digest_sha256") != family.get("body_digest_sha256"):
+        fail("retired R0a inventory digest does not match the reviewed family")
+    observations = manifest.get("observations")
+    leaf_paths = manifest.get("leaf_paths")
+    if not isinstance(observations, dict) or not isinstance(leaf_paths, list):
+        fail("post-R0a body-derived inventory is missing")
+    if len(leaf_paths) != 86 or len(observations) != 86 or set(observations) != set(leaf_paths):
+        fail("post-R0a active inventory must contain exactly 86 leaves")
+    if set(retired_paths) & set(leaf_paths):
+        fail("retired R0a paths remain in the active inventory")
+    expected_exceptions = {
+        "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh",
+    }
+    if not expected_exceptions.issubset(set(leaf_paths)):
+        fail("R0b exception leaves are not retained in the active inventory")
+    for item in derive_inventory(root, leaf_paths):
+        if observations.get(item["path"]) != item:
+            fail(f"post-R0a body-derived observation drifted: {item['path']}")
+    expected_observed = {
+        "lexical_leaves": 86,
+        "lexical_sites": 90,
+        "route_class": {
+            "DirectForceSealed": 3,
+            "HelperForceConditional": 44,
+            "ExplicitCoreResidualSealed": 35,
+            "DynamicArtifactOpen": 4,
+        },
+        "route_sites": {
+            "DirectForceSealed": 3,
+            "HelperForceConditional": 45,
+            "ExplicitCoreResidualSealed": 35,
+            "DynamicArtifactOpen": 7,
+        },
+    }
+    if manifest.get("observed_counts") != expected_observed:
+        fail("post-R0a observed counts are not the reviewed 86/90 matrix")
+    groups = manifest.get("groups")
+    if not isinstance(groups, list):
+        fail("post-R0a manifest groups are missing")
+    active_group_paths = [path for group in groups for path in group.get("paths", []) if isinstance(group, dict)]
+    if len(active_group_paths) != 86 or len(set(active_group_paths)) != 86 or set(active_group_paths) != set(leaf_paths):
+        fail("post-R0a groups do not cover exactly the active 86 leaves")
+    family_counts: dict[str, int] = {}
+    for group in groups:
+        if not isinstance(group, dict):
+            fail("post-R0a manifest group is invalid")
+        family_name = group.get("caller_family")
+        family_counts[family_name] = family_counts.get(family_name, 0) + len(group.get("paths", []))
+    if family_counts != {"direct": 3, "textual_helper": 74, "wrapper_only": 9}:
+        fail("post-R0a caller-family counts drifted")
+    direct_history = [
+        group for group in groups
+        if group.get("caller_family") == "direct" and group.get("fate") == "HistoricalDelete"
+    ]
+    if len(direct_history) != 1 or set(direct_history[0].get("paths", [])) != expected_exceptions:
+        fail("post-R0a direct HistoricalDelete group must retain only the two exceptions")
+    # R0a edits only phase2047-2050 projections; deleted leaf names must not survive there.
+    for projection in (
+        "tools/smokes/v2/profiles/integration/core/phase2047/run_all.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2048/run_all.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2049/run_all.sh",
+        "tools/smokes/v2/profiles/integration/core/phase2050/run_all.sh",
+    ):
+        content = (root / projection).read_text(encoding="utf-8")
+        for retired_path in retired_paths:
+            if Path(retired_path).name in content:
+                fail(f"retired R0a leaf remains in projection {projection}: {retired_path}")
+    print(
+        f"[{TAG}] result_class=current-change failure status=pass "
+        "phase=force_hv1_direct_historical_delete_r0_post "
+        "active_leaves=86 active_sites=90 retired=30 exceptions=2 implementation=closed"
+    )
+    raise SystemExit(0)
+
 if state.get("work_mode") != "design_stop":
     fail("force-hv1 fate must remain design_stop")
 if state.get("current_execution_row") != "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE":

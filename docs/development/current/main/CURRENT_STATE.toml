@@ -1,12 +1,12 @@
 date = "2026-08-27"
 development_branch_ssot = "main"
-work_mode = "fast"
-current_execution_row = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
-current_design_stop = ""
-current_blocker_token = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0: remove only the reviewed 30 direct leaves and their phase2047-2050 projections; PHI/provider R0b exceptions, phase2051/phase2100, Stage1, conditional/dynamic/residual families, startup, fallback, Wpre, VM, and Call-schema remain untouched."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
+current_design_stop = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0a is landed: 30 reviewed direct leaves are retired, active body evidence is 86 leaves/90 sites, and PHI/provider remain explicit R0b exceptions. No implementation is open."
+current_blocker_token = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0b: review PHI/provider successor evidence and remaining Stage1/conditional/dynamic/residual families; startup, fallback, Wpre, VM, and Call-schema remain untouched."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "MirBuilder Wpre bypass retirement — direct force-hv1 historical deletion R0a"
+active_lane = "MirBuilder Wpre bypass retirement — force-hv1 R0a landed, R0b design stop"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "CanonicalV1 Value S0, ProductAot substring S0, and CoreDirect R0 are landed. The body-derived force-hv1 census is fixed at 116/120 with direct=33/33, conditional=44/45, explicit-core=35/35, dynamic-open=4/7. R0a is fast-open for 30 direct HistoricalDelete leaves; PHI/provider remain R0b exceptions and all other families remain untouched."
-next_design_card = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
-next_execution_card = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0"
+latest_card_summary = "CanonicalV1 Value S0, ProductAot substring S0, and CoreDirect R0 are landed. Force-hv1 R0a retired 30 reviewed direct HistoricalDelete leaves; active body evidence is 86/90 with direct=3/3, conditional=44/45, explicit-core=35/35, dynamic-open=4/7. PHI/provider remain R0b exceptions and all other families remain untouched."
+next_design_card = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
+next_execution_card = "none (design stop; force-hv1 R0b review required)"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-27: B0 machine census guard landed; Wpre outside/Stage1/reference design is recorded and private reference transport I0 is the next bounded row.",
   "2026-08-27: private reference-child transport I0 landed; public payload/re-entry aliases are scrubbed, private one-of transport is guarded, and CanonicalV1 Value S0 opened as the sole fast row.",
   "2026-08-27: ProductAot substring S0 and CoreDirect R0 landed with exact release EXE/AOT plus no-retry terminal evidence; force-hv1 fate is next.",
+  "2026-08-27: force-hv1 direct HistoricalDelete R0a landed; 30 reviewed leaves retired, active evidence is 86/90, and PHI/provider remain R0b exceptions.",
 ]

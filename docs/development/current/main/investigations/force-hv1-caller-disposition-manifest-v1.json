@@ -1,7 +1,7 @@
 {
   "schema": "force-hv1-caller-disposition-manifest-v1",
   "version": 1,
-  "status": "body_derived_observation",
+  "status": "body_derived_observation_with_r0a_retirement",
   "source_commit": "3c8db4c6e7985d2f4479203e235d041b7f306258",
   "Exception": "machine-consumed stable artifact",
   "ParentCurrentCard": "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
@@ -88,11 +88,11 @@
       "fate_rule": "A script body may be mechanically counted, but fate is accepted only from the named owner and reviewed source; unresolved dynamic paths remain CutoverBlockerOpen."
     },
     "current_observation": {
-      "lexical_leaves": 116,
-      "lexical_sites": 120,
+      "lexical_leaves": 86,
+      "lexical_sites": 90,
       "direct_force_sealed": {
-        "leaves": 33,
-        "lexical_sites": 33
+        "leaves": 3,
+        "lexical_sites": 3
       },
       "conditional_force_candidate": {
         "leaves": 44,
@@ -107,8 +107,8 @@
         "lexical_sites": 7
       },
       "potential_force": {
-        "leaves": 81,
-        "lexical_sites": 85
+        "leaves": 51,
+        "lexical_sites": 55
       },
       "unresolved_paths": [
         "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_if_canary_vm.sh",
@@ -116,9 +116,9 @@
         "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_jsonfrag_normalizer_rc_parity_loop_canary_vm.sh",
         "tools/smokes/v2/profiles/integration/core/phase2034/mirbuilder_internal_return_logical_varvar_core_exec_canary_vm.sh"
       ],
-      "status": "CutoverBlockerOpen_until_clean_env_authority_sealed"
+      "status": "r0a_landed; PHI/provider exceptions and non-direct rows remain open"
     },
-    "acceptance": "A future dedicated semantic guard must derive 116 leaves, 120 lexical sites, and 33/74/9 leaf families from bodies plus sealed environment contracts, then derive 33/33 direct-force sealed, 44/45 conditional-force candidates, 35/35 explicit-core residual, and 4/7 unresolved dynamic values. Inherited force-core or ambient primary settings must be visible; the old fallback edge, runtime rc, and runtime repetition never enter the derivation; mismatch is fail-closed."
+    "acceptance": "The guard derives the active post-R0a body inventory as 86 lexical leaves and 90 lexical sites: 3/3 direct-force sealed, 44/45 conditional-force candidates, 35/35 explicit-core residual, and 4/7 unresolved dynamic. Thirty reviewed direct HistoricalDelete leaves are retained in retired_inventory; the PHI/provider exceptions remain active. Inherited force-core or ambient primary settings remain visible; fallback, runtime rc, and runtime repetition never enter the derivation."
   },
   "cleanup_targets": [
     {
@@ -186,7 +186,7 @@
   },
   "fate_review": {
     "task_id": "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0",
-    "status": "design_accepted_candidate",
+    "status": "r0a_landed",
     "implementation_permission": false,
     "owner": "force-hv1-retirement",
     "review_source": ["force_successor_fate_audit (2026-08-27)", "force_design_adversary (2026-08-27)", "active card force_hv1_fate_d0 and body-derived group[0]"],
@@ -196,15 +196,207 @@
       "body_digest_source": "observations[path].body_sha256 for the selected 30 group paths",
       "body_digest_sha256": "106659fa79dde561717ee6096dedea0c07f9dee1e48959d1744e7a8b8a07e6c3",
       "digest_definition": "sha256(sorted path + NUL + body_sha256 + LF)",
-      "disposition": "HistoricalDeleteCandidate",
+      "disposition": "HistoricalDelete",
       "successor": "none_required_for_retirement"
     },
     "exception_paths": ["tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh", "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh"],
     "projection_owners": ["tools/smokes/v2/profiles/integration/core/phase2047/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2048/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2049/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2050/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2051/run_all.sh", "tools/smokes/v2/profiles/integration/core/phase2100/run_engineering_selfhost.sh", "docs/development/current/main/investigations/selfhost-integration-limitations.md"],
     "explicit_exceptions": ["phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh is the only exact checked-in unequal-incoming PHI runtime witness; it passed, but no alternate AOT owner was found, so it remains excluded for R0b owner proof.", "phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh is a weak SKIP-on-error provider consumer; provider shape and S1/S2 checks currently fail at the freeze boundary, so it remains excluded for R0b successor proof."],
     "excluded_from_r0a": ["phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh (R0b semantic owner required)", "phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh (R0b provider successor required)", "phase2051/selfhost_v1_primary_rc42_canary_vm.sh (Stage1ProofAot blocker)", "44/45 HelperForceConditional sites", "35/35 ExplicitCoreResidualSealed sites", "4/7 DynamicArtifactOpen sites", "phase2170 ProductAot and wrapper families"],
-    "planned_observation_delta": "116 leaves/120 sites -> 86 leaves/90 sites; DirectForceSealed 33/33 -> 3/3; potential force 81/85 -> 51/55",
-    "required_before_fast": ["validate the 30-path selector and all six projection owners", "regenerate manifest groups/observations and body-derived counts in the same change", "preserve retired path/hash inventory so deleted leaves cannot silently reappear", "keep the two exception leaves active and top-level implementation_permission=false until the scoped row opens"]
+    "landed_observation_delta": "116 leaves/120 sites -> 86 leaves/90 sites; DirectForceSealed 33/33 -> 3/3; potential force 81/85 -> 51/55",
+    "post_landing_requirements": ["active body-derived inventory remains 86 leaves/90 sites and matches checked-in bodies", "retired_inventory retains all 30 reviewed paths and hashes while every retired path stays absent", "the two PHI/provider exception leaves and all Stage1/conditional/dynamic/residual rows remain active", "scoped implementation permission is closed and the next row is the force-hv1 R0b design review"]
+  },
+  "retired_inventory": {
+    "status": "r0a_landed",
+    "task_id": "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0",
+    "original_active_leaves": 116,
+    "retired_leaves": 30,
+    "active_leaves_after_cutover": 86,
+    "active_sites_after_cutover": 90,
+    "body_digest_sha256": "106659fa79dde561717ee6096dedea0c07f9dee1e48959d1744e7a8b8a07e6c3",
+    "records": [
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_compare_branch_rc_canary_vm.sh",
+        "body_sha256": "04b5cf4659a575161a3746c778caaa725c349d3b6662430c55c4dbe0edc9c190",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_const_rc_canary_vm.sh",
+        "body_sha256": "cc01340975b81cf225348edeef32add755556b93b37f0708fb3abec6fd5fa1bd",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_jump_rc_canary_vm.sh",
+        "body_sha256": "13b041c61fb0e21078dca003b9e7dc96005eaf08ec41ea851eaf77b4efd7eccd",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_push_size_rc_canary_vm.sh",
+        "body_sha256": "a04254e6af83a41f7853e1f55f1b991353ae7e9a0eae4c116d12ae9bd2dcf57a",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_set_stub_rc0_canary_vm.sh",
+        "body_sha256": "b9d36aaf7f184891bfe47a24417df1c70aa2a3aaaa8d836b1cf51c601a197d37",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_three_recv_second_rc0_canary_vm.sh",
+        "body_sha256": "24ee94710b4b878636a998dd3fab5272f8c6300bf90fc427b6a68b596c428dfe",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_set_size_rc_canary_vm.sh",
+        "body_sha256": "cf18ea390672b752b748bc9347418e3846f51c411cfa2263431fc6df41164e27",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_three_recv_second_rc0_canary_vm.sh",
+        "body_sha256": "da90755d0f2fca538a69dc4552accd443a9cfc1cecc08deb6119a63519687f4f",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_first_rc1_canary_vm.sh",
+        "body_sha256": "3aeb7fbd1454240659dcbab15c3d701e76c07415f41b57142d50c824fac69210",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_second_rc0_canary_vm.sh",
+        "body_sha256": "eecfe26c541707f8034a7119d25ebd2e69d82aca2e1949e5b60a7730faae83c2",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/if_eq_varvar_primary_canary_vm.sh",
+        "body_sha256": "def31fe76d70fac9ed6e89456a894d213d498c4b971fedd02871ee85f5e888b0",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/if_ge_intint_primary_canary_vm.sh",
+        "body_sha256": "1f0291bda2800127cf8c000bb4d172e73fbe4ecf63ffd18cead8b06011b0bbaa",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/if_le_intint_primary_canary_vm.sh",
+        "body_sha256": "6c0b9fbb1882762f5ae2fbe70b1ebb696bc0cc35079131a03f03405e22b3f2ad",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_intint_primary_canary_vm.sh",
+        "body_sha256": "d7fa794b248a2c699ff2347f9b9e33e24b153210549a05d50c168b9cc6501e58",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_varvar_primary_canary_vm.sh",
+        "body_sha256": "a03f4766a0370c4fb81c067927e996b7f9c142b75948b69d962818cdce2c7323",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/logical_and_or_cross_primary_canary_vm.sh",
+        "body_sha256": "e46504ff26c166c3ab41f93015d472aa6acd921a87f8525f9d51fb5b666727cd",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/logical_nested_or_and_primary_canary_vm.sh",
+        "body_sha256": "0fd6365d41b124185c547a453d7aa7f370a521656fc57bd5603a259d428b6055",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_break_rc_canary_vm.sh",
+        "body_sha256": "6d9f19a92d3ac85c480740f2eef8f817651231a992c8e35d0e60f55eb5548169",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_continue_rc_canary_vm.sh",
+        "body_sha256": "d27307b2868aa0383f27ff7b7c40a16cfeb0aecee503c120a6994a87a08123f5",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/typeop_cast_passthrough_primary_canary_vm.sh",
+        "body_sha256": "6cb9c45bf2eabc23f22ac631d24ccfe66f4215ce1db3e58a3a9263447efe4e14",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_false_primary_canary_vm.sh",
+        "body_sha256": "f8397fbf700cddcf8e66dc462cc1f94c36178db6a06a8a2fe8cadb8a6b485d79",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_true_primary_canary_vm.sh",
+        "body_sha256": "252d869308dc93f8828e39cd69866115b906af2b9b614776784db0dc10963afb",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_i64_primary_canary_vm.sh",
+        "body_sha256": "d14891c201caa71e5cdd8eb26590ea3c564d08177fed229d50841bb2d39d134c",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_integer_primary_canary_vm.sh",
+        "body_sha256": "f0c5af1d69c7175f3d61f6bcccb426097e13f21e9e222f3b10102f45cd636c69",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_string_false_primary_canary_vm.sh",
+        "body_sha256": "36b557188466555e2e92e5c27254119f28af0ebcf9befab11ef5a904525c46a1",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_binop_add_rc42_canary_vm.sh",
+        "body_sha256": "3be4be5dfe697d71b5fc34763ac747b9cfb1f2cdfbf8751caa86db25f848b1f8",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_copy_passthrough_rc7_canary_vm.sh",
+        "body_sha256": "eff8b111cdc2cc7b8d0524ee7b8fbe995d441215a2a6b7146089628a9074c2e3",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_unop_not_rc1_canary_vm.sh",
+        "body_sha256": "fc3dcb655b97584e383588f19470a22233cbc5c0620599664fbbde4ea57bc9e5",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_else_rc40_primary_canary_vm.sh",
+        "body_sha256": "1e4eb836c45b1b0eedc6183322b939b445d9353090e3278df44edd36ca37f6ed",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      },
+      {
+        "path": "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_then_rc44_primary_canary_vm.sh",
+        "body_sha256": "bbc41060d5eaad08d979c4d75943fc588a340103cc7778b93e20746a84590a85",
+        "owner": "force-hv1-retirement",
+        "disposition": "HistoricalDelete"
+      }
+    ],
+    "non_authority": "retired evidence only; it never publishes a route or target"
   },
   "groups": [
     {
@@ -215,37 +407,7 @@
       "fate": "HistoricalDelete",
       "fate_contract": "HistoricalDelete",
       "paths": [
-        "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_compare_branch_rc_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_const_rc_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_jump_rc_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_push_size_rc_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_set_stub_rc0_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_three_recv_second_rc0_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_set_size_rc_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_three_recv_second_rc0_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_first_rc1_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_second_rc0_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/if_eq_varvar_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/if_ge_intint_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/if_le_intint_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_intint_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_varvar_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/logical_and_or_cross_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/logical_nested_or_and_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_break_rc_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_continue_rc_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_cast_passthrough_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_false_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_true_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_i64_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_integer_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_string_false_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_binop_add_rc42_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_copy_passthrough_rc7_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_unop_not_rc1_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_else_rc40_primary_canary_vm.sh",
         "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh",
-        "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_then_rc44_primary_canary_vm.sh",
         "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh"
       ]
     },
@@ -481,13 +643,13 @@
     "redirect": "forbidden"
   },
   "acceptance": [
-    "116 unique lexical leaves are represented exactly once in groups",
-    "direct/textual_helper/wrapper_only = 33/74/9",
-    "legacy arithmetic snapshot = 78 force reachers / 80 lexical sites / 38 residual; it is not semantic closure",
-    "semantic observation = 33/33 direct-force sealed, 44/45 conditional-force candidates, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved/conditional rows block completion",
+    "86 active lexical leaves are represented exactly once in groups and 30 retired leaves are represented exactly once in retired_inventory",
+    "active direct/textual_helper/wrapper_only = 3/74/9; the original census family was 33/74/9",
+    "legacy arithmetic snapshot = 78 force reachers / 80 lexical sites / 38 residual; it is not semantic closure and remains historical non-authority",
+    "active semantic observation = 3/3 direct-force sealed, 44/45 conditional-force candidates, 35/35 explicit-core residual, and 4/7 unresolved dynamic; unresolved/conditional rows block completion",
     "HistoricalDelete/ProductAot/Stage1ProofAot/SemanticReference/ParkedSealedResidual = 69/8/1/0/38 only as the legacy group snapshot until the per-leaf schema is sealed",
     "unclassified = 0",
-    "implementation permission remains false after ProductAot S0 NoSafeSlice; old wrappers/run_all, Rust VM/helper routes, and unresolved/residual consumers remain unchanged",
+    "implementation permission remains false after R0a closeout; PHI/provider exceptions, Stage1, old helper routes, Rust VM/helper routes, and unresolved/residual consumers remain unchanged",
     "semantic census guard remains design-only until per-leaf body derivation is independently registered and does not use hv1 failure -> Core fallback",
     "tmp/core_exec_direct.hako is registered as an ignored cleanup target, not treated as live evidence"
   ],
@@ -609,37 +771,7 @@
     "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_ternary_core_exec_canary_vm.sh",
     "tools/smokes/v2/profiles/integration/core/phase2041/hv1_inline_array_push_size_per_recv_first_rc_canary_vm.sh",
     "tools/smokes/v2/profiles/integration/core/phase2041/hv1_inline_array_push_size_per_recv_second_rc_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_compare_branch_rc_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_const_rc_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_jump_rc_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_push_size_rc_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_set_stub_rc0_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_three_recv_second_rc0_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_set_size_rc_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_three_recv_second_rc0_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_first_rc1_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_second_rc0_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_eq_varvar_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_ge_intint_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_le_intint_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_intint_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_varvar_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/logical_and_or_cross_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/logical_nested_or_and_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_break_rc_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_continue_rc_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_cast_passthrough_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_false_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_true_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_i64_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_integer_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_string_false_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_binop_add_rc42_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_copy_passthrough_rc7_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_unop_not_rc1_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_else_rc40_primary_canary_vm.sh",
     "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh",
-    "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_then_rc44_primary_canary_vm.sh",
     "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_primary_rc42_canary_vm.sh",
     "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh",
     "tools/smokes/v2/profiles/integration/core/phase2170/array_len_alias_vm.sh",
@@ -727,37 +859,7 @@
     "tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_ternary_core_exec_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2039/mirbuilder_ternary_core_exec_canary_vm.sh","body_sha256":"6e760df9c6441c9065934e7985432edd17b6034d8dbccb9a47eac6f3ac3bedb4","caller_family":"textual_helper","sites":[{"line":22,"entry_symbol":"verify_mir_rc","entry_form":"helper","ordinal":1}],"derived":{"entry_symbols":["verify_mir_rc"],"lexical_entry_sites":1,"primary_mode":"core","environment_contract":"inherited_parent","ambient_preemption":"explicit_core","artifact_proof":"static_heredoc","route_class":"ExplicitCoreResidualSealed"}},
     "tools/smokes/v2/profiles/integration/core/phase2041/hv1_inline_array_push_size_per_recv_first_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2041/hv1_inline_array_push_size_per_recv_first_rc_canary_vm.sh","body_sha256":"b7f1e59eaf642dbc1fe5be28f85e0371870bfacb0a8c88438fcad239958138ef","caller_family":"textual_helper","sites":[{"line":11,"entry_symbol":"verify_mir_rc","entry_form":"helper","ordinal":1}],"derived":{"entry_symbols":["verify_mir_rc"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"inherited_parent","ambient_preemption":"inherited_force_core_or_primary","artifact_proof":"static_writer","route_class":"HelperForceConditional"}},
     "tools/smokes/v2/profiles/integration/core/phase2041/hv1_inline_array_push_size_per_recv_second_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2041/hv1_inline_array_push_size_per_recv_second_rc_canary_vm.sh","body_sha256":"ce2c5bd890db5f969d3d31c35348b1563ed0b79fc9b194ea46de1da17d18a140","caller_family":"textual_helper","sites":[{"line":11,"entry_symbol":"verify_mir_rc","entry_form":"helper","ordinal":1}],"derived":{"entry_symbols":["verify_mir_rc"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"inherited_parent","ambient_preemption":"inherited_force_core_or_primary","artifact_proof":"static_writer","route_class":"HelperForceConditional"}},
-    "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_compare_branch_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_compare_branch_rc_canary_vm.sh","body_sha256":"04b5cf4659a575161a3746c778caaa725c349d3b6662430c55c4dbe0edc9c190","caller_family":"direct","sites":[{"line":27,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_const_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_const_rc_canary_vm.sh","body_sha256":"cc01340975b81cf225348edeef32add755556b93b37f0708fb3abec6fd5fa1bd","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_jump_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2047/primary_no_fallback_v1_jump_rc_canary_vm.sh","body_sha256":"13b041c61fb0e21078dca003b9e7dc96005eaf08ec41ea851eaf77b4efd7eccd","caller_family":"direct","sites":[{"line":19,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_push_size_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_push_size_rc_canary_vm.sh","body_sha256":"a04254e6af83a41f7853e1f55f1b991353ae7e9a0eae4c116d12ae9bd2dcf57a","caller_family":"direct","sites":[{"line":18,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_set_stub_rc0_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_set_stub_rc0_canary_vm.sh","body_sha256":"b9d36aaf7f184891bfe47a24417df1c70aa2a3aaaa8d836b1cf51c601a197d37","caller_family":"direct","sites":[{"line":17,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_three_recv_second_rc0_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_array_three_recv_second_rc0_canary_vm.sh","body_sha256":"24ee94710b4b878636a998dd3fab5272f8c6300bf90fc427b6a68b596c428dfe","caller_family":"direct","sites":[{"line":21,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_set_size_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_set_size_rc_canary_vm.sh","body_sha256":"cf18ea390672b752b748bc9347418e3846f51c411cfa2263431fc6df41164e27","caller_family":"direct","sites":[{"line":19,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_three_recv_second_rc0_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_three_recv_second_rc0_canary_vm.sh","body_sha256":"da90755d0f2fca538a69dc4552accd443a9cfc1cecc08deb6119a63519687f4f","caller_family":"direct","sites":[{"line":22,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_first_rc1_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_first_rc1_canary_vm.sh","body_sha256":"3aeb7fbd1454240659dcbab15c3d701e76c07415f41b57142d50c824fac69210","caller_family":"direct","sites":[{"line":19,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_second_rc0_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/hv1_inline_map_two_recv_second_rc0_canary_vm.sh","body_sha256":"eecfe26c541707f8034a7119d25ebd2e69d82aca2e1949e5b60a7730faae83c2","caller_family":"direct","sites":[{"line":19,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_eq_varvar_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/if_eq_varvar_primary_canary_vm.sh","body_sha256":"def31fe76d70fac9ed6e89456a894d213d498c4b971fedd02871ee85f5e888b0","caller_family":"direct","sites":[{"line":21,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_ge_intint_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/if_ge_intint_primary_canary_vm.sh","body_sha256":"1f0291bda2800127cf8c000bb4d172e73fbe4ecf63ffd18cead8b06011b0bbaa","caller_family":"direct","sites":[{"line":27,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_le_intint_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/if_le_intint_primary_canary_vm.sh","body_sha256":"6c0b9fbb1882762f5ae2fbe70b1ebb696bc0cc35079131a03f03405e22b3f2ad","caller_family":"direct","sites":[{"line":27,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_intint_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/if_ne_intint_primary_canary_vm.sh","body_sha256":"d7fa794b248a2c699ff2347f9b9e33e24b153210549a05d50c168b9cc6501e58","caller_family":"direct","sites":[{"line":27,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/if_ne_varvar_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/if_ne_varvar_primary_canary_vm.sh","body_sha256":"a03f4766a0370c4fb81c067927e996b7f9c142b75948b69d962818cdce2c7323","caller_family":"direct","sites":[{"line":21,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/logical_and_or_cross_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/logical_and_or_cross_primary_canary_vm.sh","body_sha256":"e46504ff26c166c3ab41f93015d472aa6acd921a87f8525f9d51fb5b666727cd","caller_family":"direct","sites":[{"line":29,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/logical_nested_or_and_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/logical_nested_or_and_primary_canary_vm.sh","body_sha256":"0fd6365d41b124185c547a453d7aa7f370a521656fc57bd5603a259d428b6055","caller_family":"direct","sites":[{"line":30,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_break_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_break_rc_canary_vm.sh","body_sha256":"6d9f19a92d3ac85c480740f2eef8f817651231a992c8e35d0e60f55eb5548169","caller_family":"direct","sites":[{"line":25,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_continue_rc_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/loop_ne_sentry_continue_rc_canary_vm.sh","body_sha256":"d27307b2868aa0383f27ff7b7c40a16cfeb0aecee503c120a6994a87a08123f5","caller_family":"direct","sites":[{"line":27,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_cast_passthrough_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/typeop_cast_passthrough_primary_canary_vm.sh","body_sha256":"6cb9c45bf2eabc23f22ac631d24ccfe66f4215ce1db3e58a3a9263447efe4e14","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_false_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_false_primary_canary_vm.sh","body_sha256":"f8397fbf700cddcf8e66dc462cc1f94c36178db6a06a8a2fe8cadb8a6b485d79","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_true_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_bool_true_primary_canary_vm.sh","body_sha256":"252d869308dc93f8828e39cd69866115b906af2b9b614776784db0dc10963afb","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_i64_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_i64_primary_canary_vm.sh","body_sha256":"d14891c201caa71e5cdd8eb26590ea3c564d08177fed229d50841bb2d39d134c","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_integer_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_integer_primary_canary_vm.sh","body_sha256":"f0c5af1d69c7175f3d61f6bcccb426097e13f21e9e222f3b10102f45cd636c69","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_string_false_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2048/typeop_check_string_false_primary_canary_vm.sh","body_sha256":"36b557188466555e2e92e5c27254119f28af0ebcf9befab11ef5a904525c46a1","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_binop_add_rc42_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_binop_add_rc42_canary_vm.sh","body_sha256":"3be4be5dfe697d71b5fc34763ac747b9cfb1f2cdfbf8751caa86db25f848b1f8","caller_family":"direct","sites":[{"line":17,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_copy_passthrough_rc7_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_copy_passthrough_rc7_canary_vm.sh","body_sha256":"eff8b111cdc2cc7b8d0524ee7b8fbe995d441215a2a6b7146089628a9074c2e3","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_unop_not_rc1_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2049/hv1_inline_unop_not_rc1_canary_vm.sh","body_sha256":"fc3dcb655b97584e383588f19470a22233cbc5c0620599664fbbde4ea57bc9e5","caller_family":"direct","sites":[{"line":16,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_else_rc40_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_else_rc40_primary_canary_vm.sh","body_sha256":"1e4eb836c45b1b0eedc6183322b939b445d9353090e3278df44edd36ca37f6ed","caller_family":"direct","sites":[{"line":31,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
     "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_select_by_pred_rc99_primary_canary_vm.sh","body_sha256":"873ad568922e7409bdb158bdccfcf745f4db9831cd8a065189d5a539d04ce08f","caller_family":"direct","sites":[{"line":31,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
-    "tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_then_rc44_primary_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2050/flow_phi2_then_rc44_primary_canary_vm.sh","body_sha256":"bbc41060d5eaad08d979c4d75943fc588a340103cc7778b93e20746a84590a85","caller_family":"direct","sites":[{"line":31,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
     "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_primary_rc42_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_primary_rc42_canary_vm.sh","body_sha256":"8c706908c6c57d5614ea9e220c5d4a3c6560d3b6d1d4dcad6d6ee565f3169677","caller_family":"direct","sites":[{"line":23,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
     "tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2051/selfhost_v1_provider_primary_rc42_canary_vm.sh","body_sha256":"61a9fa6afe9e9d3c79f2cf066e693cc57bc49a044b44137e6d682bcf585dc1bc","caller_family":"direct","sites":[{"line":19,"entry_symbol":"verify_v1_inline_file","entry_form":"direct","ordinal":1}],"derived":{"entry_symbols":["verify_v1_inline_file"],"lexical_entry_sites":1,"primary_mode":"hakovm","environment_contract":"explicit_env_i","ambient_preemption":"none","artifact_proof":"static_writer","route_class":"DirectForceSealed"}},
     "tools/smokes/v2/profiles/integration/core/phase2170/array_len_alias_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2170/array_len_alias_vm.sh","body_sha256":"e0b80ef9e829ad696b97a543355992dadd3a6f6290daeeb581a8bce37cb67634","caller_family":"wrapper_only","sites":[{"line":27,"entry_symbol":"run_verify_mir_via_hakovm_size_state_per_recv","entry_form":"wrapper","ordinal":1}],"derived":{"entry_symbols":["run_verify_mir_via_hakovm_size_state_per_recv"],"lexical_entry_sites":1,"primary_mode":"ambient","environment_contract":"inherited_parent","ambient_preemption":"inherited_force_core_or_primary","artifact_proof":"static_heredoc","route_class":"HelperForceConditional"}},
@@ -774,20 +876,20 @@
     "tools/smokes/v2/profiles/integration/core/phase2211/json_frag_last_index_of_from_canary_vm.sh": {"path":"tools/smokes/v2/profiles/integration/core/phase2211/json_frag_last_index_of_from_canary_vm.sh","body_sha256":"0f977be0a11a713529592ce794b8b55fcb278a99e5be5d878d037c024ab67f24","caller_family":"textual_helper","sites":[{"line":37,"entry_symbol":"verify_mir_rc","entry_form":"helper","ordinal":1}],"derived":{"entry_symbols":["verify_mir_rc"],"lexical_entry_sites":1,"primary_mode":"core","environment_contract":"inherited_parent","ambient_preemption":"explicit_core","artifact_proof":"static_heredoc","route_class":"ExplicitCoreResidualSealed"}}
   },
   "observed_counts": {
-    "lexical_leaves": 116,
-    "lexical_sites": 120,
+    "lexical_leaves": 86,
+    "lexical_sites": 90,
     "route_class": {
-      "DirectForceSealed": 33,
+      "DirectForceSealed": 3,
       "HelperForceConditional": 44,
       "ExplicitCoreResidualSealed": 35,
       "DynamicArtifactOpen": 4
     },
     "route_sites": {
-      "DirectForceSealed": 33,
+      "DirectForceSealed": 3,
       "HelperForceConditional": 45,
       "ExplicitCoreResidualSealed": 35,
       "DynamicArtifactOpen": 7
     }
   },
-  "groups_note": "Groups retain the legacy arithmetic fate snapshot and are non-authority; the reviewed R0a family candidate is recorded separately in fate_review, while body observation comes only from leaf_paths/observations and checked-in bodies."
+  "groups_note": "Groups describe the active body inventory after R0a; retired path/body evidence is retained in retired_inventory and fate_review, while body observation comes only from active leaf_paths/observations and checked-in bodies."
 }
