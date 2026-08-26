@@ -626,8 +626,8 @@ acceptance = [
   "guard registration, pointer guard, TOML parse, bash syntax, and diff-check remain green",
   "implementation_permission remains false and CatalogedI0 remains design-stopped",
 ]
-implementation_commit = "pending"
-evidence = "To be recorded after the guard-only patch is committed: no-argument bridge_ready, explicit bridge_ready, and expected cataloged_i0 fail-closed results."
+implementation_commit = "5cfd0a955e"
+evidence = "5cfd0a955e: bash -n, no-argument bridge_ready, explicit bridge_ready, current_state_pointer_guard, TOML parse, and git diff --check pass; explicit readiness fails closed on the already-landed package-only semantic surface; explicit cataloged_i0 fails closed because RawDirectCallDispositionLoanV1 is not landed."
 next_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
 [recursive_compat_facade_shelf_s0]
