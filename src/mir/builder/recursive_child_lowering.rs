@@ -27,14 +27,18 @@ use super::raw_invocation_source_transport::{
     RawInvocationRootLineageV1, RawInvocationSourceContextV1, RawInvocationSourceTransportV1,
     RawSourceTransportPortV1,
 };
-use super::raw_static_main_compat_batch::PreparedRawStaticMainBoxCompatibilityV1;
 use crate::parser::CallableMethodSourceObservationV1;
 
+mod legacy_port;
 #[path = "raw_ordinary_new_claim.rs"]
 mod raw_ordinary_new_claim;
 #[path = "normal_script_direct_static_claim_transport.rs"]
 mod script_direct_static_claim_transport;
 
+pub(in crate::mir::builder) use legacy_port::{
+    drive_raw_legacy_body_v1, drive_raw_legacy_expression_v1, drive_raw_legacy_statement_v1,
+    RawLegacyChildLoweringPortV1,
+};
 pub(in crate::mir::builder) use raw_ordinary_new_claim::RawOrdinaryNewClaimPortV1;
 
 pub(in crate::mir::builder) use super::raw_loop_child_port::RawLoopChildEntryPortV1;
@@ -172,25 +176,6 @@ where
     Port: RecursiveChildLoweringPortV1,
 {
     port.lower_expression(builder, input)
-}
-
-pub(in crate::mir::builder) struct RawLegacyChildLoweringPortV1;
-
-impl MeCallHeaderObservationPortV1 for RawLegacyChildLoweringPortV1 {
-    fn observe_me_call_parameters(
-        &mut self,
-        builder: &MirBuilder,
-        symbol: &str,
-    ) -> MeCallParameterObservationV1 {
-        MeCallParameterObservationV1::from_optional_lookup(
-            MeCallHeaderSourceV1::ModuleCompatibility,
-            symbol,
-            builder
-                .current_module
-                .as_ref()
-                .map(|module| module as &dyn FunctionSignatureLookupV1),
-        )
-    }
 }
 
 /// Stack-owned raw-recursion capability for one module-lowering invocation.
@@ -539,108 +524,6 @@ impl<'port, 'collector> RawInvocationChildPortV1<'port, 'collector> {
     }
 }
 
-impl RecursiveChildLoweringPortV1 for RawLegacyChildLoweringPortV1 {
-    type BodyInput = Vec<ASTNode>;
-    type StatementInput = ASTNode;
-    type ExpressionInput = ASTNode;
-
-    fn cleanup_exit_policy_v1(&self) -> CleanupExitPolicyV1 {
-        CleanupExitPolicyV1::capture_from_environment()
-    }
-
-    fn lower_body(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::BodyInput,
-    ) -> Result<ValueId, String> {
-        super::stmts::block_stmt::build_block_with_port_v1(builder, self, input)
-    }
-
-    fn lower_statement(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::StatementInput,
-    ) -> Result<ValueId, String> {
-        super::stmts::block_stmt::build_statement_with_port_v1(builder, self, input)
-    }
-
-    fn lower_expression(
-        &mut self,
-        builder: &mut MirBuilder,
-        input: Self::ExpressionInput,
-    ) -> Result<ValueId, String> {
-        lower_raw_expression_with_recursion_guard_v1(builder, self, input)
-    }
-}
-
-impl RawBoxMethodChildPortV1 for RawLegacyChildLoweringPortV1 {
-    fn lower_static_main_box(
-        &mut self,
-        builder: &mut MirBuilder,
-        box_name: String,
-        methods: BoxMethodInventoryV1,
-    ) -> Result<ValueId, String> {
-        PreparedRawStaticMainBoxCompatibilityV1::prepare(box_name, methods)
-            .lower_with_port_v1(builder, self)
-            .map_err(|error| error.to_string())
-    }
-
-    fn lower_static_box_method(
-        &mut self,
-        builder: &mut MirBuilder,
-        function_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-    ) -> Result<(), String> {
-        builder.lower_static_method_as_function(
-            function_name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-        )
-    }
-
-    fn lower_instance_box_method(
-        &mut self,
-        builder: &mut MirBuilder,
-        function_name: String,
-        box_name: String,
-        params: Vec<String>,
-        param_decls: Vec<ParamDecl>,
-        return_type_name: Option<String>,
-        body: Vec<ASTNode>,
-        uses: Vec<String>,
-        attrs: DeclarationAttrs,
-    ) -> Result<(), String> {
-        builder.lower_method_as_function(
-            function_name,
-            box_name,
-            params,
-            param_decls,
-            return_type_name,
-            body,
-            uses,
-            attrs,
-        )
-    }
-}
-
-impl RawFunctionHeaderLookupPortV1 for RawLegacyChildLoweringPortV1 {
-    fn with_function_headers<R>(
-        &mut self,
-        observe: impl for<'headers> FnOnce(Option<&'headers dyn FunctionSignatureLookupV1>) -> R,
-    ) -> R {
-        observe(None)
-    }
-}
-
 impl RawBoxMethodChildPortV1 for RawInvocationChildPortV1<'_, '_> {
     fn lower_static_main_box(
         &mut self,
@@ -704,28 +587,4 @@ where
         node_kind,
         move |builder| builder.build_expression_impl_with_port_v1(port, input),
     )
-}
-
-pub(in crate::mir::builder) fn drive_raw_legacy_body_v1(
-    builder: &mut MirBuilder,
-    input: Vec<ASTNode>,
-) -> Result<ValueId, String> {
-    let mut port = RawLegacyChildLoweringPortV1;
-    drive_legacy_body_v1(builder, &mut port, input)
-}
-
-pub(in crate::mir::builder) fn drive_raw_legacy_statement_v1(
-    builder: &mut MirBuilder,
-    input: ASTNode,
-) -> Result<ValueId, String> {
-    let mut port = RawLegacyChildLoweringPortV1;
-    drive_legacy_statement_v1(builder, &mut port, input)
-}
-
-pub(in crate::mir::builder) fn drive_raw_legacy_expression_v1(
-    builder: &mut MirBuilder,
-    input: ASTNode,
-) -> Result<ValueId, String> {
-    let mut port = RawLegacyChildLoweringPortV1;
-    drive_legacy_expression_v1(builder, &mut port, input)
 }
