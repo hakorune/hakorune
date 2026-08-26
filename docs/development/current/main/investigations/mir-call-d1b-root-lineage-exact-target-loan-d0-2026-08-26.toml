@@ -520,7 +520,7 @@ task_sequence = [
   "F.1 facts reconcile (this docs-only row): correct the issuer claim, name the missing inventory/session product, and freeze the pre-adapter root owner without changing BridgeReady or adding code.",
   "F.2 lineage/site contract: preserve Cataloged root plus exact SourceExprSiteV1 through RawBrandCallAuthority, preflight, RawStructuredChildScopePortV1, and nested raw frames; make loss, foreign, mixed-brand, duplicate, and ambiguous states typed terminals before child descent.",
   "F.3 lifetime/rollback contract: freeze RawInvocationChildPortV1<'port, 'collector, 'loan>, root-to-child &mut reborrow, owned take_once before arguments, drop ordering, abort/rollback, and finish_empty residual proof.",
-  "F.4 Cataloged-window guard/test design: add only scoped issuer/co-seal, positive/negative/parity, nested forwarding, exact-once, and residual-zero checks; keep unrelated compatibility recovery symbols outside this guard.",
+  "F.4 Cataloged-window guard/test design: add only scoped issuer/co-seal, positive/negative/parity, nested forwarding, exact-once, and residual-zero checks (including cataloged_direct_call_issuer_co_seals_non_empty_exact_site_brand_session and cataloged_lineage_and_site_survive_raw_and_structured_child_forwarding); keep unrelated compatibility recovery symbols outside this guard.",
   "I0 only after F.1-F.4: replace CatalogedTargeted { callee, arguments } with the root loan take, lower arguments once, publish one canonical Call, and delete the old direct handoff in the same bounded cell."
 ]
 acceptance = [
