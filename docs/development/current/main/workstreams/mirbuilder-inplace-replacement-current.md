@@ -1,5 +1,5 @@
 ---
-Status: Fast — MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0
+Status: Closeout — MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -48,8 +48,8 @@ Fail-fast boundary:
   schemaとtarget関係不足はarguments、MIR、wire/backend effectより前にreject。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0`。再利用guardとmanifest
-  登録だけを置き、parserやsemantic codeは変えない。
+  `MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0`。Ingress guardの完了後に、
+  旧B0判断の証拠とsuperseded_byをdocs-onlyで復元する。
 
 Non-claims:
   schema selector実装、typed Global、observer/loan、Method/receiver、EffectMask、
@@ -188,10 +188,10 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    three structural shapes, bounded exact v2, future one-way symbol projection,
    observer contract, and the finite readiness queue below are accepted
 
-1. MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0               (now, fast)
+1. MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0               (landed)
    reusable fail-closed guard; phases wpre_readiness/wpre_i0/typed_global_b1/r7
 
-1a. MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0                     (docs-only)
+1a. MIR-CALL-B0-PROVENANCE-TOMBSTONE-R0                     (now, closeout)
     inventory every section removed by 9bff1a1ff2 that carried review_source,
     A/B/C disposition, QualifiedStaticPayloadAbsent, TargetPayloadMissing, or
     terminal_role_split; map each to the current B0 owner with superseded_by /
@@ -465,6 +465,8 @@ investigation/archive owners, not in this rolling card.
 bash tools/checks/current_state_pointer_guard.sh
 bash tools/checks/run_row_guard.sh --only mir-call-d1b-targeted-variant-split
 bash tools/checks/run_row_guard.sh --only mir-call-d1b-cataloged-affine-loan-lifecycle
+# manifest row: mir-call-ingress-schema-lifecycle-guard
+bash tools/checks/mir_call_ingress_schema_lifecycle_guard.sh
 bash tools/checks/mir_call_d1b_selected_normal_duplicate_projection_guard.sh
 git diff --check
 ```

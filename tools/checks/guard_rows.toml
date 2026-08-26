@@ -193,3 +193,9 @@ id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
 label = "MIR Call D1B Cataloged affine-loan lifecycle guard"
 profiles = ["pilot", "quick-static"]
 cmd = ["bash", "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh"]
+
+[[rows]]
+id = "mir-call-ingress-schema-lifecycle-guard"
+label = "MIR Call ingress schema lifecycle guard"
+profiles = ["pilot", "quick-static"]
+cmd = ["bash", "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh"]
