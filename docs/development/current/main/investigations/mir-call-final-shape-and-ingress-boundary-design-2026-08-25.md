@@ -1,18 +1,16 @@
 ---
-Status: Design queue — no implementation permission
+Status: Superseded evidence — not a current queue or implementation authority
 Date: 2026-08-25
 Decision: MIR-CALL-FINAL-SHAPE-AND-INGRESS-BOUNDARY-D0
 Observed commit: 183c1418d7
 Owner: MIR-CALL-RETIREMENT-v1
 ---
 
-# MIR Call final shape and ingress boundary design queue
+# MIR Call final shape and ingress boundary historical evidence
 
-This card records the surviving proposals from the adversarial review. It is
-not a production switch and does not authorize a new `Verified*` receipt,
-schema edit, fallback, fixture rewrite, or JSON behavior change. The current
-D1S closeout remains the active lane; an upper-worker census must choose one
-bounded next edge before implementation.
+This card preserves the 2026-08-25 review evidence only. Current decisions and
+task order are owned by `CURRENT_STATE.toml`, the rolling MirBuilder workstream,
+and `design/mir-canonical-callsite-lane-ssot.md`; this file authorizes no row.
 
 ## Decision
 

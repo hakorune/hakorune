@@ -1,12 +1,12 @@
-date = "2026-08-26"
+date = "2026-08-27"
 development_branch_ssot = "main"
-work_mode = "design_stop"
-current_execution_row = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
-current_design_stop = "Typed structural Global is selected as the final canonical representation, but its production family/issuer/wire/all-compiled-consumer matrix is not yet closed. B0 is read-only design. Ordinary FunctionCall package completion is the next prerequisite; no typed schema, observer, loan, resolver, ABI, wire, backend, or Call code is authorized."
-current_blocker_token = "MIR-CALL-GLOBAL-TARGET-B0: SemanticAuthorityMissing — classify every production Global family and name one source authority, canonical issuer, wire owner, selected parity owner, every compiled schema-consumer disposition, and old edge. Legacy(String), formatter/reparse, opaque registry, second traversal/resolver, and physical-symbol authority are forbidden."
+work_mode = "fast"
+current_execution_row = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
+current_design_stop = "none; B0 Global architecture and the observer/package ownership contract are accepted, while B1 readiness remains task-gated. Semantic implementation stays closed and the reusable ingress lifecycle guard is the only selected fast row."
+current_blocker_token = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0: guard-only — freeze exact schema selection before Wpre. No parser behavior, typed Global, observer, loan, resolver, ABI, EffectMask, backend, or Call schema change is authorized."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "Mir Call R6 — typed Global identity and D1B exact-target ownership"
+active_lane = "Mir Call R6 — strict ingress selection, typed Global identity, and D1B exact-target ownership"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -15,9 +15,9 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "Six read-only audits plus adversarial review select typed structural Global for the final core and reject a new canonical String issuer. B0 finite identity design is current; observer-only FunctionCall completion, source-owned disposition, affine handoff, recovery/Method/wire closure, R6/R7, and post-Call hub cleanup are dependency-ordered. The active card is compact and implementation_permission remains false."
-next_design_card = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
-next_execution_card = "none"
+latest_card_summary = "Six read-only audits plus adversarial review select canonical Global as Builtin(Print) or SameModule(FreeFunction/StaticBoxMethod) and freeze a bounded exact Call-corridor v2 profile; every other family is Extern/Method/construction/reject. Semantic implementation_permission remains false while the reusable ingress lifecycle guard is selected."
+next_design_card = "none"
+next_execution_card = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-26: BridgeReady package-only install/source bridge is landed; the active guard remains bridge_ready and semantic loan permission stays false.",
-  "2026-08-26: Cataloged exact-target/GC children, duplicate validation, index-none safety, recursive compatibility shelf, and late legacy target rewrite retirement remain closed evidence.",
-  "2026-08-26: final architecture/task consolidation selected typed structural Global, added the observer-completion prerequisite, and reduced current workstream/card chronology to compact owners.",
+  "2026-08-27: B0 Global architecture is accepted as Builtin(Print) plus SameModule FreeFunction/StaticBoxMethod; B1 readiness remains task-gated and no Imported, Helper, Generated, Legacy, or physical-symbol variant is admitted.",
+  "2026-08-27: bounded Call-corridor MIR JSON v2 and exact one-shot schema selection are accepted; full MIR-v2 vocabulary is not claimed.",
+  "2026-08-27: observer/package ownership is accepted without another broad design phase; the next bounded row is the reusable ingress lifecycle guard only.",
 ]

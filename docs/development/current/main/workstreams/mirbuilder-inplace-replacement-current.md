@@ -1,6 +1,6 @@
 ---
-Status: Design stop — MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION
-Date: 2026-08-26
+Status: Fast — MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0
+Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
@@ -32,39 +32,35 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 ## Current six-line brief
 
 Decision:
-  Canonical Callはtyped structural Global targetへ収束する。現在はB0の有限
-  family/issuer/wire/projector設計だけを行い、実装許可は開かない。
+  B0は受理済み。canonical Globalは`Builtin(Print)`または
+  `SameModule(FreeFunction | StaticBoxMethod)`だけとし、旧wireは入口で閉じる。
 
 Source authority + canonical issuer:
-  exact source-site/declaration、finite builtin owner、またはowner-private typed
-  ingressがtargetを発行する。`MirInstruction::call`は決定済みtargetを格納するだけ。
+  `print(expr)`のsource contract、exact same-module関数宣言、または
+  owner-private compatibility resolverが構造targetを一回発行する。
 
 Non-authority:
-  raw name/arity、catalog key単体、`mir_symbol_projection`、physical symbol、
-  `ModuleInvocationBrand`、EffectMask、registry、caller=None、methodize、args[0]、
-  optimizer/backend repair。
+  raw text、alias map、physical symbol、function table、EffectMask、registry、
+  `caller=None`、methodize、`args[0]`、optimizer/backend repair。
 
 Fail-fast boundary:
-  missing/foreign/duplicate/ambiguous/unsupported target、incomplete observation、
-  residual loan、missing receiverはarguments、MIR mutation、package install、wire、
-  backend effectより前にrejectまたは明示的ParkedSealed。
+  schemaはJSON rootを一回parseして選ぶ。unsupported/malformed/conflicting
+  schemaとtarget関係不足はarguments、MIR、wire/backend effectより前にreject。
 
 Smallest next slice:
-  `MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION`のread-only finite census。
-  builtin/same-module/runtime-helper/compatibilityごとにauthority、issuer、wire、
-  every compiled schema consumer、selected parity terminal、old edgeを一行へ閉じる。
+  `MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0`。再利用guardとmanifest
+  登録だけを置き、parserやsemantic codeは変えない。
 
 Non-claims:
-  typed schema code、FunctionCall observer実装、loan、Method/receiver、JSON/backend、
-  performance、Loop/M8/M9、warning/dead-code cleanup、broad crate split。
+  schema selector実装、typed Global、observer/loan、Method/receiver、EffectMask、
+  backend parity、performance、Loop/M8/M9、warning/dead-code cleanup。
 
 Census boundary:
   production `Callee::Global` issuer -> optimizer/wire/all compiled core-schema
-  consumers; includes builtin/static/runtime-helper/compatibility families and
-  selected VM/native semantic terminals. Tests and non-selected backends are not
-  semantic authority or new parity targets, but their compiled schema consumers
-  require B1 adaptation/isolation/retirement disposition. PyVM/reference production
-  activation and typed Extern/Method/Value owners are excluded.
+  consumers -> selected VM/native terminal. Census has 271 matching lines in
+  143 `.rs` files (266 under `src`, five under `crates`) plus five matches in two
+  compiled `.inc` files. Tests/non-selected backends are not semantic authority,
+  but every compiled schema consumer remains in B1 closure.
 
 ## Current architecture decision
 
@@ -86,9 +82,27 @@ Call {
 }
 ```
 
-`CanonicalGlobalTargetV1`はwire-stableなstructural valueで、最低限Builtinと
-SameModuleStaticを区別する。追加familyはB0 censusが必要性を証明した時だけ。
-`Legacy(String)`、opaque ID、hidden registry、physical symbol authorityは不採用。
+```rust
+enum CanonicalGlobalTargetV1 {
+    Builtin(CanonicalBuiltinGlobalV1),
+    SameModule(CanonicalSameModuleGlobalTargetV1),
+}
+
+enum CanonicalBuiltinGlobalV1 { Print }
+
+enum CanonicalSameModuleGlobalTargetV1 {
+    FreeFunction { name: Box<str>, arity: u32 },
+    StaticBoxMethod { owner: Box<str>, method: Box<str>, arity: u32 },
+}
+```
+
+`Print`はexact `print/1`だけ。finite runtime providerは`panic/1`と`exit/1`
+を同名Externへ出す。bare `error`と`now`はauthority不在でrejectし、explicit
+`env/nyash.console.error`だけがExternになる。mathはMethod、GCは未実行Global
+producerをretireしてrejectする。
+import aliasはfinal moduleのexact declarationに着地した時だけSameModuleとし、
+distinct Imported/Helper/Generated/Legacy variantは作らない。JoinIRは生成関数
+宣言とcallを同じownerでco-sealし、SameModule FreeFunctionを使う。
 
 ```text
 legacy text
@@ -97,13 +111,20 @@ legacy text
   -> canonical Call
 ```
 
+Canonical Call-corridor MIR JSONはexact `schema_version = "2.0"`。Global targetはfamily付き
+object、`args`/`effects`は必須、`flags`/`func`/aliasは不可とする。effectsは
+coreのcanonical順で重複・未知語彙なし。exact `1.0`とv0はowner-private
+compatibilityであり、明示schemaのparse失敗を別schemaでretryしない。v2のop cohortは
+`const/copy/copy_owned/destroy_owned/newbox/field_get/binop/compare/branch/jump/phi/ret/mir_call`
+だけで、他opはtyped unsupported。full MIR-v2 vocabularyはこのlaneのclaim外。
+
 ## Current finite state
 
 ```text
 Global B0
-  BuiltinReady
-  SameModuleStaticReady
-  AdditionalFamilyObserved
+  BuiltinPrintReady
+  SameModuleFreeFunctionReady
+  SameModuleStaticBoxMethodReady
   CompatibilityTextReady
   MissingSourceRelation
   ForeignModule
@@ -112,7 +133,17 @@ Global B0
   WrongNamespace / WrongArity
   UnsupportedForWireOrCompiledConsumer
   TypedRejectBeforeEffect
-  ParkedSealedOutsideSelectedBoundary
+  ExternOrMethodOrConstructionOwner
+
+Ingress Wpre
+  CanonicalV2Selected
+  CompatibilityV1Selected
+  CompatibilityMirV0Selected
+  ProgramV0OwnerSelected
+  CanonicalV2ParserUnavailableBeforeB1
+  MalformedJson / MalformedSchema
+  ConflictingMarkers / UnsupportedVersionOrShape
+  TypedRejectNoRetry
 
 D1B lifecycle
   ObserverOnlySiteRecorded
@@ -133,11 +164,8 @@ install. Resolved fallthrough and residual loan are guard failures, not terminal
 
 ## Adversarial correction
 
-Ordinary `FunctionCall` currently defers at the selected shadow profile gate.
-Deferred owner trees do not issue the semantic package, so adding an external
-scratch or loan alone would create a product with no lawful lifecycle.
-
-After B0, design this exact transition before any semantic implementation:
+Ordinary `FunctionCall`のobserver/package contractも受理済み。selected shadow
+profileのDeferred edgeは次の一回限りtransitionで置換する。
 
 ```text
 profile-gate-adjacent observer-only FunctionCall
@@ -148,81 +176,126 @@ profile-gate-adjacent observer-only FunctionCall
   -> require total disposition before package install
 ```
 
-No second AST walk, post-Deferred recovery, package-external scratch, semantic
-profile widening, or BodyEffect-based target inference is allowed. Existing
-brand/site/catalog identity is reused unless a concrete undetectable mispair is
-shown; receipt proliferation is not a substitute for evidence.
+No second AST walk、package-external scratch、target issuance、semantic profile
+widening、BodyEffect inference。Package installはtotal dispositionを要求する。
+後続affine loanは既発行Calleeだけをmoveし、同じcellでdirect
+`CatalogedTargeted` payloadを削除する。
 
 ## Ordered frontier
 
 ```text
-0. MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION        (now, design only)
-   finite target families, source issuers, wire owners, selected projectors,
-   alias/collision/arity rules, old-edge disposition
+0. MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION        (architecture accepted)
+   three structural shapes, bounded exact v2, future one-way symbol projection,
+   observer contract, and the finite readiness queue below are accepted
 
-1. MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0
-   observer-only state transition, same-traversal argument observation,
-   package completion and install-abort contract
+1. MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0               (now, fast)
+   reusable fail-closed guard; phases wpre_readiness/wpre_i0/typed_global_b1/r7
 
-2a. MIR-CALL-TOUCHED-OWNER-SHELF-S0
-    behavior-neutral split only for a 760+ owner the next semantic row touches
+2. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0
+   parse JSON root once; select exact v2/v1/MIR-v0/Program-v0 once; delete raw
+   substring selection, canonicalize/reload, dispatch-local cascade, swallowed
+   core-direct error/re-entry, and explicit-v1-error -> v0 retry
 
-2b. MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-R0
-    replace the live one-stage transport before retiring reader-zero flags
+3. MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-R0
+   replace the live one-stage transport and retire reader-zero flags
 
-2c. MIR-CALL-JOINIR-SCHEMA-CONSUMER-DISPOSITION-D0
-    retire or include each isolated compiled consumer in the schema cutover
+4. MIR-CALL-EFFECT-AUTHORITY-E0
+   freeze source/provider/wire-owned effects before any target reroute: Print=IO,
+   panic/exit=IO|CONTROL, Extern=declared exact mask or reject, same-module=
+   semantic package/body mask, compatibility=explicit owner mapping with no default
 
-3. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE
-   choose v1/v0 exactly once; invalid explicit v1 -> v0 retry becomes zero
+5. MIR-CALL-SAME-MODULE-SOURCE-IDENTITY-PRESERVE-R0
+   preserve exact free/static source identity through
+   `VerifiedTrivialDirectCallTargetV1` and `VerifiedResolvedOwnerHeaderV1`;
+   delete parse-back, but retain exactly one guarded old one-way String
+   projector/publication until B1 consumes and types it
 
-4. MIR-CALL-GLOBAL-TARGET-B1-CUTOVER
-   typed target owner + producer/core/wire/optimizer/all compiled consumer
-   adaptation; selected terminals own semantic parity, no String wrapper/reparse
+6. MIR-CALL-IMPORTED-STATIC-EXACT-RELATION-R0
+   alias plus exact final-module declaration -> retained structural source row;
+   alias-only/foreign/ambiguous input rejects before arguments
 
-5. MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0
+7. MIR-CALL-COMPAT-GLOBAL-RESOLUTION-W1-R0
+   v1/v0/Program-v0 text resolves once to a finite target disposition or reject;
+   keep only a guarded old physical publication until B1, never a new String issuer
+
+8. MIR-CALL-JOINIR-GENERATED-FREE-TARGET-J0
+   co-seal JoinFuncId, exact JoinFunction name/arity and declaration; delete
+   generated-name fallback, alias fanout and target Const, but retain exactly one
+   guarded old Global(String) physical publication until B1 types it
+
+9. MIR-CALL-BOUNDED-GC-FALSE-GLOBAL-RETIRE-R0
+   delete `gc_collect/gc_stats` Global publication and reject before arguments;
+   future GC semantics stay parked behind their own source owner
+
+10. MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0
    delete the selected Deferred edge, complete owner/package issuance, abort
    incomplete disposition before install, and issue no target from observation
 
-6. MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0
-   exact site/owner/catalog co-seal -> non-empty stack-owned loan -> take_once
-   -> arguments once -> Call once -> residual zero; direct CatalogedTargeted
-   payload deleted in the same cell
+11. MIR-CALL-GLOBAL-BUILTIN-EXTERN-DISPOSITION-R0
+    exact print/1 retains one guarded Global publication for B1; panic/1 and
+    exit/1 reroute to same-name Extern; bare error/now/println reject; explicit
+    declared console/env/host providers remain Extern
 
-7. MIR-CALL-EFFECT-AUTHORITY-E0
-   name source-owned effects for every promoted Global family; READ/IO conflicts
-   stay CutoverBlockerOpen and cannot be resolved by target transport
-
-8. MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0
+12. MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0
    six lineages + Unlocated/Relationless become exact target / KnownNonDirect /
-   typed reject / ParkedSealed; then caller=None, Resolved, unique/tail,
-   target Const, and legacy publication retire
+   typed reject / ParkedSealed before arguments; delete caller=None, Resolved,
+   unique/tail recovery, target Const, and arbitrary legacy publication while
+   retaining the Cataloged direct payload for the next affine replacement
 
-9. MIR-CALL-METHOD-CORRIDOR-R0
+13. MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0
+    exact site/owner/catalog co-seal -> non-empty stack-owned loan -> take_once
+    -> arguments once -> Call once -> residual zero; direct CatalogedTargeted
+    payload deleted in the same cell after late recovery is already zero
+
+14. MIR-CALL-METHOD-CORRIDOR-R0
    receiver lives only in Callee; args are source args; consume the already
-   selected effect authority; delete receiver prepend/strip/autoscan/args[0], Method(None),
-   methodize, guard repair, UnknownBox, optimizer and VM recovery
+   selected effect authority; close StageB instance, rewrite/known, and
+   ordinary-new birth producers with receiver ABI, then delete prepend/strip/
+   autoscan/args[0], Method(None), methodize, guard repair, UnknownBox,
+   optimizer Global->Method, and VM Global recovery
 
-10. MIR-CALL-WIRE-CONSTRUCTION-TERMINAL-R0
-    close remaining retained-variant parity, ignored flags/effect defaults,
-    Constructor -> NewBox, Closure -> NewClosure/Value, and selected fallback zero
+15. MIR-CALL-SAME-MODULE-ALL-PRODUCER-DISPOSITION-R0
+    classify static method terminal, generic CorePlan GlobalCall, and env-gated
+    arithmetic/comparison/unary Global publishers. Exact final-module declarations
+    retain one guarded old publication; authority-free publishers reject/retire
+    before effects. No formatted owner/name/arity or plan `func: String` is authority
 
-11. MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0
+16. MIR-CALL-GLOBAL-TARGET-DEAD-TEXT-CALLSHAPE-S0
+    move only the call-shape matcher out of the 790-line owner; no behavior change
+
+17. MIR-CALL-GLOBAL-TARGET-B1-CURRENT-HEAD-C0
+    enumerate the finite surviving exact String publications and every compiled
+    consumer by owner/action; arbitrary publisher/recovery/methodize count is zero.
+    Any new hole inserts an owner-specific S0/R0, then C0 reruns; only exhausted C0
+    with all remediation rows closed may open B1
+
+18. MIR-CALL-GLOBAL-TARGET-B1-CUTOVER
+    add the serde-free defs type; atomically change both `Callee::Global` and
+    `CallTarget::Global`; type the retained exact publications; add bounded v2
+    codec, sole projection and one MirModule lookup; adapt/delete/isolate every
+    compiled consumer without formatter, reparse, registry, fallback, or retry
+
+19. MIR-CALL-WIRE-CONSTRUCTION-TERMINAL-R0
+    close isolated noncanonical compatibility and construction terminals:
+    Constructor -> NewBox and Closure -> NewClosure/Value. Canonical ignored/default
+    effects are already zero at E0/W1/B1 and cannot be deferred to this row
+
+20. MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0
     writers, func readers, optional Callee/receiver, construction variants,
     sentinels, wire/backend retry, and guards recounted at current HEAD
 
-12. MIR-CALL-CORE-SCHEMA-CUTOVER-R6
+21. MIR-CALL-CORE-SCHEMA-CUTOVER-R6
     atomically delete func, Option<Callee>, optional receiver, INVALID/0 target
 
-13. MIR-CALL-LEGACY-GUARD-CLOSEOUT-R7
+22. MIR-CALL-LEGACY-GUARD-CLOSEOUT-R7
     legacy fixtures move to compatibility ingress; impossible-state guards,
     stale comments, README/reference/current history close
 
-14. MIRBUILDER-POST-CALL-INTEGRATION-R0
+23. MIRBUILDER-POST-CALL-INTEGRATION-R0
     recovery context deletion -> root/recursion state localization -> finite
     CompilationContext/metadata/raw-port/adapter/barrel owner cleanup
 
-15. remaining selected pipeline rows -> final repository convergence audit
+24. remaining selected pipeline rows -> final repository convergence audit
 ```
 
 No later row can be pulled before an earlier authority boundary. Local green,
@@ -238,10 +311,14 @@ src/mir/builder.rs                                      741
 src/mir/builder/normal_callable_semantic_loan_port.rs   710
 src/mir/builder/raw_expression_dispatch/mod.rs          706
 src/mir/builder/calls/unified_emitter.rs                 711
+src/mir/string_dead_text_region_plan.rs                  790
+src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs 744
 ```
 
 The 778-line transport requires a behavior-neutral owner split before touch.
-`builder.rs` and `unified_emitter.rs` are deletion/delegation-only. Target,
+The 790-line dead-text owner has the exact call-shape S0 named in row 16.
+`builder.rs`, the 744-line lowerer, and `unified_emitter.rs` are
+deletion/delegation-only. Target,
 inventory, handoff, loan, and recursive capability code goes into small
 owner-specific siblings. Every touched/new source stays `<760`; `>=800` stops.
 
@@ -374,5 +451,5 @@ bash tools/checks/mir_call_d1b_selected_normal_duplicate_projection_guard.sh
 git diff --check
 ```
 
-Cargo gates are run only by an accepted fast/closeout row. This design-stop
-card does not turn a green guard into implementation permission.
+Cargo gates are run only by an accepted fast/closeout row. This guard-only fast
+pointer does not turn a green guard into semantic implementation permission.

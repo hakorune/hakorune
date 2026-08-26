@@ -1,22 +1,23 @@
-title = "MIR Call D1B exact-target ownership and final convergence"
-status = "accepted_architecture_design_stop"
-observed_commit = "ca7670bffd"
-observed_at = "2026-08-26"
+title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
+status = "b0_architecture_accepted_selected_fast_guard_only"
+observed_commit = "9bff1a1ff2"
+observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "bridge_ready"
-permission_scope = "Docs/census only. Typed Global, observer completion, loan, resolver, wire, ABI, EffectMask, Method, and Call schema code remain forbidden until their bounded rows are accepted."
+ingress_schema_guard_phase = "wpre_readiness"
+permission_scope = "Only the reusable ingress-schema guard and manifest registration are authorized. Parser behavior, typed Global, observer, loan, resolver, wire codec, ABI, EffectMask, Method, backend, and Call schema code remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
-completed_execution_row = "MIR-CALL-D1B-BRIDGE-READY-PACKAGE-ONLY-I0"
-next_execution_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
+execution_row = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
+completed_execution_row = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
+next_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
 ends = "typed pre-effect Callee/terminal, selected wire/VM/native projection, and final mandatory-Callee Call publication"
 census = "Global B0 covers production Global issuer -> optimizer/wire/all compiled core-schema consumers, with selected VM/native as semantic parity terminals. D1B covers six RawInvocationRootLineageV1 families plus Unlocated/Relationless -> ordinary preflight terminal."
 includes = [
-  "builtin, same-module static, runtime/helper, and compatibility Global families",
+  "Builtin(Print), same-module FreeFunction/StaticBoxMethod, generated-declaration adaptation, false-GC publication retirement, and compatibility Global inputs",
   "Cataloged, TopLevel, InstanceConstructor, ScriptRoot, Main, and NestedBoxMethod lineages",
   "observer completion, package install gate, affine handoff, Resolved/recovery retirement",
   "receiver ABI, Method(None), wire selection, construction, effects, selected terminal closure, and R6/R7",
@@ -24,43 +25,97 @@ includes = [
 excludes = [
   "PyVM/reference backend production activation and new parity; every compiled Rust schema consumer, including non-selected/WASM consumers, remains inside B0/B1 mechanical adaptation, isolation, or retirement disposition",
   "JSON-v0 schema retirement, performance, Loop/M8/M9, broad crate split, and warning cleanup",
-  "bounded GC, Brand/special/ExplicitExtern/ASTNode::Call as authority for ordinary FunctionCall",
+  "bounded GC semantic activation, Brand/special/ExplicitExtern/ASTNode::Call as authority for ordinary FunctionCall",
 ]
 
 [brief]
-decision = "Select typed structural B for canonical Global targets; String is owner-private compatibility input only. Before any D1B loan, close the observer-only FunctionCall completion transition and total pre-install disposition."
-source_authority = "Exact source-site/declaration or builtin relation, plus owner-private typed ingress. Existing keys are source material only until a named family issuer validates namespace/owner/name/arity at the same site/session."
-canonical_issuer = "One family-specific source/ingress issuer creates CanonicalGlobalTargetV1; MirInstruction::call stores an already-decided Callee and never classifies."
-non_authority = "Raw name/arity, CanonicalSameModuleCallableKeyV1 alone, mir_symbol_projection, ModuleInvocationBrand, physical symbol, EffectMask, caller=None, registry, collector order, methodize, args[0], and backend retry."
-fail_fast = "Missing, foreign, duplicate, ambiguous, wrong namespace/arity, unsupported wire/backend, incomplete observation, residual loan, or missing receiver terminates before arguments, MIR mutation, package install, wire, or backend effects."
-smallest_next_slice = "B0 read-only finite Global family/issuer/wire/projector census. implementation_permission remains false."
-non_claims = "No typed schema code, observation implementation, affine loan, cross-module feature, Method/receiver change, JSON/backend change, or warning cleanup."
+decision = "B0 is accepted: canonical Global has Builtin(Print) and SameModule(FreeFunction/StaticBoxMethod) only; canonical wire is exact v2. The selected row freezes schema lifecycle with a reusable guard only."
+source_authority = "Exact print/1 source contract, exact final-module free/static declaration, co-sealed JoinIR generated declaration, or owner-private compatibility resolution."
+canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
+non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
+fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
+smallest_next_slice = "Create/register the reusable ingress-schema lifecycle guard in wpre_readiness; no parser or semantic behavior changes."
+non_claims = "No selector implementation, typed schema code, observer/loan, cross-module feature, Method/receiver, EffectMask, backend parity, or warning cleanup."
 
 [final_architecture]
-global_target = "Callee::Global(CanonicalGlobalTargetV1), a self-describing wire-stable structural value; never an opaque ID, hidden registry key, physical symbol, or Legacy(String)."
-minimum_families = [
-  "Builtin(CanonicalBuiltinGlobalV1)",
-  "SameModuleStatic { owner, name, arity }",
+global_target = "Callee::Global(CanonicalGlobalTargetV1), defined serde-free in hakorune_mir_defs/global_target.rs; never an opaque ID, hidden registry key, physical symbol, or Legacy(String)."
+families = [
+  "Builtin(Print), accepted only for exact print/1",
+  "SameModule(FreeFunction { name, arity })",
+  "SameModule(StaticBoxMethod { owner, method, arity })",
 ]
-conditional_families = "Imported/free static and runtime/helper rows exist only if B0 production census proves a distinct semantic family and names its issuer."
+family_disposition = "Exact bare panic/1 and exit/1 -> same-name Extern; bare error and now -> reject; explicit declared env/nyash.console.error -> Extern; math is Method; construction is NewBox/NewClosure; GC Global publication retires; imports need an exact final-module declaration; JoinIR will use a co-sealed FreeFunction; no additional variant."
+projection = "B1 installs the sole one-way target-to-physical projection under resolved_semantics/callable_symbol and one MirModule structural lookup; it deletes/delegates CanonicalSameModuleCallableKeyV1::mir_symbol_projection, and collision rejects before module publication."
 method = "Method receiver is non-optional and is the sole semantic receiver; Call.args contains source arguments only."
 construction = "NewBox/NewClosure own construction; closure invocation uses Callee::Value. Constructor/Closure descriptors do not survive in final Call."
 call = "Call { dst, callee: Callee, args, effects }; func, Option<Callee>, optional receiver, target sentinels, and runtime repair are absent."
-compatibility = "Legacy String -> owner-private exact resolution -> typed target -> canonical Call. Invalid explicit v1 never retries through v0."
+wire = "Exact schema_version=2.0 owns structural Global, required args/effects, canonical effect order, and no func/flags/aliases. Exact v1.0 and v0 are owner-private compatibility only."
+wire_cohort = "B1 v2 is bounded to const, copy, copy_owned, destroy_owned, newbox, field_get, binop, compare, branch, jump, phi, ret, and mir_call. Any other op is an unsupported-v2 terminal; full MIR vocabulary is not claimed."
+wire_call_shape = "One flat object only: op=mir_call; dst is required integer-or-null; callee, args, and effects are required; mir_call nesting, func, flags, aliases, and duplicate placement are forbidden."
+wire_global_objects = [
+  "{type:Global,target:{family:builtin,builtin:print}}",
+  "{type:Global,target:{family:same_module,kind:free_function,name:<source-name>,arity:<u32>}}",
+  "{type:Global,target:{family:same_module,kind:static_box_method,owner:<source-owner>,method:<source-method>,arity:<u32>}}",
+]
+wire_effect_order = ["pure", "mut", "io", "control", "read", "write", "p2p", "ffi", "panic", "alloc", "global", "async", "unsafe", "debug", "barrier"]
+compatibility = "Legacy text -> owner-private exact resolution -> typed target -> canonical Call. The JSON root is parsed once and an explicit schema failure never retries through another parser."
 
 [global_target_b0]
 task_id = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
-status = "selected_design_only"
-primary_missing_boundary = "SemanticAuthorityMissing"
+status = "accepted_architecture_execution_blockers_open"
+accepted_at = "2026-08-27"
+accepted_head = "9bff1a1ff2"
 selected_option = "B: typed structural Global identity in canonical core. A is retained only as owner-private legacy ingress text; no new canonical String issuer is introduced."
 reason = "Global(String) mixes builtin, qualified static, runtime/helper, and compatibility meanings. A new String issuer would be a transitional second authority and would still require later cross-cutting retirement."
-implementation_gate = "false; B0 must close all production family issuers, typed schema fields, alias/collision/arity rules, wire ownership, every compiled schema-consumer disposition, selected terminal parity, and old-edge disposition first."
-required_rows = [
-  "Builtin: finite source owner, enum identity, wire row, compiled consumers, selected terminal",
-  "SameModuleStatic: exact call-site/declaration relation, structural owner/name/arity, module domain, compiled consumers, physical projection",
-  "Runtime/helper: classify as builtin/static/Extern or prove a distinct family",
-  "Compatibility: owner-private text resolution and invalid-input terminal",
-  "Additional producer: accepted typed family or ParkedSealed with owner and reopen trigger",
+implementation_gate = "semantic implementation remains false while the selected reusable ingress guard is absent; after it lands, only the ordered bounded rows may open one at a time."
+census = "271 matching lines in 143 .rs files (266 under src, five under crates), plus five matches in two compiled .inc files; boundary is production issuer -> every compiled core consumer -> selected VM/native terminal."
+source_identity_holes = "VerifiedTrivialDirectCallTargetV1 and VerifiedResolvedOwnerHeaderV1 currently retain a physical symbol after dropping the exact free/static source key. MIR-CALL-SAME-MODULE-SOURCE-IDENTITY-PRESERVE-R0 preserves structural identity and deletes parse-back while retaining one guarded old one-way String projector/publication; B1 consumes and types that edge, then deletes/delegates mir_symbol_projection."
+disposition = [
+  "Builtin: exact Print/1 only; every other classifier name becomes Extern/Method/reject",
+  "SameModule: exact FreeFunction or StaticBoxMethod declaration; alias alone is not authority",
+  "JoinIR: J0 co-seals generated identity, deletes fallback/aliases/Const carrier, and retains one guarded old physical publication until B1 types it",
+  "Compatibility: exact v1/v0 owner resolves once; unknown or malformed input rejects",
+  "Every compiled consumer: structural consume, explicit isolation/retirement, or selected terminal projection; no string classification",
+]
+family_matrix = [
+  "print|nyash.builtin.print at exact arity 1 | source print/1 or owner-private compatibility alias | Builtin(Print) | print_stmt/classifier/v1-v0 alias publishers | structural adapt; println and wrong arity reject before arguments",
+  "panic/1|exit/1 | exact runtime-provider signature owner | Extern(panic|exit) | builtin classifier and VM Global arms | E0 then producer reroute; Global aliases deleted",
+  "bare error | no exact bare source/provider relation | typed reject | builtin classifier | delete classifier publication before arguments; only explicit declared env/nyash.console.error may issue Extern",
+  "bare now | no selected source/provider contract | typed reject | builtin classifier | delete classifier publication before arguments; explicit env.now_ms remains Extern",
+  "env.*|system.*|nyash.console.*|hostbridge.* and harness helpers | exact extern/provider declaration plus arity | Extern or typed reject when declaration absent | v1 aliases and VM Global helper arms | compatibility resolution once; Global fallback deleted",
+  "abs|min|max|sin|cos and other math helpers | typed receiver/special-method owner | Method or typed reject without receiver | builtin classifier/string special handlers | no Global publication or terminal parse",
+  "gc_collect|gc_stats | no selected execution owner | typed reject; future semantics ParkedSealed | BoundedGcTargeted publisher | current publisher deleted before arguments",
+  "same-module free function and Main | exact final-module callable source key/name/arity | SameModule FreeFunction | trivial-direct/Main physical-symbol publishers | retain source identity; B1 structural adapt; symbol parse-back zero",
+  "same-module static Box/operator/BuildBox helper | exact final-module owner/method/arity declaration | SameModule StaticBoxMethod | catalog/direct/static/StageB publishers | exact one-way projection; ambiguous/wrong arity reject",
+  "static method terminal formatting | exact final-module owner/method/arity declaration | SameModule StaticBoxMethod or typed reject | method_call_handlers -> method_call_terminal formatted Global | retain one guarded exact publication or reject before effects; formatting is not authority",
+  "generic CorePlan GlobalCall | independently preserved exact source declaration | corresponding SameModule target or typed reject | CoreEffectPlan func:String normalizer/lowerer family | classify every producer; authority-free plan rows retire before effects",
+  "env-gated arithmetic/comparison/unary Global | independently preserved exact declaration | corresponding SameModule target or typed reject | builder ops env branches | env switch and synthesized spelling are non-authority; retire unsupported publishers before effects",
+  "import alias/static | alias plus exact declaration in the final module | corresponding SameModule target or reject | import/StageB forced-alias publishers | alias-only authority deleted before arguments",
+  "JoinIR generated function | co-sealed JoinFuncId plus exact JoinFunction name/arity/declaration | SameModule FreeFunction | handlers -> emit_call_pair and generated aliases | J0 removes fallback/alias/Const, retains one guarded String publication until B1",
+  "instance or birth-like value published as Global | exact typed receiver/source relation | Method(receiver) or construction owner; otherwise reject | StageB instance, rewrite/known, methodize, optimizer repair | producer-first retirement before B1",
+  "Constructor|Closure creation or closure invocation | typed construction/value owner | NewBox|NewClosure|Callee::Value | v0-v1 Call compatibility | no canonical Global or construction Call",
+  "unknown/relationless/foreign/ambiguous text | no target authority | typed reject before arguments | Resolved, unique/tail recovery, name Const, arbitrary compatibility Global | all writers and retries deleted before B1",
+]
+compiled_consumer_owner_inventory = [
+  "core_schema | crates/hakorune_mir_defs/src/call_unified.rs; src/mir/instruction.rs; src/mir/instruction/methods.rs; src/mir/instruction/display.rs | adapt structural target atomically; retire MirCall/CallFlags before B1; func/Option only in R6",
+  "builder_target_issuers | src/mir/builder/calls/method_resolution.rs; src/mir/builder/calls/resolver.rs; src/mir/builder/calls/unified_emitter.rs; src/mir/builder/calls/unified_emitter/compat_entrypoints.rs; src/mir/builder/calls/annotation.rs; src/mir/builder/calls/effects_analyzer.rs; src/mir/builder/calls/unified_emitter/post_success.rs; src/mir/builder/calls/static_result_publication.rs; src/mir/builder/control_flow/plan/lowerer/emission_port.rs; src/mir/builder/normal_module_transaction/physical_thunk.rs; src/mir/builder/ordinary_new_admission.rs; src/mir/canonical_direct_call.rs | adapt exact finite issuers; delete arbitrary classifier, methodize, repair, symbol issuance, false GC, header retry, target Const",
+  "remaining_static_producers | src/mir/builder/method_call_handlers.rs; src/mir/builder/calls/method_call_terminal.rs; src/mir/builder/control_flow/plan/effect.rs; src/mir/builder/control_flow/plan/call_source.rs; src/mir/builder/control_flow/plan/normalizer/common.rs; src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs; src/mir/builder/control_flow/plan/normalizer/loop_body_lowering_associated_input.rs; src/mir/builder/control_flow/plan/lowerer/effect_emission.rs; src/mir/builder/ops/arithmetic.rs; src/mir/builder/ops/comparison.rs; src/mir/builder/ops/unary.rs | exact declaration-backed rows retain one guarded publication; formatted/plan/env-only publishers reject or retire before effects; C0 recenses all sibling producers",
+  "builder_local_consumers | src/mir/builder/emit_guard/mod.rs; src/mir/builder/return_type_strategy.rs; src/mir/builder/type_hint_providers.rs; src/mir/builder/types/map_value/post_success.rs | structural match or declaration lookup; display-only projection; delete parse-back",
+  "module_projection_lookup | src/mir/resolved_semantics/callable_symbol.rs; src/mir/function/module_impl.rs | B1 installs sole one-way projection and structural lookup; collision rejects; inverse/per-consumer lookup deleted",
+  "optimizer_preservers | src/mir/passes/cse.rs; src/mir/passes/inline_soft_leaf.rs; src/mir/passes/simplify_cfg/flow.rs; src/mir/passes/concat3_canonicalize/analysis/stringish.rs; src/mir/passes/callsite_canonicalize/pass.rs; src/mir/inline_leaf.rs; src/mir/semantic_refresh.rs | structural preserve/equality; delete target issuance and Global-to-Method repair",
+  "global_route_analysis | src/mir/global_call_route_plan.rs; src/mir/global_call_route_plan/box_type_inspector_describe_body.rs; src/mir/global_call_route_plan/builder_registry_dispatch_body.rs; src/mir/global_call_route_plan/generic_i64_body/refine.rs; src/mir/global_call_route_plan/generic_string_body/void_logging.rs; src/mir/global_call_route_plan/generic_string_body_analysis/call_transfer.rs; src/mir/global_call_route_plan/mir_schema_map_constructor_body.rs; src/mir/global_call_route_plan/pattern_util_local_value_probe_body.rs; src/mir/global_call_route_plan/program_json_emit_body.rs; src/mir/global_call_route_plan/string_return_profile_analysis.inc; src/mir/global_call_route_plan/string_return_profile_cache.inc; src/mir/global_call_route_plan/void_side_effect_body.rs | typed variants only; delete spelling classifiers and format-reparse",
+  "secondary_semantic_analysis | src/mir/extern_call_route_plan/route.rs; src/mir/generic_method_route_plan/flow_origin.rs; src/mir/generic_method_route_plan/mir_json_routes.rs; src/mir/generic_method_route_plan/origin_inference.rs; src/mir/hotcore_method_summary.rs; src/mir/ordered_map_origin_plan.rs; src/mir/same_module_body_shape.rs; src/mir/user_box_method_publication.rs; src/mir/userbox_known_receiver_method_seed_plan/matchers/counter.rs; src/mir/value_representation_fact.rs | typed adapt or Extern/Method rehome; delete String inference",
+  "string_and_storage_analysis | src/mir/string_corridor.rs; src/mir/string_corridor_compat.rs; src/mir/string_corridor_recognizer.rs; src/mir/string_dead_text_region_plan.rs; src/mir/typed_object_plan/storage_inference/param_inference.rs; src/mir/typed_object_plan/storage_inference/value_analysis.rs; src/mir/typed_object_plan/storage_inference/value_analysis_storage.rs | typed adapt; isolate explicit compatibility; delete alias Globals without exact issuer",
+  "operand_remap_ownership | src/mir/builder/joinir_id_remapper.rs; src/mir/value_consumer.rs; src/mir/escape_barrier.rs; src/mir/query.rs; src/mir/ownership_ssa/verify.rs; src/mir/verification/fastmem/escape.rs; src/mir/verification/inline_required.rs | Callee operand SSOT; Global has no ValueId; JoinIR uses its own cutover row",
+  "joinir_producer | src/mir/join_ir_to_mir/call_generator.rs; src/mir/join_ir_to_mir/joinir_block_converter/handlers.rs; src/mir/join_ir_to_mir/bridge.rs; src/mir/join_ir_to_mir/module_converter.rs | co-seal generated declaration/call; delete fallback, alias fanout, target Const; retain one guarded old publication until B1",
+  "human_projection | src/mir/printer_helpers.rs; src/mir/instruction/display.rs; src/mir/builder/emit_guard/mod.rs | explicit display only; parse-back zero",
+  "wire_ingress | src/runner/json_v1_bridge/parse/mod.rs; src/runner/json_v1_bridge/parse/mir_call.rs; src/runner/mir_json_v0.rs; src/runner/mir_json_v0/call.rs; src/runner/json_v0_bridge/lowering/program_call_targets.rs; src/runner/json_v0_bridge/lowering/expr/call_ops.rs | one v2 decoder; isolate exact v1/v0 resolvers; delete alias acceptance and retry",
+  "wire_egress_bridge | src/runner/mir_json_emit/emitters/calls.rs; src/runner/mir_json_emit/helpers.rs; src/host_providers/mir_builder/backend_shape.rs | one v2 DTO codec; isolate v0 projector; delete target reclassification and console-alias Global publication",
+  "selected_rust_vm | src/backend/mir_interpreter/handlers/calls/mod.rs; src/backend/mir_interpreter/handlers/calls/global.rs | typed Print dispatch and structural SameModule lookup; delete parse, arity completion, extern/host recovery, Method repair, suggestions",
+  "selected_native | crates/nyash-llvm-compiler/src/native_ir.rs | typed Print canary; typed unsupported for other targets; delete String name check",
+  "feature_gated_wasm | src/backend/wasm/codegen/mod.rs; src/backend/wasm/codegen/instructions.rs | mechanical adapt or isolate; no new parity/acceptance",
+  "reference_compat_execution | src/runner/reference/vm_hako/payload_normalize.rs; src/runner/reference/vm_hako/shape_contract.rs; src/runner/hv1_inline.rs; src/runner/modes/common_util/core_bridge.rs | isolate legacy normalization/downconvert; never issue or re-enter canonical v2",
+  "fixtures_schema_tests | src/bin/rc_insertion_selfcheck/cases/basic.rs; co-located cfg-test modules; src/runner/mir_json_emit/tests; src/mir/global_call_route_plan/tests | mechanical typed constructors or compatibility fixtures; semantic evidence only in named codec/selected-terminal suites",
 ]
 forbidden = [
   "GlobalTarget::Legacy(String), String newtype, Unknown/Default/sentinel",
@@ -71,8 +126,8 @@ forbidden = [
 
 [observer_completion_prerequisite]
 task_id = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
-status = "queued_design_only_after_b0"
-implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0; runs after typed core/schema support and before the affine-loan cell"
+status = "accepted_design_implementation_queued_before_pre_effect_retirement"
+implementation_row = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0; runs after source/effect prerequisites and before all-lineage retirement, affine loan, Method closure, and B1"
 observed_blocker = "SelectedCallableV1 profile currently defers ordinary FunctionCall; a Deferred owner tree does not issue the semantic package, so an external scratch/loan would have no lawful package lifecycle."
 decision_shape = "A profile-gate-adjacent observer-only branch records existing site/name/arity and observes arguments in the same traversal, issues no target, allows owner observation to complete, and requires total disposition before package install."
 implementation_acceptance = "Owner tree reaches Complete, semantic package issuance is possible, incomplete disposition aborts before install, and the selected Deferred edge is deleted. No target or route is accepted by this observer row."
@@ -85,9 +140,9 @@ forbidden = [
 
 [finite_state]
 global_states = [
-  "BuiltinReady",
-  "SameModuleStaticReady",
-  "AdditionalFamilyObserved",
+  "BuiltinPrintReady",
+  "SameModuleFreeFunctionReady",
+  "SameModuleStaticBoxMethodReady",
   "CompatibilityTextReady",
   "MissingSourceRelation",
   "ForeignModule",
@@ -97,7 +152,19 @@ global_states = [
   "WrongArity",
   "UnsupportedForWireOrCompiledConsumer",
   "TypedRejectBeforeEffect",
-  "ParkedSealedOutsideSelectedBoundary",
+  "ExternOrMethodOrConstructionOwner",
+]
+ingress_states = [
+  "CanonicalV2Selected",
+  "CompatibilityV1Selected",
+  "CompatibilityMirV0Selected",
+  "ProgramV0OwnerSelected",
+  "CanonicalV2ParserUnavailableBeforeB1",
+  "MalformedJson",
+  "MalformedSchema",
+  "ConflictingMarkers",
+  "UnsupportedVersionOrShape",
+  "TypedRejectNoRetry",
 ]
 d1b_states = [
   "ObserverOnlySiteRecorded",
@@ -115,9 +182,34 @@ d1b_states = [
 ]
 terminal_policy = "Only a typed target may cross into argument descent. KnownNonDirect exits through its typed owner; reject and park do not issue a target. Incomplete inventory aborts before install. Resolved fallthrough and residual loan are guard failures, never successful terminals."
 
+[wpre_contract]
+boundary = "runner MIR/Program JSON artifact entrances -> exactly one selected parser or typed terminal; one payload only"
+entrance_owner_inventory = [
+  "public_artifact_entrances | src/main.rs; src/runner/pipe_io.rs | raw JSON enters core_executor::execute_json_artifact | adapt to one Wpre result before decoder/probe",
+  "direct_mir_entrances | src/runner/mod.rs; src/runner/dispatch.rs | execute_mir_json_text plus duplicate v1/v0 selector | delegate to Wpre; delete dispatch selector",
+  "artifact_orchestrator | src/runner/core_executor.rs | artifact/direct routes converge late; core-direct probes swallow failure then fall through | Wpre first; one decoded module to one terminal; delete execution re-entry",
+  "current_mir_selector | src/runner/json_artifact/mir_loader.rs | String marker selection and v1 Err -> v0 retry | consume total Wpre state; delete cross-parser retry",
+  "artifact_family_reload | src/runner/json_artifact/mod.rs | optional canonicalize before load, canonicalize and reload after None, then Program-v0 | one root classification and decoder; delete reload loop",
+  "canonicalize_methodize_downconvert | src/runner/modes/common_util/core_bridge.rs | env-selected injection, phi mutation, name methodize | isolate under explicit CompatibilityV0; never run around v2 or re-enter selection",
+  "exact_decoders | src/runner/json_v1_bridge/parse/mod.rs; src/runner/mir_json_v0.rs; src/runner/json_artifact/program_json_v0_loader.rs | overlapping raw routes | one selected Wpre state each; selected decoder error is terminal",
+  "selfhost_compat_selector | src/runner/modes/common_util/selfhost/json.rs; src/runner/modes/common_util/selfhost/stage_a_route.rs; src/runner/modes/common_util/selfhost/stage_a_compat_bridge.rs | separately captured MIR-v0 and Program-v0 payloads | isolate CompatibilityV0; no v2/v1 and no canonical re-entry",
+  "reference_downconvert | src/runner/reference/vm_hako/payload_normalize.rs | reference-only Global/print normalization | isolate non-selected reference wire; output cannot be v2 input",
+  "host_wire_rewrite | src/host_providers/mir_builder/backend_shape.rs | console spelling rewritten to v1 Global print | isolate compatibility producer; v2 uses shared Builtin Print DTO",
+]
+old_edges = [
+  "raw contains(functions/blocks/schema_version) selectors",
+  "json_artifact env downconvert canonicalize before classification",
+  "first load -> canonicalize -> second load re-entry",
+  "direct v1 Err/None -> v0 parse",
+  "dispatch-local v1/v0 parser cascade",
+  "core-executor raw shape probe, swallowed error/fallthrough, and execution retry/re-entry",
+]
+disposition = "Parse one Value, classify exact v2/v1/MIR-v0/Program-v0 once, then call one parser. A compatibility canonicalizer may run only inside its already-selected owner and may not re-enter selection."
+outside = "hv1_inline is a test-only v1 interpreter and never accepts v2; selfhost Stage-A owns two separately extracted v0 payloads, not fallback reinterpretation of one payload. Both are ParkedSealed and reopen on production selection or shared-selector adoption."
+
 [lineage_matrix]
 families = ["ScriptRoot", "Main", "Cataloged", "TopLevel", "InstanceConstructor", "NestedBoxMethod", "UnlocatedCompatibility", "RelationlessCompatibility"]
-cataloged = "First promotion only after exact typed source relation and B1 target support; take once, arguments once, Call once, residual zero, direct CatalogedTargeted payload zero."
+cataloged = "First affine replacement only after an exact source disposition and late recovery zero; move the already-issued Callee once, then arguments once, Call once, residual zero, and direct CatalogedTargeted payload zero. B1 later types the retained exact Global payload."
 top_level = "Source identity only until an independently issued exact ordinary target exists; otherwise typed reject or ParkedSealed before effects."
 instance_constructor = "Constructor source identity is not an ordinary target; construction remains separate and ordinary calls need an independent exact relation."
 script_main_nested = "Retain their existing typed special/constructor/bounded-GC owners; ordinary caller=None/Resolved remains CutoverBlockerOpen until explicit target/reject/park disposition."
@@ -125,10 +217,28 @@ unlocated = "Missing source site is typed reject; it is not a generic caller=Non
 relationless = "Explicit compatibility owner only. Ordinary Resolved is an old edge to retire, not a canonical terminal."
 
 [task_spine]
-current = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
-next_prerequisite = "MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0"
+current = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
+next_prerequisite = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0"
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
+
+[ingress_schema_guard_row]
+execution_row = "MIR-CALL-INGRESS-SCHEMA-LIFECYCLE-GUARD-S0"
+status = "selected_fast_guard_only"
+phase = "wpre_readiness"
+reused_phases = ["wpre_readiness", "wpre_i0", "typed_global_b1", "r7_closeout"]
+allowed_files = [
+  "tools/checks/mir_call_ingress_schema_lifecycle_guard.sh",
+  "tools/checks/guard_rows.toml",
+  "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml",
+  "docs/development/current/main/CURRENT_STATE.toml",
+  "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md",
+  "docs/tools/check-scripts-index.md",
+]
+change = "Add/register/index one reusable fail-closed guard that freezes current raw selector/retry edges and fails if a partial v2/typed-Global surface appears. Old semantic authority: none."
+contract = "No parser, fixture, codec, target, effect, backend, or Call change. Existing D1B lifecycle guard remains independently bridge_ready."
+done = "pilot and quick-static registry entry is unique; wpre_readiness is green; unknown phase fails closed."
+stop = "Return to design if the guard cannot distinguish MIR-v0 from Program-v0 without parsing source semantics or if it requires extending the 777-line canonical corridor guard."
 
 [loan_contract]
 owner = "One root-owned non-empty disposition inventory is provisioned before raw port construction. Package-only BridgeReady bundle never carries an empty or optional loan."
@@ -139,11 +249,11 @@ atomic_delete = "The first Cataloged loan cell deletes CatalogedTargeted { calle
 [cross_cutting_contracts]
 receiver_abi = "Callee receiver only; source args only. Backend ABI projection happens once. Producer prepend and VM strip/autoscan/args[0] proxy close atomically as one parity family."
 effects = "Target transport does not issue effects. Cataloged READ versus unified Global IO defaults are an open parity conflict; E0 names the source-owned effect authority before any all-lineage recovery retirement."
-wire = "Wpre makes one payload select one schema and closes invalid v1 -> v0 retry before B1. B1 includes every compiled core-schema consumer; selected backend role controls production parity, not mechanical adaptation."
+wire = "Wpre parses the JSON root once and selects exact v2/v1/MIR-v0/Program-v0 with no cross-parser retry. B1 installs one runner-owned v2 codec and adapts every compiled core-schema consumer; selected backend role controls semantic parity, not mechanical adaptation."
 construction = "Closure/Constructor Call canonicalization moves to source issuer before their variants leave Callee."
 
 [old_edge_delete_set]
-global = "String target authority, Global alias reclassification, StaticMethodId parse, physical symbol issuance, host/helper ad-hoc Global handling, and consumer target repair."
+global = "String target authority, Global alias reclassification, StaticMethodId parse, physical symbol issuance, CanonicalSameModuleCallableKeyV1::mir_symbol_projection, host/helper ad-hoc Global handling, and consumer target repair."
 ordinary_call = "Selected Deferred dead-end, source-backed caller=None, CatalogedTargeted direct payload, Resolved, post-argument resolve/unique/tail, target Const, and legacy Call publication."
 method = "receiver prepend, duplicate strip, autoscan, args[0] surrogate, Method(None) producers, methodize, CalleeGuard repair, UnknownBox, optimizer Global+args[0] method issuance, and terminal recovery."
 schema = "MirCall/CallFlags transport, func, Option<Callee>, optional receiver, INVALID/0 target sentinels, dummy parameters, and call-missing-callee guards."
@@ -157,6 +267,8 @@ no_append = [
   "src/mir/builder/normal_callable_semantic_loan_port.rs = 710",
   "src/mir/builder/raw_expression_dispatch/mod.rs = 706",
   "src/mir/builder/calls/unified_emitter.rs = 711",
+  "src/mir/string_dead_text_region_plan.rs = 790; exact call-shape split required before B1",
+  "src/mir/builder/control_flow/plan/normalizer/helpers_value/lower.rs = 744; deletion/delegation only",
 ]
 shelf_order = "raw source transport model/port; callable adapter forwarding/root capture; raw dispatcher owner; builder test API. Only the owner touched by the accepted semantic row is split."
 
@@ -194,7 +306,7 @@ guard_spec = "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh
 raw_capability_decision = "RawDirectCallDispositionLoanV1 remains a future stack-owned affine capability; it is absent from BridgeReady package-only state and has no implementation permission."
 
 [d0_sig_close_f_transition_amendment_2026_08_26]
-cataloged_provision_shape = "After B0/B1 and observer completion, one non-empty typed Cataloged inventory is created before raw port construction, lent by mutable reborrow, consumed before arguments, and checked for finish/abort; no empty package field or second issuer."
+cataloged_provision_shape = "After observer completion and all-lineage late-recovery retirement, one non-empty exact Cataloged Callee inventory is created before raw port construction, lent by mutable reborrow, consumed before arguments, and checked for finish/abort; no empty package field or second issuer. B1 types its retained Global payload later."
 
 [proof_plan]
 docs = [
@@ -208,18 +320,19 @@ existing_guards = [
   "mir-call-d1b-cataloged-affine-loan-lifecycle",
   "mir_call_d1b_selected_normal_duplicate_projection_guard.sh",
 ]
-future_guard_rows = "Before G1/B1 implementation, extend the reusable lifecycle/Call guard ownership with observer_complete and typed_global phases; partial observer or partial common-schema migration must fail closed."
-code_gate = "No Cargo command is an implementation permission in this design row."
+future_guard_rows = "The selected ingress lifecycle guard owns wpre_readiness/wpre_i0/typed_global_b1/r7_closeout without extending the 777-line corridor guard. D1B observer/loan phases remain in their existing reusable lifecycle guard."
+code_gate = "The selected guard-only row runs shell/TOML checks only; Cargo is neither required nor semantic implementation permission."
 
 [parked]
 owners = "PyVM/reference production activation, non-selected backend activation/parity, RawCompatibility, bounded GC, Main exact-i64/FullFunction, ArrayElementWrite, performance, Loop/M8/M9, warning/dead-code cleanup, and broad integration-hub splits. Compiled core-schema consumers are never parked from B0/B1 adaptation/disposition."
 reopen = "Only CURRENT_STATE selection, a new production caller, or an accepted owner-specific Decision reopens a parked family."
 
 [reopen]
-advance_b0_to_g0 = "B0 inventory exhausted with one authority/issuer/wire/projector and old-edge disposition per in-boundary Global family and every compiled schema consumer."
-advance_g0_to_preparation = "Observer-only completion/install-abort contract accepted with no target issuance, second traversal, or floating scratch."
-advance_b1_to_g1 = "Strict schema selector is closed; typed Global common-core cutover and compiled-consumer adaptation/isolation/retirement are green."
-advance_g1_to_loan = "Observer implementation deletes the Deferred edge, completes the owner/package lifecycle, and registers fail-closed observer evidence."
+advance_guard_to_wpre = "Ingress lifecycle guard is registered once, wpre_readiness is green, unknown phases fail closed, and no semantic source changed."
+advance_wpre_to_preparation = "One parsed JSON root selects exact v2/v1/MIR-v0/Program-v0; malformed/conflicting/unsupported schema and explicit parse errors are terminal with retry zero."
+advance_wpre_to_observer = "MirCall/CallFlags and effect/source/import/compatibility prerequisites are closed; observer implementation deletes the Deferred edge, completes the owner/package lifecycle, and registers fail-closed evidence."
+advance_pre_b1_to_b1 = "Builtin/Extern, all-lineage recovery, affine handoff, Method corridor, every static/CorePlan/operator producer disposition, touched-owner shelf, and current-HEAD finite producer/consumer census are closed; every C0-discovered remediation S0/R0 is closed and C0 reruns exhausted; only guarded exact String publications remain for atomic B1 typing."
+advance_b1_to_r6 = "Typed Global common-core cutover, bounded v2 codec, sole projection/lookup, and every compiled-consumer adaptation/isolation/retirement are green."
 reopen_census = "A new Global family, lineage, CallFlags reader, Method(None) producer, receiver-prefixed issuer, retry, or compatibility caller appears."
 stop_conditions = [
   "typed Global requires Legacy(String), opaque registry, or physical parse/format",
