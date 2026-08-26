@@ -1,7 +1,44 @@
+use std::path::PathBuf;
 use std::process::Command;
 
 use super::driver_source::VM_HAKO_DRIVER_SOURCE;
 use super::{temp_seed, VmHakoErr, VM_HAKO_PHASE};
+
+const INLINE_PAYLOAD_ENV: &str = "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON";
+const FILE_PAYLOAD_ENV: &str = "HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE";
+const INLINE_PAYLOAD_LIMIT: usize = 16 * 1024;
+
+const CHILD_ENV_REMOVE: &[&str] = &[
+    "NYASH_VERIFY_JSON",
+    "HAKO_VERIFY_PRIMARY",
+    "HAKO_ROUTE_HAKOVM",
+    "HAKO_VERIFY_V1_FORCE_HAKOVM",
+    "NYASH_USE_STAGE1_CLI",
+    "HAKO_STAGE1_ENABLE",
+    "HAKO_EMIT_PROGRAM_JSON",
+    "HAKO_EMIT_MIR_JSON",
+    "NYASH_STAGE1_CLI_CHILD",
+    "HAKO_PROGRAM_JSON",
+    "HAKO_PROGRAM_JSON_FILE",
+    "HAKO_STAGE1_PROGRAM_JSON",
+    "NYASH_STAGE1_PROGRAM_JSON",
+    "NYASH_STAGE1_MODE",
+    "HAKO_STAGE1_MODE",
+    "NYASH_STAGE1_INPUT",
+    "HAKO_STAGE1_INPUT",
+    "STAGE1_INPUT",
+    "NYASH_STAGE1_BACKEND",
+    "HAKO_STAGE1_BACKEND",
+    "STAGE1_BACKEND",
+    "NYASH_EMIT_MIR_TRACE",
+    INLINE_PAYLOAD_ENV,
+    FILE_PAYLOAD_ENV,
+];
+
+enum PayloadTransport {
+    Inline(String),
+    File(PathBuf),
+}
 
 pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i32, VmHakoErr> {
     let driver_path = std::env::temp_dir().join(format!(
@@ -16,7 +53,17 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
         ));
     }
 
-    let (payload_env, payload_path) = prepare_payload_transport(filename, payload_json)?;
+    let payload_transport = match prepare_payload_transport(filename, payload_json) {
+        Ok(transport) => transport,
+        Err(error) => {
+            let _ = std::fs::remove_file(&driver_path);
+            return Err(error);
+        }
+    };
+    let payload_path = match &payload_transport {
+        PayloadTransport::Inline(_) => None,
+        PayloadTransport::File(path) => Some(path.clone()),
+    };
     maybe_dump_payload_trace(payload_json);
 
     let exe = std::env::current_exe().unwrap_or_else(|_| std::path::PathBuf::from("hakorune"));
@@ -25,6 +72,9 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
         cmd.current_dir(cwd);
     }
     cmd.envs(std::env::vars());
+    for key in CHILD_ENV_REMOVE {
+        cmd.env_remove(key);
+    }
     cmd.arg("--backend")
         .arg("vm")
         .arg(&driver_path)
@@ -35,7 +85,6 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
         .env("HAKO_JOINIR_STRICT", "0")
         .env("NYASH_JOINIR_STRICT", "0")
         .env("HAKO_JOINIR_PLANNER_REQUIRED", "0")
-        .env("NYASH_VERIFY_JSON", payload_env)
         .env("NYASH_PREINCLUDE", "1")
         .env("NYASH_USING_AST", "1")
         .env("NYASH_RESOLVE_FIX_BRACES", "1")
@@ -47,8 +96,18 @@ pub(super) fn run_vm_hako_driver(filename: &str, payload_json: &str) -> Result<i
         .env("HAKO_ENABLE_USING", "1")
         .env("NYASH_DISABLE_NY_COMPILER", "1")
         .env("HAKO_DISABLE_NY_COMPILER", "1")
+        .env("NYASH_SKIP_TOML_ENV", "1")
+        .env("NYASH_VM_USE_FALLBACK", "0")
         .env("NYASH_USE_NY_COMPILER", "0")
         .env("HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM", "0");
+    match payload_transport {
+        PayloadTransport::Inline(payload) => {
+            cmd.env(INLINE_PAYLOAD_ENV, payload);
+        }
+        PayloadTransport::File(path) => {
+            cmd.env(FILE_PAYLOAD_ENV, path);
+        }
+    }
     let status = cmd.status();
     let _ = std::fs::remove_file(&driver_path);
     if let Some(path) = payload_path {
@@ -87,10 +146,9 @@ fn maybe_dump_payload_trace(payload_json: &str) {
 fn prepare_payload_transport(
     filename: &str,
     payload_json: &str,
-) -> Result<(String, Option<std::path::PathBuf>), VmHakoErr> {
-    const INLINE_PAYLOAD_LIMIT: usize = 16 * 1024;
+) -> Result<PayloadTransport, VmHakoErr> {
     if payload_json.len() <= INLINE_PAYLOAD_LIMIT {
-        return Ok((payload_json.to_string(), None));
+        return Ok(PayloadTransport::Inline(payload_json.to_string()));
     }
 
     let payload_path = std::env::temp_dir().join(format!(
@@ -104,8 +162,5 @@ fn prepare_payload_transport(
             format!("file={} message={}", filename, e),
         ));
     }
-    Ok((
-        format!("@file:{}", payload_path.to_string_lossy()),
-        Some(payload_path),
-    ))
+    Ok(PayloadTransport::File(payload_path))
 }

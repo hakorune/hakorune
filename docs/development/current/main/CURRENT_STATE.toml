@@ -1,9 +1,9 @@
 date = "2026-08-27"
 development_branch_ssot = "main"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0"
-current_design_stop = "design stop; B0 machine census/provenance guard is landed and the 9-row shared Wpre boundary is bounded. Reference-child D0, CanonicalV1 Value flow, force-hv1 retirement, and CoreDirect family-level tag/rc fate are accepted designs but implementation-closed; Wpre-I0 remains NoSafeSlice until private transport, strict duplicate-key ownership, and exact decoder signatures are fixed."
-current_blocker_token = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0: design accepted, implementation_permission=false — vm-hako child must move off public NYASH_VERIFY_JSON, scrub Wpre/hv1/Stage1/fallback selectors, and pin TOML/VM route policy; no parser, fallback, codec, typed Global, observer, loan, resolver, ABI, EffectMask, backend, or Call schema implementation is authorized."
+current_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
+current_design_stop = "design stop; private reference-child transport I0 is landed with its guard and monitor migration. CanonicalV1 Value S0 is the next bounded design/implementation decision; strict root, CoreDirect, force-hv1, Wpre selector, and Call schema rows remain closed."
+current_blocker_token = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0: design accepted but implementation_permission=false — define one owned CanonicalV1 Value seam before any profile/parser change; do not reopen the private child or add a second parse."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 active_lane = "Mir Call R6 — strict ingress selection, typed Global identity, and D1B exact-target ownership"
@@ -15,8 +15,8 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "B0 machine census/provenance guard, outside-fate/Stage1 arbitration, reference-child transport, CanonicalV1 Value flow, force-hv1 retirement, and CoreDirect family-terminal design are recorded. Wpre remains bounded to 9 shared-runner family-unknown entrances; the next bounded row is private reference transport I0, while CoreDirect retirement implementation and strict Value seams remain closed; semantic implementation_permission stays false."
-next_design_card = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0"
+latest_card_summary = "B0 machine census/provenance guard, outside-fate/Stage1 arbitration, reference-child transport, CanonicalV1 Value flow, force-hv1 retirement, and CoreDirect family-terminal design are recorded. Private reference transport I0 is landed with a green lifecycle guard; the next bounded row is CanonicalV1 Value S0, while Wpre and all later schema/retirement rows remain closed."
+next_design_card = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
 next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -29,7 +29,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-27: ingress schema lifecycle guard landed with frozen selector/retry inventory and typed-v2 surface absence; Wpre remains closed.",
-  "2026-08-27: B0 provenance/tombstone evidence was restored against 9bff1a1ff2^; the reusable machine census guard was selected next.",
+  "2026-08-27: ingress lifecycle/B0 guard and provenance evidence landed; Wpre remains bounded and private transport I0 was selected.",
   "2026-08-27: B0 machine census guard landed; Wpre outside/Stage1/reference design is recorded and private reference transport I0 is the next bounded row.",
+  "2026-08-27: private reference-child transport I0 landed; public payload/re-entry aliases are scrubbed, private one-of transport is guarded, and the next row is CanonicalV1 Value S0.",
 ]

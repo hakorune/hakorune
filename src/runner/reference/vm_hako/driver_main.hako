@@ -2,13 +2,16 @@ using selfhost.vm.entry_s0 as MiniVmS0EntryBox
 
 static box DriverPayloadBox {
   resolve_from_env() {
-    local raw = env.get("NYASH_VERIFY_JSON")
-    if raw == null || raw == "" { return null }
-    local text = "" + raw
-    if text.length() >= 6 && text.substring(0, 6) == "@file:" {
-      return me._read_payload_file(text.substring(6, text.length()))
+    local inline = env.get("HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON")
+    local file = env.get("HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE")
+    if inline != null && inline != "" {
+      if file != null && file != "" { return null }
+      return "" + inline
     }
-    return text
+    if file != null && file != "" {
+      return me._read_payload_file("" + file)
+    }
+    return null
   }
 
   _read_payload_file(path) {
@@ -25,7 +28,7 @@ static box Main {
   main(args) {
     local j = DriverPayloadBox.resolve_from_env()
     if j == null || j == "" {
-      print("[vm-hako/contract][missing-json]")
+      print("[vm-hako/contract][missing-payload]")
       return 1
     }
     return MiniVmS0EntryBox.run_min(j)

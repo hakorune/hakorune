@@ -26,17 +26,15 @@ Related:
   calls converge on a typed structural target before argument or MIR effects.
 - **Current implementation status:** the package/install bridge and many Call
   writers are closed. B0 census/provenance guards are landed; outside fates and
-  Stage1/direct arbitration are accepted design decisions. Shared-runner Wpre
-  remains bounded; reference-child transport, CanonicalV1 Value flow, and
-  force-hv1 retirement and the CoreDirect family-level tag/rc fate are accepted
-  designs but implementation-closed, while strict-root ownership remains a
-  design blocker. Typed Global, late recovery, receiver ABI, and
-  mandatory-Callee remain closed.
+  Stage1/direct arbitration are accepted design decisions. The bounded
+  reference-child private transport I0 is landed with a guarded private one-of
+  handoff; CanonicalV1 Value flow, force-hv1 retirement, CoreDirect family-level
+  tag/rc fate, and strict-root ownership remain closed. Typed Global, late
+  recovery, receiver ABI, and mandatory-Callee remain closed.
 - **Next ordered task:** complete
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`
-  after its design gate opens, then the canonical-v1 Value seam and ordered Wpre
-  D0 follow-ups without semantic implementation, and only then open the bounded
-  shared-runner I0.
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0`
+  as the next design-closed seam, then the ordered Wpre D0 follow-ups without
+  semantic implementation, and only then open the bounded shared-runner I0.
 - **Production stop line:** no String formatter, opaque registry, second AST
   walk, post-argument resolver, optional/empty loan, or backend repair may fill
   a missing semantic target.

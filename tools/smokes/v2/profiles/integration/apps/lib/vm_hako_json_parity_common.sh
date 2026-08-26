@@ -85,8 +85,32 @@ run_hako_vm_runner() {
     local rc
     set +e
     output=$(
-        run_with_vm_route_pin env -u HAKO_VERIFY_PRIMARY -u HAKO_ROUTE_HAKOVM \
-            NYASH_VERIFY_JSON="$JSON_PAYLOAD" \
+        run_with_vm_route_pin env \
+            -u NYASH_VERIFY_JSON \
+            -u HAKO_VERIFY_PRIMARY \
+            -u HAKO_ROUTE_HAKOVM \
+            -u HAKO_VERIFY_V1_FORCE_HAKOVM \
+            -u NYASH_USE_STAGE1_CLI \
+            -u HAKO_STAGE1_ENABLE \
+            -u HAKO_EMIT_PROGRAM_JSON \
+            -u HAKO_EMIT_MIR_JSON \
+            -u NYASH_STAGE1_CLI_CHILD \
+            -u HAKO_PROGRAM_JSON \
+            -u HAKO_PROGRAM_JSON_FILE \
+            -u HAKO_STAGE1_PROGRAM_JSON \
+            -u NYASH_STAGE1_PROGRAM_JSON \
+            -u NYASH_STAGE1_MODE \
+            -u HAKO_STAGE1_MODE \
+            -u NYASH_STAGE1_INPUT \
+            -u HAKO_STAGE1_INPUT \
+            -u STAGE1_INPUT \
+            -u NYASH_STAGE1_BACKEND \
+            -u HAKO_STAGE1_BACKEND \
+            -u STAGE1_BACKEND \
+            -u NYASH_EMIT_MIR_TRACE \
+            -u HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON \
+            -u HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE \
+            HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON="$JSON_PAYLOAD" \
             NYASH_PREINCLUDE=1 \
             NYASH_USING_AST=1 \
             NYASH_RESOLVE_FIX_BRACES=1 \
@@ -99,6 +123,9 @@ run_hako_vm_runner() {
             NYASH_DISABLE_NY_COMPILER=1 \
             HAKO_DISABLE_NY_COMPILER=1 \
             NYASH_USE_NY_COMPILER=0 \
+            NYASH_SKIP_TOML_ENV=1 \
+            NYASH_VM_USE_FALLBACK=0 \
+            NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
             HAKO_FAIL_FAST_ON_HAKO_IN_NYASH_VM=0 \
             timeout "$RUN_TIMEOUT_SECS" \
             "$NYASH_BIN" --backend vm "$DRIVER" 2>&1

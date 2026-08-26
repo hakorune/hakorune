@@ -1,5 +1,5 @@
 ---
-Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0
+Status: Design stop — MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -51,9 +51,9 @@ Fail-fast boundary:
   実装閉鎖。残る設計blockerはstrict-rootの実装owner固定だけ。
 
 Smallest next slice:
-  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`。
-  vm-hako childのprivate payload transportとroute-env isolationは設計済みだが、
-  現在のdesign_stopでは実装を閉じる。I0の実装許可は別のpointer遷移で開く。
+  `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0`。
+  private reference-child transport I0はlanded。次は同じowned ValueをCanonicalV1
+  egress、normalize、subset、projectionへ一方向に渡す設計を閉じる。実装はまだ閉じたまま。
 
 Non-claims:
   schema selector実装、parser/fixture/codec、typed Global、observer/loan、
@@ -232,12 +232,13 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    freeze vm-hako child route-environment isolation and canonical-v1 emission family; no
    public Wpre/hv1 re-entry or retry is accepted.
 
-1g. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 (now, design stop)
+1g. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 (landed)
    move the reduced MiniVm payload to the two private one-of transport keys, scrub public
-   Wpre/hv1/Stage1/fallback selectors, pin TOML/VM policy, and migrate the three live
-   reference monitors atomically. Code remains closed until implementation permission opens.
+   Wpre/hv1/Stage1/fallback/Program-JSON/trace selectors, pin TOML/VM policy, and migrate
+   the three live reference monitors plus the active alias probe atomically. Guard and
+   cleanup evidence are closed; no later row opens automatically.
 
-1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (queued, design accepted)
+1h. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 (next, design accepted)
    after transport I0, emit one explicit CanonicalV1 serde_json::Value, normalize the same
    owned Value once, subset-check once, and project once. Remove ambient profile selection,
    temporary v1 file/readback, and production raw String parses; implementation stays closed.
@@ -495,6 +496,62 @@ RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
 
 Reopen only on a selected current row, a new production caller, or an accepted
 owner-specific Decision. Parked code/tests never grant implementation permission.
+
+## Detached territory audit queue (2026-08-27)
+
+The 16-territory read-only audit produced the following named follow-ups. They
+are taskized here without changing the selected reference-child I0; no row below
+authorizes code until `CURRENT_STATE.toml` selects it.
+
+1. `MIR-CSE-SAME-BLOCK-STATS-DETERMINISM-R0` — high correctness candidate.
+   `cse.rs` currently walks `HashMap` blocks and can reuse a non-dominating value
+   across sibling blocks; its elimination counter also counts non-rewrites.
+   Owner: `src/mir/passes/cse.rs` plus the semantic-simplification consumer and
+   SSA-focused tests. Safe policy is conservative same-block CSE only: no exact
+   same-block/dominance proof means no rewrite and zero count. Positive/negative
+   determinism and actual-`Copy` statistics are required. This is outside the
+   reference-child transport I0.
+
+2. `CONC-ENV-TASK-SPAWN-OWNER-D0` — compatibility design stop.
+   `env.task.spawn` is publicly reachable but currently echoes a clone or returns
+   `Ok(None)` without issuing a Future/scheduler task. Its authority is the
+   existing `nowait`/Future/TaskGroup contract, not the C-ABI Future route.
+   First close it as explicit typed unsupported/arity failure with zero side
+   effects; a real spawn implementation needs a separate issuer/ABI decision.
+
+3. `MIR-CALL-V1-FUNC-SENTINEL-R6` — Call schema blocker, not current I0.
+   v1 explicit-callee ingress still writes `func=ValueId::new(0)`, which pollutes
+   `used_values`/JoinIR remap. The R6 cutover must use the canonical constructor,
+   remove the dummy field atomically, and prove Global/Method/Extern/Value inputs
+   do not create a false operand. Do not patch parser/schema files during the
+   private transport row.
+
+4. `MIR-REFERENCE-LENGTH-MISSING-METADATA-D0` — reference-only semantics choice.
+   Hako reference handlers still turn missing/unsupported `length` metadata into
+   zero. Decide strict typed reject versus an intentionally retained stub, then
+   add valid-size and missing/unsupported negative evidence. This is not selected
+   Rust VM behavior and cannot be used to reopen VM production work.
+
+5. `MIR-CALL-RECEIVER-ABI-ROUNDTRIP-R0` — later receiver retirement family.
+   The emitter prepends a Method receiver while VM/Hako handlers strip, autoscan,
+   or use `args[0]`. After receiver ABI authority is fixed, delete the prepend
+   and the six stripping/recovery sites together; preserve the receiver in
+   `Callee::Method` and source-only arguments. No partial removal is safe.
+
+6. `PARSER-LOGICAL-OP-LEXICAL-BOUNDARY-D0` — language design consultation.
+   `normalize_logical_ops` rewrites source before tokenization, misses single-
+   quoted literals, and shifts spans. The tokenizer already owns `&&`/`||` and
+   accepts bare `and`/`or`; the open decision is whether word aliases remain
+   canonical, compatibility-only, or rejected, plus quote/span guarantees.
+   Design-only matrix first; no implementation permission. This is the one item
+   that may need an explicit user/Pro language decision.
+
+7. `MIR-COMPILE-TIME-PERF-BASELINE-P0` ->
+   `MIR-SOURCE-OBSERVATION-SINGLE-PASS-D0` — measurement before cleanup.
+   AST deep clones and repeated environment reads are code-backed candidates but
+   hotness/frequency are not proven. Establish a reproducible baseline and a
+   finite clone/env census first; only then consider a session snapshot or lazy
+   clone removal. Keep this separate from semantic Call and reference transport.
 
 ## Short closed tail
 

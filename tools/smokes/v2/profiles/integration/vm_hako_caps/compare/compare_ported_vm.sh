@@ -57,9 +57,21 @@ cat >"$TMP_DRIVER" <<'HKO'
 using selfhost.vm.entry_s0 as MiniVmS0EntryBox
 static box Main {
   main(args) {
-    local j = env.get("NYASH_VERIFY_JSON")
+    local j = env.get("HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON")
+    local file = env.get("HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE")
+    if j != null && j != "" && file != null && file != "" {
+      print("[vm-hako/contract][conflicting-payload]")
+      return 1
+    }
+    if (j == null || j == "") && file != null && file != "" {
+      local fb = new FileBox()
+      local ok = fb.open(file, "r")
+      if ok != 1 { return 1 }
+      j = fb.read()
+      fb.close()
+    }
     if j == null || j == "" {
-      print("[vm-hako/contract][missing-json]")
+      print("[vm-hako/contract][missing-payload]")
       return 1
     }
     return MiniVmS0EntryBox.run_min(j)
@@ -69,8 +81,32 @@ HKO
 
 set +e
 NE_ALIAS_OUTPUT=$(
-  env -u HAKO_VERIFY_PRIMARY -u HAKO_ROUTE_HAKOVM \
-    NYASH_VERIFY_JSON="$NE_ALIAS_JSON_PAYLOAD" \
+  env \
+    -u NYASH_VERIFY_JSON \
+    -u HAKO_VERIFY_PRIMARY \
+    -u HAKO_ROUTE_HAKOVM \
+    -u HAKO_VERIFY_V1_FORCE_HAKOVM \
+    -u NYASH_USE_STAGE1_CLI \
+    -u HAKO_STAGE1_ENABLE \
+    -u HAKO_EMIT_PROGRAM_JSON \
+    -u HAKO_EMIT_MIR_JSON \
+    -u NYASH_STAGE1_CLI_CHILD \
+    -u HAKO_PROGRAM_JSON \
+    -u HAKO_PROGRAM_JSON_FILE \
+    -u HAKO_STAGE1_PROGRAM_JSON \
+    -u NYASH_STAGE1_PROGRAM_JSON \
+    -u NYASH_STAGE1_MODE \
+    -u HAKO_STAGE1_MODE \
+    -u NYASH_STAGE1_INPUT \
+    -u HAKO_STAGE1_INPUT \
+    -u STAGE1_INPUT \
+    -u NYASH_STAGE1_BACKEND \
+    -u HAKO_STAGE1_BACKEND \
+    -u STAGE1_BACKEND \
+    -u NYASH_EMIT_MIR_TRACE \
+    -u HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON \
+    -u HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE \
+    HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON="$NE_ALIAS_JSON_PAYLOAD" \
     NYASH_PREINCLUDE=1 \
     NYASH_USING_AST=1 \
     NYASH_RESOLVE_FIX_BRACES=1 \
@@ -81,6 +117,8 @@ NE_ALIAS_OUTPUT=$(
     NYASH_ENABLE_USING=1 \
     HAKO_ENABLE_USING=1 \
     NYASH_VM_HAKO_PREFER_STRICT_DEV=0 \
+    NYASH_SKIP_TOML_ENV=1 \
+    NYASH_VM_USE_FALLBACK=0 \
     NYASH_DISABLE_NY_COMPILER=1 \
     HAKO_DISABLE_NY_COMPILER=1 \
     NYASH_USE_NY_COMPILER=0 \

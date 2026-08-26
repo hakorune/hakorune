@@ -23,15 +23,15 @@ Related:
 - **Current implementation status:** core still stores `Global(String)`,
   `func`, `Option<Callee>`, and optional Method receivers. B0 census/provenance
   guards are landed; outside fates and Stage1/direct arbitration are closed as
-  design decisions. Reference-child transport, CanonicalV1 Value flow, and
-  force-hv1 retirement and the CoreDirect family-level tag/rc fate are accepted
-  designs but remain implementation-closed; strict-root seams remain design
-  blockers before parser implementation.
+  design decisions. The bounded reference-child private transport I0 is landed
+  with private env isolation; CanonicalV1 Value flow, force-hv1 retirement,
+  CoreDirect family-level tag/rc fate, strict-root seams, and Call cutover remain
+  closed.
 - **Next ordered task:**
   `MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0`;
-  its design is recorded but implementation remains closed by the current
-  design-stop mode. Wpre-I0 follows only after this I0, the canonical-v1 Value
-  seam, and the remaining D0 follow-up rows are reconciled.
+  design the one-owned CanonicalV1 Value seam after the landed private child
+  transport. Wpre-I0 follows only after this seam and the remaining D0 follow-up
+  rows are reconciled.
 - **Production stop line:** no formatter, hidden registry, physical symbol,
   second traversal, post-argument resolver, methodize, or backend repair may
   issue a canonical target.
@@ -208,9 +208,10 @@ Fail-fast boundary:
   family/schema/consumer terminates before arguments or effects.
 
 Smallest next slice:
-  Wpre D0 docs-only profile/root/decoder contract. The reusable ingress-schema
-  guard is landed; shared-runner selection stays closed until one parsed Value,
-  strict duplicate-key ownership, decoder signatures, and outside fates agree.
+  Reference-child private transport I0. The reusable ingress-schema guard is
+  extended only for the listed child/monitor files; shared-runner selection stays
+  closed until one parsed Value, strict duplicate-key ownership, decoder
+  signatures, and outside fates agree.
 
 Non-claims:
   selector implementation, typed schema implementation, D1B loan, cross-module

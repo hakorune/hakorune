@@ -14,10 +14,10 @@ fail() {
   exit 1
 }
 
-[[ $# -le 1 ]] || fail "usage: $0 [wpre_readiness]"
-PHASE="${1:-wpre_readiness}"
+[[ $# -le 1 ]] || fail "usage: $0 [reference_child_i0|wpre_readiness]"
+PHASE="${1:-reference_child_i0}"
 case "$PHASE" in
-  wpre_readiness) ;;
+  wpre_readiness|reference_child_i0) ;;
   wpre_i0|typed_global_b1|r7_closeout)
     fail "recognized future phase is not landed: $PHASE"
     ;;
@@ -73,11 +73,15 @@ if sum(1 for item in rows if isinstance(item, dict) and item.get("id") == guard_
     fail("ingress lifecycle guard id is duplicated")
 
 if state.get("work_mode") not in {"fast", "design_stop", "closeout"}:
-    fail("guard-only row requires CURRENT_STATE work_mode=fast, design_stop, or closeout")
+    fail("ingress lifecycle row requires CURRENT_STATE work_mode=fast, design_stop, or closeout")
 if state.get("latest_card_path") != str(card_path.relative_to(root)):
     fail("CURRENT_STATE latest_card_path no longer names the active card")
-if state.get("implementation_permission") is True:
-    fail("CURRENT_STATE must not expose semantic implementation permission")
+if phase == "reference_child_i0":
+    if state.get("work_mode") not in {"fast", "closeout", "design_stop"}:
+        fail("reference_child_i0 requires CURRENT_STATE work_mode=fast, closeout, or design_stop")
+else:
+    if state.get("implementation_permission") is True:
+        fail("CURRENT_STATE must not expose semantic implementation permission during guard-only phase")
 
 guard_row = card.get("ingress_schema_guard_row")
 if not isinstance(guard_row, dict):
@@ -89,7 +93,7 @@ if guard_row.get("phase") != phase:
 if guard_row.get("status") not in {"selected_fast_guard_only", "landed_guard_only"}:
     fail("active card guard-only status drifted")
 if card.get("implementation_permission") is not False:
-    fail("semantic implementation permission opened during guard-only row")
+    fail("active card top-level implementation permission must remain false")
 allowed_files = set(guard_row.get("allowed_files") or [])
 expected_files = {
     guard_script,
@@ -113,6 +117,157 @@ if guard_script not in index:
     fail("check-script index does not list the ingress lifecycle guard")
 if guard_id not in workstream:
     fail("active workstream does not name the ingress guard row")
+
+if phase == "reference_child_i0":
+    card_status = card.get("status")
+    if card_status not in {"reference_child_i0_fast_open", "reference_child_i0_landed"}:
+        fail("active card is not marked reference-child I0 open or landed")
+    scope = str(card.get("permission_scope", ""))
+    if "reference-child private transport I0" not in scope or "all Wpre" not in scope:
+        fail("reference-child permission scope is not narrow and explicit")
+
+    reference = card.get("reference_child_reentry")
+    if not isinstance(reference, dict):
+        fail("active card reference_child_reentry section is missing")
+    if card_status == "reference_child_i0_fast_open":
+        if reference.get("implementation_permission") is not True:
+            fail("reference_child_i0 fast-open permission is not set")
+        if state.get("work_mode") != "fast" or state.get("current_execution_row") != "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0":
+            fail("reference_child_i0 fast-open pointer drifted")
+    else:
+        if reference.get("implementation_permission") is not False:
+            fail("reference_child_i0 landed row must close scoped implementation permission")
+    required_env_remove = {
+        "NYASH_VERIFY_JSON",
+        "HAKO_VERIFY_PRIMARY",
+        "HAKO_ROUTE_HAKOVM",
+        "HAKO_VERIFY_V1_FORCE_HAKOVM",
+        "NYASH_USE_STAGE1_CLI",
+        "HAKO_STAGE1_ENABLE",
+        "HAKO_EMIT_PROGRAM_JSON",
+        "HAKO_EMIT_MIR_JSON",
+        "NYASH_STAGE1_CLI_CHILD",
+        "HAKO_PROGRAM_JSON",
+        "HAKO_PROGRAM_JSON_FILE",
+        "HAKO_STAGE1_PROGRAM_JSON",
+        "NYASH_STAGE1_PROGRAM_JSON",
+        "NYASH_STAGE1_MODE",
+        "HAKO_STAGE1_MODE",
+        "NYASH_STAGE1_INPUT",
+        "HAKO_STAGE1_INPUT",
+        "STAGE1_INPUT",
+        "NYASH_STAGE1_BACKEND",
+        "HAKO_STAGE1_BACKEND",
+        "STAGE1_BACKEND",
+        "NYASH_EMIT_MIR_TRACE",
+        "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON",
+        "HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE",
+    }
+    card_env_remove = set(reference.get("child_env_remove") or [])
+    if not required_env_remove.issubset(card_env_remove):
+        fail("active card child_env_remove is missing a known non-authority alias")
+    required_pins = {
+        "NYASH_SKIP_TOML_ENV=1",
+        "NYASH_VM_USE_FALLBACK=0",
+        "NYASH_VM_HAKO_PREFER_STRICT_DEV=0",
+        "NYASH_USE_NY_COMPILER=0",
+        "--backend vm",
+    }
+    if not required_pins.issubset(set(reference.get("child_env_pin") or [])):
+        fail("active card child_env_pin is incomplete")
+    if reference.get("transport_cardinality", "").find("Exactly one private key") < 0:
+        fail("private transport cardinality is not fixed")
+
+    allowed_implementation_files = {
+        "src/runner/reference/vm_hako/driver_spawn.rs",
+        "src/runner/reference/vm_hako/driver_main.hako",
+        "tools/smokes/v2/profiles/integration/apps/lib/vm_hako_json_parity_common.sh",
+        "tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_non_future_reject_vm.sh",
+        "tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_newclosure_probe_vm.sh",
+        "tools/smokes/v2/profiles/integration/vm_hako_caps/compare/compare_ported_vm.sh",
+        guard_script,
+    }
+    if set(reference.get("implementation_allowed_files") or []) != allowed_implementation_files:
+        fail("reference-child implementation file boundary drifted")
+
+    def read(relative: str) -> str:
+        path = root / relative
+        if not path.is_file():
+            fail(f"reference-child implementation owner missing: {relative}")
+        return path.read_text(encoding="utf-8")
+
+    spawn = read("src/runner/reference/vm_hako/driver_spawn.rs")
+    driver = read("src/runner/reference/vm_hako/driver_main.hako")
+    parity = read("tools/smokes/v2/profiles/integration/apps/lib/vm_hako_json_parity_common.sh")
+    await_smoke = read("tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_await_non_future_reject_vm.sh")
+    closure_smoke = read("tools/smokes/v2/profiles/integration/apps/phase29z_vm_hako_s5_newclosure_probe_vm.sh")
+    compare = read("tools/smokes/v2/profiles/integration/vm_hako_caps/compare/compare_ported_vm.sh")
+
+    if '.env("NYASH_VERIFY_JSON"' in spawn:
+        fail("driver_spawn still writes the public payload carrier")
+    if "@file:" in spawn or "NYASH_VERIFY_JSON" in driver or "@file:" in driver:
+        fail("driver/child still contains the public payload or @file sentinel")
+    if spawn.count("cmd.status()") != 1:
+        fail("driver spawn count is not exactly one")
+    if "for key in CHILD_ENV_REMOVE" not in spawn or "cmd.env_remove(key)" not in spawn:
+        fail("driver_spawn does not apply the finite child env scrub")
+    scrub_markers = {
+        "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON": "    INLINE_PAYLOAD_ENV,",
+        "HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE": "    FILE_PAYLOAD_ENV,",
+    }
+    for key in sorted(required_env_remove):
+        marker = scrub_markers.get(key, f'    "{key}",')
+        if marker not in spawn:
+            fail(f"driver_spawn does not scrub {key}")
+    for pin, marker in {
+        "NYASH_SKIP_TOML_ENV": '.env("NYASH_SKIP_TOML_ENV", "1")',
+        "NYASH_VM_USE_FALLBACK": '.env("NYASH_VM_USE_FALLBACK", "0")',
+        "NYASH_VM_HAKO_PREFER_STRICT_DEV": '.env("NYASH_VM_HAKO_PREFER_STRICT_DEV", "0")',
+        "NYASH_USE_NY_COMPILER": '.env("NYASH_USE_NY_COMPILER", "0")',
+    }.items():
+        if marker not in spawn:
+            fail(f"driver_spawn pin missing: {pin}")
+    if '.arg("--backend")' not in spawn or '"vm"' not in spawn:
+        fail("driver_spawn backend vm pin missing")
+    if "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON" not in spawn or "HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE" not in spawn:
+        fail("driver_spawn private one-of keys missing")
+    if "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON" not in driver or "HAKO_VM_HAKO_DRIVER_PAYLOAD_FILE" not in driver:
+        fail("driver_main private payload reader missing")
+
+    def hako_runner_section(text: str) -> str:
+        start = text.find("run_hako_vm_runner()")
+        if start < 0:
+            start = text.find("HAKO_OUTPUT=$(")
+        end = text.find("HAKO_RC=$?", start)
+        if end < 0:
+            end = text.find("rc=$?", start)
+        if start < 0 or end < 0:
+            fail("live monitor Hako runner section is not recognizable")
+        return text[start:end]
+
+    for name, text in {
+        "parity": parity,
+        "await": await_smoke,
+        "newclosure": closure_smoke,
+    }.items():
+        section = hako_runner_section(text)
+        if "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON=\"$JSON_PAYLOAD\"" not in section:
+            fail(f"{name} monitor does not use the private payload key")
+        if "NYASH_VERIFY_JSON=\"$JSON_PAYLOAD\"" in section:
+            fail(f"{name} monitor still writes the public payload key")
+    if "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON=\"$NE_ALIAS_JSON_PAYLOAD\"" not in compare:
+        fail("compare alias probe does not use the private payload key")
+    if 'env.get("NYASH_VERIFY_JSON")' in compare or 'NYASH_VERIFY_JSON="$' in compare:
+        fail("compare alias probe still contains the public payload key")
+    if "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON" not in parity or "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON" not in await_smoke or "HAKO_VM_HAKO_DRIVER_PAYLOAD_JSON" not in closure_smoke:
+        fail("one of the live monitors lacks the private transport declaration")
+
+    print(
+        f"[{guard_id}] result_class=current-change failure status=pass "
+        "phase=reference_child_i0 private_transport=sealed env_scrub=pinned "
+        "spawn=one public_reentry=zero"
+    )
+    raise SystemExit(0)
 
 # Wpre is a boundary census, not a parser implementation.  The inventory is
 # deliberately explicit: removing one edge during this guard-only row is a
