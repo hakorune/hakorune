@@ -1,6 +1,6 @@
 ---
 Status: Active
-Date: 2026-07-28
+Date: 2026-08-26
 Scope: one-screen current lane and parked-resume map.
 Related:
   - CURRENT_TASK.md
@@ -20,7 +20,8 @@ Related:
 | Workstream | `latest_workstream_card` in `CURRENT_STATE.toml` |
 | Front | `latest_card_path` in `CURRENT_STATE.toml` |
 | Blocker | `current_blocker_token` in `CURRENT_STATE.toml` |
-| Scope | `active_lane_status` in `CURRENT_STATE.toml` |
+| Scope | `latest_card_summary` in `CURRENT_STATE.toml` |
+| Exact task order | file named by `latest_workstream_card` |
 
 ## Current Read
 
@@ -33,9 +34,13 @@ Related:
 ## Immediate Sequence
 
 1. Run `bash tools/checks/current_state_pointer_guard.sh`.
-2. Work only on the exact current production replacement cell.
-3. Switch the named production caller and delete the selected old path.
-4. Prove parity after cutover; do not add a disconnected route chain.
+2. Read `work_mode` before choosing an action.
+3. When `work_mode = "design_stop"`, perform only the selected census/design
+   row and stop before code, fixtures, caller switch, or old-path deletion.
+4. When `work_mode = "fast"`, implement only the named bounded production
+   cell, switch its caller, delete its selected old edge, and prove parity.
+5. When `work_mode = "closeout"`, classify evidence and synchronize the
+   owning docs/guard/commit without widening the implementation.
 
 ## Parked Resume
 

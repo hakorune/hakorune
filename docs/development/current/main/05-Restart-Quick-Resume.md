@@ -1,5 +1,5 @@
 Status: Active
-Date: 2026-07-28
+Date: 2026-08-26
 Scope: restart in 2-5 minutes with a thin pointer surface.
 Related:
   - docs/development/current/main/CURRENT_STATE.toml
@@ -83,7 +83,8 @@ repository's intended fast path.
 - active phase: read `active_phase` in `CURRENT_STATE.toml`
 - latest card: read `latest_card_path` in `CURRENT_STATE.toml`
 - blocker token: read `current_blocker_token` in `CURRENT_STATE.toml`
-- current scope and parked resume: read `active_lane_status` and the workstream
+- current scope: read `latest_card_summary`; parked resume and exact task order
+  belong to the file named by `latest_workstream_card`
 
 ## Restart Notes
 

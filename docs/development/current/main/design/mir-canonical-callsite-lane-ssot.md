@@ -1,59 +1,69 @@
 ---
 Status: SSOT
-Scope: current MIR call-site authority and retirement contract
-Decision: accepted policy; R6 core field cutover remains design-gated
+Scope: MIR Call target authority, compatibility ingress, and core retirement order
+Decision: typed structural Global target selected; implementation remains design-gated
 Updated: 2026-08-26
 Related:
 - docs/development/current/main/CURRENT_STATE.toml
+- docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
 - docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md
+- docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1-manifest-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1c1-generic-function-call-handoff-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1e-normal-main-thunk-issuer-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1f-typed-method-issuer-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1g-builder-emit-receiver-reconstruction-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1h-phi-call-rematerialization-d0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1i-concat3-extern-rewrite-issuer-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1k-retained-len-extern-issuer-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1l-direct-substring-len-extern-issuer-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1m-method-set-value-rewrite-issuer-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1-next-edge-census-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1n-user-box-publication-call-operand-projection-d0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1o-publication-host-extern-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1q-publication-return-extern-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1r-materialization-store-extern-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1s-publication-substring-extern-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1t-concat-substring-extern-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1u-concat-len-extern-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1v-insert-mid-substring-extern-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1w-store-shared-receiver-substring-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-d1x-unified-physical-terminal-issuer-i0-2026-08-25.toml
-- docs/development/current/main/investigations/mir-call-core-r6-remaining-writer-authority-census-d0-2026-08-25.toml
 - docs/development/current/main/investigations/mir-call-final-shape-and-ingress-boundary-design-2026-08-25.md
 - docs/development/current/main/design/archive/mir-canonical-callsite-lane-history-2026-08-25.md
 ---
 
 # MIR Canonical Callsite Lane
 
-This is the compact current owner. Landed chronology, full inventories, and
-consultation transcripts live in the linked historical ledger and finite
-investigation manifests. The active row is selected only by `CURRENT_STATE.toml`
-and the rolling workstream card.
+## Current Capsule
 
-## Durable decision
+- **Current decision:** canonical MIR uses a typed structural Global identity;
+  String is accepted only by an owner-private compatibility ingress that
+  resolves it once.
+- **Current implementation status:** core still stores `Global(String)`,
+  `func`, `Option<Callee>`, and optional Method receivers. Ordinary
+  `FunctionCall` package completion and Global-family ownership remain open.
+- **Next ordered task:** `MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION`;
+  it is census/design only and does not authorize a schema or producer change.
+- **Production stop line:** no formatter, hidden registry, physical symbol,
+  second traversal, post-argument resolver, methodize, or backend repair may
+  issue a canonical target.
+- **Retirement finish line:** target is decided before argument effects, every
+  selected terminal consumes the stored typed target, and `func`, `None`,
+  sentinels, retry, and impossible-state guards are absent.
 
-The end state is one typed call target and one physical issuer:
+This file is the compact current Call owner. Landed chronology and the full
+writer inventories live in Git history, the linked archive, and finite
+investigation manifests.
+
+## Final core decision
+
+The final physical issuer is deliberately thin:
 
 ```text
-typed producer or owner-private JSON-v0 ingress
+typed source producer or owner-private compatibility ingress
   -> exact Callee
-  -> MirInstruction::call
-  -> optimizer/printer/wire/backend projection or execution
+  -> MirInstruction::call(dst, callee, args, effects)
+  -> stored target projection / execution
 ```
 
-The final core shape is intended to be:
+The target and Call shapes converge to:
 
 ```rust
+enum Callee {
+    Global(CanonicalGlobalTargetV1),
+    Method {
+        receiver: ValueId,
+        box_name: String,
+        method: String,
+        certainty: TypeCertainty,
+        box_kind: CalleeBoxKind,
+    },
+    Value(ValueId),
+    Extern(String),
+}
+
 Call {
     dst: Option<ValueId>,
     callee: Callee,
@@ -62,246 +72,224 @@ Call {
 }
 ```
 
-The current migration shape still contains `func: ValueId` and
-`callee: Option<Callee>`. `MirInstruction::call` is the thin canonical helper;
-it currently stores the transitional `INVALID`/`Some` representation. No field
-deletion is authorized until the R6 writer and consumer blockers are closed.
+`CanonicalGlobalTargetV1` is a self-describing, wire-stable structural value,
+not a process-local ID. The minimum candidate families are `Builtin` and
+`SameModuleStatic { owner, name, arity }`. Imported/free static and runtime
+helper families are admitted only if the B0 production census proves that they
+need distinct canonical states and names their issuers.
+
+The following are forbidden final states:
+
+```text
+GlobalTarget::Legacy(String)
+Unknown / Default / sentinel target
+ModuleInvocationBrand stored as MIR identity
+process-global or consumer-only target registry
+physical symbol used as semantic identity
+consumer-side StaticMethodId parse, methodize, lookup, or retry
+```
+
+JSON-v0 and other retained compatibility owners may parse legacy text, but
+must resolve it exactly once to `CanonicalGlobalTargetV1` before constructing
+canonical MIR. Invalid explicit v1 input never retries through v0.
 
 ## Authority map
 
 | Boundary | Sole authority | Explicit non-authority |
-|---|---|---|
-| typed producer | resolver/source target that already knows the exact `Callee` | backend lookup, text reconstruction, default target |
-| physical issuer | `MirInstruction::call(dst, callee, args, effects)` | target classification or retry inside the constructor |
-| MIR JSON-v0 | private `JsonV0CallInput` and its one-shot resolver | public `LegacyCall`, core `None`, optimizer scan |
-| JSON-v1 | explicit typed callee object | legacy decoration or malformed-target retry |
-| optimizer | stored `Callee` plus ValueId remap | `Const(String)` target inference or target reclassification |
-| interpreter/backend | typed dispatch of stored `Callee` | `func` register load, by-name fallback, registry retry |
-| JSON/native egress | projection of stored target and profile | `receiver.unwrap_or(func)`, metadata/name retry |
+| --- | --- | --- |
+| source static call | exact source-site/declaration relation | name/arity formatting, collector order |
+| builtin call | finite builtin owner | arbitrary Global String |
+| compatibility ingress | owner-private schema plus exact catalog | core legacy variant, fallback parser |
+| physical issuer | `MirInstruction::call` storing four fields | classification, lookup, retry |
+| optimizer | stored `Callee` and operand remap | `Const(String)` inference, Global→Method |
+| interpreter/backend | typed dispatch or projection | register/name/metadata/registry recovery |
+| wire egress | projection from stored target | re-creating target class from printed text |
 
-`Callee` owns target ValueId operands through its immutable projection:
+`Callee` owns target ValueId enumeration and rewrite. Call operands are target
+operands first, then `args` in stored order, with duplicates preserved. Escape,
+ownership, query, and backend ABI reuse this enumeration but retain their own
+policy authority.
 
-```text
-Method.receiver; Value(value); Closure.captures in stored order, then me_capture
-then Call.args in stored order; duplicates are preserved.
-```
+## Current B0 design stop
 
-Escape, ownership, query, and JoinIR policies may reuse that enumeration but
-retain their own barrier/ownership decisions. `Callee::Method(None)` is an open
-legacy state, not a static-call authority. Static calls must eventually use a
-qualified `Global(owner.method/arity)`; instance calls require `Method(receiver)`.
+Decision:
+  Choose typed structural B as the final canonical representation. B0 closes
+  its finite family/issuer/wire/projector matrix; it does not change code.
 
-## Fail-fast contract
+Source authority + canonical issuer:
+  declaration/builtin/typed-ingress owners issue a structural target only
+  after an exact source-site relation. The exact issuer per Global family is
+  still the missing boundary.
 
-Resolve the target exactly once before the first irreversible boundary:
+Non-authority:
+  `CanonicalSameModuleCallableKeyV1` by itself, `mir_symbol_projection`, raw
+  name/arity, `ModuleInvocationBrand`, physical symbol, registry lookup,
+  `EffectMask`, and existing `Global(String)` consumers.
 
-```text
-target/source relation
-  -> validation and finite state decision
-  -> exact Callee
-  -> argument/block/wire/object/backend effect
-```
+Fail-fast boundary:
+  missing, foreign, duplicate, ambiguous, wrong-namespace, wrong-arity, or
+  unsupported Global family terminates before arguments, MIR mutation, wire,
+  or backend effects.
 
-Malformed explicit targets, missing/ambiguous/foreign legacy relations, missing
-receivers, duplicate or consumed claims, and profile-incompatible shapes reject
-before publication. A rejected target never retries through another name,
-receiver, registry, metadata, optimizer, or backend route.
+Smallest next slice:
+  finite read-only census from every production `Callee::Global` issuer through
+  wire/optimizer/all compiled core-schema consumers, with selected VM/native
+  terminals as semantic parity owners, followed by one accepted B0 matrix.
+  Implementation remains false.
 
-## Current selected row
+Non-claims:
+  typed schema implementation, D1B loan, cross-module calls, new builtin
+  semantics, PyVM revival, JSON-v0 retirement, or backend expansion.
 
-`CURRENT_STATE.toml` records the current row:
+Census boundary:
+  production `Callee::Global` producers -> optimizer/wire/all compiled
+  core-schema consumers; includes builtin, same-module static, runtime/helper,
+  typed ingress, compatibility projections, and non-selected/WASM mechanical
+  adaptation/isolation/retirement. Tests and non-selected backends are not
+  semantic authority or new parity targets. PyVM/reference production activation
+  and independently typed Extern/Method/Value routes are excluded.
 
-```text
-MIR-CALL-D1B-TOPLEVEL-DIRECT-TARGET-INDEX-HANDOFF-D0
-```
-
-D1M landed at `f7a442f524` after two upper-worker audits. It was limited to
-the one shared method-set value rewrite writer; its boundary and receipt are
-in:
-
-```text
-docs/development/current/main/investigations/
-  mir-call-core-r6-d1m-method-set-value-rewrite-issuer-2026-08-25.toml
-```
-
-D1M's two existing route tests plus direct helper positive/negative matrix,
-shared corridor guard, pointer/reference-route guards, rustfmt, and diff checks
-are green; the quick profile's 441 warnings remain the pre-existing baseline.
-The matcher is the sole eligibility authority, and whole-pass rollback is not
-claimed. Full Call field retirement and string-corridor family retirement
-remain separate.
-
-The independent recursion-depth restore candidate landed at `74829ee3d2` after
-two upper-worker audits. Both overflow return windows restore the exact entry
-depth; focused overflow/success/error tests, the scoped guard, pointer/reference
-guards, rustfmt, and diff checks are green. Panic/unwind restoration is not
-claimed.
-
-D1N landed at `0738d722a3` after the operand-SSOT audit. The single user-box
-publication consumer now delegates Call membership to `MirInstruction::used_values()`
-and deletes its local `func`/receiver matcher; typed Method/Value/Closure/arg
-positives, stale-func/dst-only negatives, legacy-func parity, and the 5-test
-module suite are green. D1O's plan-owned publication host Extern writer landed
-at `d2826802f3`; selected Call writers are now 15 (publication family 3). D1P's
-Store/FieldSet publication writer landed at `6912edb287`; the existing
-PublicationWriteBoundaryPlan now delegates to `MirInstruction::call`, with
-the two boundary proofs preserving destination, five-argument order, READ
-effects, copy removal, and adjacency. The receipt closes this writer while
-full Call retirement remains separate. D1Q landed at `491e212e77`: the two
-PublicationReturnPlan writers (instruction Return and terminator Return)
-delegate to `MirInstruction::call` as one atomic family. Selected writers are
-now 12 and the publication Return family is 0; the focused six-test proof and
-shared guard are green. D1R landed at `82be5daa97`: the one
-`MaterializationStorePlan` writer in `concat_corridor_apply.rs` now delegates to
-`MirInstruction::call`. D1S landed at `5d5c564e82`: the one
-`PublicationHelperSubstringPlan` writer in the same file delegates to
-`MirInstruction::call`, preserving composed start/end Add roots and
-plan-owned effects. D1T landed at `a1e856fa25`: the one
-`ConcatSubstringPlan` writer in the same file now delegates to the canonical
-issuer, preserving source-sharing, five arguments, effects, Return, and phase-10
-parity. D1U landed at `75427a9aa2`: the paired left/right
-`ConcatSubstringLenPlan` writers are changed together, preserving source
-windows, fresh destinations, middle arithmetic, effects, and phase-9 fusion.
-Selected writers are 9 -> 7 and the concat family is 6 -> 4. D1V landed at
-`738b0f9fcd`: the paired `InsertMidSubstringPlan` writers are changed
-together, preserving insert_hsi -> substring_hii order, source/middle/split
-and insert/start/end operands, shared effects, profile admission, and producer
-removal. Selected writers are 7 -> 5 and the concat family is 4 -> 2; no other
-concat, unified, array, or canonicalizer writer is authorized.
-
-D1W landed at `938e060028`: the paired `StoreSharedReceiverSubstring`
-reconstruction writers now use `MirInstruction::call` for the existing typed
-`Method(Some)` and exact `nyash.string.substring_hii` Extern shapes, changing
-only the receiver or `args[0]` from the plan-owned replacement receiver. The
-original destination, typed callee attributes/name, remaining arguments,
-effects, spans, removal indices, hints, DCE/CFG, and suffix/store schedule are
-unchanged. Selected writers are 5 -> 3 and the concat family is 2 -> 0; the
-focused materialization suite is 3/3 and the shared guard remains 777 lines.
-`Method(None)`, generic calls, ingress, schema, and backend/wire work remain
-NoSafeSlice or separately gated.
-
-D1X landed at `cde490f75e` as the final generic physical-terminal writer. The
-existing `MirCall` already owns exact `dst`, typed `Callee`, `args`, and
-`effects`; `emit_finalized_generic_call_v1` now delegates its one transitional
-Call emission to `MirInstruction::call`. The existing builder-emission
-fail-fast boundary, prepared post-success commit, value/no-destination
-receipt, and alternate-route split are unchanged. Selected writers are 3 -> 2
-and the unified physical-terminal family is 1 -> 0; `MirCall`/`CallFlags`,
-final schema, `Method(None)`, ingress, array projection, canonicalizer, and
-backend work remain separately gated. The focused physical receipt suite is
-7/7 and the shared guard remains 777 lines.
-
-Post-D1X premise audit and late canonicalizer retirement are landed at
-`371f75476e`; the legacy `callee=None + Const(String)` issuer is gone. The
-current D1B duplicate/projection validator is closed at `ffcae72725`.
-The active D1B row is now the direct-target index handoff D0:
+Finite B0 states:
 
 ```text
-docs/development/current/main/investigations/
-  mir-call-d1b-toplevel-direct-target-index-handoff-d0-2026-08-26.toml
+BuiltinReady
+SameModuleStaticReady
+AdditionalFamilyObserved
+CompatibilityTextReady
+MissingSourceRelation
+ForeignModule
+DuplicateOrCollision
+AliasUnresolved
+WrongNamespace
+WrongArity
+UnsupportedForWireOrCompiledConsumer
+TypedRejectBeforeEffect
+ParkedSealedOutsideSelectedBoundary
 ```
 
-It is `NoSafeSlice`: the package issuer is the co-seal owner candidate, but an
-identity-only general index, catalog-gated ordinary-call traversal,
-self/sibling/special-form disposition, and same-session owner/site bijection
-are not yet designed. The exact-i64 index cannot be borrowed sideways and a
-second resolver continuation is forbidden. TopLevel self/scoped loans and the
-The bounded `gc_collect`/`gc_stats` exact-target child landed at
-`fcb1e01376`; the general direct-target D0 remains downstream. `Method(None)`
-and methodize, mandatory-Callee schema, JSON/VM/backend fallback, and the
-ArrayElementWrite projection remain separate `NoSafeSlice`/`ParkedSealed`
-boundaries. The latter has no selected decoder/lowerer/ABI owner, so no array
-implementation is authorized.
+B0 closes only when each in-boundary family has one source authority, one
+issuer, one wire owner, one backend projector, and an old-edge disposition.
+If a `Legacy(String)` variant, opaque registry, or reparse is required, the row
+returns to `NoSafeSlice`.
 
-Separate ingress blocker: the direct MIR loader's
-`parse_direct_mir_json_text_with_v0_fallback` may reinterpret a v1 parse error
-through v0 when the payload also looks like v0. This is a distinct design-only
-hierarchy row, recorded at
-`docs/development/current/main/investigations/mir-json-ingress-fallback-hierarchy-d0-2026-08-26.toml`;
-it is not part of D1B producer closure and does not authorize parser changes.
+## Observer/package prerequisite
 
-The landed implementation manifest is:
+The Global Decision alone cannot open D1B. Current selected shadow traversal
+rejects ordinary `FunctionCall` at the profile gate; a Deferred owner tree does
+not issue the semantic package. An external sink after that point would float
+without an installable package.
+
+The next design prerequisite is therefore:
 
 ```text
-docs/development/current/main/investigations/
-  mir-call-r6-late-legacy-target-issuer-retire-i0-2026-08-25.toml
+profile-gate-adjacent observer-only FunctionCall branch
+  -> record existing source site / name / arity
+  -> observe arguments in the same traversal
+  -> issue no Callee and no canonical direct-call target
+  -> allow owner observation to complete
+  -> require total disposition before package install
 ```
 
-D1B `Method(None)` and D1C1 bare `FunctionCall` remain separate
-`NoSafeSlice`/`CutoverBlockerOpen` boundaries; D1H does not authorize PHI
-admission/purity/rollback changes, field deletion, `Method(None)` repair,
-other Callee variants, or generic FunctionCall changes.
+It may not widen callable semantics, create a second AST walk, use body effects
+as target evidence, or publish scratch outside the package lifecycle. Existing
+brand/site/catalog identity is reused unless a concrete mispair proves it
+insufficient; a new resolver-session receipt is not created speculatively.
 
-## R6 retirement order
+## Durable retirement order
 
-The order is producer first, then canonical consumers, then atomic schema:
+The exact current task tokens and their selected order belong only to the
+rolling workstream. This SSOT fixes the durable dependency shape:
 
 ```text
-R1 exact qualified producers
-R2 owner-private MIR-v0 input state
-R3 pre-core legacy resolution and late-issuer retirement
-R4 Callee operand/remap/semantic consumer SSOT
-R5 optimizer/interpreter/printer/JSON/selected backend closure
-R6 Call { func, Option<Callee> } -> mandatory-Callee core
-R7 impossible-state guards and reference/docs closeout
+typed target identity and its source issuers
+  -> observer/package completion contract
+  -> prerequisite shelves and live-transport disposition
+  -> strict schema selection with invalid-v1 retry = 0
+  -> typed Global common-core plus all compiled-consumer cutover
+  -> observer/package completion implementation and install gate
+  -> pre-effect target handoff plus direct-payload deletion
+  -> source-owned effect authority for promoted target families
+  -> source-backed late recovery retirement
+  -> receiver / remaining wire / construction / selected-terminal closure
+  -> current-HEAD consumer census
+  -> mandatory-Callee schema
+  -> impossible-state guard closeout
+  -> finite post-Call integration cleanup
 ```
 
-R6 is not selected while any `Method(None)`, Closure/Constructor construction
-edge, `MirCall`/`CallFlags` transport reader, JSON/VM/native fallback, or direct
-writer census row remains open. The exact writer inventory is the D1 manifest:
+Producer identity always closes before consumer/schema cleanup. A touched
+760+ source is split behavior-neutrally before semantic work. `MirCall` and
+reader-zero `CallFlags` retire only through a live-terminal replacement;
+isolated JoinIR consumers receive an explicit retire/cutover disposition.
+
+The active queue is:
 
 ```text
-docs/development/current/main/investigations/
-  mir-call-core-r6-d1-manifest-2026-08-25.toml
+docs/development/current/main/workstreams/
+  mirbuilder-inplace-replacement-current.md#ordered-frontier
 ```
 
-## Finite state boundary
+## Cross-cutting contracts before R6
+
+- Receiver ABI: `Callee::Method.receiver` is the semantic receiver;
+  `Call.args` contains source arguments only. A backend may project its ABI
+  once, but Builder and VM may not add then strip the same receiver.
+- Effect authority: changing target transport must preserve the source-owned
+  effect decision. Cataloged `READ` and unified Global `IO` defaults are an
+  open parity conflict, not permission to choose the weaker value.
+- Construction: Call is invocation. `NewBox` and `NewClosure` remain
+  construction owners; invoking a closure value uses `Callee::Value`.
+- Wire selection: one payload selects one schema. Malformed explicit v1 is a
+  terminal error and cannot be silently reinterpreted as v0.
+- Affine lifecycle: owned target is taken before argument descent and its
+  borrow ends first. Success requires `finish_empty`; failure uses a typed
+  abort without overwriting the primary lowering error.
+
+## Source budget and safe placement
+
+Do not append semantic code to these current owners:
 
 ```text
-CanonicalReady                  exact typed Callee -> Call
-CompatibilityReady              owner-private legacy relation resolved once
-InvalidExplicit                 typed reject; no legacy retry
-MissingTarget                   typed reject before publication
-MissingOrAmbiguousReceiver      typed reject; no static/instance guess
-ForeignOrDuplicateClaim        typed reject; no re-consume
-MethodNoneLegacy                open R6 blocker, never canonical authority
-ClosureOrConstructorShape       construction boundary, not generic target repair
-OutsideSelectedBackend          ParkedSealed until CURRENT_STATE reselects it
+src/mir/builder.rs                                      741
+src/mir/builder/raw_invocation_source_transport.rs      778
+src/mir/builder/normal_callable_semantic_loan_port.rs   710
+src/mir/builder/raw_expression_dispatch/mod.rs          706
+src/mir/builder/calls/unified_emitter.rs                 711
 ```
 
-Positive evidence compares `callee`, receiver/target operands, args order, dst,
-effects, and execution result. Numeric `func` sentinels, target strings,
-printer output, or compatibility fixtures are not semantic parity evidence.
+The 778-line transport must be split behavior-neutrally before it is touched.
+`builder.rs` and `unified_emitter.rs` are deletion/delegation-only. New target,
+inventory, handoff, and loan code belongs in small owner-specific siblings.
+Every touched/new source remains below 760 lines; 800 is a hard stop.
 
-## Parked and non-goal boundaries
+## Acceptance and non-goals
 
-- PyVM, reference/Python/WASM, and non-selected backend lanes are `ParkedSealed`.
-- Closure/NewClosure, Constructor/NewBox, `MirCall`/`CallFlags`, JoinIR remap,
-  normal-root projection cleanup, physical-type layout, and warning retirement
-  are separate rows unless `CURRENT_STATE.toml` selects them.
-- The 2,595-line normal-root manifest is a dedicated owner and is not copied,
-  slimmed, or used as R6 Call authority.
+Positive parity compares typed target, target operands, args order, dst,
+source-owned effects, and selected execution result. String spelling, numeric
+`func`, printer output, and compatibility fixtures are not semantic proof.
+
+Return to `NoSafeSlice` if implementation needs a legacy String variant,
+opaque/global registry, second traversal/resolver, post-argument target search,
+optional/empty or cloneable loan, physical symbol parsing, receiver duplication,
+or semantic additions to a 760+ source.
+
+PyVM/reference production activation, non-selected backend activation/parity,
+performance work, JSON-v0 removal, Loop/M8/M9 activation, broad crate splitting,
+warning cleanup, and general dead-code retirement remain outside this Call
+decision. Compiled Rust core-schema consumers, including WASM/non-selected
+consumers, remain inside B0/B1 mechanical disposition.
 
 ## Reusable evidence
 
 ```bash
 bash tools/checks/current_state_pointer_guard.sh
-bash tools/checks/mir_call_canonical_corridor_guard.sh
+bash tools/checks/run_row_guard.sh --only mir-call-d1b-targeted-variant-split
+bash tools/checks/run_row_guard.sh --only mir-call-d1b-cataloged-affine-loan-lifecycle
+bash tools/checks/mir_call_d1b_selected_normal_duplicate_projection_guard.sh
 git diff --check
 ```
 
-Cargo gates are run only by an accepted fast/closeout card. Design-stop audits
-must not be converted into implementation permission by local green alone.
-
-## Historical owner
-
-The superseded long-form SSOT, including R1-R6 history and closed design rows,
-is preserved at:
-
-```text
-docs/development/current/main/design/archive/
-  mir-canonical-callsite-lane-history-2026-08-25.md
-```
-
-It is traceability-only; current decisions and next actions belong here and in
-the active pointer/card.
+Cargo gates run only in an accepted fast/closeout row. Historical Call
+chronology is preserved in Git and
+`design/archive/mir-canonical-callsite-lane-history-2026-08-25.md`; neither is
+current scheduling authority.

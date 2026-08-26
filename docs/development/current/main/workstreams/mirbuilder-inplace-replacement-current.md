@@ -1,1000 +1,378 @@
 ---
-Status: Design stop — MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
+Status: Design stop — MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION
 Date: 2026-08-26
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
   - docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md
 North star:
   - docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md
+Call owner:
+  - docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md
+Active card:
+  - docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml
 Task map:
   - docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md
 ---
+
 # MirBuilder In-Place Replacement Workstream
 
 ## Goal
 
-最終production authorityを次の一本へ収束させる。
+最終production authorityを一本へ収束させる。
 
 ```text
 Resolve -> Observe -> Facts -> Recipe -> Verify
         -> Lower -> Seal -> Collect -> Atomic Publish
 ```
 
-現在のMirBuilderを稼働させたまま、実在するproduction responsibilityを
-一つずつ交換する。第二MirBuilder、production consumer 0のroute拡張、
-Legacy fallback/retry、完成Program形ごとのvariant列挙は作らない。
+現在のMirBuilderを稼働させたまま、一つのproduction responsibilityとその旧辺を
+同じbounded seriesで交換する。第二MirBuilder、consumer-zero route、fallback、
+fixture由来のacceptance、新しい文字列authorityは作らない。
 
-## Current state
-
-`CURRENT_STATE.toml` is the pointer SSOT. Git history owns detailed landed
-diffs and proof transcripts; this card keeps the live task and boundaries.
-Current capsule:
-```text
-  current decision  = MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0
-  implementation    = G/H/I reviews found no Cataloged Callee relation and no accepted logical Global target representation; C is now the explicit QualifiedStaticPayloadAbsent/TargetPayloadMissing park (design/issuer blocker versus runtime/pre-effect terminal). Affine consumption is static-structure proof only. Only a separately accepted A/B Global Decision may reopen Ic-A..F. BridgeReady is package-only; ordinary observation/inventory/affine loan has no implementation permission
-  mode              = design_stop
-  production stop   = preserve finite entrance classification; keep C parked until a separately accepted A/B Callee::Global representation exists, then name the one-way source bridge and fresh per-site bearer. No payload bypass, source/bridge String synthesis, hidden registry, key/name/arity/symbol projection, shared bearer, profile widening, caller=None collapse, cross-cohort index, or second resolver
-  exit              = package prepare/install rejects incomplete inventory; owner/site/lineage and target precedence are finite; transient rows consume/drop; zero Resolved/recovery/name-Const/legacy-Call fallthrough
-  target fallback / retry = 0; local::recv cached/localized/original fallback is retained
-```
-Current design brief:
-Decision: D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 — choose one pre-adapter canonical issuer, co-seal one issuer-local DirectCallInventoryScratchV1 with the exact static relation, issue one Callee, map it once to an affine RawDirectCallDispositionLoanV1, and lend only that issued target before argument effects.
-Source authority + canonical issuer: no final non-empty Cataloged issuer. H defines a private session witness retained opaquely through package/install; I/Ia found that the current catalog and MethodCall-only target products carry only key/name/arity or non-Callee target facts.
-Ib/Ic must choose a source-owned static-only move-only target bearer, fresh per exact call site, plus one explicit one-way bridge that already issues (or atomically co-seals) Callee; Ic-A..F must also name the source/bridge owners, reject payload reconstruction and sharing, and register the scoped guard before the pre-adapter owner co-seals owner/site/source/session/brand, maps lineage once, and lends it.
-GC stays separate and other precedence arms await their issuer. The consumer emits MirInstruction::call without retry.
-Non-authority: source name/arity/box/symbol formatting, caller=None, constructor symbols, collector last-wins, BodyEffect/EffectMask, local variable maps, registry/name/args[0] recovery, or a second resolver.
-Fail-fast boundary: missing/foreign/duplicate/ambiguous lineage, owner/site, relation, package inventory, or precedence aborts before drive_call_arguments_v1, physical EffectMask, block mutation, package publication, or Call emission.
-Smallest next slice: C park is accepted in MIR-CALL-GLOBAL-TARGET-REPRESENTATION-D0. Reopen only through a separately accepted A sole logical-name issuer or B typed Global identity; only then may Ic-A..F name the source-authority owner/one-way bridge and exact static-only move-only payload. Do not open J/K or loan code. S0 shelf split landed at 4061c21f45.
-Non-claims: observation gate implementation, unresolved Global target synthesis, relationless retirement, Method(None), JSON/VM/backend changes, mandatory-Callee, CallFlags, or warning cleanup.
-## Closed chronology (archived)
-The callable source ledger, SyntaxFacts/SourceMap, root-neutral traversal,
-Recipe/JoinSig co-seals, canonical finish, physical canaries, and retired raw
-route experiments are closed. Their detailed Decisions, counters, and proof
-transcripts live in ParentHistory/git history and the owning investigation
-cards; they are not current scheduling authority.
-Stable boundaries retained from that work:
-
-```text
-source/resolver -> Facts -> Recipe/JoinSig -> Verify
-  -> one physical owner -> DraftSeal -> Collector -> Atomic Publish
-
-closed routes never authorize a new production caller;
-NoSafeSlice remains a development state;
-legacy retirement requires caller-zero evidence.
-```
-
-Closed activation chronology is historical evidence only; it does not select work.
-
-## Protected-region control-state design
-
-Decision: share policy and transient state, not physical exit writers.
-
-```text
-cleanup policy
-  -> one immutable snapshot
-
-TryCatch transient control
-  -> one total typed state
-
-sealed operation
-  -> its existing physical consumer exactly once
-```
-
-TryCatch is a protected-region transaction, QMark is a conditional propagation
-recipe, Throw is a terminator, raw Return owns defer completion, Match may use
-CorePlan, and canonical Function Return is committed by DraftSeal. Combining
-them into one physical terminal would create a second region/JoinIR planner.
-The repository-wide target is therefore not one Return writer; it is one
-physical consumer for each sealed operation, with no retry or fallback.
-
-closed — RAW-CONTROLBODY-UNLOCATED-PORTAL-RETIRE0-R0 (RET0)
-  The unreachable unlocated portal, its dead Lambda classifier arm, fabricated
-  test construction, and false R4 transport claims are deleted. Lambda remains
-  located; raw/reference capture retains its named operation; CallObject is the
-  sole unlocated recursive portal. Focused transport/Loop tests and shared
-  R4/current-pointer guards are green.
-
-closed — CONTROL-RESULT-CLEANUP-POLICY-SNAPSHOT0-S0
-  -> cleanup policy is captured at selected normal ingress or explicit raw
-  TryCatch ingress, then owned by `PreparedRawTryCatchV1`; cleanup lowering no
-  longer reads the environment. Snapshot/region tests are green.
-
-closed — RAW-PROTECTED-REGION-TRANSIENT-STATE0-S1
-  -> `ProtectedRegionTransientStateV1` now owns the complete return-defer and
-  cleanup vector. Function and TryCatch transactions capture/restore that one
-  value; success restoration and failure partial state remain covered by tests.
-
-closed — RAW-RETURN-DEFER-INVARIANT0-R0
-  -> active return defer is now a valid-only state with one slot/target
-  destination. The old active-with-missing-destination direct Return fallback
-  is a contract rejection; ordinary Return and valid defer remain unchanged.
-
-closed — CONTROL-RESULT-SOURCE-DEMAND-CONTRACT0-D0 (NoSafeSlice)
-  -> final root Return remains Complete; nonfinal Return needs a terminated
-  suffix contract, Throw lacks a located child role, and TryCatch needs a
-  first-catch-only protected-region contract. All retain their operation owner.
-
-closed — SCRIPT-SEMANTIC-SOURCE-PACK-EXTRACTION1-S0
-  -> `VerifiedScriptSemanticSourceV1` remains the sole live facade; stable
-  source/forest/projection ownership and retained boundaries now live in two
-  private packs. The facade fell from 795 to 637 lines without surface change.
-
-closed — MIRBUILDER-CALLABLE-LAMBDA-GUARD-SCOPE0-P0
-  -> the stale global text-order assertion is replaced by scoped callable-port
-  and Lambda-dispatch proofs. Production and capture order are unchanged.
-
-closed — SCRIPT-SEMANTIC-OPERATIONAL-DEMAND-PACK-EXTRACTION1-S1
-  -> Record/Enum/QMark/Match receipt sealing now has one private pack and the
-  standalone EnumMatch seal module is deleted. Complete admission and lowering
-  are unchanged.
-
-closed — SCRIPT-SEMANTIC-LOWERING-PROJECTION1-S2
-  -> one immutable projection now co-seals core facts and both receipt packs;
-  the live facade delegates lowering-state creation and no longer reconstructs
-  forest facts, source paths, or capture receipts after semantic sealing.
-
-closed — SCRIPT-SEMANTIC-LOWERING-LOAN-CUTOVER1-I0-R0
-  -> Complete now consumes its verified source once, moves the co-sealed
-     projection into the request ledger, and deletes copied receipt maps and
-     staged install APIs; source transport and admission are unchanged.
-closed — SCRIPT-ROOT-ADMISSION-ISSUER-ONE-MATCH0-S3
-  -> witness `issue -> new` is now one private semantic decision; operational
-  classification and invariant re-projection remain separate owners.
-
-closed — SCRIPT-ROOT-RESOLVED-DISPATCH-EXTRACTION0-S4
-  -> resolved root-demand dispatch is private; recursive traversal remains one shared matcher.
-
-closed — MIRBUILDER-R4-OPERATION-PARTITION-BOUNDARY0-D0 (Accept): shared occurrence identity only; residual R4 ownership stays operation-local and the shared scheduler is rejected.
-closed — JOINIR-LOOP-ROUTE-SELECTION-PHYSICALIZATION-SPLIT0-D0 (NoSafeSlice): candidate selection remains post-effect fallback, composers are physical, and no logical recipe consumer exists; do not reopen a renamed Loop slice.
-
-## Active task pointer
-
-Normal-root C0/I0 is closed; `NORMAL-ROOT-WORK-PLAN-MODE-AUTHORITY-CUTOVER-I0`
-landed as `c152f9f883`. Public whole-file AST Compatibility remains `ParkedSealed`;
-exact-i64 I0 landed at `7fd97a5344`; direct-static/D1 manifest/D1A Extern are
-closed, D1B is accepted design-only, D1C/D1C1 remain NoSafeSlice, D1E is
-landed at `2150472c35`, D1F is landed at `572ec6f5b1`, and D1G is landed at
-`c3c7e0ea65`; D1H-I0 landed at `b090f917b4`; D1I landed at `513a243be5`; D1J landed at `c927da4029` under its manifest.
-
-```text
-canonical core
-  Call { dst, callee: Callee, args, effects }
-
-JSON-v0 compatibility ingress
-  owner-private JsonV0CallInput -> resolve exactly once -> Callee -> Call
-
-forbidden
-  core LegacyCall; Option<Callee>; func field; sentinel/default Callee;
-  optimizer target inference; backend by-name fallback or retry
-```
-
-`JsonV0CallInput` is ingress evidence only: each owner resolves one exact
-`Callee` before the thin, non-classifying `MirInstruction::call`; `func`, INVALID,
-target Const, printer/JSON text, optimizer scans, and runtime lookup are not authority.
-
-The accepted D1 manifest supersedes the bounded 20/21 prose: it records 38
-in-boundary construction sites (26 live-selected and 12 owner-compatibility)
-plus one helper definition; readers, tests, and parked surfaces are separated. Stale `func`, Method(None), Constructor, Closure wire, and flags remain.
-
-JSON-v0 is total: explicit callee wins; malformed, missing, duplicate, foreign, or non-String targets reject before publication; legacy name/unique func-Const resolves once.
-
-Before field deletion, `Callee` owns target operands (Method receiver, Value, Closure captures/me);
-Global/Extern/Constructor add none, args follow in order.
-Escape consumes this projection but remains a separate policy.
-
-## Closed bounded cell: MIR-CALL-JSONV0-QUALIFIED-PRODUCER-I0-R0
-
-The two exact `static_methods` producers now use the thin canonical constructor
-with `Callee::Global(qualified)`. Their target Const, `fun_val`, and
-missing-callee edges are zero; instance `me_v`, argument order, dst, and READ
-effect are unchanged. Program JSON-v0 literal issuers are 3 -> 1 and the
-dynamic MIR JSON-v0 edge remains open.
-
-Evidence: focused static/instance tests 2/2, unchanged late-resolver tests 7/7,
-Call corridor and pointer guards green, touched-file rustfmt green, source 446,
-constructor owner 385, guard 105. The 433 warnings remain the parked baseline
-(422 dead_code + 11 private_interfaces); no new warning class was introduced.
-The shared MirBuilder guard retains its known parent Loop-owner red and is not
-an R1 waiver or failure.
-
-## Accepted design: MIR-CALL-JSONV0-LEGACY-TARGET-CATALOG-D1
-
-Decision: direct MIR-v0 compatibility is an owner-private input boundary.
-Source authority + issuer: raw function draft -> immutable function-local
-`ValueId -> one direct Const(String)` catalog -> exact `Callee::Global` ->
-`MirInstruction::call`. No module membership, arity synthesis, Extern
-classification, optimizer scan, or backend lookup is allowed.
-State/failure: explicit callee wins decoration; malformed explicit, malformed
-name, name+func conflict, missing/duplicate/non-String/foreign/INVALID func all
-typed-reject; direct name/func text is otherwise preserved exactly.
-Fail-fast: catalog and target resolve before `call`/`mir_call` block publication;
-no `Call(callee=None)` and no retry. Nested `mir_call` owns target/args/effects;
-outer `dst` remains the destination override.
-Compatibility boundary: direct MIR-v0 plus selected Rust VM/JSON/LLVM remain in
-this lane; Program-v0 is R3. PyVM (`daily_route=0`, diagnostic-only),
-reference-vm, and Python/llvmlite are boundary-outside `ParkedSealed` owners.
-Census boundary: MIR-v0 raw function draft -> `call`/`mir_call` builder ->
-block publication; `boxcall`, `externcall`, historical terminals excluded.
-Topology-I0 closed: root 165, child 599, call 198; facade/API, block publication,
-ownership witness, and post-loop canonicalizer order are unchanged. MIR-v0 tests
-13/13, rustfmt/diff/pointer/Call guards are green; 433 warnings remain baseline.
-R2-I0 closed: owner-private input state and function-local direct Const(String)
-catalog now resolve before publication; MIR-v0 tests 26/26 and the shared guard
-are green. The broader emit census remains red only at the recorded cohort-missing
-baseline; it is outside this Call ingress slice.
-
-## Closed bounded cell: MIR-CALL-JSONV0-PROGRAM-CATALOG-I0
-
-`ProgramCallTargetCatalog` is built once from local defs before main/defs lowering.
-Generic `ExprV0::Call` resolves target before argument lowering and emits only the
-thin canonical constructor; target Const and Program `callee=None` issuance are 0.
-Unique short-name/arity, qualified, Extern, unknown Global, ambiguity, duplicate,
-and empty-name cases are covered by 9/9 focused tests; the bridge suite is 22/22.
-The shared Call corridor, pointer, diff, and rustfmt guards are green; 433 warnings
-remain the known baseline. Late `func_map`/`maybe_resolve_calls` and Program-site
-canonicalizer retirement remain R3b, not an R3a claim.
-
-## Closed bounded cell: MIR-CALL-JSONV0-PROGRAM-LATE-RETIRE-I0
-
-Program `func_map`/`maybe_resolve_calls` are retired; the Program bridge refuses
-legacy Const-to-target issuance while other sites retain their policy. Evidence:
-callsite 14/14, bridge 23/23, corridor/pointer/diff/rustfmt green; program owner
-121 lines, 433 warnings baseline. R4 operand/remap/ownership/escape SSOT follows.
-
-## Ordered MIR Call retirement series
-
-1. R1: qualified Program JSON-v0 producers (closed).
-2. D1: direct catalog, policy, state matrix, and compatibility boundary
-   accepted (closed).
-3. Topology-I0: move the 755-line loader loop behind a thin facade; behavior
-   and existing canonicalizer order stay unchanged (closed).
-4. R2-I0: `call.rs` parses total state, resolves once, and publishes no
-   `Call(callee=None)` or partial block (closed).
-5. R3a: pre-core Program JSON-v0 catalog/resolution (closed); R3b deletes target
-   Const authority, `maybe_resolve_calls`, and all remaining Program late edges
-   (closed).
-6. R4a: exhaustive `Callee` operand rewrite projection into SimplifyCFG
-   Call-use rewrite (closed); R4b `used_values` immutable projection and
-   methods.rs delegation (closed); R4c `value_consumer` Call membership,
-   R4d escape, R4e ownership, R4f CallLike, and Query T0 are closed; JoinIR
-   remap census is closed: lifecycle collection remains active, while disconnected merge remap APIs have no non-test entry and are queued for isolation.
-7. R5 D0 is accepted; R5a is closed at `e36f86e869`, R5b-B0 Rust VM
-   `None -> func` is closed at `95427f2cd6`/`67dd7e400a`, and R5c printer-only
-   is closed at `09f0e51143`; JSON egress D0, typed decoration I0, and profile D1 are closed; profile threading I0/backend_shape/native remain separate and PyVM/reference/Python are `ParkedSealed`.
-8. R6 D0 is accepted; D1-D0 closed the negative V0 edge at `f3aa0c4721`;
-   D1-D1 closed V1 shape rejects at `640ac083a7`; D1-D2 records the relation shape, D1-D3 the raw/plan census, D1-D4/D1-D5/D1-D6/D1-D7 the issuer/lifecycle/relation/seed design, and D1-D8 design accepted the exact helper shelf/path-observer boundary at `1434663966`;
-   the behavior-neutral shelf I0 landed at `b61f6895d2`; D1 and D2a design-only decisions are accepted at `625491fb25` and `18f05950b7`; D2b package co-seal and D2c Raw consumer selection are accepted, and the bounded Raw implementation landed at `7c976ca8b9`.
-9. R7: structural guards, README/reference sync, and census closeout.
-
-## D2c atomic Raw ordinary-`New` cutover receipt (7c976ca8b9)
+## Current six-line brief
 
 Decision:
-  The selected direct-body Raw cohort uses one source-backed claim from the
-  installed normal-callable package. Non-selected New families and Plan remain
-  outside this row.
-
-Authority chain:
-  final parser ordinary-box coverage + resolver owner/site Allocation facts
-  -> package co-seal of exact `New` class/arity and optional `Class.birth/N`
-  -> one installed affine claim ledger
-  -> Raw direct-local admission -> existing NewBox physical owner.
-
-Non-authority and retired edge:
-  The claimed path does not consult Builder headers, by-name birth lookup,
-  post-lowering target inference, or a claimless NewBox fallback. Compatibility
-  rows retain their explicitly parked header route and cannot consume a source
-  claim.
-
-Evidence:
-  `RUSTFLAGS=-Awarnings cargo check -q` and `cargo check --tests -q` pass;
-  normal-callable semantic package tests pass 19/19 and the new affine/source
-  claim tests pass 4/4; the shared
-  `mir_call_canonical_corridor_guard.sh` passes; source owners remain below
-  the 800-line hard stop (`recursive_child_lowering.rs` 731,
-  `install.rs` 738). The broad `mir::builder::normal_callable` suite is
-  43/49; its six known baseline failures remain the existing
-  `script-neutral-window`/`DynamicCarrierMismatch` contracts and are not
-  current-change failures.
-
-  The selected row now has one package completion check for unconsumed claims;
-  source-backed integration probing reached claim consumption before the
-  unrelated existing canonical cleanup failure. No new production fallback,
-  retry, or non-selected backend edge was added.
-
-Non-claims:
-  Plan-owned/control-flow New, generated constructor bodies, Core13/
-  IntegerBox/record/builtin/JSON/op=newbox, Method(None), JoinIR/native,
-  PyVM/reference/Python/native_driver, full D2 outside this cohort, and R6
-  field deletion remain NoSafeSlice/ParkedSealed as already recorded.
-
-## P2 implementation receipt: MIR-METADATA-CONSUMER-MANIFEST-I0 (5fb0277d91)
-
-Decision:
-  Add one observation-only, machine-readable inventory for all 127 stored
-  `FunctionMetadata` fields. Each row records the metadata class, producer
-  owner/count, production consumer owner/count, selected backend role and
-  owner/count, Rust reference/non-selected observations, JSON egress, exact
-  observed revision, caller state, and `retire_when`.
+  Canonical Callはtyped structural Global targetへ収束する。現在はB0の有限
+  family/issuer/wire/projector設計だけを行い、実装許可は開かない。
 
 Source authority + canonical issuer:
-  The stored-field declaration and each existing owner file are the observed
-  source. `mir_metadata_consumer_manifest.py` is only the validator; it does
-  not issue semantic facts, routes, or backend capability.
+  exact source-site/declaration、finite builtin owner、またはowner-private typed
+  ingressがtargetを発行する。`MirInstruction::call`は決定済みtargetを格納するだけ。
 
 Non-authority:
-  `FunctionMetadata` as a container, JSON emitter, comments, token presence,
-  backend reader names, tests/fixtures, ModuleMetadata, and non-selected
-  PyVM/reference/Python surfaces are not semantic or selected-backend authority.
+  raw name/arity、catalog key単体、`mir_symbol_projection`、physical symbol、
+  `ModuleInvocationBrand`、EffectMask、registry、caller=None、methodize、args[0]、
+  optimizer/backend repair。
 
 Fail-fast boundary:
-  Source field count and manifest rows must be one-to-one; duplicate/missing
-  rows, owner/count mismatches, anchor drift, role mixing, and producer-only
-  rows without a retention/caller-zero condition reject before success.
-
-Evidence:
-  The manifest and validator report 127/127 rows, 323 producer owner-files,
-  590 production consumer owner-files, and 83 selected-backend owner-files at
-  observed revision `beb82a6756c6c0855dc76096be23b9eafe3c5ae5`. The reusable
-  guard is green for positive coverage and missing/duplicate-row rejection;
-  the metadata catalog guard and current-state pointer guard are green. The
-  `FUNCTION-METADATA-OWNER-SPLIT-R0` landed: `metadata.rs` is 718 lines, nested checked-callout/linear-slot owners are 40/50 lines, no `#[path]` glue was added, method signatures/visibility/fields/callers/behavior are unchanged, focused `mir::function::tests` is 6 passed/2 ignored with the 441-warning baseline, and manifest/pointer/canonical-corridor/rustfmt/diff guards are green.
+  missing/foreign/duplicate/ambiguous/unsupported target、incomplete observation、
+  residual loan、missing receiverはarguments、MIR mutation、package install、wire、
+  backend effectより前にrejectまたは明示的ParkedSealed。
 
 Smallest next slice:
-  `MIR-CALL-D1B-SELECTED-NORMAL-DUPLICATE-PROJECTION-I0` and the bounded GC exact-target child are closed. The FunctionCall boundary classification is accepted; `MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0` is the current NoSafeSlice, while general direct-target index, self/sibling/constructor precedence, RuntimeData methodize, and ArrayElementWrite remain downstream until their owners and finite caller closures are accepted.
-  Physical/backend implementation remains separately gated.
+  `MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION`のread-only finite census。
+  builtin/same-module/runtime-helper/compatibilityごとにauthority、issuer、wire、
+  every compiled schema consumer、selected parity terminal、old edgeを一行へ閉じる。
 
 Non-claims:
-  No metadata promotion, field deletion, backend activation, ModuleMetadata
-  census, physical-type input, seed retirement, or warning cleanup.
-
-## Accepted bounded cell: A-prime exact-i64 storage-policy I0 (not full physical-input D0)
-
-Decision:
-  Select only the A-prime exact-`i64` family as the first physical-input
-  pilot. This bounded storage-policy row is accepted, and I0 (`f94bb7f2a7`)
-  adds the named plain policy and co-seals it without activating a physical backend input; the full four-authority physical-input D0 remains a design stop.
+  typed schema code、FunctionCall observer実装、loan、Method/receiver、JSON/backend、
+  performance、Loop/M8/M9、warning/dead-code cleanup、broad crate split。
 
 Census boundary:
-  Selected `ParserScanLoopBox.skip_while/4` final-source exact-`: i64` rows
-  (`pos`, `end`, exact-i64 result) -> package parameter/result facts ->
-  `DynamicAPrimeI64SourceRelationViewV1` plus the complete Dynamic Recipe and
-  physical input -> `VerifiedAPrimeI64PhysicalDemandV1` -> session
-  `DynamicV2PhysicalRepresentationV1::ImmediateI64` ->
-  `APrimeI64PhysicalReceiptV1` / `DynamicV2AotCallMetadataProjectionV1` ->
-  selected C validation in `hako_llvmc_ffi_checked_callout_lowering.inc`.
-  Exact-i64 formals, call arguments/results, induction/return transport, and
-  the same-session receipt are included. Dynamic/opaque handles, ExactText,
-  generic `value_types`, boxed sums, raw/fastmem layout, other widths, other
-  backends, route/cutover/perf are excluded.
+  production `Callee::Global` issuer -> optimizer/wire/all compiled core-schema
+  consumers; includes builtin/static/runtime-helper/compatibility families and
+  selected VM/native semantic terminals. Tests and non-selected backends are not
+  semantic authority or new parity targets, but their compiled schema consumers
+  require B1 adaptation/isolation/retirement disposition. PyVM/reference production
+  activation and typed Extern/Method/Value owners are excluded.
 
-Source authority + canonical issuer:
-  Exact source/package i64 contracts and the final A-prime source/Recipe
-  co-seal own semantic facts. A future physical-input co-sealer may aggregate
-  four same-cohort rows but may not issue new meaning. Usable representation
-  and ABI transport owners are the existing `ImmediateI64` capability and
-  A-prime receipt/call-metadata co-seal. The new plain policy owner is
-  `APrimeI64CallableStorageLayoutV1::NonAddressableSsaI64`; its issuer is the
-  selected emitter close, after the existing demand, session, ledger, formal,
-  and receipt rows have been proven same-brand.
+## Current architecture decision
 
-Missing authority:
-  I0 issues the dedicated row only at selected-emitter close. `MirType::Integer`
-  and `StorageClass::InlineI64` remain logical inventories, not layout/ABI
-  truth; raw-layout/fastmem vocabulary, Generic-G0 callable carriers, callout
-  wire, JSON strings, ValueId, receipt lane alone, C validation, and other
-  backends are non-authority.
+Final Call shape:
 
-Finite state / fail-fast:
+```rust
+enum Callee {
+    Global(CanonicalGlobalTargetV1),
+    Method { receiver: ValueId, /* existing typed method fields */ },
+    Value(ValueId),
+    Extern(String),
+}
 
-| State | Outcome | Fallback |
-| --- | --- | --- |
-| `OutsideCandidate` | existing owner continues; no physical issue | none |
-| `SourceExactButIncomplete` | missing representation/ABI/layout -> `NoSafeSlice` | none |
-| `CompleteSameBrandNonAddressable` | I0 may attach the plain policy to the existing projection | none |
-| `MissingOrConflict` | typed reject before JSON/backend | none |
-| `AddressableOrExpanded` | outside D0; typed reject without layout synthesis | none |
-| `ForeignStaleDuplicate` | typed reject; no repair or re-pair | none |
-| `UnsupportedBackend` / `Consumed` | typed reject before effect or second take | none |
+Call {
+    dst: Option<ValueId>,
+    callee: Callee,
+    args: Vec<ValueId>,
+    effects: EffectMask,
+}
+```
 
-I0 implementation receipt:
-  The plain `APrimeI64CallableStorageLayoutV1` enum, child co-sealer, and
-  non-optional projection field are landed. The co-sealer runs at
-  `finish_unpublished_draft` after receipt issue and before projection, borrows
-  existing same-brand rows, and performs no AST/Recipe/MIR scan or backend
-  activation. Parent emitter source is 751 lines (<760).
+`CanonicalGlobalTargetV1`はwire-stableなstructural valueで、最低限Builtinと
+SameModuleStaticを区別する。追加familyはB0 censusが必要性を証明した時だけ。
+`Legacy(String)`、opaque ID、hidden registry、physical symbol authorityは不採用。
 
-I0 implementation contract:
-  `src/mir/policies/a_prime_i64_callable_storage_layout.rs` owns the singleton;
-  `selected_dynamic_physical_emitter/a_prime_callable_storage_layout.rs` owns
-  the typed co-seal; `call_metadata.rs` stores only the issued policy. The
-  existing guard was extended rather than creating a second activation guard.
+```text
+legacy text
+  -> owner-private compatibility resolver exactly once
+  -> typed target
+  -> canonical Call
+```
 
-Evidence and boundary:
-  The exact projection positive, selected-emitter positive, and malformed-
-  receipt negative tests pass; the physical-input authority and pointer guards
-  pass; `cargo check --lib` passes. The quick profile reports 441 known
-  baseline warnings, and whole-workspace fmt remains a baseline failure; no
-  new warning class or backend edge was introduced. I0 does not claim the full
-  four-authority backend input because `pos`/`end` still lack independent
-  `DynamicV2PhysicalRepresentationV1` ledger rows.
-  Preserve existing i64/object parity for `pos`/`end` and inner/outer returns
-  through one input; reject bare `MirType::Integer`, `StorageClass::InlineI64`,
-  JSON `"i64"`, receipt-only lanes, and missing/conflicting/foreign rows; then
-  require one selected-backend consumer and caller-zero for the old independent
-  return-type/lane/parameter reconstructions.
+## Current finite state
 
-## Accepted design: MIR-PHYSICAL-TYPE-INPUT-D1
+```text
+Global B0
+  BuiltinReady
+  SameModuleStaticReady
+  AdditionalFamilyObserved
+  CompatibilityTextReady
+  MissingSourceRelation
+  ForeignModule
+  DuplicateOrCollision
+  AliasUnresolved
+  WrongNamespace / WrongArity
+  UnsupportedForWireOrCompiledConsumer
+  TypedRejectBeforeEffect
+  ParkedSealedOutsideSelectedBoundary
 
-Decision:
-  `selected_dynamic_physical_capability` is the sole issuer of an exact
-  two-row `pos/end` representation pair. Existing source/package contracts
-  already co-seal ordinal 1/2, BindingRef, Recipe value, and exact I64 class.
-Source authority + issuer:
-  `DirectExactI64` demand + `DynamicAPrimeI64SourceRelationViewV1` -> capability
-  pair -> same-session formal adoption -> existing ledger/projection carrier.
-Non-authority:
-  MIR type/storage, ABI lane/receipt alone, formal index alone, generated-value
-  ledger, synthetic producer, JSON/C text, and backend reconstruction.
-Fail-fast:
-  before Builder open, then before body emission; missing/partial/conflict,
-  foreign/stale/duplicate/second-consume, or ABI/representation mismatch rejects
-  and discards unpublished state. fallback/retry/re-inference = 0.
-Implementation receipt:
-  `5bde4c6f92` issues/moves the exact pair through formal adoption, stores the
-  opaque carrier, and extends the guard; check/focused test (`1/1`)/diff green;
-  JSON/C/backend activation remains closed.
-Non-claims:
-  returns/generated values/handles, other widths/cohorts/backends, ABI/layout,
-  Call R6, and old reconstruction retirement.
+D1B lifecycle
+  ObserverOnlySiteRecorded
+  OwnerObservationComplete
+  DispositionReady
+  TargetReadyForLoan
+  KnownNonDirect
+  TypedRejectBeforeArguments
+  ParkedCompatibility
+  PackageAbortBeforeInstall
+  RawLoanInstalled / Consumed / Exhausted
+  ResolvedFallthroughForbidden
+```
 
-Census boundary: exact source `pos/end : i64` -> package contract -> A-prime
-relation -> capability pair -> formal header -> same-brand ledger/projection;
-includes only those two formals, excludes generated values/returns/handles and
-all JSON/C/backend terminals.
+Only a typed target crosses into argument descent. `KnownNonDirect` exits through
+its typed owner. Reject/park issues no target. Incomplete inventory aborts before
+install. Resolved fallthrough and residual loan are guard failures, not terminals.
 
-Finite states: `OutsideCandidate`, `ExactPairReady`, `OpenedSameSession`,
-`Projected`, `MissingOrPartial`, `Conflict`, `ForeignStaleDuplicate`,
-`ProducedLedgerSubstitution`, and `Unsupported`. Only the first four proceed;
-all negative states reject before effect, with no repair or re-pair.
+## Adversarial correction
 
-P0 receipt: `41f82d4be4` split emitter 587/185; D1 pair child 118, capability
-parent 652 (<760); no new edge/warning class.
+Ordinary `FunctionCall` currently defers at the selected shadow profile gate.
+Deferred owner trees do not issue the semantic package, so adding an external
+scratch or loan alone would create a product with no lawful lifecycle.
 
-## Ordered follow-ups (selected I0 / later retirement)
+After B0, design this exact transition before any semantic implementation:
 
-`MIR-PHYSICAL-TYPE-INPUT-D0`: accepted; I0 is the selected exact-i64 cell.
-Decision = source scalar, representation, ABI class, and target-layout rows co-seal once; no width/layout inference. Source authority = exact-i64 relation plus existing representation/ABI owners. Target issuer = existing PinnedText compile capability,
-projected to a typed invocation-bound child; Residence/object facts stay outside.
-Non-authority = `MirType::Integer`, `FunctionMetadata`/`StorageClass`, strings/defaults, backend/TargetMachine reconstruction, JSON/C/Python lanes. Fail-fast = preserve the
-live binding, validate before session effect, co-seal before publication, and reject
-missing/foreign/stale/conflicting/duplicate/unsupported rows with no retry.
-I0 tasks = target child + binding transport + one close co-seal + existing projection; finite states are `Outside/Missing/Foreign/Conflict/Unsupported/Ready/Consumed`.
-Non-claims = other widths/pointers/aggregates, FunctionMetadata, backend activation, Call R6, VM/PyVM, warnings.
-R3 D0 accepted boundary:
-Decision: Program generic calls use one immutable catalog built from local defs;
-import aliases retain their existing canonical producers; post-merge imports are
-not silently scanned. Unique `(name, arity)` candidates become qualified
-`Global`; ambiguous candidates reject; unknown source names remain exact `Global`;
-`env.`/`nyash.` names become `Extern` with a numeric arity suffix removed.
-Source authority + issuer: Program defs plus source `ExprV0::Call` name/arity
--> `ProgramCallTargetCatalog` -> generic lowerer -> `MirInstruction::call`.
-Non-authority: `func_map`, `maybe_resolve_calls`, target Const, late Program
-canonicalization, import merge membership, optimizer/backend/runtime lookup,
-and PyVM/reference/Python (`ParkedSealed`). Fail-fast: catalog before main/defs,
-target before argument effects and block publication; empty, duplicate, or
-ambiguous target rejects without retry. Smallest next slice: R3a catalog + R3b
-late issuer retirement (closed). Non-claims: core field
-cutover, operand SSOT, selected terminal closure, and historical backend re-entry.
-R4a closed (`bde2c1440b`): `Callee::rewrite_value_operands` is the exhaustive ordered projection owner; owner 2/2, SimplifyCFG 3/3, corridor/pointer/rustfmt/diff green, warning baseline 433, source/check LOC 332/724/180.
-R4b closed (`8eca2dd048`): immutable `Callee::for_each_value_operand` -> `methods.rs` Call arm; hakorune-mir-defs 4/4, typed/legacy root 1/1 each, guard/pointer/rustfmt/diff green, warning baseline 433.
-R4c/R4d/R4e/R4f/Query T0 are closed; matrix/guards + 433 warnings are recorded. R5c printer, JSON egress/decoration, profile D1/threading I0 are closed. JoinIR remap isolation I0 landed at 0048c0176a; physical type D0 and exact-i64 I0 are closed at 7fd97a5344; native capability D0 is NoSafeSlice; backend strict-adapter I0 is closed; native D1/Method(None)/R6 remain outside.
+```text
+profile-gate-adjacent observer-only FunctionCall
+  -> record existing site/name/arity
+  -> observe arguments in the same traversal
+  -> issue no target
+  -> allow owner observation to complete
+  -> require total disposition before package install
+```
+
+No second AST walk, post-Deferred recovery, package-external scratch, semantic
+profile widening, or BodyEffect-based target inference is allowed. Existing
+brand/site/catalog identity is reused unless a concrete undetectable mispair is
+shown; receipt proliferation is not a substitute for evidence.
+
+## Ordered frontier
+
+```text
+0. MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION        (now, design only)
+   finite target families, source issuers, wire owners, selected projectors,
+   alias/collision/arity rules, old-edge disposition
+
+1. MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-D0
+   observer-only state transition, same-traversal argument observation,
+   package completion and install-abort contract
+
+2a. MIR-CALL-TOUCHED-OWNER-SHELF-S0
+    behavior-neutral split only for a 760+ owner the next semantic row touches
+
+2b. MIR-CALL-MIRCALL-CALLFLAGS-RETIRE-R0
+    replace the live one-stage transport before retiring reader-zero flags
+
+2c. MIR-CALL-JOINIR-SCHEMA-CONSUMER-DISPOSITION-D0
+    retire or include each isolated compiled consumer in the schema cutover
+
+3. MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE
+   choose v1/v0 exactly once; invalid explicit v1 -> v0 retry becomes zero
+
+4. MIR-CALL-GLOBAL-TARGET-B1-CUTOVER
+   typed target owner + producer/core/wire/optimizer/all compiled consumer
+   adaptation; selected terminals own semantic parity, no String wrapper/reparse
+
+5. MIR-CALL-D1B-SELECTED-FUNCTIONCALL-OBSERVATION-COMPLETION-I0
+   delete the selected Deferred edge, complete owner/package issuance, abort
+   incomplete disposition before install, and issue no target from observation
+
+6. MIR-CALL-D1B-CATALOGED-SOURCE-RELATION-AND-AFFINE-LOAN-I0
+   exact site/owner/catalog co-seal -> non-empty stack-owned loan -> take_once
+   -> arguments once -> Call once -> residual zero; direct CatalogedTargeted
+   payload deleted in the same cell
+
+7. MIR-CALL-EFFECT-AUTHORITY-E0
+   name source-owned effects for every promoted Global family; READ/IO conflicts
+   stay CutoverBlockerOpen and cannot be resolved by target transport
+
+8. MIR-CALL-D1B-ALL-LINEAGE-PRE-EFFECT-RETIRE-R0
+   six lineages + Unlocated/Relationless become exact target / KnownNonDirect /
+   typed reject / ParkedSealed; then caller=None, Resolved, unique/tail,
+   target Const, and legacy publication retire
+
+9. MIR-CALL-METHOD-CORRIDOR-R0
+   receiver lives only in Callee; args are source args; consume the already
+   selected effect authority; delete receiver prepend/strip/autoscan/args[0], Method(None),
+   methodize, guard repair, UnknownBox, optimizer and VM recovery
+
+10. MIR-CALL-WIRE-CONSTRUCTION-TERMINAL-R0
+    close remaining retained-variant parity, ignored flags/effect defaults,
+    Constructor -> NewBox, Closure -> NewClosure/Value, and selected fallback zero
+
+11. MIR-CALL-R6-CURRENT-HEAD-RECENSUS-C0
+    writers, func readers, optional Callee/receiver, construction variants,
+    sentinels, wire/backend retry, and guards recounted at current HEAD
+
+12. MIR-CALL-CORE-SCHEMA-CUTOVER-R6
+    atomically delete func, Option<Callee>, optional receiver, INVALID/0 target
+
+13. MIR-CALL-LEGACY-GUARD-CLOSEOUT-R7
+    legacy fixtures move to compatibility ingress; impossible-state guards,
+    stale comments, README/reference/current history close
+
+14. MIRBUILDER-POST-CALL-INTEGRATION-R0
+    recovery context deletion -> root/recursion state localization -> finite
+    CompilationContext/metadata/raw-port/adapter/barrel owner cleanup
+
+15. remaining selected pipeline rows -> final repository convergence audit
+```
+
+No later row can be pulled before an earlier authority boundary. Local green,
+worker review, textual caller-zero, or schema compile errors are not permission.
+
+## Source and ownership budget
+
+Do not append semantic code to these owners:
+
+```text
+src/mir/builder/raw_invocation_source_transport.rs      778
+src/mir/builder.rs                                      741
+src/mir/builder/normal_callable_semantic_loan_port.rs   710
+src/mir/builder/raw_expression_dispatch/mod.rs          706
+src/mir/builder/calls/unified_emitter.rs                 711
+```
+
+The 778-line transport requires a behavior-neutral owner split before touch.
+`builder.rs` and `unified_emitter.rs` are deletion/delegation-only. Target,
+inventory, handoff, loan, and recursive capability code goes into small
+owner-specific siblings. Every touched/new source stays `<760`; `>=800` stops.
+
+Until Call closure, keep these integration owners because they are current
+production seams, not cleanup mistakes:
+
+```text
+RawExpressionDispatchPortV1                    sole AST matcher
+RawInvocationChildPortV1                       recursive capability root
+NormalCallableSemanticPackagePortAdapterV1     package/raw integration seam
+CompilationContext                             facade pending finite owner split
+FunctionMetadata                               127-row consumer manifest owner
+normal_default_root_catalog_lifecycle          install/source orchestrator
+```
+
+After Call R7, shrink them in this order:
+
+```text
+delete method-tail recovery context
+-> localize root_is_app_mode
+-> unify recursion-depth scope after old emitter retirement
+-> classify raw root capability vs recursive frame
+-> split CompilationContext one closed cohort at a time
+-> split FunctionMetadata only from its 127-row manifest
+-> caller census -> retire -> test home -> compatibility shelf -> barrel shelf
+```
+
+## Reduction forecast
+
+Finite read-only census estimates the Call corridor can remove roughly
+1,200–1,700 gross source lines after the authority cutover. A separately
+verified caller-zero `externals.rs` retirement raises the gross range to about
+1,600–2,100. These are forecasts, not acceptance evidence; typed identity and
+loan preparation may temporarily add code before old-edge deletion.
+
+The following are not current deletion claims:
+
+- `json_v0_bridge` still has multiple live caller families;
+- `variable_accum` and `source_coverage.rs` are production-live;
+- JoinIR merge code cannot be retired from text references alone;
+- `_p0` proof files require evidence migration, not suffix-based deletion.
 
 ## Production invariants
+
 ```text
 named production caller required       = yes
-same-commit selected old-edge deletion = yes
+same-series selected old-edge deletion = yes
+target decision before arguments       = yes
 route selection per request            = exactly 1
 RootLower execution per request        = exactly 1
 canonical rejection -> retry/fallback  = 0
 partial product publication            = 0
 source AST clone/reparse                = 0
-new whole-function accepted variants   = 0
-new per-row guard                       = 0
+new semantic target/route acceptance   = 0
 source/check file line limit            < 800
 ```
 
-One explicit compatibility owner may exist inside the selected production
-pipeline only with a stable sunset ID, exact owned surface, no retry, and a
-named release condition. Each replacement row shrinks that surface; it may not
-grow or silently absorb a new family.
+## Compatibility anchors
 
-## R4 active fence registry
-
-The sole R4 data authority is
-`tools/checks/manifests/raw_public_cutover_caller_manifest_v1.json::r4_fences`.
-It records stable ID, kind, exact surface, source/fixture/guard evidence,
-release condition, and dependency targets. This workstream intentionally does
-not copy those rows; source-anchor evidence does not claim runtime parity.
-
-`NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001` is closed. Test-only
-`LegacyChildDraftAdmissionV1` fixtures remain; nested-method production now
-uses `PreparedNestedBoxMethodSourceV1` and direct legacy-symbol completion.
-## Other live compatibility contract
+These IDs remain here because reusable guards consume them. They are boundaries,
+not a copied landed ledger.
 
 ```text
 CALL-BOX-KIND-ANALYZER-COMPAT-SUNSET-001
   state: active
   owner: CalleeBoxKindPolicyContextV1::ResolverExtendedCompiler
-  surface: BreakFinderBox / PhiInjectorBox / LoopSSA
   growth: forbidden
-  retire_when: analyzer production routes are zero, or one-profile
-    classification parity is proven and all callers migrate atomically
-```
 
-## Guard-required closed anchors
+NESTED-BOX-RAW-BODY-COMPAT-SUNSET-001
+  state: closed
 
-These compact anchors retain stable manifest/guard correspondence. They are
-not a landed-history ledger.
-
-```text
 NORMAL-DEFAULT-GENERAL-MODULE-COMPAT-SUNSET-001
-  state: closed; selected-normal build_module edge = 0
+  state: closed
 
 MIRCOMPILER-ARBITRARY-AST-COMPAT-SUNSET-001
-  state: closed; public compiler accepts whole-file Program only
+  state: closed
 
 RUNTIME-MIRBUILDER-AST-JSON-COMPAT-SUNSET-001
-  state: closed; runtime Program(JSON v0) admission rejects before Builder
+  state: closed
 
 SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001
-  state: Parked; Compatibility origin lacks a canonical replacement owner
+  state: Parked; Compatibility origin has no canonical replacement owner
 
 STAGE1-DIRECT-POST-MACRO-NONPROGRAM-COMPAT-SUNSET-001
   state: closed
   retired by: STAGE1-DIRECT-POST-MACRO-WHOLE-FILE-PROGRAM-SEAL0-I0-R0
 
 RAW-NONPROGRAM-ROOT-COMPAT-SUNSET-001
-  state: closed; owner / residual / execution callers = 0
+  state: closed
 ```
 
-## Ordered frontier
+## Parked boundaries
 
-```text
-Now MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0 -> every in-boundary Selected/Constructor lineage must preserve owner/site/provenance and borrow one existing exact target relation before package install or argument effects; Main exact-i64, FullFunction, old ingress, ASTNode::Call, ExplicitExtern, and unowned special families are explicitly outside/parked
- MIR-CALL-CORE-R6-D1V-INSERT-MID-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 738b0f9fcd: paired InsertMid insert_hsi/substring_hii writers now use canonical constructors; exact targets/dst/args/effects/order and default/emit-mir profile parity are green; selected writers 7 -> 5 and concat family 4 -> 2
- MIR-CALL-CORE-R6-D1U-CONCAT-LEN-EXTERN-ISSUER-I0 -> landed at 75427a9aa2: paired left/right ConcatSubstringLen writers now use canonical constructors; exact Extern/dst/source-window/effects and fusion/Return parity are green; selected writers 9 -> 7 and concat family 6 -> 4
- MIR-CALL-CORE-R6-D1T-CONCAT-SUBSTRING-EXTERN-ISSUER-I0 -> landed at a1e856fa25: one ConcatSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and source-sharing/Return parity are green; selected writers 10 -> 9 and concat family 7 -> 6
- MIR-CALL-CORE-R6-D1S-PUBLICATION-SUBSTRING-EXTERN-ISSUER-I0 -> landed at 5d5c564e82: one PublicationSubstring writer now uses the canonical constructor; exact Extern/dst/five args/effects and composed Add-root parity are green; selected writers 11 -> 10 and concat family 8 -> 7
- MIR-CALL-CORE-R6-D1R-MATERIALIZATION-STORE-EXTERN-ISSUER-I0 -> landed at 82be5daa97: one MaterializationStore writer now uses the canonical constructor; selected writers 12 -> 11 and concat family 9 -> 8; closeout evidence is green
- MIR-CALL-CORE-R6-D1N-USER-BOX-PUBLICATION-CALL-OPERAND-PROJECTION-I0 -> landed at 0738d722a3: canonical used_values delegation, typed/closure/arg positives, stale-func/dst-only negatives, legacy parity, guard and 5/5 module suite green
- MIRBUILDER-CALL-RECURSION-DEPTH-RESTORE-I0 -> landed at 74829ee3d2: both overflow returns restore exact entry depth; focused tests, scoped guard, pointer/reference guards, rustfmt, diff check green; panic/unwind remains a non-claim
- MIR-CALL-CORE-R6-D1K-RETAINED-LEN-EXTERN-ISSUER-I0 -> landed at 8401f457ab: one retained-len plan writer -> canonical Extern Call; effects parity, empty-plan negative, scoped guard, README, focused 3/3 green; substring_len group 11/12 with one pre-existing cohort-missing baseline
- MIR-CALL-CORE-R6-D1L-DIRECT-SUBSTRING-LEN-EXTERN-ISSUER-I0 -> landed at 0be8a73420: one shared SubstringLenPlan writer -> canonical Extern Call; focused 4/4 green, cohort 12/13 with one pre-existing benchmark baseline, guard 757 lines
- MIR-CALL-CORE-R6-D1I-CONCAT3-EXTERN-REWRITE-ISSUER-I0 -> landed at 513a243be5: one direct rewrite literal -> canonical helper, 3/3 concat3 parity, shared guard/pointer/rustfmt/diff green; 441 warnings remain baseline
- MIR-CALL-CANONICAL-DIRECT-ISSUER-I0
-  -> landed at 6302839770: source-verified direct-static issuer delegates once to MirInstruction::call; positive/negative/parity tests, shared guard, README, and pointer are green
- MIR-PHYSICAL-TYPE-INPUT-I0
-  -> landed at 7fd97a5344: binding-preserving typed target-layout child, one selected Dynamic co-seal, existing AOT projection storage; JSON/C/backend remain ParkedSealed
-Call lane (after D0/I0): R4 canonical operand/escape projection is closed; R6 writer/consumer lifecycle remains open. JoinIR remap is test/reference-only at 0048c0176a, so do not revive caller-zero code
-  -> cutover: `Call { dst, callee: Callee, args, effects }`; remove `func`, `Option<Callee>`, INVALID sentinels; decide MirCall/CallFlags, Method(None), Closure construction, and Constructor/NewBox boundary together; then typed-only terminal consumers, fallback/retry/by-name lookup = 0, parity + one guard
-After MIR Call retirement
-  1. MIRBUILDER-PR-STRUCTURAL-GATES-I0
-  2. MIRBUILDER-R4-FINAL-CONFORMANCE0-C0
-  3. root mode session-localization, stale ordinary-New comment, then mimalloc promotion gate and .hako selfhost migration
-  4. MIRBUILDER-POST-CALL-HUB-CLEANUP-D0 (ParkedSealed until Call R7/D1B I0 closeout): census surviving production callers of CompilationContext, RawExpressionDispatchPortV1, RawInvocationChildPortV1, and NormalCallableSemanticPackagePortAdapterV1; choose split/retain/retire per owner, with no new semantic issuer or active-lane change
-  5. MIRBUILDER-POST-CALL-GUARD-DOCS-CONVERGENCE-D0 (ParkedSealed until the same closeout): reconcile reusable guard registry/CI push coverage and compress CURRENT_STATE/workstream/active-card history into their owning SSOTs; reopen only on a guard drift, pointer contradiction, or new production caller
-Parked
-  -> SCRIPT-STATIC-PRODUCTION-CONVERGENCE-R0 until canonical consumer > 0
-  -> Loop common/Generic/callable physical follow-ups until a named caller
-  -> MIR-BUILDER-NORMAL-SCRIPT-MOD-SHELF-R0 first: replace the builder `#[path]` bridge with `normal_script/mod.rs`, then MIR-EMPTY-DIR-CLEANUP-R0 + MIR-COMMON-V2-SHELF-R0 (post-R7 physical shelf order)
-  -> NORMAL-ROOT-OLD-GUARD-RETIRE-R0 + NORMAL-ROOT-BOOL-PROJECTION-RETIRE-R0, then MIRBUILDER-WARNING-RETIREMENT-R0 (A/B/C; baseline dead_code/allow census gets reasons); mode/projection/type-name/syntax-loan and performance/converter/llvmlite/Home/selfhost stay separate
-Closed / do not reopen from a mirror
-  -> normal-root T0/C0/R0 and 68/68 replacement manifest
-  -> H2 selected Dynamic cutover through W6
-  -> FunctionCall lexical/special rows as NoSafeSlice
-  -> result-discard closure and normal-root caller-zero warning projections
-  -> state TOML parser integrity, pointer compactness, and builder test-home split
+- PyVM/reference/Python production activation and non-selected backend
+  activation/parity. Compiled Rust core-schema consumers, including WASM and
+  non-selected consumers, still require B0/B1 adaptation/isolation/retirement.
+- RawCompatibility, bounded GC, Main exact-i64/FullFunction, Brand/special,
+  ExplicitExtern, ASTNode::Call, and ArrayElementWrite until their owners select.
+- warning/dead-code/chronic measurement work in the cleanup map.
+- performance, mimalloc, llvmlite, Hako converter, Loop/M8/M9, and physical-type
+  follow-ups until `CURRENT_STATE.toml` reselects them.
+- broad Context/metadata/port/barrel cleanup until Call R7.
+
+Reopen only on a selected current row, a new production caller, or an accepted
+owner-specific Decision. Parked code/tests never grant implementation permission.
+
+## Short closed tail
+
+- normal-root T0/C0/R0 and atomic source-backed cutover are closed.
+- JSON-v0 Call target resolution and Program late target rewrite are closed.
+- Callee operand/use/escape/ownership/query projection rows are closed.
+- selected optimizer/Rust VM/printer/JSON/native Call terminal prerequisites are
+  closed at their owning manifests; PyVM remains outside.
+- canonical Call writers through D1X, late callsite target rewrite retirement,
+  duplicate projection validation, exact-target child, recursive compatibility
+  shelf, and package-only BridgeReady are closed.
+- FunctionMetadata owner split is closed at 718 lines; the 127-row consumer
+  manifest remains the future sub-owner census authority.
+
+Exact commits, test receipts, and per-row counts live in Git and the linked
+investigation/archive owners, not in this rolling card.
+
+## Reusable checks
+
+```bash
+bash tools/checks/current_state_pointer_guard.sh
+bash tools/checks/run_row_guard.sh --only mir-call-d1b-targeted-variant-split
+bash tools/checks/run_row_guard.sh --only mir-call-d1b-cataloged-affine-loan-lifecycle
+bash tools/checks/mir_call_d1b_selected_normal_duplicate_projection_guard.sh
+git diff --check
 ```
 
-## Historical evidence queue (non-authoritative)
-
-```text
-closed NoSafeSlice
-  FUNCTION-CALL-LEXICAL-CALLEE-CLASSIFICATION-D0
-  -> no shared pre-effect issuer or aggregate old-edge delete set exists.
-
-landed BoxShape
-  FUNCTION-CALL-PREFLIGHT-OWNER-TEST-SPLIT-I0
-  -> production owner 790 -> 329 lines; five unchanged tests live in a 443-line
-     child. Focused tests are green; reusable guard red is parent baseline debt.
-
-accepted census
-  FUNCTION-CALL-DIRECT-VS-VALUE-CALL-COMPAT-CENSUS-D0
-  -> AST kind cannot distinguish identifier-value from FreeStatic; late target
-     resolution has one main chain, two recovery consumers, and two tail variants.
-
-accepted design
-  FUNCTION-CALL-CALLEE-BINDING-AND-EVALUATION-ORDER-D0
-  -> FunctionCall is direct FreeStatic/explicit special; Call evaluates one callee
-     value first; arguments evaluate once left-to-right after target selection.
-
-closed NoSafeSlice
-  RAW-FUNCTION-CALL-PRE-EFFECT-DECISION-OWNER-D0
-  -> argument lowering can mutate variable_map before current target resolution;
-     moving target selection earlier changes callee choice and diagnostic order.
-
-  SCRIPT-ORDINARY-DIRECT-CALL-PREFLIGHT-RECEIPT-D0
-  -> ordinary retains only name plus AST arguments; target/recovery/header/tail
-     decisions remain later and Builder-owned, so no affine Script transfer exists.
-
-R2bi RAW-SCRIPT-ROOT-NEUTRAL-SHADOW-TRAVERSAL0-D0
-  closed Accept-corrected
-
-R2bj RAW-SCRIPT-DEMAND-WINDOW-BOUNDARY2-D0
-  closed Accept-corrected
-
-closed
-  SEMANTIC-OWNER-RECURSIVE-SHADOW-TREE0-S0
-
-  Change:
-    Existing Function/Lambda owner resolution builds one construction-local
-    recursive shadow tree and records first-demand capture events before IDs.
-
-  Contract:
-    Function/Lambda behavior and canonical graph remain unchanged. No Script
-    consumer, capture ABI materialization, or closure publication changes.
-
-  Done:
-    Existing Function/Lambda consumes the new tree once; ordered first-demand
-    BindingRef rows are construction-local until canonicalization and are
-    verified against each child upvar relation and first observation.
-
-  Evidence:
-    release check plus the dedicated order fixture and all owner-forest tests
-    are green; no Script route, capture ABI materialization, or closure
-    publication changed.
-
-closed historical design gate
-  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-T2-D0
-
-  closed Accept-corrected. A direct cutover was unsafe while recursive forest
-  construction issued IDs before child validation. The live S1 below removes
-  that ordering fault; the real lexical positive fixture and exact old edge are
-  now fixed for one atomic I0.
-
-closed
-  SEMANTIC-OWNER-RECURSIVE-CONSTRUCTION-TREE0-S1
-  -> Function/Lambda production first builds and validates the full recursive
-     shadow tree, then issues IDs and canonicalizes it; nested failure consumes
-     no session owner ID. Existing owner-forest tests remain green.
-
-closed historical
-  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-I0-R0
-  -> admit only `local outer = 7; local f = fn() { outer }` and its no-capture
-     companion through one Script child forest/ordered BindingRef receipt;
-     selected lowering deletes its raw name-observer edge while existing closure
-     publication remains the sole NewClosure/body-ID owner.
-
-scheduled design gates after fresh census
-  1. Control / Mutation / JoinIR / Exit, then Call/Object, allocation,
-     Weak, Lambda, and Box
-     -> each is a separate capability-family D0 chosen only from a fresh
-        named production edge census; no AST-bucket batch is pre-authorized.
-  2. `SCRIPT-EXISTING-ROOT-LOWER-COMPAT-SUNSET-001`
-     -> fixture-identity Complete set may only grow; R4 must retire, reown,
-        or explicitly retain every remaining Deferred family.
-
-closed
-  SEMANTIC-SCRIPT-RECURSIVE-FOREST-ORDERED-CAPTURE0-D0
-  -> Accept-corrected. Ordered BindingRef receipt is the only capture-order
-     authority; its set must equal child upvars. A live Function/Lambda S0
-     precedes Script T2; no forest iteration or raw name observer is capture ABI.
-
-  RAW-SCRIPT-LAMBDA-CHILD-OWNER-LINEAGE0-D0
-  -> closed Accept-corrected. Direct I0 was NoSafe until ordered receipts and
-     pre-issue recursive construction landed; the narrow lexical T2 I0 now has
-     one real fixture and retains the existing closure-publication owner.
-
-  RAW-SCRIPT-NEXT-CAPABILITY-FAMILY5-D0
-  -> Lambda selected for child-owner lineage D0. Box runtime crosses nested
-     callable/constructor/metadata/runtime owners; other narrow capability
-     families are already closed or belong to Call/Object. No I0 opens.
-
-  RAW-SCRIPT-NEXT-CONTROL-FAMILY4-D0
-  -> NoSafeSlice. ContextScope is already an exact diagnostic boundary;
-     TryCatch and Throw are source-reserved outcome/control families; Arrow
-     has no named MIR lowering owner. No I0 opens.
-
-  RAW-SCRIPT-MATCH-ROOT-CONTROL-RECEIPT0-I0-R0
-  -> Root lexical-core Match is Complete with co-sealed Scrutinee/Arm/Else
-     coverage; the dispatcher now enforces exact structured-demand consumption.
-     Existing owner keeps CFG/branch/PHI/result/type authority. Two focused
-     tests cover selected/legacy parity and nested-Match Deferred behavior.
-
-  RAW-SCRIPT-MATCH-CONTROL-MERGE-RECEIPT0-D0
-  -> Accept-corrected. Root Match can seal Scrutinee, all Arm, and Else source
-     coverage while the existing owner exclusively keeps CFG/branch/PHI/result
-     authority. The first I0 is root-only; generic/nested Match is not enabled.
-
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY3-D0
-  -> Bounded static census selects MatchExpr only for CONTROL/MERGE D0:
-     dispatcher already prepares MatchScrutinee, every MatchArm, and MatchElse
-     for one existing owner. RecordUpdate remains shape/state-dependent;
-     Index remains Builder static-data route-dependent; Call/Object remains
-     header/effect/preflight-dependent. All three stay Deferred; no I0 opens.
-
-  RAW-SCRIPT-ENUM-MATCH-SEALED-ROUTE0-D0
-  -> NoSafeSlice. Existing lowering descends only EnumMatchScrutinee, but
-     Program enum declarations still terminate at the selected unsupported
-     diagnostic owner, while prelude enum inventory is outside prepared Program
-     declaration facts. Mirroring mutable enum route preflight would create a
-     second authority. A later enum family must first establish one inventory
-     owner and an EnumDeclaration completion policy; no I0 is opened.
-
-  RAW-SCRIPT-NEXT-COMPOSITIONAL-FAMILY2-D0
-  -> Fresh static census rejects reopening GroupedAssignment, Loop/JoinIR,
-     FieldAccess, and broad Call/Object. It selects EnumMatch because existing
-     lowering has one exact scrutinee descent while arm syntax is route
-     observation; the required next proof is metadata/preflight and diagnostic
-     ownership, not a second resolver.
-
-  RAW-SCRIPT-QMARK-PROPAGATION-RECEIPT0-I0-R0
-  -> Root `QMarkPropagate(existing-safe operand)` now co-seals its exact
-     QMarkOperand receipt with the Script source and reaches the existing
-     control/result owner once. MIR/verification parity, RootLower diagnostic
-     parity, fresh reuse, source projection, and the shared guard are green;
-     safe QMark no longer reaches Deferred -> bare script_root(). Next blocker:
-     fresh bounded responsibility-family census.
-
-  RAW-SCRIPT-QMARK-CONTROL-RESULT0-D0
-  -> Accept-B. Common resolved exits are statement-only and must not be
-     generalized for QMark. Instead, a Script-only co-sealed propagation receipt
-     proves an exact QMark expression targets the current Script owner while the
-     existing QMark owner retains CFG, physical Return, runtime calls, and result
-     policy. Real root `(await 42)?` MIR verification is green.
-
-  RAW-SCRIPT-GROUPED-BINDING-REBIND-DESCENT0-D0
-  -> NoSafeSlice. GroupedAssignmentExpr has an exact RHS source receipt and
-     the shadow can identify its synthetic BindingRebind target, but the legacy
-     raw route also requires `GroupedAssignmentTarget` source preparation and
-     currently fails at `raw-invocation/expr-child-missing` before the existing
-     assignment owner can establish parity. Widening the selected ledger hook
-     alone would therefore be a new behavior, not a safe handoff.
-
-  RAW-SCRIPT-BLOCKEXPR-PURE-DESCENT0-I0-R0
-  -> ScriptLexicalCore now admits pure BlockExpr only through the shared shadow
-     traversal. Its existing raw owner receives exact prelude/tail sources,
-     lowers the prelude eagerly in source order then the tail once, and retains
-     its existing escaping-exit preflight. Variable/Local and escaping-exit
-     diagnostic parity are green; no new source authority exists.
-
-  RAW-SCRIPT-LOOP-JOINIR-SEMANTIC-ADMISSION0-D0
-  -> NoSafeSlice. `PreparedLocatedRawLoopChildEntryV1` seals exact condition
-     and body receipts but deliberately drops them before the sole JoinIR
-     planner receives raw AST. A Complete Script Loop would therefore create
-     unused semantic/control authority; no I0 is opened.
-
-  RAW-SCRIPT-FIELD-ACCESS-SEMANTIC-ADMISSION0-D0
-  -> NoSafeSlice. The only existing `Receiver` source path is not a
-    receipt-consuming FieldAccess contract: the owner selects existing-record,
-    record-construction, record-literal/update, or dynamic property-call versus
-    FieldGet routes from Builder type/origin state. Broad Script FieldAccess
-    would bypass or discard sealed facts and can shift diagnostics. A future
-    record-only field-read family needs its own source/result receipt boundary.
-  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-I0-R0
-  -> one declaration-facts collection lends a positive-only schema view before
-     the same product installs once in RootLower. Record declarations transfer
-     while retaining their existing runtime owner; fully explicit known
-     non-generic literals use sealed exact field receipts. Defaults and invalid
-     forms stay Deferred. Focused record/schema/reuse parity is green.
-  RAW-SCRIPT-RECORD-RESULT-TYPE0-I0-R0
-  -> `publish_record_local_fields` now publishes successful `RecordValuePublish`
-     as `Void`, matching the interpreter. The minimal legacy record Program
-     finalizes and supplies the prerequisite parity fixture; schema/default,
-     Script routing, and record publication remain unchanged.
-  RAW-SCRIPT-RECORD-SCHEMA-ADMISSION0-D0
-  -> Accepts a source-only seam: `PreparedNormalProgramDeclarationFactsV1`
-     already derives record fields/defaults from Program without Builder access.
-     Collect it once after CatalogSeal, expose only immutable schema demand,
-     and move the same prepared product to RootLower for install. Future
-     Complete closure is known non-generic RecordLiteral with every field
-     explicit; all residual forms retain existing diagnostics.
-  RAW-SCRIPT-RECORD-LITERAL-COMPOSITIONAL-CONTRACT-DESCENT0-D0
-  -> NoSafeSlice. `RecordFieldValue(n)` receipts cover explicit fields, but
-     the existing Record owner subsequently lowers omitted declaration defaults
-     through the same port. Schema/default demand is unavailable before
-     ScriptSemanticSeal, so a Map-style cutover would assign false provenance
-     or exhaust receipts. Dynamic Deferred would be fallback. The prerequisite
-     is immutable schema admission; RecordUpdate remains out of scope.
-  RAW-SCRIPT-POST-MAP-LITERAL-CAPABILITY-CENSUS0-D0
-  -> CheckExpr is already Complete: shared profile admission, exact
-     `CheckItem(n)` receipts, the existing eager Select owner, fixture ratchet,
-     and its old Deferred edge are all closed. RecordLiteral is the sole next
-     candidate, requiring a contract/default-field D0 before any I0.
-  RAW-SCRIPT-MAP-LITERAL-COMPOSITIONAL-MUTATION-DESCENT0-I0-R0
-  -> selected Script Map values now receive exact `MapEntryValue(n)` source
-     receipts through the structured child port. The existing Map owner remains
-     the sole `MapBox` allocation, key emission, `MapBox.set` mutation, and
-     type owner; unsupported values remain Deferred. The selected MapLiteral
-     `Deferred -> bare script_root()` edge is zero.
-
-  RAW-SCRIPT-POST-WEAK-REFERENCE-CAPABILITY-CENSUS0-D0
-  -> Accepts MapLiteral only. Its semantic traversal already exists; exact
-     `MapEntryValue(n)` receipts let the existing Map owner retain the
-     allocation/mutation boundary without activating general MethodCall.
-
-  RAW-SCRIPT-WEAK-REFERENCE-COMPOSITIONAL-DESCENT0-I0-R0
-  -> selected Script Weak Unary now enters the existing unary child-source
-     handoff and existing WeakRef emission owner. WeakRef type publication and
-     pure-mode behavior remain there; an unsupported operand stays Deferred.
-     The selected Weak `Deferred -> bare script_root()` edge is zero.
-
-  RAW-SCRIPT-POST-BLOCKEXPR-CLOSURE-CAPABILITY-CENSUS1-D0
-  -> Accepts Weak Unary only. The existing UnaryOperand receipt and WeakRef
-     emission owner provide a complete source/operation boundary. ScopeBox and
-     Using were already closed; broad BlockExpr remains NoSafeSlice.
-  RAW-SCRIPT-POST-ARRAY-LITERAL-CAPABILITY-CENSUS0-D0
-  -> BlockExpr has exact source receipts and a shared lexical traversal, but
-     its proposed outer-Variable closure cannot preserve production parity:
-     legacy lowering already rejects the shape at
-     `[freeze:contract][script-lexical/variable-site]`. No partial
-     BlockExpr activation lands; Local/Call/Weak/exit remain Deferred.
-  RAW-SCRIPT-ARRAY-LITERAL-COMPOSITIONAL-ALLOCATION-DESCENT0-I0-R0
-  -> selected Script ArrayLiteral is now a complete compositional allocation
-     closure. The raw expression dispatcher creates exact `ArrayElement(n)`
-     source receipts and the structured child port consumes each once; the
-     existing array owner remains the only allocation, type, and publication
-     owner. Map and Record remain Deferred. The selected ArrayLiteral
-     `Deferred -> bare script_root()` edge is zero.
-  RAW-SCRIPT-POST-BINDING-REBIND-CAPABILITY-CENSUS0-D0
-  -> Accepts ArrayLiteral only. Its semantic traversal already exists; the
-     live missing edge was exact ArrayElement source handoff into the existing
-     raw array owner. Broad BlockExpr is not selected: nested Local changes
-     existing legacy failure behavior. QMark, Loop, Map, Record, Lambda, and
-     Box remain separate families.
-  RAW-SCRIPT-ROOT-BINDING-REBIND-ADMISSION0-I0-R0
-  -> only prior-Local Variable-target Assignment/CompoundAssignment receives
-     a typed BindingRebind demand. The shared forest supplies the exact target
-     BindingRef, and the existing raw lower remains the only operational
-     owner; its returned ValueId updates the Script ledger only on success.
-     Field/Index, grouped/nested assignment, and upvar stay Deferred. The
-     selected Variable-target `Deferred -> bare script_root()` edge is zero.
-  RAW-SCRIPT-POST-RETURN-CAPABILITY-CENSUS0-D0
-  -> Accepts only the BindingRebind Mutation slice. QMark owns an
-     expression-site conditional Return plus runtime calls and needs a
-     CONTROL/RESULT D0; Loop needs a typed JoinIR route plan and stays
-     Deferred. Assignment is safe only for prior-Local Variable targets:
-     the shared forest already owns exact BindingRebind facts, while the
-     existing raw lower retains operational completion.
-  RAW-SCRIPT-ROOT-RETURN-EXIT-ADMISSION0-I0-R0
-  -> only final-ordinal root `Return` receives a typed exit demand. The shared
-     traversal preserves existing ReturnValue/ExplicitReturn facts and the
-     existing value/void terminal owns all lowering. Non-final and nested
-     Return stay Deferred, so no suffix reachability owner is introduced; the
-     selected final-Return `Deferred -> bare script_root()` edge is zero.
-  RAW-SCRIPT-POST-IF-CAPABILITY-CENSUS0-D0
-  -> CheckExpr and its safe recursive closure are already Complete through
-     the shared lexical traversal and existing source-demand owner; no new
-     receipt or I0 exists. Final-root Return is the next bounded live edge.
-  RAW-SCRIPT-IF-CONTROL-ADMISSION0-I0-R0
-  -> exact `DirectIfStatement + ASTNode::If` work-plan receipts issue one
-     typed root-control demand. The shared Script traversal resolves that
-     root If and its existing child source paths; Complete retains the sole
-     direct-If lowering terminal. Nested ScopeBox/TaskScope/FastMem If does
-     not receive the receipt and remains Deferred. The selected old
-     `If -> Deferred -> bare script_root()` edge is zero; retry/fallback is
-     zero. Root-profile sequence containment now preserves the distinct
-     Function/Lambda compact paths and the Script ProgramBody-rooted path.
-  SEMANTIC-SOURCE-CONTAINER-PROFILE0-S0
-  -> Sequence containment now derives direct body membership from
-     `SemanticOwnerRootProfileV1`; ProgramBodyRoot -> ProgramBody(n) is valid
-     only for Script, and Function/Lambda retain their exact roots. This fixes
-     the verifier precondition only; Script If routing remains Deferred.
-
-  RAW-SCRIPT-POST-OUTBOX-CAPABILITY-CENSUS0-D0
-  -> `RAW-SCRIPT-IF-LEXICAL-STRUCTURED-CONTROL0-I0-R0` is NoSafeSlice:
-     root `resolve_if` fails If-region control verification and a simple
-     profile gate widens nested ScopeBox If. No I0 implementation landed.
-
-  RAW-SCRIPT-OUTBOX-SEMANTIC-MATERIALIZATION0-I0-R0
-  -> Complete Script source seals every exact Outbox BindingRef in source
-     order; the raw source port consumes the existing Outbox emission receipt
-     once and atomically records it in the request-local lowering ledger.
-     Parser-valid one-or-more-name Outbox and ignored compatibility initializers preserve parity;
-     selected Complete Outbox no longer reaches Deferred/bare script_root().
-
-closed structural prerequisite
-  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
-  -> the former Script visible-name mini-resolver, manual Local/Variable
-     facts, and manual source-path reconstruction are already deleted.
-     `ScriptSemanticLoweringState` is only the request-local BindingRef to
-     ValueId ledger, not a second resolver.
-
-closed
-  OUTBOX-ORDERED-EMISSION-RECEIPT0-S0
-  -> the existing raw Outbox owner now returns every source-ordinal local
-     ValueId in one ordered receipt while its sole production caller consumes
-     the unchanged final statement value; Void/local/metadata order is intact
-
-  RAW-SCRIPT-TASK-SCOPE-LEXICAL-PREFLIGHT0-I0-R0
-  -> lexical normal-completion TaskScope reaches Complete through the shared
-     traversal; the existing preflight remains sole early-exit authority and
-     the existing raw owner remains sole push/body/pop completion authority
-  -> `TaskScopeBodyRoot` transport hands leaf nodes sibling `TaskScopeBody(n)`
-     sites; selected/legacy parity, early-exit Deferred/reuse, pointer, and
-     shared cutover guards green
-
-  RAW-SCRIPT-CONTEXT-SCOPE-DIAGNOSTIC-BOUNDARY0-I0-R0
-  -> `ContextScope + DirectPortAwareExpression` now seals an exact existing
-     diagnostic receipt and reaches Complete without observing value or body;
-     the raw context-scope dispatcher remains the sole RootLower owner
-  -> nested missing names still lose to the existing context-scope diagnostic;
-     selected/legacy parity, fresh reuse, pointer, and shared cutover guards green
-
-  RAW-SCRIPT-NOWAIT-LEXICAL-ASYNC-BINDING0-I0-R0
-  -> lexical-safe Nowait now uses the shared traversal; the existing async
-     owner remains the sole FutureNew/type/slot/variable-map authority and the
-     request-local ledger records its exact canonical binding
-  -> Nowait/await selected-legacy parity, unsafe operand Deferred, transport,
-     pointer, and shared cutover guards green
-
-  RAW-SCRIPT-SCOPEBOX-LEXICAL-STRUCTURED-SCOPE0-I0-R0
-  -> lexical-safe ScopeBox now uses the shared traversal and the existing raw
-     ScopeBox owner; `ScopeBodyRoot` remains a region receipt while transport
-     hands inner nodes the canonical sibling `ScopeBody(n)` leaf site
-  -> ScopeBox/nested ScopeBox selected-legacy parity, lexical non-leak, disabled
-     control Deferred, transport path, pointer, and shared cutover guards green
-  RAW-SCRIPT-POST-ZERO-DEMAND-CAPABILITY-CENSUS0-D0
-  -> selected ScopeBox lexical structured scope: shared traversal already owns
-     exact lexical scope paths and raw ScopeBox lowering remains its terminal
-
-  RAW-SCRIPT-THIS-DIAGNOSTIC-BOUNDARY0-I0-R0
-  -> bare `This + DirectPortAwareExpression` now seals an exact typed existing
-     unsupported-diagnostic boundary; the raw dispatcher remains RootLower owner
-  -> selected/legacy failure and fresh-reuse parity, pointer guard, and shared
-     cutover guard green; nested or statement-wrapped This remains Deferred
-
-  RAW-SCRIPT-USING-TRANSPARENT-RUNTIME-COMPLETION0-I0-R0
-  -> top-level Using now seals an exact transparent receipt and retains the
-     existing Void terminal, preserving `1; using` selected/legacy parity
-  -> focused demand-window and semantic-source tests, pointer guard, and
-     shared cutover guard green
-
-  RAW-SCRIPT-ROOT-NEUTRAL-LEXICAL-SHADOW-CUTOVER0-I0-R0
-  -> already closed by `5b963969b4`: sparse Script input reaches the shared
-     root-neutral shadow traversal and the 695-line manual lexical resolver is
-     deleted; only the BindingRef-to-ValueId lowering ledger remains
-
-  RAW-SCRIPT-BARE-ME-DIAGNOSTIC-BOUNDARY0-I0-R0
-  -> bare `Me + DirectPortAwareExpression` now uses a typed receiver-absent
-     diagnostic boundary; `build_me_expression` remains the only RootLower
-     diagnostic owner, while recursive/statement-wrapped Me stays Deferred
-  -> focused Script semantic source tests, pointer guard, and shared cutover
-     guard green
-
-  RAW-SCRIPT-FASTMEM-STRUCTURED-SCOPE0-I0-R0
-  -> `FastMemRegion + DirectFastMemRegion` is Resolved only through a
-     recursively lexical-safe body; existing FastMem lower remains owner
-  -> focused semantic, direct-owner, transport, pointer, and shared guards green
-ordered after B-prime correction
-  1. M7-S2-A caller-zero LoopTrue branch-exit JoinSig closure and M7-S3 S0/S1/S2 reference closeout are closed with resolver-owned identity/frame receipts and typed caller-zero rejects
-  2. S2A is closed as one parsed nested-IfThen carrier shape, `cfg(test)`-only; reference closeout is recorded. Parent D2 stays unresolved and no production issuer/adapter/selector/route switch is authorized.
-  3. D1, D2-S1, D2-S2, D3-S0, D2-S3, D2-S4, D2-S5-S1, D3-S1-S1, D3-S1-S2, and D3-S2-S0 are cfg(test)-only closed; D3-S2 remains a typed-provenance handoff design stop with no production issuer/selector/route authority
-  4. current chain: `CallableContract(query)` -> ordered Box/parser parity -> declared instance contract -> general body source -> selected Query body source -> FunctionOwner -> body Facts -> conformance -> declaration-first target -> source-bound CallSlot; old contract->target->body wording is historical. Then M8/M9, semantic co-seal/JoinSig transfer, control coverage, M10b, Generic R1, M11/M12.
-  5. run `REPO-FINAL-CONVERGENCE-AUDIT0-G0` from the repository cleanup SSOT; do not close R4 until its pipeline/root/role/context/pointer/evidence/docs matrix is green
-  6. keep every source/check file below 800 lines; no universal raw ingress, Script-only/raw-only resolver, compatibility adapter, or AST reconstruction
-  7. R4 consumes the live fence registry above; every item must retire, reown, or be explicitly retained before final conformance
-R4
-  MIRBUILDER-R4-FINAL-CONFORMANCE0-C0 after all active rows have exact
-  retire/reown/retain decisions.
-After final-pipeline Complete only: refresh missing-feature/Home readiness,
-resume OWNERSHIP-HOME-RESUME-D0, then select later language features.
-```
-## Historical parked boundary
-```text
-source-level Home ownership and unimplemented language features until the
-repository-wide final pipeline is Complete; .hako selfhost MirBuilder/parser
-migration and post-Loop root/current-state/design-registry cleanup follow their
-owning SSOT task orders; new language semantics and default Raw/Canonical
-cutover remain parked before final conformance.
-```
+Cargo gates are run only by an accepted fast/closeout row. This design-stop
+card does not turn a green guard into implementation permission.

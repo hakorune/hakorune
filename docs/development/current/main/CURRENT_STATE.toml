@@ -1,66 +1,22 @@
-status = """
-Normal-root T0/C0/R0 is closed. Public compile_with_source* remains a ParkedSealed whole-file AST Compatibility adapter, and normal-root I0 landed
-as c152f9f883. MIR-CALL-RETIREMENT-v1 selects mandatory Callee as final core and owner-private JSON-v0 input state as compatibility ingress. R1, D1,
-Topology-I0, R2-I0, R3a, R3b, R4a, R4b, R4c, R4d escape policy, R4e ownership verifier, and R4f CallLike observer retirement are closed; Query D0
-is accepted and its observer T0 is closed; R5 D0 and R5a optimizer-only terminal closure are closed; R5b-B0 selected Rust interpreter rejection and
-R5c printer-only projection are closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1 and profile-threading I0 are closed;
-JoinIR remap census D0 is closed: lifecycle collection remains active; disconnected merge remap APIs have no non-test entry and the JoinIR remapper isolation I0 landed at 0048c0176a;
-JSON backend_shape capability/authority D1 and strict-adapter I0 are closed; selected ny-llvmc native capability D0 is audited as NoSafeSlice; native D1
-capability boundary, the path-preserving C owner split, and LLVM trap declaration co-seal I0 are closed; production CanonicalV1 JSON reaches the exact Extern
-object/archive/executable boundary, exact Extern D0 is accepted with source/plan/arity/args/dst prepass evidence, D1-D8 design closed at 1434663966,
-the behavior-neutral PlanNormalizer helper-shelf I0 landed at b61f6895d2, D1 source-seed/join design is accepted as design-only at 625491fb25, D2a
-target/containment design is accepted as design-only at 18f05950b7, D2b package co-seal is accepted, and the bounded D2c Raw cutover landed at 7c976ca8b9;
-D2c and P2 metadata manifest closeout are complete, while D2 overall remains NoSafeSlice outside the bounded cohort and shelf semantic authorities remain
-NoSafeSlice. P3 I0 landed at f94bb7f2a7; D1 exact pair design/P0 split/D1-I0
-pair transport are closed at 5bde4c6f92, and physical type D0 is accepted;
-exact-i64 I0 landed at 7fd97a5344 with typed target-row transport and selected
-Dynamic projection; R6 D0 accepted the bounded direct-static issuer
-normalization; D1L direct substring-len Extern issuer landed at 0be8a73420 and D1M
-method-set value rewrite landed at f7a442f524 with focused 4/4 proof; recursion-depth restore landed at 74829ee3d2; D1N user-box operand projection landed at 0738d722a3;
-D1O-D1X Call writers are landed through cde490f75e; MIR-CALL-R6-LATE-LEGACY-TARGET-ISSUER-RETIRE-I0 landed at 371f75476e, FUNCTION-METADATA-OWNER-SPLIT-R0 landed in the implementation row, and ArrayElementWrite projection remains NoSafeSlice/ParkedSealed while the D1B exact-target prepare/consume child landed at 6149d2692a, Global recovery retirement landed at c8089e5288, SelectedNormal duplicate projection validator I0 is landed with a pre-body guard, and index-none direct-call safety I0 landed at c849307814; FunctionCall observation profile and boundary classification are design-accepted, D0-C package boundary census is recorded, S0 shelf split landed at 4061c21f45, recursive compatibility facade shelf landed at 9813d8797c, BridgeReady package-only install/source bridge landed at 3dd963d330, and Cataloged affine-loan provisioning remains the design stop."""
 date = "2026-08-26"
 development_branch_ssot = "main"
-development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
 work_mode = "design_stop"
-current_execution_row = "MIR-CALL-D1B-CATALOGED-I0-CANONICAL-ISSUER-D0"
-current_design_stop = "CatalogedI0Provision is explicitly parked at C: the inspected Cataloged/source relations have no source-owned qualified static payload, and Callee::Global(String) has no accepted logical-target representation owner. Keep QualifiedStaticPayloadAbsent/TargetPayloadMissing and implementation_permission=false; reopen only through a separately accepted A (sole logical-name issuer) or B (typed Global identity) Decision before Ic-A..F, issuer, loan, resolver, or Call changes."
-current_blocker_token = "MIR-CALL-D1B CatalogedI0: TargetPayloadMissingParked — C is the accepted current terminal; reopen only with one accepted Global representation owner (A logical name or B typed identity). Reject source/bridge String synthesis, hidden registry, key/name/arity/symbol projection, general-catalog Callee storage, shared/declaration bearers, second resolver, and cross-cohort borrowing before any loan or argument effects."
+current_execution_row = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
+current_design_stop = "Typed structural Global is selected as the final canonical representation, but its production family/issuer/wire/all-compiled-consumer matrix is not yet closed. B0 is read-only design. Ordinary FunctionCall package completion is the next prerequisite; no typed schema, observer, loan, resolver, ABI, wire, backend, or Call code is authorized."
+current_blocker_token = "MIR-CALL-GLOBAL-TARGET-B0: SemanticAuthorityMissing — classify every production Global family and name one source authority, canonical issuer, wire owner, selected parity owner, every compiled schema-consumer disposition, and old edge. Legacy(String), formatter/reparse, opaque registry, second traversal/resolver, and physical-symbol authority are forbidden."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
-ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Mir Call R6 — D1B Cataloged affine-loan issuer design"
-active_lane_status = """
-Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
-R4d escape, R4e ownership verifier, and R4f CallLike observer retirement are closed. Query D0/T0, R5 D0, R5a optimizer-only terminal closure, R5b-B0
-selected Rust interpreter rejection, and R5c printer-only projection are closed; JSON egress D0 and typed v0 decoration I0 are closed; JSON profile D1
-is accepted and profile-threading I0 is closed; JoinIR remap census is dispositioned with lifecycle collection retained and disconnected merge remap
-APIs isolated to test/reference at 0048c0176a; physical type D0 and exact-i64 I0 are closed at 7fd97a5344; backend_shape capability D1 and strict-adapter I0 are closed, native capability D0 is NoSafeSlice, native D1 and the C owner split
-are closed, including the LLVM trap declaration co-seal I0; exact Extern D0/D1-D8, D2c, physical type D0, exact-i64 I0, and JoinIR remap isolation remain closed or accepted at their owning cards. SelectedNormal duplicate validation and GC exact-target are landed with guards; FunctionCall observation and D0-C package census are design-accepted; S0 shelf split landed at 4061c21f45 and the recursive compatibility facade shelf landed at 9813d8797c; BridgeReady package-only install/source bridge landed at 3dd963d330, and Cataloged affine-loan provisioning is the current design stop. PyVM/reference/Python remain
-ParkedSealed outside this lane. R5 exit: finite terminal matrix, selected optimizer/interpreter/printer rows, JSON D0/I0, shared guard, and no R6 field
-deletion; JoinIR remap isolation is fenced, strict-adapter I0 is closed, native D0 is NoSafeSlice, native D1/C owner split and trap declaration co-seal I0 are
-closed, and R6 remains separate; exact Extern D0 is accepted with generic-entry and same-module prepass source/plan/arity/args/dst evidence. D2c and P2
-metadata-manifest closeout are complete; P3 I0 landed at f94bb7f2a7, D1 design/P0 split/D1-I0 pair transport are closed at 5bde4c6f92; JoinIR remapper
-isolation I0 is landed at 0048c0176a, physical type D0 and exact-i64 I0 are closed at 7fd97a5344, while JSON/C/backend effects remain closed and R6 D0 plus
-direct-static issuer I0 are closed at 6302839770; R6-D1 manifest is accepted design-only, D1A typed Extern issuer I0 landed at 4b2fe7a7b6, D1B Method(None)
-census and six-level precedence are accepted design-only, while catalog transport/RuntimeData/recovery remain open; D1C/D1C1 remain NoSafeSlice, the Call SSOT docs-slim move is landed, D1E normal-main thunk issuer landed at 2150472c35,
-D1F typed Method issuer landed at 572ec6f5b1, D1G builder emit reconstruction landed at c3c7e0ea65, D1H PHI reconstruction landed at b090f917b4, D1I
-concat3 Extern rewrite landed at 513a243be5, D1J BoxCall Method issuer landed at c927da4029, D1K retained-len Extern issuer landed at 8401f457ab, and D1L
-direct substring-len Extern issuer landed at 0be8a73420; D1M method-set value rewrite landed at f7a442f524 with focused 4/4 proof; recursion-depth
-restore, D1N-D1X, and their focused proofs/guards are green through cde490f75e; late legacy-target issuer retirement landed at 371f75476e; FUNCTION-METADATA-OWNER-SPLIT-R0 landed with metadata.rs 718 lines and nested access owners 40/50; ArrayElementWrite remains NoSafeSlice/ParkedSealed, while D1B Global recovery retirement, the SelectedNormal duplicate projection validator I0, and index-none direct-call safety I0 are landed; FunctionCall observation profile and boundary classification are design-accepted, D0-C package boundary census is recorded, S0 shelf split landed at 4061c21f45, recursive compatibility facade shelf landed at 9813d8797c, BridgeReady package-only install/source bridge landed at 3dd963d330, and Cataloged affine-loan provisioning is the current design stop, with semantic direct-target index, self/sibling/constructor relation, and RuntimeData methodize downstream."""
+active_lane = "Mir Call R6 — typed Global identity and D1B exact-target ownership"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
 taskboard = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-mirbuilder_inplace_replacement_policy = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
-mirbuilder_inplace_replacement_task_map = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 current_execution_design = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
-g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "D1B BridgeReady package-only one-shot bridge landed at 3dd963d330; G/H observation and session-witness designs plus I/Ia/Ib/Ic audits are recorded. Follow-up reviews found no Cataloged qualified static payload owner and an unresolved Callee::Global(String) representation; C is now the explicit QualifiedStaticPayloadAbsent/TargetPayloadMissing park (design/issuer blocker versus runtime/pre-effect terminal). Affine consumption remains a static-structure proof only. Only a separately accepted A/B representation Decision may reopen Ic-A..F and affine-loan I0."
-next_design_card = "MIR-CALL-D1B-CATALOGED-I0-CANONICAL-ISSUER-D0"
+latest_card_summary = "Six read-only audits plus adversarial review select typed structural Global for the final core and reject a new canonical String issuer. B0 finite identity design is current; observer-only FunctionCall completion, source-owned disposition, affine handoff, recovery/Method/wire closure, R6/R7, and post-Call hub cleanup are dependency-ordered. The active card is compact and implementation_permission remains false."
+next_design_card = "MIR-CALL-GLOBAL-TARGET-B0-FINITE-IDENTITY-DECISION"
 next_execution_card = "none"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -69,12 +25,11 @@ parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/
 parked_llvmlite_graduation_task = "docs/development/current/main/investigations/llvm-native-library-llvmlite-graduation-task-2026-07-22.md"
 final_convergence_cleanup_ssot = "docs/development/current/main/design/repo-physical-structure-cleanup-ssot.md"
 current_update_policy = "docs/development/current/main/design/current-docs-update-policy-ssot.md"
-current_update_rule = "Per-card: update CURRENT_STATE plus the active card only unless lane/blocker/restart-order/phase-status/policy changes."
 pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real blocker"
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-26: recursive compatibility facade shelf S0 landed at 9813d8797c (parent recursive_child_lowering.rs=590, legacy_port.rs=161; focused preflight 12/12 and legacy child-driver 7/7 green); broader RawInvocationChildPortV1 missing-expression-source-receipt failures remain baseline outside this BoxShape row. D1B Global recovery retirement landed at c8089e528 and exact-target prepare/consume child at 6149d2692a; GC exact-target child I0 landed at fcb1e01376; RuntimeData Method(None) methodize and root-lineage transport remain design-stopped. D1B lifecycle/bridge_ready guard rows landed at 9d8b4be35a and 6469567f80; BridgeReady package-only install/source bridge landed at 3dd963d330 with source-backed focused parity green; Cataloged affine-loan provisioning remains design-stopped pending a non-empty issuer.",
-  "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0. 2026-08-26: FUNCTION-METADATA-OWNER-SPLIT-R0 landed; fields/APIs unchanged, metadata.rs 718 lines, nested checked-callout/linear-slot owners 40/50 lines, focused mir::function::tests 6 passed/2 ignored with 441 baseline warnings, and ArrayElementWrite remains NoSafeSlice/ParkedSealed.",
-  "2026-08-26: SelectedNormal duplicate projection validator I0 landed at ffcae72725 in program-root work-plan preparation; unique/duplicate focused witnesses and the reusable pre-body guard are green. Direct-target D0 remains NoSafeSlice after worker audit: package issuer is the owner candidate, but identity-only index representation, catalog-gated traversal, self/sibling/special disposition, and same-session owner/site bijection remain design work.",
+  "2026-08-26: BridgeReady package-only install/source bridge is landed; the active guard remains bridge_ready and semantic loan permission stays false.",
+  "2026-08-26: Cataloged exact-target/GC children, duplicate validation, index-none safety, recursive compatibility shelf, and late legacy target rewrite retirement remain closed evidence.",
+  "2026-08-26: final architecture/task consolidation selected typed structural Global, added the observer-completion prerequisite, and reduced current workstream/card chronology to compact owners.",
 ]

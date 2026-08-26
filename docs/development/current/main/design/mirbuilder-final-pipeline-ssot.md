@@ -1,6 +1,6 @@
 ---
 Status: SSOT
-Date: 2026-08-11
+Date: 2026-08-26
 Decision: MIRBUILDER-FINAL-PIPELINE-v1
 Scope: canonical source ingressからatomic MIR publicationまでの唯一のglobal pipeline-order authority。Parser grammar、language semantics、Backend loweringの詳細は隣接ownerへ委譲する。
 Related:
@@ -19,6 +19,24 @@ Related:
 ---
 
 # MirBuilder Final Pipeline
+
+## Current Capsule
+
+- **Current decision:** the final pipeline remains one-way, and canonical MIR
+  calls converge on a typed structural target before argument or MIR effects.
+- **Current implementation status:** the package/install bridge and many Call
+  writers are closed, but ordinary `FunctionCall` observation, typed Global
+  identity, late recovery, receiver ABI, and the mandatory-Callee schema remain
+  open in that order.
+- **Next ordered task:** close the finite Global-target identity Decision while
+  keeping semantic implementation disabled; then close the observer-only
+  `FunctionCall` completion transition before any loan is introduced.
+- **Production stop line:** no String formatter, opaque registry, second AST
+  walk, post-argument resolver, optional/empty loan, or backend repair may fill
+  a missing semantic target.
+- **Retirement finish line:** canonical source families use the one pipeline,
+  Call fallback/retry is zero, transitional integration hubs are reduced by
+  finite owner, and legacy code/docs/guards are retired rather than mirrored.
 
 ## Decision
 
@@ -102,6 +120,56 @@ normative chainが優先する。
 `MIRBUILDER-INPLACE-REPLACEMENT0`は、この最終形へ現在のproduction
 MirBuilderを移す方法である。replacement cellやstructural measurementsは
 移行の観測手段であって、最終architectureの代わりではない。
+
+## Current convergence spine
+
+現在のCall seamは全体pipelineから独立した第二roadmapではない。`Resolve`
+から`Lower`へauthorityを一方向にするための、次の直列 prerequisite である。
+
+```text
+typed Global target family / issuer Decision
+  -> observer-only FunctionCall completion contract
+  -> prerequisite behavior-neutral shelves / live transport dispositions
+  -> strict schema selector with invalid-v1 retry = 0
+  -> typed Global common-core and all compiled-consumer cutover
+  -> observer/package completion implementation and install gate
+  -> package-owned pre-effect site/target disposition
+  -> one affine raw handoff and direct-payload deletion
+  -> source-owned effect authority for every promoted target family
+  -> source-backed Resolved / late recovery retirement
+  -> receiver/argument ABI and Method(None) retirement
+  -> remaining wire / construction / selected-terminal closure
+  -> current-HEAD consumer census
+  -> mandatory-Callee Call schema + impossible-state guard retirement
+  -> post-Call integration-hub and source-shelf cleanup
+  -> remaining selected pipeline cutovers
+  -> final repository convergence audit
+```
+
+Canonical coreの最終targetはopaque IDやphysical symbolではなく、wire-stableな
+typed structural identityである。少なくともbuiltinとsame-module staticを有限に
+区別し、追加familyはproduction censusが必要性を証明した場合だけ加える。legacy
+Stringはowner-private compatibility ingressで一度だけ解決し、coreへは入れない。
+
+このDecisionはtyped Globalの実装許可ではない。ordinary `FunctionCall`は現在、
+selected shadow profileでDeferredになりpackage発行へ到達できないため、target
+loanより前に次を設計しなければならない。
+
+```text
+same traversal observer-only site/name/arity/argument observation
+  -> owner tree can complete without issuing a target
+  -> complete inventory is dispositioned before package install
+  -> exact typed target or typed reject / ParkedSealed
+```
+
+観測scratchをpackage外へ浮遊させたり、第二AST walkで回収したりしない。既存brand
+で検出できない具体的mispairが無い限り、新しいresolver-session receiptも作らない。
+
+Call closure前の巨大integration ownerは保持する。semantic changeで触るsourceが
+760行以上なら、そのrowの直前にbehavior-neutral owner-specific splitを置き、800行
+到達をhard stopにする。Call closure後にだけ、`CompilationContext`、raw ports、
+semantic adapter、ambient root/recursion state、`builder.rs` barrelをfinite owner単位で
+縮める。全面crate splitや第二MirBuilderは作らない。
 
 ## Authority map
 
