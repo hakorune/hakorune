@@ -49,7 +49,9 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。次は32件のHistoricalDelete owner review、legacy non-force residual consumersは旧算術の非authority、phase2170 ProductAotはexact successor無し、Array pushはpure-firstのarray_element_writeで停止中。
+  `FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0` is landed。checked-in bodyから116 leaves / 120 lexical sitesと33/33 direct、44/45 conditional、35/35 explicit-core、4/7 dynamicを再導出するv1 observationを固定した。helper envのunsetはCoreからhv1へ意味を変え得るためauthorityにせず、conditionalのままowner fateを要求する。
+  32件のdirect HistoricalDeleteはbody digest・projection owner・PHI/provider例外つきのR0a候補レビューをmanifest.fate_reviewへ固定したが、実装許可は閉じたまま。legacy non-force residual consumersは旧算術の非authority。
+  phase2170 ProductAotはexact successor無し、Array pushはpure-firstのarray_element_writeで停止中。
 
 Design-only follow-up:
   force-hv1 censusは各leaf本文とsealed environment contractからbody_sha256、
@@ -259,7 +261,7 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    33/33 direct-force sealed, 44/45 conditional-force candidate, 35/35 explicit-core residual,
    and 4/7 unresolved dynamic; conditional/unresolved rows are CutoverBlockerOpen and cannot be
    ParkedSealed. Standard-v1 reroute is forbidden.
-   Design order: body-derived census schema -> owner-reviewed HistoricalDelete -> Stage1 Proof/AOT
+   Design order: body-derived census schema -> direct HistoricalDelete R0a owner review/exception validation -> Stage1 Proof/AOT
    -> Map exact AOT -> Array push capability -> Array exact AOT -> four dynamic fates
    -> narrow helper cut with explicit-core residuals preserved -> startup tombstone and closeout.
 

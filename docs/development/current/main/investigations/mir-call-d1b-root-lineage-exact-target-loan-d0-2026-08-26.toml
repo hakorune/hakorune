@@ -10,7 +10,7 @@ parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
 completed_execution_row = "CORE-DIRECT-RETIRE-R0"
-next_execution_row = "FORCE-HV1-HISTORICAL-DELETE-R0 (owner-reviewed fate design after landed census S0)"
+next_execution_row = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 (owner-reviewed candidate; implementation remains closed)"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -347,9 +347,9 @@ boundary = "HAKO_VERIFY_V1_FORCE_HAKOVM truthy selector through verify_v1_inline
 source_authority = "The single production selector reader plus named checked-in caller bodies; raw 1* payload shape, script names, and numeric rc are non-authority."
 canonical_issuer = "Each named suite owner issues ProductAot, Stage1Proof/AOT, or HistoricalDelete; ProductAot is one combined source-issued collections family (push/Map/alias/flow/receiver/value claims); the truthy force selector issues one grace terminal before payload parse or execution."
 finite_census = "Legacy arithmetic snapshot is non-authority. S0 parses only tracked leaf/helper bodies with a finite grammar: literal verify_v1_inline_file, literal verify_mir_rc, or the five literal run_verify_mir_via_hakovm_* wrapper callbacks; env/command/eval/pipeline/subshell/background/negation/alias/dynamic source and computed artifacts fail closed. sites[] is the sole lexical counter (120 total): direct-force sealed 33/33, helper-force conditional 44/45, explicit-core residual 35/35, dynamic-artifact open 4/7; potential-force 81/85 is observation only. Inherited selectors, fallback, rc, stdout, and runtime repetition are recorded as attributes or non-authority, never used to seal fate."
-fates = "Reviewed matrix: direct 33/33 = 32 HistoricalDelete candidates plus one Stage1 AOT blocker; helper/wrapper 44/45 = CutoverBlockerOpen; explicit-core 35/35 = ParkedSealed candidates with broad verify_mir_rc retirement as reopen trigger; phase2034 dynamic 4/7 = CutoverBlockerOpen. Legacy 69/9/0/38 totals are non-authority."
+fates = "Body route matrix: direct 33/33 = 32 design-accepted HistoricalDelete candidates plus one Stage1 AOT blocker; helper/wrapper 44/45 = CutoverBlockerOpen; explicit-core 35/35 = ParkedSealed candidates with broad verify_mir_rc retirement as reopen trigger; phase2034 dynamic 4/7 = CutoverBlockerOpen. The 32-path family review and body digest live in manifest.fate_review; legacy 69/9/0/38 totals remain non-authority."
 terminal = "Truthy force selector -> stderr exact [force-hv1/retired], stdout empty, rc=1, payload/parse/execute/retry/fallback=0; never redirect to standard-v1, raw-vm-reference, or another route."
-smallest_next_slice = "FORCE-HV1-HISTORICAL-DELETE-R0 (design-only): review only the 32 direct HistoricalDelete candidates against owner evidence; keep the one Stage1 blocker, all 44/45 conditional sites, and all 4/7 dynamic sites open. No route, env, fallback, fixture, ProductAot, or Wpre change."
+smallest_next_slice = "FORCE-HV1-DIRECT-HISTORICAL-DELETE-R0 (design-only): family review is recorded with a 32-path body digest, projection owners, and PHI/provider exceptions in manifest.fate_review. Before fast open, validate those exceptions and six aggregate projections; keep the Stage1 blocker, 44/45 conditional, 35/35 explicit-core, and 4/7 dynamic sites open. No route, env, fallback, fixture, ProductAot, or Wpre change."
 stop = "NoSafeSlice if any of the 116 leaves or 120 lexical sites is omitted/duplicated, 78/80/38 is claimed as semantic closure, inherited ambient route settings are hidden, conditional or unresolved rows are ParkedSealed, derived values do not match reviewed attributes, the old fallback edge is used as authority, force removal falls through to Core, or Array/Map successors require standard-v1 reinterpretation, raw-vm-reference, payload parsing, or fallback."
 
 [core_direct_tag_rc_contract]
