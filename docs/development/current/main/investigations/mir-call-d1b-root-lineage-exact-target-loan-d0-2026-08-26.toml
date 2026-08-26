@@ -1,11 +1,11 @@
 title = "MIR Call typed Global, strict ingress, and D1B exact-target ownership"
-status = "force_hv1_census_per_leaf_schema_s0_design_closed"
+status = "force_hv1_census_per_leaf_schema_s0_fast_open"
 observed_commit = "e3a07434bd"
 observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "wpre_readiness"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0 is the sole next implementation candidate but remains closed until its body grammar/schema and atomic v0 replacement contract are frozen. Route, env, fixture, wrapper/run_all, Rust VM, Wpre, ProductAot, typed-Global, observer/loan, method, and Call-schema edits are forbidden."
+permission_scope = "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0 only: atomically replace v0 with body-derived v1 observation and focused tests. Route/env semantics, fate, fixtures, wrappers/run_all, Rust VM, Wpre, ProductAot, typed-Global, observer/loan, method, and Call-schema edits remain forbidden."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE"
@@ -338,8 +338,10 @@ stop = "NoSafeSlice if one route requires decoder reparse, substring family sele
 non_claims = "No strict parser implementation, schema selector code, v2 codec, typed Global, effect/default policy, Call cutover, VM/native change, Stage1/selfhost migration, or runtime parity claim."
 
 [force_hv1_fate_d0]
-status = "product_aot_s0_no_safe_slice"
-manifest_path = "docs/development/current/main/investigations/force-hv1-caller-disposition-manifest-v0.json"
+status = "census_s0_fast_open"
+census_s0_status = "fast_open"
+census_s0_implementation_permission = true
+manifest_path = "docs/development/current/main/investigations/force-hv1-caller-disposition-manifest-v1.json"
 guard_path = "tools/checks/lib/force_hv1_caller_manifest_guard.py"
 boundary = "HAKO_VERIFY_V1_FORCE_HAKOVM truthy selector through verify_v1_inline_file, verify_mir_rc, phase2170 wrapper-only callers, and the startup terminal; adjacent HAKO_VERIFY_PRIMARY/HAKO_ROUTE_HAKOVM, Wpre, and broad VM internals remain separate."
 source_authority = "The single production selector reader plus named checked-in caller bodies; raw 1* payload shape, script names, and numeric rc are non-authority."

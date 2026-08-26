@@ -8,7 +8,7 @@ STATE="$ROOT_DIR/docs/development/current/main/CURRENT_STATE.toml"
 WORKSTREAM="$ROOT_DIR/docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 MANIFEST="$ROOT_DIR/tools/checks/guard_rows.toml"
 INDEX="$ROOT_DIR/docs/tools/check-scripts-index.md"
-FORCE_MANIFEST="$ROOT_DIR/docs/development/current/main/investigations/force-hv1-caller-disposition-manifest-v0.json"
+FORCE_MANIFEST="$ROOT_DIR/docs/development/current/main/investigations/force-hv1-caller-disposition-manifest-v1.json"
 
 fail() {
   echo "[$TAG] result_class=current-change failure status=fail: $*" >&2

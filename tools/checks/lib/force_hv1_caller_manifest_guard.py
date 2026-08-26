@@ -9,6 +9,8 @@ import sys
 import tomllib
 from pathlib import Path
 
+from force_hv1_leaf_census import derive_inventory
+
 
 TAG = "force-hv1-caller-manifest-guard"
 
@@ -38,10 +40,6 @@ relative_manifest = manifest_path.relative_to(root).as_posix()
 fate = card.get("force_hv1_fate_d0")
 if not isinstance(fate, dict):
     fail("active card force_hv1_fate_d0 section is missing")
-if state.get("work_mode") != "design_stop":
-    fail("force-hv1 fate must remain design_stop")
-if state.get("current_execution_row") != "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE":
-    fail("force-hv1 fate current row drifted")
 if card.get("implementation_permission") is not False:
     fail("force-hv1 fate implementation permission must remain false")
 if fate.get("manifest_path") != relative_manifest:
@@ -54,6 +52,61 @@ if manifest.get("ParentCurrentCard") != relative_card:
     fail("manifest parent card drifted")
 if not re.fullmatch(r"[0-9a-f]{40}", str(manifest.get("source_commit", ""))):
     fail("manifest source_commit is not a full commit id")
+
+if state.get("current_execution_row") == "FORCE-HV1-CENSUS-PER-LEAF-SCHEMA-S0":
+    if state.get("work_mode") != "fast":
+        fail("census S0 requires CURRENT_STATE work_mode=fast")
+    if fate.get("census_s0_status") != "fast_open":
+        fail("census S0 status is not fast_open")
+    if fate.get("census_s0_implementation_permission") is not True:
+        fail("census S0 scoped permission is not set")
+    if manifest.get("schema") != "force-hv1-caller-disposition-manifest-v1":
+        fail("census S0 requires the v1 manifest")
+    leaf_paths = manifest.get("leaf_paths")
+    observations = manifest.get("observations")
+    if not isinstance(leaf_paths, list) or not all(isinstance(item, str) for item in leaf_paths):
+        fail("v1 leaf_paths inventory is missing")
+    if not isinstance(observations, dict):
+        fail("v1 observations are missing")
+    try:
+        derived = derive_inventory(root, leaf_paths)
+    except ValueError as error:
+        fail(str(error))
+    if set(observations) != set(leaf_paths):
+        fail("v1 observations do not cover exactly the leaf inventory")
+    for item in derived:
+        if observations.get(item["path"]) != item:
+            fail(f"body-derived observation drifted: {item['path']}")
+    observed_counts = manifest.get("observed_counts")
+    if observed_counts != {
+        "lexical_leaves": 116,
+        "lexical_sites": 120,
+        "route_class": {
+            "DirectForceSealed": 33,
+            "HelperForceConditional": 44,
+            "ExplicitCoreResidualSealed": 35,
+            "DynamicArtifactOpen": 4,
+        },
+        "route_sites": {
+            "DirectForceSealed": 33,
+            "HelperForceConditional": 45,
+            "ExplicitCoreResidualSealed": 35,
+            "DynamicArtifactOpen": 7,
+        },
+    }:
+        fail("v1 observed counts are not the reviewed body-derived matrix")
+    print(
+        f"[{TAG}] result_class=current-change failure status=pass "
+        "phase=force_hv1_census_s0 leaves=116 sites=120 "
+        "direct=33/33 conditional=44/45 explicit_core=35/35 dynamic=4/7 "
+        "fate=unmodified implementation=fast_open"
+    )
+    raise SystemExit(0)
+
+if state.get("work_mode") != "design_stop":
+    fail("force-hv1 fate must remain design_stop")
+if state.get("current_execution_row") != "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE":
+    fail("force-hv1 fate current row drifted")
 
 expected = {
     "lexical_leaves": 116,
