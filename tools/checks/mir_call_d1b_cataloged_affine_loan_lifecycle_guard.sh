@@ -13,9 +13,12 @@ fail() {
 }
 
 [[ $# -le 1 ]] || fail "usage: $0 [readiness|bridge_ready|cataloged_i0]"
-PHASE="${1:-readiness}"
+# With no explicit argument, the active card owns the current guard phase.
+# Historical phases remain available for explicit audit, but the manifest
+# entry must never silently run an obsolete pre-bridge phase.
+PHASE="${1:-}"
 case "$PHASE" in
-  readiness|bridge_ready|cataloged_i0) ;;
+  ""|readiness|bridge_ready|cataloged_i0) ;;
   *) fail "unknown phase: $PHASE" ;;
 esac
 
@@ -35,6 +38,11 @@ with card_path.open("rb") as stream:
     card = tomllib.load(stream)
 with manifest_path.open("rb") as stream:
     manifest = tomllib.load(stream)
+
+if not phase:
+    phase = card.get("guard_phase")
+    if phase not in {"readiness", "bridge_ready", "cataloged_i0"}:
+        raise SystemExit("active card guard_phase is missing or unknown")
 
 guard_id = "mir-call-d1b-cataloged-affine-loan-lifecycle"
 guard_script = "tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh"
