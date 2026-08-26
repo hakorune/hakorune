@@ -1,13 +1,13 @@
 title = "MIR Call D1B root-lineage exact-target loan design"
 status = "accepted_design_no_safe_slice"
-observed_commit = "377353fdeb40"
+observed_commit = "3390d6000d"
 observed_at = "2026-08-26"
 implementation_permission = false
 guard_phase = "bridge_ready"
 permission_scope = "Guard-only rows landed at 9d8b4be35a and 6469567f80. The package-only BridgeReady fast row is selected below as a BoxShape implementation; semantic direct-call loan/lineage/Call permission remains false until CatalogedI0Provision has a named non-empty issuer."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
-execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-TRANSITION-AMEND"
+execution_row = "MIR-CALL-D1B-CATALOGED-I0-ISSUER-FACTS-RECONCILE-D0"
 completed_execution_row = "MIR-CALL-D1B-RECURSIVE-COMPAT-FACADE-SHELF-S0"
 next_execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
 
@@ -31,12 +31,12 @@ excludes = [
 [brief]
 decision = "Preserve each live root lineage once, then lend only an already-existing exact callable target relation. TopLevel and InstanceConstructor source keys remain provenance; they never become Global/Value targets by formatting. A missing, duplicate, foreign, or constructor-only relation terminates before argument effects as TypedReject or an explicitly owned ParkedCompatibility state."
 source_authority = "current_source_context_v1.root plus a same-session exact target relation already issued by its owner. Today that is bounded to Cataloged same-brand catalog rows and the landed GC builtin rows. VerifiedCallableIndexV1/ResolvedDirectCallTargetV1 belong to the separate exact-i64 cohort and cannot be lent sideways to general SelectedNormal or InstanceConstructor. General rows first require observation, owner/site/session/brand co-seal, and an existing exact relation; otherwise they reject or park before effects."
-canonical_issuer = "For the bounded Cataloged first cell, existing prepare_cataloged_target_v1 -> CalleeResolverBox issues one Callee before the affine loan; RawDirectCallDispositionLoanV1 moves that Callee once and the consumer calls MirInstruction::call without rerunning CalleeResolverBox. Any future package-derived row needs its own named source authority to issue Callee before the loan. CallTarget, catalog key, name/arity, and raw-side resolver retry are forbidden loan payloads."
+canonical_issuer = "No final non-empty Cataloged issuer exists at the observed HEAD. prepare_cataloged_target_v1 -> CalleeResolverBox is a RetainGuarded transitional per-call reclassifier: it lacks SourceExprSiteV1, catalog brand, and resolver/session witnesses and reads raw variable_map state. A future pre-adapter root owner must co-seal an already-issued exact Callee with brand/session/RawInvocationRootLineageV1::Cataloged(caller)/SourceExprSiteV1 before the affine loan; CallTarget, catalog key, name/arity, and raw-side resolver retry are forbidden loan payloads."
 non_authority = [
   "SelectedTopLevelFunctionKeyV1 name/arity, NormalInstanceConstructorSourceKeyV1 box/symbol, LegacySymbol, collector last-wins, caller=None, current_static_box, has_method, StaticMethodId, registry, env, args[0], or post-argument values",
 ]
 fail_fast = "Root lineage, exact relation, duplicate policy, and builtin/local/Extern/static precedence must be total before drive_call_arguments_v1. Installed lineage may not fall through to PreparedRawOrdinaryFunctionCompletionV1::Resolved."
-smallest_next_slice = "D0-SIG-CLOSE-F-READINESS design: close all named production package-only callers, including the normal_script_a facade edge, callback/token lifetime, and the raw-port loan seam before opening any Cataloged affine-loan implementation row."
+smallest_next_slice = "D0-SIG-CLOSE-F.1 design-only facts reconcile: record that no non-empty same-session Cataloged inventory/issuer exists, classify prepare_cataloged_target_v1 as transitional, and freeze the pre-adapter root owner and exact co-seal prerequisites before any loan or semantic implementation."
 non_claims = [
   "TopLevel/InstanceConstructor source keys become canonical targets",
   "transport-only implementation is safe (it would create an unconsumed product and return to Resolved)",
@@ -438,7 +438,7 @@ task_queue = [
   "D0-SIG-CLOSE-F-TRANSITION-AMEND: separate package-only BridgeReadyPackageOnly from CatalogedI0Provision; do not fabricate or carry a non-empty loan before an issuer exists",
 ]
 design_closure = "A/B: accepted with HRTB source scope and full caller delete set; C: accepted with third-lifetime/dedicated-capability amendment; D/E: accepted owner and guard shape; F transition is amended to a package-only bridge phase because no non-empty Cataloged loan issuer exists at install time. Semantic implementation permission remains false."
-guard_spec = "One guard only: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh registered in tools/checks/guard_rows.toml. Phases are readiness (pre-implementation boundary), bridge_ready (package-only bridge closure with no loan provisioning), and cataloged_i0 (future non-empty issuer, take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0). Unknown phase fails closed; bridge_ready is implemented and remains fail-closed until its package-only bridge prerequisites land."
+guard_spec = "One guard only: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh registered in tools/checks/guard_rows.toml. Phases are readiness (historical pre-implementation boundary), bridge_ready (the current green package-only bridge closure with no loan provisioning), and cataloged_i0 (future non-empty issuer, take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0). Unknown phase fails closed; the no-argument guard reads the active card guard_phase."
 non_claims = "This audit does not implement the bridge, add the loan, preserve source AST in a package, widen Selected/TopLevel/Constructor acceptance, retire Resolved, change Method(None), or cut over Call schema."
 next_design_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
 
@@ -498,6 +498,46 @@ next_tasks = [
 non_claims = "This review does not authorize package direct-call maps, general relationless resolution, target repair in guards, empty/default loans, new semantic receipts, backend/VM changes, or implementation_permission=true."
 evidence = "Read-only workers independently confirmed no non-empty package issuer exists today, the only Cataloged Callee issuer is raw prepare_cataloged_target_v1, and the current guard phases/readiness checks are coherent."
 next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
+
+[cataloged_i0_issuer_facts_reconcile_2026_08_26]
+status = "design_stop_no_safe_slice"
+task_id = "MIR-CALL-D1B-CATALOGED-I0-ISSUER-FACTS-RECONCILE-D0"
+observed_commit = "3390d6000d"
+review_source = "Five independent read-only audits (issuer/design, ingress census, lineage/lifetime, adversarial architecture, and tests/guard) at the current HEAD; no code, fixture, Cargo, or backend change."
+verdict = "NoSafeSlice remains. BridgeReadyPackageOnly is landed and its current guard phase is green, but CatalogedI0 still lacks a non-empty exact-site issuer/co-seal and a compiled raw/structured loan seam."
+observed_facts = [
+  "The only current Cataloged Callee path is function_call_preflight_route.rs::prepare_cataloged_target_v1; it classifies per call, reads mutable variable_map state, and may reclassify through CalleeResolverBox. It accepts no SourceExprSiteV1, catalog brand, or resolver/session witness, so it is transitional evidence, not the final issuer.",
+  "InstalledNormalCallableSemanticPackageV1, the semantic batch/issuer, and RawInvocationChildPortV1 contain no non-empty direct-call inventory and no raw-side same-session resolver token. The package bridge therefore must remain package-only.",
+  "RawInvocationRootLineageV1::Cataloged(caller) and source sites exist during raw descent, but function_call_brand_source_demand.rs still folds non-Cataloged families into InstalledNonBrand { caller: None }, and the ordinary structured-child source hook is currently a default no-op.",
+  "The physical FunctionCall matcher is single-entry, and the existing Cataloged tests prove target-before-child ordering and one Call publication, but they do not yet prove affine take_once, exact brand/session/site binding, nested forwarding, or residual-zero.",
+  "The lifecycle guard is correctly phase-separated: no-argument/bridge_ready is the current package-only check and cataloged_i0 must fail closed until the non-empty loan type is actually present. Global bans on compatibility recovery symbols are out of scope for this Cataloged window."
+]
+decision = "Keep work_mode=design_stop and implementation_permission=false. Treat the current per-call prepare_cataloged_target_v1/CalleeResolverBox route as RetainGuarded transitional behavior. Do not add a one-row loan factory in the consumer, an empty/default package inventory, or a new semantic receipt."
+issuer_contract = "The future sole issuer is a private pre-adapter root-side owner (candidate: builder/normal_callable_semantic_loan_port/direct_call_handoff.rs). It must consume one same-session source/owner scope and an existing exact relation, co-seal catalog brand + resolver/session + RawInvocationRootLineageV1::Cataloged(caller) + exact SourceExprSiteV1, and produce a non-empty RawDirectCallDispositionLoanV1 containing only already-issued Callee values. It may not rescan AST, synthesize name/arity/symbol, consult post-argument values, or rerun a resolver."
+loan_contract = "RawInvocationChildPortV1 is the root loan owner. Add the explicit third lifetime and lend the same &mut loan through recursive reborrow; RawStructuredChildScopePortV1 must explicitly forward the source-site witness and scoped operation, while RawLegacyChildLoweringPortV1 returns a typed cannot-consume result. take_once returns an owned Callee and ends the borrow before drive_call_arguments_v1; finish_empty runs after all child scopes drop. Clone, Copy, Rc, Arc, RefCell, copied rows, child ledgers, and per-call factories are forbidden."
+lineage_contract = "Preserve Cataloged lineage and exact sites through raw and structured children. TopLevel, InstanceConstructor, Main, ScriptRoot, and NestedBoxMethod remain source identity only unless an independently issued exact relation exists; otherwise they reject or enter an explicitly owned ParkedSealed terminal. No caller=None collapse may authorize ordinary source-backed success."
+task_sequence = [
+  "F.1 facts reconcile (this docs-only row): correct the issuer claim, name the missing inventory/session product, and freeze the pre-adapter root owner without changing BridgeReady or adding code.",
+  "F.2 lineage/site contract: preserve Cataloged root plus exact SourceExprSiteV1 through RawBrandCallAuthority, preflight, RawStructuredChildScopePortV1, and nested raw frames; make loss, foreign, mixed-brand, duplicate, and ambiguous states typed terminals before child descent.",
+  "F.3 lifetime/rollback contract: freeze RawInvocationChildPortV1<'port, 'collector, 'loan>, root-to-child &mut reborrow, owned take_once before arguments, drop ordering, abort/rollback, and finish_empty residual proof.",
+  "F.4 Cataloged-window guard/test design: add only scoped issuer/co-seal, positive/negative/parity, nested forwarding, exact-once, and residual-zero checks; keep unrelated compatibility recovery symbols outside this guard.",
+  "I0 only after F.1-F.4: replace CatalogedTargeted { callee, arguments } with the root loan take, lower arguments once, publish one canonical Call, and delete the old direct handoff in the same bounded cell."
+]
+acceptance = [
+  "The active card and pointer say no final Cataloged issuer exists and do not call prepare_cataloged_target_v1 a canonical issuer.",
+  "BridgeReadyPackageOnly remains package-only; no empty/default/optional loan or package direct-call map is introduced.",
+  "The sole future issuer, exact co-seal key, raw/structured forwarding, failure/rollback, and Cataloged-only guard window are named before implementation_permission can open.",
+  "CatalogedI0 remains fail-closed; current bridge_ready, pointer, TOML, and diff checks stay green."
+]
+no_safe_slice = [
+  "A non-empty same-session inventory cannot be issued before adapter construction.",
+  "The only workable design is a raw consumer/per-call factory, AST/name/arity synthesis, or a second resolver.",
+  "Structured-child source/site forwarding remains a no-op or requires overlapping mutable borrows.",
+  "The loan cannot be proven exact-once with foreign/duplicate/residual rejection before effects.",
+  "Opening I0 would require changing TopLevel/Constructor acceptance, Resolved compatibility, Method(None), Call schema, or backend behavior."
+]
+guard_sync = "Current phase is bridge_ready and must pass only package-only checks. cataloged_i0 is future and must inspect the Cataloged producer/consumer window—not globally ban retained compatibility symbols—while requiring non-empty issuer/co-seal, take_once=1, argument descent after take=1, canonical Call=1, residual=0, and CatalogedTargeted=0 after I0."
+supersedes = "This section supersedes stale current-facing wording in earlier readiness/registration notes that called bridge_ready a future phase or described prepare_cataloged_target_v1 as an already-issued canonical Callee source; those earlier sections remain historical evidence."
 
 [bridge_ready_implementation]
 status = "landed"
@@ -574,7 +614,7 @@ allowed_files = [
 ]
 phases = [
   "readiness: assert the package-only escape is still explicitly pending, affine surface is absent rather than partially wired, no generic Targeted drift exists, and the registry/script/card topology is coherent",
-  "bridge_ready: future phase only; package-only sealed bundle/HRTB caller closure and raw capability contract are complete, while no RawDirectCallDispositionLoanV1 or Cataloged direct payload claim is made",
+  "bridge_ready: current package-only sealed bundle/HRTB caller closure and raw capability contract are complete, while no RawDirectCallDispositionLoanV1 or Cataloged direct payload claim is made",
   "cataloged_i0: future phase only; when a non-empty affine issuer lands, require take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0",
 ]
 fail_closed = "Unknown phase, duplicate/missing registry row, missing script/card, partial semantic surface, generic callback/loan payload, or an accidental production switch exits nonzero. Known baseline warnings and unrelated manifest debt are outside this guard."
@@ -597,10 +637,10 @@ allowed_files = [
 bridge_ready_contract = "The future bridge_ready phase must require package-only production escape zero, HRTB source closure, private package-only bundle (no WithDirectCalls/loan), and explicit CatalogedI0 pending. It must not require or infer a non-empty Callee loan."
 readiness_contract = "The current readiness phase remains green before bridge code and continues to reject partial semantic surface."
 fail_closed = "Unknown phase, duplicate/missing registry, phase/card mismatch, package-only escape still present in bridge_ready, any RawDirectCallDispositionLoanV1 or direct capability in bridge_ready, or CatalogedI0 checks run before its separate issuer row all fail closed."
-acceptance = "readiness remains green; bridge_ready is a strict future phase that fails until the package-only bridge is actually landed; cataloged_i0 remains fail-closed; registry/card/pointer/TOML/diff checks pass."
+acceptance = "readiness remains a historical fail-closed audit; bridge_ready is the current green package-only phase; cataloged_i0 remains fail-closed until its separate non-empty issuer lands; registry/card/pointer/TOML/diff checks pass."
 non_claims = "No C' bridge, bundle/token, HRTB source implementation, raw capability, Cataloged payload deletion, Resolved retirement, Method(None) change, mandatory-Callee cutover, or backend change."
 implementation_commit = "6469567f80"
-evidence = "readiness and registry-focused row guard pass; bridge_ready fails closed on absent package-only bundle; cataloged_i0 fails closed on absent non-empty loan; bash -n, current_state_pointer_guard, TOML parse, and git diff --check pass."
+evidence = "readiness remains fail-closed on the landed package-only surface; bridge_ready passes on BuilderPrivateInstalledCallablePackageBundleV1 and the one-shot bridge; cataloged_i0 fails closed on absent non-empty loan; bash -n, current_state_pointer_guard, TOML parse, and git diff --check pass."
 closeout = "Guard phase amendment is closed. Return to D0-SIG-CLOSE-F-TRANSITION-AMEND design_stop; semantic implementation_permission remains false."
 next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-TRANSITION-AMEND"
 
@@ -710,7 +750,7 @@ commit = "4061c21f45"
 evidence = "install.rs=503 lines; install/lowering_port.rs=253 lines; cargo fmt --all -- --check; CARGO_BUILD_JOBS=4 cargo check --profile quick; exact focused test mir::normal_callable_semantic_package::tests::consuming_install_and_port_enforce_exact_selected_coverage = 1 passed; pointer guard and diff-check green."
 
 [i0_design]
-execution_row = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-I0-CATALOGED-AFFINE-LOAN-D0"
+execution_row = "MIR-CALL-D1B-CATALOGED-I0-ISSUER-FACTS-RECONCILE-D0"
 source_boundary = "Design census: RawInvocationRootLineageV1 at function_call_brand_source_demand.rs -> function_call_preflight_route.rs -> build.rs/static_resolution.rs terminal, covering all six lineage families plus Unlocated/Relationless compatibility. Implementation permission for the first cell is narrower: only Located(Cataloged(caller), SourceExprSiteV1) ordinary FunctionCall rows enter CatalogedI0; JSON, VM, backend, ASTNode::Call, ExplicitExtern, Main exact-i64, FullFunction, GC, special, TopLevel, InstanceConstructor, and NestedBoxMethod remain outside this cell."
 required_before_code = "Enumerate every production edge and wildcard collapse; distinguish old edge delete, guarded retain, typed reject, and ParkedSealed; name one canonical issuer and one fail-fast terminal for each. For the first cell, prove Cataloged old Targeted { callee, arguments } is the sole direct payload to delete, and name the non-empty raw-preflight issuer, private key/co-seal, third loan lifetime, scoped take_once, and Cataloged-only guard window. Six family dispositions remain explicit for the design census; source-backed ordinary non-GC caller=None must be zero, the no-ledger source-backed edge must be explicit, UnlocatedCompatibility must reject/park, RelationlessCompatibility must never be a source-backed success, and every Resolved/name-Const/legacy-emission re-entry must be tracked by family."
 non_claims = "No general relationless target issuance, no Method(None) closure, no mandatory-Callee schema cutover, no late recovery deletion outside explicitly accepted rows, and no chronic-debt ledger expansion in CURRENT_STATE."
