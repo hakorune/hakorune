@@ -523,7 +523,7 @@ lineage_contract = "Preserve Cataloged lineage and exact sites through raw and s
 task_sequence = [
   "F.1 facts reconcile (closed by this docs-only update): record that no non-empty same-session Cataloged inventory/issuer exists, reject MethodCall/static-publication and exact-i64 reuse, and keep implementation_permission=false.",
   "D0-SIG-G same-traversal direct-call observation: keep SelectedCallableV1's semantic gate closed, place an external sink before its deferred-error drop, record FunctionCall SourceExprSiteV1/name/arity and source identity into issuer-local scratch before canonicalize_draft, and forbid profile widening, AST rescan, and BodyEffect-only inference.",
-  "D0-SIG-H resolver-session/catalog co-seal: choose a private non-ambient session witness (no existing session token is reusable), prove the Selected/Constructor identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent.",
+  "D0-SIG-H resolver-session/catalog co-seal: issue the private non-ambient FunctionSemanticResolverSessionWitnessV1 once and retain it opaquely through package/install (no existing session token is reusable), prove the Selected/Constructor identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent.",
   "D0-SIG-I pre-adapter canonical issuer: name the one owner that consumes the exact source-bound static self/sibling relation and issues Callee exactly once; exclude prepare_cataloged_target_v1/CalleeResolverBox, mutable variable_map, env, type registry, UnknownBox, CanonicalSameModuleCallableKey projection, and all consumer target synthesis.",
   "D0-SIG-J provision/lifetime: place issuer between package.begin_lowering and adapter construction, map Cataloged lineage/site once, freeze RawInvocationChildPortV1<'port, 'collector, 'loan> plus RawStructuredChildScopePortV1 forwarding, use a non-callback child-scoped operation for the borrow conflict, and define atomic install abort/rollback.",
   "D0-SIG-K guard/residual proof: define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, and scoped positive/negative/parity checks; update the exact-target guard to reject resolve_catalog_call_target_v1, prepare_cataloged_target_v1, CalleeResolverBox, CallTarget::Value, and BareStaticRecoveryDecisionV1 before opening Cataloged I0."
@@ -895,6 +895,44 @@ no_safe_slice = [
 ]
 next_task = "D0-SIG-H: define and issue the private non-ambient resolver-session witness, then co-seal it with catalog brand, source identity, owner, and exact site."
 
+[cataloged_i0_session_witness_design_2026_08_26]
+status = "design_accepted_no_safe_slice"
+task_id = "MIR-CALL-D1B-CATALOGED-I0-SESSION-WITNESS-COSEAL-D0"
+observed_commit = "14202f22a0"
+decision = "Issue one private, non-ambient, move-only FunctionSemanticResolverSessionWitnessV1 from FunctionSemanticResolverSessionV1, retain it opaquely through the semantic package/install lifetime, and co-seal it with the source identity, FunctionOwnerIdV1, exact SourceExprSiteV1, and SameModuleCallableCatalogBrandV1 before any Cataloged loan or Callee issuance. H publishes no target and does not widen the SelectedCallable profile."
+issuer = "FunctionSemanticResolverSessionV1 is the sole witness issuer. The witness is a private non-ZST marker with only private same_as/borrow comparison; no public constructor, numeric/ordinal getter, Clone, Copy, global registry, or ambient Builder lookup. The package issuer transfers it once after selected/constructor rows finish resolving; no second session witness may be synthesized after install."
+package_handoff = "VerifiedNormalCallableSemanticPackageV1/InstalledNormalCallableSemanticPackageV1 may retain the witness only as a private field or opaque package-owned companion with no getter. BridgeReadyPackageOnly remains package-only; the witness is not a direct-call map, Callee, lineage, effect, or physical carrier. The raw loan later borrows this same package witness and never clones or replaces it."
+reusable_facts = "Reuse FunctionOwnerIdV1 for owner identity, OwnedExprSiteV1 for owner+relative-site pairing, CallableDeclarationIdentityV1 for selected provenance, ConstructorSourceIdV1 for the distinct constructor arm, VerifiedResolvedSourceSiteInventoryV1 for site membership, VerifiedCatalogCallableOwnerLinkV1 for catalog membership, and SameModuleCallableCatalogBrandV1 for catalog allocation identity. None of these is a session witness alone."
+rejected_substitutes = "Reject compilation_unit_ordinal, FunctionOriginV1, FunctionOwnerIdV1::compilation_brand(), catalog brand alone, ParserInvocationWitnessV1, ModuleInvocationBrand/Token, ResolverCatalogBrandV1, Home/Core/Fact/Dynamic brands, CatalogSealedResolverContinuationV1, VerifiedCallableIndexV1, ResolvedDirectCallTargetV1, and ambient Builder state as session identity. Exact-i64 continuation and parser provenance remain separate authorities."
+co_seal = "For each transient row, verify: selected identity -> exactly one selected batch row -> exactly one forest root -> lowering-input owner; constructor source ID -> exactly one constructor row -> its forest root; site.owner == owner and site belongs to that owner's source inventory; catalog brand is the installed allocation; witness is the package's sole resolver session; and the same-shadow FunctionCall observation occurs once at that site. The bijection is checked in both directions within the bounded cohort."
+lineage_boundary = "H does not issue or store RawInvocationRootLineageV1. After H/I, the raw boundary adds exactly Cataloged(caller) plus the exact site and verifies the same witness/brand/owner relation; TopLevel and InstanceConstructor remain provenance-only unless a distinct exact relation is issued."
+finite_reject = [
+  "MissingSessionWitness",
+  "ForeignOrMixedSessionWitness",
+  "ForeignCatalogBrand",
+  "MissingOrDuplicateSelectedIdentity",
+  "MissingOrMultipleForestRoot",
+  "OwnerOrLoweringInputMismatch",
+  "MissingOrForeignSite",
+  "DuplicateObservedSite",
+  "ConstructorIdentityInSelectedMap",
+  "LineageCollapsedToCallerNone",
+]
+acceptance = [
+  "one resolver session issues one opaque witness and the package retains it without a public accessor",
+  "selected and constructor identity-to-owner mappings are one-to-one and same-brand",
+  "owner/site/source identity/session/brand co-seal succeeds before adapter construction or child effects",
+  "foreign, mixed, duplicate, missing, or collapsed rows reject or park before canonicalization and never issue Callee",
+  "no ordinal, origin, brand-only, parser, physical, exact-i64, or ambient substitute is accepted",
+]
+no_safe_slice = [
+  "the witness is inferred from a number, origin, brand, registry, or Builder state",
+  "the witness is publicly constructible, cloneable, copyable, globally looked up, or replaced after install",
+  "the package drops the witness before raw lowering or exposes a getter that lets a foreign witness pair",
+  "H issues Callee/CallTarget/ValueId/effect/lineage or borrows an exact-i64 continuation",
+]
+next_task = "D0-SIG-I: consume the H co-sealed exact Cataloged static relation in the pre-adapter owner and define the one Callee issuance boundary."
+
 [cataloged_i0_arbitration]
 status = "accepted_design_no_safe_slice"
 decision = "Use one root-owned, non-empty Cataloged direct-call inventory/loan. The pre-adapter owner co-seals catalog brand, resolver/session, Cataloged lineage, exact SourceExprSite, and exact static relation, issues one Callee, and places only that issued value in the loan; RawInvocationChildPortV1 receives the same affine loan by &mut reborrow, and the consumer only takes one owned Callee before argument descent."
@@ -904,11 +942,11 @@ inventory_shape = "The root capability owns a non-empty finite RawDirectCallDisp
 key_contract = "Every row is co-sealed by SameModuleCallableCatalogBrandV1, the exact resolver/session token, RawInvocationRootLineageV1::Cataloged(caller), and SourceExprSiteV1. name, arity, CallTarget, LegacySymbol, AST, physical symbol, and post-argument ValueId are neither key nor payload."
 lifetime_contract = "RawInvocationChildPortV1 gains a third loan lifetime: root loan -> raw port -> nested child. reborrow() uses as_deref_mut; take_once() returns an owned Callee and its borrow ends lexically before drive_call_arguments_v1. Rc/Arc/RefCell, copied rows, and per-child loans are forbidden."
 structured_child_contract = "RawStructuredChildScopePortV1 must explicitly delegate the scoped loan and call-argument source/site witness before this row can open. Its current default no-op source hook is a blocker; forwarding cannot borrow self.child and the callback simultaneously without a dedicated scoped helper. RawLegacyChildLoweringPortV1 remains typed reject for loan consumption."
-session_witness_contract = "SameModuleCallableCatalogBrandV1 is reusable only as catalog membership and FunctionOwnerIdV1 only as owner identity. D0-SIG-H must name a private non-ambient resolver-session witness; compilation ordinal, FunctionOrigin, raw catalog brand, exact-i64 CatalogSealedResolverContinuationV1, and ambient Builder state are not substitutes."
+session_witness_contract = "Selected H design: FunctionSemanticResolverSessionV1 issues one private non-ZST FunctionSemanticResolverSessionWitnessV1, retained opaquely through package/install and compared only by a private same_as/borrow operation. SameModuleCallableCatalogBrandV1 is reusable only as catalog membership and FunctionOwnerIdV1 only as owner identity; compilation ordinal, FunctionOrigin, raw catalog brand, exact-i64 CatalogSealedResolverContinuationV1, and ambient Builder state are not substitutes."
 direct_capability_contract = "Because the current callback source hooks produce E0499/E0500 when a wrapper borrows child and then reborrows itself, D0-SIG-J must use a non-callback take_direct_call_once_v1 or a child-scoped helper that owns the underlying child borrow. Unsafe pointer splitting and a loan borrow spanning argument descent are forbidden."
 task_sequence = [
   "D0-SIG-G: same-traversal direct-call observation; keep SelectedCallableV1's semantic gate closed, place an external sink before its deferred-error drop, move FunctionCall SourceExprSiteV1/name/arity/source identity into issuer-local scratch before canonicalize_draft, and forbid profile widening, AST rescan, and BodyEffect-only inference",
-  "D0-SIG-H: resolver-session/catalog co-seal; choose a private non-ambient session witness because no existing token is reusable, prove identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent",
+  "D0-SIG-H: resolver-session/catalog co-seal; issue the private non-ambient FunctionSemanticResolverSessionWitnessV1 once, retain it opaquely through package/install, prove identity-to-owner bijection and same catalog brand, and classify missing/foreign/mixed/duplicate/ambiguous rows before child descent",
   "D0-SIG-I: pre-adapter canonical issuer; consume exact source-bound static self/sibling relation facts and issue Callee exactly once, excluding prepare_cataloged_target_v1/CalleeResolverBox, mutable variable_map, env, type registry, UnknownBox, and key/symbol projection",
   "D0-SIG-J: provision/lifetime; place issuer between package.begin_lowering and adapter construction, map Cataloged lineage/site once, freeze RawInvocationChildPortV1<'port, 'collector, 'loan> plus a non-callback structured child operation and &mut reborrow, and define atomic install abort/rollback",
   "D0-SIG-K: guard/residual proof; define owned take_once before arguments, finish_empty, second-take/residual/argument-failure behavior, scoped positive/negative/parity checks, and concrete transitional-name bans in the Cataloged guard",
