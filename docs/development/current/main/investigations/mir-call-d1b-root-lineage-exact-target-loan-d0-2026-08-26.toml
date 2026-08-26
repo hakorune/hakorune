@@ -3,7 +3,7 @@ status = "accepted_design_no_safe_slice"
 observed_commit = "9813d8797c"
 observed_at = "2026-08-26"
 implementation_permission = false
-permission_scope = "Guard-only row landed at 9d8b4be35a; F transition is design-only: split BridgeReadyPackageOnly from CatalogedI0Provision before any semantic bridge/loan/lineage/Call implementation_permission opens."
+permission_scope = "Guard-only rows landed at 9d8b4be35a and 6469567f80; F transition remains design-only: split BridgeReadyPackageOnly from CatalogedI0Provision before any semantic bridge/loan/lineage/Call implementation_permission opens."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
@@ -434,7 +434,7 @@ task_queue = [
   "D0-SIG-CLOSE-F-TRANSITION-AMEND: separate package-only BridgeReadyPackageOnly from CatalogedI0Provision; do not fabricate or carry a non-empty loan before an issuer exists",
 ]
 design_closure = "A/B: accepted with HRTB source scope and full caller delete set; C: accepted with third-lifetime/dedicated-capability amendment; D/E: accepted owner and guard shape; F transition is amended to a package-only bridge phase because no non-empty Cataloged loan issuer exists at install time. Semantic implementation permission remains false."
-guard_spec = "One guard only: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh registered in tools/checks/guard_rows.toml. Phases are readiness (current pre-implementation boundary), bridge_ready (future package-only bridge closure with no loan provisioning), and cataloged_i0 (future non-empty issuer, take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0). Unknown phase fails closed; the current script lacks bridge_ready and must be amended before F implementation."
+guard_spec = "One guard only: tools/checks/mir_call_d1b_cataloged_affine_loan_lifecycle_guard.sh registered in tools/checks/guard_rows.toml. Phases are readiness (pre-implementation boundary), bridge_ready (package-only bridge closure with no loan provisioning), and cataloged_i0 (future non-empty issuer, take_once=1, argument descent=1, canonical Call=1, residual=0, and recovery/name-Const re-entry=0). Unknown phase fails closed; bridge_ready is implemented and remains fail-closed until its package-only bridge prerequisites land."
 non_claims = "This audit does not implement the bridge, add the loan, preserve source AST in a package, widen Selected/TopLevel/Constructor acceptance, retire Resolved, change Method(None), or cut over Call schema."
 next_design_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
 
@@ -503,7 +503,7 @@ evidence = "readiness phase passes through run_row_guard; cataloged_i0 phase rej
 closeout = "Guard-only row is closed. Return to D0-SIG-CLOSE-F-READINESS design_stop; semantic implementation_permission stays false."
 
 [guard_phase_amendment_row]
-status = "selected_fast_guard_only"
+status = "landed_guard_only"
 execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-GUARD-PHASE-AMENDMENT"
 scope = "Extend the existing lifecycle guard from readiness/cataloged_i0 to readiness/bridge_ready/cataloged_i0. This row changes only guard phase coverage and registry/card references; it does not implement the package bridge or any direct-call loan."
 allowed_files = [
@@ -517,6 +517,9 @@ readiness_contract = "The current readiness phase remains green before bridge co
 fail_closed = "Unknown phase, duplicate/missing registry, phase/card mismatch, package-only escape still present in bridge_ready, any RawDirectCallDispositionLoanV1 or direct capability in bridge_ready, or CatalogedI0 checks run before its separate issuer row all fail closed."
 acceptance = "readiness remains green; bridge_ready is a strict future phase that fails until the package-only bridge is actually landed; cataloged_i0 remains fail-closed; registry/card/pointer/TOML/diff checks pass."
 non_claims = "No C' bridge, bundle/token, HRTB source implementation, raw capability, Cataloged payload deletion, Resolved retirement, Method(None) change, mandatory-Callee cutover, or backend change."
+implementation_commit = "6469567f80"
+evidence = "readiness and registry-focused row guard pass; bridge_ready fails closed on absent package-only bundle; cataloged_i0 fails closed on absent non-empty loan; bash -n, current_state_pointer_guard, TOML parse, and git diff --check pass."
+closeout = "Guard phase amendment is closed. Return to D0-SIG-CLOSE-F-TRANSITION-AMEND design_stop; semantic implementation_permission remains false."
 next_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-TRANSITION-AMEND"
 
 [recursive_compat_facade_shelf_s0]

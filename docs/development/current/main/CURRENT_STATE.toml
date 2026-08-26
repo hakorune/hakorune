@@ -21,15 +21,15 @@ D1O-D1X Call writers are landed through cde490f75e; MIR-CALL-R6-LATE-LEGACY-TARG
 date = "2026-08-26"
 development_branch_ssot = "main"
 development_branch_cutover = "main is the canonical integration target; codex/dynamic-v2-aot-activation was integrated at merge commit aafda19d86 and main is the active worktree; this integration is not a production switch"
-work_mode = "fast"
-current_execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-GUARD-PHASE-AMENDMENT"
-current_design_stop = "Semantic D1B remains design-stopped; this fast row only adds the bridge_ready phase to the existing lifecycle guard."
-current_blocker_token = "MIR-CALL-D1B-D0-SIG-CLOSE-F guard-phase-only: no bridge, loan, lineage, resolver, or semantic change; package-only bridge implementation remains closed until bridge_ready is registered and the transition amendment is accepted."
+work_mode = "design_stop"
+current_execution_row = "MIR-CALL-D1B-D0-SIG-CLOSE-F-TRANSITION-AMEND"
+current_design_stop = "F transition design_stop: BridgeReadyPackageOnly may close package-only escape, but no non-empty Cataloged loan issuer exists yet for CatalogedI0Provision."
+current_blocker_token = "MIR-CALL-D1B-D0-SIG-CLOSE-F transition: no bridge, loan, lineage, resolver, or semantic change until package-only bridge scope and a named non-empty Cataloged issuer/co-seal are separately closed by design."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
 ai_verifiable_development_north_star = "docs/development/current/main/design/ai-verifiable-development-north-star-ssot.md"
 ai_verifiable_development_status = "accepted long-term policy; diagnostic/query/repair capability activation remains 0 and current lane is unchanged"
-active_lane = "Mir Call R6 — D1B bridge_ready guard phase before package bridge"
+active_lane = "Mir Call R6 — D1B package-only bridge transition before Cataloged issuer"
 active_lane_status = """
 Current: MIR Call R1, legacy-target-catalog D1, path-preserving MIR-v0 topology, R2 input-state/catalog resolution, R3 D0, R3a, R3b, R4a, R4b, R4c,
 R4d escape, R4e ownership verifier, and R4f CallLike observer retirement are closed. Query D0/T0, R5 D0, R5a optimizer-only terminal closure, R5b-B0
@@ -59,10 +59,10 @@ current_execution_design = "docs/development/current/main/workstreams/mirbuilder
 g2_smoke_caller_census = "docs/development/current/main/investigations/llvmlite-shared-smoke-caller-census-v0.json"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "MIR-CALL-D1B-D0-SIG-CLOSE-F guard-phase amendment: add bridge_ready only; semantic package bridge/loan remains design-stopped."
-next_design_card = "MIR-CALL-D1B-D0-SIG-CLOSE-F-READINESS"
-next_execution_card = "MIR-CALL-D1B-D0-SIG-CLOSE-F-GUARD-PHASE-AMENDMENT"
-next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
+latest_card_summary = "MIR-CALL-D1B-D0-SIG-CLOSE-F transition amendment: package-only bridge and non-empty Cataloged issuer are separate; guard phases are registered."
+next_design_card = "MIR-CALL-D1B-D0-SIG-CLOSE-F-TRANSITION-AMEND"
+next_execution_card = "none"
+next_execution_card_path = ""
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
 parked_mirbuilder_compile_time_performance_task = "docs/development/current/main/investigations/mirbuilder-compile-time-performance-owner-first-d0-2026-08-22.md"
 parked_mirbuilder_hako_mimalloc_promotion_gate = "docs/development/current/main/investigations/mirbuilder-hako-mimalloc-promotion-gate0-task-2026-08-10.md"
@@ -74,7 +74,7 @@ pre_perf_gate = "phase-137x stays observe-only unless app work reopens a real bl
 pre_perf_gate_status = "active guardrail"
 optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
-  "2026-08-26: recursive compatibility facade shelf S0 landed at 9813d8797c (parent recursive_child_lowering.rs=590, legacy_port.rs=161; focused preflight 12/12 and legacy child-driver 7/7 green); broader RawInvocationChildPortV1 missing-expression-source-receipt failures remain baseline outside this BoxShape row. D1B Global recovery retirement landed at c8089e528 and exact-target prepare/consume child at 6149d2692a; GC exact-target child I0 landed at fcb1e01376; RuntimeData Method(None) methodize and root-lineage transport remain design-stopped. D1B lifecycle guard-only registration landed at 9d8b4be35a; semantic bridge/loan remains design-stopped.",
+  "2026-08-26: recursive compatibility facade shelf S0 landed at 9813d8797c (parent recursive_child_lowering.rs=590, legacy_port.rs=161; focused preflight 12/12 and legacy child-driver 7/7 green); broader RawInvocationChildPortV1 missing-expression-source-receipt failures remain baseline outside this BoxShape row. D1B Global recovery retirement landed at c8089e528 and exact-target prepare/consume child at 6149d2692a; GC exact-target child I0 landed at fcb1e01376; RuntimeData Method(None) methodize and root-lineage transport remain design-stopped. D1B lifecycle/bridge_ready guard rows landed at 9d8b4be35a and 6469567f80; semantic bridge/loan remains design-stopped pending non-empty Cataloged issuer.",
   "2026-08-25: P2 MIR-METADATA-CONSUMER-MANIFEST-I0 landed at 5fb0277d91; 127 fields/rows, 323 producer owner-files, 590 production consumer owner-files, 83 selected-backend owner-files, missing/duplicate negative guard, metadata catalog guard, and pointer guard are green; semantic/backend activation remains 0. 2026-08-26: FUNCTION-METADATA-OWNER-SPLIT-R0 landed; fields/APIs unchanged, metadata.rs 718 lines, nested checked-callout/linear-slot owners 40/50 lines, focused mir::function::tests 6 passed/2 ignored with 441 baseline warnings, and ArrayElementWrite remains NoSafeSlice/ParkedSealed.",
   "2026-08-26: SelectedNormal duplicate projection validator I0 landed at ffcae72725 in program-root work-plan preparation; unique/duplicate focused witnesses and the reusable pre-body guard are green. Direct-target D0 remains NoSafeSlice after worker audit: package issuer is the owner candidate, but identity-only index representation, catalog-gated traversal, self/sibling/special disposition, and same-session owner/site bijection remain design work.",
 ]
