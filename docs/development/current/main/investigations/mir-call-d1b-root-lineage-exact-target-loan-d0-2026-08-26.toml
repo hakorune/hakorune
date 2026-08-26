@@ -5,12 +5,12 @@ observed_at = "2026-08-27"
 implementation_permission = false
 guard_phase = "wpre_readiness"
 ingress_schema_guard_phase = "wpre_readiness"
-permission_scope = "No implementation is open in this card. CanonicalV1 Value S0 is landed; CORE-DIRECT-RETIRE-D0 is a sibling design-only disposition row, and all Wpre/typed-Global/observer/loan/method/Call-schema work remains closed."
+permission_scope = "No implementation is open in this card. CanonicalV1 Value S0 and CORE-DIRECT-RETIRE-D0 are landed design-only; CORE-DIRECT-RETIRE-R0 remains a successor/terminal-evidence design stop, and all Wpre/typed-Global/observer/loan/method/Call-schema work remains closed."
 parent_row = "docs/development/current/main/investigations/mir-call-core-r6-d1b-method-none-manifest-2026-08-25.toml"
 decision_id = "MIR-CALL-D1B-ROOT-LINEAGE-EXACT-TARGET-LOAN-D0"
 execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
 completed_execution_row = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0"
-next_execution_row = "CORE-DIRECT-RETIRE-D0 (design-only; owned by vm-active-lane-retirement-ssot)"
+next_execution_row = "CORE-DIRECT-RETIRE-R0 (design stop; successor/terminal evidence required; owner vm-active-lane-retirement-ssot)"
 
 [boundary]
 starts = "production Callee::Global producers and ordinary FunctionCall source observation"
@@ -34,7 +34,7 @@ source_authority = "Exact print/1 source contract, exact final-module free/stati
 canonical_issuer = "One source/ingress issuer creates CanonicalGlobalTargetV1 before arguments; MirInstruction::call only stores it."
 non_authority = "Raw text, alias map, physical symbol, function table, EffectMask, caller=None, registry, methodize, args[0], optimizer/backend repair, and compatibility parser order."
 fail_fast = "Malformed/conflicting schema and missing/foreign/duplicate/colliding/wrong-arity/unsupported target terminate before arguments, MIR, package install, wire, or backend effects."
-smallest_next_slice = "CORE-DIRECT-RETIRE-D0: classify six active smokes into ProductAot, SemanticReference, or HistoricalDelete and freeze one R0 delete set; no code in D0."
+smallest_next_slice = "CORE-DIRECT-RETIRE-R0: freeze the one ProductAot substring successor and one decoded-family terminal fixture; no code or deletion until both are evidenced."
 non_claims = "No selector implementation, parser/fixture/codec change, typed Global, observer/loan, Method/receiver, EffectMask, backend parity, Stage1/selfhost migration, or warning cleanup."
 
 [final_architecture]
@@ -358,6 +358,35 @@ acceptance = "Old operation tags are historical; family-level retired/unavailabl
 docs_followup = "Supersede the old Core diagnostic/Direct wording in lang/src/vm/README.md and tools/selfhost/README.md; classify each six-smoke entry as retirement-terminal or ordinary Rust VM parity before implementation."
 stop = "NoSafeSlice if external callers require individual old tags, dynamic tag bodies, Hako stdout channel, or a full operation-tag mapping; that would require a separate compatibility owner/Decision."
 
+[core_direct_smoke_disposition]
+task_id = "CORE-DIRECT-RETIRE-D0"
+status = "landed_design_only"
+boundary = "six named integration scripts -> Stage-B helper -> --json-file -> selected executor/assertion; external callers and executor implementation internals are excluded"
+source_authority = "The checked-in script body, its Stage-B helper output, and the selected product/reference terminal contract; rc-only probes are not semantic evidence."
+canonical_issuer = "The successor owner issues either an exact EXE/AOT result or the family-level CoreDirect terminal after a decoded family request."
+non_authority = "Script names, arbitrary nonzero rc, raw functions/blocks substring probes, child stdout, and the old operation-tag vocabulary."
+finite_states = [
+  "ProductAot = 1: core_direct_string_substring_ok_vm.sh -> named EXE/AOT successor required",
+  "SemanticReference = 0: no smoke has a valid reference-only semantic contract",
+  "HistoricalDelete = 5: core_direct_array_oob_set_rc_vm.sh, core_direct_map_bad_key_rc_vm.sh, core_direct_string_bounds_rc_vm.sh, core_direct_string_charat_bounds_rc_vm.sh, core_direct_string_replace_ok_vm.sh",
+]
+observed = [
+  "All six Stage-B helpers emit Program(JSON v0), so the CoreDirect raw functions+blocks probe is not reached by these scripts; their current executor is Program-v0 compatibility -> Rust MirInterpreter.",
+  "array/map scripts discard output and accept arbitrary nonzero rc; they do not prove a fault.",
+  "substring(-1,1) conflicts with canonical clamp semantics; charAt is outside the canonical String surface; replace script accepts failure and unresolved first-only semantics.",
+  "substring(2,5) expects exact cde and rc=0 and is the only ordinary product-observable row.",
+]
+successor_candidates = [
+  "ProductAot input candidate: apps/tests/string_ops_basic.hako",
+  "ProductAot execution pattern candidate: tools/smokes/v2/profiles/integration/apps/typed_object_method_min_exe.sh",
+  "No automatic raw-vm-reference successor is claimed for the five historical rows.",
+]
+delete_set = "After the ProductAot successor and a decoded-family terminal fixture land: delete six old scripts, core_executor raw probe/in-proc reparse/temporary Hako child/child stdout relay/ordinary VM fallback, and CORE_DIRECT aliases; retain one explicit intent tombstone during grace."
+acceptance = "Six rows are exhausted with exactly one disposition each; the one ProductAot successor has exact output/rc evidence; a real decoded CoreDirect request has [core-direct/retired|unavailable] on stderr with rc=1; retry/fallback=0; no old script or raw probe remains."
+next_row = "CORE-DIRECT-RETIRE-R0"
+next_blocker = "ProductAot substring successor is not landed, and the family terminal must be proven after decoded-family authority rather than by a raw substring or second parser."
+non_claims = "No language change for charAt/replace, no semantic reference migration, no broad Rust VM deletion, no vm-hako change, and no CoreDirect code deletion in this D0."
+
 [reference_child_reentry]
 task_id = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-REENTRY"
 status = "landed_private_transport_i0"
@@ -526,13 +555,13 @@ stop = "Return to design if explicit profile issuance cannot be separated from c
 non_claims = "No Wpre selector, strict-root parser, JSON-v2 schema, typed Global, Call cutover, MiniVm semantic expansion, backend promotion, PyVM change, or new VM parity claim."
 
 [task_spine]
-current = "CanonicalV1 Value S0 landed; VM-RUNTIME-RETIREMENT-FATE-D0 closed read-only; CORE-DIRECT-RETIRE-D0 selected design-only"
-next_prerequisite = "Close the six-smoke CoreDirect disposition and bounded R0, then force-hv1 caller migration and strict Value seams before Wpre-I0. Typed Global and all later Call rows remain closed."
+current = "CanonicalV1 Value S0 landed; VM-RUNTIME-RETIREMENT-FATE-D0 and CORE-DIRECT-RETIRE-D0 are closed design-only; CORE-DIRECT-RETIRE-R0 is blocked on its named successors"
+next_prerequisite = "Land the one ProductAot substring successor and a decoded CoreDirect terminal fixture, then execute the bounded no-retry R0. Force-hv1 caller migration and strict Value seams remain next before Wpre-I0."
 queue_owner = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md#ordered-frontier"
 durable_order_owner = "docs/development/current/main/design/mir-canonical-callsite-lane-ssot.md#durable-retirement-order"
 
 [wpre_d0_followup_task_order]
-status = "canonical_v1_value_s0_landed"
+status = "core_direct_d0_landed_r0_design_stop"
 implementation_permission = false
 items = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-OUTSIDE-FATE-CLOSE | docs-only | split every outside family into owner/status/reason/reopen/non-authority rows; no global all-ingress closure claim",
@@ -545,7 +574,7 @@ items = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design accepted, implementation-closed | strict_root.rs owns recursive duplicate/trailing rejection, owned SelectedIngress, and by-value decode(selected, &NyashRunner); decoder reparses zero times",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-I0 | fast only after all preceding rows | one strict root parse, one profile selection, one selected decoder, one terminal; implementation remains closed until this row opens",
 ]
-acceptance = "Every row has a finite owner and explicit fate; Stage1 precedence and core-direct strategy are no longer double-classified; strict root and decoder signatures are exact; no retry/reparse/substring selector remains in the bounded I0 delete set. CanonicalV1 Value is landed; no implementation row in this card is open."
+acceptance = "Every row has a finite owner and explicit fate; Stage1 precedence and core-direct strategy are no longer double-classified; strict root and decoder signatures are exact; no retry/reparse/substring selector remains in the bounded I0 delete set. CanonicalV1 Value and the six-row CoreDirect D0 are landed; R0 remains design-stopped on named successor evidence."
 stop = "Return to design if any follow-up requires a second raw parse, borrowed root carrier, semantic receipt, implicit route precedence, or a global all-ingress claim without a finite caller census."
 
 [wpre_d0_progress]
@@ -555,16 +584,16 @@ completed = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CHILD-PRIVATE-TRANSPORT-I0 | landed | private one-of payload, selector scrub/pins, and four monitor paths are fixed",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | landed | one owned Value crosses normalize/subset/projection with no String reparse",
 ]
-current = "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-REFERENCE-CANONICAL-V1-VALUE-S0 | landed | one owned CanonicalV1 Value crosses normalize/subset/projection without String reparse; next row is the sibling CoreDirect six-smoke D0"
+current = "CORE-DIRECT-RETIRE-R0 | design stop | D0 classified ProductAot=1, SemanticReference=0, HistoricalDelete=5; R0 needs the named AOT successor and decoded terminal fixture"
 accepted_design = [
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-STAGE1-DIRECT-ARBITRATION | no code yet | captured MIR-v0/Program-v0 remains a family-preselected ParkedSealed owner",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-REFERENCE-CHILD-REENTRY | design accepted | private one-of payload, route scrub/pins, and CanonicalV1 family are fixed; implementation remains closed",
-  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted | D0-CORE-DIRECT-TAG-RC-CONTRACT fixes family-level stderr tags and rc=1; implementation remains closed until retirement edge and six smoke dispositions land",
+  "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-CORE-DIRECT-FATE | design accepted | D0-CORE-DIRECT-TAG-RC-CONTRACT fixes family-level stderr tags and rc=1; six-smoke disposition is now landed in CORE-DIRECT-RETIRE-D0",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | design accepted | retire production force route; 33 direct + 36 indirect rows are the finite caller boundary; compatibility remains ParkedSealed unless reopened by a named consumer",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | design accepted | one owned Value, recursive duplicate/trailing reject, by-value selected decoder; implementation remains closed",
 ]
 open = [
-  "CORE-DIRECT-RETIRE-D0 | selected sibling design-only; implementation-closed",
+  "CORE-DIRECT-RETIRE-R0 | selected design stop | ProductAot successor and decoded terminal fixture required before deletion",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-D0-FORCE-HV1-FATE | implementation-closed retirement row",
   "MIR-CALL-INGRESS-SCHEMA-SELECTOR-WPRE-S0-VALUE-SEAMS | implementation-closed strict-root row",
 ]

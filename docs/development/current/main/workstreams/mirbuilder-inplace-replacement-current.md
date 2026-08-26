@@ -1,5 +1,5 @@
 ---
-Status: Design stop — CORE-DIRECT-RETIRE-D0
+Status: Design stop — CORE-DIRECT-RETIRE-R0
 Date: 2026-08-27
 Decision: MIRBUILDER-INPLACE-REPLACEMENT0
 Policy:
@@ -34,6 +34,7 @@ fixture由来のacceptance、新しい文字列authorityは作らない。
 Decision:
   CanonicalV1 Value S0は着地済み。VM fate監査はRust engineの最終撤退を受理したが、
   MirBuilder本線を優先し、WpreをbypassするCoreDirectとforce-hv1だけを先に閉じる。
+  CoreDirect D0の6行分類も着地し、R0はnamed successor待ち。
 
 Source authority + canonical issuer:
   各suite ownerがproduct AOT、semantic reference、Stage1 proof、compile-only、retireの
@@ -48,8 +49,8 @@ Fail-fast boundary:
   strict root、decoder、terminalだけを選び、malformed/conflictを別schemaで再解釈しない。
 
 Smallest next slice:
-  `CORE-DIRECT-RETIRE-D0`。六つのactive smokeをProductAot、SemanticReference、
-  HistoricalDeleteへ有限分類し、exact R0 delete setを固定する。D0はコード変更なし。
+  `CORE-DIRECT-RETIRE-R0`。substringのEXE/AOT successorとdecoded family-terminal
+  fixtureを先に固定し、その後に6本＋旧probe/fallbackを一括削除する。
 
 Non-claims:
   broad/default Rust VM、vm-hako、PyVM、HMI、typed Global、observer/loan、
@@ -237,9 +238,9 @@ widening、BodyEffect inference。Package installはtotal dispositionを要求�
    owned Value once, subset-check once, and project once. Ambient profile selection,
    temporary v1 file/readback, and production raw String parses are removed.
 
-1i. CORE-DIRECT-RETIRE-D0/R0 (D0 selected, implementation closed)
-   classify the six active smokes into ProductAot / SemanticReference /
-   HistoricalDelete. After the exhausted D0 ledger, the accepted R0 uses
+1i. CORE-DIRECT-RETIRE-D0 (landed design-only) -> CORE-DIRECT-RETIRE-R0 (design stop)
+   D0 classifies the six active smokes into ProductAot / SemanticReference /
+   HistoricalDelete. The accepted R0 uses
    execute_loaded_mir_module once for normal decoded input; requested CoreDirect
    becomes a family-level stderr terminal ([core-direct/retired|unavailable], rc=1)
    with no retry. Treat old operation tags as historical, then delete

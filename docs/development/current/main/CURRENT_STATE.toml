@@ -1,12 +1,12 @@
 date = "2026-08-27"
 development_branch_ssot = "main"
 work_mode = "design_stop"
-current_execution_row = "CORE-DIRECT-RETIRE-D0"
-current_design_stop = "design stop; classify the six active CoreDirect smokes into ProductAot, SemanticReference, or HistoricalDelete and freeze one exact no-retry R0 delete set before code changes."
-current_blocker_token = "CORE-DIRECT-RETIRE-D0: implementation_permission=false; the six-row disposition must be exhausted and the family-level tag/rc contract retained before CORE-DIRECT-RETIRE-R0 can open."
+current_execution_row = "CORE-DIRECT-RETIRE-R0"
+current_design_stop = "design stop; the six-row CoreDirect census is closed, but R0 needs the one ProductAot substring successor and one decoded-family terminal fixture before any old script or implementation deletion."
+current_blocker_token = "CORE-DIRECT-RETIRE-R0: implementation_permission=false; land exact EXE/AOT substring output/rc evidence and decoded CoreDirect retired/unavailable terminal evidence, then delete the six old paths with retry/fallback=0."
 finite_product_goal = "MIRBUILDER-FINAL-PIPELINE-v1"
 mirbuilder_north_star = "docs/development/current/main/design/mirbuilder-final-pipeline-ssot.md"
-active_lane = "MirBuilder Wpre bypass retirement — CoreDirect six-smoke disposition before no-retry removal"
+active_lane = "MirBuilder Wpre bypass retirement — CoreDirect no-retry removal after successor evidence"
 active_phase = "docs/development/current/main/investigations/mirbuilder-inplace-replacement0-task-map-2026-07-28.md"
 phase_status = "docs/development/current/main/workstreams/mirbuilder-inplace-replacement-current.md"
 method_anchor = "docs/development/current/main/design/mirbuilder-inplace-replacement-policy-ssot.md"
@@ -15,8 +15,8 @@ latest_workstream_card = "docs/development/current/main/workstreams/mirbuilder-i
 current_execution_design = "docs/development/current/main/design/vm-active-lane-retirement-ssot.md"
 latest_card = "mir-call-d1b-root-lineage-exact-target-loan-d0"
 latest_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
-latest_card_summary = "CanonicalV1 Value S0 is landed. VM-RUNTIME-RETIREMENT-FATE-D0 accepts eventual Rust engine deletion but keeps the MirBuilder Call spine first; CORE-DIRECT-RETIRE-D0 is the sole next design row."
-next_design_card = "CORE-DIRECT-RETIRE-D0"
+latest_card_summary = "CanonicalV1 Value S0 and CoreDirect six-row D0 census are landed. Rust engine deletion remains later; CORE-DIRECT-RETIRE-R0 is blocked only on its named AOT successor and decoded terminal fixture."
+next_design_card = "CORE-DIRECT-RETIRE-R0"
 next_execution_card = "none (design stop)"
 next_execution_card_path = "docs/development/current/main/investigations/mir-call-d1b-root-lineage-exact-target-loan-d0-2026-08-26.toml"
 parked_cleanup_task = "docs/development/current/main/investigations/mirbuilder-cleanup-retirement0-d0-task-map-2026-08-04.md"
@@ -31,5 +31,5 @@ optimization_return_lane = "phase-137x observe-only guardrail"
 landed_tail = [
   "2026-08-27: B0 machine census guard landed; Wpre outside/Stage1/reference design is recorded and private reference transport I0 is the next bounded row.",
   "2026-08-27: private reference-child transport I0 landed; public payload/re-entry aliases are scrubbed, private one-of transport is guarded, and CanonicalV1 Value S0 opened as the sole fast row.",
-  "2026-08-27: CanonicalV1 Value S0 landed; VM runtime fate audit accepted route-first/full-engine retirement, and selected the six-smoke CoreDirect D0 before Wpre.",
+  "2026-08-27: CanonicalV1 Value S0 and CoreDirect D0 six-row classification landed; R0 awaits exact AOT substring and decoded terminal evidence before no-retry deletion.",
 ]

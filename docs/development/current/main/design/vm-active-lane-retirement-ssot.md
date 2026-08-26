@@ -16,11 +16,12 @@ Related:
   target. Public/default route retirement, temporary reference-engine use,
   current `vm-hako` retirement, and the future independent `.hako` artifact
   are four separate lifecycle stages.
-- **Current implementation status:** `VM-RUNTIME-RETIREMENT-FATE-D0` is closed
-  as a read-only census/Decision. No route or engine deletion is authorized;
-  the MirBuilder Call spine remains the serial implementation authority.
-- **Next ordered task:** classify the six active CoreDirect smokes, then close
-  the already accepted no-retry CoreDirect retirement edge before Wpre-I0.
+- **Current implementation status:** `VM-RUNTIME-RETIREMENT-FATE-D0` and the
+  six-row `CORE-DIRECT-RETIRE-D0` census are closed as design-only decisions.
+  No route or engine deletion is authorized; the MirBuilder Call spine remains
+  the serial implementation authority.
+- **Next ordered task:** `CORE-DIRECT-RETIRE-R0` is a design stop until its one
+  ProductAot substring successor and decoded CoreDirect terminal fixture exist.
 - **Production stop line:** existing VM code or tests never authorize product
   parity, fallback, or a new compatibility route; retirement must not redirect
   incompatible inputs to another parser or executor.
@@ -51,8 +52,8 @@ Fail-fast boundary:
   A retired selector has one stable terminal and retry/fallback zero. An HMI
   capability miss fails before effects and never retries in Rust.
 Smallest next slice:
-  CORE-DIRECT-RETIRE-D0: give each of six active smokes exactly one successor
-  disposition. Implementation remains closed until that finite ledger closes.
+  CORE-DIRECT-RETIRE-R0-D0: freeze the one ProductAot successor and one decoded
+  family-terminal fixture; no implementation or old-script deletion yet.
 Non-claims:
   No broad VM/default-mir/engine deletion, no vm-hako enhancement, no HMI
   carrier selection, no PyVM archive deletion, and no llvmlite G3 approval.
@@ -117,9 +118,10 @@ removal runs before the Call spine; broad route and engine retirement wait.
 0. VM-RUNTIME-RETIREMENT-FATE-D0                         closed here
 
 1. CORE-DIRECT-RETIRE-D0/R0
-   classify six active smokes -> product AOT / semantic reference / historical
-   -> [core-direct/retired|unavailable], rc=1 -> delete raw probe, child,
-   in-proc retry, and ordinary VM fallback
+   D0 is landed: ProductAot=1, SemanticReference=0, HistoricalDelete=5.
+   R0 first lands the named EXE/AOT substring successor and a decoded-family
+   terminal fixture, then emits [core-direct/retired|unavailable], rc=1 and
+   deletes the six old scripts, raw probe, child, in-proc retry, and VM fallback
 
 2. FORCE-HV1-CALLER-MIGRATION-R0..Rn
    close 33 direct + 36 helper rows across the finite 107-file boundary
@@ -163,22 +165,23 @@ removal runs before the Call spine; broad route and engine retirement wait.
 Rows 5-10 cannot be pulled ahead of Call R7. Read-only freshness/caller
 manifests may be prepared earlier, but they grant no implementation permission.
 
-## Current blockers and exact first row
+## Current blockers and exact next row
 
-`CORE-DIRECT-RETIRE-D0` is the only selected next design row. Its six active
-owners are array out-of-bounds set, map bad key, string bounds, `charAt` bounds,
-replace success, and substring success. Each must receive exactly one of:
+`CORE-DIRECT-RETIRE-D0` is closed. Its six active owners are array out-of-bounds
+set, map bad key, string bounds, `charAt` bounds, replace success, and substring
+success. The dispositions are:
 
 ```text
-ProductAot
-SemanticReference
-HistoricalDelete
+ProductAot = core_direct_string_substring_ok_vm.sh
+SemanticReference = none
+HistoricalDelete = the other five rc-only/unsupported/incorrect-contract scripts
 ```
 
-The D0 exit is an exhausted six-row ledger and one exact R0 delete set. No
-smoke migration or code deletion occurs in D0. The R0 stop conditions are a
-need for another parser/executor, loss of the family-level tag/rc contract, or
-any retry/fallback after the CoreDirect terminal.
+`CORE-DIRECT-RETIRE-R0` remains a design stop because the ProductAot successor
+does not yet have exact output/rc evidence and the family terminal must be
+proven after decoded-family authority, not by a raw substring or second parser.
+Once those two blockers are closed, one bounded R0 may delete all six scripts
+and the old CoreDirect implementation with retry/fallback zero.
 
 ## Decision
 
